@@ -7,4 +7,4 @@ x86-architectures. The main purpose of this project is to show how different
 aspects of operating systems theory can be implemented and linked together. 
 The system is *not* aimed to be a full-featured operating system for daily use.
 
-Website: [pdf](https://hhuos.github.io)
+Check out the [website](https://hhuos.github.io)!
