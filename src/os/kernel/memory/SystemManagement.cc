@@ -188,8 +188,6 @@ uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
     uint32_t virtAddress = pagingAreaManager->alloc();
     // get physical memory for the table
     uint32_t physAddress = getPhysicalAddress(virtAddress);
-    // map the area for the table into the base page directory
-    currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, PAGE_PRESENT | PAGE_READ_WRITE);
 
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Create new page table for index %d\n", idx);
