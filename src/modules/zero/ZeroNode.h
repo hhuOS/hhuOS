@@ -1,8 +1,8 @@
 #ifndef __ZeroNode_include__
 #define __ZeroNode_include__
 
-#include "../../os/kernel/filesystem/RamFs/VirtualNode.h"
-#include <stdint.h>
+#include "kernel/filesystem/RamFs/VirtualNode.h"
+#include <cstdint>
 
 class ZeroNode : public VirtualNode {
 private:

@@ -2,7 +2,7 @@
 #define __RandomNode_include__
 
 #include "kernel/filesystem/RamFs/VirtualNode.h"
-#include <stdint.h>
+#include <cstdint>
 
 class RandomNode : public VirtualNode {
 private:
