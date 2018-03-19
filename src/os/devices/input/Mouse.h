@@ -89,6 +89,7 @@ public:
         return available;
     }
 
+    void cleanup();
 };
 
 #endif //HHUOS_MOUSE_H

@@ -137,8 +137,9 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
 
         cnt ++;
         if(cnt == 5) {
-            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be ignored)\n");
+            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
             available = false;
+            cleanup();
             return;
         }
     }
@@ -168,8 +169,9 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
 
         cnt ++;
         if(cnt == 5) {
-            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be ignored)\n");
+            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
             available = false;
+            cleanup();
             return;
         }
     }
@@ -311,6 +313,35 @@ void Mouse::trigger() {
     }
 
 
-
 }
 
+void Mouse::cleanup() {
+    //Pic::getInstance()->forbid(Pic::mouse);  TODO Bugfix - null pointer exception in ahci if forbid is being called
+    uint8_t status;
+    waitControl();
+    ctrl_port.outb(0x20);  				// lese Status Byte des KB Controllers ein
+    waitData();
+    status = data_port.inb() & 0xFC;	// deaktiviere Maus- und Tastaturinterrupts (erste beide Bits nicht setzen)
+    status |= 0x10;						// stelle zusätzlich Keyboard aus (1 heißt deaktiviert)
+    waitControl();
+    // schreibe Status-Byte zurück
+    ctrl_port.outb(0x60);
+    waitControl();
+    data_port.outb(status);
+
+    // Auxiliary Maus Gerät aktivieren
+    waitControl();
+    ctrl_port.outb(0xA7);
+
+    // Interrupts aktivieren, sodass die Maus und Keyboard Interrupts auslöst (mit 0x20 aktuellen Status abfragen 0x60 überschreiben)
+    waitControl();
+    ctrl_port.outb(0x20);				// Status Byte einlesen
+    waitData();
+    status = data_port.inb() | 1;		// Interrupts für Maus und Keyboard aktivieren (erste beide Bits setzen)
+    // Keyboard aktiviHTC Viveeren
+    status &= ~0x10;					// stelle Keyboard an
+    waitControl();
+    ctrl_port.outb(0x60);
+    waitControl();
+    data_port.outb(status);
+}
