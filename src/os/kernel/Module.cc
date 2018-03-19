@@ -10,13 +10,7 @@ int Module::finalize() {
 }
 
 uint32_t Module::getSymbol(const String &name) {
-    Optional<uint32_t> optional = localSymbols.get(name);
-
-    if (optional.isNull()) {
-        return 0x0;
-    }
-
-    return optional.value();
+    return localSymbols.get(name);
 }
 
 Module::~Module() {
@@ -29,11 +23,7 @@ bool Module::isValid() {
         return false;
     }
 
-    if (fileHeader->type != ElfType::RELOCATABLE) {
-        return false;
-    }
-
-    return true;
+    return fileHeader->type == ElfType::RELOCATABLE;
 }
 
 void Module::loadSectionNames() {
@@ -98,13 +88,14 @@ void Module::parseSymbolTable() {
 
         symbolName = &stringTable[symbolEntry->nameOffset];
 
-        Optional<uint32_t> optional = localSymbols.get(symbolName);
+        uint32_t address = localSymbols.get(symbolName);
 
-        if ( !optional.isNull() && symbolBinding == SymbolBinding::WEAK) {
+        if (symbolBinding == SymbolBinding::WEAK) {
             continue;
         }
 
         sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + symbolEntry->section * fileHeader->sectionHeaderEntrySize];
+
         localSymbols.put(symbolName, (sectionHeader->virtualAddress + symbolEntry->value));
     }
 

@@ -12,6 +12,7 @@
 #include <devices/Pit.h>
 #include <lib/libc/printf.h>
 #include <user/MouseApp/MouseApp.h>
+#include <kernel/services/DebugService.h>
 #include "kernel/threads/Scheduler.h"
 #include "user/Application.h"
 #include "user/LoopSoundApp/Loop.h"
@@ -147,7 +148,6 @@ void Application::showMenu () {
         char timeString[20];
         snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds);
 
-
         lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
 
         lfb->placeString(font, 50, 12, timeString, Colors::HHU_LIGHT_GRAY);
@@ -259,7 +259,7 @@ void Application::run() {
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
     Pit::getInstance()->setCursor(false);
-    lfb->init(800, 600, 32);
+//    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
 
     ((EventBus*) Kernel::getService(EventBus::SERVICE_NAME))->subscribe(*this, KeyEvent::TYPE);

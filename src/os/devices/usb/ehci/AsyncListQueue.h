@@ -4,6 +4,9 @@
 #include <stdint.h>
 #include "lib/Bits.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class AsyncListQueue {
 
 public:

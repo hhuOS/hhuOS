@@ -31,6 +31,9 @@
 #include <kernel/services/StorageService.h>
 #include <lib/util/ArrayList.h>
 
+/**
+ * @author Filip Krakowski
+ */
 class Pci {
 
 public:

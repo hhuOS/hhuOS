@@ -8,6 +8,9 @@
 #include "lib/deprecated/Queue.h"
 #include "user/game/GameObject.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class Game {
 
   private:

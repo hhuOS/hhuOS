@@ -13,6 +13,9 @@
 
 class LinearFrameBuffer;
 
+/**
+ * @author Filip Krakowski
+ */
 class EventBus : public Thread, public KernelService {
 
 public:
@@ -25,10 +28,27 @@ public:
 
     ~EventBus() = default;
 
+    /**
+     * Subscribes to a certain type of Event.
+     *
+     * @param receiver The Receiver
+     * @param type The Event type
+     */
     void subscribe(Receiver &receiver, uint32_t type);
 
+    /**
+     * Unsubscribes from a certain type of Event.
+     *
+     * @param receiver The Receiver
+     * @param type The Event type
+     */
     void unsubscribe(const Receiver &receiver, uint32_t type);
 
+    /**
+     * Publishes an Event.
+     *
+     * @param event The Event
+     */
     void publish(const Event &event);
 
     void run () override;

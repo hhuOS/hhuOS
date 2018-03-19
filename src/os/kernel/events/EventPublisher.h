@@ -7,6 +7,9 @@
 #include "kernel/events/Receiver.h"
 #include "kernel/Spinlock.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class EventPublisher : public Thread {
 
 public:

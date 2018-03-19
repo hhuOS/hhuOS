@@ -28,6 +28,9 @@
 #define     UHCI_TRACE(...)
 #endif
 
+/**
+ * @author Filip Krakowski
+ */
 class Uhci : public ISR {
 
     struct FrameList {

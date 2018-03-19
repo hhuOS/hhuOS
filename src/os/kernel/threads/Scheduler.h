@@ -24,10 +24,9 @@ private:
     Scheduler (const Scheduler &copy); // Verhindere Kopieren
      
 private:
-    Queue<Thread> readyQueue;   // auf die CPU wartende Threads
-    
-    // Scheduler wird evt. von einer Unterbrechung vom Zeitgeber gerufen,
-    // bevor er initialisiert wurde
+
+    Queue<Thread> readyQueue;
+
     bool  initialized;
     
     static Scheduler *scheduler;
@@ -41,46 +40,82 @@ public:
     unsigned int *currentRegs;
     unsigned int *nextRegs;
 
-    // Scheduler initialisiert?
-    // Zeitgeber-Unterbrechung kommt evt. bevor der Scheduler fertig
-    // intiialisiert wurde!
+    /**
+     * Inidcates if the Scheduler has been initialized.
+     *
+     * @return true, if the Scheduler has been initialized, false else
+     */
     bool isInitialized() { return initialized; }
     
-    // Scheduler starten
+    /**
+     * Starts the Scheduler.
+     */
     void schedule ();
 
+    /**
+     * Switches to the given Thread.
+     *
+     * @param next A Thread.
+     */
     void dispatch(Thread& next);
     
-    // Thread in ReadyQueue eintragen
+    /**
+     * Registers a new Thread.
+     *
+     * @param that A Thread.
+     */
     void ready (Thread& that);
     
-    // Thread terminiert sich selbst
+    /**
+     * Terminates the current Thread.
+     */
     void exit ();
 
-    // Thread mit 'Gewalt' terminieren
+    /**
+     * Kills a specific Thread.
+     *
+     * @param that A Thread
+     */
     void kill (Thread& that);
 
-    // CPU freiwillig abgeben und Auswahl des naechsten Threads
+    /**
+     * Switches to the next Thread.
+     */
     void yield ();
 
-    // Wartet ein Thread auf CPU-Zuteilung?
+    /**
+     * Indicates if a Thread is waiting for execution.
+     *
+     * @return true, if a Thread is waiting, false else
+     */
     bool isThreadWaiting () {
         return readyQueue.count() > 0;
     }
 
-    // Aktuellen Thread blockieren, weil er auf eine Ressource wartet.
-    // Scheduler soll auf naechsten Thread in readyQueue umschalten
+    /**
+     * Blocks the current Thread.
+     */
     void block ();
     
-    // Thread 'that' deblockieren -> in readyQueue einfuegen
+    /**
+     * Unblocks a specific Thread.
+     *
+     * @param that A Thread
+     */
     void deblock (Thread &that);
 
-    // CPU soll aktuellem Thread entzogen werden (Vorbereitungen)
-    // Wird von Unterbrechungsroutine des PIT gerufen
-    bool preparePreemption();
-
+    /**
+     * Returns the active Thread.
+     *
+     * @return The active Thread
+     */
     Thread *active() { return currentThread; }
 
+    /**
+     * Returns an instance of Scheduler.
+     *
+     * @return An instance of Scheduler
+     */
     static Scheduler* getInstance() {
     	if(scheduler == nullptr) {
     		scheduler = new Scheduler();

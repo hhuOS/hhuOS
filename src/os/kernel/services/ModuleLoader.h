@@ -6,6 +6,9 @@
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class ModuleLoader : public KernelService {
 
 public:
@@ -22,6 +25,14 @@ public:
 
     ModuleLoader(const ModuleLoader &other) = delete;
 
+    ModuleLoader &operator=(const ModuleLoader &other) = delete;
+
+    /**
+     * Loads a new module into memory and initializes it.
+     *
+     * @param file The module's file
+     * @return A Status indicating if the operation succeeded
+     */
     Status load(File *file);
 
     static constexpr const char* SERVICE_NAME = "ModuleLoader";

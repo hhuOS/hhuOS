@@ -15,6 +15,9 @@
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/services/TimeService.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class AsciimationApp : public Thread {
 
 private:

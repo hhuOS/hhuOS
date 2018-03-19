@@ -1,6 +1,5 @@
 #include "kernel/filesystem/RamFs/RamFsDriver.h"
 #include "kernel/services/FileSystem.h"
-#include "Zero.h"
 #include "ZeroNode.h"
 
 extern "C" {

@@ -1,3 +1,7 @@
+#include <kernel/services/TimeService.h>
+#include <kernel/Kernel.h>
+#include <lib/libc/snprintf.h>
+#include <kernel/services/DebugService.h>
 #include "BugDefender.h"
 #include "user/BugDefender/sprites/heart.cc"
 #include "lib/Colors.h"
@@ -89,6 +93,16 @@ void BugDefender::drawInfo(LinearFrameBuffer* g2d){
 
 void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
+    Rtc *rtc = ((TimeService *) Kernel::getService(TimeService::SERVICE_NAME))->getRTC();
+
+    Rtc::date date = rtc->getCurrentDate();
+
+    char timeString[20];
+
+    snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds);
+
+    g2d->placeString(sun_font_12x22, 50, 5, timeString, Colors::HHU_LIGHT_GRAY);
+
     g2d->placeString(sun_font_12x22, 50, 15, "Bug Defender", Colors::WHITE);
 
     g2d->placeString(sun_font_8x16, 50, 35, "1st / 2nd Row   -   40 Points", Colors::WHITE);
@@ -97,6 +111,7 @@ void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
     g2d->placeString(pearl_font_8x8, 50, 85, "Please press Enter", Colors::WHITE);
 
+    ((DebugService*) Kernel::getService(DebugService::SERVICE_NAME))->printPic();
 }
 
 void BugDefender::showGameOver(LinearFrameBuffer* g2d){

@@ -3,6 +3,9 @@
 
 #include "kernel/events/Event.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbEvent : public Event {
 
 public:

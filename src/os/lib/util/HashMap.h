@@ -15,6 +15,9 @@ extern "C" {
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template<typename K, typename V>
     class HashMap : public Map<K, V> {
 

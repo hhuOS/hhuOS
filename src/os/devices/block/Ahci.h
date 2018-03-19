@@ -1,16 +1,3 @@
-/*****************************************************************************
- *                                                                           *
- *                                  A H C I                                  *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Advanced Host Controller Interface                       *
- *                  Should be located at 0xFEBF1000 in our case              *
- *                                                                           *
- * Credits:         http://wiki.osdev.org/AHCI                               *
- *                                                                           *
- * Autor:           Filip Krakowski, 18.10.2017                              *
- *****************************************************************************/
-
 #ifndef __AHCI_include__
 #define __AHCI_include__
 
@@ -32,6 +19,9 @@
 #define     AHCI_TRACE(...)
 #endif
 
+/**
+ * @author Filip Krakowski
+ */
 class Ahci : public ISR {
 
     typedef enum {
@@ -481,35 +471,112 @@ class Ahci : public ISR {
     static const uint32_t MAX_CMD_SLOTS     = 32;
 
 
+    /**
+     *Scans all implemented ports for devices.
+     */
     void scan();
+
+    /**
+     * Determines a ports type.
+     *
+     * @param port the port to check.
+     * @return the ports type.
+     */
     uint8_t checkType(HbaPort* port);
+
+    /**
+     * Finds an empty command slot for a specified port.
+     *
+     * @param port   the port.
+     * @return the next free command slots index. -1 if no slot is found.
+     */
     int findCmdSlot(HbaPort *port);
 
+    /**
+     * Rebases a specified port.
+     *
+     * @param port   the port to rebase.
+     * @param portno   the ports number.
+     */
     void rebasePort(HbaPort *port, int portNumber);
+
+    /**
+     * Stops a specific port.
+     *
+     * @param port the port to stop.
+     */
     void stopCommand(HbaPort *port);
+
+    /**
+     * Starts a specific port.
+     *
+     * @param port the port to stop.
+     */
     void startCommand(HbaPort *port);
 
     void identifyDevice(HbaPort *port);
 
+    /**
+     * Stops all implemented ports.
+     */
     void stopAll();
+
+    /**
+     * Starts all implemented ports.
+     */
     void startAll();
 
+    /**
+     * Resets all implemented ports.
+     */
     void resetAll();
 
+    /**
+     * Rebases all implemented ports.
+     */
     void rebaseAll();
 
+    /**
+     * Resets a single HBA port.
+     *
+     * @param port the port to reset.
+     */
     void resetPort(HbaPort *port);
 
+    /**
+     * Checks if a port is currently running.
+     *
+     * @param port the HBA port to check.
+     * @return true if the port is running, else false.
+     */
     bool isActive(HbaPort *port);
 
+    /**
+     * Checks if a port at a specified location is implemented.
+     *
+     * @param portNumber the ports location.
+     * @return true if the port is implemented, else false.
+     */
     bool isPortImplemented(uint16_t portNumber);
 
+    /**
+     * Reads the HBAs configuration.
+     */
     void readConfig();
 
+    /**
+     * Performs a BIOS handoff if the HBA supports it.
+     */
     void biosHandoff();
 
+    /**
+     * Sets the HBA into AHCI mode.
+     */
     void enableAhci();
 
+    /**
+     * Resets the HBA.
+     */
     void reset();
 
     HbaPort *sataDevices[MAX_DEVICES];
@@ -536,9 +603,35 @@ class Ahci : public ISR {
 
     void setup(const Pci::Device &dev);
 
+    /**
+    * Reads data from a specified device.
+    *
+    * @param device   the device number.
+    * @param startl   the start sector (low).
+    * @param starth   the start sector (high).
+    * @param count    the number of sectors to read.
+    * @param buf      the buffer data will be written to.
+    * @return true if the operation succeeded, else false.
+    */
     bool read(uint8_t device, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
+
+    /**
+     * Writes data to a specified device.
+     *
+     * @param device   the device number.
+     * @param startl   the start sector (low).
+     * @param starth   the start sector (high).
+     * @param count    the number of sectors to write.
+     * @param buf      the data that should be written.
+     * @return true if the operation succeeded, else false.
+     */
     bool write(uint8_t device, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
 
+    /**
+     * Returns the number of devices detected by this AHCI.
+     *
+     * @return The number of devices
+     */
     uint8_t getNumDevices();
 
     void plugin();

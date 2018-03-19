@@ -1,6 +1,9 @@
 #ifndef __Optional_include__
 #define __Optional_include__
 
+/**
+ * @author Filip Krakowski
+ */
 template <typename T>
 class Optional {
 

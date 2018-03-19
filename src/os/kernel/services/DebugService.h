@@ -5,8 +5,9 @@
 #include "kernel/services/TimeService.h"
 
 #include <cstdint>
-#include <cstddef>
+
 #include <devices/input/Keyboard.h>
+#include "kernel/interrupts/Pic.h"
 
 
 class DebugService : public KernelService {
@@ -19,6 +20,8 @@ public:
 
     void dumpMemoryList();
 
+    void printPic();
+
     static constexpr char* SERVICE_NAME = "DebugService";
 
 private:
@@ -28,6 +31,10 @@ private:
     Keyboard *keyboard;
 
     TimeService *timeService;
+
+    LinearFrameBuffer *lfb;
+
+    Pic *pic;
 };
 
 

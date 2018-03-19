@@ -37,6 +37,9 @@
 #define     EHCI_TRACE(...)
 #endif
 
+/**
+ * @author Filip Krakowski
+ */
 class Ehci : public ISR, public KernelService, public Receiver {
 
     typedef struct tagFR_LIST {
@@ -103,16 +106,35 @@ public:
 
     Ehci();
 
+    /**
+     * Sets up this host controller.
+     *
+     * @param dev the PciDevice representing this host controller
+     */
     void setup(const Pci::Device &dev);
 
     void plugin();
 
     void trigger();
 
+    /**
+     * Indicates how many devices were found by the host controller.
+     *
+     * @return the number of devices detected by the host controller
+     */
     uint32_t  getNumDevices();
 
+    /**
+     * Returns the mass storage device at the specified index.
+     *
+     * @param index array index
+     * @return a mass storage device
+     */
     UsbMassStorage *getDevice(uint32_t  index);
 
+    /**
+     * Prints all registers and ports belonging to this host controller.
+     */
     void printSummary();
 
     void printPciStatus();
@@ -152,27 +174,82 @@ private:
 
     bool transferCompleted = false;
 
+    /**
+     * Reads configuration data from the host controllers registers.
+     */
     void readConfig();
 
+    /**
+     * Resets the host controller.
+     *
+     * @return a status indicating the result
+     */
     Ehci::EhciStatus reset();
 
+    /**
+     * Performs a handoff, if supported by the BIOS and host controller.
+     */
     void handoff();
 
+    /**
+     * Starts the host controller.
+     */
     void start();
 
+    /**
+     * Stops the host controller.
+     *
+     * @return a status indicating the result
+     */
     Ehci::EhciStatus stop();
 
+    /**
+     * Starts all ports associated with this host controller.
+     */
     void startPorts();
 
+    /**
+     * Resets the specified port. This method will block for at least 100ms.
+     *
+     * @param port the port to reset
+     */
     void resetPort(uint8_t portNumber);
 
+    /**
+     * Enables all interrupts.
+     */
     void enableInterrupts();
+
+    /**
+     * Disables all interrupts.
+     */
     void disableInterrupts();
 
+    /**
+     * Sets up the periodic schedule.
+     */
     void setupPeriodicSchedule();
+
+    /**
+     * Sets up the asynchronous schedule.
+     */
     void setupAsyncSchedule();
+
+    /**
+     * Enables the asynchronous schedule.
+     */
     void enableAsyncSchedule();
+
+    /**
+     * Enables the periodic schedule.
+     */
     void enablePeriodicSchedule();
+
+    /**
+     * Sets up a usb mass storage device.
+     *
+     * @param portNumber the devices port number
+     */
     void setupUsbDevice(uint8_t portNumber);
 
     void acknowledgeAll();

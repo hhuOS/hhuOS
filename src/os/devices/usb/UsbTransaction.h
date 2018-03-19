@@ -4,6 +4,9 @@
 #include <lib/LinkedList.h>
 #include "devices/usb/ehci/AsyncListQueue.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbTransaction {
 
 public:

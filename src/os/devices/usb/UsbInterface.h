@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <lib/LinkedList.h>
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbInterface {
 
 public:

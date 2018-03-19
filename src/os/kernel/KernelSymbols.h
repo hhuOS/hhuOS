@@ -7,6 +7,9 @@
 
 #define KERNEL_LOAD_SYMBOLS 0
 
+/**
+ * @author Filip Krakowski
+ */
 class KernelSymbols {
 
 public:
@@ -15,12 +18,32 @@ public:
 
     KernelSymbols(const KernelSymbols &other) = delete;
 
+    /**
+     * Searches the memory address for a given symbol.
+     *
+     * @param name The symbol
+     * @return The symbol's address
+     */
     static uint32_t get(const String &name);
 
+    /**
+     * Returns the symbol name for a given address.
+     *
+     * @param eip The address
+     * @return The symbols name
+     */
     static String get(uint32_t eip);
 
+    /**
+     * Loads all kernel symbols and saves them inside a Map.
+     */
     static void initialize();
 
+    /**
+     * Inidicates if all kernel symbols have been loaded.
+     *
+     * @return true, if all kernel symbols have been loaded, false else
+     */
     static bool isInitialized();
 
 private:

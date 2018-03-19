@@ -3,6 +3,9 @@
 
 #include "user/game/Vector2.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class RectCollider {
 
   private:

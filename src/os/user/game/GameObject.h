@@ -5,6 +5,9 @@
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "user/game/RectCollider.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class GameObject {
 
   protected:

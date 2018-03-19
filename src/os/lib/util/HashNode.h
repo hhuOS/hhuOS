@@ -3,6 +3,9 @@
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template <typename K, typename V>
     class HashNode {
     public:

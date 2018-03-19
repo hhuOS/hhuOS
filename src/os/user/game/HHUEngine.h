@@ -5,6 +5,9 @@
 #include "lib/Random.h"
 #include "user/game/Game.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class HHUEngine {
 
   private:

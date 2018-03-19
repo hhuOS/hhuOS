@@ -8,6 +8,9 @@
 
 using namespace elfconstants;
 
+/**
+ * @author Filip Krakowski
+ */
 class Elf {
 
 public:

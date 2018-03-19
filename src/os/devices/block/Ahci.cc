@@ -1,21 +1,7 @@
-/*****************************************************************************
-*                                                                           *
-*                                  A H C I                                  *
-*                                                                           *
-*---------------------------------------------------------------------------*
-* Beschreibung:    Advanced Host Controller Interface                       *
-*                                                                           *
-* Credits:         http://wiki.osdev.org/AHCI                               *
-*                                                                           *
-* Autor:           Filip Krakowski, 18.10.2017                              *
-*****************************************************************************/
-
 #include <kernel/Kernel.h>
 #include "devices/block/Ahci.h"
 
 #include "../../kernel/memory/SystemManagement.h"
-
-
 
 extern "C" {
     #include "lib/libc/string.h"
@@ -79,9 +65,6 @@ void Ahci::setup(const Pci::Device &dev) {
     abar->is = abar->is; // @suppress("Assignment to itself")
 }
 
-/**
-    Reads the HBAs configuration.
-*/
 void Ahci::readConfig() {
     numPorts    = (abar->cap & ((1 << 5) - 1)) + 1;
     numCmdSlots = ((abar->cap >> 8) & ((1 << 5) - 1)) + 1;
@@ -92,9 +75,6 @@ void Ahci::readConfig() {
     AHCI_TRACE("HBA Capabilities = %x\n", abar->cap);
 }
 
-/**
-    Resets the HBA.
-*/
 void Ahci::reset() {
     AHCI_TRACE("Resetting Host-Bus-Adapter\n");
 
@@ -121,9 +101,6 @@ void Ahci::reset() {
     // }
 }
 
-/**
-    Sets the HBA into AHCI mode.
-*/
 void Ahci::enableAhci() {
     if ( !(abar->cap & HBA_CAP_SAM) ) {
         AHCI_TRACE("Setting HBA to AHCI mode\n");
@@ -131,9 +108,6 @@ void Ahci::enableAhci() {
     }
 }
 
-/**
-    Scans all implemented ports for devices.
-*/
 void Ahci::scan() {
 
     for (uint32_t i = 0; i < numPorts; i++) {
@@ -174,32 +148,15 @@ void Ahci::scan() {
     AHCI_TRACE("Finished scanning all implemented ports\n");
 }
 
-/**
-    Checks if a port is currently running.
-
-    @param port the HBA port to check.
-    @return true if the port is running, else false.
-*/
 bool Ahci::isActive(HbaPort* port) {
     return (port->cmd & (HBA_PxCMD_ST | HBA_PxCMD_CR | HBA_PxCMD_FRE | HBA_PxCMD_FR)) ==
         (HBA_PxCMD_ST | HBA_PxCMD_CR | HBA_PxCMD_FRE | HBA_PxCMD_FR);
 }
 
-/**
-    Checks if a port at a specified location is implemented.
-
-    @param portNumber the ports location.
-    @return true if the port is implemented, else false.
-*/
 bool Ahci::isPortImplemented(uint16_t portNumber) {
     return (pi & (1 << portNumber));
 }
 
-/**
-    Resets a single HBA port.
-
-    @param port the port to reset.
-*/
 void Ahci::resetPort(HbaPort *port) {
 
     AHCI_TRACE("Resetting port...\n");
@@ -252,9 +209,6 @@ void Ahci::resetPort(HbaPort *port) {
     port->is    = port->is; // @suppress("Assignment to itself")
 }
 
-/**
-    Resets all implemented ports.
-*/
 void Ahci::resetAll() {
     for (uint32_t i = 0; i < numPorts; i++) {
         if ( isPortImplemented(i) ) {
@@ -263,9 +217,6 @@ void Ahci::resetAll() {
     }
 }
 
-/**
-    Rebases all implemented ports.
-*/
 void Ahci::rebaseAll() {
     for (uint32_t i = 0; i < numPorts; i++) {
         if ( isPortImplemented(i) ) {
@@ -274,12 +225,6 @@ void Ahci::rebaseAll() {
     }
 }
 
-/**
-    Determines a ports type.
-
-    @param port the port to check.
-    @return the ports type.
-*/
 uint8_t Ahci::checkType(HbaPort *port) {
 
     switch (port->sig) {
@@ -296,18 +241,11 @@ uint8_t Ahci::checkType(HbaPort *port) {
     return AHCI_DEV_NULL;
 }
 
-/**
-    Returns the number of registered SATA devices.
 
-    @return the number of registered SATA devices.
-*/
 uint8_t Ahci::getNumDevices() {
     return numDevices;
 }
 
-/**
-    Performs a BIOS handoff if the HBA supports it.
-*/
 void Ahci::biosHandoff() {
 
     if ( !(abar->cap2 && HBA_CAP2_BOH) ) {
@@ -331,16 +269,7 @@ void Ahci::biosHandoff() {
     }
 }
 
-/**
-    Reads data from a specified device.
 
-    @param device   the device number.
-    @param startl   the start sector (low).
-    @param starth   the start sector (high).
-    @param count    the number of sectors to read.
-    @param buf      the buffer data will be written to.
-    @return true if the operation succeeded, else false.
-*/
 bool Ahci::read(uint8_t device, uint32_t startl, uint32_t starth,
     uint32_t count, uint16_t *buf) {
 
@@ -353,16 +282,7 @@ bool Ahci::read(uint8_t device, uint32_t startl, uint32_t starth,
     return ahci_rw(sataDevices[device], startl, starth, count, buf, ATA_CMD_READ_DMA_EX, device);
 }
 
-/**
-    Writes data to a specified device.
 
-    @param device   the device number.
-    @param startl   the start sector (low).
-    @param starth   the start sector (high).
-    @param count    the number of sectors to write.
-    @param buf      the data that should be written.
-    @return true if the operation succeeded, else false.
-*/
 bool Ahci::write(uint8_t device, uint32_t startl, uint32_t starth,
     uint32_t count, uint16_t *buf) {
 
@@ -593,12 +513,6 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
     return true;
 }
 
-/**
-    Finds an empty command slot for a specified port.
-
-    @param port   the port.
-    @return the next free command slots index. -1 if no slot is found.
-*/
 int Ahci::findCmdSlot(HbaPort *port) {
     uint32_t slots = (port->sact | port->ci);
 
@@ -611,12 +525,6 @@ int Ahci::findCmdSlot(HbaPort *port) {
     return -1;
 }
 
-/**
-    Rebases a specified port.
-
-    @param port   the port to rebase.
-    @param portno   the ports number.
-*/
 void Ahci::rebasePort(HbaPort *port, int portno) {
 
     AHCI_TRACE("Rebasing port %d\n", portno);
@@ -668,9 +576,6 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
     port->is = port->is; // @suppress("Assignment to itself")
 }
 
-/**
-    Starts all implemented ports.
-*/
 void Ahci::startAll() {
     for (uint32_t i = 0; i <= numPorts; i++) {
         if ( isPortImplemented(i) ) {
@@ -680,20 +585,12 @@ void Ahci::startAll() {
     }
 }
 
-/**
-    Starts a specific port.
-
-    @param port the port to start.
-*/
 void Ahci::startCommand(HbaPort *port) {
 	while (port->cmd & (HBA_PxCMD_CR | HBA_PxCMD_FR));
 
     port->cmd |= HBA_PxCMD_ST | HBA_PxCMD_FRE;
 }
 
-/**
-    Stops all implemented ports.
-*/
 void Ahci::stopAll() {
     for (uint32_t i = 0; i < numPorts; i++) {
         if ( isPortImplemented(i) ) {
@@ -703,11 +600,7 @@ void Ahci::stopAll() {
     }
 }
 
-/**
-    Stops a specific port.
 
-    @param port the port to stop.
-*/
 void Ahci::stopCommand(HbaPort *port) {
 	port->cmd &= ~(HBA_PxCMD_ST | HBA_PxCMD_FRE);
 
