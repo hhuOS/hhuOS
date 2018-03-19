@@ -205,9 +205,6 @@ int32_t main() {
     fs->init();
     printfUpdateStdout();
 
-    updateBootScreen(70, "Loading Kernel Symbols");
-    KernelSymbols::initialize();
-
     updateBootScreen(85, "Starting Threads");
     idleThread = new IdleThread();
     app = new Application();

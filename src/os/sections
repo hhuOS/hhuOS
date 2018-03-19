@@ -57,6 +57,11 @@ SECTIONS
       ___BSS_END__ = .;
     }
 
+    .strtab : AT(ADDR(.strtab) - 0xC0000000)
+    {
+      *(".strtab")
+    }
+
 /*
    /DISCARD/ :
     {

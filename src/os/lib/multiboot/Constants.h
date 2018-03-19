@@ -10,25 +10,16 @@ namespace Multiboot {
     static const uint32_t FRAMEBUFFER_TYPE_EGA_TEXT               = 2;
 
     static const uint32_t MULTIBOOT_INFO_MEMORY                   = 0x00000001;
-
     static const uint32_t MULTIBOOT_INFO_BOOTDEV                  = 0x00000002;
-
     static const uint32_t MULTIBOOT_INFO_CMDLINE                  = 0x00000004;
     static const uint32_t MULTIBOOT_INFO_MODS                     = 0x00000008;
-
     static const uint32_t MULTIBOOT_INFO_AOUT_SYMS                = 0x00000010;
     static const uint32_t MULTIBOOT_INFO_ELF_SHDR                 = 0x00000020;
-
     static const uint32_t MULTIBOOT_INFO_MEM_MAP                  = 0x00000040;
-
     static const uint32_t MULTIBOOT_INFO_DRIVE_INFO               = 0x00000080;
-
     static const uint32_t MULTIBOOT_INFO_CONFIG_TABLE             = 0x00000100;
-
     static const uint32_t MULTIBOOT_INFO_BOOT_LOADER_NAME         = 0x00000200;
-
     static const uint32_t MULTIBOOT_INFO_APM_TABLE                = 0x00000400;
-
     static const uint32_t MULTIBOOT_INFO_VBE_INFO                 = 0x00000800;
     static const uint32_t MULTIBOOT_INFO_FRAMEBUFFER_INFO         = 0x00001000;
 
@@ -38,20 +29,20 @@ namespace Multiboot {
     static const uint32_t  MULTIBOOT_MEMORY_NVS                   = 4;
     static const uint32_t  MULTIBOOT_MEMORY_BADRAM                = 5;
 
-    struct AoutSymbolTable
+    struct AoutInfo
     {
-        uint32_t tabsize;
+        uint32_t tabSize;
         uint32_t strsize;
-        uint32_t addr;
+        uint32_t address;
         uint32_t reserved;
     };
 
-    struct ElfSectionHeaderTable
+    struct ElfInfo
     {
-        uint32_t num;
-        uint32_t size;
-        uint32_t addr;
-        uint32_t shndx;
+        uint32_t sectionCount;
+        uint32_t sectionSize;
+        uint32_t address;
+        uint32_t stringSectionIndex;
     };
 
     struct Info {
@@ -60,83 +51,81 @@ namespace Multiboot {
         uint32_t flags;
 
         /* Available memory from BIOS */
-        uint32_t mem_lower;
-        uint32_t mem_upper;
+        uint32_t memoryLower;
+        uint32_t memoryUpper;
 
         /* "root" partition */
-        uint32_t boot_device;
+        uint32_t bootDevice;
 
         /* Kernel command line */
-        uint32_t cmdline;
+        uint32_t commandLine;
 
         /* Boot-Module list */
-        uint32_t mods_count;
-        uint32_t mods_addr;
+        uint32_t moduleCount;
+        uint32_t moduleAddress;
 
         union {
-            AoutSymbolTable aout_sym;
-            ElfSectionHeaderTable elf_sec;
-        } u;
+            AoutInfo aout;
+            ElfInfo elf;
+        } symbols;
 
         /* Memory Mapping buffer */
-        uint32_t mmap_length;
-        uint32_t mmap_addr;
+        uint32_t memoryMapLength;
+        uint32_t memoryMapAddress;
 
         /* Drive Info buffer */
-        uint32_t drives_length;
-        uint32_t drives_addr;
+        uint32_t driveLength;
+        uint32_t driveAddress;
 
         /* ROM configuration table */
-        uint32_t config_table;
+        uint32_t configTable;
 
         /* Boot Loader Name */
-        uint32_t boot_loader_name;
+        uint32_t bootloaderName;
 
         /* APM table */
-        uint32_t apm_table;
+        uint32_t apmTable;
 
         /* Video */
-        uint32_t vbe_control_info;
-        uint32_t vbe_mode_info;
-        uint16_t vbe_mode;
-        uint16_t vbe_interface_seg;
-        uint16_t vbe_interface_off;
-        uint16_t vbe_interface_len;
+        uint32_t vbeControlInfo;
+        uint32_t vbeModeInfo;
+        uint16_t vbeMode;
+        uint16_t vbeInterfaceSegment;
+        uint16_t vbeInterfaceOffset;
+        uint16_t vbeInterfaceLength;
 
-        uint64_t framebuffer_addr;
-        uint32_t framebuffer_pitch;
-        uint32_t framebuffer_width;
-        uint32_t framebuffer_height;
-        uint8_t framebuffer_bpp;
-        uint8_t framebuffer_type;
+        uint64_t framebufferAddress;
+        uint32_t framebufferPitch;
+        uint32_t framebufferWidth;
+        uint32_t framebufferHeigth;
+        uint8_t  framebufferBpp;
+        uint8_t  framebufferType;
 
         union {
 
-            struct
-            {
-                uint32_t framebuffer_palette_addr;
-                uint16_t framebuffer_palette_num_colors;
-            };
+            struct {
+                uint32_t address;
+                uint16_t colors;
+            } palette;
 
-            struct
-            {
-                uint8_t framebuffer_red_field_position;
-                uint8_t framebuffer_red_mask_size;
-                uint8_t framebuffer_green_field_position;
-                uint8_t framebuffer_green_mask_size;
-                uint8_t framebuffer_blue_field_position;
-                uint8_t framebuffer_blue_mask_size;
-            };
-        };
+            struct {
+                uint8_t redFieldPosition;
+                uint8_t redMaskSize;
+                uint8_t greenFieldPosition;
+                uint8_t greenMaskSize;
+                uint8_t blueFieldPosition;
+                uint8_t blueMaskSize;
+            } color;
+
+        } framebuffer;
     };
 
     struct MemoryMapEntry {
         uint32_t size;
-        uint64_t addr;
-        uint64_t len;
+        uint64_t address;
+        uint64_t length;
         uint32_t type;
     } __attribute__((packed));
-
 }
 
 

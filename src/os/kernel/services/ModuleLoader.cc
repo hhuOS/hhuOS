@@ -1,7 +1,7 @@
 #include "lib/elf/ElfConstants.h"
 #include "ModuleLoader.h"
 
-using namespace elfconstants;
+using namespace ElfConstants;
 
 ModuleLoader::Status ModuleLoader::load(File *file) {
 
