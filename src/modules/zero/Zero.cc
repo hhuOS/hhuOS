@@ -1,6 +1,5 @@
 #include "kernel/filesystem/RamFs/RamFsDriver.h"
 #include "kernel/services/FileSystem.h"
-#include "Zero.h"
 #include "ZeroNode.h"
 
 extern "C" {
@@ -9,7 +8,9 @@ extern "C" {
 }
 
 int module_init() {
+
     FileSystem *fileSystem = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
+
     return fileSystem->addVirtualNode("/dev", new ZeroNode());
 }
 

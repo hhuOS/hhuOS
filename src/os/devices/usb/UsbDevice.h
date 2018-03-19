@@ -12,6 +12,9 @@
 
 #define DEBUG_TRANSACTION 0
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbDevice {
 
 public:

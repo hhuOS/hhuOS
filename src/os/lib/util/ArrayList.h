@@ -11,6 +11,9 @@ extern "C" {
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template <typename T>
     class ArrayList : public List<T> {
 

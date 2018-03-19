@@ -5,6 +5,9 @@
 #include "lib/elf/Elf.h"
 #include "lib/String.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class Module {
 
 public:
@@ -15,12 +18,33 @@ public:
 
     ~Module();
 
+    /**
+     * Calls this Module's init() function.
+     *
+     * @return The value returned by init()
+     */
     int initialize();
 
+    /**
+     * Calls this Module's fini() function.
+     *
+     * @return  The value returned by fini()
+     */
     int finalize();
 
+    /**
+     * Returns the address for a given symbol.
+     *
+     * @param name The symbol's name
+     * @return The symbol's address
+     */
     uint32_t getSymbol(const String &name);
 
+    /**
+     * Indicates if this Module has a valid header.
+     *
+     * @return true, if the Module's header is valid, false else
+     */
     bool isValid();
 
 private:
@@ -37,14 +61,16 @@ private:
 
     String name;
 
-    HashMap<String, uint32_t> localSymbols;
+    Util::HashMap<String, uint32_t> localSymbols;
 
-    HashMap<String, SectionHeader*> sections;
+    Util::HashMap<String, SectionHeader*> sections;
 
     SymbolEntry *symbolTable = nullptr;
+
     uint32_t symbolTableSize;
 
     char *stringTable = nullptr;
+
     uint32_t stringTableSize;
 
     char *sectionNames;

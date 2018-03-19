@@ -1,4 +1,5 @@
 #include <kernel/Kernel.h>
+#include <kernel/interrupts/Pic.h>
 
 #include "DebugService.h"
 
@@ -6,11 +7,14 @@
 #include "lib/libc/printf.h"
 #include "SoundService.h"
 #include "InputService.h"
+#include "GraphicsService.h"
 
 
 DebugService::DebugService() {
 	timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
     keyboard = ((InputService*) Kernel::getService(InputService::SERVICE_NAME))->getKeyboard();
+    lfb = ((GraphicsService*) Kernel::getService(GraphicsService::SERVICE_NAME))->getLinearFrameBuffer();
+    pic = Pic::getInstance();
 }
 
 void DebugService::dumpMemory(uint32_t address, size_t lines) {
@@ -62,4 +66,18 @@ void DebugService::dumpMemoryList() {
 
     timeService->msleep(500);
 
+}
+
+void DebugService::printPic() {
+
+    for (uint8_t i = 0; i < 16; i++) {
+
+        bool status = pic->status(i);
+
+        if (status) {
+            lfb->placeFilledRect(10 + 5 * i, 85, 2, 5, Colors::RED);
+        } else {
+            lfb->placeFilledRect(10 + 5 * i, 85, 2, 5, Colors::GREEN);
+        }
+    }
 }

@@ -1,6 +1,6 @@
 #include "ElfConstants.h"
 
-using namespace elfconstants;
+using namespace ElfConstants;
 
 bool FileHeader::isValid() {
     if (magic[0] != 0x7F ||

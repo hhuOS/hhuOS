@@ -6,7 +6,9 @@
 #include <kernel/KernelSymbols.h>
 #include "Elf.h"
 
-
+/**
+ * @author Filip Krakowski
+ */
 class ElfLoader {
 
 public:

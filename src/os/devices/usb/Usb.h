@@ -24,6 +24,9 @@
 #define     USB_TRACE(...)
 #endif
 
+/**
+ * @author Filip Krakowski
+ */
 class Usb {
 
 public:

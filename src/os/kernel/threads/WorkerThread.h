@@ -3,6 +3,9 @@
 
 #include "Thread.h"
 
+/**
+ * @author Filip Krakowski
+ */
 template <typename T>
 class WorkerThread : public Thread {
 

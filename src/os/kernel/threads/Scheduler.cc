@@ -135,6 +135,7 @@ void Scheduler::yield () {
     Cpu::disableInterrupts();
 
     if ( isThreadWaiting() == false) {
+        Cpu::enableInterrupts();
         return ;
     }
 
@@ -191,37 +192,6 @@ void Scheduler::deblock (Thread &that) {
 
     // Thread-Wechsel durch PIT jetzt wieder erlauben
     Cpu::enableInterrupts();
-}
-
-
-/*****************************************************************************
- * Methode:         Scheduler::prepare_preemption                            *
- *---------------------------------------------------------------------------*
- * Beschreibung:    CPU soll aktuellem Thread entzogen werden. Wird nur      *
- *                  aus dem Zeitgeber-Interrupt-Handler aufgerufen. Daher    *
- *                  muss nicht gegenueber Interrupts synchronisiert werden.  *
- *                                                                           *
- * Rueckgabewert:   true:   Var. fuer Thread-Wechsel in startup.asm gesetzt  *
- *                  false:  kein anderer Thread will rechnen. Nichts tun.    *
- *****************************************************************************/
-bool Scheduler::preparePreemption() {
-    
-    // kein anderer Thread rechenbreit?
-    // sollte nier auftreten, der Leerlauf-Thread sollte immer bereit sein
-    if ( isThreadWaiting() == false)
-        return false;
-    
-    Thread* act  = active();
-    Thread* next = readyQueue.pop();
-
-    readyQueue.push(act);
-
-    *currentRegs = (unsigned int)&(currentThread->context);
-    *nextRegs = (unsigned int)&(next->context);
-
-    currentThread = next;
-    
-    return true;
 }
 
 void Scheduler::dispatch(Thread &next) {

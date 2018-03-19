@@ -23,16 +23,12 @@ void waitOnEnter() {
 }
 
 extern "C" {
-    #include "lib/libc/stdlib.h"
+#include "lib/libc/stdlib.h"
 }
 
 Ehci::Ehci() : eventBuffer(1024) {}
 
-/**
- * Sets up this host controller.
- *
- * @param dev the PciDevice representing this host controller
- */
+
 void Ehci::setup(const Pci::Device &dev) {
 
     eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
@@ -44,7 +40,7 @@ void Ehci::setup(const Pci::Device &dev) {
     Pci::enableMemorySpace(pciDevice.bus, pciDevice.device, pciDevice.function);
 
     uint32_t base = Pci::readDoubleWord(pciDevice.bus, pciDevice.device,
-         pciDevice.function, Pci::PCI_HEADER_BAR0) & 0xFFFFFF00;
+                                        pciDevice.function, Pci::PCI_HEADER_BAR0) & 0xFFFFFF00;
 
     cap = (HostCap*) base;
     op = (HostOp*) (base + cap->length);
@@ -89,9 +85,7 @@ void Ehci::setup(const Pci::Device &dev) {
     enableInterrupts();
 }
 
-/**
- * Reads configuration data from the host controllers registers.
- */
+
 void Ehci::readConfig() {
     numPorts = (uint8_t) (cap->hcsParams & HCSPARAMS_NP);
     version = cap->version;
@@ -99,9 +93,7 @@ void Ehci::readConfig() {
     frameListEntries = (uint16_t) (4096 / (1 << frameListSize));
 }
 
-/**
- * Prints all registers and ports belonging to this host controller.
- */
+
 void Ehci::printSummary() {
     EHCI_TRACE("|--------------------------------------------------------------|\n");
     EHCI_TRACE("|                         EHCI                                 |\n");
@@ -123,11 +115,7 @@ void Ehci::printSummary() {
     EHCI_TRACE("|--------------------------------------------------------------|\n");
 }
 
-/**
- * Stops the host controller.
- *
- * @return a status indicating the result
- */
+
 Ehci::EhciStatus Ehci::stop() {
 
     EHCI_TRACE("Stopping Host Controller\n");
@@ -152,11 +140,7 @@ Ehci::EhciStatus Ehci::stop() {
     return OK;
 }
 
-/**
- * Resets the host controller.
- *
- * @return a status indicating the result
- */
+
 Ehci::EhciStatus Ehci::reset() {
 
     if (stop() != OK) {
@@ -169,7 +153,7 @@ Ehci::EhciStatus Ehci::reset() {
 
     uint8_t timeout = 20;
     while ( op->command & USBCMD_HCRESET ) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
         timeout--;
 
         if ( timeout == 0) {
@@ -183,9 +167,6 @@ Ehci::EhciStatus Ehci::reset() {
     return OK;
 }
 
-/**
- * Sets up the periodic schedule.
- */
 void Ehci::setupPeriodicSchedule() {
     frameList = (PeriodicFrameList*) aligned_alloc(4096, 4 * frameListEntries);
 
@@ -201,23 +182,19 @@ void Ehci::setupPeriodicSchedule() {
     EHCI_TRACE("Periodic Frame List base at %x\n", op->periodicListBase);
 }
 
-/**
- * Sets up the asynchronous schedule.
- */
+
 void Ehci::setupAsyncSchedule() {
     asyncListQueue = new AsyncListQueue();
     op->asyncListAddress = (uint32_t) asyncListQueue->getHead();
 }
 
-/**
- * Enables the asynchronous schedule.
- */
+
 void Ehci::enableAsyncSchedule() {
     op->command |= USBCMD_ASE;
 
     uint8_t timeout = 20;
     while ( !(op->status & USBSTS_ASS) ) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
         timeout--;
 
         if ( timeout == 0) {
@@ -226,15 +203,13 @@ void Ehci::enableAsyncSchedule() {
     }
 }
 
-/**
- * Enables the periodic schedule.
- */
+
 void Ehci::enablePeriodicSchedule() {
     op->command |= USBCMD_PSE;
 
     uint8_t timeout = 20;
     while ( !(op->status & USBSTS_PSS) ) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
         timeout--;
 
         if ( timeout == 0) {
@@ -243,9 +218,7 @@ void Ehci::enablePeriodicSchedule() {
     }
 }
 
-/**
- * Performs a handoff, if supported by the BIOS and host controller.
- */
+
 void Ehci::handoff() {
 
     uint8_t eecp = (uint8_t) ((cap->hccParams & HCCPARAMS_EECP) >> 8);
@@ -281,7 +254,7 @@ void Ehci::handoff() {
 
         uint8_t timeout = 250;
         while ( Pci::readByte(pciDevice.bus, pciDevice.device, pciDevice.function, bos) & ENABLED) {
-        	timeService->msleep(10);
+            timeService->msleep(10);
             timeout--;
 
             if ( timeout == 0 ) {
@@ -305,9 +278,7 @@ void Ehci::handoff() {
     }
 }
 
-/**
- * Starts the host controller.
- */
+
 void Ehci::start() {
 
     op->ctrlDsSegment = 0;
@@ -316,7 +287,7 @@ void Ehci::start() {
 
     setupPeriodicSchedule();
     setupAsyncSchedule();
-    
+
     op->command = (op->command & ~USBCMD_ITC) | (0x08 << 16);
 
     if ( op->status & USBSTS_HCH ) {
@@ -326,7 +297,7 @@ void Ehci::start() {
 
     uint8_t timeout = 20;
     while ( op->status & USBSTS_HCH ) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
         timeout--;
 
         if ( timeout == 0) {
@@ -338,9 +309,7 @@ void Ehci::start() {
     op->configFlag = 0x1;
 }
 
-/**
- * Starts all ports associated with this host controller.
- */
+
 void Ehci::startPorts() {
 
     EHCI_TRACE("Starting ports\n");
@@ -368,11 +337,7 @@ void Ehci::startPorts() {
     }
 }
 
-/**
- * Resets the specified port. This method will block for at least 100ms.
- *
- * @param port the port to reset
- */
+
 void Ehci::resetPort(uint8_t portNumber) {
 
     if (op->status & USBSTS_HCH) {
@@ -393,7 +358,7 @@ void Ehci::resetPort(uint8_t portNumber) {
 
     uint8_t timeout = 20;
     while ( op->ports[portNumber] & PORTSC_PR ) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
         timeout--;
 
         if ( timeout == 0) {
@@ -403,7 +368,7 @@ void Ehci::resetPort(uint8_t portNumber) {
     }
 
     for (timeout = 0; timeout < 10; timeout++) {
-    	timeService->msleep(10);
+        timeService->msleep(10);
 
         if ( op->ports[portNumber] & PORTSC_CCS || op->ports[portNumber] & PORTSC_PE ) {
             EHCI_TRACE(" -> Device detected or Port enabled\n");
@@ -420,9 +385,7 @@ void Ehci::resetPort(uint8_t portNumber) {
     }
 }
 
-/**
- * Enables all interrupts.
- */
+
 void Ehci::enableInterrupts() {
 
     EHCI_TRACE("Enabling Interrupts\n");
@@ -432,9 +395,7 @@ void Ehci::enableInterrupts() {
     op->interrupt |= (USBINTR_FLR | USBINTR_HSE | USBINTR_IAA | USBINTR_PCD | USBINTR_USBEINT | USBINTR_USBINT);
 }
 
-/**
- * Disables all interrupts.
- */
+
 void Ehci::disableInterrupts() {
 
     EHCI_TRACE("Disabling Interrupts\n");
@@ -449,11 +410,7 @@ void Ehci::acknowledgeAll() {
     op->status |= (USBSTS_USBINT | USBSTS_USBEINT | USBSTS_PCD | USBSTS_PCD | USBSTS_FLR | USBSTS_IAA);
 }
 
-/**
- * Sets up a usb mass storage device.
- *
- * @param portNumber the devices port number
- */
+
 void Ehci::setupUsbDevice(uint8_t portNumber) {
     EHCI_TRACE("Setting up USB Mass Storage Device\n");
 
@@ -466,21 +423,12 @@ void Ehci::setupUsbDevice(uint8_t portNumber) {
     massStorageDevices.add(device);
 }
 
-/**
- * Indicates how many devices were found by the host controller.
- *
- * @return the number of devices detected by the host controller
- */
+
 uint32_t Ehci::getNumDevices() {
     return massStorageDevices.length();
 }
 
-/**
- * Returns the mass storage device at the specified index.
- *
- * @param index array index
- * @return a mass storage device
- */
+
 UsbMassStorage *Ehci::getDevice(uint32_t index) {
     return massStorageDevices.get(index);
 }

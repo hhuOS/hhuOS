@@ -5,6 +5,9 @@
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template <typename T>
     class Set : public Collection<T> {
 

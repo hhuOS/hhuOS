@@ -47,13 +47,25 @@ public:
 
     virtual ~Thread();
 
+    /**
+     * Returns this Thread's thread id.
+     *
+     * @return This Thread's thread id
+     */
     uint32_t getTid() const;
 
+    /**
+     * Returns this Thread's name.
+     *
+     * @return This Thread's name
+     */
     const char *getName() const;
 
+    /**
+     * Starts this Thread.
+     */
     virtual void start() final;
 
-    // Methode des Threads, muss in Sub-Klasse implementiert werden
     virtual void run () = 0;
 
 private:
@@ -84,6 +96,9 @@ private:
 
     Stack *stack;
 
+    /**
+     * Initializes this Thread.
+     */
     void init();
 
     /* 4KB Stack Size */

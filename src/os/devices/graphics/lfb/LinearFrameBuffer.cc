@@ -45,6 +45,8 @@ LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t 
 bool LinearFrameBuffer::init(uint16_t resX, uint16_t resY, uint8_t depth) {
     LfbResolution res = findBestResolution(resX, resY, depth);
 
+    disableDoubleBuffering();
+
     bool ret = setResolution(res);
 
     if(ret) {

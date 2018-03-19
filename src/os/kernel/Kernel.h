@@ -19,6 +19,9 @@
 #include <kernel/threads/ThreadState.h>
 #include <lib/util/HashMap.h>
 
+/**
+ * @author Filip Krakowski
+ */
 class Kernel {
 
 public:

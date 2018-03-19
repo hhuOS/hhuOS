@@ -176,7 +176,7 @@ int32_t main() {
     text->clear();
 #else
     initGraphics();
-    lfb->init(640, 400, 32);
+    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
 
     updateBootScreen(0, "Initializing Event Bus");
@@ -188,7 +188,7 @@ int32_t main() {
     updateBootScreen(28, "Enabling Interrupts");
     InputService *inputService = (InputService*)Kernel::getService(InputService::SERVICE_NAME);
     inputService->getKeyboard()->plugin();
-    inputService->getMouse()->plugin();
+//    inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
     Pit::getInstance()->setCursor(true);
@@ -204,9 +204,6 @@ int32_t main() {
     FileSystem *fs = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
     fs->init();
     printfUpdateStdout();
-
-    updateBootScreen(70, "Loading Kernel Symbols");
-    KernelSymbols::initialize();
 
     updateBootScreen(85, "Starting Threads");
     idleThread = new IdleThread();

@@ -16,6 +16,7 @@ class BugDefender : public Game {
     BugDefender(const BugDefender &copy); // Verhindere Kopieren
 
     const static int enemiesPerLine = 11;
+
     const static int enemyLines = 6;
 
     static int enemyCount;
@@ -59,9 +60,6 @@ class BugDefender : public Game {
     static void gameOver();
 
     static void enemyShot();
-
-
-
 };
 
 #endif

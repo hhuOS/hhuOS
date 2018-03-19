@@ -3,6 +3,9 @@
 
 #include "Event.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class Receiver {
 
 public:

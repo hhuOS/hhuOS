@@ -1,6 +1,4 @@
-#include "kernel/filesystem/RamFs/DevFs/DevFsDriver.h"
 #include "kernel/services/FileSystem.h"
-#include "Random.h"
 #include "RandomNode.h"
 
 extern "C" {
@@ -8,21 +6,16 @@ extern "C" {
     int module_fini();
 }
 
-int module_init() {
+int32_t module_init() {
+
     FileSystem *fileSystem = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
 
-    char *pathInMount;
-
-    FileSystem::MountPoint *mountPoint = fileSystem->getMountInfo("/dev", pathInMount);
-
-    DevFsDriver *driver = (DevFsDriver*) mountPoint->driver;
-
-    driver->mount(new RandomNode());
+    fileSystem->addVirtualNode("/dev", new RandomNode());
 
     return 0;
 }
 
-int module_fini() {
+int32_t module_fini() {
     // TODO
     //  unmount zero node
     return 0;

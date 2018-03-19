@@ -6,6 +6,9 @@
 #include "devices/usb/UsbDevice.h"
 #include "Scsi.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbMassStorage : public UsbDevice {
 
 public:

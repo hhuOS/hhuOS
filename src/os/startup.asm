@@ -93,7 +93,7 @@ clear_bss:
     cmp	edi, ___BSS_END__
     jne	.loop
 
-; save multiboo structure address
+; save multiboot structure address
     add ebx, KERNEL_START
     mov [multiboot_addr], ebx
 
@@ -105,14 +105,18 @@ clear_bss:
 	call	setup_idt
 	call	reprogram_pics
 
-; Save multiboot structure address
+; initialize system
+    call    init_system ; see SystemManagement.cc
+
+; save multiboot structure address
     push dword [multiboot_addr]
     call parse_multiboot
     add  esp, 0x4
 
-; call main in C-code
-    call    init_system ; see SystemManagement.cc
-	call	main	    ; call main in C/C++
+; call kernel's main() function
+	call	main
+
+; finalize system
 	call	fini_system	; see SystemManagement.cc
 	hlt
 

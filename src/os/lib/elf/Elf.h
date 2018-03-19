@@ -6,8 +6,11 @@
 #include <lib/File.h>
 #include "lib/elf/ElfConstants.h"
 
-using namespace elfconstants;
+using namespace ElfConstants;
 
+/**
+ * @author Filip Krakowski
+ */
 class Elf {
 
 public:

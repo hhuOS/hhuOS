@@ -1,6 +1,9 @@
 #ifndef __Pair_include__
 #define __Pair_include__
 
+/**
+ * @author Filip Krakowski
+ */
 template <typename T, typename U>
 class Pair {
 

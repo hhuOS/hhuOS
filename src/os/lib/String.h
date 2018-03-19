@@ -5,6 +5,9 @@
 #include <lib/util/Array.h>
 #include "lib/OutputStream.h"
 
+/**
+ * @author Filip Krakowski
+ */
 class String {
 
 public:

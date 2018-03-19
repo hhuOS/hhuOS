@@ -10,6 +10,9 @@ extern "C" {
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template<typename T>
     class Queue : Collection<T> {
 

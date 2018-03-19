@@ -6,6 +6,9 @@
 
 #include <stdint.h>
 
+/**
+ * @author Filip Krakowski
+ */
 class UsbConfiguration {
 
 public:

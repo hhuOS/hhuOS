@@ -3,6 +3,9 @@
 
 #include <cstdint>
 
+/**
+ * @author Filip Krakowski
+ */
 class Event {
 
 public:

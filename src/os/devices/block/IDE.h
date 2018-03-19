@@ -25,6 +25,9 @@
 #define     IDE_TRACE(...)
 #endif
 
+/**
+ * @author Filip Krakowski
+ */
 class IDE {
 
     private:

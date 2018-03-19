@@ -6,6 +6,9 @@
 
 namespace Util {
 
+    /**
+     * @author Filip Krakowski
+     */
     template <typename T>
     class BlockingQueue : public Queue<T> {
 

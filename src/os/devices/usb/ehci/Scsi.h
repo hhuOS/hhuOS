@@ -3,6 +3,9 @@
 
 #include <stdint.h>
 
+/**
+ * @author Filip Krakowski
+ */
 class Scsi {
 
 public:

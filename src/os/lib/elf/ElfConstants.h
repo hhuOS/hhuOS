@@ -10,7 +10,10 @@ typedef uint32_t    elf32_addr;
 typedef uint32_t    elf32_off;
 typedef uint16_t    elf32_half;
 
-namespace elfconstants {
+/**
+ * @author Filip Krakowski
+ */
+namespace ElfConstants {
 
     enum class ElfType : elf32_half {
         NONE                   = 0x00,

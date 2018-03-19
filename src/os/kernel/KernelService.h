@@ -11,6 +11,9 @@
 
 #include <cstdint>
 
+/**
+ * @author Filip Krakowski
+ */
 class KernelService {
 
 public:
