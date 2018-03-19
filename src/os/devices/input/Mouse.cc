@@ -130,14 +130,14 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
     uint8_t cnt = 0;
     write(byte_write); // Befehl senden
     while((tmp = read()) != 0xFA){ // ack warten
-        printf("ERROR >> Couldn't get ack from %s command\n", commandString);
+        MOUSE_TRACE("ERROR >> Couldn't get ack from %s command\n", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // Controller will Befehl erneut erhalten
         }
 
         cnt ++;
         if(cnt == 5) {
-            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
+            MOUSE_TRACE("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
             available = false;
             cleanup();
             return;
@@ -162,14 +162,14 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
 
     write(byte_write); // Befehl senden
     while((tmp = read()) != 0xFA){ // ack warten
-        printf("ERROR >> Couldn't get ack from %s command\n", commandString);
+        MOUSE_TRACE("ERROR >> Couldn't get ack from %s command\n", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // Controller will Befehl erneut erhalten
         }
 
         cnt ++;
         if(cnt == 5) {
-            printf("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
+            MOUSE_TRACE("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)\n");
             available = false;
             cleanup();
             return;
@@ -316,7 +316,7 @@ void Mouse::trigger() {
 }
 
 void Mouse::cleanup() {
-    //Pic::getInstance()->forbid(Pic::mouse);  TODO Bugfix - null pointer exception in ahci if forbid is being called
+    Pic::getInstance()->forbid(Pic::mouse);  //TODO Bugfix - null pointer exception in ahci if forbid is being called
     uint8_t status;
     waitControl();
     ctrl_port.outb(0x20);  				// lese Status Byte des KB Controllers ein

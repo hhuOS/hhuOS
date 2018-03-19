@@ -85,6 +85,13 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
 
     hardwareBuffer = reinterpret_cast<uint8_t *>(tmpInfo.virtStartAddress);
 
+    isDoubleBuffered = false;
+
+    if(doubleBuffer != nullptr) {
+        delete[] doubleBuffer;
+        doubleBuffer = nullptr;
+    }
+
     if(lfbMemInfo.virtStartAddress) {
     	SystemManagement::getInstance()->freeIO(lfbMemInfo);
     }

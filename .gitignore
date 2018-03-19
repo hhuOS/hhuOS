@@ -7,6 +7,7 @@ src/boot/bootsect
 src/os/.gdb_history
 src/os/gitversion.c
 src/loader/boot/hhuOS.bin
+src/os/hdd.img
 .gdb_history
 .vscode/
 .cproject
