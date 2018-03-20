@@ -2,6 +2,7 @@ src/os/build/
 src/os/dep/
 src/hdd/symbols
 src/hdd/debugSymbols
+src/hdd/asciimation/*
 src/boot/setup
 src/boot/bootsect
 src/os/.gdb_history

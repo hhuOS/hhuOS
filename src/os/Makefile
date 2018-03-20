@@ -103,7 +103,7 @@ all: $(OBJDIR)/hhuOS.iso hdd.img
 # --------------------------------------------------------------------------
 # Regeln zur Erzeugung der Abhaengigkeitsdateien
 
-hdd.img: ../hdd/
+hdd.img: ../hdd/*
 	$(VERBOSE) qemu-img create hdd.img 32M
 	$(VERBOSE) udisksctl loop-setup --file hdd.img --offset 0 --size 33554432
 	$(VERBOSE) (echo n; echo p; echo 1;echo ""; echo ""; echo t; echo 58; echo w) | sudo fdisk /dev/loop0

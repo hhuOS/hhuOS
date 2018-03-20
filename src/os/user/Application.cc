@@ -74,10 +74,10 @@ void Application::IOMemoryTest () {
 }
 
 void Application::Asciimation () {
-    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-    lfb->init(640, 480, 32);
+    TextDriver *stream = graphicsService->getTextDriver();
+    stream->init(100, 37, 32);
 
-    Thread *thread = new AsciimationApp(""); // TODO fix (Fabian)
+    Thread *thread = new AsciimationApp();
     thread->start();
 }
 

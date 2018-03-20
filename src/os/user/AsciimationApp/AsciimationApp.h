@@ -18,11 +18,9 @@
 /**
  * @author Filip Krakowski
  */
-class AsciimationApp : public Thread {
+class AsciimationApp : public Thread, public Receiver {
 
 private:
-
-    AsciimationApp (const AsciimationApp &copy);
 
     uint32_t readDelay();
 
@@ -30,21 +28,33 @@ private:
 
     void printFrame();
 
-    const char *filePath = nullptr;
+    char fileName[4096];
+
+    uint64_t fileLength = 0;
 
     File *file = nullptr;
 
     char* buffer = nullptr;
 
-    LinearFrameBuffer *lfb;
+    GraphicsService *graphicsService = nullptr;
 
-    TimeService *timeService;
+    FileSystem *fileSystem = nullptr;
+
+    TimeService *timeService = nullptr;
+
+    EventBus *eventBus = nullptr;
 
     uint16_t posX, posY;
 
 public:
 
-    explicit AsciimationApp (const char *path);
+    AsciimationApp();
+
+    AsciimationApp(const AsciimationApp &copy) = delete;
+
+    ~AsciimationApp() override = default;
+
+    void onEvent(const Event &event) override;
 
     void run() override;
 };
