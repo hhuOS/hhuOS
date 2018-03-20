@@ -246,7 +246,7 @@ void VFSApp::executeCommand() {
         } else {
             uint32_t length = strtoint(params[2]);
             char *buf = new char[length];
-            if(file->readBytes(buf, length) == nullptr) {
+            if(file->readBytes(buf, length) != File::SUCCESS) {
                 *stream << "Cannot read file!";
                 return;
             }
@@ -300,7 +300,7 @@ void VFSApp::executeCommand() {
         
         char *string = &currentCommand[strlen(params[0]) + strlen(params[1]) + strlen(params[2]) + 3];
         uint32_t offset = strtoint(params[2]);
-        file->setPos(offset, SEEK_SET);
+        file->setPos(offset, File::START);
         //file->writeBytes(string, strlen(string));
         *file << string;
         file->flush();

@@ -9,13 +9,13 @@ uint64_t StdoutNode::getLength() {
     return 0;
 }
 
-char *StdoutNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool StdoutNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     memset(buf, 0, numBytes);
     
-    return buf;
+    return true;
 }
 
-int64_t StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stdout = stdStreamService->getStdout();
 
     char printBuf[numBytes + 1];
@@ -25,5 +25,5 @@ int64_t StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     *stdout << printBuf;
     stdout->flush();
 
-    return 0;
+    return true;
 }

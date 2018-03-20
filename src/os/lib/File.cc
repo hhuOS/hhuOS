@@ -1,31 +1,18 @@
 #include "File.h"
 
 File::File(FsNode *node, const String &path, const String &mode) : node(node) {
-        this->path = FileSystem::parsePath(path);
-        this->mode = mode;
+    this->path = FileSystem::parsePath(path);
+    this->mode = mode;
 
-        if(mode.beginsWith("a") && node->getFileType() == REGULAR_FILE) {
-            pos = node->getLength();
-        }
+    if(mode.beginsWith("a") && node->getFileType() == REGULAR_FILE) {
+        pos = node->getLength();
+    }
 };
 
-/**
- * Tries to open the file at a specified path.
- * 
- * @param path The file's path.
- * @param mode The desired mode:
- *             "r":  Reading only.
- *             "w":  Writing only; Creates the file, if it does not exist; Starts writing at the file's beginning.
- *             "a":  Writing only; Creates the file, if it does not exist; Always appends to the file's end.
- *             "r+": Reading and writing; Starts writing at the file's beginning.
- *             "w+": Reading and writing; Truncates the file to zero length, if it already exists;
- *                   Creates the file, if it does not exist; Starts writing at the file's beginning.
- *             "a+": Reading and writing; Creates the file, if it does not exist; Starts reading from the file's beginning;
- *                   Always appends to the file's end.
- * 
- * @return On success, the file;
- *         else nullptr.
- */
+File::~File() {
+    delete node;
+}
+
 File *File::open(const String &path, const String &mode) {
 
     if (mode.length() == 0) {
@@ -37,7 +24,7 @@ File *File::open(const String &path, const String &mode) {
     }
 
 
-    FileSystem *fileSystem = Kernel::getService<FileSystem>();
+    auto *fileSystem = Kernel::getService<FileSystem>();
 
     FsNode *node = fileSystem->getNode(path);
 
@@ -46,11 +33,16 @@ File *File::open(const String &path, const String &mode) {
             case 'r' :
                 return nullptr;
             case 'w' :
-                if(fileSystem->createFile(path) == -1) return nullptr;
+                if(fileSystem->createFile(path) == -1) {
+                    return nullptr;
+                }
+
                 return new File(fileSystem->getNode(path), path, mode);
             case 'a' :
-                if(fileSystem->createFile(path) == -1)
+                if(fileSystem->createFile(path) == -1) {
                     return nullptr;
+                }
+
                 return new File(fileSystem->getNode(path), path, mode);
             default:
                 return nullptr;
@@ -87,146 +79,118 @@ uint64_t File::getLength() {
     return node->getLength();
 }
 
-/**
- * Writes a char to the file at the position specified by 'pos'.
- * 
- * @param ch The char.
- * 
- * @return 0, on success.
- */
-int32_t File::writeChar(char ch) {
-    if(mode[0] == 'r' && mode[1] != '+') return -1;
-    uint32_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
+uint32_t File::writeChar(char ch) {
+    if(mode[0] == 'r' && mode[1] != '+') {
+        return READ_ONLY_MODE;
+    }
 
-    int32_t ret = node->writeData(&ch, pos, 1);
-    this->pos++;
+    uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
-    return ret;
+    if(node->writeData(&ch, pos, 1) == 0) {
+        this->pos++;
+
+        return SUCCESS;
+    }
+
+    return WRITE_ERROR;
 }
 
-/**
- * Writes a null-terminated string to the file at the position specified by 'pos'.
- * 
- * @param s The string.
- * 
- * @return 0, on success.
- */
-int32_t File::writeString(char *string) {
-    if(mode[0] == 'r' && mode[1] != '+') return -1;
-    uint32_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
+uint32_t File::writeString(char *string) {
+    if(mode[0] == 'r' && mode[1] != '+') {
+        return READ_ONLY_MODE;
+    }
+
+    uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
     uint32_t len = strlen(string);
-    int32_t ret = node->writeData(string, pos, len);
-    if(ret == 0) this->pos += len;
 
-    return ret;
+    if(node->writeData(string, pos, len) == 0) {
+        this->pos += len;
+
+        return SUCCESS;
+    }
+
+    return WRITE_ERROR;
 }
 
-/**
- * Writes a specified number of bytes from a char-array to the file at the position specified by 'pos'.
- * 
- * @param data The char-array.
- * @param len The amount of bytes.
- * 
- * @return 0, on success.
- */
-int32_t File::writeBytes(char *data, uint64_t len) {
-    if(mode[0] == 'r' && mode[1] != '+') return -1;
-    uint32_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
+uint32_t File::writeBytes(char *data, uint64_t len) {
+    if(mode[0] == 'r' && mode[1] != '+') {
+        return READ_ONLY_MODE;
+    }
 
-    int32_t ret = node->writeData(data, pos, len);
-    if(ret >= 0) this->pos += len;
+    uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
-    return ret;
+    if(node->writeData(data, pos, len) == 0) {
+        this->pos += len;
+
+        return SUCCESS;
+    }
+
+    return WRITE_ERROR;
 }
 
-/**
- * Reads a char from the file at the position specified by 'pos'.
- *
- * @return The char.
- */
 char File::readChar() {
-    if(mode[0] != 'r' && mode[1] != '+') return -1;
+    if(mode[0] != 'r' && mode[1] != '+') {
+        return 0;
+    }
 
-    char ch;
-    if(node->readData(&ch, pos, 1) == nullptr) return -1;
-    pos++;
+    char c;
 
-    return ch;
+    if(node->readData(&c, pos, 1)) {
+        pos++;
+
+        return c;
+    }
+
+    return 0;
 }
 
-/**
- * Reads a string from the file at the position specified by 'pos'.
- * If a '\n' or 'EOF' character is encountered, the function returns the read string up to that point.
- * A '0' is always appended.
- *
- * @param buf An already allocated buffer, to which the string will be written.
- * @param len The buffer's size. At most, len - 1 characters will be read.
- * 
- * @return The string.
- */
-char *File::readString(char *buf, uint64_t len) {
-    if(mode[0] != 'r' && mode[1] != '+') return nullptr;
+uint32_t File::readString(char *buf, uint64_t len) {
+    if(mode[0] != 'r' && mode[1] != '+') {
+        return WRITE_ONLY_MODE;
+    }
 
     uint32_t i;
     for(i = 0; i < len - 1; i++) {
         buf[i] = readChar();
 
-        if(buf[i] == '\n' || buf[i] == VFS_EOF) {
+        if(buf[i] == 0 || buf[i] == '\n' || buf[i] == VFS_EOF) {
             buf[i] = 0;
-            return buf;
+            return SUCCESS;
         }
     }
 
     buf[i + 1] = 0;
-    return buf;
+    return SUCCESS;
 }
 
-/**
- * Reads a given amount of bytes from the file at the position specified by 'pos'.
- *
- * @param buf An already allocated buffer, to which the string will be written.
- * @param len The buffer's size. This function will read len bytes from the file.
- * 
- * @return The string.
- */
-char *File::readBytes(char *buf, uint64_t len) {
-    if(mode[0] != 'r' && mode[1] != '+') return nullptr;
+uint32_t File::readBytes(char *buf, uint64_t len) {
+    if(mode[0] != 'r' && mode[1] != '+') {
+        return WRITE_ONLY_MODE;
+    }
 
-    if(node->readData(buf, pos, len) == nullptr) return nullptr;
-    pos += len;
+    if(node->readData(buf, pos, len)) {
+        pos += len;
 
-    return buf;
+        return SUCCESS;
+    }
+
+    return READ_ERROR;
 }
 
-/**
- * The variable 'pos' determines which character will be read next.
- * This function return the current value of pos.
- * 
- * @return The current value of 'pos'.
- */
 uint64_t File::getPos() {
     return pos;
 }
 
-/**
- * The variable 'pos' determines which character will be read next.
- * This function can be used to set 'pos'.
- * 
- * @param offset Number of bytes to offset from 'origin'.
- * @param origin SEEK_SET: The beginning of the file;
- *               SEEK_CUR: The current position;
- *               SEEK_END: The end of the file.
- */
 void File::setPos(uint64_t offset, uint32_t origin) {
     switch(origin) {
-        case SEEK_SET :
+        case START :
             pos = offset;
             break;
-        case SEEK_CUR :
+        case CURRENT :
             pos += offset;
             break;
-        case SEEK_END :
+        case END :
             pos = node->getLength() + offset;
             break;
         default :
@@ -249,6 +213,8 @@ InputStream& File::operator >> (char *&string) {
     uint64_t len = node->getLength();
     string = new char[len + 1];
 
+    memset(string, 0, len + 1);
+
     readBytes(string, len);
 
     return *this;
@@ -258,8 +224,9 @@ InputStream& File::operator >> (OutputStream &outStream) {
     uint64_t len = node->getLength();
     auto *buf = new char[len + 1];
 
+    memset(buf, 0, len + 1);
+
     readBytes(buf, len);
-    buf[len] = 0;
 
     outStream << buf;
     outStream.flush();

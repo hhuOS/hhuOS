@@ -15,7 +15,7 @@
 
 /**
  * Represents a node in the filesystem-tree.
- * When a file/folder is requested, the FileSystem-class returns a pointer to a FsNode,
+ * When a file/folder is requested, the FileSystem-class returns a pointer to an FsNode,
  * that corresponds to the requested file/folder. It can then be used to read/write
  * to the file and get meta-information.
  */
@@ -24,6 +24,10 @@ private:
     FsNode(const FsNode &copy);
 
 public:
+    enum RETURN_CODES {
+        SUCCESS = 0x00
+    };
+
     FsNode() {};
     virtual ~FsNode() {};
     
@@ -67,7 +71,7 @@ public:
      * 
      * @return The data.
      */
-    virtual char *readData(char *buf, uint64_t pos, uint64_t numBytes) = 0;
+    virtual bool readData(char *buf, uint64_t pos, uint64_t numBytes) = 0;
     
     /**
      * Writes bytes to the node's data. If the offset points right into the existing data,
@@ -80,7 +84,7 @@ public:
      * 
      * @return 0, if the data has been written succesfully.
      */
-    virtual int64_t writeData(char *buf, uint64_t pos, uint64_t length) = 0;
+    virtual bool writeData(char *buf, uint64_t pos, uint64_t length) = 0;
 };
 
 #endif

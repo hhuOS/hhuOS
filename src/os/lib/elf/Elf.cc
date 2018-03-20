@@ -50,7 +50,7 @@ void Elf::readProgramHeaders() {
     ProgramHeader *programHeader = new ProgramHeader;
 
     for (elf32_word i = 0; i < fileHeader.programHeaderEntries; i++) {
-        elfFile->setPos(fileHeader.programHeader + i * fileHeader.programHeaderEntrySize, SEEK_SET);
+        elfFile->setPos(fileHeader.programHeader + i * fileHeader.programHeaderEntrySize, File::START);
         elfFile->readBytes((char*) programHeader, sizeof(ProgramHeader));
 
         processProgramHeader(*programHeader);
@@ -63,7 +63,7 @@ void Elf::processProgramHeader(const ProgramHeader &programHeader) {
 
     switch (programHeader.type) {
         case ProgramHeaderType::LOAD:
-            elfFile->setPos(programHeader.offset, SEEK_SET);
+            elfFile->setPos(programHeader.offset, File::START);
             elfFile->readBytes((char*) base + programHeader.virtualAddress, programHeader.fileSize);
 
             memset((void*) (base + programHeader.virtualAddress + programHeader.fileSize), 0, programHeader.memorySize - programHeader.fileSize);
@@ -164,11 +164,11 @@ void Elf::relocate() {
 
 void Elf::readSectionNames() {
     SectionHeader *sectionHeader = new SectionHeader;
-    elfFile->setPos(fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize, SEEK_SET);
+    elfFile->setPos(fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize, File::START);
     elfFile->readBytes((char*) sectionHeader, sizeof(SectionHeader));
 
     sectionNames = new char[sectionHeader->size];
-    elfFile->setPos(sectionHeader->offset, SEEK_SET);
+    elfFile->setPos(sectionHeader->offset, File::START);
     elfFile->readBytes(sectionNames, sectionHeader->size);
 
     delete sectionHeader;
@@ -178,7 +178,7 @@ void Elf::readSectionHeaders() {
     SectionHeader *sectionHeader = new SectionHeader;
 
     for (elf32_word i = 0; i < fileHeader.sectionHeaderEntries; i++) {
-        elfFile->setPos(fileHeader.sectionHeader + i * fileHeader.sectionHeaderEntrySize, SEEK_SET);
+        elfFile->setPos(fileHeader.sectionHeader + i * fileHeader.sectionHeaderEntrySize, File::START);
         elfFile->readBytes((char*) sectionHeader, sizeof(SectionHeader));
 
         if (sectionHeader->type == SectionHeaderType::NONE) {
@@ -203,7 +203,7 @@ void Elf::adjustGlobalOffsetTable() {
     SectionHeader sectionHeader = sectionHeaders.get(SECTION_NAME_GOT).value();
 
     char section[sectionHeader.size];
-    elfFile->setPos(sectionHeader.offset, SEEK_SET);
+    elfFile->setPos(sectionHeader.offset, File::START);
     elfFile->readBytes((char*) section, sectionHeader.size);
 
     memcpy((void*) sectionHeader.virtualAddress, section, sectionHeader.size);

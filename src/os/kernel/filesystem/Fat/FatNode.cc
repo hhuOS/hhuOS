@@ -101,29 +101,33 @@ Util::Array<String> FatNode::getChildren() {
     return ret;
 }
 
-char *FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
-    if(info.fattrib & AM_DIR)
-        return nullptr;
+bool FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+    if(info.fattrib & AM_DIR) {
+        return false;
+    }
     
-    if(fatInstance->f_lseek(&fatObject.file, pos) != FR_OK)
-        return nullptr;
+    if(fatInstance->f_lseek(&fatObject.file, pos) != FR_OK) {
+        return false;
+    }
     
     if(f_eof(&fatObject.file)) {
         buf[0] = VFS_EOF;
-        return buf;
+        return true;
     }
 
     uint32_t readBytes;
-    if(fatInstance->f_read(&fatObject.file, buf, static_cast<UINT>(numBytes), &readBytes) != FR_OK)
-        return nullptr;
+    if(fatInstance->f_read(&fatObject.file, buf, static_cast<UINT>(numBytes), &readBytes) != FR_OK) {
+        return false;
+    }
 
-    if(readBytes < numBytes && f_eof(&fatObject.file))
+    if(readBytes < numBytes && f_eof(&fatObject.file)) {
         buf[numBytes] = VFS_EOF;
+    }
         
-    return buf;
+    return true;
 }
 
-int64_t FatNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool FatNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(info.fattrib & AM_DIR)
         return -1;
 

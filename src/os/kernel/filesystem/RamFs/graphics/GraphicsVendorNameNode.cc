@@ -17,7 +17,7 @@ uint64_t GraphicsVendorNameNode::getLength() {
     }
 }
 
-char *GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     String name;
 
     switch(mode) {
@@ -39,9 +39,9 @@ char *GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numByte
 
     memcpy(buf, (char*) name + pos, numBytes);
 
-    return buf;
+    return true;
 }
 
-int64_t GraphicsVendorNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return -1;
+bool GraphicsVendorNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    return false;
 }

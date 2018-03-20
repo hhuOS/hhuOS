@@ -1,22 +1,20 @@
 #include "Directory.h"
 
-/**
- * Tries to open the directory at a specified path.
- * 
- * @param path The directory's path.
- * 
- * @return On success, the directory;
- *         else nullptr.
- */
+Directory::Directory(FsNode *node, const String &path) : node(node) {
+    this->path = FileSystem::parsePath(path);
+};
+
+Directory::~Directory() {
+    delete node;
+}
+
 Directory *Directory::open(const String &path) {
-    FileSystem *fileSystem = Kernel::getService<FileSystem>();
+    auto *fileSystem = Kernel::getService<FileSystem>();
 
     FsNode *node = fileSystem->getNode(path);
 
     if(node != nullptr && node->getFileType() == DIRECTORY_FILE) {
-        if(!node->getName().beginsWith(".")) {
-            return new Directory(node, path);
-        }
+        return new Directory(node, path);
     }
 
     if(node != nullptr) {

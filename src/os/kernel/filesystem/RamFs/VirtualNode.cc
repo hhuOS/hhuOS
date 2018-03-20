@@ -52,13 +52,13 @@ Util::ArrayList<VirtualNode*> &VirtualNode::getChildren() {
  * 
  * @return The data.
  */
-char *VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     if(pos > length) {
 
         buf[0] = VFS_EOF;
 
-        return buf;
+        return true;
     }
     
     for(uint64_t i = 0; i < numBytes; i++) {
@@ -66,11 +66,11 @@ char *VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
         buf[i] = data[pos + i];
 
         if(buf[i] == VFS_EOF) {
-            return buf;
+            return true;
         }
     }
     
-    return buf;
+    return true;
 }
 
 /**
@@ -83,7 +83,7 @@ char *VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
  * 
  * @return 0, if the data has been written succesfully.
  */
-int64_t VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+bool VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     if(pos + numBytes >= length) {
 
@@ -109,9 +109,9 @@ int64_t VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
 
             length = &(data[i + pos]) - buf;
 
-            return i;
+            return true;
         }
     }
     
-    return i;
+    return true;
 }

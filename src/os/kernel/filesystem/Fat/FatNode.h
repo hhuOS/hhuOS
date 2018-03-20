@@ -40,8 +40,8 @@ public:
     uint8_t getFileType();
     uint64_t getLength();
     Util::Array<String> getChildren();
-    char *readData(char *buf, uint64_t pos, uint64_t numBytes);
-    int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
+    bool readData(char *buf, uint64_t pos, uint64_t numBytes);
+    bool writeData(char *buf, uint64_t pos, uint64_t numBytes);
 };
 
 #endif

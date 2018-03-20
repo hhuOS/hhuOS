@@ -45,13 +45,12 @@ public:
     /**
      * Overriding function from VirtualNode.
      */
-    char *readData(char *buf, uint64_t pos, uint64_t numBytes) override;
+    bool readData(char *buf, uint64_t pos, uint64_t numBytes) override;
 
     /**
      * Overriding function from VirtualNode.
      */
-    int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
-
+    bool writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
 
 

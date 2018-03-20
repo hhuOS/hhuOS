@@ -52,9 +52,9 @@ public:
     
     virtual uint64_t getLength();
 
-    virtual char *readData(char *buf, uint64_t pos, uint64_t numBytes);
+    virtual bool readData(char *buf, uint64_t pos, uint64_t numBytes);
 
-    virtual int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
+    virtual bool writeData(char *buf, uint64_t pos, uint64_t numBytes);
 
 private:
     String name;
