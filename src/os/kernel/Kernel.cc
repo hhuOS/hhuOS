@@ -31,6 +31,12 @@ void Kernel::registerService(const String &serviceId, KernelService* const &kern
     serviceMap.put(serviceId, kernelService);
     serviceLock.unlock();
 }
+
+bool Kernel::isServiceRegistered(const String &serviceId) {
+
+    return serviceMap.containsKey(serviceId);
+}
+
 /**
  * Triggers a kernel panic with the given interrupt frame
  */

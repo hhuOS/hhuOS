@@ -29,20 +29,30 @@ namespace Multiboot {
     static const uint32_t  MULTIBOOT_MEMORY_NVS                   = 4;
     static const uint32_t  MULTIBOOT_MEMORY_BADRAM                = 5;
 
-    struct AoutInfo
-    {
+    struct AoutInfo {
         uint32_t tabSize;
         uint32_t strsize;
         uint32_t address;
         uint32_t reserved;
     };
 
-    struct ElfInfo
-    {
+    struct ElfInfo {
         uint32_t sectionCount;
         uint32_t sectionSize;
         uint32_t address;
         uint32_t stringSectionIndex;
+    };
+
+    struct ModuleInfo {
+        uint32_t start;
+        uint32_t end;
+        char*    string;
+        uint32_t reserved;
+
+        bool operator!=(const ModuleInfo &other) {
+
+            return start != other.start;
+        }
     };
 
     struct Info {
@@ -125,7 +135,7 @@ namespace Multiboot {
         uint64_t address;
         uint64_t length;
         uint32_t type;
-    } __attribute__((packed));
+    };
 }
 
 

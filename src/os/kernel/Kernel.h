@@ -44,6 +44,14 @@ public:
     static void registerService(const String &serviceId, KernelService* const &kernelService);
 
     /**
+     * Indicates whether a particular service has already been registered.
+     *
+     * @param serviceId The service's id
+     * @return true, if the service has already been registered, false else
+     */
+    static bool isServiceRegistered(const String &serviceId);
+
+    /**
      * Triggers a kernel panic with the given interrupt frame
      * Shows sort of a bluescreen.
      *
