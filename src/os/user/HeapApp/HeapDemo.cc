@@ -140,35 +140,34 @@ void HeapDemo::run () {
 
     SystemManagement::getKernelHeapManager()->dump();
 
-    unsigned int *objects[128];
-    unsigned int alignments[] = {16, 32, 512, 4096};
+    uint32_t *objects[128];
 
     printf("  Allocating and deleting objects randomly\n\n");
 
     Random *random = new Random(42, 0);
 
-    // Randomly allocate objects with random alignment
-    unsigned int r, a, size;
-    for(int i = 0; i < 128; i++) {
+    // Randomly allocate objects
+    unsigned int r;
+    for (uint32_t *&object : objects) {
         r = random->rand(4);
-//        a = random->rand(4);
-//        size = random->rand(512) + 1;
 
         switch (r) {
             case 0:
-                objects[i] = (unsigned int*) new MyObj(1,8);
+                object = (unsigned int*) new MyObj(1,8);
                 break;
             case 1:
-                objects[i] = (unsigned int*) new MyObj[9][3];
+                object = (unsigned int*) new MyObj[9][3];
                 break;
             case 2:
-                objects[i] = (unsigned int*) new char[32];
+                object = (unsigned int*) new char[32];
                 break;
             case 3:
-                objects[i] = (unsigned int*) new char[48];
+                object = (unsigned int*) new char[48];
                 break;
             case 4:
-                objects[i] = (unsigned int*) new Byte(0xDB);
+                object = (unsigned int*) new Byte(0xDB);
+                break;
+            default:
                 break;
         }
     }
@@ -185,8 +184,8 @@ void HeapDemo::run () {
     }
 
     // Delete randomized objects
-    for (int i = 0; i < 128; i++) {
-        delete objects[i];
+    for (auto &object : objects) {
+        delete object;
     }
 
     delete random;

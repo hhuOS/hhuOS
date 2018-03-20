@@ -88,9 +88,9 @@ void Module::parseSymbolTable() {
 
         symbolName = &stringTable[symbolEntry->nameOffset];
 
-        uint32_t address = localSymbols.get(symbolName);
+        bool isPresent = localSymbols.containsKey(symbolName);
 
-        if (symbolBinding == SymbolBinding::WEAK) {
+        if (isPresent && symbolBinding == SymbolBinding::WEAK) {
             continue;
         }
 

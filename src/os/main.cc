@@ -21,6 +21,7 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
+#include <cxxabi.h>
 
 #include "bootlogo.h"
 

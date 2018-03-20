@@ -63,7 +63,7 @@ startup:
     cli
 
 	; load first 4MB-PageTable and enable paging
-	lea ecx,  [paging_bootstrap - KERNEL_START]
+	mov ecx,  (paging_bootstrap - KERNEL_START)
 
 	; jump into paging.asm to enable 4mb paging
 	jmp ecx
