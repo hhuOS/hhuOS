@@ -12,6 +12,7 @@
 #define __Keyboard_include__
 
 #include <lib/util/RingBuffer.h>
+#include <lib/InputStream.h>
 #include "kernel/services/EventBus.h"
 #include "Key.h"
 #include "kernel/IOport.h"

@@ -7,7 +7,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     Module *module = new Module();
 
-    uint32_t fileSize = (uint32_t) file->getInfo()->length;
+    uint32_t fileSize = (uint32_t) file->getLength();
 
     module->buffer = new char[fileSize];
 
@@ -38,7 +38,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
         return Status::ERROR;
     };
 
-    modules.put(file->getInfo()->name, module);
+    modules.put(file->getName(), module);
 
     return Status::OK;
 }

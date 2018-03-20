@@ -70,7 +70,6 @@ void updateBootScreen(uint8_t percentage, const char *currentActivity) {
 }
 
 void registerServices() {
-
     auto *graphicsService = new GraphicsService();
     graphicsService->setLinearFrameBuffer(lfb);
     graphicsService->setTextDriver(text);
@@ -156,6 +155,7 @@ int32_t main() {
     app->start();
 
     text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
+
     while(!inputService->getKeyboard()->isKeyPressed(28));
 
     lfb->init(800, 600, 32);

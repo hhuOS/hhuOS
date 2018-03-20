@@ -33,18 +33,9 @@ private:
 
     String mode;
 
-    uint32_t pos = 0;
+    uint64_t pos = 0;
 
-    File(FsNode *arg_node, const String &arg_path, const String &arg_mode) : node(arg_node) {
-
-        path = FileSystem::parsePath(arg_path);
-
-        mode = arg_mode;
-
-        if(mode.beginsWith("a") && node->getFileType() == REGULAR_FILE) {
-            pos = node->getLength();
-        }
-    };
+    File(FsNode *node, const String &arg_path, const String &arg_mode);
 
 public:
 
@@ -54,23 +45,29 @@ public:
 
     static File *open(const String &path, const String &mode);
 
-    DirEntry *getInfo();
+    String getName();
+
+    String getAbsolutePath();
+
+    uint32_t getFileType();
+
+    uint64_t getLength();
 
     int32_t writeChar(char ch);
 
     int32_t writeString(char *string);
 
-    int32_t writeBytes(char *data, uint32_t len);
+    int32_t writeBytes(char *data, uint64_t len);
 
     char readChar();
 
-    char *readString(char *buf, uint32_t len);
+    char *readString(char *buf, uint64_t len);
 
-    char *readBytes(char *buf, uint32_t len);
+    char *readBytes(char *buf, uint64_t len);
 
-    uint32_t getPos();
+    uint64_t getPos();
 
-    void setPos(uint32_t offset, uint32_t origin);
+    void setPos(uint64_t offset, uint32_t origin);
 
 
     void flush();
@@ -78,7 +75,7 @@ public:
 
     InputStream& operator >> (char &c);
 
-    InputStream& operator >> (char *string);
+    InputStream& operator >> (char *&string);
 
     InputStream& operator >> (OutputStream &outStream);
 };

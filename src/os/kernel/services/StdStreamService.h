@@ -5,6 +5,7 @@
 #include "lib/OutputStream.h"
 
 #include <stdint.h>
+#include <lib/InputStream.h>
 
 class StdStreamService : public KernelService {
 
@@ -22,6 +23,11 @@ public:
     void setStderr(OutputStream *stream);
 
 
+    InputStream *getStdin();
+
+    void setStdin(InputStream *stream);
+
+
     static constexpr char* SERVICE_NAME = "StdStreamService";
 
 private:
@@ -30,6 +36,7 @@ private:
 
     OutputStream *stderr = nullptr;
 
+    InputStream *stdin = nullptr;
 };
 
 

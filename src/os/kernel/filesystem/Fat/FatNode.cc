@@ -1,3 +1,4 @@
+#include <kernel/filesystem/Fat/FatFsLib/FatFs.h>
 #include "FatNode.h"
 
 
@@ -62,28 +63,45 @@ uint64_t FatNode::getLength() {
     return info.fsize;
 }
 
-String FatNode::getChild(uint32_t pos) {
-    if(!(info.fattrib & AM_DIR))
-        return nullptr;
-
-    fatInstance->f_readdir(&fatObject.dir, nullptr);
-    
-    FILINFO childInfo;
-    for(uint32_t i = 0; i <= pos; i++) {
-        if(fatInstance->f_readdir(&fatObject.dir, &childInfo) != FR_OK)
-            return nullptr;
-
-        if(childInfo.fname[0] == 0)
-            return nullptr;
+Util::Array<String> FatNode::getChildren() {
+    if(!(info.fattrib & AM_DIR)) {
+        return Util::Array<String>(0);
     }
 
-    char *ret = new char[strlen(childInfo.fname) + 1];
-    strcpy(ret, childInfo.fname);
+    uint32_t childCount = 0;
+
+    FILINFO childInfo{};
+
+    while(true) {
+        FRESULT res = fatInstance->f_readdir(&fatObject.dir, &childInfo);
+
+        if(res != FR_OK || childInfo.fname[0] == 0) {
+            break;
+        }
+
+        childCount++;
+    }
+
+    Util::Array<String> ret(childCount);
+
+    fatInstance->f_readdir(&fatObject.dir, nullptr);
+
+    for(uint32_t i = 0; i < childCount; i++) {
+        FRESULT res = fatInstance->f_readdir(&fatObject.dir, &childInfo);
+
+        if(res != FR_OK || childInfo.fname[0] == 0) {
+            break;
+        }
+
+        ret[i] = childInfo.fname;
+    }
+
+    fatInstance->f_readdir(&fatObject.dir, nullptr);
 
     return ret;
 }
 
-char *FatNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(info.fattrib & AM_DIR)
         return nullptr;
     
@@ -96,7 +114,7 @@ char *FatNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
     }
 
     uint32_t readBytes;
-    if(fatInstance->f_read(&fatObject.file, buf, numBytes, &readBytes) != FR_OK)
+    if(fatInstance->f_read(&fatObject.file, buf, static_cast<UINT>(numBytes), &readBytes) != FR_OK)
         return nullptr;
 
     if(readBytes < numBytes && f_eof(&fatObject.file))
@@ -105,7 +123,7 @@ char *FatNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
     return buf;
 }
 
-int32_t FatNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t FatNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(info.fattrib & AM_DIR)
         return -1;
 
@@ -113,7 +131,7 @@ int32_t FatNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
         return -1;
 
     uint32_t writtenBytes;
-    if(fatInstance->f_write(&fatObject.file, buf, numBytes, &writtenBytes) != FR_OK)
+    if(fatInstance->f_write(&fatObject.file, buf, static_cast<UINT>(numBytes), &writtenBytes) != FR_OK)
         return -1;
         
     fatInstance->f_sync(&fatObject.file);

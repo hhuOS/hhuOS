@@ -15,3 +15,11 @@ OutputStream *StdStreamService::getStderr() {
 void StdStreamService::setStderr(OutputStream *stream) {
     stderr = stream;
 }
+
+InputStream *StdStreamService::getStdin() {
+    return stdin;
+}
+
+void StdStreamService::setStdin(InputStream *stream) {
+    stdin = stream;
+}

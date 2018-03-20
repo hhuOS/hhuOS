@@ -15,25 +15,24 @@
 
 #include "kernel/services/FileSystem.h"
 #include "kernel/Kernel.h"
-#include <stdint.h>
+#include "lib/util/Array.h"
+#include <cstdint>
 
 extern "C" {
 #include "lib/libc/string.h"
 }
 
-/**
- * Contains information about a specific file.
- */
-struct DirEntry {
-    String name;
-    String fullPath;
-    uint32_t fileType;
-    uint64_t length;
-};
-
 class Directory {
 
+private:
 
+    FsNode *node;
+
+    String path;
+
+    Directory(FsNode *arg_node, const String &arg_path) : node(arg_node) {
+        path = FileSystem::parsePath(arg_path);
+    };
 
 public:
     ~Directory() {
@@ -42,25 +41,11 @@ public:
 
     static Directory *open(const String &path);
 
-    DirEntry *getInfo();
+    String getName();
 
-    DirEntry *nextEntry();
+    String getAbsolutePath();
 
-    void setPos(uint32_t pos);
-
-    uint32_t getPos();
-
-private:
-
-    FsNode *node;
-
-    String path;
-
-    uint32_t pos = 0;
-
-    Directory(FsNode *arg_node, const String &arg_path) : node(arg_node) {
-        path = FileSystem::parsePath(arg_path);
-    };
+    Util::Array<String> getChildren();
 };
 
 #endif

@@ -9,13 +9,13 @@ uint64_t StderrNode::getLength() {
     return 0;
 }
 
-char *StderrNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *StderrNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     memset(buf, 0, numBytes);
 
     return buf;
 }
 
-int32_t StderrNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t StderrNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stderr = stdStreamService->getStderr();
     
     *stderr << buf;

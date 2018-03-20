@@ -39,9 +39,9 @@ public:
     String getName();
     uint8_t getFileType();
     uint64_t getLength();
-    String getChild(uint32_t pos);
-    char *readData(char *buf, uint64_t pos, uint32_t numBytes);
-    int32_t writeData(char *buf, uint64_t pos, uint32_t numBytes);
+    Util::Array<String> getChildren();
+    char *readData(char *buf, uint64_t pos, uint64_t numBytes);
+    int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
 };
 
 #endif

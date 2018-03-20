@@ -36,9 +36,7 @@ uint32_t counter = 0;
 
 char *appendPathToCwd(char *path) {
 
-    DirEntry *entry = cwd->getInfo();
-
-    String tmp = entry->fullPath;
+    String tmp = cwd->getAbsolutePath();
 
     if (!tmp.endsWith(FileSystem::SEPARATOR)) {
         tmp += FileSystem::SEPARATOR;
@@ -49,8 +47,6 @@ char *appendPathToCwd(char *path) {
     char *ret = new char[tmp.length() + 1];
 
     memcpy(ret, (char*) tmp, tmp.length() + 1);
-    
-    delete entry;
 
     return ret;
 }
@@ -139,18 +135,22 @@ void VFSApp::executeCommand() {
             return;
         }
 
-        DirEntry *currentEntry;
-        while((currentEntry = dir->nextEntry()) != nullptr) {
-            *stream << currentEntry->name;
-            if(currentEntry->fileType == DIRECTORY_FILE) *stream << "/";
+        for(const String &entry : dir->getChildren()) {
+            *stream << entry;
+
+            Directory *tmp = Directory::open(entry);
+
+            if(tmp != nullptr) *stream << "/";
+
+            delete tmp;
+
             *stream << endl;
-            delete currentEntry;
         }
 
-        if(dir == cwd)
-            cwd->setPos(0);
-        else
+        if(dir != cwd) {
             delete dir;
+        }
+
     } else if(!strcmp(params[0], "cd")) {
         if(paramCount < 2) {
             *stream << "Too few arguments!" << endl;
@@ -472,12 +472,10 @@ void VFSApp::run () {
     *stream << "Welcome to the VFS-Shell! This demo lets you interact with hhuOS' virtual file system." << endl;
     *stream << "Enter 'help' for a list of available commands!" << endl;
 
-    DirEntry *entry = cwd->getInfo();
-    *stream << endl << "[" << entry->name << "] >";
-    delete entry;
+    *stream << endl << "[" << cwd->getName() << "] >";
     stream->flush();
     eventBus->subscribe(*this, KeyEvent::TYPE);
-    while(1);
+    while(true);
 }
 
 void VFSApp::onEvent(const Event &event) {
@@ -493,9 +491,7 @@ void VFSApp::onEvent(const Event &event) {
             // Driver might have been changed
             stream = graphicsService->getTextDriver();
 
-            DirEntry *entry = cwd->getInfo();
-            *stream << endl << "[" << entry->name << "] >";
-            delete entry;
+            *stream << endl << "[" << cwd->getName() << "] >";
             stream->flush();
         } else if(key.ascii() == '\b') {
             if(counter > 0) {

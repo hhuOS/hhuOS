@@ -96,7 +96,8 @@ void AsciimationApp::onEvent(const Event &event) {
                 stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.setpos(x, y);
-                fileName[strlen(fileName) - 1] = 0;
+
+                memset(&fileName[strlen(fileName) - 1], 0, 4096 - (strlen(fileName) - 1));
             }
         } else {
             fileName[strlen(fileName)] = key.ascii();
@@ -125,11 +126,9 @@ void AsciimationApp::run () {
 
     lfb->placeString(std_font_8x16, 50, 50, "Reading file...", Colors::WHITE, Colors::INVISIBLE);
 
-    DirEntry *info = file->getInfo();
-    buffer = new char[info->length];
     *file >> buffer;
 
-    fileLength = info->length;
+    fileLength = file->getLength();
 
     lfb->enableDoubleBuffering();
     lfb->clear();

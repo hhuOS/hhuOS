@@ -56,12 +56,9 @@ namespace Tar {
 
 
     Archive &Archive::from(File &file) {
+        char *buffer = new char[file.getLength()];
 
-        DirEntry *entry = file.getInfo();
-
-        char *buffer = new char[entry->length];
-
-        file.readBytes(buffer, entry->length);
+        file.readBytes(buffer, file.getLength());
 
         Address address((uint32_t) buffer);
 

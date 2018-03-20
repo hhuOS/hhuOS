@@ -17,7 +17,7 @@ uint64_t GraphicsMemoryNode::getLength() {
     }
 }
 
-char *GraphicsMemoryNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *GraphicsMemoryNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     String string;
 
     switch(mode) {
@@ -42,6 +42,6 @@ char *GraphicsMemoryNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
     return buf;
 }
 
-int32_t GraphicsMemoryNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t GraphicsMemoryNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return -1;
 }

@@ -4,6 +4,8 @@
 #include "../FsNode.h"
 #include "lib/LinkedList.h"
 #include <stdint.h>
+#include <lib/util/ArrayList.h>
+#include <lib/deprecated/ArrayList.h>
 
 extern "C" {
 #include "lib/libc/string.h"
@@ -30,30 +32,15 @@ public:
             data = new char[1];
             data[0] = VFS_EOF;
         }
-
-        if(fileType == DIRECTORY_FILE) {
-            children = new LinkedList<VirtualNode>();
-        }
     }
 
     virtual ~VirtualNode() {
+        for(const auto &elemement : children) {
+            delete elemement;
+        }
 
         if(fileType == REGULAR_FILE) {
             delete data;
-        }
-
-        if(fileType == DIRECTORY_FILE) {
-
-            for(uint32_t i = 0; i < children->length(); i++) {
-
-                VirtualNode *currentNode = children->get(i);
-
-                children->remove(currentNode);
-
-                delete currentNode;
-            }
-
-            delete children;
         }
     }
 
@@ -61,25 +48,22 @@ public:
 
     uint8_t getFileType();
 
-    String getChild(uint32_t pos);
+    Util::ArrayList<VirtualNode*> &getChildren();
     
     virtual uint64_t getLength();
 
-    virtual char *readData(char *buf, uint64_t pos, uint32_t numBytes);
+    virtual char *readData(char *buf, uint64_t pos, uint64_t numBytes);
 
-    virtual int32_t writeData(char *buf, uint64_t pos, uint32_t numBytes);
-
-    LinkedList<VirtualNode> *getChildren();
+    virtual int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
 
 private:
-
     String name;
 
     uint8_t fileType;
 
     uint32_t length;
 
-    LinkedList<VirtualNode> *children;
+    Util::ArrayList<VirtualNode*> children;
 
     char *data;
 };

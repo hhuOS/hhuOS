@@ -37,12 +37,12 @@ extern "C" {
 
 VirtualNode *getChildByName(VirtualNode *parent, const String &path) {
 
-    LinkedList<VirtualNode> *children = parent->getChildren();
+    Util::ArrayList<VirtualNode*> &children = parent->getChildren();
 
-    for(uint32_t i = 0; i < children->length(); i++) {
+    for(uint32_t i = 0; i < children.size(); i++) {
 
-        if(children->get(i)->getName() == path) {
-            return parent->getChildren()->get(i);
+        if(children.get(i)->getName() == path) {
+            return children.get(i);
         }
     }
     
@@ -111,7 +111,7 @@ int32_t RamFsDriver::addNode(const String &path, VirtualNode *node) {
         return -1;
     }
 
-    currentDir->getChildren()->add(node);
+    currentDir->getChildren().add(node);
     return 0;
 }
 
@@ -145,7 +145,7 @@ int32_t RamFsDriver::createNode(const String &path, uint8_t fileType) {
 
     VirtualNode *newNode = new VirtualNode(token[token.length() - 1], fileType);
 
-    currentDir->getChildren()->add(newNode);
+    currentDir->getChildren().add(newNode);
 
     return 0;
 }
@@ -176,7 +176,7 @@ int32_t RamFsDriver::deleteNode(const String &path) {
         return -1;
     }
 
-    currentDir->getChildren()->remove(node);
+    currentDir->getChildren().remove(node);
 
     delete node;
 

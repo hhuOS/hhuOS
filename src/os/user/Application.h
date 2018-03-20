@@ -50,7 +50,7 @@ public:
     // Thread-Startmethode
     void run ();
 
-    void onEvent(const Event &event) override ;
+    void onEvent(const Event &event) override;
 
     void startGame(Game *game);
 

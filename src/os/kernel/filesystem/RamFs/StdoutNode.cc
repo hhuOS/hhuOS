@@ -9,13 +9,13 @@ uint64_t StdoutNode::getLength() {
     return 0;
 }
 
-char *StdoutNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *StdoutNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     memset(buf, 0, numBytes);
     
     return buf;
 }
 
-int32_t StdoutNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stdout = stdStreamService->getStdout();
 
     char printBuf[numBytes + 1];

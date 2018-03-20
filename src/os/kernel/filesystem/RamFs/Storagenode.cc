@@ -6,9 +6,9 @@ uint64_t StorageNode::getLength() {
     return disk->getSectorCount() * 512;
 }
 
-char *StorageNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *StorageNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     uint64_t startSector = pos / SECTOR_SIZE;
-    uint32_t count = (numBytes / SECTOR_SIZE) + 2;
+    uint64_t count = (numBytes / SECTOR_SIZE) + 2;
     uint8_t hddData[count * SECTOR_SIZE];
     
     if(!disk->read(hddData, startSector, count))
@@ -18,10 +18,10 @@ char *StorageNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
     return buf;
 }
 
-int32_t StorageNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t StorageNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     uint64_t startSector = pos / SECTOR_SIZE;
     uint64_t lastSector = startSector + (numBytes / SECTOR_SIZE) + 1;
-    uint32_t count = (numBytes / SECTOR_SIZE) + 2;
+    uint64_t count = (numBytes / SECTOR_SIZE) + 2;
     uint8_t hddData[count * SECTOR_SIZE];
     
     //Read the first and last sector of the affected area.

@@ -39,15 +39,8 @@ uint64_t VirtualNode::getLength() {
  * 
  * @return The node's children.
  */
-String VirtualNode::getChild(uint32_t pos) {
-
-    VirtualNode *node = children->get(pos);
-
-    if(node != nullptr) {
-        return node->getName();
-    }
-
-    return "";
+Util::ArrayList<VirtualNode*> &VirtualNode::getChildren() {
+    return children;
 }
 
 /**
@@ -59,7 +52,7 @@ String VirtualNode::getChild(uint32_t pos) {
  * 
  * @return The data.
  */
-char *VirtualNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
+char *VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     if(pos > length) {
 
@@ -68,7 +61,7 @@ char *VirtualNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
         return buf;
     }
     
-    for(uint32_t i = 0; i < numBytes; i++) {
+    for(uint64_t i = 0; i < numBytes; i++) {
 
         buf[i] = data[pos + i];
 
@@ -90,7 +83,7 @@ char *VirtualNode::readData(char *buf, uint64_t pos, uint32_t numBytes) {
  * 
  * @return 0, if the data has been written succesfully.
  */
-int32_t VirtualNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
+int64_t VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     if(pos + numBytes >= length) {
 
@@ -121,8 +114,4 @@ int32_t VirtualNode::writeData(char *buf, uint64_t pos, uint32_t numBytes) {
     }
     
     return i;
-}
-
-LinkedList<VirtualNode> *VirtualNode::getChildren() {
-    return children;
 }

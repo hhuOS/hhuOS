@@ -19,9 +19,9 @@ public:
 
     uint64_t getLength() override;
 
-    char *readData(char *buf, uint64_t pos, uint32_t numBytes) override;
+    char *readData(char *buf, uint64_t pos, uint64_t numBytes) override;
 
-    int32_t writeData(char *buf, uint64_t pos, uint32_t numBytes) override;
+    int64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
 
 #endif

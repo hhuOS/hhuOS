@@ -19,7 +19,7 @@ public:
 
     virtual InputStream& operator >> (char &c) = 0;
 
-    virtual InputStream& operator >> (char *string) = 0;
+    virtual InputStream& operator >> (char *&string) = 0;
 
     virtual InputStream& operator >> (OutputStream &outStream) = 0;
 };

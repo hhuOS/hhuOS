@@ -1,8 +1,13 @@
 #include "File.h"
 
-extern "C" {
-#include "lib/libc/string.h"    
-}
+File::File(FsNode *node, const String &path, const String &mode) : node(node) {
+        this->path = FileSystem::parsePath(path);
+        this->mode = mode;
+
+        if(mode.beginsWith("a") && node->getFileType() == REGULAR_FILE) {
+            pos = node->getLength();
+        }
+};
 
 /**
  * Tries to open the file at a specified path.
@@ -66,24 +71,20 @@ File *File::open(const String &path, const String &mode) {
     return new File(node, path, mode);
 }
 
-/**
- * Returns a DirEntry-struct, that contains information about this file.
- * 
- * @return The DirEntry-struct
- */
-DirEntry *File::getInfo() {
+String File::getName() {
+    return node->getName();
+}
 
-    DirEntry *entry = new DirEntry();
+String File::getAbsolutePath() {
+    return path;
+}
 
-    entry->name = node->getName();
+uint32_t File::getFileType() {
+    return node->getFileType();
+}
 
-    entry->fullPath = path;
-
-    entry->fileType = node->getFileType();
-
-    entry->length = node->getLength();
-
-    return entry;
+uint64_t File::getLength() {
+    return node->getLength();
 }
 
 /**
@@ -129,7 +130,7 @@ int32_t File::writeString(char *string) {
  * 
  * @return 0, on success.
  */
-int32_t File::writeBytes(char *data, uint32_t len) {
+int32_t File::writeBytes(char *data, uint64_t len) {
     if(mode[0] == 'r' && mode[1] != '+') return -1;
     uint32_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
@@ -164,7 +165,7 @@ char File::readChar() {
  * 
  * @return The string.
  */
-char *File::readString(char *buf, uint32_t len) {
+char *File::readString(char *buf, uint64_t len) {
     if(mode[0] != 'r' && mode[1] != '+') return nullptr;
 
     uint32_t i;
@@ -189,7 +190,7 @@ char *File::readString(char *buf, uint32_t len) {
  * 
  * @return The string.
  */
-char *File::readBytes(char *buf, uint32_t len) {
+char *File::readBytes(char *buf, uint64_t len) {
     if(mode[0] != 'r' && mode[1] != '+') return nullptr;
 
     if(node->readData(buf, pos, len) == nullptr) return nullptr;
@@ -204,7 +205,7 @@ char *File::readBytes(char *buf, uint32_t len) {
  * 
  * @return The current value of 'pos'.
  */
-uint32_t File::getPos() {
+uint64_t File::getPos() {
     return pos;
 }
 
@@ -217,7 +218,7 @@ uint32_t File::getPos() {
  *               SEEK_CUR: The current position;
  *               SEEK_END: The end of the file.
  */
-void File::setPos(uint32_t offset, uint32_t origin) {
+void File::setPos(uint64_t offset, uint32_t origin) {
     switch(origin) {
         case SEEK_SET :
             pos = offset;
@@ -244,15 +245,18 @@ InputStream& File::operator >> (char &c) {
     return *this;
 }
 
-InputStream& File::operator >> (char *string) {
-    readBytes(string, node->getLength());
+InputStream& File::operator >> (char *&string) {
+    uint64_t len = node->getLength();
+    string = new char[len + 1];
+
+    readBytes(string, len);
 
     return *this;
 }
 
 InputStream& File::operator >> (OutputStream &outStream) {
-    uint32_t len = node->getLength();
-    char *buf = new char[len + 1];
+    uint64_t len = node->getLength();
+    auto *buf = new char[len + 1];
 
     readBytes(buf, len);
     buf[len] = 0;

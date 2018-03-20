@@ -56,7 +56,7 @@ public:
      * 
      * @return The node's children.
      */
-    virtual String getChild(uint32_t pos) = 0;
+    virtual Util::Array<String> getChildren() = 0;
     
     /**
      * Reads bytes from the node's data.
@@ -67,7 +67,7 @@ public:
      * 
      * @return The data.
      */
-    virtual char *readData(char *buf, uint64_t pos, uint32_t numBytes) = 0;
+    virtual char *readData(char *buf, uint64_t pos, uint64_t numBytes) = 0;
     
     /**
      * Writes bytes to the node's data. If the offset points right into the existing data,
@@ -80,7 +80,7 @@ public:
      * 
      * @return 0, if the data has been written succesfully.
      */
-    virtual int32_t writeData(char *buf, uint64_t pos, uint32_t length) = 0;
+    virtual int64_t writeData(char *buf, uint64_t pos, uint64_t length) = 0;
 };
 
 #endif
