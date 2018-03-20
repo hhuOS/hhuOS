@@ -5,6 +5,7 @@
  * @date HHU, 2018
  */
 
+#include <lib/file/tar/Archive.h>
 
 #include <kernel/threads/IdleThread.h>
 
@@ -18,29 +19,16 @@
 #include <kernel/services/StdStreamService.h>
 #include <kernel/services/SoundService.h>
 #include <devices/graphics/text/VesaText.h>
-#include <kernel/Cpu.h>
-#include <kernel/Bios.h>
 #include <devices/Pit.h>
-#include <kernel/interrupts/Pic.h>
 #include <kernel/threads/Scheduler.h>
-#include <lib/util/HashMap.h>
-#include <lib/util/BlockingQueue.h>
-#include <lib/Bmp.h>
-#include "lib/libc/printf.h"
-#include <lib/libc/snprintf.h>
-#include <kernel/services/GraphicsService.h>
-#include "kernel/memory/SystemManagement.h"
+
 #include "bootlogo.h"
 
-#define DEBUG_MODE 1
+#define DEBUG_MODE 0
 
 #define VERSION "0.1"
 
 extern char *gitversion;
-
-extern "C" {
-    void mm_init();
-}
 
 IdleThread *idleThread;
 EventBus *eventBus;

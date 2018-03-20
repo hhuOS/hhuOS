@@ -1,13 +1,5 @@
-src/os/build/
-src/os/dep/
-src/hdd/symbols
-src/hdd/debugSymbols
-src/boot/setup
-src/boot/bootsect
-src/os/.gdb_history
-src/os/gitversion.c
-src/loader/boot/hhuOS.bin
-src/os/hdd.img
+# Project files and folders
+cmake-build-debug
 .gdb_history
 .vscode/
 .cproject
@@ -15,5 +7,17 @@ src/os/hdd.img
 .settings/
 .idea
 
-cmake-build-debug
+# Files generated during build
+src/os/build/
+src/os/dep/
+
+# hhuOS kernel and initrd
+src/loader/boot/hhuOS.bin
+src/loader/boot/hhuOS.initrd
+
+# hhuOS hard drive image
+src/os/hdd.img
+
+# hhuOS current commit
+src/os/gitversion.c
 

@@ -19,9 +19,9 @@ namespace Util {
 
     public:
 
-        ArrayList();
+        ArrayList() noexcept;
 
-        explicit ArrayList(uint32_t capacity);
+        explicit ArrayList(uint32_t capacity) noexcept;
 
         ArrayList(const ArrayList<T> &other) = delete;
 

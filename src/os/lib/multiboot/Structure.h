@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include "Constants.h"
+#include "lib/util/HashMap.h"
 
 namespace Multiboot {
 
@@ -22,11 +23,17 @@ namespace Multiboot {
 
         static uint32_t getTotalMem();
 
+        static Multiboot::ModuleInfo getModule(const String &module);
+
+        static bool isModuleLoaded(const String &module);
+
     private:
 
         static Info info;
 
         static MemoryMapEntry *memoryMap;
+
+        static Util::HashMap<String, Multiboot::ModuleInfo> modules;
 
     };
 }

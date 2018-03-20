@@ -19,16 +19,18 @@
 # -----------------------------------------------------------------------------
 # Liste der Quelltexte:
 
-STARTUP_SOURCE = ./startup.asm
-CC_SOURCES = $(shell find . -name "*.cc")
-C_SOURCES = $(shell find . -name "*.c")
-ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
+STARTUP_SOURCE 		= ./startup.asm
+CC_SOURCES 			= $(shell find . -name "*.cc")
+C_SOURCES 			= $(shell find . -name "*.c")
+ASM_SOURCES 		= $(shell find ./kernel ./lib -name "*.asm")
 
-OBJDIR = ./build
-DEPDIR = ./dep
-HDD_PATH = ../hdd
-LOADERDIR = ../loader
-BOOTDIR = $(LOADERDIR)/boot
+OBJDIR 				= ./build
+DEPDIR 				= ./dep
+HDD_PATCH			= ../hdd
+INITRD_PATH			= ../initrd
+LOADERDIR 			= ../loader
+BOOTDIR 			= $(LOADERDIR)/boot
+SERIAL_TTY   	 	= /dev/pts/1
 
 # Einstellungen in Abhaengigkeit vom Generierungssystem:
 #
@@ -43,56 +45,61 @@ BOOTDIR = $(LOADERDIR)/boot
 #    ASM:          Zu benutzender Assembler
 #    CC/CXX:       Zu benutzender C/C++-Compiler
 #    CFLAGS:       Flags fuer den C-Compileraufruf
-#    CXXFLAGS:     Flags fuer den C++-Compileraufruf
+#    CXXFLAGS:     C++ compiler flags
 
-VERBOSE = @
-ASMOBJFORMAT = elf
-DELETE = rm
-COPY = cp
-NM = nm
-ASM = nasm
-CC ?= gcc
-CXX ?= g++
-MAKE = make
-CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib -ffreestanding -mno-sse -I. -g #-DDEBUG
-CXXFLAGS := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++11
-ASMFLAGS := $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
-SERIAL_TTY = /dev/pts/1
+VERBOSE 		 	= @
+ASMOBJFORMAT 	 	= elf
+
+ASM 			 	= nasm
+CC 				   ?= gcc
+CXX 			   ?= g++
+
+CFLAGS 			   := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
+								-ffreestanding -mno-sse -I. -g #-DDEBUG
+
+CXXFLAGS 		   := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
+ 								-fno-rtti -fno-exceptions -std=c++11
+
+ASMFLAGS 		   := $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
+
+DELETE 			 	= rm
+COPY 			 	= cp
+NM 				 	= nm
+TAR					= tar
+MAKE 			 	= make
 
 # --------------------------------------------------------------------------
 # QEMU and KVM defaults
 
-QEMU_BIN = qemu-system-i386 -cpu core2duo
-#QEMU_BIN = qemu-system-x86_64
-KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
-#KVM_BIN = kvm
-GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
+QEMU_BIN 		 	= qemu-system-i386 -cpu core2duo
+KVM_BIN 		  	= qemu-system-i386 -enable-kvm -no-kvm-irqchip
+GRUB_BIN 		 	= grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk -vga std -monitor stdio \
-		-readconfig usb.cfg \
-		-drive format=raw,file=hdd.img,if=none,id=disk0 \
-		-device ich9-ahci,id=ahci \
-		-device ide-drive,drive=disk0,bus=ahci.0 \
-		-rtc base=localtime,clock=host \
-		-m 1G
+					  -readconfig usb.cfg \
+					  -drive format=raw,file=hdd.img,if=none,id=disk0 \
+					  -device ich9-ahci,id=ahci \
+					  -device ide-drive,drive=disk0,bus=ahci.0 \
+					  -rtc base=localtime,clock=host \
+					  -m 1G
 
 # -------------------------------------------------------------------------
 # Namen der Unterverzeichnisse mit den Quelltexten
 
-VPATH = $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)))
+VPATH 				= $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)))
 
 # -------------------------------------------------------------------------
 # Listen mit den Objektdateien, die beim Kompilieren entstehen:
 
-FIRST_OBJECT = $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
-C_OBJECTS = $(notdir $(C_SOURCES:.c=.o))
-CC_OBJECTS = $(notdir $(CC_SOURCES:.cc=.o))
+FIRST_OBJECT 		= $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
+C_OBJECTS 			= $(notdir $(C_SOURCES:.c=.o))
+CC_OBJECTS 			= $(notdir $(CC_SOURCES:.cc=.o))
 
-DEP_FILES = $(patsubst %.o,$(DEPDIR)/%.d,$(C_OBJECTS))
-DEP_FILES += $(patsubst %.o,$(DEPDIR)/%.d,$(CC_OBJECTS))
+DEP_FILES 			= $(patsubst %.o,$(DEPDIR)/%.d,$(C_OBJECTS))
+DEP_FILES 		   += $(patsubst %.o,$(DEPDIR)/%.d,$(CC_OBJECTS))
 
-ASM_OBJECTS = $(patsubst %.asm,_%.o, $(notdir $(ASM_SOURCES)))
-OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
+ASM_OBJECTS 		= $(patsubst %.asm,_%.o, $(notdir $(ASM_SOURCES)))
+OBJPRE 				= $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 
 # --------------------------------------------------------------------------
 # Default targets (einfaches Image, Image fuer USB Sticks, Image fuer VMWare
@@ -163,12 +170,18 @@ $(OBJDIR)/system.img : $(OBJDIR)/system
 # --------------------------------------------------------------------------
 # 'hhuOS.iso' besteht aus dem 'system', welches mit grub gestartet wird
 
+$(BOOTDIR)/hhuOS.initrd :
+	@echo "TAR		$@"
+	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
+	$(VERBOSE) $(TAR) -cf $@ $(INITRD_PATH)
+
+
 $(BOOTDIR)/hhuOS.bin : $(OBJDIR)/system
 	@echo "COPY		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(COPY) $< $@
 
-$(OBJDIR)/hhuOS.iso : $(BOOTDIR)/hhuOS.bin
+$(OBJDIR)/hhuOS.iso : $(BOOTDIR)/hhuOS.bin $(BOOTDIR)/hhuOS.initrd
 	@echo "BUILD		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)
@@ -184,6 +197,8 @@ clean:
 	$(VERBOSE) rm -rf $(DEPDIR)
 	@echo "RM		$(BOOTDIR)/hhuOS.bin"
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.bin
+	@echo "RM		$(BOOTDIR)/hhuOS.initrd"
+	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
 	rm -f gitversion.c
 
 bootdisk: $(OBJDIR)/hhuOS.iso
