@@ -544,8 +544,10 @@ uint32_t SystemManagement::allocPageTable() {
  * Frees a Page Table / Directory.
  */
 void SystemManagement::freePageTable(uint32_t virtTableAddress) {
+	// free virtual memory
 	pagingAreaManager->free(virtTableAddress);
-	// TODO: free the phys page frame
+	// free physical memory
+	pageFrameAllocator->free(virtTableAddress);
 }
 
 /**
