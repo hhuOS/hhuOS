@@ -94,7 +94,7 @@ inline void Speaker::delay (int time) {
     unsigned long ticks = time / 10;    // 1 tick = 10ms
 
     if(timeService == nullptr) {
-    	timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    	timeService = Kernel::getService<TimeService>();
     }
     unsigned long st    = timeService->getSystemTime();
     

@@ -16,19 +16,12 @@ Spinlock Kernel::serviceLock;
 
 Util::HashMap<String, KernelService*> Kernel::serviceMap(SERVICE_MAP_SIZE);
 
-/**
- * Returns the kernel service that is registered with a given ID.
- */
-KernelService* Kernel::getService(const String &serviceId) {
-    return serviceMap.get(serviceId);
-}
-
-/**
- * Registers an instance of a kernel service under a given ID.
- */
 void Kernel::registerService(const String &serviceId, KernelService* const &kernelService) {
+
     serviceLock.lock();
+
     serviceMap.put(serviceId, kernelService);
+
     serviceLock.unlock();
 }
 
@@ -37,21 +30,21 @@ bool Kernel::isServiceRegistered(const String &serviceId) {
     return serviceMap.containsKey(serviceId);
 }
 
-/**
- * Triggers a kernel panic with the given interrupt frame
- */
 void Kernel::panic(InterruptFrame *frame) {
 
     Cpu::disableInterrupts();
+
     uint32_t slot = frame->interrupt;
 
     // initialize a CGA text for panic because it is the
     // most save way for outprints
     CgaText cgaText;
+
     cgaText.init(80, 25, 4);
 
     // Paint screen blue
     auto *dest = (uint64_t *) VIRT_CGA_START;
+
     uint64_t end = cgaText.getRowCount() * cgaText.getColumnCount() * 2 / sizeof(uint64_t);
 
     for(uint64_t i = 0; i < end; i++) {

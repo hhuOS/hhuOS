@@ -314,7 +314,7 @@ void Pci::scanBus(uint8_t bus) {
 
 void Pci::scan() {
 
-    storageService = (StorageService*) Kernel::getService(StorageService::SERVICE_NAME);
+    storageService = Kernel::getService<StorageService>();
 
     uint8_t function;
     uint8_t bus;

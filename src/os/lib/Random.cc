@@ -21,7 +21,7 @@ Random::Random(uint32_t seed, uint32_t maxRand) {
 }
 
 Random::Random(uint32_t maxRand) {
-	this->seed = ((TimeService*) Kernel::getService(TimeService::SERVICE_NAME))->getSystemTime();
+	this->seed = (Kernel::getService<TimeService>())->getSystemTime();
 	this->maxRand = maxRand;
 }
 

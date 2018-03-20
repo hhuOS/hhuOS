@@ -9,7 +9,7 @@
  *         else nullptr.
  */
 Directory *Directory::open(const String &path) {
-    FileSystem *fileSystem = (FileSystem *) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
     FsNode *node = fileSystem->getNode(path);
 
@@ -65,7 +65,7 @@ DirEntry *Directory::nextEntry() {
 
     String childPath;
 
-    FileSystem *fileSystem = (FileSystem *) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
     if(pos == 0) {
 

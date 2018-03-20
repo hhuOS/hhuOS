@@ -6,7 +6,7 @@
 
 EventBus::EventBus() : Thread("EventBus"), receiverMap(7691), eventBuffer(1024 * 64), lock() {
 
-    //g2d = (LinearFrameBuffer*) Kernel::getService(LinearFrameBuffer::SERVICE_NAME);
+    //g2d = Kernel::getService<LinearFrameBuffer>();
 
     isInitialized = true;
 }

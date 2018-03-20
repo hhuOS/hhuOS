@@ -20,5 +20,5 @@
  * Beschreibung:    Code des Threads.                                        *
  *****************************************************************************/
 void Sound::run () {
-    ((SoundService*)Kernel::getService(SoundService::SERVICE_NAME))->getSpeaker()->aerodynamic();
+    Kernel::getService<SoundService>()->getSpeaker()->aerodynamic();
 }

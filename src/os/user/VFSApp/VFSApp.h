@@ -19,9 +19,9 @@ class VFSApp : public Thread, Receiver {
 public:
 
     VFSApp () : Thread ("VFSApp"), Receiver() {
-        graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
-        moduleLoader = (ModuleLoader*) Kernel::getService(ModuleLoader::SERVICE_NAME);
-        eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+        graphicsService = Kernel::getService<GraphicsService>();
+        moduleLoader = Kernel::getService<ModuleLoader>();
+        eventBus = Kernel::getService<EventBus>();
     }
 
     VFSApp (const VFSApp &copy) = delete; // Verhindere Kopieren

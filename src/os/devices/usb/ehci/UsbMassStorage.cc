@@ -14,7 +14,7 @@ UsbMassStorage::UsbMassStorage(AsyncListQueue::QueueHead *control, uint8_t portN
 
 void UsbMassStorage::init() {
 
-    debugService = (DebugService*) Kernel::getService(DebugService::SERVICE_NAME);
+    debugService = Kernel::getService<DebugService>();
 
     UsbEndpoint *endpointIn = findEndpoint(UsbEndpoint::TransferType::BULK, UsbEndpoint::Direction::IN);
     UsbEndpoint *endpointOut = findEndpoint(UsbEndpoint::TransferType::BULK, UsbEndpoint::Direction::OUT);

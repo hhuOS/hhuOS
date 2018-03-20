@@ -29,8 +29,8 @@ Spinlock Loop::printLock;
  *****************************************************************************/
 void Loop::run () {
     uint32_t i = 0;
-    TextDriver *stream = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getTextDriver();
-    TimeService *timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
+    TimeService *timeService = Kernel::getService<TimeService>();
 
     for (;isRunning;i++) {
 

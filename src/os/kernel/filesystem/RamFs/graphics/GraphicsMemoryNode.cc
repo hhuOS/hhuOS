@@ -3,7 +3,7 @@
 #include "GraphicsMemoryNode.h"
 
 GraphicsMemoryNode::GraphicsMemoryNode(uint8_t mode) : VirtualNode("memory", REGULAR_FILE), mode(mode) {
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
+    graphicsService = Kernel::getService<GraphicsService>();
 }
 
 uint64_t GraphicsMemoryNode::getLength() {

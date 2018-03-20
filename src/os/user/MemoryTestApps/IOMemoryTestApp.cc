@@ -18,7 +18,7 @@
 
 void IOMemoryTestApp::run () {
 
-    TextDriver &stream = *((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getTextDriver();
+    TextDriver &stream = *(Kernel::getService<GraphicsService>())->getTextDriver();
     SystemManagement *memoryManagement = SystemManagement::getInstance();
 
     stream.clear ();

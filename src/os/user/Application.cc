@@ -29,8 +29,8 @@
 #define MENU_OPTIONS 9
 
 Application::Application () : Thread ("Menu") {
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
-	timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    graphicsService = Kernel::getService<GraphicsService>();
+	timeService = Kernel::getService<TimeService>();
 }
 
 /*****************************************************************************
@@ -255,18 +255,18 @@ void Application::startGame(Game* game){
  *                  ausgeben und terminiert sich selbst.                     *
  *****************************************************************************/
 void Application::run() {
-    timeService = (TimeService *) Kernel::getService(TimeService::SERVICE_NAME);
+    timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
     Pit::getInstance()->setCursor(false);
 //    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
 
-    ((EventBus*) Kernel::getService(EventBus::SERVICE_NAME))->subscribe(*this, KeyEvent::TYPE);
+    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 
     showMenu();
 
-    ((EventBus*) Kernel::getService(EventBus::SERVICE_NAME))->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
 
     startSelectedApp();
 }

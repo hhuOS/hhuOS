@@ -3,7 +3,7 @@
 #include "GraphicsDeviceNameNode.h"
 
 GraphicsDeviceNameNode::GraphicsDeviceNameNode(uint8_t mode) : VirtualNode("device", REGULAR_FILE), mode(mode) {
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
+    graphicsService = Kernel::getService<GraphicsService>();
 }
 
 uint64_t GraphicsDeviceNameNode::getLength() {

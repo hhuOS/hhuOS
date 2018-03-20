@@ -93,7 +93,7 @@ void BugDefender::drawInfo(LinearFrameBuffer* g2d){
 
 void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
-    Rtc *rtc = ((TimeService *) Kernel::getService(TimeService::SERVICE_NAME))->getRTC();
+    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
 
     Rtc::date date = rtc->getCurrentDate();
 
@@ -111,7 +111,7 @@ void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
     g2d->placeString(pearl_font_8x8, 50, 85, "Please press Enter", Colors::WHITE);
 
-    ((DebugService*) Kernel::getService(DebugService::SERVICE_NAME))->printPic();
+    (Kernel::getService<DebugService>())->printPic();
 }
 
 void BugDefender::showGameOver(LinearFrameBuffer* g2d){

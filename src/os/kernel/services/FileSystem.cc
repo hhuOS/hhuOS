@@ -93,7 +93,7 @@ FileSystem::MountInfo FileSystem::getMountInfo(const String &path) {
 }
 
 void FileSystem::init() {
-    StorageService *storageService = (StorageService *) Kernel::getService(StorageService::SERVICE_NAME);
+    StorageService *storageService = Kernel::getService<StorageService>();
 
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
@@ -145,7 +145,7 @@ void FileSystem::init() {
     addVirtualNode("/dev", new StderrNode());
 
     // Subcribe to Storage-Event from the EventBus
-    EventBus *eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+    EventBus *eventBus = Kernel::getService<EventBus>();
     eventBus->subscribe(*this, StorageAddEvent::TYPE);
     eventBus->subscribe(*this, StorageRemoveEvent::TYPE);
 }
@@ -179,7 +179,7 @@ int32_t FileSystem::createFilesystem(const String &devicePath, const String &fsT
 
     fsLock.lock();
 
-    StorageService *storageService = (StorageService *) Kernel::getService(StorageService::SERVICE_NAME);
+    StorageService *storageService = Kernel::getService<StorageService>();
     StorageDevice *disk = storageService->getDevice(deviceName);
     
     FsDriver *tmpDriver = nullptr;
@@ -200,7 +200,7 @@ int32_t FileSystem::createFilesystem(const String &devicePath, const String &fsT
 }
 
 int32_t FileSystem::mount(const String &device, const String &path, const String &type) {
-    StorageService *storageService = (StorageService *) Kernel::getService(StorageService::SERVICE_NAME);
+    StorageService *storageService = Kernel::getService<StorageService>();
     StorageDevice *disk = nullptr;
 
     String parsedPath = parsePath(path);

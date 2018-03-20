@@ -9,7 +9,7 @@ extern "C" {
 
 int module_init() {
 
-    FileSystem *fileSystem = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
     return fileSystem->addVirtualNode("/dev", new ZeroNode());
 }

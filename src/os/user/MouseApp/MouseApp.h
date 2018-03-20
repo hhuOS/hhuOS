@@ -30,9 +30,9 @@ public:
     MouseApp(const MouseApp &copy) = delete;
 
     MouseApp() : Thread("MouseApp"), Receiver() {
-        eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+        eventBus = Kernel::getService<EventBus>();
 
-        lfb = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getLinearFrameBuffer();
+        lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
         xPos = lfb->getResX() / 2 - 25/2;
         yPos = lfb->getResY() / 2 - 25/2;
         color = Colors::WHITE;

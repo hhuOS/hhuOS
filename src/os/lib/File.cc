@@ -32,7 +32,7 @@ File *File::open(const String &path, const String &mode) {
     }
 
 
-    FileSystem *fileSystem = (FileSystem *) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
     FsNode *node = fileSystem->getNode(path);
 

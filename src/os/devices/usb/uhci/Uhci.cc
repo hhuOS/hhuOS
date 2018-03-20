@@ -23,7 +23,7 @@ void Uhci::setup(const Pci::Device &dev) {
 
     pciDevice = dev;
 
-    timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    timeService = Kernel::getService<TimeService>();
 
     uint32_t base = Pci::readDoubleWord(dev.bus, dev.device,
          dev.function, Pci::PCI_HEADER_BAR4) & 0xFFFFFFF0;

@@ -3,7 +3,7 @@
 #include "GraphicsResolutionsNode.h"
 
 GraphicsResolutionsNode::GraphicsResolutionsNode(uint8_t mode) : VirtualNode("resolutions", REGULAR_FILE), mode(mode) {
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
+    graphicsService = Kernel::getService<GraphicsService>();
 }
 
 uint64_t GraphicsResolutionsNode::getLength() {

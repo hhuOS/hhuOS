@@ -3,7 +3,7 @@
 #include "GraphicsVendorNameNode.h"
 
 GraphicsVendorNameNode::GraphicsVendorNameNode(uint8_t mode) : VirtualNode("vendor", REGULAR_FILE), mode(mode){
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
+    graphicsService = Kernel::getService<GraphicsService>();
 }
 
 uint64_t GraphicsVendorNameNode::getLength() {

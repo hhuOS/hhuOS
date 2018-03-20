@@ -44,7 +44,7 @@ Bmp::~Bmp () {
 }
 
 void Bmp::print (int xpos, int ypos) {
-    LinearFrameBuffer *lfb = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getLinearFrameBuffer();
+    LinearFrameBuffer *lfb = (Kernel::getService<GraphicsService>())->getLinearFrameBuffer();
 
     for(int y = height-1; y >= 0; --y) {
         for(int x = 0; x < width; ++x) {

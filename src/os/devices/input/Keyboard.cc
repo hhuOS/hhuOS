@@ -257,7 +257,7 @@ void Keyboard::get_ascii_code () {
  *****************************************************************************/
 Keyboard::Keyboard () : ctrl_port (0x64), data_port (0x60), eventBuffer(1024) {
 
-    eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+    eventBus = Kernel::getService<EventBus>();
 
     // alle LEDs ausschalten (bei vielen PCs ist NumLock nach dem Booten an)
     set_led (led::caps_lock, false);

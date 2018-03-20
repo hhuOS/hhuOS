@@ -2,7 +2,7 @@
 #include "kernel/Kernel.h"
 
 StderrNode::StderrNode() : VirtualNode("stderr", CHAR_FILE) {
-    stdStreamService = (StdStreamService *) Kernel::getService(StdStreamService::SERVICE_NAME);
+    stdStreamService = Kernel::getService<StdStreamService>();
 }
 
 uint64_t StderrNode::getLength() {

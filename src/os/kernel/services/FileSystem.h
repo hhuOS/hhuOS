@@ -50,7 +50,7 @@ public:
             delete currentMountPoint;
         }
 
-        EventBus *eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+        EventBus *eventBus = Kernel::getService<EventBus>();
         eventBus->unsubscribe(*this, StorageAddEvent::TYPE);
         eventBus->unsubscribe(*this, StorageRemoveEvent::TYPE);
     }

@@ -88,8 +88,8 @@ void registerServices() {
     Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
 
-    ((StdStreamService *) Kernel::getService(StdStreamService::SERVICE_NAME))->setStdout(text);
-    ((StdStreamService *) Kernel::getService(StdStreamService::SERVICE_NAME))->setStderr(text);
+    Kernel::getService<StdStreamService>()->setStdout(text);
+    Kernel::getService<StdStreamService>()->setStderr(text);
 }
 
 void initGraphics() {
@@ -128,7 +128,7 @@ int32_t main() {
     registerServices();
 
     text->puts("Enabling Interrupts\n", 20, Colors::HHU_RED);
-    InputService *inputService = (InputService*)Kernel::getService(InputService::SERVICE_NAME);
+    InputService *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
@@ -136,14 +136,14 @@ int32_t main() {
     Pit::getInstance()->setCursor(true);
     Pic::getInstance()->allow(2);
 
-    Rtc *rtc = ((TimeService*) Kernel::getService(TimeService::SERVICE_NAME))->getRTC();
+    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
 
     text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
     Pci::scan();
 
     text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
-    FileSystem *fs = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fs = Kernel::getService<FileSystem>();
     fs->init();
     printfUpdateStdout();
 
@@ -171,7 +171,7 @@ int32_t main() {
     registerServices();
 
     updateBootScreen(34, "Enabling Interrupts");
-    InputService *inputService = (InputService*)Kernel::getService(InputService::SERVICE_NAME);
+    InputService *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
@@ -179,14 +179,14 @@ int32_t main() {
     Pit::getInstance()->setCursor(true);
     Pic::getInstance()->allow(2);
 
-    Rtc *rtc = ((TimeService*) Kernel::getService(TimeService::SERVICE_NAME))->getRTC();
+    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
 
     updateBootScreen(51, "Initializing PCI Devices");
     Pci::scan();
 
     updateBootScreen(68, "Initializing Filesystem");
-    FileSystem *fs = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fs = Kernel::getService<FileSystem>();
     fs->init();
     printfUpdateStdout();
 
@@ -199,11 +199,13 @@ int32_t main() {
     app->start();
 	
     updateBootScreen(100, "Finished Booting!");
-    ((TimeService*) Kernel::getService(TimeService::SERVICE_NAME))->msleep(1000);
+    Kernel::getService<TimeService>()->msleep(1000);
 
     lfb->disableDoubleBuffering();
     lfb->clear();
 #endif
+
+    Kernel::getService<TimeService>()->getRTC();
 
     Scheduler::getInstance()->schedule();
 

@@ -7,7 +7,7 @@ StorageDevice *StorageService::getDevice(const String &name) {
 }
 
 void StorageService::registerDevice(StorageDevice *device) {
-    EventBus *eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+    EventBus *eventBus = Kernel::getService<EventBus>();
 
     devices.put(device->getName(), device);
 
@@ -38,7 +38,7 @@ void StorageService::registerDevice(StorageDevice *device) {
 }
 
 void StorageService::removeDevice(const String &name) {
-    EventBus *eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
+    EventBus *eventBus = Kernel::getService<EventBus>();
 
     List<String> *deviceNames = devices.keySet();
     for(const String &currentName : *deviceNames) {

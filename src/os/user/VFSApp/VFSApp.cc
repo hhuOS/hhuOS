@@ -84,7 +84,7 @@ namespace BmpCommand {
 
 void VFSApp::executeCommand() {
     TextDriver *stream = graphicsService->getTextDriver();
-    FileSystem *fileSystem = (FileSystem *) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
     
     uint32_t paramCount = 0;
     char *ptr = strtok(currentCommand, " ");

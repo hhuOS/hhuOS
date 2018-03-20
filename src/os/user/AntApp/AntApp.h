@@ -40,7 +40,7 @@ public:
 	int y;
 
 	AntApp () : Thread ("AntApp") {
-		lfb = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getLinearFrameBuffer();
+		lfb = (Kernel::getService<GraphicsService>())->getLinearFrameBuffer();
 		_bouncing = true;
 		_random = new Random(400);
 		_col = Colors::YELLOW;

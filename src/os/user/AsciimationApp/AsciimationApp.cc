@@ -20,10 +20,10 @@ extern "C" {
 }
 
 AsciimationApp::AsciimationApp () : Thread ("AsciimationApp") {
-    eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
-    graphicsService = (GraphicsService*) Kernel::getService(GraphicsService::SERVICE_NAME);
-    fileSystem = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
-    timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    eventBus = Kernel::getService<EventBus>();
+    graphicsService = Kernel::getService<GraphicsService>();
+    fileSystem = Kernel::getService<FileSystem>();
+    timeService = Kernel::getService<TimeService>();
 
     memset(fileName, 0, 4096);
 }

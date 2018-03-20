@@ -11,9 +11,9 @@
 
 
 DebugService::DebugService() {
-	timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
-    keyboard = ((InputService*) Kernel::getService(InputService::SERVICE_NAME))->getKeyboard();
-    lfb = ((GraphicsService*) Kernel::getService(GraphicsService::SERVICE_NAME))->getLinearFrameBuffer();
+	timeService = Kernel::getService<TimeService>();
+    keyboard = Kernel::getService<InputService>()->getKeyboard();
+    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
     pic = Pic::getInstance();
 }
 

@@ -32,9 +32,9 @@ extern "C" {
  * Beschreibung:    Der Anwendungsthread.                                    *
  *****************************************************************************/
 void HeapDemo::run () {
-    TextDriver *stream = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getTextDriver();
-    TimeService *timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
-    Keyboard *kb = ((InputService*)Kernel::getService(InputService::SERVICE_NAME))->getKeyboard();
+    TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
+    TimeService *timeService = Kernel::getService<TimeService>();
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
 
 
     stream->clear ();

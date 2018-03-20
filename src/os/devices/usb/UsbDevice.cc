@@ -9,7 +9,7 @@
 
 
 void waitForReturn() {
-    Keyboard *kb = ((InputService*)Kernel::getService(InputService::SERVICE_NAME))->getKeyboard();
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
 
     while (!kb->isKeyPressed(28));
 }
@@ -21,7 +21,7 @@ IOport sysB(0x61);
 UsbDevice::UsbDevice(AsyncListQueue::QueueHead *control, uint8_t portNumber) {
     UsbDevice::control = control;
     this->portNumber = portNumber;
-    timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    timeService = Kernel::getService<TimeService>();
     init();
 }
 
@@ -88,7 +88,7 @@ UsbDevice::Status UsbDevice::setAddress(uint8_t address) {
 }
 
 UsbDevice::Status UsbDevice::issueTransaction(AsyncListQueue::QueueHead *queue, UsbTransaction *transaction) {
-    TextDriver *stream = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getTextDriver();
+    TextDriver *stream = Kernel::getService<GraphicsService>()->getTextDriver();
     uint32_t size = transaction->size();
 
     for (uint32_t i = 0; i < size - 1; i++) {
@@ -255,9 +255,9 @@ UsbEndpoint *UsbDevice::findEndpoint(UsbEndpoint::TransferType type, UsbEndpoint
 }
 
 void UsbDevice::printTransaction(AsyncListQueue::QueueHead *queue, UsbTransaction *transaction) {
-    TextDriver *stream = ((GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME))->getTextDriver();
+    TextDriver *stream = Kernel::getService<GraphicsService>()->getTextDriver();
 
-    DebugService *debugService = (DebugService*) Kernel::getService(DebugService::SERVICE_NAME);
+    DebugService *debugService = Kernel::getService<DebugService>();
 
     stream->clear();
 

@@ -46,8 +46,8 @@ void Pit::plugin () {
     // TODO(krakowski):
     //  Do this inside the constructor once all Global Objects
     //  are encapsulated in separate services
-    timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
-    graphicsService = (GraphicsService *) Kernel::getService(GraphicsService::SERVICE_NAME);
+    timeService = Kernel::getService<TimeService>();
+    graphicsService = Kernel::getService<GraphicsService>();
 
     IntDispatcher::assign(32, *this);
     Pic::getInstance()->allow(0);

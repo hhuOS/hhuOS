@@ -17,7 +17,7 @@
 #include "Ehci.h"
 
 void waitOnEnter() {
-    Keyboard *kb = ((InputService*)Kernel::getService(InputService::SERVICE_NAME))->getKeyboard();
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
 
     while (!kb->isKeyPressed(28));
 }
@@ -31,8 +31,8 @@ Ehci::Ehci() : eventBuffer(1024) {}
 
 void Ehci::setup(const Pci::Device &dev) {
 
-    eventBus = (EventBus*) Kernel::getService(EventBus::SERVICE_NAME);
-    timeService = (TimeService*) Kernel::getService(TimeService::SERVICE_NAME);
+    eventBus = Kernel::getService<EventBus>();
+    timeService = Kernel::getService<TimeService>();
 
     pciDevice = dev;
 
@@ -47,7 +47,7 @@ void Ehci::setup(const Pci::Device &dev) {
 
 #if DEBUG_BIOS_QH
 
-    DebugService *debugService = (DebugService*) Kernel::getService(KernelService::DEBUG_SERVICE);
+    DebugService *debugService = Kernel::getService<DebugService>();
 
     AsyncListQueue::QueueHead *queueHead = (AsyncListQueue::QueueHead *) op->asyncListAddress;
 

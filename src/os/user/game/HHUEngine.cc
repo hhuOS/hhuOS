@@ -9,15 +9,15 @@ Game* HHUEngine::currentGame;
 bool HHUEngine::isKeyPressed(int scancode){
 
 
-  return ((InputService*)Kernel::getService(InputService::SERVICE_NAME))->getKeyboard()->isKeyPressed(scancode);
+  return Kernel::getService<InputService>()->getKeyboard()->isKeyPressed(scancode);
 }
 
 void HHUEngine::invalidateInput(){
-  ((InputService*)Kernel::getService(InputService::SERVICE_NAME))->getKeyboard()->resetLast();
+  Kernel::getService<InputService>()->getKeyboard()->resetLast();
 }
 
 unsigned long HHUEngine::time(){
-  return ((TimeService*)Kernel::getService(TimeService::SERVICE_NAME))->getSystemTime();
+  return Kernel::getService<TimeService>()->getSystemTime();
 }
 
 float HHUEngine::rand(){

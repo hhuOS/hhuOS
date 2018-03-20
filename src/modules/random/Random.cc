@@ -8,7 +8,7 @@ extern "C" {
 
 int32_t module_init() {
 
-    FileSystem *fileSystem = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
+    FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
     fileSystem->addVirtualNode("/dev", new RandomNode());
 

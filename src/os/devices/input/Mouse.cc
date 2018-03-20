@@ -191,8 +191,8 @@ Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), click
 // ISR-Routine zum Demaskieren des Interrupts im PIC, Zuweisen des Interrupt-Handlers
 void Mouse::plugin() {
     if(available) {
-        timeService = ((TimeService *) Kernel::getService(TimeService::SERVICE_NAME));
-        eventBus = (EventBus *) Kernel::getService(EventBus::SERVICE_NAME);
+        timeService = Kernel::getService<TimeService>();
+        eventBus = Kernel::getService<EventBus>();
 
         IntDispatcher::assign(IntDispatcher::mouse, *this);
         Pic::getInstance()->allow(Pic::mouse);

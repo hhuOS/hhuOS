@@ -29,11 +29,21 @@ public:
     Kernel() = delete;
 
     /**
-     * Returns the kernel service that is registered with a given ID.
+     * Returns an already registered service.
      *
-     * @param serviceId String conatining a unique service ID.
+     * @tparam T The service's type
+     * @return The service
      */
-    static KernelService* getService(const String &serviceId);
+    template<class T>
+    static T* getService() {
+
+        if (!isServiceRegistered(T::SERVICE_NAME)) {
+
+            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT);
+        }
+
+        return (T*) serviceMap.get(T::SERVICE_NAME);
+    }
 
     /**
 	 * Registers an instance of a kernel service under a given ID.
