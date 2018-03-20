@@ -17,7 +17,7 @@
 #ifndef __IntDispatcher_include__
 #define __IntDispatcher_include__
 
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/KernelService.h"
 
 #include <cstdint>
@@ -50,7 +50,7 @@ public:
      * @param slot Interrupt number for this handler
      * @param gate Pointer to the handler itself
      */
-    static void assign(uint8_t slot, ISR &gate);
+    static void assign(uint8_t slot, InterruptHandler &gate);
     
     /**
      * Get the interrutp handler that is registered for an interrupt number
@@ -60,7 +60,7 @@ public:
      * @param Device number
      * @return Pointer to the requested interrupt handler.
      */
-    static ISR* report(uint8_t slot, uint8_t device);
+    static InterruptHandler* report(uint8_t slot, uint8_t device);
 
 private:
 
@@ -69,7 +69,7 @@ private:
 
     // Interrupt handler map - for each interrupt number up
     // to MAX_SIZE_Y devices can be registered as handlers
-    static ISR* map[MAP_SIZE_X][MAP_SIZE_Y];
+    static InterruptHandler* map[MAP_SIZE_X][MAP_SIZE_Y];
 };
 
 #endif

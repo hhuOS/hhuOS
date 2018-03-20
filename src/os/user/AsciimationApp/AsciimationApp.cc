@@ -115,8 +115,6 @@ void AsciimationApp::run () {
 
     while(file == nullptr) {}
 
-    Pit::getInstance()->setCursor(false);
-
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
     lfb->init(800, 600, 32);
 

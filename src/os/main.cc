@@ -150,7 +150,6 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
-    Pit::getInstance()->setCursor(true);
     Pic::getInstance()->allow(2);
 
     Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
@@ -193,7 +192,6 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
-    Pit::getInstance()->setCursor(true);
     Pic::getInstance()->allow(2);
 
     Rtc *rtc = Kernel::getService<TimeService>()->getRTC();

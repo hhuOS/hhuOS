@@ -1,76 +1,63 @@
-/*****************************************************************************
- *                                                                           *
- *                                   P I T                                   *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Programmable Interval Timer.                             * 
- *                                                                           *
- * Autor:           Michael Schoettner, 23.8.2016                            *
- *****************************************************************************/
-
 #ifndef __PIT_include__
 #define __PIT_include__
 
-#include <kernel/services/GraphicsService.h>
-#include "kernel/services/TimeService.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/IOport.h"
-#include "devices/graphics/text/TextDriver.h"
 #include "kernel/Kernel.h"
+#include "kernel/services/GraphicsService.h"
+#include "kernel/services/TimeService.h"
+#include "devices/graphics/text/TextDriver.h"
 
-class Pit : public ISR {
-    
-private:
-    bool cursor;
-    GraphicsService *graphicsService;
-    
-    Pit(const Pit &copy); // Verhindere Kopieren
-         
-private:
-    enum { time_base = 838 };  /* ns */
-    int timer_interval;
-    char signs[4];
-    int signs_counter;
-
-    TimeService *timeService;
-
-    // Zeitgeber initialisieren.
-    Pit (int us) {
-        signs[0] = '|';
-        signs[1] = '/';
-        signs[2] = '-';
-        signs[3] = '\\';
-        signs_counter = 0;
-        interval (us);
-    }
-
-    static Pit *pit;
+class Pit : public InterruptHandler {
 
 public:
 
+    Pit(const Pit &copy) = delete;
 
-    static Pit *getInstance() {
-        if(pit == nullptr) {
-            pit = new Pit(10000);
-        }
-        return pit;
-    }
-    // Konfiguriertes Zeitintervall auslesen.
-    int interval () {
-        return timer_interval;
-    }
-    
-    // Zeitintervall setzen.
-    void interval (int us);
+    Pit &operator=(const Pit &copy) = delete;
 
-    // Aktivierung der Unterbrechungen fuer den Zeitgeber
+    ~Pit() override = default;
+
+    /**
+     * Returns an instance of the PIT.
+     *
+     * @return An instance of the PIT
+     */
+    static Pit *getInstance();
+
+    /**
+     * Returns the interval at which the PIT fires it's interrupts.
+     *
+     * @return The PIT's interval in microseconds
+     */
+    uint32_t getInterval();
+
+    /**
+     * Sets the interval at which the PIT fires it's interrupts.
+     *
+     * @param us The PIT's interval in microseconds
+     */
+    void setInterval(uint32_t us);
+
     void plugin ();
     
-    // Unterbrechnungsroutine des Zeitgebers.
-    void trigger ();
-    
-    void setCursor(bool cursor);
-    bool isCursorEnabled();
+    void trigger () override;
+
+private:
+
+    explicit Pit (uint32_t us);
+
+    static Pit *instance;
+
+    TimeService *timeService;
+
+    GraphicsService *graphicsService;
+
+    uint32_t timerInterval;
+
+    static const uint32_t TIME_BASE = 838;
+
+    static const uint32_t DEFAULT_INTERVAL = 10000;
 };
 
 #endif

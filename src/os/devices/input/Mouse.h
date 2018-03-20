@@ -17,7 +17,7 @@
 #ifndef HHUOS_MOUSE_H
 #define HHUOS_MOUSE_H
 
-#include <kernel/interrupts/ISR.h>
+#include <kernel/interrupts/InterruptHandler.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/services/EventBus.h>
 #include "kernel/IOport.h"
@@ -34,7 +34,7 @@
 #define     MOUSE_TRACE(...)
 #endif
 
-class Mouse : public ISR {
+class Mouse : public InterruptHandler {
 
 private:
 

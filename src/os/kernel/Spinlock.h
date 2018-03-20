@@ -21,29 +21,20 @@
 #include <cstdint>
 
 /**
- * Spinlock - a simple spinlock implemented using test&set instructions
+ * A simple spinlock implemented using test&set instructions.
  *
  * @author Michael Schoettner, Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski
  * @date HHU, 2018
  */
 class Spinlock {
-    
-private:
-	// the value which is used for locking
-    unsigned int lock_var;
-    // pointer to the lock-value
-    unsigned int *ptr;
 
 public:
 
+    Spinlock() noexcept;
+
     Spinlock(const Spinlock &other) = delete;
-    /**
-     * Constructor - initializes Spinlock.
-     */
-    Spinlock() noexcept {
-        lock_var = 0;
-        ptr  = &lock_var;
-    }
+
+    Spinlock &operator=(const Spinlock &other) = delete;
 
     ~Spinlock() = default;
 
@@ -64,7 +55,21 @@ public:
      */
     bool tryLock();
 
-    // Position of the zero flag in EFLAG
+private:
+
+    /**
+     * The value which is used for locking
+     */
+    uint32_t lock_var;
+
+    /**
+     * pointer to the lock-value
+     */
+    uint32_t *ptr;
+
+    /**
+     * Position of the zero flag in EFLAG
+     */
     const static uint32_t ZERO_FLAG = 0x40;
 };
 

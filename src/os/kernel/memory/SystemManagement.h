@@ -17,7 +17,7 @@
 #ifndef __SYSTEMMANAGEMENT_H__
 #define __SYSTEMMANAGEMENT_H__
 
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
@@ -39,7 +39,7 @@
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class SystemManagement : public ISR{
+class SystemManagement : public InterruptHandler{
 
 private:
 	// parameters of a page fault

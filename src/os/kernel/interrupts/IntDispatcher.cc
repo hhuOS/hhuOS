@@ -21,7 +21,7 @@ extern "C" {
 }
 
 // map with interrupt handlers
-ISR* IntDispatcher::map[MAP_SIZE_X][MAP_SIZE_Y];
+InterruptHandler* IntDispatcher::map[MAP_SIZE_X][MAP_SIZE_Y];
 
 IOport systemA(0x92);
 IOport systemB(0x61);
@@ -79,7 +79,7 @@ void int_disp (InterruptFrame *frame) {
     }
 
     // pointer to interrupt handler
-    ISR* isr;
+    InterruptHandler* isr;
     // count for interrupt-handler devices
     uint8_t device;
     // iterate through all devices registered to handle this interrupt number
@@ -110,7 +110,7 @@ void int_disp (InterruptFrame *frame) {
 /**
  * Register an interrupt handler to an interrupt number.
  */
-void IntDispatcher::assign (uint8_t slot, ISR &isr) {
+void IntDispatcher::assign (uint8_t slot, InterruptHandler &isr) {
 	// search for the next free device number for this interrupt and register the handler
     if (slot < MAP_SIZE_X) {
         for (uint8_t i = 0; i < MAP_SIZE_Y; i++) {
@@ -127,7 +127,7 @@ void IntDispatcher::assign (uint8_t slot, ISR &isr) {
  * Get the interrutp handler that is registered for an interrupt number
  * under the given device number.
  */
-ISR* IntDispatcher::report (uint8_t slot, uint8_t device) {
+InterruptHandler* IntDispatcher::report (uint8_t slot, uint8_t device) {
     if ( slot < MAP_SIZE_X && device < MAP_SIZE_Y ) {
         return map[slot][device];
     } else {

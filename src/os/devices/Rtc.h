@@ -19,9 +19,9 @@
 #define STATUS_REGISTER_C       0x0C
 
 #include "kernel/IOport.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 
-class Rtc : public ISR{
+class Rtc : public InterruptHandler{
 
 public:
     struct date {

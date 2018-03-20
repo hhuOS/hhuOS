@@ -183,7 +183,6 @@ void Application::startSelectedApp() {
 
     lfb->disableDoubleBuffering();
     lfb->clear();
-    Pit::getInstance()->setCursor(true);
 
     switch (option) {
         case 0:
@@ -222,7 +221,6 @@ void Application::startGame(Game* game){
 
     lfb->init(640, 480, 32);
     lfb->enableDoubleBuffering();
-    Pit::getInstance()->setCursor(false);
     lfb->clear();
 
     float currentTime = timeService->getSystemTime() / 100.0f;
@@ -258,8 +256,6 @@ void Application::run() {
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
-    Pit::getInstance()->setCursor(false);
-//    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);

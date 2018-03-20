@@ -383,7 +383,6 @@ void VFSApp::executeCommand() {
         uint8_t depth = stream->getDepth();
 
         if(!strcmp(params[1], "cga")) {
-            Pit::getInstance()->setCursor(false);
             stream = new CgaText();
             stream->init(columns, rows, depth);
             stream->setpos(0, 0);
@@ -392,7 +391,6 @@ void VFSApp::executeCommand() {
             stream = new VesaText();
             stream->init(columns, rows, depth);
             stream->setpos(0, 0);
-            Pit::getInstance()->setCursor(true);
             graphicsService->setTextDriver(stream);
         } else {
             *stream << "Invalid argument!" << endl;
