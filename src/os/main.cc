@@ -32,7 +32,7 @@
 #include "kernel/memory/SystemManagement.h"
 #include "bootlogo.h"
 
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define VERSION "0.1"
 
@@ -128,7 +128,7 @@ void initGraphics() {
 int32_t main() {
 #if DEBUG_MODE
     initGraphics();
-    text->init(80, 30, 32);
+    text->init(100, 37, 32);
     stdout = text;
 
     text->setpos(0, 0);
@@ -159,9 +159,6 @@ int32_t main() {
     fs->init();
     printfUpdateStdout();
 
-    text->puts("Loading Kernel Symbols\n", 23, Colors::HHU_RED);
-    KernelSymbols::initialize();
-
     text->puts("Starting Threads\n", 17, Colors::HHU_RED);
     idleThread = new IdleThread();
     app = new Application();
@@ -173,7 +170,7 @@ int32_t main() {
     text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
     while(!inputService->getKeyboard()->isKeyPressed(28));
 
-    text->clear();
+    lfb->init(800, 600, 32);
 #else
     initGraphics();
     lfb->init(800, 600, 32);
@@ -182,13 +179,13 @@ int32_t main() {
     updateBootScreen(0, "Initializing Event Bus");
     eventBus = new EventBus();
 
-    updateBootScreen(14, "Registering Services");
+    updateBootScreen(17, "Registering Services");
     registerServices();
 
-    updateBootScreen(28, "Enabling Interrupts");
+    updateBootScreen(34, "Enabling Interrupts");
     InputService *inputService = (InputService*)Kernel::getService(InputService::SERVICE_NAME);
     inputService->getKeyboard()->plugin();
-//    inputService->getMouse()->plugin();
+    inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
     Pit::getInstance()->setCursor(true);
@@ -197,10 +194,10 @@ int32_t main() {
     Rtc *rtc = ((TimeService*) Kernel::getService(TimeService::SERVICE_NAME))->getRTC();
     rtc->plugin();
 
-    updateBootScreen(42, "Initializing PCI Devices");
+    updateBootScreen(51, "Initializing PCI Devices");
     Pci::scan();
 
-    updateBootScreen(56, "Initializing Filesystem");
+    updateBootScreen(68, "Initializing Filesystem");
     FileSystem *fs = (FileSystem*) Kernel::getService(FileSystem::SERVICE_NAME);
     fs->init();
     printfUpdateStdout();

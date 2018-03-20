@@ -70,7 +70,9 @@ GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk -vga std -monitor stdio \
 		-readconfig usb.cfg \
+		-drive format=raw,file=hdd.img,if=none,id=disk0 \
 		-device ich9-ahci,id=ahci \
+		-device ide-drive,drive=disk0,bus=ahci.0 \
 		-rtc base=localtime,clock=host \
 		-m 1G
 
@@ -96,10 +98,20 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 # Default targets (einfaches Image, Image fuer USB Sticks, Image fuer VMWare
 # und Boot CDs)
 
-all: $(OBJDIR)/hhuOS.iso
+all: $(OBJDIR)/hhuOS.iso hdd.img
 
 # --------------------------------------------------------------------------
 # Regeln zur Erzeugung der Abhaengigkeitsdateien
+
+hdd.img: ../hdd/
+	$(VERBOSE) qemu-img create hdd.img 32M
+	$(VERBOSE) udisksctl loop-setup --file hdd.img --offset 0 --size 33554432
+	$(VERBOSE) (echo n; echo p; echo 1;echo ""; echo ""; echo t; echo 58; echo w) | sudo fdisk /dev/loop0
+	$(VERBOSE) sudo mkfs.vfat /dev/loop0p1
+	$(VERBOSE) sudo mount /dev/loop0p1 /mnt
+	$(VERBOSE) sudo cp -r ../hdd/* /mnt
+	$(VERBOSE) sudo umount /mnt
+	$(VERBOSE) udisksctl loop-delete -b /dev/loop0
 
 gitversion.c: ../../.git/HEAD ../../.git/index
 	@echo "const char *gitversion = \"$(shell git rev-parse --short HEAD)\";" > $@
@@ -188,26 +200,26 @@ bootdisk-commit:
 # --------------------------------------------------------------------------
 # 'qemu' ruft den qemu-Emulator mit dem System auf.
 
-qemu: $(OBJDIR)/hhuOS.iso
+qemu: $(OBJDIR)/hhuOS.iso hdd.img
 	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
 qemu64: $(OBJDIR)/hhuOS.iso
 	qemu-system-x86_64 -m 1G $(QEMU_DEFAULT_PARAMS)
 
-qemu-serial: $(OBJDIR)/hhuOS.iso
+qemu-serial: $(OBJDIR)/hhuOS.iso hdd.img
 #	xfce4-terminal -e 'sleep 10d'
 	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS) \
 		-chardev tty,id=ptshere,path=$(SERIAL_TTY) \
 		-device isa-serial,chardev=ptshere
 
-kvm: $(OBJDIR)/hhuOS.iso
+kvm: $(OBJDIR)/hhuOS.iso hdd.img
 	$(KVM_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
 # --------------------------------------------------------------------------
 # 'qemu-gdb' ruft den qemu-Emulator mit aktiviertem GDB-Stub mit dem System
 # auf, sodass es per GDB oder DDD inspiziert werden kann.
 
-qemu-gdb: $(OBJDIR)/hhuOS.iso
+qemu-gdb: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
@@ -215,7 +227,7 @@ qemu-gdb: $(OBJDIR)/hhuOS.iso
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -m 1G -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso
+qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "set architecture i8086" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
@@ -223,7 +235,7 @@ qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	$(QEMU_BIN) -m 1G -s -S $(QEMU_DEFAULT_PARAMS)
 
-kvm-gdb: $(OBJDIR)/hhuOS.iso
+kvm-gdb: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "break main" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
