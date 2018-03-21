@@ -98,7 +98,7 @@ skipStackSwitch:
 ; jump to low address because paging will be disabled
 ; kernel should be mapped at 0 and 3GB
 ; necessary step: otherwise EIP points to wrong address
-    lea ecx, [_bios_call2]
+    mov ecx, _bios_call2
     jmp ecx
 
 bios_call2:

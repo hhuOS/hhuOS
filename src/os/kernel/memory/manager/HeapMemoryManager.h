@@ -27,7 +27,7 @@ private:
 
 public:
     HeapMemoryManager(uint32_t startAddress, uint32_t endAddress);
-    ~HeapMemoryManager();
+    virtual ~HeapMemoryManager();
     void init();
     void* alloc(uint32_t size);
     void free(void* ptr);

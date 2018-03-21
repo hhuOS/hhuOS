@@ -57,11 +57,6 @@ SECTIONS
       ___BSS_END__ = .;
     }
 
-    .strtab : AT(ADDR(.strtab) - 0xC0000000)
-    {
-      *(".strtab")
-    }
-
 /*
    /DISCARD/ :
     {
@@ -71,6 +66,8 @@ SECTIONS
       *(".debug_info")
       *(".debug_abbrev")
       *(".debug_aranges")
+      *(".debug_ranges")
+      *(".debug_str")
     }
 */
- }
+}

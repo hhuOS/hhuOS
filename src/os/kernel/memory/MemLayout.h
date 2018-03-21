@@ -25,7 +25,7 @@
 #define VIRT_PAGE_MEM_END (VIRT_IO_START - 0x40000)
 // start of virtual IO space
 #define VIRT_IO_START (KERNEL_START + 0x2EE00000)
-#define VIRT_IO_END (0x100000000)
+#define VIRT_IO_END 0xFFFFFFFF
 
 // Cap for physical memory - I/O addresses above
 #define PHYS_MEM_CAP (0xEA600000)
