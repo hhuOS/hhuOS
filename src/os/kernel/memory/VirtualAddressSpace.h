@@ -20,20 +20,46 @@
 #include "kernel/memory/manager/HeapMemoryManager.h"
 #include "kernel/memory/PageDirectory.h"
 
+
+/**
+ * VirtualAddressSpace - represents a virtual address space with corresponding page directory
+ * and memory managers.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
 class VirtualAddressSpace {
 private:
+	// pointer to memory managers for userspace and kernelspace
 	HeapMemoryManager *kernelSpaceHeapManager = nullptr;
 	HeapMemoryManager *userSpaceHeapManager = nullptr;
+	// pointer to page directory
 	PageDirectory *pageDirectory = nullptr;
+	// the bootstrap address space is the first address space ever created
+	// and only for temporary use
 	bool bootstrapAddressSpace = false;
 public:
+	/**
+	 * Constructor for an address space.
+	 */
 	VirtualAddressSpace(PageDirectory *basePageDirectory);
 
-	// first init constructor
+	/**
+	 * Constructor for the very first address space for bootstrapping reasons.
+	 * The memory manager for user space is set manually since it does not exist.
+	 */
 	VirtualAddressSpace(PageDirectory *pageDirectory, HeapMemoryManager *userSpaceHeapManager);
 
+	/**
+	 * Destructor
+	 */
 	~VirtualAddressSpace();
 
+	/**
+	 * Get the memory manager for kernelspace
+	 *
+	 * @return Pointer to the kernelspace memory manager
+	 */
 	HeapMemoryManager* getKernelSpaceHeapManager() const {
 		return kernelSpaceHeapManager;
 	}
@@ -42,10 +68,20 @@ public:
 		return pageDirectory;
 	}
 
+	/**
+	 * Get the memory manager for userspace
+	 *
+	 * @return Pointer to the userspace memory manager
+	 */
 	HeapMemoryManager* getUserSpaceHeapManager() const {
 		return userSpaceHeapManager;
 	}
 
+	/**
+	 * Set the memory manager for userspace
+	 *
+	 * @param userSpaceHeapManager Pointer to the userspace memory manager
+	 */
 	void setUserSpaceHeapManager(HeapMemoryManager* userSpaceHeapManager) {
 		this->userSpaceHeapManager = userSpaceHeapManager;
 	}

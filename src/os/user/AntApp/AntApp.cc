@@ -4,8 +4,6 @@
 void AntApp::run() {
 	Color color;
 
-    Pit::getInstance()->setCursor(false);
-
 	while (true) {
 		lfb->readPixel(x, y, color);
 		if ((color.getRed() + color.getGreen() + color.getBlue()) > 0) { // is white

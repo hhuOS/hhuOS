@@ -1,20 +1,32 @@
+; Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+; Heinrich-Heine University
+;
+; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+; License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+; later version.
+;
+; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+; details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 ; Contains all functions for paging / virtual memory implemented in assember
-; the kernel is mapped to high addresses with 4mb paging first, then
+; the kernel is mapped to high addresses with 4mb paging first, thenSp
 ; a 4kb page-directory is built up
 
-; Created by Burak Akguel, Christian Gesse, HHU 2017
+; Created by Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner, HHU 2018
 
-[GLOBAL paging_bootstrap]
-[GLOBAL KERNEL_START]
-[GLOBAL enable_4KB_paging]
-[GLOBAL load_page_directory]
-[GLOBAL BIOS_Page_Directory]
+%include "kernel/constants.asm"
 
-[EXTERN on_paging_enabled]
+global paging_bootstrap
+global enable_4KB_paging
+global load_page_directory
+global BIOS_Page_Directory
 
-; start address of higher half kernel
-; TODO: find some way to include this address??
-KERNEL_START equ 0xC0000000
+extern on_paging_enabled
+
 ; calculate index to 4mb page where kernel should be placed
 KERNEL_PG_NUM equ (KERNEL_START >> 22)
 
@@ -78,6 +90,7 @@ enable_4KB_paging:
 
 ; load phys. address of page directory into cr3
 load_page_directory:
+	; address is passed as an parameter
     mov	ecx,[4+esp]
     mov cr3, ecx
     ret

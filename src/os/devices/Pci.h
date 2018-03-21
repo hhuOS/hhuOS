@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <kernel/services/StorageService.h>
 #include <lib/util/ArrayList.h>
+#include <kernel/interrupts/Pic.h>
 
 /**
  * @author Filip Krakowski
@@ -43,19 +44,19 @@ public:
     Pci(const Pci &copy) = delete;
 
     struct Device {
-        uint8_t     bus;
-        uint8_t     device;
-        uint8_t     function;
-        uint16_t    vendorId;
-        uint16_t    deviceId;
-        uint8_t     revision;
-        uint8_t     pi;
-        uint8_t     baseClass;
-        uint8_t     subClass;
-        uint8_t     ssid;
-        uint8_t     ssvid;
-        uint8_t     cap;
-        uint8_t     intr;
+        uint8_t         bus;
+        uint8_t         device;
+        uint8_t         function;
+        uint16_t        vendorId;
+        uint16_t        deviceId;
+        uint8_t         revision;
+        uint8_t         pi;
+        uint8_t         baseClass;
+        uint8_t         subClass;
+        uint8_t         ssid;
+        uint8_t         ssvid;
+        uint8_t         cap;
+        Pic::Interrupt  intr;
 
         bool operator!=(const Device &other);
     };
@@ -108,7 +109,7 @@ public:
 
     static uint8_t   getSecondaryBus(uint8_t bus, uint8_t device, uint8_t function);
 
-    static uint8_t   getInterruptLine(uint8_t bus, uint8_t device, uint8_t function);
+    static Pic::Interrupt getInterruptLine(uint8_t bus, uint8_t device, uint8_t function);
 
     static void      enableBusMaster(uint8_t bus, uint8_t device, uint8_t function);
 

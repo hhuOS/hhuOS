@@ -127,11 +127,6 @@ void VesaText::putc(const char  c, Color fgColor, Color bgColor) {
 }
 
 void VesaText::puts(const char  *s, uint32_t n, Color fgColor, Color bgColor) {
-    bool cursorState = Pit::getInstance()->isCursorEnabled();
-    if (cursorState) {
-        Pit::getInstance()->setCursor(false);
-    }
-
     uint16_t x, y;
     getpos(x, y);
     uint16_t pos = x + columns * y;
@@ -158,16 +153,9 @@ void VesaText::puts(const char  *s, uint32_t n, Color fgColor, Color bgColor) {
 
     setpos(pos % columns, pos / columns);
 
-    if(cursorState) {
-        Pit::getInstance()->setCursor(true);
-    }
 }
 
 void VesaText::scrollup () {
-    bool cursorState = Pit::getInstance()->isCursorEnabled();
-    if (cursorState) {
-        Pit::getInstance()->setCursor(false);
-    }
 
     uint16_t fontWidth = font->get_char_width();
     uint16_t fontHeight = font->get_char_height();
@@ -200,10 +188,6 @@ void VesaText::scrollup () {
 
     for(uint64_t i = 0; i < end; i++) {
         dest[i] = src[i];
-    }
-
-    if(cursorState) {
-        Pit::getInstance()->setCursor(true);
     }
 }
 

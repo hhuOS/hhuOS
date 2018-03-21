@@ -1,142 +1,99 @@
-/*****************************************************************************
- *                                                                           *
- *                          S C H E D U L E R                                *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Implementierung eines einfachen Zeitscheiben-Schedulers. *
- *                  Rechenbereite Threads werden in 'readQueue' verwaltet.   *
- *                  Threads koennen nun blockiert und deblockiert werden.    *
- *                  Dies ist fuer die Implementierung von Semaphoren         *
- *                  notwendig.                                               *
- *                                                                           *
- * Autor:           Michael, Schoettner, HHU, 5.1.2017                       *
- *****************************************************************************/
-
 #include <kernel/Cpu.h>
 #include <lib/libc/printf.h>
 #include "kernel/threads/Scheduler.h"
 
-
 extern "C" {
-    void Thread_start(Context* first);
-    void Thread_switch(Context* current, Context* next);
-    void get_thread_vars(uint32_t **current, uint32_t **next);
-    void switch_context(Context **current, Context **next);
+    void startThread(Context* first);
+    void switchContext(Context **current, Context **next);
     void setSchedInit();
+    void schedulerYield();
 }
 
 Scheduler* Scheduler::scheduler = nullptr;
 
-/*****************************************************************************
- * Methode:         Scheduler::Scheduler                                     *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Konstruktor des Schedulers. Registriert den              *
- *                  Leerlauf-Thread.                                         *
- *****************************************************************************/
-Scheduler::Scheduler () {
-    initialized = false;
-    get_thread_vars(&currentRegs, &nextRegs);
+void schedulerYield() {
+
+    Scheduler::getInstance()->yield();
 }
 
-    
-/*****************************************************************************
- * Methode:         Scheduler::schedule                                      *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Scheduler starten. Wird nur einmalig aus main.cc gerufen.*
- *****************************************************************************/
-void Scheduler::schedule () {
+Scheduler::Scheduler() : initialized(false) {
+
+}
+
+Scheduler *Scheduler::getInstance()  {
+
+    if(scheduler == nullptr) {
+
+        scheduler = new Scheduler();
+    }
+
+    return scheduler;
+}
+
+void Scheduler::schedule() {
+
     Thread* first;
 
     first = readyQueue.pop();
 
     if (first) {
+
         currentThread = first;
+
         initialized = true;
+
         setSchedInit();
-        Thread_start(currentThread->context);
+
+        startThread(currentThread->context);
     } else {
+
         printf("[PANIC] Schedule is empty!\n");
     }
 }
 
+void Scheduler::ready(Thread& that) {
 
-/*****************************************************************************
- * Methode:         Scheduler::ready                                         *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Thread in Ready-Queue eintragen.                         *
- *                                                                           *
- * Parameter:                                                                *
- *      that        Einzutragender Thread                                    *
- *****************************************************************************/
-void Scheduler::ready (Thread& that) {
-    // Thread-Wechsel durch PIT verhindern
     Cpu::disableInterrupts();
 
     readyQueue.push(&that);
 
-    // Thread-Wechsel durch PIT jetzt wieder erlauben
     Cpu::enableInterrupts();
 }
 
+void Scheduler::exit() {
 
-/*****************************************************************************
- * Methode:         Scheduler::exit                                          *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Thread ist fertig und terminiert sich selbst. Er traegt  *
- *                  sich hierzu aus der Ready-Queue aus und wird somit nicht *
- *                  mehr aktiviert.                                          *
- *****************************************************************************/
-void Scheduler::exit () {
-    // Thread-Wechsel durch PIT verhindern
     Cpu::disableInterrupts();
 
-    // hole naechsten Thread aus ready-Liste.
     Thread* next = readyQueue.pop();
 
     if (next == nullptr) {
+
         printf("[PANIC] Schedule is empty!");
+
         Cpu::halt();
     }
     
-    // next aktivieren
     dispatch (*next);
-
-    // Interrupts werden in Thread_switch in Thread.asm wieder zugelassen
-    // dispatch kehr nicht zurueck
 }
 
+void Scheduler::kill(Thread& that) {
 
-/*****************************************************************************
- * Methode:         Scheduler::kill                                          *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Thread mit 'Gewalt' terminieren.                         *
- *                                                                           *
- * Parameter:                                                                *
- *      that        Zu terminierender Thread                                 *
- *****************************************************************************/
-void Scheduler::kill (Thread& that) {
-    // Thread-Wechsel durch PIT verhindern
     Cpu::disableInterrupts();
 
     readyQueue.remove (&that);
     
-    // Thread-Wechsel durch PIT jetzt wieder erlauben
     Cpu::enableInterrupts();
 }
 
-
-/*****************************************************************************
- * Methode:         Scheduler::yield                                         *
- *---------------------------------------------------------------------------*
- * Beschreibung:    CPU freiwillig abgeben und Auswahl des naechsten Threads.*
- *****************************************************************************/
-void Scheduler::yield () {
+void Scheduler::yield() {
 
     Cpu::disableInterrupts();
 
-    if ( isThreadWaiting() == false) {
+    if (!isThreadWaiting()) {
+
         Cpu::enableInterrupts();
-        return ;
+
+        return;
     }
 
     Thread *next = readyQueue.pop();
@@ -146,23 +103,13 @@ void Scheduler::yield () {
     dispatch(*next);
 }
 
+void Scheduler::block() {
 
-/*****************************************************************************
- * Methode:         Scheduler::block                                         *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Aufrufer ist blockiert. Es soll auf den naechsten Thread *
- *                  umgeschaltet werden. Der Aufrufer soll nicht in die      *
- *                  readyQueue eingefuegt werden.                            *
- *                  Die Methode kehrt nicht zurueck, sondern schaltet um.    *
- *****************************************************************************/
-void Scheduler::block () {
     Thread* next;
     
-    // Thread-Wechsel durch PIT verhindern
     Cpu::disableInterrupts();
     
-    // kein anderer Thread rechenbreit?
-    if ( isThreadWaiting() == false) {
+    if (!isThreadWaiting()) {
         printf("Panic: all threads blocked - processor halted.");
         Cpu::halt ();
     }
@@ -170,34 +117,34 @@ void Scheduler::block () {
     next = readyQueue.pop();
     
     dispatch (*next);
-    
-    // Interrupts werden in Thread_switch in Thread.asm wieder zugelassen
-    // dispatch kehr nicht zurueck
 }
 
+void Scheduler::deblock(Thread &that) {
 
-/*****************************************************************************
- * Methode:         Scheduler::deblock                                       *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Thread 'that' deblockieren. 'that' wird nur in die       *
- *                  readyQueue eingefuegt und dann zurueckgekehrt.           *
- *                                                                           *
- * Parameter:       that:  Thread der deblockiert werden soll.               *
- *****************************************************************************/
-void Scheduler::deblock (Thread &that) {
-    // Thread-Wechsel durch PIT verhindern
     Cpu::disableInterrupts();
 
     readyQueue.push( &that );
 
-    // Thread-Wechsel durch PIT jetzt wieder erlauben
     Cpu::enableInterrupts();
 }
 
 void Scheduler::dispatch(Thread &next) {
+
     Thread* current = currentThread;
+
     currentThread = &next;
-    switch_context(&current->context, &next.context);
+
+    switchContext(&current->context, &next.context);
+}
+
+bool Scheduler::isInitialized() {
+
+    return initialized;
+}
+
+bool Scheduler::isThreadWaiting() {
+
+    return !readyQueue.isEmpty();
 }
 
 

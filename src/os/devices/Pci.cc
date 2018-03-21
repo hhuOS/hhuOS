@@ -134,8 +134,8 @@ uint8_t Pci::getProgrammingInterface(uint8_t bus, uint8_t device, uint8_t functi
     return readByte(bus, device, function, PCI_HEADER_PROGIF);
 }
 
-uint8_t Pci::getInterruptLine(uint8_t bus, uint8_t device, uint8_t function) {
-    return readByte(bus, device, function, PCI_HEADER_INTR);
+Pic::Interrupt Pci::getInterruptLine(uint8_t bus, uint8_t device, uint8_t function) {
+    return Pic::Interrupt(readByte(bus, device, function, PCI_HEADER_INTR));
 }
 
 void Pci::enableBusMaster(uint8_t bus, uint8_t device, uint8_t function) {

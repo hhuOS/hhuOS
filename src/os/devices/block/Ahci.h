@@ -2,7 +2,7 @@
 #define __AHCI_include__
 
 #include "devices/Pci.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 
 #include <cstdint>
 #include <kernel/services/DebugService.h>
@@ -22,7 +22,7 @@
 /**
  * @author Filip Krakowski
  */
-class Ahci : public ISR {
+class Ahci : public InterruptHandler {
 
     typedef enum {
         FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device

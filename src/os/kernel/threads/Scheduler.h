@@ -15,37 +15,26 @@
 #ifndef __Scheduler_include__
 #define __Scheduler_include__
 
+#include <lib/util/BlockingQueue.h>
 #include "kernel/threads/Thread.h"
 #include "lib/deprecated/Queue.h"
 
 class Scheduler {
     
-private:
-    Scheduler (const Scheduler &copy); // Verhindere Kopieren
-     
-private:
-
-    Queue<Thread> readyQueue;
-
-    bool  initialized;
-    
-    static Scheduler *scheduler;
-
 public:
 
     Scheduler ();
 
-    Thread *currentThread;
+    Scheduler (const Scheduler &copy) = delete;
 
-    unsigned int *currentRegs;
-    unsigned int *nextRegs;
+    Thread *currentThread;
 
     /**
      * Inidcates if the Scheduler has been initialized.
      *
      * @return true, if the Scheduler has been initialized, false else
      */
-    bool isInitialized() { return initialized; }
+    bool isInitialized();
     
     /**
      * Starts the Scheduler.
@@ -88,9 +77,7 @@ public:
      *
      * @return true, if a Thread is waiting, false else
      */
-    bool isThreadWaiting () {
-        return readyQueue.count() > 0;
-    }
+    bool isThreadWaiting ();
 
     /**
      * Blocks the current Thread.
@@ -112,17 +99,19 @@ public:
     Thread *active() { return currentThread; }
 
     /**
-     * Returns an instance of Scheduler.
+     * Returns an instance of the Scheduler.
      *
-     * @return An instance of Scheduler
+     * @return An instance of the Scheduler
      */
-    static Scheduler* getInstance() {
-    	if(scheduler == nullptr) {
-    		scheduler = new Scheduler();
-    	}
+    static Scheduler* getInstance();
 
-    	return scheduler;
-    }
+private:
+
+    Util::BlockingQueue<Thread*> readyQueue;
+
+    bool  initialized = false;
+
+    static Scheduler *scheduler;
 };
 
 #endif

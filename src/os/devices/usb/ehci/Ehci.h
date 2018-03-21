@@ -19,7 +19,7 @@
 #include "devices/usb/ehci/AsyncListQueue.h"
 #include "devices/usb/ehci/UsbMassStorage.h"
 #include "kernel/memory/MemLayout.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/KernelService.h"
 #include "kernel/events/Receiver.h"
 #include "kernel/services/EventBus.h"
@@ -40,7 +40,7 @@
 /**
  * @author Filip Krakowski
  */
-class Ehci : public ISR, public KernelService, public Receiver {
+class Ehci : public InterruptHandler, public KernelService, public Receiver {
 
     typedef struct tagFR_LIST {
         uint32_t  entries[1024];

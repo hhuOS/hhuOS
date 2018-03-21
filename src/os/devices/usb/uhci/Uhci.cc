@@ -155,7 +155,7 @@ void Uhci::resetPort(IOport *port) {
 void Uhci::plugin() {
     UHCI_TRACE("Assigning interrupt %d\n", pciDevice->intr);
 
-    IntDispatcher::assign(pciDevice.intr + 32, *this);
+    IntDispatcher::assign((uint8_t ) pciDevice.intr + 32, *this);
     Pic::getInstance()->allow(pciDevice.intr);
 }
 

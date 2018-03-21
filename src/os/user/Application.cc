@@ -13,6 +13,7 @@
 #include <lib/libc/printf.h>
 #include <user/MouseApp/MouseApp.h>
 #include <kernel/services/DebugService.h>
+#include <kernel/threads/WorkerThread.h>
 #include "kernel/threads/Scheduler.h"
 #include "user/Application.h"
 #include "user/LoopSoundApp/Loop.h"
@@ -27,6 +28,8 @@
 
 #define MENU_DISTANCE 4
 #define MENU_OPTIONS 9
+
+#define TEST_THREADING 0
 
 Application::Application () : Thread ("Menu") {
     graphicsService = Kernel::getService<GraphicsService>();
@@ -137,6 +140,18 @@ void Application::vfsDemo() {
     thread->start();
 }
 
+uint32_t threadSum = 0;
+
+uint32_t worker(const uint32_t &number) {
+
+    return number * 2;
+}
+
+void callback(const Thread &thread, const uint32_t &number) {
+
+    threadSum += number;
+}
+
 void Application::showMenu () {
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
@@ -169,12 +184,27 @@ void Application::showMenu () {
         lfb->placeString(font, 50, 42 + 6 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "Mouse", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Bug Defender", Colors::HHU_LIGHT_GRAY);
+
+#if (TEST_THREADING == 1)
+        lfb->placeString(font, 50, 85, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
+#endif
+
         lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
 
         lfb->placeRect(50, 42 + option * MENU_DISTANCE, 58, MENU_DISTANCE, Colors::HHU_BLUE_70);
         
         lfb->show();
+
+#if (TEST_THREADING == 1)
+        WorkerThread<uint32_t, uint32_t > *w1 = new WorkerThread<uint32_t, uint32_t >(worker, 20, callback);
+        WorkerThread<uint32_t, uint32_t > *w2 = new WorkerThread<uint32_t, uint32_t >(worker, 40, callback);
+        WorkerThread<uint32_t, uint32_t > *w3 = new WorkerThread<uint32_t, uint32_t >(worker, 80, callback);
+
+        w1->start();
+        w2->start();
+        w3->start();
+#endif
     }
 }
 
@@ -183,7 +213,6 @@ void Application::startSelectedApp() {
 
     lfb->disableDoubleBuffering();
     lfb->clear();
-    Pit::getInstance()->setCursor(true);
 
     switch (option) {
         case 0:
@@ -222,7 +251,6 @@ void Application::startGame(Game* game){
 
     lfb->init(640, 480, 32);
     lfb->enableDoubleBuffering();
-    Pit::getInstance()->setCursor(false);
     lfb->clear();
 
     float currentTime = timeService->getSystemTime() / 100.0f;
@@ -258,8 +286,6 @@ void Application::run() {
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
-    Pit::getInstance()->setCursor(false);
-//    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);

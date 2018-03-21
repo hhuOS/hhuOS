@@ -106,6 +106,10 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory){
 }
 
 PageDirectory::~PageDirectory(){
+	// unmap the compelete user space and free the page frames
+	for(uint32_t addr = 0; addr < 0xC0000000; addr += 4096){
+		this->unmap(addr);
+	}
 	// free Page Tables corresponding to user space (< 3GB)
 	uint32_t idx_max = KERNEL_START / (PAGESIZE * 1024);
 	for(uint32_t idx = 0; idx < idx_max; idx++) {

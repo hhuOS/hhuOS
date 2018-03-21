@@ -1,28 +1,42 @@
+; Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+; Heinrich-Heine University
+;
+; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+; License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+; later version.
+;
+; This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+; warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+; details.
+;
+; You should have received a copy of the GNU General Public License
+; along with this program.  If not, see <http://www.gnu.org/licenses/>
+
 ; all assembler code regarding interrupts is placed here
 ; i.e. wrapper bodies, bios-call code and IDT
 
 ; Original IDT and wrapper by Original by Olaf Spinczyk, TU Dortmund.
 ; Refactored and extended by
-; Michael Schoettner, Fabian Ruhland, Filip Krakowski, Burak Akguel, Christian Gesse, HHU 2017
+; Michael Schoettner, Fabian Ruhland, Filip Krakowski, Burak Akguel, Christian Gesse, HHU 2018
 
 %include "kernel/constants.asm"
 
-[GLOBAL bios_call]
-[GLOBAL setup_idt]
-[GLOBAL interrupt_return]
-[GLOBAL enable_interrupts]
-[GLOBAL disable_interrupts]
-[GLOBAL setSchedInit]
-[GLOBAL onException]
+global bios_call
+global setup_idt
+global interrupt_return
+global enable_interrupts
+global disable_interrupts
+global setSchedInit
+global onException
 
 
-[EXTERN preempt]
-[EXTERN int_disp]
-[EXTERN switch_context]
-[EXTERN gdt_48]
-[EXTERN _gdt_bios_48]
-[EXTERN BIOS_Page_Directory]
-[EXTERN stack]
+extern preempt
+extern int_disp
+extern switch_context
+extern gdt_48
+extern _gdt_bios_48
+extern BIOS_Page_Directory
+extern stack
 
 ; some low addresses of labels - use if paging disabled
 _bios_call2             equ (bios_call2 - KERNEL_START)

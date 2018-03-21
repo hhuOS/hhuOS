@@ -1,3 +1,19 @@
+/*
+* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+* Heinrich-Heine University
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
+
 /**
  * Main function - is called from assembler code. 
  * 
@@ -21,7 +37,6 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
-#include <cxxabi.h>
 
 #include "bootlogo.h"
 
@@ -133,7 +148,6 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
-    Pit::getInstance()->setCursor(true);
     Pic::getInstance()->allow(2);
 
     Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
@@ -177,8 +191,7 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
-    Pit::getInstance()->setCursor(true);
-    Pic::getInstance()->allow(2);
+    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
     Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
@@ -205,8 +218,6 @@ int32_t main() {
     lfb->disableDoubleBuffering();
     lfb->clear();
 #endif
-
-    Kernel::getService<TimeService>()->getRTC();
 
     Scheduler::getInstance()->schedule();
 

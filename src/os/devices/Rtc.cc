@@ -12,7 +12,7 @@
  */
 void Rtc::plugin() {
     IntDispatcher::assign(40, *this);
-    Pic::getInstance()->allow(8);
+    Pic::getInstance()->allow(Pic::Interrupt::RTC);
 
     Cpu::disableInterrupts();
 

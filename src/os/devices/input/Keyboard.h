@@ -16,11 +16,11 @@
 #include "kernel/services/EventBus.h"
 #include "Key.h"
 #include "kernel/IOport.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "devices/graphics/text/CgaText.h"
 #include "kernel/events/input/KeyEvent.h"
 
-class Keyboard : public ISR {
+class Keyboard : public InterruptHandler {
 
 private:
 

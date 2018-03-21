@@ -13,7 +13,7 @@
 #define __Uhci_include__
 
 #include "devices/Pci.h"
-#include "kernel/interrupts/ISR.h"
+#include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/memory/MemLayout.h"
 #include "kernel/services/TimeService.h"
 
@@ -31,7 +31,7 @@
 /**
  * @author Filip Krakowski
  */
-class Uhci : public ISR {
+class Uhci : public InterruptHandler {
 
     struct FrameList {
         uint32_t  entries[1024];

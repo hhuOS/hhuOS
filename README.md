@@ -1,5 +1,7 @@
 ![Logo](media/logo/hhuOSLogo_small.png)
 
+[![Build Status](https://travis-ci.org/hhuOS/hhuOS.svg?branch=master)](https://travis-ci.org/hhuOS/hhuOS)
+
 # Introduction
 
 Welcome to hhuOS, a **small operating system** written in C++ and Assembler for

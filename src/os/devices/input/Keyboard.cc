@@ -456,7 +456,7 @@ void Keyboard::plugin () {
     memset(buffer, 0, KB_BUFFER_SIZE * sizeof(int));
 
     IntDispatcher::assign (IntDispatcher::keyboard, *this);
-    Pic::getInstance()->allow(Pic::keyboard);
+    Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);
 }
 
 

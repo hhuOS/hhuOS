@@ -11,60 +11,84 @@
 #include "kernel/interrupts/Pic.h"
 #include "kernel/IOport.h"
 
-// different port numbers
+static IOport PIC1_DATA (0x21);
 
-static IOport IMR1 (0x21);    // interrupt mask register of PIC 1
-static IOport IMR2 (0xA1);    // interrupt mask register of PIC 2
+static IOport PIC2_DATA (0xA1);
 
-static IOport PIC1 (0x20);
-static IOport PIC2 (0xA0);
+static IOport PIC1_COMMAND (0x20);
 
+static IOport PIC2_COMMAND (0xA0);
 
-Pic* Pic::pic = nullptr;
+Pic* Pic::instance = nullptr;
 
+Pic *Pic::getInstance()  {
 
-/**
- * Demasks an interrupt number in the corresponding PIC. If this is done,
- * all interrupts with this number will be passed to the CPU.
- */
-void Pic::allow (int interrupt) {
-    if (interrupt < 8)           // hardware-interrupt from PIC 1
-        IMR1.outb (IMR1.inb () & (~(1 << interrupt)));
-    else                         // hardware-Interrupt from PIC 2
-        IMR2.outb (IMR2.inb () & (~(1 << (interrupt - 8))));
-}
+    if(instance == nullptr) {
 
-
-/**
- * Forbids an interrupt. If this is done, the interrupt is masked out
- * and every interrupts with this number that is thrown will be
- * surpressed and not arrive the CPU.
- */
-void Pic::forbid (int interrupt) {
-    if (interrupt < 8)           // hardware-interrupt from PIC 1
-        IMR1.outb (IMR1.inb () | (1 << interrupt));
-    else                         // hardware-interrupt from PIC 2
-        IMR2.outb (IMR2.inb () | (1 << (interrupt - 8)));
-}
-
-
-/**
- * Gets the state of this interrupt - whether it is masked out or not.
- */
-bool Pic::status (int interrupt) {
-    if (interrupt < 8)           // hardware-interrupt from PIC 1
-        return IMR1.inb () & (1 << interrupt);
-    else                         // hardware-interrupt from PIC 2
-        return IMR2.inb () & (1 << (interrupt - 8));
-}
-
-/**
- * Send an end of interrupt signal to the corresponding PIC.
- */
-void Pic::sendEOI (unsigned int interrupt) {
-    if (interrupt >= 8) {
-        PIC2.outb(PIC_EOI);
+        instance = new Pic();
     }
 
-	PIC1.outb(PIC_EOI);
+    return instance;
+}
+
+void Pic::allow(Pic::Interrupt interrupt) {
+
+    IOport &port = getDataPort(interrupt);
+
+    uint8_t mask = getMask(interrupt);
+
+    port.outb( port.inb() & ~mask);
+}
+
+void Pic::forbid(Pic::Interrupt interrupt) {
+
+    IOport &port = getDataPort(interrupt);
+
+    uint8_t mask = getMask(interrupt);
+
+    port.outb( port.inb() | mask);
+}
+
+bool Pic::status(Pic::Interrupt interrupt) {
+
+    IOport &port = getDataPort(interrupt);
+
+    uint8_t mask = getMask(interrupt);
+
+    return port.inb() & mask;
+}
+
+void Pic::sendEOI(Pic::Interrupt interrupt) {
+
+    getCommandPort(interrupt).outb(EOI);
+}
+
+IOport& Pic::getDataPort(Pic::Interrupt interrupt) {
+
+    if (interrupt >= Interrupt::RTC) {
+
+        return PIC2_DATA;
+    }
+
+    return PIC1_DATA;
+}
+
+IOport& Pic::getCommandPort(Pic::Interrupt interrupt) {
+
+    if (interrupt >= Interrupt::RTC) {
+
+        return PIC2_COMMAND;
+    }
+
+    return PIC1_COMMAND;
+}
+
+uint8_t Pic::getMask(Pic::Interrupt interrupt) {
+
+    if (interrupt >= Interrupt::RTC) {
+
+        return (uint8_t ) (1 << ((uint8_t ) interrupt - 8));
+    }
+
+    return (uint8_t ) (1 << (uint8_t ) interrupt);
 }
