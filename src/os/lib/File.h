@@ -3,8 +3,8 @@
 
 
 #include "kernel/services/FileSystem.h"
+#include "kernel/filesystem/FsNode.h"
 #include "kernel/Kernel.h"
-#include "Directory.h"
 #include "InputStream.h"
 #include <cstdint>
 

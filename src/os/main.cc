@@ -26,7 +26,6 @@
 #include <kernel/threads/IdleThread.h>
 
 #include "user/Application.h"
-#include "kernel/services/StorageService.h"
 #include "devices/block/storage/AhciDevice.h"
 #include <kernel/services/ModuleLoader.h>
 #include <devices/graphics/lfb/VesaGraphics.h>
@@ -95,11 +94,11 @@ void registerServices() {
     Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
 
     Kernel::registerService(TimeService::SERVICE_NAME, new TimeService());
+    Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
     Kernel::registerService(FileSystem::SERVICE_NAME, new FileSystem());
     Kernel::registerService(InputService::SERVICE_NAME, new InputService());
     Kernel::registerService(DebugService::SERVICE_NAME, new DebugService());
     Kernel::registerService(ModuleLoader::SERVICE_NAME, new ModuleLoader());
-    Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
     Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
 
@@ -186,7 +185,7 @@ int32_t main() {
     registerServices();
 
     updateBootScreen(34, "Enabling Interrupts");
-    InputService *inputService = Kernel::getService<InputService>();
+    auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
@@ -200,7 +199,7 @@ int32_t main() {
     Pci::scan();
 
     updateBootScreen(68, "Initializing Filesystem");
-    FileSystem *fs = Kernel::getService<FileSystem>();
+    auto *fs = Kernel::getService<FileSystem>();
     fs->init();
     printfUpdateStdout();
 

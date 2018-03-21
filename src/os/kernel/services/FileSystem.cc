@@ -1,6 +1,7 @@
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
 #include "FileSystem.h"
+#include "lib/Directory.h"
 #include "kernel/filesystem/Fat/FatDriver.h"
 #include "kernel/filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
 #include "kernel/filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"
@@ -16,7 +17,7 @@
 
 FileSystem::FileSystem() {
     eventBus = Kernel::getService<EventBus>();
-    //storageService = Kernel::getService<StorageService>();
+    storageService = Kernel::getService<StorageService>();
 }
 
 FileSystem::~FileSystem() {
@@ -68,15 +69,15 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 
 void FileSystem::init() {
     // Mount root-device
-    StorageService *storageService = Kernel::getService<StorageService>();
     StorageDevice *rootDevice = storageService->findRootDevice();
 
     if(rootDevice == nullptr) {
         // No root-device found -> Mount RAM-Device
         mount("", "/", "ram");
     } else {
-        if(mount(rootDevice->getName(), "/", "fat"))
+        if(mount(rootDevice->getName(), "/", "fat") != SUCCESS) {
             mount("", "/", "ram");
+        }
     }
     
     // Initialize dev-Directory
@@ -143,7 +144,6 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
     }
 
     // Get device
-    StorageService *storageService = Kernel::getService<StorageService>();
     StorageDevice *disk = storageService->getDevice(deviceNode->getName());
     if(disk == nullptr) {
         return DEVICE_NOT_FOUND;
@@ -173,17 +173,26 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
 }
 
 uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, const String &type) {
-    // Check if device-node exists
-    FsNode *deviceNode = getNode(devicePath);
-    if(deviceNode == nullptr) {
-        return DEVICE_NOT_FOUND;
-    }
+    StorageDevice *disk = nullptr;
+    String parsedDevicePath = parsePath(devicePath);
 
-    // Get device
-    StorageService *storageService = Kernel::getService<StorageService>();
-    StorageDevice *disk = storageService->getDevice(deviceNode->getName());
-    if(disk == nullptr) {
-        return DEVICE_NOT_FOUND;
+    if(type != TYPE_RAM) {
+        // Check if device-node exists
+        FsNode *deviceNode = getNode(parsedDevicePath);
+
+        if(deviceNode == nullptr) {
+            // Device node is non-existent,
+            // Check if devicePath is the name of a storage device.
+            disk = storageService->getDevice(devicePath);
+            if(disk == nullptr) {
+                return DEVICE_NOT_FOUND;
+            }
+        } else {
+            disk = storageService->getDevice(deviceNode->getName());
+            if(disk == nullptr) {
+                return DEVICE_NOT_FOUND;
+            }
+        }
     }
 
     String parsedPath = parsePath(targetPath);
@@ -204,8 +213,6 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
     } else {
         return INVALID_DRIVER;
     }
-
-    disk = storageService->getDevice(deviceNode->getName());
 
     if(!driver->mount(disk)) {
         fsLock.unlock();
@@ -313,7 +320,7 @@ uint32_t FileSystem::createDirectory(const String &path) {
 
     fsLock.unlock();
 
-    return ret ? SUCCESS : CREATING_FILE_FAILED;
+    return ret ? SUCCESS : CREATING_DIRECTORY_FAILED;
 }
 
 /**

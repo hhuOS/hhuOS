@@ -2,7 +2,6 @@
 #define __ElfLoader_include__
 
 #include <stdint.h>
-#include <lib/File.h>
 #include <kernel/KernelSymbols.h>
 #include "Elf.h"
 

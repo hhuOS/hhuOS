@@ -14,7 +14,7 @@ FatNode::~FatNode() {
 }
 
 FatNode *FatNode::open(const String &path, FatFs *fatInstance) {
-    FatNode *node = new FatNode(fatInstance);
+    auto *node = new FatNode(fatInstance);
 
     node->path = path;
 

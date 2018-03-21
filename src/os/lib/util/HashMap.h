@@ -258,6 +258,10 @@ namespace Util {
     template<class K, class V>
     Array<K> HashMap<K, V>::keySet() const {
 
+        if (!isInitialized) {
+            initialize();
+        }
+
         ArrayList<K> keyList;
 
         HashNode<K, V> *current;

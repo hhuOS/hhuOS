@@ -1,7 +1,9 @@
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
+#include <kernel/Kernel.h>
 #include "StorageService.h"
 #include "devices/block/storage/Partition.h"
+#include "EventBus.h"
 
 StorageDevice *StorageService::getDevice(const String &name) {
     return devices.get(name);

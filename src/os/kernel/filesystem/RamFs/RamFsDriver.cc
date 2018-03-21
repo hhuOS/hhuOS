@@ -131,9 +131,13 @@ bool RamFsDriver::deleteNode(const String &path) {
         return false;
     }
 
+    if(!node->getChildren().isEmpty()) {
+        delete node;
+        return false;
+    }
+
     currentDir->getChildren().remove(node);
 
     delete node;
-
     return true;
 }

@@ -1,7 +1,6 @@
 #ifndef __StorageService_include__
 #define __StorageService_include__
 
-#include <kernel/Module.h>
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
 #include "devices/block/storage/StorageDevice.h"

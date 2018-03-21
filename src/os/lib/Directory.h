@@ -6,11 +6,6 @@
 #include "kernel/Kernel.h"
 #include "lib/util/Array.h"
 #include <cstdint>
-
-extern "C" {
-#include "lib/libc/string.h"
-}
-
 /**
  * Allows interacting with a directory.
  *

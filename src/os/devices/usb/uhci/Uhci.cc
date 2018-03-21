@@ -12,10 +12,8 @@
 #include "Uhci.h"
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
+#include <kernel/Kernel.h>
 
-extern "C" {
-    #include "lib/libc/stdlib.h"
-}
 
 Uhci::Uhci() {}
 

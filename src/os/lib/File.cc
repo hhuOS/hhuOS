@@ -32,17 +32,17 @@ File *File::open(const String &path, const String &mode) {
             case 'r' :
                 return nullptr;
             case 'w' :
-                if(fileSystem->createFile(path) == -1) {
-                    return nullptr;
+                if(fileSystem->createFile(path)) {
+                    return new File(fileSystem->getNode(path), path, mode);
                 }
 
-                return new File(fileSystem->getNode(path), path, mode);
+                return nullptr;
             case 'a' :
-                if(fileSystem->createFile(path) == -1) {
-                    return nullptr;
+                if(fileSystem->createFile(path)) {
+                    return new File(fileSystem->getNode(path), path, mode);
                 }
 
-                return new File(fileSystem->getNode(path), path, mode);
+                return nullptr;
             default:
                 return nullptr;
         }
@@ -51,12 +51,12 @@ File *File::open(const String &path, const String &mode) {
     }
 
     if(mode[0] == 'w' && mode[1] == '+') {
-        if(fileSystem->createFile(path) == -1) {
-            delete node;
-            return nullptr;
+        if(fileSystem->createFile(path)) {
+            return new File(fileSystem->getNode(path), path, mode);
         }
-        
-        return new File(fileSystem->getNode(path), path, mode);
+
+        delete node;
+        return nullptr;
     }
 
     return new File(node, path, mode);

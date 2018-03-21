@@ -9,6 +9,7 @@
 *****************************************************************************/
 
 #include <devices/block/storage/AhciDevice.h>
+#include <kernel/Kernel.h>
 #include "devices/Pci.h"
 
 #include "kernel/memory/manager/IOMemoryManager.h"

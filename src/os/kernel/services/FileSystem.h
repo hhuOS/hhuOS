@@ -18,10 +18,25 @@ private:
 
     Spinlock fsLock;
 
-    //StorageService *storageService = nullptr;
+    StorageService *storageService = nullptr;
     EventBus *eventBus = nullptr;
 
+    /**
+     * Get the driver, that is mounted at a specified path.
+     * CAUTION: May return nullptr, if the file does not exist.
+     *          Always check the return value!
+     *
+     * @param path The path. After successful execution, the part up to the mount point will truncated,
+     *             so that the path can be used for the returned driver.
+     *
+     * @return The driver (or nullptr on failure)
+     */
+    FsDriver *getMountedDriver(String &path);
+
 public:
+    /**
+     * Possible return codes.
+     */
     enum RETURN_CODES {
         SUCCESS = 0x00,
         FILE_NOT_FOUND = 0x01,
@@ -37,36 +52,121 @@ public:
         DELETING_FILE_FAILED = 0x11
     };
 
+    /**
+     * Constructor.
+     */
     FileSystem();
 
+    /**
+     * Copy-constructor.
+     */
     FileSystem(const FileSystem &copy) = delete;
 
+    /**
+     * Destructor.
+     */
     ~FileSystem() override;
 
-    FsDriver *getMountedDriver(String &path);
-
+    /**
+     * Processes the '.' and '..' entries of a path.
+     *
+     * @param path The path
+     * @return The processed path
+     */
     static String parsePath(const String &path);
 
+    /**
+     * Initialize the Filesystem.
+     */
     void init();
 
+    /**
+     * Add a virtual node to a mounted RamFsDriver.
+     * A RamFsDriver MUST be mounted at the location that the path points to.
+     * Otherwise the behaviour of this function is undetermined.
+     *
+     * @param path The path
+     * @param node The node
+     *
+     * @return Return code.
+     */
     uint32_t addVirtualNode(const String &path, VirtualNode *node);
 
-    uint32_t createFilesystem(const String &path, const String &fsType);
+    /**
+     * Format a device with a specified filesystem-type.
+     *
+     * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
+     * @param fsType The filesystem-type
+     *
+     * @return Return code
+     */
+    uint32_t createFilesystem(const String &devicePath, const String &fsType);
 
+    /**
+     * Mounts a device at a specified location.
+     *
+     * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
+     * @param targetPath The mount-path
+     * @param type The filesystem-type
+     *
+     * @return Return code
+     */
     uint32_t mount(const String &devicePath, const String &targetPath, const String &type);
 
+    /**
+     * Unmounts a device from a specified location.
+     *
+     * @param path The mount-path
+     *
+     * @return Return code.
+     */
     uint32_t unmount(const String &path);
 
+    /**
+     * Get a node at a specified path.
+     * CAUTION: May return nullptr, if the file does not exist.
+     *          Always check the return value!
+     *
+     * @param path The path
+     *
+     * @return The node (or nullptr on failure)
+     */
     FsNode *getNode(const String &path);
 
+    /**
+     * Create a file at a specified path.
+     * The parent-directory of the new folder must exist beforehand.
+     *
+     * @param path The path
+     *
+     * @return Return code
+     */
     uint32_t createFile(const String &path);
 
+    /**
+     * Create a directory at a specified path.
+     * The parent-directory of the new folder must exist beforehand.
+     *
+     * @param path The path
+     *
+     * @return Return code
+     */
     uint32_t createDirectory(const String &path);
 
+    /**
+     * Delete an existing file or directory at a given path.
+     * The file must be a regular file or an empty folder (a leaf in the filesystem tree).
+     *
+     * @param path The path
+     *
+     * @return Return code
+     */
     uint32_t deleteFile(const String &path);
 
-
-    void onEvent(const Event &event) override ;
+    /**
+     * Overriding function from Receiver.
+     */
+    void onEvent(const Event &event) override;
 
 
     static constexpr const char* SERVICE_NAME = "FileSystem";

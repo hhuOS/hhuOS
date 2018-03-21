@@ -14,24 +14,49 @@ extern "C" {
 class FatDriver : public FsDriver {
     
 private:
-    FatDriver(const FatDriver  &copy);
-
     FatFs *fatInstance = nullptr;
     StorageDevice *device;
 
 public:
-    FatDriver() {};
-    ~FatDriver() {
-        if(fatInstance != nullptr)
-            delete fatInstance;
-    }
+    /**
+     * Constructor.
+     */
+    FatDriver() = default;
 
-    bool createFs(StorageDevice *device);
+    /**
+     * Copy-constructor.
+     */
+    FatDriver(const FatDriver  &copy) = delete;
 
-    bool mount(StorageDevice *device);
-    FsNode *getNode(const String &path);
-    bool createNode(const String &path, uint8_t fileType);
-    bool deleteNode(const String &path);
+    /**
+     * Destructor.
+     */
+    ~FatDriver() override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+    bool createFs(StorageDevice *device) override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+    bool mount(StorageDevice *device) override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+    FsNode *getNode(const String &path) override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+    bool createNode(const String &path, uint8_t fileType) override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+    bool deleteNode(const String &path) override;
 };
 
 #endif

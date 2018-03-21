@@ -12,8 +12,8 @@
 #include <devices/Pci.h>
 #include <kernel/services/DebugService.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
 #include <kernel/services/InputService.h>
+#include <kernel/Kernel.h>
 #include "Ehci.h"
 
 void waitOnEnter() {
