@@ -5,7 +5,7 @@
 #include "kernel/services/FileSystem.h"
 #include "kernel/filesystem/FsNode.h"
 #include "kernel/Kernel.h"
-#include "InputStream.h"
+#include "lib/InputStream.h"
 #include <cstdint>
 
 /**
@@ -90,7 +90,7 @@ public:
     String getAbsolutePath();
 
     /**
-     * Get the filetype.
+     * Get the file type.
      */
     uint32_t getFileType();
 

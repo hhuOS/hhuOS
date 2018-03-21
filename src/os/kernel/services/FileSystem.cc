@@ -1,7 +1,7 @@
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
 #include "FileSystem.h"
-#include "lib/Directory.h"
+#include "lib/file/Directory.h"
 #include "kernel/filesystem/Fat/FatDriver.h"
 #include "kernel/filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
 #include "kernel/filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"

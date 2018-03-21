@@ -5,7 +5,9 @@ Directory::Directory(FsNode *node, const String &path) : node(node) {
 };
 
 Directory::~Directory() {
-    delete node;
+    if(node != nullptr) {
+        delete node;
+    }
 }
 
 Directory *Directory::open(const String &path) {

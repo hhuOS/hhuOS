@@ -11,7 +11,7 @@
 #define __AsciimationApp_include__
 
 #include "kernel/threads/Thread.h"
-#include "lib/File.h"
+#include "lib/file/File.h"
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/services/TimeService.h"
 

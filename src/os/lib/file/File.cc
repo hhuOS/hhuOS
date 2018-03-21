@@ -10,7 +10,9 @@ File::File(FsNode *node, const String &path, const String &mode) : node(node) {
 };
 
 File::~File() {
-    delete node;
+    if(node != nullptr) {
+        delete node;
+    }
 }
 
 File *File::open(const String &path, const String &mode) {
@@ -21,7 +23,6 @@ File *File::open(const String &path, const String &mode) {
     if((mode[0] != 'w' && mode[0] != 'r' && mode[0] != 'a') || (mode[1] != '+' && mode[1] != 0)) {
         return nullptr;
     }
-
 
     auto *fileSystem = Kernel::getService<FileSystem>();
 

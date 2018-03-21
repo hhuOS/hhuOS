@@ -5,7 +5,7 @@
 #include "devices/graphics/text/CgaText.h"
 #include "devices/graphics/text/TextDriver.h"
 
-#include "lib/File.h"
+#include "lib/file/File.h"
 
 extern "C" {
     #include "lib/libc/string.h"

@@ -1,7 +1,7 @@
 #ifndef __Tar_Archive_include__
 #define __Tar_Archive_include__
 
-#include "lib/File.h"
+#include "lib/file/File.h"
 #include "lib/Address.h"
 #include "lib/util/ArrayList.h"
 #include "lib/file/tar/Constants.h"

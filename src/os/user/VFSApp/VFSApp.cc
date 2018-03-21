@@ -10,8 +10,8 @@
 
 #include "user/VFSApp/VFSApp.h"
 #include "devices/input/Key.h"
-#include "lib/Directory.h"
-#include "lib/File.h"
+#include "lib/file/Directory.h"
+#include "lib/file/File.h"
 #include "lib/elf/ElfLoader.h"
 #include "devices/graphics/text/CgaText.h"
 #include "devices/graphics/text/VesaText.h"

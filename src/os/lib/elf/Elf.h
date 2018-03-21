@@ -3,7 +3,7 @@
 
 #include <cstdint>
 #include <lib/String.h>
-#include <lib/File.h>
+#include <lib/file/File.h>
 #include "lib/elf/ElfConstants.h"
 
 using namespace ElfConstants;

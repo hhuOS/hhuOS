@@ -3,7 +3,7 @@
 #define __libBmp_include__ 1
 
 #include "lib/Byte.h"
-#include "lib/File.h"
+#include "lib/file/File.h"
 
 class Bmp {
     
