@@ -5,6 +5,12 @@
 #include <kernel/filesystem/RamFs/VirtualNode.h>
 #include <kernel/services/GraphicsService.h>
 
+/**
+ * Implementation of VirtualNode, that reads the available resolutions of the currently used graphics card.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class GraphicsResolutionsNode : public VirtualNode {
 
 private:
@@ -24,6 +30,9 @@ public:
 
     /**
      * Constructor.
+     *
+     * @param mode TEXT: Use the current TextDriver.
+     *             LINEAR_FRAME_BUFFER: Use the current LinearFrameBuffer.
      */
     explicit GraphicsResolutionsNode(uint8_t mode);
 

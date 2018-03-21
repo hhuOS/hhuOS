@@ -2,7 +2,7 @@
 #include "PciNode.h"
 
 
-PciNode::PciNode() : VirtualNode("pci", REGULAR_FILE) {
+PciNode::PciNode() : VirtualNode("pci", FsNode::REGULAR_FILE) {
 
 }
 
@@ -29,11 +29,11 @@ uint64_t PciNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     memcpy(buf, (char*) cache + pos, numBytes);
 
-    return true;
+    return numBytes;
 }
 
 uint64_t PciNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+    return 0;
 }
 
 void PciNode::cacheDeviceList() {

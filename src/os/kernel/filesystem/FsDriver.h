@@ -45,7 +45,7 @@ public:
      *
      * @return true, on success
      */
-    virtual bool makeFs(StorageDevice *device) = 0;
+    virtual bool createFs(StorageDevice *device) = 0;
 
     /**
      * Get an FsNode, representing a file or directory that a given path points to.

@@ -1,21 +1,25 @@
 #include <kernel/filesystem/Fat/FatFsLib/FatFs.h>
 #include "FatNode.h"
 
+FatNode::FatNode(FatFs *fatInstance) : fatInstance(fatInstance) {
 
-extern "C" {
-#include "lib/libc/string.h"
+}
+
+FatNode::~FatNode() {
+    if(info.fattrib & AM_DIR) {
+        fatInstance->f_closedir(&fatObject.dir);
+    } else if(!(info.fattrib & AM_DIR)) {
+        fatInstance->f_close(&fatObject.file);
+    }
 }
 
 FatNode *FatNode::open(const String &path, FatFs *fatInstance) {
-
-    if(path.length() > 4095) {
-        return nullptr;
-    }
-
     FatNode *node = new FatNode(fatInstance);
 
     node->path = path;
 
+    // Try to stat the file. If this fails, the file is either non-existent,
+    // or it may be the root-directory (f_stat will fail, when executed on the root-directory).
     if(fatInstance->f_stat((char*) path, &node->info) != FR_OK) {
         if(fatInstance->f_opendir(&node->fatObject.dir, (char*) path) != FR_OK) {
             delete node;
@@ -30,13 +34,15 @@ FatNode *FatNode::open(const String &path, FatFs *fatInstance) {
     }
             
     if(node->info.fattrib & AM_DIR) {
-        if(fatInstance->f_opendir(&node->fatObject.dir, (char*) path) == FR_OK)
+        if(fatInstance->f_opendir(&node->fatObject.dir, (char*) path) == FR_OK) {
             return node;
+        }
     }
 
     if(!(node->info.fattrib & AM_DIR)) {
-        if(fatInstance->f_open(&node->fatObject.file, (char*) path, FA_READ | FA_WRITE) == FR_OK)
+        if(fatInstance->f_open(&node->fatObject.file, (char*) path, FA_READ | FA_WRITE) == FR_OK) {
             return node;
+        }
     }
     
     delete node;
@@ -48,14 +54,14 @@ String FatNode::getName() {
 }
 
 uint8_t FatNode::getFileType() {
-    if(info.fattrib & AM_DIR)
+    if(info.fattrib & AM_DIR) {
         return DIRECTORY_FILE;
+    }
     
     return REGULAR_FILE;
 }
 
 uint64_t FatNode::getLength() {
-
     if(fatInstance->f_stat((char*) path, &info) != FR_OK) {
         return 0;
     }
@@ -116,7 +122,7 @@ uint64_t FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     }
 
     if(readBytes < numBytes) {
-        buf[readBytes] = VFS_EOF;
+        buf[readBytes] = END_OF_FILE;
     }
         
     return readBytes;

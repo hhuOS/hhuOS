@@ -1,7 +1,7 @@
 #include "StdoutNode.h"
 #include "kernel/Kernel.h"
 
-StdoutNode::StdoutNode() : VirtualNode("stdout", CHAR_FILE) {
+StdoutNode::StdoutNode() : VirtualNode("stdout", FsNode::CHAR_FILE) {
     stdStreamService = Kernel::getService<StdStreamService>();
 }
 

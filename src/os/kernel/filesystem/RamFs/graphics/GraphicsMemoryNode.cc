@@ -2,7 +2,7 @@
 #include <devices/graphics/text/TextDriver.h>
 #include "GraphicsMemoryNode.h"
 
-GraphicsMemoryNode::GraphicsMemoryNode(uint8_t mode) : VirtualNode("memory", REGULAR_FILE), mode(mode) {
+GraphicsMemoryNode::GraphicsMemoryNode(uint8_t mode) : VirtualNode("memory", FsNode::REGULAR_FILE), mode(mode) {
     graphicsService = Kernel::getService<GraphicsService>();
 }
 

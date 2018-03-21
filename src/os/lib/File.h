@@ -114,7 +114,7 @@ public:
      *
      * @return Return code
      */
-    uint32_t writeChar(char ch);
+    uint32_t writeChar(char c);
 
     /**
      * Write a null-terminated string to the file.
@@ -146,7 +146,7 @@ public:
      * Read at most len - 1 bytes from the file and always appends a null-terminator.
      * If a '\n' or 'EOF' character is encountered, the function returns the read string up to that point.
      *
-     * @param buf The buffer to write to (Needs to be allocated!)
+     * @param buf The buffer to write to (Needs to be allocated already!)
      * @param len The amount of bytes ot read. At most, len - 1 characters will be read.
      *
      * @return Return code.
@@ -156,7 +156,7 @@ public:
     /**
      * Read a given amount of bytes from the file.
      *
-     * @param buf The buffer to write to (Needs to be allocated!)
+     * @param buf The buffer to write to (Needs to be already allocated already!)
      * @param len The amount of bytes ot read.
      *
      * @return Return code.

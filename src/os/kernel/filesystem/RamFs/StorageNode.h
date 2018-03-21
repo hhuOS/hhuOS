@@ -5,21 +5,53 @@
 #include "devices/block/storage/StorageDevice.h"
 #include <stdint.h>
 
+/**
+ * Implementation of VirtualNode, that allows bytewise reading from and writing to a StorageDevice.
+ *
+ * @author Fabian Ruhland
+ * @date 2017
+ */
 class StorageNode : public VirtualNode {
-private:
-    StorageNode(const StorageNode &copy);
 
+private:
     StorageDevice *disk;
 
 public:
-    StorageNode(StorageDevice *arg_disk) : VirtualNode(arg_disk->getName(), BLOCK_FILE){
-        disk = arg_disk;
-    };
-    ~StorageNode() {}
+    /**
+     * Default-constructor.
+     */
+    StorageNode() = delete;
 
-    uint64_t getLength();
-    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes);
-    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
+    /**
+     * Constructor.
+     * @param disk The storage device
+     */
+    explicit StorageNode(StorageDevice *disk);
+
+    /**
+     * Copy-constructor.
+     */
+    StorageNode(const StorageNode &copy) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~StorageNode() override = default;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
 
 #endif

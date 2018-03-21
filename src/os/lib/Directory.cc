@@ -13,7 +13,7 @@ Directory *Directory::open(const String &path) {
 
     FsNode *node = fileSystem->getNode(path);
 
-    if(node != nullptr && node->getFileType() == DIRECTORY_FILE) {
+    if(node != nullptr && node->getFileType() == FsNode::DIRECTORY_FILE) {
         return new Directory(node, path);
     }
 

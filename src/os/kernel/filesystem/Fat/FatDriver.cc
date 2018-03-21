@@ -11,7 +11,7 @@ bool FatDriver::mount(StorageDevice *device) {
     return -1;
 }
 
-bool FatDriver::makeFs(StorageDevice *device) {
+bool FatDriver::createFs(StorageDevice *device) {
     FatFs *tmpFat = new FatFs(device);
 
     uint8_t fatType = device->getSectorCount() <= MAX_FAT16 ? FM_FAT : FM_FAT32;
@@ -33,10 +33,10 @@ FsNode *FatDriver::getNode(const String &path) {
 }
 
 bool FatDriver::createNode(const String &path, uint8_t fileType) {
-    if(fileType == DIRECTORY_FILE) {
+    if(fileType == FsNode::DIRECTORY_FILE) {
         if(fatInstance->f_mkdir((char *) path) == FR_OK)
             return 0;
-    } else if(fileType == REGULAR_FILE) {
+    } else if(fileType == FsNode::REGULAR_FILE) {
         FIL file;
         if(fatInstance->f_open(&file, (char *) path, FA_WRITE | FA_CREATE_ALWAYS) == FR_OK) {
             fatInstance->f_close(&file);

@@ -2,7 +2,7 @@
 #include <devices/graphics/text/TextDriver.h>
 #include "GraphicsResolutionsNode.h"
 
-GraphicsResolutionsNode::GraphicsResolutionsNode(uint8_t mode) : VirtualNode("resolutions", REGULAR_FILE), mode(mode) {
+GraphicsResolutionsNode::GraphicsResolutionsNode(uint8_t mode) : VirtualNode("resolutions", FsNode::REGULAR_FILE), mode(mode) {
     graphicsService = Kernel::getService<GraphicsService>();
 }
 

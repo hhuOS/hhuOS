@@ -17,8 +17,19 @@ public:
      * Possible partition types.
      */
     enum PARTITION_TYPE {
+        /**
+         * Standard primary partition.
+         */
         PRIMARY = 0x01,
+        /**
+         * Extended partition.
+         * An extended partition is a primary partition, that contains a linked list of logical partitions.
+         */
         EXTENDED = 0x02,
+        /**
+         * Logical partition.
+         * A logical partition is located inside an extended partition.
+         */
         LOGICAL = 0x03
     };
 
@@ -58,16 +69,25 @@ private:
     /**
      * Representation of an entry in a partition table.
      * See https://wiki.osdev.org/Partition_Table for further reference.
+     *
+     * @var active_flag 0x80 --> bootable partition, 0x0 --> non-bootable partition
+     * @var start_head Starting head of the partition
+     * @var start_sector_cylinder Bits 0-6: Starting sector of the partition, Bits 7-15: Starting cylinder of the partition
+     * @var system_id Partition type identifier
+     * @var end_head Ending head of the partition
+     * @var end_sector_cylinder Bits 0-6: Ending sector of the partition, Bits 7-15: Ending cylinder of the partition
+     * @var relative_sector Relative sector to start of partition
+     * @var sector_count Amount of sectors in partition
      */
     struct PartitionTableEntry {
-        uint8_t  active_flag;               //0x80 --> bootable partition, 0x0 --> non-bootable partition
-        uint8_t  start_head;                //Starting head of the partition
-        uint16_t start_sector_cylinder;     //Bits 0-6: Starting sector of the partition, Bits 7-15: Starting cylinder of the partition
-        uint8_t  system_id;                 //Partition type identifier
-        uint8_t  end_head;                  //Ending head of the partition
-        uint16_t end_sector_cylinder;       //Bits 0-6: Ending sector of the partition, Bits 7-15: Ending cylinder of the partition
-        uint32_t relative_sector;           //Relative sector to start of partition
-        uint32_t sector_count;              //Amount of sectors in partition
+        uint8_t  active_flag;
+        uint8_t  start_head;
+        uint16_t start_sector_cylinder;
+        uint8_t  system_id;
+        uint8_t  end_head;
+        uint16_t end_sector_cylinder;
+        uint32_t relative_sector;
+        uint32_t sector_count;
     } __attribute__((packed));
 
     String name;

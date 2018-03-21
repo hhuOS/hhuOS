@@ -4,7 +4,7 @@ File::File(FsNode *node, const String &path, const String &mode) : node(node) {
     this->path = FileSystem::parsePath(path);
     this->mode = mode;
 
-    if(mode.beginsWith("a") && node->getFileType() == REGULAR_FILE) {
+    if(mode.beginsWith("a") && node->getFileType() == FsNode::REGULAR_FILE) {
         pos = node->getLength();
     }
 };
@@ -14,7 +14,6 @@ File::~File() {
 }
 
 File *File::open(const String &path, const String &mode) {
-
     if (mode.length() == 0) {
         return nullptr;
     }
@@ -47,7 +46,7 @@ File *File::open(const String &path, const String &mode) {
             default:
                 return nullptr;
         }
-    } else if(node->getFileType() == DIRECTORY_FILE) {
+    } else if(node->getFileType() == FsNode::DIRECTORY_FILE) {
         return nullptr;
     }
 
@@ -79,14 +78,14 @@ uint64_t File::getLength() {
     return node->getLength();
 }
 
-uint32_t File::writeChar(char ch) {
+uint32_t File::writeChar(char c) {
     if(mode[0] == 'r' && mode[1] != '+') {
         return READ_ONLY_MODE;
     }
 
     uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
-    if(node->writeData(&ch, pos, 1) == 0) {
+    if(node->writeData(&c, pos, 1) == 1) {
         this->pos++;
 
         return SUCCESS;
@@ -104,7 +103,7 @@ uint32_t File::writeString(char *string) {
 
     uint32_t len = strlen(string);
 
-    if(node->writeData(string, pos, len) == 0) {
+    if(node->writeData(string, pos, len) == len) {
         this->pos += len;
 
         return SUCCESS;
@@ -120,7 +119,7 @@ uint32_t File::writeBytes(char *data, uint64_t len) {
 
     uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
-    if(node->writeData(data, pos, len) == 0) {
+    if(node->writeData(data, pos, len) == len) {
         this->pos += len;
 
         return SUCCESS;
@@ -136,7 +135,7 @@ char File::readChar() {
 
     char c;
 
-    if(node->readData(&c, pos, 1)) {
+    if(node->readData(&c, pos, 1) == 1) {
         pos++;
 
         return c;
@@ -154,8 +153,9 @@ uint32_t File::readString(char *buf, uint64_t len) {
     for(i = 0; i < len - 1; i++) {
         buf[i] = readChar();
 
-        if(buf[i] == 0 || buf[i] == '\n' || buf[i] == VFS_EOF) {
+        if(buf[i] == 0 || buf[i] == '\n' || buf[i] == FsNode::END_OF_FILE) {
             buf[i] = 0;
+
             return SUCCESS;
         }
     }
@@ -169,8 +169,10 @@ uint32_t File::readBytes(char *buf, uint64_t len) {
         return WRITE_ONLY_MODE;
     }
 
-    if(node->readData(buf, pos, len)) {
-        pos += len;
+    uint64_t ret = node->readData(buf, pos, len);
+
+    if(ret > 0) {
+        pos += ret;
 
         return SUCCESS;
     }

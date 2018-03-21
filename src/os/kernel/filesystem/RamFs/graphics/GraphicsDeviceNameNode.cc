@@ -2,7 +2,7 @@
 #include <devices/graphics/text/TextDriver.h>
 #include "GraphicsDeviceNameNode.h"
 
-GraphicsDeviceNameNode::GraphicsDeviceNameNode(uint8_t mode) : VirtualNode("device", REGULAR_FILE), mode(mode) {
+GraphicsDeviceNameNode::GraphicsDeviceNameNode(uint8_t mode) : VirtualNode("device", FsNode::REGULAR_FILE), mode(mode) {
     graphicsService = Kernel::getService<GraphicsService>();
 }
 

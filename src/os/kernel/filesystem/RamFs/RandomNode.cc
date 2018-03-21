@@ -1,7 +1,7 @@
 #include "RandomNode.h"
 #include "lib/Random.h"
 
-RandomNode::RandomNode() : VirtualNode("random", CHAR_FILE) {
+RandomNode::RandomNode() : VirtualNode("random", FsNode::CHAR_FILE) {
 
 }
 

@@ -1,7 +1,7 @@
 #include "StderrNode.h"
 #include "kernel/Kernel.h"
 
-StderrNode::StderrNode() : VirtualNode("stderr", CHAR_FILE) {
+StderrNode::StderrNode() : VirtualNode("stderr", FsNode::CHAR_FILE) {
     stdStreamService = Kernel::getService<StdStreamService>();
 }
 

@@ -192,7 +192,7 @@ int32_t FileSystem::createFilesystem(const String &devicePath, const String &fsT
         return -1;
     }
     
-    int32_t ret = tmpDriver->makeFs(disk);
+    int32_t ret = tmpDriver->createFs(disk);
 
     fsLock.unlock();
     delete tmpDriver;
@@ -343,7 +343,7 @@ int32_t FileSystem::createFile(const String &path) {
         return -1;
     }
     
-    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, REGULAR_FILE);
+    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, FsNode::REGULAR_FILE);
 
     fsLock.unlock();
 
@@ -377,7 +377,7 @@ int32_t FileSystem::createDirectory(const String &path) {
         return -1;
     }
     
-    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, DIRECTORY_FILE);
+    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, FsNode::DIRECTORY_FILE);
 
     fsLock.unlock();
 

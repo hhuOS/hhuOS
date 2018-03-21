@@ -30,10 +30,9 @@ extern "C" {
 
 
 /***************************************************************************************************
- * This is a modified version of the Fat-library by ELM-ChaN.                                    *
+ * This is a modified version of the Fat-library by ELM-ChaN.                                      *
  * We took out the code that we needed for hhuOS and wrapped a C++-Class around it.                *
- * Furthermore we patched in support for dynamic adding of drives.                                 *
- * This class will probably be replaced by FAT-driver, that we will write on our own               *
+ * This class will probably be replaced by a FAT-driver, that we will write on our own             *
  * and that fits our needs better.                                                                 *
  *                                                                                                 *
  * For function-documentation and further reference see http://elm-chan.org/fsw/ff/00index_e.html. *
@@ -645,10 +644,10 @@ private:
 	static const BYTE ExCvt[];
 
 	/* Pointer to the filesystem objects (logical drives) */
-	FATFS FatVolume;
+	FATFS FatVolume{};
 
 	/* File system mount ID */
-	WORD Fsid;
+	WORD Fsid{};
 	
 	/* Unicode conversion functions */
 	WCHAR ff_uni2oem(DWORD uni, WORD cp);
@@ -660,9 +659,6 @@ private:
     int dbc_2nd(BYTE c);
     DWORD tchar2uni(const TCHAR **str);
     BYTE put_utf(DWORD chr, TCHAR *buf, UINT szb);
-	void putc_bfd(putbuff *pb, TCHAR c);
-	int putc_flush(putbuff *pb);
-	void putc_init(putbuff *pb, FIL *fp);
 
 	/* Functions to load/store multi-byte words */
 	WORD ld_word(const BYTE *ptr);
@@ -707,29 +703,122 @@ private:
 
 
 public:
-	FatFs(StorageDevice *disk) {
-		FatVolume.disk = disk;
-	}
+    /**
+     * Constructor.
+     *
+     * @param disk The StorageDevice to manage
+     */
+    explicit FatFs(StorageDevice *disk);
 
-    FRESULT f_open (FIL* fp, const TCHAR* path, BYTE mode);				/* Open or create a file */
-    FRESULT f_close (FIL* fp);											/* Close an open file object */
-    FRESULT f_read (FIL* fp, void* buff, UINT btr, UINT* br);			/* Read data from the file */
-    FRESULT f_write (FIL* fp, const void* buff, UINT btw, UINT* bw);	/* Write data to the file */
-    FRESULT f_lseek (FIL* fp, FSIZE_t ofs);								/* Move file pointer of the file object */
-    FRESULT f_truncate (FIL* fp);										/* Truncate the file */
-    FRESULT f_sync (FIL* fp);											/* Flush cached data of the writing file */
-    FRESULT f_opendir (DIR* dp, const TCHAR* path);						/* Open a directory */
-    FRESULT f_closedir (DIR* dp);										/* Close an open directory */
-    FRESULT f_readdir (DIR* dp, FILINFO* fno);							/* Find next file */
-    FRESULT f_mkdir (const TCHAR* path);								/* Create a sub directory */
-    FRESULT f_unlink (const TCHAR* path);								/* Delete an existing file or directory */
-    FRESULT f_rename (const TCHAR* path_old, const TCHAR* path_new);	/* Rename/Move a file or directory */
-    FRESULT f_stat (const TCHAR* path, FILINFO* fno);					/* Get file status */
-    FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** Fat);	/* Get number of free clusters on the drive */
-    FRESULT f_getlabel (const TCHAR* path, TCHAR* label, DWORD* vsn);	/* Get volume label */
-    FRESULT f_setlabel (const TCHAR* label);							/* Set volume label */
-    FRESULT f_mount (StorageDevice* disk, BYTE opt);					/* Mount/Unmount a logical drive */
-	FRESULT f_mkfs (BYTE opt, DWORD au, void *work, UINT len); /* Create a FAT volume */
+    /**
+     * Default-constructor.
+     */
+    FatFs() = delete;
+
+    /**
+     * Copy-constructor.
+     */
+    FatFs(const FatFs &copy) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~FatFs() = default;
+
+	/**
+	 * Open or create a file.
+	 */
+    FRESULT f_open (FIL* fp, const TCHAR* path, BYTE mode);
+
+    /**
+     * Close an open file object.
+     */
+    FRESULT f_close (FIL* fp);
+
+    /**
+     * Read data from the file.
+     */
+    FRESULT f_read (FIL* fp, void* buff, UINT btr, UINT* br);
+
+    /**
+     * Write data to the file.
+     */
+    FRESULT f_write (FIL* fp, const void* buff, UINT btw, UINT* bw);
+
+    /**
+     * Move file pointer of the file object.
+     */
+    FRESULT f_lseek (FIL* fp, FSIZE_t ofs);
+
+    /**
+     * Truncate the file.
+     */
+    FRESULT f_truncate (FIL* fp);
+
+    /**
+     * Flush cached data of the writing file.
+     */
+    FRESULT f_sync (FIL* fp);
+
+    /**
+     * Open a directory.
+     */
+    FRESULT f_opendir (DIR* dp, const TCHAR* path);
+
+    /**
+     * Close an open directory.
+     */
+    FRESULT f_closedir (DIR* dp);
+
+    /**
+     * Find next file.
+     */
+    FRESULT f_readdir (DIR* dp, FILINFO* fno);
+
+    /**
+     * Create a sub directory.
+     */
+    FRESULT f_mkdir (const TCHAR* path);
+
+    /**
+     * Delete an existing file or directory.
+     */
+    FRESULT f_unlink (const TCHAR* path);
+
+    /**
+     * Rename/Move a file or directory.
+     */
+    FRESULT f_rename (const TCHAR* path_old, const TCHAR* path_new);
+
+    /**
+     * Get file status.
+     */
+    FRESULT f_stat (const TCHAR* path, FILINFO* fno);
+
+    /**
+     * Get number of free clusters on the drive.
+     */
+    FRESULT f_getfree (const TCHAR* path, DWORD* nclst, FATFS** Fat);
+
+    /**
+     * Get volume label.
+     */
+    FRESULT f_getlabel (const TCHAR* path, TCHAR* label, DWORD* vsn);
+
+    /**
+     * Set volume label.
+     */
+    FRESULT f_setlabel (const TCHAR* label);
+
+    /**
+     * Mount/Unmount a logical drive.
+     */
+    FRESULT f_mount (StorageDevice* disk, BYTE opt);
+
+    /**
+     * Create a FAT volume.
+     */
+	FRESULT f_mkfs (BYTE opt, DWORD au, void *work, UINT len);
 };
 
 #endif

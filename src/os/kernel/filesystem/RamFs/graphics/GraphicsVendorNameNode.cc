@@ -2,7 +2,7 @@
 #include <devices/graphics/text/TextDriver.h>
 #include "GraphicsVendorNameNode.h"
 
-GraphicsVendorNameNode::GraphicsVendorNameNode(uint8_t mode) : VirtualNode("vendor", REGULAR_FILE), mode(mode){
+GraphicsVendorNameNode::GraphicsVendorNameNode(uint8_t mode) : VirtualNode("vendor", FsNode::REGULAR_FILE), mode(mode){
     graphicsService = Kernel::getService<GraphicsService>();
 }
 

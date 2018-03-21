@@ -22,8 +22,12 @@ const WCHAR FatFs::uc437[] = {
 
 const BYTE FatFs::LfnOfs[] = {1, 3, 5, 7, 9, 14, 16, 18, 20, 22, 24, 28, 30};
 
-
 const BYTE FatFs::ExCvt[] = MKCVTBL(TBL_CT, FF_CODE_PAGE);
+
+
+FatFs::FatFs(StorageDevice *disk) {
+	FatVolume.disk = disk;
+}
 
 /* Unicode conversion functions */
 

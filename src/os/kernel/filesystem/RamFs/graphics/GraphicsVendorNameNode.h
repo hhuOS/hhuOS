@@ -5,6 +5,12 @@
 #include <kernel/filesystem/RamFs/VirtualNode.h>
 #include <kernel/services/GraphicsService.h>
 
+/**
+ * Implementation of VirtualNode, that read the currently used graphics card's vendor name.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class GraphicsVendorNameNode : public VirtualNode {
 
 private:
@@ -24,6 +30,9 @@ public:
 
     /**
      * Constructor.
+     *
+     * @param mode TEXT: Use the current TextDriver.
+     *             LINEAR_FRAME_BUFFER: Use the current LinearFrameBuffer.
      */
     explicit GraphicsVendorNameNode(uint8_t mode);
 

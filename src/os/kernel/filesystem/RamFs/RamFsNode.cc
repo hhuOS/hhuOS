@@ -27,7 +27,7 @@ uint64_t RamFsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     uint64_t readBytes = node->readData(buf, pos, numBytes);
 
     if(readBytes < numBytes) {
-        buf[readBytes] = VFS_EOF;
+        buf[readBytes] = END_OF_FILE;
     }
 
     return readBytes;

@@ -6,6 +6,9 @@
 
 /**
  * Implementation of VirtualNode, that always fills a buffer with zeros in readData().
+ *
+ * @author Fabian Ruhland
+ * @date 2017
  */
 class ZeroNode : public VirtualNode {
 

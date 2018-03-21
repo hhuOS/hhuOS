@@ -1,6 +1,6 @@
 #include "ZeroNode.h"
 
-ZeroNode::ZeroNode() : VirtualNode("zero", CHAR_FILE) {
+ZeroNode::ZeroNode() : VirtualNode("zero", FsNode::CHAR_FILE) {
 
 }
 

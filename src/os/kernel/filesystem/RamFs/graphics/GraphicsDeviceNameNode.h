@@ -5,6 +5,12 @@
 #include <kernel/filesystem/RamFs/VirtualNode.h>
 #include <kernel/services/GraphicsService.h>
 
+/**
+ * Implementation of VirtualNode, that read the currently used graphics card's name.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class GraphicsDeviceNameNode : public VirtualNode {
 
 private:
@@ -16,6 +22,9 @@ public:
 
     /**
      * Possible graphics modes.
+     *
+     * @param mode TEXT: Use the current TextDriver.
+     *             LINEAR_FRAME_BUFFER: Use the current LinearFrameBuffer.
      */
     enum MODES {
         TEXT = 0x00,
@@ -35,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~GraphicsDeviceNameNode() = default;
+    ~GraphicsDeviceNameNode() override = default;
 
     /**
      * Overriding function from VirtualNode.

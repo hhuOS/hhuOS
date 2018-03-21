@@ -12,6 +12,9 @@ extern "C" {
 /**
  * An implementation of FsNode for the RamFs
  * (A filesystem, that exists completely in memory).
+ *
+ * @author Fabian Ruhland
+ * @date 2017
  */
 class RamFsNode : public FsNode {
 

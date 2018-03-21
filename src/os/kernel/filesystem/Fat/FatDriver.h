@@ -26,7 +26,7 @@ public:
             delete fatInstance;
     }
 
-    bool makeFs(StorageDevice *device);
+    bool createFs(StorageDevice *device);
 
     bool mount(StorageDevice *device);
     FsNode *getNode(const String &path);
