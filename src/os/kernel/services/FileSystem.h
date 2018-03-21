@@ -1,87 +1,75 @@
 #ifndef __FileSystem_include__
 #define __FileSystem_include__
 
-#include "kernel/filesystem/FsDriver.h"
-#include "kernel/filesystem/RamFs/VirtualNode.h"
-#include "kernel/Spinlock.h"
-#include "kernel/Kernel.h"
-#include "kernel/services/EventBus.h"
-#include "kernel/events/Receiver.h"
-#include "kernel/events/storage/StorageAddEvent.h"
-#include "kernel/events/storage/StorageRemoveEvent.h"
-
-
 #include <cstdint>
+#include "StorageService.h"
+#include <kernel/filesystem/RamFs/VirtualNode.h>
+#include <kernel/filesystem/FsDriver.h>
+#include "EventBus.h"
 
 /**
- * The filesystem. This class is instantiated only once in the Globals-file.
- * It maintains a list of mount-points. Every request will be handled by picking the right
+ * The filesystem. It works by maintaining a list of mount-points. Every request will be handled by picking the right
  * mount-point and and passing the request over to the corresponding FsDriver.
  */
 class FileSystem : public KernelService, Receiver {
 
+private:
+    Util::HashMap<String, FsDriver*> mountPoints;
+
+    Spinlock fsLock;
+
+    //StorageService *storageService = nullptr;
+    EventBus *eventBus = nullptr;
+
 public:
+    enum RETURN_CODES {
+        SUCCESS = 0x00,
+        FILE_NOT_FOUND = 0x01,
+        DEVICE_NOT_FOUND = 0x02,
+        INVALID_DRIVER = 0x03,
+        FORMATTING_FAILED = 0x04,
+        MOUNT_TARGET_ALREADY_USED = 0x05,
+        MOUNTING_FAILED = 0x06,
+        ADDING_VIRTUAL_NODE_FAILED = 0x07,
+        NOTHING_MOUNTED_AT_PATH = 0x08,
+        CREATING_FILE_FAILED = 0x09,
+        CREATING_DIRECTORY_FAILED = 0x10,
+        DELETING_FILE_FAILED = 0x11
+    };
+
+    FileSystem();
 
     FileSystem(const FileSystem &copy) = delete;
 
-    /**
-     * Represents a mount-point.
-     * It consists of the mount-path and a pointer to the corresponding FsDriver.
-     */
-    struct MountPoint {
-        String path;
-        FsDriver *driver;
-    };
+    ~FileSystem() override;
 
-    struct MountInfo {
-        MountPoint *mountPoint;
-        String pathInMount;
-
-        MountInfo(MountPoint *mountPoint, const String &pathInMount);
-    };
-
-    FileSystem() = default;
-
-    ~FileSystem() {
-        for(uint32_t i = 0; i < mountPoints.length(); i++) {
-            MountPoint *currentMountPoint = mountPoints.get(i);
-            mountPoints.remove(currentMountPoint);
-            delete currentMountPoint->driver;
-            delete currentMountPoint;
-        }
-
-        EventBus *eventBus = Kernel::getService<EventBus>();
-        eventBus->unsubscribe(*this, StorageAddEvent::TYPE);
-        eventBus->unsubscribe(*this, StorageRemoveEvent::TYPE);
-    }
-
-    MountInfo getMountInfo(const String &path);
+    FsDriver *getMountedDriver(String &path);
 
     static String parsePath(const String &path);
 
     void init();
 
-    int32_t addVirtualNode(const String &path, VirtualNode *node);
+    uint32_t addVirtualNode(const String &path, VirtualNode *node);
 
-    int32_t createFilesystem(const String &path, const String &fsType);
+    uint32_t createFilesystem(const String &path, const String &fsType);
 
-    int32_t mount(const String &device, const String &path, const String &type);
+    uint32_t mount(const String &devicePath, const String &targetPath, const String &type);
 
-    int32_t unmount(const String &path);
+    uint32_t unmount(const String &path);
 
     FsNode *getNode(const String &path);
 
-    int32_t createFile(const String &path);
+    uint32_t createFile(const String &path);
 
-    int32_t createDirectory(const String &path);
+    uint32_t createDirectory(const String &path);
 
-    int32_t deleteFile(const String &path);
+    uint32_t deleteFile(const String &path);
 
 
     void onEvent(const Event &event) override ;
 
 
-    static constexpr char* SERVICE_NAME = "FileSystem";
+    static constexpr const char* SERVICE_NAME = "FileSystem";
 
     static constexpr const char *ROOT = "/";
 
@@ -90,14 +78,6 @@ public:
     static constexpr const char *TYPE_FAT = "fat";
 
     static constexpr const char *TYPE_RAM = "ram";
-
-    static constexpr const char *TYPE_DEV = "dev";
-
-private:
-
-    LinkedList<MountPoint> mountPoints;
-
-    Spinlock fsLock;
 };
 
 #endif

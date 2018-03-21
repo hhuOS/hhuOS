@@ -1,9 +1,10 @@
+#include <kernel/events/storage/StorageAddEvent.h>
+#include <kernel/events/storage/StorageRemoveEvent.h>
 #include "StorageService.h"
 #include "devices/block/storage/Partition.h"
-#include "lib/libc/printf.h"
 
 StorageDevice *StorageService::getDevice(const String &name) {
-    return devices.get(name).value();
+    return devices.get(name);
 }
 
 void StorageService::registerDevice(StorageDevice *device) {
@@ -40,8 +41,8 @@ void StorageService::registerDevice(StorageDevice *device) {
 void StorageService::removeDevice(const String &name) {
     EventBus *eventBus = Kernel::getService<EventBus>();
 
-    List<String> *deviceNames = devices.keySet();
-    for(const String &currentName : *deviceNames) {
+    Util::Array<String> deviceNames = devices.keySet();
+    for(const String &currentName : deviceNames) {
         if(currentName.beginsWith(name)) {
             STORAGE_SERVICE_TRACE("Removing device: %s\n", (char *) currentName);
 
@@ -51,20 +52,18 @@ void StorageService::removeDevice(const String &name) {
             eventBus->publish(*event);
         }
     }
-
-    delete deviceNames;
 }
 
 StorageDevice *StorageService::findRootDevice() {
-    List<StorageDevice *> *deviceList = devices.valueSet();
+    Util::Array<String> deviceNames = devices.keySet();
     StorageDevice *ret = nullptr;
 
-    for(StorageDevice *device : *deviceList) {
-        if(device->getSystemId() == StorageDevice::HHU_OS_ROOT_FAT) {
-            ret = device;
+    for(const String &currentName : deviceNames) {
+        StorageDevice *currentDevice = devices.get(currentName);
+        if(currentDevice->getSystemId() == StorageDevice::HHU_OS_ROOT_FAT) {
+            ret = currentDevice;
         }
     }
 
-    delete deviceList;
     return ret;
 }

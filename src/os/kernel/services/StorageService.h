@@ -21,7 +21,7 @@
 class StorageService : public KernelService {
 
 private:
-    HashMap<String, StorageDevice *> devices;
+    Util::HashMap<String, StorageDevice*> devices;
 
 public:
     /**

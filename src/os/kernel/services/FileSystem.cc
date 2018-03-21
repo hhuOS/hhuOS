@@ -1,38 +1,34 @@
-#include <lib/util/List.h>
-#include <lib/util/ArrayList.h>
-#include <kernel/filesystem/RamFs/graphics/GraphicsVendorNameNode.h>
-#include <kernel/filesystem/RamFs/graphics/GraphicsDeviceNameNode.h>
-#include <kernel/filesystem/RamFs/graphics/GraphicsResolutionsNode.h>
-#include <kernel/filesystem/RamFs/ZeroNode.h>
-#include <kernel/filesystem/RamFs/RandomNode.h>
-#include <kernel/filesystem/RamFs/graphics/GraphicsMemoryNode.h>
+#include <kernel/events/storage/StorageAddEvent.h>
+#include <kernel/events/storage/StorageRemoveEvent.h>
 #include "FileSystem.h"
 #include "kernel/filesystem/Fat/FatDriver.h"
+#include "kernel/filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
+#include "kernel/filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"
+#include "kernel/filesystem/RamFs/graphics/GraphicsResolutionsNode.h"
+#include "kernel/filesystem/RamFs/ZeroNode.h"
+#include "kernel/filesystem/RamFs/RandomNode.h"
+#include "kernel/filesystem/RamFs/graphics/GraphicsMemoryNode.h"
 #include "kernel/filesystem/RamFs/RamFsDriver.h"
-#include "devices/block/storage/StorageDevice.h"
-#include "kernel/services/StorageService.h"
 #include "kernel/filesystem/RamFs/StorageNode.h"
 #include "kernel/filesystem/RamFs/PciNode.h"
 #include "kernel/filesystem/RamFs/StdoutNode.h"
 #include "kernel/filesystem/RamFs/StderrNode.h"
 
+FileSystem::FileSystem() {
+    eventBus = Kernel::getService<EventBus>();
+    //storageService = Kernel::getService<StorageService>();
+}
 
+FileSystem::~FileSystem() {
+    eventBus->unsubscribe(*this, StorageAddEvent::TYPE);
+    eventBus->unsubscribe(*this, StorageRemoveEvent::TYPE);
+}
 
-/**
- * Parses a path and removes all '.' and '..' from it.
- * 
- * @param path The path to be parsed.
- * 
- * @return The edited path.
- */
 String FileSystem::parsePath(const String &path) {
-
     Util::Array<String> token = path.split(FileSystem::SEPARATOR);
-
     Util::List<String> *parsedToken = new Util::ArrayList<String>();
 
     for (const String &string : token) {
-
         if (string == ".") {
             continue;
         } else if (string == "..") {
@@ -48,54 +44,31 @@ String FileSystem::parsePath(const String &path) {
     }
 
     String parsedPath = FileSystem::SEPARATOR + String::join(FileSystem::SEPARATOR, parsedToken->toArray());
-
     return parsedPath;
 }
 
-/**
- * Gets the mount-point, that a given path ends in.
- * 
- * @param path The absolute path.
- * @param pathInMount After the mount-point has been found, this points to the character
- *        in path, that marks the root-directory of the mount-point.
- * 
- * @return The found mount-point.
- */
-FileSystem::MountInfo FileSystem::getMountInfo(const String &path) {
+FsDriver *FileSystem::getMountedDriver(String &path) {
+    String ret = String();
 
-    FileSystem::MountPoint *mountPoint = nullptr;
-
-    FileSystem::MountInfo mountInfo = FileSystem::MountInfo(nullptr, "");
-
-    for(uint32_t i = 0; i < mountPoints.length(); i++) {
-
-        FileSystem::MountPoint *currentMountPoint = mountPoints.get(i);
-
-        if (path.beginsWith(currentMountPoint->path)) {
-            if(mountPoint == nullptr || currentMountPoint->path.length() > mountPoint->path.length()) {
-                mountPoint = currentMountPoint;
+    for(const String &currentString : mountPoints.keySet()) {
+        if (path.beginsWith(currentString)) {
+            if(currentString.length() > ret.length()) {
+                ret = currentString;
             }
         }
     }
 
-    if(mountPoint == nullptr) {
-        return mountInfo;
+    if(ret.isEmpty()) {
+        return nullptr;
     }
 
-    mountInfo.mountPoint = mountPoint;
-    mountInfo.pathInMount = path.remove(mountInfo.mountPoint->path);
-    
-    if (!mountInfo.pathInMount.beginsWith(FileSystem::SEPARATOR)) {
-        mountInfo.pathInMount = FileSystem::SEPARATOR + mountInfo.pathInMount;
-    }
-
-    return mountInfo;
+    path = path.substring(ret.length(), path.length());
+    return mountPoints.get(ret);
 }
 
 void FileSystem::init() {
-    StorageService *storageService = Kernel::getService<StorageService>();
-
     // Mount root-device
+    StorageService *storageService = Kernel::getService<StorageService>();
     StorageDevice *rootDevice = storageService->findRootDevice();
 
     if(rootDevice == nullptr) {
@@ -140,176 +113,150 @@ void FileSystem::init() {
     // Add Zero-Node to dev-Directory
     addVirtualNode("/dev", new ZeroNode());
 
-    // Add StdStream-nodes to dev-Direcoty
+    // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
 
-    // Subcribe to Storage-Event from the EventBus
-    EventBus *eventBus = Kernel::getService<EventBus>();
+    // Subscribe to Storage-Events from the EventBus
     eventBus->subscribe(*this, StorageAddEvent::TYPE);
     eventBus->subscribe(*this, StorageRemoveEvent::TYPE);
 }
 
-int32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
-
+uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
     fsLock.lock();
 
-    FileSystem::MountInfo mountInfo = getMountInfo(parsePath(path));
+    String parsedPath = parsePath(path);
+    auto *driver = (RamFsDriver*) getMountedDriver(parsedPath);
 
-    RamFsDriver *driver = (RamFsDriver *) mountInfo.mountPoint->driver;
-    int32_t ret = driver->addNode(mountInfo.pathInMount, node);
+    bool ret = driver->addNode(parsedPath, node);
 
     fsLock.unlock();
 
-    return ret;
+    return ret ? SUCCESS : ADDING_VIRTUAL_NODE_FAILED;
 }
 
-int32_t FileSystem::createFilesystem(const String &devicePath, const String &fsType) {
-    String parsedDevicePath = parsePath(devicePath);
-
-    //Extract device-name from path.
-    //For example: devicePath = "/dev/hdd0" -> device = "hdd0"
-    Util::Array<String> token = parsedDevicePath.split(FileSystem::SEPARATOR);
-
-    if(token.length() == 0) {
-        return - 1;
+uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fsType) {
+    // Check if device-node exists
+    FsNode *deviceNode = getNode(devicePath);
+    if(deviceNode == nullptr) {
+        return DEVICE_NOT_FOUND;
     }
 
-    String deviceName = token[token.length() - 1];
+    // Get device
+    StorageService *storageService = Kernel::getService<StorageService>();
+    StorageDevice *disk = storageService->getDevice(deviceNode->getName());
+    if(disk == nullptr) {
+        return DEVICE_NOT_FOUND;
+    }
 
     fsLock.lock();
 
-    StorageService *storageService = Kernel::getService<StorageService>();
-    StorageDevice *disk = storageService->getDevice(deviceName);
-    
+    // Create temporary driver
     FsDriver *tmpDriver = nullptr;
+
     if(fsType == TYPE_FAT)
         tmpDriver = new FatDriver();
     else if(fsType == TYPE_RAM)
         tmpDriver = new RamFsDriver();
     else {
         fsLock.unlock();
-        return -1;
+        return INVALID_DRIVER;
     }
-    
-    int32_t ret = tmpDriver->createFs(disk);
+
+    // Format device
+    bool ret = tmpDriver->createFs(disk);
 
     fsLock.unlock();
+
     delete tmpDriver;
-    return ret;
+    return ret ? SUCCESS : FORMATTING_FAILED;
 }
 
-int32_t FileSystem::mount(const String &device, const String &path, const String &type) {
-    StorageService *storageService = Kernel::getService<StorageService>();
-    StorageDevice *disk = nullptr;
-
-    String parsedPath = parsePath(path);
-    String parsedDevicePath = parsePath(device);
-
-    String deviceName;
-
-    //Extract device-name from path.
-    //For example: devicePath = "/dev/hdd0" -> device = "hdd0"
-    Util::Array<String> token = parsedDevicePath.split(FileSystem::SEPARATOR);
-
-    if(token.length() == 0) {
-        deviceName = "";
-    } else {
-        deviceName = token[token.length() - 1];
+uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, const String &type) {
+    // Check if device-node exists
+    FsNode *deviceNode = getNode(devicePath);
+    if(deviceNode == nullptr) {
+        return DEVICE_NOT_FOUND;
     }
+
+    // Get device
+    StorageService *storageService = Kernel::getService<StorageService>();
+    StorageDevice *disk = storageService->getDevice(deviceNode->getName());
+    if(disk == nullptr) {
+        return DEVICE_NOT_FOUND;
+    }
+
+    String parsedPath = parsePath(targetPath);
 
     fsLock.lock();
 
-    for(uint32_t i = 0; i < mountPoints.length(); i++) {
-        if(parsedPath == mountPoints.get(i)->path) {
-            fsLock.unlock();
-            return -1;
-        }
+    if(mountPoints.containsKey(parsedPath)) {
+        fsLock.unlock();
+        return MOUNT_TARGET_ALREADY_USED;
     }
 
-    MountPoint *mountPoint = new MountPoint();
-
-    mountPoint->path = parsedPath;
+    FsDriver *driver = nullptr;
 
     if(type == TYPE_FAT) {
-        mountPoint->driver = new FatDriver();
+        driver = new FatDriver();
     } else if(type == TYPE_RAM) {
-        mountPoint->driver = new RamFsDriver();
+        driver = new RamFsDriver();
+    } else {
+        return INVALID_DRIVER;
     }
 
-    disk = storageService->getDevice(deviceName);
+    disk = storageService->getDevice(deviceNode->getName());
 
-    if(mountPoint->driver == nullptr || mountPoint->driver->mount(disk)) {
+    if(!driver->mount(disk)) {
         fsLock.unlock();
-        delete mountPoint->driver;
-        delete mountPoint;
-        return -1;
+        delete driver;
+        return MOUNTING_FAILED;
     }
 
-    mountPoints.add(mountPoint);
+    mountPoints.put(parsedPath, driver);
 
     fsLock.unlock();
-    return 0;
+    return SUCCESS;
 }
 
-int32_t FileSystem::unmount(const String &path) {
-
+uint32_t FileSystem::unmount(const String &path) {
     String parsedPath = parsePath(path);
 
     fsLock.lock();
 
-    MountPoint *currentMount = nullptr;
+    if(mountPoints.containsKey(parsedPath)) {
+        delete mountPoints.get(parsedPath);
+        mountPoints.remove(parsedPath);
 
-    for(uint32_t i = 0; i < mountPoints.length(); i++) {
-
-        currentMount = mountPoints.get(i);
-
-        if(currentMount->path == path) {
-
-            mountPoints.remove(currentMount);
-
-            fsLock.unlock();
-
-            delete currentMount->driver;
-
-            delete currentMount;
-
-            return 0;
-        }
+        fsLock.unlock();
+        return SUCCESS;
     }
 
     fsLock.unlock();
 
-    return -1;
+    return NOTHING_MOUNTED_AT_PATH;
 }
 
 /**
  * Gets a FsNode, representing a file or directory that a given path points to.
- * 
+ *
  * @param path The path.
- * 
+ *
  * @return The FsNode or nullptr, if the path is invalid.
  */
 FsNode *FileSystem::getNode(const String &path) {
-
     String parsedPath = parsePath(path);
-
-    if(parsedPath.length() > 4095) {
-        return nullptr;
-    }
 
     fsLock.lock();
 
-    MountInfo mountInfo = getMountInfo(parsedPath);
+    FsDriver *driver = getMountedDriver(parsedPath);
 
-    if(mountInfo.mountPoint == nullptr) {
-
+    if(driver == nullptr) {
         fsLock.unlock();
-
         return nullptr;
     }
     
-    FsNode *ret = mountInfo.mountPoint->driver->getNode(mountInfo.pathInMount);
+    FsNode *ret = driver->getNode(parsedPath);
 
     fsLock.unlock();
 
@@ -324,30 +271,23 @@ FsNode *FileSystem::getNode(const String &path) {
  * 
  * @return 0 on success.
  */
-int32_t FileSystem::createFile(const String &path) {
-
+uint32_t FileSystem::createFile(const String &path) {
     String parsedPath = parsePath(path);
-
-    if(parsedPath.length() > 4095) {
-        return -1;
-    }
 
     fsLock.lock();
 
-    MountInfo mountInfo = getMountInfo(parsedPath);
+    FsDriver *driver = getMountedDriver(parsedPath);
 
-    if(mountInfo.mountPoint == nullptr) {
-
+    if(driver == nullptr) {
         fsLock.unlock();
-
-        return -1;
+        return FILE_NOT_FOUND;
     }
     
-    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, FsNode::REGULAR_FILE);
+    bool ret = driver->createNode(parsedPath, FsNode::REGULAR_FILE);
 
     fsLock.unlock();
 
-    return ret;
+    return ret ? SUCCESS : CREATING_FILE_FAILED;
 }
 
 /**
@@ -358,30 +298,22 @@ int32_t FileSystem::createFile(const String &path) {
  * 
  * @return 0 on success.
  */
-int32_t FileSystem::createDirectory(const String &path) {
-
+uint32_t FileSystem::createDirectory(const String &path) {
     String parsedPath = parsePath(path);
-
-    if(parsedPath.length() > 4095) {
-        return -1;
-    }
-
     fsLock.lock();
 
-    MountInfo mountInfo = getMountInfo(parsedPath);
+    FsDriver *driver = getMountedDriver(parsedPath);
 
-    if(mountInfo.mountPoint == nullptr) {
-
+    if(driver == nullptr) {
         fsLock.unlock();
-
-        return -1;
+        return FILE_NOT_FOUND;
     }
-    
-    int32_t ret = mountInfo.mountPoint->driver->createNode(mountInfo.pathInMount, FsNode::DIRECTORY_FILE);
+
+    bool ret = driver->createNode(parsedPath, FsNode::DIRECTORY_FILE);
 
     fsLock.unlock();
 
-    return ret;
+    return ret ? SUCCESS : CREATING_FILE_FAILED;
 }
 
 /**
@@ -392,35 +324,23 @@ int32_t FileSystem::createDirectory(const String &path) {
  * 
  * @return 0 on success.
  */
-int32_t FileSystem::deleteFile(const String &path) {
-
+uint32_t FileSystem::deleteFile(const String &path) {
     String parsedPath = parsePath(path);
-
-    if(parsedPath.length() > 4095) {
-        return -1;
-    }
 
     fsLock.lock();
 
-    MountInfo mountInfo = getMountInfo(parsedPath);
+    FsDriver *driver = getMountedDriver(parsedPath);
 
-    if(mountInfo.mountPoint == nullptr) {
-
+    if(driver == nullptr) {
         fsLock.unlock();
-
-        return -1;
+        return FILE_NOT_FOUND;
     }
     
-    int32_t ret = mountInfo.mountPoint->driver->deleteNode(mountInfo.pathInMount);
+    bool ret = driver->deleteNode(parsedPath);
 
     fsLock.unlock();
 
-    return ret;
-}
-
-FileSystem::MountInfo::MountInfo(FileSystem::MountPoint *mountPoint, const String &pathInMount) {
-    this->mountPoint = mountPoint;
-    this->pathInMount = pathInMount;
+    return ret ? SUCCESS : DELETING_FILE_FAILED;
 }
 
 void FileSystem::onEvent(const Event &event) {
