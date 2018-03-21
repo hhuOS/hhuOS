@@ -3,10 +3,8 @@
 #include "kernel/threads/Scheduler.h"
 
 extern "C" {
-    void Thread_start(Context* first);
-    void Thread_switch(Context* current, Context* next);
-    void get_thread_vars(uint32_t **current, uint32_t **next);
-    void switch_context(Context **current, Context **next);
+    void startThread(Context* first);
+    void switchContext(Context **current, Context **next);
     void setSchedInit();
     void schedulerYield();
 }
@@ -18,11 +16,8 @@ void schedulerYield() {
     Scheduler::getInstance()->yield();
 }
 
-Scheduler::Scheduler () {
+Scheduler::Scheduler() : initialized(false) {
 
-    initialized = false;
-
-    get_thread_vars(&currentRegs, &nextRegs);
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -49,7 +44,7 @@ void Scheduler::schedule() {
 
         setSchedInit();
 
-        Thread_start(currentThread->context);
+        startThread(currentThread->context);
     } else {
 
         printf("[PANIC] Schedule is empty!\n");
@@ -139,7 +134,7 @@ void Scheduler::dispatch(Thread &next) {
 
     currentThread = &next;
 
-    switch_context(&current->context, &next.context);
+    switchContext(&current->context, &next.context);
 }
 
 bool Scheduler::isInitialized() {

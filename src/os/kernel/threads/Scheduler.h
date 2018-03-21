@@ -25,13 +25,9 @@ public:
 
     Scheduler ();
 
-    Scheduler (const Scheduler &copy); // Verhindere Kopieren
+    Scheduler (const Scheduler &copy) = delete;
 
     Thread *currentThread;
-
-    unsigned int *currentRegs;
-
-    unsigned int *nextRegs;
 
     /**
      * Inidcates if the Scheduler has been initialized.
