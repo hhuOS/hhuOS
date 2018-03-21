@@ -2,22 +2,26 @@ sudo: required
 
 services:
   - docker
-
-language: cpp
-
+  
 env:
   global:
     - DOCKER_REPOSITORY=hhuos/builder
+    - DOCKER_TAG=1.0
+    - CONTAINER_NAME=builder
+    - CLONE_URL=git@github.com:hhuOS/hhuOS.git
+    - HHUOS_DIR=hhuOS/src/os
 
 before_install:
-  - docker --version
   - echo "ENV GIT_SHA ${TRAVIS_COMMIT}" >> Dockerfile
 
 install:
-  - docker build -t ${DOCKER_REPOSITORY}:${TRAVIS_COMMIT} .
+  - docker build -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} .
+  - docker run --name ${CONTAINER_NAME} --rm -i -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
 
 script:
-  - docker run ${DOCKER_REPOSITORY}:${TRAVIS_COMMIT} /bin/bash -c "cd src/os; make -j4 iso"
+  - docker exec -d ${CONTAINER_NAME} git clone ${CLONE_URL}
+  - docker exec -d ${CONTAINER_NAME} cd ${HHUOS_DIR}
+  - docker exec -d ${CONTAINER_NAME} make -j4 iso
 
 notifications:
   slack:
