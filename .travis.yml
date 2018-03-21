@@ -13,15 +13,12 @@ env:
     - CLONE_URL=https://github.com/hhuOS/hhuOS.git
     - HHUOS_DIR=hhuOS/src/os
 
-before_install:
-  - echo "ENV GIT_SHA ${TRAVIS_COMMIT}" >> Dockerfile
-
 install:
   - docker build -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} .
   - docker run -d --name ${CONTAINER_NAME} --rm -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
 
 script:
-  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && make -j4"
+  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && git checkout ${TRAVIS_COMMIT} && make -j4 iso"
 
 notifications:
   slack:
