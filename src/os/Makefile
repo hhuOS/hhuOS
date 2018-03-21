@@ -186,6 +186,8 @@ $(OBJDIR)/hhuOS.iso : $(BOOTDIR)/hhuOS.bin $(BOOTDIR)/hhuOS.initrd
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)
 
+iso : $(OBJDIR)/hhuOS.iso
+
 # --------------------------------------------------------------------------
 # 'clean' loescht das generierte System, die Objektdateien und die
 # Abhaengigkeitsdateien
