@@ -9,7 +9,7 @@ uint64_t RandomNode::getLength() {
     return 0;
 }
 
-bool RandomNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t RandomNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     auto *random = new Random(0xFF);
     
     for(uint32_t i = 0; i < numBytes; i++) {
@@ -17,9 +17,9 @@ bool RandomNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     }
     
     delete random;
-    return true;
+    return numBytes;
 }
 
-bool RandomNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+uint64_t RandomNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }

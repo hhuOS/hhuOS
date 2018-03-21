@@ -15,7 +15,7 @@ uint64_t PciNode::getLength() {
     return cache.length();
 }
 
-bool PciNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t PciNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
     if (cache.isEmpty()) {
         cacheDeviceList();
@@ -32,7 +32,7 @@ bool PciNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     return true;
 }
 
-bool PciNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t PciNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return false;
 }
 

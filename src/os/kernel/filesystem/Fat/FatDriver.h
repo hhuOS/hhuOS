@@ -26,12 +26,12 @@ public:
             delete fatInstance;
     }
 
-    int32_t makeFs(StorageDevice *device);
+    bool makeFs(StorageDevice *device);
 
-    int32_t mount(StorageDevice *device);
+    bool mount(StorageDevice *device);
     FsNode *getNode(const String &path);
-    int32_t createNode(const String &path, uint8_t fileType);
-    int32_t deleteNode(const String &path);
+    bool createNode(const String &path, uint8_t fileType);
+    bool deleteNode(const String &path);
 };
 
 #endif

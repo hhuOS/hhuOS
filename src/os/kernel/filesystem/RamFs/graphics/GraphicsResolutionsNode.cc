@@ -39,7 +39,7 @@ uint64_t GraphicsResolutionsNode::getLength() {
     return string.length();
 }
 
-bool GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     String string;
 
     switch(mode) {
@@ -80,6 +80,6 @@ bool GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t numByte
     return true;
 }
 
-bool GraphicsResolutionsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsResolutionsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return -1;
 }

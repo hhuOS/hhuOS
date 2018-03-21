@@ -8,12 +8,12 @@ uint64_t ZeroNode::getLength() {
     return 0;
 }
 
-bool ZeroNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t ZeroNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     memset(buf, 0, static_cast<size_t>(numBytes));
 
-    return true;
+    return numBytes;
 }
 
-bool ZeroNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+uint64_t ZeroNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }

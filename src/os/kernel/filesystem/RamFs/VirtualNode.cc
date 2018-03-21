@@ -1,7 +1,17 @@
 #include "VirtualNode.h"
 
-extern "C" {
-#include "lib/libc/string.h"
+VirtualNode::VirtualNode(const String &name, uint8_t fileType) : name(name), fileType(fileType), length(0) {
+
+}
+
+VirtualNode::~VirtualNode() {
+    for(const auto &elemement : children) {
+        delete elemement;
+    }
+
+    if(data != nullptr) {
+        delete data;
+    }
 }
 
 /**
@@ -52,25 +62,20 @@ Util::ArrayList<VirtualNode*> &VirtualNode::getChildren() {
  * 
  * @return The data.
  */
-bool VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
-
-    if(pos > length) {
-
-        buf[0] = VFS_EOF;
-
-        return true;
+uint64_t VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+    if(pos >= length) {
+        return 0;
     }
-    
+
+    if (pos + numBytes > length) {
+        numBytes = (length - pos);
+    }
+
     for(uint64_t i = 0; i < numBytes; i++) {
-
         buf[i] = data[pos + i];
-
-        if(buf[i] == VFS_EOF) {
-            return true;
-        }
     }
     
-    return true;
+    return numBytes;
 }
 
 /**
@@ -83,35 +88,22 @@ bool VirtualNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
  * 
  * @return 0, if the data has been written succesfully.
  */
-bool VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-
+uint64_t VirtualNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(pos + numBytes >= length) {
-
-        char *newData = new char[pos + numBytes];
+        auto *newData = new char[pos + numBytes];
 
         memset(newData, 0, pos + numBytes);
-
         memcpy(newData, data, length);
 
         delete data;
-
         data = newData;
 
         length = pos + numBytes;
     }
-    
-    uint32_t i;
-    for(i = 0; i < numBytes; i++) {
 
+    for(uint32_t i = 0; i < numBytes; i++) {
         data[i + pos] = buf[i];
-
-        if(buf[i] == VFS_EOF) {
-
-            length = &(data[i + pos]) - buf;
-
-            return true;
-        }
     }
     
-    return true;
+    return numBytes;
 }

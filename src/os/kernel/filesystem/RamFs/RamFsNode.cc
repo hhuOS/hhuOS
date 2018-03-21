@@ -23,10 +23,16 @@ Util::Array<String> RamFsNode::getChildren() {
     return ret;
 }
 
-bool RamFsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return node->readData(buf, pos, numBytes);
+uint64_t RamFsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+    uint64_t readBytes = node->readData(buf, pos, numBytes);
+
+    if(readBytes < numBytes) {
+        buf[readBytes] = VFS_EOF;
+    }
+
+    return readBytes;
 }
 
-bool RamFsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t RamFsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return node->writeData(buf, pos, numBytes);
 }

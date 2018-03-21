@@ -17,7 +17,7 @@ uint64_t GraphicsVendorNameNode::getLength() {
     }
 }
 
-bool GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     String name;
 
     switch(mode) {
@@ -42,6 +42,6 @@ bool GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes
     return true;
 }
 
-bool GraphicsVendorNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsVendorNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return false;
 }

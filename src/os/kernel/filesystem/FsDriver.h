@@ -11,46 +11,71 @@
  * with the respective driver.
  */
 class FsDriver {
-    
-private:
-    FsDriver(const FsDriver  &copy);
 
 public:
-    FsDriver() {};
-    virtual ~FsDriver() {};
-
-    virtual int32_t mount(StorageDevice *device) = 0;
-
-    virtual int32_t makeFs(StorageDevice *device) = 0;
+    /**
+     * Constructor.
+     */
+    FsDriver() = default;
 
     /**
-     * Gets a FsNode, representing a file or directory that a given path points to.
+     * Copy-constructor.
+     */
+    FsDriver(const FsDriver  &copy) = delete;
+
+    /**
+     * Destructor.
+     */
+    virtual ~FsDriver() = default;
+
+    /**
+     * Mount a device.
+     * After this function has succeeded, the driver must be ready to answer process requests for this device.
+     *
+     * @param device The device
+     *
+     * @return true, on success
+     */
+    virtual bool mount(StorageDevice *device) = 0;
+
+    /**
+     * Format a device.
+     *
+     * @param device The device
+     *
+     * @return true, on success
+     */
+    virtual bool makeFs(StorageDevice *device) = 0;
+
+    /**
+     * Get an FsNode, representing a file or directory that a given path points to.
      * 
      * @param path The path.
      * 
-     * @return The FsNode or nullptr, if the path is invalid.
+     * @return The FsNode (or nulltpr on failure)
      */ 
     virtual FsNode *getNode(const String &path) = 0;
 
     /**
-     * Creates a new empty file at a given path.
-     * The parent-folder of the new file must exist beforehand.
+     * Create a new empty file or directory at a given path.
+     * The parent-directory of the new file must exist beforehand.
      * 
-     * @param path The new file's path.
+     * @param path The path
+     * @param fileType The filetype
      * 
-     * @return 0 on success.
+     * @return true on success.
      */
-    virtual int32_t createNode(const String &path, uint8_t fileType) = 0;
+    virtual bool createNode(const String &path, uint8_t fileType) = 0;
 
     /**
-     * Deletes an existing file at a given path.
+     * Delete an existing file or directory at a given path.
      * The file must be a regular file or an empty folder (a leaf in the filesystem tree).
      * 
-     * @param path The file to be deleted.
+     * @param path The path.
      * 
-     * @return 0 on success.
+     * @return true on success.
      */
-    virtual int32_t deleteNode(const String &path) = 0;
+    virtual bool deleteNode(const String &path) = 0;
 };
 
 #endif

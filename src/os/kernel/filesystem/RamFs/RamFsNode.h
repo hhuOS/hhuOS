@@ -29,9 +29,9 @@ public:
 
     Util::Array<String> getChildren();
 
-    bool readData(char *buf, uint64_t pos, uint64_t numBytes);
+    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes);
 
-    bool writeData(char *buf, uint64_t pos, uint64_t numBytes);
+    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
 
 private:
 

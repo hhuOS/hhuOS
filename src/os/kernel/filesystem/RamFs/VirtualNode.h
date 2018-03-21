@@ -12,37 +12,28 @@ extern "C" {
 }
 
 /**
- * Every instance of this class is a virtual file/folder.
- * It is instantiated by the RamFsDriver.
+ * A virtual file or directory used by RamFsDriver.
  */
 class VirtualNode {
 
+private:
+    String name;
+
+    uint8_t fileType;
+
+    uint64_t length;
+
+    Util::ArrayList<VirtualNode*> children;
+
+    char *data = nullptr;
+
 public:
 
-    VirtualNode(const String &arg_name, uint8_t arg_fileType) : fileType(arg_fileType) {
+    VirtualNode(const String &name, uint8_t fileType);
 
-        if(arg_name.length() > 255) {
-            name = arg_name.substring(0, 255);
-        } else {
-            name = arg_name;
-        }
+    VirtualNode(const VirtualNode &copy) = delete;
 
-        
-        if(fileType == REGULAR_FILE) {
-            data = new char[1];
-            data[0] = VFS_EOF;
-        }
-    }
-
-    virtual ~VirtualNode() {
-        for(const auto &elemement : children) {
-            delete elemement;
-        }
-
-        if(fileType == REGULAR_FILE) {
-            delete data;
-        }
-    }
+    virtual ~VirtualNode();
 
     String getName();
 
@@ -52,20 +43,9 @@ public:
     
     virtual uint64_t getLength();
 
-    virtual bool readData(char *buf, uint64_t pos, uint64_t numBytes);
+    virtual uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes);
 
-    virtual bool writeData(char *buf, uint64_t pos, uint64_t numBytes);
-
-private:
-    String name;
-
-    uint8_t fileType;
-
-    uint32_t length;
-
-    Util::ArrayList<VirtualNode*> children;
-
-    char *data;
+    virtual uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes);
 };
 
 #endif

@@ -17,7 +17,7 @@ uint64_t GraphicsDeviceNameNode::getLength() {
     }
 }
 
-bool GraphicsDeviceNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsDeviceNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     String name;
 
     switch(mode) {
@@ -42,6 +42,6 @@ bool GraphicsDeviceNameNode::readData(char *buf, uint64_t pos, uint64_t numBytes
     return true;
 }
 
-bool GraphicsDeviceNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t GraphicsDeviceNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return false;
 }

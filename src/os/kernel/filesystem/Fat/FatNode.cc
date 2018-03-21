@@ -101,43 +101,41 @@ Util::Array<String> FatNode::getChildren() {
     return ret;
 }
 
-bool FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+uint64_t FatNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(info.fattrib & AM_DIR) {
-        return false;
+        return 0;
     }
     
     if(fatInstance->f_lseek(&fatObject.file, pos) != FR_OK) {
-        return false;
-    }
-    
-    if(f_eof(&fatObject.file)) {
-        buf[0] = VFS_EOF;
-        return true;
+        return 0;
     }
 
     uint32_t readBytes;
     if(fatInstance->f_read(&fatObject.file, buf, static_cast<UINT>(numBytes), &readBytes) != FR_OK) {
-        return false;
+        return 0;
     }
 
-    if(readBytes < numBytes && f_eof(&fatObject.file)) {
-        buf[numBytes] = VFS_EOF;
+    if(readBytes < numBytes) {
+        buf[readBytes] = VFS_EOF;
     }
         
-    return true;
+    return readBytes;
 }
 
-bool FatNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    if(info.fattrib & AM_DIR)
-        return -1;
+uint64_t FatNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    if(info.fattrib & AM_DIR) {
+        return 0;
+    }
 
-    if(fatInstance->f_lseek(&fatObject.file, pos) != FR_OK)
-        return -1;
+    if(fatInstance->f_lseek(&fatObject.file, pos) != FR_OK) {
+        return 0;
+    }
 
     uint32_t writtenBytes;
-    if(fatInstance->f_write(&fatObject.file, buf, static_cast<UINT>(numBytes), &writtenBytes) != FR_OK)
-        return -1;
+    if(fatInstance->f_write(&fatObject.file, buf, static_cast<UINT>(numBytes), &writtenBytes) != FR_OK) {
+        return 0;
+    }
         
     fatInstance->f_sync(&fatObject.file);
-    return numBytes;
+    return writtenBytes;
 }

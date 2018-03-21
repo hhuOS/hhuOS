@@ -49,13 +49,13 @@ VirtualNode *getChildByName(VirtualNode *parent, const String &path) {
     return nullptr;
 }
 
-int32_t RamFsDriver::mount(StorageDevice *disk) {
+bool RamFsDriver::mount(StorageDevice *disk) {
     rootNode = new VirtualNode("/", DIRECTORY_FILE);
     
     return 0;
 }
 
-int32_t RamFsDriver::makeFs(StorageDevice *device) {
+bool RamFsDriver::makeFs(StorageDevice *device) {
     return 0;
 }
 
@@ -115,7 +115,7 @@ int32_t RamFsDriver::addNode(const String &path, VirtualNode *node) {
     return 0;
 }
 
-int32_t RamFsDriver::createNode(const String &path, uint8_t fileType) {
+bool RamFsDriver::createNode(const String &path, uint8_t fileType) {
 
     Util::Array<String> token = path.split(FileSystem::SEPARATOR);
 
@@ -150,7 +150,7 @@ int32_t RamFsDriver::createNode(const String &path, uint8_t fileType) {
     return 0;
 }
 
-int32_t RamFsDriver::deleteNode(const String &path) {
+bool RamFsDriver::deleteNode(const String &path) {
 
     Util::Array<String> token = path.split(FileSystem::SEPARATOR);
 
