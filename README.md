@@ -1,5 +1,3 @@
-![Logo](media/logo/hhuOSLogo_small.png)
-
 <p align="center"> 
   <img src="media/logo/hhuOSLogo_small.png">
 </p>
