@@ -48,7 +48,7 @@ void Pit::plugin () {
 
     IntDispatcher::assign(32, *this);
 
-    Pic::getInstance()->allow(0);
+    Pic::getInstance()->allow(Pic::Interrupt::PIT);
 }
 
 void Pit::trigger () {

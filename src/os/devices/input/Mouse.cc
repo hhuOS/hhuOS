@@ -195,7 +195,7 @@ void Mouse::plugin() {
         eventBus = Kernel::getService<EventBus>();
 
         IntDispatcher::assign(IntDispatcher::mouse, *this);
-        Pic::getInstance()->allow(Pic::mouse);
+        Pic::getInstance()->allow(Pic::Interrupt::MOUSE);
     }
 }
 
@@ -316,7 +316,7 @@ void Mouse::trigger() {
 }
 
 void Mouse::cleanup() {
-    Pic::getInstance()->forbid(Pic::mouse);  //TODO Bugfix - null pointer exception in ahci if forbid is being called
+    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);  //TODO Bugfix - null pointer exception in ahci if forbid is being called
     uint8_t status;
     waitControl();
     ctrl_port.outb(0x20);  				// lese Status Byte des KB Controllers ein

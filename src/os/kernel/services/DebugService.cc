@@ -72,7 +72,7 @@ void DebugService::printPic() {
 
     for (uint8_t i = 0; i < 16; i++) {
 
-        bool status = pic->status(i);
+        bool status = pic->status(Pic::Interrupt(i));
 
         if (status) {
             lfb->placeFilledRect(10 + 5 * i, 85, 2, 5, Colors::RED);
