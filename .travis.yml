@@ -1,0 +1,3 @@
+sudo: enabled
+language: cpp
+dist: trusty
