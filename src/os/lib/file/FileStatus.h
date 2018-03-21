@@ -75,3 +75,5 @@ public:
      */
     uint32_t getFileType();
 };
+
+#endif
