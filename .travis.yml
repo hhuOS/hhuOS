@@ -3,12 +3,14 @@ sudo: required
 services:
   - docker
 
+language: generic
+
 env:
   global:
     - DOCKER_REPOSITORY=hhuos/builder
     - DOCKER_TAG=1.0
     - CONTAINER_NAME=builder
-    - CLONE_URL=git@github.com:hhuOS/hhuOS.git
+    - CLONE_URL=https://github.com/hhuOS/hhuOS.git
     - HHUOS_DIR=hhuOS/src/os
 
 before_install:
@@ -16,12 +18,10 @@ before_install:
 
 install:
   - docker build -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} .
-  - docker run --name ${CONTAINER_NAME} --rm -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
+  - docker run -d --name ${CONTAINER_NAME} --rm -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
 
 script:
-  - docker exec -d ${CONTAINER_NAME} git clone ${CLONE_URL}
-  - docker exec -d ${CONTAINER_NAME} cd ${HHUOS_DIR}
-  - docker exec -d ${CONTAINER_NAME} make -j4 iso
+  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && make -j4"
 
 notifications:
   slack:
