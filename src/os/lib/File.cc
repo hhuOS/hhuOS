@@ -78,9 +78,9 @@ uint64_t File::getLength() {
     return node->getLength();
 }
 
-uint32_t File::writeChar(char c) {
+uint64_t File::writeChar(char c) {
     if(mode[0] == 'r' && mode[1] != '+') {
-        return READ_ONLY_MODE;
+        return 0;
     }
 
     uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
@@ -88,44 +88,38 @@ uint32_t File::writeChar(char c) {
     if(node->writeData(&c, pos, 1) == 1) {
         this->pos++;
 
-        return SUCCESS;
+        return 1;
     }
 
-    return WRITE_ERROR;
+    return 0;
 }
 
-uint32_t File::writeString(char *string) {
+uint64_t File::writeString(char *string) {
     if(mode[0] == 'r' && mode[1] != '+') {
-        return READ_ONLY_MODE;
+        return 0;
     }
 
     uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
     uint32_t len = strlen(string);
 
-    if(node->writeData(string, pos, len) == len) {
-        this->pos += len;
+    uint64_t ret = node->writeData(string, pos, len);
+    this->pos += ret;
 
-        return SUCCESS;
-    }
-
-    return WRITE_ERROR;
+    return ret;
 }
 
-uint32_t File::writeBytes(char *data, uint64_t len) {
+uint64_t File::writeBytes(char *data, uint64_t len) {
     if(mode[0] == 'r' && mode[1] != '+') {
-        return READ_ONLY_MODE;
+        return 0;
     }
 
     uint64_t pos = mode[0] == 'a' ? node->getLength() : this->pos;
 
-    if(node->writeData(data, pos, len) == len) {
-        this->pos += len;
+    uint64_t ret = node->writeData(data, pos, len);
+    this->pos += ret;
 
-        return SUCCESS;
-    }
-
-    return WRITE_ERROR;
+    return ret;
 }
 
 char File::readChar() {
@@ -144,9 +138,9 @@ char File::readChar() {
     return 0;
 }
 
-uint32_t File::readString(char *buf, uint64_t len) {
+uint64_t File::readString(char *buf, uint64_t len) {
     if(mode[0] != 'r' && mode[1] != '+') {
-        return WRITE_ONLY_MODE;
+        return 0;
     }
 
     uint32_t i;
@@ -156,28 +150,23 @@ uint32_t File::readString(char *buf, uint64_t len) {
         if(buf[i] == 0 || buf[i] == '\n' || buf[i] == FsNode::END_OF_FILE) {
             buf[i] = 0;
 
-            return SUCCESS;
+            return i;
         }
     }
 
     buf[i + 1] = 0;
-    return SUCCESS;
+    return i;
 }
 
-uint32_t File::readBytes(char *buf, uint64_t len) {
+uint64_t File::readBytes(char *buf, uint64_t len) {
     if(mode[0] != 'r' && mode[1] != '+') {
-        return WRITE_ONLY_MODE;
+        return 0;
     }
 
     uint64_t ret = node->readData(buf, pos, len);
+    pos += ret;
 
-    if(ret > 0) {
-        pos += ret;
-
-        return SUCCESS;
-    }
-
-    return READ_ERROR;
+    return ret;
 }
 
 uint64_t File::getPos() {

@@ -44,14 +44,6 @@ public:
         END = 0x02
     };
 
-    enum RETURN_CODES {
-        SUCCESS = 0x00,
-        READ_ONLY_MODE = 0x01,
-        WRITE_ONLY_MODE = 0x02,
-        READ_ERROR = 0x03,
-        WRITE_ERROR = 0x04
-    };
-
     /**
      * Default-constructor.
      */
@@ -112,18 +104,18 @@ public:
      *
      * @param ch The character
      *
-     * @return Return code
+     * @return The amount of actually written bytes
      */
-    uint32_t writeChar(char c);
+    uint64_t writeChar(char c);
 
     /**
      * Write a null-terminated string to the file.
      *
      * @param string The string
      *
-     * @return Return code
+     * @return The amount of actually written bytes
      */
-    uint32_t writeString(char *string);
+    uint64_t writeString(char *string);
 
     /**
      * Write a given amount of bytes to the file.
@@ -131,9 +123,9 @@ public:
      * @param data The data-buffer
      * @param len The buffer's length
      *
-     * @return Return code
+     * @return The amount of actually written bytes
      */
-    uint32_t writeBytes(char *data, uint64_t len);
+    uint64_t writeBytes(char *data, uint64_t len);
 
     /**
      * Read a single character from the file.
@@ -149,9 +141,9 @@ public:
      * @param buf The buffer to write to (Needs to be allocated already!)
      * @param len The amount of bytes ot read. At most, len - 1 characters will be read.
      *
-     * @return Return code.
+     * @return The amount of actually read bytes
      */
-    uint32_t readString(char *buf, uint64_t len);
+    uint64_t readString(char *buf, uint64_t len);
 
     /**
      * Read a given amount of bytes from the file.
@@ -159,9 +151,9 @@ public:
      * @param buf The buffer to write to (Needs to be already allocated already!)
      * @param len The amount of bytes ot read.
      *
-     * @return Return code.
+     * @return The amount of actually read bytes
      */
-    uint32_t readBytes(char *buf, uint64_t len);
+    uint64_t readBytes(char *buf, uint64_t len);
 
     /**
      * Get the current position.

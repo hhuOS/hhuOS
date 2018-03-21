@@ -246,7 +246,7 @@ void VFSApp::executeCommand() {
         } else {
             uint32_t length = strtoint(params[2]);
             char *buf = new char[length];
-            if(file->readBytes(buf, length) != File::SUCCESS) {
+            if(file->readBytes(buf, length) == 0) {
                 *stream << "Cannot read file!";
                 return;
             }
