@@ -68,6 +68,8 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk
 #-------------------------------------------#
 # Build dependencies                        #
 #-------------------------------------------#
+VPATH = $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)))
+
 FIRST_OBJECT = $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
 
 C_OBJECTS = $(notdir $(C_SOURCES:.c=.o))
