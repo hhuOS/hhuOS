@@ -38,16 +38,6 @@ extern "C" {
 // global counter for thread IDs
 unsigned int TIDcnt = 0;
 
-/*****************************************************************************
- * Funktion:        kickoff                                                  *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Funktion zum Starten einer Threads. Da diese Funktion    *
- *                  nicht wirklich aufgerufen, sondern nur durch eine        *
- *                  geschickte Initialisierung des Stacks des Threads        *
- *                  angesprungen wird, darf er nie terminieren. Anderenfalls *
- *                  wuerde ein sinnloser Wert als Ruecksprungadresse         *
- *                  interpretiert werden und der Rechner abstuerzen.         *
- *****************************************************************************/
 void kickoff () {
 
     Scheduler::getInstance()->currentThread->run();

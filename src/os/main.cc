@@ -37,7 +37,6 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
-#include <cxxabi.h>
 
 #include "bootlogo.h"
 
@@ -219,8 +218,6 @@ int32_t main() {
     lfb->disableDoubleBuffering();
     lfb->clear();
 #endif
-
-    Kernel::getService<TimeService>()->getRTC();
 
     Scheduler::getInstance()->schedule();
 
