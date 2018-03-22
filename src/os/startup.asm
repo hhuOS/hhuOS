@@ -63,7 +63,7 @@ _gdt_bios_48		equ (gdt_bios_48 - KERNEL_START)
 _gdt_bios			equ (gdt_bios - KERNEL_START)
 
 	
-[SECTION .text]
+section .text
 
 multiboot_header:
 	align 4
@@ -221,43 +221,43 @@ section .data
 ; General global descriptor table
 ;
 gdt:
-	dw	0,0,0,0		; NULL Deskriptor
+	dw	0,0,0,0		                    ; NULL Deskriptor
 
-	dw	0xFFFF		; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		; base address=0
-	dw	0x9A00		; code read/exec
-	dw	0x00CF		; granularity=4096, 386 (+5th nibble of limit)
+	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000		                    ; base address=0
+	dw	0x9A00		                    ; code read/exec
+	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
 
-	dw	0xFFFF		; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		; base address=0
-	dw	0x9200		; data read/write
-	dw	0x00CF		; granularity=4096, 386 (+5th nibble of limit)
+	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000		                    ; base address=0
+	dw	0x9200		                    ; data read/write
+	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
 
 ;
 ; global descriptor table for bios calls (now we have a bios segment at 0x24000)
 ;
 gdt_bios:
-	dw	0,0,0,0		; NULL Deskriptor
+	dw	0,0,0,0		                    ; NULL Deskriptor
 
-	dw	0xFFFF		; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		; base address=0
-	dw	0x9A00		; code read/exec
-	dw	0x00CF		; granularity=4096, 386 (+5th nibble of limit)
+	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000		                    ; base address=0
+	dw	0x9A00		                    ; code read/exec
+	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
 
-	dw	0xFFFF		; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		; base address=0
-	dw	0x9200		; data read/write
-	dw	0x00CF		; granularity=4096, 386 (+5th nibble of limit)
+	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
+	dw	0x0000		                    ; base address=0
+	dw	0x9200		                    ; data read/write
+	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
 
-    dw  0xFFFF      ; 4Gb - (0x100000*0x1000 = 4Gb)
-    dw	0x4000      ; 0x4000 -> base address=0x24000 (siehe BIOS.cc)
-    dw  0x9A02      ; 0x2 -> base address =0x24000 (siehe BIOS.cc) und code read/exec;
-    dw  0x008F      ; granularity=4096, 16-bit code
+    dw  0xFFFF                          ; 4Gb - (0x100000*0x1000 = 4Gb)
+    dw	0x4000                          ; 0x4000 -> base address=0x24000 (siehe BIOS.cc)
+    dw  0x9A02                          ; 0x2 -> base address =0x24000 (siehe BIOS.cc) und code read/exec;
+    dw  0x008F                          ; granularity=4096, 16-bit code
 
 ; value for GDTR 
 gdt_48:
-	dw	0x18		; GDT Limit=32, 4 GDT Eintraege
-	dd	gdt         ; Virtuelle Adresse der GDT
+	dw	0x18		                    ; GDT Limit=32, 4 GDT Eintraege
+	dd	gdt                             ; Virtuelle Adresse der GDT
 
 ; value for GDTR using BIOS Calls (low address needed because paging is disabled)
 gdt_bios_48:
