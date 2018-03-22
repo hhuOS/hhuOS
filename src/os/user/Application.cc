@@ -153,6 +153,18 @@ void callback(const Thread &thread, const uint32_t &number) {
 }
 
 void Application::showMenu () {
+    const char *descriptions[9] {
+            "A simple UNIX-like Shell",
+            "A fun game: Save the earth from invading bugs!",
+            "Play an Asciimation file",
+            "Watch Langtons Ant run around your screen",
+            "A simple Demo, that uses the mouse",
+            "Multi-Threading test",
+            "Memory Management test for the Heap",
+            "Memory Management test for IO Memory",
+            "Bluescreen test",
+    };
+
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
     Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
@@ -175,19 +187,21 @@ void Application::showMenu () {
 
         lfb->placeRect(50, 55, 60, 50, Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeString(font, 50, 42 + 0 * MENU_DISTANCE, "Loops and Sound", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 1 * MENU_DISTANCE, "Heap", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 2 * MENU_DISTANCE, "Protected Mode", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 3 * MENU_DISTANCE, "Langstons Ant", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 4 * MENU_DISTANCE, "Asciimation", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 5 * MENU_DISTANCE, "Shell", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 6 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "Mouse", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Bug Defender", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 0 * MENU_DISTANCE, "Shell", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 1 * MENU_DISTANCE, "Bug Defender", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 2 * MENU_DISTANCE, "Asciimation", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 3 * MENU_DISTANCE, "Langtons Ant", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 4 * MENU_DISTANCE, "Mouse", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 5 * MENU_DISTANCE, "Loops and Sound", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 6 * MENU_DISTANCE, "Heap Test", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Exceptions Test", Colors::HHU_LIGHT_GRAY);
 
-#if (TEST_THREADING == 1)
-        lfb->placeString(font, 50, 85, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
+#if (TEST_THREADING == 0)
+        lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
 #endif
+
+        lfb->placeString(font, 50, 85, descriptions[option], Colors::HHU_BLUE_30);
 
         lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
@@ -216,32 +230,35 @@ void Application::startSelectedApp() {
 
     switch (option) {
         case 0:
-            LoopSound ();
-            break;
-        case 1:
-            Heap ();
-            break;
-        case 2:
-            ProtectedMode ();
-            break;
-        case 3:
-            Ant ();
-            break;
-        case 4:
-            Asciimation();
-            break;
-        case 5:
             shell();
             break;
-        case 6:
-            IOMemoryTest();
-            break;
-        case 7:
-            startMouseApp();
-            break;
-        case 8:
+        case 1: {
             Game *game = new BugDefender();
             startGame(game);
+            break;
+        }
+        case 2:
+            Asciimation();
+            break;
+        case 3:
+            Ant();
+            break;
+        case 4:
+            startMouseApp();
+            break;
+        case 5:
+            LoopSound();
+            break;
+        case 6:
+            Heap();
+            break;
+        case 7:
+            IOMemoryTest();
+            break;
+        case 8:
+            ProtectedMode();
+            break;
+        default:
             break;
     }
 }
@@ -312,13 +329,19 @@ void Application::onEvent(const Event &event) {
             break;
             // Down
         case 80:
-            option++;
-            if (option >= MENU_OPTIONS) option = 0;
+            if (option >= MENU_OPTIONS - 1) {
+                option = 0;
+            } else {
+                option++;
+            }
             break;
             // Up
         case 72:
-            option--;
-            if (option < 0) option = MENU_OPTIONS-1;
+            if (option <= 0) {
+                option = MENU_OPTIONS - 1;
+            } else {
+                option --;
+            }
             break;
     }
 }

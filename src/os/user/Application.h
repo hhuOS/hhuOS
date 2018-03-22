@@ -38,7 +38,7 @@ private:
     void startMouseApp();
 
     GraphicsService *graphicsService;
-    char option = 0;
+    uint8_t option = 0;
     bool isRunning = true;
 
 public:
