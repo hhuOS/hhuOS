@@ -222,7 +222,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
 
     // unmap the whole merged block of virtual memory
     for(uint32_t i=0; i < tmp->pageCount; i++) {
-        uint32_t freedPhysAddress = SystemManagement::getInstance()->unmap(virtHeaderAddress + i*PAGESIZE);
+        SystemManagement::getInstance()->unmap(virtHeaderAddress + i*PAGESIZE);
     }
 
     // copy the memory block to the correct position
