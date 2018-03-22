@@ -1,9 +1,18 @@
-/**
- * Kernel - provides global access to kernel services so that they are available
- * to all applications.
+/*
+ * Copyright (C) 2018  Filip Krakowski, Fabian Ruhland
  *
- * @author Michael Schoettner, Filip Krakowski, Christian Gesse, Fabian Ruhland, Burak Akguel
- * @date HHU, 2018
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 #include <devices/graphics/text/CgaText.h>
@@ -67,23 +76,13 @@ void Kernel::panic(InterruptFrame *frame) {
     Cpu::halt();
 }
 
-/**
- * Prints the stack trace for a kernel panic.
- */
-void Kernel::printStacktrace(uint32_t basePointer, uint32_t instructionPointer, uint32_t skip) {
+void Kernel::printStacktrace(uint32_t basePointer, uint32_t instructionPointer) {
 
         uint32_t *ebp = (uint32_t*) basePointer;
+
         uint32_t eip = instructionPointer;
+
         uint32_t i = 0;
-
-        while (skip) {
-
-            eip = ebp[1];
-
-            ebp = (uint32_t*) ebp[0];
-
-            skip--;
-        }
 
         while (eip) {
 
@@ -94,6 +93,7 @@ void Kernel::printStacktrace(uint32_t basePointer, uint32_t instructionPointer, 
             ebp = (uint32_t*) ebp[0];
 
             if ((uint32_t ) ebp < KERNEL_START) {
+
                 break;
             }
 
@@ -101,9 +101,6 @@ void Kernel::printStacktrace(uint32_t basePointer, uint32_t instructionPointer, 
         }
 }
 
-/**
- * Print state of registers in given interrupt frame
- */
 void Kernel::printRegisters(const InterruptFrame &frame) {
 
     printf("\n\n");

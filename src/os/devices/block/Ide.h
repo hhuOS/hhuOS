@@ -1,17 +1,22 @@
-/*****************************************************************************
- *                                                                           *
- *                                  I D E                                    *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    PCI IDE Controller                                       *
- *                                                                           *
- * Credits:         http://wiki.osdev.org/IDE                                *
- *                                                                           *
- * Autor:           Filip Krakowski, 03.11.2017                              *
- *****************************************************************************/
+/*
+ * Copyright (C) 2018  Filip Krakowski
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#ifndef __IDE_include__
-#define __IDE_include__
+#ifndef __Ide_include__
+#define __Ide_include__
 
 #include <stdint.h>
 
@@ -26,9 +31,11 @@
 #endif
 
 /**
+ * Integrated Drive Electronics interface driver.
+ *
  * @author Filip Krakowski
  */
-class IDE {
+class Ide {
 
     private:
 
@@ -159,7 +166,7 @@ class IDE {
 
     public:
 
-        IDE();
+        Ide();
 
         void setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3, uint32_t BAR4);
 };

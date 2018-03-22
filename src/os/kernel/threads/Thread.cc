@@ -1,29 +1,19 @@
-/*****************************************************************************
- *                                                                           *
- *                                 T H R E A D                               *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Implementierung eines kooperativen Thread-Konzepts.      *
- *                  Thread-Objekte werden vom Scheduler in einer verketteten *
- *                  Liste 'readylist' verwaltet.                             *
- *                                                                           *
- *                  Im Konstruktor wird der initialie Kontext des Threads    *
- *                  eingerichtet. Mit 'start' wird ein Thread aktiviert.     *
- *                  Die CPU sollte mit 'yield' freiwillig abgegeben werden.  *
- *                  Um bei einem Threadwechsel den Kontext sichern zu        *
- *                  koennen, enthaelt jedes Threadobjekt eine Struktur       *
- *                  ThreadState, in dem die Werte der nicht-fluechtigen      *
- *                  Register gesichert werden koennen.                       *
- *                                                                           *
- *                  Zusaetzlich zum vorhandenen freiwilligen Umschalten der  *
- *                  CPU mit 'Thread_switch' gibt es nun ein forciertes Um-   *
- *                  durch den Zeitgeber-Interrupt ausgeloest wird und in     *
- *                  Assembler in startup.asm implementiert ist. Fuer das     *
- *                  Zusammenspiel mit dem Scheduler ist die Methode          *
- *                  'prepare_preemption' in Scheduler.cc wichtig.            *
- *                                                                           *
- * Autor:           Michael, Schoettner, HHU, 1.1.2017                       *
- *****************************************************************************/
+/*
+ * Copyright (C) 2018  Filip Krakowski
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include "kernel/threads/Thread.h"
 #include "kernel/threads/Scheduler.h"
@@ -35,8 +25,7 @@ extern "C" {
     void interrupt_return();
 }
 
-// global counter for thread IDs
-unsigned int TIDcnt = 0;
+uint32_t threadCount = 0;
 
 void kickoff () {
 
@@ -47,7 +36,7 @@ void kickoff () {
 
 void Thread::init() {
 
-    uint32_t *esp = (uint32_t*) stack->getStart();
+    uint32_t *esp = (uint32_t*) stack.getStart();
 
     esp -= (sizeof(InterruptFrame) / 4);
 
@@ -70,52 +59,39 @@ void Thread::init() {
     interruptFrame->esi   = 0;
     interruptFrame->edi   = 0;
     interruptFrame->esp   = (uint32_t) esp;
-    interruptFrame->ebp   = (uint32_t) stack->getStart();
+    interruptFrame->ebp   = (uint32_t) stack.getStart();
     interruptFrame->uesp  = 0;
     interruptFrame->eflags = 0x200;
     interruptFrame->eip   = (uint32_t) kickoff;
 }
 
-/**
- * Creates a new Thread and initializes its state
- */
-Thread::Thread() {
-    stack = new Stack(STACK_SIZE_DEFAULT);
-    tid = TIDcnt++;
+Thread::Thread() : stack(STACK_SIZE_DEFAULT) {
 
-    this->name = new char[10];
-    strcpy(this->name, "keylogger");
+    id = threadCount++;
+
+    this->name = "keylogger";
 
     init();
 }
 
-Thread::Thread(const char *name) {
-    stack = new Stack(STACK_SIZE_DEFAULT);
-    tid = TIDcnt++;
+Thread::Thread(const String &name) : stack(STACK_SIZE_DEFAULT) {
 
-    uint32_t length = strlen(name);
-    this->name = new char[length + 1];
-    strcpy(this->name, name);
+    id = threadCount++;
+
+    this->name = name;
 
     init();
 }
 
-Thread::~Thread() {
-    delete stack;
-}
-
-/**
- * Starts this Thread
- */
 void Thread::start() {
 	Scheduler::getInstance()->ready(*this);
 }
 
-uint32_t Thread::getTid() const {
-    return tid;
+uint32_t Thread::getId() const {
+    return id;
 }
 
-const char *Thread::getName() const {
+String Thread::getName() const {
     return name;
 }
 
@@ -131,8 +107,4 @@ Thread::Stack::Stack(uint32_t size) {
 
 uint8_t *Thread::Stack::getStart() {
     return &stack[size];
-}
-
-Thread::Stack::~Stack() {
-    delete stack;
 }

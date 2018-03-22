@@ -1,29 +1,19 @@
-/*****************************************************************************
- *                                                                           *
- *                                 T H R E A D                               *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Implementierung eines kooperativen Thread-Konzepts.      *
- *                  Thread-Objekte werden vom Scheduler in einer verketteten *
- *                  Liste 'readylist' verwaltet.                             *
- *                                                                           *
- *                  Im Konstruktor wird der initialie Kontext des Threads    * 
- *                  eingerichtet. Mit 'start' wird ein Thread aktiviert.     *
- *                  Die CPU sollte mit 'yield' freiwillig abgegeben werden.  * 
- *                  Um bei einem Threadwechsel den Kontext sichern zu        *
- *                  koennen, enthaelt jedes Threadobjekt eine Struktur       *
- *                  ThreadState, in dem die Werte der nicht-fluechtigen      *
- *                  Register gesichert werden koennen.                       *
- *                                                                           *
- *                  Zusaetzlich zum vorhandenen freiwilligen Umschalten der  *
- *                  CPU mit 'Thread_switch' gibt es nun ein forciertes Um-   *
- *                  durch den Zeitgeber-Interrupt ausgeloest wird und in     *
- *                  Assembler in startup.asm implementiert ist. Fuer das     *
- *                  Zusammenspiel mit dem Scheduler ist die Methode          *
- *                  'prepare_preemption' in Scheduler.cc wichtig.            *
- *                                                                           *
- * Autor:           Michael, Schoettner, HHU, 1.1.2017                       *
- *****************************************************************************/
+/*
+ * Copyright (C) 2018  Filip Krakowski
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #ifndef __Thread_include__
 #define __Thread_include__
@@ -43,23 +33,27 @@ public:
 
     Thread();
 
-    Thread(const char* name);
+    Thread(const String &name);
 
-    virtual ~Thread();
+    Thread(const Thread &copy) = delete;
+
+    Thread &operator=(const Thread &other) = delete;
+
+    virtual ~Thread() = default;
 
     /**
      * Returns this Thread's thread id.
      *
      * @return This Thread's thread id
      */
-    uint32_t getTid() const;
+    uint32_t getId() const;
 
     /**
      * Returns this Thread's name.
      *
      * @return This Thread's name
      */
-    const char *getName() const;
+    String getName() const;
 
     /**
      * Starts this Thread.
@@ -70,11 +64,11 @@ public:
 
 private:
 
-    Thread(const Thread &copy); // Verhindere Kopieren
 
-    uint32_t tid;       // Thread-ID (wird automatisch vergeben)
 
-    char *name;
+    uint32_t id;
+
+    String name;
 
     class Stack {
 
@@ -82,7 +76,7 @@ private:
 
         explicit Stack(uint32_t size);
 
-        ~Stack();
+        ~Stack() = default;
 
         uint8_t *getStart();
 
@@ -94,7 +88,7 @@ private:
 
     };
 
-    Stack *stack;
+    Stack stack;
 
     /**
      * Initializes this Thread.

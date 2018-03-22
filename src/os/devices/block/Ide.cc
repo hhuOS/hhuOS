@@ -1,16 +1,21 @@
-/*****************************************************************************
- *                                                                           *
- *                                  I D E                                    *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    PCI IDE Controller                                       *
- *                                                                           *
- * Credits:         http://wiki.osdev.org/IDE                                *
- *                                                                           *
- * Autor:           Filip Krakowski, 03.11.2017                              *
- *****************************************************************************/
+/*
+ * Copyright (C) 2018  Filip Krakowski
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
-#include "devices/block/IDE.h"
+#include "devices/block/Ide.h"
 
 
 
@@ -36,9 +41,9 @@ uint16_t inw(uint16_t ioPort) {
   return ret;
 }
 
-IDE::IDE() {}
+Ide::Ide() {}
 
-void IDE::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
+void Ide::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
                 uint32_t BAR4) {
 
   IDE_TRACE("Setting up IDE driver\n");
@@ -66,7 +71,7 @@ void IDE::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
   detect();
 }
 
-uint8_t IDE::readByte(uint8_t channel, uint8_t reg) {
+uint8_t Ide::readByte(uint8_t channel, uint8_t reg) {
   unsigned char result;
   if (reg > 0x07 && reg < 0x0C)
     writeByte(channel, ATA_REG_CONTROL, 0x80 | channels[channel].ni);
@@ -83,7 +88,7 @@ uint8_t IDE::readByte(uint8_t channel, uint8_t reg) {
   return result;
 }
 
-void IDE::writeByte(uint8_t channel, uint8_t reg, uint8_t value) {
+void Ide::writeByte(uint8_t channel, uint8_t reg, uint8_t value) {
 
   if (reg > 0x07 && reg < 0x0C)
     writeByte(channel, ATA_REG_CONTROL, 0x80 | channels[channel].ni);
@@ -101,7 +106,7 @@ void IDE::writeByte(uint8_t channel, uint8_t reg, uint8_t value) {
     writeByte(channel, ATA_REG_CONTROL, channels[channel].ni);
 }
 
-uint8_t IDE::poll(uint8_t channel, bool advancedCheck) {
+uint8_t Ide::poll(uint8_t channel, bool advancedCheck) {
 
   for (int i = 0; i < IDE_MAX_DEVICES; i++) {
     readByte(channel, ATA_REG_ALTSTATUS);
@@ -125,7 +130,7 @@ uint8_t IDE::poll(uint8_t channel, bool advancedCheck) {
   return 0;
 }
 
-void IDE::selectDrive(uint8_t channel, uint8_t drive) {
+void Ide::selectDrive(uint8_t channel, uint8_t drive) {
   if (channel != ATA_PRIMARY && channel != ATA_SECONDARY) {
     IDE_TRACE("Error: invalid channel!\n");
     return;
@@ -146,13 +151,13 @@ void IDE::selectDrive(uint8_t channel, uint8_t drive) {
   IDE_TRACE("Selected drive %d on channel %d\n", drive, channel);
 }
 
-void IDE::delay(uint32_t steps) {
+void Ide::delay(uint32_t steps) {
   for (uint32_t i = 0; i < steps; i++) {
     readByte(0, ATA_REG_STATUS);
   }
 }
 
-void IDE::identifyDrive(uint8_t channel, uint8_t drive) {
+void Ide::identifyDrive(uint8_t channel, uint8_t drive) {
   writeByte(channel, ATA_REG_SECCOUNT0, 0);
   writeByte(channel, ATA_REG_LBA0, 0);
   writeByte(channel, ATA_REG_LBA1, 0);
@@ -162,7 +167,7 @@ void IDE::identifyDrive(uint8_t channel, uint8_t drive) {
   IDE_TRACE("Requested Identify data\n");
 }
 
-void IDE::waitBsy(uint8_t channel) {
+void Ide::waitBsy(uint8_t channel) {
   IDE_TRACE("Waiting for BSY on channel %d\n", channel);
   uint8_t timeout = 0;
   uint8_t err = 0;
@@ -186,7 +191,7 @@ void IDE::waitBsy(uint8_t channel) {
   }
 }
 
-void IDE::resetDrive(uint8_t channel) {
+void Ide::resetDrive(uint8_t channel) {
 
   IDE_TRACE("Resetting channel %d\n", channel);
 
@@ -203,7 +208,7 @@ void IDE::resetDrive(uint8_t channel) {
   IDE_TRACE("Channel %d reset | ERR = %x\n", channel, readByte(channel, ATA_STS_ERR));
 }
 
-void IDE::detect() {
+void Ide::detect() {
 
   uint8_t count = 0;
   uint8_t ide_buf[512];
@@ -305,7 +310,7 @@ void IDE::detect() {
   }
 }
 
-void IDE::readBuffer(uint8_t channel, uint8_t reg, uint16_t *buf,
+void Ide::readBuffer(uint8_t channel, uint8_t reg, uint16_t *buf,
                      uint32_t words) {
 
   if (reg > 0x07 && reg < 0x0C) {
