@@ -12,7 +12,7 @@
  */
 class VesaGraphics : public LinearFrameBuffer {
 
-private:
+public:
 	/**
 	 * Information about a VBE device.
 	 * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
@@ -59,6 +59,9 @@ private:
         uint32_t  physbase;       // address of the linear framebuffer
         uint32_t  reserved1;
         uint16_t  reserved2;
+
+		bool operator!=(const ModeInfo &other) const;
+
     } __attribute__((packed));
 	
 	struct PaletteEntry {
@@ -67,6 +70,8 @@ private:
 		uint8_t red;
 		uint8_t alignment;       // unused;
 	} __attribute__((packed));
+
+private:
 
     static const uint16_t INVALID_MODE = 0xFFFF;
 

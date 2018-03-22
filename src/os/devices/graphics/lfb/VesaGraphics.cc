@@ -301,3 +301,8 @@ void VesaGraphics::show() {
         src[i] = 0;
     }
 }
+
+bool VesaGraphics::ModeInfo::operator!=(const VesaGraphics::ModeInfo &other) const {
+
+    return Yres != other.Yres || Xres != other.Xres || bpp != other.bpp;
+}

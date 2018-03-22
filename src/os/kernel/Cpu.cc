@@ -24,7 +24,8 @@ const char* Cpu::hardwareExceptions[] = {
         "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
 };
 const char* Cpu::softwareExceptions[] {
-        "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception"
+        "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
+        "IllegalState Exception"
 };
 
 // enabling and disabling interrupts is done in assembler code

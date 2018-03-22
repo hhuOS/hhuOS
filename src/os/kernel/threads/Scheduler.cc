@@ -34,21 +34,20 @@ void Scheduler::schedule() {
 
     Thread* first;
 
+    if (!isThreadWaiting()) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     first = readyQueue.pop();
 
-    if (first) {
+    currentThread = first;
 
-        currentThread = first;
+    initialized = true;
 
-        initialized = true;
+    setSchedInit();
 
-        setSchedInit();
-
-        startThread(currentThread->context);
-    } else {
-
-        printf("[PANIC] Schedule is empty!\n");
-    }
+    startThread(currentThread->context);
 }
 
 void Scheduler::ready(Thread& that) {
@@ -62,30 +61,43 @@ void Scheduler::ready(Thread& that) {
 
 void Scheduler::exit() {
 
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     Cpu::disableInterrupts();
 
-    Thread* next = readyQueue.pop();
+    if (!isThreadWaiting()) {
 
-    if (next == nullptr) {
-
-        printf("[PANIC] Schedule is empty!");
-
-        Cpu::halt();
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
+
+    Thread* next = readyQueue.pop();
     
     dispatch (*next);
 }
 
 void Scheduler::kill(Thread& that) {
 
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     Cpu::disableInterrupts();
 
-    readyQueue.remove (&that);
+    readyQueue.remove(&that);
     
     Cpu::enableInterrupts();
 }
 
 void Scheduler::yield() {
+
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
 
     Cpu::disableInterrupts();
 
@@ -105,13 +117,18 @@ void Scheduler::yield() {
 
 void Scheduler::block() {
 
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     Thread* next;
     
     Cpu::disableInterrupts();
     
     if (!isThreadWaiting()) {
-        printf("Panic: all threads blocked - processor halted.");
-        Cpu::halt ();
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
     
     next = readyQueue.pop();
@@ -121,6 +138,11 @@ void Scheduler::block() {
 
 void Scheduler::deblock(Thread &that) {
 
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     Cpu::disableInterrupts();
 
     readyQueue.push( &that );
@@ -129,6 +151,11 @@ void Scheduler::deblock(Thread &that) {
 }
 
 void Scheduler::dispatch(Thread &next) {
+
+    if (!initialized) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
 
     Thread* current = currentThread;
 

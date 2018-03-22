@@ -36,6 +36,8 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
+#include <user/HeapApp/HeapDemo.h>
+#include <lib/multiboot/Structure.h>
 
 #include "bootlogo.h"
 
@@ -147,7 +149,7 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     Pit::getInstance()->plugin();
-    Pic::getInstance()->allow(2);
+    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
     Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();

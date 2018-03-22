@@ -65,38 +65,44 @@ void Thread::init() {
     interruptFrame->eip   = (uint32_t) kickoff;
 }
 
-Thread::Thread() : stack(STACK_SIZE_DEFAULT) {
+Thread::Thread() : name("keylogger"), stack(STACK_SIZE_DEFAULT) {
 
     id = threadCount++;
-
-    this->name = "keylogger";
 
     init();
 }
 
-Thread::Thread(const String &name) : stack(STACK_SIZE_DEFAULT) {
+Thread::Thread(const String &name) : name(name), stack(STACK_SIZE_DEFAULT) {
 
     id = threadCount++;
-
-    this->name = name;
 
     init();
 }
 
 void Thread::start() {
+
 	Scheduler::getInstance()->ready(*this);
 }
 
 uint32_t Thread::getId() const {
+
     return id;
 }
 
 String Thread::getName() const {
+
     return name;
 }
 
+void Thread::yield() {
+
+    Scheduler::getInstance()->yield();
+}
+
 Thread::Stack::Stack(uint32_t size) {
+
     this->size = size;
+
     this->stack = new uint8_t[size];
 
     this->stack[0] = 0x44; // D
@@ -106,5 +112,6 @@ Thread::Stack::Stack(uint32_t size) {
 }
 
 uint8_t *Thread::Stack::getStart() {
-    return &stack[size];
+
+    return &stack[size] - 1;
 }

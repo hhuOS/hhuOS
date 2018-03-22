@@ -153,6 +153,11 @@ namespace Multiboot {
         uint64_t address;
         uint64_t length;
         uint32_t type;
+
+        bool operator!=(const MemoryMapEntry &other) const {
+
+            return address != other.address;
+        }
     };
 }
 

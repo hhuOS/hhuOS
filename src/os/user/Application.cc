@@ -15,6 +15,7 @@
 #include <kernel/services/DebugService.h>
 #include <kernel/threads/WorkerThread.h>
 #include <user/Shell/Shell.h>
+#include <kernel/services/ModuleLoader.h>
 #include "kernel/threads/Scheduler.h"
 #include "user/Application.h"
 #include "user/LoopSoundApp/Loop.h"
@@ -29,7 +30,7 @@
 #define MENU_DISTANCE 4
 #define MENU_OPTIONS 9
 
-#define TEST_THREADING 1
+#define TEST_THREADING 0
 
 Application::Application () : Thread ("Menu") {
     graphicsService = Kernel::getService<GraphicsService>();
@@ -155,7 +156,7 @@ void callback(const Thread &thread, const uint32_t &number) {
 void Application::showMenu () {
     const char *descriptions[9] {
             "A simple UNIX-like Shell",
-            "A fun game: Save the earth from invading bugs!",
+            "A fun game: Save the OS from invading bugs!",
             "Play an Asciimation file",
             "Watch Langtons Ant run around your screen",
             "A simple Demo, that uses the mouse",
@@ -197,7 +198,7 @@ void Application::showMenu () {
         lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Exceptions Test", Colors::HHU_LIGHT_GRAY);
 
-#if (TEST_THREADING == 0)
+#if (TEST_THREADING == 1)
         lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
 #endif
 

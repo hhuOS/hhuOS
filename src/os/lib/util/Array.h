@@ -37,7 +37,7 @@ namespace Util {
 
     public:
 
-        explicit Array(uint32_t capacity);
+        explicit Array(uint32_t capacity) noexcept;
 
         virtual ~Array() = default;
 
@@ -66,7 +66,7 @@ namespace Util {
     };
 
     template <class T>
-    Array<T>::Array(uint32_t capacity) : capacity(capacity) {
+    Array<T>::Array(uint32_t capacity) noexcept : capacity(capacity) {
 
         this->array = new T[capacity];
     }

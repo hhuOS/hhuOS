@@ -62,6 +62,10 @@ public:
 
     virtual void run () = 0;
 
+protected:
+
+    void yield();
+
 private:
 
     uint32_t id;

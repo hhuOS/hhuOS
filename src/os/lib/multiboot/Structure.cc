@@ -18,7 +18,16 @@
 #include <kernel/memory/MemLayout.h>
 #include <kernel/KernelSymbols.h>
 #include "Structure.h"
-#include "Constants.h"
+
+Multiboot::Info Multiboot::Structure::info;
+
+Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
+
+Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
+
+Util::ArrayList<VesaGraphics::ModeInfo> Multiboot::Structure::vbeModes;
+
+Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
 
 extern "C" {
     void parse_multiboot(Multiboot::Info *address);
@@ -29,18 +38,59 @@ void parse_multiboot(Multiboot::Info *address) {
     Multiboot::Structure::parse(address);
 }
 
-
-Multiboot::Info Multiboot::Structure::info;
-
-Multiboot::MemoryMapEntry *Multiboot::Structure::memoryMap;
-
-Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
-
 void Multiboot::Structure::parse(Multiboot::Info *address) {
 
     info = *address;
 
-    memoryMap = (MemoryMapEntry*) (info.memoryMapAddress + KERNEL_START);
+    parseCommandLine();
+
+    parseMemoryMap();
+
+    parseSymbols();
+
+    parseModules();
+
+    parseVbeInfo();
+}
+
+void Multiboot::Structure::parseCommandLine() {
+
+    if (info.flags & MULTIBOOT_INFO_CMDLINE) {
+
+        info.commandLine += KERNEL_START;
+
+        Util::Array<String> options = String((char*) info.commandLine).split(" ");
+
+        for (const String &option : options) {
+
+            Util::Array<String> pair = option.split("=");
+
+            if (pair.length() != 2) {
+
+                continue;
+            }
+
+            kernelOptions.put(pair[0], pair[1]);
+        }
+    }
+}
+
+void Multiboot::Structure::parseMemoryMap() {
+
+    if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
+
+        MemoryMapEntry *entry = (MemoryMapEntry*) (info.memoryMapAddress + KERNEL_START);
+
+        uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
+
+        for (uint32_t i = 0; i < size; i++) {
+
+            memoryMap.add(entry[i]);
+        }
+    }
+}
+
+void Multiboot::Structure::parseSymbols() {
 
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
 
@@ -48,6 +98,9 @@ void Multiboot::Structure::parse(Multiboot::Info *address) {
 
         KernelSymbols::initialize(info.symbols.elf);
     }
+}
+
+void Multiboot::Structure::parseModules() {
 
     if (info.flags & MULTIBOOT_INFO_MODS) {
 
@@ -68,30 +121,6 @@ void Multiboot::Structure::parse(Multiboot::Info *address) {
     }
 }
 
-uint32_t Multiboot::Structure::getTotalMem() {
-
-    MemoryMapEntry *entry = nullptr;
-
-    MemoryMapEntry *best = &memoryMap[0];
-
-    for (uint32_t i = 0; i < info.memoryMapLength / sizeof(MemoryMapEntry); i++) {
-
-        entry = &memoryMap[i];
-
-        if (entry->type != MULTIBOOT_MEMORY_AVAILABLE) {
-
-            continue;
-        }
-
-        if (entry->length > best->length) {
-
-            best = entry;
-        }
-    }
-
-    return (uint32_t) best->length;
-}
-
 Multiboot::ModuleInfo Multiboot::Structure::getModule(const String &module) {
 
     if (isModuleLoaded(module)) {
@@ -105,6 +134,31 @@ Multiboot::ModuleInfo Multiboot::Structure::getModule(const String &module) {
 bool Multiboot::Structure::isModuleLoaded(const String &module) {
 
     return modules.containsKey(module);
+}
+
+String Multiboot::Structure::getKernelOption(const String &key) {
+
+    if (kernelOptions.containsKey(key)) {
+
+        return kernelOptions.get(key);
+    }
+
+    return String();
+}
+
+void Multiboot::Structure::parseVbeInfo() {
+
+    if (info.flags & MULTIBOOT_INFO_VBE_INFO) {
+
+        info.vbeModeInfo += KERNEL_START;
+
+        VesaGraphics::ModeInfo *modeInfo = (VesaGraphics::ModeInfo*) info.vbeModeInfo;
+
+        vbeModes.add(*modeInfo);
+
+        // TODO(krakowski)
+        //  Save VBE control information and get available modes
+    }
 }
 
 

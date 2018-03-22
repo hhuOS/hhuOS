@@ -45,6 +45,11 @@ void int_disp (InterruptFrame *frame) {
     uint32_t slot = frame->interrupt;
     uint32_t flags = frame->error;
 
+    // throw bluescreen on Protected Mode exceptions except pagefault
+    if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
+        Kernel::panic(frame);
+    }
+
     // if this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
         Kernel::panic(frame);
@@ -71,11 +76,6 @@ void int_disp (InterruptFrame *frame) {
 
         // pass faulting address to the system management
         SystemManagement::getInstance()->setFaultParams(faulting_address, flags);
-    }
-
-    // throw bluescreen on Protected Mode exceptions except pagefault
-    if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
-        Kernel::panic(frame);
     }
 
     // pointer to interrupt handler
