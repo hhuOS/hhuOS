@@ -1,6 +1,8 @@
-/* Memory manager for the kernel heap
- * 
- * Burak Akguel, Christian Gesse, HHU 2017 */
+/* List-based memory manager for the kernel heap
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
 
 #include <lib/libc/printf.h>
 #include "HeapMemoryManager.h"
@@ -8,16 +10,25 @@
 #include "../SystemManagement.h"
 #include "kernel/memory/MemLayout.h"
 
+/**
+ * Constructor -calls constructor of base class.
 
+ */
 HeapMemoryManager::HeapMemoryManager(uint32_t startAddress, uint32_t endAddress) : MemoryManager(startAddress, endAddress) {
 }
 
+/**
+ * Destructor.
+ */
 HeapMemoryManager::~HeapMemoryManager() {
 	if(lock){
 		delete lock;
 	}
 }
 
+/**
+ * Initializes this manager. Sets up first list-entry.
+ */
 void HeapMemoryManager::init() {
     freeMemory = endAddress - startAddress;
 
@@ -25,6 +36,7 @@ void HeapMemoryManager::init() {
         // Available Kernel-Memory is too small for a Chunk
 		firstChunk = 0;
 	}else {
+		// set up first Chunk of memory
 		firstChunk = (Chunk*)startAddress;
 		firstChunk->next = 0;
 		firstChunk->prev = 0;
@@ -33,146 +45,168 @@ void HeapMemoryManager::init() {
 		firstChunk->size = freeMemory;
 	}
 	
+    // allocate a Spinlock to lock the memory list
 	lock = new Spinlock();
 
     initialized = true;
 }
 
-
+/**
+ * Allocate memory block with given size.
+ */
 void* HeapMemoryManager::alloc(uint32_t size) {
 
-	// Zu kleine Blöcke nicht anfordern
+	// size = 0 is not allowed
 	if(size < 1) {
 		return 0;
 	}
 
+	// during init a lock must be allocated -> in this allocation we cannto use the lock
 	if(initialized) {
 		lock->lock();
 	}
 
+	// Chunk of memory that will be returned
 	Chunk* returnChunk = 0;
 	Chunk* lastVisited = firstChunk;
-
-    bool firstRun = true;
 	
-	// Suche einen passenden Chunk - first fit Modell
+	// search for a Chunk - first fit model
 	do{
-
-        if (!firstRun && lastVisited == firstChunk) {
-            return nullptr;
-        }
-
-        firstRun = false;
-
-		// prüfe, ob der Chunk groß genug ist
+		// check if this chunk is free and has enough memory
 		if(lastVisited->size >= size && !lastVisited->allocated) {
+			// we have found a chunk of memory
 			returnChunk = lastVisited;
 			break;
 		}
 
+		// look for next chunk
 		lastVisited = lastVisited->next;
-	// solange kein passender freier Chunk gefunden wurde UND der Chunk, mit dem die Suche
-	// gestartet wurde, nicht erreicht ist, suche weiter
+	// loop thorugh memory list until we reach the end (next-pointer = 0)
 	} while(lastVisited != 0);
 
-	// kein freien Chunk gefunden
+	// found no free chunk with enough memory
 	if(returnChunk == 0) {
 		if(initialized) {
 			lock->unlock();
 		}
+		// return nullpointer
 		return 0;
 	}
 	
-	// gefundener Chunk größer als benötigt -> zerteile mit passender Größe
+	// the chunk has more memory than needed -> split into 2 chunks
 	if(returnChunk-> size >= sizeof(Chunk) + size + 1) {
-		Chunk* tmp = (Chunk*)((unsigned int)returnChunk + sizeof(Chunk) + size); // "nächsten" Chunk holen - überspringe den allozierten Bereich
-		tmp->prev = returnChunk; 				// prev und next Zeiger vom nächsten Chunk aktualisieren
+		// get "next" Chunk and skip the memory we want to allocate
+		Chunk* tmp = (Chunk*)((unsigned int)returnChunk + sizeof(Chunk) + size);
+		// set next and prev pointer of new chunk
+		tmp->prev = returnChunk;
 		tmp->next = returnChunk->next;
+		// set previous pointer of succeeding chunk
 		if(returnChunk->next) {
 			returnChunk->next->prev = tmp;
 		}
-		returnChunk->next = tmp; 				// zeiger vom allozierten Chunk aktualisieren
-		tmp->allocated = false; 				// nächsten Block (neuer Chunk mit Restspeicher) als allozierbar markieren
+		// set next pointer of previous chunk (that was allocated)
+		returnChunk->next = tmp;
+		// the new chunk is not allocated
+		tmp->allocated = false;
 		freeMemory -= sizeof(Chunk);
-		tmp->size = returnChunk->size - size - sizeof(Chunk); // Chunk size initialisieren
-		returnChunk->size = size; // größe des chunks aktuallisieren
+		// set size of the new created chunk
+		tmp->size = returnChunk->size - size - sizeof(Chunk);
+		// update size of allocated chunk
+		returnChunk->size = size;
 	}
-	// allozierter Bereich ist nicht mehr zu vergeben
+	// the chunk is now allocated
 	returnChunk->allocated = true;
+	// update free memory
 	freeMemory -= returnChunk->size;
-	// gib Pointer auf den reservierten Speicher hinter dem Chunkeintrag zurück
+	// release lock
 	if(initialized) {
 		lock->unlock();
 	}
+	// return pointer to the usable memory skipping the header
 	return (void*)((unsigned int)returnChunk + sizeof(Chunk));
 }
 
+/**
+ * Frees a given memory block
+ */
 void HeapMemoryManager::free(void* ptr) {
-
 	// Prevent null pointer access
 	if (ptr == nullptr) {
 		return;
 	}
 
-	// calculate ptr to chunk with metadata
+	// block if we try to free outside memory area
+	if((uint32_t) ptr < startAddress || (uint32_t) ptr >= endAddress){
+		return;
+	}
+
+	// calculate ptr to chunk with metadata/list header
 	Chunk* chunk = (Chunk*)((unsigned int)ptr - sizeof(Chunk));
 
 	lock->lock();
+
 	// Chunk is no longer reserved/allocated
 	chunk->allocated = false;
+	// update free memory
 	freeMemory += chunk->size;
 
 	//if preceding chunks are also free -> merge them
 	while(chunk->prev) {
+		// we want to merge only with free chunks
 		if(chunk->prev->allocated) {
 			break;
 		}
+		// one chunkheader is not needed anymore
 		freeMemory += sizeof(Chunk);
 		// calculate size of new chunk
 		chunk->prev->size += chunk->size + sizeof(Chunk);
 		// update next pointer
 		chunk->prev->next = chunk->next;
-		// biege ggfs. prev-Zeiger um ???
+		// change previous pointer of next chunk
 		if(chunk->next) 
 			chunk->next->prev = chunk->prev;
 
+		// get next previous chunk
 		chunk = chunk->prev;
 	}
 	
 	//if succeeding chunks are also free -> merge them
 	while(chunk->next) {
-		// nachfolgender Block frei - verschmelzen
+		// check if succeeding block is free
 		if(chunk->next->allocated) {
 			break;
 		}
+		// one chunkheader is not needed anymore
 		freeMemory += sizeof(Chunk);
+		// update chunksize
 		chunk->size += chunk->next->size + sizeof(Chunk);
+		// update nextpointer
 		chunk->next = chunk->next->next;
 		
+		// if next chunk exists, update previous pointer of it
 		if(chunk->next) 
 			chunk->next->prev = chunk;
 	
 	}
 
+	// if the free chunk has more than 4kb of memory, a page can possibly be unmapped
 	if(chunk->size >= 4*1024 && SystemManagement::getInstance()->isInitialized()) {
 		uint32_t addr = (uint32_t) chunk;
 		uint32_t chunkEndAddr = addr + (sizeof(Chunk) + chunk->size);
-//TODO fix unmap bug
-#if CGA_DEBUG
-    cga_dbg.puts("CALL UNMAP\n",11);
-#endif
-    SystemManagement::getInstance()->unmap(addr + sizeof(Chunk), chunkEndAddr - 1);
-#if CGA_DEBUG
-		cga_dbg.puts("RETURNED FROM UNMAP\n",20);
-#endif
+
+		// try to unmap the free memory, not the list header!
+		SystemManagement::getInstance()->unmap(addr + sizeof(Chunk), chunkEndAddr - 1);
 	}
 
-
+	// release lock
 	lock->unlock();
 
 
 }
 
+/**
+ * Dump memory list
+ */
 void HeapMemoryManager::dump() {
     printf("  Memory dump\n");
     printf("  ===========\n");

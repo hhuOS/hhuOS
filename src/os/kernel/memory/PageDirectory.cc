@@ -83,28 +83,40 @@ PageDirectory::PageDirectory(){
 /**
  * Constructor for process Page Directories.
  * 
- * @param basePageDirectory The Page Directory with kernel mappgins.
+ * @param basePageDirectory Pointer to the Page Directory with kernel mappgins.
  */
 PageDirectory::PageDirectory(PageDirectory *basePageDirectory){
+	// allocate memory for the page directory
     pageDirectory = (uint32_t*) SystemManagement::getInstance()->allocPageTable();
+    // allocate memory to hold the virtual addresses of page tables
     virtTableAddresses = (uint32_t*) SystemManagement::getInstance()->allocPageTable();
+    // catch errors
     if(pageDirectory == 0 || virtTableAddresses == 0){
+    	SystemManagement::getInstance()->freePageTable((uint32_t) pageDirectory);
+    	SystemManagement::getInstance()->freePageTable((uint32_t) virtTableAddresses);
     	printf("[PAGEDIRECTORY] Error: could not create PageDirectory\n");
     	return;
 
     }
+    // get the physical address of the page directory
     physPageDirectoryAddress = (uint32_t*)SystemManagement::getInstance()->getPhysicalAddress((uint32_t)pageDirectory);
+    // get virtual address of the basePageDirectory
     uint32_t* bp_VirtAddress = basePageDirectory->getPageDirectoryVirtualAddress();
+    // get pointer to virtual table addresses from basePageDirectory
     uint32_t* bp_VirtTableAddresses = basePageDirectory->getVirtTableAddresses();
-
+    // calculate at which index the kernelspace starts
     uint32_t idx = KERNEL_START / (PAGESIZE * 1024);
 
+    // map the whole kernelspace from the basePageDirectory into the new page directory
     for(; idx < 1024; idx++) {
     	pageDirectory[idx] = bp_VirtAddress[idx];
     	virtTableAddresses[idx] = bp_VirtTableAddresses[idx];
     }
 }
 
+/**
+ * Destructor - should never be called in  basePagedirectory
+ */
 PageDirectory::~PageDirectory(){
 	// unmap the compelete user space and free the page frames
 	for(uint32_t addr = 0; addr < 0xC0000000; addr += 4096){
@@ -123,10 +135,6 @@ PageDirectory::~PageDirectory(){
 
 /**
  * Maps a virtual address to a given physical address with certain flags.
- * 
- * @param phys Physical address to be mapped
- * @param virt Virtual address to be mapped
- * @param flags Flags for entry in Page Table
  */
 void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t flags) {
 
@@ -159,27 +167,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
 }
 
 /**
- * Create a non Page Table in this Page Directory
- * 
- * @param idx Index of the table in Page Directory
- * @param physAddress Physical address of the Table
- * @param virtAddress Virtual address of the table.
- */
-void PageDirectory::createTable(uint32_t idx, uint32_t physAddress, uint32_t virtAddress){
-    // create the directory entry with the physical address of the table
-    pageDirectory[idx] = physAddress | PAGE_PRESENT | PAGE_READ_WRITE;
-    // keep track of the virtual address of the table
-    virtTableAddresses[idx] = virtAddress;
-#if DEBUG_PD
-    printf("[PAGEDIRECTORY] Created new page table at virtual address %x\n", virtAddress);
-#endif
-}
-
-/**
  * Unmap a given virtual address from this directory.
- * 
- * @param virtAddress Virtual address to be unmapped
- * @return uint32_t Physical address of the memory that was unmapped
  */
 uint32_t PageDirectory::unmap(uint32_t virtAddress){
     // get indices into Page Table and Directory
@@ -198,6 +186,7 @@ uint32_t PageDirectory::unmap(uint32_t virtAddress){
     // calculate corresponding physical Address and set entry to 0
     uint32_t* vTableAddress = (uint32_t*) virtTableAddresses[pd_idx];
 
+    // do not unmap if page is protected
     if(vTableAddress[pt_idx] & PAGE_PROTECTED) {
 #if DEBUG_PD
     printf("[PAGEDIRECTORY] Unmap not possible - page is protected\n");
@@ -214,10 +203,20 @@ uint32_t PageDirectory::unmap(uint32_t virtAddress){
 }
 
 /**
+ * Create a new Page Table in this Page Directory
+ */
+void PageDirectory::createTable(uint32_t idx, uint32_t physAddress, uint32_t virtAddress){
+    // create the directory entry with the physical address of the table
+    pageDirectory[idx] = physAddress | PAGE_PRESENT | PAGE_READ_WRITE;
+    // keep track of the virtual address of the table
+    virtTableAddresses[idx] = virtAddress;
+#if DEBUG_PD
+    printf("[PAGEDIRECTORY] Created new page table at virtual address %x\n", virtAddress);
+#endif
+}
+
+/**
  * Get 4kb-aligned physical address corresponding to the given virtual address.
- * 
- * @param virtAddress Virtual address
- * @return uint32_t Physical address where virtual address is mapped (4kb-aligned)
  */
 uint32_t PageDirectory::getPhysicalAddress(uint32_t virtAddress) {
     // get indices into Page Table and Directory
@@ -240,20 +239,24 @@ uint32_t PageDirectory::getPhysicalAddress(uint32_t virtAddress) {
     return physAddress;
 }
 
+/**
+ * Protects a given page from unmapping.
+ */
 void PageDirectory::protectPage(uint32_t virtAddress) {
+	// align 4kb
     uint32_t vaddr = virtAddress & 0xFFFFF000;
     // get indices into Page Table and Directory
     uint32_t pd_idx = GET_PD_IDX(vaddr);
     uint32_t pt_idx = GET_PT_IDX(vaddr);
 
-    // if requested page table is not present, the page cannot be mapped
+    // if requested page table is not present, the page cannot be protected
     if( (pageDirectory[pd_idx] & PAGE_PRESENT) == 0) {
 #if DEBUG_PD
     printf("[PAGEDIRECTORY] WARN: Page table not present - cannot protect page\n");
 #endif
         return;
     }
-    // if the page is not mapped, it cannot be unmapped
+    // if the page is not mapped, it cannot be protected
     if( (*((uint32_t*)virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) == 0) {
 #if DEBUG_PD
     printf("[PAGEDIRECTORY] WARN: Page not present - cannot protect page\n");
@@ -261,16 +264,21 @@ void PageDirectory::protectPage(uint32_t virtAddress) {
         return;
     }
 
-    // calculate corresponding physical Address and set entry to 0
+    // calculate virtual address of page table
     uint32_t* vTableAddress = (uint32_t*) virtTableAddresses[pd_idx];
-    uint32_t physAddress = (vTableAddress[pt_idx] | PAGE_PROTECTED);
-    vTableAddress[pt_idx] = physAddress;
+    // set protected bit in corresponding entry
+    vTableAddress[pt_idx] |= PAGE_PROTECTED;
 }
 
+/**
+ * Protects a range of pages from unmapping.
+ */
 void PageDirectory::protectPage(uint32_t virtStartAddress, uint32_t virtEndAddress) {
+	// align addresses 4kb
     uint32_t startAddr = virtStartAddress & 0xFFFFF000;
     uint32_t endAddr = virtEndAddress & 0xFFFFF000;
 
+    // protect every page
     uint32_t i=0;
     while(startAddr + i*PAGESIZE < endAddr) {
         protectPage(startAddr + i*PAGESIZE);
@@ -278,37 +286,46 @@ void PageDirectory::protectPage(uint32_t virtStartAddress, uint32_t virtEndAddre
     }
 }
 
+/**
+ * Unprotects a given page from unmapping.
+ */
 void PageDirectory::unprotectPage(uint32_t virtAddress) {
+	// align 4kb
     uint32_t vaddr = virtAddress & 0xFFFFF000;
     // get indices into Page Table and Directory
     uint32_t pd_idx = GET_PD_IDX(vaddr);
     uint32_t pt_idx = GET_PT_IDX(vaddr);
 
-    // if requested page table is not present, the page cannot be mapped
+    // if requested page table is not present, the page cannot be unprotected
     if( (pageDirectory[pd_idx] & PAGE_PRESENT) == 0) {
 #if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page table not present - cannot protect page\n");
+        printf("[PAGEDIRECTORY] WARN: Page table not present - cannot unprotect page\n");
 #endif
         return;
     }
-    // if the page is not mapped, it cannot be unmapped
+    // if the page is not mapped, it cannot be unprotected
     if( (*((uint32_t*)virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) == 0) {
 #if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page not present - cannot protect page\n");
+        printf("[PAGEDIRECTORY] WARN: Page not present - cannot unprotect page\n");
 #endif
         return;
     }
 
-    // calculate corresponding physical Address and set entry to 0
+    // calculate virtual address of page table
     uint32_t* vTableAddress = (uint32_t*) virtTableAddresses[pd_idx];
-    uint32_t physAddress = (vTableAddress[pt_idx] & ~PAGE_PROTECTED);
-    vTableAddress[pt_idx] = physAddress;
+    // clean protected bit in corresponding entry
+    vTableAddress[pt_idx] &= ~PAGE_PROTECTED;
 }
 
+/**
+ * Unprotects a range of pages from unmapping.
+ */
 void PageDirectory::unprotectPage(uint32_t virtStartAddress, uint32_t virtEndAddress) {
+	// get 4kb aligned addresses
     uint32_t startAddr = virtStartAddress & 0xFFFFF000;
     uint32_t endAddr = virtEndAddress & 0xFFFFF000;
 
+    // unprotect every page
     uint32_t i=0;
     while(startAddr + i*PAGESIZE < endAddr) {
         unprotectPage(startAddr + i*PAGESIZE);
