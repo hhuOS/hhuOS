@@ -9,7 +9,7 @@ private:
     ZeroNode(const ZeroNode &copy);
 
 public:
-    ZeroNode() : VirtualNode("zero", CHAR_FILE) {};
+    ZeroNode() : VirtualNode("zero", FsNode::CHAR_FILE) {};
     ~ZeroNode() {}
 
     uint64_t getLength();

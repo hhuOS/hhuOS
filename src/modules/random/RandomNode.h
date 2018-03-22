@@ -9,7 +9,7 @@ private:
     RandomNode(const RandomNode &copy);
 
 public:
-    RandomNode() : VirtualNode("random", CHAR_FILE) {};
+    RandomNode() : VirtualNode("random", FsNode::CHAR_FILE) {};
     ~RandomNode() {}
 
     uint64_t getLength();

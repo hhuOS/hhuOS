@@ -97,7 +97,7 @@ namespace Util {
     };
 
     template <class T>
-    ArrayList<T>::ArrayList() {
+    ArrayList<T>::ArrayList() noexcept {
 
         this->length = 0;
 
@@ -107,7 +107,7 @@ namespace Util {
     }
 
     template <class T>
-    ArrayList<T>::ArrayList(uint32_t capacity) {
+    ArrayList<T>::ArrayList(uint32_t capacity) noexcept {
 
         this->length = 0;
 
