@@ -1,7 +1,18 @@
-/* Paging Area Manager - manages the part of virtual memory resverved for 
- * page tables and directories. A bitmap-based implementation.
- * 
- * Burak Akguel, Christian Gesse, HHU 2017 */
+/*
+* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+* Heinrich-Heine University
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
 
 #ifndef __PAGINGAREAMANAGER_H__
 #define __PAGINGAREAMANAGER_H__
@@ -9,12 +20,23 @@
 #include <stdint.h>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
+/* Paging Area Manager - manages the part of virtual memory resverved for
+ * page tables and directories. A bitmap-based implementation.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
 class PagingAreaManager : public BitmapMemoryManager {
 
 public:
+	/**
+	 * Constructor
+	 */
     PagingAreaManager();
 
-// init the Paging Area Manager -> instead of constructor
+    /**
+     * Initializes the PageingAreaManager - sets up bitmap.
+     */
     void init();
 
 };

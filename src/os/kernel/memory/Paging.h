@@ -50,6 +50,7 @@
 #define PAGE_NO_CACHING			        0x010
 #define PAGE_NOT_ACCESSED		        0x000
 #define PAGE_ACCESSED			        0x020
+// A protected page will not be unmapped
 #define PAGE_PROTECTED                  0x200
 
 #define GET_PD_IDX(x)                   (x >> 22)
