@@ -29,7 +29,7 @@
 #define MENU_DISTANCE 4
 #define MENU_OPTIONS 9
 
-#define TEST_THREADING 0
+#define TEST_THREADING 1
 
 Application::Application () : Thread ("Menu") {
     graphicsService = Kernel::getService<GraphicsService>();

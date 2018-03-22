@@ -3,8 +3,8 @@
 #-------------------------------------------#
 CXXFLAGS := -m32 -Wl,-r -no-pie -Wno-write-strings -nostdlib -ffreestanding -std=c++11 -I. -I$(INCLUDEDIR)
 
-all: $(MODULE_OUT)/zero.ko
+all: $(MODULE_OUT)/hello.ko
 
-$(MODULE_OUT)/zero.ko :
+$(MODULE_OUT)/hello.ko :
 	@echo "MODULE		$(@F)"
-	$(VERBOSE) $(CXX) $(CXXFLAGS) -o $@ Zero.cc ZeroNode.cc
+	$(VERBOSE) $(CXX) $(CXXFLAGS) -o $@ Hello.cc

@@ -58,7 +58,7 @@ MAKE = make
 #-------------------------------------------#
 # Modules (see src/modules)                 #
 #-------------------------------------------#
-MODULES := random zero
+MODULES := hello random zero
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 
 #-------------------------------------------#
