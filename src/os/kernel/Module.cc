@@ -27,7 +27,13 @@ int Module::finalize() {
 }
 
 uint32_t Module::getSymbol(const String &name) {
-    return localSymbols.get(name);
+
+    if (localSymbols.containsKey(name)) {
+
+        return localSymbols.get(name);
+    }
+
+    return 0;
 }
 
 Module::~Module() {
@@ -143,7 +149,7 @@ void Module::relocate() {
         for (uint32_t j = 0; j < relocationTableSize; j++) {
 
             relocationEntry = &relocationTable[j];
-            symbol = (SymbolEntry*) &symbolTable[relocationEntry->getIndex()];
+            symbol = &symbolTable[relocationEntry->getIndex()];
 
             if (symbol->getType() == SymbolType::SECTION) {
                 symbolName = getSectionName(symbol->section);

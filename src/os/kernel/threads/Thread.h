@@ -33,7 +33,7 @@ public:
 
     Thread();
 
-    Thread(const String &name);
+    explicit Thread(const String &name);
 
     Thread(const Thread &copy) = delete;
 
@@ -63,8 +63,6 @@ public:
     virtual void run () = 0;
 
 private:
-
-
 
     uint32_t id;
 
