@@ -38,6 +38,18 @@ FileStatus *FileStatus::stat(const String &path) {
 }
 
 String FileStatus::getName() {
+    if(node->getFileType() == FsNode::DIRECTORY_FILE && node->getName() == "/" && path != "/") {
+        // This directory is the root of a mount-point.
+        // We need to find the name, of the directory, where it is mounted in.
+        Util::Array<String> tmp =  String(path).split(path, '/');
+
+        if(tmp.length() == 0) {
+            return path.substring(1, path.length());
+        }
+
+        return tmp[tmp.length() - 1];
+    }
+
     return node->getName();
 }
 

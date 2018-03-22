@@ -250,6 +250,15 @@ uint32_t FileSystem::unmount(const String &path) {
 
     fsLock.lock();
 
+    for(const String &key : mountPoints.keySet()) {
+        if(key.beginsWith(parsedPath)) {
+            if(key != parsedPath) {
+                fsLock.unlock();
+                return SUBDIRECTORY_CONTAINS_MOUNT_POINT;
+            }
+        }
+    }
+
     if(mountPoints.containsKey(parsedPath)) {
         delete mountPoints.get(parsedPath);
         mountPoints.remove(parsedPath);
@@ -263,13 +272,6 @@ uint32_t FileSystem::unmount(const String &path) {
     return NOTHING_MOUNTED_AT_PATH;
 }
 
-/**
- * Gets a FsNode, representing a file or directory that a given path points to.
- *
- * @param path The path.
- *
- * @return The FsNode or nullptr, if the path is invalid.
- */
 FsNode *FileSystem::getNode(const String &path) {
     String parsedPath = parsePath(path);
 
@@ -289,14 +291,6 @@ FsNode *FileSystem::getNode(const String &path) {
     return ret;
 }
 
-/**
- * Creates a new empty file at a given path.
- * The parent-folder of the new file must exist beforehand.
- * 
- * @param path The new file's path.
- * 
- * @return 0 on success.
- */
 uint32_t FileSystem::createFile(const String &path) {
     String parsedPath = parsePath(path);
 
@@ -316,14 +310,6 @@ uint32_t FileSystem::createFile(const String &path) {
     return ret ? SUCCESS : CREATING_FILE_FAILED;
 }
 
-/**
- * Creates a new empty folder at a given path.
- * The parent-folder of the new folder must exist beforehand.
- * 
- * @param path The new directory's path.
- * 
- * @return 0 on success.
- */
 uint32_t FileSystem::createDirectory(const String &path) {
     String parsedPath = parsePath(path);
     fsLock.lock();
@@ -342,18 +328,17 @@ uint32_t FileSystem::createDirectory(const String &path) {
     return ret ? SUCCESS : CREATING_DIRECTORY_FAILED;
 }
 
-/**
- * Deletes an existing file at a given path.
- * The file must be a regular file or an empty folder (a leaf in the filesystem tree).
- * 
- * @param path The file to be deleted.
- * 
- * @return 0 on success.
- */
 uint32_t FileSystem::deleteFile(const String &path) {
     String parsedPath = parsePath(path);
 
     fsLock.lock();
+
+    for(const String &key : mountPoints.keySet()) {
+        if(key.beginsWith(parsedPath)) {
+            fsLock.unlock();
+            return SUBDIRECTORY_CONTAINS_MOUNT_POINT;
+        }
+    }
 
     FsDriver *driver = getMountedDriver(parsedPath);
 

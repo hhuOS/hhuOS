@@ -45,8 +45,13 @@ void Cat::execute(Util::Array<String> &args, OutputStream &outputStream) {
 
         File &file = *File::open(absolutePath, "r");
 
-        file >> outputStream;
+        char *buf;
+        file >> buf;
 
+        outputStream.writeBytes(buf, file.getLength());
+        outputStream.flush();
+
+        delete[] buf;
         delete &file;
     }
 }

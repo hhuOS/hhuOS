@@ -32,20 +32,23 @@ void Umount::execute(Util::Array<String> &args, OutputStream &outputStream) {
         return;
     }
 
-    targetPath = calcAbsolutePath(targetPath);
+    String absolutePath = calcAbsolutePath(targetPath);
 
     auto *fileSystem = Kernel::getService<FileSystem>();
-    auto ret = fileSystem->unmount(targetPath);
+    auto ret = fileSystem->unmount(absolutePath);
 
     switch(ret) {
         case FileSystem::SUCCESS :
             break;
         case FileSystem::FILE_NOT_FOUND :
             stderr << args[0] << ": '" << targetPath << "': Directory not found!" << endl;
-            return;
+            break;
         case FileSystem::NOTHING_MOUNTED_AT_PATH :
             stderr << args[0] << ": '" << targetPath << "': No device mounted at target path!" << endl;
-            return;
+            break;
+        case FileSystem::SUBDIRECTORY_CONTAINS_MOUNT_POINT:
+            stderr << args[0] << ": '" << targetPath << "': A device is still mounted to a subdirectory!" << endl;
+            break;
         default:
             break;
     }

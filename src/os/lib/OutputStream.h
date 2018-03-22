@@ -35,10 +35,12 @@ public:
       OutputStream () : StringBuffer () { base = 10; }   // initial Dezimalsystem
       virtual ~OutputStream () {}
 
-      virtual void flush () = 0;                    // weiterhin undefiniert
+      virtual void flush () = 0;                    // weiterhin undefiniert             Zeichenkette.
+
+      void writeBytes(char *data, uint64_t len);
 
       // OPERATOR << : Umwandlung des angegebenen Datentypes in eine
-      //               Zeichenkette.
+      //
 
       // Darstellung eines Zeichens (trivial)
       OutputStream& operator << (char c);

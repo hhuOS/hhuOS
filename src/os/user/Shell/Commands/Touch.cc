@@ -34,9 +34,20 @@ void Touch::execute(Util::Array<String> &args, OutputStream &outputStream) {
     for(const String &path : paths) {
         String absolutePath = calcAbsolutePath(path);
 
-        if (!FileStatus::exists(path)) {
-            if (fileSystem->createFile(absolutePath) != FileSystem::SUCCESS) {
-                stderr << args[0] << ": '" << path << "': Unable to create file!" << endl;
+        if(!FileStatus::exists(absolutePath)) {
+            auto ret = fileSystem->createFile(absolutePath);
+
+            switch(ret) {
+                case FileSystem::SUCCESS :
+                    break;
+                case FileSystem::FILE_NOT_FOUND :
+                    stderr << args[0] << ": '" << path << "': File or directory not found!" << endl;
+                    break;
+                case FileSystem::CREATING_FILE_FAILED :
+                    stderr << args[0] << ": '" << path << "': Unable to create file!" << endl;
+                    break;
+                default:
+                    break;
             }
         }
     }

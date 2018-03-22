@@ -3,12 +3,15 @@
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
+#include <lib/file/FileStatus.h>
 #include "Command.h"
 
 class Rm : public Command {
 
 private:
     FileSystem *fileSystem = nullptr;
+
+    void deleteFile(const String &progName, FileStatus &fStat);
 
     void recursiveDelete(const String &progName, Directory &dir);
 

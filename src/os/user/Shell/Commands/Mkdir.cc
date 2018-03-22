@@ -39,8 +39,19 @@ void Mkdir::execute(Util::Array<String> &args, OutputStream &outputStream) {
             continue;
         }
 
-        if(fileSystem->createDirectory(absolutePath) != FileSystem::SUCCESS) {
-            stderr << args[0] << ": '" << path << "': Unable to create directory!" << endl;
+        auto ret = fileSystem->createDirectory(absolutePath);
+
+        switch(ret) {
+            case FileSystem::SUCCESS :
+                break;
+            case FileSystem::FILE_NOT_FOUND :
+                stderr << args[0] << ": '" << path << "': File or directory not found!" << endl;
+                break;
+            case FileSystem::CREATING_FILE_FAILED :
+                stderr << args[0] << ": '" << path << "': Unable to create file!" << endl;
+                break;
+            default:
+                break;
         }
     }
 }

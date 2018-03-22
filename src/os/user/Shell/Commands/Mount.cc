@@ -39,6 +39,11 @@ void Mount::execute(Util::Array<String> &args, OutputStream &outputStream) {
         }
     }
 
+    if(type.isEmpty()) {
+        stderr << args[0] << ": No filesystem type given!" << endl;
+        return;
+    }
+
     if(type == FileSystem::TYPE_RAM) {
         targetPath = devicePath;
     }
@@ -53,11 +58,6 @@ void Mount::execute(Util::Array<String> &args, OutputStream &outputStream) {
         return;
     }
 
-    if(type.isEmpty()) {
-        stderr << args[0] << ": No filesystem type given!" << endl;
-        return;
-    }
-
     String absoluteDevicePath = calcAbsolutePath(devicePath);
     String absoluteTargetPath = calcAbsolutePath(targetPath);
 
@@ -69,19 +69,19 @@ void Mount::execute(Util::Array<String> &args, OutputStream &outputStream) {
             break;
         case FileSystem::DEVICE_NOT_FOUND :
             stderr << args[0] << ": '" << devicePath << "': Device not found!" << endl;
-            return;
+            break;
         case FileSystem::FILE_NOT_FOUND :
             stderr << args[0] << ": '" << targetPath << "': Directory not found!" << endl;
-            return;
+            break;
         case FileSystem::MOUNT_TARGET_ALREADY_USED :
             stderr << args[0] << ": '" << targetPath << "': A device is already mounted to that path!" << endl;
-            return;
+            break;
         case FileSystem::INVALID_DRIVER :
             stderr << args[0] << ": '" << type << "': Unknown filesystem type!" << endl;
-            return;
+            break;
         case FileSystem::MOUNTING_FAILED :
             stderr << args[0] << ": Unable to mount '" << devicePath << "' to '" << targetPath << "'!" << endl;
-            return;
+            break;
         default:
             break;
     }

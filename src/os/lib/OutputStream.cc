@@ -23,6 +23,12 @@
 #include "lib/OutputStream.h"
 
 
+void OutputStream::writeBytes(char *data, uint64_t len) {
+    for(uint64_t i = 0; i < len; i++) {
+        put(data[i]);
+    }
+}
+
 //
 // Zeichen und Zeichenketten in Stream ausgeben
 //

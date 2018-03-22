@@ -1,9 +1,28 @@
-#include <lib/file/FileStatus.h>
 #include "Rm.h"
 
 Rm::Rm(Shell &shell) : Command(shell) {
 
 };
+
+void Rm::deleteFile(const String &progName, FileStatus &fStat) {
+    auto ret = fileSystem->deleteFile(fStat.getAbsolutePath());
+
+    switch(ret) {
+        case FileSystem::SUCCESS :
+            break;
+        case FileSystem::SUBDIRECTORY_CONTAINS_MOUNT_POINT :
+            stderr << progName << ": '" << fStat.getName() << "': A device is still mounted to a subdirectory!" << endl;
+            break;
+        case FileSystem::FILE_NOT_FOUND :
+            stderr << progName << ": '" << fStat.getName() << "': File or Directory not found!" << endl;
+            break;
+        case FileSystem::DELETING_FILE_FAILED :
+            stderr << progName << ": '" << fStat.getName() << "': Unable to delete file!" << endl;
+            break;
+        default:
+            break;
+    }
+}
 
 void Rm::recursiveDelete(const String &progName, Directory &dir) {
     for(const String &childName : dir.getChildren()) {
@@ -18,17 +37,17 @@ void Rm::recursiveDelete(const String &progName, Directory &dir) {
 
             delete &currentDir;
         } else {
-            if (fileSystem->deleteFile(absolutePath) != FileSystem::SUCCESS) {
-                stderr << progName << ": '" << childName << "': Unable to delete file!" << endl;
-            }
+            deleteFile(progName, fStat);
         }
 
         delete &fStat;
     }
 
-    if (fileSystem->deleteFile(dir.getAbsolutePath()) != FileSystem::SUCCESS) {
-        stderr << progName << ": '" << dir.getName() << "': Unable to delete directory!" << endl;
-    }
+    FileStatus &fStat = *FileStatus::stat(dir.getAbsolutePath());
+
+    deleteFile(progName, fStat);
+
+    delete &fStat;
 }
 
 void Rm::execute(Util::Array<String> &args, OutputStream &outputStream) {
@@ -66,9 +85,7 @@ void Rm::execute(Util::Array<String> &args, OutputStream &outputStream) {
         FileStatus &fStat = *FileStatus::stat(absolutePath);
 
         if(fStat.getFileType() != FsNode::DIRECTORY_FILE) {
-            if (fileSystem->deleteFile(absolutePath) != FileSystem::SUCCESS) {
-                stderr << args[0] << ": '" << path << "': Unable to delete file!" << endl;
-            }
+            deleteFile(args[0], fStat);
         } else {
             if(recursive) {
                 Directory &dir = *Directory::open(absolutePath);
