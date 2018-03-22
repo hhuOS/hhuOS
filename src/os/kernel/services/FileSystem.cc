@@ -196,6 +196,15 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
     }
 
     String parsedPath = parsePath(targetPath);
+    FsNode *targetNode = getNode(parsedPath);
+
+    if(targetNode == nullptr) {
+        if(targetPath != "/") {
+            return FILE_NOT_FOUND;
+        }
+    } else {
+        delete targetNode;
+    }
 
     fsLock.lock();
 
@@ -211,6 +220,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
     } else if(type == TYPE_RAM) {
         driver = new RamFsDriver();
     } else {
+        fsLock.unlock();
         return INVALID_DRIVER;
     }
 
@@ -228,6 +238,15 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
 
 uint32_t FileSystem::unmount(const String &path) {
     String parsedPath = parsePath(path);
+    FsNode *targetNode = getNode(parsedPath);
+
+    if(targetNode == nullptr) {
+        if(path != "/") {
+            return FILE_NOT_FOUND;
+        }
+    } else {
+        delete targetNode;
+    }
 
     fsLock.lock();
 

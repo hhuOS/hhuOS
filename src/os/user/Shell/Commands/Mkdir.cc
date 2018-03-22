@@ -34,7 +34,7 @@ void Mkdir::execute(Util::Array<String> &args, OutputStream &outputStream) {
     for(const String &path : paths) {
         String absolutePath = calcAbsolutePath(path);
 
-        if (FileStatus::exists(path)) {
+        if (FileStatus::exists(absolutePath)) {
             stderr << args[0] << ": '" << path << "': The file already exists!" << endl;
             continue;
         }

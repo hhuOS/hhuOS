@@ -6,11 +6,15 @@
 #include "EventBus.h"
 
 StorageDevice *StorageService::getDevice(const String &name) {
+    if(!devices.containsKey(name)) {
+        return nullptr;
+    }
+
     return devices.get(name);
 }
 
 void StorageService::registerDevice(StorageDevice *device) {
-    EventBus *eventBus = Kernel::getService<EventBus>();
+    auto *eventBus = Kernel::getService<EventBus>();
 
     devices.put(device->getName(), device);
 
@@ -41,7 +45,7 @@ void StorageService::registerDevice(StorageDevice *device) {
 }
 
 void StorageService::removeDevice(const String &name) {
-    EventBus *eventBus = Kernel::getService<EventBus>();
+    auto *eventBus = Kernel::getService<EventBus>();
 
     Util::Array<String> deviceNames = devices.keySet();
     for(const String &currentName : deviceNames) {

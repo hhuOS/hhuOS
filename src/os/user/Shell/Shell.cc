@@ -10,6 +10,8 @@
 #include <user/Shell/Commands/Cd.h>
 #include <user/Shell/Commands/Clear.h>
 #include <user/Shell/Commands/Insmod.h>
+#include <user/Shell/Commands/Mount.h>
+#include <user/Shell/Commands/Umount.h>
 
 Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
     graphicsService = Kernel::getService<GraphicsService>();
@@ -24,6 +26,8 @@ Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
     commands.put("mkdir", new Mkdir(*this));
     commands.put("rm", new Rm(*this));
     commands.put("insmod", new Insmod(*this));
+    commands.put("mount", new Mount(*this));
+    commands.put("umount", new Umount(*this));
 
     memset(input, 0, sizeof(input));
 }
@@ -120,6 +124,10 @@ void Shell::executeCommand() {
     }
 
     commands.get(args[0])->execute(args, *stream);
+
+    if(stream != graphicsService->getTextDriver()) {
+        delete stream;
+    }
 }
 
 void Shell::onEvent(const Event &event) {
