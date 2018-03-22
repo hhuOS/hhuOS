@@ -1,7 +1,7 @@
 sudo: required
 
 services:
-  - docker
+- docker
 
 language: generic
 
@@ -12,16 +12,30 @@ env:
     - CONTAINER_NAME=builder
     - CLONE_URL=https://github.com/hhuOS/hhuOS.git
     - HHUOS_DIR=hhuOS/src/os
+    - KERNEL_BINARY=hhuOS/src/loader/boot/hhuOS.bin
+    - PUBLISH_FILE=${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
 
 install:
   - docker build -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} .
   - docker run -d --name ${CONTAINER_NAME} --rm -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
 
 script:
-  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && git checkout ${TRAVIS_COMMIT} && make -j4 iso"
+  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && git checkout ${TRAVIS_COMMIT} && make -j4 kernel"
+
+before_deploy:
+  - docker cp ${CONTAINER_NAME}:${KERNEL_BINARY} ${PUBLISH_FILE}
+
+deploy:
+  provider: releases
+  api_key: ${API_KEY}
+  skip_cleanup: true
+  file: ${PUBLISH_FILE}
+  on:
+    repo: hhuOS/hhuOS
+    branch: master
+    tags: true
 
 notifications:
   email: false
-
   slack:
     secure: IWFNiPHHK8QEFO7B+WRmD5FUUHWISvp22pX/r/b4z4pRw/dGOBRJR819stRIWCKbz7rjBtz76O1/cwagXMSpmWyD9rxu/HBqKRdxLp00OT48b68d8o/+G+yx1oDXtl2SGphOjcCm+ld7/D2heJiHri2v4eoFLV8C2D19vFhJ29DifpN/IEggVAY/DmvSN80C+wIGXa6763vW3mxQthIvc3CCcf/yyhd5U2J29+UZOavR81y9T7DQyN7/cDHRcEM1XDT87IJ98zhwdHNDLk0a9omosqTFsYWTg6NZxfeGG6shY4r0qVjQBkjnqT30B+S4JD5ICZh7tdfkgfFJh2lsUf9AwIBJvT/3nfRXVm3nIuGX4p5gCD9T8vgtU8pxRRnN9qsNwaS38kzstg17sjBX0yK1oxB+rNZrIT8bJuMn1gcVbeNuEltciYKswaFCkPxtiWWwBgFW7cel153WMPSBo7SGUneQ+FE2KMLSPvauKOD64qw+KleAIXNyaXJtsoGtXfERqSm9jDIihwmvinrQvKwU4yZzlS2wy44/ntbOwnR03zCYnNkH7gOaUYmNY5JBpZP01XPFDxBvs+rgYRFSLJmZnrFayZ4RHO4d2xwvywOxocGCKUtlkpzJZ9EEY6Ov4+sypqoFN6zrH8wjn54FjDcZdnuIvhbTUnU+wQ0RouI=

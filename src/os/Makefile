@@ -158,6 +158,8 @@ $(BOOTDIR)/hhuOS.bin : $(OBJDIR)/system
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(COPY) $< $@
 
+kernel : $(BOOTDIR)/hhuOS.bin
+
 #-------------------------------------------#
 # Kernel image with GRUB                    #
 #-------------------------------------------#
