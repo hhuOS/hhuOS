@@ -1,3 +1,4 @@
+#include "kernel/Kernel.h"
 #include "kernel/services/FileSystem.h"
 #include "RandomNode.h"
 

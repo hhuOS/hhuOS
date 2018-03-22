@@ -11,11 +11,14 @@ ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
 #-------------------------------------------#
 OBJDIR = ./build
 DEPDIR = ./dep
-HDD_PATCH = ../hdd
-INITRD_PATH = ../initrd
-LOADERDIR = ../loader
+HDD_PATCH = ${CURDIR}/../hdd
+INITRD_PATH = ${CURDIR}/../initrd
+LOADERDIR = ${CURDIR}/../loader
 BOOTDIR = $(LOADERDIR)/boot
 SERIAL_TTY = /dev/pts/1
+MODULE_PATH = ${CURDIR}/../modules
+MODULE_OUT = $(INITRD_PATH)/mod
+INCLUDEDIR = ${CURDIR}
 
 #-------------------------------------------#
 # Compiler binaries                         #
@@ -28,14 +31,16 @@ CXX = g++
 # C Compiler settings                       #
 #-------------------------------------------#
 CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
-								-ffreestanding -mno-sse -I. -g #-DDEBUG
-#-------------------------------------------
-# C++ Compiler settings
+								-ffreestanding -mno-sse -I$(INCLUDEDIR) -g #-DDEBUG
+
+#-------------------------------------------#
+# C++ Compiler settings                     #
 #-------------------------------------------#
 CXXFLAGS := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
  								-fno-rtti -fno-exceptions -std=c++11
-#-------------------------------------------
-# ASM Compiler settings
+
+#-------------------------------------------#
+# ASM Compiler settings                     #
 #-------------------------------------------#
 ASMOBJFORMAT = elf
 ASMFLAGS := $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
@@ -49,6 +54,12 @@ COPY = cp
 NM = nm
 TAR = tar
 MAKE = make
+
+#-------------------------------------------#
+# Modules (see src/modules)                 #
+#-------------------------------------------#
+MODULES := random zero
+MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 
 #-------------------------------------------#
 # QEMU and KVM defaults                     #
@@ -107,12 +118,12 @@ gitversion.c: ../../.git/HEAD ../../.git/index
 # Dependencies                              #
 #-------------------------------------------#
 $(DEPDIR)/%.d : gitversion.c %.c
-	@echo "DEP		$@"
+	@echo "DEP		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) $(CFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
 
 $(DEPDIR)/%.d : %.cc
-	@echo "DEP		$@"
+	@echo "DEP		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) $(CXXFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
 
@@ -120,17 +131,17 @@ $(DEPDIR)/%.d : %.cc
 # Object files                              #
 #-------------------------------------------#
 $(OBJDIR)/%.o : %.c
-	@echo "CC		$@"
+	@echo "CC		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) -c $(CFLAGS) -o $@ $<
 
 $(OBJDIR)/%.o : %.cc
-	@echo "CXX		$@"
+	@echo "CXX		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) -c $(CXXFLAGS) -o $@ $<
 
 $(OBJDIR)/_%.o : %.asm
-	@echo "ASM		$@"
+	@echo "ASM		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(ASM) $(ASMFLAGS) -o $@ $<
 
@@ -138,23 +149,33 @@ $(OBJDIR)/_%.o : %.asm
 # Linked system                             #
 #-------------------------------------------#
 $(OBJDIR)/system: $(FIRST_OBJECT) $(OBJPRE)
-	@echo "LD		$@"
+	@echo "LD		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) $(CXXFLAGS) -static -T sections -o $(OBJDIR)/system $(FIRST_OBJECT) $(OBJPRE)
 
 #-------------------------------------------#
+# Compiled modules                          #
+#-------------------------------------------#
+$(MODULE_SOURCES):
+	$(VERBOSE) $(MAKE) --no-print-directory -C $@
+
+modules: $(MODULE_SOURCES)
+
+#-------------------------------------------#
 # Initial Ramdisk                           #
 #-------------------------------------------#
-$(BOOTDIR)/hhuOS.initrd :
-	@echo "TAR		$@"
+$(BOOTDIR)/hhuOS.initrd : modules
+	@echo "TAR		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(TAR) -cf $@ $(INITRD_PATH)
+
+initrd : $(BOOTDIR)/hhuOS.initrd
 
 #-------------------------------------------#
 # Kernel image                              #
 #-------------------------------------------#
 $(BOOTDIR)/hhuOS.bin : $(OBJDIR)/system
-	@echo "COPY		$@"
+	@echo "KERNEL		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(COPY) $< $@
 
@@ -163,8 +184,8 @@ kernel : $(BOOTDIR)/hhuOS.bin
 #-------------------------------------------#
 # Kernel image with GRUB                    #
 #-------------------------------------------#
-$(OBJDIR)/hhuOS.iso : $(BOOTDIR)/hhuOS.bin $(BOOTDIR)/hhuOS.initrd
-	@echo "BUILD		$@"
+$(OBJDIR)/hhuOS.iso : kernel initrd
+	@echo "BUILD		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)
 
@@ -257,7 +278,25 @@ clean:
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.bin
 	@echo "RM		$(BOOTDIR)/hhuOS.initrd"
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
-	rm -f gitversion.c
+	@echo "RM		$(MODULE_OUT)/*"
+	$(VERBOSE) rm -f  $(MODULE_OUT)/*
+	@echo "RM		gitversion.c"
+	$(VERBOSE) rm -f gitversion.c
+
+#-------------------------------------------#
+# Exports                                   #
+#-------------------------------------------#
+export MODULE_OUT
+export INCLUDEDIR
+export ASM
+export CC
+export CXX
+export VERBOSE
+export DELETE
+export COPY
+export NM
+export TAR
+export MAKE
 
 #-------------------------------------------#
 # Include dependencies                      #
@@ -266,4 +305,4 @@ ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP_FILES)
 endif
 
-.PHONY: clean bootdisk gdb ddd
+.PHONY: clean bootdisk gdb ddd $(MODULE_SOURCES)
