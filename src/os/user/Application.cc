@@ -14,13 +14,13 @@
 #include <user/MouseApp/MouseApp.h>
 #include <kernel/services/DebugService.h>
 #include <kernel/threads/WorkerThread.h>
+#include <user/Shell/Shell.h>
 #include "kernel/threads/Scheduler.h"
 #include "user/Application.h"
 #include "user/LoopSoundApp/Loop.h"
 #include "user/LoopSoundApp/Sound.h"
 #include "user/HeapApp/HeapDemo.h"
 #include "user/AntApp/AntApp.h"
-#include "user/VFSApp/VFSApp.h"
 #include "user/MemoryTestApps/IOMemoryTestApp.h"
 #include "user/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
@@ -132,11 +132,11 @@ void Application::ProtectedMode () {
     printf("%d", b / a);
 }
 
-void Application::vfsDemo() {
+void Application::shell() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(100, 37, 32);
 
-    Thread *thread = new VFSApp();
+    Thread *thread = new Shell();
     thread->start();
 }
 
@@ -180,7 +180,7 @@ void Application::showMenu () {
         lfb->placeString(font, 50, 42 + 2 * MENU_DISTANCE, "Protected Mode", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 3 * MENU_DISTANCE, "Langstons Ant", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 4 * MENU_DISTANCE, "Asciimation", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 5 * MENU_DISTANCE, "VFS Demo", Colors::HHU_LIGHT_GRAY);
+        lfb->placeString(font, 50, 42 + 5 * MENU_DISTANCE, "Shell", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 6 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "Mouse", Colors::HHU_LIGHT_GRAY);
         lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Bug Defender", Colors::HHU_LIGHT_GRAY);
@@ -231,7 +231,7 @@ void Application::startSelectedApp() {
             Asciimation();
             break;
         case 5:
-            vfsDemo();
+            shell();
             break;
         case 6:
             IOMemoryTest();
@@ -249,7 +249,7 @@ void Application::startSelectedApp() {
 void Application::startGame(Game* game){
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
-    lfb->init(640, 480, 32);
+    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
     lfb->clear();
 

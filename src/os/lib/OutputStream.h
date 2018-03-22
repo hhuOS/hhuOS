@@ -46,6 +46,7 @@ public:
 
       // Darstellung einer nullterminierten Zeichenkette
       OutputStream& operator << (char* string);
+      OutputStream& operator << (const char* string);
 
       //  Darstellung ganzer Zahlen im Zahlensystem zur Basis base
       OutputStream& operator << (short ival);

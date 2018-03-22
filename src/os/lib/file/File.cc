@@ -33,13 +33,13 @@ File *File::open(const String &path, const String &mode) {
             case 'r' :
                 return nullptr;
             case 'w' :
-                if(fileSystem->createFile(path)) {
+                if(fileSystem->createFile(path) == FileSystem::SUCCESS) {
                     return new File(fileSystem->getNode(path), path, mode);
                 }
 
                 return nullptr;
             case 'a' :
-                if(fileSystem->createFile(path)) {
+                if(fileSystem->createFile(path) == FileSystem::SUCCESS) {
                     return new File(fileSystem->getNode(path), path, mode);
                 }
 

@@ -2,8 +2,9 @@
 #define __StderrNode_include__
 
 #include "VirtualNode.h"
-#include <stdint.h>
+#include <cstdint>
 #include <kernel/services/StdStreamService.h>
+#include <kernel/services/GraphicsService.h>
 
 /**
  * Implementation of VirtualNode, that always writes to the current standard error stream
@@ -15,6 +16,7 @@
 class StderrNode : public VirtualNode {
 
 private:
+    GraphicsService *graphicsService = nullptr;
     StdStreamService *stdStreamService = nullptr;
 
 public:

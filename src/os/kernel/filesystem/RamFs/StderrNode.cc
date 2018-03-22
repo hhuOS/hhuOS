@@ -2,6 +2,7 @@
 #include "kernel/Kernel.h"
 
 StderrNode::StderrNode() : VirtualNode("stderr", FsNode::CHAR_FILE) {
+    graphicsService = Kernel::getService<GraphicsService>();
     stdStreamService = Kernel::getService<StdStreamService>();
 }
 
@@ -15,9 +16,13 @@ uint64_t StderrNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 uint64_t StderrNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stderr = stdStreamService->getStderr();
-    
-    *stderr << buf;
-    stderr->flush();
+
+    if(stderr == graphicsService->getTextDriver()) {
+        ((TextDriver *) stderr)->puts(buf, static_cast<uint32_t>(numBytes), Colors::HHU_RED);
+    } else {
+        *stderr << buf;
+        stderr->flush();
+    }
 
     return numBytes;
 }

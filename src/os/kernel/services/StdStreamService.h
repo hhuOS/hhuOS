@@ -28,7 +28,7 @@ public:
     void setStdin(InputStream *stream);
 
 
-    static constexpr char* SERVICE_NAME = "StdStreamService";
+    static constexpr const char* SERVICE_NAME = "StdStreamService";
 
 private:
 

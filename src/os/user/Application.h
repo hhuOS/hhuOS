@@ -30,7 +30,7 @@ private:
     void Heap ();
     void ProtectedMode ();
     void Ant ();
-    void vfsDemo();
+    void shell();
     void Asciimation ();
     void IOMemoryTest();
     void showMenu();

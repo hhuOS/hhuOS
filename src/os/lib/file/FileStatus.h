@@ -1,10 +1,15 @@
 #ifndef __FileStatus_include__
 #define __FileStatus_include__
 
+#include <lib/String.h>
+#include <kernel/filesystem/FsNode.h>
+#include <kernel/services/FileSystem.h>
+#include <kernel/Kernel.h>
+
 /**
  * Check if a file or directory exists and get Meta-information about it.
  *
- * Call File::open() to open a file.
+ * Call FileStatus::stat() to open a file.
  * To close a file, just delete the pointer.
  *
  * @author Fabian Ruhland
@@ -15,8 +20,6 @@ class FileStatus {
 private:
     FsNode *node;
     String path;
-
-    FileSystem *fileSystem;
 
     /**
      * Constructor.
@@ -51,12 +54,13 @@ public:
     static bool exists(const String &path);
 
     /**
-     * Open a file or directory.
-     * The returned FileStatus-object can be used to get Meta-information about it.
+     * Open a file.
+     * CAUTION: May return nullptr, if the file does not exist.
+     *          Always check the return value!
      *
      * @param path The path
      *
-     * @return The FileStatus-object (or nullptr on failure)
+     * @return The FileStatus-object (or nulltpr on failure)
      */
     static FileStatus *stat(const String &path);
 

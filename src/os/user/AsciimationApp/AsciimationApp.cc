@@ -25,7 +25,7 @@ AsciimationApp::AsciimationApp () : Thread ("AsciimationApp") {
     fileSystem = Kernel::getService<FileSystem>();
     timeService = Kernel::getService<TimeService>();
 
-    memset(fileName, 0, 4096);
+    memset(fileName, 0, sizeof(fileName));
 }
 
 void AsciimationApp::readLine(char *buf) {
@@ -97,7 +97,7 @@ void AsciimationApp::onEvent(const Event &event) {
                 stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.setpos(x, y);
 
-                memset(&fileName[strlen(fileName) - 1], 0, 4096 - (strlen(fileName) - 1));
+                memset(&fileName[strlen(fileName) - 1], 0, sizeof(fileName) - (strlen(fileName) - 1));
             }
         } else {
             fileName[strlen(fileName)] = key.ascii();

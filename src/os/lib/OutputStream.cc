@@ -44,6 +44,10 @@ OutputStream& OutputStream::operator << (char* string) {
     return *this;
 }
 
+OutputStream& OutputStream::operator << (const char* string) {
+    return *this << (char *) string;
+}
+
 //
 //  Ganzer Zahlen im Zahlensystem zur Basis base in Stream ausgeveb
 //  Alle vorzeichenbehafteten Datentypen werden als long dargestellt,
