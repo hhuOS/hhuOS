@@ -1,6 +1,12 @@
-![Logo](media/logo/hhuOSLogo_small.png)
+<p align="center"> 
+  <img src="media/logo/hhuOSLogo_small.png">
+</p>
 
-[![Build Status](https://travis-ci.org/hhuOS/hhuOS.svg?branch=master)](https://travis-ci.org/hhuOS/hhuOS)
+<p align="center"> 
+  <a href="https://travis-ci.org/hhuOS/hhuOS"><img src="https://travis-ci.org/hhuOS/hhuOS.svg?branch=master"></a>
+  <img src="https://img.shields.io/badge/license-GPL-orange.svg">
+  <img src="https://img.shields.io/badge/C%2B%2B-11-blue.svg">
+</p>
 
 # Introduction
 

@@ -1,79 +1,61 @@
-# -----------------------------------------------------------------------------
-#
-#                              M A K E F I L E
-#
-# zum HHUos der Lehrveranstaltung 'Betriebssystem-Entwicklung'.
-# -----------------------------------------------------------------------------
-#
-# Compilieren: ‘make'
-# Ausfuehren mit Qemu: ‘make qemu’
-# GDB mit Qemu: ‘make qemu-gdb &’ und danach ‘make gdb’
-# DDD mit Qemu: ‘make qemu-gdb &’ und danach ‘make ddd’
-#
-# Aufraeumen mit: ‘make clean’
-#
-# Erzeugen einer bootfaehigen Diskette mit: ‘make bootdisk’
-# Erzeugen eines bootfaehigen USB-Sticks mit: ‘make bootdisk-usb’
-# Erzeugen eines bootfaehigen Festplatte mit: ‘make bootdisk-hd’
-#
-# -----------------------------------------------------------------------------
-# Liste der Quelltexte:
+#-------------------------------------------#
+# Source files                              #
+#-------------------------------------------#
+STARTUP_SOURCE = ./startup.asm
+CC_SOURCES = $(shell find . -name "*.cc")
+C_SOURCES = $(shell find . -name "*.c")
+ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
 
-STARTUP_SOURCE 		= ./startup.asm
-CC_SOURCES 			= $(shell find . -name "*.cc")
-C_SOURCES 			= $(shell find . -name "*.c")
-ASM_SOURCES 		= $(shell find ./kernel ./lib -name "*.asm")
+#-------------------------------------------#
+# Paths                                     #
+#-------------------------------------------#
+OBJDIR = ./build
+DEPDIR = ./dep
+HDD_PATCH = ../hdd
+INITRD_PATH = ../initrd
+LOADERDIR = ../loader
+BOOTDIR = $(LOADERDIR)/boot
+SERIAL_TTY = /dev/pts/1
 
-OBJDIR 				= ./build
-DEPDIR 				= ./dep
-HDD_PATCH			= ../hdd
-INITRD_PATH			= ../initrd
-LOADERDIR 			= ../loader
-BOOTDIR 			= $(LOADERDIR)/boot
-SERIAL_TTY   	 	= /dev/pts/1
+#-------------------------------------------#
+# Compiler binaries                         #
+#-------------------------------------------#
+ASM = nasm
+CC = gcc
+CXX = g++
 
-# Einstellungen in Abhaengigkeit vom Generierungssystem:
-#
-#    ASMOBJFORMAT: Ausgabeformat fuer den Assembler. Das Format muss dem
-#                  jeweiligen Format des verwendeten C++ Compilers angepasst
-#                  werde, damit gemischte Objektdateien gelinkt werden koennen.
-#    OBJDIR:       Verzeichnis, in dem die Objektdateien abgelegt werden
-#                  sollen.
-#    DEPDIR:       Verzeichnis, in dem die Abhaengigkeitsdateien abgelegt werden
-#                  sollen
-#    DELETE:       Name des Kommandos zum Loeschen von Dateien
-#    ASM:          Zu benutzender Assembler
-#    CC/CXX:       Zu benutzender C/C++-Compiler
-#    CFLAGS:       Flags fuer den C-Compileraufruf
-#    CXXFLAGS:     C++ compiler flags
-
-VERBOSE 		 	= @
-ASMOBJFORMAT 	 	= elf
-
-ASM 			 	= nasm
-CC 				   ?= gcc
-CXX 			   ?= g++
-
-CFLAGS 			   := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
+#-------------------------------------------#
+# C Compiler settings                       #
+#-------------------------------------------#
+CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
 								-ffreestanding -mno-sse -I. -g #-DDEBUG
-
-CXXFLAGS 		   := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
+#-------------------------------------------
+# C++ Compiler settings
+#-------------------------------------------#
+CXXFLAGS := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
  								-fno-rtti -fno-exceptions -std=c++11
+#-------------------------------------------
+# ASM Compiler settings
+#-------------------------------------------#
+ASMOBJFORMAT = elf
+ASMFLAGS := $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
 
-ASMFLAGS 		   := $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
+#-------------------------------------------#
+# Utilities                                 #
+#-------------------------------------------#
+VERBOSE = @
+DELETE = rm
+COPY = cp
+NM = nm
+TAR = tar
+MAKE = make
 
-DELETE 			 	= rm
-COPY 			 	= cp
-NM 				 	= nm
-TAR					= tar
-MAKE 			 	= make
-
-# --------------------------------------------------------------------------
-# QEMU and KVM defaults
-
-QEMU_BIN 		 	= qemu-system-i386 -cpu core2duo
-KVM_BIN 		  	= qemu-system-i386 -enable-kvm -no-kvm-irqchip
-GRUB_BIN 		 	= grub-mkrescue /usr/lib/grub/i386-pc
+#-------------------------------------------#
+# QEMU and KVM defaults                     #
+#-------------------------------------------#
+QEMU_BIN = qemu-system-i386 -cpu core2duo
+KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
+GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk -vga std -monitor stdio \
 					  -readconfig usb.cfg \
@@ -83,33 +65,31 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk
 					  -rtc base=localtime,clock=host \
 					  -m 1G
 
-# -------------------------------------------------------------------------
-# Namen der Unterverzeichnisse mit den Quelltexten
+#-------------------------------------------#
+# Build dependencies                        #
+#-------------------------------------------#
+VPATH = $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)))
 
-VPATH 				= $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)))
+FIRST_OBJECT = $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
 
-# -------------------------------------------------------------------------
-# Listen mit den Objektdateien, die beim Kompilieren entstehen:
+C_OBJECTS = $(notdir $(C_SOURCES:.c=.o))
+CC_OBJECTS = $(notdir $(CC_SOURCES:.cc=.o))
 
-FIRST_OBJECT 		= $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
-C_OBJECTS 			= $(notdir $(C_SOURCES:.c=.o))
-CC_OBJECTS 			= $(notdir $(CC_SOURCES:.cc=.o))
+DEP_FILES = $(patsubst %.o,$(DEPDIR)/%.d,$(C_OBJECTS))
+DEP_FILES += $(patsubst %.o,$(DEPDIR)/%.d,$(CC_OBJECTS))
 
-DEP_FILES 			= $(patsubst %.o,$(DEPDIR)/%.d,$(C_OBJECTS))
-DEP_FILES 		   += $(patsubst %.o,$(DEPDIR)/%.d,$(CC_OBJECTS))
+ASM_OBJECTS = $(patsubst %.asm,_%.o, $(notdir $(ASM_SOURCES)))
 
-ASM_OBJECTS 		= $(patsubst %.asm,_%.o, $(notdir $(ASM_SOURCES)))
-OBJPRE 				= $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
+OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 
-# --------------------------------------------------------------------------
-# Default targets (einfaches Image, Image fuer USB Sticks, Image fuer VMWare
-# und Boot CDs)
-
+#-------------------------------------------#
+# Default targets                           #
+#-------------------------------------------#
 all: $(OBJDIR)/hhuOS.iso hdd.img
 
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Abhaengigkeitsdateien
-
+#-------------------------------------------#
+# Hard drive image                          #
+#-------------------------------------------#
 hdd.img: ../hdd/*
 	$(VERBOSE) qemu-img create hdd.img 32M
 	$(VERBOSE) udisksctl loop-setup --file hdd.img --offset 0 --size 33554432
@@ -123,6 +103,9 @@ hdd.img: ../hdd/*
 gitversion.c: ../../.git/HEAD ../../.git/index
 	@echo "const char *gitversion = \"$(shell git rev-parse --short HEAD)\";" > $@
 
+#-------------------------------------------#
+# Dependencies                              #
+#-------------------------------------------#
 $(DEPDIR)/%.d : gitversion.c %.c
 	@echo "DEP		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
@@ -133,9 +116,9 @@ $(DEPDIR)/%.d : %.cc
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) $(CXXFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
 
-# --------------------------------------------------------------------------
-# Regeln zur Erzeugung der Objektdateien
-
+#-------------------------------------------#
+# Object files                              #
+#-------------------------------------------#
 $(OBJDIR)/%.o : %.c
 	@echo "CC		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
@@ -151,56 +134,43 @@ $(OBJDIR)/_%.o : %.asm
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(ASM) $(ASMFLAGS) -o $@ $<
 
-# --------------------------------------------------------------------------
-# Gelinktes System
-
+#-------------------------------------------#
+# Linked system                             #
+#-------------------------------------------#
 $(OBJDIR)/system: $(FIRST_OBJECT) $(OBJPRE)
 	@echo "LD		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) $(CXXFLAGS) -static -T sections -o $(OBJDIR)/system $(FIRST_OBJECT) $(OBJPRE)
 
-# --------------------------------------------------------------------------
-# 'system.img' enthaelt die zu ladenden Sections des eigentlichen Systems
-
-$(OBJDIR)/system.img : $(OBJDIR)/system
-	@echo "OBJCOPY		$@"
-	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
-	$(VERBOSE) objcopy -O binary $< $@
-
-# --------------------------------------------------------------------------
-# 'hhuOS.iso' besteht aus dem 'system', welches mit grub gestartet wird
-
+#-------------------------------------------#
+# Initial Ramdisk                           #
+#-------------------------------------------#
 $(BOOTDIR)/hhuOS.initrd :
 	@echo "TAR		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(TAR) -cf $@ $(INITRD_PATH)
 
-
+#-------------------------------------------#
+# Kernel image                              #
+#-------------------------------------------#
 $(BOOTDIR)/hhuOS.bin : $(OBJDIR)/system
 	@echo "COPY		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(COPY) $< $@
 
+#-------------------------------------------#
+# Kernel image with GRUB                    #
+#-------------------------------------------#
 $(OBJDIR)/hhuOS.iso : $(BOOTDIR)/hhuOS.bin $(BOOTDIR)/hhuOS.initrd
 	@echo "BUILD		$@"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)
 
-# --------------------------------------------------------------------------
-# 'clean' loescht das generierte System, die Objektdateien und die
-# Abhaengigkeitsdateien
+iso : $(OBJDIR)/hhuOS.iso
 
-clean:
-	@echo "RM		$(OBJDIR)"
-	$(VERBOSE) rm -rf $(OBJDIR)
-	@echo "RM		$(DEPDIR)"
-	$(VERBOSE) rm -rf $(DEPDIR)
-	@echo "RM		$(BOOTDIR)/hhuOS.bin"
-	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.bin
-	@echo "RM		$(BOOTDIR)/hhuOS.initrd"
-	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
-	rm -f gitversion.c
-
+#-------------------------------------------#
+# Bootdisk creation                         #
+#-------------------------------------------#
 bootdisk: $(OBJDIR)/hhuOS.iso
 	sudo dd if=$< of=$(of) bs=512K && sync
 
@@ -211,10 +181,9 @@ bootdisk-commit:
 	sudo dd if=$(OBJDIR)/hhuOS.iso of=$(of) bs=512K && sync
 	git checkout master
 
-
-# --------------------------------------------------------------------------
-# 'qemu' ruft den qemu-Emulator mit dem System auf.
-
+#-------------------------------------------#
+# QEMU / KVM                                #
+#-------------------------------------------#
 qemu: $(OBJDIR)/hhuOS.iso hdd.img
 	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
@@ -230,10 +199,9 @@ qemu-serial: $(OBJDIR)/hhuOS.iso hdd.img
 kvm: $(OBJDIR)/hhuOS.iso hdd.img
 	$(KVM_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
-# --------------------------------------------------------------------------
-# 'qemu-gdb' ruft den qemu-Emulator mit aktiviertem GDB-Stub mit dem System
-# auf, sodass es per GDB oder DDD inspiziert werden kann.
-
+#-------------------------------------------#
+# Debugging                                 #
+#-------------------------------------------#
 qemu-gdb: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
@@ -257,35 +225,41 @@ kvm-gdb: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	$(KVM_BIN) -m 1G -s -S $(QEMU_DEFAULT_PARAMS)
 
-# --------------------------------------------------------------------------
-# 'gdb' startet den GDB-Debugger und verbindet sich mit dem GDB-Stub des vorher
-# gestarteten Qemu.
-
 gdb:
 	gdb -x /tmp/gdbcommands.$(shell id -u) $(OBJDIR)/system
-
-# --------------------------------------------------------------------------
-# 'ddd' startet den DDD-Debugger und verbindet sich mit dem GDB-Stub des vorher
-# gestarteten Qemu.
 
 ddd:
 	ddd --gdb -x /tmp/gdbcommands.$(shell id -u) $(OBJDIR)/system
 
-# --------------------------------------------------------------------------
-# Mount hdd.img on the host system
-
-mount:
+#-------------------------------------------#
+# Mount hdd.img on the host system          #
+#-------------------------------------------#
+mount-hdd:
 	udisksctl loop-setup --file ./hdd.img --offset 1048576 --size 126877696
 
-# --------------------------------------------------------------------------
-# Mount usb.img on the host system
-
+#-------------------------------------------#
+# Mount usb.img on the host system          #
+#-------------------------------------------#
 mount-usb:
 	udisksctl loop-setup --file ./usb.img --offset 1048576 --size 62914560
 
-# --------------------------------------------------------------------------
-# Einbindung der Abhaengigkeitsdateien
+#-------------------------------------------#
+# Clean                                     #
+#-------------------------------------------#
+clean:
+	@echo "RM		$(OBJDIR)"
+	$(VERBOSE) rm -rf $(OBJDIR)
+	@echo "RM		$(DEPDIR)"
+	$(VERBOSE) rm -rf $(DEPDIR)
+	@echo "RM		$(BOOTDIR)/hhuOS.bin"
+	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.bin
+	@echo "RM		$(BOOTDIR)/hhuOS.initrd"
+	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
+	rm -f gitversion.c
 
+#-------------------------------------------#
+# Include dependencies                      #
+#-------------------------------------------#
 ifneq ($(MAKECMDGOALS),clean)
 -include $(DEP_FILES)
 endif
