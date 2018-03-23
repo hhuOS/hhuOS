@@ -1,3 +1,20 @@
+/*
+ * Copyright (C) 2018 Fabian Ruhland
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
 #ifndef __Mount_include__
 #define __Mount_include__
 
@@ -5,6 +22,16 @@
 #include <lib/String.h>
 #include "Command.h"
 
+/**
+ * Implementation of Command.
+ * Mounts a storage device at a given path.
+ *
+ * -t Filesystem type, that the storage device is formatted with
+ * -h, --help: Show help message
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class Mount : public Command {
 
 public:
@@ -18,6 +45,11 @@ public:
      */
     Mount(const Mount &copy) = delete;
 
+    /**
+     * Constructor.
+     *
+     * @param shell The shell, that executes this command
+     */
     explicit Mount(Shell &shell);
 
     /**
@@ -25,6 +57,9 @@ public:
      */
     ~Mount() override = default;
 
+    /**
+     * Overriding function from Command.
+     */
     void execute(Util::Array<String> &args, OutputStream &outputStream) override;
 };
 

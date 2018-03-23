@@ -243,7 +243,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
 }
 
 uint32_t FileSystem::unmount(const String &path) {
-    String parsedPath = parsePath(path);
+    String parsedPath = parsePath(path) + "/";
     FsNode *targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {
