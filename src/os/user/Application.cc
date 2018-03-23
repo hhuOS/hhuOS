@@ -16,6 +16,7 @@
 #include <kernel/threads/WorkerThread.h>
 #include <user/Shell/Shell.h>
 #include <kernel/services/ModuleLoader.h>
+#include <lib/multiboot/Structure.h>
 #include "kernel/threads/Scheduler.h"
 #include "user/Application.h"
 #include "user/LoopSoundApp/Loop.h"
@@ -44,7 +45,7 @@ Application::Application () : Thread ("Menu") {
  *****************************************************************************/
 void Application::LoopSound () {
     TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(100, 37, 32);
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     Thread *thread1 = new Loop(1);
     Thread *thread2 = new Loop(2);
@@ -58,16 +59,13 @@ void Application::LoopSound () {
 
 
 void Application::Ant () {
-    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-    lfb->init(800, 600, 32);
-
     Thread *thread = new AntApp();
     thread->start();
 }
 
 void Application::IOMemoryTest () {
     TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(100, 37, 32);
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     unsigned int* stack = new unsigned int[1024];
     IOMemoryTestApp* ioMemTest = new IOMemoryTestApp(&stack[1023]);
@@ -79,7 +77,7 @@ void Application::IOMemoryTest () {
 
 void Application::Asciimation () {
     TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(100, 37, 32);
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     Thread *thread = new AsciimationApp();
     thread->start();
@@ -94,13 +92,15 @@ void Application::Asciimation () {
  *****************************************************************************/
 void Application::Heap () {
     TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(100, 37, 32);
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     Thread *thread = new HeapDemo();
     thread->start();
 }
 
 void Application::startMouseApp() {
+    graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
+
     MouseApp *mouseApp = new MouseApp();
     mouseApp->start();
 }
@@ -135,7 +135,7 @@ void Application::ProtectedMode () {
 
 void Application::shell() {
     TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(100, 37, 32);
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     Thread *thread = new Shell();
     thread->start();
@@ -266,10 +266,7 @@ void Application::startSelectedApp() {
 
 void Application::startGame(Game* game){
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-
-    lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
-    lfb->clear();
 
     float currentTime = timeService->getSystemTime() / 100.0f;
     float acc = 0.0f;
@@ -303,7 +300,14 @@ void Application::startGame(Game* game){
 void Application::run() {
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
 
+    if(res.length() >= 3) {
+        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
+        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
+        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
+    }
+    
     lfb->enableDoubleBuffering();
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);

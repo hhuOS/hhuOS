@@ -21,6 +21,10 @@ class Application : public Thread, public Receiver {
 
 private:
 
+    uint16_t xres = 800;
+    uint16_t yres = 600;
+    uint8_t bpp = 32;
+
     Application (const Application &copy); // Verhindere Kopieren
 
     TimeService *timeService;

@@ -41,7 +41,7 @@
 
 #include "bootlogo.h"
 
-#define DEBUG_MODE 0
+#define DEBUG_MODE 1
 
 #define VERSION "0.1"
 
@@ -127,97 +127,109 @@ void initGraphics() {
 }
 
 int32_t main() {
-#if DEBUG_MODE
-    initGraphics();
-    text->init(100, 37, 32);
-    stdout = text;
+    uint16_t xres = 800;
+    uint16_t yres = 600;
+    uint8_t bpp = 32;
 
-    text->setpos(0, 0);
+    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
 
-    text->puts("Initializing Event Bus\n", 23, Colors::HHU_RED);
-    eventBus = new EventBus();
+    if(res.length() >= 3) {
+        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
+        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
+        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
+    }
 
-    text->puts("Registering Services\n", 21, Colors::HHU_RED);
-    registerServices();
+    if(Multiboot::Structure::getKernelOption("debug") == "true") {
+        initGraphics();
+        text->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+        stdout = text;
 
-    text->puts("Enabling Interrupts\n", 20, Colors::HHU_RED);
-    InputService *inputService = Kernel::getService<InputService>();
-    inputService->getKeyboard()->plugin();
-    inputService->getMouse()->plugin();
+        text->setpos(0, 0);
 
-    Pit::getInstance()->plugin();
-    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
+        text->puts("Initializing Event Bus\n", 23, Colors::HHU_RED);
+        eventBus = new EventBus();
 
-    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
-    rtc->plugin();
+        text->puts("Registering Services\n", 21, Colors::HHU_RED);
+        registerServices();
 
-    text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
-    Pci::scan();
+        text->puts("Enabling Interrupts\n", 20, Colors::HHU_RED);
+        InputService *inputService = Kernel::getService<InputService>();
+        inputService->getKeyboard()->plugin();
+        inputService->getMouse()->plugin();
 
-    text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
-    FileSystem *fs = Kernel::getService<FileSystem>();
-    fs->init();
-    printfUpdateStdout();
+        Pit::getInstance()->plugin();
+        Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
-    text->puts("Starting Threads\n", 17, Colors::HHU_RED);
-    idleThread = new IdleThread();
-    app = new Application();
+        Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
+        rtc->plugin();
 
-    idleThread->start();
-    eventBus->start();
-    app->start();
+        text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
+        Pci::scan();
 
-    text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
+        text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
+        FileSystem *fs = Kernel::getService<FileSystem>();
+        fs->init();
+        printfUpdateStdout();
 
-    while(!inputService->getKeyboard()->isKeyPressed(28));
+        text->puts("Starting Threads\n", 17, Colors::HHU_RED);
+        idleThread = new IdleThread();
+        app = new Application();
 
-    lfb->init(800, 600, 32);
-#else
-    versionString = String("hhuOS ") + String(VERSION) + String(" - git ") + String(gitversion);
+        idleThread->start();
+        eventBus->start();
+        app->start();
 
-    initGraphics();
-    lfb->init(800, 600, 32);
-    lfb->enableDoubleBuffering();
+        text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
 
-    updateBootScreen(0, "Initializing Event Bus");
-    eventBus = new EventBus();
+        while (!inputService->getKeyboard()->isKeyPressed(28));
 
-    updateBootScreen(17, "Registering Services");
-    registerServices();
+        lfb->init(xres, yres, bpp);
+    } else {
+        versionString = String("hhuOS ") + String(VERSION) + String(" - git ") + String(gitversion);
 
-    updateBootScreen(34, "Enabling Interrupts");
-    auto *inputService = Kernel::getService<InputService>();
-    inputService->getKeyboard()->plugin();
-    inputService->getMouse()->plugin();
+        initGraphics();
+        lfb->init(xres, yres, bpp);
+        lfb->enableDoubleBuffering();
 
-    Pit::getInstance()->plugin();
-    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
+        updateBootScreen(0, "Initializing Event Bus");
+        eventBus = new EventBus();
 
-    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
-    rtc->plugin();
+        updateBootScreen(17, "Registering Services");
+        registerServices();
 
-    updateBootScreen(51, "Initializing PCI Devices");
-    Pci::scan();
+        updateBootScreen(34, "Enabling Interrupts");
+        auto *inputService = Kernel::getService<InputService>();
+        inputService->getKeyboard()->plugin();
+        inputService->getMouse()->plugin();
 
-    updateBootScreen(68, "Initializing Filesystem");
-    auto *fs = Kernel::getService<FileSystem>();
-    fs->init();
-    printfUpdateStdout();
+        Pit::getInstance()->plugin();
+        Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
-    updateBootScreen(85, "Starting Threads");
-    idleThread = new IdleThread();
-    app = new Application();
+        Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
+        rtc->plugin();
 
-    idleThread->start();
-    eventBus->start();
-    app->start();
-	
-    updateBootScreen(100, "Finished Booting!");
-    Kernel::getService<TimeService>()->msleep(1000);
+        updateBootScreen(51, "Initializing PCI Devices");
+        Pci::scan();
 
-    lfb->disableDoubleBuffering();
-    lfb->clear();
-#endif
+        updateBootScreen(68, "Initializing Filesystem");
+        auto *fs = Kernel::getService<FileSystem>();
+        fs->init();
+        printfUpdateStdout();
+
+        updateBootScreen(85, "Starting Threads");
+        idleThread = new IdleThread();
+        app = new Application();
+
+        idleThread->start();
+        eventBus->start();
+        app->start();
+
+        updateBootScreen(100, "Finished Booting!");
+        Kernel::getService<TimeService>()->msleep(1000);
+
+        lfb->disableDoubleBuffering();
+        lfb->clear();
+    }
 
     Scheduler::getInstance()->schedule();
 
