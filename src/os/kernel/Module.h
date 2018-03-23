@@ -18,9 +18,8 @@
 #ifndef __Module_include__
 #define __Module_include__
 
-#include "lib/deprecated/HashMap.h"
-#include "lib/elf/Elf.h"
-#include "lib/String.h"
+#include <cstdint>
+#include <lib/String.h>
 
 /**
  * @author Filip Krakowski
@@ -29,82 +28,41 @@ class Module {
 
 public:
 
-    Module() = default;
+    Module();
 
     Module(const Module &other) = delete;
 
-    ~Module();
+    Module &operator=(const Module &other) = delete;
+
+    virtual ~Module();
 
     /**
-     * Calls this Module's init() function.
+     * Initializes this Module.
      *
-     * @return The value returned by init()
+     * @return A status code
      */
-    int initialize();
+    virtual int32_t initialize() = 0;
 
     /**
-     * Calls this Module's fini() function.
+     * Finalizes this Module.
      *
-     * @return  The value returned by fini()
+     * @return A status code
      */
-    int finalize();
+    virtual int32_t finalize() = 0;
 
     /**
-     * Returns the address for a given symbol.
+     * Returns this Module's name.
      *
-     * @param name The symbol's name
-     * @return The symbol's address
+     * @return The Module's name
      */
-    uint32_t getSymbol(const String &name);
+    virtual String getName() = 0;
 
     /**
-     * Indicates if this Module has a valid header.
+     * Returns the names of all Module's this Module depends on.
      *
-     * @return true, if the Module's header is valid, false else
+     * @return An Array containing all dependencies
      */
-    bool isValid();
-
-private:
-
-    uint32_t base;
-
-    int (*init)() = nullptr;
-
-    int (*fini)() = nullptr;
-
-    char *buffer = nullptr;
-
-    FileHeader *fileHeader;
-
-    String name;
-
-    Util::HashMap<String, uint32_t> localSymbols;
-
-    Util::HashMap<String, SectionHeader*> sections;
-
-    SymbolEntry *symbolTable = nullptr;
-
-    uint32_t symbolTableSize;
-
-    char *stringTable = nullptr;
-
-    uint32_t stringTableSize;
-
-    char *sectionNames;
-
-    char *getSectionName(uint16_t sectionIndex);
-
-    void loadSectionNames();
-
-    void loadSections();
-
-    void parseSymbolTable();
-
-    void relocate();
-
-    friend class ModuleLoader;
-
+    virtual Util::Array<String> getDependencies() = 0;
 };
-
 
 #endif

@@ -19,7 +19,7 @@
 #define __ModuleLoader_include__
 
 
-#include <kernel/Module.h>
+#include <lib/elf/ElfModule.h>
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
 
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    HashMap<String, Module*> modules;
+    Util::HashMap<String, Module*> modules;
 
 };
 

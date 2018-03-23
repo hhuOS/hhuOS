@@ -1,22 +1,40 @@
-#include "kernel/Kernel.h"
-#include "kernel/filesystem/RamFs/RamFsDriver.h"
-#include "kernel/services/FileSystem.h"
+#include "Zero.h"
 #include "ZeroNode.h"
+#include "kernel/Kernel.h"
+#include "kernel/services/FileSystem.h"
 
 extern "C" {
-    int module_init();
-    int module_fini();
+Module *moduleProvider();
 }
 
-int module_init() {
+Module *moduleProvider() {
+
+    return new Zero();
+}
+
+int32_t Zero::initialize() {
 
     FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
-    return fileSystem->addVirtualNode("/dev", new ZeroNode());
+    fileSystem->addVirtualNode("/dev", new ZeroNode());
+
+    return 0;
 }
 
-int module_fini() {
+int32_t Zero::finalize() {
+
     // TODO
-    //  unmount zero node
+    //  Remove virtual node from FileSystem
+
     return 0;
+}
+
+String Zero::getName() {
+
+    return "zero";
+}
+
+Util::Array<String> Zero::getDependencies() {
+
+    return Util::Array<String>(0);
 }

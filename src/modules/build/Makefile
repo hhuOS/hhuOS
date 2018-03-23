@@ -51,12 +51,13 @@ ASMFLAGS 			= $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
 # C Compiler settings                       #
 #-------------------------------------------#
 CFLAGS 				= -m32 -nostdlib -no-pie -Wl,-r -Wno-write-strings -Werror \
-					  -fno-stack-protector -ffreestanding -mno-sse -g -I. -I$(INCLUDEDIR)
+					  -fno-stack-protector -ffreestanding -mno-sse -I. -I$(INCLUDEDIR)
 
 #-------------------------------------------#
 # C++ Compiler settings                     #
 #-------------------------------------------#
-CXXFLAGS 			= $(CFLAGS) -std=c++11
+CXXFLAGS 			= $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics \
+								-fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++11
 
 #-------------------------------------------#
 # Make targets                              #
@@ -65,7 +66,7 @@ all: module
 
 $(MODULEDIR)/$(MODULE_NAME).ko : $(DEPENDENCIES)
 	@echo "MODULE		$(@F)"
-	$(VERBOSE) $(CXX) $(CXXFLAGS) -o $@ $<
+	$(VERBOSE) $(CXX) $(CXXFLAGS) -o $@ $(CC_SOURCES)
 
 module : $(MODULEDIR)/$(MODULE_NAME).ko
 

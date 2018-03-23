@@ -1,13 +1,18 @@
+#include "Random.h"
+#include "RandomNode.h"
 #include "kernel/Kernel.h"
 #include "kernel/services/FileSystem.h"
-#include "RandomNode.h"
 
 extern "C" {
-    int module_init();
-    int module_fini();
+Module *moduleProvider();
 }
 
-int32_t module_init() {
+Module *moduleProvider() {
+
+    return new Random();
+}
+
+int32_t Random::initialize() {
 
     FileSystem *fileSystem = Kernel::getService<FileSystem>();
 
@@ -16,8 +21,20 @@ int32_t module_init() {
     return 0;
 }
 
-int32_t module_fini() {
+int32_t Random::finalize() {
+
     // TODO
-    //  unmount zero node
+    //  Remove virtual node from FileSystem
+
     return 0;
+}
+
+String Random::getName() {
+
+    return "random";
+}
+
+Util::Array<String> Random::getDependencies() {
+
+    return Util::Array<String>(0);
 }

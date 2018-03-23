@@ -22,7 +22,12 @@ using namespace ElfConstants;
 
 ModuleLoader::Status ModuleLoader::load(File *file) {
 
-    Module *module = new Module();
+    if (file == nullptr) {
+
+        return Status::ERROR;
+    }
+
+    ElfModule *module = new ElfModule();
 
     uint32_t fileSize = (uint32_t) file->getLength();
 
@@ -35,6 +40,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
     module->fileHeader = (FileHeader *) module->buffer;
 
     if ( !module->isValid() ) {
+
         return Status::INVALID;
     }
 
@@ -46,16 +52,18 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     module->relocate();
 
-    module->init = (int(*)()) module->getSymbol("module_init");
+    module->provider = (Module*(*)()) module->getSymbol("moduleProvider");
 
-    module->fini = (int(*)()) module->getSymbol("module_fini");
+    Module *instance = module->getInstance();
 
-    if (module->initialize() != 0) {
-        module->finalize();
+    if (instance->initialize() != 0) {
+
+        instance->finalize();
+
         return Status::ERROR;
     };
 
-    modules.put(file->getName(), module);
+    modules.put(file->getName(), instance);
 
     return Status::OK;
 }
