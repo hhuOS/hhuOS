@@ -6,6 +6,10 @@ Command::Command(Shell &shell) : shell(shell), stderr(*File::open("/dev/stderr",
 }
 
 String Command::calcAbsolutePath(const String &relativePath) {
+    if(relativePath.beginsWith(FileSystem::SEPARATOR)) {
+        return relativePath;
+    }
+
     String absolutePath = shell.getCurrentWorkingDirectory().getAbsolutePath();
 
     if (!absolutePath.endsWith(FileSystem::SEPARATOR)) {
