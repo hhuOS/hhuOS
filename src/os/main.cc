@@ -36,12 +36,9 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
-#include <user/HeapApp/HeapDemo.h>
 #include <lib/multiboot/Structure.h>
 
 #include "bootlogo.h"
-
-#define DEBUG_MODE 1
 
 #define VERSION "0.1"
 

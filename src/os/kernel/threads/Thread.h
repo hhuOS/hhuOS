@@ -78,7 +78,7 @@ private:
 
         explicit Stack(uint32_t size);
 
-        ~Stack() = default;
+        ~Stack();
 
         uint8_t *getStart();
 

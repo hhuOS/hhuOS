@@ -99,9 +99,7 @@ void Thread::yield() {
     Scheduler::getInstance()->yield();
 }
 
-Thread::Stack::Stack(uint32_t size) {
-
-    this->size = size;
+Thread::Stack::Stack(uint32_t size) : size(size){
 
     this->stack = new uint8_t[size];
 
@@ -113,5 +111,10 @@ Thread::Stack::Stack(uint32_t size) {
 
 uint8_t *Thread::Stack::getStart() {
 
-    return &stack[size] - 1;
+    return &stack[size];
+}
+
+Thread::Stack::~Stack() {
+
+    delete[] stack;
 }

@@ -18,7 +18,7 @@ void Spinlock::unlock() {
     releaseLock(ptr);
 }
 
-Spinlock::Spinlock() {
+Spinlock::Spinlock() noexcept {
     lock_var = 0;
     ptr  = &lock_var;
 }

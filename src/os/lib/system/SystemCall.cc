@@ -21,7 +21,7 @@ extern "C" {
     int32_t atexit (void (*func)()) noexcept;
 }
 
-int32_t atexit (void (*func)()) {
+int32_t atexit (void (*func)()) noexcept {
     return 0;
 }
 

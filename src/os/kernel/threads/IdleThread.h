@@ -19,17 +19,24 @@
 class IdleThread : public Thread {
     
 private:
-    IdleThread(const Thread &copy); // Verhindere Kopieren
+
+    bool isRunning = false;
 
 public:
 
     IdleThread () : Thread ("IdleThread") {  }
+
+    IdleThread(const Thread &copy) = delete;
+
+    IdleThread &operator=(const Thread &other) = delete;
+
+    ~IdleThread() override = default;
     
-    void run () {
-        while (1) {
-            // CPU sofort abgeben, damit ein evt.
-            // wartender Thread sofort loslegen kann.
-            //scheduler.yield ();
+    void run () override {
+
+        while (isRunning) {
+
+            yield();
         }
     }
     

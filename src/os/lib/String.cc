@@ -8,20 +8,20 @@ extern "C" {
     #include "lib/libc/stdlib.h"
 }
 
-String::String() {
+String::String() noexcept {
     len = 0;
     buffer = new char[1];
     buffer[0] = '\0';
 }
 
-String::String(char character) {
+String::String(char character) noexcept {
     len = 1;
     buffer = new char[2];
     buffer[0] = character;
     buffer[1] = '\0';
 }
 
-String::String(const char *string) {
+String::String(const char *string) noexcept {
 
     if(string == nullptr) {
 
@@ -39,7 +39,7 @@ String::String(const char *string) {
     buffer[len] = '\0';
 }
 
-String::String(const String &other) {
+String::String(const String &other) noexcept {
 
     len = other.len;
 

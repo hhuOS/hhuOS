@@ -616,3 +616,9 @@ void operator delete[] ( void* ptr ) {
 		return SystemManagement::getKernelHeapManager()->free(ptr);
 	}
 }
+
+// Placement new
+void *operator new(size_t, void *p) { return p; }
+void *operator new[](size_t, void *p) { return p; }
+void  operator delete  (void *, void *) { };
+void  operator delete[](void *, void *) { };

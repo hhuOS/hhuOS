@@ -186,10 +186,7 @@ skipStackSwitch2:
 
 ; is called when scheduler starts
 setSchedInit:
-    push ecx
-    mov ecx, 1
-    mov [schedInit], ecx
-    pop ecx
+    mov dword [schedInit], 0x1
     ret
 
 ;

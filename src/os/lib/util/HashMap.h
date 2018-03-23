@@ -104,6 +104,7 @@ namespace Util {
     void HashMap<K, V>::put(const K &key, const V &value) {
 
         if (!isInitialized) {
+
             initialize();
         }
 
@@ -145,6 +146,7 @@ namespace Util {
     V HashMap<K, V>::get(const K &key) const {
 
         if (!isInitialized) {
+
             initialize();
         }
 
@@ -171,6 +173,7 @@ namespace Util {
     V HashMap<K, V>::remove(const K &key) {
 
         if (!isInitialized) {
+
             initialize();
         }
 
@@ -228,6 +231,7 @@ namespace Util {
     bool HashMap<K, V>::containsKey(const K &key) const {
 
         if (!isInitialized) {
+
             return false;
         }
 
@@ -278,6 +282,7 @@ namespace Util {
     Array<K> HashMap<K, V>::keySet() const {
 
         if (!isInitialized) {
+
             initialize();
         }
 

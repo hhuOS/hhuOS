@@ -60,6 +60,7 @@ MAKE = make
 #-------------------------------------------#
 MODULES := hello random zero
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
+MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 
 #-------------------------------------------#
 # QEMU and KVM defaults                     #
@@ -96,7 +97,7 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 #-------------------------------------------#
 # Default targets                           #
 #-------------------------------------------#
-all: $(OBJDIR)/hhuOS.iso hdd.img
+all: iso hdd.img
 
 #-------------------------------------------#
 # Hard drive image                          #
@@ -156,10 +157,11 @@ $(OBJDIR)/system: $(FIRST_OBJECT) $(OBJPRE)
 #-------------------------------------------#
 # Compiled modules                          #
 #-------------------------------------------#
-$(MODULE_SOURCES):
-	$(VERBOSE) $(MAKE) --no-print-directory -C $@
+$(MODULE_OUT)/%.ko:
+	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
+	$(VERBOSE) $(MAKE) --no-print-directory -C ../modules/build M=$(MODULE_PATH)/$(basename $(@F)) module
 
-modules: $(MODULE_SOURCES)
+modules: $(MODULE_BINARIES)
 
 #-------------------------------------------#
 # Initial Ramdisk                           #
@@ -280,6 +282,9 @@ clean:
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
 	@echo "RM		$(MODULE_OUT)/*"
 	$(VERBOSE) rm -f  $(MODULE_OUT)/*
+	$(VERBOSE) for module in $(MODULES) ; do \
+		$(MAKE) --no-print-directory -C ../modules/build M=$(MODULE_PATH)/$$module clean ; \
+	done
 	@echo "RM		gitversion.c"
 	$(VERBOSE) rm -f gitversion.c
 
