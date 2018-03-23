@@ -82,7 +82,7 @@ void Ls::execute(Util::Array<String> &args, OutputStream &outputStream) {
 
             delete &fStat;
         } else {
-            stderr << args[0] << ": File or Directory not found!" << endl;
+            stderr << args[0] << " '" << path << "': File or Directory not found!" << endl;
         }
     }
 }

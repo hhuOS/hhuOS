@@ -26,12 +26,14 @@ bool FatDriver::createFs(StorageDevice *device) {
 }
 
 FsNode *FatDriver::getNode(const String &path) {
-    if(path.length() == 0 || path == "/")
+    if(path.length() == 0 || path == "/") {
         return FatNode::open("", fatInstance);
+    }
 
     FILINFO info{};
-    if(fatInstance->f_stat((char *) path, &info) != FR_OK)
+    if(fatInstance->f_stat((char *) path, &info) != FR_OK) {
         return nullptr;
+    }
     
     return FatNode::open(path, fatInstance);
 }

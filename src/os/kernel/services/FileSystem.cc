@@ -33,7 +33,9 @@ String FileSystem::parsePath(const String &path) {
         if (string == ".") {
             continue;
         } else if (string == "..") {
-            parsedToken->remove(parsedToken->size() - 1);
+            if(!parsedToken->isEmpty()) {
+                parsedToken->remove(parsedToken->size() - 1);
+            }
         } else {
             parsedToken->add(*new String(string));
         }
@@ -41,7 +43,7 @@ String FileSystem::parsePath(const String &path) {
 
     if (parsedToken->isEmpty()) {
         delete parsedToken;
-        return FileSystem::ROOT;
+        return "";
     }
 
     String parsedPath = FileSystem::SEPARATOR + String::join(FileSystem::SEPARATOR, parsedToken->toArray());
@@ -49,6 +51,10 @@ String FileSystem::parsePath(const String &path) {
 }
 
 FsDriver *FileSystem::getMountedDriver(String &path) {
+    if(!path.endsWith(FileSystem::SEPARATOR)) {
+        path += FileSystem::SEPARATOR;
+    }
+
     String ret = String();
 
     for(const String &currentString : mountPoints.keySet()) {
@@ -63,7 +69,7 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
         return nullptr;
     }
 
-    path = path.substring(ret.length(), path.length());
+    path = path.substring(ret.length(), path.length() - 1);
     return mountPoints.get(ret);
 }
 
@@ -127,8 +133,8 @@ uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
     fsLock.lock();
 
     String parsedPath = parsePath(path);
-    auto *driver = (RamFsDriver*) getMountedDriver(parsedPath);
 
+    auto *driver = (RamFsDriver*) getMountedDriver(parsedPath);
     bool ret = driver->addNode(parsedPath, node);
 
     fsLock.unlock();
@@ -195,11 +201,11 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
         }
     }
 
-    String parsedPath = parsePath(targetPath);
+    String parsedPath = parsePath(targetPath) + "/";
     FsNode *targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {
-        if(targetPath != "/") {
+        if(mountPoints.size() != 0) {
             return FILE_NOT_FOUND;
         }
     } else {

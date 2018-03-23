@@ -50,7 +50,7 @@ void Shell::run() {
     cwd = Directory::open("/");
 
     stream << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    stream << "[" << cwd->getName() << "]$ ";
+    stream << "[/]$ ";
     stream.flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
@@ -149,7 +149,7 @@ void Shell::onEvent(const Event &event) {
 
             memset(input, 0, sizeof(input));
 
-            stream << "[" << cwd->getName() << "]$ ";
+            stream << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
             stream.flush();
 
             eventBus->subscribe(*this, KeyEvent::TYPE);
