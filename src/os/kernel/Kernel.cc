@@ -20,6 +20,7 @@
 #include "Kernel.h"
 #include "KernelSymbols.h"
 #include "kernel/Cpu.h"
+#include "Bios.h"
 
 Spinlock Kernel::serviceLock;
 
@@ -49,7 +50,13 @@ void Kernel::panic(InterruptFrame *frame) {
     // most save way for outprints
     CgaText cgaText;
 
-    cgaText.init(80, 25, 4);
+    // Switch to CGA-mode manually, because TextDriver::init() may try to allocate data on the heap.
+    BC_params->AX = 0x03;
+    Bios::Int(0x10);
+
+    BC_params->AX = 0x0100;
+    BC_params->CX = 0x2607;
+    Bios::Int(0x10);
 
     // Paint screen blue
     auto *dest = (uint64_t *) VIRT_CGA_START;

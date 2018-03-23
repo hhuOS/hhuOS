@@ -9,7 +9,7 @@ bool VesaText::isAvailable() {
     return VesaGraphics::isAvailable();
 }
 
-bool VesaText::setResolution(TextResolution resolution){
+bool VesaText::setResolution(TextResolution resolution) {
     uint8_t fontWidth = font->get_char_width();
     uint8_t fontHeight = font->get_char_height();
 
