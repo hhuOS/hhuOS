@@ -47,18 +47,15 @@
 
 extern char *gitversion;
 
-IdleThread *idleThread;
-EventBus *eventBus;
-Application *app;
+String versionString;
+
+IdleThread *idleThread = nullptr;
+EventBus *eventBus = nullptr;
+Application *app = nullptr;
 LinearFrameBuffer *lfb = nullptr;
 TextDriver *text = nullptr;
 
 void updateBootScreen(uint8_t percentage, const char *currentActivity) {
-    String versionString("hhuOS ");
-    versionString += VERSION;
-    versionString += " - git ";
-    versionString += gitversion;
-
     auto normalizedPercentage = static_cast<uint8_t>((percentage * 60) / 100);
 
     lfb->fillRect(0, 0, lfb->getResX(), lfb->getResY(), Colors::HHU_DARK_BLUE);
@@ -176,6 +173,8 @@ int32_t main() {
 
     lfb->init(800, 600, 32);
 #else
+    versionString = String("hhuOS ") + String(VERSION) + String(" - git ") + String(gitversion);
+
     initGraphics();
     lfb->init(800, 600, 32);
     lfb->enableDoubleBuffering();
