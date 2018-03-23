@@ -121,6 +121,9 @@ void initGraphics() {
 			Cpu::halt();
 		}
 	}
+
+    text->init(0, 0, 0);
+    lfb->init(0, 0, 0);
 }
 
 int32_t main() {
@@ -212,6 +215,8 @@ int32_t main() {
         auto *fs = Kernel::getService<FileSystem>();
         fs->init();
         printfUpdateStdout();
+
+        printf("TEST");
 
         updateBootScreen(85, "Starting Threads");
         idleThread = new IdleThread();
