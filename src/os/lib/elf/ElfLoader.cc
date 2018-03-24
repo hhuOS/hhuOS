@@ -43,5 +43,6 @@ bool ElfLoader::load(File *file, int argc, char *argv[]) {
 }
 
 uint32_t ElfLoader::getSymbol(const String &name) {
+
     return KernelSymbols::get(name);
 }

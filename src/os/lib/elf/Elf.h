@@ -44,6 +44,8 @@ public:
 
     SectionHeader getSectionHeader(const String &name);
 
+    static uint32_t hash(const char* symbol);
+
 private:
 
     explicit Elf(File *elfFile, uint32_t base);
@@ -58,9 +60,9 @@ private:
 
     File *elfFile = nullptr;
 
-    HashMap<String, SectionHeader> sectionHeaders;
+    Util::HashMap<String, SectionHeader> sectionHeaders;
 
-    HashMap<String, uint32_t> symbolTable;
+    Util::HashMap<String, uint32_t> symbolTable;
 
     uint32_t *globalOffsetTable = nullptr;
 

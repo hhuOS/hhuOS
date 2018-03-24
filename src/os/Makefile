@@ -5,6 +5,7 @@ STARTUP_SOURCE = ./startup.asm
 CC_SOURCES = $(shell find . -name "*.cc")
 C_SOURCES = $(shell find . -name "*.c")
 ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
+LINKER_SCRIPT = ${CURDIR}/link.ld
 
 #-------------------------------------------#
 # Paths                                     #
@@ -30,13 +31,13 @@ CXX = g++
 #-------------------------------------------#
 # C Compiler settings                       #
 #-------------------------------------------#
-CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -Werror -fno-stack-protector -nostdlib \
+CFLAGS := $(CFLAGS) -m32 -pie -Wall -Wno-write-strings -Werror -fno-stack-protector -nostdlib \
 								-ffreestanding -mno-sse -I$(INCLUDEDIR) -g #-DDEBUG
 
 #-------------------------------------------#
 # C++ Compiler settings                     #
 #-------------------------------------------#
-CXXFLAGS := $(CFLAGS) -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
+CXXFLAGS := $(CFLAGS) -Wl,--hash-style=gnu -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit \
  								-fno-rtti -fno-exceptions -std=c++11
 
 #-------------------------------------------#
@@ -152,7 +153,7 @@ $(OBJDIR)/_%.o : %.asm
 $(OBJDIR)/system: $(FIRST_OBJECT) $(OBJPRE)
 	@echo "LD		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
-	$(VERBOSE) $(CXX) $(CXXFLAGS) -static -T sections -o $(OBJDIR)/system $(FIRST_OBJECT) $(OBJPRE)
+	$(VERBOSE) $(CXX) $(CXXFLAGS) -static -T $(LINKER_SCRIPT) -o $(OBJDIR)/system $(FIRST_OBJECT) $(OBJPRE)
 
 #-------------------------------------------#
 # Compiled modules                          #

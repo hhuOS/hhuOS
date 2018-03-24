@@ -52,10 +52,10 @@ extern parse_multiboot
 
 extern ___BSS_START__
 extern ___BSS_END__
-extern __init_array_start
-extern __init_array_end
-extern __fini_array_start
-extern __fini_array_end
+extern ___INIT_ARRAY_START__
+extern ___INIT_ARRAY_END__
+extern ___FINI_ARRAY_START__
+extern ___FINI_ARRAY_END__
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
@@ -136,9 +136,9 @@ clear_bss:
 
 ; Constructors of global objects
 _init:
-	mov	edi, __init_array_start
+	mov	edi, ___INIT_ARRAY_START__
 _init_loop:
-	cmp	edi, __init_array_end
+	cmp	edi, ___INIT_ARRAY_END__
 	je	_init_done
 	mov	eax, [edi]
 	call	eax
@@ -149,9 +149,9 @@ _init_done:
 
 ; Destructors of global objects
 _fini:
-	mov	edi, __fini_array_start
+	mov	edi, ___FINI_ARRAY_START__
 _fini_loop:
-	cmp	edi, __fini_array_end
+	cmp	edi, ___FINI_ARRAY_END__
 	je	_fini_done
 	mov	eax, [edi]
 	call	eax
