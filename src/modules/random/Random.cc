@@ -3,14 +3,10 @@
 #include "kernel/Kernel.h"
 #include "kernel/services/FileSystem.h"
 
-extern "C" {
-Module *moduleProvider();
-}
-
-Module *moduleProvider() {
+MODULE_PROVIDER {
 
     return new Random();
-}
+};
 
 int32_t Random::initialize() {
 

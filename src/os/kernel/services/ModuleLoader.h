@@ -60,6 +60,8 @@ private:
 
     Util::HashMap<String, Module*> modules;
 
+    static constexpr const char* PROVIDER_SYMBOL = "__provider";
+
 };
 
 

@@ -322,16 +322,4 @@ uint32_t Elf::resolveSymbol(uint32_t index) {
     return *offset;
 }
 
-uint32_t Elf::hash(const char *symbol) {
-
-    uint32_t h = 5381;
-
-    for (char c = *symbol; c != '\0'; c = *++symbol) {
-
-        h = h * 33 + c;
-    }
-
-    return h;
-}
-
 

@@ -52,7 +52,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     module->relocate();
 
-    module->provider = (Module*(*)()) module->getSymbol("moduleProvider");
+    module->provider = (Module*(*)()) module->getSymbol(PROVIDER_SYMBOL);
 
     Module *instance = module->getInstance();
 

@@ -44,8 +44,6 @@ public:
 
     SectionHeader getSectionHeader(const String &name);
 
-    static uint32_t hash(const char* symbol);
-
 private:
 
     explicit Elf(File *elfFile, uint32_t base);

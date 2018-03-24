@@ -1,14 +1,10 @@
 #include "Hello.h"
 #include "lib/libc/printf.h"
 
-extern "C" {
-    Module *moduleProvider();
-}
-
-Module *moduleProvider() {
+MODULE_PROVIDER {
 
     return new Hello();
-}
+};
 
 int32_t Hello::initialize() {
 

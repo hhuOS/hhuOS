@@ -21,6 +21,12 @@
 #include <cstdint>
 #include <lib/String.h>
 
+#define MODULE_PROVIDER             \
+    extern "C" {                    \
+        Module *__provider();       \
+    };                              \
+    Module *__provider()            \
+
 /**
  * @author Filip Krakowski
  */
