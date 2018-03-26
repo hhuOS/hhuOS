@@ -1,12 +1,11 @@
-/*****************************************************************************
- *                                                                           *
- *                            H E A P D E M O                                *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Demonstration der dynamischen Speicherverwaltung.        *
- *                                                                           *
- * Autor:           Michael Schoettner, HHU, 27.12.2016                      *
- *****************************************************************************/
+/**
+ * HeapDemo
+ *
+ * A small demo to test the heap-memory allocator.
+ *
+ * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
+ * @date 2018
+ */
 
 #include <kernel/services/InputService.h>
 #include <kernel/services/TimeService.h>
@@ -26,23 +25,34 @@ extern "C" {
     #include "lib/libc/stdlib.h"
 }
 
-/*****************************************************************************
- * Methode:         HeapDemo::run                                            *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Der Anwendungsthread.                                    *
- *****************************************************************************/
+/**
+ * Runs the thread.
+ */
 void HeapDemo::run () {
+	// get necessary services
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
     TimeService *timeService = Kernel::getService<TimeService>();
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
 
+    // run the tests
 
-    stream->clear ();
-    *stream << "Dynamically allocate 2 objects" << endl;
-    *stream << "==============================" << endl << endl;
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for the initial heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
+#endif
+
+    *stream << endl << "  Please press <RETURN> to start tests" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
+    stream->clear ();
+
+    *stream << "Dynamically allocate 2 objects" << endl;
+    *stream << "==============================" << endl << endl;
 
     *stream << "  Allocate objects" << endl;
     *stream << "  ================" << endl;
@@ -56,19 +66,20 @@ void HeapDemo::run () {
     o->dump ();
     *stream << " at " << o2 << endl;
 
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
+#endif
 
-    *stream << endl << "  Please press <RETURN>" << endl;
-
+    *stream << endl << "  Please press <RETURN to continue>" << endl;
     timeService->msleep(1000);
-
     while (!kb->isKeyPressed(28));
 
-    //
-    // zwei Objekte loeschen
-    //
-    stream->clear ();
+    *stream << endl;
     *stream << "Delete 2 objects" << endl;
     *stream << "================" << endl << endl;
 
@@ -78,20 +89,20 @@ void HeapDemo::run () {
     *stream << "  Deleting MyObj at " << o2 << endl;
     delete o2;
 
-    *stream << endl;
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
+    *stream << endl;
+#endif
 
-    *stream << endl << "  Please press <RETURN>" << endl;
-
-    timeService->msleep(1000);
-
-    while (!kb->isKeyPressed(28));
+    *stream << endl << "  Please press <RETURN> to continue" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
 
-    //
-    // Array mit drei Objekten anlegen
-    //
     stream->clear ();
     *stream << "Allocate array of 3 objects and print the first one" << endl;
     *stream << "===================================================" << endl << endl;
@@ -109,40 +120,44 @@ void HeapDemo::run () {
     o->dump ();
     *stream << " at " << o << endl;
 
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
     SystemManagement::getKernelHeapManager()->dump();
+    *stream << endl;
+#endif
 
-    *stream << endl << "  Please press <RETURN>" << endl;
+    *stream << endl << "  Please press <RETURN> to continue" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
-    timeService->msleep(1000);
-
-    while (!kb->isKeyPressed(28));
-
-
-    //
-    // Array freigeben
-    //
-    stream->clear ();
+	*stream << endl;
     *stream << "Release array memory" << endl;
     *stream << "====================" << endl << endl;
 
     *stream << "  Deleting MyObj array at " << pt << endl;
-    delete pt;
+    delete[] pt;
+
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
+    *stream << endl;
+#endif
 
-    *stream << endl << "  Please press <RETURN>" << endl;
-
-    while (!kb->isKeyPressed(28));
+    *stream << endl << "  Please press <RETURN> to continue" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 
     stream->clear ();
-    *stream << "Memory test" << endl;
-    *stream << "===========" << endl << endl;
-
-    SystemManagement::getKernelHeapManager()->dump();
 
     uint32_t *objects[128];
 
-    printf("  Allocating and deleting objects randomly\n\n");
+    printf("  Allocating objects randomly\n\n");
 
     Random *random = new Random(42, 0);
 
@@ -172,6 +187,19 @@ void HeapDemo::run () {
         }
     }
 
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
+    SystemManagement::getKernelHeapManager()->dump();
+    *stream << endl;
+#endif
+
+    *stream << endl << "  Please press <RETURN> to continue" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
     // Shuffle allocated objects
     unsigned int src, dst;
     for (int i = 0; i < 10000; i++) {
@@ -183,6 +211,9 @@ void HeapDemo::run () {
         objects[src] = tmp;
     }
 
+    *stream << endl;
+    *stream << "Delete randomly allocated objects." << endl;
+
     // Delete randomized objects
     for (auto &object : objects) {
         delete object;
@@ -190,11 +221,19 @@ void HeapDemo::run () {
 
     delete random;
 
+#if HEAPDUMP
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
+
     SystemManagement::getKernelHeapManager()->dump();
+    *stream << endl;
+#endif
 
     *stream << endl;
     *stream << "*** END OF DEMO ***" << endl;
 
-    // selbst terminieren
-    Scheduler::getInstance()->exit();
+    *stream << endl << "  Please press <RETURN> to continue" << endl;
+	timeService->msleep(1000);
+	while (!kb->isKeyPressed(28));
 }
