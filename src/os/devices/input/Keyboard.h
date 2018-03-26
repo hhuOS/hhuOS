@@ -20,6 +20,10 @@
 #include "devices/graphics/text/CgaText.h"
 #include "kernel/events/input/KeyEvent.h"
 
+
+#include <kernel/services/GraphicsService.h>
+#include <lib/Random.h>
+
 class Keyboard : public InterruptHandler {
 
 private:

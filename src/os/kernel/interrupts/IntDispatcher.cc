@@ -10,6 +10,8 @@
 #include <kernel/KernelSymbols.h>
 #include <kernel/IOport.h>
 #include <lib/libc/printf.h>
+#include <devices/Speaker.h>
+#include <lib/Random.h>
 #include "kernel/Cpu.h"
 
 #include "kernel/threads/ThreadState.h"
@@ -44,6 +46,13 @@ void int_disp (InterruptFrame *frame) {
 	// extract interrupt information
     uint32_t slot = frame->interrupt;
     uint32_t flags = frame->error;
+
+    /*if(slot != 0) {
+        Random random(slot * flags + 10, 1000);
+
+        Speaker speaker;
+        speaker.play(random.rand());
+    }*/
 
     // throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {

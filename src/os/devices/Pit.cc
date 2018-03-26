@@ -57,6 +57,9 @@ void Pit::trigger () {
 
     if (Scheduler::getInstance()->isInitialized()) {
 
-        Scheduler::getInstance()->yield();
+        if(schedulerLock.tryLock()) {
+            schedulerLock.unlock();
+            Scheduler::getInstance()->yield();
+        }
     }
 }

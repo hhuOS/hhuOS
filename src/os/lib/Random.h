@@ -25,7 +25,7 @@ private:
 public:
 	// Konstruktoren
 	Random(uint32_t seed, uint32_t maxRand);
-	Random(uint32_t maxRand);
+	Random(uint32_t maxRand = 0xFFFFFFFF);
 
 	// Liefert eine Zufallszahl zwischen 0 und maxRand - 1
 	uint32_t rand();

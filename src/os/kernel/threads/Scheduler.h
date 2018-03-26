@@ -16,8 +16,12 @@
 #define __Scheduler_include__
 
 #include <lib/util/BlockingQueue.h>
+#include <kernel/services/InputService.h>
 #include "kernel/threads/Thread.h"
 #include "lib/deprecated/Queue.h"
+#include "kernel/Spinlock.h"
+
+static Spinlock schedulerLock;
 
 class Scheduler {
     

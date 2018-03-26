@@ -15,6 +15,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <lib/libc/printf.h>
+#include <devices/Speaker.h>
 #include "Keyboard.h"
 
 /* Tabellen fuer ASCII-Codes (Klassenvariablen) intiialisieren */
@@ -297,7 +298,7 @@ Key Keyboard::key_hit () {
 
     control = ctrl_port.inb ();
 
-    code = (unsigned char) data_port.inb ();
+    code = (unsigned char) data_port.inb();
 
     // Auch eine evtl. angeschlossene PS/2 Maus liefert ihre Daten ueber den
     // Tastaturcontroller. In diesem Fall ist zur Kennzeichnung das AUXB-Bit

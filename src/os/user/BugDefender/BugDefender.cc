@@ -127,8 +127,6 @@ void BugDefender::showMenu(LinearFrameBuffer* g2d){
     g2d->placeString(sun_font_8x16, 50, 55, "5th / 6th Row   -   80 Punkte", Colors::WHITE);
 
     g2d->placeString(pearl_font_8x8, 50, 85, "Please press Enter", Colors::WHITE);
-
-    (Kernel::getService<DebugService>())->printPic();
 }
 
 void BugDefender::showGameOver(LinearFrameBuffer* g2d){
