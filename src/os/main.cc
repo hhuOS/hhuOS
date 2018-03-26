@@ -216,8 +216,6 @@ int32_t main() {
         fs->init();
         printfUpdateStdout();
 
-        printf("TEST");
-
         updateBootScreen(85, "Starting Threads");
         idleThread = new IdleThread();
         app = new Application();

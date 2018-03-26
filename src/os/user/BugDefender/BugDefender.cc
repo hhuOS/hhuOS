@@ -110,16 +110,6 @@ void BugDefender::drawInfo(LinearFrameBuffer* g2d){
 
 void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
-    Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
-
-    Rtc::date date = rtc->getCurrentDate();
-
-    char timeString[20];
-
-    snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds);
-
-    g2d->placeString(sun_font_12x22, 50, 5, timeString, Colors::HHU_LIGHT_GRAY);
-
     g2d->placeString(sun_font_12x22, 50, 15, "Bug Defender", Colors::WHITE);
 
     g2d->placeString(sun_font_8x16, 50, 35, "1st / 2nd Row   -   40 Points", Colors::WHITE);
