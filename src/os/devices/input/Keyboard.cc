@@ -320,9 +320,7 @@ void Keyboard::reboot () {
 
     // Dem BIOS mitteilen, dass das Reset beabsichtigt war
     // und kein Speichertest durchgefuehrt werden muss.
-    // 
-    // Darf so nich mehr gemacht werden -> Nullpointer-Exception, da Speicherzugriff zu weit unten!
-    // *(unsigned short*) 0x472 = 0x1234;
+    *(unsigned short*) 0xc0000472 = 0x1234;
 
     // Der Tastaturcontroller soll das Reset ausloesen.
     do {
