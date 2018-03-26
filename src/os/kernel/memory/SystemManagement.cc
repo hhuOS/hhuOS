@@ -275,6 +275,13 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
 }
 
 /**
+ * Reserve phyiscal memory in page frame allocator. This memory be already allocated.
+ */
+uint32_t SystemManagement::reservePhysicalMemory(uint32_t startAddress, uint32_t endAddress) {
+	return pageFrameAllocator->reserveAddressRange(startAddress, endAddress);
+}
+
+/**
  * Maps a physical address into the IO-space of the system, located at the upper
  * end of the virtual memory. The allocated memory is 4kb-aligned, therefore the
  * returned virtual memory address is also 4kb-aligned. If the given physical

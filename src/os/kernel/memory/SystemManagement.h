@@ -256,6 +256,15 @@ public:
      */
     uint32_t unmap(uint32_t virtStartAddress, uint32_t virtEndAddress);
 
+    /**
+     * Reserve phyiscal memory in page frame allocator. This memory be already allocated.
+     *
+     * @startAddress Start address of the phyiscal memory to reserve
+     * @endAddress End address of the phyiscal memory to reserve
+     * @return startAddress if successful, 0 otherwise
+     */
+    uint32_t reservePhysicalMemory(uint32_t startAddress, uint32_t endAddress);
+
 
     /**
      * Checks whether the system is in kernel mode or not.
