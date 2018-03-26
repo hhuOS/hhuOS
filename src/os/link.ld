@@ -23,14 +23,6 @@ SECTIONS
         ___RODATA_END__ = .;
     }
 
-    .bss ALIGN (4K) : AT (ADDR(.bss) - 0xC0000000)
-    {
-        ___BSS_START__  = .;
-        *(.bss)
-        *(.bss.*)
-        ___BSS_END__    = .;
-    }
-
    .data ALIGN (4K) : AT (ADDR(.data) - 0xC0000000)
     {
         ___DATA_START__ = .;
@@ -59,12 +51,20 @@ SECTIONS
        ___FINI_ARRAY_END__ = .;
     }
 
+    .bss ALIGN (4K) : AT (ADDR(.bss) - 0xC0000000)
+    {
+        ___BSS_START__  = .;
+        *(.bss)
+        *(.bss.*)
+        ___BSS_END__    = .;
+    }
+
+    ___KERNEL_END__ = .;
+
     /DISCARD/ :
     {
         *(.note.gnu.build-id)
         *(.comment)
         *(.eh_frame)
     }
-
-    ___KERNEL_END__ = .;
 }

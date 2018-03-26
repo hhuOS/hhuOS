@@ -23,16 +23,24 @@
 ; Multiboot Constants
 MULTIBOOT_PAGE_ALIGN	equ	1<<0
 MULTIBOOT_MEMORY_INFO	equ	1<<1
+MULTIBOOT_GRAPHICS_INFO equ 1<<2
+MULTIBOOT_ADDRESS_INFO  equ 1<<16
 
 ; Multiboot Magic
 MULTIBOOT_HEADER_MAGIC	equ	0x1badb002
 
 ; Multiboot Flags
-MULTIBOOT_HEADER_FLAGS	equ	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO
+MULTIBOOT_HEADER_FLAGS	equ	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_ADDRESS_INFO | MULTIBOOT_GRAPHICS_INFO
 MULTIBOOT_HEADER_CHKSUM	equ	-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
 ; Multiboot EAX Magic
 MULTIBOOT_EAX_MAGIC	equ	0x2badb002
+
+; Multiboot options
+GRAPHICS_MODE   equ 0
+GRAPHICS_WIDTH  equ 800
+GRAPHICS_HEIGTH equ 600
+GRAPHICS_BPP    equ 32
 
 global startup
 global on_paging_enabled
@@ -50,12 +58,16 @@ extern setup_idt
 extern paging_bootstrap
 extern parse_multiboot
 
+extern ___KERNEL_START__
+extern ___KERNEL_END__
 extern ___BSS_START__
 extern ___BSS_END__
 extern ___INIT_ARRAY_START__
 extern ___INIT_ARRAY_END__
 extern ___FINI_ARRAY_START__
 extern ___FINI_ARRAY_END__
+extern ___TEXT_START__
+extern ___TEXT_END__
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
@@ -70,6 +82,15 @@ multiboot_header:
 	dd MULTIBOOT_HEADER_MAGIC
 	dd MULTIBOOT_HEADER_FLAGS
 	dd MULTIBOOT_HEADER_CHKSUM
+	dd (multiboot_header    - KERNEL_START)
+	dd (___KERNEL_START__   - KERNEL_START)
+	dd (___KERNEL_END__     - KERNEL_START)
+	dd (___BSS_END__        - KERNEL_START)
+	dd (startup             - KERNEL_START)
+	dd GRAPHICS_MODE
+	dd GRAPHICS_WIDTH
+	dd GRAPHICS_HEIGTH
+	dd GRAPHICS_BPP
 
 startup:
 
