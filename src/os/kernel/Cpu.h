@@ -114,7 +114,9 @@ public:
         OUTOFBOUNDS                         = 0xC9,
         INVALID_ARGUMENT                    = 0xCA,
         KEY_NOT_FOUND                       = 0xCB,
-        ILLEGAL_STATE                       = 0xCC
+        ILLEGAL_STATE                       = 0xCC,
+        OUT_OF_PHYS_MEMORY                  = 0xCD,
+        OUT_OF_PAGE_MEMORY                  = 0xCE
     };
 
     /**

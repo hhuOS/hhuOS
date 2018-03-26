@@ -28,6 +28,8 @@ void PageFrameAllocator::init() {
     freeBitmapLength = pageFrameCnt / 32;
     freeBitmap = new uint32_t[freeBitmapLength];
 
+    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
+
     // first 9 MB are already allocated by 4MB paging -> first 72 Array entries
     for(int i=0; i < 72; i++) {
         freeBitmap[i] = 0xFFFFFFFF;

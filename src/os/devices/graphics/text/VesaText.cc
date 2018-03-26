@@ -1,4 +1,6 @@
 #include <devices/Pit.h>
+#include <lib/libc/printf.h>
+#include <kernel/Bios.h>
 #include "VesaText.h"
 
 VesaText::VesaText() : VesaGraphics(), font(&std_font_8x16) {

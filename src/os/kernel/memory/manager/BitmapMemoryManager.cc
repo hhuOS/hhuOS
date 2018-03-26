@@ -6,6 +6,8 @@
  * @date 2018
  */
 
+#include <kernel/Kernel.h>
+#include <kernel/Bios.h>
 #include "BitmapMemoryManager.h"
 #include "kernel/memory/Paging.h"
 #include "lib/libc/printf.h"
@@ -67,7 +69,11 @@ uint32_t BitmapMemoryManager::alloc() {
         }
     }
     // found no pageframe
-    printf("[%s] KERNEL PANIC: Not enough memory", name);
+    if(zeroMemory) {
+        Cpu::throwException(Cpu::Exception ::OUT_OF_PAGE_MEMORY);
+    } else {
+        Cpu::throwException(Cpu::Exception ::OUT_OF_PHYS_MEMORY);
+    }
 
     return 0;
 }

@@ -26,6 +26,8 @@ void PagingAreaManager::init() {
     freeBitmapLength = pageFrameCnt / 32;
     freeBitmap = new uint32_t[freeBitmapLength];
 
+    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
+
     // We use already 256 Page Tables for Kernel mappings and one Page Directory
     // as the Kernel´s PD
     for(uint32_t i = 0; i < 8; i++){
