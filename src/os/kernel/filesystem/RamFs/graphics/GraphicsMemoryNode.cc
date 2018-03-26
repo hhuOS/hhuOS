@@ -9,9 +9,9 @@ GraphicsMemoryNode::GraphicsMemoryNode(uint8_t mode) : VirtualNode("memory", FsN
 uint64_t GraphicsMemoryNode::getLength() {
     switch(mode) {
         case TEXT :
-            return String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10).length();
+            return String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10).length() + 1;
         case LINEAR_FRAME_BUFFER :
-            return String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10).length();
+            return String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10).length() + 1;
         default:
             return 0;
     }
@@ -22,10 +22,10 @@ uint64_t GraphicsMemoryNode::readData(char *buf, uint64_t pos, uint64_t numBytes
 
     switch(mode) {
         case TEXT :
-            string = String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10);
+            string = String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10) + "\n";
             break;
         case LINEAR_FRAME_BUFFER :
-            string = String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10);
+            string = String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10) + "\n";
             break;
         default:
             break;
@@ -39,9 +39,9 @@ uint64_t GraphicsMemoryNode::readData(char *buf, uint64_t pos, uint64_t numBytes
 
     memcpy(buf, (char*) string + pos, numBytes);
 
-    return true;
+    return numBytes;
 }
 
 uint64_t GraphicsMemoryNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+    return 0;
 }

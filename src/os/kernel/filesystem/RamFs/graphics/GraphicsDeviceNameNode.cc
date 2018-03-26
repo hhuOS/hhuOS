@@ -9,9 +9,9 @@ GraphicsDeviceNameNode::GraphicsDeviceNameNode(uint8_t mode) : VirtualNode("devi
 uint64_t GraphicsDeviceNameNode::getLength() {
     switch(mode) {
         case TEXT :
-            return graphicsService->getTextDriver()->getDeviceName().length();
+            return graphicsService->getTextDriver()->getDeviceName().length() + 1;
         case LINEAR_FRAME_BUFFER :
-            return graphicsService->getLinearFrameBuffer()->getDeviceName().length();
+            return graphicsService->getLinearFrameBuffer()->getDeviceName().length() + 1;
         default:
             return 0;
     }
@@ -22,10 +22,10 @@ uint64_t GraphicsDeviceNameNode::readData(char *buf, uint64_t pos, uint64_t numB
 
     switch(mode) {
         case TEXT :
-            name = graphicsService->getTextDriver()->getDeviceName();
+            name = graphicsService->getTextDriver()->getDeviceName() + "\n";
             break;
         case LINEAR_FRAME_BUFFER :
-            name = graphicsService->getLinearFrameBuffer()->getDeviceName();
+            name = graphicsService->getLinearFrameBuffer()->getDeviceName() + "\n";
             break;
         default:
             break;
@@ -39,9 +39,9 @@ uint64_t GraphicsDeviceNameNode::readData(char *buf, uint64_t pos, uint64_t numB
 
     memcpy(buf, (char*) name + pos, numBytes);
 
-    return true;
+    return numBytes;
 }
 
 uint64_t GraphicsDeviceNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+    return 0;
 }

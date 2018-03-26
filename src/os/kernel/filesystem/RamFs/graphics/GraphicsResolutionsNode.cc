@@ -77,9 +77,9 @@ uint64_t GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t num
 
     memcpy(buf, (char*) string + pos, numBytes);
 
-    return true;
+    return numBytes;
 }
 
 uint64_t GraphicsResolutionsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return -1;
+    return 0;
 }

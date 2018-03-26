@@ -9,9 +9,9 @@ GraphicsVendorNameNode::GraphicsVendorNameNode(uint8_t mode) : VirtualNode("vend
 uint64_t GraphicsVendorNameNode::getLength() {
     switch(mode) {
         case TEXT :
-           return graphicsService->getTextDriver()->getVendorName().length();
+           return graphicsService->getTextDriver()->getVendorName().length() + 1;
         case LINEAR_FRAME_BUFFER :
-            return graphicsService->getLinearFrameBuffer()->getVendorName().length();
+            return graphicsService->getLinearFrameBuffer()->getVendorName().length() + 1;
         default:
             return 0;
     }
@@ -22,10 +22,10 @@ uint64_t GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numB
 
     switch(mode) {
         case TEXT :
-            name = graphicsService->getTextDriver()->getVendorName();
+            name = graphicsService->getTextDriver()->getVendorName() + "\n";
             break;
         case LINEAR_FRAME_BUFFER :
-            name = graphicsService->getLinearFrameBuffer()->getVendorName();
+            name = graphicsService->getLinearFrameBuffer()->getVendorName() + "\n";
             break;
         default:
             break;
@@ -39,9 +39,9 @@ uint64_t GraphicsVendorNameNode::readData(char *buf, uint64_t pos, uint64_t numB
 
     memcpy(buf, (char*) name + pos, numBytes);
 
-    return true;
+    return numBytes;
 }
 
 uint64_t GraphicsVendorNameNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return false;
+    return 0;
 }
