@@ -50,10 +50,10 @@ public:
     /**
      * Constructor.
      *
-     * @param startAddress Start address of memory area to manage.
-     * @param endAddress  End address of memory area to manage.
+     * @param memoryStartAddress Start address of memory area to manage.
+     * @param memoryEndAddress  End address of memory area to manage.
      */
-    HeapMemoryManager(uint32_t startAddress, uint32_t endAddress);
+    HeapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress);
 
     /**
      * Destructor.

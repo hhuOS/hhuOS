@@ -118,9 +118,9 @@ public:
      * memory address in order to obtain the corresponding virtual address.
      *
      * @param physAddr Physical address to be mapped. This address is usually given
-     *                 by a hardware device (e.g. for the LFB) and must not be
-     *                 located in physical memory (physical addresses for device
-     *                 memories are located above installed physical memory)
+     *                 by a hardware device (e.g. for the LFB). If the pyhsAddr lies
+     *                 in the address rang of the installed physical memory of the system,
+     *                 please make sure you allocated that memory before!
      * @param size Size of memory to be allocated
      * @return IOMemInfo A struct containing the virtual address of the mapped
      *                   memory and the corresponding physical addresses

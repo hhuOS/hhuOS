@@ -14,7 +14,7 @@
  * Constructor -calls constructor of base class.
 
  */
-HeapMemoryManager::HeapMemoryManager(uint32_t startAddress, uint32_t endAddress) : MemoryManager(startAddress, endAddress) {
+HeapMemoryManager::HeapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress) : MemoryManager(memoryStartAddress, memoryEndAddress) {
 }
 
 /**
@@ -30,14 +30,14 @@ HeapMemoryManager::~HeapMemoryManager() {
  * Initializes this manager. Sets up first list-entry.
  */
 void HeapMemoryManager::init() {
-    freeMemory = endAddress - startAddress;
+    freeMemory = memoryEndAddress - memoryStartAddress;
 
     if(freeMemory < sizeof(Chunk) + (sizeof(Chunk) + sizeof(Spinlock))) {
         // Available Kernel-Memory is too small for a Chunk
 		firstChunk = 0;
 	}else {
 		// set up first Chunk of memory
-		firstChunk = (Chunk*)startAddress;
+		firstChunk = (Chunk*)memoryStartAddress;
 		firstChunk->next = 0;
 		firstChunk->prev = 0;
 		firstChunk->allocated = false;
@@ -136,7 +136,7 @@ void HeapMemoryManager::free(void* ptr) {
 	}
 
 	// block if we try to free outside memory area
-	if((uint32_t) ptr < startAddress || (uint32_t) ptr >= endAddress){
+	if((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress){
 		return;
 	}
 

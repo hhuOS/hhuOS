@@ -170,7 +170,7 @@ void SystemManagement::map(uint32_t virtStartAddress, uint32_t virtEndAddress, u
     // get 4kb-aligned start and end address
     uint32_t alignedStartAddress = virtStartAddress & 0xFFFFF000;
     uint32_t alignedEndAddress = virtEndAddress & 0xFFFFF000;
-    alignedEndAddress += (virtEndAddress % 0x1000 == 0) ? 0 : PAGESIZE;
+    alignedEndAddress += (virtEndAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
     // map all pages
     for(uint32_t i = alignedStartAddress; i < alignedEndAddress; i += PAGESIZE){
         map(i, flags);
@@ -285,13 +285,6 @@ IOMemInfo SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
-
-    // if the physical address conflicts with installed physical memory,
-    // exit here
-    if(physAddress <= totalPhysMemory){
-        printf("[PAGINGMANAGER] Physical address access denied %x\n", physAddress);
-        return (IOMemInfo) {0,0,0};
-    }
 
     // calculate the physical address of each page that is mapped into the IO-space. 
     uint32_t* physAddresses = new uint32_t[pageCnt];

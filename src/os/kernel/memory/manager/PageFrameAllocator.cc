@@ -13,14 +13,14 @@
 /**
  * Constructor - calls baseClass constructor.
  */
-PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddress)
-        : BitmapMemoryManager(startAddress, endAddress, "PAGEFRAMEALLOCATOR", false) {}
+PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
+        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, "PAGEFRAMEALLOCATOR", false) {}
 
 /**
  * Init-function. Sets up the bitmap.
  */
 void PageFrameAllocator::init() {
-    freeMemory = endAddress - startAddress;
+    freeMemory = memoryEndAddress - memoryStartAddress;
 
     // calculate amount of physical page frames
     uint32_t pageFrameCnt = freeMemory / PAGESIZE;
@@ -36,6 +36,9 @@ void PageFrameAllocator::init() {
     }
     // 9 MB + 8KB are already used by kernel and page tables/dirs
     freeBitmap[72] = 0xC0000000;
+
+    // subtract already reserved memory from free memory
+    freeMemory -= (72 * 32 * PAGESIZE + 2 * PAGESIZE);
 
     initialized = true;
 }

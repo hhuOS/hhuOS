@@ -29,8 +29,8 @@ class MemoryManager {
 
 protected:
 	// start and end address of the memory area to manage
-	uint32_t startAddress;
-	uint32_t endAddress;
+	uint32_t memoryStartAddress;
+	uint32_t memoryEndAddress;
 	// track amount of free memory
 	uint32_t freeMemory = 0;
 	//is the manager initialized?
@@ -40,12 +40,12 @@ public:
 	/**
 	 * Constructor
 	 *
-	 * @param startAddress Startaddress of the memory area to manage
-	 * @param endAddress Endaddress of the memory area to manage
+	 * @param memoryStartAddress Startaddress of the memory area to manage
+	 * @param memoryEndAddress Endaddress of the memory area to manage
 	 */
-	MemoryManager(uint32_t startAddress, uint32_t endAddress) {
-		this->startAddress = startAddress;
-		this->endAddress = endAddress;
+	MemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress) {
+		this->memoryStartAddress = memoryStartAddress;
+		this->memoryEndAddress = memoryEndAddress;
 	}
 
 	/**
@@ -68,7 +68,7 @@ public:
 	 * @return The end address of the memory area to manage
 	 */
 	uint32_t getEndAddress() {
-		return endAddress;
+		return memoryEndAddress;
 	}
 
 	/**
@@ -86,7 +86,7 @@ public:
 	 * @return The start address of the memory area to manage
 	 */
 	uint32_t getStartAddress() {
-		return startAddress;
+		return memoryStartAddress;
 	}
 };
 

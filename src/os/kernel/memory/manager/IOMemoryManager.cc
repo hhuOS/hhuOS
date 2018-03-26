@@ -30,9 +30,9 @@ IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END) {
  * Initialize memory manager and set up free list.
  */
 void IOMemoryManager::init(){
-    freeMemory = endAddress - startAddress;
+    freeMemory = memoryEndAddress - memoryStartAddress;
     // start of memory area -> create anchor of free list
-    anchor = (IOMemFreeHeader*) (startAddress);
+    anchor = (IOMemFreeHeader*) (memoryStartAddress);
     anchor->next = 0;
     anchor->prev = 0;
     anchor->pageCount = freeMemory/PAGESIZE;
@@ -129,7 +129,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     uint32_t pageCnt = memInfo.pageCount;
 
     // catch error
-    if(virtStart < startAddress || virtStart >= endAddress){
+    if(virtStart < memoryStartAddress || virtStart >= memoryEndAddress){
     	return;
     }
 

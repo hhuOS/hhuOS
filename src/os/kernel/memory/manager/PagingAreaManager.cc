@@ -7,6 +7,7 @@
 
 #include <kernel/memory/MemLayout.h>
 #include "PagingAreaManager.h"
+#include "kernel/memory/Paging.h"
 
 /**
  * Constructor - calls base class with parameters.
@@ -18,7 +19,7 @@ PagingAreaManager::PagingAreaManager()
  * Initializes the PageingAreaManager - sets up bitmap.
  */
 void PagingAreaManager::init() {
-    freeMemory = endAddress - startAddress;
+    freeMemory = memoryEndAddress - memoryStartAddress;
 
     // calculate amount of pagetables/dirs that can be stored in the area
     uint32_t pageFrameCnt = freeMemory / (1024 * 4);
@@ -34,6 +35,9 @@ void PagingAreaManager::init() {
         freeBitmap[i] = 0xFFFFFFFF;
     }
     freeBitmap[8] = 0xC0000000;
+
+    // subtract already reserved memory from free memory
+    freeMemory -= (8 * 32 * PAGESIZE + 2 * PAGESIZE);
 
     initialized = true;
 }

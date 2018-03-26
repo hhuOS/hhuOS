@@ -47,12 +47,12 @@ public:
     /**
      * Constructor
      *
-     * @param startAddress Start address of the memory area to manage
-     * @param endAddress End address of the memory area to manage
+     * @param memoryStartAddress Start address of the memory area to manage
+     * @param memoryEndAddress End address of the memory area to manage
      * @param name Name of this memory manager for debugging output
      * @param zeroMemory Indicates if new allocated memory should be zeroed
      */
-    BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, String name, bool zeroMemory);
+    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, String name, bool zeroMemory);
 
     /**
      * Virtual function for init - to be implemented in inheriting class.
@@ -72,6 +72,24 @@ public:
      * @param address Address of the memory block to free
      */
     uint32_t free(uint32_t address);
+
+    /**
+     * Reserves an address range of 4kb blocks and prevents from allocating it.
+     * Can only be used on non-allocated memory.
+     *
+     * @param startAddress Start address of the memory block to reserve
+     * @param endAddress End address of the memory block to reserve
+     * @return startAddress if successful, 0 otherwise
+     */
+    uint32_t reserveAddressRange(uint32_t startAddress, uint32_t endAddress);
+
+    /**
+	 * Frees an address range of 4kb blocks.
+	 *
+	 * @param startAddress Start address of the memory block to free
+	 * @param endAddress End address of the memory block to free
+	 */
+	void freeAddressRange(uint32_t startAddress, uint32_t endAddress);
 
     /**
      * Dump bitmap for debugging reasons

@@ -32,10 +32,10 @@ public:
 	/**
 	 * Constructor
 	 *
-	 * @param startAddress Start address of the memory area to manage
-	 * @param endAddress End address of the memory area to manage
+	 * @param memoryStartAddress Start address of the memory area to manage
+	 * @param memoryEndAddress End address of the memory area to manage
 	 */
-    PageFrameAllocator(uint32_t startAddress, uint32_t endAddress);
+    PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress);
 
     /**
      * Init-function. Sets up the bitmap.
