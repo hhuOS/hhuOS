@@ -23,8 +23,9 @@
 
 #include <kernel/services/GraphicsService.h>
 #include <lib/Random.h>
+#include <devices/IODevice.h>
 
-class Keyboard : public InterruptHandler {
+class Keyboard : public IODevice {
 
 private:
 
@@ -115,7 +116,9 @@ public:
     void plugin ();
 
     // Unterbrechnungsroutine der Tastatur.
-    void trigger ();
+    void trigger() override;
+
+    bool checkForData() override;
 
     int getKeysPressed ();
 

@@ -483,3 +483,7 @@ void Keyboard::trigger () {
         eventBus->publish(event);
     }
 }
+
+bool::Keyboard::checkForData() {
+    return (ctrl_port.inb() & 0x1) == 0x1;
+}

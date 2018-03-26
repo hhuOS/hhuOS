@@ -19,9 +19,9 @@
 #define STATUS_REGISTER_C       0x0C
 
 #include "kernel/IOport.h"
-#include "kernel/interrupts/InterruptHandler.h"
+#include "IODevice.h"
 
-class Rtc : public InterruptHandler{
+class Rtc : public IODevice {
 
 public:
     struct date {
@@ -35,8 +35,7 @@ public:
 
 private:
     IOport registerPort, dataPort;
-    Rtc::date currentDate;
-    bool isDateSet = false;
+    Rtc::date currentDate {};
 
     static const char RTC_RATE = 0x06;
 
@@ -48,7 +47,9 @@ public:
 
     void plugin();
 
-    void trigger();
+    void trigger() override;
+
+    bool checkForData() override;
 
     date getCurrentDate();
 };

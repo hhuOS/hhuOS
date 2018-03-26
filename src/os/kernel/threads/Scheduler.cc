@@ -12,20 +12,19 @@ extern "C" {
     void allowPreemption();
 }
 
-const IOport ctrl_port(0x64);    // Status- (R) u. Steuerregister (W)
-const IOport data_port(0x60);    // Ausgabe- (R) u. Eingabepuffer (W)
-
-InputService *inputService;
+InputService *inputService = nullptr;
+TimeService *timeService = nullptr;
 
 void allowPreemption() {
-    schedulerLock.unlock();
-
-    // Check if the keyboard has data to get.
-    auto control = ctrl_port.inb();
-
-    if(control & 0x1) {
+    if(inputService->getKeyboard()->checkForData()) {
         inputService->getKeyboard()->trigger();
     }
+
+    if(timeService->getRTC()->checkForData()) {
+        timeService->getRTC()->trigger();
+    }
+
+    schedulerLock.unlock();
 }
 
 Scheduler* Scheduler::scheduler = nullptr;
@@ -37,6 +36,7 @@ void schedulerYield() {
 
 Scheduler::Scheduler() : initialized(false) {
     inputService = Kernel::getService<InputService>();
+    timeService = Kernel::getService<TimeService>();
 }
 
 Scheduler *Scheduler::getInstance()  {
