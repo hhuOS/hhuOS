@@ -68,11 +68,9 @@ void Application::IOMemoryTest () {
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     unsigned int* stack = new unsigned int[1024];
-    IOMemoryTestApp* ioMemTest = new IOMemoryTestApp(&stack[1023]);
+    Thread* ioMemTest = new IOMemoryTestApp(&stack[1023]);
 
-    Scheduler::getInstance()->ready(*ioMemTest);
-
-    Scheduler::getInstance()->exit();
+    ioMemTest->start();
 }
 
 void Application::Asciimation () {
