@@ -39,8 +39,6 @@ namespace Multiboot {
 
         static void parse(Info *address);
 
-        static uint32_t getTotalMem();
-
         static Multiboot::ModuleInfo getModule(const String &module);
 
         static bool isModuleLoaded(const String &module);
