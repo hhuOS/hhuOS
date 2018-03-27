@@ -1,10 +1,16 @@
 #include <devices/Pit.h>
+#include <kernel/events/input/KeyEvent.h>
+#include <kernel/threads/Scheduler.h>
+#include <user/Application.h>
 #include "user/AntApp/AntApp.h"
 
 void AntApp::run() {
+    auto *eventBus = Kernel::getService<EventBus>();
+    eventBus->subscribe(*this, KeyEvent::TYPE);
+
 	Color color;
 
-	while (true) {
+	while (isRunning) {
 		lfb->readPixel(x, y, color);
 		if ((color.getRed() + color.getGreen() + color.getBlue()) > 0) { // is white
 			rotateRight();
@@ -14,6 +20,18 @@ void AntApp::run() {
 			lfb->drawPixel(x, y, _col);
 		}
 		forward();
-		//Scheduler::me().yield();
+	}
+
+    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+	Application::getInstance()->resume();
+	Scheduler::getInstance()->exit();
+}
+
+void AntApp::onEvent(const Event &event) {
+
+	auto &keyEvent = (KeyEvent&) event;
+
+	if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+		isRunning = false;
 	}
 }

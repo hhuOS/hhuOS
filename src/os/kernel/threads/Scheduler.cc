@@ -164,7 +164,7 @@ void Scheduler::deblock(Thread &that) {
 
     schedulerLock.lock();
 
-    readyQueue.push( &that );
+    readyQueue.push(&that);
 
     schedulerLock.unlock();
 }

@@ -13,12 +13,9 @@
 #include <lib/libc/printf.h>
 #include <user/MouseApp/MouseApp.h>
 #include <kernel/services/DebugService.h>
-#include <kernel/threads/WorkerThread.h>
 #include <user/Shell/Shell.h>
-#include <kernel/services/ModuleLoader.h>
 #include <lib/multiboot/Structure.h>
-#include "kernel/threads/Scheduler.h"
-#include "user/Application.h"
+#include <kernel/threads/Scheduler.h>
 #include "user/LoopSoundApp/Loop.h"
 #include "user/LoopSoundApp/Sound.h"
 #include "user/HeapApp/HeapDemo.h"
@@ -27,23 +24,38 @@
 #include "user/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
 
-
-#define MENU_DISTANCE 4
-#define MENU_OPTIONS 9
-
 #define TEST_THREADING 0
+
+Thread *currentApp = nullptr;
+
+uint32_t threadSum = 0;
+
+uint32_t worker(const uint32_t &number) {
+
+    return number * 2;
+}
+
+void callback(const Thread &thread, const uint32_t &number) {
+
+    threadSum += number;
+}
+
+Application *Application::instance = nullptr;
 
 Application::Application () : Thread ("Menu") {
     graphicsService = Kernel::getService<GraphicsService>();
 	timeService = Kernel::getService<TimeService>();
 }
 
-/*****************************************************************************
- * Methode:         Application::LoopSound                                   *
- *---------------------------------------------------------------------------*
- * Beschreibung:    2 counter threads und 1 sound thread.                    *
- *****************************************************************************/
-void Application::LoopSound () {
+Application *Application::getInstance() {
+    if(instance == nullptr) {
+        instance = new Application();
+    }
+
+    return instance;
+}
+
+void Application::startLoopSoundDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
@@ -58,27 +70,29 @@ void Application::LoopSound () {
 
 
 
-void Application::Ant () {
-    Thread *thread = new AntApp();
-    thread->start();
+void Application::startAntDemo() {
+    currentApp = new AntApp();
+
+    currentApp->start();
 }
 
-void Application::IOMemoryTest () {
+void Application::startIoMemoryDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    unsigned int* stack = new unsigned int[1024];
-    Thread* ioMemTest = new IOMemoryTestApp(&stack[1023]);
+    auto* stack = new uint32_t[1024];
+    currentApp = new IOMemoryTestApp(&stack[1023]);
 
-    ioMemTest->start();
+    currentApp->start();
 }
 
-void Application::Asciimation () {
+void Application::startAsciimationDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    Thread *thread = new AsciimationApp();
-    thread->start();
+    currentApp = new AsciimationApp();
+
+    currentApp->start();
 }
 
 
@@ -88,136 +102,93 @@ void Application::Asciimation () {
  *---------------------------------------------------------------------------*
  * Beschreibung:    Heap demo.                                               *
  *****************************************************************************/
-void Application::Heap () {
+void Application::startHeapDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    Thread *thread = new HeapDemo();
-    thread->start();
+    currentApp = new HeapDemo();
+
+    currentApp->start();
 }
 
 void Application::startMouseApp() {
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
-    MouseApp *mouseApp = new MouseApp();
-    mouseApp->start();
+    currentApp = new MouseApp();
+
+    currentApp->start();
 }
 
-/*
- Tests fuer ProtectedMode()
- */
-void test_null_ptr_exc() {
-    unsigned int *ptr = 0;
-    *ptr = 1;
-}
-
-
-void badfunc() {
-    unsigned int *ptr = (unsigned int*) (0xFF000000);
-    *ptr = 1;
-}
-
-void test_access_outsideRAM() {
-    badfunc();
-}
-/*****************************************************************************
- * Methode:         Application::ProtectedMode                               *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Protected-mode demo.                                     *
- *****************************************************************************/
-void Application::ProtectedMode () {
+void Application::startExceptionDemo() {
     uint32_t a = 1 - 1;
     uint32_t b = 2;
     printf("%d", b / a);
 }
 
-void Application::shell() {
+void Application::startShell() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    Thread *thread = new Shell();
-    thread->start();
-}
+    currentApp = new Shell();
 
-uint32_t threadSum = 0;
-
-uint32_t worker(const uint32_t &number) {
-
-    return number * 2;
-}
-
-void callback(const Thread &thread, const uint32_t &number) {
-
-    threadSum += number;
+    currentApp->start();
 }
 
 void Application::showMenu () {
-    const char *descriptions[9] {
-            "A simple UNIX-like Shell",
-            "A fun game: Save the OS from invading bugs!",
-            "Play an Asciimation file",
-            "Watch Langtons Ant run around your screen",
-            "A simple Demo, that uses the mouse",
-            "Multi-Threading test",
-            "Memory Management test for the Heap",
-            "Memory Management test for IO Memory",
-            "Bluescreen test",
-    };
-
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
     Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
     
-    while (isRunning) {
+    while(true) {
+        if(isRunning) {
+            Rtc::date date = timeService->getRTC()->getCurrentDate();
+            char timeString[20];
+            snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year,
+                     date.hours, date.minutes, date.seconds);
 
-        Rtc::date date = timeService->getRTC()->getCurrentDate();
-        char timeString[20];
-        snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds);
+            lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 12, timeString, Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeString(font, 50, 12, timeString, Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 25, "hhuOS main menu", Colors::HHU_BLUE);
 
-        lfb->placeString(font, 50, 25, "hhuOS main menu", Colors::HHU_BLUE);
+            lfb->placeLine(33, 27, 66, 27, Colors::HHU_BLUE_50);
 
-        lfb->placeLine(33, 27, 66, 27, Colors::HHU_BLUE_50);
+            lfb->placeRect(50, 50, 60, 60, Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeRect(50, 50, 60, 60, Colors::HHU_LIGHT_GRAY);
+            lfb->placeRect(50, 55, 60, 50, Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeRect(50, 55, 60, 50, Colors::HHU_LIGHT_GRAY);
-
-        lfb->placeString(font, 50, 42 + 0 * MENU_DISTANCE, "Shell", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 1 * MENU_DISTANCE, "Bug Defender", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 2 * MENU_DISTANCE, "Asciimation", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 3 * MENU_DISTANCE, "Langtons Ant", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 4 * MENU_DISTANCE, "Mouse", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 5 * MENU_DISTANCE, "Loops and Sound", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 6 * MENU_DISTANCE, "Heap Test", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 7 * MENU_DISTANCE, "IO Memory Manager Test", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 42 + 8 * MENU_DISTANCE, "Exceptions Test", Colors::HHU_LIGHT_GRAY);
+            for (uint32_t i = 0; i < sizeof(menuOptions) / sizeof(const char *); i++) {
+                lfb->placeString(font, 50, static_cast<uint16_t>(42 + i * menuDistance), menuOptions[i],
+                                 Colors::HHU_LIGHT_GRAY);
+            }
 
 #if (TEST_THREADING == 1)
-        lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
+            lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
 #endif
 
-        lfb->placeString(font, 50, 85, descriptions[option], Colors::HHU_BLUE_30);
+            lfb->placeString(font, 50, 85, menuDescriptions[option], Colors::HHU_BLUE_30);
 
-        lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
-        lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
 
-        lfb->placeRect(50, 42 + option * MENU_DISTANCE, 58, MENU_DISTANCE, Colors::HHU_BLUE_70);
-        
-        lfb->show();
+            lfb->placeRect(50, static_cast<uint16_t>(42 + option * menuDistance), 58, menuDistance,
+                           Colors::HHU_BLUE_70);
+
+            lfb->show();
 
 #if (TEST_THREADING == 1)
-        WorkerThread<uint32_t, uint32_t > *w1 = new WorkerThread<uint32_t, uint32_t >(worker, 20, callback);
-        WorkerThread<uint32_t, uint32_t > *w2 = new WorkerThread<uint32_t, uint32_t >(worker, 40, callback);
-        WorkerThread<uint32_t, uint32_t > *w3 = new WorkerThread<uint32_t, uint32_t >(worker, 80, callback);
+            WorkerThread<uint32_t, uint32_t > *w1 = new WorkerThread<uint32_t, uint32_t >(worker, 20, callback);
+            WorkerThread<uint32_t, uint32_t > *w2 = new WorkerThread<uint32_t, uint32_t >(worker, 40, callback);
+            WorkerThread<uint32_t, uint32_t > *w3 = new WorkerThread<uint32_t, uint32_t >(worker, 80, callback);
 
-        w1->start();
-        w2->start();
-        w3->start();
+            w1->start();
+            w2->start();
+            w3->start();
 #endif
+        } else {
+            startSelectedApp();
+        }
     }
 }
 
@@ -229,36 +200,50 @@ void Application::startSelectedApp() {
 
     switch (option) {
         case 0:
-            shell();
+            startShell();
+            pause();
             break;
         case 1: {
             Game *game = new BugDefender();
             startGame(game);
+            delete game;
             break;
         }
         case 2:
-            Asciimation();
+            startAsciimationDemo();
+            pause();
             break;
         case 3:
-            Ant();
+            startAntDemo();
+            pause();
             break;
         case 4:
             startMouseApp();
+            pause();
             break;
         case 5:
-            LoopSound();
+            startLoopSoundDemo();
+            pause();
             break;
         case 6:
-            Heap();
+            startHeapDemo();
+            pause();
             break;
         case 7:
-            IOMemoryTest();
+            startIoMemoryDemo();
+            pause();
             break;
         case 8:
-            ProtectedMode();
+            startExceptionDemo();
+            pause();
             break;
         default:
             break;
+    }
+
+    if(currentApp != nullptr) {
+        delete currentApp;
+        currentApp = nullptr;
     }
 }
 
@@ -270,7 +255,7 @@ void Application::startGame(Game* game){
     float acc = 0.0f;
     float delta = 0.01667f; // 60Hz
 
-    while (game->isRunning){
+    while (game->isRunning) {
         float newTime = timeService->getSystemTime() / 100.0f;
         float frameTime = newTime - currentTime;
         if(frameTime > 0.25f)
@@ -287,14 +272,21 @@ void Application::startGame(Game* game){
         game->draw(lfb);
     }
 
+    isRunning = true;
 }
 
-/*****************************************************************************
- * Methode:         Application::run                                         *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Der Anwendungsthread erzeugt drei Threads die Zaehler    *
- *                  ausgeben und terminiert sich selbst.                     *
- *****************************************************************************/
+void Application::pause() {
+    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Scheduler::getInstance()->block();
+}
+
+void Application::resume() {
+    isRunning = true;
+    graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
+    Scheduler::getInstance()->deblock(*this);
+    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+}
+
 void Application::run() {
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
@@ -311,40 +303,36 @@ void Application::run() {
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 
     showMenu();
-
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
-
-    startSelectedApp();
 }
 
 void Application::onEvent(const Event &event) {
 
-    KeyEvent &keyEvent = (KeyEvent&) event;
+    auto &keyEvent = (KeyEvent&) event;
 
     if (!keyEvent.getKey().isPressed()) {
         return;
     }
 
     switch (keyEvent.getKey().scancode()) {
-        // Space
-        case 57:
+        case KeyEvent::SPACE:
             isRunning = false;
             break;
-            // Down
-        case 80:
-            if (option >= MENU_OPTIONS - 1) {
+        case KeyEvent::DOWN:
+            if (option >= sizeof(menuOptions) / sizeof(const char *) - 1) {
                 option = 0;
             } else {
                 option++;
             }
             break;
             // Up
-        case 72:
+        case KeyEvent::UP:
             if (option <= 0) {
-                option = MENU_OPTIONS - 1;
+                option = sizeof(menuOptions) / sizeof(const char *) - 1;
             } else {
                 option --;
             }
+            break;
+        default:
             break;
     }
 }

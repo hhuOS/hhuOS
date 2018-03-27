@@ -44,6 +44,10 @@ void EventBus::subscribe(Receiver &receiver, uint32_t type) {
 
 void EventBus::unsubscribe(const Receiver &receiver, uint32_t type) {
 
+    if(!receiverMap.containsKey(&receiver)) {
+        return;
+    }
+
     EventPublisher* publisher = receiverMap.get(&receiver);
 
     lock.lock();

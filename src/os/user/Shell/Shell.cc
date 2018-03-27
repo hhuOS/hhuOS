@@ -29,6 +29,8 @@
 #include <user/Shell/Commands/Insmod.h>
 #include <user/Shell/Commands/Mount.h>
 #include <user/Shell/Commands/Umount.h>
+#include <user/Application.h>
+#include <kernel/threads/Scheduler.h>
 
 Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
     graphicsService = Kernel::getService<GraphicsService>();
@@ -72,7 +74,24 @@ void Shell::run() {
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
-    while(true) {}
+    while(isRunning) {
+        if(execute) {
+            execute = false;
+            eventBus->unsubscribe(*this, KeyEvent::TYPE);
+
+            executeCommand();
+
+            memset(input, 0, sizeof(input));
+
+            stream << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
+            stream.flush();
+
+            eventBus->subscribe(*this, KeyEvent::TYPE);
+        }
+    }
+
+    Application::getInstance()->resume();
+    Scheduler::getInstance()->exit();
 }
 
 void Shell::executeCommand() {
@@ -90,8 +109,8 @@ void Shell::executeCommand() {
         return;
     }
 
-    if(!commands.containsKey(args[0]) && args[0] != "help") {
-        stderr << "shell: '" << args[0] << "': Command not found!" << endl;
+    if(!commands.containsKey(args[0]) && args[0] != "help" && args[0] != "exit") {
+        stderr << "Shell: '" << args[0] << "': Command not found!" << endl;
         return;
     }
 
@@ -125,7 +144,7 @@ void Shell::executeCommand() {
         // Try to open the output file
         File *file = File::open(absolutePath, "w");
         if(file == nullptr) {
-            stderr << "shell: '" << relativePath << "': File or Directory not found!" << endl;
+            stderr << "startShell: '" << relativePath << "': File or Directory not found!" << endl;
             return;
         }
 
@@ -136,6 +155,11 @@ void Shell::executeCommand() {
         for(const String &command : commands.keySet()) {
             *stream << command << endl;
         }
+
+        return;
+    } else if(args[0] == "exit") {
+        isRunning = false;
+        eventBus->unsubscribe(*this, KeyEvent::TYPE);
 
         return;
     }
@@ -157,19 +181,10 @@ void Shell::onEvent(const Event &event) {
         }
 
         if(key.ascii() == '\n') {
-            eventBus->unsubscribe(*this, KeyEvent::TYPE);
-
             input[strlen(input)] = 0;
             stream << endl;
 
-            executeCommand();
-
-            memset(input, 0, sizeof(input));
-
-            stream << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
-            stream.flush();
-
-            eventBus->subscribe(*this, KeyEvent::TYPE);
+            execute = true;
         } else if(key.ascii() == '\b') {
             if(strlen(input) > 0) {
                 uint16_t x, y;

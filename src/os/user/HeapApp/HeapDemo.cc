@@ -11,6 +11,7 @@
 #include <kernel/services/TimeService.h>
 #include <lib/libc/printf.h>
 #include <kernel/services/GraphicsService.h>
+#include <user/Application.h>
 
 #include "kernel/threads/Scheduler.h"
 #include "user/HeapApp/HeapDemo.h"
@@ -20,10 +21,6 @@
 #include "lib/Byte.h"
 #include "lib/Random.h"
 #include "kernel/Kernel.h"
-
-extern "C" {
-    #include "lib/libc/stdlib.h"
-}
 
 /**
  * Runs the thread.
@@ -37,17 +34,17 @@ void HeapDemo::run () {
     // run the tests
 
 #if HEAPDUMP
-    *stream << endl << "  Please press <RETURN> for the initial heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    *stream << endl << "Please press <RETURN> for the initial heap dump" << endl;
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN> to start tests" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     stream->clear ();
 
@@ -67,17 +64,17 @@ void HeapDemo::run () {
     *stream << " at " << o2 << endl;
 
 #if HEAPDUMP
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
     *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN to continue>" << endl;
     timeService->msleep(1000);
-    while (!kb->isKeyPressed(28));
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     *stream << endl;
     *stream << "Delete 2 objects" << endl;
@@ -90,17 +87,17 @@ void HeapDemo::run () {
     delete o2;
 
 #if HEAPDUMP
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
     *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN> to continue" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
 
     stream->clear ();
@@ -121,17 +118,17 @@ void HeapDemo::run () {
     *stream << " at " << o << endl;
 
 #if HEAPDUMP
-    *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    *stream << endl << "  Please press <RETURN> for heapdump" << endl;;
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN> to continue" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    *stream << endl << "  Please press <RETURN>" << endl;
 
 	*stream << endl;
     *stream << "Release array memory" << endl;
@@ -141,17 +138,17 @@ void HeapDemo::run () {
     delete[] pt;
 
 #if HEAPDUMP
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
     *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN> to continue" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     stream->clear ();
 
@@ -188,17 +185,17 @@ void HeapDemo::run () {
     }
 
 #if HEAPDUMP
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
     *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
 #endif
 
-    *stream << endl << "  Please press <RETURN> to continue" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     // Shuffle allocated objects
     unsigned int src, dst;
@@ -222,9 +219,9 @@ void HeapDemo::run () {
     delete random;
 
 #if HEAPDUMP
+    timeService->msleep(1000);
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
     *stream << endl << "  Please press <RETURN> for heapdump" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
 
     SystemManagement::getKernelHeapManager()->dump();
     *stream << endl;
@@ -233,7 +230,10 @@ void HeapDemo::run () {
     *stream << endl;
     *stream << "*** END OF DEMO ***" << endl;
 
-    *stream << endl << "  Please press <RETURN> to continue" << endl;
-	timeService->msleep(1000);
-	while (!kb->isKeyPressed(28));
+    timeService->msleep(1000);
+    *stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+
+    Application::getInstance()->resume();
+    Scheduler::getInstance()->exit();
 }

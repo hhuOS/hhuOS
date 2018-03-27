@@ -42,6 +42,9 @@ private:
 
     Directory *cwd = nullptr;
 
+    bool execute = false;
+    bool isRunning = true;
+
     char input[4096];
 
     /**

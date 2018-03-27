@@ -26,6 +26,16 @@ class KeyEvent : public Event {
 
 public:
 
+    enum Keys {
+        ESCAPE = 0x01,
+        RETURN = 28,
+        SPACE = 57,
+        UP = 72,
+        LEFT = 75,
+        RIGHT = 77,
+        DOWN = 80
+    };
+
     KeyEvent();
 
     explicit KeyEvent(Key key);

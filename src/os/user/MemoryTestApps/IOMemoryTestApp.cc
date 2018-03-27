@@ -5,19 +5,17 @@
 #include <kernel/Kernel.h>
 #include <devices/graphics/text/TextDriver.h>
 #include <kernel/services/GraphicsService.h>
+#include <user/Application.h>
 
 #include "kernel/threads/Scheduler.h"
 #include "user/MemoryTestApps/IOMemoryTestApp.h"
 
 #include "../../kernel/memory/SystemManagement.h"
-#include "kernel/memory/manager/IOMemoryManager.h"
-#include "lib/deprecated/Queue.h"
-#include "lib/Byte.h"
-#include "lib/Random.h"
 
 
 void IOMemoryTestApp::run () {
-
+    TimeService *timeService = Kernel::getService<TimeService>();
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     TextDriver &stream = *(Kernel::getService<GraphicsService>())->getTextDriver();
     SystemManagement *memoryManagement = SystemManagement::getInstance();
 
@@ -38,9 +36,9 @@ void IOMemoryTestApp::run () {
 
     memoryManagement->dumpFreeIOMemBlocks();
 
-
+    timeService->msleep(1000);
     stream << endl << "  Please press <RETURN>" << endl;
-    //TODO: Keypress
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     //
     // zwei Objekte loeschen
@@ -63,6 +61,12 @@ void IOMemoryTestApp::run () {
     stream << endl;
     stream << "*** END OF DEMO ***" << endl;
 
-    // selbst terminieren
+    timeService->msleep(1000);
+    stream << endl << "  Please press <RETURN>" << endl;
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+
+    Application::getInstance()->resume();
     Scheduler::getInstance()->exit();
 }

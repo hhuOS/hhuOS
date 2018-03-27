@@ -20,39 +20,66 @@
 class Application : public Thread, public Receiver {
 
 private:
+    const char *menuOptions[9] = {
+            "Shell", "Bug Defender", "Asciimation",
+            "Langtons Ant", "Mouse", "Loops and Sound",
+            "Heap Demo", "IO Memory Demo", "Exception Demo"
+    };
+
+    const char *menuDescriptions[9] {
+            "A simple UNIX-like Shell",
+            "A fun game: Save the OS from invading bugs!",
+            "Play an Asciimation file",
+            "Watch Langtons Ant run around your screen",
+            "A simple Demo, that uses the mouse",
+            "Multi-Threading test",
+            "Memory Management test for the Heap",
+            "Memory Management test for IO Memory",
+            "Bluescreen test",
+    };
+
+    static const constexpr uint8_t menuDistance = 4;
 
     uint16_t xres = 800;
     uint16_t yres = 600;
     uint8_t bpp = 32;
 
-    Application (const Application &copy); // Verhindere Kopieren
+    uint8_t option = 0;
+    bool isRunning = true;
+
+    static Application *instance;
 
     TimeService *timeService;
+    GraphicsService *graphicsService;
 
-    // Demos
-    void LoopSound ();
-    void Heap ();
-    void ProtectedMode ();
-    void Ant ();
-    void shell();
-    void Asciimation ();
-    void IOMemoryTest();
+    explicit Application();
+
+    ~Application() override = default;
+
+    void startShell();
+    void startLoopSoundDemo();
+    void startHeapDemo();
+    void startExceptionDemo();
+    void startAntDemo();
+    void startAsciimationDemo();
+    void startIoMemoryDemo();
+
     void showMenu();
     void startSelectedApp();
     void startMouseApp();
 
-    GraphicsService *graphicsService;
-    uint8_t option = 0;
-    bool isRunning = true;
-
 public:
-    // Gib dem Anwendungsthread einen Stack.
-    explicit Application ();
+    Application (const Application &copy) = delete;
 
-    ~Application() {};
 
-    // Thread-Startmethode
-    void run ();
+    static Application *getInstance();
+
+    void pause();
+
+    void resume();
+
+
+    void run() override;
 
     void onEvent(const Event &event) override;
 
