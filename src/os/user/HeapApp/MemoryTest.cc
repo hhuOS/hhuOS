@@ -60,11 +60,11 @@ void MemoryTest::run() {
     delete random;
     delete objects;
 
-    printLock.lock();
+    printLock.acquire();
 
     SystemManagement::getKernelHeapManager()->dump();
 
-    printLock.unlock();
+    printLock.release();
 
     while(1);
 }

@@ -18,7 +18,11 @@
 #define __IntDispatcher_include__
 
 #include "kernel/interrupts/InterruptHandler.h"
+#include "kernel/threads/ThreadState.h"
 #include "kernel/KernelService.h"
+
+#include "lib/util/ArrayList.h"
+#include "lib/util/HashMap.h"
 
 #include <cstdint>
 
@@ -41,7 +45,7 @@ public:
     };
     
     // no constructor needed
-    IntDispatcher() = delete;
+    IntDispatcher();
 
     IntDispatcher(const IntDispatcher &other) = delete;
     /**
@@ -50,26 +54,28 @@ public:
      * @param slot Interrupt number for this handler
      * @param gate Pointer to the handler itself
      */
-    static void assign(uint8_t slot, InterruptHandler &gate);
+    void assign(uint8_t slot, InterruptHandler &gate);
     
     /**
-     * Get the interrutp handler that is registered for an interrupt number
-     * under the given device number.
+     * Get the interrupt handlers that are registered for a specific interrupt.
      *
      * @param slot Interrupt number
-     * @param Device number
-     * @return Pointer to the requested interrupt handler.
+     * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
      */
-    static InterruptHandler* report(uint8_t slot, uint8_t device);
+    Util::List<InterruptHandler*>* report(uint8_t slot);
+
+    /**
+     * Dispatched the interrupt to all registered interrupt handlers.
+     *
+     * @param frame The interrupt frame
+     */
+    void dispatch(InterruptFrame *frame);
+
+    static IntDispatcher &getInstance();
 
 private:
 
-    const static uint8_t MAP_SIZE_X = 64;
-    const static uint8_t MAP_SIZE_Y = 16;
-
-    // Interrupt handler map - for each interrupt number up
-    // to MAX_SIZE_Y devices can be registered as handlers
-    static InterruptHandler* map[MAP_SIZE_X][MAP_SIZE_Y];
+    Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler*>*> handler;
 };
 
 #endif

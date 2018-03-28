@@ -19,6 +19,7 @@
 
 
 #include <cstdint>
+#include "Lock.h"
 
 /**
  * A simple spinlock implemented using test&set instructions.
@@ -26,7 +27,7 @@
  * @author Michael Schoettner, Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski
  * @date HHU, 2018
  */
-class Spinlock {
+class Spinlock : public Lock {
 
 public:
 
@@ -41,12 +42,14 @@ public:
     /**
      * Try to get the lock and block until lock is acquired
      */
-    void lock();
+    void acquire() override;
     
     /**
 	 * Unlock the lock.
 	 */
-    void unlock();
+    void release() override;
+
+    bool isLocked() override;
 
     /**
      * Try to acquire the lock once and return if it was successful.
@@ -60,17 +63,16 @@ private:
     /**
      * The value which is used for locking
      */
-    uint32_t lock_var;
-
-    /**
-     * pointer to the lock-value
-     */
-    uint32_t *ptr;
+    uint32_t lockVar;
 
     /**
      * Position of the zero flag in EFLAG
      */
     const static uint32_t ZERO_FLAG = 0x40;
+
+    static const uint32_t SPINLOCK_LOCK = 0x1;
+
+    static const uint32_t SPINLOCK_UNLOCK = 0x0;
 };
 
 #endif

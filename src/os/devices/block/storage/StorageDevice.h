@@ -5,7 +5,7 @@
 #include "lib/util/ArrayList.h"
 
 #include <cstdint>
-#include <kernel/Spinlock.h>
+#include <kernel/lock/Spinlock.h>
 
 /**
  * Interface for storage devices, that are accessed sector-wise.

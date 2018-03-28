@@ -31,7 +31,7 @@ global onException
 
 
 extern preempt
-extern int_disp
+extern dispatchInterrupt
 extern switch_context
 extern gdt_48
 extern _gdt_bios_48
@@ -261,7 +261,7 @@ wrapper_body:
 
     ; Call interrupt handler
     push    esp
-    call	int_disp
+    call	dispatchInterrupt
     add     esp, 0x04
 
 interrupt_return:

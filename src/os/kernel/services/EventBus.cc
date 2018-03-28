@@ -31,13 +31,13 @@ void EventBus::subscribe(Receiver &receiver, uint32_t type) {
 
     EventPublisher *publisher = new EventPublisher(receiver);
 
-    lock.lock();
+    lock.acquire();
 
     receiverMap.put(&receiver, publisher);
 
     publishers[type].add(publisher);
 
-    lock.unlock();
+    lock.release();
 
     publisher->start();
 }
@@ -50,24 +50,24 @@ void EventBus::unsubscribe(const Receiver &receiver, uint32_t type) {
 
     EventPublisher* publisher = receiverMap.get(&receiver);
 
-    lock.lock();
+    lock.acquire();
 
     receiverMap.remove(&receiver);
 
     publishers[type].remove(publisher);
 
-    lock.unlock();
+    lock.release();
 }
 
 void EventBus::run() {
 
     while (isRunning) {
 
-        lock.lock();
+        lock.acquire();
 
         notify();
 
-        lock.unlock();
+        lock.release();
 
         Scheduler::getInstance()->yield();
     }

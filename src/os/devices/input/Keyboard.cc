@@ -20,7 +20,7 @@
 
 /* Tabellen fuer ASCII-Codes (Klassenvariablen) intiialisieren */
 
-unsigned char Keyboard::normal_tab[] =
+uint8_t Keyboard::normal_tab[] =
         {
                 0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 225, 39, '\b',
                 0, 'q', 'w', 'e', 'r', 't', 'z', 'u', 'i', 'o', 'p', 129, '+', '\n',
@@ -30,7 +30,7 @@ unsigned char Keyboard::normal_tab[] =
                 0, 0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0
         };
 
-unsigned char Keyboard::shift_tab[] =
+uint8_t Keyboard::shift_tab[] =
         {
                 0, 0, '!', '"', 21, '$', '%', '&', '/', '(', ')', '=', '?', 96, 0,
                 0, 'Q', 'W', 'E', 'R', 'T', 'Z', 'U', 'I', 'O', 'P', 154, '*', 0,
@@ -40,7 +40,7 @@ unsigned char Keyboard::shift_tab[] =
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '>', 0, 0
         };
 
-unsigned char Keyboard::alt_tab[] =
+uint8_t Keyboard::alt_tab[] =
         {
                 0, 0, 0, 253, 0, 0, 0, 0, '{', '[', ']', '}', '\\', 0, 0,
                 0, '@', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 0,
@@ -50,11 +50,11 @@ unsigned char Keyboard::alt_tab[] =
                 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0
         };
 
-unsigned char Keyboard::asc_num_tab[] =
+uint8_t Keyboard::asc_num_tab[] =
         {
                 '7', '8', '9', '-', '4', '5', '6', '+', '1', '2', '3', '0', ','
         };
-unsigned char Keyboard::scan_num_tab[] =
+uint8_t Keyboard::scan_num_tab[] =
         {
                 8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
         };
@@ -71,7 +71,7 @@ unsigned char Keyboard::scan_num_tab[] =
 bool Keyboard::key_decoded () {
     bool done = false;
     bool isBreak = (code & break_bit);
-    int scancode = code & ~break_bit;
+    uint32_t scancode = code & ~break_bit;
 
     if(isBreak) {
         removeFromBuffer(scancode);
@@ -149,11 +149,11 @@ bool Keyboard::key_decoded () {
             break;
         case 58:
             gather.caps_lock (!gather.caps_lock ());
-            set_led (led::caps_lock, gather.caps_lock());
+            setLed(led::caps_lock, gather.caps_lock());
             break;
         case 70:
             gather.scroll_lock (!gather.scroll_lock ());
-            set_led (led::scroll_lock, gather.scroll_lock());
+            setLed(led::scroll_lock, gather.scroll_lock());
             break;
         case 69: // Numlock oder Pause ?
             if (gather.ctrl_left ()) { // Pause Taste
@@ -168,7 +168,7 @@ bool Keyboard::key_decoded () {
             }
             else { // NumLock
                 gather.num_lock (!gather.num_lock());
-                set_led (led::num_lock, gather.num_lock ());
+                setLed(led::num_lock, gather.num_lock());
             }
             break;
 
@@ -256,19 +256,19 @@ void Keyboard::get_ascii_code () {
  *                   schaltet und die Wiederholungsrate auf maximale         *
  *                   Geschwindigkeit eingestellt.                            *
  *****************************************************************************/
-Keyboard::Keyboard () : ctrl_port (0x64), data_port (0x60), eventBuffer(1024) {
+Keyboard::Keyboard () : controlPort (0x64), dataPort (0x60), eventBuffer(1024) {
 
     eventBus = Kernel::getService<EventBus>();
 
     // alle LEDs ausschalten (bei vielen PCs ist NumLock nach dem Booten an)
-    set_led (led::caps_lock, false);
-    set_led (led::scroll_lock, false);
-    set_led (led::num_lock, false);
+    setLed(led::caps_lock, false);
+    setLed(led::scroll_lock, false);
+    setLed(led::num_lock, false);
 
     keysPressed = 0;
 
     // maximale Geschwindigkeit, minimale Verzoegerung
-    set_repeat_rate (0, 0);
+    setRepeatRate(0, 0);
 
     // last key "loeschen"
     lastKey='*';
@@ -291,14 +291,14 @@ Keyboard::Keyboard () : ctrl_port (0x64), data_port (0x60), eventBuffer(1024) {
  *                  ungueltigen Wert zurueck, was mit Key::valid ()          *
  *                  ueberprueft werden kann.                                 *
  *****************************************************************************/
-Key Keyboard::key_hit () {
+Key Keyboard::keyHit() {
     Key invalid;  // nicht explizit initialisierte Tasten sind ungueltig
 
-    int control;
+    uint32_t control;
 
-    control = ctrl_port.inb ();
+    control = controlPort.inb();
 
-    code = (unsigned char) data_port.inb();
+    code = (uint8_t) dataPort.inb();
 
     // Auch eine evtl. angeschlossene PS/2 Maus liefert ihre Daten ueber den
     // Tastaturcontroller. In diesem Fall ist zur Kennzeichnung das AUXB-Bit
@@ -316,17 +316,17 @@ Key Keyboard::key_hit () {
  * Beschreibung:    Fuehrt einen Neustart des Rechners durch.                *
  *****************************************************************************/
 void Keyboard::reboot () {
-    int status;
+    uint32_t status;
 
     // Dem BIOS mitteilen, dass das Reset beabsichtigt war
     // und kein Speichertest durchgefuehrt werden muss.
-    *(unsigned short*) 0xc0000472 = 0x1234;
+    *(uint32_t*) 0xc0000472 = 0x1234;
 
     // Der Tastaturcontroller soll das Reset ausloesen.
     do {
-        status = ctrl_port.inb ();      // warten, bis das letzte Kommando
+        status = controlPort.inb ();      // warten, bis das letzte Kommando
     } while ((status & inpb) != 0);     // verarbeitet wurde.
-    ctrl_port.outb (cpu_reset);         // Reset
+    controlPort.outb (cpu_reset);         // Reset
 }
 
 
@@ -348,22 +348,22 @@ void Keyboard::reboot () {
  *                  ((2 ^ B) * (D + 8) / 240 sec                             *
  *                  Bits 4-3 = B; Bits 2-0 = D;                              *
  *****************************************************************************/
-void Keyboard::set_repeat_rate (int speed, int delay) {
-    int status, reply;
+void Keyboard::setRepeatRate(uint32_t speed, uint32_t delay) {
+    uint32_t status, reply;
 
-    data_port.outb (kbd_cmd::set_speed);        // Kommando an die Tastatur
+    dataPort.outb (kbd_cmd::set_speed);        // Kommando an die Tastatur
     do {
-        status = ctrl_port.inb ();              // auf eine Antwort warten
+        status = controlPort.inb ();              // auf eine Antwort warten
     } while ((status & outb) == 0);
 
-    reply = data_port.inb ();                   // Antwort entgegennehmen
+    reply = dataPort.inb ();                   // Antwort entgegennehmen
     if (reply == kbd_reply::ack) {              // ACK erhalten?
         // Einstellungen schreiben
-        data_port.outb (((delay & 3) << 5) | (speed & 31));
+        dataPort.outb (((delay & 3) << 5) | (speed & 31));
         do {
-            status = ctrl_port.inb ();          // auf eine Antwort warten
+            status = controlPort.inb ();          // auf eine Antwort warten
         } while ((status & outb) == 0);
-        data_port.inb ();                       // Antwort lesen
+        dataPort.inb ();                       // Antwort lesen
     }
 }
 
@@ -377,32 +377,32 @@ void Keyboard::set_repeat_rate (int speed, int delay) {
  *      led:        Welche LED? (caps_lock, num_lock, scroll_lock)           *
  *      on:         0 = aus, 1 = an                                          *
  *****************************************************************************/
-void Keyboard::set_led (char led, bool on) {
-    int status, reply;
+void Keyboard::setLed(uint8_t led, bool on) {
+    uint32_t status, reply;
 
-    data_port.outb (kbd_cmd::set_led);          // Kommando an die Tastatur
+    dataPort.outb (kbd_cmd::set_led);          // Kommando an die Tastatur
     do {
-        status = ctrl_port.inb ();              // auf eine Antwort warten
+        status = controlPort.inb ();              // auf eine Antwort warten
     } while ((status & outb) == 0);
 
-    reply = data_port.inb ();                   // Antwort entgegennehmen
+    reply = dataPort.inb ();                   // Antwort entgegennehmen
     if (reply == kbd_reply::ack) {              // ok
         if (on) leds |= led;
         else    leds &= ~led;
-        data_port.outb (leds);                  // Parameter schicken
+        dataPort.outb (leds);                  // Parameter schicken
         do {
-            status = ctrl_port.inb ();          // auf eine Antwort warten
+            status = controlPort.inb ();          // auf eine Antwort warten
         } while ((status & outb) == 0);
-        data_port.inb ();                       // Antwort lesen
+        dataPort.inb ();                       // Antwort lesen
     }
 }
 
-int Keyboard::getKeysPressed(){
+uint32_t Keyboard::getKeysPressed(){
     return keysPressed;
 }
 
-bool Keyboard::isKeyPressed(int scancode){
-    for(int i = 0; i < KB_BUFFER_SIZE; i++){
+bool Keyboard::isKeyPressed(uint32_t scancode){
+    for(uint32_t i = 0; i < KB_BUFFER_SIZE; i++){
         if(buffer[i] == scancode) {
             return true;
         }
@@ -410,12 +410,12 @@ bool Keyboard::isKeyPressed(int scancode){
     return false;
 }
 
-void Keyboard::addToBuffer(int scancode){
+void Keyboard::addToBuffer(uint32_t scancode){
     if(isKeyPressed(scancode)) {
         return;
     }
 
-    for(int i = 0; i < KB_BUFFER_SIZE; i++){
+    for(uint32_t i = 0; i < KB_BUFFER_SIZE; i++){
         if(buffer[i] == 0){
             buffer[i] = scancode;
             keysPressed++;
@@ -424,8 +424,8 @@ void Keyboard::addToBuffer(int scancode){
     }
 }
 
-void Keyboard::removeFromBuffer(int scancode){
-    for(int i = 0; i < KB_BUFFER_SIZE; i++){
+void Keyboard::removeFromBuffer(uint32_t scancode){
+    for(uint32_t i = 0; i < KB_BUFFER_SIZE; i++){
         if(buffer[i] == scancode){
             buffer[i] = 0;
             keysPressed--;
@@ -452,9 +452,9 @@ void Keyboard::resetLast() {
  *****************************************************************************/
 void Keyboard::plugin () {
 
-    memset(buffer, 0, KB_BUFFER_SIZE * sizeof(int));
+    memset(buffer, 0, KB_BUFFER_SIZE * sizeof(uint32_t));
 
-    IntDispatcher::assign (IntDispatcher::keyboard, *this);
+    IntDispatcher::getInstance().assign (IntDispatcher::keyboard, *this);
     Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);
 }
 
@@ -466,7 +466,8 @@ void Keyboard::plugin () {
  *                  eine Unterbrechung ausloest.                             *
  *****************************************************************************/
 void Keyboard::trigger () {
-    Key key = key_hit();
+
+    Key key = keyHit();
 
     if (key.valid()) {
 
@@ -485,5 +486,5 @@ void Keyboard::trigger () {
 }
 
 bool::Keyboard::checkForData() {
-    return (ctrl_port.inb() & 0x1) == 0x1;
+    return (controlPort.inb() & 0x1) == 0x1;
 }

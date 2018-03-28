@@ -3,7 +3,7 @@
 
 
 #include <kernel/threads/Thread.h>
-#include <kernel/Spinlock.h>
+#include <kernel/lock/Spinlock.h>
 
 class MemoryTest : public Thread {
 

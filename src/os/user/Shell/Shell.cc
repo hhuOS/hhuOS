@@ -31,6 +31,7 @@
 #include <user/Shell/Commands/Umount.h>
 #include <user/Application.h>
 #include <kernel/threads/Scheduler.h>
+#include <lib/libc/snprintf.h>
 
 Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
     graphicsService = Kernel::getService<GraphicsService>();

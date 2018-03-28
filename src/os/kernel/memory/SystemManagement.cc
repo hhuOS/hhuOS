@@ -63,7 +63,7 @@ void fini_system() {
  * Plugin to register for interrupt handling
  */
 void SystemManagement::plugin() {
-    IntDispatcher::assign(IntDispatcher::pagefault, *this);
+    IntDispatcher::getInstance().assign(IntDispatcher::pagefault, *this);
 }
 
 

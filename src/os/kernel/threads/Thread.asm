@@ -16,8 +16,6 @@
 global startThread
 global switchContext
 
-extern allowPreemption
-
 section .text
 
 startThread:
@@ -56,9 +54,8 @@ switchContext:
     pop ebx
     pop ebp
 
-    ; enable interrupt
+    ; enable interrupts
     sti
-    call allowPreemption
 
     ; resume next thread
     ret

@@ -69,7 +69,7 @@ void printf(const char *format, ...) {
 
             if (*traverse == '\0') {
                 va_end(args);
-                printLock->unlock();
+                printLock->release();
                 return;
             }
 
@@ -111,7 +111,7 @@ void printf(const char *format, ...) {
     }
 
     va_end(args);
-    printLock->unlock();
+    printLock->release();
 }
 
 void printfUpdateStdout() {

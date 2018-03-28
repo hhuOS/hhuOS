@@ -22,8 +22,6 @@
 [GLOBAL releaseLock]
 [GLOBAL tryAcquireLock]
 
-[EXTERN schedulerYield]
-
 [SECTION .text]
 
 ; entry point to lock
@@ -39,17 +37,12 @@ spin:
 	mov ecx, [ebp+8]		; load address of lock-variable
 	xchg eax, [ecx]	        ; swap values of lock-variable and eax in an atomic step -> lock-variable is 1 after this step in every case
 	test eax, eax			; bitwise AND of eax against itself -> set zero flag if result is 0 (this is the case if 0 was in the lock-var before)
-	jnz lockFailed			; spin-loop if zero flag is not set -> in this case the result of the test-operation was not zero
+	jnz spin			    ; spin-loop if zero flag is not set -> in this case the result of the test-operation was not zero
 
-lockAquired:
     pop ecx					; restore ecx
 	mov esp, ebp
     pop ebp					; restore ebp
 	ret						; return
-
-lockFailed:
-    call schedulerYield
-    jmp spin
 
 ; entry point for one try to acquire lock
 tryAcquireLock:

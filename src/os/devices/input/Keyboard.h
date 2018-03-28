@@ -31,19 +31,19 @@ private:
 
     Keyboard(const Keyboard &copy); // Verhindere Kopieren
 
-    const static int KB_BUFFER_SIZE = 4;
+    const static uint32_t KB_BUFFER_SIZE = 4;
 
-    unsigned char code;     // Byte von Tastatur
-    unsigned char prefix;   // Prefix von Tastatur
+    uint8_t code;     // Byte von Tastatur
+    uint8_t prefix;   // Prefix von Tastatur
     Key gather;             // letzter dekodierter Key
-    char leds;              // Zustand LEDs
+    uint8_t leds;              // Zustand LEDs
 
-    int keysPressed;
-    int buffer[KB_BUFFER_SIZE];
+    uint32_t keysPressed;
+    uint32_t buffer[KB_BUFFER_SIZE];
 
     // Benutzte Ports des Tastaturcontrollers
-    const IOport ctrl_port;    // Status- (R) u. Steuerregister (W)
-    const IOport data_port;    // Ausgabe- (R) u. Eingabepuffer (W)
+    const IOport controlPort;    // Status- (R) u. Steuerregister (W)
+    const IOport dataPort;    // Ausgabe- (R) u. Eingabepuffer (W)
 
     // Bits im Statusregister
     enum { outb = 0x01, inpb = 0x02, auxb = 0x20 };
@@ -68,11 +68,11 @@ private:
     enum { break_bit = 0x80, prefix1 = 0xe0, prefix2   = 0xe1 };
 
     // Klassenvariablen
-    static unsigned char normal_tab[];
-    static unsigned char shift_tab[];
-    static unsigned char alt_tab[];
-    static unsigned char asc_num_tab[];
-    static unsigned char scan_num_tab[];
+    static uint8_t normal_tab[];
+    static uint8_t shift_tab[];
+    static uint8_t alt_tab[];
+    static uint8_t asc_num_tab[];
+    static uint8_t scan_num_tab[];
 
     // Interpretiert die Make und Break-Codes der Tastatur.
     bool key_decoded ();
@@ -80,9 +80,9 @@ private:
     // Ermittelt anhand von Tabellen den ASCII-Code.
     void get_ascii_code ();
 
-    void addToBuffer (int scancode);
+    void addToBuffer (uint32_t scancode);
 
-    void removeFromBuffer (int scancode);
+    void removeFromBuffer (uint32_t scancode);
 
     EventBus *eventBus;
 
@@ -90,13 +90,13 @@ private:
 
 public:
 
-    char lastKey;   // zuletzt gedrueckte Taste
+    uint8_t lastKey;   // zuletzt gedrueckte Taste
 
     // Initialisierung der Tastatur.
     Keyboard ();
 
     // Tastaturabfrage (vorerst Polling)
-    Key key_hit ();
+    Key keyHit();
 
     // Letzter dekodierter Tastenanschlag
     Key lastHit ();
@@ -104,25 +104,25 @@ public:
     void resetLast();
 
     // Fuehrt einen Neustart des Rechners durch.
-    void reboot ();
+    void reboot();
 
     // Einstellen der Wiederholungsrate der Tastatur.
-    void set_repeat_rate (int speed, int delay);
+    void setRepeatRate(uint32_t speed, uint32_t delay);
 
     // Setzt oder loescht die angegebene Leuchtdiode.
-    void set_led (char led, bool on);
+    void setLed(uint8_t led, bool on);
 
     // Aktivierung der Unterbrechungen fuer die Tastatur
-    void plugin ();
+    void plugin();
 
     // Unterbrechnungsroutine der Tastatur.
     void trigger() override;
 
     bool checkForData() override;
 
-    int getKeysPressed ();
+    uint32_t getKeysPressed();
 
-    bool isKeyPressed (int scancode);
+    bool isKeyPressed (uint32_t scancode);
 };
 
 #endif
