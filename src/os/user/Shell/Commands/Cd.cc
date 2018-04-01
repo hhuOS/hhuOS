@@ -22,7 +22,7 @@ Cd::Cd(Shell &shell) : Command(shell) {
 
 };
 
-void Cd::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Cd::execute(Util::Array<String> &args) {
     String path;
 
     for(uint32_t i = 1; i < args.length(); i++) {
@@ -34,10 +34,10 @@ void Cd::execute(Util::Array<String> &args, OutputStream &outputStream) {
                 return;
             }
         } else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Changes the working directory." << endl << endl;
-            outputStream << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Changes the working directory." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;

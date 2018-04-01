@@ -33,6 +33,7 @@ class Command {
 
 protected:
     Shell &shell;
+    OutputStream &stdout;
     OutputStream &stderr;
 
     /**
@@ -74,7 +75,7 @@ public:
      * @param args Parameters, given by the user
      * @param outputStream The stream to write to
      */
-    virtual void execute(Util::Array<String> &args, OutputStream &outputStream) = 0;
+    virtual void execute(Util::Array<String> &args) = 0;
 };
 
 #endif

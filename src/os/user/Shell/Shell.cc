@@ -32,7 +32,8 @@
 #include <user/Application.h>
 #include <kernel/threads/Scheduler.h>
 
-Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
+Shell::Shell() : Thread("Shell") {
+    stdStreamService = Kernel::getService<StdStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
 
@@ -65,12 +66,13 @@ void Shell::setCurrentWorkingDirectory(Directory *cwd) {
 }
 
 void Shell::run() {
-    TextDriver &stream = *graphicsService->getTextDriver();
+    stdStreamService->setStdout(this);
+    stdStreamService->setStderr(this);
     cwd = Directory::open("/");
 
-    stream << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    stream << "[/]$ ";
-    stream.flush();
+    *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
+    *this << "[/]$ ";
+    this->flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
@@ -83,8 +85,8 @@ void Shell::run() {
 
             memset(input, 0, sizeof(input));
 
-            stream << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
-            stream.flush();
+            *this << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
+            this->flush();
 
             eventBus->subscribe(*this, KeyEvent::TYPE);
         }
@@ -110,7 +112,7 @@ void Shell::executeCommand() {
     }
 
     if(!commands.containsKey(args[0]) && args[0] != "help" && args[0] != "exit") {
-        stderr << "Shell: '" << args[0] << "': Command not found!" << endl;
+        *this << "Shell: '" << args[0] << "': Command not found!" << endl;
         return;
     }
 
@@ -144,7 +146,7 @@ void Shell::executeCommand() {
         // Try to open the output file
         File *file = File::open(absolutePath, "w");
         if(file == nullptr) {
-            stderr << "startShell: '" << relativePath << "': File or Directory not found!" << endl;
+            *this << "startShell: '" << relativePath << "': File or Directory not found!" << endl;
             return;
         }
 
@@ -164,7 +166,7 @@ void Shell::executeCommand() {
         return;
     }
 
-    commands.get(args[0])->execute(args, *stream);
+    commands.get(args[0])->execute(args);
 
     if(stream != graphicsService->getTextDriver()) {
         delete stream;
@@ -201,4 +203,9 @@ void Shell::onEvent(const Event &event) {
             stream.flush();
         }
     }
+}
+
+void Shell::flush() {
+    graphicsService->getTextDriver()->puts(StringBuffer::buffer, StringBuffer::pos);
+    StringBuffer::pos = 0;
 }

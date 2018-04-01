@@ -31,12 +31,12 @@ class Command;
  * @author Fabian Ruhland
  * @date 2018
  */
-class Shell : public Thread, Receiver {
+class Shell : public Thread, Receiver, OutputStream {
 
 private:
+    StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
-    OutputStream &stderr;
 
     Util::HashMap<String, Command*> commands;
 
@@ -88,6 +88,8 @@ public:
      * Overriding function from Receiver.
      */
     void onEvent(const Event &event) override;
+
+    void flush() override;
 };
 
 #endif

@@ -24,17 +24,17 @@ Insmod::Insmod(Shell &shell) : Command(shell) {
 
 };
 
-void Insmod::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Insmod::execute(Util::Array<String> &args) {
     Util::ArrayList<String> paths;
 
     for(uint32_t i = 1; i < args.length(); i++) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
             paths.add(args[i]);
         } else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Loads kernel modules from disk." << endl << endl;
-            outputStream << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Loads kernel modules from disk." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
@@ -66,7 +66,7 @@ void Insmod::execute(Util::Array<String> &args, OutputStream &outputStream) {
         ModuleLoader::Status status = moduleLoader->load(module);
 
         if (status == ModuleLoader::Status::OK) {
-            outputStream << args[0] << ": '" << path <<  "': Inserted module!" << endl;
+            stdout << args[0] << ": '" << path <<  "': Inserted module!" << endl;
         } else {
             stderr << args[0] << ": '" << path <<  "': Unable to insert module!" << endl;
         }

@@ -60,7 +60,7 @@ public:
     /**
      * Overriding function from Command.
      */
-    void execute(Util::Array<String> &args, OutputStream &outputStream) override;
+    void execute(Util::Array<String> &args) override;
 };
 
 #endif
