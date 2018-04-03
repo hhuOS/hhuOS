@@ -37,6 +37,10 @@ Shell::Shell() : Thread("Shell") {
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
 
+    stdStreamService->setStdout(this);
+    stdStreamService->setStderr(this);
+    stdStreamService->setStdin(this);
+
     commands.put("clear", new Clear(*this));
     commands.put("cd", new Cd(*this));
     commands.put("echo", new Echo(*this));
@@ -66,8 +70,6 @@ void Shell::setCurrentWorkingDirectory(Directory *cwd) {
 }
 
 void Shell::run() {
-    stdStreamService->setStdout(this);
-    stdStreamService->setStderr(this);
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
@@ -95,7 +97,7 @@ void Shell::run() {
 void Shell::executeCommand(String input) {
     OutputStream *stream = this;
 
-    Util::Array<String> tmp = input.split(">");
+     Util::Array<String> tmp = input.split(">");
 
     if(tmp.length() == 0) {
         return;
@@ -184,6 +186,8 @@ void Shell::onEvent(const Event &event) {
             return;
         }
 
+        inputLock.lock();
+
         if(key.ascii() == '\n') {
             inputBuffer[strlen(inputBuffer)] = 0;
             stream << endl;
@@ -210,6 +214,8 @@ void Shell::onEvent(const Event &event) {
             stream << key.ascii();
             stream.flush();
         }
+
+        inputLock.unlock();
     }
 }
 
@@ -219,28 +225,44 @@ void Shell::flush() {
 }
 
 InputStream &Shell::operator>>(char &c) {
-    while(!charAvailable) {}
+    while(true) {
+        inputLock.lock();
 
-    c = lastChar;
-    charAvailable = false;
+        if(charAvailable) {
+            charAvailable = false;
+            c = lastChar;
 
-    return *this;
+            inputLock.unlock();
+            return *this;
+        }
+
+        inputLock.unlock();
+    }
 }
 
 InputStream &Shell::operator>>(char *&string) {
-    while(!stringAvailable) {}
+    while(true) {
+        inputLock.lock();
 
-    stringAvailable = false;
-    string = (char *) lastString;
+        if(stringAvailable) {
+            stringAvailable = false;
+            string = (char *) lastString;
 
-    return *this;
+            inputLock.unlock();
+            return *this;
+        }
+
+        inputLock.unlock();
+    }
 }
 
 InputStream &Shell::operator>>(OutputStream &outStream) {
-    while(!stringAvailable) {}
+    char *string = nullptr;
 
-    stringAvailable = false;
-    outStream << lastString;
+    *this >> string;
+    outStream << string;
+    outStream.flush();
 
+    delete string;
     return *this;
 }

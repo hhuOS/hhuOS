@@ -42,6 +42,8 @@ private:
 
     Directory *cwd = nullptr;
 
+    Spinlock inputLock;
+
     bool execute = false;
     bool isRunning = true;
 

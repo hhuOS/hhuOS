@@ -35,6 +35,7 @@ protected:
     Shell &shell;
     OutputStream &stdout;
     OutputStream &stderr;
+    InputStream &stdin;
 
     /**
      * Uses the shell's current working directory and a given relative path to assemble an absolute path.

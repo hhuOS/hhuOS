@@ -61,7 +61,7 @@ void Insmod::execute(Util::Array<String> &args) {
             continue;
         }
 
-        File *module = File::open(path, "r");
+        File *module = File::open(absolutePath, "r");
 
         ModuleLoader::Status status = moduleLoader->load(module);
 
