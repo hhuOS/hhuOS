@@ -97,7 +97,7 @@ void Shell::run() {
 }
 
 void Shell::executeCommand() {
-    OutputStream *stream = graphicsService->getTextDriver();
+    OutputStream *stream = this;
 
     Util::Array<String> tmp = String(input).split(">");
 
@@ -146,7 +146,7 @@ void Shell::executeCommand() {
         // Try to open the output file
         File *file = File::open(absolutePath, "w");
         if(file == nullptr) {
-            *this << "startShell: '" << relativePath << "': File or Directory not found!" << endl;
+            *this << "Shell: '" << relativePath << "': File or Directory not found!" << endl;
             return;
         }
 
@@ -166,9 +166,15 @@ void Shell::executeCommand() {
         return;
     }
 
+    stdStreamService->setStdout(stream);
+    stdStreamService->setStderr(stream);
+
     commands.get(args[0])->execute(args);
 
-    if(stream != graphicsService->getTextDriver()) {
+    stdStreamService->setStdout(this);
+    stdStreamService->setStderr(this);
+
+    if(stream != this) {
         delete stream;
     }
 }
