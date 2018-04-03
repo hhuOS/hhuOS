@@ -49,7 +49,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
 
-    memset(input, 0, sizeof(input));
+    memset(inputBuffer, 0, sizeof(inputBuffer));
 }
 
 Shell::~Shell() {
@@ -77,29 +77,25 @@ void Shell::run() {
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
     while(isRunning) {
-        if(execute) {
-            execute = false;
-            eventBus->unsubscribe(*this, KeyEvent::TYPE);
+        char* input = nullptr;
+        *this >> input;
 
-            executeCommand();
+        executeCommand(input);
 
-            memset(input, 0, sizeof(input));
+        delete input;
 
-            *this << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
-            this->flush();
-
-            eventBus->subscribe(*this, KeyEvent::TYPE);
-        }
+        *this << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
+        this->flush();
     }
 
     Application::getInstance()->resume();
     Scheduler::getInstance()->exit();
 }
 
-void Shell::executeCommand() {
+void Shell::executeCommand(String input) {
     OutputStream *stream = this;
 
-    Util::Array<String> tmp = String(input).split(">");
+    Util::Array<String> tmp = input.split(">");
 
     if(tmp.length() == 0) {
         return;
@@ -184,27 +180,33 @@ void Shell::onEvent(const Event &event) {
     Key key = ((KeyEvent &) event).getKey();
 
     if (key.valid()) {
-        if(strlen(input) == (sizeof(input) - 1) && key.ascii() != '\b') {
+        if(strlen(inputBuffer) == (sizeof(inputBuffer) - 1) && key.ascii() != '\b') {
             return;
         }
 
         if(key.ascii() == '\n') {
-            input[strlen(input)] = 0;
+            inputBuffer[strlen(inputBuffer)] = 0;
             stream << endl;
 
-            execute = true;
+            lastString = String(inputBuffer);
+            stringAvailable = true;
+
+            memset(inputBuffer, 0, sizeof(inputBuffer));
         } else if(key.ascii() == '\b') {
-            if(strlen(input) > 0) {
+            if(strlen(inputBuffer) > 0) {
                 uint16_t x, y;
                 stream.getpos(x, y);
                 stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.setpos(x, y);
 
-                memset(&input[strlen(input) - 1], 0, sizeof(input) - (strlen(input) - 1));
+                memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
             }
         } else {
-            input[strlen(input)] = key.ascii();
+            lastChar = key.ascii();
+            charAvailable = true;
+
+            inputBuffer[strlen(inputBuffer)] = key.ascii();
             stream << key.ascii();
             stream.flush();
         }
@@ -214,4 +216,31 @@ void Shell::onEvent(const Event &event) {
 void Shell::flush() {
     graphicsService->getTextDriver()->puts(StringBuffer::buffer, StringBuffer::pos);
     StringBuffer::pos = 0;
+}
+
+InputStream &Shell::operator>>(char &c) {
+    while(!charAvailable) {}
+
+    c = lastChar;
+    charAvailable = false;
+
+    return *this;
+}
+
+InputStream &Shell::operator>>(char *&string) {
+    while(!stringAvailable) {}
+
+    stringAvailable = false;
+    string = (char *) lastString;
+
+    return *this;
+}
+
+InputStream &Shell::operator>>(OutputStream &outStream) {
+    while(!stringAvailable) {}
+
+    stringAvailable = false;
+    outStream << lastString;
+
+    return *this;
 }
