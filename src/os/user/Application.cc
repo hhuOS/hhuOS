@@ -16,11 +16,11 @@
 #include <user/Shell/Shell.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/threads/Scheduler.h>
+#include <user/MemoryAreaTests/HeapTestApp.h>
+#include <user/MemoryAreaTests/IOMemoryTestApp.h>
 #include "user/LoopSoundApp/Loop.h"
 #include "user/LoopSoundApp/Sound.h"
-#include "user/HeapApp/HeapDemo.h"
 #include "user/AntApp/AntApp.h"
-#include "user/MemoryTestApps/IOMemoryTestApp.h"
 #include "user/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
 
@@ -80,9 +80,7 @@ void Application::startIoMemoryDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    auto* stack = new uint32_t[1024];
-    currentApp = new IOMemoryTestApp(&stack[1023]);
-
+    currentApp = new IOMemoryTestApp();
     currentApp->start();
 }
 
@@ -106,7 +104,7 @@ void Application::startHeapDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    currentApp = new HeapDemo();
+    currentApp = new HeapTestApp();
 
     currentApp->start();
 }
