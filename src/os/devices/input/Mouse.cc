@@ -1,16 +1,9 @@
-//
-// Created by burak on 05.03.18.
-//
-
-/*****************************************************************************
- *                                                                           *
- *                                M O U S E                                  *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Treiber für den Mauscontroller des PCs.                  *
- *                                                                           *
- * Autor:           Burak Akgül, HHU Düsseldorf, 08.12.2016                  *
- *****************************************************************************/
+/**
+ * A simple ps2 mouse driver
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/Kernel.h>
@@ -21,55 +14,63 @@
 #include "devices/input/Mouse.h"
 
 
-// warte darauf, dass ein Befehl zum Controller geschickt werden kann
+/**
+ * Wait until new commands can be sent to controller.
+ */
 void Mouse::waitControl() {
-    // timeOut für das Warten
     int time_out = 100000;
-    // Polling solange timeout nicht vorbei
+    // Polling until timeout
     while(time_out--) {
-        // prüfe, ob 2. Bit im Statusregister nicht gesetzt
-        // -> Input Buffer leer, es dürfen Befehle geschickt werden
+        // check if second bit is set -> controller is ready to 'process' commands
         if((ctrl_port.inb() & 2) == 0)
             return;
     }
 }
 
-// warte darauf, dass Daten am Controller zum Lesen bereit liegen
+/**
+ * Wait until new data is there
+ */
 void Mouse::waitData() {
-    // timeOut für das Warten
     int time_out = 100000;
-    // Polling solange timeout nicht vorbei
+    // Polling until timeout
     while(time_out--) {
-        // prüfe, ob 2. Bit im Statusregister nicht gesetzt
-        // -> Input Buffer leer, es dürfen Befehle geschickt werden
+        // check if first bit is set -> data is there
         if((ctrl_port.inb() & 1) == 1)
             return;
     }
 }
 
-// lese ein Byte vom Controller
+/**
+ * Reads a byte from the data port
+ * @return
+ */
 unsigned char Mouse::read() {
-    // warte auf Daten
+    // wait until data is there
     waitData();
     return data_port.inb();
 }
 
-// schicke ein Befehlsbyte zum Controller
+/**
+ * writes byte to command port
+ * @param byte_write
+ */
 void Mouse::write(unsigned char byte_write) {
-    waitControl(); // Auf ok warten
-    ctrl_port.outb(0xD4); // Maus Bescheid geben, dass Befehl geschickt wird (0xD4 -> Kommando an zweites PS2 Device reichen)
-    waitControl(); // Auf ok warten
+    waitControl();
+    ctrl_port.outb(0xD4); // D4 - write next data byte to second ps2 input buffer (in this case mouse)
+    waitControl(); // wait for ok
     data_port.outb(byte_write);
 }
 
-// aktiviere die Maus am Controller
+/**
+ * Activate mouse as auxiliary ps2 device
+ */
 void Mouse::activate() {
     // Statusbyte
     unsigned char status;
 
     // Test if mouse is there
     waitControl();
-    ctrl_port.outb(0xA9);
+    ctrl_port.outb(0xA9); // A9 - tests second ps2 port (works only if two ps2 ports supported)
     waitData();
     uint8_t tmp = data_port.inb();
     if(tmp == 0xFF) {
@@ -81,46 +82,50 @@ void Mouse::activate() {
         available = true;
     }
 
-    // Keyboard deaktivieren
+    // deactivate keyboard in ps2 status byte
     waitControl();
-    ctrl_port.outb(0x20);  				// lese Status Byte des KB Controllers ein
+    ctrl_port.outb(0x20);  				// 20 - read status byte from controller
     waitData();
-    status = data_port.inb() & 0xFC;	// deaktiviere Maus- und Tastaturinterrupts (erste beide Bits nicht setzen)
-    status |= 0x10;						// stelle zusätzlich Keyboard aus (1 heißt deaktiviert)
+    status = data_port.inb() & 0xFC;	// deactivate mouse and keyboard interrupts in controller
+    status |= 0x10;						// deactivate keyboard too (1 means disabled)
     waitControl();
-    // schreibe Status-Byte zurück
+
+    // write modified byte back to controller
     ctrl_port.outb(0x60);
     waitControl();
     data_port.outb(status);
 
-    // Auxiliary Maus Gerät aktivieren
+    // activate auxiliary device
     waitControl();
-    ctrl_port.outb(0xA8);
+    ctrl_port.outb(0xA8); // A8 - enables second ps2 port
 
-    // Interrupts aktivieren, sodass die Maus und Keyboard Interrupts auslöst (mit 0x20 aktuellen Status abfragen 0x60 überschreiben)
+    // activate mouse and keyboard interrupts
     waitControl();
-    ctrl_port.outb(0x20);				// Status Byte einlesen
+    ctrl_port.outb(0x20);				// read status byte from controller
     waitData();
-    status = data_port.inb() | 3;		// Interrupts für Maus und Keyboard aktivieren (erste beide Bits setzen)
-    // Keyboard aktiviHTC Viveeren
-    status &= ~0x10;					// stelle Keyboard an
+    status = data_port.inb() | 3;		// activate mouse and keyboard interrupts (first two bits in status byte)
+    status &= ~0x10;					// activate keyboard
     waitControl();
-    ctrl_port.outb(0x60);
+    ctrl_port.outb(0x60); // write modified byte back to controller
     waitControl();
     data_port.outb(status);
 
-    // Default Eigenschaften der Maus verwenden (Optional) [Streaming deaktiviert, 100 Pakete die Sekunde, Auflösung 4px pro mm
+    // use mouse default settings
     writeCommand(0xF6, "Set Defaults");
-    // Setze Auflösung der Maus
+    // set resolution
     writeCommandAndByte(0xE8, 0x02, "Set Resolution");
-    // Setze Anzahl der Pakete die pro Sekunde erzeugt werden sollen
+    // set sampling to 80 packets per second
     writeCommandAndByte(0xF3, 80, "Set Sampling Rate");
-    // Maus Paket-Streaming aktivieren
+    // activate mouse packet streaming
     writeCommand(0xF4, "Enable packet streaming");
 
 }
 
-// sendet Befehl an Controller und anschließend die Nutzdaten (mit jeweiligem warten auf ACKs)
+/**
+ * sends a command to mouse controller and waits for acknowledgement
+ * @param byte_write
+ * @param commandString
+ */
 void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, char* commandString) {
     if(!available) {
         return;
@@ -132,7 +137,7 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
     while((tmp = read()) != 0xFA){ // ack warten
         MOUSE_TRACE("ERROR >> Couldn't get ack from %s command\n", commandString);
         if( tmp == 0xFE ) {
-            write(byte_write); // Controller will Befehl erneut erhalten
+            write(byte_write); // send command byte again
         }
 
         cnt ++;
@@ -143,8 +148,8 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
             return;
         }
     }
-    write(data); // Eigentliche Daten für den Befehl senden
-    while((tmp = read()) != 0xFA){ // ack warten
+    write(data); // write payload for command to data port
+    while((tmp = read()) != 0xFA){ // wait for ack
         if( tmp == 0xFE ) {
             write(data);
         }
@@ -152,6 +157,11 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
 
 }
 
+/**
+ * sends a command to mouse controller and waits for acknowledge
+ * @param byte_write
+ * @param commandString
+ */
 void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     if(!available) {
         return;
@@ -164,7 +174,7 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     while((tmp = read()) != 0xFA){ // ack warten
         MOUSE_TRACE("ERROR >> Couldn't get ack from %s command\n", commandString);
         if( tmp == 0xFE ) {
-            write(byte_write); // Controller will Befehl erneut erhalten
+            write(byte_write); // send command byte again
         }
 
         cnt ++;
@@ -177,18 +187,19 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     }
 }
 
-
-
-// Konstrukor für die maus mit Erstellung der Ports
+/**
+ * Constructor
+ */
 Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), clickedEventBuffer(1024), releasedEventBuffer(1024), doubleclickEventBuffer(1024) {
     buttons = 0;
     cycle = 1;
 
-    // Maus aktivieren
     activate();
 }
 
-// ISR-Routine zum Demaskieren des Interrupts im PIC, Zuweisen des Interrupt-Handlers
+/**
+ * Allows Mouse interrupts in PIC and assigns Mouse class as interrupt handler for Mouse interrupts
+ */
 void Mouse::plugin() {
     if(available) {
         timeService = Kernel::getService<TimeService>();
@@ -199,82 +210,82 @@ void Mouse::plugin() {
     }
 }
 
-// Interrupt-Routine
+/**
+ * Interrupt handler
+ *
+ * The mouse sends for each 'event' 3 bytes
+ *  -> the first byte has information about clicked buttons and movement type (signed or unsigned)
+ *  -> second byte x Movement
+ *  -> third byte y Movement
+ */
 void Mouse::trigger() {
-    // prüfe ob maus daten vorliegen
+    // check if mouse data is there
     unsigned int status = ctrl_port.inb();
     if (!(status & 0x20)) {
         return;
     }
 
-    // insgesamt 3 Bytes für ein Datenpaket, pro Interrupt wird ein Byte geschickt
-    unsigned int val;	// temp für case 2 und 3
-    // handle die 3 Bytes ab
+    unsigned int val;
+    // certain treatments for each cycle
     switch (cycle) {
-        // erstes Byte: Flags zu Maustasten, Vorzeichen und Overflow
         case 1:
             flags = (unsigned int)data_port.inb();
-            // Prüfe, ob das Always 1 Bit (muss immer im ersten Byte gesetzt sein) vorhanden ist
-            // wenn nicht, handelt es sich nicht um das erste Datenpaket der Maus
+            // Check if the Always 1 Bit is Set - hacky way to check if it is really the first cycle
             if(!(flags & 0x08)) {
                 cycle = 1;
             } else {
                 cycle++;
             }
             break;
-            // zweites Byte: x-Verschiebung der Maus (relativ)
+
         case 2:
             val = (unsigned int)data_port.inb();
-            // Bitmaske, da nur 8 Bits genutzt werden sollen
+            // just get the correct bits
             val &= (unsigned int)0xFF;
-            // prüfen ob sign Bit gesetzt ist
+            // check if signed
             if(flags & 0x10) {
-                // negativen 9 Bit Wert auf 32 Bit Zweierkomplement erweitern (Sign Bit ist in den Flags)
+                // extend unsigned 8 bit value to unsigned 32 bit in twos complement
                 dx = val | 0xFFFFFF00;
             } else {
-                // positives Vorzeichen
                 dx = val;
             }
             cycle++;
             break;
-            // drittes Byte: y-Verschiebung der Maus (relativ)
+
         case 3:
             val = (unsigned int)data_port.inb();
-            // Bitmaske, da nur 8 Bits genutzt werden sollen
+            // just get the correct bits
             val &= (unsigned int)0xFF;
-            // prüfen ob sign Bit gesetzt ist, "-" Zeichen da Sign Bit sagt, dass Maus nach unten bewegt wurde
+            // check if signed
             if (flags & 0x20) {
-                // negativen 9 Bit Wert auf 32 Bit Zweierkomplement erweitern (Sign Bit ist in den Flags)
+                // extend unsigned 8 bit value to unsigned 32 bit in twos complement
                 dy = - (val | 0xFFFFFF00);
             } else {
-                // positives Vorzeichen
                 dy = - (val);
             }
 
-            // falls Overflow in eine Richtung - Paket verwerfen
+            // if there was a x or y Overflow -> discard this 'event'
             if(!(flags & 0x40 || flags & 0x80)){
-                // prüfe, ob wirklich Bewegung vorliegt
+                // check if mouse was moved
                 if(dx != 0 || dy != 0) {
-                    // Rufe den Maus-Handler der laufenden Applikation auf
+                    // put MouseMovedEvent to queue and publish event
                     movedEventBuffer.push(MouseMovedEvent(dx, dy));
                     eventBus->publish(movedEventBuffer.pop());
                 }
             }
 
-
-            // Mausklick
-            // Schleife, um für jede der drei Tasten zu prüfen
             bool clickEventOccurred= false;
             uint8_t clickMask = 0;
 
+            // check if any button was clicked/released
             bool releaseEventOccurred= false;
             uint8_t releaseMask = 0;
             for(int i = 0; i < 3; i++)
             {
-                // Prüfe, ob Wechsel des Tastendrucks vorliegt (buttons -> zuletzt gedrückt)
+                // check for state change
                 if((flags & (0x1<<i)) != (buttons & (0x1<<i)))
                 {
-                    // Prüfe, ob Maustaste gedrückt oder losgelassen wurde
+                    // Check if mouse was clicked or released
                     if(buttons & (0x1<<i)) {
                         // Released
                         releaseEventOccurred = true;
@@ -284,7 +295,7 @@ void Mouse::trigger() {
                         uint32_t tmpTstmp = timeService->getSystemTime();
                         clickEventOccurred = true;
                         clickMask|= (0x1<<i);
-// TODO: let tolerance be configurable
+
                         if((tmpTstmp - lastClickTimestamp) < 3000) { // three second tolerance for double click
                             doubleclickEventBuffer.push(MouseDoubleClickEvent());
                             eventBus->publish(doubleclickEventBuffer.pop());
@@ -295,19 +306,22 @@ void Mouse::trigger() {
                     }
                 }
             }
+
+            // if new buttons were clicked -> publish new MouseClickedEvent
             if(clickEventOccurred) {
                 clickedEventBuffer.push(MouseClickedEvent(clickMask));
                 eventBus->publish(clickedEventBuffer.pop());
             }
 
+            // if new buttons were released -> publish new MouseReleasedEvent
             if(releaseEventOccurred) {
                 releasedEventBuffer.push(MouseReleasedEvent(releaseMask));
                 eventBus->publish(releasedEventBuffer.pop());
             }
 
-            // merke aktuell gedrückte Buttons
+            // remember clicked buttons
             buttons = flags;
-            // setze Zyklus auf Beginn zurück
+            // reset cycle
             cycle = 1;
             break;
     }
@@ -315,31 +329,37 @@ void Mouse::trigger() {
 
 }
 
+/**
+ * No mouse was detected or mouse is defect -> cleanup
+ */
 void Mouse::cleanup() {
-    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);  //TODO Bugfix - null pointer exception in ahci if forbid is being called
+    // forbid mouse interrupts
+    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);
     uint8_t status;
+
     waitControl();
-    ctrl_port.outb(0x20);  				// lese Status Byte des KB Controllers ein
+    ctrl_port.outb(0x20);  				// reads controller status byte
     waitData();
-    status = data_port.inb() & 0xFC;	// deaktiviere Maus- und Tastaturinterrupts (erste beide Bits nicht setzen)
-    status |= 0x10;						// stelle zusätzlich Keyboard aus (1 heißt deaktiviert)
+    status = data_port.inb() & 0xFC;	// deactivate mouse and keyboard interrupts
+    status |= 0x10;						// disable keyboard
+
     waitControl();
-    // schreibe Status-Byte zurück
-    ctrl_port.outb(0x60);
+    ctrl_port.outb(0x60);               // write modified status byte back to controller
     waitControl();
     data_port.outb(status);
 
-    // Auxiliary Maus Gerät aktivieren
+    // deactivate auxiliary device
     waitControl();
     ctrl_port.outb(0xA7);
 
-    // Interrupts aktivieren, sodass die Maus und Keyboard Interrupts auslöst (mit 0x20 aktuellen Status abfragen 0x60 überschreiben)
+    // activate keyboard interrupts and enable keyboard
     waitControl();
-    ctrl_port.outb(0x20);				// Status Byte einlesen
+    ctrl_port.outb(0x20);				// read controller status byte
     waitData();
-    status = data_port.inb() | 1;		// Interrupts für Maus und Keyboard aktivieren (erste beide Bits setzen)
+    status = data_port.inb() | 1;		// activate keyboard interrupts
     // Keyboard aktiviHTC Viveeren
-    status &= ~0x10;					// stelle Keyboard an
+    status &= ~0x10;					// enable keyboard
+
     waitControl();
     ctrl_port.outb(0x60);
     waitControl();

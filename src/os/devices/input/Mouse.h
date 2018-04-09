@@ -34,18 +34,24 @@
 #define     MOUSE_TRACE(...)
 #endif
 
+/**
+ * A simple ps2 mouse driver
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2018
+ */
 class Mouse : public InterruptHandler {
 
 private:
 
     TimeService *timeService;
 
-    EventBus *eventBus;
-
-    // Benutzte Ports des Mauscontroller
+    // IO Ports (same as keyboard)
     const IOport ctrl_port;    // Status- (R) u. Steuerregister (W)
     const IOport data_port;    // Ausgabe- (R) u. Eingabepuffer (W)
 
+    EventBus *eventBus;
+    // TODO MouseDragedEvent
     Util::RingBuffer<MouseMovedEvent> movedEventBuffer;
     Util::RingBuffer<MouseClickedEvent> clickedEventBuffer;
     Util::RingBuffer<MouseReleasedEvent> releasedEventBuffer;
@@ -65,8 +71,6 @@ private:
     //
     uint32_t lastClickTimestamp = 0;
 
-    // Verhindere Kopieren.
-    Mouse(const Mouse &copy);
 
     // warte darauf, dass Daten am Controller zum Lesen bereit liegen
     void waitData();
@@ -90,6 +94,9 @@ private:
 public:
     // Initialisierung der Maus.
     Mouse();
+
+    // Verhindere Kopieren.
+    Mouse(const Mouse &copy) = delete;
 
     // Aktivierung der Unterbrechungen fuer die Maus
     void plugin();
