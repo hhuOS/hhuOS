@@ -16,6 +16,7 @@ InputService *inputService = nullptr;
 TimeService *timeService = nullptr;
 
 void allowPreemption() {
+
     if(inputService->getKeyboard()->checkForData()) {
         inputService->getKeyboard()->trigger();
     }
@@ -35,8 +36,6 @@ void schedulerYield() {
 }
 
 Scheduler::Scheduler() : initialized(false) {
-    inputService = Kernel::getService<InputService>();
-    timeService = Kernel::getService<TimeService>();
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -57,6 +56,9 @@ void Scheduler::schedule() {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
+
+	inputService = Kernel::getService<InputService>();
+	timeService = Kernel::getService<TimeService>();
 
     first = readyQueue.pop();
 
