@@ -23,6 +23,7 @@ extern "C" {
 
 extern uint32_t ___WRITE_PROTECTED_START__[];
 extern uint32_t ___WRITE_PROTECTED_END__[];
+extern uint32_t ___KERNEL_END__[];
 
 
 /**
@@ -55,6 +56,7 @@ PageDirectory::PageDirectory(){
     // we want to protect parts of kernel code against write access - calculate indeices for this
     uint16_t writeProtectedStart = (((uint32_t)___WRITE_PROTECTED_START__) - KERNEL_START) / PAGESIZE;
     uint16_t writeProtectedEnd = (((uint32_t)___WRITE_PROTECTED_END__) - KERNEL_START) / PAGESIZE;
+    uint16_t kernelEnd = (((uint32_t)___KERNEL_END__) - KERNEL_START) / PAGESIZE;
 
     for(uint16_t i = 0; i < 2048; i++) {
         // this is the physical address of the memory belonging to this page
@@ -68,6 +70,12 @@ PageDirectory::PageDirectory(){
 
         //protect parts of kernel code
         if(i < writeProtectedEnd && i >= writeProtectedStart) {
+        	*((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+        }
+
+        // set last page kernel code as write protected to detect illegal write accesses
+        kernelEnd++;
+        if(i == kernelEnd && i < 1024) {
         	*((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
         }
     }
