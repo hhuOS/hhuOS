@@ -19,8 +19,10 @@ extern "C" {
     // extern functions from assembler code Paging.asm
     void load_page_directory(uint32_t* pdAddress);
     void enable_4KB_paging();
-
 }
+
+extern uint32_t ___WRITE_PROTECTED_START__[];
+extern uint32_t ___WRITE_PROTECTED_END__[];
 
 
 /**
@@ -50,6 +52,10 @@ PageDirectory::PageDirectory(){
     
     // set the entries for the mapping of first 8 MB
     uint32_t idx = KERNEL_START / (PAGESIZE*1024);
+    // we want to protect parts of kernel code against write access - calculate indeices for this
+    uint16_t writeProtectedStart = (((uint32_t)___WRITE_PROTECTED_START__) - KERNEL_START) / PAGESIZE;
+    uint16_t writeProtectedEnd = (((uint32_t)___WRITE_PROTECTED_END__) - KERNEL_START) / PAGESIZE;
+
     for(uint16_t i = 0; i < 2048; i++) {
         // this is the physical address of the memory belonging to this page
         uint32_t physAddr = i * PAGESIZE;
@@ -58,6 +64,11 @@ PageDirectory::PageDirectory(){
         // protect kernel code
         if(i < 1024) {
             *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_PROTECTED;
+        }
+
+        //protect parts of kernel code
+        if(i < writeProtectedEnd && i >= writeProtectedStart) {
+        	*((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
         }
     }
     

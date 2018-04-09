@@ -135,7 +135,8 @@ clear_bss:
 
 ; set init stack at 4mb
 	mov	ss,ax
-	mov esp, (stack + STACK_SIZE)
+	;mov esp, (stack + STACK_SIZE)
+	mov esp, 0xC0400000
 
 ; setup interrupts
 	call	setup_idt

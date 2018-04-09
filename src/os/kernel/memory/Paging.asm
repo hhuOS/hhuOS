@@ -71,9 +71,9 @@ paging_bootstrap:
     or  ecx, 0x00000010
     mov cr4, ecx
 
-    ; enable paging in cr0
+    ; enable paging and page protection in cr0
     mov ecx, cr0
-    or ecx, 0x80000000
+    or ecx, 0x80010000
     mov cr0, ecx
 
     ; jump back to startup sequence in startup.asm

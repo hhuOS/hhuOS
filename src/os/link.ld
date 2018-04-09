@@ -6,6 +6,7 @@ SECTIONS
     . = 0xC0100000;     /* Virtual start address */
 
     ___KERNEL_START__ = .;
+    ___WRITE_PROTECTED_START__ = .;
 
     .text ALIGN (4K) : AT (ADDR(.text) - 0xC0000000)
     {
@@ -22,15 +23,7 @@ SECTIONS
         *(.rodata.*)
         ___RODATA_END__ = .;
     }
-
-   .data ALIGN (4K) : AT (ADDR(.data) - 0xC0000000)
-    {
-        ___DATA_START__ = .;
-        *(.data)
-        *(.data.*)
-        ___DATA_END__   = .;
-    }
-
+    
     .init_array ALIGN (4K) : AT (ADDR(.init_array) - 0xC0000000)
     {
        ___INIT_ARRAY_START__ = .;
@@ -49,6 +42,16 @@ SECTIONS
        KEEP (*(.dtors))
        KEEP (*(.dtor))
        ___FINI_ARRAY_END__ = .;
+    }
+    
+    ___WRITE_PROTECTED_END__ = .;
+
+   .data ALIGN (4K) : AT (ADDR(.data) - 0xC0000000)
+    {
+        ___DATA_START__ = .;
+        *(.data)
+        *(.data.*)
+        ___DATA_END__   = .;
     }
 
     .bss ALIGN (4K) : AT (ADDR(.bss) - 0xC0000000)
