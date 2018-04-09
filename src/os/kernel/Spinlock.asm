@@ -48,7 +48,6 @@ lockAquired:
 	ret						; return
 
 lockFailed:
-    call schedulerYield
     jmp spin
 
 ; entry point for one try to acquire lock
