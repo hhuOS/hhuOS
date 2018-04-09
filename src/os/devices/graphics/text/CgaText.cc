@@ -28,9 +28,9 @@ bool CgaText::isAvailable() {
     return !(biosRet < 2 || biosRet == 0xff);
 }
 
-Util::ArrayList<TextDriver::TextResolution>& CgaText::getTextResolutions() {
+Util::Array<TextDriver::TextResolution> CgaText::getTextResolutions() {
     if(!resolutions.isEmpty()) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
     auto *currentRes = new TextResolution();
@@ -41,7 +41,7 @@ Util::ArrayList<TextDriver::TextResolution>& CgaText::getTextResolutions() {
     *currentRes = {80, 25, 4, 0x03};
     resolutions.add(*currentRes);
 
-    return resolutions;
+    return resolutions.toArray();
 }
 
 void CgaText::setMode(uint16_t modeNumber) {

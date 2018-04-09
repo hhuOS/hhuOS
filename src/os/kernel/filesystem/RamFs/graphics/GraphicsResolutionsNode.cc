@@ -11,7 +11,7 @@ uint64_t GraphicsResolutionsNode::getLength() {
 
     switch(mode) {
         case TEXT : {
-            Util::ArrayList<TextDriver::TextResolution> &textResolutions = graphicsService->getTextDriver()->getTextResolutions();
+            Util::Array<TextDriver::TextResolution> textResolutions = graphicsService->getTextDriver()->getTextResolutions();
 
             for (const TextDriver::TextResolution &currentRes : textResolutions) {
                 string += String::valueOf(currentRes.columns, 10) + String(" x ") +
@@ -22,7 +22,7 @@ uint64_t GraphicsResolutionsNode::getLength() {
             break;
         }
         case LINEAR_FRAME_BUFFER : {
-            Util::ArrayList<LinearFrameBuffer::LfbResolution> &lfbResolutions = graphicsService->getLinearFrameBuffer()->getLfbResolutions();
+            Util::Array<LinearFrameBuffer::LfbResolution> lfbResolutions = graphicsService->getLinearFrameBuffer()->getLfbResolutions();
 
             for (const LinearFrameBuffer::LfbResolution &currentRes : lfbResolutions) {
                 string += String::valueOf(currentRes.resX, 10) + String(" x ") +
@@ -44,7 +44,7 @@ uint64_t GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t num
 
     switch(mode) {
         case TEXT : {
-            Util::ArrayList<TextDriver::TextResolution> &textResolutions = graphicsService->getTextDriver()->getTextResolutions();
+            Util::Array<TextDriver::TextResolution> textResolutions = graphicsService->getTextDriver()->getTextResolutions();
 
             for (const TextDriver::TextResolution &currentRes : textResolutions) {
                 string += String::valueOf(currentRes.columns, 10) + String(" x ") +
@@ -55,7 +55,7 @@ uint64_t GraphicsResolutionsNode::readData(char *buf, uint64_t pos, uint64_t num
             break;
         }
         case LINEAR_FRAME_BUFFER : {
-            Util::ArrayList<LinearFrameBuffer::LfbResolution> &lfbResolutions = graphicsService->getLinearFrameBuffer()->getLfbResolutions();
+            Util::Array<LinearFrameBuffer::LfbResolution> lfbResolutions = graphicsService->getLinearFrameBuffer()->getLfbResolutions();
 
             for (const LinearFrameBuffer::LfbResolution &currentRes : lfbResolutions) {
                 string += String::valueOf(currentRes.resX, 10) + String(" x ") +

@@ -5,14 +5,14 @@ static uint32_t diff(uint32_t a, uint32_t b) {
 }
 
 LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t resX, uint16_t resY, uint8_t depth) {
-    Util::ArrayList<LfbResolution>& resolutions = getLfbResolutions();
+    Util::Array<LfbResolution> resolutions = getLfbResolutions();
     Util::ArrayList<LfbResolution> candidates;
 
     uint32_t bestDiff = 0xffffffff;
     LfbResolution bestRes{};
 
     // Find a resolution with the closest resX and resY to the desired resX and resY.
-    for(LfbResolution currentRes : resolutions) {
+    for(const LfbResolution &currentRes : resolutions) {
         uint32_t currentDiff = diff(resX, currentRes.resX) + diff(resY, currentRes.resY);
 
         if(currentDiff < bestDiff) {
@@ -22,7 +22,7 @@ LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t 
     }
 
     // Put all resolutions with the same resX and resY as bestRes in the candidates-list.
-    for(LfbResolution currentRes : resolutions) {
+    for(const LfbResolution &currentRes : resolutions) {
         if(currentRes.resX == bestRes.resX && currentRes.resY == bestRes.resY) {
             candidates.add(currentRes);
         }
@@ -30,7 +30,7 @@ LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t 
 
     // Find the resolution with the closest depth to the desired depth.
     bestDiff = 0xffffffff;
-    for(LfbResolution currentRes : candidates) {
+    for(const LfbResolution &currentRes : candidates) {
         uint32_t currentDiff = diff(depth, currentRes.depth);
 
         if(currentDiff < bestDiff) {

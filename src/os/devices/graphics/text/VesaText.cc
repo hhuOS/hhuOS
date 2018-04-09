@@ -37,25 +37,24 @@ bool VesaText::setResolution(TextResolution resolution) {
     return false;
 }
 
-Util::ArrayList<TextDriver::TextResolution>& VesaText::getTextResolutions() {
+Util::Array<TextDriver::TextResolution> VesaText::getTextResolutions() {
     if(!resolutions.isEmpty()) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
-    Util::ArrayList<LinearFrameBuffer::LfbResolution>& lfbResolutions = VesaGraphics::getLfbResolutions();
+    Util::Array<LinearFrameBuffer::LfbResolution> lfbResolutions = VesaGraphics::getLfbResolutions();
 
     uint16_t fontWidth = font->get_char_width();
     uint16_t fontHeight = font->get_char_height();
 
-    for(uint32_t i = 0; i < lfbResolutions.size(); i++) {
-        LinearFrameBuffer::LfbResolution currentLfbRes = lfbResolutions.get(i);
+    for(const LinearFrameBuffer::LfbResolution &currentLfbRes : lfbResolutions) {
 
         auto *currentRes = new TextResolution();
         *currentRes = {static_cast<uint16_t >(currentLfbRes.resX / fontWidth), static_cast<uint16_t >(currentLfbRes.resY / fontHeight), currentLfbRes.depth, currentLfbRes.modeNumber};
         resolutions.add(*currentRes);
     }
 
-    return resolutions;
+    return resolutions.toArray();
 }
 
 String VesaText::getVendorName() {

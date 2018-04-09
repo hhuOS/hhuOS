@@ -105,7 +105,7 @@ public:
      *
      * @return A List, containing all available resolutions
      */
-    virtual Util::ArrayList<TextResolution>& getTextResolutions() = 0;
+    virtual Util::Array<TextResolution> getTextResolutions() = 0;
 
     /**
      * Get the name of the device's vendor.

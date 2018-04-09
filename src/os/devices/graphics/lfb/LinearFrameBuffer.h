@@ -97,7 +97,7 @@ public:
      *
      * @return A List, containing all available resolutions
      */
-    virtual Util::ArrayList<LfbResolution>& getLfbResolutions() = 0;
+    virtual Util::Array<LfbResolution> getLfbResolutions() = 0;
 
     /**
      * Get the name of the device's vendor.

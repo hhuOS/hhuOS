@@ -60,7 +60,7 @@ public:
     /**
      * Overriding virtual function from TextDriver.
      */
-    Util::ArrayList<TextDriver::TextResolution>& getTextResolutions() override;
+    Util::Array<TextResolution> getTextResolutions() override;
 
     /**
      * Overriding virtual function from TextDriver.

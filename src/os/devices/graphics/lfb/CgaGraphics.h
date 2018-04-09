@@ -67,7 +67,7 @@ public:
     /**
      * Overriding virtual function from LinearFrameBuffer.
      */
-    Util::ArrayList<LinearFrameBuffer::LfbResolution>& getLfbResolutions() override;
+    Util::Array<LinearFrameBuffer::LfbResolution> getLfbResolutions() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

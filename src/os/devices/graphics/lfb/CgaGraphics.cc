@@ -37,9 +37,9 @@ void CgaGraphics::reallocBuffer() {
     doubleBuffer = new uint8_t[16384];
 }
 
-Util::ArrayList<LinearFrameBuffer::LfbResolution>& CgaGraphics::getLfbResolutions() {
+Util::Array<LinearFrameBuffer::LfbResolution> CgaGraphics::getLfbResolutions() {
     if(!resolutions.isEmpty()) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
     auto *currentRes = new LfbResolution();
@@ -50,7 +50,7 @@ Util::ArrayList<LinearFrameBuffer::LfbResolution>& CgaGraphics::getLfbResolution
     *currentRes = {640, 200, 1, 0x06};
     resolutions.add(*currentRes);
 
-    return resolutions;
+    return resolutions.toArray();
 }
 
 String CgaGraphics::getVendorName() {

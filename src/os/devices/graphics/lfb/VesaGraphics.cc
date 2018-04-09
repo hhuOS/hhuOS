@@ -64,10 +64,8 @@ bool VesaGraphics::isAvailable() {
     if (vbeInfo->signature[0]!='V' || vbeInfo->signature[1]!='E' ||
         vbeInfo->signature[2]!='S' || vbeInfo->signature[3]!='A' )
             return false;
-    
-    Util::ArrayList<LinearFrameBuffer::LfbResolution>& resolutions = getLfbResolutions();
 
-    return !resolutions.isEmpty();
+    return getLfbResolutions().length() != 0;
 }
 
 
@@ -101,20 +99,20 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
     return true;
 }
 
-Util::ArrayList<LinearFrameBuffer::LfbResolution>& VesaGraphics::getLfbResolutions() {
+Util::Array<LinearFrameBuffer::LfbResolution> VesaGraphics::getLfbResolutions() {
     if(!resolutions.isEmpty()) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
     VbeInfo *vbeInfo = getVbeInfo();
 
     if(vbeInfo == nullptr) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
     if (vbeInfo->signature[0]!='V' || vbeInfo->signature[1]!='E' ||
         vbeInfo->signature[2]!='S' || vbeInfo->signature[3]!='A' ) {
-        return resolutions;
+        return resolutions.toArray();
     }
 
     auto *modePtr = (uint16_t*) (((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + KERNEL_START);
@@ -139,7 +137,7 @@ Util::ArrayList<LinearFrameBuffer::LfbResolution>& VesaGraphics::getLfbResolutio
         resolutions.add(*currentRes);
     }
 
-    return resolutions;
+    return resolutions.toArray();
 }
 
 String VesaGraphics::getVendorName() {

@@ -17,14 +17,14 @@ uint8_t TextDriver::getDepth() {
 }
 
 TextDriver::TextResolution TextDriver::findBestResolution(uint16_t columns, uint16_t rows, uint8_t depth) {
-    Util::ArrayList<TextResolution>& resolutions = getTextResolutions();
+    Util::Array<TextResolution> resolutions = getTextResolutions();
     Util::ArrayList<TextResolution> candidates;
 
     uint32_t bestDiff = 0xffffffff;
     TextResolution bestRes{};
 
     // Find a resolution with the closest columns and rows to the desired columns and rows.
-    for(TextResolution currentRes : resolutions) {
+    for(const TextResolution &currentRes : resolutions) {
         uint32_t currentDiff = diff(columns, currentRes.columns) + diff(rows, currentRes.rows);
 
         if(currentDiff < bestDiff) {
@@ -34,7 +34,7 @@ TextDriver::TextResolution TextDriver::findBestResolution(uint16_t columns, uint
     }
 
     // Put all resolutions with the same columns and rows as bestRes in the candidates-list.
-    for(TextResolution currentRes : resolutions) {
+    for(const TextResolution &currentRes : resolutions) {
         if(currentRes.columns == bestRes.columns && currentRes.rows == bestRes.rows) {
             candidates.add(currentRes);
         }
@@ -42,7 +42,7 @@ TextDriver::TextResolution TextDriver::findBestResolution(uint16_t columns, uint
 
     // Find the resolution with the closest depth to the desired depth.
     bestDiff = 0xffffffff;
-    for(TextResolution currentRes : candidates) {
+    for(const TextResolution &currentRes : candidates) {
         uint32_t currentDiff = diff(depth, currentRes.depth);
 
         if(currentDiff < bestDiff) {
