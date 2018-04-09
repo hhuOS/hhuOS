@@ -17,14 +17,12 @@
 
 #include <devices/Pit.h>
 #include <devices/input/Keyboard.h>
+#include <user/Application.h>
+#include <kernel/threads/Scheduler.h>
 
 #include "user/AsciimationApp/AsciimationApp.h"
 #include "devices/graphics/text/fonts/Fonts.h"
 #include "kernel/Kernel.h"
-
-extern "C" {
-    #include "lib/libc/string.h"
-}
 
 AsciimationApp::AsciimationApp () : Thread ("AsciimationApp") {
     eventBus = Kernel::getService<EventBus>();
@@ -56,15 +54,7 @@ uint32_t AsciimationApp::readDelay() {
 }
 
 void AsciimationApp::printFrame() {
-
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-
-
-    if(fileLength <= 0) {
-        lfb->placeString(std_font_8x16, 50, 50, "End of file!", Colors::WHITE, Colors::INVISIBLE);
-        lfb->show();
-        return;
-    }
 
     int waitTime = readDelay();
 
@@ -82,6 +72,11 @@ void AsciimationApp::printFrame() {
 void AsciimationApp::onEvent(const Event &event) {
     TextDriver &stream = *graphicsService->getTextDriver();
     Key key = ((KeyEvent &) event).getKey();
+
+    if(key.scancode() == KeyEvent::ESCAPE) {
+        fileLength = 0;
+        return;
+    }
 
     if (key.valid()) {
         if(key.ascii() == '\n') {
@@ -138,7 +133,11 @@ void AsciimationApp::run () {
     lfb->enableDoubleBuffering();
     lfb->clear();
 
-    while(true) {
+    while(fileLength > 0) {
         printFrame();
     }
+
+    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    Application::getInstance()->resume();
+    Scheduler::getInstance()->exit();
 }

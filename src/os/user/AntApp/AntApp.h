@@ -1,6 +1,7 @@
 #ifndef __AntApp_include__
 #define __AntApp_include__
 
+#include <kernel/events/Receiver.h>
 #include "kernel/threads/Thread.h"
 
 #include "user/AntApp/Limits.h"
@@ -15,16 +16,17 @@
  * This is a vesa 2D turing maschine Thread.
  * @todo cga version
  */
-class AntApp : public Thread {
+class AntApp : public Thread, public Receiver {
 
 private:
 	Random * _random;
 	AntApp (const AntApp &copy);
 	byte ori;
-	Limits _lim;
+	Limits _lim{};
 	Color    _col;
 	bool   _bouncing;
-	LinearFrameBuffer *lfb;
+	bool isRunning = true;
+	LinearFrameBuffer *lfb = nullptr;
 
 	struct DI {
 		enum {
@@ -132,6 +134,8 @@ public:
 	}
 	
 	void run();
+
+	void onEvent(const Event &event) override;
 	
 	char * name(){ return "ant";}
 };

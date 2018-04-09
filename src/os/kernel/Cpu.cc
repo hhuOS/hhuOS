@@ -25,7 +25,7 @@ const char* Cpu::hardwareExceptions[] = {
 };
 const char* Cpu::softwareExceptions[] {
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
-        "IllegalState Exception", "OutOfPhysicalMemory Exception", "OutOfPagingMemory Exception"
+        "IllegalState Exception", "OutOfPhysicalMemory Exception", "OutOfPagingMemory Exception", "Illegal Page Access"
 };
 
 // enabling and disabling interrupts is done in assembler code

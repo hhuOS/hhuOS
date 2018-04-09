@@ -72,7 +72,7 @@ void Rm::recursiveDelete(const String &progName, Directory &dir) {
     delete &fStat;
 }
 
-void Rm::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Rm::execute(Util::Array<String> &args) {
     bool recursive = false;
     Util::ArrayList<String> paths;
 
@@ -80,11 +80,11 @@ void Rm::execute(Util::Array<String> &args, OutputStream &outputStream) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
             paths.add(args[i]);
         }  else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Deletes files." << endl << endl;
-            outputStream << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -r, --recursive: Recursive delete: Delete all files and subdirectories inside a directory." << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Deletes files." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -r, --recursive: Recursive delete: Delete all files and subdirectories inside a directory." << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else if(args[i] == "-r" || args[i] == "--recursive") {
             recursive = true;

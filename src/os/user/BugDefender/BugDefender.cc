@@ -19,6 +19,8 @@
 #include <kernel/Kernel.h>
 #include <lib/libc/snprintf.h>
 #include <kernel/services/DebugService.h>
+#include <user/Application.h>
+#include <kernel/threads/Scheduler.h>
 #include "BugDefender.h"
 #include "user/BugDefender/sprites/heart.cc"
 #include "lib/Colors.h"
@@ -122,15 +124,19 @@ void BugDefender::showMenu(LinearFrameBuffer* g2d){
 void BugDefender::showGameOver(LinearFrameBuffer* g2d){
 
     if((HHUEngine::time() / 100) % 2 == 0) {
-        g2d->drawString(sun_font_12x22, 266, 229, "Game Over!", Colors::WHITE, Colors::BLACK);
+        g2d->placeString(sun_font_12x22, 50, 50, "Game Over!", Colors::WHITE);
     }
+
+    g2d->placeString(std_font_8x8, 50, 85, "Please press Enter", Colors::WHITE);
 }
 
 void BugDefender::showGameWon(LinearFrameBuffer* g2d){
 
     if((HHUEngine::time() / 100) % 2 == 0) {
-        g2d->drawString(sun_font_12x22, 266, 229, "You win!", Colors::WHITE, Colors::BLACK);
+        g2d->placeString(sun_font_12x22, 50, 50, "You Win!", Colors::WHITE);
     }
+
+    g2d->placeString(std_font_8x8, 50, 85, "Please press Enter", Colors::WHITE);
 }
 
 void BugDefender::draw(LinearFrameBuffer* g2d){
@@ -138,12 +144,22 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
     if(isGameOver){
         showGameOver(g2d);
         g2d->show();
+
+        if(HHUEngine::isKeyPressed(KeyEvent::RETURN)) {
+            Game::isRunning = false;
+        }
+
         return;
     }
 
     if(isGameWon){
         showGameWon(g2d);
         g2d->show();
+
+        if(HHUEngine::isKeyPressed(KeyEvent::RETURN)) {
+            Game::isRunning = false;
+        }
+
         return;
     }
 

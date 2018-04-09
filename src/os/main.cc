@@ -48,7 +48,6 @@ String versionString;
 
 IdleThread *idleThread = nullptr;
 EventBus *eventBus = nullptr;
-Application *app = nullptr;
 LinearFrameBuffer *lfb = nullptr;
 TextDriver *text = nullptr;
 
@@ -173,11 +172,10 @@ int32_t main() {
 
         text->puts("Starting Threads\n", 17, Colors::HHU_RED);
         idleThread = new IdleThread();
-        app = new Application();
 
         idleThread->start();
         eventBus->start();
-        app->start();
+        Application::getInstance()->start();
 
         text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
 
@@ -218,11 +216,10 @@ int32_t main() {
 
         updateBootScreen(85, "Starting Threads");
         idleThread = new IdleThread();
-        app = new Application();
 
         idleThread->start();
         eventBus->start();
-        app->start();
+        Application::getInstance()->start();
 
         updateBootScreen(100, "Finished Booting!");
         Kernel::getService<TimeService>()->msleep(1000);

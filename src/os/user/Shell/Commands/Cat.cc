@@ -23,17 +23,17 @@ Cat::Cat(Shell &shell) : Command(shell) {
 
 };
 
-void Cat::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Cat::execute(Util::Array<String> &args) {
     Util::ArrayList<String> paths;
 
     for(uint32_t i = 1; i < args.length(); i++) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
             paths.add(args[i]);
         } else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Concatenates multiple files and writes them to the standard output stream." << endl << endl;
-            outputStream << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Concatenates multiple files and writes them to the standard output stream." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
@@ -65,8 +65,8 @@ void Cat::execute(Util::Array<String> &args, OutputStream &outputStream) {
         char *buf;
         file >> buf;
 
-        outputStream.writeBytes(buf, file.getLength());
-        outputStream.flush();
+        stdout.writeBytes(buf, file.getLength());
+        stdout.flush();
 
         delete[] buf;
         delete &file;

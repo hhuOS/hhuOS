@@ -33,7 +33,9 @@ class Command {
 
 protected:
     Shell &shell;
+    OutputStream &stdout;
     OutputStream &stderr;
+    InputStream &stdin;
 
     /**
      * Uses the shell's current working directory and a given relative path to assemble an absolute path.
@@ -74,7 +76,7 @@ public:
      * @param args Parameters, given by the user
      * @param outputStream The stream to write to
      */
-    virtual void execute(Util::Array<String> &args, OutputStream &outputStream) = 0;
+    virtual void execute(Util::Array<String> &args) = 0;
 };
 
 #endif

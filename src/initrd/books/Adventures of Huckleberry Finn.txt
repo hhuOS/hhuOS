@@ -1291,7 +1291,7 @@ the reason why.  Say, how much you got in your pocket?  I want it.”
 
 “I hain’t got only a dollar, and I want that to--”
 
-“It don’t make no difference what you want it for--you just shell it
+“It don’t make no difference what you want it for--you just startShell it
 out.”
 
 He took it and bit it to see if it was good, and then he said he was

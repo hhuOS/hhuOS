@@ -335,6 +335,10 @@ public:
      * @return Pointer to the instance of the SystemManagement
      */
     static SystemManagement* getInstance();
+
+    uint32_t getFreeIoMemoryAmount() {
+        return ioMemManager->getFreeMemory();
+    }
 };
 
 #endif

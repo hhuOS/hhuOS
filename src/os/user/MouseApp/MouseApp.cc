@@ -4,9 +4,19 @@
 
 #include <lib/libc/printf.h>
 #include <devices/input/Mouse.h>
+#include <kernel/events/input/KeyEvent.h>
+#include <kernel/threads/Scheduler.h>
 #include "MouseApp.h"
 
 void MouseApp::onEvent(const Event &event) {
+    if(event.getType() == KeyEvent::TYPE) {
+        auto &keyEvent = (KeyEvent&) event;
+
+        if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+            isRunning = false;
+        }
+    }
+
     if(event.getType() == MouseMovedEvent::TYPE) {
         MouseMovedEvent movedEvent = (MouseMovedEvent&) event;
 
@@ -54,6 +64,7 @@ void MouseApp::onEvent(const Event &event) {
 
 
 void MouseApp::run() {
+    eventBus->subscribe(*this, KeyEvent::TYPE);
     eventBus->subscribe(*this, MouseMovedEvent::TYPE);
     eventBus->subscribe(*this, MouseClickedEvent::TYPE);
     eventBus->subscribe(*this, MouseReleasedEvent::TYPE);
@@ -66,4 +77,13 @@ void MouseApp::run() {
 
         lfb->show();
     }
+
+
+    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
+    Application::getInstance()->resume();
+    Scheduler::getInstance()->exit();
 }

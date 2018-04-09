@@ -17,12 +17,8 @@ uint64_t StderrNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 uint64_t StderrNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stderr = stdStreamService->getStderr();
 
-    if(stderr == graphicsService->getTextDriver()) {
-        ((TextDriver *) stderr)->puts(buf, static_cast<uint32_t>(numBytes), Colors::HHU_RED);
-    } else {
-        *stderr << buf;
-        stderr->flush();
-    }
+    stderr->writeBytes(buf, numBytes);
+    stderr->flush();
 
     return numBytes;
 }

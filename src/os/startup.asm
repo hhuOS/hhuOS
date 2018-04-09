@@ -133,9 +133,10 @@ clear_bss:
     add ebx, KERNEL_START
     mov [multiboot_addr], ebx
 
-; set init stack at 4mb
+; set init stack
 	mov	ss,ax
 	mov esp, (stack + STACK_SIZE)
+
 
 ; setup interrupts
 	call	setup_idt

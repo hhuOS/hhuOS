@@ -22,17 +22,17 @@ Ls::Ls(Shell &shell) : Command(shell) {
 
 };
 
-void Ls::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Ls::execute(Util::Array<String> &args) {
     Util::ArrayList<String> paths;
 
     for(uint32_t i = 1; i < args.length(); i++) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
             paths.add(args[i]);
         } else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Lists the content of directories. Default directory is the working directory" << endl << endl;
-            outputStream << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Lists the content of directories. Default directory is the working directory" << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
@@ -44,15 +44,15 @@ void Ls::execute(Util::Array<String> &args, OutputStream &outputStream) {
         Directory &dir = shell.getCurrentWorkingDirectory();
 
         for(const String &name : dir.getChildren()) {
-            outputStream << "  " << name;
+            stdout << "  " << name;
 
             FileStatus &childStat = *FileStatus::stat(dir.getAbsolutePath() + "/" + name);
             if (childStat.getFileType() == FsNode::DIRECTORY_FILE) {
-                outputStream << "/";
+                stdout << "/";
             }
 
             delete &childStat;
-            outputStream << endl;
+            stdout << endl;
         }
 
         return;
@@ -65,33 +65,33 @@ void Ls::execute(Util::Array<String> &args, OutputStream &outputStream) {
             FileStatus &fStat = *FileStatus::stat(absolutePath);
 
             if (fStat.getFileType() != FsNode::DIRECTORY_FILE) {
-                outputStream << fStat.getName() << endl;
+                stdout << fStat.getName() << endl;
 
                 if(paths.size() > 1) {
-                    outputStream << endl;
+                    stdout << endl;
                 }
             } else {
                 if(paths.size() > 1) {
-                    outputStream << path << ":" << endl;
+                    stdout << path << ":" << endl;
                 }
 
                 Directory &dir = *Directory::open(absolutePath);
 
                 for (const String &name : dir.getChildren()) {
-                    outputStream << "  " << name;
+                    stdout << "  " << name;
 
                     FileStatus &childStat = *FileStatus::stat(dir.getAbsolutePath() + "/" + name);
 
                     if (childStat.getFileType() == FsNode::DIRECTORY_FILE) {
-                        outputStream << "/";
+                        stdout << "/";
                     }
 
                     delete &childStat;
-                    outputStream << endl;
+                    stdout << endl;
                 }
 
                 if(paths.size() > 1) {
-                    outputStream << endl;
+                    stdout << endl;
                 }
 
                 delete &dir;
