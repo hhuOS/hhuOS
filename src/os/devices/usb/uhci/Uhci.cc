@@ -50,7 +50,7 @@ void Uhci::setup(const Pci::Device &dev) {
 
     disableInterrupts();
 
-    plugin();
+    // plugin();
 
     //globalReset();
 

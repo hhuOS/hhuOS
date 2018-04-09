@@ -8,12 +8,35 @@ extern "C" {
     void startThread(Context* first);
     void switchContext(Context **current, Context **next);
     void setSchedInit();
+    void schedulerYield();
+    void allowPreemption();
+}
+
+InputService *inputService = nullptr;
+TimeService *timeService = nullptr;
+
+void allowPreemption() {
+    if(inputService->getKeyboard()->checkForData()) {
+        inputService->getKeyboard()->trigger();
+    }
+
+    if(timeService->getRTC()->checkForData()) {
+        timeService->getRTC()->trigger();
+    }
+
+    schedulerLock.release();
 }
 
 Scheduler* Scheduler::scheduler = nullptr;
 
-Scheduler::Scheduler() : initialized(false) {
+void schedulerYield() {
 
+    Scheduler::getInstance()->yield();
+}
+
+Scheduler::Scheduler() : initialized(false) {
+    inputService = Kernel::getService<InputService>();
+    timeService = Kernel::getService<TimeService>();
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -48,11 +71,11 @@ void Scheduler::schedule() {
 
 void Scheduler::ready(Thread& that) {
 
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
 
     readyQueue.push(&that);
 
-    Cpu::enableInterrupts();
+    schedulerLock.release();
 }
 
 void Scheduler::exit() {
@@ -62,7 +85,7 @@ void Scheduler::exit() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
     
     if (!isThreadWaiting()) {
 
@@ -81,11 +104,11 @@ void Scheduler::kill(Thread& that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
 
     readyQueue.remove(&that);
 
-    Cpu::enableInterrupts();
+    schedulerLock.release();
 }
 
 void Scheduler::yield() {
@@ -95,11 +118,11 @@ void Scheduler::yield() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
 
     if (!isThreadWaiting()) {
 
-        Cpu::enableInterrupts();
+        schedulerLock.release();
 
         return;
     }
@@ -120,7 +143,7 @@ void Scheduler::block() {
 
     Thread* next;
     
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
     
     if (!isThreadWaiting()) {
 
@@ -139,11 +162,11 @@ void Scheduler::deblock(Thread &that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    Cpu::disableInterrupts();
+    schedulerLock.acquire();
 
     readyQueue.push(&that);
 
-    Cpu::enableInterrupts();
+    schedulerLock.release();
 }
 
 void Scheduler::dispatch(Thread &next) {

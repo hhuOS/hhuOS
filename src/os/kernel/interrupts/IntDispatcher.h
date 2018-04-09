@@ -76,6 +76,8 @@ public:
 private:
 
     Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler*>*> handler;
+
+    void sendEoi(uint32_t slot);
 };
 
 #endif

@@ -29,14 +29,16 @@
  * @date HHU, 2018
  */
 class Cpu {
-    
-private:
-
-    Cpu(const Cpu &copy);   // Verhindere Kopieren
 
 public:
     
     Cpu() = delete;
+
+    Cpu(const Cpu &other) = delete;
+
+    Cpu &operator=(const Cpu &other) = delete;
+
+    ~Cpu() = default;
 
     /**
      * Checks if interrupt flag is set in EFLAGS.
@@ -144,6 +146,10 @@ public:
 
     // start number for software exceptions
     static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
+
+private:
+
+    static int32_t cliCount;
 };
 
 #endif

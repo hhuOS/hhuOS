@@ -37,7 +37,7 @@ void Pic::allow(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() & ~mask);
+    port.outb( port.inb() & ~mask );
 }
 
 void Pic::forbid(Pic::Interrupt interrupt) {
@@ -46,7 +46,7 @@ void Pic::forbid(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() | mask);
+    port.outb( port.inb() | mask );
 }
 
 bool Pic::status(Pic::Interrupt interrupt) {

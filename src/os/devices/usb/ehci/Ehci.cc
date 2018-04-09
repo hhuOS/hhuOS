@@ -75,7 +75,7 @@ void Ehci::setup(const Pci::Device &dev) {
 
     disableInterrupts();
 
-    plugin();
+    // plugin();
 
     reset();
 

@@ -21,6 +21,8 @@
 #include "lib/deprecated/Queue.h"
 #include "kernel/lock/Spinlock.h"
 
+static Spinlock schedulerLock;
+
 class Scheduler {
     
 public:

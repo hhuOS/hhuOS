@@ -60,20 +60,22 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
     uint8_t slot = (uint8_t) frame->interrupt;
     uint32_t flags = frame->error;
 
-    // Ignore spurious interrupts
-    if (slot == 47 && Pic::isSpurious()) {
-
-        return;
-    }
-
     // Throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
+
         Kernel::panic(frame);
     }
 
     // If this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
+
         Kernel::panic(frame);
+    }
+
+    // Ignore spurious interrupts
+    if (slot == 39 && Pic::isSpurious()) {
+
+        return;
     }
 
     if (slot == 14) {
@@ -95,12 +97,26 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
 
     if (handler.size() == 0) {
 
+        sendEoi(slot);
+
         return;
     }
 
     Util::List<InterruptHandler*>* list = report(slot);
 
     if (list == nullptr) {
+
+        if (slot == 32) {
+
+            bool pit = Pic::getInstance()->status(Pic::Interrupt::PIT);
+
+            if (pit) {
+
+                printf((char*) String::valueOf(pit));
+            }
+        }
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
 
         return;
     }
@@ -112,10 +128,7 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
         list->get(i)->trigger();
     }
 
-    if(slot > 32) {
-
-        Pic::getInstance()->sendEOI(Pic::Interrupt(slot - 32));
-    }
+    sendEoi(slot);
 }
 
 void IntDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
@@ -136,6 +149,14 @@ Util::List<InterruptHandler*>* IntDispatcher::report(uint8_t slot) {
     }
 
     return handler.get(slot);
+}
+
+void IntDispatcher::sendEoi(uint32_t slot) {
+
+    if(slot > 32) {
+
+        Pic::getInstance()->sendEOI(Pic::Interrupt(slot - 32));
+    }
 }
 
 

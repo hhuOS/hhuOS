@@ -58,6 +58,7 @@ extern fini_system
 extern setup_idt
 extern paging_bootstrap
 extern parse_multiboot
+extern enable_interrupts
 
 extern ___KERNEL_START__
 extern ___KERNEL_END__
@@ -94,9 +95,6 @@ multiboot_header:
 	dd GRAPHICS_BPP
 
 startup:
-
-    ; disable interrupts
-    cli
 
 	; load first 4MB-PageTable and enable paging
 	mov ecx,  (paging_bootstrap - KERNEL_START)
