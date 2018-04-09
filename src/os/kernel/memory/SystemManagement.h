@@ -336,8 +336,16 @@ public:
      */
     static SystemManagement* getInstance();
 
-    uint32_t getFreeIoMemoryAmount() {
-        return ioMemManager->getFreeMemory();
+    IOMemoryManager* getIOMemoryManager() {
+        return ioMemManager;
+    }
+
+    PageFrameAllocator* getPageFrameAllocator() {
+        return pageFrameAllocator;
+    }
+
+    PagingAreaManager* getPagingAreaManager() {
+        return pagingAreaManager;
     }
 };
 

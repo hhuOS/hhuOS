@@ -98,9 +98,9 @@ void IOMemoryTestApp::run() {
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     *stream << "_____ IOMemory Demo App _____" << endl << endl;
 
-    uint32_t freeBefore = SystemManagement::getInstance()->getFreeIoMemoryAmount();
+    uint32_t freeBefore = SystemManagement::getInstance()->getIOMemoryManager()->getFreeMemory();
     runTest();
-    uint32_t freeAfter = SystemManagement::getInstance()->getFreeIoMemoryAmount();
+    uint32_t freeAfter = SystemManagement::getInstance()->getIOMemoryManager()->getFreeMemory();
     *stream << "Small page allocs: " << stats[0] << endl;
     *stream << "At least 2 and at most 10 pages: " << stats[1] << endl;
     *stream << "At least 20 pages: " << stats[2] << endl << endl;

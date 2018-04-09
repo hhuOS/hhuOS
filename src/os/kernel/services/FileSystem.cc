@@ -1,5 +1,9 @@
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
+#include <kernel/filesystem/RamFs/memory/KernelHeapNode.h>
+#include <kernel/filesystem/RamFs/memory/IOMemoryNode.h>
+#include <kernel/filesystem/RamFs/memory/PFANode.h>
+#include <kernel/filesystem/RamFs/memory/PagingAreaNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "kernel/filesystem/Fat/FatDriver.h"
@@ -111,9 +115,15 @@ void FileSystem::init() {
     addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsMemoryNode::LINEAR_FRAME_BUFFER));
     addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsDeviceNameNode::LINEAR_FRAME_BUFFER));
 
+    // Add Memory Nodes to dev-directory
+    createDirectory("/dev/memory");
+    addVirtualNode("/dev/memory", new KernelHeapNode());
+    addVirtualNode("/dev/memory", new IOMemoryNode());
+    addVirtualNode("/dev/memory", new PFANode());
+    addVirtualNode("/dev/memory", new PagingAreaNode());
+
     // Add PCI-Node to dev-Directory
     addVirtualNode("/dev", new PciNode());
-
     // Add Random-Node to dev-Directory
     addVirtualNode("/dev", new RandomNode());
 
