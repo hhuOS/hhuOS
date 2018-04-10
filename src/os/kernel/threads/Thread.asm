@@ -32,6 +32,8 @@ startThread:
     pop ebx
     pop ebp
 
+    call enable_interrupts
+
     ; start thread
     ret
 
@@ -59,6 +61,7 @@ switchContext:
 
     ; enable interrupts
     call allowPreemption
+    call enable_interrupts
 
     ; resume next thread
     ret

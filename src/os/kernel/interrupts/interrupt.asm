@@ -267,6 +267,10 @@ interrupt_return:
 
     ; Remove error code and interrupt number
     add     esp, 0x08
+
+    ; Set interrupt flag in EFLAGS
+    or dword [esp + 0x08], 0x200
+
     iret
 
 

@@ -36,6 +36,8 @@ void schedulerYield() {
 }
 
 Scheduler::Scheduler() : initialized(false) {
+    inputService = Kernel::getService<InputService>();
+    timeService = Kernel::getService<TimeService>();
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -57,8 +59,7 @@ void Scheduler::schedule() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-	inputService = Kernel::getService<InputService>();
-	timeService = Kernel::getService<TimeService>();
+    Cpu::disableInterrupts();
 
     first = readyQueue.pop();
 
@@ -73,11 +74,11 @@ void Scheduler::schedule() {
 
 void Scheduler::ready(Thread& that) {
 
-    schedulerLock.acquire();
+    Cpu::disableInterrupts();
 
     readyQueue.push(&that);
 
-    schedulerLock.release();
+    Cpu::enableInterrupts();
 }
 
 void Scheduler::exit() {
@@ -87,7 +88,7 @@ void Scheduler::exit() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    schedulerLock.acquire();
+    Cpu::disableInterrupts();
     
     if (!isThreadWaiting()) {
 
@@ -106,11 +107,11 @@ void Scheduler::kill(Thread& that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    schedulerLock.acquire();
+    Cpu::disableInterrupts();
 
     readyQueue.remove(&that);
 
-    schedulerLock.release();
+    Cpu::enableInterrupts();
 }
 
 void Scheduler::yield() {
@@ -120,14 +121,17 @@ void Scheduler::yield() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    schedulerLock.acquire();
+    //schedulerLock.acquire();
+
 
     if (!isThreadWaiting()) {
 
-        schedulerLock.release();
+        //schedulerLock.release();
 
         return;
     }
+
+    Cpu::disableInterrupts();
 
     Thread *next = readyQueue.pop();
 
@@ -145,7 +149,7 @@ void Scheduler::block() {
 
     Thread* next;
     
-    schedulerLock.acquire();
+    Cpu::disableInterrupts();
     
     if (!isThreadWaiting()) {
 
@@ -164,11 +168,11 @@ void Scheduler::deblock(Thread &that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    schedulerLock.acquire();
+    Cpu::disableInterrupts();
 
     readyQueue.push(&that);
 
-    schedulerLock.release();
+    Cpu::enableInterrupts();
 }
 
 void Scheduler::dispatch(Thread &next) {
