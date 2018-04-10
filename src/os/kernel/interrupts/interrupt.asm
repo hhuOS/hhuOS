@@ -24,19 +24,18 @@
 global bios_call
 global setup_idt
 global interrupt_return
-global enable_interrupts
-global disable_interrupts
 global setSchedInit
 global onException
 
-
 extern preempt
-extern int_disp
+extern dispatchInterrupt
 extern switch_context
 extern gdt_48
 extern _gdt_bios_48
 extern BIOS_Page_Directory
 extern stack
+extern enable_interrupts
+extern disable_interrupts
 
 ; some low addresses of labels - use if paging disabled
 _bios_call2             equ (bios_call2 - KERNEL_START)
@@ -44,14 +43,6 @@ _bios_call3             equ (bios_call3 - KERNEL_START)
 _BIOS_Page_Directory    equ (BIOS_Page_Directory - KERNEL_START)
 
 [SECTION .text]
-
-enable_interrupts:
-    sti
-    ret
-
-disable_interrupts:
-    cli
-    ret
 
 ; handle exceptions
 onException:
@@ -261,7 +252,7 @@ wrapper_body:
 
     ; Call interrupt handler
     push    esp
-    call	int_disp
+    call	dispatchInterrupt
     add     esp, 0x04
 
 interrupt_return:
@@ -276,6 +267,10 @@ interrupt_return:
 
     ; Remove error code and interrupt number
     add     esp, 0x08
+
+    ; Set interrupt flag in EFLAGS
+    or dword [esp + 0x08], 0x200
+
     iret
 
 

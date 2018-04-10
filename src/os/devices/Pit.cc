@@ -46,7 +46,7 @@ uint32_t Pit::getInterval() {
 
 void Pit::plugin () {
 
-    IntDispatcher::assign(32, *this);
+    IntDispatcher::getInstance().assign(32, *this);
 
     Pic::getInstance()->allow(Pic::Interrupt::PIT);
 }
@@ -57,9 +57,6 @@ void Pit::trigger () {
 
     if (Scheduler::getInstance()->isInitialized()) {
 
-        if(schedulerLock.tryLock()) {
-            schedulerLock.unlock();
             Scheduler::getInstance()->yield();
-        }
     }
 }

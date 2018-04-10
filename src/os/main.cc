@@ -152,12 +152,12 @@ int32_t main() {
         registerServices();
 
         text->puts("Enabling Interrupts\n", 20, Colors::HHU_RED);
+
+        Pit::getInstance()->plugin();
+
         InputService *inputService = Kernel::getService<InputService>();
         inputService->getKeyboard()->plugin();
         inputService->getMouse()->plugin();
-
-        Pit::getInstance()->plugin();
-        Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
         Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
         rtc->plugin();
@@ -196,12 +196,12 @@ int32_t main() {
         registerServices();
 
         updateBootScreen(34, "Enabling Interrupts");
+
+        Pit::getInstance()->plugin();
+
         auto *inputService = Kernel::getService<InputService>();
         inputService->getKeyboard()->plugin();
         inputService->getMouse()->plugin();
-
-        Pit::getInstance()->plugin();
-        Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
         Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
         rtc->plugin();

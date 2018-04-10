@@ -75,7 +75,7 @@ void Ehci::setup(const Pci::Device &dev) {
 
     disableInterrupts();
 
-    plugin();
+    // plugin();
 
     reset();
 
@@ -442,7 +442,7 @@ UsbMassStorage *Ehci::getDevice(uint32_t index) {
 void Ehci::plugin() {
     EHCI_TRACE("Assigning interrupt %d\n", pciDevice.intr);
 
-    IntDispatcher::assign((uint8_t) pciDevice.intr + 32, *this);
+    IntDispatcher::getInstance().assign((uint8_t) pciDevice.intr + 32, *this);
     Pic::getInstance()->allow(pciDevice.intr);
 }
 

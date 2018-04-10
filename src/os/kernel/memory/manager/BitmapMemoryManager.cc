@@ -13,7 +13,7 @@
 #include "lib/libc/printf.h"
 
 extern "C" {
-	#include "lib/libc/string.h"
+#include "lib/libc/string.h"
 }
 
 /**
@@ -32,10 +32,10 @@ uint32_t BitmapMemoryManager::alloc() {
 	// run through the bitmap-array
 	bmpIndex=0;
     for(uint16_t i=0; i < freeBitmapLength; i++) {
-    	// increase bmpIndex
-    	if(i > 0){
-			bmpIndex = (bmpIndex + 1) % freeBitmapLength;
-		}
+        // increase bmpIndex
+        if(i > 0){
+            bmpIndex = (bmpIndex + 1) % freeBitmapLength;
+        }
         // check if current entry of the array contains a free place (=0)
         if( ~freeBitmap[bmpIndex] != 0 ) {
             // calculate which page frame of the 32 is free
@@ -43,7 +43,7 @@ uint32_t BitmapMemoryManager::alloc() {
             uint32_t tmpBitMap = ~freeBitmap[bmpIndex];
             // rotate the array entry to find the next 0-position
             do {
-            	// we want to see if the page represented by the highest bit is free (=0)
+                // we want to see if the page represented by the highest bit is free (=0)
                 if( (tmpBitMap & 0x80000000) != 0 ) {
                     // found free pageframe
                     break;
@@ -63,7 +63,7 @@ uint32_t BitmapMemoryManager::alloc() {
             freeMemory -= PAGESIZE;
             // return physical address of page frame
             if(zeroMemory){
-            	memset((void*)(memoryStartAddress + (32 * bmpIndex + (31 - idx)) * PAGESIZE), 0, PAGESIZE);
+                memset((void*)(memoryStartAddress + (32 * bmpIndex + (31 - idx)) * PAGESIZE), 0, PAGESIZE);
             }
             return (memoryStartAddress + (32 * bmpIndex + (31 - idx)) * PAGESIZE);
         }
@@ -117,74 +117,74 @@ uint32_t BitmapMemoryManager::free(uint32_t address) {
  * Can only be used on non-allocated memory.
  */
 uint32_t BitmapMemoryManager::reserveAddressRange(uint32_t startAddress, uint32_t endAddress){
-	// align addresses to 4kb layout
-	uint32_t startAddr = startAddress & 0xFFFFF000;
-	uint32_t endAddr = endAddress & 0xFFFFF000;
-	endAddr += (endAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
+    // align addresses to 4kb layout
+    uint32_t startAddr = startAddress & 0xFFFFF000;
+    uint32_t endAddr = endAddress & 0xFFFFF000;
+    endAddr += (endAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
 
-	// if requested memory is outside range, return
-	if (startAddr < memoryStartAddress || endAddr > memoryEndAddress) {
-		return 0;
-	}
+    // if requested memory is outside range, return
+    if (startAddr < memoryStartAddress || endAddr > memoryEndAddress) {
+        return 0;
+    }
 
-	// calculate number of pageframes
-	uint32_t pageCnt = (endAddr  - startAddr) / PAGESIZE;
-	// shift startAddr for use in Bitmap
-	startAddr -= memoryStartAddress;
+    // calculate number of pageframes
+    uint32_t pageCnt = (endAddr  - startAddr) / PAGESIZE;
+    // shift startAddr for use in Bitmap
+    startAddr -= memoryStartAddress;
 
-	// find number of frame corresponding to start address
-	uint32_t startFrameNumber = (uint32_t) (startAddr / PAGESIZE);
-	// calculate array idx to freeBitMap
-	uint16_t startArrayIdx = (uint16_t) (startFrameNumber / 32);
-	// calculate shift index for bitmask
-	uint8_t  startIdx = (uint8_t) (startFrameNumber % 32);
+    // find number of frame corresponding to start address
+    uint32_t startFrameNumber = (uint32_t) (startAddr / PAGESIZE);
+    // calculate array idx to freeBitMap
+    uint16_t startArrayIdx = (uint16_t) (startFrameNumber / 32);
+    // calculate shift index for bitmask
+    uint8_t  startIdx = (uint8_t) (startFrameNumber % 32);
 
-	// set start parameters for loop
-	uint32_t curPageCnt = 0;
-	uint16_t arrayIdx = startArrayIdx;
-	uint8_t idx = startIdx;
+    // set start parameters for loop
+    uint32_t curPageCnt = 0;
+    uint16_t arrayIdx = startArrayIdx;
+    uint8_t idx = startIdx;
 
-	// first loop: check if requested address range is free
-	while(curPageCnt < pageCnt) {
-		// if idx is 32, we need to choose the next entry of the bitmap
-		if(idx == 32) {
-			arrayIdx++;
-			idx = 0;
-		}
+    // first loop: check if requested address range is free
+    while(curPageCnt < pageCnt) {
+        // if idx is 32, we need to choose the next entry of the bitmap
+        if(idx == 32) {
+            arrayIdx++;
+            idx = 0;
+        }
 
-		// check if entry in bitmap is free
-		if((freeBitmap[arrayIdx] & (0x80000000 >> idx)) != 0){
-			// if a block is allocated, stop here and return 0
-			return 0;
-		}
+        // check if entry in bitmap is free
+        if((freeBitmap[arrayIdx] & (0x80000000 >> idx)) != 0){
+            // if a block is allocated, stop here and return 0
+            return 0;
+        }
 
-		// increase counters
-		idx++;
-		curPageCnt++;
-	}
+        // increase counters
+        idx++;
+        curPageCnt++;
+    }
 
 
-	// reset parameters for loop
-	curPageCnt = 0;
-	arrayIdx = startArrayIdx;
-	idx = startIdx;
-	// second loop: mark address range as allocated
-	while(curPageCnt < pageCnt) {
-		// if idx is 32, we need to choose the next entry of the bitmap
-		if(idx == 32) {
-			arrayIdx++;
-			idx = 0;
-		}
-		// set entry in bitmap to 1
-		freeBitmap[arrayIdx] |= (0x80000000 >> idx);
-		// increase counters
-		idx++;
-		curPageCnt++;
-	}
-	// update free memory
-	freeMemory -= (pageCnt * PAGESIZE);
-	// return start address of reserved block
-	return (startAddr + memoryStartAddress);
+    // reset parameters for loop
+    curPageCnt = 0;
+    arrayIdx = startArrayIdx;
+    idx = startIdx;
+    // second loop: mark address range as allocated
+    while(curPageCnt < pageCnt) {
+        // if idx is 32, we need to choose the next entry of the bitmap
+        if(idx == 32) {
+            arrayIdx++;
+            idx = 0;
+        }
+        // set entry in bitmap to 1
+        freeBitmap[arrayIdx] |= (0x80000000 >> idx);
+        // increase counters
+        idx++;
+        curPageCnt++;
+    }
+    // update free memory
+    freeMemory -= (pageCnt * PAGESIZE);
+    // return start address of reserved block
+    return (startAddr + memoryStartAddress);
 
 }
 
@@ -192,34 +192,34 @@ uint32_t BitmapMemoryManager::reserveAddressRange(uint32_t startAddress, uint32_
  * Frees an address range of 4kb blocks.
  */
 void BitmapMemoryManager::freeAddressRange(uint32_t startAddress, uint32_t endAddress){
-	// align addresses to 4kb layout
-	uint32_t startAddr = startAddress & 0xFFFFF000;
-	uint32_t endAddr = endAddress & 0xFFFFF000;
-	endAddr += (endAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
+    // align addresses to 4kb layout
+    uint32_t startAddr = startAddress & 0xFFFFF000;
+    uint32_t endAddr = endAddress & 0xFFFFF000;
+    endAddr += (endAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
 
-	// if requested memory is outside range, return
-	if (startAddr < memoryStartAddress || endAddr > memoryEndAddress) {
-		return;
-	}
+    // if requested memory is outside range, return
+    if (startAddr < memoryStartAddress || endAddr > memoryEndAddress) {
+        return;
+    }
 
-	// loop through addresses and free them
-	for(uint32_t addr = startAddr; addr < endAddr; addr += PAGESIZE) {
-		free(addr);
-	}
+    // loop through addresses and free them
+    for(uint32_t addr = startAddr; addr < endAddr; addr += PAGESIZE) {
+        free(addr);
+    }
 }
 
 /**
  * Dump bitmap for debugging reasons
  */
 void BitmapMemoryManager::dump() {
-	printf("Bitmap of memory manager %s\n", name);
+    printf("Bitmap of memory manager %s\n", name);
 
-	for(uint16_t idx = 0; idx <= freeBitmapLength; idx++) {
-		if(idx % 4 == 0){
-			printf("\n");
-		}
-		printf("%x", freeBitmap[idx]);
+    for(uint16_t idx = 0; idx <= freeBitmapLength; idx++) {
+        if(idx % 4 == 0){
+            printf("\n");
+        }
+        printf("%x", freeBitmap[idx]);
 
 
-	}
+    }
 }

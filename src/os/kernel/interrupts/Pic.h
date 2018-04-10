@@ -95,6 +95,13 @@ public:
      */
     void sendEOI(Interrupt interrupt);
 
+    /**
+     * Indicates if a spurious interrupt has occured.
+     *
+     * @return true, if a spurious interrupt has occured, false else
+     */
+    static bool isSpurious();
+
 private:
 
     Pic() = default;
@@ -126,6 +133,10 @@ private:
     static Pic *instance;
 
     static const uint8_t EOI = 0x20;
+
+    static const uint8_t READ_ISR = 0x0B;
+
+    static const uint8_t SPURIOUS_INTERRUPT = 0x80;
  };
 
 #endif

@@ -14,21 +14,18 @@
 #include <lib/Random.h>
 #include "kernel/Cpu.h"
 
-#include "kernel/threads/ThreadState.h"
 #include "kernel/interrupts/IntDispatcher.h"
-#include "../memory/SystemManagement.h"
+#include "kernel/memory/SystemManagement.h"
+#include "Pic.h"
 
 extern "C" {
-    void int_disp (InterruptFrame *frame);
+    void dispatchInterrupt(InterruptFrame *frame);
 }
-
-// map with interrupt handlers
-InterruptHandler* IntDispatcher::map[MAP_SIZE_X][MAP_SIZE_Y];
 
 IOport systemA(0x92);
 IOport systemB(0x61);
 
-IOport slavePic(0xa0);
+IOport slavePic(0xA0);
 IOport masterPic(0x20);
 
 void printNMI() {
@@ -41,105 +38,127 @@ void printNMI() {
  *
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
-void int_disp (InterruptFrame *frame) {
+void dispatchInterrupt(InterruptFrame *frame) {
 
-	// extract interrupt information
-    uint32_t slot = frame->interrupt;
+    IntDispatcher::getInstance().dispatch(frame);
+}
+
+IntDispatcher::IntDispatcher() : handler() {
+
+}
+
+IntDispatcher &IntDispatcher::getInstance() {
+
+    static IntDispatcher instance;
+
+    return instance;
+}
+
+void IntDispatcher::dispatch(InterruptFrame *frame) {
+
+    // Extract interrupt information
+    uint8_t slot = (uint8_t) frame->interrupt;
     uint32_t flags = frame->error;
 
-    /*if(slot != 0) {
-        Random random(slot * flags + 10, 1000);
-
-        Speaker speaker;
-        speaker.play(random.rand());
-    }*/
-
-    // throw bluescreen on Protected Mode exceptions except pagefault
+    // Throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
+
         Kernel::panic(frame);
     }
 
-    // if this is a software exception, throw a bluescreen with error data
+    // If this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
+
         Kernel::panic(frame);
     }
 
-    // TODO:
-    //  Handle primary and secondary IDE/ATA
-    if (slot == 47 || slot == 48) {
+    // Ignore spurious interrupts
+    if (slot == 39 && Pic::isSpurious()) {
+
         return;
     }
 
     if (slot == 14) {
 
-        // get page fault address and flags
+        // Get page fault address and flags
         uint32_t faulting_address = 0;
         // the faulted linear address is loaded in the cr2 register
         asm ("mov %%cr2, %0" : "=r" (faulting_address));
 
-        // there should be no excess to the first page (address 0)
+        // There should be no access to the first page (address 0)
         if (faulting_address == 0) {
-            frame->interrupt = (uint32_t) Cpu::Exception ::NULLPOINTER;
+            frame->interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
             Kernel::panic(frame);
         }
 
-        // pass faulting address to the system management
+        // Pass faulting address to the system management
         SystemManagement::getInstance()->setFaultParams(faulting_address, flags);
     }
 
-    // pointer to interrupt handler
-    InterruptHandler* isr;
-    // count for interrupt-handler devices
-    uint8_t device;
-    // iterate through all devices registered to handle this interrupt number
-    // and trigger them to deal with the interrupt
-    for (device = 0; device < 16; device++) {
-        isr = IntDispatcher::report(slot, device);
+    if (handler.size() == 0) {
 
-        if (isr == 0x0) {
-            break;
-        }
+        sendEoi(slot);
 
-        isr->trigger();
+        return;
     }
 
-    // For some weird reason, we need to send an EOI to both PICs, when the RTC triggers.
-    // Otherwise, the RTC won't work on real hardware.
-    if(device > 0 && slot == 40) {
-        masterPic.outb(0x20);
-        slavePic.outb(0x20);
-    }
+    Util::List<InterruptHandler*>* list = report(slot);
 
-    if (device == 0) {
-//        printf("[WARNING] Received unexpected interrupt %d\n", slot);
-    }
-}
+    if (list == nullptr) {
 
+        if (slot == 32) {
 
-/**
- * Register an interrupt handler to an interrupt number.
- */
-void IntDispatcher::assign (uint8_t slot, InterruptHandler &isr) {
-	// search for the next free device number for this interrupt and register the handler
-    if (slot < MAP_SIZE_X) {
-        for (uint8_t i = 0; i < MAP_SIZE_Y; i++) {
-            if ( map[slot][i] == 0x0 ) {
-                map[slot][i] = &isr;
-                break;
+            bool pit = Pic::getInstance()->status(Pic::Interrupt::PIT);
+
+            if (pit) {
+
+                printf((char*) String::valueOf(pit));
             }
         }
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+
+        return;
     }
+
+    uint32_t size = list->size();
+
+    for (uint32_t i = 0; i < size; i++) {
+
+        list->get(i)->trigger();
+    }
+
+    sendEoi(slot);
 }
 
+void IntDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
 
-/**
- * Get the interrutp handler that is registered for an interrupt number
- * under the given device number.
- */
-InterruptHandler* IntDispatcher::report (uint8_t slot, uint8_t device) {
-    if ( slot < MAP_SIZE_X && device < MAP_SIZE_Y ) {
-        return map[slot][device];
-    } else {
+    if (!handler.containsKey(slot)) {
+
+        handler.put(slot, new Util::ArrayList<InterruptHandler*>);
+    }
+
+    handler.get(slot)->add(&isr);
+}
+
+Util::List<InterruptHandler*>* IntDispatcher::report(uint8_t slot) {
+
+    if (!handler.containsKey(slot)) {
+
         return nullptr;
     }
+
+    return handler.get(slot);
 }
+
+void IntDispatcher::sendEoi(uint32_t slot) {
+
+    if(slot > 32) {
+
+        Pic::getInstance()->sendEOI(Pic::Interrupt(slot - 32));
+    }
+}
+
+
+
+

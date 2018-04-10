@@ -35,7 +35,7 @@
  * @todo implement float numbers and e.g. 10.2f (float 10 chars with 2 after the dot
  */
 
-int snprintf ( char * str, size_t nmax, const char * format, ... );
-int snprintf ( char * str, size_t nmax, const char * format, va_list args);
+int snprintf(char *str, size_t nmax, const char *format, ...);
+int snprintf(char *str, size_t nmax, const char *format, va_list args);
 
 #endif

@@ -19,7 +19,7 @@
 #include <kernel/services/InputService.h>
 #include "kernel/threads/Thread.h"
 #include "lib/deprecated/Queue.h"
-#include "kernel/Spinlock.h"
+#include "kernel/lock/Spinlock.h"
 
 static Spinlock schedulerLock;
 
@@ -27,11 +27,13 @@ class Scheduler {
     
 public:
 
-    Scheduler ();
+    Scheduler();
 
-    Scheduler (const Scheduler &copy) = delete;
+    Scheduler(const Scheduler &copy) = delete;
 
-    Thread *currentThread;
+    Scheduler &operator=(const Scheduler &copy) = delete;
+
+    ~Scheduler() = default;
 
     /**
      * Inidcates if the Scheduler has been initialized.
@@ -108,6 +110,8 @@ public:
      * @return An instance of the Scheduler
      */
     static Scheduler* getInstance();
+
+    Thread *currentThread;
 
 private:
 

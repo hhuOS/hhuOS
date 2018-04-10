@@ -130,14 +130,15 @@ void FileSystem::init() {
 }
 
 uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
-    fsLock.lock();
+
+    fsLock.acquire();
 
     String parsedPath = parsePath(path);
 
     auto *driver = (RamFsDriver*) getMountedDriver(parsedPath);
     bool ret = driver->addNode(parsedPath, node);
 
-    fsLock.unlock();
+    fsLock.release();
 
     return ret ? SUCCESS : ADDING_VIRTUAL_NODE_FAILED;
 }
@@ -155,7 +156,7 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
         return DEVICE_NOT_FOUND;
     }
 
-    fsLock.lock();
+    fsLock.acquire();
 
     // Create temporary driver
     FsDriver *tmpDriver = nullptr;
@@ -165,14 +166,14 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
     else if(fsType == TYPE_RAM)
         tmpDriver = new RamFsDriver();
     else {
-        fsLock.unlock();
+        fsLock.release();
         return INVALID_DRIVER;
     }
 
     // Format device
     bool ret = tmpDriver->createFs(disk);
 
-    fsLock.unlock();
+    fsLock.release();
 
     delete tmpDriver;
     return ret ? SUCCESS : FORMATTING_FAILED;
@@ -212,10 +213,10 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
         delete targetNode;
     }
 
-    fsLock.lock();
+    fsLock.acquire();
 
     if(mountPoints.containsKey(parsedPath)) {
-        fsLock.unlock();
+        fsLock.release();
         return MOUNT_TARGET_ALREADY_USED;
     }
 
@@ -226,19 +227,19 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
     } else if(type == TYPE_RAM) {
         driver = new RamFsDriver();
     } else {
-        fsLock.unlock();
+        fsLock.release();
         return INVALID_DRIVER;
     }
 
     if(!driver->mount(disk)) {
-        fsLock.unlock();
+        fsLock.release();
         delete driver;
         return MOUNTING_FAILED;
     }
 
     mountPoints.put(parsedPath, driver);
 
-    fsLock.unlock();
+    fsLock.release();
     return SUCCESS;
 }
 
@@ -254,12 +255,12 @@ uint32_t FileSystem::unmount(const String &path) {
         delete targetNode;
     }
 
-    fsLock.lock();
+    fsLock.acquire();
 
     for(const String &key : mountPoints.keySet()) {
         if(key.beginsWith(parsedPath)) {
             if(key != parsedPath) {
-                fsLock.unlock();
+                fsLock.release();
                 return SUBDIRECTORY_CONTAINS_MOUNT_POINT;
             }
         }
@@ -269,11 +270,11 @@ uint32_t FileSystem::unmount(const String &path) {
         delete mountPoints.get(parsedPath);
         mountPoints.remove(parsedPath);
 
-        fsLock.unlock();
+        fsLock.release();
         return SUCCESS;
     }
 
-    fsLock.unlock();
+    fsLock.release();
 
     return NOTHING_MOUNTED_AT_PATH;
 }
@@ -281,18 +282,18 @@ uint32_t FileSystem::unmount(const String &path) {
 FsNode *FileSystem::getNode(const String &path) {
     String parsedPath = parsePath(path);
 
-    fsLock.lock();
+    fsLock.acquire();
 
     FsDriver *driver = getMountedDriver(parsedPath);
 
     if(driver == nullptr) {
-        fsLock.unlock();
+        fsLock.release();
         return nullptr;
     }
     
     FsNode *ret = driver->getNode(parsedPath);
 
-    fsLock.unlock();
+    fsLock.release();
 
     return ret;
 }
@@ -300,36 +301,36 @@ FsNode *FileSystem::getNode(const String &path) {
 uint32_t FileSystem::createFile(const String &path) {
     String parsedPath = parsePath(path);
 
-    fsLock.lock();
+    fsLock.acquire();
 
     FsDriver *driver = getMountedDriver(parsedPath);
 
     if(driver == nullptr) {
-        fsLock.unlock();
+        fsLock.release();
         return FILE_NOT_FOUND;
     }
     
     bool ret = driver->createNode(parsedPath, FsNode::REGULAR_FILE);
 
-    fsLock.unlock();
+    fsLock.release();
 
     return ret ? SUCCESS : CREATING_FILE_FAILED;
 }
 
 uint32_t FileSystem::createDirectory(const String &path) {
     String parsedPath = parsePath(path);
-    fsLock.lock();
+    fsLock.acquire();
 
     FsDriver *driver = getMountedDriver(parsedPath);
 
     if(driver == nullptr) {
-        fsLock.unlock();
+        fsLock.release();
         return FILE_NOT_FOUND;
     }
 
     bool ret = driver->createNode(parsedPath, FsNode::DIRECTORY_FILE);
 
-    fsLock.unlock();
+    fsLock.release();
 
     return ret ? SUCCESS : CREATING_DIRECTORY_FAILED;
 }
@@ -337,11 +338,11 @@ uint32_t FileSystem::createDirectory(const String &path) {
 uint32_t FileSystem::deleteFile(const String &path) {
     String parsedPath = parsePath(path);
 
-    fsLock.lock();
+    fsLock.acquire();
 
     for(const String &key : mountPoints.keySet()) {
         if(key.beginsWith(parsedPath)) {
-            fsLock.unlock();
+            fsLock.release();
             return SUBDIRECTORY_CONTAINS_MOUNT_POINT;
         }
     }
@@ -349,13 +350,13 @@ uint32_t FileSystem::deleteFile(const String &path) {
     FsDriver *driver = getMountedDriver(parsedPath);
 
     if(driver == nullptr) {
-        fsLock.unlock();
+        fsLock.release();
         return FILE_NOT_FOUND;
     }
     
     bool ret = driver->deleteNode(parsedPath);
 
-    fsLock.unlock();
+    fsLock.release();
 
     return ret ? SUCCESS : DELETING_FILE_FAILED;
 }

@@ -6,7 +6,7 @@
 /// @todo did wie have to implement stdarg.h or cstdarg or float/double ?
 #include <stdarg.h>
 #include "lib/OutputStream.h"
-#include "kernel/Spinlock.h"
+#include "kernel/lock/Spinlock.h"
 #include <devices/graphics/text/CgaText.h>
 
 #ifdef __cplusplus

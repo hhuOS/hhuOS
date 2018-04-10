@@ -19,7 +19,7 @@
 #define __Kernel_include__
 
 #include "kernel/KernelService.h"
-#include "kernel/Spinlock.h"
+#include "kernel/lock/Spinlock.h"
 
 #include <cstdint>
 #include <lib/deprecated/HashMap.h>
