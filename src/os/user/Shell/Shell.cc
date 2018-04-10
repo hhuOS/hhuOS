@@ -32,9 +32,14 @@
 #include <user/Application.h>
 #include <kernel/threads/Scheduler.h>
 
-Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
+Shell::Shell() : Thread("Shell") {
+    stdStreamService = Kernel::getService<StdStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
+
+    stdStreamService->setStdout(this);
+    stdStreamService->setStderr(this);
+    stdStreamService->setStdin(this);
 
     commands.put("clear", new Clear(*this));
     commands.put("cd", new Cd(*this));
@@ -48,7 +53,7 @@ Shell::Shell() : Thread("Shell"), stderr(*File::open("/dev/stderr", "w")) {
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
 
-    memset(input, 0, sizeof(input));
+    memset(inputBuffer, 0, sizeof(inputBuffer));
 }
 
 Shell::~Shell() {
@@ -65,39 +70,34 @@ void Shell::setCurrentWorkingDirectory(Directory *cwd) {
 }
 
 void Shell::run() {
-    TextDriver &stream = *graphicsService->getTextDriver();
     cwd = Directory::open("/");
 
-    stream << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    stream << "[/]$ ";
-    stream.flush();
+    *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
+    *this << "[/]$ ";
+    this->flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
     while(isRunning) {
-        if(execute) {
-            execute = false;
-            eventBus->unsubscribe(*this, KeyEvent::TYPE);
+        char* input = nullptr;
+        *this >> input;
 
-            executeCommand();
+        executeCommand(input);
 
-            memset(input, 0, sizeof(input));
+        delete input;
 
-            stream << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
-            stream.flush();
-
-            eventBus->subscribe(*this, KeyEvent::TYPE);
-        }
+        *this << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
+        this->flush();
     }
 
     Application::getInstance()->resume();
     Scheduler::getInstance()->exit();
 }
 
-void Shell::executeCommand() {
-    OutputStream *stream = graphicsService->getTextDriver();
+void Shell::executeCommand(String input) {
+    OutputStream *stream = this;
 
-    Util::Array<String> tmp = String(input).split(">");
+     Util::Array<String> tmp = input.split(">");
 
     if(tmp.length() == 0) {
         return;
@@ -110,7 +110,7 @@ void Shell::executeCommand() {
     }
 
     if(!commands.containsKey(args[0]) && args[0] != "help" && args[0] != "exit") {
-        stderr << "Shell: '" << args[0] << "': Command not found!" << endl;
+        *this << "Shell: '" << args[0] << "': Command not found!" << endl;
         return;
     }
 
@@ -144,7 +144,7 @@ void Shell::executeCommand() {
         // Try to open the output file
         File *file = File::open(absolutePath, "w");
         if(file == nullptr) {
-            stderr << "startShell: '" << relativePath << "': File or Directory not found!" << endl;
+            *this << "Shell: '" << relativePath << "': File or Directory not found!" << endl;
             return;
         }
 
@@ -164,9 +164,15 @@ void Shell::executeCommand() {
         return;
     }
 
-    commands.get(args[0])->execute(args, *stream);
+    stdStreamService->setStdout(stream);
+    stdStreamService->setStderr(stream);
 
-    if(stream != graphicsService->getTextDriver()) {
+    commands.get(args[0])->execute(args);
+
+    stdStreamService->setStdout(this);
+    stdStreamService->setStderr(this);
+
+    if(stream != this) {
         delete stream;
     }
 }
@@ -176,29 +182,87 @@ void Shell::onEvent(const Event &event) {
     Key key = ((KeyEvent &) event).getKey();
 
     if (key.valid()) {
-        if(strlen(input) == (sizeof(input) - 1) && key.ascii() != '\b') {
+        if(strlen(inputBuffer) == (sizeof(inputBuffer) - 1) && key.ascii() != '\b') {
             return;
         }
 
+        inputLock.acquire();
+
         if(key.ascii() == '\n') {
-            input[strlen(input)] = 0;
+            inputBuffer[strlen(inputBuffer)] = 0;
             stream << endl;
 
-            execute = true;
+            lastString = String(inputBuffer);
+            stringAvailable = true;
+
+            memset(inputBuffer, 0, sizeof(inputBuffer));
         } else if(key.ascii() == '\b') {
-            if(strlen(input) > 0) {
+            if(strlen(inputBuffer) > 0) {
                 uint16_t x, y;
                 stream.getpos(x, y);
                 stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
                 stream.setpos(x, y);
 
-                memset(&input[strlen(input) - 1], 0, sizeof(input) - (strlen(input) - 1));
+                memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
             }
         } else {
-            input[strlen(input)] = key.ascii();
+            lastChar = key.ascii();
+            charAvailable = true;
+
+            inputBuffer[strlen(inputBuffer)] = key.ascii();
             stream << key.ascii();
             stream.flush();
         }
+
+        inputLock.release();
     }
+}
+
+void Shell::flush() {
+    graphicsService->getTextDriver()->puts(StringBuffer::buffer, StringBuffer::pos);
+    StringBuffer::pos = 0;
+}
+
+InputStream &Shell::operator>>(char &c) {
+    while(true) {
+        inputLock.acquire();
+
+        if(charAvailable) {
+            charAvailable = false;
+            c = lastChar;
+
+            inputLock.release();
+            return *this;
+        }
+
+        inputLock.release();
+    }
+}
+
+InputStream &Shell::operator>>(char *&string) {
+    while(true) {
+        inputLock.acquire();
+
+        if(stringAvailable) {
+            stringAvailable = false;
+            string = (char *) lastString;
+
+            inputLock.release();
+            return *this;
+        }
+
+        inputLock.release();
+    }
+}
+
+InputStream &Shell::operator>>(OutputStream &outStream) {
+    char *string = nullptr;
+
+    *this >> string;
+    outStream << string;
+    outStream.flush();
+
+    delete string;
+    return *this;
 }

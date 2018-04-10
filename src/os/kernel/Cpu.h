@@ -118,7 +118,8 @@ public:
         KEY_NOT_FOUND                       = 0xCB,
         ILLEGAL_STATE                       = 0xCC,
         OUT_OF_PHYS_MEMORY                  = 0xCD,
-        OUT_OF_PAGE_MEMORY                  = 0xCE
+        OUT_OF_PAGE_MEMORY                  = 0xCE,
+		ILLEGEAL_PAGE_ACCESS				= 0xCF
     };
 
     /**

@@ -8028,7 +8028,7 @@ think I have altered."
 "You have not yet told me what your good action was.  Or did you say
 you had done more than one?" asked his companion as he spilled into his
 plate a little crimson pyramid of seeded strawberries and, through a
-perforated, shell-shaped spoon, snowed white sugar upon them.
+perforated, startShell-shaped spoon, snowed white sugar upon them.
 
 "I can tell you, Harry.  It is not a story I could tell to any one
 else.  I spared somebody.  It sounds vain, but you understand what I

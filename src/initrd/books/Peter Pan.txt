@@ -5320,7 +5320,7 @@ Abandoning the fight he rushed into the powder magazine and fired it.
 
 Now, now, he thought, true form will show.
 
-But Peter issued from the powder magazine with the shell in his hands,
+But Peter issued from the powder magazine with the startShell in his hands,
 and calmly flung it overboard.
 
 What sort of form was Hook himself showing? Misguided man though he was,

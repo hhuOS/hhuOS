@@ -14,36 +14,37 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef __HeapDemo_include__
-#define __HeapDemo_include__
+#ifndef HHUOS_IOMEMORYTESTAPP_H
+#define HHUOS_IOMEMORYTESTAPP_H
 
 
-#include "kernel/threads/Thread.h"
-
-#define HEAPDUMP 0
+#include <lib/Random.h>
+#include <kernel/memory/manager/IOMemoryManager.h>
+#include <kernel/threads/Thread.h>
 
 /**
- * HeapDemo
- *
- * A small demo to test the heap-memory allocator.
+ * IOMemoryTestApp - tests the io memory area with a certain number of allocations and frees
  *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class HeapDemo : public Thread {
-    
+class IOMemoryTestApp : public Thread {
+
 private:
-    HeapDemo (const HeapDemo &copy);
-    
-   
+    Random *random;
+    IOMemInfo *objects;
+    unsigned int *stats;
+
+    void runTest();
+    void shuffle();
+
 public:
-    HeapDemo () : Thread ("HeapDemo") { }
+    IOMemoryTestApp();
+    IOMemoryTestApp(const IOMemoryTestApp &other) = delete;
+    ~IOMemoryTestApp() override ;
 
-    /**
-     * Runs the thread.
-     */
-    void run ();
+    void run() override;
+};
 
- };
 
-#endif
+#endif //HHUOS_IOMEMORYTESTAPP_H

@@ -15,12 +15,8 @@ uint64_t StdoutNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 uint64_t StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stdout = stdStreamService->getStdout();
-
-    char printBuf[numBytes + 1];
-    memcpy(printBuf, buf, numBytes);
-    printBuf[numBytes] = 0;
     
-    *stdout << printBuf;
+    stdout->writeBytes(buf, numBytes);
     stdout->flush();
 
     return numBytes;

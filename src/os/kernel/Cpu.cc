@@ -26,7 +26,7 @@ const char* Cpu::hardwareExceptions[] = {
 
 const char* Cpu::softwareExceptions[] {
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
-        "IllegalState Exception", "OutOfPhysicalMemory Exception", "OutOfPagingMemory Exception"
+        "IllegalState Exception", "OutOfPhysicalMemory Exception", "OutOfPagingMemory Exception", "Illegal Page Access"
 };
 
 int32_t Cpu::cliCount = 1; // GRUB disables all interrupts on startup
@@ -39,12 +39,12 @@ extern "C" {
 
 void enable_interrupts() {
 
-    asm volatile ( "sti" );
+    Cpu::enableInterrupts();
 }
 
 void disable_interrupts() {
 
-    asm volatile ( "cli" );
+    Cpu::disableInterrupts();
 }
 
 /**
@@ -74,7 +74,7 @@ void Cpu::enableInterrupts() {
 
     if (cliCount == 0) {
 
-        enable_interrupts();
+        asm volatile ( "sti" );
     }
 }
 
@@ -83,7 +83,7 @@ void Cpu::enableInterrupts() {
  */
 void Cpu::disableInterrupts() {
 
-    disable_interrupts();
+    asm volatile ( "cli" );
 
     cliCount++;
 }
@@ -145,7 +145,7 @@ const char *Cpu::getExceptionName(uint32_t exception) {
  */
 void Cpu::throwException(Exception exception) {
 
-    asm volatile ( "sti" );
+    disableInterrupts();
 
     onException((uint32_t) exception);
 }

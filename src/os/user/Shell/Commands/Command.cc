@@ -18,7 +18,7 @@
 #include <lib/file/File.h>
 #include "Command.h"
 
-Command::Command(Shell &shell) : shell(shell), stderr(*File::open("/dev/stderr", "w")) {
+Command::Command(Shell &shell) : shell(shell), stdout(*File::open("/dev/stderr", "w")), stderr(*File::open("/dev/stderr", "w")), stdin(*(Kernel::getService<StdStreamService>()->getStdin())){
 
 }
 

@@ -5239,7 +5239,7 @@ He stood on the shore and considered what he should do, when suddenly
 he saw three fishes come swimming towards him, and they were the very
 fishes whose lives he had saved. The one in the middle held a mussel in
 its mouth, which it laid on the shore at the youth’s feet, and when he
-had taken it up and opened it, there lay the gold ring in the shell.
+had taken it up and opened it, there lay the gold ring in the startShell.
 Full of joy he took it to the king and expected that he would grant him
 the promised reward.
 

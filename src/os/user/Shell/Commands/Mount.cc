@@ -21,7 +21,7 @@ Mount::Mount(Shell &shell) : Command(shell) {
 
 };
 
-void Mount::execute(Util::Array<String> &args, OutputStream &outputStream) {
+void Mount::execute(Util::Array<String> &args) {
     String devicePath;
     String targetPath;
     String type;
@@ -44,11 +44,11 @@ void Mount::execute(Util::Array<String> &args, OutputStream &outputStream) {
                 type = args[++i];
             }
         } else if(args[i] == "-h" || args[i] == "--help") {
-            outputStream << "Mounts a device to a target path." << endl << endl;
-            outputStream << "Usage: " << args[0] << " [DEVICE] [TARGET] [OPTIONS]..." << endl << endl;
-            outputStream << "Options:" << endl;
-            outputStream << "  -t, --type: Filesystem type (REQUIRED!)." << endl;
-            outputStream << "  -h, --help: Show this help-message." << endl;
+            stdout << "Mounts a device to a target path." << endl << endl;
+            stdout << "Usage: " << args[0] << " [DEVICE] [TARGET] [OPTIONS]..." << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -t, --type: Filesystem type (REQUIRED!)." << endl;
+            stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;

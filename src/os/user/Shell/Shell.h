@@ -31,26 +31,36 @@ class Command;
  * @author Fabian Ruhland
  * @date 2018
  */
-class Shell : public Thread, Receiver {
+class Shell : public Thread, Receiver, OutputStream, InputStream {
 
 private:
+    StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
-    OutputStream &stderr;
 
     Util::HashMap<String, Command*> commands;
 
     Directory *cwd = nullptr;
 
+    Spinlock inputLock;
+
     bool execute = false;
     bool isRunning = true;
 
-    char input[4096];
+    bool charAvailable = false;
+    bool stringAvailable = false;
+
+    char lastChar;
+    String lastString;
+
+    char inputBuffer[4096];
 
     /**
      * Parse the user input and execute the respective command if the input is valid.
+     *
+     * @param input The user input
      */
-    void executeCommand();
+    void executeCommand(String input);
 
 public:
 
@@ -88,6 +98,14 @@ public:
      * Overriding function from Receiver.
      */
     void onEvent(const Event &event) override;
+
+    void flush() override;
+
+    InputStream& operator >> (char &c) override;
+
+    InputStream& operator >> (char *&string) override;
+
+    InputStream& operator >> (OutputStream &outStream) override;
 };
 
 #endif

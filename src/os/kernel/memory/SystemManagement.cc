@@ -77,6 +77,11 @@ void SystemManagement::trigger() {
     printf("[PAGINGMANAGER] Flags %x\n", faultFlags);
     printf("[PAGINGMANAGER] Floored 4kb aligned address %x\n", (faultedAddress & 0xFFFFF000));
 #endif
+    // check if pagefault was caused by illegal page access
+    if ((faultFlags & 0x00000001) > 0) {
+    	Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
+    }
+
     // Map the faulted Page
     map(faultedAddress, PAGE_PRESENT | PAGE_READ_WRITE);
     // TODO: Check other Faults
