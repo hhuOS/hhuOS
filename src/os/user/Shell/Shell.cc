@@ -246,7 +246,9 @@ InputStream &Shell::operator>>(char *&string) {
 
         if(stringAvailable) {
             stringAvailable = false;
-            string = (char *) lastString;
+
+            string = new char[lastString.length() + 1];
+            memcpy(string, (char *) lastString, lastString.length() + 1);
 
             inputLock.release();
             return *this;
