@@ -32,11 +32,11 @@ void Tail::execute(Util::Array<String> &args) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
             paths.add(args[i]);
         } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Writes the first 10 lines of multiple files to the standard output stream." << endl << endl;
+            stdout << "Writes the last 10 lines of multiple files to the standard output stream." << endl << endl;
             stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
             stdout << "Options:" << endl;
-            stdout << "  -c, --bytes [NUMBER]: Print the first NUMBER bytes." << endl;
-            stdout << "  -n, --lines [NUMBER]: Print the first NUMBER lines." << endl;
+            stdout << "  -c, --bytes [NUMBER]: Print the last NUMBER bytes." << endl;
+            stdout << "  -n, --lines [NUMBER]: Print the last NUMBER lines." << endl;
             stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else if(args[i] == "-c" || args[i] == "--bytes") {

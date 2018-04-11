@@ -160,6 +160,9 @@ void Shell::executeCommand(String input) {
             *stream << command << endl;
         }
 
+        *stream << "help" << endl;
+        *stream << "exit" << endl;
+
         return;
     } else if(args[0] == "exit") {
         isRunning = false;
