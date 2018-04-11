@@ -74,7 +74,7 @@ void AsciimationApp::onEvent(const Event &event) {
     Key key = ((KeyEvent &) event).getKey();
 
     if(key.scancode() == KeyEvent::ESCAPE) {
-        fileLength = 0;
+        isRunning = false;
         return;
     }
 
@@ -116,25 +116,27 @@ void AsciimationApp::run () {
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
-    while(file == nullptr) {}
+    while(file == nullptr && isRunning) {}
 
-    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-    lfb->init(800, 600, 32);
+    if(isRunning) {
+        LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+        lfb->init(800, 600, 32);
 
-    posX = static_cast<uint16_t>((lfb->getResX() / 2) - ((68 * 8) / 2));
-    posY = static_cast<uint16_t>((lfb->getResY() / 2) - ((13 * 16) / 2));
+        posX = static_cast<uint16_t>((lfb->getResX() / 2) - ((68 * 8) / 2));
+        posY = static_cast<uint16_t>((lfb->getResY() / 2) - ((13 * 16) / 2));
 
-    lfb->placeString(std_font_8x16, 50, 50, "Reading file...", Colors::WHITE, Colors::INVISIBLE);
+        lfb->placeString(std_font_8x16, 50, 50, "Reading file...", Colors::WHITE, Colors::INVISIBLE);
 
-    *file >> buffer;
+        *file >> buffer;
 
-    fileLength = file->getLength();
+        fileLength = file->getLength();
 
-    lfb->enableDoubleBuffering();
-    lfb->clear();
+        lfb->enableDoubleBuffering();
+        lfb->clear();
 
-    while(fileLength > 0) {
-        printFrame();
+        while (fileLength > 0 && isRunning) {
+            printFrame();
+        }
     }
 
     eventBus->unsubscribe(*this, KeyEvent::TYPE);

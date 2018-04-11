@@ -36,6 +36,8 @@ private:
 
     void printFrame();
 
+    bool isRunning = true;
+
     char fileName[4096];
 
     uint64_t fileLength = 0;
