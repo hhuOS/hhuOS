@@ -20,6 +20,8 @@
 #include <user/Shell/Commands/Echo.h>
 #include <user/Shell/Commands/Cat.h>
 #include <lib/file/File.h>
+#include <user/Application.h>
+#include <kernel/threads/Scheduler.h>
 #include <user/Shell/Commands/Ls.h>
 #include <user/Shell/Commands/Touch.h>
 #include <user/Shell/Commands/Mkdir.h>
@@ -29,8 +31,8 @@
 #include <user/Shell/Commands/Insmod.h>
 #include <user/Shell/Commands/Mount.h>
 #include <user/Shell/Commands/Umount.h>
-#include <user/Application.h>
-#include <kernel/threads/Scheduler.h>
+#include <user/Shell/Commands/Head.h>
+#include <user/Shell/Commands/Tail.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -45,6 +47,8 @@ Shell::Shell() : Thread("Shell") {
     commands.put("cd", new Cd(*this));
     commands.put("echo", new Echo(*this));
     commands.put("cat", new Cat(*this));
+    commands.put("head", new Head(*this));
+    commands.put("tail", new Tail(*this));
     commands.put("ls", new Ls(*this));
     commands.put("touch", new Touch(*this));
     commands.put("mkdir", new Mkdir(*this));
