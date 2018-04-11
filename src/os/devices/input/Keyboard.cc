@@ -466,10 +466,6 @@ void Keyboard::plugin () {
  *                  eine Unterbrechung ausloest.                             *
  *****************************************************************************/
 void Keyboard::trigger () {
-    if(!kbLock.tryLock()) {
-        return;
-    }
-
     Key key = keyHit();
 
     if (key.valid()) {
@@ -486,8 +482,6 @@ void Keyboard::trigger () {
 
         eventBus->publish(event);
     }
-
-    kbLock.release();
 }
 
 bool Keyboard::checkForData() {
