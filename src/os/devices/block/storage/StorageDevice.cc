@@ -8,7 +8,7 @@ String StorageDevice::getName() {
     return name;
 }
 
-Util::ArrayList<StorageDevice::PartitionInfo>& StorageDevice::readPartitionTable() {
+Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
 
     partLock.acquire();
 
@@ -17,14 +17,14 @@ Util::ArrayList<StorageDevice::PartitionInfo>& StorageDevice::readPartitionTable
     uint8_t mbr[getSectorSize()];
     if(!read(mbr, 0, 1)) {
         partLock.release();
-        return partitionList;
+        return partitionList.toArray();
     }
 
     // Check MBR-Signature
     uint16_t signature = *((uint16_t *)(&mbr[510]));
     if(signature != 0xaa55) {
         partLock.release();
-        return partitionList;
+        return partitionList.toArray();
     }
 
     auto *partitions = (PartitionTableEntry *) &mbr[PARTITON_TABLE_START];
@@ -82,7 +82,7 @@ Util::ArrayList<StorageDevice::PartitionInfo>& StorageDevice::readPartitionTable
     }
 
     partLock.release();
-    return partitionList;
+    return partitionList.toArray();
 }
 
 uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t systemId, uint32_t startSector, uint32_t sectorCount) {

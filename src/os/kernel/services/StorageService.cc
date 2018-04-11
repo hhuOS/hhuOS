@@ -24,11 +24,11 @@ void StorageService::registerDevice(StorageDevice *device) {
     eventBus->publish(*event);
 
     //Scan device for partitions and register them as well
-    Util::ArrayList<StorageDevice::PartitionInfo>& partitionList = device->readPartitionTable();
+    Util::Array<StorageDevice::PartitionInfo> partitions = device->readPartitionTable();
 
     uint8_t primaryCount = 1;
     uint8_t logicalCount = 5;
-    for(StorageDevice::PartitionInfo info : partitionList) {
+    for(StorageDevice::PartitionInfo info : partitions) {
         
         uint8_t partNumber;
         if(info.type == StorageDevice::LOGICAL)

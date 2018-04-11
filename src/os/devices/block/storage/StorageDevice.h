@@ -347,7 +347,7 @@ enum SYSTEM_ID {
      *
      * @return A list, containing information about all partitions.
      */
-    virtual Util::ArrayList<StorageDevice::PartitionInfo>& readPartitionTable();
+    virtual Util::Array<PartitionInfo> readPartitionTable();
 
     /**
      * Write a partition to the partition table.

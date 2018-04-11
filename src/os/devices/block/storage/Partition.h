@@ -42,7 +42,7 @@ public:
     /**
      * Overriding function from StorageDevice.
      */
-    Util::ArrayList<StorageDevice::PartitionInfo>& readPartitionTable() override;
+    Util::Array<PartitionInfo> readPartitionTable() override;
 
     /**
      * Overriding function from StorageDevice.

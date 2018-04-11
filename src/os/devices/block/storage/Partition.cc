@@ -5,8 +5,8 @@ StorageDevice(name), parentDevice(parentDevice), startSector(startSector), secto
 
 }
 
-Util::ArrayList<StorageDevice::PartitionInfo>& Partition::readPartitionTable() {
-    return StorageDevice::partitionList;
+Util::Array<StorageDevice::PartitionInfo> Partition::readPartitionTable() {
+    return StorageDevice::partitionList.toArray();
 }
 
 uint32_t Partition::writePartition(uint8_t partNumber, bool active, uint8_t systemId, uint32_t startSector, uint32_t sectorCount) {
