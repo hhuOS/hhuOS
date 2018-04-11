@@ -186,7 +186,7 @@ void Shell::onEvent(const Event &event) {
             return;
         }
 
-        inputLock.lock();
+        inputLock.acquire();
 
         if(key.ascii() == '\n') {
             inputBuffer[strlen(inputBuffer)] = 0;
@@ -215,7 +215,7 @@ void Shell::onEvent(const Event &event) {
             stream.flush();
         }
 
-        inputLock.unlock();
+        inputLock.release();
     }
 }
 
@@ -226,33 +226,33 @@ void Shell::flush() {
 
 InputStream &Shell::operator>>(char &c) {
     while(true) {
-        inputLock.lock();
+        inputLock.acquire();
 
         if(charAvailable) {
             charAvailable = false;
             c = lastChar;
 
-            inputLock.unlock();
+            inputLock.release();
             return *this;
         }
 
-        inputLock.unlock();
+        inputLock.release();
     }
 }
 
 InputStream &Shell::operator>>(char *&string) {
     while(true) {
-        inputLock.lock();
+        inputLock.acquire();
 
         if(stringAvailable) {
             stringAvailable = false;
             string = (char *) lastString;
 
-            inputLock.unlock();
+            inputLock.release();
             return *this;
         }
 
-        inputLock.unlock();
+        inputLock.release();
     }
 }
 

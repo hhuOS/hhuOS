@@ -63,7 +63,7 @@ void* HeapMemoryManager::alloc(uint32_t size) {
 
 	// during init a lock must be allocated -> in this allocation we cannto use the lock
 	if(initialized) {
-		lock->lock();
+		lock->acquire();
 	}
 
 	// Chunk of memory that will be returned
@@ -87,7 +87,7 @@ void* HeapMemoryManager::alloc(uint32_t size) {
 	// found no free chunk with enough memory
 	if(returnChunk == 0) {
 		if(initialized) {
-			lock->unlock();
+			lock->release();
 		}
 		// return nullpointer
 		return 0;
@@ -120,7 +120,7 @@ void* HeapMemoryManager::alloc(uint32_t size) {
 	freeMemory -= returnChunk->size;
 	// release lock
 	if(initialized) {
-		lock->unlock();
+		lock->release();
 	}
 	// return pointer to the usable memory skipping the header
 	return (void*)((unsigned int)returnChunk + sizeof(Chunk));
@@ -143,7 +143,7 @@ void HeapMemoryManager::free(void* ptr) {
 	// calculate ptr to chunk with metadata/list header
 	Chunk* chunk = (Chunk*)((unsigned int)ptr - sizeof(Chunk));
 
-	lock->lock();
+	lock->acquire();
 
 	// Chunk is no longer reserved/allocated
 	chunk->allocated = false;
@@ -199,7 +199,7 @@ void HeapMemoryManager::free(void* ptr) {
 	}
 
 	// release lock
-	lock->unlock();
+	lock->release()	;
 
 
 }

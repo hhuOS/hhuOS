@@ -11,7 +11,7 @@
  * Enable interrupts for the RTC.
  */
 void Rtc::plugin() {
-    IntDispatcher::assign(40, *this);
+    IntDispatcher::getInstance().assign(40, *this);
     Pic::getInstance()->allow(Pic::Interrupt::RTC);
 
     Cpu::disableInterrupts();

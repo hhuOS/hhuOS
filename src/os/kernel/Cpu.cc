@@ -23,16 +23,29 @@ const char* Cpu::hardwareExceptions[] = {
         "Virtualization Exception", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
         "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
 };
+
 const char* Cpu::softwareExceptions[] {
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
         "IllegalState Exception", "OutOfPhysicalMemory Exception", "OutOfPagingMemory Exception", "Illegal Page Access"
 };
+
+int32_t Cpu::cliCount = 1; // GRUB disables all interrupts on startup
 
 // enabling and disabling interrupts is done in assembler code
 extern "C" {
     void enable_interrupts();
     void disable_interrupts();
 };
+
+void enable_interrupts() {
+
+    Cpu::enableInterrupts();
+}
+
+void disable_interrupts() {
+
+    Cpu::disableInterrupts();
+}
 
 /**
  * Checks if interrupt flag is set in EFLAGS.
@@ -51,14 +64,28 @@ bool Cpu::isInterrupted() {
  * Enables hardware interrupts on CPU.
  */
 void Cpu::enableInterrupts() {
-    asm volatile ( "sti" );
+
+    cliCount--;
+
+    if (cliCount < 0) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
+    if (cliCount == 0) {
+
+        asm volatile ( "sti" );
+    }
 }
 
 /**
  * Disables hardware interrupts on CPU.
  */
 void Cpu::disableInterrupts() {
+
     asm volatile ( "cli" );
+
+    cliCount++;
 }
 
 /**

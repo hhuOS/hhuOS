@@ -194,7 +194,7 @@ void Mouse::plugin() {
         timeService = Kernel::getService<TimeService>();
         eventBus = Kernel::getService<EventBus>();
 
-        IntDispatcher::assign(IntDispatcher::mouse, *this);
+        IntDispatcher::getInstance().assign(IntDispatcher::mouse, *this);
         Pic::getInstance()->allow(Pic::Interrupt::MOUSE);
     }
 }

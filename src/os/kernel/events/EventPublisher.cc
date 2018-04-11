@@ -30,11 +30,11 @@ void EventPublisher::run() {
 
     while (isRunning) {
 
-        lock.lock();
+        lock.acquire();
 
         notify();
 
-        lock.unlock();
+        lock.release();
 
         Scheduler::getInstance()->yield();
     }
@@ -42,11 +42,11 @@ void EventPublisher::run() {
 
 void EventPublisher::add(const Event &event) {
 
-    lock.lock();
+    lock.acquire();
 
     eventQueue.push(&event);
 
-    lock.unlock();
+    lock.release();
 }
 
 void EventPublisher::notify() {

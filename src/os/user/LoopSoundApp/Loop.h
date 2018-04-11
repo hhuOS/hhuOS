@@ -12,7 +12,8 @@
 #define __loop_include__
 
 
-#include <kernel/Spinlock.h>
+#include <kernel/lock/Spinlock.h>
+#include <kernel/lock/Mutex.h>
 #include "kernel/threads/Thread.h"
 
 
@@ -22,7 +23,7 @@ private:
 
     uint32_t myID;
 
-    static Spinlock printLock;
+    static Mutex printLock;
 
     bool isRunning = true;
 

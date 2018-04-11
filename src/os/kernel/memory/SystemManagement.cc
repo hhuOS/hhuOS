@@ -63,7 +63,7 @@ void fini_system() {
  * Plugin to register for interrupt handling
  */
 void SystemManagement::plugin() {
-    IntDispatcher::assign(IntDispatcher::pagefault, *this);
+    IntDispatcher::getInstance().assign(IntDispatcher::pagefault, *this);
 }
 
 
@@ -549,10 +549,11 @@ uint32_t SystemManagement::allocPageTable() {
  * Frees a Page Table / Directory.
  */
 void SystemManagement::freePageTable(uint32_t virtTableAddress) {
+    uint32_t physAddress = getPhysicalAddress(virtTableAddress);
 	// free virtual memory
 	pagingAreaManager->free(virtTableAddress);
 	// free physical memory
-	pageFrameAllocator->free(virtTableAddress);
+	pageFrameAllocator->free(physAddress);
 }
 
 /**

@@ -28,11 +28,11 @@ Util::HashMap<String, KernelService*> Kernel::serviceMap(SERVICE_MAP_SIZE);
 
 void Kernel::registerService(const String &serviceId, KernelService* const &kernelService) {
 
-    serviceLock.lock();
+    serviceLock.acquire();
 
     serviceMap.put(serviceId, kernelService);
 
-    serviceLock.unlock();
+    serviceLock.release();
 }
 
 bool Kernel::isServiceRegistered(const String &serviceId) {

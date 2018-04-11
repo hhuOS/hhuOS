@@ -11,13 +11,13 @@
 #include "kernel/interrupts/Pic.h"
 #include "kernel/IOport.h"
 
-static IOport PIC1_DATA (0x21);
+static IOport PIC1_DATA(0x21);
 
-static IOport PIC2_DATA (0xA1);
+static IOport PIC2_DATA(0xA1);
 
-static IOport PIC1_COMMAND (0x20);
+static IOport PIC1_COMMAND(0x20);
 
-static IOport PIC2_COMMAND (0xA0);
+static IOport PIC2_COMMAND(0xA0);
 
 Pic* Pic::instance = nullptr;
 
@@ -37,7 +37,7 @@ void Pic::allow(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() & ~mask);
+    port.outb( port.inb() & ~mask );
 }
 
 void Pic::forbid(Pic::Interrupt interrupt) {
@@ -46,7 +46,7 @@ void Pic::forbid(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() | mask);
+    port.outb( port.inb() | mask );
 }
 
 bool Pic::status(Pic::Interrupt interrupt) {
@@ -60,7 +60,12 @@ bool Pic::status(Pic::Interrupt interrupt) {
 
 void Pic::sendEOI(Pic::Interrupt interrupt) {
 
-    getCommandPort(interrupt).outb(EOI);
+    if (interrupt >= Interrupt::RTC) {
+
+        PIC2_DATA.outb(EOI);
+    }
+
+    PIC1_DATA.outb(EOI);
 }
 
 IOport& Pic::getDataPort(Pic::Interrupt interrupt) {
@@ -91,4 +96,11 @@ uint8_t Pic::getMask(Pic::Interrupt interrupt) {
     }
 
     return (uint8_t ) (1 << (uint8_t ) interrupt);
+}
+
+bool Pic::isSpurious() {
+
+    PIC1_COMMAND.outb(READ_ISR);
+
+    return (PIC1_COMMAND.inb() & SPURIOUS_INTERRUPT) == 0;
 }

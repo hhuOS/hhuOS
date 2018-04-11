@@ -9,20 +9,21 @@ String StorageDevice::getName() {
 }
 
 Util::ArrayList<StorageDevice::PartitionInfo>& StorageDevice::readPartitionTable() {
-    partLock.lock();
+
+    partLock.acquire();
 
     partitionList.clear();
 
     uint8_t mbr[getSectorSize()];
     if(!read(mbr, 0, 1)) {
-        partLock.unlock();
+        partLock.release();
         return partitionList;
     }
 
     // Check MBR-Signature
     uint16_t signature = *((uint16_t *)(&mbr[510]));
     if(signature != 0xaa55) {
-        partLock.unlock();
+        partLock.release();
         return partitionList;
     }
 
@@ -80,23 +81,24 @@ Util::ArrayList<StorageDevice::PartitionInfo>& StorageDevice::readPartitionTable
         }
     }
 
-    partLock.unlock();
+    partLock.release();
     return partitionList;
 }
 
 uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t systemId, uint32_t startSector, uint32_t sectorCount) {
-    partLock.lock();
+
+    partLock.acquire();
 
     uint8_t mbr[getSectorSize()];
     if(!read(mbr, 0, 1)) {
-        partLock.unlock();
+        partLock.release();
         return READ_SECTOR_FAILED;
     }
 
     // Check MBR-Signature
     uint16_t signature = *((uint16_t *)(&mbr[510]));
     if(signature != 0xaa55) {
-        partLock.unlock();
+        partLock.release();
         return INVALID_MBR_SIGNATURE;
     }
 
@@ -125,7 +127,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
 
             // Write first logical mbr
             if(!write(logicalMbr, startSector, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return WRITE_SECTOR_FAILED;
             }
         }
@@ -133,7 +135,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
         // Write partition entry
         *partPtr = partEntry;
         if(!write(mbr, 0, 1)) {
-            partLock.unlock();
+            partLock.release();
             return WRITE_SECTOR_FAILED;
         }
 
@@ -154,7 +156,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             }
 
             if(extPartIndex == 3) {
-                partLock.unlock();
+                partLock.release();
                 return EXTENDED_PARTITION_NOT_FOUND;
             }
         }
@@ -167,14 +169,14 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
 
         for(i = 5; i <= partNumber; i++) {
             if(!read(currentMbr, currentLogicalMbr, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return READ_SECTOR_FAILED;
             }
 
             // Check MBR-Signature
             signature = *((uint16_t *)(&currentMbr[510]));
             if(signature != 0xaa55) {
-                partLock.unlock();
+                partLock.release();
                 return INVALID_MBR_SIGNATURE;
             }
 
@@ -201,7 +203,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             *partPtr = partEntry;
             partPtr->system_id = EXTENDED_PARTITION_LBA;
             if(!write(currentMbr, currentLogicalMbr, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return WRITE_SECTOR_FAILED;
             }
             
@@ -215,7 +217,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             *((uint16_t *)(&newLogicalMbr[510])) = 0xaa55;
 
             if(!write(newLogicalMbr, startSector, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return WRITE_SECTOR_FAILED;
             }
 
@@ -230,7 +232,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
 
             // Write partition entry
             if(!write(currentMbr, currentLogicalMbr, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return WRITE_SECTOR_FAILED;
             }
 
@@ -240,11 +242,12 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
 }
 
 uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
-    partLock.lock();
+
+    partLock.acquire();
 
     uint8_t mbr[getSectorSize()];
     if(!read(mbr, 0, 1)) {
-        partLock.unlock();
+        partLock.release();
         return WRITE_SECTOR_FAILED;
     }
 
@@ -257,11 +260,11 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         // Write partition table
         *partPtr = partEntry;
         if(!write(mbr, 0, 1)) {
-            partLock.unlock();
+            partLock.release();
             return WRITE_SECTOR_FAILED;
         }
 
-        partLock.unlock();
+        partLock.release();
         return SUCCESS;
     }
     
@@ -280,7 +283,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         }
 
         if(extPartIndex == 3) {
-            partLock.unlock();
+            partLock.release();
             return EXTENDED_PARTITION_NOT_FOUND;
         }
     }
@@ -289,7 +292,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         // Special case for first logical partition
         uint8_t firstLogicalMbr[getSectorSize()];
         if(!read(firstLogicalMbr, extPart.relative_sector, 1)) {
-            partLock.unlock();
+            partLock.release();
             return READ_SECTOR_FAILED;
         }
         
@@ -304,7 +307,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
             // We need to read the second one and let the linked list start with it
             uint8_t secondLogicalMbr[getSectorSize()];
             if(!read(secondLogicalMbr, extPart.relative_sector + firstMbrSecondLogicalPartition->relative_sector, 1)) {
-                partLock.unlock();
+                partLock.release();
                 return READ_SECTOR_FAILED;
             }
 
@@ -317,11 +320,11 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         }
 
         if(!write(firstLogicalMbr, extPart.relative_sector, 1)) {
-            partLock.unlock();
+            partLock.release();
             return WRITE_SECTOR_FAILED;
         }
 
-        partLock.unlock();
+        partLock.release();
         return SUCCESS;
     }
 
@@ -334,14 +337,14 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
 
     for(uint8_t i = 5; i <= partNumber; i++) {
         if(!read(currentMbr, currentLogicalMbr, 1)) {
-            partLock.unlock();
+            partLock.release();
             return READ_SECTOR_FAILED;
         }
 
         // Check MBR-Signature
         uint16_t signature = *((uint16_t *)(&currentMbr[510]));
         if(signature != 0xaa55) {
-            partLock.unlock();
+            partLock.release();
             return INVALID_MBR_SIGNATURE;
         }
 
@@ -351,13 +354,13 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         // Check system ID
         // 0 --> Unused partition
         if(currentLogicalPartition.system_id == EMPTY) {
-            partLock.unlock();
+            partLock.release();
             return UNUSED_PARTITION;
         }
         
         if(nextLogicalPartition.system_id == EMPTY || i == partNumber) {
             if(i < partNumber) {
-                partLock.unlock();
+                partLock.release();
                 return NON_EXISTENT_PARITION;
             }
 
@@ -371,7 +374,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
 
     uint8_t lastMbr[getSectorSize()];
     if(!read(lastMbr, lastLogicalMbr, 1)) {
-        partLock.unlock();
+        partLock.release();
         return READ_SECTOR_FAILED;
     }
 
@@ -386,17 +389,18 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
     *partPtr = nextLogicalPartition;
     
     if(!write(currentMbr, currentLogicalMbr, 1) || !write(lastMbr, lastLogicalMbr, 1)) {
-        partLock.unlock();
+        partLock.release();
         return WRITE_SECTOR_FAILED;
     }
 
-    partLock.unlock();
+    partLock.release();
     return SUCCESS;
 }
 
 
 uint32_t StorageDevice::createPartitionTable() {
-    partLock.lock();
+
+    partLock.acquire();
 
     uint8_t mbr[getSectorSize()];
 
@@ -407,11 +411,11 @@ uint32_t StorageDevice::createPartitionTable() {
     *((uint16_t *)(&mbr[510])) = 0xaa55;
 
     if(!write(mbr, 0, 1)) {
-        partLock.unlock();
+        partLock.release();
         return WRITE_SECTOR_FAILED;
     }
 
-    partLock.unlock();
+    partLock.release();
     return SUCCESS;
 }
 

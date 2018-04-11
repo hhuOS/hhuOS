@@ -19,7 +19,7 @@
 
 // lock zur Synchronisierung der Threads, damit die Bildschirmausgabe
 // nicht durcheinander kommt
-Spinlock Loop::printLock;
+Mutex Loop::printLock;
 
 
 /*****************************************************************************
@@ -34,7 +34,7 @@ void Loop::run () {
 
     for (;isRunning;i++) {
 
-        printLock.lock();
+        printLock.acquire();
 
         String string("Loop[");
         string += String::valueOf(myID, 10);
@@ -44,7 +44,7 @@ void Loop::run () {
         stream->setpos (21, static_cast<uint16_t>(10 + 2 * myID));
         stream->puts((char *) string, string.length(), Colors::HHU_GRAY, Colors::BLACK);
 
-        printLock.unlock();
+        printLock.release();
 
         timeService->msleep(10);
     }
