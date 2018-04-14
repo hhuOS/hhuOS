@@ -3,6 +3,7 @@
 
 #include <lib/String.h>
 #include <lib/util/ArrayList.h>
+#include <lib/file/File.h>
 
 class Logger {
 public:
@@ -11,7 +12,11 @@ public:
     };
 
 private:
-    static Util::ArrayList<String> logs;
+    static File *syslog;
+    static Util::ArrayList<String> tmplogs;
+
+    static constexpr const char* LOG_PATH = "/dev/syslog";
+
     static LogLevel currentLevel;
 
     static void logMessage(LogLevel level, String message, bool shouldPrint);
@@ -27,8 +32,6 @@ public:
     static void warn(String log, bool forcePrint = false);
 
     static void error(String log, bool forcePrint = false); // Maybe switch to true
-
-    static Util::ArrayList<String> &getLogs();
 
     static void setLevel(LogLevel level);
 };

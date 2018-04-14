@@ -37,6 +37,7 @@
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
 #include <lib/multiboot/Structure.h>
+#include <kernel/Logger.h>
 
 #include "bootlogo.h"
 
@@ -126,10 +127,11 @@ void initGraphics() {
 }
 
 int32_t main() {
+    Logger::trace("Start Kernel Main");
+
     uint16_t xres = 800;
     uint16_t yres = 600;
     uint8_t bpp = 32;
-
     Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
 
     if(res.length() >= 3) {

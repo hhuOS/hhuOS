@@ -1,11 +1,13 @@
 
 #include <lib/libc/printf.h>
 #include <kernel/services/StdStreamService.h>
+#include <lib/file/File.h>
 #include "Logger.h"
 #include "Kernel.h"
 
-Util::ArrayList<String> Logger::logs;
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
+Util::ArrayList<String> Logger::tmplogs;
+File* Logger::syslog = nullptr;
 
 void Logger::trace(const String log, bool forcePrint) {
     logMessage(TRACE, log, forcePrint);
@@ -31,15 +33,24 @@ void Logger::logMessage(LogLevel level, const String message, bool forcePrint) {
     String tmp = String("[") + getLevelAsString(level) + String("]");
     tmp += message;
 
-    logs.add(tmp);
+    if(Kernel::isServiceRegistered(FileSystem::SERVICE_NAME)) {
+        if (Logger::syslog == nullptr) {
+            Logger::syslog = File::open(Logger::LOG_PATH, "a");
+            for (String log : tmplogs) {
+                *Logger::syslog  << log << endl;
+            }
+            tmplogs.clear();
+        }
+
+        *Logger::syslog << tmp << endl;
+    } else {
+        tmplogs.add(tmp);
+    }
+
     if(forcePrint || level >= currentLevel) {
         OutputStream *stream = Kernel::getService<StdStreamService>()->getStdout();
         *stream << tmp << endl;
     }
-}
-
-Util::ArrayList<String> &Logger::getLogs() {
-    return logs;
 }
 
 void Logger::setLevel(LogLevel level) {

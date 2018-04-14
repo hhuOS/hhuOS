@@ -4,7 +4,6 @@
 #include <kernel/filesystem/RamFs/memory/IOMemoryNode.h>
 #include <kernel/filesystem/RamFs/memory/PFANode.h>
 #include <kernel/filesystem/RamFs/memory/PagingAreaNode.h>
-#include <kernel/filesystem/RamFs/SysLogeNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "kernel/filesystem/Fat/FatDriver.h"
@@ -127,12 +126,11 @@ void FileSystem::init() {
     addVirtualNode("/dev", new PciNode());
     // Add Random-Node to dev-Directory
     addVirtualNode("/dev", new RandomNode());
-    // Add System Log to dev-Directory
-    addVirtualNode("/dev", new SysLogNode());
+    // Create System Log File
+    createFile("/dev/syslog");
 
     // Add Zero-Node to dev-Directory
     addVirtualNode("/dev", new ZeroNode());
-
     // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
