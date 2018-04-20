@@ -18,6 +18,7 @@
 #include <kernel/threads/Scheduler.h>
 #include <user/MemoryAreaTests/HeapTestApp.h>
 #include <user/MemoryAreaTests/IOMemoryTestApp.h>
+#include <kernel/threads/WorkerThread.h>
 #include "user/LoopSoundApp/Loop.h"
 #include "user/LoopSoundApp/Sound.h"
 #include "user/AntApp/AntApp.h"
