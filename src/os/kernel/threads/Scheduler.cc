@@ -9,13 +9,13 @@ extern "C" {
     void switchContext(Context **current, Context **next);
     void setSchedInit();
     void schedulerYield();
-    void allowPreemption();
+    void checkIoBuffers();
 }
 
 InputService *inputService = nullptr;
 TimeService *timeService = nullptr;
 
-void allowPreemption() {
+void checkIoBuffers() {
     if(inputService->getKeyboard()->checkForData()) {
         inputService->getKeyboard()->trigger();
     }
@@ -23,8 +23,6 @@ void allowPreemption() {
     if(timeService->getRTC()->checkForData()) {
         timeService->getRTC()->trigger();
     }
-
-    schedulerLock.release();
 }
 
 Scheduler* Scheduler::scheduler = nullptr;

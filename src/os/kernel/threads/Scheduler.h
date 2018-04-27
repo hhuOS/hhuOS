@@ -20,8 +20,6 @@
 #include "kernel/threads/Thread.h"
 #include "lib/lock/Spinlock.h"
 
-static Spinlock schedulerLock;
-
 class Scheduler {
     
 public:

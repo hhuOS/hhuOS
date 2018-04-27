@@ -17,7 +17,7 @@ global startThread
 global switchContext
 
 extern enable_interrupts
-extern allowPreemption
+extern checkIoBuffers
 
 section .text
 
@@ -60,7 +60,7 @@ switchContext:
     pop ebp
 
     ; enable interrupts
-    call allowPreemption
+    call checkIoBuffers
     call enable_interrupts
 
     ; resume next thread
