@@ -298,6 +298,10 @@ Key Keyboard::keyHit() {
 
     control = controlPort.inb();
 
+    if((control & 0x1) != 0x1) {
+        return invalid;
+    }
+
     code = (uint8_t) dataPort.inb();
 
     // Auch eine evtl. angeschlossene PS/2 Maus liefert ihre Daten ueber den

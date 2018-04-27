@@ -16,7 +16,6 @@ InputService *inputService = nullptr;
 TimeService *timeService = nullptr;
 
 void allowPreemption() {
-
     if(inputService->getKeyboard()->checkForData()) {
         inputService->getKeyboard()->trigger();
     }
