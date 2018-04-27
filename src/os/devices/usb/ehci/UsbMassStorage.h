@@ -18,7 +18,7 @@
 #ifndef __UsbMassStorage_include__
 #define __UsbMassStorage_include__
 
-#include "kernel/lock/Spinlock.h"
+#include "lib/lock/Spinlock.h"
 #include "kernel/services/DebugService.h"
 #include "devices/usb/UsbDevice.h"
 #include "Scsi.h"

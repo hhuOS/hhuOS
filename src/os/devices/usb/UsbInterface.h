@@ -21,7 +21,7 @@
 #include "devices/usb/UsbEndpoint.h"
 
 #include <stdint.h>
-#include <lib/LinkedList.h>
+#include <lib/util/LinkedList.h>
 
 /**
  * Represents a USB device interface.

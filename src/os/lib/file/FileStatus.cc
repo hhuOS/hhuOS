@@ -1,6 +1,6 @@
 #include <lib/String.h>
-#include <kernel/filesystem/FsNode.h>
-#include <kernel/services/FileSystem.h>
+#include <filesystem/FsNode.h>
+#include <filesystem/FileSystem.h>
 #include <kernel/Kernel.h>
 #include "FileStatus.h"
 

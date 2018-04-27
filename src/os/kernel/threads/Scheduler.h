@@ -18,8 +18,7 @@
 #include <lib/util/BlockingQueue.h>
 #include <kernel/services/InputService.h>
 #include "kernel/threads/Thread.h"
-#include "lib/deprecated/Queue.h"
-#include "kernel/lock/Spinlock.h"
+#include "lib/lock/Spinlock.h"
 
 static Spinlock schedulerLock;
 

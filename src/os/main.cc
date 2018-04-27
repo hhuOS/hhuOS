@@ -25,7 +25,7 @@
 
 #include <kernel/threads/IdleThread.h>
 
-#include "user/Application.h"
+#include "apps/Application.h"
 #include "devices/block/storage/AhciDevice.h"
 #include <kernel/services/ModuleLoader.h>
 #include <devices/graphics/lfb/VesaGraphics.h>

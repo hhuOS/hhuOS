@@ -18,7 +18,7 @@
 #ifndef __UsbTransaction_include__
 #define __UsbTransaction_include__
 
-#include <lib/LinkedList.h>
+#include <lib/util/LinkedList.h>
 #include "devices/usb/ehci/AsyncListQueue.h"
 
 /**

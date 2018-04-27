@@ -22,7 +22,7 @@
 #include "kernel/threads/Thread.h"
 #include "kernel/events/Event.h"
 #include "kernel/events/Receiver.h"
-#include "kernel/lock/Spinlock.h"
+#include "lib/lock/Spinlock.h"
 
 /**
  * @author Filip Krakowski

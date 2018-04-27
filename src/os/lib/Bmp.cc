@@ -4,8 +4,8 @@
 #include "lib/Bmp.h"
 
 Bmp::Bmp (File* file) {
-    byte info[54];
-    byte * row;
+    uint8_t info[54];
+    uint8_t* row;
     int row_padded;
     
     //fread(info, sizeof(byte), 54, f);
@@ -18,7 +18,7 @@ Bmp::Bmp (File* file) {
     data = new Pixel[width*height];
     
     row_padded = (psize/height);
-    row = new byte[row_padded];
+    row = new uint8_t[row_padded];
     
     /** sometimes the fileheader is bigger?!?! */
     //fread(row, sizeof(byte), 68, f);

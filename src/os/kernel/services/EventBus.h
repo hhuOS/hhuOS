@@ -22,7 +22,7 @@
 #include <lib/util/ArrayList.h>
 #include <lib/util/HashMap.h>
 #include <lib/util/RingBuffer.h>
-#include "kernel/lock/Spinlock.h"
+#include "lib/lock/Spinlock.h"
 #include "kernel/threads/Thread.h"
 #include "kernel/KernelService.h"
 #include "kernel/events/Receiver.h"

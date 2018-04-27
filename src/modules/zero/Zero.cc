@@ -1,7 +1,7 @@
 #include "Zero.h"
 #include "ZeroNode.h"
 #include "kernel/Kernel.h"
-#include "kernel/services/FileSystem.h"
+#include "filesystem/FileSystem.h"
 
 MODULE_PROVIDER {
 

@@ -2,8 +2,8 @@
 #define __File_include__
 
 
-#include "kernel/services/FileSystem.h"
-#include "kernel/filesystem/FsNode.h"
+#include "filesystem/FileSystem.h"
+#include "filesystem/FsNode.h"
 #include "kernel/Kernel.h"
 #include "lib/InputStream.h"
 #include <cstdint>

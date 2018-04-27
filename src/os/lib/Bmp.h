@@ -2,7 +2,7 @@
 #ifndef __libBmp_include__
 #define __libBmp_include__ 1
 
-#include "lib/Byte.h"
+#include <cstdint>
 #include "lib/file/File.h"
 
 class Bmp {
@@ -10,9 +10,9 @@ class Bmp {
 private:
 
     struct Pixel {
-        byte blue;
-        byte green;
-        byte red;
+        uint8_t blue;
+        uint8_t green;
+        uint8_t red;
     };
 
     int pos(int x, int y) {
@@ -34,16 +34,16 @@ public:
         return data[pos(x, y)];
     }
 
-    byte & B(int x, int y) {
-        return *((byte *) &(data[pos(x, y)]));
+    uint8_t & B(int x, int y) {
+        return *((uint8_t *) &(data[pos(x, y)]));
     }
-    byte & G(int x, int y) {
+    uint8_t & G(int x, int y) {
         // get address from 3byte Color, cast to "bytes" address, add +1
         // to Address (= 1byte step size) and get value of it
-        return *( ((byte *) &(data[pos(x, y)]))+1 );
+        return *( ((uint8_t *) &(data[pos(x, y)]))+1 );
     }
-    byte & R(int x, int y) {
-        return *( ((byte *) &(data[pos(x, y)]))+2 );
+    uint8_t & R(int x, int y) {
+        return *( ((uint8_t *) &(data[pos(x, y)]))+2 );
     }
 
     Bmp (File* filename);

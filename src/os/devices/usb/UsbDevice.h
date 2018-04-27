@@ -25,7 +25,7 @@
 #include "kernel/services/TimeService.h"
 
 #include <stdint.h>
-#include <lib/LinkedList.h>
+#include <lib/util/LinkedList.h>
 
 #define DEBUG_TRANSACTION 0
 
