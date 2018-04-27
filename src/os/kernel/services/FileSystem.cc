@@ -124,13 +124,15 @@ void FileSystem::init() {
 
     // Add PCI-Node to dev-Directory
     addVirtualNode("/dev", new PciNode());
-    // Add Random-Node to dev-Directory
-    addVirtualNode("/dev", new RandomNode());
-    // Create System Log File
+
+//    // Add Random-Node to dev-Directory
+//    addVirtualNode("/dev", new RandomNode());
+//
+//    // Add Zero-Node to dev-Directory
+//    addVirtualNode("/dev", new ZeroNode());
+
     createFile("/dev/syslog");
 
-    // Add Zero-Node to dev-Directory
-    addVirtualNode("/dev", new ZeroNode());
     // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
