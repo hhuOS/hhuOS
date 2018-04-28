@@ -140,7 +140,7 @@ void Application::showMenu () {
     
     while(true) {
         if(isRunning) {
-            Rtc::date date = timeService->getRTC()->getCurrentDate();
+            Rtc::Date date = timeService->getRTC()->getCurrentDate();
             char timeString[20];
             snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year,
                      date.hours, date.minutes, date.seconds);

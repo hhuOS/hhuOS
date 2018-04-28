@@ -6,52 +6,96 @@
 
 #define RTC_DEBUG 0
 
-#define SECONDS_REGISTER        0x00
-#define MINUTES_REGISTER        0x02
-#define HOURS_REGISTER          0x04
-#define WEEKDAY_REGISTER        0x06
-#define DAY_OF_MONTH_REGISTER   0x07
-#define MONTH_REGISTER          0x08
-#define YEAR_REGISTER           0x09
-#define CENTURY_REGISTER        0x32
-#define STATUS_REGISTER_A       0x8A    // Disable NMI
-#define STATUS_REGISTER_B       0x8B    // Disable NMI
-#define STATUS_REGISTER_C       0x0C
-
 #include "kernel/IOport.h"
 #include "IODevice.h"
 
+/**
+ * Driver for the CMOS Realtime clock.
+ */
 class Rtc : public IODevice {
 
 public:
-    struct date {
-        int seconds;
-        int minutes;
-        int hours;
-        int dayOfMonth;
-        int month;
-        int year;
+    /**
+     * Contains Date- and Time-information.
+     */
+    struct Date {
+        uint8_t seconds = 0;
+        uint8_t minutes = 0;
+        uint8_t hours = 0;
+        uint8_t dayOfMonth = 0;
+        uint8_t month = 0;
+        uint16_t year = 0;
+
+        bool operator == (Date &date) {
+            return seconds == date.seconds && minutes == date.minutes && hours == date.hours &&
+                   dayOfMonth == date.dayOfMonth && month == date.month && year == date.year;
+        }
+
+        bool operator != (Date &date) {
+            return seconds != date.seconds || minutes != date.minutes || hours != date.hours ||
+                   dayOfMonth != date.dayOfMonth || month != date.month || year != date.year;
+        }
     };
 
 private:
+    /**
+     * RTC-Registers.
+     */
+    enum REGISTERS {
+        SECONDS_REGISTER = 0x00,
+        MINUTES_REGISTER = 0x02,
+        HOURS_REGISTER = 0x04,
+        WEEKDAY_REGISTER = 0x06,
+        DAY_OF_MONTH_REGISTER = 0x07,
+        MONTH_REGISTER = 0x08,
+        YEAR_REGISTER = 0x09,
+        CENTURY_REGISTER = 0x32,
+        STATUS_REGISTER_A = 0x8A,
+        STATUS_REGISTER_B = 0x8B,
+        STATUS_REGISTER_C = 0x0C
+    };
+
     IOport registerPort, dataPort;
-    Rtc::date currentDate {};
+
+    Rtc::Date currentDate {};
 
     static const char RTC_RATE = 0x06;
 
-    // Copy Konstrutkor unterbinden
-    Rtc(const Rtc &copy);
-
 public:
-    Rtc() : registerPort(0x70), dataPort(0x71) {}
+    /**
+     * Constructor.
+     */
+    Rtc();
 
+    /**
+     * Copy-constructor.
+     */
+    Rtc(const Rtc &copy) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Rtc() override = default;
+
+    /**
+     * Enable periodic interrupts for the RTC.
+     */
     void plugin();
 
+    /**
+     * Overriding function from IODevice.
+     */
     void trigger() override;
 
+    /**
+     * Overriding function from IODevice.
+     */
     bool checkForData() override;
 
-    date getCurrentDate();
+    /**
+     * Get the current date.
+     */
+    Date getCurrentDate();
 };
 
 #endif

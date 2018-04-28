@@ -24,7 +24,7 @@ public:
     	return rtc;
     }
 
-    Rtc::date getCurrentDate() {
+    Rtc::Date getCurrentDate() {
     	return rtc->getCurrentDate();
     }
 

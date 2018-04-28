@@ -1,41 +1,33 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
-#include <kernel/Kernel.h>
 #include <kernel/services/TimeService.h>
-#include <lib/libc/printf.h>
-#include "kernel/Cpu.h"
-#include "devices/Rtc.h"
 
+Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
 
-/**
- * Enable interrupts for the RTC.
- */
+}
+
 void Rtc::plugin() {
     IntDispatcher::getInstance().assign(40, *this);
     Pic::getInstance()->allow(Pic::Interrupt::RTC);
 
     Cpu::disableInterrupts();
 
-    //'Update interrupts' einschalten: Immer, wenn die RTC ein update macht,
-    //wird ein Interrupt ausgelöst.
+    // Enable 'Update interrupts': An Interrupt will be triggered after every RTC-update.
     registerPort.outb(STATUS_REGISTER_B);
-    char oldValue = dataPort.inb();
+    uint8_t oldValue = dataPort.inb();
 
     registerPort.outb(STATUS_REGISTER_B);
-    dataPort.outb(oldValue | 0x10);
+    dataPort.outb(static_cast<uint8_t>(oldValue | 0x10));
 
+    // Set the periodic interrupt rate.
     registerPort.outb(STATUS_REGISTER_A);
     oldValue = dataPort.inb();
 
     registerPort.outb(STATUS_REGISTER_A);
-    dataPort.outb((oldValue & 0xF0) | RTC_RATE);
+    dataPort.outb(static_cast<uint8_t>((oldValue & 0xF0) | RTC_RATE));
 
-    if(RTC_DEBUG) {
-        registerPort.outb(STATUS_REGISTER_A);
-        char freq = dataPort.inb();
-        printf("RTC Frequency = %x\n", ((freq & 0b01110000) >> 4));
-    }
-
+    // Read Register C. This will clear data-flag. As long as this flag is set,
+    // the RTC won't trigger any interrupts.
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
 
@@ -78,16 +70,16 @@ void Rtc::trigger() {
     currentDate.year += dataPort.inb() * 100;
 
     if(bcd) {
-        currentDate.seconds = (currentDate.seconds & 0x0F) + ((currentDate.seconds / 16) * 10);
-        currentDate.minutes = (currentDate.minutes & 0x0F) + ((currentDate.minutes / 16) * 10);
-        currentDate.hours = ((currentDate.hours & 0x0F) + (((currentDate.hours & 0x70) / 16) * 10)) | (currentDate.hours & 0x80);
-        currentDate.dayOfMonth = (currentDate.dayOfMonth & 0x0F) + ((currentDate.dayOfMonth / 16) * 10);
-        currentDate.month = (currentDate.month & 0x0F) + ((currentDate.month / 16) * 10);
-        currentDate.year = (currentDate.year & 0x0F) + ((currentDate.year / 16) * 10);
+        currentDate.seconds = static_cast<uint8_t>((currentDate.seconds & 0x0F) + ((currentDate.seconds / 16) * 10));
+        currentDate.minutes = static_cast<uint8_t>((currentDate.minutes & 0x0F) + ((currentDate.minutes / 16) * 10));
+        currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x0F) + (((currentDate.hours & 0x70) / 16) * 10)) | (currentDate.hours & 0x80));
+        currentDate.dayOfMonth = static_cast<uint8_t>((currentDate.dayOfMonth & 0x0F) + ((currentDate.dayOfMonth / 16) * 10));
+        currentDate.month = static_cast<uint8_t>((currentDate.month & 0x0F) + ((currentDate.month / 16) * 10));
+        currentDate.year = static_cast<uint16_t>((currentDate.year & 0x0F) + ((currentDate.year / 16) * 10));
     }
 
     if(twelveHour && (currentDate.hours & 0x80)) {
-        currentDate.hours = ((currentDate.hours & 0x7F) + 12) % 24;
+        currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x7F) + 12) % 24);
     }
 }
 
@@ -101,6 +93,6 @@ bool Rtc::checkForData() {
  *
  * @return The date.
  */
-Rtc::date Rtc::getCurrentDate() {
+Rtc::Date Rtc::getCurrentDate() {
     return Rtc::currentDate;
 }
