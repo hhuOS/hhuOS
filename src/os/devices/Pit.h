@@ -1,3 +1,19 @@
+/*
+* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+* Heinrich-Heine University
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
+
 #ifndef __PIT_include__
 #define __PIT_include__
 
@@ -8,14 +24,28 @@
 #include "kernel/services/TimeService.h"
 #include "devices/graphics/text/TextDriver.h"
 
+/**
+ * Driver for the programmable interval timer.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2017
+ */
 class Pit : public InterruptHandler {
 
 public:
-
+    /**
+     * Copy-constructor.
+     */
     Pit(const Pit &copy) = delete;
 
+    /**
+     * Copy-operator.
+     */
     Pit &operator=(const Pit &copy) = delete;
 
+    /**
+     * Destructor.
+     */
     ~Pit() override = default;
 
     /**
@@ -39,12 +69,22 @@ public:
      */
     void setInterval(uint32_t us);
 
+    /**
+     * Enable interrupts for the PIT.
+     */
     void plugin ();
-    
+
+    /**
+     * Overriding function from InterruptHandler.
+     */
     void trigger () override;
 
 private:
-
+    /**
+     * Constructor.
+     *
+     * @param us The interval, with which the PIT shall trigger interrupts.
+     */
     explicit Pit (uint32_t us);
 
     static Pit *instance;

@@ -1,87 +1,56 @@
-/*****************************************************************************
- *                                                                           *
- *                                P C S P K                                  *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Mit Hilfe dieser Klasse kann man Toene auf dem           *
- *                  PC-Lautsprecher ausgeben.                                *
- *                                                                           *
- * Achtung:         Qemu muss mit dem Parameter -soundhw pcspk aufgerufen    *
- *                  werden. Ansonsten kann man nichts hoeren.                *
- *                                                                           *
- * Autor:           Michael Schoettner, HHU, 2.1.2017                        *
- *****************************************************************************/
+/*
+* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+* Heinrich-Heine University
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
 
 #include <kernel/Kernel.h>
 #include "devices/Speaker.h"
 
 
+Speaker::Speaker() : control(0x43), data0(0x40), data2(0x42), ppi(0x61) {
+    timeService = Kernel::getService<TimeService>();
+}
 
-/*****************************************************************************
- * Methode:         PCSPK::play                                              *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Ton abspielen.                                           *
- *                                                                           *
- * Rückgabewerte:   f:   Frequenz des Tons                                   *
- *                  len: Laenge des Tons in ms                               *
- *****************************************************************************/
-void Speaker::play (float f, int len) {
+void Speaker::play(float f, uint32_t len) {
     play(f);
 
-    // Pause
     delay(len);
-    
-    // Lautsprecher ausschalten
+
     off ();
 }
 
 void Speaker::play (float f) {
-    int freq = (int)f;
-    int cntStart  =  1193180 / freq;
-    int status;
+    auto  freq = static_cast<uint32_t>(f);
+    auto cntStart = static_cast<uint16_t>(1193180 / freq);
+    uint8_t status;
     
-    
-    // Zaehler laden
-    control.outb (0xB6);            // Zaehler-2 konfigurieren
-    data2.outb (cntStart%256);      // Zaehler-2 laden (Lobyte)
-    data2.outb (cntStart/256);      // Zaehler-2 laden (Hibyte)
+    // Config counter
+    control.outb(0xB6);
+    data2.outb(static_cast<uint8_t>(cntStart % 256));
+    data2.outb(static_cast<uint8_t>(cntStart / 256));
 
-    // Lautsprecher einschalten
-    status = (int)ppi.inb ();       // Status-Register des PPI auslesen
-    ppi.outb ( status|3 );          // Lautpsrecher Einschalten
+    // Turn speaker on
+    status = ppi.inb();
+    ppi.outb (static_cast<uint8_t>(status | 3));
 }
 
-
-/*****************************************************************************
- * Methode:         PCSPK::off                                               *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Lautsprecher ausschalten.                                *
- *****************************************************************************/
 void Speaker::off () {
-    int status;
+    uint8_t status;
 
-    status = (int)ppi.inb ();       // Status-Register des PPI auslesen
-    ppi.outb ( (status>>2)<<2 );    // Lautsprecher ausschalten
+    status = (uint8_t)ppi.inb ();
+    ppi.outb (static_cast<uint8_t>((status >> 2) << 2));
 }
-
-
-/*****************************************************************************
- * Methode:         PCSPK::readCounter                                       *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Zaehler von PIT Channel 0 auslesen.                      * 
- *                  (wird fuer delay benoetigt).                             *
- *                                                                           *
- * Rückgabewerte:   counter                                                  *
- *****************************************************************************/
-inline unsigned int Speaker::readCounter() {
-    unsigned char lo, hi;
-
-    control.outb (0x0);         // Latch Command
-    lo = data0.inb ();       // Lobyte des Counters auslesen
-    hi = data0.inb ();       // Hibyte des Counters auslesen
-    return (hi << 8) | lo;
-}
-
 
 /*****************************************************************************
  * Methode:         PCSPK::delay                                             *
@@ -90,18 +59,8 @@ inline unsigned int Speaker::readCounter() {
  *                                                                           *
  * Parameter:       time (delay in ms)                                       *
  *****************************************************************************/
-inline void Speaker::delay (int time) {
-    unsigned long ticks = time / 10;    // 1 tick = 10ms
-
-    if(timeService == nullptr) {
-    	timeService = Kernel::getService<TimeService>();
-    }
-    unsigned long st    = timeService->getSystemTime();
-    
-    while (1) {
-        if ( timeService->getSystemTime() > (st + ticks) )
-            break;
-    }
+inline void Speaker::delay(uint32_t time) {
+    timeService->msleep(time);
 }
 
 
@@ -111,7 +70,7 @@ inline void Speaker::delay (int time) {
  * Beschreibung:    Tetris Sound, Kévin Rapaille, August 2013                *
  *                  https://gist.github.com/XeeX/6220067                     *
  *****************************************************************************/
-void Speaker::tetris () {
+void Speaker::demo1() {
     play(658, 125);
     play(1320, 500);
     play(990, 250);
@@ -237,7 +196,7 @@ void Speaker::tetris () {
  * Beschreibung:        Clint, Part of Daft Punk’s Aerodynamic               *
  *                      https://www.kirrus.co.uk/2010/09/linux-beep-music/   *
  *****************************************************************************/
-void Speaker::aerodynamic() {
+void Speaker::demo2() {
     play(587.3, 122);
     play(370.0, 122);
     play(493.9, 122);

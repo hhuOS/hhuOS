@@ -14,7 +14,11 @@ void TimeService::tick() {
 
 void TimeService::msleep(uint32_t ms) {
     unsigned long ticks = ms / 10;
-    unsigned long st    = systemTime;
+    unsigned long st = systemTime;
 
-    while (systemTime < (st + ticks));
+    while(true) {
+        if(systemTime > (st + ticks)) {
+            break;
+        }
+    }
 }

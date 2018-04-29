@@ -1,99 +1,134 @@
-/*****************************************************************************
- *                                                                           *
- *                                P C S P K                                  *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Mit Hilfe dieser Klasse kann man Toene auf dem           *
- *                  PC-Lautsprecher ausgeben.                                *
- *                                                                           *
- * Achtung:         Qemu muss mit dem Parameter -soundhw pcspk aufgerufen    *
- *                  werden. Ansonsten kann man nichts hoeren.                *
- *                                                                           *
- * Autor:           Michael Schoettner, HHU, 22.9.2016                       *
- *****************************************************************************/
+/*
+* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+* Heinrich-Heine University
+*
+* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+* later version.
+*
+* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+* details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <http://www.gnu.org/licenses/>
+*/
 
 #ifndef __PCSPK_include__
 #define __PCSPK_include__
 
+#include <cstdint>
 #include "kernel/IOport.h"
 #include "kernel/services/TimeService.h"
 
-// Note, Frequenz
-#define     C0      130.81
-#define     C0X	 	138.59 
-#define     D0 	 	146.83 
-#define     D0X     155.56 
-#define     E0      164.81 
-#define     F0      174.61 
-#define     F0X 	185.00 
-#define     G0      196.00 
-#define     G0X     207.65 
-#define     A0      220.00 
-#define     A0X 	233.08 
-#define     B0      246.94 
-
-#define     C1      261.63 
-#define     C1X     277.18 
-#define     D1      293.66 
-#define     D1X     311.13 
-#define     E1      329.63 
-#define     F1  	349.23 
-#define     F1X     369.99 
-#define     G1      391.00 
-#define     G1X     415.30 
-#define     A1      440.00 
-#define     A1X     466.16 
-#define     B1      493.88 
-
-#define     C2      523.25 
-#define     C2X 	554.37 
-#define     D2      587.33 
-#define     D2X 	622.25 
-#define     E2      659.26 
-#define     F2      698.46 
-#define     F2X     739.99 
-#define     G2      783.99 
-#define     G2X     830.61 
-#define     A2      880.00 
-#define     A2X     923.33 
-#define     B2      987.77 
-#define     C3      1046.50 
-
-
+/**
+ * Driver for the PC-Beeper speaker.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date HHU, 2017
+ */
 class Speaker {
     
 private:
-    IOport control;     // Steuerregister (write only)
-    IOport data0;       // Zaehler-0 Datenregister (read/write)
-    IOport data2;       // Zaehler-2 Datenregister
-    IOport ppi;         // Status-Register des PPI
+    IOport control;
+    IOport data0;
+    IOport data2;
+    IOport ppi;
 
-    Speaker (const Speaker &copy); // Verhindere Kopieren
-
-    // Verzoegerung um X ms (in 1ms Schritten; Min. 1ms)
-    inline void delay (int time);
-    
-    // Zaehler von PIT Channel 0 auslesen (wird fuer delay benoetigt)
-    inline unsigned int readCounter ();
+    /**
+     * Wait for a given amount of time. Used to hold a note.
+     *
+     * @param time The time in ms
+     */
+    void delay (uint32_t time);
 
     TimeService *timeService = nullptr;
 
 public:
+    /**
+     * Constructor.
+     */
+    Speaker();
 
-    // Konstruktor. Initialisieren der Ports.
-    Speaker () : control(0x43), data0(0x40), data2(0x42), ppi(0x61) {}
+    /**
+     * Copy-constructor.
+     */
+    Speaker(const Speaker &copy) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Speaker() = delete;
+
+    /**
+     * Play a demo-melody.
+     */
+    void demo1();
+
+    /**
+     * Play a demo-melody.
+     */
+    void demo2();
+
+    /**
+     * Beep for a given time.
+     *
+     * @param The frequency
+     * @param The length (in milliseconds)
+     */
+    void play(float f, uint32_t len);
+
+    /**
+     * Beep until Speaker::off() is called.
+     *
+     * @param f The frequency.
+     */
+    void play(float f);
     
-    // Demo Sounds
-    void tetris ();
-    void aerodynamic ();
-
-    // Ton abspielen
-    void play (float f, int len);
-
-    void play (float f);
-    
-    // Lautsprecher ausschalten
+    /**
+     * Turn the speaker off
+     */
     void off ();
+
+    static const constexpr float C0 = 130.81;
+    static const constexpr float C0X = 138.59;
+    static const constexpr float D0 = 146.83;
+    static const constexpr float D0X = 155.56;
+    static const constexpr float E0 = 164.81;
+    static const constexpr float F0 = 174.61;
+    static const constexpr float F0X = 185.00;
+    static const constexpr float G0 = 196.00;
+    static const constexpr float G0X = 207.65;
+    static const constexpr float A0 = 220.00;
+    static const constexpr float A0X  = 233.08;
+    static const constexpr float B0 = 246.94;
+
+    static const constexpr float C1 = 261.63;
+    static const constexpr float C1X = 277.18;
+    static const constexpr float D1 = 293.66;
+    static const constexpr float D1X = 311.13;
+    static const constexpr float E1 = 329.63;
+    static const constexpr float F1 = 349.23;
+    static const constexpr float F1X = 369.99;
+    static const constexpr float G1 = 391.00;
+    static const constexpr float G1X = 415.30;
+    static const constexpr float A1 = 440.00;
+    static const constexpr float A1X = 466.16;
+    static const constexpr float B1 = 493.88;
+
+    static const constexpr float C2 = 523.25;
+    static const constexpr float C2X = 554.37;
+    static const constexpr float D2 = 587.33;
+    static const constexpr float D2X = 622.25;
+    static const constexpr float E2 = 659.26;
+    static const constexpr float F2 = 698.46;
+    static const constexpr float F2X = 739.99;
+    static const constexpr float G2 = 783.99;
+    static const constexpr float G2X = 830.61;
+    static const constexpr float A2 = 880.00;
+    static const constexpr float A2X = 923.33;
+    static const constexpr float B2 = 987.77;
+    static const constexpr float C3 = 1046.50;
 };
 
 #endif
