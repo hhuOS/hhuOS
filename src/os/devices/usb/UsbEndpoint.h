@@ -18,7 +18,7 @@
 #ifndef __UsbEndpoint_include__
 #define __UsbEndpoint_include__
 
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * Represents a USB device endpoint.

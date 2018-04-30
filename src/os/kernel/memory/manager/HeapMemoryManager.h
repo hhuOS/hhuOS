@@ -17,7 +17,7 @@
 #ifndef __HEAPMEMORYMANAGER_H__
 #define __HEAPMEMORYMANAGER_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "lib/lock/Spinlock.h"
 #include "MemoryManager.h"
 

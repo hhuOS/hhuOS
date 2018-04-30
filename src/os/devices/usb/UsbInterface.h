@@ -20,7 +20,7 @@
 
 #include "devices/usb/UsbEndpoint.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <lib/util/LinkedList.h>
 
 /**

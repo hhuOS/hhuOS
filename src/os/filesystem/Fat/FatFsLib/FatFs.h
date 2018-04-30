@@ -1,15 +1,5 @@
-#ifndef __FatFs_include__
-#define __FatFs_include__
-
-#include "devices/block/storage/StorageDevice.h"
-
-extern "C" {
-#include "lib/libc/stdlib.h"
-}
-
-
 /*----------------------------------------------------------------------------/
-/  Fat - Generic FAT Filesystem Module  Rx.xx                               /
+/  Fat - Generic FAT Filesystem Module  Rx.xx                                 /
 /-----------------------------------------------------------------------------/
 /
 / Copyright (C) 20xx, ChaN, all right reserved.
@@ -27,7 +17,6 @@ extern "C" {
 / by use of this software.
 /----------------------------------------------------------------------------*/
 
-
 /***************************************************************************************************
  * This is a modified version of the Fat-library by ELM-ChaN.                                      *
  * We took out the code that we needed for hhuOS and wrapped a C++-Class around it.                *
@@ -37,7 +26,14 @@ extern "C" {
  * For function-documentation and further reference see http://elm-chan.org/fsw/ff/00index_e.html. *
  ***************************************************************************************************/
 
+#ifndef __FatFs_include__
+#define __FatFs_include__
 
+#include "devices/block/storage/StorageDevice.h"
+
+extern "C" {
+#include "lib/libc/stdlib.h"
+}
 
 /* Configuration macros */
 

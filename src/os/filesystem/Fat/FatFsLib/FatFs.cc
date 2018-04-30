@@ -1,3 +1,31 @@
+/*----------------------------------------------------------------------------/
+/  Fat - Generic FAT Filesystem Module  Rx.xx                                 /
+/-----------------------------------------------------------------------------/
+/
+/ Copyright (C) 20xx, ChaN, all right reserved.
+/
+/ Fat module is an open source software. Redistribution and use of Fat in
+/ source and binary forms, with or without modification, are permitted provided
+/ that the following condition is met:
+/
+/ 1. Redistributions of source code must retain the above copyright notice,
+/    this condition and the following disclaimer.
+/
+/ This software is provided by the copyright holder and contributors "AS IS"
+/ and any warranties related to this software are DISCLAIMED.
+/ The copyright owner or contributors be NOT LIABLE for any damages caused
+/ by use of this software.
+/----------------------------------------------------------------------------*/
+
+/***************************************************************************************************
+ * This is a modified version of the Fat-library by ELM-ChaN.                                      *
+ * We took out the code that we needed for hhuOS and wrapped a C++-Class around it.                *
+ * This class will probably be replaced by a FAT-driver, that we will write on our own             *
+ * and that fits our needs better.                                                                 *
+ *                                                                                                 *
+ * For function-documentation and further reference see http://elm-chan.org/fsw/ff/00index_e.html. *
+ ***************************************************************************************************/
+
 #include "FatFs.h"
 #include <cstdarg>
 

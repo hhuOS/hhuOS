@@ -18,7 +18,7 @@
 #ifndef __ElfLoader_include__
 #define __ElfLoader_include__
 
-#include <stdint.h>
+#include <cstdint>
 #include <kernel/KernelSymbols.h>
 #include "Elf.h"
 

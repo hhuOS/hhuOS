@@ -17,7 +17,7 @@
 #ifndef __PAGINGAREAMANAGER_H__
 #define __PAGINGAREAMANAGER_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
 /* Paging Area Manager - manages the part of virtual memory resverved for

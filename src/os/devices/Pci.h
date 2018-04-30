@@ -34,7 +34,7 @@
 
 #include "kernel/IOport.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <kernel/services/StorageService.h>
 #include <lib/util/ArrayList.h>
 #include <kernel/interrupts/Pic.h>

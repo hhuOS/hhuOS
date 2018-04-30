@@ -17,7 +17,7 @@
 #ifndef __PAGEFRAMEALLOCATOR_H__
 #define __PAGEFRAMEALLOCATOR_H__
 
-#include <stdint.h>
+#include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
 /* PageFramAllocator - Allocates and frees the page frames in physical memory.

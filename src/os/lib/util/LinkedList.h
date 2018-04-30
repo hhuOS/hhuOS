@@ -12,7 +12,7 @@
 #ifndef __LinkedList_include__
 #define __LinkedList_include__
 
-#include <stdint.h>
+#include <cstdint>
 
 template <typename T>
 class LinkedList {

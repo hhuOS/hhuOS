@@ -24,7 +24,7 @@
 #include "UsbTransaction.h"
 #include "kernel/services/TimeService.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <lib/util/LinkedList.h>
 
 #define DEBUG_TRANSACTION 0

@@ -18,7 +18,7 @@
 #ifndef __Ide_include__
 #define __Ide_include__
 
-#include <stdint.h>
+#include <cstdint>
 
 #define IDE_DEBUG 0
 

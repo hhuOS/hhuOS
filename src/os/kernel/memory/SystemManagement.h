@@ -21,7 +21,7 @@
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
-#include <stdint.h>
+#include <cstdint>
 #include "kernel/memory/manager/HeapMemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"

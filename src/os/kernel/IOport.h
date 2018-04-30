@@ -9,7 +9,7 @@
 #ifndef __IOport_include__
 #define __IOport_include__
 
-#include <stdint.h>
+#include <cstdint>
 
 
 class IOport {

@@ -4,7 +4,7 @@
 #include "kernel/KernelService.h"
 #include "devices/Rtc.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 class TimeService : public KernelService {
 

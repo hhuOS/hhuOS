@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Heinrich-Heine University
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
 #include <filesystem/RamFs/memory/KernelHeapNode.h>
@@ -125,11 +141,13 @@ void FileSystem::init() {
     // Add PCI-Node to dev-Directory
     addVirtualNode("/dev", new PciNode());
 
-//    // Add Random-Node to dev-Directory
-//    addVirtualNode("/dev", new RandomNode());
-//
-//    // Add Zero-Node to dev-Directory
-//    addVirtualNode("/dev", new ZeroNode());
+    /** Uncomment to add random- and zero-nodes on startup.
+    // Add Random-Node to dev-Directory
+    addVirtualNode("/dev", new RandomNode());
+
+    // Add Zero-Node to dev-Directory
+    addVirtualNode("/dev", new ZeroNode());
+    */
 
     createFile("/dev/syslog");
 

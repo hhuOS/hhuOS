@@ -18,7 +18,7 @@
 #ifndef __Usb_include__
 #define __Usb_include__
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "lib/libc/printf.h"
 

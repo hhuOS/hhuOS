@@ -23,7 +23,7 @@
 #include "kernel/memory/MemLayout.h"
 #include "kernel/services/TimeService.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <devices/Pci.h>
 
 #define UHCI_DEBUG 0

@@ -21,7 +21,7 @@
 #include "devices/usb/Usb.h"
 #include "devices/usb/UsbInterface.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 /**
  * Represents USB device configuration.

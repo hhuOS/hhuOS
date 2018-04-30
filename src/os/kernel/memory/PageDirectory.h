@@ -18,7 +18,7 @@
 #ifndef __PAGEDIRECTORY_H__
 #define __PAGEDIRECTORY_H__
 
-#include <stdint.h>
+#include <cstdint>
 
 #define DEBUG_PD 0
 

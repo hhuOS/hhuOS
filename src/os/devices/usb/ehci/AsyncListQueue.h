@@ -18,7 +18,7 @@
 #ifndef __AsyncListQueue_include__
 #define __AsyncListQueue_include__
 
-#include <stdint.h>
+#include <cstdint>
 #include "lib/Bits.h"
 
 /**

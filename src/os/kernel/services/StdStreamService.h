@@ -4,7 +4,7 @@
 #include "kernel/KernelService.h"
 #include "lib/OutputStream.h"
 
-#include <stdint.h>
+#include <cstdint>
 #include <lib/InputStream.h>
 
 class StdStreamService : public KernelService {

@@ -18,7 +18,7 @@
 #define __IOMEMMANAGER_H__
 
 #include "MemoryManager.h"
-#include <stdint.h>
+#include <cstdint>
 
 #define DEBUG_IOMEM 0
 
