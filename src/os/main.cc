@@ -41,11 +41,13 @@
 
 #include "bootlogo.h"
 
-#define VERSION "0.1"
-
 extern char *gitversion;
 
-String versionString;
+auto versionString = String("hhuOS ") + String(gitversion);
+
+uint16_t xres = 800;
+uint16_t yres = 600;
+uint8_t bpp = 32;
 
 IdleThread *idleThread = nullptr;
 EventBus *eventBus = nullptr;
@@ -105,7 +107,16 @@ void registerServices() {
 void initGraphics() {
     auto *vesa = new VesaGraphics();
 
-	//Detect video capability
+    // Get desired resolution from GRUB
+    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
+
+    if(res.length() >= 3) {
+        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
+        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
+        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
+    }
+
+	// Detect video capability
 	if(vesa->isAvailable()) {
 		lfb = vesa;
         text = new VesaText();
@@ -122,53 +133,59 @@ void initGraphics() {
 		}
 	}
 
-    text->init(0, 0, 0);
-    lfb->init(0, 0, 0);
+    // Initialize drivers
+    lfb->init(xres, yres, bpp);
+    text->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+
+    stdout = text;
+    text->setpos(0, 0);
 }
 
 int32_t main() {
+    Cpu::disableInterrupts();
+
     Logger::trace("Start Kernel Main");
 
-    uint16_t xres = 800;
-    uint16_t yres = 600;
-    uint8_t bpp = 32;
-    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
+    Pic::getInstance()->forbid(Pic::Interrupt::PIT);
+    Pic::getInstance()->forbid(Pic::Interrupt::KEYBOARD);
+    Pic::getInstance()->forbid(Pic::Interrupt::CASCADE);
+    Pic::getInstance()->forbid(Pic::Interrupt::COM2);
+    Pic::getInstance()->forbid(Pic::Interrupt::COM1);
+    Pic::getInstance()->forbid(Pic::Interrupt::LPT2);
+    Pic::getInstance()->forbid(Pic::Interrupt::FLOPPY);
+    Pic::getInstance()->forbid(Pic::Interrupt::LPT1);
+    Pic::getInstance()->forbid(Pic::Interrupt::RTC);
+    Pic::getInstance()->forbid(Pic::Interrupt::FREE1);
+    Pic::getInstance()->forbid(Pic::Interrupt::FREE2);
+    Pic::getInstance()->forbid(Pic::Interrupt::FREE3);
+    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);
+    Pic::getInstance()->forbid(Pic::Interrupt::FPU);
+    Pic::getInstance()->forbid(Pic::Interrupt::PRIMARY_ATA);
+    Pic::getInstance()->forbid(Pic::Interrupt::SECONDARY_ATA);
 
-    if(res.length() >= 3) {
-        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
-        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
-        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
-    }
+    initGraphics();
+    eventBus = new EventBus();
+    registerServices();
+
+    Pit::getInstance()->plugin();
+
+    auto *rtc = Kernel::getService<TimeService>()->getRTC();
+    rtc->plugin();
+
+    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
+
+    auto *inputService = Kernel::getService<InputService>();
+    inputService->getKeyboard()->plugin();
+    inputService->getMouse()->plugin();
+
+    Cpu::enableInterrupts();
 
     if(Multiboot::Structure::getKernelOption("debug") == "true") {
-        initGraphics();
-        text->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
-        stdout = text;
-
-        text->setpos(0, 0);
-
-        text->puts("Initializing Event Bus\n", 23, Colors::HHU_RED);
-        eventBus = new EventBus();
-
-        text->puts("Registering Services\n", 21, Colors::HHU_RED);
-        registerServices();
-
-        text->puts("Enabling Interrupts\n", 20, Colors::HHU_RED);
-
-        Pit::getInstance()->plugin();
-
-        InputService *inputService = Kernel::getService<InputService>();
-        inputService->getKeyboard()->plugin();
-        inputService->getMouse()->plugin();
-
-        Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
-        rtc->plugin();
-
         text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
         Pci::scan();
 
         text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
-        FileSystem *fs = Kernel::getService<FileSystem>();
+        auto *fs = Kernel::getService<FileSystem>();
         fs->init();
         printfUpdateStdout();
 
@@ -185,38 +202,18 @@ int32_t main() {
 
         lfb->init(xres, yres, bpp);
     } else {
-        versionString = String("hhuOS ") + String(VERSION) + String(" - git ") + String(gitversion);
-
-        initGraphics();
         lfb->init(xres, yres, bpp);
         lfb->enableDoubleBuffering();
 
-        updateBootScreen(0, "Initializing Event Bus");
-        eventBus = new EventBus();
-
-        updateBootScreen(17, "Registering Services");
-        registerServices();
-
-        updateBootScreen(34, "Enabling Interrupts");
-
-        Pit::getInstance()->plugin();
-
-        auto *inputService = Kernel::getService<InputService>();
-        inputService->getKeyboard()->plugin();
-        inputService->getMouse()->plugin();
-
-        Rtc *rtc = Kernel::getService<TimeService>()->getRTC();
-        rtc->plugin();
-
-        updateBootScreen(51, "Initializing PCI Devices");
+        updateBootScreen(0, "Initializing PCI Devices");
         Pci::scan();
 
-        updateBootScreen(68, "Initializing Filesystem");
+        updateBootScreen(33, "Initializing Filesystem");
         auto *fs = Kernel::getService<FileSystem>();
         fs->init();
         printfUpdateStdout();
 
-        updateBootScreen(85, "Starting Threads");
+        updateBootScreen(66, "Starting Threads");
         idleThread = new IdleThread();
 
         idleThread->start();

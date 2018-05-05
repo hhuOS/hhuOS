@@ -23,14 +23,15 @@ Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
 }
 
 void Rtc::plugin() {
-    IntDispatcher::getInstance().assign(40, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::RTC);
-
     Cpu::disableInterrupts();
+
+    // Disable NMIs
+    uint8_t oldValue = registerPort.inb();
+    registerPort.outb(static_cast<uint8_t>(oldValue | 0x80));
 
     // Enable 'Update interrupts': An Interrupt will be triggered after every RTC-update.
     registerPort.outb(STATUS_REGISTER_B);
-    uint8_t oldValue = dataPort.inb();
+    oldValue = dataPort.inb();
 
     registerPort.outb(STATUS_REGISTER_B);
     dataPort.outb(static_cast<uint8_t>(oldValue | 0x10));
@@ -46,6 +47,13 @@ void Rtc::plugin() {
     // the RTC won't trigger any interrupts.
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
+
+    IntDispatcher::getInstance().assign(40, *this);
+    Pic::getInstance()->allow(Pic::Interrupt::RTC);
+
+    // Enable NMIs
+    oldValue = registerPort.inb();
+    registerPort.outb(static_cast<uint8_t>(oldValue & 0x7F));
 
     Cpu::enableInterrupts();
 }

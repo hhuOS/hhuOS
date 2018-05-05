@@ -114,7 +114,7 @@ hdd.img: ../hdd/*
 	$(VERBOSE) udisksctl loop-delete -b /dev/loop0
 
 gitversion.c: ../../.git/HEAD ../../.git/index
-	@echo "const char *gitversion = \"$(shell git rev-parse --short HEAD)\";" > $@
+	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - $(shell git rev-parse --short HEAD)\";" > $@
 
 #-------------------------------------------#
 # Dependencies                              #
