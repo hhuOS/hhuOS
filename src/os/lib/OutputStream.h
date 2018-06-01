@@ -28,13 +28,15 @@
  */
 class OutputStream : public StringBuffer {
 
-private:
+public:
+
     int base;
 
 public:
+
     /**
-    * Constructor.
-    */
+     * Constructor.
+     */
     OutputStream ();
 
     /**
