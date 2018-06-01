@@ -25,9 +25,6 @@ extern "C" {
 IOport systemA(0x92);
 IOport systemB(0x61);
 
-IOport slavePic(0xA0);
-IOport masterPic(0x20);
-
 void printNMI() {
     printf("\n");
     printf("  System Control Port A :       %b\n", systemA.inb());

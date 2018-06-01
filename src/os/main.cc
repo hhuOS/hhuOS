@@ -227,6 +227,9 @@ int32_t main() {
         lfb->clear();
     }
 
+    Kernel::getService<DebugService>()->printPic();
+    while(true);
+
     Scheduler::getInstance()->schedule();
 
     return 0;

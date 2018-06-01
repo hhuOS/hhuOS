@@ -17,7 +17,7 @@
 #ifndef __PIC_include__
 #define __PIC_include__
 
-#include <stdint-gcc.h>
+#include <cstdint>
 #include <kernel/IOport.h>
 
 /**
@@ -100,7 +100,7 @@ public:
      *
      * @return true, if a spurious interrupt has occured, false else
      */
-    static bool isSpurious();
+     static bool isSpurious();
 
 private:
 
@@ -137,6 +137,6 @@ private:
     static const uint8_t READ_ISR = 0x0B;
 
     static const uint8_t SPURIOUS_INTERRUPT = 0x80;
- };
+};
 
 #endif

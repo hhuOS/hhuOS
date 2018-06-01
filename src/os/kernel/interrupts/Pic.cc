@@ -37,7 +37,7 @@ void Pic::allow(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() & ~mask );
+    port.outb(port.inb() & ~mask);
 }
 
 void Pic::forbid(Pic::Interrupt interrupt) {
@@ -46,7 +46,7 @@ void Pic::forbid(Pic::Interrupt interrupt) {
 
     uint8_t mask = getMask(interrupt);
 
-    port.outb( port.inb() | mask );
+    port.outb(port.inb() | mask);
 }
 
 bool Pic::status(Pic::Interrupt interrupt) {
@@ -59,13 +59,11 @@ bool Pic::status(Pic::Interrupt interrupt) {
 }
 
 void Pic::sendEOI(Pic::Interrupt interrupt) {
-
     if (interrupt >= Interrupt::RTC) {
-
-        PIC2_DATA.outb(EOI);
+        PIC2_COMMAND.outb(EOI);
     }
 
-    PIC1_DATA.outb(EOI);
+    PIC1_COMMAND.outb(EOI);
 }
 
 IOport& Pic::getDataPort(Pic::Interrupt interrupt) {
@@ -99,7 +97,6 @@ uint8_t Pic::getMask(Pic::Interrupt interrupt) {
 }
 
 bool Pic::isSpurious() {
-
     PIC1_COMMAND.outb(READ_ISR);
 
     return (PIC1_COMMAND.inb() & SPURIOUS_INTERRUPT) == 0;
