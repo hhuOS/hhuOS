@@ -59,7 +59,7 @@ private:
         SECONDS_REGISTER = 0x00,
         MINUTES_REGISTER = 0x02,
         HOURS_REGISTER = 0x04,
-        WEEKDAY_REGISTER = 0x06,
+        DAY_OF_WEEK_REGISTER = 0x06,
         DAY_OF_MONTH_REGISTER = 0x07,
         MONTH_REGISTER = 0x08,
         YEAR_REGISTER = 0x09,

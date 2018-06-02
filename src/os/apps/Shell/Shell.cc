@@ -33,6 +33,7 @@
 #include <apps/Shell/Commands/Head.h>
 #include <apps/Shell/Commands/Tail.h>
 #include <apps/Shell/Commands/Uptime.h>
+#include <apps/Shell/Commands/Date.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -57,6 +58,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
     commands.put("uptime", new Uptime(*this));
+    commands.put("date", new Date(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
