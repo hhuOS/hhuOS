@@ -32,6 +32,7 @@
 #include <apps/Shell/Commands/Umount.h>
 #include <apps/Shell/Commands/Head.h>
 #include <apps/Shell/Commands/Tail.h>
+#include <apps/Shell/Commands/Uptime.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -55,6 +56,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("insmod", new Insmod(*this));
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
+    commands.put("uptime", new Uptime(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
