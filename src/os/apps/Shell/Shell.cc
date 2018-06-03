@@ -34,6 +34,7 @@
 #include <apps/Shell/Commands/Tail.h>
 #include <apps/Shell/Commands/Uptime.h>
 #include <apps/Shell/Commands/Date.h>
+#include <apps/Shell/Commands/History.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -44,6 +45,7 @@ Shell::Shell() : Thread("Shell") {
     stdStreamService->setStderr(this);
     stdStreamService->setStdin(this);
 
+    commands.put("history", new History(*this));
     commands.put("clear", new Clear(*this));
     commands.put("cd", new Cd(*this));
     commands.put("echo", new Echo(*this));
@@ -89,6 +91,7 @@ void Shell::run() {
         char* input = nullptr;
         *this >> input;
 
+        history.add(input);
         executeCommand(input);
 
         delete input;

@@ -23,6 +23,7 @@
 #include <kernel/services/StdStreamService.h>
 
 class Command;
+class History;
 
 /**
  * A simple UNIX-like Shell.
@@ -33,11 +34,14 @@ class Command;
 class Shell : public Thread, Receiver, OutputStream, InputStream {
 
 private:
+    friend History;
+
     StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
 
     Util::HashMap<String, Command*> commands;
+    Util::ArrayList<String> history;
 
     Directory *cwd = nullptr;
 
