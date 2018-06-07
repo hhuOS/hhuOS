@@ -8,10 +8,16 @@
 
 class SerialEvent;
 
+/**
+ * Driver for the serial COM-ports.
+ */
 class Serial : public IODevice {
 
 public:
 
+    /**
+     * Starting addresses of the registers of each port.
+     */
     enum ComPort {
         COM1 = 0x3f8,
         COM2 = 0x2f8,
@@ -19,6 +25,9 @@ public:
         COM4 = 0x2e8,
     };
 
+    /**
+     * Available baud rates.
+     */
     enum class BaudRate : uint16_t {
         BAUD_115200 = 1,
         BAUD_57600 = 2,
@@ -111,22 +120,64 @@ public:
         BAUD_2 = 57600
     };
 
+    /**
+     * Check if a COM-port exists.
+     * Always check if the COM-port exists before creating an instance of this class!
+     *
+     * @param port The port
+     */
     static bool checkPort(ComPort port);
 
+    /**
+     * Constructor
+     *
+     * @param port The COM-port
+     * @param speed The baud-rate
+     */
     explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200);
 
+    /**
+     * Enable interrupts for this COM-port.
+     */
     void plugin();
 
+    /**
+     * Overriding function from IODevice.
+     */
     void trigger() override;
 
+    /**
+     * Overriding function from IODevice.
+     */
     bool checkForData() override ;
 
+    /**
+     * Send data via the COM-port.
+     *
+     * @param data Pointer to the data
+     * @param len The amount of bytes to be sent
+     */
     void sendData(char *data, uint32_t len);
 
+    /**
+     * Read data from the COM-port.
+     * This function is blocking and will return only if len bytes have been received!
+     *
+     * @param data Buffer to which the received data will be written.
+     * @param len The amount of bytes to read
+     */
     void readData(char *data, uint32_t len);
 
+    /**
+     * Set the baud-rate.
+     *
+     * @param speed The baud-rate
+     */
     void setSpeed(BaudRate speed);
 
+    /**
+     * Get the port number.
+     */
     ComPort getPortNumber();
 
 private:
