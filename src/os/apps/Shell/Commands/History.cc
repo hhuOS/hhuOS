@@ -47,6 +47,6 @@ void History::execute(Util::Array<String> &args) {
     }
 
     for(uint32_t i = 0; i < shell.history.size(); i++) {
-        stdout << i << " " << shell.history.get(i) << endl;
+        stdout << "  " << i << " " << shell.history.get(i) << endl;
     }
 }

@@ -49,7 +49,7 @@ void Date::execute(Util::Array<String> &args) {
 
     Rtc::Date date = timeService->getCurrentDate();
 
-    printf("%s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth, months[date.month],
+    printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth, months[date.month],
            date.hours, date.minutes, date.seconds, date.year);
 }
 

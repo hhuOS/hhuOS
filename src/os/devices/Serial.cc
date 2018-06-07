@@ -39,7 +39,7 @@ Serial::Serial(ComPort port, Serial::BaudRate speed) : eventBuffer(1024), port(p
                                           modemStatusRegister(port + 6), scratchRegister(port + 7)
 {
     interruptRegister.outb(0x00);        // Disable all interrupts
-    lineControlRegister.outb(0x80);      // Enable to DLAB, so that the divisor can be set
+    lineControlRegister.outb(0x80);      // Enable DLAB, so that the divisor can be set
 
     dataRegister.outb(static_cast<uint8_t>(static_cast<uint16_t>(speed) & 0x0f));       // Divisor low byte
     interruptRegister.outb(static_cast<uint8_t>(static_cast<uint16_t>(speed) >> 8));    // Divisor high byte

@@ -58,7 +58,7 @@ void Uptime::execute(Util::Array<String> &args) {
     auto seconds = millis / 1000;
 
     if(pretty) {
-        stdout << "up ";
+        stdout << "  up ";
 
         if (days > 0) {
             stdout << dec << days << " day";
@@ -108,6 +108,6 @@ void Uptime::execute(Util::Array<String> &args) {
             stdout << " ";
         }
 
-        printf("%02d:%02d:%02d\n", hours, minutes, seconds);
+        printf("  %02d:%02d:%02d\n", hours, minutes, seconds);
     }
 }
