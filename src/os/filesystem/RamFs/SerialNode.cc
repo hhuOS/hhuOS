@@ -1,7 +1,21 @@
 #include "SerialNode.h"
 
+String SerialNode::generateName(Serial::ComPort port) {
+    switch(port) {
+        case Serial::COM1 :
+            return "serial1";
+        case Serial::COM2 :
+            return "serial2";
+        case Serial::COM3 :
+            return "serial3";
+        case Serial::COM4 :
+            return "serial4";
+        default:
+            return "serial";
+    }
+}
 
-SerialNode::SerialNode(Serial *serial) : VirtualNode("serial", FsNode::BLOCK_FILE), serial(serial) {
+SerialNode::SerialNode(Serial *serial) : VirtualNode(generateName(serial->getPortNumber()), FsNode::BLOCK_FILE), serial(serial) {
 
 }
 

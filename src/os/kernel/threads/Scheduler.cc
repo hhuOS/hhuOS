@@ -26,8 +26,28 @@ void checkIoBuffers() {
         timeService->getRTC()->trigger();
     }
 
-    if(serialService->getSerial()->checkForData()) {
-        serialService->getSerial()->trigger();
+    if(serialService->isPortAvailable(Serial::COM1)) {
+        if(serialService->getSerialPort(Serial::COM1)->checkForData()) {
+            serialService->getSerialPort(Serial::COM1)->trigger();
+        }
+    }
+
+    if(serialService->isPortAvailable(Serial::COM2)) {
+        if(serialService->getSerialPort(Serial::COM2)->checkForData()) {
+            serialService->getSerialPort(Serial::COM2)->trigger();
+        }
+    }
+
+    if(serialService->isPortAvailable(Serial::COM3)) {
+        if(serialService->getSerialPort(Serial::COM3)->checkForData()) {
+            serialService->getSerialPort(Serial::COM3)->trigger();
+        }
+    }
+
+    if(serialService->isPortAvailable(Serial::COM4)) {
+        if(serialService->getSerialPort(Serial::COM4)->checkForData()) {
+            serialService->getSerialPort(Serial::COM4)->trigger();
+        }
     }
 }
 

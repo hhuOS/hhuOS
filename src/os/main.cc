@@ -182,7 +182,22 @@ int32_t main() {
     inputService->getMouse()->plugin();
 
     auto *serialService = Kernel::getService<SerialService>();
-    serialService->getSerial()->plugin();
+
+    if(serialService->isPortAvailable(Serial::COM1)) {
+        serialService->getSerialPort(Serial::COM1)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM2)) {
+        serialService->getSerialPort(Serial::COM2)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM3)) {
+        serialService->getSerialPort(Serial::COM3)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM4)) {
+        serialService->getSerialPort(Serial::COM4)->plugin();
+    }
 
     Cpu::enableInterrupts();
 

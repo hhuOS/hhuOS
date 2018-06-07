@@ -154,7 +154,23 @@ void FileSystem::init() {
     createFile("/dev/syslog");
 
     // Add Serial-nodes to dev-Directory
-    addVirtualNode("/dev", new SerialNode(Kernel::getService<SerialService>()->getSerial()));
+    SerialService *serialService = Kernel::getService<SerialService>();
+
+    if(serialService->isPortAvailable(Serial::COM1)) {
+        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM1)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM2)) {
+        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM2)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM3)) {
+        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM3)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM4)) {
+        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM4)));
+    }
 
     // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());

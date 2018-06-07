@@ -76,6 +76,9 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -rtc base=localtime,clock=host \
 					  -serial telnet:127.0.0.1:8821,server,nowait \
+					  -serial telnet:127.0.0.1:8822,server,nowait \
+					  -serial telnet:127.0.0.1:8823,server,nowait \
+					  -serial telnet:127.0.0.1:8824,server,nowait \
 					  -m 1G
 
 #-------------------------------------------#

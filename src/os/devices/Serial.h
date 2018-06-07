@@ -4,12 +4,20 @@
 #include <cstdint>
 #include <kernel/IOport.h>
 #include <kernel/services/EventBus.h>
-#include <kernel/events/input/SerialEvent.h>
 #include "IODevice.h"
+
+class SerialEvent;
 
 class Serial : public IODevice {
 
 public:
+
+    enum ComPort {
+        COM1 = 0x3f8,
+        COM2 = 0x2f8,
+        COM3 = 0x3e8,
+        COM4 = 0x2e8,
+    };
 
     enum class BaudRate : uint16_t {
         BAUD_115200 = 1,
@@ -103,7 +111,9 @@ public:
         BAUD_2 = 57600
     };
 
-    explicit Serial(BaudRate speed = BaudRate::BAUD_115200);
+    static bool checkPort(ComPort port);
+
+    explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200);
 
     void plugin();
 
@@ -117,12 +127,14 @@ public:
 
     void setSpeed(BaudRate speed);
 
-private:
+    ComPort getPortNumber();
 
-    BaudRate speed;
+private:
 
     EventBus *eventBus;
     Util::RingBuffer<SerialEvent> eventBuffer;
+
+    ComPort port;
 
     IOport dataRegister;
     IOport interruptRegister;
@@ -132,7 +144,6 @@ private:
     IOport lineStatusRegister;
     IOport modemStatusRegister;
     IOport scratchRegister;
-
 };
 
 #endif

@@ -2,13 +2,25 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <lib/libc/printf.h>
 #include <kernel/Kernel.h>
+#include <kernel/events/input/SerialEvent.h>
 #include "Serial.h"
 
-Serial::Serial(Serial::BaudRate speed) : speed(speed), eventBuffer(1024),
-                                          dataRegister(0x3f8), interruptRegister(0x3f9),
-                                          fifoControlRegister(0x3fa), lineControlRegister(0x3fb),
-                                          modemControlRegister(0x3fc), lineStatusRegister(0x3fd),
-                                          modemStatusRegister(0x3fe), scratchRegister(0x3ff)
+bool Serial::checkPort(ComPort port) {
+    IOport scratchRegister(port + 7);
+
+    uint8_t val = scratchRegister.inb();
+    val = ~val;
+
+    scratchRegister.outb(val);
+
+    return scratchRegister.inb() == val;
+}
+
+Serial::Serial(ComPort port, Serial::BaudRate speed) : eventBuffer(1024), port(port),
+                                          dataRegister(port), interruptRegister(port + 1),
+                                          fifoControlRegister(port + 2), lineControlRegister(port + 3),
+                                          modemControlRegister(port + 4), lineStatusRegister(port + 5),
+                                          modemStatusRegister(port + 6), scratchRegister(port + 7)
 {
     interruptRegister.outb(0x00);        // Disable all interrupts
     lineControlRegister.outb(0x80);      // Enable to DLAB, so that the divisor can be set
@@ -44,13 +56,22 @@ void Serial::readData(char *data, uint32_t len) {
 }
 
 void Serial::plugin() {
-    IntDispatcher::getInstance().assign(36, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::COM1);
+    if(port == COM1 || port == COM3) {
+        IntDispatcher::getInstance().assign(36, *this);
+        Pic::getInstance()->allow(Pic::Interrupt::COM1);
+    } else {
+        IntDispatcher::getInstance().assign(35, *this);
+        Pic::getInstance()->allow(Pic::Interrupt::COM2);
+    }
 
     interruptRegister.outb(0x01);
 }
 
 void Serial::trigger() {
+    if((fifoControlRegister.inb() & 0x01) == 1) {
+        return;
+    }
+
     bool hasData;
 
     do {
@@ -59,7 +80,7 @@ void Serial::trigger() {
         if(hasData) {
             char c = dataRegister.inb();
 
-            eventBuffer.push(SerialEvent(c));
+            eventBuffer.push(SerialEvent(port, c));
 
             SerialEvent &event = eventBuffer.pop();
 
@@ -84,6 +105,8 @@ void Serial::setSpeed(Serial::BaudRate speed) {
 
     interruptRegister.outb(interruptBackup);       // Restore interrupt register
     lineControlRegister.outb(lineControlBackup);   // Restore line control register
+}
 
-    this->speed = speed;
+Serial::ComPort Serial::getPortNumber() {
+    return port;
 }

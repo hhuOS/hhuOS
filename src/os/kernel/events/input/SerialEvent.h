@@ -2,6 +2,7 @@
 #define HHUOS_SERIALEVENT_H
 
 #include <kernel/events/Event.h>
+#include <devices/Serial.h>
 
 class SerialEvent : public Event {
 
@@ -9,7 +10,7 @@ public:
 
     SerialEvent();
 
-    explicit SerialEvent(char c);
+    explicit SerialEvent(Serial::ComPort port, char c);
 
     SerialEvent(const SerialEvent &other);
 
@@ -17,9 +18,13 @@ public:
 
     char getChar();
 
+    Serial::ComPort getPortNumber();
+
     static const uint32_t TYPE   = 0x00000007;
 
 private:
+
+    Serial::ComPort port;
 
     char c;
 };

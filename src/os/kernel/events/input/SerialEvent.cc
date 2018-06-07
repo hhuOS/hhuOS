@@ -4,8 +4,8 @@ SerialEvent::SerialEvent() : Event(TYPE) {
 
 }
 
-SerialEvent::SerialEvent(char c) : Event(TYPE) {
-    this->c = c;
+SerialEvent::SerialEvent(Serial::ComPort port, char c) : Event(TYPE), port(port), c(c) {
+
 }
 
 char *SerialEvent::getName() {
@@ -18,4 +18,9 @@ char SerialEvent::getChar() {
 
 SerialEvent::SerialEvent(const SerialEvent &other) : Event(other){
     this->c = other.c;
+    this->port = other.port;
+}
+
+Serial::ComPort SerialEvent::getPortNumber() {
+    return port;
 }

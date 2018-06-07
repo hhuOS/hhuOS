@@ -7,8 +7,10 @@ class SerialService : public KernelService {
 
 private:
 
-    Serial *serial;
-
+    Serial *com1 = nullptr;
+    Serial *com2 = nullptr;
+    Serial *com3 = nullptr;
+    Serial *com4 = nullptr;
 
 public:
 
@@ -16,7 +18,9 @@ public:
 
     static constexpr const char* SERVICE_NAME = "SerialService";
 
-    Serial *getSerial();
+    Serial *getSerialPort(Serial::ComPort port);
+
+    bool isPortAvailable(Serial::ComPort port);
 };
 
 #endif

@@ -17,6 +17,8 @@ private:
 
     Serial *serial = nullptr;
 
+    static String generateName(Serial::ComPort port);
+
 public:
     /**
      * Constructor.
