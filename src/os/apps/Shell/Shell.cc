@@ -35,6 +35,7 @@
 #include <apps/Shell/Commands/Uptime.h>
 #include <apps/Shell/Commands/Date.h>
 #include <apps/Shell/Commands/History.h>
+#include <kernel/events/input/SerialEvent.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -67,6 +68,7 @@ Shell::Shell() : Thread("Shell") {
 
 Shell::~Shell() {
     eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, SerialEvent::TYPE);
 }
 
 Directory &Shell::getCurrentWorkingDirectory() {
@@ -86,6 +88,7 @@ void Shell::run() {
     this->flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
+    eventBus->subscribe(*this, SerialEvent::TYPE);
 
     while(isRunning) {
         char* input = nullptr;
@@ -173,6 +176,7 @@ void Shell::executeCommand(String input) {
     } else if(args[0] == "exit") {
         isRunning = false;
         eventBus->unsubscribe(*this, KeyEvent::TYPE);
+        eventBus->unsubscribe(*this, SerialEvent::TYPE);
 
         return;
     }
@@ -192,44 +196,56 @@ void Shell::executeCommand(String input) {
 
 void Shell::onEvent(const Event &event) {
     TextDriver &stream = *graphicsService->getTextDriver();
-    Key key = ((KeyEvent &) event).getKey();
+    char c;
 
-    if (key.valid()) {
-        if(strlen(inputBuffer) == (sizeof(inputBuffer) - 1) && key.ascii() != '\b') {
-            return;
-        }
+    if(event.getType() == KeyEvent::TYPE) {
+        Key key = ((KeyEvent &) event).getKey();
 
-        inputLock.acquire();
-
-        if(key.ascii() == '\n') {
-            inputBuffer[strlen(inputBuffer)] = 0;
-            stream << endl;
-
-            lastString = String(inputBuffer);
-            stringAvailable = true;
-
-            memset(inputBuffer, 0, sizeof(inputBuffer));
-        } else if(key.ascii() == '\b') {
-            if(strlen(inputBuffer) > 0) {
-                uint16_t x, y;
-                stream.getpos(x, y);
-                stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
-                stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
-                stream.setpos(x, y);
-
-                memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
-            }
+        if(key.valid()) {
+            c = key.ascii();
         } else {
-            lastChar = key.ascii();
-            charAvailable = true;
-
-            inputBuffer[strlen(inputBuffer)] = key.ascii();
-            stream << key.ascii();
-            stream.flush();
-        }
-
-        inputLock.release();
+            return;
+        };
+    } else if(event.getType() == SerialEvent::TYPE) {
+        c = ((SerialEvent &) event).getChar();
+    } else {
+        return;
     }
+
+    if(strlen(inputBuffer) == (sizeof(inputBuffer) - 1) && c != '\b') {
+        return;
+    }
+
+    inputLock.acquire();
+
+    if(c == '\n' || c == 13) {
+        inputBuffer[strlen(inputBuffer)] = 0;
+        stream << endl;
+
+        lastString = String(inputBuffer);
+        stringAvailable = true;
+
+        memset(inputBuffer, 0, sizeof(inputBuffer));
+    } else if(c == '\b' || c == 127) {
+        if(strlen(inputBuffer) > 0) {
+            uint16_t x, y;
+            stream.getpos(x, y);
+            stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
+            stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
+            stream.setpos(x, y);
+
+            memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
+        }
+    } else {
+        lastChar = c;
+        charAvailable = true;
+
+        inputBuffer[strlen(inputBuffer)] = c;
+        stream << c;
+        stream.flush();
+    }
+
+    inputLock.release();
 }
 
 void Shell::flush() {

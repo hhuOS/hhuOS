@@ -38,6 +38,8 @@
 #include <kernel/threads/Scheduler.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/Logger.h>
+#include <devices/Serial.h>
+#include <kernel/services/SerialService.h>
 
 #include "bootlogo.h"
 
@@ -99,6 +101,7 @@ void registerServices() {
     Kernel::registerService(ModuleLoader::SERVICE_NAME, new ModuleLoader());
     Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
+    Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
 
     Kernel::getService<StdStreamService>()->setStdout(text);
     Kernel::getService<StdStreamService>()->setStderr(text);
@@ -177,6 +180,9 @@ int32_t main() {
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
+
+    auto *serialService = Kernel::getService<SerialService>();
+    serialService->getSerial()->plugin();
 
     Cpu::enableInterrupts();
 

@@ -36,7 +36,7 @@
 class IntDispatcher : public KernelService {
     
 public:
-	// enum of important intterupt numbers
+	// enum of important interrupt numbers
     enum {
         pagefault = 14,
         timer = 32,

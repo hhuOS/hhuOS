@@ -20,6 +20,7 @@
 #include <filesystem/RamFs/memory/IOMemoryNode.h>
 #include <filesystem/RamFs/memory/PFANode.h>
 #include <filesystem/RamFs/memory/PagingAreaNode.h>
+#include <filesystem/RamFs/SerialNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -138,7 +139,7 @@ void FileSystem::init() {
     addVirtualNode("/dev/memory", new PFANode());
     addVirtualNode("/dev/memory", new PagingAreaNode());
 
-    // Add PCI-Node to dev-Directory
+    // Add PCI-node to dev-Directory
     addVirtualNode("/dev", new PciNode());
 
     /** Uncomment to add random- and zero-nodes on startup.
@@ -149,7 +150,11 @@ void FileSystem::init() {
     addVirtualNode("/dev", new ZeroNode());
     */
 
+    // Add syslog file to dev-Directory
     createFile("/dev/syslog");
+
+    // Add Serial-nodes to dev-Directory
+    addVirtualNode("/dev", new SerialNode(Kernel::getService<SerialService>()->getSerial()));
 
     // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());

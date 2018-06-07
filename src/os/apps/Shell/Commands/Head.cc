@@ -125,7 +125,11 @@ void Head::execute(Util::Array<String> &args) {
         } else {
             uint32_t lineCount = 0;
 
-            while(lineCount < count && file.getPos() < file.getLength()) {
+            while(lineCount < count) {
+                if(file.getFileType() == FsNode::REGULAR_FILE && file.getPos() > file.getLength()) {
+                    break;
+                }
+
                 char c = file.readChar();
                 stdout << c;
 

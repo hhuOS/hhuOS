@@ -2,6 +2,7 @@
 #include <lib/libc/printf.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/Kernel.h>
+#include <kernel/services/SerialService.h>
 #include "kernel/threads/Scheduler.h"
 
 extern "C" {
@@ -14,6 +15,7 @@ extern "C" {
 
 InputService *inputService = nullptr;
 TimeService *timeService = nullptr;
+SerialService *serialService = nullptr;
 
 void checkIoBuffers() {
     if(inputService->getKeyboard()->checkForData()) {
@@ -22,6 +24,10 @@ void checkIoBuffers() {
 
     if(timeService->getRTC()->checkForData()) {
         timeService->getRTC()->trigger();
+    }
+
+    if(serialService->getSerial()->checkForData()) {
+        serialService->getSerial()->trigger();
     }
 }
 
@@ -35,6 +41,7 @@ void schedulerYield() {
 Scheduler::Scheduler() : initialized(false) {
     inputService = Kernel::getService<InputService>();
     timeService = Kernel::getService<TimeService>();
+    serialService = Kernel::getService<SerialService>();
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -118,12 +125,7 @@ void Scheduler::yield() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    //schedulerLock.acquire();
-
-
     if (!isThreadWaiting()) {
-
-        //schedulerLock.release();
 
         return;
     }

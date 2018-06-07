@@ -16,7 +16,6 @@ HDD_PATCH = ${CURDIR}/../hdd
 INITRD_PATH = ${CURDIR}/../initrd
 LOADERDIR = ${CURDIR}/../loader
 BOOTDIR = $(LOADERDIR)/boot
-SERIAL_TTY = /dev/pts/1
 MODULE_PATH = ${CURDIR}/../modules
 MODULE_OUT = $(INITRD_PATH)/mod
 INCLUDEDIR = ${CURDIR}
@@ -31,7 +30,7 @@ CXX = g++
 #-------------------------------------------#
 # C Compiler settings                       #
 #-------------------------------------------#
-CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -Werror -fno-stack-protector -nostdlib \
+CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
 					-ffreestanding -mno-sse -I$(INCLUDEDIR) -g #-DDEBUG
 
 #-------------------------------------------#
@@ -76,6 +75,7 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -rtc base=localtime,clock=host \
+					  -serial telnet:127.0.0.1:8821,server,nowait \
 					  -m 1G
 
 #-------------------------------------------#
@@ -213,14 +213,8 @@ bootdisk-commit:
 qemu: $(OBJDIR)/hhuOS.iso hdd.img
 	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
-qemu64: $(OBJDIR)/hhuOS.iso
+qemu64: $(OBJDIR)/hhuOS.iso hdd.img
 	qemu-system-x86_64 -m 1G $(QEMU_DEFAULT_PARAMS)
-
-qemu-serial: $(OBJDIR)/hhuOS.iso hdd.img
-#	xfce4-terminal -e 'sleep 10d'
-	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS) \
-		-chardev tty,id=ptshere,path=$(SERIAL_TTY) \
-		-device isa-serial,chardev=ptshere
 
 kvm: $(OBJDIR)/hhuOS.iso hdd.img
 	$(KVM_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
