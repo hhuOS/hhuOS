@@ -201,6 +201,25 @@ void putpacket (char *buffer) {
     while (getDebugChar () != '+');
 }
 
+void setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
+    frame.eax = gdbRegs.eax;
+    frame.ebx = gdbRegs.ebx;
+    frame.ecx = gdbRegs.ecx;
+    frame.edx = gdbRegs.edx;
+    frame.esp = gdbRegs.esp;
+    frame.ebp = gdbRegs.ebp;
+    frame.esi = gdbRegs.esi;
+    frame.edi = gdbRegs.edi;
+    frame.eip = gdbRegs.pc;
+    frame.eflags = gdbRegs.ps;
+    frame.es = gdbRegs.es;
+    frame.ds = gdbRegs.ds;
+    frame.fs = gdbRegs.fs;
+    frame.gs = gdbRegs.gs;
+    frame.cs = gdbRegs.cs;
+    frame.ss = gdbRegs.ss;
+}
+
 void GdbServer::handleInterrupt(InterruptFrame &frame) {
     int sigval, stepping;
     int addr, length;
@@ -248,6 +267,9 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
         remcomOutBuffer[0] = 0;
         ptr = getpacket ();
 
+        GdbRegisters gdbRegs = GdbRegisters::fromInterruptFrame(frame);
+        GdbRegisters &copyRegs = (GdbRegisters&) ptr;
+
         switch (*ptr++)
         {
             case '?':
@@ -260,10 +282,10 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 //remote_debug = !(remote_debug);	/* toggle debug flag */
                 break;
             case 'g':		/* return the value of the CPU registers */
-                mem2hex ((char *) &frame.gs, remcomOutBuffer, NUMREGBYTES, 0);
+                mem2hex ((char *) &gdbRegs.eax, remcomOutBuffer, NUMREGBYTES, 0);
                 break;
             case 'G':		/* set the value of the CPU registers - return OK */
-                hex2mem (ptr, (char *) &frame.gs, NUMREGBYTES, 0);
+                setFrameRegisters(frame, copyRegs);
                 strcpy (remcomOutBuffer, "OK");
                 break;
             case 'P':		/* set the value of a single CPU register - return OK */
@@ -273,7 +295,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 if (hexToInt (&ptr, &regno) && *ptr++ == '=')
                     if (regno >= 0 && regno < NUMREGS)
                     {
-                        hex2mem (ptr, (char *) ((int*)&frame)[regno], 4, 0);
+                        //hex2mem (ptr, (char *) ((int*)&frame)[regno], 4, 0);
                         strcpy (remcomOutBuffer, "OK");
                         break;
                     }
@@ -330,11 +352,11 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 newPC = frame.eip;
 
                 /* clear the trace bit */
-                frame.esp &= 0xfffffeff;
+                frame.eflags &= 0xfffffeff;
 
                 /* set the trace bit if we're stepping */
                 if (stepping)
-                    frame.esp |= 0x100;
+                    frame.eflags |= 0x100;
 
                 return;
 
@@ -414,4 +436,27 @@ bool GdbServer::isInitialized() {
 
 void GdbServer::initialize() {
     initialized = true;
+}
+
+GdbRegisters GdbRegisters::fromInterruptFrame(InterruptFrame &frame) {
+    GdbRegisters registers;
+
+    registers.eax = frame.eax;
+    registers.ebx = frame.ebx;
+    registers.ecx = frame.ecx;
+    registers.edx = frame.edx;
+    registers.esp = frame.esp;
+    registers.ebp = frame.ebp;
+    registers.esi = frame.esi;
+    registers.edi = frame.edi;
+    registers.pc = frame.eip;
+    registers.ps = frame.eflags;
+    registers.cs = frame.cs;
+    registers.ss = frame.ss;
+    registers.gs = frame.gs;
+    registers.fs = frame.fs;
+    registers.es = frame.es;
+    registers.ds = frame.ds;
+
+    return registers;
 }

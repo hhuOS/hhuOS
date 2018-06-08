@@ -223,6 +223,7 @@ int32_t main() {
         printf("GDB debugger attached\n");
     }
 
+    BREAKPOINT()
     Pit::getInstance()->plugin();
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
@@ -233,8 +234,6 @@ int32_t main() {
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
-
-    Cpu::enableInterrupts();
 
     if(Multiboot::Structure::getKernelOption("debug") == "true") {
         text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);

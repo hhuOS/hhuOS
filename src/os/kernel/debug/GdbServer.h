@@ -9,6 +9,27 @@
 
 #include <kernel/threads/ThreadState.h>
 
+struct GdbRegisters {
+    uint32_t eax;
+    uint32_t ecx;
+    uint32_t edx;
+    uint32_t ebx;
+    uint32_t esp;
+    uint32_t ebp;
+    uint32_t esi;
+    uint32_t edi;
+    uint32_t pc;
+    uint32_t ps;
+    uint32_t cs;
+    uint32_t ss;
+    uint32_t ds;
+    uint32_t es;
+    uint32_t fs;
+    uint32_t gs;
+
+    static GdbRegisters fromInterruptFrame(InterruptFrame &frame);
+} __attribute__((packed));
+
 class GdbServer {
 
 public:
