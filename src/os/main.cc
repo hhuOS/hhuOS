@@ -39,6 +39,7 @@
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
 #include <kernel/interrupts/IntDispatcher.h>
+#include <kernel/debug/GdbServer.h>
 
 #include "bootlogo.h"
 
@@ -210,16 +211,16 @@ int32_t main() {
         serialService->getSerialPort(Serial::COM4)->plugin();
     }
 
-    printf("COM1 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM1)));
-    printf("COM2 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM2)));
-    printf("COM3 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM3)));
-    printf("COM4 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM4)));
+//    printf("COM1 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM1)));
+//    printf("COM2 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM2)));
+//    printf("COM3 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM3)));
+//    printf("COM4 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM4)));
 
     if (Multiboot::Structure::getKernelOption("gdb") == "true") {
-        set_debug_traps();
-        printf("BREAK!");
-        breakpoint();
-        printf("AFTER BREAK!");
+        GdbServer::initialize();
+        printf("Waiting for GDB debugger...\n");
+        BREAKPOINT()
+        printf("GDB debugger attached\n");
     }
 
     Pit::getInstance()->plugin();

@@ -13,6 +13,7 @@
 #include <devices/Speaker.h>
 #include <lib/Random.h>
 #include <devices/Serial.h>
+#include <kernel/debug/GdbServer.h>
 #include "kernel/Cpu.h"
 
 #include "kernel/interrupts/IntDispatcher.h"
@@ -20,30 +21,9 @@
 #include "Pic.h"
 
 extern "C" {
-    void triggerInterrupt(int slot);
     void dispatchInterrupt(InterruptFrame *frame);
-    void putDebugChar(char value);	/* write a single character      */
-    char getDebugChar();	/* read and return a single char */
-    void _handle_exception(int slot);
-    char is_gdb_stub_initialized();
 }
 
-void putDebugChar(char value) {
-    static Serial serialPort(Serial::COM1);
-    serialPort.sendChar(value);
-}
-
-char getDebugChar() {
-    static Serial serialPort(Serial::COM1);
-
-    char value = serialPort.readChar();
-
-    return value;
-}
-
-void triggerInterrupt(int slot) {
-
-}
 IOport systemA(0x92);
 IOport systemB(0x61);
 
@@ -139,8 +119,8 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
         }
     }
 
-    if (slot < 32 && is_gdb_stub_initialized() && slot != 14) {
-        _handle_exception(slot);
+    if (slot < 32 && GdbServer::isInitialized() && slot != 14) {
+        GdbServer::handleInterrupt(*frame);
     }
 
 
