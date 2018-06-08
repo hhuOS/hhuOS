@@ -9,6 +9,7 @@
  */
 
 #include <lib/libc/printf.h>
+#include <lib/multiboot/Structure.h>
 #include "kernel/memory/PageDirectory.h"
 
 #include "kernel/memory/Paging.h"
@@ -68,15 +69,17 @@ PageDirectory::PageDirectory(){
             *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_PROTECTED;
         }
 
-        //protect parts of kernel code
-        if(i < writeProtectedEnd && i >= writeProtectedStart) {
-        	*((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
-        }
+        if(Multiboot::Structure::getKernelOption("debug") == "false") {
+            //protect parts of kernel code
+            if (i < writeProtectedEnd && i >= writeProtectedStart) {
+                *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+            }
 
-        // set last page kernel code as write protected to detect illegal write accesses
-        kernelEnd++;
-        if(i == kernelEnd && i < 1024) {
-        	*((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+            // set last page kernel code as write protected to detect illegal write accesses
+            kernelEnd++;
+            if (i == kernelEnd && i < 1024) {
+                *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+            }
         }
     }
     
