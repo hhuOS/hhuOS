@@ -26,6 +26,7 @@ global setup_idt
 global interrupt_return
 global setSchedInit
 global onException
+global idt
 
 extern preempt
 extern dispatchInterrupt

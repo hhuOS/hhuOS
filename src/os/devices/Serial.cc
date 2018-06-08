@@ -57,21 +57,14 @@ Serial::Serial(ComPort port, BaudRate speed) : eventBuffer(1024), port(port), da
 
 void Serial::sendData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
-        while ((lineStatusRegister.inb() & 0x20) == 0);
-
-        if(data[i] == '\n') {
-            dataRegister.outb(13);
-        }
-
-        dataRegister.outb(static_cast<uint8_t>(data[i]));
+        sendChar(data[i]);
     }
 }
 
 void Serial::readData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
-        while ((lineStatusRegister.inb() & 0x1) == 0);
 
-        data[i] = dataRegister.inb();
+        data[i] = readChar();
     }
 }
 
@@ -88,14 +81,14 @@ void Serial::plugin() {
 }
 
 void Serial::trigger() {
-    if((fifoControlRegister.inb() & 0x01) == 1) {
+    if((fifoControlRegister.inb() & 0x01u) == 1) {
         return;
     }
 
     bool hasData;
 
     do {
-        hasData = (lineStatusRegister.inb() & 0x01) == 0x01;
+        hasData = (lineStatusRegister.inb() & 0x01u) == 0x01;
 
         if(hasData) {
             char c = dataRegister.inb();
@@ -110,7 +103,7 @@ void Serial::trigger() {
 }
 
 bool Serial::checkForData() {
-    return (lineStatusRegister.inb() & 0x01) == 0x01;
+    return (lineStatusRegister.inb() & 0x01u) == 0x01;
 }
 
 void Serial::setSpeed(BaudRate speed) {
@@ -129,4 +122,20 @@ void Serial::setSpeed(BaudRate speed) {
 
 Serial::ComPort Serial::getPortNumber() {
     return port;
+}
+
+char Serial::readChar() {
+    while ((lineStatusRegister.inb() & 0x1u) == 0);
+
+    return dataRegister.inb();
+}
+
+void Serial::sendChar(char c) {
+    while ((lineStatusRegister.inb() & 0x20u) == 0);
+
+    if(c == '\n') {
+        dataRegister.outb(13);
+    }
+
+    dataRegister.outb(static_cast<uint8_t>(c));
 }

@@ -190,6 +190,21 @@ public:
     void readData(char *data, uint32_t len);
 
     /**
+     * Read a single character from the COM-port.
+     * This function is blocking and will return only if one byte has been received!
+     *
+     * @return The read character
+     */
+    char readChar();
+
+    /**
+     * Send a single character via the COM-port.
+     *
+     * @param c The character to send
+     */
+    void sendChar(char c);
+
+    /**
      * Set the baud-rate.
      *
      * @param speed The baud-rate

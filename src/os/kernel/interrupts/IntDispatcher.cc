@@ -12,6 +12,7 @@
 #include <lib/libc/printf.h>
 #include <devices/Speaker.h>
 #include <lib/Random.h>
+#include <devices/Serial.h>
 #include "kernel/Cpu.h"
 
 #include "kernel/interrupts/IntDispatcher.h"
@@ -19,9 +20,30 @@
 #include "Pic.h"
 
 extern "C" {
+    void triggerInterrupt(int slot);
     void dispatchInterrupt(InterruptFrame *frame);
+    void putDebugChar(char value);	/* write a single character      */
+    char getDebugChar();	/* read and return a single char */
+    void _handle_exception(int slot);
+    char is_gdb_stub_initialized();
 }
 
+void putDebugChar(char value) {
+    static Serial serialPort(Serial::COM1);
+    serialPort.sendChar(value);
+}
+
+char getDebugChar() {
+    static Serial serialPort(Serial::COM1);
+
+    char value = serialPort.readChar();
+
+    return value;
+}
+
+void triggerInterrupt(int slot) {
+
+}
 IOport systemA(0x92);
 IOport systemB(0x61);
 
@@ -40,7 +62,7 @@ void dispatchInterrupt(InterruptFrame *frame) {
     IntDispatcher::getInstance().dispatch(frame);
 }
 
-IntDispatcher::IntDispatcher() : handler() {
+IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
 
 }
 
@@ -58,10 +80,10 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
     uint32_t flags = frame->error;
 
     // Throw bluescreen on Protected Mode exceptions except pagefault
-    if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
-
-        Kernel::panic(frame);
-    }
+//    if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
+//
+//        Kernel::panic(frame);
+//    }
 
     // If this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
@@ -101,29 +123,26 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
 
     Util::List<InterruptHandler*>* list = report(slot);
 
-    if (list == nullptr) {
-
-        if (slot == 32) {
-
-            bool pit = Pic::getInstance()->status(Pic::Interrupt::PIT);
-
-            if (pit) {
-
-                printf((char*) String::valueOf(pit));
-            }
-        }
+    if (list == nullptr && slot >= 32) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
 
         return;
     }
 
-    uint32_t size = list->size();
+    if (list != nullptr) {
+        uint32_t size = list->size();
 
-    for (uint32_t i = 0; i < size; i++) {
+        for (uint32_t i = 0; i < size; i++) {
 
-        list->get(i)->trigger();
+            list->get(i)->trigger();
+        }
     }
+
+    if (slot < 32 && is_gdb_stub_initialized() && slot != 14) {
+        _handle_exception(slot);
+    }
+
 
     sendEoi(slot);
 }
@@ -154,6 +173,21 @@ void IntDispatcher::sendEoi(uint32_t slot) {
 
         Pic::getInstance()->sendEOI(Pic::Interrupt(slot - 32));
     }
+}
+
+void IntDispatcher::assignDebug(uint8_t slot, debugFunction debugHandler) {
+
+    debugHandlers.put(slot, debugHandler);
+}
+
+debugFunction IntDispatcher::reportDebug(uint8_t slot) {
+
+    if (!debugHandlers.containsKey(slot)) {
+
+        return nullptr;
+    }
+
+    return debugHandlers.get(slot);
 }
 
 

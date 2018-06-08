@@ -26,6 +26,8 @@
 
 #include <cstdint>
 
+typedef void (*debugFunction)();
+
 /**
  * IntDispatcher - responsible for registering and dispatching interrupts to the
  * corresponding handlers.
@@ -34,7 +36,7 @@
  * @date HHU, 2018
  */
 class IntDispatcher : public KernelService {
-    
+
 public:
 	// enum of important interrupt numbers
     enum {
@@ -55,6 +57,14 @@ public:
      * @param gate Pointer to the handler itself
      */
     void assign(uint8_t slot, InterruptHandler &gate);
+
+    /**
+     * Register a debug handler to an interrupt number.
+     *
+     * @param slot Interrupt number for this handler
+     * @param gate Pointer to the handler itself
+     */
+    void assignDebug(uint8_t slot, void (*debugHandler)());
     
     /**
      * Get the interrupt handlers that are registered for a specific interrupt.
@@ -63,6 +73,14 @@ public:
      * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
      */
     Util::List<InterruptHandler*>* report(uint8_t slot);
+
+    /**
+     * Get the debug handlers that are registered for a specific interrupt.
+     *
+     * @param slot Interrupt number
+     * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
+     */
+    debugFunction reportDebug(uint8_t slot);
 
     /**
      * Dispatched the interrupt to all registered interrupt handlers.
@@ -74,6 +92,8 @@ public:
     static IntDispatcher &getInstance();
 
 private:
+
+    Util::HashMap<uint8_t, debugFunction> debugHandlers;
 
     Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler*>*> handler;
 
