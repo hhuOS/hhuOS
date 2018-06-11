@@ -21,22 +21,26 @@
 #include <kernel/events/input/SerialEvent.h>
 #include "Serial.h"
 
-bool Serial::checkPort(ComPort port) {
-    IOport scratchRegister(port + 7);
+uint16_t Serial::getBasePort(ComPort port) {
+    auto *address = reinterpret_cast<uint16_t *>(0xc0000400);
 
-    uint8_t val = scratchRegister.inb();
-    val = ~val;
+    address += port;
 
-    scratchRegister.outb(val);
-
-    return scratchRegister.inb() == val;
+    return *address;
 }
 
-Serial::Serial(ComPort port, Serial::BaudRate speed) : eventBuffer(1024), port(port),
-                                          dataRegister(port), interruptRegister(port + 1),
-                                          fifoControlRegister(port + 2), lineControlRegister(port + 3),
-                                          modemControlRegister(port + 4), lineStatusRegister(port + 5),
-                                          modemStatusRegister(port + 6), scratchRegister(port + 7)
+bool Serial::checkPort(ComPort port) {
+    return getBasePort(port) != 0;
+}
+
+Serial::Serial(ComPort port, BaudRate speed) : eventBuffer(1024), port(port), dataRegister(getBasePort(port)),
+                                               interruptRegister(static_cast<uint16_t>(getBasePort(port) + 1)),
+                                               fifoControlRegister(static_cast<uint16_t>(getBasePort(port) + 2)),
+                                               lineControlRegister(static_cast<uint16_t>(getBasePort(port) + 3)),
+                                               modemControlRegister(static_cast<uint16_t>(getBasePort(port) + 4)),
+                                               lineStatusRegister(static_cast<uint16_t>(getBasePort(port) + 5)),
+                                               modemStatusRegister(static_cast<uint16_t>(getBasePort(port) + 6)),
+                                               scratchRegister(static_cast<uint16_t>(getBasePort(port) + 7))
 {
     interruptRegister.outb(0x00);        // Disable all interrupts
     lineControlRegister.outb(0x80);      // Enable DLAB, so that the divisor can be set
@@ -109,7 +113,7 @@ bool Serial::checkForData() {
     return (lineStatusRegister.inb() & 0x01) == 0x01;
 }
 
-void Serial::setSpeed(Serial::BaudRate speed) {
+void Serial::setSpeed(BaudRate speed) {
     uint8_t interruptBackup = interruptRegister.inb();
     uint8_t lineControlBackup = lineStatusRegister.inb();
 

@@ -35,10 +35,10 @@ public:
      * Starting addresses of the registers of each port.
      */
     enum ComPort {
-        COM1 = 0x3f8,
-        COM2 = 0x2f8,
-        COM3 = 0x3e8,
-        COM4 = 0x2e8,
+        COM1 = 0,
+        COM2 = 1,
+        COM3 = 2,
+        COM4 = 3,
     };
 
     /**
@@ -200,6 +200,16 @@ public:
      * Get the port number.
      */
     ComPort getPortNumber();
+
+private:
+
+    /**
+     * Calculate the base address of the IO-ports of a given parallel port.
+     *
+     * @param port The port
+     * @return The base address
+     */
+    static uint16_t getBasePort(ComPort port);
 
 private:
 

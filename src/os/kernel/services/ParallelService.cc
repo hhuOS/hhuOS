@@ -5,9 +5,17 @@
 #include "ParallelService.h"
 
 ParallelService::ParallelService() {
-    lpt1 = new Parallel(Parallel::LPT1);
-    lpt2 = new Parallel(Parallel::LPT2);
-    lpt3 = new Parallel(Parallel::LPT3);
+    if(Parallel::checkPort(Parallel::LPT1)) {
+        lpt1 = new Parallel(Parallel::LPT1);
+    }
+
+    if(Parallel::checkPort(Parallel::LPT2)) {
+        lpt2 = new Parallel(Parallel::LPT2);
+    }
+
+    if(Parallel::checkPort(Parallel::LPT3)) {
+        lpt3 = new Parallel(Parallel::LPT3);
+    }
 }
 
 Parallel *ParallelService::getParallelPort(Parallel::LptPort port) {
@@ -24,5 +32,14 @@ Parallel *ParallelService::getParallelPort(Parallel::LptPort port) {
 }
 
 bool ParallelService::isPortAvailable(Parallel::LptPort port) {
-    return true;
+    switch(port) {
+        case Parallel::LPT1 :
+            return lpt1 != nullptr;
+        case Parallel::LPT2 :
+            return lpt2 != nullptr;
+        case Parallel::LPT3 :
+            return lpt3 != nullptr;
+        default:
+            return false;
+    }
 }

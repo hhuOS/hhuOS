@@ -100,7 +100,7 @@ void registerServices() {
     Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
-    Kernel::registerService(SerialService::SERVICE_NAME, new ParallelService());
+    Kernel::registerService(ParallelService::SERVICE_NAME, new ParallelService());
 
     Kernel::getService<StdStreamService>()->setStdout(text);
     Kernel::getService<StdStreamService>()->setStderr(text);

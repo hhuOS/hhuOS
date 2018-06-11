@@ -1,7 +1,37 @@
+/*
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Heinrich-Heine University
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 #include <kernel/Kernel.h>
 #include "Parallel.h"
 
-Parallel::Parallel(Parallel::LptPort port) : port(port), dataPort(port), statusPort(port + 1), controlPort(port + 2) {
+uint16_t Parallel::getBasePort(LptPort port) {
+    auto *address = reinterpret_cast<uint16_t *>(0xc0000408);
+
+    address += port;
+
+    return *address;
+}
+
+bool Parallel::checkPort(LptPort port) {
+    return getBasePort(port) != 0;
+}
+
+Parallel::Parallel(LptPort port) : port(port), dataPort(getBasePort(port)),
+                                             statusPort(static_cast<uint16_t>(getBasePort(port) + 1)),
+                                             controlPort(static_cast<uint16_t>(getBasePort(port) + 2)) {
     initializePrinter();
 
     timeService = Kernel::getService<TimeService>();
@@ -35,8 +65,6 @@ void Parallel::sendChar(char c) {
     controlPort.outb(control | static_cast<uint8_t>(0x01));
     timeService->msleep(10);
     controlPort.outb(control);
-
-    control = controlPort.inb();
 
     while(isBusy()); // Wait for the printer to finish reading the data
 }
