@@ -21,6 +21,8 @@
 #include <filesystem/RamFs/memory/PFANode.h>
 #include <filesystem/RamFs/memory/PagingAreaNode.h>
 #include <filesystem/RamFs/SerialNode.h>
+#include <kernel/services/ParallelService.h>
+#include <filesystem/RamFs/ParallelNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -154,7 +156,7 @@ void FileSystem::init() {
     createFile("/dev/syslog");
 
     // Add Serial-nodes to dev-Directory
-    SerialService *serialService = Kernel::getService<SerialService>();
+    auto *serialService = Kernel::getService<SerialService>();
 
     if(serialService->isPortAvailable(Serial::COM1)) {
         addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM1)));
@@ -170,6 +172,21 @@ void FileSystem::init() {
 
     if(serialService->isPortAvailable(Serial::COM4)) {
         addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM4)));
+    }
+
+    // Add parallel-nodes to dev-Directory
+    auto *parallelService = Kernel::getService<ParallelService>();
+
+    if(parallelService->isPortAvailable(Parallel::LPT1)) {
+        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT1)));
+    }
+
+    if(parallelService->isPortAvailable(Parallel::LPT2)) {
+        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT2)));
+    }
+
+    if(parallelService->isPortAvailable(Parallel::LPT3)) {
+        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT3)));
     }
 
     // Add StdStream-nodes to dev-Directory

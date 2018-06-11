@@ -1,18 +1,18 @@
 /*
-* Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-* Heinrich-Heine University
-*
-* This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
-* License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
-* later version.
-*
-* This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
-* warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
-* details.
-*
-* You should have received a copy of the GNU General Public License
-* along with this program.  If not, see <http://www.gnu.org/licenses/>
-*/
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Heinrich-Heine University
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
 
 /**
  * Main function - is called from assembler code. 
@@ -22,9 +22,7 @@
  */
 
 #include <lib/file/tar/Archive.h>
-
 #include <kernel/threads/IdleThread.h>
-
 #include "apps/Application.h"
 #include "devices/block/storage/AhciDevice.h"
 #include <kernel/services/ModuleLoader.h>
@@ -38,8 +36,8 @@
 #include <kernel/threads/Scheduler.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/Logger.h>
-#include <devices/Serial.h>
 #include <kernel/services/SerialService.h>
+#include <kernel/services/ParallelService.h>
 
 #include "bootlogo.h"
 
@@ -102,6 +100,7 @@ void registerServices() {
     Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
+    Kernel::registerService(SerialService::SERVICE_NAME, new ParallelService());
 
     Kernel::getService<StdStreamService>()->setStdout(text);
     Kernel::getService<StdStreamService>()->setStderr(text);
@@ -243,7 +242,6 @@ int32_t main() {
 
         updateBootScreen(100, "Finished Booting!");
         Kernel::getService<TimeService>()->msleep(1000);
-
         lfb->disableDoubleBuffering();
         lfb->clear();
     }

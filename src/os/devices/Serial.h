@@ -153,6 +153,11 @@ public:
     explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200);
 
     /**
+     * Destructor.
+     */
+    ~Serial() override = default;
+
+    /**
      * Enable interrupts for this COM-port.
      */
     void plugin();

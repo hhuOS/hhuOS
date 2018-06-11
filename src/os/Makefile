@@ -79,6 +79,9 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk
 					  -serial telnet:127.0.0.1:8822,server,nowait \
 					  -serial telnet:127.0.0.1:8823,server,nowait \
 					  -serial telnet:127.0.0.1:8824,server,nowait \
+					  -parallel telnet:127.0.0.1:8825,server,nowait \
+					  -parallel telnet:127.0.0.1:8826,server,nowait \
+					  -parallel telnet:127.0.0.1:8827,server,nowait \
 					  -m 1G
 
 #-------------------------------------------#
