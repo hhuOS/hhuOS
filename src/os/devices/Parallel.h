@@ -36,14 +36,29 @@ public:
         LPT3 = 2
     };
 
+    /**
+     * Operating modes of an LPT-port.
+     */
+    enum ParallelMode {
+        SPP = 0,
+        EPP = 1
+    };
+
+    /**
+     * Check if an LPT-port exists.
+     * Always check if the LPT-port exists before creating an instance of this class!
+     *
+     * @param port The port
+     */
     static bool checkPort(LptPort port);
 
     /**
      * Constructor.
      *
      * @param port The port
+     * @param mode The mode, in which the port should operate
      */
-    explicit Parallel(LptPort port);
+    explicit Parallel(LptPort port, ParallelMode mode = EPP);
 
     /**
      * Destructor.
@@ -51,10 +66,17 @@ public:
     ~Parallel() = default;
 
     /**
+     * Change the parallel port's operating mode
+     *
+     * @param mode The mode
+     */
+    void setMode(ParallelMode mode);
+
+    /**
      * Send an init-signal to the printer via the control-port.
      * This tells the printer, that a new communication is about to start.
      */
-    void initializePrinter();
+    void initializePort();
 
     /**
      * Check, if the printer is currently busy.
@@ -72,19 +94,34 @@ public:
     bool checkError();
 
     /**
-     * Send a character to the printer.
+     * Send a character to the remote device.
      *
      * @param c The character
      */
     void sendChar(char c);
 
     /**
-     * Send a data buffer to the printer.
+     * Read a character from the remote device.
+     *
+     * @param c
+     */
+    char readChar();
+
+    /**
+     * Send a data buffer to the remote device.
      *
      * @param data The buffer
      * @param len The amount of bytes to be sent
      */
     void sendData(char *data, uint32_t len);
+
+    /**
+     * Read data from the remote device.
+     *
+     * @param data The buffer
+     * @param len The amount of bytes to be read
+     */
+    void readData(char *data, uint32_t len);
 
     /**
      * Get the port number.
@@ -106,10 +143,13 @@ private:
     TimeService *timeService = nullptr;
 
     LptPort port;
+    ParallelMode mode;
 
-    IOport dataPort;
-    IOport statusPort;
-    IOport controlPort;
+    IOport sppDataPort;
+    IOport sppStatusPort;
+    IOport sppControlPort;
+    IOport eppAddressPort;
+    IOport eppDataPort;
 };
 
 #endif

@@ -22,7 +22,9 @@ uint64_t ParallelNode::getLength() {
 }
 
 uint64_t ParallelNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
-    return 0;
+    parallel->readData(buf, static_cast<uint32_t>(numBytes));
+
+    return numBytes;
 }
 
 uint64_t ParallelNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {

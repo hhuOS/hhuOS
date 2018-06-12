@@ -29,49 +29,78 @@ bool Parallel::checkPort(LptPort port) {
     return getBasePort(port) != 0;
 }
 
-Parallel::Parallel(LptPort port) : port(port), dataPort(getBasePort(port)),
-                                             statusPort(static_cast<uint16_t>(getBasePort(port) + 1)),
-                                             controlPort(static_cast<uint16_t>(getBasePort(port) + 2)) {
-    initializePrinter();
+Parallel::Parallel(LptPort port, ParallelMode mode) : port(port), mode(mode), sppDataPort(getBasePort(port)),
+                                             sppStatusPort(static_cast<uint16_t>(getBasePort(port) + 1)),
+                                             sppControlPort(static_cast<uint16_t>(getBasePort(port) + 2)),
+                                             eppAddressPort(static_cast<uint16_t>(getBasePort(port) + 3)),
+                                             eppDataPort(static_cast<uint16_t>(getBasePort(port) + 4)) {
+    initializePort();
 
     timeService = Kernel::getService<TimeService>();
 }
 
-void Parallel::initializePrinter() {
-    uint8_t control = controlPort.inb();
+void Parallel::setMode(Parallel::ParallelMode mode) {
+    this->mode = mode;
 
-    controlPort.outb(control | static_cast<uint8_t>(0x06)); // Initialize Printer and enable automatic linefeed
+    initializePort();
+}
+
+void Parallel::initializePort() {
+    uint8_t control = sppControlPort.inb();
+
+    control = control | static_cast<uint8_t>(0x06); // Initialize Printer and enable automatic linefeed
+    control = control & static_cast<uint8_t>(0xc6); // Clear strobe-, irq-, and mode-bits
+
+    sppControlPort.outb(control);
 }
 
 bool Parallel::isBusy() {
-    return (statusPort.inb() & static_cast<uint8_t>(0x80)) == 0x00; // NOTE: The busy-flag is active low!
+    return (sppStatusPort.inb() & 0x80u) == 0x00; // NOTE: The busy-flag is active low!
 }
 
 bool Parallel::isPaperEmpty() {
-    return (statusPort.inb() & static_cast<uint8_t>(0x20)) == 0x20;
+    return (sppStatusPort.inb() & 0x20u) == 0x20;
 }
 
 bool Parallel::checkError() {
-    return (statusPort.inb() & static_cast<uint8_t>(0x08)) == 0x08;
+    return (sppStatusPort.inb() & 0x08u) == 0x08;
 }
 
 void Parallel::sendChar(char c) {
-    while(isBusy()); // Wait for the printer to be ready
+    if(mode == SPP) {
+        while (isBusy()); // Wait for the printer to be ready
 
-    dataPort.outb(static_cast<uint8_t>(c)); // Send the byte
+        sppDataPort.outb(static_cast<uint8_t>(c)); // Send the byte
 
-    // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port.
-    uint8_t control = controlPort.inb();
-    controlPort.outb(control | static_cast<uint8_t>(0x01));
-    timeService->msleep(10);
-    controlPort.outb(control);
+        // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port.
+        uint8_t control = sppControlPort.inb();
+        sppControlPort.outb(control | static_cast<uint8_t>(0x01));
+        timeService->msleep(10);
+        sppControlPort.outb(control);
 
-    while(isBusy()); // Wait for the printer to finish reading the data
+        while (isBusy()); // Wait for the printer to finish reading the data
+    } else if(mode == EPP) {
+        eppDataPort.outb(static_cast<uint8_t>(c)); // In EPP-mode, we can just write our byte to the data port.
+    }
+}
+
+char Parallel::readChar() {
+    if(mode == EPP) {
+        return eppDataPort.inb();
+    }
+
+    return 0;
 }
 
 void Parallel::sendData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
         sendChar(data[i]);
+    }
+}
+
+void Parallel::readData(char *data, uint32_t len) {
+    for(uint32_t i = 0; i < len; i++) {
+        data[i] = readChar();
     }
 }
 

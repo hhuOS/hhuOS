@@ -55,6 +55,22 @@ Serial::Serial(ComPort port, BaudRate speed) : eventBuffer(1024), port(port), da
     eventBus = Kernel::getService<EventBus>();
 }
 
+char Serial::readChar() {
+    while ((lineStatusRegister.inb() & 0x1u) == 0);
+
+    return dataRegister.inb();
+}
+
+void Serial::sendChar(char c) {
+    while ((lineStatusRegister.inb() & 0x20u) == 0);
+
+    if(c == '\n') {
+        dataRegister.outb(13);
+    }
+
+    dataRegister.outb(static_cast<uint8_t>(c));
+}
+
 void Serial::sendData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
         sendChar(data[i]);
@@ -63,7 +79,6 @@ void Serial::sendData(char *data, uint32_t len) {
 
 void Serial::readData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
-
         data[i] = readChar();
     }
 }
@@ -122,20 +137,4 @@ void Serial::setSpeed(BaudRate speed) {
 
 Serial::ComPort Serial::getPortNumber() {
     return port;
-}
-
-char Serial::readChar() {
-    while ((lineStatusRegister.inb() & 0x1u) == 0);
-
-    return dataRegister.inb();
-}
-
-void Serial::sendChar(char c) {
-    while ((lineStatusRegister.inb() & 0x20u) == 0);
-
-    if(c == '\n') {
-        dataRegister.outb(13);
-    }
-
-    dataRegister.outb(static_cast<uint8_t>(c));
 }
