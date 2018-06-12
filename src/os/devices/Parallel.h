@@ -31,9 +31,9 @@ public:
      * Starting addresses of the registers of each port.
      */
     enum LptPort {
-        LPT1 = 0,
-        LPT2 = 1,
-        LPT3 = 2
+        LPT1 = 1,
+        LPT2 = 2,
+        LPT3 = 3
     };
 
     /**
@@ -58,7 +58,7 @@ public:
      * @param port The port
      * @param mode The mode, in which the port should operate
      */
-    explicit Parallel(LptPort port, ParallelMode mode = EPP);
+    explicit Parallel(LptPort port, ParallelMode mode = SPP);
 
     /**
      * Destructor.
@@ -71,6 +71,11 @@ public:
      * @param mode The mode
      */
     void setMode(ParallelMode mode);
+
+    /**
+     * Get the port's operating mode.
+     */
+    ParallelMode getMode();
 
     /**
      * Send an init-signal to the printer via the control-port.

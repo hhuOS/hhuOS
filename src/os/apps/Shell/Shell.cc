@@ -36,6 +36,8 @@
 #include <apps/Shell/Commands/Date.h>
 #include <apps/Shell/Commands/History.h>
 #include <kernel/events/input/SerialEvent.h>
+#include <apps/Shell/Commands/ComConfig.h>
+#include <apps/Shell/Commands/LptConfig.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -62,6 +64,8 @@ Shell::Shell() : Thread("Shell") {
     commands.put("umount", new Umount(*this));
     commands.put("uptime", new Uptime(*this));
     commands.put("date", new Date(*this));
+    commands.put("comconfig", new ComConfig(*this));
+    commands.put("lptconfig", new LptConfig(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }

@@ -35,10 +35,10 @@ public:
      * Starting addresses of the registers of each port.
      */
     enum ComPort {
-        COM1 = 0,
-        COM2 = 1,
-        COM3 = 2,
-        COM4 = 3,
+        COM1 = 1,
+        COM2 = 2,
+        COM3 = 3,
+        COM4 = 4,
     };
 
     /**
@@ -212,6 +212,11 @@ public:
     void setSpeed(BaudRate speed);
 
     /**
+     * Get the baud-rate.
+     */
+    BaudRate getSpeed();
+
+    /**
      * Get the port number.
      */
     ComPort getPortNumber();
@@ -232,6 +237,7 @@ private:
     Util::RingBuffer<SerialEvent> eventBuffer;
 
     ComPort port;
+    BaudRate speed;
 
     IOport dataRegister;
     IOport interruptRegister;

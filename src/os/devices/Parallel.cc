@@ -20,7 +20,7 @@
 uint16_t Parallel::getBasePort(LptPort port) {
     auto *address = reinterpret_cast<uint16_t *>(0xc0000408);
 
-    address += port;
+    address += port - 1;
 
     return *address;
 }
@@ -45,11 +45,15 @@ void Parallel::setMode(Parallel::ParallelMode mode) {
     initializePort();
 }
 
+Parallel::ParallelMode Parallel::getMode() {
+    return mode;
+}
+
 void Parallel::initializePort() {
     uint8_t control = sppControlPort.inb();
 
     control = control | static_cast<uint8_t>(0x06); // Initialize Printer and enable automatic linefeed
-    control = control & static_cast<uint8_t>(0xc6); // Clear strobe-, irq-, and mode-bits
+    control = control & static_cast<uint8_t>(0xce); // Clear strobe-, irq-, and mode-bits
 
     sppControlPort.outb(control);
 }
