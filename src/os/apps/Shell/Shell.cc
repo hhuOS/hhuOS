@@ -71,7 +71,9 @@ Shell::Shell() : Thread("Shell") {
 }
 
 Shell::~Shell() {
-
+    for(const auto &string : commands.keySet()) {
+        delete commands.get(string);
+    }
 }
 
 Directory &Shell::getCurrentWorkingDirectory() {

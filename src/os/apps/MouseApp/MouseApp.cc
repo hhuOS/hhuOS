@@ -72,8 +72,6 @@ void MouseApp::run() {
 
     lfb->enableDoubleBuffering();
 
-    TimeService *timeService = Kernel::getService<TimeService>();
-
     while(isRunning) {
         lfb->fillRect(xPos, yPos, 25, 25, color);
 

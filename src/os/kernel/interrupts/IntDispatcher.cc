@@ -60,10 +60,10 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
     uint32_t flags = frame->error;
 
     // Throw bluescreen on Protected Mode exceptions except pagefault
-//    if (slot < 32 && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
-//
-//        Kernel::panic(frame);
-//    }
+    if (slot < 32 && !GdbServer::isInitialized() && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
+
+        Kernel::panic(frame);
+    }
 
     // If this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
