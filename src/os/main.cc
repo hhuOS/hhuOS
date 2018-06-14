@@ -172,19 +172,6 @@ void initSerialPorts() {
     }
 }
 
-void exceptionHandler(unsigned int number, debugFunction dbgFunc) {
-
-//    if (number == 14) {
-//        return;
-//    }
-//
-//    auto *idtTable = (uint16_t*) idt;
-//
-//    idtTable[number * 4] = ((int) dbgFunc) & 0xffff;
-//
-//    idtTable[number * 4 + 3] = (((int) dbgFunc) >> 16) & 0xffff;
-}
-
 int32_t main() {
     Cpu::disableInterrupts();
 
@@ -233,28 +220,7 @@ int32_t main() {
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
-    if(Multiboot::Structure::getKernelOption("debug") == "true") {
-        text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
-        Pci::scan();
-
-        text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
-        auto *fs = Kernel::getService<FileSystem>();
-        fs->init();
-        printfUpdateStdout();
-
-        text->puts("Starting Threads\n", 17, Colors::HHU_RED);
-        idleThread = new IdleThread();
-
-        idleThread->start();
-        eventBus->start();
-        Application::getInstance()->start();
-
-        text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
-
-        while (!inputService->getKeyboard()->isKeyPressed(28));
-
-        lfb->init(xres, yres, bpp);
-    } else {
+    if(Multiboot::Structure::getKernelOption("splash") == "true") {
         lfb->init(xres, yres, bpp);
         lfb->enableDoubleBuffering();
 
@@ -277,6 +243,27 @@ int32_t main() {
         Kernel::getService<TimeService>()->msleep(1000);
         lfb->disableDoubleBuffering();
         lfb->clear();
+    } else {
+        text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
+        Pci::scan();
+
+        text->puts("Initializing Filesystem\n", 24, Colors::HHU_RED);
+        auto *fs = Kernel::getService<FileSystem>();
+        fs->init();
+        printfUpdateStdout();
+
+        text->puts("Starting Threads\n", 17, Colors::HHU_RED);
+        idleThread = new IdleThread();
+
+        idleThread->start();
+        eventBus->start();
+        Application::getInstance()->start();
+
+        text->puts("\n\nFinished Booting! Please press Enter!\n", 40, Colors::HHU_BLUE);
+
+        while (!inputService->getKeyboard()->isKeyPressed(28));
+
+        lfb->init(xres, yres, bpp);
     }
 
     Scheduler::getInstance()->schedule();
