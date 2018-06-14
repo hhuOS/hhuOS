@@ -1,29 +1,61 @@
 #ifndef __Pair_include__
 #define __Pair_include__
 
-/**
- * @author Filip Krakowski
- */
-template <typename T, typename U>
-class Pair {
+namespace Util {
 
-public:
+    /**
+     * @author Filip Krakowski
+     */
+    template <typename T, typename U>
+    class Pair {
 
-    Pair(T &first, U &second);
+    public:
 
-    T &first;
+        Pair() = default;
 
-    U &second;
+        Pair(T first, U second);
 
-    bool operator==(Pair &other);
-};
+        ~Pair() = default;
 
-template <class T, class U>
-Pair<T,U>::Pair(T &first, U &second) : first(first), second(second) {}
+        Pair(const Pair &other) = default;
 
-template <class T, class U>
-bool Pair<T,U>::operator==(Pair &other) {
-    return first == other.first && second == other.second;
-};
+        Pair &operator=(const Pair &other) = default;
+
+        bool operator!=(const Pair &other) const;
+
+        bool operator==(const Pair &other) const;
+
+        explicit operator uint32_t() const;
+
+        T first;
+
+        U second;
+    };
+
+    template <typename T, typename U>
+    Pair<T,U>::Pair(T first, U second) : first(first), second(second) {}
+
+    template<typename T, typename U>
+    bool Pair<T, U>::operator!=(const Pair &other) const {
+        return first != other.first || second != other.second;
+
+    }
+
+    template<typename T, typename U>
+    bool Pair<T, U>::operator==(const Pair &other) const {
+        return first == other.first && second == other.second;
+    }
+
+    template<typename T, typename U>
+    Pair<T, U>::operator uint32_t() const {
+
+        uint32_t k1 = (uint32_t) first;
+
+        uint32_t k2 = (uint32_t) second;
+
+        return (((k1 + k2) * (k1 + k2 + 1)) / 2) + k2;
+    };
+}
+
 
 #endif

@@ -67,8 +67,7 @@ Shell::Shell() : Thread("Shell") {
 }
 
 Shell::~Shell() {
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
-    eventBus->unsubscribe(*this, SerialEvent::TYPE);
+
 }
 
 Directory &Shell::getCurrentWorkingDirectory() {

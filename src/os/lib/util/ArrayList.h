@@ -176,7 +176,7 @@ namespace Util {
 
         uint32_t index = indexOf(element);
 
-        if (index >= capacity) {
+        if (index >= length) {
             return false;
         }
 
@@ -227,15 +227,15 @@ namespace Util {
 
         uint32_t index;
 
-        for (index = 0; elements[index] != element && index < capacity; index++);
+        for (index = 0; elements[index] != element && index < length; index++);
 
-        return index == capacity ? UINT32_MAX : index;
+        return index == length ? UINT32_MAX : index;
     }
 
     template <class T>
     bool ArrayList<T>::contains(const T &element) const {
 
-        return indexOf(element) < capacity;
+        return indexOf(element) < length;
     }
 
     template <class T>

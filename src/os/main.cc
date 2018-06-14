@@ -152,6 +152,26 @@ void initGraphics() {
     text->setpos(0, 0);
 }
 
+void initSerialPorts() {
+    auto *serialService = Kernel::getService<SerialService>();
+
+    if(serialService->isPortAvailable(Serial::COM1)) {
+        serialService->getSerialPort(Serial::COM1)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM2)) {
+        serialService->getSerialPort(Serial::COM2)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM3)) {
+        serialService->getSerialPort(Serial::COM3)->plugin();
+    }
+
+    if(serialService->isPortAvailable(Serial::COM4)) {
+        serialService->getSerialPort(Serial::COM4)->plugin();
+    }
+}
+
 void exceptionHandler(unsigned int number, debugFunction dbgFunc) {
 
 //    if (number == 14) {
@@ -172,7 +192,7 @@ int32_t main() {
 
     Pic::getInstance()->forbid(Pic::Interrupt::PIT);
     Pic::getInstance()->forbid(Pic::Interrupt::KEYBOARD);
-    Pic::getInstance()->forbid(Pic::Interrupt::CASCADE);
+    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
     Pic::getInstance()->forbid(Pic::Interrupt::COM2);
     Pic::getInstance()->forbid(Pic::Interrupt::COM1);
     Pic::getInstance()->forbid(Pic::Interrupt::LPT2);
@@ -191,45 +211,23 @@ int32_t main() {
     eventBus = new EventBus();
     registerServices();
 
+    initSerialPorts();
+
     Cpu::enableInterrupts();
 
-    auto *serialService = Kernel::getService<SerialService>();
-
-    if(serialService->isPortAvailable(Serial::COM1)) {
-        serialService->getSerialPort(Serial::COM1)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM2)) {
-        serialService->getSerialPort(Serial::COM2)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM3)) {
-        serialService->getSerialPort(Serial::COM3)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM4)) {
-        serialService->getSerialPort(Serial::COM4)->plugin();
-    }
-
-//    printf("COM1 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM1)));
-//    printf("COM2 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM2)));
-//    printf("COM3 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM2)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM3)));
-//    printf("COM4 : %s %s", (char*) String::valueOf(Pic::getInstance()->status(Pic::Interrupt::COM1)), (char*) String::valueOf(serialService->isPortAvailable(Serial::COM4)));
-
     if (Multiboot::Structure::getKernelOption("gdb") == "true") {
+
         GdbServer::initialize();
+
         printf("Waiting for GDB debugger...\n");
-        BREAKPOINT()
-        printf("GDB debugger attached\n");
+
+        GdbServer::synchronize();
     }
 
-    BREAKPOINT()
     Pit::getInstance()->plugin();
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
-
-    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
 
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();

@@ -48,6 +48,10 @@ public:
 
     static void initialize();
 
+    static inline void synchronize() {
+        BREAKPOINT();
+    }
+
     static bool isInitialized();
 
 };

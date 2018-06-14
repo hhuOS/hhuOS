@@ -17,49 +17,74 @@
 
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/Kernel.h>
+#include <lib/util/Pair.h>
 #include "kernel/threads/Scheduler.h"
 #include "EventBus.h"
 
 EventBus::EventBus() : Thread("EventBus"), receiverMap(7691), eventBuffer(1024 * 64), lock() {
 
-    //g2d = Kernel::getService<LinearFrameBuffer>();
-
     isInitialized = true;
 }
 
+Scheduler *scheduler = nullptr;
+
 void EventBus::subscribe(Receiver &receiver, uint32_t type) {
 
-    EventPublisher *publisher = new EventPublisher(receiver);
+    auto *publisher = new EventPublisher(receiver);
+
+    Util::Pair<Receiver*, uint32_t> key(&receiver, type);
 
     lock.acquire();
 
-    receiverMap.put(&receiver, publisher);
+    if (receiverMap.containsKey(key)) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
+    receiverMap.put(key, publisher);
 
     publishers[type].add(publisher);
+
+    registeredPublishers++;
 
     lock.release();
 
     publisher->start();
 }
 
-void EventBus::unsubscribe(const Receiver &receiver, uint32_t type) {
+void EventBus::unsubscribe(Receiver &receiver, uint32_t type) {
 
-    if(!receiverMap.containsKey(&receiver)) {
-        return;
-    }
-
-    EventPublisher* publisher = receiverMap.get(&receiver);
+    Util::Pair<Receiver*, uint32_t> key(&receiver, type);
 
     lock.acquire();
 
-    receiverMap.remove(&receiver);
+    if(!receiverMap.containsKey(key)) {
+
+        lock.release();
+
+        return;
+    }
+
+    EventPublisher *publisher = receiverMap.get(key);
+
+    scheduler->kill(*publisher);
 
     publishers[type].remove(publisher);
+
+    receiverMap.remove(key);
+
+    delete publisher;
+
+    registeredPublishers--;
 
     lock.release();
 }
 
 void EventBus::run() {
+
+    g2d = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+
+    scheduler = Scheduler::getInstance();
 
     while (isRunning) {
 
@@ -75,13 +100,9 @@ void EventBus::run() {
 
 void EventBus::notify() {
 
-    //g2d->placeFilledRect(10, 10, 5, 80, Colors::RED);
-
     const Event *event = nullptr;
 
     while (!eventBuffer.isEmpty()) {
-
-        //g2d->placeFilledRect(85, 10, 5, 80, Colors::GREEN);
 
         event = eventBuffer.pop();
 

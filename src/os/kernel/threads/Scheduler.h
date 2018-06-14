@@ -102,6 +102,13 @@ public:
     Thread *active() { return currentThread; }
 
     /**
+     * Returns the number of active Threads.
+     *
+     * @return The number of active Threads
+     */
+    uint32_t getThreadCount();
+
+    /**
      * Returns an instance of the Scheduler.
      *
      * @return An instance of the Scheduler

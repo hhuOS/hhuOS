@@ -23,7 +23,7 @@
 namespace Util {
 
     /**
-     * Base interface for all sets.
+     * Base interface for all lists.
      *
      * @author Filip Krakowski
      */

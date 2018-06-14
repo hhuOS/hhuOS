@@ -220,9 +220,64 @@ void setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
     frame.ss = gdbRegs.ss;
 }
 
+void setFrameRegister(InterruptFrame &frame, uint8_t regNumber, uint32_t value) {
+
+    switch (regNumber) {
+        case 0:
+            frame.eax = value;
+            break;
+        case 1:
+            frame.ecx = value;
+            break;
+        case 2:
+            frame.edx = value;
+            break;
+        case 3:
+            frame.ebx = value;
+            break;
+        case 4:
+            frame.esp = value;
+            break;
+        case 5:
+            frame.ebp = value;
+            break;
+        case 6:
+            frame.esi = value;
+            break;
+        case 7:
+            frame.edi = value;
+            break;
+        case 8:
+            frame.eip = value;
+            break;
+        case 9:
+            frame.eflags = value;
+            break;
+        case 10:
+            frame.cs = value;
+            break;
+        case 11:
+            frame.ss = value;
+            break;
+        case 12:
+            frame.ds = value;
+            break;
+        case 13:
+            frame.es = value;
+            break;
+        case 14:
+            frame.fs = value;
+            break;
+        case 15:
+            frame.gs = value;
+            break;
+    }
+}
+
 void GdbServer::handleInterrupt(InterruptFrame &frame) {
     int sigval, stepping;
     int addr, length;
+    int regValue;
     char *ptr;
     int newPC;
 
@@ -295,7 +350,8 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 if (hexToInt (&ptr, &regno) && *ptr++ == '=')
                     if (regno >= 0 && regno < NUMREGS)
                     {
-                        //hex2mem (ptr, (char *) ((int*)&frame)[regno], 4, 0);
+                        hexToInt(&ptr, &regValue);
+                        setFrameRegister(frame, regno, regValue);
                         strcpy (remcomOutBuffer, "OK");
                         break;
                     }

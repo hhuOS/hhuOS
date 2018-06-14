@@ -26,7 +26,9 @@
 #include "kernel/threads/Thread.h"
 #include "kernel/KernelService.h"
 #include "kernel/events/Receiver.h"
+#include "GraphicsService.h"
 #include <kernel/events/EventPublisher.h>
+#include "lib/util/Pair.h"
 
 class LinearFrameBuffer;
 
@@ -61,7 +63,7 @@ public:
      * @param receiver The Receiver
      * @param type The Event type
      */
-    void unsubscribe(const Receiver &receiver, uint32_t type);
+    void unsubscribe(Receiver &receiver, uint32_t type);
 
     /**
      * Publishes an Event.
@@ -78,13 +80,15 @@ private:
 
     Util::ArrayList<EventPublisher*> publishers[1024];
 
-    Util::HashMap<const Receiver*, EventPublisher*> receiverMap;
+    Util::HashMap<Util::Pair<Receiver*, uint32_t>, EventPublisher*> receiverMap;
 
     Util::RingBuffer<const Event*> eventBuffer;
 
     LinearFrameBuffer *g2d;
 
     Spinlock lock;
+
+    uint32_t registeredPublishers = 0;
 
     bool isRunning = true;
 

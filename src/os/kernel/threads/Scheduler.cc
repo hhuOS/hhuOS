@@ -218,4 +218,8 @@ bool Scheduler::isThreadWaiting() {
     return !readyQueue.isEmpty();
 }
 
+uint32_t Scheduler::getThreadCount() {
+    return readyQueue.size();
+}
+
 
