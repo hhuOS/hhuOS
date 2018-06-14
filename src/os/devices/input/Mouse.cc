@@ -296,7 +296,7 @@ void Mouse::trigger() {
                         clickEventOccurred = true;
                         clickMask|= (0x1<<i);
 
-                        if((tmpTstmp - lastClickTimestamp) < 3000) { // three second tolerance for double click
+                        if((tmpTstmp - lastClickTimestamp) < 300) { // three second tolerance for double click
                             doubleclickEventBuffer.push(MouseDoubleClickEvent());
                             eventBus->publish(doubleclickEventBuffer.pop());
                             lastClickTimestamp = 0;

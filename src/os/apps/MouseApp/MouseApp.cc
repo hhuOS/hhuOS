@@ -24,17 +24,17 @@ void MouseApp::onEvent(const Event &event) {
         int32_t dy = movedEvent.getYMovement();
 
         xPos += dx;
-        if(xPos < 5) {
-            xPos = 5;
-        } else if(xPos + 30 >= lfb->getResX()) {
-            xPos = lfb->getResX() - 30;
+        if(xPos < 0) {
+            xPos = 0;
+        } else if(xPos + 25 >= lfb->getResX()) {
+            xPos = lfb->getResX() - 25;
         }
 
         yPos += dy;
-        if(yPos < 5) {
-            yPos = 5;
-        } else if(yPos + 30 >= lfb->getResY()) {
-            yPos = lfb->getResY() - 30;
+        if(yPos < 0) {
+            yPos = 0;
+        } else if(yPos + 25 >= lfb->getResY()) {
+            yPos = lfb->getResY() - 25;
         }
 
     }
@@ -71,6 +71,8 @@ void MouseApp::run() {
     eventBus->subscribe(*this, MouseDoubleClickEvent::TYPE);
 
     lfb->enableDoubleBuffering();
+
+    TimeService *timeService = Kernel::getService<TimeService>();
 
     while(isRunning) {
         lfb->fillRect(xPos, yPos, 25, 25, color);
