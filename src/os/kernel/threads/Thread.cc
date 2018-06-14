@@ -81,7 +81,7 @@ Thread::Thread(const String &name) : name(name), stack(STACK_SIZE_DEFAULT) {
 
 void Thread::start() {
 
-	Scheduler::getInstance()->ready(*this);
+    Scheduler::getInstance()->ready(*this);
 }
 
 uint32_t Thread::getId() const {

@@ -46,7 +46,7 @@ public:
 
     void onEvent(const Event &event) override;
 
-    void run();
+    void run() override;
 
 };
 

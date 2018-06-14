@@ -19,8 +19,9 @@
 #include <apps/MemoryAreaTests/HeapTestApp.h>
 #include <apps/MemoryAreaTests/IOMemoryTestApp.h>
 #include <kernel/threads/WorkerThread.h>
-#include "apps/LoopSoundApp/Loop.h"
-#include "apps/LoopSoundApp/Sound.h"
+#include <apps/LoopsAndSound/LoopsAndSound.h>
+#include "apps/LoopsAndSound/Loop.h"
+#include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
 #include "apps/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
@@ -57,16 +58,9 @@ Application *Application::getInstance() {
 }
 
 void Application::startLoopSoundDemo() {
-    TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+    currentApp = new LoopsAndSound();
 
-    Thread *thread1 = new Loop(1);
-    Thread *thread2 = new Loop(2);
-    Thread *thread3 = new Sound(3);
-
-    thread1->start();
-    thread2->start();
-    thread3->start();
+    currentApp->start();
 }
 
 

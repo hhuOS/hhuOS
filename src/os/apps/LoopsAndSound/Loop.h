@@ -16,7 +16,12 @@
 #include <lib/lock/Mutex.h>
 #include "kernel/threads/Thread.h"
 
-
+/**
+ * A simple thread, which counts up a variable and prints it on the screen in an infinite loop.
+ *
+ * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * @date 2016, 2018
+ */
 class Loop : public Thread {
    
 private:
@@ -29,14 +34,25 @@ private:
 
 public:
 
-    explicit Loop (int i) : Thread ("Loop") { myID = i; }
+    /**
+     * Constructor.
+     */
+    explicit Loop (uint32_t id);
 
+    /**
+     * Copy-onstructor.
+     */
     Loop (const Loop &copy) = delete;
 
-    ~Loop() = default;
+    /**
+     * Destructor.
+     */
+    ~Loop() override = default;
 
-    // Zaehlt einen Zaehler hoch und gibt ihn auf dem Bildschirm aus.
-    void run () override;
+    /**
+     * Overriding function from Thread.
+     */
+    void run() override;
 };
 
 #endif

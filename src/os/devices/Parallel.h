@@ -22,6 +22,9 @@
 
 /**
  * Driver for the parallel LPT-ports.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
  */
 class Parallel {
 

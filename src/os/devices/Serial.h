@@ -26,6 +26,9 @@ class SerialEvent;
 
 /**
  * Driver for the serial COM-ports.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
  */
 class Serial : public IODevice {
 
