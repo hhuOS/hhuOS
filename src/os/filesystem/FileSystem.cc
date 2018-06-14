@@ -121,6 +121,42 @@ void FileSystem::init() {
     // Create directory for StorageNodes.
     createDirectory("/dev/storage");
 
+    // Add Serial-nodes to dev-Directory
+    createDirectory("/dev/ports");
+
+    auto *serialService = Kernel::getService<SerialService>();
+
+    if(serialService->isPortAvailable(Serial::COM1)) {
+        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM1)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM2)) {
+        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM2)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM3)) {
+        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM3)));
+    }
+
+    if(serialService->isPortAvailable(Serial::COM4)) {
+        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM4)));
+    }
+
+    // Add parallel-nodes to dev-Directory
+    auto *parallelService = Kernel::getService<ParallelService>();
+
+    if(parallelService->isPortAvailable(Parallel::LPT1)) {
+        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT1)));
+    }
+
+    if(parallelService->isPortAvailable(Parallel::LPT2)) {
+        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT2)));
+    }
+
+    if(parallelService->isPortAvailable(Parallel::LPT3)) {
+        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT3)));
+    }
+
     // Add Video-Nodes to dev-Directory
     createDirectory("/dev/video");
     createDirectory("/dev/video/text");
@@ -154,40 +190,6 @@ void FileSystem::init() {
 
     // Add syslog file to dev-Directory
     createFile("/dev/syslog");
-
-    // Add Serial-nodes to dev-Directory
-    auto *serialService = Kernel::getService<SerialService>();
-
-    if(serialService->isPortAvailable(Serial::COM1)) {
-        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM1)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM2)) {
-        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM2)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM3)) {
-        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM3)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM4)) {
-        addVirtualNode("/dev", new SerialNode(serialService->getSerialPort(Serial::COM4)));
-    }
-
-    // Add parallel-nodes to dev-Directory
-    auto *parallelService = Kernel::getService<ParallelService>();
-
-    if(parallelService->isPortAvailable(Parallel::LPT1)) {
-        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT1)));
-    }
-
-    if(parallelService->isPortAvailable(Parallel::LPT2)) {
-        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT2)));
-    }
-
-    if(parallelService->isPortAvailable(Parallel::LPT3)) {
-        addVirtualNode("/dev", new ParallelNode(parallelService->getParallelPort(Parallel::LPT3)));
-    }
 
     // Add StdStream-nodes to dev-Directory
     addVirtualNode("/dev", new StdoutNode());
