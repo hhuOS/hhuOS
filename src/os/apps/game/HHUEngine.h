@@ -21,6 +21,7 @@
 
 #include "lib/Random.h"
 #include "apps/game/Game.h"
+#include <devices/Speaker.h>
 
 /**
  * @author Filip Krakowski
@@ -41,7 +42,7 @@ class HHUEngine {
 
     static unsigned long time();
 
-    static void beep();
+    static void beep(float frequency = Speaker::C0, uint32_t length = 100);
 
     static float rand();
 

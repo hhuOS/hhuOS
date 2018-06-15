@@ -39,7 +39,10 @@ void WorkerThread<T, R>::run() {
 
     R result = workFunction(data);
 
-    onFinished(*this, result);
+    if (onFinished != nullptr) {
+
+        onFinished(*this, result);
+    }
 }
 
 #endif

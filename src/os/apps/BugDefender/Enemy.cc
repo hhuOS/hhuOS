@@ -71,6 +71,8 @@ void Enemy::onCollisionEnter(GameObject &other){
   BugDefender::addPoints(( 4 - (rowNumber / 2)) * 20);
 
   BugDefender::enemyShot();
+
+  HHUEngine::beep(Speaker::C2);
 }
 
 void Enemy::onCollisionExit(){

@@ -52,8 +52,6 @@ Serial::Serial(ComPort port, BaudRate speed) noexcept : eventBuffer(1024), port(
     lineControlRegister.outb(0x03);      // 8 bits per char, no parity, one stop bit
     fifoControlRegister.outb(0xc7);      // Enable FIFO-buffers, Clear FIFO-buffers, Trigger interrupt after 14 bytes
     modemControlRegister.outb(0x0b);     // Enable data lines
-
-    eventBus = Kernel::getService<EventBus>();
 }
 
 char Serial::readChar() {
@@ -85,6 +83,8 @@ void Serial::readData(char *data, uint32_t len) {
 }
 
 void Serial::plugin() {
+    eventBus = Kernel::getService<EventBus>();
+
     if(port == COM1 || port == COM3) {
         IntDispatcher::getInstance().assign(36, *this);
         Pic::getInstance()->allow(Pic::Interrupt::COM1);
