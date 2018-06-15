@@ -180,8 +180,6 @@ int32_t main() {
 
     registerServices();
 
-    Pit::getInstance()->plugin();
-
     initSerialPorts();
 
     if (Multiboot::Structure::getKernelOption("gdb") == "true") {
@@ -204,6 +202,8 @@ int32_t main() {
         lfb->init(xres, yres, bpp);
         lfb->enableDoubleBuffering();
 
+        Pit::getInstance()->plugin();
+
         updateBootScreen(0, "Initializing PCI Devices");
         Pci::scan();
 
@@ -224,6 +224,8 @@ int32_t main() {
         lfb->disableDoubleBuffering();
         lfb->clear();
     } else {
+        Pit::getInstance()->plugin();
+
         text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
         Pci::scan();
 
