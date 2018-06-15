@@ -1,3 +1,19 @@
+/*
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Heinrich-Heine University
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 #include <kernel/interrupts/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <lib/libc/printf.h>
@@ -17,7 +33,7 @@ bool Serial::checkPort(ComPort port) {
     return getBasePort(port) != 0;
 }
 
-Serial::Serial(ComPort port, BaudRate speed) : eventBuffer(1024), port(port), speed(speed),
+Serial::Serial(ComPort port, BaudRate speed) noexcept : eventBuffer(1024), port(port), speed(speed),
                                                dataRegister(getBasePort(port)),
                                                interruptRegister(static_cast<uint16_t>(getBasePort(port) + 1)),
                                                fifoControlRegister(static_cast<uint16_t>(getBasePort(port) + 2)),

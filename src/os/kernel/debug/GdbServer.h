@@ -8,6 +8,7 @@
 #define BREAKPOINT() asm("   int $3");
 
 #include <kernel/threads/ThreadState.h>
+#include "devices/Serial.h"
 
 struct GdbRegisters {
     uint32_t eax;
@@ -44,16 +45,65 @@ public:
 
     static void handleInterrupt(InterruptFrame &frame);
 
-    static uint8_t computeSignal(uint8_t interrupt);
+    static uint8_t computeSignal(uint32_t interrupt);
 
     static void initialize();
 
-    static inline void synchronize() {
+    static inline void synchronize() __attribute__((always_inline)) {
         BREAKPOINT();
     }
 
     static bool isInitialized();
 
+private:
+
+    static uint8_t* getPacket();
+
+    static void putPacket(const uint8_t *packet);
+
+    static void setFrameRegister(InterruptFrame &frame, uint8_t regNumber, uint32_t value);
+
+    static void setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs);
+
+    static const uint32_t BUFMAX = 400;
+
+    static const uint8_t REG_ESP = 4;
+
+    static const uint8_t REG_EBP = 5;
+
+    static const uint8_t REG_EIP = 8;
+
+    static const uint8_t NUM_REGS = 16;
+
+    static const uint8_t NUM_REGS_BYTES = 16 * 4;
+
+    static uint8_t inBuffer[];
+
+    static uint8_t outBuffer[];
+
+    static Serial* serial;
+
+    static const char WRITE_MEMORY_BIN = 'X';
+
+    static const char WRITE_MEMORY_HEX = 'M';
+
+    static const char READ_MEMORY_HEX = 'm';
+
+    static const char CONTINUE = 'c';
+
+    static const char STEP = 's';
+
+    static const char SET_THREAD = 'H';
+
+    static const char TOGGLE_DEBUG = 'd';
+
+    static const char GET_REGISTERS = 'g';
+
+    static const char SET_REGISTERS = 'G';
+
+    static const char SET_REGISTER = 'P';
+
+    static const char GET_HALT_REASON = '?';
 };
 
 

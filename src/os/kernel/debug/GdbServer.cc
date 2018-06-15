@@ -1,169 +1,183 @@
-//
-// Created by krakowski on 08.06.18.
-//
-
-#include <devices/Serial.h>
 #include "GdbServer.h"
 
-static const char *hexchars = "0123456789abcdef";
+static const uint8_t *hexCharacters = (uint8_t*) "0123456789abcdef";
 
-static const uint32_t BUFMAX = 400;
+Serial* GdbServer::serial = nullptr;
 
-static char remcomInBuffer[BUFMAX];
+uint8_t GdbServer::inBuffer[BUFMAX];
 
-static char remcomOutBuffer[BUFMAX];
-
-/* Number of registers.  */
-#define NUMREGS	16
-
-/* Number of bytes of registers.  */
-#define NUMREGBYTES (NUMREGS * 4)
+uint8_t GdbServer::outBuffer[BUFMAX];
 
 static bool initialized = false;
 
-GdbServer::~GdbServer() {
+GdbServer::~GdbServer() = default;
 
-}
+uint8_t hex(uint8_t ch) {
 
-void putDebugChar(char value) {
-    static Serial serialPort(Serial::COM1);
-    serialPort.sendChar(value);
-}
+    if ((ch >= 'a') && (ch <= 'f')) {
 
-char getDebugChar() {
-    static Serial serialPort(Serial::COM1);
+        return (ch - 'a' + (uint8_t) 10);
+    }
 
-    char value = serialPort.readChar();
+    if ((ch >= '0') && (ch <= '9')) {
 
-    return value;
-}
-
-enum regnames {EAX, ECX, EDX, EBX, ESP, EBP, ESI, EDI,
-    PC /* also known as eip */,
-    PS /* also known as eflags */,
-    CS, SS, DS, ES, FS, GS};
-
-int hex (char ch) {
-    if ((ch >= 'a') && (ch <= 'f'))
-        return (ch - 'a' + 10);
-    if ((ch >= '0') && (ch <= '9'))
         return (ch - '0');
-    if ((ch >= 'A') && (ch <= 'F'))
-        return (ch - 'A' + 10);
-    return (-1);
+    }
+
+    if ((ch >= 'A') && (ch <= 'F')) {
+
+        return (ch - 'A' + (uint8_t) 10);
+    }
+
+    return UINT8_MAX;
 }
 
-void set_char (char *addr, int val) {
-    *addr = val;
+void setChar(uint8_t *address, uint8_t val) {
+    
+    *address = val;
 }
 
-int get_char (char *addr) {
+uint8_t getChar(const uint8_t *addr) {
+
     return *addr;
 }
 
-int hexToInt (char **ptr, int *intValue) {
-    int numChars = 0;
-    int hexValue;
+uint32_t hexToInt(uint8_t **ptr, uint32_t *intValue) {
+
+    uint32_t numChars = 0;
+
+    uint8_t hexValue;
 
     *intValue = 0;
 
-    while (**ptr)
-    {
-        hexValue = hex (**ptr);
-        if (hexValue >= 0)
-        {
-            *intValue = (*intValue << 4) | hexValue;
+    while (**ptr) {
+
+        hexValue = hex(**ptr);
+
+        if (hexValue < 16U) {
+
+            *intValue = (*intValue << 4U) | hexValue;
+
             numChars++;
-        }
-        else
+
+        } else {
+
             break;
+        }
 
         (*ptr)++;
     }
 
-    return (numChars);
+    return numChars;
 }
 
-char *mem2hex (char *mem, char *buf, int count, int may_fault) {
-    int i;
-    unsigned char ch;
+uint8_t *mem2hex(uint8_t *mem, uint8_t *buf, uint32_t count) {
 
-    for (i = 0; i < count; i++)
-    {
-        ch = get_char (mem++);
-        *buf++ = hexchars[ch >> 4];
-        *buf++ = hexchars[ch % 16];
+    uint32_t i;
+
+    uint8_t ch;
+
+    for (i = 0; i < count; i++) {
+
+        ch = getChar(mem++);
+
+        *buf++ = hexCharacters[ch >> 4U];
+
+        *buf++ = hexCharacters[ch & 0x0FU];
     }
+
     *buf = 0;
+
     return (buf);
 }
 
 
-char *hex2mem (char *buf, char *mem, int count, int may_fault) {
-    int i;
-    unsigned char ch;
+uint8_t *hex2mem(uint8_t *buf, uint8_t *mem, uint32_t count) {
+
+    uint32_t i;
+
+    uint8_t ch;
 
     for (i = 0; i < count; i++) {
-        ch = hex (*buf++) << 4;
-        ch = ch + hex (*buf++);
-        set_char (mem++, ch);
+
+        ch = hex(*buf++) << 4U;
+
+        ch = ch + hex(*buf++);
+
+        setChar(mem++, ch);
     }
 
     return (mem);
 }
 
-char *getpacket(void) {
-     char *buffer = &remcomInBuffer[0];
-    unsigned char checksum;
-    unsigned char xmitcsum;
-    unsigned int count;
-    char ch;
+uint8_t* GdbServer::getPacket() {
 
-    while (1)
-    {
-        /* wait around for the start character, ignore all other characters */
-        while ((ch = getDebugChar ()) != '$')
-            ;
+    uint8_t *buffer = &inBuffer[0];
+
+    uint8_t checksum;
+
+    uint8_t xmitcsum;
+
+    uint32_t count;
+
+    uint8_t ch;
+
+    while (1 > 0) {
+
+        while ((ch = (uint8_t) serial->readChar()) != '$');
 
         retry:
+
         checksum = 0;
-        xmitcsum = -1;
+
         count = 0;
 
-        /* now, read until a # or end of buffer is found */
-        while (count < BUFMAX - 1)
-        {
-            ch = getDebugChar ();
-            if (ch == '$')
+        while (count < BUFMAX - 1) {
+
+            ch = (uint8_t) serial->readChar();
+
+            if (ch == '$') {
+
                 goto retry;
-            if (ch == '#')
+            }
+
+            if (ch == '#') {
+
                 break;
+            }
+
             checksum = checksum + ch;
+
             buffer[count] = ch;
+
             count = count + 1;
         }
+
         buffer[count] = 0;
 
-        if (ch == '#')
-        {
-            ch = getDebugChar ();
-            xmitcsum = hex (ch) << 4;
-            ch = getDebugChar ();
+        if (ch == '#') {
+
+            ch = (uint8_t) serial->readChar();
+
+            xmitcsum = hex (ch) << 4U;
+
+            ch = (uint8_t) serial->readChar();
+
             xmitcsum += hex (ch);
 
-            if (checksum != xmitcsum)
-            {
-                putDebugChar ('-');	/* failed checksum */
-            }
-            else
-            {
-                putDebugChar ('+');	/* successful transfer */
+            if (checksum != xmitcsum) {
 
-                /* if a sequence char is present, reply the sequence ID */
-                if (buffer[2] == ':')
-                {
-                    putDebugChar (buffer[0]);
-                    putDebugChar (buffer[1]);
+                serial->sendChar('-');
+
+            } else {
+
+                serial->sendChar('+');
+
+                if (buffer[2] == ':') {
+
+                    serial->sendChar(buffer[0]);
+
+                    serial->sendChar(buffer[1]);
 
                     return &buffer[3];
                 }
@@ -174,344 +188,475 @@ char *getpacket(void) {
     }
 }
 
-void putpacket (char *buffer) {
-    unsigned char checksum;
-    int count;
-    char ch;
+void GdbServer::putPacket(const uint8_t *buffer) {
 
-    /*  $<packet info>#<checksum>.  */
-    do
-    {
-        putDebugChar ('$');
+    uint8_t checksum;
+
+    uint32_t count;
+
+    uint8_t ch;
+
+    do {
+
+        serial->sendChar('$');
+
         checksum = 0;
+
         count = 0;
 
-        while ((ch = buffer[count]))
-        {
-            putDebugChar (ch);
+        while ((ch = buffer[count])) {
+
+            serial->sendChar(ch);
+
             checksum += ch;
+
             count += 1;
         }
 
-        putDebugChar ('#');
-        putDebugChar (hexchars[checksum >> 4]);
-        putDebugChar (hexchars[checksum % 16]);
+        serial->sendChar('#');
+
+        serial->sendChar(hexCharacters[checksum >> 4U]);
+
+        serial->sendChar(hexCharacters[checksum & 0x0FU]);
 
     }
-    while (getDebugChar () != '+');
+
+    while ((uint8_t) serial->readChar() != '+');
 }
 
-void setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
+void GdbServer::setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
+
     frame.eax = gdbRegs.eax;
+
     frame.ebx = gdbRegs.ebx;
+
     frame.ecx = gdbRegs.ecx;
+
     frame.edx = gdbRegs.edx;
+
     frame.esp = gdbRegs.esp;
+
     frame.ebp = gdbRegs.ebp;
+
     frame.esi = gdbRegs.esi;
+
     frame.edi = gdbRegs.edi;
+
     frame.eip = gdbRegs.pc;
+
     frame.eflags = gdbRegs.ps;
-    frame.es = gdbRegs.es;
-    frame.ds = gdbRegs.ds;
-    frame.fs = gdbRegs.fs;
-    frame.gs = gdbRegs.gs;
-    frame.cs = gdbRegs.cs;
-    frame.ss = gdbRegs.ss;
+
+    frame.es = (uint16_t) gdbRegs.es;
+
+    frame.ds = (uint16_t) gdbRegs.ds;
+
+    frame.fs = (uint16_t) gdbRegs.fs;
+
+    frame.gs = (uint16_t) gdbRegs.gs;
+
+    frame.cs = (uint16_t) gdbRegs.cs;
+
+    frame.ss = (uint16_t) gdbRegs.ss;
 }
 
-void setFrameRegister(InterruptFrame &frame, uint8_t regNumber, uint32_t value) {
+void GdbServer::setFrameRegister(InterruptFrame &frame, uint8_t regNumber, uint32_t value) {
 
     switch (regNumber) {
         case 0:
+
             frame.eax = value;
+
             break;
         case 1:
+
             frame.ecx = value;
+
             break;
         case 2:
+
             frame.edx = value;
+
             break;
         case 3:
+
             frame.ebx = value;
+
             break;
         case 4:
+
             frame.esp = value;
+
             break;
         case 5:
+
             frame.ebp = value;
+
             break;
         case 6:
+
             frame.esi = value;
+
             break;
         case 7:
+
             frame.edi = value;
+
             break;
         case 8:
+
             frame.eip = value;
+
             break;
         case 9:
+
             frame.eflags = value;
+
             break;
         case 10:
-            frame.cs = value;
+
+            frame.cs = (uint16_t) value;
+
             break;
         case 11:
-            frame.ss = value;
+
+            frame.ss = (uint16_t) value;
+
             break;
         case 12:
-            frame.ds = value;
+
+            frame.ds = (uint16_t) value;
+
             break;
         case 13:
-            frame.es = value;
+
+            frame.es = (uint16_t) value;
+
             break;
         case 14:
-            frame.fs = value;
+
+            frame.fs = (uint16_t) value;
+
             break;
         case 15:
-            frame.gs = value;
+
+            frame.gs = (uint16_t) value;
+
+            break;
+        default:
             break;
     }
 }
 
 void GdbServer::handleInterrupt(InterruptFrame &frame) {
-    int sigval, stepping;
-    int addr, length;
-    int regValue;
-    char *ptr;
-    int newPC;
 
-//  if (remote_debug)
-//    {
-//      printf ("vector=%d, sr=0x%x, pc=0x%x\n",
-//	      exceptionVector, registers[PS], registers[PC]);
-//    }
+    bool stepping = false;
 
-    /* reply to host that an exception has occurred */
-    sigval = computeSignal (frame.interrupt);
+    uint32_t sigval;
 
-    ptr = remcomOutBuffer;
+    uint32_t address, length;
 
-    *ptr++ = 'T';			/* notify gdb with signo, PC, FP and SP */
-    *ptr++ = hexchars[sigval >> 4];
-    *ptr++ = hexchars[sigval & 0xf];
+    uint8_t *ptr;
 
-    *ptr++ = hexchars[ESP];
+    sigval = computeSignal(frame.interrupt);
+
+    ptr = outBuffer;
+
+    *ptr++ = 'T';
+
+    *ptr++ = hexCharacters[sigval >> 4U];
+
+    *ptr++ = hexCharacters[sigval & 0x0FU];
+
+    *ptr++ = hexCharacters[REG_ESP];
+
     *ptr++ = ':';
-    ptr = mem2hex((char *)&frame.esp, ptr, 4, 0);	/* SP */
+
+    ptr = mem2hex((uint8_t *) &frame.esp, ptr, 4);
+
     *ptr++ = ';';
 
-    *ptr++ = hexchars[EBP];
+    *ptr++ = hexCharacters[REG_EBP];
+
     *ptr++ = ':';
-    ptr = mem2hex((char *)&frame.ebp, ptr, 4, 0); 	/* FP */
+
+    ptr = mem2hex((uint8_t *) &frame.ebp, ptr, 4);
+
     *ptr++ = ';';
 
-    *ptr++ = hexchars[PC];
+    *ptr++ = hexCharacters[REG_EIP];
+
     *ptr++ = ':';
-    ptr = mem2hex((char *)&frame.eip, ptr, 4, 0); 	/* PC */
+
+    ptr = mem2hex((uint8_t *) &frame.eip, ptr, 4);
+
     *ptr++ = ';';
 
     *ptr = '\0';
 
-    putpacket (&remcomOutBuffer[0]);
+    putPacket(&outBuffer[0]);
 
-    stepping = 0;
+    while (1 > 0) {
 
-    while (1 == 1)
-    {
-        remcomOutBuffer[0] = 0;
-        ptr = getpacket ();
+        outBuffer[0] = 0;
+
+        ptr = getPacket();
 
         GdbRegisters gdbRegs = GdbRegisters::fromInterruptFrame(frame);
-        GdbRegisters &copyRegs = (GdbRegisters&) ptr;
 
-        switch (*ptr++)
-        {
-            case '?':
-                remcomOutBuffer[0] = 'S';
-                remcomOutBuffer[1] = hexchars[sigval >> 4];
-                remcomOutBuffer[2] = hexchars[sigval % 16];
-                remcomOutBuffer[3] = 0;
+        auto &copyRegs = (GdbRegisters&) ptr;
+
+        switch (*ptr++) {
+            case GET_HALT_REASON:
+
+                outBuffer[0] = 'S';
+
+                outBuffer[1] = hexCharacters[sigval >> 4U];
+
+                outBuffer[2] = hexCharacters[sigval & 0x0FU];
+
+                outBuffer[3] = 0;
+
                 break;
-            case 'd':
-                //remote_debug = !(remote_debug);	/* toggle debug flag */
+            case TOGGLE_DEBUG:
+
+                /* toggle debug flag */
+
                 break;
-            case 'g':		/* return the value of the CPU registers */
-                mem2hex ((char *) &gdbRegs.eax, remcomOutBuffer, NUMREGBYTES, 0);
+            case GET_REGISTERS:
+
+                mem2hex((uint8_t *) &gdbRegs.eax, outBuffer, NUM_REGS_BYTES);
+
                 break;
-            case 'G':		/* set the value of the CPU registers - return OK */
+            case SET_REGISTERS:
+
                 setFrameRegisters(frame, copyRegs);
-                strcpy (remcomOutBuffer, "OK");
+
+                strcpy ((char*) outBuffer, "OK");
+
                 break;
-            case 'P':		/* set the value of a single CPU register - return OK */
-            {
-                int regno;
+            case SET_REGISTER:
 
-                if (hexToInt (&ptr, &regno) && *ptr++ == '=')
-                    if (regno >= 0 && regno < NUMREGS)
-                    {
-                        hexToInt(&ptr, &regValue);
-                        setFrameRegister(frame, regno, regValue);
-                        strcpy (remcomOutBuffer, "OK");
-                        break;
-                    }
+                uint32_t regno, regValue;
 
-                strcpy (remcomOutBuffer, "E01");
+                if (hexToInt (&ptr, &regno) && *ptr++ == '=') {
+
+                    hex2mem(ptr, (uint8_t*) &regValue, 4);
+
+                    setFrameRegister(frame, (uint8_t) regno, regValue);
+
+                    strcpy ((char*) outBuffer, "OK");
+
+                    break;
+                }
+
                 break;
-            }
+            case READ_MEMORY_HEX:
 
-                /* mAA..AA,LLLL  Read LLLL bytes at address AA..AA */
-            case 'm':
-                /* TRY TO READ %x,%x.  IF SUCCEED, SET PTR = 0 */
-                if (hexToInt (&ptr, &addr))
-                    if (*(ptr++) == ',')
-                        if (hexToInt (&ptr, &length))
-                        {
-                            ptr = 0;
-                            mem2hex ((char *) addr, remcomOutBuffer, length, 1);
+                if (hexToInt (&ptr, &address)) {
+
+                    if (*(ptr++) == ',') {
+
+                        if (hexToInt (&ptr, &length)) {
+
+                            ptr = nullptr;
+
+                            mem2hex((uint8_t *) address, outBuffer, length);
                         }
-
-                if (ptr)
-                {
-                    strcpy (remcomOutBuffer, "E01");
+                    }
                 }
+
+                if (ptr) {
+
+                    strcpy ((char*) outBuffer, "E01");
+                }
+
                 break;
+            case WRITE_MEMORY_HEX:
 
-                /* MAA..AA,LLLL: Write LLLL bytes at address AA.AA return OK */
-            case 'M':
-                /* TRY TO READ '%x,%x:'.  IF SUCCEED, SET PTR = 0 */
-                if (hexToInt (&ptr, &addr))
-                    if (*(ptr++) == ',')
-                        if (hexToInt (&ptr, &length))
-                            if (*(ptr++) == ':')
-                            {
-                                hex2mem (ptr, (char *) addr, length, 1);
-                                strcpy (remcomOutBuffer, "OK");
+                if (hexToInt (&ptr, &address)) {
 
-                                ptr = 0;
+                    if (*(ptr++) == ',') {
+
+                        if (hexToInt (&ptr, &length)) {
+
+                            if (*(ptr++) == ':') {
+
+                                hex2mem(ptr, (uint8_t *) address, length);
+
+                                strcpy ((char*) outBuffer, "OK");
+
+                                ptr = nullptr;
                             }
-                if (ptr)
-                {
-                    strcpy (remcomOutBuffer, "E02");
+                        }
+                    }
                 }
+
+                if (ptr) {
+
+                    strcpy ((char*) outBuffer, "E02");
+                }
+
                 break;
+            case STEP:
 
-                /* cAA..AA    Continue at address AA..AA(optional) */
-                /* sAA..AA   Step one instruction from AA..AA(optional) */
-            case 's':
-                stepping = 1;
-            case 'c':
-                /* try to read optional parameter, pc unchanged if no parm */
-                if (hexToInt (&ptr, &addr))
-                    frame.eip = addr;
+                stepping = true;
 
-                newPC = frame.eip;
+            case CONTINUE:
 
-                /* clear the trace bit */
+                if (hexToInt (&ptr, &address)) {
+                    frame.eip = address;
+                }
+
                 frame.eflags &= 0xfffffeff;
 
-                /* set the trace bit if we're stepping */
-                if (stepping)
+                if (stepping) {
+
                     frame.eflags |= 0x100;
+                }
 
                 return;
-
-                /* kill the program */
-            case 'k':		/* do nothing */
-#if 0
-                /* Huh? This doesn't look like "nothing".
-	     m68k-stub.c and sparc-stub.c don't have it.  */
-	  BREAKPOINT ();
-#endif
+            default:
                 break;
-        }			/* switch */
+        }
 
-        /* reply to the request */
-        putpacket (remcomOutBuffer);
+        putPacket(outBuffer);
     }
 }
 
-uint8_t GdbServer::computeSignal(uint8_t interrupt) {
-    int sigval;
-    switch (interrupt)
-    {
+uint8_t GdbServer::computeSignal(uint32_t interrupt) {
+    uint8_t sigval;
+
+    switch (interrupt) {
+
         case 0:
+
             sigval = 8;
+
             break;			/* divide by zero */
         case 1:
+
             sigval = 5;
+
             break;			/* debug exception */
         case 3:
+
             sigval = 5;
+
             break;			/* breakpoint */
         case 4:
+
             sigval = 16;
+
             break;			/* into instruction (overflow) */
         case 5:
+
             sigval = 16;
+
             break;			/* bound instruction */
         case 6:
+
             sigval = 4;
+
             break;			/* Invalid opcode */
         case 7:
+
             sigval = 8;
+
             break;			/* coprocessor not available */
         case 8:
+
             sigval = 7;
+
             break;			/* double fault */
         case 9:
+
             sigval = 11;
+
             break;			/* coprocessor segment overrun */
         case 10:
+
             sigval = 11;
+
             break;			/* Invalid TSS */
         case 11:
+
             sigval = 11;
+
             break;			/* Segment not present */
         case 12:
+
             sigval = 11;
+
             break;			/* stack exception */
         case 13:
+
             sigval = 11;
+
             break;			/* general protection */
         case 14:
+
             sigval = 11;
+
             break;			/* page fault */
         case 16:
+
             sigval = 7;
+
             break;			/* coprocessor error */
         default:
+
             sigval = 7;		/* "software generated" */
     }
-    return (sigval);
+
+    return sigval;
 }
 
 bool GdbServer::isInitialized() {
+
     return initialized;
 }
 
 void GdbServer::initialize() {
+
+    serial = new Serial(Serial::COM1);
+
     initialized = true;
 }
 
 GdbRegisters GdbRegisters::fromInterruptFrame(InterruptFrame &frame) {
-    GdbRegisters registers;
+
+    GdbRegisters registers{};
 
     registers.eax = frame.eax;
+
     registers.ebx = frame.ebx;
+
     registers.ecx = frame.ecx;
+
     registers.edx = frame.edx;
+
     registers.esp = frame.esp;
+
     registers.ebp = frame.ebp;
+
     registers.esi = frame.esi;
+
     registers.edi = frame.edi;
+
     registers.pc = frame.eip;
+
     registers.ps = frame.eflags;
+
     registers.cs = frame.cs;
+
     registers.ss = frame.ss;
+
     registers.gs = frame.gs;
+
     registers.fs = frame.fs;
+
     registers.es = frame.es;
+
     registers.ds = frame.ds;
 
     return registers;

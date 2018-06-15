@@ -96,10 +96,8 @@ void registerServices() {
     graphicsService->setLinearFrameBuffer(lfb);
     graphicsService->setTextDriver(text);
 
-    Kernel::registerService(GraphicsService::SERVICE_NAME, graphicsService);
-
     Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
-
+    Kernel::registerService(GraphicsService::SERVICE_NAME, graphicsService);
     Kernel::registerService(TimeService::SERVICE_NAME, new TimeService());
     Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
     Kernel::registerService(FileSystem::SERVICE_NAME, new FileSystem());
@@ -173,34 +171,18 @@ void initSerialPorts() {
 }
 
 int32_t main() {
-    Cpu::disableInterrupts();
 
-    Logger::trace("Start Kernel Main");
-
-    Pic::getInstance()->forbid(Pic::Interrupt::PIT);
-    Pic::getInstance()->forbid(Pic::Interrupt::KEYBOARD);
-    Pic::getInstance()->allow(Pic::Interrupt::CASCADE);
-    Pic::getInstance()->forbid(Pic::Interrupt::COM2);
-    Pic::getInstance()->forbid(Pic::Interrupt::COM1);
-    Pic::getInstance()->forbid(Pic::Interrupt::LPT2);
-    Pic::getInstance()->forbid(Pic::Interrupt::FLOPPY);
-    Pic::getInstance()->forbid(Pic::Interrupt::LPT1);
-    Pic::getInstance()->forbid(Pic::Interrupt::RTC);
-    Pic::getInstance()->forbid(Pic::Interrupt::FREE1);
-    Pic::getInstance()->forbid(Pic::Interrupt::FREE2);
-    Pic::getInstance()->forbid(Pic::Interrupt::FREE3);
-    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);
-    Pic::getInstance()->forbid(Pic::Interrupt::FPU);
-    Pic::getInstance()->forbid(Pic::Interrupt::PRIMARY_ATA);
-    Pic::getInstance()->forbid(Pic::Interrupt::SECONDARY_ATA);
+//    Logger::trace("Start Kernel Main");
 
     initGraphics();
+
     eventBus = new EventBus();
+
     registerServices();
 
-    initSerialPorts();
+    Pit::getInstance()->plugin();
 
-    Cpu::enableInterrupts();
+    initSerialPorts();
 
     if (Multiboot::Structure::getKernelOption("gdb") == "true") {
 
@@ -210,8 +192,6 @@ int32_t main() {
 
         GdbServer::synchronize();
     }
-
-    Pit::getInstance()->plugin();
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
