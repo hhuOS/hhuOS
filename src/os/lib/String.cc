@@ -341,7 +341,7 @@ String String::valueOf(bool value) {
     return value ? String("true") : String("false");
 }
 
-String String::valueOf(uint32_t value, uint8_t radix = 10) {
+String String::valueOf(int32_t value, uint8_t radix) {
 
     char result[32];
 
@@ -359,6 +359,34 @@ String String::valueOf(uint32_t value, uint8_t radix = 10) {
             break;
         case 16:
             sprintf(result, "%x", value);
+            break;
+        default:
+            break;
+    }
+
+    return String(result);
+}
+
+String String::valueOf(uint32_t value, uint8_t radix) {
+
+    char result[32];
+
+    memset(result, 0, 32);
+
+    switch (radix) {
+        case 2:
+            sprintf(result, "%b", value);
+            break;
+        case 8:
+            sprintf(result, "%o", value);
+            break;
+        case 10:
+            sprintf(result, "%u", value);
+            break;
+        case 16:
+            sprintf(result, "%x", value);
+            break;
+        default:
             break;
     }
 

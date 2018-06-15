@@ -46,7 +46,9 @@ public:
 
     static String valueOf(bool value);
 
-    static String valueOf(uint32_t value, uint8_t radix);
+    static String valueOf(int32_t value, uint8_t radix = 10);
+
+    static String valueOf(uint32_t value, uint8_t radix = 10);
 
     static String join(const String &separator, const Util::Array<String> &elements);
 

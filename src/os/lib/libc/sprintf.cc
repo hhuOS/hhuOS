@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
 #include "lib/libc/sprintf.h"
 #include "lib/StrFormat.h"
 
@@ -65,6 +66,10 @@ static int _vprintf(char* strout, const char* format, int & n, va_list &args) {
                     i = -i;
                     _putc(strout, '-', n);
                 }
+                _puts(strout, StrFormat::convert(i, 10, padding), n);
+                break;
+            case 'u' :
+                i = va_arg(args, uint32_t);
                 _puts(strout, StrFormat::convert(i, 10, padding), n);
                 break;
             case 'o':
