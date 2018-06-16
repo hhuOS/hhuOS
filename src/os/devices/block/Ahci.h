@@ -417,7 +417,7 @@ class Ahci : public InterruptHandler {
 
     // -- HBA Capabilities -- //
 
-    /* Number of Ports */
+    /* Number of ports */
     static const uint8_t HBA_CAP_NP                   = 0x0F;
 
     /* Number of Command Slots */

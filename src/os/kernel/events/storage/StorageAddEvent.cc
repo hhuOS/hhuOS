@@ -1,11 +1,11 @@
 #include "StorageAddEvent.h"
 
-StorageAddEvent::StorageAddEvent(StorageDevice *device) : Event(TYPE) {
-    this->device = device;
-}
-
 StorageAddEvent::StorageAddEvent() : Event(TYPE) {
 
+}
+
+StorageAddEvent::StorageAddEvent(StorageDevice *device) : Event(TYPE) {
+    this->device = device;
 }
 
 StorageAddEvent::StorageAddEvent(const StorageAddEvent &other) : Event(other){
@@ -13,7 +13,7 @@ StorageAddEvent::StorageAddEvent(const StorageAddEvent &other) : Event(other){
 }
 
 char *StorageAddEvent::getName() {
-    return "StorageAddEvent";
+    return const_cast<char *>("StorageAddEvent");
 }
 
 StorageDevice* StorageAddEvent::getDevice() {

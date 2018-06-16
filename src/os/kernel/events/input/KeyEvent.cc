@@ -26,7 +26,7 @@ KeyEvent::KeyEvent() : Event(TYPE) {
 }
 
 char *KeyEvent::getName() {
-    return "KeyEvent";
+    return const_cast<char *>("KeyEvent");
 }
 
 Key KeyEvent::getKey() {

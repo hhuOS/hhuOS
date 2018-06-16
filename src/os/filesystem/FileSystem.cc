@@ -20,9 +20,9 @@
 #include <filesystem/RamFs/memory/IOMemoryNode.h>
 #include <filesystem/RamFs/memory/PFANode.h>
 #include <filesystem/RamFs/memory/PagingAreaNode.h>
-#include <filesystem/RamFs/SerialNode.h>
+#include <filesystem/RamFs/ports/SerialNode.h>
 #include <kernel/services/ParallelService.h>
-#include <filesystem/RamFs/ParallelNode.h>
+#include <filesystem/RamFs/ports/ParallelNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -33,7 +33,7 @@
 #include "filesystem/RamFs/RandomNode.h"
 #include "filesystem/RamFs/graphics/GraphicsMemoryNode.h"
 #include "filesystem/RamFs/RamFsDriver.h"
-#include "filesystem/RamFs/StorageNode.h"
+#include "filesystem/RamFs/storage/StorageNode.h"
 #include "filesystem/RamFs/PciNode.h"
 #include "filesystem/RamFs/StdoutNode.h"
 #include "filesystem/RamFs/StderrNode.h"

@@ -17,7 +17,7 @@
 #ifndef __StorageNode_include__
 #define __StorageNode_include__
 
-#include "VirtualNode.h"
+#include "filesystem/RamFs/VirtualNode.h"
 #include "devices/block/storage/StorageDevice.h"
 #include <cstdint>
 

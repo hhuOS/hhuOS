@@ -14,32 +14,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MEMORYNODE_H
-#define HHUOS_MEMORYNODE_H
+#ifndef HHUOS_GRAPHICSNODE_H
+#define HHUOS_GRAPHICSNODE_H
 
-
+#include <lib/String.h>
+#include <filesystem/FsNode.h>
 #include <filesystem/RamFs/VirtualNode.h>
+#include <kernel/events/Receiver.h>
+#include <kernel/services/GraphicsService.h>
 
-class MemoryNode : public VirtualNode {
-
-protected:
-    String cache;
+class GraphicsNode : public VirtualNode, Receiver {
 
 public:
+
+    /**
+     * Possible graphics modes.
+     *
+     * @param mode TEXT: Use the current TextDriver.
+     *             LINEAR_FRAME_BUFFER: Use the current LinearFrameBuffer.
+     */
+    enum GraphicsMode {
+        TEXT = 0x00,
+        LINEAR_FRAME_BUFFER = 0x01
+    };
+
+protected:
+
+    String cache;
+
+    GraphicsMode mode;
+
+    GraphicsService *graphicsService = nullptr;
+
+public:
+
     /**
      * Constructor
      */
-    MemoryNode(String name, FsNode::FILE_TYPE type);
+    GraphicsNode(String name, GraphicsMode mode);
 
     /**
      * Copy-constructor.
      */
-    MemoryNode(const MemoryNode &copy) = delete;
+    GraphicsNode(const GraphicsNode &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~MemoryNode() override = default;
+    ~GraphicsNode() override;
 
     /**
      * Overriding function from VirtualNode.
@@ -56,8 +78,9 @@ public:
      */
     uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 
-    virtual void getValues() = 0;
+    void onEvent(const Event &event) override;
+
+    virtual void writeValuesToCache() = 0;
 };
 
-
-#endif //HHUOS_MEMORYNODE_H
+#endif

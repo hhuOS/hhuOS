@@ -14,42 +14,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __GraphicsResoultionsNode_include__
-#define __GraphicsResoultionsNode_include__
+#ifndef __GraphicsResolutionsNode_include__
+#define __GraphicsResolutionsNode_include__
 
-#include <filesystem/RamFs/VirtualNode.h>
+#include <filesystem/RamFs/graphics/GraphicsNode.h>
 #include <kernel/services/GraphicsService.h>
 
 /**
- * Implementation of VirtualNode, that reads the available resolutions of the currently used graphics card.
+ * Implementation of GraphicsNode, that reads the currently used graphics card's amount of memory in bytes.
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class GraphicsResolutionsNode : public VirtualNode {
-
-private:
-    GraphicsService *graphicsService = nullptr;
-
-    uint8_t mode;
+class GraphicsResolutionsNode : public GraphicsNode {
 
 public:
 
     /**
-     * Possible graphics modes.
-     */
-    enum MODES {
-        TEXT = 0x00,
-        LINEAR_FRAME_BUFFER = 0x01
-    };
-
-    /**
      * Constructor.
-     *
-     * @param mode TEXT: Use the current TextDriver.
-     *             LINEAR_FRAME_BUFFER: Use the current LinearFrameBuffer.
      */
-    explicit GraphicsResolutionsNode(uint8_t mode);
+    explicit GraphicsResolutionsNode(GraphicsNode::GraphicsMode mode);
 
     /**
      * Copy-Constructor.
@@ -62,20 +46,9 @@ public:
     ~GraphicsResolutionsNode() override = default;
 
     /**
-     * Overriding function from VirtualNode.
+     * Overriding function from GraphicsNode.
      */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from VirtualNode.
-     */
-    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes) override;
-
-    /**
-     * Overriding function from VirtualNode.
-     */
-    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
+    void writeValuesToCache() override;
 };
-
 
 #endif

@@ -3,7 +3,7 @@
 
 #include <kernel/services/SerialService.h>
 #include <kernel/Kernel.h>
-#include "VirtualNode.h"
+#include "filesystem/RamFs/VirtualNode.h"
 
 /**
  * Implementation of VirtualNode, that writes to and reads from a COM-Port.

@@ -4,6 +4,9 @@
 #include <kernel/KernelService.h>
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <devices/graphics/text/TextDriver.h>
+#include <lib/util/RingBuffer.h>
+#include <kernel/events/graphics/TextDriverChangedEvent.h>
+#include <kernel/events/graphics/LfbDriverChangedEvent.h>
 
 class GraphicsService : public KernelService {
 
@@ -11,11 +14,14 @@ private:
     LinearFrameBuffer *lfb;
     TextDriver *text;
 
+    Util::RingBuffer<TextDriverChangedEvent> textEventBuffer;
+    Util::RingBuffer<LfbDriverChangedEvent> lfbEventBuffer;
+
 public:
     /**
      * Constructor.
      */
-    GraphicsService() = default;
+    GraphicsService();
 
     /**
      * Copy-constructor.

@@ -92,11 +92,12 @@ void updateBootScreen(uint8_t percentage, const char *currentActivity) {
 }
 
 void registerServices() {
+    Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
+
     auto *graphicsService = new GraphicsService();
     graphicsService->setLinearFrameBuffer(lfb);
     graphicsService->setTextDriver(text);
 
-    Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
     Kernel::registerService(GraphicsService::SERVICE_NAME, graphicsService);
     Kernel::registerService(TimeService::SERVICE_NAME, new TimeService());
     Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
@@ -172,7 +173,7 @@ void initSerialPorts() {
 
 int32_t main() {
 
-//    Logger::trace("Start Kernel Main");
+    Logger::trace("Start Kernel Main");
 
     initGraphics();
 

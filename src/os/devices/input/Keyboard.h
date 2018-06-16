@@ -41,7 +41,7 @@ private:
     uint32_t keysPressed;
     uint32_t buffer[KB_BUFFER_SIZE];
 
-    // Benutzte Ports des Tastaturcontrollers
+    // Benutzte ports des Tastaturcontrollers
     const IOport controlPort;    // Status- (R) u. Steuerregister (W)
     const IOport dataPort;    // Ausgabe- (R) u. Eingabepuffer (W)
 

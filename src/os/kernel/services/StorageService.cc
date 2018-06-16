@@ -1,9 +1,11 @@
-#include <kernel/events/storage/StorageAddEvent.h>
-#include <kernel/events/storage/StorageRemoveEvent.h>
 #include <kernel/Kernel.h>
 #include "StorageService.h"
 #include "devices/block/storage/Partition.h"
 #include "EventBus.h"
+
+StorageService::StorageService() : addEventBuffer(64), removeEventBuffer(64) {
+
+}
 
 StorageDevice *StorageService::getDevice(const String &name) {
     if(!devices.containsKey(name)) {
@@ -20,8 +22,8 @@ void StorageService::registerDevice(StorageDevice *device) {
 
     STORAGE_SERVICE_TRACE("Registering device: %s\n", (char *) device->getName());
 
-    auto *event = new StorageAddEvent(device);
-    eventBus->publish(*event);
+    addEventBuffer.push(StorageAddEvent(device));
+    eventBus->publish(addEventBuffer.pop());
 
     //Scan device for partitions and register them as well
     Util::Array<StorageDevice::PartitionInfo> partitions = device->readPartitionTable();
@@ -54,8 +56,8 @@ void StorageService::removeDevice(const String &name) {
 
             devices.remove(currentName);
 
-            StorageRemoveEvent *event = new StorageRemoveEvent(currentName);
-            eventBus->publish(*event);
+            removeEventBuffer.push(StorageRemoveEvent(currentName));
+            eventBus->publish(removeEventBuffer.pop());
         }
     }
 }

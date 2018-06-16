@@ -13,17 +13,17 @@ MouseClickedEvent::MouseClickedEvent(uint8_t bitmask) : Event(TYPE) {
 }
 
 bool MouseClickedEvent::isLeftClicked() {
-    return (bitmask & 0x1) != 0;
+    return (bitmask & 0x1u) != 0;
 }
 
 bool MouseClickedEvent::isRightClicked() {
-    return (bitmask & 0x2) != 0;
+    return (bitmask & 0x2u) != 0;
 }
 
 bool MouseClickedEvent::isMiddleClicked() {
-    return (bitmask & 0x4) != 0;
+    return (bitmask & 0x4u) != 0;
 }
 
 char* MouseClickedEvent::getName() {
-    return "MouseClickedEvent";
+    return const_cast<char *>("MouseClickedEvent");
 }

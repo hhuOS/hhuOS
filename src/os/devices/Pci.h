@@ -225,7 +225,7 @@ private:
 
     static StorageService *storageService;
 
-    /* PCI IO Ports */
+    /* PCI IO ports */
     static const IOport CONFIG_ADDRESS;
 
     static const IOport CONFIG_DATA;

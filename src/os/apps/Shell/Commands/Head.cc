@@ -126,7 +126,7 @@ void Head::execute(Util::Array<String> &args) {
             uint32_t lineCount = 0;
 
             while(lineCount < count) {
-                if(file.getFileType() == FsNode::REGULAR_FILE && file.getPos() > file.getLength()) {
+                if(file.getFileType() == FsNode::REGULAR_FILE && file.getPos() >= file.getLength()) {
                     break;
                 }
 

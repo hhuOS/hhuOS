@@ -15,7 +15,7 @@ MouseMovedEvent::MouseMovedEvent(int32_t dx, int32_t dy) : Event(TYPE) {
 }
 
 char* MouseMovedEvent::getName() {
-    return "MouseMovedEvent";
+    return const_cast<char *>("MouseMovedEvent");
 }
 
 int32_t MouseMovedEvent::getXMovement() {

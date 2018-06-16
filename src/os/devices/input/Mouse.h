@@ -46,7 +46,7 @@ private:
 
     TimeService *timeService;
 
-    // IO Ports (same as keyboard)
+    // IO ports (same as keyboard)
     const IOport ctrl_port;    // Status- (R) u. Steuerregister (W)
     const IOport data_port;    // Ausgabe- (R) u. Eingabepuffer (W)
 

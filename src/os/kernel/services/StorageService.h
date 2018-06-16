@@ -1,6 +1,9 @@
 #ifndef __StorageService_include__
 #define __StorageService_include__
 
+#include <kernel/events/storage/StorageAddEvent.h>
+#include <kernel/events/storage/StorageRemoveEvent.h>
+#include <lib/util/RingBuffer.h>
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
 #include "devices/block/storage/StorageDevice.h"
@@ -22,11 +25,14 @@ class StorageService : public KernelService {
 private:
     Util::HashMap<String, StorageDevice*> devices;
 
+    Util::RingBuffer<StorageAddEvent> addEventBuffer;
+    Util::RingBuffer<StorageRemoveEvent> removeEventBuffer;
+
 public:
     /**
      * Constructor.
      */
-    StorageService() = default;
+    StorageService();
 
     /**
      * Copy-constructor.

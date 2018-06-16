@@ -271,7 +271,7 @@ private:
 
     // HCSPARAMS - Structural Parameters //
 
-    /* Number of Ports */
+    /* Number of ports */
     static const uint32_t   HCSPARAMS_NP                = (0xF << 0);
 
     /* Port Power Control */
@@ -280,7 +280,7 @@ private:
     /* Port Routing Rules */
     static const uint32_t   HCSPARAMS_PRR               = (1 << 7);
 
-    /* Number of Ports per Companion Controller */
+    /* Number of ports per Companion Controller */
     static const uint32_t   HCSPARAMS_NPCC              = (0xF << 8);
 
     /* Number of Companion Controllers */
