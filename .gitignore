@@ -8,7 +8,8 @@ src/os/gitversion.c
 src/loader/boot/hhuOS.bin
 src/initrd/mod/*
 src/modules/**/build
-src/os/hdd.img
+src/os/hdd1.img
+src/os/hdd2.img
 
 # Project files and folders
 cmake-build-debug

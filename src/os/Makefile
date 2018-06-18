@@ -71,9 +71,11 @@ GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -k en-us -soundhw pcspk -vga std -monitor stdio \
 					  -readconfig usb.cfg \
-					  -drive format=raw,file=hdd.img,if=none,id=disk0 \
+					  -drive format=raw,file=hdd1.img,if=none,id=disk0 \
+					  -drive format=raw,file=hdd2.img,if=none,id=disk1 \
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
+					  -device ide-drive,drive=disk1,bus=ahci.1 \
 					  -rtc base=localtime,clock=host \
 					  -serial telnet:127.0.0.1:8821,server,nowait \
 					  -serial telnet:127.0.0.1:8822,server,nowait \
@@ -103,20 +105,24 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 #-------------------------------------------#
 # Default targets                           #
 #-------------------------------------------#
-all: iso hdd.img
+all: iso hdd1.img hdd2.img
 
 #-------------------------------------------#
 # Hard drive image                          #
 #-------------------------------------------#
-hdd.img: ../hdd/*
-	$(VERBOSE) qemu-img create hdd.img 32M
-	$(VERBOSE) udisksctl loop-setup --file hdd.img --offset 0 --size 33554432
+hdd1.img: ../hdd/*
+	$(VERBOSE) qemu-img create hdd1.img 32M
+	$(VERBOSE) udisksctl loop-setup --file hdd1.img --offset 0 --size 33554432
 	$(VERBOSE) (echo n; echo p; echo 1;echo ""; echo ""; echo t; echo 58; echo w) | sudo fdisk /dev/loop0
 	$(VERBOSE) sudo mkfs.vfat /dev/loop0p1
 	$(VERBOSE) sudo mount /dev/loop0p1 /mnt
 	$(VERBOSE) sudo cp -r ../hdd/* /mnt
 	$(VERBOSE) sudo umount /mnt
 	$(VERBOSE) udisksctl loop-delete -b /dev/loop0
+
+hdd2.img: ../hdd/*
+	$(VERBOSE) qemu-img create hdd2.img 32M
+
 
 gitversion.c: ../../.git/HEAD ../../.git/index
 	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - $(shell git rev-parse --short HEAD)\";" > $@
@@ -215,19 +221,19 @@ bootdisk-commit:
 #-------------------------------------------#
 # QEMU / KVM                                #
 #-------------------------------------------#
-qemu: $(OBJDIR)/hhuOS.iso hdd.img
+qemu: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	$(QEMU_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
-qemu64: $(OBJDIR)/hhuOS.iso hdd.img
+qemu64: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	qemu-system-x86_64 -m 1G $(QEMU_DEFAULT_PARAMS)
 
-kvm: $(OBJDIR)/hhuOS.iso hdd.img
+kvm: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	$(KVM_BIN) -m 1G $(QEMU_DEFAULT_PARAMS)
 
 #-------------------------------------------#
 # Debugging                                 #
 #-------------------------------------------#
-qemu-gdb: $(OBJDIR)/hhuOS.iso hdd.img
+qemu-gdb: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
@@ -235,7 +241,7 @@ qemu-gdb: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -m 1G -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd.img
+qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	$(VERBOSE) echo "set architecture i8086" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
@@ -243,7 +249,7 @@ qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	$(QEMU_BIN) -m 1G -s -S $(QEMU_DEFAULT_PARAMS)
 
-kvm-gdb: $(OBJDIR)/hhuOS.iso hdd.img
+kvm-gdb: $(OBJDIR)/hhuOS.iso hdd1.img hdd2.img
 	$(VERBOSE) echo "break main" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
@@ -255,18 +261,6 @@ gdb:
 
 ddd:
 	ddd --gdb -x /tmp/gdbcommands.$(shell id -u) $(OBJDIR)/system
-
-#-------------------------------------------#
-# Mount hdd.img on the host system          #
-#-------------------------------------------#
-mount-hdd:
-	udisksctl loop-setup --file ./hdd.img --offset 1048576 --size 126877696
-
-#-------------------------------------------#
-# Mount usb.img on the host system          #
-#-------------------------------------------#
-mount-usb:
-	udisksctl loop-setup --file ./usb.img --offset 1048576 --size 62914560
 
 #-------------------------------------------#
 # Clean                                     #

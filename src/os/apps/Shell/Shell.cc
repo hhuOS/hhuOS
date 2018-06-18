@@ -38,6 +38,7 @@
 #include <kernel/events/input/SerialEvent.h>
 #include <apps/Shell/Commands/ComConfig.h>
 #include <apps/Shell/Commands/LptConfig.h>
+#include <apps/Shell/Commands/Mkfs.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -62,6 +63,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("insmod", new Insmod(*this));
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
+    commands.put("mkfs", new Mkfs(*this));
     commands.put("uptime", new Uptime(*this));
     commands.put("date", new Date(*this));
     commands.put("comconfig", new ComConfig(*this));
