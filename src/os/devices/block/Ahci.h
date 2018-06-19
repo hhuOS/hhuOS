@@ -43,6 +43,8 @@
  */
 class Ahci : public InterruptHandler {
 
+private:
+
     typedef enum {
         FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
         FIS_TYPE_REG_D2H	= 0x34,	// Register FIS - device to host
@@ -533,8 +535,6 @@ class Ahci : public InterruptHandler {
      */
     void startCommand(HbaPort *port);
 
-    void identifyDevice(HbaPort *port);
-
     /**
      * Stops all implemented ports.
      */
@@ -616,6 +616,11 @@ class Ahci : public InterruptHandler {
 
   public:
 
+    struct AhciDeviceInfo {
+        char name[41];
+        uint64_t sectorCount;
+    };
+
     HbaMem* abar = 0x0;
 
     Ahci();
@@ -652,6 +657,13 @@ class Ahci : public InterruptHandler {
      * @return The number of devices
      */
     uint8_t getNumDevices();
+
+    /**
+     * Get information about an AHCI device.
+     *
+     * @param deviceNumber The device's number
+     */
+    AhciDeviceInfo getDeviceInfo(uint16_t deviceNumber);
 
     void plugin();
 

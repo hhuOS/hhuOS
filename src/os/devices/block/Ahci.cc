@@ -77,7 +77,7 @@ void Ahci::setup(const Pci::Device &dev) {
     ahci_rw(sataDevices[0], 0, 0, 1, buf, ATA_CMD_READ_DMA_EX, 0);
     ahci_rw(sataDevices[0], 0, 0, 1, buf, ATA_CMD_READ_DMA_EX, 0);
 
-    //identifyDevice(sataDevices[0]);
+    //Mkfs(sataDevices[0]);
 
     abar->is = abar->is; // @suppress("Assignment to itself")
 }
@@ -300,8 +300,7 @@ bool Ahci::read(uint8_t device, uint32_t startl, uint32_t starth,
 }
 
 
-bool Ahci::write(uint8_t device, uint32_t startl, uint32_t starth,
-    uint32_t count, uint16_t *buf) {
+bool Ahci::write(uint8_t device, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf) {
 
     if (device + 1 > numDevices) {
         return false;
@@ -310,13 +309,15 @@ bool Ahci::write(uint8_t device, uint32_t startl, uint32_t starth,
     return ahci_rw(sataDevices[device], startl, starth, count, buf, ATA_CMD_WRITE_DMA_EX, device);
 }
 
-void Ahci::identifyDevice(HbaPort *port) {
+Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
+    AhciDeviceInfo ret{0};
 
-    uint8_t *buffer = new uint8_t[512];
+    HbaPort *port = sataDevices[deviceNumber];
+    auto *buffer = new uint8_t[512];
 
-    if ( !isActive(port) ) {
+    if (!isActive(port)) {
         AHCI_TRACE("Error: Port is not inizialized\n");
-        return;
+        return ret;
     }
 
     port->is = port->is; // @suppress("Assignment to itself")
@@ -325,17 +326,17 @@ void Ahci::identifyDevice(HbaPort *port) {
     int slot = findCmdSlot(port);
 
     if (slot == -1) {
-        return;
+        return ret;
     }
 
-    HbaCmdHeader *cmdheader = (HbaCmdHeader*) port->clb;
+    auto *cmdheader = (HbaCmdHeader*) port->clb;
     cmdheader += slot;
 
     cmdheader->cfl = sizeof(FisRegH2D) / sizeof(uint32_t);
     cmdheader->prdtl = 1;
     cmdheader->w = 0;
     
-    HbaCmdTbl *cmdtbl = (HbaCmdTbl*) (cmdheader->ctba);
+    auto *cmdtbl = (HbaCmdTbl*) (cmdheader->ctba);
 
     memset(cmdtbl, 0, 256);
 
@@ -345,7 +346,7 @@ void Ahci::identifyDevice(HbaPort *port) {
     cmdtbl->prdt_entry[0].i = 1;
     
 
-    FisRegH2D *cmdfis = (FisRegH2D*) (&cmdtbl->cfis);
+    auto *cmdfis = (FisRegH2D*) (&cmdtbl->cfis);
     
     cmdfis->fis_type = FIS_TYPE_REG_H2D;
     cmdfis->c = 1;
@@ -357,7 +358,7 @@ void Ahci::identifyDevice(HbaPort *port) {
 
     if (spin == 1000000) {
         AHCI_TRACE("Error: Device is not responding\n");
-        return;
+        return ret;
     }
 
     AHCI_TRACE("Issueing command at slot %d\n", slot);
@@ -373,36 +374,29 @@ void Ahci::identifyDevice(HbaPort *port) {
 
         if (port->is & HBA_PxIS_TFES) {
             AHCI_TRACE("Error: Task File Error!\n");
-            return;
+            return ret;
         }
 
         spin++;
     }
 
-#if AHCI_DEBUG
-    char name[41];
-
     for(unsigned int k = 0; k < 40; k += 2) {
-        name[k] = buffer[54 + k + 1];
-        name[k + 1] = buffer[54 + k];
+        ret.name[k] = buffer[54 + k + 1];
+        ret.name[k + 1] = buffer[54 + k];
     }
-    
-    name[40] = 0;
+
+    ret.name[40] = 0;
 
     unsigned int commandsets = *((unsigned int *)(buffer + ATA_IDENT_COMMANDSETS));
-    
-    unsigned int size;
+
     if (commandsets & (1 << 26))
         // Device uses 48-Bit Addressing:
-        size   = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA_EXT));
+        ret.sectorCount = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA_EXT));
     else
         // Device uses CHS or 28-bit Addressing:
-        size   = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA));
+        ret.sectorCount = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA));
 
-    AHCI_TRACE("Model Name: %s\n", name);
-    AHCI_TRACE("Size: %dMB", size / 1024 / 2);
-#endif
-
+    return ret;
 }
 
 bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t count, uint16_t *buf, uint8_t command,

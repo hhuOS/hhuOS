@@ -1,7 +1,8 @@
 #include "AhciDevice.h"
 
-AhciDevice::AhciDevice(Ahci &controller, uint8_t ahciDiskNumber, String name) :StorageDevice(name), controller(controller), ahciDiskNumber(ahciDiskNumber) {
-
+AhciDevice::AhciDevice(Ahci &controller, uint8_t ahciDiskNumber, String name) :
+        StorageDevice(name), controller(controller), ahciDiskNumber(ahciDiskNumber) {
+    deviceInfo = controller.getDeviceInfo(ahciDiskNumber);
 }
 
 bool AhciDevice::read(uint8_t *buff, uint32_t sector, uint32_t count) {
@@ -18,6 +19,5 @@ uint32_t AhciDevice::getSectorSize() {
 }
 
 uint64_t AhciDevice::getSectorCount() {
-    // TODO: Get actual sector count from controller.
-    return 0;
+    return deviceInfo.sectorCount;
 }

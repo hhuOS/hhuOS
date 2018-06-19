@@ -16,6 +16,8 @@ private:
     Ahci &controller;
     uint8_t ahciDiskNumber;
 
+    Ahci::AhciDeviceInfo deviceInfo;
+
 public:
     /**
      * Constructor.
