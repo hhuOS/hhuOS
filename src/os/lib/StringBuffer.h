@@ -1,52 +1,63 @@
-/*****************************************************************************
- *                                                                           *
- *                       S T R I N G B U F F E R                             *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Die Klasse StringBuffer stellt einen Puffer fuer die     *
- *                  Sammlung von Zeichen zur Darstellung auf dem Bildschirm  * 
- *                  oder anderen Ausgabegeraeten bereit. Die Ausgabe der     *
- *                  Zeichen erfolgt, sobald der Puffer voll ist oder wenn    *
- *                  explizit die Methode flush() aufgerufen wird.            *
- *                  Da StringBuffer geraeteunabhaengig sein soll, ist        *
- *                  flush() eine virtuelle Methode, die von den abgeleiteten *
- *                  Klassen definiert werden muss.                           *
- *                                                                           *
- * Autor:           Olaf Spinczyk, TU Dortmund                               *
- *                  Aenderungen von Michael Schoettner, HHU, 1.8.16          *
- *****************************************************************************/
+/*
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner, Olaf Spinczyk
+ * Heinrich-Heine University
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
 #ifndef __StringBuffer_include__
 #define __StringBuffer_include__
 
 #include <cstdint>
 
+/**
+ * Implementation of a string buffer, that is automatically flushed to an output stream, once it is full.
+ *
+ * @author Olaf Spinczyk, TU Dortmund; Michael Schoettner, Fabian Ruhland, HHU
+ * @date 2016
+ */
 class StringBuffer {
-    
-private:
-    StringBuffer(const StringBuffer &copy); // Verhindere Kopieren
-
-    // Alle Variablen und Methoden dieser Klasse sind "protected",
-    // da die abgeleiteten Klassen einen direkten Zugriff auf den
-    // Puffer, den Konstruktor, den Destruktor und die Methode put
-    // benoetigen. Die Methode flush() muss sowieso neu definiert
-    // werden und kann dann auch public werden.
 
 protected:
     char buffer[80];
     uint32_t pos;
 
-    // StringBuffer: Im Konstruktor wird der Puffer als leer markiert.
-    StringBuffer () : pos(0) {}
+public:
+    /**
+     * Constructor.
+     */
+    StringBuffer();
 
-    // ~StringBuffer: Im Destruktor gibt es nichts mehr zu tun.
+    /**
+     * Copy-constructor.
+     */
+    StringBuffer(const StringBuffer &copy) = delete;
+
+    /**
+     * Destructor.
+     */
     virtual ~StringBuffer() = default;
 
-    // Fuegt ein Zeichen in den Puffer ein. Wenn der Puffer
+    /**
+     * Append a char to the buffer.
+     *
+     * @param c The char
+     */
     void put (char c);
 
-    // Methode zur Ausgabe des Pufferinhalts
+    /**
+     * Flush the buffer.
+     */
     virtual void flush () = 0;
-    
 };
 
 #endif
