@@ -12,7 +12,7 @@ LINKER_SCRIPT = ${CURDIR}/link.ld
 #-------------------------------------------#
 OBJDIR = ./build
 DEPDIR = ./dep
-HDD_PATCH = ${CURDIR}/../hdd
+HDD_PATH = ${CURDIR}/../hdd
 INITRD_PATH = ${CURDIR}/../initrd
 LOADERDIR = ${CURDIR}/../loader
 BOOTDIR = $(LOADERDIR)/boot

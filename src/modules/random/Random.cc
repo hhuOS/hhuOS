@@ -1,9 +1,12 @@
+#include <lib/libc/printf.h>
 #include "Random.h"
 #include "RandomNode.h"
 #include "kernel/Kernel.h"
 #include "filesystem/FileSystem.h"
 
 MODULE_PROVIDER {
+
+    printf("Random loading");
 
     return new Random();
 };

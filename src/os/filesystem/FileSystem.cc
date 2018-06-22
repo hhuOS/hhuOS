@@ -29,8 +29,6 @@
 #include "filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
 #include "filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"
 #include "filesystem/RamFs/graphics/GraphicsResolutionsNode.h"
-#include "filesystem/RamFs/ZeroNode.h"
-#include "filesystem/RamFs/RandomNode.h"
 #include "filesystem/RamFs/graphics/GraphicsMemoryNode.h"
 #include "filesystem/RamFs/RamFsDriver.h"
 #include "filesystem/RamFs/storage/StorageNode.h"
@@ -179,14 +177,6 @@ void FileSystem::init() {
 
     // Add PCI-node to dev-Directory
     addVirtualNode("/dev", new PciNode());
-
-    /** Uncomment to add random- and zero-nodes on startup.
-    // Add Random-Node to dev-Directory
-    addVirtualNode("/dev", new RandomNode());
-
-    // Add Zero-Node to dev-Directory
-    addVirtualNode("/dev", new ZeroNode());
-    */
 
     // Add syslog file to dev-Directory
     createFile("/dev/syslog");
