@@ -55,6 +55,8 @@ public:
 
     static bool isInitialized();
 
+    static bool memError;
+
 private:
 
     static uint8_t* getPacket();

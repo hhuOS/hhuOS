@@ -79,6 +79,8 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
 
     if (slot == 14) {
 
+        GdbServer::memError = true;
+
         // Get page fault address and flags
         uint32_t faulting_address = 0;
         // the faulted linear address is loaded in the cr2 register

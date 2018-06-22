@@ -8,6 +8,8 @@ uint8_t GdbServer::inBuffer[BUFMAX];
 
 uint8_t GdbServer::outBuffer[BUFMAX];
 
+bool GdbServer::memError = false;
+
 static bool initialized = false;
 
 GdbServer::~GdbServer() = default;
@@ -71,7 +73,14 @@ uint32_t hexToInt(uint8_t **ptr, uint32_t *intValue) {
     return numChars;
 }
 
-uint8_t *mem2hex(uint8_t *mem, uint8_t *buf, uint32_t count) {
+uint8_t *mem2hex(uint8_t *mem, uint8_t *buf, uint32_t count, bool mayFault) {
+
+    if (mem == nullptr) {
+
+        GdbServer::memError = true;
+
+        return buf;
+    }
 
     uint32_t i;
 
@@ -80,6 +89,11 @@ uint8_t *mem2hex(uint8_t *mem, uint8_t *buf, uint32_t count) {
     for (i = 0; i < count; i++) {
 
         ch = getChar(mem++);
+
+        if (mayFault && GdbServer::memError) {
+
+            return buf;
+        }
 
         *buf++ = hexCharacters[ch >> 4U];
 
@@ -92,7 +106,14 @@ uint8_t *mem2hex(uint8_t *mem, uint8_t *buf, uint32_t count) {
 }
 
 
-uint8_t *hex2mem(uint8_t *buf, uint8_t *mem, uint32_t count) {
+uint8_t *hex2mem(uint8_t *buf, uint8_t *mem, uint32_t count, bool mayFault) {
+
+    if (mem == nullptr) {
+
+        GdbServer::memError = true;
+
+        return buf;
+    }
 
     uint32_t i;
 
@@ -105,6 +126,11 @@ uint8_t *hex2mem(uint8_t *buf, uint8_t *mem, uint32_t count) {
         ch = ch + hex(*buf++);
 
         setChar(mem++, ch);
+
+        if (mayFault && GdbServer::memError) {
+
+            return buf;
+        }
     }
 
     return (mem);
@@ -371,7 +397,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
     *ptr++ = ':';
 
-    ptr = mem2hex((uint8_t *) &frame.esp, ptr, 4);
+    ptr = mem2hex((uint8_t *) &frame.esp, ptr, 4, false);
 
     *ptr++ = ';';
 
@@ -379,7 +405,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
     *ptr++ = ':';
 
-    ptr = mem2hex((uint8_t *) &frame.ebp, ptr, 4);
+    ptr = mem2hex((uint8_t *) &frame.ebp, ptr, 4, false);
 
     *ptr++ = ';';
 
@@ -387,7 +413,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
     *ptr++ = ':';
 
-    ptr = mem2hex((uint8_t *) &frame.eip, ptr, 4);
+    ptr = mem2hex((uint8_t *) &frame.eip, ptr, 4, false);
 
     *ptr++ = ';';
 
@@ -424,7 +450,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 break;
             case GET_REGISTERS:
 
-                mem2hex((uint8_t *) &gdbRegs.eax, outBuffer, NUM_REGS_BYTES);
+                mem2hex((uint8_t *) &gdbRegs.eax, outBuffer, NUM_REGS_BYTES, false);
 
                 break;
             case SET_REGISTERS:
@@ -440,7 +466,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                 if (hexToInt (&ptr, &regno) && *ptr++ == '=') {
 
-                    hex2mem(ptr, (uint8_t*) &regValue, 4);
+                    hex2mem(ptr, (uint8_t*) &regValue, 4, false);
 
                     setFrameRegister(frame, (uint8_t) regno, regValue);
 
@@ -460,7 +486,14 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                             ptr = nullptr;
 
-                            mem2hex((uint8_t *) address, outBuffer, length);
+                            memError = false;
+
+                            mem2hex((uint8_t *) address, outBuffer, length, true);
+
+                            if (memError) {
+
+                                strcpy((char*) outBuffer, "E03");
+                            }
                         }
                     }
                 }
@@ -481,9 +514,18 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                             if (*(ptr++) == ':') {
 
-                                hex2mem(ptr, (uint8_t *) address, length);
+                                memError = false;
 
-                                strcpy ((char*) outBuffer, "OK");
+                                hex2mem(ptr, (uint8_t *) address, length, true);
+
+                                if (memError) {
+
+                                    strcpy((char*) outBuffer, "E03");
+
+                                } else {
+
+                                    strcpy ((char*) outBuffer, "OK");
+                                }
 
                                 ptr = nullptr;
                             }
