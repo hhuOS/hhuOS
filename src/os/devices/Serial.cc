@@ -33,7 +33,7 @@ bool Serial::checkPort(ComPort port) {
     return getBasePort(port) != 0;
 }
 
-Serial::Serial(ComPort port, BaudRate speed) noexcept : eventBuffer(1024), port(port), speed(speed),
+Serial::Serial(ComPort port, BaudRate speed) : eventBuffer(1024), port(port), speed(speed),
                                                dataRegister(getBasePort(port)),
                                                interruptRegister(static_cast<uint16_t>(getBasePort(port) + 1)),
                                                fifoControlRegister(static_cast<uint16_t>(getBasePort(port) + 2)),

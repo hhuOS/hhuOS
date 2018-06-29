@@ -17,6 +17,7 @@
 #include <kernel/Kernel.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
+#include <kernel/threads/NullYielder.h>
 #include "kernel/threads/Scheduler.h"
 #include "devices/Pit.h"
 
@@ -26,10 +27,11 @@ IOport data0(0x40);
 
 Pit* Pit::instance = nullptr;
 
+NullYielder nullYielder;
+
 Pit::Pit(uint32_t us) {
 
-    timeService = Kernel::getService<TimeService>();
-    graphicsService = Kernel::getService<GraphicsService>();
+    yieldable = &nullYielder;
 
     setInterval(us);
 }
@@ -45,6 +47,8 @@ Pit *Pit::getInstance() {
 }
 
 void Pit::setInterval(uint32_t us) {
+
+    timerInterval = us / 1000;
 
     uint32_t divisor = (us * 1000) / TIME_BASE;
 
@@ -69,10 +73,52 @@ void Pit::plugin () {
 
 void Pit::trigger () {
 
-    timeService->tick();
+    ticks++;
 
-    if (Scheduler::getInstance()->isInitialized()) {
+    yieldable->yield();
+}
 
-            Scheduler::getInstance()->yield();
-    }
+uint32_t Pit::getNanos() {
+
+    return ticks * timerInterval * 1000000;
+}
+
+uint32_t Pit::getMicros() {
+
+    return ticks * timerInterval * 1000;
+}
+
+uint32_t Pit::getMillis() {
+
+    return ticks * timerInterval;
+}
+
+uint32_t Pit::getSeconds() {
+
+    return ticks * timerInterval / 1000;
+}
+
+uint32_t Pit::getMinutes() {
+
+    return ticks * timerInterval / 1000 / 60;
+}
+
+uint32_t Pit::getHours() {
+
+    return ticks * timerInterval / 1000 / 60 / 60;
+}
+
+uint32_t Pit::getDays() {
+
+    return ticks * timerInterval / 1000 / 60 / 60 / 24;
+}
+
+uint32_t Pit::getYears() {
+
+    return ticks * timerInterval / 1000 / 60 / 60 / 24 / 365;
+}
+
+void Pit::setYieldable(Yieldable *yieldable) {
+
+    this->yieldable = yieldable;
 }

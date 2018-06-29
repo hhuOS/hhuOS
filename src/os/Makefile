@@ -77,10 +77,6 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k en-us -soundhw
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -device ide-drive,drive=disk1,bus=ahci.1 \
 					  -rtc base=localtime,clock=host \
-					  -serial telnet:127.0.0.1:8821,server,nowait \
-					  -serial telnet:127.0.0.1:8822,server,nowait \
-					  -serial telnet:127.0.0.1:8823,server,nowait \
-					  -serial telnet:127.0.0.1:8824,server,nowait \
 					  -parallel telnet:127.0.0.1:8825,server,nowait \
 					  -parallel telnet:127.0.0.1:8826,server,nowait
 
@@ -110,10 +106,12 @@ all: iso hdd0.img hdd1.img
 # Hard drive image                          #
 #-------------------------------------------#
 hdd0.img: ../hdd/*
+	@echo "HDD		hdd0.img"
 	$(VERBOSE) bash ./mkhdd.sh
 
 hdd1.img: ../hdd/*
-	$(VERBOSE) qemu-img create hdd1.img 32M
+	@echo "HDD		hdd1.img"
+	$(VERBOSE) qemu-img create hdd1.img 32M > /dev/null
 
 
 gitversion.c: ../../.git/HEAD ../../.git/index

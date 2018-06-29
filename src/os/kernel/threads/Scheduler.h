@@ -19,8 +19,9 @@
 #include <kernel/services/InputService.h>
 #include "kernel/threads/Thread.h"
 #include "lib/lock/Spinlock.h"
+#include "kernel/threads/Yieldable.h"
 
-class Scheduler {
+class Scheduler : public Yieldable {
     
 public:
 
@@ -73,7 +74,7 @@ public:
     /**
      * Switches to the next Thread.
      */
-    void yield ();
+    void yield () override;
 
     /**
      * Indicates if a Thread is waiting for execution.

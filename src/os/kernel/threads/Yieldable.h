@@ -15,43 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __Ship_include__
-#define __Ship_include__
+#ifndef __Yieldable_include__
+#define __Yieldable_include__
 
-#include "apps/game/GameObject.h"
-#include "apps/BugDefender/Missile.h"
+class Yieldable {
 
-class Ship : public GameObject {
+public:
 
-  private:
+    Yieldable() = default;
 
-    Ship(const Ship &copy); // Verhindere Kopieren
+    virtual ~Yieldable() = default;
 
-    const static int width = 40;
-    const static int height = 8;
-
-    constexpr static float speed = 200.0f;
-
-    const static int waitTime = 300;
-
-    unsigned long lastShootTime;
-
-    int points;
-    
-  public:
-
-    Ship(Vector2 position);
-
-    ~Ship(){}
-
-    void update(float delta);
-
-    void draw(LinearFrameBuffer* g2d);
-
-    void onCollisionEnter(GameObject &other) override;
-
-    void onCollisionExit();
-
+    virtual void yield() = 0;
 };
+
 
 #endif

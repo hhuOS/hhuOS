@@ -244,12 +244,12 @@ void Application::startGame(Game* game){
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
     lfb->enableDoubleBuffering();
 
-    float currentTime = timeService->getSystemTime() / 100.0f;
+    float currentTime = timeService->getSystemTime() / 1000.0f;
     float acc = 0.0f;
     float delta = 0.01667f; // 60Hz
 
     while (game->isRunning) {
-        float newTime = timeService->getSystemTime() / 100.0f;
+        float newTime = timeService->getSystemTime() / 1000.0f;
         float frameTime = newTime - currentTime;
         if(frameTime > 0.25f)
             frameTime = 0.25f;

@@ -2,35 +2,51 @@
 #include <lib/libc/printf.h>
 #include <kernel/services/StdStreamService.h>
 #include <lib/file/File.h>
+#include <devices/Pit.h>
 #include "Logger.h"
 
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
 Util::ArrayList<String> Logger::tmplogs;
 File* Logger::syslog = nullptr;
+Serial Logger::serial(Serial::COM1);
+TimeProvider *Logger::timeProvider = Pit::getInstance();
 
-void Logger::trace(const String log, bool forcePrint) {
-    logMessage(TRACE, log, forcePrint);
+void Logger::trace(const String &message, bool forcePrint) {
+    logMessage(TRACE, message, forcePrint);
 }
 
-void Logger::debug(const String log, bool forcePrint) {
-    logMessage(DEBUG, log, forcePrint);
+void Logger::debug(const String &message, bool forcePrint) {
+    logMessage(DEBUG, message, forcePrint);
 }
 
-void Logger::info(const String log, bool forcePrint) {
-    logMessage(INFO, log, forcePrint);
+void Logger::info(const String &message, bool forcePrint) {
+    logMessage(INFO, message, forcePrint);
 }
 
-void Logger::warn(const String log, bool forcePrint) {
-    logMessage(WARN, log, forcePrint);
+void Logger::warn(const String &message, bool forcePrint) {
+    logMessage(WARN, message, forcePrint);
 }
 
-void Logger::error(const String log, bool forcePrint) {
-    logMessage(ERROR, log, forcePrint);
+void Logger::error(const String &message, bool forcePrint) {
+    logMessage(ERROR, message, forcePrint);
 }
 
-void Logger::logMessage(LogLevel level, const String message, bool forcePrint) {
-    String tmp = String("[") + getLevelAsString(level) + String("]");
+void Logger::logMessage(LogLevel level, const String &message, bool forcePrint) {
+
+    uint32_t millis = timeProvider->getMillis();
+
+    uint32_t seconds = millis / 1000;
+
+    uint32_t fraction = millis % 1000;
+
+    String tmp = "[" + String::valueOf(seconds, 10) + "."
+                     + String::valueOf(fraction, 10, 4) + "]["
+                     + getLevelAsString(level) + "] ";
+
     tmp += message;
+
+    serial.sendData((char*) tmp, tmp.length());
+    serial.sendChar('\n');
 
     if(Kernel::isServiceRegistered(FileSystem::SERVICE_NAME)) {
         if (Logger::syslog == nullptr) {

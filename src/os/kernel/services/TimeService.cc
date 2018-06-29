@@ -1,23 +1,19 @@
 #include "TimeService.h"
 
-TimeService::TimeService() {
+TimeService::TimeService(TimeProvider *provider) {
 	rtc = new Rtc();
+    this->provider = provider;
 }
 
 uint32_t TimeService::getSystemTime() {
-    return systemTime;
-}
-
-void TimeService::tick() {
-    systemTime++;
+    return provider->getMillis();
 }
 
 void TimeService::msleep(uint32_t ms) {
-    unsigned long ticks = ms / 10;
-    unsigned long st = systemTime;
+    unsigned long st = getSystemTime();
 
     while(true) {
-        if(systemTime > (st + ticks)) {
+        if(getSystemTime() > (st + ms)) {
             break;
         }
     }

@@ -17,12 +17,14 @@
 #ifndef __PIT_include__
 #define __PIT_include__
 
+#include <lib/time/TimeProvider.h>
 #include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/IOport.h"
 #include "kernel/Kernel.h"
 #include "kernel/services/GraphicsService.h"
 #include "kernel/services/TimeService.h"
 #include "devices/graphics/text/TextDriver.h"
+#include "kernel/threads/Yieldable.h"
 
 /**
  * Driver for the programmable interval timer.
@@ -30,7 +32,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2017
  */
-class Pit : public InterruptHandler {
+class Pit : public InterruptHandler, public TimeProvider {
 
 public:
     /**
@@ -74,10 +76,28 @@ public:
      */
     void plugin ();
 
+    void setYieldable(Yieldable *yieldable);
+
     /**
      * Overriding function from InterruptHandler.
      */
     void trigger () override;
+
+    uint32_t getNanos() override;
+
+    uint32_t getMicros() override;
+
+    uint32_t getMillis() override;
+
+    uint32_t getSeconds() override;
+
+    uint32_t getMinutes() override;
+
+    uint32_t getHours() override;
+
+    uint32_t getDays() override;
+
+    uint32_t getYears() override;
 
 private:
     /**
@@ -89,9 +109,7 @@ private:
 
     static Pit *instance;
 
-    TimeService *timeService;
-
-    GraphicsService *graphicsService;
+    Yieldable *yieldable;
 
     uint32_t timerInterval;
 

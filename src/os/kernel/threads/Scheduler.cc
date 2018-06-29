@@ -3,6 +3,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/Kernel.h>
 #include <kernel/services/SerialService.h>
+#include <devices/Pit.h>
 #include "kernel/threads/Scheduler.h"
 
 extern "C" {
@@ -92,6 +93,8 @@ void Scheduler::schedule() {
     initialized = true;
 
     setSchedInit();
+
+    Pit::getInstance()->setYieldable(this);
 
     startThread(currentThread->context);
 }

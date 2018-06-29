@@ -153,7 +153,7 @@ public:
      * @param port The COM-port
      * @param speed The baud-rate
      */
-    explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200);
+    explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200) noexcept;
 
     /**
      * Destructor.

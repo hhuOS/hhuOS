@@ -4,6 +4,8 @@
 #include <lib/String.h>
 #include <lib/util/ArrayList.h>
 #include <lib/file/File.h>
+#include <devices/Serial.h>
+#include <lib/time/TimeProvider.h>
 
 class Logger {
 public:
@@ -19,7 +21,7 @@ private:
 
     static LogLevel currentLevel;
 
-    static void logMessage(LogLevel level, String message, bool shouldPrint);
+    static void logMessage(LogLevel level, const String &message, bool shouldPrint);
     static String getLevelAsString(LogLevel level);
 
     static constexpr const char* LEVEL_TRACE = "trace";
@@ -28,16 +30,20 @@ private:
     static constexpr const char* LEVEL_WARN = "warn";
     static constexpr const char* LEVEL_ERROR = "error";
 
+    static Serial serial;
+
+    static TimeProvider *timeProvider;
+
 public:
-    static void trace(String log, bool forcePrint = false);
+    static void trace(const String &message, bool forcePrint = false);
 
-    static void debug(String log, bool forcePrint = false);
+    static void debug(const String &message, bool forcePrint = false);
 
-    static void info(String log, bool forcePrint = false);
+    static void info(const String &message, bool forcePrint = false);
 
-    static void warn(String log, bool forcePrint = false);
+    static void warn(const String &message, bool forcePrint = false);
 
-    static void error(String log, bool forcePrint = false); // Maybe switch to true
+    static void error(const String &message, bool forcePrint = false); // Maybe switch to true
 
     static void setLevel(LogLevel level);
 

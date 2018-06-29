@@ -5,18 +5,17 @@
 #include "devices/Rtc.h"
 
 #include <cstdint>
+#include <lib/time/TimeProvider.h>
 
 class TimeService : public KernelService {
 
 public:
 
-    TimeService();
+    explicit TimeService(TimeProvider *provider);
 
     uint32_t getSystemTime();
 
-    void tick();
-
-    static constexpr char* SERVICE_NAME = "TimeService";
+    static constexpr const char* SERVICE_NAME = "TimeService";
 
     void msleep(uint32_t ms);
 
@@ -30,9 +29,9 @@ public:
 
 private:
 
-    uint32_t systemTime = 0;
     Rtc *rtc;
 
+    TimeProvider *provider;
 };
 
 

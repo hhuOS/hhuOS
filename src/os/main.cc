@@ -99,7 +99,7 @@ void registerServices() {
     graphicsService->setTextDriver(text);
 
     Kernel::registerService(GraphicsService::SERVICE_NAME, graphicsService);
-    Kernel::registerService(TimeService::SERVICE_NAME, new TimeService());
+    Kernel::registerService(TimeService::SERVICE_NAME, new TimeService(Pit::getInstance()));
     Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
     Kernel::registerService(FileSystem::SERVICE_NAME, new FileSystem());
     Kernel::registerService(InputService::SERVICE_NAME, new InputService());
@@ -173,13 +173,21 @@ void initSerialPorts() {
 
 int32_t main() {
 
+    Pit::getInstance()->plugin();
+
     Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
+
+    Logger::trace("Initializing graphics");
 
     initGraphics();
 
     eventBus = new EventBus();
 
+    Logger::trace("Registering services");
+
     registerServices();
+
+    Logger::trace("Initializing serial ports");
 
     initSerialPorts();
 
@@ -192,8 +200,12 @@ int32_t main() {
         GdbServer::synchronize();
     }
 
+    Logger::trace("Plugging in RTC");
+
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
+
+    Logger::trace("Plugging in keyboard and mouse");
 
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
@@ -202,8 +214,6 @@ int32_t main() {
     if(Multiboot::Structure::getKernelOption("splash") == "true") {
         lfb->init(xres, yres, bpp);
         lfb->enableDoubleBuffering();
-
-        Pit::getInstance()->plugin();
 
         updateBootScreen(0, "Initializing PCI Devices");
         Pci::scan();
@@ -225,8 +235,6 @@ int32_t main() {
         lfb->disableDoubleBuffering();
         lfb->clear();
     } else {
-        Pit::getInstance()->plugin();
-
         text->puts("Initializing PCI Devices\n", 25, Colors::HHU_RED);
         Pci::scan();
 
@@ -248,6 +256,8 @@ int32_t main() {
 
         lfb->init(xres, yres, bpp);
     }
+
+    Logger::trace("Starting scheduler");
 
     Scheduler::getInstance()->schedule();
 

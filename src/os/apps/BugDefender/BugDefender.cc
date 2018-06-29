@@ -123,7 +123,7 @@ void BugDefender::showMenu(LinearFrameBuffer* g2d){
 
 void BugDefender::showGameOver(LinearFrameBuffer* g2d){
 
-    if((HHUEngine::time() / 100) % 2 == 0) {
+    if((HHUEngine::time() / 1000) % 2 == 0) {
         g2d->placeString(sun_font_12x22, 50, 50, "Game Over!", Colors::WHITE);
     }
 
@@ -132,7 +132,7 @@ void BugDefender::showGameOver(LinearFrameBuffer* g2d){
 
 void BugDefender::showGameWon(LinearFrameBuffer* g2d){
 
-    if((HHUEngine::time() / 100) % 2 == 0) {
+    if((HHUEngine::time() / 1000) % 2 == 0) {
         g2d->placeString(sun_font_12x22, 50, 50, "You Win!", Colors::WHITE);
     }
 

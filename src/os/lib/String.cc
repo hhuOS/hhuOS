@@ -367,28 +367,45 @@ String String::valueOf(int32_t value, uint8_t radix) {
     return String(result);
 }
 
-String String::valueOf(uint32_t value, uint8_t radix) {
+String String::valueOf(uint32_t value, uint8_t radix, uint8_t padding) {
 
     char result[32];
 
     memset(result, 0, 32);
 
+    char format[5];
+
+    char *writer = &format[0];
+
+    *writer++ = '%';
+
+    if (padding > 0) {
+
+        *writer++ = '0';
+
+        *writer++ = padding + '0';
+    }
+
     switch (radix) {
         case 2:
-            sprintf(result, "%b", value);
+            *writer++ = 'b';
             break;
         case 8:
-            sprintf(result, "%o", value);
+            *writer++ = 'o';
             break;
         case 10:
-            sprintf(result, "%u", value);
+            *writer++ = 'u';
             break;
         case 16:
-            sprintf(result, "%x", value);
+            *writer++ = 'x';
             break;
         default:
             break;
     }
+
+    *writer++ = '\0';
+
+    sprintf(result, format, value);
 
     return String(result);
 }

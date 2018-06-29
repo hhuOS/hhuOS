@@ -259,16 +259,16 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
         ahci->setup(dev);
 
-        uint8_t numDevices = ahci->getNumDevices();
-
-        for (uint8_t i = 0; i < numDevices; i++) {
-
-            StorageDevice *storageDevice = new AhciDevice(*ahci, i, "hdd" + String::valueOf(ahciCount, 10));
-
-            storageService->registerDevice(storageDevice);
-
-            ahciCount++;
-        }
+//        uint8_t numDevices = ahci->getNumDevices();
+//
+//        for (uint8_t i = 0; i < numDevices; i++) {
+//
+//            StorageDevice *storageDevice = new AhciDevice(*ahci, i, "hdd" + String::valueOf(ahciCount, 10));
+//
+//            storageService->registerDevice(storageDevice);
+//
+//            ahciCount++;
+//        }
 #endif
     }
 
