@@ -5,9 +5,7 @@
 #include "filesystem/FileSystem.h"
 
 MODULE_PROVIDER {
-
-    printf("Random loading");
-
+    
     return new Random();
 };
 
