@@ -310,10 +310,12 @@ bool Ahci::write(uint8_t device, uint32_t startl, uint32_t starth, uint32_t coun
 }
 
 Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
+
     AhciDeviceInfo ret{0};
 
     HbaPort *port = sataDevices[deviceNumber];
-    auto *buffer = new uint8_t[512];
+
+    HbaPort_Virt *virtPort = sataDevices_Virt[deviceNumber];
 
     if (!isActive(port)) {
         AHCI_TRACE("Error: Port is not inizialized\n");
@@ -329,22 +331,22 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
         return ret;
     }
 
-    auto *cmdheader = (HbaCmdHeader*) port->clb;
+    IOMemInfo ioMemInfo = SystemManagement::getInstance()->mapIO(512);
+
+    auto *cmdheader = (HbaCmdHeader*) virtPort->clb;
     cmdheader += slot;
 
     cmdheader->cfl = sizeof(FisRegH2D) / sizeof(uint32_t);
     cmdheader->prdtl = 1;
     cmdheader->w = 0;
-    
-    auto *cmdtbl = (HbaCmdTbl*) (cmdheader->ctba);
 
+    auto *cmdtbl = (HbaCmdTbl*)(virtCtbas[deviceNumber][slot]);
     memset(cmdtbl, 0, 256);
 
-    cmdtbl->prdt_entry[0].dba = (uint32_t) buffer;
+    cmdtbl->prdt_entry[0].dba = (uint32_t) ioMemInfo.physAddresses[0];
     cmdtbl->prdt_entry[0].dbau = (uint32_t) 0;
     cmdtbl->prdt_entry[0].dbc = 511;
     cmdtbl->prdt_entry[0].i = 1;
-    
 
     auto *cmdfis = (FisRegH2D*) (&cmdtbl->cfis);
     
@@ -358,6 +360,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
 
     if (spin == 1000000) {
         AHCI_TRACE("Error: Device is not responding\n");
+        SystemManagement::getInstance()->freeIO(ioMemInfo);
         return ret;
     }
 
@@ -374,11 +377,14 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
 
         if (port->is & HBA_PxIS_TFES) {
             AHCI_TRACE("Error: Task File Error!\n");
+            SystemManagement::getInstance()->freeIO(ioMemInfo);
             return ret;
         }
 
         spin++;
     }
+
+    auto *buffer = (uint8_t*) ioMemInfo.virtStartAddress;
 
     for(unsigned int k = 0; k < 40; k += 2) {
         ret.name[k] = buffer[54 + k + 1];
@@ -395,6 +401,8 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     else
         // Device uses CHS or 28-bit Addressing:
         ret.sectorCount = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA));
+
+    SystemManagement::getInstance()->freeIO(ioMemInfo);
 
     return ret;
 }
@@ -414,12 +422,6 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
 
     uint32_t totalCount = count;
 
-    IOMemInfo ioMemInfo = SystemManagement::getInstance()->mapIO(count * 512 * 2);
-
-    if(command == ATA_CMD_WRITE_DMA_EX) {
-        memcpy((void *) ioMemInfo.virtStartAddress, buf, count * 512);
-    }
-
     HbaPort_Virt *virtPort = sataDevices_Virt[portIndex];
 
     port->is = port->is; // @suppress("Assignment to itself")
@@ -429,6 +431,12 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
 
     if (slot == -1) {
         return false;
+    }
+
+    IOMemInfo ioMemInfo = SystemManagement::getInstance()->mapIO(count * 512 * 2);
+
+    if(command == ATA_CMD_WRITE_DMA_EX) {
+        memcpy((void *) ioMemInfo.virtStartAddress, buf, count * 512);
     }
 
     HbaCmdHeader *cmdheader = (HbaCmdHeader*) virtPort->clb;
