@@ -164,7 +164,7 @@ namespace Util {
 
         ensureCapacity(length + 1);
 
-        memcpy(&elements[index + 1], &elements[index], capacity - index);
+        memcpy(&elements[index + 1], &elements[index], length - index);
 
         elements[index] = element;
 

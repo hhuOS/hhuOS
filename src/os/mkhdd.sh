@@ -1,0 +1,26 @@
+#!/bin/bash
+
+rm -f hdd0.img
+
+fallocate -l 48M hdd0.img
+
+(echo n; echo p; echo 1;echo "16384"; echo ""; echo t; echo 58; echo w) | fdisk hdd0.img
+
+fallocate -l 40M hdd0p1
+
+mkfs.fat -F32 -S512 hdd0p1
+
+find "../hdd" -type d | while read dir; do
+	current_dir=$(realpath --relative-to="../hdd" "$dir")
+	[ -z "$current_dir" ] && continue
+	mmd -i "./hdd0p1" "::$current_dir"
+done
+
+find "../hdd" -type f | while read file; do
+	current_file=$(realpath --relative-to="../hdd" "$file")
+	mcopy -i "./hdd0p1" "$file" "::$current_file"
+done
+
+dd if=hdd0p1 of=hdd0.img bs=512 seek=16384
+
+rm hdd0p1

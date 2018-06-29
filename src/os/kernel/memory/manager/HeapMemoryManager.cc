@@ -90,7 +90,10 @@ void* HeapMemoryManager::alloc(uint32_t size) {
 			lock->release();
 		}
 		// return nullpointer
-		return 0;
+#if THROW_EXCEPTION
+		Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+#endif
+		return nullptr;
 	}
 	
 	// the chunk has more memory than needed -> split into 2 chunks

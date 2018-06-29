@@ -65,8 +65,6 @@ private:
      */
     uint32_t lockVar;
 
-    uint32_t lockInt = 0;
-
     /**
      * Position of the zero flag in EFLAG
      */

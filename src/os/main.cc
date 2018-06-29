@@ -173,7 +173,7 @@ void initSerialPorts() {
 
 int32_t main() {
 
-    Logger::trace("Start Kernel Main");
+//    Logger::trace("Start Kernel Main");
 
     initGraphics();
 

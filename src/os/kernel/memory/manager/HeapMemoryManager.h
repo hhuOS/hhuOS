@@ -21,6 +21,8 @@
 #include "lib/lock/Spinlock.h"
 #include "MemoryManager.h"
 
+#define THROW_EXCEPTION 1
+
 /**
  * Header for the double-linked list mamaging the memory blocks.
  */
