@@ -105,13 +105,13 @@ all: iso modules hdd0.img hdd1.img
 #-------------------------------------------#
 # Hard drive image                          #
 #-------------------------------------------#
-hdd0.img: ../hdd/*
+hdd0.img: ../hdd/* modules
 	@echo "HDD		hdd0.img"
 	$(VERBOSE) bash ./mkhdd.sh
 
 hdd1.img:
 	@echo "HDD		hdd1.img"
-	$(VERBOSE) qemu-img create hdd1.img 32M
+	$(VERBOSE) qemu-img create hdd1.img 40M
 
 gitversion.c: ../../.git/HEAD ../../.git/index
 	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - $(shell git rev-parse --short HEAD)\";" > $@
