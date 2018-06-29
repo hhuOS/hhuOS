@@ -113,6 +113,8 @@ public:
      */
     void protectPage(uint32_t virtStartAddress, uint32_t virtEndAddress);
 
+    void writeProtectKernelCode();
+
     /**
      * Unprotects a given page from unmapping.
      *

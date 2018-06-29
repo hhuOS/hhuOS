@@ -115,7 +115,6 @@ void HeapTestApp::shuffle() {
  * Thread run method.
  */
 void HeapTestApp::run() {
-    Cpu::disableInterrupts();
     Logger::trace("Running HeapTestApp");
 
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
@@ -160,7 +159,6 @@ void HeapTestApp::run() {
 
     Logger::trace("Finished HeapTestApp");
 
-    Cpu::enableInterrupts();
     *stream << "Press [ENTER] to return" << endl;
     while (!kb->isKeyPressed(KeyEvent::RETURN));
 

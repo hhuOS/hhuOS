@@ -27,7 +27,7 @@ extern "C"{
 	// functions to set up memory management and paging
     void _init();
     void _fini();
-    void init_system();
+    void init_system(Multiboot::Info *address);
     void fini_system();
 }
 
@@ -41,14 +41,22 @@ bool SystemManagement::kernelMode = true;
  * Is called from assembler code before calling the main function, because it sets up
  * everything to get the system run.
  */
-void init_system() {
+void init_system(Multiboot::Info *address) {
 	// init code segment for bios calls
     Bios::init();
     // enable interrupts afterwards
     Cpu::enableInterrupts();
     // create an instance of the SystemManagement and initialize it
     // (sets up paging and system management)
-    SystemManagement::getInstance()->init();
+    SystemManagement *systemManagement = SystemManagement::getInstance();
+
+    systemManagement->init();
+
+    Multiboot::Structure::parse(address);
+
+    if(Multiboot::Structure::getKernelOption("gdb") == "false") {
+        systemManagement->writeProtectKernelCode();
+    }
 }
 
 /**
@@ -580,6 +588,11 @@ SystemManagement* SystemManagement::getInstance() {
 		systemManagement = new SystemManagement();
 	}
 	return systemManagement;
+}
+
+
+void SystemManagement::writeProtectKernelCode() {
+    basePageDirectory->writeProtectKernelCode();
 }
 
 

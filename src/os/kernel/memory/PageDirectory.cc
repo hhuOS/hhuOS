@@ -54,10 +54,6 @@ PageDirectory::PageDirectory(){
     
     // set the entries for the mapping of first 8 MB
     uint32_t idx = KERNEL_START / (PAGESIZE*1024);
-    // we want to protect parts of kernel code against write access - calculate indeices for this
-    uint16_t writeProtectedStart = (((uint32_t)___WRITE_PROTECTED_START__) - KERNEL_START) / PAGESIZE;
-    uint16_t writeProtectedEnd = (((uint32_t)___WRITE_PROTECTED_END__) - KERNEL_START) / PAGESIZE;
-    uint16_t kernelEnd = (((uint32_t)___KERNEL_END__) - KERNEL_START) / PAGESIZE;
 
     for(uint16_t i = 0; i < 2048; i++) {
         // this is the physical address of the memory belonging to this page
@@ -67,19 +63,6 @@ PageDirectory::PageDirectory(){
         // protect kernel code
         if(i < 1024) {
             *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_PROTECTED;
-        }
-
-        if(Multiboot::Structure::getKernelOption("debug") == "false") {
-            //protect parts of kernel code
-            if (i < writeProtectedEnd && i >= writeProtectedStart) {
-                *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
-            }
-
-            // set last page kernel code as write protected to detect illegal write accesses
-            kernelEnd++;
-            if (i == kernelEnd && i < 1024) {
-                *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
-            }
         }
     }
     
@@ -153,6 +136,28 @@ PageDirectory::~PageDirectory(){
 	SystemManagement::getInstance()->freePageTable((uint32_t) virtTableAddresses);
 	SystemManagement::getInstance()->freePageTable((uint32_t) pageDirectory);
 
+}
+
+void PageDirectory::writeProtectKernelCode() {
+    // set the entries for the mapping of first 8 MB
+    uint32_t idx = KERNEL_START / (PAGESIZE*1024);
+    // we want to protect parts of kernel code against write access - calculate indeices for this
+    uint16_t writeProtectedStart = (((uint32_t)___WRITE_PROTECTED_START__) - KERNEL_START) / PAGESIZE;
+    uint16_t writeProtectedEnd = (((uint32_t)___WRITE_PROTECTED_END__) - KERNEL_START) / PAGESIZE;
+    uint16_t kernelEnd = (((uint32_t)___KERNEL_END__) - KERNEL_START) / PAGESIZE;
+
+    for(uint16_t i = 0; i < 2048; i++) {
+        //protect parts of kernel code
+        if (i < writeProtectedEnd && i >= writeProtectedStart) {
+            *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+        }
+
+        // set last page kernel code as write protected to detect illegal write accesses
+        kernelEnd++;
+        if (i == kernelEnd && i < 1024) {
+            *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
+        }
+    }
 }
 
 /**

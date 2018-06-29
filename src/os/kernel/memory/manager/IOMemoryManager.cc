@@ -42,6 +42,9 @@ void IOMemoryManager::init(){
  * Allocate some virtual 4kb pages for given physical page frames.
  */
 IOMemInfo IOMemoryManager::alloc(uint32_t* physAddresses, uint32_t pageCnt){
+
+    lock.acquire();
+
 	// use pointer to iterate thrugh list
     IOMemFreeHeader* tmp = anchor;
 
@@ -108,12 +111,16 @@ IOMemInfo IOMemoryManager::alloc(uint32_t* physAddresses, uint32_t pageCnt){
             ret.physAddresses = physAddresses;
             // update free memory
             freeMemory -= (pageCnt * PAGESIZE);
+            lock.release();
             // return
             return ret;
         }
         // look for next memory block
         tmp = tmp->next;
     }
+
+    lock.release();
+
     // if the loop is passed without returning, no memory block with enough pages is free
     return (IOMemInfo) {0,0,0};
 }
@@ -132,6 +139,8 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     if(virtStart < memoryStartAddress || virtStart >= memoryEndAddress){
     	return;
     }
+
+    lock.acquire();
 
     freeMemory += (pageCnt * PAGESIZE);
 
@@ -230,6 +239,8 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     IOMemFreeHeader *tmp2 = (IOMemFreeHeader*) virtHeaderAddress;
     memcpy(tmp2, tmp, sizeof(IOMemFreeHeader));
     delete tmp;
+
+    lock.release();
 
 }
 

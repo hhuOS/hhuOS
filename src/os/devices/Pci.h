@@ -22,7 +22,7 @@
 
 #define PCI_UHCI_ENABLED 0
 #define PCI_EHCI_ENABLED 0
-#define PCI_AHCI_ENABLED 0
+#define PCI_AHCI_ENABLED 1
 #define PCI_IDE_ENABLED  0
 
 #if PCI_DEBUG

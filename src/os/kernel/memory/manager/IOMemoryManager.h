@@ -57,6 +57,8 @@ private:
     // anchor of the free list
     IOMemFreeHeader* anchor = 0;
 
+    Spinlock lock;
+
 public:
     /**
      * Constructor

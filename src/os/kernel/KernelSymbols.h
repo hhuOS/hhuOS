@@ -51,7 +51,7 @@ public:
      * @param eip The address
      * @return The symbols name
      */
-    static String get(uint32_t eip);
+    static const char* get(uint32_t eip);
 
     /**
      * Loads all kernel symbols and saves them inside a Map.
@@ -78,6 +78,8 @@ private:
     static bool initialized;
 
     static void load(const ElfConstants::SectionHeader &sectionHeader);
+
+    static const constexpr char *NO_INFORMATION = "<no information>";
 
 };
 

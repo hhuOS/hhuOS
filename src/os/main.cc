@@ -173,8 +173,6 @@ void initSerialPorts() {
 
 int32_t main() {
 
-//    Logger::trace("Start Kernel Main");
-
     initGraphics();
 
     eventBus = new EventBus();

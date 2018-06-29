@@ -79,21 +79,6 @@ public:
 
 private:
 
-    /**
-     * Prints the stack trace for a kernel panic.
-     *
-     * @param basePointer Value of the EBP
-     * @param instructionPointer Value of the EIP
-     */
-    static void printStacktrace(uint32_t basePointer, uint32_t instructionPointer);
-
-    /**
-     * Prints out all registers contained in the specified InterruptFrame.
-     *
-     * @param frame The interrupt frame
-     */
-    static void printRegisters(const InterruptFrame &frame);
-
     static Util::HashMap<String, KernelService*> serviceMap;
 
     static Spinlock serviceLock;

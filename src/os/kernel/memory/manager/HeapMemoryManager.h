@@ -21,7 +21,8 @@
 #include "lib/lock/Spinlock.h"
 #include "MemoryManager.h"
 
-#define THROW_EXCEPTION 1
+#define THROW_EXCEPTION 0
+#define CHECK_MEMORY 0
 
 /**
  * Header for the double-linked list mamaging the memory blocks.
@@ -86,6 +87,11 @@ public:
      * Dump memory list
      */
     void dump();
+
+    /**
+     * Checks the memory list.
+     */
+    void checkMemory();
 };
 
 #endif

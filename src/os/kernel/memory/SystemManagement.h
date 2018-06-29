@@ -275,6 +275,11 @@ public:
     static bool isKernelMode();
 
     /**
+     * Protects kernel pages from being written on.
+     */
+    void writeProtectKernelCode();
+
+    /**
      * Gets the physical address of a given virtual address. The returned
      * physical address is 4kb-aligned, so sometimes an offset may be calculated
      * in order to get the exact physical address corresponding to the virtual

@@ -141,11 +141,8 @@ clear_bss:
 	call	reprogram_pics
 
 ; initialize system
-    call    init_system ; see SystemManagement.cc
-
-; save multiboot structure address
     push dword [multiboot_addr]
-    call parse_multiboot
+    call    init_system ; see SystemManagement.cc
     add  esp, 0x4
 
 ; call kernel's main() function

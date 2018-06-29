@@ -92,7 +92,7 @@ void IOMemoryTestApp::shuffle() {
  * Thread run method.
  */
 void IOMemoryTestApp::run() {
-    Cpu::disableInterrupts();
+//    Cpu::disableInterrupts();
 
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
@@ -108,7 +108,7 @@ void IOMemoryTestApp::run() {
         *stream << "Ups. Lost a few bytes. Leak: " << (freeAfter - freeBefore) << " Bytes" << endl;
     }
 
-    Cpu::enableInterrupts();
+//    Cpu::enableInterrupts();
     *stream << "Press [ENTER] to return" << endl;
     while (!kb->isKeyPressed(KeyEvent::RETURN));
 

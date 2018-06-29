@@ -85,11 +85,11 @@ uint32_t KernelSymbols::get(const String &name) {
     return 0x0;
 }
 
-String KernelSymbols::get(uint32_t eip) {
+const char* KernelSymbols::get(uint32_t eip) {
 
     if (!initialized) {
 
-        return "<no information>";
+        return NO_INFORMATION;
     }
 
     while (!debugTable.containsKey(eip)) {

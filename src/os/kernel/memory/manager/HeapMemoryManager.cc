@@ -125,6 +125,11 @@ void* HeapMemoryManager::alloc(uint32_t size) {
 	if(initialized) {
 		lock->release();
 	}
+
+#if CHECK_MEMORY
+	checkMemory();
+#endif
+
 	// return pointer to the usable memory skipping the header
 	return (void*)((unsigned int)returnChunk + sizeof(Chunk));
 }
@@ -201,6 +206,10 @@ void HeapMemoryManager::free(void* ptr) {
 		SystemManagement::getInstance()->unmap(addr + sizeof(Chunk), chunkEndAddr - 1);
 	}
 
+#if CHECK_MEMORY
+	checkMemory();
+#endif
+
 	// release lock
 	lock->release()	;
 
@@ -227,4 +236,33 @@ void HeapMemoryManager::dump() {
     }
 
     printf("\n");
+}
+
+void HeapMemoryManager::checkMemory() {
+
+	Chunk *tmp = firstChunk;
+
+	if (tmp == nullptr) {
+		Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+	}
+
+	while ( tmp->next != 0 ) {
+
+//		uint32_t currentEnd = (uint32_t) tmp + sizeof(Chunk) + tmp->size;
+//
+//		uint32_t nextStart = (uint32_t) tmp->next;
+//
+//		if (currentEnd != nextStart) {
+//			Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+//		}
+
+		tmp = tmp->next;
+	}
+
+	uint32_t  heapEnd = (uint32_t) tmp + sizeof(Chunk) + tmp->size;
+
+	if (heapEnd != memoryEndAddress) {
+
+	    Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+	}
 }

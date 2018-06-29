@@ -30,14 +30,14 @@
 // start address for heap
 #define PHYS_KERNEL_HEAP_START 0x400000
 #define VIRT_KERNEL_HEAP_START (PHYS_KERNEL_HEAP_START + KERNEL_START)
-// end of virtual kernel memory for heap
-#define VIRT_KERNEL_HEAP_END (VIRT_PAGE_MEM_START)
 // start of virtual area for page tables and directories (3.5 GB)
 #define VIRT_PAGE_MEM_START (KERNEL_START + 0x1F400000)
-// end of virtual area for page tables and directories (the 4MB are for kernel stacks)
-#define VIRT_PAGE_MEM_END (VIRT_IO_START - 0x40000)
+// end of virtual kernel memory for heap
+#define VIRT_KERNEL_HEAP_END (VIRT_PAGE_MEM_START)
 // start of virtual IO space
 #define VIRT_IO_START (KERNEL_START + 0x2EE00000)
+// end of virtual area for page tables and directories (the 4MB are for kernel stacks)
+#define VIRT_PAGE_MEM_END (VIRT_IO_START - 0x40000)
 #define VIRT_IO_END 0xFFFFFFFF
 
 // Cap for physical memory - I/O addresses above
