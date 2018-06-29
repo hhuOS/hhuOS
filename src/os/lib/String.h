@@ -52,6 +52,12 @@ public:
 
     static String join(const String &separator, const Util::Array<String> &elements);
 
+    static bool isAlpha(char c);
+
+    String toUpperCase();
+
+    String toLowerCase();
+
     bool operator==(const String &other) const;
 
     bool operator!=(const String &other) const;
@@ -81,6 +87,8 @@ public:
     explicit operator uint32_t() const;
 
 private:
+
+    static const uint8_t CASE_OFFSET = 32;
 
     uint32_t len;
 

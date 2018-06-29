@@ -22,6 +22,12 @@ private:
     static void logMessage(LogLevel level, String message, bool shouldPrint);
     static String getLevelAsString(LogLevel level);
 
+    static constexpr const char* LEVEL_TRACE = "trace";
+    static constexpr const char* LEVEL_DEBUG = "debug";
+    static constexpr const char* LEVEL_INFO = "info";
+    static constexpr const char* LEVEL_WARN = "warn";
+    static constexpr const char* LEVEL_ERROR = "error";
+
 public:
     static void trace(String log, bool forcePrint = false);
 
@@ -34,6 +40,8 @@ public:
     static void error(String log, bool forcePrint = false); // Maybe switch to true
 
     static void setLevel(LogLevel level);
+
+    static void setLevel(const String &level);
 };
 
 

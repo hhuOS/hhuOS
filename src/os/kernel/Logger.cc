@@ -3,7 +3,6 @@
 #include <kernel/services/StdStreamService.h>
 #include <lib/file/File.h>
 #include "Logger.h"
-#include "Kernel.h"
 
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
 Util::ArrayList<String> Logger::tmplogs;
@@ -36,20 +35,25 @@ void Logger::logMessage(LogLevel level, const String message, bool forcePrint) {
     if(Kernel::isServiceRegistered(FileSystem::SERVICE_NAME)) {
         if (Logger::syslog == nullptr) {
             Logger::syslog = File::open(Logger::LOG_PATH, "a");
-            for (String log : tmplogs) {
-                *Logger::syslog  << log << endl;
+            if (Logger::syslog != nullptr) {
+                for (const String &log : tmplogs) {
+                    *Logger::syslog  << log << endl;
+                }
+                tmplogs.clear();
             }
-            tmplogs.clear();
         }
 
-        *Logger::syslog << tmp << endl;
+        if (Logger::syslog != nullptr) {
+            *Logger::syslog << tmp << endl;
+        }
     } else {
         tmplogs.add(tmp);
     }
 
-    if(forcePrint || level >= currentLevel) {
-        OutputStream *stream = Kernel::getService<StdStreamService>()->getStdout();
-        *stream << tmp << endl;
+    if(Kernel::isServiceRegistered(StdStreamService::SERVICE_NAME)) {
+        if(forcePrint || level >= currentLevel) {
+            *stdout << tmp << endl;
+        }
     }
 }
 
@@ -60,16 +64,33 @@ void Logger::setLevel(LogLevel level) {
 String Logger::getLevelAsString(LogLevel level) {
     switch (level) {
         case TRACE:
-            return String("TRACE");
+            return "TRACE";
         case DEBUG:
-            return String("DEBUG");
+            return "DEBUG";
         case INFO:
-            return String("INFO");
+            return "INFO";
         case WARN:
-            return String("WARN");
+            return "WARN";
         case ERROR:
-            return String("ERROR");
+            return "ERROR";
         default:
-            return String("");
+            return "";
+    }
+}
+
+void Logger::setLevel(const String &level) {
+
+    if (level == LEVEL_TRACE) {
+        setLevel(LogLevel::TRACE);
+    } else if (level == LEVEL_DEBUG) {
+        setLevel(LogLevel::DEBUG);
+    } else if (level == LEVEL_INFO) {
+        setLevel(LogLevel::INFO);
+    } else if (level == LEVEL_WARN) {
+        setLevel(LogLevel::WARN);
+    } else if (level == LEVEL_ERROR) {
+        setLevel(LogLevel::ERROR);
+    } else {
+        setLevel(LogLevel::DEBUG);
     }
 }

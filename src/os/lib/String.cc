@@ -393,5 +393,60 @@ String String::valueOf(uint32_t value, uint8_t radix) {
     return String(result);
 }
 
+String String::toUpperCase() {
+
+    String tmp = *this;
+
+    char c;
+
+    for (uint32_t i = 0; i < len; i++) {
+
+        c = tmp[i];
+
+        if (isAlpha(tmp[i])) {
+
+            if (c <= 'Z') {
+
+                continue;
+            }
+
+            tmp[i] = c - CASE_OFFSET;
+        }
+    }
+
+
+    return tmp;
+}
+
+String String::toLowerCase() {
+
+    String tmp = *this;
+
+    char c;
+
+    for (uint32_t i = 0; i < len; i++) {
+
+        c = tmp[i];
+
+        if (isAlpha(tmp[i])) {
+
+            if (c >= 'a') {
+
+                continue;
+            }
+
+            tmp[i] = c + CASE_OFFSET;
+        }
+    }
+
+
+    return tmp;
+}
+
+bool String::isAlpha(const char c) {
+
+    return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
 
 
