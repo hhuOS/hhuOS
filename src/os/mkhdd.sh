@@ -4,7 +4,7 @@ rm -f hdd0.img
 
 fallocate -l 48M hdd0.img
 
-(echo n; echo p; echo 1;echo "16384"; echo ""; echo t; echo 58; echo w) | fdisk hdd0.img
+(echo n; echo p; echo 1;echo "2048"; echo ""; echo t; echo 58; echo w) | fdisk hdd0.img
 
 fallocate -l 40M hdd0p1
 
@@ -21,6 +21,6 @@ find "../hdd" -type f | while read file; do
 	mcopy -i "./hdd0p1" "$file" "::$current_file"
 done
 
-dd if=hdd0p1 of=hdd0.img bs=512 seek=16384
+dd if=hdd0p1 of=hdd0.img bs=512 seek=2048
 
 rm hdd0p1
