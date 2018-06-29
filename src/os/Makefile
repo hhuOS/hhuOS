@@ -17,7 +17,7 @@ INITRD_PATH = ${CURDIR}/../initrd
 LOADERDIR = ${CURDIR}/../loader
 BOOTDIR = $(LOADERDIR)/boot
 MODULE_PATH = ${CURDIR}/../modules
-MODULE_OUT = $(INITRD_PATH)/mod
+MODULE_OUT = $(HDD_PATH)/mod
 INCLUDEDIR = ${CURDIR}
 
 #-------------------------------------------#
@@ -100,7 +100,7 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 #-------------------------------------------#
 # Default targets                           #
 #-------------------------------------------#
-all: iso hdd0.img hdd1.img
+all: iso modules hdd0.img hdd1.img
 
 #-------------------------------------------#
 # Hard drive image                          #
@@ -109,10 +109,9 @@ hdd0.img: ../hdd/*
 	@echo "HDD		hdd0.img"
 	$(VERBOSE) bash ./mkhdd.sh
 
-hdd1.img: ../hdd/*
+hdd1.img:
 	@echo "HDD		hdd1.img"
-	$(VERBOSE) qemu-img create hdd1.img 32M > /dev/null
-
+	$(VERBOSE) qemu-img create hdd1.img 32M
 
 gitversion.c: ../../.git/HEAD ../../.git/index
 	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - $(shell git rev-parse --short HEAD)\";" > $@
@@ -184,7 +183,7 @@ $(BOOTDIR)/hhuOS.bin : $(OBJDIR)/system
 	$(VERBOSE) $(COPY) $< $@
 
 kernel : $(BOOTDIR)/hhuOS.bin
-
+#
 #-------------------------------------------#
 # Kernel image with GRUB                    #
 #-------------------------------------------#
@@ -211,19 +210,19 @@ bootdisk-commit:
 #-------------------------------------------#
 # QEMU / KVM                                #
 #-------------------------------------------#
-qemu: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+qemu: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	$(QEMU_BIN) $(QEMU_DEFAULT_PARAMS)
 
-qemu64: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+qemu64: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	qemu-system-x86_64 $(QEMU_DEFAULT_PARAMS)
 
-kvm: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+kvm: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	$(KVM_BIN) $(QEMU_DEFAULT_PARAMS)
 
 #-------------------------------------------#
 # Debugging                                 #
 #-------------------------------------------#
-qemu-gdb: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+qemu-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
@@ -231,7 +230,7 @@ qemu-gdb: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	$(VERBOSE) echo "set architecture i8086" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
@@ -239,7 +238,7 @@ qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	$(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)
 
-kvm-gdb: $(OBJDIR)/hhuOS.iso hdd0.img hdd1.img
+kvm-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img hdd1.img
 	$(VERBOSE) echo "break main" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)

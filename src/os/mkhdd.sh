@@ -2,11 +2,11 @@
 
 rm -f hdd0.img > /dev/null
 
-fallocate -l 48M hdd0.img > /dev/null
+fallocate -l 40M hdd0.img > /dev/null
 
 (echo n; echo p; echo 1;echo "2048"; echo ""; echo t; echo 58; echo w) | fdisk hdd0.img > /dev/null
 
-fallocate -l 40M hdd0p1 > /dev/null
+fallocate -l 39M hdd0p1 > /dev/null
 
 mkfs.fat -F32 -S512 hdd0p1 > /dev/null
 
