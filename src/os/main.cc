@@ -41,6 +41,7 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/debug/GdbServer.h>
 #include <kernel/log/SerialAppender.h>
+#include <kernel/cpu/CpuId.h>
 
 #include "bootlogo.h"
 
@@ -185,7 +186,10 @@ void loadInitrd() {
 
 int32_t main() {
 
-    Pit::getInstance()->plugin();
+    if (CpuId::isSupported()) {
+
+        Logger::trace("Detected CPUID support");
+    }
 
     Logger::trace("Initializing graphics");
 

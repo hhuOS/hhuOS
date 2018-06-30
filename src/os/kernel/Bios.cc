@@ -6,7 +6,7 @@
  */
 
 #include <kernel/memory/MemLayout.h>
-#include "kernel/Cpu.h"
+#include "kernel/cpu/Cpu.h"
 
 #include "kernel/Bios.h"
 

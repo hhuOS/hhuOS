@@ -17,7 +17,8 @@
 #include <lib/libc/printf.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/log/Logger.h>
-#include "kernel/Cpu.h"
+#include <devices/Pit.h>
+#include "kernel/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
 
 // some external functions are implemented in assembler code
@@ -47,6 +48,7 @@ void init_system(Multiboot::Info *address) {
     Bios::init();
     // enable interrupts afterwards
     Cpu::enableInterrupts();
+
     // create an instance of the SystemManagement and initialize it
     // (sets up paging and system management)
     SystemManagement *systemManagement = SystemManagement::getInstance();
@@ -54,6 +56,8 @@ void init_system(Multiboot::Info *address) {
     systemManagement->init();
 
     Multiboot::Structure::parse(address);
+
+    Pit::getInstance()->plugin();
 
     Logger::initialize();
 

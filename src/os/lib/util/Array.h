@@ -19,7 +19,7 @@
 #define __Array_include__
 
 #include <cstdint>
-#include <kernel/Cpu.h>
+#include <kernel/cpu/Cpu.h>
 
 extern "C" {
     #include "lib/libc/string.h"

@@ -3,6 +3,8 @@
 #include <kernel/services/StdStreamService.h>
 #include <lib/file/File.h>
 #include <devices/Pit.h>
+#include <kernel/debug/GdbServer.h>
+#include <lib/multiboot/Structure.h>
 #include "Logger.h"
 #include "SerialAppender.h"
 
@@ -102,9 +104,12 @@ void Logger::addAppender(Appender *appender) {
 
 void Logger::initialize() {
 
-    Serial *serial = new Serial(Serial::COM1);
+    if (Multiboot::Structure::getKernelOption("gdb") == "false") {
 
-    SerialAppender *serialAppender = new SerialAppender(*serial);
+        Serial *serial = new Serial(Serial::COM1);
 
-    addAppender(serialAppender);
+        SerialAppender *serialAppender = new SerialAppender(*serial);
+
+        addAppender(serialAppender);
+    }
 }

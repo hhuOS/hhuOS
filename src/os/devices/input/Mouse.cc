@@ -8,7 +8,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/Kernel.h>
 #include <lib/libc/printf.h>
-#include <kernel/Cpu.h>
+#include <kernel/cpu/Cpu.h>
 #include <kernel/events/input/MouseMovedEvent.h>
 #include <kernel/services/TimeService.h>
 #include "devices/input/Mouse.h"

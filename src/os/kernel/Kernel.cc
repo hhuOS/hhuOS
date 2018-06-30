@@ -20,7 +20,7 @@
 #include <kernel/interrupts/BlueScreen.h>
 #include "Kernel.h"
 #include "KernelSymbols.h"
-#include "kernel/Cpu.h"
+#include "kernel/cpu/Cpu.h"
 #include "Bios.h"
 
 Spinlock Kernel::serviceLock;

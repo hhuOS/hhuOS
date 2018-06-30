@@ -18,7 +18,7 @@
 #ifndef __ArrayList_include__
 #define __ArrayList_include__
 
-#include <kernel/Cpu.h>
+#include <kernel/cpu/Cpu.h>
 #include "List.h"
 
 extern "C" {

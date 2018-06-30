@@ -1,4 +1,4 @@
-#include <kernel/Cpu.h>
+#include <kernel/cpu/Cpu.h>
 #include "Spinlock.h"
 
 extern "C" {

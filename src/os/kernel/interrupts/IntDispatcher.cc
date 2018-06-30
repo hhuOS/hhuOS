@@ -14,7 +14,7 @@
 #include <lib/Random.h>
 #include <devices/Serial.h>
 #include <kernel/debug/GdbServer.h>
-#include "kernel/Cpu.h"
+#include "kernel/cpu/Cpu.h"
 
 #include "kernel/interrupts/IntDispatcher.h"
 #include "kernel/memory/SystemManagement.h"
