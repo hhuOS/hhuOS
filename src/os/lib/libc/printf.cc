@@ -28,8 +28,6 @@ extern "C" {
 }
 
 #define PRINTF_BUFFER       32
-#define SPECIFIER_LENGTH    2
-#define PADDING_LENGTH      2
 
 Spinlock *printLock;
 

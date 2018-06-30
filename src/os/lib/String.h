@@ -52,6 +52,8 @@ public:
 
     static String join(const String &separator, const Util::Array<String> &elements);
 
+    static String format(const char *format, ...);
+
     static bool isAlpha(char c);
 
     String toUpperCase();

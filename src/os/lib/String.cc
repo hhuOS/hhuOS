@@ -1,6 +1,7 @@
 #include <lib/util/List.h>
 #include <lib/util/ArrayList.h>
 #include <lib/libc/sprintf.h>
+#include <lib/libc/printf.h>
 #include "String.h"
 
 extern "C" {
@@ -463,6 +464,93 @@ String String::toLowerCase() {
 bool String::isAlpha(const char c) {
 
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
+}
+
+String String::format(const char *format, ...) {
+
+    Util::ArrayList<char> buffer;
+
+    char numberBuffer[64];
+
+    char specifier[SPECIFIER_LENGTH + PADDING_LENGTH + 1];
+
+    const char* traverse = format;
+
+    const char* string;
+
+    uint32_t stringLength;
+
+    va_list args;
+    va_start(args, format);
+
+    while (*traverse != '\0') {
+
+        while( *traverse != '%' ) {
+
+            if (*traverse == '\0') {
+
+                va_end(args);
+
+                buffer.add('\0');
+
+                Util::Array<char> output = buffer.toArray();
+
+                return output.begin();
+            }
+
+            buffer.add(*traverse);
+
+            traverse++;
+        }
+
+        memcpy(specifier, traverse, SPECIFIER_LENGTH + PADDING_LENGTH);
+
+        traverse++;
+
+        if (*traverse == '0') {
+
+            traverse += 2;
+
+            specifier[SPECIFIER_LENGTH + PADDING_LENGTH] = '\0';
+
+        } else {
+
+            specifier[SPECIFIER_LENGTH] = '\0';
+        }
+
+        traverse++;
+
+        if (specifier[1] == 's') {
+
+            string = va_arg(args, char *);
+
+            stringLength = strlen(string);
+
+            for (uint32_t i = 0; i < stringLength; i++) {
+
+                buffer.add(string[i]);
+            }
+
+            continue;
+        }
+
+        sprintf(numberBuffer, specifier, args);
+
+        stringLength = strlen(numberBuffer);
+
+        for (uint32_t i = 0; i < stringLength; i++) {
+
+            buffer.add(numberBuffer[i]);
+        }
+    }
+
+    va_end(args);
+
+    buffer.add('\0');
+
+    Util::Array<char> output = buffer.toArray();
+
+    return output.begin();
 }
 
 

@@ -25,6 +25,9 @@
 #include "lib/lock/Spinlock.h"
 #include <devices/graphics/text/CgaText.h>
 
+#define SPECIFIER_LENGTH    2
+#define PADDING_LENGTH      2
+
 #ifdef __cplusplus
 extern "C" {
 #endif
