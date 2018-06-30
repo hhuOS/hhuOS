@@ -23,6 +23,8 @@
 #include <filesystem/RamFs/ports/SerialNode.h>
 #include <kernel/services/ParallelService.h>
 #include <filesystem/RamFs/ports/ParallelNode.h>
+#include <kernel/log/FileAppender.h>
+#include <kernel/log/Logger.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -188,6 +190,10 @@ void FileSystem::init() {
     // Subscribe to Storage-Events from the EventBus
     eventBus->subscribe(*this, StorageAddEvent::TYPE);
     eventBus->subscribe(*this, StorageRemoveEvent::TYPE);
+
+    FileAppender *fileAppender = new FileAppender(File::open("/dev/syslog", "a+"));
+
+    Logger::addAppender(fileAppender);
 }
 
 uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {

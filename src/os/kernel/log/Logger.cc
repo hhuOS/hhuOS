@@ -14,6 +14,8 @@ TimeProvider *Logger::timeProvider = Pit::getInstance();
 
 Util::ArrayList<Appender*> Logger::appenders;
 
+Util::ArrayList<String> Logger::buffer;
+
 void Logger::trace(const String &message, bool forcePrint) {
     logMessage(TRACE, message, forcePrint);
 }
@@ -52,6 +54,8 @@ void Logger::logMessage(LogLevel level, const String &message, bool forcePrint) 
                      + getLevelAsString(level) + "] ";
 
     tmp += message;
+
+    buffer.add(tmp);
 
     for (auto appender : appenders) {
 
@@ -98,6 +102,11 @@ void Logger::setLevel(const String &level) {
 }
 
 void Logger::addAppender(Appender *appender) {
+
+    for (const auto &message : buffer) {
+
+        appender->append(message);
+    }
 
     appenders.add(appender);
 }

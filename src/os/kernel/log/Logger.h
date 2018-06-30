@@ -42,6 +42,8 @@ private:
 
     static Util::ArrayList<Appender*> appenders;
 
+    static Util::ArrayList<String> buffer;
+
     static LogLevel currentLevel;
 
     static TimeProvider *timeProvider;
