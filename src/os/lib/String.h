@@ -2,6 +2,7 @@
 #define __deprecated_String_include__
 
 #include <cstdint>
+#include <cstdarg>
 #include <lib/util/Array.h>
 #include "lib/OutputStream.h"
 
@@ -52,7 +53,9 @@ public:
 
     static String join(const String &separator, const Util::Array<String> &elements);
 
-    static String format(const char *format, ...);
+    static String format(const char *fmt, ...);
+
+    static String format(const char *fmt, va_list args);
 
     static bool isAlpha(char c);
 

@@ -466,7 +466,19 @@ bool String::isAlpha(const char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
-String String::format(const char *format, ...) {
+String String::format(const char *fmt, ...) {
+
+    va_list args;
+    va_start(args, fmt);
+
+    String tmp = format(fmt, args);
+
+    va_end(args);
+
+    return tmp;
+}
+
+String String::format(const char *fmt, va_list args) {
 
     Util::ArrayList<char> buffer;
 
@@ -474,22 +486,17 @@ String String::format(const char *format, ...) {
 
     char specifier[SPECIFIER_LENGTH + PADDING_LENGTH + 1];
 
-    const char* traverse = format;
+    const char* traverse = fmt;
 
     const char* string;
 
     uint32_t stringLength;
-
-    va_list args;
-    va_start(args, format);
 
     while (*traverse != '\0') {
 
         while( *traverse != '%' ) {
 
             if (*traverse == '\0') {
-
-                va_end(args);
 
                 buffer.add('\0');
 
@@ -544,13 +551,9 @@ String String::format(const char *format, ...) {
         }
     }
 
-    va_end(args);
-
     buffer.add('\0');
 
-    Util::Array<char> output = buffer.toArray();
-
-    return output.begin();
+    return buffer.getArray();
 }
 
 

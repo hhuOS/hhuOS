@@ -82,6 +82,8 @@ namespace Util {
 
         Array<T> toArray() const override;
 
+        T *getArray();
+
     private:
 
         T *elements = nullptr;
@@ -335,6 +337,12 @@ namespace Util {
         }
 
         return array;
+    }
+
+    template <class T>
+    T *ArrayList<T>::getArray() {
+
+        return elements;
     }
 
 }

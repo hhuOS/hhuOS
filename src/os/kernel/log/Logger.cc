@@ -16,27 +16,57 @@ Util::ArrayList<Appender*> Logger::appenders;
 
 Util::ArrayList<String> Logger::buffer;
 
-void Logger::trace(const String &message, bool forcePrint) {
-    logMessage(TRACE, message, forcePrint);
+void Logger::trace(const String &message, ...) {
+
+    va_list args;
+    va_start(args, message);
+
+    logMessage(TRACE, String::format((char*) message, args));
+
+    va_end(args);
 }
 
-void Logger::debug(const String &message, bool forcePrint) {
-    logMessage(DEBUG, message, forcePrint);
+void Logger::debug(const String &message, ...) {
+
+    va_list args;
+    va_start(args, message);
+
+    logMessage(DEBUG, String::format((char*) message, args));
+
+    va_end(args);
 }
 
-void Logger::info(const String &message, bool forcePrint) {
-    logMessage(INFO, message, forcePrint);
+void Logger::info(const String &message, ...) {
+
+    va_list args;
+    va_start(args, message);
+
+    logMessage(INFO, String::format((char*) message, args));
+
+    va_end(args);
 }
 
-void Logger::warn(const String &message, bool forcePrint) {
-    logMessage(WARN, message, forcePrint);
+void Logger::warn(const String &message, ...) {
+
+    va_list args;
+    va_start(args, message);
+
+    logMessage(WARN, String::format((char*) message, args));
+
+    va_end(args);
 }
 
-void Logger::error(const String &message, bool forcePrint) {
-    logMessage(ERROR, message, forcePrint);
+void Logger::error(const String &message, ...) {
+
+    va_list args;
+    va_start(args, message);
+
+    logMessage(ERROR, String::format((char*) message, args));
+
+    va_end(args);
 }
 
-void Logger::logMessage(LogLevel level, const String &message, bool forcePrint) {
+void Logger::logMessage(LogLevel level, const String &message) {
 
     if (level < currentLevel) {
 
