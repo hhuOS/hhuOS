@@ -21,3 +21,8 @@ uint64_t EhciDevice::getSectorCount() {
     // TODO: Get actual sector count from controller.
     return 0;
 }
+
+String EhciDevice::getDeviceName() {
+    // TODO: Get actual device name from controller.
+    return "";
+}

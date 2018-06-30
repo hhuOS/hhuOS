@@ -41,6 +41,11 @@ public:
     /**
      * Overriding function from StorageDevice.
      */
+    String getDeviceName() override;
+
+    /**
+     * Overriding function from StorageDevice.
+     */
     uint32_t getSectorSize() override;
 
     /**

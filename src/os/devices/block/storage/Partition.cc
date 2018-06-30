@@ -39,6 +39,10 @@ bool Partition::write(const uint8_t *buff, uint32_t sector, uint32_t count) {
     return parentDevice->write(buff, startSector + sector, count);
 }
 
+String Partition::getDeviceName() {
+    return "Partition on " + parentDevice->getDeviceName();
+}
+
 uint32_t Partition::getSectorSize() {
     return parentDevice->getSectorSize();
 }

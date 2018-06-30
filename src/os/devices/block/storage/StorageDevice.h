@@ -386,6 +386,11 @@ enum SYSTEM_ID {
     virtual uint8_t getSystemId();
 
     /**
+     * Get the device's name.
+     */
+    virtual String getDeviceName() = 0;
+
+    /**
      * Get the size of a single sector in bytes.
      */
     virtual uint32_t getSectorSize() = 0;

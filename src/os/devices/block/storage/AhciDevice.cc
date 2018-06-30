@@ -13,6 +13,10 @@ bool AhciDevice::write(const uint8_t *buff, uint32_t sector, uint32_t count) {
     return controller.write(ahciDiskNumber, sector, 0, count, (uint16_t *) buff);
 }
 
+String AhciDevice::getDeviceName() {
+    return deviceInfo.name;
+}
+
 uint32_t AhciDevice::getSectorSize() {
     // TODO: Get actual sector size from controller.
     return 512;

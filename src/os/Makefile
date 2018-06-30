@@ -114,7 +114,7 @@ hdd1.img:
 	$(VERBOSE) qemu-img create hdd1.img 40M
 
 gitversion.c: ../../.git/HEAD ../../.git/index
-	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - $(shell git rev-parse --short HEAD)\";" > $@
+	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - git $(shell git rev-parse --short HEAD)\";" > $@
 
 #-------------------------------------------#
 # Dependencies                              #

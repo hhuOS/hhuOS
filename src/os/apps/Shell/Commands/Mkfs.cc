@@ -21,7 +21,7 @@
 #include "Mkfs.h"
 
 Mkfs::Mkfs(Shell &shell) : Command(shell) {
-
+    fileSystem = Kernel::getService<FileSystem>();
 };
 
 void Mkfs::execute(Util::Array<String> &args) {
@@ -67,8 +67,6 @@ void Mkfs::execute(Util::Array<String> &args) {
     }
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
-
-    fileSystem = Kernel::getService<FileSystem>();
 
     uint32_t ret = fileSystem->createFilesystem(absoluteDevicePath, type);
 
