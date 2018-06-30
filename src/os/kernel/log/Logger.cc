@@ -4,12 +4,13 @@
 #include <lib/file/File.h>
 #include <devices/Pit.h>
 #include "Logger.h"
+#include "SerialAppender.h"
 
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
-Util::ArrayList<String> Logger::tmplogs;
-File* Logger::syslog = nullptr;
-Serial Logger::serial(Serial::COM1);
+
 TimeProvider *Logger::timeProvider = Pit::getInstance();
+
+Util::ArrayList<Appender*> Logger::appenders;
 
 void Logger::trace(const String &message, bool forcePrint) {
     logMessage(TRACE, message, forcePrint);
@@ -33,6 +34,11 @@ void Logger::error(const String &message, bool forcePrint) {
 
 void Logger::logMessage(LogLevel level, const String &message, bool forcePrint) {
 
+    if (level < currentLevel) {
+
+        return;
+    }
+
     uint32_t millis = timeProvider->getMillis();
 
     uint32_t seconds = millis / 1000;
@@ -45,31 +51,9 @@ void Logger::logMessage(LogLevel level, const String &message, bool forcePrint) 
 
     tmp += message;
 
-    serial.sendData((char*) tmp, tmp.length());
-    serial.sendChar('\n');
+    for (auto appender : appenders) {
 
-    if(Kernel::isServiceRegistered(FileSystem::SERVICE_NAME)) {
-        if (Logger::syslog == nullptr) {
-            Logger::syslog = File::open(Logger::LOG_PATH, "a");
-            if (Logger::syslog != nullptr) {
-                for (const String &log : tmplogs) {
-                    *Logger::syslog  << log << endl;
-                }
-                tmplogs.clear();
-            }
-        }
-
-        if (Logger::syslog != nullptr) {
-            *Logger::syslog << tmp << endl;
-        }
-    } else {
-        tmplogs.add(tmp);
-    }
-
-    if(Kernel::isServiceRegistered(StdStreamService::SERVICE_NAME)) {
-        if(forcePrint || level >= currentLevel) {
-            *stdout << tmp << endl;
-        }
+        appender->append(tmp);
     }
 }
 
@@ -109,4 +93,18 @@ void Logger::setLevel(const String &level) {
     } else {
         setLevel(LogLevel::DEBUG);
     }
+}
+
+void Logger::addAppender(Appender *appender) {
+
+    appenders.add(appender);
+}
+
+void Logger::initialize() {
+
+    Serial *serial = new Serial(Serial::COM1);
+
+    SerialAppender *serialAppender = new SerialAppender(*serial);
+
+    addAppender(serialAppender);
 }

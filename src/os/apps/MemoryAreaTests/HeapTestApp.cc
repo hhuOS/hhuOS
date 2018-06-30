@@ -10,7 +10,7 @@
 #include <kernel/threads/Scheduler.h>
 #include <apps/Application.h>
 #include <kernel/Kernel.h>
-#include <kernel/Logger.h>
+#include <kernel/log/Logger.h>
 #include "HeapTestApp.h"
 
 #define NUM_OF_ALLOCS 128

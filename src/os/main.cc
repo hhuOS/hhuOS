@@ -35,11 +35,12 @@
 #include <devices/Pit.h>
 #include <kernel/threads/Scheduler.h>
 #include <lib/multiboot/Structure.h>
-#include <kernel/Logger.h>
+#include <kernel/log/Logger.h>
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/debug/GdbServer.h>
+#include <kernel/log/SerialAppender.h>
 
 #include "bootlogo.h"
 
@@ -185,6 +186,8 @@ void loadInitrd() {
 int32_t main() {
 
     Pit::getInstance()->plugin();
+
+    Logger::initialize();
 
     Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
 

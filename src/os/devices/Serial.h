@@ -155,6 +155,10 @@ public:
      */
     explicit Serial(ComPort port, BaudRate speed = BaudRate::BAUD_115200) noexcept;
 
+    Serial(const Serial &other) = delete;
+
+    Serial &operator=(const Serial &other) = delete;
+
     /**
      * Destructor.
      */

@@ -7,9 +7,13 @@ class TimeProvider {
 
 public:
 
-    TimeProvider() = default;
+    TimeProvider() noexcept = default;
 
     virtual ~TimeProvider() = default;
+
+    TimeProvider(const TimeProvider &other) = delete;
+
+    TimeProvider &operator=(const TimeProvider &other) = delete;
 
     virtual uint32_t getNanos() = 0;
 
