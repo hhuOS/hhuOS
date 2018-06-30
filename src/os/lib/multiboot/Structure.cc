@@ -17,6 +17,8 @@
 
 #include <kernel/memory/MemLayout.h>
 #include <kernel/KernelSymbols.h>
+#include <lib/file/tar/Archive.h>
+#include <kernel/memory/SystemManagement.h>
 #include "Structure.h"
 
 Multiboot::Info Multiboot::Structure::info;
@@ -109,6 +111,8 @@ void Multiboot::Structure::parseModules() {
         Multiboot::ModuleInfo *modInfo = (Multiboot::ModuleInfo*) info.moduleAddress;
 
         for (uint32_t i = 0; i < info.moduleCount; i++) {
+
+            SystemManagement::getInstance()->reservePhysicalMemory(modInfo[i].start, modInfo[i].end);
 
             modInfo[i].string += KERNEL_START;
 

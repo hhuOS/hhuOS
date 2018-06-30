@@ -58,6 +58,11 @@ namespace Tar {
 
             tar->headers.add(*header);
 
+            if (header->typeFlag == LF_OLDNORMAL) {
+
+                tar->fileCount++;
+            }
+
             addr += ((size / BLOCKSIZE) + 1) * BLOCKSIZE;
 
             if (size % 512) {
@@ -80,6 +85,29 @@ namespace Tar {
         Address address((uint32_t) buffer);
 
         return from(address);
+    }
+
+    Util::Array<Header> Archive::getFileHeaders() {
+
+        Util::Array<Header> fileHeaders(fileCount);
+
+        uint32_t arrayIndex = 0;
+
+        Header header{};
+
+        for (uint32_t i = 0; i < headers.size(); i++) {
+
+            header = headers.get(i);
+
+            if (header.typeFlag == LF_OLDNORMAL) {
+
+                fileHeaders[arrayIndex] = header;
+
+                arrayIndex++;
+            }
+        }
+
+        return fileHeaders;
     }
 }
 

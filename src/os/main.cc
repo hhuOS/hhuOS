@@ -171,6 +171,17 @@ void initSerialPorts() {
     }
 }
 
+void loadInitrd() {
+
+    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
+
+    Address address(info.start);
+
+    Tar::Archive &archive = Tar::Archive::from(address);
+
+    Util::Array<Tar::Header> header = archive.getFileHeaders();
+}
+
 int32_t main() {
 
     Pit::getInstance()->plugin();

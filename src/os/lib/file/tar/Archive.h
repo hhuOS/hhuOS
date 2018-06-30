@@ -54,6 +54,13 @@ namespace Tar {
          */
         static Archive& from(Address &address);
 
+        /**
+         * Returns all file headers within this archive.
+         *
+         * @return All file headers.
+         */
+        Util::Array<Header> getFileHeaders();
+
     private:
 
         Archive() = default;

@@ -30,11 +30,23 @@ namespace Tar {
         uint8_t size[12];
         uint8_t modificationTime[12];
         uint8_t checkSum[8];
-        uint8_t typeFlag[1];
+        uint8_t typeFlag;
         uint8_t padding[355];
 
         bool operator!=(const Header &other) const;
     };
+
+    const uint8_t LF_NORMAL    = 0;
+    const uint8_t LF_LINK      = 1;
+    const uint8_t LF_SYMLINK   = 2;
+    const uint8_t LF_CHR       = 3;
+    const uint8_t LF_BLK       = 4;
+    const uint8_t LF_DIR       = 5;
+    const uint8_t LF_FIFO      = 6;
+    const uint8_t LF_CONTIG    = 7;
+    const uint8_t LF_OLDNORMAL = 48;
+
+
 }
 
 #endif
