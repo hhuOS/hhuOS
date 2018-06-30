@@ -187,10 +187,6 @@ int32_t main() {
 
     Pit::getInstance()->plugin();
 
-    Logger::initialize();
-
-    Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
-
     Logger::trace("Initializing graphics");
 
     initGraphics();

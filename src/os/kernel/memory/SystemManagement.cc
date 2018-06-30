@@ -16,6 +16,7 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <lib/libc/printf.h>
 #include <lib/multiboot/Structure.h>
+#include <kernel/log/Logger.h>
 #include "kernel/Cpu.h"
 #include "kernel/memory/Paging.h"
 
@@ -53,6 +54,10 @@ void init_system(Multiboot::Info *address) {
     systemManagement->init();
 
     Multiboot::Structure::parse(address);
+
+    Logger::initialize();
+
+    Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
 
     if(Multiboot::Structure::getKernelOption("gdb") == "false") {
         systemManagement->writeProtectKernelCode();
