@@ -8,14 +8,6 @@
 #include "kernel/KernelSymbols.h"
 #include "devices/block/storage/StorageDevice.h"
 
-#define STORAGE_SERVICE_DEBUG 0
-
-#if STORAGE_SERVICE_DEBUG
-#define     STORAGE_SERVICE_TRACE(...) printf("[STORAGE SERVICE] " __VA_ARGS__)
-#else
-#define     STORAGE_SERVICE_TRACE(...)
-#endif
-
 /**
  * Manages all storage devices.
  * When a devices is added or removed, an event is published via the event bus.

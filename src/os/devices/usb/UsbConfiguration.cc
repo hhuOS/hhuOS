@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <kernel/log/Logger.h>
 #include "UsbConfiguration.h"
 
 
@@ -89,19 +90,19 @@ void UsbConfiguration::parse(UsbConfiguration::Descriptor *descriptor) {
 
 void UsbConfiguration::print() {
 
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| USB Configuration Descriptor\n");
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Length:                         %d\n", descriptor.length);
-    USB_TRACE("| Type:                           %x\n", descriptor.type);
-    USB_TRACE("| Total Length:                   %d\n", descriptor.totalLength);
-    USB_TRACE("| Number of Interfaces:           %d\n", descriptor.numInterfaces);
-    USB_TRACE("| Configuration Value:            %x\n", descriptor.configValue);
-    USB_TRACE("| Configuration String ID:        %x\n", descriptor.configString);
-    USB_TRACE("| Attributes:                     %x\n", descriptor.attributes);
-    USB_TRACE("| Max Power:                      %dmA\n", descriptor.maxPower * 2);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| USB Configuration Descriptor");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Length:                         %d", descriptor.length);
+    Logger::trace("USB", "| Type:                           %x", descriptor.type);
+    Logger::trace("USB", "| Total Length:                   %d", descriptor.totalLength);
+    Logger::trace("USB", "| Number of Interfaces:           %d", descriptor.numInterfaces);
+    Logger::trace("USB", "| Configuration Value:            %x", descriptor.configValue);
+    Logger::trace("USB", "| Configuration String ID:        %x", descriptor.configString);
+    Logger::trace("USB", "| Attributes:                     %x", descriptor.attributes);
+    Logger::trace("USB", "| Max Power:                      %dmA", descriptor.maxPower * 2);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 
     for (uint8_t i = 0; i < interfaces.length(); i++) {
         interfaces.get(i)->print();

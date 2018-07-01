@@ -188,20 +188,20 @@ int32_t main() {
 
     if (CpuId::isSupported()) {
 
-        Logger::trace("Detected CPUID support");
+        Logger::trace("MAIN", "Detected CPUID support");
     }
 
-    Logger::trace("Initializing graphics");
+    Logger::trace("MAIN", "Initializing graphics");
 
     initGraphics();
 
     eventBus = new EventBus();
 
-    Logger::trace("Registering services");
+    Logger::trace("MAIN", "Registering services");
 
     registerServices();
 
-    Logger::trace("Initializing serial ports");
+    Logger::trace("MAIN", "Initializing serial ports");
 
     initSerialPorts();
 
@@ -214,12 +214,12 @@ int32_t main() {
         GdbServer::synchronize();
     }
 
-    Logger::trace("Plugging in RTC");
+    Logger::trace("MAIN", "Plugging in RTC");
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
 
-    Logger::trace("Plugging in keyboard and mouse");
+    Logger::trace("MAIN", "Plugging in keyboard and mouse");
 
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
@@ -271,7 +271,7 @@ int32_t main() {
         lfb->init(xres, yres, bpp);
     }
 
-    Logger::trace("Starting scheduler");
+    Logger::trace("MAIN", "Starting scheduler");
 
     Scheduler::getInstance()->schedule();
 

@@ -26,15 +26,7 @@
 #include <devices/block/storage/StorageDevice.h>
 #include <lib/libc/printf.h>
 
-#define AHCI_DEBUG 0
-
 #define MAX_DEVICES 8
-
-#if AHCI_DEBUG
-#define     AHCI_TRACE(...) printf("[AHCI] " __VA_ARGS__)
-#else
-#define     AHCI_TRACE(...)
-#endif
 
 /**
  * Advanced Host Controller Interface driver.

@@ -16,6 +16,7 @@
  */
 
 #include <kernel/Kernel.h>
+#include <kernel/log/Logger.h>
 #include "devices/block/Ahci.h"
 
 #include "../../kernel/memory/SystemManagement.h"
@@ -87,13 +88,13 @@ void Ahci::readConfig() {
     numCmdSlots = ((abar->cap >> 8) & ((1 << 5) - 1)) + 1;
     pi          = abar->pi;
 
-    AHCI_TRACE("numPorts=%d  numCmdSlots=%d  pi=%x\n", numPorts, numCmdSlots, pi);
+     Logger::trace("AHCI", "numPorts=%d  numCmdSlots=%d  pi=%x ", numPorts, numCmdSlots, pi);
 
-    AHCI_TRACE("HBA Capabilities = %x\n", abar->cap);
+     Logger::trace("AHCI", "HBA Capabilities = %x ", abar->cap);
 }
 
 void Ahci::reset() {
-    AHCI_TRACE("Resetting Host-Bus-Adapter\n");
+     Logger::trace("AHCI", "Resetting Host-Bus-Adapter ");
 
     abar->ghc |= HBA_GHC_HR;
 
@@ -102,7 +103,7 @@ void Ahci::reset() {
     // unsigned int spin = 0;
     // for (uint32_t i = 0; i < numPorts; i++) {
     //     if ( isPortImplemented(i) ) {
-    //         AHCI_TRACE("Waiting for Phy communication\n");
+    //          Logger::trace("AHCI", "Waiting for Phy communication ");
 
     //         spin = 0;
     //         while( (abar->ports[i].ssts & HBA_PxSSTS_DET) != HBA_PxSSTS_DET_PHY && spin < 1000000) {
@@ -110,9 +111,9 @@ void Ahci::reset() {
     //         }
 
     //         if (spin == 1000000) {
-    //             AHCI_TRACE("Couldn't establish Phy connection on port %d\n", i);
+    //              Logger::trace("AHCI", "Couldn't establish Phy connection on port %d ", i);
     //         } else {
-    //             AHCI_TRACE("Established Phy connection on port %d\n", i);
+    //              Logger::trace("AHCI", "Established Phy connection on port %d ", i);
     //         }
     //     }
     // }
@@ -120,7 +121,7 @@ void Ahci::reset() {
 
 void Ahci::enableAhci() {
     if ( !(abar->cap & HBA_CAP_SAM) ) {
-        AHCI_TRACE("Setting HBA to AHCI mode\n");
+         Logger::trace("AHCI", "Setting HBA to AHCI mode ");
         abar->ghc |= HBA_GHC_AE;
     }
 }
@@ -132,7 +133,7 @@ void Ahci::scan() {
             continue;
         }
 
-        AHCI_TRACE("Checking port %d\n", i);
+         Logger::trace("AHCI", "Checking port %d ", i);
 
         switch ( checkType(&abar->ports[i]) ) {
             case AHCI_DEV_SATA:
@@ -141,28 +142,28 @@ void Ahci::scan() {
                     continue;
                 }
 
-                AHCI_TRACE("SATA found at port %d\n", i);
+                 Logger::trace("AHCI", "SATA found at port %d ", i);
 
                 sataDevices[numDevices] = &abar->ports[i];
 
-                AHCI_TRACE("Stored device at %x\n", &sataDevices[numDevices], sataDevices[numDevices]->cmd);
+                 Logger::trace("AHCI", "Stored device at %x ", &sataDevices[numDevices], sataDevices[numDevices]->cmd);
 
                 numDevices++;
 
                 break;
             case AHCI_DEV_SATAPI:
-                AHCI_TRACE("SATAPI found at port %d\n", i);
+                 Logger::trace("AHCI", "SATAPI found at port %d ", i);
                 break;
             case AHCI_DEV_SEMB:
-                AHCI_TRACE("SEMB found at port %d\n", i);
+                 Logger::trace("AHCI", "SEMB found at port %d ", i);
                 break;
             case AHCI_DEV_PM:
-                AHCI_TRACE("SEMB found at port %d\n", i);
+                 Logger::trace("AHCI", "SEMB found at port %d ", i);
                 break;
         }
     }
 
-    AHCI_TRACE("Finished scanning all implemented ports\n");
+     Logger::trace("AHCI", "Finished scanning all implemented ports ");
 }
 
 bool Ahci::isActive(HbaPort* port) {
@@ -176,7 +177,7 @@ bool Ahci::isPortImplemented(uint16_t portNumber) {
 
 void Ahci::resetPort(HbaPort *port) {
 
-    AHCI_TRACE("Resetting port...\n");
+     Logger::trace("AHCI", "Resetting port... ");
 
     port->cmd |= HBA_PxCMD_FRE;
 
@@ -196,8 +197,8 @@ void Ahci::resetPort(HbaPort *port) {
     port->cmd |= HBA_PxCMD_SUD;
 
     if (port->cmd & HBA_PxCMD_CPD) {
-        AHCI_TRACE("Cold Presence Detection is supported\n");
-        AHCI_TRACE("Powering up device...\n");
+         Logger::trace("AHCI", "Cold Presence Detection is supported ");
+         Logger::trace("AHCI", "Powering up device... ");
 
         // TODO(krakowski):
         //  Perform power-up
@@ -205,22 +206,22 @@ void Ahci::resetPort(HbaPort *port) {
     }
 
     if (abar->cap & HBA_CAP_SSS) {
-        AHCI_TRACE("Staggered Spin-up is supported\n");
+         Logger::trace("AHCI", "Staggered Spin-up is supported ");
 
         // TODO(krakowski):
         //  Perform staggered spin-up
         
     }
 
-    AHCI_TRACE("Requesting transition to ACTIVE state\n");
+     Logger::trace("AHCI", "Requesting transition to ACTIVE state ");
 
     port->cmd = (port->cmd & ~HBA_PxCMD_ICC) | HBA_PxCMD_ICC_ACTIVE;
 
-    // AHCI_TRACE("Waiting for Phy communication\n");
+    //  Logger::trace("AHCI", "Waiting for Phy communication ");
 
     // while( (port->ssts & HBA_PxSSTS_DET) != HBA_PxSSTS_DET_PHY );
 
-    // AHCI_TRACE("Phy communication established\n");
+    //  Logger::trace("AHCI", "Phy communication established ");
 
     port->serr  = port->serr; // @suppress("Assignment to itself")
     port->is    = port->is; // @suppress("Assignment to itself")
@@ -266,11 +267,11 @@ uint8_t Ahci::getNumDevices() {
 void Ahci::biosHandoff() {
 
     if ( !(abar->cap2 && HBA_CAP2_BOH) ) {
-        AHCI_TRACE("AHCI BIOS Handoff is not supported\n");
+         Logger::trace("AHCI", "AHCI BIOS Handoff is not supported ");
         return;
     }
 
-    AHCI_TRACE("Performing AHCI BIOS Handoff\n");
+     Logger::trace("AHCI", "Performing AHCI BIOS Handoff ");
 
     abar->bohc = (abar->bohc & ~HBA_BOHC_OOC) | HBA_BOHC_OOS;
 
@@ -280,9 +281,9 @@ void Ahci::biosHandoff() {
     }
 
     if (spin == 1000000) {
-        AHCI_TRACE("BIOS Handoff timed out");
+         Logger::trace("AHCI", "BIOS Handoff timed out");
     } else {
-        AHCI_TRACE("AHCI BIOS Handoff succeeded\n");
+         Logger::trace("AHCI", "AHCI BIOS Handoff succeeded ");
     }
 }
 
@@ -294,7 +295,7 @@ bool Ahci::read(uint8_t device, uint32_t startl, uint32_t starth,
         return false;
     }
 
-    //AHCI_TRACE("Reading from device %d at %x\n", device, &sataDevices[device]);
+    // Logger::trace("AHCI", "Reading from device %d at %x ", device, &sataDevices[device]);
 
     return ahci_rw(sataDevices[device], startl, starth, count, buf, ATA_CMD_READ_DMA_EX, device);
 }
@@ -318,7 +319,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     HbaPort_Virt *virtPort = sataDevices_Virt[deviceNumber];
 
     if (!isActive(port)) {
-        AHCI_TRACE("Error: Port is not inizialized\n");
+         Logger::trace("AHCI", "Error: Port is not inizialized ");
         return ret;
     }
 
@@ -359,12 +360,12 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     }
 
     if (spin == 1000000) {
-        AHCI_TRACE("Error: Device is not responding\n");
+         Logger::trace("AHCI", "Error: Device is not responding ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return ret;
     }
 
-    AHCI_TRACE("Issueing command at slot %d\n", slot);
+     Logger::trace("AHCI", "Issueing command at slot %d ", slot);
 
     port->ci = 1 << slot;
     
@@ -376,7 +377,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
         }
 
         if (port->is & HBA_PxIS_TFES) {
-            AHCI_TRACE("Error: Task File Error!\n");
+             Logger::trace("AHCI", "Error: Task File Error! ");
             SystemManagement::getInstance()->freeIO(ioMemInfo);
             return ret;
         }
@@ -411,12 +412,12 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
                    uint8_t portIndex) {
 
     if (count == 0) {
-        AHCI_TRACE("Error: Count has to be greater than 0\n");
+         Logger::trace("AHCI", "Error: Count has to be greater than 0 ");
         return false;
     }
 
     if ( !isActive(port) ) {
-        AHCI_TRACE("Error: Port is not inizialized\n");
+         Logger::trace("AHCI", "Error: Port is not inizialized ");
         return false;
     }
 
@@ -489,12 +490,12 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
     }
 
     if (spin == 1000000) {
-        AHCI_TRACE("Error: Device is not responding\n");
+         Logger::trace("AHCI", "Error: Device is not responding ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
 
-    //AHCI_TRACE("Issueing command for slot %d\n", slot);
+    // Logger::trace("AHCI", "Issueing command for slot %d ", slot);
 
     port->ci = 1 << slot;
 
@@ -506,7 +507,7 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
         }
 
         if (port->is & HBA_PxIS_TFES) {
-            AHCI_TRACE("Error: Task File Error!\n");
+             Logger::trace("AHCI", "Error: Task File Error! ");
             SystemManagement::getInstance()->freeIO(ioMemInfo);
             return false;
         }
@@ -515,13 +516,13 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
     }
 
     if (spin == 1000000) {
-        AHCI_TRACE("Error: Device is hung\n");
+         Logger::trace("AHCI", "Error: Device is hung ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
 
     if (port->is & HBA_PxIS_TFES || port->tfd & HBA_PxTFD_ERR) {
-        AHCI_TRACE("Task File Error!\n");
+         Logger::trace("AHCI", "Task File Error! ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
@@ -546,7 +547,7 @@ int Ahci::findCmdSlot(HbaPort *port) {
 
 void Ahci::rebasePort(HbaPort *port, int portno) {
 
-    AHCI_TRACE("Rebasing port %d\n", portno);
+     Logger::trace("AHCI", "Rebasing port %d ", portno);
 
     IOMemInfo tmp = SystemManagement::getInstance()->mapIO(4096);
 
@@ -561,14 +562,14 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 	port->clb = tmp.physAddresses[0];
 	port->clbu = 0;
 	
-    AHCI_TRACE("Rebased Command List to %x\n", port->clb);
+     Logger::trace("AHCI", "Rebased Command List to %x ", port->clb);
 
     uint32_t fb = port->clb + 1024;
     portVirt->fb = tmp.virtStartAddress + 1024;
 	port->fb = fb;
 	port->fbu = 0;
 	
-    AHCI_TRACE("Rebased FIS area to %x\n", port->fb);
+     Logger::trace("AHCI", "Rebased FIS area to %x ", port->fb);
 
     tmp = SystemManagement::getInstance()->mapIO(8192);
     memset((void*) tmp.virtStartAddress, 0, 8192);
@@ -586,7 +587,7 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 		cmdheader[i].prdtl = 16;
     }
     
-    AHCI_TRACE("Rebased %d Command Headers ( %x - %x )\n",
+     Logger::trace("AHCI", "Rebased %d Command Headers ( %x - %x ) ",
         MAX_CMD_SLOTS,
         cmdheader[0].ctba,
         cmdheader[MAX_CMD_SLOTS - 1].ctba);    
@@ -598,7 +599,7 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 void Ahci::startAll() {
     for (uint32_t i = 0; i <= numPorts; i++) {
         if ( isPortImplemented(i) ) {
-            AHCI_TRACE("Starting port %d\n", i);
+             Logger::trace("AHCI", "Starting port %d ", i);
             startCommand(&abar->ports[i]);
         }
     }
@@ -613,7 +614,7 @@ void Ahci::startCommand(HbaPort *port) {
 void Ahci::stopAll() {
     for (uint32_t i = 0; i < numPorts; i++) {
         if ( isPortImplemented(i) ) {
-            AHCI_TRACE("Stopping port %d\n", i);
+             Logger::trace("AHCI", "Stopping port %d ", i);
             stopCommand(&abar->ports[i]);
         }
     }

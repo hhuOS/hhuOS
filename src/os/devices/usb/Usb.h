@@ -22,14 +22,6 @@
 
 #include "lib/libc/printf.h"
 
-#define USB_DEBUG 0
-
-#if USB_DEBUG
-#define     USB_TRACE(...) printf("[USB] " __VA_ARGS__)
-#else
-#define     USB_TRACE(...)
-#endif
-
 /**
  * Universal Serial Bus helper class.
  *

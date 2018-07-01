@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <kernel/log/Logger.h>
 #include "devices/block/Ide.h"
 
 
@@ -46,8 +47,8 @@ Ide::Ide() {}
 void Ide::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
                 uint32_t BAR4) {
 
-  IDE_TRACE("Setting up IDE driver\n");
-  IDE_TRACE("BAR0=%x   BAR1=%x   BAR2=%x   BAR4=%x   BAR5=%x\n", BAR0, BAR1,
+  Logger::trace("IDE", "Setting up IDE driver");
+  Logger::trace("IDE", "BAR0=%x   BAR1=%x   BAR2=%x   BAR4=%x   BAR5=%x", BAR0, BAR1,
             BAR2, BAR3, BAR4);
 
 //   channels[ATA_PRIMARY].base = (BAR0 & 0xFFFFFFFC) + 0x1F0 * (!BAR0);
@@ -64,7 +65,7 @@ void Ide::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
     channels[ATA_PRIMARY].bmide = BAR4 & ~0x1;
     channels[ATA_SECONDARY].bmide = (BAR4 & ~0x1) + 8;
 
-    IDE_TRACE("P_BASE=%x   P_CTRL=%x   S_BASE=%x   S_CTRL=%x\n",
+    Logger::trace("IDE", "P_BASE=%x   P_CTRL=%x   S_BASE=%x   S_CTRL=%x",
         channels[ATA_PRIMARY].base, channels[ATA_PRIMARY].ctrl,
         channels[ATA_SECONDARY].base, channels[ATA_SECONDARY].ctrl);
 
@@ -132,7 +133,7 @@ uint8_t Ide::poll(uint8_t channel, bool advancedCheck) {
 
 void Ide::selectDrive(uint8_t channel, uint8_t drive) {
   if (channel != ATA_PRIMARY && channel != ATA_SECONDARY) {
-    IDE_TRACE("Error: invalid channel!\n");
+    Logger::trace("IDE", "Error: invalid channel!");
     return;
   }
 
@@ -144,11 +145,11 @@ void Ide::selectDrive(uint8_t channel, uint8_t drive) {
     writeByte(channel, ATA_REG_HDDEVSEL, ATA_DRV_SLAVE);
     break;
   default:
-    IDE_TRACE("Error: invalid drive!\n");
+    Logger::trace("IDE", "Error: invalid drive!");
     return;
   }
 
-  IDE_TRACE("Selected drive %d on channel %d\n", drive, channel);
+  Logger::trace("IDE", "Selected drive %d on channel %d", drive, channel);
 }
 
 void Ide::delay(uint32_t steps) {
@@ -164,19 +165,19 @@ void Ide::identifyDrive(uint8_t channel, uint8_t drive) {
   writeByte(channel, ATA_REG_LBA2, 0);
   writeByte(channel, ATA_REG_COMMAND, ATA_CMD_IDENTIFY);
 
-  IDE_TRACE("Requested Identify data\n");
+  Logger::trace("IDE", "Requested Identify data");
 }
 
 void Ide::waitBsy(uint8_t channel) {
-  IDE_TRACE("Waiting for BSY on channel %d\n", channel);
+  Logger::trace("IDE", "Waiting for BSY on channel %d", channel);
   uint8_t timeout = 0;
   uint8_t err = 0;
   while (readByte(channel, ATA_REG_ALTSTATUS) & ATA_STS_BSY && timeout < ATA_TIMEOUT) {
-    IDE_TRACE("Still busy...\n");
+    Logger::trace("IDE", "Still busy...");
 
     err = readByte(channel, ATA_REG_ERROR);
     if (err & 0x1 || err & 0x20) {
-        IDE_TRACE("ERROR: %x\n", err);
+        Logger::trace("IDE", "ERROR: %x", err);
         return;
     }
 
@@ -185,15 +186,15 @@ void Ide::waitBsy(uint8_t channel) {
   }
 
   if (timeout == 5) {
-      IDE_TRACE("Error: Timeout on channel %d\n", channel);
+      Logger::trace("IDE", "Error: Timeout on channel %d", channel);
   } else {
-      IDE_TRACE("Device on channel %d is ready\n", channel);
+      Logger::trace("IDE", "Device on channel %d is ready", channel);
   }
 }
 
 void Ide::resetDrive(uint8_t channel) {
 
-  IDE_TRACE("Resetting channel %d\n", channel);
+  Logger::trace("IDE", "Resetting channel %d", channel);
 
   writeByte(channel, ATA_REG_CONTROL, 4);
 
@@ -205,7 +206,7 @@ void Ide::resetDrive(uint8_t channel) {
 
   waitBsy(channel);
 
-  IDE_TRACE("Channel %d reset | ERR = %x\n", channel, readByte(channel, ATA_STS_ERR));
+  Logger::trace("IDE", "Channel %d reset | ERR = %x", channel, readByte(channel, ATA_STS_ERR));
 }
 
 void Ide::detect() {
@@ -233,11 +234,11 @@ void Ide::detect() {
       delay(5);
 
       if (readByte(channel, ATA_REG_STATUS) == 0) {
-        IDE_TRACE("No Device present\n");
+        Logger::trace("IDE", "No Device present");
         continue;
       }
 
-      IDE_TRACE("Device is present\n");
+      Logger::trace("IDE", "Device is present");
 
       waitBsy(channel);
 
@@ -258,12 +259,12 @@ void Ide::detect() {
 
         writeByte(channel, ATA_REG_COMMAND, ATA_CMD_IDENTIFY_PACKET);
 
-        IDE_TRACE("ATAPI detected\n");
+        Logger::trace("IDE", "ATAPI detected");
 
         delay(5);
       }
 
-      IDE_TRACE("Reading drive information\n");
+      Logger::trace("IDE", "Reading drive information");
 
       readBuffer(channel, ATA_REG_DATA, (uint16_t *)&ide_buf, 256);
 
@@ -300,7 +301,7 @@ void Ide::detect() {
 
       ideDevices[count].model[18] = 0;
 
-      IDE_TRACE(" -> Found %s Drive %dMB - %s\n         # %s\n",
+      Logger::trace("IDE", " -> Found %s Drive %dMB - %s         # %s",
                 (const char *[]){"ATA", "ATAPI"}[ideDevices[count].type],
                 ideDevices[count].size / 1024 / 2, ideDevices[count].model,
                 ideDevices[count].serial);

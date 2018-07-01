@@ -1,4 +1,5 @@
 #include <kernel/Kernel.h>
+#include <kernel/log/Logger.h>
 #include "StorageService.h"
 #include "devices/block/storage/Partition.h"
 #include "EventBus.h"
@@ -20,7 +21,7 @@ void StorageService::registerDevice(StorageDevice *device) {
 
     devices.put(device->getName(), device);
 
-    STORAGE_SERVICE_TRACE("Registering device: %s\n", (char *) device->getName());
+    Logger::trace("STORAGE SERVICE", "Registering device: %s", (char *) device->getName());
 
     addEventBuffer.push(StorageAddEvent(device));
     eventBus->publish(addEventBuffer.pop());
@@ -52,7 +53,7 @@ void StorageService::removeDevice(const String &name) {
     Util::Array<String> deviceNames = devices.keySet();
     for(const String &currentName : deviceNames) {
         if(currentName.beginsWith(name)) {
-            STORAGE_SERVICE_TRACE("Removing device: %s\n", (char *) currentName);
+            Logger::trace("STORAGE SERVICE", "Removing device: %s", (char *) currentName);
 
             devices.remove(currentName);
 

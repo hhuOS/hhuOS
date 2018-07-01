@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <kernel/log/Logger.h>
 #include "UsbInterface.h"
 #include "Usb.h"
 
@@ -103,20 +104,20 @@ void UsbInterface::parse(UsbInterface::Descriptor *descriptor) {
 
 void UsbInterface::print() {
 
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| USB Interface Descriptor\n");
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Length:                         %d\n", descriptor.length);
-    USB_TRACE("| Type:                           %x\n", descriptor.type);
-    USB_TRACE("| Interface Number:               %d\n", descriptor.number);
-    USB_TRACE("| Alternate Setting:              %x\n", descriptor.altSetting);
-    USB_TRACE("| Number of Endpoints:            %d\n", descriptor.numEndpoints);
-    USB_TRACE("| Interface Class:                %x\n", descriptor.classCode);
-    USB_TRACE("| Interface Subclass:             %x\n", descriptor.subClassCode);
-    USB_TRACE("| Interface Protocol:             %x\n", descriptor.protocolCode);
-    USB_TRACE("| Interface String ID:            %x\n", descriptor.nameIndex);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| USB Interface Descriptor");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Length:                         %d", descriptor.length);
+    Logger::trace("USB", "| Type:                           %x", descriptor.type);
+    Logger::trace("USB", "| Interface Number:               %d", descriptor.number);
+    Logger::trace("USB", "| Alternate Setting:              %x", descriptor.altSetting);
+    Logger::trace("USB", "| Number of Endpoints:            %d", descriptor.numEndpoints);
+    Logger::trace("USB", "| Interface Class:                %x", descriptor.classCode);
+    Logger::trace("USB", "| Interface Subclass:             %x", descriptor.subClassCode);
+    Logger::trace("USB", "| Interface Protocol:             %x", descriptor.protocolCode);
+    Logger::trace("USB", "| Interface String ID:            %x", descriptor.nameIndex);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 
     for (uint8_t i = 0; i < endpoints.length(); i++) {
         endpoints.get(i)->print();

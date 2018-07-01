@@ -33,15 +33,8 @@
 
 #include <cstdint>
 
-#define EHCI_DEBUG 0
 #define DEBUG_BIOS_QH 0
 #define ALLOW_USB_EXCHANGE 0
-
-#if EHCI_DEBUG
-#define     EHCI_TRACE(...) printf("[EHCI] " __VA_ARGS__)
-#else
-#define     EHCI_TRACE(...)
-#endif
 
 /**
  * @author Filip Krakowski

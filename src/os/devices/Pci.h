@@ -18,19 +18,10 @@
 #ifndef __PCI_include__
 #define __PCI_include__
 
-#define PCI_DEBUG 0
-
 #define PCI_UHCI_ENABLED 0
 #define PCI_EHCI_ENABLED 0
 #define PCI_AHCI_ENABLED 1
 #define PCI_IDE_ENABLED  0
-
-#if PCI_DEBUG
-#include "lib/libc/printf.h"
-#define     PCI_TRACE(...) printf("[PCI] " __VA_ARGS__)
-#else
-#define     PCI_TRACE(...)
-#endif
 
 #include "kernel/IOport.h"
 

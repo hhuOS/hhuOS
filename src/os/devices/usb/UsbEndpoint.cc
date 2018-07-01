@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <kernel/log/Logger.h>
 #include "UsbEndpoint.h"
 #include "Usb.h"
 
@@ -68,17 +69,17 @@ void UsbEndpoint::parse(UsbEndpoint::Descriptor *descriptor) {
 
 void UsbEndpoint::print() {
 
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| USB Endpoint Descriptor \n");
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Length:                         %d\n", descriptor.length);
-    USB_TRACE("| Type:                           %x\n", descriptor.type);
-    USB_TRACE("| Address:                        %x\n", descriptor.address);
-    USB_TRACE("| Attributes:                     %x\n", descriptor.attributes);
-    USB_TRACE("| Max Packet Size:                %x\n", descriptor.maxPacketSize);
-    USB_TRACE("| Polling Interval:               %x\n", descriptor.interval);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| USB Endpoint Descriptor ");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Length:                         %d", descriptor.length);
+    Logger::trace("USB", "| Type:                           %x", descriptor.type);
+    Logger::trace("USB", "| Address:                        %x", descriptor.address);
+    Logger::trace("USB", "| Attributes:                     %x", descriptor.attributes);
+    Logger::trace("USB", "| Max Packet Size:                %x", descriptor.maxPacketSize);
+    Logger::trace("USB", "| Polling Interval:               %x", descriptor.interval);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 
 }
 

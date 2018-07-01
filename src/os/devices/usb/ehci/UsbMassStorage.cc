@@ -17,6 +17,7 @@
 
 #include <kernel/services/DebugService.h>
 #include <kernel/Kernel.h>
+#include <kernel/log/Logger.h>
 #include "UsbMassStorage.h"
 
 #include "UsbMassStorage.h"
@@ -175,7 +176,7 @@ UsbMassStorage::CommandBlockWrapper UsbMassStorage::requestSense() {
 
 Scsi::InquiryData UsbMassStorage::getInquiryData() {
 
-    USB_TRACE("Requesting inquiry data from %s %s\n", manufacturer, product);
+    Logger::trace("USB", "Requesting inquiry data from %s %s", manufacturer, product);
 
     UsbMassStorage::CommandBlockWrapper command = getScsiInquiry();
 
@@ -208,25 +209,25 @@ Scsi::InquiryData UsbMassStorage::getInquiryData() {
     memcpy(scsiRevision, ret.productRevision, 4);
     scsiRevision[4] = '\0';
 
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Inquiry Data\n");
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Device Type:                    %x\n", ret.deviceType);
-    USB_TRACE("| Device Qualifier:               %x\n", ret.deviceQualifier);
-    USB_TRACE("| Removable:                      %d\n", ret.removable);
-    USB_TRACE("| Version:                        %x\n", ret.version);
-    USB_TRACE("| Vendor:                         %s\n", scsiVendor);
-    USB_TRACE("| Product:                        %s\n", scsiProduct);
-    USB_TRACE("| Revision:                       %s\n", scsiRevision);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Inquiry Data");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Device Type:                    %x", ret.deviceType);
+    Logger::trace("USB", "| Device Qualifier:               %x", ret.deviceQualifier);
+    Logger::trace("USB", "| Removable:                      %d", ret.removable);
+    Logger::trace("USB", "| Version:                        %x", ret.version);
+    Logger::trace("USB", "| Vendor:                         %s", scsiVendor);
+    Logger::trace("USB", "| Product:                        %s", scsiProduct);
+    Logger::trace("USB", "| Revision:                       %s", scsiRevision);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 
     return ret;
 }
 
 UsbDevice::Status UsbMassStorage::bulkReset(uint16_t interface) {
 
-    USB_TRACE("Performing bulk reset on %s %s\n", manufacturer, product);
+    Logger::trace("USB", "Performing bulk reset on %s %s", manufacturer, product);
 
     Usb::Request request = Usb::bulkReset(interface);
 
@@ -379,41 +380,41 @@ UsbDevice::Status UsbMassStorage::getSense() {
 }
 
 void UsbMassStorage::printCommandBlockWrapper(UsbMassStorage::CommandBlockWrapper *commandBlockWrapper) {
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Command Block Wrapper @ %x\n", commandBlockWrapper);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Signature:                      %08x\n", commandBlockWrapper->signature);
-    USB_TRACE("| Tag:                            %08x\n", commandBlockWrapper->tag);
-    USB_TRACE("| Transfer Length:                %d\n", commandBlockWrapper->length);
-    USB_TRACE("| Direction:                      %08x\n", commandBlockWrapper->direction);
-    USB_TRACE("| Logical Unit:                   %08x\n", commandBlockWrapper->unit);
-    USB_TRACE("| Command Length:                 %d\n", commandBlockWrapper->cmdLength);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Command Data                   \n");
-    USB_TRACE("|--------------------------------------------------------------|\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Command Block Wrapper @ %x", commandBlockWrapper);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Signature:                      %08x", commandBlockWrapper->signature);
+    Logger::trace("USB", "| Tag:                            %08x", commandBlockWrapper->tag);
+    Logger::trace("USB", "| Transfer Length:                %d", commandBlockWrapper->length);
+    Logger::trace("USB", "| Direction:                      %08x", commandBlockWrapper->direction);
+    Logger::trace("USB", "| Logical Unit:                   %08x", commandBlockWrapper->unit);
+    Logger::trace("USB", "| Command Length:                 %d", commandBlockWrapper->cmdLength);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Command Data                   ");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
 
     for (uint8_t i = 0; i < 4; i++) {
-        USB_TRACE("|  %02x  %02x  %02x  %02x\n",
+        Logger::trace("USB", "|  %02x  %02x  %02x  %02x",
                   commandBlockWrapper->cmdData[i * 4 + 0],
                   commandBlockWrapper->cmdData[i * 4 + 1],
                   commandBlockWrapper->cmdData[i * 4 + 2],
                   commandBlockWrapper->cmdData[i * 4 + 3]);
     }
 
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 }
 
 void UsbMassStorage::printCommandStatusWrapper(UsbMassStorage::CommandStatusWrapper *commandStatusWrapper) {
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Command Staus Wrapper @ %x\n", commandStatusWrapper);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("| Signature:                      %08x\n", commandStatusWrapper->signature);
-    USB_TRACE("| Tag:                            %08x\n", commandStatusWrapper->tag);
-    USB_TRACE("| Data Residue:                   %d\n", commandStatusWrapper->dataResidue);
-    USB_TRACE("| Status:                         %08x\n", commandStatusWrapper->status);
-    USB_TRACE("|--------------------------------------------------------------|\n");
-    USB_TRACE("\n");
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Command Staus Wrapper @ %x", commandStatusWrapper);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "| Signature:                      %08x", commandStatusWrapper->signature);
+    Logger::trace("USB", "| Tag:                            %08x", commandStatusWrapper->tag);
+    Logger::trace("USB", "| Data Residue:                   %d", commandStatusWrapper->dataResidue);
+    Logger::trace("USB", "| Status:                         %08x", commandStatusWrapper->status);
+    Logger::trace("USB", "|--------------------------------------------------------------|");
+    Logger::trace("USB", "");
 }
 
 

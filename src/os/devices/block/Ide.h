@@ -20,15 +20,7 @@
 
 #include <cstdint>
 
-#define IDE_DEBUG 0
-
 #define IDE_MAX_DEVICES 4
-
-#if IDE_DEBUG
-#define     IDE_TRACE(...) printf("[IDE] " __VA_ARGS__)
-#else
-#define     IDE_TRACE(...)
-#endif
 
 /**
  * Integrated Drive Electronics interface driver.

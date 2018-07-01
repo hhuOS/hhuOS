@@ -26,14 +26,6 @@
 #include <kernel/events/input/MouseMovedEvent.h>
 #include <kernel/events/input/MouseDoubleClickEvent.h>
 
-#define MOUSE_DEBUG 0
-
-#if MOUSE_DEBUG
-#define     MOUSE_TRACE(...) printf("[MOUSE] " __VA_ARGS__)
-#else
-#define     MOUSE_TRACE(...)
-#endif
-
 /**
  * A simple ps2 mouse driver
  *

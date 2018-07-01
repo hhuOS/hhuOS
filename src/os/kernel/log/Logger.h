@@ -20,15 +20,15 @@ public:
         ERROR = 0x4
     };
 
-    static void trace(const String &message, ...);
+    static void trace(const String &name, const String &message, ...);
 
-    static void debug(const String &message, ...);
+    static void debug(const String &name, const String &message, ...);
 
-    static void info(const String &message, ...);
+    static void info(const String &name, const String &message, ...);
 
-    static void warn(const String &message, ...);
+    static void warn(const String &name, const String &message, ...);
 
-    static void error(const String &message, ...);
+    static void error(const String &name, const String &message, ...);
 
     static void setLevel(LogLevel level);
 
@@ -48,7 +48,7 @@ private:
 
     static TimeProvider *timeProvider;
 
-    static void logMessage(LogLevel level, const String &message);
+    static void logMessage(LogLevel level, const String &name, const String &message);
 
     static String getLevelAsString(LogLevel level);
 

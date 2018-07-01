@@ -16,57 +16,57 @@ Util::ArrayList<Appender*> Logger::appenders;
 
 Util::ArrayList<String> Logger::buffer;
 
-void Logger::trace(const String &message, ...) {
+void Logger::trace(const String &name, const String &message, ...) {
 
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, String::format((char*) message, args));
+    logMessage(TRACE, name, String::format((char*) message, args));
 
     va_end(args);
 }
 
-void Logger::debug(const String &message, ...) {
+void Logger::debug(const String &name, const String &message, ...) {
 
     va_list args;
     va_start(args, message);
 
-    logMessage(DEBUG, String::format((char*) message, args));
+    logMessage(DEBUG, name, String::format((char*) message, args));
 
     va_end(args);
 }
 
-void Logger::info(const String &message, ...) {
+void Logger::info(const String &name, const String &message, ...) {
 
     va_list args;
     va_start(args, message);
 
-    logMessage(INFO, String::format((char*) message, args));
+    logMessage(INFO, name, String::format((char*) message, args));
 
     va_end(args);
 }
 
-void Logger::warn(const String &message, ...) {
+void Logger::warn(const String &name, const String &message, ...) {
 
     va_list args;
     va_start(args, message);
 
-    logMessage(WARN, String::format((char*) message, args));
+    logMessage(WARN, name, String::format((char*) message, args));
 
     va_end(args);
 }
 
-void Logger::error(const String &message, ...) {
+void Logger::error(const String &name, const String &message, ...) {
 
     va_list args;
     va_start(args, message);
 
-    logMessage(ERROR, String::format((char*) message, args));
+    logMessage(ERROR, name, String::format((char*) message, args));
 
     va_end(args);
 }
 
-void Logger::logMessage(LogLevel level, const String &message) {
+void Logger::logMessage(LogLevel level, const String &name, const String &message) {
 
     if (level < currentLevel) {
 
@@ -81,7 +81,8 @@ void Logger::logMessage(LogLevel level, const String &message) {
 
     String tmp = "[" + String::valueOf(seconds, 10) + "."
                      + String::valueOf(fraction, 10, 4) + "]["
-                     + getLevelAsString(level) + "] ";
+                     + getLevelAsString(level) + "]["
+                     + name + "] ";
 
     tmp += message;
 

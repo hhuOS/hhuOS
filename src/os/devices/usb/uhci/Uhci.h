@@ -26,14 +26,6 @@
 #include <cstdint>
 #include <devices/Pci.h>
 
-#define UHCI_DEBUG 0
-
-#if UHCI_DEBUG
-#define     UHCI_TRACE(...) printf("[UHCI] " __VA_ARGS__)
-#else
-#define     UHCI_TRACE(...)
-#endif
-
 /**
  * @author Filip Krakowski
  */
