@@ -146,10 +146,22 @@ void Logger::initialize() {
 
     if (Multiboot::Structure::getKernelOption("gdb") == "false") {
 
-        Serial *serial = new Serial(Serial::COM1);
+        Serial *serial = nullptr;
 
-        SerialAppender *serialAppender = new SerialAppender(*serial);
+        if(Serial::checkPort(Serial::COM1)) {
+            serial = new Serial(Serial::COM1);
+        } else if(Serial::checkPort(Serial::COM2)) {
+            serial = new Serial(Serial::COM2);
+        } else if(Serial::checkPort(Serial::COM3)) {
+            serial = new Serial(Serial::COM3);
+        } else if(Serial::checkPort(Serial::COM4)) {
+            serial = new Serial(Serial::COM4);
+        }
 
-        addAppender(serialAppender);
+        if(serial != nullptr) {
+            SerialAppender *serialAppender = new SerialAppender(*serial);
+
+            addAppender(serialAppender);
+        }
     }
 }
