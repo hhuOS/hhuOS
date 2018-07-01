@@ -33,7 +33,7 @@ extern "C" {
 #include "lib/libc/stdlib.h"
 }
 
-const String Ehci::LOG_NAME = String("EHCI");
+Logger &Ehci::log = Logger::get("EHCI");
 
 Ehci::Ehci() : eventBuffer(1024) {}
 
@@ -104,30 +104,30 @@ void Ehci::readConfig() {
 
 
 void Ehci::printSummary() {
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "|                         EHCI                                 |");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "   COMMAND (%x):                 %x", &op->command, op->command);
-    Logger::trace(LOG_NAME, "   STATUS (%x):                  %x", &op->status, op->status);
-    Logger::trace(LOG_NAME, "   INTERRUPT (%x):               %x", &op->interrupt, op->interrupt);
-    Logger::trace(LOG_NAME, "   FRINDEX (%x):                 %x", &op->frameIndex, op->frameIndex);
-    Logger::trace(LOG_NAME, "   CTRLDSSEGMENT (%x):           %x", &op->ctrlDsSegment, op->ctrlDsSegment);
-    Logger::trace(LOG_NAME, "   PERIODICLISTBASE (%x):        %x", &op->periodicListBase, op->periodicListBase);
-    Logger::trace(LOG_NAME, "   ASYNCLISTADDR (%x):           %x", &op->asyncListAddress, op->asyncListAddress);
-    Logger::trace(LOG_NAME, "   CONFIGFLAG (%x):              %x", &op->configFlag, op->configFlag);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "|                         PORTS                                |");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("|                         EHCI                                 |");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("   COMMAND (%x):                 %x", &op->command, op->command);
+    log.trace("   STATUS (%x):                  %x", &op->status, op->status);
+    log.trace("   INTERRUPT (%x):               %x", &op->interrupt, op->interrupt);
+    log.trace("   FRINDEX (%x):                 %x", &op->frameIndex, op->frameIndex);
+    log.trace("   CTRLDSSEGMENT (%x):           %x", &op->ctrlDsSegment, op->ctrlDsSegment);
+    log.trace("   PERIODICLISTBASE (%x):        %x", &op->periodicListBase, op->periodicListBase);
+    log.trace("   ASYNCLISTADDR (%x):           %x", &op->asyncListAddress, op->asyncListAddress);
+    log.trace("   CONFIGFLAG (%x):              %x", &op->configFlag, op->configFlag);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("|                         PORTS                                |");
+    log.trace("|--------------------------------------------------------------|");
     for (uint8_t port = 0; port < numPorts; port++) {
-        Logger::trace(LOG_NAME, "   PORT%d (%x):              %x", port + 1, &op->ports[port], op->ports[port]);
+        log.trace("   PORT%d (%x):              %x", port + 1, &op->ports[port], op->ports[port]);
     }
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    log.trace("|--------------------------------------------------------------|");
 }
 
 
 Ehci::EhciStatus Ehci::stop() {
 
-    Logger::trace(LOG_NAME, "Stopping Host Controller");
+    log.trace("Stopping Host Controller");
 
     op->command &= ~USBCMD_RS;
     op->command &= ~USBCMD_PSE;
@@ -139,12 +139,12 @@ Ehci::EhciStatus Ehci::stop() {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "ERROR: HC reset timed out");
+            log.trace("ERROR: HC reset timed out");
             return TIMEOUT;
         }
     }
 
-    Logger::trace(LOG_NAME, "Successfully stopped Host Controller");
+    log.trace("Successfully stopped Host Controller");
 
     return OK;
 }
@@ -153,10 +153,10 @@ Ehci::EhciStatus Ehci::stop() {
 Ehci::EhciStatus Ehci::reset() {
 
     if (stop() != OK) {
-        Logger::trace(LOG_NAME, "WARNING: Couldn't stop Host Controller");
+        log.trace("WARNING: Couldn't stop Host Controller");
     }
 
-    Logger::trace(LOG_NAME, "Resetting Host Controller");
+    log.trace("Resetting Host Controller");
 
     op->command |= USBCMD_HCRESET;
 
@@ -166,12 +166,12 @@ Ehci::EhciStatus Ehci::reset() {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "Error: HC reset timed out");
+            log.trace("Error: HC reset timed out");
             return TIMEOUT;
         }
     }
 
-    Logger::trace(LOG_NAME, "Successfully reset Host Controller");
+    log.trace("Successfully reset Host Controller");
 
     return OK;
 }
@@ -179,7 +179,7 @@ Ehci::EhciStatus Ehci::reset() {
 void Ehci::setupPeriodicSchedule() {
     frameList = (PeriodicFrameList*) aligned_alloc(4096, 4 * frameListEntries);
 
-    Logger::trace(LOG_NAME, "Setting up Periodic Frame List with %d entries", frameListEntries);
+    log.trace("Setting up Periodic Frame List with %d entries", frameListEntries);
 
     for (uint32_t i = 0; i < frameListEntries; i++) {
         frameList->entries[i] = ENABLED;
@@ -188,7 +188,7 @@ void Ehci::setupPeriodicSchedule() {
     op->command = (op->command & ~(bitMask(2) << 2)) | ((frameListSize & bitMask(2)) << 2);
     op->periodicListBase = (uint32_t) frameList;
 
-    Logger::trace(LOG_NAME, "Periodic Frame List base at %x", op->periodicListBase);
+    log.trace("Periodic Frame List base at %x", op->periodicListBase);
 }
 
 
@@ -207,7 +207,7 @@ void Ehci::enableAsyncSchedule() {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "Error: Async Schedule couldn't be enabled");
+            log.trace("Error: Async Schedule couldn't be enabled");
         }
     }
 }
@@ -222,7 +222,7 @@ void Ehci::enablePeriodicSchedule() {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "Error: Periodic Schedule couldn't be enabled");
+            log.trace("Error: Periodic Schedule couldn't be enabled");
         }
     }
 }
@@ -233,7 +233,7 @@ void Ehci::handoff() {
     uint8_t eecp = (uint8_t) ((cap->hccParams & HCCPARAMS_EECP) >> 8);
     uint8_t capId = 0;
 
-    Logger::trace(LOG_NAME, "Extended Capabilities Pointer at %x", eecp);
+    log.trace("Extended Capabilities Pointer at %x", eecp);
 
     if ( eecp >= 0x40) {
 
@@ -248,14 +248,14 @@ void Ehci::handoff() {
         }
 
         if ( capId != 0x1 ) {
-            Logger::trace(LOG_NAME, "EHCI does not support BIOS handoff");
+            log.trace("EHCI does not support BIOS handoff");
         }
 
         uint8_t bos   = eecp + 2;
         uint8_t oos   = eecp + 3;
         uint8_t legctlsts = eecp + 4;
 
-        Logger::trace(LOG_NAME, "Performing EHCI BIOS handoff");
+        log.trace("Performing EHCI BIOS handoff");
 
         Pci::writeByte(pciDevice.bus, pciDevice.device, pciDevice.function, oos, ENABLED);
 
@@ -267,7 +267,7 @@ void Ehci::handoff() {
             timeout--;
 
             if ( timeout == 0 ) {
-                Logger::trace(LOG_NAME, "Error: EHCI handoff timed out");
+                log.trace("Error: EHCI handoff timed out");
                 break;
             }
         }
@@ -277,13 +277,13 @@ void Ehci::handoff() {
         timeService->msleep(50);
 
         if (Pci::readByte(pciDevice.bus, pciDevice.device, pciDevice.function, bos) & ENABLED) {
-            Logger::trace(LOG_NAME, "WARNING: BIOS still owns semaphore");
+            log.trace("WARNING: BIOS still owns semaphore");
         } else {
-            Logger::trace(LOG_NAME, "EHCI BIOS handoff succeeded");
+            log.trace("EHCI BIOS handoff succeeded");
         }
 
     } else {
-        Logger::trace(LOG_NAME, "EHCI does not support BIOS handoff");
+        log.trace("EHCI does not support BIOS handoff");
     }
 }
 
@@ -300,7 +300,7 @@ void Ehci::start() {
     op->command = (op->command & ~USBCMD_ITC) | (0x08 << 16);
 
     if ( op->status & USBSTS_HCH ) {
-        Logger::trace(LOG_NAME, "Starting HC");
+        log.trace("Starting HC");
         op->command |= USBCMD_RS;
     }
 
@@ -310,7 +310,7 @@ void Ehci::start() {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "Error: HC start timed out");
+            log.trace("Error: HC start timed out");
             break;
         }
     }
@@ -321,7 +321,7 @@ void Ehci::start() {
 
 void Ehci::startPorts() {
 
-    Logger::trace(LOG_NAME, "Starting ports");
+    log.trace("Starting ports");
 
 #if ALLOW_USB_EXCHANGE
     printf("");
@@ -336,7 +336,7 @@ void Ehci::startPorts() {
 
         lineStatus = (uint8_t) (((op->ports[i] & PORTSC_LS) >> 10) & 0x2);
         if (lineStatus != PORTSC_LS_SE0) {
-            Logger::trace(LOG_NAME, "Skipping non-highspeed device on port %d - LS=%02b", i + 1, lineStatus);
+            log.trace("Skipping non-highspeed device on port %d - LS=%02b", i + 1, lineStatus);
             continue;
         }
 
@@ -350,7 +350,7 @@ void Ehci::startPorts() {
 void Ehci::resetPort(uint8_t portNumber) {
 
     if (op->status & USBSTS_HCH) {
-        Logger::trace(LOG_NAME, "Error: HC is halted");
+        log.trace("Error: HC is halted");
         return;
     }
 
@@ -359,7 +359,7 @@ void Ehci::resetPort(uint8_t portNumber) {
 
     op->status |= USBSTS_PCD;
 
-    Logger::trace(LOG_NAME, "Resetting Port %d", portNumber + 1);
+    log.trace("Resetting Port %d", portNumber + 1);
 
     op->ports[portNumber] |= PORTSC_PR;
     timeService->msleep(100);
@@ -371,7 +371,7 @@ void Ehci::resetPort(uint8_t portNumber) {
         timeout--;
 
         if ( timeout == 0) {
-            Logger::trace(LOG_NAME, "WARNING: Port Reset timed out");
+            log.trace("WARNING: Port Reset timed out");
             break;
         }
     }
@@ -380,7 +380,7 @@ void Ehci::resetPort(uint8_t portNumber) {
         timeService->msleep(10);
 
         if ( op->ports[portNumber] & PORTSC_CCS || op->ports[portNumber] & PORTSC_PE ) {
-            Logger::trace(LOG_NAME, " -> Device detected or Port enabled");
+            log.trace(" -> Device detected or Port enabled");
             break;
         }
     }
@@ -397,7 +397,7 @@ void Ehci::resetPort(uint8_t portNumber) {
 
 void Ehci::enableInterrupts() {
 
-    Logger::trace(LOG_NAME, "Enabling Interrupts");
+    log.trace("Enabling Interrupts");
 
     acknowledgeAll();
 
@@ -407,7 +407,7 @@ void Ehci::enableInterrupts() {
 
 void Ehci::disableInterrupts() {
 
-    Logger::trace(LOG_NAME, "Disabling Interrupts");
+    log.trace("Disabling Interrupts");
 
     op->interrupt &= ~(USBINTR_FLR | USBINTR_HSE | USBINTR_IAA | USBINTR_PCD | USBINTR_USBEINT | USBINTR_USBINT);
 }
@@ -421,7 +421,7 @@ void Ehci::acknowledgeAll() {
 
 
 void Ehci::setupUsbDevice(uint8_t portNumber) {
-    Logger::trace(LOG_NAME, "Setting up USB Mass Storage Device");
+    log.trace("Setting up USB Mass Storage Device");
 
     AsyncListQueue::QueueHead *control = AsyncListQueue::createQueueHead(false, 0, 0, 64, 0x1, 0x2, true);
 
@@ -443,7 +443,7 @@ UsbMassStorage *Ehci::getDevice(uint32_t index) {
 }
 
 void Ehci::plugin() {
-    Logger::trace(LOG_NAME, "Assigning interrupt %d", pciDevice.intr);
+    log.trace("Assigning interrupt %d", pciDevice.intr);
 
     IntDispatcher::getInstance().assign((uint8_t) pciDevice.intr + 32, *this);
     Pic::getInstance()->allow(pciDevice.intr);
@@ -461,18 +461,18 @@ void Ehci::trigger() {
 
 void Ehci::printPciStatus() {
 
-    Logger::trace(LOG_NAME, "  PCI STATUS: %x", Pci::readDoubleWord(pciDevice.bus, pciDevice.device, pciDevice.function, Pci::PCI_HEADER_COMMAND));
+    log.trace("  PCI STATUS: %x", Pci::readDoubleWord(pciDevice.bus, pciDevice.device, pciDevice.function, Pci::PCI_HEADER_COMMAND));
 
 }
 
 void Ehci::printQueueHead(AsyncListQueue::QueueHead *queueHead) {
-    Logger::trace(LOG_NAME, "|-------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "|                   QUEUEHEAD(%08x)                     |", queueHead);
-    Logger::trace(LOG_NAME, "|-------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| NEXT                        %08x                      |", queueHead->link & ~0x1F);
-    Logger::trace(LOG_NAME, "| ENDPOINT STATE 0            %08x                      |", queueHead->endpointState[0]);
-    Logger::trace(LOG_NAME, "| ENDPOINT STATE 1            %08x                      |", queueHead->endpointState[1]);
-    Logger::trace(LOG_NAME, "|-------------------------------------------------------------|");
+    log.trace("|-------------------------------------------------------------|");
+    log.trace("|                   QUEUEHEAD(%08x)                     |", queueHead);
+    log.trace("|-------------------------------------------------------------|");
+    log.trace("| NEXT                        %08x                      |", queueHead->link & ~0x1F);
+    log.trace("| ENDPOINT STATE 0            %08x                      |", queueHead->endpointState[0]);
+    log.trace("| ENDPOINT STATE 1            %08x                      |", queueHead->endpointState[1]);
+    log.trace("|-------------------------------------------------------------|");
 }
 
 void Ehci::onEvent(const Event &event) {

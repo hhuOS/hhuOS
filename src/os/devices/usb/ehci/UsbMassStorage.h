@@ -64,6 +64,8 @@ public:
 
 private:
 
+    static Logger &log;
+
     DebugService *debugService;
 
     char scsiVendor[9];

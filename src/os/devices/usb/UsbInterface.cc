@@ -19,7 +19,7 @@
 #include "UsbInterface.h"
 #include "Usb.h"
 
-const String UsbInterface::LOG_NAME = String("USB");
+Logger &UsbInterface::log = Logger::get("USB");
 
 UsbInterface::UsbInterface(UsbInterface::Descriptor *descriptor) {
     parse(descriptor);
@@ -105,20 +105,20 @@ void UsbInterface::parse(UsbInterface::Descriptor *descriptor) {
 
 void UsbInterface::print() {
 
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| USB Interface Descriptor");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Length:                         %d", descriptor.length);
-    Logger::trace(LOG_NAME, "| Type:                           %x", descriptor.type);
-    Logger::trace(LOG_NAME, "| Interface Number:               %d", descriptor.number);
-    Logger::trace(LOG_NAME, "| Alternate Setting:              %x", descriptor.altSetting);
-    Logger::trace(LOG_NAME, "| Number of Endpoints:            %d", descriptor.numEndpoints);
-    Logger::trace(LOG_NAME, "| Interface Class:                %x", descriptor.classCode);
-    Logger::trace(LOG_NAME, "| Interface Subclass:             %x", descriptor.subClassCode);
-    Logger::trace(LOG_NAME, "| Interface Protocol:             %x", descriptor.protocolCode);
-    Logger::trace(LOG_NAME, "| Interface String ID:            %x", descriptor.nameIndex);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| USB Interface Descriptor");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Length:                         %d", descriptor.length);
+    log.trace("| Type:                           %x", descriptor.type);
+    log.trace("| Interface Number:               %d", descriptor.number);
+    log.trace("| Alternate Setting:              %x", descriptor.altSetting);
+    log.trace("| Number of Endpoints:            %d", descriptor.numEndpoints);
+    log.trace("| Interface Class:                %x", descriptor.classCode);
+    log.trace("| Interface Subclass:             %x", descriptor.subClassCode);
+    log.trace("| Interface Protocol:             %x", descriptor.protocolCode);
+    log.trace("| Interface String ID:            %x", descriptor.nameIndex);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("");
 
     for (uint8_t i = 0; i < endpoints.length(); i++) {
         endpoints.get(i)->print();

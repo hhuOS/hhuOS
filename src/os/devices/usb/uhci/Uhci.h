@@ -25,6 +25,7 @@
 
 #include <cstdint>
 #include <devices/Pci.h>
+#include <kernel/log/Logger.h>
 
 /**
  * @author Filip Krakowski
@@ -68,6 +69,8 @@ class Uhci : public InterruptHandler {
     };
 
 private:
+
+    static Logger &log;
 
     static const String LOG_NAME;
 

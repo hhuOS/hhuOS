@@ -19,6 +19,7 @@
 #define __UsbEndpoint_include__
 
 #include <cstdint>
+#include "kernel/log/Logger.h"
 
 /**
  * Represents a USB device endpoint.
@@ -76,7 +77,7 @@ public:
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     UsbEndpoint::Descriptor descriptor;
 

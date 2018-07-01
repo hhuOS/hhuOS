@@ -25,6 +25,7 @@
 #include <kernel/events/input/MouseReleasedEvent.h>
 #include <kernel/events/input/MouseMovedEvent.h>
 #include <kernel/events/input/MouseDoubleClickEvent.h>
+#include "kernel/log/Logger.h"
 
 /**
  * A simple ps2 mouse driver
@@ -36,7 +37,7 @@ class Mouse : public InterruptHandler {
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     TimeService *timeService;
 

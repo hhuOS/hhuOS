@@ -1,16 +1,21 @@
 #ifndef HHUOS_LOGGER_H
 #define HHUOS_LOGGER_H
 
-#include <lib/String.h>
-#include <lib/util/ArrayList.h>
-#include <lib/file/File.h>
-#include <devices/Serial.h>
-#include <lib/time/TimeProvider.h>
-#include "Appender.h"
+#include "lib/String.h"
+#include "lib/util/ArrayList.h"
+#include "lib/time/TimeProvider.h"
+#include "devices/Serial.h"
+#include "kernel/log/Appender.h"
 
 class Logger {
 
 public:
+
+    Logger(const Logger &other) = delete;
+
+    Logger &operator=(const Logger &other) = delete;
+
+    virtual ~Logger() = default;
 
     enum LogLevel {
         TRACE = 0x0,
@@ -20,15 +25,17 @@ public:
         ERROR = 0x4
     };
 
-    static void trace(const String &name, const String &message, ...);
+    static Logger& get(const String &name);
 
-    static void debug(const String &name, const String &message, ...);
+    void trace(const String &message, ...);
 
-    static void info(const String &name, const String &message, ...);
+    void debug(const String &message, ...);
 
-    static void warn(const String &name, const String &message, ...);
+    void info(const String &message, ...);
 
-    static void error(const String &name, const String &message, ...);
+    void warn(const String &message, ...);
+
+    void error(const String &message, ...);
 
     static void setLevel(LogLevel level);
 
@@ -39,6 +46,10 @@ public:
     static void initialize();
 
 private:
+
+    explicit Logger(const String &name) noexcept;
+
+    const String name;
 
     static Util::ArrayList<Appender*> appenders;
 

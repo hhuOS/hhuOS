@@ -25,6 +25,7 @@
 #include <kernel/services/DebugService.h>
 #include <devices/block/storage/StorageDevice.h>
 #include <lib/libc/printf.h>
+#include "kernel/log/Logger.h"
 
 #define MAX_DEVICES 8
 
@@ -37,7 +38,7 @@ class Ahci : public InterruptHandler {
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     typedef enum {
         FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device

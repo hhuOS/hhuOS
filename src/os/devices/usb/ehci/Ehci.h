@@ -30,6 +30,7 @@
 #include "kernel/events/Receiver.h"
 #include "kernel/services/EventBus.h"
 #include "kernel/services/TimeService.h"
+#include "kernel/log/Logger.h"
 
 #include <cstdint>
 
@@ -150,7 +151,7 @@ public:
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     HostCap* cap;
 

@@ -31,7 +31,7 @@ class Ide {
 
     private:
 
-        static const String LOG_NAME;
+        static Logger &log;
 
         struct IdeChannelRegisters {
             uint16_t    base;    // I/O Base.

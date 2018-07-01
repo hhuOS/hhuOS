@@ -7,6 +7,7 @@
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
 #include "devices/block/storage/StorageDevice.h"
+#include "kernel/log/Logger.h"
 
 /**
  * Manages all storage devices.
@@ -72,7 +73,7 @@ public:
 
     static constexpr const char* SERVICE_NAME = "StorageService";
 
-    static const String LOG_NAME;
+    static Logger &log;
 };
 
 #endif

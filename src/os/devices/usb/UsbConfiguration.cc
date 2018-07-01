@@ -18,7 +18,7 @@
 #include <kernel/log/Logger.h>
 #include "UsbConfiguration.h"
 
-const String UsbConfiguration::LOG_NAME = String("USB");
+Logger &UsbConfiguration::log = Logger::get("USB");
 
 UsbConfiguration::UsbConfiguration(UsbConfiguration::Descriptor *descriptor) {
     parse(descriptor);
@@ -91,19 +91,19 @@ void UsbConfiguration::parse(UsbConfiguration::Descriptor *descriptor) {
 
 void UsbConfiguration::print() {
 
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| USB Configuration Descriptor");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Length:                         %d", descriptor.length);
-    Logger::trace(LOG_NAME, "| Type:                           %x", descriptor.type);
-    Logger::trace(LOG_NAME, "| Total Length:                   %d", descriptor.totalLength);
-    Logger::trace(LOG_NAME, "| Number of Interfaces:           %d", descriptor.numInterfaces);
-    Logger::trace(LOG_NAME, "| Configuration Value:            %x", descriptor.configValue);
-    Logger::trace(LOG_NAME, "| Configuration String ID:        %x", descriptor.configString);
-    Logger::trace(LOG_NAME, "| Attributes:                     %x", descriptor.attributes);
-    Logger::trace(LOG_NAME, "| Max Power:                      %dmA", descriptor.maxPower * 2);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| USB Configuration Descriptor");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Length:                         %d", descriptor.length);
+    log.trace("| Type:                           %x", descriptor.type);
+    log.trace("| Total Length:                   %d", descriptor.totalLength);
+    log.trace("| Number of Interfaces:           %d", descriptor.numInterfaces);
+    log.trace("| Configuration Value:            %x", descriptor.configValue);
+    log.trace("| Configuration String ID:        %x", descriptor.configString);
+    log.trace("| Attributes:                     %x", descriptor.attributes);
+    log.trace("| Max Power:                      %dmA", descriptor.maxPower * 2);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("");
 
     for (uint8_t i = 0; i < interfaces.length(); i++) {
         interfaces.get(i)->print();

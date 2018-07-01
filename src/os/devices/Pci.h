@@ -29,6 +29,7 @@
 #include <kernel/services/StorageService.h>
 #include <lib/util/ArrayList.h>
 #include <kernel/interrupts/Pic.h>
+#include <kernel/log/Logger.h>
 
 /**
  * Peripheral Component Interconnect driver.
@@ -214,7 +215,7 @@ public:
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     static StorageService *storageService;
 

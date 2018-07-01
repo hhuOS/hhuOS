@@ -19,7 +19,7 @@
 #include "UsbEndpoint.h"
 #include "Usb.h"
 
-const String UsbEndpoint::LOG_NAME = String("USB");
+Logger &UsbEndpoint::log = Logger::get("USB");
 
 UsbEndpoint::UsbEndpoint(Descriptor *descriptor) {
     parse(descriptor);
@@ -71,17 +71,17 @@ void UsbEndpoint::parse(UsbEndpoint::Descriptor *descriptor) {
 
 void UsbEndpoint::print() {
 
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| USB Endpoint Descriptor ");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Length:                         %d", descriptor.length);
-    Logger::trace(LOG_NAME, "| Type:                           %x", descriptor.type);
-    Logger::trace(LOG_NAME, "| Address:                        %x", descriptor.address);
-    Logger::trace(LOG_NAME, "| Attributes:                     %x", descriptor.attributes);
-    Logger::trace(LOG_NAME, "| Max Packet Size:                %x", descriptor.maxPacketSize);
-    Logger::trace(LOG_NAME, "| Polling Interval:               %x", descriptor.interval);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| USB Endpoint Descriptor ");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Length:                         %d", descriptor.length);
+    log.trace("| Type:                           %x", descriptor.type);
+    log.trace("| Address:                        %x", descriptor.address);
+    log.trace("| Attributes:                     %x", descriptor.attributes);
+    log.trace("| Max Packet Size:                %x", descriptor.maxPacketSize);
+    log.trace("| Polling Interval:               %x", descriptor.interval);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("");
 
 }
 

@@ -21,7 +21,7 @@
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 
-const String Uhci::LOG_NAME = String("UHCI");
+Logger &Uhci::log = Logger::get("UHCI");
 
 Uhci::Uhci() {}
 
@@ -70,21 +70,21 @@ void Uhci::setup(const Pci::Device &dev) {
 }
 
 void Uhci::printSummary() {
-    Logger::trace(LOG_NAME, "|-----------------------------------------|");
-    Logger::trace(LOG_NAME, "|               UHCI                      |");
-    Logger::trace(LOG_NAME, "|-----------------------------------------|");
-    Logger::trace(LOG_NAME, "   BASE:                         %x", io.command->getAddress());
-    Logger::trace(LOG_NAME, "   LEGACY SUPPORT:               %x", Pci::readWord(pciDevice.bus, pciDevice.device, pciDevice.function, CAP_LEGSUP));
-    Logger::trace(LOG_NAME, "   STATUS:                       %x", io.status->inw());
-    Logger::trace(LOG_NAME, "   COMMAND:                      %x", io.command->inw());
-    Logger::trace(LOG_NAME, "   INTERRUPT:                    %x", io.interrupt->inw());
-    Logger::trace(LOG_NAME, "   FRNUM:                        %x", io.frameNumber->inw());
-    Logger::trace(LOG_NAME, "   FRBASEADDR:                   %x", io.frameBaseAddress->indw());
-    Logger::trace(LOG_NAME, "   SOFMOD:                       %x", io.sofModify->inb());
-    Logger::trace(LOG_NAME, "   PORT1 (%x)                    %x", io.port1->getAddress(), io.port1->inw());
-    Logger::trace(LOG_NAME, "   PORT2 (%x)                    %x", io.port2->getAddress(), io.port2->inw());
-    Logger::trace(LOG_NAME, "   INTERRUPT LINE:               %d", pciDevice.intr);
-    Logger::trace(LOG_NAME, "|-----------------------------------------|");
+    log.trace("|-----------------------------------------|");
+    log.trace("|               UHCI                      |");
+    log.trace("|-----------------------------------------|");
+    log.trace("   BASE:                         %x", io.command->getAddress());
+    log.trace("   LEGACY SUPPORT:               %x", Pci::readWord(pciDevice.bus, pciDevice.device, pciDevice.function, CAP_LEGSUP));
+    log.trace("   STATUS:                       %x", io.status->inw());
+    log.trace("   COMMAND:                      %x", io.command->inw());
+    log.trace("   INTERRUPT:                    %x", io.interrupt->inw());
+    log.trace("   FRNUM:                        %x", io.frameNumber->inw());
+    log.trace("   FRBASEADDR:                   %x", io.frameBaseAddress->indw());
+    log.trace("   SOFMOD:                       %x", io.sofModify->inb());
+    log.trace("   PORT1 (%x)                    %x", io.port1->getAddress(), io.port1->inw());
+    log.trace("   PORT2 (%x)                    %x", io.port2->getAddress(), io.port2->inw());
+    log.trace("   INTERRUPT LINE:               %d", pciDevice.intr);
+    log.trace("|-----------------------------------------|");
 }
 
 void Uhci::acknowledgeInterrupts() {
@@ -143,7 +143,7 @@ void Uhci::enablePorts() {
 }
 
 void Uhci::resetPort(IOport *port) {
-    Logger::trace(LOG_NAME, "Resetting port %x", port->getAddress());
+    log.trace("Resetting port %x", port->getAddress());
 
     port->outw(port->inw() | REG_PORTSC_CSC | REG_PORTSC_PEC);
 
@@ -154,52 +154,52 @@ void Uhci::resetPort(IOport *port) {
     timeService->msleep(10);
 
     if ( port->inw() & REG_PORTSC_CCS ) {
-        Logger::trace(LOG_NAME, " -> Device detected");
+        log.trace(" -> Device detected");
     }
 }
 
 void Uhci::plugin() {
-    Logger::trace(LOG_NAME, "Assigning interrupt %d", pciDevice.intr);
+    log.trace("Assigning interrupt %d", pciDevice.intr);
 
     IntDispatcher::getInstance().assign((uint8_t ) pciDevice.intr + 32, *this);
     Pic::getInstance()->allow(pciDevice.intr);
 }
 
 void Uhci::trigger() {
-    Logger::trace(LOG_NAME, "INTERRUPT");
+    log.trace("INTERRUPT");
 }
 
 void Uhci::reset() {
-    Logger::trace(LOG_NAME, "Resetting Host Controller");
+    log.trace("Resetting Host Controller");
     uint16_t cmd = io.command->inw();
     io.command->outw(cmd |  REG_USBCMD_HCRESET);
 
     while ( io.command->inw() & REG_USBCMD_HCRESET );
-    Logger::trace(LOG_NAME, "Host Controller reset");
+    log.trace("Host Controller reset");
 
     disableInterrupts();
     stop();
 }
 
 void Uhci::start() {
-    Logger::trace(LOG_NAME, "Starting Host Controller");
+    log.trace("Starting Host Controller");
     uint16_t cmd = io.command->inw();
     io.command->outw(cmd | REG_USBCMD_RS);
 
     while ( (io.status->inw() & REG_USBSTS_HCH) );
-    Logger::trace(LOG_NAME, "Host Controller started");
+    log.trace("Host Controller started");
 }
 
 void Uhci::stop() {
-    Logger::trace(LOG_NAME, "Stopping Host Controller");
+    log.trace("Stopping Host Controller");
     uint16_t cmd = io.command->inw();
     io.command->outw(cmd &  ~REG_USBCMD_RS);
 
     while ( !(io.status->inw() & REG_USBSTS_HCH) );
-    Logger::trace(LOG_NAME, "Host Controller stopped");
+    log.trace("Host Controller stopped");
 }
 
 void Uhci::disableLegacySupport() {
     Pci::writeWord(pciDevice.bus, pciDevice.device, pciDevice.function, CAP_LEGSUP, 0x8F00);
-    Logger::trace(LOG_NAME, "Disabled Legacy Support");
+    log.trace("Disabled Legacy Support");
 }

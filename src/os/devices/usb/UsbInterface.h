@@ -78,7 +78,7 @@ public:
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     UsbInterface::Descriptor descriptor;
 

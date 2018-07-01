@@ -20,6 +20,7 @@
 
 #include "devices/usb/Usb.h"
 #include "devices/usb/UsbInterface.h"
+#include "kernel/log/Logger.h"
 
 #include <cstdint>
 
@@ -75,7 +76,7 @@ public:
 
 private:
 
-    static const String LOG_NAME;
+    static Logger &log;
 
     UsbConfiguration::Descriptor descriptor;
 

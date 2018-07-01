@@ -87,9 +87,9 @@ protected:
     char *product;
     char *serial;
 
-    static const String LOG_NAME;
-
 private:
+
+    static Logger &log;
 
     void init();
 

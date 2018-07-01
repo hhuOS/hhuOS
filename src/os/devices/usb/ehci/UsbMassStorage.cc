@@ -26,6 +26,9 @@ extern "C" {
     #include "lib/libc/string.h"
 }
 
+Logger &UsbMassStorage::log = Logger::get("USB");
+
+
 UsbMassStorage::UsbMassStorage(AsyncListQueue::QueueHead *control, uint8_t portNumber) : UsbDevice(control, portNumber) {
     init();
 }
@@ -176,7 +179,7 @@ UsbMassStorage::CommandBlockWrapper UsbMassStorage::requestSense() {
 
 Scsi::InquiryData UsbMassStorage::getInquiryData() {
 
-    Logger::trace(LOG_NAME, "Requesting inquiry data from %s %s", manufacturer, product);
+    log.trace("Requesting inquiry data from %s %s", manufacturer, product);
 
     UsbMassStorage::CommandBlockWrapper command = getScsiInquiry();
 
@@ -209,24 +212,24 @@ Scsi::InquiryData UsbMassStorage::getInquiryData() {
     memcpy(scsiRevision, ret.productRevision, 4);
     scsiRevision[4] = '\0';
 
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Inquiry Data");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Device Type:                    %x", ret.deviceType);
-    Logger::trace(LOG_NAME, "| Device Qualifier:               %x", ret.deviceQualifier);
-    Logger::trace(LOG_NAME, "| Removable:                      %d", ret.removable);
-    Logger::trace(LOG_NAME, "| Version:                        %x", ret.version);
-    Logger::trace(LOG_NAME, "| Vendor:                         %s", scsiVendor);
-    Logger::trace(LOG_NAME, "| Product:                        %s", scsiProduct);
-    Logger::trace(LOG_NAME, "| Revision:                       %s", scsiRevision);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Inquiry Data");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Device Type:                    %x", ret.deviceType);
+    log.trace("| Device Qualifier:               %x", ret.deviceQualifier);
+    log.trace("| Removable:                      %d", ret.removable);
+    log.trace("| Version:                        %x", ret.version);
+    log.trace("| Vendor:                         %s", scsiVendor);
+    log.trace("| Product:                        %s", scsiProduct);
+    log.trace("| Revision:                       %s", scsiRevision);
+    log.trace("|--------------------------------------------------------------|");
 
     return ret;
 }
 
 UsbDevice::Status UsbMassStorage::bulkReset(uint16_t interface) {
 
-    Logger::trace(LOG_NAME, "Performing bulk reset on %s %s", manufacturer, product);
+    log.trace("Performing bulk reset on %s %s", manufacturer, product);
 
     Usb::Request request = Usb::bulkReset(interface);
 
@@ -379,41 +382,41 @@ UsbDevice::Status UsbMassStorage::getSense() {
 }
 
 void UsbMassStorage::printCommandBlockWrapper(UsbMassStorage::CommandBlockWrapper *commandBlockWrapper) {
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Command Block Wrapper @ %x", commandBlockWrapper);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Signature:                      %08x", commandBlockWrapper->signature);
-    Logger::trace(LOG_NAME, "| Tag:                            %08x", commandBlockWrapper->tag);
-    Logger::trace(LOG_NAME, "| Transfer Length:                %d", commandBlockWrapper->length);
-    Logger::trace(LOG_NAME, "| Direction:                      %08x", commandBlockWrapper->direction);
-    Logger::trace(LOG_NAME, "| Logical Unit:                   %08x", commandBlockWrapper->unit);
-    Logger::trace(LOG_NAME, "| Command Length:                 %d", commandBlockWrapper->cmdLength);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Command Data                   ");
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Command Block Wrapper @ %x", commandBlockWrapper);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Signature:                      %08x", commandBlockWrapper->signature);
+    log.trace("| Tag:                            %08x", commandBlockWrapper->tag);
+    log.trace("| Transfer Length:                %d", commandBlockWrapper->length);
+    log.trace("| Direction:                      %08x", commandBlockWrapper->direction);
+    log.trace("| Logical Unit:                   %08x", commandBlockWrapper->unit);
+    log.trace("| Command Length:                 %d", commandBlockWrapper->cmdLength);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Command Data                   ");
+    log.trace("|--------------------------------------------------------------|");
 
     for (uint8_t i = 0; i < 4; i++) {
-        Logger::trace(LOG_NAME, "|  %02x  %02x  %02x  %02x",
+        log.trace("|  %02x  %02x  %02x  %02x",
                   commandBlockWrapper->cmdData[i * 4 + 0],
                   commandBlockWrapper->cmdData[i * 4 + 1],
                   commandBlockWrapper->cmdData[i * 4 + 2],
                   commandBlockWrapper->cmdData[i * 4 + 3]);
     }
 
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("");
 }
 
 void UsbMassStorage::printCommandStatusWrapper(UsbMassStorage::CommandStatusWrapper *commandStatusWrapper) {
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Command Staus Wrapper @ %x", commandStatusWrapper);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "| Signature:                      %08x", commandStatusWrapper->signature);
-    Logger::trace(LOG_NAME, "| Tag:                            %08x", commandStatusWrapper->tag);
-    Logger::trace(LOG_NAME, "| Data Residue:                   %d", commandStatusWrapper->dataResidue);
-    Logger::trace(LOG_NAME, "| Status:                         %08x", commandStatusWrapper->status);
-    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
-    Logger::trace(LOG_NAME, "");
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Command Staus Wrapper @ %x", commandStatusWrapper);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("| Signature:                      %08x", commandStatusWrapper->signature);
+    log.trace("| Tag:                            %08x", commandStatusWrapper->tag);
+    log.trace("| Data Residue:                   %d", commandStatusWrapper->dataResidue);
+    log.trace("| Status:                         %08x", commandStatusWrapper->status);
+    log.trace("|--------------------------------------------------------------|");
+    log.trace("");
 }
 
 
