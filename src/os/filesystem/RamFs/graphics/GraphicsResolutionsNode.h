@@ -21,7 +21,7 @@
 #include <kernel/services/GraphicsService.h>
 
 /**
- * Implementation of GraphicsNode, that reads the currently used graphics card's amount of memory in bytes.
+ * Implementation of GraphicsNode, that reads the currently used graphics card's available resolutions.
  *
  * @author Fabian Ruhland
  * @date 2018

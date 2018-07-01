@@ -28,8 +28,8 @@ void GraphicsResolutionsNode::writeValuesToCache() {
             Util::Array<TextDriver::TextResolution> textResolutions = graphicsService->getTextDriver()->getTextResolutions();
 
             for (const TextDriver::TextResolution &currentRes : textResolutions) {
-                cache += String::valueOf(currentRes.columns, 10) + String(" x ") +
-                          String::valueOf(currentRes.rows, 10) + String(" @ ") +
+                cache += String::valueOf(currentRes.columns, 10) + String("x") +
+                          String::valueOf(currentRes.rows, 10) + String("@") +
                           String::valueOf(currentRes.depth, 10) + String("\n");
             }
 
@@ -39,8 +39,8 @@ void GraphicsResolutionsNode::writeValuesToCache() {
             Util::Array<LinearFrameBuffer::LfbResolution> lfbResolutions = graphicsService->getLinearFrameBuffer()->getLfbResolutions();
 
             for (const LinearFrameBuffer::LfbResolution &currentRes : lfbResolutions) {
-                cache += String::valueOf(currentRes.resX, 10) + String(" x ") +
-                          String::valueOf(currentRes.resY, 10) + String(" @ ") +
+                cache += String::valueOf(currentRes.resX, 10) + String("x") +
+                          String::valueOf(currentRes.resY, 10) + String("@") +
                           String::valueOf(currentRes.depth, 10) + String("\n");
             }
 

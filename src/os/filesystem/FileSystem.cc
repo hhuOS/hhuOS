@@ -25,6 +25,7 @@
 #include <filesystem/RamFs/ports/ParallelNode.h>
 #include <kernel/log/FileAppender.h>
 #include <kernel/log/Logger.h>
+#include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -161,14 +162,16 @@ void FileSystem::init() {
     createDirectory("/dev/video");
     createDirectory("/dev/video/text");
     createDirectory("/dev/video/lfb");
-    addVirtualNode("/dev/video/text", new GraphicsVendorNameNode(GraphicsVendorNameNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsDeviceNameNode(GraphicsDeviceNameNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsMemoryNode(GraphicsMemoryNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsResolutionsNode(GraphicsDeviceNameNode::TEXT));
-    addVirtualNode("/dev/video/lfb", new GraphicsVendorNameNode(GraphicsVendorNameNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsDeviceNameNode(GraphicsDeviceNameNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsMemoryNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsDeviceNameNode::LINEAR_FRAME_BUFFER));
+    addVirtualNode("/dev/video/text", new GraphicsVendorNameNode(GraphicsNode::TEXT));
+    addVirtualNode("/dev/video/text", new GraphicsDeviceNameNode(GraphicsNode::TEXT));
+    addVirtualNode("/dev/video/text", new GraphicsMemoryNode(GraphicsNode::TEXT));
+    addVirtualNode("/dev/video/text", new GraphicsResolutionsNode(GraphicsNode::TEXT));
+    addVirtualNode("/dev/video/text", new CurrentResolutionNode(GraphicsNode::TEXT));
+    addVirtualNode("/dev/video/lfb", new GraphicsVendorNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    addVirtualNode("/dev/video/lfb", new GraphicsDeviceNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
 
     // Add Memory Nodes to dev-directory
     createDirectory("/dev/memory");

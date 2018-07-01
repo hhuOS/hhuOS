@@ -77,8 +77,7 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k en-us -soundhw
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -device ide-drive,drive=disk1,bus=ahci.1 \
 					  -rtc base=localtime,clock=host \
-					  -parallel telnet:127.0.0.1:8825,server,nowait \
-					  -parallel telnet:127.0.0.1:8826,server,nowait
+					  -parallel telnet:127.0.0.1:8821,server,nowait
 
 #-------------------------------------------#
 # Build dependencies                        #

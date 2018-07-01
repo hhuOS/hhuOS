@@ -53,7 +53,7 @@ public:
      */
     void setTextDriver(TextDriver *text);
 
-    static constexpr char* SERVICE_NAME = "GraphicsService";
+    static const constexpr char* SERVICE_NAME = "GraphicsService";
 };
 
 
