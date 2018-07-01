@@ -31,6 +31,8 @@ class Ide {
 
     private:
 
+        static const String LOG_NAME;
+
         struct IdeChannelRegisters {
             uint16_t    base;    // I/O Base.
             uint16_t    ctrl;    // Control Base
@@ -120,7 +122,7 @@ class Ide {
         /* Channels */
         static const uint8_t ATA_PRIMARY                = 0x00;
         static const uint8_t ATA_SECONDARY              = 0x01;
-         
+
         /* Directions */
         static const uint8_t ATA_READ                   = 0x00;
         static const uint8_t ATA_WRITE                  = 0x01;
@@ -128,7 +130,7 @@ class Ide {
         /* Device Types */
         static const uint8_t IDE_ATA                    = 0x00;
         static const uint8_t IDE_ATAPI                  = 0x01;
-        
+
         static const uint8_t ATA_MASTER                 = 0x00;
         static const uint8_t ATA_SLAVE                  = 0x01;
 

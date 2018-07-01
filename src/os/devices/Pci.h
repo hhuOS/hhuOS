@@ -214,6 +214,8 @@ public:
 
 private:
 
+    static const String LOG_NAME;
+
     static StorageService *storageService;
 
     /* PCI IO ports */

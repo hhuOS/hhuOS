@@ -32,9 +32,11 @@ void waitForReturn() {
     while (!kb->isKeyPressed(28));
 }
 
-uint8_t UsbDevice::numDevices = 0;
-
 IOport sysB(0x61);
+
+const String UsbDevice::LOG_NAME = String("USB");
+
+uint8_t UsbDevice::numDevices = 0;
 
 UsbDevice::UsbDevice(AsyncListQueue::QueueHead *control, uint8_t portNumber) {
     UsbDevice::control = control;
@@ -100,7 +102,7 @@ UsbDevice::Status UsbDevice::setAddress(uint8_t address) {
 
     UsbDevice::address = address;
 
-    Logger::trace("USB", "Successfully set Device Address to %d", address);
+    Logger::trace(LOG_NAME, "Successfully set Device Address to %d", address);
 
     return UsbDevice::Status::OK;
 }
@@ -128,7 +130,7 @@ UsbDevice::Status UsbDevice::issueTransaction(AsyncListQueue::QueueHead *queue, 
     while ( last->token & (1 << 7) ) {
         if ( then + UsbTransaction::TIMEOUT < timeService->getSystemTime()) {
             stream->clear();
-            Logger::trace("USB", "ERROR: Timeout");
+            Logger::trace(LOG_NAME, "ERROR: Timeout");
             return UsbDevice::Status::TIMEOUT;
         }
     }
@@ -137,7 +139,7 @@ UsbDevice::Status UsbDevice::issueTransaction(AsyncListQueue::QueueHead *queue, 
 
     if (status != AsyncListQueue::TransferStatus::OK) {
         stream->clear();
-        Logger::trace("USB", "ERROR: %s", AsyncListQueue::statusToString(status));
+        Logger::trace(LOG_NAME, "ERROR: %s", AsyncListQueue::statusToString(status));
         return UsbDevice::Status ::ERROR;
     }
 
@@ -160,7 +162,7 @@ UsbDevice::Descriptor UsbDevice::getDeviceDescriptor() {
 
     delete transaction;
 
-    Logger::trace("USB", "Successfully read Device Descriptor");
+    Logger::trace(LOG_NAME, "Successfully read Device Descriptor");
 
     return ret;
 }
@@ -225,25 +227,25 @@ UsbDevice::Status UsbDevice::setConfiguration(uint8_t configuration) {
 
 void UsbDevice::print() {
 
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "| USB Device Descriptor");
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "| Length:                         %d", descriptor.length);
-    Logger::trace("USB", "| Type:                           %d", descriptor.type);
-    Logger::trace("USB", "| USB Spec:                       %x", descriptor.usbRelease);
-    Logger::trace("USB", "| Device Class:                   %x", descriptor.deviceClass);
-    Logger::trace("USB", "| Device Subclass:                %x", descriptor.deviceSubClass);
-    Logger::trace("USB", "| Device Protocol:                %x", descriptor.deviceProtocol);
-    Logger::trace("USB", "| Max Packet Size:                %d", descriptor.maxPacketSize);
-    Logger::trace("USB", "| Vendor ID:                      %x", descriptor.vendorId);
-    Logger::trace("USB", "| Product ID:                     %x", descriptor.productId);
-    Logger::trace("USB", "| Device Release:                 %x", descriptor.deviceRelease);
-    Logger::trace("USB", "| Manufacturer String ID:         %x", descriptor.manufacturerIndex);
-    Logger::trace("USB", "| Product String ID:              %x", descriptor.productIndex);
-    Logger::trace("USB", "| Serial Number String ID:        %x", descriptor.serialIndex);
-    Logger::trace("USB", "| Number of Configurations:       %d", descriptor.numConfigs);
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "");
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "| USB Device Descriptor");
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "| Length:                         %d", descriptor.length);
+    Logger::trace(LOG_NAME, "| Type:                           %d", descriptor.type);
+    Logger::trace(LOG_NAME, "| USB Spec:                       %x", descriptor.usbRelease);
+    Logger::trace(LOG_NAME, "| Device Class:                   %x", descriptor.deviceClass);
+    Logger::trace(LOG_NAME, "| Device Subclass:                %x", descriptor.deviceSubClass);
+    Logger::trace(LOG_NAME, "| Device Protocol:                %x", descriptor.deviceProtocol);
+    Logger::trace(LOG_NAME, "| Max Packet Size:                %d", descriptor.maxPacketSize);
+    Logger::trace(LOG_NAME, "| Vendor ID:                      %x", descriptor.vendorId);
+    Logger::trace(LOG_NAME, "| Product ID:                     %x", descriptor.productId);
+    Logger::trace(LOG_NAME, "| Device Release:                 %x", descriptor.deviceRelease);
+    Logger::trace(LOG_NAME, "| Manufacturer String ID:         %x", descriptor.manufacturerIndex);
+    Logger::trace(LOG_NAME, "| Product String ID:              %x", descriptor.productIndex);
+    Logger::trace(LOG_NAME, "| Serial Number String ID:        %x", descriptor.serialIndex);
+    Logger::trace(LOG_NAME, "| Number of Configurations:       %d", descriptor.numConfigs);
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "");
 
     for(uint8_t i = 0; i < configurations.length(); i++) {
         configurations.get(i)->print();

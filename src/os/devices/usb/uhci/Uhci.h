@@ -69,6 +69,8 @@ class Uhci : public InterruptHandler {
 
 private:
 
+    static const String LOG_NAME;
+
     Pci::Device pciDevice;
 
     UsbIo io;

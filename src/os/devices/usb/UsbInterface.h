@@ -78,6 +78,8 @@ public:
 
 private:
 
+    static const String LOG_NAME;
+
     UsbInterface::Descriptor descriptor;
 
     uint8_t id;

@@ -55,6 +55,7 @@ extern "C" {
 }
 
 auto versionString = String("hhuOS ") + String(gitversion);
+static const String LOG_NAME = String("MAIN");
 
 uint16_t xres = 800;
 uint16_t yres = 600;
@@ -188,20 +189,20 @@ int32_t main() {
 
     if (CpuId::isSupported()) {
 
-        Logger::trace("MAIN", "Detected CPUID support");
+        Logger::trace(LOG_NAME, "Detected CPUID support");
     }
 
-    Logger::trace("MAIN", "Initializing graphics");
+    Logger::trace(LOG_NAME, "Initializing graphics");
 
     initGraphics();
 
     eventBus = new EventBus();
 
-    Logger::trace("MAIN", "Registering services");
+    Logger::trace(LOG_NAME, "Registering services");
 
     registerServices();
 
-    Logger::trace("MAIN", "Initializing serial ports");
+    Logger::trace(LOG_NAME, "Initializing serial ports");
 
     initSerialPorts();
 
@@ -214,12 +215,12 @@ int32_t main() {
         GdbServer::synchronize();
     }
 
-    Logger::trace("MAIN", "Plugging in RTC");
+    Logger::trace(LOG_NAME, "Plugging in RTC");
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
     rtc->plugin();
 
-    Logger::trace("MAIN", "Plugging in keyboard and mouse");
+    Logger::trace(LOG_NAME, "Plugging in keyboard and mouse");
 
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
@@ -271,7 +272,7 @@ int32_t main() {
         lfb->init(xres, yres, bpp);
     }
 
-    Logger::trace("MAIN", "Starting scheduler");
+    Logger::trace(LOG_NAME, "Starting scheduler");
 
     Scheduler::getInstance()->schedule();
 

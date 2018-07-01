@@ -150,6 +150,8 @@ public:
 
 private:
 
+    static const String LOG_NAME;
+
     HostCap* cap;
 
     HostOp* op;

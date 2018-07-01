@@ -19,6 +19,8 @@
 #include "UsbEndpoint.h"
 #include "Usb.h"
 
+const String UsbEndpoint::LOG_NAME = String("USB");
+
 UsbEndpoint::UsbEndpoint(Descriptor *descriptor) {
     parse(descriptor);
 }
@@ -69,17 +71,17 @@ void UsbEndpoint::parse(UsbEndpoint::Descriptor *descriptor) {
 
 void UsbEndpoint::print() {
 
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "| USB Endpoint Descriptor ");
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "| Length:                         %d", descriptor.length);
-    Logger::trace("USB", "| Type:                           %x", descriptor.type);
-    Logger::trace("USB", "| Address:                        %x", descriptor.address);
-    Logger::trace("USB", "| Attributes:                     %x", descriptor.attributes);
-    Logger::trace("USB", "| Max Packet Size:                %x", descriptor.maxPacketSize);
-    Logger::trace("USB", "| Polling Interval:               %x", descriptor.interval);
-    Logger::trace("USB", "|--------------------------------------------------------------|");
-    Logger::trace("USB", "");
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "| USB Endpoint Descriptor ");
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "| Length:                         %d", descriptor.length);
+    Logger::trace(LOG_NAME, "| Type:                           %x", descriptor.type);
+    Logger::trace(LOG_NAME, "| Address:                        %x", descriptor.address);
+    Logger::trace(LOG_NAME, "| Attributes:                     %x", descriptor.attributes);
+    Logger::trace(LOG_NAME, "| Max Packet Size:                %x", descriptor.maxPacketSize);
+    Logger::trace(LOG_NAME, "| Polling Interval:               %x", descriptor.interval);
+    Logger::trace(LOG_NAME, "|--------------------------------------------------------------|");
+    Logger::trace(LOG_NAME, "");
 
 }
 

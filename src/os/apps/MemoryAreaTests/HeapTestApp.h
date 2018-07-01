@@ -30,6 +30,9 @@
 class HeapTestApp : public Thread {
 
 private:
+
+    static const String LOG_NAME;
+
     Random *random;
     unsigned int **objects;
     unsigned int *stats;

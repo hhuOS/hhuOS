@@ -15,6 +15,7 @@
 
 #define NUM_OF_ALLOCS 128
 
+const String HeapTestApp::LOG_NAME = String("HEAP TEST");
 
 /**
  * Constructor
@@ -115,14 +116,14 @@ void HeapTestApp::shuffle() {
  * Thread run method.
  */
 void HeapTestApp::run() {
-     Logger::trace("[HEAP TEST]", "Running HeapTestApp");
+     Logger::trace(LOG_NAME, "Running HeapTestApp");
 
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     *stream << "_____ Heap Demo App _____" << endl;
     *stream << "Tests new and new[] calls - each alloc type is called " << NUM_OF_ALLOCS << " times." << endl << endl;
 
-     Logger::trace("[HEAP TEST]", "Testing primtive alloc...");
+     Logger::trace(LOG_NAME, "Testing primtive alloc...");
     uint32_t freeBefore = SystemManagement::getKernelHeapManager()->getFreeMemory();
     primitiveAllocs();
     uint32_t freeAfter = SystemManagement::getKernelHeapManager()->getFreeMemory();
@@ -135,14 +136,14 @@ void HeapTestApp::run() {
         *stream << "Ups. Lost a few bytes. Leak: " << (freeAfter - freeBefore) << " Bytes" << endl;
          Logger::warn("[HEAP TEST]", "Test failed - Found Memory-Leak in primitive alloc");
     } else {
-         Logger::trace("[HEAP TEST]", "Tested primitive alloc successfully");
+         Logger::trace(LOG_NAME, "Tested primitive alloc successfully");
     }
 
     stats[0] = 0;
     stats[1] = 0;
     stats[2] = 0;
 
-     Logger::trace("[HEAP TEST]", "Testing array alloc...");
+     Logger::trace(LOG_NAME, "Testing array alloc...");
     freeBefore = SystemManagement::getKernelHeapManager()->getFreeMemory();
     arrayAllocs();
     freeAfter = SystemManagement::getKernelHeapManager()->getFreeMemory();
@@ -150,14 +151,14 @@ void HeapTestApp::run() {
         *stream << "Ups. Lost a few bytes. Leak: " << (freeAfter - freeBefore) << " Bytes" << endl;
          Logger::warn("[HEAP TEST]", "Test failed - Found Memory-Leak in array alloc");
     } else {
-         Logger::trace("[HEAP TEST]", "Tested array alloc successfully");
+         Logger::trace(LOG_NAME, "Tested array alloc successfully");
     }
     *stream << "*** Array Allocs ***" << endl;
     *stream << "Small Allocs: " << stats[0] << " (Less then 50 Elements)" << endl;
     *stream << "Medium Allocs: " << stats[1] << " (Between 50 and 100 Elements)" << endl;
     *stream << "Large Allocs: " << stats[2] << " (At least 100 Elements)" << endl << endl;
 
-     Logger::trace("[HEAP TEST]", "Finished HeapTestApp");
+     Logger::trace(LOG_NAME, "Finished HeapTestApp");
 
     *stream << "Press [ENTER] to return" << endl;
     while (!kb->isKeyPressed(KeyEvent::RETURN));

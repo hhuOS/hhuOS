@@ -36,6 +36,8 @@ class Mouse : public InterruptHandler {
 
 private:
 
+    static const String LOG_NAME;
+
     TimeService *timeService;
 
     // IO ports (same as keyboard)
@@ -62,7 +64,6 @@ private:
     unsigned int buttons;
     //
     uint32_t lastClickTimestamp = 0;
-
 
     // warte darauf, dass Daten am Controller zum Lesen bereit liegen
     void waitData();

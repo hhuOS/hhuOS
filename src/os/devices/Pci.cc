@@ -22,6 +22,7 @@
 
 #include "kernel/memory/manager/IOMemoryManager.h"
 
+const String Pci::LOG_NAME = String("PCI");
 
 // PCI registers
 const IOport Pci::CONFIG_ADDRESS = IOport(0xCF8);
@@ -225,25 +226,25 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     uint8_t progIf = getProgrammingInterface(bus, device, function);
 
     if ( (baseClass == CLASS_BRIDGE_DEVICE) && (subClass == SUBCLASS_PCI_TO_PCI) ) {
-         Logger::trace("PCI", "Found PCI-to-PCI Bridge on bus %d", bus);
+         Logger::trace(LOG_NAME, "Found PCI-to-PCI Bridge on bus %d", bus);
          secondaryBus = getSecondaryBus(bus, device, function);
          scanBus(secondaryBus);
     }
 
     Device dev = readDevice(bus, device, function);
 
-    Logger::trace("PCI", "Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
+    Logger::trace(LOG_NAME, "Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
 
     if ( baseClass == CLASS_SERIAL_BUS_DEVICE && subClass == SUBCLASS_USB) {
         switch (progIf) {
             case PROGIF_UHCI:
-                Logger::trace("PCI", "  -> UHCI");
+                Logger::trace(LOG_NAME, "  -> UHCI");
 #if PCI_UHCI_ENABLED
                 uhci.setup(dev);
 #endif
                 break;
             case PROGIF_EHCI:
-                Logger::trace("PCI", "  -> EHCI");
+                Logger::trace(LOG_NAME, "  -> EHCI");
 #if PCI_EHCI_ENABLED
                 ehci.setup(dev);
 #endif
@@ -252,7 +253,7 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     }
 
     if ( (baseClass == CLASS_MASS_STORAGE_DEVICE) && (subClass == SUBCLASS_SERIAL_ATA) ) {
-        Logger::trace("PCI", "  -> AHCI");
+        Logger::trace(LOG_NAME, "  -> AHCI");
 
 #if PCI_AHCI_ENABLED
 
@@ -274,7 +275,7 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     }
 
     if ( (baseClass == CLASS_MASS_STORAGE_DEVICE) && (subClass == SUBCLASS_IDE) ) {
-        Logger::trace("PCI", "  -> IDE Controller");
+        Logger::trace(LOG_NAME, "  -> IDE Controller");
 
 #if PCI_IDE_ENABLED
         enableBusMaster(bus, device, function);
@@ -343,10 +344,10 @@ void Pci::scan() {
 }
 
 void Pci::printRegisters(const Device &device) {
-    Logger::trace("PCI", "|-------------------------|  |-------------------------|");
+    Logger::trace(LOG_NAME, "|-------------------------|  |-------------------------|");
     for (uint8_t i = 0; i < 128; i += 4) {
 
-        Logger::trace("PCI", "| %02x  |  %04x  %04x |  | %02x  |  %04x  %04x |",
+        Logger::trace(LOG_NAME, "| %02x  |  %04x  %04x |  | %02x  |  %04x  %04x |",
                    i,
                    readWord(device.bus, device.device, device.function, i + 2),
                    readWord(device.bus, device.device, device.function, i),
@@ -354,7 +355,7 @@ void Pci::printRegisters(const Device &device) {
                    readWord(device.bus, device.device, device.function, i + 2 + 128),
                    readWord(device.bus, device.device, device.function, i + 128));
     }
-    Logger::trace("PCI", "|-------------------------|  |-------------------------|");
+    Logger::trace(LOG_NAME, "|-------------------------|  |-------------------------|");
 }
 
 Util::ArrayList<Pci::Device>& Pci::getDevices() {

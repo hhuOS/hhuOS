@@ -71,6 +71,8 @@ public:
     StorageDevice *findRootDevice();
 
     static constexpr const char* SERVICE_NAME = "StorageService";
+
+    static const String LOG_NAME;
 };
 
 #endif

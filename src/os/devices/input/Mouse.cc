@@ -14,6 +14,7 @@
 #include <kernel/log/Logger.h>
 #include "devices/input/Mouse.h"
 
+const String Mouse::LOG_NAME = String("MOUSE");
 
 /**
  * Wait until new commands can be sent to controller.
@@ -75,11 +76,11 @@ void Mouse::activate() {
     waitData();
     uint8_t tmp = data_port.inb();
     if(tmp == 0xFF) {
-        Logger::trace("MOUSE", "No mouse detected");
+        Logger::trace(LOG_NAME, "No mouse detected");
         available = false;
         return;
     } else {
-        Logger::trace("MOUSE", "Mouse maybe detected");
+        Logger::trace(LOG_NAME, "Mouse maybe detected");
         available = true;
     }
 
@@ -136,14 +137,14 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
     uint8_t cnt = 0;
     write(byte_write); // Befehl senden
     while((tmp = read()) != 0xFA){ // ack warten
-        Logger::trace("MOUSE", "ERROR >> Couldn't get ack from %s command", commandString);
+        Logger::trace(LOG_NAME, "ERROR >> Couldn't get ack from %s command", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // send command byte again
         }
 
         cnt ++;
         if(cnt == 5) {
-            Logger::trace("MOUSE", "ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
+            Logger::trace(LOG_NAME, "ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
             available = false;
             cleanup();
             return;
@@ -173,14 +174,14 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
 
     write(byte_write); // Befehl senden
     while((tmp = read()) != 0xFA){ // ack warten
-        Logger::trace("MOUSE", "ERROR >> Couldn't get ack from %s command", commandString);
+        Logger::trace(LOG_NAME, "ERROR >> Couldn't get ack from %s command", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // send command byte again
         }
 
         cnt ++;
         if(cnt == 5) {
-            Logger::trace("MOUSE", "ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
+            Logger::trace(LOG_NAME, "ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
             available = false;
             cleanup();
             return;

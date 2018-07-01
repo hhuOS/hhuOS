@@ -76,6 +76,8 @@ public:
 
 private:
 
+    static const String LOG_NAME;
+
     UsbEndpoint::Descriptor descriptor;
 
     uint8_t address;
