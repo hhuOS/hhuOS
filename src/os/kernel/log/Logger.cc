@@ -176,3 +176,8 @@ Logger &Logger::get(const String &name) {
 
     return *logger;
 }
+
+void Logger::removeAppender(Appender *appender) {
+
+    appenders.remove(appender);
+}

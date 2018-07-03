@@ -20,6 +20,7 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
 #include <lib/file/tar/Archive.h>
+#include <kernel/log/StdOutAppender.h>
 #include "GatesOfHell.h"
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
@@ -46,6 +47,15 @@ int32_t main() {
 }
 
 int32_t GatesOfHell::enter() {
+
+    bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
+
+    StdOutAppender * stdOutAppender = new StdOutAppender();
+
+    if (!showSplash) {
+
+        Logger::addAppender(stdOutAppender);
+    }
 
     log.trace("Initializing graphics");
 
@@ -81,8 +91,6 @@ int32_t GatesOfHell::enter() {
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
-    bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
-
     bootscreen = new Bootscreen(showSplash, log);
 
     bootscreen->init(xres, yres, bpp);
@@ -103,9 +111,13 @@ int32_t GatesOfHell::enter() {
     Application::getInstance()->start();
 
     bootscreen->update(100, "Finished Booting!");
-    Kernel::getService<TimeService>()->msleep(1000);
 
     bootscreen->finish();
+
+    if (!showSplash) {
+
+        Logger::removeAppender(stdOutAppender);
+    }
 
     Scheduler::getInstance()->schedule();
 

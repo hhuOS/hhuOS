@@ -43,6 +43,8 @@ public:
 
     static void addAppender(Appender *appender);
 
+    static void removeAppender(Appender *appender);
+
     static void initialize();
 
 private:
