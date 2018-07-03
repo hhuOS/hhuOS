@@ -229,7 +229,6 @@ char *strerror(int errnum);
  * @return The converted integer.
  */
 int  strtoint(const char* s);
-
 /**
  * Calculates the length of the string pointed to by 's'.
  *

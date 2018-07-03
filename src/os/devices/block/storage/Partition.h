@@ -27,7 +27,7 @@ public:
      * @param systemId The system id
      * @param name The name (e.g. 'hdd0p1', 'usb1p3', ...)
      */
-    Partition(StorageDevice *parentDevice, uint32_t startSector, uint32_t sectorCount, uint8_t systemId, String &name);
+    Partition(StorageDevice *parentDevice, uint32_t startSector, uint32_t sectorCount, uint8_t systemId, String name);
 
     /**
      * Copy-constructor.

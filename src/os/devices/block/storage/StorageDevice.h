@@ -185,7 +185,7 @@ enum SYSTEM_ID {
     GOLDEN_BOW_VFEATURE = 0x56,
     DRIVE_PRO = 0x57,
     HHU_OS_ROOT_FAT = 0x58,
-    HHU_OS_RESERVED_01 = 0x59,
+    HHU_OS = 0x59,
     HHU_OS_RESERVED_02 = 0x5a,
     HHU_OS_RESERVED_03 = 0x5b,
     PRIAM_EDISK = 0x5c,
@@ -324,7 +324,7 @@ enum SYSTEM_ID {
      *
      * @param name The device's name (e.g. 'hdd0', 'usb1', ...)
      */
-    explicit StorageDevice(const String &name);
+    explicit StorageDevice(String name);
 
     /**
      * Copy-constructor.

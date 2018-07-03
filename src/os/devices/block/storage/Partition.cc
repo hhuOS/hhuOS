@@ -1,6 +1,6 @@
 #include "Partition.h"
 
-Partition::Partition(StorageDevice *parentDevice, uint32_t startSector, uint32_t sectorCount, uint8_t systemId, String &name) :
+Partition::Partition(StorageDevice *parentDevice, uint32_t startSector, uint32_t sectorCount, uint8_t systemId, String name) :
 StorageDevice(name), parentDevice(parentDevice), startSector(startSector), sectorCount(sectorCount), systemId(systemId) {
 
 }

@@ -1,6 +1,6 @@
 #include "StorageDevice.h"
 
-StorageDevice::StorageDevice(const String &name) : name(name) {
+StorageDevice::StorageDevice(String name) : name(name) {
 
 }
 

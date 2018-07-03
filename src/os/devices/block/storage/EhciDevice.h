@@ -24,7 +24,7 @@ public:
      * @param ehciDiskNumber The slot, that the device takes in the controller's device-array.
      * @param name The name
      */
-    EhciDevice(Ehci &controller, uint8_t ehciDiskNumber, String &name);
+    EhciDevice(Ehci &controller, uint8_t ehciDiskNumber, String name);
 
     /**
      * Copy-constructor.

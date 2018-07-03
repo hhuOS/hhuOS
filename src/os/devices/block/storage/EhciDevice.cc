@@ -1,6 +1,6 @@
 #include "EhciDevice.h"
 
-EhciDevice::EhciDevice(Ehci &controller, uint8_t ehciDiskNumber, String &name) : StorageDevice(name), controller(controller), ehciDiskNumber(ehciDiskNumber) {
+EhciDevice::EhciDevice(Ehci &controller, uint8_t ehciDiskNumber, String name) : StorageDevice(name), controller(controller), ehciDiskNumber(ehciDiskNumber) {
 
 }
 
