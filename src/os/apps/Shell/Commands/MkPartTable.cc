@@ -69,14 +69,6 @@ void MkPartTable::execute(Util::Array<String> &args) {
 
     switch(ret) {
         case StorageDevice::SUCCESS : {
-            Directory &dir = *Directory::open("/dev/storage");
-
-            for (const String &name : dir.getChildren()) {
-                if (name != device->getName() && name.beginsWith(device->getName())) {
-                    storageService->removeDevice(name);
-                }
-            }
-
             break;
         }
         case StorageDevice::WRITE_SECTOR_FAILED :

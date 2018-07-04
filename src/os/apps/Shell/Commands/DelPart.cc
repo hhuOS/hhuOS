@@ -84,7 +84,6 @@ void DelPart::execute(Util::Array<String> &args) {
 
     switch(ret) {
         case StorageDevice::SUCCESS :
-            storageService->removeDevice(device->getName() + "p" + String::valueOf(partNumber, 10));
             break;
         case StorageDevice::READ_SECTOR_FAILED :
             stderr << args[0] << ": Error while reading a sector!" << endl;

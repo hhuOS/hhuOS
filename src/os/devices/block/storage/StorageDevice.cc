@@ -1,4 +1,8 @@
+#include <kernel/services/StorageService.h>
+#include <kernel/Kernel.h>
+#include <lib/file/Directory.h>
 #include "StorageDevice.h"
+#include "Partition.h"
 
 StorageDevice::StorageDevice(String name) : name(name) {
 
@@ -116,7 +120,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
         sectorCount,                // Amount of sectors in partition
     };
 
-    if(partNumber < 4) {
+    if(partNumber <= 4) {
         // Primary partition
         auto *partPtr = (PartitionTableEntry *) &mbr[PARTITON_TABLE_START + 0x10 * (partNumber - 1)];
 
@@ -141,6 +145,10 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             partLock.release();
             return WRITE_SECTOR_FAILED;
         }
+
+        // Register the new partition in storage service
+        Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+                String::format("%sp%u", static_cast<const char*>(getName()), partNumber)));
 
         partLock.release();
         return SUCCESS;
@@ -187,8 +195,9 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             PartitionTableEntry currentLogicalPartition = *((PartitionTableEntry *) &currentMbr[PARTITON_TABLE_START]);
             PartitionTableEntry nextLogicalPartition = *((PartitionTableEntry *) &currentMbr[PARTITON_TABLE_START + 0x10]);
             
-            if(currentLogicalPartition.system_id == EMPTY || i == partNumber)
+            if(currentLogicalPartition.system_id == EMPTY || i == partNumber) {
                 break;
+            }
             
             if(nextLogicalPartition.system_id == EMPTY) {
                 appendToList = true;
@@ -225,6 +234,10 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
                 return WRITE_SECTOR_FAILED;
             }
 
+            // Register the new partition in storage service
+            Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+                    String::format("%sp%u", static_cast<const char*>(getName()), i)));
+
             partLock.release();
             return SUCCESS;
         } else {
@@ -240,6 +253,10 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
                 partLock.release();
                 return WRITE_SECTOR_FAILED;
             }
+
+            // Register the new partition in storage service
+            Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+                    String::format("%sp%u", static_cast<const char*>(getName()), i)));
 
             partLock.release();
             return SUCCESS;
@@ -262,12 +279,37 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
     if(partNumber <= 4) {
         // Primary parition
         auto *partPtr = (PartitionTableEntry *) &mbr[PARTITON_TABLE_START + 0x10 * (partNumber - 1)];
+
+        bool extendedPartition = false;
+
+        if(partPtr->system_id == EXTENDED_PARTITION || partPtr->system_id == EXTENDED_PARTITION_LBA) {
+            extendedPartition = true;
+        }
         
         // Write partition table
         *partPtr = partEntry;
         if(!write(mbr, 0, 1)) {
             partLock.release();
             return WRITE_SECTOR_FAILED;
+        }
+
+        // Delete the partition from storage service
+        Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
+
+        if(extendedPartition) {
+            // Delete all logical partitions on this device from storage service
+            Directory &dir = *Directory::open("/dev/storage");
+            auto *storageService = Kernel::getService<StorageService>();
+
+            for (const String &name : dir.getChildren()) {
+                if (name != getName() && name.beginsWith(getName())) {
+                    String numberString = name.substring(getName().length() + 1, name.length());
+
+                    if(strtoint(static_cast<const char*>(numberString)) > 4) {
+                        storageService->removeDevice(name);
+                    }
+                }
+            }
         }
 
         partLock.release();
@@ -329,6 +371,9 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
             partLock.release();
             return WRITE_SECTOR_FAILED;
         }
+
+        // Delete the partition from storage service
+        Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
 
         partLock.release();
         return SUCCESS;
@@ -399,6 +444,9 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         return WRITE_SECTOR_FAILED;
     }
 
+    // Delete the partition from storage service
+    Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
+
     partLock.release();
     return SUCCESS;
 }
@@ -419,6 +467,16 @@ uint32_t StorageDevice::createPartitionTable() {
     if(!write(mbr, 0, 1)) {
         partLock.release();
         return WRITE_SECTOR_FAILED;
+    }
+
+    // Remove all partitions on this device from storage service
+    Directory &dir = *Directory::open("/dev/storage");
+    auto *storageService = Kernel::getService<StorageService>();
+
+    for (const String &name : dir.getChildren()) {
+        if (name != getName() && name.beginsWith(getName())) {
+            storageService->removeDevice(name);
+        }
     }
 
     partLock.release();
