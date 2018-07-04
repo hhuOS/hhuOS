@@ -41,6 +41,7 @@
 #include <apps/Shell/Commands/Mkfs.h>
 #include <apps/Shell/Commands/DiskInfo.h>
 #include <apps/Shell/Commands/AddPart.h>
+#include <apps/Shell/Commands/MkPartTable.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -65,6 +66,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("insmod", new Insmod(*this));
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
+    commands.put("mkparttable", new MkPartTable(*this));
     commands.put("addpart",  new AddPart(*this));
     commands.put("mkfs", new Mkfs(*this));
     commands.put("diskinfo", new DiskInfo(*this));

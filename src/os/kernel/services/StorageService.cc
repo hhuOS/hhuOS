@@ -31,18 +31,9 @@ void StorageService::registerDevice(StorageDevice *device) {
     //Scan device for partitions and register them as well
     Util::Array<StorageDevice::PartitionInfo> partitions = device->readPartitionTable();
 
-    uint8_t primaryCount = 1;
-    uint8_t logicalCount = 5;
     for(StorageDevice::PartitionInfo info : partitions) {
-        
-        uint8_t partNumber;
-        if(info.type == StorageDevice::LOGICAL)
-            partNumber = logicalCount++;
-        else {
-            partNumber = primaryCount++;
-        }
 
-        String partitionName(device->getName() + "p" + String::valueOf(partNumber, 10));
+        String partitionName(device->getName() + "p" + String::valueOf(info.number, 10));
 
         StorageDevice *partition = new Partition(device, info.startSector, info.sectorCount, info.systemId, partitionName);
         registerDevice(partition);

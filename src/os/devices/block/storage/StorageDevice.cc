@@ -40,7 +40,8 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
 
         // 5 --> Extended partiton
         if(currentPartition.system_id == EXTENDED_PARTITION || currentPartition.system_id == EXTENDED_PARTITION_LBA) {
-            auto *currentPart = new StorageDevice::PartitionInfo{'e', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
+            uint8_t partNumber = 5;
+            auto *currentPart = new StorageDevice::PartitionInfo{partNumber, 'e', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
             partitionList.add(*currentPart);
             uint32_t nextLogicalMbr = currentPartition.relative_sector;
 
@@ -64,7 +65,7 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
                 if(currentLogicalPartition.system_id == EMPTY)
                     break;
 
-                currentPart = new StorageDevice::PartitionInfo{'l', currentLogicalPartition.active_flag, currentLogicalPartition.system_id, nextLogicalMbr + currentLogicalPartition.relative_sector, currentLogicalPartition.sector_count};
+                currentPart = new StorageDevice::PartitionInfo{partNumber, 'l', currentLogicalPartition.active_flag, currentLogicalPartition.system_id, nextLogicalMbr + currentLogicalPartition.relative_sector, currentLogicalPartition.sector_count};
                 partitionList.add(*currentPart);
 
                 // Check system ID
@@ -74,9 +75,11 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
                 
                 // Calculate address of the next MBR
                 nextLogicalMbr = currentPartition.relative_sector + nextLogicalPartition.relative_sector;
+
+                partNumber++;
             }
         } else {
-            auto *currentPart = new StorageDevice::PartitionInfo{'p', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
+            auto *currentPart = new StorageDevice::PartitionInfo{static_cast<uint8_t>(i + 1), 'p', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
             partitionList.add(*currentPart);
         }
     }
@@ -139,6 +142,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             return WRITE_SECTOR_FAILED;
         }
 
+        partLock.release();
         return SUCCESS;
     } else {
         // Logical partition
@@ -221,6 +225,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
                 return WRITE_SECTOR_FAILED;
             }
 
+            partLock.release();
             return SUCCESS;
         } else {
             // Edit an existing partition
@@ -236,6 +241,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
                 return WRITE_SECTOR_FAILED;
             }
 
+            partLock.release();
             return SUCCESS;
         }
     }

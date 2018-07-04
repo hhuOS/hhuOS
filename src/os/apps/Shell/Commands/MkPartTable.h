@@ -16,51 +16,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __DiskInfo_include__
-#define __DiskInfo_include__
+#ifndef __MkPartTable_include__
+#define __MkPartTable_include__
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
-#include <kernel/services/TimeService.h>
 #include "Command.h"
 
 /**
  * Implementation of Command.
- * Shows information about a storage device.
+ * Creates a new partition on a storage device.
  *
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class DiskInfo : public Command {
+class MkPartTable : public Command {
 
 private:
     StorageService *storageService = nullptr;
     FileSystem *fileSystem = nullptr;
 
+
 public:
     /**
      * Default-constructor.
      */
-    DiskInfo() = delete;
+    MkPartTable() = delete;
 
     /**
      * Copy-constructor.
      */
-    DiskInfo(const DiskInfo &copy) = delete;
+    MkPartTable(const MkPartTable &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit DiskInfo(Shell &shell);
+    explicit MkPartTable(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~DiskInfo() override = default;
+    ~MkPartTable() override = default;
 
     /**
      * Overriding function from Command.

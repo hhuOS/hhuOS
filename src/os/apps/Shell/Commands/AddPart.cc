@@ -81,7 +81,7 @@ void AddPart::execute(Util::Array<String> &args) {
             }
         } else if(args[i] == "-h" || args[i] == "--help") {
             stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
             stdout << "Options:" << endl;
             stdout << "  -n, --number: The partition number" << endl;
             stdout << "  -i, --id: The system id" << endl;
@@ -131,7 +131,8 @@ void AddPart::execute(Util::Array<String> &args) {
 
     switch(ret) {
         case StorageDevice::SUCCESS :
-            storageService->registerDevice(new Partition(device, startSector, endSector - startSector, systemId, device->getName() + "p" + String::valueOf(partNumber)));
+            storageService->registerDevice(new Partition(device, startSector, endSector - startSector, systemId,
+                                                         device->getName() + "p" + String::valueOf(partNumber, 10)));
             break;
         case StorageDevice::READ_SECTOR_FAILED :
             stderr << args[0] << ": Error while reading a sector!" << endl;

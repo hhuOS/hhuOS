@@ -16,12 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __CreatePart_include__
-#define __CreatePart_include__
+#ifndef __AddPart_include__
+#define __AddPart_include__
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
-#include <kernel/services/TimeService.h>
 #include "Command.h"
 
 /**
@@ -36,7 +35,7 @@
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland
- * @CreatePart 2018
+ * @date 2018
  */
 class AddPart : public Command {
 

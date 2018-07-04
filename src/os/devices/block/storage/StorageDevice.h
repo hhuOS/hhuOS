@@ -36,6 +36,7 @@ public:
     /**
      * Basic information about a partition.
      *
+     * @var number The partitition number
      * @var type The partition type (PRIMARY, EXTENDED, or LOGICAL)
      * @var active True, if the partition is bootable
      * @var systemId The system id
@@ -43,6 +44,7 @@ public:
      * @var sectorCount The amount of sectors, that the partition consists of
      */
     struct PartitionInfo {
+        uint8_t number;
         uint8_t type;
         bool active;
         uint8_t systemId;
@@ -50,13 +52,13 @@ public:
         uint32_t sectorCount;
 
         bool operator==(const PartitionInfo &other) const {
-            return type == other.type && active == other.active &&
+            return number == other.number && type == other.type && active == other.active &&
                     systemId == other.systemId && startSector == other.startSector &&
                     sectorCount == other.sectorCount;
         }
 
         bool operator!=(const PartitionInfo &other) const {
-            return type != other.type || active != other.active ||
+            return number != other.number || type != other.type || active != other.active ||
                    systemId != other.systemId || startSector != other.startSector ||
                    sectorCount != other.sectorCount;
         }
