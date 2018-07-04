@@ -18,6 +18,7 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/threads/NullYielder.h>
+#include <lib/libc/printf.h>
 #include "kernel/threads/Scheduler.h"
 #include "devices/Pit.h"
 
@@ -32,8 +33,6 @@ NullYielder nullYielder;
 Pit::Pit(uint32_t us) {
 
     yieldable = &nullYielder;
-
-    setInterval(us);
 }
 
 Pit *Pit::getInstance() {
@@ -66,6 +65,8 @@ uint32_t Pit::getInterval() {
 
 void Pit::plugin () {
 
+    setInterval(DEFAULT_INTERVAL);
+
     IntDispatcher::getInstance().assign(32, *this);
 
     Pic::getInstance()->allow(Pic::Interrupt::PIT);
@@ -80,42 +81,42 @@ void Pit::trigger () {
 
 uint32_t Pit::getNanos() {
 
-    return ticks * timerInterval * 1000000;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::NANO);
 }
 
 uint32_t Pit::getMicros() {
 
-    return ticks * timerInterval * 1000;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::MICRO);
 }
 
 uint32_t Pit::getMillis() {
 
-    return ticks * timerInterval;
+    return ticks * 10;
 }
 
 uint32_t Pit::getSeconds() {
 
-    return ticks * timerInterval / 1000;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::SECONDS);
 }
 
 uint32_t Pit::getMinutes() {
 
-    return ticks * timerInterval / 1000 / 60;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::MINUTES);
 }
 
 uint32_t Pit::getHours() {
 
-    return ticks * timerInterval / 1000 / 60 / 60;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::HOURS);
 }
 
 uint32_t Pit::getDays() {
 
-    return ticks * timerInterval / 1000 / 60 / 60 / 24;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::DAYS);
 }
 
 uint32_t Pit::getYears() {
 
-    return ticks * timerInterval / 1000 / 60 / 60 / 24 / 365;
+    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::YEARS);
 }
 
 void Pit::setYieldable(Yieldable *yieldable) {

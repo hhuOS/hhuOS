@@ -471,14 +471,14 @@ String String::format(const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
-    String tmp = format(fmt, args);
+    String tmp = vformat(fmt, args);
 
     va_end(args);
 
     return tmp;
 }
 
-String String::format(const char *fmt, va_list args) {
+String String::vformat(const char *fmt, va_list args) {
 
     Util::ArrayList<char> buffer;
 

@@ -45,6 +45,8 @@ public:
 
     static void removeAppender(Appender *appender);
 
+    static void setConsoleLogging(bool enabled);
+
     static void initialize();
 
 private:
@@ -52,6 +54,8 @@ private:
     explicit Logger(const String &name) noexcept;
 
     const String name;
+
+    static bool logToStdOut;
 
     static Util::ArrayList<Appender*> appenders;
 

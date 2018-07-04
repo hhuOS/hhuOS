@@ -21,6 +21,16 @@ MODULE_OUT = $(HDD_PATH)/mod
 INCLUDEDIR = ${CURDIR}
 
 #-------------------------------------------#
+# Build configuration                       #
+#-------------------------------------------#
+GITCOMMIT = $(shell git rev-parse --short HEAD)
+GITTAG = $(shell git describe --tags --abbrev=0)
+BUILDDATE = $(shell date "+%Y-%m-%d %H:%M:%S")
+
+BUILDCONFIG = -DGITCOMMIT="$(GITCOMMIT)" -DGITTAG="$(GITTAG)" -DBUILDDATE="$(BUILDDATE)"
+
+
+#-------------------------------------------#
 # Compiler binaries                         #
 #-------------------------------------------#
 ASM = nasm
@@ -31,7 +41,7 @@ CXX = g++
 # C Compiler settings                       #
 #-------------------------------------------#
 CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
-					-ffreestanding -mno-sse -I$(INCLUDEDIR) -g #-DDEBUG
+					-ffreestanding -mno-sse -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
 
 #-------------------------------------------#
 # C++ Compiler settings                     #
@@ -112,13 +122,10 @@ hdd1.img:
 	@echo "HDD		hdd1.img"
 	$(VERBOSE) qemu-img create hdd1.img 40M
 
-gitversion.c: ../../.git/HEAD ../../.git/index
-	@echo "const char *gitversion = \"$(shell git describe --tags --abbrev=0) - git $(shell git rev-parse --short HEAD)\";" > $@
-
 #-------------------------------------------#
 # Dependencies                              #
 #-------------------------------------------#
-$(DEPDIR)/%.d : gitversion.c %.c
+$(DEPDIR)/%.d : %.c
 	@echo "DEP		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) $(CFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
@@ -271,8 +278,6 @@ clean:
 	$(VERBOSE) for module in $(MODULES) ; do \
 		$(MAKE) --no-print-directory -C ../modules/build M=$(MODULE_PATH)/$$module clean ; \
 	done
-	@echo "RM		gitversion.c"
-	$(VERBOSE) rm -f gitversion.c
 
 #-------------------------------------------#
 # Exports                                   #

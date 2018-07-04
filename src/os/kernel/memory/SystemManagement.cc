@@ -18,6 +18,7 @@
 #include <lib/multiboot/Structure.h>
 #include <kernel/log/Logger.h>
 #include <devices/Pit.h>
+#include <kernel/log/StdOutAppender.h>
 #include "kernel/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
 
@@ -62,6 +63,8 @@ void init_system(Multiboot::Info *address) {
     Logger::initialize();
 
     Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
+
+    Logger::setConsoleLogging(Multiboot::Structure::getKernelOption("splash") == "false");
 
     if(Multiboot::Structure::getKernelOption("gdb") == "false") {
         systemManagement->writeProtectKernelCode();

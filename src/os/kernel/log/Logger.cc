@@ -8,6 +8,8 @@
 #include "Logger.h"
 #include "SerialAppender.h"
 
+bool Logger::logToStdOut = false;
+
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
 
 TimeProvider *Logger::timeProvider = Pit::getInstance();
@@ -25,7 +27,7 @@ void Logger::trace(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char*) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -35,7 +37,7 @@ void Logger::debug(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char*) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -45,7 +47,7 @@ void Logger::info(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char*) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -55,7 +57,7 @@ void Logger::warn(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char*) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -65,7 +67,7 @@ void Logger::error(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char*) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -84,13 +86,18 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
     uint32_t fraction = millis % 1000;
 
     String tmp = "[" + String::valueOf(seconds, 10) + "."
-                     + String::valueOf(fraction, 10, 4) + "]["
+                     + String::valueOf(fraction, 10, 3) + "]["
                      + getLevelAsString(level) + "]["
                      + name + "] ";
 
     tmp += message;
 
     buffer.add(tmp);
+
+    if (logToStdOut) {
+
+        *stdout << tmp << endl;
+    }
 
     for (auto appender : appenders) {
 
@@ -148,26 +155,26 @@ void Logger::addAppender(Appender *appender) {
 
 void Logger::initialize() {
 
-    if (Multiboot::Structure::getKernelOption("gdb") == "false") {
-
-        Serial *serial = nullptr;
-
-        if(Serial::checkPort(Serial::COM1)) {
-            serial = new Serial(Serial::COM1);
-        } else if(Serial::checkPort(Serial::COM2)) {
-            serial = new Serial(Serial::COM2);
-        } else if(Serial::checkPort(Serial::COM3)) {
-            serial = new Serial(Serial::COM3);
-        } else if(Serial::checkPort(Serial::COM4)) {
-            serial = new Serial(Serial::COM4);
-        }
-
-        if(serial != nullptr) {
-            SerialAppender *serialAppender = new SerialAppender(*serial);
-
-            addAppender(serialAppender);
-        }
-    }
+//    if (Multiboot::Structure::getKernelOption("gdb") == "false") {
+//
+//        Serial *serial = nullptr;
+//
+//        if(Serial::checkPort(Serial::COM1)) {
+//            serial = new Serial(Serial::COM1);
+//        } else if(Serial::checkPort(Serial::COM2)) {
+//            serial = new Serial(Serial::COM2);
+//        } else if(Serial::checkPort(Serial::COM3)) {
+//            serial = new Serial(Serial::COM3);
+//        } else if(Serial::checkPort(Serial::COM4)) {
+//            serial = new Serial(Serial::COM4);
+//        }
+//
+//        if(serial != nullptr) {
+//            SerialAppender *serialAppender = new SerialAppender(*serial);
+//
+//            addAppender(serialAppender);
+//        }
+//    }
 }
 
 Logger &Logger::get(const String &name) {
@@ -180,4 +187,9 @@ Logger &Logger::get(const String &name) {
 void Logger::removeAppender(Appender *appender) {
 
     appenders.remove(appender);
+}
+
+void Logger::setConsoleLogging(bool enabled) {
+
+    logToStdOut = enabled;
 }

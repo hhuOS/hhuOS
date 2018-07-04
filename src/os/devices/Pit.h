@@ -65,13 +65,6 @@ public:
     uint32_t getInterval();
 
     /**
-     * Sets the interval at which the PIT fires it's interrupts.
-     *
-     * @param us The PIT's interval in microseconds
-     */
-    void setInterval(uint32_t us);
-
-    /**
      * Enable interrupts for the PIT.
      */
     void plugin ();
@@ -100,12 +93,20 @@ public:
     uint32_t getYears() override;
 
 private:
+
     /**
      * Constructor.
      *
      * @param us The interval, with which the PIT shall trigger interrupts.
      */
     explicit Pit (uint32_t us);
+
+    /**
+     * Sets the interval at which the PIT fires it's interrupts.
+     *
+     * @param us The PIT's interval in microseconds
+     */
+    void setInterval(uint32_t us);
 
     static Pit *instance;
 
@@ -116,6 +117,8 @@ private:
     static const uint32_t TIME_BASE = 838;
 
     static const uint32_t DEFAULT_INTERVAL = 10000;
+
+    static const uint32_t MILLISECONDS = 1000;
 };
 
 #endif

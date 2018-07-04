@@ -55,8 +55,6 @@ public:
 
     static String format(const char *fmt, ...);
 
-    static String format(const char *fmt, va_list args);
-
     static bool isAlpha(char c);
 
     String toUpperCase();
@@ -93,13 +91,15 @@ public:
 
 private:
 
+    static String vformat(const char *fmt, va_list args);
+
     static const uint8_t CASE_OFFSET = 32;
 
     uint32_t len;
 
     char *buffer;
 
-
+    friend class Logger;
 };
 
 

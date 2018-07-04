@@ -49,10 +49,13 @@ Spinlock &getPrintLock() {
 
 void init() {
 
-    stdout = &getCgaText();
+    CgaText &cgaText = getCgaText();
+
+    cgaText.clear();
+
+    stdout = &cgaText;
 
     printLock = &getPrintLock();
-
 }
 
 void printf(const char *format, ...) {

@@ -48,15 +48,6 @@ int32_t main() {
 
 int32_t GatesOfHell::enter() {
 
-    bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
-
-    StdOutAppender * stdOutAppender = new StdOutAppender();
-
-    if (!showSplash) {
-
-        Logger::addAppender(stdOutAppender);
-    }
-
     log.trace("Initializing graphics");
 
     initializeGraphics();
@@ -91,6 +82,8 @@ int32_t GatesOfHell::enter() {
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
 
+    bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
+
     bootscreen = new Bootscreen(showSplash, log);
 
     bootscreen->init(xres, yres, bpp);
@@ -114,9 +107,11 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->finish();
 
+    Kernel::getService<TimeService>()->msleep(1000);
+
     if (!showSplash) {
 
-        Logger::removeAppender(stdOutAppender);
+        Logger::setConsoleLogging(false);
     }
 
     Scheduler::getInstance()->schedule();
