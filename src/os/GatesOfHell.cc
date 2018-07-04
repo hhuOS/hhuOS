@@ -22,6 +22,7 @@
 #include <lib/file/tar/Archive.h>
 #include <kernel/log/StdOutAppender.h>
 #include "GatesOfHell.h"
+#include "BuildConfig.h"
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
 
@@ -47,6 +48,9 @@ int32_t main() {
 }
 
 int32_t GatesOfHell::enter() {
+
+    log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
+    log.trace("Build date: %s", BuildConfig::BUILD_DATE);
 
     log.trace("Initializing graphics");
 
@@ -156,11 +160,18 @@ void GatesOfHell::initializeGraphics() {
         bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
     }
 
+    log.trace("Detecting video capability");
+
     // Detect video capability
     if(vesa->isAvailable()) {
+        log.trace("Found a VESA compatible graphics card");
+
         lfb = vesa;
         text = new VesaText();
     } else {
+        log.trace("Did not find a VESA compatible graphics card");
+        log.trace("Falling back to CGA");
+
         delete vesa;
         auto *cga = new CgaGraphics();
         if(cga->isAvailable()) {
@@ -168,6 +179,9 @@ void GatesOfHell::initializeGraphics() {
             text = new CgaText();
         } else {
             //No VBE and no CGA? Your machine is waaaaay to old...
+            log.trace("Did not find a CGA compatible graphics card");
+            log.trace("Halting CPU");
+
             delete cga;
             Cpu::halt();
         }
