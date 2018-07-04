@@ -67,7 +67,7 @@ public:
     /**
      * Overriding function from StorageDevice.
      */
-    String getDeviceName() override;
+    String getHardwareName() override;
 
     /**
      * Overriding function from StorageDevice.

@@ -339,7 +339,7 @@ enum SYSTEM_ID {
     virtual ~StorageDevice() = default;
 
     /**
-     * Get the device's name.
+     * Get the device's name (e.g. "hdd1", "usb2p1", etc...).
      */
     String getName();
 
@@ -388,9 +388,9 @@ enum SYSTEM_ID {
     virtual uint8_t getSystemId();
 
     /**
-     * Get the device's name.
+     * Get the name, that has been specified by the device manufacturer.
      */
-    virtual String getDeviceName() = 0;
+    virtual String getHardwareName() = 0;
 
     /**
      * Get the size of a single sector in bytes.

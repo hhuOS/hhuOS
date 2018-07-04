@@ -22,7 +22,7 @@ uint64_t EhciDevice::getSectorCount() {
     return 0;
 }
 
-String EhciDevice::getDeviceName() {
+String EhciDevice::getHardwareName() {
     // TODO: Get actual device name from controller.
     return "";
 }

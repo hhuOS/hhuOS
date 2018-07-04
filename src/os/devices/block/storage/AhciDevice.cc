@@ -13,7 +13,7 @@ bool AhciDevice::write(const uint8_t *buff, uint32_t sector, uint32_t count) {
     return controller.write(ahciDiskNumber, sector, 0, count, (uint16_t *) buff);
 }
 
-String AhciDevice::getDeviceName() {
+String AhciDevice::getHardwareName() {
     return deviceInfo.name;
 }
 

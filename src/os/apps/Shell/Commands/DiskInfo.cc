@@ -70,7 +70,7 @@ void DiskInfo::execute(Util::Array<String> &args) {
         }
 
         stdout << fStat.getAbsolutePath() << ":" << endl;
-        stdout << "  Device name:  " << device->getDeviceName() << endl;
+        stdout << "  Device name:  " << device->getHardwareName() << endl;
         stdout << "  Sector size:  " << dec << device->getSectorSize() << endl;
         stdout << "  Sector count: " << dec << (unsigned long) device->getSectorCount() << endl;
         stdout << "  System ID:    " << hex << (unsigned int) device->getSystemId() << dec << endl;
