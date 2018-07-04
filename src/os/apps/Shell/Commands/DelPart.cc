@@ -20,15 +20,16 @@
 #include <lib/file/FileStatus.h>
 #include <lib/file/File.h>
 #include <devices/block/storage/Partition.h>
-#include "MkPartTable.h"
+#include "DelPart.h"
 
-MkPartTable::MkPartTable(Shell &shell) : Command(shell) {
+DelPart::DelPart(Shell &shell) : Command(shell) {
     storageService = Kernel::getService<StorageService>();
     fileSystem = Kernel::getService<FileSystem>();
 };
 
-void MkPartTable::execute(Util::Array<String> &args) {
+void DelPart::execute(Util::Array<String> &args) {
     String devicePath;
+    uint8_t partNumber = 0;
 
     for(uint32_t i = 1; i < args.length(); i++) {
         if(!args[i].beginsWith("-") || args[i] == "-") {
@@ -38,9 +39,18 @@ void MkPartTable::execute(Util::Array<String> &args) {
                 stderr << args[0] << ": Too many arguments!" << endl;
                 return;
             }
+        } else if(args[i] == "-n" || args[i] == "--number") {
+            if (i == args.length() - 1) {
+                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
+                return;
+            } else {
+                partNumber = static_cast<uint8_t>(strtoint((const char *) args[++i]));
+            }
         } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
-            stdout << "Usage: " << args[0] << " [PATH]" << endl << endl;
+            stdout << "Deletes a partition from a device." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
+            stdout << "Options:" << endl;
+            stdout << "  -n, --number: The partition number" << endl;
             stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
@@ -51,6 +61,11 @@ void MkPartTable::execute(Util::Array<String> &args) {
 
     if(devicePath.isEmpty()) {
         stderr << args[0] << ": No device given!" << endl;
+        return;
+    }
+
+    if(partNumber == 0) {
+        stderr << args[0] << ": Please specify a valid partition number!" << endl;
         return;
     }
 
@@ -65,22 +80,23 @@ void MkPartTable::execute(Util::Array<String> &args) {
 
     StorageDevice *device = storageService->getDevice(file.getName());
 
-    uint32_t ret = device->createPartitionTable();
+    uint32_t ret = device->deletePartition(partNumber);
 
     switch(ret) {
-        case StorageDevice::SUCCESS : {
-            Directory &dir = *Directory::open("/dev/storage");
-
-            for (const String &name : dir.getChildren()) {
-                if (name != device->getName() && name.beginsWith(device->getName())) {
-                    storageService->removeDevice(name);
-                }
-            }
-
+        case StorageDevice::SUCCESS :
+            storageService->removeDevice(device->getName() + "p" + String::valueOf(partNumber, 10));
             break;
-        }
+        case StorageDevice::READ_SECTOR_FAILED :
+            stderr << args[0] << ": Error while reading a sector!" << endl;
+            break;
         case StorageDevice::WRITE_SECTOR_FAILED :
             stderr << args[0] << ": Error while writing a sector!" << endl;
+            break;
+        case StorageDevice::INVALID_MBR_SIGNATURE :
+            stderr << args[0] << ": The device does not contain a valid Master Boot Record!" << endl;
+            break;
+        case StorageDevice::EXTENDED_PARTITION_NOT_FOUND :
+            stderr << args[0] << ": The device does not contain an extenden parititon!" << endl;
             break;
         default:
             stderr << args[0] << ": Unknown Error!" << endl;

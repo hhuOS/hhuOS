@@ -80,7 +80,7 @@ void AddPart::execute(Util::Array<String> &args) {
                 endSector = static_cast<uint32_t>(strtoint((const char *) args[++i]));
             }
         } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
+            stdout << "Adds a new partition to a device, or overwrites an existing one." << endl << endl;
             stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
             stdout << "Options:" << endl;
             stdout << "  -n, --number: The partition number" << endl;
@@ -144,7 +144,7 @@ void AddPart::execute(Util::Array<String> &args) {
             stderr << args[0] << ": The device does not contain a valid Master Boot Record!" << endl;
             break;
         case StorageDevice::DEVICE_NOT_PARTITIONABLE :
-            stderr << args[0] << ": The device '" << devicePath << "' is not partitionable!" << endl;
+            stderr << args[0] << ": The device is not partitionable!" << endl;
             break;
         default:
             stderr << args[0] << ": Unknown Error!" << endl;
