@@ -23,6 +23,8 @@
 #include "Constants.h"
 #include "lib/util/HashMap.h"
 
+#define PRINT_MEMORY 0
+
 namespace Multiboot {
 
     class Structure {

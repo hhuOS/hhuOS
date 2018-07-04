@@ -19,6 +19,7 @@
 #include <kernel/KernelSymbols.h>
 #include <lib/file/tar/Archive.h>
 #include <kernel/memory/SystemManagement.h>
+#include <lib/libc/printf.h>
 #include "Structure.h"
 
 Multiboot::Info Multiboot::Structure::info;
@@ -87,8 +88,16 @@ void Multiboot::Structure::parseMemoryMap() {
 
         for (uint32_t i = 0; i < size; i++) {
 
+#if PRINT_MEMORY
+            printf("0x%08x - 0x%08x : %u\n", (uint32_t) entry[i].address, (uint32_t) (entry[i].address + entry[i].length), entry[i].type);
+#endif
+
             memoryMap.add(entry[i]);
         }
+
+#if PRINT_MEMORY
+        while(true);
+#endif
     }
 }
 
