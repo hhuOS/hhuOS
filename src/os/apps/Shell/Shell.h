@@ -47,6 +47,10 @@ private:
 
     Spinlock inputLock;
 
+    Color fgColor = Colors::TERM_WHITE;
+
+    Color bgColor = Colors::TERM_BLACK;
+
     bool execute = false;
     bool isRunning = true;
 
@@ -57,6 +61,8 @@ private:
     String lastString;
 
     char inputBuffer[4096];
+
+    Color getColor(uint32_t colorCode, bool bright);
 
     /**
      * Parse the user input and execute the respective command if the input is valid.

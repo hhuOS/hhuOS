@@ -80,6 +80,26 @@ namespace Colors {
     extern Color HHU_TURQUOISE_50;
     extern Color HHU_TURQUOISE_30;
     extern Color HHU_TURQUOISE_10;
+
+    // Terminal colors
+    extern Color TERM_BLACK;
+    extern Color TERM_RED;
+    extern Color TERM_GREEN;
+    extern Color TERM_YELLOW;
+    extern Color TERM_BLUE;
+    extern Color TERM_MAGENTA;
+    extern Color TERM_CYAN;
+    extern Color TERM_WHITE;
+
+    extern Color TERM_BRIGHT_BLACK;
+    extern Color TERM_BRIGHT_RED;
+    extern Color TERM_BRIGHT_GREEN;
+    extern Color TERM_BRIGHT_YELLOW;
+    extern Color TERM_BRIGHT_BLUE;
+    extern Color TERM_BRIGHT_MAGENTA;
+    extern Color TERM_BRIGHT_CYAN;
+    extern Color TERM_BRIGHT_WHITE;
+
 }
 
 #endif

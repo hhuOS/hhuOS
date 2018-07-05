@@ -76,3 +76,23 @@ Color Colors::HHU_TURQUOISE_70 = Color(60, 185, 201);
 Color Colors::HHU_TURQUOISE_50 = Color(101, 190, 201);
 Color Colors::HHU_TURQUOISE_30 = Color(141, 194, 201);
 Color Colors::HHU_TURQUOISE_10 = Color(181, 199, 201);
+
+// Terminal colors
+
+Color Colors::TERM_BLACK = Color(0, 0, 0);
+Color Colors::TERM_RED = Color(205, 0, 0);
+Color Colors::TERM_GREEN = Color(0, 205, 0);
+Color Colors::TERM_YELLOW = Color(205, 205, 0);
+Color Colors::TERM_BLUE = Color(0, 0, 238);
+Color Colors::TERM_MAGENTA = Color(205, 0, 205);
+Color Colors::TERM_CYAN = Color(0, 205, 205);
+Color Colors::TERM_WHITE = Color(229, 229, 229);
+
+Color Colors::TERM_BRIGHT_BLACK = Color(127, 127, 127);
+Color Colors::TERM_BRIGHT_RED = Color(255, 0, 0);
+Color Colors::TERM_BRIGHT_GREEN = Color(0, 255, 0);
+Color Colors::TERM_BRIGHT_YELLOW = Color(255, 255, 0);
+Color Colors::TERM_BRIGHT_BLUE = Color(92, 92, 255);
+Color Colors::TERM_BRIGHT_MAGENTA = Color(255, 0, 255);
+Color Colors::TERM_BRIGHT_CYAN = Color(0, 255, 255);
+Color Colors::TERM_BRIGHT_WHITE = Color(255, 255, 255);

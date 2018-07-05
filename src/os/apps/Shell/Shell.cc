@@ -99,7 +99,7 @@ void Shell::run() {
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    *this << "[/]$ ";
+    *this << "\\u001b[37;1m[/]$\\u001b[0m ";
     this->flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
@@ -114,7 +114,7 @@ void Shell::run() {
 
         delete input;
 
-        *this << "[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$ ";
+        *this << "\\u001b[37;1m[" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "]$\\u001b[0m ";
         this->flush();
     }
 
@@ -264,7 +264,41 @@ void Shell::onEvent(const Event &event) {
 }
 
 void Shell::flush() {
-    graphicsService->getTextDriver()->puts(StringBuffer::buffer, StringBuffer::pos);
+
+    bool bright = false;
+
+    for (uint32_t i = 0; i < StringBuffer::pos; i++) {
+
+        if (strncmp("\\u001b[", &StringBuffer::buffer[i], 7) == 0) {
+
+            i += 7;
+
+            char color[3] {StringBuffer::buffer[i], StringBuffer::buffer[i + 1], '\0'};
+
+            uint32_t colorCode = (uint32_t) strtoint(color);
+
+            if (StringBuffer::buffer[i + 2] == ';') {
+
+                bright = true;
+
+                i += 5;
+
+            } else {
+
+                i += 3;
+            }
+
+            fgColor = getColor(colorCode, bright);
+
+            if (i >= StringBuffer::pos || StringBuffer::buffer[i] == '\0') {
+
+                break;
+            }
+        }
+
+        graphicsService->getTextDriver()->putc(StringBuffer::buffer[i], fgColor, bgColor);
+    }
+
     StringBuffer::pos = 0;
 }
 
@@ -311,4 +345,30 @@ InputStream &Shell::operator>>(OutputStream &outStream) {
 
     delete string;
     return *this;
+}
+
+Color Shell::getColor(uint32_t colorCode, bool bright) {
+
+    switch (colorCode) {
+        case 30:
+            return bright ? Colors::TERM_BRIGHT_BLACK : Colors::TERM_BLACK;
+        case 31:
+            return bright ? Colors::TERM_BRIGHT_RED : Colors::TERM_RED;
+        case 32:
+            return bright ? Colors::TERM_BRIGHT_GREEN : Colors::TERM_GREEN;
+        case 33:
+            return bright ? Colors::TERM_BRIGHT_YELLOW : Colors::TERM_YELLOW;
+        case 34:
+            return bright ? Colors::TERM_BRIGHT_BLUE : Colors::TERM_BLUE;
+        case 35:
+            return bright ? Colors::TERM_BRIGHT_MAGENTA : Colors::TERM_MAGENTA;
+        case 36:
+            return bright ? Colors::TERM_BRIGHT_CYAN : Colors::TERM_CYAN;
+        case 37:
+            return bright ? Colors::TERM_BRIGHT_WHITE : Colors::TERM_WHITE;
+        case 0:
+            return Colors::TERM_WHITE;
+        default:
+            return Colors::TERM_WHITE;
+    }
 }
