@@ -419,6 +419,7 @@ IOMemInfo SystemManagement::mapPhysRangeIO(uint32_t size) {
 					pageFrameAllocator->free(physAddresses[j]);
 					physAddresses[j] = 0;
 				}
+				pageFrameAllocator->free(physAddr);
 				// if this is the last try, exit with 0
 				if(probe + 1 == maxProbes){
 					printf("[PAGINGMANAGER] IO Range Mapping not possible - no coherent physical memory available\n");
