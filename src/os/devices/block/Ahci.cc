@@ -75,6 +75,8 @@ void Ahci::setup(const Pci::Device &dev) {
         log.trace("Failed to reset HBA");
         log.trace("Aborting AHCI-setup");
 
+        numDevices = 0;
+
         return;
     }
 
@@ -111,7 +113,7 @@ bool Ahci::reset() {
 
     abar->ghc |= HBA_GHC_HR;
 
-    unsigned int timeout = 0;
+    uint32_t timeout = 0;
     while ((abar->ghc & HBA_GHC_HR) && timeout < AHCI_TIMEOUT) {
         timeService->msleep(10);
         timeout += 10;
@@ -125,7 +127,7 @@ bool Ahci::reset() {
 
     return true;
 
-    // unsigned int spin = 0;
+    // uint32_t spin = 0;
     // for (uint32_t i = 0; i < numPorts; i++) {
     //     if ( isPortImplemented(i) ) {
     //         log.trace("Waiting for Phy communication ");
@@ -304,7 +306,7 @@ void Ahci::biosHandoff() {
 
     abar->bohc = (abar->bohc & ~HBA_BOHC_OOC) | HBA_BOHC_OOS;
 
-    unsigned int timeout = 0;
+    uint32_t timeout = 0;
     while( (abar->bohc & (HBA_BOHC_BOS | HBA_BOHC_OOS)) != HBA_BOHC_OOS && timeout < AHCI_TIMEOUT) {
         timeService->msleep(10);
         timeout += 10;
@@ -383,7 +385,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     cmdfis->c = 1;
     cmdfis->command = ATA_CMD_IDENTIFY;
 
-    unsigned int timeout = 0;
+    uint32_t timeout = 0;
     while ( (port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && timeout < AHCI_TIMEOUT ) {
         timeout += 10;
     }
@@ -422,14 +424,14 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
 
     ret.name[40] = 0;
 
-    uint32_t commandsets = *((unsigned int *)(buffer + ATA_IDENT_COMMANDSETS));
+    uint32_t commandsets = *((uint32_t *)(buffer + ATA_IDENT_COMMANDSETS));
 
     if (commandsets & (1u << 26u))
         // Device uses 48-Bit Addressing:
-        ret.sectorCount = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA_EXT));
+        ret.sectorCount = *((uint32_t *)(buffer + ATA_IDENT_MAX_LBA_EXT));
     else
         // Device uses CHS or 28-bit Addressing:
-        ret.sectorCount = *((unsigned int *)(buffer + ATA_IDENT_MAX_LBA));
+        ret.sectorCount = *((uint32_t *)(buffer + ATA_IDENT_MAX_LBA));
 
     SystemManagement::getInstance()->freeIO(ioMemInfo);
 
@@ -514,7 +516,7 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
 
     cmdfis->featurel = 1;
 
-    unsigned int timeout = 0;
+    uint32_t timeout = 0;
     while ( (port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && timeout < AHCI_TIMEOUT ) {
         timeService->msleep(10);
         timeout += 10;
@@ -635,9 +637,17 @@ void Ahci::startAll() {
 }
 
 void Ahci::startCommand(HbaPort *port) {
-	while (port->cmd & (HBA_PxCMD_CR | HBA_PxCMD_FR));
+    uint32_t timeout = 0;
+    while (port->cmd & (HBA_PxCMD_CR | HBA_PxCMD_FR) && timeout < AHCI_TIMEOUT) {
+        timeService->msleep(10);
+        timeout += 10;
+    }
 
-    port->cmd |= HBA_PxCMD_ST | HBA_PxCMD_FRE;
+    if (timeout == AHCI_TIMEOUT) {
+        log.trace("Error: Timeout while sending start command");
+    } else {
+        port->cmd |= HBA_PxCMD_ST | HBA_PxCMD_FRE;
+    }
 }
 
 void Ahci::stopAll() {
@@ -653,7 +663,15 @@ void Ahci::stopAll() {
 void Ahci::stopCommand(HbaPort *port) {
 	port->cmd &= ~(HBA_PxCMD_ST | HBA_PxCMD_FRE);
 
-	while(port->cmd & (HBA_PxCMD_FR | HBA_PxCMD_CR));
+    uint32_t timeout = 0;
+    while (port->cmd & (HBA_PxCMD_FR | HBA_PxCMD_CR) && timeout < AHCI_TIMEOUT) {
+        timeService->msleep(10);
+        timeout += 10;
+    }
+
+    if (timeout == AHCI_TIMEOUT) {
+        log.trace("Error: Timeout while sending stop command");
+    }
 }
 
 void Ahci::plugin() {
