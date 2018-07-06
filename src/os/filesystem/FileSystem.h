@@ -30,6 +30,9 @@
 class FileSystem : public KernelService, Receiver {
 
 private:
+
+    static Logger &log;
+
     Util::HashMap<String, FsDriver*> mountPoints;
 
     Spinlock fsLock;

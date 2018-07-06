@@ -26,6 +26,8 @@
 #include <kernel/log/FileAppender.h>
 #include <kernel/log/Logger.h>
 #include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
+#include <devices/input/Keyboard.h>
+#include <kernel/services/InputService.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -38,6 +40,8 @@
 #include "filesystem/RamFs/PciNode.h"
 #include "filesystem/RamFs/StdoutNode.h"
 #include "filesystem/RamFs/StderrNode.h"
+
+Logger &FileSystem::log = Logger::get("FILESYSTEM");
 
 FileSystem::FileSystem() {
     eventBus = Kernel::getService<EventBus>();
@@ -98,18 +102,31 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 }
 
 void FileSystem::init() {
+    log.trace("Initializing filesystem");
+
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
 
     if(rootDevice == nullptr) {
         // No root-device found -> Mount RAM-Device
+        log.trace("Not root-partition found");
+        log.trace("Mounting RamFs to /");
+
         mount("", "/", "ram");
     } else {
+        log.trace("Found root-partition %s", static_cast<const char*>(rootDevice->getName()));
+        log.trace("Mounting %s to /", static_cast<const char*>(rootDevice->getName()));
+
         if(mount(rootDevice->getName(), "/", "fat") != SUCCESS) {
+            log.trace("Unable to mount root-partition");
+            log.trace("Mounting RamFs to /");
+
             mount("", "/", "ram");
         }
     }
-    
+
+    log.trace("Initializing /dev");
+
     // Initialize dev-Directory
     Directory *dev = Directory::open("/dev");
     if(dev == nullptr)
@@ -122,8 +139,11 @@ void FileSystem::init() {
     // Create directory for StorageNodes.
     createDirectory("/dev/storage");
 
-    // Add Serial-nodes to dev-Directory
+    // Create directory for ports
     createDirectory("/dev/ports");
+
+    // Add Serial-nodes to dev-Directory
+    log.trace("Creating COM files");
 
     auto *serialService = Kernel::getService<SerialService>();
 
@@ -144,6 +164,8 @@ void FileSystem::init() {
     }
 
     // Add parallel-nodes to dev-Directory
+    log.trace("Creating LPT files");
+
     auto *parallelService = Kernel::getService<ParallelService>();
 
     if(parallelService->isPortAvailable(Parallel::LPT1)) {
@@ -159,6 +181,8 @@ void FileSystem::init() {
     }
 
     // Add Video-Nodes to dev-Directory
+    log.trace("Creating video files");
+
     createDirectory("/dev/video");
     createDirectory("/dev/video/text");
     createDirectory("/dev/video/lfb");
@@ -174,6 +198,8 @@ void FileSystem::init() {
     addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
 
     // Add Memory Nodes to dev-directory
+    log.trace("Creating memory files");
+
     createDirectory("/dev/memory");
     addVirtualNode("/dev/memory", new KernelHeapNode());
     addVirtualNode("/dev/memory", new IOMemoryNode());
@@ -181,12 +207,16 @@ void FileSystem::init() {
     addVirtualNode("/dev/memory", new PagingAreaNode());
 
     // Add PCI-node to dev-Directory
+    log.trace("Creating PCI file");
     addVirtualNode("/dev", new PciNode());
 
     // Add syslog file to dev-Directory
+    log.trace("Creating syslog file");
     createFile("/dev/syslog");
 
     // Add StdStream-nodes to dev-Directory
+    log.trace("Creating standard stream files");
+
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
 
