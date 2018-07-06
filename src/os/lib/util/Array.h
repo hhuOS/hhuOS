@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <kernel/cpu/Cpu.h>
+#include <initializer_list>
 
 extern "C" {
     #include "lib/libc/string.h"
@@ -39,6 +40,8 @@ namespace Util {
 
         explicit Array(uint32_t capacity) noexcept;
 
+        Array(std::initializer_list<T> list) noexcept;
+
         virtual ~Array() = default;
 
         Array(const Array<T> &other);
@@ -57,11 +60,13 @@ namespace Util {
 
         T *end() const;
 
+        static Array<T> wrap(const T *source, size_t size);
+
     private:
 
         T* array;
 
-        uint32_t capacity;
+        size_t capacity;
 
     };
 
@@ -69,6 +74,19 @@ namespace Util {
     Array<T>::Array(uint32_t capacity) noexcept : capacity(capacity) {
 
         this->array = new T[capacity];
+    }
+
+    template <class T>
+    Array<T>::Array(std::initializer_list<T> list) : capacity(list.size()) {
+
+        this->array = new T[list.size()];
+
+        const T *source = list.begin();
+
+        for (uint32_t i = 0; i < capacity; i++) {
+
+            this->array[i] = source[i];
+        }
     }
 
     template <class T>
@@ -143,6 +161,16 @@ namespace Util {
         delete[] array;
 
         array = new T[capacity];
+    }
+
+    template <class T>
+    Array<T> Array<T>::wrap(const T *source, size_t size) {
+
+        Array tmp(size);
+
+        memcpy(tmp.array, source, size);
+
+        return tmp;
     }
 }
 
