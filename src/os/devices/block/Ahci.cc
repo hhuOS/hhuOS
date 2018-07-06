@@ -43,14 +43,7 @@ void Ahci::setup(const Pci::Device &dev) {
     bool ret;
 
     // Enable AHCI mode (if supported)
-    ret = enableAhci();
-
-    if(!ret) {
-        log.trace("Failed to set HBA to AHCI-mode");
-        log.trace("Aborting AHCI-setup");
-
-        return;
-    }
+    enableAhci();
 
     // Request Bios Handoff (if supported)
     biosHandoff();
@@ -86,14 +79,7 @@ void Ahci::setup(const Pci::Device &dev) {
     }
 
     // Enable AHCI mode (if supported)
-    ret = enableAhci();
-
-    if(!ret) {
-        log.trace("Failed to set HBA to AHCI-mode");
-        log.trace("Aborting AHCI-setup");
-
-        return;
-    }
+    enableAhci();
 
     // Stop all implemented ports
     stopAll();
@@ -158,15 +144,11 @@ bool Ahci::reset() {
     // }
 }
 
-bool Ahci::enableAhci() {
+void Ahci::enableAhci() {
     if ( !(abar->cap & HBA_CAP_SAM) ) {
         log.trace("Setting HBA to AHCI mode ");
         abar->ghc |= HBA_GHC_AE;
-
-        return true;
     }
-
-    return false;
 }
 
 void Ahci::scan() {

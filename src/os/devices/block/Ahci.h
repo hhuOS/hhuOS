@@ -586,7 +586,7 @@ private:
     /**
      * Sets the HBA into AHCI mode.
      */
-    bool enableAhci();
+    void enableAhci();
 
     /**
      * Resets the HBA.
