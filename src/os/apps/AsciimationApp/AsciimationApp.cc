@@ -120,7 +120,7 @@ void AsciimationApp::run () {
 
     if(isRunning) {
         LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-        lfb->init(800, 600, 32);
+        lfb->init(640, 400, 16);
 
         posX = static_cast<uint16_t>((lfb->getResX() / 2) - ((68 * 8) / 2));
         posY = static_cast<uint16_t>((lfb->getResY() / 2) - ((13 * 16) / 2));

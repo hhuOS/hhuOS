@@ -242,6 +242,8 @@ void Application::startSelectedApp() {
 
 void Application::startGame(Game* game){
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+
+    graphicsService->getLinearFrameBuffer()->init(640, 480, 16);
     lfb->enableDoubleBuffering();
 
     float currentTime = timeService->getSystemTime() / 1000.0f;
@@ -265,6 +267,9 @@ void Application::startGame(Game* game){
         game->draw(lfb);
     }
 
+    graphicsService->getLinearFrameBuffer()->init(800, 600, 32);
+    graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
+
     isRunning = true;
 }
 
@@ -275,7 +280,10 @@ void Application::pause() {
 
 void Application::resume() {
     isRunning = true;
+
+    graphicsService->getLinearFrameBuffer()->init(800, 600, 32);
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
+
     Scheduler::getInstance()->deblock(*this);
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 }
