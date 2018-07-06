@@ -229,11 +229,11 @@ qemu-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso modules hdd0.img
+qemu-gdb-startup: $(OBJDIR)/hhuOS.iso modules hdd0.img
 	$(VERBOSE) echo "set architecture i8086" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
-	$(VERBOSE) echo "break on_paging_enabled" >> /tmp/gdbcommands.$(shell id -u)
+	$(VERBOSE) echo "break *(startup - 0xC0000000)" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 

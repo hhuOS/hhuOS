@@ -20,9 +20,21 @@
 #include <lib/file/tar/Archive.h>
 #include <kernel/memory/SystemManagement.h>
 #include <lib/libc/printf.h>
+#include <lib/libc/sprintf.h>
+#include <kernel/interrupts/BlueScreen.h>
 #include "Structure.h"
+#include "Constants.h"
+
+extern "C" {
+    extern char ___KERNEL_START__;
+    extern char ___KERNEL_END__;
+}
 
 Multiboot::Info Multiboot::Structure::info;
+
+uint32_t Multiboot::Structure::customMemoryMapSize = 0;
+
+Multiboot::MemoryMapEntry Multiboot::Structure::customMemoryMap[256];
 
 Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
 
@@ -34,11 +46,75 @@ Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
 
 extern "C" {
     void parse_multiboot(Multiboot::Info *address);
+    void readMemoryMap(Multiboot::Info *address);
 }
 
 void parse_multiboot(Multiboot::Info *address) {
 
     Multiboot::Structure::parse(address);
+}
+
+void readMemoryMap(Multiboot::Info *address) {
+
+    Multiboot::Structure::readMemoryMap(address);
+}
+
+void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
+
+    Multiboot::Info tmp = *address;
+
+    MemoryMapEntry *memory = (MemoryMapEntry*) ((uint32_t) customMemoryMap - KERNEL_START);
+
+    uint32_t *mapSize = (uint32_t*) ((uint32_t) &customMemoryMapSize - KERNEL_START);
+
+    uint32_t kernelStart = (uint32_t) &___KERNEL_START__ - KERNEL_START;
+
+    uint32_t kernelEnd = (uint32_t) &___KERNEL_END__ - KERNEL_START;
+
+    memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED};
+
+    *mapSize = *mapSize + 1;
+
+    uint32_t memoryIndex = 1;
+
+    ElfInfo &symbolInfo = tmp.symbols.elf;
+
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
+
+    if (tmp.flags & MULTIBOOT_INFO_ELF_SHDR) {
+
+        for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
+
+            sectionHeader = (ElfConstants::SectionHeader*) (symbolInfo.address + i * symbolInfo.sectionSize);
+
+            if (sectionHeader->virtualAddress == 0x0) {
+
+                continue;
+            }
+
+            uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress : sectionHeader->virtualAddress - KERNEL_START;
+
+            memory[memoryIndex] = {0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED,};
+
+            memoryIndex++;
+
+            *mapSize = *mapSize + 1;
+        }
+    }
+
+    if (tmp.flags & MULTIBOOT_INFO_MODS) {
+
+        auto *modInfo = (Multiboot::ModuleInfo*) info.moduleAddress;
+
+        for (uint32_t i = 0; i < info.moduleCount; i++) {
+
+            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start, MULTIBOOT_MEMORY_RESERVED,};
+
+            memoryIndex++;
+
+            *mapSize = *mapSize + 1;
+        }
+    }
 }
 
 void Multiboot::Structure::parse(Multiboot::Info *address) {

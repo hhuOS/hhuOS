@@ -26,6 +26,7 @@ global load_page_directory
 global BIOS_Page_Directory
 
 extern on_paging_enabled
+extern bootstrapPaging
 
 ; calculate index to 4mb page where kernel should be placed
 KERNEL_PG_NUM equ (KERNEL_START >> 22)
@@ -36,6 +37,16 @@ align 0x1000
 ; 4MB - PageTable
 ; maps first 8MB to 3GB (higher half)
 ; and maps 8 to 12 MB to 3.5GB (page table/dir area)
+legacyPageDirectory:
+    dd 0x00000083
+    dd 0x00400083
+    times (KERNEL_PG_NUM - 2) dd 0
+    dd 0x00000083
+    dd 0x00400083
+    times (893 - 2 - KERNEL_PG_NUM) dd 0
+    dd 0x00800083
+    times (1024 - 893 - 1) dd 0
+
 Bootstrap_Page_Directory:
     dd 0x00000083
     dd 0x00400083
@@ -59,6 +70,13 @@ BIOS_Page_Directory:
 ; set up first pagetable with 4MB pages to map kernel
 ; to higher half
 paging_bootstrap:
+
+    push Bootstrap_Page_Directory
+
+    call bootstrapPaging
+
+    add esp, 0x04
+
     ; load address of 4mb - page directory
     mov ecx, Bootstrap_Page_Directory
     ; calculate phys. address since paging is not enabled yet

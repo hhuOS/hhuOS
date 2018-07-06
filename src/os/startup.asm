@@ -59,6 +59,7 @@ extern setup_idt
 extern paging_bootstrap
 extern parse_multiboot
 extern enable_interrupts
+extern readMemoryMap
 
 extern ___KERNEL_START__
 extern ___KERNEL_END__
@@ -73,8 +74,12 @@ extern ___TEXT_END__
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
-_gdt_bios_48		equ (gdt_bios_48 - KERNEL_START)
-_gdt_bios			equ (gdt_bios - KERNEL_START)
+_gdt_bios_48		    equ (gdt_bios_48 - KERNEL_START)
+_gdt_bios			    equ (gdt_bios - KERNEL_START)
+_gdt			        equ (gdt - KERNEL_START)
+_clear_bss              equ (clear_bss - KERNEL_START)
+___PHYS_BSS_START__     equ (___BSS_START__ - KERNEL_START)
+___PHYS_BSS_END__       equ (___BSS_END__ - KERNEL_START)
 
 	
 section .text
@@ -105,6 +110,43 @@ startup:
     or ax, 3 << 9
     mov cr4, eax
 
+    ; Load GDT
+    lgdt	[phys_gdt_48 - KERNEL_START]
+
+    mov	ax,0x10
+    mov	ds,ax
+    mov	es,ax
+    mov	fs,ax
+    mov	gs,ax
+    mov	ss,ax
+    ; make a jump to set the CS-register to the right value
+    ; (the CodeSegment is placed at offset 0x8)
+    ; if something at GDT is changed, this instruction may be changed as well
+    jmp 0x8:_clear_bss
+
+    ; clean BSS
+clear_bss:
+    mov	edi, ___PHYS_BSS_START__
+.loop:
+    mov	byte [edi], 0
+    inc	edi
+    cmp	edi, ___PHYS_BSS_END__
+    jne	.loop
+
+    ; set initial stack
+    mov esp, (stack - KERNEL_START)
+
+    ; read memory map
+    push ebx
+
+    mov eax, readMemoryMap
+
+    sub eax, KERNEL_START
+
+    call eax
+
+    add esp, 0x04
+
 	; load first 4MB-PageTable and enable paging
 	mov ecx,  (paging_bootstrap - KERNEL_START)
 
@@ -116,48 +158,72 @@ on_paging_enabled:
 ; Load GDT
 	lgdt	[gdt_48]
 
-; global data segment
-	mov	ax,0x10
-	mov	ds,ax
-	mov	es,ax
-	mov	fs,ax
-	mov	gs,ax
-; make a jump to set the CS-register to the right value
-; (the CodeSegment is placed at offset 0x8)
-; if something at GDT is changed, this instruction may be changed as well
-	jmp 0x8:clear_bss
+    mov	ax,0x10
+    mov	ds,ax
+    mov	es,ax
+    mov	fs,ax
+    mov	gs,ax
+    mov	ss,ax
+    ; make a jump to set the CS-register to the right value
+    ; (the CodeSegment is placed at offset 0x8)
+    ; if something at GDT is changed, this instruction may be changed as well
+    jmp 0x8:_clear_bss
 
 ; clean BSS
 clear_bss:
-    mov	edi, ___BSS_START__
+    mov	edi, ___PHYS_BSS_START__
 .loop:
     mov	byte [edi], 0
     inc	edi
-    cmp	edi, ___BSS_END__
+    cmp	edi, ___PHYS_BSS_END__
     jne	.loop
 
-; save multiboot structure address
+    ; set initial stack
+    mov esp, (stack - KERNEL_START)
+
+    ; read memory map
+    push ebx
+
+    mov eax, readMemoryMap
+
+    sub eax, KERNEL_START
+
+    call eax
+
+    add esp, 0x04
+
+	; load first 4MB-PageTable and enable paging
+	mov ecx,  (paging_bootstrap - KERNEL_START)
+
+	; jump into paging.asm to enable 4mb paging
+	jmp ecx
+
+on_paging_enabled:
+
+    ; Load GDT
+	lgdt	[gdt_48]
+
+    ; save multiboot structure address
     add ebx, KERNEL_START
     mov [multiboot_addr], ebx
 
-; set init stack
-	mov	ss,ax
+    ; set init stack
 	mov esp, (stack + STACK_SIZE)
 
 
-; setup interrupts
+    ; setup interrupts
 	call	setup_idt
 	call	reprogram_pics
 
-; initialize system
+    ; initialize system
     push dword [multiboot_addr]
     call    init_system ; see SystemManagement.cc
     add  esp, 0x4
 
-; call kernel's main() function
+    ; call kernel's main() function
 	call	main
 
-; finalize system
+    ; finalize system
 	call	fini_system	; see SystemManagement.cc
 	hlt
 
@@ -285,6 +351,11 @@ gdt_bios:
 gdt_48:
 	dw	0x18		                    ; GDT Limit=32, 4 GDT Eintraege
 	dd	gdt                             ; Virtuelle Adresse der GDT
+
+; physical value for GDTR
+phys_gdt_48:
+	dw	0x18		                    ; GDT Limit=32, 4 GDT Eintraege
+	dd	_gdt                            ; Physical GDT address
 
 ; value for GDTR using BIOS Calls (low address needed because paging is disabled)
 gdt_bios_48:

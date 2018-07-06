@@ -41,6 +41,8 @@ namespace Multiboot {
 
         static void parse(Info *address);
 
+        static void readMemoryMap(Info *address);
+
         static Multiboot::ModuleInfo getModule(const String &module);
 
         static bool isModuleLoaded(const String &module);
@@ -68,6 +70,10 @@ namespace Multiboot {
         static Util::ArrayList<VesaGraphics::ModeInfo> vbeModes;
 
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
+
+        static MemoryMapEntry customMemoryMap[256];
+
+        static uint32_t customMemoryMapSize;
     };
 }
 
