@@ -342,61 +342,61 @@ private:
     // -- Port x Interrupt Status -- //
 
     /* Task File Error Status */
-    static const uint32_t HBA_PxIS_TFES     = (1 << 30);
+    static const uint32_t HBA_PxIS_TFES     = (1u << 30u);
 
     // -- Port x Command and Status -- //
 
     /* Start */
-    static const uint32_t HBA_PxCMD_ST      = (1 << 0);
+    static const uint32_t HBA_PxCMD_ST      = (1u << 0u);
 
     /* Spin-Up Device */
-    static const uint32_t HBA_PxCMD_SUD     = (1 << 1);
+    static const uint32_t HBA_PxCMD_SUD     = (1u << 1u);
 
     /* Power On Device */
-    static const uint32_t HBA_PxCMD_POD     = (1 << 2);
+    static const uint32_t HBA_PxCMD_POD     = (1u << 2u);
 
     /* FIS Receive Enable */
-    static const uint32_t HBA_PxCMD_FRE     = (1 << 4);
+    static const uint32_t HBA_PxCMD_FRE     = (1u << 4u);
 
     /* FIS Receive Running */
-    static const uint32_t HBA_PxCMD_FR      = (1 << 14);
+    static const uint32_t HBA_PxCMD_FR      = (1u << 14u);
 
     /* Command List Running */
-    static const uint32_t HBA_PxCMD_CR      = (1 << 15);
+    static const uint32_t HBA_PxCMD_CR      = (1u << 15u);
 
     /* Cold Presence Detection */
-    static const uint32_t HBA_PxCMD_CPD     = (1 << 20);
+    static const uint32_t HBA_PxCMD_CPD     = (1u << 20u);
 
     /* Interface Communication Control */
-    static const uint32_t HBA_PxCMD_ICC     = (0xF << 28);
+    static const uint32_t HBA_PxCMD_ICC     = (0xFu << 28u);
 
-    static const uint32_t HBA_PxCMD_ICC_IDLE        = (0 << 28);
-    static const uint32_t HBA_PxCMD_ICC_ACTIVE      = (1 << 28);
-    static const uint32_t HBA_PxCMD_ICC_PARTIAL     = (2 << 28);
-    static const uint32_t HBA_PxCMD_ICC_SLUMBER     = (6 << 28);
-    static const uint32_t HBA_PxCMD_ICC_DEVSLEEP    = (8 << 28);
+    static const uint32_t HBA_PxCMD_ICC_IDLE        = (0u << 28u);
+    static const uint32_t HBA_PxCMD_ICC_ACTIVE      = (1u << 28u);
+    static const uint32_t HBA_PxCMD_ICC_PARTIAL     = (2u << 28u);
+    static const uint32_t HBA_PxCMD_ICC_SLUMBER     = (6u << 28u);
+    static const uint32_t HBA_PxCMD_ICC_DEVSLEEP    = (8u << 28u);
 
     // -- BIOS/OS Handoff Control and Status -- //
 
     /* BIOS Owned Semaphore */
-    static const uint32_t HBA_BOHC_BOS      = (1 << 0);
+    static const uint32_t HBA_BOHC_BOS      = (1u << 0u);
 
     /* OS Owned Semaphore */
-    static const uint32_t HBA_BOHC_OOS      = (1 << 1);
+    static const uint32_t HBA_BOHC_OOS      = (1u << 1u);
 
     /* SMI on OS Ownership Change Enable */
-    static const uint32_t HBA_BOHC_SOOE     = (1 << 2);
+    static const uint32_t HBA_BOHC_SOOE     = (1u << 2u);
 
     /* OS Ownership Change */
-    static const uint32_t HBA_BOHC_OOC      = (1 << 3);
+    static const uint32_t HBA_BOHC_OOC      = (1u << 3u);
 
     /* BIOS Busy */
-    static const uint32_t HBA_BOHC_BB       = (1 << 4);
+    static const uint32_t HBA_BOHC_BB       = (1u << 4u);
 
     // -- Port x Serial ATA Status -- //
 
     /* Interface Power Management */
-    static const uint8_t HBA_PxSSTS_IPM  = 0xF0;
+    static const uint8_t HBA_PxSSTS_IPM                = 0xF0;
 
     static const uint8_t HBA_PxSSTS_IPM_NOT_PRESENT   = 0x00;
     static const uint8_t HBA_PxSSTS_IPM_ACTIVE        = 0x01;
@@ -405,7 +405,7 @@ private:
     static const uint8_t HBA_PxSSTS_IPM_SLEEP         = 0x08;
 
     /* Device Detection */
-    static const uint8_t HBA_PxSSTS_DET   = 0x0F;
+    static const uint8_t HBA_PxSSTS_DET               = 0x0F;
 
     static const uint8_t HBA_PxSSTS_DET_NO_DEVICE     = 0x00;
     static const uint8_t HBA_PxSSTS_DET_NO_PHY        = 0x01;
@@ -418,38 +418,38 @@ private:
     static const uint8_t HBA_CAP_NP                   = 0x0F;
 
     /* Number of Command Slots */
-    static const uint32_t HBA_CAP_NCS                   = (0xF << 8);
+    static const uint32_t HBA_CAP_NCS                 = (0xFu << 8u);
 
     /* Supports AHCI mode only */
-    static const uint32_t HBA_CAP_SAM                   = (1 << 18);
+    static const uint32_t HBA_CAP_SAM                 = (1u << 18u);
 
     /* Supports Staggered Spin-up */
-    static const uint32_t HBA_CAP_SSS                   = (1 << 27);
+    static const uint32_t HBA_CAP_SSS                 = (1u << 27u);
 
     // -- HBA Capabilities Extended -- //
 
     /* BIOS/OS Handoff */
-    static const uint8_t HBA_CAP2_BOH   = (1 << 0);
+    static const uint8_t HBA_CAP2_BOH   = (1u << 0u);
 
     /* NVMHCI Present */
-    static const uint8_t HBA_CAP2_NVMP  = (1 << 1);
+    static const uint8_t HBA_CAP2_NVMP  = (1u << 1u);
 
     /* Automatic Partial to Slumber Transitions */
-    static const uint8_t HBA_CAP2_APST  = (1 << 2);
+    static const uint8_t HBA_CAP2_APST  = (1u << 2u);
 
     /* Supports Device Sleep */
-    static const uint8_t HBA_CAP2_SDS   = (1 << 3);
+    static const uint8_t HBA_CAP2_SDS   = (1u << 3u);
 
     /* Supports Aggressive Device Sleep */
-    static const uint8_t HBA_CAP2_SADM  = (1 << 4);
+    static const uint8_t HBA_CAP2_SADM  = (1u << 4u);
 
     /* DevSleep Entrance from Slumber Only */
-    static const uint8_t HBA_CAP2_DESO  = (1 << 5);
+    static const uint8_t HBA_CAP2_DESO  = (1u << 5u);
 
     // -- Port x Serial ATA Control -- //
 
     /* Device Detection Initialization */
-    static const uint8_t HBA_PxSCTL_DET     = 0x0F;
+    static const uint8_t HBA_PxSCTL_DET                = 0x0F;
 
     static const uint8_t HBA_PxSCTL_DET_NO_DETECTION   = 0x00;
     static const uint8_t HBA_PxSCTL_DET_ESTABLISH_COM  = 0x01;
@@ -461,26 +461,26 @@ private:
     /* Interface Power Management Transitions Allowed */
     static const uint16_t HBA_PxSCTL_IPM    =  0xF00;
 
-    static const uint16_t HBA_PxSCTL_IPM_NO_RESTRICTIONS  = (0 < 8);
-    static const uint16_t HBA_PxSCTL_IPM_NO_PARTIAL       = (1 < 8);
-    static const uint16_t HBA_PxSCTL_IPM_NO_SLUMBER       = (2 < 8);
-    static const uint16_t HBA_PxSCTL_IPM_NO_DEVSLEEP      = (4 < 8);
+    static const uint16_t HBA_PxSCTL_IPM_NO_RESTRICTIONS  = (0u << 8u);
+    static const uint16_t HBA_PxSCTL_IPM_NO_PARTIAL       = (1u << 8u);
+    static const uint16_t HBA_PxSCTL_IPM_NO_SLUMBER       = (2u << 8u);
+    static const uint16_t HBA_PxSCTL_IPM_NO_DEVSLEEP      = (4u << 8u);
 
     // -- Port x Task File Data -- //
 
-    static const uint8_t HBA_PxTFD_STS     = 0xFF;
+    static const uint8_t HBA_PxTFD_STS         = 0xFF;
 
-    static const uint8_t HBA_PxTFD_STS_ERR     = (1 << 0);
-    static const uint8_t HBA_PxTFD_STS_DRQ     = (1 << 3);
-    static const uint8_t HBA_PxTFD_STS_BSY     = (1 << 3);
+    static const uint8_t HBA_PxTFD_STS_ERR     = (1u << 0u);
+    static const uint8_t HBA_PxTFD_STS_DRQ     = (1u << 3u);
+    static const uint8_t HBA_PxTFD_STS_BSY     = (1u << 3u);
 
     static const uint16_t HBA_PxTFD_ERR    = 0xFF00;
 
     // -- Global HBA Control -- //
 
-    static const uint32_t HBA_GHC_HR        = (1 << 0);
+    static const uint32_t HBA_GHC_HR        = (1u << 0u);
 
-    static const uint32_t HBA_GHC_AE        = (1 << 31);
+    static const uint32_t HBA_GHC_AE        = (1u << 31u);
 
     // -- Constants -- //
 
@@ -586,12 +586,15 @@ private:
     /**
      * Sets the HBA into AHCI mode.
      */
-    void enableAhci();
+    bool enableAhci();
 
     /**
      * Resets the HBA.
      */
-    void reset();
+    bool reset();
+
+    TimeService *timeService;
+    static const uint32_t AHCI_TIMEOUT = 100;
 
     HbaPort *sataDevices[MAX_DEVICES];
     HbaPort_Virt *sataDevices_Virt[MAX_DEVICES];
@@ -632,7 +635,7 @@ private:
     * @param buf      the buffer data will be written to.
     * @return true if the operation succeeded, else false.
     */
-    bool read(uint8_t device, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
+    bool read(uint8_t device, uint32_t startl, uint32_t starth, uint16_t count, uint16_t *buf);
 
     /**
      * Writes data to a specified device.
@@ -644,7 +647,7 @@ private:
      * @param buf      the data that should be written.
      * @return true if the operation succeeded, else false.
      */
-    bool write(uint8_t device, uint32_t startl, uint32_t starth, uint32_t count, uint16_t *buf);
+    bool write(uint8_t device, uint32_t startl, uint32_t starth, uint16_t count, uint16_t *buf);
 
     /**
      * Returns the number of devices detected by this AHCI.
@@ -662,7 +665,7 @@ private:
 
     void plugin();
 
-    void trigger();
+    void trigger() override;
 };
 
 #endif
