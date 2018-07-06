@@ -23,6 +23,7 @@
 #include "Array.h"
 #include "ArrayList.h"
 #include "Map.h"
+#include "Pair.h"
 
 #include <cstdint>
 
@@ -45,6 +46,8 @@ namespace Util {
         HashMap() noexcept;
 
         explicit HashMap(uint32_t tableSize) noexcept;
+
+        HashMap(std::initializer_list<Pair<K, V>> list);
 
         HashMap(const HashMap<K, V> &other) = delete;
 
@@ -85,6 +88,15 @@ namespace Util {
     template<class K, class V>
     HashMap<K, V>::HashMap(uint32_t tableSize) noexcept : tableSize(tableSize), count(0) {
 
+    }
+
+    template<class K, class V>
+    HashMap<K, V>::HashMap(std::initializer_list<Pair<K, V>> list) : tableSize(DEFAULT_TABLE_SIZE), count(list.size()) {
+
+        for (auto &pair : list) {
+
+            put(pair.first, pair.second);
+        }
     }
 
     template<class K, class V>
