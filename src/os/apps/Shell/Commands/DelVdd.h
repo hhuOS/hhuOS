@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#ifndef __AddPart_include__
-#define __AddPart_include__
+#ifndef __DelVdd_include__
+#define __DelVdd_include__
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
@@ -25,46 +25,40 @@
 
 /**
  * Implementation of Command.
- * Adds a new partition to a device, or overwrites an existing one.
+ * Creates a new partition on a storage device.
  *
- * -n, --number: The partition number
- * -i, --id: The system id
- * -b, --bootable: Whether or not the partition should be bootable (true/false)
- * -s, --start: The start sector
- * -e, --end: The end sector
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class AddPart : public Command {
+class DelVdd : public Command {
 
 private:
     StorageService *storageService = nullptr;
-    FileSystem *fileSystem = nullptr;
 
 public:
     /**
      * Default-constructor.
      */
-    AddPart() = delete;
+    DelVdd() = delete;
 
     /**
      * Copy-constructor.
      */
-    AddPart(const AddPart &copy) = delete;
+    DelVdd(const DelVdd &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit AddPart(Shell &shell);
+    explicit DelVdd(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~AddPart() override = default;
+    ~DelVdd() override = default;
 
     /**
      * Overriding function from Command.

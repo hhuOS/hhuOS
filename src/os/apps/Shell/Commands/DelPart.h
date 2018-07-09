@@ -39,7 +39,6 @@ private:
     StorageService *storageService = nullptr;
     FileSystem *fileSystem = nullptr;
 
-
 public:
     /**
      * Default-constructor.

@@ -44,6 +44,8 @@
 #include <apps/Shell/Commands/MkPartTable.h>
 #include <apps/Shell/Commands/DelPart.h>
 #include <lib/graphic/Ansi.h>
+#include <apps/Shell/Commands/MkVdd.h>
+#include <apps/Shell/Commands/DelVdd.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -71,6 +73,8 @@ Shell::Shell() : Thread("Shell") {
     commands.put("mkparttable", new MkPartTable(*this));
     commands.put("addpart",  new AddPart(*this));
     commands.put("delpart",  new DelPart(*this));
+    commands.put("mkvdd",  new MkVdd(*this));
+    commands.put("delvdd",  new DelVdd(*this));
     commands.put("mkfs", new Mkfs(*this));
     commands.put("diskinfo", new DiskInfo(*this));
     commands.put("uptime", new Uptime(*this));
