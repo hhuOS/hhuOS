@@ -20,7 +20,7 @@
 #include "kernel/IOport.h"
 #include "kernel/memory/MemLayout.h"
 #include "TextDriver.h"
-#include "lib/Colors.h"
+#include "lib/graphic/Colors.h"
 
 #include <cstdint>
 

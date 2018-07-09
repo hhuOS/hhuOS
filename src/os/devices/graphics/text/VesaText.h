@@ -20,7 +20,7 @@
 #include "TextDriver.h"
 #include "devices/graphics/lfb/VesaGraphics.h"
 #include "kernel/Kernel.h"
-#include "lib/Colors.h"
+#include "lib/graphic/Colors.h"
 #include "devices/graphics/text/fonts/Fonts.h"
 
 #include <cstdint>

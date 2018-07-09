@@ -7,7 +7,7 @@
 
 #include "apps/AntApp/Limits.h"
 #include "lib/Random.h"
-#include "lib/Color.h"
+#include "lib/graphic/Color.h"
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/Kernel.h"
 

@@ -23,7 +23,7 @@
 #include <kernel/threads/Scheduler.h>
 #include "BugDefender.h"
 #include "apps/BugDefender/sprites/heart.cc"
-#include "lib/Colors.h"
+#include "lib/graphic/Colors.h"
 
 #include "lib/libc/sprintf.h"
 

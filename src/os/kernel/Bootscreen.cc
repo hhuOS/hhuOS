@@ -1,4 +1,4 @@
-#include <lib/Colors.h>
+#include <lib/graphic/Colors.h>
 #include <devices/graphics/text/fonts/Fonts.h>
 #include <BuildConfig.h>
 #include "Bootscreen.h"

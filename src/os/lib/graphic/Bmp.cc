@@ -1,7 +1,7 @@
 #include <kernel/services/GraphicsService.h>
 #include "kernel/Kernel.h"
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
-#include "lib/Bmp.h"
+#include "lib/graphic/Bmp.h"
 
 Bmp::Bmp (File* file) {
     uint8_t info[54];

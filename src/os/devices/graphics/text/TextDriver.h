@@ -19,7 +19,7 @@
 
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "lib/OutputStream.h"
-#include "lib/Colors.h"
+#include "lib/graphic/Colors.h"
 #include "lib/util/ArrayList.h"
 
 #include <cstdint>

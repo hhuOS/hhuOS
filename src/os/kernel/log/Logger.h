@@ -67,6 +67,8 @@ private:
 
     static void logMessage(LogLevel level, const String &name, const String &message);
 
+    static const char* getColor(const LogLevel &level);
+
     static String getLevelAsString(LogLevel level);
 
     static constexpr const char* LEVEL_TRACE = "trace";

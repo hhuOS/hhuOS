@@ -43,6 +43,7 @@
 #include <apps/Shell/Commands/AddPart.h>
 #include <apps/Shell/Commands/MkPartTable.h>
 #include <apps/Shell/Commands/DelPart.h>
+#include <lib/graphic/Ansi.h>
 
 Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -269,31 +270,40 @@ void Shell::flush() {
 
     for (uint32_t i = 0; i < StringBuffer::pos; i++) {
 
-        if (strncmp("\\u001b[", &StringBuffer::buffer[i], 7) == 0) {
+        if (StringBuffer::buffer[i] == '\\') {
 
-            i += 7;
+            isEscapeActive = true;
 
-            char color[3] {StringBuffer::buffer[i], StringBuffer::buffer[i + 1], '\0'};
+            currentEscapeCode[escapeCodeIndex++] = StringBuffer::buffer[i];
+
+            continue;
+        }
+
+        if (isEscapeActive && StringBuffer::buffer[i] == Ansi::ESCAPE_END) {
+
+            isEscapeActive = false;
+
+            escapeCodeIndex = 0;
+
+            char color[3] {currentEscapeCode[7], currentEscapeCode[8], '\0'};
 
             uint32_t colorCode = (uint32_t) strtoint(color);
 
-            if (StringBuffer::buffer[i + 2] == ';') {
+            if (currentEscapeCode[9] == ';') {
 
                 bright = true;
-
-                i += 5;
-
-            } else {
-
-                i += 3;
             }
 
             fgColor = getColor(colorCode, bright);
 
-            if (i >= StringBuffer::pos || StringBuffer::buffer[i] == '\0') {
+            continue;
+        }
 
-                break;
-            }
+        if (isEscapeActive) {
+
+            currentEscapeCode[escapeCodeIndex++] = StringBuffer::buffer[i];
+
+            continue;
         }
 
         graphicsService->getTextDriver()->putc(StringBuffer::buffer[i], fgColor, bgColor);

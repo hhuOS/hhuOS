@@ -5,6 +5,7 @@
 #include <devices/Pit.h>
 #include <kernel/debug/GdbServer.h>
 #include <lib/multiboot/Structure.h>
+#include <lib/graphic/Ansi.h>
 #include "Logger.h"
 #include "SerialAppender.h"
 
@@ -85,14 +86,11 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
 
     uint32_t fraction = millis % 1000;
 
-    String tmp = "[" + String::valueOf(seconds, 10) + "."
-                     + String::valueOf(fraction, 10, 3) + "]["
-                     + getLevelAsString(level) + "]["
-                     + name + "] ";
+    String tmp = String::format("[%d.%03d]%s[%s]%s[%s] %s", seconds, fraction,
+            getColor(level), (char*) getLevelAsString(level), Ansi::RESET, (char*) name, (char*) message);
 
-    tmp += message;
 
-    buffer.add(tmp);
+     buffer.add(tmp);
 
     if (logToStdOut) {
 
@@ -192,4 +190,22 @@ void Logger::removeAppender(Appender *appender) {
 void Logger::setConsoleLogging(bool enabled) {
 
     logToStdOut = enabled;
+}
+
+const char *Logger::getColor(const Logger::LogLevel &level) {
+
+    switch (level) {
+        case TRACE:
+            return Ansi::BRIGHT_WHITE;
+        case DEBUG:
+            return Ansi::BRIGHT_GREEN;
+        case INFO:
+            return Ansi::BRIGHT_BLUE;
+        case WARN:
+            return Ansi::BRIGHT_YELLOW;
+        case ERROR:
+            return Ansi::BRIGHT_RED;
+        default:
+            return Ansi::BRIGHT_WHITE;
+    }
 }

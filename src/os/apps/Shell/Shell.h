@@ -62,6 +62,12 @@ private:
 
     char inputBuffer[4096];
 
+    bool isEscapeActive = false;
+
+    char currentEscapeCode[16];
+
+    uint8_t escapeCodeIndex = 0;
+
     Color getColor(uint32_t colorCode, bool bright);
 
     /**

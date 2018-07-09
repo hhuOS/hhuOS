@@ -1,6 +1,6 @@
 #include <kernel/Bios.h>
 #include <kernel/memory/MemLayout.h>
-#include <lib/Color.h>
+#include <lib/graphic/Color.h>
 #include <lib/libc/printf.h>
 #include <kernel/KernelSymbols.h>
 #include "BlueScreen.h"

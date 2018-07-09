@@ -17,7 +17,7 @@
 #ifndef __LinearFrameBuffer_include__
 #define __LinearFrameBuffer_include__
 
-#include "lib/Colors.h"
+#include "lib/graphic/Colors.h"
 #include "devices/graphics/text/fonts/Fonts.h"
 #include "kernel/KernelService.h"
 #include "lib/util/ArrayList.h"
