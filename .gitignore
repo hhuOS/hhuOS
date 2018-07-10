@@ -11,6 +11,7 @@ src/initrd/asciimation/
 src/hdd/mod/
 src/modules/**/build
 src/os/hdd*.img
+src/os/*.dump
 
 # Project files and folders
 cmake-build-debug
