@@ -160,7 +160,7 @@ void Application::showMenu () {
             lfb->placeRect(50, 55, 60, 50, Colors::HHU_LIGHT_GRAY);
 
             for (uint32_t i = 0; i < sizeof(menuOptions) / sizeof(const char *); i++) {
-                lfb->placeString(font, 50, static_cast<uint16_t>(42 + i * menuDistance), menuOptions[i],
+                lfb->placeString(font, 50, static_cast<uint16_t>(38 + i * menuDistance), menuOptions[i],
                                  Colors::HHU_LIGHT_GRAY);
             }
 
@@ -173,7 +173,7 @@ void Application::showMenu () {
             lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
             lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeRect(50, static_cast<uint16_t>(42 + option * menuDistance), 58, menuDistance,
+            lfb->placeRect(50, static_cast<uint16_t>(38 + option * menuDistance), 58, menuDistance,
                            Colors::HHU_BLUE_70);
 
             lfb->show();
@@ -215,26 +215,30 @@ void Application::startSelectedApp() {
             pause();
             break;
         case 3:
-            startMandelbrotDemo();
+            startAntDemo();
             pause();
             break;
         case 4:
-            startMouseApp();
+            startMandelbrotDemo();
             pause();
             break;
         case 5:
-            startLoopSoundDemo();
+            startMouseApp();
             pause();
             break;
         case 6:
-            startHeapDemo();
+            startLoopSoundDemo();
             pause();
             break;
         case 7:
-            startIoMemoryDemo();
+            startHeapDemo();
             pause();
             break;
         case 8:
+            startIoMemoryDemo();
+            pause();
+            break;
+        case 9:
             startExceptionDemo();
             pause();
             break;
