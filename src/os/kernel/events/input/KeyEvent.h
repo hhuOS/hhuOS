@@ -29,6 +29,8 @@ public:
     enum Keys {
         ESCAPE = 0x01,
         RETURN = 28,
+        PLUS = 43,
+        MINUS = 45,
         SPACE = 57,
         UP = 72,
         LEFT = 75,

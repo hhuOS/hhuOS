@@ -20,6 +20,7 @@
 #include <apps/MemoryAreaTests/IOMemoryTestApp.h>
 #include <kernel/threads/WorkerThread.h>
 #include <apps/LoopsAndSound/LoopsAndSound.h>
+#include <apps/Mandelbrot/Mandelbrot.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
@@ -67,6 +68,13 @@ void Application::startLoopSoundDemo() {
 
 void Application::startAntDemo() {
     currentApp = new AntApp();
+
+    currentApp->start();
+}
+
+void Application::startMandelbrotDemo() {
+
+    currentApp = new Mandelbrot();
 
     currentApp->start();
 }
@@ -207,7 +215,7 @@ void Application::startSelectedApp() {
             pause();
             break;
         case 3:
-            startAntDemo();
+            startMandelbrotDemo();
             pause();
             break;
         case 4:

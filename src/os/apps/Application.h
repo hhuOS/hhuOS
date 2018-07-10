@@ -61,6 +61,7 @@ private:
     void startHeapDemo();
     void startExceptionDemo();
     void startAntDemo();
+    void startMandelbrotDemo();
     void startAsciimationDemo();
     void startIoMemoryDemo();
 
