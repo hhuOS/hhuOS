@@ -37,8 +37,10 @@ void MkVdd::execute(Util::Array<String> &args) {
         } else if(args[i] == "-c" || args[i] == "--count") {
             sectorCount = static_cast<uint32_t>(strtoint((const char *) args[++i]));
         } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
-            stdout << "Usage: " << args[0] << " [PATH]" << endl << endl;
+            stdout << "Creates a new virtual disk drive." << endl << endl;
+            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
+            stdout << "  -s, --sectorsize: The size of a sector on the virtual disk (Default: 512 Byte)." << endl;
+            stdout << "  -c, --count: The amount of sectors, that the virtual disk has." << endl;
             stdout << "  -h, --help: Show this help-message." << endl;
             return;
         } else {
@@ -49,6 +51,11 @@ void MkVdd::execute(Util::Array<String> &args) {
 
     if(sectorCount == 0) {
         stderr << args[0] << ": Please specify a valid amount of sectors!" << endl;
+        return;
+    }
+
+    if(sectorSize < 512) {
+        stderr << args[0] << ": Sector size needs to be at least 512 Bytes!" << endl;
         return;
     }
 

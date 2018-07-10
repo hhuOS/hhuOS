@@ -25,8 +25,10 @@
 
 /**
  * Implementation of Command.
- * Creates a new partition on a storage device.
+ * Creates a new virtual disk drive.
  *
+ * -s, --sectorsize: The size of a sector on the virtual disk (Default: 512 Byte)
+ * -c, --count: The amount of sectors, that the virtual disk has
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland

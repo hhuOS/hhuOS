@@ -39,9 +39,9 @@ void DelVdd::execute(Util::Array<String> &args) {
                 return;
             }
         } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
+            stdout << "Removes a virtual disk drive." << endl << endl;
             stdout << "Usage: " << args[0] << " [PATH]" << endl << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
+            stdout << "  -h, --help: Show this help-message" << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
@@ -68,7 +68,7 @@ void DelVdd::execute(Util::Array<String> &args) {
         return;
     }
 
-    // Remove the device and all it's partitions on this device from storage service
+    // Remove the device and all it's partitions from storage service
     Directory &dir = *Directory::open("/dev/storage");
     auto *storageService = Kernel::getService<StorageService>();
 

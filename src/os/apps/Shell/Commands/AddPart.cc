@@ -88,7 +88,7 @@ void AddPart::execute(Util::Array<String> &args) {
             stdout << "  -b, --bootable: Whether or not the partition should be bootable (true/false)" << endl;
             stdout << "  -s, --start: The start sector" << endl;
             stdout << "  -e, --end: The end sector" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
+            stdout << "  -h, --help: Show this help-message" << endl;
             return;
         } else {
             stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
