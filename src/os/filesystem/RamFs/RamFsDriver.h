@@ -40,18 +40,17 @@ private:
     static VirtualNode *getChildByName(VirtualNode *parent, const String &path);
 
 protected:
+
     VirtualNode *rootNode = nullptr;
 
 public:
+
+    FS_DRIVER_IMPLEMENT_CLONE(RamFsDriver);
+
     /**
      * Constructor.
      */
     RamFsDriver() = default;
-
-    /**
-     * Copy-constructor.
-     */
-    RamFsDriver(const RamFsDriver &copy) = delete;
 
     /**
      * Destructor.

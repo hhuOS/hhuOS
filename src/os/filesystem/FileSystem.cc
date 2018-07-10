@@ -104,6 +104,9 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 void FileSystem::init() {
     log.trace("Initializing filesystem");
 
+    FsDriver::registerDriverType("RamFs", new RamFsDriver());
+    FsDriver::registerDriverType("Fat", new FatDriver);
+
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
 
@@ -112,7 +115,7 @@ void FileSystem::init() {
         log.trace("Not root-partition found");
         log.trace("Mounting RamFs to /");
 
-        mount("", "/", "ram");
+        mount("", "/", "ramfs");
     } else {
         log.trace("Found root-partition %s", static_cast<const char*>(rootDevice->getName()));
         log.trace("Mounting %s to /", static_cast<const char*>(rootDevice->getName()));
@@ -121,7 +124,7 @@ void FileSystem::init() {
             log.trace("Unable to mount root-partition");
             log.trace("Mounting RamFs to /");
 
-            mount("", "/", "ram");
+            mount("", "/", "ramfs");
         }
     }
 
@@ -134,7 +137,7 @@ void FileSystem::init() {
     else
         delete dev;
 
-    mount("", "/dev", "ram");
+    mount("", "/dev", "ramfs");
 
     // Create directory for StorageNodes.
     createDirectory("/dev/storage");
@@ -259,16 +262,7 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
     fsLock.acquire();
 
     // Create temporary driver
-    FsDriver *tmpDriver = nullptr;
-
-    if(fsType == TYPE_FAT)
-        tmpDriver = new FatDriver();
-    else if(fsType == TYPE_RAM)
-        tmpDriver = new RamFsDriver();
-    else {
-        fsLock.release();
-        return INVALID_DRIVER;
-    }
+    FsDriver *tmpDriver = FsDriver::createInstance(fsType);
 
     // Format device
     bool ret = tmpDriver->createFs(disk);
@@ -279,11 +273,11 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
     return ret ? SUCCESS : FORMATTING_FAILED;
 }
 
-uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, const String &type) {
+uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, const String &fsType) {
     StorageDevice *disk = nullptr;
     String parsedDevicePath = parsePath(devicePath);
 
-    if(type != TYPE_RAM) {
+    if(fsType != TYPE_RAM_FS) {
         // Check if device-node exists
         FsNode *deviceNode = getNode(parsedDevicePath);
 
@@ -320,16 +314,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
         return MOUNT_TARGET_ALREADY_USED;
     }
 
-    FsDriver *driver = nullptr;
-
-    if(type == TYPE_FAT) {
-        driver = new FatDriver();
-    } else if(type == TYPE_RAM) {
-        driver = new RamFsDriver();
-    } else {
-        fsLock.release();
-        return INVALID_DRIVER;
-    }
+    FsDriver *driver = FsDriver::createInstance(fsType);
 
     if(!driver->mount(disk)) {
         fsLock.release();

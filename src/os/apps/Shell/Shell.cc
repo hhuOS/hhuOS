@@ -104,7 +104,7 @@ void Shell::run() {
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m/\\u001b[32;1m]$\\u001b[0m  ";
+    *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m/\\u001b[32;1m]$\\u001b[0m ";
     this->flush();
 
     eventBus->subscribe(*this, KeyEvent::TYPE);

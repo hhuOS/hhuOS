@@ -62,7 +62,7 @@ void Mount::execute(Util::Array<String> &args) {
         return;
     }
 
-    if(type == FileSystem::TYPE_RAM) {
+    if(type == FileSystem::TYPE_RAM_FS) {
         targetPath = devicePath;
     }
 

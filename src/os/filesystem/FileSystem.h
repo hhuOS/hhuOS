@@ -127,11 +127,11 @@ public:
      *
      * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
      * @param targetPath The mount-path
-     * @param type The filesystem-type
+     * @param fsType The filesystem-type
      *
      * @return Return code
      */
-    uint32_t mount(const String &devicePath, const String &targetPath, const String &type);
+    uint32_t mount(const String &devicePath, const String &targetPath, const String &fsType);
 
     /**
      * Unmounts a device from a specified location.
@@ -195,9 +195,7 @@ public:
 
     static constexpr const char *SEPARATOR = "/";
 
-    static constexpr const char *TYPE_FAT = "fat";
-
-    static constexpr const char *TYPE_RAM = "ram";
+    static constexpr const char *TYPE_RAM_FS = "ramfs";
 };
 
 #endif

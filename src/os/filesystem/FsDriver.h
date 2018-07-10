@@ -17,7 +17,11 @@
 #ifndef __FsDriver_include__
 #define __FsDriver_include__
 
+#define FS_DRIVER_IMPLEMENT_CLONE(TYPE) \
+   FsDriver *clone() const { return new TYPE(*this); }
+
 #include "FsNode.h"
+#include <lib/util/HashMap.h>
 #include "devices/block/storage/StorageDevice.h"
 
 /**
@@ -25,19 +29,52 @@
  * Every filesystem-driver needs to implement implement the functions,
  * that are specified by this class. The FileSystem-class can then communicate
  * with the respective driver.
+ *
+ * Implementation of the prototype pattern is based on
+ * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
  */
 class FsDriver {
+
+private:
+
+    /**
+     * Contains prototypes for all available filesystem drivers.
+     */
+    static Util::HashMap<String, FsDriver*> prototypeTable;
+
+public:
+
+    /**
+     * Create a copy of this instance.
+     *
+     * @return A pointer to the copy
+     */
+    virtual FsDriver *clone() const = 0;
+
+    /**
+     * Create a new instance of a given subtype of FsDriver.
+     * Throws an exception, if the type is unknown.
+     *
+     * @param type The type
+     *
+     * @return A pointer to newly created instance
+     */
+    static FsDriver *createInstance(String type);
+
+    /**
+     * Add a new type of FsDriver.
+     * Instance of this type can then be create by calling 'FsDriver::createInstance(type)'.
+     *
+     * @param type The type
+     * @param driver Instance, that will be used as a prototype for further instances
+     */
+    static void registerDriverType(String type, FsDriver *driver);
 
 public:
     /**
      * Constructor.
      */
     FsDriver() = default;
-
-    /**
-     * Copy-constructor.
-     */
-    FsDriver(const FsDriver  &copy) = delete;
 
     /**
      * Destructor.

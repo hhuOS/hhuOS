@@ -119,7 +119,8 @@ public:
         ILLEGAL_STATE                       = 0xCC,
         OUT_OF_PHYS_MEMORY                  = 0xCD,
         OUT_OF_PAGE_MEMORY                  = 0xCE,
-		ILLEGEAL_PAGE_ACCESS				= 0xCF
+		ILLEGEAL_PAGE_ACCESS				= 0xCF,
+		UNKNOWN_DRIVER                      = 0xD0
     };
 
     /**

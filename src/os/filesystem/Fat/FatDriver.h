@@ -31,18 +31,16 @@ class FatDriver : public FsDriver {
     
 private:
     FatFs *fatInstance = nullptr;
-    StorageDevice *device;
+    StorageDevice *device = nullptr;
 
 public:
+
+    FS_DRIVER_IMPLEMENT_CLONE(FatDriver);
+
     /**
      * Constructor.
      */
     FatDriver() = default;
-
-    /**
-     * Copy-constructor.
-     */
-    FatDriver(const FatDriver  &copy) = delete;
 
     /**
      * Destructor.
