@@ -31,7 +31,7 @@ void Mandelbrot::run() {
             continue;
         }
 
-        shouldDraw = false;z
+        shouldDraw = false;
 
         if (currentZoom < 1.0F) {
 
