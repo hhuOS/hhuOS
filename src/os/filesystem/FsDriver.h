@@ -26,7 +26,7 @@
 
 /**
  * An interface between the FileSystem-class and a filesystem-driver.
- * Every filesystem-driver needs to implement implement the functions,
+ * Every filesystem-driver needs to implement the functions,
  * that are specified by this class. The FileSystem-class can then communicate
  * with the respective driver.
  *

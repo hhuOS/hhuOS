@@ -119,7 +119,7 @@ void Shell::run() {
 
         delete input;
 
-        *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\\u001b[32;1m]$\\u001b[0m  ";
+        *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\\u001b[32;1m]$\\u001b[0m ";
         this->flush();
     }
 
@@ -291,7 +291,7 @@ void Shell::flush() {
 
             char color[3] {currentEscapeCode[7], currentEscapeCode[8], '\0'};
 
-            uint32_t colorCode = (uint32_t) strtoint(color);
+            auto colorCode = static_cast<uint32_t>(strtoint(color));
 
             if (currentEscapeCode[9] == ';') {
 
