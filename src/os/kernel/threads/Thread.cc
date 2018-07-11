@@ -111,7 +111,14 @@ Thread::Stack::Stack(uint32_t size) : size(size){
 
 uint8_t *Thread::Stack::getStart() {
 
-    return &stack[size];
+    uint32_t startAddress = (uint32_t) &stack[size];
+
+    if (startAddress % 16 != 0) {
+
+        startAddress &= -16;
+    }
+
+    return (uint8_t*) startAddress;
 }
 
 Thread::Stack::~Stack() {

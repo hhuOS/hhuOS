@@ -41,7 +41,7 @@ CXX = g++
 # C Compiler settings                       #
 #-------------------------------------------#
 CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
-					-ffreestanding -mno-sse -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
+					-ffreestanding -msse2 -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
 
 #-------------------------------------------#
 # C++ Compiler settings                     #
@@ -235,14 +235,15 @@ qemu-gdb-bootloader: $(OBJDIR)/hhuOS.iso modules hdd0.img
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break on_paging_enabled" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
-	$(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)
+	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
 kvm-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img
-	$(VERBOSE) echo "break main" > /tmp/gdbcommands.$(shell id -u)
+	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
+	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
-	$(KVM_BIN) -s -S $(QEMU_DEFAULT_PARAMS)
+	($(KVM_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
 gdb:
 	gdb -x /tmp/gdbcommands.$(shell id -u) $(OBJDIR)/system

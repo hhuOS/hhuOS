@@ -14,6 +14,7 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 global isCpuIdSupported
+global getCpuFeatures
 
 section .text
 
@@ -36,3 +37,19 @@ isCpuIdSupported:
     pop ebp
 
     ret
+
+getCpuFeatures:
+
+    push ebp
+    mov ebp, esp
+
+    mov eax, 0x00000001
+    cpuid
+    mov eax, edx
+
+    mov esp, ebp
+    pop ebp
+
+    ret
+
+

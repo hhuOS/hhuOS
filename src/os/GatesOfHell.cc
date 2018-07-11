@@ -45,12 +45,21 @@ uint16_t GatesOfHell::yres = 0;
 
 uint8_t GatesOfHell::bpp = 0;
 
+float abcde = 1.214214124214F;
+
 int32_t main() {
 
     return GatesOfHell::enter();
 }
 
 int32_t GatesOfHell::enter() {
+
+    if (CpuId::getFeatures() & CpuId::FEATURE_SSE2 == 0) {
+
+        log.error("CPU does not support SSE2 instruction set. Halting!");
+
+        Cpu::halt();
+    }
 
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);

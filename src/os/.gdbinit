@@ -1580,7 +1580,7 @@ symbol-file build/system
 set remotetimeout 120
 set serial baud 115200
 #set debug remote 1
-target remote localhost:8821
+target remote localhost:1234
 
 # Start ------------------------------------------------------------------------
 

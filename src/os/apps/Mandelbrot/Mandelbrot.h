@@ -3,6 +3,7 @@
 
 #include <kernel/events/Receiver.h>
 #include <cstdint>
+#include <kernel/log/Logger.h>
 #include "kernel/threads/Thread.h"
 
 #include "apps/AntApp/Limits.h"
@@ -32,21 +33,37 @@ public:
 
 private:
 
+    Logger &log;
+
     Color colorAt(uint32_t x, uint32_t y, double offsetX, double offsetY, double zoom);
 
     LinearFrameBuffer *lfb = nullptr;
 
+    static constexpr const double START_REAL = 0.0;
+
+    static constexpr const double START_IMAGINARY = 0.0;
+
     static const uint32_t MAX_VALUE = 255;
 
-    double currentOffsetX = 0.0;
+    static const uint32_t MAX_COLORS = 5;
 
-    double currentOffsetY = 0.0;
+    static Color colors[MAX_COLORS];
 
-    double currentZoom = 1.0;
+    double realBase = 0.0;
+
+    double imaginaryBase = 0.0;
+
+    double currentOffsetX = -0.74560698146851179;
+
+    double currentOffsetY = -0.12078252355012835;
+
+    double currentZoom = 74.061564435308497;
 
     bool shouldDraw = true;
 
     bool isRunning = true;
+
+    void mandel();
 };
 
 #endif

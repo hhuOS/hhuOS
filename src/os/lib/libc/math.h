@@ -18,6 +18,15 @@
 #define __math_include__
 
 /**
+ * Calculates the absolute value of a given number.
+ *
+ * @param x The number, whose absolute value shall be calculated.
+ *
+ * @return The absolute value of x.
+ */
+extern double abs(double x);
+
+/**
  * Calculates the square root of a given number.
  *
  * @param x The number, whose square root shall be calculated.

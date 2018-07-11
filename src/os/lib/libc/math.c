@@ -25,6 +25,10 @@
 #define M_E 2.71828182845904523536
 #endif
 
+double abs(double x) {
+    return x < 0 ? -x : x;
+}
+
 double sqrt(double x) {
     if(x < 0) {
         errno = EDOM;

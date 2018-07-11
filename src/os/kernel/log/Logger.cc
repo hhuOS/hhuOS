@@ -90,7 +90,7 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
             getColor(level), (char*) getLevelAsString(level), Ansi::RESET, (char*) name, (char*) message);
 
 
-     buffer.add(tmp);
+    buffer.add(tmp);
 
     if (logToStdOut) {
 
