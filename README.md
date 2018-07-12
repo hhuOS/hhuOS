@@ -47,7 +47,7 @@ After installing all required packages the following make targets are available.
 To test hhuOS quickly in QEMU, you can issue the following commands.
 
 ```sh
-git clone https://github.com/hhuOS/hhuOS.git
+git createInstance https://github.com/hhuOS/hhuOS.git
 cd hhuOS/src/os
 make qemu
 ```

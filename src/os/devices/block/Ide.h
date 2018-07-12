@@ -19,6 +19,8 @@
 #define __Ide_include__
 
 #include <cstdint>
+#include <devices/Pci.h>
+#include <devices/PciDeviceDriver.h>
 
 #define IDE_MAX_DEVICES 4
 
@@ -27,7 +29,7 @@
  *
  * @author Filip Krakowski
  */
-class Ide {
+class Ide : public PciDeviceDriver {
 
     private:
 
@@ -162,7 +164,21 @@ class Ide {
 
         Ide();
 
-        void setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3, uint32_t BAR4);
+    PCI_DEVICE_DRIVER_IMPLEMENT_CREATE_INSTANCE(Ide);
+
+    uint8_t getBaseClass() const override {
+            return Pci::CLASS_MASS_STORAGE_DEVICE;
+    }
+
+    uint8_t getSubClass() const override {
+            return Pci::SUBCLASS_SERIAL_ATA;
+    }
+
+    PciDeviceDriver::SetupMethod getSetupMethod() const override {
+            return PciDeviceDriver::BY_CLASS;
+    }
+
+    void setup(const Pci::Device &dev) override;
 };
 
 #endif

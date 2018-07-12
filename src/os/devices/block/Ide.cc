@@ -44,8 +44,13 @@ uint16_t inw(uint16_t ioPort) {
 
 Ide::Ide() {}
 
-void Ide::setup(uint32_t BAR0, uint32_t BAR1, uint32_t BAR2, uint32_t BAR3,
-                uint32_t BAR4) {
+void Ide::setup(const Pci::Device &dev) {
+
+    uint32_t BAR0 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR0);
+    uint32_t BAR1 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR1);
+    uint32_t BAR2 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR2);
+    uint32_t BAR3 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR3);
+    uint32_t BAR4 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR4);
 
     log.trace("Setting up IDE driver");
     log.trace("BAR0=%x   BAR1=%x   BAR2=%x   BAR4=%x   BAR5=%x", BAR0, BAR1,

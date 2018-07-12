@@ -27,6 +27,8 @@ private:
 
     static void initializeSerialPorts();
 
+    static void initializePciDrivers();
+
     static void loadInitrd();
 
     static Logger &log;

@@ -17,8 +17,7 @@
 #ifndef __FsDriver_include__
 #define __FsDriver_include__
 
-#define FS_DRIVER_IMPLEMENT_CLONE(TYPE) \
-   FsDriver *clone() const { return new TYPE(*this); }
+#define FS_DRIVER_IMPLEMENT_CLONE(TYPE) FsDriver *clone() const override { return new TYPE(*this); }
 
 #include "FsNode.h"
 #include <lib/util/HashMap.h>

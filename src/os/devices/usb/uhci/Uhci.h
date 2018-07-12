@@ -26,11 +26,12 @@
 #include <cstdint>
 #include <devices/Pci.h>
 #include <kernel/log/Logger.h>
+#include <devices/PciDeviceDriver.h>
 
 /**
  * @author Filip Krakowski
  */
-class Uhci : public InterruptHandler {
+class Uhci : public InterruptHandler, public PciDeviceDriver {
 
     struct FrameList {
         uint32_t  entries[1024];
@@ -110,11 +111,25 @@ public:
     
     Uhci();
 
+    PCI_DEVICE_DRIVER_IMPLEMENT_CREATE_INSTANCE(Uhci);
+
+    uint8_t getBaseClass() const override {
+        return Pci::CLASS_SERIAL_BUS_DEVICE;
+    }
+
+    uint8_t getSubClass() const override {
+        return Pci::SUBCLASS_USB;
+    }
+
+    PciDeviceDriver::SetupMethod getSetupMethod() const override {
+        return PciDeviceDriver::BY_CLASS;
+    }
+
+    void setup(const Pci::Device &dev) override;
+
     void plugin();
 
     void trigger();
-
-    void setup(const Pci::Device &dev);
 
     /* IO Register Offsets */
     const static uint8_t    IO_OFFSET_USBCMD            = 0x00;

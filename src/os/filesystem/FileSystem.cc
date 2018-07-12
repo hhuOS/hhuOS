@@ -112,7 +112,7 @@ void FileSystem::init() {
 
     if(rootDevice == nullptr) {
         // No root-device found -> Mount RAM-Device
-        log.trace("Not root-partition found");
+        log.trace("No root-partition found");
         log.trace("Mounting RamFs to /");
 
         mount("", "/", "ramfs");

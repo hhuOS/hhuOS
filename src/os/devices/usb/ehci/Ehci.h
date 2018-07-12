@@ -33,6 +33,7 @@
 #include "kernel/log/Logger.h"
 
 #include <cstdint>
+#include <devices/PciDeviceDriver.h>
 
 #define DEBUG_BIOS_QH 0
 #define ALLOW_USB_EXCHANGE 0
@@ -40,7 +41,7 @@
 /**
  * @author Filip Krakowski
  */
-class Ehci : public InterruptHandler, public KernelService, public Receiver {
+class Ehci : public InterruptHandler, public PciDeviceDriver, public KernelService, public Receiver {
 
     typedef struct tagFR_LIST {
         uint32_t  entries[1024];
@@ -106,12 +107,21 @@ public:
 
     Ehci();
 
-    /**
-     * Sets up this host controller.
-     *
-     * @param dev the PciDevice representing this host controller
-     */
-    void setup(const Pci::Device &dev);
+    PCI_DEVICE_DRIVER_IMPLEMENT_CREATE_INSTANCE(Ehci);
+
+    uint8_t getBaseClass() const override {
+        return Pci::CLASS_SERIAL_BUS_DEVICE;
+    }
+
+    uint8_t getSubClass() const override {
+        return Pci::SUBCLASS_USB;
+    }
+
+    PciDeviceDriver::SetupMethod getSetupMethod() const override {
+        return PciDeviceDriver::BY_CLASS;
+    }
+
+    void setup(const Pci::Device &dev) override;
 
     void plugin();
 

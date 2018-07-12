@@ -21,6 +21,7 @@
 #include "devices/Pci.h"
 
 #include "kernel/memory/manager/IOMemoryManager.h"
+#include "PciDeviceDriver.h"
 
 Logger &Pci::log = Logger::get("PCI");
 
@@ -223,7 +224,6 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     uint8_t baseClass = getClassId(bus, device, function);
     uint8_t subClass = getSubclassId(bus, device, function);
-    uint8_t progIf = getProgrammingInterface(bus, device, function);
 
     if ( (baseClass == CLASS_BRIDGE_DEVICE) && (subClass == SUBCLASS_PCI_TO_PCI) ) {
          log.trace("Found PCI-to-PCI Bridge on bus %d", bus);
@@ -235,62 +235,7 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     log.trace("Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
 
-    if ( baseClass == CLASS_SERIAL_BUS_DEVICE && subClass == SUBCLASS_USB) {
-        switch (progIf) {
-            case PROGIF_UHCI:
-                log.trace("  -> UHCI");
-#if PCI_UHCI_ENABLED
-                uhci.setup(dev);
-#endif
-                break;
-            case PROGIF_EHCI:
-                log.trace("  -> EHCI");
-#if PCI_EHCI_ENABLED
-                ehci.setup(dev);
-#endif
-                break;
-        }
-    }
-
-    if ( (baseClass == CLASS_MASS_STORAGE_DEVICE) && (subClass == SUBCLASS_SERIAL_ATA) ) {
-        log.trace("  -> AHCI");
-
-#if PCI_AHCI_ENABLED
-
-        Ahci *ahci = new Ahci();
-
-        ahci->setup(dev);
-
-        uint8_t numDevices = ahci->getNumDevices();
-
-        for (uint8_t i = 0; i < numDevices; i++) {
-
-            StorageDevice *storageDevice = new AhciDevice(*ahci, i, "hdd" + String::valueOf(ahciCount, 10));
-
-            storageService->registerDevice(storageDevice);
-
-            ahciCount++;
-        }
-#endif
-    }
-
-    if ( (baseClass == CLASS_MASS_STORAGE_DEVICE) && (subClass == SUBCLASS_IDE) ) {
-        log.trace("  -> IDE Controller");
-
-#if PCI_IDE_ENABLED
-        enableBusMaster(bus, device, function);
-
-        ide.setup(
-            readDoubleWord(bus, device, function, PCI_HEADER_BAR0),
-            readDoubleWord(bus, device, function, PCI_HEADER_BAR1),
-            readDoubleWord(bus, device, function, PCI_HEADER_BAR2),
-            readDoubleWord(bus, device, function, PCI_HEADER_BAR3),
-            readDoubleWord(bus, device, function, PCI_HEADER_BAR4)
-        );
-#endif
-    }
-
-    registerDevice(dev);
+    pciDevices.add(dev);
 }
 
 void Pci::checkDevice(uint8_t bus, uint8_t device) {
@@ -307,11 +252,6 @@ void Pci::checkDevice(uint8_t bus, uint8_t device) {
             }
         }
     }
-}
-
-void Pci::registerDevice(const Device &device) {
-
-    pciDevices.add(device);
 }
 
 void Pci::scanBus(uint8_t bus) {
@@ -360,6 +300,20 @@ void Pci::printRegisters(const Device &device) {
 
 Util::ArrayList<Pci::Device>& Pci::getDevices() {
     return pciDevices;
+}
+
+void Pci::setupDeviceDriver(PciDeviceDriver &driver) {
+    for(Device device : pciDevices) {
+        if(driver.getSetupMethod() == PciDeviceDriver::BY_CLASS) {
+            if(device.baseClass == driver.getBaseClass() && device.subClass == driver.getSubClass()) {
+                driver.createInstance()->setup(device);
+            }
+        } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
+            if (device.vendorId == driver.getVendorId() && device.deviceId == driver.getDeviceId()) {
+                driver.createInstance()->setup(device);
+            }
+        }
+    }
 }
 
 bool Pci::Device::operator!=(const Pci::Device &other) {

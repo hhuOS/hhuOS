@@ -17,11 +17,13 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
+#include <devices/block/storage/AhciDevice.h>
 #include "devices/block/Ahci.h"
 
 #include "../../kernel/memory/SystemManagement.h"
 
 Logger &Ahci::log = Logger::get("AHCI");
+uint32_t Ahci::deviceCount = 0;
 
 Ahci::Ahci() {
     timeService = Kernel::getService<TimeService>();
@@ -96,6 +98,17 @@ void Ahci::setup(const Pci::Device &dev) {
     startAll();
 
     abar->is = abar->is; // @suppress("Assignment to itself")
+
+    auto *storageService = Kernel::getService<StorageService>();
+
+    for (uint8_t i = 0; i < numDevices; i++) {
+
+        StorageDevice *storageDevice = new AhciDevice(*this, i, "hdd" + String::valueOf(deviceCount, 10));
+
+        storageService->registerDevice(storageDevice);
+
+        deviceCount++;
+    }
 }
 
 void Ahci::readConfig() {

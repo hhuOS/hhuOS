@@ -15,7 +15,7 @@ public:
 
     InterruptHandler() = default;
 
-    InterruptHandler(const InterruptHandler &copy) = delete;
+    InterruptHandler(const InterruptHandler &copy) = default;
 
     InterruptHandler &operator=(const InterruptHandler &copy) = delete;
        

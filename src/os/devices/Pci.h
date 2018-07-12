@@ -18,11 +18,6 @@
 #ifndef __PCI_include__
 #define __PCI_include__
 
-#define PCI_UHCI_ENABLED 0
-#define PCI_EHCI_ENABLED 0
-#define PCI_AHCI_ENABLED 1
-#define PCI_IDE_ENABLED  0
-
 #include "kernel/IOport.h"
 
 #include <cstdint>
@@ -30,6 +25,8 @@
 #include <lib/util/ArrayList.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/log/Logger.h>
+
+class PciDeviceDriver;
 
 /**
  * Peripheral Component Interconnect driver.
@@ -63,6 +60,8 @@ public:
     };
 
     static Util::ArrayList<Pci::Device> &getDevices();
+
+    static void setupDeviceDriver(PciDeviceDriver &driver);
 
     static uint32_t  readDoubleWord(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 
@@ -244,8 +243,6 @@ private:
     static void        checkDevice(uint8_t bus, uint8_t device);
 
     static void        scanBus(uint8_t bus);
-
-    static void        registerDevice(const Device &device);
 
     static Pci::Device      readDevice(uint8_t bus, uint8_t device, uint8_t function);
 };

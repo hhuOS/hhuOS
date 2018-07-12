@@ -21,6 +21,9 @@
 #include <devices/graphics/lfb/CgaGraphics.h>
 #include <lib/file/tar/Archive.h>
 #include <kernel/log/StdOutAppender.h>
+#include <devices/block/Ahci.h>
+#include <devices/usb/uhci/Uhci.h>
+#include <devices/block/Ide.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -94,6 +97,8 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->update(0, "Initializing PCI Devices");
     Pci::scan();
+
+    initializePciDrivers();
 
     bootscreen->update(33, "Initializing Filesystem");
     auto *fs = Kernel::getService<FileSystem>();
@@ -214,6 +219,11 @@ void GatesOfHell::initializeSerialPorts() {
     if(serialService->isPortAvailable(Serial::COM4)) {
         serialService->getSerialPort(Serial::COM4)->plugin();
     }
+}
+
+void GatesOfHell::initializePciDrivers() {
+    Ahci ahci;
+    Pci::setupDeviceDriver(ahci);
 }
 
 void GatesOfHell::loadInitrd() {

@@ -25,6 +25,7 @@
 #include <kernel/services/DebugService.h>
 #include <devices/block/storage/StorageDevice.h>
 #include <lib/libc/printf.h>
+#include <devices/PciDeviceDriver.h>
 #include "kernel/log/Logger.h"
 
 #define MAX_DEVICES 8
@@ -34,11 +35,13 @@
  *
  * @author Filip Krakowski
  */
-class Ahci : public InterruptHandler {
+class Ahci : public InterruptHandler, public PciDeviceDriver {
 
 private:
 
     static Logger &log;
+
+    static uint32_t deviceCount;
 
     typedef enum {
         FIS_TYPE_REG_H2D	= 0x27,	// Register FIS - host to device
@@ -306,8 +309,6 @@ private:
     } HbaCmdTbl;
 
   private:
-
-    Ahci(const Ahci &copy); // Verhindere Kopieren
 
 	static const uint32_t SATA_SIG_ATA              = 0x00000101;       // SATA drive
     static const uint32_t SATA_SIG_ATAPI            = 0xEB140101;       // SATAPI drive
@@ -619,11 +620,25 @@ private:
         uint64_t sectorCount;
     };
 
-    HbaMem* abar = 0x0;
+    HbaMem* abar = nullptr;
 
     Ahci();
 
-    void setup(const Pci::Device &dev);
+    PCI_DEVICE_DRIVER_IMPLEMENT_CREATE_INSTANCE(Ahci);
+
+    uint8_t getBaseClass() const override {
+        return Pci::CLASS_MASS_STORAGE_DEVICE;
+    }
+
+    uint8_t getSubClass() const override {
+        return Pci::SUBCLASS_SERIAL_ATA;
+    }
+
+    PciDeviceDriver::SetupMethod getSetupMethod() const override {
+        return PciDeviceDriver::BY_CLASS;
+    }
+
+    void setup(const Pci::Device &dev) override;
 
     /**
     * Reads data from a specified device.
