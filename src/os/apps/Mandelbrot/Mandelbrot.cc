@@ -8,7 +8,7 @@
 #include <xmmintrin.h>
 
 Color Mandelbrot::colors[MAX_COLORS] {
-        Color(77, 157, 224),
+        Color(0, 0, 0),
         Color(255, 85, 84),
         Color(255, 188, 41),
         Color(59, 178, 115),
@@ -35,8 +35,6 @@ __attribute__((force_align_arg_pointer)) void drawMandelbrot() {
     Mandelbrot::state.one = _mm_set_ps1(1);
     Mandelbrot::state.iter_scale = _mm_set_ps1(1.0F / Mandelbrot::properties.iterations);
     Mandelbrot::state.depth_scale = _mm_set_ps1(Mandelbrot::properties.depth - 1);
-
-    Mandelbrot::state.depth_scale = _mm_mul_ps(Mandelbrot::state.xmin, Mandelbrot::state.ymin);
 
     for (uint32_t y = 0; y < Mandelbrot::properties.height; y++) {
 
@@ -77,11 +75,13 @@ __attribute__((force_align_arg_pointer)) void drawMandelbrot() {
             Mandelbrot::state.mk = _mm_mul_ps(Mandelbrot::state.mk, Mandelbrot::state.depth_scale);
             Mandelbrot::state.pixels = _mm_cvtps_epi32(Mandelbrot::state.mk);
 
-            unsigned char *src = (unsigned char *)&Mandelbrot::state.pixels;
+            uint32_t *src = (uint32_t*) &Mandelbrot::state.pixels;
 
             for (int i = 0; i < 4; i++) {
 
-                Mandelbrot::lfb->drawPixel(x + i, y, Mandelbrot::colors[src[i * 4] % Mandelbrot::MAX_COLORS]);
+                uint32_t base = src[i * 4];
+
+                Mandelbrot::lfb->drawPixel(x + i, y, Mandelbrot::colors[base & Mandelbrot::MAX_COLORS]);
             }
         }
     }
@@ -95,6 +95,8 @@ void Mandelbrot::run() {
 
     lfb->init(640, 480, 16);
 
+    lfb->enableDoubleBuffering();
+
     lfb->drawPixel(0, 0, Colors::WHITE);
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
@@ -107,39 +109,28 @@ void Mandelbrot::run() {
 
     imaginaryBase = 4.0 / yRes;
 
-    log.trace("Draw start");
+    while (isRunning) {
 
-    drawMandelbrot();
+        if (!shouldDraw) {
 
-    log.trace("Draw end");
+            continue;
+        }
 
-    while(isRunning);
+        shouldDraw = false;
 
-//
-//    while (isRunning) {
-//
-//        if (!shouldDraw) {
-//
-//            continue;
-//        }
-//
-//        shouldDraw = false;
-//
-//        if (currentZoom < 1.0F) {
-//
-//            currentZoom = 1.0F;
-//        }
-//
-//        for (uint16_t y = 0; y < yRes; y++) {
-//
-//            for (uint16_t x = 0; x < xRes; x++) {
-//
-//                lfb->drawPixel(x, y, colorAt(x, y, currentOffsetX, currentOffsetY, currentZoom * currentZoom));
-//            }
-//        }
-//
-//        lfb->show();
-//    }
+        if (currentZoom < 1.0F) {
+
+            currentZoom = 1.0F;
+        }
+
+        log.trace("Draw start");
+
+        drawMandelbrot();
+
+        log.trace("Draw end");
+
+        lfb->show();
+    }
 
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
 
@@ -173,14 +164,16 @@ void Mandelbrot::onEvent(const Event &event) {
         return;
     }
 
+    bool hasChanged = false;
+
     switch (keyEvent.getKey().ascii()) {
         case '-':
-            shouldDraw = true;
             currentZoom -= currentZoom / 8;
+            hasChanged = true;
             break;
         case '+':
-            shouldDraw = true;
             currentZoom += currentZoom / 8;
+            hasChanged = true;
             break;
         default:
             break;
@@ -188,20 +181,20 @@ void Mandelbrot::onEvent(const Event &event) {
 
     switch (keyEvent.getKey().scancode()) {
         case KeyEvent::UP:
-            shouldDraw = true;
-            currentOffsetY -= 0.1F / (currentZoom * currentZoom);
+            currentOffsetY -= 1 / currentZoom;
+            hasChanged = true;
             break;
         case KeyEvent::DOWN:
-            shouldDraw = true;
-            currentOffsetY += 0.1F / (currentZoom * currentZoom);
+            currentOffsetY += 1 / currentZoom;
+            hasChanged = true;
             break;
         case KeyEvent::LEFT:
-            shouldDraw = true;
-            currentOffsetX -= 0.1F / (currentZoom * currentZoom);
+            currentOffsetX -= 1 / currentZoom;
+            hasChanged = true;
             break;
         case KeyEvent::RIGHT:
-            shouldDraw = true;
-            currentOffsetX += 0.1F / (currentZoom * currentZoom);
+            currentOffsetX += 1 / currentZoom;
+            hasChanged = true;
             break;
         case KeyEvent::ESCAPE:
             isRunning = false;
@@ -210,4 +203,17 @@ void Mandelbrot::onEvent(const Event &event) {
             break;
     }
 
+    if (hasChanged) {
+
+        properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
+        properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
+        properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
+        properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
+        properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
+        properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
+        properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
+        properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
+
+        shouldDraw = true;
+    }
 }

@@ -47,8 +47,8 @@ class Mandelbrot : public Thread, public Receiver {
         uint32_t height = 480;
         uint32_t depth = 256;
         uint32_t iterations = 256;
-        float xlim[2] = {-2.1, 0.6F};
-        float ylim[2] = {-1.35F, 1.35F};
+        float xlim[2] = {-2.0F, 1.0F};
+        float ylim[2] = {-1.325F, 1.325F};
     } __attribute__ ((aligned (16)));
 
 public:
@@ -83,15 +83,23 @@ private:
 
     Color colorAt(uint32_t x, uint32_t y, double offsetX, double offsetY, double zoom);
 
+    static constexpr const float X0_BASE = -2.0F;
+
+    static constexpr const float X1_BASE = 1.0F;
+
+    static constexpr const float Y0_BASE = -1.325F;
+
+    static constexpr const float Y1_BASE = 1.325F;
+
     double realBase = 0.0;
 
     double imaginaryBase = 0.0;
 
-    double currentOffsetX = -0.74560698146851179;
+    double currentOffsetX = 0.0;
 
-    double currentOffsetY = -0.12078252355012835;
+    double currentOffsetY = 0.0;
 
-    double currentZoom = 74.061564435308497;
+    double currentZoom = 1.0;
 
     bool shouldDraw = true;
 
