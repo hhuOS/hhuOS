@@ -1,7 +1,3 @@
-//
-// Created by fabian on 13.07.18.
-//
-
 #include "ColorGradient.h"
 #include "Colors.h"
 
@@ -18,8 +14,8 @@ ColorGradient::~ColorGradient() {
 }
 
 Color ColorGradient::calculateColor(double value) {
-    uint32_t h = static_cast<uint32_t>(value * 256 * 6);
-    uint8_t x = static_cast<uint8_t>(h % 256);
+    auto h = static_cast<uint32_t>(value * 256 * 6);
+    auto x = static_cast<uint8_t>(h % 256);
 
     uint8_t r = 0;
     uint8_t g = 0;
@@ -32,7 +28,7 @@ Color ColorGradient::calculateColor(double value) {
             break;
         case 1:
             g = 255;
-            r = 255 - x;
+            r = static_cast<uint8_t>(255 - x);
             break;
         case 2:
             g = 255;
@@ -40,7 +36,7 @@ Color ColorGradient::calculateColor(double value) {
             break;
         case 3:
             b = 255;
-            g = 255 - x;
+            g = static_cast<uint8_t>(255 - x);
             break;
         case 4:
             b = 255;
@@ -48,7 +44,9 @@ Color ColorGradient::calculateColor(double value) {
             break;
         case 5:
             r = 255;
-            g = 255 - x;
+            g = static_cast<uint8_t>(255 - x);
+            break;
+        default:
             break;
     }
 

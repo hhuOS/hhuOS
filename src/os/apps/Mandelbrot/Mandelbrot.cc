@@ -37,9 +37,9 @@ void Mandelbrot::run() {
 
     uint16_t yRes = lfb->getResY();
 
-    realBase = 4.0 / xRes;
+    realBase = 4.0f / xRes;
 
-    imaginaryBase = 4.0 / yRes;
+    imaginaryBase = 4.0f / yRes;
 
     while (isRunning) {
 

@@ -5,8 +5,8 @@ void Mandelbrot::drawMandelbrotNoSSE() {
     bool notInSet = false;
     uint32_t i;
 
-    for (uint32_t y = 0; y < Mandelbrot::properties.height; y++) {
-        for (uint32_t x = 0; x < Mandelbrot::properties.width; x++) {
+    for (uint16_t y = 0; y < Mandelbrot::properties.height; y++) {
+        for (uint16_t x = 0; x < Mandelbrot::properties.width; x++) {
 
             Complex c((-2.0F + realBase * x) / currentZoom + currentOffsetX,
                       (-2.0F + imaginaryBase * y) / currentZoom + currentOffsetY);

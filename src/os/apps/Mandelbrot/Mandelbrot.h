@@ -96,15 +96,15 @@ private:
 
     bool useSSE;
 
-    double realBase = 0.0;
+    float realBase = 0.0;
 
-    double imaginaryBase = 0.0;
+    float imaginaryBase = 0.0;
 
-    double currentOffsetX = 0.0;
+    float currentOffsetX = 0.0;
 
-    double currentOffsetY = 0.0;
+    float currentOffsetY = 0.0;
 
-    double currentZoom = 1.0;
+    float currentZoom = 1.0;
 
     bool shouldDraw = true;
 

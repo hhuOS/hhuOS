@@ -15,9 +15,9 @@ __attribute__((force_align_arg_pointer)) void drawMandelbrotSSE() {
     Mandelbrot::state.iter_scale = _mm_set_ps1(1.0F / Mandelbrot::properties.iterations);
     Mandelbrot::state.depth_scale = _mm_set_ps1(Mandelbrot::properties.depth - 1);
 
-    for (uint32_t y = 0; y < Mandelbrot::properties.height; y++) {
+    for (uint16_t y = 0; y < Mandelbrot::properties.height; y++) {
 
-        for (uint32_t x = 0; x < Mandelbrot::properties.width; x += 4) {
+        for (uint16_t x = 0; x < Mandelbrot::properties.width; x += 4) {
 
             Mandelbrot::state.mx = _mm_set_ps(x + 3, x + 2, x + 1, x + 0);
             Mandelbrot::state.my = _mm_set_ps1(y);
@@ -56,7 +56,7 @@ __attribute__((force_align_arg_pointer)) void drawMandelbrotSSE() {
 
             auto *src = reinterpret_cast<uint32_t *>(&Mandelbrot::state.pixels);
 
-            for (int i = 0; i < 4; i++) {
+            for (uint8_t i = 0; i < 4; i++) {
 
                 Mandelbrot::lfb->drawPixel(x + i, y, Mandelbrot::gradient.getColor(src[i] % Mandelbrot::MAX_COLORS));
             }

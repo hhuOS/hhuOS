@@ -25,7 +25,7 @@ public:
         ERROR = 0x4
     };
 
-    static Logger& get(const String &name);
+    static Logger& get(const String &name) noexcept;
 
     void trace(const String &message, ...);
 
