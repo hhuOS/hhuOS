@@ -47,7 +47,7 @@
 #include <apps/Shell/Commands/MkVdd.h>
 #include <apps/Shell/Commands/DelVdd.h>
 
-Shell::Shell() : Thread("Shell") {
+Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService>()->getTextDriver()) {
     stdStreamService = Kernel::getService<StdStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
@@ -101,11 +101,16 @@ void Shell::setCurrentWorkingDirectory(Directory *cwd) {
 }
 
 void Shell::run() {
+    TextDriver &stream = *graphicsService->getTextDriver();
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
     *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m/\\u001b[32;1m]$\\u001b[0m ";
     this->flush();
+
+    currentBase = 14;
+
+    uint16_t x, y;
 
     eventBus->subscribe(*this, KeyEvent::TYPE);
     eventBus->subscribe(*this, SerialEvent::TYPE);
@@ -115,12 +120,17 @@ void Shell::run() {
         *this >> input;
 
         history.add(input);
+        historyIndex = history.size();
         executeCommand(input);
 
         delete input;
 
         *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\\u001b[32;1m]$\\u001b[0m ";
         this->flush();
+
+        stream.getpos(x, y);
+
+        currentBase = x;
     }
 
     Application::getInstance()->resume();
@@ -215,11 +225,19 @@ void Shell::executeCommand(String input) {
 }
 
 void Shell::onEvent(const Event &event) {
-    TextDriver &stream = *graphicsService->getTextDriver();
     char c;
 
     if(event.getType() == KeyEvent::TYPE) {
         Key key = ((KeyEvent &) event).getKey();
+
+        switch (key.scancode()) {
+            case KeyEvent::UP:
+                showHistory(UP);
+                return;
+            case KeyEvent::DOWN:
+                showHistory(DOWN);
+                return;
+        }
 
         if(key.valid()) {
             c = key.ascii();
@@ -240,7 +258,7 @@ void Shell::onEvent(const Event &event) {
 
     if(c == '\n' || c == 13) {
         inputBuffer[strlen(inputBuffer)] = 0;
-        stream << endl;
+        textDriver << endl;
 
         lastString = String(inputBuffer);
         stringAvailable = true;
@@ -249,10 +267,10 @@ void Shell::onEvent(const Event &event) {
     } else if(c == '\b' || c == 127) {
         if(strlen(inputBuffer) > 0) {
             uint16_t x, y;
-            stream.getpos(x, y);
-            stream.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
-            stream.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
-            stream.setpos(x, y);
+            textDriver.getpos(x, y);
+            textDriver.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
+            textDriver.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
+            textDriver.setpos(x, y);
 
             memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
         }
@@ -261,8 +279,8 @@ void Shell::onEvent(const Event &event) {
         charAvailable = true;
 
         inputBuffer[strlen(inputBuffer)] = c;
-        stream << c;
-        stream.flush();
+        textDriver << c;
+        textDriver.flush();
     }
 
     inputLock.release();
@@ -384,5 +402,67 @@ Color Shell::getColor(uint32_t colorCode, bool bright) {
             return Colors::TERM_WHITE;
         default:
             return Colors::TERM_WHITE;
+    }
+}
+
+void Shell::showHistory(HistoryDirection direction) {
+
+    switch (direction) {
+        case UP:
+            historyIndex--;
+            break;
+        case DOWN:
+            historyIndex++;
+            break;
+    }
+
+    uint32_t historySize = history.size();
+
+    if (historySize == 0) {
+
+        return;
+    }
+
+    if (historyIndex == UINT32_MAX) {
+
+        historyIndex = 0;
+
+    } else if (historyIndex >= historySize) {
+
+        historyIndex = historySize - 1;
+    }
+
+    uint16_t x, y;
+
+    textDriver.getpos(x, y);
+
+    for (uint16_t i = currentBase; i < x; i++) {
+
+        textDriver.show(i, y, ' ', Colors::BLACK, Colors::BLACK);
+
+        memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
+    }
+
+    textDriver.setpos(currentBase, y);
+
+    String command = history.get(historyIndex);
+
+    uint32_t commandLength = command.length();
+
+    char c;
+
+    for (uint32_t i = 0; i < commandLength; i++) {
+
+        c = command[i];
+
+        lastChar = c;
+
+        charAvailable = true;
+
+        inputBuffer[strlen(inputBuffer)] = c;
+
+        textDriver << c;
+
+        textDriver.flush();
     }
 }

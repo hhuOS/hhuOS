@@ -36,9 +36,14 @@ class Shell : public Thread, Receiver, OutputStream, InputStream {
 private:
     friend History;
 
+    enum HistoryDirection {
+        UP, DOWN
+    };
+
     StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
+    TextDriver &textDriver;
 
     Util::HashMap<String, Command*> commands;
     Util::ArrayList<String> history;
@@ -66,9 +71,15 @@ private:
 
     char currentEscapeCode[16];
 
+    uint16_t currentBase = 0;
+
+    uint32_t historyIndex = 0;
+
     uint8_t escapeCodeIndex = 0;
 
     Color getColor(uint32_t colorCode, bool bright);
+
+    void showHistory(HistoryDirection direction);
 
     /**
      * Parse the user input and execute the respective command if the input is valid.
