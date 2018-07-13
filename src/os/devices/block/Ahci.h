@@ -626,6 +626,8 @@ private:
 
     PCI_DEVICE_DRIVER_IMPLEMENT_CREATE_INSTANCE(Ahci);
 
+    TimeProvider &time;
+
     uint8_t getBaseClass() const override {
         return Pci::CLASS_MASS_STORAGE_DEVICE;
     }

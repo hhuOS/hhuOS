@@ -44,7 +44,7 @@ void Uptime::execute(Util::Array<String> &args) {
 
     timeService = Kernel::getService<TimeService>();
 
-    uint32_t millis = timeService->getSystemTime() * 10;
+    uint32_t millis = timeService->getSystemTime();
 
     auto days = millis / 1000 / 60 / 60 / 24;
     millis -= days * 24 * 60 * 60 * 1000;

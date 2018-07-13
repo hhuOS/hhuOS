@@ -18,7 +18,6 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/threads/NullYielder.h>
-#include <lib/libc/printf.h>
 #include "kernel/threads/Scheduler.h"
 #include "devices/Pit.h"
 
@@ -39,17 +38,17 @@ Pit *Pit::getInstance() {
 
     if(instance == nullptr) {
 
-        instance = new Pit(DEFAULT_INTERVAL);
+        instance = new Pit(DEFAULT_TIMER_INTERVAL);
     }
 
     return instance;
 }
 
-void Pit::setInterval(uint32_t us) {
+void Pit::setInterval(uint32_t ns) {
 
-    timerInterval = us / 1000;
+    timerInterval = ns;
 
-    uint32_t divisor = (us * 1000) / TIME_BASE;
+    uint32_t divisor = ns / TIME_BASE;
 
     control.outb(0x36);
 
@@ -65,7 +64,7 @@ uint32_t Pit::getInterval() {
 
 void Pit::plugin () {
 
-    setInterval(DEFAULT_INTERVAL);
+    setInterval(DEFAULT_TIMER_INTERVAL);
 
     IntDispatcher::getInstance().assign(32, *this);
 
@@ -74,49 +73,52 @@ void Pit::plugin () {
 
 void Pit::trigger () {
 
-    ticks++;
+    time.addNanos(timerInterval);
 
-    yieldable->yield();
+    if ((time.fraction % DEFAULT_YIELD_INTERVAL) == 0) {
+
+        yieldable->yield();
+    }
 }
 
 uint32_t Pit::getNanos() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::NANO);
+    return time.toNanos();
 }
 
 uint32_t Pit::getMicros() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::MICRO);
+    return time.toMicros();
 }
 
 uint32_t Pit::getMillis() {
 
-    return ticks * 10;
+    return time.toMillis();
 }
 
 uint32_t Pit::getSeconds() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::SECONDS);
+    return time.seconds;
 }
 
 uint32_t Pit::getMinutes() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::MINUTES);
+    return time.toMinutes();
 }
 
 uint32_t Pit::getHours() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::HOURS);
+    return time.toHours();
 }
 
 uint32_t Pit::getDays() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::DAYS);
+    return time.toDays();
 }
 
 uint32_t Pit::getYears() {
 
-    return TimeProvider::convert(getMillis(), TimeUnit::MILLI, TimeUnit::YEARS);
+    return time.toYears();
 }
 
 void Pit::setYieldable(Yieldable *yieldable) {

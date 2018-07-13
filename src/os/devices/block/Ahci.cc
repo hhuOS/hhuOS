@@ -18,6 +18,7 @@
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 #include <devices/block/storage/AhciDevice.h>
+#include <devices/Pit.h>
 #include "devices/block/Ahci.h"
 
 #include "../../kernel/memory/SystemManagement.h"
@@ -25,7 +26,7 @@
 Logger &Ahci::log = Logger::get("AHCI");
 uint32_t Ahci::deviceCount = 0;
 
-Ahci::Ahci() {
+Ahci::Ahci() : time(*Pit::getInstance()) {
     timeService = Kernel::getService<TimeService>();
 }
 
@@ -539,13 +540,11 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
 
     cmdfis->featurel = 1;
 
+    uint32_t then = time.getMillis();
     uint32_t timeout = 0;
-    while ( (port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && timeout < AHCI_TIMEOUT ) {
-        timeService->msleep(10);
-        timeout += 10;
-    }
+    while ((port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && (timeout = (time.getMillis() - then)) < AHCI_TIMEOUT);
 
-    if (timeout == AHCI_TIMEOUT) {
+    if (timeout >= AHCI_TIMEOUT) {
        log.trace("Error: Device is not responding ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
@@ -553,8 +552,9 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
 
     port->ci = 1u << slot;
 
+    then = time.getMillis();
     timeout = 0;
-    while (timeout < AHCI_TIMEOUT) {
+    while ((timeout = (time.getMillis() - then)) < AHCI_TIMEOUT) {
 
         if ((port->ci & (1u << slot)) == 0) {
             break;
@@ -565,12 +565,9 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
             SystemManagement::getInstance()->freeIO(ioMemInfo);
             return false;
         }
-
-        timeService->msleep(10);
-        timeout += 10;
     }
 
-    if (timeout == AHCI_TIMEOUT) {
+    if (timeout >= AHCI_TIMEOUT) {
         log.trace("Error: Device is hung ");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;

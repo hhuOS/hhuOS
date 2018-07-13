@@ -104,9 +104,9 @@ private:
     /**
      * Sets the interval at which the PIT fires it's interrupts.
      *
-     * @param us The PIT's interval in microseconds
+     * @param us The PIT's interval in nanoseconds
      */
-    void setInterval(uint32_t us);
+    void setInterval(uint32_t ns);
 
     static Pit *instance;
 
@@ -116,9 +116,9 @@ private:
 
     static const uint32_t TIME_BASE = 838;
 
-    static const uint32_t DEFAULT_INTERVAL = 10000;
+    static const uint32_t DEFAULT_TIMER_INTERVAL = 1000000;
 
-    static const uint32_t MILLISECONDS = 1000;
+    static const uint32_t DEFAULT_YIELD_INTERVAL = 5000000;
 };
 
 #endif

@@ -7,6 +7,39 @@ class TimeProvider {
 
 public:
 
+    struct Time {
+        uint32_t seconds = 0;
+        uint32_t fraction = 0;
+
+        void addNanos(uint32_t value);
+
+        void addSeconds(uint32_t value);
+
+        bool operator>(const Time &other) const;
+
+        bool operator>=(const Time &other) const;
+
+        bool operator<(const Time &other) const;
+
+        bool operator<=(const Time &other) const;
+
+        uint32_t toNanos();
+
+        uint32_t toMicros();
+
+        uint32_t toMillis();
+
+        uint32_t toSeconds();
+
+        uint32_t toMinutes();
+
+        uint32_t toHours();
+
+        uint32_t toDays();
+
+        uint32_t toYears();
+    };
+
     enum TimeUnit {
         NANO    = 0x01,
         MICRO   = 0x02,
@@ -44,6 +77,11 @@ public:
 
     virtual uint32_t getYears() = 0;
 
+    Time getTime() const {
+
+        return time;
+    }
+
     uint32_t getTicks() const {
 
         return ticks;
@@ -54,6 +92,8 @@ public:
 protected:
 
     uint32_t ticks = 0;
+
+    Time time;
 };
 
 #endif

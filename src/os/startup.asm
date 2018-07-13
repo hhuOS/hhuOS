@@ -134,7 +134,7 @@ clear_bss:
     jne	.loop
 
     ; set initial stack
-    mov esp, (stack - KERNEL_START)
+    mov esp, (stack - KERNEL_START + STACK_SIZE)
 
     ; read memory map
     push ebx
