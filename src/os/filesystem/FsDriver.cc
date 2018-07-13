@@ -20,3 +20,9 @@ void FsDriver::registerDriverType(String type, FsDriver *driver) {
 
     prototypeTable.put(key, driver);
 }
+
+void FsDriver::deregisterDriverType(String type) {
+    if(prototypeTable.containsKey(type)) {
+        prototypeTable.remove(type);
+    }
+}

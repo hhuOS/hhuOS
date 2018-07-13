@@ -69,6 +69,13 @@ public:
      */
     static void registerDriverType(String type, FsDriver *driver);
 
+    /**
+     * Remove a type of FsDriver.
+     *
+     * @param type The type
+     */
+    static void deregisterDriverType(String type);
+
 public:
     /**
      * Constructor.

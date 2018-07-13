@@ -63,6 +63,8 @@ public:
 
     static void setupDeviceDriver(PciDeviceDriver &driver);
 
+    static void uninstallDeviceDriver(PciDeviceDriver &driver);
+
     static uint32_t  readDoubleWord(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 
     static uint16_t  readWord(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
@@ -233,6 +235,8 @@ private:
     static const uint8_t    INVALID_CAPABILITY           = 0x00;
 
     static Util::ArrayList<Device> pciDevices;
+
+    static Util::ArrayList<PciDeviceDriver*> deviceDrivers;
 
     static uint8_t     ahciCount;
 

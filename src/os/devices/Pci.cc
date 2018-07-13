@@ -30,6 +30,7 @@ const IOport Pci::CONFIG_ADDRESS = IOport(0xCF8);
 const IOport Pci::CONFIG_DATA = IOport(0xCFC);
 
 Util::ArrayList<Pci::Device> Pci::pciDevices;
+Util::ArrayList<PciDeviceDriver*> Pci::deviceDrivers;
 
 uint8_t Pci::ahciCount = 0;
 
@@ -306,11 +307,41 @@ void Pci::setupDeviceDriver(PciDeviceDriver &driver) {
     for(Device device : pciDevices) {
         if(driver.getSetupMethod() == PciDeviceDriver::BY_CLASS) {
             if(device.baseClass == driver.getBaseClass() && device.subClass == driver.getSubClass()) {
-                driver.createInstance()->setup(device);
+                PciDeviceDriver *newDriver = driver.createInstance();
+
+                newDriver->setup(device);
+
+                deviceDrivers.add(newDriver);
             }
         } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
             if (device.vendorId == driver.getVendorId() && device.deviceId == driver.getDeviceId()) {
-                driver.createInstance()->setup(device);
+                PciDeviceDriver *newDriver = driver.createInstance();
+
+                newDriver->setup(device);
+
+                deviceDrivers.add(newDriver);
+            }
+        }
+    }
+}
+
+void Pci::uninstallDeviceDriver(PciDeviceDriver &driver) {
+    for(const auto &element : deviceDrivers) {
+        if(driver.getSetupMethod() == PciDeviceDriver::BY_CLASS) {
+            if(element->getBaseClass() == driver.getBaseClass() && element->getSubClass() == driver.getSubClass()) {
+                deviceDrivers.remove(element);
+
+                //TODO: Implement PciDeviceDriver::uninstall()
+
+                delete element;
+            }
+        } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
+            if (element->getVendorId() == driver.getVendorId() && element->getDeviceId() == driver.getDeviceId()) {
+                deviceDrivers.remove(element);
+
+                //TODO: Implement PciDeviceDriver::uninstall()
+
+                delete element;
             }
         }
     }
