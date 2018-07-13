@@ -34,6 +34,10 @@ Multiboot::Info Multiboot::Structure::info;
 
 uint32_t Multiboot::Structure::customMemoryMapSize = 0;
 
+uint32_t Multiboot::Structure::kernelCopyLow = UINT32_MAX;
+
+uint32_t Multiboot::Structure::kernelCopyHigh = 0;
+
 Multiboot::MemoryMapEntry Multiboot::Structure::customMemoryMap[256];
 
 Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
@@ -65,7 +69,7 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
     MemoryMapEntry *memory = (MemoryMapEntry*) ((uint32_t) customMemoryMap - KERNEL_START);
 
-    uint32_t *mapSize = (uint32_t*) ((uint32_t) &customMemoryMapSize - KERNEL_START);
+    uint32_t &mapSize = *((uint32_t*) ((uint32_t) &customMemoryMapSize - KERNEL_START));
 
     uint32_t kernelStart = (uint32_t) &___KERNEL_START__ - KERNEL_START;
 
@@ -73,14 +77,14 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
     memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED};
 
-    *mapSize = *mapSize + 1;
+    mapSize++;
 
     uint32_t memoryIndex = 1;
 
     ElfInfo &symbolInfo = tmp.symbols.elf;
 
     ElfConstants::SectionHeader *sectionHeader = nullptr;
-
+    
     if (tmp.flags & MULTIBOOT_INFO_ELF_SHDR) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
@@ -98,7 +102,19 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
             memoryIndex++;
 
-            *mapSize = *mapSize + 1;
+            mapSize++;
+
+            // Copy string and symbol table so it won't get overridden
+            switch (sectionHeader->type) {
+                case ElfConstants::SectionHeaderType::STRTAB:
+                    memcpy((char*) PHYS_STRTAB, (char*) startAddress, sectionHeader->size);
+                    break;
+                case ElfConstants::SectionHeaderType::SYMTAB:
+                    memcpy((char*) PHYS_SYMTAB, (char*) startAddress, sectionHeader->size);
+                    break;
+                default:
+                    break;
+            }
         }
     }
 
@@ -112,7 +128,7 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
             memoryIndex++;
 
-            *mapSize = *mapSize + 1;
+            mapSize++;
         }
     }
 }

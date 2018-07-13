@@ -155,51 +155,6 @@ clear_bss:
 
 on_paging_enabled:
 
-; Load GDT
-	lgdt	[gdt_48]
-
-    mov	ax,0x10
-    mov	ds,ax
-    mov	es,ax
-    mov	fs,ax
-    mov	gs,ax
-    mov	ss,ax
-    ; make a jump to set the CS-register to the right value
-    ; (the CodeSegment is placed at offset 0x8)
-    ; if something at GDT is changed, this instruction may be changed as well
-    jmp 0x8:_clear_bss
-
-; clean BSS
-clear_bss:
-    mov	edi, ___PHYS_BSS_START__
-.loop:
-    mov	byte [edi], 0
-    inc	edi
-    cmp	edi, ___PHYS_BSS_END__
-    jne	.loop
-
-    ; set initial stack
-    mov esp, (stack - KERNEL_START)
-
-    ; read memory map
-    push ebx
-
-    mov eax, readMemoryMap
-
-    sub eax, KERNEL_START
-
-    call eax
-
-    add esp, 0x04
-
-	; load first 4MB-PageTable and enable paging
-	mov ecx,  (paging_bootstrap - KERNEL_START)
-
-	; jump into paging.asm to enable 4mb paging
-	jmp ecx
-
-on_paging_enabled:
-
     ; Load GDT
 	lgdt	[gdt_48]
 

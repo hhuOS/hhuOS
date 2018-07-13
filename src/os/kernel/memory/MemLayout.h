@@ -27,6 +27,10 @@
 // let kernelspace start at 3GB
 #define KERNEL_START 0xC0000000
 
+#define PHYS_SYMTAB 0x8000000
+
+#define PHYS_STRTAB 0x8800000
+
 // start address for heap
 #define PHYS_KERNEL_HEAP_START 0x400000
 #define VIRT_KERNEL_HEAP_START (PHYS_KERNEL_HEAP_START + KERNEL_START)

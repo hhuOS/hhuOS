@@ -16,6 +16,7 @@
  */
 
 #include <kernel/memory/MemLayout.h>
+#include <kernel/memory/SystemManagement.h>
 #include "KernelSymbols.h"
 
 Util::HashMap<String, Address> KernelSymbols::symbolTable(1129);
@@ -104,11 +105,15 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry*) (sectionHeader.virtualAddress + KERNEL_START);
+    IOMemInfo info = SystemManagement::getInstance()->mapIO(PHYS_SYMTAB, sectionHeader.size);
+
+    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry*) info.virtStartAddress;
 
     ElfConstants::SectionHeader *stringSection = (ElfConstants::SectionHeader*) (symbolInfo.address + sectionHeader.link * symbolInfo.sectionSize);
 
-    char *stringTable = (char*) (stringSection->virtualAddress + KERNEL_START);
+    info = SystemManagement::getInstance()->mapIO(PHYS_STRTAB, stringSection->size);
+
+    char *stringTable = (char*) info.virtStartAddress;
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
@@ -121,7 +126,7 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
         uint32_t address = entry->value;
 
-        symbolTable.put(symbol, address);
+         symbolTable.put(symbol, address);
 
         debugTable.put(address, symbol);
     }
