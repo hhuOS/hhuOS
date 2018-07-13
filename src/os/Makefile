@@ -41,7 +41,7 @@ CXX = g++
 # C Compiler settings                       #
 #-------------------------------------------#
 CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
-					-ffreestanding -msse2 -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
+					-ffreestanding -mno-sse -march=i486 -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
 
 #-------------------------------------------#
 # C++ Compiler settings                     #
@@ -75,7 +75,7 @@ MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 #-------------------------------------------#
 # QEMU and KVM defaults                     #
 #-------------------------------------------#
-QEMU_BIN = qemu-system-i386 -cpu core2duo
+QEMU_BIN = qemu-system-i386 -cpu 486,+sse,+sse2
 KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 

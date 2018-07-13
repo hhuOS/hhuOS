@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <kernel/log/Logger.h>
 #include <xmmintrin.h>
+#include <lib/graphic/ColorGradient.h>
 #include "kernel/threads/Thread.h"
 
 #include "apps/AntApp/Limits.h"
@@ -12,6 +13,8 @@
 #include "lib/graphic/Color.h"
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/Kernel.h"
+
+void drawMandelbrotSSE();
 
 /**
  * Mandelbrot.
@@ -71,9 +74,9 @@ public:
 
     static const uint32_t MAX_VALUE = 255;
 
-    static const uint32_t MAX_COLORS = 5;
+    static const uint32_t MAX_COLORS = 256;
 
-    static Color colors[MAX_COLORS];
+    static ColorGradient gradient;
 
     static LinearFrameBuffer *lfb;
 
@@ -81,7 +84,7 @@ private:
 
     Logger &log;
 
-    Color colorAt(uint32_t x, uint32_t y, double offsetX, double offsetY, double zoom);
+    void drawMandelbrotNoSSE();
 
     static constexpr const float X0_BASE = -2.0F;
 
@@ -90,6 +93,8 @@ private:
     static constexpr const float Y0_BASE = -1.325F;
 
     static constexpr const float Y1_BASE = 1.325F;
+
+    bool useSSE;
 
     double realBase = 0.0;
 
