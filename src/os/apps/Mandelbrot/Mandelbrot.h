@@ -14,7 +14,7 @@
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/Kernel.h"
 
-void drawMandelbrotSSE();
+void drawMandelbrotSSE(float xlim[2], float ylim[2]);
 
 /**
  * Mandelbrot.
@@ -86,7 +86,7 @@ private:
 
     void calculatePosition();
 
-    void drawMandelbrotNoSSE();
+    void drawMandelbrotNoSSE(float offsetX, float offsetY, float zoom);
 
     static constexpr const float X0_BASE = -2.0F;
 

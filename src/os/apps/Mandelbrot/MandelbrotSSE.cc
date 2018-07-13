@@ -4,12 +4,12 @@
 
 #include <xmmintrin.h>
 
-__attribute__((force_align_arg_pointer)) void drawMandelbrotSSE() {
+__attribute__((force_align_arg_pointer)) void drawMandelbrotSSE(float xlim[2], float ylim[2]) {
 
-    Mandelbrot::state.xmin = _mm_set_ps1(Mandelbrot::properties.xlim[0]);
-    Mandelbrot::state.ymin = _mm_set_ps1(Mandelbrot::properties.ylim[0]);
-    Mandelbrot::state.xscale = _mm_set_ps1((Mandelbrot::properties.xlim[1] - Mandelbrot::properties.xlim[0]) / Mandelbrot::properties.width);
-    Mandelbrot::state.yscale = _mm_set_ps1((Mandelbrot::properties.ylim[1] - Mandelbrot::properties.ylim[0]) / Mandelbrot::properties.height);
+    Mandelbrot::state.xmin = _mm_set_ps1(xlim[0]);
+    Mandelbrot::state.ymin = _mm_set_ps1(ylim[0]);
+    Mandelbrot::state.xscale = _mm_set_ps1((xlim[1] - xlim[0]) / Mandelbrot::properties.width);
+    Mandelbrot::state.yscale = _mm_set_ps1((ylim[1] - ylim[0]) / Mandelbrot::properties.height);
     Mandelbrot::state.threshold = _mm_set_ps1(4);
     Mandelbrot::state.one = _mm_set_ps1(1);
     Mandelbrot::state.iter_scale = _mm_set_ps1(1.0F / Mandelbrot::properties.iterations);

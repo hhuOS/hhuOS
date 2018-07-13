@@ -63,15 +63,11 @@ void Mandelbrot::run() {
             currentZoom = 1.0F;
         }
 
-        log.trace("Draw start");
-
         if(useSSE) {
-            drawMandelbrotSSE();
+            drawMandelbrotSSE(properties.xlim, properties.ylim);
         } else {
-            drawMandelbrotNoSSE();
+            drawMandelbrotNoSSE(currentOffsetX, currentOffsetY, currentZoom);
         }
-
-        log.trace("Draw end");
 
         lfb->show();
     }
