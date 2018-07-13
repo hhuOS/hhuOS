@@ -7,8 +7,6 @@
 
 #include <kernel/cpu/CpuId.h>
 
-extern void drawMandelbrotNoSSE();
-
 __attribute__ ((aligned (16))) Mandelbrot::Properties Mandelbrot::properties;
 
 __attribute__ ((aligned (16))) Mandelbrot::State Mandelbrot::state;
@@ -22,6 +20,16 @@ Mandelbrot::Mandelbrot() : Thread("Mandelbrot"), log(Logger::get("Mandelbrot")) 
 }
 
 void Mandelbrot::run() {
+
+    currentOffsetX = 0;
+
+    currentOffsetY = 0;
+
+    currentZoom = 1;
+
+    calculatePosition();
+
+    shouldDraw = true;
 
     lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
 
@@ -122,15 +130,19 @@ void Mandelbrot::onEvent(const Event &event) {
 
     if (hasChanged) {
 
-        properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
-        properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
-        properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
-        properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
-        properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
-        properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
-        properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
-        properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
+        calculatePosition();
 
         shouldDraw = true;
     }
+}
+
+void Mandelbrot::calculatePosition() {
+    properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
+    properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
+    properties.ylim[0] = Y0_BASE / currentZoom + currentOffsetY;
+    properties.ylim[1] = Y1_BASE / currentZoom + currentOffsetY;
+    properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
+    properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
+    properties.xlim[0] = X0_BASE / currentZoom + currentOffsetX;
+    properties.xlim[1] = X1_BASE / currentZoom + currentOffsetX;
 }

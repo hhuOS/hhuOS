@@ -84,6 +84,8 @@ private:
 
     Logger &log;
 
+    void calculatePosition();
+
     void drawMandelbrotNoSSE();
 
     static constexpr const float X0_BASE = -2.0F;
