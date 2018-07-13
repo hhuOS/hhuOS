@@ -96,6 +96,10 @@ private:
 
     static constexpr const float Y1_BASE = 1.325F;
 
+    static constexpr const float OFFSET_STEP = 0.1F;
+
+    static constexpr const uint8_t ZOOM_FACTOR = 12;
+
     bool useSSE;
 
     float realBase = 0.0;

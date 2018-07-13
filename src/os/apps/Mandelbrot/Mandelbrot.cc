@@ -89,11 +89,11 @@ void Mandelbrot::onEvent(const Event &event) {
 
     switch (keyEvent.getKey().ascii()) {
         case '-':
-            currentZoom -= currentZoom / 8;
+            currentZoom -= currentZoom / ZOOM_FACTOR;
             hasChanged = true;
             break;
         case '+':
-            currentZoom += currentZoom / 8;
+            currentZoom += currentZoom / ZOOM_FACTOR;
             hasChanged = true;
             break;
         default:
@@ -102,19 +102,19 @@ void Mandelbrot::onEvent(const Event &event) {
 
     switch (keyEvent.getKey().scancode()) {
         case KeyEvent::UP:
-            currentOffsetY -= 1 / currentZoom;
+            currentOffsetY -= OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
         case KeyEvent::DOWN:
-            currentOffsetY += 1 / currentZoom;
+            currentOffsetY += OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
         case KeyEvent::LEFT:
-            currentOffsetX -= 1 / currentZoom;
+            currentOffsetX -= OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
         case KeyEvent::RIGHT:
-            currentOffsetX += 1 / currentZoom;
+            currentOffsetX += OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
         case KeyEvent::ESCAPE:

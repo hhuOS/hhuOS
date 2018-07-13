@@ -4,6 +4,7 @@
 
 #include <xmmintrin.h>
 
+// Source : https://github.com/skeeto/mandel-simd
 __attribute__((force_align_arg_pointer)) void drawMandelbrotSSE(float xlim[2], float ylim[2]) {
 
     Mandelbrot::state.xmin = _mm_set_ps1(xlim[0]);
