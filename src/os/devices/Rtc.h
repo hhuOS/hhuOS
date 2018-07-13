@@ -17,6 +17,7 @@
 #ifndef __RTC__include__
 #define __RTC__include__
 
+#include <kernel/log/Logger.h>
 #include "kernel/IOport.h"
 #include "IODevice.h"
 
@@ -73,7 +74,9 @@ private:
 
     Rtc::Date currentDate {};
 
-    static const char RTC_RATE = 0x06;
+    static Logger &log;
+
+    static const uint8_t RTC_RATE = 0x06;
 
 public:
     /**

@@ -304,7 +304,7 @@ Util::ArrayList<Pci::Device>& Pci::getDevices() {
 }
 
 void Pci::setupDeviceDriver(PciDeviceDriver &driver) {
-    for(Device device : pciDevices) {
+    for(const auto &device : pciDevices) {
         if(driver.getSetupMethod() == PciDeviceDriver::BY_CLASS) {
             if(device.baseClass == driver.getBaseClass() && device.subClass == driver.getSubClass()) {
                 PciDeviceDriver *newDriver = driver.createInstance();

@@ -18,6 +18,8 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/services/TimeService.h>
 
+Logger &Rtc::log = Logger::get("RTC");
+
 Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
 
 }
@@ -27,33 +29,41 @@ void Rtc::plugin() {
 
     // Disable NMIs
     uint8_t oldValue = registerPort.inb();
-    registerPort.outb(static_cast<uint8_t>(oldValue | 0x80));
+    registerPort.outb(static_cast<uint8_t>(oldValue | 0x80u));
+
+    log.trace("Disabled NMIs");
 
     // Enable 'Update interrupts': An Interrupt will be triggered after every RTC-update.
     registerPort.outb(STATUS_REGISTER_B);
     oldValue = dataPort.inb();
 
     registerPort.outb(STATUS_REGISTER_B);
-    dataPort.outb(static_cast<uint8_t>(oldValue | 0x10));
+    dataPort.outb(static_cast<uint8_t>(oldValue | 0x10u));
 
     // Set the periodic interrupt rate.
     registerPort.outb(STATUS_REGISTER_A);
     oldValue = dataPort.inb();
 
     registerPort.outb(STATUS_REGISTER_A);
-    dataPort.outb(static_cast<uint8_t>((oldValue & 0xF0) | RTC_RATE));
+    dataPort.outb(static_cast<uint8_t>((oldValue & 0xF0u) | RTC_RATE));
 
     // Read Register C. This will clear data-flag. As long as this flag is set,
     // the RTC won't trigger any interrupts.
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
 
+    log.trace("Setup RTC");
+
     IntDispatcher::getInstance().assign(40, *this);
     Pic::getInstance()->allow(Pic::Interrupt::RTC);
 
+    log.trace("Registered RTC interrupt handler");
+
     // Enable NMIs
     oldValue = registerPort.inb();
-    registerPort.outb(static_cast<uint8_t>(oldValue & 0x7F));
+    registerPort.outb(static_cast<uint8_t>(oldValue & 0x7Fu));
+
+    log.trace("Enabled NMIs");
 
     Cpu::enableInterrupts();
 }
