@@ -105,6 +105,16 @@ void Ahci::setup(const Pci::Device &dev) {
 
         StorageDevice *storageDevice = new AhciDevice(*this, i, "hdd" + String::valueOf(deviceCount, 10));
 
+        uint8_t buf[512];
+
+
+        // Wake up the device
+        storageDevice->read(buf, 0, 1);
+        storageDevice->read(buf, 0, 1);
+        storageDevice->read(buf, 0, 1);
+        storageDevice->read(buf, 0, 1);
+        storageDevice->read(buf, 0, 1);
+
         storageService->registerDevice(storageDevice);
 
         deviceCount++;
@@ -361,7 +371,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     HbaPort_Virt *virtPort = sataDevices_Virt[deviceNumber];
 
     if (!isActive(port)) {
-       log.trace("Unable to get device info from port %u: Port is not inizialized", port);
+       log.trace("Unable to get device info from port %u: Port is not initialized", port);
         return ret;
     }
 

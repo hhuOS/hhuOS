@@ -595,7 +595,7 @@ private:
     bool reset();
 
     TimeService *timeService;
-    static const uint32_t AHCI_TIMEOUT = 100;
+    static const uint32_t AHCI_TIMEOUT = 1000;
 
     HbaPort *sataDevices[MAX_DEVICES];
     HbaPort_Virt *sataDevices_Virt[MAX_DEVICES];
