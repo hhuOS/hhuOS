@@ -119,7 +119,10 @@ void Shell::run() {
         char* input = nullptr;
         *this >> input;
 
-        history.add(input);
+        if(strlen(input) > 0) {
+            history.add(input);
+        }
+
         historyIndex = history.size();
         executeCommand(input);
 
@@ -237,6 +240,8 @@ void Shell::onEvent(const Event &event) {
             case KeyEvent::DOWN:
                 showHistory(DOWN);
                 return;
+            default:
+                break;
         }
 
         if(key.valid()) {
@@ -423,15 +428,6 @@ void Shell::showHistory(HistoryDirection direction) {
         return;
     }
 
-    if (historyIndex == UINT32_MAX) {
-
-        historyIndex = 0;
-
-    } else if (historyIndex >= historySize) {
-
-        historyIndex = historySize - 1;
-    }
-
     uint16_t x, y;
 
     textDriver.getpos(x, y);
@@ -445,7 +441,23 @@ void Shell::showHistory(HistoryDirection direction) {
 
     textDriver.setpos(currentBase, y);
 
-    String command = history.get(historyIndex);
+    String command;
+
+    if (historyIndex == UINT32_MAX) {
+
+        historyIndex = 0;
+
+    }
+
+    if (historyIndex >= historySize) {
+
+        historyIndex = historySize;
+
+        command = "";
+    } else {
+
+        command = history.get(historyIndex);
+    }
 
     uint32_t commandLength = command.length();
 
