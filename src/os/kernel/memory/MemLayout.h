@@ -68,7 +68,7 @@
  #define VIRT_BIOS16_PARAM_BASE (PHYS_BIOS16_PARAM_BASE + KERNEL_START)
 
  // macros for address calculation
- #define VIRT2PHYS(x) ((x) - KERNEL_START)    // same as V2P, but without casts
+ #define VIRT2PHYS(x) ((x) - KERNEL_START) // same as V2P, but without casts
  #define PHYS2VIRT(x) ((x) + KERNEL_START) // same as P2V, but without casts
 
 

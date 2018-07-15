@@ -5,7 +5,10 @@
 #include <kernel/threads/WorkerThread.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
+#include <kernel/memory/SystemManagement.h>
 #include "FloppyController.h"
+
+extern uint8_t ___FLOPPY_START__, ___FLOPPY_END__;
 
 Logger &FloppyController::log = Logger::get("FLOPPY");
 
@@ -58,6 +61,11 @@ bool FloppyController::isFifoBufferReady() {
 void FloppyController::setup() {
     IOport cmosRegisterPort(0x70);
     IOport cmosDataPort(0x71);
+
+    auto dmaAddress = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_START__));
+    auto dmaSize = static_cast<uint32_t>(&___FLOPPY_END__ - &___FLOPPY_START__);
+
+    memInfo = SystemManagement::getInstance()->mapIO(dmaAddress, dmaSize);
 
     cmosRegisterPort.outb(0x10);
 
@@ -132,20 +140,20 @@ void FloppyController::setMotorState(FloppyDevice &device, FloppyController::Flo
     if(desiredState == FLOPPY_MOTOR_WAIT) {
         return;
     } else if(desiredState == FLOPPY_MOTOR_ON) {
-        if(motorState == FLOPPY_MOTOR_ON) {
+        if(device.motorState == FLOPPY_MOTOR_ON) {
             return;
         }
 
         digitalOutputRegister.outb(device.driveNumber | static_cast<uint8_t>(0x1c)); // Turn on the floppy motor
         timeService->msleep(1000); // Wait a second; This should be enough time, even for older drives
 
-        motorState = FLOPPY_MOTOR_ON;
+        device.motorState = FLOPPY_MOTOR_ON;
     } else if(desiredState == FLOPPY_MOTOR_OFF) {
-        if(motorState == FLOPPY_MOTOR_OFF || motorState == FLOPPY_MOTOR_WAIT) {
+        if(device.motorState == FLOPPY_MOTOR_OFF || device.motorState == FLOPPY_MOTOR_WAIT) {
             return;
         }
 
-        motorState = FLOPPY_MOTOR_WAIT;
+        device.motorState = FLOPPY_MOTOR_WAIT;
 
         WorkerThread<FloppyDevice*, bool> waitThread(waitForMotorOff, &device, nullptr);
     }
@@ -153,7 +161,7 @@ void FloppyController::setMotorState(FloppyDevice &device, FloppyController::Flo
 
 void FloppyController::killMotor(FloppyDevice &device) {
     digitalOutputRegister.outb(device.driveNumber | static_cast<uint8_t>(0x0c));
-    motorState = FLOPPY_MOTOR_OFF;
+    device.motorState = FLOPPY_MOTOR_OFF;
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {

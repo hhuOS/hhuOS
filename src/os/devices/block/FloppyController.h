@@ -4,6 +4,7 @@
 #include <kernel/IOport.h>
 #include <kernel/services/StorageService.h>
 #include <kernel/services/TimeService.h>
+#include <kernel/memory/manager/IOMemoryManager.h>
 
 class FloppyDevice;
 
@@ -61,8 +62,9 @@ private:
         uint8_t currentCylinder;
     };
 
-    FloppyMotorState motorState = FLOPPY_MOTOR_OFF;
     bool receivedInterrupt = false;
+
+    IOMemInfo memInfo;
 
     IOport statusRegisterA;
     IOport statusRegisterB;
