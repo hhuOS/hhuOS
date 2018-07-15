@@ -1,6 +1,7 @@
 #ifndef HHUOS_FLOPPY_H
 #define HHUOS_FLOPPY_H
 
+#include <cstdint>
 #include <kernel/IOport.h>
 #include <kernel/services/StorageService.h>
 #include <kernel/services/TimeService.h>
@@ -57,14 +58,17 @@ private:
         FLOPPY_MOTOR_WAIT = 0x02
     };
 
+    enum DmaMode {
+        DMA_READ = 0x00,
+        DMA_WRITe = 0x01
+    };
+
     struct SenseInterruptState {
         uint8_t statusRegister0;
         uint8_t currentCylinder;
     };
 
     bool receivedInterrupt = false;
-
-    IOMemInfo memInfo;
 
     IOport statusRegisterA;
     IOport statusRegisterB;

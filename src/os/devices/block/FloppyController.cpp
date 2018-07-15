@@ -8,8 +8,6 @@
 #include <kernel/memory/SystemManagement.h>
 #include "FloppyController.h"
 
-extern uint8_t ___FLOPPY_START__, ___FLOPPY_END__;
-
 Logger &FloppyController::log = Logger::get("FLOPPY");
 
 bool FloppyController::waitForMotorOff(FloppyDevice * const &device) {
@@ -61,11 +59,6 @@ bool FloppyController::isFifoBufferReady() {
 void FloppyController::setup() {
     IOport cmosRegisterPort(0x70);
     IOport cmosDataPort(0x71);
-
-    auto dmaAddress = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_START__));
-    auto dmaSize = static_cast<uint32_t>(&___FLOPPY_END__ - &___FLOPPY_START__);
-
-    memInfo = SystemManagement::getInstance()->mapIO(dmaAddress, dmaSize);
 
     cmosRegisterPort.outb(0x10);
 
