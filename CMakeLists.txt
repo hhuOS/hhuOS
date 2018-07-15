@@ -1,11 +1,11 @@
 CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
 PROJECT(hhuOS)
 
-INCLUDE_DIRECTORIES(./src/os ./src/os/kernel/acpi/include)
+INCLUDE_DIRECTORIES(./src/os)
 
 SET(CMAKE_CXX_STANDARD 11)
 
-FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cc" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cc" "src/modules/*.h" "src/modules/*.asm" "Makefile")
+FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
 
 ADD_EXECUTABLE(hhuOS ${SOURCE_FILES})
 

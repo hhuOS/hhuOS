@@ -2,7 +2,7 @@
 # Source files                              #
 #-------------------------------------------#
 STARTUP_SOURCE = ./startup.asm
-CC_SOURCES = $(shell find . -name "*.cc")
+CC_SOURCES = $(shell find . -name "*.cpp")
 C_SOURCES = $(shell find . -name "*.c")
 ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
 LINKER_SCRIPT = ${CURDIR}/link.ld
@@ -94,7 +94,7 @@ VPATH = $(sort $(dir $(STARTUP_SOURCE) $(CC_SOURCES) $(C_SOURCES) $(ASM_SOURCES)
 FIRST_OBJECT = $(addprefix $(OBJDIR)/,$(patsubst %.asm,_%.o, $(notdir $(STARTUP_SOURCE))))
 
 C_OBJECTS = $(notdir $(C_SOURCES:.c=.o))
-CC_OBJECTS = $(notdir $(CC_SOURCES:.cc=.o))
+CC_OBJECTS = $(notdir $(CC_SOURCES:.cpp=.o))
 
 DEP_FILES = $(patsubst %.o,$(DEPDIR)/%.d,$(C_OBJECTS))
 DEP_FILES += $(patsubst %.o,$(DEPDIR)/%.d,$(CC_OBJECTS))
@@ -123,7 +123,7 @@ $(DEPDIR)/%.d : %.c
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) $(CFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
 
-$(DEPDIR)/%.d : %.cc
+$(DEPDIR)/%.d : %.cpp
 	@echo "DEP		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) $(CXXFLAGS) -MM -MT $(OBJDIR)/$*.o -MF $@ $<
@@ -136,7 +136,7 @@ $(OBJDIR)/%.o : %.c
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) -c $(CFLAGS) -o $@ $<
 
-$(OBJDIR)/%.o : %.cc
+$(OBJDIR)/%.o : %.cpp
 	@echo "CXX		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) -c $(CXXFLAGS) -o $@ $<

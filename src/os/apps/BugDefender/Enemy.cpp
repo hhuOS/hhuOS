@@ -18,8 +18,8 @@
 #include "apps/BugDefender/Enemy.h"
 #include "apps/game/HHUEngine.h"
 #include "BugDefender.h"
-#include "apps/BugDefender/sprites/bug_1.cc"
-#include "apps/BugDefender/sprites/bug_2.cc"
+#include "apps/BugDefender/sprites/bug_1.cpp"
+#include "apps/BugDefender/sprites/bug_2.cpp"
 
 Enemy::Enemy(Vector2 position, int rowNumber) : GameObject(position, "Enemy") {
   collider = new RectCollider(position, width, height);

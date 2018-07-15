@@ -12,7 +12,7 @@ MAKE 				= make
 # Source files                              #
 #-------------------------------------------#
 STARTUP_SOURCE		= ./startup.asm
-CC_SOURCES 			= $(shell find $(M) -name "*.cc")
+CC_SOURCES 			= $(shell find $(M) -name "*.cpp")
 C_SOURCES 			= $(shell find $(M) -name "*.c")
 ASM_SOURCES 		= $(shell find $(M) -name "*.asm")
 
@@ -23,7 +23,7 @@ MODULE_NAME			= $(shell basename $(M))
 #-------------------------------------------#
 ASM_OBJECTS 		= $(patsubst %.asm,_%.o, $(notdir $(ASM_SOURCES)))
 C_OBJECTS 			= $(notdir $(C_SOURCES:.c=.o))
-CC_OBJECTS 			= $(notdir $(CC_SOURCES:.cc=.o))
+CC_OBJECTS 			= $(notdir $(CC_SOURCES:.cpp=.o))
 
 DEPENDENCIES 		= $(addprefix $(M)/$(BUILDDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 
@@ -78,7 +78,7 @@ $(M)/$(BUILDDIR)/%.o : $(M)/%.c
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CC) -c $(CFLAGS) -o $@ $<
 
-$(M)/$(BUILDDIR)/%.o : $(M)/%.cc
+$(M)/$(BUILDDIR)/%.o : $(M)/%.cpp
 	@echo "CXX		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(CXX) -c $(CXXFLAGS) -o $@ $<

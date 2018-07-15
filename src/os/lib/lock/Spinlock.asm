@@ -13,7 +13,7 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ; Assembler code for the Spinlock
-; see Spinlock.h und Spinlock.cc
+; see Spinlock.h und Spinlock.cpp
 ; Burak Akguel and Christian Gesse, HHU, 2017
 
 

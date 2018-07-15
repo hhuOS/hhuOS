@@ -5,14 +5,14 @@ if [ "$#" -ne 1 ]; then
     exit 1
 fi
 
-if [ ! -f "$1.cc" ]; then
+if [ ! -f "$1.cpp" ]; then
     echo "File not found!"
     exit 1
 fi
 
-g++ -m32 -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o printf.o -c printf.cc
+g++ -m32 -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o printf.o -c printf.cpp
 g++ -m32 -shared -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o libprintf.so  printf.o
-g++ -m32 -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o "$1".o -c "$1".cc
+g++ -m32 -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o "$1".o -c "$1".cpp
 g++ -m32 -nostdlib -ffreestanding -fpic -O0 -Wl,--hash-style=sysv -o "$1" "$1".o -lprintf -L.
 
 rm printf.o
