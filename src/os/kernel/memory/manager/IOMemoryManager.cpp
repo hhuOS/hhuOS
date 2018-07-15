@@ -41,18 +41,21 @@ void IOMemoryManager::init(){
 /**
  * Allocate some virtual 4kb pages for given physical page frames.
  */
-IOMemInfo IOMemoryManager::alloc(uint32_t* physAddresses, uint32_t pageCnt){
+IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
 
     lock.acquire();
 
-	// use pointer to iterate thrugh list
+    uint32_t pageCnt = memInfo.pageCount;
+    uint32_t* physAddresses = memInfo.physAddresses;
+
+	// use pointer to iterate through list
     IOMemFreeHeader* tmp = anchor;
 
     // iterate
     while(tmp){
     	// we found a free block with enough pages
         if(tmp->pageCount >= pageCnt){
-        	// if block matches the requested size exactly, brach here
+        	// if block matches the requested size exactly, branch here
             if(tmp->pageCount == pageCnt){
             	// if block was also anchor for the free list, the next header will be anchor
                 if(tmp == anchor){
@@ -90,30 +93,27 @@ IOMemInfo IOMemoryManager::alloc(uint32_t* physAddresses, uint32_t pageCnt){
                 }
             }
             
-            // map the allocated virtual pages to the given phyiscal addresses
+            // map the allocated virtual pages to the given physical addresses
             for(uint32_t i = 0; i < pageCnt; i++){
             	// since the virtual memory is one block, we can update the virtual address this way
                 uint32_t vaddr = (uint32_t)tmp + i * PAGESIZE;
 
                 // if the virtual address is already mapped, we have to unmap it
-                // this can happen becuase the headers of the free list are mapped
+                // this can happen because the headers of the free list are mapped
                 // to arbitrary physical addresses, but the IO Memory should be mapped
-                // to given phyiscal addresses
+                // to given physical addresses
                 SystemManagement::getInstance()->unmap(vaddr);
-                // map the page to given phyiscal address
+                // map the page to given physical address
                 SystemManagement::getInstance()->map(vaddr, PAGE_READ_WRITE|PAGE_PRESENT|PAGE_NO_CACHING, physAddresses[i]);
             }
 
-            // create IOMemInfo strcut for return
-            IOMemInfo ret = (IOMemInfo) {};
-            ret.virtStartAddress = (uint32_t) tmp;
-            ret.pageCount = pageCnt;
-            ret.physAddresses = physAddresses;
+            // update IOMemInfo with virtual address
+            memInfo.virtStartAddress = (uint32_t) tmp;
             // update free memory
             freeMemory -= (pageCnt * PAGESIZE);
             lock.release();
             // return
-            return ret;
+            return memInfo;
         }
         // look for next memory block
         tmp = tmp->next;
@@ -122,13 +122,13 @@ IOMemInfo IOMemoryManager::alloc(uint32_t* physAddresses, uint32_t pageCnt){
     lock.release();
 
     // if the loop is passed without returning, no memory block with enough pages is free
-    return (IOMemInfo) {0,0,0};
+    return memInfo;
 }
 
 /**
  * Free virtual IO memory.
  *
- * @param memInfo IOMemInfo strcut with all information regarding the memory block
+ * @param memInfo IOMemInfo struct with all information regarding the memory block
  */
 void IOMemoryManager::free(IOMemInfo memInfo){
 	// get important parameters
@@ -162,7 +162,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     if(virtStart < (uint32_t)anchor) {
     	// we have new anchor at the beginning of this memory block
         virtHeaderAddress = (uint32_t) virtStart;
-        // update pointer and vaules
+        // update pointer and values
         tmp->pageCount = pageCnt;
         tmp->prev = 0;
         tmp->next = anchor;

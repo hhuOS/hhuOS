@@ -325,9 +325,14 @@ IOMemInfo SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
         physAddresses[i] = paddr;
     }
 
+    // build up ioMemInfo with given information
+    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
+
     // allocate 4kb-aligned virtual IO-memory
-    IOMemInfo ioMemInfo = ioMemManager->alloc(physAddresses, pageCnt);
+    ioMemInfo = ioMemManager->alloc(ioMemInfo);
+
     if(ioMemInfo.virtStartAddress == 0){
+    	delete physAddresses;
         printf("[PAGINGMANAGER] IO Mapping not possible at physical address %x\n", physAddress);
     }
 
@@ -362,13 +367,18 @@ IOMemInfo SystemManagement::mapIO(uint32_t size) {
         physAddresses[i] = physAddr;
     }
 
-    // allocate virtual IO-memory 
-    IOMemInfo ioMemInfo = ioMemManager->alloc(physAddresses, pageCnt);
+    // build up ioMemInfo with given information
+    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
+
+    // allocate 4kb-aligned virtual IO-memory
+	ioMemInfo = ioMemManager->alloc(ioMemInfo);
+
     if(ioMemInfo.virtStartAddress == 0){
         printf("[PAGINGMANAGER] IO Mapping not possible with pageCnt %d\n", pageCnt);
         for(uint32_t i = 0; i < pageCnt; i++){
 			pageFrameAllocator->free(physAddresses[i]);
 		}
+    	delete physAddresses;
 		return {0,0,0};
     }
 
@@ -436,13 +446,18 @@ IOMemInfo SystemManagement::mapPhysRangeIO(uint32_t size) {
     	}
     }
 
-    // allocate virtual IO-memory
-    IOMemInfo ioMemInfo = ioMemManager->alloc(physAddresses, pageCnt);
+    // build up ioMemInfo with given information
+    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
+
+    // allocate 4kb-aligned virtual IO-memory
+	ioMemInfo = ioMemManager->alloc(ioMemInfo);
+
     if(ioMemInfo.virtStartAddress == 0){
         printf("[PAGINGMANAGER] IO Range Mapping not possible with pageCnt %d\n", pageCnt);
         for(uint32_t i = 0; i < pageCnt; i++){
         	pageFrameAllocator->free(physAddresses[i]);
         }
+    	delete physAddresses;
         return {0,0,0};
     }
 
@@ -454,6 +469,7 @@ IOMemInfo SystemManagement::mapPhysRangeIO(uint32_t size) {
  */
 void SystemManagement::freeIO(IOMemInfo memInfo) {
     ioMemManager->free(memInfo);
+    delete memInfo.physAddresses;
 }
 
 /**

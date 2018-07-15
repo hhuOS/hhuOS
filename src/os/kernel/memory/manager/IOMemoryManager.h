@@ -76,16 +76,15 @@ public:
     /**
      * Allocate some virtual 4kb pages for given physical page frames.
      *
-     * @param physAddresses Array with physical addresses of the pages that need virtual IO Memory
-     * @param pageCnt Amount of pages to be mapped
+     * @param memInfo ioMemInfo struct with pageCount and physAddresses filled in, but virtStartAddress == 0
      * @return IOMemInfo with all information about allocations
      */
-    IOMemInfo alloc(uint32_t* physAddresses, uint32_t pageCnt);
+    IOMemInfo alloc(IOMemInfo memInfo);
 
     /**
      * Free virtual IO memory.
      *
-     * @param memInfo IOMemInfo strcut with all information regarding the memory block
+     * @param memInfo IOMemInfo struct with all information regarding the memory block
      */
     void free(IOMemInfo memInfo);
 
