@@ -43,6 +43,7 @@ public:
         pagefault = 14,
         timer = 32,
         keyboard = 33,
+        floppy = 38,
         mouse = 44
     };
     

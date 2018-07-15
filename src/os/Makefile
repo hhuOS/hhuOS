@@ -80,6 +80,7 @@ KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k en-us -soundhw pcspk -vga std -monitor stdio \
+					  -fda fdd0.img \
 					  -readconfig usb.cfg \
 					  -drive format=raw,file=hdd0.img,if=none,id=disk0 \
 					  -device ich9-ahci,id=ahci \
@@ -106,7 +107,14 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 #-------------------------------------------#
 # Default targets                           #
 #-------------------------------------------#
-all: iso modules hdd0.img
+all: iso modules fdd0.img hdd0.img
+
+#-------------------------------------------#
+# Floppy disk image                         #
+#-------------------------------------------#
+fdd0.img:
+	@echo "FDD		fdd0.img"
+	$(VERBOSE) qemu-img create fdd0.img 1440K
 
 #-------------------------------------------#
 # Hard drive image                          #
@@ -209,19 +217,19 @@ bootdisk-commit:
 #-------------------------------------------#
 # QEMU / KVM                                #
 #-------------------------------------------#
-qemu: $(OBJDIR)/hhuOS.iso modules hdd0.img
+qemu: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	$(QEMU_BIN) $(QEMU_DEFAULT_PARAMS)
 
-qemu64: $(OBJDIR)/hhuOS.iso modules hdd0.img
+qemu64: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	qemu-system-x86_64 $(QEMU_DEFAULT_PARAMS)
 
-kvm: $(OBJDIR)/hhuOS.iso modules hdd0.img
+kvm: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	$(KVM_BIN) $(QEMU_DEFAULT_PARAMS)
 
 #-------------------------------------------#
 # Debugging                                 #
 #-------------------------------------------#
-qemu-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img
+qemu-gdb: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
@@ -229,7 +237,7 @@ qemu-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-qemu-gdb-startup: $(OBJDIR)/hhuOS.iso modules hdd0.img
+qemu-gdb-startup: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	$(VERBOSE) echo "set architecture i8086" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(shell id -u)
@@ -237,7 +245,7 @@ qemu-gdb-startup: $(OBJDIR)/hhuOS.iso modules hdd0.img
 	$(VERBOSE) echo "continue" >> /tmp/gdbcommands.$(shell id -u)
 	($(QEMU_BIN) -s -S $(QEMU_DEFAULT_PARAMS)) &
 
-kvm-gdb: $(OBJDIR)/hhuOS.iso modules hdd0.img
+kvm-gdb: $(OBJDIR)/hhuOS.iso modules fdd0.img hdd0.img
 	$(VERBOSE) echo "set architecture i386" > /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(shell id -u)
 	$(VERBOSE) echo "break main" >> /tmp/gdbcommands.$(shell id -u)
@@ -263,6 +271,8 @@ clean:
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.bin
 	@echo "RM		$(BOOTDIR)/hhuOS.initrd"
 	$(VERBOSE) rm -f  $(BOOTDIR)/hhuOS.initrd
+	@echo "RM		fdd0.img"
+	$(VERBOSE) rm -f  fdd0.img
 	@echo "RM		hdd0.img"
 	$(VERBOSE) rm -f  hdd0.img
 	@echo "RM		$(MODULE_OUT)/*"

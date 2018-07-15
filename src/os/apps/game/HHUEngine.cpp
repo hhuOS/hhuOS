@@ -66,7 +66,7 @@ void HHUEngine::setCurrentGame(Game* game){
 }
 
 bool HHUEngine::isGameSet(){
-    return currentGame != 0x0;
+    return currentGame != nullptr;
 }
 
 void HHUEngine::instantiate(GameObject* gameObject){

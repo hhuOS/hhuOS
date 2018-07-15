@@ -24,6 +24,7 @@
 #include <devices/block/Ahci.h>
 #include <devices/usb/uhci/Uhci.h>
 #include <devices/block/Ide.h>
+#include <devices/block/FloppyController.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -95,17 +96,22 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->init(xres, yres, bpp);
 
-    bootscreen->update(0, "Initializing PCI Devices");
+    bootscreen->update(0, "Initializing Floppy Controller");
+    auto *floppyController = new FloppyController(FloppyController::PRIMARY_CONTROLLER);
+    floppyController->plugin();
+    floppyController->detectDrives();
+
+    bootscreen->update(25, "Initializing PCI Devices");
     Pci::scan();
 
     initializePciDrivers();
 
-    bootscreen->update(33, "Initializing Filesystem");
+    bootscreen->update(50, "Initializing Filesystem");
     auto *fs = Kernel::getService<FileSystem>();
     fs->init();
     printfUpdateStdout();
 
-    bootscreen->update(66, "Starting Threads");
+    bootscreen->update(75, "Starting Threads");
     idleThread = new IdleThread();
 
     idleThread->start();
