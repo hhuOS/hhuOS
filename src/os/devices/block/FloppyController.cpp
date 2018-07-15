@@ -29,10 +29,19 @@ bool FloppyController::waitForMotorOff(FloppyDevice * const &device) {
     return true;
 }
 
-FloppyController::FloppyController(Controller controller) : controller(controller),
-        statusRegisterA(controller + 0), statusRegisterB(controller + 1), digitalOutputRegister(controller + 2),
-        tapeDriveRegister(controller + 3), mainStatusRegister(controller + 4), datarateSelectRegister(controller + 4),
-        fifoRegister(controller + 5), digitalInputRegister(controller + 7), configControlRegister(controller + 7) {
+bool FloppyController::isAvailable() {
+    IOport cmosRegisterPort(0x70);
+    IOport cmosDataPort(0x71);
+
+    cmosRegisterPort.outb(0x10);
+
+    return cmosDataPort.inb() != 0;
+}
+
+FloppyController::FloppyController() :
+        statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
+        tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), datarateSelectRegister(IO_BASE_ADDRESS + 4),
+        fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {
 
     timeService = Kernel::getService<TimeService>();
     storageService = Kernel::getService<StorageService>();
@@ -46,7 +55,7 @@ bool FloppyController::isFifoBufferReady() {
     return (mainStatusRegister.inb() & 0x80u) == 0x80;
 }
 
-void FloppyController::detectDrives() {
+void FloppyController::setup() {
     IOport cmosRegisterPort(0x70);
     IOport cmosDataPort(0x71);
 
@@ -60,29 +69,21 @@ void FloppyController::detectDrives() {
     if(primaryDriveType != DriveType::DRIVE_TYPE_NONE && primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        uint32_t driveNumber = controller == PRIMARY_CONTROLLER ? 0 : 2;
+        log.trace("Found primary floppy drive");
 
-        String name = String::format("fdd%u", driveNumber);
-
-        log.trace("Found drive '%u'", driveNumber);
-
-        storageService->registerDevice(new FloppyDevice(*this, 0, primaryDriveType, name));
+        storageService->registerDevice(new FloppyDevice(*this, 0, primaryDriveType, "fdd0"));
     }
 
     if(secondaryDriveType != DriveType::DRIVE_TYPE_NONE && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        uint32_t driveNumber = controller == SECONDARY_CONTROLLER ? 1 : 3;
+        log.trace("Found secondary floppy drive");
 
-        String name = String::format("fdd%u", driveNumber);
-
-        log.trace("Found drive %u", driveNumber);
-
-        storageService->registerDevice(new FloppyDevice(*this, 1, secondaryDriveType, name));
+        storageService->registerDevice(new FloppyDevice(*this, 1, secondaryDriveType, "fdd1"));
     }
 }
 
-void FloppyController::writeCommand(uint8_t command) {
+void FloppyController::writeFifoByte(uint8_t command) {
     uint32_t timeout = 0;
 
     while(timeout < FLOPPY_TIMEOUT) {
@@ -119,7 +120,7 @@ uint8_t FloppyController::readFifoByte() {
 FloppyController::SenseInterruptState FloppyController::senseInterrupt() {
     SenseInterruptState ret{};
 
-    writeCommand(COMMAND_SENSE_INTERRUPT);
+    writeFifoByte(COMMAND_SENSE_INTERRUPT);
 
     ret.statusRegister0 = readFifoByte();
     ret.currentCylinder = readFifoByte();
@@ -180,9 +181,9 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
             configControlRegister.outb(0x03);
     }
 
-    writeCommand(COMMAND_SPECIFY);
-    writeCommand(0xdf);
-    writeCommand(0x02);
+    writeFifoByte(COMMAND_SPECIFY);
+    writeFifoByte(0xdf);
+    writeFifoByte(0x02);
 
     return calibrateDrive(device);
 }
@@ -195,8 +196,8 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
     setMotorState(device, FLOPPY_MOTOR_ON);
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
-        writeCommand(COMMAND_RECALIBRATE);
-        writeCommand(device.driveNumber);
+        writeFifoByte(COMMAND_RECALIBRATE);
+        writeFifoByte(device.driveNumber);
 
         while(!receivedInterrupt);
         SenseInterruptState interruptState = senseInterrupt();
@@ -227,9 +228,9 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
     setMotorState(device, FLOPPY_MOTOR_ON);
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
-        writeCommand(COMMAND_SEEK);
-        writeCommand(device.driveNumber | static_cast<uint8_t>(head << 6u));
-        writeCommand(cylinder);
+        writeFifoByte(COMMAND_SEEK);
+        writeFifoByte(device.driveNumber | static_cast<uint8_t>(head << 6u));
+        writeFifoByte(cylinder);
 
         while(!receivedInterrupt);
         SenseInterruptState interruptState = senseInterrupt();

@@ -97,9 +97,13 @@ int32_t GatesOfHell::enter() {
     bootscreen->init(xres, yres, bpp);
 
     bootscreen->update(0, "Initializing Floppy Controller");
-    auto *floppyController = new FloppyController(FloppyController::PRIMARY_CONTROLLER);
-    floppyController->plugin();
-    floppyController->detectDrives();
+    if(FloppyController::isAvailable()) {
+        log.trace("Floppy controller is available and at least one drive is attached to it");
+
+        auto *floppyController = new FloppyController();
+        floppyController->plugin();
+        floppyController->setup();
+    }
 
     bootscreen->update(25, "Initializing PCI Devices");
     Pci::scan();

@@ -13,11 +13,6 @@ class FloppyController : InterruptHandler {
 
 public:
 
-    enum Controller {
-        PRIMARY_CONTROLLER = 0x3f0,
-        SECONDARY_CONTROLLER = 0x370
-    };
-
     enum DriveType {
         DRIVE_TYPE_NONE = 0x00,
         DRIVE_TYPE_360KB_5_25 = 0x01,
@@ -66,7 +61,6 @@ private:
         uint8_t currentCylinder;
     };
 
-    Controller controller;
     FloppyMotorState motorState = FLOPPY_MOTOR_OFF;
     bool receivedInterrupt = false;
 
@@ -85,6 +79,7 @@ private:
 
     static Logger &log;
 
+    static const constexpr uint16_t IO_BASE_ADDRESS = 0x3f0;
     static const constexpr uint32_t FLOPPY_TIMEOUT = 10000;
     static const constexpr uint32_t FLOPPY_RETRY_COUNT = 10;
 
@@ -94,7 +89,7 @@ private:
 
     bool isFifoBufferReady();
 
-    void writeCommand(uint8_t command);
+    void writeFifoByte(uint8_t command);
 
     uint8_t readFifoByte();
 
@@ -114,13 +109,15 @@ private:
 
 public:
 
-    explicit FloppyController(Controller controller);
+    FloppyController();
 
     FloppyController(const FloppyController &copy) = delete;
 
     ~FloppyController() override = default;
 
-    void detectDrives();
+    static bool isAvailable();
+
+    void setup();
 
     void plugin();
 
