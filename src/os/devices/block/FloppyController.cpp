@@ -262,3 +262,15 @@ void FloppyController::plugin() {
 void FloppyController::trigger() {
     receivedInterrupt = true;
 }
+
+void FloppyController::prepareDma(Isa::TransferMode transferMode, FloppyDevice &device) {
+    Isa::selectChannel(2);
+
+    Isa::resetFlipFlop(2);
+
+    Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize()));
+
+    Isa::setMode(2, transferMode, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
+
+    Isa::deselectChannel(2);
+}

@@ -102,3 +102,59 @@ void Isa::deselectChannel(uint8_t channel) {
 
     singleChannelMaskRegisters[channel / 4].outb(mask);
 }
+
+void Isa::setCount(uint8_t channel, uint16_t count) {
+    if(channel > 7) {
+        return;
+    }
+
+    countRegisters[channel].outb(static_cast<uint8_t>(count & 0x0fu));
+    countRegisters[channel].outb(static_cast<uint8_t>(count >> 8u));
+}
+
+void Isa::setMode(uint8_t channel, Isa::TransferMode transferMode, bool autoReset, bool reverseMemoryOrder,
+                  Isa::DmaMode dmaMode) {
+    if(channel > 7) {
+        return;
+    }
+
+    auto mask = static_cast<uint8_t>((channel > 3u ? channel - 4u : channel));
+
+    mask |= transferMode;
+
+    if(autoReset) {
+        mask |= 0x10;
+    }
+
+    if(reverseMemoryOrder) {
+        mask |= 0x20;
+    }
+
+    mask |= dmaMode;
+
+    modeRegisters[channel / 4].outb(mask);
+}
+
+void Isa::resetFlipFlop(uint8_t channel) {
+    if(channel > 7) {
+        return;
+    }
+
+    flipFlopResetRegisters[channel / 4].outb(0xff);
+}
+
+void Isa::resetMask(uint8_t channel) {
+    if(channel > 7) {
+        return;
+    }
+
+    maskResetRegisters[channel / 4].outb(0xff);
+}
+
+void Isa::resetAll(uint8_t channel) {
+    if(channel > 7) {
+        return;
+    }
+
+    masterResetRegisters[channel / 4].outb(0xff);
+}

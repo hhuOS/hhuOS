@@ -20,6 +20,8 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
     }
 
     controller.resetDrive(*this);
+
+    controller.prepareDma(Isa::TRANSFER_MODE_READ, *this);
 }
 
 FloppyDevice::CylinderHeadSector FloppyDevice::LbaToChs(uint32_t lbaSector) {
@@ -50,7 +52,7 @@ String FloppyDevice::getHardwareName() {
 }
 
 uint32_t FloppyDevice::getSectorSize() {
-    return 0;
+    return 512;
 }
 
 uint64_t FloppyDevice::getSectorCount() {
