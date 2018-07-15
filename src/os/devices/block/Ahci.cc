@@ -55,14 +55,14 @@ void Ahci::setup(const Pci::Device &dev) {
     readConfig();
 
     if(numPorts == 0) {
-        log.trace("No ports found on HBA");
+        log.warn("No ports found on HBA");
         log.trace("Aborting AHCI-setup");
 
         return;
     }
 
     if(pi == 0) {
-        log.trace("No ports are implemented on HBA");
+        log.warn("No ports are implemented on HBA");
         log.trace("Aborting AHCI-setup");
 
         return;
@@ -75,7 +75,7 @@ void Ahci::setup(const Pci::Device &dev) {
     ret = reset();
 
     if(!ret) {
-        log.trace("Failed to reset HBA");
+        log.error("Failed to reset HBA");
         log.trace("Aborting AHCI-setup");
 
         numDevices = 0;
@@ -144,7 +144,7 @@ bool Ahci::reset() {
     }
 
     if(timeout == AHCI_TIMEOUT) {
-        log.trace("Error: Timeout while resetting HBA");
+        log.error("Timeout while resetting HBA");
 
         return false;
     }
@@ -322,7 +322,7 @@ uint8_t Ahci::getNumDevices() {
 void Ahci::biosHandoff() {
 
     if ( !(abar->cap2 & HBA_CAP2_BOH) ) {
-       log.trace("AHCI BIOS Handoff is not supported ");
+        log.trace("AHCI BIOS Handoff is not supported ");
         return;
     }
 
@@ -337,7 +337,7 @@ void Ahci::biosHandoff() {
     }
 
     if (timeout == AHCI_TIMEOUT) {
-       log.trace("BIOS Handoff timed out");
+       log.warn("BIOS Handoff timed out");
     } else {
        log.trace("AHCI BIOS Handoff succeeded ");
     }
@@ -372,7 +372,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     HbaPort_Virt *virtPort = sataDevices_Virt[deviceNumber];
 
     if (!isActive(port)) {
-       log.trace("Unable to get device info from port %u: Port is not initialized", port);
+        log.error("Unable to get device info from port %u: Port is not initialized", port);
         return ret;
     }
 
@@ -415,7 +415,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
     }
 
     if (timeout == AHCI_TIMEOUT) {
-        log.trace("Error: Device is not responding ");
+        log.error("Device is not responding");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return ret;
     }
@@ -430,7 +430,7 @@ Ahci::AhciDeviceInfo Ahci::getDeviceInfo(uint16_t deviceNumber) {
         }
 
         if (port->is & HBA_PxIS_TFES) {
-            log.trace("Error: Task File Error! ");
+            log.error("Task File Error");
             SystemManagement::getInstance()->freeIO(ioMemInfo);
             return ret;
         }
@@ -466,12 +466,12 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
                    uint8_t portIndex) {
 
     if (count == 0) {
-        log.trace("Error: Count has to be greater than 0 ");
+        log.warn("Count has to be greater than 0");
         return false;
     }
 
     if ( !isActive(port) ) {
-        log.trace("Error: Port is not inizialized ");
+        log.warn("Port is not inizialized");
         return false;
     }
 
@@ -545,7 +545,7 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
     while ((port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && (timeout = (time.getMillis() - then)) < AHCI_TIMEOUT);
 
     if (timeout >= AHCI_TIMEOUT) {
-       log.trace("Error: Device is not responding ");
+       log.error("Device is not responding");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
@@ -561,20 +561,20 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
         }
 
         if (port->is & HBA_PxIS_TFES) {
-            log.trace("Error: Task File Error! ");
+            log.error("Task File Error");
             SystemManagement::getInstance()->freeIO(ioMemInfo);
             return false;
         }
     }
 
     if (timeout >= AHCI_TIMEOUT) {
-        log.trace("Error: Device is hung ");
+        log.error("Device is hung");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
 
     if (port->is & HBA_PxIS_TFES || port->tfd & HBA_PxTFD_ERR) {
-        log.trace("Task File Error! ");
+        log.error("Task File Error");
         SystemManagement::getInstance()->freeIO(ioMemInfo);
         return false;
     }
@@ -664,7 +664,7 @@ void Ahci::startCommand(HbaPort *port) {
     }
 
     if (timeout == AHCI_TIMEOUT) {
-        log.trace("Error: Timeout while sending start command");
+        log.error("Timeout while sending start command");
     } else {
         port->cmd |= HBA_PxCMD_ST | HBA_PxCMD_FRE;
     }
@@ -690,7 +690,7 @@ void Ahci::stopCommand(HbaPort *port) {
     }
 
     if (timeout == AHCI_TIMEOUT) {
-        log.trace("Error: Timeout while sending stop command");
+        log.error("Timeout while sending stop command");
     }
 }
 
