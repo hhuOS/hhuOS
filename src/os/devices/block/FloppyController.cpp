@@ -7,28 +7,11 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/memory/SystemManagement.h>
 #include "FloppyController.h"
+#include "FloppyMotorControlThread.h"
+
+extern uint8_t ___FLOPPY_START__, ___FLOPPY_END__;
 
 Logger &FloppyController::log = Logger::get("FLOPPY");
-
-bool FloppyController::waitForMotorOff(FloppyDevice * const &device) {
-    auto *timeService = Kernel::getService<TimeService>();
-    uint32_t timeout = FloppyController::FLOPPY_TIMEOUT;
-
-    while(timeout > 0) {
-        if(device->motorState == FloppyController::FLOPPY_MOTOR_ON) {
-            return false; // Should not happen
-        } else if(device->motorState == FloppyController::FLOPPY_MOTOR_OFF) {
-            return true; // Motor is already turned off
-        }
-
-        timeService->msleep(500);
-        timeout -= 500;
-    }
-
-    device->controller.killMotor(*device); // Turn of the motor
-
-    return true;
-}
 
 bool FloppyController::isAvailable() {
     IOport cmosRegisterPort(0x70);
@@ -43,6 +26,13 @@ FloppyController::FloppyController() :
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), datarateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {
+
+    auto dmaMemStart = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_START__));
+    auto dmaMemEnd = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_END__));
+
+    dmaMemInfo = SystemManagement::getInstance()->mapIO(dmaMemStart, dmaMemEnd - dmaMemStart);
+
+    memset(reinterpret_cast<void *>(dmaMemInfo.virtStartAddress), 0, dmaMemEnd - dmaMemStart);
 
     timeService = Kernel::getService<TimeService>();
     storageService = Kernel::getService<StorageService>();
@@ -129,11 +119,30 @@ FloppyController::SenseInterruptState FloppyController::senseInterrupt() {
     return ret;
 }
 
+FloppyController::CommandStatus FloppyController::readCommandStatus() {
+    CommandStatus ret{};
+
+    ret.statusRegister0 = readFifoByte();
+    ret.statusRegister1 = readFifoByte();
+    ret.statusRegister2 = readFifoByte();
+    ret.currentCylinder = readFifoByte();
+    ret.currentHead = readFifoByte();
+    ret.currentSector = readFifoByte();
+    ret.bytesPerSector = readFifoByte();
+
+    return ret;
+}
+
 void FloppyController::setMotorState(FloppyDevice &device, FloppyController::FloppyMotorState desiredState) {
     if(desiredState == FLOPPY_MOTOR_WAIT) {
         return;
     } else if(desiredState == FLOPPY_MOTOR_ON) {
         if(device.motorState == FLOPPY_MOTOR_ON) {
+            return;
+        } else if(device.motorState == FLOPPY_MOTOR_WAIT) {
+            device.motorState = FLOPPY_MOTOR_ON;
+            device.motorControlThread->timeout = FLOPPY_TIMEOUT;
+
             return;
         }
 
@@ -147,8 +156,7 @@ void FloppyController::setMotorState(FloppyDevice &device, FloppyController::Flo
         }
 
         device.motorState = FLOPPY_MOTOR_WAIT;
-
-        WorkerThread<FloppyDevice*, bool> waitThread(waitForMotorOff, &device, nullptr);
+        device.motorControlThread->timeout = FLOPPY_TIMEOUT;
     }
 }
 
@@ -170,16 +178,22 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     switch(device.driveType) {
         case DRIVE_TYPE_360KB_5_25 :
             configControlRegister.outb(0x02);
+            break;
         case DRIVE_TYPE_1200KB_5_25 :
             configControlRegister.outb(0x00);
+            break;
         case DRIVE_TYPE_720KB_3_5 :
             configControlRegister.outb(0x01);
+            break;
         case DRIVE_TYPE_1440KB_3_5 :
             configControlRegister.outb(0x00);
+            break;
         case DRIVE_TYPE_2880KB_3_5 :
             configControlRegister.outb(0x00);
+            break;
         default :
-            configControlRegister.outb(0x03);
+            configControlRegister.outb(0x00);
+            break;
     }
 
     writeFifoByte(COMMAND_SPECIFY);
@@ -223,6 +237,38 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
     return false;
 }
 
+uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
+    seek(device, 0, 0);
+
+    setMotorState(device, FLOPPY_MOTOR_ON);
+
+    receivedInterrupt = false;
+
+    Isa::selectChannel(2);
+    Isa::resetFlipFlop(2);
+    Isa::setAddress(2, dmaMemInfo.physAddresses[0]);
+    Isa::resetFlipFlop(2);
+    Isa::setCount(2, 511);
+    Isa::setMode(2, Isa::TRANSFER_MODE_WRITE, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
+    Isa::deselectChannel(2);
+
+    writeFifoByte(COMMAND_READ_DATA | FLAG_MULTITRACK | FLAG_MFM);
+    writeFifoByte(device.driveNumber);
+    writeFifoByte(0);
+    writeFifoByte(device.driveNumber);
+    writeFifoByte(1);
+    writeFifoByte(2);
+    writeFifoByte(2);
+    writeFifoByte(device.gapLength);
+    writeFifoByte(0xff);
+
+    while(!receivedInterrupt);
+
+    CommandStatus status = readCommandStatus();
+
+    return status.bytesPerSector;
+}
+
 bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head) {
     receivedInterrupt = false;
 
@@ -230,7 +276,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
         writeFifoByte(COMMAND_SEEK);
-        writeFifoByte(device.driveNumber | static_cast<uint8_t>(head << 6u));
+        writeFifoByte(device.driveNumber | static_cast<uint8_t>(head << 2u));
         writeFifoByte(cylinder);
 
         while(!receivedInterrupt);
@@ -240,7 +286,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
             continue;
         }
 
-        if(interruptState.currentCylinder == 0) {
+        if(interruptState.currentCylinder == cylinder) {
             setMotorState(device, FLOPPY_MOTOR_OFF);
 
             return true;
@@ -263,14 +309,100 @@ void FloppyController::trigger() {
     receivedInterrupt = true;
 }
 
-void FloppyController::prepareDma(Isa::TransferMode transferMode, FloppyDevice &device) {
+void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode) {
     Isa::selectChannel(2);
 
     Isa::resetFlipFlop(2);
+    Isa::setAddress(2, dmaMemInfo.physAddresses[0]);
 
-    Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize()));
+    Isa::resetFlipFlop(2);
+    Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
 
     Isa::setMode(2, transferMode, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
 
     Isa::deselectChannel(2);
+}
+
+bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
+    auto lastSector = static_cast<uint8_t>(sector + 1 > device.sectorsPerTrack ? device.sectorsPerTrack : sector + 1);
+
+    seek(device, cylinder, head);
+
+    setMotorState(device, FLOPPY_MOTOR_ON);
+
+    for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
+        receivedInterrupt = false;
+
+        prepareDma(device, Isa::TRANSFER_MODE_WRITE);
+
+        writeFifoByte(COMMAND_READ_DATA | FLAG_MULTITRACK | FLAG_MFM);
+        writeFifoByte(device.driveNumber | (head << 2u));
+        writeFifoByte(cylinder);
+        writeFifoByte(device.driveNumber | (head << 2u));
+        writeFifoByte(sector);
+        writeFifoByte(device.sectorSizeExponent);
+        writeFifoByte(lastSector);
+        writeFifoByte(device.gapLength);
+        writeFifoByte(0xff);
+
+        while(!receivedInterrupt);
+
+        CommandStatus status = readCommandStatus();
+
+        if((status.statusRegister0 & 0xc0u) != 0) {
+            continue;
+        }
+
+        memcpy(buff, reinterpret_cast<const void *>(dmaMemInfo.virtStartAddress), device.getSectorSize());
+
+        setMotorState(device, FLOPPY_MOTOR_OFF);
+
+        return true;
+    }
+
+    setMotorState(device, FLOPPY_MOTOR_OFF);
+
+    return false;
+}
+
+bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
+    auto lastSector = static_cast<uint8_t>(sector + 1 > device.sectorsPerTrack ? device.sectorsPerTrack : sector + 1);
+
+    memcpy(reinterpret_cast<void *>(dmaMemInfo.virtStartAddress), buff, device.getSectorSize());
+
+    seek(device, cylinder, head);
+
+    setMotorState(device, FLOPPY_MOTOR_ON);
+
+    for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
+        receivedInterrupt = false;
+
+        prepareDma(device, Isa::TRANSFER_MODE_READ);
+
+        writeFifoByte(COMMAND_WRITE_DATA | FLAG_MULTITRACK | FLAG_MFM);
+        writeFifoByte(device.driveNumber | (head << 2u));
+        writeFifoByte(cylinder);
+        writeFifoByte(device.driveNumber | (head << 2u));
+        writeFifoByte(sector);
+        writeFifoByte(device.sectorSizeExponent);
+        writeFifoByte(lastSector);
+        writeFifoByte(device.gapLength);
+        writeFifoByte(0xff);
+
+        while(!receivedInterrupt);
+
+        CommandStatus status = readCommandStatus();
+
+        if((status.statusRegister0 & 0xc0u) != 0) {
+            continue;
+        }
+
+        setMotorState(device, FLOPPY_MOTOR_OFF);
+
+        return true;
+    }
+
+    setMotorState(device, FLOPPY_MOTOR_OFF);
+
+    return false;
 }

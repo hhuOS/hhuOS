@@ -114,7 +114,8 @@ all: iso modules fdd0.img hdd0.img
 #-------------------------------------------#
 fdd0.img:
 	@echo "FDD		fdd0.img"
-	$(VERBOSE) qemu-img create fdd0.img 1440K
+	$(VERBOSE) rm -f fdd0.img > /dev/null
+	$(VERBOSE) mkfs.msdos -C fdd0.img 1440 > /dev/null
 
 #-------------------------------------------#
 # Hard drive image                          #

@@ -21,6 +21,8 @@ private:
     static IOport maskResetRegisters[2];
     static IOport multiChannelMaskRegisters[2];
 
+    static const constexpr uint32_t ISA_DMA_MAX_ADDRESS = 0x1000000;
+
 public:
 
     enum TransferMode : uint8_t {
@@ -39,6 +41,8 @@ public:
     static void selectChannel(uint8_t channel);
 
     static void deselectChannel(uint8_t channel);
+
+    static void setAddress(uint8_t channel, uint32_t address);
 
     static void setCount(uint8_t channel, uint16_t count);
 

@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <devices/block/FloppyController.h>
 
+class FloppyMotorControlThread;
+
 /**
  * Implementation of StorageDevice for a floppy disk drive.
  *
@@ -15,20 +17,29 @@
 class FloppyDevice : public StorageDevice {
 
     friend class FloppyController;
+    friend class FloppyMotorControlThread;
 
 private:
 
     struct CylinderHeadSector {
-        uint16_t cylinder;
-        uint16_t head;
-        uint16_t sector;
+        uint8_t cylinder;
+        uint8_t head;
+        uint8_t sector;
     };
-
-    uint8_t sectorsPerTrack;
 
     FloppyController &controller;
     uint8_t driveNumber;
     FloppyController::DriveType driveType;
+
+    FloppyMotorControlThread *motorControlThread;
+
+    String hardwareName;
+
+    uint8_t gapLength;
+    uint8_t sectorsPerTrack;
+    uint8_t sectorSizeExponent;
+    uint32_t size;
+
     FloppyController::FloppyMotorState motorState = FloppyController::FLOPPY_MOTOR_OFF;
 
     CylinderHeadSector LbaToChs(uint32_t lbaSector);

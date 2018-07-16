@@ -124,9 +124,9 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->update(100, "Finished Booting!");
 
-    bootscreen->finish();
-
     Kernel::getService<TimeService>()->msleep(1000);
+
+    bootscreen->finish();
 
     if (!showSplash) {
 

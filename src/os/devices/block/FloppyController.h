@@ -13,6 +13,7 @@ class FloppyDevice;
 class FloppyController : InterruptHandler {
 
     friend class FloppyDevice;
+    friend class FloppyMotorControlThread;
 
 public:
 
@@ -53,6 +54,12 @@ private:
         COMMAND_SCAN_HIGH_OR_EQUAL = 0x1d
     };
 
+    enum CommandFlags : uint8_t {
+        FLAG_MULTITRACK = 0x80,
+        FLAG_MFM = 0x40,
+        FLAG_SKIP = 0x20
+    };
+
     enum FloppyMotorState {
         FLOPPY_MOTOR_ON = 0x00,
         FLOPPY_MOTOR_OFF = 0x01,
@@ -64,7 +71,19 @@ private:
         uint8_t currentCylinder;
     };
 
+    struct CommandStatus {
+        uint8_t statusRegister0;
+        uint8_t statusRegister1;
+        uint8_t statusRegister2;
+        uint8_t currentCylinder;
+        uint8_t currentHead;
+        uint8_t currentSector;
+        uint8_t bytesPerSector;
+    };
+
     bool receivedInterrupt = false;
+
+    IOMemInfo dmaMemInfo;
 
     IOport statusRegisterA;
     IOport statusRegisterB;
@@ -97,6 +116,8 @@ private:
 
     SenseInterruptState senseInterrupt();
 
+    CommandStatus readCommandStatus();
+
     void setMotorState(FloppyDevice &device, FloppyMotorState desiredState);
 
     void killMotor(FloppyDevice &device);
@@ -105,11 +126,15 @@ private:
 
     bool calibrateDrive(FloppyDevice &device);
 
+    uint8_t calculateSectorSizeExponent(FloppyDevice &device);
+
     bool seek(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
-    void prepareDma(Isa::TransferMode transferMode, FloppyDevice &device);
+    void prepareDma(FloppyDevice &device, Isa::TransferMode transferMode);
 
-    static bool waitForMotorOff(FloppyDevice * const &device);
+    bool readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
+
+    bool writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
 
 public:
 

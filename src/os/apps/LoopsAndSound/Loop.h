@@ -40,7 +40,7 @@ public:
     explicit Loop (uint32_t id);
 
     /**
-     * Copy-onstructor.
+     * Copy-constructor.
      */
     Loop (const Loop &copy) = delete;
 

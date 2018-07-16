@@ -103,13 +103,27 @@ void Isa::deselectChannel(uint8_t channel) {
     singleChannelMaskRegisters[channel / 4].outb(mask);
 }
 
+void Isa::setAddress(uint8_t channel, uint32_t address) {
+    if(channel > 7) {
+        return;
+    }
+
+    if(address > ISA_DMA_MAX_ADDRESS) {
+        return;
+    }
+
+    startAddressRegisters[channel].outb(static_cast<uint8_t>(address & 0x000000ffu));
+    startAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 8u) & 0x000000ffu));
+    pageAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 16u) & 0x000000ffu));
+}
+
 void Isa::setCount(uint8_t channel, uint16_t count) {
     if(channel > 7) {
         return;
     }
 
-    countRegisters[channel].outb(static_cast<uint8_t>(count & 0x0fu));
-    countRegisters[channel].outb(static_cast<uint8_t>(count >> 8u));
+    countRegisters[channel].outb(static_cast<uint8_t>(count & 0x00ffu));
+    countRegisters[channel].outb(static_cast<uint8_t>((count >> 8u) & 0x00ffu));
 }
 
 void Isa::setMode(uint8_t channel, Isa::TransferMode transferMode, bool autoReset, bool reverseMemoryOrder,

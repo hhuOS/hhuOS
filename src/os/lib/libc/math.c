@@ -141,7 +141,7 @@ double pow(double x, double y) {
         
     double res = x;
     int i;
-    for(i = 0; i < y; i++) {
+    for(i = 1; i < y; i++) {
         res *= x;
     }
     

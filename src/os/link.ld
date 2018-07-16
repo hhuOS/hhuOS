@@ -5,11 +5,11 @@ SECTIONS
 {
     . = 0xC0100000;     /* Virtual start address */
 
-    .isa_dma ALIGN (64k) : AT (ADDR(.isa_dma) - 0xC0000000)
+    .floppy ALIGN (64k) : AT (ADDR(.floppy) - 0xC0000000)
     {
-        ___ISA_DMA_START__ = .;
+        ___FLOPPY_START__ = .;
        . = . + 64k;
-        ___ISA_DMA_END__   = .;
+        ___FLOPPY_END__   = .;
     }
 
     ___KERNEL_START__ = .;
