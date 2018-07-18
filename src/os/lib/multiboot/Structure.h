@@ -75,6 +75,10 @@ namespace Multiboot {
 
         static uint32_t customMemoryMapSize;
 
+        static uint32_t reservedMemoryEnd;
+
+        static uint32_t reservedMemoryStart;
+
         static uint32_t kernelCopyLow;
 
         static uint32_t kernelCopyHigh;

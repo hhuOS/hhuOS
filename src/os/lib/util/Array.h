@@ -62,6 +62,8 @@ namespace Util {
 
         static Array<T> wrap(const T *source, size_t size);
 
+        static void sort(Array<T> &array);
+
     private:
 
         T* array;
@@ -171,6 +173,33 @@ namespace Util {
         memcpy(tmp.array, source, size);
 
         return tmp;
+    }
+
+    template<typename T>
+    void Array<T>::sort(Array<T> &array) {
+
+        bool hasChanged = true;
+
+        uint32_t length = array.length();
+
+        while(hasChanged) {
+
+            hasChanged = false;
+
+            for (uint32_t i = 0; i < length - 1; i++) {
+
+                if (array[i] > array[i + 1]) {
+
+                    T tmp = array[i];
+
+                    array[i] = array[i + 1];
+
+                    array[i + 1] = tmp;
+
+                    hasChanged = true;
+                }
+            }
+        }
     }
 }
 

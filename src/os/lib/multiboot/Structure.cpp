@@ -34,6 +34,10 @@ Multiboot::Info Multiboot::Structure::info;
 
 uint32_t Multiboot::Structure::customMemoryMapSize = 0;
 
+uint32_t Multiboot::Structure::reservedMemoryStart = UINT32_MAX;
+
+uint32_t Multiboot::Structure::reservedMemoryEnd = 0;
+
 uint32_t Multiboot::Structure::kernelCopyLow = UINT32_MAX;
 
 uint32_t Multiboot::Structure::kernelCopyHigh = 0;
@@ -85,7 +89,7 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
     ElfConstants::SectionHeader *sectionHeader = nullptr;
     
-    if (tmp.flags & MULTIBOOT_INFO_ELF_SHDR) {
+    if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_ELF_SHDR)) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
@@ -118,17 +122,34 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
         }
     }
 
-    if (tmp.flags & MULTIBOOT_INFO_MODS) {
+    if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_MODS)) {
 
-        auto *modInfo = (Multiboot::ModuleInfo*) info.moduleAddress;
+        auto *modInfo = (Multiboot::ModuleInfo*) tmp.moduleAddress;
 
-        for (uint32_t i = 0; i < info.moduleCount; i++) {
+        for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
             memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start, MULTIBOOT_MEMORY_RESERVED,};
 
             memoryIndex++;
 
             mapSize++;
+        }
+    }
+
+    uint32_t &maxAddress = *((uint32_t*) ((uint32_t) &reservedMemoryEnd - KERNEL_START));
+
+    uint32_t &minAddress = *((uint32_t*) ((uint32_t) &reservedMemoryStart - KERNEL_START));
+
+    for (uint32_t i = 0; i < memoryIndex; i++) {
+
+        if (memory[i].address + memory[i].length > maxAddress) {
+
+            maxAddress = memory[i].address + memory[i].length;
+        }
+
+        if (memory[i].address < minAddress) {
+
+            minAddress = memory[i].address;
         }
     }
 }
