@@ -206,11 +206,11 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 bool FloppyController::calibrateDrive(FloppyDevice &device) {
     log.trace("Calibrating drive %d", device.driveNumber);
 
-    receivedInterrupt = false;
-
     setMotorState(device, FLOPPY_MOTOR_ON);
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
+        receivedInterrupt = false;
+
         writeFifoByte(COMMAND_RECALIBRATE);
         writeFifoByte(device.driveNumber);
 
@@ -270,11 +270,11 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
 }
 
 bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head) {
-    receivedInterrupt = false;
-
     setMotorState(device, FLOPPY_MOTOR_ON);
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
+        receivedInterrupt = false;
+
         writeFifoByte(COMMAND_SEEK);
         writeFifoByte(device.driveNumber | static_cast<uint8_t>(head << 2u));
         writeFifoByte(cylinder);
