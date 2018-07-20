@@ -53,6 +53,8 @@ int32_t main() {
 
 int32_t GatesOfHell::enter() {
 
+    loadInitrd();
+
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
 

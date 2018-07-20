@@ -15,7 +15,6 @@ src/os/*.dump
 
 # Project files and folders
 cmake-build-debug
->>>>>>> 4b5fc711f0553ef3c825fd69ef4ea8886259f22c
 .gdb_history
 .vscode/
 .cproject

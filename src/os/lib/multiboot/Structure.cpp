@@ -34,9 +34,9 @@ Multiboot::Info Multiboot::Structure::info;
 
 uint32_t Multiboot::Structure::customMemoryMapSize = 0;
 
-uint32_t Multiboot::Structure::reservedMemoryStart = UINT32_MAX;
+uint32_t Multiboot::Structure::physReservedMemoryStart = UINT32_MAX;
 
-uint32_t Multiboot::Structure::reservedMemoryEnd = 0;
+uint32_t Multiboot::Structure::physReservedMemoryEnd = 0;
 
 uint32_t Multiboot::Structure::kernelCopyLow = UINT32_MAX;
 
@@ -107,18 +107,6 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
             memoryIndex++;
 
             mapSize++;
-
-            // Copy string and symbol table so it won't get overridden
-            switch (sectionHeader->type) {
-                case ElfConstants::SectionHeaderType::STRTAB:
-                    memcpy((char*) PHYS_STRTAB, (char*) startAddress, sectionHeader->size);
-                    break;
-                case ElfConstants::SectionHeaderType::SYMTAB:
-                    memcpy((char*) PHYS_SYMTAB, (char*) startAddress, sectionHeader->size);
-                    break;
-                default:
-                    break;
-            }
         }
     }
 
@@ -136,9 +124,9 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
         }
     }
 
-    uint32_t &maxAddress = *((uint32_t*) ((uint32_t) &reservedMemoryEnd - KERNEL_START));
+    uint32_t &maxAddress = *((uint32_t*) ((uint32_t) &physReservedMemoryEnd - KERNEL_START));
 
-    uint32_t &minAddress = *((uint32_t*) ((uint32_t) &reservedMemoryStart - KERNEL_START));
+    uint32_t &minAddress = *((uint32_t*) ((uint32_t) &physReservedMemoryStart - KERNEL_START));
 
     for (uint32_t i = 0; i < memoryIndex; i++) {
 

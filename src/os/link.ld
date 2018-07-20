@@ -13,10 +13,10 @@ SECTIONS
     }
 
     ___KERNEL_START__ = .;
-    ___WRITE_PROTECTED_START__ = .;
 
     .text ALIGN (4K) : AT (ADDR(.text) - 0xC0000000)
     {
+        ___WRITE_PROTECTED_START__ = .;
         ___TEXT_START__ = .;
         *(.text)
         *(.text.*)
@@ -51,7 +51,7 @@ SECTIONS
        ___FINI_ARRAY_END__ = .;
     }
     
-    ___WRITE_PROTECTED_END__ = .;
+    ___WRITE_PROTECTED_END__ = ALIGN(4K);
 
    .data ALIGN (4K) : AT (ADDR(.data) - 0xC0000000)
     {

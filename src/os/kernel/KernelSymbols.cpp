@@ -105,15 +105,11 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    IOMemInfo info = SystemManagement::getInstance()->mapIO(PHYS_SYMTAB, sectionHeader.size);
-
-    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry*) info.virtStartAddress;
+    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry*) PHYS2VIRT(sectionHeader.virtualAddress);
 
     ElfConstants::SectionHeader *stringSection = (ElfConstants::SectionHeader*) (symbolInfo.address + sectionHeader.link * symbolInfo.sectionSize);
 
-    info = SystemManagement::getInstance()->mapIO(PHYS_STRTAB, stringSection->size);
-
-    char *stringTable = (char*) info.virtStartAddress;
+    char *stringTable = (char*) PHYS2VIRT(stringSection->virtualAddress);
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 

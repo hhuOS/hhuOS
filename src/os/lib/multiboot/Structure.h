@@ -49,6 +49,10 @@ namespace Multiboot {
 
         static String getKernelOption(const String &key);
 
+        static uint32_t physReservedMemoryEnd;
+
+        static uint32_t physReservedMemoryStart;
+
     private:
 
         static void parseCommandLine();
@@ -74,10 +78,6 @@ namespace Multiboot {
         static MemoryMapEntry customMemoryMap[256];
 
         static uint32_t customMemoryMapSize;
-
-        static uint32_t reservedMemoryEnd;
-
-        static uint32_t reservedMemoryStart;
 
         static uint32_t kernelCopyLow;
 

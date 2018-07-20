@@ -32,6 +32,11 @@ extern uint32_t ___KERNEL_END__[];
  * and is built manually for bootstrapping.
  */
 PageDirectory::PageDirectory(){
+
+    uint32_t reservedMemoryEnd = Multiboot::Structure::physReservedMemoryEnd;
+
+    uint32_t pageCount = reservedMemoryEnd / PAGESIZE + 1024;
+
 	// table with virtual PT-addresses placed after the PD itself
     virtTableAddresses = (uint32_t*) (VIRT_PAGE_MEM_START + 0x101000);
     // zero memory for PageTables and PageDirectrories
@@ -40,14 +45,16 @@ PageDirectory::PageDirectory(){
     // because the first 1MB is used for Kernel page tables
     pageDirectory = (uint32_t*) (VIRT_PAGE_MEM_START + 0x100000);
     // virtual page directory is mapped to 9MB
-    physPageDirectoryAddress = (uint32_t*) 0x900000;
+
+    physPageDirectoryAddress = (uint32_t*) (reservedMemoryEnd + PAGESIZE * 1024 + 0x100000);
     
     // set up page directory entries for kernel mappings (all pages addressing
     // > 3 GB are located at 8-9MB)
     // calculate virtual addresses for these tables
     uint32_t i = 0;
-    for(uint32_t idx = KERNEL_START / (PAGESIZE*1024); idx < 1024; idx++){
-        pageDirectory[idx] = (uint32_t) ((0x000800000 + i * PAGESIZE) | PAGE_PRESENT | PAGE_READ_WRITE);
+    uint32_t startIdx = KERNEL_START / (PAGESIZE*1024);
+    for(uint32_t idx = startIdx; idx < startIdx + 256; idx++){
+        pageDirectory[idx] = (uint32_t) ((reservedMemoryEnd + PAGESIZE * 1024 + i * PAGESIZE) | PAGE_PRESENT | PAGE_READ_WRITE);
         virtTableAddresses[idx] = VIRT_PAGE_MEM_START + i * PAGESIZE;
         i++; 
     }
@@ -55,13 +62,13 @@ PageDirectory::PageDirectory(){
     // set the entries for the mapping of first 8 MB
     uint32_t idx = KERNEL_START / (PAGESIZE*1024);
 
-    for(uint16_t i = 0; i < 2048; i++) {
+    for(uint16_t i = 0; i < pageCount; i++) {
         // this is the physical address of the memory belonging to this page
         uint32_t physAddr = i * PAGESIZE;
         // build up entry for page table by hand (Read/Write and Present bit)
         *((uint32_t *) virtTableAddresses[idx] + i) = physAddr | PAGE_READ_WRITE | PAGE_PRESENT;
         // protect kernel code
-        if(i < 1024) {
+        if(i < reservedMemoryEnd / PAGESIZE) {
             *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_PROTECTED;
         }
     }
@@ -70,7 +77,7 @@ PageDirectory::PageDirectory(){
     // and the page directory
     idx = VIRT_PAGE_MEM_START / (PAGESIZE*1024);
     for(uint32_t i = 0; i < 258; i++) {
-        uint32_t physAddr = 0x800000 + i * PAGESIZE;
+        uint32_t physAddr = reservedMemoryEnd + PAGESIZE * 1024 + i * PAGESIZE;
         *((uint32_t*)virtTableAddresses[idx] + i) = physAddr | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_PROTECTED;
     }
 
@@ -146,17 +153,11 @@ void PageDirectory::writeProtectKernelCode() {
     uint16_t writeProtectedEnd = (((uint32_t)___WRITE_PROTECTED_END__) - KERNEL_START) / PAGESIZE;
     uint16_t kernelEnd = (((uint32_t)___KERNEL_END__) - KERNEL_START) / PAGESIZE;
 
-    for(uint16_t i = 0; i < 2048; i++) {
-        //protect parts of kernel code
-        if (i < writeProtectedEnd && i >= writeProtectedStart) {
-            *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
-        }
+    uint32_t startIndex = writeProtectedStart / PAGESIZE;
+    uint32_t endIndex = writeProtectedEnd / PAGESIZE;
 
-        // set last page kernel code as write protected to detect illegal write accesses
-        kernelEnd++;
-        if (i == kernelEnd && i < 1024) {
-            *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
-        }
+    for(uint32_t i = startIndex; i < endIndex; i++) {
+        *((uint32_t *) virtTableAddresses[idx] + i) &= ~PAGE_READ_WRITE;
     }
 }
 

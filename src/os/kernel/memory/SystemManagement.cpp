@@ -608,7 +608,7 @@ void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 SystemManagement* SystemManagement::getInstance() {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
-        static HeapMemoryManager heapMemoryManager(VIRT_KERNEL_HEAP_START, VIRT_KERNEL_HEAP_END);
+        static HeapMemoryManager heapMemoryManager(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END);
         // set the kernel heap memory manager to this manager
 		kernelMemoryManager = &heapMemoryManager;
 		// initialize the kenrel heap

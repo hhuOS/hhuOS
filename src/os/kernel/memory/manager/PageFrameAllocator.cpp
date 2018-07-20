@@ -5,6 +5,7 @@
  * @date HHU, 2018
  */
 
+#include <lib/multiboot/Structure.h>
 #include "PageFrameAllocator.h"
 
 #include "kernel/memory/Paging.h"
@@ -30,15 +31,17 @@ void PageFrameAllocator::init() {
 
     memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 
+    uint32_t maxIndex = Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256;
+
     // first 9 MB are already allocated by 4MB paging -> first 72 Array entries
-    for(int i=0; i < 72; i++) {
+    for(uint32_t i=0; i < maxIndex; i++) {
         freeBitmap[i] = 0xFFFFFFFF;
     }
     // 9 MB + 8KB are already used by kernel and page tables/dirs
-    freeBitmap[72] = 0xC0000000;
+    freeBitmap[maxIndex] = 0xC0000000;
 
     // subtract already reserved memory from free memory
-    freeMemory -= (72 * 32 * PAGESIZE + 2 * PAGESIZE);
+    freeMemory -= (maxIndex * 32 * PAGESIZE + 2 * PAGESIZE);
 
     initialized = true;
 }
