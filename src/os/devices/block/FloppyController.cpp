@@ -238,7 +238,11 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
 }
 
 uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
-    seek(device, 0, 0);
+    bool ret = seek(device, 0, 0);
+
+    if(!ret) {
+        return 2;
+    }
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 
@@ -326,7 +330,11 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
 bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
     auto lastSector = static_cast<uint8_t>(sector + 1 > device.sectorsPerTrack ? device.sectorsPerTrack : sector + 1);
 
-    seek(device, cylinder, head);
+    bool ret = seek(device, cylinder, head);
+
+    if(!ret) {
+        return false;
+    }
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 
@@ -370,7 +378,11 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
 
     memcpy(reinterpret_cast<void *>(dmaMemInfo.virtStartAddress), buff, device.getSectorSize());
 
-    seek(device, cylinder, head);
+    bool ret = seek(device, cylinder, head);
+
+    if(!ret) {
+        return false;
+    }
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 

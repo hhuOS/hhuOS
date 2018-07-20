@@ -42,6 +42,13 @@ private:
 
     FloppyController::FloppyMotorState motorState = FloppyController::FLOPPY_MOTOR_OFF;
 
+    /**
+     * Convert an LBA sector to its CHS representation .
+     *
+     * @param lbaSector The sector number in LBA representation
+     *
+     * @return The CHS representation
+     */
     CylinderHeadSector LbaToChs(uint32_t lbaSector);
 
 public:

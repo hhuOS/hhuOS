@@ -4,6 +4,9 @@
 #include <kernel/threads/Thread.h>
 #include <devices/block/storage/FloppyDevice.h>
 
+/**
+ * Runs in background and controls the state of a floppy drive's motor.
+ */
 class FloppyMotorControlThread : public Thread {
 
     friend class FloppyController;
@@ -20,6 +23,8 @@ public:
 
     /**
      * Constructor.
+     *
+     * @param device The device
      */
     explicit FloppyMotorControlThread(FloppyDevice &device);
 
