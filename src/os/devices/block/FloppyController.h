@@ -109,7 +109,7 @@ private:
 
     bool receivedInterrupt = false;
 
-    IOMemInfo dmaMemInfo;
+    void* dmaMemory;
 
     IOport statusRegisterA;
     IOport statusRegisterB;

@@ -117,10 +117,12 @@ public:
         INVALID_ARGUMENT                    = 0xCA,
         KEY_NOT_FOUND                       = 0xCB,
         ILLEGAL_STATE                       = 0xCC,
-        OUT_OF_PHYS_MEMORY                  = 0xCD,
-        OUT_OF_PAGE_MEMORY                  = 0xCE,
-		ILLEGEAL_PAGE_ACCESS				= 0xCF,
-		UNKNOWN_DRIVER                      = 0xD0
+        OUT_OF_MEMORY                       = 0XCD,
+        OUT_OF_PHYS_MEMORY                  = 0xCE,
+        OUT_OF_PAGE_MEMORY                  = 0xCF,
+		ILLEGEAL_PAGE_ACCESS				= 0xD0,
+		UNKNOWN_DRIVER                      = 0xD1,
+		PAGING_ERROR                        = 0xD2
     };
 
     /**

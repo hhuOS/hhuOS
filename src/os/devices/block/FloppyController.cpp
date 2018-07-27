@@ -30,9 +30,9 @@ FloppyController::FloppyController() :
     auto dmaMemStart = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_START__));
     auto dmaMemEnd = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_END__));
 
-    dmaMemInfo = SystemManagement::getInstance()->mapIO(dmaMemStart, dmaMemEnd - dmaMemStart);
+    dmaMemory = SystemManagement::getInstance()->mapIO(dmaMemStart, dmaMemEnd - dmaMemStart);
 
-    memset(reinterpret_cast<void *>(dmaMemInfo.virtStartAddress), 0, dmaMemEnd - dmaMemStart);
+    memset(dmaMemory, 0, dmaMemEnd - dmaMemStart);
 
     timeService = Kernel::getService<TimeService>();
     storageService = Kernel::getService<StorageService>();
@@ -250,7 +250,7 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
 
     Isa::selectChannel(2);
     Isa::resetFlipFlop(2);
-    Isa::setAddress(2, dmaMemInfo.physAddresses[0]);
+    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
     Isa::resetFlipFlop(2);
     Isa::setCount(2, 511);
     Isa::setMode(2, Isa::TRANSFER_MODE_WRITE, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
@@ -317,7 +317,7 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
     Isa::selectChannel(2);
 
     Isa::resetFlipFlop(2);
-    Isa::setAddress(2, dmaMemInfo.physAddresses[0]);
+    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
 
     Isa::resetFlipFlop(2);
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
@@ -361,7 +361,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
             continue;
         }
 
-        memcpy(buff, reinterpret_cast<const void *>(dmaMemInfo.virtStartAddress), device.getSectorSize());
+        memcpy(buff, dmaMemory, device.getSectorSize());
 
         setMotorState(device, FLOPPY_MOTOR_OFF);
 
@@ -376,7 +376,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
     auto lastSector = static_cast<uint8_t>(sector + 1 > device.sectorsPerTrack ? device.sectorsPerTrack : sector + 1);
 
-    memcpy(reinterpret_cast<void *>(dmaMemInfo.virtStartAddress), buff, device.getSectorSize());
+    memcpy(dmaMemory, buff, device.getSectorSize());
 
     bool ret = seek(device, cylinder, head);
 

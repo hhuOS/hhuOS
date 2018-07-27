@@ -17,6 +17,7 @@
 
 #include <kernel/memory/MemLayout.h>
 #include <kernel/memory/SystemManagement.h>
+#include <lib/libc/printf.h>
 #include "KernelSymbols.h"
 
 Util::HashMap<String, Address> KernelSymbols::symbolTable(1129);

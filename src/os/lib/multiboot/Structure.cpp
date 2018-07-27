@@ -222,8 +222,6 @@ void Multiboot::Structure::parseModules() {
 
         for (uint32_t i = 0; i < info.moduleCount; i++) {
 
-            SystemManagement::getInstance()->reservePhysicalMemory(modInfo[i].start, modInfo[i].end);
-
             modInfo[i].string += KERNEL_START;
 
             modInfo[i].start += KERNEL_START;

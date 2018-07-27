@@ -87,7 +87,7 @@ public:
      * @param virtAddress Virtual address
      * @return uint32_t Physical address where virtual address is mapped (4kb-aligned)
      */
-    uint32_t getPhysicalAddress(uint32_t virtAddress);
+    void * getPhysicalAddress(void *virtAddress);
 
     /**
      * Create a new Page Table in this Page Directory

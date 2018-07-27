@@ -21,7 +21,7 @@
  */
 IOMemoryTestApp::IOMemoryTestApp() : Thread("IOMemoryTestApp") {
     random = new Random(20);
-    objects = new IOMemInfo[NUM_OF_ALLOCS];
+    objects = new void*[NUM_OF_ALLOCS];
     stats = new unsigned int[3];
     stats[0] = 0;
     stats[1] = 0;
@@ -82,7 +82,7 @@ void IOMemoryTestApp::shuffle() {
         src = random->rand(NUM_OF_ALLOCS);
         dst = random->rand(NUM_OF_ALLOCS);
 
-        IOMemInfo tmp = objects[dst];
+        void *tmp = objects[dst];
         objects[dst] = objects[src];
         objects[src] = tmp;
     }

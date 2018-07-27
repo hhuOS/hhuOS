@@ -131,7 +131,7 @@ private:
     bool isDoubleBuffered = false;
 	uint8_t *doubleBuffer = nullptr;
 
-    IOMemInfo lfbMemInfo = (IOMemInfo) {0, 0, nullptr};
+    void *virtLfbAddress = nullptr;
 
 protected:
     uint8_t *hardwareBuffer = nullptr;

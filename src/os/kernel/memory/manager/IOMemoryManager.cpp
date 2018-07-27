@@ -22,7 +22,7 @@ extern "C" {
 /**
  * Constructor - call constructor of base class.
  */
-IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END) {
+IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END), ioMemoryMap(1097) {
 
 }
 
@@ -41,12 +41,11 @@ void IOMemoryManager::init(){
 /**
  * Allocate some virtual 4kb pages for given physical page frames.
  */
-IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
+void* IOMemoryManager::alloc(uint32_t size){
 
     lock.acquire();
 
-    uint32_t pageCnt = memInfo.pageCount;
-    uint32_t* physAddresses = memInfo.physAddresses;
+    uint32_t pageCnt = (size / PAGESIZE) + ((size % PAGESIZE == 0) ? 0 : 1);
 
 	// use pointer to iterate through list
     IOMemFreeHeader* tmp = anchor;
@@ -60,7 +59,7 @@ IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
             	// if block was also anchor for the free list, the next header will be anchor
                 if(tmp == anchor){
                     anchor = tmp->next;
-                    anchor->prev = 0;
+                    anchor->prev = nullptr;
                 // else we can simply remove this block from the free list
                 } else {
                     if(tmp->next) {
@@ -71,13 +70,13 @@ IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
             // if block has more pages than requested, we split into 2 blocks
             } else {
             	// create header for new second block
-                IOMemFreeHeader* newHeader = (IOMemFreeHeader*) ((uint32_t)tmp + pageCnt*PAGESIZE);
+                IOMemFreeHeader* newHeader = (IOMemFreeHeader*) ((uint32_t)tmp + pageCnt * PAGESIZE);
                 
                 // check if new header will be anchor of the free list
                 // and update previous pointers
                 if(!tmp->prev) {
                     anchor = newHeader;
-                    anchor->prev = 0;
+                    anchor->prev = nullptr;
                 } else {
                     newHeader->prev = tmp->prev;
                     tmp->prev->next = newHeader;
@@ -92,29 +91,18 @@ IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
                     tmp->next->prev = newHeader;
                 }
             }
-            
-            // map the allocated virtual pages to the given physical addresses
-            for(uint32_t i = 0; i < pageCnt; i++){
-            	// since the virtual memory is one block, we can update the virtual address this way
-                uint32_t vaddr = (uint32_t)tmp + i * PAGESIZE;
 
-                // if the virtual address is already mapped, we have to unmap it
-                // this can happen because the headers of the free list are mapped
-                // to arbitrary physical addresses, but the IO Memory should be mapped
-                // to given physical addresses
-                SystemManagement::getInstance()->unmap(vaddr);
-                // map the page to given physical address
-                SystemManagement::getInstance()->map(vaddr, PAGE_READ_WRITE|PAGE_PRESENT|PAGE_NO_CACHING, physAddresses[i]);
-            }
+            // store new block in hashmap
+            ioMemoryMap.put((void*) tmp, pageCnt);
 
-            // update IOMemInfo with virtual address
-            memInfo.virtStartAddress = (uint32_t) tmp;
             // update free memory
             freeMemory -= (pageCnt * PAGESIZE);
             lock.release();
+
             // return
-            return memInfo;
+            return (void*) tmp;
         }
+
         // look for next memory block
         tmp = tmp->next;
     }
@@ -122,18 +110,18 @@ IOMemInfo IOMemoryManager::alloc(IOMemInfo memInfo){
     lock.release();
 
     // if the loop is passed without returning, no memory block with enough pages is free
-    return memInfo;
+    return nullptr;
 }
 
 /**
  * Free virtual IO memory.
  *
- * @param memInfo IOMemInfo struct with all information regarding the memory block
+ * @param ptr IOMemInfo struct with all information regarding the memory block
  */
-void IOMemoryManager::free(IOMemInfo memInfo){
+void IOMemoryManager::free(void *ptr){
 	// get important parameters
-    uint32_t virtStart = memInfo.virtStartAddress;
-    uint32_t pageCnt = memInfo.pageCount;
+    uint32_t virtStart = (uint32_t) ptr;
+    uint32_t pageCount = ioMemoryMap.get(ptr);
 
     // catch error
     if(virtStart < memoryStartAddress || virtStart >= memoryEndAddress){
@@ -142,7 +130,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
 
     lock.acquire();
 
-    freeMemory += (pageCnt * PAGESIZE);
+    freeMemory += (pageCount * PAGESIZE);
 
     /*
      * The next steps are a bit complicated we create a new temporary header for the free list in heap
@@ -163,7 +151,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     	// we have new anchor at the beginning of this memory block
         virtHeaderAddress = (uint32_t) virtStart;
         // update pointer and values
-        tmp->pageCount = pageCnt;
+        tmp->pageCount = pageCount;
         tmp->prev = 0;
         tmp->next = anchor;
         // copy header to the correct position -> will cause a pagefault and map the page
@@ -176,7 +164,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     } else if(anchor == 0) {
     	// create a new anchor for a new free list
         virtHeaderAddress = (uint32_t) virtStart;
-        tmp->pageCount = pageCnt;
+        tmp->pageCount = pageCount;
         tmp->prev = 0;
         tmp->next = 0;
         // copy header to right position
@@ -192,7 +180,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
 
         // set values in temporary header
         virtHeaderAddress = (uint32_t) virtStart;
-        tmp->pageCount = pageCnt;
+        tmp->pageCount = pageCount;
         tmp->prev = prev;
         tmp->next = prev->next;
 
@@ -207,7 +195,7 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     // for merging we use the temporary header on the heap
 
     // Merge with next if possible and update tmp
-    if(tmp->next && virtStart + PAGESIZE * pageCnt == (uint32_t)tmp->next) {
+    if(tmp->next && virtStart + PAGESIZE * pageCount == (uint32_t)tmp->next) {
         tmp->pageCount += tmp->next->pageCount;
 
         tmp->next = tmp->next->next;
@@ -240,10 +228,10 @@ void IOMemoryManager::free(IOMemInfo memInfo){
     memcpy(tmp2, tmp, sizeof(IOMemFreeHeader));
     delete tmp;
 
+    ioMemoryMap.remove(ptr);
+
     lock.release();
-
 }
-
 /**
  * Print dump of the free list.
  */

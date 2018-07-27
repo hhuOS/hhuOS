@@ -90,13 +90,13 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
     if(modeInfo == nullptr)
         return false;
 
-    IOMemInfo tmpInfo = SystemManagement::getInstance()->mapIO(modeInfo->physbase, static_cast<uint32_t>(modeInfo->Xres * modeInfo->Yres * (modeInfo->bpp == 15 ? 16 : modeInfo->bpp) / 8));
+    void *tmpAddress = SystemManagement::getInstance()->mapIO(modeInfo->physbase, static_cast<uint32_t>(modeInfo->Xres * modeInfo->Yres * (modeInfo->bpp == 15 ? 16 : modeInfo->bpp) / 8));
 
     setMode(resolution.modeNumber);
 
     pitch = modeInfo->pitch;
 
-    hardwareBuffer = reinterpret_cast<uint8_t *>(tmpInfo.virtStartAddress);
+    hardwareBuffer = reinterpret_cast<uint8_t *>(tmpAddress);
 
     isDoubleBuffered = false;
 
@@ -105,11 +105,11 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
         doubleBuffer = nullptr;
     }
 
-    if(lfbMemInfo.virtStartAddress) {
-    	SystemManagement::getInstance()->freeIO(lfbMemInfo);
+    if(virtLfbAddress != nullptr) {
+    	SystemManagement::getInstance()->freeIO(virtLfbAddress);
     }
 
-    lfbMemInfo = tmpInfo;
+    virtLfbAddress = tmpAddress;
 
     return true;
 }

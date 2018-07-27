@@ -32,7 +32,7 @@ class IOMemoryTestApp : public Thread {
 
 private:
     Random *random;
-    IOMemInfo *objects;
+    void **objects;
     unsigned int *stats;
 
     void runTest();

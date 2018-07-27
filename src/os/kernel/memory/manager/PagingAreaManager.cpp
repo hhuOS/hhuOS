@@ -13,16 +13,18 @@
  * Constructor - calls base class with parameters.
  */
 PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, "PAGINGAREAMANAGER", true) {}
+        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true) {}
 
 /**
  * Initializes the PageingAreaManager - sets up bitmap.
  */
 void PagingAreaManager::init() {
+    managerType = PAGING_AREA_MANAGER;
+
     freeMemory = memoryEndAddress - memoryStartAddress;
 
     // calculate amount of pagetables/dirs that can be stored in the area
-    uint32_t pageFrameCnt = freeMemory / (1024 * 4);
+    uint32_t pageFrameCnt = freeMemory / blockSize;
     // allocate bitmap for page frames
     freeBitmapLength = pageFrameCnt / 32;
     freeBitmap = new uint32_t[freeBitmapLength];
@@ -36,8 +38,10 @@ void PagingAreaManager::init() {
     }
     freeBitmap[8] = 0xC0000000;
 
+    bmpSearchOffset = 8;
+
     // subtract already reserved memory from free memory
-    freeMemory -= (8 * 32 * PAGESIZE + 2 * PAGESIZE);
+    freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
 
     initialized = true;
 }

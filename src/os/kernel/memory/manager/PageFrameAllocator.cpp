@@ -15,23 +15,25 @@
  * Constructor - calls baseClass constructor.
  */
 PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
-        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, "PAGEFRAMEALLOCATOR", false) {}
+        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, PAGESIZE, "PAGEFRAMEALLOCATOR", false) {}
 
 /**
  * Init-function. Sets up the bitmap.
  */
 void PageFrameAllocator::init() {
+    managerType = PAGE_FRAME_ALLOCATOR;
+
     freeMemory = memoryEndAddress - memoryStartAddress;
 
     // calculate amount of physical page frames
-    uint32_t pageFrameCnt = freeMemory / PAGESIZE;
+    uint32_t pageFrameCnt = freeMemory / blockSize;
     // allocate bitmap for page frames
     freeBitmapLength = pageFrameCnt / 32;
     freeBitmap = new uint32_t[freeBitmapLength];
 
     memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 
-    uint32_t maxIndex = Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256;
+    uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
 
     // first 9 MB are already allocated by 4MB paging -> first 72 Array entries
     for(uint32_t i=0; i < maxIndex; i++) {
@@ -40,8 +42,10 @@ void PageFrameAllocator::init() {
     // 9 MB + 8KB are already used by kernel and page tables/dirs
     freeBitmap[maxIndex] = 0xC0000000;
 
+    bmpSearchOffset = maxIndex;
+
     // subtract already reserved memory from free memory
-    freeMemory -= (maxIndex * 32 * PAGESIZE + 2 * PAGESIZE);
+    freeMemory -= (maxIndex * 32 * blockSize + 2 * blockSize);
 
     initialized = true;
 }

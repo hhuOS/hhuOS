@@ -165,7 +165,7 @@ void SystemManagement::init() {
  */
 void SystemManagement::map(uint32_t virtAddress, uint16_t flags) {
 	// allocate a physical page frame where the page should be mapped
-    uint32_t physAddress = pageFrameAllocator->alloc();
+    uint32_t physAddress = (uint32_t) pageFrameAllocator->alloc(PAGESIZE);
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
 
@@ -207,9 +207,9 @@ void SystemManagement::map(uint32_t virtStartAddress, uint32_t virtEndAddress, u
  */
 uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
     // get some virtual memory for the table
-    uint32_t virtAddress = pagingAreaManager->alloc();
+    void *virtAddress = pagingAreaManager->alloc(PAGESIZE);
     // get physical memory for the table
-    uint32_t physAddress = getPhysicalAddress(virtAddress);
+    void *physAddress = getPhysicalAddress(virtAddress);
     // there must be no mapping from virtual to physical address be done here,
     // because the page is zeroed out after allocation by the PagingAreaManager
 
@@ -218,7 +218,7 @@ uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
 #endif
 
     // create the table in the page directory
-    dir->createTable(idx, physAddress, virtAddress);
+    dir->createTable(idx, (uint32_t) physAddress, (uint32_t) virtAddress);
     return 0;
 }
 
@@ -235,7 +235,7 @@ uint32_t SystemManagement::unmap(uint32_t virtAddress){
         return 0;
     }
 
-    uint32_t ret = pageFrameAllocator->free(physAddress);
+    pageFrameAllocator->free((void*)(physAddress));
 
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Unmap page with virtual address %x\n", virtAddress);
@@ -246,7 +246,7 @@ uint32_t SystemManagement::unmap(uint32_t virtAddress){
         "invlpg (%%edx);" 
         "pop %%edx;"  : : "r"(virtAddress));
 
-    return ret;
+    return physAddress;
 }
 
 /**
@@ -300,176 +300,81 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
 }
 
 /**
- * Reserve phyiscal memory in page frame allocator. This memory be already allocated.
- */
-uint32_t SystemManagement::reservePhysicalMemory(uint32_t startAddress, uint32_t endAddress) {
-	return pageFrameAllocator->reserveAddressRange(startAddress, endAddress);
-}
-
-/**
  * Maps a physical address into the IO-space of the system, located at the upper
  * end of the virtual memory. The allocated memory is 4kb-aligned, therefore the
  * returned virtual memory address is also 4kb-aligned. If the given physical
  * address is not 4kb-aligned, one has to add a offset to the returned virtual
  * memory address in order to obtain the corresponding virtual address.
  */
-IOMemInfo SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
+void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
 
-    // calculate the physical address of each page that is mapped into the IO-space. 
-    uint32_t* physAddresses = new uint32_t[pageCnt];
-    for(uint32_t i = 0; i < pageCnt; i++){
-        uint32_t paddr = physAddress + i*PAGESIZE ;
-        physAddresses[i] = paddr;
-    }
-
-    // build up ioMemInfo with given information
-    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
-
     // allocate 4kb-aligned virtual IO-memory
-    ioMemInfo = ioMemManager->alloc(ioMemInfo);
+    void *virtStartAddress = ioMemManager->alloc(size);
 
-    if(ioMemInfo.virtStartAddress == 0){
-    	delete physAddresses;
-        printf("[PAGINGMANAGER] IO Mapping not possible at physical address %x\n", physAddress);
+    if(virtStartAddress == nullptr) {
+        Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
-    return ioMemInfo;
+    for(uint32_t i = 0; i < pageCnt; i++) {
+        // since the virtual memory is one block, we can update the virtual address this way
+        uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
+
+        // if the virtual address is already mapped, we have to unmap it
+        // this can happen because the headers of the free list are mapped
+        // to arbitrary physical addresses, but the IO Memory should be mapped
+        // to given physical addresses
+        SystemManagement::getInstance()->unmap(virtAddress);
+        // map the page to given physical address
+
+        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING , physAddress + i * PAGESIZE);
+    }
+
+    return virtStartAddress;
 }
 
 /**
  * Maps IO-space for a device and allocates physical memory for it. All 
  * allocations are 4kb-aligned.
  */
-IOMemInfo SystemManagement::mapIO(uint32_t size) {
+void* SystemManagement::mapIO(uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
 
-    // allocate physical pages (memory) for the mapping
-    uint32_t* physAddresses = new uint32_t[pageCnt];
-    for(uint32_t i = 0; i < pageCnt; i++){
-        // allocate one page frame
-        uint32_t physAddr = pageFrameAllocator->alloc();
-        // check if no physical pages are available
-        if(physAddr == 0) {
-            printf("[PAGINGMANAGER] IO Mapping not possible no physical frame available");
-            // if there are not enough physical page frames available, free
-            // all allocations made before and exit with error
-            for(uint32_t j=0; j < i; j++) {
-                pageFrameAllocator->free(physAddresses[j]);
-            }
-            return {0,0,0};
-        }
-        // add physical address to array
-        physAddresses[i] = physAddr;
-    }
-
-    // build up ioMemInfo with given information
-    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
+    void *physStartAddress = pageFrameAllocator->alloc(size);
 
     // allocate 4kb-aligned virtual IO-memory
-	ioMemInfo = ioMemManager->alloc(ioMemInfo);
+	void *virtStartAddress = ioMemManager->alloc(size);
 
-    if(ioMemInfo.virtStartAddress == 0){
-        printf("[PAGINGMANAGER] IO Mapping not possible with pageCnt %d\n", pageCnt);
-        for(uint32_t i = 0; i < pageCnt; i++){
-			pageFrameAllocator->free(physAddresses[i]);
-		}
-    	delete physAddresses;
-		return {0,0,0};
+    if(virtStartAddress ==  nullptr){
+        Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
-    return ioMemInfo;
-}
+    for(uint32_t i = 0; i < pageCnt; i++) {
+        // since the virtual memory is one block, we can update the virtual address this way
+        uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
 
-/**
- * Maps IO-space for a device and tries to allocate coherent physical memory block for it. All
- * allocations are 4kb-aligned. If no coherent phys. memory block with this size is available,
- * it returns after an amount of tries with 0.
- * Maybe some more sophisticated implementation should be used later.
- */
-IOMemInfo SystemManagement::mapPhysRangeIO(uint32_t size) {
-    // get amount of needed pages
-    uint32_t pageCnt = size / PAGESIZE;
-    pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
-    // max amount of rounds to allocate physical memory
-    uint32_t maxProbes = 10;
+        // if the virtual address is already mapped, we have to unmap it
+        // this can happen because the headers of the free list are mapped
+        // to arbitrary physical addresses, but the IO Memory should be mapped
+        // to given physical addresses
+        SystemManagement::getInstance()->unmap(virtAddress);
+        // map the page to given physical address
 
-    // allocate physical pages (memory) for the mapping
-    uint32_t* physAddresses = new uint32_t[pageCnt];
-    // set last Address to 0 because we check if 0 later and memory is not zeroed
-    physAddresses[pageCnt-1] = 0;
-    // we give 10 tries to allocate enough coherent physical memory
-    for(uint32_t probe = 0; probe < maxProbes; probe++){
-    	for(uint32_t i = 0; i < pageCnt; i++){
-			// allocate one page frame
-			uint32_t physAddr = pageFrameAllocator->alloc();
-			// check if no physical pages are available
-			if(physAddr == 0) {
-				// if there are not enough physical page frames available, free
-				// all allocations made before
-				for(uint32_t j=0; j < i; j++) {
-					pageFrameAllocator->free(physAddresses[j]);
-					physAddresses[j] = 0;
-				}
-				// if this is the last try, exit with 0
-				if(probe + 1 == maxProbes){
-					printf("[PAGINGMANAGER] IO Mapping not possible - no physical frame available\n");
-					return {0,0,0};
-				}
-				break;
-			}
-			// check if physical memory is not coherent.
-			if(i > 0 && physAddr - PAGESIZE != physAddresses[i-1]) {
-				// free allocated pagegframes
-				for(uint32_t j=0; j < i; j++) {
-					pageFrameAllocator->free(physAddresses[j]);
-					physAddresses[j] = 0;
-				}
-				pageFrameAllocator->free(physAddr);
-				// if this is the last try, exit with 0
-				if(probe + 1 == maxProbes){
-					printf("[PAGINGMANAGER] IO Range Mapping not possible - no coherent physical memory available\n");
-					return {0,0,0};
-				}
-				break;
-			}
-			// add physical address to array
-			physAddresses[i] = physAddr;
-		}
-    	// if last address is not zero then everything is allocated
-    	if(physAddresses[pageCnt-1] != 0){
-    		break;
-    	}
+        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, (uint32_t) physStartAddress + i * PAGESIZE);
     }
 
-    // build up ioMemInfo with given information
-    IOMemInfo ioMemInfo = {0, pageCnt, physAddresses};
-
-    // allocate 4kb-aligned virtual IO-memory
-	ioMemInfo = ioMemManager->alloc(ioMemInfo);
-
-    if(ioMemInfo.virtStartAddress == 0){
-        printf("[PAGINGMANAGER] IO Range Mapping not possible with pageCnt %d\n", pageCnt);
-        for(uint32_t i = 0; i < pageCnt; i++){
-        	pageFrameAllocator->free(physAddresses[i]);
-        }
-    	delete physAddresses;
-        return {0,0,0};
-    }
-
-    return ioMemInfo;
+    return virtStartAddress;
 }
 
 /**
  * Free the IO-space described by the given IOMemInfo Block
  */
-void SystemManagement::freeIO(IOMemInfo memInfo) {
-    ioMemManager->free(memInfo);
-    delete memInfo.physAddresses;
+void SystemManagement::freeIO(void *ptr) {
+    ioMemManager->free(ptr);
 }
 
 /**
@@ -478,7 +383,7 @@ void SystemManagement::freeIO(IOMemInfo memInfo) {
  * in order to get the exact physical address corresponding to the virtual
  * address.
  */
-uint32_t SystemManagement::getPhysicalAddress(uint32_t virtAddress) {
+void* SystemManagement::getPhysicalAddress(void *virtAddress) {
     return currentAddressSpace->getPageDirectory()->getPhysicalAddress(virtAddress);
 }
 
@@ -578,15 +483,15 @@ void SystemManagement::removeAddressSpace(VirtualAddressSpace *addressSpace){
 /**
  * Allocates space in PageTableArea.
  */
-uint32_t SystemManagement::allocPageTable() {
-	return pagingAreaManager->alloc();
+void* SystemManagement::allocPageTable() {
+	return pagingAreaManager->alloc(PAGESIZE);
 }
 
 /**
  * Frees a Page Table / Directory.
  */
-void SystemManagement::freePageTable(uint32_t virtTableAddress) {
-    uint32_t physAddress = getPhysicalAddress(virtTableAddress);
+void SystemManagement::freePageTable(void *virtTableAddress) {
+    void *physAddress = getPhysicalAddress(virtTableAddress);
 	// free virtual memory
 	pagingAreaManager->free(virtTableAddress);
 	// free physical memory

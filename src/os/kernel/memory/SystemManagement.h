@@ -125,7 +125,7 @@ public:
      * @return IOMemInfo A struct containing the virtual address of the mapped
      *                   memory and the corresponding physical addresses
      */
-    IOMemInfo mapIO(uint32_t physAddress, uint32_t size);
+    void * mapIO(uint32_t physAddress, uint32_t size);
 
     /**
      * Maps IO-space for a device and allocates physical memory for it. All
@@ -135,27 +135,15 @@ public:
      * @return IOMemInfo A struct containing the virtual address of the mapped
      *                   memory and the corresponding physical addresses
      */
-    IOMemInfo mapIO(uint32_t size);
-
-    /**
-     * Maps IO-space for a device and tries to allocate coherent physical memory block for it. All
-     * allocations are 4kb-aligned. If no coherent phys. memory block with this size is available,
-     * it returns after an amount of tries with 0.
-     * Maybe some more sophisticated implementation should be used later.
-     *
-     * @param size Size of IO-memory to be allocated
-     * @return IOMemInfo A struct containing the virtual address of the mapped
-     *                   memory and the corresponding physical addresses
-     */
-    IOMemInfo mapPhysRangeIO(uint32_t size);
+    void * mapIO(uint32_t size);
 
     /**
      * Free the IO-space described by the given IOMemInfo Block
      *
-     * @param memInfo IOMemInfo Block containing all information about the memory
+     * @param ptr IOMemInfo Block containing all information about the memory
      *                block tobe freed.
      */
-    void freeIO(IOMemInfo memInfo);
+    void freeIO(void *ptr);
 
 
     // allocations and deletions of page tables
@@ -165,14 +153,14 @@ public:
      *
      * @return Adress of the allocated page
      */
-    uint32_t allocPageTable();
+    void * allocPageTable();
 
     /**
      * Frees a Page Table / Directory.
      *
      * @param virtTableAddress Address of the table/directory that should be freed.
      */
-    void freePageTable(uint32_t virtTableAddress);
+    void freePageTable(void *virtTableAddress);
 
     /**
      * Creates Page Table for a non present entry in Page Directory
@@ -256,15 +244,6 @@ public:
      */
     uint32_t unmap(uint32_t virtStartAddress, uint32_t virtEndAddress);
 
-    /**
-     * Reserve phyiscal memory in page frame allocator. This memory be already allocated.
-     *
-     * @startAddress Start address of the phyiscal memory to reserve
-     * @endAddress End address of the phyiscal memory to reserve
-     * @return startAddress if successful, 0 otherwise
-     */
-    uint32_t reservePhysicalMemory(uint32_t startAddress, uint32_t endAddress);
-
 
     /**
      * Checks whether the system is in kernel mode or not.
@@ -288,7 +267,7 @@ public:
      * @param virtAddr Virtual address
      * @return uint32_t Physical address of the given virtual address (4kb-aligned)
      */
-    uint32_t getPhysicalAddress(uint32_t virtAddress);
+    void * getPhysicalAddress(void *virtAddress);
 
     /**
      * Dumps all free IO Memory blocks.

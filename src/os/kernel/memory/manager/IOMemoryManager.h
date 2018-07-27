@@ -17,8 +17,9 @@
 #ifndef __IOMEMMANAGER_H__
 #define __IOMEMMANAGER_H__
 
-#include "MemoryManager.h"
 #include <cstdint>
+#include "lib/util/HashMap.h"
+#include "MemoryManager.h"
 
 #define DEBUG_IOMEM 0
 
@@ -30,17 +31,6 @@ struct IOMemFreeHeader{
     IOMemFreeHeader* prev;      // previous free memory block
     IOMemFreeHeader* next;      // next free memory block
     uint32_t pageCount;         // size of block in 4kb-pages
-};
-
-/**
- * this struct is the return value of an alloc and contains all important
- * information about the allocated memory. It must be stored in each devices
- * class because it is used to free the corresponding memory block
- */
-struct IOMemInfo{
-    uint32_t virtStartAddress;  // virtual start address of allocated memory
-    uint32_t pageCount;         // size of virtual area in pages
-    uint32_t* physAddresses;    // Array with physical addresses for the allocated pages
 };
 
 
@@ -56,6 +46,8 @@ class IOMemoryManager : public MemoryManager {
 private:
     // anchor of the free list
     IOMemFreeHeader* anchor = 0;
+
+    Util::HashMap<void*, uint32_t> ioMemoryMap;
 
     Spinlock lock;
 
@@ -76,17 +68,17 @@ public:
     /**
      * Allocate some virtual 4kb pages for given physical page frames.
      *
-     * @param memInfo ioMemInfo struct with pageCount and physAddresses filled in, but virtStartAddress == 0
+     * @param size ioMemInfo struct with pageCount and physAddresses filled in, but virtStartAddress == 0
      * @return IOMemInfo with all information about allocations
      */
-    IOMemInfo alloc(IOMemInfo memInfo);
+    void * alloc(uint32_t size);
 
     /**
      * Free virtual IO memory.
      *
-     * @param memInfo IOMemInfo struct with all information regarding the memory block
+     * @param ptr IOMemInfo struct with all information regarding the memory block
      */
-    void free(IOMemInfo memInfo);
+    void free(void *ptr);
 
     /**
      * Print dump of the free list.

@@ -31,15 +31,27 @@
  */
 class BitmapMemoryManager : public MemoryManager{
 
+public:
+
+    enum ManagerType {
+        PAGE_FRAME_ALLOCATOR,
+        PAGING_AREA_MANAGER,
+        MISC
+    };
+
 protected:
-	// name of this memory manager for debugging purposes
+	// type of this memory manager
+    ManagerType managerType = MISC;
+    // name of this memory manager for debugging purposes
     String name;
     // bitmap-array for free page frames
     uint32_t *freeBitmap;
     // length of bitmap-array
-    uint16_t freeBitmapLength;
-    // last used index into bmp array for allocating pages
-    uint16_t bmpIndex;
+    uint32_t freeBitmapLength;
+    // size of a single memory block
+    uint32_t blockSize;
+    // index at which to start searching for free blocks
+    uint32_t bmpSearchOffset;
     // shall allocated memory be zeroed? -> needed if memory is allocated for PageTables
     bool zeroMemory = false;
 
@@ -52,44 +64,26 @@ public:
      * @param name Name of this memory manager for debugging output
      * @param zeroMemory Indicates if new allocated memory should be zeroed
      */
-    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, String name, bool zeroMemory);
+    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize, String name, bool zeroMemory);
 
     /**
      * Virtual function for init - to be implemented in inheriting class.
      */
-    virtual void init() = 0;
+    void init() override = 0;
 
     /**
      * Allocate a 4kb block of memory
      *
      * @return Start address of the alloctated memory
      */
-    uint32_t alloc();
+    void * alloc(uint32_t size);
 
     /**
      * Free a 4kb memory block
      *
-     * @param address Address of the memory block to free
+     * @param ptr Address of the memory block to free
      */
-    uint32_t free(uint32_t address);
-
-    /**
-     * Reserves an address range of 4kb blocks and prevents from allocating it.
-     * Can only be used on non-allocated memory.
-     *
-     * @param startAddress Start address of the memory block to reserve
-     * @param endAddress End address of the memory block to reserve
-     * @return startAddress if successful, 0 otherwise
-     */
-    uint32_t reserveAddressRange(uint32_t startAddress, uint32_t endAddress);
-
-    /**
-	 * Frees an address range of 4kb blocks.
-	 *
-	 * @param startAddress Start address of the memory block to free
-	 * @param endAddress End address of the memory block to free
-	 */
-	void freeAddressRange(uint32_t startAddress, uint32_t endAddress);
+    void free(void *ptr);
 
     /**
      * Dump bitmap for debugging reasons
