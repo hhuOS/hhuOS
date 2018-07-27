@@ -70,6 +70,8 @@ public:
      */
     void demo2();
 
+    void mario();
+
     /**
      * Beep for a given time.
      *
