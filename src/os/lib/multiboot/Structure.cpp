@@ -26,8 +26,8 @@
 #include "Constants.h"
 
 extern "C" {
-    extern char ___KERNEL_START__;
-    extern char ___KERNEL_END__;
+    extern char ___KERNEL_DATA_START__;
+    extern char ___KERNEL_DATA_END__;
 }
 
 Multiboot::Info Multiboot::Structure::info;
@@ -75,9 +75,9 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
     uint32_t &mapSize = *((uint32_t*) ((uint32_t) &customMemoryMapSize - KERNEL_START));
 
-    uint32_t kernelStart = (uint32_t) &___KERNEL_START__ - KERNEL_START;
+    uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - KERNEL_START;
 
-    uint32_t kernelEnd = (uint32_t) &___KERNEL_END__ - KERNEL_START;
+    uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - KERNEL_START;
 
     memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED};
 

@@ -51,7 +51,7 @@
 #define PAGE_NOT_ACCESSED		        0x000
 #define PAGE_ACCESSED			        0x020
 // A protected page will not be unmapped
-#define PAGE_PROTECTED                  0x200
+#define PAGE_WRITE_PROTECTED            0x200
 
 #define GET_PD_IDX(x)                   (x >> 22)
 #define GET_PT_IDX(x)                   ((x >> 12) & 0x3FF)

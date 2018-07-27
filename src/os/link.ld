@@ -5,14 +5,14 @@ SECTIONS
 {
     . = 0xC0100000;     /* Virtual start address */
 
-    .floppy ALIGN (64k) : AT (ADDR(.floppy) - 0xC0000000)
+    .floppy ALIGN (512) : AT (ADDR(.floppy) - 0xC0000000)
     {
         ___FLOPPY_START__ = .;
-       . = . + 64k;
+       . = . + 512;
         ___FLOPPY_END__   = .;
     }
 
-    ___KERNEL_START__ = .;
+    ___KERNEL_DATA_START__ = .;
 
     .text ALIGN (4K) : AT (ADDR(.text) - 0xC0000000)
     {
@@ -69,7 +69,7 @@ SECTIONS
         ___BSS_END__    = .;
     }
 
-    ___KERNEL_END__ = .;
+    ___KERNEL_DATA_END__ = .;
 
     /DISCARD/ :
     {

@@ -61,8 +61,8 @@ extern parse_multiboot
 extern enable_interrupts
 extern readMemoryMap
 
-extern ___KERNEL_START__
-extern ___KERNEL_END__
+extern ___KERNEL_DATA_START__
+extern ___KERNEL_DATA_END__
 extern ___BSS_START__
 extern ___BSS_END__
 extern ___INIT_ARRAY_START__
@@ -90,8 +90,8 @@ multiboot_header:
 	dd MULTIBOOT_HEADER_FLAGS
 	dd MULTIBOOT_HEADER_CHKSUM
 	dd (multiboot_header    - KERNEL_START)
-	dd (___KERNEL_START__   - KERNEL_START)
-	dd (___KERNEL_END__     - KERNEL_START)
+	dd (___KERNEL_DATA_START__   - KERNEL_START)
+	dd (___KERNEL_DATA_END__     - KERNEL_START)
 	dd (___BSS_END__        - KERNEL_START)
 	dd (startup             - KERNEL_START)
 ;	dd GRAPHICS_MODE
