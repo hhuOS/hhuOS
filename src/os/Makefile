@@ -40,7 +40,7 @@ CXX = g++
 #-------------------------------------------#
 # C Compiler settings                       #
 #-------------------------------------------#
-CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib \
+CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib -fno-pic -no-pie \
 					-ffreestanding -mno-sse -march=i486 -I$(INCLUDEDIR) -g $(BUILDCONFIG) #-DDEBUG
 
 #-------------------------------------------#
