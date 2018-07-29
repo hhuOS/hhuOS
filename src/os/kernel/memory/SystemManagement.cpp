@@ -638,7 +638,6 @@ void* operator new ( uint32_t size ) {
 	} else {
 		return SystemManagement::getKernelHeapManager()->alloc(size);
 	}
-
 }
 
 void* operator new[]( uint32_t count ) {
@@ -670,3 +669,37 @@ void *operator new(size_t, void *p) { return p; }
 void *operator new[](size_t, void *p) { return p; }
 void  operator delete  (void *, void *) { };
 void  operator delete[](void *, void *) { };
+
+// TODO
+//  Implement aligned allocation (C++17)
+void* operator new(size_t size, uint32_t alignment) {
+    if(!SystemManagement::isKernelMode()){
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size);
+    } else {
+        return SystemManagement::getKernelHeapManager()->alloc(size);
+    }
+}
+
+void* operator new[](size_t size, uint32_t alignment) {
+    if(!SystemManagement::isKernelMode()){
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size);
+    } else {
+        return SystemManagement::getKernelHeapManager()->alloc(size);
+    }
+}
+
+void operator delete(void *ptr, uint32_t alignment) noexcept {
+    if(!SystemManagement::isKernelMode()){
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+    } else {
+        return SystemManagement::getKernelHeapManager()->free(ptr);
+    }
+}
+
+void operator delete[](void *ptr, uint32_t alignment) noexcept {
+    if(!SystemManagement::isKernelMode()){
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+    } else {
+        return SystemManagement::getKernelHeapManager()->free(ptr);
+    }
+}

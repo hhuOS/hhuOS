@@ -20,12 +20,8 @@
 #include <devices/graphics/text/VesaText.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
 #include <lib/file/tar/Archive.h>
-#include <kernel/log/StdOutAppender.h>
 #include <devices/block/Ahci.h>
-#include <devices/usb/uhci/Uhci.h>
-#include <devices/block/Ide.h>
 #include <devices/block/FloppyController.h>
-#include <lib/sound/BeepFile.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 

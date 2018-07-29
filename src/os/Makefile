@@ -47,7 +47,7 @@ CFLAGS := $(CFLAGS) -m32 -Wall -Wno-write-strings -fno-stack-protector -nostdlib
 # C++ Compiler settings                     #
 #-------------------------------------------#
 CXXFLAGS := $(CFLAGS) -Wl,--build-id=none -Wno-non-virtual-dtor \
-					  -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++11
+					  -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17
 
 #-------------------------------------------#
 # ASM Compiler settings                     #
