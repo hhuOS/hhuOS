@@ -1,6 +1,6 @@
 #include <kernel/Kernel.h>
 #include <kernel/services/SoundService.h>
-#include <lib/sound/Hidi.h>
+#include <lib/sound/BeepFile.h>
 #include "Sound.h"
 
 Sound::Sound() : Thread("Sound") {
@@ -9,14 +9,14 @@ Sound::Sound() : Thread("Sound") {
 }
 
 void Sound::run () {
-    while(true) {
+    while(isRunning) {
 
-        Hidi::load("/music/tetris.hidi")->play();
+        BeepFile::load("/music/tetris.beep")->play();
 
         speaker->off();
         timeService->msleep(1000);
 
-        Hidi::load("/music/mario.hidi")->play();
+        BeepFile::load("/music/mario.beep")->play();
 
         speaker->off();
         timeService->msleep(1000);

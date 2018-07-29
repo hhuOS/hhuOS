@@ -25,6 +25,7 @@
 #include <devices/usb/uhci/Uhci.h>
 #include <devices/block/Ide.h>
 #include <devices/block/FloppyController.h>
+#include <lib/sound/BeepFile.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 

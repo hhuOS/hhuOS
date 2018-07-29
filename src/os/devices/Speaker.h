@@ -61,18 +61,6 @@ public:
     ~Speaker() = delete;
 
     /**
-     * Play a demo-melody.
-     */
-    void demo1();
-
-    /**
-     * Play a demo-melody.
-     */
-    void demo2();
-
-    void mario();
-
-    /**
      * Beep for a given time.
      *
      * @param The frequency

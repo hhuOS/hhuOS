@@ -18,6 +18,8 @@ private:
 
     TimeService * timeService = nullptr;
 
+    bool isRunning = true;
+
 public:
 
     /**
