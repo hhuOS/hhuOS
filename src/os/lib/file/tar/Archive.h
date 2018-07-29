@@ -59,7 +59,15 @@ namespace Tar {
          *
          * @return All file headers.
          */
-        Util::Array<Header> getFileHeaders();
+        Util::Array<Header*> getFileHeaders();
+
+        /**
+         * Returns the specified file within this archive.
+         *
+         * @param path The file's path.
+         * @return The specified file or nullptr if it does not exist.
+         */
+        uint8_t *getFile(const String &path);
 
     private:
 
@@ -69,7 +77,7 @@ namespace Tar {
 
         uint32_t totalSize = 0;
 
-        Util::ArrayList<Header> headers;
+        Util::ArrayList<Header*> headers;
 
         /**
          * Converts the size (base8) to the decimal system.

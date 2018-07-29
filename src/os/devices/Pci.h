@@ -37,6 +37,15 @@ class Pci {
 
 public:
 
+    struct Vendor {
+        String name;
+        Util::HashMap<String, String> *devices;
+
+        bool operator!=(const Vendor &other) const;
+        bool operator==(const Vendor &other) const;
+        explicit operator uint32_t() const;
+    };
+
     Pci() = delete;
 
     Pci(const Pci &copy) = delete;
@@ -214,7 +223,19 @@ public:
 
     static const uint8_t    POWER_DATA                   = 0x07;
 
+    static void setVendorName(const String &vendorId, const Vendor &vendor);
+
+    static String getVendorName(const String &vendorId);
+
+    static String getIdentifier(const String &vendorId, const String &deviceId);
+
+    static void parsePciIds(const String &fileContent);
+
 private:
+
+    static Util::HashMap<String, String> vendorNames;
+
+    static Util::HashMap<String, Vendor> vendors;
 
     static Logger &log;
 

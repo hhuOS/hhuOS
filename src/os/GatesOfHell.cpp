@@ -243,5 +243,7 @@ void GatesOfHell::loadInitrd() {
 
     Tar::Archive &archive = Tar::Archive::from(address);
 
-    Util::Array<Tar::Header> header = archive.getFileHeaders();
+    String content = (char*) archive.getFile("initrd/pci/pci.ids");
+
+    Pci::parsePciIds(content);
 }

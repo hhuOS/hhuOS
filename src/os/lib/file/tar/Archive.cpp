@@ -56,7 +56,7 @@ namespace Tar {
 
             tar->totalSize += size;
 
-            tar->headers.add(*header);
+            tar->headers.add(header);
 
             if (header->typeFlag == LF_OLDNORMAL) {
 
@@ -87,19 +87,19 @@ namespace Tar {
         return from(address);
     }
 
-    Util::Array<Header> Archive::getFileHeaders() {
+    Util::Array<Header*> Archive::getFileHeaders() {
 
-        Util::Array<Header> fileHeaders(fileCount);
+        Util::Array<Header*> fileHeaders(fileCount);
 
         uint32_t arrayIndex = 0;
 
-        Header header{};
+        Header *header;
 
         for (uint32_t i = 0; i < headers.size(); i++) {
 
             header = headers.get(i);
 
-            if (header.typeFlag == LF_OLDNORMAL) {
+            if (header->typeFlag == LF_OLDNORMAL) {
 
                 fileHeaders[arrayIndex] = header;
 
@@ -108,6 +108,19 @@ namespace Tar {
         }
 
         return fileHeaders;
+    }
+
+    uint8_t *Archive::getFile(const String &path) {
+
+        for (auto &header : getFileHeaders()) {
+
+            if (path == header->filename) {
+
+                return ((uint8_t*) header) + BLOCKSIZE;
+            }
+        }
+
+        return nullptr;
     }
 }
 

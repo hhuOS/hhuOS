@@ -18,6 +18,7 @@
 #include <devices/block/storage/AhciDevice.h>
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
+#include <lib/libc/sprintf.h>
 #include "devices/Pci.h"
 
 #include "kernel/memory/manager/IOMemoryManager.h"
@@ -31,6 +32,8 @@ const IOport Pci::CONFIG_DATA = IOport(0xCFC);
 
 Util::ArrayList<Pci::Device> Pci::pciDevices;
 Util::ArrayList<PciDeviceDriver*> Pci::deviceDrivers;
+Util::HashMap<String, String> Pci::vendorNames;
+Util::HashMap<String, Pci::Vendor> Pci::vendors;
 
 uint8_t Pci::ahciCount = 0;
 
@@ -236,6 +239,16 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     log.trace("Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
 
+    char vendorId[4];
+    char deviceId[4];
+
+    sprintf(vendorId, "%x", dev.vendorId);
+    sprintf(deviceId, "%x", dev.deviceId);
+
+    String vendorName = getIdentifier(vendorId, deviceId);
+
+    log.trace("  - %s", (char*) vendorName);
+
     pciDevices.add(dev);
 }
 
@@ -347,7 +360,108 @@ void Pci::uninstallDeviceDriver(PciDeviceDriver &driver) {
     }
 }
 
+void Pci::setVendorName(const String &vendorId, const Vendor &vendor) {
+
+    Vendor tmp = vendor;
+
+    tmp.devices = new Util::HashMap<String, String>();
+
+    vendors.put(vendorId, tmp);
+}
+
+String Pci::getVendorName(const String &vendorId) {
+
+    if (vendors.containsKey(vendorId)) {
+
+        return vendors.get(vendorId).name;
+    }
+
+    return "";
+}
+
+void Pci::parsePciIds(const String &fileContent) {
+
+    Util::Array<String> lines = fileContent.split('\n');
+
+    String vendorId, deviceId, deviceName;
+
+    Vendor vendor;
+
+    for (auto &line : lines) {
+
+        if (line[0] == '#' || line.strip().isEmpty()) {
+
+            continue;
+
+        } else {
+
+            if (line[0] == '\t' && line[1] == '\t') {
+                // Ignore subdevices for now
+            } else if (line[0] == '\t') {
+
+                deviceId = line.strip().split(' ')[0];
+
+                deviceName = line.split(' ', 2)[1].strip();
+
+                vendor = vendors.get(vendorId);
+
+                vendor.devices->put(deviceId, deviceName);
+
+                vendors.put(vendorId, vendor);
+
+            } else {
+
+                vendorId = line.strip().split(' ')[0];
+
+                vendor.name = line.split(' ', 2)[1].strip();
+
+                vendor.devices = new Util::HashMap<String, String>();
+
+                vendors.put(vendorId, vendor);
+            }
+        }
+    }
+}
+
+String Pci::getIdentifier(const String &vendorId, const String &deviceId) {
+
+    String result;
+
+    if (vendors.containsKey(vendorId)) {
+
+        Vendor vendor = vendors.get(vendorId);
+
+        result += vendor.name + ": ";
+
+        if (vendor.devices->containsKey(deviceId)) {
+
+            result += vendor.devices->get(deviceId);
+
+        } else {
+
+            result += "<unknown>";
+        }
+    }
+
+    return result;
+}
+
 bool Pci::Device::operator!=(const Pci::Device &other) {
 
     return vendorId != other.vendorId && deviceId != other.deviceId;
+}
+
+bool Pci::Vendor::operator!=(const Pci::Vendor &other) const {
+
+    return name != other.name;
+}
+
+bool Pci::Vendor::operator==(const Pci::Vendor &other) const {
+
+    return name == other.name;
+}
+
+Pci::Vendor::operator uint32_t() const {
+
+    return (uint32_t) name;
 }

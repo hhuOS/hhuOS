@@ -23,7 +23,7 @@
 namespace Tar {
 
     struct Header {
-        uint8_t filename[100];
+        char filename[100];
         uint8_t mode[8];
         uint8_t userId[8];
         uint8_t groupId[8];

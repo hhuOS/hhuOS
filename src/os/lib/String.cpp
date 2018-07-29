@@ -556,5 +556,41 @@ String String::vformat(const char *fmt, va_list args) {
     return buffer.getArray();
 }
 
+String String::strip() {
+
+    uint32_t startIndex = 0;
+
+    char element;
+
+    for (startIndex = 0; startIndex < len; startIndex++) {
+
+        element = buffer[startIndex];
+
+        if (element != '\t' && element != ' ') {
+
+            break;
+        }
+    }
+
+    uint32_t endIndex;
+
+    for (endIndex = len - 1; endIndex > startIndex; endIndex--) {
+
+        element = buffer[endIndex];
+
+        if (element != '\t' && element != ' ') {
+
+            break;
+        }
+    }
+
+    if (startIndex == endIndex) {
+
+        return "";
+    }
+
+    return substring(startIndex, endIndex + 1);
+}
+
 
 

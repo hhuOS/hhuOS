@@ -35,6 +35,8 @@ public:
 
     String substring(uint32_t begin, uint32_t end) const;
 
+    String strip();
+
     Util::Array<String> split(const String &delimiter, uint32_t limit = 0) const;
 
     String remove(const String &string) const;
