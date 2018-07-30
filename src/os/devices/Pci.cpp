@@ -436,6 +436,14 @@ void Pci::parseDatabase() {
         }
     }
 
+    // Add QEMU VGA entry
+    vendorId = "1234";
+    deviceId = "1111";
+    vendor.name = "QEMU";
+    vendor.devices = new Util::HashMap<String, String>();
+    vendor.devices->put(deviceId, "Standard VGA");
+    vendors.put(vendorId, vendor);
+
     log.trace("Parsing PCI database finished");
 }
 
