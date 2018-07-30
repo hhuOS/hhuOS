@@ -50,7 +50,21 @@ int32_t main() {
 
 int32_t GatesOfHell::enter() {
 
-    loadInitrd();
+//    TimeProvider *provider = Pit::getInstance();
+
+//    void *ptr = nullptr;
+//
+//    log.trace("System Alloc Start");
+//
+//    then = provider->getMillis();
+//    for (uint32_t i = 0; i < 64000; i++) {
+//
+//        ptr = malloc(64);
+//    }
+//    diff = provider->getMillis() - then;
+//
+//    log.trace("System Alloc End");
+//    log.trace("Allocated 64000 Objects in %dms", diff);
 
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
@@ -233,17 +247,4 @@ void GatesOfHell::initializeSerialPorts() {
 void GatesOfHell::initializePciDrivers() {
     Ahci ahci;
     Pci::setupDeviceDriver(ahci);
-}
-
-void GatesOfHell::loadInitrd() {
-
-    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
-
-    Address address(info.start);
-
-    Tar::Archive &archive = Tar::Archive::from(address);
-
-    String content = (char*) archive.getFile("initrd/pci/pci.ids");
-
-    Pci::parsePciIds(content);
 }

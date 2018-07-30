@@ -15,6 +15,7 @@
  */
 
 #include <devices/Pci.h>
+#include <lib/libc/sprintf.h>
 #include "PciNode.h"
 
 PciNode::PciNode() : VirtualNode("pci", FsNode::REGULAR_FILE) {
@@ -53,7 +54,18 @@ uint64_t PciNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 void PciNode::cacheDeviceList() {
 
+    char vendorId[5];
+    char deviceId[5];
+
+    String identifier;
+
     for (auto device : Pci::getDevices()) {
-        cache += String::valueOf(device.vendorId, 16) + String(":") + String::valueOf(device.deviceId, 16) + String("\n");
+
+        sprintf(vendorId, "%x", device.vendorId);
+        sprintf(deviceId, "%x", device.deviceId);
+
+        identifier = Pci::getIdentifier(vendorId, deviceId);
+
+        cache += String::format("%s:%s - %s\n", vendorId, deviceId, (char*) identifier);
     }
 }

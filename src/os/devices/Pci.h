@@ -229,8 +229,6 @@ public:
 
     static String getIdentifier(const String &vendorId, const String &deviceId);
 
-    static void parsePciIds(const String &fileContent);
-
 private:
 
     static Util::HashMap<String, String> vendorNames;
@@ -270,6 +268,8 @@ private:
     static void        scanBus(uint8_t bus);
 
     static Pci::Device      readDevice(uint8_t bus, uint8_t device, uint8_t function);
+
+    static void parseDatabase();
 };
 
 #endif

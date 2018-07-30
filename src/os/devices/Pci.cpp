@@ -19,6 +19,8 @@
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 #include <lib/libc/sprintf.h>
+#include <lib/file/tar/Archive.h>
+#include <lib/multiboot/Structure.h>
 #include "devices/Pci.h"
 
 #include "kernel/memory/manager/IOMemoryManager.h"
@@ -239,8 +241,8 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     log.trace("Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
 
-    char vendorId[4];
-    char deviceId[4];
+    char vendorId[5];
+    char deviceId[5];
 
     sprintf(vendorId, "%x", dev.vendorId);
     sprintf(deviceId, "%x", dev.deviceId);
@@ -277,6 +279,8 @@ void Pci::scanBus(uint8_t bus) {
 }
 
 void Pci::scan() {
+
+    parseDatabase();
 
     storageService = Kernel::getService<StorageService>();
 
@@ -379,9 +383,19 @@ String Pci::getVendorName(const String &vendorId) {
     return "";
 }
 
-void Pci::parsePciIds(const String &fileContent) {
+void Pci::parseDatabase() {
 
-    Util::Array<String> lines = fileContent.split('\n');
+    log.trace("Parsing PCI database");
+
+    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
+
+    Address address(info.start);
+
+    Tar::Archive &archive = Tar::Archive::from(address);
+
+    String content = (char*) archive.getFile("initrd/pci/pci.ids");
+
+    Util::Array<String> lines = content.split('\n');
 
     String vendorId, deviceId, deviceName;
 
@@ -399,7 +413,7 @@ void Pci::parsePciIds(const String &fileContent) {
                 // Ignore subdevices for now
             } else if (line[0] == '\t') {
 
-                deviceId = line.strip().split(' ')[0];
+                deviceId = line.strip().split(' ')[0].toUpperCase();
 
                 deviceName = line.split(' ', 2)[1].strip();
 
@@ -411,7 +425,7 @@ void Pci::parsePciIds(const String &fileContent) {
 
             } else {
 
-                vendorId = line.strip().split(' ')[0];
+                vendorId = line.strip().split(' ')[0].toUpperCase();
 
                 vendor.name = line.split(' ', 2)[1].strip();
 
@@ -421,6 +435,8 @@ void Pci::parsePciIds(const String &fileContent) {
             }
         }
     }
+
+    log.trace("Parsing PCI database finished");
 }
 
 String Pci::getIdentifier(const String &vendorId, const String &deviceId) {
