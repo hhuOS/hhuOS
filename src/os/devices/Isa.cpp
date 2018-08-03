@@ -4,7 +4,7 @@
 
 IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
 
-Spinlock Isa::dmaLock = Spinlock();
+Spinlock Isa::isaLock = Spinlock();
 
 IOport Isa::startAddressRegisters[8] = {
         IOport(0x00),
@@ -130,11 +130,15 @@ void Isa::setAddress(uint8_t channel, uint32_t address) {
         return;
     }
 
+    isaLock.acquire();
+
     resetFlipFlop(channel);
 
     startAddressRegisters[channel].outb(static_cast<uint8_t>(address & 0x000000ffu));
     startAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 8u) & 0x000000ffu));
     pageAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 16u) & 0x000000ffu));
+
+    isaLock.release();
 }
 
 void Isa::setCount(uint8_t channel, uint16_t count) {
@@ -142,10 +146,14 @@ void Isa::setCount(uint8_t channel, uint16_t count) {
         return;
     }
 
+    isaLock.acquire();
+
     resetFlipFlop(channel);
 
     countRegisters[channel].outb(static_cast<uint8_t>(count & 0x00ffu));
     countRegisters[channel].outb(static_cast<uint8_t>((count >> 8u) & 0x00ffu));
+
+    isaLock.release();
 }
 
 void Isa::setMode(uint8_t channel, Isa::TransferMode transferMode, bool autoReset, bool reverseMemoryOrder,
@@ -193,12 +201,4 @@ void Isa::resetAll(uint8_t channel) {
     }
 
     masterResetRegisters[channel / 4].outb(0xff);
-}
-
-void Isa::acquireIsaDmaLock() {
-    dmaLock.acquire();
-}
-
-void Isa::releaseIsaDmaLock() {
-    dmaLock.release();
 }

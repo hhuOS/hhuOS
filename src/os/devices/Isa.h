@@ -10,9 +10,6 @@
  *
  * Each buffer, that is used for ISA DMA must be allocated with Isa::allocDmaBuffer()
  * and freed with Isa::freeDmaBuffer().
- *
- * Before starting a DMA transfer, you MUST call Isa::acquireDmaLock().
- * After your DMA transfer has finished, you MUST call Isa::freeDmaLock().
  */
 class Isa {
 
@@ -60,16 +57,6 @@ public:
      * @param ptr The buffer
      */
     static void freeDmaBuffer(void *ptr);
-
-    /**
-     * Call this function EVERY TIME before start preparing a DMA transfer.
-     */
-    static void acquireIsaDmaLock();
-
-    /**
-     * Call this function EVERY TIME after you finished transferring your data.
-     */
-    static void releaseIsaDmaLock();
 
     /**
      * Select a DMA channel for further operations.
@@ -129,7 +116,7 @@ public:
 
 private:
 
-    static Spinlock dmaLock;
+    static Spinlock isaLock;
 
     /**
      * Reset the controller's flip-flop.

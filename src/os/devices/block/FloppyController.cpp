@@ -329,8 +329,6 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 
-    Isa::acquireIsaDmaLock();
-
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
         receivedInterrupt = false;
 
@@ -358,14 +356,10 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
         setMotorState(device, FLOPPY_MOTOR_OFF);
 
-        Isa::releaseIsaDmaLock();
-
         return true;
     }
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
-
-    Isa::releaseIsaDmaLock();
 
     return false;
 }
