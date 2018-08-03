@@ -9,8 +9,6 @@
 #include "FloppyController.h"
 #include "FloppyMotorControlThread.h"
 
-extern uint8_t ___FLOPPY_START__, ___FLOPPY_END__;
-
 Logger &FloppyController::log = Logger::get("FLOPPY");
 
 bool FloppyController::isAvailable() {
@@ -31,6 +29,10 @@ FloppyController::FloppyController() :
 
     timeService = Kernel::getService<TimeService>();
     storageService = Kernel::getService<StorageService>();
+}
+
+FloppyController::~FloppyController() {
+    Isa::freeDmaBuffer(dmaMemory);
 }
 
 bool FloppyController::isBusy() {
@@ -244,9 +246,7 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
     receivedInterrupt = false;
 
     Isa::selectChannel(2);
-    Isa::resetFlipFlop(2);
     Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
-    Isa::resetFlipFlop(2);
     Isa::setCount(2, 511);
     Isa::setMode(2, Isa::TRANSFER_MODE_WRITE, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
     Isa::deselectChannel(2);
@@ -311,12 +311,8 @@ void FloppyController::trigger() {
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode) {
     Isa::selectChannel(2);
 
-    Isa::resetFlipFlop(2);
     Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
-
-    Isa::resetFlipFlop(2);
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
-
     Isa::setMode(2, transferMode, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
 
     Isa::deselectChannel(2);
@@ -332,6 +328,8 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
     }
 
     setMotorState(device, FLOPPY_MOTOR_ON);
+
+    Isa::acquireIsaDmaLock();
 
     for(uint8_t i = 0; i < FLOPPY_RETRY_COUNT; i++) {
         receivedInterrupt = false;
@@ -360,10 +358,14 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
         setMotorState(device, FLOPPY_MOTOR_OFF);
 
+        Isa::releaseIsaDmaLock();
+
         return true;
     }
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
+
+    Isa::releaseIsaDmaLock();
 
     return false;
 }

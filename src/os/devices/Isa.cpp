@@ -1,7 +1,10 @@
 #include <kernel/memory/SystemManagement.h>
+#include <kernel/memory/MemLayout.h>
 #include "Isa.h"
 
 IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
+
+Spinlock Isa::dmaLock = Spinlock();
 
 IOport Isa::startAddressRegisters[8] = {
         IOport(0x00),
@@ -86,10 +89,16 @@ IOport Isa::multiChannelMaskRegisters[2] = {
         IOport(0xde)
 };
 
-void* Isa::allocDmaBuffer() {
+void *Isa::allocDmaBuffer() {
     void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
 
     return SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+}
+
+void Isa::freeDmaBuffer(void *ptr) {
+    dmaMemoryManager.free(SystemManagement::getInstance()->getPhysicalAddress(ptr));
+
+    SystemManagement::getInstance()->freeIO(ptr);
 }
 
 void Isa::selectChannel(uint8_t channel) {
@@ -117,9 +126,11 @@ void Isa::setAddress(uint8_t channel, uint32_t address) {
         return;
     }
 
-    if(address < IsaDmaMemoryManager::ISA_DMA_START_ADDRESS || address > IsaDmaMemoryManager::ISA_DMA_END_ADDRESS) {
+    if(address < ISA_DMA_START_ADDRESS || address > ISA_DMA_END_ADDRESS) {
         return;
     }
+
+    resetFlipFlop(channel);
 
     startAddressRegisters[channel].outb(static_cast<uint8_t>(address & 0x000000ffu));
     startAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 8u) & 0x000000ffu));
@@ -130,6 +141,8 @@ void Isa::setCount(uint8_t channel, uint16_t count) {
     if(channel > 7) {
         return;
     }
+
+    resetFlipFlop(channel);
 
     countRegisters[channel].outb(static_cast<uint8_t>(count & 0x00ffu));
     countRegisters[channel].outb(static_cast<uint8_t>((count >> 8u) & 0x00ffu));
@@ -180,4 +193,12 @@ void Isa::resetAll(uint8_t channel) {
     }
 
     masterResetRegisters[channel / 4].outb(0xff);
+}
+
+void Isa::acquireIsaDmaLock() {
+    dmaLock.acquire();
+}
+
+void Isa::releaseIsaDmaLock() {
+    dmaLock.release();
 }

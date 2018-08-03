@@ -47,25 +47,28 @@
 #define PHYS_SYS_CODE 0x100000
 #define VIRT_SYS_CODE (PHYS_SYS_CODE + KERNEL_START)
 
- // start address of cga memory
- #define PHYS_CGA_START 0xB8000
- #define VIRT_CGA_START (PHYS_CGA_START + KERNEL_START)
+// start address of cga memory
+#define PHYS_CGA_START 0xB8000
+#define VIRT_CGA_START (PHYS_CGA_START + KERNEL_START)
 
- // return address for bios calls
- #define PHYS_BIOS_RETURN_MEM 0x9F000
- #define VIRT_BIOS_RETURN_MEM (PHYS_BIOS_RETURN_MEM + KERNEL_START)
+// return address for bios calls
+#define PHYS_BIOS_RETURN_MEM 0x9F000
+#define VIRT_BIOS_RETURN_MEM (PHYS_BIOS_RETURN_MEM + KERNEL_START)
 
- // Look into startup.asm for corresponding GDT-Entry
- #define PHYS_BIOS16_CODE_MEMORY_START 0x4000
- #define VIRT_BIOS16_CODE_MEMORY_START (PHYS_BIOS16_CODE_MEMORY_START + KERNEL_START)
- 
- // Parameter for BIOS-Calls
- #define PHYS_BIOS16_PARAM_BASE 0x6000
- #define VIRT_BIOS16_PARAM_BASE (PHYS_BIOS16_PARAM_BASE + KERNEL_START)
+// Look into startup.asm for corresponding GDT-Entry
+#define PHYS_BIOS16_CODE_MEMORY_START 0x4000
+#define VIRT_BIOS16_CODE_MEMORY_START (PHYS_BIOS16_CODE_MEMORY_START + KERNEL_START)
 
- // macros for address calculation
- #define VIRT2PHYS(x) ((x) - KERNEL_START)
- #define PHYS2VIRT(x) ((x) + KERNEL_START)
+// Parameter for BIOS-Calls
+#define PHYS_BIOS16_PARAM_BASE 0x6000
+#define VIRT_BIOS16_PARAM_BASE (PHYS_BIOS16_PARAM_BASE + KERNEL_START)
+
+#define ISA_DMA_START_ADDRESS 0x00008000
+#define ISA_DMA_END_ADDRESS ISA_DMA_START_ADDRESS + 0x00080000
+
+// macros for address calculation
+#define VIRT2PHYS(x) ((x) - KERNEL_START)
+#define PHYS2VIRT(x) ((x) + KERNEL_START)
 
 #define VIRT2PHYS_VAR(type, x) (*(type*)(((uint8_t*) &x) - KERNEL_START))
 #define PHYS2VIRT_VAR(type, x) (*(type*)(((uint8_t*) &x) + KERNEL_START))

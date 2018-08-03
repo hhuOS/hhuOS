@@ -282,7 +282,7 @@ public:
     /**
      * Destructor.
      */
-    ~FloppyController() override = default;
+    ~FloppyController() override;
 
     /**
      * Check, if the floppy controller and at least one drive is available.

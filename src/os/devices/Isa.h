@@ -2,8 +2,18 @@
 #define HHUOS_ISA_H
 
 #include <kernel/IOport.h>
+#include <lib/lock/Spinlock.h>
 #include <kernel/memory/manager/IsaDmaMemoryManager.h>
 
+/**
+ * Contains static functions, which can be used to communicate with the ISA DMA controller.
+ *
+ * Each buffer, that is used for ISA DMA must be allocated with Isa::allocDmaBuffer()
+ * and freed with Isa::freeDmaBuffer().
+ *
+ * Before starting a DMA transfer, you MUST call Isa::acquireDmaLock().
+ * After your DMA transfer has finished, you MUST call Isa::freeDmaLock().
+ */
 class Isa {
 
 private:
@@ -39,24 +49,94 @@ public:
         DMA_MODE_CASCADE = 0xc0
     };
 
-    static void* allocDmaBuffer();
+    /**
+     * Allocate a 64KB buffer, that can be used for ISA DMA transfers.
+     */
+    static void *allocDmaBuffer();
 
+    /**
+     * Free a buffer, that has been allocated by Isa::allocDmaBuffer().
+     *
+     * @param ptr The buffer
+     */
+    static void freeDmaBuffer(void *ptr);
+
+    /**
+     * Call this function EVERY TIME before start preparing a DMA transfer.
+     */
+    static void acquireIsaDmaLock();
+
+    /**
+     * Call this function EVERY TIME after you finished transferring your data.
+     */
+    static void releaseIsaDmaLock();
+
+    /**
+     * Select a DMA channel for further operations.
+     *
+     * @param channel The channel number (0-7)
+     */
     static void selectChannel(uint8_t channel);
 
+    /**
+     * Deselect a DMA channel.
+     *
+     * @param channel The channel number (0-7)
+     */
     static void deselectChannel(uint8_t channel);
 
+    /**
+     * Set the address for a DMA transfer.
+     *
+     * @param channel The channel number (0-7)
+     * @param address The address (must point to a buffer, that has been allocated by Isa::allocDmaBuffer()).
+     */
     static void setAddress(uint8_t channel, uint32_t address);
 
+    /**
+     * Set the amount of bytes to transfer.
+     *
+     * @param channel The channel number (0-7)
+     * @param count The amount of bytes
+     */
     static void setCount(uint8_t channel, uint16_t count);
 
+    /**
+     * Set the controller's operating mode.
+     *
+     * @param channel The channel number (0-7)
+     * @param transferMode The transfer mode to use (read/write)
+     * @param autoReset true, if the address and counters shall be reset after a DMA transder
+     * @param reverseMemoryOrder true, if the memory order shall be reversed (High addresses to low addresses)
+     * @param dmaMode The DMA to use
+     */
     static void setMode(uint8_t channel, TransferMode transferMode, bool autoReset, bool reverseMemoryOrder,
                         DmaMode dmaMode);
 
-    static void resetFlipFlop(uint8_t channel);
-
+    /**
+     * Reset the controller's mask register (all bits are set to OFF).
+     *
+     * @param channel The channel number (0-7)
+     */
     static void resetMask(uint8_t channel);
 
+    /**
+     * Reset the controller's flip-flop, clear the status register and set all bits in the mask register to ON.
+     *
+     * @param channel The channel number (0-7)
+     */
     static void resetAll(uint8_t channel);
+
+private:
+
+    static Spinlock dmaLock;
+
+    /**
+     * Reset the controller's flip-flop.
+     *
+     * @param channel The channel number (0-7)
+     */
+    static void resetFlipFlop(uint8_t channel);
 };
 
 #endif
