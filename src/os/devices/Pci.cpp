@@ -280,8 +280,10 @@ void Pci::scanBus(uint8_t bus) {
 
 void Pci::scan() {
 
-    parseDatabase();
-
+    if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
+        parseDatabase();
+    }
+    
     storageService = Kernel::getService<StorageService>();
 
     uint8_t function;

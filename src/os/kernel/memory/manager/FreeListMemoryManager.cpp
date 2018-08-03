@@ -54,7 +54,7 @@ void FreeListMemoryManager::free(void* ptr) {
 
     lock.acquire();
 
-    FLHeader* header = (FLHeader*)((uint8_t*) ptr - HEADER_SIZE);
+    auto * header = (FLHeader*)((uint8_t*) ptr - HEADER_SIZE);
 
     // Place free block at the right position
     if (firstChunk == nullptr) {
@@ -96,8 +96,6 @@ void FreeListMemoryManager::free(void* ptr) {
     }
 
     lock.release();
-
-    return;
 }
 
 /**
