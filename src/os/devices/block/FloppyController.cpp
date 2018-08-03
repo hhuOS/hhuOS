@@ -27,12 +27,7 @@ FloppyController::FloppyController() :
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), datarateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {
 
-    auto dmaMemStart = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_START__));
-    auto dmaMemEnd = reinterpret_cast<uint32_t>(VIRT2PHYS(&___FLOPPY_END__));
-
-    dmaMemory = SystemManagement::getInstance()->mapIO(dmaMemStart, dmaMemEnd - dmaMemStart);
-
-    memset(dmaMemory, 0, dmaMemEnd - dmaMemStart);
+    dmaMemory = Isa::allocDmaBuffer();
 
     timeService = Kernel::getService<TimeService>();
     storageService = Kernel::getService<StorageService>();

@@ -2,10 +2,13 @@
 #define HHUOS_ISA_H
 
 #include <kernel/IOport.h>
+#include <kernel/memory/manager/IsaDmaMemoryManager.h>
 
 class Isa {
 
 private:
+
+    static IsaDmaMemoryManager dmaMemoryManager;
 
     static IOport startAddressRegisters[8];
     static IOport pageAddressRegisters[8];
@@ -21,8 +24,6 @@ private:
     static IOport maskResetRegisters[2];
     static IOport multiChannelMaskRegisters[2];
 
-    static const constexpr uint32_t ISA_DMA_MAX_ADDRESS = 0x1000000;
-
 public:
 
     enum TransferMode : uint8_t {
@@ -37,6 +38,8 @@ public:
         DMA_MODE_BLOCK_TRANSFER = 0x80,
         DMA_MODE_CASCADE = 0xc0
     };
+
+    static void* allocDmaBuffer();
 
     static void selectChannel(uint8_t channel);
 

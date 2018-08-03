@@ -1,4 +1,7 @@
+#include <kernel/memory/SystemManagement.h>
 #include "Isa.h"
+
+IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
 
 IOport Isa::startAddressRegisters[8] = {
         IOport(0x00),
@@ -83,6 +86,12 @@ IOport Isa::multiChannelMaskRegisters[2] = {
         IOport(0xde)
 };
 
+void* Isa::allocDmaBuffer() {
+    void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+
+    return SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+}
+
 void Isa::selectChannel(uint8_t channel) {
     if(channel > 7) {
         return;
@@ -108,7 +117,7 @@ void Isa::setAddress(uint8_t channel, uint32_t address) {
         return;
     }
 
-    if(address > ISA_DMA_MAX_ADDRESS) {
+    if(address < IsaDmaMemoryManager::ISA_DMA_START_ADDRESS || address > IsaDmaMemoryManager::ISA_DMA_END_ADDRESS) {
         return;
     }
 
