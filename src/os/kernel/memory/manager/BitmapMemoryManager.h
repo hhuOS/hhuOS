@@ -64,8 +64,8 @@ public:
      * @param name Name of this memory manager for debugging output
      * @param zeroMemory Indicates if new allocated memory should be zeroed
      */
-    BitmapMemoryManager(uint32_t memoryEndAddress, uint32_t blockSize, String name,
-                        bool zeroMemory, uint32_t memoryStartAddress, bool doUnmap);
+    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize,
+                        String name, bool zeroMemory, bool doUnmap);
 
     /**
      * Allocate a 4kb block of memory

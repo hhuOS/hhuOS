@@ -19,8 +19,8 @@ extern "C" {
 /**
  * Constructor
  */
-BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryEndAddress, uint32_t blockSize, String name,
-                                         bool zeroMemory, uint32_t memoryStartAddress, bool doUnmap) : MemoryManager(
+BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize,
+                                         String name, bool zeroMemory, bool doUnmap) : MemoryManager(
         memoryStartAddress, memoryEndAddress, doUnmap) {
     this->blockSize = blockSize;
     this->name = name;

@@ -15,7 +15,7 @@
  * Constructor - calls baseClass constructor.
  */
 PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
-        : BitmapMemoryManager(memoryEndAddress, PAGESIZE, "PAGEFRAMEALLOCATOR", false, memoryStartAddress, false) {
+        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, PAGESIZE, "PAGEFRAMEALLOCATOR", false, false) {
 
     managerType = PAGE_FRAME_ALLOCATOR;
 

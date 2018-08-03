@@ -13,7 +13,7 @@
  * Constructor - calls base class with parameters.
  */
 PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true, VIRT_PAGE_MEM_START, false) {
+        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true, false) {
 
     managerType = PAGING_AREA_MANAGER;
 
