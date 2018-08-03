@@ -28,12 +28,12 @@ void Bios::init() {
     // the assembler instructions are placed manually into the memory
     // in the following steps
 
-    // mov eax, 25000
+    // mov eax, 5000
     *codeAddr = 0x66;   codeAddr++;
     *codeAddr = 0xB8;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
     *codeAddr = 0x50;   codeAddr++;
-    *codeAddr = 0x02;   codeAddr++;
+    *codeAddr = 0x00;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
 
     // mov [eax], esp
@@ -63,17 +63,17 @@ void Bios::init() {
     *codeAddr = 0xC0;   codeAddr++;
     
     // jmp 2400:001B flush pipeline & switch decoding unit
-    // 2400:001B (2400<<4 = 24000 + 1B)
+    // 0400:001B (0400<<4 = 4000 + 1B)
     *codeAddr = 0xEA;   codeAddr++;
     *codeAddr = 0x1B;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
-    *codeAddr = 0x24;   codeAddr++;
+    *codeAddr = 0x04;   codeAddr++;
     
-    // mov ds,2400
+    // mov ds,400
     *codeAddr = 0xBA;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
-    *codeAddr = 0x24;   codeAddr++;
+    *codeAddr = 0x04;   codeAddr++;
     
     // mov ss,dx
     *codeAddr = 0x8E;   codeAddr++;
@@ -83,7 +83,7 @@ void Bios::init() {
     *codeAddr = 0x8E;   codeAddr++;
     *codeAddr = 0xEA;   codeAddr++;
     
-    // mov esp,2000 -> BIOS16_PARAM_BASE 0x260000
+    // mov esp,2000 -> BIOS16_PARAM_BASE 0x6000
     *codeAddr = 0x66;   codeAddr++;
     *codeAddr = 0xBC;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
@@ -185,7 +185,7 @@ void Bios::init() {
     *codeAddr = 0xB8;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
     *codeAddr = 0x50;   codeAddr++;
-    *codeAddr = 0x02;   codeAddr++;
+    *codeAddr = 0x00;   codeAddr++;
     *codeAddr = 0x00;   codeAddr++;
     
     // mov esp, [eax]

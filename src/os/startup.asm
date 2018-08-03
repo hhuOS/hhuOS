@@ -298,8 +298,8 @@ gdt_bios:
 	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
 
     dw  0xFFFF                          ; 4Gb - (0x100000*0x1000 = 4Gb)
-    dw	0x4000                          ; 0x4000 -> base address=0x24000 (siehe BIOS.cpp)
-    dw  0x9A02                          ; 0x2 -> base address =0x24000 (siehe BIOS.cpp) und code read/exec;
+    dw	0x4000                          ; 0x4000 -> base address=0x4000 (siehe BIOS.cpp)
+    dw  0x9A00                          ; 0x0000 -> base address =0x4000 (siehe BIOS.cpp) und code read/exec;
     dw  0x008F                          ; granularity=4096, 16-bit code
 
 ; value for GDTR 

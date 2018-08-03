@@ -5,13 +5,6 @@ SECTIONS
 {
     . = 0xC0100000;     /* Virtual start address */
 
-    .floppy ALIGN (512) : AT (ADDR(.floppy) - 0xC0000000)
-    {
-        ___FLOPPY_START__ = .;
-       . = . + 512;
-        ___FLOPPY_END__   = .;
-    }
-
     ___KERNEL_DATA_START__ = .;
 
     .text ALIGN (4K) : AT (ADDR(.text) - 0xC0000000)
