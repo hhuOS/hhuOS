@@ -45,7 +45,7 @@ struct IOMemFreeHeader{
 class IOMemoryManager : public MemoryManager {
 private:
     // anchor of the free list
-    IOMemFreeHeader* anchor = 0;
+    IOMemFreeHeader* anchor = nullptr;
 
     Util::HashMap<void*, uint32_t> ioMemoryMap;
 
@@ -61,24 +61,19 @@ public:
     ~IOMemoryManager() = delete;
 
     /**
-     * Initialize memory manager and set up free list.
-     */
-    void init();
-
-    /**
      * Allocate some virtual 4kb pages for given physical page frames.
      *
      * @param size ioMemInfo struct with pageCount and physAddresses filled in, but virtStartAddress == 0
      * @return IOMemInfo with all information about allocations
      */
-    void * alloc(uint32_t size);
+    void * alloc(uint32_t size) override;
 
     /**
      * Free virtual IO memory.
      *
      * @param ptr IOMemInfo struct with all information regarding the memory block
      */
-    void free(void *ptr);
+    void free(void *ptr) override;
 
     /**
      * Print dump of the free list.

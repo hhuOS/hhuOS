@@ -16,13 +16,14 @@ private:
 	struct buddyNode **freelist = nullptr;
 
 public:
-	BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint8_t min_order);
+	BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_order, uint32_t memoryStartAddress,
+						   bool doUnmap);
 	~BuddyMemoryManager();
-	void init();
+
 	void cleanup();
 
-	void* alloc(uint32_t size);
-	void free(void* ptr);
+	void* alloc(uint32_t size) override;
+	void free(void* ptr) override;
 
 	void dump();
 };

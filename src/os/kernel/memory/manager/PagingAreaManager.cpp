@@ -13,12 +13,8 @@
  * Constructor - calls base class with parameters.
  */
 PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true) {}
+        : BitmapMemoryManager(VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true, VIRT_PAGE_MEM_START, false) {
 
-/**
- * Initializes the PageingAreaManager - sets up bitmap.
- */
-void PagingAreaManager::init() {
     managerType = PAGING_AREA_MANAGER;
 
     freeMemory = memoryEndAddress - memoryStartAddress;
@@ -42,6 +38,4 @@ void PagingAreaManager::init() {
 
     // subtract already reserved memory from free memory
     freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
-
-    initialized = true;
 }

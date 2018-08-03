@@ -1,7 +1,9 @@
 #include "BuddyMemoryManager.h"
 #include "lib/libc/printf.h"
 
-BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint8_t min_order) : MemoryManager(memoryStartAddress, memoryEndAddress) {
+BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_order, uint32_t memoryStartAddress,
+                                       bool doUnmap) : MemoryManager(
+        memoryStartAddress, memoryEndAddress, doUnmap) {
 	this->min_order = min_order;
 	// align startAddress - endAddress will be aligned through max_order
 	uint32_t tmp = memoryStartAddress % (1 << min_order);
@@ -17,9 +19,6 @@ BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t mem
 	}
 
 	this->freeMemory = max_order;
-}
-
-void BuddyMemoryManager::init() {
 
     uint32_t size = (max_order + 1) * sizeof(struct buddyNode*);
     this->freelist = (struct buddyNode**) new char[size];

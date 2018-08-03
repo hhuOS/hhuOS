@@ -64,26 +64,22 @@ public:
      * @param name Name of this memory manager for debugging output
      * @param zeroMemory Indicates if new allocated memory should be zeroed
      */
-    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize, String name, bool zeroMemory);
-
-    /**
-     * Virtual function for init - to be implemented in inheriting class.
-     */
-    void init() override = 0;
+    BitmapMemoryManager(uint32_t memoryEndAddress, uint32_t blockSize, String name,
+                        bool zeroMemory, uint32_t memoryStartAddress, bool doUnmap);
 
     /**
      * Allocate a 4kb block of memory
      *
      * @return Start address of the alloctated memory
      */
-    void * alloc(uint32_t size);
+    void * alloc(uint32_t size) override;
 
     /**
      * Free a 4kb memory block
      *
      * @param ptr Address of the memory block to free
      */
-    void free(void *ptr);
+    void free(void *ptr) override;
 
     /**
      * Dump bitmap for debugging reasons

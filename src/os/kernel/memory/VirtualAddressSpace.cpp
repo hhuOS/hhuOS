@@ -20,9 +20,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
 	// the kernelspace heap manager is static and global for the system
 	this->kernelSpaceHeapManager = SystemManagement::getKernelHeapManager();
 	// create a new memory manager for userspace
-	this->userSpaceHeapManager = new HeapMemoryManager(PAGESIZE, KERNEL_START);
-	// init the userspace manager
-	this->userSpaceHeapManager->init();
+	this->userSpaceHeapManager = new FreeListMemoryManager(KERNEL_START, PAGESIZE, true);
 	// this is no bootstrap address space
 	bootstrapAddressSpace = false;
 }
@@ -31,7 +29,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
  * Constructor for the very first address space for bootstrapping reasons.
  * The memory manager for user space is set manually since it does not exist.
  */
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, HeapMemoryManager *userSpaceHeapManager) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, FreeListMemoryManager *userSpaceHeapManager) {
 	// use the basePageDirectory here since it is not possible to create a new one right now
 	this->pageDirectory = pageDirectory;
 	// get the global kernel heap memory manager

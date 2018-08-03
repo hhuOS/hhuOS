@@ -28,66 +28,62 @@
 class MemoryManager {
 
 protected:
-	// start and end address of the memory area to manage
-	uint32_t memoryStartAddress;
-	uint32_t memoryEndAddress;
-	// track amount of free memory
-	uint32_t freeMemory = 0;
-	//is the manager initialized?
-	bool initialized = false;
+    // start and end address of the memory area to manage
+    uint32_t memoryStartAddress;
+    uint32_t memoryEndAddress;
+    // track amount of free memory
+    uint32_t freeMemory = 0;
+
+    bool doUnmap;
 
 public:
-	/**
-	 * Constructor
-	 *
-	 * @param memoryStartAddress Startaddress of the memory area to manage
-	 * @param memoryEndAddress Endaddress of the memory area to manage
-	 */
-	MemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress) {
-		this->memoryStartAddress = memoryStartAddress;
-		this->memoryEndAddress = memoryEndAddress;
-	}
+    /**
+     * Constructor
+     *
+     * @param memoryStartAddress Startaddress of the memory area to manage
+     * @param memoryEndAddress Endaddress of the memory area to manage
+     */
+    MemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+        this->memoryStartAddress = memoryStartAddress;
+        this->memoryEndAddress = memoryEndAddress;
+        this->freeMemory = memoryEndAddress - memoryStartAddress;
+        this->doUnmap = doUnmap;
+    }
 
-	/**
-	 * Virtual method to init the memory manager - must be implemented in deriving classes!!
-	 */
-	virtual void init() = 0;
+    virtual void *alloc(uint32_t size) = 0;
 
-	/**
-	 * Is the manager initialized?
-	 *
-	 * @return Initialization state of the memory manager
-	 */
-	bool isInitialized() {
-		return initialized;
-	}
+    virtual void *alloc(uint32_t size, uint32_t alignment) { return nullptr; };
 
-	/**
-	 * Getter for the end address.
-	 *
-	 * @return The end address of the memory area to manage
-	 */
-	uint32_t getEndAddress() {
-		return memoryEndAddress;
-	}
+    virtual void free(void *ptr) = 0;
 
-	/**
-	 * Getter for amount of free memory.
-	 *
-	 * @return The amount of free memory
-	 */
-	uint32_t getFreeMemory() {
-		return freeMemory;
-	}
+    virtual void free(void *ptr, uint32_t alignment) {};
 
-	/**
-	 * Getter for the start address.
-	 *
-	 * @return The start address of the memory area to manage
-	 */
-	uint32_t getStartAddress() {
-		return memoryStartAddress;
-	}
+    /**
+     * Getter for the end address.
+     *
+     * @return The end address of the memory area to manage
+     */
+    uint32_t getEndAddress() {
+        return memoryEndAddress;
+    }
+
+    /**
+     * Getter for amount of free memory.
+     *
+     * @return The amount of free memory
+     */
+    uint32_t getFreeMemory() {
+        return freeMemory;
+    }
+
+    /**
+     * Getter for the start address.
+     *
+     * @return The start address of the memory area to manage
+     */
+    uint32_t getStartAddress() {
+        return memoryStartAddress;
+    }
 };
 
 #endif

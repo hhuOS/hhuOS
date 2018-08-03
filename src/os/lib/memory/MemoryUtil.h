@@ -15,7 +15,7 @@ public:
 
     ~MemoryUtil() = delete;
 
-    uint32_t alignUp(uint32_t value, uint32_t alignment);
+    static uint32_t alignUp(uint32_t value, uint32_t alignment);
 };
 
 #endif

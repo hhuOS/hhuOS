@@ -22,19 +22,13 @@ extern "C" {
 /**
  * Constructor - call constructor of base class.
  */
-IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END), ioMemoryMap(1097) {
+IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END, true), ioMemoryMap(1097) {
 
-}
-
-/**
- * Initialize memory manager and set up free list.
- */
-void IOMemoryManager::init(){
     freeMemory = memoryEndAddress - memoryStartAddress;
     // start of memory area -> create anchor of free list
     anchor = (IOMemFreeHeader*) (memoryStartAddress);
-    anchor->next = 0;
-    anchor->prev = 0;
+    anchor->next = nullptr;
+    anchor->prev = nullptr;
     anchor->pageCount = freeMemory/PAGESIZE;
 }
 

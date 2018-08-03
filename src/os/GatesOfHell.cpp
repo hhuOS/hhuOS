@@ -50,22 +50,6 @@ int32_t main() {
 
 int32_t GatesOfHell::enter() {
 
-//    TimeProvider *provider = Pit::getInstance();
-
-//    void *ptr = nullptr;
-//
-//    log.trace("System Alloc Start");
-//
-//    then = provider->getMillis();
-//    for (uint32_t i = 0; i < 64000; i++) {
-//
-//        ptr = malloc(64);
-//    }
-//    diff = provider->getMillis() - then;
-//
-//    log.trace("System Alloc End");
-//    log.trace("Allocated 64000 Objects in %dms", diff);
-
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
 

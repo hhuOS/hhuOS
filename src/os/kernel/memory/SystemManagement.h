@@ -22,7 +22,7 @@
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
 #include <cstdint>
-#include "kernel/memory/manager/HeapMemoryManager.h"
+#include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "lib/util/ArrayList.h"
@@ -71,7 +71,7 @@ private:
 
     //
     static SystemManagement *systemManagement;
-    static HeapMemoryManager *kernelMemoryManager;
+    static FreeListMemoryManager *kernelMemoryManager;
 
 public:
     SystemManagement() {};
@@ -299,7 +299,7 @@ public:
      *
      * @return Pointer to the current userspace memory manager
      */
-    HeapMemoryManager* getCurrentUserSpaceHeapManager() {
+    FreeListMemoryManager* getCurrentUserSpaceHeapManager() {
     	return currentAddressSpace->getUserSpaceHeapManager();
     }
 
@@ -308,7 +308,7 @@ public:
 	 *
 	 * @return Pointer to the current kernelspace memory manager
 	 */
-    static HeapMemoryManager* getKernelHeapManager() {
+    static FreeListMemoryManager* getKernelHeapManager() {
     	return kernelMemoryManager;
     }
 

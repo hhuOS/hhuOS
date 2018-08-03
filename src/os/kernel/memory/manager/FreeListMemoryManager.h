@@ -14,8 +14,8 @@
 * along with this program.  If not, see <http://www.gnu.org/licenses/>
 */
 
-#ifndef __HEAPMEMORYMANAGER_H__
-#define __HEAPMEMORYMANAGER_H__
+#ifndef __FREELISTMEMORYMANAGER_H__
+#define __FREELISTMEMORYMANAGER_H__
 
 #include <cstdint>
 #include "lib/lock/Spinlock.h"
@@ -24,29 +24,39 @@
 #define THROW_EXCEPTION 0
 #define CHECK_MEMORY 0
 
-/**
- * Header for the double-linked list mamaging the memory blocks.
- */
-struct Chunk{
-	Chunk* prev;		// previous Chunk
-	Chunk* next;		// next Chunk
-	bool allocated;		// is this Chunk allocated?
-	uint32_t size;		// amount of usable memory in this memory chunk
-};
+
 
 /* List-based memory manager for the kernel heap
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
  */
-class HeapMemoryManager : public MemoryManager {
+class FreeListMemoryManager : public MemoryManager {
 
 private:
+
+    /**
+     * Header for the double-linked list mamaging the memory blocks.
+     */
+    struct FLHeader {
+        FLHeader* prev;		// previous Chunk
+        FLHeader* next;		// next Chunk
+        uint32_t size;		// amount of usable memory in this memory chunk
+    };
+
     // Lock for Memory Management
-    Spinlock* lock = nullptr;
+    Spinlock lock;
 
     // Pointer to first entry in memory list
-    Chunk* firstChunk;
+    FLHeader* firstChunk;
+
+    FLHeader *findNext(FLHeader *start, uint32_t reqSize);
+
+    FLHeader *merge(FLHeader *origin);
+
+    static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
+
+    static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
 
 public:
 
@@ -56,17 +66,12 @@ public:
      * @param memoryStartAddress Start address of memory area to manage.
      * @param memoryEndAddress  End address of memory area to manage.
      */
-    HeapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress);
+    FreeListMemoryManager(uint32_t memoryEndAddress, uint32_t memoryStartAddress, bool doUnmap);
 
     /**
      * Destructor.
      */
-    virtual ~HeapMemoryManager();
-
-    /**
-     * Initializes this manager. Sets up first list-entry.
-     */
-    void init();
+    virtual ~FreeListMemoryManager() = default;
 
     /**
      * Allocate memory block with given size.
@@ -74,24 +79,21 @@ public:
      * @param size Size of memory block to be allocated
      * @return Pointer to the allocated memory block
      */
-    void* alloc(uint32_t size);
+    void* alloc(uint32_t size) override;
+
+    void* alloc(uint32_t size, uint32_t alignment) override;
 
     /**
      * Frees a given memory block
      *
      * @param ptr Pointer to the memory block to be freed
      */
-    void free(void* ptr);
+    void free(void* ptr) override;
 
     /**
      * Dump memory list
      */
     void dump();
-
-    /**
-     * Checks the memory list.
-     */
-    void checkMemory();
 };
 
 #endif

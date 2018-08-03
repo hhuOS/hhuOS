@@ -17,7 +17,7 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
-#include "kernel/memory/manager/HeapMemoryManager.h"
+#include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/PageDirectory.h"
 
 
@@ -31,8 +31,8 @@
 class VirtualAddressSpace {
 private:
 	// pointer to memory managers for userspace and kernelspace
-	HeapMemoryManager *kernelSpaceHeapManager = nullptr;
-	HeapMemoryManager *userSpaceHeapManager = nullptr;
+	FreeListMemoryManager *kernelSpaceHeapManager = nullptr;
+	FreeListMemoryManager *userSpaceHeapManager = nullptr;
 	// pointer to page directory
 	PageDirectory *pageDirectory = nullptr;
 	// the bootstrap address space is the first address space ever created
@@ -42,13 +42,13 @@ public:
 	/**
 	 * Constructor for an address space.
 	 */
-	VirtualAddressSpace(PageDirectory *basePageDirectory);
+    explicit VirtualAddressSpace(PageDirectory *basePageDirectory);
 
 	/**
 	 * Constructor for the very first address space for bootstrapping reasons.
 	 * The memory manager for user space is set manually since it does not exist.
 	 */
-	VirtualAddressSpace(PageDirectory *pageDirectory, HeapMemoryManager *userSpaceHeapManager);
+	VirtualAddressSpace(PageDirectory *pageDirectory, FreeListMemoryManager *userSpaceHeapManager);
 
 	/**
 	 * Destructor
@@ -60,7 +60,7 @@ public:
 	 *
 	 * @return Pointer to the kernelspace memory manager
 	 */
-	HeapMemoryManager* getKernelSpaceHeapManager() const {
+	FreeListMemoryManager* getKernelSpaceHeapManager() const {
 		return kernelSpaceHeapManager;
 	}
 
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @return Pointer to the userspace memory manager
 	 */
-	HeapMemoryManager* getUserSpaceHeapManager() const {
+	FreeListMemoryManager* getUserSpaceHeapManager() const {
 		return userSpaceHeapManager;
 	}
 
@@ -82,7 +82,7 @@ public:
 	 *
 	 * @param userSpaceHeapManager Pointer to the userspace memory manager
 	 */
-	void setUserSpaceHeapManager(HeapMemoryManager* userSpaceHeapManager) {
+	void setUserSpaceHeapManager(FreeListMemoryManager* userSpaceHeapManager) {
 		this->userSpaceHeapManager = userSpaceHeapManager;
 	}
 };

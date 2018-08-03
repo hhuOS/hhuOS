@@ -34,11 +34,6 @@ public:
 	 */
     PagingAreaManager();
 
-    /**
-     * Initializes the PageingAreaManager - sets up bitmap.
-     */
-    void init();
-
 };
 
 #endif

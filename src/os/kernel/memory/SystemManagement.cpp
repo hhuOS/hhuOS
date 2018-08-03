@@ -36,7 +36,7 @@ extern "C"{
 
 // initialize static members
 SystemManagement* SystemManagement::systemManagement = nullptr;
-HeapMemoryManager* SystemManagement::kernelMemoryManager = nullptr;
+FreeListMemoryManager* SystemManagement::kernelMemoryManager = nullptr;
 bool SystemManagement::initialized = false;
 bool SystemManagement::kernelMode = true;
 
@@ -116,22 +116,15 @@ void SystemManagement::init() {
     pagingAreaManager = new PagingAreaManager();
     // create a Base Page Directory (used to map the kernel into every process)
     basePageDirectory = new PageDirectory();
-    // Init the manager for virtual IO Memory
-    ioMemManager = new IOMemoryManager();
+
     // Physical Page Frame Allocator is initialized to be possible to allocate
     // physical memory (page frames)
     calcTotalPhysicalMemory();
     pageFrameAllocator = new PageFrameAllocator(0, totalPhysMemory);
 
-    // init physical memory allocator
-    pageFrameAllocator->init();
-
 #if DEBUG_PM
     printf("[PAGINGMANAGER] 4KB paging is activated \n");
 #endif
-
-    // init manager for Page Tables and Directories
-    pagingAreaManager->init();
 
     // to be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space
@@ -141,7 +134,8 @@ void SystemManagement::init() {
     this->plugin();
 
     // init io-memory afterwards, because pagefault will occur setting up the first list header
-    ioMemManager->init();
+    // Init the manager for virtual IO Memory
+    ioMemManager = new IOMemoryManager();
 
     // now create the first address space with memory managers for kernel and user space
     VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
@@ -513,11 +507,10 @@ void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 SystemManagement* SystemManagement::getInstance() {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
-        static HeapMemoryManager heapMemoryManager(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END);
+        static FreeListMemoryManager heapMemoryManager(VIRT_KERNEL_HEAP_END,
+                                                       PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), true);
         // set the kernel heap memory manager to this manager
 		kernelMemoryManager = &heapMemoryManager;
-		// initialize the kenrel heap
-        kernelMemoryManager->init();
         // use the new memory manager to alloc memory for the instance of SystemManegement
 		systemManagement = new SystemManagement();
 	}
@@ -579,17 +572,17 @@ void  operator delete[](void *, void *) { };
 //  Implement aligned allocation (C++17)
 void* operator new(size_t size, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size);
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->alloc(size);
+        return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
     }
 }
 
 void* operator new[](size_t size, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size);
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->alloc(size);
+        return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
     }
 }
 

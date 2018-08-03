@@ -37,11 +37,6 @@ public:
 	 */
     PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress);
 
-    /**
-     * Init-function. Sets up the bitmap.
-     */
-    void init();
-
 };
 
 #endif
