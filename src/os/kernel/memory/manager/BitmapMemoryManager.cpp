@@ -67,14 +67,16 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
         uint32_t j = bitmapIndexStart;
 
         while(freeCount > 0) {
-            if(j == 0) {
-                i++;
-                j = 31;
-            }
 
             freeBitmap[i] |= 1 << j;
 
-            j--;
+            if(j == 0) {
+                i++;
+                j = 31;
+            } else {
+                j--;
+            }
+
             freeCount--;
         }
 

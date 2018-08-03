@@ -123,7 +123,7 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
         uint32_t address = entry->value;
 
-         symbolTable.put(symbol, address);
+        symbolTable.put(symbol, address);
 
         debugTable.put(address, symbol);
     }
