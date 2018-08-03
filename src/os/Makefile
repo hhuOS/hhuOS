@@ -79,7 +79,7 @@ QEMU_BIN = qemu-system-i386 -cpu 486,+sse,+sse2
 KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
-QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k en-us -soundhw pcspk -vga std -monitor stdio \
+QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -soundhw pcspk -vga std -monitor stdio \
 					  -fda fdd0.img \
 					  -readconfig usb.cfg \
 					  -drive format=raw,file=hdd0.img,if=none,id=disk0 \
