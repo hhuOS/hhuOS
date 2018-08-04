@@ -2,9 +2,9 @@
 #include <kernel/memory/MemLayout.h>
 #include "Isa.h"
 
-IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
+static Spinlock isaLock;
 
-Spinlock Isa::isaLock = Spinlock();
+IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
 
 IOport Isa::startAddressRegisters[8] = {
         IOport(0x00),

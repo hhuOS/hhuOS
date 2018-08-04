@@ -116,8 +116,6 @@ public:
 
 private:
 
-    static Spinlock isaLock;
-
     /**
      * Reset the controller's flip-flop.
      *
