@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://travis-ci.org/hhuOS/hhuOS"><img src="https://travis-ci.org/hhuOS/hhuOS.svg?branch=master"></a>
   <img src="https://img.shields.io/badge/license-GPL-orange.svg">
-  <img src="https://img.shields.io/badge/C%2B%2B-11-blue.svg">
+  <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg">
 </p>
 
 # Introduction
@@ -19,18 +19,19 @@ Check out the [website](https://hhuos.github.io)!
 
 # Compiling
 
-Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command.
-
-```sh
-sudo apt-get install make nasm gcc-7 gcc-7-multilib \
-                     g++-7 g++-7-multilib grub-pc-bin xorriso
-```
-
-Some packages may be unavailable on Ubuntu 16.04. In this case the following commands can be executed before installing the required packages.
+GCC 7 or a newer version of GCC is required to compile hhuOS.  
+On Ubuntu 16.04 you can install GCC with the following commands:
 
 ```sh
 sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt-get update
+sudo apt update
+sudo apt install gcc-8 gcc-8-multilib g++-8 g++-8-multilib
+```
+
+Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command.
+
+```sh
+sudo apt-get install make nasm gcc-multilib g++-multilib grub-pc-bin xorriso
 ```
 
 After installing all required packages the following make targets are available.
@@ -49,5 +50,12 @@ To test hhuOS quickly in QEMU, you can issue the following commands.
 ```sh
 git createInstance https://github.com/hhuOS/hhuOS.git
 cd hhuOS/src/os
+make qemu
+```
+
+If you are running  Ubuntu 16.04 and habe installed GCC 8 with the above commands, you can use the following command to compile and run hhuOS.
+
+```sh
+CC=gcc-8 CXX=g++8 make
 make qemu
 ```
