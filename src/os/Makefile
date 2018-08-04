@@ -34,8 +34,8 @@ BUILDCONFIG = -DGITCOMMIT="$(GITCOMMIT)" -DGITTAG="$(GITTAG)" -DBUILDDATE="$(BUI
 # Compiler binaries                         #
 #-------------------------------------------#
 ASM = nasm
-CC = gcc
-CXX = g++
+CC? = gcc
+CXX? = g++
 
 #-------------------------------------------#
 # C Compiler settings                       #
@@ -196,6 +196,8 @@ kernel : $(BOOTDIR)/hhuOS.bin
 # Kernel image with GRUB                    #
 #-------------------------------------------#
 $(OBJDIR)/hhuOS.iso : kernel initrd
+	$(VERBOSE) $(CC) -v
+	$(VERBOSE) $(CXX) -v
 	@echo "BUILD		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)

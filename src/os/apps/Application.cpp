@@ -279,7 +279,7 @@ void Application::startGame(Game* game){
         game->draw(lfb);
     }
 
-    graphicsService->getLinearFrameBuffer()->init(800, 600, 32);
+    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
     isRunning = true;
@@ -293,7 +293,7 @@ void Application::pause() {
 void Application::resume() {
     isRunning = true;
 
-    graphicsService->getLinearFrameBuffer()->init(800, 600, 32);
+    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
     Scheduler::getInstance()->deblock(*this);
@@ -305,11 +305,9 @@ void Application::run() {
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
     Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
 
-    if(res.length() >= 3) {
-        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
-        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
-        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
-    }
+    xres = lfb->getResX();
+    yres = lfb->getResY();
+    bpp = lfb->getDepth();
     
     lfb->enableDoubleBuffering();
 
