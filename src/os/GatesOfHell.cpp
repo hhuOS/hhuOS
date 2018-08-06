@@ -19,17 +19,17 @@
 #include <kernel/services/ParallelService.h>
 #include <devices/graphics/text/VesaText.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
-#include <lib/file/tar/Archive.h>
 #include <devices/block/Ahci.h>
 #include <devices/block/FloppyController.h>
+#include <filesystem/TarArchive/TarArchiveNode.h>
+#include <filesystem/TarArchive/TarArchiveDriver.h>
+#include <lib/file/Directory.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
 
-LinearFrameBuffer *GatesOfHell::lfb = nullptr;
-
-TextDriver *GatesOfHell::text = nullptr;
+GraphicsService *GatesOfHell::graphicsService = nullptr;
 
 EventBus *GatesOfHell::eventBus = nullptr;
 
@@ -53,15 +53,18 @@ int32_t GatesOfHell::enter() {
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
 
-    log.trace("Initializing graphics");
-
-    initializeGraphics();
-
     eventBus = new EventBus();
 
     log.trace("Registering services");
 
     registerServices();
+
+    auto *fs = Kernel::getService<FileSystem>();
+    fs->mountInitRamdisk();
+
+    log.trace("Initializing graphics");
+
+    initializeGraphics();
 
     log.trace("Initializing serial ports");
 
@@ -108,7 +111,6 @@ int32_t GatesOfHell::enter() {
     initializePciDrivers();
 
     bootscreen->update(50, "Initializing Filesystem");
-    auto *fs = Kernel::getService<FileSystem>();
     fs->init();
     printfUpdateStdout();
 
@@ -139,11 +141,7 @@ void GatesOfHell::registerServices() {
 
     Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
 
-    auto *graphicsService = new GraphicsService();
-    graphicsService->setLinearFrameBuffer(lfb);
-    graphicsService->setTextDriver(text);
-
-    Kernel::registerService(GraphicsService::SERVICE_NAME, graphicsService);
+    Kernel::registerService(GraphicsService::SERVICE_NAME, new GraphicsService());
     Kernel::registerService(TimeService::SERVICE_NAME, new TimeService(Pit::getInstance()));
     Kernel::registerService(StorageService::SERVICE_NAME, new StorageService());
     Kernel::registerService(FileSystem::SERVICE_NAME, new FileSystem());
@@ -154,12 +152,12 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
     Kernel::registerService(ParallelService::SERVICE_NAME, new ParallelService());
-
-    Kernel::getService<StdStreamService>()->setStdout(text);
-    Kernel::getService<StdStreamService>()->setStderr(text);
 }
 
 void GatesOfHell::initializeGraphics() {
+
+    LinearFrameBuffer *lfb = nullptr;
+    TextDriver *text = nullptr;
 
     auto *vesa = new VesaGraphics();
 
@@ -205,6 +203,12 @@ void GatesOfHell::initializeGraphics() {
 
     stdout = text;
     text->setpos(0, 0);
+
+    Kernel::getService<GraphicsService>()->setLinearFrameBuffer(lfb);
+    Kernel::getService<GraphicsService>()->setTextDriver(text);
+
+    Kernel::getService<StdStreamService>()->setStdout(text);
+    Kernel::getService<StdStreamService>()->setStderr(text);
 }
 
 void GatesOfHell::initializeSerialPorts() {

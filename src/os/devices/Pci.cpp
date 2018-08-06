@@ -389,15 +389,13 @@ void Pci::parseDatabase() {
 
     log.trace("Parsing PCI database");
 
-    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
+    File *idsFile = File::open("/initrd/pci/pci.ids", "r");
 
-    Address address(info.start);
+    char *content;
 
-    Tar::Archive &archive = Tar::Archive::from(address);
+    *idsFile >> content;
 
-    String content = (char*) archive.getFile("initrd/pci/pci.ids");
-
-    Util::Array<String> lines = content.split('\n');
+    Util::Array<String> lines = String(content).split('\n');
 
     String vendorId, deviceId, deviceName;
 

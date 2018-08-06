@@ -28,6 +28,9 @@
 #include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
 #include <devices/input/Keyboard.h>
 #include <kernel/services/InputService.h>
+#include <lib/multiboot/Structure.h>
+#include <lib/file/tar/Archive.h>
+#include <filesystem/TarArchive/TarArchiveDriver.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
 #include "filesystem/Fat/FatDriver.h"
@@ -83,7 +86,7 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
         path += FileSystem::SEPARATOR;
     }
 
-    String ret = String();
+    String ret;
 
     for(const String &currentString : mountPoints.keySet()) {
         if (path.beginsWith(currentString)) {
@@ -103,6 +106,12 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 
 void FileSystem::init() {
     log.trace("Initializing filesystem");
+
+    for(const String &path : mountPoints.keySet()) {
+        delete mountPoints.get(path);
+    }
+
+    mountPoints.clear();
 
     FsDriver::registerDriverType("RamFs", new RamFsDriver());
     FsDriver::registerDriverType("Fat", new FatDriver);
@@ -230,6 +239,18 @@ void FileSystem::init() {
     FileAppender *fileAppender = new FileAppender(File::open("/dev/syslog", "a+"));
 
     Logger::addAppender(fileAppender);
+}
+
+void FileSystem::mountInitRamdisk() {
+    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
+
+    Address address(info.start);
+
+    Tar::Archive &archive = Tar::Archive::from(address);
+
+    FsDriver *tarDriver = new TarArchiveDriver(&archive);
+
+    mountPoints.put("/", tarDriver);
 }
 
 uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {

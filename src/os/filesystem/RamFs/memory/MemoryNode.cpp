@@ -39,4 +39,4 @@ uint64_t MemoryNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return 0;
 }
 
-MemoryNode::MemoryNode(String name, FsNode::FILE_TYPE type) : VirtualNode(name, type) {}
+MemoryNode::MemoryNode(String name, FsNode::FileType type) : VirtualNode(name, type) {}

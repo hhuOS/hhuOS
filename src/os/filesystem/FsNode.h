@@ -33,7 +33,7 @@ public:
     /**
      * Possible file types, that nodes can have.
      */
-    enum FILE_TYPE {
+    enum FileType {
         /**
          * A normal file, that can be read from an written to.
          */

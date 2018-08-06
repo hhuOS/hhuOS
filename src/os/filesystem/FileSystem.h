@@ -100,6 +100,8 @@ public:
      */
     void init();
 
+    void mountInitRamdisk();
+
     /**
      * Add a virtual node to a mounted RamFsDriver.
      * A RamFsDriver MUST be mounted at the location that the path points to.

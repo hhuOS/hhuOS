@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <kernel/Bootscreen.h>
+#include <lib/file/tar/Archive.h>
 
 class GatesOfHell {
 
@@ -29,13 +30,9 @@ private:
 
     static void initializePciDrivers();
 
-    static void loadInitrd();
-
     static Logger &log;
 
-    static LinearFrameBuffer *lfb;
-
-    static TextDriver *text;
+    static GraphicsService *graphicsService;
 
     static EventBus *eventBus;
 

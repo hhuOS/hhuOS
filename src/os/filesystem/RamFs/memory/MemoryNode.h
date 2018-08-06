@@ -29,7 +29,7 @@ public:
     /**
      * Constructor
      */
-    MemoryNode(String name, FsNode::FILE_TYPE type);
+    MemoryNode(String name, FsNode::FileType type);
 
     /**
      * Copy-constructor.
