@@ -100,7 +100,7 @@ public:
      */
     void init();
 
-    void mountInitRamdisk();
+    void mountInitRamdisk(const String &path);
 
     /**
      * Add a virtual node to a mounted RamFsDriver.

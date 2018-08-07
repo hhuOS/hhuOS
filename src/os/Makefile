@@ -178,7 +178,7 @@ modules: $(MODULE_BINARIES)
 $(BOOTDIR)/hhuOS.initrd : modules
 	@echo "TAR		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
-	$(VERBOSE) $(TAR) -cf $@ $(INITRD_PATH)
+	$(VERBOSE) $(TAR) -C $(INITRD_PATH) --xform s:'./':: -cf $@ ./
 
 initrd : $(BOOTDIR)/hhuOS.initrd
 

@@ -60,7 +60,7 @@ int32_t GatesOfHell::enter() {
     registerServices();
 
     auto *fs = Kernel::getService<FileSystem>();
-    fs->mountInitRamdisk();
+    fs->mountInitRamdisk("/");
 
     log.trace("Initializing graphics");
 

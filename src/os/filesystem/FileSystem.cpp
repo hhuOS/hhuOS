@@ -107,6 +107,8 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 void FileSystem::init() {
     log.trace("Initializing filesystem");
 
+    log.trace("Unmounting initial ramdisk");
+
     for(const String &path : mountPoints.keySet()) {
         delete mountPoints.get(path);
     }
@@ -136,6 +138,11 @@ void FileSystem::init() {
             mount("", "/", "ramfs");
         }
     }
+
+    log.trace("Remounting initial ramdisk to /initrd/");
+
+    createDirectory("/initrd");
+    mountInitRamdisk("/initrd");
 
     log.trace("Initializing /dev");
 
@@ -241,7 +248,7 @@ void FileSystem::init() {
     Logger::addAppender(fileAppender);
 }
 
-void FileSystem::mountInitRamdisk() {
+void FileSystem::mountInitRamdisk(const String &path) {
     Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
 
     Address address(info.start);
@@ -250,7 +257,11 @@ void FileSystem::mountInitRamdisk() {
 
     FsDriver *tarDriver = new TarArchiveDriver(&archive);
 
-    mountPoints.put("/", tarDriver);
+    if(!path.endsWith(FileSystem::SEPARATOR)) {
+        mountPoints.put(path + FileSystem::SEPARATOR, tarDriver);
+    } else {
+        mountPoints.put(path, tarDriver);
+    }
 }
 
 uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
@@ -317,7 +328,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
         }
     }
 
-    String parsedPath = parsePath(targetPath) + "/";
+    String parsedPath = parsePath(targetPath) + FileSystem::SEPARATOR;
     FsNode *targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {
@@ -350,7 +361,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
 }
 
 uint32_t FileSystem::unmount(const String &path) {
-    String parsedPath = parsePath(path) + "/";
+    String parsedPath = parsePath(path) + FileSystem::SEPARATOR;
     FsNode *targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {

@@ -43,7 +43,7 @@ public:
     /**
      * Destructor.
      */
-    ~TarArchiveDriver() override = default;
+    ~TarArchiveDriver() override;
 
     /**
      * Overriding virtual function from FsDriver.

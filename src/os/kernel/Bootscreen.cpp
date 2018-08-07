@@ -47,12 +47,12 @@ void Bootscreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
         lfb->enableDoubleBuffering();
 
         if(yres >= 600) {
-            logoFile = File::open("/initrd/os/boot-logo-big.bmp", "r");
+            logoFile = File::open("/os/boot-logo-big.bmp", "r");
         } else if(yres >= 400) {
-            logoFile = File::open("/initrd/os/boot-logo-mid.bmp", "r");
+            logoFile = File::open("/os/boot-logo-mid.bmp", "r");
         } else {
             font = &std_font_8x8;
-            logoFile = File::open("/initrd/os/boot-logo-small.bmp", "r");
+            logoFile = File::open("/os/boot-logo-small.bmp", "r");
         }
 
         if(logoFile != nullptr) {

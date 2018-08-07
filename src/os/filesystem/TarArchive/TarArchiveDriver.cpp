@@ -6,6 +6,10 @@ TarArchiveDriver::TarArchiveDriver(Tar::Archive *archive) :
 
 }
 
+TarArchiveDriver::~TarArchiveDriver() {
+    delete archive;
+}
+
 bool TarArchiveDriver::createFs(StorageDevice *device) {
     return false;
 }
