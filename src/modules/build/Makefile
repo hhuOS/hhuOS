@@ -31,7 +31,7 @@ DEPENDENCIES 		= $(addprefix $(M)/$(BUILDDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_
 # Paths                                     #
 #-------------------------------------------#
 INCLUDEDIR			= ../../os
-MODULEDIR			= ../../hdd/mod
+MODULEDIR			= ../../initrd/mod
 BUILDDIR			= build
 
 #-------------------------------------------#
