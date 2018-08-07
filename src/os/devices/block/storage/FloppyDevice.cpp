@@ -51,9 +51,13 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
     motorControlThread = new FloppyMotorControlThread(*this);
     motorControlThread->start();
 
-    controller.resetDrive(*this);
+    bool ret = controller.resetDrive(*this);
 
-    sectorSizeExponent = controller.calculateSectorSizeExponent(*this);
+    if(ret) {
+        sectorSizeExponent = controller.calculateSectorSizeExponent(*this);
+    } else {
+        sectorSizeExponent = 2;
+    }
 }
 
 FloppyDevice::CylinderHeadSector FloppyDevice::LbaToChs(uint32_t lbaSector) {
