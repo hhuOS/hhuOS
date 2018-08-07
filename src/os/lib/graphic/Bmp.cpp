@@ -10,7 +10,8 @@ Bmp::Bmp (File* file) {
     
     //fread(info, sizeof(byte), 54, f);
     file->readBytes((char *) info, 54);
-    
+
+    uint32_t offset = *( (uint32_t*) &info[10]);
     width     = *( (int*) &info[18]);
     height    = *( (int*) &info[22]);
     int psize = *( (int*) &info[34]);
@@ -20,19 +21,16 @@ Bmp::Bmp (File* file) {
     row_padded = (psize/height);
     row = new uint8_t[row_padded];
     
-    /** sometimes the fileheader is bigger?!?! */
-    //fread(row, sizeof(byte), 68, f);
-    file->readBytes((char *) row, 68);
+    file->setPos(offset);
     
     for(int y = height-1; y >= 0; --y) {
-        
-        //fread(row, sizeof(byte), row_padded, f);
         file->readBytes((char *) row, row_padded);
         
         for(int x = 0; x < width; ++x) {
-            B(x, y) = row[(3*x)];
-            G(x, y) = row[(3*x)+1];
-            R(x, y) = row[(3*x)+2];
+            B(x, y) = row[(4*x)];
+            G(x, y) = row[(4*x)+1];
+            R(x, y) = row[(4*x)+2];
+            A(x, y) = row[(4*x)+3];
         }
     }
     
@@ -50,7 +48,7 @@ void Bmp::print (int xpos, int ypos) {
         for(int x = 0; x < width; ++x) {
             lfb->drawPixel(
                 x+xpos, y+ypos,
-                Color(R(x, y), G(x, y), B(x, y))
+                Color(R(x, y), G(x, y), B(x, y), A(x,y))
             );
         }
     }

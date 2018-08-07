@@ -5,6 +5,7 @@
 #include <lib/String.h>
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/log/Logger.h>
+#include <lib/graphic/Bmp.h>
 
 class Bootscreen {
 
@@ -30,7 +31,13 @@ private:
 
     bool isSplashActive = false;
 
-    LinearFrameBuffer *lfb;
+    LinearFrameBuffer *lfb = nullptr;
+
+    Font *font = &std_font_8x16;
+
+    File *logoFile = nullptr;
+
+    Bmp *logo = nullptr;
 };
 
 

@@ -13,6 +13,7 @@ private:
         uint8_t blue;
         uint8_t green;
         uint8_t red;
+        uint8_t alpha;
     };
 
     int pos(int x, int y) {
@@ -34,19 +35,23 @@ public:
         return data[pos(x, y)];
     }
 
-    uint8_t & B(int x, int y) {
+    uint8_t & A(int x, int y) {
         return *((uint8_t *) &(data[pos(x, y)]));
+    }
+
+    uint8_t & B(int x, int y) {
+        return *( ((uint8_t *) &(data[pos(x, y)]))+1 );
     }
     uint8_t & G(int x, int y) {
         // get address from 3byte Color, cast to "bytes" address, add +1
         // to Address (= 1byte step size) and get value of it
-        return *( ((uint8_t *) &(data[pos(x, y)]))+1 );
-    }
-    uint8_t & R(int x, int y) {
         return *( ((uint8_t *) &(data[pos(x, y)]))+2 );
     }
+    uint8_t & R(int x, int y) {
+        return *( ((uint8_t *) &(data[pos(x, y)]))+3 );
+    }
 
-    Bmp (File* filename);
+    explicit Bmp(File* file);
     
     virtual ~Bmp();
 

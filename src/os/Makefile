@@ -17,7 +17,7 @@ INITRD_PATH = ${CURDIR}/../initrd
 LOADERDIR = ${CURDIR}/../loader
 BOOTDIR = $(LOADERDIR)/boot
 MODULE_PATH = ${CURDIR}/../modules
-MODULE_OUT = $(HDD_PATH)/mod
+MODULE_OUT = $(INITRD_PATH)/mod
 INCLUDEDIR = ${CURDIR}
 
 #-------------------------------------------#
