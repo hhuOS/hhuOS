@@ -18,6 +18,7 @@
 #ifndef __Ship_include__
 #define __Ship_include__
 
+#include <lib/graphic/Bmp.h>
 #include "apps/game/GameObject.h"
 #include "apps/BugDefender/Missile.h"
 
@@ -28,7 +29,7 @@ class Ship : public GameObject {
     Ship(const Ship &copy); // Verhindere Kopieren
 
     const static int width = 40;
-    const static int height = 8;
+    const static int height = 33;
 
     constexpr static float speed = 200.0f;
 
@@ -37,6 +38,8 @@ class Ship : public GameObject {
     unsigned long lastShootTime;
 
     int points;
+
+    Bmp *bitmap;
     
   public:
 

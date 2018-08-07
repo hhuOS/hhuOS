@@ -44,7 +44,7 @@ BugDefender::BugDefender() : Game() {
     Fleet::reset();
 
     HHUEngine::setCurrentGame(this);
-    HHUEngine::instantiate( new Ship(Vector2(300, 425)) );
+    HHUEngine::instantiate( new Ship(Vector2(300, 400)) );
 
     for(int x = 0; x < enemiesPerLine; x++){
         for(int y = 0; y < enemyLines; y++){
