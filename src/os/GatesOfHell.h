@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <kernel/Bootscreen.h>
 #include <lib/file/tar/Archive.h>
+#include <kernel/services/ModuleLoader.h>
+#include <kernel/threads/IdleThread.h>
 
 class GatesOfHell {
 
@@ -30,7 +32,11 @@ private:
 
     static void initializePciDrivers();
 
+    static bool loadModule(const String &path);
+
     static Logger &log;
+
+    static ModuleLoader *moduleLoader;
 
     static GraphicsService *graphicsService;
 

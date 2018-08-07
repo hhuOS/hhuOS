@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <filesystem/Fat/FatFsLib/FatFs.h>
 #include "FatNode.h"
 
 FatNode::FatNode(FatFs *fatInstance) : fatInstance(fatInstance) {

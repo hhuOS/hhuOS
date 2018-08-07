@@ -68,7 +68,7 @@ MAKE = make
 #-------------------------------------------#
 # Modules (see src/modules)                 #
 #-------------------------------------------#
-MODULES := hello random zero
+MODULES := hello random zero FatDriver
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 

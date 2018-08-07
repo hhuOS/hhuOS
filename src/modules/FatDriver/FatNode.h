@@ -18,7 +18,7 @@
 #define __FatNode_include__
 
 #include "filesystem/FsNode.h"
-#include "filesystem/Fat/FatFsLib/FatFs.h"
+#include "FatFs.h"
 #include <cstdint>
 
 extern "C" {

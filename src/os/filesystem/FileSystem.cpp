@@ -33,7 +33,6 @@
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
-#include "filesystem/Fat/FatDriver.h"
 #include "filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
 #include "filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"
 #include "filesystem/RamFs/graphics/GraphicsResolutionsNode.h"
@@ -116,8 +115,6 @@ void FileSystem::init() {
     mountPoints.clear();
 
     FsDriver::registerDriverType("RamFs", new RamFsDriver());
-    FsDriver::registerDriverType("Fat", new FatDriver);
-
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
 

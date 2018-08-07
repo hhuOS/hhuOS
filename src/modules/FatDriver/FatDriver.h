@@ -18,7 +18,7 @@
 #define __FatDriver_include__
 
 #include "filesystem/FsDriver.h"
-#include "filesystem/Fat/FatFsLib/FatFs.h"
+#include "FatFs.h"
 
 extern "C" {
 #include "lib/libc/string.h"

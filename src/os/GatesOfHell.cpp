@@ -7,7 +7,6 @@
 #include <kernel/services/InputService.h>
 #include <devices/Pci.h>
 #include <filesystem/FileSystem.h>
-#include <kernel/threads/IdleThread.h>
 #include <apps/Application.h>
 #include <kernel/threads/Scheduler.h>
 #include <devices/Pit.h>
@@ -28,6 +27,8 @@
 #include "BuildConfig.h"
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
+
+ModuleLoader *GatesOfHell::moduleLoader = nullptr;
 
 GraphicsService *GatesOfHell::graphicsService = nullptr;
 
@@ -58,6 +59,8 @@ int32_t GatesOfHell::enter() {
     log.trace("Registering services");
 
     registerServices();
+
+    moduleLoader = Kernel::getService<ModuleLoader>();
 
     auto *fs = Kernel::getService<FileSystem>();
     fs->mountInitRamdisk("/");
@@ -111,6 +114,8 @@ int32_t GatesOfHell::enter() {
     initializePciDrivers();
 
     bootscreen->update(50, "Initializing Filesystem");
+    loadModule("/mod/FatDriver.ko");
+
     fs->init();
     printfUpdateStdout();
 
@@ -235,4 +240,18 @@ void GatesOfHell::initializeSerialPorts() {
 void GatesOfHell::initializePciDrivers() {
     Ahci ahci;
     Pci::setupDeviceDriver(ahci);
+}
+
+bool GatesOfHell::loadModule(const String &path) {
+    File *file = File::open(path, "r");
+
+    if(file == nullptr) {
+        return false;
+    }
+
+    moduleLoader->load(file);
+
+    delete file;
+
+    return true;
 }
