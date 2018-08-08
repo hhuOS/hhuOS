@@ -196,8 +196,6 @@ kernel : $(BOOTDIR)/hhuOS.bin
 # Kernel image with GRUB                    #
 #-------------------------------------------#
 $(OBJDIR)/hhuOS.iso : kernel initrd
-	$(VERBOSE) $(CC) -v
-	$(VERBOSE) $(CXX) -v
 	@echo "BUILD		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(GRUB_BIN) -o $@ $(LOADERDIR)

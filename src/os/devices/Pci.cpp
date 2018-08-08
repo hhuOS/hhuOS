@@ -389,7 +389,7 @@ void Pci::parseDatabase() {
 
     log.trace("Parsing PCI database");
 
-    File *idsFile = File::open("/initrd/pci/pci.ids", "r");
+    File *idsFile = File::open("/pci/pci.ids", "r");
 
     char *content;
 
