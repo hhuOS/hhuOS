@@ -20,6 +20,14 @@ TarArchiveNode::TarArchiveNode(Tar::Archive *archive, Tar::Header *fileHeader) {
 TarArchiveNode::TarArchiveNode(Tar::Archive *archive, const String &path) {
     fileType = DIRECTORY_FILE;
 
+    if(path.isEmpty() || path == "/") {
+        fileName = "/";
+    } else {
+        Util::Array<String> tokens = path.split("/");
+
+        fileName = tokens[tokens.length() - 1];
+    }
+
     for(const Tar::Header *header : archive->getFileHeaders()) {
         String fullPath = header->filename;
 
