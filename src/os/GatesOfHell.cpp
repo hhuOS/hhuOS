@@ -119,6 +119,9 @@ int32_t GatesOfHell::enter() {
     fs->init();
     printfUpdateStdout();
 
+    loadModule("/initrd/mod/zero.ko");
+    loadModule("/initrd/mod/random.ko");
+
     bootscreen->update(75, "Starting Threads");
     idleThread = new IdleThread();
 
