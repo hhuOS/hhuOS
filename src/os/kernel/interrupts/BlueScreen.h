@@ -3,6 +3,7 @@
 
 #include <kernel/threads/ThreadState.h>
 #include <lib/OutputStream.h>
+#include "kernel/memory/MemLayout.h"
 
 class BlueScreen : public OutputStream {
 
@@ -28,11 +29,15 @@ public:
 
     void flush() override;
 
+    static void setErrorMessage(const char *message);
+
 private:
 
     int x = 0;
 
     int y = 0;
+
+    static const char *errorMessage;
 
     void show(uint16_t x, uint16_t y, char c);
 

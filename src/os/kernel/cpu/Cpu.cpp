@@ -7,6 +7,7 @@
  */
 
 #include <lib/String.h>
+#include <kernel/interrupts/BlueScreen.h>
 #include "Cpu.h"
 
 extern "C" {
@@ -144,9 +145,11 @@ const char *Cpu::getExceptionName(uint32_t exception) {
 /**
  * Throws an exception.
  */
-void Cpu::throwException(Exception exception) {
+void Cpu::throwException(Exception exception, const char *message) {
 
     disableInterrupts();
+
+    BlueScreen::setErrorMessage(message);
 
     onException((uint32_t) exception);
 }

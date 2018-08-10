@@ -5,6 +5,8 @@
 #include <kernel/KernelSymbols.h>
 #include "BlueScreen.h"
 
+const char *BlueScreen::errorMessage = "";
+
 void BlueScreen::initialize() {
     BC_params->AX = 0x03;
     Bios::Int(0x10);
@@ -50,7 +52,8 @@ void BlueScreen::print(InterruptFrame &frame) {
         i++;
     }
 
-    printf("\n\n");
+    printf("\n     %s\n\n", errorMessage);
+
     printf("     eax=0x%08x  ebx=0x%08x  ecx=0x%08x  edx=0x%08x\n", frame.eax, frame.ebx, frame.ecx, frame.edx);
     printf("     esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n\n", frame.esp, frame.ebp, frame.esi, frame.edi);
     printf("     eflags=0x%08x", frame.eflags);
@@ -96,6 +99,10 @@ void BlueScreen::show(uint16_t x, uint16_t y, const char c) {
 void BlueScreen::flush() {
     puts(StringBuffer::buffer, StringBuffer::pos);
     pos = 0;
+}
+
+void BlueScreen::setErrorMessage(const char *message) {
+    errorMessage = message;
 }
 
 

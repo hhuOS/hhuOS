@@ -121,9 +121,7 @@ void Application::startMouseApp() {
 }
 
 void Application::startExceptionDemo() {
-    uint32_t a = 1 - 1;
-    uint32_t b = 2;
-    printf("%d", b / a);
+    Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Y U DO DIS? :(");
 }
 
 void Application::startShell() {
