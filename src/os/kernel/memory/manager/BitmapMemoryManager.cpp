@@ -49,33 +49,40 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
     	// get current bitmap entry
         uint32_t currentEntry = freeBitmap[i];
 
-        // check every block in current bitmap entry
-        for(uint8_t j = 32; j > 0; j--) {
+        // First check if there are free blocks in this entry before starting
+        // to search them
+        if(currentEntry != 0xFFFFFFFF) {
+            // check every block in current bitmap entry
+            for(uint8_t j = 32; j > 0; j--) {
+            	// check if current block is free
+                if((currentEntry & 0x80000000) == 0) {
+                	// if yes and we have not marked some blocks earlier, start search here
+                    if(freeCount == 0) {
+                        arrayIndexStart = i;
+                        bitmapIndexStart = static_cast<uint32_t>(j - 1);
+                    }
+                    // increase free count because we have found a free block
+                    freeCount++;
 
-        	// check if current block is free
-            if((currentEntry & 0x80000000) == 0) {
-            	// if yes and we have not marked some blocks earlier, start search here
-                if(freeCount == 0) {
-                    arrayIndexStart = i;
-                    bitmapIndexStart = static_cast<uint32_t>(j - 1);
+                    // if we have enough free contiguous blocks break here
+                    if(freeCount == blockCount) {
+                        i = freeBitmapLength;
+
+                        break;
+                    }
+                // if current block is not free
+                // reset free count and continue searching
+                } else {
+                    freeCount = 0;
                 }
-                // increase free count because we have found a free block
-                freeCount++;
-
-                // if we have enough free contiguous blocks break here
-                if(freeCount == blockCount) {
-                    i = freeBitmapLength;
-
-                    break;
-                }
-            // if current block is not free and we have started marking free blocks
-            // reset free count and continue searching
-            } else {
-                freeCount = 0;
+                // shift current bitmap entry to examine next block
+                currentEntry <<= 1U;
             }
-            // shift current bitmap entry to examine next block
-            currentEntry <<= 1U;
+        // if there is no free block in this bitmap entry, set free count to 0
+        } else {
+        	freeCount = 0;
         }
+
     }
 
     // if we have enough free contiguous blocks, we cann mark them as alloced in this loop
