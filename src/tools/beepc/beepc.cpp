@@ -8,6 +8,8 @@ const uint32_t BEEP_MAGIC = 0x42454550;
 int main(int argc, char *argv[]) {
 
     if (argc != 3) {
+        printf("Usage: ./beepc <source> <destination>\n");
+        
         return 1;
     }
 

@@ -22,6 +22,7 @@
 #include <filesystem/TarArchive/TarArchiveNode.h>
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include <lib/file/Directory.h>
+#include <lib/sound/BeepFile.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -127,7 +128,12 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->update(100, "Finished Booting!");
 
-    Kernel::getService<TimeService>()->msleep(1000);
+    BeepFile *sound = BeepFile::load("/initrd/music/startup.beep");
+
+    if(sound != nullptr) {
+        sound->play();
+        delete sound;
+    }
 
     bootscreen->finish();
 

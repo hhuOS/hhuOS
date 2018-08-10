@@ -107,7 +107,7 @@ OBJPRE = $(addprefix $(OBJDIR)/,$(ASM_OBJECTS) $(C_OBJECTS) $(CC_OBJECTS))
 #-------------------------------------------#
 # Default targets                           #
 #-------------------------------------------#
-all: iso modules fdd0.img hdd0.img
+all: iso fdd0.img hdd0.img
 
 #-------------------------------------------#
 # Floppy disk image                         #
@@ -173,9 +173,15 @@ $(MODULE_OUT)/%.ko:
 modules: $(MODULE_BINARIES)
 
 #-------------------------------------------#
+# Music files                               #
+#-------------------------------------------#
+music:
+	$(VERBOSE) $(MAKE) --no-print-directory -C ../music
+
+#-------------------------------------------#
 # Initial Ramdisk                           #
 #-------------------------------------------#
-$(BOOTDIR)/hhuOS.initrd : modules
+$(BOOTDIR)/hhuOS.initrd : modules music
 	@echo "TAR		$(@F)"
 	@if test \( ! \( -d $(@D) \) \) ;then mkdir -p $(@D);fi
 	$(VERBOSE) $(TAR) -C $(INITRD_PATH) --xform s:'./':: -cf $@ ./
@@ -276,11 +282,12 @@ clean:
 	$(VERBOSE) rm -f  fdd0.img
 	@echo "RM		hdd0.img"
 	$(VERBOSE) rm -f  hdd0.img
-	@echo "RM		$(MODULE_OUT)/*"
+	@echo "RM	        $(MODULE_OUT)/*"
 	$(VERBOSE) rm -f  $(MODULE_OUT)/*
 	$(VERBOSE) for module in $(MODULES) ; do \
 		$(MAKE) --no-print-directory -C ../modules/build M=$(MODULE_PATH)/$$module clean ; \
 	done
+	$(VERBOSE) $(MAKE) --no-print-directory -C ../music clean
 
 #-------------------------------------------#
 # Exports                                   #
