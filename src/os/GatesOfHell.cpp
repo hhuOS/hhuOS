@@ -113,7 +113,7 @@ int32_t GatesOfHell::enter() {
     initializePciDrivers();
 
     bootscreen->update(50, "Initializing Filesystem");
-    loadModule("/mod/FatDriver.ko");
+    loadModule("/mod/fat.ko");
 
     fs->init();
     printfUpdateStdout();
@@ -189,7 +189,7 @@ void GatesOfHell::initializeGraphics() {
     graphicsService->setLinearFrameBuffer(cga);
     graphicsService->setTextDriver(text);
 
-    loadModule("/mod/VesaDriver.ko");
+    loadModule("/mod/vesa.ko");
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
