@@ -16,7 +16,6 @@
 #include <kernel/services/SoundService.h>
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
-#include <devices/graphics/text/VesaText.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
 #include <devices/block/Ahci.h>
 #include <devices/block/FloppyController.h>
@@ -161,10 +160,7 @@ void GatesOfHell::registerServices() {
 
 void GatesOfHell::initializeGraphics() {
 
-    LinearFrameBuffer *lfb = nullptr;
-    TextDriver *text = nullptr;
-
-    auto *vesa = new VesaGraphics();
+    graphicsService = Kernel::getService<GraphicsService>();
 
     // Get desired resolution from GRUB
     Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
@@ -175,45 +171,31 @@ void GatesOfHell::initializeGraphics() {
         bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
     }
 
-    log.trace("Detecting video capability");
+    auto *cga = new CgaGraphics();
+    auto *text = new CgaText();
 
-    // Detect video capability
-    if(vesa->isAvailable()) {
-        log.trace("Found a VESA compatible graphics card");
+    if(!cga->isAvailable()) {
+        //No CGA? Your machine is waaaaay to old...
+        log.trace("Did not find a CGA compatible graphics card");
+        log.trace("Halting CPU");
 
-        lfb = vesa;
-        text = new VesaText();
-    } else {
-        log.trace("Did not find a VESA compatible graphics card");
-        log.trace("Falling back to CGA");
-
-        delete vesa;
-        auto *cga = new CgaGraphics();
-        if(cga->isAvailable()) {
-            lfb = cga;
-            text = new CgaText();
-        } else {
-            //No VBE and no CGA? Your machine is waaaaay to old...
-            log.trace("Did not find a CGA compatible graphics card");
-            log.trace("Halting CPU");
-
-            delete cga;
-            Cpu::halt();
-        }
+        delete cga;
+        Cpu::halt();
     }
-
-    // Initialize drivers
-    lfb->init(xres, yres, bpp);
-    text->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     stdout = text;
     text->setpos(0, 0);
 
-    Kernel::getService<GraphicsService>()->setLinearFrameBuffer(lfb);
-    Kernel::getService<GraphicsService>()->setTextDriver(text);
+    graphicsService->setLinearFrameBuffer(cga);
+    graphicsService->setTextDriver(text);
 
-    Kernel::getService<StdStreamService>()->setStdout(text);
-    Kernel::getService<StdStreamService>()->setStderr(text);
+    loadModule("/mod/VesaDriver.ko");
+
+    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+    graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+
+    Kernel::getService<StdStreamService>()->setStdout(graphicsService->getTextDriver());
+    Kernel::getService<StdStreamService>()->setStderr(graphicsService->getTextDriver());
 }
 
 void GatesOfHell::initializeSerialPorts() {

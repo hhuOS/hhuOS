@@ -48,8 +48,6 @@ Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
 
 Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
 
-Util::ArrayList<VesaGraphics::ModeInfo> Multiboot::Structure::vbeModes;
-
 Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
 
 extern "C" {
@@ -260,7 +258,7 @@ String Multiboot::Structure::getKernelOption(const String &key) {
 
 void Multiboot::Structure::parseVbeInfo() {
 
-    if (info.flags & MULTIBOOT_INFO_VBE_INFO) {
+    /*if (info.flags & MULTIBOOT_INFO_VBE_INFO) {
 
         info.vbeModeInfo += KERNEL_START;
 
@@ -270,7 +268,7 @@ void Multiboot::Structure::parseVbeInfo() {
 
         // TODO(krakowski)
         //  Save VBE control information and get available modes
-    }
+    }*/
 }
 
 

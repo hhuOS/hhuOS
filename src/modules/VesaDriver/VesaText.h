@@ -17,8 +17,8 @@
 #ifndef __VesaText_include__
 #define __VesaText_include__
 
-#include "TextDriver.h"
-#include "devices/graphics/lfb/VesaGraphics.h"
+#include "VesaGraphics.h"
+#include "devices/graphics/text/TextDriver.h"
 #include "kernel/Kernel.h"
 #include "lib/graphic/Colors.h"
 #include "devices/graphics/text/fonts/Fonts.h"

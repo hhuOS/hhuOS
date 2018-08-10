@@ -19,7 +19,7 @@
 #define __Multiboot_include__
 
 #include <cstdint>
-#include <devices/graphics/lfb/VesaGraphics.h>
+#include <lib/String.h>
 #include "Constants.h"
 #include "lib/util/HashMap.h"
 
@@ -70,8 +70,6 @@ namespace Multiboot {
         static Util::HashMap<String, Multiboot::ModuleInfo> modules;
 
         static Util::HashMap<String, String> kernelOptions;
-
-        static Util::ArrayList<VesaGraphics::ModeInfo> vbeModes;
 
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 

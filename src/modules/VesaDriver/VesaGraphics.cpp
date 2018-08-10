@@ -17,8 +17,8 @@
 #include <kernel/Bios.h>
 #include <kernel/memory/MemLayout.h>
 #include <lib/libc/printf.h>
-#include "VesaGraphics.h"
 #include "kernel/memory/SystemManagement.h"
+#include "VesaGraphics.h"
 
 VesaGraphics::VesaGraphics() : LinearFrameBuffer() {
 
@@ -30,7 +30,6 @@ bool VesaGraphics::setMode(uint16_t mode) {
 	Bios::Int(0x10);
 
 	if (BC_params->AX != 0x004F) {
-		printf("[ERROR] Couldn't set requested mode\n");
 		return false;
 	}
 
@@ -46,7 +45,6 @@ VesaGraphics::VbeInfo* VesaGraphics::getVbeInfo() {
     Bios::Int(0x10);
 
     if (BC_params->AX != 0x004F) {
-        printf("[ERROR] VESA BIOS call failed\n");
         return nullptr;
     }
 
@@ -63,7 +61,6 @@ VesaGraphics::ModeInfo* VesaGraphics::getModeInfo(uint16_t mode) {
 	Bios::Int(0x10);
 
 	if (BC_params->AX != 0x004F) {
-		printf("[ERROR] Couldn't get graphics mode informaton\n");
 		return nullptr;
 	}
 

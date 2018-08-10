@@ -14,8 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/Pit.h>
-#include <lib/libc/printf.h>
 #include <kernel/Bios.h>
 #include "VesaText.h"
 

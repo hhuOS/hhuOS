@@ -17,9 +17,9 @@
 #ifndef __VesaGraphics_include__
 #define __VesaGraphics_include__
 
-#include "LinearFrameBuffer.h"
-#include "kernel/Kernel.h"
 #include <cstdint>
+#include "devices/graphics/lfb/LinearFrameBuffer.h"
+#include "kernel/Kernel.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 
 /**
