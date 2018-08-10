@@ -22,7 +22,6 @@
 #include <apps/Application.h>
 #include <kernel/threads/Scheduler.h>
 #include "BugDefender.h"
-#include "apps/BugDefender/sprites/heart.cpp"
 #include "lib/graphic/Colors.h"
 
 #include "lib/libc/sprintf.h"
