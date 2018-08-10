@@ -37,6 +37,10 @@ VirtualNode *RamFsDriver::getChildByName(VirtualNode *parent, const String &path
     return nullptr;
 }
 
+String RamFsDriver::getName() {
+    return NAME;
+}
+
 bool RamFsDriver::mount(StorageDevice *disk) {
     rootNode = new VirtualNode("/", FsNode::DIRECTORY_FILE);
     

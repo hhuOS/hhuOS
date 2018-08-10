@@ -51,6 +51,11 @@ public:
     virtual FsDriver *clone() const = 0;
 
     /**
+     * Get the name, under which the driver will be registered and usable for the user.
+     */
+    virtual String getName() = 0;
+
+    /**
      * Create a new instance of a given subtype of FsDriver.
      * Throws an exception, if the type is unknown.
      *
@@ -67,7 +72,7 @@ public:
      * @param type The type
      * @param driver Instance, that will be used as a prototype for further instances
      */
-    static void registerDriverType(String type, FsDriver *driver);
+    static void registerDriverType(FsDriver *driver);
 
     /**
      * Remove a type of FsDriver.

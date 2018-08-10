@@ -8,7 +8,7 @@ MODULE_PROVIDER {
 
 int32_t FatModule::initialize() {
 
-    FsDriver::registerDriverType("Fat", new FatDriver());
+    FsDriver::registerDriverType(new FatDriver());
 
     return 0;
 }

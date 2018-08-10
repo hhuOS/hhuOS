@@ -114,7 +114,7 @@ void FileSystem::init() {
 
     mountPoints.clear();
 
-    FsDriver::registerDriverType("RamFs", new RamFsDriver());
+    FsDriver::registerDriverType(new RamFsDriver());
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
 
@@ -267,8 +267,15 @@ uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
 
     String parsedPath = parsePath(path);
 
-    auto *driver = (RamFsDriver*) getMountedDriver(parsedPath);
-    bool ret = driver->addNode(parsedPath, node);
+    auto *driver = getMountedDriver(parsedPath);
+
+    if(driver->getName() != "ramfs") {
+        fsLock.release();
+
+        return ADDING_VIRTUAL_NODE_FAILED;
+    }
+
+    bool ret = ((RamFsDriver*) driver)->addNode(parsedPath, node);
 
     fsLock.release();
 

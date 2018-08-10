@@ -10,6 +10,10 @@ TarArchiveDriver::~TarArchiveDriver() {
     delete archive;
 }
 
+String TarArchiveDriver::getName() {
+    return NAME;
+}
+
 bool TarArchiveDriver::createFs(StorageDevice *device) {
     return false;
 }

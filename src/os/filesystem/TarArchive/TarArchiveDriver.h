@@ -29,6 +29,8 @@ private:
 
     Util::Array<Tar::Header*> fileHeaders{};
 
+    static const constexpr char *NAME = "tar";
+
 public:
 
     FS_DRIVER_IMPLEMENT_CLONE(TarArchiveDriver);
@@ -44,6 +46,11 @@ public:
      * Destructor.
      */
     ~TarArchiveDriver() override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+     String getName() override;
 
     /**
      * Overriding virtual function from FsDriver.

@@ -15,8 +15,8 @@ FsDriver *FsDriver::createInstance(String type) {
     return nullptr;
 }
 
-void FsDriver::registerDriverType(String type, FsDriver *driver) {
-    String key = type.toLowerCase();
+void FsDriver::registerDriverType(FsDriver *driver) {
+    String key = driver->getName().toLowerCase();
 
     prototypeTable.put(key, driver);
 }

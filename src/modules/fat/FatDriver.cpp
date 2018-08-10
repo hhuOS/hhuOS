@@ -23,6 +23,10 @@ FatDriver::~FatDriver() {
     }
 }
 
+String FatDriver::getName() {
+    return NAME;
+}
+
 bool FatDriver::mount(StorageDevice *device) {
     this->device = device;
     fatInstance = new FatFs(device);

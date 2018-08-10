@@ -39,6 +39,8 @@ private:
      */
     static VirtualNode *getChildByName(VirtualNode *parent, const String &path);
 
+    static const constexpr char *NAME = "ramfs";
+
 protected:
 
     VirtualNode *rootNode = nullptr;
@@ -56,6 +58,11 @@ public:
      * Destructor.
      */
     ~RamFsDriver() override;
+
+    /**
+     * Overriding function from FsDriver.
+     */
+    String getName() override;
 
     /**
      * Overriding function from FsDriver.

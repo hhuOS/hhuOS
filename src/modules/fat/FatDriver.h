@@ -33,6 +33,8 @@ private:
     FatFs *fatInstance = nullptr;
     StorageDevice *device = nullptr;
 
+    static const constexpr char *NAME = "fat";
+
 public:
 
     FS_DRIVER_IMPLEMENT_CLONE(FatDriver);
@@ -46,6 +48,11 @@ public:
      * Destructor.
      */
     ~FatDriver() override;
+
+    /**
+     * Overriding virtual function from FsDriver.
+     */
+     String getName() override;
 
     /**
      * Overriding virtual function from FsDriver.
