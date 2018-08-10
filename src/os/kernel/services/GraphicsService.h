@@ -11,8 +11,8 @@
 class GraphicsService : public KernelService {
 
 private:
-    LinearFrameBuffer *lfb;
-    TextDriver *text;
+    LinearFrameBuffer *lfb = nullptr;
+    TextDriver *text = nullptr;
 
     Util::RingBuffer<TextDriverChangedEvent> textEventBuffer;
     Util::RingBuffer<LfbDriverChangedEvent> lfbEventBuffer;

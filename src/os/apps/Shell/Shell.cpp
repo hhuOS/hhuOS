@@ -101,7 +101,6 @@ void Shell::setCurrentWorkingDirectory(Directory *cwd) {
 }
 
 void Shell::run() {
-    TextDriver &stream = *graphicsService->getTextDriver();
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
@@ -131,7 +130,7 @@ void Shell::run() {
         *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\\u001b[32;1m]$\\u001b[0m ";
         this->flush();
 
-        stream.getpos(x, y);
+        graphicsService->getTextDriver()->getpos(x, y);
 
         currentBase = x;
     }

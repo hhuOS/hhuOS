@@ -11,6 +11,10 @@ LinearFrameBuffer *GraphicsService::getLinearFrameBuffer() {
 }
 
 void GraphicsService::setLinearFrameBuffer(LinearFrameBuffer *lfb) {
+    if(this->lfb != nullptr) {
+        lfb->init(this->lfb->getResX(), this->lfb->getResY(), this->lfb->getDepth());
+    }
+
     this->lfb = lfb;
 
     lfbEventBuffer.push(LfbDriverChangedEvent(lfb));
@@ -23,6 +27,10 @@ TextDriver *GraphicsService::getTextDriver() {
 }
 
 void GraphicsService::setTextDriver(TextDriver *text) {
+    if(this->text != nullptr) {
+        text->init(this->text->getColumnCount(), this->text->getRowCount(), this->lfb->getDepth());
+    }
+
     this->text = text;
 
     textEventBuffer.push(TextDriverChangedEvent(text));
