@@ -50,12 +50,36 @@ public:
         this->doUnmap = doUnmap;
     }
 
+    /**
+     * Allocate a block of memory of given size.
+     *
+     * @param size Amount of memory to allocate
+     * @return Pointer to allocated memory
+     */
     virtual void *alloc(uint32_t size) = 0;
 
+    /**
+	 * Allocate aligned block of memory of given size.
+	 *
+	 * @param size Amount of memory to allocate
+	 * @param alignment Alignment of returned pointer
+	 * @return Pointer to allocated memory
+	 */
     virtual void *alloc(uint32_t size, uint32_t alignment) { return nullptr; };
 
+    /**
+     * Free allocated block of memory.
+     *
+     * @param ptr Pointer to start of memory block.
+     */
     virtual void free(void *ptr) = 0;
 
+    /**
+	 * Free aligned allocated block of memory.
+	 *
+	 * @param ptr Pointer to start of memory block.
+	 * @param alignment Alignment of pointer.
+	 */
     virtual void free(void *ptr, uint32_t alignment) {};
 
     /**

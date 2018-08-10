@@ -308,10 +308,12 @@ void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     // allocate 4kb-aligned virtual IO-memory
     void *virtStartAddress = ioMemManager->alloc(size);
 
+    // Check for nullpointer
     if(virtStartAddress == nullptr) {
         Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
+    // map the allocated virtual IO memory to physical addresses
     for(uint32_t i = 0; i < pageCnt; i++) {
         // since the virtual memory is one block, we can update the virtual address this way
         uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
@@ -338,15 +340,18 @@ void* SystemManagement::mapIO(uint32_t size) {
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
 
+    // allocate block of physical memory
     void *physStartAddress = pageFrameAllocator->alloc(size);
 
     // allocate 4kb-aligned virtual IO-memory
 	void *virtStartAddress = ioMemManager->alloc(size);
 
+	// check for nullpointer
     if(virtStartAddress ==  nullptr){
         Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
+    // map the allocated virtual IO memory to physical addresses
     for(uint32_t i = 0; i < pageCnt; i++) {
         // since the virtual memory is one block, we can update the virtual address this way
         uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
@@ -588,7 +593,7 @@ void* operator new[](size_t size, uint32_t alignment) {
 
 void operator delete(void *ptr, uint32_t alignment) noexcept {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->free(ptr);
     }
@@ -596,7 +601,7 @@ void operator delete(void *ptr, uint32_t alignment) noexcept {
 
 void operator delete[](void *ptr, uint32_t alignment) noexcept {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->free(ptr);
     }

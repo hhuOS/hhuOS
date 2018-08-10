@@ -27,15 +27,17 @@ PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t mem
     freeBitmapLength = pageFrameCnt / 32;
     freeBitmap = new uint32_t[freeBitmapLength];
 
+    // zero out the free bitmap length
     memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 
+    // read out how much memory is already used by the system and the initrd
     uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
 
-    // first 9 MB are already allocated by 4MB paging -> first 72 Array entries
+    // first X MB are already allocated by 4MB paging
     for(uint32_t i=0; i < maxIndex; i++) {
         freeBitmap[i] = 0xFFFFFFFF;
     }
-    // 9 MB + 8KB are already used by kernel and page tables/dirs
+    // X MB + 8KB are already used by kernel and page tables/dirs
     freeBitmap[maxIndex] = 0xC0000000;
 
     bmpSearchOffset = maxIndex;

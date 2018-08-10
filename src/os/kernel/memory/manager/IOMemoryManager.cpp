@@ -212,9 +212,12 @@ void IOMemoryManager::free(void *ptr){
     }
 
     // unmap the whole merged block of virtual memory
-    for(uint32_t i=0; i < tmp->pageCount; i++) {
-        SystemManagement::getInstance()->unmap(virtHeaderAddress + i*PAGESIZE);
+    if(doUnmap == true){
+        for(uint32_t i=0; i < tmp->pageCount; i++) {
+            SystemManagement::getInstance()->unmap(virtHeaderAddress + i*PAGESIZE);
+        }
     }
+
 
     // copy the memory block to the correct position
     // header will be mapped through pagefault

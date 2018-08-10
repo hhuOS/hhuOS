@@ -1,5 +1,5 @@
 /**
- * BitmapMemoryManager - manages a given area of memory in 4kb blocks using
+ * BitmapMemoryManager - manages a given area of memory in blocks of given size using
  * a bitmap mechanism.
  *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
@@ -28,42 +28,57 @@ BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t m
     this->zeroMemory = zeroMemory;
 }
 
+BitmapMemoryManager::~BitmapMemoryManager() {
+	delete freeBitmap;
+}
+
 /**
- * Allocate a block of memory
+ * Allocate one or several blocks of memory
  */
 void* BitmapMemoryManager::alloc(uint32_t size) {
+	// get count of blocks that corresponds to aligned size
     uint32_t blockCount = (size / blockSize) + ((size % blockSize == 0) ? 0 : 1);
 
+    // set up indices of searching
     uint32_t arrayIndexStart = 0;
     uint32_t bitmapIndexStart = 0;
     uint32_t freeCount = 0;
 
+    // search a sequence of free memory blocks
     for(uint32_t i = bmpSearchOffset; i < freeBitmapLength; i++) {
+    	// get current bitmap entry
         uint32_t currentEntry = freeBitmap[i];
 
+        // check every block in current bitmap entry
         for(uint8_t j = 32; j > 0; j--) {
 
+        	// check if current block is free
             if((currentEntry & 0x80000000) == 0) {
+            	// if yes and we have not marked some blocks earlier, start search here
                 if(freeCount == 0) {
                     arrayIndexStart = i;
                     bitmapIndexStart = static_cast<uint32_t>(j - 1);
                 }
-
+                // increase free count because we have found a free block
                 freeCount++;
 
+                // if we have enough free contiguous blocks break here
                 if(freeCount == blockCount) {
                     i = freeBitmapLength;
 
                     break;
                 }
+            // if current block is not free and we have started marking free blocks
+            // reset free count and continue searching
             } else {
                 freeCount = 0;
             }
-
+            // shift current bitmap entry to examine next block
             currentEntry <<= 1U;
         }
     }
 
+    // if we have enough free contiguous blocks, we cann mark them as alloced in this loop
     if(freeCount == blockCount) {
         uint32_t i = arrayIndexStart;
         uint32_t j = bitmapIndexStart;
@@ -82,17 +97,20 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
             freeCount--;
         }
 
+        // update free memory
         freeMemory -= blockCount * blockSize;
 
+        // zero allocated memory if required
         if(zeroMemory){
             memset((void*) (memoryStartAddress + (32 * arrayIndexStart + (31 - bitmapIndexStart)) * blockSize), 0, blockCount * blockSize);
         }
 
+        // return start address of allocated memory
         return (void *) (memoryStartAddress + (32 * arrayIndexStart + (31 - bitmapIndexStart)) * blockSize);
     }
 
 
-    // found no pageframe
+    // handle errors
     if(managerType == PAGING_AREA_MANAGER) {
         Cpu::throwException(Cpu::Exception::OUT_OF_PAGE_MEMORY);
     }
@@ -109,12 +127,14 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
 }
 
 /**
- * Free a memory block
+ * Free a one block of memory. It is important to notice
+ * that only one block of size blockSize will be freed and not
+ * the all the blocks that might have been allocated earlier.
  */
 void BitmapMemoryManager::free(void *ptr) {
     uint32_t address = (uint32_t) ptr - memoryStartAddress;
 
-// check if kernel or i/o space is affected
+    // check if pointer points to valid memory
     if(address < memoryStartAddress || address >= memoryEndAddress) {
 #if DEBUG_BMM
         printf("[%s] ERROR: Something went wrong freeing the page - %x\n", name, address);
@@ -129,7 +149,7 @@ void BitmapMemoryManager::free(void *ptr) {
     // calculate shift index
     uint8_t  idx = (uint8_t) (31 - (blockNumber % 32));
 
-    // set bit representing this page to 0
+    // set bit representing this block to 0
     freeBitmap[arrayIdx] &= ~(1 << idx);
     freeMemory += blockSize;
 

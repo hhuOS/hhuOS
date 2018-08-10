@@ -1,4 +1,4 @@
-/* List-based memory manager for the kernel heap
+/* List-based memory manager.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
@@ -35,7 +35,7 @@ FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryEndAddress, uint32_t
  * Allocate memory block with given size.
  */
 void* FreeListMemoryManager::alloc(uint32_t size) {
-
+	// Allocate memory without alignment
     return alloc(size, 0);
 }
 
@@ -43,27 +43,32 @@ void* FreeListMemoryManager::alloc(uint32_t size) {
  * Frees a given memory block
  */
 void FreeListMemoryManager::free(void* ptr) {
-
+	// check for nullpointer
     if(ptr == nullptr) {
         return;
     }
-
+    // check if address points to valid memory for this manager
     if ((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr > memoryEndAddress) {
         return;
     }
 
     lock.acquire();
 
+    // get pointer to header of allocated block
     auto * header = (FLHeader*)((uint8_t*) ptr - HEADER_SIZE);
 
-    // Place free block at the right position
+    // Place free block at the right position in free list
+
+    // if there is no free list -> create one
     if (firstChunk == nullptr) {
         firstChunk = header;
+    // if freed block is before first entry of free list -> freed block is new anchor
     } else if(header < firstChunk){
         header->next = firstChunk;
         header->prev = nullptr;
         firstChunk->prev = header;
         firstChunk = header;
+    // else: search for correct position of freed block in free list and place it there
     } else {
         FLHeader* tmp = firstChunk;
         while(tmp != nullptr){
@@ -84,6 +89,7 @@ void FreeListMemoryManager::free(void* ptr) {
         }
     }
 
+    // merge freed block of memory with neighbours if possible
     FLHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4kb of memory, a page can possibly be unmapped
@@ -96,6 +102,14 @@ void FreeListMemoryManager::free(void* ptr) {
     }
 
     lock.release();
+}
+
+/**
+ * Frees a given aligned memory block
+ */
+void FreeListMemoryManager::free(void *ptr, uint32_t alignment) {
+	// Only free this block - alignment has no influence
+	free(ptr);
 }
 
 /**
@@ -119,9 +133,14 @@ void FreeListMemoryManager::dump() {
     printf("\n");
 }
 
+/**
+ * Find next block of required size given a start header
+ */
 FreeListMemoryManager::FLHeader* FreeListMemoryManager::findNext(FLHeader *start, uint32_t reqSize) {
+	// set start point
     FLHeader *current = start;
 
+    // run through free list and look for free block with correct size
     while (current != nullptr) {
         if (current->size >= reqSize) {
             return current;
@@ -134,13 +153,17 @@ FreeListMemoryManager::FLHeader* FreeListMemoryManager::findNext(FLHeader *start
 }
 
 
-
+/**
+ * Allocate aligned memory block with given size.
+ */
 void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
 
+	// check for invalid requests
     if (size == 0) {
         return nullptr;
     }
 
+    // align requested size to 4 byte
     size = MemoryUtil::alignUp(size, sizeof(uint32_t));
 
     lock.acquire();
@@ -148,6 +171,7 @@ void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
     FLHeader *current = firstChunk;
     FLHeader *aligned = nullptr;
 
+    // run through list and look for memory block
     while(current != nullptr){
 
         if (current->size >= size) {
@@ -194,7 +218,7 @@ void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
         return nullptr;
     }
 
-    // Check if the choosen chunk can be sliced in two parts
+    // Check if the chosen chunk can be sliced in two parts
     if (current->size - size >= MIN_BLOCK_SIZE + HEADER_SIZE) {
         FLHeader* slice = (FLHeader*) (((uint32_t)current) + HEADER_SIZE + size);
 
@@ -233,6 +257,9 @@ void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
     return (void*) (((uint32_t)current) + HEADER_SIZE);
 }
 
+/**
+ * Merge all free blocks of free memory if possible
+ */
 FreeListMemoryManager::FLHeader *FreeListMemoryManager::merge(FLHeader *origin) {
 
     if(firstChunk == nullptr) {
@@ -241,6 +268,7 @@ FreeListMemoryManager::FLHeader *FreeListMemoryManager::merge(FLHeader *origin) 
 
     FLHeader *tmp = origin;
 
+    // merge with next block if possible
     if (tmp->next != nullptr && ((uint32_t) tmp) + HEADER_SIZE + tmp->size == (uint32_t) tmp->next) {
         tmp->size += tmp->next->size + HEADER_SIZE;
 
@@ -253,6 +281,7 @@ FreeListMemoryManager::FLHeader *FreeListMemoryManager::merge(FLHeader *origin) 
 
     tmp = tmp->prev;
 
+    // merge with previous block if possible
     if (tmp != nullptr && ((uint32_t) tmp) + HEADER_SIZE + tmp->size == (uint32_t) origin) {
         tmp->size += tmp->next->size + HEADER_SIZE;
 

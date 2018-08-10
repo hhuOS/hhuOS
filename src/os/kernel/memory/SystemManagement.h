@@ -122,8 +122,7 @@ public:
      *                 in the address rang of the installed physical memory of the system,
      *                 please make sure you allocated that memory before!
      * @param size Size of memory to be allocated
-     * @return IOMemInfo A struct containing the virtual address of the mapped
-     *                   memory and the corresponding physical addresses
+     * @return Pointer to virtual IO memory block
      */
     void * mapIO(uint32_t physAddress, uint32_t size);
 
@@ -132,16 +131,14 @@ public:
      * allocations are 4kb-aligned.
      *
      * @param size Size of IO-memory to be allocated
-     * @return IOMemInfo A struct containing the virtual address of the mapped
-     *                   memory and the corresponding physical addresses
+     * @return Pointer to virtual IO memory block
      */
     void * mapIO(uint32_t size);
 
     /**
      * Free the IO-space described by the given IOMemInfo Block
      *
-     * @param ptr IOMemInfo Block containing all information about the memory
-     *                block tobe freed.
+     * @param ptr Pointer to virtual IO memory that should be freed
      */
     void freeIO(void *ptr);
 

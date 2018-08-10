@@ -23,7 +23,7 @@
 #define DEBUG_BMM 0
 
 /**
- * BitmapMemoryManager - manages a given area of memory in 4kb blocks using
+ * BitmapMemoryManager - manages a given area of memory in blocks of given size using
  * a bitmap mechanism.
  *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
@@ -63,19 +63,28 @@ public:
      * @param memoryEndAddress End address of the memory area to manage
      * @param name Name of this memory manager for debugging output
      * @param zeroMemory Indicates if new allocated memory should be zeroed
+     * @param doUnmap Indicated if freed memory should be unmapped in paging system
      */
     BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize,
                         String name, bool zeroMemory, bool doUnmap);
 
     /**
-     * Allocate a 4kb block of memory
+     * Destructor
+     */
+    ~BitmapMemoryManager();
+
+    /**
+     * Allocate one or several blocks of memory
      *
+     * @param size Size of memory that should be allocated - will be aligned to blockSize
      * @return Start address of the alloctated memory
      */
     void * alloc(uint32_t size) override;
 
     /**
-     * Free a 4kb memory block
+     * Free a one block of memory. It is important to notice
+     * that only one block of size blockSize will be freed and not
+     * the all the blocks that might have been allocated earlier.
      *
      * @param ptr Address of the memory block to free
      */

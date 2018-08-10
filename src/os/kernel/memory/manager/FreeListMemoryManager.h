@@ -26,7 +26,7 @@
 
 
 
-/* List-based memory manager for the kernel heap
+/* List-based memory manager.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
@@ -36,7 +36,7 @@ class FreeListMemoryManager : public MemoryManager {
 private:
 
     /**
-     * Header for the double-linked list mamaging the memory blocks.
+     * Header for the double-linked list managing the memory blocks.
      */
     struct FLHeader {
         FLHeader* prev;		// previous Chunk
@@ -50,12 +50,25 @@ private:
     // Pointer to first entry in memory list
     FLHeader* firstChunk;
 
+    /**
+     * Find next block of required size given a start header
+     *
+     * @param start Pointer to start block from where to search
+     * @param reqSize Minimal size that is required from the block
+     * @return Header of the free block with required size
+     */
     FLHeader *findNext(FLHeader *start, uint32_t reqSize);
 
+    /**
+     * Merge all free blocks of free memory if possible
+     *
+     * @param origin Memory block that should be merged with neighbours
+     */
     FLHeader *merge(FLHeader *origin);
 
+    // minimal block size of allocated memory
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
-
+    // Size of list header
     static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
 
 public:
@@ -81,6 +94,13 @@ public:
      */
     void* alloc(uint32_t size) override;
 
+    /**
+	 * Allocate aligned memory block with given size.
+	 *
+	 * @param size Size of memory block to be allocated
+	 * @param alignment Alignment for pointer to memory
+	 * @return Pointer to the allocated memory block
+	 */
     void* alloc(uint32_t size, uint32_t alignment) override;
 
     /**
@@ -89,6 +109,14 @@ public:
      * @param ptr Pointer to the memory block to be freed
      */
     void free(void* ptr) override;
+
+    /**
+	 * Frees a given aligned memory block
+	 *
+	 * @param ptr Pointer to the memory block to be freed
+	 * @param alignment Alignment for pointer to memory
+	 */
+	void free(void* ptr, uint32_t alignment) override;
 
     /**
      * Dump memory list

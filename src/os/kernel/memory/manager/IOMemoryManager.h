@@ -63,15 +63,15 @@ public:
     /**
      * Allocate some virtual 4kb pages for given physical page frames.
      *
-     * @param size ioMemInfo struct with pageCount and physAddresses filled in, but virtStartAddress == 0
-     * @return IOMemInfo with all information about allocations
+     * @param size Requested size of memory block
+     * @return Start address of memory block
      */
     void * alloc(uint32_t size) override;
 
     /**
      * Free virtual IO memory.
      *
-     * @param ptr IOMemInfo struct with all information regarding the memory block
+     * @param ptr Pointer to memory block
      */
     void free(void *ptr) override;
 
