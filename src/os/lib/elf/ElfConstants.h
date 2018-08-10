@@ -203,15 +203,15 @@ namespace ElfConstants {
         uint8_t                     other;
         uint16_t                    section;
 
-        SymbolBinding               getBinding();
-        SymbolType                  getType();
+        SymbolBinding               getSymbolBinding();
+        SymbolType                  getSymbolType();
     } __attribute__((packed));
 
     struct RelocationEntry {
         elf32_addr                  offset;
         elf32_word                  info;
 
-        uint8_t                     getIndex();
+        uint32_t                    getSymbolIndex();
         RelocationType              getType();
     } __attribute__((packed));
 

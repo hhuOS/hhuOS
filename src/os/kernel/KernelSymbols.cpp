@@ -114,7 +114,7 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
-        if (entry->value < KERNEL_START || entry->getType() == ElfConstants::SymbolType::SECTION) {
+        if (entry->value < KERNEL_START || entry->getSymbolType() == ElfConstants::SymbolType::SECTION) {
 
             continue;
         }

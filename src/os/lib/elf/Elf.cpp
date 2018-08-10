@@ -300,7 +300,7 @@ uint32_t Elf::resolveSymbol(uint32_t index) {
 
     RelocationEntry *relocationEntry = &relocationTable[index / sizeof(RelocationEntry)];
 
-    SymbolEntry *symbol = &dynamicSymbolTable[relocationEntry->getIndex()];
+    SymbolEntry *symbol = &dynamicSymbolTable[relocationEntry->getSymbolIndex()];
 
     char *symbolName = &dynamicStringTable[symbol->nameOffset];
 

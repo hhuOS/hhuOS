@@ -40,18 +40,18 @@ bool FileHeader::hasProgramEntries() {
     return programHeaderEntries != 0;
 }
 
-uint8_t RelocationEntry::getIndex() {
-    return (uint8_t) (info >> 8);
+uint32_t RelocationEntry::getSymbolIndex() {
+    return (uint32_t) (info >> 8U);
 }
 
 RelocationType RelocationEntry::getType() {
-    return RelocationType(info & 0xFF);
+    return RelocationType(info & 0xFFU);
 }
 
-SymbolBinding SymbolEntry::getBinding() {
-    return SymbolBinding(info >> 4);
+SymbolBinding SymbolEntry::getSymbolBinding() {
+    return SymbolBinding(info >> 4U);
 }
 
-SymbolType SymbolEntry::getType() {
-    return SymbolType(info & 0xF);
+SymbolType SymbolEntry::getSymbolType() {
+    return SymbolType(info & 0x0FU);
 }

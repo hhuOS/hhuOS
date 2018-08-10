@@ -114,9 +114,9 @@ void ElfModule::parseSymbolTable() {
             continue;
         }
 
-        symbolBinding = symbolEntry->getBinding();
+        symbolBinding = symbolEntry->getSymbolBinding();
 
-        if (symbolBinding != SymbolBinding::GLOBAL && symbolBinding != SymbolBinding::WEAK) {
+        if (symbolBinding != SymbolBinding::GLOBAL && symbolBinding != SymbolBinding::WEAK && symbolBinding != SymbolBinding::LOCAL) {
 
             continue;
         }
@@ -173,9 +173,19 @@ void ElfModule::relocate() {
 
             relocationEntry = &relocationTable[j];
 
-            symbol = &symbolTable[relocationEntry->getIndex()];
+            symbol = &symbolTable[relocationEntry->getSymbolIndex()];
 
-            if (symbol->getType() == SymbolType::SECTION) {
+            if (relocationEntry->getType() == RelocationType::R_386_NONE) {
+
+                continue;
+            }
+
+            if (symbol->getSymbolType() == SymbolType::FILE) {
+
+                continue;
+            }
+
+            if (symbol->getSymbolType() == SymbolType::SECTION) {
 
                 symbolName = getSectionName(symbol->section);
 
@@ -192,9 +202,7 @@ void ElfModule::relocate() {
             }
 
             if (address == 0) {
-                // TODO(krakowski)
-                //  Handle undefined symbols
-                continue;
+                Cpu::throwException(Cpu::Exception::KEY_NOT_FOUND, (char*) String::format("The requested symbol %s is not defined", symbolName));
             }
 
             location = (uint32_t*) (sectionHeader->virtualAddress + relocationEntry->offset);
