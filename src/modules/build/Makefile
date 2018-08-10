@@ -50,7 +50,7 @@ ASMFLAGS 			= $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
 #-------------------------------------------#
 # C Compiler settings                       #
 #-------------------------------------------#
-CFLAGS 				= -m32 -nostdlib -no-pie -Wl,-r -Wno-write-strings -Werror \
+CFLAGS 				= -m32 -nostdlib -no-pie -Wl,-r -fno-pic -Wno-write-strings -Werror \
 					  -fno-stack-protector -ffreestanding -mno-sse -I. -I$(INCLUDEDIR)
 
 #-------------------------------------------#
