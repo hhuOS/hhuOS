@@ -31,6 +31,10 @@ Bmp::Bmp (File* file) {
             G(x, y) = row[(4*x)+1];
             R(x, y) = row[(4*x)+2];
             A(x, y) = row[(4*x)+3];
+
+            if (ignoreAlpha && row[(4*x)+3] != 0U) {
+                ignoreAlpha = false;
+            }
         }
     }
     
@@ -48,7 +52,7 @@ void Bmp::print (int xpos, int ypos) {
         for(int x = 0; x < width; ++x) {
             lfb->drawPixel(
                 x+xpos, y+ypos,
-                Color(R(x, y), G(x, y), B(x, y), A(x,y))
+                Color(R(x, y), G(x, y), B(x, y), ignoreAlpha ? 255 : A(x, y))
             );
         }
     }

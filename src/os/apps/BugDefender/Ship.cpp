@@ -22,7 +22,7 @@
 Ship::Ship(Vector2 position) : GameObject(position, "Player") {
     collider = new RectCollider(position, width, height);
     lastShootTime = 0;
-    bitmap = new Bmp(File::open("/images/spaceShip.bmp", "r"));
+    bitmap = new Bmp(File::open("/initrd/game/res/spaceShip.bmp", "r"));
 }
 
 void Ship::update(float delta){

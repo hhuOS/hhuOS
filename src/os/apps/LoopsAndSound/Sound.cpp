@@ -11,12 +11,12 @@ Sound::Sound() : Thread("Sound") {
 void Sound::run () {
     while(isRunning) {
 
-        BeepFile::load("/music/tetris.beep")->play();
+        BeepFile::load("/initrd/music/tetris.beep")->play();
 
         speaker->off();
         timeService->msleep(1000);
 
-        BeepFile::load("/music/mario.beep")->play();
+        BeepFile::load("/initrd/music/mario.beep")->play();
 
         speaker->off();
         timeService->msleep(1000);

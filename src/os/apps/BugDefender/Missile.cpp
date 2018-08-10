@@ -18,32 +18,44 @@
 #include "apps/BugDefender/Missile.h"
 #include "apps/game/HHUEngine.h"
 
-Missile::Missile(Vector2 position, int direction, char* tag) : GameObject(position, tag) {
-  collider = new RectCollider(position, width, height);
-  this->direction = direction;
 
+Bmp *Missile::enemySprite = nullptr;
+Bmp *Missile::shipSprite = nullptr;
+
+Missile::Missile(Vector2 position, int direction, char* tag) : GameObject(position, tag) {
+    collider = new RectCollider(position, width, height);
+    this->direction = direction;
+
+    if (enemySprite == nullptr) {
+        enemySprite = new Bmp(File::open("/initrd/game/res/laserRed.bmp", "r"));
+    }
+
+    if (shipSprite == nullptr) {
+        shipSprite = new Bmp(File::open("/initrd/game/res/laserGreen.bmp", "r"));
+    }
 }
 
 void Missile::update(float delta){
-  move(0, -speed * delta * direction);
+    move(0, -speed * delta * direction);
 
-  if(position.getY() < -height || position.getY() > 435){
-    HHUEngine::destroy(this);
-  }
+    if(position.getY() < -height || position.getY() > 435){
+        HHUEngine::destroy(this);
+    }
 }
 
 void Missile::draw(LinearFrameBuffer* g2d){
-  if(direction == 1)
-    g2d->drawRect(position.getX(), position.getY(), width, height, Color(255,255,255));
-  else
-    g2d->drawRect(position.getX(), position.getY(), width, height, Color(255,10,10));
+    if(direction == 1) {
+        shipSprite->print(static_cast<int>(position.getX()), static_cast<int>(position.getY()));
+    } else {
+        enemySprite->print(static_cast<int>(position.getX()), static_cast<int>(position.getY()));
+    }
 }
 
 void Missile::onCollisionEnter(GameObject &other){
-  if(direction == -1 && HHUEngine::strEqual(other.getTag(), "Enemy"))
-    return;
+    if(direction == -1 && HHUEngine::strEqual(other.getTag(), "Enemy"))
+        return;
 
-  HHUEngine::destroy(this);
+    HHUEngine::destroy(this);
 }
 
 void Missile::onCollisionExit(){

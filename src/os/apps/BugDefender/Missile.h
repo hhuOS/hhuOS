@@ -18,6 +18,7 @@
 #ifndef __Missile_include__
 #define __Missile_include__
 
+#include <lib/graphic/Bmp.h>
 #include "apps/game/GameObject.h"
 
 class Missile : public GameObject {
@@ -27,7 +28,7 @@ class Missile : public GameObject {
     Missile(const Missile &copy); // Verhindere Kopieren
 
     const static int width = 4;
-    const static int height = 8;
+    const static int height = 17;
 
     constexpr static float speed = 200.0f;
 
@@ -36,6 +37,10 @@ class Missile : public GameObject {
   public:
 
     Missile(Vector2 position, int direction, char* tag);
+
+    static Bmp *enemySprite;
+
+    static Bmp *shipSprite;
 
     ~Missile(){}
 

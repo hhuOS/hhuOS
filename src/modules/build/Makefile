@@ -38,8 +38,8 @@ BUILDDIR			= build
 # Compiler binaries                         #
 #-------------------------------------------#
 ASM 				= nasm
-CC 					= gcc
-CXX 				= g++
+CC? 				= gcc
+CXX? 				= g++
 
 #-------------------------------------------#
 # ASM Compiler settings                     #
@@ -50,7 +50,7 @@ ASMFLAGS 			= $(ASMFLAGS) -f $(ASMOBJFORMAT) -F stabs
 #-------------------------------------------#
 # C Compiler settings                       #
 #-------------------------------------------#
-CFLAGS 				= -m32 -nostdlib -no-pie -Wl,-r -fno-pic -Wno-write-strings -Werror \
+CFLAGS 				= -m32 -march=i486 -nostdlib -no-pie -Wl,-r -fno-pic -Wno-write-strings -Werror \
 					  -fno-stack-protector -ffreestanding -mno-sse -I. -I$(INCLUDEDIR)
 
 #-------------------------------------------#

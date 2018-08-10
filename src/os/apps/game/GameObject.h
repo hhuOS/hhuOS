@@ -35,7 +35,7 @@ class GameObject {
 
   public:
 
-    RectCollider* collider = 0x0;
+    RectCollider* collider = nullptr;
 
     bool colliding = false;
 

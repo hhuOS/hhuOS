@@ -47,6 +47,10 @@ class BugDefender : public Game {
 
     static bool isGameWon;
 
+    Bmp *heartSprite = nullptr;
+
+    Bmp *background = nullptr;
+
   public:
 
     BugDefender();

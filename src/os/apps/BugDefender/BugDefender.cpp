@@ -35,6 +35,9 @@ int BugDefender::enemyCount = enemiesPerLine * enemyLines;
 
 BugDefender::BugDefender() : Game() {
 
+    heartSprite = new Bmp(File::open("/initrd/game/res/shield.bmp", "r"));
+    background = new Bmp(File::open("/initrd/game/res/spaceBackground.bmp", "r"));
+
     score = 0;
     lifes = 3;
     isMenuVisible = true;
@@ -51,8 +54,6 @@ BugDefender::BugDefender() : Game() {
             HHUEngine::instantiate( new Enemy(Vector2(100 + x*40, 20 + y*30), y) );
         }
     }
-
-
 }
 
 void BugDefender::update(float delta){
@@ -98,15 +99,15 @@ void BugDefender::update(float delta){
 void BugDefender::drawInfo(LinearFrameBuffer* g2d){
     g2d->drawLine(20,440,620,440, Color(10,255,10));
 
-    g2d->drawString(sun_font_8x16, 25, 450, "Points: ", Color(10,255,10), Colors::BLACK);
+    g2d->drawString(sun_font_8x16, 25, 450, "Points: ", Color(10,255,10), Colors::INVISIBLE);
 
     char scoreString[32];
     sprintf(scoreString, "%d", score);
 
-    g2d->drawString(sun_font_8x16, 90, 450, scoreString, Color(10,255,10), Colors::BLACK);
+    g2d->drawString(sun_font_8x16, 90, 450, scoreString, Color(10,255,10), Colors::INVISIBLE);
 
     for(int i = 0; i < lifes; i++){
-        g2d->drawSprite(570 + 15*i, 450, heart.width, heart.height, (int*) &heart.pixel_data[0]);
+        heartSprite->print(540 + 25 * i, 450);
     }
 }
 
@@ -168,6 +169,8 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
         g2d->show();
         return;
     }
+
+    background->print(0, 0);
 
     drawInfo(g2d);
 

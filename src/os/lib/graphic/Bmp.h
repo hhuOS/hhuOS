@@ -26,6 +26,8 @@ private:
     
     Pixel * data;
 
+    bool ignoreAlpha = true;
+
 public:
     
     int width;
@@ -36,19 +38,19 @@ public:
     }
 
     uint8_t & A(int x, int y) {
-        return *((uint8_t *) &(data[pos(x, y)]));
+        return *((uint8_t *) &(data[pos(x, y)]) + 3);
     }
 
     uint8_t & B(int x, int y) {
-        return *( ((uint8_t *) &(data[pos(x, y)]))+1 );
+        return *( ((uint8_t *) &(data[pos(x, y)])));
     }
     uint8_t & G(int x, int y) {
         // get address from 3byte Color, cast to "bytes" address, add +1
         // to Address (= 1byte step size) and get value of it
-        return *( ((uint8_t *) &(data[pos(x, y)]))+2 );
+        return *( ((uint8_t *) &(data[pos(x, y)])) + 1);
     }
     uint8_t & R(int x, int y) {
-        return *( ((uint8_t *) &(data[pos(x, y)]))+3 );
+        return *( ((uint8_t *) &(data[pos(x, y)])) + 2);
     }
 
     explicit Bmp(File* file);
