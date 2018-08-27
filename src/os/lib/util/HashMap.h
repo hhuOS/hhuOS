@@ -267,6 +267,11 @@ namespace Util {
     template<class K, class V>
     void HashMap<K, V>::clear() {
 
+        if (!isInitialized) {
+
+            initialize();
+        }
+
         HashNode<K, V> *current;
 
         HashNode<K, V> *tmp;
