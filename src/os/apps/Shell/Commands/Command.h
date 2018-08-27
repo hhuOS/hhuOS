@@ -21,6 +21,7 @@
 
 #include <cstdint>
 #include <apps/Shell/Shell.h>
+#include <lib/ArgumentParser.h>
 
 /**
  * Base class for a Command, that can be executed by the Shell.
@@ -78,6 +79,11 @@ public:
      * @param outputStream The stream to write to
      */
     virtual void execute(Util::Array<String> &args) = 0;
+
+    /**
+     * Get the command's help message.
+     */
+    virtual const String getHelpText() { return ""; };
 };
 
 #endif

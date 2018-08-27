@@ -25,46 +25,21 @@ Mkfs::Mkfs(Shell &shell) : Command(shell) {
 };
 
 void Mkfs::execute(Util::Array<String> &args) {
-    String devicePath;
-    String type;
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("type", "t", true);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-t" || args[i] == "--type") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                type = args[++i];
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Creates new filesystems." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -t, --type: The filesystem type." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
-    }
-
-    if(type.isEmpty()) {
-        stderr << args[0] << ": No filesystem type given!" << endl;
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
-    if(devicePath.isEmpty()) {
+    if(parser.getUnnamedArguments().length() == 0) {
         stderr << args[0] << ": No device given!" << endl;
         return;
     }
+
+    String type = parser.getNamedArgument("type");
+    String devicePath = parser.getUnnamedArguments()[0];
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
 
@@ -85,4 +60,12 @@ void Mkfs::execute(Util::Array<String> &args) {
         default:
             break;
     }
+}
+
+const String Mkfs::getHelpText() {
+    return "Creates new filesystems.\n\n"
+           "Usage: mkfs [OPTION]... [PATH]...\n\n"
+           "Options:\n"
+           "  -t, --type: The filesystem type.\n"
+           "  -h, --help: Show this help-message.";
 }

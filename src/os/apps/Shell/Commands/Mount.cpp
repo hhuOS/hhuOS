@@ -23,58 +23,22 @@ Mount::Mount(Shell &shell) : Command(shell) {
 };
 
 void Mount::execute(Util::Array<String> &args) {
-    String devicePath;
-    String targetPath;
-    String type;
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("type", "t", true);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else if(targetPath.isEmpty()) {
-                targetPath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-t" || args[i] == "--type") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                type = args[++i];
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Mounts a device to a target path." << endl << endl;
-            stdout << "Usage: " << args[0] << " [DEVICE] [TARGET] [OPTIONS]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -t, --type: Filesystem type (REQUIRED!)." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
-    }
-
-    if(type.isEmpty()) {
-        stderr << args[0] << ": No filesystem type given!" << endl;
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
-    if(type == FileSystem::TYPE_RAM_FS) {
-        targetPath = devicePath;
-    }
-
-    if(devicePath.isEmpty()) {
-        stderr << args[0] << ": No device given!" << endl;
+    if(parser.getUnnamedArguments().length() < 2) {
+        stderr << args[0] << ": Please enter valid device and target paths!" << endl;
         return;
     }
 
-    if(targetPath.isEmpty()) {
-        stderr << args[0] << ": No target given!" << endl;
-        return;
-    }
+    String type = parser.getNamedArgument("type");
+    String devicePath = parser.getUnnamedArguments()[0];
+    String targetPath = parser.getUnnamedArguments()[1];
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
     String absoluteTargetPath = calcAbsolutePath(targetPath);
@@ -103,4 +67,12 @@ void Mount::execute(Util::Array<String> &args) {
         default:
             break;
     }
+}
+
+const String Mount::getHelpText() {
+    return "Mounts a device to a target path.\n\n"
+           "Usage: mount [DEVICE] [TARGET] [OPTIONS]...\n\n"
+           "Options:\n"
+           "  -t, --type: Filesystem type (REQUIRED!).\n"
+           "  -h, --help: Show this help-message.";
 }

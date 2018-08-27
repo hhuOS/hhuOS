@@ -23,19 +23,20 @@ Clear::Clear(Shell &shell) : Command(shell) {
 };
 
 void Clear::execute(Util::Array<String> &args) {
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Clears the screen." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
     auto *text = Kernel::getService<GraphicsService>()->getTextDriver();
     text->clear();
+}
+
+const String Clear::getHelpText() {
+    return "Clears the screen.\n\n"
+           "Usage: clear [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

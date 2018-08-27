@@ -24,25 +24,17 @@ Uptime::Uptime(Shell &shell) : Command(shell) {
 };
 
 void Uptime::execute(Util::Array<String> &args) {
-    bool pretty = false;
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addSwitch("pretty", "p");
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-p" || args[i] == "--pretty") {
-            pretty = true;
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Shows the system's uptime." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -p, --pretty: Show uptime in pretty format." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    timeService = Kernel::getService<TimeService>();
+    bool pretty = parser.checkSwitch("pretty");
+
+    auto *timeService = Kernel::getService<TimeService>();
 
     uint32_t millis = timeService->getSystemTime();
 
@@ -110,4 +102,12 @@ void Uptime::execute(Util::Array<String> &args) {
 
         printf("  %02d:%02d:%02d\n", hours, minutes, seconds);
     }
+}
+
+const String Uptime::getHelpText() {
+    return "Shows the system's uptime.\n"
+           "Usage: uptime [OPTION]...\n"
+           "Options:\n"
+           "  -p, --pretty: Show uptime in pretty format.\n"
+           "  -h, --help: Show this help-message.";
 }

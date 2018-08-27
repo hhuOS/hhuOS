@@ -31,43 +31,21 @@ void DelPart::execute(Util::Array<String> &args) {
     String devicePath;
     uint8_t partNumber = 0;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-n" || args[i] == "--number") {
-            if (i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                partNumber = static_cast<uint8_t>(strtoint((const char *) args[++i]));
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Deletes a partition from a device." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -n, --number: The partition number" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
-    }
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("number", "n");
 
-    if(devicePath.isEmpty()) {
-        stderr << args[0] << ": No device given!" << endl;
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
-    if(partNumber == 0) {
-        stderr << args[0] << ": Please specify a valid partition number!" << endl;
+    if(parser.getUnnamedArguments().length() == 0) {
+        stderr << args[0] << ": Missing device path!" << endl;
         return;
     }
+
+    devicePath = parser.getUnnamedArguments()[0];
+    partNumber = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("number")));
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
 
@@ -101,4 +79,12 @@ void DelPart::execute(Util::Array<String> &args) {
             stderr << args[0] << ": Unknown Error!" << endl;
             break;
     }
+}
+
+const String DelPart::getHelpText() {
+    return "Deletes a partition from a device.\n\n"
+           "Usage: delpart [OPTION]... [PATH]\n\n"
+           "Options:\n"
+           "  -n, --number: The partition number\n"
+           "  -h, --help: Show this help-message.";
 }

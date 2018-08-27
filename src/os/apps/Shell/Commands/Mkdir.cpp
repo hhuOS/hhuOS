@@ -24,31 +24,21 @@ Mkdir::Mkdir(Shell &shell) : Command(shell) {
 };
 
 void Mkdir::execute(Util::Array<String> &args) {
-    Util::ArrayList<String> paths;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Creates new directories." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    if(paths.size() == 0) {
+    if(parser.getUnnamedArguments().length() == 0) {
         stderr << args[0] << ": Missing operand!" << endl;
         return;
     }
 
     fileSystem = Kernel::getService<FileSystem>();
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
 
         if (FileStatus::exists(absolutePath)) {
@@ -71,4 +61,11 @@ void Mkdir::execute(Util::Array<String> &args) {
                 break;
         }
     }
+}
+
+const String Mkdir::getHelpText() {
+    return "Creates new directories.\n\n"
+           "Usage: mkdir [OPTION]... [PATH]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

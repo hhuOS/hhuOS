@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <lib/ArgumentParser.h>
 #include "Echo.h"
 
 Echo::Echo(Shell &shell) : Command(shell) {
@@ -23,26 +24,25 @@ Echo::Echo(Shell &shell) : Command(shell) {
 };
 
 void Echo::execute(Util::Array<String> &args) {
-    Util::ArrayList<String> strings;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            strings.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Writes it's arguments to the standard output stream." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [ARGUMENT]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    parser.addSwitch("help", "h");
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    for(const String &string : strings) {
+    for(const String &string : parser.getUnnamedArguments()) {
         stdout << string << " ";
     }
 
     stdout << endl;
+}
+
+const String Echo::getHelpText() {
+    return "Writes it's arguments to the standard output stream.\n\n"
+            "Usage: echo [OPTION]... [ARGUMENT]...\n"
+            "Options:\n"
+            "  -h, --help: Show this help-message.";
 }

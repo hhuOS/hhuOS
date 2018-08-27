@@ -28,31 +28,19 @@ MkPartTable::MkPartTable(Shell &shell) : Command(shell) {
 };
 
 void MkPartTable::execute(Util::Array<String> &args) {
-    String devicePath;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrite an existing one.." << endl << endl;
-            stdout << "Usage: " << args[0] << " [PATH]" << endl << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    if(devicePath.isEmpty()) {
+    if(parser.getUnnamedArguments().length() == 0) {
         stderr << args[0] << ": No device given!" << endl;
         return;
     }
+
+    String devicePath = parser.getUnnamedArguments()[0];
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
 
@@ -78,4 +66,10 @@ void MkPartTable::execute(Util::Array<String> &args) {
             stderr << args[0] << ": Unknown Error!" << endl;
             break;
     }
+}
+
+const String MkPartTable::getHelpText() {
+    return "Creates a new (empty) partition table on a given device..\n\n"
+           "Usage: mkparttable [PATH]\n\n"
+           "  -h, --help: Show this help-message.";
 }

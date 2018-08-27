@@ -29,24 +29,20 @@ MkVdd::MkVdd(Shell &shell) : Command(shell) {
 
 void MkVdd::execute(Util::Array<String> &args) {
     uint32_t sectorSize = 512;
-    uint32_t sectorCount = 0;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-s" || args[i] == "--sectorsize") {
-            sectorSize = static_cast<uint32_t>(strtoint((const char *) args[++i]));
-        } else if(args[i] == "-c" || args[i] == "--count") {
-            sectorCount = static_cast<uint32_t>(strtoint((const char *) args[++i]));
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Creates a new virtual disk drive." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "  -s, --sectorsize: The size of a sector on the virtual disk (Default: 512 Byte)." << endl;
-            stdout << "  -c, --count: The amount of sectors, that the virtual disk has." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("sectorsize", "s", false);
+    parser.addParameter("count", "c", true);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
+    }
+
+    uint32_t sectorCount = static_cast<uint32_t>(strtoint((const char*) parser.getNamedArgument("count")));
+
+    if(!parser.getNamedArgument("sectorsize").isEmpty()) {
+        sectorSize = static_cast<uint32_t>(strtoint((const char *) parser.getNamedArgument("sectorsize")));
     }
 
     if(sectorCount == 0) {
@@ -60,4 +56,12 @@ void MkVdd::execute(Util::Array<String> &args) {
     }
 
     storageService->registerDevice(new VirtualDiskDrive(sectorSize, sectorCount));
+}
+
+const String MkVdd::getHelpText() {
+    return "Creates a new virtual disk drive.\n\n"
+           "Usage: mkvdd [OPTION]...\n\n"
+           "  -s, --sectorsize: The size of a sector on the virtual disk (Default: 512 Byte).\n"
+           "  -c, --count: The amount of sectors, that the virtual disk has.\n"
+           "  -h, --help: Show this help-message.";
 }

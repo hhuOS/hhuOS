@@ -14,13 +14,9 @@ void ArgumentParser::addParameter(const String &name, const String &abbreviation
     }
 }
 
-void ArgumentParser::addSwitch(const String &name, const String &abbreviation, bool required) {
+void ArgumentParser::addSwitch(const String &name, const String &abbreviation) {
     switches.add(name);
     abbreviationMap.put(abbreviation, name);
-
-    if(required) {
-        requiredParameters.add(name);
-    }
 }
 
 const String& ArgumentParser::getErrorString() {
@@ -45,7 +41,11 @@ bool ArgumentParser::parse(Util::Array<String> &arguments) {
             if (abbreviationMap.containsKey(currentArg.substring(1, currentArg.length()))) {
                 currentArg = abbreviationMap.get(currentArg.substring(1, currentArg.length()));
             } else {
-                currentArg = currentArg.substring(2, currentArg.length());
+                if(currentArg.beginsWith("--")) {
+                    currentArg = currentArg.substring(2, currentArg.length());
+                } else {
+                    currentArg = currentArg.substring(1, currentArg.length());
+                }
             }
 
             if(requiredParameters.contains(currentArg)) {

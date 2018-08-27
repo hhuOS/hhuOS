@@ -28,7 +28,6 @@
  * Implementation of Command.
  * Shows the system's Date.
  *
- * -p, --pretty: Show Date in pretty format
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland
@@ -80,6 +79,11 @@ public:
      * Overriding function from Command.
      */
     void execute(Util::Array<String> &args) override;
+
+    /**
+     * Overriding function from Command.
+     */
+    const String getHelpText() override;
 };
 
 #endif

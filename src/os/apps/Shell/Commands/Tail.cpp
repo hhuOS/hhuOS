@@ -27,53 +27,21 @@ Tail::Tail(Shell &shell) : Command(shell) {
 void Tail::execute(Util::Array<String> &args) {
     bool byteMode = false;
     uint64_t count = 10;
-    Util::ArrayList<String> paths;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Writes the last 10 lines of multiple files to the standard output stream." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -c, --bytes [NUMBER]: Print the last NUMBER bytes." << endl;
-            stdout << "  -n, --lines [NUMBER]: Print the last NUMBER lines." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else if(args[i] == "-c" || args[i] == "--bytes") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                byteMode = true;
-                int32_t tmpCount = strtoint((const char *) args[++i]);
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("bytes", "c");
+    parser.addParameter("lines", "n");
 
-                if(tmpCount < 0) {
-                    stderr << args[0] << ": '" << args[i] << "': Number must be positive!" << endl;
-                    return;
-                }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
+    }
 
-                count = static_cast<uint64_t>(tmpCount);
-            }
-        } else if(args[i] == "-n" || args[i] == "--lines") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                byteMode = false;
-                int32_t tmpCount = strtoint((const char *) args[++i]);
-
-                if(tmpCount < 0) {
-                    stderr << args[0] << ": '" << args[i] << "': Number must be positive!" << endl;
-                    return;
-                }
-
-                count = static_cast<uint64_t>(tmpCount);
-            }
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.getNamedArgument("bytes").isEmpty()) {
+        byteMode = true;
+        count = static_cast<uint64_t>(strtoint((const char*) parser.getNamedArgument("bytes")));
+    } else if(!parser.getNamedArgument("lines").isEmpty()) {
+        count = static_cast<uint64_t>(strtoint((const char*) parser.getNamedArgument("lines")));
     }
 
     if(count == 0) {
@@ -82,7 +50,7 @@ void Tail::execute(Util::Array<String> &args) {
 
     bool firstFile = true;
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
 
         if(FileStatus::exists(absolutePath)) {
@@ -103,7 +71,7 @@ void Tail::execute(Util::Array<String> &args) {
 
         File &file = *File::open(absolutePath, "r");
 
-        if(paths.size() > 1) {
+        if(parser.getUnnamedArguments().length() > 1) {
             if(!firstFile) {
                 stdout << endl;
             }
@@ -156,4 +124,13 @@ void Tail::execute(Util::Array<String> &args) {
         stdout.flush();
         delete &file;
     }
+}
+
+const String Tail::getHelpText() {
+    return "Writes the last 10 lines of multiple files to the standard output stream.\n\n"
+           "Usage: tail [OPTION]... [FILE]...\n\n"
+           "Options:\n"
+           "  -c, --bytes [NUMBER]: Print the last NUMBER bytes.\n"
+           "  -n, --lines [NUMBER]: Print the last NUMBER lines.\n"
+           "  -h, --help: Show this help-message.";
 }

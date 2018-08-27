@@ -35,86 +35,30 @@ void AddPart::execute(Util::Array<String> &args) {
     uint32_t startSector = 0;
     uint32_t endSector = 0;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-b" || args[i] == "--bootable") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                String arg = args[++i];
-                active = arg == "true";
-            }
-        } else if(args[i] == "-n" || args[i] == "--number") {
-            if (i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                partNumber = static_cast<uint8_t>(strtoint((const char *) args[++i]));
-            }
-        } else if(args[i] == "-i" || args[i] == "--id") {
-            if (i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                systemId = static_cast<uint8_t>(strtoint((const char *) args[++i]));
-            }
-        } else if(args[i] == "-s" || args[i] == "--start") {
-            if (i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                startSector = static_cast<uint32_t>(strtoint((const char *) args[++i]));
-            }
-        } else if(args[i] == "-e" || args[i] == "--end") {
-            if (i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            } else {
-                endSector = static_cast<uint32_t>(strtoint((const char *) args[++i]));
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Adds a new partition to a device, or overwrites an existing one." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -n, --number: The partition number" << endl;
-            stdout << "  -i, --id: The system id" << endl;
-            stdout << "  -b, --bootable: Whether or not the partition should be bootable (true/false)" << endl;
-            stdout << "  -s, --start: The start sector" << endl;
-            stdout << "  -e, --end: The end sector" << endl;
-            stdout << "  -h, --help: Show this help-message" << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
-    }
+    ArgumentParser parser(getHelpText(), 1);
 
-    if(devicePath.isEmpty()) {
-        stderr << args[0] << ": No device given!" << endl;
+    parser.addSwitch("help", "h");
+    parser.addSwitch("bootable", "b");
+    parser.addParameter("id", "i", false);
+    parser.addParameter("number", "n", true);
+    parser.addParameter("start", "s", true);
+    parser.addParameter("end", "e", true);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
-    if(partNumber == 0) {
-        stderr << args[0] << ": Please specify a valid partition number!" << endl;
-        return;
-    }
-    
-    if(startSector == 0) {
-        stderr << args[0] << ": Please specify a valid start sector!" << endl;
+    if(parser.getUnnamedArguments().length() == 0) {
+        stderr << args[0] << ": Missing device path!" << endl;
         return;
     }
 
-    if(endSector  == 0) {
-        stderr << args[0] << ": Please specify a valid end sector!" << endl;
-        return;
-    }
+    devicePath = parser.getUnnamedArguments()[0];
+    partNumber = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("number")));
+    startSector = static_cast<uint32_t>(strtoint((const char *) parser.getNamedArgument("start")));
+    endSector = static_cast<uint32_t>(strtoint((const char *) parser.getNamedArgument("end")));
+    systemId = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("id")));
 
     String absoluteDevicePath = calcAbsolutePath(devicePath);
     
@@ -148,4 +92,16 @@ void AddPart::execute(Util::Array<String> &args) {
             stderr << args[0] << ": Unknown Error!" << endl;
             break;
     }
+}
+
+const String AddPart::getHelpText() {
+    return "Adds a new partition to a device, or overwrites an existing one.\n\n"
+            "Usage: addpart [OPTION]... [PATH]\n\n"
+            "Options:\n"
+            "  -n, --number: The partition number\n"
+            "  -i, --id: The system id\n"
+            "  -b, --bootable: Whether or not the partition should be bootable (true/false)\n"
+            "  -s, --start: The start sector\n"
+            "  -e, --end: The end sector\n"
+            "  -h, --help: Show this help-message";
 }

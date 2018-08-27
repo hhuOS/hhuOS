@@ -26,26 +26,16 @@ Insmod::Insmod(Shell &shell) : Command(shell) {
 };
 
 void Insmod::execute(Util::Array<String> &args) {
-    Util::ArrayList<String> paths;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Loads kernel modules from disk." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
     auto *moduleLoader = Kernel::getService<ModuleLoader>();
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
 
         if(!FileStatus::exists(absolutePath)) {
@@ -75,4 +65,11 @@ void Insmod::execute(Util::Array<String> &args) {
         delete module;
         delete &fStat;
     }
+}
+
+const String Insmod::getHelpText() {
+    return "Loads kernel modules from disk.\n\n"
+           "Usage: insmod [OPTION]... [FILE]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

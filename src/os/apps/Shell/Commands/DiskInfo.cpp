@@ -28,19 +28,15 @@ DiskInfo::DiskInfo(Shell &shell) : Command(shell) {
 void DiskInfo::execute(Util::Array<String> &args) {
     Util::ArrayList<String> devicePaths;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            devicePaths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Shows information about a storage device." << endl << endl;
-            stdout << "Usage: " << args[0] << "[DEVICE]... [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
+    }
+
+    for(const String &path : parser.getUnnamedArguments()) {
+        devicePaths.add(path);
     }
 
     if(devicePaths.isEmpty()) {
@@ -75,4 +71,11 @@ void DiskInfo::execute(Util::Array<String> &args) {
         stdout << "  Sector count: " << dec << (unsigned long) device->getSectorCount() << endl;
         stdout << "  System ID:    " << hex << (unsigned int) device->getSystemId() << dec << endl;
     }
+}
+
+const String DiskInfo::getHelpText() {
+    return "Shows information about a storage device.\n\n"
+           "Usage: diskinfo [DEVICE]... [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

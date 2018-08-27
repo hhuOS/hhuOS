@@ -70,6 +70,8 @@ public:
      * Overriding function from Command.
      */
     void execute(Util::Array<String> &args) override;
+
+    const String getHelpText() override;
 };
 
 #endif

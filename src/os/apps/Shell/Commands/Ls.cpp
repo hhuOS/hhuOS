@@ -26,19 +26,15 @@ Ls::Ls(Shell &shell) : Command(shell) {
 void Ls::execute(Util::Array<String> &args) {
     Util::ArrayList<String> paths;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Lists the content of directories. Default directory is the working directory" << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
+    }
+
+    for(const String &path : parser.getUnnamedArguments()) {
+        paths.add(path);
     }
 
     if(paths.size() == 0) {
@@ -103,4 +99,11 @@ void Ls::execute(Util::Array<String> &args) {
             stderr << args[0] << " '" << path << "': File or Directory not found!" << endl;
         }
     }
+}
+
+const String Ls::getHelpText() {
+    return "Lists the content of directories. The default directory is the current working directory.\n\n"
+           "Usage: ls [OPTION]... [PATH]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

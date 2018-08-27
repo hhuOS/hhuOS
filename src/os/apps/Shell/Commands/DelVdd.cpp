@@ -30,24 +30,19 @@ DelVdd::DelVdd(Shell &shell) : Command(shell) {
 void DelVdd::execute(Util::Array<String> &args) {
     String devicePath;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(devicePath.isEmpty()) {
-                devicePath = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Removes a virtual disk drive." << endl << endl;
-            stdout << "Usage: " << args[0] << " [PATH]" << endl << endl;
-            stdout << "  -h, --help: Show this help-message" << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
+
+    if(parser.getUnnamedArguments().length() == 0) {
+        stderr << args[0] << ": Missing device path!" << endl;
+        return;
+    }
+
+    devicePath = parser.getUnnamedArguments()[0];
 
     if(devicePath.isEmpty()) {
         stderr << args[0] << ": No device given!" << endl;
@@ -77,4 +72,11 @@ void DelVdd::execute(Util::Array<String> &args) {
             storageService->removeDevice(name);
         }
     }
+}
+
+const String DelVdd::getHelpText() {
+    return "Removes a virtual disk drive.\n\n"
+           "Usage: delvdd [DEVICE] [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message";
 }

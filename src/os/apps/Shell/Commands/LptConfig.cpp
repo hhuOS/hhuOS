@@ -27,34 +27,17 @@ void LptConfig::execute(Util::Array<String> &args) {
     uint8_t port = 0;
     String mode;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "LptConfigs the screen." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            stdout << "  -p, --port: Set the port (1-3)." << endl;
-            stdout << "  -m, --mode: Set the operating mode (spp/epp)." << endl;
-            return;
-        } else if(args[i] == "-p" || args[i] == "--port") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            }
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("port", "p", true);
+    parser.addParameter("mode", "m", false);
 
-            port = static_cast<uint8_t>(strtoint((const char *) args[++i]));
-        } else if(args[i] == "-m" || args[i] == "--mode") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            }
-
-            mode = args[++i];
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
+
+    port = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("port")));
+    mode = parser.getNamedArgument("mode");
 
     if(port < 1 || port > 3) {
         stderr << args[0] << ": Please enter valid port (1-3) using '--port'!" << endl;
@@ -81,4 +64,13 @@ void LptConfig::execute(Util::Array<String> &args) {
 
     stdout << "LPT" << static_cast<uint32_t>(port) << ":" << endl;
     stdout << "  Mode: " << (parallel->getMode() == Parallel::ParallelMode::SPP ? "SPP" : "EPP") << endl;
+}
+
+const String LptConfig::getHelpText() {
+    return "LptConfigs the screen.\n\n"
+           "Usage: lptconfig [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.\n"
+           "  -p, --port: Set the port (1-3).\n"
+           "  -m, --mode: Set the operating mode (spp/epp).";
 }

@@ -23,31 +23,21 @@ Umount::Umount(Shell &shell) : Command(shell) {
 };
 
 void Umount::execute(Util::Array<String> &args) {
-    Util::ArrayList<String> paths;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Unmounts devices from their mount paths." << endl << endl;
-            stdout << "Usage: " << args[0] << " [PATH]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    if(paths.size() == 0) {
+    if(parser.getUnnamedArguments().length() == 0) {
         stderr << args[0] << ": Missing operand!" << endl;
         return;
     }
 
     auto *fileSystem = Kernel::getService<FileSystem>();
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
         auto ret = fileSystem->unmount(absolutePath);
 
@@ -67,4 +57,11 @@ void Umount::execute(Util::Array<String> &args) {
                 break;
         }
     }
+}
+
+const String Umount::getHelpText() {
+    return "Unmounts devices from their mount paths.\n\n"
+           "Usage: umount [PATH]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
 }

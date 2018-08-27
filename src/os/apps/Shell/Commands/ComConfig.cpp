@@ -27,34 +27,17 @@ void ComConfig::execute(Util::Array<String> &args) {
     uint8_t port = 0;
     uint32_t baud = 0;
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "ComConfigs the screen." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            stdout << "  -p, --port: Set the port (1-4)." << endl;
-            stdout << "  -b, --baud: Set the baud-rate." << endl;
-            return;
-        } else if(args[i] == "-p" || args[i] == "--port") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            }
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addParameter("port", "p", true);
+    parser.addParameter("baud", "b", false);
 
-            port = static_cast<uint8_t>(strtoint((const char *) args[++i]));
-        } else if(args[i] == "-b" || args[i] == "--baud") {
-            if(i == args.length() - 1) {
-                stderr << args[0] << ": '" << args[i] << "': This option needs an argument!" << endl;
-                return;
-            }
-
-            baud = static_cast<uint32_t>(strtoint((const char *) args[++i]));
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
+
+    port = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("port")));
+    baud = static_cast<uint8_t>(strtoint((const char *) parser.getNamedArgument("baud")));
 
     if(port < 1 || port > 4) {
         stderr << args[0] << ": Please enter valid port (1-4) using '--port'!" << endl;
@@ -84,4 +67,13 @@ void ComConfig::execute(Util::Array<String> &args) {
 
     stdout << "COM" << static_cast<uint32_t>(port) << ":" << endl;
     stdout << "  Speed: " << 115200 / static_cast<uint32_t>(serial->getSpeed()) << " Baud" << endl;
+}
+
+const String ComConfig::getHelpText() {
+    return "ComConfigs the screen.\n\n"
+           "Usage: comconfig [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.\n"
+           "  -p, --port: Set the port (1-4).\n"
+           "  -b, --baud: Set the baud-rate.";
 }

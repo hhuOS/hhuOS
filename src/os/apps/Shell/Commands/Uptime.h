@@ -36,9 +36,6 @@
  */
 class Uptime : public Command {
 
-private:
-    TimeService *timeService = nullptr;
-
 public:
     /**
      * Default-constructor.
@@ -66,6 +63,11 @@ public:
      * Overriding function from Command.
      */
     void execute(Util::Array<String> &args) override;
+
+    /**
+     * Overriding function from Command.
+     */
+    const String getHelpText() override;
 };
 
 #endif

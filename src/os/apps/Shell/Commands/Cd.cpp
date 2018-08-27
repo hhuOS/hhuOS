@@ -23,28 +23,18 @@ Cd::Cd(Shell &shell) : Command(shell) {
 };
 
 void Cd::execute(Util::Array<String> &args) {
-    String path;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            if(path.isEmpty()) {
-                path = args[i];
-            } else {
-                stderr << args[0] << ": Too many arguments!" << endl;
-                return;
-            }
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Changes the working directory." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]" << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
+    if(parser.getUnnamedArguments().length() < 1) {
+        return;
+    }
+
+    String path = parser.getUnnamedArguments()[0];
     String absolutePath = calcAbsolutePath(path);
 
     if(!FileStatus::exists(absolutePath)) {
@@ -62,3 +52,11 @@ void Cd::execute(Util::Array<String> &args) {
 
     delete &fStat;
 }
+
+const String Cd::getHelpText() {
+    return "Changes the working directory.\n\n"
+           "Usage: cd [OPTION]... [PATH]\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
+}
+

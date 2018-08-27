@@ -19,7 +19,11 @@
 #include <lib/file/File.h>
 #include "Command.h"
 
-Command::Command(Shell &shell) : shell(shell), stdout(*File::open("/dev/stdout", "w")), stderr(*File::open("/dev/stderr", "w")), stdin(*(Kernel::getService<StdStreamService>()->getStdin())){
+Command::Command(Shell &shell) :
+        shell(shell),
+        stdout(*File::open("/dev/stdout", "w")),
+        stderr(*File::open("/dev/stderr", "w")),
+        stdin(*(Kernel::getService<StdStreamService>()->getStdin())) {
 
 }
 

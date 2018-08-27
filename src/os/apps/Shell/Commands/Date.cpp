@@ -32,17 +32,11 @@ Date::Date(Shell &shell) : Command(shell) {
 };
 
 void Date::execute(Util::Array<String> &args) {
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Shows the system's Date." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    ArgumentParser parser(getHelpText(), 1);
+
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
     timeService = Kernel::getService<TimeService>();
@@ -68,3 +62,11 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
 
     return static_cast<uint8_t>(ret);
 }
+
+const String Date::getHelpText() {
+    return "Shows the system's Date.\n\n"
+           "Usage: date [OPTION]...\n\n"
+           "Options:\n"
+           "  -h, --help: Show this help-message.";
+}
+

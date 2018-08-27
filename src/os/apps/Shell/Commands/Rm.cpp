@@ -74,30 +74,19 @@ void Rm::recursiveDelete(const String &progName, Directory &dir) {
 }
 
 void Rm::execute(Util::Array<String> &args) {
-    bool recursive = false;
-    Util::ArrayList<String> paths;
+    ArgumentParser parser(getHelpText(), 1);
+    parser.addSwitch("recursive", "r");
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        }  else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Deletes files." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [PATH]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -r, --recursive: Recursive delete: Delete all files and subdirectories inside a directory." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else if(args[i] == "-r" || args[i] == "--recursive") {
-            recursive = true;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
+
+    bool recursive = parser.checkSwitch("recursive");
 
     fileSystem = Kernel::getService<FileSystem>();
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
 
         if (!FileStatus::exists(absolutePath)) {
@@ -123,4 +112,12 @@ void Rm::execute(Util::Array<String> &args) {
 
         delete &fStat;
     }
+}
+
+const String Rm::getHelpText() {
+    return "Deletes files.\n\n"
+           "Usage: rm [OPTION]... [PATH]...\n\n"
+           "Options:\n"
+           "  -r, --recursive: Recursive delete: Delete all files and subdirectories inside a directory.\n"
+           "  -h, --help: Show this help-message.";
 }

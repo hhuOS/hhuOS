@@ -31,9 +31,9 @@ public:
 
     ~ArgumentParser() = default;
 
-    void addParameter(const String &name, const String &abbreviation, bool required = false);
+    void addParameter(const String &name, const String &abbreviation = "", bool required = false);
 
-    void addSwitch(const String &name, const String &abbreviation, bool required = false);
+    void addSwitch(const String &name, const String &abbreviation = "");
 
     const String& getErrorString();
 

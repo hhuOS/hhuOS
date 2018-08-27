@@ -22,26 +22,15 @@ History::History(Shell &shell) : Command(shell) {
 
 };
 
-void History::execute(Util::Array<String> &args) {
-    bool clear = false;
+void History::execute(Util::Array<String> &args) {ArgumentParser parser(getHelpText(), 1);
+    parser.addSwitch("clear", "c");
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(args[i] == "-c" || args[i] == "--clear") {
-            clear = true;
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Display the command history." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -c, --clear: Clear the history." << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    if(clear) {
+    if(parser.checkSwitch("clear")) {
         shell.history.clear();
         return;
     }
@@ -49,4 +38,12 @@ void History::execute(Util::Array<String> &args) {
     for(uint32_t i = 0; i < shell.history.size(); i++) {
         stdout << "  " << i << " " << shell.history.get(i) << endl;
     }
+}
+
+const String History::getHelpText() {
+    return "Display the command history.\n\n"
+            "Usage: history [OPTION]...\n\n"
+            "Options:\n"
+            "  -c, --clear: Clear the history.\n"
+            "  -h, --help: Show this help-message.";
 }

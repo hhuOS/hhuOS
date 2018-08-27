@@ -23,24 +23,14 @@ Cat::Cat(Shell &shell) : Command(shell) {
 };
 
 void Cat::execute(Util::Array<String> &args) {
-    Util::ArrayList<String> paths;
+    ArgumentParser parser(getHelpText(), 1);
 
-    for(uint32_t i = 1; i < args.length(); i++) {
-        if(!args[i].beginsWith("-") || args[i] == "-") {
-            paths.add(args[i]);
-        } else if(args[i] == "-h" || args[i] == "--help") {
-            stdout << "Concatenates multiple files and writes them to the standard output stream." << endl << endl;
-            stdout << "Usage: " << args[0] << " [OPTION]... [FILE]..." << endl << endl;
-            stdout << "Options:" << endl;
-            stdout << "  -h, --help: Show this help-message." << endl;
-            return;
-        } else {
-            stderr << args[0] << ": Invalid option '" << args[i] << "'!" << endl;
-            return;
-        }
+    if(!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
     }
 
-    for(const String &path : paths) {
+    for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
 
         if(FileStatus::exists(absolutePath)) {
@@ -70,4 +60,11 @@ void Cat::execute(Util::Array<String> &args) {
         delete[] buf;
         delete &file;
     }
+}
+
+const String Cat::getHelpText() {
+    return "Concatenates multiple files and writes them to the standard output stream.\n\n"
+            "Usage: cat [OPTION]... [FILE]...\n\n"
+            "Options:\n"
+            "  -h, --help: Show this help-message.";
 }
