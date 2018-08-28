@@ -197,12 +197,20 @@ void Shell::executeCommand(String input) {
     }
 
     if(args[0] == "help") {
-        for(const String &command : commands.keySet()) {
-            *stream << command << endl;
-        }
+        if(args.length() == 1) {
+            for (const String &command : commands.keySet()) {
+                *stream << command << endl;
+            }
 
-        *stream << "help" << endl;
-        *stream << "exit" << endl;
+            *stream << "help" << endl;
+            *stream << "exit" << endl;
+        } else {
+            if(commands.containsKey(args[1])) {
+                *stream << commands.get(args[1])->getHelpText() << endl;
+            } else {
+                *stream << "Command not found '" << args[1] << "'!" << endl;
+            }
+        }
 
         return;
     } else if(args[0] == "exit") {
