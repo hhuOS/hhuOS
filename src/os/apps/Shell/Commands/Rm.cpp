@@ -51,26 +51,26 @@ void Rm::recursiveDelete(const String &progName, Directory &dir) {
     for(const String &childName : dir.getChildren()) {
         String absolutePath = dir.getAbsolutePath() + "/" + childName;
 
-        FileStatus &fStat = *FileStatus::stat(absolutePath);
+        FileStatus *fStat = FileStatus::stat(absolutePath);
 
-        if(fStat.getFileType() == FsNode::DIRECTORY_FILE) {
-            Directory &currentDir = *Directory::open(absolutePath);
+        if(fStat->getFileType() == FsNode::DIRECTORY_FILE) {
+            Directory *currentDir = Directory::open(absolutePath);
 
-            recursiveDelete(progName, currentDir);
+            recursiveDelete(progName, *currentDir);
 
-            delete &currentDir;
+            delete currentDir;
         } else {
-            deleteFile(progName, fStat);
+            deleteFile(progName, *fStat);
         }
 
-        delete &fStat;
+        delete fStat;
     }
 
-    FileStatus &fStat = *FileStatus::stat(dir.getAbsolutePath());
+    FileStatus *fStat = FileStatus::stat(dir.getAbsolutePath());
 
-    deleteFile(progName, fStat);
+    deleteFile(progName, *fStat);
 
-    delete &fStat;
+    delete fStat;
 }
 
 void Rm::execute(Util::Array<String> &args) {
@@ -94,23 +94,23 @@ void Rm::execute(Util::Array<String> &args) {
             continue;
         }
 
-        FileStatus &fStat = *FileStatus::stat(absolutePath);
+        FileStatus *fStat = FileStatus::stat(absolutePath);
 
-        if(fStat.getFileType() != FsNode::DIRECTORY_FILE) {
-            deleteFile(args[0], fStat);
+        if(fStat->getFileType() != FsNode::DIRECTORY_FILE) {
+            deleteFile(args[0], *fStat);
         } else {
             if(recursive) {
-                Directory &dir = *Directory::open(absolutePath);
+                Directory *dir = Directory::open(absolutePath);
 
-                recursiveDelete(args[0], dir);
+                recursiveDelete(args[0], *dir);
 
-                delete &dir;
+                delete dir;
             } else {
                 stderr << args[0] << ": '" << path << "': Is a directory!" << endl;
             }
         }
 
-        delete &fStat;
+        delete fStat;
     }
 }
 

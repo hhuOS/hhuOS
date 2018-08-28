@@ -43,12 +43,12 @@ void Insmod::execute(Util::Array<String> &args) {
             continue;
         }
 
-        FileStatus &fStat = *FileStatus::stat(absolutePath);
+        FileStatus *fStat = FileStatus::stat(absolutePath);
 
-        if(fStat.getFileType() == FsNode::DIRECTORY_FILE) {
+        if(fStat->getFileType() == FsNode::DIRECTORY_FILE) {
             stderr << args[0] << ": '" << path << "': Is a directory!" << endl;
 
-            delete &fStat;
+            delete fStat;
             continue;
         }
 
@@ -63,7 +63,7 @@ void Insmod::execute(Util::Array<String> &args) {
         }
 
         delete module;
-        delete &fStat;
+        delete fStat;
     }
 }
 

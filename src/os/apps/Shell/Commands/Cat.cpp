@@ -34,31 +34,31 @@ void Cat::execute(Util::Array<String> &args) {
         String absolutePath = calcAbsolutePath(path);
 
         if(FileStatus::exists(absolutePath)) {
-            FileStatus &fStat = *FileStatus::stat(absolutePath);
+            FileStatus *fStat = FileStatus::stat(absolutePath);
 
-            if(fStat.getFileType() == FsNode::DIRECTORY_FILE) {
+            if(fStat->getFileType() == FsNode::DIRECTORY_FILE) {
                 stderr << args[0] << ": '" << path << "': Is a directory!" << endl;
 
-                delete &fStat;
+                delete fStat;
                 continue;
             }
 
-            delete &fStat;
+            delete fStat;
         } else {
             stderr << args[0] << ": '" << path << "': File or Directory not found!" << endl;
             continue;
         }
 
-        File &file = *File::open(absolutePath, "r");
+        File *file = File::open(absolutePath, "r");
 
         char *buf;
-        file >> buf;
+        *file >> buf;
 
-        stdout.writeBytes(buf, file.getLength());
+        stdout.writeBytes(buf, file->getLength());
         stdout.flush();
 
-        delete[] buf;
-        delete &file;
+        delete buf;
+        delete file;
     }
 }
 

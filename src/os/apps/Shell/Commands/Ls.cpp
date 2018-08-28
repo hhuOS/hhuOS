@@ -43,12 +43,12 @@ void Ls::execute(Util::Array<String> &args) {
         for(const String &name : dir.getChildren()) {
             stdout << "  " << name;
 
-            FileStatus &childStat = *FileStatus::stat(dir.getAbsolutePath() + "/" + name);
-            if (childStat.getFileType() == FsNode::DIRECTORY_FILE) {
+            FileStatus *childStat = FileStatus::stat(dir.getAbsolutePath() + "/" + name);
+            if (childStat->getFileType() == FsNode::DIRECTORY_FILE) {
                 stdout << "/";
             }
 
-            delete &childStat;
+            delete childStat;
             stdout << endl;
         }
 
@@ -59,10 +59,10 @@ void Ls::execute(Util::Array<String> &args) {
         String absolutePath = calcAbsolutePath(path);
 
         if (FileStatus::exists(absolutePath)) {
-            FileStatus &fStat = *FileStatus::stat(absolutePath);
+            FileStatus *fStat = FileStatus::stat(absolutePath);
 
-            if (fStat.getFileType() != FsNode::DIRECTORY_FILE) {
-                stdout << fStat.getName() << endl;
+            if (fStat->getFileType() != FsNode::DIRECTORY_FILE) {
+                stdout << fStat->getName() << endl;
 
                 if(paths.size() > 1) {
                     stdout << endl;
@@ -72,18 +72,18 @@ void Ls::execute(Util::Array<String> &args) {
                     stdout << path << ":" << endl;
                 }
 
-                Directory &dir = *Directory::open(absolutePath);
+                Directory *dir = Directory::open(absolutePath);
 
-                for (const String &name : dir.getChildren()) {
+                for (const String &name : dir->getChildren()) {
                     stdout << "  " << name;
 
-                    FileStatus &childStat = *FileStatus::stat(dir.getAbsolutePath() + "/" + name);
+                    FileStatus *childStat = FileStatus::stat(dir->getAbsolutePath() + "/" + name);
 
-                    if (childStat.getFileType() == FsNode::DIRECTORY_FILE) {
+                    if (childStat->getFileType() == FsNode::DIRECTORY_FILE) {
                         stdout << "/";
                     }
 
-                    delete &childStat;
+                    delete childStat;
                     stdout << endl;
                 }
 
@@ -91,10 +91,10 @@ void Ls::execute(Util::Array<String> &args) {
                     stdout << endl;
                 }
 
-                delete &dir;
+                delete dir;
             }
 
-            delete &fStat;
+            delete fStat;
         } else {
             stderr << args[0] << " '" << path << "': File or Directory not found!" << endl;
         }

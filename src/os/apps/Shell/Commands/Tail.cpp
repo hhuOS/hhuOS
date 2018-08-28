@@ -54,22 +54,22 @@ void Tail::execute(Util::Array<String> &args) {
         String absolutePath = calcAbsolutePath(path);
 
         if(FileStatus::exists(absolutePath)) {
-            FileStatus &fStat = *FileStatus::stat(absolutePath);
+            FileStatus *fStat = FileStatus::stat(absolutePath);
 
-            if(fStat.getFileType() == FsNode::DIRECTORY_FILE) {
+            if(fStat->getFileType() == FsNode::DIRECTORY_FILE) {
                 stderr << args[0] << ": '" << path << "': Is a directory!" << endl;
 
-                delete &fStat;
+                delete fStat;
                 continue;
             }
 
-            delete &fStat;
+            delete fStat;
         } else {
             stderr << args[0] << ": '" << path << "': File or Directory not found!" << endl;
             continue;
         }
 
-        File &file = *File::open(absolutePath, "r");
+        File *file = File::open(absolutePath, "r");
 
         if(parser.getUnnamedArguments().length() > 1) {
             if(!firstFile) {
@@ -85,44 +85,44 @@ void Tail::execute(Util::Array<String> &args) {
             auto *buf = new char[count];
             memset(buf, 0, count);
 
-            file.setPos(count > file.getLength() ? 0 : file.getLength() - count);
-            uint64_t outCount = file.readBytes(buf, count);
+            file->setPos(count > file->getLength() ? 0 : file->getLength() - count);
+            uint64_t outCount = file->readBytes(buf, count);
             stdout.writeBytes(buf, outCount);
 
-            delete[] buf;
+            delete buf;
         } else {
             uint32_t lineCount = 0;
-            uint64_t pos = file.getLength();
+            uint64_t pos = file->getLength();
 
-            file.setPos(pos);
+            file->setPos(pos);
 
             while(pos > 0) {
-                char c = file.readChar();
+                char c = file->readChar();
 
                 if(c == '\n') {
                     lineCount++;
 
                     if(lineCount == count) {
                         pos++;
-                        file.setPos(pos);
+                        file->setPos(pos);
                         break;
                     }
                 }
 
                 pos--;
-                file.setPos(pos);
+                file->setPos(pos);
             }
 
             char *buf;
-            file >> buf;
+            *file >> buf;
 
-            stdout.writeBytes(buf, file.getLength() - pos);
+            stdout.writeBytes(buf, file->getLength() - pos);
 
-            delete[] buf;
+            delete buf;
         }
 
         stdout.flush();
-        delete &file;
+        delete file;
     }
 }
 

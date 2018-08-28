@@ -42,15 +42,15 @@ void Cd::execute(Util::Array<String> &args) {
         return;
     }
 
-    FileStatus &fStat = *FileStatus::stat(absolutePath);
+    FileStatus *fStat = FileStatus::stat(absolutePath);
 
-    if(fStat.getFileType() != FsNode::DIRECTORY_FILE) {
+    if(fStat->getFileType() != FsNode::DIRECTORY_FILE) {
         stderr << args[0] << ": '" << path << "': Not a directory!" << endl;
     } else {
         shell.setCurrentWorkingDirectory(Directory::open(absolutePath));
     }
 
-    delete &fStat;
+    delete fStat;
 }
 
 const String Cd::getHelpText() {

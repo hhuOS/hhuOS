@@ -56,22 +56,27 @@ void DelVdd::execute(Util::Array<String> &args) {
         return;
     }
 
-    File &file = *File::open(absoluteDevicePath, "r");
+    File *file = File::open(absoluteDevicePath, "r");
 
-    if(!file.getName().beginsWith("vdd")) {
+    if(!file->getName().beginsWith("vdd")) {
         stderr << args[0] << ": Please specify a path to a valid virtual disk drive!" << endl;
+
+        delete file;
         return;
     }
 
     // Remove the device and all it's partitions from storage service
-    Directory &dir = *Directory::open("/dev/storage");
+    Directory *dir = Directory::open("/dev/storage");
     auto *storageService = Kernel::getService<StorageService>();
 
-    for (const String &name : dir.getChildren()) {
-        if (name.beginsWith(file.getName())) {
+    for (const String &name : dir->getChildren()) {
+        if (name.beginsWith(file->getName())) {
             storageService->removeDevice(name);
         }
     }
+
+    delete file;
+    delete dir;
 }
 
 const String DelVdd::getHelpText() {

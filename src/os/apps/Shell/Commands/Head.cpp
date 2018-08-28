@@ -54,22 +54,22 @@ void Head::execute(Util::Array<String> &args) {
         String absolutePath = calcAbsolutePath(path);
 
         if(FileStatus::exists(absolutePath)) {
-            FileStatus &fStat = *FileStatus::stat(absolutePath);
+            FileStatus *fStat = FileStatus::stat(absolutePath);
 
-            if(fStat.getFileType() == FsNode::DIRECTORY_FILE) {
+            if(fStat->getFileType() == FsNode::DIRECTORY_FILE) {
                 stderr << args[0] << ": '" << path << "': Is a directory!" << endl;
 
-                delete &fStat;
+                delete fStat;
                 continue;
             }
 
-            delete &fStat;
+            delete fStat;
         } else {
             stderr << args[0] << ": '" << path << "': File or Directory not found!" << endl;
             continue;
         }
 
-        File &file = *File::open(absolutePath, "r");
+        File *file = File::open(absolutePath, "r");
 
         if(parser.getUnnamedArguments().length() > 1) {
             if(!firstFile) {
@@ -85,7 +85,7 @@ void Head::execute(Util::Array<String> &args) {
             auto *buf = new char[count];
             memset(buf, 0, count);
 
-            count = file.readBytes(buf, count);
+            count = file->readBytes(buf, count);
             stdout.writeBytes(buf, count);
 
             delete[] buf;
@@ -93,11 +93,11 @@ void Head::execute(Util::Array<String> &args) {
             uint32_t lineCount = 0;
 
             while(lineCount < count) {
-                if(file.getFileType() == FsNode::REGULAR_FILE && file.getPos() >= file.getLength()) {
+                if(file->getFileType() == FsNode::REGULAR_FILE && file->getPos() >= file->getLength()) {
                     break;
                 }
 
-                char c = file.readChar();
+                char c = file->readChar();
                 stdout << c;
 
                 if(c == '\n') {
@@ -107,7 +107,7 @@ void Head::execute(Util::Array<String> &args) {
         }
 
         stdout.flush();
-        delete &file;
+        delete file;
     }
 }
 

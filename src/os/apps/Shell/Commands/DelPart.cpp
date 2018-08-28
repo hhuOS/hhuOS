@@ -54,9 +54,9 @@ void DelPart::execute(Util::Array<String> &args) {
         return;
     }
 
-    File &file = *File::open(absoluteDevicePath, "r");
+    File *file = File::open(absoluteDevicePath, "r");
 
-    StorageDevice *device = storageService->getDevice(file.getName());
+    StorageDevice *device = storageService->getDevice(file->getName());
 
     uint32_t ret = device->deletePartition(partNumber);
 
@@ -79,6 +79,8 @@ void DelPart::execute(Util::Array<String> &args) {
             stderr << args[0] << ": Unknown Error!" << endl;
             break;
     }
+
+    delete file;
 }
 
 const String DelPart::getHelpText() {

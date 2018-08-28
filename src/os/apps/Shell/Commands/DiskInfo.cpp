@@ -40,11 +40,13 @@ void DiskInfo::execute(Util::Array<String> &args) {
     }
 
     if(devicePaths.isEmpty()) {
-        Directory &dir = *Directory::open("/dev/storage");
+        Directory *dir = Directory::open("/dev/storage");
 
-        for(const String &deviceName : dir.getChildren()) {
+        for(const String &deviceName : dir->getChildren()) {
             devicePaths.add("/dev/storage/" + deviceName);
         }
+
+        delete dir;
     }
 
     for(const String &devicePath : devicePaths) {
@@ -56,20 +58,22 @@ void DiskInfo::execute(Util::Array<String> &args) {
             return;
         }
 
-        FileStatus &fStat = *FileStatus::stat(absoluteDevicePath);
+        FileStatus *fStat = FileStatus::stat(absoluteDevicePath);
 
-        StorageDevice *device = storageService->getDevice(fStat.getName());
+        StorageDevice *device = storageService->getDevice(fStat->getName());
 
         if (device == nullptr) {
-            stderr << args[0] << ": Unable to open device '" << fStat.getName() << "'!" << endl;
+            stderr << args[0] << ": Unable to open device '" << fStat->getName() << "'!" << endl;
             return;
         }
 
-        stdout << fStat.getAbsolutePath() << ":" << endl;
+        stdout << fStat->getAbsolutePath() << ":" << endl;
         stdout << "  Device name:  " << device->getHardwareName() << endl;
         stdout << "  Sector size:  " << dec << device->getSectorSize() << endl;
         stdout << "  Sector count: " << dec << (unsigned long) device->getSectorCount() << endl;
         stdout << "  System ID:    " << hex << (unsigned int) device->getSystemId() << dec << endl;
+
+        delete fStat;
     }
 }
 
