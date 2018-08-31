@@ -1,15 +1,14 @@
 #include "BuddyMemoryManager.h"
 #include "lib/libc/printf.h"
 
-BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_order, uint32_t memoryStartAddress,
-                                       bool doUnmap) : MemoryManager(
-        memoryStartAddress, memoryEndAddress, doUnmap) {
-	this->min_order = min_order;
+BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint8_t minOrder) :
+        MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
+
+	this->min_order = minOrder;
 	// align startAddress - endAddress will be aligned through max_order
-	uint32_t tmp = memoryStartAddress % (1 << min_order);
+	uint32_t tmp = memoryStartAddress % (1 << minOrder);
 	memoryStartAddress -= tmp;
 
-	this->freeMemory = memoryEndAddress - memoryStartAddress;
 	this->max_order = 1;
 	for(uint32_t i = 0; i < 32; i++) {
 		if(((uint32_t) 1 << i) > freeMemory) {
@@ -18,10 +17,10 @@ BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_or
 		}
 	}
 
-	this->freeMemory = max_order;
-
     uint32_t size = (max_order + 1) * sizeof(struct buddyNode*);
     this->freelist = (struct buddyNode**) new char[size];
+
+    memset(this->freelist, 0, size);
 
     // set initial freelist
     this->freelist[max_order] = (struct buddyNode*) new char[sizeof(struct buddyNode)];
@@ -32,6 +31,7 @@ BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_or
 BuddyMemoryManager::~BuddyMemoryManager() {
     // free complete freelist
     struct buddyNode *tmp;
+
     for (int i = 0; i < (this->max_order + 1); i++) {
         tmp = this->freelist[i];
         if(!tmp) { continue; }
@@ -69,7 +69,7 @@ void* BuddyMemoryManager::alloc(uint32_t size) {
     // split until i==order
     while (i-- > order) {
         // calculate buddyNode of block
-    	void* this_block = (void*) ((((char*) block - (char*)memoryStartAddress) ^ (1 << i)) + (char*) memoryStartAddress);
+    	void* this_block = (void*) ((((char*) block - (char*) memoryStartAddress) ^ (1 << i)) + (char*) memoryStartAddress);
         // create new node
         struct buddyNode* new_node = (struct buddyNode*) new char[sizeof(struct buddyNode)];
         new_node->addr = this_block;

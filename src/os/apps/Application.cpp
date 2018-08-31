@@ -16,16 +16,22 @@
 #include <apps/Shell/Shell.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/threads/Scheduler.h>
-#include <apps/MemoryAreaTests/HeapTestApp.h>
-#include <apps/MemoryAreaTests/IOMemoryTestApp.h>
+#include <apps/MemoryTests/HeapTestApp.h>
+#include <apps/MemoryTests/IOMemoryTestApp.h>
 #include <kernel/threads/WorkerThread.h>
 #include <apps/LoopsAndSound/LoopsAndSound.h>
 #include <apps/Mandelbrot/Mandelbrot.h>
+#include <apps/MemoryTests/MemoryManagerTest.h>
+#include <kernel/memory/manager/FreeListMemoryManager.h>
+#include <kernel/memory/manager/BitmapMemoryManager.h>
+#include <kernel/memory/manager/BitmapMemoryManager.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
 #include "apps/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
+#include "Application.h"
+
 
 #define TEST_THREADING 0
 
@@ -96,13 +102,6 @@ void Application::startAsciimationDemo() {
     currentApp->start();
 }
 
-
-
-/*****************************************************************************
- * Methode:         Application::Heap                                        *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Heap demo.                                               *
- *****************************************************************************/
 void Application::startHeapDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
@@ -110,6 +109,47 @@ void Application::startHeapDemo() {
     currentApp = new HeapTestApp();
 
     currentApp->start();
+}
+
+void Application::startMemoryManagerDemo() {
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
+    TextDriver *stream = graphicsService->getTextDriver();
+
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+
+    *stream << "===MemoryManagerTest===" << endl;
+    *stream << "===Testing FreeListMemoryManager===" << endl << endl;
+    MemoryManagerTest<FreeListMemoryManager> freeListTest(1048576, 128);
+    freeListTest.run();
+
+    printf("\nPress [ENTER] to return");
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    while (kb->isKeyPressed(KeyEvent::RETURN));
+
+    stream->clear();
+
+    *stream << "===MemoryManagerTest===" << endl;
+    *stream << "===Testing BuddyMemoryManager===" << endl << endl;
+    MemoryManagerTest<BuddyMemoryManager> buddyTest(1048576, 128);
+    buddyTest.run();
+
+    printf("\nPress [ENTER] to return");
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    while (kb->isKeyPressed(KeyEvent::RETURN));
+
+    stream->clear();
+
+    *stream << "===MemoryManagerTest===" << endl;
+    *stream << "===Testing BitmapMemoryManager===" << endl << endl;
+    MemoryManagerTest<BitmapMemoryManager> bitmapTest(1048576, 128, 128);
+    bitmapTest.run();
+
+    printf("\nPress [ENTER] to return");
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    while (kb->isKeyPressed(KeyEvent::RETURN));
+
+    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+    graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 }
 
 void Application::startMouseApp() {
@@ -149,16 +189,16 @@ void Application::showMenu () {
 
             lfb->placeString(font, 50, 12, timeString, Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 25, "hhuOS main menu", Colors::HHU_BLUE);
+            lfb->placeString(font, 50, 24, "hhuOS main menu", Colors::HHU_BLUE);
 
-            lfb->placeLine(33, 27, 66, 27, Colors::HHU_BLUE_50);
+            lfb->placeLine(33, 26, 66, 26, Colors::HHU_BLUE_50);
 
             lfb->placeRect(50, 50, 60, 60, Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeRect(50, 55, 60, 50, Colors::HHU_LIGHT_GRAY);
+            lfb->placeRect(50, 59, 60, 59, Colors::HHU_LIGHT_GRAY);
 
             for (uint32_t i = 0; i < sizeof(menuOptions) / sizeof(const char *); i++) {
-                lfb->placeString(font, 50, static_cast<uint16_t>(38 + i * menuDistance), menuOptions[i],
+                lfb->placeString(font, 50, static_cast<uint16_t>(35 + i * menuDistance), menuOptions[i],
                                  Colors::HHU_LIGHT_GRAY);
             }
 
@@ -166,12 +206,12 @@ void Application::showMenu () {
             lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
 #endif
 
-            lfb->placeString(font, 50, 85, menuDescriptions[option], Colors::HHU_BLUE_30);
+            lfb->placeString(font, 50, 84, menuDescriptions[option], Colors::HHU_BLUE_30);
 
-            lfb->placeString(font, 50, 90, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
-            lfb->placeString(font, 50, 93, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 92, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 95, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeRect(50, static_cast<uint16_t>(38 + option * menuDistance), 58, menuDistance,
+            lfb->placeRect(50, static_cast<uint16_t>(35 + option * menuDistance), 58, menuDistance,
                            Colors::HHU_BLUE_70);
 
             lfb->show();
@@ -237,6 +277,10 @@ void Application::startSelectedApp() {
             pause();
             break;
         case 9:
+            startMemoryManagerDemo();
+            isRunning = true;
+            break;
+        case 10:
             startExceptionDemo();
             pause();
             break;

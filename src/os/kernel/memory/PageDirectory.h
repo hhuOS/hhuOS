@@ -54,7 +54,7 @@ public:
      *
      * @param basePageDirectory The Page Directory with kernel mappgins.
      */
-    PageDirectory(PageDirectory *basePageDirectory);
+    explicit PageDirectory(PageDirectory *basePageDirectory);
 
     /**
      * Destructor - should never be called in  basePagedirectory

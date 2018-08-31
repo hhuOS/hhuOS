@@ -19,13 +19,27 @@ extern "C" {
 /**
  * Constructor
  */
-BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize,
-                                         String name, bool zeroMemory, bool doUnmap) : MemoryManager(
-        memoryStartAddress, memoryEndAddress, doUnmap) {
+BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap,
+                                         uint32_t blockSize, String name, bool zeroMemory) :
+        MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
     this->blockSize = blockSize;
     this->name = name;
     this->bmpSearchOffset = 0;
     this->zeroMemory = zeroMemory;
+
+    freeMemory = memoryEndAddress - memoryStartAddress;
+
+    freeBitmapLength = (freeMemory / blockSize) / 32;
+
+    if(freeBitmapLength == 0) {
+        freeBitmapLength = 1;
+    }
+
+    freeBitmap = new uint32_t[freeBitmapLength];
+
+    freeMemory = (freeBitmapLength * blockSize) * 32;
+
+    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 }
 
 BitmapMemoryManager::~BitmapMemoryManager() {
@@ -36,6 +50,10 @@ BitmapMemoryManager::~BitmapMemoryManager() {
  * Allocate one or several blocks of memory
  */
 void* BitmapMemoryManager::alloc(uint32_t size) {
+    if(size == 0) {
+        return nullptr;
+    }
+
 	// get count of blocks that corresponds to aligned size
     uint32_t blockCount = (size / blockSize) + ((size % blockSize == 0) ? 0 : 1);
 
@@ -126,11 +144,7 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
         Cpu::throwException(Cpu::Exception::OUT_OF_PHYS_MEMORY);
     }
 
-    if(managerType == MISC) {
-        Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
-    }
-
-    return 0;
+    return nullptr;
 }
 
 /**
@@ -142,7 +156,7 @@ void BitmapMemoryManager::free(void *ptr) {
     uint32_t address = (uint32_t) ptr - memoryStartAddress;
 
     // check if pointer points to valid memory
-    if(address < memoryStartAddress || address >= memoryEndAddress) {
+    if((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
 #if DEBUG_BMM
         printf("[%s] ERROR: Something went wrong freeing the page - %x\n", name, address);
 #endif

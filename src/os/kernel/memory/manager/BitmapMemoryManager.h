@@ -65,13 +65,13 @@ public:
      * @param zeroMemory Indicates if new allocated memory should be zeroed
      * @param doUnmap Indicated if freed memory should be unmapped in paging system
      */
-    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, uint32_t blockSize,
-                        String name, bool zeroMemory, bool doUnmap);
+    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap,
+                        uint32_t blockSize = 128, String name = "BITMAP_MEMORY_MANAGER", bool zeroMemory = false);
 
     /**
      * Destructor
      */
-    ~BitmapMemoryManager();
+    ~BitmapMemoryManager() override;
 
     /**
      * Allocate one or several blocks of memory
@@ -79,7 +79,7 @@ public:
      * @param size Size of memory that should be allocated - will be aligned to blockSize
      * @return Start address of the alloctated memory
      */
-    void * alloc(uint32_t size) override;
+    void *alloc(uint32_t size) override;
 
     /**
      * Free a one block of memory. It is important to notice

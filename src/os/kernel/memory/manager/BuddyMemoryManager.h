@@ -9,20 +9,19 @@ struct buddyNode {
     struct buddyNode *next;
 };
 
-class BuddyMemoryManager : MemoryManager {
+class BuddyMemoryManager : public MemoryManager {
 private:
 	uint8_t min_order = 0;
 	uint8_t max_order = 0;
 	struct buddyNode **freelist = nullptr;
 
 public:
-	BuddyMemoryManager(uint32_t memoryEndAddress, uint8_t min_order, uint32_t memoryStartAddress,
-						   bool doUnmap);
-	~BuddyMemoryManager();
+	BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint8_t minOrder = 4);
 
-	void cleanup();
+	~BuddyMemoryManager() override;
 
 	void* alloc(uint32_t size) override;
+
 	void free(void* ptr) override;
 
 	void dump();

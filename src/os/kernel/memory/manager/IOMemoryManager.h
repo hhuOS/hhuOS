@@ -58,7 +58,7 @@ public:
     IOMemoryManager();
     
     // the IO memory manager must never be deleted
-    ~IOMemoryManager() = delete;
+    ~IOMemoryManager() override = default;
 
     /**
      * Allocate some virtual 4kb pages for given physical page frames.

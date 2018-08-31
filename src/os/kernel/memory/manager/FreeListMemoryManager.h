@@ -79,12 +79,12 @@ public:
      * @param memoryStartAddress Start address of memory area to manage.
      * @param memoryEndAddress  End address of memory area to manage.
      */
-    FreeListMemoryManager(uint32_t memoryEndAddress, uint32_t memoryStartAddress, bool doUnmap);
+    FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap);
 
     /**
      * Destructor.
      */
-    virtual ~FreeListMemoryManager() = default;
+    ~FreeListMemoryManager() override = default;
 
     /**
      * Allocate memory block with given size.

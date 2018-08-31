@@ -123,7 +123,7 @@ void HeapTestApp::run() {
     *stream << "_____ Heap Demo App _____" << endl;
     *stream << "Tests new and new[] calls - each alloc type is called " << NUM_OF_ALLOCS << " times." << endl << endl;
 
-     log.trace("Testing primtive alloc...");
+    log.trace("Testing primtive alloc...");
     uint32_t freeBefore = SystemManagement::getKernelHeapManager()->getFreeMemory();
     primitiveAllocs();
     uint32_t freeAfter = SystemManagement::getKernelHeapManager()->getFreeMemory();
@@ -143,7 +143,7 @@ void HeapTestApp::run() {
     stats[1] = 0;
     stats[2] = 0;
 
-     log.trace("Testing array alloc...");
+    log.trace("Testing array alloc...");
     freeBefore = SystemManagement::getKernelHeapManager()->getFreeMemory();
     arrayAllocs();
     freeAfter = SystemManagement::getKernelHeapManager()->getFreeMemory();

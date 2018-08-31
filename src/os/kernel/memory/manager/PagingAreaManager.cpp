@@ -13,19 +13,9 @@
  * Constructor - calls base class with parameters.
  */
 PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, "PAGINGAREAMANAGER", true, false) {
+        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false, PAGESIZE, "PAGINGAREAMANAGER", true) {
 
     managerType = PAGING_AREA_MANAGER;
-
-    freeMemory = memoryEndAddress - memoryStartAddress;
-
-    // calculate amount of pagetables/dirs that can be stored in the area
-    uint32_t pageFrameCnt = freeMemory / blockSize;
-    // allocate bitmap for page frames
-    freeBitmapLength = pageFrameCnt / 32;
-    freeBitmap = new uint32_t[freeBitmapLength];
-
-    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 
     // We use already 256 Page Tables for Kernel mappings and one Page Directory
     // as the Kernel´s PD

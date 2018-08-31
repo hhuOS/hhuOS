@@ -15,9 +15,8 @@
 /**
  * Constructor -calls constructor of base class.
  */
-FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryEndAddress, uint32_t memoryStartAddress, bool doUnmap)
-        : MemoryManager(
-        memoryStartAddress, memoryEndAddress, doUnmap) {
+FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap)
+        : MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
     if(freeMemory < sizeof(FLHeader)) {
         // Available Kernel-Memory is too small for a Chunk
         firstChunk = nullptr;
@@ -93,7 +92,7 @@ void FreeListMemoryManager::free(void* ptr) {
     FLHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4kb of memory, a page can possibly be unmapped
-    if(mergedHeader->size >= PAGESIZE && SystemManagement::isInitialized()) {
+    if(doUnmap && mergedHeader->size >= PAGESIZE && SystemManagement::isInitialized()) {
         uint32_t addr = (uint32_t) mergedHeader;
         uint32_t chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
@@ -215,6 +214,8 @@ void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
 
     // No memory left
     if (current == nullptr) {
+        lock.release();
+
         return nullptr;
     }
 

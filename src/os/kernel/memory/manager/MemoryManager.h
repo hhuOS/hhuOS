@@ -38,7 +38,7 @@ protected:
 
 public:
     /**
-     * Constructor
+     * Constructor.
      *
      * @param memoryStartAddress Startaddress of the memory area to manage
      * @param memoryEndAddress Endaddress of the memory area to manage
@@ -49,6 +49,11 @@ public:
         this->freeMemory = memoryEndAddress - memoryStartAddress;
         this->doUnmap = doUnmap;
     }
+
+    /**
+     * Destructor.
+     */
+    virtual ~MemoryManager() = default;
 
     /**
      * Allocate a block of memory of given size.

@@ -20,13 +20,13 @@
 class Application : public Thread, public Receiver {
 
 private:
-    const char *menuOptions[10] = {
+    const char *menuOptions[11] = {
             "Shell", "Bug Defender", "Asciimation",
             "Langtons Ant", "Mandelbrot", "Mouse", "Loops and Sound",
-            "Heap Demo", "IO Memory Demo", "Exception Demo"
+            "Kernel Heap Demo", "IO Memory Demo", "Memory Manager Demo", "Exception Demo"
     };
 
-    const char *menuDescriptions[10] {
+    const char *menuDescriptions[11] {
             "A simple UNIX-like Shell",
             "A fun game: Save the OS from invading bugs!",
             "Play an Asciimation file",
@@ -34,8 +34,9 @@ private:
             "Navigate through the Mandelbrot set",
             "A simple Demo, that uses the mouse",
             "Multi-Threading test",
-            "Memory Management test for the Heap",
+            "Memory Management test for the Kernel Heap",
             "Memory Management test for IO Memory",
+            "Memory Management test for all available memory managers",
             "Bluescreen test",
     };
 
@@ -65,6 +66,7 @@ private:
     void startMandelbrotDemo();
     void startAsciimationDemo();
     void startIoMemoryDemo();
+    void startMemoryManagerDemo();
 
     void showMenu();
     void startSelectedApp();

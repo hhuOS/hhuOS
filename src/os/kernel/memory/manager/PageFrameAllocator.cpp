@@ -15,20 +15,9 @@
  * Constructor - calls baseClass constructor.
  */
 PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
-        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, PAGESIZE, "PAGEFRAMEALLOCATOR", false, false) {
+        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, false, PAGESIZE, "PAGEFRAMEALLOCATOR", false) {
 
     managerType = PAGE_FRAME_ALLOCATOR;
-
-    freeMemory = memoryEndAddress - memoryStartAddress;
-
-    // calculate amount of physical page frames
-    uint32_t pageFrameCnt = freeMemory / blockSize;
-    // allocate bitmap for page frames
-    freeBitmapLength = pageFrameCnt / 32;
-    freeBitmap = new uint32_t[freeBitmapLength];
-
-    // zero out the free bitmap length
-    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 
     // read out how much memory is already used by the system and the initrd
     uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
