@@ -45,9 +45,9 @@ void Missile::update(float delta){
 
 void Missile::draw(LinearFrameBuffer* g2d){
     if(direction == 1) {
-        shipSprite->print(static_cast<int>(position.getX()), static_cast<int>(position.getY()));
+        shipSprite->draw(static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()));
     } else {
-        enemySprite->print(static_cast<int>(position.getX()), static_cast<int>(position.getY()));
+        enemySprite->draw(static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()));
     }
 }
 

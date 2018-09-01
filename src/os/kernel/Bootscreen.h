@@ -5,7 +5,6 @@
 #include <lib/String.h>
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/log/Logger.h>
-#include <lib/graphic/Bmp.h>
 
 class Bootscreen {
 

@@ -41,7 +41,7 @@ void Ship::update(float delta){
 }
 
 void Ship::draw(LinearFrameBuffer* g2d){
-    bitmap->print(static_cast<int>(position.getX()), static_cast<int>(position.getY()));
+    bitmap->draw(static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()));
 }
 
 void Ship::onCollisionEnter(GameObject &other){

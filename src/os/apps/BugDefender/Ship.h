@@ -18,7 +18,7 @@
 #ifndef __Ship_include__
 #define __Ship_include__
 
-#include <lib/graphic/Bmp.h>
+#include <lib/file/bmp/Bmp.h>
 #include "apps/game/GameObject.h"
 #include "apps/BugDefender/Missile.h"
 

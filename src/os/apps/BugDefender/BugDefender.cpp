@@ -106,7 +106,7 @@ void BugDefender::drawInfo(LinearFrameBuffer* g2d){
     g2d->drawString(sun_font_8x16, 90, 450, scoreString, Color(10,255,10), Colors::INVISIBLE);
 
     for(int i = 0; i < lifes; i++){
-        heartSprite->print(540 + 25 * i, 450);
+        heartSprite->draw(static_cast<uint16_t>(540 + 25 * i), 450);
     }
 }
 
@@ -169,7 +169,7 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
         return;
     }
 
-    background->print(0, 0);
+    background->draw(0, 0);
 
     drawInfo(g2d);
 

@@ -1,6 +1,7 @@
 #include <lib/graphic/Colors.h>
 #include <devices/graphics/text/fonts/Fonts.h>
 #include <BuildConfig.h>
+#include <lib/file/bmp/Bmp.h>
 #include "Bootscreen.h"
 #include "Kernel.h"
 
@@ -23,7 +24,8 @@ void Bootscreen::update(uint8_t percentage, const String &message) {
     lfb->placeString(*font, 50, 10, static_cast<char *>(versionString), Colors::HHU_GRAY, Colors::INVISIBLE);
     lfb->placeString(*font, 50, 15, static_cast<char *>(buildDate), Colors::HHU_GRAY, Colors::INVISIBLE);
 
-    logo->print((lfb->getResX() - logo->width) / 2, (lfb->getResY() - logo->height) / 2);
+    logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
+               static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
 
     lfb->placeFilledRect(20, 85, 60, 2, Colors::HHU_BLUE_30);
     lfb->placeFilledCircle(20, 86, 1, Colors::HHU_BLUE_30);

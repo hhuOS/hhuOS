@@ -18,7 +18,7 @@
 #ifndef __Missile_include__
 #define __Missile_include__
 
-#include <lib/graphic/Bmp.h>
+#include <lib/file/bmp/Bmp.h>
 #include "apps/game/GameObject.h"
 
 class Missile : public GameObject {

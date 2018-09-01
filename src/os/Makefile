@@ -76,7 +76,7 @@ MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 # QEMU and KVM defaults                     #
 #-------------------------------------------#
 QEMU_BIN = qemu-system-i386 -cpu 486,+sse,+sse2
-KVM_BIN = qemu-system-i386 -enable-kvm -no-kvm-irqchip
+KVM_BIN = qemu-system-i386 -enable-kvm
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -soundhw pcspk -vga std -monitor stdio \

@@ -59,10 +59,10 @@ void Enemy::update(float delta) {
 void Enemy::draw(LinearFrameBuffer *g2d) {
     switch (spriteNumber) {
         case 0:
-            sprite1->print(position.getX(), position.getY());
+            sprite1->draw(static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()));
             break;
         case 1:
-            sprite2->print(position.getX(), position.getY());
+            sprite2->draw(static_cast<uint16_t>(position.getX()), static_cast<uint16_t>(position.getY()));
             break;
     }
 }
