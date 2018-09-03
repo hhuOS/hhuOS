@@ -7,6 +7,17 @@ class Bmp {
 
 private:
 
+    enum BitmapHeaderVersion : uint32_t {
+        BITMAPCOREHEADER = 0x0c,
+        BITMAPCOREHEADER2_LONG = 0x40,
+        BITMAPCOREHEADER2_SHORT = 0x10,
+        BITMAPINFOHEADER = 0x28,
+        BITMAPV2INFOHEADER = 0x34,
+        BITMAPV3INFOHEADER = 0x38,
+        BITMAPV4HEADER = 0x6c,
+        BITMAPV5HEADER = 0x7c
+    };
+
     enum CompressionMethod : uint32_t {
         BI_RGB = 0x00,
         BI_RLE8 = 0x01,
@@ -40,11 +51,27 @@ private:
         uint32_t dataOffset;
     } __attribute__ ((packed));
 
-    struct BitmapInfoHeader {
+    struct BitmapCoreHeaderV1 {
+        uint32_t headerSize;
+        uint16_t bitmapWidth;
+        uint16_t bitmapHeight;
+        uint16_t numColorPlanes;
+        uint16_t bitmapDepth;
+    };
+
+    struct BitmapCoreHeaderV2 {
+        uint32_t headerSize;
+        uint32_t bitmapWidth;
+        uint32_t bitmapHeight;
+        uint16_t numColorPlanes;
+        uint16_t bitmapDepth;
+    } __attribute__ ((packed));
+
+    struct BitmapInformationHeader {
         uint32_t headerSize;
         int32_t bitmapWidth;
         int32_t bitmapHeight;
-        uint16_t colorPlanes;
+        uint16_t numColorPlanes;
         uint16_t bitmapDepth;
         CompressionMethod compression;
         uint32_t bitmapSize;
@@ -57,15 +84,14 @@ private:
 private:
 
     BitmapFileHeader fileHeader;
-    BitmapInfoHeader infoHeader;
+    BitmapInformationHeader infoHeader;
     BitMask bitMask;
     ColorPaletteEntry *colorPalette = nullptr;
 
     char *rawData = nullptr;
-
     Color *processedPixels = nullptr;
 
-    bool deleteRawData;
+    bool bottomUpImage = true;
     bool ignoreAlpha = true;
 
 private:
@@ -74,7 +100,15 @@ private:
 
     uint8_t countOnes(uint32_t number);
 
+    BitmapInformationHeader convertLegacyHeader(const BitmapCoreHeaderV1 &legacyHeader);
+
+    BitmapInformationHeader convertLegacyHeader(const BitmapCoreHeaderV2 &legacyHeader);
+
     void processData();
+
+    uint8_t * decodeRLE4(uint8_t *encodedData);
+
+    uint8_t * decodeRLE8(uint8_t *encodedData);
 
     void read32BitImage(uint8_t *rawPixelData);
 
@@ -103,6 +137,8 @@ public:
     uint32_t getHeight();
 
     uint32_t getWidth();
+
+    uint8_t getColorDepth();
 
     void draw(uint16_t x, uint16_t y);
 };
