@@ -5,12 +5,15 @@
 #include <kernel/threads/WorkerThread.h>
 #include <lib/util/BlockingQueue.h>
 #include <lib/lock/Mutex.h>
+#include <kernel/threads/Scheduler.h>
 
 class ThreadPool {
 
 private:
 
     struct ThreadPoolWorker : public Thread {
+
+        bool isWorking = false;
 
         ThreadPool *pool = nullptr;
 
@@ -31,14 +34,22 @@ private:
         }
 
         void run() override {
+            Scheduler *scheduler = Scheduler::getInstance();
+
             while(true) {
+                while(pool->workQueue.isEmpty()) {
+                    scheduler->yield();
+                }
+
                 pool->mutex.acquire();
 
                 void (*work)() = pool->workQueue.pop();
 
                 pool->mutex.release();
 
+                isWorking = true;
                 work();
+                isWorking = false;
             }
         }
 
@@ -56,13 +67,13 @@ public:
 
     explicit ThreadPool(uint32_t size = 16);
 
-    ~ThreadPool() = default;
+    ~ThreadPool();
 
     void addWork(void (*func)());
 
     void startWorking();
 
-    bool isWorking();
+    void stopWorking(bool force = false);
 
 };
 

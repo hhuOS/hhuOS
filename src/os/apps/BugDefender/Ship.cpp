@@ -46,7 +46,6 @@ void Ship::draw(LinearFrameBuffer* g2d){
 
 void Ship::onCollisionEnter(GameObject &other){
     BugDefender::takeDamage(1);
-    HHUEngine::beep(Speaker::C0);
 }
 
 void Ship::onCollisionExit(){

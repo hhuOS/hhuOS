@@ -31,6 +31,7 @@ int BugDefender::lifes = 3;
 bool BugDefender::isGameOver = false;
 bool BugDefender::isGameWon = false;
 int BugDefender::enemyCount = enemiesPerLine * enemyLines;
+ThreadPool BugDefender::beepThreadPool(4);
 
 BugDefender::BugDefender() : Game() {
 
@@ -44,6 +45,8 @@ BugDefender::BugDefender() : Game() {
     isGameWon = false;
     enemyCount = enemiesPerLine * enemyLines;
     Fleet::reset();
+
+    beepThreadPool.startWorking();
 
     HHUEngine::setCurrentGame(this);
     HHUEngine::instantiate( new Ship(Vector2(300, 400)) );
@@ -73,7 +76,10 @@ void BugDefender::update(float delta){
         return;
     }
 
-
+    if(isGameWon || isGameOver) {
+        beepThreadPool.stopWorking();
+        return;
+    }
 
     GameObject* g;
     for (uint32_t i = 0; i < gameObjects->size(); i++) {
@@ -217,6 +223,8 @@ void BugDefender::addPoints(int points){
 
 void BugDefender::takeDamage(int amount){
     lifes -= amount;
+
+    beepThreadPool.addWork([](){HHUEngine::beep(Speaker::C0);});
 }
 
 void BugDefender::gameOver(){
@@ -225,4 +233,6 @@ void BugDefender::gameOver(){
 
 void BugDefender::enemyShot(){
     enemyCount--;
+
+    beepThreadPool.addWork([](){HHUEngine::beep(Speaker::C2);});
 }

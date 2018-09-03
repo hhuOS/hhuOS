@@ -18,6 +18,7 @@
 #ifndef __Invaders_include__
 #define __Invaders_include__
 
+#include <lib/ThreadPool.h>
 #include "apps/game/HHUEngine.h"
 #include "apps/game/GameObject.h"
 #include "apps/BugDefender/Ship.h"
@@ -46,6 +47,8 @@ class BugDefender : public Game {
     static bool isGameOver;
 
     static bool isGameWon;
+
+    static ThreadPool beepThreadPool;
 
     Bmp *heartSprite = nullptr;
 
