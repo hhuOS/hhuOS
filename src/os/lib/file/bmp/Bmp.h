@@ -104,6 +104,8 @@ private:
 
     BitmapInformationHeader convertLegacyHeader(const BitmapCoreHeaderV2 &legacyHeader);
 
+    uint32_t getPaddedWidth();
+
     void processData();
 
     uint8_t * decodeRLE4(uint8_t *encodedData);

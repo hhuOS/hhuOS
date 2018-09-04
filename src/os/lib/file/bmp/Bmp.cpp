@@ -1,3 +1,6 @@
+extern "C" {
+#include <lib/libc/math.h>
+}
 #include "Bmp.h"
 
 Bmp::Bmp(File *file) {
@@ -180,7 +183,9 @@ void Bmp::read32BitImage(uint8_t *rawPixelData) {
     uint8_t redShift = countTrailingZeros(bitMask.red);
     uint8_t greenShift = countTrailingZeros(bitMask.green);
     uint8_t blueShift = countTrailingZeros(bitMask.blue);
-    uint8_t alphaShift = 24;
+
+    uint32_t alphaMask = ~(bitMask.red | bitMask.green  | bitMask.blue);
+    uint8_t alphaShift = countTrailingZeros(alphaMask);
 
     uint32_t currentRow = bottomUpImage ? getHeight() - 1 : 0;
 
@@ -191,13 +196,21 @@ void Bmp::read32BitImage(uint8_t *rawPixelData) {
             auto red = static_cast<uint8_t>((currentPixel & bitMask.red) >> redShift);
             auto green = static_cast<uint8_t>((currentPixel & bitMask.green) >> greenShift);
             auto blue = static_cast<uint8_t>((currentPixel & bitMask.blue) >> blueShift);
-            auto alpha = static_cast<uint8_t>((currentPixel & 0xff000000) >> alphaShift);
+            auto alpha = static_cast<uint8_t>((currentPixel & alphaMask) >> alphaShift);
+
+            double redPerc = red / pow(2, countOnes(bitMask.red));
+            double greenPerc = green / pow(2, countOnes(bitMask.green));
+            double bluePerc = blue / pow(2, countOnes(bitMask.blue));
+            double alphaPerc = alpha / pow(2, countOnes(alphaMask));
 
             if (ignoreAlpha && alpha != 0) {
                 ignoreAlpha = false;
             }
 
-            processedPixels[currentRow * getWidth() + j] = Color(red, green, blue, alpha);
+            processedPixels[currentRow * getWidth() + j] = Color(static_cast<uint8_t>(redPerc * 255),
+                                                                 static_cast<uint8_t>(greenPerc * 255),
+                                                                 static_cast<uint8_t>(bluePerc * 255),
+                                                                 static_cast<uint8_t>(alphaPerc * 255));
         }
 
         currentRow += bottomUpImage ? -1 : 1;
@@ -219,14 +232,20 @@ void Bmp::read24BitImage(uint8_t *rawPixelData) {
 
     for(uint32_t i = 0; i < getHeight(); i++) {
         for(uint32_t j = 0; j < getWidth(); j++) {
-            uint32_t index = 3 * (i * getWidth() + j);
+            uint32_t index = 3 * (i * getPaddedWidth() + j);
             uint32_t currentPixel = rawPixelData[index] | rawPixelData[index + 1] << 8 | rawPixelData[index + 2] << 16;
 
-            auto red = static_cast<uint8_t>((currentPixel & bitMask.red) >> redShift);
-            auto green = static_cast<uint8_t>((currentPixel & bitMask.green) >> greenShift);
-            auto blue = static_cast<uint8_t>((currentPixel & bitMask.blue) >> blueShift);
+            auto red = static_cast<uint32_t>((currentPixel & bitMask.red) >> redShift);
+            auto green = static_cast<uint32_t>((currentPixel & bitMask.green) >> greenShift);
+            auto blue = static_cast<uint32_t>((currentPixel & bitMask.blue) >> blueShift);
 
-            processedPixels[currentRow * getWidth() + j] = Color(red, green, blue);
+            double redPerc = red / pow(2, countOnes(bitMask.red));
+            double greenPerc = green / pow(2, countOnes(bitMask.green));
+            double bluePerc = blue / pow(2, countOnes(bitMask.blue));
+
+            processedPixels[currentRow * getWidth() + j] = Color(static_cast<uint8_t>(redPerc * 255),
+                                                                 static_cast<uint8_t>(greenPerc * 255),
+                                                                 static_cast<uint8_t>(bluePerc * 255));
         }
 
         currentRow += bottomUpImage ? -1 : 1;
@@ -242,18 +261,19 @@ void Bmp::read16BitImage(uint8_t *rawPixelData) {
 
     for(uint32_t i = 0; i < getHeight(); i++) {
         for(uint32_t j = 0; j < getWidth(); j++) {
-            uint16_t currentPixel = ((uint16_t *) rawPixelData)[i * getWidth() + j];
+            uint16_t currentPixel = ((uint16_t *) rawPixelData)[i * getPaddedWidth() + j];
 
-            auto red = static_cast<uint8_t>((currentPixel & bitMask.red) >> redShift);
-            auto green = static_cast<uint8_t>((currentPixel & bitMask.green) >> greenShift);
-            auto blue = static_cast<uint8_t>((currentPixel & bitMask.blue) >> blueShift);
+            auto red = static_cast<uint16_t>((currentPixel & bitMask.red) >> redShift);
+            auto green = static_cast<uint16_t>((currentPixel & bitMask.green) >> greenShift);
+            auto blue = static_cast<uint16_t>((currentPixel & bitMask.blue) >> blueShift);
 
-            // Normalize to 8-bit colors
-            red = static_cast<uint8_t>(red * (256 / 32));
-            green = static_cast<uint8_t>(green * (256 / ((countOnes(bitMask.green) == 6) ? 64 : 32)));
-            blue = static_cast<uint8_t>(blue * (256 / 32));
+            double redPerc = red / pow(2, countOnes(bitMask.red));
+            double greenPerc = green / pow(2, countOnes(bitMask.green));
+            double bluePerc = blue / pow(2, countOnes(bitMask.blue));
 
-            processedPixels[currentRow * getWidth() + j] = Color(red, green, blue);
+            processedPixels[currentRow * getWidth() + j] = Color(static_cast<uint8_t>(redPerc * 255),
+                                                                 static_cast<uint8_t>(greenPerc * 255),
+                                                                 static_cast<uint8_t>(bluePerc * 255));
         }
 
         currentRow += bottomUpImage ? -1 : 1;
@@ -265,7 +285,7 @@ void Bmp::read8BitImage(uint8_t *rawPixelData) {
 
     for(uint32_t i = 0; i < getHeight(); i++) {
         for(uint32_t j = 0; j < getWidth(); j++) {
-            uint8_t currentPixel = rawPixelData[i * getWidth() + j];
+            uint8_t currentPixel = rawPixelData[(i * getPaddedWidth() + j)];
 
             auto red = colorPalette[currentPixel].red;
             auto green = colorPalette[currentPixel].green;
@@ -349,6 +369,16 @@ uint32_t Bmp::getWidth() {
 
 uint8_t Bmp::getColorDepth() {
     return static_cast<uint8_t>(infoHeader.bitmapDepth);
+}
+
+uint32_t Bmp::getPaddedWidth() {
+    uint32_t width = getWidth();
+
+    if(width % 4 != 0) {
+        width += 4 - width % 4;
+    }
+
+    return width;
 }
 
 void Bmp::draw(uint16_t x, uint16_t y) {
