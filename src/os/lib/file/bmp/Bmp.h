@@ -228,11 +228,13 @@ public:
 
     explicit Bmp(File *file);
 
-    explicit Bmp(char *data);
+    explicit Bmp(Color *pixelBuf, uint32_t width, uint32_t height);
 
     Bmp(const Bmp &copy) = delete;
 
     ~Bmp();
+
+    void saveToFile(const String &path);
 };
 
 #endif

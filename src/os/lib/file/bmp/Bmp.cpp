@@ -12,8 +12,14 @@ Bmp::Bmp(File *file) {
     delete rawData;
 }
 
-Bmp::Bmp(char *data) : rawData(data) {
-    processData();
+Bmp::Bmp(Color *pixelBuf, uint32_t width, uint32_t height) {
+    this->width = width;
+    this->height = height;
+    this->depth = 32;
+
+    this->pixelBuf = new Color[height * width];
+
+    memcpy(this->pixelBuf, pixelBuf, height * width * sizeof(Color));
 }
 
 Bmp::~Bmp() {
@@ -490,4 +496,40 @@ uint32_t Bmp::getPaddedWidth() {
     }
 
     return width;
+}
+
+void Bmp::saveToFile(const String &path) {
+    File *file = File::open(path, "w+");
+
+    BitmapFileHeader fileHeader{0};
+    fileHeader.identifier[0] = 'B';
+    fileHeader.identifier[1] = 'M';
+    fileHeader.fileSize = sizeof(BitmapFileHeader) + sizeof(BitmapInformationHeader) + sizeof(BitMask) + width * height * 4;
+    fileHeader.reserved = 'B' | 'C' << 8 | 'F' << 16 | 'F' << 24;
+    fileHeader.dataOffset = sizeof(BitmapFileHeader) + sizeof(BitmapInformationHeader) + sizeof(BitMask);
+
+    BitmapInformationHeader infoHeader{0};
+    infoHeader.headerSize = 40;
+    infoHeader.bitmapWidth = width;
+    infoHeader.bitmapHeight = -height;
+    infoHeader.numColorPlanes = 1;
+    infoHeader.bitmapDepth = 32;
+    infoHeader.compression = BI_BITFIELDS;
+    infoHeader.bitmapSize = width * height * 4;
+
+    BitMask bitMask{0x00ff0000, 0x0000ff00, 0x000000ff};
+
+    file->writeBytes(reinterpret_cast<char *>(&fileHeader), sizeof(BitmapFileHeader));
+    file->writeBytes(reinterpret_cast<char *>(&infoHeader), sizeof(BitmapInformationHeader));
+    file->writeBytes(reinterpret_cast<char *>(&bitMask), sizeof(BitMask));
+
+    auto *pixelData = new uint32_t[infoHeader.bitmapSize];
+
+    for(uint32_t i = 0; i < infoHeader.bitmapSize; i++) {
+        pixelData[i] = pixelBuf[i].getRGB32();
+    }
+
+    file->writeBytes(reinterpret_cast<char *>(pixelData), infoHeader.bitmapSize);
+
+    delete file;
 }
