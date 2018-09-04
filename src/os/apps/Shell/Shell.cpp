@@ -52,6 +52,9 @@ Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
 
+    oldStdout = stdStreamService->getStdout();
+    oldStderr = stdStreamService->getStderr();
+
     stdStreamService->setStdout(this);
     stdStreamService->setStderr(this);
     stdStreamService->setStdin(this);
@@ -89,6 +92,9 @@ Shell::~Shell() {
     for(const auto &string : commands.keySet()) {
         delete commands.get(string);
     }
+
+    stdStreamService->setStdout(oldStdout);
+    stdStreamService->setStderr(oldStderr);
 }
 
 Directory &Shell::getCurrentWorkingDirectory() {

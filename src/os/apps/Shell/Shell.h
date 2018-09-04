@@ -40,6 +40,9 @@ private:
         UP, DOWN
     };
 
+    OutputStream *oldStdout;
+    OutputStream *oldStderr;
+
     StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;

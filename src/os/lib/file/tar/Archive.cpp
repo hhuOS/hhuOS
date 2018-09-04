@@ -71,8 +71,6 @@ namespace Tar {
             }
         }
 
-        tar->fileCount = i;
-
         return *tar;
     }
 
