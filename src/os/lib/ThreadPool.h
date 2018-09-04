@@ -3,7 +3,7 @@
 
 #include <lib/util/Queue.h>
 #include <kernel/threads/WorkerThread.h>
-#include <lib/util/BlockingQueue.h>
+#include <lib/util/ThreadSafeBlockingQueue.h>
 #include <lib/lock/Mutex.h>
 #include <kernel/threads/Scheduler.h>
 
@@ -41,11 +41,7 @@ private:
                     scheduler->yield();
                 }
 
-                pool->mutex.acquire();
-
                 void (*work)() = pool->workQueue.pop();
-
-                pool->mutex.release();
 
                 isWorking = true;
                 work();
@@ -57,8 +53,7 @@ private:
 
 private:
 
-    Mutex mutex;
-    Util::BlockingQueue<void (*)()> workQueue;
+    Util::ThreadSafeBlockingQueue<void (*)()> workQueue;
     Util::Array<ThreadPoolWorker> threads;
 
     bool working = false;
