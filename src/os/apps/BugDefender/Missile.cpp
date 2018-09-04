@@ -19,8 +19,8 @@
 #include "apps/game/HHUEngine.h"
 
 
-Bmp *Missile::enemySprite = nullptr;
-Bmp *Missile::shipSprite = nullptr;
+Image *Missile::enemySprite = nullptr;
+Image *Missile::shipSprite = nullptr;
 
 Missile::Missile(Vector2 position, int direction, char* tag) : GameObject(position, tag) {
     collider = new RectCollider(position, width, height);

@@ -39,7 +39,7 @@ class Ship : public GameObject {
 
     int points;
 
-    Bmp *bitmap;
+    Image *bitmap;
     
   public:
 

@@ -50,9 +50,9 @@ class BugDefender : public Game {
 
     static ThreadPool beepThreadPool;
 
-    Bmp *heartSprite = nullptr;
+    Image *heartSprite = nullptr;
 
-    Bmp *background = nullptr;
+    Image *background = nullptr;
 
   public:
 

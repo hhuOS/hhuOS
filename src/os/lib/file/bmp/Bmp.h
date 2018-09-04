@@ -1,9 +1,10 @@
 #ifndef HHUOS_BMP_H
 #define HHUOS_BMP_H
 
+#include <lib/graphic/Image.h>
 #include "lib/file/File.h"
 
-class Bmp {
+class Bmp : public Image {
 
 private:
 
@@ -189,7 +190,6 @@ private:
     ColorPalette colorPalette;
 
     char *rawData = nullptr;
-    Color *processedPixels = nullptr;
 
     bool bottomUpImage = true;
     bool ignoreAlpha = true;
@@ -233,14 +233,6 @@ public:
     Bmp(const Bmp &copy) = delete;
 
     ~Bmp();
-
-    uint32_t getHeight();
-
-    uint32_t getWidth();
-
-    uint8_t getColorDepth();
-
-    void draw(uint16_t x, uint16_t y);
 };
 
 #endif

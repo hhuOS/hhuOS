@@ -38,9 +38,9 @@ class Missile : public GameObject {
 
     Missile(Vector2 position, int direction, char* tag);
 
-    static Bmp *enemySprite;
+    static Image *enemySprite;
 
-    static Bmp *shipSprite;
+    static Image *shipSprite;
 
     ~Missile(){}
 

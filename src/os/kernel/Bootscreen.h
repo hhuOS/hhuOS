@@ -36,7 +36,7 @@ private:
 
     File *logoFile = nullptr;
 
-    Bmp *logo = nullptr;
+    Image *logo = nullptr;
 };
 
 

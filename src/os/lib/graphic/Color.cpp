@@ -283,19 +283,19 @@ void Color::setRGB1(uint8_t rgb) {
     invalidate();
 }
 
-uint8_t Color::getRed() {
+uint8_t Color::getRed() const {
     return red;
 }
 
-uint8_t Color::getGreen() {
+uint8_t Color::getGreen() const {
     return green;
 }
 
-uint8_t Color::getBlue() {
+uint8_t Color::getBlue() const {
     return blue;
 }
 
-uint8_t Color::getAlpha() {
+uint8_t Color::getAlpha() const {
     return alpha;
 }
 

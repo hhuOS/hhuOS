@@ -28,8 +28,8 @@ class Enemy : public GameObject {
 
     Enemy(const Enemy &copy); // Verhindere Kopieren
 
-    static Bmp *sprite1;
-    static Bmp *sprite2;
+    static Image *sprite1;
+    static Image *sprite2;
 
     const static int width = 30;
     const static int height = 20;

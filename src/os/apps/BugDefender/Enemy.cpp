@@ -19,8 +19,8 @@
 #include "apps/game/HHUEngine.h"
 #include "BugDefender.h"
 
-Bmp *Enemy::sprite1 = nullptr;
-Bmp *Enemy::sprite2 = nullptr;
+Image *Enemy::sprite1 = nullptr;
+Image *Enemy::sprite2 = nullptr;
 
 Enemy::Enemy(Vector2 position, int rowNumber) : GameObject(position, "Enemy") {
     collider = new RectCollider(position, width, height);

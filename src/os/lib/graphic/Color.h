@@ -253,22 +253,22 @@ public:
     /**
      * Get the red-value.
      */
-    uint8_t getRed();
+    uint8_t getRed() const;
 
     /**
      * Get the green-value.
      */
-    uint8_t getGreen();
+    uint8_t getGreen() const;
 
     /**
      * Get the blue-value.
      */
-    uint8_t getBlue();
+    uint8_t getBlue() const;
 
     /**
      * Get the alpha-value.
      */
-    uint8_t getAlpha();
+    uint8_t getAlpha() const;
 
     /**
      * Get the RGB32-value.
