@@ -325,6 +325,11 @@ public:
     virtual void disableDoubleBuffering() = 0;
 
     /**
+     * Check, if double-buffering is enabled.
+     */
+    virtual bool isDoubleBuffered() = 0;
+
+    /**
      * Flush the buffer, when double-buffering is enabled.
      */
     virtual void show() = 0;

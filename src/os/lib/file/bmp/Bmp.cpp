@@ -501,6 +501,10 @@ uint32_t Bmp::getPaddedWidth() {
 void Bmp::saveToFile(const String &path) {
     File *file = File::open(path, "w+");
 
+    if(file == nullptr) {
+        return;
+    }
+
     BitmapFileHeader fileHeader{0};
     fileHeader.identifier[0] = 'B';
     fileHeader.identifier[1] = 'M';

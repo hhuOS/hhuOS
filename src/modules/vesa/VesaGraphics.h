@@ -76,7 +76,9 @@ public:
         uint32_t  reserved1;
         uint16_t  reserved2;
 
-		bool operator!=(const ModeInfo &other) const;
+		bool operator!=(const ModeInfo &other) const {
+            return Yres != other.Yres || Xres != other.Xres || bpp != other.bpp;
+		};
 
     } __attribute__((packed));
 	
@@ -128,7 +130,7 @@ private:
 	void reallocBuffer();
 
 private:
-    bool isDoubleBuffered = false;
+    bool doubleBuffered = false;
 	uint8_t *doubleBuffer = nullptr;
 
     void *virtLfbAddress = nullptr;
@@ -202,6 +204,11 @@ public:
      * Overriding virtual function from LinearFrameBuffer.
      */
 	void disableDoubleBuffering() override;
+
+    /**
+     * Overriding virtual function from LinearFrameBuffer.
+     */
+	bool isDoubleBuffered() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

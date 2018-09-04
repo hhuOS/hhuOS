@@ -9,6 +9,7 @@ Screenshot::~Screenshot() {
 
 void Screenshot::take() {
     LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    bool isDoubleBuffered = lfb->isDoubleBuffered();
 
     width = lfb->getResX();
     height = lfb->getResY();
@@ -20,10 +21,18 @@ void Screenshot::take() {
 
     pixelBuf = new Color[width * height];
 
+    if(isDoubleBuffered) {
+        lfb->disableDoubleBuffering();
+    }
+
     for(uint16_t i = 0; i < height; i++) {
         for(uint16_t j = 0; j < width; j++) {
             lfb->readPixel(j, i, pixelBuf[i * width + j]);
         }
+    }
+
+    if(isDoubleBuffered) {
+        lfb->enableDoubleBuffering();
     }
 }
 

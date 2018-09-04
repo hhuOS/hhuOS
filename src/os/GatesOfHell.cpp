@@ -23,6 +23,7 @@
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include <lib/file/Directory.h>
 #include <lib/sound/BeepFile.h>
+#include <kernel/services/ScreenshotService.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -167,6 +168,7 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
     Kernel::registerService(ParallelService::SERVICE_NAME, new ParallelService());
+    Kernel::registerService(ScreenshotService::SERVICE_NAME, new ScreenshotService());
 }
 
 void GatesOfHell::initializeGraphics() {

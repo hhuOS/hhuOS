@@ -31,7 +31,7 @@ private:
     //Pitch is always 80 in CGA-mode.
     const uint16_t pitch = 80;
 
-    bool isDoubleBuffered = false;
+    bool doubleBuffered = false;
 
     uint8_t *hardwareBuffer = nullptr;
     uint8_t *doubleBuffer = nullptr;
@@ -124,6 +124,11 @@ public:
      * Overriding virtual function from LinearFrameBuffer.
      */
     void disableDoubleBuffering() override;
+
+    /**
+     * Overriding virtual function from LinearFrameBuffer.
+     */
+    bool isDoubleBuffered() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

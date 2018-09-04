@@ -96,7 +96,7 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
 
     hardwareBuffer = reinterpret_cast<uint8_t *>(tmpAddress);
 
-    isDoubleBuffered = false;
+    doubleBuffered = false;
 
     if(doubleBuffer != nullptr) {
         delete[] doubleBuffer;
@@ -241,7 +241,7 @@ void VesaGraphics::drawPixel(uint16_t x, uint16_t y, Color color) {
 
     uint32_t rgbColor = color.getColorForDepth(this->bpp);
 
-    uint8_t *base = isDoubleBuffered ? doubleBuffer : hardwareBuffer;
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
 
     //Calculate pixel offset
     uint8_t *ptr = base + (x * (bpp / 8)) + y * pitch;
@@ -258,14 +258,14 @@ void VesaGraphics::readPixel(uint16_t x, uint16_t y, Color &color) {
     }
 
     auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
-    uint8_t *base = isDoubleBuffered ? doubleBuffer : hardwareBuffer;
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
     uint8_t *ptr = base + (x * (bpp / 8)) + y * pitch;
 
     color.setRGB(*((uint32_t *)ptr), this->bpp);
 }
 
 void VesaGraphics::clear() {
-    auto *buf = reinterpret_cast<uint64_t *>(isDoubleBuffered ? doubleBuffer : hardwareBuffer);
+    auto *buf = reinterpret_cast<uint64_t *>(doubleBuffered ? doubleBuffer : hardwareBuffer);
     auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
     uint32_t end = (xres * yres * (bpp / 8)) / sizeof(uint64_t);
 
@@ -287,16 +287,20 @@ void VesaGraphics::reallocBuffer() {
 void VesaGraphics::enableDoubleBuffering() {
     reallocBuffer();
 
-    isDoubleBuffered = true;
+    doubleBuffered = true;
     clear();
 }
 
 void VesaGraphics::disableDoubleBuffering() {
-    isDoubleBuffered = false;
+    doubleBuffered = false;
+}
+
+bool VesaGraphics::isDoubleBuffered() {
+    return doubleBuffered;
 }
 
 void VesaGraphics::show() {
-    if (!isDoubleBuffered) {
+    if (!doubleBuffered) {
         return;
     }
 
@@ -311,9 +315,4 @@ void VesaGraphics::show() {
         dest[i] = src[i];
         src[i] = 0;
     }
-}
-
-bool VesaGraphics::ModeInfo::operator!=(const VesaGraphics::ModeInfo &other) const {
-
-    return Yres != other.Yres || Xres != other.Xres || bpp != other.bpp;
 }

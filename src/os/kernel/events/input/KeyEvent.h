@@ -27,10 +27,11 @@ class KeyEvent : public Event {
 public:
 
     enum Keys {
-        ESCAPE = 0x01,
+        ESCAPE = 1,
         RETURN = 28,
         PLUS = 43,
         MINUS = 45,
+        PRINT = 55,
         SPACE = 57,
         UP = 72,
         LEFT = 75,

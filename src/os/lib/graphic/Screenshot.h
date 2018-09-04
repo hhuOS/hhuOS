@@ -15,7 +15,6 @@ public:
     void take();
 
     void saveToBmp(const String &path);
-
 };
 
 #endif

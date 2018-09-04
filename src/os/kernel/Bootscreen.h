@@ -1,8 +1,9 @@
 #ifndef __Bootscreen_include__
 #define __Bootscreen_include__
 
-#include <cstdint>
 #include <lib/String.h>
+#include <lib/file/File.h>
+#include <lib/graphic/Image.h>
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/log/Logger.h>
 

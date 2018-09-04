@@ -183,7 +183,7 @@ void CgaGraphics::drawPixel(uint16_t x, uint16_t y, Color color) {
 
     uint32_t rgbColor = color.getColorForDepth(bpp);
 
-    uint8_t *base = isDoubleBuffered ? doubleBuffer : hardwareBuffer;
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
 
     //Calculate pixel offset
     uint8_t *ptr = base + (x / (8 / bpp)) + (y / (4 / bpp)) * pitch;
@@ -204,7 +204,7 @@ void CgaGraphics::readPixel(uint16_t x, uint16_t y, Color &color) {
         return;
     }
 
-    uint8_t *base = isDoubleBuffered ? doubleBuffer : hardwareBuffer;
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
 
     //Calculate pixel offset
     uint8_t *ptr = base + (x / (8 / bpp)) + (y / (4 / bpp)) * pitch;
@@ -224,7 +224,7 @@ void CgaGraphics::readPixel(uint16_t x, uint16_t y, Color &color) {
 }
 
 void CgaGraphics::clear() {
-    auto *buf = reinterpret_cast<uint64_t *>(isDoubleBuffered ? doubleBuffer : hardwareBuffer);
+    auto *buf = reinterpret_cast<uint64_t *>(doubleBuffered ? doubleBuffer : hardwareBuffer);
     uint64_t end = 16384 / sizeof(uint64_t);
 
     for(uint64_t i = 0; i < end; i++) {
@@ -235,16 +235,20 @@ void CgaGraphics::clear() {
 void CgaGraphics::enableDoubleBuffering() {
     reallocBuffer();
 
-    isDoubleBuffered = true;
+    doubleBuffered = true;
     clear();
 }
 
 void CgaGraphics::disableDoubleBuffering() {
-    isDoubleBuffered = false;
+    doubleBuffered = false;
+}
+
+bool CgaGraphics::isDoubleBuffered() {
+    return doubleBuffered;
 }
 
 void CgaGraphics::show() {
-    if (!isDoubleBuffered) {
+    if (!doubleBuffered) {
         return;
     }
 
