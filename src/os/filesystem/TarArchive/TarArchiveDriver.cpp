@@ -30,7 +30,7 @@ FsNode *TarArchiveDriver::getNode(const String &path) {
             return new TarArchiveNode(archive, header);
         }
 
-        if(currentPath.beginsWith(path)) {
+        if((path == "") || (currentPath.beginsWith(path) && currentPath[path.length()] == '/')) {
             return new TarArchiveNode(archive, path);
         }
     }
