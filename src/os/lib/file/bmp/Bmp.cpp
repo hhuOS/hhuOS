@@ -193,10 +193,10 @@ void Bmp::read32BitImage(uint8_t *rawPixelData) {
         for(uint32_t j = 0; j < getWidth(); j++) {
             uint32_t currentPixel = ((uint32_t *) rawPixelData)[i * getWidth() + j];
 
-            auto red = static_cast<uint8_t>((currentPixel & bitMask.red) >> redShift);
-            auto green = static_cast<uint8_t>((currentPixel & bitMask.green) >> greenShift);
-            auto blue = static_cast<uint8_t>((currentPixel & bitMask.blue) >> blueShift);
-            auto alpha = static_cast<uint8_t>((currentPixel & alphaMask) >> alphaShift);
+            auto red = static_cast<uint32_t>((currentPixel & bitMask.red) >> redShift);
+            auto green = static_cast<uint32_t>((currentPixel & bitMask.green) >> greenShift);
+            auto blue = static_cast<uint32_t>((currentPixel & bitMask.blue) >> blueShift);
+            auto alpha = static_cast<uint32_t>((currentPixel & alphaMask) >> alphaShift);
 
             double redPerc = red / pow(2, countOnes(bitMask.red));
             double greenPerc = green / pow(2, countOnes(bitMask.green));
