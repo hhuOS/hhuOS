@@ -21,22 +21,11 @@ Bmp::~Bmp() {
 
 void Bmp::processData() {
     fileHeader = *((BitmapFileHeader*) &rawData[0]);
-
-    BitmapHeaderVersion headerVersion = *((BitmapHeaderVersion*) &rawData[14]);
-
-    if(headerVersion == BITMAPCOREHEADER) {
-        BitmapCoreHeaderV1 legacyHeader = *((BitmapCoreHeaderV1*) &rawData[14]);
-        infoHeader = convertLegacyHeader(legacyHeader);
-    } else if(headerVersion == BITMAPCOREHEADER2_LONG || headerVersion == BITMAPCOREHEADER2_SHORT){
-        BitmapCoreHeaderV2 legacyHeader = *((BitmapCoreHeaderV2*) &rawData[14]);
-        infoHeader = convertLegacyHeader(legacyHeader);
-    } else {
-        infoHeader = *((BitmapInformationHeader *) &rawData[14]);
-    }
+    infoHeader = BitmapHeader(&rawData[14]);
 
     if(infoHeader.compression == BI_BITFIELDS) {
         bitMask = *((BitMask*) &rawData[sizeof(BitmapFileHeader) + sizeof(BitmapInformationHeader)]);
-        colorPalette = ColorPalette(headerVersion, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize + sizeof(BitMask)]);
+        colorPalette = ColorPalette(infoHeader.version, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize + sizeof(BitMask)]);
     } else {
         if(infoHeader.bitmapDepth > 16) {
             bitMask = {0x00ff0000, 0x0000ff00, 0x000000ff};
@@ -44,7 +33,7 @@ void Bmp::processData() {
             bitMask = {0x00007C00, 0x000003E0, 0x0000001F};
         }
 
-        colorPalette = ColorPalette(headerVersion, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize]);
+        colorPalette = ColorPalette(infoHeader.version, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize]);
     }
 
     auto *pixelData = reinterpret_cast<uint8_t *>(&rawData[fileHeader.dataOffset]);

@@ -134,6 +134,8 @@ int32_t GatesOfHell::enter() {
 
     BeepFile *sound = BeepFile::load("/initrd/music/startup.beep");
 
+    Kernel::getService<GraphicsService>()->getLinearFrameBuffer()->disableDoubleBuffering();
+
     if(sound != nullptr) {
         sound->play();
         delete sound;

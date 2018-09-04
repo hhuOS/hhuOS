@@ -123,10 +123,68 @@ private:
         uint32_t numImportantColors;
     } __attribute__ ((packed));
 
+    struct BitmapHeader {
+
+        BitmapHeaderVersion version = BITMAPINFOHEADER;
+        uint32_t headerSize = 0;
+        int32_t bitmapWidth = 0;
+        int32_t bitmapHeight = 0;
+        uint16_t numColorPlanes = 0;
+        uint16_t bitmapDepth = 0;
+        CompressionMethod compression = BI_RGB;
+        uint32_t bitmapSize = 0;
+        int32_t horizontalResolution = 0;
+        int32_t verticalResolution = 0;
+        uint32_t numColorsInPalette = 0;
+        uint32_t numImportantColors = 0;
+
+    public:
+
+        BitmapHeader() = default;
+
+        explicit BitmapHeader(void *headerStart) {
+            version = *((BitmapHeaderVersion *) headerStart);
+
+            if(version == BITMAPCOREHEADER) {
+                BitmapCoreHeaderV1 header = *((BitmapCoreHeaderV1*) headerStart);
+
+                headerSize = header.headerSize;
+                bitmapWidth = header.bitmapWidth;
+                bitmapHeight = header.bitmapHeight;
+                numColorPlanes = header.numColorPlanes;
+                bitmapDepth = header.bitmapDepth;
+                compression = CompressionMethod::BI_RGB;
+            } else if(version == BITMAPCOREHEADER2_SHORT || version == BITMAPCOREHEADER2_LONG) {
+                BitmapCoreHeaderV2 header = *((BitmapCoreHeaderV2*) headerStart);
+
+                headerSize = header.headerSize;
+                bitmapWidth = header.bitmapWidth;
+                bitmapHeight = header.bitmapHeight;
+                numColorPlanes = header.numColorPlanes;
+                bitmapDepth = header.bitmapDepth;
+                compression = CompressionMethod::BI_RGB;
+            } else {
+                BitmapInformationHeader header = *((BitmapInformationHeader*) headerStart);
+
+                headerSize = header.headerSize;
+                bitmapWidth = header.bitmapWidth;
+                bitmapHeight = header.bitmapHeight;
+                numColorPlanes = header.numColorPlanes;
+                bitmapDepth = header.bitmapDepth;
+                compression = header.compression;
+                bitmapSize = header.bitmapSize;
+                horizontalResolution = header.horizontalResolution;
+                verticalResolution = header.verticalResolution;
+                numColorsInPalette = header.numColorsInPalette;
+                numImportantColors = header.numImportantColors;
+            }
+        }
+    };
+
 private:
 
     BitmapFileHeader fileHeader;
-    BitmapInformationHeader infoHeader;
+    BitmapHeader infoHeader;
     BitMask bitMask;
     ColorPalette colorPalette;
 
