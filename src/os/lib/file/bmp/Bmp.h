@@ -164,8 +164,6 @@ private:
 
     void read4BitImage(uint8_t *rawPixelData);
 
-    void read2BitImage(uint8_t *rawPixelData);
-
     void read1BitImage(uint8_t *rawPixelData);
 
 public:
