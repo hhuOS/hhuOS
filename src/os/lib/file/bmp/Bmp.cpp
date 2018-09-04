@@ -36,7 +36,7 @@ void Bmp::processData() {
 
     if(infoHeader.compression == BI_BITFIELDS) {
         bitMask = *((BitMask*) &rawData[sizeof(BitmapFileHeader) + sizeof(BitmapInformationHeader)]);
-        colorPalette = (ColorPaletteEntry*) &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize + sizeof(BitMask)];
+        colorPalette = ColorPalette(headerVersion, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize + sizeof(BitMask)]);
     } else {
         if(infoHeader.bitmapDepth > 16) {
             bitMask = {0x00ff0000, 0x0000ff00, 0x000000ff};
@@ -44,7 +44,7 @@ void Bmp::processData() {
             bitMask = {0x00007C00, 0x000003E0, 0x0000001F};
         }
 
-        colorPalette = (ColorPaletteEntry*) &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize];
+        colorPalette = ColorPalette(headerVersion, &rawData[sizeof(BitmapFileHeader) + infoHeader.headerSize]);
     }
 
     auto *pixelData = reinterpret_cast<uint8_t *>(&rawData[fileHeader.dataOffset]);
@@ -287,9 +287,9 @@ void Bmp::read8BitImage(uint8_t *rawPixelData) {
         for(uint32_t j = 0; j < getWidth(); j++) {
             uint8_t currentPixel = rawPixelData[(i * getPaddedWidth() + j)];
 
-            auto red = colorPalette[currentPixel].red;
-            auto green = colorPalette[currentPixel].green;
-            auto blue = colorPalette[currentPixel].blue;
+            auto red = colorPalette.getColor(currentPixel).red;
+            auto green = colorPalette.getColor(currentPixel).green;
+            auto blue = colorPalette.getColor(currentPixel).blue;
 
             processedPixels[currentRow * getWidth() + j] = Color(red, green, blue);
         }

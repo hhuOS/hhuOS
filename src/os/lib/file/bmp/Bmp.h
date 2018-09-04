@@ -44,6 +44,48 @@ private:
         uint8_t reserved;
     } __attribute__ ((packed));
 
+    struct LegacyColorPaletteEntry {
+        uint8_t blue;
+        uint8_t green;
+        uint8_t red;
+    } __attribute__ ((packed));
+
+    struct ColorPalette {
+    private:
+
+        ColorPaletteEntry *colorPalette = nullptr;
+        LegacyColorPaletteEntry *legacyColorPalette = nullptr;
+
+        bool useLegacyPalette = false;
+
+    public:
+
+        ColorPalette() = default;
+
+        ColorPalette(BitmapHeaderVersion headerVersion, void *paletteStart) {
+            colorPalette = (ColorPaletteEntry*) paletteStart;
+            legacyColorPalette = (LegacyColorPaletteEntry*) paletteStart;
+
+            if(headerVersion == BITMAPCOREHEADER) {
+                useLegacyPalette = true;
+            }
+        }
+
+        ColorPaletteEntry getColor(uint32_t index) {
+            if(useLegacyPalette) {
+                ColorPaletteEntry ret{0};
+
+                ret.red = legacyColorPalette[index].red;
+                ret.green = legacyColorPalette[index].green;
+                ret.blue = legacyColorPalette[index].blue;
+
+                return ret;
+            }
+
+            return colorPalette[index];
+        }
+    };
+
     struct BitmapFileHeader {
         char identifier[2];
         uint32_t fileSize;
@@ -86,7 +128,7 @@ private:
     BitmapFileHeader fileHeader;
     BitmapInformationHeader infoHeader;
     BitMask bitMask;
-    ColorPaletteEntry *colorPalette = nullptr;
+    ColorPalette colorPalette;
 
     char *rawData = nullptr;
     Color *processedPixels = nullptr;
