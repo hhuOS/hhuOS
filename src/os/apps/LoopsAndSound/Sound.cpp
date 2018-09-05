@@ -1,6 +1,6 @@
 #include <kernel/Kernel.h>
 #include <kernel/services/SoundService.h>
-#include <lib/sound/BeepFile.h>
+#include <lib/file/beep/BeepFile.h>
 #include "Sound.h"
 
 Sound::Sound() : Thread("Sound") {

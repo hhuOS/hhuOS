@@ -132,7 +132,7 @@ String SoundBlaster::getDeviceName() {
 }
 
 void SoundBlaster::setup() {
-
+    // Nothing to do here...
 }
 
 void SoundBlaster::turnSpeakerOn() {
@@ -143,10 +143,6 @@ void SoundBlaster::turnSpeakerOff() {
     writeToDSP(0xd3);
 }
 
-void SoundBlaster::playSample(uint8_t sample) {
-    writeToDAC(sample);
-}
-
-void SoundBlaster::playSample(uint16_t sample) {
-    playSample(static_cast<uint8_t>((sample / 65535.0) * 255));
+void SoundBlaster::playPcmData(const Pcm &pcm) {
+    // TODO: Implement playback of pcm data via ISA DMA
 }

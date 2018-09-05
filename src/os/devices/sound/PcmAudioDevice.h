@@ -2,6 +2,7 @@
 #define HHUOS_PCMAUDIODEVICE_H
 
 #include <lib/String.h>
+#include <lib/sound/Pcm.h>
 
 class PcmAudioDevice {
 
@@ -21,13 +22,7 @@ public:
 
     virtual void setup() = 0;
 
-    virtual void turnSpeakerOn() = 0;
-
-    virtual void turnSpeakerOff() = 0;
-
-    virtual void playSample(uint8_t sample) = 0;
-
-    virtual void playSample(uint16_t sample) = 0;
+    virtual void playPcmData(const Pcm &pcm) = 0;
 };
 
 #endif

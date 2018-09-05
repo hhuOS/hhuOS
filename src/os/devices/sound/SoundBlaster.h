@@ -59,19 +59,17 @@ public:
 
     ~SoundBlaster() = default;
 
+    void turnSpeakerOn();
+
+    void turnSpeakerOff();
+
     String getVendorName() override;
 
     String getDeviceName() override;
 
     void setup() override;
 
-    void turnSpeakerOn() override;
-
-    void turnSpeakerOff() override;
-
-    void playSample(uint8_t sample) override;
-
-    void playSample(uint16_t sample) override;
+    void playPcmData(const Pcm &pcm) override;
 };
 
 #endif

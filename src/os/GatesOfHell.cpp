@@ -22,8 +22,9 @@
 #include <filesystem/TarArchive/TarArchiveNode.h>
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include <lib/file/Directory.h>
-#include <lib/sound/BeepFile.h>
+#include <lib/file/beep/BeepFile.h>
 #include <kernel/services/ScreenshotService.h>
+#include <lib/file/wav/Wav.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
