@@ -4,16 +4,21 @@
 
 #include "ParallelService.h"
 
+Logger &ParallelService::log = Logger::get("PARALLEL");
+
 ParallelService::ParallelService() {
     if(Parallel::checkPort(Parallel::LPT1)) {
+        log.info("Detected LPT1");
         lpt1 = new Parallel(Parallel::LPT1);
     }
 
     if(Parallel::checkPort(Parallel::LPT2)) {
+        log.info("Detected LPT2");
         lpt2 = new Parallel(Parallel::LPT2);
     }
 
     if(Parallel::checkPort(Parallel::LPT3)) {
+        log.info("Detected LPT3");
         lpt3 = new Parallel(Parallel::LPT3);
     }
 }

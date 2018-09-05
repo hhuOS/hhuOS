@@ -8,6 +8,8 @@ class ParallelService : public KernelService {
 
 private:
 
+    static Logger &log;
+
     Parallel *lpt1 = nullptr;
     Parallel *lpt2 = nullptr;
     Parallel *lpt3 = nullptr;
