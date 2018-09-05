@@ -4,7 +4,7 @@
 #include "Sound.h"
 
 Sound::Sound() : Thread("Sound") {
-    speaker = Kernel::getService<SoundService>()->getSpeaker();
+    speaker = Kernel::getService<SoundService>()->getPcSpeaker();
     timeService = Kernel::getService<TimeService>();
 }
 

@@ -27,7 +27,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2017
  */
-class Speaker {
+class PcSpeaker {
     
 private:
     IOport control;
@@ -48,17 +48,17 @@ public:
     /**
      * Constructor.
      */
-    Speaker();
+    PcSpeaker();
 
     /**
      * Copy-constructor.
      */
-    Speaker(const Speaker &copy) = delete;
+    PcSpeaker(const PcSpeaker &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~Speaker() = delete;
+    ~PcSpeaker() = delete;
 
     /**
      * Beep for a given time.

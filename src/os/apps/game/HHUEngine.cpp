@@ -26,7 +26,7 @@ Random HHUEngine::random(42, 32768);
 Game* HHUEngine::currentGame;
 
 uint32_t hhu_engine_beep(const Util::Pair<float, uint32_t> &data) {
-    Kernel::getService<SoundService>()->getSpeaker()->play(data.first, data.second);
+    Kernel::getService<SoundService>()->getPcSpeaker()->play(data.first, data.second);
 
     return 0;
 }
@@ -54,7 +54,7 @@ void HHUEngine::setSeed(unsigned int seed){
 }
 
 void HHUEngine::beep(float frequency, uint32_t length) {
-    Kernel::getService<SoundService>()->getSpeaker()->play(frequency, length);
+    Kernel::getService<SoundService>()->getPcSpeaker()->play(frequency, length);
     /*const Util::Pair<float, uint32_t> data(frequency, length);
 
     auto *beepThread = new WorkerThread<Util::Pair<float, uint32_t>, uint32_t >(hhu_engine_beep, data, nullptr);

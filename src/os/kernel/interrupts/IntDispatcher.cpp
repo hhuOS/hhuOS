@@ -10,7 +10,7 @@
 #include <kernel/KernelSymbols.h>
 #include <kernel/IOport.h>
 #include <lib/libc/printf.h>
-#include <devices/Speaker.h>
+#include <devices/sound/PcSpeaker.h>
 #include <lib/Random.h>
 #include <devices/Serial.h>
 #include <kernel/debug/GdbServer.h>

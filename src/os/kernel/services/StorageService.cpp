@@ -4,7 +4,7 @@
 #include "devices/block/storage/Partition.h"
 #include "EventBus.h"
 
-Logger &StorageService::log = Logger::get("STORAGE_SERVICE");
+Logger &StorageService::log = Logger::get("STORAGE");
 
 StorageService::StorageService() : addEventBuffer(64), removeEventBuffer(64) {
 

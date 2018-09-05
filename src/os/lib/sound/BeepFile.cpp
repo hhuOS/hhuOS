@@ -5,7 +5,7 @@
 
 BeepFile::BeepFile(const Content &content) : content(content){
 
-    speaker = Kernel::getService<SoundService>()->getSpeaker();
+    speaker = Kernel::getService<SoundService>()->getPcSpeaker();
 }
 
 BeepFile* BeepFile::load(const String &path) {

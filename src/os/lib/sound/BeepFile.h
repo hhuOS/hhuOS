@@ -1,7 +1,7 @@
 #ifndef __BeepFile_include__
 #define __BeepFile_include__
 
-#include <devices/Speaker.h>
+#include <devices/sound/PcSpeaker.h>
 
 class BeepFile {
 
@@ -37,7 +37,7 @@ private:
 
     const Content &content;
 
-    Speaker *speaker = nullptr;
+    PcSpeaker *speaker = nullptr;
 
     static constexpr const uint32_t MAGIC = 0x42454550;
 

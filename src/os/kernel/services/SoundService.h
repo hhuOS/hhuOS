@@ -1,28 +1,32 @@
-//
-// Created by burak on 05.03.18.
-//
-
 #ifndef HHUOS_SOUNDSERVICE_H
 #define HHUOS_SOUNDSERVICE_H
 
 
 #include <kernel/KernelService.h>
-#include <devices/Speaker.h>
+#include <devices/sound/PcSpeaker.h>
+#include <devices/sound/PcmAudioDevice.h>
 
 class SoundService : public KernelService {
 
 private:
-    Speaker *speaker;
 
+    static Logger &log;
+
+    PcSpeaker *pcSpeaker = nullptr;
+    PcmAudioDevice *pcmAudioDevice = nullptr;
 
 public:
+
     SoundService();
 
-    static constexpr char* SERVICE_NAME = "SoundService";
+    static const constexpr char* SERVICE_NAME = "SoundService";
 
-    Speaker* getSpeaker();
+    PcSpeaker* getPcSpeaker();
 
+    PcmAudioDevice* getPcmAudioDevice();
+
+    void setPcmAudioDevice(PcmAudioDevice *newDevice);
 };
 
 
-#endif //HHUOS_SOUNDSERVICE_H
+#endif

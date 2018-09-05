@@ -15,7 +15,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <lib/libc/printf.h>
-#include <devices/Speaker.h>
+#include <devices/sound/PcSpeaker.h>
 #include "Keyboard.h"
 
 /* Tabellen fuer ASCII-Codes (Klassenvariablen) intiialisieren */

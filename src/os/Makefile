@@ -75,17 +75,19 @@ MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 #-------------------------------------------#
 # QEMU and KVM defaults                     #
 #-------------------------------------------#
-QEMU_BIN = qemu-system-i386 -cpu 486,+sse,+sse2
-KVM_BIN = qemu-system-i386 -enable-kvm -cpu 486,+sse,+sse2
+QEMU_BIN = qemu-system-i386
+KVM_BIN = qemu-system-i386 -enable-kvm
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
-QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -soundhw pcspk -vga std -monitor stdio \
+QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio \
+					  -cpu 486,+sse,+sse2 \
 					  -fda fdd0.img \
 					  -readconfig usb.cfg \
 					  -drive format=raw,file=hdd0.img,if=none,id=disk0 \
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
-					  -rtc base=localtime,clock=host
+					  -rtc base=localtime,clock=host \
+					  -soundhw pcspk,sb16
 
 #-------------------------------------------#
 # Build dependencies                        #

@@ -224,7 +224,7 @@ void BugDefender::addPoints(int points){
 void BugDefender::takeDamage(int amount){
     lifes -= amount;
 
-    beepThreadPool.addWork([](){HHUEngine::beep(Speaker::C0);});
+    beepThreadPool.addWork([](){HHUEngine::beep(PcSpeaker::C0);});
 }
 
 void BugDefender::gameOver(){
@@ -234,5 +234,5 @@ void BugDefender::gameOver(){
 void BugDefender::enemyShot(){
     enemyCount--;
 
-    beepThreadPool.addWork([](){HHUEngine::beep(Speaker::C2);});
+    beepThreadPool.addWork([](){HHUEngine::beep(PcSpeaker::C2);});
 }

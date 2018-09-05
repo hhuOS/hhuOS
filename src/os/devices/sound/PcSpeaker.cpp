@@ -15,14 +15,14 @@
  */
 
 #include <kernel/Kernel.h>
-#include "devices/Speaker.h"
+#include "PcSpeaker.h"
 
 
-Speaker::Speaker() : control(0x43), data0(0x40), data2(0x42), ppi(0x61) {
+PcSpeaker::PcSpeaker() : control(0x43), data0(0x40), data2(0x42), ppi(0x61) {
     timeService = Kernel::getService<TimeService>();
 }
 
-void Speaker::play(float f, uint32_t len) {
+void PcSpeaker::play(float f, uint32_t len) {
 
     if (f == 0.0F) {
 
@@ -40,7 +40,7 @@ void Speaker::play(float f, uint32_t len) {
     off ();
 }
 
-void Speaker::play (float f) {
+void PcSpeaker::play (float f) {
     auto  freq = static_cast<uint32_t>(f);
     auto cntStart = static_cast<uint16_t>(1193180 / freq);
     uint8_t status;
@@ -50,12 +50,12 @@ void Speaker::play (float f) {
     data2.outb(static_cast<uint8_t>(cntStart % 256));
     data2.outb(static_cast<uint8_t>(cntStart / 256));
 
-    // Turn speaker on
+    // Turn pcSpeaker on
     status = ppi.inb();
     ppi.outb (static_cast<uint8_t>(status | 3));
 }
 
-void Speaker::off () {
+void PcSpeaker::off () {
     uint8_t status;
 
     status = (uint8_t)ppi.inb ();
@@ -69,6 +69,6 @@ void Speaker::off () {
  *                                                                           *
  * Parameter:       time (delay in ms)                                       *
  *****************************************************************************/
-inline void Speaker::delay(uint32_t time) {
+inline void PcSpeaker::delay(uint32_t time) {
     timeService->msleep(time);
 }

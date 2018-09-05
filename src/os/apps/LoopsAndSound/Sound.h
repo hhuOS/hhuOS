@@ -2,7 +2,7 @@
 #define __Sound_include__
 
 #include "kernel/threads/Thread.h"
-#include "devices/Speaker.h"
+#include "devices/sound/PcSpeaker.h"
 
 /**
  * A simple thread, which plays a melody in an infinite loop.
@@ -14,7 +14,7 @@ class Sound : public Thread {
 
 private:
 
-    Speaker *speaker = nullptr;
+    PcSpeaker *speaker = nullptr;
 
     TimeService * timeService = nullptr;
 

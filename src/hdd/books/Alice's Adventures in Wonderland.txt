@@ -3007,7 +3007,7 @@ nothing, being fast asleep.
 The miserable Hatter dropped his teacup and bread-and-butter, and went
 down on one knee. ‘I’m a poor man, your Majesty,’ he began.
 
-‘You’re a very poor speaker,’ said the King.
+‘You’re a very poor pcSpeaker,’ said the King.
 
 Here one of the guinea-pigs cheered, and was immediately suppressed by
 the officers of the court. (As that is rather a hard word, I will just
