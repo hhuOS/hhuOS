@@ -9,7 +9,11 @@ SoundService::SoundService() {
 
     if(SoundBlaster::isAvailable()) {
         log.info("Found audio device: SoundBlaster");
-        setPcmAudioDevice(new SoundBlaster());
+
+        auto *soundBlaster = new SoundBlaster();
+        soundBlaster->setup();
+
+        setPcmAudioDevice(soundBlaster);
     }
 }
 

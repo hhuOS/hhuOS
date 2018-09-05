@@ -87,7 +87,8 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -m
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -rtc base=localtime,clock=host \
-					  -soundhw pcspk,sb16
+					  -device sb16,irq=10 \
+					  -soundhw pcspk
 
 #-------------------------------------------#
 # Build dependencies                        #

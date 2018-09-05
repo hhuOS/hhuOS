@@ -4,9 +4,10 @@
 #include <cstdint>
 #include <kernel/IOport.h>
 #include <kernel/services/TimeService.h>
+#include <kernel/interrupts/Pic.h>
 #include "PcmAudioDevice.h"
 
-class SoundBlaster : public PcmAudioDevice {
+class SoundBlaster : public PcmAudioDevice, public InterruptHandler {
 
 private:
 
@@ -17,10 +18,15 @@ private:
     uint8_t majorVersion;
     uint8_t minorVersion;
 
+    // Supported on all DSP-versions
     IOport resetPort;
     IOport readDataPort;
     IOport writeDataPort;
     IOport readBufferStatusPort;
+
+    // Only supported on DSP-versions >= 3 (SoundBlaster Pro), or higher
+    IOport mixerAddressPort;
+    IOport mixerDataPort;
 
     TimeService *timeService = nullptr;
 
@@ -49,7 +55,11 @@ private:
 
     void writeToDSP(uint8_t value);
 
+    uint8_t readFromADC();
+
     void writeToDAC(uint8_t value);
+
+    void plugin();
 
 public:
 
@@ -57,7 +67,7 @@ public:
 
     SoundBlaster();
 
-    ~SoundBlaster() = default;
+    ~SoundBlaster() override = default;
 
     void turnSpeakerOn();
 
@@ -70,6 +80,8 @@ public:
     void setup() override;
 
     void playPcmData(const Pcm &pcm) override;
+
+    void trigger() override;
 };
 
 #endif

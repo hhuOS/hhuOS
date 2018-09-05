@@ -1,4 +1,5 @@
 #include <kernel/Kernel.h>
+#include <kernel/interrupts/IntDispatcher.h>
 #include "SoundBlaster.h"
 
 Logger &SoundBlaster::log = Logger::get("SOUNDBLASTER");
@@ -28,16 +29,13 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
         readDataPort(static_cast<uint16_t>(baseAddress + 0x0a)),
         writeDataPort(static_cast<uint16_t>(baseAddress + 0x0c)),
         readBufferStatusPort(static_cast<uint16_t>(baseAddress + 0x0e)),
+        mixerAddressPort(static_cast<uint16_t>(baseAddress + 0x04)),
+        mixerDataPort(static_cast<uint16_t>(baseAddress + 0x05)),
         timeService(Kernel::getService<TimeService>()) {
 
 }
 
-SoundBlaster::SoundBlaster() : baseAddress(getBasePort()),
-        resetPort(static_cast<uint16_t>(baseAddress + 0x06)),
-        readDataPort(static_cast<uint16_t>(baseAddress + 0x0a)),
-        writeDataPort(static_cast<uint16_t>(baseAddress + 0x0c)),
-        readBufferStatusPort(static_cast<uint16_t>(baseAddress + 0x0e)),
-        timeService(Kernel::getService<TimeService>()) {
+SoundBlaster::SoundBlaster() : SoundBlaster(getBasePort())  {
     log.info("Found base port at address 0x%04x", baseAddress);
 
     // Reset card
@@ -63,6 +61,11 @@ void SoundBlaster::writeToDSP(uint8_t value) {
     while((readBufferStatusPort.inb() & 0x80) == 0x80);
 
     writeDataPort.outb(value);
+}
+
+uint8_t SoundBlaster::readFromADC() {
+    writeToDSP(0x20);
+    return readFromDSP();
 }
 
 void SoundBlaster::writeToDAC(uint8_t value) {
@@ -132,7 +135,8 @@ String SoundBlaster::getDeviceName() {
 }
 
 void SoundBlaster::setup() {
-    // Nothing to do here...
+    plugin();
+    turnSpeakerOn();
 }
 
 void SoundBlaster::turnSpeakerOn() {
@@ -145,4 +149,23 @@ void SoundBlaster::turnSpeakerOff() {
 
 void SoundBlaster::playPcmData(const Pcm &pcm) {
     // TODO: Implement playback of pcm data via ISA DMA
+}
+
+void SoundBlaster::plugin() {
+    // Older DSPs don't support IRQ-configuration.
+    // They must be configured via jumpers and there is no real way to get the IRQ-number.
+    // We just assume the DSP to use IRQ10.
+
+    if(majorVersion > 4) {
+        // Manually configure the DSP to use IRQ10 on SoundBlaster 16 or newer cards.
+        mixerAddressPort.outb(0x80);
+        mixerDataPort.outb(0x08);
+    }
+
+    IntDispatcher::getInstance().assign(42, *this);
+    Pic::getInstance()->allow(Pic::Interrupt::FREE2);
+}
+
+void SoundBlaster::trigger() {
+
 }
