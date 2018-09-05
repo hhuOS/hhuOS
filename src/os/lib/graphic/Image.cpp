@@ -6,7 +6,7 @@ extern "C" {
 #include <lib/libc/math.h>
 }
 
-void Image::draw(uint16_t x, uint16_t y) {
+void Image::draw(uint16_t x, uint16_t y) const {
     auto *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
 
     for(uint16_t i = 0; i < height; i++) {
@@ -16,15 +16,15 @@ void Image::draw(uint16_t x, uint16_t y) {
     }
 }
 
-uint32_t Image::getHeight() {
+uint32_t Image::getHeight() const {
     return height;
 }
 
-uint32_t Image::getWidth() {
+uint32_t Image::getWidth() const {
     return width;
 }
 
-uint8_t Image::getColorDepth() {
+uint8_t Image::getColorDepth() const {
     return depth;
 }
 

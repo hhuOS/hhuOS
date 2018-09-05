@@ -46,6 +46,7 @@
 #include <lib/graphic/Ansi.h>
 #include <apps/Shell/Commands/MkVdd.h>
 #include <apps/Shell/Commands/DelVdd.h>
+#include <apps/Shell/Commands/BmpView.h>
 
 Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService>()->getTextDriver()) {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -84,6 +85,7 @@ Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService
     commands.put("date", new Date(*this));
     commands.put("comconfig", new ComConfig(*this));
     commands.put("lptconfig", new LptConfig(*this));
+    commands.put("bmpview", new BmpView(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
@@ -116,9 +118,6 @@ void Shell::run() {
     currentBase = 14;
 
     uint16_t x, y;
-
-    eventBus->subscribe(*this, KeyEvent::TYPE);
-    eventBus->subscribe(*this, SerialEvent::TYPE);
 
     while(isRunning) {
         char* input = nullptr;
@@ -221,9 +220,6 @@ void Shell::executeCommand(String input) {
         return;
     } else if(args[0] == "exit") {
         isRunning = false;
-        eventBus->unsubscribe(*this, KeyEvent::TYPE);
-        eventBus->unsubscribe(*this, SerialEvent::TYPE);
-
         return;
     }
 
@@ -369,6 +365,9 @@ InputStream &Shell::operator>>(char &c) {
 }
 
 InputStream &Shell::operator>>(char *&string) {
+    eventBus->subscribe(*this, KeyEvent::TYPE);
+    eventBus->subscribe(*this, SerialEvent::TYPE);
+
     while(true) {
         inputLock.acquire();
 
@@ -379,6 +378,9 @@ InputStream &Shell::operator>>(char *&string) {
             memcpy(string, (char *) lastString, lastString.length() + 1);
 
             inputLock.release();
+
+            eventBus->unsubscribe(*this, KeyEvent::TYPE);
+            eventBus->unsubscribe(*this, SerialEvent::TYPE);
             return *this;
         }
 

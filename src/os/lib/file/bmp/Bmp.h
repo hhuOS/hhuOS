@@ -200,10 +200,6 @@ private:
 
     uint8_t countOnes(uint32_t number);
 
-    BitmapInformationHeader convertLegacyHeader(const BitmapCoreHeaderV1 &legacyHeader);
-
-    BitmapInformationHeader convertLegacyHeader(const BitmapCoreHeaderV2 &legacyHeader);
-
     uint32_t getPaddedWidth();
 
     void processData();
@@ -228,9 +224,9 @@ public:
 
     explicit Bmp(File *file);
 
-    explicit Bmp(Color *pixelBuf, uint32_t width, uint32_t height);
+    explicit Bmp(const Bmp &other);
 
-    Bmp(const Bmp &copy) = delete;
+    Bmp(Color *pixelBuf, uint32_t width, uint32_t height);
 
     ~Bmp();
 

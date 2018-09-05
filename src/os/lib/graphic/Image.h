@@ -23,17 +23,17 @@ public:
 
     ~Image() = default;
 
-    uint32_t getHeight();
+    uint32_t getHeight() const;
 
-    uint32_t getWidth();
+    uint32_t getWidth() const;
 
-    uint8_t getColorDepth();
+    uint8_t getColorDepth() const;
 
     void scaleUp(uint8_t factor);
 
     void scaleDown(uint8_t factor);
 
-    void draw(uint16_t x, uint16_t y);
+    void draw(uint16_t x, uint16_t y) const;
 };
 
 #endif

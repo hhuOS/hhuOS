@@ -137,7 +137,7 @@ int32_t GatesOfHell::enter() {
     Kernel::getService<GraphicsService>()->getLinearFrameBuffer()->disableDoubleBuffering();
 
     if(sound != nullptr) {
-        sound->play();
+        //sound->play();
         delete sound;
     }
 

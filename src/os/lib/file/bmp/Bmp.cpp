@@ -12,13 +12,21 @@ Bmp::Bmp(File *file) {
     delete rawData;
 }
 
+Bmp::Bmp(const Bmp &other) {
+    this->width = other.width;
+    this->height = other.height;
+    this->depth = 32;
+
+    this->pixelBuf = new Color[height * width];
+    memcpy(this->pixelBuf, other.pixelBuf, height * width * sizeof(Color));
+}
+
 Bmp::Bmp(Color *pixelBuf, uint32_t width, uint32_t height) {
     this->width = width;
     this->height = height;
     this->depth = 32;
 
     this->pixelBuf = new Color[height * width];
-
     memcpy(this->pixelBuf, pixelBuf, height * width * sizeof(Color));
 }
 
@@ -95,32 +103,6 @@ void Bmp::processData() {
     if(infoHeader.compression == BI_RLE8 || infoHeader.compression == BI_RLE4) {
         delete pixelData;
     }
-}
-
-Bmp::BitmapInformationHeader Bmp::convertLegacyHeader(const Bmp::BitmapCoreHeaderV1 &legacyHeader) {
-    BitmapInformationHeader ret{0};
-
-    ret.headerSize = legacyHeader.headerSize;
-    ret.bitmapWidth = legacyHeader.bitmapWidth;
-    ret.bitmapHeight = legacyHeader.bitmapHeight;
-    ret.numColorPlanes = legacyHeader.numColorPlanes;
-    ret.bitmapDepth = legacyHeader.bitmapDepth;
-    ret.compression = CompressionMethod::BI_RGB;
-
-    return ret;
-}
-
-Bmp::BitmapInformationHeader Bmp::convertLegacyHeader(const Bmp::BitmapCoreHeaderV2 &legacyHeader) {
-    BitmapInformationHeader ret{0};
-
-    ret.headerSize = legacyHeader.headerSize;
-    ret.bitmapWidth = legacyHeader.bitmapWidth;
-    ret.bitmapHeight = legacyHeader.bitmapHeight;
-    ret.numColorPlanes = legacyHeader.numColorPlanes;
-    ret.bitmapDepth = legacyHeader.bitmapDepth;
-    ret.compression = CompressionMethod::BI_RGB;
-
-    return ret;
 }
 
 uint8_t *Bmp::decodeRLE4(uint8_t *encodedData) {
