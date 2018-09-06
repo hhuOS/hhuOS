@@ -5,9 +5,58 @@
 #include <kernel/IOport.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/interrupts/Pic.h>
+#include <devices/Isa.h>
 #include "PcmAudioDevice.h"
 
 class SoundBlaster : public PcmAudioDevice, public InterruptHandler {
+
+private:
+
+    struct FeatureSet {
+        bool monoPcm8Bit = false;
+        bool monoAdpcm8Bit = false;
+        bool stereoPcm8Bit = false;
+        bool monoPcm16Bit = false;
+        bool stereoPcm16Bit = false;
+        bool dmaSingleCycle = false;
+        bool dmaAutoInitialize = false;
+        bool dmaHighSpeedSingleCycle = false;
+        bool dmaHighSpeedAutoInitialize = false;
+
+        FeatureSet() = default;
+
+        FeatureSet(uint8_t majorVersion, uint8_t minorVersion) {
+            if(majorVersion < 2) {
+                monoPcm8Bit = true;
+                monoAdpcm8Bit = true;
+                dmaSingleCycle = true;
+            } else if(majorVersion < 3) {
+                monoPcm8Bit = true;
+                monoAdpcm8Bit = true;
+                dmaSingleCycle = true;
+                dmaAutoInitialize = true;
+
+                if(minorVersion > 0) {
+                    dmaHighSpeedSingleCycle = true;
+                    dmaHighSpeedAutoInitialize = true;
+                }
+            } else if(majorVersion < 4) {
+                monoPcm8Bit = true;
+                monoAdpcm8Bit = true;
+                stereoPcm16Bit = true;
+                dmaSingleCycle = true;
+                dmaAutoInitialize = true;
+                dmaHighSpeedSingleCycle = true;
+                dmaHighSpeedAutoInitialize = true;
+            } else {
+                monoPcm8Bit = true;
+                monoAdpcm8Bit = true;
+                stereoPcm16Bit = true;
+                dmaSingleCycle = true;
+                dmaAutoInitialize = true;
+            }
+        }
+    };
 
 private:
 
@@ -17,6 +66,14 @@ private:
 
     uint8_t majorVersion;
     uint8_t minorVersion;
+
+    bool receivedInterrupt;
+
+    void *dmaMemory = nullptr;
+
+    Spinlock cycleLock;
+
+    FeatureSet featureSet;
 
     // Supported on all DSP-versions
     IOport resetPort;
@@ -31,7 +88,8 @@ private:
     TimeService *timeService = nullptr;
 
     static const constexpr uint16_t FIRST_BASE_ADDRESS = 0x210;
-    static const constexpr uint32_t RESET_TIMEOUT = 10;
+    static const constexpr uint16_t LAST_BASE_ADDRESS = 0x280;
+    static const constexpr uint32_t TIMEOUT = 10;
 
     static const constexpr char *VENDOR_NAME = "Creative Technology";
 
@@ -58,6 +116,18 @@ private:
     uint8_t readFromADC();
 
     void writeToDAC(uint8_t value);
+
+    uint8_t ackInterrupt();
+
+    void prepareDma(Isa::TransferMode transferMode, uint16_t dataSize);
+
+    void dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond);
+
+    void dspSetBufferSize(uint16_t dataSize);
+
+    void play8BitPcm(const Pcm &pcm);
+
+    void play16BitPcm(const Pcm &pcm);
 
     void plugin();
 

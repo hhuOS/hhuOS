@@ -17,6 +17,10 @@ SoundService::SoundService() {
     }
 }
 
+bool SoundService::isPcmAudioAvailable() {
+    return pcmAudioDevice != nullptr;
+}
+
 PcSpeaker* SoundService::getPcSpeaker() {
     return pcSpeaker;
 }

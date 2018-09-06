@@ -1,5 +1,9 @@
 #include "Pcm.h"
 
+Pcm::AudioFormat Pcm::getAudioFormat() const {
+    return audioFormat;
+}
+
 uint16_t Pcm::getNumChannels() const {
     return numChannels;
 }

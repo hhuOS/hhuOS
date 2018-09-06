@@ -75,8 +75,8 @@ MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 #-------------------------------------------#
 # QEMU and KVM defaults                     #
 #-------------------------------------------#
-QEMU_BIN = qemu-system-i386
-KVM_BIN = qemu-system-i386 -enable-kvm
+QEMU_BIN = qemu-system-i386 -machine pc
+KVM_BIN = qemu-system-i386 -machine pc,accel=kvm,kernel-irqchip=off
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio \
@@ -87,7 +87,7 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -m
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
 					  -rtc base=localtime,clock=host \
-					  -device sb16,irq=10 \
+					  -device sb16,irq=10,dma=1 \
 					  -soundhw pcspk
 
 #-------------------------------------------#

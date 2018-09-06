@@ -15,6 +15,7 @@ Wav::~Wav() {
 void Wav::processData() {
     RiffChunk riffChunk = *((RiffChunk*) rawData);
 
+    audioFormat = riffChunk.formatChunk.audioFormat;
     bitsPerSample = riffChunk.formatChunk.bitsPerSample;
     numChannels = riffChunk.formatChunk.numChannels;
     samplesPerSecond = riffChunk.formatChunk.samplesPerSecond;

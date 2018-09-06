@@ -93,7 +93,7 @@ public:
      *
      * @param channel The channel number (0-7)
      * @param transferMode The transfer mode to use (read/write)
-     * @param autoReset true, if the address and counters shall be reset after a DMA transder
+     * @param autoReset true, if the address and counters shall be reset after a DMA transfer
      * @param reverseMemoryOrder true, if the memory order shall be reversed (High addresses to low addresses)
      * @param dmaMode The DMA to use
      */

@@ -21,6 +21,8 @@ public:
 
     static const constexpr char* SERVICE_NAME = "SoundService";
 
+    bool isPcmAudioAvailable();
+
     PcSpeaker* getPcSpeaker();
 
     PcmAudioDevice* getPcmAudioDevice();

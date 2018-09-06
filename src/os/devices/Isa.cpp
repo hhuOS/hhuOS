@@ -90,15 +90,23 @@ IOport Isa::multiChannelMaskRegisters[2] = {
 };
 
 void *Isa::allocDmaBuffer() {
-    void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    isaLock.acquire();
 
-    return SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void * ret = SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+
+    isaLock.release();
+
+    return ret;
 }
 
 void Isa::freeDmaBuffer(void *ptr) {
-    dmaMemoryManager.free(SystemManagement::getInstance()->getPhysicalAddress(ptr));
+    isaLock.acquire();
 
+    dmaMemoryManager.free(SystemManagement::getInstance()->getPhysicalAddress(ptr));
     SystemManagement::getInstance()->freeIO(ptr);
+
+    isaLock.release();
 }
 
 void Isa::selectChannel(uint8_t channel) {
@@ -108,7 +116,11 @@ void Isa::selectChannel(uint8_t channel) {
 
     auto mask = static_cast<uint8_t>((channel > 3u ? channel - 4u : channel) | 0x04u);
 
+    isaLock.acquire();
+
     singleChannelMaskRegisters[channel / 4].outb(mask);
+
+    isaLock.release();
 }
 
 void Isa::deselectChannel(uint8_t channel) {
@@ -118,7 +130,11 @@ void Isa::deselectChannel(uint8_t channel) {
 
     auto mask = static_cast<uint8_t>(channel > 3u ? channel - 4u : channel);
 
+    isaLock.acquire();
+
     singleChannelMaskRegisters[channel / 4].outb(mask);
+
+    isaLock.release();
 }
 
 void Isa::setAddress(uint8_t channel, uint32_t address) {
@@ -136,7 +152,7 @@ void Isa::setAddress(uint8_t channel, uint32_t address) {
 
     startAddressRegisters[channel].outb(static_cast<uint8_t>(address & 0x000000ffu));
     startAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 8u) & 0x000000ffu));
-    pageAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 16u) & 0x000000ffu));
+    pageAddressRegisters[channel].outb(static_cast<uint8_t>((address >> 16u) & 0x0000000fu));
 
     isaLock.release();
 }
