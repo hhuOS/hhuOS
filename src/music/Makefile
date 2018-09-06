@@ -21,7 +21,7 @@ DEPENDENCIES 		= $(addprefix $(BUILD_DIR)/,$(BEEP_OBJECTS))
 #-------------------------------------------#
 # Paths                                     #
 #-------------------------------------------#
-MUSIC_DIR			= ../initrd/music
+MUSIC_DIR			= ../initrd/music/beep
 SRC_DIR				= src
 BUILD_DIR			= build
 

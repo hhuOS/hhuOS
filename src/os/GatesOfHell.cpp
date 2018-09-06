@@ -133,7 +133,7 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->update(100, "Finished Booting!");
 
-    BeepFile *sound = BeepFile::load("/initrd/music/startup.beep");
+    BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
 
     Kernel::getService<GraphicsService>()->getLinearFrameBuffer()->disableDoubleBuffering();
 
