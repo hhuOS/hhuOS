@@ -50,7 +50,6 @@ public:
 
     /**
      * Check, if the device has data, that must be fetched.
-     * @return
      */
     virtual bool checkForData() = 0;
 

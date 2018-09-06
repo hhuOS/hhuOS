@@ -23,6 +23,8 @@ public:
     virtual void setup() = 0;
 
     virtual void playPcmData(const Pcm &pcm) = 0;
+
+    virtual void stopPlayback() = 0;
 };
 
 #endif

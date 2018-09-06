@@ -47,6 +47,7 @@
 #include <apps/Shell/Commands/MkVdd.h>
 #include <apps/Shell/Commands/DelVdd.h>
 #include <apps/Shell/Commands/BmpView.h>
+#include <apps/Shell/Commands/WavPlay.h>
 
 Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService>()->getTextDriver()) {
     stdStreamService = Kernel::getService<StdStreamService>();
@@ -86,6 +87,7 @@ Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService
     commands.put("comconfig", new ComConfig(*this));
     commands.put("lptconfig", new LptConfig(*this));
     commands.put("bmpview", new BmpView(*this));
+    commands.put("wavplay", new WavPlay(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }

@@ -67,7 +67,8 @@ private:
     uint8_t majorVersion;
     uint8_t minorVersion;
 
-    bool receivedInterrupt;
+    bool receivedInterrupt = true;
+    bool stopPlaying = false;
 
     void *dmaMemory = nullptr;
 
@@ -150,6 +151,8 @@ public:
     void setup() override;
 
     void playPcmData(const Pcm &pcm) override;
+
+    void stopPlayback() override;
 
     void trigger() override;
 };
