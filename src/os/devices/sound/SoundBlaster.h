@@ -8,7 +8,7 @@
 #include <devices/Isa.h>
 #include "PcmAudioDevice.h"
 
-class SoundBlaster : public PcmAudioDevice, public InterruptHandler {
+class SoundBlaster : public PcmAudioDevice, public IODevice {
 
 private:
 
@@ -153,6 +153,8 @@ public:
     void playPcmData(const Pcm &pcm) override;
 
     void stopPlayback() override;
+
+    bool checkForData() override;
 
     void trigger() override;
 };

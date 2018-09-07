@@ -4,6 +4,8 @@
 #include <kernel/Kernel.h>
 #include <kernel/services/SerialService.h>
 #include <devices/Pit.h>
+#include <kernel/services/SoundService.h>
+#include <devices/sound/SoundBlaster.h>
 #include "kernel/threads/Scheduler.h"
 
 extern "C" {
@@ -17,6 +19,7 @@ extern "C" {
 InputService *inputService = nullptr;
 TimeService *timeService = nullptr;
 SerialService *serialService = nullptr;
+SoundService *soundService = nullptr;
 
 void checkIoBuffers() {
     if(inputService->getKeyboard()->checkForData()) {
@@ -50,6 +53,12 @@ void checkIoBuffers() {
             serialService->getSerialPort(Serial::COM4)->trigger();
         }
     }
+
+    if(soundService->isPcmAudioAvailable()) {
+        if (((SoundBlaster *) soundService->getPcmAudioDevice())->checkForData()) {
+            ((SoundBlaster *) soundService->getPcmAudioDevice())->trigger();
+        }
+    }
 }
 
 Scheduler* Scheduler::scheduler = nullptr;
@@ -63,6 +72,7 @@ Scheduler::Scheduler() : initialized(false) {
     inputService = Kernel::getService<InputService>();
     timeService = Kernel::getService<TimeService>();
     serialService = Kernel::getService<SerialService>();
+    soundService = Kernel::getService<SoundService>();
 }
 
 Scheduler *Scheduler::getInstance()  {

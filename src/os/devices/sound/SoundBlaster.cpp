@@ -204,9 +204,9 @@ void SoundBlaster::play8BitPcm(const Pcm &pcm) {
 
     uint32_t dataSize = pcm.getFrameSize() * pcm.getSampleCount();
 
-    Pic::getInstance()->allow(Pic::Interrupt::FREE2);
-
     turnSpeakerOn();
+
+    stopPlaying = false;
 
     for(uint32_t i = 0; i < dataSize && !stopPlaying; i += 0xffff) {
         cycleLock.acquire();
@@ -232,10 +232,6 @@ void SoundBlaster::play8BitPcm(const Pcm &pcm) {
     ackInterrupt();
 
     turnSpeakerOff();
-
-    Pic::getInstance()->forbid(Pic::Interrupt::FREE2);
-
-    stopPlaying = false;
 }
 
 void SoundBlaster::play16BitPcm(const Pcm &pcm) {
@@ -294,6 +290,17 @@ void SoundBlaster::plugin() {
 
     IntDispatcher::getInstance().assign(42, *this);
     Pic::getInstance()->allow(Pic::Interrupt::FREE2);
+}
+
+bool SoundBlaster::checkForData() {
+    if(majorVersion >= 4) {
+        mixerAddressPort.outb(0x82);
+        if((mixerDataPort.inb() & 0x01) == 0x01) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void SoundBlaster::trigger() {

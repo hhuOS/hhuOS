@@ -31,7 +31,7 @@ public:
 
     Scheduler &operator=(const Scheduler &copy) = delete;
 
-    ~Scheduler() = default;
+    ~Scheduler() override = default;
 
     /**
      * Inidcates if the Scheduler has been initialized.
