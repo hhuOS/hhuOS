@@ -6,10 +6,6 @@
 
 class WavPlay : public Command, Receiver {
 
-private:
-
-    bool isRunning;
-
 public:
     /**
      * Default-constructor.

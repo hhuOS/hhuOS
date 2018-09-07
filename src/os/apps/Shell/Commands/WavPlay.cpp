@@ -2,11 +2,16 @@
 #include <kernel/services/SoundService.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <kernel/threads/WorkerThread.h>
+#include <kernel/threads/Scheduler.h>
 #include "WavPlay.h"
+
+bool isRunning = false;
 
 uint32_t playback(File* const& file) {
     Wav wav(file);
     Kernel::getService<SoundService>()->getPcmAudioDevice()->playPcmData(wav);
+
+    isRunning = false;
 
     return 0;
 }
@@ -72,6 +77,5 @@ void WavPlay::onEvent(const Event &event) {
 
     if(keyEvent.getKey().scancode() == KeyEvent::RETURN) {
         Kernel::getService<SoundService>()->getPcmAudioDevice()->stopPlayback();
-        isRunning = false;
     }
 }
