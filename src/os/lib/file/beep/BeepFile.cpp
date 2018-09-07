@@ -28,10 +28,20 @@ BeepFile* BeepFile::load(const String &path) {
 
 void BeepFile::play() {
 
-    for (uint32_t i = 0; i < content.length; i++) {
+    isPlaying = true;
+
+    for (uint32_t i = 0; isPlaying && i < content.length; i++) {
 
         speaker->play(content.sounds[i].frequency, content.sounds[i].length);
     }
+
+    speaker->off();
+
+    isPlaying = false;
+}
+
+void BeepFile::stop() {
+    isPlaying = false;
 }
 
 bool BeepFile::Sound::operator!=(const BeepFile::Sound &other) const {

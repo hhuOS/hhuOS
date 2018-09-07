@@ -31,6 +31,8 @@ public:
 
     void play();
 
+    void stop();
+
 private:
 
     explicit BeepFile(const Content &content);
@@ -38,6 +40,8 @@ private:
     const Content &content;
 
     PcSpeaker *speaker = nullptr;
+
+    bool isPlaying = false;
 
     static constexpr const uint32_t MAGIC = 0x42454550;
 
