@@ -15,7 +15,7 @@
 global startThread
 global switchContext
 
-extern enable_interrupts
+extern releaseSchedulerLock
 extern checkIoBuffers
 
 section .text
@@ -31,7 +31,7 @@ startThread:
     pop ebx
     pop ebp
 
-    call enable_interrupts
+    call releaseSchedulerLock
 
     ; start thread
     ret
@@ -60,7 +60,10 @@ switchContext:
 
     ; enable interrupts
     call checkIoBuffers
-    call enable_interrupts
+    call releaseSchedulerLock
+
+    ; TODO: This is ugly! PLZ FIX!!!!!!
+    sti
 
     ; resume next thread
     ret

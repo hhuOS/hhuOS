@@ -172,7 +172,7 @@ int32_t GatesOfHell::enter() {
         Logger::setConsoleLogging(false);
     }
 
-    Scheduler::getInstance()->schedule();
+    Scheduler::getInstance()->startUp();
 
     return 0;
 }

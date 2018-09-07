@@ -47,14 +47,7 @@ public:
     /**
      * Starts the Scheduler.
      */
-    void schedule ();
-
-    /**
-     * Switches to the given Thread.
-     *
-     * @param next A Thread.
-     */
-    void dispatch(Thread& next);
+    void startUp();
     
     /**
      * Registers a new Thread.
@@ -123,6 +116,17 @@ public:
     Thread *currentThread;
 
     Util::ArrayList<IODevice*> ioDevices;
+
+    Spinlock lock;
+
+private:
+
+    /**
+     * Switches to the given Thread.
+     *
+     * @param next A Thread.
+     */
+    void dispatch(Thread& next);
 
 private:
 
