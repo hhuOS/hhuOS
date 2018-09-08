@@ -6,6 +6,7 @@
 #include <kernel/services/TimeService.h>
 #include <kernel/interrupts/Pic.h>
 #include <devices/Isa.h>
+#include <stdint-gcc.h>
 #include "PcmAudioDevice.h"
 
 class SoundBlaster : public PcmAudioDevice, public IODevice {
@@ -13,49 +14,104 @@ class SoundBlaster : public PcmAudioDevice, public IODevice {
 private:
 
     struct FeatureSet {
-        bool monoPcm8Bit = false;
-        bool monoAdpcm8Bit = false;
-        bool stereoPcm8Bit = false;
-        bool monoPcm16Bit = false;
-        bool stereoPcm16Bit = false;
-        bool dmaSingleCycle = false;
-        bool dmaAutoInitialize = false;
-        bool dmaHighSpeedSingleCycle = false;
-        bool dmaHighSpeedAutoInitialize = false;
+        bool mono8BitSingleCycle = false;
+        bool mono8BitAutoInitialize = false;
+        bool mono8BitHighSpeedSingleCycle = false;
+        bool mono8BitHighSpeedAutoInitialize = false;
+        bool stereo8BitHighSpeedSingleCycle = false;
+        bool stereo8BitHighSpeedAutoInitialize = false;
+        bool mono8Bit16BitSingleCycle = false;
+        bool mono8Bit16BitAutoInitialize = false;
+        bool stereo8Bit16BitSingleCycle = false;
+        bool stereo8Bit16BitAutoInitialize = false;
 
         FeatureSet() = default;
 
         FeatureSet(uint8_t majorVersion, uint8_t minorVersion) {
             if(majorVersion < 2) {
-                monoPcm8Bit = true;
-                monoAdpcm8Bit = true;
-                dmaSingleCycle = true;
+                mono8BitSingleCycle = true;
             } else if(majorVersion < 3) {
-                monoPcm8Bit = true;
-                monoAdpcm8Bit = true;
-                dmaSingleCycle = true;
-                dmaAutoInitialize = true;
+                mono8BitSingleCycle = true;
+                mono8BitAutoInitialize = true;
 
                 if(minorVersion > 0) {
-                    dmaHighSpeedSingleCycle = true;
-                    dmaHighSpeedAutoInitialize = true;
+                    mono8BitHighSpeedSingleCycle = true;
+                    mono8BitHighSpeedAutoInitialize = true;
                 }
             } else if(majorVersion < 4) {
-                monoPcm8Bit = true;
-                monoAdpcm8Bit = true;
-                stereoPcm16Bit = true;
-                dmaSingleCycle = true;
-                dmaAutoInitialize = true;
-                dmaHighSpeedSingleCycle = true;
-                dmaHighSpeedAutoInitialize = true;
+                mono8BitSingleCycle = true;
+                mono8BitAutoInitialize = true;
+                mono8BitHighSpeedSingleCycle = true;
+                mono8BitHighSpeedAutoInitialize = true;
+                stereo8BitHighSpeedSingleCycle = true;
+                stereo8BitHighSpeedAutoInitialize = true;
             } else {
-                monoPcm8Bit = true;
-                monoAdpcm8Bit = true;
-                stereoPcm16Bit = true;
-                dmaSingleCycle = true;
-                dmaAutoInitialize = true;
+                mono8BitSingleCycle = true;
+                mono8BitAutoInitialize = true;
+                mono8Bit16BitSingleCycle = true;
+                mono8Bit16BitAutoInitialize = true;
+                stereo8Bit16BitSingleCycle = true;
+                stereo8Bit16BitAutoInitialize = true;
             }
         }
+
+        bool checkPcmCompatibility(const Pcm &pcm) {
+            if(pcm.getAudioFormat() != Pcm::PCM) {
+                return false;
+            }
+
+            if(pcm.getSamplesPerSecond() > 44100) {
+                return false;
+            }
+
+            if(pcm.getNumChannels() > 2) {
+                return false;
+            }
+
+            if(pcm.getBitsPerSample() != 8 && pcm.getBitsPerSample() != 16) {
+                return false;
+            }
+
+            if(pcm.getBitsPerSample() == 16) {
+                if(!mono8Bit16BitSingleCycle) {
+                    return false;
+                }
+            }
+
+            if(pcm.getBitsPerSample() == 8) {
+                if(pcm.getSamplesPerSecond() > 23000 && !mono8BitHighSpeedSingleCycle && !mono8Bit16BitSingleCycle) {
+                    return false;
+                }
+
+                if(pcm.getNumChannels() == 2) {
+                    if(!stereo8BitHighSpeedSingleCycle && !stereo8Bit16BitSingleCycle) {
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+    };
+
+    enum SetSampleRateCommand : uint8_t {
+        useTimeConstant = 0x40,
+        useSamplingRate = 0x41
+    };
+
+    enum SetBufferSizeCommand : uint8_t {
+        mono8BitNormalSpeedSingleCycle = 0x14,
+        monoStereo8Bit = 0x48,
+        monoStereo8BitDspVersion4 = 0xc0,
+        monoStereo16BitDspVersion4 = 0xb0,
+    };
+
+    enum SetBufferSizeMode : uint8_t {
+        mono8Bit = 0x00,
+        stereo8Bit = 0x20,
+        mono16Bit = 0x10,
+        stereo16Bit = 0x30,
+        unused = 0xff
     };
 
 private:
@@ -122,13 +178,14 @@ private:
 
     void prepareDma(Isa::TransferMode transferMode, uint16_t dataSize);
 
-    void dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond);
+    void dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond, SetSampleRateCommand command);
 
-    void dspSetBufferSize(uint16_t dataSize);
+    void dspSetBufferSize(uint16_t dataSize, SetBufferSizeCommand command, SetBufferSizeMode mode = unused,
+                              bool useHighSpeed = false);
 
-    void play8BitPcm(const Pcm &pcm);
+    void play8BitPcmSingleCycle(const Pcm &pcm);
 
-    void play16BitPcm(const Pcm &pcm);
+    void play16BitPcmSingleCycle(const Pcm &pcm);
 
     void plugin();
 

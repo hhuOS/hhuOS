@@ -164,47 +164,53 @@ void SoundBlaster::prepareDma(Isa::TransferMode transferMode, uint16_t dataSize)
     Isa::deselectChannel(1);
 }
 
-void SoundBlaster::dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond) {
-    auto timeConstant = static_cast<uint16_t>( - (256000000 / (numChannels * samplesPerSecond)));
+void SoundBlaster::dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond, SetSampleRateCommand command) {
+    if(command == useTimeConstant) {
+        auto timeConstant = static_cast<uint16_t>( -(256000000 / (numChannels * samplesPerSecond)));
 
-    writeToDSP(0x40);
-    writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
+        writeToDSP(useTimeConstant);
+        writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
+    } else if(command == useSamplingRate) {
+        writeToDSP(useSamplingRate);
+        writeToDSP(static_cast<uint8_t>((samplesPerSecond & 0xff00) >> 8));
+        writeToDSP(static_cast<uint8_t>(samplesPerSecond & 0x00ff));
+    }
 }
 
-void SoundBlaster::dspSetBufferSize(uint16_t dataSize) {
-    writeToDSP(0x14);
+void SoundBlaster::dspSetBufferSize(uint16_t dataSize, SetBufferSizeCommand command, SetBufferSizeMode mode, bool useHighSpeed) {
+    writeToDSP(command);
+
+    if(command == monoStereo8BitDspVersion4 || command == monoStereo16BitDspVersion4
+    ) {
+        writeToDSP(mode);
+    }
+
     writeToDSP(static_cast<uint8_t>((dataSize - 1) & 0x00ff));
     writeToDSP(static_cast<uint8_t>(((dataSize - 1) & 0xff00) >> 8));
+
+    if(useHighSpeed && majorVersion > 1 && majorVersion < 4) {
+        // Enable High Speed mode on DSP version 2 and 3
+        writeToDSP(0x91);
+    }
 }
 
-void SoundBlaster::play8BitPcm(const Pcm &pcm) {
-    if(pcm.getNumChannels() == 1 && !featureSet.monoPcm8Bit) {
-        // Should never occur
-        return;
-    }
-
-    if(pcm.getNumChannels() == 2 && !featureSet.stereoPcm8Bit) {
-        return;
-    }
-
-    if(pcm.getNumChannels() > 2) {
-        return;
-    }
-
-    if(pcm.getSamplesPerSecond() > 23000) {
-        // TODO: Implement High Speed transfer mode
-
-        return;
-    }
-
-    if(!featureSet.dmaSingleCycle) {
-        // Should never occur
-        return;
-    }
-
+void SoundBlaster::play8BitPcmSingleCycle(const Pcm &pcm) {
     uint32_t dataSize = pcm.getFrameSize() * pcm.getSampleCount();
+    SetSampleRateCommand sampleRateCommand = majorVersion < 4 ? useTimeConstant : useSamplingRate;
+    SetBufferSizeCommand bufferSizeCommand = mono8BitNormalSpeedSingleCycle;
+    SetBufferSizeMode bufferSizeMode = unused;
+    bool useHighSpeed = pcm.getSamplesPerSecond() > 23000;
+
+    if(majorVersion == 4) {
+        bufferSizeCommand = monoStereo8BitDspVersion4;
+        bufferSizeMode = pcm.getNumChannels() < 2 ? mono8Bit : stereo8Bit;
+    } else if(majorVersion > 1 && useHighSpeed) {
+        bufferSizeCommand = monoStereo8Bit;
+    }
 
     turnSpeakerOn();
+
+    dspSetSampleRate(pcm.getNumChannels(), pcm.getSamplesPerSecond(), sampleRateCommand);
 
     stopPlaying = false;
 
@@ -220,8 +226,7 @@ void SoundBlaster::play8BitPcm(const Pcm &pcm) {
 
         prepareDma(Isa::TRANSFER_MODE_READ, count);
 
-        dspSetSampleRate(pcm.getNumChannels(), pcm.getSamplesPerSecond());
-        dspSetBufferSize(count);
+        dspSetBufferSize(count, bufferSizeCommand, bufferSizeMode, useHighSpeed);
 
         receivedInterrupt = false;
         while(!receivedInterrupt);
@@ -234,37 +239,19 @@ void SoundBlaster::play8BitPcm(const Pcm &pcm) {
     turnSpeakerOff();
 }
 
-void SoundBlaster::play16BitPcm(const Pcm &pcm) {
-    if(pcm.getNumChannels() == 1 && !featureSet.monoPcm16Bit) {
-        return;
-    }
-
-    if(pcm.getNumChannels() == 2 && !featureSet.stereoPcm16Bit) {
-        return;
-    }
-
-    if(pcm.getNumChannels() > 2) {
-        return;
-    }
-
+void SoundBlaster::play16BitPcmSingleCycle(const Pcm &pcm) {
     // TODO: Implement playback of 16-Bit PCM
 }
 
 void SoundBlaster::playPcmData(const Pcm &pcm) {
-    if(pcm.getAudioFormat() != Pcm::PCM) {
-        // TODO: Implement support for ADPCM
-
-        return;
-    }
-
-    if(pcm.getSamplesPerSecond() > 44100) {
+    if(!featureSet.checkPcmCompatibility(pcm)) {
         return;
     }
 
     if(pcm.getBitsPerSample() == 8) {
-        play8BitPcm(pcm);
+        play8BitPcmSingleCycle(pcm);
     } else if(pcm.getBitsPerSample() == 16) {
-        play16BitPcm(pcm);
+        play16BitPcmSingleCycle(pcm);
     }
 }
 
