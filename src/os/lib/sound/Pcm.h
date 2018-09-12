@@ -63,13 +63,15 @@ protected:
     uint16_t frameSize = 0;
     uint32_t sampleCount = 0;
 
-    char *pcmData = nullptr;
+    uint8_t *pcmData = nullptr;
 
 protected:
 
     Pcm() = default;
 
 public:
+
+    Pcm(uint16_t numChannels, uint32_t samplesPerSecond, uint32_t bytesPerSecond, uint16_t bitsPerSample, uint16_t frameSize, uint32_t sampleCount, uint8_t *pcmData);
 
     Pcm(const Pcm &copy) = delete;
 
@@ -89,7 +91,7 @@ public:
 
     uint32_t getSampleCount() const;
 
-    char *getPcmData() const;
+    uint8_t *getPcmData() const;
 };
 
 #endif

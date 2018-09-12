@@ -28,6 +28,13 @@ uint32_t Pcm::getSampleCount() const {
     return sampleCount;
 }
 
-char *Pcm::getPcmData() const {
+uint8_t *Pcm::getPcmData() const {
     return pcmData;
+}
+
+Pcm::Pcm(uint16_t numChannels, uint32_t samplesPerSecond, uint32_t bytesPerSecond, uint16_t bitsPerSample,
+        uint16_t frameSize, uint32_t sampleCount, uint8_t *pcmData) :
+            numChannels(numChannels), samplesPerSecond(samplesPerSecond), bytesPerSecond(bytesPerSecond),
+            bitsPerSample(bitsPerSample), frameSize(frameSize), sampleCount(sampleCount), pcmData(pcmData) {
+
 }

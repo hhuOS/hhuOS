@@ -24,6 +24,6 @@ void Wav::processData() {
     frameSize = static_cast<uint16_t>(riffChunk.formatChunk.numChannels * ((bitsPerSample + 7) / 8));
     sampleCount = riffChunk.dataChunk.chunkSize / frameSize;
 
-    pcmData = new char[riffChunk.dataChunk.chunkSize];
+    pcmData = new uint8_t[riffChunk.dataChunk.chunkSize];
     memcpy(pcmData, &rawData[sizeof(RiffChunk)], riffChunk.dataChunk.chunkSize);
 }
