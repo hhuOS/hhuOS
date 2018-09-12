@@ -26,6 +26,7 @@ bool SoundBlaster::isAvailable() {
 }
 
 SoundBlaster::SoundBlaster(uint16_t baseAddress) :
+        baseAddress(baseAddress),
         resetPort(static_cast<uint16_t>(baseAddress + 0x06)),
         readDataPort(static_cast<uint16_t>(baseAddress + 0x0a)),
         writeDataPort(static_cast<uint16_t>(baseAddress + 0x0c)),
@@ -166,7 +167,7 @@ void SoundBlaster::prepareDma(Isa::TransferMode transferMode, uint16_t dataSize)
 
 void SoundBlaster::dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSecond, SetSampleRateCommand command) {
     if(command == useTimeConstant) {
-        auto timeConstant = static_cast<uint16_t>( -(256000000 / (numChannels * samplesPerSecond)));
+        auto timeConstant = static_cast<uint16_t>(65536 - (256000000 / (numChannels * samplesPerSecond)));
 
         writeToDSP(useTimeConstant);
         writeToDSP(static_cast<uint8_t>((timeConstant & 0xff00) >> 8));
@@ -180,8 +181,7 @@ void SoundBlaster::dspSetSampleRate(uint16_t numChannels, uint32_t samplesPerSec
 void SoundBlaster::dspSetBufferSize(uint16_t dataSize, SetBufferSizeCommand command, SetBufferSizeMode mode, bool useHighSpeed) {
     writeToDSP(command);
 
-    if(command == monoStereo8BitDspVersion4 || command == monoStereo16BitDspVersion4
-    ) {
+    if(command == monoStereo8BitDspVersion4 || command == monoStereo16BitDspVersion4) {
         writeToDSP(mode);
     }
 
@@ -192,6 +192,49 @@ void SoundBlaster::dspSetBufferSize(uint16_t dataSize, SetBufferSizeCommand comm
         // Enable High Speed mode on DSP version 2 and 3
         writeToDSP(0x91);
     }
+}
+
+void SoundBlaster::dspEnableStereoMode() {
+    // First, we need to set the mixer to stereo mode
+    mixerAddressPort.outb(0x0e);
+
+    char oldValue = mixerDataPort.inb();
+
+    mixerDataPort.outb(static_cast<uint8_t>(oldValue | 0x02));
+
+    // Now it is necessary to let the DSP output a single silent byte
+    reinterpret_cast<char*>(dmaMemory)[0] = 0;
+    prepareDma(Isa::TRANSFER_MODE_READ, 1);
+
+    dspSetBufferSize(1, mono8BitNormalSpeedSingleCycle);
+
+    // Now wait for an interrupt. The DSP should then be able to output stereo sound
+    while(!receivedInterrupt);
+    ackInterrupt();
+}
+
+void SoundBlaster::dspDisableStereoMode() {
+    mixerAddressPort.outb(0x0e);
+
+    uint8_t oldValue = mixerDataPort.inb();
+
+    mixerDataPort.outb(static_cast<uint8_t>(oldValue & 0xfd));
+}
+
+void SoundBlaster::dspEnableLowPassFilter() {
+    mixerAddressPort.outb(0x0e);
+
+    uint8_t oldValue = mixerDataPort.inb();
+
+    mixerDataPort.outb(static_cast<uint8_t>(oldValue & 0xdf));
+}
+
+void SoundBlaster::dspDisableLowPassFilter() {
+    mixerAddressPort.outb(0x0e);
+
+    uint8_t oldValue = mixerDataPort.inb();
+
+    mixerDataPort.outb(static_cast<uint8_t>(oldValue | 0x20));
 }
 
 void SoundBlaster::play8BitPcmSingleCycle(const Pcm &pcm) {
@@ -208,15 +251,27 @@ void SoundBlaster::play8BitPcmSingleCycle(const Pcm &pcm) {
         bufferSizeCommand = monoStereo8Bit;
     }
 
+    soundLock.acquire();
+
     turnSpeakerOn();
+
+    if(pcm.getNumChannels() == 2 && featureSet.stereo8BitHighSpeedSingleCycle) {
+        useHighSpeed = true;
+        bufferSizeCommand = monoStereo8Bit;
+        dspEnableStereoMode();
+    }
+
+    if(useHighSpeed) {
+        dspDisableLowPassFilter();
+    } else {
+        dspEnableLowPassFilter();
+    }
 
     dspSetSampleRate(pcm.getNumChannels(), pcm.getSamplesPerSecond(), sampleRateCommand);
 
     stopPlaying = false;
 
     for(uint32_t i = 0; i < dataSize && !stopPlaying; i += 0xffff) {
-        cycleLock.acquire();
-
         auto count = static_cast<uint16_t>(((dataSize - i) >= 0xffff) ? 0xffff : dataSize - i);
         memcpy(dmaMemory, &pcm.getPcmData()[i], count);
 
@@ -230,13 +285,17 @@ void SoundBlaster::play8BitPcmSingleCycle(const Pcm &pcm) {
 
         receivedInterrupt = false;
         while(!receivedInterrupt);
-
-        cycleLock.release();
     }
 
     ackInterrupt();
 
+    if(pcm.getNumChannels() == 2 && featureSet.stereo8BitHighSpeedSingleCycle) {
+        dspDisableStereoMode();
+    }
+
     turnSpeakerOff();
+
+    soundLock.release();
 }
 
 void SoundBlaster::play16BitPcmSingleCycle(const Pcm &pcm) {

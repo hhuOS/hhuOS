@@ -64,6 +64,14 @@ private:
                 return false;
             }
 
+            if(pcm.getSamplesPerSecond() < 4000) {
+                return false;
+            }
+
+            if(mono8Bit16BitSingleCycle && pcm.getSamplesPerSecond() < 5000) {
+                return false;
+            }
+
             if(pcm.getNumChannels() > 2) {
                 return false;
             }
@@ -86,6 +94,12 @@ private:
                 if(pcm.getNumChannels() == 2) {
                     if(!stereo8BitHighSpeedSingleCycle && !stereo8Bit16BitSingleCycle) {
                         return false;
+                    }
+
+                    if(stereo8BitHighSpeedSingleCycle) {
+                        if(pcm.getSamplesPerSecond() != 11025 && pcm.getSamplesPerSecond() != 22050) {
+                            return false;
+                        }
                     }
                 }
             }
@@ -128,7 +142,7 @@ private:
 
     void *dmaMemory = nullptr;
 
-    Spinlock cycleLock;
+    Spinlock soundLock;
 
     FeatureSet featureSet;
 
@@ -182,6 +196,14 @@ private:
 
     void dspSetBufferSize(uint16_t dataSize, SetBufferSizeCommand command, SetBufferSizeMode mode = unused,
                               bool useHighSpeed = false);
+
+    void dspEnableStereoMode();
+
+    void dspDisableStereoMode();
+
+    void dspEnableLowPassFilter();
+
+    void dspDisableLowPassFilter();
 
     void play8BitPcmSingleCycle(const Pcm &pcm);
 
