@@ -93,7 +93,7 @@ void *Isa::allocDmaBuffer() {
     isaLock.acquire();
 
     void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
-    void * ret = SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void *ret = SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
 
     isaLock.release();
 
@@ -166,8 +166,8 @@ void Isa::setCount(uint8_t channel, uint16_t count) {
 
     resetFlipFlop(channel);
 
-    countRegisters[channel].outb(static_cast<uint8_t>(count & 0x00ffu));
-    countRegisters[channel].outb(static_cast<uint8_t>((count >> 8u) & 0x00ffu));
+    countRegisters[channel].outb(static_cast<uint8_t>((count) & 0x00ffu));
+    countRegisters[channel].outb(static_cast<uint8_t>(((count) >> 8u) & 0x00ffu));
 
     isaLock.release();
 }
@@ -192,7 +192,11 @@ void Isa::setMode(uint8_t channel, Isa::TransferMode transferMode, bool autoRese
 
     mask |= dmaMode;
 
+    isaLock.acquire();
+
     modeRegisters[channel / 4].outb(mask);
+
+    isaLock.release();
 }
 
 void Isa::resetFlipFlop(uint8_t channel) {
@@ -208,7 +212,11 @@ void Isa::resetMask(uint8_t channel) {
         return;
     }
 
+    isaLock.acquire();
+
     maskResetRegisters[channel / 4].outb(0xff);
+
+    isaLock.release();
 }
 
 void Isa::resetAll(uint8_t channel) {
@@ -216,5 +224,9 @@ void Isa::resetAll(uint8_t channel) {
         return;
     }
 
+    isaLock.acquire();
+
     masterResetRegisters[channel / 4].outb(0xff);
+
+    isaLock.release();
 }

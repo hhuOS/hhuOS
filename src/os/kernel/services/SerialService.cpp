@@ -1,3 +1,4 @@
+#include <kernel/threads/Scheduler.h>
 #include "SerialService.h"
 
 Logger &SerialService::log = Logger::get("SERIAL");
@@ -6,21 +7,29 @@ SerialService::SerialService() {
     if(Serial::checkPort(Serial::COM1)) {
         log.info("Detected COM1");
         com1 = new Serial(Serial::COM1);
+
+        Scheduler::getInstance()->registerIODevice(com1);
     }
 
     if(Serial::checkPort(Serial::COM2)) {
         log.info("Detected COM2");
         com2 = new Serial(Serial::COM2);
+
+        Scheduler::getInstance()->registerIODevice(com2);
     }
 
     if(Serial::checkPort(Serial::COM3)) {
         log.info("Detected COM3");
         com3 = new Serial(Serial::COM3);
+
+        Scheduler::getInstance()->registerIODevice(com3);
     }
 
     if(Serial::checkPort(Serial::COM4)) {
         log.info("Detected COM4");
         com4 = new Serial(Serial::COM4);
+
+        Scheduler::getInstance()->registerIODevice(com4);
     }
 }
 

@@ -25,6 +25,7 @@
 #include <lib/file/beep/BeepFile.h>
 #include <kernel/services/ScreenshotService.h>
 #include <lib/file/wav/Wav.h>
+#include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -101,13 +102,19 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->init(xres, yres, bpp);
 
-    bootscreen->update(0, "Initializing Floppy Controller");
+    bootscreen->update(0, "Initializing ISA Devices");
     if(FloppyController::isAvailable()) {
         log.trace("Floppy controller is available and at least one drive is attached to it");
 
         auto *floppyController = new FloppyController();
         floppyController->plugin();
         floppyController->setup();
+    }
+
+    if(SoundBlaster::isAvailable()) {
+        log.info("Found audio device: SoundBlaster");
+
+        Kernel::getService<SoundService>()->setPcmAudioDevice(SoundBlaster::initialize());
     }
 
     bootscreen->update(25, "Initializing PCI Devices");
@@ -138,7 +145,7 @@ int32_t GatesOfHell::enter() {
     Kernel::getService<GraphicsService>()->getLinearFrameBuffer()->disableDoubleBuffering();
 
     if(sound != nullptr) {
-        sound->play();
+        //sound->play();
         delete sound;
     }
 

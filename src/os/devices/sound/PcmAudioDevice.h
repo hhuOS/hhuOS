@@ -20,8 +20,6 @@ public:
 
     virtual String getDeviceName() = 0;
 
-    virtual void setup() = 0;
-
     virtual void playPcmData(const Pcm &pcm) = 0;
 
     virtual void stopPlayback() = 0;

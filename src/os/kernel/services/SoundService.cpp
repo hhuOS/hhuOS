@@ -1,4 +1,4 @@
-#include <devices/sound/SoundBlaster.h>
+#include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include "SoundService.h"
 
 Logger &SoundService::log = Logger::get("SOUND");
@@ -6,15 +6,6 @@ Logger &SoundService::log = Logger::get("SOUND");
 SoundService::SoundService() {
     log.info("Found audio device: PC Speaker");
     pcSpeaker = new PcSpeaker();
-
-    if(SoundBlaster::isAvailable()) {
-        log.info("Found audio device: SoundBlaster");
-
-        auto *soundBlaster = new SoundBlaster();
-        soundBlaster->setup();
-
-        setPcmAudioDevice(soundBlaster);
-    }
 }
 
 bool SoundService::isPcmAudioAvailable() {
@@ -32,6 +23,8 @@ PcmAudioDevice *SoundService::getPcmAudioDevice() {
 void SoundService::setPcmAudioDevice(PcmAudioDevice *newDevice) {
     pcmAudioDevice = newDevice;
 
-    log.info("PCM Audio Device is now set to '%s' by '%s'", (const char*) pcmAudioDevice->getDeviceName(),
-             (const char*) pcmAudioDevice->getVendorName());
+    if(pcmAudioDevice != nullptr) {
+        log.info("PCM Audio Device is now set to '%s' by '%s'", (const char *) pcmAudioDevice->getDeviceName(),
+                 (const char *) pcmAudioDevice->getVendorName());
+    }
 }

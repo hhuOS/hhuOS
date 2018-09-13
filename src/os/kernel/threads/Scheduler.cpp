@@ -5,8 +5,10 @@
 #include <kernel/services/SerialService.h>
 #include <devices/Pit.h>
 #include <kernel/services/SoundService.h>
-#include <devices/sound/SoundBlaster.h>
+#include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include "kernel/threads/Scheduler.h"
+#include "Scheduler.h"
+
 
 extern "C" {
     void startThread(Context* first);
@@ -16,47 +18,10 @@ extern "C" {
     void checkIoBuffers();
 }
 
-InputService *inputService = nullptr;
-TimeService *timeService = nullptr;
-SerialService *serialService = nullptr;
-SoundService *soundService = nullptr;
-
 void checkIoBuffers() {
-    if(inputService->getKeyboard()->checkForData()) {
-        inputService->getKeyboard()->trigger();
-    }
-
-    if(timeService->getRTC()->checkForData()) {
-        timeService->getRTC()->trigger();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM1)) {
-        if(serialService->getSerialPort(Serial::COM1)->checkForData()) {
-            serialService->getSerialPort(Serial::COM1)->trigger();
-        }
-    }
-
-    if(serialService->isPortAvailable(Serial::COM2)) {
-        if(serialService->getSerialPort(Serial::COM2)->checkForData()) {
-            serialService->getSerialPort(Serial::COM2)->trigger();
-        }
-    }
-
-    if(serialService->isPortAvailable(Serial::COM3)) {
-        if(serialService->getSerialPort(Serial::COM3)->checkForData()) {
-            serialService->getSerialPort(Serial::COM3)->trigger();
-        }
-    }
-
-    if(serialService->isPortAvailable(Serial::COM4)) {
-        if(serialService->getSerialPort(Serial::COM4)->checkForData()) {
-            serialService->getSerialPort(Serial::COM4)->trigger();
-        }
-    }
-
-    if(soundService->isPcmAudioAvailable()) {
-        if (((SoundBlaster *) soundService->getPcmAudioDevice())->checkForData()) {
-            ((SoundBlaster *) soundService->getPcmAudioDevice())->trigger();
+    for(IODevice *device : Scheduler::getInstance()->ioDevices) {
+        if(device->checkForData()) {
+            device->trigger();
         }
     }
 }
@@ -69,10 +34,7 @@ void schedulerYield() {
 }
 
 Scheduler::Scheduler() : initialized(false) {
-    inputService = Kernel::getService<InputService>();
-    timeService = Kernel::getService<TimeService>();
-    serialService = Kernel::getService<SerialService>();
-    soundService = Kernel::getService<SoundService>();
+
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -83,6 +45,10 @@ Scheduler *Scheduler::getInstance()  {
     }
 
     return scheduler;
+}
+
+void Scheduler::registerIODevice(IODevice *device) {
+    ioDevices.add(device);
 }
 
 void Scheduler::schedule() {

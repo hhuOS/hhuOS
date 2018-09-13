@@ -17,6 +17,7 @@
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/services/TimeService.h>
+#include <kernel/threads/Scheduler.h>
 
 Logger &Rtc::log = Logger::get("RTC");
 
@@ -66,6 +67,8 @@ void Rtc::plugin() {
     log.trace("Enabled NMIs");
 
     Cpu::enableInterrupts();
+
+    Scheduler::getInstance()->registerIODevice(this);
 }
 
 void Rtc::trigger() {

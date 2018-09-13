@@ -16,6 +16,7 @@
 #include <kernel/events/input/KeyEvent.h>
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>
+#include <kernel/threads/Scheduler.h>
 #include "Keyboard.h"
 
 /* Tabellen fuer ASCII-Codes (Klassenvariablen) intiialisieren */
@@ -457,6 +458,8 @@ void Keyboard::resetLast() {
 void Keyboard::plugin () {
 
     memset(buffer, 0, KB_BUFFER_SIZE * sizeof(uint32_t));
+
+    Scheduler::getInstance()->registerIODevice(this);
 
     IntDispatcher::getInstance().assign (IntDispatcher::keyboard, *this);
     Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);
