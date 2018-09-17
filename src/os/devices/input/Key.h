@@ -1,24 +1,28 @@
-/*****************************************************************************
- *                                                                           *
- *                                K E Y                                      *
- *                                                                           *
- *---------------------------------------------------------------------------*
- * Beschreibung:    Taste, bestehend aus ASCII-, Scan-Code und Modifier-Bits.*
- *                                                                           *
- * Autor:           Olaf Spinczyk, TU Dortmund                               *
- *****************************************************************************/
 #ifndef __Key_include__
 #define __Key_include__
 
-class Key {
-    // Kopieren erlaubt!
+#include <cstdint>
 
-    unsigned char asc;      // ASCII code
-    unsigned char scan;     // scan code
-    unsigned char modi;     // modifier
+/**
+ * Represents a key, consisting of a key- and an ascii-code.
+ *
+ * @author Olaf Spinczyk, TU Dortmund; Fabian Ruhland, HHU
+ * @date 2016, 2018
+ */
+class Key {
+
+private:
+
+    uint8_t asc;
+    uint8_t scan;
+    uint8_t modi;
     bool pressed;
 
-    // Bit-Masken fuer die Modifier-Tasten
+private:
+
+    /**
+     * Bit-masks for key-modifiers.
+     */
     struct mbit {
         enum {
             shift       = 1,
@@ -33,84 +37,220 @@ class Key {
     };
 
 public:
-    // DEFAULT-KONSTRUKTOR: setzt ASCII, Scancode und Modifier auf 0
-    //                      und bezeichnet so einen ungueltigen Tastencode
-    Key() : asc (0), scan (0), modi (0) {}
 
-    // VALID: mit Scancode = 0 werden ungueltige Tasten gekennzeichnet.
-    bool valid() { return scan != 0; }
+    /**
+     * Constructor.
+     */
+    Key() : asc(0), scan(0), modi(0), pressed(false) {}
 
-    bool isPressed() { return pressed; }
+    /**
+     * Check, if a key is valid(scancode == 0 -> invalid).
+     */
+    bool valid() {
+        return scan != 0;
+    }
 
-    void setPressed(bool value) { pressed = value; }
+    /**
+     * Check, if a key is being pressed.
+     */
+    bool isPressed() {
+        return pressed;
+    }
 
-    // INVALIDATE: setzt den Scancode auf Null und sorgt somit fuer einen
-    //             ungueltigen Tastencode.
-    void invalidate() { scan = 0; }
+    /**
+     * Set the pressed-value.
+     */
+    void setPressed(bool value) {
+        pressed = value;
+    }
 
-    // ASCII, SCANCODE: Setzen und Abfragen von Ascii und Scancode
-    void ascii(unsigned char a)     { asc = a;      }
-    void scancode(unsigned char s)  { scan = s;     }
-    unsigned char ascii()           { return asc;   }
-    unsigned char scancode()        { return scan;  }
+    /**
+     * Invalidate this key(Set scancode to 0).
+     */
+    void invalidate() {
+        scan = 0;
+    }
 
-    //
-    // Funktionen zum Setzen und Loeschen von SHIFT, ALT, CTRL usw.
-    //
-    void shift (bool pressed) {
+    /**
+     * Set the ascii-code.
+     */
+    void ascii(uint8_t a) {
+        asc = a;
+    }
+
+    /**
+     * Set the scancode.
+     */
+    void scancode(uint8_t s)  {
+        scan = s;
+    }
+
+    /**
+     * Get the ascii-code.
+     */
+    unsigned char ascii() {
+        return asc;
+    }
+
+    /**
+     * Get the scancode.
+     */
+    unsigned char scancode() {
+        return scan;
+    }
+
+    /**
+     * Set the shift-modifier.
+     */
+    void shift(bool pressed) {
         modi = pressed ? modi | mbit::shift : modi & ~mbit::shift;
     }
 
-    void alt_left (bool pressed) {
+    /**
+     * Set the alt-modifier for the left alt-key.
+     */
+    void altLeft(bool pressed) {
         modi = pressed ? modi | mbit::alt_left : modi & ~mbit::alt_left;
     }
 
-    void alt_right (bool pressed) {
+    /**
+     * Set the alt-modifier for the right alt-key.
+     */
+    void altRight(bool pressed) {
         modi = pressed ? modi | mbit::alt_right : modi & ~mbit::alt_right;
     }
 
-    void ctrl_left (bool pressed) {
+    /**
+     * Set the ctrl-modifier for the left alt-key.
+     */
+    void ctrlLeft(bool pressed) {
         modi = pressed ? modi | mbit::ctrl_left : modi & ~mbit::ctrl_left;
     }
 
-    void ctrl_right (bool pressed) {
+    /**
+     * Set the ctrl-modifier for the right alt-key.
+     */
+    void ctrlRight(bool pressed) {
         modi = pressed ? modi | mbit::ctrl_right : modi & ~mbit::ctrl_right;
     }
 
-    void caps_lock (bool pressed) {
+    /**
+     * Set the caps-lock modifier.
+     */
+    void capsLock(bool pressed) {
         modi = pressed ? modi | mbit::caps_lock : modi & ~mbit::caps_lock;
     }
 
-    void num_lock (bool pressed) {
+    /**
+     * Set the num-lock modifier.
+     */
+    void numLock(bool pressed) {
         modi = pressed ? modi | mbit::num_lock : modi & ~mbit::num_lock;
     }
 
-    void scroll_lock (bool pressed) {
+    /**
+     * Set the scroll-lock modifier.
+     */
+    void scrollLock(bool pressed) {
         modi = pressed ? modi | mbit::scroll_lock : modi & ~mbit::scroll_lock;
     }
 
-    //
-    // Funktionen zum Abfragen von SHIFT, ALT, CTRL usw.
-    //
-    bool shift ()       { return modi & mbit::shift;            }
-    bool alt_left ()    { return modi & mbit::alt_left;         }
-    bool alt_right ()   { return modi & mbit::alt_right;        }
-    bool ctrl_left ()   { return modi & mbit::ctrl_left;        }
-    bool ctrl_right ()  { return modi & mbit::ctrl_right;       }
-    bool caps_lock ()   { return modi & mbit::caps_lock;        }
-    bool num_lock ()    { return modi & mbit::num_lock;         }
-    bool scroll_lock () { return modi & mbit::scroll_lock;      }
-    bool alt ()         { return alt_left ()  | alt_right ();   }
-    bool ctrl ()        { return ctrl_left () | ctrl_right ();  }
 
-    operator char ()    { return (char) asc; }
+    /**
+     * Get the shift-modifier.
+     */
+    bool shift() {
+        return modi & mbit::shift;
+    }
 
-    // Scan-Codes einiger spezieller Tasten
-    struct scan {
-        enum {
-            f1 = 0x3b, del = 0x53, up=72, down=80, left=75,
-            right=77, div = 8
-        };
+    /**
+     * Get the alt-modifier for the left alt-key.
+     */
+    bool altLeft() {
+        return modi & mbit::alt_left;
+    }
+
+    /**
+     * Get the alt-modifier for the right alt-key.
+     */
+    bool altRight() {
+        return modi & mbit::alt_right;
+    }
+
+    /**
+     * Get the ctrl-modifier for the left alt-key.
+     */
+    bool ctrlLeft() {
+        return modi & mbit::ctrl_left;
+    }
+
+    /**
+     * Get the ctrl-modifier for the right alt-key.
+     */
+    bool ctrlRight() {
+        return modi & mbit::ctrl_right;
+    }
+
+    /**
+     * Get the caps-lock modifier.
+     */
+    bool capsLock() {
+        return modi & mbit::caps_lock;
+    }
+
+    /**
+     * Get the num-lock modifier.
+     */
+    bool numLock() {
+        return modi & mbit::num_lock;
+    }
+
+    /**
+     * Get the scroll-lock modifier.
+     */
+    bool scrollLock() {
+        return modi & mbit::scroll_lock;
+    }
+
+    /**
+     * Check, if one of the alt-keys is pressed.
+     */
+    bool alt() {
+        return altLeft() | altRight();
+    }
+
+    /**
+     * Check, if one of the ctrl-keys is pressed.
+     */
+    bool ctrl() {
+        return ctrlLeft() | ctrlRight();
+    }
+
+    /**
+     *(char)-operator. Return the ascii-code.
+     */
+    explicit operator char() {
+        return(char) asc;
+    }
+
+    /**
+     *(unsigned char)-operator. Return the ascii-code.
+     */
+    explicit operator unsigned char() {
+        return(unsigned char) asc;
+    }
+
+    /**
+     * Some pre-defined scancodes.
+     */
+    enum {
+        f1 = 0x3b,
+        del = 0x53,
+        up=72,
+        down=80,
+        left=75,
+        right=77,
+        div = 8
     };
  };
 

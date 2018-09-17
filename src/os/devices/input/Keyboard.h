@@ -1,128 +1,174 @@
-/*****************************************************************************
-*                                                                           *
-*                                K E Y B O A R D                            *
-*                                                                           *
-*---------------------------------------------------------------------------*
-* Beschreibung:    Treiber für den Tastaturcontroller des PCs.              *
-*                                                                           *
-* Autor:           Olaf Spinczyk, TU Dortmund                               *
-*                  Modifikationen, Michael Schoettner, 21.12.2016           *
-*****************************************************************************/
 #ifndef __Keyboard_include__
 #define __Keyboard_include__
 
-#include <lib/util/RingBuffer.h>
-#include <lib/InputStream.h>
 #include "kernel/services/EventBus.h"
 #include "Key.h"
 #include "kernel/IOport.h"
 #include "kernel/interrupts/InterruptHandler.h"
 #include "devices/graphics/text/CgaText.h"
 #include "kernel/events/input/KeyEvent.h"
-
-
+#include <lib/util/RingBuffer.h>
+#include <lib/InputStream.h>
 #include <kernel/services/GraphicsService.h>
 #include <lib/Random.h>
 #include <devices/IODevice.h>
 
+/**
+ * Driver for the Keyboard-Controller.
+ *
+ * @author Olaf Spinczyk, TU Dortmund; Michael Schoettner, Filip Krakowski, Fabian Ruhland, HHU
+ * @date 2016, 2017, 2018
+ */
 class Keyboard : public IODevice {
 
 private:
 
-    Keyboard(const Keyboard &copy); // Verhindere Kopieren
-
-    const static uint32_t KB_BUFFER_SIZE = 4;
-
-    uint8_t code;     // Byte von Tastatur
-    uint8_t prefix;   // Prefix von Tastatur
-    Key gather;             // letzter dekodierter Key
-    uint8_t leds;              // Zustand LEDs
-
-    uint32_t keysPressed;
-    uint32_t buffer[KB_BUFFER_SIZE];
-
-    // Benutzte ports des Tastaturcontrollers
-    const IOport controlPort;    // Status- (R) u. Steuerregister (W)
-    const IOport dataPort;    // Ausgabe- (R) u. Eingabepuffer (W)
-
-    // Bits im Statusregister
-    enum { outb = 0x01, inpb = 0x02, auxb = 0x20 };
-
-    // Kommandos an die Tastatur
-    struct kbd_cmd {
-        enum { set_led = 0xed, set_speed = 0xf3 };
-    };
-    enum { cpu_reset = 0xfe };
-
-    // Namen der LEDs
-    struct led {
-        enum { caps_lock = 4, num_lock = 2, scroll_lock = 1 };
+    enum KeyboardStatus {
+        outb = 0x01,
+        inpb = 0x02,
+        auxb = 0x20
     };
 
-    // Antworten der Tastatur
-    struct kbd_reply {
-        enum { ack = 0xfa };
+    enum KeyboardCommmand {
+        set_led = 0xed,
+        set_speed = 0xf3,
+        cpu_reset = 0xfe
     };
 
-    // Konstanten fuer die Tastaturdekodierung
-    enum { break_bit = 0x80, prefix1 = 0xe0, prefix2   = 0xe1 };
+    enum KeyboardLed {
+        caps_lock = 4,
+        num_lock = 2,
+        scroll_lock = 1
+    };
 
-    // Klassenvariablen
+    enum KeyboardReply {
+        ack = 0xfa
+    };
+
+    enum KeyboardCode {
+        break_bit = 0x80,
+        prefix1 = 0xe0,
+        prefix2   = 0xe1
+    };
+
+private:
+
     static uint8_t normal_tab[];
     static uint8_t shift_tab[];
     static uint8_t alt_tab[];
     static uint8_t asc_num_tab[];
     static uint8_t scan_num_tab[];
 
-    // Interpretiert die Make und Break-Codes der Tastatur.
-    bool key_decoded ();
+    const static uint32_t KB_BUFFER_SIZE = 4;
 
-    // Ermittelt anhand von Tabellen den ASCII-Code.
-    void get_ascii_code ();
+private:
 
+    uint8_t code;
+    uint8_t prefix;
+    Key gather;
+    uint8_t leds;
+
+    uint32_t keysPressed;
+    uint32_t buffer[KB_BUFFER_SIZE];
+
+    const IOport controlPort;
+    const IOport dataPort;
+
+private:
+
+    /**
+     * Decode make- and break-codes from the keyboard.
+     *
+     * Return true, if the key is complete, or false if there are still make-/break-codes missing.
+     */
+    bool decodeKey();
+
+    /**
+     * Get the ascii-code of the decoded key.
+     */
+    void getAsciiCode();
+
+    /**
+     * Add a key to the software-buffer.
+     */
     void addToBuffer (uint32_t scancode);
 
+    /**
+     * Remove a key from the software-buffer.
+     */
     void removeFromBuffer (uint32_t scancode);
 
+    /**
+     * A pointer to the global event bus.
+     */
     EventBus *eventBus;
 
+    /**
+     * A buffer, to store all key-events and successively put them onto the event bus.
+     */
     Util::RingBuffer<KeyEvent> eventBuffer;
 
 public:
 
-    uint8_t lastKey;   // zuletzt gedrueckte Taste
+    /**
+     * Constructor.
+     */
+    Keyboard();
 
-    // Initialisierung der Tastatur.
-    Keyboard ();
+    /**
+     * Copy-constructor.
+     * @param copy
+     */
+    Keyboard(const Keyboard &copy) = delete;
 
-    // Tastaturabfrage (vorerst Polling)
+    /**
+     * Get the last hit key from the keyboard-controller.
+     */
     Key keyHit();
 
-    // Letzter dekodierter Tastenanschlag
-    Key lastHit ();
-
-    void resetLast();
-
-    // Fuehrt einen Neustart des Rechners durch.
-    void reboot();
-
-    // Einstellen der Wiederholungsrate der Tastatur.
+    /**
+     * Set the controller's repeat rate.
+     * @param speed The speed, at which the controller shall operate
+     * @param delay The delay
+     */
     void setRepeatRate(uint32_t speed, uint32_t delay);
 
-    // Setzt oder loescht die angegebene Leuchtdiode.
+    /**
+     * Set or unset a specified led.
+     * @param led The led
+     * @param on On/Off
+     */
     void setLed(uint8_t led, bool on);
 
-    // Aktivierung der Unterbrechungen fuer die Tastatur
-    void plugin();
-
-    // Unterbrechnungsroutine der Tastatur.
-    void trigger() override;
-
-    bool checkForData() override;
-
+    /**
+     * Get the amount of pressed keys.
+     */
     uint32_t getKeysPressed();
 
-    bool isKeyPressed (uint32_t scancode);
+    /**
+     * Check, if a specified key is pressed.
+     */
+    bool isKeyPressed(uint32_t scancode);
+
+    /**
+     * Reboot the PC.
+     */
+    void reboot();
+
+    /**
+     * Enable keyboard-interrupts.
+     */
+    void plugin();
+
+    /**
+     * Overriding function from IODevice.
+     */
+    void trigger() override;
+
+    /**
+     * Overriding function from IODevice.
+     */
+    bool checkForData() override;
 };
 
 #endif

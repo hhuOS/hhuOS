@@ -38,8 +38,6 @@ class HHUEngine {
 
     static bool isKeyPressed(int scancode);
 
-    static void invalidateInput();
-
     static unsigned long time();
 
     static void beep(float frequency = PcSpeaker::C0, uint32_t length = 100);

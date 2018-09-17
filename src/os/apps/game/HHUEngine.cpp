@@ -37,10 +37,6 @@ bool HHUEngine::isKeyPressed(int scancode){
     return Kernel::getService<InputService>()->getKeyboard()->isKeyPressed(scancode);
 }
 
-void HHUEngine::invalidateInput(){
-    Kernel::getService<InputService>()->getKeyboard()->resetLast();
-}
-
 unsigned long HHUEngine::time(){
     return Kernel::getService<TimeService>()->getSystemTime();
 }

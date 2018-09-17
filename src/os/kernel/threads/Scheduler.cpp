@@ -19,9 +19,11 @@ extern "C" {
 }
 
 void checkIoBuffers() {
-    for(IODevice *device : Scheduler::getInstance()->ioDevices) {
-        if(device->checkForData()) {
-            device->trigger();
+    Util::ArrayList<IODevice*> &ioDevices = Scheduler::getInstance()->ioDevices;
+
+    for(uint32_t i = 0; i < ioDevices.size(); i++) {
+        if(ioDevices.get(i)->checkForData()) {
+            ioDevices.get(i)->trigger();
         }
     }
 }
