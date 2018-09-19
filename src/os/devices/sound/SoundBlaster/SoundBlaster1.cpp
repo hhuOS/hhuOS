@@ -4,7 +4,8 @@
 #include <kernel/interrupts/Pic.h>
 #include "SoundBlaster1.h"
 
-SoundBlaster1::SoundBlaster1(uint16_t baseAddress) : SoundBlaster(baseAddress) {
+SoundBlaster1::SoundBlaster1(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) : SoundBlaster(baseAddress),
+        irqNumber(irqNumber), dmaChannel(dmaChannel) {
     plugin();
 }
 void SoundBlaster1::setSamplingRate(uint16_t samplingRate) {
@@ -22,11 +23,11 @@ void SoundBlaster1::setBufferSize(uint32_t bufferSize) {
 }
 
 void SoundBlaster1::prepareDma(uint16_t addressOffset, uint32_t bufferSize) {
-    Isa::selectChannel(1);
-    Isa::setMode(1, Isa::TRANSFER_MODE_READ, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
-    Isa::setAddress(1, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory) + addressOffset);
-    Isa::setCount(1, static_cast<uint16_t>(bufferSize - 1));
-    Isa::deselectChannel(1);
+    Isa::selectChannel(dmaChannel);
+    Isa::setMode(dmaChannel, Isa::TRANSFER_MODE_READ, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
+    Isa::setAddress(dmaChannel, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory) + addressOffset);
+    Isa::setCount(dmaChannel, static_cast<uint16_t>(bufferSize - 1));
+    Isa::deselectChannel(dmaChannel);
 }
 
 void SoundBlaster1::ackInterrupt() {
@@ -87,12 +88,12 @@ void SoundBlaster1::stopPlayback() {
 }
 
 void SoundBlaster1::plugin() {
-    // Older DSPs (version < 4) don't support IRQ- and DMA-configuration.
+    // Older DSPs (version < 4) don't support manual IRQ- and DMA-configuration.
     // They must be configured via jumpers and there is no real way to get the IRQ- and DMA-numbers in software.
-    // We just assume the DSP to use IRQ10 and DMA channel 1.
+    // We just assume the DSP to use IRQ 10 and DMA channel 1, if not specified else in the constructor.
 
-    IntDispatcher::getInstance().assign(42, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::FREE2);
+    IntDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
+    Pic::getInstance()->allow(static_cast<Pic::Interrupt>(irqNumber));
 }
 
 void SoundBlaster1::trigger() {

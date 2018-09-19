@@ -6,6 +6,9 @@
 #include <kernel/services/TimeService.h>
 #include <devices/sound/PcmAudioDevice.h>
 
+/**
+ * Base-class for any ISA-based SoundBlaster-cards.
+ */
 class SoundBlaster : public PcmAudioDevice {
 
 protected:
@@ -44,42 +47,134 @@ private:
 
 private:
 
+    /**
+     * Check, if SoundBlaster IO-ports are available at the given address.
+     *
+     * Usually, the ports start at at address 0x210, or 0x220, 0x230, ..., 0x290.
+     *
+     * @param baseAddress The address to be checked
+     * @return true, if SoundBlaster IO-ports are found
+     */
     static bool checkPort(uint16_t baseAddress);
 
+    /**
+     * Use checkPort() to search for the start address of SoundBlaster IO-ports.
+     *
+     * @return The found start address, or 0 if none is found.
+     */
     static uint16_t getBasePort();
 
 protected:
 
+    /**
+     * Constructor.
+     *
+     * @param baseAddress The IO-port's start address.
+     */
     explicit SoundBlaster(uint16_t baseAddress);
 
+    /**
+     * Reset the device.
+     *
+     * @return true, after a successful reset
+     */
     bool reset();
 
+    /**
+     * Read a byte from the digital signal processor (DSP).
+     *
+     * The DSP is used to communicate with and send commands to the sound card.
+     *
+     * @return The retrieved byte.
+     */
     uint8_t readFromDSP();
 
+    /**
+     * Write a byte to the digital signal processor (DSP).
+     *
+     * The DSP is used to communicate with and send commands to the sound card.
+     *
+     * @param value The byte to be sent.
+     */
     void writeToDSP(uint8_t value);
 
+    /**
+     * Directly read a byte from the Analog-to-Digital Converter (ADC).
+     *
+     * The ADC takes microphone input and converts it to digital samples. By reading directly from the ADC, one can
+     * get these samples one-by-one. However, this takes up much processing time and needs precise timing.
+     * It is much better to let the DMA-controller handle the communication with the ADC and retrieve larger chunks
+     * of samples from it at once.
+     * This functionality will be implemented in the SoundBlaster-subclasses.
+     *
+     * @return The retrieved byte
+     */
     uint8_t readFromADC();
 
+    /**
+     * Directly write a byte to the Digital-to-Analog Converter (DAC).
+     *
+     * The DAC takes digital samples and converts them to analog sound, that can be output by a speaker.
+     * By writing directly to the DAC, one can output these samples one-by-one. However, this takes up much
+     * processing time and needs precise timing. It is much better to let the DMA-controller handle the communication
+     * with the DAC and send larger chunks of samples to it at once.
+     * This functionality is implemented in the SoundBlaster-subclasses.
+     *
+     * CAUTION: As it seems, writing directly to the DAC is currently not supported by QEMU.
+     *
+     * @param balue The byte to be sent.
+     */
     void writeToDAC(uint8_t value);
 
+    /**
+     * Turn the speaker on (Unnecessary on SoundBlaster16).
+     */
     void turnSpeakerOn();
 
+    /**
+     * Turn the speaker off (Unnecessary on SoundBlaster16).
+     */
     void turnSpeakerOff();
 
 public:
 
+    /**
+     * Check, if a SoundBlaster card is installed in the system.
+     */
     static bool isAvailable();
 
+    /**
+     * Search for a SoundBlaster card and create a new instance of the respective driver.
+     *
+     * The instance is created on the heap and must be deleted manually, once it is not needed anymore.
+     *
+     * @return An instance of a SoundBlaster driver or nullptr, if no SoundBlaster card is available
+     */
     static SoundBlaster *initialize();
 
+    /**
+     * Destructor.
+     */
     ~SoundBlaster() = default;
 
+    /**
+     * Overriding function from PcmAudioDevice.
+     */
     String getVendorName() override;
 
+    /**
+     * Overriding function from PcmAudioDevice.
+     */
     String getDeviceName() override;
 
+    /**
+     * Overriding function from PcmAudioDevice.
+     */
     void playPcmData(const Pcm &pcm) override = 0;
 
+    /**
+     * Overriding function from PcmAudioDevice.
+     */
     void stopPlayback() override = 0;
 
 };

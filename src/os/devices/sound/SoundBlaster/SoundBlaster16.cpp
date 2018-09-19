@@ -5,9 +5,11 @@
 #include <kernel/threads/Scheduler.h>
 #include "SoundBlaster16.h"
 
-SoundBlaster16::SoundBlaster16(uint16_t baseAddress) : SoundBlaster(baseAddress),
-        mixerAddressPort(static_cast<uint16_t>(baseAddress + 0x04)),
-        mixerDataPort(static_cast<uint16_t>(baseAddress + 0x05)) {
+SoundBlaster16::SoundBlaster16(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel8, uint8_t dmaChannel16)
+        : SoundBlaster(baseAddress),
+          mixerAddressPort(static_cast<uint16_t>(baseAddress + 0x04)),
+          mixerDataPort(static_cast<uint16_t>(baseAddress + 0x05)),
+          irqNumber(irqNumber), dmaChannel8(dmaChannel8), dmaChannel16(dmaChannel16) {
     plugin();
 }
 
@@ -131,16 +133,44 @@ void SoundBlaster16::stopPlayback() {
 }
 
 void SoundBlaster16::plugin() {
-    // Manually configure the DSP to use IRQ10.
-    mixerAddressPort.outb(0x80);
-    mixerDataPort.outb(0x08);
+    // Manually configure the DSP to use the specified DMA channels.
+    if(dmaChannel8 > 3 || dmaChannel8 == 2) {
+        dmaChannel8 = 1;
+    }
 
-    // Manually configure the DSP to use DMA channels 1 and 5.
+    if(dmaChannel16 > 7 || dmaChannel16 == 4) {
+        dmaChannel16 = 5;
+    }
+
     mixerAddressPort.outb(0x81);
-    mixerDataPort.outb(0x22);
+    mixerDataPort.outb(static_cast<uint8_t>((1u << dmaChannel8) | (1u << dmaChannel16)));
 
-    IntDispatcher::getInstance().assign(42, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::FREE2);
+    // Manually configure the DSP to use the specified IRQ number.
+    mixerAddressPort.outb(0x80);
+
+    switch(irqNumber) {
+        case 2 :
+            mixerAddressPort.outb(0x01);
+            break;
+        case 5 :
+            mixerAddressPort.outb(0x02);
+            break;
+        case 7 :
+            mixerAddressPort.outb(0x04);
+            break;
+        case 10 :
+            mixerAddressPort.outb(0x08);
+            break;
+        default :
+            irqNumber = 10;
+
+            mixerAddressPort.outb(0x08);
+            break;
+
+    }
+
+    IntDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
+    Pic::getInstance()->allow(static_cast<Pic::Interrupt>(irqNumber));
 }
 
 void SoundBlaster16::trigger() {
