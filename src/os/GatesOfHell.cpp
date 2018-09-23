@@ -217,6 +217,8 @@ void GatesOfHell::initializeGraphics() {
 
     Kernel::getService<StdStreamService>()->setStdout(graphicsService->getTextDriver());
     Kernel::getService<StdStreamService>()->setStderr(graphicsService->getTextDriver());
+
+    stdout = graphicsService->getTextDriver();
 }
 
 void GatesOfHell::initializeSerialPorts() {

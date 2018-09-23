@@ -70,7 +70,7 @@ public:
     /**
      * Destructor.
      */
-    ~FloppyDevice() override = default;
+    ~FloppyDevice() override;
 
     /**
      * Overriding function from StorageDevice.

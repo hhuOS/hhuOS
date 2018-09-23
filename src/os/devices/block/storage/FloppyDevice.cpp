@@ -1,5 +1,6 @@
 #include "FloppyDevice.h"
 #include <devices/block/FloppyMotorControlThread.h>
+#include <kernel/threads/Scheduler.h>
 
 extern "C" {
 #include <lib/libc/math.h>
@@ -50,14 +51,10 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
 
     motorControlThread = new FloppyMotorControlThread(*this);
     motorControlThread->start();
+}
 
-    bool ret = controller.resetDrive(*this);
-
-    if(ret) {
-        sectorSizeExponent = controller.calculateSectorSizeExponent(*this);
-    } else {
-        sectorSizeExponent = 2;
-    }
+FloppyDevice::~FloppyDevice() {
+    motorControlThread->stop();
 }
 
 FloppyDevice::CylinderHeadSector FloppyDevice::LbaToChs(uint32_t lbaSector) {

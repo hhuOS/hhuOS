@@ -17,6 +17,8 @@ private:
 
     uint32_t timeout;
 
+    bool isRunning;
+
     TimeService *timeService = nullptr;
 
 public:
@@ -42,6 +44,11 @@ public:
      * Overriding function from Thread.
      */
     void run() override;
+
+    /**
+     * Stop the thread.
+     */
+    void stop();
 
 };
 

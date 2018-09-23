@@ -59,7 +59,17 @@ void FloppyController::setup() {
 
         log.trace("Found primary floppy drive");
 
-        storageService->registerDevice(new FloppyDevice(*this, 0, primaryDriveType, "fdd0"));
+        FloppyDevice *device = new FloppyDevice(*this, 0, primaryDriveType, "fdd0");
+
+        bool ret = resetDrive(*device);
+
+        if(ret) {
+            device->sectorSizeExponent = calculateSectorSizeExponent(*device);
+
+            storageService->registerDevice(device);
+        } else {
+            delete device;
+        }
     }
 
     if(secondaryDriveType != DriveType::DRIVE_TYPE_NONE && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
@@ -67,7 +77,17 @@ void FloppyController::setup() {
 
         log.trace("Found secondary floppy drive");
 
-        storageService->registerDevice(new FloppyDevice(*this, 1, secondaryDriveType, "fdd1"));
+        FloppyDevice *device = new FloppyDevice(*this, 1, secondaryDriveType, "fdd1");
+
+        bool ret = resetDrive(*device);
+
+        if(ret) {
+            device->sectorSizeExponent = calculateSectorSizeExponent(*device);
+
+            storageService->registerDevice(device);
+        } else {
+            delete device;
+        }
     }
 }
 
@@ -163,12 +183,25 @@ void FloppyController::killMotor(FloppyDevice &device) {
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {
+    log.trace("Resetting drive %d", device.driveNumber);
+
     receivedInterrupt = false;
 
     digitalOutputRegister.outb(0x00); // Disable controller;
     digitalOutputRegister.outb(device.driveNumber | static_cast<uint8_t>(0x0c)); // Enable controller;
 
-    while(!receivedInterrupt);
+    uint32_t timeout = 0;
+
+    while(!receivedInterrupt) {
+        timeService->msleep(10);
+        timeout += 10;
+
+        if(timeout > FLOPPY_TIMEOUT) {
+            log.error("Timeout while resetting drive!");
+
+            return false;
+        }
+    }
 
     senseInterrupt();
 
@@ -197,7 +230,15 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     writeFifoByte(0xdf);
     writeFifoByte(0x02);
 
-    return calibrateDrive(device);
+    bool ret = calibrateDrive(device);
+
+    if(ret) {
+        log.trace("Successfully resetted drive %d", device.driveNumber);
+    } else {
+        log.trace("Failed to reset  drive %d", device.driveNumber);
+    }
+
+    return ret;
 }
 
 bool FloppyController::calibrateDrive(FloppyDevice &device) {

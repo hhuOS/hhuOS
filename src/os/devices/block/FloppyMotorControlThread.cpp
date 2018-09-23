@@ -1,12 +1,12 @@
 #include <kernel/Kernel.h>
 #include "FloppyMotorControlThread.h"
 
-FloppyMotorControlThread::FloppyMotorControlThread(FloppyDevice &device) : device(device), timeout(FloppyController::FLOPPY_TIMEOUT) {
+FloppyMotorControlThread::FloppyMotorControlThread(FloppyDevice &device) : device(device), timeout(FloppyController::FLOPPY_TIMEOUT), isRunning(true) {
     timeService = Kernel::getService<TimeService>();
 }
 
 void FloppyMotorControlThread::run() {
-    while(true) {
+    while(isRunning) {
         if(device.motorState == FloppyController::FLOPPY_MOTOR_WAIT) {
             timeService->msleep(500);
             timeout -= 500;
@@ -20,5 +20,8 @@ void FloppyMotorControlThread::run() {
 
         yield();
     }
+}
 
+void FloppyMotorControlThread::stop() {
+    isRunning = false;
 }
