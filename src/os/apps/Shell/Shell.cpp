@@ -116,7 +116,7 @@ void Shell::run() {
     cwd = Directory::open("/");
 
     *this << "Welcome to the hhuOS-Shell! Enter 'help' for a list of all available commands." << endl;
-    *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m/\\u001b[32;1m]$\\u001b[0m ";
+    *this << "\u001b[32;1m[root@hhu \u001b[37;1m/\u001b[32;1m]$\u001b[0m ";
     this->flush();
 
     currentBase = 14;
@@ -136,7 +136,7 @@ void Shell::run() {
 
         delete input;
 
-        *this << "\\u001b[32;1m[root@hhu \\u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\\u001b[32;1m]$\\u001b[0m ";
+        *this << "\u001b[32;1m[root@hhu \u001b[37;1m" << (cwd->getName().isEmpty() ? "/" : cwd->getName()) << "\u001b[32;1m]$\u001b[0m ";
         this->flush();
 
         graphicsService->getTextDriver()->getpos(x, y);
@@ -310,13 +310,9 @@ void Shell::flush() {
 
     for (uint32_t i = 0; i < StringBuffer::pos; i++) {
 
-        if (StringBuffer::buffer[i] == '\\') {
+        if (StringBuffer::buffer[i] == '\u001b') {
 
             isEscapeActive = true;
-
-            currentEscapeCode[escapeCodeIndex++] = StringBuffer::buffer[i];
-
-            continue;
         }
 
         if (isEscapeActive && StringBuffer::buffer[i] == Ansi::ESCAPE_END) {
@@ -325,11 +321,11 @@ void Shell::flush() {
 
             escapeCodeIndex = 0;
 
-            char color[3] {currentEscapeCode[7], currentEscapeCode[8], '\0'};
+            char color[3] {currentEscapeCode[2], currentEscapeCode[3], '\0'};
 
             auto colorCode = static_cast<uint32_t>(strtoint(color));
 
-            if (currentEscapeCode[9] == ';') {
+            if (currentEscapeCode[4] == ';') {
 
                 bright = true;
             }

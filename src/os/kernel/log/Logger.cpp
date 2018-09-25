@@ -86,7 +86,7 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
 
     uint32_t fraction = millis % 1000;
 
-    String tmp = String::format("[%d.%03d]%s[%s]%s[%s] %s", seconds, fraction,
+    String tmp = String::format("%s[%d.%03d]%s[%s]%s[%s] %s", Ansi::CYAN, seconds, fraction,
             getColor(level), (char*) getLevelAsString(level), Ansi::RESET, (char*) name, (char*) message);
 
 

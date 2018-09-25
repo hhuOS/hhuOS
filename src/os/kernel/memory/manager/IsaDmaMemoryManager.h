@@ -4,7 +4,7 @@
 #include "BitmapMemoryManager.h"
 
 /**
- * Manages the memory from 0x8000 to 0x88000. hhuOS uses this area for DMA transfers via the ISA bus.
+ * Manages the memory from 0x10000 to 0x90000. hhuOS uses this area for DMA transfers via the ISA bus.
  * This manager allocates blocks with a size of 64KB, as this is the maximum size,
  * that is supported by the ISA controller.
  */
