@@ -50,6 +50,10 @@
 #include <apps/Shell/Commands/WavPlay.h>
 #include <apps/Shell/Commands/Beep.h>
 
+extern "C" {
+#include <lib/libc/ctype.h>
+}
+
 Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService>()->getTextDriver()) {
     stdStreamService = Kernel::getService<StdStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
@@ -276,7 +280,7 @@ void Shell::onEvent(const Event &event) {
 
     if(c == '\n' || c == 13) {
         inputBuffer[strlen(inputBuffer)] = 0;
-        textDriver << endl;
+        *this << endl;
 
         lastString = String(inputBuffer);
         stringAvailable = true;
@@ -286,9 +290,15 @@ void Shell::onEvent(const Event &event) {
         if(strlen(inputBuffer) > 0) {
             uint16_t x, y;
             textDriver.getpos(x, y);
-            textDriver.show(x, y, ' ', Colors::BLACK, Colors::BLACK);
-            textDriver.show(--x, y, ' ', Colors::BLACK, Colors::BLACK);
-            textDriver.setpos(x, y);
+            textDriver.show(x, y, ' ', bgColor, bgColor);
+
+            if(x != 0) {
+                textDriver.show(--x, y, '_', fgColor, bgColor);
+                textDriver.setpos(x, y);
+            } else {
+                textDriver.show(static_cast<uint16_t>(textDriver.getColumnCount() - 1), --y, '_', fgColor, bgColor);
+                textDriver.setpos(static_cast<uint16_t>(textDriver.getColumnCount() - 1), y);
+            }
 
             memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
         }
@@ -297,14 +307,16 @@ void Shell::onEvent(const Event &event) {
         charAvailable = true;
 
         inputBuffer[strlen(inputBuffer)] = c;
-        textDriver << c;
-        textDriver.flush();
+        *this << c;
+        flush();
     }
 
     inputLock.release();
 }
 
 void Shell::flush() {
+
+    uint16_t x, y;
 
     bool bright = false;
 
@@ -317,11 +329,7 @@ void Shell::flush() {
 
         if (isEscapeActive && StringBuffer::buffer[i] == Ansi::ESCAPE_END) {
 
-            isEscapeActive = false;
-
-            escapeCodeIndex = 0;
-
-            char color[3] {currentEscapeCode[2], currentEscapeCode[3], '\0'};
+            char color[3] {currentEscapeCode[2], static_cast<char>(escapeCodeIndex > 3 ? currentEscapeCode[3] : '\0'), '\0'};
 
             auto colorCode = static_cast<uint32_t>(strtoint(color));
 
@@ -330,7 +338,18 @@ void Shell::flush() {
                 bright = true;
             }
 
-            fgColor = getColor(colorCode, bright);
+            if (colorCode == 0) {
+                fgColor = Colors::TERM_WHITE;
+                bgColor = Colors::TERM_BLACK;
+            } else if(colorCode < 40) {
+                fgColor = getColor(colorCode, bright);
+            } else {
+                bgColor = getColor(colorCode, bright);
+            }
+
+            isEscapeActive = false;
+
+            escapeCodeIndex = 0;
 
             continue;
         }
@@ -342,7 +361,17 @@ void Shell::flush() {
             continue;
         }
 
+        graphicsService->getTextDriver()->getpos(x, y);
+
+        if(StringBuffer::buffer[i] == '\n') {
+            graphicsService->getTextDriver()->show(x, y, ' ', fgColor, bgColor);
+        }
+
         graphicsService->getTextDriver()->putc(StringBuffer::buffer[i], fgColor, bgColor);
+
+        graphicsService->getTextDriver()->getpos(x, y);
+
+        graphicsService->getTextDriver()->show(x, y, '_', fgColor, bgColor);
     }
 
     StringBuffer::pos = 0;
@@ -403,25 +432,37 @@ Color Shell::getColor(uint32_t colorCode, bool bright) {
 
     switch (colorCode) {
         case 30:
+        case 40:
             return bright ? Colors::TERM_BRIGHT_BLACK : Colors::TERM_BLACK;
         case 31:
+        case 41:
             return bright ? Colors::TERM_BRIGHT_RED : Colors::TERM_RED;
         case 32:
+        case 42:
             return bright ? Colors::TERM_BRIGHT_GREEN : Colors::TERM_GREEN;
         case 33:
+        case 43:
             return bright ? Colors::TERM_BRIGHT_YELLOW : Colors::TERM_YELLOW;
         case 34:
+        case 44:
             return bright ? Colors::TERM_BRIGHT_BLUE : Colors::TERM_BLUE;
         case 35:
+        case 45:
             return bright ? Colors::TERM_BRIGHT_MAGENTA : Colors::TERM_MAGENTA;
         case 36:
+        case 46:
             return bright ? Colors::TERM_BRIGHT_CYAN : Colors::TERM_CYAN;
         case 37:
+        case 47:
             return bright ? Colors::TERM_BRIGHT_WHITE : Colors::TERM_WHITE;
         case 0:
             return Colors::TERM_WHITE;
         default:
-            return Colors::TERM_WHITE;
+            if(colorCode < 40) {
+                return Colors::TERM_WHITE;
+            } else {
+                return Colors::TERM_BLACK;
+            }
     }
 }
 
@@ -488,8 +529,8 @@ void Shell::showHistory(HistoryDirection direction) {
 
         inputBuffer[strlen(inputBuffer)] = c;
 
-        textDriver << c;
+        *this << c;
 
-        textDriver.flush();
+        this->flush();
     }
 }

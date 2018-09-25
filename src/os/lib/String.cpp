@@ -591,6 +591,3 @@ String String::strip() {
 
     return substring(startIndex, endIndex + 1);
 }
-
-
-

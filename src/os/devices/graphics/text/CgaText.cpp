@@ -181,7 +181,7 @@ void CgaText::getpos (uint16_t &x, uint16_t &y) {
     y = pos / columns;
 }
 
-void CgaText::show(uint16_t x, uint16_t y, const char c, Color fgColor, Color bgColor) {
+void CgaText::show(uint16_t x, uint16_t y, char c, Color fgColor, Color bgColor) {
     if (x < 0 || x >= columns || y < 0 || y > rows)
         return;
 
@@ -217,7 +217,7 @@ void CgaText::show(uint16_t x, uint16_t y, const char c, Color fgColor, Color bg
     *((uint8_t *) (CGA_START + pos + 1)) = attrib;
 }
 
-void CgaText::putc(const char c, Color fgColor, Color bgColor) {
+void CgaText::putc(char c, Color fgColor, Color bgColor) {
     uint16_t x, y;
 
     getpos(x, y);

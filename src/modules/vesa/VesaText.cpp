@@ -137,11 +137,11 @@ void VesaText::show(uint16_t x, uint16_t y, char c, Color fgColor, Color bgColor
     VesaText::drawChar(*font, x * fontWidth, y * fontHeight, c, fgColor, bgColor);
 }
 
-void VesaText::putc(const char  c, Color fgColor, Color bgColor) {
+void VesaText::putc(char c, Color fgColor, Color bgColor) {
     puts(&c, 1, fgColor, bgColor);
 }
 
-void VesaText::puts(const char  *s, uint32_t n, Color fgColor, Color bgColor) {
+void VesaText::puts(const char *s, uint32_t n, Color fgColor, Color bgColor) {
     uint16_t x, y;
     getpos(x, y);
     uint16_t pos = x + columns * y;
@@ -167,7 +167,6 @@ void VesaText::puts(const char  *s, uint32_t n, Color fgColor, Color bgColor) {
     }
 
     setpos(pos % columns, pos / columns);
-
 }
 
 void VesaText::scrollup () {

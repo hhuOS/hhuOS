@@ -16,7 +16,7 @@
 class Font
 {
 public:
-    virtual unsigned char* getChar(int c) const = 0;
+    virtual unsigned char* getChar(unsigned char c) const = 0;
     virtual uint8_t get_char_width() const = 0;
     virtual uint8_t get_char_height() const = 0;
 };
@@ -32,7 +32,7 @@ class FontInstance : public Font
 public:
     FontInstance() : char_width(width), char_height(height), char_mem_size(
             static_cast<const uint8_t>(((char_width + (8 >> 1)) / 8) * char_height)), font_data(data) { }
-    inline unsigned char* getChar(int c) const override {
+    inline unsigned char* getChar(unsigned char c) const override {
         return &font_data[char_mem_size * c];
     }
     inline uint8_t get_char_width() const override {

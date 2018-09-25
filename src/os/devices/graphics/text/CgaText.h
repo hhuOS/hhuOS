@@ -114,7 +114,7 @@ public:
     /**
      * Overriding virtual function from TextDriver.
      */
-    void putc(char c, Color fgColor = Colors::LIGHT_GRAY, Color bgColor = Colors::INVISIBLE) override;
+    void putc(char c, Color fgColor = Colors::HHU_GRAY, Color bgColor = Colors::INVISIBLE) override;
 
     /**
      * Overriding virtual function from TextDriver.

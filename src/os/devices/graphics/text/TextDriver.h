@@ -165,7 +165,8 @@ public:
      * @param fgColor The foreground color
      * @param bgColor The background color
      */
-    virtual void show(uint16_t x, uint16_t y, char c, Color fgColor = Colors::HHU_GRAY, Color bgColor = Colors::INVISIBLE) = 0;
+    virtual void show(uint16_t x, uint16_t y, char c, Color fgColor = Colors::HHU_GRAY,
+                      Color bgColor = Colors::INVISIBLE) = 0;
 
     /**
      * Print a char at the current position.
@@ -184,7 +185,8 @@ public:
      * @param fgColor The foreground color
      * @param bgColor The background color
      */
-    virtual void puts(const char *s, uint32_t n, Color fgColor = Colors::HHU_GRAY, Color bgColor = Colors::INVISIBLE) = 0;
+    virtual void puts(const char *s, uint32_t n, Color fgColor = Colors::HHU_GRAY,
+                      Color bgColor = Colors::INVISIBLE) = 0;
 
     /**
      * Scrolls the entire screen up by one row.

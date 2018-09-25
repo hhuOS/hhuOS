@@ -39,6 +39,38 @@ public:
 
     static constexpr const char *BRIGHT_WHITE = "\u001b[37;1m";
 
+    static constexpr const char *BACKGROUND_BLACK = "\u001b[40m";
+
+    static constexpr const char *BACKGROUND_RED = "\u001b[41m";
+
+    static constexpr const char *BACKGROUND_GREEN = "\u001b[42m";
+
+    static constexpr const char *BACKGROUND_YELLOW = "\u001b[43m";
+
+    static constexpr const char *BACKGROUND_BLUE = "\u001b[44m";
+
+    static constexpr const char *BACKGROUND_MAGENTA = "\u001b[45m";
+
+    static constexpr const char *BACKGROUND_CYAN = "\u001b[46m";
+
+    static constexpr const char *BACKGROUND_WHITE = "\u001b[47m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_BLACK = "\u001b[40;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_RED = "\u001b[41;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_GREEN = "\u001b[42;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_YELLOW = "\u001b[43;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_BLUE = "\u001b[44;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_MAGENTA = "\u001b[45;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_CYAN = "\u001b[46;1m";
+
+    static constexpr const char *BACKGROUND_BRIGHT_WHITE = "\u001b[47;1m";
+
     static const char ESCAPE_END = 'm';
 
 };
