@@ -10,12 +10,12 @@
 
 # Introduction
 
-Welcome to hhuOS, a **small operating system** written in C++ and Assembler for
-x86-architectures. The main purpose of this project is to show how different
+Welcome to hhuOS, a **small operating system** written in C++ and Assembler for the
+x86-architecture. The main purpose of this project is to show how different
 aspects of operating systems theory can be implemented and linked together.
 The system is *not* aimed to be a full-featured operating system for daily use.
 
-Check out the [website](https://hhuos.github.io)!
+Check out our [website](https://hhuos.github.io)!
 
 # Compiling
 
@@ -48,12 +48,12 @@ After installing all required packages the following make targets are available.
 To test hhuOS quickly in QEMU, you can issue the following commands.
 
 ```sh
-git createInstance https://github.com/hhuOS/hhuOS.git
+git clone https://github.com/hhuOS/hhuOS.git
 cd hhuOS/src/os
 make qemu
 ```
 
-If you are running  Ubuntu 16.04 and habe installed GCC 8 with the above commands, you can use the following command to compile and run hhuOS.
+If you are running  Ubuntu 16.04 and have installed GCC 8 with the above commands, you can use the following command to compile and run hhuOS.
 
 ```sh
 CC=gcc-8 CXX=g++8 make
