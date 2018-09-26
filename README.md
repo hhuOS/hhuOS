@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="media/logo/hhuOSLogo_small.png">
+  <img src="media/logo/logo_v3.svg">
 </p>
 
 <p align="center">
