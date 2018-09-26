@@ -31,7 +31,7 @@ sudo apt install gcc-8 gcc-8-multilib g++-8 g++-8-multilib
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command.
 
 ```sh
-sudo apt-get install make nasm gcc-multilib g++-multilib grub-pc-bin xorriso
+sudo apt install make nasm gcc-multilib g++-multilib grub-pc-bin xorriso
 ```
 
 After installing all required packages the following make targets are available.

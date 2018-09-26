@@ -1,5 +1,5 @@
 ; Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-; Heinrich-Heine University
+; Heinrich-Heine University; Olaf Spinczyk, TU Dortmund
 ;
 ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 ; License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,7 +15,7 @@
 ; all assembler code regarding interrupts is placed here
 ; i.e. wrapper bodies, bios-call code and IDT
 
-; Original IDT and wrapper by Original by Olaf Spinczyk, TU Dortmund.
+; Original IDT and wrapper by by Olaf Spinczyk, TU Dortmund.
 ; Refactored and extended by
 ; Michael Schoettner, Fabian Ruhland, Filip Krakowski, Burak Akguel, Christian Gesse, HHU 2018
 

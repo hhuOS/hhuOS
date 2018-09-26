@@ -1,11 +1,17 @@
-/**
- * PIC - programmable interrupt controller. In this hardware device the different
- * interrupts can be activated or masked out. Using the PIC one can controll,
- * which hardware interrupts shall be passed to the CPU.
+/*
+ * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Heinrich-Heine University
  *
- * @author  original by Olaf Spinczyk, TU Dortmund
- * 			modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
- * @date HHU, 2018
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
 #include "kernel/interrupts/Pic.h"

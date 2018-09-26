@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __MkVdd_include__
-#define __MkVdd_include__
+#ifndef __License_include__
+#define __License_include__
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
@@ -23,42 +23,37 @@
 
 /**
  * Implementation of Command.
- * Creates a new virtual disk drive.
+ * Shows the copyright license.
  *
- * -s, --sectorsize: The size of a sector on the virtual disk (Default: 512 Byte)
- * -c, --count: The amount of sectors, that the virtual disk has
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class MkVdd : public Command {
-
-private:
-    StorageService *storageService = nullptr;
+class License : public Command {
 
 public:
     /**
      * Default-constructor.
      */
-    MkVdd() = delete;
+    License() = delete;
 
     /**
      * Copy-constructor.
      */
-    MkVdd(const MkVdd &copy) = delete;
+    License(const License &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit MkVdd(Shell &shell);
+    explicit License(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~MkVdd() override = default;
+    ~License() override = default;
 
     /**
      * Overriding function from Command.
