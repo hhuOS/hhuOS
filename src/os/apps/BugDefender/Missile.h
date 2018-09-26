@@ -24,7 +24,7 @@ class Missile : public GameObject {
 
   private:
 
-    Missile(const Missile &copy); // Verhindere Kopieren
+    Missile(const Missile &copy);
 
     const static int width = 4;
     const static int height = 17;

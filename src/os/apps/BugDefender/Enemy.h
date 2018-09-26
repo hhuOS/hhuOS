@@ -25,7 +25,7 @@ class Enemy : public GameObject {
 
   private:
 
-    Enemy(const Enemy &copy); // Verhindere Kopieren
+    Enemy(const Enemy &copy);
 
     static Image *sprite1;
     static Image *sprite2;

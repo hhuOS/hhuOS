@@ -50,11 +50,6 @@ void HHUEngine::setSeed(unsigned int seed){
 
 void HHUEngine::beep(float frequency, uint32_t length) {
     Kernel::getService<SoundService>()->getPcSpeaker()->play(frequency, length);
-    /*const Util::Pair<float, uint32_t> data(frequency, length);
-
-    auto *beepThread = new WorkerThread<Util::Pair<float, uint32_t>, uint32_t >(hhu_engine_beep, data, nullptr);
-
-    beepThread->start();*/
 }
 
 void HHUEngine::setCurrentGame(Game* game){

@@ -26,9 +26,6 @@
 
 Logger &Mouse::log = Logger::get("MOUSE");
 
-/**
- * Wait until new commands can be sent to controller.
- */
 void Mouse::waitControl() {
     int time_out = 100000;
     // Polling until timeout
@@ -39,9 +36,6 @@ void Mouse::waitControl() {
     }
 }
 
-/**
- * Wait until new data is there
- */
 void Mouse::waitData() {
     int time_out = 100000;
     // Polling until timeout
@@ -52,20 +46,12 @@ void Mouse::waitData() {
     }
 }
 
-/**
- * Reads a byte from the data port
- * @return
- */
 unsigned char Mouse::read() {
     // wait until data is there
     waitData();
     return data_port.inb();
 }
 
-/**
- * writes byte to command port
- * @param byte_write
- */
 void Mouse::write(unsigned char byte_write) {
     waitControl();
     ctrl_port.outb(0xD4); // D4 - write next data byte to second ps2 input buffer (in this case mouse)
@@ -73,9 +59,6 @@ void Mouse::write(unsigned char byte_write) {
     data_port.outb(byte_write);
 }
 
-/**
- * Activate mouse as auxiliary ps2 device
- */
 void Mouse::activate() {
     // Statusbyte
     unsigned char status;
@@ -133,11 +116,6 @@ void Mouse::activate() {
 
 }
 
-/**
- * sends a command to mouse controller and waits for acknowledgement
- * @param byte_write
- * @param commandString
- */
 void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, char* commandString) {
     if(!available) {
         return;
@@ -169,11 +147,6 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
 
 }
 
-/**
- * sends a command to mouse controller and waits for acknowledge
- * @param byte_write
- * @param commandString
- */
 void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     if(!available) {
         return;
@@ -199,9 +172,6 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     }
 }
 
-/**
- * Constructor
- */
 Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), clickedEventBuffer(1024), releasedEventBuffer(1024), doubleclickEventBuffer(1024) {
     buttons = 0;
     cycle = 1;
@@ -209,9 +179,6 @@ Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), click
     activate();
 }
 
-/**
- * Allows Mouse interrupts in PIC and assigns Mouse class as interrupt handler for Mouse interrupts
- */
 void Mouse::plugin() {
     if(available) {
         timeService = Kernel::getService<TimeService>();
@@ -222,14 +189,6 @@ void Mouse::plugin() {
     }
 }
 
-/**
- * Interrupt handler
- *
- * The mouse sends for each 'event' 3 bytes
- *  -> the first byte has information about clicked buttons and movement type (signed or unsigned)
- *  -> second byte x Movement
- *  -> third byte y Movement
- */
 void Mouse::trigger() {
     // check if mouse data is there
     unsigned int status = ctrl_port.inb();
@@ -341,9 +300,6 @@ void Mouse::trigger() {
 
 }
 
-/**
- * No mouse was detected or mouse is defect -> cleanup
- */
 void Mouse::cleanup() {
     // forbid mouse interrupts
     Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);

@@ -63,4 +63,4 @@ public:
 };
 
 
-#endif //HHUOS_MOUSEAPP_H
+#endif

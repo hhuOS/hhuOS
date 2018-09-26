@@ -25,9 +25,6 @@
 
 #define NUM_OF_ALLOCS 128
 
-/**
- * Constructor
- */
 IOMemoryTestApp::IOMemoryTestApp() : Thread("IOMemoryTestApp") {
     random = new Random(20);
     objects = new void*[NUM_OF_ALLOCS];
@@ -37,18 +34,12 @@ IOMemoryTestApp::IOMemoryTestApp() : Thread("IOMemoryTestApp") {
     stats[2] = 0;
 }
 
-/**
- * Destructor
- */
 IOMemoryTestApp::~IOMemoryTestApp() {
     delete objects;
     delete random;
     delete stats;
 }
 
-/**
- * Allocates and frees memory in the IO-Area.
- */
 void IOMemoryTestApp::runTest() {
     //SystemManagement::getInstance()->dumpFreeIOMemBlocks();
 
@@ -72,18 +63,13 @@ void IOMemoryTestApp::runTest() {
         objects[i] = SystemManagement::getInstance()->mapIO(size);
     }
     shuffle();
-    //SystemManagement::getInstance()->dumpFreeIOMemBlocks();
 
     for (uint8_t i = 0; i < NUM_OF_ALLOCS; i++) {
         SystemManagement::getInstance()->freeIO(objects[i]);
     }
-    //SystemManagement::getInstance()->dumpFreeIOMemBlocks();
 
 }
 
-/**
- * Shuffles the allocated objects.
- */
 void IOMemoryTestApp::shuffle() {
     // Shuffle allocated objects
     unsigned int src, dst;
@@ -97,12 +83,7 @@ void IOMemoryTestApp::shuffle() {
     }
 }
 
-/**
- * Thread run method.
- */
 void IOMemoryTestApp::run() {
-//    Cpu::disableInterrupts();
-
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     *stream << "_____ IOMemory Demo App _____" << endl << endl;
@@ -117,7 +98,6 @@ void IOMemoryTestApp::run() {
         *stream << "Ups. Lost a few bytes. Leak: " << (freeAfter - freeBefore) << " Bytes" << endl;
     }
 
-//    Cpu::enableInterrupts();
     *stream << "Press [ENTER] to return" << endl;
     while (!kb->isKeyPressed(KeyEvent::RETURN));
 

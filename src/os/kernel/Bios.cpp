@@ -26,10 +26,6 @@ extern "C" { void bios_call(); }
 // pointer to memory for parameters
 struct BIOScall_params* BC_params = (struct BIOScall_params*)VIRT_BIOS16_PARAM_BASE;
 
-/**
- * Builds up a 16-bit code segment manually. The start address
- * of this code segment is in the GDT for bios calls
- */
 void Bios::init() {
 	// pointer to memory segment for 16 bit code
     uint8_t *codeAddr = (uint8_t*)VIRT_BIOS16_CODE_MEMORY_START;
@@ -209,9 +205,6 @@ void Bios::init() {
 }
 
 
-/**
- * Provides a bios call via software interrupt
- */
 void Bios::Int(int inter) {
 	// get pointer to bios call segment
     uint8_t *ptr = (uint8_t*)VIRT_BIOS16_CODE_MEMORY_START;

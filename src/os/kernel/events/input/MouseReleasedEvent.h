@@ -46,4 +46,4 @@ public:
     bool isMiddleReleased();
 };
 
-#endif //HHUOS_MOUSERELEASEDEVENT_H
+#endif

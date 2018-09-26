@@ -21,7 +21,7 @@ class Fleet {
 
   private:
 
-    Fleet(const Fleet &copy); // Verhindere Kopieren
+    Fleet(const Fleet &copy);
 
     static float nextSpeed;
 

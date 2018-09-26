@@ -30,7 +30,7 @@ class RectCollider {
     int width;
     int height;
 
-    RectCollider(const RectCollider &copy); // Verhindere Kopieren
+    RectCollider(const RectCollider &copy);
 
   public:
 

@@ -22,18 +22,20 @@
 class Random {
 
 private:
+
 	Random(const Random &copy);
 
 	uint32_t seed;
-	uint32_t maxRand; // Obere Grenze für die Zufallszahl
+	uint32_t maxRand;
 
 public:
-	// Konstruktoren
-	Random(uint32_t seed, uint32_t maxRand);
-	Random(uint32_t maxRand = 0xFFFFFFFF);
 
-	// Liefert eine Zufallszahl zwischen 0 und maxRand - 1
+	Random(uint32_t seed, uint32_t maxRand);
+
+	explicit Random(uint32_t maxRand = 0xFFFFFFFF);
+
 	uint32_t rand();
+
 	uint32_t rand(uint32_t maxRand);
 
     void setSeed(uint32_t seed);

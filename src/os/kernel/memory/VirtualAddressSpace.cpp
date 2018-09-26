@@ -19,9 +19,6 @@
 #include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/Paging.h"
 
-/**
- * Constructor for an address space.
- */
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
 	// create a new memory abstraction through paging
 	this->pageDirectory = new PageDirectory(basePageDirectory);
@@ -33,10 +30,6 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
 	bootstrapAddressSpace = false;
 }
 
-/**
- * Constructor for the very first address space for bootstrapping reasons.
- * The memory manager for user space is set manually since it does not exist.
- */
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, FreeListMemoryManager *userSpaceHeapManager) {
 	// use the basePageDirectory here since it is not possible to create a new one right now
 	this->pageDirectory = pageDirectory;
@@ -48,9 +41,6 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, FreeListM
 	bootstrapAddressSpace = true;
 }
 
-/**
- * Destructor
- */
 VirtualAddressSpace::~VirtualAddressSpace() {
 	// only delete things if they were allocated by the constructor
 	if(!bootstrapAddressSpace){

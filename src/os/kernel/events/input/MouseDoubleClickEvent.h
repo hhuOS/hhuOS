@@ -28,9 +28,9 @@ public:
     static const uint32_t TYPE = 0x00000007;
 
     char* getName() override {
-        return "MouseDoubleClickEvent";
+        return const_cast<char *>("MouseDoubleClickEvent");
     }
 };
 
 
-#endif //HHUOS_MOUSEDOUBLECLICKEVENT_H
+#endif

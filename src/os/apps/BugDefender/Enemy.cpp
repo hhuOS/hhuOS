@@ -37,7 +37,6 @@ Enemy::Enemy(Vector2 position, int rowNumber) : GameObject(position, "Enemy") {
 }
 
 void Enemy::update(float delta) {
-    // Halte Lebenszeit fest, um den richtigen Sprite zur richtigen Zeit anzuzeigen
     lifeTime += delta;
     spriteNumber = ((int) lifeTime) % 2;
 
@@ -72,10 +71,10 @@ void Enemy::onCollisionEnter(GameObject &other) {
 
     HHUEngine::destroy(this);
 
-    // Erhoehe Geschwindigkeit aller Schiffe, falls eines zerstoert wird
+    // Increase speed of all ships, after a ship has been destroyed
     Fleet::increaseSpeed();
 
-    // Jede zweite Reihe gibt mehr Punkte
+    // Each second row is worth more points
     BugDefender::addPoints((4 - (rowNumber / 2)) * 20);
 
     BugDefender::enemyShot();

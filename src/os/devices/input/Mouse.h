@@ -42,8 +42,8 @@ private:
     TimeService *timeService;
 
     // IO ports (same as keyboard)
-    const IOport ctrl_port;    // Status- (R) u. Steuerregister (W)
-    const IOport data_port;    // Ausgabe- (R) u. Eingabepuffer (W)
+    const IOport ctrl_port;
+    const IOport data_port;
 
     EventBus *eventBus;
     // TODO MouseDragedEvent
@@ -54,31 +54,41 @@ private:
 
     bool available = true;
 
-    // Zykluiszähler für das Einlesen der Bytes
+    // Cycle count for reading bytes from the mouse
     unsigned int cycle;
 
-    // Beim Maus-Interrupt: Flags und Offsets der Bewegung
+    // Interrupt flags and mouse offset
     unsigned int flags;
     int dx, dy;
 
-    // Buttons merken bei Interrupt
+    // Button status
     unsigned int buttons;
-    //
+
     uint32_t lastClickTimestamp = 0;
 
-    // warte darauf, dass Daten am Controller zum Lesen bereit liegen
+    /**
+     * Wait for the controller to have data available.
+     */
     void waitData();
 
-    // Warte  darauf, dass ein Befehl zum Controller geschickt werden kann
+    /**
+     * Wait for the controller to be ready to receive commands
+     */
     void waitControl();
 
-    // lese Daten vom Controller ein
+    /**
+     * Read a byte from the controller.
+     */
     unsigned char read();
 
-    // schicke Kommando an den Mauscontroller
+    /**
+     * Write a command to the controller.
+     */
     void write(unsigned char byte_write);
 
-    // Aktiviere Maus
+    /**
+     * Activate the mouse.
+     */
     void activate();
 
     void writeCommandAndByte(unsigned char byte_write, unsigned char data, char* commandString);
@@ -86,17 +96,25 @@ private:
     void writeCommand(unsigned char byte_write, char* commandString);
 
 public:
-    // Initialisierung der Maus.
+    /**
+     * Constructor.
+     */
     Mouse();
 
-    // Verhindere Kopieren.
+    /**
+     * Copy-constructor.
+     */
     Mouse(const Mouse &copy) = delete;
 
-    // Aktivierung der Unterbrechungen fuer die Maus
+    /**
+     * Enable interrupts for the mouse.
+     */
     void plugin();
 
-    // Unterbrechnungsroutine der Maus
-    void trigger();
+    /**
+     * Overriding function from InterruptHandler.
+     */
+    void trigger() override;
 
     bool isAvailable() {
         return available;

@@ -19,8 +19,10 @@
 
 /**
  * Limits for an area.
- * This struct stores the Limits of an area. There are methods to modify
- * a position in relation to the area.
+ * This struct stores the Limits of an area. There are methods to modify a position in relation to the area.
+ *
+ * @author Jochen Perters
+ * @date 2017
  */
 struct Limits {
 	int left;

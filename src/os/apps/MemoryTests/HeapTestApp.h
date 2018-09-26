@@ -50,4 +50,4 @@ public:
 };
 
 
-#endif //__HEAP_TEST_APP_H__
+#endif

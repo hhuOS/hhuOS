@@ -29,7 +29,7 @@ class BugDefender : public Game {
 
   private:
 
-    BugDefender(const BugDefender &copy); // Verhindere Kopieren
+    BugDefender(const BugDefender &copy);
 
     const static int enemiesPerLine = 11;
 

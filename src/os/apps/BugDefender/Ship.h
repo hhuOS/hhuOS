@@ -25,7 +25,7 @@ class Ship : public GameObject {
 
   private:
 
-    Ship(const Ship &copy); // Verhindere Kopieren
+    Ship(const Ship &copy);
 
     const static int width = 40;
     const static int height = 33;

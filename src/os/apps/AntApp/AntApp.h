@@ -29,8 +29,10 @@
 
 /**
  * Langstons Ant.
- * This is a vesa 2D turing maschine Thread.
- * @todo cga version
+ * This is a vesa 2D turing machine Thread.
+ *
+ * @author Jochen Peters, Fabian Ruhland, Filip Krakowski
+ * @date 2017
  */
 class AntApp : public Thread, public Receiver {
 

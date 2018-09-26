@@ -30,8 +30,6 @@ Random::Random(uint32_t maxRand) {
 	this->maxRand = maxRand;
 }
 
-
-// Liefert eine Zufallszahl zwischen 0 und maxRand - 1
 unsigned int Random::rand() {
 	this->seed = this->seed * 1103515255 + 12345;
 	return (unsigned int)(seed / 65536) % maxRand;

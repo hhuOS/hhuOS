@@ -26,9 +26,6 @@
 
 Logger &HeapTestApp::log = Logger::get("HEAP_TEST");
 
-/**
- * Constructor
- */
 HeapTestApp::HeapTestApp() : Thread("HeapTestApp") {
     random = new Random(4096 * 16);
     objects = new unsigned int*[NUM_OF_ALLOCS];
@@ -38,18 +35,12 @@ HeapTestApp::HeapTestApp() : Thread("HeapTestApp") {
     stats[2] = 0;
 }
 
-/**
- * Destructor
- */
 HeapTestApp::~HeapTestApp() {
     delete random;
     delete objects;
     delete stats;
 }
 
-/**
- * Primitive allocations (new calls) and frees
- */
 void HeapTestApp::primitiveAllocs() {
     unsigned int size = 0;
     for(uint8_t i=0; i < NUM_OF_ALLOCS; i++) {
@@ -76,10 +67,6 @@ void HeapTestApp::primitiveAllocs() {
     }
 }
 
-
-/**
- * Array allocations (new[] calls) and frees
- */
 void HeapTestApp::arrayAllocs() {
     unsigned int size = 0;
     for(uint8_t i=0; i < NUM_OF_ALLOCS; i++) {
@@ -106,9 +93,6 @@ void HeapTestApp::arrayAllocs() {
     }
 }
 
-/**
- * Shuffles the allocated objects.
- */
 void HeapTestApp::shuffle() {
     unsigned int src, dst;
     for (int i = 0; i < 10000; i++) {
@@ -121,9 +105,6 @@ void HeapTestApp::shuffle() {
     }
 }
 
-/**
- * Thread run method.
- */
 void HeapTestApp::run() {
      log.trace("Running HeapTestApp");
 

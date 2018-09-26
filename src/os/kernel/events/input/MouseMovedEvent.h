@@ -42,4 +42,4 @@ public:
 };
 
 
-#endif //HHUOS_MOUSEMOVEDEVENT_H
+#endif

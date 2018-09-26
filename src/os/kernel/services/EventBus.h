@@ -46,7 +46,7 @@ public:
 
     EventBus &operator=(const EventBus &other) = delete;
 
-    ~EventBus() = default;
+    ~EventBus() override = default;
 
     /**
      * Subscribes to a certain type of Event.

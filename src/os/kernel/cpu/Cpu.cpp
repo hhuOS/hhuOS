@@ -22,7 +22,7 @@ extern "C" {
     void onException(uint32_t exception);
 }
 
-// lists of Exceptions that cann occur
+// lists of Exceptions that can occur
 const char* Cpu::hardwareExceptions[] = {
         "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
         "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
@@ -57,9 +57,6 @@ void disable_interrupts() {
     Cpu::disableInterrupts();
 }
 
-/**
- * Checks if interrupt flag is set in EFLAGS.
- */
 bool Cpu::isInterrupted() {
 
     uint32_t eflags;
@@ -70,9 +67,6 @@ bool Cpu::isInterrupted() {
     return (eflags & 0x200) == 0;
 }
 
-/**
- * Enables hardware interrupts on CPU.
- */
 void Cpu::enableInterrupts() {
 
     cliCount--;
@@ -88,9 +82,6 @@ void Cpu::enableInterrupts() {
     }
 }
 
-/**
- * Disables hardware interrupts on CPU.
- */
 void Cpu::disableInterrupts() {
 
     asm volatile ( "cli" );
@@ -98,18 +89,12 @@ void Cpu::disableInterrupts() {
     cliCount++;
 }
 
-/**
- * Stop CPU unitl next interrupt.
- */
 void Cpu::idle () {
     asm volatile ( "sti\n"
                    "hlt"
     );
 }
 
-/**
- * Stop the processor via hlt instruction.
- */
 void Cpu::halt () {
     asm volatile ( "cli\n"
                    "hlt"
@@ -117,18 +102,12 @@ void Cpu::halt () {
     __builtin_unreachable();
 }
 
-/**
- * Reads the time stamp counter.
- */
 unsigned long long int Cpu::rdtsc() {
     unsigned long long int  ret;
     asm volatile ( "rdtsc" : "=A"(ret) );
     return ret;
 }
 
-/**
- * Returns the name of the Exception from the ennumeration.
- */
 const char *Cpu::getExceptionName(Cpu::Error exception) {
 
     uint32_t slot = (uint32_t) exception;
@@ -150,9 +129,6 @@ const char *Cpu::getExceptionName(uint32_t exception) {
     return hardwareExceptions[exception];
 }
 
-/**
- * Throws an exception.
- */
 void Cpu::throwException(Exception exception, const char *message) {
 
     disableInterrupts();

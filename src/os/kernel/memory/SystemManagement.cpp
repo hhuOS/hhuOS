@@ -83,17 +83,11 @@ void fini_system() {
     _fini();
 }
 
-/**
- * Plugin to register for interrupt handling
- */
 void SystemManagement::plugin() {
     IntDispatcher::getInstance().assign(IntDispatcher::pagefault, *this);
 }
 
 
-/**
- * Handle a Page Fault
- */
 void SystemManagement::trigger() {
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Pagefault occured\n");
@@ -111,9 +105,6 @@ void SystemManagement::trigger() {
     // TODO: Check other Faults
 }
 
-/**
- * Initialize the SystemManager and the corresponding stuff
- */
 void SystemManagement::init() {
     // Init Paging Area Manager -> Manages the virtual addresses of all page tables
     // and directories
@@ -158,9 +149,6 @@ void SystemManagement::init() {
     initialized = true;
 }
 
-/**
- * Maps a page into the current page directory at a given virtual address.
- */
 void SystemManagement::map(uint32_t virtAddress, uint16_t flags) {
 	// allocate a physical page frame where the page should be mapped
     uint32_t physAddress = (uint32_t) pageFrameAllocator->alloc(PAGESIZE);
@@ -172,11 +160,6 @@ void SystemManagement::map(uint32_t virtAddress, uint16_t flags) {
 #endif
 }
 
-/**
- * Maps a page at a given physical address to a virtual address.
- * The physical address should be allocated right now, since this function does
- * only map it!
- */
 void SystemManagement::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress) {
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Map virtual address %x to phys address %x\n", (virtAddress & 0xFFFFF000), physAddress);
@@ -200,9 +183,6 @@ void SystemManagement::map(uint32_t virtStartAddress, uint32_t virtEndAddress, u
     }
 }
 
-/**
- * Creates Page Table for a non present entry in Page Directory
- */
 uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
     // get some virtual memory for the table
     void *virtAddress = pagingAreaManager->alloc(PAGESIZE);
@@ -220,9 +200,6 @@ uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
     return 0;
 }
 
-/**
- * Unmap Page at a given virtual address.
- */
 uint32_t SystemManagement::unmap(uint32_t virtAddress){
 	// request the pagedirectory to unmap the page
     uint32_t physAddress = currentAddressSpace->getPageDirectory()->unmap(virtAddress);
@@ -247,9 +224,6 @@ uint32_t SystemManagement::unmap(uint32_t virtAddress){
     return physAddress;
 }
 
-/**
- * Unmap a range of virtual addresses in current Page Directory
- */
 uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
     // remark: if given addresses are not aligned on pages, we do not want to unmap 
     // data that could be on the same page before startVirtAddress or behind endVirtAddress
@@ -297,13 +271,6 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
     return ret;
 }
 
-/**
- * Maps a physical address into the IO-space of the system, located at the upper
- * end of the virtual memory. The allocated memory is 4kb-aligned, therefore the
- * returned virtual memory address is also 4kb-aligned. If the given physical
- * address is not 4kb-aligned, one has to add a offset to the returned virtual
- * memory address in order to obtain the corresponding virtual address.
- */
 void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
@@ -335,10 +302,6 @@ void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     return virtStartAddress;
 }
 
-/**
- * Maps IO-space for a device and allocates physical memory for it. All 
- * allocations are 4kb-aligned.
- */
 void* SystemManagement::mapIO(uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
@@ -373,19 +336,10 @@ void* SystemManagement::mapIO(uint32_t size) {
     return virtStartAddress;
 }
 
-/**
- * Free the IO-space described by the given IOMemInfo Block
- */
 void SystemManagement::freeIO(void *ptr) {
     ioMemManager->free(ptr);
 }
 
-/**
- * Gets the physical address of a given virtual address. The returned 
- * physical address is 4kb-aligned, so sometimes an offset may be calculated
- * in order to get the exact physical address corresponding to the virtual
- * address.
- */
 void* SystemManagement::getPhysicalAddress(void *virtAddress) {
     return currentAddressSpace->getPageDirectory()->getPhysicalAddress(virtAddress);
 }
@@ -397,24 +351,14 @@ bool SystemManagement::isInitialized() {
     return initialized;
 }
 
-/**
- * Checks whether the system is in kernel mode or not.
- * Is needed to decide which heap memory manager is to be used.
- */
 bool SystemManagement::isKernelMode() {
 	return kernelMode;
 }
 
-/**
- * Returns the faulting address of the last pagefault that occured.
- */
 uint32_t SystemManagement::getFaultingAddress() {
     return faultedAddress;
 }
 
-/**
- * Calculates the amount of usable, installed physical memory using a bios call.
- */
 void SystemManagement::calcTotalPhysicalMemory() {
 
     // request amount of memory
@@ -448,9 +392,6 @@ void SystemManagement::calcTotalPhysicalMemory() {
 
 }
 
-/**
- * Creates a new virtual address space and the required memory managers.
- */
 VirtualAddressSpace* SystemManagement::createAddressSpace() {
 	VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
 	// add to the list of address spaces
@@ -459,9 +400,6 @@ VirtualAddressSpace* SystemManagement::createAddressSpace() {
 	return addressSpace;
 }
 
-/**
- * Switches to a given address space.
- */
 void SystemManagement::switchAddressSpace(VirtualAddressSpace *addressSpace) {
 	// set current address space
 	this->currentAddressSpace = addressSpace;
@@ -469,9 +407,6 @@ void SystemManagement::switchAddressSpace(VirtualAddressSpace *addressSpace) {
 	load_page_directory(addressSpace->getPageDirectory()->getPageDirectoryPhysicalAddress());
 }
 
-/**
- * Remove an address space from the system
- */
 void SystemManagement::removeAddressSpace(VirtualAddressSpace *addressSpace){
 	// the current active address space cannot be removed
 	if(currentAddressSpace == addressSpace){
@@ -483,16 +418,10 @@ void SystemManagement::removeAddressSpace(VirtualAddressSpace *addressSpace){
 	delete addressSpace;
 }
 
-/**
- * Allocates space in PageTableArea.
- */
 void* SystemManagement::allocPageTable() {
 	return pagingAreaManager->alloc(PAGESIZE);
 }
 
-/**
- * Frees a Page Table / Directory.
- */
 void SystemManagement::freePageTable(void *virtTableAddress) {
     void *physAddress = getPhysicalAddress(virtTableAddress);
 	// free virtual memory
@@ -501,18 +430,11 @@ void SystemManagement::freePageTable(void *virtTableAddress) {
 	pageFrameAllocator->free(physAddress);
 }
 
-/**
- * Sets the params for a page fault.
- */
 void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 	faultedAddress = faultAddress;
 	faultFlags = flags;
 }
 
-/**
- * Getter method for the singleton-construction.
- * Creates an instance if necessary.
- */
 SystemManagement* SystemManagement::getInstance() {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
@@ -530,14 +452,6 @@ SystemManagement* SystemManagement::getInstance() {
 void SystemManagement::writeProtectKernelCode() {
     basePageDirectory->writeProtectKernelCode();
 }
-
-
-
-/*
- * Now we override the new and delete operators of C++ to use our
- * own memory management. Every operator uses the memory manager for user or kernel
- * mode, regarding to the mode the system is currently running in.
- */
 
 void* operator new ( uint32_t size ) {
 	if(!SystemManagement::isKernelMode()){
