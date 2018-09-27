@@ -55,7 +55,7 @@ extern "C" {
 #include <lib/libc/ctype.h>
 }
 
-Shell::Shell() : Thread("Shell"), textDriver(*Kernel::getService<GraphicsService>()->getTextDriver()) {
+Shell::Shell() : Thread("Shell") {
     stdStreamService = Kernel::getService<StdStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
@@ -280,6 +280,8 @@ void Shell::onEvent(const Event &event) {
 
     inputLock.acquire();
 
+    TextDriver *textDriver = graphicsService->getTextDriver();
+
     if(c == '\n' || c == 13) {
         inputBuffer[strlen(inputBuffer)] = 0;
         *this << endl;
@@ -291,15 +293,15 @@ void Shell::onEvent(const Event &event) {
     } else if(c == '\b' || c == 127) {
         if(strlen(inputBuffer) > 0) {
             uint16_t x, y;
-            textDriver.getpos(x, y);
-            textDriver.show(x, y, ' ', bgColor, bgColor);
+            textDriver->getpos(x, y);
+            textDriver->show(x, y, ' ', bgColor, bgColor);
 
             if(x != 0) {
-                textDriver.show(--x, y, '_', fgColor, bgColor);
-                textDriver.setpos(x, y);
+                textDriver->show(--x, y, '_', fgColor, bgColor);
+                textDriver->setpos(x, y);
             } else {
-                textDriver.show(static_cast<uint16_t>(textDriver.getColumnCount() - 1), --y, '_', fgColor, bgColor);
-                textDriver.setpos(static_cast<uint16_t>(textDriver.getColumnCount() - 1), y);
+                textDriver->show(static_cast<uint16_t>(textDriver->getColumnCount() - 1), --y, '_', fgColor, bgColor);
+                textDriver->setpos(static_cast<uint16_t>(textDriver->getColumnCount() - 1), y);
             }
 
             memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
@@ -363,17 +365,19 @@ void Shell::flush() {
             continue;
         }
 
-        graphicsService->getTextDriver()->getpos(x, y);
+        TextDriver *textDriver = graphicsService->getTextDriver();
+
+        textDriver->getpos(x, y);
 
         if(StringBuffer::buffer[i] == '\n') {
             graphicsService->getTextDriver()->show(x, y, ' ', fgColor, bgColor);
         }
 
-        graphicsService->getTextDriver()->putc(StringBuffer::buffer[i], fgColor, bgColor);
+        textDriver->putc(StringBuffer::buffer[i], fgColor, bgColor);
 
-        graphicsService->getTextDriver()->getpos(x, y);
+        textDriver->getpos(x, y);
 
-        graphicsService->getTextDriver()->show(x, y, '_', fgColor, bgColor);
+        textDriver->show(x, y, '_', fgColor, bgColor);
     }
 
     StringBuffer::pos = 0;
@@ -486,18 +490,20 @@ void Shell::showHistory(HistoryDirection direction) {
         return;
     }
 
+    TextDriver *textDriver = graphicsService->getTextDriver();
+
     uint16_t x, y;
 
-    textDriver.getpos(x, y);
+    textDriver->getpos(x, y);
 
-    for (uint16_t i = currentBase; i < x; i++) {
+    for (uint16_t i = currentBase; i <= x; i++) {
 
-        textDriver.show(i, y, ' ', Colors::BLACK, Colors::BLACK);
+        textDriver->show(i, y, ' ', Colors::BLACK, Colors::BLACK);
 
         memset(&inputBuffer[strlen(inputBuffer) - 1], 0, sizeof(inputBuffer) - (strlen(inputBuffer) - 1));
     }
 
-    textDriver.setpos(currentBase, y);
+    textDriver->setpos(currentBase, y);
 
     String command;
 
@@ -512,6 +518,10 @@ void Shell::showHistory(HistoryDirection direction) {
         historyIndex = historySize;
 
         command = "";
+
+        textDriver->getpos(x, y);
+
+        textDriver->show(x, y, '_', fgColor, bgColor);
     } else {
 
         command = history.get(historyIndex);

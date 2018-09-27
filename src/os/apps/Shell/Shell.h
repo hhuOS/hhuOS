@@ -46,7 +46,6 @@ private:
     StdStreamService *stdStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
-    TextDriver &textDriver;
 
     Util::HashMap<String, Command*> commands;
     Util::ArrayList<String> history;
