@@ -332,37 +332,21 @@ void Pci::setupDeviceDriver(PciDeviceDriver &driver) {
                 deviceDrivers.add(newDriver);
             }
         } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
-            if (device.vendorId == driver.getVendorId() && device.deviceId == driver.getDeviceId()) {
-                PciDeviceDriver *newDriver = driver.createInstance();
+            for(Util::Pair<uint16_t, uint16_t> pair : driver.getIdPairs()) {
+                if (device.vendorId == pair.first && device.deviceId == pair.second) {
+                    PciDeviceDriver *newDriver = driver.createInstance();
 
-                newDriver->setup(device);
+                    newDriver->setup(device);
 
-                deviceDrivers.add(newDriver);
+                    deviceDrivers.add(newDriver);
+                }
             }
         }
     }
 }
 
 void Pci::uninstallDeviceDriver(PciDeviceDriver &driver) {
-    for(const auto &element : deviceDrivers) {
-        if(driver.getSetupMethod() == PciDeviceDriver::BY_CLASS) {
-            if(element->getBaseClass() == driver.getBaseClass() && element->getSubClass() == driver.getSubClass()) {
-                deviceDrivers.remove(element);
-
-                //TODO: Implement PciDeviceDriver::uninstall()
-
-                delete element;
-            }
-        } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
-            if (element->getVendorId() == driver.getVendorId() && element->getDeviceId() == driver.getDeviceId()) {
-                deviceDrivers.remove(element);
-
-                //TODO: Implement PciDeviceDriver::uninstall()
-
-                delete element;
-            }
-        }
-    }
+    //TODO: Implement removing of pci drivers.
 }
 
 void Pci::setVendorName(const String &vendorId, const Vendor &vendor) {

@@ -40,12 +40,13 @@ public:
 
     virtual PciDeviceDriver *createInstance() const  = 0;
 
-    virtual uint16_t getVendorId() const {
-        return 0;
-    };
+    virtual Util::Array<Util::Pair<uint16_t, uint16_t>> getIdPairs() const {
+        Util::Pair<uint16_t, uint16_t> pair(0, 0);
+        Util::Array<Util::Pair<uint16_t, uint16_t>> ret(1);
 
-    virtual uint16_t getDeviceId() const {
-        return 0;
+        ret[0] = pair;
+
+        return ret;
     };
 
     virtual uint8_t getBaseClass() const {
