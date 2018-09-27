@@ -71,8 +71,10 @@ Application *Application::getInstance() {
 }
 
 void Application::startLoopSoundDemo() {
-    currentApp = new LoopsAndSound();
+    TextDriver *stream = graphicsService->getTextDriver();
+    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
+    currentApp = new LoopsAndSound();
     currentApp->start();
 }
 
@@ -155,6 +157,12 @@ void Application::startMemoryManagerDemo() {
     while (kb->isKeyPressed(KeyEvent::RETURN));
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+
+    // Don't use High-Res mode on CGA, as it looks bad.
+    if(graphicsService->getLinearFrameBuffer()->getDepth() == 1) {
+        graphicsService->getLinearFrameBuffer()->init(320, 200, 2);
+    }
+
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 }
 
@@ -180,11 +188,12 @@ void Application::startShell() {
 }
 
 void Application::showMenu () {
-    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-
-    Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
-    
     while(true) {
+
+        LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+
+        Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
+
         if(isRunning) {
             Rtc::Date date = timeService->getRTC()->getCurrentDate();
             char timeString[20];
@@ -303,7 +312,7 @@ void Application::startSelectedApp() {
 void Application::startGame(Game* game){
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
-    graphicsService->getLinearFrameBuffer()->init(640, 480, 16);
+    lfb->init(640, 480, 16);
     lfb->enableDoubleBuffering();
 
     float currentTime = timeService->getSystemTime() / 1000.0f;
@@ -328,6 +337,12 @@ void Application::startGame(Game* game){
     }
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+
+    // Don't use High-Res mode on CGA, as it looks bad.
+    if(graphicsService->getLinearFrameBuffer()->getDepth() == 1) {
+        graphicsService->getLinearFrameBuffer()->init(320, 200, 2);
+    }
+
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
     isRunning = true;
@@ -342,6 +357,12 @@ void Application::resume() {
     isRunning = true;
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+
+    // Don't use High-Res mode on CGA, as it looks bad.
+    if(graphicsService->getLinearFrameBuffer()->getDepth() == 1) {
+        graphicsService->getLinearFrameBuffer()->init(320, 200, 2);
+    }
+
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
     Scheduler::getInstance()->deblock(*this);
@@ -383,7 +404,6 @@ void Application::onEvent(const Event &event) {
                 option++;
             }
             break;
-            // Up
         case KeyEvent::UP:
             if (option <= 0) {
                 option = sizeof(menuOptions) / sizeof(const char *) - 1;

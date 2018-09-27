@@ -82,7 +82,7 @@ MAKE = make
 #-------------------------------------------#
 # Modules (see src/modules)                 #
 #-------------------------------------------#
-MODULES := hello random zero fat vesa
+MODULES := hello random zero fat vesa cga
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 

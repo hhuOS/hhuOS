@@ -19,11 +19,11 @@
 
 #include <kernel/Module.h>
 
-class VesaModule : public Module {
+class CgaModule : public Module {
 
 public:
 
-    VesaModule() = default;
+    CgaModule() = default;
 
     int32_t initialize() override;
 

@@ -14,42 +14,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/services/GraphicsService.h>
-#include "VesaModule.h"
-#include "VesaGraphics.h"
-#include "VesaText.h"
+#ifndef __CgaModule_include__
+#define __CgaModule_include__
 
-MODULE_PROVIDER {
+#include <kernel/Module.h>
 
-    return new CgaModule();
+class CgaModule : public Module {
+
+public:
+
+    CgaModule() = default;
+
+    int32_t initialize() override;
+
+    int32_t finalize() override;
+
+    String getName() override;
+
+    Util::Array<String> getDependencies() override;
 };
 
-int32_t CgaModule::initialize() {
 
-    auto *graphicsService = Kernel::getService<GraphicsService>();
-    
-    auto *lfb = new VesaGraphics();
-    auto *text = new VesaText();
-    
-    if(lfb->isAvailable()) {
-        graphicsService->setLinearFrameBuffer(lfb);
-        graphicsService->setTextDriver(text);
-    }
-
-    return 0;
-}
-
-int32_t CgaModule::finalize() {
-
-    return 0;
-}
-
-String CgaModule::getName() {
-
-    return "VesaDriver";
-}
-
-Util::Array<String> CgaModule::getDependencies() {
-
-    return Util::Array<String>(0);
-}
+#endif
+ 

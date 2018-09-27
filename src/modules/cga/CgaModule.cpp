@@ -15,9 +15,9 @@
  */
 
 #include <kernel/services/GraphicsService.h>
-#include "VesaModule.h"
-#include "VesaGraphics.h"
-#include "VesaText.h"
+#include "CgaModule.h"
+#include "CgaGraphics.h"
+#include "CgaText.h"
 
 MODULE_PROVIDER {
 
@@ -28,8 +28,8 @@ int32_t CgaModule::initialize() {
 
     auto *graphicsService = Kernel::getService<GraphicsService>();
     
-    auto *lfb = new VesaGraphics();
-    auto *text = new VesaText();
+    auto *lfb = new CgaGraphics();
+    auto *text = new CgaText();
     
     if(lfb->isAvailable()) {
         graphicsService->setLinearFrameBuffer(lfb);
