@@ -121,7 +121,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
         timeout += 10;
     }
 
-    log.error("Timeout while issuing write command!");
+    log.error("Timeout while issuing write command");
 }
 
 uint8_t FloppyController::readFifoByte() {
@@ -136,7 +136,7 @@ uint8_t FloppyController::readFifoByte() {
         timeout += 10;
     }
 
-    log.error("Timeout while reading data!");
+    log.error("Timeout while reading data");
 
     return 0;
 }
@@ -199,7 +199,7 @@ void FloppyController::killMotor(FloppyDevice &device) {
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {
-    log.trace("Resetting drive %d", device.driveNumber);
+    log.trace("Resetting drive %u", device.driveNumber);
 
     receivedInterrupt = false;
 
@@ -213,7 +213,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
         timeout += 10;
 
         if(timeout > FLOPPY_TIMEOUT) {
-            log.error("Timeout while resetting drive!");
+            log.error("Timeout while resetting drive");
 
             return false;
         }
@@ -249,16 +249,16 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     bool ret = calibrateDrive(device);
 
     if(ret) {
-        log.trace("Successfully resetted drive %d", device.driveNumber);
+        log.trace("Successfully resetted drive %u", device.driveNumber);
     } else {
-        log.trace("Failed to reset  drive %d", device.driveNumber);
+        log.trace("Failed to reset  drive %u", device.driveNumber);
     }
 
     return ret;
 }
 
 bool FloppyController::calibrateDrive(FloppyDevice &device) {
-    log.trace("Calibrating drive %d", device.driveNumber);
+    log.trace("Calibrating drive %u", device.driveNumber);
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 
@@ -268,17 +268,29 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
         writeFifoByte(COMMAND_RECALIBRATE);
         writeFifoByte(device.driveNumber);
 
-        while(!receivedInterrupt);
+        uint32_t timeout = 0;
+
+        while(!receivedInterrupt && timeout < FLOPPY_TIMEOUT) {
+            timeService->msleep(10);
+            timeout += 10;
+        }
+
+        if(!receivedInterrupt) {
+            log.error("Timeout while calibrating drive");
+            continue;
+        }
+
         SenseInterruptState interruptState = senseInterrupt();
 
         if((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
+            log.error("Error while calibrating drive");
             continue;
         }
 
         if(interruptState.currentCylinder == 0) {
             setMotorState(device, FLOPPY_MOTOR_OFF);
 
-            log.trace("Successfully calibrated drive %d", device.driveNumber);
+            log.trace("Successfully calibrated drive %u", device.driveNumber);
 
             return true;
         }
@@ -318,7 +330,18 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
     writeFifoByte(device.gapLength);
     writeFifoByte(0xff);
 
-    while(!receivedInterrupt);
+    uint32_t timeout = 0;
+
+    while(!receivedInterrupt) {
+        timeService->msleep(10);
+        timeout += 10;
+
+        if(timeout > FLOPPY_TIMEOUT) {
+            log.error("Timeout while reading a sector");
+
+            return 2;
+        }
+    }
 
     CommandStatus status = readCommandStatus();
 
@@ -334,11 +357,22 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         writeFifoByte(COMMAND_SEEK);
         writeFifoByte(device.driveNumber | static_cast<uint8_t>(head << 2u));
         writeFifoByte(cylinder);
+        uint32_t timeout = 0;
 
-        while(!receivedInterrupt);
+        while(!receivedInterrupt && timeout < FLOPPY_TIMEOUT) {
+            timeService->msleep(10);
+            timeout += 10;
+        }
+
+        if(!receivedInterrupt) {
+            log.error("Timeout while seeking");
+            continue;
+        }
+
         SenseInterruptState interruptState = senseInterrupt();
 
         if((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
+			log.trace("Error while seeking");
             continue;
         }
 
@@ -401,22 +435,34 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
         writeFifoByte(device.gapLength);
         writeFifoByte(0xff);
 
-        while(!receivedInterrupt);
+        uint32_t timeout = 0;
+
+        while(!receivedInterrupt && timeout < FLOPPY_TIMEOUT) {
+            timeService->msleep(10);
+            timeout += 10;
+        }
+
+        if(!receivedInterrupt) {
+            log.error("Timeout while reading a sector");
+            continue;
+        }
 
         CommandStatus status = readCommandStatus();
 
         if((status.statusRegister0 & 0xc0u) != 0) {
+			log.trace("Error while reading a sector");
             continue;
         }
 
         memcpy(buff, dmaMemory, device.getSectorSize());
 
         setMotorState(device, FLOPPY_MOTOR_OFF);
-
         return true;
     }
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
+	
+	log.error("Failed to read on drive %u", device.driveNumber);
 
     return false;
 }
@@ -449,11 +495,22 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
         writeFifoByte(device.gapLength);
         writeFifoByte(0xff);
 
-        while(!receivedInterrupt);
+        uint32_t timeout = 0;
+
+        while(!receivedInterrupt && timeout < FLOPPY_TIMEOUT) {
+            timeService->msleep(10);
+            timeout += 10;
+        }
+
+        if(!receivedInterrupt) {
+            log.error("Timeout while writing a sector");
+            continue;
+        }
 
         CommandStatus status = readCommandStatus();
 
         if((status.statusRegister0 & 0xc0u) != 0) {
+            log.trace("Error while writing  a sector");
             continue;
         }
 
