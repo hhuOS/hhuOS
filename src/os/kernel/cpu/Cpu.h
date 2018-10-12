@@ -125,6 +125,8 @@ public:
 		PAGING_ERROR                        = 0xD2
     };
 
+    static void softInterrupt(uint32_t function);
+
     /**
      * Throws an exception.
      */

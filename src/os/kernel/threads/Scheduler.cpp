@@ -76,8 +76,6 @@ void Scheduler::registerIODevice(IODevice *device) {
 
 void Scheduler::startUp() {
 
-    Thread* first;
-
     lock.acquire();
 
     if (!isThreadWaiting()) {
@@ -85,9 +83,7 @@ void Scheduler::startUp() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    first = readyQueue.pop();
-
-    currentThread = first;
+    currentThread = readyQueue.pop();
 
     initialized = true;
 
@@ -135,6 +131,11 @@ void Scheduler::kill(Thread& that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
+    if(that.getId() == currentThread->getId()) {
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
     readyQueue.remove(&that);
 
     lock.release();
@@ -152,6 +153,12 @@ void Scheduler::yield() {
         return;
     }
 
+    if(!Cpu::isInterrupted()) {
+        Cpu::softInterrupt(0x00);
+
+        return;
+    }
+
     if(lock.tryLock()) {
 
         Thread *next = readyQueue.pop();
@@ -164,21 +171,25 @@ void Scheduler::yield() {
 
 void Scheduler::block() {
 
-    lock.acquire();
-
     if (!initialized) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
-
-    Thread* next;
     
     if (!isThreadWaiting()) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
-    
-    next = readyQueue.pop();
+
+    if(!Cpu::isInterrupted()) {
+        Cpu::softInterrupt(0x01);
+
+        return;
+    }
+
+    lock.acquire();
+
+    Thread* next = readyQueue.pop();
     
     dispatch (*next);
 }

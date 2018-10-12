@@ -245,11 +245,17 @@ wrapper_body:
 
     cld
 
+    ;save eax, as it may contain the system call number
+    push    eax
+
     mov     ax, 0x10
     mov     ds, ax
     mov     es, ax
     mov     fs, ax
     mov     gs, ax
+
+    ;restore eax
+    pop eax
 
     ; Call interrupt handler
     push    esp
@@ -270,7 +276,7 @@ interrupt_return:
     add     esp, 0x08
 
     ; Set interrupt flag in EFLAGS
-    or dword [esp + 0x08], 0x200
+    ;or dword [esp + 0x08], 0x200
 
     iret
 

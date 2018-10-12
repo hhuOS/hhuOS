@@ -22,6 +22,7 @@
 #include <lib/Random.h>
 #include <devices/Serial.h>
 #include <kernel/debug/GdbServer.h>
+#include <kernel/threads/Scheduler.h>
 #include "kernel/cpu/Cpu.h"
 
 #include "kernel/interrupts/IntDispatcher.h"
@@ -46,8 +47,11 @@ void printNMI() {
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
+    uint32_t eax;
 
-    IntDispatcher::getInstance().dispatch(frame);
+    asm volatile("movl %%eax, %0" : "=m"(eax));
+
+    IntDispatcher::getInstance().dispatch(frame, eax);
 }
 
 IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
@@ -61,7 +65,7 @@ IntDispatcher &IntDispatcher::getInstance() {
     return instance;
 }
 
-void IntDispatcher::dispatch(InterruptFrame *frame) {
+void IntDispatcher::dispatch(InterruptFrame *frame, uint32_t eax) {
 
     // Extract interrupt information
     uint8_t slot = (uint8_t) frame->interrupt;
@@ -115,7 +119,16 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
 
     if (list == nullptr && slot >= 32) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        // TODO: Implement real system calls! This is ugly!!!!
+        if(slot == 0x80) {
+            if(eax == 0x00) {
+                Scheduler::getInstance()->yield();
+            } else if(eax == 0x01) {
+                Scheduler::getInstance()->block();
+            }
+        } else {
+            Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        }
 
         return;
     }

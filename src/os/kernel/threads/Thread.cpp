@@ -35,7 +35,7 @@ void kickoff () {
 
 void Thread::init() {
 
-    uint32_t *esp = (uint32_t*) stack.getStart();
+    auto *esp = (uint32_t*) stack.getStart();
 
     esp -= (sizeof(InterruptFrame) / 4);
 

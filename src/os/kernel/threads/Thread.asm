@@ -62,8 +62,7 @@ switchContext:
     call checkIoBuffers
     call releaseSchedulerLock
 
-    ; TODO: This is ugly! PLZ FIX!!!!!!
-    sti
+    ;sti
 
     ; resume next thread
     ret

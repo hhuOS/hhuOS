@@ -28,6 +28,10 @@ class SystemCall {
 
 public:
 
+    enum SystemCallCode : uint32_t {
+        SCHEDULER_YIELD = 0x00
+    };
+
     static int32_t atExit(void (*func)());
 
 };

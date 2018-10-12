@@ -88,7 +88,7 @@ public:
      *
      * @param frame The interrupt frame
      */
-    void dispatch(InterruptFrame *frame);
+    void dispatch(InterruptFrame *frame, uint32_t eax);
 
     static IntDispatcher &getInstance();
 

@@ -107,12 +107,12 @@ private:
     /**
      * Add a key to the software-buffer.
      */
-    void addToBuffer (uint32_t scancode);
+    void addToBuffer(uint32_t scancode);
 
     /**
      * Remove a key from the software-buffer.
      */
-    void removeFromBuffer (uint32_t scancode);
+    void removeFromBuffer(uint32_t scancode);
 
     /**
      * A pointer to the global event bus.

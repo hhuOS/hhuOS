@@ -370,6 +370,7 @@ void Application::resume() {
 }
 
 void Application::run() {
+
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
     Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");

@@ -26,7 +26,7 @@ class IdleThread : public Thread {
     
 private:
 
-    bool isRunning = false;
+    bool isRunning = true;
 
 public:
 
@@ -42,7 +42,7 @@ public:
 
         while (isRunning) {
 
-            yield();
+            //yield();
         }
     }
     
