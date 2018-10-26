@@ -114,7 +114,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger() override;
+    void trigger(InterruptFrame &frame) override;
 
     bool isAvailable() {
         return available;

@@ -448,7 +448,7 @@ void Ehci::plugin() {
     Pic::getInstance()->allow(pciDevice.intr);
 }
 
-void Ehci::trigger() {
+void Ehci::trigger(InterruptFrame &frame) {
 
     if (op->status & USBSTS_PCD) {
         eventBuffer.push(UsbEvent(UsbEvent::SUBTYPE_PORT_CHANGE));

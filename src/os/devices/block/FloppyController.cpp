@@ -395,7 +395,7 @@ void FloppyController::plugin() {
     Pic::getInstance()->allow(Pic::Interrupt::FLOPPY);
 }
 
-void FloppyController::trigger() {
+void FloppyController::trigger(InterruptFrame &frame) {
     receivedInterrupt = true;
 }
 

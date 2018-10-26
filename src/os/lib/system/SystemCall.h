@@ -18,21 +18,31 @@
 #define __SystemCall_include__
 
 #include <cstdint>
+#include <kernel/interrupts/InterruptHandler.h>
 
 /**
  * System call interface.
  *
  * @author Filip Krakowski
  */
-class SystemCall {
+class SystemCall : public InterruptHandler {
 
 public:
 
-    enum SystemCallCode : uint32_t {
-        SCHEDULER_YIELD = 0x00
+    enum SystemCallCode : uint8_t {
+        SCHEDULER_YIELD = 0x00,
+        SCHEDULER_BLOCK = 0x01
     };
 
+    void trigger(InterruptFrame &frame) override;
+
+    static void registerSystemCall(SystemCallCode code, void(*func)());
+
     static int32_t atExit(void (*func)());
+
+private:
+
+    static void(*systemCalls[256])();
 
 };
 

@@ -332,7 +332,7 @@ void Keyboard::plugin() {
     Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);
 }
 
-void Keyboard::trigger() {
+void Keyboard::trigger(InterruptFrame &frame) {
     Key key = keyHit();
 
     if(key.valid()) {

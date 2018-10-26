@@ -22,6 +22,7 @@
 #include <devices/Pit.h>
 #include <kernel/services/SoundService.h>
 #include <devices/sound/SoundBlaster/SoundBlaster.h>
+#include <lib/system/SystemCall.h>
 #include "kernel/threads/Scheduler.h"
 #include "Scheduler.h"
 
@@ -40,7 +41,8 @@ void checkIoBuffers() {
 
     for(uint32_t i = 0; i < ioDevices.size(); i++) {
         if(ioDevices.get(i)->checkForData()) {
-            ioDevices.get(i)->trigger();
+            InterruptFrame dummy{};
+            ioDevices.get(i)->trigger(dummy);
         }
     }
 }
@@ -57,7 +59,8 @@ void releaseSchedulerLock() {
 }
 
 Scheduler::Scheduler() : initialized(false) {
-
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance()->yield();});
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance()->block();});
 }
 
 Scheduler *Scheduler::getInstance()  {
@@ -154,7 +157,7 @@ void Scheduler::yield() {
     }
 
     if(!Cpu::isInterrupted()) {
-        Cpu::softInterrupt(0x00);
+        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
 
         return;
     }
@@ -182,7 +185,7 @@ void Scheduler::block() {
     }
 
     if(!Cpu::isInterrupted()) {
-        Cpu::softInterrupt(0x01);
+        Cpu::softInterrupt(SystemCall::SCHEDULER_BLOCK);
 
         return;
     }

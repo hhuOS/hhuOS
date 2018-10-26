@@ -71,7 +71,7 @@ void Pit::plugin () {
     Pic::getInstance()->allow(Pic::Interrupt::PIT);
 }
 
-void Pit::trigger () {
+void Pit::trigger(InterruptFrame &frame) {
 
     time.addNanos(timerInterval);
 

@@ -74,7 +74,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger () override;
+    void trigger(InterruptFrame &frame) override;
 
     uint32_t getNanos() override;
 

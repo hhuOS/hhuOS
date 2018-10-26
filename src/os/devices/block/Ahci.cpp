@@ -699,7 +699,7 @@ void Ahci::plugin() {
 
 }
 
-void Ahci::trigger() {
+void Ahci::trigger(InterruptFrame &frame) {
     // TODO(krakowski):
     //  Wake up waiting threads once i/o-manager is implemented
 }

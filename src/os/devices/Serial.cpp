@@ -96,7 +96,7 @@ void Serial::plugin() {
     interruptRegister.outb(0x01);
 }
 
-void Serial::trigger() {
+void Serial::trigger(InterruptFrame &frame) {
     if((fifoControlRegister.inb() & 0x01u) == 1) {
         return;
     }

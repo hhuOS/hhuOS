@@ -17,6 +17,8 @@
 #ifndef __InterruptHandler_include__
 #define __InterruptHandler_include__
 
+#include "kernel/threads/ThreadState.h"
+
 /**
  * Interface for an interrupt handler.
  * Every interrupt hanlder should dervive from this interface.
@@ -40,7 +42,7 @@ public:
     /**
      * Routine to handle an interrupt. Needs to be implemented in deriving class.
      */
-    virtual void trigger() = 0;
+    virtual void trigger(InterruptFrame &frame) = 0;
 };
 
 #endif

@@ -88,7 +88,7 @@ void SystemManagement::plugin() {
 }
 
 
-void SystemManagement::trigger() {
+void SystemManagement::trigger(InterruptFrame &frame) {
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Pagefault occured\n");
     printf("[PAGINGMANAGER] Address %x\n", faultedAddress);

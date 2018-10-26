@@ -56,7 +56,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger() override = 0;
+    void trigger(InterruptFrame &frame) override = 0;
 };
 
 #endif

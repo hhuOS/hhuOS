@@ -172,7 +172,7 @@ public:
     /**
      * Overriding function from IODevice.
      */
-    void trigger() override;
+    void trigger(InterruptFrame &frame) override;
 
     /**
      * Overriding function from IODevice.

@@ -112,6 +112,6 @@ void SoundBlaster1::plugin() {
     Pic::getInstance()->allow(static_cast<Pic::Interrupt>(irqNumber));
 }
 
-void SoundBlaster1::trigger() {
+void SoundBlaster1::trigger(InterruptFrame &frame) {
     receivedInterrupt = true;
 }

@@ -25,6 +25,7 @@
 #include "lib/util/HashMap.h"
 
 #include <cstdint>
+#include <lib/system/SystemCall.h>
 
 typedef void (*debugFunction)();
 
@@ -88,11 +89,13 @@ public:
      *
      * @param frame The interrupt frame
      */
-    void dispatch(InterruptFrame *frame, uint32_t eax);
+    void dispatch(InterruptFrame *frame);
 
     static IntDispatcher &getInstance();
 
 private:
+
+    SystemCall systemCall;
 
     Util::HashMap<uint8_t, debugFunction> debugHandlers;
 

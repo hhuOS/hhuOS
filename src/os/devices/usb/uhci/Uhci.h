@@ -128,7 +128,7 @@ public:
 
     void plugin();
 
-    void trigger();
+    void trigger(InterruptFrame &frame);
 
     /* IO Register Offsets */
     const static uint8_t    IO_OFFSET_USBCMD            = 0x00;

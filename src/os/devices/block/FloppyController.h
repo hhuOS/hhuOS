@@ -318,7 +318,7 @@ public:
     /**
      * Overriding function from InterruptDispatcher.
      */
-    void trigger() override;
+    void trigger(InterruptFrame &frame) override;
 };
 
 #endif

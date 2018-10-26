@@ -124,7 +124,7 @@ public:
 
     void plugin();
 
-    void trigger();
+    void trigger(InterruptFrame &frame);
 
     /**
      * Indicates how many devices were found by the host controller.

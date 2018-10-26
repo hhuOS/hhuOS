@@ -22,6 +22,7 @@
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
 #include <cstdint>
+#include <kernel/threads/ThreadState.h>
 #include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
@@ -91,7 +92,7 @@ public:
     /**
      * Handle a Page Fault
      */
-    void trigger();
+    void trigger(InterruptFrame &frame);
 
     /**
 	 * Sets the params for a page fault.

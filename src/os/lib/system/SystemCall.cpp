@@ -16,8 +16,18 @@
 
 #include "SystemCall.h"
 
+void(*SystemCall::systemCalls[256])() = {};
+
 extern "C" {
     int32_t atexit (void (*func)()) noexcept;
+}
+
+void SystemCall::registerSystemCall(SystemCall::SystemCallCode code, void (*func)()) {
+    systemCalls[code] = func;
+}
+
+void SystemCall::trigger(InterruptFrame &frame) {
+    systemCalls[frame.eax]();
 }
 
 int32_t atexit (void (*func)()) noexcept {

@@ -682,7 +682,7 @@ private:
 
     void plugin();
 
-    void trigger() override;
+    void trigger(InterruptFrame &frame) override;
 };
 
 #endif

@@ -47,15 +47,12 @@ void printNMI() {
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
-    uint32_t eax;
 
-    asm volatile("movl %%eax, %0" : "=m"(eax));
-
-    IntDispatcher::getInstance().dispatch(frame, eax);
+    IntDispatcher::getInstance().dispatch(frame);
 }
 
 IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
-
+    assign(0x80, systemCall);
 }
 
 IntDispatcher &IntDispatcher::getInstance() {
@@ -65,7 +62,7 @@ IntDispatcher &IntDispatcher::getInstance() {
     return instance;
 }
 
-void IntDispatcher::dispatch(InterruptFrame *frame, uint32_t eax) {
+void IntDispatcher::dispatch(InterruptFrame *frame) {
 
     // Extract interrupt information
     uint8_t slot = (uint8_t) frame->interrupt;
@@ -118,17 +115,7 @@ void IntDispatcher::dispatch(InterruptFrame *frame, uint32_t eax) {
     Util::List<InterruptHandler*>* list = report(slot);
 
     if (list == nullptr && slot >= 32) {
-
-        // TODO: Implement real system calls! This is ugly!!!!
-        if(slot == 0x80) {
-            if(eax == 0x00) {
-                Scheduler::getInstance()->yield();
-            } else if(eax == 0x01) {
-                Scheduler::getInstance()->block();
-            }
-        } else {
-            Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
-        }
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
 
         return;
     }
@@ -138,7 +125,7 @@ void IntDispatcher::dispatch(InterruptFrame *frame, uint32_t eax) {
 
         for (uint32_t i = 0; i < size; i++) {
 
-            list->get(i)->trigger();
+            list->get(i)->trigger(*frame);
         }
     }
 

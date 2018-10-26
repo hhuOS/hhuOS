@@ -62,7 +62,5 @@ switchContext:
     call checkIoBuffers
     call releaseSchedulerLock
 
-    ;sti
-
     ; resume next thread
     ret

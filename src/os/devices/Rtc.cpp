@@ -71,7 +71,7 @@ void Rtc::plugin() {
     Scheduler::getInstance()->registerIODevice(this);
 }
 
-void Rtc::trigger() {
+void Rtc::trigger(InterruptFrame &frame) {
 
     registerPort.outb(STATUS_REGISTER_B);
     char bcd = !(dataPort.inb() & 0x04);

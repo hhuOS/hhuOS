@@ -136,7 +136,7 @@ public:
     /**
      * Overriding function from SoundBlaster.
      */
-    void trigger() override;
+    void trigger(InterruptFrame &frame) override;
 };
 
 #endif

@@ -164,7 +164,7 @@ void Uhci::plugin() {
     Pic::getInstance()->allow(pciDevice.intr);
 }
 
-void Uhci::trigger() {
+void Uhci::trigger(InterruptFrame &frame) {
     log.trace("INTERRUPT");
 }
 
