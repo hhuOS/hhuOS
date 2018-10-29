@@ -59,7 +59,7 @@ switchContext:
     pop ebp
 
     ; enable interrupts
-    call checkIoBuffers
+    ;call checkIoBuffers
     call releaseSchedulerLock
 
     ; resume next thread

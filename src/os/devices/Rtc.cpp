@@ -18,6 +18,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/threads/Scheduler.h>
+#include "IODeviceManager.h"
 
 Logger &Rtc::log = Logger::get("RTC");
 
@@ -68,7 +69,7 @@ void Rtc::plugin() {
 
     Cpu::enableInterrupts();
 
-    Scheduler::getInstance()->registerIODevice(this);
+    IODeviceManager::getInstance().registerIODevice(this);
 }
 
 void Rtc::trigger(InterruptFrame &frame) {

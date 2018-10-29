@@ -218,7 +218,7 @@ void Application::showMenu () {
             }
 
 #if (TEST_THREADING == 1)
-            lfb->placeString(font, 50, 35, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
+            lfb->placeString(font, 50, 32, (char*) String::valueOf(threadSum, 10), Colors::WHITE);
 #endif
 
             lfb->placeString(font, 50, 84, menuDescriptions[option], Colors::HHU_BLUE_30);

@@ -42,6 +42,7 @@
 #include <kernel/services/ScreenshotService.h>
 #include <lib/file/wav/Wav.h>
 #include <devices/sound/SoundBlaster/SoundBlaster.h>
+#include <devices/IODeviceManager.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -152,6 +153,7 @@ int32_t GatesOfHell::enter() {
 
     idleThread->start();
     eventBus->start();
+    IODeviceManager::getInstance().start();
     Application::getInstance()->start();
 
     bootscreen->update(100, "Finished Booting!");

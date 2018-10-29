@@ -21,6 +21,7 @@
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>
 #include <kernel/threads/Scheduler.h>
+#include <devices/IODeviceManager.h>
 #include "Keyboard.h"
 
 uint8_t Keyboard::normal_tab[] = {
@@ -326,7 +327,7 @@ void Keyboard::removeFromBuffer(uint32_t scancode){
 void Keyboard::plugin() {
     memset(buffer, 0, KB_BUFFER_SIZE * sizeof(uint32_t));
 
-    Scheduler::getInstance()->registerIODevice(this);
+    IODeviceManager::getInstance().registerIODevice(this);
 
     IntDispatcher::getInstance().assign(IntDispatcher::keyboard, *this);
     Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);

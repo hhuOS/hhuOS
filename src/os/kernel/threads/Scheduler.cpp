@@ -31,28 +31,10 @@ extern "C" {
     void startThread(Context* first);
     void switchContext(Context **current, Context **next);
     void setSchedInit();
-    void schedulerYield();
-    void checkIoBuffers();
     void releaseSchedulerLock();
 }
 
-void checkIoBuffers() {
-    Util::ArrayList<IODevice*> &ioDevices = Scheduler::getInstance()->ioDevices;
-
-    for(uint32_t i = 0; i < ioDevices.size(); i++) {
-        if(ioDevices.get(i)->checkForData()) {
-            InterruptFrame dummy{};
-            ioDevices.get(i)->trigger(dummy);
-        }
-    }
-}
-
 Scheduler* Scheduler::scheduler = nullptr;
-
-void schedulerYield() {
-
-    Scheduler::getInstance()->yield();
-}
 
 void releaseSchedulerLock() {
     Scheduler::getInstance()->lock.release();

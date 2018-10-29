@@ -106,7 +106,7 @@ public:
     void plugin();
 
     /**
-     * Overriding function from SoundBlaster.
+     * Overriding function from InterruptHandler.
      */
     void trigger(InterruptFrame &frame) override;
 };
