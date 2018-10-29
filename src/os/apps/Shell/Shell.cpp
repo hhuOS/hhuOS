@@ -218,7 +218,13 @@ void Shell::executeCommand(String input) {
             *stream << "help" << endl;
             *stream << "exit" << endl;
         } else {
-            if(commands.containsKey(args[1])) {
+            if(args[1] == "help") {
+                *stream << "Shows either all available commands, or the help message of a specific command." << endl << endl;
+                *stream << "Usage: help [Optional: COMMAND]" << endl;
+            } else if(args[1] == "exit") {
+                *stream << "Exits the shell." << endl << endl;
+                *stream << "Usage: exit" << endl;
+            } else if(commands.containsKey(args[1])) {
                 *stream << commands.get(args[1])->getHelpText() << endl;
             } else {
                 *stream << "Command not found '" << args[1] << "'!" << endl;
