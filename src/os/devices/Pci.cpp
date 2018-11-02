@@ -331,6 +331,14 @@ void Pci::setupDeviceDriver(PciDeviceDriver &driver) {
 
                 deviceDrivers.add(newDriver);
             }
+        } else if(driver.getSetupMethod() == PciDeviceDriver::BY_PROGRAM_INTERFACE) {
+            if(device.baseClass == driver.getBaseClass() && device.subClass == driver.getSubClass() && device.pi == driver.getProgramInterface()) {
+                PciDeviceDriver *newDriver = driver.createInstance();
+
+                newDriver->setup(device);
+
+                deviceDrivers.add(newDriver);
+            }
         } else if(driver.getSetupMethod() == PciDeviceDriver::BY_ID) {
             for(Util::Pair<uint16_t, uint16_t> pair : driver.getIdPairs()) {
                 if (device.vendorId == pair.first && device.deviceId == pair.second) {

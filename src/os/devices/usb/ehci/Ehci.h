@@ -116,8 +116,12 @@ public:
         return Pci::SUBCLASS_USB;
     }
 
+    uint8_t getProgramInterface() const override {
+        return Pci::PROGIF_EHCI;
+    }
+
     PciDeviceDriver::SetupMethod getSetupMethod() const override {
-        return PciDeviceDriver::BY_CLASS;
+        return PciDeviceDriver::BY_PROGRAM_INTERFACE;
     }
 
     void setup(const Pci::Device &dev) override;

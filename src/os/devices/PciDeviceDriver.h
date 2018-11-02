@@ -21,6 +21,7 @@
         PciDeviceDriver *createInstance() const override { return new TYPE(); }
 
 #include <cstdint>
+#include <lib/util/HashSet.h>
 #include "Pci.h"
 
 class PciDeviceDriver {
@@ -29,7 +30,8 @@ public:
 
     enum SetupMethod {
         BY_ID,
-        BY_CLASS
+        BY_CLASS,
+        BY_PROGRAM_INTERFACE
     };
 
     PciDeviceDriver() = default;
@@ -38,7 +40,7 @@ public:
 
     virtual ~PciDeviceDriver() = default;
 
-    virtual PciDeviceDriver *createInstance() const  = 0;
+    virtual PciDeviceDriver *createInstance() const = 0;
 
     virtual Util::Array<Util::Pair<uint16_t, uint16_t>> getIdPairs() const {
         Util::Pair<uint16_t, uint16_t> pair(0, 0);
@@ -56,6 +58,10 @@ public:
     virtual uint8_t getSubClass() const {
         return 0;
     };
+
+    virtual uint8_t getProgramInterface() const {
+        return 0;
+    }
 
     virtual SetupMethod getSetupMethod() const = 0;
 
