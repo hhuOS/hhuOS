@@ -36,7 +36,7 @@ public:
 
     Serial::ComPort getPortNumber();
 
-    static const uint32_t TYPE   = 0x00000007;
+    static const uint32_t TYPE   = 0x00000008;
 
 private:
 
