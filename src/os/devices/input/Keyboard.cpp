@@ -215,7 +215,7 @@ Key Keyboard::keyHit() {
         return invalid;
     }
 
-    code =(uint8_t) dataPort.inb();
+    code = dataPort.inb();
 
     if(!(control & auxb) && decodeKey()) {
         return gather;
@@ -351,5 +351,11 @@ void Keyboard::trigger(InterruptFrame &frame) {
 }
 
 bool Keyboard::checkForData() {
-    return(controlPort.inb() & 0x1) == 0x1;
+    uint8_t control = controlPort.inb();
+
+    if(control & auxb) {
+        return false;
+    }
+
+    return (control & 0x1) == 0x1;
 }
