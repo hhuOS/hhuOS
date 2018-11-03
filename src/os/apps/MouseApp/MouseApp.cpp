@@ -16,7 +16,6 @@
 
 #include <lib/libc/printf.h>
 #include <devices/input/Mouse.h>
-#include <kernel/events/input/KeyEvent.h>
 #include <kernel/threads/Scheduler.h>
 #include "MouseApp.h"
 
@@ -27,9 +26,7 @@ void MouseApp::onEvent(const Event &event) {
         if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
             isRunning = false;
         }
-    }
-
-    if(event.getType() == MouseMovedEvent::TYPE) {
+    } else if(event.getType() == MouseMovedEvent::TYPE) {
         MouseMovedEvent movedEvent = (MouseMovedEvent&) event;
 
         int32_t dx = movedEvent.getXMovement();
@@ -38,44 +35,58 @@ void MouseApp::onEvent(const Event &event) {
         xPos += dx;
         if(xPos < 0) {
             xPos = 0;
-        } else if(xPos + 25 >= lfb->getResX()) {
-            xPos = lfb->getResX() - 25;
+        } else if(xPos + mouseDefault->getWidth() >= lfb->getResX()) {
+            xPos = lfb->getResX() - mouseDefault->getWidth();
         }
 
         yPos += dy;
         if(yPos < 0) {
             yPos = 0;
-        } else if(yPos + 25 >= lfb->getResY()) {
-            yPos = lfb->getResY() - 25;
+        } else if(yPos + mouseDefault->getHeight() >= lfb->getResY()) {
+            yPos = lfb->getResY() - mouseDefault->getHeight();
         }
 
-    }
+    } else if(event.getType() == MouseClickedEvent::TYPE) {
+        MouseClickedEvent clickedEvent = (MouseClickedEvent&) event;
 
-    if(event.getType() == MouseClickedEvent::TYPE) {
-        MouseClickedEvent releasedEvent = (MouseClickedEvent&) event;
-        if(releasedEvent.isLeftClicked()) {
-            color = Colors::RED;
+        if(clickedEvent.isLeftClicked()) {
+            currentIcon = mouseLeftClick;
         }
-        if(releasedEvent.isMiddleClicked()) {
-            color = Colors::GREEN;
-        }
-        if(releasedEvent.isRightClicked()) {
-            color = Colors::BLUE;
-        }
-    }
 
-    if(event.getType() == MouseReleasedEvent::TYPE) {
-        color = Colors::WHITE;
-    }
+        if(clickedEvent.isMiddleClicked()) {
+            currentIcon = mouseScroll;
+        }
 
-    if(event.getType() == MouseDoubleClickEvent::TYPE) {
-        color = Colors::BLACK;
+        if(clickedEvent.isRightClicked()) {
+            currentIcon = mouseRightClick;
+        }
+    } else if(event.getType() == MouseReleasedEvent::TYPE) {
+        currentIcon = mouseDefault;
+    } else if(event.getType() == MouseDoubleClickEvent::TYPE) {
+        versionColor = Color(static_cast<uint8_t>(random.rand(255)), static_cast<uint8_t>(random.rand(255)),
+                             static_cast<uint8_t>(random.rand(255)));
     }
 
 }
 
+void MouseApp::drawScreen() {
+    lfb->fillRect(0, 0, lfb->getResX(), lfb->getResY(), Colors::HHU_BLUE_30);
+
+    logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
+               static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
+
+    lfb->placeString(std_font_8x16, 80, 98, credits, Colors::HHU_LIGHT_GRAY);
+    lfb->placeString(sun_font_12x22, 50, 75, (char*) version, versionColor);
+
+
+    currentIcon->draw(static_cast<uint16_t>(xPos), static_cast<uint16_t>(yPos));
+
+    lfb->show();
+}
 
 void MouseApp::run() {
+    auto *timeService = Kernel::getService<TimeService>();
+
     eventBus->subscribe(*this, KeyEvent::TYPE);
     eventBus->subscribe(*this, MouseMovedEvent::TYPE);
     eventBus->subscribe(*this, MouseClickedEvent::TYPE);
@@ -84,12 +95,26 @@ void MouseApp::run() {
 
     lfb->enableDoubleBuffering();
 
-    while(isRunning) {
-        lfb->fillRect(xPos, yPos, 25, 25, color);
+    float currentTime = timeService->getSystemTime() / 1000.0f;
+    float acc = 0.0f;
+    float delta = 0.01667f; // 60Hz
 
-        lfb->show();
+    while (isRunning) {
+        float newTime = timeService->getSystemTime() / 1000.0f;
+        float frameTime = newTime - currentTime;
+        if(frameTime > 0.25f)
+            frameTime = 0.25f;
+        currentTime = newTime;
+
+        acc += frameTime;
+
+        while(acc >= delta){
+            //Update logic (not necessary in this application)
+            acc -= delta;
+        }
+
+        drawScreen();
     }
-
 
     eventBus->unsubscribe(*this, KeyEvent::TYPE);
     eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);

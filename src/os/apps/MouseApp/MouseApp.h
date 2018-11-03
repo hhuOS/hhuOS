@@ -24,7 +24,11 @@
 #include <kernel/events/input/MouseClickedEvent.h>
 #include <kernel/events/input/MouseReleasedEvent.h>
 #include <kernel/events/input/MouseMovedEvent.h>
+#include <kernel/events/input/MouseDoubleClickEvent.h>
+#include <kernel/events/input/KeyEvent.h>
 #include <kernel/services/GraphicsService.h>
+#include <lib/file/bmp/Bmp.h>
+#include <BuildConfig.h>
 
 class MouseApp : public Thread, Receiver {
 
@@ -32,29 +36,71 @@ private:
     int32_t xPos;
     int32_t yPos;
 
-    Color color;
+    Bmp *logo;
+
+    Bmp *mouseDefault;
+    Bmp *mouseLeftClick;
+    Bmp *mouseRightClick;
+    Bmp *mouseScroll;
+
+    Bmp *currentIcon;
+
+    Random random;
+
     bool isRunning = true;
 
     LinearFrameBuffer *lfb;
     EventBus *eventBus = nullptr;
 
+    String version = String::format("hhuOS version %s", BuildConfig::VERSION);
+    Color versionColor = Color(static_cast<uint8_t>(random.rand(255)), static_cast<uint8_t>(random.rand(255)),
+                               static_cast<uint8_t>(random.rand(255)));
+
+    static const constexpr char *credits = "Icons by Icons8 (https://www.icons8.com)";
+
 public:
     MouseApp(const MouseApp &copy) = delete;
 
     MouseApp() : Thread("MouseApp"), Receiver() {
+
+        File *file = File::open("/initrd/os/logo_v3.bmp", "r");
+        logo = new Bmp(file);
+        delete file;
+
+        file = File::open("/initrd/icons/mouse_default.bmp", "r");
+        mouseDefault = new Bmp(file);
+        delete file;
+
+        file = File::open("/initrd/icons/mouse_left_click.bmp", "r");
+        mouseLeftClick = new Bmp(file);
+        delete file;
+
+        file = File::open("/initrd/icons/mouse_right_click.bmp", "r");
+        mouseRightClick = new Bmp(file);
+        delete file;
+
+        file = File::open("/initrd/icons/mouse_scroll.bmp", "r");
+        mouseScroll = new Bmp(file);
+        delete file;
+
+        currentIcon = mouseDefault;
+
         eventBus = Kernel::getService<EventBus>();
 
         lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
         xPos = lfb->getResX() / 2 - 25/2;
         yPos = lfb->getResY() / 2 - 25/2;
-        color = Colors::WHITE;
     }
 
     ~MouseApp() override {
+        eventBus->unsubscribe(*this, KeyEvent::TYPE);
         eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
         eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
         eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
+        eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
     }
+
+    void drawScreen();
 
     void onEvent(const Event &event) override;
 

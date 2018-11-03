@@ -240,7 +240,7 @@ public:
 
     explicit Bmp(File *file);
 
-    explicit Bmp(const Bmp &other);
+    Bmp(const Bmp &other);
 
     Bmp(Color *pixelBuf, uint32_t width, uint32_t height);
 
