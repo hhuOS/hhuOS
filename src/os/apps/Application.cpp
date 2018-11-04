@@ -167,7 +167,7 @@ void Application::startMemoryManagerDemo() {
 }
 
 void Application::startMouseApp() {
-    graphicsService->getLinearFrameBuffer()->init(xres, yres, 16);
+    graphicsService->getLinearFrameBuffer()->init(640, 480, 16);
 
     // Don't use High-Res mode on CGA, as it looks bad.
     if(graphicsService->getLinearFrameBuffer()->getDepth() == 1) {

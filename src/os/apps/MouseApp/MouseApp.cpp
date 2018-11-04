@@ -122,9 +122,9 @@ void MouseApp::drawScreen() {
     logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
                static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
 
-    lfb->placeString(std_font_8x16, 50, 25, (const char*) time, Colors::HHU_GRAY);
-    lfb->placeString(sun_font_12x22, 50, 75, (const char*) version, versionColor);
-    lfb->placeString(std_font_8x8, 80, 99, credits, Colors::HHU_LIGHT_GRAY);
+    lfb->placeString(std_font_8x16, 50, 15, (const char*) time, Colors::HHU_GRAY);
+    lfb->placeString(sun_font_12x22, 50, 85, (const char*) version, versionColor);
+    lfb->placeString(std_font_8x8, 25, 99, credits, Colors::HHU_LIGHT_GRAY);
 
     currentIcon->draw(static_cast<uint16_t>(xPos), static_cast<uint16_t>(yPos));
 
