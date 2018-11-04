@@ -150,8 +150,14 @@ Rtc::Date Rtc::getCurrentDate() {
 void Rtc::setHardwareDate(const Date &date) {
     Date outDate = date;
 
-    uint8_t century = outDate.year / 100;
-    outDate.year = outDate.year % 100;
+    uint8_t century;
+
+    if(outDate.year < 100) {
+        century = CURRENT_CENTURY;
+    } else {
+        century = outDate.year / 100;
+        outDate.year = outDate.year % 100;
+    }
 
     if(useTwelveHours) {
         outDate.hours = outDate.hours % 12;

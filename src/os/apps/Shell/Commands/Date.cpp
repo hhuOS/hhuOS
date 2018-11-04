@@ -32,6 +32,9 @@ Date::Date(Shell &shell) : Command(shell) {
 void Date::execute(Util::Array<String> &args) {
     ArgumentParser parser(getHelpText(), 1);
 
+    parser.addSwitch("pretty-print", "p");
+    parser.addParameter("set", "s");
+
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
@@ -41,8 +44,44 @@ void Date::execute(Util::Array<String> &args) {
 
     Rtc::Date date = timeService->getCurrentDate();
 
-    printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth, months[date.month],
-           date.hours, date.minutes, date.seconds, date.year);
+    String dateString = parser.getNamedArgument("set");
+
+    if(!dateString.isEmpty()) {
+        Util::Array<String> tmp = dateString.split("-");
+
+        if(tmp.length() != 2) {
+            stderr << "Invalid format! Please use dd.mm.(yy)yy-hh:mm:ss!" << endl;
+            return;
+        }
+
+        Util::Array<String> date = tmp[0].split(".");
+        Util::Array<String> time = tmp[1].split(":");
+
+        if(date.length() != 3 || time.length() != 3) {
+            stderr << "Invalid format! Please use dd.mm.(yy)yy-hh:mm:ss!" << endl;
+            return;
+        }
+
+        Rtc::Date newDate;
+        newDate.dayOfMonth = strtoint((const char*) date[0]);
+        newDate.month = strtoint((const char*) date[1]);
+        newDate.year = strtoint((const char*) date[2]);
+        newDate.hours = strtoint((const char*) time[0]);
+        newDate.minutes = strtoint((const char*) time[1]);
+        newDate.seconds = strtoint((const char*) time[2]);
+
+        timeService->getRTC()->setHardwareDate(newDate);
+
+        return;
+    }
+
+    if(parser.checkSwitch("pretty-print")) {
+        printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
+               months[date.month], date.hours, date.minutes, date.seconds, date.year);
+    } else {
+        printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,
+                date.seconds);
+    }
 }
 
 uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
@@ -62,9 +101,11 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
 }
 
 const String Date::getHelpText() {
-    return "Shows the system's Date.\n\n"
+    return "Shows the current date.\n\n"
            "Usage: date [OPTION]...\n\n"
            "Options:\n"
+           "  -p, --pretty-print: Pretty print the current date.\n"
+           "  -s, --set: Set the date (format: dd.mm.(yy)yy-hh:mm:ss).\n"
            "  -h, --help: Show this help-message.";
 }
 

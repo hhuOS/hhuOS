@@ -26,6 +26,8 @@
  * Implementation of Command.
  * Shows the system's Date.
  *
+ * -p, --pretty-print: Pretty print the current date
+ * -s, --set: Set the date (format: dd.mm.(yy)yy-hh:mm:ss)
  * -h, --help: Show help message
  *
  * @author Fabian Ruhland

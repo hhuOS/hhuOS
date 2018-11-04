@@ -80,15 +80,33 @@ private:
 
     static Logger &log;
 
-    static const uint8_t RTC_RATE = 0x06;
+    static const uint8_t CURRENT_CENTURY = 20;
 
-    static const uint8_t CURRENT_CENTURY = 0x20;
+    static const uint8_t RTC_RATE = 0x06;
 
 private:
 
+    /**
+     * Converts a number from bcd format to binary format.
+     *
+     * @param bcd The bcd formatted number
+     * @return The converted number
+     */
     uint8_t bcdToBinary(uint8_t bcd);
 
+    /**
+     * Converts a number from binary format to bcd format.
+     *
+     * @param binary The binary formatted number
+     * @return The converted number
+     */
     uint8_t binaryToBcd(uint8_t binary);
+
+    /**
+     * Checks, if the RTC is currently updating.
+     * Read/Write operations should not be performed, while an update is in progress.
+     */
+    bool isUpdating();
 
 public:
     /**
@@ -120,12 +138,6 @@ public:
      * Overriding function from IODevice.
      */
     bool checkForData() override;
-
-    /**
-     * Checks, if the RTC is currently updating.
-     * Read/Write operations should not be performed, while an update is in progress.
-     */
-    bool isUpdating();
 
     /**
      * Get the current date.
