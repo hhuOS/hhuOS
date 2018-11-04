@@ -19,6 +19,46 @@
 #include <kernel/threads/Scheduler.h>
 #include "MouseApp.h"
 
+MouseApp::MouseApp() : Thread("MouseApp"), Receiver() {
+
+    File *file = File::open("/initrd/os/logo_v3.bmp", "r");
+    logo = new Bmp(file);
+    delete file;
+
+    file = File::open("/initrd/icons/mouse_default.bmp", "r");
+    mouseDefault = new Bmp(file);
+    delete file;
+
+    file = File::open("/initrd/icons/mouse_left_click.bmp", "r");
+    mouseLeftClick = new Bmp(file);
+    delete file;
+
+    file = File::open("/initrd/icons/mouse_right_click.bmp", "r");
+    mouseRightClick = new Bmp(file);
+    delete file;
+
+    file = File::open("/initrd/icons/mouse_scroll.bmp", "r");
+    mouseScroll = new Bmp(file);
+    delete file;
+
+    currentIcon = mouseDefault;
+
+    eventBus = Kernel::getService<EventBus>();
+    timeService = Kernel::getService<TimeService>();
+
+    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    xPos = lfb->getResX() / 2 - 25/2;
+    yPos = lfb->getResY() / 2 - 25/2;
+}
+
+MouseApp::~MouseApp() {
+    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
+}
+
 void MouseApp::onEvent(const Event &event) {
     if(event.getType() == KeyEvent::TYPE) {
         auto &keyEvent = (KeyEvent&) event;
@@ -69,15 +109,22 @@ void MouseApp::onEvent(const Event &event) {
 
 }
 
+void MouseApp::update() {
+    Rtc::Date date = timeService->getCurrentDate();
+
+    time = String::format("%02u.%02u.%04u %02u:%02u:%02u", date.dayOfMonth, date.month, date.year,
+                          date.hours, date.minutes, date.seconds);
+}
+
 void MouseApp::drawScreen() {
     lfb->fillRect(0, 0, lfb->getResX(), lfb->getResY(), Colors::HHU_BLUE_30);
 
     logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
                static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
 
-    lfb->placeString(std_font_8x16, 80, 98, credits, Colors::HHU_LIGHT_GRAY);
-    lfb->placeString(sun_font_12x22, 50, 75, (char*) version, versionColor);
-
+    lfb->placeString(std_font_8x16, 50, 25, (const char*) time, Colors::HHU_GRAY);
+    lfb->placeString(sun_font_12x22, 50, 75, (const char*) version, versionColor);
+    lfb->placeString(std_font_8x8, 80, 99, credits, Colors::HHU_LIGHT_GRAY);
 
     currentIcon->draw(static_cast<uint16_t>(xPos), static_cast<uint16_t>(yPos));
 
@@ -85,8 +132,6 @@ void MouseApp::drawScreen() {
 }
 
 void MouseApp::run() {
-    auto *timeService = Kernel::getService<TimeService>();
-
     eventBus->subscribe(*this, KeyEvent::TYPE);
     eventBus->subscribe(*this, MouseMovedEvent::TYPE);
     eventBus->subscribe(*this, MouseClickedEvent::TYPE);
@@ -109,7 +154,7 @@ void MouseApp::run() {
         acc += frameTime;
 
         while(acc >= delta){
-            //Update logic (not necessary in this application)
+            update();
             acc -= delta;
         }
 
