@@ -65,8 +65,8 @@ private:
         MONTH_REGISTER = 0x08,
         YEAR_REGISTER = 0x09,
         CENTURY_REGISTER = 0x32,
-        STATUS_REGISTER_A = 0x8A,
-        STATUS_REGISTER_B = 0x8B,
+        STATUS_REGISTER_A = 0x0A,
+        STATUS_REGISTER_B = 0x0B,
         STATUS_REGISTER_C = 0x0C
     };
 
@@ -74,9 +74,21 @@ private:
 
     Rtc::Date currentDate {};
 
+    bool useBcd;
+
+    bool useTwelveHours;
+
     static Logger &log;
 
     static const uint8_t RTC_RATE = 0x06;
+
+    static const uint8_t CURRENT_CENTURY = 0x20;
+
+private:
+
+    uint8_t bcdToBinary(uint8_t bcd);
+
+    uint8_t binaryToBcd(uint8_t binary);
 
 public:
     /**
@@ -110,9 +122,20 @@ public:
     bool checkForData() override;
 
     /**
+     * Checks, if the RTC is currently updating.
+     * Read/Write operations should not be performed, while an update is in progress.
+     */
+    bool isUpdating();
+
+    /**
      * Get the current date.
      */
     Date getCurrentDate();
+
+    /**
+     * Set the RTC's date.
+     */
+    void setHardwareDate(const Date &date);
 };
 
 #endif

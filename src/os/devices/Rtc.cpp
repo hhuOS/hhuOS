@@ -19,11 +19,25 @@
 #include <kernel/services/TimeService.h>
 #include <kernel/threads/Scheduler.h>
 #include "IODeviceManager.h"
+#include "Rtc.h"
+
 
 Logger &Rtc::log = Logger::get("RTC");
 
 Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
+    registerPort.outb(STATUS_REGISTER_B);
+    useBcd = !(dataPort.inb() & 0x04);
 
+    registerPort.outb(STATUS_REGISTER_B);
+    useTwelveHours = !(dataPort.inb() & 0x02);
+}
+
+uint8_t Rtc::bcdToBinary(uint8_t bcd) {
+    return (bcd & 0x0F) + ((bcd / 16) * 10);
+}
+
+uint8_t Rtc::binaryToBcd(uint8_t binary) {
+    return (binary % 10) + ((binary / 10) << 4);
 }
 
 void Rtc::plugin() {
@@ -73,13 +87,6 @@ void Rtc::plugin() {
 }
 
 void Rtc::trigger(InterruptFrame &frame) {
-
-    registerPort.outb(STATUS_REGISTER_B);
-    char bcd = !(dataPort.inb() & 0x04);
-
-    registerPort.outb(STATUS_REGISTER_B);
-    char twelveHour = !(dataPort.inb() & 0x02);
-
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
 
@@ -102,18 +109,25 @@ void Rtc::trigger(InterruptFrame &frame) {
     currentDate.year = dataPort.inb();
 
     registerPort.outb(CENTURY_REGISTER);
-    currentDate.year += dataPort.inb() * 100;
+    uint8_t century = dataPort.inb();
 
-    if(bcd) {
-        currentDate.seconds = static_cast<uint8_t>((currentDate.seconds & 0x0F) + ((currentDate.seconds / 16) * 10));
-        currentDate.minutes = static_cast<uint8_t>((currentDate.minutes & 0x0F) + ((currentDate.minutes / 16) * 10));
-        currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x0F) + (((currentDate.hours & 0x70) / 16) * 10)) | (currentDate.hours & 0x80));
-        currentDate.dayOfMonth = static_cast<uint8_t>((currentDate.dayOfMonth & 0x0F) + ((currentDate.dayOfMonth / 16) * 10));
-        currentDate.month = static_cast<uint8_t>((currentDate.month & 0x0F) + ((currentDate.month / 16) * 10));
-        currentDate.year = static_cast<uint16_t>((currentDate.year & 0x0F) + ((currentDate.year / 16) * 10));
+    if(century == 0) {
+        century = CURRENT_CENTURY;
     }
 
-    if(twelveHour && (currentDate.hours & 0x80)) {
+    if(useBcd) {
+        currentDate.seconds = bcdToBinary(currentDate.seconds);
+        currentDate.minutes = bcdToBinary(currentDate.minutes);
+        currentDate.hours = bcdToBinary(currentDate.hours) | (currentDate.hours & 0x80);
+        currentDate.dayOfMonth = bcdToBinary(currentDate.dayOfMonth);
+        currentDate.month = bcdToBinary(currentDate.month);
+        currentDate.year = bcdToBinary(currentDate.year);
+        century = bcdToBinary(century);
+    }
+
+    currentDate.year += century * 100;
+
+    if(useTwelveHours && (currentDate.hours & 0x80)) {
         currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x7F) + 12) % 24);
     }
 }
@@ -123,6 +137,56 @@ bool Rtc::checkForData() {
     return (dataPort.inb() & 0x10) == 0x10;
 }
 
+bool Rtc::isUpdating() {
+    registerPort.outb(STATUS_REGISTER_A);
+
+    return dataPort.inb() & 0x80;
+}
+
 Rtc::Date Rtc::getCurrentDate() {
     return Rtc::currentDate;
+}
+
+void Rtc::setHardwareDate(const Date &date) {
+    Date outDate = date;
+
+    uint8_t century = outDate.year / 100;
+    outDate.year = outDate.year % 100;
+
+    if(useTwelveHours) {
+        outDate.hours = outDate.hours % 12;
+    }
+
+    if(useBcd) {
+        outDate.seconds = binaryToBcd(outDate.seconds);
+        outDate.minutes = binaryToBcd(outDate.minutes);
+        outDate.hours = binaryToBcd(outDate.hours);
+        outDate.dayOfMonth = binaryToBcd(outDate.dayOfMonth);
+        outDate.month = binaryToBcd(outDate.month);
+        outDate.year = binaryToBcd(outDate.year);
+        century = binaryToBcd(century);
+    }
+
+    while(isUpdating());
+
+    registerPort.outb(SECONDS_REGISTER);
+    dataPort.outb(outDate.seconds);
+
+    registerPort.outb(MINUTES_REGISTER);
+    dataPort.outb(outDate.minutes);
+
+    registerPort.outb(HOURS_REGISTER);
+    dataPort.outb(outDate.hours);
+
+    registerPort.outb(DAY_OF_MONTH_REGISTER);
+    dataPort.outb(outDate.dayOfMonth);
+
+    registerPort.outb(MONTH_REGISTER);
+    dataPort.outb(outDate.month);
+
+    registerPort.outb(YEAR_REGISTER);
+    dataPort.outb(outDate.year);
+
+    registerPort.outb(CENTURY_REGISTER);
+    dataPort.outb(century);
 }
