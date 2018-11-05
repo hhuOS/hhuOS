@@ -15,7 +15,7 @@
  */
 
 #include <kernel/Kernel.h>
-#include <devices/Isa.h>
+#include <devices/isa/Isa.h>
 #include "SoundBlaster.h"
 #include "SoundBlaster1.h"
 #include "SoundBlaster2.h"

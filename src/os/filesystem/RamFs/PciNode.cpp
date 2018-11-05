@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/Pci.h>
+#include <devices/pci/Pci.h>
 #include <lib/libc/sprintf.h>
 #include "PciNode.h"
 

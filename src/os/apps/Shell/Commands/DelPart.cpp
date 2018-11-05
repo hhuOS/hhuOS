@@ -17,7 +17,7 @@
 #include <lib/libc/printf.h>
 #include <lib/file/FileStatus.h>
 #include <lib/file/File.h>
-#include <devices/block/storage/Partition.h>
+#include <devices/storage/devices/Partition.h>
 #include "DelPart.h"
 
 DelPart::DelPart(Shell &shell) : Command(shell) {

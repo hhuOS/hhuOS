@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/Pit.h>
+#include <devices/timer/Pit.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <kernel/threads/Scheduler.h>
 #include <apps/Application.h>

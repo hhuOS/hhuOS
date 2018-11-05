@@ -22,7 +22,7 @@
 #include <lib/util/RingBuffer.h>
 #include "kernel/KernelService.h"
 #include "kernel/KernelSymbols.h"
-#include "devices/block/storage/StorageDevice.h"
+#include "devices/storage/devices/StorageDevice.h"
 #include "kernel/log/Logger.h"
 
 /**

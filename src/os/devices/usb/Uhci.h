@@ -2,7 +2,7 @@
 #define HHUOS_UHCI_H
 
 
-#include <devices/PciDeviceDriver.h>
+#include <devices/pci/PciDeviceDriver.h>
 #include <kernel/services/TimeService.h>
 #include <cstdint>
 

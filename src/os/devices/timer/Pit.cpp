@@ -19,7 +19,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/threads/NullYielder.h>
 #include "kernel/threads/Scheduler.h"
-#include "devices/Pit.h"
+#include "Pit.h"
 
 IOport control(0x43);
 

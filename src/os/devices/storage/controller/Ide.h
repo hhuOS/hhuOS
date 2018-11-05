@@ -18,8 +18,8 @@
 #define __Ide_include__
 
 #include <cstdint>
-#include <devices/Pci.h>
-#include <devices/PciDeviceDriver.h>
+#include <devices/pci/Pci.h>
+#include <devices/pci/PciDeviceDriver.h>
 
 #define IDE_MAX_DEVICES 4
 

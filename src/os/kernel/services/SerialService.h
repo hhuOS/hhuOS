@@ -17,7 +17,7 @@
 #ifndef HHUOS_SERIALSERVICE_H
 #define HHUOS_SERIALSERVICE_H
 
-#include <devices/Serial.h>
+#include <devices/ports/Serial.h>
 #include <kernel/log/Logger.h>
 
 class SerialService : public KernelService {

@@ -14,45 +14,79 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __AhciDevice_include__
-#define __AhciDevice_include__
+#ifndef __VirtualDiskDrive_include__
+#define __VirtualDiskDrive_include__
 
 #include "StorageDevice.h"
-#include "lib/String.h"
 
 #include <cstdint>
-#include <devices/block/Ahci.h>
+#include <devices/storage/controller/FloppyController.h>
+
+class FloppyMotorControlThread;
 
 /**
- * Implementation of StorageDevice for a Device, that is controlled by an AhciController (see devices/block/Ahci.h).
+ * Implementation of StorageDevice for a floppy disk drive.
+ *
+ * @author Fabian Ruhland
+ * @date 2018
  */
-class AhciDevice : public StorageDevice {
+class FloppyDevice : public StorageDevice {
+
+    friend class FloppyController;
+    friend class FloppyMotorControlThread;
 
 private:
-    Ahci &controller;
-    uint8_t ahciDiskNumber;
 
-    Ahci::AhciDeviceInfo deviceInfo;
+    struct CylinderHeadSector {
+        uint8_t cylinder;
+        uint8_t head;
+        uint8_t sector;
+    };
+
+    FloppyController &controller;
+    uint8_t driveNumber;
+    FloppyController::DriveType driveType;
+
+    FloppyMotorControlThread *motorControlThread;
+
+    String hardwareName;
+
+    uint8_t gapLength;
+    uint8_t sectorsPerTrack;
+    uint8_t sectorSizeExponent;
+    uint32_t size;
+
+    FloppyController::FloppyMotorState motorState = FloppyController::FLOPPY_MOTOR_OFF;
+
+    /**
+     * Convert an LBA sector to its CHS representation .
+     *
+     * @param lbaSector The sector number in LBA representation
+     *
+     * @return The CHS representation
+     */
+    CylinderHeadSector LbaToChs(uint32_t lbaSector);
 
 public:
     /**
      * Constructor.
      *
-     * @param controller A reference to the controller, that controls this device.
-     * @param ahciDiskNumber The slot, that the device takes in the controller's device-array.
+     * @param sectorSize The virtual size of a sector on the virtual disk
+     * @param sectorCount The amount of sectors, that the virtual disk shall consist of
      * @param name The name
      */
-    AhciDevice(Ahci &controller, uint8_t ahciDiskNumber, String name);
+    FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType,
+                 const String &name);
 
     /**
      * Copy-constructor.
      */
-    AhciDevice(AhciDevice &copy) = delete;
+    FloppyDevice(FloppyDevice &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~AhciDevice() override = default;
+    ~FloppyDevice() override;
 
     /**
      * Overriding function from StorageDevice.

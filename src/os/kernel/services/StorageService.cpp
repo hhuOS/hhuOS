@@ -17,7 +17,7 @@
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 #include "StorageService.h"
-#include "devices/block/storage/Partition.h"
+#include "devices/storage/devices/Partition.h"
 #include "EventBus.h"
 
 Logger &StorageService::log = Logger::get("STORAGE");

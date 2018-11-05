@@ -18,7 +18,7 @@
 #define HHUOS_PARALLELSERVICE_H
 
 #include <kernel/KernelService.h>
-#include <devices/Parallel.h>
+#include <devices/ports/Parallel.h>
 
 class ParallelService : public KernelService {
 

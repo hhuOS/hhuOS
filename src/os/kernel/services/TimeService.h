@@ -18,7 +18,7 @@
 #define __TimeService_include__
 
 #include "kernel/KernelService.h"
-#include "devices/Rtc.h"
+#include "devices/timer/Rtc.h"
 
 #include <cstdint>
 #include <lib/time/TimeProvider.h>

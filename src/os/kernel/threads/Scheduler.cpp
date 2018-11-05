@@ -19,7 +19,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/Kernel.h>
 #include <kernel/services/SerialService.h>
-#include <devices/Pit.h>
+#include <devices/timer/Pit.h>
 #include <kernel/services/SoundService.h>
 #include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include <lib/system/SystemCall.h>

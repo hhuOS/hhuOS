@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/block/storage/AhciDevice.h>
+#include <devices/storage/devices/AhciDevice.h>
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 #include <lib/libc/sprintf.h>
 #include <lib/file/tar/Archive.h>
 #include <lib/multiboot/Structure.h>
-#include "devices/Pci.h"
+#include "Pci.h"
 
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "PciDeviceDriver.h"

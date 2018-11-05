@@ -21,7 +21,7 @@
 #include <lib/libc/printf.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/log/Logger.h>
-#include <devices/Pit.h>
+#include <devices/timer/Pit.h>
 #include <kernel/log/StdOutAppender.h>
 #include "kernel/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"

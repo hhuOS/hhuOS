@@ -18,7 +18,7 @@
 #define HHUOS_SERIALEVENT_H
 
 #include <kernel/events/Event.h>
-#include <devices/Serial.h>
+#include <devices/ports/Serial.h>
 
 class SerialEvent : public Event {
 

@@ -18,7 +18,7 @@
 #include <kernel/interrupts/Pic.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/threads/Scheduler.h>
-#include "IODeviceManager.h"
+#include "devices/IODeviceManager.h"
 #include "Rtc.h"
 
 

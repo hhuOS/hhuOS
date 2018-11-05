@@ -17,7 +17,7 @@
 #include <lib/libc/printf.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/Kernel.h>
-#include <devices/block/storage/FloppyDevice.h>
+#include <devices/storage/devices/FloppyDevice.h>
 #include <kernel/threads/WorkerThread.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>

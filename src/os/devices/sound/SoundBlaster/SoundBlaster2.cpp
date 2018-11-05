@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/Isa.h>
+#include <devices/isa/Isa.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>

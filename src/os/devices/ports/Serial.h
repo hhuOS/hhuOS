@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <kernel/IOport.h>
 #include <kernel/services/EventBus.h>
-#include "IODevice.h"
+#include "devices/IODevice.h"
 
 class SerialEvent;
 

@@ -17,7 +17,7 @@
 #ifndef __SerialAppender_include__
 #define __SerialAppender_include__
 
-#include <devices/Serial.h>
+#include <devices/ports/Serial.h>
 #include "Appender.h"
 
 class SerialAppender : public Appender {

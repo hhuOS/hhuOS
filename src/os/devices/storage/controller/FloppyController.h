@@ -22,7 +22,7 @@
 #include <kernel/services/StorageService.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/memory/manager/IOMemoryManager.h>
-#include <devices/Isa.h>
+#include <devices/isa/Isa.h>
 
 class FloppyDevice;
 

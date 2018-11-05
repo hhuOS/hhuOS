@@ -18,12 +18,11 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
-#include <devices/block/storage/AhciDevice.h>
-#include <devices/Pit.h>
+#include <devices/storage/devices/AhciDevice.h>
+#include <devices/timer/Pit.h>
 #include <kernel/memory/Paging.h>
-#include "devices/block/Ahci.h"
-
-#include "../../kernel/memory/SystemManagement.h"
+#include "devices/storage/controller/Ahci.h"
+#include "kernel/memory/SystemManagement.h"
 
 Logger &Ahci::log = Logger::get("AHCI");
 uint32_t Ahci::deviceCount = 0;

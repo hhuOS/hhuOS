@@ -20,7 +20,7 @@
 #define BREAKPOINT() asm("   int $3");
 
 #include <kernel/threads/ThreadState.h>
-#include "devices/Serial.h"
+#include "devices/ports/Serial.h"
 
 struct GdbRegisters {
     uint32_t eax;

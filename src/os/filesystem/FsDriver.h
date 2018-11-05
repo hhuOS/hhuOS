@@ -21,7 +21,7 @@
 
 #include "FsNode.h"
 #include <lib/util/HashMap.h>
-#include "devices/block/storage/StorageDevice.h"
+#include "devices/storage/devices/StorageDevice.h"
 
 /**
  * An interface between the FileSystem-class and a filesystem-driver.

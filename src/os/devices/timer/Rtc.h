@@ -19,7 +19,7 @@
 
 #include <kernel/log/Logger.h>
 #include "kernel/IOport.h"
-#include "IODevice.h"
+#include "devices/IODevice.h"
 
 /**
  * Driver for the CMOS Realtime clock.

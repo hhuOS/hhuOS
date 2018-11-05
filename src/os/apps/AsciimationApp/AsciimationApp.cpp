@@ -12,7 +12,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
- */#include <devices/Pit.h>
+ */#include <devices/timer/Pit.h>
 #include <devices/input/Keyboard.h>
 #include <apps/Application.h>
 #include <kernel/threads/Scheduler.h>

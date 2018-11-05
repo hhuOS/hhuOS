@@ -18,7 +18,7 @@
 #define __StorageRemoveEvent_include__
 
 #include "kernel/events/Event.h"
-#include "devices/block/storage/StorageDevice.h"
+#include "devices/storage/devices/StorageDevice.h"
 
 class StorageRemoveEvent : public Event {
 

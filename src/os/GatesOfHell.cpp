@@ -21,11 +21,11 @@
 #include <lib/libc/printf.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/services/InputService.h>
-#include <devices/Pci.h>
+#include <devices/pci/Pci.h>
 #include <filesystem/FileSystem.h>
 #include <apps/Application.h>
 #include <kernel/threads/Scheduler.h>
-#include <devices/Pit.h>
+#include <devices/timer/Pit.h>
 #include <kernel/services/DebugService.h>
 #include <kernel/services/ModuleLoader.h>
 #include <kernel/services/StdStreamService.h>
@@ -33,9 +33,9 @@
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
-#include <devices/block/Ahci.h>
+#include <devices/storage/controller/Ahci.h>
 #include <devices/usb/Uhci.h>
-#include <devices/block/FloppyController.h>
+#include <devices/storage/controller/FloppyController.h>
 #include <filesystem/TarArchive/TarArchiveNode.h>
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include <lib/file/Directory.h>

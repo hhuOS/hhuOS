@@ -20,7 +20,7 @@
 #include <kernel/events/Receiver.h>
 #include "kernel/threads/Thread.h"
 #include "apps/game/Game.h"
-#include "devices/Rtc.h"
+#include "devices/timer/Rtc.h"
 #include "kernel/services/TimeService.h"
 #include "kernel/services/GraphicsService.h"
 

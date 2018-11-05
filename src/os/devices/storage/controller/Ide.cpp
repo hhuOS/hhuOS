@@ -15,7 +15,7 @@
  */
 
 #include <kernel/log/Logger.h>
-#include "devices/block/Ide.h"
+#include "devices/storage/controller/Ide.h"
 
 extern "C" {
 #include "lib/libc/string.h"

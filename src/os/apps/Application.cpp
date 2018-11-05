@@ -15,7 +15,7 @@
  */
 
 #include <apps/BugDefender/BugDefender.h>
-#include <devices/Pit.h>
+#include <devices/timer/Pit.h>
 #include <lib/libc/printf.h>
 #include <apps/MouseApp/MouseApp.h>
 #include <kernel/services/DebugService.h>
