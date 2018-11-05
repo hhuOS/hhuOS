@@ -238,17 +238,17 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     Device dev = readDevice(bus, device, function);
 
-    log.trace("Found PCI-Device %x:%x on bus %d", dev.vendorId, dev.deviceId, bus);
+    log.trace("Found PCI-Device %04x:%04x on bus %u", dev.vendorId, dev.deviceId, bus);
 
     char vendorId[5];
     char deviceId[5];
 
-    sprintf(vendorId, "%x", dev.vendorId);
-    sprintf(deviceId, "%x", dev.deviceId);
+    sprintf(vendorId, "%04x", dev.vendorId);
+    sprintf(deviceId, "%04x", dev.deviceId);
 
     String vendorName = getIdentifier(vendorId, deviceId);
 
-    log.trace("  - %s", (char*) vendorName);
+    log.trace(" --> %s", (char*) vendorName);
 
     pciDevices.add(dev);
 }

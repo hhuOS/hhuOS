@@ -61,8 +61,8 @@ void PciNode::cacheDeviceList() {
 
     for (auto device : Pci::getDevices()) {
 
-        sprintf(vendorId, "%x", device.vendorId);
-        sprintf(deviceId, "%x", device.deviceId);
+        sprintf(vendorId, "%04x", device.vendorId);
+        sprintf(deviceId, "%04x", device.deviceId);
 
         identifier = Pci::getIdentifier(vendorId, deviceId);
 
