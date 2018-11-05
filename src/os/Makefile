@@ -39,9 +39,10 @@ INCLUDEDIR = ${CURDIR}
 #-------------------------------------------#
 GITCOMMIT = $(shell git rev-parse --short HEAD)
 GITTAG = $(shell git describe --tags --abbrev=0)
+GITBRANCH = $(shell git rev-parse --symbolic-full-name --abbrev-ref HEAD)
 BUILDDATE = $(shell date "+%Y-%m-%d %H:%M:%S")
 
-BUILDCONFIG = -DGITCOMMIT="$(GITCOMMIT)" -DGITTAG="$(GITTAG)" -DBUILDDATE="$(BUILDDATE)"
+BUILDCONFIG = -DHHUOS_GIT_REV="$(GITCOMMIT)" -DHHUOS_VERSION="$(GITTAG)" -DHHUOS_GIT_BRANCH=$(GITBRANCH) -DHHUOS_BUILD_DATE="$(BUILDDATE)"
 
 
 #-------------------------------------------#

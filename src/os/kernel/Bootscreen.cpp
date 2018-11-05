@@ -21,7 +21,7 @@
 #include "Bootscreen.h"
 #include "Kernel.h"
 
-auto versionString = String::format("hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
+auto versionString = String::format("hhuOS %s - git %s (%s)", BuildConfig::VERSION, BuildConfig::GIT_REV, BuildConfig::GIT_BRANCH);
 auto buildDate = String::format("Build date: %s", BuildConfig::BUILD_DATE);
 
 void Bootscreen::update(uint8_t percentage, const String &message) {
