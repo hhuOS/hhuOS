@@ -34,6 +34,7 @@
 #include <kernel/services/ParallelService.h>
 #include <devices/graphics/lfb/CgaGraphics.h>
 #include <devices/block/Ahci.h>
+#include <devices/usb/Uhci.h>
 #include <devices/block/FloppyController.h>
 #include <filesystem/TarArchive/TarArchiveNode.h>
 #include <filesystem/TarArchive/TarArchiveDriver.h>
@@ -262,7 +263,10 @@ void GatesOfHell::initializeSerialPorts() {
 
 void GatesOfHell::initializePciDrivers() {
     Ahci ahci;
+    Uhci uhci;
+
     Pci::setupDeviceDriver(ahci);
+    Pci::setupDeviceDriver(uhci);
 }
 
 bool GatesOfHell::loadModule(const String &path) {

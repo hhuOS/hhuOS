@@ -97,7 +97,7 @@ GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio \
 					  -cpu 486,+sse,+sse2 \
 					  -drive index=0,if=floppy \
-					  -readconfig usb.cfg \
+					  -device piix3-usb-uhci,id=uhci \
 					  -drive format=raw,file=hdd0.img,if=none,id=disk0 \
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \
