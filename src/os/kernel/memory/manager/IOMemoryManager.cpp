@@ -122,12 +122,13 @@ void* IOMemoryManager::alloc(uint32_t size){
 void IOMemoryManager::free(void *ptr){
 	// get important parameters
     uint32_t virtStart = (uint32_t) ptr;
-    uint32_t pageCount = ioMemoryMap.get(ptr);
 
     // catch error
     if(virtStart < memoryStartAddress || virtStart >= memoryEndAddress){
-    	return;
+        return;
     }
+
+    uint32_t pageCount = ioMemoryMap.get(ptr);
 
     lock.acquire();
 
@@ -219,7 +220,7 @@ void IOMemoryManager::free(void *ptr){
     }
 
     // unmap the whole merged block of virtual memory
-    if(doUnmap == true){
+    if(doUnmap){
         for(uint32_t i=0; i < tmp->pageCount; i++) {
             SystemManagement::getInstance()->unmap(virtHeaderAddress + i*PAGESIZE);
         }
