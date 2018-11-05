@@ -196,7 +196,7 @@ void FileSystem::init() {
         addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT3)));
     }
 
-    // Add Video-Nodes to dev-Directory
+    // Add Video-nodes to dev-Directory
     log.trace("Creating video files");
 
     createDirectory("/dev/video");
@@ -213,7 +213,7 @@ void FileSystem::init() {
     addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
 
-    // Add Memory Nodes to dev-directory
+    // Add Memory-nodes to dev-directory
     log.trace("Creating memory files");
 
     createDirectory("/dev/memory");
@@ -222,11 +222,14 @@ void FileSystem::init() {
     addVirtualNode("/dev/memory", new PFANode());
     addVirtualNode("/dev/memory", new PagingAreaNode());
 
+    // Create folder for network files
+    createDirectory("/dev/network");
+
     // Add PCI-node to dev-Directory
     log.trace("Creating PCI file");
     addVirtualNode("/dev", new PciNode());
 
-    // Add syslog file to dev-Directory
+    // Add syslog file to dev-Ddrectory
     log.trace("Creating syslog file");
     createFile("/dev/syslog");
 
