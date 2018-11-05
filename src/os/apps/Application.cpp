@@ -380,12 +380,25 @@ void Application::run() {
 
     timeService = Kernel::getService<TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
+    Util::Array<String> res = Multiboot::Structure::getKernelOption("resolution").split("x");
 
-    xres = lfb->getResX();
-    yres = lfb->getResY();
-    bpp = lfb->getDepth();
-    
+    if(res.length() >= 3) {
+        xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
+        yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
+        bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
+
+        lfb->init(xres, yres, bpp);
+
+        // Don't use High-Res mode on CGA, as it looks bad.
+        if(lfb->getDepth() == 1) {
+            lfb->init(320, 200, 2);
+        }
+    } else {
+        xres = lfb->getResX();
+        yres = lfb->getResY();
+        bpp = lfb->getDepth();
+    }
+
     lfb->enableDoubleBuffering();
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);

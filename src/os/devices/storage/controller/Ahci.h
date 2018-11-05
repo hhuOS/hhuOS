@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-
 #ifndef __Ahci_include__
 #define __Ahci_include__
 

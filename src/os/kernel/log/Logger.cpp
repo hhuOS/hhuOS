@@ -107,7 +107,7 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
 
     buffer.add(tmp);
 
-    if (logToStdOut) {
+    if (logToStdOut && stdout != nullptr) {
 
         *stdout << tmp << endl;
     }

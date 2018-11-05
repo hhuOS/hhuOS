@@ -23,7 +23,6 @@
 #include <stdarg.h>
 #include "lib/OutputStream.h"
 #include "lib/lock/Spinlock.h"
-#include <devices/graphics/text/CgaText.h>
 
 #define SPECIFIER_LENGTH    2
 #define PADDING_LENGTH      2
@@ -34,6 +33,8 @@ extern "C" {
 
 extern Spinlock *printLock;
 extern OutputStream *stdout;
+
+void initPrintf();
 
 /**
  * Write formatted data on kout or OutputStream.
@@ -47,7 +48,6 @@ extern OutputStream *stdout;
  * 
  */
 void printf ( const char * format, ... );
-void printfUpdateStdout();
 
 #ifdef __cplusplus
 }

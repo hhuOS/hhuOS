@@ -32,7 +32,6 @@
 #include <kernel/services/SoundService.h>
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
-#include <devices/graphics/lfb/CgaGraphics.h>
 #include <devices/storage/controller/Ahci.h>
 #include <devices/usb/Uhci.h>
 #include <devices/storage/controller/FloppyController.h>
@@ -44,6 +43,8 @@
 #include <lib/file/wav/Wav.h>
 #include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include <devices/IODeviceManager.h>
+#include <lib/libc/system_interface.h>
+#include <lib/file/FileStatus.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -98,7 +99,7 @@ int32_t GatesOfHell::enter() {
 
         GdbServer::initialize();
 
-        printf("Waiting for GDB debugger...\n");
+        log.trace("Waiting for GDB debugger...\n");
 
         GdbServer::synchronize();
     }
@@ -144,7 +145,7 @@ int32_t GatesOfHell::enter() {
     loadModule("/mod/fat.ko");
 
     fs->init();
-    printfUpdateStdout();
+    sys_init_libc();
 
     loadModule("/initrd/mod/zero.ko");
     loadModule("/initrd/mod/random.ko");
@@ -203,7 +204,7 @@ void GatesOfHell::initializeGraphics() {
     graphicsService = Kernel::getService<GraphicsService>();
 
     // Get desired resolution from GRUB
-    Util::Array<String> res = Multiboot::Structure::getKernelOption("vbe").split("x");
+    Util::Array<String> res = Multiboot::Structure::getKernelOption("resolution").split("x");
 
     if(res.length() >= 3) {
         xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
@@ -211,25 +212,14 @@ void GatesOfHell::initializeGraphics() {
         bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
     }
 
-    auto *cga = new CgaGraphics();
-    auto *text = new CgaText();
+    // Get desired graphics driver from GRUB
+    String driverPath = String::format("/mod/%s.ko", (const char*) Multiboot::Structure::getKernelOption("graphics"));
 
-    if(!cga->isAvailable()) {
-        //No CGA? Your machine is waaaaay to old...
-        log.trace("Did not find a CGA compatible graphics card");
-        log.trace("Halting CPU");
-
-        delete cga;
-        Cpu::halt();
+    if(FileStatus::exists(driverPath)) {
+        loadModule(driverPath);
+    } else {
+        loadModule("/mod/cga.ko");
     }
-
-    stdout = text;
-    text->setpos(0, 0);
-
-    graphicsService->setLinearFrameBuffer(cga);
-    graphicsService->setTextDriver(text);
-
-    loadModule("/mod/vesa.ko");
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);

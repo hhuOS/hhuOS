@@ -20,6 +20,7 @@
 
 #include "kernel/memory/Paging.h"
 #include "SystemManagement.h"
+#include "MemLayout.h"
 
 extern "C" {
     #include "lib/libc/string.h"

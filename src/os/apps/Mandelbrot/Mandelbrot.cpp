@@ -51,6 +51,11 @@ void Mandelbrot::run() {
 
     lfb->init(640, 480, 16);
 
+    // Don't use High-Res mode on CGA, as it looks bad.
+    if(lfb->getDepth() == 1) {
+        lfb->init(320, 200, 2);
+    }
+
     lfb->enableDoubleBuffering();
 
     lfb->drawPixel(0, 0, Colors::WHITE);

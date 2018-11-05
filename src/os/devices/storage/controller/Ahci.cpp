@@ -14,8 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-
-
 #include <kernel/Kernel.h>
 #include <kernel/log/Logger.h>
 #include <devices/storage/devices/AhciDevice.h>

@@ -25,6 +25,7 @@
 #include <kernel/log/StdOutAppender.h>
 #include "kernel/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
+#include "MemLayout.h"
 
 // some external functions are implemented in assembler code
 extern "C"{

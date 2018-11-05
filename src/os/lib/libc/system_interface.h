@@ -21,9 +21,15 @@
 
 #ifdef __cplusplus
 extern "C" {
-    #include "kernel/memory/manager/FreeListMemoryManager.h"
+#include "kernel/memory/manager/FreeListMemoryManager.h"
 #endif
 
+
+/**
+ * Gets called by the system, after the necessary components (e.g. Memory management, Filesystem, etc.) have
+ * been initialized.
+ */
+void sys_init_libc();
 
 /**
  * Allocates a chunk of memory.

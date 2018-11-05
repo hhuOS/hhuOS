@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/graphics/text/CgaText.h>
 #include <lib/libc/printf.h>
 #include <kernel/interrupts/BlueScreen.h>
 #include "Kernel.h"

@@ -43,9 +43,9 @@ void Bootscreen::update(uint8_t percentage, const String &message) {
     logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
                static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
 
-    lfb->placeFilledRect(20, 85, 60, 2, Colors::HHU_BLUE_30);
-    lfb->placeFilledCircle(20, 86, 1, Colors::HHU_BLUE_30);
-    lfb->placeFilledCircle(80, 86, 1, Colors::HHU_BLUE_30);
+    lfb->placeFilledRect(20, 85, 60, 2, Colors::HHU_BLUE_10);
+    lfb->placeFilledCircle(20, 86, 1, Colors::HHU_BLUE_10);
+    lfb->placeFilledCircle(80, 86, 1, Colors::HHU_BLUE_10);
 
     lfb->placeFilledRect(20, 85, normalizedPercentage, 2, Colors::HHU_BLUE);
     lfb->placeFilledCircle(20, 86, 1, Colors::HHU_BLUE);
@@ -62,6 +62,11 @@ void Bootscreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
 
         lfb->init(xres, yres, bpp);
 
+        // Don't use High-Res mode on CGA, as it looks bad.
+        if(lfb->getDepth() == 1) {
+            lfb->init(320, 200, 2);
+        }
+
         lfb->enableDoubleBuffering();
 
         logoFile = File::open("/os/boot-logo.bmp", "r");
@@ -69,7 +74,7 @@ void Bootscreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
         if (logoFile != nullptr) {
             logo = new Bmp(logoFile);
 
-            double scaling = (static_cast<double>(yres) / 600);
+            double scaling = (static_cast<double>(lfb->getResY()) / 600);
 
             if (scaling >= 1) {
                 if(scaling - static_cast<uint8_t>(scaling) >= 0.8) {

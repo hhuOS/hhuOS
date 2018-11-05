@@ -21,7 +21,6 @@
 #include "Key.h"
 #include "kernel/IOport.h"
 #include "kernel/interrupts/InterruptHandler.h"
-#include "devices/graphics/text/CgaText.h"
 #include "kernel/events/input/KeyEvent.h"
 #include <lib/util/RingBuffer.h>
 #include <lib/InputStream.h>

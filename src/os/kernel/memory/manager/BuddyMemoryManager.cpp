@@ -15,7 +15,11 @@
  */
 
 #include "BuddyMemoryManager.h"
+
+extern "C" {
+#include "lib/libc/string.h"
 #include "lib/libc/printf.h"
+}
 
 BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint8_t minOrder) :
         MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {

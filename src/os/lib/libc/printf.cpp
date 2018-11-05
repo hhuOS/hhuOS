@@ -18,7 +18,6 @@
 #include "lib/libc/sprintf.h"
 #include "kernel/Kernel.h"
 #include "lib/OutputStream.h"
-#include "devices/graphics/text/CgaText.h"
 #include "devices/graphics/text/TextDriver.h"
 
 #include "lib/file/File.h"
@@ -33,13 +32,6 @@ Spinlock *printLock;
 
 OutputStream *stdout = nullptr;
 
-CgaText &getCgaText() {
-
-    static CgaText tmp;
-
-    return tmp;
-}
-
 Spinlock &getPrintLock() {
 
     static Spinlock tmp;
@@ -47,13 +39,9 @@ Spinlock &getPrintLock() {
     return tmp;
 }
 
-void init() {
+void initPrintf() {
 
-    CgaText &cgaText = getCgaText();
-
-    cgaText.clear();
-
-    stdout = &cgaText;
+    stdout = File::open("/dev/stdout", "w");
 
     printLock = &getPrintLock();
 }
@@ -61,9 +49,8 @@ void init() {
 void printf(const char *format, ...) {
 
     if (stdout == nullptr) {
-        init();
+        return;
     }
-
 
     if(!printLock->tryLock()) {
         return;
@@ -129,9 +116,5 @@ void printf(const char *format, ...) {
 
     va_end(args);
     printLock->release();
-}
-
-void printfUpdateStdout() {
-	stdout = File::open("/dev/stdout", "w");
 }
 
