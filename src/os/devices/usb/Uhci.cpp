@@ -64,7 +64,7 @@ void Uhci::setup(const Pci::Device &device) {
 
     // Set frame list address
     frameNumberPort->outb(0x00);
-    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(frameList));
+    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(SystemManagement::getInstance()->getPhysicalAddress(frameList)));
 
     startHostController();
 
