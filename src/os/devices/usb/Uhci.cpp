@@ -20,7 +20,10 @@ Uhci::~Uhci() {
 
 void Uhci::setup(const Pci::Device &device) {
     uint32_t baseAddress = Pci::readDoubleWord(device.bus, device.device, device.function, Pci::PCI_HEADER_BAR4) & 0x0000ffe0;
+    uint32_t usbVersion = Pci::readWord(device.bus, device.device, device.function, 0x60);
 
+    log.trace(usbVersion == 0x10 ? "Controller is compliant with USB version 1.0" :
+                                   "Controller is compliant with a USB version prior to 1.0");
     log.trace("IO base address: 0x%08x", baseAddress);
 
     timeService = Kernel::getService<TimeService>();
@@ -39,7 +42,7 @@ void Uhci::setup(const Pci::Device &device) {
     memset(frameList, 0, 1024 * sizeof(FrameListPointer));
 
     for(uint32_t i = 0; i < 1024; i++) {
-        frameList->terminate = 1;
+        frameList[i].terminate = 1;
     }
 
     Pci::enableBusMaster(device.bus, device.device, device.function);
@@ -145,4 +148,8 @@ void Uhci::resetPort(uint8_t portNum) {
     timeService->msleep(10);
 
     log.trace("Successfully reset port %u", portNum);
+}
+
+void Uhci::trigger(InterruptFrame &frame) {
+    log.trace("INTERRUPT");
 }

@@ -6,7 +6,7 @@
 #include <kernel/services/TimeService.h>
 #include <cstdint>
 
-class Uhci : public PciDeviceDriver {
+class Uhci : public PciDeviceDriver, InterruptHandler {
 
 private:
 
@@ -176,6 +176,8 @@ public:
     void enableInterrupt(UsbInterrupt interrupt);
 
     void resetPort(uint8_t portNum);
+
+    void trigger(InterruptFrame &frame) override;
 
     uint8_t getBaseClass() const override {
         return Pci::CLASS_SERIAL_BUS_DEVICE;
