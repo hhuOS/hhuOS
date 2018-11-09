@@ -185,7 +185,7 @@ void Mouse::plugin() {
         eventBus = Kernel::getService<EventBus>();
 
         IntDispatcher::getInstance().assign(IntDispatcher::mouse, *this);
-        Pic::getInstance()->allow(Pic::Interrupt::MOUSE);
+        Pic::getInstance().allow(Pic::Interrupt::MOUSE);
     }
 }
 
@@ -302,7 +302,7 @@ void Mouse::trigger(InterruptFrame &frame) {
 
 void Mouse::cleanup() {
     // forbid mouse interrupts
-    Pic::getInstance()->forbid(Pic::Interrupt::MOUSE);
+    Pic::getInstance().forbid(Pic::Interrupt::MOUSE);
     uint8_t status;
 
     waitControl();

@@ -102,7 +102,7 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
         }
 
         // Pass faulting address to the system management
-        SystemManagement::getInstance()->setFaultParams(faulting_address, flags);
+        SystemManagement::getInstance().setFaultParams(faulting_address, flags);
     }
 
     if (handler.size() == 0) {
@@ -161,7 +161,7 @@ void IntDispatcher::sendEoi(uint32_t slot) {
 
     if(slot > 32) {
 
-        Pic::getInstance()->sendEOI(Pic::Interrupt(slot - 32));
+        Pic::getInstance().sendEOI(Pic::Interrupt(slot - 32));
     }
 }
 

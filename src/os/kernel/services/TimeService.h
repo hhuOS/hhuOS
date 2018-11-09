@@ -27,7 +27,7 @@ class TimeService : public KernelService {
 
 public:
 
-    explicit TimeService(TimeProvider *provider);
+    explicit TimeService(TimeProvider &provider);
 
     uint32_t getSystemTime();
 
@@ -47,7 +47,7 @@ private:
 
     Rtc *rtc;
 
-    TimeProvider *provider;
+    TimeProvider &provider;
 };
 
 

@@ -95,7 +95,7 @@ void Mandelbrot::run() {
 
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
 
-    Application::getInstance()->resume();
+    Application::getInstance().resume();
 }
 
 void Mandelbrot::onEvent(const Event &event) {

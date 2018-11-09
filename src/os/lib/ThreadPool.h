@@ -50,11 +50,11 @@ private:
         }
 
         void run() override {
-            Scheduler *scheduler = Scheduler::getInstance();
+            Scheduler &scheduler = Scheduler::getInstance();
 
             while(true) {
                 while(pool->workQueue.isEmpty()) {
-                    scheduler->yield();
+                    scheduler.yield();
                 }
 
                 void (*work)() = pool->workQueue.pop();

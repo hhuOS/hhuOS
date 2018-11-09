@@ -26,11 +26,10 @@
 #include "GraphicsService.h"
 
 
-DebugService::DebugService() {
+DebugService::DebugService() : pic(Pic::getInstance()) {
 	timeService = Kernel::getService<TimeService>();
     keyboard = Kernel::getService<InputService>()->getKeyboard();
     lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
-    pic = Pic::getInstance();
 }
 
 void DebugService::dumpMemory(uint32_t address, size_t lines) {
@@ -88,7 +87,7 @@ void DebugService::printPic() {
 
     for (uint8_t i = 0; i < 16; i++) {
 
-        bool status = pic->status(Pic::Interrupt(i));
+        bool status = pic.status(Pic::Interrupt(i));
 
         if (status) {
             lfb->placeFilledRect(10 + 5 * i, 85, 2, 5, Colors::RED);

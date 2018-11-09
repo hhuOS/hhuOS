@@ -87,10 +87,10 @@ void Serial::plugin() {
 
     if(port == COM1 || port == COM3) {
         IntDispatcher::getInstance().assign(36, *this);
-        Pic::getInstance()->allow(Pic::Interrupt::COM1);
+        Pic::getInstance().allow(Pic::Interrupt::COM1);
     } else {
         IntDispatcher::getInstance().assign(35, *this);
-        Pic::getInstance()->allow(Pic::Interrupt::COM2);
+        Pic::getInstance().allow(Pic::Interrupt::COM2);
     }
 
     interruptRegister.outb(0x01);

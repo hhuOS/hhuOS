@@ -53,14 +53,14 @@ void LoopsAndSound::run() {
 
     while(isRunning);
 
-    Scheduler::getInstance()->kill(*thread1);
-    Scheduler::getInstance()->kill(*thread2);
-    Scheduler::getInstance()->kill(*thread3);
+    Scheduler::getInstance().kill(*thread1);
+    Scheduler::getInstance().kill(*thread2);
+    Scheduler::getInstance().kill(*thread3);
 
     delete thread1;
     delete thread2;
     delete thread3;
 
-    Application::getInstance()->resume();
-    Scheduler::getInstance()->exit();
+    Application::getInstance().resume();
+    Scheduler::getInstance().exit();
 }

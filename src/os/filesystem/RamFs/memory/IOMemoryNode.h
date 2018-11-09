@@ -37,9 +37,9 @@ public:
     ~IOMemoryNode() override = default;
 
     void getValues() override {
-        uint32_t free = SystemManagement::getInstance()->getIOMemoryManager()->getFreeMemory();
-        uint32_t start = SystemManagement::getInstance()->getIOMemoryManager()->getStartAddress();
-        uint32_t end = SystemManagement::getInstance()->getIOMemoryManager()->getEndAddress();
+        uint32_t free = SystemManagement::getInstance().getIOMemoryManager()->getFreeMemory();
+        uint32_t start = SystemManagement::getInstance().getIOMemoryManager()->getStartAddress();
+        uint32_t end = SystemManagement::getInstance().getIOMemoryManager()->getEndAddress();
 
         cache = String("IO-Memory\n") +
                 String("Start: 0x") + String::valueOf(start, 16) +

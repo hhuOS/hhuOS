@@ -316,7 +316,7 @@ public:
      *
      * @return Pointer to the instance of the SystemManagement
      */
-    static SystemManagement* getInstance();
+    static SystemManagement & getInstance();
 
     IOMemoryManager* getIOMemoryManager() {
         return ioMemManager;

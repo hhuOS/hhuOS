@@ -105,19 +105,19 @@ PageDirectory::PageDirectory(){
  */
 PageDirectory::PageDirectory(PageDirectory *basePageDirectory){
 	// allocate memory for the page directory
-    pageDirectory = (uint32_t*) SystemManagement::getInstance()->allocPageTable();
+    pageDirectory = (uint32_t*) SystemManagement::getInstance().allocPageTable();
     // allocate memory to hold the virtual addresses of page tables
-    virtTableAddresses = (uint32_t*) SystemManagement::getInstance()->allocPageTable();
+    virtTableAddresses = (uint32_t*) SystemManagement::getInstance().allocPageTable();
     // catch errors
     if(pageDirectory == nullptr || virtTableAddresses == nullptr){
-    	SystemManagement::getInstance()->freePageTable(pageDirectory);
-    	SystemManagement::getInstance()->freePageTable(virtTableAddresses);
+    	SystemManagement::getInstance().freePageTable(pageDirectory);
+    	SystemManagement::getInstance().freePageTable(virtTableAddresses);
     	printf("[PAGEDIRECTORY] Error: could not create PageDirectory\n");
     	return;
 
     }
     // get the physical address of the page directory
-    physPageDirectoryAddress = (uint32_t*)SystemManagement::getInstance()->getPhysicalAddress(pageDirectory);
+    physPageDirectoryAddress = (uint32_t*)SystemManagement::getInstance().getPhysicalAddress(pageDirectory);
     // get virtual address of the basePageDirectory
     uint32_t* bp_VirtAddress = basePageDirectory->getPageDirectoryVirtualAddress();
     // get pointer to virtual table addresses from basePageDirectory
@@ -143,11 +143,11 @@ PageDirectory::~PageDirectory(){
 	// free Page Tables corresponding to user space (< 3GB)
 	uint32_t idx_max = KERNEL_START / (PAGESIZE * 1024);
 	for(uint32_t idx = 0; idx < idx_max; idx++) {
-		SystemManagement::getInstance()->freePageTable((void*) virtTableAddresses[idx]);
+		SystemManagement::getInstance().freePageTable((void*) virtTableAddresses[idx]);
 	}
 	// free PageDirectory itself and list with virtual table addresses
-	SystemManagement::getInstance()->freePageTable((void*) virtTableAddresses);
-	SystemManagement::getInstance()->freePageTable((void*) pageDirectory);
+	SystemManagement::getInstance().freePageTable((void*) virtTableAddresses);
+	SystemManagement::getInstance().freePageTable((void*) pageDirectory);
 
 }
 
@@ -177,7 +177,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
 
     // if requested page table is not present, create it
     if( (pageDirectory[pd_idx] & PAGE_PRESENT) == 0) {
-        SystemManagement::getInstance()->createPageTable(this, pd_idx);
+        SystemManagement::getInstance().createPageTable(this, pd_idx);
     }
 
     // check if the requested page is already mapped -> error

@@ -15,7 +15,7 @@ Uhci::~Uhci() {
     delete statusControlPort1;
     delete statusControlPort2;
 
-    SystemManagement::getInstance()->freeIO(frameList);
+    SystemManagement::getInstance().freeIO(frameList);
 }
 
 void Uhci::setup(const Pci::Device &device) {
@@ -37,7 +37,7 @@ void Uhci::setup(const Pci::Device &device) {
     statusControlPort1 = new IOport(static_cast<uint16_t>(baseAddress + IORegisterOffset::PORT_1_STATUS_CONTROL_REGISTER));
     statusControlPort2 = new IOport(static_cast<uint16_t>(baseAddress + IORegisterOffset::PORT_2_STATUS_CONTROL_REGISTER));
 
-    frameList = static_cast<FrameListPointer *>(SystemManagement::getInstance()->mapIO(1024 * sizeof(FrameListPointer)));
+    frameList = static_cast<FrameListPointer *>(SystemManagement::getInstance().mapIO(1024 * sizeof(FrameListPointer)));
 
     memset(frameList, 0, 1024 * sizeof(FrameListPointer));
 
@@ -67,7 +67,7 @@ void Uhci::setup(const Pci::Device &device) {
 
     // Set frame list address
     frameNumberPort->outb(0x00);
-    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(SystemManagement::getInstance()->getPhysicalAddress(frameList)));
+    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(SystemManagement::getInstance().getPhysicalAddress(frameList)));
 
     startHostController();
 

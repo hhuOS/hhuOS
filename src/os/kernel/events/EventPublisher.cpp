@@ -35,7 +35,7 @@ void EventPublisher::run() {
 
         lock.release();
 
-        Scheduler::getInstance()->yield();
+        Scheduler::getInstance().yield();
     }
 }
 

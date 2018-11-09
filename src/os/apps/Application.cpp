@@ -55,17 +55,14 @@ void callback(const Thread &thread, const uint32_t &number) {
     threadSum += number;
 }
 
-Application *Application::instance = nullptr;
-
 Application::Application () : Thread ("Menu") {
     graphicsService = Kernel::getService<GraphicsService>();
 	timeService = Kernel::getService<TimeService>();
 }
 
-Application *Application::getInstance() {
-    if(instance == nullptr) {
-        instance = new Application();
-    }
+Application& Application::getInstance() {
+
+    static Application instance;
 
     return instance;
 }
@@ -357,7 +354,7 @@ void Application::startGame(Game* game){
 
 void Application::pause() {
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
-    Scheduler::getInstance()->block();
+    Scheduler::getInstance().block();
 }
 
 void Application::resume() {
@@ -372,7 +369,7 @@ void Application::resume() {
 
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
-    Scheduler::getInstance()->deblock(*this);
+    Scheduler::getInstance().deblock(*this);
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 }
 

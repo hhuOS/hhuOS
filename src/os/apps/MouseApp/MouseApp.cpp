@@ -166,6 +166,6 @@ void MouseApp::run() {
     eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
-    Application::getInstance()->resume();
-    Scheduler::getInstance()->exit();
+    Application::getInstance().resume();
+    Scheduler::getInstance().exit();
 }

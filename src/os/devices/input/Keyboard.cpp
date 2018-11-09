@@ -330,7 +330,7 @@ void Keyboard::plugin() {
     IODeviceManager::getInstance().registerIODevice(this);
 
     IntDispatcher::getInstance().assign(IntDispatcher::keyboard, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::KEYBOARD);
+    Pic::getInstance().allow(Pic::Interrupt::KEYBOARD);
 }
 
 void Keyboard::trigger(InterruptFrame &frame) {

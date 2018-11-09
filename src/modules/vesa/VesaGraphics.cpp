@@ -87,7 +87,7 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
     if(modeInfo == nullptr)
         return false;
 
-    void *tmpAddress = SystemManagement::getInstance()->mapIO(modeInfo->physbase,
+    void *tmpAddress = SystemManagement::getInstance().mapIO(modeInfo->physbase,
             static_cast<uint32_t>(modeInfo->Xres * modeInfo->Yres * (modeInfo->bpp == 15 ? 16 : modeInfo->bpp) / 8));
 
     setMode(resolution.modeNumber);
@@ -104,7 +104,7 @@ bool VesaGraphics::setResolution(LfbResolution resolution) {
     }
 
     if(virtLfbAddress != nullptr) {
-    	SystemManagement::getInstance()->freeIO(virtLfbAddress);
+    	SystemManagement::getInstance().freeIO(virtLfbAddress);
     }
 
     virtLfbAddress = tmpAddress;

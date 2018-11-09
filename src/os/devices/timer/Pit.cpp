@@ -29,17 +29,14 @@ Pit* Pit::instance = nullptr;
 
 NullYielder nullYielder;
 
-Pit::Pit(uint32_t us) {
+Pit::Pit(uint32_t timerInterval) : timerInterval(timerInterval) {
 
     yieldable = &nullYielder;
 }
 
-Pit *Pit::getInstance() {
+Pit& Pit::getInstance() {
 
-    if(instance == nullptr) {
-
-        instance = new Pit(DEFAULT_TIMER_INTERVAL);
-    }
+    static Pit instance;
 
     return instance;
 }
@@ -64,11 +61,11 @@ uint32_t Pit::getInterval() {
 
 void Pit::plugin () {
 
-    setInterval(DEFAULT_TIMER_INTERVAL);
+    setInterval(timerInterval);
 
     IntDispatcher::getInstance().assign(32, *this);
 
-    Pic::getInstance()->allow(Pic::Interrupt::PIT);
+    Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
 void Pit::trigger(InterruptFrame &frame) {

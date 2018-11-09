@@ -36,9 +36,9 @@ public:
     ~PagingAreaNode() override = default;
 
     void getValues() override {
-        uint32_t free = SystemManagement::getInstance()->getPagingAreaManager()->getFreeMemory();
-        uint32_t start = SystemManagement::getInstance()->getPagingAreaManager()->getStartAddress();
-        uint32_t end = SystemManagement::getInstance()->getPagingAreaManager()->getEndAddress();
+        uint32_t free = SystemManagement::getInstance().getPagingAreaManager()->getFreeMemory();
+        uint32_t start = SystemManagement::getInstance().getPagingAreaManager()->getStartAddress();
+        uint32_t end = SystemManagement::getInstance().getPagingAreaManager()->getEndAddress();
 
         cache = String("Paging Area\n") +
                 String("Start: 0x") + String::valueOf(start, 16) +

@@ -55,7 +55,7 @@ public:
      *
      * @return An instance of the PIT
      */
-    static Pit *getInstance();
+    static Pit& getInstance();
 
     /**
      * Returns the interval at which the PIT fires it's interrupts.
@@ -97,9 +97,9 @@ private:
     /**
      * Constructor.
      *
-     * @param us The interval, with which the PIT shall trigger interrupts.
+     * @param timerInterval The interval, with which the PIT shall trigger interrupts.
      */
-    explicit Pit (uint32_t us);
+    explicit Pit(uint32_t timerInterval = DEFAULT_TIMER_INTERVAL);
 
     /**
      * Sets the interval at which the PIT fires it's interrupts.

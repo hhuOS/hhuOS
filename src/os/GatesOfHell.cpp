@@ -156,7 +156,7 @@ int32_t GatesOfHell::enter() {
     idleThread->start();
     eventBus->start();
     IODeviceManager::getInstance().start();
-    Application::getInstance()->start();
+    Application::getInstance().start();
 
     bootscreen->update(100, "Finished Booting!");
 
@@ -176,7 +176,7 @@ int32_t GatesOfHell::enter() {
         Logger::setConsoleLogging(false);
     }
 
-    Scheduler::getInstance()->startUp();
+    Scheduler::getInstance().startUp();
 
     return 0;
 }

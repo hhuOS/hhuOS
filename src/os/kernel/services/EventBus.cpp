@@ -17,15 +17,13 @@
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/Kernel.h>
 #include <lib/util/Pair.h>
-#include "kernel/threads/Scheduler.h"
+#include <kernel/threads/Scheduler.h>
 #include "EventBus.h"
 
-EventBus::EventBus() : Thread("EventBus"), receiverMap(7691), eventBuffer(1024 * 64), lock() {
+EventBus::EventBus() : Thread("EventBus"), receiverMap(7691), eventBuffer(1024 * 64), lock(), scheduler(Scheduler::getInstance()) {
 
     isInitialized = true;
 }
-
-Scheduler *scheduler = nullptr;
 
 void EventBus::subscribe(Receiver &receiver, uint32_t type) {
 
@@ -66,7 +64,7 @@ void EventBus::unsubscribe(Receiver &receiver, uint32_t type) {
 
     EventPublisher *publisher = receiverMap.get(key);
 
-    scheduler->kill(*publisher);
+    scheduler.kill(*publisher);
 
     publishers[type].remove(publisher);
 
@@ -83,8 +81,6 @@ void EventBus::run() {
 
     g2d = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
 
-    scheduler = Scheduler::getInstance();
-
     while (isRunning) {
 
         lock.acquire();
@@ -93,7 +89,7 @@ void EventBus::run() {
 
         lock.release();
 
-        Scheduler::getInstance()->yield();
+        Scheduler::getInstance().yield();
     }
 }
 

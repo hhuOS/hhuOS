@@ -148,8 +148,8 @@ void Shell::run() {
         currentBase = x;
     }
 
-    Application::getInstance()->resume();
-    Scheduler::getInstance()->exit();
+    Application::getInstance().resume();
+    Scheduler::getInstance().exit();
 }
 
 void Shell::executeCommand(String input) {

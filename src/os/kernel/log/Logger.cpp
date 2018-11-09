@@ -28,13 +28,13 @@ bool Logger::logToStdOut = false;
 
 Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
 
-TimeProvider *Logger::timeProvider = Pit::getInstance();
+TimeProvider &Logger::timeProvider = Pit::getInstance();
 
 Util::ArrayList<Appender*> Logger::appenders;
 
 Util::ArrayList<String> Logger::buffer;
 
-Logger::Logger(const String &name) : name(name){
+Logger::Logger(const String &name) : name(name) {
 
 }
 
@@ -95,7 +95,7 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
         return;
     }
 
-    uint32_t millis = timeProvider->getMillis();
+    uint32_t millis = timeProvider.getMillis();
 
     uint32_t seconds = millis / 1000;
 

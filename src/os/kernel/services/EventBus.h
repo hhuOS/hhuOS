@@ -30,6 +30,7 @@
 #include "lib/util/Pair.h"
 
 class LinearFrameBuffer;
+class Scheduler;
 
 /**
  * Publishes Events to previously registered Receivers.
@@ -86,6 +87,8 @@ private:
     LinearFrameBuffer *g2d;
 
     Spinlock lock;
+
+    Scheduler &scheduler;
 
     uint32_t registeredPublishers = 0;
 

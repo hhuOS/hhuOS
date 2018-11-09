@@ -5,7 +5,7 @@ void Mutex::acquire() {
 
     while (!swap(&lockVar, MUTEX_UNLOCK, MUTEX_LOCK)) {
 
-        Scheduler::getInstance()->yield();
+        Scheduler::getInstance().yield();
     }
 }
 

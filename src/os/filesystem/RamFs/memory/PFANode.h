@@ -37,9 +37,9 @@ public:
     ~PFANode() override = default;
 
     void getValues() override {
-        uint32_t free = SystemManagement::getInstance()->getPageFrameAllocator()->getFreeMemory();
-        uint32_t start = SystemManagement::getInstance()->getPageFrameAllocator()->getStartAddress();
-        uint32_t end = SystemManagement::getInstance()->getPageFrameAllocator()->getEndAddress();
+        uint32_t free = SystemManagement::getInstance().getPageFrameAllocator()->getFreeMemory();
+        uint32_t start = SystemManagement::getInstance().getPageFrameAllocator()->getStartAddress();
+        uint32_t end = SystemManagement::getInstance().getPageFrameAllocator()->getEndAddress();
 
         cache = String("Physical Memory\n") +
                 String("Start: 0x") + String::valueOf(start, 16) +

@@ -71,7 +71,7 @@ void Rtc::plugin() {
     log.trace("Setup RTC");
 
     IntDispatcher::getInstance().assign(40, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::RTC);
+    Pic::getInstance().allow(Pic::Interrupt::RTC);
 
     log.trace("Registered RTC interrupt handler");
 

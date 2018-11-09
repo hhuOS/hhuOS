@@ -107,7 +107,7 @@ void FreeListMemoryManager::free(void* ptr) {
         uint32_t chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
-        SystemManagement::getInstance()->unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
+        SystemManagement::getInstance().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
     }
 
     lock.release();

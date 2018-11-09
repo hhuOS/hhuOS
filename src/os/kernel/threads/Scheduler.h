@@ -111,7 +111,7 @@ public:
      *
      * @return An instance of the Scheduler
      */
-    static Scheduler* getInstance();
+    static Scheduler & getInstance();
 
     Thread *currentThread;
 
@@ -133,8 +133,6 @@ private:
     Util::BlockingQueue<Thread*> readyQueue;
 
     bool  initialized = false;
-
-    static Scheduler *scheduler;
 };
 
 #endif

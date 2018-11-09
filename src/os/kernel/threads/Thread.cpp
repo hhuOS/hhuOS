@@ -28,9 +28,9 @@ uint32_t threadCount = 0;
 
 void kickoff () {
 
-    Scheduler::getInstance()->currentThread->run();
+    Scheduler::getInstance().currentThread->run();
 
-    Scheduler::getInstance()->exit();
+    Scheduler::getInstance().exit();
 }
 
 void Thread::init() {
@@ -80,7 +80,7 @@ Thread::Thread(const String &name) : name(name), stack(STACK_SIZE_DEFAULT) {
 
 void Thread::start() {
 
-    Scheduler::getInstance()->ready(*this);
+    Scheduler::getInstance().ready(*this);
 }
 
 uint32_t Thread::getId() const {
@@ -95,7 +95,7 @@ String Thread::getName() const {
 
 void Thread::yield() {
 
-    Scheduler::getInstance()->yield();
+    Scheduler::getInstance().yield();
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size){

@@ -56,8 +56,6 @@ private:
     uint8_t option = 0;
     bool isRunning = true;
 
-    static Application *instance;
-
     TimeService *timeService;
     GraphicsService *graphicsService;
 
@@ -83,7 +81,7 @@ public:
     Application (const Application &copy) = delete;
 
 
-    static Application *getInstance();
+    static Application & getInstance();
 
     void pause();
 

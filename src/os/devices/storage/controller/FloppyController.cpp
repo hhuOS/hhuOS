@@ -315,7 +315,7 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
     receivedInterrupt = false;
 
     Isa::selectChannel(2);
-    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
+    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance().getPhysicalAddress(dmaMemory));
     Isa::setCount(2, 511);
     Isa::setMode(2, Isa::TRANSFER_MODE_WRITE, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
     Isa::deselectChannel(2);
@@ -392,7 +392,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 
 void FloppyController::plugin() {
     IntDispatcher::getInstance().assign(IntDispatcher::floppy, *this);
-    Pic::getInstance()->allow(Pic::Interrupt::FLOPPY);
+    Pic::getInstance().allow(Pic::Interrupt::FLOPPY);
 }
 
 void FloppyController::trigger(InterruptFrame &frame) {
@@ -402,7 +402,7 @@ void FloppyController::trigger(InterruptFrame &frame) {
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode) {
     Isa::selectChannel(2);
 
-    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance()->getPhysicalAddress(dmaMemory));
+    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance().getPhysicalAddress(dmaMemory));
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
     Isa::setMode(2, transferMode, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
 

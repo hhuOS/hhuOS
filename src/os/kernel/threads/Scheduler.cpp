@@ -34,25 +34,20 @@ extern "C" {
     void releaseSchedulerLock();
 }
 
-Scheduler* Scheduler::scheduler = nullptr;
-
 void releaseSchedulerLock() {
-    Scheduler::getInstance()->lock.release();
+    Scheduler::getInstance().lock.release();
 }
 
 Scheduler::Scheduler() : initialized(false) {
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance()->yield();});
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance()->block();});
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance().yield();});
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance().block();});
 }
 
-Scheduler *Scheduler::getInstance()  {
+Scheduler& Scheduler::getInstance()  {
 
-    if(scheduler == nullptr) {
+    static Scheduler instance;
 
-        scheduler = new Scheduler();
-    }
-
-    return scheduler;
+    return instance;
 }
 
 void Scheduler::registerIODevice(IODevice *device) {
@@ -74,7 +69,7 @@ void Scheduler::startUp() {
 
     setSchedInit();
 
-    Pit::getInstance()->setYieldable(this);
+    Pit::getInstance().setYieldable(this);
 
     startThread(currentThread->context);
 }

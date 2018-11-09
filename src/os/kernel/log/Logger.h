@@ -79,7 +79,7 @@ private:
 
     static LogLevel currentLevel;
 
-    static TimeProvider *timeProvider;
+    static TimeProvider &timeProvider;
 
     static void logMessage(LogLevel level, const String &name, const String &message);
 

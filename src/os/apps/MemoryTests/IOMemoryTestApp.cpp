@@ -41,7 +41,7 @@ IOMemoryTestApp::~IOMemoryTestApp() {
 }
 
 void IOMemoryTestApp::runTest() {
-    //SystemManagement::getInstance()->dumpFreeIOMemBlocks();
+    //SystemManagement::getInstance().dumpFreeIOMemBlocks();
 
     unsigned int size = 0;
     for(uint8_t i=0; i < NUM_OF_ALLOCS; i++) {
@@ -60,12 +60,12 @@ void IOMemoryTestApp::runTest() {
                 break;
             default:break;
         }
-        objects[i] = SystemManagement::getInstance()->mapIO(size);
+        objects[i] = SystemManagement::getInstance().mapIO(size);
     }
     shuffle();
 
     for (uint8_t i = 0; i < NUM_OF_ALLOCS; i++) {
-        SystemManagement::getInstance()->freeIO(objects[i]);
+        SystemManagement::getInstance().freeIO(objects[i]);
     }
 
 }
@@ -88,9 +88,9 @@ void IOMemoryTestApp::run() {
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     *stream << "_____ IOMemory Demo App _____" << endl << endl;
 
-    uint32_t freeBefore = SystemManagement::getInstance()->getIOMemoryManager()->getFreeMemory();
+    uint32_t freeBefore = SystemManagement::getInstance().getIOMemoryManager()->getFreeMemory();
     runTest();
-    uint32_t freeAfter = SystemManagement::getInstance()->getIOMemoryManager()->getFreeMemory();
+    uint32_t freeAfter = SystemManagement::getInstance().getIOMemoryManager()->getFreeMemory();
     *stream << "Small page allocs: " << stats[0] << endl;
     *stream << "At least 2 and at most 10 pages: " << stats[1] << endl;
     *stream << "At least 20 pages: " << stats[2] << endl << endl;
@@ -102,6 +102,6 @@ void IOMemoryTestApp::run() {
     while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     // cleanup
-    Application::getInstance()->resume();
-    Scheduler::getInstance()->exit();
+    Application::getInstance().resume();
+    Scheduler::getInstance().exit();
 }

@@ -154,6 +154,6 @@ void HeapTestApp::run() {
     while (!kb->isKeyPressed(KeyEvent::RETURN));
 
     // cleanup
-    Application::getInstance()->resume();
-    Scheduler::getInstance()->exit();
+    Application::getInstance().resume();
+    Scheduler::getInstance().exit();
 }

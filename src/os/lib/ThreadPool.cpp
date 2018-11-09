@@ -49,7 +49,7 @@ void ThreadPool::stopWorking(bool force) {
 
     working = false;
 
-    Scheduler *scheduler = Scheduler::getInstance();
+    Scheduler &scheduler = Scheduler::getInstance();
 
     if(!force) {
         bool allThreadsFinished = false;
@@ -70,6 +70,6 @@ void ThreadPool::stopWorking(bool force) {
     }
 
     for (auto &thread : threads) {
-        scheduler->kill(thread);
+        scheduler.kill(thread);
     }
 }

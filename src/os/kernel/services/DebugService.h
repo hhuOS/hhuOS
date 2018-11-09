@@ -44,13 +44,13 @@ private:
 
     char sanitize(char c);
 
+    Pic &pic;
+
     Keyboard *keyboard;
 
     TimeService *timeService;
 
     LinearFrameBuffer *lfb;
-
-    Pic *pic;
 };
 
 

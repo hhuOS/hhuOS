@@ -16,13 +16,12 @@
 
 #include "TimeService.h"
 
-TimeService::TimeService(TimeProvider *provider) {
+TimeService::TimeService(TimeProvider &provider) : provider(provider){
 	rtc = new Rtc();
-    this->provider = provider;
 }
 
 uint32_t TimeService::getSystemTime() {
-    return provider->getMillis();
+    return provider.getMillis();
 }
 
 void TimeService::msleep(uint32_t ms) {

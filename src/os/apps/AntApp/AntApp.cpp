@@ -39,8 +39,8 @@ void AntApp::run() {
 	}
 
     eventBus->unsubscribe(*this, KeyEvent::TYPE);
-	Application::getInstance()->resume();
-	Scheduler::getInstance()->exit();
+	Application::getInstance().resume();
+	Scheduler::getInstance().exit();
 }
 
 void AntApp::onEvent(const Event &event) {

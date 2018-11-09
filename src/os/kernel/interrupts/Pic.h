@@ -61,7 +61,7 @@ public:
     /**
      * Get or create the singleton instance
      */
-    static Pic *getInstance();
+    static Pic & getInstance();
 
     /**
      * Demasks an interrupt number in the corresponding PIC. If this is done,
@@ -129,8 +129,6 @@ private:
      * @return The interrupt's mask
      */
     uint8_t getMask(Interrupt interrupt);
-
-    static Pic *instance;
 
     static const uint8_t EOI = 0x20;
 

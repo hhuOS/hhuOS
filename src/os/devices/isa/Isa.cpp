@@ -109,7 +109,7 @@ void *Isa::allocDmaBuffer() {
     isaLock.acquire();
 
     void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
-    void *ret = SystemManagement::getInstance()->mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void *ret = SystemManagement::getInstance().mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
 
     isaLock.release();
 
@@ -119,8 +119,8 @@ void *Isa::allocDmaBuffer() {
 void Isa::freeDmaBuffer(void *ptr) {
     isaLock.acquire();
 
-    dmaMemoryManager.free(SystemManagement::getInstance()->getPhysicalAddress(ptr));
-    SystemManagement::getInstance()->freeIO(ptr);
+    dmaMemoryManager.free(SystemManagement::getInstance().getPhysicalAddress(ptr));
+    SystemManagement::getInstance().freeIO(ptr);
 
     isaLock.release();
 }

@@ -57,13 +57,13 @@ void init_system(Multiboot::Info *address) {
 
     // create an instance of the SystemManagement and initialize it
     // (sets up paging and system management)
-    SystemManagement *systemManagement = SystemManagement::getInstance();
+    SystemManagement &systemManagement = SystemManagement::getInstance();
 
-    systemManagement->init();
+    systemManagement.init();
 
     Multiboot::Structure::parse(address);
 
-    Pit::getInstance()->plugin();
+    Pit::getInstance().plugin();
 
     Logger::initialize();
 
@@ -72,7 +72,7 @@ void init_system(Multiboot::Info *address) {
     Logger::setConsoleLogging(Multiboot::Structure::getKernelOption("splash") == "false");
 
     if(Multiboot::Structure::getKernelOption("gdb") == "false") {
-        systemManagement->writeProtectKernelCode();
+        systemManagement.writeProtectKernelCode();
     }
 }
 
@@ -294,7 +294,7 @@ void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
         // this can happen because the headers of the free list are mapped
         // to arbitrary physical addresses, but the IO Memory should be mapped
         // to given physical addresses
-        SystemManagement::getInstance()->unmap(virtAddress);
+        SystemManagement::getInstance().unmap(virtAddress);
         // map the page to given physical address
 
         map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING , physAddress + i * PAGESIZE);
@@ -328,7 +328,7 @@ void* SystemManagement::mapIO(uint32_t size) {
         // this can happen because the headers of the free list are mapped
         // to arbitrary physical addresses, but the IO Memory should be mapped
         // to given physical addresses
-        SystemManagement::getInstance()->unmap(virtAddress);
+        SystemManagement::getInstance().unmap(virtAddress);
         // map the page to given physical address
 
         map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, (uint32_t) physStartAddress + i * PAGESIZE);
@@ -436,7 +436,7 @@ void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 	faultFlags = flags;
 }
 
-SystemManagement* SystemManagement::getInstance() {
+SystemManagement& SystemManagement::getInstance() {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
         static FreeListMemoryManager heapMemoryManager(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd),
@@ -446,7 +446,7 @@ SystemManagement* SystemManagement::getInstance() {
         // use the new memory manager to alloc memory for the instance of SystemManegement
 		systemManagement = new SystemManagement();
 	}
-	return systemManagement;
+	return *systemManagement;
 }
 
 
@@ -456,7 +456,7 @@ void SystemManagement::writeProtectKernelCode() {
 
 void* operator new ( uint32_t size ) {
 	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size);
+		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size);
 	} else {
 		return SystemManagement::getKernelHeapManager()->alloc(size);
 	}
@@ -464,7 +464,7 @@ void* operator new ( uint32_t size ) {
 
 void* operator new[]( uint32_t count ) {
 	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(count);
+		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(count);
 	} else {
 		return SystemManagement::getKernelHeapManager()->alloc(count);
 	}
@@ -472,7 +472,7 @@ void* operator new[]( uint32_t count ) {
 
 void operator delete ( void* ptr )  {
 	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
 	} else {
 		return SystemManagement::getKernelHeapManager()->free(ptr);
 	}
@@ -480,7 +480,7 @@ void operator delete ( void* ptr )  {
 
 void operator delete[] ( void* ptr ) {
 	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr);
+		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
 	} else {
 		return SystemManagement::getKernelHeapManager()->free(ptr);
 	}
@@ -496,7 +496,7 @@ void  operator delete[](void *, void *) { };
 //  Implement aligned allocation (C++17)
 void* operator new(size_t size, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size, alignment);
+        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
     }
@@ -504,7 +504,7 @@ void* operator new(size_t size, uint32_t alignment) {
 
 void* operator new[](size_t size, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->alloc(size, alignment);
+        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
     }
@@ -512,7 +512,7 @@ void* operator new[](size_t size, uint32_t alignment) {
 
 void operator delete(void *ptr, uint32_t alignment) noexcept {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr, alignment);
+        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->free(ptr);
     }
@@ -520,7 +520,7 @@ void operator delete(void *ptr, uint32_t alignment) noexcept {
 
 void operator delete[](void *ptr, uint32_t alignment) noexcept {
     if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance()->getCurrentUserSpaceHeapManager()->free(ptr, alignment);
+        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
         return SystemManagement::getKernelHeapManager()->free(ptr);
     }
