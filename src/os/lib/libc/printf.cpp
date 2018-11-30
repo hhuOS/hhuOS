@@ -28,31 +28,16 @@ extern "C" {
 
 #define PRINTF_BUFFER       32
 
-Spinlock *printLock;
-
 OutputStream *stdout = nullptr;
-
-Spinlock &getPrintLock() {
-
-    static Spinlock tmp;
-
-    return tmp;
-}
 
 void initPrintf() {
 
     stdout = File::open("/dev/stdout", "w");
-
-    printLock = &getPrintLock();
 }
 
 void printf(const char *format, ...) {
 
     if (stdout == nullptr) {
-        return;
-    }
-
-    if(!printLock->tryLock()) {
         return;
     }
 
@@ -73,7 +58,6 @@ void printf(const char *format, ...) {
 
             if (*traverse == '\0') {
                 va_end(args);
-                printLock->release();
                 return;
             }
 
@@ -115,6 +99,5 @@ void printf(const char *format, ...) {
     }
 
     va_end(args);
-    printLock->release();
 }
 

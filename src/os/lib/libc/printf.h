@@ -31,7 +31,6 @@
 extern "C" {
 #endif
 
-extern Spinlock *printLock;
 extern OutputStream *stdout;
 
 void initPrintf();
