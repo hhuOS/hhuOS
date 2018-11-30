@@ -352,12 +352,64 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
             ret = alloc(size, alignment);
         }
     } else {
-        ret = alloc(size, alignment);
+        if(alignment == 0 || (uint32_t) ptr % alignment == 0) {
+            FLHeader *currentChunk = firstChunk;
+            FLHeader *returnChunk = nullptr;
+
+            lock.acquire();
+
+             do {
+                if (currentChunk->size >= size) {
+                    if(returnChunk == nullptr || currentChunk->size < returnChunk->size) {
+                        returnChunk = currentChunk;
+                    }
+                }
+
+                currentChunk = currentChunk->next;
+            } while(currentChunk != nullptr && currentChunk < ptr);
+
+            if(currentChunk != nullptr) {
+                if(((uint32_t) ptr + oldHeader->size == (uint32_t) currentChunk) && (oldHeader->size + currentChunk->size + HEADER_SIZE >= size)) {
+                    currentChunk->prev->next = currentChunk->next;
+
+                    if(currentChunk->next != nullptr) {
+                        currentChunk->next->prev = currentChunk->prev;
+                    }
+
+                    oldHeader->size += currentChunk->size + HEADER_SIZE;
+
+                    if(oldHeader->size - size > HEADER_SIZE + MIN_BLOCK_SIZE) {
+                        auto *newHeader = (FLHeader*) ((uint32_t) ptr + size);
+                        newHeader->size = oldHeader->size - size - HEADER_SIZE;
+
+                        freeAlgorithm((uint8_t*) newHeader + HEADER_SIZE);
+
+                        oldHeader->size = size;
+                    }
+
+                    lock.release();
+
+                    return ptr;
+                } else {
+                    ret = allocAlgorithm(size, alignment, returnChunk);
+                }
+            } else {
+                ret = allocAlgorithm(size, alignment, returnChunk);
+
+                lock.release();
+            }
+
+            lock.release();
+        } else {
+            ret = alloc(size, alignment);
+        }
     }
 
-    memcpy(ret, ptr, (size < oldHeader->size) ? size : oldHeader->size);
+    if(ret != nullptr) {
+        memcpy(ret, ptr, (size < oldHeader->size) ? size : oldHeader->size);
 
-    free(ptr);
+        free(ptr);
+    }
 
     return ret;
 }
