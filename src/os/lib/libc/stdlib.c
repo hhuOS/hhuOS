@@ -43,21 +43,9 @@ void free(void *ptr) {
 }
 
 void *realloc(void *ptr, size_t size) {
-    void *ret = sys_alloc_mem(size, 0);
-    if((int) ret == -1) {
-        return NULL;
-    }
-    
-    if(ptr == NULL) {
-        return ret;
-    }
-    
-    if(size >= ((unsigned int *) ptr)[-1]) {
-        memcpy(ret, ptr, ((unsigned int *) ptr)[-1]);
-    } else {
-        memcpy(ret, ptr, size);
-    }
-    
-    sys_free_mem(ptr);
-    return ret;
-} 
+    return sys_realloc_mem(ptr, size, 0);
+}
+
+void *aligned_realloc(void *ptr, size_t size, size_t alignment) {
+    return sys_realloc_mem(ptr, size, alignment);
+}

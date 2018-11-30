@@ -454,6 +454,14 @@ void SystemManagement::writeProtectKernelCode() {
     basePageDirectory->writeProtectKernelCode();
 }
 
+void *SystemManagement::realloc(void *ptr, uint32_t size, uint32_t alignment) {
+    if(!SystemManagement::isKernelMode()){
+        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->realloc(ptr, size, alignment);
+    } else {
+        return SystemManagement::getKernelHeapManager()->realloc(ptr, size, alignment);
+    }
+}
+
 void* operator new ( uint32_t size ) {
 	if(!SystemManagement::isKernelMode()){
 		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size);
@@ -492,8 +500,6 @@ void *operator new[](size_t, void *p) { return p; }
 void  operator delete  (void *, void *) { };
 void  operator delete[](void *, void *) { };
 
-// TODO
-//  Implement aligned allocation (C++17)
 void* operator new(size_t size, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
         return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
@@ -510,7 +516,7 @@ void* operator new[](size_t size, uint32_t alignment) {
     }
 }
 
-void operator delete(void *ptr, uint32_t alignment) noexcept {
+void operator delete(void *ptr, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
         return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
@@ -518,7 +524,7 @@ void operator delete(void *ptr, uint32_t alignment) noexcept {
     }
 }
 
-void operator delete[](void *ptr, uint32_t alignment) noexcept {
+void operator delete[](void *ptr, uint32_t alignment) {
     if(!SystemManagement::isKernelMode()){
         return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {

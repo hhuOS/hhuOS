@@ -19,6 +19,10 @@
 
 #include <cstdint>
 
+extern "C" {
+#include "lib/libc/string.h"
+};
+
 /**
  * Basic class for every memory manager.
  *
@@ -71,6 +75,25 @@ public:
 	 * @return Pointer to allocated memory
 	 */
     virtual void *alloc(uint32_t size, uint32_t alignment) { return nullptr; };
+    /**
+     * Re-allocate a block of memory of given size.
+     *
+     * @param size Amount of new memory to allocate
+     * @return Pointer to allocated memory
+     */
+    virtual void *realloc(void *ptr, uint32_t size) {
+        return nullptr;
+    };
+
+    /**
+     * Re-allocate a block of memory of given size with alignment.
+     *
+     * @param size Amount of new memory to allocate
+     * @return Pointer to allocated memory
+     */
+    virtual void *realloc(void *ptr, uint32_t size, uint32_t alignment) {
+        return nullptr;
+    };
 
     /**
      * Free allocated block of memory.

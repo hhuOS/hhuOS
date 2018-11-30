@@ -71,6 +71,11 @@ private:
     // Size of list header
     static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
 
+private:
+
+    void* allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
+    void freeAlgorithm(void *ptr);
+
 public:
 
     /**
@@ -102,6 +107,22 @@ public:
 	 * @return Pointer to the allocated memory block
 	 */
     void* alloc(uint32_t size, uint32_t alignment) override;
+
+    /**
+     * Re-allocate a block of memory of given size.
+     *
+     * @param size Amount of new memory to allocate
+     * @return Pointer to allocated memory
+     */
+    void *realloc(void *ptr, uint32_t size) override;
+
+    /**
+     * Re-allocate a block of memory of given size with alignment.
+     *
+     * @param size Amount of new memory to allocate
+     * @return Pointer to allocated memory
+     */
+    void *realloc(void *ptr, uint32_t size, uint32_t alignment) override;
 
     /**
      * Frees a given memory block

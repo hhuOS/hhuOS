@@ -61,4 +61,6 @@ extern void free(void *ptr);
  */
 extern void *realloc(void *ptr, size_t size);
 
+extern void *aligned_realloc(void *ptr, size_t size, size_t alignment);
+
 #endif

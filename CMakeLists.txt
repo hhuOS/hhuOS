@@ -17,7 +17,10 @@ PROJECT(hhuOS)
 
 INCLUDE_DIRECTORIES(./src/os)
 
-SET(CMAKE_CXX_STANDARD 11)
+SET(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_C_FLAGS -m32)
+set(CMAKE_CXX_FLAGS -m32)
 
 FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
 

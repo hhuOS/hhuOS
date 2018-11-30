@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/memory/SystemManagement.h>
 #include "printf.h"
 #include "system_interface.h"
 
@@ -21,13 +22,14 @@ void sys_init_libc() {
     initPrintf();
 }
 
-void *sys_alloc_mem(unsigned int size, unsigned int alignment) {
-    // TODO
-    //  Add alignment
-
-    return new char[size];
+void *sys_alloc_mem(uint32_t size, uint32_t alignment) {
+    return new(alignment) char[size];
 }
 
 void sys_free_mem(void *ptr) {
-    delete (char *)ptr;
+    delete (char*) ptr;
+}
+
+void *sys_realloc_mem(void *ptr, size_t size, size_t alignment) {
+    return SystemManagement::getInstance().realloc(ptr, size, alignment);
 }

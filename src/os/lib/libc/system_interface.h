@@ -47,6 +47,8 @@ void *sys_alloc_mem(size_t size, uint32_t alignment);
  */
 void sys_free_mem(void *);
 
+void *sys_realloc_mem(void *ptr, size_t size, size_t alignment);
+
 #ifdef __cplusplus
 }
 #endif 

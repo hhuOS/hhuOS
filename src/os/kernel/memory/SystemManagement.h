@@ -21,8 +21,6 @@
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
-#include <cstdint>
-#include <kernel/threads/ThreadState.h>
 #include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
@@ -92,7 +90,7 @@ public:
     /**
      * Handle a Page Fault
      */
-    void trigger(InterruptFrame &frame);
+    void trigger(InterruptFrame &frame) override;
 
     /**
 	 * Sets the params for a page fault.
@@ -329,6 +327,16 @@ public:
     PagingAreaManager* getPagingAreaManager() {
         return pagingAreaManager;
     }
+
+    void *realloc(void *ptr, uint32_t size, uint32_t alignment = 0);
 };
+
+void* operator new(size_t size, uint32_t alignment);
+
+void* operator new[](size_t size, uint32_t alignment);
+
+void operator delete(void *ptr, uint32_t alignment);
+
+void operator delete[](void *ptr, uint32_t alignment);
 
 #endif
