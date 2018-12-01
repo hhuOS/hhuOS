@@ -122,7 +122,8 @@ public:
         OUT_OF_PAGE_MEMORY                  = 0xCF,
 		ILLEGEAL_PAGE_ACCESS				= 0xD0,
 		UNKNOWN_DRIVER                      = 0xD1,
-		PAGING_ERROR                        = 0xD2
+		PAGING_ERROR                        = 0xD2,
+		UNSUPPORTED_OPERATION               = 0xD3
     };
 
     static void softInterrupt(uint32_t function);

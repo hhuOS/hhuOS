@@ -36,7 +36,8 @@ const char* Cpu::hardwareExceptions[] = {
 const char* Cpu::softwareExceptions[] {
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
         "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
-        "OutOfPageTableMemory Exception", "Illegal Page Access", "UnknownDriver Exception", "PagingError Exception"
+        "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownDriver Exception",
+        "PagingError Exception", "UnsupportedOperation Exception"
 };
 
 int32_t Cpu::cliCount = 1; // GRUB disables all interrupts on startup

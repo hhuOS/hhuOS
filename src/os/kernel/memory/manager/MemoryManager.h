@@ -18,6 +18,7 @@
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
 #include <cstdint>
+#include "kernel/cpu/Cpu.h"
 
 extern "C" {
 #include "lib/libc/string.h"
@@ -65,7 +66,7 @@ public:
      * @param size Amount of memory to allocate
      * @return Pointer to allocated memory
      */
-    virtual void *alloc(uint32_t size) = 0;
+    virtual void *alloc(uint32_t size) { return nullptr; };
 
     /**
 	 * Allocate aligned block of memory of given size.
@@ -74,7 +75,12 @@ public:
 	 * @param alignment Alignment of returned pointer
 	 * @return Pointer to allocated memory
 	 */
-    virtual void *alloc(uint32_t size, uint32_t alignment) { return nullptr; };
+    virtual void *alloc(uint32_t size, uint32_t alignment) {
+        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
+
+        return nullptr;
+    };
+
     /**
      * Re-allocate a block of memory of given size.
      *
@@ -82,6 +88,8 @@ public:
      * @return Pointer to allocated memory
      */
     virtual void *realloc(void *ptr, uint32_t size) {
+        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
+
         return nullptr;
     };
 
@@ -92,6 +100,8 @@ public:
      * @return Pointer to allocated memory
      */
     virtual void *realloc(void *ptr, uint32_t size, uint32_t alignment) {
+        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
+
         return nullptr;
     };
 
@@ -100,7 +110,7 @@ public:
      *
      * @param ptr Pointer to start of memory block.
      */
-    virtual void free(void *ptr) = 0;
+    virtual void free(void *ptr) {};
 
     /**
 	 * Free aligned allocated block of memory.
@@ -108,7 +118,7 @@ public:
 	 * @param ptr Pointer to start of memory block.
 	 * @param alignment Alignment of pointer.
 	 */
-    virtual void free(void *ptr, uint32_t alignment) {};
+    virtual void free(void *ptr, uint32_t alignment) { Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION); };
 
     /**
      * Getter for the end address.
