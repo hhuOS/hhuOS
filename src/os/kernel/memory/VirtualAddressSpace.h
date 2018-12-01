@@ -31,8 +31,8 @@
 class VirtualAddressSpace {
 private:
 	// pointer to memory managers for userspace and kernelspace
-	FreeListMemoryManager *kernelSpaceHeapManager = nullptr;
-	FreeListMemoryManager *userSpaceHeapManager = nullptr;
+	MemoryManager *kernelSpaceHeapManager = nullptr;
+	MemoryManager *userSpaceHeapManager = nullptr;
 	// pointer to page directory
 	PageDirectory *pageDirectory = nullptr;
 	// the bootstrap address space is the first address space ever created
@@ -48,7 +48,7 @@ public:
 	 * Constructor for the very first address space for bootstrapping reasons.
 	 * The memory manager for user space is set manually since it does not exist.
 	 */
-	VirtualAddressSpace(PageDirectory *pageDirectory, FreeListMemoryManager *userSpaceHeapManager);
+	VirtualAddressSpace(PageDirectory *pageDirectory, MemoryManager *userSpaceHeapManager);
 
 	/**
 	 * Destructor
@@ -60,7 +60,7 @@ public:
 	 *
 	 * @return Pointer to the kernelspace memory manager
 	 */
-	FreeListMemoryManager* getKernelSpaceHeapManager() const {
+	MemoryManager* getKernelSpaceHeapManager() const {
 		return kernelSpaceHeapManager;
 	}
 
@@ -73,7 +73,7 @@ public:
 	 *
 	 * @return Pointer to the userspace memory manager
 	 */
-	FreeListMemoryManager* getUserSpaceHeapManager() const {
+	MemoryManager* getUserSpaceHeapManager() const {
 		return userSpaceHeapManager;
 	}
 
@@ -82,7 +82,7 @@ public:
 	 *
 	 * @param userSpaceHeapManager Pointer to the userspace memory manager
 	 */
-	void setUserSpaceHeapManager(FreeListMemoryManager* userSpaceHeapManager) {
+	void setUserSpaceHeapManager(MemoryManager* userSpaceHeapManager) {
 		this->userSpaceHeapManager = userSpaceHeapManager;
 	}
 };

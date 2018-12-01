@@ -18,11 +18,8 @@
 #include "PagingAreaManager.h"
 #include "kernel/memory/Paging.h"
 
-/**
- * Constructor - calls base class with parameters.
- */
 PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false, PAGESIZE, "PAGINGAREAMANAGER", true) {
+        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false, PAGESIZE, true) {
 
     managerType = PAGING_AREA_MANAGER;
 

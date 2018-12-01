@@ -21,7 +21,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#include "kernel/memory/manager/FreeListMemoryManager.h"
+#include "kernel/memory/manager/MemoryManager.h"
 #endif
 
 

@@ -18,6 +18,7 @@
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
 #include <cstdint>
+#include "lib/libc/printf.h"
 #include "kernel/cpu/Cpu.h"
 
 extern "C" {
@@ -25,28 +26,29 @@ extern "C" {
 };
 
 /**
- * Basic class for every memory manager.
+ * Interface for every memory manager.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date HHU, 2018
+ * @date 2018
  */
 class MemoryManager {
 
 protected:
-    // start and end address of the memory area to manage
     uint32_t memoryStartAddress;
     uint32_t memoryEndAddress;
-    // track amount of free memory
+
     uint32_t freeMemory = 0;
 
     bool doUnmap;
 
 public:
+
     /**
      * Constructor.
      *
-     * @param memoryStartAddress Startaddress of the memory area to manage
-     * @param memoryEndAddress Endaddress of the memory area to manage
+     * @param memoryStartAddress Start address of the memory area to manage
+     * @param memoryEndAddress End address of the memory area to manage
+     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
      */
     MemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
         this->memoryStartAddress = memoryStartAddress;
@@ -56,24 +58,35 @@ public:
     }
 
     /**
+     * Copy-constructor.
+     */
+    MemoryManager(const MemoryManager &copy) = delete;
+
+    /**
      * Destructor.
      */
     virtual ~MemoryManager() = default;
 
     /**
-     * Allocate a block of memory of given size.
+     * Allocate a chunk of memory of a given size.
      *
      * @param size Amount of memory to allocate
-     * @return Pointer to allocated memory
+     *
+     * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
      */
     virtual void *alloc(uint32_t size) { return nullptr; };
 
     /**
-	 * Allocate aligned block of memory of given size.
+	 * Allocate an aligned chunk of memory of a given size.
+     *
+     * This type of allocation may not be supported by every memory manager.
+     * For example, it does not make sense to request allocated memory from a bitmap-based manager,
+     * as such a manager always returns chunks with the same alignment,
 	 *
 	 * @param size Amount of memory to allocate
-	 * @param alignment Alignment of returned pointer
-	 * @return Pointer to allocated memory
+	 * @param alignment Alignment of the allocated chunk
+     *
+	 * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
 	 */
     virtual void *alloc(uint32_t size, uint32_t alignment) {
         Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
@@ -82,10 +95,17 @@ public:
     };
 
     /**
-     * Re-allocate a block of memory of given size.
+     * Reallocate a block of memory of a given size.
      *
+     * If a new chunk needs to be allocated for the reallocation, the content
+     * of the old chunk is copied into the new one up to the lesser of the new and old sizes.
+     *
+     * Reallocation may not be supported by every memory manager.
+     *
+     * @param ptr Pointer to the chunk of memory to reallocate
      * @param size Amount of new memory to allocate
-     * @return Pointer to allocated memory
+     *
+     * @return Pointer to the reallocated chunk of memory or nullptr if no chunk with the required size is available
      */
     virtual void *realloc(void *ptr, uint32_t size) {
         Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
@@ -94,10 +114,16 @@ public:
     };
 
     /**
-     * Re-allocate a block of memory of given size with alignment.
+     * Reallocate a block of memory of a given size. The reallocated block will be aligned to a given alignment.
      *
+     * If a new chunk needs to be allocated for the reallocation, the content
+     * of the old chunk is copied into the new one up to the lesser of the new and old sizes.
+     *
+     * @param ptr Pointer to the chunk of memory to reallocate
      * @param size Amount of new memory to allocate
-     * @return Pointer to allocated memory
+	 * @param alignment Alignment of the allocated chunk
+     *
+     * @return Pointer to the reallocated chunk of memory or nullptr if no chunk with the required size is available
      */
     virtual void *realloc(void *ptr, uint32_t size, uint32_t alignment) {
         Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
@@ -106,45 +132,46 @@ public:
     };
 
     /**
-     * Free allocated block of memory.
+     * Free an allocated block of memory.
      *
-     * @param ptr Pointer to start of memory block.
+     * @param ptr Pointer to chunk of memory memory to be freed
      */
     virtual void free(void *ptr) {};
 
     /**
-	 * Free aligned allocated block of memory.
+	 * Free an allocated block of memory, that has been allocated with an alignment.
 	 *
-	 * @param ptr Pointer to start of memory block.
-	 * @param alignment Alignment of pointer.
+     * @param ptr Pointer to chunk of memory memory to be freed
+	 * @param alignment Alignment of the chunk
 	 */
     virtual void free(void *ptr, uint32_t alignment) { Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION); };
 
     /**
-     * Getter for the end address.
-     *
-     * @return The end address of the memory area to manage
+     * Dump the data structure, that a specific implementation uses to keep track of free/allocated memory.
+     */
+    virtual void dump() {
+        printf("MemoryManager: dump() not implemented!\n");
+    }
+
+    /**
+     * Get the start address of the managed memory.
+     */
+    uint32_t getStartAddress() {
+        return memoryStartAddress;
+    }
+
+    /**
+     * Get the end address of the managed memory.
      */
     uint32_t getEndAddress() {
         return memoryEndAddress;
     }
 
-    /**
-     * Getter for amount of free memory.
-     *
-     * @return The amount of free memory
-     */
+   /**
+    * Get the amount of free memory.
+    */
     uint32_t getFreeMemory() {
         return freeMemory;
-    }
-
-    /**
-     * Getter for the start address.
-     *
-     * @return The start address of the memory area to manage
-     */
-    uint32_t getStartAddress() {
-        return memoryStartAddress;
     }
 };
 

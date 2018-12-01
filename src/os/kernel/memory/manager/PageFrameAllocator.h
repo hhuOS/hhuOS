@@ -20,17 +20,18 @@
 #include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
-/* PageFramAllocator - Allocates and frees the page frames in physical memory.
- * Bitmap-based implementation.
+/**
+ * Memory manager, that ist based on the BitmapMemoryManager and is used to manage the page frames in physical memory.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date HHU, 2018
+ * @date 2018
  */
 class PageFrameAllocator : public BitmapMemoryManager{
 
 public:
+
 	/**
-	 * Constructor
+	 * Constructor.
 	 *
 	 * @param memoryStartAddress Start address of the memory area to manage
 	 * @param memoryEndAddress End address of the memory area to manage

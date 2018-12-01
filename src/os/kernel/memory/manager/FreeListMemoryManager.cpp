@@ -22,9 +22,6 @@
 #include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/MemLayout.h"
 
-/**
- * Constructor -calls constructor of base class.
- */
 FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap)
         : MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
     if(freeMemory < sizeof(FLHeader)) {
@@ -40,24 +37,15 @@ FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryStartAddress, uint32
     }
 }
 
-/**
- * Allocate memory block with given size.
- */
 void* FreeListMemoryManager::alloc(uint32_t size) {
 	// Allocate memory without alignment
     return alloc(size, 0);
 }
 
-/**
- * Frees a given memory block
- */
 void FreeListMemoryManager::free(void* ptr) {
 	free(ptr, 0);
 }
 
-/**
- * Frees a given aligned memory block
- */
 void FreeListMemoryManager::free(void *ptr, uint32_t alignment) {
     lock.acquire();
 
@@ -66,20 +54,17 @@ void FreeListMemoryManager::free(void *ptr, uint32_t alignment) {
     lock.release();
 }
 
-/**
- * Dump memory list
- */
 void FreeListMemoryManager::dump() {
-    printf("  Free memory dump\n");
+    printf("  FreeListMemoryManager: Free list dump\n");
     printf("  ================\n");
 
     FLHeader* tmp = firstChunk;
 
-    while ( tmp != 0 ) {
-        printf("    Start: %x" , (FLHeader*)((uint8_t*)tmp + sizeof(FLHeader)));
-        printf(", End: %x" , (FLHeader*)((uint8_t*)tmp + sizeof(FLHeader) + tmp->size));
-        printf("  Next: %x", tmp->next);
-        printf(", Size: %d\n" , tmp->size);
+    while ( tmp != nullptr ) {
+        printf("    Start: %08x" , (uint32_t) tmp + HEADER_SIZE);
+        printf(", End: %08x" , (uint32_t) tmp + HEADER_SIZE + tmp->size);
+        printf("  Next: %08x", (uint32_t) tmp->next);
+        printf(", Size: %u\n" , tmp->size);
 
         tmp = tmp->next;
     }
@@ -87,9 +72,6 @@ void FreeListMemoryManager::dump() {
     printf("\n");
 }
 
-/**
- * Find next block of required size given a start header
- */
 FreeListMemoryManager::FLHeader* FreeListMemoryManager::findNext(FLHeader *start, uint32_t reqSize) {
 	// set start point
     FLHeader *current = start;
@@ -171,7 +153,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
     // Check if the chosen chunk can be sliced in two parts
     if (current->size - size >= MIN_BLOCK_SIZE + HEADER_SIZE) {
-        FLHeader* slice = (FLHeader*) (((uint32_t)current) + HEADER_SIZE + size);
+        auto * slice = (FLHeader*) (((uint32_t)current) + HEADER_SIZE + size);
 
         slice->size = current->size - size - HEADER_SIZE;
         slice->next = current->next;
@@ -256,8 +238,8 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
 
     // if the free chunk has more than 4kb of memory, a page can possibly be unmapped
     if(doUnmap && mergedHeader->size >= PAGESIZE && SystemManagement::isInitialized()) {
-        uint32_t addr = (uint32_t) mergedHeader;
-        uint32_t chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
+        auto addr = (uint32_t) mergedHeader;
+        auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
         SystemManagement::getInstance().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);

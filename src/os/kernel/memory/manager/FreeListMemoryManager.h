@@ -21,58 +21,64 @@
 #include "lib/lock/Spinlock.h"
 #include "MemoryManager.h"
 
-#define THROW_EXCEPTION 0
-#define CHECK_MEMORY 0
-
-
-
-/* List-based memory manager.
+/**
+ * Memory manager, that uses a doubly linked list of free chunks of memory.
+ *
+ * This memory manager allows allocation and reallocation of memory with or without an alignment.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date HHU, 2018
+ * @date 2018
  */
 class FreeListMemoryManager : public MemoryManager {
 
 private:
 
     /**
-     * Header for the double-linked list managing the memory blocks.
+     * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
      */
     struct FLHeader {
-        FLHeader* prev;		// previous Chunk
-        FLHeader* next;		// next Chunk
-        uint32_t size;		// amount of usable memory in this memory chunk
+        FLHeader* prev;
+        FLHeader* next;
+        uint32_t size;
     };
 
-    // Lock for Memory Management
     Spinlock lock;
 
-    // Pointer to first entry in memory list
     FLHeader* firstChunk;
 
     /**
-     * Find next block of required size given a start header
+     * Find the next chunk of memory with a required size.
      *
-     * @param start Pointer to start block from where to search
-     * @param reqSize Minimal size that is required from the block
-     * @return Header of the free block with required size
+     * @param start Pointer to the chunk of memory from where to start the search
+     * @param reqSize Minimal size that is required for the chunk
+     *
+     * @return Header of the free chunk with the required size or nullptr, if none is found
      */
     FLHeader *findNext(FLHeader *start, uint32_t reqSize);
 
     /**
-     * Merge all free blocks of free memory if possible
+     * Merge a chunk of free memory with it's neighbours, if possible.
      *
-     * @param origin Memory block that should be merged with neighbours
+     * @param origin Chunk of free memory to be merged
      */
     FLHeader *merge(FLHeader *origin);
 
-    // minimal block size of allocated memory
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
-    // Size of list header
     static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
 
 private:
 
+    /**
+     * Implementation of the allocation algorithm, that is used in the alloc-functions.
+     *
+     * The first-fit algorithm is used to search for a fitting chunk of free memory.
+     *
+     * @param size Size of the chunk of memory to be allocated
+     * @param alignment Alignment, that chunk of memory should have
+     * @param startChunk The chunk of free memory from which to start searching for a fitting chunk
+     *
+     * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
+     */
     void* allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
     void freeAlgorithm(void *ptr);
 
@@ -81,10 +87,16 @@ public:
     /**
      * Constructor.
      *
-     * @param memoryStartAddress Start address of memory area to manage.
-     * @param memoryEndAddress  End address of memory area to manage.
+     * @param memoryStartAddress Start address of the memory area to manage
+     * @param memoryEndAddress End address of the memory area to manage
+     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
      */
     FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap);
+
+    /**
+     * Copy-constructor.
+     */
+    FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
 
     /**
      * Destructor.
@@ -92,57 +104,39 @@ public:
     ~FreeListMemoryManager() override = default;
 
     /**
-     * Allocate memory block with given size.
-     *
-     * @param size Size of memory block to be allocated
-     * @return Pointer to the allocated memory block
+     * Overriding function from MemoryManager.
      */
     void* alloc(uint32_t size) override;
 
     /**
-	 * Allocate aligned memory block with given size.
-	 *
-	 * @param size Size of memory block to be allocated
-	 * @param alignment Alignment for pointer to memory
-	 * @return Pointer to the allocated memory block
-	 */
+     * Overriding function from MemoryManager.
+     */
     void* alloc(uint32_t size, uint32_t alignment) override;
 
     /**
-     * Re-allocate a block of memory of given size.
-     *
-     * @param size Amount of new memory to allocate
-     * @return Pointer to allocated memory
+     * Overriding function from MemoryManager.
      */
     void *realloc(void *ptr, uint32_t size) override;
 
     /**
-     * Re-allocate a block of memory of given size with alignment.
-     *
-     * @param size Amount of new memory to allocate
-     * @return Pointer to allocated memory
+     * Overriding function from MemoryManager.
      */
     void *realloc(void *ptr, uint32_t size, uint32_t alignment) override;
 
     /**
-     * Frees a given memory block
-     *
-     * @param ptr Pointer to the memory block to be freed
+     * Overriding function from MemoryManager.
      */
     void free(void* ptr) override;
 
     /**
-	 * Frees a given aligned memory block
-	 *
-	 * @param ptr Pointer to the memory block to be freed
-	 * @param alignment Alignment for pointer to memory
-	 */
+     * Overriding function from MemoryManager.
+     */
 	void free(void* ptr, uint32_t alignment) override;
 
     /**
-     * Dump memory list
+     * Dump the list of free chunks of memory.
      */
-    void dump();
+    void dump() override;
 };
 
 #endif

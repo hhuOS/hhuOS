@@ -41,7 +41,7 @@ extern "C"{
 
 // initialize static members
 SystemManagement* SystemManagement::systemManagement = nullptr;
-FreeListMemoryManager* SystemManagement::kernelMemoryManager = nullptr;
+MemoryManager* SystemManagement::kernelMemoryManager = nullptr;
 bool SystemManagement::initialized = false;
 bool SystemManagement::kernelMode = true;
 

@@ -20,8 +20,8 @@
 #include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
-/* Paging Area Manager - manages the part of virtual memory resverved for
- * page tables and directories. A bitmap-based implementation.
+/* Memory manager, that ist based on the BitmapMemoryManager and is used to manage the part of virtual memory,
+ * that is reserved for page tables and directories.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
@@ -29,8 +29,9 @@
 class PagingAreaManager : public BitmapMemoryManager {
 
 public:
+
 	/**
-	 * Constructor
+	 * Constructor.
 	 */
     PagingAreaManager();
 

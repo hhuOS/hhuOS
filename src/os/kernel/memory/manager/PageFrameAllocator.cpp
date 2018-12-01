@@ -19,12 +19,8 @@
 
 #include "kernel/memory/Paging.h"
 
-
-/**
- * Constructor - calls baseClass constructor.
- */
 PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
-        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, false, PAGESIZE, "PAGEFRAMEALLOCATOR", false) {
+        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, false, PAGESIZE, false) {
 
     managerType = PAGE_FRAME_ALLOCATOR;
 

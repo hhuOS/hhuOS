@@ -19,9 +19,8 @@
 
 #include <cstdint>
 #include "lib/util/HashMap.h"
+#include "lib/lock/Spinlock.h"
 #include "MemoryManager.h"
-
-#define DEBUG_IOMEM 0
 
 /**
  * Header for the free list. This linked list is located at the beginning of
@@ -34,17 +33,25 @@ struct IOMemFreeHeader{
 };
 
 
-/* IOMemoryManager - Manages IO-Space for HW-Buffers, DMA etc.
-*  Maps a given physical address (for example LFB) into the virtual IO-space
-*  as defined in MemLayout.h or allocates an 4kb-aligned physical buffer and
-*  maps it into virtual IO-space.
-*
+/**
+ * Memory manager, that manages IO-Space for HW-Buffers, DMA etc.
+ * Maps a given physical address (for example LFB) into the virtual IO-space
+ * as defined in MemLayout.h or allocates an 4kb-aligned physical buffer and
+ * maps it into virtual IO-space.
+ *
+ * It uses a doubly-linked list of free chunks of memory, similarly to FreeListMemoryManager.
+ *
+ * This memory manager does not allow allocation with an alignment.
+ *
+ * TODO: Implement realloc.
+ *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * @date HHU, 2018
+ * @date 2018
  */
 class IOMemoryManager : public MemoryManager {
+
 private:
-    // anchor of the free list
+
     IOMemFreeHeader* anchor = nullptr;
 
     Util::HashMap<void*, uint32_t> ioMemoryMap;
@@ -52,33 +59,36 @@ private:
     Spinlock lock;
 
 public:
+
     /**
-     * Constructor
+     * Constructor.
      */
     IOMemoryManager();
-    
-    // the IO memory manager must never be deleted
+
+    /**
+     * Copy-constructor.
+     */
+    IOMemoryManager(const MemoryManager &copy) = delete;
+
+    /**
+     * Destructor.
+     */
     ~IOMemoryManager() override = default;
 
     /**
-     * Allocate some virtual 4kb pages for given physical page frames.
-     *
-     * @param size Requested size of memory block
-     * @return Start address of memory block
+     * Overriding function from MemoryManager.
      */
     void * alloc(uint32_t size) override;
 
     /**
-     * Free virtual IO memory.
-     *
-     * @param ptr Pointer to memory block
+     * Overriding function from MemoryManager.
      */
     void free(void *ptr) override;
 
     /**
-     * Print dump of the free list.
+     * Dump the list of free chunks of memory.
      */
-    void dump();
+    void dump() override;
 };
 
 #endif

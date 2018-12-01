@@ -21,7 +21,7 @@
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
-#include "kernel/memory/manager/FreeListMemoryManager.h"
+#include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "lib/util/ArrayList.h"
@@ -42,8 +42,8 @@ class SystemManagement : public InterruptHandler{
 
 private:
 	// parameters of a page fault
-    uint32_t faultFlags;
-    uint32_t faultedAddress;
+    uint32_t faultFlags{};
+    uint32_t faultedAddress{};
 
     static bool initialized;
     // usable physical memory in this system
@@ -51,29 +51,33 @@ private:
 
     // base page directory for for kernel mappings -> these mappings have to
     // appear in each process` page directory
-    PageDirectory *basePageDirectory;
+    PageDirectory *basePageDirectory{};
     // pointer to the currently active address space
-    VirtualAddressSpace *currentAddressSpace;
+    VirtualAddressSpace *currentAddressSpace{};
     // Page frame Allocator to alloc physical memory in 4kb-blocks
-    PageFrameAllocator *pageFrameAllocator;
+    PageFrameAllocator *pageFrameAllocator{};
     // Paging Area Manager to manage the virtual memory reserved for page tables
     // and directories
-    PagingAreaManager *pagingAreaManager;
+    PagingAreaManager *pagingAreaManager{};
     // IO memory manager
-    IOMemoryManager *ioMemManager;
+    IOMemoryManager *ioMemManager{};
 
     // list of all address spaces
-    Util::ArrayList<VirtualAddressSpace*> *addressSpaces;
+    Util::ArrayList<VirtualAddressSpace*> *addressSpaces{};
 
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
 
     //
     static SystemManagement *systemManagement;
-    static FreeListMemoryManager *kernelMemoryManager;
+    static MemoryManager *kernelMemoryManager;
 
 public:
-    SystemManagement() {};
+
+    /**
+     * Constructor.
+     */
+    SystemManagement() = default;
 
     /**
      * Initialize the SystemManager and the corresponding stuff
@@ -295,7 +299,7 @@ public:
      *
      * @return Pointer to the current userspace memory manager
      */
-    FreeListMemoryManager* getCurrentUserSpaceHeapManager() {
+    MemoryManager* getCurrentUserSpaceHeapManager() {
     	return currentAddressSpace->getUserSpaceHeapManager();
     }
 
@@ -304,7 +308,7 @@ public:
 	 *
 	 * @return Pointer to the current kernelspace memory manager
 	 */
-    static FreeListMemoryManager* getKernelHeapManager() {
+    static MemoryManager* getKernelHeapManager() {
     	return kernelMemoryManager;
     }
 

@@ -26,12 +26,10 @@ extern "C" {
     #include "lib/libc/string.h"
 }
 
-/**
- * Constructor - call constructor of base class.
- */
 IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END, true), ioMemoryMap(1097) {
 
     freeMemory = memoryEndAddress - memoryStartAddress;
+
     // start of memory area -> create anchor of free list
     anchor = (IOMemFreeHeader*) (memoryStartAddress);
     anchor->next = nullptr;
@@ -39,9 +37,6 @@ IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END, t
     anchor->pageCount = freeMemory/PAGESIZE;
 }
 
-/**
- * Allocate some virtual 4kb pages for given physical page frames.
- */
 void* IOMemoryManager::alloc(uint32_t size){
 
     lock.acquire();
@@ -71,7 +66,7 @@ void* IOMemoryManager::alloc(uint32_t size){
             // if block has more pages than requested, we split into 2 blocks
             } else {
             	// create header for new second block
-                IOMemFreeHeader* newHeader = (IOMemFreeHeader*) ((uint32_t)tmp + pageCnt * PAGESIZE);
+                auto *newHeader = (IOMemFreeHeader*) ((uint32_t)tmp + pageCnt * PAGESIZE);
                 
                 // check if new header will be anchor of the free list
                 // and update previous pointers
@@ -114,14 +109,9 @@ void* IOMemoryManager::alloc(uint32_t size){
     return nullptr;
 }
 
-/**
- * Free virtual IO memory.
- *
- * @param ptr IOMemInfo struct with all information regarding the memory block
- */
 void IOMemoryManager::free(void *ptr){
 	// get important parameters
-    uint32_t virtStart = (uint32_t) ptr;
+    auto virtStart = (uint32_t) ptr;
 
     // catch error
     if(virtStart < memoryStartAddress || virtStart >= memoryEndAddress){
@@ -143,7 +133,7 @@ void IOMemoryManager::free(void *ptr){
      */
 
     // create temporary header
-    IOMemFreeHeader* tmp = new IOMemFreeHeader;
+    auto* tmp = new IOMemFreeHeader;
     // zero it out
     memset((void*) tmp, 0, sizeof(IOMemFreeHeader));
     // the virtual address where this header should be placed is calculated later
@@ -154,7 +144,7 @@ void IOMemoryManager::free(void *ptr){
         virtHeaderAddress = (uint32_t) virtStart;
         // update pointer and values
         tmp->pageCount = pageCount;
-        tmp->prev = 0;
+        tmp->prev = nullptr;
         tmp->next = anchor;
         // copy header to the correct position -> will cause a pagefault and map the page
         memcpy((void*) virtHeaderAddress, tmp, sizeof(IOMemFreeHeader));
@@ -163,12 +153,12 @@ void IOMemoryManager::free(void *ptr){
         // set new anchor
         anchor = anchor->prev;
     // if all IO memory was allocated before, we have to start a new free list
-    } else if(anchor == 0) {
+    } else if(anchor == nullptr) {
     	// create a new anchor for a new free list
         virtHeaderAddress = (uint32_t) virtStart;
         tmp->pageCount = pageCount;
-        tmp->prev = 0;
-        tmp->next = 0;
+        tmp->prev = nullptr;
+        tmp->next = nullptr;
         // copy header to right position
         memcpy((void*) virtHeaderAddress, tmp, sizeof(IOMemFreeHeader));
         anchor = (IOMemFreeHeader*) virtHeaderAddress;
@@ -229,7 +219,7 @@ void IOMemoryManager::free(void *ptr){
 
     // copy the memory block to the correct position
     // header will be mapped through pagefault
-    IOMemFreeHeader *tmp2 = (IOMemFreeHeader*) virtHeaderAddress;
+    auto *tmp2 = (IOMemFreeHeader*) virtHeaderAddress;
     memcpy(tmp2, tmp, sizeof(IOMemFreeHeader));
     delete tmp;
 
@@ -237,9 +227,7 @@ void IOMemoryManager::free(void *ptr){
 
     lock.release();
 }
-/**
- * Print dump of the free list.
- */
+
 void IOMemoryManager::dump(){
     IOMemFreeHeader* tmp = anchor;
     printf("Dump of free IO-memory blocks\n\n");

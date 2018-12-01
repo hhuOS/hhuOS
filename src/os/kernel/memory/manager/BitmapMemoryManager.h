@@ -23,8 +23,11 @@
 #define DEBUG_BMM 0
 
 /**
- * BitmapMemoryManager - manages a given area of memory in blocks of given size using
- * a bitmap mechanism.
+ * Memory manager, that manages a given area of memory in blocks of given size using a bitmap mechanism.
+ *
+ * This memory manager does not allow allocation with an alignment.
+ *
+ * TODO: Implement realloc.
  *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
@@ -40,60 +43,76 @@ public:
     };
 
 protected:
-	// type of this memory manager
+
+	/**
+	 * The type of this memory manager.
+	 */
     ManagerType managerType = MISC;
-    // name of this memory manager for debugging purposes
-    String name;
-    // bitmap-array for free page frames
+
+    /**
+     * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
+     */
     uint32_t *freeBitmap;
-    // length of bitmap-array
+
+    /**
+     * The length of the bitmap array in bytes.
+     */
     uint32_t freeBitmapLength;
-    // size of a single memory block
+
+    /**
+     * The size of a single chunk of memory.
+     */
     uint32_t blockSize;
-    // index at which to start searching for free blocks
+
+    /**
+     * The index at which to start searching for free blocks.
+     * This allows to block a given number of chunks at the beginning of the managed memory area.
+     */
     uint32_t bmpSearchOffset;
-    // shall allocated memory be zeroed? -> needed if memory is allocated for PageTables
+
+    /**
+     * Indicates, whether or not allocated memory shall be zero-initialized.
+     * This is needed for page tables, that get allocated by a bitmap memory manager.
+     */
     bool zeroMemory = false;
 
 public:
+
     /**
-     * Constructor
+     * Constructor.
      *
      * @param memoryStartAddress Start address of the memory area to manage
      * @param memoryEndAddress End address of the memory area to manage
-     * @param name Name of this memory manager for debugging output
-     * @param zeroMemory Indicates if new allocated memory should be zeroed
-     * @param doUnmap Indicated if freed memory should be unmapped in paging system
+     * @param zeroMemory Indicates, whether or not new allocated memory should be zeroed
+     * @param doUnmap Indicates, whether or not freed memory should be unmapped in paging system
      */
-    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap,
-                        uint32_t blockSize = 128, String name = "BITMAP_MEMORY_MANAGER", bool zeroMemory = false);
+    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint32_t blockSize = 128,
+                        bool zeroMemory = false);
 
     /**
-     * Destructor
+     * Copy-constructor.
+     */
+    BitmapMemoryManager(const BitmapMemoryManager &copy) = delete;
+
+    /**
+     * Destructor.
      */
     ~BitmapMemoryManager() override;
 
     /**
-     * Allocate one or several blocks of memory
-     *
-     * @param size Size of memory that should be allocated - will be aligned to blockSize
-     * @return Start address of the alloctated memory
+     * Overriding function from memory manager.
      */
     void *alloc(uint32_t size) override;
 
     /**
-     * Free a one block of memory. It is important to notice
-     * that only one block of size blockSize will be freed and not
-     * the all the blocks that might have been allocated earlier.
-     *
-     * @param ptr Address of the memory block to free
+     * Overriding function from memory manager.
      */
     void free(void *ptr) override;
 
     /**
-     * Dump bitmap for debugging reasons
+     * Dump the bitmap.
      */
-    void dump();
+    void dump() override;
 };
 
 

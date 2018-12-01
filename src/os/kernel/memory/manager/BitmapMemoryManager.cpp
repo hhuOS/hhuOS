@@ -24,14 +24,10 @@ extern "C" {
 #include "lib/libc/string.h"
 }
 
-/**
- * Constructor
- */
-BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap,
-                                         uint32_t blockSize, String name, bool zeroMemory) :
+BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint32_t blockSize,
+                                         bool zeroMemory) :
         MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
     this->blockSize = blockSize;
-    this->name = name;
     this->bmpSearchOffset = 0;
     this->zeroMemory = zeroMemory;
 
@@ -54,9 +50,6 @@ BitmapMemoryManager::~BitmapMemoryManager() {
 	delete freeBitmap;
 }
 
-/**
- * Allocate one or several blocks of memory
- */
 void* BitmapMemoryManager::alloc(uint32_t size) {
     if(size == 0) {
         return nullptr;
@@ -155,51 +148,35 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
     return nullptr;
 }
 
-/**
- * Free a one block of memory. It is important to notice
- * that only one block of size blockSize will be freed and not
- * the all the blocks that might have been allocated earlier.
- */
 void BitmapMemoryManager::free(void *ptr) {
     uint32_t address = (uint32_t) ptr - memoryStartAddress;
 
     // check if pointer points to valid memory
     if((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
-#if DEBUG_BMM
-        printf("[%s] ERROR: Something went wrong freeing the page - %x\n", name, address);
-#endif
         return;
     }
 
     // find number of block corresponding to physical address
-    uint32_t blockNumber = (uint32_t) (address / blockSize);
+    auto blockNumber = (uint32_t) (address / blockSize);
     // calculate array idx to freeBitMap
-    uint16_t arrayIdx = (uint16_t) (blockNumber / 32);
+    auto arrayIdx = (uint16_t) (blockNumber / 32);
     // calculate shift index
-    uint8_t  idx = (uint8_t) (31 - (blockNumber % 32));
+    auto idx = (uint8_t) (31 - (blockNumber % 32));
 
     // set bit representing this block to 0
     freeBitmap[arrayIdx] &= ~(1 << idx);
     freeMemory += blockSize;
-
-#if DEBUG_BMM
-    printf("[%s] Free block at address %x", name, address);
-    printf(" Bitmap Index %d , Value_Offset %d\n", arrayIdx, (uint32_t)idx);
-#endif
 }
 
-/**
- * Dump bitmap for debugging reasons
- */
 void BitmapMemoryManager::dump() {
-    printf("Bitmap of memory manager %s\n", name);
+    printf("  BitmapMemoryManager: Free bitmap dump\n");
+    printf("  ================\n");
 
     for(uint16_t idx = 0; idx <= freeBitmapLength; idx++) {
         if(idx % 4 == 0){
             printf("\n");
         }
+
         printf("%x", freeBitmap[idx]);
-
-
     }
 }

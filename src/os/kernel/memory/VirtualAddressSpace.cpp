@@ -30,7 +30,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
 	bootstrapAddressSpace = false;
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, FreeListMemoryManager *userSpaceHeapManager) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, MemoryManager *userSpaceHeapManager) {
 	// use the basePageDirectory here since it is not possible to create a new one right now
 	this->pageDirectory = pageDirectory;
 	// get the global kernel heap memory manager
