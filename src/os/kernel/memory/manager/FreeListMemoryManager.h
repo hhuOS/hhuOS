@@ -44,7 +44,7 @@ private:
 
     Spinlock lock;
 
-    FLHeader* firstChunk;
+    FLHeader* firstChunk = nullptr;
 
     /**
      * Find the next chunk of memory with a required size.
@@ -63,7 +63,10 @@ private:
      */
     FLHeader *merge(FLHeader *origin);
 
+    static const constexpr char *NAME = "freelist";
+
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
+
     static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
 
 private:
@@ -80,28 +83,42 @@ private:
      * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
      */
     void* allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
+
+    /**
+     * Implementation of the free algorithm, that is used in the free-functions.
+     *
+     * @param ptr Pointer to the chunk of memory to be freed
+     */
     void freeAlgorithm(void *ptr);
 
 public:
 
+    MEMORY_MANAGER_IMPLEMENT_CLONE(FreeListMemoryManager);
+
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
-     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
      */
-    FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap);
+    FreeListMemoryManager();
 
     /**
      * Copy-constructor.
      */
-    FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
+    FreeListMemoryManager(const FreeListMemoryManager &copy);
 
     /**
      * Destructor.
      */
     ~FreeListMemoryManager() override = default;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
     /**
      * Overriding function from MemoryManager.

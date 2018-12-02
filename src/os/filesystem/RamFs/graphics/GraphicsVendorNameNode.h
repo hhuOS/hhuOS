@@ -36,7 +36,7 @@ public:
     explicit GraphicsVendorNameNode(GraphicsNode::GraphicsMode mode);
 
     /**
-     * Copy-Constructor.
+     * Copy-constructor.
      */
     GraphicsVendorNameNode(const GraphicsVendorNameNode &copy) = delete;
 

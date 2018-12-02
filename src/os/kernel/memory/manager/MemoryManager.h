@@ -17,7 +17,11 @@
 #ifndef __KERNEL_MEMORY_MEMORYMANAGER_H__
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
+#define MEMORY_MANAGER_IMPLEMENT_CLONE(TYPE) MemoryManager *clone() const override { return new TYPE(*this); }
+
 #include <cstdint>
+#include "lib/String.h"
+#include "lib/util/HashMap.h"
 #include "lib/libc/printf.h"
 #include "kernel/cpu/Cpu.h"
 
@@ -28,44 +32,90 @@ extern "C" {
 /**
  * Interface for every memory manager.
  *
+ * Implementation of the prototype pattern is based on
+ * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
+ *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
 class MemoryManager {
 
+private:
+
+    /**
+     * Contains prototypes for all available Memory managers.
+     */
+    static Util::HashMap<String, MemoryManager*> prototypeTable;
+
+public:
+
+    /**
+     * Create a copy of this instance.
+     *
+     * @return A pointer to the copy
+     */
+    virtual MemoryManager *clone() const = 0;
+
+    /**
+     * Get the name, under which the driver will be registered and usable for the user.
+     */
+    virtual String getName() = 0;
+
+    /**
+     * Create a new instance of a given subtype of FsDriver.
+     * Throws an exception, if the type is unknown.
+     *
+     * @param type The type
+     *
+     * @return A pointer to newly created instance
+     */
+    static MemoryManager *createInstance(String type);
+
+    /**
+     * Add a new type of MemoryManager.
+     * Instances of this type can then be created by calling 'MemorManager::createInstance(type)'.
+     *
+     * @param type The type
+     * @param driver Instance, that will be used as a prototype for further instances
+     */
+    static void registerManagerType(MemoryManager *driver);
+
+    /**
+     * Remove a type of MemoryManager.
+     *
+     * @param type The type
+     */
+    static void deregisterManagerType(String type);
+
 protected:
-    uint32_t memoryStartAddress;
-    uint32_t memoryEndAddress;
+
+    uint32_t memoryStartAddress = 0;
+    uint32_t memoryEndAddress = 0;
 
     uint32_t freeMemory = 0;
 
-    bool doUnmap;
+    bool doUnmap = false;
 
 public:
 
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
-     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
      */
-    MemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-        this->memoryStartAddress = memoryStartAddress;
-        this->memoryEndAddress = memoryEndAddress;
-        this->freeMemory = memoryEndAddress - memoryStartAddress;
-        this->doUnmap = doUnmap;
-    }
-
-    /**
-     * Copy-constructor.
-     */
-    MemoryManager(const MemoryManager &copy) = delete;
+    MemoryManager() = default;
 
     /**
      * Destructor.
      */
     virtual ~MemoryManager() = default;
+
+    /**
+     * Initialize the memory manager.
+     *
+     * @param memoryStartAddress Start address of the memory area to manage
+     * @param memoryEndAddress End address of the memory area to manage
+     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
+     */
+    virtual void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap);
 
     /**
      * Allocate a chunk of memory of a given size.
@@ -74,7 +124,7 @@ public:
      *
      * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
      */
-    virtual void *alloc(uint32_t size) { return nullptr; };
+    virtual void *alloc(uint32_t size);
 
     /**
 	 * Allocate an aligned chunk of memory of a given size.
@@ -88,11 +138,7 @@ public:
      *
 	 * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
 	 */
-    virtual void *alloc(uint32_t size, uint32_t alignment) {
-        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
-
-        return nullptr;
-    };
+    virtual void *alloc(uint32_t size, uint32_t alignment);
 
     /**
      * Reallocate a block of memory of a given size.
@@ -107,11 +153,7 @@ public:
      *
      * @return Pointer to the reallocated chunk of memory or nullptr if no chunk with the required size is available
      */
-    virtual void *realloc(void *ptr, uint32_t size) {
-        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
-
-        return nullptr;
-    };
+    virtual void *realloc(void *ptr, uint32_t size);
 
     /**
      * Reallocate a block of memory of a given size. The reallocated block will be aligned to a given alignment.
@@ -125,18 +167,14 @@ public:
      *
      * @return Pointer to the reallocated chunk of memory or nullptr if no chunk with the required size is available
      */
-    virtual void *realloc(void *ptr, uint32_t size, uint32_t alignment) {
-        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION);
-
-        return nullptr;
-    };
+    virtual void *realloc(void *ptr, uint32_t size, uint32_t alignment);
 
     /**
      * Free an allocated block of memory.
      *
      * @param ptr Pointer to chunk of memory memory to be freed
      */
-    virtual void free(void *ptr) {};
+    virtual void free(void *ptr);
 
     /**
 	 * Free an allocated block of memory, that has been allocated with an alignment.
@@ -144,35 +182,27 @@ public:
      * @param ptr Pointer to chunk of memory memory to be freed
 	 * @param alignment Alignment of the chunk
 	 */
-    virtual void free(void *ptr, uint32_t alignment) { Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION); };
+    virtual void free(void *ptr, uint32_t alignment);
 
     /**
      * Dump the data structure, that a specific implementation uses to keep track of free/allocated memory.
      */
-    virtual void dump() {
-        printf("MemoryManager: dump() not implemented!\n");
-    }
+    virtual void dump();
 
     /**
      * Get the start address of the managed memory.
      */
-    uint32_t getStartAddress() {
-        return memoryStartAddress;
-    }
+    uint32_t getStartAddress();
 
     /**
      * Get the end address of the managed memory.
      */
-    uint32_t getEndAddress() {
-        return memoryEndAddress;
-    }
+    uint32_t getEndAddress();
 
    /**
     * Get the amount of free memory.
     */
-    uint32_t getFreeMemory() {
-        return freeMemory;
-    }
+    uint32_t getFreeMemory();
 };
 
 #endif

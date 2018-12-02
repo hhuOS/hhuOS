@@ -26,15 +26,26 @@ extern "C" {
     #include "lib/libc/string.h"
 }
 
-IOMemoryManager::IOMemoryManager() : MemoryManager(VIRT_IO_START, VIRT_IO_END, true), ioMemoryMap(1097) {
-
-    freeMemory = memoryEndAddress - memoryStartAddress;
+IOMemoryManager::IOMemoryManager() : MemoryManager() {
+    MemoryManager::init(VIRT_IO_START, VIRT_IO_END, true);
 
     // start of memory area -> create anchor of free list
     anchor = (IOMemFreeHeader*) (memoryStartAddress);
     anchor->next = nullptr;
     anchor->prev = nullptr;
     anchor->pageCount = freeMemory/PAGESIZE;
+}
+
+IOMemoryManager::IOMemoryManager(const IOMemoryManager &copy) : IOMemoryManager() {
+
+}
+
+void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
+}
+
+String IOMemoryManager::getName() {
+    return NAME;
 }
 
 void* IOMemoryManager::alloc(uint32_t size){

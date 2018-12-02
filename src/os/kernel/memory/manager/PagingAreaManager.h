@@ -28,12 +28,28 @@
  */
 class PagingAreaManager : public BitmapMemoryManager {
 
+private:
+
+    static const constexpr char *NAME = "pagingareamanager";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(PagingAreaManager);
 
 	/**
 	 * Constructor.
 	 */
     PagingAreaManager();
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
 };
 

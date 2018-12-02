@@ -18,8 +18,8 @@
 #include "PagingAreaManager.h"
 #include "kernel/memory/Paging.h"
 
-PagingAreaManager::PagingAreaManager()
-        : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false, PAGESIZE, true) {
+PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(PAGESIZE, true) {
+    BitmapMemoryManager::init(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false);
 
     managerType = PAGING_AREA_MANAGER;
 
@@ -34,4 +34,12 @@ PagingAreaManager::PagingAreaManager()
 
     // subtract already reserved memory from free memory
     freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
+}
+
+void PagingAreaManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    // Do nothing. The PagingAreaManager will always be initialized by the kernel and has hardcoded values.
+}
+
+String PagingAreaManager::getName() {
+    return NAME;
 }

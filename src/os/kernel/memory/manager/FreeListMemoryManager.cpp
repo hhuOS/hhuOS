@@ -22,8 +22,17 @@
 #include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/MemLayout.h"
 
-FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap)
-        : MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
+FreeListMemoryManager::FreeListMemoryManager() : MemoryManager() {
+    
+}
+
+FreeListMemoryManager::FreeListMemoryManager(const FreeListMemoryManager &copy) : FreeListMemoryManager() {
+
+}
+
+void FreeListMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
+
     if(freeMemory < sizeof(FLHeader)) {
         // Available Kernel-Memory is too small for a Chunk
         firstChunk = nullptr;
@@ -35,6 +44,10 @@ FreeListMemoryManager::FreeListMemoryManager(uint32_t memoryStartAddress, uint32
         firstChunk->next = nullptr;
         firstChunk->prev = nullptr;
     }
+}
+
+String FreeListMemoryManager::getName() {
+    return NAME;
 }
 
 void* FreeListMemoryManager::alloc(uint32_t size) {

@@ -24,14 +24,23 @@ extern "C" {
 #include "lib/libc/string.h"
 }
 
-BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint32_t blockSize,
-                                         bool zeroMemory) :
-        MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
-    this->blockSize = blockSize;
-    this->bmpSearchOffset = 0;
-    this->zeroMemory = zeroMemory;
+BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) : MemoryManager(),
+        blockSize(blockSize),
+        bmpSearchOffset(0),
+        zeroMemory(zeroMemory) {
 
-    freeMemory = memoryEndAddress - memoryStartAddress;
+}
+
+BitmapMemoryManager::BitmapMemoryManager(const BitmapMemoryManager &copy) : BitmapMemoryManager() {
+
+}
+
+BitmapMemoryManager::~BitmapMemoryManager() {
+	delete freeBitmap;
+}
+
+void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
 
     freeBitmapLength = (freeMemory / blockSize) / 32;
 
@@ -46,8 +55,8 @@ BitmapMemoryManager::BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t m
     memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 }
 
-BitmapMemoryManager::~BitmapMemoryManager() {
-	delete freeBitmap;
+String BitmapMemoryManager::getName() {
+    return NAME;
 }
 
 void* BitmapMemoryManager::alloc(uint32_t size) {

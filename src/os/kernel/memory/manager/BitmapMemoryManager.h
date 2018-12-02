@@ -20,8 +20,6 @@
 #include "MemoryManager.h"
 #include <lib/String.h>
 
-#define DEBUG_BMM 0
-
 /**
  * Memory manager, that manages a given area of memory in blocks of given size using a bitmap mechanism.
  *
@@ -76,28 +74,38 @@ protected:
      */
     bool zeroMemory = false;
 
+private:
+
+    static const constexpr char *NAME = "bitmap";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(BitmapMemoryManager);
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
-     * @param zeroMemory Indicates, whether or not new allocated memory should be zeroed
-     * @param doUnmap Indicates, whether or not freed memory should be unmapped in paging system
      */
-    BitmapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint32_t blockSize = 128,
-                        bool zeroMemory = false);
+    explicit BitmapMemoryManager(uint32_t blockSize = 128, bool zeroMemory = false);
 
     /**
      * Copy-constructor.
      */
-    BitmapMemoryManager(const BitmapMemoryManager &copy) = delete;
+    BitmapMemoryManager(const BitmapMemoryManager &copy);
 
     /**
      * Destructor.
      */
     ~BitmapMemoryManager() override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
 
     /**
      * Overriding function from memory manager.

@@ -19,10 +19,12 @@
 
 #include "kernel/memory/Paging.h"
 
-PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress)
-        : BitmapMemoryManager(memoryStartAddress, memoryEndAddress, false, PAGESIZE, false) {
-
+PageFrameAllocator::PageFrameAllocator() : BitmapMemoryManager(PAGESIZE, false) {
     managerType = PAGE_FRAME_ALLOCATOR;
+}
+
+void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    BitmapMemoryManager::init(memoryStartAddress, memoryEndAddress, false);
 
     // read out how much memory is already used by the system and the initrd
     uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
@@ -38,6 +40,10 @@ PageFrameAllocator::PageFrameAllocator(uint32_t memoryStartAddress, uint32_t mem
 
     // subtract already reserved memory from free memory
     freeMemory -= (maxIndex * 32 * blockSize + 2 * blockSize);
+}
+
+String PageFrameAllocator::getName() {
+    return NAME;
 }
 
 

@@ -36,7 +36,7 @@ public:
     explicit GraphicsResolutionsNode(GraphicsNode::GraphicsMode mode);
 
     /**
-     * Copy-Constructor.
+     * Copy-constructor.
      */
     GraphicsResolutionsNode(const GraphicsResolutionsNode &copy) = delete;
 

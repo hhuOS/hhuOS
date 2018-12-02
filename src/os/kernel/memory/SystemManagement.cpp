@@ -116,7 +116,8 @@ void SystemManagement::init() {
     // Physical Page Frame Allocator is initialized to be possible to allocate
     // physical memory (page frames)
     calcTotalPhysicalMemory();
-    pageFrameAllocator = new PageFrameAllocator(0, totalPhysMemory);
+    pageFrameAllocator = new PageFrameAllocator();
+    pageFrameAllocator->init(0, totalPhysMemory, false);
 
 #if DEBUG_PM
     printf("[PAGINGMANAGER] 4KB paging is activated \n");
@@ -439,8 +440,8 @@ void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 SystemManagement& SystemManagement::getInstance() {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
-        static FreeListMemoryManager heapMemoryManager(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd),
-                VIRT_KERNEL_HEAP_END, true);
+        static FreeListMemoryManager heapMemoryManager;
+        heapMemoryManager.init(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END, true);
         // set the kernel heap memory manager to this manager
 		kernelMemoryManager = &heapMemoryManager;
         // use the new memory manager to alloc memory for the instance of SystemManegement

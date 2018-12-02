@@ -17,9 +17,17 @@
 #include <kernel/memory/MemLayout.h>
 #include "IsaDmaMemoryManager.h"
 
-IsaDmaMemoryManager::IsaDmaMemoryManager() : BitmapMemoryManager(ISA_DMA_START_ADDRESS, ISA_DMA_END_ADDRESS,
-                                                                 false, ISA_DMA_BUF_SIZE, true) {
+IsaDmaMemoryManager::IsaDmaMemoryManager() : BitmapMemoryManager(ISA_DMA_BUF_SIZE, true) {
+    BitmapMemoryManager::init(ISA_DMA_START_ADDRESS, ISA_DMA_END_ADDRESS, false);
 
     // Reserve every block > 512 KB.
     freeBitmap[0] = 0x00ffffff;
+}
+
+void IsaDmaMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    // Do nothing. The IsaDmaMemoryManager will always be initialized by the kernel and has hardcoded values.
+}
+
+String IsaDmaMemoryManager::getName() {
+    return NAME;
 }

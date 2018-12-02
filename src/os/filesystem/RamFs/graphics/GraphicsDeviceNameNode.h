@@ -36,7 +36,7 @@ public:
     explicit GraphicsDeviceNameNode(GraphicsNode::GraphicsMode mode);
 
     /**
-     * Copy-Constructor.
+     * Copy-constructor.
      */
     GraphicsDeviceNameNode(const GraphicsDeviceNameNode &copy) = delete;
 

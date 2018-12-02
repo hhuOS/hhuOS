@@ -14,25 +14,38 @@ private:
 
     uint32_t currentPosition;
 
+    Spinlock lock;
+
+    static const constexpr char *NAME = "staticheapmanager";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(StaticHeapMemoryManager);
 
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
      */
-    StaticHeapMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap = false);
+    StaticHeapMemoryManager();
 
     /**
      * Copy-constructor.
      */
-    StaticHeapMemoryManager(const StaticHeapMemoryManager &copy) = delete;
+    StaticHeapMemoryManager(const StaticHeapMemoryManager &copy);
 
     /**
      * Destructor.
      */
     ~StaticHeapMemoryManager() override = default;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
     /**
      * Overriding function from MemoryManager.

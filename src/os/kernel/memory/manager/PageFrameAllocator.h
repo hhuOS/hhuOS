@@ -26,9 +26,15 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
-class PageFrameAllocator : public BitmapMemoryManager{
+class PageFrameAllocator : public BitmapMemoryManager {
+
+private:
+
+    static const constexpr char *NAME = "pageframeallocator";
 
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(PageFrameAllocator);
 
 	/**
 	 * Constructor.
@@ -36,7 +42,17 @@ public:
 	 * @param memoryStartAddress Start address of the memory area to manage
 	 * @param memoryEndAddress End address of the memory area to manage
 	 */
-    PageFrameAllocator(uint32_t memoryStartAddress, uint32_t memoryEndAddress);
+    PageFrameAllocator();
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
 };
 

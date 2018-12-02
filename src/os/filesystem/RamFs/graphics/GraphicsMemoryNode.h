@@ -36,7 +36,7 @@ public:
     explicit GraphicsMemoryNode(GraphicsNode::GraphicsMode mode);
 
     /**
-     * Copy-Constructor.
+     * Copy-constructor.
      */
     GraphicsMemoryNode(const GraphicsMemoryNode &copy) = delete;
 

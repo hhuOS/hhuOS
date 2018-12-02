@@ -38,32 +38,39 @@ struct BuddyNode {
 class BuddyMemoryManager : public MemoryManager {
 
 private:
+
 	uint8_t minOrder = 0;
 	uint8_t maxOrder = 0;
 
 	struct BuddyNode **freeList = nullptr;
 
+	static const constexpr char *NAME = "buddy";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(BuddyMemoryManager);
 
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
-     * @param doUnmap Indicates, whether or not the manager should unmap freed memory by itself
-     * @param minOrder Minimum order (power of two), that the chunks of memory have
      */
-	BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint8_t minOrder = 4);
+	explicit BuddyMemoryManager(uint8_t minOrder = 4);
 
-	/**
-	 * Copy-constructor.
-	 */
-	BuddyMemoryManager(const BuddyMemoryManager &copy) = delete;
+	BuddyMemoryManager(const BuddyMemoryManager &copy);
 
 	/**
 	 * Destructor,
 	 */
 	~BuddyMemoryManager() override;
+
+	/**
+     * Overriding function from MemoryManager.
+     */
+	void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+	String getName() override;
 
 	/**
 	 * Overriding function from MemoryManager.

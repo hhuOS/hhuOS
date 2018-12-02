@@ -27,12 +27,28 @@
  */
 class IsaDmaMemoryManager : public BitmapMemoryManager {
 
+private:
+
+    static const constexpr char *NAME = "isadma";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(IsaDmaMemoryManager);
 
 	/**
 	 * Constructor.
 	 */
     IsaDmaMemoryManager();
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
 
     static const constexpr uint32_t ISA_DMA_BUF_SIZE = 0x10000;
 };

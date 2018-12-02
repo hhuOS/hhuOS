@@ -62,7 +62,8 @@ template <typename T>
 MemoryManagerTest<T>::MemoryManagerTest(uint32_t memorySize, uint32_t numAllocs, uint32_t maxAllocSize) :
         numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
     memory = new char[memorySize];
-    manager = new T((uint32_t) memory, ((uint32_t) memory) + memorySize, false);
+    manager = new T();
+    manager->init((uint32_t) memory, ((uint32_t) memory) + memorySize, false);
     objects = new void*[numAllocs];
 
     random = Random(maxAllocSize - 1);

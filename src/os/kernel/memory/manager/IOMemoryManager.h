@@ -58,7 +58,11 @@ private:
 
     Spinlock lock;
 
+    static const constexpr char *NAME = "iomanager";
+
 public:
+
+    MEMORY_MANAGER_IMPLEMENT_CLONE(IOMemoryManager);
 
     /**
      * Constructor.
@@ -68,7 +72,7 @@ public:
     /**
      * Copy-constructor.
      */
-    IOMemoryManager(const MemoryManager &copy) = delete;
+     IOMemoryManager(const IOMemoryManager &copy);
 
     /**
      * Destructor.
@@ -78,7 +82,17 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void * alloc(uint32_t size) override;
+    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    String getName() override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    void *alloc(uint32_t size) override;
 
     /**
      * Overriding function from MemoryManager.

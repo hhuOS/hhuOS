@@ -21,32 +21,13 @@ extern "C" {
 #include "lib/libc/printf.h"
 }
 
-BuddyMemoryManager::BuddyMemoryManager(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap, uint8_t minOrder) :
-        MemoryManager(memoryStartAddress, memoryEndAddress, doUnmap) {
+BuddyMemoryManager::BuddyMemoryManager(uint8_t minOrder) :
+        MemoryManager(),
+        minOrder(minOrder) {
+}
 
-	this->minOrder = minOrder;
+BuddyMemoryManager::BuddyMemoryManager(const BuddyMemoryManager &copy) : BuddyMemoryManager() {
 
-	// align startAddress - endAddress will be aligned through maxOrder
-	uint32_t tmp = memoryStartAddress % (1 << minOrder);
-	memoryStartAddress -= tmp;
-
-	this->maxOrder = 1;
-	for(uint32_t i = 0; i < 32; i++) {
-		if(((uint32_t) 1 << i) > freeMemory) {
-			this->maxOrder = (uint8_t) (i - 1);
-			break;
-		}
-	}
-
-    uint32_t size = (maxOrder + 1) * sizeof(BuddyNode*);
-    this->freeList = (BuddyNode**) new char[size];
-
-    memset(this->freeList, 0, size);
-
-    // set initial freeList
-    this->freeList[maxOrder] = (BuddyNode*) new char[sizeof(BuddyNode)];
-    this->freeList[maxOrder]->addr = (void*) this->memoryStartAddress;
-    this->freeList[maxOrder]->next = nullptr;
 }
 
 BuddyMemoryManager::~BuddyMemoryManager() {
@@ -62,6 +43,35 @@ BuddyMemoryManager::~BuddyMemoryManager() {
             tmp = (BuddyNode*) addr;
         } while(tmp);
     }
+}
+
+void BuddyMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
+    MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
+
+    // align startAddress; endAddress will be aligned through maxOrder
+    this->memoryStartAddress -= memoryStartAddress % (1 << minOrder);
+
+    this->maxOrder = 1;
+    for(uint32_t i = 0; i < 32; i++) {
+        if(((uint32_t) 1 << i) > freeMemory) {
+            this->maxOrder = (uint8_t) (i - 1);
+            break;
+        }
+    }
+
+    uint32_t size = (maxOrder + 1) * sizeof(BuddyNode*);
+    this->freeList = (BuddyNode**) new char[size];
+
+    memset(this->freeList, 0, size);
+
+    // set initial freeList
+    this->freeList[maxOrder] = (BuddyNode*) new char[sizeof(BuddyNode)];
+    this->freeList[maxOrder]->addr = (void*) this->memoryStartAddress;
+    this->freeList[maxOrder]->next = nullptr;
+}
+
+String BuddyMemoryManager::getName() {
+    return NAME;
 }
 
 void* BuddyMemoryManager::alloc(uint32_t size) {
