@@ -19,6 +19,7 @@
 
 
 #include "kernel/threads/Thread.h"
+#include "lib/Random.h"
 
 
 /**
@@ -31,17 +32,15 @@ class HeapTestApp : public Thread {
 
 private:
 
-    static Logger &log;
-
     Random *random;
     unsigned int **objects;
     unsigned int *stats;
 
-    void primitiveAllocs();
-    void arrayAllocs();
+    void performAllocs();
     void shuffle();
 
 public:
+
     HeapTestApp();
     HeapTestApp(const HeapTestApp &other) = delete;
     ~HeapTestApp() override ;

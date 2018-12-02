@@ -31,6 +31,7 @@
 class IOMemoryTestApp : public Thread {
 
 private:
+
     Random *random;
     void **objects;
     unsigned int *stats;
@@ -39,6 +40,7 @@ private:
     void shuffle();
 
 public:
+
     IOMemoryTestApp();
     IOMemoryTestApp(const IOMemoryTestApp &other) = delete;
     ~IOMemoryTestApp() override ;
@@ -47,4 +49,4 @@ public:
 };
 
 
-#endif //HHUOS_IOMEMORYTESTAPP_H
+#endif

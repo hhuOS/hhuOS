@@ -41,10 +41,9 @@ IOMemoryTestApp::~IOMemoryTestApp() {
 }
 
 void IOMemoryTestApp::runTest() {
-    //SystemManagement::getInstance().dumpFreeIOMemBlocks();
-
     unsigned int size = 0;
-    for(uint8_t i=0; i < NUM_OF_ALLOCS; i++) {
+
+    for(uint8_t i = 0; i < NUM_OF_ALLOCS; i++) {
         switch(random->rand(3)) {
             case 0: // single page
                 size = 1;
@@ -86,16 +85,21 @@ void IOMemoryTestApp::shuffle() {
 void IOMemoryTestApp::run() {
     TextDriver *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
     Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
-    *stream << "_____ IOMemory Demo App _____" << endl << endl;
+
+    *stream << "===MemoryManagerTest===" << endl;
+    *stream << "===Testing IOMemoryManager===" << endl << endl;
+    *stream << "Performing " << NUM_OF_ALLOCS << " allocations." << endl << endl;
 
     uint32_t freeBefore = SystemManagement::getInstance().getIOMemoryManager()->getFreeMemory();
     runTest();
     uint32_t freeAfter = SystemManagement::getInstance().getIOMemoryManager()->getFreeMemory();
-    *stream << "Small page allocs: " << stats[0] << endl;
-    *stream << "At least 2 and at most 10 pages: " << stats[1] << endl;
-    *stream << "At least 20 pages: " << stats[2] << endl << endl;
-    if(freeAfter - freeBefore != 0) {
-        *stream << "Ups. Lost a few bytes. Leak: " << (freeAfter - freeBefore) << " Bytes" << endl;
+
+    *stream << "Allocs with only a single page page: " << stats[0] << endl;
+    *stream << "Allocs with at least 2 and at most 10 pages: " << stats[1] << endl;
+    *stream << "Allocs with at least 20 pages: " << stats[2] << endl << endl;
+
+    if(freeBefore - freeAfter != 0) {
+        *stream << "*** MEMORY LEAK DETECTED ***" << endl << "Leak: " << (freeBefore - freeAfter) << " Bytes" << endl << endl;
     }
 
     *stream << "Press [ENTER] to return" << endl;
