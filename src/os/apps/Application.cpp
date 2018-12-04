@@ -117,52 +117,25 @@ void Application::startHeapDemo() {
 }
 
 void Application::startMemoryManagerDemo() {
-    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
     TextDriver *stream = graphicsService->getTextDriver();
 
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    *stream << "===MemoryManagerTest===" << endl;
-    *stream << "===Testing FreeListMemoryManager===" << endl << endl;
-    MemoryManagerTest freeListTest("FreeListMemoryManager", 1048576, 128);
-    freeListTest.run();
+    String tests[4] {
+            "FreeListMemoryManager", "BuddyMemoryManager", "BitmapMemoryManager", "StaticHeapMemoryManager"
+    };
 
-    printf("\nPress [ENTER] to return");
-    while (!kb->isKeyPressed(KeyEvent::RETURN));
-    while (kb->isKeyPressed(KeyEvent::RETURN));
+    for(const String &test : tests) {
+        if(test == "BitmapMemoryManager") {
+            MemoryManagerTest memoryTest(test, 1048576, 128, 128);
+            memoryTest.run();
+        } else {
+            MemoryManagerTest memoryTest(test, 1048576, 128, 8192);
+            memoryTest.run();
+        }
 
-    stream->clear();
-
-    *stream << "===MemoryManagerTest===" << endl;
-    *stream << "===Testing BuddyMemoryManager===" << endl << endl;
-    MemoryManagerTest buddyTest("BuddyMemoryManager", 1048576, 128);
-    buddyTest.run();
-
-    printf("\nPress [ENTER] to return");
-    while (!kb->isKeyPressed(KeyEvent::RETURN));
-    while (kb->isKeyPressed(KeyEvent::RETURN));
-
-    stream->clear();
-
-    *stream << "===MemoryManagerTest===" << endl;
-    *stream << "===Testing BitmapMemoryManager===" << endl << endl;
-    MemoryManagerTest bitmapTest("BitmapMemoryManager", 1048576, 128, 128);
-    bitmapTest.run();
-
-    printf("\nPress [ENTER] to return");
-    while (!kb->isKeyPressed(KeyEvent::RETURN));
-    while (kb->isKeyPressed(KeyEvent::RETURN));
-
-    stream->clear();
-
-    *stream << "===MemoryManagerTest===" << endl;
-    *stream << "===Testing StaticHeapMemoryManager===" << endl << endl;
-    MemoryManagerTest staticHeapTest("StaticHeapMemoryManager", 1048576, 128, 128);
-    staticHeapTest.run();
-
-    printf("\nPress [ENTER] to return");
-    while (!kb->isKeyPressed(KeyEvent::RETURN));
-    while (kb->isKeyPressed(KeyEvent::RETURN));
+        stream->clear();
+    }
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
 

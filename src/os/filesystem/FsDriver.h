@@ -27,9 +27,6 @@
  * Every filesystem-driver needs to implement the functions,
  * that are specified by this class. The FileSystem-class can then communicate
  * with the respective driver.
- *
- * Implementation of the prototype pattern is based on
- * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
  */
 class FsDriver : public Prototype {
 

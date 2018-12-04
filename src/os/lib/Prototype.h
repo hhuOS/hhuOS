@@ -22,6 +22,10 @@
 #include <lib/util/HashMap.h>
 #include "String.h"
 
+/**
+ * Implementation of the prototype pattern, based on
+ * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
+ */
 class Prototype {
 
 private:

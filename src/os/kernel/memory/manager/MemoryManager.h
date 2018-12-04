@@ -31,9 +31,6 @@ extern "C" {
 /**
  * Interface for every memory manager.
  *
- * Implementation of the prototype pattern is based on
- * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
- *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
@@ -58,7 +55,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~MemoryManager() = default;
+    ~MemoryManager() override = default;
 
     /**
      * Initialize the memory manager.

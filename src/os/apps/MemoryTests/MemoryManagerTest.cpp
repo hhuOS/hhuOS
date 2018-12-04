@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <devices/input/Keyboard.h>
+#include <kernel/services/InputService.h>
 #include "MemoryManagerTest.h"
 
 MemoryManagerTest::MemoryManagerTest(const String &memoryManagerType, uint32_t memorySize, uint32_t numAllocs,
@@ -32,6 +34,9 @@ MemoryManagerTest::~MemoryManagerTest() {
 }
 
 void MemoryManagerTest::run() {
+    printf("===MemoryManagerTest===\n");
+    printf("===Testing %s===\n\n", (const char*) manager->getName());
+
     printf("Start Address: 0x%08x, End Address: 0x%08x\n\n", manager->getStartAddress(), manager->getEndAddress());
 
     printf("Starting Test:\n\n");
@@ -41,22 +46,26 @@ void MemoryManagerTest::run() {
 
     bool ret = testAlloc();
 
-    if(!ret) {
-        return;
+    if(ret) {
+        printf(" Finished!\n");
+        printf("Freeing allocated memory...");
+
+        uint32_t freeAfter = manager->getFreeMemory();
+
+        printf(" Finished!\n\n");
+
+        if (freeBefore - freeAfter != 0) {
+            printf("*** MEMORY LEAK DETECTED ***\nLeak: %u Bytes\n", (freeBefore - freeAfter));
+        } else {
+            printf("Tested alloc successfully!\n");
+        }
     }
 
-    printf(" Finished!\n");
-    printf("Freeing allocated memory...");
+    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
 
-    uint32_t freeAfter = manager->getFreeMemory();
-
-    printf(" Finished!\n\n");
-
-    if(freeBefore - freeAfter != 0) {
-        printf("*** MEMORY LEAK DETECTED ***\nLeak: %u Bytes\n", (freeBefore - freeAfter));
-    } else {
-        printf("Tested alloc successfully!\n");
-    }
+    printf("\nPress [ENTER] to return");
+    while (!kb->isKeyPressed(KeyEvent::RETURN));
+    while (kb->isKeyPressed(KeyEvent::RETURN));
 }
 
 /**
