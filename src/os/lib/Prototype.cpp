@@ -22,7 +22,7 @@ Prototype *Prototype::createInstance(String type) {
     String key = type.toLowerCase();
 
     if(prototypeTable.containsKey(key)) {
-        return prototypeTable.get(type)->clone();
+        return prototypeTable.get(key)->clone();
     }
 
     const char* errorMessage = (const char*) String::format("No prototype registered for '%s'!", (const char*) type);
@@ -32,14 +32,15 @@ Prototype *Prototype::createInstance(String type) {
     return nullptr;
 }
 
-void Prototype::registerPrototype(Prototype *driver) {
-    String key = driver->getName().toLowerCase();
+void Prototype::registerPrototype(Prototype *prototype) {
+    String key = prototype->getName().toLowerCase();
 
-    prototypeTable.put(key, driver);
+    prototypeTable.put(key, prototype);
 }
 
 void Prototype::deregisterPrototype(String type) {
     if(prototypeTable.containsKey(type)) {
+        delete prototypeTable.get(type);
         prototypeTable.remove(type);
     }
 }

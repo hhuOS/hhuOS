@@ -39,7 +39,7 @@ private:
      */
     static VirtualNode *getChildByName(VirtualNode *parent, const String &path);
 
-    static const constexpr char *NAME = "ramfs";
+    static const constexpr char *NAME = "RamFsDriver";
 
 protected:
 

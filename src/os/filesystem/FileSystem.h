@@ -197,7 +197,7 @@ public:
 
     static constexpr const char *SEPARATOR = "/";
 
-    static constexpr const char *TYPE_RAM_FS = "ramfs";
+    static constexpr const char *TYPE_RAM_FS = "RamFsDriver";
 };
 
 #endif

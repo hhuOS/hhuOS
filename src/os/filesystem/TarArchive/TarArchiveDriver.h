@@ -29,7 +29,7 @@ private:
 
     Util::Array<Tar::Header*> fileHeaders{};
 
-    static const constexpr char *NAME = "tar";
+    static const constexpr char *NAME = "TarArchiveDriver";
 
 public:
 

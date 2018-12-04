@@ -124,7 +124,7 @@ void Application::startMemoryManagerDemo() {
 
     *stream << "===MemoryManagerTest===" << endl;
     *stream << "===Testing FreeListMemoryManager===" << endl << endl;
-    MemoryManagerTest<FreeListMemoryManager> freeListTest(1048576, 128);
+    MemoryManagerTest freeListTest("FreeListMemoryManager", 1048576, 128);
     freeListTest.run();
 
     printf("\nPress [ENTER] to return");
@@ -135,7 +135,7 @@ void Application::startMemoryManagerDemo() {
 
     *stream << "===MemoryManagerTest===" << endl;
     *stream << "===Testing BuddyMemoryManager===" << endl << endl;
-    MemoryManagerTest<BuddyMemoryManager> buddyTest(1048576, 128);
+    MemoryManagerTest buddyTest("BuddyMemoryManager", 1048576, 128);
     buddyTest.run();
 
     printf("\nPress [ENTER] to return");
@@ -146,7 +146,7 @@ void Application::startMemoryManagerDemo() {
 
     *stream << "===MemoryManagerTest===" << endl;
     *stream << "===Testing BitmapMemoryManager===" << endl << endl;
-    MemoryManagerTest<BitmapMemoryManager> bitmapTest(1048576, 128, 128);
+    MemoryManagerTest bitmapTest("BitmapMemoryManager", 1048576, 128, 128);
     bitmapTest.run();
 
     printf("\nPress [ENTER] to return");
@@ -157,8 +157,8 @@ void Application::startMemoryManagerDemo() {
 
     *stream << "===MemoryManagerTest===" << endl;
     *stream << "===Testing StaticHeapMemoryManager===" << endl << endl;
-    //MemoryManagerTest<StaticHeapMemoryManager> staticTest(1048576, 128, 128);
-    //staticTest.run();
+    MemoryManagerTest staticHeapTest("StaticHeapMemoryManager", 1048576, 128, 128);
+    staticHeapTest.run();
 
     printf("\nPress [ENTER] to return");
     while (!kb->isKeyPressed(KeyEvent::RETURN));

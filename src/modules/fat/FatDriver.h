@@ -33,7 +33,7 @@ private:
     FatFs *fatInstance = nullptr;
     StorageDevice *device = nullptr;
 
-    static const constexpr char *NAME = "fat";
+    static const constexpr char *NAME = "FatDriver";
 
 public:
 

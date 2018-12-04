@@ -123,16 +123,16 @@ void FileSystem::init() {
         log.trace("No root-partition found");
         log.trace("Mounting RamFs to /");
 
-        mount("", "/", "ramfs");
+        mount("", "/", "RamFsDriver");
     } else {
         log.trace("Found root-partition %s", static_cast<const char*>(rootDevice->getName()));
         log.trace("Mounting %s to /", static_cast<const char*>(rootDevice->getName()));
 
-        if(mount(rootDevice->getName(), "/", "fat") != SUCCESS) {
+        if(mount(rootDevice->getName(), "/", "FatDriver") != SUCCESS) {
             log.trace("Unable to mount root-partition");
             log.trace("Mounting RamFs to /");
 
-            mount("", "/", "ramfs");
+            mount("", "/", "RamFsDriver");
         }
     }
 
@@ -150,7 +150,7 @@ void FileSystem::init() {
     else
         delete dev;
 
-    mount("", "/dev", "ramfs");
+    mount("", "/dev", "RamFsDriver");
 
     // Create directory for StorageNodes.
     createDirectory("/dev/storage");
@@ -272,7 +272,7 @@ uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
 
     auto *driver = getMountedDriver(parsedPath);
 
-    if(driver->getName() != "ramfs") {
+    if(driver->getName() != "RamFsDriver") {
         fsLock.release();
 
         return ADDING_VIRTUAL_NODE_FAILED;

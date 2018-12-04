@@ -34,6 +34,16 @@ private:
 public:
 
     /**
+     * Constructor.
+     */
+    Prototype() = default;
+
+    /**
+     * Destructor.
+     */
+    virtual ~Prototype() = default;
+
+    /**
      * Create a copy of this instance.
      *
      * @return A pointer to the copy
@@ -60,9 +70,9 @@ public:
      * Instances of this type can then be created by calling 'Prototype::createInstance(type)'.
      *
      * @param type The type
-     * @param driver Instance, that will be used as a prototype for further instances
+     * @param prototype Instance, that will be used as a prototype for further instances
      */
-    static void registerPrototype(Prototype *driver);
+    static void registerPrototype(Prototype *prototype);
 
     /**
      * Remove a prototype.

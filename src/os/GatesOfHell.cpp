@@ -264,13 +264,9 @@ void GatesOfHell::initializePciDrivers() {
 }
 
 void GatesOfHell::initializeMemoryManagers() {
-    FreeListMemoryManager freeListMemoryManager;
-    BitmapMemoryManager bitmapMemoryManager;
-    BuddyMemoryManager buddyMemoryManager;
-
-    MemoryManager::registerPrototype(&freeListMemoryManager);
-    MemoryManager::registerPrototype(&bitmapMemoryManager);
-    MemoryManager::registerPrototype(&buddyMemoryManager);
+    MemoryManager::registerPrototype(new FreeListMemoryManager());
+    MemoryManager::registerPrototype(new BitmapMemoryManager());
+    MemoryManager::registerPrototype(new BuddyMemoryManager());
 
     loadModule("/initrd/mod/static-heap.ko");
 }
