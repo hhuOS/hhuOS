@@ -58,11 +58,11 @@ private:
 
     Spinlock lock;
 
-    static const constexpr char *NAME = "iomanager";
+    static const constexpr char *NAME = "IOMemoryManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(IOMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(IOMemoryManager);
 
     /**
      * Constructor.

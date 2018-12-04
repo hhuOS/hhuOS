@@ -14,30 +14,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/HashMap.h>
-#include "FsDriver.h"
+#include "Prototype.h"
 
-Util::HashMap<String, FsDriver*> FsDriver::prototypeTable;
+Util::HashMap<String, Prototype*> Prototype::prototypeTable;
 
-FsDriver *FsDriver::createInstance(String type) {
+Prototype *Prototype::createInstance(String type) {
     String key = type.toLowerCase();
 
     if(prototypeTable.containsKey(key)) {
         return prototypeTable.get(type)->clone();
     }
 
-    Cpu::throwException(Cpu::Exception::UNKNOWN_DRIVER);
+    const char* errorMessage = (const char*) String::format("No prototype registered for '%s'!", (const char*) type);
+
+    Cpu::throwException(Cpu::Exception::UNKNOWN_TYPE, errorMessage);
 
     return nullptr;
 }
 
-void FsDriver::registerDriverType(FsDriver *driver) {
+void Prototype::registerPrototype(Prototype *driver) {
     String key = driver->getName().toLowerCase();
 
     prototypeTable.put(key, driver);
 }
 
-void FsDriver::deregisterDriverType(String type) {
+void Prototype::deregisterPrototype(String type) {
     if(prototypeTable.containsKey(type)) {
         prototypeTable.remove(type);
     }

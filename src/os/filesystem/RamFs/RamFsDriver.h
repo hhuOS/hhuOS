@@ -47,7 +47,7 @@ protected:
 
 public:
 
-    FS_DRIVER_IMPLEMENT_CLONE(RamFsDriver);
+    PROTOTYPE_IMPLEMENT_CLONE(RamFsDriver);
 
     /**
      * Constructor.

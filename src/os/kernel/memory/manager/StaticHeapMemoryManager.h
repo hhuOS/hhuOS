@@ -16,11 +16,11 @@ private:
 
     Spinlock lock;
 
-    static const constexpr char *NAME = "staticheapmanager";
+    static const constexpr char *NAME = "StaticHeapMemoryManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(StaticHeapMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(StaticHeapMemoryManager);
 
     /**
      * Constructor.

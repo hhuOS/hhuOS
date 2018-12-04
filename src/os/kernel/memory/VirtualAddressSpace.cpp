@@ -19,14 +19,19 @@
 #include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/Paging.h"
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType) {
 	// create a new memory abstraction through paging
 	this->pageDirectory = new PageDirectory(basePageDirectory);
 	// the kernelspace heap manager is static and global for the system
 	this->kernelSpaceHeapManager = SystemManagement::getKernelHeapManager();
 	// create a new memory manager for userspace
-	this->userSpaceHeapManager = new FreeListMemoryManager();
-	this->userSpaceHeapManager->init(KERNEL_START, PAGESIZE, true);
+	if(!SystemManagement::isInitialized()) {
+        this->userSpaceHeapManager = new FreeListMemoryManager();
+        this->userSpaceHeapManager->init(KERNEL_START, PAGESIZE, true);
+	} else {
+        this->userSpaceHeapManager = (MemoryManager *) MemoryManager::createInstance(memoryManagerType);
+        this->userSpaceHeapManager->init(KERNEL_START, PAGESIZE, true);
+    }
 	// this is no bootstrap address space
 	bootstrapAddressSpace = false;
 }

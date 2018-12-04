@@ -30,11 +30,11 @@ class PageFrameAllocator : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "pageframeallocator";
+    static const constexpr char *NAME = "PageFrameAllocator";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(PageFrameAllocator);
+    PROTOTYPE_IMPLEMENT_CLONE(PageFrameAllocator);
 
 	/**
 	 * Constructor.

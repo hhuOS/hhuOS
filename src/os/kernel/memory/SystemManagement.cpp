@@ -447,6 +447,7 @@ SystemManagement& SystemManagement::getInstance() {
         // use the new memory manager to alloc memory for the instance of SystemManegement
 		systemManagement = new SystemManagement();
 	}
+
 	return *systemManagement;
 }
 

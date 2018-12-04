@@ -17,32 +17,6 @@
 #include <lib/util/HashMap.h>
 #include "MemoryManager.h"
 
-Util::HashMap<String, MemoryManager*> MemoryManager::prototypeTable;
-
-MemoryManager *MemoryManager::createInstance(String type) {
-    String key = type.toLowerCase();
-
-    if(prototypeTable.containsKey(key)) {
-        return prototypeTable.get(type)->clone();
-    }
-
-    Cpu::throwException(Cpu::Exception::UNKNOWN_DRIVER);
-
-    return nullptr;
-}
-
-void MemoryManager::registerManagerType(MemoryManager *driver) {
-    String key = driver->getName().toLowerCase();
-
-    prototypeTable.put(key, driver);
-}
-
-void MemoryManager::deregisterManagerType(String type) {
-    if(prototypeTable.containsKey(type)) {
-        prototypeTable.remove(type);
-    }
-}
-
 void MemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     this->memoryStartAddress = memoryStartAddress;
     this->memoryEndAddress = memoryEndAddress;

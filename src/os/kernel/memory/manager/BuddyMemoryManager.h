@@ -44,11 +44,11 @@ private:
 
 	struct BuddyNode **freeList = nullptr;
 
-	static const constexpr char *NAME = "buddy";
+	static const constexpr char *NAME = "BuddyMemoryManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(BuddyMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(BuddyMemoryManager);
 
     /**
      * Constructor.

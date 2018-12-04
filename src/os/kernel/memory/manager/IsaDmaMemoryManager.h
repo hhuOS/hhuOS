@@ -29,11 +29,11 @@ class IsaDmaMemoryManager : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "isadma";
+    static const constexpr char *NAME = "IsaDmaMemoryManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(IsaDmaMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(IsaDmaMemoryManager);
 
 	/**
 	 * Constructor.

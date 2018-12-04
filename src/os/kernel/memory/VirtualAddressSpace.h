@@ -42,7 +42,7 @@ public:
 	/**
 	 * Constructor for an address space.
 	 */
-    explicit VirtualAddressSpace(PageDirectory *basePageDirectory);
+    explicit VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType = "FreeListMemoryManager");
 
 	/**
 	 * Constructor for the very first address space for bootstrapping reasons.

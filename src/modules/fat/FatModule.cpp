@@ -24,7 +24,7 @@ MODULE_PROVIDER {
 
 int32_t FatModule::initialize() {
 
-    FsDriver::registerDriverType(new FatDriver());
+    FsDriver::registerPrototype(new FatDriver());
 
     return 0;
 }

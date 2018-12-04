@@ -63,7 +63,7 @@ private:
      */
     FLHeader *merge(FLHeader *origin);
 
-    static const constexpr char *NAME = "freelist";
+    static const constexpr char *NAME = "FreeListMemoryManager";
 
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
 
@@ -93,7 +93,7 @@ private:
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(FreeListMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(FreeListMemoryManager);
 
     /**
      * Constructor.

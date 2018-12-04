@@ -121,7 +121,7 @@ public:
         OUT_OF_PHYS_MEMORY                  = 0xCE,
         OUT_OF_PAGE_MEMORY                  = 0xCF,
 		ILLEGEAL_PAGE_ACCESS				= 0xD0,
-		UNKNOWN_DRIVER                      = 0xD1,
+		UNKNOWN_TYPE                        = 0xD1,
 		PAGING_ERROR                        = 0xD2,
 		UNSUPPORTED_OPERATION               = 0xD3
     };

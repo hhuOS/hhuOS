@@ -114,7 +114,7 @@ void FileSystem::init() {
 
     mountPoints.clear();
 
-    FsDriver::registerDriverType(new RamFsDriver());
+    FsDriver::registerPrototype(new RamFsDriver());
     // Mount root-device
     StorageDevice *rootDevice = storageService->findRootDevice();
 
@@ -301,7 +301,7 @@ uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fs
     fsLock.acquire();
 
     // Create temporary driver
-    FsDriver *tmpDriver = FsDriver::createInstance(fsType);
+    FsDriver *tmpDriver = (FsDriver*) FsDriver::createInstance(fsType);
 
     // Format device
     bool ret = tmpDriver->createFs(disk);
@@ -353,7 +353,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
         return MOUNT_TARGET_ALREADY_USED;
     }
 
-    FsDriver *driver = FsDriver::createInstance(fsType);
+    FsDriver *driver = (FsDriver*) FsDriver::createInstance(fsType);
 
     if(!driver->mount(disk)) {
         fsLock.release();

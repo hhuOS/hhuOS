@@ -33,7 +33,7 @@ private:
 
 public:
 
-    FS_DRIVER_IMPLEMENT_CLONE(TarArchiveDriver);
+    PROTOTYPE_IMPLEMENT_CLONE(TarArchiveDriver);
 
     /**
      * Constructor.

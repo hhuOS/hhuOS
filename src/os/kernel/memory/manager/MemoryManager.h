@@ -17,9 +17,8 @@
 #ifndef __KERNEL_MEMORY_MEMORYMANAGER_H__
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
-#define MEMORY_MANAGER_IMPLEMENT_CLONE(TYPE) MemoryManager *clone() const override { return new TYPE(*this); }
-
 #include <cstdint>
+#include <lib/Prototype.h>
 #include "lib/String.h"
 #include "lib/util/HashMap.h"
 #include "lib/libc/printf.h"
@@ -38,54 +37,7 @@ extern "C" {
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
-class MemoryManager {
-
-private:
-
-    /**
-     * Contains prototypes for all available Memory managers.
-     */
-    static Util::HashMap<String, MemoryManager*> prototypeTable;
-
-public:
-
-    /**
-     * Create a copy of this instance.
-     *
-     * @return A pointer to the copy
-     */
-    virtual MemoryManager *clone() const = 0;
-
-    /**
-     * Get the name, under which the driver will be registered and usable for the user.
-     */
-    virtual String getName() = 0;
-
-    /**
-     * Create a new instance of a given subtype of FsDriver.
-     * Throws an exception, if the type is unknown.
-     *
-     * @param type The type
-     *
-     * @return A pointer to newly created instance
-     */
-    static MemoryManager *createInstance(String type);
-
-    /**
-     * Add a new type of MemoryManager.
-     * Instances of this type can then be created by calling 'MemorManager::createInstance(type)'.
-     *
-     * @param type The type
-     * @param driver Instance, that will be used as a prototype for further instances
-     */
-    static void registerManagerType(MemoryManager *driver);
-
-    /**
-     * Remove a type of MemoryManager.
-     *
-     * @param type The type
-     */
-    static void deregisterManagerType(String type);
+class MemoryManager : public Prototype {
 
 protected:
 

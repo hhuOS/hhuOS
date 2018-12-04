@@ -76,11 +76,11 @@ protected:
 
 private:
 
-    static const constexpr char *NAME = "bitmap";
+    static const constexpr char *NAME = "BitmapMemoryManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(BitmapMemoryManager);
+    PROTOTYPE_IMPLEMENT_CLONE(BitmapMemoryManager);
 
     /**
      * Overriding function from MemoryManager.

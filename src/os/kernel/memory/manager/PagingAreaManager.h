@@ -30,11 +30,11 @@ class PagingAreaManager : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "pagingareamanager";
+    static const constexpr char *NAME = "PagingAreaManager";
 
 public:
 
-    MEMORY_MANAGER_IMPLEMENT_CLONE(PagingAreaManager);
+    PROTOTYPE_IMPLEMENT_CLONE(PagingAreaManager);
 
 	/**
 	 * Constructor.
