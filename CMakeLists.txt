@@ -24,4 +24,4 @@ set(CMAKE_CXX_FLAGS -m32)
 
 FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
 
-ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/os/lib/Prototype.cpp src/os/lib/Prototype.h)
+ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/os/lib/Prototype.cpp src/os/lib/Prototype.h src/modules/static-heap/StaticHeapModule.cpp src/modules/static-heap/StaticHeapModule.h)

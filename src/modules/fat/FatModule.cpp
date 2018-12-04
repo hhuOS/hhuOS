@@ -31,6 +31,8 @@ int32_t FatModule::initialize() {
 
 int32_t FatModule::finalize() {
 
+    FsDriver::deregisterPrototype("fat");
+
     return 0;
 }
 

@@ -31,7 +31,6 @@
 #include <kernel/memory/manager/FreeListMemoryManager.h>
 #include <kernel/memory/manager/BitmapMemoryManager.h>
 #include <kernel/memory/manager/BitmapMemoryManager.h>
-#include <kernel/memory/manager/StaticHeapMemoryManager.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
@@ -158,8 +157,8 @@ void Application::startMemoryManagerDemo() {
 
     *stream << "===MemoryManagerTest===" << endl;
     *stream << "===Testing StaticHeapMemoryManager===" << endl << endl;
-    MemoryManagerTest<StaticHeapMemoryManager> staticTest(1048576, 128, 128);
-    staticTest.run();
+    //MemoryManagerTest<StaticHeapMemoryManager> staticTest(1048576, 128, 128);
+    //staticTest.run();
 
     printf("\nPress [ENTER] to return");
     while (!kb->isKeyPressed(KeyEvent::RETURN));

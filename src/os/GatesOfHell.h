@@ -48,6 +48,8 @@ private:
 
     static void initializePciDrivers();
 
+    static void initializeMemoryManagers();
+
     static bool loadModule(const String &path);
 
     static Logger &log;

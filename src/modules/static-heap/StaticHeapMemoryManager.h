@@ -1,7 +1,7 @@
 #ifndef HHUOS_STATICHEAPMEMORYMANAGER_H
 #define HHUOS_STATICHEAPMEMORYMANAGER_H
 
-#include "MemoryManager.h"
+#include "kernel/memory/manager/MemoryManager.h"
 
 /**
  * Memory manager, that only uses a pointer to manage a memory area. Every allocation just returns the current position

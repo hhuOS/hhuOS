@@ -31,6 +31,10 @@ BuddyMemoryManager::BuddyMemoryManager(const BuddyMemoryManager &copy) : BuddyMe
 }
 
 BuddyMemoryManager::~BuddyMemoryManager() {
+    if(this->freeList == nullptr) {
+        return;
+    }
+
     // free complete freeList
     BuddyNode *tmp;
 

@@ -46,6 +46,7 @@
 #include <lib/libc/system_interface.h>
 #include <lib/file/FileStatus.h>
 #include <kernel/memory/manager/FreeListMemoryManager.h>
+#include <kernel/memory/manager/BuddyMemoryManager.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -150,6 +151,8 @@ int32_t GatesOfHell::enter() {
 
     loadModule("/initrd/mod/zero.ko");
     loadModule("/initrd/mod/random.ko");
+
+    initializeMemoryManagers();
 
     bootscreen->update(75, "Starting Threads");
     idleThread = new IdleThread();
@@ -258,6 +261,18 @@ void GatesOfHell::initializePciDrivers() {
 
     Pci::setupDeviceDriver(ahci);
     Pci::setupDeviceDriver(uhci);
+}
+
+void GatesOfHell::initializeMemoryManagers() {
+    FreeListMemoryManager freeListMemoryManager;
+    BitmapMemoryManager bitmapMemoryManager;
+    BuddyMemoryManager buddyMemoryManager;
+
+    MemoryManager::registerPrototype(&freeListMemoryManager);
+    MemoryManager::registerPrototype(&bitmapMemoryManager);
+    MemoryManager::registerPrototype(&buddyMemoryManager);
+
+    loadModule("/initrd/mod/static-heap.ko");
 }
 
 bool GatesOfHell::loadModule(const String &path) {

@@ -55,6 +55,9 @@ public:
      */
 	explicit BuddyMemoryManager(uint8_t minOrder = 4);
 
+	/**
+	 * Copy-constructor.
+	 */
 	BuddyMemoryManager(const BuddyMemoryManager &copy);
 
 	/**

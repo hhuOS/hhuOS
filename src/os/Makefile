@@ -83,7 +83,7 @@ MAKE = make
 #-------------------------------------------#
 # Modules (see src/modules)                 #
 #-------------------------------------------#
-MODULES := hello random zero fat vesa cga
+MODULES := hello random zero fat vesa cga static-heap
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 
