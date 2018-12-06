@@ -61,7 +61,7 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
         // 5 --> Extended partiton
         if(currentPartition.system_id == EXTENDED_PARTITION || currentPartition.system_id == EXTENDED_PARTITION_LBA) {
             uint8_t partNumber = 5;
-            auto *currentPart = new StorageDevice::PartitionInfo{partNumber, 'e', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
+            auto *currentPart = new StorageDevice::PartitionInfo{partNumber, 'e', currentPartition.active_flag == 0x80, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
             partitionList.add(*currentPart);
             uint32_t nextLogicalMbr = currentPartition.relative_sector;
 
@@ -85,7 +85,7 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
                 if(currentLogicalPartition.system_id == EMPTY)
                     break;
 
-                currentPart = new StorageDevice::PartitionInfo{partNumber, 'l', currentLogicalPartition.active_flag, currentLogicalPartition.system_id, nextLogicalMbr + currentLogicalPartition.relative_sector, currentLogicalPartition.sector_count};
+                currentPart = new StorageDevice::PartitionInfo{partNumber, 'l', currentLogicalPartition.active_flag == 0x80, currentLogicalPartition.system_id, nextLogicalMbr + currentLogicalPartition.relative_sector, currentLogicalPartition.sector_count};
                 partitionList.add(*currentPart);
 
                 // Check system ID
@@ -99,7 +99,7 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
                 partNumber++;
             }
         } else {
-            auto *currentPart = new StorageDevice::PartitionInfo{static_cast<uint8_t>(i + 1), 'p', currentPartition.active_flag, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
+            auto *currentPart = new StorageDevice::PartitionInfo{static_cast<uint8_t>(i + 1), 'p', currentPartition.active_flag == 0x80, currentPartition.system_id, currentPartition.relative_sector, currentPartition.sector_count};
             partitionList.add(*currentPart);
         }
     }
@@ -109,6 +109,9 @@ Util::Array<StorageDevice::PartitionInfo> StorageDevice::readPartitionTable() {
 }
 
 uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t systemId, uint32_t startSector, uint32_t sectorCount) {
+    if(partNumber < 1) {
+        return NON_EXISTENT_PARITION;
+    }
 
     partLock.acquire();
 
@@ -126,14 +129,14 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
     }
 
     PartitionTableEntry partEntry{
-        (uint8_t)(active ? 80 : 0), // 0x80 --> bootable partition, 0x0 --> non-bootable partition
-        0,                          // Starting head of the partition
-        0,                          // Bits 0-6: Starting sector of the partition, Bits 7-15: Starting cylinder of the partition
-        systemId,                   // Partition type identifier
-        0,                          // Ending head of the partition
-        0,                          // Bits 0-6: Ending sector of the partition, Bits 7-15: Ending cylinder of the partition
-        startSector,                // Relative sector to start of partition
-        sectorCount,                // Amount of sectors in partition
+        (uint8_t)(active ? 0x80 : 0x00),    // 0x80 --> bootable partition, 0x0 --> non-bootable partition
+        0,                                  // Starting head of the partition
+        0,                                  // Bits 0-6: Starting sector of the partition, Bits 7-15: Starting cylinder of the partition
+        systemId,                           // Partition type identifier
+        0,                                  // Ending head of the partition
+        0,                                  // Bits 0-6: Ending sector of the partition, Bits 7-15: Ending cylinder of the partition
+        startSector,                        // Relative sector to start of partition
+        sectorCount,                        // Amount of sectors in partition
     };
 
     if(partNumber <= 4) {
@@ -262,7 +265,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             partPtr->relative_sector = partPtr->relative_sector == 0 ? 1 : partPtr->relative_sector;
             partPtr->sector_count = sectorCount;
             partPtr->system_id = systemId;
-            partPtr->active_flag = static_cast<uint8_t>(active ? 0x80 : 0x0);
+            partPtr->active_flag = static_cast<uint8_t>(active ? 0x80 : 0x00);
 
             // Write partition entry
             if(!write(currentMbr, currentLogicalMbr, 1)) {
@@ -281,6 +284,9 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
 }
 
 uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
+    if(partNumber < 1) {
+        return NON_EXISTENT_PARITION;
+    }
 
     partLock.acquire();
 

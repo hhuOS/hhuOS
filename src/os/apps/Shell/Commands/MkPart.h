@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __AddPart_include__
-#define __AddPart_include__
+#ifndef __MkPart_include__
+#define __MkPart_include__
 
 #include <lib/OutputStream.h>
 #include <lib/String.h>
@@ -35,7 +35,7 @@
  * @author Fabian Ruhland
  * @date 2018
  */
-class AddPart : public Command {
+class MkPart : public Command {
 
 private:
     StorageService *storageService = nullptr;
@@ -45,24 +45,24 @@ public:
     /**
      * Default-constructor.
      */
-    AddPart() = delete;
+    MkPart() = delete;
 
     /**
      * Copy-constructor.
      */
-    AddPart(const AddPart &copy) = delete;
+    MkPart(const MkPart &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit AddPart(Shell &shell);
+    explicit MkPart(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~AddPart() override = default;
+    ~MkPart() override = default;
 
     /**
      * Overriding function from Command.

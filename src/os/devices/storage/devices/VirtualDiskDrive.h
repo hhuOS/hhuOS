@@ -35,7 +35,6 @@ private:
 
     uint32_t sectorSize;
     uint32_t sectorCount;
-    String name;
 
     uint8_t *buffer = nullptr;
 

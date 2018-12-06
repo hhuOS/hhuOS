@@ -18,14 +18,14 @@
 #include <lib/file/FileStatus.h>
 #include <lib/file/File.h>
 #include <devices/storage/devices/Partition.h>
-#include "AddPart.h"
+#include "MkPart.h"
 
-AddPart::AddPart(Shell &shell) : Command(shell) {
+MkPart::MkPart(Shell &shell) : Command(shell) {
     storageService = Kernel::getService<StorageService>();
     fileSystem = Kernel::getService<FileSystem>();
 };
 
-void AddPart::execute(Util::Array<String> &args) {
+void MkPart::execute(Util::Array<String> &args) {
     String devicePath;
     uint8_t partNumber = 0;
     bool active = false;
@@ -86,6 +86,9 @@ void AddPart::execute(Util::Array<String> &args) {
         case StorageDevice::DEVICE_NOT_PARTITIONABLE :
             stderr << args[0] << ": The device is not partitionable!" << endl;
             break;
+        case StorageDevice::NON_EXISTENT_PARITION :
+            stderr << args[0] << ": Invalid partition number!" << endl;
+            break;
         default:
             stderr << args[0] << ": Unknown Error!" << endl;
             break;
@@ -94,7 +97,7 @@ void AddPart::execute(Util::Array<String> &args) {
     delete file;
 }
 
-const String AddPart::getHelpText() {
+const String MkPart::getHelpText() {
     return "Adds a new partition to a device, or overwrites an existing one.\n\n"
             "Usage: addpart [OPTION]... [PATH]\n\n"
             "Options:\n"

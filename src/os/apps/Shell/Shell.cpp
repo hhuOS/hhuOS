@@ -40,7 +40,7 @@
 #include <apps/Shell/Commands/LptConfig.h>
 #include <apps/Shell/Commands/Mkfs.h>
 #include <apps/Shell/Commands/DiskInfo.h>
-#include <apps/Shell/Commands/AddPart.h>
+#include <apps/Shell/Commands/MkPart.h>
 #include <apps/Shell/Commands/MkPartTable.h>
 #include <apps/Shell/Commands/DelPart.h>
 #include <lib/graphic/Ansi.h>
@@ -79,7 +79,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
     commands.put("mkparttable", new MkPartTable(*this));
-    commands.put("addpart",  new AddPart(*this));
+    commands.put("mkpart",  new MkPart(*this));
     commands.put("delpart",  new DelPart(*this));
     commands.put("mkvdd",  new MkVdd(*this));
     commands.put("delvdd",  new DelVdd(*this));
