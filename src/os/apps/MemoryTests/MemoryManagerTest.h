@@ -17,9 +17,9 @@
 #ifndef HHUOS_MEMORYMANAGERTESTAPP_H
 #define HHUOS_MEMORYMANAGERTESTAPP_H
 
+#include <kernel/memory/manager/MemoryManager.h>
 #include "kernel/threads/Thread.h"
 #include "lib/Random.h"
-#include "kernel/memory/manager/BuddyMemoryManager.h"
 #include "lib/libc/printf.h"
 #include "apps/Application.h"
 #include "kernel/Kernel.h"

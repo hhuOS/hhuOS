@@ -121,8 +121,8 @@ void Application::startMemoryManagerDemo() {
 
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    String tests[4] {
-            "FreeListMemoryManager", "BuddyMemoryManager", "BitmapMemoryManager", "StaticHeapMemoryManager"
+    String tests[3] {
+            "FreeListMemoryManager", "BitmapMemoryManager", "StaticHeapMemoryManager"
     };
 
     for(const String &test : tests) {
