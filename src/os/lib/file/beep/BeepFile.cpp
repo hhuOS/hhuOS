@@ -28,11 +28,15 @@ BeepFile* BeepFile::load(const String &path) {
 
     File *file = File::open(path, "r");
 
+    if(file == nullptr) {
+        return nullptr;
+    }
+
     char *buffer = nullptr;
 
     *file >> buffer;
 
-    Content *content = (Content*) buffer;
+    auto *content = (Content*) buffer;
 
     if (content->magic != MAGIC) {
 
