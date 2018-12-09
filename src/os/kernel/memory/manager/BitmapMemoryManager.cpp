@@ -113,7 +113,7 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
 
     }
 
-    // if we have enough free contiguous blocks, we cann mark them as alloced in this loop
+    // if we have enough free contiguous blocks, we can mark them as allocated in this loop
     if(freeCount == blockCount) {
         uint32_t i = arrayIndexStart;
         uint32_t j = bitmapIndexStart;
