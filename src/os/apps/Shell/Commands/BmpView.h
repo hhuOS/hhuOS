@@ -20,6 +20,15 @@
 #include <lib/file/bmp/Bmp.h>
 #include "Command.h"
 
+/**
+ * Implementation of Command.
+ * Shows a BMP-file.
+ *
+ * -h, --help: Show help message
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class BmpView : public Command, Receiver {
 
 private:

@@ -20,6 +20,15 @@
 #include <lib/file/bmp/Bmp.h>
 #include "Command.h"
 
+/**
+ * Implementation of Command.
+ * Plays a WAV-file.
+ *
+ * -h, --help: Show help message
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class WavPlay : public Command, Receiver {
 
 public:

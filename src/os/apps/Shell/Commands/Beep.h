@@ -20,6 +20,15 @@
 #include <lib/file/beep/BeepFile.h>
 #include "Command.h"
 
+/**
+ * Implementation of Command.
+ * Plays a Beep-file.
+ *
+ * -h, --help: Show this help-message
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class Beep : public Command, Receiver {
 
 private:

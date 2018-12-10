@@ -61,8 +61,8 @@ void Beep::execute(Util::Array<String> &args) {
 }
 
 const String Beep::getHelpText() {
-    return "Plays a BEEP-file.\n\n"
-           "Usage: Beep [OPTION]... [PATH]\n\n"
+    return "Plays a Beep-file.\n\n"
+           "Usage: beep [OPTION]... [PATH]\n\n"
            "Options:\n"
            "  -h, --help: Show this help-message";
 }

@@ -21,6 +21,15 @@
 #include <kernel/services/TimeService.h>
 #include "Command.h"
 
+/**
+ * Implementation of Command.
+ * Plays an Asciimation-file.
+ *
+ * -h, --help: Show this help-message
+ *
+ * @author Fabian Ruhland
+ * @date 2018
+ */
 class Asciimate : public Command, Receiver {
 
 private:
