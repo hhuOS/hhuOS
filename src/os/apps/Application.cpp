@@ -34,7 +34,6 @@
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
-#include "apps/AsciimationApp/AsciimationApp.h"
 #include "lib/libc/snprintf.h"
 #include "Application.h"
 
@@ -95,15 +94,6 @@ void Application::startIoMemoryDemo() {
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
     currentApp = new IOMemoryTestApp();
-    currentApp->start();
-}
-
-void Application::startAsciimationDemo() {
-    TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
-
-    currentApp = new AsciimationApp();
-
     currentApp->start();
 }
 
@@ -201,7 +191,7 @@ void Application::showMenu () {
             lfb->placeRect(50, 59, 60, 59, Colors::HHU_LIGHT_GRAY);
 
             for (uint32_t i = 0; i < sizeof(menuOptions) / sizeof(const char *); i++) {
-                lfb->placeString(font, 50, static_cast<uint16_t>(35 + i * menuDistance), menuOptions[i],
+                lfb->placeString(font, 50, static_cast<uint16_t>(36 + i * menuDistance), menuOptions[i],
                                  Colors::HHU_LIGHT_GRAY);
             }
 
@@ -214,7 +204,7 @@ void Application::showMenu () {
             lfb->placeString(font, 50, 92, "Please select an option using the arrow keys", Colors::HHU_LIGHT_GRAY);
             lfb->placeString(font, 50, 95, "and confirm your selection using the space key.", Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeRect(50, static_cast<uint16_t>(35 + option * menuDistance), 58, menuDistance,
+            lfb->placeRect(50, static_cast<uint16_t>(36 + option * menuDistance), 58, menuDistance,
                            Colors::HHU_BLUE_70);
 
             lfb->show();
@@ -252,38 +242,34 @@ void Application::startSelectedApp() {
             break;
         }
         case 2:
-            startAsciimationDemo();
-            pause();
-            break;
-        case 3:
             startAntDemo();
             pause();
             break;
-        case 4:
+        case 3:
             startMandelbrotDemo();
             pause();
             break;
-        case 5:
+        case 4:
             startMouseApp();
             pause();
             break;
-        case 6:
+        case 5:
             startLoopSoundDemo();
             pause();
             break;
-        case 7:
+        case 6:
             startHeapDemo();
             pause();
             break;
-        case 8:
+        case 7:
             startIoMemoryDemo();
             pause();
             break;
-        case 9:
+        case 8:
             startMemoryManagerDemo();
             isRunning = true;
             break;
-        case 10:
+        case 9:
             startExceptionDemo();
             pause();
             break;

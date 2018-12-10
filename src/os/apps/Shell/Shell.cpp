@@ -50,6 +50,7 @@
 #include <apps/Shell/Commands/WavPlay.h>
 #include <apps/Shell/Commands/Beep.h>
 #include <apps/Shell/Commands/License.h>
+#include <apps/Shell/Commands/Asciimate.h>
 
 extern "C" {
 #include <lib/libc/ctype.h>
@@ -93,6 +94,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("wavplay", new WavPlay(*this));
     commands.put("beep", new Beep(*this));
     commands.put("license", new License(*this));
+    commands.put("asciimate", new Asciimate(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }

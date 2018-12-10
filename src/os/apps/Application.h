@@ -27,16 +27,14 @@
 class Application : public Thread, public Receiver {
 
 private:
-    const char *menuOptions[11] = {
-            "Shell", "Bug Defender", "Asciimation",
-            "Langtons Ant", "Mandelbrot", "Mouse", "Loops and Sound",
+    const char *menuOptions[10] = {
+            "Shell", "Bug Defender", "Langtons Ant", "Mandelbrot", "Mouse", "Loops and Sound",
             "Kernel Heap Demo", "IO Memory Demo", "Memory Manager Demo", "Exception Demo"
     };
 
-    const char *menuDescriptions[11] {
+    const char *menuDescriptions[10] {
             "A simple UNIX-like Shell",
             "A fun game: Save the OS from invading bugs!",
-            "Play an Asciimation file",
             "Watch Langtons Ant run around your screen",
             "Navigate through the Mandelbrot set",
             "A simple Demo, that uses the mouse",
@@ -69,7 +67,6 @@ private:
     void startExceptionDemo();
     void startAntDemo();
     void startMandelbrotDemo();
-    void startAsciimationDemo();
     void startIoMemoryDemo();
     void startMemoryManagerDemo();
 

@@ -77,7 +77,6 @@ void BmpView::execute(Util::Array<String> &args) {
     delete bmp;
 
     TextDriver *text = Kernel::getService<GraphicsService>()->getTextDriver();
-
     text->init(text->getColumnCount(), text->getRowCount(), text->getDepth());
 }
 
