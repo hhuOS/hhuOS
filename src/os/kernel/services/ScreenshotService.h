@@ -36,7 +36,7 @@ public:
 
     void onEvent(const Event &event) override;
 
-    static constexpr const char* SERVICE_NAME = "ParallelService";
+    static constexpr const char* SERVICE_NAME = "ScreenshotService";
 };
 
 #endif
