@@ -42,11 +42,7 @@ public:
         uint32_t start = SystemManagement::getKernelHeapManager()->getStartAddress();
         uint32_t end = SystemManagement::getKernelHeapManager()->getEndAddress();
 
-        cache = String("KernelHeap\n") +
-                String("Start: 0x") + String::valueOf(start, 16) +
-                String(" End: 0x") + String::valueOf(end, 16) +
-                String(" Free: ") + String::valueOf(free, 10, false) + " Bytes\n";
-
+        cache = String::format("Start: 0x%08x\nEnd: 0x%08x\nFree: %u Bytes\n", start, end, free);
     }
 };
 

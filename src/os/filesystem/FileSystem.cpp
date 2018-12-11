@@ -18,7 +18,7 @@
 #include <kernel/events/storage/StorageRemoveEvent.h>
 #include <filesystem/RamFs/memory/KernelHeapNode.h>
 #include <filesystem/RamFs/memory/IOMemoryNode.h>
-#include <filesystem/RamFs/memory/PFANode.h>
+#include <filesystem/RamFs/memory/PhysicalMemoryNode.h>
 #include <filesystem/RamFs/memory/PagingAreaNode.h>
 #include <filesystem/RamFs/ports/SerialNode.h>
 #include <kernel/services/ParallelService.h>
@@ -219,7 +219,7 @@ void FileSystem::init() {
     createDirectory("/dev/memory");
     addVirtualNode("/dev/memory", new KernelHeapNode());
     addVirtualNode("/dev/memory", new IOMemoryNode());
-    addVirtualNode("/dev/memory", new PFANode());
+    addVirtualNode("/dev/memory", new PhysicalMemoryNode());
     addVirtualNode("/dev/memory", new PagingAreaNode());
 
     // Create folder for network files

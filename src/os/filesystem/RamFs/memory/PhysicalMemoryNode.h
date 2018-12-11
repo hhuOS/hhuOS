@@ -21,33 +21,29 @@
 #include <kernel/memory/SystemManagement.h>
 #include "MemoryNode.h"
 
-class PFANode : public MemoryNode {
+class PhysicalMemoryNode : public MemoryNode {
 
 public:
-    PFANode() : MemoryNode("physical", FsNode::REGULAR_FILE) {}
+    PhysicalMemoryNode() : MemoryNode("physical", FsNode::REGULAR_FILE) {}
 
     /**
      * Copy-constructor.
      */
-    PFANode(const PFANode &copy) = delete;
+    PhysicalMemoryNode(const PhysicalMemoryNode &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~PFANode() override = default;
+    ~PhysicalMemoryNode() override = default;
 
     void getValues() override {
         uint32_t free = SystemManagement::getInstance().getPageFrameAllocator()->getFreeMemory();
         uint32_t start = SystemManagement::getInstance().getPageFrameAllocator()->getStartAddress();
         uint32_t end = SystemManagement::getInstance().getPageFrameAllocator()->getEndAddress();
 
-        cache = String("Physical Memory\n") +
-                String("Start: 0x") + String::valueOf(start, 16) +
-                String(" End: 0x") + String::valueOf(end, 16) +
-                String(" Free: ") + String::valueOf(free, 10, false) + " Bytes\n";
-
+        cache = String::format("Start: 0x%08x\nEnd: 0x%08x\nFree: %u Bytes\n", start, end, free);
     }
 };
 
 
-#endif //HHUOS_PFANODE_H
+#endif
