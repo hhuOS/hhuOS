@@ -99,6 +99,10 @@ char Parallel::readChar() {
 void Parallel::sendData(char *data, uint32_t len) {
     for(uint32_t i = 0; i < len; i++) {
         sendChar(data[i]);
+
+        if(data[i] == '\n') {
+            sendChar(13);
+        }
     }
 }
 
