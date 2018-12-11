@@ -25,10 +25,10 @@ GraphicsMemoryNode::GraphicsMemoryNode(GraphicsNode::GraphicsMode mode) : Graphi
 void GraphicsMemoryNode::writeValuesToCache() {
     switch(mode) {
         case TEXT:
-            cache = String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10) + "\n";
+            cache = String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10, false) + "\n";
             break;
         case LINEAR_FRAME_BUFFER:
-            cache = String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10) + "\n";
+            cache = String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10, false) + "\n";
             break;
         default:
             break;

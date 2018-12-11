@@ -358,7 +358,7 @@ String String::valueOf(bool value) {
     return value ? String("true") : String("false");
 }
 
-String String::valueOf(int32_t value, uint8_t radix) {
+String String::valueOf(int32_t value, uint8_t radix, bool sign) {
 
     char result[32];
 
@@ -372,7 +372,11 @@ String String::valueOf(int32_t value, uint8_t radix) {
             sprintf(result, "%o", value);
             break;
         case 10:
-            sprintf(result, "%d", value);
+            if(sign) {
+                sprintf(result, "%d", value);
+            } else {
+                sprintf(result, "%u", value);
+            }
             break;
         case 16:
             sprintf(result, "%x", value);
@@ -384,7 +388,7 @@ String String::valueOf(int32_t value, uint8_t radix) {
     return String(result);
 }
 
-String String::valueOf(uint32_t value, uint8_t radix, uint8_t padding) {
+String String::valueOf(int32_t value, uint8_t radix, uint8_t padding, bool sign) {
 
     char result[32];
 
@@ -411,7 +415,11 @@ String String::valueOf(uint32_t value, uint8_t radix, uint8_t padding) {
             *writer++ = 'o';
             break;
         case 10:
-            *writer++ = 'u';
+            if(sign) {
+                *writer++ = 'd';
+            } else {
+                *writer++ = 'u';
+            }
             break;
         case 16:
             *writer++ = 'x';

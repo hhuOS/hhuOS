@@ -65,9 +65,9 @@ public:
 
     static String valueOf(bool value);
 
-    static String valueOf(int32_t value, uint8_t radix);
+    static String valueOf(int32_t value, uint8_t radix, bool sign = true);
 
-    static String valueOf(uint32_t value, uint8_t radix, uint8_t padding);
+    static String valueOf(int32_t value, uint8_t radix, uint8_t padding, bool sign = true);
 
     static String join(const String &separator, const Util::Array<String> &elements);
 

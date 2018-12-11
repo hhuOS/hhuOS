@@ -44,7 +44,7 @@ public:
         cache = String("IO-Memory\n") +
                 String("Start: 0x") + String::valueOf(start, 16) +
                 String(" End: 0x") + String::valueOf(end, 16) +
-                String(" Free: ") + String::valueOf(free, 10) + " Bytes\n";
+                String(" Free: ") + String::valueOf(free, 10, false) + " Bytes\n";
 
     }
 };
