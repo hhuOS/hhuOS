@@ -34,27 +34,12 @@ KERNEL_PG_NUM equ (KERNEL_START >> 22)
 [SECTION .data]
 ; all paging stuff has to be 4kb - aligned
 align 0x1000
-; 4MB - PageTable
-; maps first 8MB to 3GB (higher half)
-; and maps 8 to 12 MB to 3.5GB (page table/dir area)
-legacyPageDirectory:
-    dd 0x00000083
-    dd 0x00400083
-    times (KERNEL_PG_NUM - 2) dd 0
-    dd 0x00000083
-    dd 0x00400083
-    times (893 - 2 - KERNEL_PG_NUM) dd 0
-    dd 0x00800083
-    times (1024 - 893 - 1) dd 0
 
+; These Directories are set up in bootstrapPaging
+
+; Page Directory for Bootstrapping
 Bootstrap_Page_Directory:
     times (1024) dd 0
-
-BIOS_Page_Directory_Legacy:
-    dd 0x00000083
-    times (KERNEL_PG_NUM - 1) dd 0
-    dd 0x00000083
-    times (1024 - 1 - KERNEL_PG_NUM) dd 0
 
 ; Page directory with 4mb pages for BIOS-calls
 BIOS_Page_Directory:
