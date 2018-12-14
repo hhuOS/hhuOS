@@ -18,6 +18,8 @@
 #include "kernel/memory/MemLayout.h"
 #include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/Paging.h"
+#include "VirtualAddressSpace.h"
+
 
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType) {
 	// create a new memory abstraction through paging
@@ -27,10 +29,8 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const
 	// create a new memory manager for userspace
 	if(!SystemManagement::isInitialized()) {
         this->userSpaceHeapManager = new FreeListMemoryManager();
-        this->userSpaceHeapManager->init(KERNEL_START, PAGESIZE, true);
 	} else {
         this->userSpaceHeapManager = (MemoryManager *) MemoryManager::createInstance(memoryManagerType);
-        this->userSpaceHeapManager->init(KERNEL_START, PAGESIZE, true);
     }
 	// this is no bootstrap address space
 	bootstrapAddressSpace = false;
@@ -53,4 +53,16 @@ VirtualAddressSpace::~VirtualAddressSpace() {
 		delete pageDirectory;
 		delete userSpaceHeapManager;
 	}
+}
+
+void VirtualAddressSpace::init() {
+    if(userSpaceHeapManager != nullptr) {
+        userSpaceHeapManager->init(PAGESIZE, KERNEL_START, true);
+    }
+
+    initialized = true;
+}
+
+bool VirtualAddressSpace::isInitialized() {
+    return initialized;
 }

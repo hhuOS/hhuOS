@@ -46,6 +46,7 @@
 #include <lib/libc/system_interface.h>
 #include <lib/file/FileStatus.h>
 #include <kernel/memory/manager/FreeListMemoryManager.h>
+#include <kernel/memory/SystemManagement.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 

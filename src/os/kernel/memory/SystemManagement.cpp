@@ -407,6 +407,10 @@ void SystemManagement::switchAddressSpace(VirtualAddressSpace *addressSpace) {
 	this->currentAddressSpace = addressSpace;
 	// load cr3-register with phys. address of Page Directory
 	load_page_directory(addressSpace->getPageDirectory()->getPageDirectoryPhysicalAddress());
+
+	if(!this->currentAddressSpace->isInitialized()) {
+	    this->currentAddressSpace->init();
+	}
 }
 
 void SystemManagement::removeAddressSpace(VirtualAddressSpace *addressSpace){

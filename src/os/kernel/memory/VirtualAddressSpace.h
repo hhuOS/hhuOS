@@ -38,6 +38,8 @@ private:
 	// the bootstrap address space is the first address space ever created
 	// and only for temporary use
 	bool bootstrapAddressSpace = false;
+
+	bool initialized = false;
 public:
 	/**
 	 * Constructor for an address space.
@@ -54,6 +56,10 @@ public:
 	 * Destructor
 	 */
 	~VirtualAddressSpace();
+
+	void init();
+
+	bool isInitialized();
 
 	/**
 	 * Get the memory manager for kernelspace

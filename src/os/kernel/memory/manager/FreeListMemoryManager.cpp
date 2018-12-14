@@ -36,7 +36,7 @@ void FreeListMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEnd
     if(freeMemory < sizeof(FLHeader)) {
         // Available Kernel-Memory is too small for a Chunk
         firstChunk = nullptr;
-    }else {
+    } else {
         // set up first Chunk of memory
         firstChunk = (FLHeader*) memoryStartAddress;
         freeMemory -= sizeof(FLHeader);
