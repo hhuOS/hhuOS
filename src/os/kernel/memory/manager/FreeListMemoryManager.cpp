@@ -46,8 +46,8 @@ void FreeListMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEnd
     }
 }
 
-String FreeListMemoryManager::getName() {
-    return NAME;
+String FreeListMemoryManager::getTypeName() {
+    return TYPE_NAME;
 }
 
 void* FreeListMemoryManager::alloc(uint32_t size) {

@@ -40,6 +40,6 @@ void PagingAreaManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddr
     // Do nothing. The PagingAreaManager will always be initialized by the kernel and has hardcoded values.
 }
 
-String PagingAreaManager::getName() {
-    return NAME;
+String PagingAreaManager::getTypeName() {
+    return TYPE_NAME;
 }

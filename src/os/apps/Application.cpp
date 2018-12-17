@@ -22,8 +22,6 @@
 #include <apps/Shell/Shell.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/threads/Scheduler.h>
-#include <apps/MemoryTests/HeapTestApp.h>
-#include <apps/MemoryTests/IOMemoryTestApp.h>
 #include <kernel/threads/WorkerThread.h>
 #include <apps/LoopsAndSound/LoopsAndSound.h>
 #include <apps/Mandelbrot/Mandelbrot.h>
@@ -31,6 +29,7 @@
 #include <kernel/memory/manager/FreeListMemoryManager.h>
 #include <kernel/memory/manager/BitmapMemoryManager.h>
 #include <kernel/memory/manager/BitmapMemoryManager.h>
+#include <kernel/memory/SystemManagement.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
@@ -89,40 +88,23 @@ void Application::startMandelbrotDemo() {
     currentApp->start();
 }
 
-void Application::startIoMemoryDemo() {
-    TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
-
-    currentApp = new IOMemoryTestApp();
-    currentApp->start();
-}
-
-void Application::startHeapDemo() {
-    TextDriver *stream = graphicsService->getTextDriver();
-    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
-
-    currentApp = new HeapTestApp();
-
-    currentApp->start();
-}
-
 void Application::startMemoryManagerDemo() {
     TextDriver *stream = graphicsService->getTextDriver();
 
     stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    String tests[3] {
-            "FreeListMemoryManager", "BitmapMemoryManager", "StaticHeapMemoryManager"
+    MemoryManagerTest *tests[5] {
+            new MemoryManagerTest(*SystemManagement::getKernelHeapManager(), 1048576, 128, 8192, "KernelHeapMemoryManager"),
+            new MemoryManagerTest(*SystemManagement::getInstance().getIOMemoryManager(), 1048576, 128, 8192, "IOMemoryManager"),
+            new MemoryManagerTest("FreeListMemoryManager", 1048576, 128, 8192),
+            new MemoryManagerTest("BitmapMemoryManager", 1048576, 128, 128),
+            new MemoryManagerTest("StaticHeapMemoryManager", 1048576, 128, 8192)
     };
 
-    for(const String &test : tests) {
-        if(test == "BitmapMemoryManager") {
-            MemoryManagerTest memoryTest(test, 1048576, 128, 128);
-            memoryTest.run();
-        } else {
-            MemoryManagerTest memoryTest(test, 1048576, 128, 8192);
-            memoryTest.run();
-        }
+    for(const auto test : tests) {
+        test->run();
+
+        delete test;
 
         stream->clear();
     }
@@ -258,18 +240,10 @@ void Application::startSelectedApp() {
             pause();
             break;
         case 6:
-            startHeapDemo();
-            pause();
-            break;
-        case 7:
-            startIoMemoryDemo();
-            pause();
-            break;
-        case 8:
             startMemoryManagerDemo();
             isRunning = true;
             break;
-        case 9:
+        case 7:
             startExceptionDemo();
             pause();
             break;

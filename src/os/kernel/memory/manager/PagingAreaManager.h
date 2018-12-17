@@ -30,7 +30,7 @@ class PagingAreaManager : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "PagingAreaManager";
+    static const constexpr char *TYPE_NAME = "PagingAreaManager";
 
 public:
 
@@ -49,7 +49,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
 };
 

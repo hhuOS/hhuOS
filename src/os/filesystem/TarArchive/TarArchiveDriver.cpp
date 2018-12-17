@@ -26,8 +26,8 @@ TarArchiveDriver::~TarArchiveDriver() {
     delete archive;
 }
 
-String TarArchiveDriver::getName() {
-    return NAME;
+String TarArchiveDriver::getTypeName() {
+    return TYPE_NAME;
 }
 
 bool TarArchiveDriver::createFs(StorageDevice *device) {

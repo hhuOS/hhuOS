@@ -18,31 +18,44 @@
 #include <kernel/services/InputService.h>
 #include "MemoryManagerTest.h"
 
-MemoryManagerTest::MemoryManagerTest(const String &memoryManagerType, uint32_t memorySize, uint32_t numAllocs,
-        uint32_t maxAllocSize) : numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
+MemoryManagerTest::MemoryManagerTest(const String &managerType, uint32_t memorySize, uint32_t numAllocs,
+                                     uint32_t maxAllocSize, const String &name) :
+        manager(*((MemoryManager *) MemoryManager::createInstance(managerType))), managerName(name),
+        deleteManager(true), numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
     memory = new char[memorySize];
-    manager = (MemoryManager*) MemoryManager::createInstance(memoryManagerType);
-    manager->init((uint32_t) memory, ((uint32_t) memory) + memorySize, false);
+    manager.init((uint32_t) memory, (uint32_t) memory + memorySize, false);
+    objects = new void*[numAllocs];
+
+    random = Random(maxAllocSize - 1);
+}
+
+MemoryManagerTest::MemoryManagerTest(MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
+                                     uint32_t maxAllocSize, const String &name) :
+        manager(manager), managerName(name), numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
     objects = new void*[numAllocs];
 
     random = Random(maxAllocSize - 1);
 }
 
 MemoryManagerTest::~MemoryManagerTest() {
-    delete manager;
-    delete (char*) memory;
+    if(deleteManager) {
+        delete &manager;
+        delete (char*) memory;
+    }
+
+    delete objects;
 }
 
 void MemoryManagerTest::run() {
     printf("===MemoryManagerTest===\n");
-    printf("===Testing %s===\n\n", (const char*) manager->getName());
+    printf("===Testing %s===\n\n", (const char*) (managerName.isEmpty() ? manager.getTypeName() : managerName));
 
-    printf("Start Address: 0x%08x, End Address: 0x%08x\n\n", manager->getStartAddress(), manager->getEndAddress());
+    printf("Start Address: 0x%08x, End Address: 0x%08x\n\n", manager.getStartAddress(), manager.getEndAddress());
 
     printf("Starting Test:\n\n");
     printf("Allocating %u chunks of memory with a maximum size of %u bytes...", numAllocs, maxAllocSize);
 
-    uint32_t freeBefore = manager->getFreeMemory();
+    uint32_t freeBefore = manager.getFreeMemory();
 
     bool ret = testAlloc();
 
@@ -50,7 +63,7 @@ void MemoryManagerTest::run() {
         printf(" Finished!\n");
         printf("Freeing allocated memory...");
 
-        uint32_t freeAfter = manager->getFreeMemory();
+        uint32_t freeAfter = manager.getFreeMemory();
 
         printf(" Finished!\n\n");
 
@@ -68,12 +81,9 @@ void MemoryManagerTest::run() {
     while (kb->isKeyPressed(KeyEvent::RETURN));
 }
 
-/**
- * Primitive allocations (new calls) and frees
- */
 bool MemoryManagerTest::testAlloc() {
     for(uint8_t i=0; i < numAllocs; i++) {
-        objects[i] = manager->alloc(random.rand() + 1);
+        objects[i] = manager.alloc(random.rand() + 1);
 
         if(objects[i] == nullptr) {
             printf("\n\n*** OUT OF MEMORY ***\n");
@@ -86,15 +96,12 @@ bool MemoryManagerTest::testAlloc() {
     shuffle();
 
     for(uint8_t i=0; i < numAllocs; i++) {
-        manager->free(objects[i]);
+        manager.free(objects[i]);
     }
 
     return true;
 }
 
-/**
- * Shuffles the allocated objects.
- */
 void MemoryManagerTest::shuffle() {
     uint32_t src, dst;
 

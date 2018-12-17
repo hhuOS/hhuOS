@@ -30,9 +30,13 @@ private:
 
     Random random;
 
-    void **objects = nullptr;
+    MemoryManager &manager;
 
-    MemoryManager *manager = nullptr;
+    String managerName;
+
+    bool deleteManager = false;
+
+    void **objects = nullptr;
 
     void *memory = nullptr;
 
@@ -48,8 +52,11 @@ private:
 
 public:
 
-    MemoryManagerTest(const String &memoryManagerType, uint32_t memorySize, uint32_t numAllocs,
-            uint32_t maxAllocSize = 8192);
+    MemoryManagerTest(const String &managerType, uint32_t memorySize, uint32_t numAllocs,
+                      uint32_t maxAllocSize = 8192, const String &name = "");
+
+    MemoryManagerTest(MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
+                      uint32_t maxAllocSize = 8192, const String &name = "");
 
     MemoryManagerTest(const MemoryManagerTest &copy) = delete;
 

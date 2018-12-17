@@ -38,8 +38,8 @@ void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddres
     // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
 }
 
-String IOMemoryManager::getName() {
-    return NAME;
+String IOMemoryManager::getTypeName() {
+    return TYPE_NAME;
 }
 
 void* IOMemoryManager::alloc(uint32_t size){

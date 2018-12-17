@@ -41,7 +41,7 @@ private:
 
     Spinlock lock;
 
-    static const constexpr char *NAME = "IOMemoryManager";
+    static const constexpr char *TYPE_NAME = "IOMemoryManager";
 
 public:
 
@@ -70,7 +70,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

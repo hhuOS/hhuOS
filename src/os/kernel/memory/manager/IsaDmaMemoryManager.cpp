@@ -28,6 +28,6 @@ void IsaDmaMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAd
     // Do nothing. The IsaDmaMemoryManager will always be initialized by the kernel and has hardcoded values.
 }
 
-String IsaDmaMemoryManager::getName() {
-    return NAME;
+String IsaDmaMemoryManager::getTypeName() {
+    return TYPE_NAME;
 }

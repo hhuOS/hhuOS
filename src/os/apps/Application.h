@@ -27,25 +27,23 @@
 class Application : public Thread, public Receiver {
 
 private:
-    const char *menuOptions[10] = {
-            "Shell", "Bug Defender", "Langtons Ant", "Mandelbrot", "Mouse", "Loops and Sound",
-            "Kernel Heap Demo", "IO Memory Demo", "Memory Manager Demo", "Exception Demo"
+    const char *menuOptions[8] = {
+            "Shell", "Bug Defender", "Langtons Ant", "Mandelbrot", "Mouse", "Loops and Sound", "Memory Manager Demo",
+            "Exception Demo"
     };
 
-    const char *menuDescriptions[10] {
+    const char *menuDescriptions[8] {
             "A simple UNIX-like Shell",
             "A fun game: Save the OS from invading bugs!",
             "Watch Langtons Ant run around your screen",
             "Navigate through the Mandelbrot set",
             "A simple Demo, that uses the mouse",
             "Multi-Threading test",
-            "Memory Management test for the Kernel Heap",
-            "Memory Management test for IO Memory",
             "Memory Management test for all available memory managers",
             "Bluescreen test",
     };
 
-    static const constexpr uint8_t menuDistance = 4;
+    static const constexpr uint8_t menuDistance = 5;
 
     uint16_t xres = 800;
     uint16_t yres = 600;
@@ -63,11 +61,9 @@ private:
 
     void startShell();
     void startLoopSoundDemo();
-    void startHeapDemo();
     void startExceptionDemo();
     void startAntDemo();
     void startMandelbrotDemo();
-    void startIoMemoryDemo();
     void startMemoryManagerDemo();
 
     void showMenu();

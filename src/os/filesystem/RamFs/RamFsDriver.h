@@ -39,7 +39,7 @@ private:
      */
     static VirtualNode *getChildByName(VirtualNode *parent, const String &path);
 
-    static const constexpr char *NAME = "RamFsDriver";
+    static const constexpr char *TYPE_NAME = "RamFsDriver";
 
 protected:
 
@@ -62,7 +62,7 @@ public:
     /**
      * Overriding function from FsDriver.
      */
-    String getName() override;
+    String getTypeName() override;
 
     /**
      * Overriding function from FsDriver.

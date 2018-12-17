@@ -32,7 +32,7 @@ private:
 
     Spinlock lock;
 
-    static const constexpr char *NAME = "StaticHeapMemoryManager";
+    static const constexpr char *TYPE_NAME = "StaticHeapMemoryManager";
 
 public:
 
@@ -61,7 +61,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

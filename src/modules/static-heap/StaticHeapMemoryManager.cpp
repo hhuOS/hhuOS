@@ -31,8 +31,8 @@ void StaticHeapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryE
     currentPosition = memoryStartAddress;
 }
 
-String StaticHeapMemoryManager::getName() {
-    return NAME;
+String StaticHeapMemoryManager::getTypeName() {
+    return TYPE_NAME;
 }
 
 void *StaticHeapMemoryManager::alloc(uint32_t size) {

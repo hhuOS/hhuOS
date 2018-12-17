@@ -23,8 +23,8 @@ FatDriver::~FatDriver() {
     }
 }
 
-String FatDriver::getName() {
-    return NAME;
+String FatDriver::getTypeName() {
+    return TYPE_NAME;
 }
 
 bool FatDriver::mount(StorageDevice *device) {

@@ -29,7 +29,7 @@ private:
 
     Util::Array<Tar::Header*> fileHeaders{};
 
-    static const constexpr char *NAME = "TarArchiveDriver";
+    static const constexpr char *TYPE_NAME = "TarArchiveDriver";
 
 public:
 
@@ -50,7 +50,7 @@ public:
     /**
      * Overriding virtual function from FsDriver.
      */
-     String getName() override;
+     String getTypeName() override;
 
     /**
      * Overriding virtual function from FsDriver.

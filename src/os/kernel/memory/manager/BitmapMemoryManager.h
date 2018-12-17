@@ -76,7 +76,7 @@ protected:
 
 private:
 
-    static const constexpr char *NAME = "BitmapMemoryManager";
+    static const constexpr char *TYPE_NAME = "BitmapMemoryManager";
 
 public:
 
@@ -85,7 +85,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
     /**
      * Constructor.

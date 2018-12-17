@@ -30,7 +30,7 @@ class PageFrameAllocator : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "PageFrameAllocator";
+    static const constexpr char *TYPE_NAME = "PageFrameAllocator";
 
 public:
 
@@ -52,7 +52,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
 };
 

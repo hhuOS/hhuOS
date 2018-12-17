@@ -57,7 +57,7 @@ public:
     /**
      * Get the name, under which the prototype will be registered and usable for the user.
      */
-    virtual String getName() = 0;
+    virtual String getTypeName() = 0;
 
     /**
      * Create a new instance of a given prototype.

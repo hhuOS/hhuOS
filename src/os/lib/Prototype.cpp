@@ -33,7 +33,7 @@ Prototype *Prototype::createInstance(String type) {
 }
 
 void Prototype::registerPrototype(Prototype *prototype) {
-    String key = prototype->getName().toLowerCase();
+    String key = prototype->getTypeName().toLowerCase();
 
     prototypeTable.put(key, prototype);
 }

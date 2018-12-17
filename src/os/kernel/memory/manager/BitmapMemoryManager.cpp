@@ -55,8 +55,8 @@ void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAd
     memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
 }
 
-String BitmapMemoryManager::getName() {
-    return NAME;
+String BitmapMemoryManager::getTypeName() {
+    return TYPE_NAME;
 }
 
 void* BitmapMemoryManager::alloc(uint32_t size) {

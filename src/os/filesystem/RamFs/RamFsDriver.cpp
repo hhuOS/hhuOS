@@ -37,8 +37,8 @@ VirtualNode *RamFsDriver::getChildByName(VirtualNode *parent, const String &path
     return nullptr;
 }
 
-String RamFsDriver::getName() {
-    return NAME;
+String RamFsDriver::getTypeName() {
+    return TYPE_NAME;
 }
 
 bool RamFsDriver::mount(StorageDevice *disk) {

@@ -272,7 +272,7 @@ uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
 
     auto *driver = getMountedDriver(parsedPath);
 
-    if(driver->getName() != "RamFsDriver") {
+    if(driver->getTypeName() != "RamFsDriver") {
         fsLock.release();
 
         return ADDING_VIRTUAL_NODE_FAILED;

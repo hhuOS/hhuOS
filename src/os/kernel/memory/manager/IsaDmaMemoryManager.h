@@ -29,7 +29,7 @@ class IsaDmaMemoryManager : public BitmapMemoryManager {
 
 private:
 
-    static const constexpr char *NAME = "IsaDmaMemoryManager";
+    static const constexpr char *TYPE_NAME = "IsaDmaMemoryManager";
 
 public:
 
@@ -48,7 +48,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
     static const constexpr uint32_t ISA_DMA_BUF_SIZE = 0x10000;
 };

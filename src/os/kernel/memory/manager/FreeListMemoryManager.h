@@ -63,7 +63,7 @@ private:
      */
     FLHeader *merge(FLHeader *origin);
 
-    static const constexpr char *NAME = "FreeListMemoryManager";
+    static const constexpr char *TYPE_NAME = "FreeListMemoryManager";
 
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
 
@@ -118,7 +118,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getName() override;
+    String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

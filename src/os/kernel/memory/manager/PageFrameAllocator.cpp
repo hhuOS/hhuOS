@@ -42,8 +42,8 @@ void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAdd
     freeMemory -= (maxIndex * 32 * blockSize + 2 * blockSize);
 }
 
-String PageFrameAllocator::getName() {
-    return NAME;
+String PageFrameAllocator::getTypeName() {
+    return TYPE_NAME;
 }
 
 

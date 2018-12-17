@@ -33,7 +33,7 @@ private:
     FatFs *fatInstance = nullptr;
     StorageDevice *device = nullptr;
 
-    static const constexpr char *NAME = "FatDriver";
+    static const constexpr char *TYPE_NAME = "FatDriver";
 
 public:
 
@@ -52,7 +52,7 @@ public:
     /**
      * Overriding virtual function from FsDriver.
      */
-     String getName() override;
+     String getTypeName() override;
 
     /**
      * Overriding virtual function from FsDriver.
