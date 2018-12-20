@@ -16,16 +16,16 @@
 
 #include "KeyEvent.h"
 
-KeyEvent::KeyEvent(Key key) : Event(TYPE) {
+KeyEvent::KeyEvent(Key key) : Event() {
     this->key = key;
 }
 
-KeyEvent::KeyEvent() : Event(TYPE) {
+KeyEvent::KeyEvent() : Event() {
 
 }
 
-char *KeyEvent::getName() {
-    return const_cast<char *>("KeyEvent");
+String KeyEvent::getType() const {
+    return TYPE;
 }
 
 Key KeyEvent::getKey() {

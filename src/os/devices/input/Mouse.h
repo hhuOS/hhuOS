@@ -24,7 +24,7 @@
 #include <kernel/events/input/MouseClickedEvent.h>
 #include <kernel/events/input/MouseReleasedEvent.h>
 #include <kernel/events/input/MouseMovedEvent.h>
-#include <kernel/events/input/MouseDoubleClickEvent.h>
+#include <kernel/events/input/MouseDoubleClickedEvent.h>
 #include "kernel/log/Logger.h"
 
 /**
@@ -50,7 +50,7 @@ private:
     Util::RingBuffer<MouseMovedEvent> movedEventBuffer;
     Util::RingBuffer<MouseClickedEvent> clickedEventBuffer;
     Util::RingBuffer<MouseReleasedEvent> releasedEventBuffer;
-    Util::RingBuffer<MouseDoubleClickEvent> doubleclickEventBuffer;
+    Util::RingBuffer<MouseDoubleClickedEvent> doubleclickEventBuffer;
 
     bool available = true;
 

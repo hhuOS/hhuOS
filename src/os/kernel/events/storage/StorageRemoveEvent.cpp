@@ -16,11 +16,11 @@
 
 #include "StorageRemoveEvent.h"
 
-StorageRemoveEvent::StorageRemoveEvent() : Event(TYPE) {
+StorageRemoveEvent::StorageRemoveEvent() : Event() {
 
 }
 
-StorageRemoveEvent::StorageRemoveEvent(String deviceName) : Event(TYPE) {
+StorageRemoveEvent::StorageRemoveEvent(String deviceName) : Event() {
     this->deviceName = deviceName;
 }
 
@@ -28,8 +28,8 @@ StorageRemoveEvent::StorageRemoveEvent(const StorageRemoveEvent &other) : Event(
     this->deviceName = other.deviceName;
 }
 
-char *StorageRemoveEvent::getName() {
-    return const_cast<char *>("StorageRemoveEvent");
+String StorageRemoveEvent::getType() const {
+    return TYPE;
 }
 
 String StorageRemoveEvent::getDeviceName() {

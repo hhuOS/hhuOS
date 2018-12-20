@@ -18,6 +18,7 @@
 #define __Event_include__
 
 #include <cstdint>
+#include <lib/String.h>
 
 /**
  * @author Filip Krakowski
@@ -26,21 +27,13 @@ class Event {
 
 public:
 
-    explicit Event(uint32_t type) : type(type) {}
-
-    Event(const Event &other);
+    explicit Event() = default;
 
     virtual ~Event() = default;
 
-    uint32_t    getType() const;
+    bool is(const String &type);
 
-    bool        is(uint32_t type);
-
-    virtual char* getName() = 0;
-
-private:
-
-    uint32_t    type;
+    virtual String getType() const = 0;
 
 };
 

@@ -25,11 +25,11 @@ EventBus::EventBus() : Thread("EventBus"), receiverMap(7691), eventBuffer(1024 *
     isInitialized = true;
 }
 
-void EventBus::subscribe(Receiver &receiver, uint32_t type) {
+void EventBus::subscribe(Receiver &receiver, const String &type) {
 
     auto *publisher = new EventPublisher(receiver);
 
-    Util::Pair<Receiver*, uint32_t> key(&receiver, type);
+    Util::Pair<Receiver*, String> key(&receiver, type);
 
     lock.acquire();
 
@@ -40,7 +40,11 @@ void EventBus::subscribe(Receiver &receiver, uint32_t type) {
 
     receiverMap.put(key, publisher);
 
-    publishers[type].add(publisher);
+    if(!publishers.containsKey(type)) {
+        publishers.put(type, new Util::ArrayList<EventPublisher*>);
+    }
+
+    publishers.get(type)->add(publisher);
 
     registeredPublishers++;
 
@@ -49,9 +53,9 @@ void EventBus::subscribe(Receiver &receiver, uint32_t type) {
     publisher->start();
 }
 
-void EventBus::unsubscribe(Receiver &receiver, uint32_t type) {
+void EventBus::unsubscribe(Receiver &receiver, const String &type) {
 
-    Util::Pair<Receiver*, uint32_t> key(&receiver, type);
+    Util::Pair<Receiver*, String> key(&receiver, type);
 
     lock.acquire();
 
@@ -66,7 +70,11 @@ void EventBus::unsubscribe(Receiver &receiver, uint32_t type) {
 
     scheduler.kill(*publisher);
 
-    publishers[type].remove(publisher);
+    publishers.get(type)->remove(publisher);
+
+    if(publishers.get(type)->isEmpty()) {
+        publishers.remove(type);
+    }
 
     receiverMap.remove(key);
 
@@ -101,7 +109,11 @@ void EventBus::notify() {
 
         event = eventBuffer.pop();
 
-        Util::ArrayList<EventPublisher*> &publisherList = publishers[event->getType()];
+        if(!publishers.containsKey(event->getType())) {
+            return;
+        }
+
+        Util::ArrayList<EventPublisher*> &publisherList = *publishers.get(event->getType());
 
         for (EventPublisher *publisher : publisherList) {
 

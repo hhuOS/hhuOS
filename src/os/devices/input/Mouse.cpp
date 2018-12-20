@@ -268,7 +268,7 @@ void Mouse::trigger(InterruptFrame &frame) {
                         clickMask|= (0x1<<i);
 
                         if((tmpTstmp - lastClickTimestamp) < 300) {
-                            doubleclickEventBuffer.push(MouseDoubleClickEvent());
+                            doubleclickEventBuffer.push(MouseDoubleClickedEvent());
                             eventBus->publish(doubleclickEventBuffer.pop());
                             lastClickTimestamp = 0;
                         } else {

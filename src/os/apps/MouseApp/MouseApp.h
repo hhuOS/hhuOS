@@ -24,7 +24,7 @@
 #include <kernel/events/input/MouseClickedEvent.h>
 #include <kernel/events/input/MouseReleasedEvent.h>
 #include <kernel/events/input/MouseMovedEvent.h>
-#include <kernel/events/input/MouseDoubleClickEvent.h>
+#include <kernel/events/input/MouseDoubleClickedEvent.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <kernel/services/GraphicsService.h>
 #include <lib/file/bmp/Bmp.h>

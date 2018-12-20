@@ -22,28 +22,29 @@
 
 class MouseReleasedEvent : public Event  {
 
-private:
-    /*
-     * 0: left released
-     * 1: right released
-     * 2: middle released
-     */
-    uint8_t bitmask;
-
 public:
     MouseReleasedEvent ();
 
     explicit MouseReleasedEvent(uint8_t bitmask);
 
-    static const uint32_t TYPE   = 0x00000005;
-
-    char* getName() override;
+    String getType() const override;
 
     bool isLeftReleased();
 
     bool isRightReleased();
 
     bool isMiddleReleased();
+
+    static const constexpr char *TYPE = "MouseReleasedEvent";
+
+private:
+
+    /*
+     * 0: left released
+     * 1: right released
+     * 2: middle released
+     */
+    uint8_t bitmask;
 };
 
 #endif

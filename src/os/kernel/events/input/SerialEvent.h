@@ -30,13 +30,13 @@ public:
 
     SerialEvent(const SerialEvent &other);
 
-    char* getName() override;
+    String getType() const override;
 
     char getChar();
 
     Serial::ComPort getPortNumber();
 
-    static const uint32_t TYPE   = 0x00000008;
+    static const constexpr char *TYPE = "SerialEvent";
 
 private:
 

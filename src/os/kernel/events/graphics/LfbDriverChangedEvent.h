@@ -30,16 +30,15 @@ public:
 
     LfbDriverChangedEvent(const LfbDriverChangedEvent &other);
 
-    char* getName() override;
+    String getType() const override;
 
     LinearFrameBuffer *getLinearFrameBuffer();
 
-    static const uint32_t TYPE   = 0x00000009;
+    static const constexpr char *TYPE = "LfbDriverChangedEvent";
 
 private:
 
     LinearFrameBuffer *lfb = nullptr;
-
 };
 
 #endif

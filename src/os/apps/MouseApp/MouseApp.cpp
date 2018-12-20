@@ -56,7 +56,7 @@ MouseApp::~MouseApp() {
     eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseDoubleClickedEvent::TYPE);
 }
 
 void MouseApp::onEvent(const Event &event) {
@@ -73,6 +73,7 @@ void MouseApp::onEvent(const Event &event) {
         int32_t dy = movedEvent.getYMovement();
 
         xPos += dx;
+
         if(xPos < 0) {
             xPos = 0;
         } else if(xPos + mouseDefault->getWidth() >= lfb->getResX()) {
@@ -102,7 +103,7 @@ void MouseApp::onEvent(const Event &event) {
         }
     } else if(event.getType() == MouseReleasedEvent::TYPE) {
         currentIcon = mouseDefault;
-    } else if(event.getType() == MouseDoubleClickEvent::TYPE) {
+    } else if(event.getType() == MouseDoubleClickedEvent::TYPE) {
         versionColor = Color(static_cast<uint8_t>(random.rand(255)), static_cast<uint8_t>(random.rand(255)),
                              static_cast<uint8_t>(random.rand(255)));
     }
@@ -136,7 +137,7 @@ void MouseApp::run() {
     eventBus->subscribe(*this, MouseMovedEvent::TYPE);
     eventBus->subscribe(*this, MouseClickedEvent::TYPE);
     eventBus->subscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->subscribe(*this, MouseDoubleClickEvent::TYPE);
+    eventBus->subscribe(*this, MouseDoubleClickedEvent::TYPE);
 
     lfb->enableDoubleBuffering();
 
@@ -165,7 +166,7 @@ void MouseApp::run() {
     eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseDoubleClickEvent::TYPE);
+    eventBus->unsubscribe(*this, MouseDoubleClickedEvent::TYPE);
     Application::getInstance().resume();
     Scheduler::getInstance().exit();
 }

@@ -16,12 +16,12 @@
 
 #include "LfbDriverChangedEvent.h"
 
-LfbDriverChangedEvent::LfbDriverChangedEvent() : Event(TYPE) {
+LfbDriverChangedEvent::LfbDriverChangedEvent() : Event() {
 
 }
 
 
-LfbDriverChangedEvent::LfbDriverChangedEvent(LinearFrameBuffer *lfb) : Event(TYPE), lfb(lfb){
+LfbDriverChangedEvent::LfbDriverChangedEvent(LinearFrameBuffer *lfb) : Event(), lfb(lfb){
 
 }
 
@@ -29,8 +29,8 @@ LfbDriverChangedEvent::LfbDriverChangedEvent(const LfbDriverChangedEvent &other)
     this->lfb = other.lfb;
 }
 
-char *LfbDriverChangedEvent::getName() {
-    return const_cast<char *>("LfbDriverChangedEvent");
+String LfbDriverChangedEvent::getType() const {
+    return TYPE;
 }
 
 LinearFrameBuffer *LfbDriverChangedEvent::getLinearFrameBuffer() {

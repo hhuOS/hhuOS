@@ -16,11 +16,11 @@
 
 #include "MouseReleasedEvent.h"
 
-MouseReleasedEvent::MouseReleasedEvent() : Event(TYPE) {
+MouseReleasedEvent::MouseReleasedEvent() : Event() {
     bitmask = 0;
 }
 
-MouseReleasedEvent::MouseReleasedEvent(uint8_t bitmask) : Event(TYPE) {
+MouseReleasedEvent::MouseReleasedEvent(uint8_t bitmask) : Event() {
     this->bitmask = bitmask;
 }
 
@@ -36,6 +36,6 @@ bool MouseReleasedEvent::isMiddleReleased() {
     return (bitmask & 0x4u) != 0;
 }
 
-char* MouseReleasedEvent::getName() {
-    return const_cast<char *>("MouseReleasedEvent");
+String MouseReleasedEvent::getType() const {
+    return TYPE;
 }

@@ -16,18 +16,18 @@
 
 #include "MouseMovedEvent.h"
 
-MouseMovedEvent::MouseMovedEvent() : Event(TYPE) {
+MouseMovedEvent::MouseMovedEvent() : Event() {
     dx = 0;
     dy = 0;
 }
 
-MouseMovedEvent::MouseMovedEvent(int32_t dx, int32_t dy) : Event(TYPE) {
+MouseMovedEvent::MouseMovedEvent(int32_t dx, int32_t dy) : Event() {
     this->dx = dx;
     this->dy = dy;
 }
 
-char* MouseMovedEvent::getName() {
-    return const_cast<char *>("MouseMovedEvent");
+String MouseMovedEvent::getType() const {
+    return TYPE;
 }
 
 int32_t MouseMovedEvent::getXMovement() {

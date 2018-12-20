@@ -16,16 +16,16 @@
 
 #include "SerialEvent.h"
 
-SerialEvent::SerialEvent() : Event(TYPE) {
+SerialEvent::SerialEvent() : Event() {
 
 }
 
-SerialEvent::SerialEvent(Serial::ComPort port, char c) : Event(TYPE), port(port), c(c) {
+SerialEvent::SerialEvent(Serial::ComPort port, char c) : Event(), port(port), c(c) {
 
 }
 
-char *SerialEvent::getName() {
-    return const_cast<char *>("SerialEvent");
+String SerialEvent::getType() const {
+    return TYPE;
 }
 
 char SerialEvent::getChar() {

@@ -23,29 +23,31 @@
 
 class MouseClickedEvent : public Event {
 
-private:
-    /*
-     * 0: left clicked
-     * 1: right clicked
-     * 2: middle clicked
-     */
-    uint8_t bitmask;
-
 public:
-    MouseClickedEvent ();
+
+    MouseClickedEvent();
 
     explicit MouseClickedEvent(uint8_t bitmask);
 
-    static const uint32_t TYPE   = 0x00000004;
-
-    char* getName() override;
+    String getType() const override;
 
     bool isLeftClicked();
 
     bool isRightClicked();
 
     bool isMiddleClicked();
+
+    static const constexpr char *TYPE = "MouseClickedEvent";
+
+private:
+
+    /*
+     * 0: left clicked
+     * 1: right clicked
+     * 2: middle clicked
+     */
+    uint8_t bitmask;
 };
 
 
-#endif //HHUOS_MOUSECLICKEDEVENT_H
+#endif

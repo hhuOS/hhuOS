@@ -44,16 +44,15 @@ public:
 
     KeyEvent(const KeyEvent &other);
 
-    char* getName() override;
-
-    static const uint32_t TYPE   = 0x00000001;
+    String getType() const override;
 
     Key getKey();
+
+    static const constexpr char *TYPE = "KeyEvent";
 
 private:
 
     Key key;
-
 };
 
 

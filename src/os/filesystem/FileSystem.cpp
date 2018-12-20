@@ -486,20 +486,14 @@ uint32_t FileSystem::deleteFile(const String &path) {
 }
 
 void FileSystem::onEvent(const Event &event) {
-    switch(event.getType()) {
-        case StorageAddEvent::TYPE : {
-                StorageDevice *device = ((StorageAddEvent &) event).getDevice();
+    if(event.getType() == StorageAddEvent::TYPE) {
+        StorageDevice *device = ((StorageAddEvent &) event).getDevice();
 
-                deleteFile("/dev/storage/" + device->getName());
-                addVirtualNode("/dev/storage/", new StorageNode(device));
-            }
-            break;
-        case StorageRemoveEvent::TYPE : {
-                String deviceName = ((StorageRemoveEvent &) event).getDeviceName();
-                deleteFile("/dev/storage/" + deviceName);
-            }
-            break;
-        default:
-            break;
+        deleteFile("/dev/storage/" + device->getName());
+        addVirtualNode("/dev/storage/", new StorageNode(device));
+    } else if(event.getType() == StorageAddEvent::TYPE) {
+        String deviceName = ((StorageRemoveEvent &) event).getDeviceName();
+
+        deleteFile("/dev/storage/" + deviceName);
     }
 }

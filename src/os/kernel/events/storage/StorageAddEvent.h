@@ -30,16 +30,15 @@ public:
 
     StorageAddEvent(const StorageAddEvent &other);
 
-    char* getName() override;
+    String getType() const override;
 
     StorageDevice* getDevice();
 
-    static const uint32_t TYPE   = 0x00000002;
+    static const constexpr char *TYPE = "StorageAddEvent";
 
 private:
 
     StorageDevice *device;
-
 };
 
 

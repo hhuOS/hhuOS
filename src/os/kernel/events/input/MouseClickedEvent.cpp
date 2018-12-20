@@ -16,11 +16,11 @@
 
 #include "MouseClickedEvent.h"
 
-MouseClickedEvent::MouseClickedEvent() : Event(TYPE) {
+MouseClickedEvent::MouseClickedEvent() : Event() {
     bitmask = 0;
 }
 
-MouseClickedEvent::MouseClickedEvent(uint8_t bitmask) : Event(TYPE) {
+MouseClickedEvent::MouseClickedEvent(uint8_t bitmask) : Event() {
     this->bitmask = bitmask;
 }
 
@@ -36,6 +36,6 @@ bool MouseClickedEvent::isMiddleClicked() {
     return (bitmask & 0x4u) != 0;
 }
 
-char* MouseClickedEvent::getName() {
-    return const_cast<char *>("MouseClickedEvent");
+String MouseClickedEvent::getType() const {
+    return TYPE;
 }

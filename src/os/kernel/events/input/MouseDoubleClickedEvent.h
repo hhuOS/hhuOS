@@ -14,31 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __StorageRemoveEvent_include__
-#define __StorageRemoveEvent_include__
+#ifndef HHUOS_MOUSEDOUBLECLICKEVENT_H
+#define HHUOS_MOUSEDOUBLECLICKEVENT_H
 
-#include "kernel/events/Event.h"
-#include "devices/storage/devices/StorageDevice.h"
 
-class StorageRemoveEvent : public Event {
+#include <kernel/events/Event.h>
+
+class MouseDoubleClickedEvent : public Event {
 
 public:
 
-    StorageRemoveEvent();
-
-    explicit StorageRemoveEvent(String deviceName);
-
-    StorageRemoveEvent(const StorageRemoveEvent &other);
+    MouseDoubleClickedEvent();
 
     String getType() const override;
 
-    String getDeviceName();
-
-    static const constexpr char *TYPE = "StorageRemoveEvent";
-
-private:
-
-    String deviceName;
+    static const constexpr char *TYPE = "MouseDoubleClickedEvent";
 };
 
 

@@ -25,20 +25,25 @@
  *
  */
 class MouseMovedEvent : public Event {
-private:
-    int32_t dx;
-    int32_t dy;
+
 public:
+
     MouseMovedEvent();
 
     explicit MouseMovedEvent(int32_t dx, int32_t dy);
 
-    static const uint32_t TYPE   = 0x00000006;
-
-    char* getName() override;
+    String getType() const override;
 
     int32_t getXMovement();
+
     int32_t getYMovement();
+
+    static const constexpr char *TYPE = "MouseMovedEvent";
+
+private:
+
+    int32_t dx;
+    int32_t dy;
 };
 
 

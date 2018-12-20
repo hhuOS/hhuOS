@@ -55,7 +55,7 @@ public:
      * @param receiver The Receiver
      * @param type The Event type
      */
-    void subscribe(Receiver &receiver, uint32_t type);
+    void subscribe(Receiver &receiver, const String &type);
 
     /**
      * Unsubscribes from a certain type of Event.
@@ -63,7 +63,7 @@ public:
      * @param receiver The Receiver
      * @param type The Event type
      */
-    void unsubscribe(Receiver &receiver, uint32_t type);
+    void unsubscribe(Receiver &receiver, const String &type);
 
     /**
      * Publishes an Event.
@@ -74,13 +74,13 @@ public:
 
     void run () override;
 
-    static constexpr char* SERVICE_NAME = "EventBus";
+    static const constexpr char* SERVICE_NAME = "EventBus";
 
 private:
 
-    Util::ArrayList<EventPublisher*> publishers[1024];
+    Util::HashMap<String, Util::ArrayList<EventPublisher*>*> publishers;
 
-    Util::HashMap<Util::Pair<Receiver*, uint32_t>, EventPublisher*> receiverMap;
+    Util::HashMap<Util::Pair<Receiver*, String>, EventPublisher*> receiverMap;
 
     Util::RingBuffer<const Event*> eventBuffer;
 

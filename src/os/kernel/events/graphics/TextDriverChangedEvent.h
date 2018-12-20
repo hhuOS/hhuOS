@@ -30,16 +30,15 @@ public:
 
     TextDriverChangedEvent(const TextDriverChangedEvent &other);
 
-    char* getName() override;
+    String getType() const override;
 
     TextDriver *getTextDriver();
 
-    static const uint32_t TYPE   = 0x00000008;
+    static const constexpr char *TYPE = "TextDriverChangedEvent";
 
 private:
 
     TextDriver *textDriver = nullptr;
-
 };
 
 #endif

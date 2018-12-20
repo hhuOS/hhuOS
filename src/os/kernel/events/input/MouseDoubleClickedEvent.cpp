@@ -14,23 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MOUSEDOUBLECLICKEVENT_H
-#define HHUOS_MOUSEDOUBLECLICKEVENT_H
+#include "MouseDoubleClickedEvent.h"
 
+MouseDoubleClickedEvent::MouseDoubleClickedEvent() : Event() {
 
-#include <kernel/events/Event.h>
+}
 
-class MouseDoubleClickEvent : public Event{
+String MouseDoubleClickedEvent::getType() const {
+    return TYPE;
+}
 
-public:
-    MouseDoubleClickEvent() : Event(TYPE) {};
-
-    static const uint32_t TYPE = 0x00000007;
-
-    char* getName() override {
-        return const_cast<char *>("MouseDoubleClickEvent");
-    }
-};
-
-
-#endif
