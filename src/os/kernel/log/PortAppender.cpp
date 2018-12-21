@@ -14,29 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SerialEvent.h"
+#include "PortAppender.h"
 
-SerialEvent::SerialEvent() : Event() {
+void PortAppender::append(const String &message) {
 
+    port.sendData((char*) (message + "\n"), message.length() + 1);
 }
 
-SerialEvent::SerialEvent(Serial::ComPort port, char c) : Event(), port(port), c(c) {
+PortAppender::PortAppender(Port &port) : port(port) {
 
-}
-
-String SerialEvent::getType() const {
-    return TYPE;
-}
-
-char SerialEvent::getChar() {
-    return c;
-}
-
-SerialEvent::SerialEvent(const SerialEvent &other) : Event(other){
-    this->c = other.c;
-    this->port = other.port;
-}
-
-Serial::ComPort SerialEvent::getPortNumber() {
-    return port;
 }

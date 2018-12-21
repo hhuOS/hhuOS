@@ -21,6 +21,7 @@
 #include <kernel/IOport.h>
 #include <kernel/services/TimeService.h>
 #include <devices/sound/PcmAudioDevice.h>
+#include <lib/lock/Spinlock.h>
 
 /**
  * Base-class for any ISA-based SoundBlaster-cards.

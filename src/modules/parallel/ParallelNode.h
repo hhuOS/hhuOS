@@ -17,9 +17,11 @@
 #ifndef HHUOS_PARALLELNODE_H
 #define HHUOS_PARALLELNODE_H
 
-#include <kernel/services/ParallelService.h>
 #include <kernel/Kernel.h>
 #include "filesystem/RamFs/VirtualNode.h"
+#include "ParallelDriver.h"
+
+namespace Parallel {
 
 /**
  * Implementation of VirtualNode, that writes to an LPT-Port.
@@ -27,19 +29,21 @@
  * @author Fabian Ruhland
  * @date 2018
  */
+template<LptPort port>
 class ParallelNode : public VirtualNode {
 
 private:
 
-    Parallel *parallel = nullptr;
+    ParallelDriver<port> *parallel = nullptr;
 
-    static String generateName(Parallel::LptPort port);
+    static const constexpr char *NAME = "lpt";
 
 public:
+
     /**
      * Constructor.
      */
-    explicit ParallelNode(Parallel *parallel);
+    explicit ParallelNode(ParallelDriver<port>  *parallel);
 
     /**
      * Copy-constructor.
@@ -66,5 +70,31 @@ public:
      */
     uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
+
+template<LptPort port>
+ParallelNode<port>::ParallelNode(ParallelDriver<port> *parallel) : VirtualNode(NAME, FsNode::BLOCK_FILE), parallel(parallel) {
+
+}
+
+template<LptPort port>
+uint64_t ParallelNode<port>::getLength() {
+    return 0;
+}
+
+template<LptPort port>
+uint64_t ParallelNode<port>::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+    parallel->readData(buf, static_cast<uint32_t>(numBytes));
+
+    return numBytes;
+}
+
+template<LptPort port>
+uint64_t ParallelNode<port>::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    parallel->sendData(buf, static_cast<uint32_t>(numBytes));
+
+    return numBytes;
+}
+
+}
 
 #endif

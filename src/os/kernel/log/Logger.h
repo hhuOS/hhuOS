@@ -20,7 +20,6 @@
 #include "lib/String.h"
 #include "lib/util/ArrayList.h"
 #include "lib/time/TimeProvider.h"
-#include "devices/ports/Serial.h"
 #include "kernel/log/Appender.h"
 
 class Logger {

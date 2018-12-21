@@ -14,35 +14,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SERIALEVENT_H
-#define HHUOS_SERIALEVENT_H
+#ifndef HHUOS_PARALLELMODULE_H
+#define HHUOS_PARALLELMODULE_H
 
-#include <kernel/events/Event.h>
-#include <devices/ports/Serial.h>
+#include <kernel/Module.h>
+#include <kernel/log/Logger.h>
+#include "ParallelDriver.h"
 
-class SerialEvent : public Event {
+class ParallelModule : public Module {
 
 public:
 
-    SerialEvent();
+    ParallelModule() = default;
 
-    explicit SerialEvent(Serial::ComPort port, char c);
+    int32_t initialize() override;
 
-    SerialEvent(const SerialEvent &other);
+    int32_t finalize() override;
 
-    String getType() const override;
+    String getName() override;
 
-    char getChar();
-
-    Serial::ComPort getPortNumber();
-
-    static const constexpr char *TYPE = "SerialEvent";
+    Util::Array <String> getDependencies() override;
 
 private:
 
-    Serial::ComPort port;
+    Logger *log = nullptr;
 
-    char c;
+    Parallel::ParallelDriver<Parallel::LPT1> *lpt1 = nullptr;
+    Parallel::ParallelDriver<Parallel::LPT2> *lpt2 = nullptr;
+    Parallel::ParallelDriver<Parallel::LPT3> *lpt3 = nullptr;
+
 };
 
 #endif

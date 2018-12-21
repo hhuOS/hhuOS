@@ -14,30 +14,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __SerialAppender_include__
-#define __SerialAppender_include__
+#ifndef HHUOS_SERIALSERVICE_H
+#define HHUOS_SERIALSERVICE_H
 
-#include <devices/ports/Serial.h>
-#include "Appender.h"
+#include <kernel/KernelService.h>
+#include <lib/String.h>
+#include <devices/ports/Port.h>
+#include <lib/util/HashMap.h>
 
-class SerialAppender : public Appender {
-
-public:
-
-    explicit SerialAppender(Serial &serial);
-
-    SerialAppender(const SerialAppender &other) = delete;
-
-    SerialAppender &operator=(const SerialAppender &other) = delete;
-
-    ~SerialAppender() = default;
-
-    void append(const String &message) override;
+class PortService : public KernelService {
 
 private:
 
-    Serial &serial;
-};
+    Util::HashMap<String, Port*> simplePortMap;
 
+public:
+
+    PortService() = default;
+
+    void registerPort(Port *port);
+
+    Port *getPort(String name);
+
+    bool isPortAvailable(String name);
+
+    static constexpr const char* SERVICE_NAME = "PortService";
+};
 
 #endif

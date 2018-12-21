@@ -20,7 +20,7 @@
 #define BREAKPOINT() asm("   int $3");
 
 #include <kernel/threads/ThreadState.h>
-#include "devices/ports/Serial.h"
+#include <devices/ports/Port.h>
 
 struct GdbRegisters {
     uint32_t eax;
@@ -59,7 +59,7 @@ public:
 
     static uint8_t computeSignal(uint32_t interrupt);
 
-    static void initialize();
+    static void initialize(Port *port);
 
     static inline void synchronize() __attribute__((always_inline)) {
         BREAKPOINT();
@@ -95,7 +95,7 @@ private:
 
     static uint8_t outBuffer[];
 
-    static Serial* serial;
+    static Port* port;
 
     static const char WRITE_MEMORY_BIN = 'X';
 

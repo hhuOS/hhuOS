@@ -30,8 +30,7 @@
 #include <kernel/services/ModuleLoader.h>
 #include <kernel/services/KernelStreamService.h>
 #include <kernel/services/SoundService.h>
-#include <kernel/services/SerialService.h>
-#include <kernel/services/ParallelService.h>
+#include <kernel/services/PortService.h>
 #include <devices/storage/controller/Ahci.h>
 #include <devices/usb/Uhci.h>
 #include <devices/storage/controller/FloppyController.h>
@@ -47,6 +46,7 @@
 #include <lib/file/FileStatus.h>
 #include <kernel/memory/manager/FreeListMemoryManager.h>
 #include <kernel/memory/SystemManagement.h>
+#include <kernel/log/PortAppender.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -93,19 +93,6 @@ int32_t GatesOfHell::enter() {
 
     initializeGraphics();
 
-    log.trace("Initializing serial ports");
-
-    initializeSerialPorts();
-
-    if (Multiboot::Structure::getKernelOption("gdb") == "true") {
-
-        GdbServer::initialize();
-
-        log.trace("Waiting for GDB debugger...\n");
-
-        GdbServer::synchronize();
-    }
-
     log.trace("Plugging in RTC");
 
     auto *rtc = Kernel::getService<TimeService>()->getRTC();
@@ -148,6 +135,8 @@ int32_t GatesOfHell::enter() {
 
     fs->init();
     sys_init_libc();
+
+    initializePorts();
 
     loadModule("/initrd/mod/zero.ko");
     loadModule("/initrd/mod/random.ko");
@@ -198,8 +187,7 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(ModuleLoader::SERVICE_NAME, new ModuleLoader());
     Kernel::registerService(KernelStreamService::SERVICE_NAME, new KernelStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
-    Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
-    Kernel::registerService(ParallelService::SERVICE_NAME, new ParallelService());
+    Kernel::registerService(PortService::SERVICE_NAME, new PortService());
     Kernel::registerService(ScreenshotService::SERVICE_NAME, new ScreenshotService());
 }
 
@@ -234,27 +222,6 @@ void GatesOfHell::initializeGraphics() {
     stdout = graphicsService->getTextDriver();
 }
 
-void GatesOfHell::initializeSerialPorts() {
-
-    auto *serialService = Kernel::getService<SerialService>();
-
-    if(serialService->isPortAvailable(Serial::COM1)) {
-        serialService->getSerialPort(Serial::COM1)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM2)) {
-        serialService->getSerialPort(Serial::COM2)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM3)) {
-        serialService->getSerialPort(Serial::COM3)->plugin();
-    }
-
-    if(serialService->isPortAvailable(Serial::COM4)) {
-        serialService->getSerialPort(Serial::COM4)->plugin();
-    }
-}
-
 void GatesOfHell::initializePciDrivers() {
     Ahci ahci;
     Uhci uhci;
@@ -282,4 +249,30 @@ bool GatesOfHell::loadModule(const String &path) {
     delete file;
 
     return true;
+}
+
+void GatesOfHell::initializePorts() {
+    loadModule("/initrd/mod/serial.ko");
+    loadModule("/initrd/mod/parallel.ko");
+
+    String gdbPortName = Multiboot::Structure::getKernelOption("gdb");
+
+    if (!gdbPortName.isEmpty()) {
+        Port *port = Kernel::getService<PortService>()->getPort(gdbPortName);
+
+        GdbServer::initialize(port);
+
+        log.trace("Waiting for GDB debugger...\n");
+
+        GdbServer::synchronize();
+    }
+
+    Util::Array<String> logDevices = Multiboot::Structure::getKernelOption("log_devices").split(",");
+    auto *portService = Kernel::getService<PortService>();
+
+    for(const auto &device : logDevices) {
+        if(portService->isPortAvailable(device)) {
+            Logger::addAppender(new PortAppender(*portService->getPort(device)));
+        }
+    }
 }

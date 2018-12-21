@@ -35,9 +35,6 @@
 #include <apps/Shell/Commands/Uptime.h>
 #include <apps/Shell/Commands/Date.h>
 #include <apps/Shell/Commands/History.h>
-#include <kernel/events/input/SerialEvent.h>
-#include <apps/Shell/Commands/ComConfig.h>
-#include <apps/Shell/Commands/LptConfig.h>
 #include <apps/Shell/Commands/Mkfs.h>
 #include <apps/Shell/Commands/DiskInfo.h>
 #include <apps/Shell/Commands/MkPart.h>
@@ -51,6 +48,7 @@
 #include <apps/Shell/Commands/Beep.h>
 #include <apps/Shell/Commands/License.h>
 #include <apps/Shell/Commands/Asciimate.h>
+#include <devices/ports/PortEvent.h>
 
 extern "C" {
 #include <lib/libc/ctype.h>
@@ -88,8 +86,6 @@ Shell::Shell() : Thread("Shell") {
     commands.put("diskinfo", new DiskInfo(*this));
     commands.put("uptime", new Uptime(*this));
     commands.put("date", new Date(*this));
-    commands.put("comconfig", new ComConfig(*this));
-    commands.put("lptconfig", new LptConfig(*this));
     commands.put("bmpview", new BmpView(*this));
     commands.put("wavplay", new WavPlay(*this));
     commands.put("beep", new Beep(*this));
@@ -256,7 +252,7 @@ void Shell::onEvent(const Event &event) {
     char c;
 
     if(event.getType() == KeyEvent::TYPE) {
-        Key key = ((KeyEvent &) event).getKey();
+        Key key = ((KeyEvent&) event).getKey();
 
         switch (key.scancode()) {
             case KeyEvent::UP:
@@ -274,8 +270,8 @@ void Shell::onEvent(const Event &event) {
         } else {
             return;
         };
-    } else if(event.getType() == SerialEvent::TYPE) {
-        c = ((SerialEvent &) event).getChar();
+    } else if(event.getType() == "Com1Event") {
+        c = ((PortEvent&) event).getChar();
     } else {
         return;
     }
@@ -407,7 +403,7 @@ InputStream &Shell::operator>>(char &c) {
 
 InputStream &Shell::operator>>(char *&string) {
     eventBus->subscribe(*this, KeyEvent::TYPE);
-    eventBus->subscribe(*this, SerialEvent::TYPE);
+    eventBus->subscribe(*this, "Com1Event");
 
     while(true) {
         inputLock.acquire();
@@ -421,7 +417,7 @@ InputStream &Shell::operator>>(char *&string) {
             inputLock.release();
 
             eventBus->unsubscribe(*this, KeyEvent::TYPE);
-            eventBus->unsubscribe(*this, SerialEvent::TYPE);
+            eventBus->unsubscribe(*this, "Com1Event");
             return *this;
         }
 

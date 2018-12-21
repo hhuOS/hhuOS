@@ -44,11 +44,11 @@ private:
 
     static void initializeGraphics();
 
-    static void initializeSerialPorts();
-
     static void initializePciDrivers();
 
     static void initializeMemoryManagers();
+
+    static void initializePorts();
 
     static bool loadModule(const String &path);
 

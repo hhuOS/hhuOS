@@ -18,7 +18,7 @@
 
 static const uint8_t *hexCharacters = (uint8_t*) "0123456789abcdef";
 
-Serial* GdbServer::serial = nullptr;
+Port* GdbServer::port = nullptr;
 
 uint8_t GdbServer::inBuffer[BUFMAX];
 
@@ -166,7 +166,7 @@ uint8_t* GdbServer::getPacket() {
 
     while (1 > 0) {
 
-        while ((ch = (uint8_t) serial->readChar()) != '$');
+        while ((ch = (uint8_t) port->readChar()) != '$');
 
         retry:
 
@@ -176,7 +176,7 @@ uint8_t* GdbServer::getPacket() {
 
         while (count < BUFMAX - 1) {
 
-            ch = (uint8_t) serial->readChar();
+            ch = (uint8_t) port->readChar();
 
             if (ch == '$') {
 
@@ -199,27 +199,27 @@ uint8_t* GdbServer::getPacket() {
 
         if (ch == '#') {
 
-            ch = (uint8_t) serial->readChar();
+            ch = (uint8_t) port->readChar();
 
             xmitcsum = hex (ch) << 4U;
 
-            ch = (uint8_t) serial->readChar();
+            ch = (uint8_t) port->readChar();
 
             xmitcsum += hex (ch);
 
             if (checksum != xmitcsum) {
 
-                serial->sendChar('-');
+                port->sendChar('-');
 
             } else {
 
-                serial->sendChar('+');
+                port->sendChar('+');
 
                 if (buffer[2] == ':') {
 
-                    serial->sendChar(buffer[0]);
+                    port->sendChar(buffer[0]);
 
-                    serial->sendChar(buffer[1]);
+                    port->sendChar(buffer[1]);
 
                     return &buffer[3];
                 }
@@ -240,7 +240,7 @@ void GdbServer::putPacket(const uint8_t *buffer) {
 
     do {
 
-        serial->sendChar('$');
+        port->sendChar('$');
 
         checksum = 0;
 
@@ -248,22 +248,22 @@ void GdbServer::putPacket(const uint8_t *buffer) {
 
         while ((ch = buffer[count])) {
 
-            serial->sendChar(ch);
+            port->sendChar(ch);
 
             checksum += ch;
 
             count += 1;
         }
 
-        serial->sendChar('#');
+        port->sendChar('#');
 
-        serial->sendChar(hexCharacters[checksum >> 4U]);
+        port->sendChar(hexCharacters[checksum >> 4U]);
 
-        serial->sendChar(hexCharacters[checksum & 0x0FU]);
+        port->sendChar(hexCharacters[checksum & 0x0FU]);
 
     }
 
-    while ((uint8_t) serial->readChar() != '+');
+    while ((uint8_t) port->readChar() != '+');
 }
 
 void GdbServer::setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
@@ -674,9 +674,9 @@ bool GdbServer::isInitialized() {
     return initialized;
 }
 
-void GdbServer::initialize() {
+void GdbServer::initialize(Port *port) {
 
-    serial = new Serial(Serial::COM1);
+    GdbServer::port = port;
 
     initialized = true;
 }

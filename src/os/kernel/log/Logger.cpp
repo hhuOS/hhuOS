@@ -22,7 +22,7 @@
 #include <lib/multiboot/Structure.h>
 #include <lib/graphic/Ansi.h>
 #include "Logger.h"
-#include "SerialAppender.h"
+#include "PortAppender.h"
 
 bool Logger::logToStdOut = false;
 
@@ -167,32 +167,11 @@ void Logger::addAppender(Appender *appender) {
 }
 
 void Logger::initialize() {
-
-    if (Multiboot::Structure::getKernelOption("gdb") == "false") {
-
-        Serial *serial = nullptr;
-
-        if(Serial::checkPort(Serial::COM1)) {
-            serial = new Serial(Serial::COM1);
-        } else if(Serial::checkPort(Serial::COM2)) {
-            serial = new Serial(Serial::COM2);
-        } else if(Serial::checkPort(Serial::COM3)) {
-            serial = new Serial(Serial::COM3);
-        } else if(Serial::checkPort(Serial::COM4)) {
-            serial = new Serial(Serial::COM4);
-        }
-
-        if(serial != nullptr) {
-            SerialAppender *serialAppender = new SerialAppender(*serial);
-
-            addAppender(serialAppender);
-        }
-    }
 }
 
 Logger &Logger::get(const String &name) {
 
-    Logger *logger = new Logger(name);
+    auto *logger = new Logger(name);
 
     return *logger;
 }

@@ -14,32 +14,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SERIALSERVICE_H
-#define HHUOS_SERIALSERVICE_H
+#ifndef __SerialAppender_include__
+#define __SerialAppender_include__
 
-#include <devices/ports/Serial.h>
-#include <kernel/log/Logger.h>
+#include <devices/ports/Port.h>
+#include "Appender.h"
 
-class SerialService : public KernelService {
-
-private:
-
-    static Logger &log;
-
-    Serial *com1 = nullptr;
-    Serial *com2 = nullptr;
-    Serial *com3 = nullptr;
-    Serial *com4 = nullptr;
+class PortAppender : public Appender {
 
 public:
 
-    SerialService();
+    explicit PortAppender(Port &port);
 
-    static constexpr const char* SERVICE_NAME = "SerialService";
+    PortAppender(const PortAppender &other) = delete;
 
-    Serial *getSerialPort(Serial::ComPort port);
+    PortAppender &operator=(const PortAppender &other) = delete;
 
-    bool isPortAvailable(Serial::ComPort port);
+    ~PortAppender() override = default;
+
+    void append(const String &message) override;
+
+private:
+
+    Port &port;
 };
+
 
 #endif

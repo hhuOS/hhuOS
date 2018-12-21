@@ -20,9 +20,6 @@
 #include <filesystem/RamFs/memory/IOMemoryNode.h>
 #include <filesystem/RamFs/memory/PhysicalMemoryNode.h>
 #include <filesystem/RamFs/memory/PagingAreaNode.h>
-#include <filesystem/RamFs/ports/SerialNode.h>
-#include <kernel/services/ParallelService.h>
-#include <filesystem/RamFs/ports/ParallelNode.h>
 #include <kernel/log/FileAppender.h>
 #include <kernel/log/Logger.h>
 #include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
@@ -157,44 +154,6 @@ void FileSystem::init() {
 
     // Create directory for ports
     createDirectory("/dev/ports");
-
-    // Add Serial-nodes to dev-Directory
-    log.trace("Creating COM files");
-
-    auto *serialService = Kernel::getService<SerialService>();
-
-    if(serialService->isPortAvailable(Serial::COM1)) {
-        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM1)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM2)) {
-        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM2)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM3)) {
-        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM3)));
-    }
-
-    if(serialService->isPortAvailable(Serial::COM4)) {
-        addVirtualNode("/dev/ports", new SerialNode(serialService->getSerialPort(Serial::COM4)));
-    }
-
-    // Add parallel-nodes to dev-Directory
-    log.trace("Creating LPT files");
-
-    auto *parallelService = Kernel::getService<ParallelService>();
-
-    if(parallelService->isPortAvailable(Parallel::LPT1)) {
-        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT1)));
-    }
-
-    if(parallelService->isPortAvailable(Parallel::LPT2)) {
-        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT2)));
-    }
-
-    if(parallelService->isPortAvailable(Parallel::LPT3)) {
-        addVirtualNode("/dev/ports", new ParallelNode(parallelService->getParallelPort(Parallel::LPT3)));
-    }
 
     // Add Video-nodes to dev-Directory
     log.trace("Creating video files");

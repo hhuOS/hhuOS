@@ -17,9 +17,12 @@
 #ifndef HHUOS_SERIALNODE_H
 #define HHUOS_SERIALNODE_H
 
-#include <kernel/services/SerialService.h>
+#include <kernel/services/PortService.h>
 #include <kernel/Kernel.h>
 #include "filesystem/RamFs/VirtualNode.h"
+#include "SerialDriver.h"
+
+namespace Serial {
 
 /**
  * Implementation of VirtualNode, that writes to and reads from a COM-Port.
@@ -27,19 +30,20 @@
  * @author Fabian Ruhland
  * @date 2018
  */
+template<ComPort port>
 class SerialNode : public VirtualNode {
 
 private:
 
-    Serial *serial = nullptr;
+    SerialDriver<port> *serial = nullptr;
 
-    static String generateName(Serial::ComPort port);
+    static const constexpr char *NAME = "com";
 
 public:
     /**
      * Constructor.
      */
-    explicit SerialNode(Serial *serial);
+    explicit SerialNode(SerialDriver<port> *serial);
 
     /**
      * Copy-constructor.
@@ -66,5 +70,38 @@ public:
      */
     uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
+
+template <ComPort port>
+SerialNode<port>::SerialNode(SerialDriver<port> *serial) : VirtualNode(NAME, FsNode::CHAR_FILE), serial(serial) {
+
+}
+
+template <ComPort port>
+uint64_t SerialNode<port>::getLength() {
+    return 0;
+}
+
+template <ComPort port>
+uint64_t SerialNode<port>::readData(char *buf, uint64_t pos, uint64_t numBytes) {
+    serial->readData(buf, static_cast<uint32_t>(numBytes));
+
+    // Convert carriage returns to '\n'
+    for (uint32_t i = 0; i < numBytes; i++) {
+        if (buf[i] == 13) {
+            buf[i] = '\n';
+        }
+    }
+
+    return numBytes;
+}
+
+template <ComPort port>
+uint64_t SerialNode<port>::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
+    serial->sendData(buf, static_cast<uint32_t>(numBytes));
+
+    return numBytes;
+}
+
+}
 
 #endif

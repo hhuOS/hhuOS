@@ -20,11 +20,9 @@
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>
 #include <lib/Random.h>
-#include <devices/ports/Serial.h>
 #include <kernel/debug/GdbServer.h>
 #include <kernel/threads/Scheduler.h>
 #include "kernel/cpu/Cpu.h"
-
 #include "kernel/interrupts/IntDispatcher.h"
 #include "kernel/memory/SystemManagement.h"
 #include "Pic.h"

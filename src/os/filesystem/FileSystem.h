@@ -193,8 +193,6 @@ public:
 
     static constexpr const char* SERVICE_NAME = "FileSystem";
 
-    static constexpr const char *ROOT = "/";
-
     static constexpr const char *SEPARATOR = "/";
 
     static constexpr const char *TYPE_RAM_FS = "RamFsDriver";

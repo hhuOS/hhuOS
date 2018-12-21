@@ -14,15 +14,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SerialAppender.h"
+#ifndef HHUOS_COMMON_H
+#define HHUOS_COMMON_H
 
-void SerialAppender::append(const String &message) {
+namespace Parallel {
 
-    serial.sendData((char*) message, message.length());
+/**
+ * Starting addresses of the registers of each port.
+ */
+enum LptPort {
+    LPT1 = 1,
+    LPT2 = 2,
+    LPT3 = 3
+};
 
-    serial.sendChar('\n');
+/**
+ * Operating modes of an LPT-port.
+ */
+enum ParallelMode {
+    SPP = 0,
+    EPP = 1
+};
+
 }
 
-SerialAppender::SerialAppender(Serial &serial) : serial(serial) {
-
-}
+#endif
