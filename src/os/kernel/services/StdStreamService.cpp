@@ -14,28 +14,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "StdStreamService.h"
+#include "KernelStreamService.h"
 
-OutputStream *StdStreamService::getStdout() {
+OutputStream *KernelStreamService::getStdout() {
     return stdout;
 }
 
-void StdStreamService::setStdout(OutputStream *stream) {
+void KernelStreamService::setStdout(OutputStream *stream) {
     stdout = stream;
 }
 
-OutputStream *StdStreamService::getStderr() {
+OutputStream *KernelStreamService::getStderr() {
     return stderr;
 }
 
-void StdStreamService::setStderr(OutputStream *stream) {
+void KernelStreamService::setStderr(OutputStream *stream) {
     stderr = stream;
 }
 
-InputStream *StdStreamService::getStdin() {
+InputStream *KernelStreamService::getStdin() {
     return stdin;
 }
 
-void StdStreamService::setStdin(InputStream *stream) {
+void KernelStreamService::setStdin(InputStream *stream) {
     stdin = stream;
 }

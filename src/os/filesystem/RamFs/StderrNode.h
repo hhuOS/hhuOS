@@ -19,7 +19,7 @@
 
 #include "VirtualNode.h"
 #include <cstdint>
-#include <kernel/services/StdStreamService.h>
+#include <kernel/services/KernelStreamService.h>
 #include <kernel/services/GraphicsService.h>
 
 /**
@@ -33,7 +33,7 @@ class StderrNode : public VirtualNode {
 
 private:
     GraphicsService *graphicsService = nullptr;
-    StdStreamService *stdStreamService = nullptr;
+    KernelStreamService *kernelStreamService = nullptr;
 
 public:
     /**

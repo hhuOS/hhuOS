@@ -23,11 +23,11 @@
 #include <cstdint>
 #include <lib/InputStream.h>
 
-class StdStreamService : public KernelService {
+class KernelStreamService : public KernelService {
 
 public:
 
-    StdStreamService() = default;
+    KernelStreamService() = default;
 
     OutputStream *getStdout();
 
@@ -44,7 +44,7 @@ public:
     void setStdin(InputStream *stream);
 
 
-    static constexpr const char* SERVICE_NAME = "StdStreamService";
+    static constexpr const char* SERVICE_NAME = "KernelStreamService";
 
 private:
 

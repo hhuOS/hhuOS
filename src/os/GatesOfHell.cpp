@@ -28,7 +28,7 @@
 #include <devices/timer/Pit.h>
 #include <kernel/services/DebugService.h>
 #include <kernel/services/ModuleLoader.h>
-#include <kernel/services/StdStreamService.h>
+#include <kernel/services/KernelStreamService.h>
 #include <kernel/services/SoundService.h>
 #include <kernel/services/SerialService.h>
 #include <kernel/services/ParallelService.h>
@@ -196,7 +196,7 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(InputService::SERVICE_NAME, new InputService());
     Kernel::registerService(DebugService::SERVICE_NAME, new DebugService());
     Kernel::registerService(ModuleLoader::SERVICE_NAME, new ModuleLoader());
-    Kernel::registerService(StdStreamService::SERVICE_NAME, new StdStreamService());
+    Kernel::registerService(KernelStreamService::SERVICE_NAME, new KernelStreamService());
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(SerialService::SERVICE_NAME, new SerialService());
     Kernel::registerService(ParallelService::SERVICE_NAME, new ParallelService());
@@ -228,8 +228,8 @@ void GatesOfHell::initializeGraphics() {
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
 
-    Kernel::getService<StdStreamService>()->setStdout(graphicsService->getTextDriver());
-    Kernel::getService<StdStreamService>()->setStderr(graphicsService->getTextDriver());
+    Kernel::getService<KernelStreamService>()->setStdout(graphicsService->getTextDriver());
+    Kernel::getService<KernelStreamService>()->setStderr(graphicsService->getTextDriver());
 
     stdout = graphicsService->getTextDriver();
 }

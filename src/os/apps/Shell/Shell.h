@@ -20,7 +20,7 @@
 #include <kernel/services/GraphicsService.h>
 #include <kernel/services/EventBus.h>
 #include <lib/file/Directory.h>
-#include <kernel/services/StdStreamService.h>
+#include <kernel/services/KernelStreamService.h>
 
 class Command;
 class History;
@@ -40,7 +40,7 @@ private:
         UP, DOWN
     };
 
-    StdStreamService *stdStreamService;
+    KernelStreamService *kernelStreamService;
     GraphicsService *graphicsService;
     EventBus *eventBus;
 

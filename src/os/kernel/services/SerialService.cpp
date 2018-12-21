@@ -26,6 +26,8 @@ SerialService::SerialService() {
         com1 = new Serial(Serial::COM1);
 
         IODeviceManager::getInstance().registerIODevice(com1);
+
+
     }
 
     if(Serial::checkPort(Serial::COM2)) {

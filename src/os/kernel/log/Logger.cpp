@@ -15,7 +15,7 @@
  */
 
 #include <lib/libc/printf.h>
-#include <kernel/services/StdStreamService.h>
+#include <kernel/services/KernelStreamService.h>
 #include <lib/file/File.h>
 #include <devices/timer/Pit.h>
 #include <kernel/debug/GdbServer.h>

@@ -57,13 +57,13 @@ extern "C" {
 }
 
 Shell::Shell() : Thread("Shell") {
-    stdStreamService = Kernel::getService<StdStreamService>();
+    kernelStreamService = Kernel::getService<KernelStreamService>();
     graphicsService = Kernel::getService<GraphicsService>();
     eventBus = Kernel::getService<EventBus>();
 
-    stdStreamService->setStdout(this);
-    stdStreamService->setStderr(this);
-    stdStreamService->setStdin(this);
+    kernelStreamService->setStdout(this);
+    kernelStreamService->setStderr(this);
+    kernelStreamService->setStdin(this);
 
     commands.put("history", new History(*this));
     commands.put("clear", new Clear(*this));
@@ -104,9 +104,9 @@ Shell::~Shell() {
         delete commands.get(string);
     }
 
-    stdStreamService->setStdout(graphicsService->getTextDriver());
-    stdStreamService->setStderr(graphicsService->getTextDriver());
-    stdStreamService->setStdin(nullptr);
+    kernelStreamService->setStdout(graphicsService->getTextDriver());
+    kernelStreamService->setStderr(graphicsService->getTextDriver());
+    kernelStreamService->setStdin(nullptr);
 }
 
 Directory &Shell::getCurrentWorkingDirectory() {
@@ -239,13 +239,13 @@ void Shell::executeCommand(String input) {
         return;
     }
 
-    stdStreamService->setStdout(stream);
-    stdStreamService->setStderr(stream);
+    kernelStreamService->setStdout(stream);
+    kernelStreamService->setStderr(stream);
 
     commands.get(args[0])->execute(args);
 
-    stdStreamService->setStdout(this);
-    stdStreamService->setStderr(this);
+    kernelStreamService->setStdout(this);
+    kernelStreamService->setStderr(this);
 
     if(stream != this) {
         delete stream;

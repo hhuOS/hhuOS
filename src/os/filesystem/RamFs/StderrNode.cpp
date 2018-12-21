@@ -19,7 +19,7 @@
 
 StderrNode::StderrNode() : VirtualNode("stderr", FsNode::CHAR_FILE) {
     graphicsService = Kernel::getService<GraphicsService>();
-    stdStreamService = Kernel::getService<StdStreamService>();
+    kernelStreamService = Kernel::getService<KernelStreamService>();
 }
 
 uint64_t StderrNode::getLength() {
@@ -31,7 +31,7 @@ uint64_t StderrNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 }
 
 uint64_t StderrNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    OutputStream *stderr = stdStreamService->getStderr();
+    OutputStream *stderr = kernelStreamService->getStderr();
 
     stderr->writeBytes(buf, numBytes);
     stderr->flush();
