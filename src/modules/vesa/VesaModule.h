@@ -18,6 +18,8 @@
 #define __VesaModule_include__
 
 #include <kernel/Module.h>
+#include "VesaGraphics.h"
+#include "VesaText.h"
 
 class CgaModule : public Module {
 
@@ -32,6 +34,12 @@ public:
     String getName() override;
 
     Util::Array<String> getDependencies() override;
+
+private:
+
+    VesaGraphics *lfb = nullptr;
+    VesaText *text = nullptr;
+
 };
 
 

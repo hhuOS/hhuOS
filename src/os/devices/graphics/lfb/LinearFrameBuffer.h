@@ -102,6 +102,11 @@ public:
     bool init(uint16_t resX, uint16_t resY, uint8_t depth);
 
     /**
+     * Get the driver's name (e.g. 'CgaGraphics', 'VesaGraphics', etc.).
+     */
+    virtual String getName() = 0;
+
+    /**
      * Check, whether the graphics device is available.
      *
      * @return true, if the hardware is available

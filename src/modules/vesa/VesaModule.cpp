@@ -16,8 +16,6 @@
 
 #include <kernel/services/GraphicsService.h>
 #include "VesaModule.h"
-#include "VesaGraphics.h"
-#include "VesaText.h"
 
 MODULE_PROVIDER {
 
@@ -32,14 +30,17 @@ int32_t CgaModule::initialize() {
     auto *text = new VesaText();
     
     if(lfb->isAvailable()) {
-        graphicsService->setLinearFrameBuffer(lfb);
-        graphicsService->setTextDriver(text);
+        graphicsService->registerLinearFrameBuffer(lfb);
+        graphicsService->registerTextDriver(text);
     }
 
     return 0;
 }
 
 int32_t CgaModule::finalize() {
+
+    delete lfb;
+    delete text;
 
     return 0;
 }

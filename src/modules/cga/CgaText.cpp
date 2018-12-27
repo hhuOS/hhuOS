@@ -23,6 +23,11 @@ CgaText::CgaText() : TextDriver(), index_port(0x3d4), data_port(0x3d5) {
     depth = 4;
 }
 
+String CgaText::getName() {
+    return NAME;
+}
+
+
 bool CgaText::isAvailable() {
     BC_params->AX = 0x1a << 8;
     Bios::Int(0x10);
@@ -279,5 +284,4 @@ void CgaText::clear () {
 
     setpos(0, 0);
 }
-
 

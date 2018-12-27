@@ -16,9 +16,6 @@
 
 #include <kernel/services/GraphicsService.h>
 #include "CgaModule.h"
-#include "CgaGraphics.h"
-#include "CgaText.h"
-
 MODULE_PROVIDER {
 
     return new CgaModule();
@@ -28,18 +25,21 @@ int32_t CgaModule::initialize() {
 
     auto *graphicsService = Kernel::getService<GraphicsService>();
     
-    auto *lfb = new CgaGraphics();
-    auto *text = new CgaText();
+    lfb = new CgaGraphics();
+    text = new CgaText();
     
     if(lfb->isAvailable()) {
-        graphicsService->setLinearFrameBuffer(lfb);
-        graphicsService->setTextDriver(text);
+        graphicsService->registerLinearFrameBuffer(lfb);
+        graphicsService->registerTextDriver(text);
     }
 
     return 0;
 }
 
 int32_t CgaModule::finalize() {
+
+    delete lfb;
+    delete text;
 
     return 0;
 }

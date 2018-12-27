@@ -23,7 +23,7 @@
 #include <kernel/events/Receiver.h>
 #include <kernel/services/GraphicsService.h>
 
-class GraphicsNode : public VirtualNode, Receiver {
+class GraphicsNode : public VirtualNode {
 
 public:
 
@@ -61,7 +61,7 @@ public:
     /**
      * Destructor.
      */
-    ~GraphicsNode() override;
+    ~GraphicsNode() override = default;
 
     /**
      * Overriding function from VirtualNode.
@@ -77,8 +77,6 @@ public:
      * Overriding function from VirtualNode.
      */
     uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
-
-    void onEvent(const Event &event) override;
 
     virtual void writeValuesToCache() = 0;
 };

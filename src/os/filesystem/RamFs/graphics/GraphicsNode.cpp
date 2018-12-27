@@ -20,14 +20,6 @@
 
 GraphicsNode::GraphicsNode(String name, GraphicsMode mode) : VirtualNode(name, FsNode::REGULAR_FILE), mode(mode) {
     graphicsService = Kernel::getService<GraphicsService>();
-
-    Kernel::getService<EventBus>()->subscribe(*this, TextDriverChangedEvent::TYPE);
-    Kernel::getService<EventBus>()->subscribe(*this, LfbDriverChangedEvent::TYPE);
-}
-
-GraphicsNode::~GraphicsNode() {
-    Kernel::getService<EventBus>()->unsubscribe(*this, TextDriverChangedEvent::TYPE);
-    Kernel::getService<EventBus>()->unsubscribe(*this, LfbDriverChangedEvent::TYPE);
 }
 
 uint64_t GraphicsNode::getLength() {
@@ -39,9 +31,7 @@ uint64_t GraphicsNode::getLength() {
 }
 
 uint64_t GraphicsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
-    if(cache.isEmpty()) {
-        writeValuesToCache();
-    }
+    writeValuesToCache();
 
     uint64_t length = cache.length();
 
@@ -56,16 +46,4 @@ uint64_t GraphicsNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 uint64_t GraphicsNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     return 0;
-}
-
-void GraphicsNode::onEvent(const Event &event) {
-    if(event.getType() == TextDriverChangedEvent::TYPE) {
-        if(mode == TEXT) {
-            cache = "";
-        }
-    } else if(event.getType() == LfbDriverChangedEvent::TYPE) {
-        if(mode == LINEAR_FRAME_BUFFER) {
-            cache = "";
-        }
-    }
 }

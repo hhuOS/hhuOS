@@ -20,8 +20,8 @@
 #include "kernel/memory/SystemManagement.h"
 #include "VesaGraphics.h"
 
-VesaGraphics::VesaGraphics() : LinearFrameBuffer() {
-
+String VesaGraphics::getName() {
+    return NAME;
 }
 
 bool VesaGraphics::setMode(uint16_t mode) {
@@ -29,11 +29,7 @@ bool VesaGraphics::setMode(uint16_t mode) {
 	BC_params->BX = mode;
 	Bios::Int(0x10);
 
-	if (BC_params->AX != 0x004F) {
-		return false;
-	}
-
-	return true;
+    return BC_params->AX == 0x004F;
 }
 
 VesaGraphics::VbeInfo* VesaGraphics::getVbeInfo() {

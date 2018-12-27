@@ -195,6 +195,10 @@ void GatesOfHell::initializeGraphics() {
 
     graphicsService = Kernel::getService<GraphicsService>();
 
+    // Get desired graphics driver from GRUB
+    String lfbName = Multiboot::Structure::getKernelOption("linear_frame_buffer");
+    String textName =  Multiboot::Structure::getKernelOption("text_driver");
+
     // Get desired resolution from GRUB
     Util::Array<String> res = Multiboot::Structure::getKernelOption("resolution").split("x");
 
@@ -204,14 +208,11 @@ void GatesOfHell::initializeGraphics() {
         bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
     }
 
-    // Get desired graphics driver from GRUB
-    String driverPath = String::format("/mod/%s.ko", (const char*) Multiboot::Structure::getKernelOption("graphics"));
+    loadModule("/mod/cga.ko");
+    loadModule("/mod/vesa.ko");
 
-    if(FileStatus::exists(driverPath)) {
-        loadModule(driverPath);
-    } else {
-        loadModule("/mod/cga.ko");
-    }
+    graphicsService->setLinearFrameBuffer(lfbName);
+    graphicsService->setTextDriver(textName);
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
     graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);

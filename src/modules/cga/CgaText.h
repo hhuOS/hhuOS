@@ -30,7 +30,10 @@
 class CgaText : public TextDriver {
 
 private:
+
     const char *CGA_START = reinterpret_cast<const char *>(VIRT_CGA_START);
+
+    static const constexpr char *NAME = "CgaText";
 
     IOport index_port;
     IOport data_port;
@@ -43,6 +46,7 @@ private:
 
     Util::ArrayList<TextResolution> resolutions;
 
+private:
     /**
      * Overriding virtual function from TextDriver.
      */
@@ -70,6 +74,11 @@ public:
      * Destructor.
      */
     ~CgaText() override = default;
+
+    /**
+     * Overriding virtual function from TextDriver.
+     */
+    String getName() override;
 
     /**
      * Overriding virtual function from TextDriver.

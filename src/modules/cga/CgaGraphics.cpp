@@ -19,8 +19,8 @@
 #include "CgaGraphics.h"
 #include "kernel/memory/MemLayout.h"
 
-CgaGraphics::CgaGraphics() : LinearFrameBuffer() {
-
+String CgaGraphics::getName() {
+    return NAME;
 }
 
 bool CgaGraphics::isAvailable() {

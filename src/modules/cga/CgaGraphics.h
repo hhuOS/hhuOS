@@ -29,7 +29,9 @@ class CgaGraphics : public LinearFrameBuffer {
 
 private:
     //Pitch is always 80 in CGA-mode.
-    const uint16_t pitch = 80;
+    static const constexpr uint16_t pitch = 80;
+
+    static const constexpr char *NAME = "CgaGraphics";
 
     bool doubleBuffered = false;
 
@@ -42,6 +44,7 @@ private:
 
     Util::ArrayList<LfbResolution> resolutions;
 
+private:
     /**
      * Set the CGA-device to a given mode.
      *
@@ -63,7 +66,7 @@ public:
     /**
      * Constructor.
      */
-    CgaGraphics();
+    CgaGraphics() = default;
 
     /**
      * Copy-constructor.
@@ -74,6 +77,11 @@ public:
      * Destructor.
      */
     ~CgaGraphics() override = default;
+
+    /**
+     * Overriding virtual function from LinearFrameBuffer.
+     */
+    String getName() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

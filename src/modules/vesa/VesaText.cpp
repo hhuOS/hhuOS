@@ -21,6 +21,10 @@ VesaText::VesaText() : VesaGraphics(), font(&std_font_8x16) {
 
 }
 
+String VesaText::getName() {
+    return NAME;
+}
+
 bool VesaText::isAvailable() {
     return VesaGraphics::isAvailable();
 }

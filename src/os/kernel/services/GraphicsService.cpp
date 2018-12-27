@@ -18,38 +18,62 @@
 #include "GraphicsService.h"
 #include "EventBus.h"
 
-GraphicsService::GraphicsService() : textEventBuffer(16), lfbEventBuffer(16) {
+Logger &GraphicsService::log = Logger::get("GRAPHICS");
 
+void GraphicsService::registerLinearFrameBuffer(LinearFrameBuffer *lfb) {
+    if(lfb != nullptr) {
+        lfbMap.put(lfb->getName().toLowerCase(), lfb);
+
+        log.info("Registered '%s' as LinearFrameBuffer", (const char*) lfb->getName());
+    }
+}
+
+void GraphicsService::registerTextDriver(TextDriver *text) {
+    if(text != nullptr) {
+        textMap.put(text->getName().toLowerCase(), text);
+
+        log.info("Registered '%s' as TextDriver", (const char*) text->getName());
+    }
+}
+
+Util::Array<String> GraphicsService::getAvailableLinearFrameBuffers() {
+    return lfbMap.keySet();
+}
+
+Util::Array<String> GraphicsService::getAvailableTextDrivers() {
+    return textMap.keySet();
+}
+
+void GraphicsService::setLinearFrameBuffer(const String &name) {
+    String driverName = name;
+    driverName = driverName.toLowerCase();
+
+    if(!lfbMap.containsKey(driverName)) {
+        log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char*) name);
+    } else {
+        currentLfb = lfbMap.get(driverName);
+
+        log.info("LinearFrameBuffer set to '%s'", (const char*) currentLfb->getName());
+    }
+}
+
+void GraphicsService::setTextDriver(const String &name) {
+    String driverName = name;
+    driverName = driverName.toLowerCase();
+
+    if(!textMap.containsKey(driverName)) {
+        log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char*) name);
+    } else {
+        currentTextDriver = textMap.get(driverName);
+
+        log.info("TextDriver set to '%s'", (const char*) currentTextDriver->getName());
+    }
 }
 
 LinearFrameBuffer *GraphicsService::getLinearFrameBuffer() {
-    return lfb;
-}
-
-void GraphicsService::setLinearFrameBuffer(LinearFrameBuffer *lfb) {
-    if(this->lfb != nullptr) {
-        lfb->init(this->lfb->getResX(), this->lfb->getResY(), this->lfb->getDepth());
-    }
-
-    this->lfb = lfb;
-
-    lfbEventBuffer.push(LfbDriverChangedEvent(lfb));
-
-    Kernel::getService<EventBus>()->publish(lfbEventBuffer.pop());
+    return currentLfb;
 }
 
 TextDriver *GraphicsService::getTextDriver() {
-    return text;
-}
-
-void GraphicsService::setTextDriver(TextDriver *text) {
-    if(this->text != nullptr) {
-        text->init(this->text->getColumnCount(), this->text->getRowCount(), this->lfb->getDepth());
-    }
-
-    this->text = text;
-
-    textEventBuffer.push(TextDriverChangedEvent(text));
-
-    Kernel::getService<EventBus>()->publish(textEventBuffer.pop());
+    return currentTextDriver;
 }

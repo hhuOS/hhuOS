@@ -17,7 +17,6 @@
 #ifndef HHUOS_WAVPLAY_H
 #define HHUOS_WAVPLAY_H
 
-#include <lib/file/bmp/Bmp.h>
 #include "Command.h"
 
 /**

@@ -21,23 +21,27 @@
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <devices/graphics/text/TextDriver.h>
 #include <lib/util/RingBuffer.h>
-#include <kernel/events/graphics/TextDriverChangedEvent.h>
-#include <kernel/events/graphics/LfbDriverChangedEvent.h>
+#include <lib/util/HashMap.h>
+#include <kernel/log/Logger.h>
 
 class GraphicsService : public KernelService {
 
 private:
-    LinearFrameBuffer *lfb = nullptr;
-    TextDriver *text = nullptr;
 
-    Util::RingBuffer<TextDriverChangedEvent> textEventBuffer;
-    Util::RingBuffer<LfbDriverChangedEvent> lfbEventBuffer;
+    static Logger &log;
+
+    Util::HashMap<String, LinearFrameBuffer*> lfbMap;
+    Util::HashMap<String, TextDriver*> textMap;
+
+    LinearFrameBuffer *currentLfb = nullptr;
+    TextDriver *currentTextDriver = nullptr;
 
 public:
+
     /**
      * Constructor.
      */
-    GraphicsService();
+    GraphicsService() = default;
 
     /**
      * Copy-constructor.
@@ -50,24 +54,50 @@ public:
     ~GraphicsService() = default;
 
     /**
+     * Register an implementation of the LinearFrameBuffer interface.
+     */
+    void registerLinearFrameBuffer(LinearFrameBuffer *lfb);
+
+    /**
+     * Register an implementation of the TextDriver interface.
+     */
+    void registerTextDriver(TextDriver *text);
+
+    /**
+     * Get the names of all registered LinearFrameBuffers.
+     */
+    Util::Array<String> getAvailableLinearFrameBuffers();
+
+    /**
+     * Get the names of all registered TextDrivers.
+     */
+    Util::Array<String> getAvailableTextDrivers();
+
+    /**
+     * Set the used LinearFrameBuffer to an implementation, that is registered at the GraphicsService.
+     *
+     * Calling this function will NOT initialize the new LinearFrameBuffer.
+     * To initialize it, call getLinearFrameBuffer()->init().
+     */
+    void setLinearFrameBuffer(const String &name);
+
+    /**
+     * Set the used TextDriver to an implementation, that is registered at the GraphicsService.
+     *
+     * Calling this function will NOT initialize the new TextDriver.
+     * To initialize it, call getTextDriver()->init().
+     */
+    void setTextDriver(const String &name);
+
+    /**
      * Get current lfb.
      */
     LinearFrameBuffer *getLinearFrameBuffer();
 
     /**
-     * Set current lfb.
-     */
-    void setLinearFrameBuffer(LinearFrameBuffer *lfb);
-
-    /**
      * Get current text driver.
      */
     TextDriver *getTextDriver();
-
-    /**
-     * Set current text driver.
-     */
-    void setTextDriver(TextDriver *text);
 
     static const constexpr char* SERVICE_NAME = "GraphicsService";
 };

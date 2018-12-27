@@ -93,6 +93,8 @@ private:
 
     static const uint16_t INVALID_MODE = 0xFFFF;
 
+    static const constexpr char *NAME = "VesaGraphics";
+
 	String vendorName = String();
 	String deviceName = String();
 	uint32_t videoMemorySize = 0;
@@ -143,7 +145,7 @@ public:
     /**
      * Constructor.
      */
-    VesaGraphics();
+    VesaGraphics() = default;
 
     /**
      * Copy-constructor.
@@ -154,6 +156,11 @@ public:
      * Destructor.
      */
     ~VesaGraphics() override = default;
+
+    /**
+     * Overriding virtual function from LinearFrameBuffer.
+     */
+    String getName() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

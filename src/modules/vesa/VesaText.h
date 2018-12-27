@@ -34,6 +34,9 @@
 class VesaText : public TextDriver, private VesaGraphics {
 
 private:
+
+    static const constexpr char *NAME = "VesaText";
+
     uint16_t pos = 0;
 
     Font *font = nullptr;
@@ -42,6 +45,7 @@ private:
 
     Util::ArrayList<TextResolution> resolutions;
 
+private:
     /**
      * Overriding virtual function from VesaGraphics.
      */
@@ -67,6 +71,11 @@ public:
      * Destructor.
      */
     ~VesaText() override = default;
+
+    /**
+     * Overriding virtual function from TextDriver.
+     */
+    String getName() override;
 
     /**
      * Overriding virtual function from TextDriver.

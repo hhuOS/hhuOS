@@ -18,6 +18,8 @@
 #define __CgaModule_include__
 
 #include <kernel/Module.h>
+#include "CgaGraphics.h"
+#include "CgaText.h"
 
 class CgaModule : public Module {
 
@@ -32,6 +34,12 @@ public:
     String getName() override;
 
     Util::Array<String> getDependencies() override;
+
+private:
+
+    CgaGraphics *lfb = nullptr;
+    CgaText *text = nullptr;
+
 };
 
 
