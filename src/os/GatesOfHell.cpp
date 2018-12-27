@@ -89,6 +89,8 @@ int32_t GatesOfHell::enter() {
     auto *fs = Kernel::getService<FileSystem>();
     fs->mountInitRamdisk("/");
 
+    afterInitrdHook();
+
     log.trace("Initializing graphics");
 
     initializeGraphics();
@@ -131,15 +133,13 @@ int32_t GatesOfHell::enter() {
     initializePciDrivers();
 
     bootscreen->update(50, "Initializing Filesystem");
-    loadModule("/mod/fat.ko");
 
     fs->init();
     sys_init_libc();
 
-    initializePorts();
+    afterFsInitHook();
 
-    loadModule("/initrd/mod/zero.ko");
-    loadModule("/initrd/mod/random.ko");
+    initializePorts();
 
     initializeMemoryManagers();
 
@@ -191,6 +191,22 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(ScreenshotService::SERVICE_NAME, new ScreenshotService());
 }
 
+void GatesOfHell::afterInitrdHook() {
+    Util::Array<String> modules = Multiboot::Structure::getKernelOption("after_initrd_mod_hook").split(",");
+
+    for(const auto &module : modules) {
+        loadModule("/mod/" + module);
+    }
+}
+
+void GatesOfHell::afterFsInitHook() {
+    Util::Array<String> modules = Multiboot::Structure::getKernelOption("after_fs_init_mod_hook").split(",");
+
+    for(const auto &module : modules) {
+        loadModule("/initrd/mod/" + module);
+    }
+}
+
 void GatesOfHell::initializeGraphics() {
 
     graphicsService = Kernel::getService<GraphicsService>();
@@ -207,9 +223,6 @@ void GatesOfHell::initializeGraphics() {
         yres = static_cast<uint16_t>(strtoint((const char *) res[1]));
         bpp = static_cast<uint8_t>(strtoint((const char *) res[2]));
     }
-
-    loadModule("/mod/cga.ko");
-    loadModule("/mod/vesa.ko");
 
     graphicsService->setLinearFrameBuffer(lfbName);
     graphicsService->setTextDriver(textName);
@@ -234,8 +247,6 @@ void GatesOfHell::initializePciDrivers() {
 void GatesOfHell::initializeMemoryManagers() {
     MemoryManager::registerPrototype(new FreeListMemoryManager());
     MemoryManager::registerPrototype(new BitmapMemoryManager());
-
-    loadModule("/initrd/mod/static-heap.ko");
 }
 
 bool GatesOfHell::loadModule(const String &path) {
@@ -253,9 +264,6 @@ bool GatesOfHell::loadModule(const String &path) {
 }
 
 void GatesOfHell::initializePorts() {
-    loadModule("/initrd/mod/serial.ko");
-    loadModule("/initrd/mod/parallel.ko");
-
     String gdbPortName = Multiboot::Structure::getKernelOption("gdb");
 
     if (!gdbPortName.isEmpty()) {

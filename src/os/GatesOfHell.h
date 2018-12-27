@@ -42,6 +42,10 @@ private:
 
     static void registerServices();
 
+    static void afterInitrdHook();
+
+    static void afterFsInitHook();
+
     static void initializeGraphics();
 
     static void initializePciDrivers();
