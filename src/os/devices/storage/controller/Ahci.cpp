@@ -19,8 +19,8 @@
 #include <devices/storage/devices/AhciDevice.h>
 #include <devices/timer/Pit.h>
 #include <kernel/memory/Paging.h>
-#include "devices/storage/controller/Ahci.h"
-#include "kernel/memory/SystemManagement.h"
+#include"devices/storage/controller/Ahci.h"
+#include"kernel/memory/SystemManagement.h"
 
 Logger &Ahci::log = Logger::get("AHCI");
 uint32_t Ahci::deviceCount = 0;
@@ -53,15 +53,13 @@ void Ahci::setup(const Pci::Device &dev) {
     readConfig();
 
     if(numPorts == 0) {
-        log.warn("No ports found on HBA");
-        log.trace("Aborting AHCI-setup");
+        log.warn("No ports found on HBA. Aborting AHCI-setup...");
 
         return;
     }
 
     if(pi == 0) {
-        log.warn("No ports are implemented on HBA");
-        log.trace("Aborting AHCI-setup");
+        log.warn("No ports are implemented on HBA. Aborting AHCI-setup...");
 
         return;
     }
@@ -73,8 +71,7 @@ void Ahci::setup(const Pci::Device &dev) {
     ret = reset();
 
     if(!ret) {
-        log.error("Failed to reset HBA");
-        log.trace("Aborting AHCI-setup");
+        log.error("Failed to reset HBA. Aborting AHCI-setup...");
 
         numDevices = 0;
 
@@ -102,7 +99,7 @@ void Ahci::setup(const Pci::Device &dev) {
 
     for (uint8_t i = 0; i < numDevices; i++) {
 
-        StorageDevice *storageDevice = new AhciDevice(*this, i, "hdd" + String::valueOf(deviceCount, 10));
+        StorageDevice *storageDevice = new AhciDevice(*this, i,"hdd" + String::valueOf(deviceCount, 10));
 
         uint8_t buf[512];
 
@@ -125,13 +122,14 @@ void Ahci::readConfig() {
     numCmdSlots = static_cast<uint16_t>(((abar->cap >> 8u) & ((1u << 5u) - 1)) + 1);
     pi          = abar->pi;
 
-    log.trace("numPorts=%d  numCmdSlots=%d  pi=%x ", numPorts, numCmdSlots, pi);
-
-    log.trace("HBA Capabilities = %x ", abar->cap);
+    log.info("Number of ports: %u", numPorts);
+    log.info("Number of command slotrs: %u", numCmdSlots);
+    log.info("Implemented ports: 0x%08x", numPorts);
+    log.info("HBA Capabilities = 0x%08x", abar->cap);
 }
 
 bool Ahci::reset() {
-    log.trace("Resetting Host-Bus-Adapter ");
+    log.trace("Resetting Host-Bus-Adapter");
 
     abar->ghc |= HBA_GHC_HR;
 
@@ -152,7 +150,7 @@ bool Ahci::reset() {
     // uint32_t spin = 0;
     // for (uint32_t i = 0; i < numPorts; i++) {
     //     if ( isPortImplemented(i) ) {
-    //         log.trace("Waiting for Phy communication ");
+    //         log.trace("Waiting for Phy communication");
 
     //         spin = 0;
     //         while( (abar->ports[i].ssts & HBA_PxSSTS_DET) != HBA_PxSSTS_DET_PHY && spin < 1000000) {
@@ -160,9 +158,9 @@ bool Ahci::reset() {
     //         }
 
     //         if (spin == 1000000) {
-    //             log.trace("Couldn't establish Phy connection on port %d ", i);
+    //             log.trace("Couldn't establish Phy connection on port %d", i);
     //         } else {
-    //             log.trace("Established Phy connection on port %d ", i);
+    //             log.trace("Established Phy connection on port %d", i);
     //         }
     //     }
     // }
@@ -170,7 +168,7 @@ bool Ahci::reset() {
 
 void Ahci::enableAhci() {
     if ( !(abar->cap & HBA_CAP_SAM) ) {
-        log.trace("Setting HBA to AHCI mode ");
+        log.trace("Setting HBA to AHCI mode");
         abar->ghc |= HBA_GHC_AE;
     }
 }
@@ -182,7 +180,7 @@ void Ahci::scan() {
             continue;
         }
 
-        log.trace("Checking port %d ", i);
+        log.trace("Checking port %u", i);
 
         switch ( checkType(&abar->ports[i]) ) {
             case AHCI_DEV_SATA:
@@ -191,30 +189,28 @@ void Ahci::scan() {
                     continue;
                 }
 
-                log.trace("SATA found at port %d ", i);
+                log.info("SATA device found at port %u", i);
 
                 sataDevices[numDevices] = &abar->ports[i];
-
-                log.trace("Stored device at %x ", &sataDevices[numDevices], sataDevices[numDevices]->cmd);
 
                 numDevices++;
 
                 break;
             case AHCI_DEV_SATAPI:
-               log.trace("SATAPI found at port %d ", i);
+               log.warn("Unsopported device of type 'SATAPI' found at port %d", i);
                 break;
             case AHCI_DEV_SEMB:
-               log.trace("SEMB found at port %d ", i);
+               log.warn("Unsopported device of type 'SEMB' found at port %d", i);
                 break;
             case AHCI_DEV_PM:
-               log.trace("SEMB found at port %d ", i);
+               log.warn("Unsopported device of type 'SEMB' found at port %d", i);
                 break;
             default:
                 break;
         }
     }
 
-    log.trace("Finished scanning all implemented ports ");
+    log.trace("Finished scanning all implemented ports");
 }
 
 bool Ahci::isActive(HbaPort* port) {
@@ -230,7 +226,7 @@ bool Ahci::isPortImplemented(uint16_t portNumber) {
 
 void Ahci::resetPort(HbaPort *port) {
 
-    log.trace("Resetting port... ");
+    log.trace("Resetting port...");
 
     port->cmd |= HBA_PxCMD_FRE;
 
@@ -250,8 +246,8 @@ void Ahci::resetPort(HbaPort *port) {
     port->cmd |= HBA_PxCMD_SUD;
 
     if (port->cmd & HBA_PxCMD_CPD) {
-        log.trace("Cold Presence Detection is supported ");
-        log.trace("Powering up device... ");
+        log.info("Cold Presence Detection is supported");
+        log.trace("Powering up device...");
 
         // TODO(krakowski):
         //  Perform power-up
@@ -259,22 +255,22 @@ void Ahci::resetPort(HbaPort *port) {
     }
 
     if (abar->cap & HBA_CAP_SSS) {
-        log.trace("Staggered Spin-up is supported ");
+        log.info("Staggered Spin-up is supported");
 
         // TODO(krakowski):
         //  Perform staggered spin-up
         
     }
 
-    log.trace("Requesting transition to ACTIVE state ");
+    log.trace("Requesting transition to ACTIVE state");
 
     port->cmd = (port->cmd & ~HBA_PxCMD_ICC) | HBA_PxCMD_ICC_ACTIVE;
 
-    /*log.trace("Waiting for Phy communication ");
+    /*log.trace("Waiting for Phy communication");
 
     while( (port->ssts & HBA_PxSSTS_DET) != HBA_PxSSTS_DET_PHY );
 
-    log.trace("Phy communication established ");*/
+    log.trace("Phy communication established");*/
 
     port->serr  = port->serr; // @suppress("Assignment to itself")
     port->is    = port->is;   // @suppress("Assignment to itself")
@@ -320,11 +316,12 @@ uint8_t Ahci::getNumDevices() {
 void Ahci::biosHandoff() {
 
     if ( !(abar->cap2 & HBA_CAP2_BOH) ) {
-        log.trace("AHCI BIOS Handoff is not supported ");
+        log.info("AHCI BIOS Handoff is not supported");
         return;
     }
 
-    log.trace("Performing AHCI BIOS Handoff ");
+    log.info("AHCI BIOS Handoff is supported");
+    log.trace("Performing AHCI BIOS Handoff");
 
     abar->bohc = (abar->bohc & ~HBA_BOHC_OOC) | HBA_BOHC_OOS;
 
@@ -337,7 +334,7 @@ void Ahci::biosHandoff() {
     if (timeout == AHCI_TIMEOUT) {
        log.warn("BIOS Handoff timed out");
     } else {
-       log.trace("AHCI BIOS Handoff succeeded ");
+       log.trace("AHCI BIOS Handoff succeeded");
     }
 }
 
@@ -464,12 +461,11 @@ bool Ahci::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, uint16_t cou
                    uint8_t portIndex) {
 
     if (count == 0) {
-        log.warn("Count has to be greater than 0");
         return false;
     }
 
     if ( !isActive(port) ) {
-        log.warn("Port is not inizialized");
+        log.error("Port is not inizialized");
         return false;
     }
 
@@ -597,7 +593,7 @@ int Ahci::findCmdSlot(HbaPort *port) {
 
 void Ahci::rebasePort(HbaPort *port, int portno) {
 
-    log.trace("Rebasing port %d ", portno);
+    log.trace("Rebasing port %d", portno);
 
     void *virtAddress = SystemManagement::getInstance().mapIO(4096);
 
@@ -611,14 +607,14 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 	port->clb = (uint32_t) SystemManagement::getInstance().getPhysicalAddress(virtAddress);
 	port->clbu = 0;
 	
-    log.trace("Rebased Command List to %x ", port->clb);
+    log.trace("Rebased Command List to %x", port->clb);
 
     uint32_t fb = port->clb + 1024;
     portVirt->fb = (uint32_t) virtAddress + 1024;
 	port->fb = fb;
 	port->fbu = 0;
 	
-    log.trace("Rebased FIS area to %x ", port->fb);
+    log.trace("Rebased FIS area to %x", port->fb);
 
     virtAddress = SystemManagement::getInstance().mapIO(8192);
     memset(virtAddress, 0, 8192);
@@ -636,7 +632,7 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 		cmdheader[i].prdtl = 16;
     }
     
-    log.trace("Rebased %d Command Headers ( %x - %x ) ",
+    log.trace("Rebased %d Command Headers ( %x - %x )",
         MAX_CMD_SLOTS,
         cmdheader[0].ctba,
         cmdheader[MAX_CMD_SLOTS - 1].ctba);    
@@ -648,7 +644,7 @@ void Ahci::rebasePort(HbaPort *port, int portno) {
 void Ahci::startAll() {
     for (uint8_t i = 0; i <= numPorts; i++) {
         if ( isPortImplemented(i) ) {
-            log.trace("Starting port %d ", i);
+            log.trace("Starting port %d", i);
             startCommand(&abar->ports[i]);
         }
     }
@@ -671,7 +667,7 @@ void Ahci::startCommand(HbaPort *port) {
 void Ahci::stopAll() {
     for (uint8_t i = 0; i < numPorts; i++) {
         if ( isPortImplemented(i) ) {
-            log.trace("Stopping port %d ", i);
+            log.trace("Stopping port %d", i);
             stopCommand(&abar->ports[i]);
         }
     }

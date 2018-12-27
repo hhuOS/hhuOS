@@ -69,13 +69,15 @@ void Mouse::activate() {
     waitData();
     uint8_t tmp = data_port.inb();
     if(tmp == 0xFF) {
-        log.trace("No mouse detected");
+        log.error("No secondary PS/2-port available. Aborting...");
         available = false;
         return;
     } else {
-        log.trace("Mouse maybe detected");
+        log.info("Secondary PS/2-port is available.");
         available = true;
     }
+
+    log.trace("Initializing mouse");
 
     // deactivate keyboard in ps2 status byte
     waitControl();
@@ -106,14 +108,15 @@ void Mouse::activate() {
     data_port.outb(status);
 
     // use mouse default settings
-    writeCommand(0xF6, "Set Defaults");
+    writeCommand(0xF6, const_cast<char *>("Set Defaults"));
     // set resolution
-    writeCommandAndByte(0xE8, 0x02, "Set Resolution");
+    writeCommandAndByte(0xE8, 0x02, const_cast<char *>("Set Resolution"));
     // set sampling to 80 packets per second
-    writeCommandAndByte(0xF3, 80, "Set Sampling Rate");
+    writeCommandAndByte(0xF3, 80, const_cast<char *>("Set Sampling Rate"));
     // activate mouse packet streaming
-    writeCommand(0xF4, "Enable packet streaming");
+    writeCommand(0xF4, const_cast<char *>("Enable packet streaming"));
 
+    log.trace("Finished initializing mouse");
 }
 
 void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, char* commandString) {
@@ -124,15 +127,15 @@ void Mouse::writeCommandAndByte(unsigned char byte_write, unsigned char data, ch
     unsigned char tmp;
     uint8_t cnt = 0;
     write(byte_write); // Befehl senden
-    while((tmp = read()) != 0xFA){ // ack warten
-        log.trace("ERROR >> Couldn't get ack from %s command", commandString);
+    while((tmp = read()) != 0xFA) { // ack warten
+        log.warn("Did not receive ACK for command '%s'", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // send command byte again
         }
 
         cnt ++;
         if(cnt == 5) {
-            log.trace("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
+            log.error("Did not receive ACK for command '%s' after 5 retries. Disabling mouse...");
             available = false;
             cleanup();
             return;
@@ -157,14 +160,14 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
 
     write(byte_write); // Befehl senden
     while((tmp = read()) != 0xFA){ // ack warten
-        log.trace("ERROR >> Couldn't get ack from %s command", commandString);
+        log.warn("Did not receive ACK for command '%s'", commandString);
         if( tmp == 0xFE ) {
             write(byte_write); // send command byte again
         }
 
         cnt ++;
         if(cnt == 5) {
-            log.trace("ERROR >> Couldn't receive ACK from mouse - waited 5 times (Mouse will be disabled)");
+            log.error("Did not receive ACK for command '%s' after 5 retries. Disabling mouse...");
             available = false;
             cleanup();
             return;

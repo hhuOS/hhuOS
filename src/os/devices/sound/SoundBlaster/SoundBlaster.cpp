@@ -90,9 +90,15 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
     log.info("Found base port at address 0x%04x", baseAddress);
 
     // Reset card
-    log.info("Resetting card...");
+    log.trace("Resetting card...");
+
     bool ret = reset();
-    log.info(ret ? "Successfully resetted card" : "Unable to reset card");
+
+    if(ret) {
+        log.trace("Successfully resetted card");
+    } else {
+        log.warn("Unable to reset card");
+    }
 
     // Get DSP Version
     writeToDSP(0xe1);

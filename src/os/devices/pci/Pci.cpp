@@ -231,14 +231,14 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     uint8_t subClass = getSubclassId(bus, device, function);
 
     if ( (baseClass == CLASS_BRIDGE_DEVICE) && (subClass == SUBCLASS_PCI_TO_PCI) ) {
-         log.trace("Found PCI-to-PCI Bridge on bus %d", bus);
+         log.info("Found PCI-to-PCI Bridge on bus %d", bus);
          secondaryBus = getSecondaryBus(bus, device, function);
          scanBus(secondaryBus);
     }
 
     Device dev = readDevice(bus, device, function);
 
-    log.trace("Found PCI-Device %04x:%04x on bus %u", dev.vendorId, dev.deviceId, bus);
+    log.info("Found PCI-Device %04x:%04x on bus %u", dev.vendorId, dev.deviceId, bus);
 
     char vendorId[5];
     char deviceId[5];
@@ -248,7 +248,7 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
 
     String vendorName = getIdentifier(vendorId, deviceId);
 
-    log.trace(" --> %s", (char*) vendorName);
+    log.info(" --> %s", (char*) vendorName);
 
     pciDevices.add(dev);
 }
@@ -300,21 +300,6 @@ void Pci::scan() {
             scanBus(bus);
         }
     }
-}
-
-void Pci::printRegisters(const Device &device) {
-    log.trace("|-------------------------|  |-------------------------|");
-    for (uint8_t i = 0; i < 128; i += 4) {
-
-        log.trace("| %02x  |  %04x  %04x |  | %02x  |  %04x  %04x |",
-                   i,
-                   readWord(device.bus, device.device, device.function, i + 2),
-                   readWord(device.bus, device.device, device.function, i),
-                   i + 128,
-                   readWord(device.bus, device.device, device.function, i + 2 + 128),
-                   readWord(device.bus, device.device, device.function, i + 128));
-    }
-    log.trace("|-------------------------|  |-------------------------|");
 }
 
 Util::ArrayList<Pci::Device>& Pci::getDevices() {

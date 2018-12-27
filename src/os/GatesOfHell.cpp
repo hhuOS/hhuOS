@@ -114,7 +114,7 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->update(0, "Initializing ISA Devices");
     if(FloppyController::isAvailable()) {
-        log.trace("Floppy controller is available and at least one drive is attached to it");
+        log.info("Floppy controller is available and at least one drive is attached to it");
 
         auto *floppyController = new FloppyController();
         floppyController->plugin();
@@ -122,7 +122,7 @@ int32_t GatesOfHell::enter() {
     }
 
     if(SoundBlaster::isAvailable()) {
-        log.info("Found audio device: SoundBlaster");
+        log.trace("Found audio device: SoundBlaster");
 
         Kernel::getService<SoundService>()->setPcmAudioDevice(SoundBlaster::initialize());
     }
@@ -163,6 +163,8 @@ int32_t GatesOfHell::enter() {
     }
 
     bootscreen->finish();
+
+    log.trace("Finished booting hhuOS");
 
     if (!showSplash) {
 
@@ -253,8 +255,12 @@ bool GatesOfHell::loadModule(const String &path) {
     File *file = File::open(path, "r");
 
     if(file == nullptr) {
+        log.warn("Module not found '%s'", (const char*) path);
+
         return false;
     }
+
+    log.trace("Loading module '%s'", (const char*) path);
 
     moduleLoader->load(file);
 

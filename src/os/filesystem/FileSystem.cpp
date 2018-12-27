@@ -117,17 +117,15 @@ void FileSystem::init() {
 
     if(rootDevice == nullptr) {
         // No root-device found -> Mount RAM-Device
-        log.trace("No root-partition found");
-        log.trace("Mounting RamFs to /");
+        log.warn("No root-partition found. Mounting RamFs to /");
 
         mount("", "/", "RamFsDriver");
     } else {
-        log.trace("Found root-partition %s", static_cast<const char*>(rootDevice->getName()));
-        log.trace("Mounting %s to /", static_cast<const char*>(rootDevice->getName()));
+        log.info("Found root-partition %s. Mounting %s to /", static_cast<const char*>(rootDevice->getName()),
+                static_cast<const char*>(rootDevice->getName()));
 
         if(mount(rootDevice->getName(), "/", "FatDriver") != SUCCESS) {
-            log.trace("Unable to mount root-partition");
-            log.trace("Mounting RamFs to /");
+            log.warn("Unable to mount root-partition. Mounting RamFs to /");
 
             mount("", "/", "RamFsDriver");
         }
@@ -142,10 +140,11 @@ void FileSystem::init() {
 
     // Initialize dev-Directory
     Directory *dev = Directory::open("/dev");
-    if(dev == nullptr)
+    if(dev == nullptr) {
         createDirectory("/dev");
-    else
+    } else {
         delete dev;
+    }
 
     mount("", "/dev", "RamFsDriver");
 
@@ -156,8 +155,6 @@ void FileSystem::init() {
     createDirectory("/dev/ports");
 
     // Add Video-nodes to dev-Directory
-    log.trace("Creating video files");
-
     createDirectory("/dev/video");
     createDirectory("/dev/video/text");
     createDirectory("/dev/video/lfb");
@@ -173,8 +170,6 @@ void FileSystem::init() {
     addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
 
     // Add Memory-nodes to dev-directory
-    log.trace("Creating memory files");
-
     createDirectory("/dev/memory");
     addVirtualNode("/dev/memory", new KernelHeapNode());
     addVirtualNode("/dev/memory", new IOMemoryNode());
@@ -185,16 +180,12 @@ void FileSystem::init() {
     createDirectory("/dev/network");
 
     // Add PCI-node to dev-Directory
-    log.trace("Creating PCI file");
     addVirtualNode("/dev", new PciNode());
 
     // Add syslog file to dev-Ddrectory
-    log.trace("Creating syslog file");
     createFile("/dev/syslog");
 
     // Add StdStream-nodes to dev-Directory
-    log.trace("Creating standard stream files");
-
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
 

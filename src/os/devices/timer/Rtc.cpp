@@ -43,11 +43,11 @@ uint8_t Rtc::binaryToBcd(uint8_t binary) {
 void Rtc::plugin() {
     Cpu::disableInterrupts();
 
+    log.info("Initializing RTC");
+
     // Disable NMIs
     uint8_t oldValue = registerPort.inb();
     registerPort.outb(static_cast<uint8_t>(oldValue | 0x80u));
-
-    log.trace("Disabled NMIs");
 
     // Enable 'Update interrupts': An Interrupt will be triggered after every RTC-update.
     registerPort.outb(STATUS_REGISTER_B);
@@ -68,22 +68,18 @@ void Rtc::plugin() {
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
 
-    log.trace("Setup RTC");
-
     IntDispatcher::getInstance().assign(40, *this);
     Pic::getInstance().allow(Pic::Interrupt::RTC);
-
-    log.trace("Registered RTC interrupt handler");
 
     // Enable NMIs
     oldValue = registerPort.inb();
     registerPort.outb(static_cast<uint8_t>(oldValue & 0x7Fu));
 
-    log.trace("Enabled NMIs");
-
     Cpu::enableInterrupts();
 
     IODeviceManager::getInstance().registerIODevice(this);
+
+    log.info("Finished initializing RTC");
 }
 
 void Rtc::trigger(InterruptFrame &frame) {

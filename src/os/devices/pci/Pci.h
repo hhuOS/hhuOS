@@ -131,8 +131,6 @@ public:
 
     static void      scan();
 
-    static void      printRegisters(const Device &device);
-
     /* Multifunction */
     static const uint8_t    MULTIFUNCTION_BIT = 0x80;
 

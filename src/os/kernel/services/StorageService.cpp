@@ -39,7 +39,7 @@ void StorageService::registerDevice(StorageDevice *device) {
 
     devices.put(device->getName(), device);
 
-    log.trace("Registering device: %s", (char *) device->getName());
+    log.info("Registering device: %s", (char *) device->getName());
 
     addEventBuffer.push(StorageAddEvent(device));
     eventBus->publish(addEventBuffer.pop());
@@ -62,7 +62,7 @@ void StorageService::removeDevice(const String &name) {
     Util::Array<String> deviceNames = devices.keySet();
     for(const String &currentName : deviceNames) {
         if(currentName.beginsWith(name)) {
-            log.trace("Removing device: %s", (char *) currentName);
+            log.info("Removing device: %s", (char *) currentName);
 
             devices.remove(currentName);
 

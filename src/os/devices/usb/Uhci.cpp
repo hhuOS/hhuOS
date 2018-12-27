@@ -19,12 +19,14 @@ Uhci::~Uhci() {
 }
 
 void Uhci::setup(const Pci::Device &device) {
+    log.trace("Initializing UHCI controller");
+
     uint32_t baseAddress = Pci::readDoubleWord(device.bus, device.device, device.function, Pci::PCI_HEADER_BAR4) & 0x0000ffe0;
     uint32_t usbVersion = Pci::readWord(device.bus, device.device, device.function, 0x60);
 
-    log.trace(usbVersion == 0x10 ? "Controller is compliant with USB version 1.0" :
+    log.info(usbVersion == 0x10 ? "Controller is compliant with USB version 1.0" :
                                    "Controller is compliant with a USB version prior to 1.0");
-    log.trace("IO base address: 0x%08x", baseAddress);
+    log.info("IO base address: 0x%08x", baseAddress);
 
     timeService = Kernel::getService<TimeService>();
 
@@ -77,12 +79,14 @@ void Uhci::setup(const Pci::Device &device) {
     resetPort(2);
 
     if(statusControlPort1->inw() & UsbPortControlStatus::CURRENT_CONNECT_STATUS) {
-        log.trace("Device detected on port 1");
+        log.info("Device detected on port 1");
     }
 
     if(statusControlPort2->inw() & UsbPortControlStatus::CURRENT_CONNECT_STATUS) {
-        log.trace("Device detected on port 2");
+        log.info("Device detected on port 2");
     }
+
+    log.trace("Finished initializing UHCI controller");
 }
 
 void Uhci::resetHostController() {
@@ -128,7 +132,7 @@ void Uhci::enableInterrupt(Uhci::UsbInterrupt interrupt) {
 
 void Uhci::resetPort(uint8_t portNum) {
     if(portNum != 1 && portNum != 2) {
-        log.trace("Trying to reset an undefined port (%u)! Aborting...", portNum);
+        log.warn("Trying to reset an undefined port (%u)! Aborting...", portNum);
 
         return;
     }
@@ -151,5 +155,5 @@ void Uhci::resetPort(uint8_t portNum) {
 }
 
 void Uhci::trigger(InterruptFrame &frame) {
-    log.trace("INTERRUPT");
+    log.debug("INTERRUPT");
 }

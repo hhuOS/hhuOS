@@ -73,7 +73,7 @@ void FloppyController::setup() {
     if(primaryDriveType != DriveType::DRIVE_TYPE_NONE && primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        log.trace("Found primary floppy drive");
+        log.info("Found primary floppy drive");
 
         FloppyDevice *device = new FloppyDevice(*this, 0, primaryDriveType, "fdd0");
 
@@ -91,7 +91,7 @@ void FloppyController::setup() {
     if(secondaryDriveType != DriveType::DRIVE_TYPE_NONE && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        log.trace("Found secondary floppy drive");
+        log.info("Found secondary floppy drive");
 
         FloppyDevice *device = new FloppyDevice(*this, 1, secondaryDriveType, "fdd1");
 
@@ -249,9 +249,9 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     bool ret = calibrateDrive(device);
 
     if(ret) {
-        log.trace("Successfully resetted drive %u", device.driveNumber);
+        log.trace("Successfully reset drive %u", device.driveNumber);
     } else {
-        log.trace("Failed to reset  drive %u", device.driveNumber);
+        log.error("Failed to reset  drive %u", device.driveNumber);
     }
 
     return ret;
@@ -283,7 +283,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
         SenseInterruptState interruptState = senseInterrupt();
 
         if((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
-            log.error("Error while calibrating drive");
+            log.warn("Error while calibrating drive");
             continue;
         }
 
@@ -337,7 +337,8 @@ uint8_t FloppyController::calculateSectorSizeExponent(FloppyDevice &device) {
         timeout += 10;
 
         if(timeout > FLOPPY_TIMEOUT) {
-            log.error("Timeout while reading a sector");
+            log.warn("Timeout while reading a sector");
+            log.warn("Unable to determine sector size. Using default value of 512 Bytes per sector");
 
             return 2;
         }
@@ -365,14 +366,14 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         }
 
         if(!receivedInterrupt) {
-            log.error("Timeout while seeking");
+            log.warn("Timeout while seeking");
             continue;
         }
 
         SenseInterruptState interruptState = senseInterrupt();
 
         if((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
-			log.trace("Error while seeking");
+			log.warn("Error while seeking");
             continue;
         }
 
@@ -443,14 +444,14 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
         }
 
         if(!receivedInterrupt) {
-            log.error("Timeout while reading a sector");
+            log.warn("Timeout while reading a sector");
             continue;
         }
 
         CommandStatus status = readCommandStatus();
 
         if((status.statusRegister0 & 0xc0u) != 0) {
-			log.trace("Error while reading a sector");
+			log.warn("Error while reading a sector");
             continue;
         }
 
@@ -462,7 +463,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
 	
-	log.error("Failed to read on drive %u", device.driveNumber);
+	log.error("Failed to read a sector on drive %u", device.driveNumber);
 
     return false;
 }
@@ -503,14 +504,14 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
         }
 
         if(!receivedInterrupt) {
-            log.error("Timeout while writing a sector");
+            log.warn("Timeout while writing a sector");
             continue;
         }
 
         CommandStatus status = readCommandStatus();
 
         if((status.statusRegister0 & 0xc0u) != 0) {
-            log.trace("Error while writing  a sector");
+            log.warn("Error while writing  a sector");
             continue;
         }
 
@@ -520,6 +521,8 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
     }
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
+
+    log.error("Failed to write a sector on drive %u", device.driveNumber);
 
     return false;
 }
