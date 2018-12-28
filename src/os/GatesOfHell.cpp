@@ -155,6 +155,9 @@ int32_t GatesOfHell::enter() {
         Logger::setConsoleLogging(false);
     }
 
+    // Halt the system, because there is currently no graphics driver available on EFI systems.
+    Cpu::halt();
+
     Scheduler::getInstance().startUp();
 
     return 0;
