@@ -17,13 +17,19 @@
 #include "PortService.h"
 
 void PortService::registerPort(Port *port) {
-    simplePortMap.put(port->getName().toLowerCase(), port);
+    portMap.put(port->getName().toLowerCase(), port);
 }
 
-Port *PortService::getPort(String name) {
-    return simplePortMap.get(name.toLowerCase());
+Port *PortService::getPort(const String &name) {
+    String driverName = name;
+    driverName = driverName.toLowerCase();
+
+    return portMap.get(driverName);
 }
 
-bool PortService::isPortAvailable(String name) {
-    return simplePortMap.containsKey(name.toLowerCase());
+bool PortService::isPortAvailable(const String &name) {
+    String driverName = name;
+    driverName = driverName.toLowerCase();
+
+    return portMap.containsKey(driverName);
 }

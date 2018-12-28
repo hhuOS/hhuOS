@@ -26,7 +26,7 @@ class PortService : public KernelService {
 
 private:
 
-    Util::HashMap<String, Port*> simplePortMap;
+    Util::HashMap<String, Port*> portMap;
 
 public:
 
@@ -34,9 +34,9 @@ public:
 
     void registerPort(Port *port);
 
-    Port *getPort(String name);
+    Port *getPort(const String &name);
 
-    bool isPortAvailable(String name);
+    bool isPortAvailable(const String &name);
 
     static constexpr const char* SERVICE_NAME = "PortService";
 };

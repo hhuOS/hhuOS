@@ -73,7 +73,7 @@ void init_system(Multiboot::Info *address) {
 
     Logger::setConsoleLogging(Multiboot::Structure::getKernelOption("splash") == "false");
 
-    if(Multiboot::Structure::getKernelOption("gdb") == "false") {
+    if(Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
         systemManagement.writeProtectKernelCode();
     }
 }

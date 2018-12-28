@@ -155,8 +155,6 @@ int32_t GatesOfHell::enter() {
 
     BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
 
-    Kernel::getService<GraphicsService>()->getLinearFrameBuffer()->disableDoubleBuffering();
-
     if(sound != nullptr) {
         sound->play();
         delete sound;
@@ -229,13 +227,21 @@ void GatesOfHell::initializeGraphics() {
     graphicsService->setLinearFrameBuffer(lfbName);
     graphicsService->setTextDriver(textName);
 
-    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
-    graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+    TextDriver *text = graphicsService->getTextDriver();
 
-    Kernel::getService<KernelStreamService>()->setStdout(graphicsService->getTextDriver());
-    Kernel::getService<KernelStreamService>()->setStderr(graphicsService->getTextDriver());
+    if(lfb != nullptr) {
+        graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
+    }
 
-    stdout = graphicsService->getTextDriver();
+    if(text != nullptr) {
+        graphicsService->getTextDriver()->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
+
+        Kernel::getService<KernelStreamService>()->setStdout(graphicsService->getTextDriver());
+        Kernel::getService<KernelStreamService>()->setStderr(graphicsService->getTextDriver());
+
+        stdout = graphicsService->getTextDriver();
+    }
 }
 
 void GatesOfHell::initializePciDrivers() {

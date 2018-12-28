@@ -33,6 +33,10 @@ uint64_t StderrNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 uint64_t StderrNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stderr = kernelStreamService->getStderr();
 
+    if(stderr == nullptr) {
+        return 0;
+    }
+
     stderr->writeBytes(buf, numBytes);
     stderr->flush();
 

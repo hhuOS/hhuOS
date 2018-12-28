@@ -31,6 +31,10 @@ uint64_t StdoutNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 uint64_t StdoutNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     OutputStream *stdout = kernelStreamService->getStdout();
+
+    if(stdout == nullptr) {
+        return 0;
+    }
     
     stdout->writeBytes(buf, numBytes);
     stdout->flush();
