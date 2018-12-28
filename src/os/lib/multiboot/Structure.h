@@ -38,11 +38,15 @@ namespace Multiboot {
 
         ~Structure() = delete;
 
-        static void parse(Info *address);
+        static void parse();
+
+        static void init(Multiboot::Info *address);
 
         static void readMemoryMap(Info *address);
 
         static Multiboot::ModuleInfo getModule(const String &module);
+
+        static Util::Array<Multiboot::MemoryMapEntry> getMemoryMap();
 
         static bool isModuleLoaded(const String &module);
 

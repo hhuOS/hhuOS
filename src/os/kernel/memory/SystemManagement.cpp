@@ -55,13 +55,15 @@ void init_system(Multiboot::Info *address) {
     // enable interrupts afterwards
     Cpu::enableInterrupts();
 
+    Multiboot::Structure::init(address);
+
     // create an instance of the SystemManagement and initialize it
     // (sets up paging and system management)
     SystemManagement &systemManagement = SystemManagement::getInstance();
 
     systemManagement.init();
 
-    Multiboot::Structure::parse(address);
+    Multiboot::Structure::parse();
 
     Pit::getInstance().plugin();
 
@@ -363,22 +365,23 @@ uint32_t SystemManagement::getFaultingAddress() {
 
 void SystemManagement::calcTotalPhysicalMemory() {
 
-    // request amount of memory
-    BC_params->AX = 0xE801;
-    BC_params->CX = 0;
-    BC_params->DX = 0;
-    Bios::Int(0x15);
+    Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::Structure::getMemoryMap();
+    Multiboot::MemoryMapEntry &maxEntry = memoryMap[0];
+    for (const auto &entry : memoryMap) {
+        if (entry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
+            continue;
+        }
 
-    // was there a problem?
-    if ( (BC_params->AX & 0xFF) == 0x86 || (BC_params->AX & 0xFF) == 0x80) {
-        printf("[SYSTEMMANAGEMENT] Physical memory coukld not be calculated.");
-        Cpu::halt ();
-    } else {
-        // calculaze amopunt of usable physivcal memory
-        totalPhysMemory = 1024 * 1024;                     // 1. MB
-        totalPhysMemory += (BC_params->CX * 1024);         // 2 - 16MB
-        totalPhysMemory += (BC_params->DX * 64 * 1024);    // >16MB
+        if (entry.length > maxEntry.length) {
+            maxEntry = entry;
+        }
     }
+
+    if (maxEntry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "No usable memory found");
+    }
+
+    totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
 
     // if there is more than 3,75GB memory apply a cap
     if(totalPhysMemory > PHYS_MEM_CAP) {
@@ -390,8 +393,8 @@ void SystemManagement::calcTotalPhysicalMemory() {
         printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM\n");
         Cpu::halt();
     }
-    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %dMB\n", totalPhysMemory/(1024*1024));
 
+    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %dMB\n", totalPhysMemory/(1024*1024));
 }
 
 VirtualAddressSpace* SystemManagement::createAddressSpace() {

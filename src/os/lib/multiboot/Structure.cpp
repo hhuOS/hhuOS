@@ -50,13 +50,7 @@ Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
 Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
 
 extern "C" {
-    void parse_multiboot(Multiboot::Info *address);
     void readMemoryMap(Multiboot::Info *address);
-}
-
-void parse_multiboot(Multiboot::Info *address) {
-
-    Multiboot::Structure::parse(address);
 }
 
 void readMemoryMap(Multiboot::Info *address) {
@@ -139,9 +133,12 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
     }
 }
 
-void Multiboot::Structure::parse(Multiboot::Info *address) {
+void Multiboot::Structure::init(Multiboot::Info *address) {
 
     info = *address;
+}
+
+void Multiboot::Structure::parse() {
 
     parseCommandLine();
 
@@ -197,6 +194,25 @@ void Multiboot::Structure::parseMemoryMap() {
         while(true);
 #endif
     }
+}
+
+Util::Array<Multiboot::MemoryMapEntry> Multiboot::Structure::getMemoryMap() {
+
+    if ((info.flags & MULTIBOOT_INFO_MEM_MAP) == 0x0) {
+        return Util::Array<Multiboot::MemoryMapEntry>(0);
+    }
+
+    auto *entry = (MemoryMapEntry*) (info.memoryMapAddress + KERNEL_START);
+
+    uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
+
+    Util::Array<Multiboot::MemoryMapEntry> memoryMap(size);
+
+    for (uint32_t i = 0; i < size; i ++) {
+        memoryMap[i] = entry[i];
+    }
+
+    return memoryMap;
 }
 
 void Multiboot::Structure::parseSymbols() {

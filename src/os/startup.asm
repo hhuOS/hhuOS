@@ -57,7 +57,6 @@ extern init_system
 extern fini_system
 extern setup_idt
 extern paging_bootstrap
-extern parse_multiboot
 extern enable_interrupts
 extern readMemoryMap
 
