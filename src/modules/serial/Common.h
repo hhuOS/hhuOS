@@ -24,11 +24,11 @@ namespace Serial {
 /**
  * Starting addresses of the registers of each port.
  */
-enum ComPort : uint8_t {
-    COM1 = 1,
-    COM2 = 2,
-    COM3 = 3,
-    COM4 = 4,
+enum ComPort : uint16_t {
+    COM1 = 0x3f8,
+    COM2 = 0x2f8,
+    COM3 = 0x3e8,
+    COM4 = 0x2e8
 };
 
 /**

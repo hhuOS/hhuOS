@@ -95,7 +95,7 @@ KVM_BIN = qemu-system-i386 -machine pc,accel=kvm,kernel-irqchip=off
 GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-efi
 EFI_BIOS = /usr/share/edk2/ovmf-ia32/OVMF_CODE.fd
 
-QEMU_DEFAULT_PARAMS = -bios $(EFI_BIOS) -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio \
+QEMU_DEFAULT_PARAMS = -bios $(EFI_BIOS) -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio\
 					  -cpu pentium,+sse,+sse2 \
 					  -drive index=0,if=floppy \
 					  -device piix3-usb-uhci,id=uhci \

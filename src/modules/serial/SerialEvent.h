@@ -29,6 +29,11 @@ private:
 
     char c;
 
+    static const constexpr char *NAME_1 = "Com1Event";
+    static const constexpr char *NAME_2 = "Com2Event";
+    static const constexpr char *NAME_3 = "Com3Event";
+    static const constexpr char *NAME_4 = "Com4Event";
+
 };
 
 template<ComPort port>
@@ -58,7 +63,16 @@ SerialEvent<port> &SerialEvent<port>::operator=(const SerialEvent &other) {
 
 template <ComPort port>
 String SerialEvent<port>::getType() const {
-    return "Com" + String::valueOf(port, 10) + "Event";
+    switch(port) {
+        case COM1 :
+            return NAME_1;
+        case COM2 :
+            return NAME_2;
+        case COM3 :
+            return NAME_3;
+        case COM4 :
+            return NAME_4;
+    }
 }
 
 template <ComPort port>

@@ -119,16 +119,6 @@ public:
 
 private:
 
-    /**
-     * Calculate the base address of the IO-ports of a given parallel port.
-     *
-     * @param port The port
-     * @return The base address
-     */
-    static uint16_t getBasePort();
-
-private:
-
     BaudRate speed;
 
     EventBus *eventBus;
@@ -143,32 +133,38 @@ private:
     IOport lineStatusRegister;
     IOport modemStatusRegister;
     IOport scratchRegister;
+
+    static const constexpr char *NAME_1 = "Com1";
+    static const constexpr char *NAME_2 = "Com2";
+    static const constexpr char *NAME_3 = "Com3";
+    static const constexpr char *NAME_4 = "Com4";
 };
 
 template<ComPort port>
-uint16_t SerialDriver<port>::getBasePort() {
-    auto *address = reinterpret_cast<uint16_t *>(0xc0000400);
-
-    address += port - 1;
-
-    return *address;
-}
-
-template<ComPort port>
 bool SerialDriver<port>::checkPort() {
-    return getBasePort() != 0;
+    IOport scratchRegister(port + 7);
+    
+    for(uint8_t i = 0; i < 0xff; i++) {
+        scratchRegister.outb(i);
+        
+        if(scratchRegister.inb() != i) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 template<ComPort port>
 SerialDriver<port>::SerialDriver(BaudRate speed) : eventBuffer(1024), interruptDataBuffer(1024), speed(speed),
-                                                   dataRegister(getBasePort()),
-                                                   interruptRegister(static_cast<uint16_t>(getBasePort() + 1)),
-                                                   fifoControlRegister(static_cast<uint16_t>(getBasePort() + 2)),
-                                                   lineControlRegister(static_cast<uint16_t>(getBasePort() + 3)),
-                                                   modemControlRegister(static_cast<uint16_t>(getBasePort() + 4)),
-                                                   lineStatusRegister(static_cast<uint16_t>(getBasePort() + 5)),
-                                                   modemStatusRegister(static_cast<uint16_t>(getBasePort() + 6)),
-                                                   scratchRegister(static_cast<uint16_t>(getBasePort() + 7)) {
+                                                   dataRegister(port),
+                                                   interruptRegister(port + 1),
+                                                   fifoControlRegister(port + 2),
+                                                   lineControlRegister(port + 3),
+                                                   modemControlRegister(port + 4),
+                                                   lineStatusRegister(port + 5),
+                                                   modemStatusRegister(port + 6),
+                                                   scratchRegister(port + 7) {
     eventBus = Kernel::getService<EventBus>();
 
     interruptRegister.outb(0x00);        // Disable all interrupts
@@ -272,7 +268,16 @@ BaudRate SerialDriver<port>::getSpeed() {
 
 template<ComPort port>
 String SerialDriver<port>::getName() {
-    return "COM" + String::valueOf(port, 10);
+    switch(port) {
+        case COM1 :
+            return NAME_1;
+        case COM2 :
+            return NAME_2;
+        case COM3 :
+            return NAME_3;
+        case COM4 :
+            return NAME_4;
+    }
 }
 
 }
