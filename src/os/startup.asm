@@ -47,7 +47,7 @@ global startup
 global on_paging_enabled
 global __cxa_pure_virtual
 global gdt_48
-global _gdt_bios_48
+global gdt_bios_48
 global _init
 global _fini
 global stack
@@ -73,7 +73,6 @@ extern ___TEXT_END__
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
-_gdt_bios_48		    equ (gdt_bios_48 - KERNEL_START)
 _gdt_bios			    equ (gdt_bios - KERNEL_START)
 _gdt			        equ (gdt - KERNEL_START)
 _clear_bss              equ (clear_bss - KERNEL_START)
