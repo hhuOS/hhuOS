@@ -16,6 +16,7 @@
 
 #include <kernel/memory/MemLayout.h>
 #include "kernel/cpu/Cpu.h"
+#include "lib/libc/printf.h"
 
 #include "kernel/Bios.h"
 
@@ -217,4 +218,40 @@ void Bios::Int(int inter) {
     bios_call ();
     // bios call is returned, interrupts are allowed now
     Cpu::enableInterrupts();
+}
+
+uint32_t Bios::calcPhysMemory() {
+
+	uint32_t physMemory = 0;
+
+	// request amount of memory
+    BC_params->AX = 0xE801;
+    BC_params->CX = 0;
+    BC_params->DX = 0;
+    Bios::Int(0x15);
+
+    // was there a problem?
+    if ( (BC_params->AX & 0xFF) == 0x86 || (BC_params->AX & 0xFF) == 0x80) {
+        printf("[SYSTEMMANAGEMENT] Physical memory coukld not be calculated.");
+        Cpu::halt ();
+    } else {
+        // calculate amopunt of usable physivcal memory
+        physMemory = 1024 * 1024;                     // 1. MB
+        physMemory += (BC_params->CX * 1024);         // 2 - 16MB
+        physMemory += (BC_params->DX * 64 * 1024);    // >16MB
+    }
+
+    // if there is more than 3,75GB memory apply a cap
+    if(physMemory > PHYS_MEM_CAP) {
+        physMemory = PHYS_MEM_CAP;
+    }
+
+    // We need at least 10MB physical memory to run properly
+    if(physMemory < 10 * 1024 * 1024){
+        printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM\n");
+        Cpu::halt();
+    }
+    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %dMB\n", physMemory/(1024*1024));
+
+    return physMemory;
 }

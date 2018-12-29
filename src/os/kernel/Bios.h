@@ -66,6 +66,14 @@ public:
      * @param inter Number of the bios-call
      */
     static void Int(int inter);
+
+    /**
+     * Calculates the amount of installed physical memory with BIOS-calls.
+     * Only for legacy reasons.
+     *
+     * @return Amount of installed physical memory in bytes
+     */
+    static uint32_t calcPhysMemory();
 };
 
 #endif
