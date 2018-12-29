@@ -31,8 +31,8 @@ global idt
 extern preempt
 extern dispatchInterrupt
 extern switch_context
-extern gdt_48
-extern gdt_bios_48
+extern gdt_desc
+extern gdt_bios_desc
 extern BIOS_Page_Directory
 extern stack
 extern enable_interrupts
@@ -116,7 +116,7 @@ bios_call2:
     mov ecx, cr3
     mov cr3, ecx
 ; load gdt for bios calls (-> low addresses)
-    lgdt [gdt_bios_48 - KERNEL_START]
+    lgdt [gdt_bios_desc - KERNEL_START]
 
 ; for calculation
     mov edx, KERNEL_START
@@ -139,7 +139,7 @@ bios_call3:
     or ecx, 0x80000000
     mov cr0, ecx
 ; load global descriptor table
-    lgdt [gdt_48]
+    lgdt [gdt_desc]
 ; far jump to high address (paging on)
     lea ecx, [bios_call4]
     jmp ecx

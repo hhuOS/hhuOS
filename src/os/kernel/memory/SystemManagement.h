@@ -283,6 +283,8 @@ public:
      */
     static bool isInitialized();
 
+    static void createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
+
     /**
      * Calculates the amount of usable, installed physical memory using a bios call.
      *

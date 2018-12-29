@@ -46,8 +46,8 @@ GRAPHICS_BPP    equ 32
 global startup
 global on_paging_enabled
 global __cxa_pure_virtual
-global gdt_48
-global gdt_bios_48
+global gdt_desc
+global gdt_bios_desc
 global _init
 global _fini
 global stack
@@ -59,6 +59,7 @@ extern setup_idt
 extern paging_bootstrap
 extern enable_interrupts
 extern readMemoryMap
+extern init_gdt
 
 extern ___KERNEL_DATA_START__
 extern ___KERNEL_DATA_END__
@@ -73,8 +74,6 @@ extern ___TEXT_END__
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
-_gdt_bios			    equ (gdt_bios - KERNEL_START)
-_gdt			        equ (gdt - KERNEL_START)
 _clear_bss              equ (clear_bss - KERNEL_START)
 ___PHYS_BSS_START__     equ (___BSS_START__ - KERNEL_START)
 ___PHYS_BSS_END__       equ (___BSS_END__ - KERNEL_START)
@@ -108,8 +107,34 @@ startup:
     or ax, 3 << 9
     mov cr4, eax
 
+    mov esp, (stack - KERNEL_START + STACK_SIZE)
+
+    mov ecx, gdt_phys_desc
+    sub ecx, KERNEL_START
+    push ecx
+
+    mov ecx, gdt_bios_desc
+    sub ecx, KERNEL_START
+    push ecx
+
+    mov ecx, gdt_desc
+    sub ecx, KERNEL_START
+    push ecx
+
+    mov ecx, gdt_bios
+    sub ecx, KERNEL_START
+    push ecx
+
+    mov ecx, gdt
+    sub ecx, KERNEL_START
+    push ecx
+
+    call init_gdt
+
+    add esp, 0x14
+
     ; Load GDT
-    lgdt	[phys_gdt_48 - KERNEL_START]
+    lgdt	[gdt_phys_desc - KERNEL_START]
 
     mov	ax,0x10
     mov	ds,ax
@@ -154,7 +179,7 @@ clear_bss:
 on_paging_enabled:
 
     ; Load GDT
-	lgdt	[gdt_48]
+	lgdt	[gdt_desc]
 
     ; save multiboot structure address
     add ebx, KERNEL_START
@@ -264,56 +289,31 @@ __cxa_pure_virtual:
 
 section .data
 ;
-; General global descriptor table
-;
+; the following lines reserve memory for the different GDTs needed in hhuOS.
+; these GDTs and descriptors are set up in init_gdt (SystemManagement.cpp)
+
+;global descriptor table
 gdt:
-	dw	0,0,0,0		                    ; NULL Deskriptor
+	times (20) dw 0
 
-	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		                    ; base address=0
-	dw	0x9A00		                    ; code read/exec
-	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
-
-	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		                    ; base address=0
-	dw	0x9200		                    ; data read/write
-	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
-
-;
-; global descriptor table for bios calls (now we have a bios segment at 0x24000)
-;
+; global descriptor table for bios calls
 gdt_bios:
-	dw	0,0,0,0		                    ; NULL Deskriptor
+	times (16) dw 0
 
-	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		                    ; base address=0
-	dw	0x9A00		                    ; code read/exec
-	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
+; descriptor for GDT
+gdt_desc:
+	dw	0		                   ; GDT limit
+	dd	0                          ; virtual address of GDT
 
-	dw	0xFFFF		                    ; 4Gb - (0x100000*0x1000 = 4Gb)
-	dw	0x0000		                    ; base address=0
-	dw	0x9200		                    ; data read/write
-	dw	0x00CF		                    ; granularity=4096, 386 (+5th nibble of limit)
+; physical descriptor for gdt (needed if paging disabled)
+gdt_phys_desc:
+	dw	0		                   ; GDT limit
+	dd	0                          ; Physical GDT address
 
-    dw  0xFFFF                          ; 4Gb - (0x100000*0x1000 = 4Gb)
-    dw	0x4000                          ; 0x4000 -> base address=0x4000 (siehe BIOS.cpp)
-    dw  0x9A00                          ; 0x0000 -> base address =0x4000 (siehe BIOS.cpp) und code read/exec;
-    dw  0x008F                          ; granularity=4096, 16-bit code
-
-; value for GDTR 
-gdt_48:
-	dw	0x18		                    ; GDT Limit=32, 4 GDT Eintraege
-	dd	gdt                             ; Virtuelle Adresse der GDT
-
-; physical value for GDTR
-phys_gdt_48:
-	dw	0x18		                    ; GDT Limit=32, 4 GDT Eintraege
-	dd	_gdt                            ; Physical GDT address
-
-; value for GDTR using BIOS Calls (low address needed because paging is disabled)
-gdt_bios_48:
-	dw	0x20		; GDT Limit=32, 4 GDT Eintraege
-	dd	_gdt_bios         ; Virtuelle Adresse der GDT
+; descriptor for BIOS Call GDT
+gdt_bios_desc:
+	dw	0						   ; GDT limit
+	dd	0         				   ; physical BIOS-GDT address
 
 multiboot_addr:
     dd  0x00000000

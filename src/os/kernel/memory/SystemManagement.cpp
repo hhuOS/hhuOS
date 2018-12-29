@@ -37,6 +37,7 @@ extern "C"{
     void _fini();
     void init_system(Multiboot::Info *address);
     void fini_system();
+    void init_gdt(uint16_t* gdt, uint16_t* gdt_bios, uint16_t* gdt_desc, uint16_t* gdt_bios_desc, uint16_t* gdt_phys_desc);
 }
 
 // initialize static members
@@ -84,6 +85,38 @@ void init_system(Multiboot::Info *address) {
 void fini_system() {
 
     _fini();
+}
+
+void init_gdt(uint16_t* gdt, uint16_t* gdt_bios, uint16_t* gdt_desc, uint16_t* gdt_bios_desc, uint16_t* gdt_phys_desc) {
+	// first set up general GDT
+	SystemManagement::createGDTEntry(gdt, 0, 0, 0, 0, 0);
+	SystemManagement::createGDTEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+	SystemManagement::createGDTEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+	SystemManagement::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
+	SystemManagement::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
+
+	gdt_desc[0] = 5 * 8;
+	*((uint32_t*)(gdt_desc + 1)) = (uint32_t)gdt + KERNEL_START;
+
+	gdt_phys_desc[0] = 5 * 8;
+	*((uint32_t*)(gdt_phys_desc + 1)) = (uint32_t)gdt;
+
+	SystemManagement::createGDTEntry(gdt_bios, 0, 0, 0, 0, 0);
+	SystemManagement::createGDTEntry(gdt_bios, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+	SystemManagement::createGDTEntry(gdt_bios, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+	SystemManagement::createGDTEntry(gdt_bios, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
+
+	gdt_bios_desc[0] = 4 * 8;
+	*((uint32_t*)(gdt_bios_desc + 1)) = (uint32_t)gdt_bios;
+}
+
+void SystemManagement::createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags) {
+	uint16_t idx = 4 * num;
+
+	gdt[idx] 		= (uint16_t) (limit & 0xFFFF);
+	gdt[idx + 1] 	= (uint16_t) (base & 0xFFFF);
+	gdt[idx + 2]	= (uint16_t) ((base >> 16) & 0xFF) | (access << 8);
+	gdt[idx + 3]	= (uint16_t) ((limit >> 16) & 0x0F) | ((flags << 4) & 0xF0) | ((base >> 16) & 0xFF00);
 }
 
 void SystemManagement::plugin() {
