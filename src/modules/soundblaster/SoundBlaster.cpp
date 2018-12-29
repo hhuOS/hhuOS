@@ -22,8 +22,6 @@
 #include "SoundBlasterPro.h"
 #include "SoundBlaster16.h"
 
-Logger &SoundBlaster::log = Logger::get("SOUNDBLASTER");
-
 bool SoundBlaster::checkPort(uint16_t baseAddress) {
     auto *timeService = Kernel::getService<TimeService>();
     IOport resetPort(static_cast<uint16_t>(baseAddress + 0x06));
@@ -87,17 +85,19 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
         writeDataPort(static_cast<uint16_t>(baseAddress + 0x0c)),
         readBufferStatusPort(static_cast<uint16_t>(baseAddress + 0x0e)),
         timeService(Kernel::getService<TimeService>()) {
-    log.info("Found base port at address 0x%04x", baseAddress);
+    log = &Logger::get("SOUNDBLASTER");
+    
+    log->info("Found base port at address 0x%04x", baseAddress);
 
     // Reset card
-    log.trace("Resetting card...");
+    log->trace("Resetting card...");
 
     bool ret = reset();
 
     if(ret) {
-        log.trace("Successfully resetted card");
+        log->trace("Successfully resetted card");
     } else {
-        log.warn("Unable to reset card");
+        log->warn("Unable to reset card");
     }
 
     // Get DSP Version
@@ -105,7 +105,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
     majorVersion = readFromDSP();
     minorVersion = readFromDSP();
 
-    log.info("Major version: 0x%02x, Minor version: 0x%02x", majorVersion, minorVersion);
+    log->info("Major version: 0x%02x, Minor version: 0x%02x", majorVersion, minorVersion);
 
     dmaMemory = Isa::allocDmaBuffer();
 }

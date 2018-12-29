@@ -18,7 +18,7 @@
 #define HHUOS_FLOPPYMOTORCONTROLTHREAD_H
 
 #include <kernel/threads/Thread.h>
-#include <devices/storage/devices/FloppyDevice.h>
+#include "FloppyDevice.h"
 
 /**
  * Runs in background and controls the state of a floppy drive's motor.

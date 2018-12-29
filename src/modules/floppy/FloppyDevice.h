@@ -17,10 +17,9 @@
 #ifndef __VirtualDiskDrive_include__
 #define __VirtualDiskDrive_include__
 
-#include "StorageDevice.h"
-
 #include <cstdint>
-#include <devices/storage/controller/FloppyController.h>
+#include "devices/storage/devices/StorageDevice.h"
+#include "FloppyController.h"
 
 class FloppyMotorControlThread;
 

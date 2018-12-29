@@ -17,15 +17,13 @@
 #include <lib/libc/printf.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/Kernel.h>
-#include <devices/storage/devices/FloppyDevice.h>
 #include <kernel/threads/WorkerThread.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/memory/SystemManagement.h>
 #include "FloppyController.h"
+#include "FloppyDevice.h"
 #include "FloppyMotorControlThread.h"
-
-Logger &FloppyController::log = Logger::get("FLOPPY");
 
 bool FloppyController::isAvailable() {
     IOport cmosRegisterPort(0x70);
@@ -40,7 +38,8 @@ FloppyController::FloppyController() :
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), datarateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {
-
+    log = &Logger::get("FLOPPY");
+    
     dmaMemory = Isa::allocDmaBuffer();
 
     timeService = Kernel::getService<TimeService>();
@@ -73,7 +72,7 @@ void FloppyController::setup() {
     if(primaryDriveType != DriveType::DRIVE_TYPE_NONE && primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        log.info("Found primary floppy drive");
+        log->info("Found primary floppy drive");
 
         FloppyDevice *device = new FloppyDevice(*this, 0, primaryDriveType, "fdd0");
 
@@ -89,7 +88,7 @@ void FloppyController::setup() {
     if(secondaryDriveType != DriveType::DRIVE_TYPE_NONE && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 &&
        secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
 
-        log.info("Found secondary floppy drive");
+        log->info("Found secondary floppy drive");
 
         FloppyDevice *device = new FloppyDevice(*this, 1, secondaryDriveType, "fdd1");
 
@@ -117,7 +116,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
         timeout += 10;
     }
 
-    log.error("Timeout while issuing write command");
+    log->error("Timeout while issuing write command");
 }
 
 uint8_t FloppyController::readFifoByte() {
@@ -132,7 +131,7 @@ uint8_t FloppyController::readFifoByte() {
         timeout += 10;
     }
 
-    log.error("Timeout while reading data from FIFO-buffer");
+    log->error("Timeout while reading data from FIFO-buffer");
 
     return 0;
 }
@@ -214,7 +213,7 @@ bool FloppyController::checkMedia(FloppyDevice &device) {
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {
-    log.trace("Resetting drive %u", device.driveNumber);
+    log->trace("Resetting drive %u", device.driveNumber);
 
     receivedInterrupt = false;
 
@@ -228,7 +227,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
         timeout += 10;
 
         if(timeout > FLOPPY_TIMEOUT) {
-            log.error("Timeout while resetting drive");
+            log->error("Timeout while resetting drive");
 
             return false;
         }
@@ -264,16 +263,16 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     bool ret = calibrateDrive(device);
 
     if(ret) {
-        log.trace("Successfully reset drive %u", device.driveNumber);
+        log->trace("Successfully reset drive %u", device.driveNumber);
     } else {
-        log.error("Failed to reset  drive %u", device.driveNumber);
+        log->error("Failed to reset  drive %u", device.driveNumber);
     }
 
     return ret;
 }
 
 bool FloppyController::calibrateDrive(FloppyDevice &device) {
-    log.trace("Calibrating drive %u", device.driveNumber);
+    log->trace("Calibrating drive %u", device.driveNumber);
 
     setMotorState(device, FLOPPY_MOTOR_ON);
 
@@ -303,13 +302,13 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
         if(interruptState.currentCylinder == 0) {
             setMotorState(device, FLOPPY_MOTOR_OFF);
 
-            log.trace("Successfully calibrated drive %u", device.driveNumber);
+            log->trace("Successfully calibrated drive %u", device.driveNumber);
 
             return true;
         }
     }
 
-    log.error("Failed to calibrate drive %u", device.driveNumber);
+    log->error("Failed to calibrate drive %u", device.driveNumber);
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
 
@@ -349,7 +348,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         }
     }
 
-    log.error("Failed to seek on drive %u: Did not find cylinder %u", device.driveNumber, cylinder);
+    log->error("Failed to seek on drive %u: Did not find cylinder %u", device.driveNumber, cylinder);
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
 
@@ -418,7 +417,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
         if((status.statusRegister0 & 0xc0u) != 0) {
             if(!handleReadWriteError(device, cylinder, head)) {
-                log.error("Failed to read a sector on drive %u", device.driveNumber);
+                log->error("Failed to read a sector on drive %u", device.driveNumber);
 
                 return false;
             }
@@ -434,7 +433,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
 	
-	log.error("Failed to read a sector on drive %u", device.driveNumber);
+	log->error("Failed to read a sector on drive %u", device.driveNumber);
 
     return false;
 }
@@ -484,7 +483,7 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
 
         if((status.statusRegister0 & 0xc0u) != 0) {
             if(!handleReadWriteError(device, cylinder, head)) {
-                log.error("Failed to write a sector on drive %u", device.driveNumber);
+                log->error("Failed to write a sector on drive %u", device.driveNumber);
 
                 return false;
             }
@@ -499,7 +498,7 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
 
     setMotorState(device, FLOPPY_MOTOR_OFF);
 
-    log.error("Failed to write a sector on drive %u", device.driveNumber);
+    log->error("Failed to write a sector on drive %u", device.driveNumber);
 
     return false;
 }

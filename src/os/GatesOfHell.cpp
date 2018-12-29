@@ -33,14 +33,12 @@
 #include <kernel/services/PortService.h>
 #include <devices/storage/controller/Ahci.h>
 #include <devices/usb/Uhci.h>
-#include <devices/storage/controller/FloppyController.h>
 #include <filesystem/TarArchive/TarArchiveNode.h>
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include <lib/file/Directory.h>
 #include <lib/file/beep/BeepFile.h>
 #include <kernel/services/ScreenshotService.h>
 #include <lib/file/wav/Wav.h>
-#include <devices/sound/SoundBlaster/SoundBlaster.h>
 #include <devices/IODeviceManager.h>
 #include <lib/libc/system_interface.h>
 #include <lib/file/FileStatus.h>
@@ -112,27 +110,12 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->init(xres, yres, bpp);
 
-    bootscreen->update(0, "Initializing ISA Devices");
-    if(FloppyController::isAvailable()) {
-        log.info("Floppy controller is available and at least one drive is attached to it");
-
-        auto *floppyController = new FloppyController();
-        floppyController->plugin();
-        floppyController->setup();
-    }
-
-    if(SoundBlaster::isAvailable()) {
-        log.trace("Found audio device: SoundBlaster");
-
-        Kernel::getService<SoundService>()->setPcmAudioDevice(SoundBlaster::initialize());
-    }
-
-    bootscreen->update(25, "Initializing PCI Devices");
+    bootscreen->update(0, "Initializing PCI Devices");
     Pci::scan();
 
     initializePciDrivers();
 
-    bootscreen->update(50, "Initializing Filesystem");
+    bootscreen->update(33, "Initializing Filesystem");
 
     fs->init();
     sys_init_libc();
@@ -143,7 +126,7 @@ int32_t GatesOfHell::enter() {
 
     initializeMemoryManagers();
 
-    bootscreen->update(75, "Starting Threads");
+    bootscreen->update(66, "Starting Threads");
     idleThread = new IdleThread();
 
     idleThread->start();

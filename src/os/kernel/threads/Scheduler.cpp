@@ -21,7 +21,7 @@
 #include <kernel/services/PortService.h>
 #include <devices/timer/Pit.h>
 #include <kernel/services/SoundService.h>
-#include <devices/sound/SoundBlaster/SoundBlaster.h>
+#include "../../../modules/soundblaster/SoundBlaster.h"
 #include <lib/system/SystemCall.h>
 #include "kernel/threads/Scheduler.h"
 #include "Scheduler.h"

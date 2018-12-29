@@ -14,31 +14,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SoundService.h"
+#include "FloppyModule.h"
 
-Logger &SoundService::log = Logger::get("SOUND");
+MODULE_PROVIDER {
 
-SoundService::SoundService() {
-    pcSpeaker = new PcSpeaker();
-}
+    return new FloppyModule();
+};
 
-bool SoundService::isPcmAudioAvailable() {
-    return pcmAudioDevice != nullptr;
-}
+int32_t FloppyModule::initialize() {
 
-PcSpeaker* SoundService::getPcSpeaker() {
-    return pcSpeaker;
-}
+    log = &Logger::get("FLOPPY");
 
-PcmAudioDevice *SoundService::getPcmAudioDevice() {
-    return pcmAudioDevice;
-}
+    if(FloppyController::isAvailable()) {
+        log->info("Floppy controller is available and at least one drive is attached to it");
 
-void SoundService::setPcmAudioDevice(PcmAudioDevice *newDevice) {
-    pcmAudioDevice = newDevice;
-
-    if(pcmAudioDevice != nullptr) {
-        log.info("PCM Audio Device is now set to '%s' by '%s'", (const char *) pcmAudioDevice->getDeviceName(),
-                 (const char *) pcmAudioDevice->getVendorName());
+        controller = new FloppyController();
+        controller->plugin();
+        controller->setup();
+    } else {
+        log->info("No floppy drives available");
     }
+
+    return 0;
+}
+
+int32_t FloppyModule::finalize() {
+    return 0;
+}
+
+String FloppyModule::getName() {
+    return String();
+}
+
+Util::Array<String> FloppyModule::getDependencies() {
+    return Util::Array<String>(0);
 }

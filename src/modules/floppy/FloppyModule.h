@@ -14,31 +14,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SoundService.h"
+#ifndef HHUOS_FLOPPYMODULE_H
+#define HHUOS_FLOPPYMODULE_H
 
-Logger &SoundService::log = Logger::get("SOUND");
+#include <kernel/Module.h>
+#include <kernel/log/Logger.h>
+#include "FloppyController.h"
 
-SoundService::SoundService() {
-    pcSpeaker = new PcSpeaker();
-}
+class FloppyModule : public Module {
 
-bool SoundService::isPcmAudioAvailable() {
-    return pcmAudioDevice != nullptr;
-}
+public:
 
-PcSpeaker* SoundService::getPcSpeaker() {
-    return pcSpeaker;
-}
+    FloppyModule() = default;
 
-PcmAudioDevice *SoundService::getPcmAudioDevice() {
-    return pcmAudioDevice;
-}
+    int32_t initialize() override;
 
-void SoundService::setPcmAudioDevice(PcmAudioDevice *newDevice) {
-    pcmAudioDevice = newDevice;
+    int32_t finalize() override;
 
-    if(pcmAudioDevice != nullptr) {
-        log.info("PCM Audio Device is now set to '%s' by '%s'", (const char *) pcmAudioDevice->getDeviceName(),
-                 (const char *) pcmAudioDevice->getVendorName());
-    }
-}
+    String getName() override;
+
+    Util::Array<String> getDependencies() override;
+
+private:
+
+    Logger *log = nullptr;
+
+    FloppyController *controller = nullptr;
+
+};
+
+#endif

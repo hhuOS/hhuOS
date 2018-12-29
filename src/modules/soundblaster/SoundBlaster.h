@@ -30,7 +30,7 @@ class SoundBlaster : public PcmAudioDevice {
 
 protected:
 
-    static Logger &log;
+    Logger *log;
 
     uint16_t baseAddress;
 

@@ -140,7 +140,7 @@ private:
     StorageService *storageService;
     TimeService *timeService;
 
-    static Logger &log;
+    Logger *log = nullptr;
 
     static const constexpr uint16_t IO_BASE_ADDRESS = 0x3f0;
     static const constexpr uint32_t FLOPPY_TIMEOUT = 2000;

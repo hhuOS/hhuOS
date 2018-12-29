@@ -14,31 +14,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SoundService.h"
+#include <kernel/services/SoundService.h>
+#include <kernel/Kernel.h>
+#include "SoundBlasterModule.h"
+#include "SoundBlaster.h"
 
-Logger &SoundService::log = Logger::get("SOUND");
+MODULE_PROVIDER {
 
-SoundService::SoundService() {
-    pcSpeaker = new PcSpeaker();
-}
+    return new SoundBlasterModule();
+};
 
-bool SoundService::isPcmAudioAvailable() {
-    return pcmAudioDevice != nullptr;
-}
+int32_t SoundBlasterModule::initialize() {
 
-PcSpeaker* SoundService::getPcSpeaker() {
-    return pcSpeaker;
-}
+    log = &Logger::get("SOUNDBLASTER");
 
-PcmAudioDevice *SoundService::getPcmAudioDevice() {
-    return pcmAudioDevice;
-}
+    if(SoundBlaster::isAvailable()) {
+        log->info("Found a SoundBlaster device");
 
-void SoundService::setPcmAudioDevice(PcmAudioDevice *newDevice) {
-    pcmAudioDevice = newDevice;
-
-    if(pcmAudioDevice != nullptr) {
-        log.info("PCM Audio Device is now set to '%s' by '%s'", (const char *) pcmAudioDevice->getDeviceName(),
-                 (const char *) pcmAudioDevice->getVendorName());
+        Kernel::getService<SoundService>()->setPcmAudioDevice(SoundBlaster::initialize());
+    } else {
+        log->info("No SoundBlaster device available");
     }
+
+    return 0;
+}
+
+int32_t SoundBlasterModule::finalize() {
+    return 0;
+}
+
+String SoundBlasterModule::getName() {
+    return String();
+}
+
+Util::Array<String> SoundBlasterModule::getDependencies() {
+    return Util::Array<String>(0);
 }
