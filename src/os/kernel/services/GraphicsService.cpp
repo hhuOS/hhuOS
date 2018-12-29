@@ -62,7 +62,7 @@ void GraphicsService::setTextDriver(const String &name) {
     driverName = driverName.toLowerCase();
 
     if(!textMap.containsKey(driverName)) {
-        log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char*) name);
+        log.warn("No implementation of TextDriver registered under the name '%s'", (const char*) name);
     } else {
         currentTextDriver = textMap.get(driverName);
 
