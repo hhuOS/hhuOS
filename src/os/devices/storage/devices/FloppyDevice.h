@@ -53,7 +53,6 @@ private:
 
     uint8_t gapLength;
     uint8_t sectorsPerTrack;
-    uint8_t sectorSizeExponent;
     uint32_t size;
 
     FloppyController::FloppyMotorState motorState = FloppyController::FLOPPY_MOTOR_OFF;

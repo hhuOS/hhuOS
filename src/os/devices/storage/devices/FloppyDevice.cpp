@@ -88,7 +88,8 @@ String FloppyDevice::getHardwareName() {
 }
 
 uint32_t FloppyDevice::getSectorSize() {
-    return static_cast<uint32_t>(128 * pow(2, sectorSizeExponent));
+    // Floppy sectors always have a size of 512 Bytes
+    return 512;
 }
 
 uint64_t FloppyDevice::getSectorCount() {

@@ -200,6 +200,15 @@ private:
     void killMotor(FloppyDevice &device);
 
     /**
+     * Check if a floppy disk is present inside a drive.
+     *
+     * @param device The device
+     *
+     * @return true, if a disk is present
+     */
+    bool checkMedia(FloppyDevice &device);
+
+    /**
      * Reset and calibrate a drive.
      *
      * @param device The device
@@ -207,7 +216,6 @@ private:
      * @return true, on success
      */
     bool resetDrive(FloppyDevice &device);
-
     /**
      * Calibrate a drive.
      *
@@ -218,18 +226,6 @@ private:
      * @return true, on success
      */
     bool calibrateDrive(FloppyDevice &device);
-
-    /**
-     * Get the sector size exponent of an inserted floppy disk.
-     *
-     * A floppy's sector size is calculated by 128 * 2 ^ exponent.
-     * This is done, by issuing a read command and reading the exponent from status register 0.
-     *
-     * @param device The device
-     *
-     * @return The size exponent
-     */
-    uint8_t calculateSectorSizeExponent(FloppyDevice &device);
 
     /**
      * Seek a specific head + cylinder.
@@ -282,6 +278,17 @@ private:
      * @return true, on success.
      */
     bool writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
+
+    /**
+     * Check if a disk is present and recalibrate the drive, after a read-/write-error has occurred.
+     *
+     * @param device The device
+     * @param cylinder The cylinder, that has been accessed before the error occurred
+     * @param head The head, that has been accessed before the error occurred
+     *
+     * @return true, if the device has been recalibrated successfully
+     */
+    bool handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
 public:
 
