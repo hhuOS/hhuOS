@@ -87,7 +87,7 @@ int32_t GatesOfHell::enter() {
     auto *fs = Kernel::getService<FileSystem>();
     fs->mountInitRamdisk("/");
 
-    afterInitrdHook();
+    afterInitrdModHook();
 
     log.trace("Initializing graphics");
 
@@ -113,14 +113,14 @@ int32_t GatesOfHell::enter() {
     bootscreen->update(0, "Initializing PCI Devices");
     Pci::scan();
 
-    initializePciDrivers();
+    afterPciScanModHook();
 
     bootscreen->update(33, "Initializing Filesystem");
 
     fs->init();
     sys_init_libc();
 
-    afterFsInitHook();
+    afterFsInitModHook();
 
     initializePorts();
 
@@ -174,20 +174,46 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(ScreenshotService::SERVICE_NAME, new ScreenshotService());
 }
 
-void GatesOfHell::afterInitrdHook() {
+void GatesOfHell::afterInitrdModHook() {
+    log.trace("Entering after_initrd_mod_hook");
+
     Util::Array<String> modules = Multiboot::Structure::getKernelOption("after_initrd_mod_hook").split(",");
 
     for(const auto &module : modules) {
         loadModule("/mod/" + module);
     }
+
+    log.trace("Leaving after_initrd_mod_hook");
 }
 
-void GatesOfHell::afterFsInitHook() {
+void GatesOfHell::afterPciScanModHook() {
+    log.trace("Entering after_pci_scan_mod_hook");
+
+    Util::Array<String> modules = Multiboot::Structure::getKernelOption("after_pci_scan_mod_hook").split(",");
+
+    for(const auto &module : modules) {
+        loadModule("/mod/" + module);
+    }
+
+    Ahci ahci;
+    Uhci uhci;
+
+    Pci::setupDeviceDriver(ahci);
+    Pci::setupDeviceDriver(uhci);
+
+    log.trace("Leaving after_pci_scan_mod_hook");
+}
+
+void GatesOfHell::afterFsInitModHook() {
+    log.trace("Entering after_fs_init_mod_hook");
+
     Util::Array<String> modules = Multiboot::Structure::getKernelOption("after_fs_init_mod_hook").split(",");
 
     for(const auto &module : modules) {
         loadModule("/initrd/mod/" + module);
     }
+
+    log.trace("Leaving after_fs_init_mod_hook");
 }
 
 void GatesOfHell::initializeGraphics() {
@@ -225,14 +251,6 @@ void GatesOfHell::initializeGraphics() {
 
         stdout = graphicsService->getTextDriver();
     }
-}
-
-void GatesOfHell::initializePciDrivers() {
-    Ahci ahci;
-    Uhci uhci;
-
-    Pci::setupDeviceDriver(ahci);
-    Pci::setupDeviceDriver(uhci);
 }
 
 void GatesOfHell::initializeMemoryManagers() {

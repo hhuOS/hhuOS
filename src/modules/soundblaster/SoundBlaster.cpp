@@ -95,7 +95,7 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
     bool ret = reset();
 
     if(ret) {
-        log->trace("Successfully resetted card");
+        log->trace("Successfully reset card");
     } else {
         log->warn("Unable to reset card");
     }

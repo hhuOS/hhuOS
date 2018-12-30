@@ -33,17 +33,17 @@ Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
 }
 
 uint8_t Rtc::bcdToBinary(uint8_t bcd) {
-    return (bcd & 0x0F) + ((bcd / 16) * 10);
+    return static_cast<uint8_t>((bcd & 0x0F) + ((bcd / 16) * 10));
 }
 
 uint8_t Rtc::binaryToBcd(uint8_t binary) {
-    return (binary % 10) + ((binary / 10) << 4);
+    return static_cast<uint8_t>((binary % 10) + ((binary / 10) << 4));
 }
 
 void Rtc::plugin() {
     Cpu::disableInterrupts();
 
-    log.info("Initializing RTC");
+    log.trace("Initializing RTC");
 
     // Disable NMIs
     uint8_t oldValue = registerPort.inb();
@@ -79,7 +79,7 @@ void Rtc::plugin() {
 
     IODeviceManager::getInstance().registerIODevice(this);
 
-    log.info("Finished initializing RTC");
+    log.trace("Finished initializing RTC");
 }
 
 void Rtc::trigger(InterruptFrame &frame) {

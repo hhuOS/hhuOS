@@ -42,13 +42,13 @@ private:
 
     static void registerServices();
 
-    static void afterInitrdHook();
+    static void afterInitrdModHook();
 
-    static void afterFsInitHook();
+    static void afterFsInitModHook();
 
     static void initializeGraphics();
 
-    static void initializePciDrivers();
+    static void afterPciScanModHook();
 
     static void initializeMemoryManagers();
 
