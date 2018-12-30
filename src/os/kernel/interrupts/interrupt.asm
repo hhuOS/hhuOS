@@ -55,27 +55,27 @@ onException:
     jmp wrapper_body
 
 
-; bios_call
+; procedure for bios_call
 ;
 ; procedure is splitted into different parts, because paging must be
 ; disabled
 ;
 bios_call:
-; load bios-call IDT
+	; load bios-call IDT
     lidt    [idt16_descr]
-; safe registers
+	; safe registers
     pushfd
     pushad
 
-; check if scheduler is started (we have to switch the stack then,
-; because bios calls expext the stack to be placed at 4mb)
+	; check if scheduler is started (we have to switch the stack then,
+	; because bios calls expext the stack to be placed at 4mb)
     mov ebx, [schedInit]
     cmp ebx, 0
     je skipStackSwitch
 
-; switch stack to startup stack used in startup.asm, safe current stack pointer
-; this is necessary because this stack is used for the bios call without paging
-; and therefore we must know its physical address (which is CurrentStackAddress - 0xC0000000)
+	; switch stack to startup stack used in startup.asm and save current stack pointer
+	; this is necessary because this stack is used for the bios call without paging
+	; and therefore we must know its physical address (which is currentStackAddress - 0xC0000000)
     mov ebx, stack
     add ebx, STACK_SIZE
     sub ebx, 4
@@ -83,44 +83,44 @@ bios_call:
     mov esp, ebx
 
 skipStackSwitch:
-
-; save address of current Page Directory
+	; save address of current Page Directory
     mov ecx, cr3
     push ecx
 
-; enable 4mb-Paging
+	; enable 4mb-Paging
     mov ecx, cr4
     or ecx, 0x00000010
     mov cr4, ecx
 
-; load special 4mb-Page Directory for BIOS-calls
+	; load special 4mb-Page Directory for BIOS-calls
+	; only important parts are mapped here
     mov ecx, BIOS_Page_Directory
-; get phys. address
+	; get phys. address
     sub ecx, KERNEL_START
     mov cr3, ecx
 
-; jump to low address because paging will be disabled
-; kernel should be mapped at 0 and 3GB
-; necessary step: otherwise EIP points to wrong address
+	; jump to low address because paging will be disabled
+	; kernel should be mapped at 0 and 3GB with BIOS-PD
+	; necessary step: otherwise EIP points to wrong address
     lea ecx, [bios_call2]
     ; want to jump to low address
     sub ecx, KERNEL_START
     jmp ecx
 
 bios_call2:
-; disable paging because we have to switch into rela mode
+	; disable paging because we have to switch into real mode
     mov ecx, cr0
     and ecx, 0x7FFFFFFF
     mov cr0, ecx
-; flush TLB
+	; flush TLB
     mov ecx, cr3
     mov cr3, ecx
-; load gdt for bios calls (-> low addresses)
+	; load gdt for bios calls (-> low addresses / phys. address)
     lgdt [gdt_bios_desc - KERNEL_START]
 
-; for calculation
+	; for calculation
     mov edx, KERNEL_START
-; Shift values of some registers to low addresses because paging is disabled
+	; Shift values of some registers to low addresses because paging is disabled
     mov ecx, esp
     sub ecx, edx
     mov esp, ecx
@@ -130,22 +130,21 @@ bios_call2:
     mov ebp, ecx
 
 bios_call3:
-; jump into BIOS-Segment
+	; jump into BIOS-Segment
     call  0x18:0
-; code does not reach this point now - something happens in realmode,
-; so that code does not return
-; enable Paging
+    ; here we are back from 16-bit BIOS code
+	; enable 4mb-Paging
     mov ecx, cr0
     or ecx, 0x80000000
     mov cr0, ecx
-; load global descriptor table
+	; load global descriptor table
     lgdt [gdt_desc]
-; far jump to high address (paging on)
+	; far jump to high address in kernel code (paging on)
     lea ecx, [bios_call4]
     jmp ecx
 
 bios_call4:
-; shift values of some registers to high addresses for paging
+	; shift values of some registers to high addresses for paging
     mov edx, KERNEL_START
     mov ecx, esp
     add ecx, edx
@@ -154,25 +153,25 @@ bios_call4:
     mov ecx, ebp
     add ecx, edx
     mov ebp, ecx
-; load page table of process and enable 4kb paging
+	; load page table of process and enable 4kb paging
     pop ecx
     mov cr3, ecx
-; check if scheduler is active -> old stack has to be restored then
+	; check if scheduler is active -> old stack has to be restored then
     mov ebx, [schedInit]
     cmp ebx, 0
     je skipStackSwitch2
-; restore old stack
+	; restore old stack if necessary
     pop esp
 
 skipStackSwitch2:
-; switch off 4mb Paging
+	; switch off 4mb Paging and enable 4kb paging
     mov ecx, cr4
     and ecx, 0xFFFFFFEF
     mov cr4, ecx
-; restore old register values
+	; restore old register values
     popad
     popfd
-; load old IDT
+	; load old IDT
     lidt	[idt_descr]
     ret
 

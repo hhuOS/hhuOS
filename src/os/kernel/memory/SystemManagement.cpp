@@ -87,36 +87,77 @@ void fini_system() {
     _fini();
 }
 
+/**
+ * Sets up the GDT for the system and a special GDT for BIOS-calls.
+ * Only these two GDTs are needed, because memory protection and abstractions is done via paging.
+ * The memory where the parameters point to is reserved in assembler code before paging is enabled.
+ * Therefore we assume that the given pointers are physical addresses  - this is very important
+ * to guarantee correct GDT descriptors using this setup-function.
+ *
+ * @param gdt Pointer to the GDT of the system
+ * @param gdt_bios Pointer to the GDT for BIOS-calls
+ * @param gdt_desc Pointer to the descriptor of GDT; this descriptor should contain the virtual address of GDT
+ * @param gdt_phys_desc Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
+ * @param gdt_bios_desc Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
+ */
 void init_gdt(uint16_t* gdt, uint16_t* gdt_bios, uint16_t* gdt_desc, uint16_t* gdt_bios_desc, uint16_t* gdt_phys_desc) {
-	// first set up general GDT
+	// first set up general GDT for the system
+	// first entry has to be null
 	SystemManagement::createGDTEntry(gdt, 0, 0, 0, 0, 0);
+	// kernel code segment
 	SystemManagement::createGDTEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+	// kernel data segment
 	SystemManagement::createGDTEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+	// user code segment
 	SystemManagement::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
+	// user data segment
 	SystemManagement::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
 
-	gdt_desc[0] = 5 * 8;
+	// set up descriptor for GDT
+	*((uint16_t*)gdt_desc) = 5 * 8;
+	// the normal descriptor should contain the virtual address of GDT
 	*((uint32_t*)(gdt_desc + 1)) = (uint32_t)gdt + KERNEL_START;
 
-	gdt_phys_desc[0] = 5 * 8;
+	// set up descriptor for GDT with phys. address - needed for bootstrapping
+	*((uint16_t*)gdt_phys_desc) = 5 * 8;
+	// this descriptor should contain the physical address of GDT
 	*((uint32_t*)(gdt_phys_desc + 1)) = (uint32_t)gdt;
 
+	// now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
+	// first entry has to be null
 	SystemManagement::createGDTEntry(gdt_bios, 0, 0, 0, 0, 0);
+	// kernel code segment
 	SystemManagement::createGDTEntry(gdt_bios, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+	// kernel data segment
 	SystemManagement::createGDTEntry(gdt_bios, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+	// prepared BIOS-call segment (contains 16-bit code etc...)
 	SystemManagement::createGDTEntry(gdt_bios, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
 
-	gdt_bios_desc[0] = 4 * 8;
+
+	// set up descriptor for BIOS-GDT
+	*((uint16_t*)gdt_bios_desc) = 4 * 8;
+	// the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
 	*((uint32_t*)(gdt_bios_desc + 1)) = (uint32_t)gdt_bios;
 }
 
+/**
+ * Creates an entry into a given GDT (Global Descriptor Table).
+ * Memory for the GDT must be allocated before.
+ */
 void SystemManagement::createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags) {
+	// each GDT-entry consists of 4 16-bit unsigned integers
+	// calculate index into 16bit-array that represents GDT
 	uint16_t idx = 4 * num;
 
+	// first 16-bit value: [Limit 0:15]
 	gdt[idx] 		= (uint16_t) (limit & 0xFFFF);
+	// second 16-bit value: [Base 0:15]
 	gdt[idx + 1] 	= (uint16_t) (base & 0xFFFF);
+	// third 16-bit value: [Access Byte][Base 16:23]
 	gdt[idx + 2]	= (uint16_t) ((base >> 16) & 0xFF) | (access << 8);
+	// fourth 16-bit value: [Base 24:31][Flags][Limit 16:19]
 	gdt[idx + 3]	= (uint16_t) ((limit >> 16) & 0x0F) | ((flags << 4) & 0xF0) | ((base >> 16) & 0xFF00);
+	// end of GDT-entry
 }
 
 void SystemManagement::plugin() {

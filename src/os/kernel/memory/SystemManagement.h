@@ -283,6 +283,17 @@ public:
      */
     static bool isInitialized();
 
+    /**
+     * Creates an entry into a given GDT (Global Descriptor Table).
+     * Memory for the GDT must be allocated before.
+     *
+     * @param gdt Pointer to the first entry of the GDT
+     * @param num Number of GDT-entry we want to set
+     * @param base Base address of the segment described by the GDT-entry
+     * @param limit End address of the segment described by the GDT-entry
+     * @param access Access bits for segment
+     * @param flags Flags for segment
+     */
     static void createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 
     /**

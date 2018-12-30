@@ -43,6 +43,7 @@ GRAPHICS_WIDTH  equ 800
 GRAPHICS_HEIGHT equ 600
 GRAPHICS_BPP    equ 32
 
+; make labels global
 global startup
 global on_paging_enabled
 global __cxa_pure_virtual
@@ -52,6 +53,7 @@ global _init
 global _fini
 global stack
 
+; functions and labels from different sources
 extern main
 extern init_system
 extern fini_system
@@ -71,6 +73,7 @@ extern ___FINI_ARRAY_START__
 extern ___FINI_ARRAY_END__
 extern ___TEXT_START__
 extern ___TEXT_END__
+
 
 ; calculate physical addresses for some labels
 ; needed if paging disabled, because functions are linked against high addresses
@@ -107,8 +110,10 @@ startup:
     or ax, 3 << 9
     mov cr4, eax
 
+	; set esp for following function call
     mov esp, (stack - KERNEL_START + STACK_SIZE)
 
+	; push parameters to set up GDTs
     mov ecx, gdt_phys_desc
     sub ecx, KERNEL_START
     push ecx
@@ -129,20 +134,23 @@ startup:
     sub ecx, KERNEL_START
     push ecx
 
+	; set up GDTs
     call init_gdt
 
+	; clean up stack
     add esp, 0x14
 
-    ; Load GDT
+    ; load GDT from physical address
     lgdt	[gdt_phys_desc - KERNEL_START]
 
+	; set segment-registers
     mov	ax,0x10
     mov	ds,ax
     mov	es,ax
     mov	fs,ax
     mov	gs,ax
     mov	ss,ax
-    ; make a jump to set the CS-register to the right value
+    ; invoke a jump to set the CS-register to the right value
     ; (the CodeSegment is placed at offset 0x8)
     ; if something at GDT is changed, this instruction may be changed as well
     jmp 0x8:_clear_bss
@@ -156,29 +164,24 @@ clear_bss:
     cmp	edi, ___PHYS_BSS_END__
     jne	.loop
 
-    ; set initial stack
+    ; set stack again to cut off possible old values
     mov esp, (stack - KERNEL_START + STACK_SIZE)
 
-    ; read memory map
+    ; read memory map and push parameters before
     push ebx
-
     mov eax, readMemoryMap
-
     sub eax, KERNEL_START
-
     call eax
-
     add esp, 0x04
 
-	; load first 4MB-PageTable and enable paging
+	; load label for bootstrapping the paging system
 	mov ecx,  (paging_bootstrap - KERNEL_START)
-
 	; jump into paging.asm to enable 4mb paging
 	jmp ecx
 
+; here we come back from paging.asm after 4mb paging is enabled
 on_paging_enabled:
-
-    ; Load GDT
+    ; load GDT from virtual address
 	lgdt	[gdt_desc]
 
     ; save multiboot structure address
@@ -189,13 +192,14 @@ on_paging_enabled:
 	mov esp, (stack + STACK_SIZE)
 
 
-    ; setup interrupts
+    ; setup interrupts (see interrupts.asm)
 	call	setup_idt
 	call	reprogram_pics
 
     ; initialize system
     push dword [multiboot_addr]
-    call    init_system ; see SystemManagement.cpp
+    ; call to SystemManagement.cpp
+    call    init_system
     add  esp, 0x4
 
     ; call kernel's main() function
@@ -271,7 +275,6 @@ reprogram_pics:
 
 ; delay
 ;
-
 delay:
 	jmp	.L2
 .L2:	ret
@@ -318,6 +321,8 @@ gdt_bios_desc:
 multiboot_addr:
     dd  0x00000000
 
+
+; reserve space for initial kernel stack
 section .bss
 align 32
 stack:
