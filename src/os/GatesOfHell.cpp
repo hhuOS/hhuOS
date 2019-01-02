@@ -145,8 +145,6 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->finish();
 
-    log.trace("Finished booting hhuOS");
-
     if (!showSplash) {
 
         Logger::setConsoleLogging(false);

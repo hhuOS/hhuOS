@@ -101,8 +101,6 @@ FsDriver *FileSystem::getMountedDriver(String &path) {
 }
 
 void FileSystem::init() {
-    log.trace("Initializing filesystem");
-
     log.trace("Unmounting initial ramdisk");
 
     for(const String &path : mountPoints.keySet()) {

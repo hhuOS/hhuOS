@@ -28,7 +28,7 @@ void Bootscreen::update(uint8_t percentage, const String &message) {
 
     if (!isSplashActive) {
 
-        log.info(message);
+        log.trace(message);
 
         return;
     }
