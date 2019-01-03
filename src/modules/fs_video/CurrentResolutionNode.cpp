@@ -68,18 +68,26 @@ void CurrentResolutionNode::writeValuesToCache() {
         case TEXT : {
             TextDriver *driver = graphicsService->getTextDriver();
 
-            cache += String::valueOf(driver->getColumnCount(), 10) + String("x") +
-                     String::valueOf(driver->getRowCount(), 10) + String("@") +
-                     String::valueOf(driver->getDepth(), 10) + String("\n");
+            if(driver == nullptr) {
+                cache = "0x0@0\n";
+            } else {
+                cache = String::valueOf(driver->getColumnCount(), 10) + String("x") +
+                        String::valueOf(driver->getRowCount(), 10) + String("@") +
+                        String::valueOf(driver->getDepth(), 10) + String("\n");
+            }
 
             break;
         }
         case LINEAR_FRAME_BUFFER : {
             LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
 
-            cache += String::valueOf(lfb->getResX(), 10) + String("x") +
-                     String::valueOf(lfb->getResY(), 10) + String("@") +
-                     String::valueOf(lfb->getDepth(), 10) + String("\n");
+            if(lfb == nullptr) {
+                cache = "0x0@0\n";
+            } else {
+                cache = String::valueOf(lfb->getResX(), 10) + String("x") +
+                        String::valueOf(lfb->getResY(), 10) + String("@") +
+                        String::valueOf(lfb->getDepth(), 10) + String("\n");
+            }
         }
         default:
             break;

@@ -23,9 +23,7 @@ GraphicsNode::GraphicsNode(String name, GraphicsMode mode) : VirtualNode(name, F
 }
 
 uint64_t GraphicsNode::getLength() {
-    if(cache.isEmpty()) {
-        writeValuesToCache();
-    }
+    writeValuesToCache();
 
     return cache.length();
 }

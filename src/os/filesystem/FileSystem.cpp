@@ -18,7 +18,6 @@
 #include <kernel/events/storage/StorageRemoveEvent.h>
 #include <kernel/log/FileAppender.h>
 #include <kernel/log/Logger.h>
-#include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
 #include <devices/input/Keyboard.h>
 #include <kernel/services/InputService.h>
 #include <lib/multiboot/Structure.h>
@@ -26,15 +25,11 @@
 #include <filesystem/TarArchive/TarArchiveDriver.h>
 #include "FileSystem.h"
 #include "lib/file/Directory.h"
-#include "filesystem/RamFs/graphics/GraphicsVendorNameNode.h"
-#include "filesystem/RamFs/graphics/GraphicsDeviceNameNode.h"
-#include "filesystem/RamFs/graphics/GraphicsResolutionsNode.h"
-#include "filesystem/RamFs/graphics/GraphicsMemoryNode.h"
 #include "filesystem/RamFs/RamFsDriver.h"
-#include "filesystem/RamFs/storage/StorageNode.h"
-#include "filesystem/RamFs/PciNode.h"
-#include "filesystem/RamFs/StdoutNode.h"
-#include "filesystem/RamFs/StderrNode.h"
+#include "filesystem/RamFs/nodes/StorageNode.h"
+#include "filesystem/RamFs/nodes/PciNode.h"
+#include "filesystem/RamFs/nodes/StdoutNode.h"
+#include "filesystem/RamFs/nodes/StderrNode.h"
 
 Logger &FileSystem::log = Logger::get("FILESYSTEM");
 
@@ -142,37 +137,14 @@ void FileSystem::init() {
 
     mount("", "/dev", "RamFsDriver");
 
-    // Create directory for StorageNodes.
     createDirectory("/dev/storage");
-
-    // Create directory for ports
     createDirectory("/dev/ports");
-
-    // Add Video-nodes to dev-Directory
-    createDirectory("/dev/video");
-    createDirectory("/dev/video/text");
-    createDirectory("/dev/video/lfb");
-    addVirtualNode("/dev/video/text", new GraphicsVendorNameNode(GraphicsNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsDeviceNameNode(GraphicsNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsMemoryNode(GraphicsNode::TEXT));
-    addVirtualNode("/dev/video/text", new GraphicsResolutionsNode(GraphicsNode::TEXT));
-    addVirtualNode("/dev/video/text", new CurrentResolutionNode(GraphicsNode::TEXT));
-    addVirtualNode("/dev/video/lfb", new GraphicsVendorNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsDeviceNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-    addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-
-    // Create folder for network files
     createDirectory("/dev/network");
 
-    // Add PCI-node to dev-Directory
-    addVirtualNode("/dev", new PciNode());
-
-    // Add syslog file to dev-Ddrectory
     createFile("/dev/syslog");
 
-    // Add StdStream-nodes to dev-Directory
+    addVirtualNode("/dev", new PciNode());
+
     addVirtualNode("/dev", new StdoutNode());
     addVirtualNode("/dev", new StderrNode());
 

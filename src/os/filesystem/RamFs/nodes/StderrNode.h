@@ -17,7 +17,7 @@
 #ifndef __StderrNode_include__
 #define __StderrNode_include__
 
-#include "VirtualNode.h"
+#include "filesystem/RamFs/VirtualNode.h"
 #include <cstdint>
 #include <kernel/services/KernelStreamService.h>
 #include <kernel/services/GraphicsService.h>

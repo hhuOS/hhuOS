@@ -14,41 +14,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __GraphicsMemoryNode_include__
-#define __GraphicsMemoryNode_include__
+#ifndef __PciNode_include__
+#define __PciNode_include__
 
-#include <filesystem/RamFs/graphics/GraphicsNode.h>
-#include <kernel/services/GraphicsService.h>
+#include "filesystem/RamFs/VirtualNode.h"
+#include <cstdint>
+#include <lib/String.h>
 
 /**
- * Implementation of GraphicsNode, that reads the currently used graphics card's amount of memory in bytes.
+ * Implementation of VirtualNode, that reads the the IDs of all PCI-devices from the PCI-class.
  *
- * @author Fabian Ruhland
+ * @author Filip Krakowski
  * @date 2018
  */
-class GraphicsMemoryNode : public GraphicsNode {
+class PciNode : public VirtualNode {
+
+private:
+    String cache;
+
+    void cacheDeviceList();
 
 public:
-
     /**
-     * Constructor.
+     * Constructor
      */
-    explicit GraphicsMemoryNode(GraphicsNode::GraphicsMode mode);
+    PciNode();
 
     /**
      * Copy-constructor.
      */
-    GraphicsMemoryNode(const GraphicsMemoryNode &copy) = delete;
+    PciNode(const PciNode &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~GraphicsMemoryNode() override = default;
+    ~PciNode() override = default;
 
     /**
-     * Overriding function from GraphicsNode.
+     * Overriding function from VirtualNode.
      */
-    void writeValuesToCache() override;
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
 
 #endif

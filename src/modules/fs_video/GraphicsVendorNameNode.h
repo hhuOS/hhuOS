@@ -14,36 +14,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __GraphicsResolutionsNode_include__
-#define __GraphicsResolutionsNode_include__
+#ifndef __GraphicsVendorNameNode_include__
+#define __GraphicsVendorNameNode_include__
 
-#include <filesystem/RamFs/graphics/GraphicsNode.h>
+#include "GraphicsNode.h"
 #include <kernel/services/GraphicsService.h>
 
 /**
- * Implementation of GraphicsNode, that reads the currently used graphics card's available resolutions.
+ * Implementation of GraphicsNode, that reads the currently used graphics card's resolutions.
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class GraphicsResolutionsNode : public GraphicsNode {
+class GraphicsVendorNameNode : public GraphicsNode {
 
 public:
 
     /**
      * Constructor.
      */
-    explicit GraphicsResolutionsNode(GraphicsNode::GraphicsMode mode);
+    explicit GraphicsVendorNameNode(GraphicsNode::GraphicsMode mode);
 
     /**
      * Copy-constructor.
      */
-    GraphicsResolutionsNode(const GraphicsResolutionsNode &copy) = delete;
+    GraphicsVendorNameNode(const GraphicsVendorNameNode &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~GraphicsResolutionsNode() override = default;
+    ~GraphicsVendorNameNode() override = default;
 
     /**
      * Overriding function from GraphicsNode.

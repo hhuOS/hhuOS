@@ -17,7 +17,7 @@
 #ifndef __GraphicsDeviceNameNode_include__
 #define __GraphicsDeviceNameNode_include__
 
-#include <filesystem/RamFs/graphics/GraphicsNode.h>
+#include "GraphicsNode.h"
 #include <kernel/services/GraphicsService.h>
 
 /**

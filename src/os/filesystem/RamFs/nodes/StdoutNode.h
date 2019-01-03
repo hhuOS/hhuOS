@@ -14,41 +14,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __GraphicsVendorNameNode_include__
-#define __GraphicsVendorNameNode_include__
+#ifndef __StdoutNode_include__
+#define __StdoutNode_include__
 
-#include <filesystem/RamFs/graphics/GraphicsNode.h>
-#include <kernel/services/GraphicsService.h>
+#include "filesystem/RamFs/VirtualNode.h"
+#include <cstdint>
+#include <kernel/services/KernelStreamService.h>
 
 /**
- * Implementation of GraphicsNode, that reads the currently used graphics card's resolutions.
+ * Implementation of VirtualNode, that always writes to the current standard output stream
+ * (specified by StdStreamService).
  *
  * @author Fabian Ruhland
  * @date 2018
  */
-class GraphicsVendorNameNode : public GraphicsNode {
+class StdoutNode : public VirtualNode {
+
+private:
+    KernelStreamService *kernelStreamService = nullptr;
 
 public:
-
     /**
      * Constructor.
      */
-    explicit GraphicsVendorNameNode(GraphicsNode::GraphicsMode mode);
+    StdoutNode();
 
     /**
      * Copy-constructor.
      */
-    GraphicsVendorNameNode(const GraphicsVendorNameNode &copy) = delete;
+    StdoutNode(const StdoutNode &copy) = delete;
 
     /**
      * Destructor.
      */
-    ~GraphicsVendorNameNode() override = default;
+    ~StdoutNode() override = default;
 
     /**
-     * Overriding function from GraphicsNode.
+     * Overriding function from VirtualNode.
      */
-    void writeValuesToCache() override;
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from VirtualNode.
+     */
+    uint64_t writeData(char *buf, uint64_t pos, uint64_t numBytes) override;
 };
 
 #endif

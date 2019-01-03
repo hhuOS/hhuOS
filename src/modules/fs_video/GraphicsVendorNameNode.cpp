@@ -25,10 +25,18 @@ GraphicsVendorNameNode::GraphicsVendorNameNode(GraphicsNode::GraphicsMode mode) 
 void GraphicsVendorNameNode::writeValuesToCache() {
     switch(mode) {
         case TEXT:
-            cache = graphicsService->getTextDriver()->getVendorName() + "\n";
+            if(graphicsService->getTextDriver() == nullptr) {
+                cache = "Not available\n";
+            } else {
+                cache = graphicsService->getTextDriver()->getVendorName() + "\n";
+            }
             break;
         case LINEAR_FRAME_BUFFER:
-            cache = graphicsService->getLinearFrameBuffer()->getVendorName() + "\n";
+            if(graphicsService->getLinearFrameBuffer() == nullptr) {
+                cache = "Not available\n";
+            } else {
+                cache = graphicsService->getLinearFrameBuffer()->getVendorName() + "\n";
+            }
             break;
         default:
             break;

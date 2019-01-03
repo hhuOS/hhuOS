@@ -16,19 +16,27 @@
 
 #include <kernel/Kernel.h>
 #include <devices/graphics/text/TextDriver.h>
-#include "GraphicsMemoryNode.h"
+#include "GraphicsDeviceNameNode.h"
 
-GraphicsMemoryNode::GraphicsMemoryNode(GraphicsNode::GraphicsMode mode) : GraphicsNode("memory", mode) {
+GraphicsDeviceNameNode::GraphicsDeviceNameNode(GraphicsNode::GraphicsMode mode) : GraphicsNode("device", mode) {
 
 }
 
-void GraphicsMemoryNode::writeValuesToCache() {
+void GraphicsDeviceNameNode::writeValuesToCache() {
     switch(mode) {
         case TEXT:
-            cache = String::valueOf(graphicsService->getTextDriver()->getVideoMemorySize(), 10, false) + "\n";
+            if(graphicsService->getTextDriver() == nullptr) {
+                cache = "\n";
+            } else {
+                cache = graphicsService->getTextDriver()->getDeviceName() + "\n";
+            }
             break;
         case LINEAR_FRAME_BUFFER:
-            cache = String::valueOf(graphicsService->getLinearFrameBuffer()->getVideoMemorySize(), 10, false) + "\n";
+            if(graphicsService->getLinearFrameBuffer() == nullptr) {
+                cache = "\n";
+            } else {
+                cache = graphicsService->getLinearFrameBuffer()->getDeviceName() + "\n";
+            }
             break;
         default:
             break;
