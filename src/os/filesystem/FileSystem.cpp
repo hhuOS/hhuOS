@@ -16,10 +16,6 @@
 
 #include <kernel/events/storage/StorageAddEvent.h>
 #include <kernel/events/storage/StorageRemoveEvent.h>
-#include <filesystem/RamFs/memory/KernelHeapNode.h>
-#include <filesystem/RamFs/memory/IOMemoryNode.h>
-#include <filesystem/RamFs/memory/PhysicalMemoryNode.h>
-#include <filesystem/RamFs/memory/PagingAreaNode.h>
 #include <kernel/log/FileAppender.h>
 #include <kernel/log/Logger.h>
 #include <filesystem/RamFs/graphics/CurrentResolutionNode.h>
@@ -166,13 +162,6 @@ void FileSystem::init() {
     addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
-
-    // Add Memory-nodes to dev-directory
-    createDirectory("/dev/memory");
-    addVirtualNode("/dev/memory", new KernelHeapNode());
-    addVirtualNode("/dev/memory", new IOMemoryNode());
-    addVirtualNode("/dev/memory", new PhysicalMemoryNode());
-    addVirtualNode("/dev/memory", new PagingAreaNode());
 
     // Create folder for network files
     createDirectory("/dev/network");
