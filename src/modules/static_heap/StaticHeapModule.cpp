@@ -14,27 +14,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Random_include__
-#define __Random_include__
+#include "StaticHeapModule.h"
+#include "StaticHeapMemoryManager.h"
 
+MODULE_PROVIDER {
 
-#include "kernel/Module.h"
-
-class Random : public Module {
-
-public:
-
-    Random() = default;
-
-    int32_t initialize() override;
-
-    int32_t finalize() override;
-
-    String getName() override;
-
-    Util::Array<String> getDependencies() override;
-
+    return new StaticHeapModule();
 };
 
+int32_t StaticHeapModule::initialize() {
 
-#endif
+    MemoryManager::registerPrototype(new StaticHeapMemoryManager());
+
+    return 0;
+}
+
+int32_t StaticHeapModule::finalize() {
+
+    MemoryManager::deregisterPrototype("StaticHeapMemoryManager");
+
+    return 0;
+}
+
+String StaticHeapModule::getName() {
+
+    return "static_heap";
+}
+
+Util::Array<String> StaticHeapModule::getDependencies() {
+
+    return Util::Array<String>(0);
+}

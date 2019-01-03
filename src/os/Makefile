@@ -83,7 +83,7 @@ MAKE = make
 #-------------------------------------------#
 # Modules (see src/modules)                 #
 #-------------------------------------------#
-MODULES := hello random zero fat vesa cga static-heap serial parallel floppy soundblaster
+MODULES := hello fs_util fat vesa cga static_heap serial parallel floppy soundblaster
 MODULE_SOURCES = $(MODULES:%=$(MODULE_PATH)/%)
 MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 

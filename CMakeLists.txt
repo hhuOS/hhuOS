@@ -24,4 +24,4 @@ set(CMAKE_CXX_FLAGS -m32)
 
 FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
 
-ADD_EXECUTABLE(hhuOS ${SOURCE_FILES})
+ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/modules/fs_util/FsUtilModule.cpp src/modules/fs_util/FsUtilModule.h)

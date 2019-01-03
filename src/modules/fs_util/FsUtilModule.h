@@ -14,39 +14,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Zero.h"
-#include "ZeroNode.h"
-#include "kernel/Kernel.h"
-#include "filesystem/FileSystem.h"
+#ifndef HHUOS_FILESYSTEMUTILMODULE_H
+#define HHUOS_FILESYSTEMUTILMODULE_H
 
-MODULE_PROVIDER {
+#include <kernel/Module.h>
+#include <kernel/log/Logger.h>
+#include <filesystem/FileSystem.h>
 
-    return new Zero();
+class FsUtilModule : public Module {
+
+public:
+
+    FsUtilModule() = default;
+
+    int32_t initialize() override;
+
+    int32_t finalize() override;
+
+    String getName() override;
+
+    Util::Array<String> getDependencies() override;
+
+private:
+
+    void creatNode(const char *path, VirtualNode *node);
+
+private:
+
+    Logger *log = nullptr;
+
+    FileSystem *fileSystem = nullptr;
+
 };
 
-int32_t Zero::initialize() {
-
-    FileSystem *fileSystem = Kernel::getService<FileSystem>();
-
-    fileSystem->addVirtualNode("/dev", new ZeroNode());
-
-    return 0;
-}
-
-int32_t Zero::finalize() {
-
-    // TODO
-    //  Remove virtual node from FileSystem
-
-    return 0;
-}
-
-String Zero::getName() {
-
-    return "zero";
-}
-
-Util::Array<String> Zero::getDependencies() {
-
-    return Util::Array<String>(0);
-}
+#endif

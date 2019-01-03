@@ -14,40 +14,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/libc/printf.h>
-#include "Random.h"
+#include <kernel/Kernel.h>
+#include "FsUtilModule.h"
 #include "RandomNode.h"
-#include "kernel/Kernel.h"
-#include "filesystem/FileSystem.h"
+#include "ZeroNode.h"
 
 MODULE_PROVIDER {
-    
-    return new Random();
+
+    return new FsUtilModule();
 };
 
-int32_t Random::initialize() {
+int32_t FsUtilModule::initialize() {
 
-    FileSystem *fileSystem = Kernel::getService<FileSystem>();
+    log = &Logger::get("FILESYSTEM");
 
-    fileSystem->addVirtualNode("/dev", new RandomNode());
+    fileSystem = Kernel::getService<FileSystem>();
 
-    return 0;
-}
+    fileSystem->createDirectory("/dev/util");
 
-int32_t Random::finalize() {
-
-    // TODO
-    //  Remove virtual node from FileSystem
+    creatNode("/dev/util", new ZeroNode());
+    creatNode("/dev/util", new RandomNode());
 
     return 0;
 }
 
-String Random::getName() {
+int32_t FsUtilModule::finalize() {
 
-    return "random";
+    return 0;
 }
 
-Util::Array<String> Random::getDependencies() {
+String FsUtilModule::getName() {
+
+    return String();
+}
+
+Util::Array<String> FsUtilModule::getDependencies() {
 
     return Util::Array<String>(0);
+}
+
+void FsUtilModule::creatNode(const char *path, VirtualNode *node) {
+
+    if(fileSystem->addVirtualNode(path, node) == FileSystem::ADDING_VIRTUAL_NODE_FAILED) {
+
+        log->error("Unable to create '%s/%s'", path, (const char*) node->getName());
+    }
 }
