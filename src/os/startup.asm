@@ -327,7 +327,3 @@ section .bss
 align 32
 stack:
     resb STACK_SIZE
-
-
-
-

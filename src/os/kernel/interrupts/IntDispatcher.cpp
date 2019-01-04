@@ -40,13 +40,24 @@ void printNMI() {
     printf("  System Control Port B :       %b\n", systemB.inb());
 }
 
-/** Central function to deal with interrupts and faults - is called from assembler code
+/**
+ * Central function to deal with interrupts and faults - is called from assembler code
  *
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
+    bool forbidIrq = (frame->interrupt >= 32) && (frame->interrupt <= 47);
+
+    if(forbidIrq) {
+        Pic::getInstance().forbid(static_cast<Pic::Interrupt>(47 - frame->interrupt));
+        asm volatile ("sti");
+    }
 
     IntDispatcher::getInstance().dispatch(frame);
+
+    if(forbidIrq) {
+        Pic::getInstance().allow(static_cast<Pic::Interrupt>(47 - frame->interrupt));
+    }
 }
 
 IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
