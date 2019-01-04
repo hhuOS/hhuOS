@@ -51,8 +51,6 @@ bool SystemManagement::kernelMode = true;
  * everything to get the system run.
  */
 void init_system(Multiboot::Info *address) {
-	// init code segment for bios calls
-    Bios::init();
     // enable interrupts afterwards
     Cpu::enableInterrupts();
 

@@ -29,6 +29,8 @@ public:
 
     void deregisterInterruptHandler(InterruptHandler *device);
 
+    void handleBiosCallReturn();
+
     void run() override;
 
 };

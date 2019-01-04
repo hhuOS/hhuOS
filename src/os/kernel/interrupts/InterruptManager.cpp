@@ -1,4 +1,5 @@
 #include <kernel/Kernel.h>
+#include <kernel/services/TimeService.h>
 #include "InterruptHandler.h"
 #include "InterruptManager.h"
 
@@ -35,5 +36,15 @@ void InterruptManager::run() {
         }
 
         lock.release();
+
+        Kernel::getService<TimeService>()->msleep(10);
+    }
+}
+
+void InterruptManager::handleBiosCallReturn() {
+    InterruptFrame dummyFrame{};
+
+    for (uint32_t i = 0; i < interruptHandler.size(); i++) {
+        interruptHandler.get(i)->trigger(dummyFrame);
     }
 }

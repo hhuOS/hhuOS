@@ -46,7 +46,7 @@ void printNMI() {
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
-    bool forbidIrq = (frame->interrupt >= 32) && (frame->interrupt <= 47);
+    bool forbidIrq = (frame->interrupt >= 32) && (frame->interrupt <= 47) && (frame->interrupt != IntDispatcher::mouse);
 
     if(forbidIrq) {
         Pic::getInstance().forbid(static_cast<Pic::Interrupt>(47 - frame->interrupt));

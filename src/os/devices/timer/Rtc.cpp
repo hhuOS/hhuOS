@@ -22,7 +22,7 @@
 
 Logger &Rtc::log = Logger::get("RTC");
 
-Rtc::Rtc() : registerPort(0x70), dataPort(0x71) {
+Rtc::Rtc() : registerPort(0x70), dataPort(0x71), interruptDataBuffer(1024) {
     registerPort.outb(STATUS_REGISTER_B);
     useBcd = !(dataPort.inb() & 0x04);
 
@@ -61,11 +61,12 @@ void Rtc::plugin() {
     registerPort.outb(STATUS_REGISTER_A);
     dataPort.outb(static_cast<uint8_t>((oldValue & 0xF0u) | RTC_RATE));
 
-    // Read Register C. This will clear data-flag. As long as this flag is set,
-    // the RTC won't trigger any interrupts.
+    // Read Register C. This will clear the data-flag.
+    // As long as this flag is set, the RTC won't trigger any interrupts.
     registerPort.outb(STATUS_REGISTER_C);
     dataPort.inb();
 
+    InterruptManager::getInstance().registerInterruptHandler(this);
     IntDispatcher::getInstance().assign(40, *this);
     Pic::getInstance().allow(Pic::Interrupt::RTC);
 
@@ -80,28 +81,54 @@ void Rtc::plugin() {
 
 void Rtc::trigger(InterruptFrame &frame) {
     registerPort.outb(STATUS_REGISTER_C);
-    dataPort.inb();
+
+    if((dataPort.inb() & 0x10) != 0x10) {
+        return;
+    }
+
+    InterruptData data;
 
     registerPort.outb(SECONDS_REGISTER);
-    currentDate.seconds = dataPort.inb();
+    data.seconds = dataPort.inb();
 
     registerPort.outb(MINUTES_REGISTER);
-    currentDate.minutes = dataPort.inb();
+    data.minutes = dataPort.inb();
 
     registerPort.outb(HOURS_REGISTER);
-    currentDate.hours = dataPort.inb();
+    data.hours = dataPort.inb();
 
     registerPort.outb(DAY_OF_MONTH_REGISTER);
-    currentDate.dayOfMonth = dataPort.inb();
+    data.dayOfMonth = dataPort.inb();
 
     registerPort.outb(MONTH_REGISTER);
-    currentDate.month = dataPort.inb();
+    data.month = dataPort.inb();
 
     registerPort.outb(YEAR_REGISTER);
-    currentDate.year = dataPort.inb();
+    data.year = dataPort.inb();
 
     registerPort.outb(CENTURY_REGISTER);
-    uint8_t century = dataPort.inb();
+    data.century = dataPort.inb();
+
+    interruptDataBuffer.push(data);
+}
+
+bool Rtc::hasInterruptData() {
+    return !interruptDataBuffer.isEmpty();
+}
+
+void Rtc::parseInterruptData() {
+    const InterruptData &data = interruptDataBuffer.pop();
+
+    lock.acquire();
+
+    currentDate.seconds = data.seconds;
+    currentDate.minutes = data.minutes;
+    currentDate.hours = data.hours;
+    currentDate.dayOfMonth = data.dayOfMonth;
+    currentDate.month = data.month;
+    currentDate.year = data.year;
+
+    uint8_t century = data.century;
 
     if(century == 0) {
         century = CURRENT_CENTURY;
@@ -122,12 +149,14 @@ void Rtc::trigger(InterruptFrame &frame) {
     if(useTwelveHours && (currentDate.hours & 0x80)) {
         currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x7F) + 12) % 24);
     }
+
+    lock.release();
 }
 
 bool Rtc::isUpdating() {
     registerPort.outb(STATUS_REGISTER_A);
 
-    return dataPort.inb() & 0x80;
+    return (dataPort.inb() & 0x80) == 0x80;
 }
 
 Rtc::Date Rtc::getCurrentDate() {
@@ -160,6 +189,8 @@ void Rtc::setHardwareDate(const Date &date) {
         century = binaryToBcd(century);
     }
 
+    lock.acquire();
+
     while(isUpdating());
 
     registerPort.outb(SECONDS_REGISTER);
@@ -182,4 +213,6 @@ void Rtc::setHardwareDate(const Date &date) {
 
     registerPort.outb(CENTURY_REGISTER);
     dataPort.outb(century);
+
+    lock.release();
 }

@@ -234,7 +234,7 @@ void SerialDriver<port>::trigger(InterruptFrame &frame) {
 
 template<ComPort port>
 bool SerialDriver<port>::hasInterruptData() {
-    return (lineStatusRegister.inb() & 0x01u) == 0x01;
+    return !interruptDataBuffer.isEmpty();
 }
 
 template<ComPort port>

@@ -45,6 +45,7 @@
 #include <kernel/memory/manager/FreeListMemoryManager.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/log/PortAppender.h>
+#include <kernel/Bios.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -82,16 +83,12 @@ int32_t GatesOfHell::enter() {
 
     registerServices();
 
+    Bios::init();
+
     moduleLoader = Kernel::getService<ModuleLoader>();
 
     auto *fs = Kernel::getService<FileSystem>();
     fs->mountInitRamdisk("/");
-
-    afterInitrdModHook();
-
-    log.trace("Initializing graphics");
-
-    initializeGraphics();
 
     log.trace("Plugging in RTC");
 
@@ -103,6 +100,12 @@ int32_t GatesOfHell::enter() {
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
+
+    afterInitrdModHook();
+
+    log.trace("Initializing graphics");
+
+    initializeGraphics();
 
     bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
 

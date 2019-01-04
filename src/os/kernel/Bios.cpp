@@ -15,10 +15,12 @@
  */
 
 #include <kernel/memory/MemLayout.h>
+#include <kernel/services/InputService.h>
 #include "kernel/cpu/Cpu.h"
 #include "lib/libc/printf.h"
 
 #include "kernel/Bios.h"
+#include "Kernel.h"
 
 
 // extern code in interrupt.asm
@@ -202,12 +204,12 @@ void Bios::init() {
     
     // far ret
     *codeAddr = 0x66;	codeAddr++;
-    *codeAddr = 0xCB;   codeAddr++;
+    *codeAddr = 0xCB;
 }
 
 
 void Bios::Int(int inter) {
-	// get pointer to bios call segment
+    // get pointer to bios call segment
     uint8_t *ptr = (uint8_t*)VIRT_BIOS16_CODE_MEMORY_START;
     // write number of bios interrupt manually into the segment
     *(ptr+48) = (uint8_t)inter;
@@ -218,6 +220,8 @@ void Bios::Int(int inter) {
     bios_call ();
     // bios call is returned, interrupts are allowed now
     Cpu::enableInterrupts();
+
+    InterruptManager::getInstance().handleBiosCallReturn();
 }
 
 uint32_t Bios::calcPhysMemory() {
@@ -232,7 +236,7 @@ uint32_t Bios::calcPhysMemory() {
 
     // was there a problem?
     if ( (BC_params->AX & 0xFF) == 0x86 || (BC_params->AX & 0xFF) == 0x80) {
-        printf("[SYSTEMMANAGEMENT] Physical memory coukld not be calculated.");
+        printf("[SYSTEMMANAGEMENT] Physical memory could not be calculated.");
         Cpu::halt ();
     } else {
         // calculate amopunt of usable physivcal memory

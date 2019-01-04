@@ -19,6 +19,7 @@
 
 #include <kernel/log/Logger.h>
 #include <kernel/interrupts/InterruptHandler.h>
+#include <lib/util/RingBuffer.h>
 #include "kernel/IOport.h"
 
 /**
@@ -70,9 +71,23 @@ private:
         STATUS_REGISTER_C = 0x0C
     };
 
+    struct InterruptData {
+        uint8_t seconds = 0;
+        uint8_t minutes = 0;
+        uint8_t hours = 0;
+        uint8_t dayOfMonth = 0;
+        uint8_t month = 0;
+        uint8_t year = 0;
+        uint8_t century = 0;
+    };
+
     IOport registerPort, dataPort;
 
     Rtc::Date currentDate {};
+
+    Spinlock lock;
+
+    Util::RingBuffer<InterruptData> interruptDataBuffer;
 
     bool useBcd;
 
@@ -130,9 +145,19 @@ public:
     void plugin();
 
     /**
-     * Overriding function from IODevice.
+     * Overriding function from InterruptHandler.
      */
     void trigger(InterruptFrame &frame) override;
+
+    /**
+     * Overriding function from InterruptHandler.
+     */
+    bool hasInterruptData() override;
+
+    /**
+     * Overriding function from InterruptHandler.
+     */
+    void parseInterruptData() override;
 
     /**
      * Get the current date.
