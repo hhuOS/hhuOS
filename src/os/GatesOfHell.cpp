@@ -83,12 +83,16 @@ int32_t GatesOfHell::enter() {
 
     registerServices();
 
+    log.trace("Initializing BIOS calls");
+
     Bios::init();
 
     moduleLoader = Kernel::getService<ModuleLoader>();
 
     auto *fs = Kernel::getService<FileSystem>();
     fs->mountInitRamdisk("/");
+
+    afterInitrdModHook();
 
     log.trace("Plugging in RTC");
 
@@ -100,8 +104,6 @@ int32_t GatesOfHell::enter() {
     auto *inputService = Kernel::getService<InputService>();
     inputService->getKeyboard()->plugin();
     inputService->getMouse()->plugin();
-
-    afterInitrdModHook();
 
     log.trace("Initializing graphics");
 

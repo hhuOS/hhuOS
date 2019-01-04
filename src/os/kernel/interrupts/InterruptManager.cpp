@@ -41,7 +41,7 @@ void InterruptManager::run() {
     }
 }
 
-void InterruptManager::handleBiosCallReturn() {
+void InterruptManager::handleDisabledInterrupts() {
     InterruptFrame dummyFrame{};
 
     for (uint32_t i = 0; i < interruptHandler.size(); i++) {

@@ -29,7 +29,7 @@ public:
 
     void deregisterInterruptHandler(InterruptHandler *device);
 
-    void handleBiosCallReturn();
+    void handleDisabledInterrupts();
 
     void run() override;
 

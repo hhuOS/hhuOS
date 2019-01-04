@@ -16,6 +16,8 @@
 
 #include <lib/String.h>
 #include <kernel/interrupts/BlueScreen.h>
+#include <kernel/interrupts/InterruptManager.h>
+#include <kernel/memory/SystemManagement.h>
 #include "Cpu.h"
 
 extern "C" {
@@ -80,6 +82,11 @@ void Cpu::enableInterrupts() {
     if (cliCount == 0) {
 
         asm volatile ( "sti" );
+
+        if(SystemManagement::isInitialized()) {
+
+            InterruptManager::getInstance().handleDisabledInterrupts();
+        }
     }
 }
 

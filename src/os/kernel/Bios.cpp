@@ -220,8 +220,6 @@ void Bios::Int(int inter) {
     bios_call ();
     // bios call is returned, interrupts are allowed now
     Cpu::enableInterrupts();
-
-    InterruptManager::getInstance().handleBiosCallReturn();
 }
 
 uint32_t Bios::calcPhysMemory() {
