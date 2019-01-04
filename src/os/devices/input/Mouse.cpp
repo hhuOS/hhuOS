@@ -199,14 +199,12 @@ void Mouse::plugin() {
 void Mouse::trigger(InterruptFrame &frame) {
     // check if mouse data is there
     unsigned int status = ctrl_port.inb();
+
     if (!(status & 0x20)) {
         return;
     }
 
     interruptDataBuffer.push(data_port.inb());
-    
-    parseInterruptData();
-
 }
 
 void Mouse::parseInterruptData() {

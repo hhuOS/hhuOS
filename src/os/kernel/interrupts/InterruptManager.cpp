@@ -36,8 +36,6 @@ void InterruptManager::run() {
         }
 
         lock.release();
-
-        Kernel::getService<TimeService>()->msleep(10);
     }
 }
 

@@ -46,16 +46,19 @@ void printNMI() {
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
-    bool forbidIrq = (frame->interrupt >= 32) && (frame->interrupt <= 47) && (frame->interrupt != IntDispatcher::mouse);
+    bool isPicInterrupt = (frame->interrupt >= 32) && (frame->interrupt <= 47);
 
-    if(forbidIrq) {
+    if(isPicInterrupt) {
         Pic::getInstance().forbid(static_cast<Pic::Interrupt>(47 - frame->interrupt));
-        asm volatile ("sti");
+
+        if(frame->interrupt != IntDispatcher::mouse) {
+            asm volatile ( "sti" );
+        }
     }
 
     IntDispatcher::getInstance().dispatch(frame);
 
-    if(forbidIrq) {
+    if(isPicInterrupt) {
         Pic::getInstance().allow(static_cast<Pic::Interrupt>(47 - frame->interrupt));
     }
 }
@@ -141,7 +144,6 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
     if (slot < 32 && GdbServer::isInitialized() && slot != 14) {
         GdbServer::handleInterrupt(*frame);
     }
-
 
     sendEoi(slot);
 }
