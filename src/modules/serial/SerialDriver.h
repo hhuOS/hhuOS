@@ -24,7 +24,6 @@
 #include <lib/util/RingBuffer.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include "devices/IODevice.h"
 #include "devices/ports/Port.h"
 #include "Common.h"
 #include "SerialEvent.h"
@@ -38,7 +37,7 @@ namespace Serial {
  * @date 2018
  */
 template<ComPort port>
-class SerialDriver : public Port, public IODevice {
+class SerialDriver : public Port, public InterruptHandler {
 
 public:
 
@@ -97,9 +96,14 @@ public:
     String getName() override;
 
     /**
-     * Overriding function from IODevice.
+     * Overriding function from InterruptHandler.
      */
-    bool checkForData() override;
+    bool hasInterruptData() override;
+
+    /**
+     * Overriding function from InterruptHandler.
+     */
+    void parseInterruptData() override;
 
     /**
      * Set the baud-rate.
@@ -129,6 +133,7 @@ private:
 
     EventBus *eventBus;
     Util::RingBuffer<SerialEvent<port>> eventBuffer;
+    Util::RingBuffer<uint8_t> interruptDataBuffer;
 
     IOport dataRegister;
     IOport interruptRegister;
@@ -155,7 +160,7 @@ bool SerialDriver<port>::checkPort() {
 }
 
 template<ComPort port>
-SerialDriver<port>::SerialDriver(BaudRate speed) : eventBuffer(1024), speed(speed),
+SerialDriver<port>::SerialDriver(BaudRate speed) : eventBuffer(1024), interruptDataBuffer(1024), speed(speed),
                                                    dataRegister(getBasePort()),
                                                    interruptRegister(static_cast<uint16_t>(getBasePort() + 1)),
                                                    fifoControlRegister(static_cast<uint16_t>(getBasePort() + 2)),
@@ -197,6 +202,8 @@ void SerialDriver<port>::sendChar(char c) {
 
 template<ComPort port>
 void SerialDriver<port>::plugin() {
+    InterruptManager::getInstance().registerInterruptHandler(this);
+
     if (port == COM1 || port == COM3) {
         IntDispatcher::getInstance().assign(36, *this);
         Pic::getInstance().allow(Pic::Interrupt::COM1);
@@ -210,7 +217,7 @@ void SerialDriver<port>::plugin() {
 
 template<ComPort port>
 void SerialDriver<port>::trigger(InterruptFrame &frame) {
-    if ((fifoControlRegister.inb() & 0x01u) == 1) {
+    if ((fifoControlRegister.inb() & 0x01) == 0x01) {
         return;
     }
 
@@ -220,20 +227,25 @@ void SerialDriver<port>::trigger(InterruptFrame &frame) {
         hasData = (lineStatusRegister.inb() & 0x01u) == 0x01;
 
         if (hasData) {
-            char c = dataRegister.inb();
-
-            eventBuffer.push(SerialEvent<port>(c));
-
-            SerialEvent<port> &event = eventBuffer.pop();
-
-            eventBus->publish(event);
+            interruptDataBuffer.push(dataRegister.inb());
         }
     } while (hasData);
 }
 
 template<ComPort port>
-bool SerialDriver<port>::checkForData() {
+bool SerialDriver<port>::hasInterruptData() {
     return (lineStatusRegister.inb() & 0x01u) == 0x01;
+}
+
+template<ComPort port>
+void SerialDriver<port>::parseInterruptData() {
+    uint8_t data = interruptDataBuffer.pop();
+
+    eventBuffer.push(SerialEvent<port>(data));
+
+    SerialEvent<port> &event = eventBuffer.pop();
+
+    eventBus->publish(event);
 }
 
 template<ComPort port>

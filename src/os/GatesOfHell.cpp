@@ -39,7 +39,7 @@
 #include <lib/file/beep/BeepFile.h>
 #include <kernel/services/ScreenshotService.h>
 #include <lib/file/wav/Wav.h>
-#include <devices/IODeviceManager.h>
+#include <kernel/interrupts/InterruptManager.h>
 #include <lib/libc/system_interface.h>
 #include <lib/file/FileStatus.h>
 #include <kernel/memory/manager/FreeListMemoryManager.h>
@@ -131,7 +131,7 @@ int32_t GatesOfHell::enter() {
 
     idleThread->start();
     eventBus->start();
-    IODeviceManager::getInstance().start();
+    InterruptManager::getInstance().start();
     Application::getInstance().start();
 
     bootscreen->update(100, "Finished Booting!");

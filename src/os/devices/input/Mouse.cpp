@@ -23,6 +23,8 @@
 #include <kernel/services/TimeService.h>
 #include <kernel/log/Logger.h>
 #include "devices/input/Mouse.h"
+#include "Mouse.h"
+
 
 Logger &Mouse::log = Logger::get("MOUSE");
 
@@ -175,7 +177,7 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     }
 }
 
-Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), clickedEventBuffer(1024), releasedEventBuffer(1024), doubleclickEventBuffer(1024) {
+Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), clickedEventBuffer(1024), releasedEventBuffer(1024), doubleclickEventBuffer(1024), interruptDataBuffer(1024) {
     buttons = 0;
     cycle = 1;
 
@@ -186,6 +188,8 @@ void Mouse::plugin() {
     if(available) {
         timeService = Kernel::getService<TimeService>();
         eventBus = Kernel::getService<EventBus>();
+
+        InterruptManager::getInstance().registerInterruptHandler(this);
 
         IntDispatcher::getInstance().assign(IntDispatcher::mouse, *this);
         Pic::getInstance().allow(Pic::Interrupt::MOUSE);
@@ -199,11 +203,18 @@ void Mouse::trigger(InterruptFrame &frame) {
         return;
     }
 
-    unsigned int val;
-    // certain treatments for each cycle
+    interruptDataBuffer.push(data_port.inb());
+    
+    parseInterruptData();
+
+}
+
+void Mouse::parseInterruptData() {
+    uint8_t data = interruptDataBuffer.pop();
+    
     switch (cycle) {
         case 1:
-            flags = (unsigned int)data_port.inb();
+            flags = data;
             // Check if the Always 1 Bit is Set - hacky way to check if it is really the first cycle
             if(!(flags & 0x08)) {
                 cycle = 1;
@@ -213,29 +224,27 @@ void Mouse::trigger(InterruptFrame &frame) {
             break;
 
         case 2:
-            val = (unsigned int)data_port.inb();
             // just get the correct bits
-            val &= (unsigned int)0xFF;
+            data &= (unsigned int)0xFF;
             // check if signed
             if(flags & 0x10) {
-                // extend unsigned 8 bit value to unsigned 32 bit in twos complement
-                dx = val | 0xFFFFFF00;
+                // extend unsigned 8 bit dataue to unsigned 32 bit in twos complement
+                dx = data | 0xFFFFFF00;
             } else {
-                dx = val;
+                dx = data;
             }
             cycle++;
             break;
 
         case 3:
-            val = (unsigned int)data_port.inb();
             // just get the correct bits
-            val &= (unsigned int)0xFF;
+            data &= (unsigned int)0xFF;
             // check if signed
             if (flags & 0x20) {
-                // extend unsigned 8 bit value to unsigned 32 bit in twos complement
-                dy = - (val | 0xFFFFFF00);
+                // extend unsigned 8 bit dataue to unsigned 32 bit in twos complement
+                dy = - (data | 0xFFFFFF00);
             } else {
-                dy = - (val);
+                dy = - (data);
             }
 
             // if there was a x or y Overflow -> discard this 'event'
@@ -299,8 +308,6 @@ void Mouse::trigger(InterruptFrame &frame) {
             cycle = 1;
             break;
     }
-
-
 }
 
 void Mouse::cleanup() {
@@ -335,4 +342,8 @@ void Mouse::cleanup() {
     ctrl_port.outb(0x60);
     waitControl();
     data_port.outb(status);
+}
+
+bool Mouse::hasInterruptData() {
+    return !interruptDataBuffer.isEmpty();
 }

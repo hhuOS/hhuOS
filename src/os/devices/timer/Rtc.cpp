@@ -14,13 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/interrupts/Pic.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/threads/Scheduler.h>
-#include "devices/IODeviceManager.h"
+#include <kernel/interrupts/IntDispatcher.h>
 #include "Rtc.h"
-
 
 Logger &Rtc::log = Logger::get("RTC");
 
@@ -77,8 +75,6 @@ void Rtc::plugin() {
 
     Cpu::enableInterrupts();
 
-    IODeviceManager::getInstance().registerIODevice(this);
-
     log.trace("Finished initializing RTC");
 }
 
@@ -126,11 +122,6 @@ void Rtc::trigger(InterruptFrame &frame) {
     if(useTwelveHours && (currentDate.hours & 0x80)) {
         currentDate.hours = static_cast<uint8_t>(((currentDate.hours & 0x7F) + 12) % 24);
     }
-}
-
-bool Rtc::checkForData() {
-    registerPort.outb(STATUS_REGISTER_C);
-    return (dataPort.inb() & 0x10) == 0x10;
 }
 
 bool Rtc::isUpdating() {

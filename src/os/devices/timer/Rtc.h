@@ -18,8 +18,8 @@
 #define __RTC__include__
 
 #include <kernel/log/Logger.h>
+#include <kernel/interrupts/InterruptHandler.h>
 #include "kernel/IOport.h"
-#include "devices/IODevice.h"
 
 /**
  * Driver for the CMOS Realtime clock.
@@ -27,7 +27,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2017
  */
-class Rtc : public IODevice {
+class Rtc : public InterruptHandler {
 
 public:
     /**
@@ -133,11 +133,6 @@ public:
      * Overriding function from IODevice.
      */
     void trigger(InterruptFrame &frame) override;
-
-    /**
-     * Overriding function from IODevice.
-     */
-    bool checkForData() override;
 
     /**
      * Get the current date.

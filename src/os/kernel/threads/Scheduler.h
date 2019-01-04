@@ -35,8 +35,6 @@ public:
 
     ~Scheduler() override = default;
 
-    void registerIODevice(IODevice *device);
-
     /**
      * Inidcates if the Scheduler has been initialized.
      *
@@ -114,8 +112,6 @@ public:
     static Scheduler & getInstance();
 
     Thread *currentThread;
-
-    Util::ArrayList<IODevice*> ioDevices;
 
     Spinlock lock;
 

@@ -21,7 +21,7 @@
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>
 #include <kernel/threads/Scheduler.h>
-#include <devices/IODeviceManager.h>
+#include <kernel/interrupts/InterruptManager.h>
 #include "Keyboard.h"
 
 uint8_t Keyboard::normal_tab[] = {
@@ -59,7 +59,7 @@ uint8_t Keyboard::scan_num_tab[] = {
         8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
 };
 
-bool Keyboard::decodeKey() {
+bool Keyboard::decodeKey(uint8_t code) {
     bool done = false;
     bool isBreak =(code & break_bit);
     uint32_t scancode = code & ~break_bit;
@@ -138,7 +138,7 @@ bool Keyboard::decodeKey() {
             break;
         case 69:
             if(gather.ctrlLeft()) {
-                getAsciiCode();
+                getAsciiCode(code);
                 done = true;
             }
             else {
@@ -148,7 +148,7 @@ bool Keyboard::decodeKey() {
             break;
 
         default:
-            getAsciiCode();
+            getAsciiCode(code);
             done = true;
     }
 
@@ -157,7 +157,7 @@ bool Keyboard::decodeKey() {
     return done;
 }
 
-void Keyboard::getAsciiCode() {
+void Keyboard::getAsciiCode(uint8_t code) {
     if(code == 53 && prefix == prefix1) {
         gather.ascii('/');
         gather.scancode(Key::div);
@@ -191,7 +191,7 @@ void Keyboard::getAsciiCode() {
     }
 }
 
-Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), eventBuffer(1024) {
+Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), eventBuffer(1024), interruptDataBuffer(1024) {
 
     eventBus = Kernel::getService<EventBus>();
 
@@ -202,26 +202,6 @@ Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), eventBuffer(1024) {
     keysPressed = 0;
 
     setRepeatRate(0, 0);
-}
-
-Key Keyboard::keyHit() {
-    Key invalid;
-
-    uint32_t control;
-
-    control = controlPort.inb();
-
-    if((control & 0x1) != 0x1) {
-        return invalid;
-    }
-
-    code = dataPort.inb();
-
-    if(!(control & auxb) && decodeKey()) {
-        return gather;
-    }
-
-    return invalid;
 }
 
 void Keyboard::reboot() {
@@ -327,16 +307,37 @@ void Keyboard::removeFromBuffer(uint32_t scancode){
 void Keyboard::plugin() {
     memset(buffer, 0, KB_BUFFER_SIZE * sizeof(uint32_t));
 
-    IODeviceManager::getInstance().registerIODevice(this);
+    InterruptManager::getInstance().registerInterruptHandler(this);
 
     IntDispatcher::getInstance().assign(IntDispatcher::keyboard, *this);
     Pic::getInstance().allow(Pic::Interrupt::KEYBOARD);
 }
 
 void Keyboard::trigger(InterruptFrame &frame) {
-    Key key = keyHit();
+    uint8_t control = controlPort.inb();
 
-    if(key.valid()) {
+    if((control & 0x1) != 0x1) {
+        return;
+    }
+
+    if((control & auxb)) {
+        return;
+    }
+
+    interruptDataBuffer.push(dataPort.inb());
+
+    parseInterruptData();
+}
+
+bool Keyboard::hasInterruptData() {
+    return !interruptDataBuffer.isEmpty();
+}
+
+void Keyboard::parseInterruptData() {
+    uint8_t data = interruptDataBuffer.pop();
+
+    if(decodeKey(data)) {
+        Key key = gather;
 
         if(key.ctrl() && key.alt() && key.scancode() == Key::del) {
             reboot();
@@ -348,14 +349,4 @@ void Keyboard::trigger(InterruptFrame &frame) {
 
         eventBus->publish(event);
     }
-}
-
-bool Keyboard::checkForData() {
-    uint8_t control = controlPort.inb();
-
-    if(control & auxb) {
-        return false;
-    }
-
-    return (control & 0x1) == 0x1;
 }

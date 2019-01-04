@@ -26,7 +26,6 @@
 #include <lib/InputStream.h>
 #include <kernel/services/GraphicsService.h>
 #include <lib/Random.h>
-#include <devices/IODevice.h>
 
 /**
  * Driver for the Keyboard-Controller.
@@ -34,7 +33,7 @@
  * @author Olaf Spinczyk, TU Dortmund; Michael Schoettner, Filip Krakowski, Fabian Ruhland, HHU
  * @date 2016, 2017, 2018
  */
-class Keyboard : public IODevice {
+class Keyboard : public InterruptHandler {
 
 private:
 
@@ -78,7 +77,6 @@ private:
 
 private:
 
-    uint8_t code;
     uint8_t prefix;
     Key gather;
     uint8_t leds;
@@ -96,12 +94,12 @@ private:
      *
      * Return true, if the key is complete, or false if there are still make-/break-codes missing.
      */
-    bool decodeKey();
+    bool decodeKey(uint8_t code);
 
     /**
      * Get the ascii-code of the decoded key.
      */
-    void getAsciiCode();
+    void getAsciiCode(uint8_t code);
 
     /**
      * Add a key to the software-buffer.
@@ -123,6 +121,10 @@ private:
      */
     Util::RingBuffer<KeyEvent> eventBuffer;
 
+    Util::RingBuffer<uint8_t> interruptDataBuffer;
+
+    void parseInterruptData() override;
+
 public:
 
     /**
@@ -135,11 +137,6 @@ public:
      * @param copy
      */
     Keyboard(const Keyboard &copy) = delete;
-
-    /**
-     * Get the last hit key from the keyboard-controller.
-     */
-    Key keyHit();
 
     /**
      * Set the controller's repeat rate.
@@ -183,7 +180,7 @@ public:
     /**
      * Overriding function from IODevice.
      */
-    bool checkForData() override;
+    bool hasInterruptData() override;
 };
 
 #endif

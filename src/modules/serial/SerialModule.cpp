@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <devices/IODeviceManager.h>
 #include <filesystem/FileSystem.h>
 #include <kernel/Kernel.h>
 #include "SerialModule.h"
@@ -37,8 +36,6 @@ int32_t SerialModule::initialize() {
         log->info("Detected COM1");
         com1 = new Serial::SerialDriver<Serial::COM1>;
 
-        IODeviceManager::getInstance().registerIODevice(com1);
-
         portService->registerPort(com1);
 
         fileSystem->createDirectory("/dev/ports/serial1");
@@ -51,8 +48,6 @@ int32_t SerialModule::initialize() {
     if(Serial::SerialDriver<Serial::COM2>::checkPort()) {
         log->info("Detected COM2");
         com2 = new Serial::SerialDriver<Serial::COM2>;
-
-        IODeviceManager::getInstance().registerIODevice(com2);
 
         portService->registerPort(com2);
 
@@ -67,8 +62,6 @@ int32_t SerialModule::initialize() {
         log->info("Detected COM3");
         com3 = new Serial::SerialDriver<Serial::COM3>;
 
-        IODeviceManager::getInstance().registerIODevice(com3);
-
         portService->registerPort(com3);
 
         fileSystem->createDirectory("/dev/ports/serial3");
@@ -81,8 +74,6 @@ int32_t SerialModule::initialize() {
     if(Serial::SerialDriver<Serial::COM4>::checkPort()) {
         log->info("Detected COM4");
         com4 = new Serial::SerialDriver<Serial::COM4>;
-
-        IODeviceManager::getInstance().registerIODevice(com4);
 
         portService->registerPort(com4);
 

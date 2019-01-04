@@ -50,10 +50,6 @@ Scheduler& Scheduler::getInstance()  {
     return instance;
 }
 
-void Scheduler::registerIODevice(IODevice *device) {
-    ioDevices.add(device);
-}
-
 void Scheduler::startUp() {
 
     lock.acquire();

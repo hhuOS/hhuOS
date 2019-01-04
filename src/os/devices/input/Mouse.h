@@ -52,6 +52,8 @@ private:
     Util::RingBuffer<MouseReleasedEvent> releasedEventBuffer;
     Util::RingBuffer<MouseDoubleClickedEvent> doubleclickEventBuffer;
 
+    Util::RingBuffer<uint8_t> interruptDataBuffer;
+
     bool available = true;
 
     // Cycle count for reading bytes from the mouse
@@ -110,6 +112,10 @@ public:
      * Enable interrupts for the mouse.
      */
     void plugin();
+
+    bool hasInterruptData() override;
+
+    void parseInterruptData() override;
 
     /**
      * Overriding function from InterruptHandler.
