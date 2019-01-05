@@ -36,13 +36,15 @@ uint64_t StorageNode::readData(char *buf, uint64_t pos, uint64_t numBytes) {
     auto sectorSize = disk->getSectorSize();
     auto startSector = static_cast<uint32_t>(pos) / sectorSize;
     auto count = (static_cast<uint32_t>(numBytes) / sectorSize) + 2;
-    uint8_t hddData[count * sectorSize];
+    uint8_t *hddData = new uint8_t[count * sectorSize];
 
     if(!disk->read(hddData, startSector, count)) {
         return 0;
     }
 
     memcpy(buf, &hddData[static_cast<uint32_t>(pos) % sectorSize], numBytes);
+
+    delete hddData;
 
     return numBytes;
 
@@ -73,7 +75,7 @@ uint64_t StorageNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     auto startSector = static_cast<uint32_t>(pos) / sectorSize;
     auto lastSector = (static_cast<uint32_t>(startSector) + (static_cast<uint32_t>(numBytes) / sectorSize) + 1);
     auto count = (static_cast<uint32_t>(numBytes) / sectorSize) + 2;
-    uint8_t hddData[count * sectorSize];
+    uint8_t *hddData = new uint8_t[count * sectorSize];
 
     //Read the first and last sector of the affected area.
     if(!disk->read(hddData, startSector, 1)) {
@@ -91,6 +93,8 @@ uint64_t StorageNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
     if(!disk->write(hddData, startSector, count)) {
         return 0;
     }
+
+    delete[] hddData;
 
     return numBytes;
 
