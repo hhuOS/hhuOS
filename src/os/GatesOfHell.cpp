@@ -155,9 +155,6 @@ int32_t GatesOfHell::enter() {
         Logger::setConsoleLogging(false);
     }
 
-    // Halt the system, because there is currently no graphics driver available on EFI systems.
-    Cpu::halt();
-
     Scheduler::getInstance().startUp();
 
     return 0;
@@ -225,6 +222,17 @@ void GatesOfHell::afterFsInitModHook() {
 void GatesOfHell::initializeGraphics() {
 
     graphicsService = Kernel::getService<GraphicsService>();
+
+    // Check, if a graphics mode has already been set by GRUB
+    Multiboot::FrameBufferInfo fbInfo = Multiboot::Structure::getFrameBufferInfo();
+
+    if(fbInfo.address != 0) {
+        auto *genericLfb = new LinearFrameBuffer((uint32_t) fbInfo.address, static_cast<uint16_t>(fbInfo.witdh),
+                                                 static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,
+                                                 static_cast<uint16_t>(fbInfo.pitch));
+
+        graphicsService->registerLinearFrameBuffer(genericLfb);
+    }
 
     // Get desired graphics driver from GRUB
     String lfbName = Multiboot::Structure::getKernelOption("linear_frame_buffer");

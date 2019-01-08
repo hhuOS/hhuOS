@@ -45,6 +45,8 @@ Multiboot::MemoryMapEntry Multiboot::Structure::customMemoryMap[256];
 
 Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
 
+Multiboot::FrameBufferInfo Multiboot::Structure::frameBufferInfo;
+
 Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
 
 Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
@@ -148,7 +150,7 @@ void Multiboot::Structure::parse() {
 
     parseModules();
 
-    parseVbeInfo();
+    parseFrameBufferInfo();
 }
 
 void Multiboot::Structure::parseCommandLine() {
@@ -215,6 +217,10 @@ Util::Array<Multiboot::MemoryMapEntry> Multiboot::Structure::getMemoryMap() {
     return memoryMap;
 }
 
+Multiboot::FrameBufferInfo Multiboot::Structure::getFrameBufferInfo() {
+    return frameBufferInfo;
+}
+
 void Multiboot::Structure::parseSymbols() {
 
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
@@ -271,19 +277,25 @@ String Multiboot::Structure::getKernelOption(const String &key) {
     return String();
 }
 
-void Multiboot::Structure::parseVbeInfo() {
+void Multiboot::Structure::parseFrameBufferInfo() {
 
-    /*if (info.flags & MULTIBOOT_INFO_VBE_INFO) {
+    if ((info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) && (info.framebufferBpp >= 8)) {
 
-        info.vbeModeInfo += KERNEL_START;
+        frameBufferInfo.address = info.framebufferAddress;
+        frameBufferInfo.witdh = info.framebufferWidth;
+        frameBufferInfo.height = info.framebufferHeight;
+        frameBufferInfo.bpp = info.framebufferBpp;
+        frameBufferInfo.pitch = info.framebufferPitch;
+        frameBufferInfo.type = info.framebufferType;
+    } else {
 
-        VesaGraphics::ModeInfo *modeInfo = (VesaGraphics::ModeInfo*) info.vbeModeInfo;
-
-        vbeModes.add(*modeInfo);
-
-        // TODO(krakowski)
-        //  Save VBE control information and get available modes
-    }*/
+        frameBufferInfo.address = 0;
+        frameBufferInfo.witdh = 0;
+        frameBufferInfo.height = 0;
+        frameBufferInfo.bpp = 0;
+        frameBufferInfo.pitch = 0;
+        frameBufferInfo.type = 0;
+    }
 }
 
 

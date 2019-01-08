@@ -14,10 +14,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/memory/SystemManagement.h>
 #include "LinearFrameBuffer.h"
 
 static uint32_t diff(uint32_t a, uint32_t b) {
     return a > b ? a - b : b - a;
+}
+
+LinearFrameBuffer::LinearFrameBuffer(uint32_t address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch) :
+        xres(xres), yres(yres), bpp(bpp), pitch(pitch) {
+
+    hardwareBuffer = static_cast<uint8_t *>(SystemManagement::getInstance().mapIO(address, xres * yres * bpp));
 }
 
 LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t resX, uint16_t resY, uint8_t depth) {
@@ -74,6 +81,80 @@ bool LinearFrameBuffer::init(uint16_t resX, uint16_t resY, uint8_t depth) {
     }
 
     return ret;
+}
+
+bool LinearFrameBuffer::setResolution(LinearFrameBuffer::LfbResolution resolution) {
+    return resolution.resX == xres && resolution.resY == yres && resolution.depth == bpp;
+}
+
+String LinearFrameBuffer::getName() {
+    return NAME;
+}
+
+bool LinearFrameBuffer::isAvailable() {
+    return false;
+}
+
+Util::Array<LinearFrameBuffer::LfbResolution> LinearFrameBuffer::getLfbResolutions() {
+    Util::Array<LfbResolution> ret(1);
+
+    ret[0] = LfbResolution{xres, yres, bpp, 0};
+
+    return ret;
+}
+
+String LinearFrameBuffer::getVendorName() {
+    return VENDOR_NAME;
+}
+
+String LinearFrameBuffer::getDeviceName() {
+    return DEVICE_NAME;
+}
+
+uint32_t LinearFrameBuffer::getVideoMemorySize() {
+    return xres * yres * (bpp / 8u);
+}
+
+void LinearFrameBuffer::drawPixel(uint16_t x, uint16_t y, Color color) {
+    //Pixels outside the visible area won't be drawn
+    if(x > xres - 1 || y > yres - 1) return;
+
+    auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
+
+    if(color.getAlpha() < 255) {
+        if(color.getAlpha() == 0) {
+            return;
+        }
+
+        Color currentColor;
+        readPixel(x, y, currentColor);
+        currentColor.blendWith(color);
+        color = currentColor;
+    }
+
+    uint32_t rgbColor = color.getColorForDepth(this->bpp);
+
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
+
+    //Calculate pixel offset
+    uint8_t *ptr = base + (x * (bpp / 8)) + y * pitch;
+
+    //Write color to pixel offset
+    for(uint32_t i = 0; i < (bpp / 8); i++) {
+        ptr[i] = static_cast<uint8_t>((rgbColor >> (i * 8)) & 0xff);
+    }
+}
+
+void LinearFrameBuffer::readPixel(uint16_t x, uint16_t y, Color &color) {
+    if (x > xres - 1 || y > yres - 1) {
+        return;
+    }
+
+    auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
+    uint8_t *base = doubleBuffered ? doubleBuffer : hardwareBuffer;
+    uint8_t *ptr = base + (x * (bpp / 8)) + y * pitch;
+
+    color.setRGB(*((uint32_t *)ptr), this->bpp);
 }
 
 void LinearFrameBuffer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Color fgColor, Color bgColor, uint8_t *bitmap) {
@@ -290,4 +371,47 @@ uint16_t LinearFrameBuffer::getResY() {
 
 uint8_t LinearFrameBuffer::getDepth() {
     return bpp;
+}
+
+void LinearFrameBuffer::enableDoubleBuffering() {
+    reallocBuffer();
+
+    doubleBuffered = true;
+    clear();
+}
+
+void LinearFrameBuffer::disableDoubleBuffering() {
+    doubleBuffered = false;
+}
+
+bool LinearFrameBuffer::isDoubleBuffered() {
+    return doubleBuffered;
+}
+
+void LinearFrameBuffer::show() {
+    if (!doubleBuffered) {
+        return;
+    }
+
+    auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
+
+    uint32_t i;
+    auto *dest = reinterpret_cast<uint64_t *>(hardwareBuffer);
+    auto *src =  reinterpret_cast<uint64_t *>(doubleBuffer);
+    uint64_t end = (xres * yres * (bpp / 8)) / sizeof(uint64_t);
+
+    for (i = 0; i < end; i++) {
+        dest[i] = src[i];
+        src[i] = 0;
+    }
+}
+
+void LinearFrameBuffer::reallocBuffer() {
+    if(doubleBuffer != nullptr) {
+        delete[] doubleBuffer;
+        doubleBuffer = nullptr;
+    }
+
+    auto bpp = static_cast<uint8_t>(this->bpp == 15 ? 16 : this->bpp);
+    doubleBuffer = new uint8_t[xres * yres * (bpp / 8)];
 }

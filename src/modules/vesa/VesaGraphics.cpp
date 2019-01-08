@@ -169,6 +169,10 @@ String VesaGraphics::getVendorName() {
         vendorName = "Unknown";
     } else {
         vendorName = vendorAddress;
+
+        if(vendorName.isEmpty()) {
+            vendorName = "Unknown";
+        }
     }
 
     return vendorName;
@@ -194,6 +198,10 @@ String VesaGraphics::getDeviceName() {
         deviceName = "Unknown";
     } else {
         deviceName = deviceNameAddress;
+
+        if(deviceName.isEmpty()) {
+            deviceName = "Unknown";
+        }
     }
 
     return deviceName;

@@ -48,6 +48,8 @@ namespace Multiboot {
 
         static Util::Array<Multiboot::MemoryMapEntry> getMemoryMap();
 
+        static FrameBufferInfo getFrameBufferInfo();
+
         static bool isModuleLoaded(const String &module);
 
         static String getKernelOption(const String &key);
@@ -66,7 +68,7 @@ namespace Multiboot {
 
         static void parseModules();
 
-        static void parseVbeInfo();
+        static void parseFrameBufferInfo();
 
         static Info info;
 
@@ -77,6 +79,8 @@ namespace Multiboot {
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 
         static MemoryMapEntry customMemoryMap[256];
+
+        static FrameBufferInfo frameBufferInfo;
 
         static uint32_t customMemoryMapSize;
 

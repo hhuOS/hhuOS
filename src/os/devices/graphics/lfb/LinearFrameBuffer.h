@@ -44,10 +44,21 @@ private:
      */
     void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Color fgColor, Color bgColor, uint8_t *bitmap);
 
+    static const constexpr char *NAME = "LinearFrameBuffer";
+    static const constexpr char *DEVICE_NAME = "Generic Graphics Adapter";
+    static const constexpr char *VENDOR_NAME = "Unknown";
+
 protected:
     uint16_t xres = 0;
     uint16_t yres = 0;
     uint8_t bpp = 0;
+
+    uint16_t pitch = 0;
+
+    bool doubleBuffered = false;
+    uint8_t *doubleBuffer = nullptr;
+
+    uint8_t *hardwareBuffer = nullptr;
 
 public:
     /**
@@ -79,7 +90,7 @@ public:
     /**
      * Constructor.
      */
-    LinearFrameBuffer() = default;
+    LinearFrameBuffer(uint32_t address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch);
 
     /**
      * Copy-constructor.
@@ -104,38 +115,38 @@ public:
     /**
      * Get the driver's name (e.g. 'CgaGraphics', 'VesaGraphics', etc.).
      */
-    virtual String getName() = 0;
+    virtual String getName() ;
 
     /**
      * Check, whether the graphics device is available.
      *
      * @return true, if the hardware is available
      */
-    virtual bool isAvailable() = 0;
+    virtual bool isAvailable();
 
     /**
      * Get all available resolutions.
      *
      * @return A List, containing all available resolutions
      */
-    virtual Util::Array<LfbResolution> getLfbResolutions() = 0;
+    virtual Util::Array<LfbResolution> getLfbResolutions();
 
     /**
      * Get the name of the device's vendor.
      * Return "Unknown", if the vendor is not known.
      */
-    virtual String getVendorName() = 0;
+    virtual String getVendorName();
 
     /**
      * Get the device's name.
      * Return "Unknown", if the name is not known.
      */
-    virtual String getDeviceName() = 0;
+    virtual String getDeviceName();
 
     /**
      * Get the amount of video memory, that the device has.
      */
-    virtual uint32_t getVideoMemorySize() = 0;
+    virtual uint32_t getVideoMemorySize();
 
     /**
      * Get the horizontal resolution.
@@ -159,7 +170,7 @@ public:
      * @param y The y-coordinate
      * @param color The color
      */
-    virtual void drawPixel(uint16_t x, uint16_t y, Color color) = 0;
+    virtual void drawPixel(uint16_t x, uint16_t y, Color color);
 
     /**
      * Read the color of a pixel at a given position.
@@ -168,7 +179,7 @@ public:
      * @param y The y-coordinate
      * @param color A reference to the variable, that the pixel's color will be written to
      */
-    virtual void readPixel(uint16_t x, uint16_t y, Color &color) = 0;
+    virtual void readPixel(uint16_t x, uint16_t y, Color &color);
 
     /**
      * Draw a line.
@@ -322,22 +333,22 @@ public:
     /**
      * Enable double-buffering.
      */
-    virtual void enableDoubleBuffering() = 0;
+    virtual void enableDoubleBuffering();
 
     /**
      * Disable double-buffering.
      */
-    virtual void disableDoubleBuffering() = 0;
+    virtual void disableDoubleBuffering();
 
     /**
      * Check, if double-buffering is enabled.
      */
-    virtual bool isDoubleBuffered() = 0;
+    virtual bool isDoubleBuffered();
 
     /**
      * Flush the buffer, when double-buffering is enabled.
      */
-    virtual void show() = 0;
+    virtual void show();
 
 private:
     /**
@@ -351,7 +362,7 @@ private:
      * @param resolution The resolution
      * @return true, on success
      */
-    virtual bool setResolution(LfbResolution resolution) = 0;
+    virtual bool setResolution(LfbResolution resolution);
 
     /**
      * Takes a desired resolution and searches for the most fitting one from all available resolutions.
@@ -362,6 +373,11 @@ private:
      * @return The found resolution
      */
     LfbResolution findBestResolution(uint16_t resX, uint16_t resY, uint8_t depth);
+
+    /**
+     * Reallocate the buffer, that is used for double-buffering.
+     */
+    void reallocBuffer();
 };
 
 #endif

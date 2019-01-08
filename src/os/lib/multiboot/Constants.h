@@ -72,6 +72,15 @@ namespace Multiboot {
         }
     };
 
+    struct FrameBufferInfo {
+        uint64_t address;
+        uint32_t witdh;
+        uint32_t height;
+        uint32_t pitch;
+        uint8_t bpp;
+        uint8_t type;
+    };
+
     struct Info {
 
         /* Multiboot info version number */
@@ -124,7 +133,7 @@ namespace Multiboot {
         uint64_t framebufferAddress;
         uint32_t framebufferPitch;
         uint32_t framebufferWidth;
-        uint32_t framebufferHeigth;
+        uint32_t framebufferHeight;
         uint8_t  framebufferBpp;
         uint8_t  framebufferType;
 
