@@ -46,6 +46,7 @@
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/log/PortAppender.h>
 #include <kernel/Bios.h>
+#include <devices/graphics/text/LfbText.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -227,11 +228,18 @@ void GatesOfHell::initializeGraphics() {
     Multiboot::FrameBufferInfo fbInfo = Multiboot::Structure::getFrameBufferInfo();
 
     if(fbInfo.address != 0) {
-        auto *genericLfb = new LinearFrameBuffer((uint32_t) fbInfo.address, static_cast<uint16_t>(fbInfo.witdh),
+        void *virtAddress = SystemManagement::getInstance().mapIO(static_cast<uint32_t>(fbInfo.address), fbInfo.witdh * fbInfo.pitch);
+
+        auto *genericLfb = new LinearFrameBuffer(virtAddress, static_cast<uint16_t>(fbInfo.witdh),
                                                  static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,
                                                  static_cast<uint16_t>(fbInfo.pitch));
 
+        auto *genericTextDriver = new LfbText(virtAddress, static_cast<uint16_t>(fbInfo.witdh),
+                                              static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,
+                                              static_cast<uint16_t>(fbInfo.pitch));
+
         graphicsService->registerLinearFrameBuffer(genericLfb);
+        graphicsService->registerTextDriver(genericTextDriver);
     }
 
     // Get desired graphics driver from GRUB

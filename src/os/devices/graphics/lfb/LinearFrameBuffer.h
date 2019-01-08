@@ -90,7 +90,7 @@ public:
     /**
      * Constructor.
      */
-    LinearFrameBuffer(uint32_t address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch);
+    LinearFrameBuffer(void *address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch);
 
     /**
      * Copy-constructor.

@@ -21,10 +21,9 @@ static uint32_t diff(uint32_t a, uint32_t b) {
     return a > b ? a - b : b - a;
 }
 
-LinearFrameBuffer::LinearFrameBuffer(uint32_t address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch) :
-        xres(xres), yres(yres), bpp(bpp), pitch(pitch) {
+LinearFrameBuffer::LinearFrameBuffer(void *address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch) :
+        xres(xres), yres(yres), bpp(bpp), pitch(pitch), hardwareBuffer(static_cast<uint8_t *>(address)) {
 
-    hardwareBuffer = static_cast<uint8_t *>(SystemManagement::getInstance().mapIO(address, xres * yres * bpp));
 }
 
 LinearFrameBuffer::LfbResolution LinearFrameBuffer::findBestResolution(uint16_t resX, uint16_t resY, uint8_t depth) {
