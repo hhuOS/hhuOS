@@ -90,16 +90,18 @@ public:
 	} __attribute__((packed));
 
 private:
-
-    static const uint16_t INVALID_MODE = 0xFFFF;
-
-    static const constexpr char *NAME = "VesaGraphics";
+    bool available = false;
 
 	String vendorName = String();
 	String deviceName = String();
 	uint32_t videoMemorySize = 0;
 
-	Util::ArrayList<LinearFrameBuffer::LfbResolution> resolutions;
+    void *virtLfbAddress = nullptr;
+
+	Util::ArrayList<LfbResolution> resolutions;
+
+    static const uint16_t INVALID_MODE = 0xFFFF;
+    static const constexpr char *NAME = "VesaGraphics";
 
 private:
 	/**
@@ -126,26 +128,11 @@ private:
      */
     ModeInfo* getModeInfo(uint16_t mode);
 
-	/**
-     * Reallocate the buffer, that is used for double-buffering.
-     */
-	void reallocBuffer();
-
-private:
-    bool doubleBuffered = false;
-	uint8_t *doubleBuffer = nullptr;
-
-    void *virtLfbAddress = nullptr;
-
-protected:
-    uint8_t *hardwareBuffer = nullptr;
-    uint16_t pitch = 0;
-
 public:
     /**
      * Constructor.
      */
-    VesaGraphics() = default;
+    VesaGraphics();
 
     /**
      * Copy-constructor.
@@ -186,41 +173,6 @@ public:
      * Overriding virtual function from LinearFrameBuffer.
      */
 	uint32_t getVideoMemorySize() override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-    void drawPixel(uint16_t x, uint16_t y, Color color) override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-    void readPixel(uint16_t x, uint16_t y, Color &color) override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-    void clear() override;
-
-	/**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-	void enableDoubleBuffering() override;
-
-	/**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-	void disableDoubleBuffering() override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-	bool isDoubleBuffered() override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-    void show() override;
 };
 
 #endif
