@@ -19,6 +19,60 @@
 #include "CgaGraphics.h"
 #include "kernel/memory/MemLayout.h"
 
+CgaGraphics::CgaGraphics() : LinearFrameBuffer(reinterpret_cast<void *>(VIRT_CGA_START), 0, 0, 0, 80),
+        resolutions(2) {
+
+    resolutions[0] = {320, 200, 2, 0x04};
+    resolutions[1] = {640, 200, 1, 0x06};
+
+    BC_params->AX = 0x1a << 8;
+    Bios::Int(0x10);
+    uint32_t biosRet = BC_params->BX & 0xff;
+
+    switch(biosRet) {
+        case 0x01:
+            deviceName = "Generic MDA";
+            videoMemorySize = 4096;
+            break;
+        case 0x02:
+            deviceName = "Generic CGA";
+            videoMemorySize = 16384;
+            break;
+        case 0x04:
+            deviceName = "Generic EGA";
+            videoMemorySize = 131072;
+            break;
+        case 0x05:
+            deviceName = "Generic EGA";
+            videoMemorySize = 131072;
+            break;
+        case 0x07:
+            deviceName = "Generic VGA";
+            videoMemorySize = 262144;
+            break;
+        case 0x08:
+            deviceName = "Generic VGA";
+            videoMemorySize = 262144;
+            break;
+        case 0x0a:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        case 0x0b:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        case 0x0c:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        default:
+            deviceName = "Unknown";
+            videoMemorySize = 0;
+            break;
+    }
+}
+
 String CgaGraphics::getName() {
     return NAME;
 }
@@ -40,8 +94,6 @@ void CgaGraphics::setMode(uint16_t modeNumber) {
 bool CgaGraphics::setResolution(LinearFrameBuffer::LfbResolution resolution) {
     setMode(resolution.modeNumber);
 
-    hardwareBuffer = (uint8_t *) VIRT_CGA_START;
-
     return true;
 }
 
@@ -55,67 +107,10 @@ void CgaGraphics::reallocBuffer() {
 }
 
 Util::Array<LinearFrameBuffer::LfbResolution> CgaGraphics::getLfbResolutions() {
-    if(!resolutions.isEmpty()) {
-        return resolutions.toArray();
-    }
-
-    auto *currentRes = new LfbResolution();
-    *currentRes = {320, 200, 2, 0x04};
-    resolutions.add(*currentRes);
-
-    currentRes = new LfbResolution();
-    *currentRes = {640, 200, 1, 0x06};
-    resolutions.add(*currentRes);
-
-    return resolutions.toArray();
-}
-
-String CgaGraphics::getVendorName() {
-    return vendorName;
+    return resolutions;
 }
 
 String CgaGraphics::getDeviceName() {
-    if(!deviceName.isEmpty()) {
-        return deviceName;
-    }
-
-    BC_params->AX = 0x1a << 8;
-    Bios::Int(0x10);
-    uint32_t biosRet = BC_params->BX & 0xff;
-
-    switch(biosRet) {
-        case 0x01:
-            deviceName = "Generic MDA";
-            break;
-        case 0x02:
-            deviceName = "Generic CGA";
-            break;
-        case 0x04:
-            deviceName = "Generic EGA";
-            break;
-        case 0x05:
-            deviceName = "Generic EGA";
-            break;
-        case 0x07:
-            deviceName = "Generic VGA";
-            break;
-        case 0x08:
-            deviceName = "Generic VGA";
-            break;
-        case 0x0a:
-            deviceName = "Generic MCGA";
-            break;
-        case 0x0b:
-            deviceName = "Generic MCGA";
-            break;
-        case 0x0c:
-            deviceName = "Generic MCGA";
-            break;
-        default:
-            deviceName = "Unknown";
-            break;
-    }
-
     return deviceName;
 }
 
@@ -124,42 +119,7 @@ uint32_t CgaGraphics::getVideoMemorySize() {
         return videoMemorySize;
     }
 
-    BC_params->AX = 0x1a << 8;
-    Bios::Int(0x10);
-    uint32_t biosRet = BC_params->BX & 0xff;
 
-    switch(biosRet) {
-        case 0x01:
-            videoMemorySize = 4096;
-            break;
-        case 0x02:
-            videoMemorySize = 16384;
-            break;
-        case 0x04:
-            videoMemorySize = 131072;
-            break;
-        case 0x05:
-            videoMemorySize = 131072;
-            break;
-        case 0x07:
-            videoMemorySize = 262144;
-            break;
-        case 0x08:
-            videoMemorySize = 262144;
-            break;
-        case 0x0a:
-            videoMemorySize = 65536;
-            break;
-        case 0x0b:
-            videoMemorySize = 65536;
-            break;
-        case 0x0c:
-            videoMemorySize = 65536;
-            break;
-        default:
-            videoMemorySize = 0;
-            break;
-    }
 
     return videoMemorySize;
 }

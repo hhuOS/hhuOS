@@ -30,21 +30,20 @@
 class CgaText : public TextDriver {
 
 private:
+    IOport indexPort;
+    IOport dataPort;
+
+    uint16_t pos = 0;
+
+    String deviceName;
+    uint32_t videoMemorySize;
+
+    Util::Array<TextResolution> resolutions;
 
     const char *CGA_START = reinterpret_cast<const char *>(VIRT_CGA_START);
 
     static const constexpr char *NAME = "CgaText";
-
-    IOport index_port;
-    IOport data_port;
-
-    uint16_t pos = 0;
-
-    String vendorName = String("Unknown");
-    String deviceName = String();
-    uint32_t videoMemorySize = 0;
-
-    Util::ArrayList<TextResolution> resolutions;
+    static const constexpr char *VENDOR_NAME = "Unknown";
 
 private:
     /**

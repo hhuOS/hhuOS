@@ -28,21 +28,13 @@
 class CgaGraphics : public LinearFrameBuffer {
 
 private:
-    //Pitch is always 80 in CGA-mode.
-    static const constexpr uint16_t pitch = 80;
+    uint32_t videoMemorySize;
+
+    String deviceName;
+
+    Util::Array<LfbResolution> resolutions;
 
     static const constexpr char *NAME = "CgaGraphics";
-
-    bool doubleBuffered = false;
-
-    uint8_t *hardwareBuffer = nullptr;
-    uint8_t *doubleBuffer = nullptr;
-
-    String vendorName = String("Unknown");
-    String deviceName = String();
-    uint32_t videoMemorySize = 0;
-
-    Util::ArrayList<LfbResolution> resolutions;
 
 private:
     /**
@@ -66,7 +58,7 @@ public:
     /**
      * Constructor.
      */
-    CgaGraphics() = default;
+    CgaGraphics();
 
     /**
      * Copy-constructor.
@@ -92,11 +84,6 @@ public:
      * Overriding virtual function from LinearFrameBuffer.
      */
     Util::Array<LinearFrameBuffer::LfbResolution> getLfbResolutions() override;
-
-    /**
-     * Overriding virtual function from LinearFrameBuffer.
-     */
-    String getVendorName() override;
 
     /**
      * Overriding virtual function from LinearFrameBuffer.

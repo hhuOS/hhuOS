@@ -17,10 +17,60 @@
 #include <kernel/Bios.h>
 #include "CgaText.h"
 
-CgaText::CgaText() : TextDriver(), index_port(0x3d4), data_port(0x3d5) {
+CgaText::CgaText() : TextDriver(), indexPort(0x3d4), dataPort(0x3d5), resolutions(2) {
     columns = 80;
     rows = 25;
     depth = 4;
+
+    resolutions[0] = {40, 25, 4, 0x01};
+    resolutions[1] = {80, 25, 4, 0x03};
+
+    BC_params->AX = 0x1a << 8;
+    Bios::Int(0x10);
+    uint32_t biosRet = BC_params->BX & 0xff;
+
+    switch(biosRet) {
+        case 0x01:
+            deviceName = "Generic MDA";
+            videoMemorySize = 4096;
+            break;
+        case 0x02:
+            deviceName = "Generic CGA";
+            videoMemorySize = 16384;
+            break;
+        case 0x04:
+            deviceName = "Generic EGA";
+            videoMemorySize = 131072;
+            break;
+        case 0x05:
+            deviceName = "Generic EGA";
+            videoMemorySize = 131072;
+            break;
+        case 0x07:
+            deviceName = "Generic VGA";
+            videoMemorySize = 262144;
+            break;
+        case 0x08:
+            deviceName = "Generic VGA";
+            videoMemorySize = 262144;
+            break;
+        case 0x0a:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        case 0x0b:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        case 0x0c:
+            deviceName = "Generic MCGA";
+            videoMemorySize = 65536;
+            break;
+        default:
+            deviceName = "Unknown";
+            videoMemorySize = 0;
+            break;
+    }
 }
 
 String CgaText::getName() {
@@ -37,19 +87,7 @@ bool CgaText::isAvailable() {
 }
 
 Util::Array<TextDriver::TextResolution> CgaText::getTextResolutions() {
-    if(!resolutions.isEmpty()) {
-        return resolutions.toArray();
-    }
-
-    auto *currentRes = new TextResolution();
-    *currentRes = {40, 25, 4, 0x01};
-    resolutions.add(*currentRes);
-
-    currentRes = new TextResolution();
-    *currentRes = {80, 25, 4, 0x03};
-    resolutions.add(*currentRes);
-
-    return resolutions.toArray();
+    return resolutions;
 }
 
 void CgaText::setMode(uint16_t modeNumber) {
@@ -68,96 +106,14 @@ bool CgaText::setResolution(TextResolution resolution) {
 }
 
 String CgaText::getVendorName() {
-    return vendorName;
+    return VENDOR_NAME;
 }
 
 String CgaText::getDeviceName() {
-    if(!deviceName.isEmpty()) {
-        return deviceName;
-    }
-
-    BC_params->AX = 0x1a << 8;
-    Bios::Int(0x10);
-    uint32_t biosRet = BC_params->BX & 0xff;
-
-    switch(biosRet) {
-        case 0x01:
-            deviceName = "Generic MDA";
-            break;
-        case 0x02:
-            deviceName = "Generic CGA";
-            break;
-        case 0x04:
-            deviceName = "Generic EGA";
-            break;
-        case 0x05:
-            deviceName = "Generic EGA";
-            break;
-        case 0x07:
-            deviceName = "Generic VGA";
-            break;
-        case 0x08:
-            deviceName = "Generic VGA";
-            break;
-        case 0x0a:
-            deviceName = "Generic MCGA";
-            break;
-        case 0x0b:
-            deviceName = "Generic MCGA";
-            break;
-        case 0x0c:
-            deviceName = "Generic MCGA";
-            break;
-        default:
-            deviceName = "Unknown";
-            break;
-    }
-
     return deviceName;
 }
 
 uint32_t CgaText::getVideoMemorySize() {
-    if(videoMemorySize != 0) {
-        return videoMemorySize;
-    }
-
-    BC_params->AX = 0x1a << 8;
-    Bios::Int(0x10);
-    uint32_t biosRet = BC_params->BX & 0xff;
-
-    switch(biosRet) {
-        case 0x01:
-            videoMemorySize = 4096;
-            break;
-        case 0x02:
-            videoMemorySize = 16384;
-            break;
-        case 0x04:
-            videoMemorySize = 131072;
-            break;
-        case 0x05:
-            videoMemorySize = 131072;
-            break;
-        case 0x07:
-            videoMemorySize = 262144;
-            break;
-        case 0x08:
-            videoMemorySize = 262144;
-            break;
-        case 0x0a:
-            videoMemorySize = 65536;
-            break;
-        case 0x0b:
-            videoMemorySize = 65536;
-            break;
-        case 0x0c:
-            videoMemorySize = 65536;
-            break;
-        default:
-            videoMemorySize = 0;
-            break;
-    }
-
     return videoMemorySize;
 }
 
@@ -172,12 +128,12 @@ void CgaText::setpos(uint16_t x, uint16_t y) {
     auto high = static_cast<uint8_t>((pos & 0x3f00) >> 8);
 
     // Write high byte
-    index_port.outb(14);
-    data_port.outb(high);
+    indexPort.outb(14);
+    dataPort.outb(high);
 
     // Write low byte
-    index_port.outb(15);
-    data_port.outb(low);
+    indexPort.outb(15);
+    dataPort.outb(low);
 
 }
 
