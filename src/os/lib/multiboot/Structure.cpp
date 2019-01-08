@@ -21,6 +21,7 @@
 #include <lib/libc/printf.h>
 #include <lib/libc/sprintf.h>
 #include <kernel/interrupts/BlueScreen.h>
+#include <kernel/interrupts/BlueScreenLfbText.h>
 #include "Structure.h"
 #include "Constants.h"
 
@@ -279,18 +280,25 @@ String Multiboot::Structure::getKernelOption(const String &key) {
 
 void Multiboot::Structure::parseFrameBufferInfo() {
 
-    if ((info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) && (info.framebufferBpp >= 8)) {
+    if ((info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) && (info.framebufferBpp >= 8) && (info.framebufferType == 1)) {
 
         frameBufferInfo.address = info.framebufferAddress;
-        frameBufferInfo.witdh = info.framebufferWidth;
+        frameBufferInfo.width = info.framebufferWidth;
         frameBufferInfo.height = info.framebufferHeight;
         frameBufferInfo.bpp = info.framebufferBpp;
         frameBufferInfo.pitch = info.framebufferPitch;
         frameBufferInfo.type = info.framebufferType;
+
+        BlueScreenLfbText::LFB_ADDRESS = SystemManagement::getInstance().mapIO(
+                static_cast<uint32_t>(frameBufferInfo.address), frameBufferInfo.width * frameBufferInfo.pitch);
+        BlueScreenLfbText::YRES = static_cast<uint16_t>(frameBufferInfo.height);
+        BlueScreenLfbText::XRES = static_cast<uint16_t>(frameBufferInfo.width);
+        BlueScreenLfbText::DEPTH = frameBufferInfo.bpp;
+        BlueScreenLfbText::PITCH = static_cast<uint16_t>(frameBufferInfo.pitch);
     } else {
 
         frameBufferInfo.address = 0;
-        frameBufferInfo.witdh = 0;
+        frameBufferInfo.width = 0;
         frameBufferInfo.height = 0;
         frameBufferInfo.bpp = 0;
         frameBufferInfo.pitch = 0;

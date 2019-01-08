@@ -74,7 +74,7 @@ namespace Multiboot {
 
     struct FrameBufferInfo {
         uint64_t address;
-        uint32_t witdh;
+        uint32_t width;
         uint32_t height;
         uint32_t pitch;
         uint8_t bpp;

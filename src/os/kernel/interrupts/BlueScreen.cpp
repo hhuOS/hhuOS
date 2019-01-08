@@ -23,23 +23,8 @@
 
 const char *BlueScreen::errorMessage = "";
 
-void BlueScreen::initialize() {
-    BC_params->AX = 0x03;
-    Bios::Int(0x10);
+BlueScreen::BlueScreen(uint16_t columns, uint16_t rows) : columns(columns), rows(rows) {
 
-    BC_params->AX = 0x0100;
-    BC_params->CX = 0x2607;
-    Bios::Int(0x10);
-
-    auto *dest = (uint64_t *) VIRT_CGA_START;
-
-    uint64_t end = 80 * 25 * 2 / sizeof(uint64_t);
-
-    for(uint64_t i = 0; i < end; i++) {
-        dest[i] = 0x1000100010001000;
-    }
-
-    stdout = this;
 }
 
 void BlueScreen::print(InterruptFrame &frame) {
@@ -83,7 +68,7 @@ void BlueScreen::puts(const char *s, uint32_t n) {
 
 void BlueScreen::putc(const char c) {
 
-    if(y >= ROWS) {
+    if(y >= rows) {
         return;
     }
 
@@ -95,21 +80,10 @@ void BlueScreen::putc(const char c) {
         x++;
     }
 
-    if(x >= COLUMNS) {
+    if(x >= columns) {
         x = 0;
         y++;
     }
-}
-
-void BlueScreen::show(uint16_t x, uint16_t y, const char c) {
-
-    if (x < 0 || x >= COLUMNS || y < 0 || y > ROWS)
-        return;
-
-    uint16_t pos = (y * COLUMNS + x) * (uint16_t) 2;
-
-    *((uint8_t *) (CGA_START + pos)) = static_cast<uint8_t>(c);
-    *((uint8_t *) (CGA_START + pos + 1)) = ATTRIBUTE;
 }
 
 void BlueScreen::flush() {

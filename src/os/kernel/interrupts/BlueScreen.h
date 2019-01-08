@@ -25,7 +25,7 @@ class BlueScreen : public OutputStream {
 
 public:
 
-    BlueScreen() = default;
+    BlueScreen(uint16_t columns, uint16_t rows);
 
     BlueScreen(const BlueScreen &other) = delete;
 
@@ -34,7 +34,7 @@ public:
     /**
      * Initializes the bluescreen.
      */
-    void initialize();
+    virtual void initialize() = 0;
 
     /**
      * Prints out the bluescreen containing debug information.
@@ -47,27 +47,25 @@ public:
 
     static void setErrorMessage(const char *message);
 
+protected:
+
+    uint16_t x = 0;
+
+    uint16_t y = 0;
+
+    uint16_t columns, rows;
+
 private:
-
-    int x = 0;
-
-    int y = 0;
 
     static const char *errorMessage;
 
-    void show(uint16_t x, uint16_t y, char c);
+private:
 
-    const uint8_t ROWS = 25;
+    virtual void show(uint16_t x, uint16_t y, char c) = 0;
 
-    const uint8_t COLUMNS = 80;
+    virtual void puts(const char *s, uint32_t n);
 
-    const uint8_t ATTRIBUTE = 0x1F;
-
-    const char *CGA_START = reinterpret_cast<const char *>(VIRT_CGA_START);
-
-    void puts(const char *s, uint32_t n);
-
-    void putc(char c);
+    virtual void putc(char c);
 };
 
 #endif
