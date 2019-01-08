@@ -114,15 +114,6 @@ public:
 
 private:
 
-    /**
-     * Calculate the base address of the IO-ports of a given parallel port.
-     *
-     * @return The base address
-     */
-    static uint16_t getBasePort();
-
-private:
-
     TimeService *timeService = nullptr;
 
     ParallelMode mode;
@@ -132,29 +123,41 @@ private:
     IOport sppControlPort;
     IOport eppAddressPort;
     IOport eppDataPort;
+
+    static const constexpr char *NAME_1 = "Lpt1";
+    static const constexpr char *NAME_2 = "Lpt2";
+    static const constexpr char *NAME_3 = "Lpt3";
 };
 
 template<LptPort port>
-uint16_t ParallelDriver<port>::getBasePort() {
-    auto *address = reinterpret_cast<uint16_t *>(0xc0000408);
-
-    address += port - 1;
-
-    return *address;
-}
-
-template<LptPort port>
 bool ParallelDriver<port>::checkPort() {
-    return getBasePort() != 0;
+    IOport controlPort(port + 2);
+
+    // Toggle the automatic linefeed bit in the control register and check if it stays toggled.
+    // If yes, there is a port.
+
+    uint8_t tmp = controlPort.inb();
+
+    tmp ^= 0x02;
+
+    controlPort.outb(tmp);
+
+    if(controlPort.inb() == tmp) {
+        controlPort.outb(static_cast<uint8_t>(tmp ^ 0x02));
+
+        return true;
+    }
+
+    return false;
 }
 
 template<LptPort port>
 ParallelDriver<port>::ParallelDriver(ParallelMode mode) : mode(mode),
-                                                          sppDataPort(getBasePort()),
-                                                          sppStatusPort(static_cast<uint16_t>(getBasePort() + 1)),
-                                                          sppControlPort(static_cast<uint16_t>(getBasePort() + 2)),
-                                                          eppAddressPort(static_cast<uint16_t>(getBasePort() + 3)),
-                                                          eppDataPort(static_cast<uint16_t>(getBasePort() + 4)) {
+                                                          sppDataPort(port),
+                                                          sppStatusPort(static_cast<uint16_t>(port + 1)),
+                                                          sppControlPort(static_cast<uint16_t>(port + 2)),
+                                                          eppAddressPort(static_cast<uint16_t>(port + 3)),
+                                                          eppDataPort(static_cast<uint16_t>(port + 4)) {
     initializePort();
 
     timeService = Kernel::getService<TimeService>();
@@ -243,7 +246,14 @@ LptPort ParallelDriver<port>::getPortNumber() {
 
 template<LptPort port>
 String ParallelDriver<port>::getName() {
-    return "LPT" + String::valueOf(port, 10);
+    switch(port) {
+        case LPT1 :
+            return NAME_1;
+        case LPT2 :
+            return NAME_2;
+        case LPT3 :
+            return NAME_3;
+    }
 }
 
 }

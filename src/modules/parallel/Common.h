@@ -23,9 +23,9 @@ namespace Parallel {
  * Starting addresses of the registers of each port.
  */
 enum LptPort {
-    LPT1 = 1,
-    LPT2 = 2,
-    LPT3 = 3
+    LPT1 = 0x378,
+    LPT2 = 0x278,
+    LPT3 = 0x3bc
 };
 
 /**
