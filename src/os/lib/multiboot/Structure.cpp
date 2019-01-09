@@ -20,8 +20,8 @@
 #include <kernel/memory/SystemManagement.h>
 #include <lib/libc/printf.h>
 #include <lib/libc/sprintf.h>
-#include <kernel/interrupts/BlueScreen.h>
-#include <kernel/interrupts/BlueScreenLfb.h>
+#include <kernel/bluescreen/BlueScreen.h>
+#include <kernel/bluescreen/BlueScreenLfb.h>
 #include "Structure.h"
 #include "Constants.h"
 

@@ -20,7 +20,7 @@
 #include <kernel/interrupts/InterruptHandler.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/services/EventBus.h>
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 #include <kernel/events/input/MouseClickedEvent.h>
 #include <kernel/events/input/MouseReleasedEvent.h>
 #include <kernel/events/input/MouseMovedEvent.h>

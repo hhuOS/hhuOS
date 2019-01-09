@@ -18,7 +18,7 @@
 #define __PIC_include__
 
 #include <cstdint>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 
 /**
  * PIC - programmable interrupt controller. In this hardware device the different

@@ -15,7 +15,7 @@
  */
 
 #include <kernel/Kernel.h>
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include "BitmapMemoryManager.h"
 #include "kernel/memory/Paging.h"
 #include "lib/libc/printf.h"

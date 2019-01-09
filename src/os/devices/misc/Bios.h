@@ -54,6 +54,12 @@ public:
     Bios() = delete;
 
     /**
+     * Check if BIOS-calls are activated.
+     * BIOS-calls can be de-/activated with the kernel parameter 'bios_enhancements=true/false'.
+     */
+    static bool isAvailable();
+
+    /**
      * Initializes segment for bios call.
      * Builds up a 16-bit code segment manually. The start address
      * of this code segment is in the GDT for bios calls

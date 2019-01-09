@@ -17,7 +17,7 @@
 #include <devices/isa/Isa.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/threads/Scheduler.h>
 #include "SoundBlaster16.h"
 

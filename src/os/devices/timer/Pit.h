@@ -19,7 +19,7 @@
 
 #include <lib/time/TimeProvider.h>
 #include "kernel/interrupts/InterruptHandler.h"
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 #include "kernel/Kernel.h"
 #include "kernel/services/GraphicsService.h"
 #include "kernel/services/TimeService.h"

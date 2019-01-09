@@ -19,7 +19,7 @@
 
 #include "kernel/services/EventBus.h"
 #include "Key.h"
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 #include "kernel/interrupts/InterruptHandler.h"
 #include "kernel/events/input/KeyEvent.h"
 #include <lib/util/RingBuffer.h>

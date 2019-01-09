@@ -14,9 +14,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/cpu/Cpu.h>
+#include <devices/cpu/Cpu.h>
 #include <lib/libc/printf.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/Kernel.h>
 #include <kernel/services/PortService.h>
 #include <devices/timer/Pit.h>

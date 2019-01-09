@@ -18,7 +18,7 @@
 STARTUP_SOURCE = ./startup.asm
 CC_SOURCES = $(shell find . -name "*.cpp")
 C_SOURCES = $(shell find . -name "*.c")
-ASM_SOURCES = $(shell find ./kernel ./lib -name "*.asm")
+ASM_SOURCES = $(shell find ./devices/cpu ./kernel ./lib -name "*.asm")
 LINKER_SCRIPT = ${CURDIR}/link.ld
 
 #-------------------------------------------#
@@ -92,7 +92,7 @@ MODULE_BINARIES = $(addprefix $(MODULE_OUT)/,$(MODULES:%=%.ko))
 #-------------------------------------------#
 QEMU_BIN = qemu-system-i386 -machine pc
 KVM_BIN = qemu-system-i386 -machine pc,accel=kvm,kernel-irqchip=off
-GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-efi
+GRUB_BIN = grub-mkrescue /usr/lib/grub/i386-pc /usr/lib/grub/i386-efi
 EFI_BIOS = /usr/share/edk2/ovmf-ia32/OVMF_CODE.fd
 
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio\

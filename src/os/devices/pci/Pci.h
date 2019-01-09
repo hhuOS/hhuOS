@@ -17,12 +17,12 @@
 #ifndef __PCI_include__
 #define __PCI_include__
 
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 
 #include <cstdint>
 #include <kernel/services/StorageService.h>
 #include <lib/util/ArrayList.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/log/Logger.h>
 
 class PciDeviceDriver;

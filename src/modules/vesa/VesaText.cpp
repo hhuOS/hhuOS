@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include "VesaText.h"
 
 VesaText::VesaText() : VesaGraphics(), font(&std_font_8x16) {

@@ -15,7 +15,7 @@
  */
 
 #include <kernel/Kernel.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 
 #include "DebugService.h"
 

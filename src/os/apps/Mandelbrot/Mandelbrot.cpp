@@ -21,7 +21,7 @@
 #include <apps/Application.h>
 #include <lib/math/Complex.h>
 
-#include <kernel/cpu/CpuId.h>
+#include <devices/cpu/CpuId.h>
 
 __attribute__ ((aligned (16))) Mandelbrot::Properties Mandelbrot::properties;
 

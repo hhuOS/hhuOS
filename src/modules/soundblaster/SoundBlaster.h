@@ -18,7 +18,7 @@
 #define HHUOS_SOUNDBLASTER_H
 
 #include <cstdint>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <kernel/services/TimeService.h>
 #include <devices/sound/PcmAudioDevice.h>
 #include <lib/lock/Spinlock.h>

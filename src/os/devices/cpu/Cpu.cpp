@@ -15,7 +15,7 @@
  */
 
 #include <lib/String.h>
-#include <kernel/interrupts/BlueScreen.h>
+#include <kernel/bluescreen/BlueScreen.h>
 #include <kernel/interrupts/InterruptManager.h>
 #include <kernel/memory/SystemManagement.h>
 #include "Cpu.h"

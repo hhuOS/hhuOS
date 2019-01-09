@@ -23,7 +23,7 @@
 #include <cstdint>
 
 #include <devices/input/Keyboard.h>
-#include "kernel/interrupts/Pic.h"
+#include "devices/misc/Pic.h"
 
 
 class DebugService : public KernelService {

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include <kernel/memory/MemLayout.h>
 #include <lib/graphic/Color.h>
 #include <lib/libc/printf.h>
@@ -31,7 +31,9 @@ void BlueScreen::print(InterruptFrame &frame) {
 
     stdout = this;
 
-    printf("\n\n  [PANIC] %s\n\n", Cpu::getExceptionName(frame.interrupt));
+    printf("\n  [PANIC] %s\n\n", Cpu::getExceptionName(frame.interrupt));
+
+    printf("  %s\n\n\n", errorMessage);
 
     uint32_t *ebp = (uint32_t*) frame.ebp;
 
@@ -55,8 +57,7 @@ void BlueScreen::print(InterruptFrame &frame) {
         i++;
     }
 
-    printf("\n     %s\n\n", errorMessage);
-
+    printf("\n");
     printf("     eax=0x%08x  ebx=0x%08x  ecx=0x%08x  edx=0x%08x\n", frame.eax, frame.ebx, frame.ecx, frame.edx);
     printf("     esp=0x%08x  ebp=0x%08x  esi=0x%08x  edi=0x%08x\n\n", frame.esp, frame.ebp, frame.esi, frame.edi);
     printf("     eflags=0x%08x", frame.eflags);

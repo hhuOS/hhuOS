@@ -15,7 +15,7 @@
  */
 
 
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include "CgaGraphics.h"
 #include "kernel/memory/MemLayout.h"
 

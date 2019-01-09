@@ -17,9 +17,7 @@
 #ifndef __CPU_include__
 #define __CPU_include__
 
-
 #include <cstdint>
-
 
 /**
  * CPU - Provides abstraction and functionality around the CPU. Interrupts

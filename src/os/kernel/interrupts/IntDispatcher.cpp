@@ -16,16 +16,16 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/KernelSymbols.h>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>
 #include <lib/Random.h>
 #include <kernel/debug/GdbServer.h>
 #include <kernel/threads/Scheduler.h>
-#include "kernel/cpu/Cpu.h"
+#include "devices/cpu/Cpu.h"
 #include "kernel/interrupts/IntDispatcher.h"
 #include "kernel/memory/SystemManagement.h"
-#include "Pic.h"
+#include "devices/misc/Pic.h"
 
 extern "C" {
     void dispatchInterrupt(InterruptFrame *frame);

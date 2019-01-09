@@ -19,10 +19,10 @@
 
 #include <cstdint>
 #include <kernel/Kernel.h>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <kernel/services/EventBus.h>
 #include <lib/util/RingBuffer.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include "devices/ports/Port.h"
 #include "Common.h"

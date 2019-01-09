@@ -16,14 +16,14 @@
 
 #include "SystemManagement.h"
 
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <lib/libc/printf.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/log/Logger.h>
 #include <devices/timer/Pit.h>
 #include <kernel/log/StdOutAppender.h>
-#include "kernel/cpu/Cpu.h"
+#include "devices/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
 #include "MemLayout.h"
 

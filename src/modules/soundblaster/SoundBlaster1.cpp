@@ -17,7 +17,7 @@
 #include <devices/isa/Isa.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include "SoundBlaster1.h"
 
 SoundBlaster1::SoundBlaster1(uint16_t baseAddress, uint8_t irqNumber, uint8_t dmaChannel) : SoundBlaster(baseAddress),

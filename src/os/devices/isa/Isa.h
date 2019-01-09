@@ -17,7 +17,7 @@
 #ifndef HHUOS_ISA_H
 #define HHUOS_ISA_H
 
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <lib/lock/Spinlock.h>
 #include <kernel/memory/manager/IsaDmaMemoryManager.h>
 

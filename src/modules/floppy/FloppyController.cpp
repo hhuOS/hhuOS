@@ -18,7 +18,7 @@
 #include <kernel/services/TimeService.h>
 #include <kernel/Kernel.h>
 #include <kernel/threads/WorkerThread.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/memory/SystemManagement.h>
 #include "FloppyController.h"

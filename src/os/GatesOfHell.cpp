@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/cpu/CpuId.h>
+#include <devices/cpu/CpuId.h>
 #include <kernel/services/EventBus.h>
 #include <lib/multiboot/Structure.h>
 #include <kernel/debug/GdbServer.h>
@@ -45,9 +45,9 @@
 #include <kernel/memory/manager/FreeListMemoryManager.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/log/PortAppender.h>
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include <devices/graphics/text/LfbText.h>
-#include <kernel/interrupts/BlueScreenLfb.h>
+#include <kernel/bluescreen/BlueScreenLfb.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 

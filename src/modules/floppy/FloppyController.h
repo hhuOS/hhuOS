@@ -18,7 +18,7 @@
 #define HHUOS_FLOPPY_H
 
 #include <cstdint>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <kernel/services/StorageService.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/memory/manager/IOMemoryManager.h>

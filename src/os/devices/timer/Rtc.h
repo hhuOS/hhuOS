@@ -20,7 +20,7 @@
 #include <kernel/log/Logger.h>
 #include <kernel/interrupts/InterruptHandler.h>
 #include <lib/util/RingBuffer.h>
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 
 /**
  * Driver for the CMOS Realtime clock.

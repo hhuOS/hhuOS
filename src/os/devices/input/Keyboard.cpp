@@ -16,7 +16,7 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/events/input/KeyEvent.h>
 #include <lib/libc/printf.h>
 #include <devices/sound/PcSpeaker.h>

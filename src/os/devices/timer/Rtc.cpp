@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/threads/Scheduler.h>
 #include <kernel/interrupts/IntDispatcher.h>

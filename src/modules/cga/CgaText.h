@@ -17,7 +17,7 @@
 #ifndef __CgaText_include__
 #define __CgaText_include__
 
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 #include "kernel/memory/MemLayout.h"
 #include "devices/graphics/text/TextDriver.h"
 #include "lib/graphic/Colors.h"

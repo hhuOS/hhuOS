@@ -18,7 +18,7 @@
 #define HHUOS_PARALLELDRIVER_H
 
 #include <kernel/Kernel.h>
-#include <kernel/IOport.h>
+#include <devices/cpu/IOport.h>
 #include <kernel/services/TimeService.h>
 #include <devices/ports/Port.h>
 #include "Common.h"

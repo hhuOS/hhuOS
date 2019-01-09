@@ -15,10 +15,10 @@
  */
 
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/Kernel.h>
 #include <lib/libc/printf.h>
-#include <kernel/cpu/Cpu.h>
+#include <devices/cpu/Cpu.h>
 #include <kernel/events/input/MouseMovedEvent.h>
 #include <kernel/services/TimeService.h>
 #include <kernel/log/Logger.h>

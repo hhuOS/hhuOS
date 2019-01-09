@@ -16,7 +16,7 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/interrupts/IntDispatcher.h>
-#include <kernel/interrupts/Pic.h>
+#include <devices/misc/Pic.h>
 #include <kernel/threads/NullYielder.h>
 #include "kernel/threads/Scheduler.h"
 #include "Pit.h"

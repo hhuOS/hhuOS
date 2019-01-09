@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include "CgaText.h"
 
 CgaText::CgaText() : TextDriver(), indexPort(0x3d4), dataPort(0x3d5), resolutions(2) {

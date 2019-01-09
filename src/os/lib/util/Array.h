@@ -18,7 +18,7 @@
 #define __Array_include__
 
 #include <cstdint>
-#include <kernel/cpu/Cpu.h>
+#include <devices/cpu/Cpu.h>
 #include <initializer_list>
 
 extern "C" {

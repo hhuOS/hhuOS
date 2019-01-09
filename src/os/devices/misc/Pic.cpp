@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupts/Pic.h"
-#include "kernel/IOport.h"
+#include "Pic.h"
+#include "devices/cpu/IOport.h"
 
 static IOport PIC1_DATA(0x21);
 

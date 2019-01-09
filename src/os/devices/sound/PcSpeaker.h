@@ -18,7 +18,7 @@
 #define __PCSPK_include__
 
 #include <cstdint>
-#include "kernel/IOport.h"
+#include "devices/cpu/IOport.h"
 #include "kernel/services/TimeService.h"
 
 /**

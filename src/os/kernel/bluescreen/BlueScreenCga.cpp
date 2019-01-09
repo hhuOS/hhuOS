@@ -1,4 +1,4 @@
-#include <kernel/Bios.h>
+#include <devices/misc/Bios.h>
 #include <lib/libc/printf.h>
 #include "BlueScreenCga.h"
 

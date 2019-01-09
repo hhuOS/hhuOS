@@ -15,13 +15,13 @@
  */
 
 #include <lib/libc/printf.h>
-#include <kernel/interrupts/BlueScreen.h>
-#include <kernel/interrupts/BlueScreenCga.h>
-#include <kernel/interrupts/BlueScreenLfb.h>
+#include <kernel/bluescreen/BlueScreen.h>
+#include <kernel/bluescreen/BlueScreenCga.h>
+#include <kernel/bluescreen/BlueScreenLfb.h>
 #include "Kernel.h"
 #include "KernelSymbols.h"
-#include "kernel/cpu/Cpu.h"
-#include "Bios.h"
+#include "devices/cpu/Cpu.h"
+#include "devices/misc/Bios.h"
 
 Spinlock Kernel::serviceLock;
 
@@ -46,11 +46,20 @@ void Kernel::panic(InterruptFrame *frame) {
 
     Cpu::disableInterrupts();
 
-    BlueScreenLfb blueScreen;
+    if(Bios::isAvailable()) {
+        BlueScreenCga blueScreen;
 
-    blueScreen.initialize();
+        blueScreen.initialize();
 
-    blueScreen.print(*frame);
+        blueScreen.print(*frame);
+    } else {
+
+        BlueScreenLfb blueScreen;
+
+        blueScreen.initialize();
+
+        blueScreen.print(*frame);
+    }
 
     Cpu::halt();
 }

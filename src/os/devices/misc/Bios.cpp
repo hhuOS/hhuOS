@@ -16,18 +16,23 @@
 
 #include <kernel/memory/MemLayout.h>
 #include <kernel/services/InputService.h>
-#include "kernel/cpu/Cpu.h"
+#include <lib/multiboot/Structure.h>
+#include "devices/cpu/Cpu.h"
 #include "lib/libc/printf.h"
 
-#include "kernel/Bios.h"
-#include "Kernel.h"
+#include "Bios.h"
+#include "kernel/Kernel.h"
 
 
 // extern code in interrupt.asm
-extern "C" { void bios_call(); }   
+extern "C" { void bios_call(); }
 
 // pointer to memory for parameters
 struct BIOScall_params* BC_params = (struct BIOScall_params*)VIRT_BIOS16_PARAM_BASE;
+
+bool Bios::isAvailable() {
+    return Multiboot::Structure::getKernelOption("bios_enhancements") == "true";
+}
 
 void Bios::init() {
 	// pointer to memory segment for 16 bit code
@@ -209,6 +214,10 @@ void Bios::init() {
 
 
 void Bios::Int(int inter) {
+    if(!isAvailable()) {
+        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "BIOS-calls are deactivated! Set 'bios_enhancements=true', to activate them.");
+    }
+
     // get pointer to bios call segment
     uint8_t *ptr = (uint8_t*)VIRT_BIOS16_CODE_MEMORY_START;
     // write number of bios interrupt manually into the segment

@@ -22,7 +22,7 @@
 #include "lib/String.h"
 #include "lib/util/HashMap.h"
 #include "lib/libc/printf.h"
-#include "kernel/cpu/Cpu.h"
+#include "devices/cpu/Cpu.h"
 
 extern "C" {
 #include "lib/libc/string.h"
