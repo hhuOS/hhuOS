@@ -229,13 +229,11 @@ void GatesOfHell::initializeGraphics() {
     Multiboot::FrameBufferInfo fbInfo = Multiboot::Structure::getFrameBufferInfo();
 
     if(fbInfo.address != nullptr) {
-        void *virtAddress = fbInfo.address;
-
-        auto *genericLfb = new LinearFrameBuffer(virtAddress, static_cast<uint16_t>(fbInfo.width),
+        auto *genericLfb = new LinearFrameBuffer(fbInfo.address, static_cast<uint16_t>(fbInfo.width),
                                                  static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,
                                                  static_cast<uint16_t>(fbInfo.pitch));
 
-        auto *genericTextDriver = new LfbText(virtAddress, static_cast<uint16_t>(fbInfo.width),
+        auto *genericTextDriver = new LfbText(fbInfo.address, static_cast<uint16_t>(fbInfo.width),
                                               static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,
                                               static_cast<uint16_t>(fbInfo.pitch));
 
@@ -246,6 +244,14 @@ void GatesOfHell::initializeGraphics() {
     // Get desired graphics driver from GRUB
     String lfbName = Multiboot::Structure::getKernelOption("linear_frame_buffer");
     String textName =  Multiboot::Structure::getKernelOption("text_driver");
+
+    if(lfbName.isEmpty()) {
+        lfbName = "LinearFrameBuffer";
+    }
+
+    if(textName.isEmpty()) {
+        textName = "LfbText";
+    }
 
     // Get desired resolution from GRUB
     Util::Array<String> res = Multiboot::Structure::getKernelOption("resolution").split("x");

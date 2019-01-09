@@ -77,16 +77,6 @@ public:
      */
     void removeDevice(const String &name);
 
-    /**
-     * Search all devices for a device with system id 0x58.
-     * This system id stands for FAT-formatted device, which should be mounted as root.
-     *
-     * CAUTION: If no device with system id 0x58 is found, the return value is nullptr.
-     *
-     * @return The device
-     */
-    StorageDevice *findRootDevice();
-
     static constexpr const char* SERVICE_NAME = "StorageService";
 
     static Logger &log;

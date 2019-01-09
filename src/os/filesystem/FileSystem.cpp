@@ -101,23 +101,24 @@ void FileSystem::init() {
     mountPoints.clear();
 
     FsDriver::registerPrototype(new RamFsDriver());
-    // Mount root-device
-    StorageDevice *rootDevice = storageService->findRootDevice();
 
-    if(rootDevice == nullptr) {
-        // No root-device found -> Mount RAM-Device
-        log.warn("No root-partition found. Mounting RamFs to /");
+    // Mount root-device
+    Util::Array rootDeviceOptions = Multiboot::Structure::getKernelOption("root").split(",");
+
+    if(rootDeviceOptions.length() >= 2) {
+        if(mount(rootDeviceOptions[0], "/", rootDeviceOptions[1]) == SUCCESS) {
+            log.info("Succesfully mounted root-device '%s'", (const char*) rootDeviceOptions[0]);
+        } else {
+            log.warn("Unable to mount root-device '%s'. Mounting RamFs to /", (const char*) rootDeviceOptions[0]);
+
+            mount("", "/", "RamFsDriver");}
+    } else {
+        if(rootDeviceOptions.length() > 0) {
+            log.warn("Invalid root-device configuration '%s'. Mounting RamFs to /",
+                     (const char *) Multiboot::Structure::getKernelOption("root"));
+        }
 
         mount("", "/", "RamFsDriver");
-    } else {
-        log.info("Found root-partition %s. Mounting %s to /", static_cast<const char*>(rootDevice->getName()),
-                static_cast<const char*>(rootDevice->getName()));
-
-        if(mount(rootDevice->getName(), "/", "FatDriver") != SUCCESS) {
-            log.warn("Unable to mount root-partition. Mounting RamFs to /");
-
-            mount("", "/", "RamFsDriver");
-        }
     }
 
     log.trace("Remounting initial ramdisk to /initrd/");

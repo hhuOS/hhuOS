@@ -71,17 +71,3 @@ void StorageService::removeDevice(const String &name) {
         }
     }
 }
-
-StorageDevice *StorageService::findRootDevice() {
-    Util::Array<String> deviceNames = devices.keySet();
-    StorageDevice *ret = nullptr;
-
-    for(const String &currentName : deviceNames) {
-        StorageDevice *currentDevice = devices.get(currentName);
-        if(currentDevice->getSystemId() == StorageDevice::HHU_OS_ROOT_FAT) {
-            ret = currentDevice;
-        }
-    }
-
-    return ret;
-}
