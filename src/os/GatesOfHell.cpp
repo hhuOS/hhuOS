@@ -47,7 +47,7 @@
 #include <kernel/log/PortAppender.h>
 #include <kernel/Bios.h>
 #include <devices/graphics/text/LfbText.h>
-#include <kernel/interrupts/BlueScreenLfbText.h>
+#include <kernel/interrupts/BlueScreenLfb.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -228,9 +228,8 @@ void GatesOfHell::initializeGraphics() {
     // Check, if a graphics mode has already been set by GRUB
     Multiboot::FrameBufferInfo fbInfo = Multiboot::Structure::getFrameBufferInfo();
 
-    if(fbInfo.address != 0) {
-        void *virtAddress = SystemManagement::getInstance().mapIO(
-                static_cast<uint32_t>(fbInfo.address), fbInfo.width * fbInfo.pitch);
+    if(fbInfo.address != nullptr) {
+        void *virtAddress = fbInfo.address;
 
         auto *genericLfb = new LinearFrameBuffer(virtAddress, static_cast<uint16_t>(fbInfo.width),
                                                  static_cast<uint16_t>(fbInfo.height), fbInfo.bpp,

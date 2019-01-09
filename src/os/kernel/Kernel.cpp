@@ -17,7 +17,7 @@
 #include <lib/libc/printf.h>
 #include <kernel/interrupts/BlueScreen.h>
 #include <kernel/interrupts/BlueScreenCga.h>
-#include <kernel/interrupts/BlueScreenLfbText.h>
+#include <kernel/interrupts/BlueScreenLfb.h>
 #include "Kernel.h"
 #include "KernelSymbols.h"
 #include "kernel/cpu/Cpu.h"
@@ -46,7 +46,7 @@ void Kernel::panic(InterruptFrame *frame) {
 
     Cpu::disableInterrupts();
 
-    BlueScreenLfbText blueScreen;
+    BlueScreenLfb blueScreen;
 
     blueScreen.initialize();
 

@@ -21,8 +21,6 @@ void BlueScreenCga::initialize() {
     for(uint64_t i = 0; i < end; i++) {
         dest[i] = 0x1000100010001000;
     }
-
-    stdout = this;
 }
 
 void BlueScreenCga::show(uint16_t x, uint16_t y, const char c) {

@@ -29,6 +29,8 @@ BlueScreen::BlueScreen(uint16_t columns, uint16_t rows) : columns(columns), rows
 
 void BlueScreen::print(InterruptFrame &frame) {
 
+    stdout = this;
+
     printf("\n\n  [PANIC] %s\n\n", Cpu::getExceptionName(frame.interrupt));
 
     uint32_t *ebp = (uint32_t*) frame.ebp;

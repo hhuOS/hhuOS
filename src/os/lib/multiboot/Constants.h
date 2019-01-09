@@ -73,10 +73,10 @@ namespace Multiboot {
     };
 
     struct FrameBufferInfo {
-        uint64_t address;
-        uint32_t width;
-        uint32_t height;
-        uint32_t pitch;
+        void *address;
+        uint16_t width;
+        uint16_t height;
+        uint16_t pitch;
         uint8_t bpp;
         uint8_t type;
     };
