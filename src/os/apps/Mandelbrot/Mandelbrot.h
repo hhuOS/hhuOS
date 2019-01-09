@@ -30,7 +30,7 @@
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/Kernel.h"
 
-void drawMandelbrotSSE(float xlim[2], float ylim[2]);
+void drawMandelbrotSSE(float xlim[2], float ylim[2], uint16_t globalOffsetX, uint16_t globalOffsetY);
 
 /**
  * Mandelbrot.
@@ -117,6 +117,10 @@ private:
     static constexpr const uint8_t ZOOM_FACTOR = 12;
 
     bool useSSE;
+
+    uint16_t globalOffsetX = 0;
+
+    uint16_t globalOffsetY = 0;
 
     float realBase = 0.0;
 

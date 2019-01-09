@@ -58,13 +58,15 @@ void Mandelbrot::run() {
 
     lfb->enableDoubleBuffering();
 
-    lfb->drawPixel(0, 0, Colors::WHITE);
-
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 
     uint16_t xRes = lfb->getResX();
 
     uint16_t yRes = lfb->getResY();
+
+    globalOffsetX = static_cast<uint16_t>(xRes > 640 ? ((xRes - 640) / 2) : 0);
+
+    globalOffsetY= static_cast<uint16_t>(yRes > 480 ? ((yRes - 480) / 2) : 0);
 
     realBase = 4.0f / xRes;
 
@@ -85,7 +87,7 @@ void Mandelbrot::run() {
         }
 
         if(useSSE) {
-            drawMandelbrotSSE(properties.xlim, properties.ylim);
+            drawMandelbrotSSE(properties.xlim, properties.ylim, globalOffsetX, globalOffsetY);
         } else {
             drawMandelbrotNoSSE(currentOffsetX, currentOffsetY, currentZoom);
         }

@@ -21,7 +21,7 @@
 #include <xmmintrin.h>
 
 // Source : https://github.com/skeeto/mandel-simd
-__attribute__((force_align_arg_pointer)) void drawMandelbrotSSE(float xlim[2], float ylim[2]) {
+__attribute__((force_align_arg_pointer)) void drawMandelbrotSSE(float xlim[2], float ylim[2], uint16_t globalOffsetX, uint16_t globalOffsetY) {
 
     Mandelbrot::state.xmin = _mm_set_ps1(xlim[0]);
     Mandelbrot::state.ymin = _mm_set_ps1(ylim[0]);
@@ -75,7 +75,7 @@ __attribute__((force_align_arg_pointer)) void drawMandelbrotSSE(float xlim[2], f
 
             for (uint8_t i = 0; i < 4; i++) {
 
-                Mandelbrot::lfb->drawPixel(x + i, y, Mandelbrot::gradient.getColor(src[i] % Mandelbrot::MAX_COLORS));
+                Mandelbrot::lfb->drawPixel(x + globalOffsetX + i, y + globalOffsetY, Mandelbrot::gradient.getColor(src[i] % Mandelbrot::MAX_COLORS));
             }
         }
     }
