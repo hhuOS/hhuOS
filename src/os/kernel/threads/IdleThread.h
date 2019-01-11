@@ -30,11 +30,9 @@ private:
 
 public:
 
-    IdleThread () : Thread ("IdleThread") {  }
+    IdleThread () : Thread ("IdleThread", 0) {  }
 
     IdleThread(const Thread &copy) = delete;
-
-    IdleThread &operator=(const Thread &other) = delete;
 
     ~IdleThread() override = default;
     
@@ -42,7 +40,7 @@ public:
 
         while (isRunning) {
 
-            //yield();
+            yield();
         }
     }
     

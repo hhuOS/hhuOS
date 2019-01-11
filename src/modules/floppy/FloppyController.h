@@ -123,7 +123,7 @@ private:
         uint8_t bytesPerSector;
     };
 
-    bool receivedInterrupt = false;
+    volatile bool receivedInterrupt = false;
 
     void* dmaMemory;
 

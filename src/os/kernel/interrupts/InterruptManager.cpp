@@ -3,6 +3,10 @@
 #include "InterruptHandler.h"
 #include "InterruptManager.h"
 
+InterruptManager::InterruptManager() : Thread("InterruptManager", 0xff) {
+
+}
+
 InterruptManager &InterruptManager::getInstance() {
     static InterruptManager instance;
 

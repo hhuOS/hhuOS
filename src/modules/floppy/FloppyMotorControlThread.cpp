@@ -17,7 +17,9 @@
 #include <kernel/Kernel.h>
 #include "FloppyMotorControlThread.h"
 
-FloppyMotorControlThread::FloppyMotorControlThread(FloppyDevice &device) : device(device), timeout(FloppyController::FLOPPY_TIMEOUT), isRunning(true) {
+FloppyMotorControlThread::FloppyMotorControlThread(FloppyDevice &device) : Thread("FloppyMotorControlThread"),
+        device(device), timeout(FloppyController::FLOPPY_TIMEOUT), isRunning(true) {
+
     timeService = Kernel::getService<TimeService>();
 }
 

@@ -142,9 +142,6 @@ int32_t GatesOfHell::enter() {
     InterruptManager::getInstance().start();
     Application::getInstance().start();
 
-    //MouseApp *app = new MouseApp();
-    //app->start();
-
     bootscreen->update(100, "Finished Booting!");
 
     BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");

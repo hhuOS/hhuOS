@@ -27,7 +27,7 @@ class Scheduler : public Yieldable {
     
 public:
 
-    Scheduler();
+    explicit Scheduler(uint8_t priorityCount = 5);
 
     Scheduler(const Scheduler &copy) = delete;
 
@@ -104,12 +104,18 @@ public:
      */
     uint32_t getThreadCount();
 
+    uint8_t changePriority(Thread &thread, uint8_t priority);
+
+    Thread* getNextThread();
+
+    uint8_t getMaxPriority();
+
     /**
      * Returns an instance of the Scheduler.
      *
      * @return An instance of the Scheduler
      */
-    static Scheduler & getInstance();
+    static Scheduler &getInstance();
 
     Thread *currentThread;
 
@@ -126,9 +132,13 @@ private:
 
 private:
 
-    Util::BlockingQueue<Thread*> readyQueue;
-
     bool  initialized = false;
+
+    uint8_t accessCounter = 0;
+
+    Util::Array<Util::BlockingQueue<Thread*>> readyQueues;
+
+    Util::Array<uint8_t> accessArray;
 };
 
 #endif

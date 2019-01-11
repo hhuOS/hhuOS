@@ -36,7 +36,7 @@ public:
 
     EventPublisher &operator=(const EventPublisher &other) = delete;
 
-    ~EventPublisher() override;
+    ~EventPublisher() override = default;
 
     void run() override;
 

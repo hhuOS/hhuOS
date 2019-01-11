@@ -17,7 +17,7 @@ private:
 
 public:
 
-    InterruptManager() = default;
+    InterruptManager();
 
     InterruptManager(const InterruptManager &copy) = delete;
 

@@ -325,8 +325,6 @@ void Keyboard::trigger(InterruptFrame &frame) {
     }
 
     interruptDataBuffer.push(dataPort.inb());
-
-    parseInterruptData();
 }
 
 bool Keyboard::hasInterruptData() {

@@ -34,6 +34,8 @@ public:
 
     explicit Thread(const String &name);
 
+    Thread(const String &name, uint8_t priority);
+
     Thread(const Thread &copy) = delete;
 
     Thread &operator=(const Thread &other) = delete;
@@ -54,6 +56,10 @@ public:
      */
     String getName() const;
 
+    uint8_t getPriority() const;
+
+    void setPriority(uint8_t priority);
+
     /**
      * Starts this Thread.
      */
@@ -68,6 +74,8 @@ protected:
 private:
 
     uint32_t id;
+
+    uint8_t priority;
 
     String name;
 

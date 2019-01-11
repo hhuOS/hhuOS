@@ -16,6 +16,7 @@
 
 #include "kernel/threads/Thread.h"
 #include "kernel/threads/Scheduler.h"
+#include "Thread.h"
 
 
 #include <cstdint>
@@ -64,7 +65,9 @@ void Thread::init() {
     interruptFrame->eip   = (uint32_t) kickoff;
 }
 
-Thread::Thread() : name("keylogger"), stack(STACK_SIZE_DEFAULT) {
+Thread::Thread() : name(String::format("Thread-%u", threadCount + 1)), stack(STACK_SIZE_DEFAULT) {
+
+    priority = static_cast<uint8_t>(Scheduler::getInstance().getMaxPriority() / 2);
 
     id = threadCount++;
 
@@ -72,6 +75,19 @@ Thread::Thread() : name("keylogger"), stack(STACK_SIZE_DEFAULT) {
 }
 
 Thread::Thread(const String &name) : name(name), stack(STACK_SIZE_DEFAULT) {
+
+    priority = static_cast<uint8_t>(Scheduler::getInstance().getMaxPriority() / 2);
+
+    id = threadCount++;
+
+    init();
+}
+
+Thread::Thread(const String &name, uint8_t priority) : name(name), stack(STACK_SIZE_DEFAULT) {
+
+    Scheduler &scheduler = Scheduler::getInstance();
+
+    this->priority = static_cast<uint8_t>((priority > scheduler.getMaxPriority()) ? (scheduler.getMaxPriority()) : priority);
 
     id = threadCount++;
 
@@ -96,6 +112,14 @@ String Thread::getName() const {
 void Thread::yield() {
 
     Scheduler::getInstance().yield();
+}
+
+uint8_t Thread::getPriority() const {
+    return priority;
+}
+
+void Thread::setPriority(uint8_t priority) {
+    this->priority = Scheduler::getInstance().changePriority(*this, priority);
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size){

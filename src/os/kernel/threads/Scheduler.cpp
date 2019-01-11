@@ -21,11 +21,10 @@
 #include <kernel/services/PortService.h>
 #include <devices/timer/Pit.h>
 #include <kernel/services/SoundService.h>
-#include "../../../modules/soundblaster/SoundBlaster.h"
 #include <lib/system/SystemCall.h>
 #include "kernel/threads/Scheduler.h"
 #include "Scheduler.h"
-
+#include "IdleThread.h"
 
 extern "C" {
     void startThread(Context* first);
@@ -38,9 +37,32 @@ void releaseSchedulerLock() {
     Scheduler::getInstance().lock.release();
 }
 
-Scheduler::Scheduler() : initialized(false) {
+Scheduler::Scheduler(uint8_t priorityCount) : readyQueues(priorityCount < 2 ? 2 : priorityCount),
+        accessArray(((readyQueues.length()) * (readyQueues.length() - 1)) / 2u) {
+
     SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance().yield();});
     SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance().block();});
+
+    uint8_t tmp[priorityCount];
+
+    for(uint8_t i = 0; i < priorityCount; i++) {
+        tmp[i] = i;
+    }
+
+    uint8_t index = getMaxPriority();
+
+    for(uint32_t i = 0; i < accessArray.length(); i++) {
+        while(tmp[index] == 0) {
+            index++;
+            index %= priorityCount;
+        }
+
+        accessArray[i] = index;
+        tmp[index]--;
+
+        index++;
+        index %= priorityCount;
+    }
 }
 
 Scheduler& Scheduler::getInstance()  {
@@ -59,7 +81,7 @@ void Scheduler::startUp() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    currentThread = readyQueue.pop();
+    currentThread = getNextThread();
 
     initialized = true;
 
@@ -74,7 +96,7 @@ void Scheduler::ready(Thread& that) {
 
     lock.acquire();
 
-    readyQueue.push(&that);
+    readyQueues[that.getPriority()].push(&that);
 
     lock.release();
 }
@@ -93,7 +115,7 @@ void Scheduler::exit() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    Thread* next = readyQueue.pop();
+    Thread* next = getNextThread();
     
     dispatch (*next);
 }
@@ -112,7 +134,7 @@ void Scheduler::kill(Thread& that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    readyQueue.remove(&that);
+    readyQueues[that.getPriority()].remove(&that);
 
     lock.release();
 }
@@ -137,9 +159,9 @@ void Scheduler::yield() {
 
     if(lock.tryLock()) {
 
-        Thread *next = readyQueue.pop();
+        Thread *next = getNextThread();
 
-        readyQueue.push(active());
+        readyQueues[currentThread->getPriority()].push(currentThread);
 
         dispatch(*next);
     }
@@ -165,7 +187,7 @@ void Scheduler::block() {
 
     lock.acquire();
 
-    Thread* next = readyQueue.pop();
+    Thread* next = getNextThread();
     
     dispatch (*next);
 }
@@ -179,7 +201,7 @@ void Scheduler::deblock(Thread &that) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    readyQueue.push(&that);
+    readyQueues[that.getPriority()].push(&that);
 
     lock.release();
 }
@@ -198,6 +220,28 @@ void Scheduler::dispatch(Thread &next) {
     switchContext(&current->context, &next.context);
 }
 
+Thread* Scheduler::getNextThread() {
+
+    if(!isThreadWaiting()) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+    }
+
+    uint8_t counter = 0;
+
+    while(readyQueues[accessArray[accessCounter % accessArray.length()]].isEmpty()) {
+        accessCounter++;
+        counter++;
+
+        if(counter > accessArray.length()) {
+            return readyQueues[0].pop();
+        }
+    }
+
+    Thread *ret = readyQueues[accessArray[accessCounter++ % accessArray.length()]].pop();
+
+    return ret;
+}
+
 bool Scheduler::isInitialized() {
 
     return initialized;
@@ -205,11 +249,50 @@ bool Scheduler::isInitialized() {
 
 bool Scheduler::isThreadWaiting() {
 
-    return !readyQueue.isEmpty();
+    for(const auto &queue : readyQueues) {
+        if(!queue.isEmpty()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 uint32_t Scheduler::getThreadCount() {
-    return readyQueue.size();
+
+    uint32_t count = 0;
+
+    for(const auto &queue : readyQueues) {
+        count += queue.size();
+    }
+
+    return count;
+}
+
+uint8_t Scheduler::getMaxPriority() {
+
+    return static_cast<uint8_t>(readyQueues.length() - 1);
+}
+
+uint8_t Scheduler::changePriority(Thread &thread, uint8_t priority) {
+
+    priority = static_cast<uint8_t>((thread.getPriority() > getMaxPriority()) ? (getMaxPriority()) : thread.getPriority());
+
+    lock.acquire();
+
+    if(&thread == currentThread) {
+        lock.release();
+
+        return priority;
+    }
+
+    readyQueues[thread.getPriority()].remove(&thread);
+
+    readyQueues[priority].push(&thread);
+
+    lock.release();
+
+    return priority;
 }
 
 
