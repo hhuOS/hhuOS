@@ -98,7 +98,6 @@ EFI_BIOS = /usr/share/edk2/ovmf-ia32/OVMF_CODE.fd
 QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 1G -k de -vga std -monitor stdio\
 					  -cpu pentium,+sse,+sse2 \
 					  -drive index=0,if=floppy \
-					  -device piix3-usb-uhci,id=uhci \
 					  -drive format=raw,file=hdd0.img,if=none,id=disk0 \
 					  -device ich9-ahci,id=ahci \
 					  -device ide-drive,drive=disk0,bus=ahci.0 \

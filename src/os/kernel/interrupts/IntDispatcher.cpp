@@ -49,17 +49,19 @@ void dispatchInterrupt(InterruptFrame *frame) {
     bool isPicInterrupt = (frame->interrupt >= 32) && (frame->interrupt <= 47);
 
     if(isPicInterrupt) {
-        Pic::getInstance().forbid(static_cast<Pic::Interrupt>(47 - frame->interrupt));
-
-        if(frame->interrupt != IntDispatcher::mouse) {
-            asm volatile ( "sti" );
+        if(frame->interrupt == IntDispatcher::mouse) {
+            Pic::getInstance().forbid(Pic::Interrupt::MOUSE);
         }
+
+        asm volatile ( "sti" );
+    } else if(frame->interrupt == 14) {
+        asm volatile ( "sti" );
     }
 
     IntDispatcher::getInstance().dispatch(frame);
 
-    if(isPicInterrupt) {
-        Pic::getInstance().allow(static_cast<Pic::Interrupt>(47 - frame->interrupt));
+    if(frame->interrupt == IntDispatcher::mouse) {
+        Pic::getInstance().allow(Pic::Interrupt::MOUSE);
     }
 }
 

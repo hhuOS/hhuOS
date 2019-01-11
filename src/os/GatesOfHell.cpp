@@ -48,6 +48,7 @@
 #include <devices/misc/Bios.h>
 #include <devices/graphics/text/LfbText.h>
 #include <kernel/bluescreen/BlueScreenLfb.h>
+#include <apps/MouseApp/MouseApp.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -140,6 +141,9 @@ int32_t GatesOfHell::enter() {
     eventBus->start();
     InterruptManager::getInstance().start();
     Application::getInstance().start();
+
+    //MouseApp *app = new MouseApp();
+    //app->start();
 
     bootscreen->update(100, "Finished Booting!");
 
