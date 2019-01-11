@@ -69,7 +69,7 @@ IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
     assign(0x80, systemCall);
 }
 
-IntDispatcher &IntDispatcher::getInstance() {
+IntDispatcher &IntDispatcher::getInstance() noexcept {
 
     static IntDispatcher instance;
 

@@ -49,6 +49,7 @@
 #include <devices/graphics/text/LfbText.h>
 #include <kernel/bluescreen/BlueScreenLfb.h>
 #include <apps/MouseApp/MouseApp.h>
+#include <devices/misc/Cmos.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -76,6 +77,8 @@ int32_t main() {
 }
 
 int32_t GatesOfHell::enter() {
+
+    Cmos::isAvailable();
 
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);

@@ -61,7 +61,7 @@ public:
     /**
      * Get or create the singleton instance
      */
-    static Pic & getInstance();
+    static Pic& getInstance() noexcept;
 
     /**
      * Demasks an interrupt number in the corresponding PIC. If this is done,

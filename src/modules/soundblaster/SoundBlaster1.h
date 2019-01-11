@@ -39,7 +39,7 @@ class SoundBlaster1 : public SoundBlaster, public InterruptHandler {
 
 private:
 
-    bool receivedInterrupt = false;
+    volatile bool receivedInterrupt = false;
 
     bool stopPlaying = false;
 

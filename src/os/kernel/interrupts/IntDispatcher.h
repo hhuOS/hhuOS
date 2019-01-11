@@ -91,7 +91,7 @@ public:
      */
     void dispatch(InterruptFrame *frame);
 
-    static IntDispatcher &getInstance();
+    static IntDispatcher &getInstance() noexcept;
 
 private:
 

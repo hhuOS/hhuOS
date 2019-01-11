@@ -7,7 +7,7 @@ InterruptManager::InterruptManager() : Thread("InterruptManager", 0xff) {
 
 }
 
-InterruptManager &InterruptManager::getInstance() {
+InterruptManager &InterruptManager::getInstance() noexcept {
     static InterruptManager instance;
 
     return instance;

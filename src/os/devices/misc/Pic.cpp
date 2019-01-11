@@ -25,7 +25,7 @@ static IOport PIC1_COMMAND(0x20);
 
 static IOport PIC2_COMMAND(0xA0);
 
-Pic& Pic::getInstance()  {
+Pic& Pic::getInstance() noexcept {
 
     static Pic instance;
 

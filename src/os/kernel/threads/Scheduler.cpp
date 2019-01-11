@@ -65,7 +65,7 @@ Scheduler::Scheduler(uint8_t priorityCount) : readyQueues(priorityCount < 2 ? 2 
     }
 }
 
-Scheduler& Scheduler::getInstance()  {
+Scheduler& Scheduler::getInstance() noexcept {
 
     static Scheduler instance;
 

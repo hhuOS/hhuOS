@@ -115,7 +115,7 @@ public:
      *
      * @return An instance of the Scheduler
      */
-    static Scheduler &getInstance();
+    static Scheduler &getInstance() noexcept;
 
     Thread *currentThread;
 

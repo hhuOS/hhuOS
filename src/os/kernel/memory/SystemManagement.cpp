@@ -516,7 +516,7 @@ void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
 	faultFlags = flags;
 }
 
-SystemManagement& SystemManagement::getInstance() {
+SystemManagement& SystemManagement::getInstance() noexcept {
 	if(systemManagement == nullptr) {
 		// create a static memory manager for the kernel heap
         static FreeListMemoryManager heapMemoryManager;

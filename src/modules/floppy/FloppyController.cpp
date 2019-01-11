@@ -21,17 +21,17 @@
 #include <devices/misc/Pic.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <kernel/memory/SystemManagement.h>
+#include <devices/misc/Cmos.h>
 #include "FloppyController.h"
 #include "FloppyDevice.h"
 #include "FloppyMotorControlThread.h"
 
 bool FloppyController::isAvailable() {
-    IOport cmosRegisterPort(0x70);
-    IOport cmosDataPort(0x71);
+    if(Cmos::isAvailable()) {
+        return Cmos::readRegister(0x10) != 0;
+    }
 
-    cmosRegisterPort.outb(0x10);
-
-    return cmosDataPort.inb() != 0;
+    return false;
 }
 
 FloppyController::FloppyController() :
@@ -59,12 +59,17 @@ bool FloppyController::isFifoBufferReady() {
 }
 
 void FloppyController::setup() {
-    IOport cmosRegisterPort(0x70);
-    IOport cmosDataPort(0x71);
+    if(!Cmos::isAvailable()) {
+        log->error("No CMOS available! Aborting RTC setup...");
 
-    cmosRegisterPort.outb(0x10);
+        return;
+    }
 
-    uint8_t driveInfo = cmosDataPort.inb();
+    if(!isAvailable()) {
+        log->info("No floppy drives available");
+    }
+
+    uint8_t driveInfo = Cmos::readRegister(0x10);
 
     auto primaryDriveType = static_cast<DriveType>(driveInfo >> 4u);
     auto secondaryDriveType = static_cast<DriveType>(driveInfo & static_cast<uint8_t>(0xfu));

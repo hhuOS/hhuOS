@@ -23,7 +23,7 @@ public:
 
     ~InterruptManager() override = default;
 
-    static InterruptManager& getInstance();
+    static InterruptManager& getInstance() noexcept;
 
     void registerInterruptHandler(InterruptHandler *device);
 

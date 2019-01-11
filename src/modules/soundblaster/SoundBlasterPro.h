@@ -47,7 +47,7 @@ private:
     IOport mixerAddressPort;
     IOport mixerDataPort;
 
-    bool receivedInterrupt = false;
+    volatile bool receivedInterrupt = false;
 
     bool stopPlaying = false;
 

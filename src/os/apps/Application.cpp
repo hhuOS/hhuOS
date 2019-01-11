@@ -58,7 +58,7 @@ Application::Application () : Thread ("Menu") {
 	timeService = Kernel::getService<TimeService>();
 }
 
-Application& Application::getInstance() {
+Application& Application::getInstance() noexcept {
 
     static Application instance;
 

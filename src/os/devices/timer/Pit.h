@@ -55,7 +55,7 @@ public:
      *
      * @return An instance of the PIT
      */
-    static Pit& getInstance();
+    static Pit& getInstance() noexcept;
 
     /**
      * Returns the interval at which the PIT fires it's interrupts.

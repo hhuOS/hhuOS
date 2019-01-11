@@ -34,7 +34,7 @@ Pit::Pit(uint32_t timerInterval) : timerInterval(timerInterval) {
     yieldable = &nullYielder;
 }
 
-Pit& Pit::getInstance() {
+Pit& Pit::getInstance() noexcept {
 
     static Pit instance;
 

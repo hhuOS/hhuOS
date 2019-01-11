@@ -16,10 +16,8 @@
 
 #include <kernel/Kernel.h>
 #include <devices/misc/Pic.h>
-
 #include "DebugService.h"
-
-#include "../memory/SystemManagement.h"
+#include "kernel/memory/SystemManagement.h"
 #include "lib/libc/printf.h"
 #include "SoundService.h"
 #include "InputService.h"

@@ -74,7 +74,7 @@ public:
     Application (const Application &copy) = delete;
 
 
-    static Application & getInstance();
+    static Application & getInstance() noexcept;
 
     void pause();
 

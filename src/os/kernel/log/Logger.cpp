@@ -26,7 +26,7 @@
 
 bool Logger::logToStdOut = false;
 
-Logger::LogLevel Logger::currentLevel = LogLevel::DEBUG;
+Logger::LogLevel Logger::currentLevel = LogLevel::TRACE;
 
 TimeProvider &Logger::timeProvider = Pit::getInstance();
 
@@ -34,7 +34,7 @@ Util::ArrayList<Appender*> Logger::appenders;
 
 Util::ArrayList<String> Logger::buffer;
 
-Logger::Logger(const String &name) : name(name) {
+Logger::Logger(const String &name) noexcept : name(name) {
 
 }
 

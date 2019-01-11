@@ -81,8 +81,6 @@ private:
         uint8_t century = 0;
     };
 
-    IOport registerPort, dataPort;
-
     Rtc::Date currentDate {};
 
     Spinlock lock;

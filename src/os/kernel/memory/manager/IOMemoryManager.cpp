@@ -17,9 +17,7 @@
 #include <kernel/memory/MemLayout.h>
 #include <lib/libc/printf.h>
 #include "IOMemoryManager.h"
-
-#include "../SystemManagement.h"
-
+#include "kernel/memory/SystemManagement.h"
 #include "kernel/memory/Paging.h"
 
 extern "C" {
