@@ -31,15 +31,6 @@ extern "C" {
     void dispatchInterrupt(InterruptFrame *frame);
 }
 
-IOport systemA(0x92);
-IOport systemB(0x61);
-
-void printNMI() {
-    printf("\n");
-    printf("  System Control Port A :       %b\n", systemA.inb());
-    printf("  System Control Port B :       %b\n", systemB.inb());
-}
-
 /**
  * Central function to deal with interrupts and faults - is called from assembler code
  *
@@ -49,10 +40,7 @@ void dispatchInterrupt(InterruptFrame *frame) {
     bool isPicInterrupt = (frame->interrupt >= 32) && (frame->interrupt <= 47);
 
     if(isPicInterrupt) {
-        if(frame->interrupt == IntDispatcher::mouse) {
-            Pic::getInstance().forbid(Pic::Interrupt::MOUSE);
-        }
-
+        Pic::getInstance().forbid(static_cast<Pic::Interrupt>(frame->interrupt - 32));
         asm volatile ( "sti" );
     } else if(frame->interrupt == 14) {
         asm volatile ( "sti" );
@@ -60,8 +48,8 @@ void dispatchInterrupt(InterruptFrame *frame) {
 
     IntDispatcher::getInstance().dispatch(frame);
 
-    if(frame->interrupt == IntDispatcher::mouse) {
-        Pic::getInstance().allow(Pic::Interrupt::MOUSE);
+    if(isPicInterrupt) {
+        Pic::getInstance().allow(static_cast<Pic::Interrupt>(frame->interrupt - 32));
     }
 }
 

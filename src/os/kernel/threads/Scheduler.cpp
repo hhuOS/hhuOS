@@ -31,10 +31,15 @@ extern "C" {
     void switchContext(Context **current, Context **next);
     void setSchedInit();
     void releaseSchedulerLock();
+    void allowPitInterrupts();
 }
 
 void releaseSchedulerLock() {
     Scheduler::getInstance().lock.release();
+}
+
+void allowPitInterrupts() {
+    Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
 Scheduler::Scheduler(uint8_t priorityCount) : readyQueues(priorityCount < 2 ? 2 : priorityCount),

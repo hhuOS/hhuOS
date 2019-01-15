@@ -34,8 +34,6 @@ bool Cmos::checkAvailability() noexcept {
     Cpu::disableInterrupts();
     disableNmi();
 
-    bool ret;
-
     uint8_t statusB = readRegister(0x0b);
 
     statusB ^= 0x03;

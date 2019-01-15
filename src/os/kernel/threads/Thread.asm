@@ -16,7 +16,7 @@ global startThread
 global switchContext
 
 extern releaseSchedulerLock
-extern checkIoBuffers
+extern allowPitInterrupts
 
 section .text
 
@@ -59,7 +59,7 @@ switchContext:
     pop ebp
 
     ; enable interrupts
-    ;call checkIoBuffers
+    call allowPitInterrupts
     call releaseSchedulerLock
 
     ; resume next thread
