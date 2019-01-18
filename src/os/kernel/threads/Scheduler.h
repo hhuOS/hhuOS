@@ -19,6 +19,7 @@
 
 #include <lib/util/BlockingQueue.h>
 #include <kernel/services/InputService.h>
+#include <kernel/threads/priority/ThreadPriority.h>
 #include "kernel/threads/Thread.h"
 #include "lib/lock/Spinlock.h"
 #include "kernel/threads/Yieldable.h"
@@ -27,7 +28,7 @@ class Scheduler : public Yieldable {
     
 public:
 
-    explicit Scheduler(uint8_t priorityCount = 5);
+    explicit Scheduler(ThreadPriority &priority);
 
     Scheduler(const Scheduler &copy) = delete;
 
@@ -134,11 +135,9 @@ private:
 
     bool  initialized = false;
 
-    uint8_t accessCounter = 0;
+    ThreadPriority &priority;
 
     Util::Array<Util::BlockingQueue<Thread*>> readyQueues;
-
-    Util::Array<uint8_t> accessArray;
 };
 
 #endif

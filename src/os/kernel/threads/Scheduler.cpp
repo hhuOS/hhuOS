@@ -22,6 +22,7 @@
 #include <devices/timer/Pit.h>
 #include <kernel/services/SoundService.h>
 #include <lib/system/SystemCall.h>
+#include <kernel/threads/priority/AccessArrayThreadPriority.h>
 #include "kernel/threads/Scheduler.h"
 #include "Scheduler.h"
 #include "IdleThread.h"
@@ -42,37 +43,17 @@ void allowPitInterrupts() {
     Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
-Scheduler::Scheduler(uint8_t priorityCount) : readyQueues(priorityCount < 2 ? 2 : priorityCount),
-        accessArray(((readyQueues.length()) * (readyQueues.length() - 1)) / 2u) {
+Scheduler::Scheduler(ThreadPriority &priority) : priority(priority), readyQueues(priority.getPriorityCount()) {
 
     SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance().yield();});
     SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance().block();});
-
-    uint8_t tmp[priorityCount];
-
-    for(uint8_t i = 0; i < priorityCount; i++) {
-        tmp[i] = i;
-    }
-
-    uint8_t index = getMaxPriority();
-
-    for(uint32_t i = 0; i < accessArray.length(); i++) {
-        while(tmp[index] == 0) {
-            index++;
-            index %= priorityCount;
-        }
-
-        accessArray[i] = index;
-        tmp[index]--;
-
-        index++;
-        index %= priorityCount;
-    }
 }
 
 Scheduler& Scheduler::getInstance() noexcept {
 
-    static Scheduler instance;
+    static AccessArrayThreadPriority priority(5);
+
+    static Scheduler instance(priority);
 
     return instance;
 }
@@ -231,18 +212,13 @@ Thread* Scheduler::getNextThread() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
     }
 
-    uint8_t counter = 0;
+    Util::BlockingQueue<Thread*> *currentQueue = &readyQueues[priority.getNextPriority()];
 
-    while(readyQueues[accessArray[accessCounter % accessArray.length()]].isEmpty()) {
-        accessCounter++;
-        counter++;
-
-        if(counter > accessArray.length()) {
-            return readyQueues[0].pop();
-        }
+    while(currentQueue->isEmpty()) {
+        currentQueue = &readyQueues[priority.getNextPriority()];
     }
 
-    Thread *ret = readyQueues[accessArray[accessCounter++ % accessArray.length()]].pop();
+    Thread *ret = currentQueue->pop();
 
     return ret;
 }
