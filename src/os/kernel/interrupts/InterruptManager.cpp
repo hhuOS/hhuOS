@@ -33,11 +33,19 @@ void InterruptManager::run() {
     while(true) {
         lock.acquire();
 
-        for(uint32_t i = 0; i < interruptHandler.size(); i++) {
-            while(interruptHandler.get(i)->hasInterruptData()) {
-                interruptHandler.get(i)->parseInterruptData();
+        bool doYield;
+
+        do {
+            doYield = true;
+
+            for (uint32_t i = 0; i < interruptHandler.size(); i++) {
+                if (interruptHandler.get(i)->hasInterruptData()) {
+                    doYield = false;
+
+                    interruptHandler.get(i)->parseInterruptData();
+                }
             }
-        }
+        } while(!doYield);
 
         yield();
 
