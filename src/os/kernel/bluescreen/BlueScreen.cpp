@@ -63,11 +63,7 @@ void BlueScreen::print(InterruptFrame &frame) {
     printf("     eflags=0x%08x", frame.eflags);
 }
 
-void BlueScreen::puts(const char *s, uint32_t n) {
-    for(uint32_t i = 0; i < n; i++) {
-        putc(s[i]);
-    }
-}
+
 
 void BlueScreen::putc(const char c) {
 
@@ -86,6 +82,12 @@ void BlueScreen::putc(const char c) {
     if(x >= columns) {
         x = 0;
         y++;
+    }
+}
+
+void BlueScreen::puts(const char *s, uint32_t n) {
+    for(uint32_t i = 0; i < n; i++) {
+        putc(s[i]);
     }
 }
 

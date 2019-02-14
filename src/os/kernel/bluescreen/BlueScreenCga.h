@@ -3,20 +3,40 @@
 
 #include "BlueScreen.h"
 
+/**
+ * Implementation of a bluescreen for the CGA graphics mode.
+ *
+ * CAUTION: This class will use a BIOS-call to change the graphics mode!
+ */
 class BlueScreenCga : public BlueScreen {
 
 public:
 
+    /**
+     * Constructor.
+     */
     BlueScreenCga();
 
-    BlueScreenCga(const BlueScreen &other) = delete;
+    /**
+     * Copy-constructor.
+     */
+    BlueScreenCga(const BlueScreenCga &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
     BlueScreenCga &operator=(const BlueScreenCga &other) = delete;
 
+    /**
+     * Overriding function from BlueScreen.
+     */
     void initialize() override;
 
 private:
 
+    /**
+     * Overriding function from BlueScreen.
+     */
     void show(uint16_t x, uint16_t y, char c) override;
 
 private:

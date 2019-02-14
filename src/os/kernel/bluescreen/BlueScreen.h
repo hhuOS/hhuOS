@@ -21,30 +21,57 @@
 #include <lib/OutputStream.h>
 #include "kernel/memory/MemLayout.h"
 
+/**
+ * Interface for an error screen, that is shown after a system crash has occurred (called "bluescreen").
+ *
+ * An error messages, the current stack frame and the state of the CPU registers are shown.
+ *
+ * @author Filip Krakowski, Fabian Ruhland
+ * @date 2018
+ */
 class BlueScreen : public OutputStream {
 
 public:
 
+    /**
+     * Constructor.
+     *
+     * @param columns Amount of the screen's columns
+     * @param rows Amount of the screen's rows
+     */
     BlueScreen(uint16_t columns, uint16_t rows);
 
+    /**
+     * Copy-constructor.
+     */
     BlueScreen(const BlueScreen &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
     BlueScreen &operator=(const BlueScreen &other) = delete;
 
     /**
-     * Initializes the bluescreen.
+     * Initialize the bluescreen
      */
     virtual void initialize() = 0;
 
     /**
-     * Prints out the bluescreen containing debug information.
+     * Take debug information from an interrupt frame and print it.
      *
      * @param frame The interrupt frame.
      */
     void print(InterruptFrame &frame);
 
+    /**
+     * Overriding function from OutputStream.
+     */
     void flush() override;
 
+    /**
+     * Set the error message to be printed.
+     * This should be a short one-line message.
+     */
     static void setErrorMessage(const char *message);
 
 protected:
@@ -61,11 +88,29 @@ private:
 
 private:
 
+    /**
+     * Show a character anywhere on the screen.
+     *
+     * @param x The x-coordinate
+     * @param y The y-coordinate
+     * @param c The character to show
+     */
     virtual void show(uint16_t x, uint16_t y, char c) = 0;
 
-    virtual void puts(const char *s, uint32_t n);
+    /**
+     * Print a character.
+     *
+     * @param c The character
+     */
+    void putc(char c);
 
-    virtual void putc(char c);
+    /**
+     * Print a string.
+     *
+     * @param s The string
+     * @param n The string's length
+     */
+    void puts(const char *s, uint32_t n);
 };
 
 #endif
