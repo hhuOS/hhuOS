@@ -16,7 +16,6 @@ global startThread
 global switchContext
 
 extern releaseSchedulerLock
-extern allowPitInterrupts
 
 section .text
 
@@ -58,8 +57,6 @@ switchContext:
     pop ebx
     pop ebp
 
-    ; enable interrupts
-    call allowPitInterrupts
     call releaseSchedulerLock
 
     ; resume next thread

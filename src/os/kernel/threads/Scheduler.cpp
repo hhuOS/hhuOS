@@ -32,7 +32,6 @@ extern "C" {
     void switchContext(Context **current, Context **next);
     void setSchedInit();
     void releaseSchedulerLock();
-    void allowPitInterrupts();
 }
 
 void releaseSchedulerLock() {

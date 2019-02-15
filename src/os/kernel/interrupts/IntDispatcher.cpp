@@ -26,6 +26,7 @@
 #include "kernel/interrupts/IntDispatcher.h"
 #include "kernel/memory/SystemManagement.h"
 #include "devices/misc/Pic.h"
+#include <lib/libc/sprintf.h>
 
 extern "C" {
     void dispatchInterrupt(InterruptFrame *frame);
@@ -37,20 +38,7 @@ extern "C" {
  * @param *frame - pointer to the interrupt frame containing all relevant data
  */
 void dispatchInterrupt(InterruptFrame *frame) {
-    bool isPicInterrupt = (frame->interrupt >= 32) && (frame->interrupt <= 47);
-
-    if(isPicInterrupt) {
-        Pic::getInstance().forbid(static_cast<Pic::Interrupt>(frame->interrupt - 32));
-        asm volatile ( "sti" );
-    } else if(frame->interrupt == 14 || frame->interrupt > 32) {
-        asm volatile ( "sti" );
-    }
-
     IntDispatcher::getInstance().dispatch(frame);
-
-    if(isPicInterrupt) {
-        Pic::getInstance().allow(static_cast<Pic::Interrupt>(frame->interrupt - 32));
-    }
 }
 
 IntDispatcher::IntDispatcher() : debugHandlers(), handler() {
@@ -117,7 +105,11 @@ void IntDispatcher::dispatch(InterruptFrame *frame) {
     Util::List<InterruptHandler*>* list = report(slot);
 
     if (list == nullptr && slot >= 32) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        char error[256];
+
+        sprintf(error, "No handler registered for interrupt number %u!", frame->interrupt);
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, error);
 
         return;
     }
