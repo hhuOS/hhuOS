@@ -166,21 +166,21 @@ void SoundBlaster16::plugin() {
 
     switch(irqNumber) {
         case 2 :
-            mixerAddressPort.outb(0x01);
+            mixerDataPort.outb(0x01);
             break;
         case 5 :
-            mixerAddressPort.outb(0x02);
+            mixerDataPort.outb(0x02);
             break;
         case 7 :
-            mixerAddressPort.outb(0x04);
+            mixerDataPort.outb(0x04);
             break;
         case 10 :
-            mixerAddressPort.outb(0x08);
+            mixerDataPort.outb(0x08);
             break;
         default :
             irqNumber = 10;
 
-            mixerAddressPort.outb(0x08);
+            mixerDataPort.outb(0x08);
             break;
 
     }

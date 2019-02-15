@@ -24,6 +24,7 @@ SoundBlaster1::SoundBlaster1(uint16_t baseAddress, uint8_t irqNumber, uint8_t dm
         irqNumber(irqNumber), dmaChannel(dmaChannel) {
     plugin();
 }
+
 void SoundBlaster1::setSamplingRate(uint16_t samplingRate) {
     auto timeConstant = static_cast<uint16_t>(65536 - (256000000 / (samplingRate)));
 
@@ -72,10 +73,6 @@ void SoundBlaster1::playPcmData(const Pcm &pcm) {
     memcpy(dmaMemory, pcm.getPcmData(), count);
 
     for(uint32_t i = 0x8000; i < dataSize && !stopPlaying; i += 0x8000) {
-        if(i > 0) {
-            ackInterrupt();
-        }
-
         firstBlock = !firstBlock;
 
         prepareDma(addressOffset, count);
@@ -90,9 +87,9 @@ void SoundBlaster1::playPcmData(const Pcm &pcm) {
         memset(reinterpret_cast<char*>(dmaMemory) + addressOffset + count, 0, static_cast<uint32_t>(0x8000 - count));
 
         while(!receivedInterrupt);
-    }
 
-    ackInterrupt();
+        ackInterrupt();
+    }
 
     turnSpeakerOff();
 

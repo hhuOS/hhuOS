@@ -24,6 +24,7 @@ SoundBlaster2::SoundBlaster2(uint16_t baseAddress, uint8_t irqNumber, uint8_t dm
         irqNumber(irqNumber), dmaChannel(dmaChannel) {
     plugin();
 }
+
 void SoundBlaster2::setSamplingRate(uint16_t samplingRate) {
     auto timeConstant = static_cast<uint16_t>(65536 - (256000000 / (samplingRate)));
 
