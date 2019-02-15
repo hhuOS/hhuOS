@@ -42,7 +42,7 @@ void dispatchInterrupt(InterruptFrame *frame) {
     if(isPicInterrupt) {
         Pic::getInstance().forbid(static_cast<Pic::Interrupt>(frame->interrupt - 32));
         asm volatile ( "sti" );
-    } else if(frame->interrupt == 14) {
+    } else if(frame->interrupt == 14 || frame->interrupt > 32) {
         asm volatile ( "sti" );
     }
 

@@ -30,6 +30,7 @@
 #include <kernel/memory/manager/BitmapMemoryManager.h>
 #include <kernel/memory/manager/BitmapMemoryManager.h>
 #include <kernel/memory/SystemManagement.h>
+#include <lib/system/SystemCall.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
@@ -298,7 +299,7 @@ void Application::startGame(Game* game){
 
 void Application::pause() {
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
-    Scheduler::getInstance().block();
+    Cpu::softInterrupt(SystemCall::SCHEDULER_BLOCK);
 }
 
 void Application::resume() {

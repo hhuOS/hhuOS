@@ -22,9 +22,8 @@
 #include <kernel/threads/priority/ThreadPriority.h>
 #include "kernel/threads/Thread.h"
 #include "lib/lock/Spinlock.h"
-#include "kernel/threads/Yieldable.h"
 
-class Scheduler : public Yieldable {
+class Scheduler {
     
 public:
 
@@ -34,7 +33,7 @@ public:
 
     Scheduler &operator=(const Scheduler &copy) = delete;
 
-    ~Scheduler() override = default;
+    ~Scheduler() = default;
 
     /**
      * Inidcates if the Scheduler has been initialized.
@@ -53,43 +52,33 @@ public:
      *
      * @param that A Thread.
      */
-    void ready (Thread& that);
+    void ready(Thread& that);
     
     /**
      * Terminates the current Thread.
      */
-    void exit ();
+    void exit();
 
     /**
      * Kills a specific Thread.
      *
      * @param that A Thread
      */
-    void kill (Thread& that);
-
-    /**
-     * Switches to the next Thread.
-     */
-    void yield () override;
+    void kill(Thread& that);
 
     /**
      * Indicates if a Thread is waiting for execution.
      *
      * @return true, if a Thread is waiting, false else
      */
-    bool isThreadWaiting ();
-
-    /**
-     * Blocks the current Thread.
-     */
-    void block ();
+    bool isThreadWaiting();
     
     /**
      * Unblocks a specific Thread.
      *
      * @param that A Thread
      */
-    void deblock (Thread &that);
+    void deblock(Thread &that);
 
     /**
      * Returns the active Thread.
@@ -123,6 +112,16 @@ public:
     Spinlock lock;
 
 private:
+
+    /**
+     * Blocks the current Thread.
+     */
+    void block();
+
+    /**
+     * Switches to the next Thread.
+     */
+    void yield();
 
     /**
      * Switches to the given Thread.

@@ -17,7 +17,6 @@
 #include <kernel/Kernel.h>
 #include <kernel/interrupts/IntDispatcher.h>
 #include <devices/misc/Pic.h>
-#include <kernel/threads/NullYielder.h>
 #include "kernel/threads/Scheduler.h"
 #include "Pit.h"
 
@@ -27,11 +26,8 @@ IOport data0(0x40);
 
 Pit* Pit::instance = nullptr;
 
-NullYielder nullYielder;
-
 Pit::Pit(uint32_t timerInterval) : timerInterval(timerInterval) {
 
-    yieldable = &nullYielder;
 }
 
 Pit& Pit::getInstance() noexcept {
@@ -74,7 +70,7 @@ void Pit::trigger(InterruptFrame &frame) {
 
     if ((time.fraction % DEFAULT_YIELD_INTERVAL) == 0) {
 
-        yieldable->yield();
+        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
 }
 
@@ -116,9 +112,4 @@ uint32_t Pit::getDays() {
 uint32_t Pit::getYears() {
 
     return time.toYears();
-}
-
-void Pit::setYieldable(Yieldable *yieldable) {
-
-    this->yieldable = yieldable;
 }

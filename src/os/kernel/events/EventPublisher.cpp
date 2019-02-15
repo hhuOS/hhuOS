@@ -26,7 +26,7 @@ void EventPublisher::run() {
 
         lock.release();
 
-        Scheduler::getInstance().yield();
+        yield();
     }
 }
 

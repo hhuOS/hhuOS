@@ -24,7 +24,6 @@
 #include "kernel/services/GraphicsService.h"
 #include "kernel/services/TimeService.h"
 #include "devices/graphics/text/TextDriver.h"
-#include "kernel/threads/Yieldable.h"
 
 /**
  * Driver for the programmable interval timer.
@@ -69,8 +68,6 @@ public:
      */
     void plugin ();
 
-    void setYieldable(Yieldable *yieldable);
-
     /**
      * Overriding function from InterruptHandler.
      */
@@ -109,8 +106,6 @@ private:
     void setInterval(uint32_t ns);
 
     static Pit *instance;
-
-    Yieldable *yieldable;
 
     uint32_t timerInterval;
 

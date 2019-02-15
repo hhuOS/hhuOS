@@ -20,6 +20,7 @@
 
 
 #include <cstdint>
+#include <lib/system/SystemCall.h>
 
 extern "C" {
     void interrupt_return();
@@ -111,7 +112,7 @@ String Thread::getName() const {
 
 void Thread::yield() {
 
-    Scheduler::getInstance().yield();
+    Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
 }
 
 uint8_t Thread::getPriority() const {

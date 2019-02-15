@@ -45,8 +45,17 @@ void allowPitInterrupts() {
 
 Scheduler::Scheduler(ThreadPriority &priority) : priority(priority), readyQueues(priority.getPriorityCount()) {
 
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, [](){Scheduler::getInstance().yield();});
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, [](){Scheduler::getInstance().block();});
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, []() {
+        if (Scheduler::getInstance().isInitialized()) {
+            Scheduler::getInstance().yield();
+        }
+    });
+
+    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, []() {
+        if(Scheduler::getInstance().isInitialized()) {
+            Scheduler::getInstance().block();
+        }
+    });
 }
 
 Scheduler& Scheduler::getInstance() noexcept {
@@ -72,8 +81,6 @@ void Scheduler::startUp() {
     initialized = true;
 
     setSchedInit();
-
-    Pit::getInstance().setYieldable(this);
 
     startThread(currentThread->context);
 }
@@ -127,18 +134,7 @@ void Scheduler::kill(Thread& that) {
 
 void Scheduler::yield() {
 
-    if (!initialized) {
-
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
-    }
-
     if (!isThreadWaiting()) {
-
-        return;
-    }
-
-    if(!Cpu::isInterrupted()) {
-        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
 
         return;
     }
@@ -154,21 +150,10 @@ void Scheduler::yield() {
 }
 
 void Scheduler::block() {
-
-    if (!initialized) {
-
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
-    }
     
     if (!isThreadWaiting()) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
-    }
-
-    if(!Cpu::isInterrupted()) {
-        Cpu::softInterrupt(SystemCall::SCHEDULER_BLOCK);
-
-        return;
     }
 
     lock.acquire();

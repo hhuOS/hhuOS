@@ -97,7 +97,7 @@ void EventBus::run() {
 
         lock.release();
 
-        Scheduler::getInstance().yield();
+        yield();
     }
 }
 

@@ -21,7 +21,6 @@
 #include <kernel/threads/WorkerThread.h>
 #include <lib/util/ThreadSafeBlockingQueue.h>
 #include <lib/lock/Mutex.h>
-#include <kernel/threads/Scheduler.h>
 
 class ThreadPool {
 
@@ -50,11 +49,9 @@ private:
         }
 
         void run() override {
-            Scheduler &scheduler = Scheduler::getInstance();
-
             while(true) {
                 while(pool->workQueue.isEmpty()) {
-                    scheduler.yield();
+                    yield();
                 }
 
                 void (*work)() = pool->workQueue.pop();

@@ -1,11 +1,12 @@
 #include <kernel/threads/Scheduler.h>
+#include <lib/system/SystemCall.h>
 #include "Mutex.h"
 
 void Mutex::acquire() {
 
     while (!swap(&lockVar, MUTEX_UNLOCK, MUTEX_LOCK)) {
 
-        Scheduler::getInstance().yield();
+        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
 }
 
