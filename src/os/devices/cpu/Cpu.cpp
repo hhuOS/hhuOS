@@ -60,16 +60,6 @@ void disable_interrupts() {
     Cpu::disableInterrupts();
 }
 
-bool Cpu::isInterrupted() {
-
-    uint32_t eflags;
-
-    asm volatile (  "pushf\n"
-                    "pop %0" : "=a"(eflags) );
-
-    return (eflags & 0x200) == 0;
-}
-
 void Cpu::enableInterrupts() {
 
     cliCount--;

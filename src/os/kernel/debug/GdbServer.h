@@ -22,6 +22,9 @@
 #include <kernel/threads/ThreadState.h>
 #include <devices/ports/Port.h>
 
+/**
+ * Contains all registers of a x86-CPU
+ */
 struct GdbRegisters {
     uint32_t eax;
     uint32_t ecx;
@@ -43,16 +46,35 @@ struct GdbRegisters {
     static GdbRegisters fromInterruptFrame(InterruptFrame &frame);
 } __attribute__((packed));
 
+/**
+ * A gdb-server to which a remote gdb-client may connect via a port (e.g. serial).
+ * This allows for debugging the operation system on real hardware.
+ *
+ * @author Christian Gesse, Filip Krakowski, Fabian Ruhland
+ * @date 2018
+ */
 class GdbServer {
 
 public:
 
+    /**
+     * Constructor.
+     */
     GdbServer() = delete;
 
+    /**
+     * Copy-constructor.
+     */
     GdbServer(const GdbServer &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
     GdbServer &operator=(const GdbServer &other) = delete;
 
+    /**
+     * Destructor.
+     */
     virtual ~GdbServer();
 
     static void handleInterrupt(InterruptFrame &frame);
@@ -121,4 +143,4 @@ private:
 };
 
 
-#endif //HHUOS_GDBSERVER_H
+#endif

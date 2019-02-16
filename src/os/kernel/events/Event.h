@@ -21,18 +21,37 @@
 #include <lib/String.h>
 
 /**
+ * Base class for events, that are distributed by the EventBus.
+ *
  * @author Filip Krakowski
+ * @date 2018
  */
 class Event {
 
 public:
 
+    /**
+     * Constructor.
+     */
     explicit Event() = default;
 
+    /**
+     * Destructor.
+     */
     virtual ~Event() = default;
 
+    /**
+     * Check if an event is of a specific type.
+     *
+     * @param type The type to check the event against
+     *
+     * @return true, if the event if of the specified type
+     */
     bool is(const String &type);
 
+    /**
+     * Get the event's type. This should be an easy to memorize name (e.g. KeyEvent for handling Keyboard input).
+     */
     virtual String getType() const = 0;
 
 };

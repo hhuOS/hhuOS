@@ -29,21 +29,26 @@
 class Cpu {
 
 public:
-    
-    Cpu() = delete;
-
-    Cpu(const Cpu &other) = delete;
-
-    Cpu &operator=(const Cpu &other) = delete;
-
-    ~Cpu() = default;
 
     /**
-     * Checks if interrupt flag is set in EFLAGS.
-     *
-     * @return Value of the interrupt flag in EFLAGS
+     * Constructor.
      */
-    static bool isInterrupted();
+    Cpu() = delete;
+
+    /**
+     * Copy-constructor.
+     */
+    Cpu(const Cpu &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Cpu &operator=(const Cpu &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Cpu() = default;
     
     /**
      * Enables hardware interrupts on CPU.

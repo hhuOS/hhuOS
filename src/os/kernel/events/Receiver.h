@@ -20,30 +20,58 @@
 #include "Event.h"
 
 /**
+ * Interface for classes, that want to receive events from the EventBus.
+ *
+ * Each receiver must call EventBus::subscribe() to subscribe itself for an arbitrary number of event types.
+ * Every time an event of one of the subscribed type occurs, the receive is notified about this by Receiver::onEvent(),
+ * which is called asynchronously (see EventPublisher for more detail).
+ *
  * @author Filip Krakowski
+ * @date 2018
  */
 class Receiver {
 
 public:
 
+    /**
+     * Constructor.
+     */
     Receiver() = default;
 
-    virtual ~Receiver() = default;
-
+    /**
+     * Copy-constructor.
+     */
     Receiver(const Receiver &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
+    Receiver &operator=(const Receiver &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    virtual ~Receiver() = default;
+
+    /**
+     * Handle an event. Event::is() can be used to determine the event's type.
+     *
+     * @param event The event to handle
+     */
     virtual void onEvent(const Event &event) = 0;
 
+    /**
+     * Equal operator.
+     */
     bool operator==(const Receiver &other) {
         return this == &other;
     }
 
+    /**
+     * Not equal operator.
+     */
     bool operator!=(const Receiver &other) {
         return this != &other;
-    }
-
-    uint32_t hashCode() const {
-        return (uint32_t) this;
     }
 };
 

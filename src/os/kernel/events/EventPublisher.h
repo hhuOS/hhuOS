@@ -17,44 +17,72 @@
 #ifndef __EventPublisher_include__
 #define __EventPublisher_include__
 
-#include <lib/util/BlockingQueue.h>
+#include <lib/util/ThreadSafeBlockingQueue.h>
 #include "kernel/threads/Thread.h"
 #include "kernel/events/Event.h"
 #include "kernel/events/Receiver.h"
 #include "lib/lock/Spinlock.h"
 
 /**
- * @author Filip Krakowski
+ * A thread with the sole purpose of forwarding events to a single receiver.
+ *
+ * Each receiver, that is subscribed at the EventBus, gets its own EventPublisher
+ * to handle incoming events asynchronously.
+ *
+ * New events are first pushed into a queue (each EventPublisher has its own queue).
+ * While this queue is not empty, events are popped from it and forwarded to the receiver one after another.
+ *
+ * @author Filip Krakowski, Fabian Ruhland
+ * @date 2018
  */
 class EventPublisher : public Thread {
 
 public:
 
+    /**
+     * Constructor.
+     *
+     * @param receiver The receiver to forward events to.
+     */
     explicit EventPublisher(Receiver &receiver);
 
+    /**
+     * Copy-constructor.
+     */
     EventPublisher(const EventPublisher &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
     EventPublisher &operator=(const EventPublisher &other) = delete;
 
+    /**
+     * Destructor.
+     */
     ~EventPublisher() override = default;
 
+    /**
+     * Overriding function from Thread.
+     */
     void run() override;
 
+    /**
+     * Add new event to the queue.
+     */
     void add(const Event &event);
 
+    /**
+     * Stop the publisher. This will terminate the thread.
+     */
     void stop();
 
 private:
 
-    Util::BlockingQueue<const Event*> eventQueue;
+    Util::ThreadSafeBlockingQueue<const Event*> eventQueue;
 
     Receiver &receiver;
 
-    Spinlock lock;
-
     bool isRunning = true;
-
-    void notify();
 };
 
 

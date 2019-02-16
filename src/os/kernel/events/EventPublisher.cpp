@@ -12,7 +12,7 @@
 #include "kernel/threads/Scheduler.h"
 #include "EventPublisher.h"
 
-EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), eventQueue(), receiver(receiver), lock() {
+EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), eventQueue(), receiver(receiver) {
 
 }
 
@@ -20,11 +20,12 @@ void EventPublisher::run() {
 
     while (isRunning) {
 
-        lock.acquire();
+        while (!eventQueue.isEmpty()) {
 
-        notify();
+            const Event *event = eventQueue.pop();
 
-        lock.release();
+            receiver.onEvent(*event);
+        }
 
         yield();
     }
@@ -32,21 +33,7 @@ void EventPublisher::run() {
 
 void EventPublisher::add(const Event &event) {
 
-    lock.acquire();
-
     eventQueue.push(&event);
-
-    lock.release();
-}
-
-void EventPublisher::notify() {
-
-    while (!eventQueue.isEmpty()) {
-
-        const Event *event = eventQueue.pop();
-
-        receiver.onEvent(*event);
-    }
 }
 
 void EventPublisher::stop() {
