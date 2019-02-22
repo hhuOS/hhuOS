@@ -41,11 +41,22 @@ class IntDispatcher : public KernelService {
 public:
 	// enum of important interrupt numbers
     enum {
-        pagefault = 14,
-        timer = 32,
-        keyboard = 33,
-        floppy = 38,
-        mouse = 44
+        PAGEFAULT = 14,
+        PIT = 32,
+        KEYBOARD = 33,
+        COM2 = 35,
+        COM1 = 36,
+        LPT2 = 37,
+        FLOPPY = 38,
+        LPT1 = 39,
+        RTC = 40,
+        FREE1 = 41,
+        FREE2 = 42,
+        FREE3 = 43,
+        MOUSE = 44,
+        FPU = 45,
+        PRIMARY_ATA = 46,
+        SECONDARY_ATA = 47,
     };
     
     // no constructor needed

@@ -159,7 +159,7 @@ void SystemManagement::createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base
 }
 
 void SystemManagement::plugin() {
-    IntDispatcher::getInstance().assign(IntDispatcher::pagefault, *this);
+    IntDispatcher::getInstance().assign(IntDispatcher::PAGEFAULT, *this);
 }
 
 

@@ -361,7 +361,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 }
 
 void FloppyController::plugin() {
-    IntDispatcher::getInstance().assign(IntDispatcher::floppy, *this);
+    IntDispatcher::getInstance().assign(IntDispatcher::FLOPPY, *this);
     Pic::getInstance().allow(Pic::Interrupt::FLOPPY);
 }
 

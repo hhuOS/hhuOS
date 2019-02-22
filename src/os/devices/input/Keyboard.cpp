@@ -309,7 +309,7 @@ void Keyboard::plugin() {
 
     InterruptManager::getInstance().registerInterruptHandler(this);
 
-    IntDispatcher::getInstance().assign(IntDispatcher::keyboard, *this);
+    IntDispatcher::getInstance().assign(IntDispatcher::KEYBOARD, *this);
     Pic::getInstance().allow(Pic::Interrupt::KEYBOARD);
 }
 

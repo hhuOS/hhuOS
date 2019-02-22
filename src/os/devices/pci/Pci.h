@@ -190,11 +190,15 @@ public:
     /* Class Codes */
     static const uint8_t    CLASS_MASS_STORAGE_DEVICE    = 0x01;
 
+    static const uint8_t    CLASS_NETWORK_CONTROLLER     = 0x02;
+
     static const uint8_t    CLASS_BRIDGE_DEVICE          = 0x06;
 
     static const uint8_t    CLASS_SERIAL_BUS_DEVICE      = 0x0C;
 
     /* Subclass Codes */
+    static const uint8_t    SUBCLASS_ETHERNET_CONTROLLER = 0x00;
+
     static const uint8_t    SUBCLASS_PCI_TO_PCI          = 0x04;
 
     static const uint8_t    SUBCLASS_IDE                 = 0x01;

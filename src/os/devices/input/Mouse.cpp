@@ -191,7 +191,7 @@ void Mouse::plugin() {
 
         InterruptManager::getInstance().registerInterruptHandler(this);
 
-        IntDispatcher::getInstance().assign(IntDispatcher::mouse, *this);
+        IntDispatcher::getInstance().assign(IntDispatcher::MOUSE, *this);
         Pic::getInstance().allow(Pic::Interrupt::MOUSE);
     }
 }
