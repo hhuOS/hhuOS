@@ -49,6 +49,7 @@
 #include <apps/Shell/Commands/License.h>
 #include <apps/Shell/Commands/Asciimate.h>
 #include <devices/ports/PortEvent.h>
+#include <apps/Shell/Commands/NetworkTest.h>
 
 extern "C" {
 #include <lib/libc/ctype.h>
@@ -91,6 +92,7 @@ Shell::Shell() : Thread("Shell") {
     commands.put("beep", new Beep(*this));
     commands.put("license", new License(*this));
     commands.put("asciimate", new Asciimate(*this));
+    commands.put("nettest", new NetworkTest(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
