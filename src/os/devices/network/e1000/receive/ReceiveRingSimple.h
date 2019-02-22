@@ -31,6 +31,8 @@
 #include "descriptor/ReceiveDescriptor.h"
 #include "ReceiveRing.h"
 #include "kernel/events/network/ReceiveEvent.h"
+#include "kernel/services/EventBus.h"
+
 /**
  * This class implements the ReceiveRing interface.
  *

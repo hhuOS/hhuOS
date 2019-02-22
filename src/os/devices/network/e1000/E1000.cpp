@@ -21,6 +21,7 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/memory/SystemManagement.h>
+#include <kernel/services/EventBus.h>
 #include "E1000.h"
 #include "kernel/services/NetworkService.h"
 

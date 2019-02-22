@@ -19,35 +19,16 @@
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
-#ifndef HHUOS_RECEIVECONTROL82541IP_H
-#define HHUOS_RECEIVECONTROL82541IP_H
+#include "Eeprom82540EM.h"
 
-#include <devices/cpu/Cpu.h>
-#include "devices/network/e1000/receive/RcDefault.h"
-
-/**
- * This class implements the abstract class RcDefault.
- *
- * It's implementation depends on the Intel 82541IP card.
- */
-class ReceiveControl82541IP final : public RcDefault {
-public:
-    /**
-      * Constructor. Same as in extended class.
-      */
-    explicit ReceiveControl82541IP(Register *request);
-    ~ReceiveControl82541IP() override = default;
-
-private:
-    /**
-     * Inherited methods from RcDefault.
-     * This methods are meant to be overridden and
-     * implemented by this class.
-     */
-
-    void loopbackMode(uint8_t value) final;
-    void vlanFilter(bool enable) final;
-};
+Eeprom82540EM::Eeprom82540EM(Register *request) : ErDefault(request) {}
 
 
-#endif //HHUOS_RECEIVECONTROL82541IP_H
+void Eeprom82540EM::setAddress(uint8_t address) {
+    request->set(address << 2u, 0xFFu << 8u);
+}
+
+void Eeprom82540EM::pollDataTransferred() {
+    while (!(request->readDirect() & (1u << 4u)));
+}
+

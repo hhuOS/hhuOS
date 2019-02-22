@@ -24,7 +24,13 @@
 #include <kernel/services/TimeService.h>
 #include "NetworkTest.h"
 
-NetworkTest::NetworkTest(Shell &shell) : Command(shell), eventBuffer(1024), storedSendBuffer(1024) {};
+NetworkTest::NetworkTest(Shell &shell) : Command(shell), eventBuffer(1024), storedSendBuffer(1024) {
+    Kernel::getService<EventBus>()->subscribe(*this, ReceiveEvent::TYPE);
+};
+
+NetworkTest::~NetworkTest() {
+    Kernel::getService<EventBus>()->unsubscribe(*this, ReceiveEvent::TYPE);
+}
 
 void NetworkTest::execute(Util::Array<String> &args) {
     ArgumentParser parser(getHelpText(), 1);

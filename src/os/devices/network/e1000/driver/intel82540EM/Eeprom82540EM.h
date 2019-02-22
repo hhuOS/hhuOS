@@ -14,40 +14,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  * Note:
- * All references marked with [...] refer to the following developers manual.
+ * All references marked with [...] refer to  following developers manual.
  * Intel Corporation. PCI/PCI-X Family of Gigabit Ethernet Controllers Software Developer’s Manual.
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
-#ifndef HHUOS_RECEIVECONTROL82541IP_H
-#define HHUOS_RECEIVECONTROL82541IP_H
+#ifndef HHUOS_EEPROM82540EM_H
+#define HHUOS_EEPROM82540EM_H
 
-#include <devices/cpu/Cpu.h>
-#include "devices/network/e1000/receive/RcDefault.h"
+
+#include "devices/network/e1000/eeprom/ErDefault.h"
 
 /**
- * This class implements the abstract class RcDefault.
+ * This class implements the abstract class ErDefault.
  *
- * It's implementation depends on the Intel 82541IP card.
+ * Register layout:
+ *
+ *  31  16 15      2      1       0
+ * *------*---------*------*-------*
+ * | Data | Address | DONE | START |
+ * *------*---------*------*-------*
+ *
+ * [see Table 13-8. EEPROM Read Register Bit Description (82541xx and 82547GI/EI)]
  */
-class ReceiveControl82541IP final : public RcDefault {
+class Eeprom82540EM final : public ErDefault {
 public:
     /**
-      * Constructor. Same as in extended class.
-      */
-    explicit ReceiveControl82541IP(Register *request);
-    ~ReceiveControl82541IP() override = default;
+     * Constructor. Same as in extended class.
+     */
+    explicit Eeprom82540EM(Register *request);
+    ~Eeprom82540EM() override = default;
 
 private:
     /**
-     * Inherited methods from RcDefault.
+     * Inherited methods from ErDefault.
      * This methods are meant to be overridden and
      * implemented by this class.
      */
 
-    void loopbackMode(uint8_t value) final;
-    void vlanFilter(bool enable) final;
+    void pollDataTransferred() final;
+    void setAddress(uint8_t address) final;
 };
 
 
-#endif //HHUOS_RECEIVECONTROL82541IP_H
+#endif //HHUOS_EEPROM82541IP_H

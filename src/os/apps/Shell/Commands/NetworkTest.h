@@ -81,7 +81,7 @@ public:
 
     NetworkTest() = delete;
     NetworkTest(const NetworkTest &copy) = delete;
-    ~NetworkTest() override = default;
+    ~NetworkTest() override;
 
     /**
      * Initializes the attributes. The attributes 'eventBuffer' and

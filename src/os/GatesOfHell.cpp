@@ -51,6 +51,7 @@
 #include <apps/MouseApp/MouseApp.h>
 #include <devices/misc/Cmos.h>
 #include <devices/network/e1000/driver/intel82541IP/Intel82541IP.h>
+#include <devices/network/e1000/driver/intel82540EM/Intel82540EM.h>
 #include <kernel/services/NetworkService.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
@@ -223,7 +224,10 @@ void GatesOfHell::afterFsInitModHook() {
         loadModule("/initrd/mod/" + module);
     }
 
+    Intel82540EM intel82540EM;
     Intel82541IP intel82541IP;
+
+    Pci::setupDeviceDriver(intel82540EM);
     Pci::setupDeviceDriver(intel82541IP);
 
     log.trace("Leaving after_fs_init_mod_hook");
