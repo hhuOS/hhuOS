@@ -22,7 +22,6 @@
 #include <kernel/services/NetworkService.h>
 #include <kernel/memory/SystemManagement.h>
 #include <kernel/services/TimeService.h>
-#include <devices/net/e1000/McBuffered.h>
 #include "NetworkTest.h"
 
 NetworkTest::NetworkTest(Shell &shell) : Command(shell), eventBuffer(1024), storedSendBuffer(1024) {};
@@ -44,16 +43,16 @@ void NetworkTest::execute(Util::Array<String> &args) {
 
     auto *networkService = Kernel::getService<NetworkService>();
 
-    if(networkService->getDriverCount() == 0) {
+    if(networkService->getDeviceCount() == 0) {
         stderr << args[0] << ": No network devices available!" << endl;
         return;
     }
 
-    E1000 *driver = Kernel::getService<NetworkService>()->getDriver(0);
+    NetworkDevice &driver = Kernel::getService<NetworkService>()->getDriver(0);
 
     int length;
     uint8_t *sendBuffer;
-    uint64_t *phyAddress;
+    void *phyAddress;
 
     if (parser.checkSwitch("info")) {
         printInfo();
@@ -74,7 +73,7 @@ void NetworkTest::execute(Util::Array<String> &args) {
 
         //one buffer for all packets
         sendBuffer = (uint8_t *) SystemManagement::getInstance().mapIO(8u * length);
-        phyAddress = (uint64_t *) SystemManagement::getInstance().getPhysicalAddress(sendBuffer);
+        phyAddress = SystemManagement::getInstance().getPhysicalAddress(sendBuffer);
 
         for(int i = 0; i < length; i++) {
             //fill packets with unique numbers. (16 * 0, 16 * 1,...,16 * 15)+
@@ -97,7 +96,7 @@ void NetworkTest::execute(Util::Array<String> &args) {
             stdout << " Mb/s";
             stdout << endl;
         } else {
-            driver->transmitter->sendPacket(phyAddress, (uint16_t) length);
+            driver.sendPacket(phyAddress, (uint16_t) length);
             if(transmitted < (1u << 31u)) transmitted++;
             stdout << "Packet of length ";
             stdout << length;
@@ -163,7 +162,7 @@ void NetworkTest::printRingBufferPacket() {
     lock.release();
 }
 
-void NetworkTest::sendFromBuffer(int packets, E1000 *driver) {
+void NetworkTest::sendFromBuffer(int packets, NetworkDevice &driver) {
     ReceiveEvent event;
     volatile uint8_t *packet;
     uint16_t packetLength;
@@ -187,19 +186,17 @@ void NetworkTest::sendFromBuffer(int packets, E1000 *driver) {
         }
 
         //write own MAC-address to the source-field
-        Mac *src = driver->mac;
-        src->writeTo((uint8_t *) packet, 6);
-
+        driver.getMacAddress(const_cast<uint8_t *>(packet));
 
         auto physical = (uint64_t *) SystemManagement::getInstance().getPhysicalAddress((uint8_t *) packet);
-        driver->transmitter->sendPacket(physical, packetLength);
+        driver.sendPacket(physical, packetLength);
 
         storedSend++;
     }
     lock.release();
 }
 
-int NetworkTest::measurePackets(int length, E1000 *driver, uint64_t *phyAddress, int millis) {
+int NetworkTest::measurePackets(int length, NetworkDevice &driver, void *phyAddress, int millis) {
     uint16_t packetCount = 0;
 
     auto *timeService = Kernel::getService<TimeService>();
@@ -207,7 +204,7 @@ int NetworkTest::measurePackets(int length, E1000 *driver, uint64_t *phyAddress,
 
 
     while((timeService->getSystemTime()) < start + millis) {
-        driver->transmitter->sendPacket(phyAddress, (uint16_t) length);
+        driver.sendPacket(phyAddress, (uint16_t) length);
         packetCount++;
 
         if(transmitted < (1u << 31u)) transmitted++;

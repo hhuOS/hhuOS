@@ -22,7 +22,7 @@
 #ifndef HHUOS_NETWORKTEST_H
 #define HHUOS_NETWORKTEST_H
 
-#include <devices/network/e1000/E1000.h>
+#include <devices/network/NetworkDevice.h>
 #include <kernel/events/network/ReceiveEvent.h>
 #include "apps/Shell/Commands/Command.h"
 
@@ -99,7 +99,7 @@ public:
      * @param millis Duration of sending.
      * @return Data throughput in Mb/s.
      */
-    int measurePackets(int size, E1000 *driver, uint64_t *phyAddress, int millis);
+    int measurePackets(int size, NetworkDevice &driver, void *phyAddress, int millis);
 
     /**
      * Pops a packet from the eventBuffer and displays it on the shell.
@@ -112,7 +112,7 @@ public:
      * @param packets Amount of packets to send.
      * @param driver The corresponding drivver from whom the packets should be send.
      */
-    void sendFromBuffer(int packets, E1000 *driver);
+    void sendFromBuffer(int packets, NetworkDevice &driver);
 
     /**
      * Displays the current network information according to ReceiveEvents.
@@ -138,4 +138,4 @@ public:
 };
 
 
-#endif //HHUOS_NETWORKTEST_H
+#endif

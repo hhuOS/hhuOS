@@ -62,7 +62,7 @@ void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver)
     loadMac();
 
     driverLog.info("Registering to Network Service");
-    Kernel::getService<NetworkService>()->registerDriver(driver);
+    Kernel::getService<NetworkService>()->registerDevice(*driver);
 
     driverLog.info("Setting Interrupts");
     plugin();
@@ -100,6 +100,18 @@ uint8_t E1000::getBaseClass() const {
 
 PciDeviceDriver::SetupMethod E1000::getSetupMethod() const {
     return PciDeviceDriver::BY_ID;
+}
+
+void E1000::sendPacket(void *address, uint16_t length) {
+    if(transmitter == nullptr) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "E1000 is not configured correctly: transmitter is nullptr");
+    }
+
+    transmitter->sendPacket(reinterpret_cast<uint64_t *>(address), length);
+}
+
+void E1000::getMacAddress(uint8_t *buf) {
+    mac->getByteRepresentation(buf);
 }
 
 

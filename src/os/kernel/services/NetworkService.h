@@ -23,12 +23,13 @@
 #define HHUOS_NETWORKSERVICE_H
 
 #include <kernel/KernelService.h>
-#include <devices/network/e1000/E1000.h>
+#include <devices/network/NetworkDevice.h>
+#include <kernel/log/Logger.h>
 
 /**
  * This class implements the KernelService class.
  *
- * User of a E1000 driver like those who want to send
+ * User of a network driver like those who want to send
  * packets and others as well are meant to use this class
  * to get access of a driver.
  */
@@ -37,7 +38,7 @@ public:
     /**
      * A list where all drivers will be collected.
      */
-    Util::ArrayList<E1000 *> drivers;
+    Util::ArrayList<NetworkDevice*> drivers;
 
     /**
      * Provide service information on the kernel log.
@@ -55,25 +56,25 @@ public:
     /**
      * @return The number of registered divers.
      */
-    uint32_t getDriverCount();
+    uint32_t getDeviceCount();
 
     /**
      * @param index Index of the driver to fetch.
      * @return The corresponding driver.
      */
-    E1000 *getDriver(uint8_t index);
+    NetworkDevice& getDriver(uint8_t index);
 
     /**
      * @param index Index of the driver to remove.
      */
-    void removeDriver(uint8_t index);
+    void removeDevice(uint8_t index);
 
     /**
      * Adds the driver to the list.
      * @param driver The driver to add.
      */
-    void registerDriver(E1000 *driver);
+    void registerDevice(NetworkDevice &driver);
 };
 
 
-#endif //HHUOS_NETWORKSERVICE_H
+#endif

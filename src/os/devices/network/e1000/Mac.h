@@ -58,6 +58,12 @@ public:
     virtual void writeTo(uint8_t *buffer, uint32_t position) = 0;
 
     /**
+     * Copies the MAC-address into a given byte array.
+     * @param mac The byte array to copy the MAC-address to
+     */
+    virtual void getByteRepresentation(uint8_t *buf) = 0;
+
+    /**
      * Converts the MAC-address to a String.
      * @return String-representation of the MAC-address.
      */

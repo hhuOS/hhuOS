@@ -38,7 +38,7 @@
 #include "receive/descriptor/ReceiveDescriptor.h"
 #include <kernel/Kernel.h>
 #include <kernel/memory/Paging.h>
-#include <kernel/interrupts/InterruptHandler.h>
+#include <devices/network/NetworkDevice.h>
 
 /**
  * This abstract class extends and the InterruptHandler interface
@@ -55,7 +55,7 @@
  * its card. If they don't want to, they can implement their
  * own setup method without calling initialize on E1000.
  */
-class E1000 : public PciDeviceDriver, public InterruptHandler {
+class E1000 : public NetworkDevice, public PciDeviceDriver {
 private:
     /**
      * A logger to provide logging information on the kernel log.
@@ -88,6 +88,17 @@ public:
      * @param bytes Amount of bytes to be cleared.
      */
     void clearBufferExcerpt(uint8_t *address, uint32_t bytes);
+
+    /**
+     * Overriding function from NetworkDevice.
+     */
+    void sendPacket(void *address, uint16_t length) override;
+
+    /**
+     * Overriding function from NetworkDevice.
+     */
+    void getMacAddress(uint8_t *buf) override;
+
 protected:
     E1000() = default;
 

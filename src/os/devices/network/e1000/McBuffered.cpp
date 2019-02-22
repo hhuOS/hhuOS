@@ -52,6 +52,10 @@ void McBuffered::writeTo(uint8_t *buffer, uint32_t position) {
     }
 }
 
+void McBuffered::getByteRepresentation(uint8_t *buf) {
+    memcpy(buf, mac, sizeof(mac));
+}
+
 String McBuffered::getStringRepresentation() {
     return String::format("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5], mac[6]);
 }

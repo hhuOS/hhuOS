@@ -53,6 +53,7 @@ private:
     uint8_t *read(EepromRead *eepromRead) final;
     uint8_t *read(uint8_t *mioBase) final;
     void writeTo(uint8_t *buffer, uint32_t position) final;
+    void getByteRepresentation(uint8_t *buf) final;
     String getStringRepresentation() final;
 };
 
