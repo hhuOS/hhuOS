@@ -50,6 +50,8 @@
 #include <kernel/bluescreen/BlueScreenLfb.h>
 #include <apps/MouseApp/MouseApp.h>
 #include <devices/misc/Cmos.h>
+#include <devices/network/e1000/driver/intel82541IP/Intel82541IP.h>
+#include <kernel/services/NetworkService.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -179,6 +181,7 @@ void GatesOfHell::registerServices() {
     Kernel::registerService(SoundService::SERVICE_NAME, new SoundService());
     Kernel::registerService(PortService::SERVICE_NAME, new PortService());
     Kernel::registerService(ScreenshotService::SERVICE_NAME, new ScreenshotService());
+    Kernel::registerService(NetworkService::SERVICE_NAME, new NetworkService());
 }
 
 void GatesOfHell::afterInitrdModHook() {
@@ -219,6 +222,9 @@ void GatesOfHell::afterFsInitModHook() {
     for(const auto &module : modules) {
         loadModule("/initrd/mod/" + module);
     }
+
+    Intel82541IP intel82541IP;
+    Pci::setupDeviceDriver(intel82541IP);
 
     log.trace("Leaving after_fs_init_mod_hook");
 }
