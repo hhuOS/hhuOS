@@ -47,7 +47,9 @@ public:
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
-            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT);
+            const char *errorMessage = String::format("Invalid service '%s'!", T::SERVICE_NAME);
+
+            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT, errorMessage);
         }
 
         return (T*) serviceMap.get(T::SERVICE_NAME);

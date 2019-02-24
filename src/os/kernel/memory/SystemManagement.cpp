@@ -450,7 +450,7 @@ void SystemManagement::calcTotalPhysicalMemory() {
     }
 
     if (maxEntry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "No usable memory found");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "No usable memory found!");
     }
 
     totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
@@ -462,11 +462,11 @@ void SystemManagement::calcTotalPhysicalMemory() {
 
     // We need at least 10MB physical memory to run properly
     if(totalPhysMemory < 10 * 1024 * 1024){
-        printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM\n");
+        printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM!");
         Cpu::halt();
     }
 
-    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %dMB\n", totalPhysMemory/(1024*1024));
+    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %d MB!", totalPhysMemory/(1024*1024));
 }
 
 VirtualAddressSpace* SystemManagement::createAddressSpace() {

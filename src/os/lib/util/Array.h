@@ -122,7 +122,8 @@ namespace Util {
     T &Array<T>::operator[](uint32_t index) {
 
         if (index >= capacity) {
-            Cpu::throwException(Cpu::Exception::OUTOFBOUNDS);
+
+            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS);
         }
 
         return array[index];
@@ -132,7 +133,8 @@ namespace Util {
     const T &Array<T>::operator[](uint32_t index) const {
 
         if (index >= capacity) {
-            Cpu::throwException(Cpu::Exception::OUTOFBOUNDS);
+
+            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS);
         }
 
         return array[index];

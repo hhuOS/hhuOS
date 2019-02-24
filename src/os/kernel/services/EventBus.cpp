@@ -35,7 +35,9 @@ void EventBus::subscribe(Receiver &receiver, const String &type) {
 
     if (receiverMap.containsKey(key)) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        const char *errorMessage = (const char*) String::format("EventBus: Receiver is already subscribed for events of type '%s'!", (const char*) type);
+
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, errorMessage);
     }
 
     receiverMap.put(key, publisher);

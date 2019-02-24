@@ -63,7 +63,8 @@ namespace Util {
     RingBuffer<T>::RingBuffer(uint32_t capacity) : buffer(capacity), capacity(capacity), readIndex(0), writeIndex(0), size(0)  {
 
         if (capacity == 0) {
-            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT);
+
+            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT, "RingBuffer: Invalid length '0'!");
         }
     }
 

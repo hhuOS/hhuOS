@@ -33,7 +33,9 @@ void BlueScreen::print(InterruptFrame &frame) {
 
     printf("\n  [PANIC] %s\n\n", Cpu::getExceptionName(frame.interrupt));
 
-    printf("  %s\n\n\n", errorMessage);
+    if(strlen(errorMessage) != 0) {
+        printf("  %s\n\n", errorMessage);
+    }
 
     uint32_t *ebp = (uint32_t*) frame.ebp;
 

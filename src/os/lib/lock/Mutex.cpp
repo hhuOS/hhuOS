@@ -14,7 +14,7 @@ void Mutex::release() {
 
     if (!swap(&lockVar, MUTEX_LOCK, MUTEX_UNLOCK)) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Mutex: Failed to release lock!");
     }
 }
 

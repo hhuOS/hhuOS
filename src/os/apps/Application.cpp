@@ -136,7 +136,7 @@ void Application::startMouseApp() {
 }
 
 void Application::startExceptionDemo() {
-    Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Y U DO DIS? :(");
+    Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "This ist just a test. Please restart your computer!");
 }
 
 void Application::startShell() {

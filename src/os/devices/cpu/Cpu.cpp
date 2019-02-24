@@ -66,7 +66,7 @@ void Cpu::enableInterrupts() {
 
     if (cliCount < 0) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
     }
 
     if (cliCount == 0) {

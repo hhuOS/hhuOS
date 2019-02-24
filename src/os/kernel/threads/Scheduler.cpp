@@ -72,7 +72,7 @@ void Scheduler::startUp() {
 
     if (!isThreadWaiting()) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
     currentThread = getNextThread();
@@ -99,12 +99,12 @@ void Scheduler::exit() {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'exit' called but scheduler is not initialized!");
     }
     
     if (!isThreadWaiting()) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
     Thread* next = getNextThread();
@@ -118,12 +118,12 @@ void Scheduler::kill(Thread& that) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'kill' called but scheduler is not initialized!");
     }
 
     if(that.getId() == currentThread->getId()) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: A thread is trying to kill itself... Use 'exit' instead!");
     }
 
     readyQueues[that.getPriority()].remove(&that);
@@ -152,7 +152,7 @@ void Scheduler::block() {
     
     if (!isThreadWaiting()) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
     lock.acquire();
@@ -168,7 +168,7 @@ void Scheduler::deblock(Thread &that) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'deblock' called but scheduler is not initialized!");
     }
 
     readyQueues[that.getPriority()].push(&that);
@@ -180,7 +180,7 @@ void Scheduler::dispatch(Thread &next) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'dispatch' called but scheduler is not initialized!");
     }
 
     Thread* current = currentThread;
@@ -193,7 +193,7 @@ void Scheduler::dispatch(Thread &next) {
 Thread* Scheduler::getNextThread() {
 
     if(!isThreadWaiting()) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
     Util::BlockingQueue<Thread*> *currentQueue = &readyQueues[priority.getNextPriority()];

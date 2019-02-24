@@ -116,7 +116,7 @@ public:
     // enumeration of software exceptions
     enum class Exception : uint32_t {
         NULLPOINTER                         = 0xC8,
-        OUTOFBOUNDS                         = 0xC9,
+        OUT_OF_BOUNDS                         = 0xC9,
         INVALID_ARGUMENT                    = 0xCA,
         KEY_NOT_FOUND                       = 0xCB,
         ILLEGAL_STATE                       = 0xCC,

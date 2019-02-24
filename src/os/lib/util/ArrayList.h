@@ -17,6 +17,7 @@
 #ifndef __ArrayList_include__
 #define __ArrayList_include__
 
+#include <lib/String.h>
 #include <devices/cpu/Cpu.h>
 #include "List.h"
 
@@ -127,7 +128,10 @@ namespace Util {
     T ArrayList<T>::get(uint32_t index) const {
 
         if (index >= length) {
-            Cpu::throwException(Cpu::Exception::OUTOFBOUNDS);
+
+            const char *errorMessage = String::format("ArrayList: Trying to access an element at index %u, but length is %u!", index, length);
+
+            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
         }
 
         return elements[index];
@@ -190,7 +194,10 @@ namespace Util {
     T ArrayList<T>::remove(uint32_t index) {
 
         if (index >= length) {
-            Cpu::throwException(Cpu::Exception::OUTOFBOUNDS);
+
+            const char *errorMessage = String::format("ArrayList: Trying to access an element at index %u, but length is %u!", index, length);
+
+            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
         }
 
         T tmp = elements[index];
