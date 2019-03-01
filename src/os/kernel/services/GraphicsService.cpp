@@ -44,29 +44,37 @@ Util::Array<String> GraphicsService::getAvailableTextDrivers() {
     return textMap.keySet();
 }
 
-void GraphicsService::setLinearFrameBuffer(const String &name) {
+bool GraphicsService::setLinearFrameBuffer(const String &name) {
     String driverName = name;
     driverName = driverName.toLowerCase();
 
     if(!lfbMap.containsKey(driverName)) {
         log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char*) name);
+
+        return false;
     } else {
         currentLfb = lfbMap.get(driverName);
 
         log.info("LinearFrameBuffer set to '%s'", (const char*) currentLfb->getName());
+
+        return true;
     }
 }
 
-void GraphicsService::setTextDriver(const String &name) {
+bool GraphicsService::setTextDriver(const String &name) {
     String driverName = name;
     driverName = driverName.toLowerCase();
 
     if(!textMap.containsKey(driverName)) {
         log.warn("No implementation of TextDriver registered under the name '%s'", (const char*) name);
+
+        return false;
     } else {
         currentTextDriver = textMap.get(driverName);
 
         log.info("TextDriver set to '%s'", (const char*) currentTextDriver->getName());
+
+        return true;
     }
 }
 

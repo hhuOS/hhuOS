@@ -21,7 +21,15 @@ CurrentResolutionNode::CurrentResolutionNode(GraphicsNode::GraphicsMode mode) : 
 }
 
 uint64_t CurrentResolutionNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
-    String buffer(buf);
+    char *tmp = new char[numBytes + 1];
+
+    memcpy(tmp, buf, numBytes);
+    tmp[numBytes] = 0;
+
+    String buffer = String(tmp).removeAll("\n").strip();
+
+    delete[] tmp;
+
     uint16_t resX, resY;
     uint8_t depth;
 

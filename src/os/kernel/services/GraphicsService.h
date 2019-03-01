@@ -79,7 +79,7 @@ public:
      * Calling this function will NOT initialize the new LinearFrameBuffer.
      * To initialize it, call getLinearFrameBuffer()->init().
      */
-    void setLinearFrameBuffer(const String &name);
+    bool setLinearFrameBuffer(const String &name);
 
     /**
      * Set the used TextDriver to an implementation, that is registered at the GraphicsService.
@@ -87,7 +87,7 @@ public:
      * Calling this function will NOT initialize the new TextDriver.
      * To initialize it, call getTextDriver()->init().
      */
-    void setTextDriver(const String &name);
+    bool setTextDriver(const String &name);
 
     /**
      * Get current lfb.

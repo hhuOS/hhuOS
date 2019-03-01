@@ -5,6 +5,8 @@
 #include "GraphicsMemoryNode.h"
 #include "GraphicsResolutionsNode.h"
 #include "CurrentResolutionNode.h"
+#include "GraphicsDriversNode.h"
+#include "CurrentGraphicsDriverNode.h"
 
 MODULE_PROVIDER {
 
@@ -26,11 +28,15 @@ int32_t FsVideoModule::initialize() {
     fileSystem->addVirtualNode("/dev/video/text", new GraphicsMemoryNode(GraphicsNode::TEXT));
     fileSystem->addVirtualNode("/dev/video/text", new GraphicsResolutionsNode(GraphicsNode::TEXT));
     fileSystem->addVirtualNode("/dev/video/text", new CurrentResolutionNode(GraphicsNode::TEXT));
+    fileSystem->addVirtualNode("/dev/video/text", new GraphicsDriversNode(GraphicsNode::TEXT));
+    fileSystem->addVirtualNode("/dev/video/text", new CurrentGraphicsDriverNode(GraphicsNode::TEXT));
     fileSystem->addVirtualNode("/dev/video/lfb", new GraphicsVendorNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     fileSystem->addVirtualNode("/dev/video/lfb", new GraphicsDeviceNameNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     fileSystem->addVirtualNode("/dev/video/lfb", new GraphicsMemoryNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     fileSystem->addVirtualNode("/dev/video/lfb", new GraphicsResolutionsNode(GraphicsNode::LINEAR_FRAME_BUFFER));
     fileSystem->addVirtualNode("/dev/video/lfb", new CurrentResolutionNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    fileSystem->addVirtualNode("/dev/video/lfb", new GraphicsDriversNode(GraphicsNode::LINEAR_FRAME_BUFFER));
+    fileSystem->addVirtualNode("/dev/video/lfb", new CurrentGraphicsDriverNode(GraphicsNode::LINEAR_FRAME_BUFFER));
 
     return 0;
 }
