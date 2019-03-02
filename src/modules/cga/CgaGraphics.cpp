@@ -17,9 +17,8 @@
 
 #include <devices/misc/Bios.h>
 #include "CgaGraphics.h"
-#include "kernel/memory/MemLayout.h"
 
-CgaGraphics::CgaGraphics() : LinearFrameBuffer(reinterpret_cast<void *>(VIRT_CGA_START), 0, 0, 0, 80),
+CgaGraphics::CgaGraphics() : LinearFrameBuffer(reinterpret_cast<void*>(CGA_MEMORY_START), 0, 0, 0, 80),
         resolutions(2) {
 
     resolutions[0] = {320, 200, 2, 0x04};
@@ -185,9 +184,8 @@ void CgaGraphics::readPixel(uint16_t x, uint16_t y, Color &color) {
 
 void CgaGraphics::clear() {
     auto *buf = reinterpret_cast<uint64_t *>(doubleBuffered ? doubleBuffer : hardwareBuffer);
-    uint64_t end = 16384 / sizeof(uint64_t);
 
-    for(uint64_t i = 0; i < end; i++) {
+    for(uint32_t i = 0; i < CGA_MEMORY_SIZE / 8; i++) {
         buf[i] = 0;
     }
 }

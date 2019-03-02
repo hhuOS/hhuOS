@@ -297,10 +297,14 @@ void LinearFrameBuffer::drawSprite(uint16_t xPos, uint16_t yPos, uint16_t width,
 }
 
 void LinearFrameBuffer::clear() {
-    for(uint16_t x = 0; x < xres; x++){
-        for(uint16_t y = 0; y < yres; y++){
-            drawPixel(x, y, Colors::BLACK);
-        }
+    auto *buf = reinterpret_cast<uint64_t *>(doubleBuffered ? doubleBuffer : hardwareBuffer);
+
+    for(uint32_t i = 0; i < (xres * yres * (bpp / 8)) / 8; i++) {
+        buf[i] = 0;
+    }
+
+    for(uint8_t i = 0; i < (xres * yres * (bpp / 8)) % 8; i++) {
+        buf[(xres * yres) / 8 + i] = 0;
     }
 }
 

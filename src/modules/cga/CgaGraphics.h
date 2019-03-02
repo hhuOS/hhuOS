@@ -21,6 +21,7 @@
 #include <cstdint>
 #include "devices/graphics/lfb/LinearFrameBuffer.h"
 #include "kernel/Kernel.h"
+#include "kernel/memory/MemLayout.h"
 
 /**
  * Implementation of LinearFrameBuffer for graphics cards, that are compatible with the CGA-standard.
@@ -35,6 +36,10 @@ private:
     Util::Array<LfbResolution> resolutions;
 
     static const constexpr char *NAME = "CgaGraphics";
+
+    static const constexpr  uint32_t CGA_MEMORY_START = VIRT_CGA_START;
+
+    static const constexpr uint32_t CGA_MEMORY_SIZE = 16384;
 
 private:
     /**
