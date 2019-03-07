@@ -1,6 +1,15 @@
 
+#include <kernel/Kernel.h>
 #include "NetworkService.h"
+#include "EventBus.h"
 
+NetworkService::NetworkService() {
+    Kernel::getService<EventBus>()->subscribe(packetHandler, ReceiveEvent::TYPE);
+}
+
+NetworkService::~NetworkService() {
+    Kernel::getService<EventBus>()->unsubscribe(packetHandler, ReceiveEvent::TYPE);
+}
 
 uint32_t NetworkService::getDeviceCount() {
     return drivers.size();

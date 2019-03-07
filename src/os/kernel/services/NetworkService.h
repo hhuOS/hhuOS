@@ -25,6 +25,7 @@
 #include <kernel/KernelService.h>
 #include <devices/network/NetworkDevice.h>
 #include <kernel/log/Logger.h>
+#include <kernel/network/PacketHandler.h>
 
 /**
  * This class implements the KernelService class.
@@ -34,6 +35,11 @@
  * to get access of a driver.
  */
 class NetworkService final: public KernelService {
+
+private:
+
+    PacketHandler packetHandler;
+
 public:
     /**
      * A list where all drivers will be collected.
@@ -45,7 +51,15 @@ public:
      */
     static Logger &log;
 
-    NetworkService() = default;
+    /**
+     * Constructor.
+     */
+    NetworkService();
+
+    /**
+     * Destructor.
+     */
+    ~NetworkService();
 
     /**
      * The ID to identify this service among other in the kernel
