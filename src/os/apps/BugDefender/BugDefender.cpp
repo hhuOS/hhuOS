@@ -34,8 +34,8 @@ ThreadPool BugDefender::beepThreadPool(4);
 
 BugDefender::BugDefender() : Game() {
 
-    heartSprite = new Bmp(File::open("/initrd/game/res/shield.bmp", "r"));
-    background = new Bmp(File::open("/initrd/game/res/spaceBackground.bmp", "r"));
+    heartSprite = Bmp::load("/initrd/game/res/shield.bmp");
+    background = Bmp::load("/initrd/game/res/spaceBackground.bmp");
 
     score = 0;
     lifes = 3;
@@ -55,6 +55,11 @@ BugDefender::BugDefender() : Game() {
             HHUEngine::instantiate( new Enemy(Vector2(100 + x*40, 20 + y*30), y) );
         }
     }
+}
+
+BugDefender::~BugDefender() {
+    delete heartSprite;
+    delete background;
 }
 
 void BugDefender::update(float delta){

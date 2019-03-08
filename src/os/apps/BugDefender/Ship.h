@@ -44,7 +44,7 @@ class Ship : public GameObject {
 
     Ship(Vector2 position);
 
-    ~Ship(){}
+    ~Ship() override;
 
     void update(float delta);
 

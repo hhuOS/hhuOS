@@ -50,6 +50,20 @@ Bmp::~Bmp() {
     delete[] pixelBuf;
 }
 
+Bmp *Bmp::load(const String &path) {
+    File *file = File::open(path, "r");
+
+    if(file == nullptr) {
+        return nullptr;
+    }
+
+    auto ret = new Bmp(file);
+
+    delete file;
+
+    return ret;
+}
+
 void Bmp::processData() {
     fileHeader = *((BitmapFileHeader*) &rawData[0]);
     infoHeader = BitmapHeader(&rawData[14]);

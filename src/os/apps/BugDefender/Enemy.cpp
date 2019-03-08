@@ -28,11 +28,11 @@ Enemy::Enemy(Vector2 position, int rowNumber) : GameObject(position, "Enemy") {
     this->rowNumber = rowNumber;
 
     if (sprite1 == nullptr) {
-        sprite1 = new Bmp(File::open("/initrd/game/res/bug1.bmp", "r"));
+        sprite1 = Bmp::load("/initrd/game/res/bug1.bmp");
     }
 
     if (sprite2 == nullptr) {
-        sprite2 = new Bmp(File::open("/initrd/game/res/bug2.bmp", "r"));
+        sprite2 = Bmp::load("/initrd/game/res/bug2.bmp");
     }
 }
 

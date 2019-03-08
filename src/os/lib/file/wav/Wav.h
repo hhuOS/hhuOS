@@ -54,11 +54,13 @@ private:
 
 private:
 
+    explicit Wav(File *file);
+
     void processData();
 
 public:
 
-    explicit Wav(File *file);
+    static Wav *load(const String &path);
 
     Wav(const Wav &copy) = delete;
 

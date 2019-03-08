@@ -21,25 +21,11 @@
 
 MouseApp::MouseApp() : Thread("MouseApp"), Receiver() {
 
-    File *file = File::open("/initrd/os/logo_v3.bmp", "r");
-    logo = new Bmp(file);
-    delete file;
-
-    file = File::open("/initrd/icons/mouse_default.bmp", "r");
-    mouseDefault = new Bmp(file);
-    delete file;
-
-    file = File::open("/initrd/icons/mouse_left_click.bmp", "r");
-    mouseLeftClick = new Bmp(file);
-    delete file;
-
-    file = File::open("/initrd/icons/mouse_right_click.bmp", "r");
-    mouseRightClick = new Bmp(file);
-    delete file;
-
-    file = File::open("/initrd/icons/mouse_scroll.bmp", "r");
-    mouseScroll = new Bmp(file);
-    delete file;
+    logo = Bmp::load("/initrd/os/logo_v3.bmp");
+    mouseDefault = Bmp::load("/initrd/icons/mouse_default.bmp");
+    mouseLeftClick = Bmp::load("/initrd/icons/mouse_left_click.bmp");
+    mouseRightClick = Bmp::load("/initrd/icons/mouse_right_click.bmp");
+    mouseScroll = Bmp::load("/initrd/icons/mouse_scroll.bmp");
 
     currentIcon = mouseDefault;
 
@@ -57,6 +43,12 @@ MouseApp::~MouseApp() {
     eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
     eventBus->unsubscribe(*this, MouseDoubleClickedEvent::TYPE);
+
+    delete logo;
+    delete mouseDefault;
+    delete mouseLeftClick;
+    delete mouseRightClick;
+    delete mouseScroll;
 }
 
 void MouseApp::onEvent(const Event &event) {

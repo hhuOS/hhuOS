@@ -70,11 +70,9 @@ void Bootscreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
 
         lfb->enableDoubleBuffering();
 
-        logoFile = File::open("/os/boot-logo.bmp", "r");
+        logo = Bmp::load("/os/boot-logo.bmp");
 
-        if (logoFile != nullptr) {
-            logo = new Bmp(logoFile);
-
+        if (logo != nullptr) {
             double scaling = (static_cast<double>(lfb->getResY()) / 600);
 
             if (scaling >= 1) {
@@ -104,13 +102,7 @@ void Bootscreen::finish() {
 
         lfb->clear();
 
-        if(logoFile != nullptr) {
-            delete logoFile;
-        }
-
-        if(logo != nullptr) {
-            delete logo;
-        }
+        delete logo;
     }
 }
 

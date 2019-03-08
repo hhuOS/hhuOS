@@ -28,6 +28,20 @@ Wav::~Wav() {
     delete pcmData;
 }
 
+Wav *Wav::load(const String &path) {
+    File *file = File::open(path, "r");
+
+    if(file == nullptr) {
+        return nullptr;
+    }
+
+    auto ret = new Wav(file);
+
+    delete file;
+
+    return ret;
+}
+
 void Wav::processData() {
     RiffChunk riffChunk = *((RiffChunk*) rawData);
 

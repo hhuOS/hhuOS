@@ -38,14 +38,12 @@ void BmpView::execute(Util::Array<String> &args) {
 
     String absolutePath = calcAbsolutePath(parser.getUnnamedArguments()[0]);
 
-    File *file = File::open(absolutePath, "r");
+    bmp = Bmp::load(absolutePath);
 
-    if(file == nullptr) {
+    if(bmp == nullptr) {
         stderr << args[0] << ": Unable to open file '" << parser.getUnnamedArguments()[0] << "'!" << endl;
         return;
     }
-
-    bmp = new Bmp(file);
 
     LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
 

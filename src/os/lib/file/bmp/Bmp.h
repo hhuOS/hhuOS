@@ -212,6 +212,8 @@ private:
 
 private:
 
+    explicit Bmp(File *file);
+
     uint8_t countTrailingZeros(uint32_t number);
 
     uint8_t countOnes(uint32_t number);
@@ -238,13 +240,13 @@ private:
 
 public:
 
-    explicit Bmp(File *file);
+    static Bmp* load(const String &path);
 
     Bmp(const Bmp &other);
 
     Bmp(Color *pixelBuf, uint32_t width, uint32_t height);
 
-    ~Bmp();
+    ~Bmp() override;
 
     void saveToFile(const String &path);
 };

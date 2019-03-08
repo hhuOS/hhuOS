@@ -16,15 +16,24 @@
 
 #include <kernel/services/SoundService.h>
 #include <kernel/Kernel.h>
-#include <lib/file/File.h>
 #include "BeepFile.h"
 
-BeepFile::BeepFile(const Content &content) : content(content){
+BeepFile::BeepFile(File *file) {
+    char *tmp;
+
+    *file >> tmp;
+
+    content = (Content*) tmp;
 
     speaker = Kernel::getService<SoundService>()->getPcSpeaker();
 }
 
-BeepFile* BeepFile::load(const String &path) {
+BeepFile::~BeepFile() {
+    delete (char*) content;
+}
+
+BeepFile *BeepFile::load(const String &path) {
+    BeepFile * ret = nullptr;
 
     File *file = File::open(path, "r");
 
@@ -32,27 +41,32 @@ BeepFile* BeepFile::load(const String &path) {
         return nullptr;
     }
 
-    char *buffer = nullptr;
+    uint32_t magic;
 
-    *file >> buffer;
+    file->readBytes(reinterpret_cast<char *>(&magic), 4);
 
-    auto *content = (Content*) buffer;
-
-    if (content->magic != MAGIC) {
-
-        return nullptr;
+    if(magic == MAGIC) {
+        file->setPos(0, File::START);
+        ret = new BeepFile(file);
     }
 
-    return new BeepFile(*content);
+    delete file;
+
+    return ret;
 }
 
 void BeepFile::play() {
 
+    if (content->magic != MAGIC) {
+
+        return;
+    }
+
     isPlaying = true;
 
-    for (uint32_t i = 0; isPlaying && i < content.length; i++) {
+    for (uint32_t i = 0; isPlaying && i < content->length; i++) {
 
-        speaker->play(content.sounds[i].frequency, content.sounds[i].length);
+        speaker->play(content->sounds[i].frequency, content->sounds[i].length);
     }
 
     speaker->off();

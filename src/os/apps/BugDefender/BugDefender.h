@@ -57,7 +57,7 @@ class BugDefender : public Game {
 
     BugDefender();
 
-    ~BugDefender(){}
+    ~BugDefender();
 
     void update(float delta);
 

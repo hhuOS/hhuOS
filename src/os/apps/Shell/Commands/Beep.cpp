@@ -38,8 +38,6 @@ void Beep::execute(Util::Array<String> &args) {
 
     String absolutePath = calcAbsolutePath(parser.getUnnamedArguments()[0]);
 
-    FileStatus *fStat = FileStatus::stat(absolutePath);
-
     beepFile = BeepFile::load(absolutePath);
 
     if(beepFile == nullptr) {
@@ -47,7 +45,7 @@ void Beep::execute(Util::Array<String> &args) {
         return;
     }
 
-    stdout << "Playing '" << fStat->getName() << "'." << endl;
+    stdout << "Playing '" << absolutePath << "'." << endl;
     stdout << "Press <RETURN> to stop." << endl;
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
@@ -56,7 +54,6 @@ void Beep::execute(Util::Array<String> &args) {
 
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
 
-    delete fStat;
     delete beepFile;
 }
 

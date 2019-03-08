@@ -51,8 +51,6 @@ private:
 
     Font *font = &std_font_8x16;
 
-    File *logoFile = nullptr;
-
     Image *logo = nullptr;
 };
 

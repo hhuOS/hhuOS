@@ -26,11 +26,11 @@ Missile::Missile(Vector2 position, int direction, char* tag) : GameObject(positi
     this->direction = direction;
 
     if (enemySprite == nullptr) {
-        enemySprite = new Bmp(File::open("/initrd/game/res/laserRed.bmp", "r"));
+        enemySprite = Bmp::load("/initrd/game/res/laserRed.bmp");
     }
 
     if (shipSprite == nullptr) {
-        shipSprite = new Bmp(File::open("/initrd/game/res/laserGreen.bmp", "r"));
+        shipSprite = Bmp::load("/initrd/game/res/laserGreen.bmp");
     }
 }
 

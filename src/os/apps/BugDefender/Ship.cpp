@@ -17,11 +17,12 @@
 #include "apps/BugDefender/Ship.h"
 #include "apps/game/HHUEngine.h"
 #include "BugDefender.h"
+#include "Ship.h"
 
 Ship::Ship(Vector2 position) : GameObject(position, "Player") {
     collider = new RectCollider(position, width, height);
     lastShootTime = 0;
-    bitmap = new Bmp(File::open("/initrd/game/res/spaceShip.bmp", "r"));
+    bitmap = Bmp::load("/initrd/game/res/spaceShip.bmp");
 }
 
 void Ship::update(float delta){
@@ -49,4 +50,8 @@ void Ship::onCollisionEnter(GameObject &other){
 
 void Ship::onCollisionExit(){
 
+}
+
+Ship::~Ship() {
+    delete bitmap;
 }

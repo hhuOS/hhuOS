@@ -19,13 +19,19 @@
 #include <kernel/events/input/KeyEvent.h>
 #include <kernel/threads/WorkerThread.h>
 #include <kernel/threads/Scheduler.h>
+#include <lib/file/FileStatus.h>
 #include "WavPlay.h"
 
 bool isRunning = false;
 
-uint32_t playback(File* const& file) {
-    Wav wav(file);
-    Kernel::getService<SoundService>()->getPcmAudioDevice()->playPcmData(wav);
+uint32_t playback(const String &path) {
+    Wav *wav = Wav::load(path);
+
+    if(wav != nullptr) {
+        Kernel::getService<SoundService>()->getPcmAudioDevice()->playPcmData(*wav);
+
+        delete wav;
+    }
 
     isRunning = false;
 
@@ -51,9 +57,7 @@ void WavPlay::execute(Util::Array<String> &args) {
 
     String absolutePath = calcAbsolutePath(parser.getUnnamedArguments()[0]);
 
-    File *file = File::open(absolutePath, "r");
-
-    if(file == nullptr) {
+    if(!FileStatus::exists(absolutePath)) {
         stderr << args[0] << ": Unable to open file '" << parser.getUnnamedArguments()[0] << "'!" << endl;
         return;
     }
@@ -65,12 +69,12 @@ void WavPlay::execute(Util::Array<String> &args) {
         return;
     }
 
-    stdout << "Playing '" << file->getName() << "'." << endl;
+    stdout << "Playing '" << absolutePath << "'." << endl;
     stdout << "Press <RETURN> to stop." << endl;
 
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 
-    auto *thread = new WorkerThread<File*, uint32_t>(playback, file, nullptr);
+    auto *thread = new WorkerThread<String, uint32_t>(playback, absolutePath, nullptr);
 
     isRunning = true;
 

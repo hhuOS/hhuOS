@@ -18,6 +18,7 @@
 #define __BeepFile_include__
 
 #include <devices/sound/PcSpeaker.h>
+#include <lib/file/File.h>
 
 class BeepFile {
 
@@ -43,7 +44,7 @@ public:
 
     BeepFile &operator=(const BeepFile &other) = delete;
 
-    ~BeepFile() = default;
+    ~BeepFile();
 
     void play();
 
@@ -51,9 +52,9 @@ public:
 
 private:
 
-    explicit BeepFile(const Content &content);
+    explicit BeepFile(File *file);
 
-    const Content &content;
+    const Content *content;
 
     PcSpeaker *speaker = nullptr;
 

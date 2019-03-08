@@ -37,7 +37,7 @@ public:
 
     Image(const Image &copy) = delete;
 
-    ~Image() = default;
+    virtual ~Image() = default;
 
     uint32_t getHeight() const;
 
