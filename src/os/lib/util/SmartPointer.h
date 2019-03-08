@@ -16,7 +16,6 @@ private:
     private:
 
         uint32_t counter = 0;
-        Spinlock lock;
 
     public:
 
@@ -37,7 +36,9 @@ private:
 
 public:
 
-    SmartPointer(T *pointer);
+    SmartPointer();
+
+    explicit SmartPointer(T *pointer);
 
     SmartPointer(const SmartPointer<T> &copy);
 
@@ -49,7 +50,24 @@ public:
 
     T *operator->();
 
+    bool operator==(const SmartPointer<T> &other);
+
+    bool operator!=(const SmartPointer<T> &other);
+
 };
+
+template<typename T>
+SmartPointer<T>::SmartPointer() {
+    this->pointer = nullptr;
+    this->counter = new ReferenceCounter();
+    this->lock = new Spinlock();
+
+    lock->acquire();
+
+    counter->addReference();
+
+    lock->release();
+}
 
 template<typename T>
 SmartPointer<T>::SmartPointer(T *pointer) {
@@ -127,6 +145,16 @@ T &SmartPointer<T>::operator*() {
 template<typename T>
 T *SmartPointer<T>::operator->() {
     return pointer;
+}
+
+template<typename T>
+bool SmartPointer<T>::operator==(const SmartPointer<T> &other) {
+    return pointer == other.pointer;
+}
+
+template<typename T>
+bool SmartPointer<T>::operator!=(const SmartPointer<T> &other) {
+    return pointer != other.pointer;
 }
 
 }

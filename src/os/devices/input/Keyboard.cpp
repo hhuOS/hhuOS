@@ -191,7 +191,7 @@ void Keyboard::getAsciiCode(uint8_t code) {
     }
 }
 
-Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), eventBuffer(1024), interruptDataBuffer(1024) {
+Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), interruptDataBuffer(1024) {
 
     eventBus = Kernel::getService<EventBus>();
 
@@ -341,9 +341,7 @@ void Keyboard::parseInterruptData() {
             reboot();
         }
 
-        eventBuffer.push(KeyEvent(key));
-
-        KeyEvent &event = eventBuffer.pop();
+        Util::SmartPointer<Event> event(new KeyEvent(key));
 
         eventBus->publish(event);
     }

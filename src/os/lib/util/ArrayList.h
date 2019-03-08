@@ -92,7 +92,7 @@ namespace Util {
 
         uint32_t length = 0;
 
-        static const uint32_t   DEFAULT_CAPACITY    = 8;
+        static const uint32_t DEFAULT_CAPACITY = 8;
 
         void ensureCapacity(uint32_t newCapacity) override;
 
@@ -169,7 +169,9 @@ namespace Util {
 
         ensureCapacity(length + 1);
 
-        memcpy(&elements[index + 1], &elements[index], length - index);
+        for(uint32_t i = length - 1; i > index; i--) {
+            elements[i] = elements[i - 1];
+        }
 
         elements[index] = element;
 
@@ -206,7 +208,9 @@ namespace Util {
 
         if (numMoved != 0) {
 
-            memcpy(&elements[index], &elements[index + 1], numMoved * sizeof(T));
+            for(uint32_t i = 0; i < numMoved; i++) {
+                elements[index + i] = elements[index + i + 1];
+            }
         }
 
         length--;

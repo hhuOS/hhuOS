@@ -9,6 +9,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/SmartPointer.h>
 #include "kernel/threads/Scheduler.h"
 #include "EventPublisher.h"
 
@@ -22,7 +23,7 @@ void EventPublisher::run() {
 
         while (!eventQueue.isEmpty()) {
 
-            const Event *event = eventQueue.pop();
+            Util::SmartPointer<Event> event = eventQueue.pop();
 
             receiver.onEvent(*event);
         }
@@ -31,9 +32,9 @@ void EventPublisher::run() {
     }
 }
 
-void EventPublisher::add(const Event &event) {
+void EventPublisher::add(Util::SmartPointer<Event> event) {
 
-    eventQueue.push(&event);
+    eventQueue.push(event);
 }
 
 void EventPublisher::stop() {

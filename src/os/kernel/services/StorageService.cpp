@@ -22,10 +22,6 @@
 
 Logger &StorageService::log = Logger::get("STORAGE");
 
-StorageService::StorageService() : addEventBuffer(64), removeEventBuffer(64) {
-
-}
-
 StorageDevice *StorageService::getDevice(const String &name) {
     if(!devices.containsKey(name)) {
         return nullptr;
@@ -41,8 +37,8 @@ void StorageService::registerDevice(StorageDevice *device) {
 
     log.info("Registering device: %s", (char *) device->getName());
 
-    addEventBuffer.push(StorageAddEvent(device));
-    eventBus->publish(addEventBuffer.pop());
+    Util::SmartPointer<Event> event(new StorageAddEvent(device));
+    eventBus->publish(event);
 
     //Scan device for partitions and register them as well
     Util::Array<StorageDevice::PartitionInfo> partitions = device->readPartitionTable();
@@ -66,8 +62,8 @@ void StorageService::removeDevice(const String &name) {
 
             devices.remove(currentName);
 
-            removeEventBuffer.push(StorageRemoveEvent(currentName));
-            eventBus->publish(removeEventBuffer.pop());
+            Util::SmartPointer<Event> event(new StorageRemoveEvent(currentName));
+            eventBus->publish(event);
         }
     }
 }

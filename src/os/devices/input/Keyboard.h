@@ -116,11 +116,6 @@ private:
      */
     EventBus *eventBus;
 
-    /**
-     * A buffer, to store all key-events and successively put them onto the event bus.
-     */
-    Util::RingBuffer<KeyEvent> eventBuffer;
-
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
     void parseInterruptData() override;

@@ -171,7 +171,9 @@ namespace Util {
 
         Array tmp(size);
 
-        memcpy(tmp.array, source, size);
+        for(uint32_t i = 0; i < size; i++) {
+            tmp[i] = source[i];
+        }
 
         return tmp;
     }

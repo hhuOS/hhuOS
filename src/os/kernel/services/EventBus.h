@@ -25,7 +25,6 @@
 #include "kernel/threads/Thread.h"
 #include "kernel/KernelService.h"
 #include "kernel/events/Receiver.h"
-#include "GraphicsService.h"
 #include <kernel/events/EventPublisher.h>
 #include "lib/util/Pair.h"
 
@@ -70,7 +69,7 @@ public:
      *
      * @param event The Event
      */
-    void publish(const Event &event);
+    void publish(Util::SmartPointer<Event> event);
 
     void run () override;
 
@@ -82,9 +81,7 @@ private:
 
     Util::HashMap<Util::Pair<Receiver*, String>, EventPublisher*> receiverMap;
 
-    Util::RingBuffer<const Event*> eventBuffer;
-
-    LinearFrameBuffer *g2d;
+    Util::ThreadSafeBlockingQueue<Util::SmartPointer<Event>> eventBuffer;
 
     Spinlock lock;
 

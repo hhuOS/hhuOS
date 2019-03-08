@@ -122,7 +122,6 @@ private:
     BaudRate speed;
 
     EventBus *eventBus;
-    Util::RingBuffer<SerialEvent<port>> eventBuffer;
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
     IOport dataRegister;
@@ -156,7 +155,7 @@ bool SerialDriver<port>::checkPort() {
 }
 
 template<ComPort port>
-SerialDriver<port>::SerialDriver(BaudRate speed) : eventBuffer(1024), interruptDataBuffer(1024), speed(speed),
+SerialDriver<port>::SerialDriver(BaudRate speed) : interruptDataBuffer(1024), speed(speed),
                                                    dataRegister(port),
                                                    interruptRegister(port + 1),
                                                    fifoControlRegister(port + 2),
@@ -237,9 +236,7 @@ template<ComPort port>
 void SerialDriver<port>::parseInterruptData() {
     uint8_t data = interruptDataBuffer.pop();
 
-    eventBuffer.push(SerialEvent<port>(data));
-
-    SerialEvent<port> &event = eventBuffer.pop();
+    Util::SmartPointer<Event> event(new SerialEvent<port>(data));
 
     eventBus->publish(event);
 }

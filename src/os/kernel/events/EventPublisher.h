@@ -18,6 +18,7 @@
 #define __EventPublisher_include__
 
 #include <lib/util/ThreadSafeBlockingQueue.h>
+#include <lib/util/SmartPointer.h>
 #include "kernel/threads/Thread.h"
 #include "kernel/events/Event.h"
 #include "kernel/events/Receiver.h"
@@ -69,7 +70,7 @@ public:
     /**
      * Add new event to the queue.
      */
-    void add(const Event &event);
+    void add(Util::SmartPointer<Event> event);
 
     /**
      * Stop the publisher. This will terminate the thread.
@@ -78,7 +79,7 @@ public:
 
 private:
 
-    Util::ThreadSafeBlockingQueue<const Event*> eventQueue;
+    Util::ThreadSafeBlockingQueue<Util::SmartPointer<Event>> eventQueue;
 
     Receiver &receiver;
 

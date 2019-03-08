@@ -34,14 +34,11 @@ class StorageService : public KernelService {
 private:
     Util::HashMap<String, StorageDevice*> devices;
 
-    Util::RingBuffer<StorageAddEvent> addEventBuffer;
-    Util::RingBuffer<StorageRemoveEvent> removeEventBuffer;
-
 public:
     /**
      * Constructor.
      */
-    StorageService();
+    StorageService() = default;
 
     /**
      * Copy-constructor.

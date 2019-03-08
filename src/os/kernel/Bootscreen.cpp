@@ -18,6 +18,7 @@
 #include <devices/graphics/text/fonts/Fonts.h>
 #include <BuildConfig.h>
 #include <lib/file/bmp/Bmp.h>
+#include <kernel/services/GraphicsService.h>
 #include "Bootscreen.h"
 #include "Kernel.h"
 

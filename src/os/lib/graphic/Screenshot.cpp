@@ -15,6 +15,7 @@
  */
 
 #include <lib/file/bmp/Bmp.h>
+#include <kernel/services/GraphicsService.h>
 #include "Screenshot.h"
 
 Screenshot::~Screenshot() {

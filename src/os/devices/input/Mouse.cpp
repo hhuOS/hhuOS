@@ -177,7 +177,7 @@ void Mouse::writeCommand(unsigned char byte_write, char* commandString) {
     }
 }
 
-Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), movedEventBuffer(1024), clickedEventBuffer(1024), releasedEventBuffer(1024), doubleclickEventBuffer(1024), interruptDataBuffer(1024) {
+Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), interruptDataBuffer(1024) {
     buttons = 0;
     cycle = 1;
 
@@ -250,8 +250,8 @@ void Mouse::parseInterruptData() {
                 // check if mouse was moved
                 if(dx != 0 || dy != 0) {
                     // put MouseMovedEvent to queue and publish event
-                    movedEventBuffer.push(MouseMovedEvent(dx, dy));
-                    eventBus->publish(movedEventBuffer.pop());
+                    Util::SmartPointer<Event> event(new MouseMovedEvent(dx, dy));
+                    eventBus->publish(event);
                 }
             }
 
@@ -278,8 +278,9 @@ void Mouse::parseInterruptData() {
                         clickMask|= (0x1<<i);
 
                         if((tmpTstmp - lastClickTimestamp) < 300) {
-                            doubleclickEventBuffer.push(MouseDoubleClickedEvent());
-                            eventBus->publish(doubleclickEventBuffer.pop());
+                            Util::SmartPointer<Event> event(new MouseDoubleClickedEvent());
+                            eventBus->publish(event);
+
                             lastClickTimestamp = 0;
                         } else {
                             lastClickTimestamp = tmpTstmp;
@@ -290,14 +291,14 @@ void Mouse::parseInterruptData() {
 
             // if new buttons were clicked -> publish new MouseClickedEvent
             if(clickEventOccurred) {
-                clickedEventBuffer.push(MouseClickedEvent(clickMask));
-                eventBus->publish(clickedEventBuffer.pop());
+                Util::SmartPointer<Event> event(new MouseClickedEvent(clickMask));
+                eventBus->publish(event);
             }
 
             // if new buttons were released -> publish new MouseReleasedEvent
             if(releaseEventOccurred) {
-                releasedEventBuffer.push(MouseReleasedEvent(releaseMask));
-                eventBus->publish(releasedEventBuffer.pop());
+                Util::SmartPointer<Event> event(new MouseReleasedEvent(releaseMask));
+                eventBus->publish(event);
             }
 
             // remember clicked buttons

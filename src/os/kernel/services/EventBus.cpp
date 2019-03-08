@@ -20,7 +20,7 @@
 #include <kernel/threads/Scheduler.h>
 #include "EventBus.h"
 
-EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(7691), eventBuffer(1024 * 64), lock(), scheduler(Scheduler::getInstance()) {
+EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(7691), lock(), scheduler(Scheduler::getInstance()) {
 
     isInitialized = true;
 }
@@ -89,8 +89,6 @@ void EventBus::unsubscribe(Receiver &receiver, const String &type) {
 
 void EventBus::run() {
 
-    g2d = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
-
     while (isRunning) {
 
         lock.acquire();
@@ -105,11 +103,9 @@ void EventBus::run() {
 
 void EventBus::notify() {
 
-    const Event *event = nullptr;
-
     while (!eventBuffer.isEmpty()) {
 
-        event = eventBuffer.pop();
+        Util::SmartPointer<Event> event = eventBuffer.pop();
 
         if(!publishers.containsKey(event->getType())) {
             return;
@@ -119,19 +115,19 @@ void EventBus::notify() {
 
         for (EventPublisher *publisher : publisherList) {
 
-            publisher->add(*event);
+            publisher->add(event);
         }
     }
 
 }
 
-void EventBus::publish(const Event &event) {
+void EventBus::publish(Util::SmartPointer<Event> event) {
 
     if (!isInitialized) {
         return;
     }
 
-    eventBuffer.push(&event);
+    eventBuffer.push(event);
 
     // TODO(krakowski)
     //  Wake up EventBus thread with priority boost

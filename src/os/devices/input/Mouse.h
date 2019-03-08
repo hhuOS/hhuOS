@@ -46,11 +46,6 @@ private:
     const IOport data_port;
 
     EventBus *eventBus;
-    // TODO MouseDragedEvent
-    Util::RingBuffer<MouseMovedEvent> movedEventBuffer;
-    Util::RingBuffer<MouseClickedEvent> clickedEventBuffer;
-    Util::RingBuffer<MouseReleasedEvent> releasedEventBuffer;
-    Util::RingBuffer<MouseDoubleClickedEvent> doubleclickEventBuffer;
 
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
@@ -129,4 +124,4 @@ public:
     void cleanup();
 };
 
-#endif //HHUOS_MOUSE_H
+#endif
