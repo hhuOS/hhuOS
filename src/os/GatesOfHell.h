@@ -24,6 +24,9 @@
 #include <kernel/services/ModuleLoader.h>
 #include <kernel/threads/IdleThread.h>
 
+#include <lib/util/SmartPointer.h>
+#include <kernel/events/input/KeyEvent.h>
+
 class GatesOfHell {
 
 public:
