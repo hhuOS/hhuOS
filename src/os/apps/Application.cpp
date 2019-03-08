@@ -157,13 +157,12 @@ void Application::showMenu () {
 
         if(isRunning) {
             Rtc::Date date = timeService->getRTC()->getCurrentDate();
-            char timeString[20];
-            snprintf(timeString, 20, "%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year,
-                     date.hours, date.minutes, date.seconds);
 
             lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 12, timeString, Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 12, (const char*) String::format("%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds), Colors::HHU_LIGHT_GRAY);
+
+            lfb->placeString(font, 50, 16, (const char*) String::format("Free memory: %u KiB", SystemManagement::getInstance().getKernelHeapManager()->getFreeMemory() / 1024), Colors::HHU_LIGHT_GRAY);
 
             lfb->placeString(font, 50, 24, "hhuOS main menu", Colors::HHU_BLUE);
 
