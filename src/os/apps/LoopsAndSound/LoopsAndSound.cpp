@@ -43,8 +43,8 @@ void LoopsAndSound::onEvent(const Event &event) {
 void LoopsAndSound::run() {
     eventBus->subscribe(*this, KeyEvent::TYPE);
 
-    Thread *thread1 = new Loop(1);
-    Thread *thread2 = new Loop(2);
+    Thread *thread1 = new Loop(1, 1);
+    Thread *thread2 = new Loop(2, 3);
     Thread *thread3 = new Sound();
 
     thread1->start();

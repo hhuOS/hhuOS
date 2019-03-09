@@ -43,7 +43,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Loop (uint32_t id);
+    explicit Loop (uint32_t id, uint8_t priority = 2);
 
     /**
      * Copy-constructor.

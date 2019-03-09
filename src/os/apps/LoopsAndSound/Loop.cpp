@@ -24,7 +24,7 @@
 
 Mutex Loop::printLock;
 
-Loop::Loop(uint32_t id) : Thread("Loop") {
+Loop::Loop(uint32_t id, uint8_t priority) : Thread(String::format("Loop%u", id), priority) {
     myID = id;
 }
 

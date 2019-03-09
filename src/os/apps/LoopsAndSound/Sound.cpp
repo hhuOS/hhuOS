@@ -36,7 +36,6 @@ void Sound::run () {
 
         speaker->off();
         timeService->msleep(1000);
-
     }
 }
 
