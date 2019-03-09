@@ -241,7 +241,7 @@ uint8_t Scheduler::getMaxPriority() {
 
 uint8_t Scheduler::changePriority(Thread &thread, uint8_t priority) {
 
-    priority = static_cast<uint8_t>((thread.getPriority() > getMaxPriority()) ? (getMaxPriority()) : thread.getPriority());
+    priority = static_cast<uint8_t>((priority > getMaxPriority()) ? (getMaxPriority()) : priority);
 
     lock.acquire();
 
