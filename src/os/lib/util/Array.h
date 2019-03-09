@@ -41,7 +41,7 @@ namespace Util {
 
         Array(std::initializer_list<T> list) noexcept;
 
-        virtual ~Array() = default;
+        virtual ~Array();
 
         Array(const Array<T> &other);
 
@@ -75,6 +75,11 @@ namespace Util {
     Array<T>::Array(uint32_t capacity) noexcept : capacity(capacity) {
 
         this->array = new T[capacity];
+    }
+
+    template<typename T>
+    Array<T>::~Array() {
+        delete[] array;
     }
 
     template <class T>

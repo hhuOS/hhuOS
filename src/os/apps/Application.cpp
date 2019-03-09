@@ -156,13 +156,15 @@ void Application::showMenu () {
         Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
 
         if(isRunning) {
+            uint32_t freeMemory = SystemManagement::getKernelHeapManager()->getFreeMemory();
+
             Rtc::Date date = timeService->getRTC()->getCurrentDate();
 
             lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
 
             lfb->placeString(font, 50, 12, (const char*) String::format("%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds), Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 16, (const char*) String::format("Free memory: %u KiB", SystemManagement::getInstance().getKernelHeapManager()->getFreeMemory() / 1024), Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 16, (const char*) String::format("Free memory: %u KiB", freeMemory / 1024), Colors::HHU_LIGHT_GRAY);
 
             lfb->placeString(font, 50, 24, "hhuOS main menu", Colors::HHU_BLUE);
 
