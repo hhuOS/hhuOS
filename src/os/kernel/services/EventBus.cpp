@@ -20,7 +20,7 @@
 #include <kernel/threads/Scheduler.h>
 #include "EventBus.h"
 
-EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(7691), lock(), scheduler(Scheduler::getInstance()) {
+EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(7691), eventBuffer(eventList), lock(), scheduler(Scheduler::getInstance()) {
 
     isInitialized = true;
 }

@@ -27,6 +27,8 @@
 #include "kernel/events/Receiver.h"
 #include <kernel/events/EventPublisher.h>
 #include "lib/util/Pair.h"
+#include "lib/util/BlockingQueue.h"
+#include "lib/util/LinkedList.h"
 
 class LinearFrameBuffer;
 class Scheduler;
@@ -71,7 +73,7 @@ public:
      */
     void publish(Util::SmartPointer<Event> event);
 
-    void run () override;
+    void run() override;
 
     static const constexpr char* SERVICE_NAME = "EventBus";
 
@@ -81,7 +83,9 @@ private:
 
     Util::HashMap<Util::Pair<Receiver*, String>, EventPublisher*> receiverMap;
 
-    Util::ThreadSafeBlockingQueue<Util::SmartPointer<Event>> eventBuffer;
+    Util::LinkedList<Util::SmartPointer<Event>> eventList;
+
+    Util::BlockingQueue<Util::SmartPointer<Event>> eventBuffer;
 
     Spinlock lock;
 

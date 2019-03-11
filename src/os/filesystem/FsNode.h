@@ -17,7 +17,6 @@
 #ifndef __FsNode_include__
 #define __FsNode_include__
 
-#include "lib/util/LinkedList.h"
 #include <cstdint>
 #include <lib/String.h>
 

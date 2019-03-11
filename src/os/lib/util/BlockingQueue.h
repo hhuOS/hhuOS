@@ -36,7 +36,9 @@ namespace Util {
 
         explicit BlockingQueue(uint32_t capacity);
 
-        ~BlockingQueue() = default;
+        explicit BlockingQueue(Util::List<T> &list);
+
+        ~BlockingQueue();
 
         BlockingQueue(const BlockingQueue<T> &other) = delete;
 
@@ -72,20 +74,36 @@ namespace Util {
 
     private:
 
-        ArrayList<T> elements;
+        List<T> &elements;
+
+        bool deleteList;
 
         static const uint32_t DEFAULT_CAPACITY = 16;
 
     };
 
     template<class T>
-    BlockingQueue<T>::BlockingQueue() : elements(DEFAULT_CAPACITY) {
+    BlockingQueue<T>::BlockingQueue() : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
 
     }
 
     template<class T>
-    BlockingQueue<T>::BlockingQueue(uint32_t capacity) : elements(capacity) {
+    BlockingQueue<T>::BlockingQueue(uint32_t capacity) : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
 
+    }
+
+    template<class T>
+    BlockingQueue<T>::BlockingQueue(Util::List<T> &list) : elements(list), deleteList(false) {
+
+    }
+
+    template<typename T>
+    BlockingQueue<T>::~BlockingQueue() {
+
+        if(deleteList) {
+
+            delete &elements;
+        }
     }
 
     template<class T>

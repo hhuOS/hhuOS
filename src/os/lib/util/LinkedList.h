@@ -18,179 +18,365 @@
 #define __LinkedList_include__
 
 #include <cstdint>
+#include <lib/String.h>
+#include "List.h"
 
-template <typename T>
-class LinkedList {
 
-struct Node {
-    T *elem;
-    struct Node *next;
-};
-    
+namespace Util {
+
+template<typename T>
+class LinkedList : public List<T> {
+
+    struct Node {
+        T element;
+        Node *next = nullptr;
+
+        explicit Node(T element) : element(element) {};
+    };
+
 private:
 
-    struct Node start = { nullptr, nullptr };
+    Node *head = nullptr;
 
-    uint32_t len = 0;
+    uint32_t length = 0;
 
 public:
 
-    void add(T *newElem);
+    LinkedList() noexcept = default;
 
-    void remove(T *rmElem);
+    LinkedList(const LinkedList<T> &other) = delete;
 
-    uint32_t length();
-
-    bool isEmpty();
-
-    bool contains(T *sElem);
-
-    int32_t indexOf(T *sElem);
-
-    T *get(uint32_t index) const;
-
-    LinkedList();
+    LinkedList<T> &operator=(const LinkedList<T> &other) = delete;
 
     ~LinkedList();
+
+    bool add(const T &element) override;
+
+    void add(uint32_t index, const T &element) override;
+
+    bool addAll(const Collection<T> &other) override;
+
+    T get(uint32_t index) const override;
+
+    void set(uint32_t index, const T &element) override;
+
+    bool remove(const T &element) override;
+
+    bool removeAll(const Collection<T> &other) override;
+
+    T remove(uint32_t index) override;
+
+    bool contains(const T &element) const override;
+
+    bool containsAll(const Collection<T> &other) const override;
+
+    uint32_t indexOf(const T &element) const override;
+
+    bool isEmpty() const override;
+
+    void clear() override;
+
+    Iterator<T> begin() const override;
+
+    Iterator<T> end() const override;
+
+    uint32_t size() const override;
+
+    Array<T> toArray() const override;
+
+protected:
+
+    void ensureCapacity(uint32_t newCapacity);
 };
 
-template <class T>
-LinkedList<T>::LinkedList() {}
-
-template <class T>
+template<class T>
 LinkedList<T>::~LinkedList() {
-    Node *current, *next;
-
-    current = &start;
-    next = start.next;
-
-    for (uint32_t i = 0; i < len; i++) {
-        delete current;
-
-        current = next;
-        next = current->next;
-    }
+    clear();
 }
 
-/**
- * Adds a new element to the list's end.
- *
- * @param newElem The new element.
- */
-template <class T>
-void LinkedList<T>::add(T *newElem) {
-    if(len == 0) {
-        start.elem = newElem;
-        len++;
+template<class T>
+bool LinkedList<T>::add(const T &element) {
+    Node *node = new Node(element);
+
+    if (head == nullptr) {
+        head = node;
+        length++;
+
+        return true;
+    }
+
+    Node *current = head;
+
+    while (current->next != nullptr) {
+        current = current->next;
+    }
+
+    current->next = node;
+    length++;
+
+    return true;
+}
+
+template<typename T>
+void LinkedList<T>::add(uint32_t index, const T &element) {
+    if (index > length) {
         return;
     }
 
-    struct Node *newNode = new Node;
-    newNode -> elem = newElem;
-    newNode -> next = nullptr;
+    Node *node = new Node(element);
 
-    struct Node *currentNode = &start;
-    while(currentNode -> next != nullptr) {
-        currentNode = currentNode -> next;
-    }
+    if(head == nullptr) {
+        head = node;
+        length++;
 
-    currentNode -> next = newNode;
-    len++;
-}
-
-/**
- * Removes a given element from the list.
- *
- * @param rmElem The element to be removed.
- */
-template <class T>
-void LinkedList<T>::remove(T *rmElem) {
-    if(start.elem == rmElem) {
-        if(start.next == nullptr) start.elem = nullptr;
-        else start = *start.next;
-        len--;
         return;
     }
 
-    struct Node *lastNode;
-    struct Node *currentNode = &start;
-    while(currentNode -> elem != rmElem) {
-        if(currentNode -> next == nullptr) return;
-        lastNode = currentNode;
-        currentNode = currentNode -> next;
+    Node *current = head;
+
+    for(uint32_t i = 0; i < length; i++) {
+        if(i == index) {
+            node->next = current->next;
+            current->next = node;
+
+            length++;
+            return;
+        }
+
+        current = current->next;
     }
-
-    lastNode -> next = currentNode -> next;
-    len--;
 }
 
-template <class T>
-uint32_t LinkedList<T>::length() {
-    return len;
-}
-
-template <class T>
-bool LinkedList<T>::isEmpty() {
-    return len == 0;
-}
-
-/**
- * Checks, if the list contains a given element.
- *
- * @param sElem The element to be checked.
- *
- * @return true, if the list contains the element;
- *         false, if not.
- */
-template <class T>
-bool LinkedList<T>::contains(T *sElem) {
-    struct Node currentNode = start;
-    while(currentNode.elem != sElem) {
-        if(currentNode.next == nullptr) return false;
-        currentNode = *currentNode.next;
+template<typename T>
+bool LinkedList<T>::addAll(const Collection <T> &other) {
+    for(const T &element : other) {
+        add(element);
     }
 
     return true;
 }
 
-/**
- * Returns the index of a given element.
- *
- * @param sElem The element to be searched.
- *
- * @return The element's index, if the list contains the element;
- *         -1, if not.
- */
-template <class T>
-int32_t LinkedList<T>::indexOf(T *sElem) {
-    struct Node currentNode = start;
+template<class T>
+bool LinkedList<T>::remove(const T &element) {
+    if (head == nullptr) {
+        return false;
+    }
+
+    if (head->element == element) {
+        Node *oldHead = head;
+
+        head = head->next;
+
+        delete oldHead;
+        length--;
+
+        return true;
+    }
+
+    Node *last = head;
+    Node *current = head;
+
+    while (current->element != element) {
+        if (current->next == nullptr) {
+            return false;
+        }
+
+        last = current;
+        current = current->next;
+    }
+
+    last->next = current->next;
+
+    length--;
+
+    delete current;
+
+    return true;
+}
+
+template<class T>
+T LinkedList<T>::remove(uint32_t index) {
+    if(index == 0) {
+        Node *oldHead = head;
+
+        head = head->next;
+
+        T ret = oldHead->element;
+        delete oldHead;
+
+        length--;
+
+        return ret;
+    }
+
+    Node *pred = head;
+    Node *current = head;
+
+    for(uint32_t i = 0; i < length; i++) {
+        if(i == index) {
+            pred->next = current->next;
+            length--;
+
+            T ret = current->element;
+            delete current;
+
+            return ret;
+        }
+
+        pred = current;
+        current = current->next;
+    }
+
+    return current->element;
+}
+
+template<typename T>
+void LinkedList<T>::set(uint32_t index, const T &element) {
+    if(index >= length) {
+        return;
+    }
+
+    Node *current = head;
+
+    for(uint32_t i = 0; i < length; i++) {
+        if(i == index) {
+            current->element = element;
+
+            return;
+        }
+
+        current = current->next;
+    }
+}
+
+template<typename T>
+bool LinkedList<T>::removeAll(const Collection <T> &other) {
+    bool changed = false;
+
+    for (const T &element : other) {
+        if (remove(element)) {
+            changed = true;
+        }
+    }
+
+    return changed;
+}
+
+template<class T>
+uint32_t LinkedList<T>::size() const {
+    return length;
+}
+
+template<class T>
+bool LinkedList<T>::isEmpty() const {
+    return length == 0;
+}
+
+template<class T>
+bool LinkedList<T>::contains(const T &element) const {
+    Node *current = head;
+
+    while (current->element != element) {
+        if (current->next == nullptr) {
+            return false;
+        }
+
+        current = current->next;
+    }
+
+    return true;
+}
+
+template<typename T>
+bool LinkedList<T>::containsAll(const Collection <T> &other) const {
+    for (const T &element : other) {
+        if (!contains(element)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+template<class T>
+uint32_t LinkedList<T>::indexOf(const T &element) const {
+    Node *current = head;
+    uint32_t ret = 0;
+
+    while (current->element != element) {
+        if (current->next == nullptr) {
+            return UINT32_MAX;
+        }
+
+        current = current->next;
+        ret++;
+    }
+
+    return ret;
+}
+template<class T>
+T LinkedList<T>::get(uint32_t index) const {
+    if (index >= length) {
+        const char *errorMessage = String::format(
+                "LinkedList: Trying to access an element at index %u, but length is %u!", index, length);
+
+        Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
+    }
+
+    Node *current = head;
+
+    for (uint32_t i = 0; i < index; i++) {
+        current = current->next;
+    }
+
+    return current->element;
+}
+
+template<typename T>
+void LinkedList<T>::clear() {
+    Node *current;
+
+    current = head;
+
+    while (current != nullptr) {
+        Node *next = current->next;
+
+        delete current;
+
+        current = next;
+    }
+}
+
+template<typename T>
+Iterator <T> LinkedList<T>::begin() const {
+    return Iterator<T>(toArray(), 0);
+}
+
+template<typename T>
+Iterator <T> LinkedList<T>::end() const {
+    return Iterator<T>(toArray(), length);
+}
+
+template<typename T>
+Array<T> LinkedList<T>::toArray() const {
+    Array<T> ret(length);
+
+    Node *current = head;
     uint32_t i = 0;
 
-    while(currentNode.elem != sElem) {
-        if(currentNode.next == nullptr) return -1;
-        currentNode = *currentNode.next;
+    while(current != nullptr) {
+        ret[i] = current->element;
         i++;
     }
 
-    return i;
+    return ret;
 }
 
-/**
- * Returns the element at a given index.
- *
- * @param index The element's index.
- *
- * @return The element, or nullptr if the index is too high.
- */
-template <class T>
-T *LinkedList<T>::get(uint32_t index) const {
-    if(index >= len) return nullptr;
+template<typename T>
+void LinkedList<T>::ensureCapacity(uint32_t newCapacity) {
 
-    struct Node currentNode = start;
-    for(uint32_t i = 0; i < index; i++) {
-        currentNode = *currentNode.next;
-    }
-    return currentNode.elem;
+}
+
 }
 
 #endif

@@ -18,7 +18,6 @@
 #define __VirtualNode_include__
 
 #include "filesystem/FsNode.h"
-#include "lib/util/LinkedList.h"
 #include <cstdint>
 #include <lib/util/ArrayList.h>
 
