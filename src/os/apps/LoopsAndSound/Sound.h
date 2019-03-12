@@ -17,6 +17,7 @@
 #ifndef __Sound_include__
 #define __Sound_include__
 
+#include <lib/file/beep/BeepFile.h>
 #include "kernel/threads/Thread.h"
 #include "devices/sound/PcSpeaker.h"
 
@@ -34,7 +35,9 @@ private:
 
     TimeService * timeService = nullptr;
 
-    bool isRunning = true;
+    BeepFile *tetris = nullptr;
+
+    BeepFile *mario = nullptr;
 
 public:
 

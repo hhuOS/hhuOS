@@ -74,8 +74,6 @@ void Application::startLoopSoundDemo() {
     currentApp->start();
 }
 
-
-
 void Application::startAntDemo() {
     currentApp = new AntApp();
 
@@ -259,10 +257,7 @@ void Application::startSelectedApp() {
             break;
     }
 
-    if(currentApp != nullptr) {
-        delete currentApp;
-        currentApp = nullptr;
-    }
+    delete currentApp;
 }
 
 void Application::startGame(Game* game){

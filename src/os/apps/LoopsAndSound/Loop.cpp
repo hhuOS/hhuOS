@@ -22,7 +22,7 @@
 
 #include "kernel/Kernel.h"
 
-Mutex Loop::printLock;
+Spinlock Loop::printLock;
 
 Loop::Loop(uint32_t id, uint8_t priority) : Thread(String::format("Loop%u", id), priority) {
     myID = id;
@@ -35,10 +35,7 @@ void Loop::run () {
     for (uint32_t i = 0; isRunning; i++) {
         printLock.acquire();
 
-        String string("Loop[");
-        string += String::valueOf(myID, 10);
-        string += "]: ";
-        string += String::valueOf(i, 10);
+        String string = String::format("Loop[%u]: %u", myID, i);
 
         stream->setpos (21, static_cast<uint16_t>(10 + 2 * myID));
         stream->puts((char *) string, string.length(), Colors::HHU_GRAY, Colors::BLACK);

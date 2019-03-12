@@ -16,23 +16,24 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/services/SoundService.h>
-#include <lib/file/beep/BeepFile.h>
 #include "Sound.h"
 
 Sound::Sound() : Thread("Sound") {
     speaker = Kernel::getService<SoundService>()->getPcSpeaker();
     timeService = Kernel::getService<TimeService>();
+
+    tetris = BeepFile::load("/initrd/music/beep/tetris.beep");
+    mario = BeepFile::load("/initrd/music/beep/mario.beep");
 }
 
 void Sound::run () {
-    while(isRunning) {
-
-        BeepFile::load("/initrd/music/beep/tetris.beep")->play();
+    while(true) {
+        tetris->play();
 
         speaker->off();
         timeService->msleep(1000);
 
-        BeepFile::load("/initrd/music/beep/mario.beep")->play();
+        mario->play();
 
         speaker->off();
         timeService->msleep(1000);
@@ -41,4 +42,7 @@ void Sound::run () {
 
 Sound::~Sound() {
     speaker->off();
+
+    delete tetris;
+    delete mario;
 }

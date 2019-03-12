@@ -34,7 +34,7 @@ private:
 
     uint32_t myID;
 
-    static Mutex printLock;
+    static Spinlock printLock;
 
     bool isRunning = true;
 
