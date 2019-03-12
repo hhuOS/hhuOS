@@ -19,7 +19,7 @@
 
 #include <lib/util/Queue.h>
 #include <kernel/threads/WorkerThread.h>
-#include <lib/util/LinkedBlockingQueue.h>
+#include <lib/util/ArrayBlockingQueue.h>
 #include <lib/lock/Spinlock.h>
 
 class ThreadPool {
@@ -32,7 +32,7 @@ private:
 
         ThreadPool *pool = nullptr;
 
-        Spinlock *workQueueLock;
+        Spinlock *workQueueLock = nullptr;
 
         ThreadPoolWorker() = default;
 
@@ -74,7 +74,7 @@ private:
 
 private:
 
-    Util::LinkedBlockingQueue<void (*)()> workQueue;
+    Util::ArrayBlockingQueue<void (*)()> workQueue;
     Util::Array<ThreadPoolWorker> threads;
 
     Spinlock workQueueLock;
