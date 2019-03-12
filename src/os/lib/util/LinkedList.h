@@ -20,25 +20,13 @@
 #include <cstdint>
 #include <lib/String.h>
 #include "List.h"
+#include "LinkedBlockingQueue.h"
 
 
 namespace Util {
 
 template<typename T>
-class LinkedList : public List<T> {
-
-    struct Node {
-        T element;
-        Node *next = nullptr;
-
-        explicit Node(T element) : element(element) {};
-    };
-
-private:
-
-    Node *head = nullptr;
-
-    uint32_t length = 0;
+class LinkedList : public List<T>, public LinkedBlockingQueue<T> {
 
 public:
 
@@ -87,59 +75,38 @@ public:
 protected:
 
     void ensureCapacity(uint32_t newCapacity);
+
+private:
+
+    typedef typename LinkedBlockingQueue<T>::Node Node;
 };
 
 template<class T>
 LinkedList<T>::~LinkedList() {
-    clear();
+    LinkedBlockingQueue<T>::clear();
 }
 
-template<class T>
+template<typename T>
 bool LinkedList<T>::add(const T &element) {
-    Node *node = new Node(element);
-
-    if (head == nullptr) {
-        head = node;
-        length++;
-
-        return true;
-    }
-
-    Node *current = head;
-
-    while (current->next != nullptr) {
-        current = current->next;
-    }
-
-    current->next = node;
-    length++;
-
-    return true;
+    return LinkedBlockingQueue<T>::add(element);
 }
 
 template<typename T>
 void LinkedList<T>::add(uint32_t index, const T &element) {
-    if (index > length) {
-        return;
+    if (index > LinkedBlockingQueue<T>::length || LinkedBlockingQueue<T>::head == nullptr) {
+        LinkedBlockingQueue<T>::push(element);
     }
 
     Node *node = new Node(element);
 
-    if(head == nullptr) {
-        head = node;
-        length++;
+    Node *current = LinkedBlockingQueue<T>::head;
 
-        return;
-    }
-
-    Node *current = head;
-
-    for(uint32_t i = 0; i < length; i++) {
+    for(uint32_t i = 0; i < LinkedBlockingQueue<T>::length; i++) {
         if(i == index) {
             node->next = current->next;
             current->next = node;
 
-            length++;
+            LinkedBlockingQueue<T>::length++;
             return;
         }
 
@@ -149,73 +116,27 @@ void LinkedList<T>::add(uint32_t index, const T &element) {
 
 template<typename T>
 bool LinkedList<T>::addAll(const Collection <T> &other) {
-    for(const T &element : other) {
-        add(element);
-    }
-
-    return true;
-}
-
-template<class T>
-bool LinkedList<T>::remove(const T &element) {
-    if (head == nullptr) {
-        return false;
-    }
-
-    if (head->element == element) {
-        Node *oldHead = head;
-
-        head = head->next;
-
-        delete oldHead;
-        length--;
-
-        return true;
-    }
-
-    Node *last = head;
-    Node *current = head;
-
-    while (current->element != element) {
-        if (current->next == nullptr) {
-            return false;
-        }
-
-        last = current;
-        current = current->next;
-    }
-
-    last->next = current->next;
-
-    length--;
-
-    delete current;
-
-    return true;
+    return LinkedBlockingQueue<T>::addAll(other);
 }
 
 template<class T>
 T LinkedList<T>::remove(uint32_t index) {
     if(index == 0) {
-        Node *oldHead = head;
-
-        head = head->next;
-
-        T ret = oldHead->element;
-        delete oldHead;
-
-        length--;
-
-        return ret;
+        return LinkedBlockingQueue<T>::pop();
     }
 
-    Node *pred = head;
-    Node *current = head;
+    Node *pred = LinkedBlockingQueue<T>::head;
+    Node *current = LinkedBlockingQueue<T>::head;
 
-    for(uint32_t i = 0; i < length; i++) {
+    for(uint32_t i = 0; i < LinkedBlockingQueue<T>::length; i++) {
         if(i == index) {
             pred->next = current->next;
-            length--;
+
+            if(pred->next == nullptr) {
+                LinkedBlockingQueue<T>::tail = pred;
+            }
+
+            LinkedBlockingQueue<T>::length--;
 
             T ret = current->element;
             delete current;
@@ -227,18 +148,44 @@ T LinkedList<T>::remove(uint32_t index) {
         current = current->next;
     }
 
+
+    const char *errorMessage = String::format(
+            "LinkedList: Trying to access an element at index %u, but length is %u!", index, LinkedBlockingQueue<T>::length);
+
+    Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
+
     return current->element;
 }
 
 template<typename T>
+bool LinkedList<T>::remove(const T &element) {
+    return LinkedBlockingQueue<T>::remove(element);
+}
+
+template<typename T>
+bool LinkedList<T>::removeAll(const Collection <T> &other) {
+    return LinkedBlockingQueue<T>::removeAll(other);
+}
+
+template<typename T>
+bool LinkedList<T>::contains(const T &element) const {
+    return LinkedBlockingQueue<T>::contains(element);
+}
+
+template<typename T>
+bool LinkedList<T>::containsAll(const Collection <T> &other) const {
+    return LinkedBlockingQueue<T>::containsAll(other);
+}
+
+template<typename T>
 void LinkedList<T>::set(uint32_t index, const T &element) {
-    if(index >= length) {
+    if(index >= LinkedBlockingQueue<T>::length) {
         return;
     }
 
-    Node *current = head;
+    Node *current = LinkedBlockingQueue<T>::head;
 
-    for(uint32_t i = 0; i < length; i++) {
+    for(uint32_t i = 0; i < LinkedBlockingQueue<T>::length; i++) {
         if(i == index) {
             current->element = element;
 
@@ -249,58 +196,9 @@ void LinkedList<T>::set(uint32_t index, const T &element) {
     }
 }
 
-template<typename T>
-bool LinkedList<T>::removeAll(const Collection <T> &other) {
-    bool changed = false;
-
-    for (const T &element : other) {
-        if (remove(element)) {
-            changed = true;
-        }
-    }
-
-    return changed;
-}
-
-template<class T>
-uint32_t LinkedList<T>::size() const {
-    return length;
-}
-
-template<class T>
-bool LinkedList<T>::isEmpty() const {
-    return length == 0;
-}
-
-template<class T>
-bool LinkedList<T>::contains(const T &element) const {
-    Node *current = head;
-
-    while (current->element != element) {
-        if (current->next == nullptr) {
-            return false;
-        }
-
-        current = current->next;
-    }
-
-    return true;
-}
-
-template<typename T>
-bool LinkedList<T>::containsAll(const Collection <T> &other) const {
-    for (const T &element : other) {
-        if (!contains(element)) {
-            return false;
-        }
-    }
-
-    return true;
-}
-
 template<class T>
 uint32_t LinkedList<T>::indexOf(const T &element) const {
-    Node *current = head;
+    Node *current = LinkedBlockingQueue<T>::head;
     uint32_t ret = 0;
 
     while (current->element != element) {
@@ -316,14 +214,14 @@ uint32_t LinkedList<T>::indexOf(const T &element) const {
 }
 template<class T>
 T LinkedList<T>::get(uint32_t index) const {
-    if (index >= length) {
+    if (index >= LinkedBlockingQueue<T>::length) {
         const char *errorMessage = String::format(
-                "LinkedList: Trying to access an element at index %u, but length is %u!", index, length);
+                "LinkedList: Trying to access an element at index %u, but length is %u!", index, LinkedBlockingQueue<T>::length);
 
         Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
     }
 
-    Node *current = head;
+    Node *current = LinkedBlockingQueue<T>::head;
 
     for (uint32_t i = 0; i < index; i++) {
         current = current->next;
@@ -333,48 +231,38 @@ T LinkedList<T>::get(uint32_t index) const {
 }
 
 template<typename T>
+void LinkedList<T>::ensureCapacity(uint32_t newCapacity) {
+
+}
+
+template<typename T>
+bool LinkedList<T>::isEmpty() const {
+    return LinkedBlockingQueue<T>::isEmpty();
+}
+
+template<typename T>
 void LinkedList<T>::clear() {
-    Node *current;
-
-    current = head;
-
-    while (current != nullptr) {
-        Node *next = current->next;
-
-        delete current;
-
-        current = next;
-    }
+    LinkedBlockingQueue<T>::clear();
 }
 
 template<typename T>
 Iterator <T> LinkedList<T>::begin() const {
-    return Iterator<T>(toArray(), 0);
+    return LinkedBlockingQueue<T>::begin();
 }
 
 template<typename T>
 Iterator <T> LinkedList<T>::end() const {
-    return Iterator<T>(toArray(), length);
+    return LinkedBlockingQueue<T>::end();
 }
 
 template<typename T>
-Array<T> LinkedList<T>::toArray() const {
-    Array<T> ret(length);
-
-    Node *current = head;
-    uint32_t i = 0;
-
-    while(current != nullptr) {
-        ret[i] = current->element;
-        i++;
-    }
-
-    return ret;
+uint32_t LinkedList<T>::size() const {
+    return LinkedBlockingQueue<T>::size();
 }
 
 template<typename T>
-void LinkedList<T>::ensureCapacity(uint32_t newCapacity) {
-
+Array <T> LinkedList<T>::toArray() const {
+    return LinkedBlockingQueue<T>::toArray();
 }
 
 }

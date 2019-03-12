@@ -19,8 +19,8 @@
 
 #include <lib/util/Queue.h>
 #include <kernel/threads/WorkerThread.h>
-#include <lib/util/ThreadSafeBlockingQueue.h>
-#include <lib/lock/Mutex.h>
+#include <lib/util/LinkedBlockingQueue.h>
+#include <lib/lock/Spinlock.h>
 
 class ThreadPool {
 
@@ -32,18 +32,22 @@ private:
 
         ThreadPool *pool = nullptr;
 
+        Spinlock *workQueueLock;
+
         ThreadPoolWorker() = default;
 
-        explicit ThreadPoolWorker(ThreadPool *pool) : pool(pool) {
+        explicit ThreadPoolWorker(ThreadPool *pool, Spinlock *workQueueLock) : pool(pool), workQueueLock(workQueueLock) {
 
         }
 
         ThreadPoolWorker(const ThreadPoolWorker &other) {
             this->pool = other.pool;
+            this->workQueueLock = other.workQueueLock;
         }
 
         ThreadPoolWorker& operator=(const ThreadPoolWorker &other) {
             this->pool = other.pool;
+            this->workQueueLock = other.workQueueLock;
 
             return *this;
         }
@@ -54,7 +58,11 @@ private:
                     yield();
                 }
 
+                workQueueLock->acquire();
+
                 void (*work)() = pool->workQueue.pop();
+
+                workQueueLock->release();
 
                 isWorking = true;
                 work();
@@ -66,8 +74,10 @@ private:
 
 private:
 
-    Util::ThreadSafeBlockingQueue<void (*)()> workQueue;
+    Util::LinkedBlockingQueue<void (*)()> workQueue;
     Util::Array<ThreadPoolWorker> threads;
+
+    Spinlock workQueueLock;
 
     bool working = false;
 

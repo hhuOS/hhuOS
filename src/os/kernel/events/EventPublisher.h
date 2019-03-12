@@ -17,9 +17,8 @@
 #ifndef __EventPublisher_include__
 #define __EventPublisher_include__
 
-#include <lib/util/BlockingQueue.h>
 #include <lib/util/SmartPointer.h>
-#include <lib/util/LinkedList.h>
+#include <lib/util/LinkedBlockingQueue.h>
 #include "kernel/threads/Thread.h"
 #include "kernel/events/Event.h"
 #include "kernel/events/Receiver.h"
@@ -80,9 +79,7 @@ public:
 
 private:
 
-    Util::LinkedList<Util::SmartPointer<Event>> eventList;
-
-    Util::BlockingQueue<Util::SmartPointer<Event>> eventQueue;
+    Util::LinkedBlockingQueue<Util::SmartPointer<Event>> eventQueue;
 
     Receiver &receiver;
 

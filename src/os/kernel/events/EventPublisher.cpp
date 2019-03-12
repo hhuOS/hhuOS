@@ -13,7 +13,7 @@
 #include "kernel/threads/Scheduler.h"
 #include "EventPublisher.h"
 
-EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), eventQueue(eventList), receiver(receiver) {
+EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), receiver(receiver) {
 
 }
 

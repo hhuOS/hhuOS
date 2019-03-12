@@ -19,7 +19,7 @@
 
 ThreadPool::ThreadPool(uint32_t size) : threads(size) {
     for (auto &thread : threads) {
-        thread = ThreadPoolWorker(this);
+        thread = ThreadPoolWorker(this, &workQueueLock);
     }
 }
 
@@ -28,7 +28,11 @@ ThreadPool::~ThreadPool() {
 }
 
 void ThreadPool::addWork(void (*func)()) {
+    workQueueLock.acquire();
+
     workQueue.push(func);
+
+    workQueueLock.release();
 }
 
 void ThreadPool::startWorking() {

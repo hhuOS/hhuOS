@@ -196,7 +196,7 @@ Thread* Scheduler::getNextThread() {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
-    Util::BlockingQueue<Thread*> *currentQueue = &readyQueues[priority.getNextPriority()];
+    Util::ArrayBlockingQueue<Thread*> *currentQueue = &readyQueues[priority.getNextPriority()];
 
     while(currentQueue->isEmpty()) {
         currentQueue = &readyQueues[priority.getNextPriority()];

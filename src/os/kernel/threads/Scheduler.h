@@ -17,7 +17,7 @@
 #ifndef __Scheduler_include__
 #define __Scheduler_include__
 
-#include <lib/util/BlockingQueue.h>
+#include <lib/util/ArrayBlockingQueue.h>
 #include <kernel/services/InputService.h>
 #include <kernel/threads/priority/ThreadPriority.h>
 #include "kernel/threads/Thread.h"
@@ -136,7 +136,7 @@ private:
 
     ThreadPriority &priority;
 
-    Util::Array<Util::BlockingQueue<Thread*>> readyQueues;
+    Util::Array<Util::ArrayBlockingQueue<Thread*>> readyQueues;
 };
 
 #endif

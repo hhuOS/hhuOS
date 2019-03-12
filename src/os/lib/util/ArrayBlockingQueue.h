@@ -28,21 +28,19 @@ namespace Util {
      * @author Filip Krakowski
      */
     template <typename T>
-    class BlockingQueue : public Queue<T> {
+    class ArrayBlockingQueue : public Queue<T> {
 
     public:
 
-        BlockingQueue();
+        ArrayBlockingQueue();
 
-        explicit BlockingQueue(uint32_t capacity);
+        explicit ArrayBlockingQueue(uint32_t capacity);
 
-        explicit BlockingQueue(Util::List<T> &list);
+        ~ArrayBlockingQueue();
 
-        ~BlockingQueue();
+        ArrayBlockingQueue(const ArrayBlockingQueue<T> &other) = delete;
 
-        BlockingQueue(const BlockingQueue<T> &other) = delete;
-
-        BlockingQueue<T> &operator=(const BlockingQueue<T> &other) = delete;
+        ArrayBlockingQueue<T> &operator=(const ArrayBlockingQueue<T> &other) = delete;
 
         void push(const T &element) override;
 
@@ -83,22 +81,17 @@ namespace Util {
     };
 
     template<class T>
-    BlockingQueue<T>::BlockingQueue() : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
+    ArrayBlockingQueue<T>::ArrayBlockingQueue() : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
 
     }
 
     template<class T>
-    BlockingQueue<T>::BlockingQueue(uint32_t capacity) : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
-
-    }
-
-    template<class T>
-    BlockingQueue<T>::BlockingQueue(Util::List<T> &list) : elements(list), deleteList(false) {
+    ArrayBlockingQueue<T>::ArrayBlockingQueue(uint32_t capacity) : elements(*new Util::ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {
 
     }
 
     template<typename T>
-    BlockingQueue<T>::~BlockingQueue() {
+    ArrayBlockingQueue<T>::~ArrayBlockingQueue() {
 
         if(deleteList) {
 
@@ -107,13 +100,13 @@ namespace Util {
     }
 
     template<class T>
-    void BlockingQueue<T>::push(const T &element) {
+    void ArrayBlockingQueue<T>::push(const T &element) {
 
         elements.add(element);
     }
 
     template<class T>
-    T BlockingQueue<T>::pop() {
+    T ArrayBlockingQueue<T>::pop() {
 
         while (isEmpty()) {}
 
@@ -121,73 +114,73 @@ namespace Util {
     }
 
     template<class T>
-    bool BlockingQueue<T>::add(const T &element) {
+    bool ArrayBlockingQueue<T>::add(const T &element) {
 
         return elements.add(element);
     }
 
     template<class T>
-    bool BlockingQueue<T>::addAll(const Collection<T> &other) {
+    bool ArrayBlockingQueue<T>::addAll(const Collection<T> &other) {
 
         return elements.addAll(other);
     }
 
     template<class T>
-    bool BlockingQueue<T>::remove(const T &element) {
+    bool ArrayBlockingQueue<T>::remove(const T &element) {
 
         return elements.remove(element);
     }
 
     template<class T>
-    bool BlockingQueue<T>::removeAll(const Collection<T> &other) {
+    bool ArrayBlockingQueue<T>::removeAll(const Collection<T> &other) {
 
         return elements.removeAll(other);
     }
 
     template<class T>
-    bool BlockingQueue<T>::contains(const T &element) const {
+    bool ArrayBlockingQueue<T>::contains(const T &element) const {
 
         return elements.contains(element);
     }
 
     template<class T>
-    bool BlockingQueue<T>::containsAll(const Collection<T> &other) const {
+    bool ArrayBlockingQueue<T>::containsAll(const Collection<T> &other) const {
 
         return elements.containsAll(other);
     }
 
     template<class T>
-    bool BlockingQueue<T>::isEmpty() const {
+    bool ArrayBlockingQueue<T>::isEmpty() const {
 
         return elements.isEmpty();
     }
 
     template<class T>
-    void BlockingQueue<T>::clear() {
+    void ArrayBlockingQueue<T>::clear() {
 
         elements.clear();
     }
 
     template<class T>
-    Iterator<T> BlockingQueue<T>::begin() const {
+    Iterator<T> ArrayBlockingQueue<T>::begin() const {
 
         return elements.begin();
     }
 
     template<class T>
-    Iterator<T> BlockingQueue<T>::end() const {
+    Iterator<T> ArrayBlockingQueue<T>::end() const {
 
         return elements.end();
     }
 
     template<class T>
-    uint32_t BlockingQueue<T>::size() const {
+    uint32_t ArrayBlockingQueue<T>::size() const {
 
         return elements.size();
     }
 
     template<class T>
-    Array<T> BlockingQueue<T>::toArray() const {
+    Array<T> ArrayBlockingQueue<T>::toArray() const {
 
         return elements.toArray();
     }

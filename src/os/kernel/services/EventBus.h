@@ -26,9 +26,8 @@
 #include "kernel/KernelService.h"
 #include "kernel/events/Receiver.h"
 #include <kernel/events/EventPublisher.h>
+#include <lib/util/LinkedBlockingQueue.h>
 #include "lib/util/Pair.h"
-#include "lib/util/BlockingQueue.h"
-#include "lib/util/LinkedList.h"
 
 class LinearFrameBuffer;
 class Scheduler;
@@ -83,9 +82,7 @@ private:
 
     Util::HashMap<Util::Pair<Receiver*, String>, EventPublisher*> receiverMap;
 
-    Util::LinkedList<Util::SmartPointer<Event>> eventList;
-
-    Util::BlockingQueue<Util::SmartPointer<Event>> eventBuffer;
+    Util::LinkedBlockingQueue<Util::SmartPointer<Event>> eventBuffer;
 
     Spinlock lock;
 
