@@ -34,7 +34,7 @@
 class FileStatus {
 
 private:
-    FsNode *node;
+    Util::SmartPointer<FsNode> node;
     String path;
 
     /**
@@ -42,7 +42,7 @@ private:
      *
      * @param node The node, representing the file
      */
-    FileStatus(FsNode *node, const String &path);
+    FileStatus(Util::SmartPointer<FsNode> node, const String &path);
 
 public:
     /**
@@ -58,7 +58,7 @@ public:
     /**
      * Destructor.
      */
-    ~FileStatus();
+    ~FileStatus() = default;
 
     /**
      * Check, if a file or directory at a specified path exists.

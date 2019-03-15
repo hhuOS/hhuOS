@@ -153,7 +153,7 @@ public:
      *
      * @return The node (or nullptr on failure)
      */
-    FsNode *getNode(const String &path);
+    Util::SmartPointer<FsNode> getNode(const String &path);
 
     /**
      * Create a file at a specified path.

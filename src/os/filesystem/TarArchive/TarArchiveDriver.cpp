@@ -38,20 +38,20 @@ bool TarArchiveDriver::mount(StorageDevice *device) {
     return false;
 }
 
-FsNode *TarArchiveDriver::getNode(const String &path) {
+Util::SmartPointer<FsNode> TarArchiveDriver::getNode(const String &path) {
     for(Tar::Header *header : archive->getFileHeaders()) {
         String currentPath = header->filename;
 
         if(path == currentPath) {
-            return new TarArchiveNode(archive, header);
+            return Util::SmartPointer<FsNode>(new TarArchiveNode(archive, header));
         }
 
         if((path == "") || (currentPath.beginsWith(path) && currentPath[path.length()] == '/')) {
-            return new TarArchiveNode(archive, path);
+            return Util::SmartPointer<FsNode>(new TarArchiveNode(archive, path));
         }
     }
 
-    return nullptr;
+    return Util::SmartPointer<FsNode>(nullptr);
 }
 
 bool TarArchiveDriver::createNode(const String &path, uint8_t fileType) {

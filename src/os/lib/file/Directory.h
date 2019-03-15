@@ -34,7 +34,7 @@
 class Directory {
 
 private:
-    FsNode *node;
+    Util::SmartPointer<FsNode> node;
     String path;
 
     /**
@@ -43,7 +43,7 @@ private:
      * @param node The node, representing the directory
      * @param path The absolute path, that points to the directory
      */
-    Directory(FsNode *node, const String &path);
+    Directory(Util::SmartPointer<FsNode> node, const String &path);
 
 public:
     /**
@@ -59,7 +59,7 @@ public:
     /**
      * Destructor.
      */
-    ~Directory();
+    ~Directory() = default;
 
     /**
      * Open a directory.

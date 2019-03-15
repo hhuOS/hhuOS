@@ -45,26 +45,25 @@ FileSystem::~FileSystem() {
 
 String FileSystem::parsePath(const String &path) {
     Util::Array<String> token = path.split(FileSystem::SEPARATOR);
-    Util::List<String> *parsedToken = new Util::ArrayList<String>();
+    Util::ArrayList<String> parsedToken;
 
     for (const String &string : token) {
         if (string == ".") {
             continue;
         } else if (string == "..") {
-            if(!parsedToken->isEmpty()) {
-                parsedToken->remove(parsedToken->size() - 1);
+            if(!parsedToken.isEmpty()) {
+                parsedToken.remove(parsedToken.size() - 1);
             }
         } else {
-            parsedToken->add(*new String(string));
+            parsedToken.add(*new String(string));
         }
     }
 
-    if (parsedToken->isEmpty()) {
-        delete parsedToken;
+    if (parsedToken.isEmpty()) {
         return "";
     }
 
-    String parsedPath = FileSystem::SEPARATOR + String::join(FileSystem::SEPARATOR, parsedToken->toArray());
+    String parsedPath = FileSystem::SEPARATOR + String::join(FileSystem::SEPARATOR, parsedToken.toArray());
     return parsedPath;
 }
 
@@ -197,7 +196,7 @@ uint32_t FileSystem::addVirtualNode(const String &path, VirtualNode *node) {
 
 uint32_t FileSystem::createFilesystem(const String &devicePath, const String &fsType) {
     // Check if device-node exists
-    FsNode *deviceNode = getNode(devicePath);
+    Util::SmartPointer<FsNode> deviceNode = getNode(devicePath);
     if(deviceNode == nullptr) {
         return DEVICE_NOT_FOUND;
     }
@@ -228,7 +227,7 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
 
     if(fsType != TYPE_RAM_FS) {
         // Check if device-node exists
-        FsNode *deviceNode = getNode(parsedDevicePath);
+        Util::SmartPointer<FsNode> deviceNode = getNode(parsedDevicePath);
 
         if(deviceNode == nullptr) {
             // Device node is non-existent,
@@ -246,14 +245,12 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
     }
 
     String parsedPath = parsePath(targetPath) + FileSystem::SEPARATOR;
-    FsNode *targetNode = getNode(parsedPath);
+    Util::SmartPointer<FsNode> targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {
         if(mountPoints.size() != 0) {
             return FILE_NOT_FOUND;
         }
-    } else {
-        delete targetNode;
     }
 
     fsLock.acquire();
@@ -279,14 +276,12 @@ uint32_t FileSystem::mount(const String &devicePath, const String &targetPath, c
 
 uint32_t FileSystem::unmount(const String &path) {
     String parsedPath = parsePath(path) + FileSystem::SEPARATOR;
-    FsNode *targetNode = getNode(parsedPath);
+    Util::SmartPointer<FsNode> targetNode = getNode(parsedPath);
 
     if(targetNode == nullptr) {
         if(path != "/") {
             return FILE_NOT_FOUND;
         }
-    } else {
-        delete targetNode;
     }
 
     fsLock.acquire();
@@ -313,7 +308,7 @@ uint32_t FileSystem::unmount(const String &path) {
     return NOTHING_MOUNTED_AT_PATH;
 }
 
-FsNode *FileSystem::getNode(const String &path) {
+Util::SmartPointer<FsNode> FileSystem::getNode(const String &path) {
     String parsedPath = parsePath(path);
 
     fsLock.acquire();
@@ -322,10 +317,10 @@ FsNode *FileSystem::getNode(const String &path) {
 
     if(driver == nullptr) {
         fsLock.release();
-        return nullptr;
+        return Util::SmartPointer<FsNode>(nullptr);
     }
     
-    FsNode *ret = driver->getNode(parsedPath);
+    Util::SmartPointer<FsNode> ret = driver->getNode(parsedPath);
 
     fsLock.release();
 

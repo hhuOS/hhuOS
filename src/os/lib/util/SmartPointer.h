@@ -52,7 +52,15 @@ public:
 
     bool operator==(const SmartPointer<T> &other);
 
+    bool operator==(const T *other);
+
+    bool operator==(const T &other);
+
     bool operator!=(const SmartPointer<T> &other);
+
+    bool operator!=(const T *other);
+
+    bool operator!=(const T &other);
 
 };
 
@@ -153,8 +161,28 @@ bool SmartPointer<T>::operator==(const SmartPointer<T> &other) {
 }
 
 template<typename T>
+bool SmartPointer<T>::operator==(const T *other) {
+    return pointer == other;
+}
+
+template<typename T>
+bool SmartPointer<T>::operator==(const T &other) {
+    return pointer == &other;
+}
+
+template<typename T>
 bool SmartPointer<T>::operator!=(const SmartPointer<T> &other) {
     return pointer != other.pointer;
+}
+
+template<typename T>
+bool SmartPointer<T>::operator!=(const T *other) {
+    return pointer != other;
+}
+
+template<typename T>
+bool SmartPointer<T>::operator!=(const T &other) {
+    return pointer != &other;
 }
 
 }

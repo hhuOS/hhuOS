@@ -20,31 +20,18 @@
 #include <kernel/Kernel.h>
 #include "FileStatus.h"
 
-FileStatus::FileStatus(FsNode *node, const String &path) : node(node) {
+FileStatus::FileStatus(Util::SmartPointer<FsNode> node, const String &path) : node(node) {
     this->path = FileSystem::parsePath(path);
 }
 
-FileStatus::~FileStatus() {
-    if(node != nullptr) {
-        delete node;
-    }
-}
-
 bool FileStatus::exists(const String &path) {
-    auto *filesystem = Kernel::getService<FileSystem>();
-    FsNode *node = filesystem->getNode(path);
+    return !(Kernel::getService<FileSystem>()->getNode(path) == nullptr);
 
-    if(node == nullptr) {
-        return false;
-    }
-
-    delete node;
-    return true;
 }
 
 FileStatus *FileStatus::stat(const String &path) {
     auto *filesystem = Kernel::getService<FileSystem>();
-    FsNode *node = filesystem->getNode(path);
+    Util::SmartPointer<FsNode> node = filesystem->getNode(path);
 
     if(node == nullptr) {
         return nullptr;

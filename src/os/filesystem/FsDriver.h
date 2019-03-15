@@ -20,6 +20,7 @@
 #include "FsNode.h"
 #include <lib/util/HashMap.h>
 #include <lib/Prototype.h>
+#include <lib/util/SmartPointer.h>
 #include "devices/storage/devices/StorageDevice.h"
 
 /**
@@ -67,7 +68,7 @@ public:
      * 
      * @return The FsNode (or nulltpr on failure)
      */ 
-    virtual FsNode *getNode(const String &path) = 0;
+    virtual Util::SmartPointer<FsNode> getNode(const String &path) = 0;
 
     /**
      * Create a new empty file or directory at a given path.

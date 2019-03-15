@@ -45,17 +45,17 @@ bool FatDriver::createFs(StorageDevice *device) {
     return ret;
 }
 
-FsNode *FatDriver::getNode(const String &path) {
+Util::SmartPointer<FsNode> FatDriver::getNode(const String &path) {
     if(path.length() == 0 || path == "/") {
-        return FatNode::open("", fatInstance);
+        return Util::SmartPointer<FsNode>(FatNode::open("", fatInstance));
     }
 
     FILINFO info{};
     if(fatInstance->f_stat((char *) path, &info) != FR_OK) {
-        return nullptr;
+        return Util::SmartPointer<FsNode>(nullptr);
     }
     
-    return FatNode::open(path, fatInstance);
+    return Util::SmartPointer<FsNode>(FatNode::open(path, fatInstance));
 }
 
 bool FatDriver::createNode(const String &path, uint8_t fileType) {

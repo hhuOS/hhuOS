@@ -16,7 +16,7 @@
 
 #include "File.h"
 
-File::File(FsNode *node, const String &path, const String &mode) : node(node) {
+File::File(Util::SmartPointer<FsNode> node, const String &path, const String &mode) : node(node) {
     this->path = FileSystem::parsePath(path);
     this->mode = mode;
 
@@ -24,12 +24,6 @@ File::File(FsNode *node, const String &path, const String &mode) : node(node) {
         pos = node->getLength();
     }
 };
-
-File::~File() {
-    if(node != nullptr) {
-        delete node;
-    }
-}
 
 File *File::open(const String &path, const String &mode) {
     if (mode.length() == 0) {
@@ -42,7 +36,7 @@ File *File::open(const String &path, const String &mode) {
 
     auto *fileSystem = Kernel::getService<FileSystem>();
 
-    FsNode *node = fileSystem->getNode(path);
+    Util::SmartPointer<FsNode> node = fileSystem->getNode(path);
 
     if(node == nullptr) {
         switch(mode[0]) {
@@ -72,7 +66,6 @@ File *File::open(const String &path, const String &mode) {
             return new File(fileSystem->getNode(path), path, mode);
         }
 
-        delete node;
         return nullptr;
     }
 

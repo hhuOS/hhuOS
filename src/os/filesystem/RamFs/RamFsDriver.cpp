@@ -51,9 +51,9 @@ bool RamFsDriver::createFs(StorageDevice *device) {
     return false;
 }
 
-FsNode *RamFsDriver::getNode(const String &path) {
+Util::SmartPointer<FsNode> RamFsDriver::getNode(const String &path) {
     if(path.length() == 0){
-        return new RamFsNode(rootNode);
+        return Util::SmartPointer<FsNode>(new RamFsNode(rootNode));
     }
 
     Util::Array<String> token = path.split(FileSystem::SEPARATOR);
@@ -61,24 +61,24 @@ FsNode *RamFsDriver::getNode(const String &path) {
     VirtualNode *currentDir = rootNode;
     
     if(token.length() == 0) {
-        return new RamFsNode(rootNode);
+        return Util::SmartPointer<FsNode>(new RamFsNode(rootNode));
     }
     
     for(uint32_t i = 0; i < token.length() - 1; i++) {
         currentDir = getChildByName(currentDir, token[i]);
 
         if(currentDir == nullptr || currentDir->getFileType() != FsNode::DIRECTORY_FILE) {
-            return nullptr;
+            return Util::SmartPointer<FsNode>(nullptr);
         }
     }
     
     VirtualNode *ret = getChildByName(currentDir, token[token.length() - 1]);
 
     if(ret == nullptr) {
-        return nullptr;
+        return Util::SmartPointer<FsNode>(nullptr);
     }
 
-    return new RamFsNode(ret);
+    return Util::SmartPointer<FsNode>(new RamFsNode(ret));
 }
 
 bool RamFsDriver::addNode(const String &path, VirtualNode *node) {

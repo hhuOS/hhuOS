@@ -35,7 +35,7 @@
 class File : public OutputStream, public InputStream {
 
 private:
-    FsNode *node;
+    Util::SmartPointer<FsNode> node;
     String path;
     String mode;
     uint64_t pos = 0;
@@ -47,7 +47,7 @@ private:
      * @param path The absolute path, that points to the file
      * @param mode The operating mode (See File::open() for more details)
      */
-    File(FsNode *node, const String &path, const String &mode);
+    File(Util::SmartPointer<FsNode> node, const String &path, const String &mode);
 
 public:
     /**
@@ -72,7 +72,7 @@ public:
     /**
      * Destructor.
      */
-    ~File() override;
+    ~File() override = default;
 
     /**
      * Open a file.

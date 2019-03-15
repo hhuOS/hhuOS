@@ -16,27 +16,17 @@
 
 #include "Directory.h"
 
-Directory::Directory(FsNode *node, const String &path) : node(node) {
+Directory::Directory(Util::SmartPointer<FsNode> node, const String &path) : node(node) {
     this->path = FileSystem::parsePath(path);
 };
-
-Directory::~Directory() {
-    if(node != nullptr) {
-        delete node;
-    }
-}
 
 Directory *Directory::open(const String &path) {
     auto *fileSystem = Kernel::getService<FileSystem>();
 
-    FsNode *node = fileSystem->getNode(path);
+    Util::SmartPointer<FsNode> node = fileSystem->getNode(path);
 
     if(node != nullptr && node->getFileType() == FsNode::DIRECTORY_FILE) {
         return new Directory(node, path);
-    }
-
-    if(node != nullptr) {
-        delete node;
     }
 
     return nullptr;

@@ -67,7 +67,7 @@ public:
     /**
      * Overriding virtual function from FsDriver.
      */
-    FsNode *getNode(const String &path) override;
+    Util::SmartPointer<FsNode> getNode(const String &path) override;
 
     /**
      * Overriding virtual function from FsDriver.
