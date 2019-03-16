@@ -41,8 +41,10 @@ void Bootscreen::update(uint8_t percentage, const String &message) {
     lfb->placeString(*font, 50, 10, static_cast<char *>(versionString), Colors::HHU_GRAY, Colors::INVISIBLE);
     lfb->placeString(*font, 50, 15, static_cast<char *>(buildDate), Colors::HHU_GRAY, Colors::INVISIBLE);
 
-    logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
-               static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
+    if(logo != nullptr) {
+        logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
+                   static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
+    }
 
     lfb->placeFilledRect(20, 85, 60, 2, Colors::HHU_BLUE_10);
     lfb->placeFilledCircle(20, 86, 1, Colors::HHU_BLUE_10);

@@ -148,8 +148,14 @@ void Application::startShell() {
 
 void Application::showMenu () {
     MemoryManager *kernelHeapManager = SystemManagement::getKernelHeapManager();
+    MemoryManager *pageFrameAllocator = SystemManagement::getInstance().getPageFrameAllocator();
+    MemoryManager *ioMemoryManager = SystemManagement::getInstance().getIOMemoryManager();
 
-    uint32_t memory = kernelHeapManager->getEndAddress() - kernelHeapManager->getStartAddress();
+    Scheduler &scheduler = Scheduler::getInstance();
+
+    uint32_t kernelMemory = kernelHeapManager->getEndAddress() - kernelHeapManager->getStartAddress();
+    uint32_t physicalMemory = pageFrameAllocator->getEndAddress() - pageFrameAllocator->getStartAddress();
+    uint32_t ioMemory = ioMemoryManager->getEndAddress() - ioMemoryManager->getStartAddress();
 
     while(true) {
 
@@ -158,17 +164,25 @@ void Application::showMenu () {
         Font &font = lfb->getResY() < 400 ? (Font&) std_font_8x8 : (Font&) sun_font_8x16;
 
         if(isRunning) {
-            uint32_t freeMemory = kernelHeapManager->getFreeMemory();
+            uint32_t usedKernelMemory = kernelMemory - kernelHeapManager->getFreeMemory();
+            uint32_t usedPhysicalMemory = physicalMemory - pageFrameAllocator->getFreeMemory();
+            uint32_t usedIoMemory = ioMemory - ioMemoryManager->getFreeMemory();
 
             Rtc::Date date = timeService->getRTC()->getCurrentDate();
 
             lfb->placeRect(50, 50, 98, 98, Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 8, (const char*) String::format("%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds), Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 20, 4, (const char*) String::format("Kernel: %u/%u KiB", usedKernelMemory / 1024, kernelMemory / 1024), Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 13, (const char*) String::format("Free memory: %u Bytes", freeMemory), Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 50, 4, (const char*) String::format("Physical: %u/%u KiB", usedPhysicalMemory / 1024, physicalMemory / 1024), Colors::HHU_LIGHT_GRAY);
 
-            lfb->placeString(font, 50, 16, (const char*) String::format("Used memory: %u Bytes", memory - freeMemory), Colors::HHU_LIGHT_GRAY);
+            lfb->placeString(font, 80, 4, (const char*) String::format("IO: %u/%u KiB", usedIoMemory / 1024, ioMemory / 1024), Colors::HHU_LIGHT_GRAY);
+
+            lfb->drawLine(0, static_cast<uint16_t>(lfb->getResX() - 1), font.get_char_height(), font.get_char_height(), Colors::HHU_BLUE_30);
+
+            lfb->placeString(font, 50, 8, (const char *) String::format("Threads: %u", scheduler.getThreadCount()), Colors::HHU_LIGHT_GRAY);
+
+            lfb->placeString(font, 50, 14, (const char *) String::format("%02d.%02d.%04d %02d:%02d:%02d", date.dayOfMonth, date.month, date.year, date.hours, date.minutes, date.seconds), Colors::HHU_LIGHT_GRAY);
 
             lfb->placeString(font, 50, 24, "hhuOS main menu", Colors::HHU_BLUE);
 

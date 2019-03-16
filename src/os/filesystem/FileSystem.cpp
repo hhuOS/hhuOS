@@ -160,6 +160,10 @@ void FileSystem::init() {
 void FileSystem::mountInitRamdisk(const String &path) {
     Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
 
+    if(info.start == 0) {
+        return;
+    }
+
     Address address(info.start);
 
     Tar::Archive &archive = Tar::Archive::from(address);
