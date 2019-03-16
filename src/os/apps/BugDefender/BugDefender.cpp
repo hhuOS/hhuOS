@@ -31,11 +31,18 @@ bool BugDefender::isGameOver = false;
 bool BugDefender::isGameWon = false;
 int BugDefender::enemyCount = enemiesPerLine * enemyLines;
 ThreadPool BugDefender::beepThreadPool(4);
+Image *BugDefender::background = nullptr;
+Image *BugDefender::heartSprite = nullptr;
 
 BugDefender::BugDefender() : Game() {
 
-    heartSprite = Bmp::load("/initrd/game/res/shield.bmp");
-    background = Bmp::load("/initrd/game/res/spaceBackground.bmp");
+    if(heartSprite == nullptr) {
+        heartSprite = Bmp::load("/initrd/game/res/shield.bmp");
+    }
+
+    if(background == nullptr) {
+        background = Bmp::load("/initrd/game/res/spaceBackground.bmp");
+    }
 
     score = 0;
     lifes = 3;
@@ -55,11 +62,6 @@ BugDefender::BugDefender() : Game() {
             HHUEngine::instantiate( new Enemy(Vector2(100 + x*40, 20 + y*30), y) );
         }
     }
-}
-
-BugDefender::~BugDefender() {
-    delete heartSprite;
-    delete background;
 }
 
 void BugDefender::update(float delta){
@@ -115,8 +117,10 @@ void BugDefender::drawInfo(LinearFrameBuffer* g2d){
 
     g2d->drawString(sun_font_8x16, 90, 450, scoreString, Color(10,255,10), Colors::INVISIBLE);
 
-    for(int i = 0; i < lifes; i++){
-        heartSprite->draw(static_cast<uint16_t>(540 + 25 * i), 450);
+    if(heartSprite != nullptr) {
+        for (int i = 0; i < lifes; i++) {
+            heartSprite->draw(static_cast<uint16_t>(540 + 25 * i), 450);
+        }
     }
 }
 
@@ -179,7 +183,9 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
         return;
     }
 
-    background->draw(0, 0);
+    if(background != nullptr) {
+        background->draw(0, 0);
+    }
 
     drawInfo(g2d);
 

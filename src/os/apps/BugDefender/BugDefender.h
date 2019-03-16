@@ -49,15 +49,15 @@ class BugDefender : public Game {
 
     static ThreadPool beepThreadPool;
 
-    Image *heartSprite = nullptr;
+    static Image *heartSprite;
 
-    Image *background = nullptr;
+    static Image *background;
 
   public:
 
     BugDefender();
 
-    ~BugDefender();
+    ~BugDefender() = default;
 
     void update(float delta);
 
