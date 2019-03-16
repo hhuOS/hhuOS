@@ -19,10 +19,10 @@
 
 MODULE_PROVIDER {
 
-    return new CgaModule();
+    return new VesaModule();
 };
 
-int32_t CgaModule::initialize() {
+int32_t VesaModule::initialize() {
 
     auto *graphicsService = Kernel::getService<GraphicsService>();
     
@@ -37,7 +37,7 @@ int32_t CgaModule::initialize() {
     return 0;
 }
 
-int32_t CgaModule::finalize() {
+int32_t VesaModule::finalize() {
 
     delete lfb;
     delete text;
@@ -45,12 +45,12 @@ int32_t CgaModule::finalize() {
     return 0;
 }
 
-String CgaModule::getName() {
+String VesaModule::getName() {
 
     return "VesaDriver";
 }
 
-Util::Array<String> CgaModule::getDependencies() {
+Util::Array<String> VesaModule::getDependencies() {
 
     return Util::Array<String>(0);
 }

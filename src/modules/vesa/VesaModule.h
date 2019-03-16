@@ -21,11 +21,11 @@
 #include "VesaGraphics.h"
 #include "VesaText.h"
 
-class CgaModule : public Module {
+class VesaModule : public Module {
 
 public:
 
-    CgaModule() = default;
+    VesaModule() = default;
 
     int32_t initialize() override;
 
