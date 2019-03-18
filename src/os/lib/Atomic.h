@@ -30,6 +30,8 @@ public:
 
     ~Atomic() = default;
 
+    T getAndSet(T newValue);
+
     T get();
 
     void set(T newValue);
@@ -41,18 +43,6 @@ public:
     void inc();
 
     void dec();
-
-    bool operator==(Atomic<T> &other);
-
-    bool operator!=(Atomic<T> &other);
-
-    bool operator>(Atomic<T> &other);
-
-    bool operator<(Atomic<T> &other);
-
-    bool operator>=(Atomic<T> &other);
-
-    bool operator<=(Atomic<T> &other);
 
 };
 

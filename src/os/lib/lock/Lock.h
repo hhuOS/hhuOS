@@ -26,13 +26,18 @@ public:
     virtual void release() = 0;
 
     /**
+     * Try to get the lock once.
+     *
+     * @return true, if the lock has been acquired successfully
+     */
+    virtual bool tryAcquire() = 0;
+
+    /**
      * Indicates if the lock is held.
      *
      * @return true, if the lock is held, else false
      */
     virtual bool isLocked() = 0;
-
-    static bool swap(uint32_t *address, uint32_t oldValue, uint32_t newValue);
 };
 
 

@@ -19,6 +19,7 @@
 
 
 #include <cstdint>
+#include <lib/Atomic.h>
 #include "Lock.h"
 
 /**
@@ -37,42 +38,25 @@ public:
 
     Spinlock &operator=(const Spinlock &other) = delete;
 
-    ~Spinlock() = default;
+    ~Spinlock() override = default;
 
-    /**
-     * Try to get the lock and block until lock is acquired
-     */
     void acquire() override;
-    
-    /**
-	 * Unlock the lock.
-	 */
+
+    bool tryAcquire() override;
+
     void release() override;
 
     bool isLocked() override;
 
-    /**
-     * Try to acquire the lock once and return if it was successful.
-     *
-     * @return true = successful, false = not successful
-     */
-    bool tryLock();
+private:
+
+    static const uint8_t SPINLOCK_UNLOCK = 0x00;
+
+    static const uint8_t SPINLOCK_LOCK = 0x01;
 
 private:
 
-    /**
-     * The value which is used for locking
-     */
-    uint32_t lockVar;
-
-    /**
-     * Position of the zero flag in EFLAG
-     */
-    const static uint32_t ZERO_FLAG = 0x40;
-
-    static const uint32_t SPINLOCK_LOCK = 0x1;
-
-    static const uint32_t SPINLOCK_UNLOCK = 0x0;
+    Atomic<uint8_t> lockVar;
 };
 
 #endif

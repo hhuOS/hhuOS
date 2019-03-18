@@ -19,7 +19,6 @@
 
 
 #include <lib/lock/Spinlock.h>
-#include <lib/lock/Mutex.h>
 #include "kernel/threads/Thread.h"
 
 /**

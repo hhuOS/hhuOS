@@ -138,7 +138,7 @@ void Scheduler::yield() {
         return;
     }
 
-    if(lock.tryLock()) {
+    if(lock.tryAcquire()) {
 
         Thread *next = getNextThread();
 
