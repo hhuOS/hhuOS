@@ -34,13 +34,15 @@ void Atomic<T>::exchange(volatile void *ptr, T newValue) {
 }
 
 template<typename T>
-void Atomic<T>::fetchAndAdd(volatile void *ptr, T addend) {
+T Atomic<T>::fetchAndAdd(volatile void *ptr, T addend) {
     asm volatile (
         "lock xadd %0, %1"
         : "+r" (addend), "+m" (*(volatile T*)ptr)
         :
         : "memory"
     );
+
+    return addend;
 }
 
 template<typename T>
@@ -73,21 +75,21 @@ void Atomic<T>::set(T newValue) {
 }
 
 template<typename T>
-void Atomic<T>::add(T addend) {
-    fetchAndAdd(&value, addend);
+T Atomic<T>::fetchAndAdd(T addend) {
+    return fetchAndAdd(&value, addend);
 }
 
 template<typename T>
-void Atomic<T>::sub(T subtrahend) {
-    fetchAndAdd(&value, subtrahend * (-1));
+T Atomic<T>::fetchAndSub(T subtrahend) {
+    return fetchAndAdd(&value, subtrahend * (-1));
 }
 
 template<typename T>
-void Atomic<T>::inc() {
-    fetchAndAdd(&value, 1);
+T Atomic<T>::fetchAndInc() {
+    return fetchAndAdd(&value, 1);
 }
 
 template<typename T>
-void Atomic<T>::dec() {
-    fetchAndAdd(&value, -1);
+T Atomic<T>::fetchAndDec() {
+    return fetchAndAdd(&value, -1);
 }

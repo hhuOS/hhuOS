@@ -16,7 +16,7 @@ private:
 
     static void exchange(volatile void *ptr, T newValue);
 
-    static void fetchAndAdd(volatile void *ptr, T addend);
+    static T fetchAndAdd(volatile void *ptr, T addend);
 
 public:
 
@@ -36,13 +36,13 @@ public:
 
     void set(T newValue);
 
-    void add(T addend);
+    T fetchAndAdd(T addend);
 
-    void sub(T subtrahend);
+    T fetchAndSub(T subtrahend);
 
-    void inc();
+    T fetchAndInc();
 
-    void dec();
+    T fetchAndDec();
 
 };
 

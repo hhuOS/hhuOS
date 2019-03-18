@@ -1,8 +1,7 @@
 #ifndef HHUOS_SMARTPOINTER_H
 #define HHUOS_SMARTPOINTER_H
 
-#include <cstdint>
-#include <lib/lock/Spinlock.h>
+#include <lib/Atomic.h>
 
 namespace Util {
 
@@ -11,28 +10,8 @@ class SmartPointer {
 
 private:
 
-    struct ReferenceCounter {
-
-    private:
-
-        uint32_t counter = 0;
-
-    public:
-
-        uint32_t addReference() {
-            return ++counter;
-        }
-
-        uint32_t release() {
-            return --counter;
-        }
-    };
-
-private:
-
     T *pointer = nullptr;
-    ReferenceCounter *counter = nullptr;
-    Spinlock *lock = nullptr;
+    Atomic<uint32_t> *counter;
 
 public:
 
@@ -67,52 +46,32 @@ public:
 template<typename T>
 SmartPointer<T>::SmartPointer() {
     this->pointer = nullptr;
-    this->counter = new ReferenceCounter();
-    this->lock = new Spinlock();
+    this->counter = new Atomic<uint32_t>();
 
-    lock->acquire();
-
-    counter->addReference();
-
-    lock->release();
+    counter->fetchAndInc();
 }
 
 template<typename T>
 SmartPointer<T>::SmartPointer(T *pointer) {
     this->pointer = pointer;
-    this->counter = new ReferenceCounter();
-    this->lock = new Spinlock();
+    this->counter = new Atomic<uint32_t>();
 
-    lock->acquire();
-
-    counter->addReference();
-
-    lock->release();
+    counter->fetchAndInc();
 }
 
 template<typename T>
 SmartPointer<T>::SmartPointer(const SmartPointer<T> &copy) {
     pointer = copy.pointer;
     counter = copy.counter;
-    lock = copy.lock;
 
-    lock->acquire();
-
-    counter->addReference();
-
-    lock->release();
+    counter->fetchAndInc();
 }
 
 template<typename T>
 SmartPointer<T>::~SmartPointer() {
-    lock->acquire();
-
-    if (counter->release() == 0) {
+    if (counter->fetchAndDec() == 1) {
         delete pointer;
         delete counter;
-        delete lock;
-    } else {
-        lock->release();
     }
 }
 
@@ -122,25 +81,15 @@ SmartPointer<T> &SmartPointer<T>::operator=(const SmartPointer<T> &other) {
         return *this;
     }
 
-    lock->acquire();
-
-    if (counter->release() == 0) {
+    if (counter->fetchAndDec() == 1) {
         delete pointer;
         delete counter;
-        delete lock;
-    } else {
-        lock->release();
     }
 
     pointer = other.pointer;
     counter = other.counter;
-    lock = other.lock;
 
-    lock->acquire();
-
-    counter->addReference();
-
-    lock->release();
+    counter->fetchAndInc();
 
     return *this;
 }
