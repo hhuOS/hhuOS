@@ -30,13 +30,8 @@ void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAdd
     uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
 
     // first X MB are already allocated by 4MB paging
-    for(uint32_t i=0; i < maxIndex; i++) {
-        freeBitmap[i] = 0xFFFFFFFF;
-    }
     // X MB + 8KB are already used by kernel and page tables/dirs
-    freeBitmap[maxIndex] = 0xC0000000;
-
-    bmpSearchOffset = maxIndex;
+    bitmap->setRange(0, maxIndex * 32 + 2);
 
     // subtract already reserved memory from free memory
     freeMemory -= (maxIndex * 32 * blockSize + 2 * blockSize);

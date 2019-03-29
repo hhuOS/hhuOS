@@ -19,9 +19,6 @@
 
 IsaDmaMemoryManager::IsaDmaMemoryManager() : BitmapMemoryManager(ISA_DMA_BUF_SIZE, true) {
     BitmapMemoryManager::init(ISA_DMA_START_ADDRESS, ISA_DMA_END_ADDRESS, false);
-
-    // Reserve every block > 512 KB.
-    freeBitmap[0] = 0x00ffffff;
 }
 
 void IsaDmaMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {

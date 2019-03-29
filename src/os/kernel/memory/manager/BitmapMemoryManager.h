@@ -19,6 +19,7 @@
 
 #include "MemoryManager.h"
 #include <lib/String.h>
+#include <lib/Bitmap.h>
 
 /**
  * Memory manager, that manages a given area of memory in blocks of given size using a bitmap mechanism.
@@ -50,23 +51,12 @@ protected:
     /**
      * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
      */
-    uint32_t *freeBitmap;
-
-    /**
-     * The length of the bitmap array in bytes.
-     */
-    uint32_t freeBitmapLength;
+    Bitmap *bitmap;
 
     /**
      * The size of a single chunk of memory.
      */
     uint32_t blockSize;
-
-    /**
-     * The index at which to start searching for free blocks.
-     * This allows to block a given number of chunks at the beginning of the managed memory area.
-     */
-    uint32_t bmpSearchOffset;
 
     /**
      * Indicates, whether or not allocated memory shall be zero-initialized.

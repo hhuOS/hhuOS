@@ -26,7 +26,6 @@ extern "C" {
 
 BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) : MemoryManager(),
         blockSize(blockSize),
-        bmpSearchOffset(0),
         zeroMemory(zeroMemory) {
 
 }
@@ -36,23 +35,15 @@ BitmapMemoryManager::BitmapMemoryManager(const BitmapMemoryManager &copy) : Bitm
 }
 
 BitmapMemoryManager::~BitmapMemoryManager() {
-	delete freeBitmap;
+	delete bitmap;
 }
 
 void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
 
-    freeBitmapLength = (freeMemory / blockSize) / 32;
+    bitmap = new Bitmap((memoryEndAddress - memoryStartAddress) / blockSize);
 
-    if(freeBitmapLength == 0) {
-        freeBitmapLength = 1;
-    }
-
-    freeBitmap = new uint32_t[freeBitmapLength];
-
-    freeMemory = (freeBitmapLength * blockSize) * 32;
-
-    memset(freeBitmap, 0, freeBitmapLength * sizeof(uint32_t));
+    freeMemory = bitmap->getSize() * blockSize;
 }
 
 String BitmapMemoryManager::getTypeName() {
@@ -64,97 +55,33 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
         return nullptr;
     }
 
-	// get count of blocks that corresponds to aligned size
+    // get count of blocks that corresponds to aligned size
     uint32_t blockCount = (size / blockSize) + ((size % blockSize == 0) ? 0 : 1);
 
-    // set up indices of searching
-    uint32_t arrayIndexStart = 0;
-    uint32_t bitmapIndexStart = 0;
-    uint32_t freeCount = 0;
+    uint32_t block = bitmap->findAndSet(blockCount);
 
-    // search a sequence of free memory blocks
-    for(uint32_t i = bmpSearchOffset; i < freeBitmapLength; i++) {
-    	// get current bitmap entry
-        uint32_t currentEntry = freeBitmap[i];
-
-        // First check if there are free blocks in this entry before starting
-        // to search them
-        if(currentEntry != 0xFFFFFFFF) {
-            // check every block in current bitmap entry
-            for(uint8_t j = 32; j > 0; j--) {
-            	// check if current block is free
-                if((currentEntry & 0x80000000) == 0) {
-                	// if yes and we have not marked some blocks earlier, start search here
-                    if(freeCount == 0) {
-                        arrayIndexStart = i;
-                        bitmapIndexStart = static_cast<uint32_t>(j - 1);
-                    }
-                    // increase free count because we have found a free block
-                    freeCount++;
-
-                    // if we have enough free contiguous blocks break here
-                    if(freeCount == blockCount) {
-                        i = freeBitmapLength;
-
-                        break;
-                    }
-                // if current block is not free
-                // reset free count and continue searching
-                } else {
-                    freeCount = 0;
-                }
-                // shift current bitmap entry to examine next block
-                currentEntry <<= 1U;
-            }
-        // if there is no free block in this bitmap entry, set free count to 0
-        } else {
-        	freeCount = 0;
+    if(block == bitmap->getSize()) {
+        // handle errors
+        if(managerType == PAGING_AREA_MANAGER) {
+            Cpu::throwException(Cpu::Exception::OUT_OF_PAGE_MEMORY);
         }
 
-    }
-
-    // if we have enough free contiguous blocks, we can mark them as allocated in this loop
-    if(freeCount == blockCount) {
-        uint32_t i = arrayIndexStart;
-        uint32_t j = bitmapIndexStart;
-
-        while(freeCount > 0) {
-
-            freeBitmap[i] |= 1 << j;
-
-            if(j == 0) {
-                i++;
-                j = 31;
-            } else {
-                j--;
-            }
-
-            freeCount--;
+        if(managerType == PAGE_FRAME_ALLOCATOR) {
+            Cpu::throwException(Cpu::Exception::OUT_OF_PHYS_MEMORY);
         }
 
-        // update free memory
-        freeMemory -= blockCount * blockSize;
-
-        // zero allocated memory if required
-        if(zeroMemory){
-            memset((void*) (memoryStartAddress + (32 * arrayIndexStart + (31 - bitmapIndexStart)) * blockSize), 0, blockCount * blockSize);
-        }
-
-        // return start address of allocated memory
-        return (void *) (memoryStartAddress + (32 * arrayIndexStart + (31 - bitmapIndexStart)) * blockSize);
+        return nullptr;
     }
 
+    freeMemory -= blockSize * blockCount;
 
-    // handle errors
-    if(managerType == PAGING_AREA_MANAGER) {
-        Cpu::throwException(Cpu::Exception::OUT_OF_PAGE_MEMORY);
+    void *address = reinterpret_cast<void *>(memoryStartAddress + block * blockSize);
+
+    if(zeroMemory) {
+        memset(address, 0, blockCount * blockSize);
     }
 
-    if(managerType == PAGE_FRAME_ALLOCATOR) {
-        Cpu::throwException(Cpu::Exception::OUT_OF_PHYS_MEMORY);
-    }
-
-    return nullptr;
+    return address;
 }
 
 void BitmapMemoryManager::free(void *ptr) {
@@ -167,13 +94,9 @@ void BitmapMemoryManager::free(void *ptr) {
 
     // find number of block corresponding to physical address
     auto blockNumber = (uint32_t) (address / blockSize);
-    // calculate array idx to freeBitMap
-    auto arrayIdx = (uint16_t) (blockNumber / 32);
-    // calculate shift index
-    auto idx = (uint8_t) (31 - (blockNumber % 32));
 
-    // set bit representing this block to 0
-    freeBitmap[arrayIdx] &= ~(1 << idx);
+    bitmap->unset(blockNumber);
+
     freeMemory += blockSize;
 }
 
@@ -181,11 +104,5 @@ void BitmapMemoryManager::dump() {
     printf("  BitmapMemoryManager: Free bitmap dump\n");
     printf("  ================\n");
 
-    for(uint16_t idx = 0; idx <= freeBitmapLength; idx++) {
-        if(idx % 4 == 0){
-            printf("\n");
-        }
-
-        printf("%x", freeBitmap[idx]);
-    }
+    bitmap->dump();
 }

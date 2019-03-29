@@ -23,16 +23,9 @@ PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(PAGESIZE, true) {
 
     managerType = PAGING_AREA_MANAGER;
 
-    // We use already 256 Page Tables for Kernel mappings and one Page Directory
-    // as the Kernel´s PD
-    for(uint32_t i = 0; i < 8; i++){
-        freeBitmap[i] = 0xFFFFFFFF;
-    }
-    freeBitmap[8] = 0xC0000000;
+    // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
+    bitmap->setRange(0, 8 * 32 + 2);
 
-    bmpSearchOffset = 8;
-
-    // subtract already reserved memory from free memory
     freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
 }
 

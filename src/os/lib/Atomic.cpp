@@ -66,7 +66,7 @@ T Atomic<T>::getAndSet(T newValue) {
 
 template<typename T>
 T Atomic<T>::get() {
-    return compareAndExchange(&value, value, value);
+    return value;
 }
 
 template<typename T>
