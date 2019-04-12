@@ -1580,7 +1580,7 @@ symbol-file build/system
 set remotetimeout 120
 set serial baud 115200
 #set debug remote 1
-target remote /dev/ttyUSB0
+target remote localhost:1234
 break *(startup - 0xC0000000)
 
 # Start ------------------------------------------------------------------------

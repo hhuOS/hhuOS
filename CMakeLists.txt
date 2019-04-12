@@ -24,4 +24,4 @@ set(CMAKE_CXX_FLAGS -m32)
 
 FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
 
-ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/os/lib/Bitmap.cpp src/os/lib/Bitmap.h)
+ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/os/lib/Bitmap.cpp src/os/lib/Bitmap.h src/os/lib/AtomicBitmap.cpp src/os/lib/AtomicBitmap.h src/os/kernel/memory/manager/special/AtomicBitmapMemoryManager.cpp src/os/kernel/memory/manager/special/AtomicBitmapMemoryManager.h)

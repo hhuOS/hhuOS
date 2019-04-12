@@ -5,7 +5,7 @@
 
 class Bitmap {
 
-private:
+protected:
 
     uint32_t *bitmap = nullptr;
 
@@ -25,23 +25,23 @@ public:
 
     Bitmap& operator=(const Bitmap &other) = delete;
 
-    ~Bitmap();
+    virtual ~Bitmap();
 
     uint32_t getSize();
 
-    void set(uint32_t block);
+    virtual void set(uint32_t block);
 
-    void unset(uint32_t block);
+    virtual void unset(uint32_t block);
 
-    bool check(uint32_t block, bool set);
+    virtual bool check(uint32_t block, bool set);
 
-    void setRange(uint32_t startBlock, uint32_t length);
+    virtual void setRange(uint32_t startBlock, uint32_t length);
 
-    void unsetRange(uint32_t startBlock, uint32_t length);
+    virtual void unsetRange(uint32_t startBlock, uint32_t length);
 
-    bool checkRange(uint32_t startBlock, uint32_t length, bool set);
+    virtual bool checkRange(uint32_t startBlock, uint32_t length, bool set);
 
-    uint32_t findAndSet(uint32_t blockCount);
+    virtual uint32_t findAndSet(uint32_t blockCount);
 
     void dump();
 

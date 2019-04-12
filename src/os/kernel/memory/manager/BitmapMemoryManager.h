@@ -31,7 +31,7 @@
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class BitmapMemoryManager : public MemoryManager{
+class BitmapMemoryManager : public MemoryManager {
 
 public:
 
