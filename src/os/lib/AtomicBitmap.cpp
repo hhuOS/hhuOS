@@ -45,11 +45,11 @@ bool AtomicBitmap::check(uint32_t block, bool set) {
 }
 
 uint32_t AtomicBitmap::findAndSet() {
-    uint32_t i;
+    uint32_t i, index, bit;
 
     for(i = 0; i < blocks; i++) {
-        uint32_t index = i / 32;
-        uint32_t bit = i % 32;
+        index = i / 32;
+        bit = i % 32;
 
         asm volatile (
             "lock bts %1, %0;"
