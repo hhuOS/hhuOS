@@ -24,6 +24,7 @@
 
 
 #include <devices/pci/PciDeviceDriver.h>
+#include <kernel/services/EventBus.h>
 #include "Mac.h"
 #include "general/DeviceControl.h"
 #include "transmit/TransmitControl.h"
@@ -62,6 +63,8 @@ private:
      */
     Logger &log = Logger::get("E1000");
 
+    EventBus *eventBus = nullptr;
+
 public:
     ~E1000() override = default;
 
@@ -99,8 +102,10 @@ public:
      */
     void getMacAddress(uint8_t *buf) override;
 
+    bool hasInterruptData() override;
+
 protected:
-    E1000() = default;
+    E1000();
 
     /**
      * Provides sizes of the receive buffers of the
@@ -173,6 +178,11 @@ protected:
      */
     uint8_t * mmioBase = nullptr;
 
+    /**
+     * Buffer to store address and length of received packets.
+     * These will be processed in the top half interrupt handler.
+     */
+    Util::RingBuffer<Util::Pair<void*, uint16_t>> interruptBuffer;
 
     /**
      * The main control options can be handled with this class..
@@ -306,6 +316,7 @@ protected:
      */
     void trigger(InterruptFrame &frame) override = 0;
 
+    void parseInterruptData() final;
 
     /**
      * The following methods are meant to be

@@ -22,16 +22,18 @@
 #include "ReceiveEvent.h"
 
 
-ReceiveEvent::ReceiveEvent(volatile uint8_t *packet, uint16_t length) : Event() {
-    this->packet = packet;
+ReceiveEvent::ReceiveEvent(void *packet, uint16_t length) : Event() {
+    this->packet = new char[length];
     this->length = length;
+
+    memcpy(this->packet, packet, length);
 }
 
 String ReceiveEvent::getType() const {
     return TYPE;
 }
 
-volatile uint8_t *ReceiveEvent::getPacket() {
+void *ReceiveEvent::getPacket() {
     return this->packet;
 }
 
@@ -42,6 +44,10 @@ uint16_t ReceiveEvent::getLength() {
 ReceiveEvent::ReceiveEvent(const ReceiveEvent &other) : Event(other) {
     this->packet = other.packet;
     this->length = other.length;
+}
+
+ReceiveEvent::~ReceiveEvent() {
+    delete (char*) packet;
 }
 
 

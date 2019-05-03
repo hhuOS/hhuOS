@@ -45,7 +45,6 @@ class PacketHandler final: public Receiver {
      * This method is meant to be overridden and
      * implemented by this class.
      */
-
     void onEvent(const Event &event) override;
 };
 

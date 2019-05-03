@@ -21,13 +21,16 @@
 
 #include <kernel/Kernel.h>
 #include <kernel/memory/SystemManagement.h>
-#include <kernel/services/EventBus.h>
 #include "E1000.h"
 #include "kernel/services/NetworkService.h"
 
+E1000::E1000() : interruptBuffer(1024) {
+    eventBus = Kernel::getService<EventBus>();
+}
+
 void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver) {
     driverLog.info("Determining Descriptor Params");
-    setUpDescriptorParams(4096, 4096);
+    setUpDescriptorParams(128, 128);
 
     driverLog.info("Enabling Bus Master");
     Pci::enableBusMaster(dev.bus, dev.device, dev.function);
@@ -67,6 +70,7 @@ void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver)
 
     driverLog.info("Setting Interrupts");
     plugin();
+    InterruptManager::getInstance().registerInterruptHandler(this);
     interruptCause->readAndClear();
 
     driverLog.info("Creating Virtual Nodes");
@@ -113,6 +117,18 @@ void E1000::sendPacket(void *address, uint16_t length) {
 
 void E1000::getMacAddress(uint8_t *buf) {
     mac->getByteRepresentation(buf);
+}
+
+void E1000::parseInterruptData() {
+    Util::Pair<void*, uint16_t> descriptor = interruptBuffer.pop();
+
+    Util::SmartPointer<Event> event = Util::SmartPointer<Event>(new ReceiveEvent(descriptor.first, descriptor.second));
+
+    eventBus->publish(event);
+}
+
+bool E1000::hasInterruptData() {
+    return !interruptBuffer.isEmpty();
 }
 
 

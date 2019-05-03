@@ -47,10 +47,13 @@ public:
      * @param descriptors The descriptors contained in the receive descriptor block.
      * @param initialize The hardware descriptor ring initializer for receive.
      */
-    explicit ReceiveRingSimple(Descriptors<ReceiveDescriptor *> *descriptors, HardwareDescriptorRing *initialize);
+    explicit ReceiveRingSimple(Descriptors<ReceiveDescriptor *> *descriptors, HardwareDescriptorRing *initialize,
+            Util::RingBuffer<Util::Pair<void*, uint16_t>> *interruptBuffer);
+
     ~ReceiveRingSimple() override;
 
 private:
+
     /**
      * Descriptors of a coherent descriptor-block.
      */
@@ -67,10 +70,9 @@ private:
     EventBus *eventBus;
 
     /**
-     * Stores incoming packets for publishing via
-     * the event bus.
+     * Stores incoming descriptors for interrupt processing.
      */
-    Util::RingBuffer<ReceiveEvent> eventBuffer;
+    Util::RingBuffer<Util::Pair<void*, uint16_t>> *interruptBuffer;
 
     /**
      * Inherited methods from ReceiveRing.
@@ -79,7 +81,7 @@ private:
      */
 
     void initialize() final;
-    void receivePoll(Logger *log, uint8_t *mioBase) final;
+    void receivePoll(uint8_t *mioBase) final;
 };
 
 

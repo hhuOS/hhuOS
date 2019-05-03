@@ -54,7 +54,7 @@ public:
      * @param log For displaying receive packet relevant exceptional information.
      * @param mioBase Base address of the MMIO-space.
      */
-    virtual void receivePoll(Logger *log, uint8_t *mioBase) = 0;
+    virtual void receivePoll(uint8_t *mioBase) = 0;
 
 protected:
     ReceiveRing() = default;

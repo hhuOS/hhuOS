@@ -131,7 +131,7 @@ void NetworkTest::printRingBufferPacket() {
 
     if(read < (1u << 31u)) read++;
 
-    volatile uint8_t *packet = event.getPacket();
+    auto *packet = static_cast<uint8_t *>(event.getPacket());
     uint16_t packetLength = event.getLength();
 
     //current holds first element of the packet. The
@@ -170,7 +170,7 @@ void NetworkTest::printRingBufferPacket() {
 
 void NetworkTest::sendFromBuffer(int packets, NetworkDevice &driver) {
     ReceiveEvent event;
-    volatile uint8_t *packet;
+    uint8_t *packet;
     uint16_t packetLength;
 
     lock.acquire();
@@ -183,7 +183,7 @@ void NetworkTest::sendFromBuffer(int packets, NetworkDevice &driver) {
             event = storedSendBuffer.pop();
         }
 
-        packet = event.getPacket();
+        packet = static_cast<uint8_t *>(event.getPacket());
         packetLength = event.getLength();
 
         //remove source, destination and type of the stored packet

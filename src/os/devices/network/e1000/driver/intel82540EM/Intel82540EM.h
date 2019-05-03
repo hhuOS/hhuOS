@@ -18,6 +18,7 @@
 #define HHUOS_INTEL82540EM_H
 
 #include <devices/network/e1000/E1000.h>
+#include "TransmitDescriptor82540EM.h"
 
 class Intel82540EM : public E1000 {
 

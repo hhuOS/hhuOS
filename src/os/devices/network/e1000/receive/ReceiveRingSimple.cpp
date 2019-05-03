@@ -26,7 +26,8 @@
 
 
 ReceiveRingSimple::ReceiveRingSimple(Descriptors<ReceiveDescriptor *> *descriptors,
-                     HardwareDescriptorRing *initialize) : descriptors(descriptors), ringInitialize(initialize), eventBuffer(1024)
+                     HardwareDescriptorRing *initialize, Util::RingBuffer<Util::Pair<void*, uint16_t>> *interruptBuffer)
+                     : descriptors(descriptors), ringInitialize(initialize), interruptBuffer(interruptBuffer)
 {
     eventBus = Kernel::getService<EventBus>();
 }
@@ -37,12 +38,11 @@ void ReceiveRingSimple::initialize() {
     ringInitialize->initialize();
 }
 
-void ReceiveRingSimple::receivePoll(Logger *log, uint8_t *mioBase) {
+void ReceiveRingSimple::receivePoll(uint8_t *mioBase) {
     auto descriptor = descriptors->current();
 
     //todo mark with taken from
     while( descriptor->done() ) {
-        // raw packet and packet length (excluding CRC)/
         uint16_t pktlen = descriptor->readLength();
         volatile uint8_t *pkt = descriptor->getPacketAddress();
 
@@ -50,29 +50,22 @@ void ReceiveRingSimple::receivePoll(Logger *log, uint8_t *mioBase) {
 
         if( pktlen < 64 )
         {
-            //log->info("Dropped short packet of %u bytes", pktlen);
             drop = true;
         }
 
         if( !(descriptor->isEndOfPacked()) )
         {
-            //log->info("Dropped packet (EOP not set) (len=%u)", pktlen);
             drop = true;
         }
 
         if( descriptor->hasErrors() )
         {
-            //log->info("There is an Error at received packet");
             drop = true;
         }
 
         if( !drop )
         {
-            //log->info("Incoming Packet with length: %d", pktlen);
-
-            eventBuffer.push(ReceiveEvent(pkt, pktlen));
-            ReceiveEvent &event = eventBuffer.pop();
-            eventBus->publish(event);
+            interruptBuffer->push(Util::Pair((void*) pkt, pktlen));
         }
 
         descriptor->clearStatus();

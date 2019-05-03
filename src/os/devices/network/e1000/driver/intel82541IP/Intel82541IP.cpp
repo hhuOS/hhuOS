@@ -56,21 +56,22 @@ void Intel82541IP::trigger(InterruptFrame &frame) {
     interruptCause->readAndClear();
 
     if(interruptCause->hasLinkStatusChanged()) {
-        //log.info("Link status change.");
         deviceControl->setLinkUp(true);
     }
+
     if(interruptCause->isReceiverOverrun()) {
-        log.info("Receiver Overrun (rx_head = %u).", *((uint32_t *) (mmioBase + 0x2810)));
+        //log.info("Receiver Overrun (rx_head = %u).", *((uint32_t *) (mmioBase + 0x2810)));
     }
+
     if (interruptCause->isReceiveDescriptorMinimumThresholdReached()) {
-        log.info("Receive-Descriptor Minimum Threshold is reached.");
-        receiver->receivePoll(&log, mmioBase);
+        receiver->receivePoll(mmioBase);
     }
+
     if(interruptCause->hasReceiveTimerInterrupt()) {
-        receiver->receivePoll(&log, mmioBase);
+        receiver->receivePoll(mmioBase);
     }
-    if( interruptCause->hasUnhandledInterrupts() ) {
-        //for debugging purposes
+
+    if(interruptCause->hasUnhandledInterrupts()) {
         //log.info("Unhandled interrupt(s) received: %08x", interruptCause->getInterrupts());
     }
 
@@ -121,7 +122,7 @@ void Intel82541IP::setReceiveControl(ReceiveControl *control) {
     control->unicastPromiscuous(true);
     control->multicastPromiscuous(true);
 
-    control->bufferSize(rxBufferSize::ext_medium);
+    control->bufferSize(rxBufferSize::ext_small);
 
     control->descriptorMinimumThresholdSize(rxRingLength::half);
     control->stripEthernetCrc(true);
@@ -142,7 +143,7 @@ void Intel82541IP::initializeAttributeClasses(Descriptors<TransmitDescriptor *> 
 
     interruptCause      = new BufferedInterruptCause82541IP((uint32_t *) (mmioBase + 0xC0));
     transmitter         = new TransmitRingSimple(transmitDescriptors, new HrTransmit(mmioBase + 0x3800u, phyTransmitBlock, E1000::transmitDescriptors));
-    receiver            = new ReceiveRingSimple(receiveDescriptors, new HrReceive(mmioBase + 0x2800u, phyReceiveBlock, E1000::receiveDescriptors));
+    receiver            = new ReceiveRingSimple(receiveDescriptors, new HrReceive(mmioBase + 0x2800u, phyReceiveBlock, E1000::receiveDescriptors), &interruptBuffer);
     mac                 = new McBuffered();
 }
 
@@ -188,7 +189,7 @@ Descriptors<ReceiveDescriptor *> * Intel82541IP::createReceiveDescriptorBlock(ui
         auto status     = new RsBufferedSimple(address + 12);
         auto errors     = new BufferedReceiveErrors82541IP(address + 13);
 
-        auto virtualPacketBuffer    = (uint8_t *) SystemManagement::getInstance().mapIO(rxBufferSize::ext_medium);
+        auto virtualPacketBuffer    = (uint8_t *) SystemManagement::getInstance().mapIO(rxBufferSize::ext_small);
         auto physicalPacketBuffer   = SystemManagement::getInstance().getPhysicalAddress(virtualPacketBuffer);
 
         ReceiveDescriptor *descriptor = new ReceiveDescriptorSimple(address, virtualPacketBuffer, errors, status);

@@ -40,15 +40,16 @@ class ReceiveEvent : public Event {
 
 public:
     ReceiveEvent() = default;
-    explicit ReceiveEvent(volatile uint8_t *packet, uint16_t length);
+    explicit ReceiveEvent(void *packet, uint16_t length);
     ReceiveEvent(const ReceiveEvent &other);
+    ~ReceiveEvent();
 
     String getType() const override;
 
     /**
      * @return A pointer to the packet that will be dispatched.
      */
-    volatile uint8_t *getPacket();
+    void *getPacket();
 
     /**
      * @return The length of the packet.
@@ -61,7 +62,7 @@ private:
     /**
      * Stores a pointer to the packet.
      */
-    volatile uint8_t *packet = nullptr;
+    void *packet = nullptr;
 
     /**
      * Stores the length of the packet.
