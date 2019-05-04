@@ -24,23 +24,16 @@
 #include <kernel/services/TimeService.h>
 #include "NetworkTest.h"
 
-NetworkTest::NetworkTest(Shell &shell) : Command(shell), eventBuffer(1024), storedSendBuffer(1024) {
-    Kernel::getService<EventBus>()->subscribe(*this, ReceiveEvent::TYPE);
-};
+NetworkTest::NetworkTest(Shell &shell) : Command(shell) {
 
-NetworkTest::~NetworkTest() {
-    Kernel::getService<EventBus>()->unsubscribe(*this, ReceiveEvent::TYPE);
-}
+};
 
 void NetworkTest::execute(Util::Array<String> &args) {
     ArgumentParser parser(getHelpText(), 1);
-    parser.addSwitch("info", "i");
-    parser.addSwitch("help", "h");
-    parser.addSwitch("receive", "r");
-    parser.addParameter("bufferedSend", "b", false);
-    parser.addParameter("transmit", "t", false);
-    parser.addParameter("flood", "f", false);
 
+    parser.addParameter("send", "s", false);
+    parser.addParameter("time", "t", false);
+    parser.addParameter("count", "c", false);
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -56,212 +49,92 @@ void NetworkTest::execute(Util::Array<String> &args) {
 
     NetworkDevice &driver = Kernel::getService<NetworkService>()->getDriver(0);
 
-    int length;
-    uint8_t *sendBuffer;
-    void *phyAddress;
+    if(!parser.getNamedArgument("send").isEmpty()) {
+        int length = static_cast<uint32_t>(strtoint((char *) parser.getNamedArgument("send")));
 
-    if (parser.checkSwitch("info")) {
-        printInfo();
-    } else if(!parser.getNamedArgument("bufferedSend").isEmpty()) {
-        int packets = strtoint((char *) parser.getNamedArgument("bufferedSend"));
-        if ( packets < 0) {
-            stderr << "Invalid amount of packets" << endl;
-            return;
-        }
-
-        sendFromBuffer(packets, driver);
-    } else if(!parser.getNamedArgument("transmit").isEmpty()) {
-        length =  strtoint((char *) parser.getNamedArgument("transmit"));
-        if (length < 0) {
-            stderr << "Invalid packet length" << endl;
+        if (length <= 0) {
+            stderr << "Invalid packet size!" << endl;
             return;
         }
 
         //one buffer for all packets
-        sendBuffer = (uint8_t *) SystemManagement::getInstance().mapIO(8u * length);
-        phyAddress = SystemManagement::getInstance().getPhysicalAddress(sendBuffer);
+        auto *sendBuffer = static_cast<uint8_t *>(SystemManagement::getInstance().mapIO(static_cast<uint32_t>(length)));
+        void *phyAddress = SystemManagement::getInstance().getPhysicalAddress(sendBuffer);
 
         for(int i = 0; i < length; i++) {
-            //fill packets with unique numbers. (16 * 0, 16 * 1,...,16 * 15)+
-            *(sendBuffer + i) = (uint8_t) ((i / 16) % 16);
+            //fill packet with ascending numbers
+            *(sendBuffer + i) = static_cast<uint8_t>(i % 16);
         }
 
-        if(!parser.getNamedArgument("flood").isEmpty()) {
-            int millis = strtoint((char *) parser.getNamedArgument("flood"));
+        if(!parser.getNamedArgument("time").isEmpty()) {
+            int millis = strtoint((char *) parser.getNamedArgument("time"));
+
             if (millis < 0) {
-                stderr << "Invalid amount of time" << endl;
+                stderr << "Invalid amount of time!" << endl;
                 return;
             }
 
-            int throughput = measurePackets(length, driver, phyAddress, millis);
-            stdout << "Transmitted packets total: ";
-            stdout << transmitted;
-            stdout << endl;
-            stdout << "Data throughtput: ";
-            stdout << throughput;
-            stdout << " Mb/s";
-            stdout << endl;
+            timeSendBenchmark(phyAddress, length, driver, static_cast<uint32_t>(millis));
+        } else if(!parser.getNamedArgument("count").isEmpty()) {
+            int count = strtoint((char *) parser.getNamedArgument("count"));
+
+            if (count < 0) {
+                stderr << "Invalid amount of packets!" << endl;
+                return;
+            }
+
+            packetSendBenchmark(phyAddress, length, driver, static_cast<uint32_t>(count));
         } else {
             driver.sendPacket(phyAddress, (uint16_t) length);
-            if(transmitted < (1u << 31u)) transmitted++;
-            stdout << "Packet of length ";
-            stdout << length;
-            stdout << " bytes send";
-            stdout << endl;
+
+            stdout << "Sent a single packet of size " << length << " Bytes." << endl;
         }
+
         SystemManagement::getInstance().freeIO(sendBuffer);
-    } else if (parser.checkSwitch("receive")) {
-        printRingBufferPacket();
     }
 }
 
-void NetworkTest::printRingBufferPacket() {
-    ReceiveEvent event;
-
-    lock.acquire();
-    if(eventBuffer.isEmpty()) {
-        stdout << "No new packets received";
-        stdout << endl;
-        //next release is at the end of this method!
-        lock.release();
-        return;
-    } else {
-        event = eventBuffer.pop();
-    }
-
-    if(read < (1u << 31u)) read++;
-
-    auto *packet = static_cast<uint8_t *>(event.getPacket());
-    uint16_t packetLength = event.getLength();
-
-    //current holds first element of the packet. The
-    //packet contains char-values.
-    uint8_t current = *(packet);
-    stdout << "Received paket of length: ";
-    stdout << packetLength;
-    stdout << endl;
-
-    for(int i = 0; i < packetLength; i++) {
-        //convert char value so that its hex will be displayed
-        //when using with stdout
-        uint8_t posl = current >> 4u;
-        uint8_t posr = (uint8_t) (current & 0x0Fu);
-
-        posl > 9 ? posl += 55 : posl += 48;
-        posr > 9 ? posr += 55 : posr += 48;
-
-        stdout << posl;
-        stdout << posr;
-
-        //align the output to look similar to wiresharks output
-        if((i + 1) % 16 == 0)
-            stdout << endl;
-        else if ((i + 1) % 8 == 0)
-            stdout << "  ";
-        else
-            stdout << " ";
-
-        packet++;
-        current = *packet;
-    }
-    stdout << endl;
-    lock.release();
-}
-
-void NetworkTest::sendFromBuffer(int packets, NetworkDevice &driver) {
-    ReceiveEvent event;
-    uint8_t *packet;
-    uint16_t packetLength;
-
-    lock.acquire();
-    for(uint8_t i = 0; i < packets; i++) {
-        if(storedSendBuffer.isEmpty()) {
-            //next release will be at the end of this method
-            lock.release();
-            return;
-        } else {
-            event = storedSendBuffer.pop();
-        }
-
-        packet = static_cast<uint8_t *>(event.getPacket());
-        packetLength = event.getLength();
-
-        //remove source, destination and type of the stored packet
-        for(int j = 0; j < 14; j++) {
-            *(packet + j) = 0;
-        }
-
-        //write own MAC-address to the source-field
-        driver.getMacAddress(const_cast<uint8_t *>(packet));
-
-        auto physical = (uint64_t *) SystemManagement::getInstance().getPhysicalAddress((uint8_t *) packet);
-        driver.sendPacket(physical, packetLength);
-
-        storedSend++;
-    }
-    lock.release();
-}
-
-int NetworkTest::measurePackets(int length, NetworkDevice &driver, void *phyAddress, int millis) {
-    uint16_t packetCount = 0;
+void NetworkTest::timeSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t millis) {
+    uint32_t count = 0;
 
     auto *timeService = Kernel::getService<TimeService>();
     uint32_t start = timeService->getSystemTime();
 
-
     while((timeService->getSystemTime()) < start + millis) {
-        driver.sendPacket(phyAddress, (uint16_t) length);
-        packetCount++;
-
-        if(transmitted < (1u << 31u)) transmitted++;
+        driver.sendPacket(physPacketAddress, (uint16_t) packetLength);
+        count++;
     }
 
-    //convert amount of packets counted in given time to Mb/s
-    double bytesPerSec = 1000 * ((packetCount * length) / ((double) millis));
-    return (int) (bytesPerSec / 1000000);
+    double bytesPerSec = 1000 * (((double) count * (double) packetLength) / ((double) millis));
+
+    stdout << "Sent " << count << " packets in " << millis / 1000 << (((millis / 1000) == 1) ? " second." : " seconds.") << endl;
+    stdout << "Data throughput: " << (uint32_t) (bytesPerSec / 1000000L) << "MB/s"
+           << " (" << (uint32_t) (bytesPerSec / 1048576L) << "MiB/s)" << endl;
 }
 
-void NetworkTest::printInfo() {
-    stdout << "Packets received total: ";
-    lock.acquire();
-    stdout << received;
-    stdout << endl;
-    lock.release();
-    stdout << "Packets transmitted: ";
-    stdout << transmitted;
-    stdout << endl;
-    stdout << "Packets redirected: ";
-    stdout << storedSend;
-    stdout << endl;
-    stdout << "Packets read: ";
-    stdout << read;
-    stdout << endl;
+void NetworkTest::packetSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t count) {
+    auto *timeService = Kernel::getService<TimeService>();
+    uint32_t start = timeService->getSystemTime();
+
+    for(uint32_t i = 0; i < count; i++) {
+        driver.sendPacket(physPacketAddress, (uint16_t) packetLength);
+    }
+
+    uint32_t millis = timeService->getSystemTime() - start;
+
+    double bytesPerSec = 1000 * (((double) count * (double) packetLength) / ((double) millis));
+
+    stdout << "Sent " << count << " packets in " << millis / 1000 << (((millis / 1000) == 1) ? " second" : " seconds.") << endl;
+    stdout << "Data throughput: " << (uint32_t) (bytesPerSec / 1000000L) << "MB/s"
+           << " (" << (uint32_t) (bytesPerSec / 1048576L) << "MiB/s)" << endl;
 }
 
 const String NetworkTest::getHelpText() {
-    return "Tests packet transmit and receive for Intel82541IP\n\n"
-           "Usage:\n"
-           "-h : Displays help text\n"
-           "-i : Displays current state\n"
-           "-r : Displays the earliest received packet and removes it from a\n"
-           "     'receive' buffer, where received packets are stored.\n"
-           "-t [size] -f [time] : Sends for time ms packets of the given size in bytes.\n"
-           "                      time must be positive and size > 63.\n"
-           "-b [amount] : Sends an amount of received packets and \n"
-           "              removes them from a 'received and send' buffer, where received packets\n"
-           "              are stored. The earliest received packet goes first.\n";
-}
-
-void NetworkTest::onEvent(const Event &event) {
-    if(event.getType() == ReceiveEvent::TYPE) {
-        lock.acquire();
-        eventBuffer.push((ReceiveEvent &) event);
-        storedSendBuffer.push((ReceiveEvent &) event);
-
-
-        if(received < (1u << 31u)) {
-            received++;
-        }
-        lock.release();
-    }
+    return "Small utility for testing network devices and measuring network send performance.\n\n"
+           "Usage: nettest [OPTIONS]...\n\n"
+           "Options:\n"
+           "  -s, --send: Send packets via the first network device.\n"
+           "    -t, --time: Suboption for --send - Run a send benchmark for a given amount of milliseconds\n"
+           "    -c, --count: Suboption fo --send - Run a send benchmark with a given amount of packets\n"
+           "  -h, --help: Show this help-message.";
 }

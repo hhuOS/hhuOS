@@ -43,8 +43,7 @@ public:
      * @param descriptors The descriptors contained in the transmit descriptor block.
      * @param initialize The hardware descriptor ring initializer for transmit.
      */
-    explicit TransmitRingSimple(
-            Descriptors<TransmitDescriptor *> *descriptors, HardwareDescriptorRing *initialize);
+    explicit TransmitRingSimple(Descriptors<TransmitDescriptor *> *descriptors, HardwareDescriptorRing *initialize);
     ~TransmitRingSimple() override = default;
 
 private:

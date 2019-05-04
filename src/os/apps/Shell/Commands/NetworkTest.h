@@ -27,114 +27,56 @@
 #include "apps/Shell/Commands/Command.h"
 
 /**
- * This class implements the abstract classes Command
- * and Receiver.
+ * This class implements the abstract class Command
  *
  * It can be used from the shell via the command 'nettest'.
  */
-class NetworkTest : public Command, public Receiver {
+class NetworkTest : public Command {
 
 public:
-    /**
-     * Total received packets since start of hhuOS.
-     */
-    uint16_t received = 0;
-
-    /**
-     * Counts all transmitted packets since start of hhuOS,
-     * but those who are resent via the sendFromBuffer method.
-     */
-    uint32_t transmitted = 0;
-
-    /**
-     * Total of those packets who have been read
-     * due to printRingBufferPacket method.
-     */
-    uint16_t read = 0;
-
-    /**
-     * Counts the amount of packets which are send
-     * from the storedSendBuffer
-     */
-    uint32_t storedSend = 0;
-
-    /**
-     * A buffer where all incoming events are stored. One can
-     * read from it via printRingBufferPacket.
-     * Will be initialized with 1024.
-     */
-    Util::RingBuffer<ReceiveEvent> eventBuffer;
-    /**
-     * Stores incoming packets like the eventBuffer.
-     * Packets from this buffer can be pop-ed an
-     * send.
-     */
-    Util::RingBuffer<ReceiveEvent> storedSendBuffer;
-
-    /**
-     * It is used to synchronize the eventBuffer and the storedSendBuffer.
-     * Otherwise there would be a lost update problem with
-     * the current implementation if both buffer are empty,
-     * and packets are sent.
-     */
-    Spinlock lock;
 
     NetworkTest() = delete;
     NetworkTest(const NetworkTest &copy) = delete;
-    ~NetworkTest() override;
+    ~NetworkTest() override = default;
 
     /**
-     * Initializes the attributes. The attributes 'eventBuffer' and
-     * 'storedSendBuffer' will be initialized with 1024.
-     * @param shell The shell, that executes this command.
+     * Constructor.
      */
     explicit NetworkTest(Shell &shell);
 
     /**
-     * Sends as much packets of a given size as possible for a given
-     * time.
-     * @param size Size of the packets.
-     * @param driver The corresponding driver from whom the packets should be send.
-     * @param phyAddress The physical address of the buffer, where the packets are stored.
-     * @param millis Duration of sending.
+     * Send as much packets as possible in a given time and measure the throughput.
+     *
+     * @param physPacketAddress The physical address of the buffer, where the packets are stored
+     * @param packetLength Size of the packets
+     * @param driver The corresponding driver from whom the packets should be send
+     * @param millis Duration of sending
+     *
      * @return Data throughput in Mb/s.
      */
-    int measurePackets(int size, NetworkDevice &driver, void *phyAddress, int millis);
+    void timeSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t millis);
 
     /**
-     * Pops a packet from the eventBuffer and displays it on the shell.
+     * Send a given amount of packets and measure the throughput.
+     *
+     * @param physPacketAddress The physical address of the buffer, where the packets are stored
+     * @param packetLength Size of the packets
+     * @param driver The corresponding driver from whom the packets should be send
+     * @param count Amount of packets to send
+     *
+     * @return Data throughput in Mb/s.
      */
-    void printRingBufferPacket();
+    void packetSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t count);
 
     /**
-     * Pops a given amount of packets from the storedSendBuffer and
-     * sends them.
-     * @param packets Amount of packets to send.
-     * @param driver The corresponding drivver from whom the packets should be send.
+     * Overriding function from Command.
      */
-    void sendFromBuffer(int packets, NetworkDevice &driver);
-
-    /**
-     * Displays the current network information according to ReceiveEvents.
-     */
-    void printInfo();
-
-    /**
-     * Inherited methods from Command.
-     * This methods are meant to be overridden and
-     * implemented by this class.
-     */
-
     void execute(Util::Array<String> &args) override;
-    const String getHelpText() override;
 
     /**
-     * Inherited method from Receiver.
-     * This method is meant to be overridden and
-     * implemented by this class.
+     * Overriding function from Command.
      */
-
-    void onEvent(const Event &event) override;
+    const String getHelpText() override;
 };
 
 

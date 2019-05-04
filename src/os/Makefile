@@ -104,7 +104,7 @@ QEMU_DEFAULT_PARAMS = -boot d -cdrom $(OBJDIR)/hhuOS.iso -m 128M -k de -vga std 
 					  -rtc base=localtime,clock=host \
 					  -device sb16,irq=10,dma=1 \
 					  -soundhw pcspk \
-					  -netdev user,id=eth0 \
+					  -netdev user,id=eth0,hostfwd=tcp::8821-:8821 \
 					  -device e1000,netdev=eth0 \
                       -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump
 
