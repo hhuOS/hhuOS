@@ -24,6 +24,8 @@
 
 class Thread {
 
+    friend class Scheduler;
+
 public:
 
     InterruptFrame *interruptFrame;
@@ -67,6 +69,8 @@ public:
 
     virtual void run () = 0;
 
+    void join();
+
 protected:
 
     void yield();
@@ -78,6 +82,8 @@ private:
     uint8_t priority;
 
     String name;
+
+    volatile bool isActive = true;
 
     class Stack {
 

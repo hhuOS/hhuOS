@@ -90,6 +90,8 @@ void Scheduler::ready(Thread& that) {
 
     readyQueues[that.getPriority()].push(&that);
 
+    that.isActive = true;
+
     lock.release();
 }
 
@@ -108,7 +110,9 @@ void Scheduler::exit() {
     }
 
     Thread* next = getNextThread();
-    
+
+    currentThread->isActive = false;
+
     dispatch (*next);
 }
 
@@ -127,6 +131,8 @@ void Scheduler::kill(Thread& that) {
     }
 
     readyQueues[that.getPriority()].remove(&that);
+
+    that.isActive = false;
 
     lock.release();
 }

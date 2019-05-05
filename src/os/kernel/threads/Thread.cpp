@@ -30,7 +30,7 @@ uint32_t threadCount = 0;
 
 void kickoff () {
 
-    Scheduler::getInstance().currentThread->run();
+    Scheduler::getInstance().getCurrentThread().run();
 
     Scheduler::getInstance().exit();
 }
@@ -121,6 +121,10 @@ uint8_t Thread::getPriority() const {
 
 void Thread::setPriority(uint8_t priority) {
     this->priority = Scheduler::getInstance().changePriority(*this, priority);
+}
+
+void Thread::join() {
+    while(isActive);
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size){

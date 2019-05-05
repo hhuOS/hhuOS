@@ -85,7 +85,7 @@ public:
      *
      * @return The active Thread
      */
-    Thread *active() { return currentThread; }
+    Thread& getCurrentThread() { return *currentThread; }
 
     /**
      * Returns the number of active Threads.
@@ -106,8 +106,6 @@ public:
      * @return An instance of the Scheduler
      */
     static Scheduler &getInstance() noexcept;
-
-    Thread *currentThread;
 
     Spinlock lock;
 
@@ -132,7 +130,9 @@ private:
 
 private:
 
-    bool  initialized = false;
+    bool initialized = false;
+
+    Thread *currentThread;
 
     ThreadPriority &priority;
 
