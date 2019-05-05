@@ -134,7 +134,7 @@ public:
     /**
      * Throws an exception.
      */
-    static void throwException(Exception exception, const char *message = "");
+    [[ noreturn ]] static void throwException(Exception exception, const char *message = "");
 
     /**
      * Returns the name of the Exception from the number.

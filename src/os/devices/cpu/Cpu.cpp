@@ -21,7 +21,7 @@
 #include "Cpu.h"
 
 extern "C" {
-    void onException(uint32_t exception);
+    [[ noreturn ]] void onException(uint32_t exception);
 }
 
 // lists of Exceptions that can occur

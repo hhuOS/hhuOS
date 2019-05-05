@@ -78,7 +78,6 @@ template<typename T>
 T Atomic<T>::fetchAndAdd(T addend) {
     return fetchAndAdd(&value, addend);
 }
-
 template<typename T>
 T Atomic<T>::fetchAndSub(T subtrahend) {
     return fetchAndAdd(&value, subtrahend * (-1));
@@ -92,4 +91,14 @@ T Atomic<T>::fetchAndInc() {
 template<typename T>
 T Atomic<T>::fetchAndDec() {
     return fetchAndAdd(&value, -1);
+}
+
+template<>
+bool Atomic<bool>::fetchAndAdd(bool subtrahend) {
+    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "Cannot add to a boolean type value!");
+}
+
+template<>
+bool Atomic<bool>::fetchAndSub(bool subtrahend) {
+    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "Cannot subtract from a boolean type value!");
 }

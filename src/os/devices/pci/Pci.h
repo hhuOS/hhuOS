@@ -24,6 +24,7 @@
 #include <lib/util/ArrayList.h>
 #include <devices/misc/Pic.h>
 #include <kernel/log/Logger.h>
+#include <kernel/threads/SimpleThread.h>
 
 class PciDeviceDriver;
 
@@ -232,7 +233,9 @@ public:
 
 private:
 
-    static Util::HashMap<String, String> vendorNames;
+    static Spinlock databaseLock;
+
+    static SimpleThread parseDatabaseThread;
 
     static Util::HashMap<String, Vendor> vendors;
 
@@ -257,8 +260,6 @@ private:
     static Util::ArrayList<Device> pciDevices;
 
     static Util::ArrayList<PciDeviceDriver*> deviceDrivers;
-
-    static uint8_t     ahciCount;
 
     static void        prepareRegister(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset);
 

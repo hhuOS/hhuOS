@@ -54,18 +54,12 @@ uint64_t PciNode::writeData(char *buf, uint64_t pos, uint64_t numBytes) {
 
 void PciNode::cacheDeviceList() {
 
-    char vendorId[5];
-    char deviceId[5];
-
     String identifier;
 
     for (auto device : Pci::getDevices()) {
 
-        sprintf(vendorId, "%04x", device.vendorId);
-        sprintf(deviceId, "%04x", device.deviceId);
+        identifier = Pci::getIdentifier(String::format("%04x", device.vendorId), String::format("%04x", device.deviceId));
 
-        identifier = Pci::getIdentifier(vendorId, deviceId);
-
-        cache += String::format("%s:%s - %s\n", vendorId, deviceId, (char*) identifier);
+        cache += String::format("%04x:%04x - %s\n", device.vendorId, device.deviceId, (char*) identifier);
     }
 }

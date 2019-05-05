@@ -20,9 +20,9 @@ private:
 
 public:
 
-    explicit Atomic() = default;
+    explicit Atomic() noexcept = default;
 
-    explicit Atomic(T value);
+    explicit Atomic(T value) noexcept;
 
     Atomic(const Atomic<T> &other);
 
@@ -46,6 +46,7 @@ public:
 
 };
 
+template class Atomic<bool>;
 template class Atomic<int8_t>;
 template class Atomic<uint8_t>;
 template class Atomic<int16_t>;

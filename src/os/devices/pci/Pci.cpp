@@ -33,10 +33,10 @@ const IOport Pci::CONFIG_DATA = IOport(0xCFC);
 
 Util::ArrayList<Pci::Device> Pci::pciDevices;
 Util::ArrayList<PciDeviceDriver*> Pci::deviceDrivers;
-Util::HashMap<String, String> Pci::vendorNames;
 Util::HashMap<String, Pci::Vendor> Pci::vendors;
 
-uint8_t Pci::ahciCount = 0;
+Spinlock Pci::databaseLock;
+SimpleThread Pci::parseDatabaseThread(&Pci::parseDatabase);
 
 StorageService *Pci::storageService = nullptr;
 
@@ -231,22 +231,14 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     uint8_t subClass = getSubclassId(bus, device, function);
 
     if ( (baseClass == CLASS_BRIDGE_DEVICE) && (subClass == SUBCLASS_PCI_TO_PCI) ) {
-         log.info("Found PCI-to-PCI Bridge on bus %d", bus);
+         log.info("Found PCI-to-PCI Bridge on bus %u", bus);
          secondaryBus = getSecondaryBus(bus, device, function);
          scanBus(secondaryBus);
     }
 
     Device dev = readDevice(bus, device, function);
 
-    char vendorId[5];
-    char deviceId[5];
-
-    sprintf(vendorId, "%04x", dev.vendorId);
-    sprintf(deviceId, "%04x", dev.deviceId);
-
-    String vendorName = getIdentifier(vendorId, deviceId);
-
-    log.info("Found PCI-Device %04x:%04x on bus %u: %s", dev.vendorId, dev.deviceId, bus, (const char*) vendorName);
+    log.info("Found PCI-Device %04x:%04x on bus %u", dev.vendorId, dev.deviceId, bus);
 
     pciDevices.add(dev);
 }
@@ -279,6 +271,10 @@ void Pci::scan() {
 
     if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
         parseDatabase();
+        // TODO: Once asynchronous booting sequences are allowed,
+        //       uncomment this line and delete the one above
+        //       to parse the PCI database asynchronously.
+        //parseDatabaseThread.start();
     }
     
     storageService = Kernel::getService<StorageService>();
@@ -351,19 +347,34 @@ void Pci::setVendorName(const String &vendorId, const Vendor &vendor) {
 
 String Pci::getVendorName(const String &vendorId) {
 
+    databaseLock.acquire();
+
+    String ret;
+
     if (vendors.containsKey(vendorId)) {
 
-        return vendors.get(vendorId).name;
+        ret = vendors.get(vendorId).name;
     }
+
+    databaseLock.release();
 
     return "";
 }
 
 void Pci::parseDatabase() {
 
+    databaseLock.acquire();
+
     log.trace("Parsing PCI database");
 
     File *idsFile = File::open("/pci/pci.ids", "r");
+
+    if(idsFile == nullptr) {
+        log.error("Unable to open PCI database file!");
+        databaseLock.release();
+
+        return;
+    }
 
     char *content;
 
@@ -419,29 +430,35 @@ void Pci::parseDatabase() {
     vendors.put(vendorId, vendor);
 
     log.trace("Parsing PCI database finished");
+
+    databaseLock.release();
 }
 
 String Pci::getIdentifier(const String &vendorId, const String &deviceId) {
 
-    String result;
+    String ret;
+
+    databaseLock.acquire();
 
     if (vendors.containsKey(vendorId)) {
 
         Vendor vendor = vendors.get(vendorId);
 
-        result += vendor.name + ": ";
+        ret += vendor.name + ": ";
 
         if (vendor.devices->containsKey(deviceId)) {
 
-            result += vendor.devices->get(deviceId);
+            ret += vendor.devices->get(deviceId);
 
         } else {
 
-            result += "<unknown>";
+            ret += "<unknown>";
         }
     }
 
-    return result;
+    databaseLock.release();
+
+    return ret;
 }
 
 bool Pci::Device::operator!=(const Pci::Device &other) {
