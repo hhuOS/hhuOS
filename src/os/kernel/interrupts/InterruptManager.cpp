@@ -31,12 +31,13 @@ void InterruptManager::deregisterInterruptHandler(InterruptHandler *device) {
 
 void InterruptManager::run() {
     while(true) {
-        lock.acquire();
 
         bool doYield;
 
         do {
             doYield = true;
+
+            lock.acquire();
 
             for (uint32_t i = 0; i < interruptHandler.size(); i++) {
                 if (interruptHandler.get(i)->hasInterruptData()) {
@@ -45,11 +46,11 @@ void InterruptManager::run() {
                     interruptHandler.get(i)->parseInterruptData();
                 }
             }
+
+            lock.release();
         } while(!doYield);
 
         yield();
-
-        lock.release();
     }
 }
 

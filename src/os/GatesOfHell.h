@@ -22,7 +22,9 @@
 #include <kernel/Bootscreen.h>
 #include <lib/file/tar/Archive.h>
 #include <kernel/services/ModuleLoader.h>
+#include <kernel/services/GraphicsService.h>
 #include <kernel/threads/IdleThread.h>
+#include <kernel/threads/SimpleThread.h>
 
 #include <lib/util/SmartPointer.h>
 #include <kernel/events/input/KeyEvent.h>
@@ -61,12 +63,6 @@ private:
 
     static Logger &log;
 
-    static ModuleLoader *moduleLoader;
-
-    static GraphicsService *graphicsService;
-
-    static EventBus *eventBus;
-
     static Bootscreen *bootscreen;
 
     static IdleThread *idleThread;
@@ -76,6 +72,20 @@ private:
     static uint16_t yres;
 
     static uint8_t bpp;
+
+    static SimpleThread initServicesThread;
+
+    static SimpleThread initFilesystemThread;
+
+    static SimpleThread initGraphicsThread;
+
+    static SimpleThread initPortsThread;
+
+    static SimpleThread initMemoryManagersThread;
+
+    static SimpleThread scanPciBusThread;
+
+    static SimpleThread parsePciDatabaseThread;
 };
 
 

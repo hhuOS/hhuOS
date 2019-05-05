@@ -36,7 +36,6 @@ Util::ArrayList<PciDeviceDriver*> Pci::deviceDrivers;
 Util::HashMap<String, Pci::Vendor> Pci::vendors;
 
 Spinlock Pci::databaseLock;
-SimpleThread Pci::parseDatabaseThread(&Pci::parseDatabase);
 
 StorageService *Pci::storageService = nullptr;
 
@@ -268,14 +267,6 @@ void Pci::scanBus(uint8_t bus) {
 }
 
 void Pci::scan() {
-
-    if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
-        parseDatabase();
-        // TODO: Once asynchronous booting sequences are allowed,
-        //       uncomment this line and delete the one above
-        //       to parse the PCI database asynchronously.
-        //parseDatabaseThread.start();
-    }
     
     storageService = Kernel::getService<StorageService>();
 
@@ -365,9 +356,7 @@ void Pci::parseDatabase() {
 
     databaseLock.acquire();
 
-    log.trace("Parsing PCI database");
-
-    File *idsFile = File::open("/pci/pci.ids", "r");
+    File *idsFile = File::open("/initrd/pci/pci.ids", "r");
 
     if(idsFile == nullptr) {
         log.error("Unable to open PCI database file!");
@@ -428,8 +417,6 @@ void Pci::parseDatabase() {
     vendor.devices = new Util::HashMap<String, String>();
     vendor.devices->put(deviceId, "Standard VGA");
     vendors.put(vendorId, vendor);
-
-    log.trace("Parsing PCI database finished");
 
     databaseLock.release();
 }

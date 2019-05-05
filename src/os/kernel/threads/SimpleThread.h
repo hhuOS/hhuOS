@@ -7,7 +7,7 @@ class SimpleThread : public Thread {
 
 public:
 
-    explicit SimpleThread(void (*work)());
+    explicit SimpleThread(void (*work)()) noexcept;
 
     void run() override;
 

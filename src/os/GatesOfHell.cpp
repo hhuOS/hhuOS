@@ -58,12 +58,6 @@
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
 
-ModuleLoader *GatesOfHell::moduleLoader = nullptr;
-
-GraphicsService *GatesOfHell::graphicsService = nullptr;
-
-EventBus *GatesOfHell::eventBus = nullptr;
-
 Bootscreen *GatesOfHell::bootscreen = nullptr;
 
 IdleThread *GatesOfHell::idleThread = nullptr;
@@ -79,42 +73,28 @@ int32_t main() {
     return GatesOfHell::enter();
 }
 
-int32_t GatesOfHell::enter() {
-
-    log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
-    log.trace("Build date: %s", BuildConfig::BUILD_DATE);
-
-    eventBus = new EventBus();
+SimpleThread GatesOfHell::initServicesThread([]{
 
     log.trace("Registering services");
 
     registerServices();
 
-    log.trace("Initializing BIOS calls");
+    Kernel::getService<EventBus>()->start();
 
-    Bios::init();
+    log.trace("Finished registering services");
 
-    moduleLoader = Kernel::getService<ModuleLoader>();
-
-    auto *fs = Kernel::getService<FileSystem>();
-    fs->mountInitRamdisk("/");
+    Kernel::getService<FileSystem>()->mountInitRamdisk("/");
 
     afterInitrdModHook();
+});
 
-    log.trace("Plugging in RTC");
-
-    auto *rtc = Kernel::getService<TimeService>()->getRTC();
-    rtc->plugin();
-
-    log.trace("Plugging in keyboard and mouse");
-
-    auto *inputService = Kernel::getService<InputService>();
-    inputService->getKeyboard()->plugin();
-    inputService->getMouse()->plugin();
+SimpleThread GatesOfHell::initGraphicsThread([]{
 
     log.trace("Initializing graphics");
 
     initializeGraphics();
+
+    log.trace("Finished initializing graphics");
 
     bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
 
@@ -122,45 +102,123 @@ int32_t GatesOfHell::enter() {
 
     bootscreen->init(xres, yres, bpp);
 
-    bootscreen->update(0, "Initializing PCI Devices");
+    bootscreen->update(0, "Booting...");
+});
+
+SimpleThread GatesOfHell::scanPciBusThread([]{
+
+    log.trace("Scanning PCI devices");
+
     Pci::scan();
 
+    log.trace("Finished scanning PCI devices");
+
     afterPciScanModHook();
+});
 
-    bootscreen->update(33, "Initializing Filesystem");
+SimpleThread GatesOfHell::initFilesystemThread([]{
 
-    fs->init();
+    log.trace("Initializing filesystem");
+
+    Kernel::getService<FileSystem>()->init();
+
     sys_init_libc();
 
+    log.trace("Finished initializing filesystem");
+
     afterFsInitModHook();
+});
+
+SimpleThread GatesOfHell::initPortsThread([]{
+
+    log.trace ("Initializing ports");
 
     initializePorts();
 
+    log.trace ("Finished initializing ports");
+});
+
+SimpleThread GatesOfHell::initMemoryManagersThread([]{
+
+    log.trace ("Initializing memory managers");
+
     initializeMemoryManagers();
 
-    bootscreen->update(66, "Starting Threads");
-    idleThread = new IdleThread();
+    log.trace ("Finished initializing memory managers");
+});
 
-    idleThread->start();
-    eventBus->start();
-    InterruptManager::getInstance().start();
-    Application::getInstance().start();
+SimpleThread GatesOfHell::parsePciDatabaseThread([]{
 
-    bootscreen->update(100, "Finished Booting!");
+    if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
 
-    BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
+        log.trace ("Parsing PCI database");
 
-    if(sound != nullptr) {
-        sound->play();
-        delete sound;
+        Pci::parseDatabase();
+
+        log.trace ("Finished parsing PCI database");
     }
+});
 
-    bootscreen->finish();
+int32_t GatesOfHell::enter() {
 
-    if (!showSplash) {
+    log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
+    log.trace("Build date: %s", BuildConfig::BUILD_DATE);
+
+    log.trace("Initializing BIOS calls");
+
+    Bios::init();
+
+    log.trace("Finished initializing BIOS calls");
+
+    idleThread = new IdleThread();
+    idleThread->start();
+
+    SimpleThread bootMainThread([] {
+        InterruptManager::getInstance().start();
+
+        initServicesThread.start();
+        initServicesThread.join();
+
+        initGraphicsThread.start();
+        initGraphicsThread.join();
+
+        bootscreen->update(0, "Initializing PCI devices");
+
+        scanPciBusThread.start();
+        scanPciBusThread.join();
+
+        bootscreen->update(33, "Initializing Filesystem");
+
+        initFilesystemThread.start();
+        initFilesystemThread.join();
+
+        bootscreen->update(66, "Initializing System");
+
+        parsePciDatabaseThread.start();
+        initPortsThread.start();
+        initMemoryManagersThread.start();
+
+        initPortsThread.join();
+        initMemoryManagersThread.join();
+        parsePciDatabaseThread.join();
+
+        bootscreen->update(100, "Finished Booting!");
+
+        BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
+
+        if(sound != nullptr) {
+            sound->play();
+            delete sound;
+        }
+
+        bootscreen->finish();
 
         Logger::setConsoleLogging(false);
-    }
+
+        Application::getInstance().start();
+    });
+
+    bootMainThread.start();
 
     Scheduler::getInstance().startUp();
 
@@ -169,7 +227,7 @@ int32_t GatesOfHell::enter() {
 
 void GatesOfHell::registerServices() {
 
-    Kernel::registerService(EventBus::SERVICE_NAME, eventBus);
+    Kernel::registerService(EventBus::SERVICE_NAME, new EventBus());
 
     Kernel::registerService(GraphicsService::SERVICE_NAME, new GraphicsService());
     Kernel::registerService(TimeService::SERVICE_NAME, new TimeService(Pit::getInstance()));
@@ -193,6 +251,12 @@ void GatesOfHell::afterInitrdModHook() {
     for(const auto &module : modules) {
         loadModule("/mod/" + module);
     }
+
+    Kernel::getService<TimeService>()->getRTC()->plugin();
+
+    auto *inputService = Kernel::getService<InputService>();
+    inputService->getKeyboard()->plugin();
+    inputService->getMouse()->plugin();
 
     log.trace("Leaving after_initrd_mod_hook");
 }
@@ -235,7 +299,7 @@ void GatesOfHell::afterFsInitModHook() {
 
 void GatesOfHell::initializeGraphics() {
 
-    graphicsService = Kernel::getService<GraphicsService>();
+    auto *graphicsService = Kernel::getService<GraphicsService>();
 
     // Check, if a graphics mode has already been set by GRUB
     Multiboot::FrameBufferInfo fbInfo = Multiboot::Structure::getFrameBufferInfo();
@@ -310,7 +374,7 @@ bool GatesOfHell::loadModule(const String &path) {
 
     log.trace("Loading module '%s'", (const char*) path);
 
-    moduleLoader->load(file);
+    Kernel::getService<ModuleLoader>()->load(file);
 
     delete file;
 

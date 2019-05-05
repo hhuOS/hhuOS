@@ -1,6 +1,6 @@
 #include "SimpleThread.h"
 
-SimpleThread::SimpleThread(void (*work)()) : work(work) {
+SimpleThread::SimpleThread(void (*work)()) noexcept : work(work) {
 
 }
 

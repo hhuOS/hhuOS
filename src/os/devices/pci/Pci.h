@@ -132,6 +132,8 @@ public:
 
     static void      scan();
 
+    static void parseDatabase();
+
     /* Multifunction */
     static const uint8_t    MULTIFUNCTION_BIT = 0x80;
 
@@ -235,8 +237,6 @@ private:
 
     static Spinlock databaseLock;
 
-    static SimpleThread parseDatabaseThread;
-
     static Util::HashMap<String, Vendor> vendors;
 
     static Logger &log;
@@ -270,8 +270,6 @@ private:
     static void        scanBus(uint8_t bus);
 
     static Pci::Device      readDevice(uint8_t bus, uint8_t device, uint8_t function);
-
-    static void parseDatabase();
 };
 
 #endif
