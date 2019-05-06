@@ -69,7 +69,7 @@ public:
 
     virtual void run () = 0;
 
-    void join();
+    void join() const;
 
 protected:
 

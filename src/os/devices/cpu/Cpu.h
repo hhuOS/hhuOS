@@ -68,7 +68,7 @@ public:
     /**
      * Stop the processor via hlt instruction.
      */
-    static void halt () __attribute__((noreturn));
+    [[noreturn]] static void halt ();
  
     /**
      * Reads the time stamp counter.

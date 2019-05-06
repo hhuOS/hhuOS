@@ -53,10 +53,13 @@
 #include <devices/network/e1000/driver/intel82541IP/Intel82541IP.h>
 #include <devices/network/e1000/driver/intel82540EM/Intel82540EM.h>
 #include <kernel/services/NetworkService.h>
+#include <apps/Shell/Shell.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
 Logger &GatesOfHell::log = Logger::get("BOOT");
+
+AnsiOutputStream *GatesOfHell::outputStream = nullptr;
 
 Bootscreen *GatesOfHell::bootscreen = nullptr;
 
@@ -70,10 +73,10 @@ uint8_t GatesOfHell::bpp = 0;
 
 int32_t main() {
 
-    return GatesOfHell::enter();
+    GatesOfHell::enter();
 }
 
-SimpleThread GatesOfHell::initServicesThread([]{
+BootComponent GatesOfHell::initServicesComponent("InitServicesComponent", Util::Array<BootComponent*>(0), []{
 
     log.trace("Registering services");
 
@@ -88,24 +91,29 @@ SimpleThread GatesOfHell::initServicesThread([]{
     afterInitrdModHook();
 });
 
-SimpleThread GatesOfHell::initGraphicsThread([]{
+BootComponent GatesOfHell::initGraphicsComponent("InitGraphicsComponent", Util::Array<BootComponent*>({&initServicesComponent}), []{
 
     log.trace("Initializing graphics");
 
     initializeGraphics();
 
+    outputStream = new AnsiOutputStream();
+
+    stdout = outputStream;
+
+    Logger::setConsoleLogging(Multiboot::Structure::getKernelOption("splash") != "true");
+
     log.trace("Finished initializing graphics");
 
-    bool showSplash = Multiboot::Structure::getKernelOption("splash") == "true";
+    bootscreen = new Bootscreen(coordinator);
 
-    bootscreen = new Bootscreen(showSplash, log);
+    if(Multiboot::Structure::getKernelOption("splash") == "true") {
 
-    bootscreen->init(xres, yres, bpp);
-
-    bootscreen->update(0, "Booting...");
+        bootscreen->init(xres, yres, bpp);
+    }
 });
 
-SimpleThread GatesOfHell::scanPciBusThread([]{
+BootComponent GatesOfHell::scanPciBusComponent("ScanPciBusComponent", Util::Array<BootComponent*>({&initGraphicsComponent}),[]{
 
     log.trace("Scanning PCI devices");
 
@@ -116,20 +124,18 @@ SimpleThread GatesOfHell::scanPciBusThread([]{
     afterPciScanModHook();
 });
 
-SimpleThread GatesOfHell::initFilesystemThread([]{
+BootComponent GatesOfHell::initFilesystemComponent("InitFilesystemComponent", Util::Array<BootComponent*>({&scanPciBusComponent}), []{
 
     log.trace("Initializing filesystem");
 
     Kernel::getService<FileSystem>()->init();
-
-    sys_init_libc();
 
     log.trace("Finished initializing filesystem");
 
     afterFsInitModHook();
 });
 
-SimpleThread GatesOfHell::initPortsThread([]{
+BootComponent GatesOfHell::initPortsComponent("InitPortsComponent", Util::Array<BootComponent*>({&initFilesystemComponent}), []{
 
     log.trace ("Initializing ports");
 
@@ -138,7 +144,7 @@ SimpleThread GatesOfHell::initPortsThread([]{
     log.trace ("Finished initializing ports");
 });
 
-SimpleThread GatesOfHell::initMemoryManagersThread([]{
+BootComponent GatesOfHell::initMemoryManagersComponent("InitMemoryManagersComponent",  Util::Array<BootComponent*>({&initFilesystemComponent}), []{
 
     log.trace ("Initializing memory managers");
 
@@ -147,19 +153,37 @@ SimpleThread GatesOfHell::initMemoryManagersThread([]{
     log.trace ("Finished initializing memory managers");
 });
 
-SimpleThread GatesOfHell::parsePciDatabaseThread([]{
+BootComponent GatesOfHell::parsePciDatabaseComponent("ParsePciDatabaseComponent", Util::Array<BootComponent*>({&initFilesystemComponent}),[]{
 
-    if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
+    log.trace ("Parsing PCI database");
 
-        log.trace ("Parsing PCI database");
+    Pci::parseDatabase();
 
-        Pci::parseDatabase();
-
-        log.trace ("Finished parsing PCI database");
-    }
+    log.trace ("Finished parsing PCI database");
 });
 
-int32_t GatesOfHell::enter() {
+BootCoordinator GatesOfHell::coordinator(Util::Array<BootComponent*>({&initServicesComponent, &initGraphicsComponent,
+        &scanPciBusComponent, &initFilesystemComponent, &initPortsComponent, &initMemoryManagersComponent}), []{
+
+    BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
+
+    if(sound != nullptr) {
+        sound->play();
+        delete sound;
+    }
+
+    stdout = File::open("/dev/stdout", "w");
+
+    bootscreen->finish();
+
+    Logger::setConsoleLogging(false);
+
+    delete outputStream;
+
+    Application::getInstance().start();
+});
+
+void GatesOfHell::enter() {
 
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
@@ -170,59 +194,20 @@ int32_t GatesOfHell::enter() {
 
     log.trace("Finished initializing BIOS calls");
 
+    if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
+        coordinator.addComponent(&parsePciDatabaseComponent);
+    }
+
     idleThread = new IdleThread();
     idleThread->start();
 
-    SimpleThread bootMainThread([] {
-        InterruptManager::getInstance().start();
+    InterruptManager::getInstance().start();
 
-        initServicesThread.start();
-        initServicesThread.join();
-
-        initGraphicsThread.start();
-        initGraphicsThread.join();
-
-        bootscreen->update(0, "Initializing PCI devices");
-
-        scanPciBusThread.start();
-        scanPciBusThread.join();
-
-        bootscreen->update(33, "Initializing Filesystem");
-
-        initFilesystemThread.start();
-        initFilesystemThread.join();
-
-        bootscreen->update(66, "Initializing System");
-
-        parsePciDatabaseThread.start();
-        initPortsThread.start();
-        initMemoryManagersThread.start();
-
-        initPortsThread.join();
-        initMemoryManagersThread.join();
-        parsePciDatabaseThread.join();
-
-        bootscreen->update(100, "Finished Booting!");
-
-        BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
-
-        if(sound != nullptr) {
-            sound->play();
-            delete sound;
-        }
-
-        bootscreen->finish();
-
-        Logger::setConsoleLogging(false);
-
-        Application::getInstance().start();
-    });
-
-    bootMainThread.start();
+    coordinator.start();
 
     Scheduler::getInstance().startUp();
 
-    return 0;
+    Cpu::halt();
 }
 
 void GatesOfHell::registerServices() {

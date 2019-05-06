@@ -70,8 +70,6 @@ void init_system(Multiboot::Info *address) {
 
     Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
 
-    Logger::setConsoleLogging(Multiboot::Structure::getKernelOption("splash") != "true");
-
     if(Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
         systemManagement.writeProtectKernelCode();
     }

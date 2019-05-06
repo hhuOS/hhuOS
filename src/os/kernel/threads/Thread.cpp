@@ -123,8 +123,10 @@ void Thread::setPriority(uint8_t priority) {
     this->priority = Scheduler::getInstance().changePriority(*this, priority);
 }
 
-void Thread::join() {
-    while(isActive);
+void Thread::join() const {
+    while(isActive) {
+        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
+    }
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size){

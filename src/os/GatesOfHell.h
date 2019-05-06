@@ -19,7 +19,7 @@
 
 
 #include <cstdint>
-#include <kernel/Bootscreen.h>
+#include <kernel/boot/Bootscreen.h>
 #include <lib/file/tar/Archive.h>
 #include <kernel/services/ModuleLoader.h>
 #include <kernel/services/GraphicsService.h>
@@ -28,6 +28,9 @@
 
 #include <lib/util/SmartPointer.h>
 #include <kernel/events/input/KeyEvent.h>
+#include <kernel/boot/BootComponent.h>
+#include <kernel/boot/BootCoordinator.h>
+#include <lib/AnsiOutputStream.h>
 
 class GatesOfHell {
 
@@ -41,7 +44,7 @@ public:
 
     GatesOfHell &operator=(const GatesOfHell &other) = delete;
 
-    static int32_t enter();
+    [[noreturn]] static void enter();
 
 private:
 
@@ -63,6 +66,8 @@ private:
 
     static Logger &log;
 
+    static AnsiOutputStream *outputStream;
+
     static Bootscreen *bootscreen;
 
     static IdleThread *idleThread;
@@ -73,19 +78,21 @@ private:
 
     static uint8_t bpp;
 
-    static SimpleThread initServicesThread;
+    static BootComponent initServicesComponent;
 
-    static SimpleThread initFilesystemThread;
+    static BootComponent initFilesystemComponent;
 
-    static SimpleThread initGraphicsThread;
+    static BootComponent initGraphicsComponent;
 
-    static SimpleThread initPortsThread;
+    static BootComponent initPortsComponent;
 
-    static SimpleThread initMemoryManagersThread;
+    static BootComponent initMemoryManagersComponent;
 
-    static SimpleThread scanPciBusThread;
+    static BootComponent scanPciBusComponent;
 
-    static SimpleThread parsePciDatabaseThread;
+    static BootComponent parsePciDatabaseComponent;
+
+    static BootCoordinator coordinator;
 };
 
 

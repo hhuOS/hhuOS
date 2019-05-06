@@ -21,6 +21,7 @@
 #include <kernel/services/EventBus.h>
 #include <lib/file/Directory.h>
 #include <kernel/services/KernelStreamService.h>
+#include <lib/AnsiOutputStream.h>
 
 class Command;
 class History;
@@ -31,7 +32,7 @@ class History;
  * @author Fabian Ruhland
  * @date 2018
  */
-class Shell : public Thread, Receiver, OutputStream, InputStream {
+class Shell : public Thread, public Receiver, public AnsiOutputStream, public InputStream {
 
 private:
     friend History;
@@ -66,17 +67,9 @@ private:
 
     char inputBuffer[4096];
 
-    bool isEscapeActive = false;
-
-    char currentEscapeCode[16];
-
     uint16_t currentBase = 0;
 
     uint32_t historyIndex = 0;
-
-    uint8_t escapeCodeIndex = 0;
-
-    Color getColor(uint32_t colorCode, bool bright);
 
     void showHistory(HistoryDirection direction);
 

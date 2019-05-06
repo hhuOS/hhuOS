@@ -20,7 +20,6 @@
 
 #include <cstdint>
 #include <lib/Atomic.h>
-#include <kernel/log/Logger.h>
 #include "Lock.h"
 
 /**

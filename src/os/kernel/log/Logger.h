@@ -17,6 +17,8 @@
 #ifndef HHUOS_LOGGER_H
 #define HHUOS_LOGGER_H
 
+
+#include <lib/lock/Spinlock.h>
 #include "lib/String.h"
 #include "lib/util/ArrayList.h"
 #include "lib/time/TimeProvider.h"
@@ -69,6 +71,8 @@ private:
     explicit Logger(const String &name) noexcept;
 
     const String name;
+
+    static Spinlock lock;
 
     static bool logToStdOut;
 

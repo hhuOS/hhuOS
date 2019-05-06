@@ -31,7 +31,7 @@ public:
 
     StdOutAppender &operator=(const StdOutAppender &other) = delete;
 
-    ~StdOutAppender() = default;
+    ~StdOutAppender() override = default;
 
     void append(const String &message) override;
 };

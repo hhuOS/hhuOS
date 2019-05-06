@@ -33,8 +33,6 @@ extern "C" {
 
 extern OutputStream *stdout;
 
-void initPrintf();
-
 /**
  * Write formatted data on kout or OutputStream.
  * After the format parameter, the function expects at least as many

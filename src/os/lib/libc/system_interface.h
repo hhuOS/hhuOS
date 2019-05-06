@@ -26,12 +26,6 @@ extern "C" {
 
 
 /**
- * Gets called by the system, after the necessary components (e.g. Memory management, Filesystem, etc.) have
- * been initialized.
- */
-void sys_init_libc();
-
-/**
  * Allocates a chunk of memory.
  *
  * @param size The chunk's desired size in bytes.

@@ -18,10 +18,6 @@
 #include "printf.h"
 #include "system_interface.h"
 
-void sys_init_libc() {
-    initPrintf();
-}
-
 void *sys_alloc_mem(uint32_t size, uint32_t alignment) {
     return new(alignment) char[size];
 }

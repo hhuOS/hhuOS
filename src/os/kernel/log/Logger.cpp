@@ -15,14 +15,14 @@
  */
 
 #include <lib/libc/printf.h>
-#include <kernel/services/KernelStreamService.h>
 #include <lib/file/File.h>
 #include <devices/timer/Pit.h>
-#include <kernel/debug/GdbServer.h>
 #include <lib/multiboot/Structure.h>
 #include <lib/graphic/Ansi.h>
 #include "Logger.h"
 #include "PortAppender.h"
+
+Spinlock Logger::lock;
 
 bool Logger::logToStdOut = false;
 
@@ -95,6 +95,8 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
         return;
     }
 
+    lock.acquire();
+
     uint32_t millis = timeProvider.getMillis();
 
     uint32_t seconds = millis / 1000;
@@ -116,6 +118,8 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
 
         appender->append(tmp);
     }
+
+    lock.release();
 }
 
 void Logger::setLevel(LogLevel level) {
@@ -123,6 +127,7 @@ void Logger::setLevel(LogLevel level) {
 }
 
 String Logger::getLevelAsString(LogLevel level) {
+
     switch (level) {
         case TRACE:
             return "TRACE";
@@ -141,6 +146,8 @@ String Logger::getLevelAsString(LogLevel level) {
 
 void Logger::setLevel(const String &level) {
 
+    lock.acquire();
+
     if (level == LEVEL_TRACE) {
         setLevel(LogLevel::TRACE);
     } else if (level == LEVEL_DEBUG) {
@@ -154,9 +161,13 @@ void Logger::setLevel(const String &level) {
     } else {
         setLevel(LogLevel::DEBUG);
     }
+
+    lock.release();
 }
 
 void Logger::addAppender(Appender *appender) {
+
+    lock.acquire();
 
     for (const auto &message : buffer) {
 
@@ -164,6 +175,8 @@ void Logger::addAppender(Appender *appender) {
     }
 
     appenders.add(appender);
+
+    lock.release();
 }
 
 void Logger::initialize() {
@@ -178,12 +191,20 @@ Logger &Logger::get(const String &name) {
 
 void Logger::removeAppender(Appender *appender) {
 
+    lock.acquire();
+
     appenders.remove(appender);
+
+    lock.release();
 }
 
 void Logger::setConsoleLogging(bool enabled) {
 
+    lock.acquire();
+
     logToStdOut = enabled;
+
+    lock.release();
 }
 
 const char *Logger::getColor(const Logger::LogLevel &level) {

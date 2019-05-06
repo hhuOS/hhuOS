@@ -25,13 +25,13 @@ class FileAppender : public Appender {
 
 public:
 
-    FileAppender(File *file);
+    explicit FileAppender(File *file);
 
     FileAppender(const FileAppender &other) = delete;
 
     FileAppender &operator=(const FileAppender &other) = delete;
 
-    ~FileAppender() = default;
+    ~FileAppender() override = default;
 
     void append(const String &message) override;
 

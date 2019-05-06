@@ -22,36 +22,52 @@
 #include <lib/graphic/Image.h>
 #include <devices/graphics/lfb/LinearFrameBuffer.h>
 #include <kernel/log/Logger.h>
+#include <kernel/memory/manager/MemoryManager.h>
+#include "BootCoordinator.h"
 
-class Bootscreen {
+class Bootscreen : public Thread {
 
 public:
 
-    Bootscreen(bool showSplash, Logger &logger);
+    explicit Bootscreen(BootCoordinator &coordinator);
 
-    virtual ~Bootscreen() = default;
+    ~Bootscreen() override = default;
 
     Bootscreen(const Bootscreen &other) = delete;
 
     Bootscreen &operator=(const Bootscreen &other) = delete;
 
-    void update(uint8_t percentage, const String &message);
+    void drawScreen();
+
+    void drawComponentStatus(BootComponent &component, uint16_t posY);
+
+    void drawHeapStatus(uint16_t basePosY);
 
     void init(uint16_t xres, uint16_t yres, uint8_t bpp);
 
     void finish();
 
+    void run() override;
+
 private:
 
-    Logger &log;
+    BootCoordinator &coordinator;
 
-    bool isSplashActive = false;
+    bool isRunning = false;
 
     LinearFrameBuffer *lfb = nullptr;
 
     Font *font = &std_font_8x16;
 
     Image *logo = nullptr;
+
+    MemoryManager *kernelHeapManager = nullptr;
+    MemoryManager *pageFrameAllocator = nullptr;
+    MemoryManager *ioMemoryManager = nullptr;
+
+    uint32_t kernelMemory = 0;
+    uint32_t physicalMemory = 0;
+    uint32_t ioMemory = 0;
 };
 
 

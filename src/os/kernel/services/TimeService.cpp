@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/threads/Scheduler.h>
+#include <lib/system/SystemCall.h>
 #include "TimeService.h"
 
 TimeService::TimeService(TimeProvider &provider) : provider(provider){
@@ -31,5 +33,7 @@ void TimeService::msleep(uint32_t ms) {
         if(getSystemTime() > (st + ms)) {
             break;
         }
+
+        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
 }

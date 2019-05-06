@@ -30,11 +30,6 @@ extern "C" {
 
 OutputStream *stdout = nullptr;
 
-void initPrintf() {
-
-    stdout = File::open("/dev/stdout", "w");
-}
-
 void printf(const char *format, ...) {
 
     if (stdout == nullptr) {
