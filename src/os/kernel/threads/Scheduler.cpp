@@ -86,11 +86,15 @@ void Scheduler::startUp() {
 
 void Scheduler::ready(Thread& that) {
 
+    if(that.hasStarted()) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: Trying to start an already running thread!");
+    }
+
     lock.acquire();
 
     readyQueues[that.getPriority()].push(&that);
 
-    that.isActive = true;
+    that.started = true;
 
     lock.release();
 }
@@ -111,7 +115,7 @@ void Scheduler::exit() {
 
     Thread* next = getNextThread();
 
-    currentThread->isActive = false;
+    currentThread->finished = true;
 
     dispatch (*next);
 }
@@ -132,7 +136,7 @@ void Scheduler::kill(Thread& that) {
 
     readyQueues[that.getPriority()].remove(&that);
 
-    that.isActive = false;
+    that.finished = true;
 
     lock.release();
 }

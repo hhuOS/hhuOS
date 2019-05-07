@@ -28,7 +28,7 @@ extern "C" {
 
 uint32_t threadCount = 0;
 
-void kickoff () {
+void kickoff() {
 
     Scheduler::getInstance().getCurrentThread().run();
 
@@ -124,9 +124,17 @@ void Thread::setPriority(uint8_t priority) {
 }
 
 void Thread::join() const {
-    while(isActive) {
+    while(!finished) {
         Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
+}
+
+bool Thread::hasStarted() const {
+    return started;
+}
+
+bool Thread::hasFinished() const {
+    return finished;
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size){

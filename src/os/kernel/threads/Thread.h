@@ -60,6 +60,10 @@ public:
 
     uint8_t getPriority() const;
 
+    bool hasStarted() const;
+
+    bool hasFinished() const;
+
     void setPriority(uint8_t priority);
 
     /**
@@ -83,7 +87,9 @@ private:
 
     String name;
 
-    volatile bool isActive = true;
+    bool started = false;
+
+    bool finished = false;
 
     class Stack {
 
