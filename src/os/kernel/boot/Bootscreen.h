@@ -39,7 +39,7 @@ public:
 
     void drawScreen();
 
-    void drawComponentStatus(BootComponent &component, uint16_t posY);
+    void drawComponentStatus(uint32_t index, uint16_t posY);
 
     void drawHeapStatus(uint16_t basePosY);
 
@@ -53,13 +53,19 @@ private:
 
     BootCoordinator &coordinator;
 
-    bool isRunning = false;
+    volatile bool isRunning = false;
 
     LinearFrameBuffer *lfb = nullptr;
 
     Font *font = &std_font_8x16;
 
     Image *logo = nullptr;
+
+    Util::Array<BootComponent*> components;
+    Util::Array<String> componentNames;
+
+    char *heapStatusBuffers[3];
+    char *activeThreadsBuffer;
 
     MemoryManager *kernelHeapManager = nullptr;
     MemoryManager *pageFrameAllocator = nullptr;
@@ -68,6 +74,8 @@ private:
     uint32_t kernelMemory = 0;
     uint32_t physicalMemory = 0;
     uint32_t ioMemory = 0;
+
+    static const constexpr uint32_t BUFFER_SIZE = 64;
 };
 
 
