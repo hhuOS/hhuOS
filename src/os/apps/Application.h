@@ -71,19 +71,16 @@ private:
     void startMouseApp();
 
 public:
+
     Application (const Application &copy) = delete;
 
-
     static Application & getInstance() noexcept;
-
-    void pause();
-
-    void resume();
-
 
     void run() override;
 
     void onEvent(const Event &event) override;
+
+    void waitForCurrentApp();
 
     void startGame(Game *game);
 

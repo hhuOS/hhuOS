@@ -61,6 +61,5 @@ void LoopsAndSound::run() {
     delete thread2;
     delete thread3;
 
-    Application::getInstance().resume();
-    Scheduler::getInstance().exit();
+    eventBus->unsubscribe(*this, KeyEvent::TYPE);
 }

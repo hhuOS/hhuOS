@@ -235,7 +235,7 @@ void Application::startSelectedApp() {
     switch (option) {
         case 0:
             startShell();
-            pause();
+            waitForCurrentApp();
             break;
         case 1: {
             Game *game = new BugDefender();
@@ -245,19 +245,19 @@ void Application::startSelectedApp() {
         }
         case 2:
             startAntDemo();
-            pause();
+            waitForCurrentApp();
             break;
         case 3:
             startMandelbrotDemo();
-            pause();
+            waitForCurrentApp();
             break;
         case 4:
             startMouseApp();
-            pause();
+            waitForCurrentApp();
             break;
         case 5:
             startLoopSoundDemo();
-            pause();
+            waitForCurrentApp();
             break;
         case 6:
             startMemoryManagerDemo();
@@ -265,7 +265,7 @@ void Application::startSelectedApp() {
             break;
         case 7:
             startExceptionDemo();
-            pause();
+            waitForCurrentApp();
             break;
         default:
             break;
@@ -313,13 +313,10 @@ void Application::startGame(Game* game){
     isRunning = true;
 }
 
-void Application::pause() {
+void Application::waitForCurrentApp() {
     Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
-    Cpu::softInterrupt(SystemCall::SCHEDULER_BLOCK);
-}
 
-void Application::resume() {
-    isRunning = true;
+    currentApp->join();
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
 
@@ -330,8 +327,9 @@ void Application::resume() {
 
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
-    Scheduler::getInstance().deblock(*this);
     Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+
+    isRunning = true;
 }
 
 void Application::run() {
