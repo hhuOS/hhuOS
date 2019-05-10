@@ -42,6 +42,8 @@ namespace Util {
 
         explicit ArrayList(uint32_t capacity) noexcept;
 
+        explicit ArrayList(Util::Array<T> elements) noexcept;
+
         ArrayList(const ArrayList<T> &other) = delete;
 
         ArrayList<T> &operator=(const ArrayList<T> &other) = delete;
@@ -116,6 +118,15 @@ namespace Util {
         this->capacity = capacity;
 
         this->elements = new T[capacity];
+    }
+
+    template<typename T>
+    ArrayList<T>::ArrayList(Array<T> elements) noexcept : ArrayList(elements.length()) {
+
+        for(const auto &element : elements)  {
+
+            add(element);
+        }
     }
 
     template <class T>

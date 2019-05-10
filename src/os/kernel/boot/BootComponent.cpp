@@ -24,3 +24,12 @@ bool BootComponent::isWaiting() {
 bool BootComponent::hasFinished() {
     return finished;
 }
+
+void BootComponent::addDependency(BootComponent *dependency) {
+    if(hasStarted()) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                "Trying to add dependencies to an already running boot component!");
+    }
+
+    dependencies.add(dependency);
+}

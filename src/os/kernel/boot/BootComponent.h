@@ -3,6 +3,7 @@
 
 #include <kernel/threads/Thread.h>
 #include <lib/util/Array.h>
+#include <lib/util/ArrayList.h>
 
 class BootComponent : public Thread {
 
@@ -22,13 +23,15 @@ public:
 
     bool hasFinished();
 
+    void addDependency(BootComponent *dependency);
+
 private:
 
     bool waiting;
 
     bool finished;
 
-    Util::Array<BootComponent*> dependencies;
+    Util::ArrayList<BootComponent*> dependencies;
 
     void (*function)();
 };

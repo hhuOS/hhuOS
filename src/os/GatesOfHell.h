@@ -78,6 +78,8 @@ private:
 
     static uint8_t bpp;
 
+    static BootComponent initBiosComponent;
+
     static BootComponent initServicesComponent;
 
     static BootComponent initFilesystemComponent;

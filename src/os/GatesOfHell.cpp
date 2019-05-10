@@ -76,6 +76,15 @@ int32_t main() {
     GatesOfHell::enter();
 }
 
+BootComponent GatesOfHell::initBiosComponent("InitBiosComponent", Util::Array<BootComponent*>(0), []{
+
+    log.trace("Initializing BIOS calls");
+
+    Bios::init();
+
+    log.trace("Finished initializing BIOS calls");
+});
+
 BootComponent GatesOfHell::initServicesComponent("InitServicesComponent", Util::Array<BootComponent*>(0), []{
 
     log.trace("Registering services");
@@ -162,8 +171,9 @@ BootComponent GatesOfHell::parsePciDatabaseComponent("ParsePciDatabaseComponent"
     log.trace ("Finished parsing PCI database");
 });
 
-BootCoordinator GatesOfHell::coordinator(Util::Array<BootComponent*>({&initServicesComponent, &initGraphicsComponent,
-        &scanPciBusComponent, &initFilesystemComponent, &initPortsComponent, &initMemoryManagersComponent}), []{
+BootCoordinator GatesOfHell::coordinator(Util::Array<BootComponent*>({&initServicesComponent,
+        &initGraphicsComponent, &scanPciBusComponent, &initFilesystemComponent, &initPortsComponent,
+        &initMemoryManagersComponent}), []{
 
     BeepFile *sound = BeepFile::load("/initrd/music/beep/startup.beep");
 
@@ -188,11 +198,10 @@ void GatesOfHell::enter() {
     log.trace("Booting hhuOS %s - git %s", BuildConfig::VERSION, BuildConfig::GIT_REV);
     log.trace("Build date: %s", BuildConfig::BUILD_DATE);
 
-    log.trace("Initializing BIOS calls");
-
-    Bios::init();
-
-    log.trace("Finished initializing BIOS calls");
+    if(Multiboot::Structure::getKernelOption("bios_enhancements") == "true") {
+        coordinator.addComponent(&initBiosComponent);
+        initServicesComponent.addDependency(&initBiosComponent);
+    }
 
     if (Multiboot::Structure::getKernelOption("pci_names") == "true") {
         coordinator.addComponent(&parsePciDatabaseComponent);
