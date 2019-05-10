@@ -46,7 +46,7 @@ MemoryManagerTest::~MemoryManagerTest() {
     delete objects;
 }
 
-void MemoryManagerTest::run() {
+void MemoryManagerTest::execute() {
     printf("===MemoryManagerTest===\n");
     printf("===Testing %s===\n\n", (const char*) (managerName.isEmpty() ? manager.getTypeName() : managerName));
 

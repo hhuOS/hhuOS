@@ -79,7 +79,7 @@ private:
 
     Spinlock workQueueLock;
 
-    bool working = false;
+    bool hasStarted = false;
 
 public:
 

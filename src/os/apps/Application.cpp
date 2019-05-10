@@ -31,6 +31,8 @@
 #include <kernel/memory/manager/BitmapMemoryManager.h>
 #include <kernel/memory/SystemManagement.h>
 #include <lib/system/SystemCall.h>
+#include <apps/MemoryTests/MemoryManagerDemo.h>
+#include <kernel/threads/SimpleThread.h>
 #include "apps/LoopsAndSound/Loop.h"
 #include "apps/LoopsAndSound/Sound.h"
 #include "apps/AntApp/AntApp.h"
@@ -88,25 +90,6 @@ void Application::startMandelbrotDemo() {
 }
 
 void Application::startMemoryManagerDemo() {
-    TextDriver *stream = graphicsService->getTextDriver();
-
-    stream->init(static_cast<uint16_t>(xres / 8), static_cast<uint16_t>(yres / 16), bpp);
-
-    MemoryManagerTest *tests[5] {
-            new MemoryManagerTest(*SystemManagement::getKernelHeapManager(), 1048576, 128, 8192, "KernelHeapMemoryManager"),
-            new MemoryManagerTest(*SystemManagement::getInstance().getIOMemoryManager(), 1048576, 128, 8192, "IOMemoryManager"),
-            new MemoryManagerTest("FreeListMemoryManager", 1048576, 128, 8192),
-            new MemoryManagerTest("BitmapMemoryManager", 1048576, 128, 128),
-            new MemoryManagerTest("StaticHeapMemoryManager", 1048576, 128, 8192)
-    };
-
-    for(const auto test : tests) {
-        test->run();
-
-        delete test;
-
-        stream->clear();
-    }
 
     graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
 
@@ -116,6 +99,10 @@ void Application::startMemoryManagerDemo() {
     }
 
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
+
+    currentApp = new MemoryManagerDemo();
+
+    currentApp->start();
 }
 
 void Application::startMouseApp() {
@@ -238,9 +225,8 @@ void Application::startSelectedApp() {
             waitForCurrentApp();
             break;
         case 1: {
-            Game *game = new BugDefender();
-            startGame(game);
-            delete game;
+            startBugDefender();
+            waitForCurrentApp();
             break;
         }
         case 2:
@@ -261,7 +247,7 @@ void Application::startSelectedApp() {
             break;
         case 6:
             startMemoryManagerDemo();
-            isRunning = true;
+            waitForCurrentApp();
             break;
         case 7:
             startExceptionDemo();
@@ -274,43 +260,43 @@ void Application::startSelectedApp() {
     delete currentApp;
 }
 
-void Application::startGame(Game* game){
-    LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
+void Application::startBugDefender() {
 
-    lfb->init(640, 480, 16);
-    lfb->enableDoubleBuffering();
+    currentApp = new SimpleThread([]{
 
-    float currentTime = timeService->getSystemTime() / 1000.0f;
-    float acc = 0.0f;
-    float delta = 0.01667f; // 60Hz
+        auto *timeService = Kernel::getService<TimeService>();
+        auto *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
 
-    while (game->isRunning) {
-        float newTime = timeService->getSystemTime() / 1000.0f;
-        float frameTime = newTime - currentTime;
-        if(frameTime > 0.25f)
-            frameTime = 0.25f;
-        currentTime = newTime;
+        lfb->init(640, 480, 16);
+        lfb->enableDoubleBuffering();
 
-        acc += frameTime;
+        Game *game = new BugDefender();
 
-        while(acc >= delta){
-            game->update(delta);
-            acc -= delta;
+        float currentTime = timeService->getSystemTime() / 1000.0f;
+        float acc = 0.0f;
+        float delta = 0.01667f; // 60Hz
+
+        while (game->isRunning) {
+            float newTime = timeService->getSystemTime() / 1000.0f;
+            float frameTime = newTime - currentTime;
+            if(frameTime > 0.25f)
+                frameTime = 0.25f;
+            currentTime = newTime;
+
+            acc += frameTime;
+
+            while(acc >= delta){
+                game->update(delta);
+                acc -= delta;
+            }
+
+            game->draw(lfb);
         }
 
-        game->draw(lfb);
-    }
+        delete game;
+    });
 
-    graphicsService->getLinearFrameBuffer()->init(xres, yres, bpp);
-
-    // Don't use High-Res mode on CGA, as it looks bad.
-    if(graphicsService->getLinearFrameBuffer()->getDepth() == 1) {
-        graphicsService->getLinearFrameBuffer()->init(320, 200, 2);
-    }
-
-    graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
-
-    isRunning = true;
+    currentApp->start();
 }
 
 void Application::waitForCurrentApp() {

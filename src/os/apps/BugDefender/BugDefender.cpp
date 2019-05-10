@@ -30,9 +30,9 @@ int BugDefender::lifes = 3;
 bool BugDefender::isGameOver = false;
 bool BugDefender::isGameWon = false;
 int BugDefender::enemyCount = enemiesPerLine * enemyLines;
-ThreadPool BugDefender::beepThreadPool(4);
 Image *BugDefender::background = nullptr;
 Image *BugDefender::heartSprite = nullptr;
+ThreadPool *BugDefender::beepThreadPool = nullptr;
 
 BugDefender::BugDefender() : Game() {
 
@@ -52,7 +52,9 @@ BugDefender::BugDefender() : Game() {
     enemyCount = enemiesPerLine * enemyLines;
     Fleet::reset();
 
-    beepThreadPool.startWorking();
+    beepThreadPool = new ThreadPool(4);
+
+    beepThreadPool->startWorking();
 
     HHUEngine::setCurrentGame(this);
     HHUEngine::instantiate( new Ship(Vector2(300, 400)) );
@@ -62,6 +64,10 @@ BugDefender::BugDefender() : Game() {
             HHUEngine::instantiate( new Enemy(Vector2(100 + x*40, 20 + y*30), y) );
         }
     }
+}
+
+BugDefender::~BugDefender() {
+    delete beepThreadPool;
 }
 
 void BugDefender::update(float delta){
@@ -83,7 +89,6 @@ void BugDefender::update(float delta){
     }
 
     if(isGameWon || isGameOver) {
-        beepThreadPool.stopWorking();
         return;
     }
 
@@ -234,7 +239,7 @@ void BugDefender::addPoints(int points){
 void BugDefender::takeDamage(int amount){
     lifes -= amount;
 
-    beepThreadPool.addWork([](){HHUEngine::beep(PcSpeaker::C0);});
+    beepThreadPool->addWork([](){HHUEngine::beep(PcSpeaker::C0);});
 }
 
 void BugDefender::gameOver(){
@@ -244,5 +249,5 @@ void BugDefender::gameOver(){
 void BugDefender::enemyShot(){
     enemyCount--;
 
-    beepThreadPool.addWork([](){HHUEngine::beep(PcSpeaker::C2);});
+    beepThreadPool->addWork([](){HHUEngine::beep(PcSpeaker::C2);});
 }

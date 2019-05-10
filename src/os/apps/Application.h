@@ -82,7 +82,7 @@ public:
 
     void waitForCurrentApp();
 
-    void startGame(Game *game);
+    void startBugDefender();
 
 };
 

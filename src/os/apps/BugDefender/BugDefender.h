@@ -47,17 +47,17 @@ class BugDefender : public Game {
 
     static bool isGameWon;
 
-    static ThreadPool beepThreadPool;
-
     static Image *heartSprite;
 
     static Image *background;
+
+    static ThreadPool *beepThreadPool;
 
   public:
 
     BugDefender();
 
-    ~BugDefender() = default;
+    ~BugDefender();
 
     void update(float delta);
 

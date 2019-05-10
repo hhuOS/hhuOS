@@ -36,11 +36,12 @@ void ThreadPool::addWork(void (*func)()) {
 }
 
 void ThreadPool::startWorking() {
-    if(working) {
-        return;
+    if(hasStarted) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                "Trying to restart an already running instance of ThreadPool!");
     }
 
-    working = true;
+    hasStarted = true;
 
     for (auto &thread : threads) {
         thread.start();
@@ -48,11 +49,9 @@ void ThreadPool::startWorking() {
 }
 
 void ThreadPool::stopWorking(bool force) {
-    if(!working) {
+    if(!hasStarted) {
         return;
     }
-
-    working = false;
 
     Scheduler &scheduler = Scheduler::getInstance();
 
@@ -74,7 +73,7 @@ void ThreadPool::stopWorking(bool force) {
         }
     }
 
-    for (auto &thread : threads) {
+    for(auto &thread : threads) {
         scheduler.kill(thread);
     }
 }
