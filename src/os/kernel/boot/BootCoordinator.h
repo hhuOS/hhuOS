@@ -4,6 +4,7 @@
 #include <kernel/threads/Thread.h>
 #include <lib/lock/Spinlock.h>
 #include <lib/util/ArrayList.h>
+#include <lib/util/SmartPointer.h>
 #include "BootComponent.h"
 
 class BootCoordinator : public Thread {
@@ -26,7 +27,15 @@ public:
 
 private:
 
+     void buildComponentLayers();
+
+private:
+
+    Atomic<bool> hasStarted;
+
     Util::ArrayList<BootComponent*> components;
+
+    Util::ArrayList<Util::List<BootComponent*>*> layeredComponents;
 
     void (*onFinish)();
 

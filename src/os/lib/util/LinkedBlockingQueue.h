@@ -225,6 +225,7 @@ Array<T> LinkedBlockingQueue<T>::toArray() const {
 
     while(current != nullptr) {
         ret[i] = current->element;
+        current = current->next;
         i++;
     }
 

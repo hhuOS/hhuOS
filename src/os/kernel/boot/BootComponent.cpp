@@ -6,10 +6,6 @@ BootComponent::BootComponent(const String &name, Util::Array<BootComponent*> dep
 }
 
 void BootComponent::run() {
-    for(const auto &dependency : dependencies) {
-        dependency->join();
-    }
-
     waiting = false;
 
     function();
@@ -32,4 +28,12 @@ void BootComponent::addDependency(BootComponent *dependency) {
     }
 
     dependencies.add(dependency);
+}
+
+bool BootComponent::hasDependencies() {
+    return !dependencies.isEmpty();
+}
+
+void BootComponent::removeDependency(BootComponent *dependency) {
+    dependencies.remove(dependency);
 }

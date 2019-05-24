@@ -25,6 +25,10 @@ public:
 
     void addDependency(BootComponent *dependency);
 
+    bool hasDependencies();
+
+    void removeDependency(BootComponent *dependency);
+
 private:
 
     bool waiting;
