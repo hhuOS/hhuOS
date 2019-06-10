@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="https://travis-ci.org/hhuOS/hhuOS"><img src="https://travis-ci.org/hhuOS/hhuOS.svg?branch=master"></a>
-  <img src="https://img.shields.io/badge/license-GPL-orange.svg">
+  <img src="https://img.shields.io/badge/license-GPLv3-orange.svg">
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg">
 </p>
 
@@ -31,27 +31,8 @@ sudo apt install gcc-8 gcc-8-multilib g++-8 g++-8-multilib
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command.
 
 ```sh
-sudo apt install make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin mtools xorriso
+sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin mtools xorriso
 ```
-
-After installing all required packages the following make targets are available for building:
-
-| Target    | Location                       | Description                              |
-|:---------:|--------------------------------|------------------------------------------|
-| `kernel`  | `src/loader/boot/hhuOS.bin`    | Builds the kernel image.                 |
-| `iso`     | `src/os/build/hhuOS.iso`       | Creates a bootable ISO image using GRUB. |
-| `initrd`  | `src/loader/boot/hhuOS.initrd` | Generates the initial ramdisk.           |
-| `modules` | `src/initrd/mod`               | Builds all modules.                      |
-
-To run hhuOS in QEMU, the following make targets can be used:
-
-| Target    | Description                                                                                                                                                                                                                               |
-|:---------:|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `qemu`    |  Runs hhuOS in a normal QEMU-session.                                                                                                                                                                                                     |
-| `kvm`     |  Runs hhuOS in QEMU using KVM for better performance.                                                                                                                                                                                     |
-| `qemu-efi`|  Runs hhuOS in QEMU using an EFI-BIOS. You need to set the EFI_BIOS-variable in the Makefile. We recommend using `OVMF`-image based on the `EDK II`. See https://github.com/tianocore/tianocore.github.io/wiki/OVMF for more information. |
-| `kvm-efi` |  Runs hhuOS in QEMU using an EFI-BIOS and KVM.                                                                                                                                                                                            |
-
 
 # Usage
 
@@ -59,18 +40,16 @@ To test hhuOS quickly in QEMU, you can issue the following commands.
 
 ```sh
 git clone https://github.com/hhuOS/hhuOS.git
-cd hhuOS/src/os
-make qemu
+cd hhuOS/
+./build.sh
+./run.sh
 ```
 
-If you are running  Ubuntu 16.04 and have installed GCC 8 with the above commands, you can use the following command to compile and run hhuOS.
+If you are running Ubuntu 16.04 and have installed GCC 8 with the above commands, you need to explicitly set the compiler, when running `build.sh`:
 
 ```sh
-CC=gcc-8 CXX=g++8 make
-make qemu
+CC=gcc-8 CXX=g++-8 ./build.sh
 ```
-
-If you want to test hhuOS on an EFI-based system, you can use `make qemu-efi`.
 
 # Kernel parameters
 

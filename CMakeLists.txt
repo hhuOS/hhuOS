@@ -1,4 +1,4 @@
-# Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+# Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 # Heinrich-Heine University
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -12,16 +12,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-CMAKE_MINIMUM_REQUIRED(VERSION 3.8)
-PROJECT(hhuOS)
+cmake_minimum_required(VERSION 3.5)
 
-INCLUDE_DIRECTORIES(./src/os)
-
-SET(CMAKE_CXX_STANDARD 17)
-
-set(CMAKE_C_FLAGS -m32)
-set(CMAKE_CXX_FLAGS -m32)
-
-FILE(GLOB_RECURSE SOURCE_FILES "src/os/*.c" "src/os/*.cpp" "src/os/*.h" "src/os/*.asm" "src/modules/*.c" "src/modules/*.cpp" "src/modules/*.h" "src/modules/*.asm" "Makefile")
-
-ADD_EXECUTABLE(hhuOS ${SOURCE_FILES} src/os/apps/MemoryTests/MemoryManagerDemo.cpp src/os/apps/MemoryTests/MemoryManagerDemo.h)
+add_subdirectory(cmake) 

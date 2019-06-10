@@ -1,40 +1,33 @@
-src/os/build/
-src/os/dep/
-src/hdd/asciimation/
-src/boot/setup
-src/boot/bootsect
-src/os/.gdb_history
-src/os/gitversion.c
-src/loader/boot/hhuOS.bin
-src/initrd/mod/
-src/initrd/music/beep/
-src/music/build/
-src/initrd/asciimation/
-src/hdd/mod/
-src/modules/**/build
-src/os/*.img
-src/os/*.dump
+build/
+hdd/asciimation/starwars.txt
+.gdb_history
+loader/boot/hhuOS.bin
+loader/boot/hhuOS.initrd
+initrd/mod/
+initrd/music/beep/
+music/build/
+initrd/asciimation/starwars.txt
+hdd/mod/
+*.img
+*.dump
+*.iso
 
 # Project files and folders
-cmake-build-debug
+cmake-build-debug/
+CMakeLists.txt.user
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Testing
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps
 .gdb_history
 .vscode/
 .cproject
 .project
 .settings/
 .idea
-
-# Files generated during build
-src/os/build/
-src/os/dep/
-
-# hhuOS kernel and initrd
-src/loader/boot/hhuOS.bin
-src/loader/boot/hhuOS.initrd
-
-# hhuOS hard drive image
-src/os/hdd.img
-
-# hhuOS current commit
-src/os/gitversion.c
-

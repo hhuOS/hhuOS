@@ -1,35 +1,48 @@
-sudo: required
+language: cpp
+compiler: gcc
+dist: xenial
 
-services:
-- docker
-
-language: generic
-
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      - cmake
+      - make
+      - nasm
+      - gcc-6
+      - g++-6
+      - gcc-6-multilib
+      - g++-6-multilib
+      - grub-pc-bin
+      - grub-efi-ia32-bin
+      - mtools
+      - xorriso
+      
 env:
   global:
-    - DOCKER_REPOSITORY=hhuos/builder
-    - DOCKER_TAG=1.0
-    - CONTAINER_NAME=builder
-    - CLONE_URL=https://github.com/hhuOS/hhuOS.git
-    - HHUOS_DIR=hhuOS/src/os
-    - KERNEL_BINARY=hhuOS/src/loader/boot/hhuOS.bin
+    - KERNEL_BINARY=loader/boot/hhuOS.bin
     - PUBLISH_FILE=${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
 
-install:
-  - docker build -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} .
-  - docker run -d --name ${CONTAINER_NAME} --rm -t ${DOCKER_REPOSITORY}:${DOCKER_TAG} bash
+before_install:
+  - eval "CC=gcc-6 && CXX=g++-6"
 
-script:
-  - docker exec ${CONTAINER_NAME} bash -c "git clone ${CLONE_URL} && cd ${HHUOS_DIR} && git checkout ${TRAVIS_COMMIT} && make -j4 kernel"
+stages:
+  - name: build
 
+jobs:
+  include:
+    - stage: build
+      script: ./build.sh
+      
 before_deploy:
-  - docker cp ${CONTAINER_NAME}:${KERNEL_BINARY} ${PUBLISH_FILE}
+  - cp ${KERNEL_BINARY} ${PUBLISH_FILE}
 
 deploy:
   provider: releases
   api_key: ${API_KEY}
   skip_cleanup: true
-  file: ${PUBLISH_FILE}
+  file: ${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
   on:
     repo: hhuOS/hhuOS
     branch: master
