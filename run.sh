@@ -30,6 +30,8 @@ QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
 QEMU_RAM="${CONST_QEMU_RAM}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
+QEMU_GDB_PORT=""
+
 check_file() {
     local file=$1
     
@@ -83,6 +85,18 @@ parse_ram() {
     QEMU_RAM="${memory}"
 }
 
+parse_debug() {
+    local port=$1
+    
+    echo "set architecture i386" > /tmp/gdbcommands.$(id -u)
+    echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(id -u)
+    echo "break main" >> /tmp/gdbcommands.$(id -u)
+    echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(id -u)
+    echo "continue" >> /tmp/gdbcommands.$(id -u)
+    
+    QEMU_GDB_PORT="${port}"
+}
+
 print_usage() {
     printf "Usage: ./run.sh [OPTION...]
     Available options:
@@ -92,6 +106,10 @@ print_usage() {
         Set the machine profile, which qemu should emulate ([pc] | [pc-kvm]) (Defualt: pc)
     -b, --bios
         Set the bios, which qemu should use ([bios,default] | [efi] | [/path/to/bios.file]) (Default: bios)
+    -r, --ram
+        Set the amount of ram, which qemu should use (e.g. 128, 1G, ...) (Default: 128M)
+    -d, --debug
+        Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help
         Show this help message\\n"
 }
@@ -113,6 +131,9 @@ parse_args() {
             ;;
             -r|--ram)
             parse_ram $val
+            ;;
+            -d|--debug)
+            parse_debug $val
             ;;
             -h|--help)
             print_usage
@@ -143,7 +164,11 @@ run_qemu() {
     
     command="${command} ${QEMU_ARGS}"
     
-    $command
+    if [ ! -z "${QEMU_GDB_PORT}" ]; then
+        $command -gdb tcp::${QEMU_GDB_PORT} -S &
+    else
+        $command
+    fi
 }
 
 check_file hhuOS.iso
