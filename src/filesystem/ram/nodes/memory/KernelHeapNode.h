@@ -19,7 +19,7 @@
 
 
 #include "filesystem/ram/VirtualNode.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "MemoryNode.h"
 
 class KernelHeapNode : public MemoryNode {

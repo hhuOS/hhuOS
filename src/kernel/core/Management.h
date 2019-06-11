@@ -28,6 +28,8 @@
 
 #define DEBUG_PM 0
 
+namespace Kernel {
+
 /**
  * SystemManagement
  *
@@ -38,10 +40,10 @@
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class SystemManagement : public InterruptHandler{
+class Management : public InterruptHandler {
 
 private:
-	// parameters of a page fault
+    // parameters of a page fault
     uint32_t faultFlags{};
     uint32_t faultedAddress{};
 
@@ -63,13 +65,13 @@ private:
     IOMemoryManager *ioMemManager{};
 
     // list of all address spaces
-    Util::ArrayList<VirtualAddressSpace*> *addressSpaces{};
+    Util::ArrayList<VirtualAddressSpace *> *addressSpaces{};
 
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
 
     //
-    static SystemManagement *systemManagement;
+    static Management *systemManagement;
     static MemoryManager *kernelMemoryManager;
 
 public:
@@ -77,7 +79,7 @@ public:
     /**
      * Constructor.
      */
-    SystemManagement() = default;
+    Management() = default;
 
     /**
      * Initialize the SystemManager and the corresponding stuff
@@ -102,14 +104,14 @@ public:
 	 * @param faultAddress The address where the page fault occured
 	 * @param flags Flags of the last page fault
 	 */
-	void setFaultParams(uint32_t faultAddress, uint32_t flags);
+    void setFaultParams(uint32_t faultAddress, uint32_t flags);
 
-	/**
-	 * Returns the faulting address of the last pagefault that occured.
-	 *
-	 * @return Last faulting address
-	 */
-	uint32_t getFaultingAddress();
+    /**
+     * Returns the faulting address of the last pagefault that occured.
+     *
+     * @return Last faulting address
+     */
+    uint32_t getFaultingAddress();
 
     // Wrappers for access to IOMemoryManager
 
@@ -127,7 +129,7 @@ public:
      * @param size Size of memory to be allocated
      * @return Pointer to virtual IO memory block
      */
-    void * mapIO(uint32_t physAddress, uint32_t size);
+    void *mapIO(uint32_t physAddress, uint32_t size);
 
     /**
      * Maps IO-space for a device and allocates physical memory for it. All
@@ -136,7 +138,7 @@ public:
      * @param size Size of IO-memory to be allocated
      * @return Pointer to virtual IO memory block
      */
-    void * mapIO(uint32_t size);
+    void *mapIO(uint32_t size);
 
     /**
      * Free the IO-space described by the given IOMemInfo Block
@@ -153,7 +155,7 @@ public:
      *
      * @return Adress of the allocated page
      */
-    void * allocPageTable();
+    void *allocPageTable();
 
     /**
      * Frees a Page Table / Directory.
@@ -179,7 +181,7 @@ public:
      *
      * @return Pointer to the new address space
      */
-    VirtualAddressSpace* createAddressSpace();
+    VirtualAddressSpace *createAddressSpace();
 
     /**
      * Switches to a given address space.
@@ -267,12 +269,12 @@ public:
      * @param virtAddr Virtual address
      * @return uint32_t Physical address of the given virtual address (4kb-aligned)
      */
-    void * getPhysicalAddress(void *virtAddress);
+    void *getPhysicalAddress(void *virtAddress);
 
     /**
      * Dumps all free IO Memory blocks.
      */
-    void dumpFreeIOMemBlocks(){
+    void dumpFreeIOMemBlocks() {
         ioMemManager->dump();
     }
 
@@ -294,7 +296,8 @@ public:
      * @param access Access bits for segment
      * @param flags Flags for segment
      */
-    static void createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
+    static void
+    createGDTEntry(uint16_t *gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags);
 
     /**
      * Calculates the amount of usable, installed physical memory using a bios call.
@@ -312,8 +315,8 @@ public:
      *
      * @return Pointer to the current userspace memory manager
      */
-    MemoryManager* getCurrentUserSpaceHeapManager() {
-    	return currentAddressSpace->getUserSpaceHeapManager();
+    MemoryManager *getCurrentUserSpaceHeapManager() {
+        return currentAddressSpace->getUserSpaceHeapManager();
     }
 
     /**
@@ -321,8 +324,8 @@ public:
 	 *
 	 * @return Pointer to the current kernelspace memory manager
 	 */
-    static MemoryManager* getKernelHeapManager() {
-    	return kernelMemoryManager;
+    static MemoryManager *getKernelHeapManager() {
+        return kernelMemoryManager;
     }
 
     /**
@@ -331,26 +334,28 @@ public:
      *
      * @return Pointer to the instance of the SystemManagement
      */
-    static SystemManagement& getInstance() noexcept;
+    static Management &getInstance() noexcept;
 
-    IOMemoryManager* getIOMemoryManager() {
+    IOMemoryManager *getIOMemoryManager() {
         return ioMemManager;
     }
 
-    PageFrameAllocator* getPageFrameAllocator() {
+    PageFrameAllocator *getPageFrameAllocator() {
         return pageFrameAllocator;
     }
 
-    PagingAreaManager* getPagingAreaManager() {
+    PagingAreaManager *getPagingAreaManager() {
         return pagingAreaManager;
     }
 
     void *realloc(void *ptr, uint32_t size, uint32_t alignment = 0);
 };
 
-void* operator new(size_t size, uint32_t alignment);
+}
 
-void* operator new[](size_t size, uint32_t alignment);
+void *operator new(size_t size, uint32_t alignment);
+
+void *operator new[](size_t size, uint32_t alignment);
 
 void operator delete(void *ptr, uint32_t alignment);
 

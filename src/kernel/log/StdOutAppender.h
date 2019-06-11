@@ -21,6 +21,8 @@
 #include "lib/string/String.h"
 #include "Appender.h"
 
+namespace Kernel {
+
 class StdOutAppender : public Appender {
 
 public:
@@ -36,5 +38,6 @@ public:
     void append(const String &message) override;
 };
 
+}
 
 #endif

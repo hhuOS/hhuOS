@@ -32,11 +32,11 @@
  *
  * @author Filip Krakowski
  */
-class AhciController : public InterruptHandler, public PciDeviceDriver {
+class AhciController : public Kernel::InterruptHandler, public PciDeviceDriver {
 
 private:
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
     static uint32_t deviceCount;
 
@@ -591,7 +591,7 @@ private:
      */
     bool reset();
 
-    TimeService *timeService;
+    Kernel::TimeService *timeService;
     static const uint32_t AHCI_TIMEOUT = 1000;
 
     HbaPort *sataDevices[MAX_DEVICES];
@@ -679,7 +679,7 @@ private:
 
     void plugin();
 
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif

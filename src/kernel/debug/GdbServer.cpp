@@ -16,9 +16,11 @@
 
 #include "GdbServer.h"
 
-static const uint8_t *hexCharacters = (uint8_t*) "0123456789abcdef";
+namespace Kernel {
 
-Port* GdbServer::port = nullptr;
+static const uint8_t *hexCharacters = (uint8_t *) "0123456789abcdef";
+
+Port *GdbServer::port = nullptr;
 
 uint8_t GdbServer::inBuffer[BUFMAX];
 
@@ -51,7 +53,7 @@ uint8_t hex(uint8_t ch) {
 }
 
 void setChar(uint8_t *address, uint8_t val) {
-    
+
     *address = val;
 }
 
@@ -152,7 +154,7 @@ uint8_t *hex2mem(uint8_t *buf, uint8_t *mem, uint32_t count, bool mayFault) {
     return (mem);
 }
 
-uint8_t* GdbServer::getPacket() {
+uint8_t *GdbServer::getPacket() {
 
     uint8_t *buffer = &inBuffer[0];
 
@@ -201,11 +203,11 @@ uint8_t* GdbServer::getPacket() {
 
             ch = (uint8_t) port->readChar();
 
-            xmitcsum = hex (ch) << 4U;
+            xmitcsum = hex(ch) << 4U;
 
             ch = (uint8_t) port->readChar();
 
-            xmitcsum += hex (ch);
+            xmitcsum += hex(ch);
 
             if (checksum != xmitcsum) {
 
@@ -261,9 +263,7 @@ void GdbServer::putPacket(const uint8_t *buffer) {
 
         port->sendChar(hexCharacters[checksum & 0x0FU]);
 
-    }
-
-    while ((uint8_t) port->readChar() != '+');
+    } while ((uint8_t) port->readChar() != '+');
 }
 
 void GdbServer::setFrameRegisters(InterruptFrame &frame, GdbRegisters &gdbRegs) {
@@ -445,7 +445,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
         GdbRegisters gdbRegs = GdbRegisters::fromInterruptFrame(frame);
 
-        auto &copyRegs = (GdbRegisters&) ptr;
+        auto &copyRegs = (GdbRegisters &) ptr;
 
         switch (*ptr++) {
             case GET_HALT_REASON:
@@ -473,20 +473,20 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                 setFrameRegisters(frame, copyRegs);
 
-                strcpy ((char*) outBuffer, "OK");
+                strcpy((char *) outBuffer, "OK");
 
                 break;
             case SET_REGISTER:
 
                 uint32_t regno, regValue;
 
-                if (hexToInt (&ptr, &regno) && *ptr++ == '=') {
+                if (hexToInt(&ptr, &regno) && *ptr++ == '=') {
 
-                    hex2mem(ptr, (uint8_t*) &regValue, 4, false);
+                    hex2mem(ptr, (uint8_t *) &regValue, 4, false);
 
                     setFrameRegister(frame, (uint8_t) regno, regValue);
 
-                    strcpy ((char*) outBuffer, "OK");
+                    strcpy((char *) outBuffer, "OK");
 
                     break;
                 }
@@ -494,11 +494,11 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
                 break;
             case READ_MEMORY_HEX:
 
-                if (hexToInt (&ptr, &address)) {
+                if (hexToInt(&ptr, &address)) {
 
                     if (*(ptr++) == ',') {
 
-                        if (hexToInt (&ptr, &length)) {
+                        if (hexToInt(&ptr, &length)) {
 
                             ptr = nullptr;
 
@@ -508,7 +508,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                             if (memError) {
 
-                                strcpy((char*) outBuffer, "E03");
+                                strcpy((char *) outBuffer, "E03");
                             }
                         }
                     }
@@ -516,17 +516,17 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                 if (ptr) {
 
-                    strcpy ((char*) outBuffer, "E01");
+                    strcpy((char *) outBuffer, "E01");
                 }
 
                 break;
             case WRITE_MEMORY_HEX:
 
-                if (hexToInt (&ptr, &address)) {
+                if (hexToInt(&ptr, &address)) {
 
                     if (*(ptr++) == ',') {
 
-                        if (hexToInt (&ptr, &length)) {
+                        if (hexToInt(&ptr, &length)) {
 
                             if (*(ptr++) == ':') {
 
@@ -536,11 +536,11 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                                 if (memError) {
 
-                                    strcpy((char*) outBuffer, "E03");
+                                    strcpy((char *) outBuffer, "E03");
 
                                 } else {
 
-                                    strcpy ((char*) outBuffer, "OK");
+                                    strcpy((char *) outBuffer, "OK");
                                 }
 
                                 ptr = nullptr;
@@ -551,7 +551,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
                 if (ptr) {
 
-                    strcpy ((char*) outBuffer, "E02");
+                    strcpy((char *) outBuffer, "E02");
                 }
 
                 break;
@@ -561,7 +561,7 @@ void GdbServer::handleInterrupt(InterruptFrame &frame) {
 
             case CONTINUE:
 
-                if (hexToInt (&ptr, &address)) {
+                if (hexToInt(&ptr, &address)) {
                     frame.eip = address;
                 }
 
@@ -590,80 +590,80 @@ uint8_t GdbServer::computeSignal(uint32_t interrupt) {
 
             sigval = 8;
 
-            break;			/* divide by zero */
+            break;            /* divide by zero */
         case 1:
 
             sigval = 5;
 
-            break;			/* debug exception */
+            break;            /* debug exception */
         case 3:
 
             sigval = 5;
 
-            break;			/* breakpoint */
+            break;            /* breakpoint */
         case 4:
 
             sigval = 16;
 
-            break;			/* into instruction (overflow) */
+            break;            /* into instruction (overflow) */
         case 5:
 
             sigval = 16;
 
-            break;			/* bound instruction */
+            break;            /* bound instruction */
         case 6:
 
             sigval = 4;
 
-            break;			/* Invalid opcode */
+            break;            /* Invalid opcode */
         case 7:
 
             sigval = 8;
 
-            break;			/* coprocessor not available */
+            break;            /* coprocessor not available */
         case 8:
 
             sigval = 7;
 
-            break;			/* double fault */
+            break;            /* double fault */
         case 9:
 
             sigval = 11;
 
-            break;			/* coprocessor segment overrun */
+            break;            /* coprocessor segment overrun */
         case 10:
 
             sigval = 11;
 
-            break;			/* Invalid TSS */
+            break;            /* Invalid TSS */
         case 11:
 
             sigval = 11;
 
-            break;			/* Segment not present */
+            break;            /* Segment not present */
         case 12:
 
             sigval = 11;
 
-            break;			/* stack exception */
+            break;            /* stack exception */
         case 13:
 
             sigval = 11;
 
-            break;			/* general protection */
+            break;            /* general protection */
         case 14:
 
             sigval = 11;
 
-            break;			/* page fault */
+            break;            /* page fault */
         case 16:
 
             sigval = 7;
 
-            break;			/* coprocessor error */
+            break;            /* coprocessor error */
         default:
 
-            sigval = 7;		/* "software generated" */
+            sigval = 7;        /* "software generated" */
     }
 
     return sigval;
@@ -718,4 +718,6 @@ GdbRegisters GdbRegisters::fromInterruptFrame(InterruptFrame &frame) {
     registers.ds = frame.ds;
 
     return registers;
+}
+
 }

@@ -21,6 +21,7 @@
 
 #include "ReceiveEvent.h"
 
+namespace Kernel {
 
 ReceiveEvent::ReceiveEvent(void *packet, uint16_t length) : Event() {
     this->packet = new char[length];
@@ -47,7 +48,7 @@ ReceiveEvent::ReceiveEvent(const ReceiveEvent &other) : Event(other) {
 }
 
 ReceiveEvent::~ReceiveEvent() {
-    delete (char*) packet;
+    delete (char *) packet;
 }
 
-
+}

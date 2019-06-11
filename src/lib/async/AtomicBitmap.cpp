@@ -83,6 +83,4 @@ void AtomicBitmap::unsetRange(uint32_t startBlock, uint32_t length) {
 
 bool AtomicBitmap::checkRange(uint32_t startBlock, uint32_t length, bool set) {
     Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "checkRange() is not supported by AtomicBitmap!");
-
-    return false;
 }

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/isa/Isa.h"
 #include "SoundBlaster.h"
 #include "SoundBlaster1.h"
@@ -23,7 +23,7 @@
 #include "SoundBlaster16.h"
 
 bool SoundBlaster::checkPort(uint16_t baseAddress) {
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
     IoPort resetPort(static_cast<uint16_t>(baseAddress + 0x06));
     IoPort readDataPort(static_cast<uint16_t>(baseAddress + 0x0a));
     IoPort readBufferStatusPort(static_cast<uint16_t>(baseAddress + 0x0e));
@@ -84,8 +84,8 @@ SoundBlaster::SoundBlaster(uint16_t baseAddress) :
         readDataPort(static_cast<uint16_t>(baseAddress + 0x0a)),
         writeDataPort(static_cast<uint16_t>(baseAddress + 0x0c)),
         readBufferStatusPort(static_cast<uint16_t>(baseAddress + 0x0e)),
-        timeService(Kernel::getService<TimeService>()) {
-    log = &Logger::get("SOUNDBLASTER");
+        timeService(Kernel::System::getService<Kernel::TimeService>()) {
+    log = &Kernel::Logger::get("SOUNDBLASTER");
     
     log->info("Found base port at address 0x%04x", baseAddress);
 

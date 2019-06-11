@@ -27,7 +27,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2016, 2018
  */
-class Loop : public Thread {
+class Loop : public Kernel::Thread {
    
 private:
 

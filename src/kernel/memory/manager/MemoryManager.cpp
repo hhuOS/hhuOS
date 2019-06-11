@@ -17,6 +17,8 @@
 #include "lib/util/HashMap.h"
 #include "MemoryManager.h"
 
+namespace Kernel {
+
 void MemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     this->memoryStartAddress = memoryStartAddress;
     this->memoryEndAddress = memoryEndAddress;
@@ -30,7 +32,8 @@ void *MemoryManager::alloc(uint32_t size) {
 }
 
 void *MemoryManager::alloc(uint32_t size, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'aligned alloc' is not supported!");
+    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+                        "MemoryManager: Operation 'aligned alloc' is not supported!");
 
     return nullptr;
 }
@@ -42,7 +45,8 @@ void *MemoryManager::realloc(void *ptr, uint32_t size) {
 }
 
 void *MemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'aligned realloc' is not supported!");
+    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+                        "MemoryManager: Operation 'aligned realloc' is not supported!");
 
     return nullptr;
 }
@@ -52,7 +56,8 @@ void MemoryManager::free(void *ptr) {
 }
 
 void MemoryManager::free(void *ptr, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'aligned free' is not supported!");
+    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+                        "MemoryManager: Operation 'aligned free' is not supported!");
 }
 
 void MemoryManager::dump() {
@@ -71,4 +76,4 @@ uint32_t MemoryManager::getFreeMemory() {
     return freeMemory;
 }
 
-
+}

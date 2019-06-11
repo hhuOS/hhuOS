@@ -31,7 +31,7 @@ void Insmod::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *moduleLoader = Kernel::getService<ModuleLoader>();
+    auto *moduleLoader = Kernel::System::getService<Kernel::ModuleLoader>();
 
     for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
@@ -52,9 +52,9 @@ void Insmod::execute(Util::Array<String> &args) {
 
         File *module = File::open(absolutePath, "r");
 
-        ModuleLoader::Status status = moduleLoader->load(module);
+        Kernel::ModuleLoader::Status status = moduleLoader->load(module);
 
-        if (status == ModuleLoader::Status::OK) {
+        if (status == Kernel::ModuleLoader::Status::OK) {
             stdout << args[0] << ": '" << path <<  "': Inserted module!" << endl;
         } else {
             stderr << args[0] << ": '" << path <<  "': Unable to insert module!" << endl;

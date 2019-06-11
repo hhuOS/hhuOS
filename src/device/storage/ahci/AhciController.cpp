@@ -14,19 +14,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/log/Logger.h"
 #include "device/storage/ahci/AhciDevice.h"
 #include "device/time/Pit.h"
 #include "kernel/memory/Paging.h"
 #include "AhciController.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 
-Logger &AhciController::log = Logger::get("AHCI");
+Kernel::Logger &AhciController::log = Kernel::Logger::get("AHCI");
 uint32_t AhciController::deviceCount = 0;
 
 AhciController::AhciController() : time(Pit::getInstance()) {
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 void AhciController::setup(const Pci::Device &dev) {
@@ -38,7 +38,7 @@ void AhciController::setup(const Pci::Device &dev) {
 
     uint32_t tmpAhciBase = Pci::readDoubleWord(pciDevice.bus, pciDevice.device, pciDevice.function, Pci::PCI_HEADER_BAR5);
 
-    void *ahciBase = SystemManagement::getInstance().mapIO(tmpAhciBase & ~0xFu, 4096);
+    void *ahciBase = Kernel::Management::getInstance().mapIO(tmpAhciBase & ~0xFu, 4096);
     abar = (HbaMem*) (ahciBase);
 
     bool ret;
@@ -95,7 +95,7 @@ void AhciController::setup(const Pci::Device &dev) {
 
     abar->is = abar->is; // @suppress("Assignment to itself")
 
-    auto *storageService = Kernel::getService<StorageService>();
+    auto *storageService = Kernel::System::getService<Kernel::StorageService>();
 
     for (uint8_t i = 0; i < numDevices; i++) {
 
@@ -381,7 +381,7 @@ AhciController::AhciDeviceInfo AhciController::getDeviceInfo(uint16_t deviceNumb
 
     auto slot = static_cast<uint32_t>(tmp);
 
-    void *virtAddress = SystemManagement::getInstance().mapIO(512);
+    void *virtAddress = Kernel::Management::getInstance().mapIO(512);
 
     auto *cmdheader = (HbaCmdHeader*) virtPort->clb;
     cmdheader += slot;
@@ -393,7 +393,7 @@ AhciController::AhciDeviceInfo AhciController::getDeviceInfo(uint16_t deviceNumb
     auto *cmdtbl = (HbaCmdTbl*)(virtCtbas[deviceNumber][slot]);
     memset(cmdtbl, 0, 256);
 
-    cmdtbl->prdt_entry[0].dba = (uint32_t) SystemManagement::getInstance().getPhysicalAddress(virtAddress);
+    cmdtbl->prdt_entry[0].dba = (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(virtAddress);
     cmdtbl->prdt_entry[0].dbau = (uint32_t) 0;
     cmdtbl->prdt_entry[0].dbc = 511;
     cmdtbl->prdt_entry[0].i = 1;
@@ -411,7 +411,7 @@ AhciController::AhciDeviceInfo AhciController::getDeviceInfo(uint16_t deviceNumb
 
     if (timeout == AHCI_TIMEOUT) {
         log.error("Device is not responding");
-        SystemManagement::getInstance().freeIO(virtAddress);
+        Kernel::Management::getInstance().freeIO(virtAddress);
         return ret;
     }
 
@@ -426,7 +426,7 @@ AhciController::AhciDeviceInfo AhciController::getDeviceInfo(uint16_t deviceNumb
 
         if (port->is & HBA_PxIS_TFES) {
             log.error("Task File Error");
-            SystemManagement::getInstance().freeIO(virtAddress);
+            Kernel::Management::getInstance().freeIO(virtAddress);
             return ret;
         }
 
@@ -452,7 +452,7 @@ AhciController::AhciDeviceInfo AhciController::getDeviceInfo(uint16_t deviceNumb
         // Device uses CHS or 28-bit Addressing:
         ret.sectorCount = *((uint32_t *)(buffer + ATA_IDENT_MAX_LBA));
 
-    SystemManagement::getInstance().freeIO(virtAddress);
+    Kernel::Management::getInstance().freeIO(virtAddress);
 
     return ret;
 }
@@ -483,7 +483,7 @@ bool AhciController::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, ui
 
     auto slot = static_cast<uint32_t>(tmp);
 
-    void *virtAddress = SystemManagement::getInstance().mapIO(static_cast<uint32_t>(count * 512 * 2));
+    void *virtAddress = Kernel::Management::getInstance().mapIO(static_cast<uint32_t>(count * 512 * 2));
 
     if(command == ATA_CMD_WRITE_DMA_EX) {
         memcpy(virtAddress, buf, static_cast<size_t>(count * 512));
@@ -501,14 +501,14 @@ bool AhciController::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, ui
 
     uint32_t i;
     for (i = 0; i < (uint32_t) (cmdheader->prdtl - 1 ); i++) {
-        void *physBuf = SystemManagement::getInstance().getPhysicalAddress((void *)((uint32_t) (virtAddress) + i * PAGESIZE));
+        void *physBuf = Kernel::Management::getInstance().getPhysicalAddress((void *)((uint32_t) (virtAddress) + i * PAGESIZE));
         cmdtbl->prdt_entry[i].dba = (uint32_t) physBuf;
         cmdtbl->prdt_entry[i].dbc = (4 * 1024) - 1;
         cmdtbl->prdt_entry[i].i = 0;
         count -= 8;
     }
 
-    void *physBuf = SystemManagement::getInstance().getPhysicalAddress((void *)((uint32_t) (virtAddress) + i * PAGESIZE));
+    void *physBuf = Kernel::Management::getInstance().getPhysicalAddress((void *)((uint32_t) (virtAddress) + i * PAGESIZE));
     cmdtbl->prdt_entry[i].dba = (uint32_t) physBuf;
     cmdtbl->prdt_entry[i].dbc = static_cast<uint32_t>((count << 9u) - 1);
     cmdtbl->prdt_entry[i].i = 0;
@@ -539,8 +539,8 @@ bool AhciController::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, ui
     while ((port->tfd & (HBA_PxTFD_STS_BSY | HBA_PxTFD_STS_DRQ)) && (timeout = (time.getMillis() - then)) < AHCI_TIMEOUT);
 
     if (timeout >= AHCI_TIMEOUT) {
-       log.error("Device is not responding");
-        SystemManagement::getInstance().freeIO(virtAddress);
+        log.error("Device is not responding");
+        Kernel::Management::getInstance().freeIO(virtAddress);
         return false;
     }
 
@@ -556,25 +556,25 @@ bool AhciController::ahci_rw(HbaPort *port, uint32_t startl, uint32_t starth, ui
 
         if (port->is & HBA_PxIS_TFES) {
             log.error("Task File Error");
-            SystemManagement::getInstance().freeIO(virtAddress);
+            Kernel::Management::getInstance().freeIO(virtAddress);
             return false;
         }
     }
 
     if (timeout >= AHCI_TIMEOUT) {
         log.error("Device is hung");
-        SystemManagement::getInstance().freeIO(virtAddress);
+        Kernel::Management::getInstance().freeIO(virtAddress);
         return false;
     }
 
     if (port->is & HBA_PxIS_TFES || port->tfd & HBA_PxTFD_ERR) {
         log.error("Task File Error");
-        SystemManagement::getInstance().freeIO(virtAddress);
+        Kernel::Management::getInstance().freeIO(virtAddress);
         return false;
     }
 
     memcpy((void*)buf, virtAddress, totalCount * 512);
-    SystemManagement::getInstance().freeIO(virtAddress);
+    Kernel::Management::getInstance().freeIO(virtAddress);
 
     return true;
 }
@@ -595,7 +595,7 @@ void AhciController::rebasePort(HbaPort *port, int portno) {
 
     log.trace("Rebasing port %d", portno);
 
-    void *virtAddress = SystemManagement::getInstance().mapIO(4096);
+    void *virtAddress = Kernel::Management::getInstance().mapIO(4096);
 
     void *clb = virtAddress;
     memset(clb, 0, 4096);
@@ -604,7 +604,7 @@ void AhciController::rebasePort(HbaPort *port, int portno) {
     sataDevices_Virt[portno] = portVirt;
     portVirt->clb = (uint32_t) virtAddress;
 
-	port->clb = (uint32_t) SystemManagement::getInstance().getPhysicalAddress(virtAddress);
+	port->clb = (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(virtAddress);
 	port->clbu = 0;
 	
     log.trace("Rebased Command List to %x", port->clb);
@@ -616,7 +616,7 @@ void AhciController::rebasePort(HbaPort *port, int portno) {
 	
     log.trace("Rebased FIS area to %x", port->fb);
 
-    virtAddress = SystemManagement::getInstance().mapIO(8192);
+    virtAddress = Kernel::Management::getInstance().mapIO(8192);
     memset(virtAddress, 0, 8192);
 
 	auto *cmdheader = (HbaCmdHeader*) (portVirt->clb);
@@ -624,7 +624,7 @@ void AhciController::rebasePort(HbaPort *port, int portno) {
 	for (uint32_t i = 0; i < MAX_CMD_SLOTS; i++) {
         virtCtbas[portno][i] = (uint32_t)virtAddress + i * 256;
 
-        uint32_t physAddr = (uint32_t) SystemManagement::getInstance().getPhysicalAddress(i < 16 ? virtAddress : (void*) ((uint32_t)virtAddress + PAGESIZE));
+        uint32_t physAddr = (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(i < 16 ? virtAddress : (void*) ((uint32_t)virtAddress + PAGESIZE));
         uint32_t ctba = physAddr + i * 256;
 
         cmdheader[i].ctba = ctba;
@@ -692,7 +692,7 @@ void AhciController::plugin() {
 
 }
 
-void AhciController::trigger(InterruptFrame &frame) {
+void AhciController::trigger(Kernel::InterruptFrame &frame) {
     // TODO(krakowski):
     //  Wake up waiting threads once i/o-manager is implemented
 }

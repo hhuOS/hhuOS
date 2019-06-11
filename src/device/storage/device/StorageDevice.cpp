@@ -15,7 +15,7 @@
  */
 
 #include "kernel/service/StorageService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/file/Directory.h"
 #include "StorageDevice.h"
 #include "Partition.h"
@@ -166,7 +166,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
         }
 
         // Register the new partition in storage port
-        Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+        Kernel::System::getService<Kernel::StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
                 String::format("%sp%u", static_cast<const char*>(getName()), partNumber)));
 
         partLock.release();
@@ -254,7 +254,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             }
 
             // Register the new partition in storage port
-            Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+            Kernel::System::getService<Kernel::StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
                     String::format("%sp%u", static_cast<const char*>(getName()), i)));
 
             partLock.release();
@@ -274,7 +274,7 @@ uint32_t StorageDevice::writePartition(uint8_t partNumber, bool active, uint8_t 
             }
 
             // Register the new partition in storage port
-            Kernel::getService<StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
+            Kernel::System::getService<Kernel::StorageService>()->registerDevice(new Partition(this, startSector, sectorCount, systemId,
                     String::format("%sp%u", static_cast<const char*>(getName()), i)));
 
             partLock.release();
@@ -316,12 +316,12 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         }
 
         // Delete the partition from storage port
-        Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
+        Kernel::System::getService<Kernel::StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
 
         if(extendedPartition) {
             // Delete all logical partitions on this device from storage port
             Directory &dir = *Directory::open("/dev/storage");
-            auto *storageService = Kernel::getService<StorageService>();
+            auto *storageService = Kernel::System::getService<Kernel::StorageService>();
 
             for (const String &name : dir.getChildren()) {
                 if (name != getName() && name.beginsWith(getName())) {
@@ -395,7 +395,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
         }
 
         // Delete the partition from storage port
-        Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
+        Kernel::System::getService<Kernel::StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
 
         partLock.release();
         return SUCCESS;
@@ -467,7 +467,7 @@ uint32_t StorageDevice::deletePartition(uint8_t partNumber) {
     }
 
     // Delete the partition from storage port
-    Kernel::getService<StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
+    Kernel::System::getService<Kernel::StorageService>()->removeDevice(String::format("%sp%u", static_cast<const char*>(getName()), partNumber));
 
     partLock.release();
     return SUCCESS;
@@ -493,7 +493,7 @@ uint32_t StorageDevice::createPartitionTable() {
 
     // Remove all partitions on this device from storage port
     Directory &dir = *Directory::open("/dev/storage");
-    auto *storageService = Kernel::getService<StorageService>();
+    auto *storageService = Kernel::System::getService<Kernel::StorageService>();
 
     for (const String &name : dir.getChildren()) {
         if (name != getName() && name.beginsWith(getName())) {

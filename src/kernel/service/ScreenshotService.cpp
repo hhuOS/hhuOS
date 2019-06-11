@@ -21,14 +21,16 @@
 #include "kernel/event/input/KeyEvent.h"
 #include "ScreenshotService.h"
 
+namespace Kernel {
+
 uint32_t ScreenshotService::screenshotCounter = 0;
 
 ScreenshotService::ScreenshotService() {
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    System::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
 }
 
 ScreenshotService::~ScreenshotService() {
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    System::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
 }
 
 void ScreenshotService::takeScreenshot() {
@@ -36,11 +38,11 @@ void ScreenshotService::takeScreenshot() {
 
     screenshot.take();
 
-    if(!FileStatus::exists("/screenshots")) {
-        Kernel::getService<Filesystem>()->createDirectory("/screenshots");
+    if (!FileStatus::exists("/screenshots")) {
+        System::getService<Filesystem>()->createDirectory("/screenshots");
     }
 
-    while(FileStatus::exists(String::format("/screenshots/screenshot%u.bmp", screenshotCounter))) {
+    while (FileStatus::exists(String::format("/screenshots/screenshot%u.bmp", screenshotCounter))) {
         screenshotCounter++;
     }
 
@@ -48,9 +50,11 @@ void ScreenshotService::takeScreenshot() {
 }
 
 void ScreenshotService::onEvent(const Event &event) {
-    auto &keyEvent = (KeyEvent&) event;
+    auto &keyEvent = (KeyEvent &) event;
 
-    if(keyEvent.getKey().scancode() == KeyEvent::PRINT) {
+    if (keyEvent.getKey().scancode() == KeyEvent::PRINT) {
         takeScreenshot();
     }
+}
+
 }

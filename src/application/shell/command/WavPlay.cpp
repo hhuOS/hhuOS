@@ -28,7 +28,7 @@ uint32_t playback(const String &path) {
     Wav *wav = Wav::load(path);
 
     if(wav != nullptr) {
-        Kernel::getService<SoundService>()->getPcmAudioDevice()->playPcmData(*wav);
+        Kernel::System::getService<Kernel::SoundService>()->getPcmAudioDevice()->playPcmData(*wav);
 
         delete wav;
     }
@@ -62,7 +62,7 @@ void WavPlay::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *soundService = Kernel::getService<SoundService>();
+    auto *soundService = Kernel::System::getService<Kernel::SoundService>();
 
     if(!soundService->isPcmAudioAvailable()) {
         stderr << args[0] << ": No device for PCM playback available!" << endl;
@@ -72,7 +72,7 @@ void WavPlay::execute(Util::Array<String> &args) {
     stdout << "Playing '" << absolutePath << "'." << endl;
     stdout << "Press <RETURN> to stop." << endl;
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     auto *thread = new WorkerThread<String, uint32_t>(playback, absolutePath, nullptr);
 
@@ -82,7 +82,7 @@ void WavPlay::execute(Util::Array<String> &args) {
 
     while(isRunning);
 
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 }
 
 const String WavPlay::getHelpText() {
@@ -92,10 +92,10 @@ const String WavPlay::getHelpText() {
            "  -h, --help: Show this help-message";
 }
 
-void WavPlay::onEvent(const Event &event) {
-    auto &keyEvent = (KeyEvent&) event;
+void WavPlay::onEvent(const Kernel::Event &event) {
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
-    if(keyEvent.getKey().scancode() == KeyEvent::RETURN) {
-        Kernel::getService<SoundService>()->getPcmAudioDevice()->stopPlayback();
+    if(keyEvent.getKey().scancode() == Kernel::KeyEvent::RETURN) {
+        Kernel::System::getService<Kernel::SoundService>()->getPcmAudioDevice()->stopPlayback();
     }
 }

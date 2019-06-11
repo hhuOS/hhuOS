@@ -21,9 +21,11 @@
 #include "kernel/event/storage/StorageRemoveEvent.h"
 #include "lib/util/RingBuffer.h"
 #include "KernelService.h"
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/Symbols.h"
 #include "device/storage/device/StorageDevice.h"
 #include "kernel/log/Logger.h"
+
+namespace Kernel {
 
 /**
  * Manages all storage devices.
@@ -32,7 +34,7 @@
 class StorageService : public KernelService {
 
 private:
-    Util::HashMap<String, StorageDevice*> devices;
+    Util::HashMap<String, StorageDevice *> devices;
 
 public:
     /**
@@ -74,9 +76,11 @@ public:
      */
     void removeDevice(const String &name);
 
-    static constexpr const char* SERVICE_NAME = "StorageService";
+    static constexpr const char *SERVICE_NAME = "StorageService";
 
     static Logger &log;
 };
+
+}
 
 #endif

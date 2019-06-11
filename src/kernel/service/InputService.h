@@ -20,6 +20,8 @@
 #include "device/input/Mouse.h"
 #include "device/input/Keyboard.h"
 
+namespace Kernel {
+
 class InputService : public KernelService {
 
 private:
@@ -29,11 +31,13 @@ private:
 public:
     InputService();
 
-    static constexpr char* SERVICE_NAME = "InputService";
+    static constexpr char *SERVICE_NAME = "InputService";
 
     Keyboard *getKeyboard();
+
     Mouse *getMouse();
 };
 
+}
 
 #endif

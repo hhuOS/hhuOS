@@ -15,11 +15,11 @@
  */
 
 #include "StderrNode.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 StderrNode::StderrNode() : VirtualNode("stderr", FsNode::CHAR_FILE) {
-    graphicsService = Kernel::getService<GraphicsService>();
-    kernelStreamService = Kernel::getService<KernelStreamService>();
+    graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
+    kernelStreamService = Kernel::System::getService<Kernel::KernelStreamService>();
 }
 
 uint64_t StderrNode::getLength() {

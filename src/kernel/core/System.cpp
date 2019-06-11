@@ -18,17 +18,19 @@
 #include "kernel/bluescreen/BlueScreen.h"
 #include "kernel/bluescreen/BlueScreenCga.h"
 #include "kernel/bluescreen/BlueScreenLfb.h"
-#include "Kernel.h"
-#include "KernelSymbols.h"
+#include "System.h"
+#include "Symbols.h"
 #include "device/cpu/Cpu.h"
 #include "device/misc/Bios.h"
 
-Spinlock Kernel::serviceLock;
+namespace Kernel {
 
-Util::HashMap<String, KernelService*> Kernel::serviceMap(SERVICE_MAP_SIZE);
+Spinlock System::serviceLock;
+
+Util::HashMap<String, KernelService *> System::serviceMap(SERVICE_MAP_SIZE);
 
 
-void Kernel::registerService(const String &serviceId, KernelService* const &kernelService) {
+void System::registerService(const String &serviceId, KernelService *const &kernelService) {
 
     serviceLock.acquire();
 
@@ -37,16 +39,16 @@ void Kernel::registerService(const String &serviceId, KernelService* const &kern
     serviceLock.release();
 }
 
-bool Kernel::isServiceRegistered(const String &serviceId) {
+bool System::isServiceRegistered(const String &serviceId) {
 
     return serviceMap.containsKey(serviceId);
 }
 
-void Kernel::panic(InterruptFrame *frame) {
+void System::panic(InterruptFrame *frame) {
 
     Cpu::disableInterrupts();
 
-    if(Bios::isAvailable()) {
+    if (Bios::isAvailable()) {
         BlueScreenCga blueScreen;
 
         blueScreen.initialize();
@@ -62,4 +64,6 @@ void Kernel::panic(InterruptFrame *frame) {
     }
 
     Cpu::halt();
+}
+
 }

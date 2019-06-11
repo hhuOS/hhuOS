@@ -14,12 +14,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "PcSpeaker.h"
 
 
 PcSpeaker::PcSpeaker() : control(0x43), data0(0x40), data2(0x42), ppi(0x61) {
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 void PcSpeaker::play(float f, uint32_t len) {

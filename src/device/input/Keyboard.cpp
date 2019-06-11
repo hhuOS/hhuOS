@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/misc/Pic.h"
 #include "kernel/event/input/KeyEvent.h"
@@ -193,7 +193,7 @@ void Keyboard::getAsciiCode(uint8_t code) {
 
 Keyboard::Keyboard() : controlPort(0x64), dataPort(0x60), interruptDataBuffer(1024) {
 
-    eventBus = Kernel::getService<EventBus>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 
     setLed(caps_lock, false);
     setLed(scroll_lock, false);
@@ -307,13 +307,13 @@ void Keyboard::removeFromBuffer(uint32_t scancode){
 void Keyboard::plugin() {
     memset(buffer, 0, KB_BUFFER_SIZE * sizeof(uint32_t));
 
-    InterruptManager::getInstance().registerInterruptHandler(this);
+    Kernel::InterruptManager::getInstance().registerInterruptHandler(this);
 
-    InterruptDispatcher::getInstance().assign(InterruptDispatcher::KEYBOARD, *this);
+    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::KEYBOARD, *this);
     Pic::getInstance().allow(Pic::Interrupt::KEYBOARD);
 }
 
-void Keyboard::trigger(InterruptFrame &frame) {
+void Keyboard::trigger(Kernel::InterruptFrame &frame) {
     uint8_t control = controlPort.inb();
 
     if((control & 0x1) != 0x1) {
@@ -341,7 +341,7 @@ void Keyboard::parseInterruptData() {
             reboot();
         }
 
-        Util::SmartPointer<Event> event(new KeyEvent(key));
+        Util::SmartPointer<Kernel::Event> event(new Kernel::KeyEvent(key));
 
         eventBus->publish(event);
     }

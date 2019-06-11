@@ -33,19 +33,19 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2018
  */
-class Mouse : public InterruptHandler {
+class Mouse : public Kernel::InterruptHandler {
 
 private:
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
-    TimeService *timeService;
+    Kernel::TimeService *timeService;
 
     // IO ports (same as keyboard)
     const IoPort ctrl_port;
     const IoPort data_port;
 
-    EventBus *eventBus;
+    Kernel::EventBus *eventBus;
 
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
@@ -115,7 +115,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     bool isAvailable() {
         return available;

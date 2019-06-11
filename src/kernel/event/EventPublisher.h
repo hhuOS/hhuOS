@@ -24,6 +24,8 @@
 #include "kernel/event/Receiver.h"
 #include "lib/async/Spinlock.h"
 
+namespace Kernel {
+
 /**
  * A thread with the sole purpose of forwarding events to a single receiver.
  *
@@ -86,5 +88,6 @@ private:
     bool isRunning = true;
 };
 
+}
 
 #endif

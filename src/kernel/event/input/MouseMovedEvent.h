@@ -20,10 +20,8 @@
 
 #include "kernel/event/Event.h"
 
-/**
- *
- *
- */
+namespace Kernel {
+
 class MouseMovedEvent : public Event {
 
 public:
@@ -46,5 +44,6 @@ private:
     int32_t dy;
 };
 
+}
 
 #endif

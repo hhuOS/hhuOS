@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/System.h"
+#include "kernel/core/Symbols.h"
 #include "device/cpu/IoPort.h"
 #include "lib/libc/printf.h"
 #include "device/sound/PcSpeaker.h"
@@ -24,12 +24,14 @@
 #include "kernel/thread/Scheduler.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "device/misc/Pic.h"
 #include "lib/libc/sprintf.h"
 
+namespace Kernel {
+
 extern "C" {
-    void dispatchInterrupt(InterruptFrame *frame);
+void dispatchInterrupt(InterruptFrame *frame);
 }
 
 /**
@@ -61,13 +63,13 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     // Throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && !GdbServer::isInitialized() && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
 
-        Kernel::panic(frame);
+        System::panic(frame);
     }
 
     // If this is a software exception, throw a bluescreen with error data
     if (slot >= Cpu::SOFTWARE_EXCEPTIONS_START) {
 
-        Kernel::panic(frame);
+        System::panic(frame);
     }
 
     // Ignore spurious interrupts
@@ -88,11 +90,11 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         // There should be no access to the first page (address 0)
         if (faulting_address == 0) {
             frame->interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
-            Kernel::panic(frame);
+            System::panic(frame);
         }
 
         // Pass faulting address to the system management
-        SystemManagement::getInstance().setFaultParams(faulting_address, flags);
+        Management::getInstance().setFaultParams(faulting_address, flags);
     }
 
     if (handler.size() == 0) {
@@ -102,7 +104,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         return;
     }
 
-    Util::List<InterruptHandler*>* list = report(slot);
+    Util::List<InterruptHandler *> *list = report(slot);
 
     if (list == nullptr && slot >= 32) {
         char error[256];
@@ -134,13 +136,13 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
 
     if (!handler.containsKey(slot)) {
 
-        handler.put(slot, new Util::ArrayList<InterruptHandler*>);
+        handler.put(slot, new Util::ArrayList<InterruptHandler *>);
     }
 
     handler.get(slot)->add(&isr);
 }
 
-Util::List<InterruptHandler*>* InterruptDispatcher::report(uint8_t slot) {
+Util::List<InterruptHandler *> *InterruptDispatcher::report(uint8_t slot) {
 
     if (!handler.containsKey(slot)) {
 
@@ -152,7 +154,7 @@ Util::List<InterruptHandler*>* InterruptDispatcher::report(uint8_t slot) {
 
 void InterruptDispatcher::sendEoi(uint32_t slot) {
 
-    if(slot > 32) {
+    if (slot > 32) {
 
         Pic::getInstance().sendEOI(Pic::Interrupt(slot - 32));
     }
@@ -173,6 +175,4 @@ debugFunction InterruptDispatcher::reportDebug(uint8_t slot) {
     return debugHandlers.get(slot);
 }
 
-
-
-
+}

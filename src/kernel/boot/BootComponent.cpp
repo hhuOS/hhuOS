@@ -1,6 +1,8 @@
 #include "BootComponent.h"
 
-BootComponent::BootComponent(const String &name, Util::Array<BootComponent*> dependencies, void (*function)()) :
+namespace Kernel {
+
+BootComponent::BootComponent(const String &name, Util::Array<BootComponent *> dependencies, void (*function)()) :
         Thread(name, 0xff), waiting(true), finished(false), dependencies(dependencies), function(function) {
 
 }
@@ -22,9 +24,9 @@ bool BootComponent::hasFinished() {
 }
 
 void BootComponent::addDependency(BootComponent *dependency) {
-    if(hasStarted()) {
+    if (hasStarted()) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
-                "Trying to add dependencies to an already running boot component!");
+                            "Trying to add dependencies to an already running boot component!");
     }
 
     dependencies.add(dependency);
@@ -36,4 +38,6 @@ bool BootComponent::hasDependencies() {
 
 void BootComponent::removeDependency(BootComponent *dependency) {
     dependencies.remove(dependency);
+}
+
 }

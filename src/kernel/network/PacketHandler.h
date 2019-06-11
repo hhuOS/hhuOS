@@ -26,6 +26,8 @@
 #include "kernel/log/Logger.h"
 #include "kernel/event/network/ReceiveEvent.h"
 
+namespace Kernel {
+
 /**
  * This class implements the Receiver interface.
  *
@@ -34,7 +36,7 @@
  * dispatch them to other classes by sending other kinds of events rather
  * then a ReceiveEvent.
  */
-class PacketHandler final: public Receiver {
+class PacketHandler final : public Receiver {
     /**
      * A logger to provide information on the kernel log.
      */
@@ -48,5 +50,6 @@ class PacketHandler final: public Receiver {
     void onEvent(const Event &event) override;
 };
 
+}
 
-#endif //HHUOS_PACKETHANDLER_H
+#endif

@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/SoundService.h"
 #include "Sound.h"
 
 Sound::Sound() : Thread("Sound") {
-    speaker = Kernel::getService<SoundService>()->getPcSpeaker();
-    timeService = Kernel::getService<TimeService>();
+    speaker = Kernel::System::getService<Kernel::SoundService>()->getPcSpeaker();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 
     tetris = BeepFile::load("/initrd/music/beep/tetris.beep");
     mario = BeepFile::load("/initrd/music/beep/mario.beep");

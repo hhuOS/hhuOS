@@ -48,11 +48,11 @@ void Beep::execute(Util::Array<String> &args) {
     stdout << "Playing '" << absolutePath << "'." << endl;
     stdout << "Press <RETURN> to stop." << endl;
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     beepFile->play();
 
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 
     delete beepFile;
 }
@@ -64,10 +64,10 @@ const String Beep::getHelpText() {
            "  -h, --help: Show this help-message";
 }
 
-void Beep::onEvent(const Event &event) {
-    auto &keyEvent = (KeyEvent&) event;
+void Beep::onEvent(const Kernel::Event &event) {
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
-    if(keyEvent.getKey().scancode() == KeyEvent::RETURN) {
+    if(keyEvent.getKey().scancode() == Kernel::KeyEvent::RETURN) {
         beepFile->stop();
     }
 }

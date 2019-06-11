@@ -20,7 +20,7 @@
 
 MemoryManagerTest::MemoryManagerTest(const String &managerType, uint32_t memorySize, uint32_t numAllocs,
                                      uint32_t maxAllocSize, const String &name) :
-        manager(*((MemoryManager *) MemoryManager::createInstance(managerType))), managerName(name),
+        manager(*((Kernel::MemoryManager *) Kernel::MemoryManager::createInstance(managerType))), managerName(name),
         deleteManager(true), numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
     memory = new char[memorySize];
     manager.init((uint32_t) memory, (uint32_t) memory + memorySize, false);
@@ -29,7 +29,7 @@ MemoryManagerTest::MemoryManagerTest(const String &managerType, uint32_t memoryS
     random = Random(maxAllocSize - 1);
 }
 
-MemoryManagerTest::MemoryManagerTest(MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
+MemoryManagerTest::MemoryManagerTest(Kernel::MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
                                      uint32_t maxAllocSize, const String &name) :
         manager(manager), managerName(name), numAllocs(numAllocs), maxAllocSize(maxAllocSize) {
     objects = new void*[numAllocs];
@@ -74,11 +74,11 @@ void MemoryManagerTest::execute() {
         }
     }
 
-    Keyboard *kb = Kernel::getService<InputService>()->getKeyboard();
+    Keyboard *kb = Kernel::System::getService<Kernel::InputService>()->getKeyboard();
 
     printf("\nPress [ENTER] to return");
-    while (!kb->isKeyPressed(KeyEvent::RETURN));
-    while (kb->isKeyPressed(KeyEvent::RETURN));
+    while (!kb->isKeyPressed(Kernel::KeyEvent::RETURN));
+    while (kb->isKeyPressed(Kernel::KeyEvent::RETURN));
 }
 
 bool MemoryManagerTest::testAlloc() {

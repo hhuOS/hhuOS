@@ -16,6 +16,8 @@
 
 #include "StorageAddEvent.h"
 
+namespace Kernel {
+
 StorageAddEvent::StorageAddEvent() : Event() {
 
 }
@@ -24,7 +26,7 @@ StorageAddEvent::StorageAddEvent(StorageDevice *device) : Event() {
     this->device = device;
 }
 
-StorageAddEvent::StorageAddEvent(const StorageAddEvent &other) : Event(other){
+StorageAddEvent::StorageAddEvent(const StorageAddEvent &other) : Event(other) {
     this->device = other.device;
 }
 
@@ -32,6 +34,8 @@ String StorageAddEvent::getType() const {
     return TYPE;
 }
 
-StorageDevice* StorageAddEvent::getDevice() {
+StorageDevice *StorageAddEvent::getDevice() {
     return device;
+}
+
 }

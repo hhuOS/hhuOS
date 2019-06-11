@@ -23,6 +23,8 @@
 #include <cstdint>
 #include "lib/stream/InputStream.h"
 
+namespace Kernel {
+
 class KernelStreamService : public KernelService {
 
 public:
@@ -44,7 +46,7 @@ public:
     void setStdin(InputStream *stream);
 
 
-    static constexpr const char* SERVICE_NAME = "KernelStreamService";
+    static constexpr const char *SERVICE_NAME = "KernelStreamService";
 
 private:
 
@@ -55,5 +57,6 @@ private:
     InputStream *stdin = nullptr;
 };
 
+}
 
 #endif

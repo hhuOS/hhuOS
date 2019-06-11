@@ -25,11 +25,11 @@
  * A simple application, that demonstrates the multi-threading capabilities of hhuOS by showing two counters, while
  * simultaneously playing melodies on the speaker.
  */
-class LoopsAndSound : public Thread, Receiver {
+class LoopsAndSound : public Kernel::Thread, Kernel::Receiver {
 
 private:
 
-    EventBus *eventBus = nullptr;
+    Kernel::EventBus *eventBus = nullptr;
 
     bool isRunning = true;
 
@@ -53,7 +53,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
     /**
      * Overriding function from Thread.

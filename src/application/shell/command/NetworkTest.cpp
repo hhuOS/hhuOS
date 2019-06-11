@@ -20,7 +20,7 @@
  */
 
 #include "kernel/service/NetworkService.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/service/TimeService.h"
 #include "NetworkTest.h"
 
@@ -40,14 +40,14 @@ void NetworkTest::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *networkService = Kernel::getService<NetworkService>();
+    auto *networkService = Kernel::System::getService<Kernel::NetworkService>();
 
     if(networkService->getDeviceCount() == 0) {
         stderr << args[0] << ": No network devices available!" << endl;
         return;
     }
 
-    NetworkDevice &driver = Kernel::getService<NetworkService>()->getDriver(0);
+    NetworkDevice &driver = Kernel::System::getService<Kernel::NetworkService>()->getDriver(0);
 
     if(!parser.getNamedArgument("send").isEmpty()) {
         int length = static_cast<uint32_t>(strtoint((char *) parser.getNamedArgument("send")));
@@ -58,8 +58,8 @@ void NetworkTest::execute(Util::Array<String> &args) {
         }
 
         //one buffer for all packets
-        auto *sendBuffer = static_cast<uint8_t *>(SystemManagement::getInstance().mapIO(static_cast<uint32_t>(length)));
-        void *phyAddress = SystemManagement::getInstance().getPhysicalAddress(sendBuffer);
+        auto *sendBuffer = static_cast<uint8_t *>(Kernel::Management::getInstance().mapIO(static_cast<uint32_t>(length)));
+        void *phyAddress = Kernel::Management::getInstance().getPhysicalAddress(sendBuffer);
 
         for(int i = 0; i < length; i++) {
             //fill packet with ascending numbers
@@ -90,14 +90,14 @@ void NetworkTest::execute(Util::Array<String> &args) {
             stdout << "Sent a single packet of size " << length << " Bytes." << endl;
         }
 
-        SystemManagement::getInstance().freeIO(sendBuffer);
+        Kernel::Management::getInstance().freeIO(sendBuffer);
     }
 }
 
 void NetworkTest::timeSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t millis) {
     uint32_t count = 0;
 
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
     uint32_t start = timeService->getSystemTime();
 
     while((timeService->getSystemTime()) < start + millis) {
@@ -113,7 +113,7 @@ void NetworkTest::timeSendBenchmark(void *physPacketAddress, int packetLength, N
 }
 
 void NetworkTest::packetSendBenchmark(void *physPacketAddress, int packetLength, NetworkDevice &driver, uint32_t count) {
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
     uint32_t start = timeService->getSystemTime();
 
     for(uint32_t i = 0; i < count; i++) {

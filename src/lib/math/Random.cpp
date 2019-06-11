@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/TimeService.h"
 #include "Random.h"
 
@@ -24,7 +24,7 @@ Random::Random(uint32_t seed, uint32_t maxRand) {
 }
 
 Random::Random(uint32_t maxRand) {
-	this->seed = (Kernel::getService<TimeService>())->getSystemTime();
+	this->seed = (Kernel::System::getService<Kernel::TimeService>())->getSystemTime();
 	this->maxRand = maxRand;
 }
 

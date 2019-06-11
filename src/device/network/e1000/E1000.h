@@ -37,7 +37,7 @@
 #include "transmit/descriptor/legacy/TransmitDescriptor.h"
 #include "general/Descriptors.h"
 #include "receive/descriptor/ReceiveDescriptor.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/memory/Paging.h"
 #include "device/network/NetworkDevice.h"
 
@@ -61,9 +61,9 @@ private:
     /**
      * A logger to provide logging information on the kernel log.
      */
-    Logger &log = Logger::get("E1000");
+    Kernel::Logger &log = Kernel::Logger::get("E1000");
 
-    EventBus *eventBus = nullptr;
+    Kernel::EventBus *eventBus = nullptr;
 
 public:
     ~E1000() override = default;
@@ -243,7 +243,7 @@ protected:
      * @param log Logger of the driver.
      * @param driver Reference to the driver.
      */
-    void initialize(const Pci::Device &dev, Logger &log, E1000 *driver);
+    void initialize(const Pci::Device &dev, Kernel::Logger &log, E1000 *driver);
 
 
     /**
@@ -314,7 +314,7 @@ protected:
      * because there is the interrupt cause read register of the card, where
      * specific asserted interrupts should be read from)
      */
-    void trigger(InterruptFrame &frame) override = 0;
+    void trigger(Kernel::InterruptFrame &frame) override = 0;
 
     void parseInterruptData() final;
 

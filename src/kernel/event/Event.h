@@ -20,6 +20,8 @@
 #include <cstdint>
 #include "lib/string/String.h"
 
+namespace Kernel {
+
 /**
  * Base class for events, that are distributed by the EventBus.
  *
@@ -56,5 +58,6 @@ public:
 
 };
 
+}
 
 #endif

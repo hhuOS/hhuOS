@@ -13,6 +13,8 @@
 #include "kernel/thread/Scheduler.h"
 #include "EventPublisher.h"
 
+namespace Kernel {
+
 EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), receiver(receiver) {
 
 }
@@ -41,4 +43,4 @@ void EventPublisher::stop() {
     isRunning = false;
 }
 
-
+}

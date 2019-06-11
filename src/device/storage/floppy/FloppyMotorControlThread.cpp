@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "FloppyMotorControlThread.h"
 
 FloppyMotorControlThread::FloppyMotorControlThread(FloppyDevice &device) : Thread("FloppyMotorControlThread"),
         device(device), timeout(FloppyController::FLOPPY_TIMEOUT), isRunning(true) {
 
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 void FloppyMotorControlThread::run() {

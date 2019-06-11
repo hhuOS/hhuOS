@@ -15,17 +15,19 @@
  */
 
 #include "kernel/memory/MemLayout.h"
-#include "SystemManagement.h"
+#include "Management.h"
 #include "lib/libc/printf.h"
-#include "KernelSymbols.h"
+#include "Symbols.h"
 
-Util::HashMap<String, Util::Address> KernelSymbols::symbolTable(1129);
+namespace Kernel {
 
-Util::HashMap<Util::Address, char*> KernelSymbols::debugTable(1129);
+Util::HashMap<String, Util::Address> Symbols::symbolTable(1129);
 
-Multiboot::ElfInfo KernelSymbols::symbolInfo;
+Util::HashMap<Util::Address, char *> Symbols::debugTable(1129);
 
-bool KernelSymbols::initialized = false;
+Multiboot::ElfInfo Symbols::symbolInfo;
+
+bool Symbols::initialized = false;
 
 uint32_t pow(uint32_t base, uint32_t exponent) {
 
@@ -76,17 +78,17 @@ uint32_t hextoint(const char *hexString) {
     return ret;
 }
 
-uint32_t KernelSymbols::get(const String &name) {
+uint32_t Symbols::get(const String &name) {
 
-    if (symbolTable.containsKey((char*) name)) {
+    if (symbolTable.containsKey((char *) name)) {
 
-        return (uint32_t) symbolTable.get((char*) name);
+        return (uint32_t) symbolTable.get((char *) name);
     }
 
     return 0x0;
 }
 
-const char* KernelSymbols::get(uint32_t eip) {
+const char *Symbols::get(uint32_t eip) {
 
     if (!initialized) {
 
@@ -101,15 +103,17 @@ const char* KernelSymbols::get(uint32_t eip) {
     return debugTable.get(Util::Address(eip));
 }
 
-void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
+void Symbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry*) PHYS2VIRT(sectionHeader.virtualAddress);
+    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
 
-    ElfConstants::SectionHeader *stringSection = (ElfConstants::SectionHeader*) (symbolInfo.address + sectionHeader.link * symbolInfo.sectionSize);
+    ElfConstants::SectionHeader *stringSection = (ElfConstants::SectionHeader *) (symbolInfo.address +
+                                                                                  sectionHeader.link *
+                                                                                  symbolInfo.sectionSize);
 
-    char *stringTable = (char*) PHYS2VIRT(stringSection->virtualAddress);
+    char *stringTable = (char *) PHYS2VIRT(stringSection->virtualAddress);
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
@@ -128,7 +132,7 @@ void KernelSymbols::load(const ElfConstants::SectionHeader &sectionHeader) {
     }
 }
 
-void KernelSymbols::initialize(const Multiboot::ElfInfo &elfInfo) {
+void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
 
     symbolInfo = elfInfo;
 
@@ -136,7 +140,7 @@ void KernelSymbols::initialize(const Multiboot::ElfInfo &elfInfo) {
 
     for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
-        sectionHeader = (ElfConstants::SectionHeader*) (symbolInfo.address + i * symbolInfo.sectionSize);
+        sectionHeader = (ElfConstants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
         if (sectionHeader->type == ElfConstants::SectionHeaderType::SYMTAB) {
 
@@ -147,7 +151,9 @@ void KernelSymbols::initialize(const Multiboot::ElfInfo &elfInfo) {
     initialized = true;
 }
 
-bool KernelSymbols::isInitialized() {
+bool Symbols::isInitialized() {
 
     return initialized;
+}
+
 }

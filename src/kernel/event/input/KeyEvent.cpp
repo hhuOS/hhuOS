@@ -16,6 +16,8 @@
 
 #include "KeyEvent.h"
 
+namespace Kernel {
+
 KeyEvent::KeyEvent(Key key) : Event() {
     this->key = key;
 }
@@ -32,6 +34,8 @@ Key KeyEvent::getKey() {
     return key;
 }
 
-KeyEvent::KeyEvent(const KeyEvent &other) : Event(other){
+KeyEvent::KeyEvent(const KeyEvent &other) : Event(other) {
     this->key = other.key;
+}
+
 }

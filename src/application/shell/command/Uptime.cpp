@@ -32,7 +32,7 @@ void Uptime::execute(Util::Array<String> &args) {
 
     bool pretty = parser.checkSwitch("pretty");
 
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
 
     uint32_t millis = timeService->getSystemTime();
 

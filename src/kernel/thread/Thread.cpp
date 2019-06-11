@@ -26,44 +26,46 @@ extern "C" {
     void interrupt_return();
 }
 
-uint32_t threadCount = 0;
-
 void kickoff() {
 
-    Scheduler::getInstance().getCurrentThread().run();
+    Kernel::Scheduler::getInstance().getCurrentThread().run();
 
-    Scheduler::getInstance().exit();
+    Kernel::Scheduler::getInstance().exit();
 }
+
+namespace Kernel {
+
+uint32_t threadCount = 0;
 
 void Thread::init() {
 
-    auto *esp = (uint32_t*) stack.getStart();
+    auto *esp = (uint32_t *) stack.getStart();
 
     esp -= (sizeof(InterruptFrame) / 4);
 
-    interruptFrame = (InterruptFrame*) esp;
+    interruptFrame = (InterruptFrame *) esp;
 
     esp -= (sizeof(Context) / 4);
 
-    context = (Context*) esp;
+    context = (Context *) esp;
 
     context->eip = (uint32_t) interrupt_return;
 
-    interruptFrame->cs    = 0x08;
-    interruptFrame->fs    = 0x10;
-    interruptFrame->gs    = 0x10;
-    interruptFrame->ds    = 0x10;
-    interruptFrame->es    = 0x10;
-    interruptFrame->ss    = 0x10;
+    interruptFrame->cs = 0x08;
+    interruptFrame->fs = 0x10;
+    interruptFrame->gs = 0x10;
+    interruptFrame->ds = 0x10;
+    interruptFrame->es = 0x10;
+    interruptFrame->ss = 0x10;
 
-    interruptFrame->ebx   = 0;
-    interruptFrame->esi   = 0;
-    interruptFrame->edi   = 0;
-    interruptFrame->esp   = (uint32_t) esp;
-    interruptFrame->ebp   = (uint32_t) stack.getStart();
-    interruptFrame->uesp  = 0;
+    interruptFrame->ebx = 0;
+    interruptFrame->esi = 0;
+    interruptFrame->edi = 0;
+    interruptFrame->esp = (uint32_t) esp;
+    interruptFrame->ebp = (uint32_t) stack.getStart();
+    interruptFrame->uesp = 0;
     interruptFrame->eflags = 0x200;
-    interruptFrame->eip   = (uint32_t) kickoff;
+    interruptFrame->eip = (uint32_t) kickoff;
 }
 
 Thread::Thread() : name(String::format("Thread-%u", threadCount + 1)), stack(STACK_SIZE_DEFAULT) {
@@ -88,7 +90,8 @@ Thread::Thread(const String &name, uint8_t priority) : name(name), stack(STACK_S
 
     Scheduler &scheduler = Scheduler::getInstance();
 
-    this->priority = static_cast<uint8_t>((priority > scheduler.getMaxPriority()) ? (scheduler.getMaxPriority()) : priority);
+    this->priority = static_cast<uint8_t>((priority > scheduler.getMaxPriority()) ? (scheduler.getMaxPriority())
+                                                                                  : priority);
 
     id = threadCount++;
 
@@ -124,7 +127,7 @@ void Thread::setPriority(uint8_t priority) {
 }
 
 void Thread::join() const {
-    while(!finished) {
+    while (!finished) {
         Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
 }
@@ -137,7 +140,7 @@ bool Thread::hasFinished() const {
     return finished;
 }
 
-Thread::Stack::Stack(uint32_t size) : size(size){
+Thread::Stack::Stack(uint32_t size) : size(size) {
 
     this->stack = new uint8_t[size];
 
@@ -149,17 +152,19 @@ Thread::Stack::Stack(uint32_t size) : size(size){
 
 uint8_t *Thread::Stack::getStart() {
 
-    uint32_t startAddress = (uint32_t) &stack[size];
+    auto startAddress = (uint32_t) &stack[size];
 
     if (startAddress % 16 != 0) {
 
         startAddress &= -16;
     }
 
-    return (uint8_t*) startAddress;
+    return (uint8_t *) startAddress;
 }
 
 Thread::Stack::~Stack() {
 
     delete[] stack;
+}
+
 }

@@ -21,6 +21,8 @@
 #include "lib/file/File.h"
 #include "Appender.h"
 
+namespace Kernel {
+
 class FileAppender : public Appender {
 
 public:
@@ -40,5 +42,6 @@ private:
     File *file = nullptr;
 };
 
+}
 
 #endif

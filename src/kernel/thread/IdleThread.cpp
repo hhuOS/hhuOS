@@ -1,6 +1,8 @@
 #include "IdleThread.h"
 
-IdleThread::IdleThread() : Thread ("IdleThread", 0) {
+namespace Kernel {
+
+IdleThread::IdleThread() : Thread("IdleThread", 0) {
 
 }
 
@@ -8,4 +10,6 @@ void IdleThread::run() {
     while (isRunning) {
         yield();
     }
+}
+
 }

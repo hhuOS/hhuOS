@@ -31,16 +31,16 @@
 #include "filesystem/ram/nodes/StdoutNode.h"
 #include "filesystem/ram/nodes/StderrNode.h"
 
-Logger &Filesystem::log = Logger::get("FILESYSTEM");
+Kernel::Logger &Filesystem::log = Kernel::Logger::get("FILESYSTEM");
 
 Filesystem::Filesystem() {
-    eventBus = Kernel::getService<EventBus>();
-    storageService = Kernel::getService<StorageService>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
 }
 
 Filesystem::~Filesystem() {
-    eventBus->unsubscribe(*this, StorageAddEvent::TYPE);
-    eventBus->unsubscribe(*this, StorageRemoveEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::StorageAddEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::StorageRemoveEvent::TYPE);
 }
 
 String Filesystem::parsePath(const String &path) {
@@ -102,7 +102,7 @@ void Filesystem::init() {
     FsDriver::registerPrototype(new RamFsDriver());
 
     // Mount root-device
-    Util::Array<String> rootDeviceOptions = Multiboot::Structure::getKernelOption("root").split(",");
+    Util::Array<String> rootDeviceOptions = Kernel::Multiboot::Structure::getKernelOption("root").split(",");
 
     if(rootDeviceOptions.length() >= 2) {
         if(mount(rootDeviceOptions[0], "/", rootDeviceOptions[1]) == SUCCESS) {
@@ -114,7 +114,7 @@ void Filesystem::init() {
     } else {
         if(rootDeviceOptions.length() > 0) {
             log.warn("Invalid root-device configuration '%s'. Mounting RamFs to /",
-                     (const char *) Multiboot::Structure::getKernelOption("root"));
+                     (const char *) Kernel::Multiboot::Structure::getKernelOption("root"));
         }
 
         mount("", "/", "RamFsDriver");
@@ -149,16 +149,16 @@ void Filesystem::init() {
     addVirtualNode("/dev", new StderrNode());
 
     // Subscribe to Storage-Events from the EventBus
-    eventBus->subscribe(*this, StorageAddEvent::TYPE);
-    eventBus->subscribe(*this, StorageRemoveEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::StorageAddEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::StorageRemoveEvent::TYPE);
 
-    FileAppender *fileAppender = new FileAppender(File::open("/dev/syslog", "a+"));
+    Kernel::FileAppender *fileAppender = new Kernel::FileAppender(File::open("/dev/syslog", "a+"));
 
-    Logger::addAppender(fileAppender);
+    Kernel::Logger::addAppender(fileAppender);
 }
 
 void Filesystem::mountInitRamdisk(const String &path) {
-    Multiboot::ModuleInfo info = Multiboot::Structure::getModule("initrd");
+    Kernel::Multiboot::ModuleInfo info = Kernel::Multiboot::Structure::getModule("initrd");
 
     if(info.start == 0) {
         return;
@@ -394,14 +394,14 @@ uint32_t Filesystem::deleteFile(const String &path) {
     return ret ? SUCCESS : DELETING_FILE_FAILED;
 }
 
-void Filesystem::onEvent(const Event &event) {
-    if(event.getType() == StorageAddEvent::TYPE) {
-        StorageDevice *device = ((StorageAddEvent &) event).getDevice();
+void Filesystem::onEvent(const Kernel::Event &event) {
+    if(event.getType() == Kernel::StorageAddEvent::TYPE) {
+        StorageDevice *device = ((Kernel::StorageAddEvent &) event).getDevice();
 
         deleteFile("/dev/storage/" + device->getName());
         addVirtualNode("/dev/storage/", new StorageNode(device));
-    } else if(event.getType() == StorageAddEvent::TYPE) {
-        String deviceName = ((StorageRemoveEvent &) event).getDeviceName();
+    } else if(event.getType() == Kernel::StorageAddEvent::TYPE) {
+        String deviceName = ((Kernel::StorageRemoveEvent &) event).getDeviceName();
 
         deleteFile("/dev/storage/" + deviceName);
     }

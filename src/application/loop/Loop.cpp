@@ -20,7 +20,7 @@
 #include "kernel/service/GraphicsService.h"
 #include "Loop.h"
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 Spinlock Loop::printLock;
 
@@ -29,8 +29,8 @@ Loop::Loop(uint32_t id, uint8_t priority) : Thread(String::format("Loop%u", id),
 }
 
 void Loop::run () {
-    auto *stream = (Kernel::getService<GraphicsService>())->getTextDriver();
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *stream = (Kernel::System::getService<Kernel::GraphicsService>())->getTextDriver();
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
 
     for (uint32_t i = 0; isRunning; i++) {
         printLock.acquire();

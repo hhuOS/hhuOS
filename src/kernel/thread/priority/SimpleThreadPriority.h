@@ -3,6 +3,8 @@
 
 #include "ThreadPriority.h"
 
+namespace Kernel {
+
 class SimpleThreadPriority : public ThreadPriority {
 
 public:
@@ -22,5 +24,7 @@ private:
     uint8_t currentPriority = 0;
 
 };
+
+}
 
 #endif

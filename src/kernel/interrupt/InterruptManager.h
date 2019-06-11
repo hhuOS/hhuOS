@@ -5,13 +5,15 @@
 #include "lib/async/Spinlock.h"
 #include "lib/util/ArrayList.h"
 
+namespace Kernel {
+
 class InterruptHandler;
 
 class InterruptManager : public Thread {
 
 private:
 
-    Util::ArrayList<InterruptHandler*> interruptHandler;
+    Util::ArrayList<InterruptHandler *> interruptHandler;
 
     Spinlock lock;
 
@@ -23,7 +25,7 @@ public:
 
     ~InterruptManager() override = default;
 
-    static InterruptManager& getInstance() noexcept;
+    static InterruptManager &getInstance() noexcept;
 
     void registerInterruptHandler(InterruptHandler *device);
 
@@ -35,5 +37,6 @@ public:
 
 };
 
+}
 
 #endif

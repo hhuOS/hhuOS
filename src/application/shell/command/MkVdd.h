@@ -35,7 +35,7 @@
 class MkVdd : public Command {
 
 private:
-    StorageService *storageService = nullptr;
+    Kernel::StorageService *storageService = nullptr;
 
 public:
     /**

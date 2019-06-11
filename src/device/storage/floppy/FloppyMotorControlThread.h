@@ -23,7 +23,7 @@
 /**
  * Runs in background and controls the state of a floppy drive's motor.
  */
-class FloppyMotorControlThread : public Thread {
+class FloppyMotorControlThread : public Kernel::Thread {
 
     friend class FloppyController;
 
@@ -35,7 +35,7 @@ private:
 
     bool isRunning;
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
 public:
 

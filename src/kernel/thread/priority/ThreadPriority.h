@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace Kernel {
+
 class ThreadPriority {
 
 public:
@@ -28,5 +30,7 @@ protected:
     uint8_t priorityCount;
 
 };
+
+}
 
 #endif

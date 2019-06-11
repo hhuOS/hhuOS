@@ -16,6 +16,8 @@
 
 #include "FileAppender.h"
 
+namespace Kernel {
+
 FileAppender::FileAppender(File *file) : file(file) {
 
 }
@@ -23,4 +25,6 @@ FileAppender::FileAppender(File *file) : file(file) {
 void FileAppender::append(const String &message) {
 
     *file << message << endl;
+}
+
 }

@@ -41,7 +41,7 @@ void Mount::execute(Util::Array<String> &args) {
     String absoluteDevicePath = calcAbsolutePath(devicePath);
     String absoluteTargetPath = calcAbsolutePath(targetPath);
 
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
     auto ret = fileSystem->mount(absoluteDevicePath, absoluteTargetPath, type);
 
     switch(ret) {

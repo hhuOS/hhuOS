@@ -23,18 +23,18 @@
 #include "kernel/multiboot/Constants.h"
 #include "lib/elf/ElfConstants.h"
 
-#define KERNEL_LOAD_SYMBOLS 0
+namespace Kernel {
 
 /**
  * @author Filip Krakowski
  */
-class KernelSymbols {
+class Symbols {
 
 public:
 
-    KernelSymbols() = delete;
+    Symbols() = delete;
 
-    KernelSymbols(const KernelSymbols &other) = delete;
+    Symbols(const Symbols &other) = delete;
 
     /**
      * Searches the memory address for a given symbol.
@@ -50,7 +50,7 @@ public:
      * @param eip The address
      * @return The symbols name
      */
-    static const char* get(uint32_t eip);
+    static const char *get(uint32_t eip);
 
     /**
      * Loads all kernel symbols and saves them inside a Map.
@@ -72,7 +72,7 @@ private:
 
     static Util::HashMap<String, Util::Address> symbolTable;
 
-    static Util::HashMap<Util::Address, char*> debugTable;
+    static Util::HashMap<Util::Address, char *> debugTable;
 
     static bool initialized;
 
@@ -82,5 +82,6 @@ private:
 
 };
 
+}
 
 #endif

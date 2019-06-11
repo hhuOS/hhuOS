@@ -21,6 +21,8 @@
 
 #define DEBUG_PD 0
 
+namespace Kernel {
+
 /** 
  * PageDirectory
  * 
@@ -32,7 +34,7 @@
  */
 class PageDirectory {
 
- private:
+private:
     // virtual address of page directory
     uint32_t *pageDirectory;
     // physical address of page directory
@@ -86,7 +88,7 @@ public:
      * @param virtAddress Virtual address
      * @return uint32_t Physical address where virtual address is mapped (4kb-aligned)
      */
-    void * getPhysicalAddress(void *virtAddress);
+    void *getPhysicalAddress(void *virtAddress);
 
     /**
      * Create a new Page Table in this Page Directory
@@ -134,8 +136,8 @@ public:
      *
      * @return Virtual address of page directory as pointer.
      */
-    uint32_t* getPageDirectoryVirtualAddress(){
-    	return pageDirectory;
+    uint32_t *getPageDirectoryVirtualAddress() {
+        return pageDirectory;
     }
 
     /**
@@ -143,8 +145,8 @@ public:
      *
      * @return Physical address of page directory as pointer.
      */
-    uint32_t* getPageDirectoryPhysicalAddress(){
-    	return physPageDirectoryAddress;
+    uint32_t *getPageDirectoryPhysicalAddress() {
+        return physPageDirectoryAddress;
     }
 
     /**
@@ -152,9 +154,11 @@ public:
      *
      * @return Pointer to virtual table addresses
      */
-    uint32_t* getVirtTableAddresses() {
-    	return virtTableAddresses;
+    uint32_t *getVirtTableAddresses() {
+        return virtTableAddresses;
     }
 };
 
- #endif
+}
+
+#endif

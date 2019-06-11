@@ -22,6 +22,8 @@
 #include "Logger.h"
 #include "PortAppender.h"
 
+namespace Kernel {
+
 Spinlock Logger::lock;
 
 bool Logger::logToStdOut = false;
@@ -30,7 +32,7 @@ Logger::LogLevel Logger::currentLevel = LogLevel::TRACE;
 
 TimeProvider &Logger::timeProvider = Pit::getInstance();
 
-Util::ArrayList<Appender*> Logger::appenders;
+Util::ArrayList<Appender *> Logger::appenders;
 
 Util::ArrayList<String> Logger::buffer;
 
@@ -43,7 +45,7 @@ void Logger::trace(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::vformat((char *) message, args));
+    logMessage(TRACE, name, String::format((char *) message, args));
 
     va_end(args);
 }
@@ -53,7 +55,7 @@ void Logger::debug(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(DEBUG, name, String::vformat((char *) message, args));
+    logMessage(DEBUG, name, String::format((char *) message, args));
 
     va_end(args);
 }
@@ -63,7 +65,7 @@ void Logger::info(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(INFO, name, String::vformat((char *) message, args));
+    logMessage(INFO, name, String::format((char *) message, args));
 
     va_end(args);
 }
@@ -73,7 +75,7 @@ void Logger::warn(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(WARN, name, String::vformat((char *) message, args));
+    logMessage(WARN, name, String::format((char *) message, args));
 
     va_end(args);
 }
@@ -83,7 +85,7 @@ void Logger::error(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(ERROR, name, String::vformat((char *) message, args));
+    logMessage(ERROR, name, String::format((char *) message, args));
 
     va_end(args);
 }
@@ -104,7 +106,8 @@ void Logger::logMessage(LogLevel level, const String &name, const String &messag
     uint32_t fraction = millis % 1000;
 
     String tmp = String::format("%s[%d.%03d]%s[%s]%s[%s] %s", Ansi::CYAN, seconds, fraction,
-            getColor(level), (char*) getLevelAsString(level), Ansi::RESET, (char*) name, (char*) message);
+                                getColor(level), (char *) getLevelAsString(level), Ansi::RESET, (char *) name,
+                                (char *) message);
 
 
     buffer.add(tmp);
@@ -223,4 +226,6 @@ const char *Logger::getColor(const Logger::LogLevel &level) {
         default:
             return Ansi::BRIGHT_WHITE;
     }
+}
+
 }

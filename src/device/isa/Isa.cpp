@@ -14,13 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/memory/MemLayout.h"
 #include "Isa.h"
 
 static Spinlock isaLock;
 
-IsaDmaMemoryManager Isa::dmaMemoryManager = IsaDmaMemoryManager();
+Kernel::IsaDmaMemoryManager Isa::dmaMemoryManager = Kernel::IsaDmaMemoryManager();
 
 IoPort Isa::startAddressRegisters[8] = {
         IoPort(0x00),
@@ -108,8 +108,8 @@ IoPort Isa::multiChannelMaskRegisters[2] = {
 void *Isa::allocDmaBuffer() {
     isaLock.acquire();
 
-    void *physAddress = dmaMemoryManager.alloc(IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
-    void *ret = SystemManagement::getInstance().mapIO((uint32_t) physAddress, IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void *physAddress = dmaMemoryManager.alloc(Kernel::IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
+    void *ret = Kernel::Management::getInstance().mapIO((uint32_t) physAddress, Kernel::IsaDmaMemoryManager::ISA_DMA_BUF_SIZE);
 
     isaLock.release();
 
@@ -119,8 +119,8 @@ void *Isa::allocDmaBuffer() {
 void Isa::freeDmaBuffer(void *ptr) {
     isaLock.acquire();
 
-    dmaMemoryManager.free(SystemManagement::getInstance().getPhysicalAddress(ptr));
-    SystemManagement::getInstance().freeIO(ptr);
+    dmaMemoryManager.free(Kernel::Management::getInstance().getPhysicalAddress(ptr));
+    Kernel::Management::getInstance().freeIO(ptr);
 
     isaLock.release();
 }

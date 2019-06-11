@@ -17,6 +17,8 @@
 #ifndef __KernelService_include__
 #define __KernelService_include__
 
+namespace Kernel {
+
 /**
  * KernelService - Base class for all Kernel services.
  *
@@ -30,5 +32,7 @@ public:
     KernelService() = default;
 
 };
+
+}
 
 #endif

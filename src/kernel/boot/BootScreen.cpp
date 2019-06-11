@@ -20,22 +20,25 @@
 #include "lib/file/bmp/Bmp.h"
 #include "kernel/service/GraphicsService.h"
 #include "kernel/service/TimeService.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/thread/Scheduler.h"
 #include "lib/libc/snprintf.h"
 #include "BootScreen.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
-auto versionString = String::format("hhuOS %s - git %s (%s)", BuildConfig::getVersion(), BuildConfig::getGitRevision(), BuildConfig::getGitBranch());
+namespace Kernel {
+
+auto versionString = String::format("hhuOS %s - git %s (%s)", BuildConfig::getVersion(), BuildConfig::getGitRevision(),
+                                    BuildConfig::getGitBranch());
 auto buildDate = String::format("Build date: %s", BuildConfig::getBuildDate());
 
 BootScreen::BootScreen(BootCoordinator &coordinator) : coordinator(coordinator), components(0), componentNames(0) {
 
-    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    lfb = System::getService<GraphicsService>()->getLinearFrameBuffer();
 
-    kernelHeapManager = SystemManagement::getKernelHeapManager();
-    pageFrameAllocator = SystemManagement::getInstance().getPageFrameAllocator();
-    ioMemoryManager = SystemManagement::getInstance().getIOMemoryManager();
+    kernelHeapManager = Management::getKernelHeapManager();
+    pageFrameAllocator = Management::getInstance().getPageFrameAllocator();
+    ioMemoryManager = Management::getInstance().getIOMemoryManager();
 
     kernelMemory = kernelHeapManager->getEndAddress() - kernelHeapManager->getStartAddress();
     physicalMemory = pageFrameAllocator->getEndAddress() - pageFrameAllocator->getStartAddress();
@@ -46,17 +49,17 @@ void BootScreen::drawScreen() {
 
     lfb->fillRect(0, 0, lfb->getResX(), lfb->getResY(), Colors::HHU_DARK_BLUE);
 
-    lfb->placeString(*font, 50, 10, static_cast<const char*>(versionString), Colors::HHU_GRAY, Colors::INVISIBLE);
-    lfb->placeString(*font, 50, 15, static_cast<const char*>(buildDate), Colors::HHU_GRAY, Colors::INVISIBLE);
+    lfb->placeString(*font, 50, 10, static_cast<const char *>(versionString), Colors::HHU_GRAY, Colors::INVISIBLE);
+    lfb->placeString(*font, 50, 15, static_cast<const char *>(buildDate), Colors::HHU_GRAY, Colors::INVISIBLE);
 
-    if(logo != nullptr) {
+    if (logo != nullptr) {
         logo->draw(static_cast<uint16_t>((lfb->getResX() - logo->getWidth()) / 2),
                    static_cast<uint16_t>((lfb->getResY() - logo->getHeight()) / 2));
     }
 
     uint32_t componentBasePosY = lfb->getResY() - components.length() * font->get_char_height();
 
-    for(uint32_t i = 0; i < components.length(); i++) {
+    for (uint32_t i = 0; i < components.length(); i++) {
         drawComponentStatus(i, static_cast<uint16_t>(componentBasePosY + i * font->get_char_height()));
     }
 
@@ -74,10 +77,10 @@ void BootScreen::drawComponentStatus(uint32_t index, uint16_t posY) {
     const char *state = "";
     Color stateColor;
 
-    if(component.isWaiting()) {
+    if (component.isWaiting()) {
         state = "Waiting";
         stateColor = Colors::HHU_YELLOW;
-    } else if(component.hasFinished()) {
+    } else if (component.hasFinished()) {
         state = "Finished";
         stateColor = Colors::HHU_GREEN;
     } else {
@@ -85,17 +88,17 @@ void BootScreen::drawComponentStatus(uint32_t index, uint16_t posY) {
         stateColor = Colors::HHU_TURQUOISE;
     }
 
-    const char *name = static_cast<const char*>(componentNames[index]);
+    const char *name = static_cast<const char *>(componentNames[index]);
     const uint32_t nameLength = componentNames[index].length();
     const uint32_t stateLength = strlen(state);
 
     lfb->drawString(*font, 0, posY, name, Colors::HHU_GRAY, Colors::INVISIBLE);
     lfb->drawString(*font, static_cast<uint16_t>(nameLength * font->get_char_width()), posY, "[",
-            Colors::HHU_GRAY, Colors::INVISIBLE);
+                    Colors::HHU_GRAY, Colors::INVISIBLE);
     lfb->drawString(*font, static_cast<uint16_t>((nameLength + 1) * font->get_char_width()), posY, state,
-            stateColor, Colors::INVISIBLE);
+                    stateColor, Colors::INVISIBLE);
     lfb->drawString(*font, static_cast<uint16_t>((nameLength + stateLength + 1) * font->get_char_width()), posY,
-            "]", Colors::HHU_GRAY, Colors::INVISIBLE);
+                    "]", Colors::HHU_GRAY, Colors::INVISIBLE);
 }
 
 void BootScreen::drawHeapStatus(uint16_t basePosY) {
@@ -107,16 +110,17 @@ void BootScreen::drawHeapStatus(uint16_t basePosY) {
     uint32_t usedIoMemory = ioMemory - ioMemoryManager->getFreeMemory();
 
     snprintf(heapStatusBuffers[0], BUFFER_SIZE, "Kernel: %d/%d KiB", usedKernelMemory / 1024, kernelMemory / 1024);
-    snprintf(heapStatusBuffers[1], BUFFER_SIZE, "Physical: %d/%d KiB", usedPhysicalMemory / 1024, physicalMemory / 1024);
+    snprintf(heapStatusBuffers[1], BUFFER_SIZE, "Physical: %d/%d KiB", usedPhysicalMemory / 1024,
+             physicalMemory / 1024);
     snprintf(heapStatusBuffers[2], BUFFER_SIZE, "IO: %d/%d KiB", usedIoMemory / 1024, ioMemory / 1024);
 
     snprintf(activeThreadsBuffer, BUFFER_SIZE, "Active Threads: %d", Scheduler::getInstance().getThreadCount());
 
     lfb->drawString(*font, posX, basePosY, "Heap Status:", Colors::HHU_GRAY, Colors::INVISIBLE);
 
-    for(uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < 3; i++) {
         lfb->drawString(*font, posX, static_cast<uint16_t>(basePosY + font->get_char_height() * (i + 1)),
-                heapStatusBuffers[i], Colors::HHU_GRAY, Colors::INVISIBLE);
+                        heapStatusBuffers[i], Colors::HHU_GRAY, Colors::INVISIBLE);
     }
 
     lfb->drawString(*font, posX, static_cast<uint16_t>(basePosY + font->get_char_height() * 5),
@@ -128,7 +132,7 @@ void BootScreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
     lfb->init(xres, yres, bpp);
 
     // Don't use High-Res mode on CGA, as it looks bad.
-    if(lfb->getDepth() == 1) {
+    if (lfb->getDepth() == 1) {
         lfb->init(320, 200, 2);
     }
 
@@ -140,7 +144,7 @@ void BootScreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
         double scaling = (static_cast<double>(lfb->getResY()) / 600);
 
         if (scaling >= 1) {
-            if(scaling - static_cast<uint8_t>(scaling) >= 0.8) {
+            if (scaling - static_cast<uint8_t>(scaling) >= 0.8) {
                 scaling++;
             }
 
@@ -148,7 +152,7 @@ void BootScreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
         } else {
             scaling = 1 / scaling;
 
-            if(scaling - static_cast<uint8_t>(scaling) >= 0.2) {
+            if (scaling - static_cast<uint8_t>(scaling) >= 0.2) {
                 scaling++;
             }
 
@@ -159,14 +163,14 @@ void BootScreen::init(uint16_t xres, uint16_t yres, uint8_t bpp) {
     components = coordinator.getComponents();
     componentNames = Util::Array<String>(components.length());
 
-    for(uint32_t i = 0; i < components.length(); i++) {
+    for (uint32_t i = 0; i < components.length(); i++) {
         componentNames[i] = components[i]->getName();
     }
 
     activeThreadsBuffer = new char[BUFFER_SIZE];
-    memset(activeThreadsBuffer, 0,  BUFFER_SIZE);
+    memset(activeThreadsBuffer, 0, BUFFER_SIZE);
 
-    for(auto &heapStatusBuffer : heapStatusBuffers) {
+    for (auto &heapStatusBuffer : heapStatusBuffers) {
         heapStatusBuffer = new char[BUFFER_SIZE];
         memset(heapStatusBuffer, 0, BUFFER_SIZE);
     }
@@ -188,18 +192,20 @@ void BootScreen::finish() {
 
     delete activeThreadsBuffer;
 
-    for(auto &heapStatusBuffer : heapStatusBuffers) {
+    for (auto &heapStatusBuffer : heapStatusBuffers) {
         delete heapStatusBuffer;
     }
 }
 
 void BootScreen::run() {
 
-    auto *timeService = Kernel::getService<TimeService>();
+    auto *timeService = System::getService<TimeService>();
 
     while (isRunning) {
         drawScreen();
 
         timeService->msleep(250);
     }
+}
+
 }

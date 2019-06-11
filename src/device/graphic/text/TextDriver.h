@@ -30,7 +30,7 @@
  *
  * Implementations must not show a cursor. The OS will automatically print a cursor at the current position.
  */
-class TextDriver : public OutputStream, public KernelService {
+class TextDriver : public OutputStream, public Kernel::KernelService {
 
 protected:
     uint16_t columns = 0;

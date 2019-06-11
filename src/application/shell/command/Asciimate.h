@@ -30,7 +30,7 @@
  * @author Fabian Ruhland
  * @date 2018
  */
-class Asciimate : public Command, Receiver {
+class Asciimate : public Command, Kernel::Receiver {
 
 private:
 
@@ -40,7 +40,7 @@ private:
 
     char *asciimationBuffer = nullptr;
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
     LinearFrameBuffer *lfb = nullptr;
 
@@ -119,7 +119,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 };
 
 #endif

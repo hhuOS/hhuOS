@@ -17,6 +17,8 @@
 #include "lib/memory/MemoryUtil.h"
 #include "StaticHeapMemoryManager.h"
 
+namespace Kernel {
+
 StaticHeapMemoryManager::StaticHeapMemoryManager() : MemoryManager() {
 
 }
@@ -40,7 +42,7 @@ void *StaticHeapMemoryManager::alloc(uint32_t size) {
 }
 
 void *StaticHeapMemoryManager::alloc(uint32_t size, uint32_t alignment) {
-    if(freeMemory < size) {
+    if (freeMemory < size) {
         return nullptr;
     }
 
@@ -65,7 +67,7 @@ void *StaticHeapMemoryManager::realloc(void *ptr, uint32_t size) {
 void *StaticHeapMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
     void *ret = alloc(size, alignment);
 
-    if(ret == nullptr) {
+    if (ret == nullptr) {
         return ret;
     }
 
@@ -84,4 +86,6 @@ void StaticHeapMemoryManager::free(void *ptr, uint32_t alignment) {
 
 void StaticHeapMemoryManager::dump() {
     printf("  StaticHeapMemoryManager: Current position = %08x\n", currentPosition);
+}
+
 }

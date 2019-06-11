@@ -21,7 +21,7 @@ Command::Command(Shell &shell) :
         shell(shell),
         stdout(*File::open("/dev/stdout", "w")),
         stderr(*File::open("/dev/stderr", "w")),
-        stdin(*(Kernel::getService<KernelStreamService>()->getStdin())) {
+        stdin(*(Kernel::System::getService<Kernel::KernelStreamService>()->getStdin())) {
 
 }
 

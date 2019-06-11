@@ -34,7 +34,7 @@ File *File::open(const String &path, const String &mode) {
         return nullptr;
     }
 
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
 
     Util::SmartPointer<FsNode> node = fileSystem->getNode(path);
 

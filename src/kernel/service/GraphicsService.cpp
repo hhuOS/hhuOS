@@ -14,25 +14,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "GraphicsService.h"
 #include "EventBus.h"
+
+namespace Kernel {
 
 Logger &GraphicsService::log = Logger::get("GRAPHICS");
 
 void GraphicsService::registerLinearFrameBuffer(LinearFrameBuffer *lfb) {
-    if(lfb != nullptr) {
+    if (lfb != nullptr) {
         lfbMap.put(lfb->getName().toLowerCase(), lfb);
 
-        log.info("Registered '%s' as LinearFrameBuffer", (const char*) lfb->getName());
+        log.info("Registered '%s' as LinearFrameBuffer", (const char *) lfb->getName());
     }
 }
 
 void GraphicsService::registerTextDriver(TextDriver *text) {
-    if(text != nullptr) {
+    if (text != nullptr) {
         textMap.put(text->getName().toLowerCase(), text);
 
-        log.info("Registered '%s' as TextDriver", (const char*) text->getName());
+        log.info("Registered '%s' as TextDriver", (const char *) text->getName());
     }
 }
 
@@ -48,14 +50,14 @@ bool GraphicsService::setLinearFrameBuffer(const String &name) {
     String driverName = name;
     driverName = driverName.toLowerCase();
 
-    if(!lfbMap.containsKey(driverName)) {
-        log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char*) name);
+    if (!lfbMap.containsKey(driverName)) {
+        log.warn("No implementation of LinearFrameBuffer registered under the name '%s'", (const char *) name);
 
         return false;
     } else {
         currentLfb = lfbMap.get(driverName);
 
-        log.info("LinearFrameBuffer set to '%s'", (const char*) currentLfb->getName());
+        log.info("LinearFrameBuffer set to '%s'", (const char *) currentLfb->getName());
 
         return true;
     }
@@ -65,14 +67,14 @@ bool GraphicsService::setTextDriver(const String &name) {
     String driverName = name;
     driverName = driverName.toLowerCase();
 
-    if(!textMap.containsKey(driverName)) {
-        log.warn("No implementation of TextDriver registered under the name '%s'", (const char*) name);
+    if (!textMap.containsKey(driverName)) {
+        log.warn("No implementation of TextDriver registered under the name '%s'", (const char *) name);
 
         return false;
     } else {
         currentTextDriver = textMap.get(driverName);
 
-        log.info("TextDriver set to '%s'", (const char*) currentTextDriver->getName());
+        log.info("TextDriver set to '%s'", (const char *) currentTextDriver->getName());
 
         return true;
     }
@@ -84,4 +86,6 @@ LinearFrameBuffer *GraphicsService::getLinearFrameBuffer() {
 
 TextDriver *GraphicsService::getTextDriver() {
     return currentTextDriver;
+}
+
 }

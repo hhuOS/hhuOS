@@ -40,7 +40,7 @@ void Date::execute(Util::Array<String> &args) {
         return;
     }
 
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 
     Rtc::Date date = timeService->getCurrentDate();
 

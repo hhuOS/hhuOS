@@ -15,7 +15,7 @@
  */
 
 #include "device/misc/Bios.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "LfbText.h"
 
 LfbText::LfbText(void *address, uint16_t xres, uint16_t yres, uint8_t bpp, uint16_t pitch) :

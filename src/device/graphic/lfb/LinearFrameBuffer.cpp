@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "LinearFrameBuffer.h"
 
 static uint32_t diff(uint32_t a, uint32_t b) {

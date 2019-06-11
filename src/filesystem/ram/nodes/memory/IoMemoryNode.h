@@ -19,7 +19,7 @@
 
 
 #include "filesystem/core/FsNode.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "MemoryNode.h"
 
 class IoMemoryNode : public MemoryNode {

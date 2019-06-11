@@ -3,6 +3,8 @@
 
 #include "lib/async/AtomicBitmap.h"
 
+namespace Kernel {
+
 class AtomicBitmapMemoryManager {
 
 private:
@@ -25,9 +27,11 @@ public:
 
     ~AtomicBitmapMemoryManager() = default;
 
-    void* allocateBlock();
+    void *allocateBlock();
 
     void freeBlock(void *ptr);
 };
+
+}
 
 #endif

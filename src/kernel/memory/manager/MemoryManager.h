@@ -28,6 +28,8 @@ extern "C" {
 #include "lib/libc/string.h"
 };
 
+namespace Kernel {
+
 /**
  * Interface for every memory manager.
  *
@@ -148,10 +150,12 @@ public:
      */
     uint32_t getEndAddress();
 
-   /**
-    * Get the amount of free memory.
-    */
+    /**
+     * Get the amount of free memory.
+     */
     uint32_t getFreeMemory();
 };
+
+}
 
 #endif

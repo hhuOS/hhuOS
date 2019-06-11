@@ -21,6 +21,8 @@
 #include "device/input/Key.h"
 #include "kernel/event/Event.h"
 
+namespace Kernel {
+
 class KeyEvent : public Event {
 
 public:
@@ -55,5 +57,6 @@ private:
     Key key;
 };
 
+}
 
 #endif

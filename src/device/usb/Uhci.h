@@ -6,7 +6,7 @@
 #include "kernel/service/TimeService.h"
 #include <cstdint>
 
-class Uhci : public PciDeviceDriver, InterruptHandler {
+class Uhci : public PciDeviceDriver, Kernel::InterruptHandler {
 
 private:
 
@@ -144,9 +144,9 @@ private:
 
 private:
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
     IoPort *usbCommandPort = nullptr;
     IoPort *usbStatusPort = nullptr;
@@ -177,7 +177,7 @@ public:
 
     void resetPort(uint8_t portNum);
 
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     uint8_t getBaseClass() const override {
         return Pci::CLASS_SERIAL_BUS_DEVICE;

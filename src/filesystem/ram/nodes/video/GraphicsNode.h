@@ -44,7 +44,7 @@ protected:
 
     GraphicsMode mode;
 
-    GraphicsService *graphicsService = nullptr;
+    Kernel::GraphicsService *graphicsService = nullptr;
 
 public:
 

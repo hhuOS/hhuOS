@@ -64,13 +64,13 @@ private:
 
     static bool loadModule(const String &path);
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
     static AnsiOutputStream *outputStream;
 
-    static BootScreen *bootscreen;
+    static Kernel::BootScreen *bootscreen;
 
-    static IdleThread *idleThread;
+    static Kernel::IdleThread *idleThread;
 
     static uint16_t xres;
 
@@ -78,23 +78,23 @@ private:
 
     static uint8_t bpp;
 
-    static BootComponent initBiosComponent;
+    static Kernel::BootComponent initBiosComponent;
 
-    static BootComponent initServicesComponent;
+    static Kernel::BootComponent initServicesComponent;
 
-    static BootComponent initFilesystemComponent;
+    static Kernel::BootComponent initFilesystemComponent;
 
-    static BootComponent initGraphicsComponent;
+    static Kernel::BootComponent initGraphicsComponent;
 
-    static BootComponent initPortsComponent;
+    static Kernel::BootComponent initPortsComponent;
 
-    static BootComponent initMemoryManagersComponent;
+    static Kernel::BootComponent initMemoryManagersComponent;
 
-    static BootComponent scanPciBusComponent;
+    static Kernel::BootComponent scanPciBusComponent;
 
-    static BootComponent parsePciDatabaseComponent;
+    static Kernel::BootComponent parsePciDatabaseComponent;
 
-    static BootCoordinator coordinator;
+    static Kernel::BootCoordinator coordinator;
 };
 
 

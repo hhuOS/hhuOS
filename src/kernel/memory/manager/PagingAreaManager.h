@@ -20,6 +20,8 @@
 #include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
+namespace Kernel {
+
 /* Memory manager, that ist based on the BitmapMemoryManager and is used to manage the part of virtual memory,
  * that is reserved for page tables and directories.
  *
@@ -36,9 +38,9 @@ public:
 
     PROTOTYPE_IMPLEMENT_CLONE(PagingAreaManager);
 
-	/**
-	 * Constructor.
-	 */
+    /**
+     * Constructor.
+     */
     PagingAreaManager();
 
     /**
@@ -52,5 +54,7 @@ public:
     String getTypeName() override;
 
 };
+
+}
 
 #endif

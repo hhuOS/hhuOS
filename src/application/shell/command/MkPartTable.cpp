@@ -21,8 +21,8 @@
 #include "MkPartTable.h"
 
 MkPartTable::MkPartTable(Shell &shell) : Command(shell) {
-    storageService = Kernel::getService<StorageService>();
-    fileSystem = Kernel::getService<Filesystem>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 };
 
 void MkPartTable::execute(Util::Array<String> &args) {

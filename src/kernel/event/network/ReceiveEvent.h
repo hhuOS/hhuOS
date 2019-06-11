@@ -25,6 +25,8 @@
 #include <cstdint>
 #include "kernel/event/Event.h"
 
+namespace Kernel {
+
 /**
  * This class implements the abstract class
  * Event.
@@ -40,8 +42,11 @@ class ReceiveEvent : public Event {
 
 public:
     ReceiveEvent() = default;
+
     explicit ReceiveEvent(void *packet, uint16_t length);
+
     ReceiveEvent(const ReceiveEvent &other);
+
     ~ReceiveEvent();
 
     String getType() const override;
@@ -70,5 +75,6 @@ private:
     uint16_t length = 0;
 };
 
+}
 
-#endif //HHUOS_RECEIVEEVENT_H
+#endif

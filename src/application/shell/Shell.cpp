@@ -56,9 +56,9 @@ extern "C" {
 }
 
 Shell::Shell() : Thread("Shell") {
-    kernelStreamService = Kernel::getService<KernelStreamService>();
-    graphicsService = Kernel::getService<GraphicsService>();
-    eventBus = Kernel::getService<EventBus>();
+    kernelStreamService = Kernel::System::getService<Kernel::KernelStreamService>();
+    graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 
     kernelStreamService->setStdout(this);
     kernelStreamService->setStderr(this);
@@ -247,17 +247,17 @@ void Shell::executeCommand(String input) {
     }
 }
 
-void Shell::onEvent(const Event &event) {
+void Shell::onEvent(const Kernel::Event &event) {
     char c;
 
-    if(event.getType() == KeyEvent::TYPE) {
-        Key key = ((KeyEvent&) event).getKey();
+    if(event.getType() == Kernel::KeyEvent::TYPE) {
+        Key key = ((Kernel::KeyEvent&) event).getKey();
 
         switch (key.scancode()) {
-            case KeyEvent::UP:
+            case Kernel::KeyEvent::UP:
                 showHistory(UP);
                 return;
-            case KeyEvent::DOWN:
+            case Kernel::KeyEvent::DOWN:
                 showHistory(DOWN);
                 return;
             default:
@@ -336,7 +336,7 @@ InputStream &Shell::operator>>(char &c) {
 }
 
 InputStream &Shell::operator>>(char *&string) {
-    eventBus->subscribe(*this, KeyEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::KeyEvent::TYPE);
     eventBus->subscribe(*this, "Com1Event");
 
     while(true) {
@@ -350,7 +350,7 @@ InputStream &Shell::operator>>(char *&string) {
 
             inputLock.release();
 
-            eventBus->unsubscribe(*this, KeyEvent::TYPE);
+            eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
             eventBus->unsubscribe(*this, "Com1Event");
             return *this;
         }

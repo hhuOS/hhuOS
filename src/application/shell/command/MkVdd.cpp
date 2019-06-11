@@ -22,7 +22,7 @@
 #include "MkVdd.h"
 
 MkVdd::MkVdd(Shell &shell) : Command(shell) {
-    storageService = Kernel::getService<StorageService>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
 };
 
 void MkVdd::execute(Util::Array<String> &args) {

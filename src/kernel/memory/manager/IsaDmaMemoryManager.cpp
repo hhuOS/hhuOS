@@ -17,6 +17,8 @@
 #include "kernel/memory/MemLayout.h"
 #include "IsaDmaMemoryManager.h"
 
+namespace Kernel {
+
 IsaDmaMemoryManager::IsaDmaMemoryManager() : BitmapMemoryManager(ISA_DMA_BUF_SIZE, true) {
     BitmapMemoryManager::init(ISA_DMA_START_ADDRESS, ISA_DMA_END_ADDRESS, false);
 }
@@ -27,4 +29,6 @@ void IsaDmaMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAd
 
 String IsaDmaMemoryManager::getTypeName() {
     return TYPE_NAME;
+}
+
 }

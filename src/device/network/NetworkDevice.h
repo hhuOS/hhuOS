@@ -26,7 +26,7 @@
  * @author Fabian Ruhland
  * @date 2019
  */
-class NetworkDevice : public InterruptHandler {
+class NetworkDevice : public Kernel::InterruptHandler {
 
 public:
 

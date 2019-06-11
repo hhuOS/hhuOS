@@ -22,11 +22,11 @@
 
 #include "device/network/e1000/receive/descriptor/field/RsBufferedSimple.h"
 #include "device/network/e1000/receive/descriptor/ReceiveDescriptorSimple.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/network/e1000/transmit/descriptor/legacy/field/LegacyCommandSimple.h"
 #include "device/network/e1000/general/BmSimple.h"
 #include "device/network/e1000/transmit/descriptor/legacy/field/TransmitStatusSimple.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/network/e1000/general/RgSimple.h"
 #include "device/network/e1000/McBuffered.h"
@@ -52,7 +52,7 @@ void Intel82541IP::setup(const Pci::Device &dev) {
     E1000::initialize(dev, log, this);
 }
 
-void Intel82541IP::trigger(InterruptFrame &frame) {
+void Intel82541IP::trigger(Kernel::InterruptFrame &frame) {
     interruptCause->readAndClear();
 
     if(interruptCause->hasLinkStatusChanged()) {
@@ -79,7 +79,7 @@ void Intel82541IP::trigger(InterruptFrame &frame) {
 }
 
 void Intel82541IP::plugin() {
-    InterruptDispatcher::getInstance().assign(InterruptDispatcher::FREE3, *this);
+    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::FREE3, *this);
     Pic::getInstance().allow(Pic::Interrupt::FREE3);
 }
 
@@ -154,7 +154,7 @@ void Intel82541IP::loadMac() {
 void Intel82541IP::createNodes() {
     static uint32_t cardCounter = 0;
 
-    auto *fs = Kernel::getService<Filesystem>();
+    auto *fs = Kernel::System::getService<Filesystem>();
     String path = String::format("/dev/network/intel82541IP_%u", cardCounter);
     fs->createDirectory(path);
 
@@ -189,8 +189,8 @@ Descriptors<ReceiveDescriptor *> * Intel82541IP::createReceiveDescriptorBlock(ui
         auto status     = new RsBufferedSimple(address + 12);
         auto errors     = new BufferedReceiveErrors82541IP(address + 13);
 
-        auto virtualPacketBuffer    = (uint8_t *) SystemManagement::getInstance().mapIO(rxBufferSize::ext_small);
-        auto physicalPacketBuffer   = SystemManagement::getInstance().getPhysicalAddress(virtualPacketBuffer);
+        auto virtualPacketBuffer    = (uint8_t *) Kernel::Management::getInstance().mapIO(rxBufferSize::ext_small);
+        auto physicalPacketBuffer   = Kernel::Management::getInstance().getPhysicalAddress(virtualPacketBuffer);
 
         ReceiveDescriptor *descriptor = new ReceiveDescriptorSimple(address, virtualPacketBuffer, errors, status);
         descriptor->writeAddress((uint64_t) physicalPacketBuffer);

@@ -18,7 +18,7 @@
 #define HHUOS_SERIALNODE_H
 
 #include "kernel/service/PortService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "filesystem/ram/VirtualNode.h"
 #include "Common.h"
 

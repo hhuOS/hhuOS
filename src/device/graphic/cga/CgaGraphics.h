@@ -19,7 +19,7 @@
 
 #include <cstdint>
 #include "device/graphic/lfb/LinearFrameBuffer.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/memory/MemLayout.h"
 
 /**

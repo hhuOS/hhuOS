@@ -22,7 +22,7 @@
 #include "lib/math/Random.h"
 #include "lib/libc/printf.h"
 #include "application/Application.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 class MemoryManagerTest {
 
@@ -30,7 +30,7 @@ private:
 
     Random random;
 
-    MemoryManager &manager;
+    Kernel::MemoryManager &manager;
 
     String managerName;
 
@@ -55,7 +55,7 @@ public:
     MemoryManagerTest(const String &managerType, uint32_t memorySize, uint32_t numAllocs,
                       uint32_t maxAllocSize = 8192, const String &name = "");
 
-    MemoryManagerTest(MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
+    MemoryManagerTest(Kernel::MemoryManager &manager, uint32_t memorySize, uint32_t numAllocs,
                       uint32_t maxAllocSize = 8192, const String &name = "");
 
     MemoryManagerTest(const MemoryManagerTest &copy) = delete;

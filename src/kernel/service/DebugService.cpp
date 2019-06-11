@@ -14,24 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/misc/Pic.h"
 #include "DebugService.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "lib/libc/printf.h"
 #include "SoundService.h"
 #include "InputService.h"
 #include "GraphicsService.h"
 
+namespace Kernel {
 
 DebugService::DebugService() : pic(Pic::getInstance()) {
-	timeService = Kernel::getService<TimeService>();
-    keyboard = Kernel::getService<InputService>()->getKeyboard();
-    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    timeService = System::getService<TimeService>();
+    keyboard = System::getService<InputService>()->getKeyboard();
+    lfb = System::getService<GraphicsService>()->getLinearFrameBuffer();
 }
 
 void DebugService::dumpMemory(uint32_t address, size_t lines) {
-    volatile uint8_t *tmp = (volatile uint8_t*) address;
+    volatile uint8_t *tmp = (volatile uint8_t *) address;
 
     printf("|--------------------------------------------------------------------------------|\n");
     printf("|                                   MEMDUMP                                      |\n");
@@ -73,9 +74,9 @@ char DebugService::sanitize(char c) {
 
 void DebugService::dumpMemoryList() {
 
-    SystemManagement::getKernelHeapManager()->dump();
+    Management::getKernelHeapManager()->dump();
 
-    while(!keyboard->isKeyPressed(28));
+    while (!keyboard->isKeyPressed(28));
 
     timeService->msleep(500);
 
@@ -93,4 +94,6 @@ void DebugService::printPic() {
             lfb->placeFilledRect(10 + 5 * i, 85, 2, 5, Colors::GREEN);
         }
     }
+}
+
 }

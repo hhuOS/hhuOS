@@ -15,7 +15,7 @@
  */
 
 #include "device/isa/Isa.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/misc/Pic.h"
 #include "SoundBlasterPro.h"
@@ -44,7 +44,7 @@ void SoundBlasterPro::setBufferSize(uint32_t bufferSize) {
 void SoundBlasterPro::prepareDma(uint16_t addressOffset, uint32_t bufferSize, bool autoInitialize) {
     Isa::selectChannel(dmaChannel);
     Isa::setMode(dmaChannel, Isa::TRANSFER_MODE_READ, autoInitialize, false, Isa::DMA_MODE_SINGLE_TRANSFER);
-    Isa::setAddress(dmaChannel, (uint32_t) SystemManagement::getInstance().getPhysicalAddress(dmaMemory) + addressOffset);
+    Isa::setAddress(dmaChannel, (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(dmaMemory) + addressOffset);
     Isa::setCount(dmaChannel, static_cast<uint16_t>(bufferSize - 1));
     Isa::deselectChannel(dmaChannel);
 }
@@ -188,10 +188,10 @@ void SoundBlasterPro::plugin() {
     // They must be configured via jumpers and there is no real way to get the IRQ- and DMA-numbers in software.
     // We just assume the DSP to use IRQ 10 and DMA channel 1, if not specified else in the constructor.
 
-    InterruptDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
+    Kernel::InterruptDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
     Pic::getInstance().allow(static_cast<Pic::Interrupt>(irqNumber));
 }
 
-void SoundBlasterPro::trigger(InterruptFrame &frame) {
+void SoundBlasterPro::trigger(Kernel::InterruptFrame &frame) {
     receivedInterrupt = true;
 }

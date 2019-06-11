@@ -21,12 +21,12 @@
 #include "lib/string/String.h"
 #include "lib/bit/Bitmap.h"
 
+namespace Kernel {
+
 /**
  * Memory manager, that manages a given area of memory in blocks of given size using a bitmap mechanism.
  *
  * This memory manager does not allow allocation with an alignment.
- *
- * TODO: Implement realloc.
  *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
@@ -43,9 +43,9 @@ public:
 
 protected:
 
-	/**
-	 * The type of this memory manager.
-	 */
+    /**
+     * The type of this memory manager.
+     */
     ManagerType managerType = MISC;
 
     /**
@@ -113,5 +113,6 @@ public:
     void dump() override;
 };
 
+}
 
 #endif

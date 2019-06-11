@@ -19,6 +19,8 @@
 
 #include "kernel/memory/manager/MemoryManager.h"
 
+namespace Kernel {
+
 /**
  * Memory manager, that only uses a pointer to manage a memory area. Every allocation just returns the current position
  * of this pointer and lets it advance by the requested amount of bytes. This means, that allocated memory cannot be
@@ -66,12 +68,12 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void* alloc(uint32_t size) override;
+    void *alloc(uint32_t size) override;
 
     /**
      * Overriding function from MemoryManager.
      */
-    void* alloc(uint32_t size, uint32_t alignment) override;
+    void *alloc(uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -86,12 +88,12 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void free(void* ptr) override;
+    void free(void *ptr) override;
 
     /**
      * Overriding function from MemoryManager.
      */
-    void free(void* ptr, uint32_t alignment) override;
+    void free(void *ptr, uint32_t alignment) override;
 
     /**
      * Dump the current position.
@@ -99,5 +101,7 @@ public:
     void dump() override;
 
 };
+
+}
 
 #endif

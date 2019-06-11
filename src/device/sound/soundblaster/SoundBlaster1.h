@@ -35,7 +35,7 @@
  * Supported audio formats:
  *      -Mono PCM, 4000-23000 Hz, 8-bit samples
  */
-class SoundBlaster1 : public SoundBlaster, public InterruptHandler {
+class SoundBlaster1 : public SoundBlaster, public Kernel::InterruptHandler {
 
 private:
 
@@ -108,7 +108,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif

@@ -29,20 +29,20 @@ MouseApp::MouseApp() : Thread("MouseApp"), Receiver() {
 
     currentIcon = mouseDefault;
 
-    eventBus = Kernel::getService<EventBus>();
-    timeService = Kernel::getService<TimeService>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 
-    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
     xPos = lfb->getResX() / 2 - 25/2;
     yPos = lfb->getResY() / 2 - 25/2;
 }
 
 MouseApp::~MouseApp() {
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseDoubleClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseMovedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseReleasedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseDoubleClickedEvent::TYPE);
 
     delete logo;
     delete mouseDefault;
@@ -51,15 +51,15 @@ MouseApp::~MouseApp() {
     delete mouseScroll;
 }
 
-void MouseApp::onEvent(const Event &event) {
-    if(event.getType() == KeyEvent::TYPE) {
-        auto &keyEvent = (KeyEvent&) event;
+void MouseApp::onEvent(const Kernel::Event &event) {
+    if(event.getType() == Kernel::KeyEvent::TYPE) {
+        auto &keyEvent = (Kernel::KeyEvent&) event;
 
-        if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+        if(keyEvent.getKey().scancode() == Kernel::KeyEvent::ESCAPE) {
             isRunning = false;
         }
-    } else if(event.getType() == MouseMovedEvent::TYPE) {
-        MouseMovedEvent movedEvent = (MouseMovedEvent&) event;
+    } else if(event.getType() == Kernel::MouseMovedEvent::TYPE) {
+        Kernel::MouseMovedEvent movedEvent = (Kernel::MouseMovedEvent&) event;
 
         int32_t dx = movedEvent.getXMovement();
         int32_t dy = movedEvent.getYMovement();
@@ -79,8 +79,8 @@ void MouseApp::onEvent(const Event &event) {
             yPos = lfb->getResY() - mouseDefault->getHeight();
         }
 
-    } else if(event.getType() == MouseClickedEvent::TYPE) {
-        MouseClickedEvent clickedEvent = (MouseClickedEvent&) event;
+    } else if(event.getType() == Kernel::MouseClickedEvent::TYPE) {
+        Kernel::MouseClickedEvent clickedEvent = (Kernel::MouseClickedEvent&) event;
 
         if(clickedEvent.isLeftClicked()) {
             currentIcon = mouseLeftClick;
@@ -93,9 +93,9 @@ void MouseApp::onEvent(const Event &event) {
         if(clickedEvent.isRightClicked()) {
             currentIcon = mouseRightClick;
         }
-    } else if(event.getType() == MouseReleasedEvent::TYPE) {
+    } else if(event.getType() == Kernel::MouseReleasedEvent::TYPE) {
         currentIcon = mouseDefault;
-    } else if(event.getType() == MouseDoubleClickedEvent::TYPE) {
+    } else if(event.getType() == Kernel::MouseDoubleClickedEvent::TYPE) {
         versionColor = Color(static_cast<uint8_t>(random.rand(255)), static_cast<uint8_t>(random.rand(255)),
                              static_cast<uint8_t>(random.rand(255)));
     }
@@ -125,11 +125,11 @@ void MouseApp::drawScreen() {
 }
 
 void MouseApp::run() {
-    eventBus->subscribe(*this, KeyEvent::TYPE);
-    eventBus->subscribe(*this, MouseMovedEvent::TYPE);
-    eventBus->subscribe(*this, MouseClickedEvent::TYPE);
-    eventBus->subscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->subscribe(*this, MouseDoubleClickedEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::KeyEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::MouseMovedEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::MouseClickedEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::MouseReleasedEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::MouseDoubleClickedEvent::TYPE);
 
     lfb->enableDoubleBuffering();
 
@@ -154,9 +154,9 @@ void MouseApp::run() {
         drawScreen();
     }
 
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseMovedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseClickedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseReleasedEvent::TYPE);
-    eventBus->unsubscribe(*this, MouseDoubleClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseMovedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseClickedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseReleasedEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::MouseDoubleClickedEvent::TYPE);
 }

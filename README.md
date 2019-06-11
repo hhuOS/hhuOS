@@ -4,8 +4,8 @@
 
 <p align="center">
   <a href="https://travis-ci.org/hhuOS/hhuOS"><img src="https://travis-ci.org/hhuOS/hhuOS.svg?branch=master"></a>
-  <img src="https://img.shields.io/badge/license-GPLv3-orange.svg">
   <img src="https://img.shields.io/badge/C%2B%2B-17-blue.svg">
+  <img src="https://img.shields.io/badge/license-GPLv3-orange.svg">
 </p>
 
 # Introduction

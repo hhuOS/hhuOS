@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SystemManagement.h"
+#include "Management.h"
 
 #include "device/misc/Bios.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
@@ -27,24 +27,33 @@
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/MemLayout.h"
 
+namespace Kernel {
+
 // some external functions are implemented in assembler code
-extern "C"{
-    #include "lib/libc/string.h"
-	// load CR3 with physical address of page directory
-	void load_page_directory(uint32_t* pdAddress);
-	// functions to set up memory management and paging
-    void _init();
-    void _fini();
-    void init_system(Multiboot::Info *address);
-    void fini_system();
-    void init_gdt(uint16_t* gdt, uint16_t* gdt_bios, uint16_t* gdt_desc, uint16_t* gdt_bios_desc, uint16_t* gdt_phys_desc);
+extern "C" {
+
+#include "lib/libc/string.h"
+
+// load CR3 with physical address of page directory
+void load_page_directory(uint32_t *pdAddress);
+
+// functions to set up memory management and paging
+void _init();
+
+void _fini();
+
+void init_system(Multiboot::Info *address);
+
+void fini_system();
+
+void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc);
 }
 
 // initialize static members
-SystemManagement* SystemManagement::systemManagement = nullptr;
-MemoryManager* SystemManagement::kernelMemoryManager = nullptr;
-bool SystemManagement::initialized = false;
-bool SystemManagement::kernelMode = true;
+Management *Management::systemManagement = nullptr;
+MemoryManager *Management::kernelMemoryManager = nullptr;
+bool Management::initialized = false;
+bool Management::kernelMode = true;
 
 /**
  * Is called from assembler code before calling the main function, because it sets up
@@ -58,7 +67,7 @@ void init_system(Multiboot::Info *address) {
 
     // create an instance of the SystemManagement and initialize it
     // (sets up paging and system management)
-    SystemManagement &systemManagement = SystemManagement::getInstance();
+    Management &systemManagement = Management::getInstance();
 
     systemManagement.init();
 
@@ -70,7 +79,7 @@ void init_system(Multiboot::Info *address) {
 
     Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
 
-    if(Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
+    if (Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
         systemManagement.writeProtectKernelCode();
     }
 }
@@ -96,72 +105,73 @@ void fini_system() {
  * @param gdt_phys_desc Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
  * @param gdt_bios_desc Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
  */
-void init_gdt(uint16_t* gdt, uint16_t* gdt_bios, uint16_t* gdt_desc, uint16_t* gdt_bios_desc, uint16_t* gdt_phys_desc) {
-	// first set up general GDT for the system
-	// first entry has to be null
-	SystemManagement::createGDTEntry(gdt, 0, 0, 0, 0, 0);
-	// kernel code segment
-	SystemManagement::createGDTEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
-	// kernel data segment
-	SystemManagement::createGDTEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
-	// user code segment
-	SystemManagement::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
-	// user data segment
-	SystemManagement::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
+void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc) {
+    // first set up general GDT for the system
+    // first entry has to be null
+    Management::createGDTEntry(gdt, 0, 0, 0, 0, 0);
+    // kernel code segment
+    Management::createGDTEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+    // kernel data segment
+    Management::createGDTEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+    // user code segment
+    Management::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
+    // user data segment
+    Management::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
 
-	// set up descriptor for GDT
-	*((uint16_t*)gdt_desc) = 5 * 8;
-	// the normal descriptor should contain the virtual address of GDT
-	*((uint32_t*)(gdt_desc + 1)) = (uint32_t)gdt + KERNEL_START;
+    // set up descriptor for GDT
+    *((uint16_t *) gdt_desc) = 5 * 8;
+    // the normal descriptor should contain the virtual address of GDT
+    *((uint32_t *) (gdt_desc + 1)) = (uint32_t) gdt + KERNEL_START;
 
-	// set up descriptor for GDT with phys. address - needed for bootstrapping
-	*((uint16_t*)gdt_phys_desc) = 5 * 8;
-	// this descriptor should contain the physical address of GDT
-	*((uint32_t*)(gdt_phys_desc + 1)) = (uint32_t)gdt;
+    // set up descriptor for GDT with phys. address - needed for bootstrapping
+    *((uint16_t *) gdt_phys_desc) = 5 * 8;
+    // this descriptor should contain the physical address of GDT
+    *((uint32_t *) (gdt_phys_desc + 1)) = (uint32_t) gdt;
 
-	// now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
-	// first entry has to be null
-	SystemManagement::createGDTEntry(gdt_bios, 0, 0, 0, 0, 0);
-	// kernel code segment
-	SystemManagement::createGDTEntry(gdt_bios, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
-	// kernel data segment
-	SystemManagement::createGDTEntry(gdt_bios, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
-	// prepared BIOS-call segment (contains 16-bit code etc...)
-	SystemManagement::createGDTEntry(gdt_bios, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
+    // now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
+    // first entry has to be null
+    Management::createGDTEntry(gdt_bios, 0, 0, 0, 0, 0);
+    // kernel code segment
+    Management::createGDTEntry(gdt_bios, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+    // kernel data segment
+    Management::createGDTEntry(gdt_bios, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+    // prepared BIOS-call segment (contains 16-bit code etc...)
+    Management::createGDTEntry(gdt_bios, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
 
 
-	// set up descriptor for BIOS-GDT
-	*((uint16_t*)gdt_bios_desc) = 4 * 8;
-	// the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
-	*((uint32_t*)(gdt_bios_desc + 1)) = (uint32_t)gdt_bios;
+    // set up descriptor for BIOS-GDT
+    *((uint16_t *) gdt_bios_desc) = 4 * 8;
+    // the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
+    *((uint32_t *) (gdt_bios_desc + 1)) = (uint32_t) gdt_bios;
 }
 
 /**
  * Creates an entry into a given GDT (Global Descriptor Table).
  * Memory for the GDT must be allocated before.
  */
-void SystemManagement::createGDTEntry(uint16_t* gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags) {
-	// each GDT-entry consists of 4 16-bit unsigned integers
-	// calculate index into 16bit-array that represents GDT
-	uint16_t idx = 4 * num;
+void Management::createGDTEntry(uint16_t *gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access,
+                                      uint8_t flags) {
+    // each GDT-entry consists of 4 16-bit unsigned integers
+    // calculate index into 16bit-array that represents GDT
+    uint16_t idx = 4 * num;
 
-	// first 16-bit value: [Limit 0:15]
-	gdt[idx] 		= (uint16_t) (limit & 0xFFFF);
-	// second 16-bit value: [Base 0:15]
-	gdt[idx + 1] 	= (uint16_t) (base & 0xFFFF);
-	// third 16-bit value: [Access Byte][Base 16:23]
-	gdt[idx + 2]	= (uint16_t) ((base >> 16) & 0xFF) | (access << 8);
-	// fourth 16-bit value: [Base 24:31][Flags][Limit 16:19]
-	gdt[idx + 3]	= (uint16_t) ((limit >> 16) & 0x0F) | ((flags << 4) & 0xF0) | ((base >> 16) & 0xFF00);
-	// end of GDT-entry
+    // first 16-bit value: [Limit 0:15]
+    gdt[idx] = (uint16_t) (limit & 0xFFFF);
+    // second 16-bit value: [Base 0:15]
+    gdt[idx + 1] = (uint16_t) (base & 0xFFFF);
+    // third 16-bit value: [Access Byte][Base 16:23]
+    gdt[idx + 2] = (uint16_t) ((base >> 16) & 0xFF) | (access << 8);
+    // fourth 16-bit value: [Base 24:31][Flags][Limit 16:19]
+    gdt[idx + 3] = (uint16_t) ((limit >> 16) & 0x0F) | ((flags << 4) & 0xF0) | ((base >> 16) & 0xFF00);
+    // end of GDT-entry
 }
 
-void SystemManagement::plugin() {
+void Management::plugin() {
     InterruptDispatcher::getInstance().assign(InterruptDispatcher::PAGEFAULT, *this);
 }
 
 
-void SystemManagement::trigger(InterruptFrame &frame) {
+void Management::trigger(InterruptFrame &frame) {
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Pagefault occured\n");
     printf("[PAGINGMANAGER] Address %x\n", faultedAddress);
@@ -170,7 +180,7 @@ void SystemManagement::trigger(InterruptFrame &frame) {
 #endif
     // check if pagefault was caused by illegal page access
     if ((faultFlags & 0x00000001) > 0) {
-    	Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
+        Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
     }
 
     // Map the faulted Page
@@ -178,7 +188,7 @@ void SystemManagement::trigger(InterruptFrame &frame) {
     // TODO: Check other Faults
 }
 
-void SystemManagement::init() {
+void Management::init() {
     // Init Paging Area Manager -> Manages the virtual addresses of all page tables
     // and directories
     pagingAreaManager = new PagingAreaManager();
@@ -213,7 +223,7 @@ void SystemManagement::init() {
     // we can delete the bootstrap address space
     delete tmp;
     // add first address space to list with all address spaces
-    addressSpaces = new Util::ArrayList<VirtualAddressSpace*>;
+    addressSpaces = new Util::ArrayList<VirtualAddressSpace *>;
     addressSpaces->add(currentAddressSpace);
 
     // Initialize global objects afterwards, because now missing pages can be mapped
@@ -223,8 +233,8 @@ void SystemManagement::init() {
     initialized = true;
 }
 
-void SystemManagement::map(uint32_t virtAddress, uint16_t flags) {
-	// allocate a physical page frame where the page should be mapped
+void Management::map(uint32_t virtAddress, uint16_t flags) {
+    // allocate a physical page frame where the page should be mapped
     uint32_t physAddress = (uint32_t) pageFrameAllocator->alloc(PAGESIZE);
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
@@ -234,7 +244,7 @@ void SystemManagement::map(uint32_t virtAddress, uint16_t flags) {
 #endif
 }
 
-void SystemManagement::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress) {
+void Management::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress) {
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Map virtual address %x to phys address %x\n", (virtAddress & 0xFFFFF000), physAddress);
 #endif
@@ -246,18 +256,18 @@ void SystemManagement::map(uint32_t virtAddress, uint16_t flags, uint32_t physAd
  * Range map function to map a range of virtual addresses into the current Page 
  * Directory .
  */
-void SystemManagement::map(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags){
+void Management::map(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags) {
     // get 4kb-aligned start and end address
     uint32_t alignedStartAddress = virtStartAddress & 0xFFFFF000;
     uint32_t alignedEndAddress = virtEndAddress & 0xFFFFF000;
     alignedEndAddress += (virtEndAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
     // map all pages
-    for(uint32_t i = alignedStartAddress; i < alignedEndAddress; i += PAGESIZE){
+    for (uint32_t i = alignedStartAddress; i < alignedEndAddress; i += PAGESIZE) {
         map(i, flags);
     }
 }
 
-uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
+uint32_t Management::createPageTable(PageDirectory *dir, uint32_t idx) {
     // get some virtual memory for the table
     void *virtAddress = pagingAreaManager->alloc(PAGESIZE);
     // get physical memory for the table
@@ -274,31 +284,31 @@ uint32_t SystemManagement::createPageTable(PageDirectory *dir, uint32_t idx){
     return 0;
 }
 
-uint32_t SystemManagement::unmap(uint32_t virtAddress){
-	// request the pagedirectory to unmap the page
+uint32_t Management::unmap(uint32_t virtAddress) {
+    // request the pagedirectory to unmap the page
     uint32_t physAddress = currentAddressSpace->getPageDirectory()->unmap(virtAddress);
-    if(!physAddress){
+    if (!physAddress) {
 #if DEBUG_PM
         printf("[PAGINGMAMNAGER] WARN: Page was not present\n");
 #endif
         return 0;
     }
 
-    pageFrameAllocator->free((void*)(physAddress));
+    pageFrameAllocator->free((void *) (physAddress));
 
 #if DEBUG_PM
     printf("[PAGINGMANAGER] Unmap page with virtual address %x\n", virtAddress);
 #endif
     // invalidate entry in TLB
     asm volatile("push %%edx;"
-        "movl %0,%%edx;"
-        "invlpg (%%edx);" 
-        "pop %%edx;"  : : "r"(virtAddress));
+                 "movl %0,%%edx;"
+                 "invlpg (%%edx);"
+                 "pop %%edx;"  : : "r"(virtAddress));
 
     return physAddress;
 }
 
-uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
+uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
     // remark: if given addresses are not aligned on pages, we do not want to unmap 
     // data that could be on the same page before startVirtAddress or behind endVirtAddress
 
@@ -311,7 +321,7 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
 
     // check if an unmap is possible (the start and end address have to contain
     // at least one complete page)
-    if(endVAddr < virtStartAddress) {
+    if (endVAddr < virtStartAddress) {
         return 0;
     }
     // amount of pages to be unmapped
@@ -325,10 +335,10 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
     uint32_t ret = 0;
     uint8_t cnt = 0;
     uint32_t i;
-    for(i=0; i < pageCnt; i++) {
-        ret = unmap(startVAddr + i*PAGESIZE);
+    for (i = 0; i < pageCnt; i++) {
+        ret = unmap(startVAddr + i * PAGESIZE);
 
-        if(!ret) {
+        if (!ret) {
             cnt++;
         } else {
             cnt = 0;
@@ -336,7 +346,7 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
         // if there were three pages after each other already unmapped, we break here
         // this is sort of a workaround because by merging large free memory blocks in memory management
         // it might happen that some parts of the memory are already unmapped
-        if(cnt == 3) {
+        if (cnt == 3) {
             break;
         }
     }
@@ -345,7 +355,7 @@ uint32_t SystemManagement::unmap(uint32_t virtStartAddress, uint32_t virtEndAddr
     return ret;
 }
 
-void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
+void *Management::mapIO(uint32_t physAddress, uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
@@ -354,12 +364,12 @@ void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
     void *virtStartAddress = ioMemManager->alloc(size);
 
     // Check for nullpointer
-    if(virtStartAddress == nullptr) {
+    if (virtStartAddress == nullptr) {
         Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
-    for(uint32_t i = 0; i < pageCnt; i++) {
+    for (uint32_t i = 0; i < pageCnt; i++) {
         // since the virtual memory is one block, we can update the virtual address this way
         uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
 
@@ -367,16 +377,16 @@ void* SystemManagement::mapIO(uint32_t physAddress, uint32_t size) {
         // this can happen because the headers of the free list are mapped
         // to arbitrary physical addresses, but the IO Memory should be mapped
         // to given physical addresses
-        SystemManagement::getInstance().unmap(virtAddress);
+        Management::getInstance().unmap(virtAddress);
         // map the page to given physical address
 
-        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING , physAddress + i * PAGESIZE);
+        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, physAddress + i * PAGESIZE);
     }
 
     return virtStartAddress;
 }
 
-void* SystemManagement::mapIO(uint32_t size) {
+void *Management::mapIO(uint32_t size) {
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
@@ -385,15 +395,15 @@ void* SystemManagement::mapIO(uint32_t size) {
     void *physStartAddress = pageFrameAllocator->alloc(size);
 
     // allocate 4kb-aligned virtual IO-memory
-	void *virtStartAddress = ioMemManager->alloc(size);
+    void *virtStartAddress = ioMemManager->alloc(size);
 
-	// check for nullpointer
-    if(virtStartAddress ==  nullptr){
+    // check for nullpointer
+    if (virtStartAddress == nullptr) {
         Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
-    for(uint32_t i = 0; i < pageCnt; i++) {
+    for (uint32_t i = 0; i < pageCnt; i++) {
         // since the virtual memory is one block, we can update the virtual address this way
         uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
 
@@ -401,7 +411,7 @@ void* SystemManagement::mapIO(uint32_t size) {
         // this can happen because the headers of the free list are mapped
         // to arbitrary physical addresses, but the IO Memory should be mapped
         // to given physical addresses
-        SystemManagement::getInstance().unmap(virtAddress);
+        Management::getInstance().unmap(virtAddress);
         // map the page to given physical address
 
         map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, (uint32_t) physStartAddress + i * PAGESIZE);
@@ -410,30 +420,30 @@ void* SystemManagement::mapIO(uint32_t size) {
     return virtStartAddress;
 }
 
-void SystemManagement::freeIO(void *ptr) {
+void Management::freeIO(void *ptr) {
     ioMemManager->free(ptr);
 }
 
-void* SystemManagement::getPhysicalAddress(void *virtAddress) {
+void *Management::getPhysicalAddress(void *virtAddress) {
     return currentAddressSpace->getPageDirectory()->getPhysicalAddress(virtAddress);
 }
 
 /**
  * Checks if the system management is fully initialized.
  */
-bool SystemManagement::isInitialized() {
+bool Management::isInitialized() {
     return initialized;
 }
 
-bool SystemManagement::isKernelMode() {
-	return kernelMode;
+bool Management::isKernelMode() {
+    return kernelMode;
 }
 
-uint32_t SystemManagement::getFaultingAddress() {
+uint32_t Management::getFaultingAddress() {
     return faultedAddress;
 }
 
-void SystemManagement::calcTotalPhysicalMemory() {
+void Management::calcTotalPhysicalMemory() {
 
     Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::Structure::getMemoryMap();
     Multiboot::MemoryMapEntry &maxEntry = memoryMap[0];
@@ -454,159 +464,164 @@ void SystemManagement::calcTotalPhysicalMemory() {
     totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
 
     // if there is more than 3,75GB memory apply a cap
-    if(totalPhysMemory > PHYS_MEM_CAP) {
+    if (totalPhysMemory > PHYS_MEM_CAP) {
         totalPhysMemory = PHYS_MEM_CAP;
     }
 
     // We need at least 10MB physical memory to run properly
-    if(totalPhysMemory < 10 * 1024 * 1024){
+    if (totalPhysMemory < 10 * 1024 * 1024) {
         printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM!");
         Cpu::halt();
     }
 
-    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %d MB!", totalPhysMemory/(1024*1024));
+    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %d MB!", totalPhysMemory / (1024 * 1024));
 }
 
-VirtualAddressSpace* SystemManagement::createAddressSpace() {
-	VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
-	// add to the list of address spaces
-	addressSpaces->add(addressSpace);
+VirtualAddressSpace *Management::createAddressSpace() {
+    VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
+    // add to the list of address spaces
+    addressSpaces->add(addressSpace);
 
-	return addressSpace;
+    return addressSpace;
 }
 
-void SystemManagement::switchAddressSpace(VirtualAddressSpace *addressSpace) {
-	// set current address space
-	this->currentAddressSpace = addressSpace;
-	// load cr3-register with phys. address of Page Directory
-	load_page_directory(addressSpace->getPageDirectory()->getPageDirectoryPhysicalAddress());
+void Management::switchAddressSpace(VirtualAddressSpace *addressSpace) {
+    // set current address space
+    this->currentAddressSpace = addressSpace;
+    // load cr3-register with phys. address of Page Directory
+    load_page_directory(addressSpace->getPageDirectory()->getPageDirectoryPhysicalAddress());
 
-	if(!this->currentAddressSpace->isInitialized()) {
-	    this->currentAddressSpace->init();
-	}
-}
-
-void SystemManagement::removeAddressSpace(VirtualAddressSpace *addressSpace){
-	// the current active address space cannot be removed
-	if(currentAddressSpace == addressSpace){
-		return;
-	}
-	// remove from list
-	addressSpaces->remove(addressSpace);
-	// call destructor
-	delete addressSpace;
-}
-
-void* SystemManagement::allocPageTable() {
-	return pagingAreaManager->alloc(PAGESIZE);
-}
-
-void SystemManagement::freePageTable(void *virtTableAddress) {
-    void *physAddress = getPhysicalAddress(virtTableAddress);
-	// free virtual memory
-	pagingAreaManager->free(virtTableAddress);
-	// free physical memory
-	pageFrameAllocator->free(physAddress);
-}
-
-void SystemManagement::setFaultParams(uint32_t faultAddress, uint32_t flags) {
-	faultedAddress = faultAddress;
-	faultFlags = flags;
-}
-
-SystemManagement& SystemManagement::getInstance() noexcept {
-	if(systemManagement == nullptr) {
-		// create a static memory manager for the kernel heap
-        static FreeListMemoryManager heapMemoryManager;
-        heapMemoryManager.init(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END, true);
-        // set the kernel heap memory manager to this manager
-		kernelMemoryManager = &heapMemoryManager;
-        // use the new memory manager to alloc memory for the instance of SystemManegement
-		systemManagement = new SystemManagement();
-	}
-
-	return *systemManagement;
-}
-
-
-void SystemManagement::writeProtectKernelCode() {
-    basePageDirectory->writeProtectKernelCode();
-}
-
-void *SystemManagement::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->realloc(ptr, size, alignment);
-    } else {
-        return SystemManagement::getKernelHeapManager()->realloc(ptr, size, alignment);
+    if (!this->currentAddressSpace->isInitialized()) {
+        this->currentAddressSpace->init();
     }
 }
 
-void* operator new ( uint32_t size ) {
-	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size);
-	} else {
-		return SystemManagement::getKernelHeapManager()->alloc(size);
-	}
+void Management::removeAddressSpace(VirtualAddressSpace *addressSpace) {
+    // the current active address space cannot be removed
+    if (currentAddressSpace == addressSpace) {
+        return;
+    }
+    // remove from list
+    addressSpaces->remove(addressSpace);
+    // call destructor
+    delete addressSpace;
 }
 
-void* operator new[]( uint32_t count ) {
-	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(count);
-	} else {
-		return SystemManagement::getKernelHeapManager()->alloc(count);
-	}
+void *Management::allocPageTable() {
+    return pagingAreaManager->alloc(PAGESIZE);
 }
 
-void operator delete ( void* ptr )  {
-	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
-	} else {
-		return SystemManagement::getKernelHeapManager()->free(ptr);
-	}
+void Management::freePageTable(void *virtTableAddress) {
+    void *physAddress = getPhysicalAddress(virtTableAddress);
+    // free virtual memory
+    pagingAreaManager->free(virtTableAddress);
+    // free physical memory
+    pageFrameAllocator->free(physAddress);
 }
 
-void operator delete[] ( void* ptr ) {
-	if(!SystemManagement::isKernelMode()){
-		return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
-	} else {
-		return SystemManagement::getKernelHeapManager()->free(ptr);
-	}
+void Management::setFaultParams(uint32_t faultAddress, uint32_t flags) {
+    faultedAddress = faultAddress;
+    faultFlags = flags;
+}
+
+Management &Management::getInstance() noexcept {
+    if (systemManagement == nullptr) {
+        // create a static memory manager for the kernel heap
+        static FreeListMemoryManager heapMemoryManager;
+        heapMemoryManager.init(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END, true);
+        // set the kernel heap memory manager to this manager
+        kernelMemoryManager = &heapMemoryManager;
+        // use the new memory manager to alloc memory for the instance of SystemManegement
+        systemManagement = new Management();
+    }
+
+    return *systemManagement;
+}
+
+
+void Management::writeProtectKernelCode() {
+    basePageDirectory->writeProtectKernelCode();
+}
+
+void *Management::realloc(void *ptr, uint32_t size, uint32_t alignment) {
+    if (!Management::isKernelMode()) {
+        return Management::getInstance().getCurrentUserSpaceHeapManager()->realloc(ptr, size, alignment);
+    } else {
+        return Management::getKernelHeapManager()->realloc(ptr, size, alignment);
+    }
+}
+
+}
+
+void *operator new(uint32_t size) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size);
+    } else {
+        return Kernel::Management::getKernelHeapManager()->alloc(size);
+    }
+}
+
+void *operator new[](uint32_t count) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(count);
+    } else {
+        return Kernel::Management::getKernelHeapManager()->alloc(count);
+    }
+}
+
+void operator delete(void *ptr) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
+    } else {
+        return Kernel::Management::getKernelHeapManager()->free(ptr);
+    }
+}
+
+void operator delete[](void *ptr) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
+    } else {
+        return Kernel::Management::getKernelHeapManager()->free(ptr);
+    }
 }
 
 // Placement new
 void *operator new(size_t, void *p) { return p; }
-void *operator new[](size_t, void *p) { return p; }
-void  operator delete  (void *, void *) { };
-void  operator delete[](void *, void *) { };
 
-void* operator new(size_t size, uint32_t alignment) {
-    if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
+void *operator new[](size_t, void *p) { return p; }
+
+void operator delete(void *, void *) {};
+
+void operator delete[](void *, void *) {};
+
+void *operator new(size_t size, uint32_t alignment) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
+        return Kernel::Management::getKernelHeapManager()->alloc(size, alignment);
     }
 }
 
-void* operator new[](size_t size, uint32_t alignment) {
-    if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
+void *operator new[](size_t size, uint32_t alignment) {
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->alloc(size, alignment);
+        return Kernel::Management::getKernelHeapManager()->alloc(size, alignment);
     }
 }
 
 void operator delete(void *ptr, uint32_t alignment) {
-    if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->free(ptr);
+        return Kernel::Management::getKernelHeapManager()->free(ptr);
     }
 }
 
 void operator delete[](void *ptr, uint32_t alignment) {
-    if(!SystemManagement::isKernelMode()){
-        return SystemManagement::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
+    if (!Kernel::Management::isKernelMode()) {
+        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
     } else {
-        return SystemManagement::getKernelHeapManager()->free(ptr);
+        return Kernel::Management::getKernelHeapManager()->free(ptr);
     }
 }

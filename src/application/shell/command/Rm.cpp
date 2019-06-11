@@ -82,7 +82,7 @@ void Rm::execute(Util::Array<String> &args) {
 
     bool recursive = parser.checkSwitch("recursive");
 
-    fileSystem = Kernel::getService<Filesystem>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 
     for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);

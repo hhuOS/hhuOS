@@ -36,7 +36,7 @@
 class Date : public Command {
 
 private:
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
     static const char *weekdays[7];
     static const char *months[12];

@@ -1,5 +1,7 @@
 #include "AtomicBitmapMemoryManager.h"
 
+namespace Kernel {
+
 AtomicBitmapMemoryManager::AtomicBitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize) :
         memoryStartAddress(startAddress),
         memoryEndAddress(endAddress),
@@ -11,7 +13,7 @@ AtomicBitmapMemoryManager::AtomicBitmapMemoryManager(uint32_t startAddress, uint
 void *AtomicBitmapMemoryManager::allocateBlock() {
     uint32_t block = bitmap.findAndSet();
 
-    if(block == bitmap.getSize()) {
+    if (block == bitmap.getSize()) {
         return nullptr;
     }
 
@@ -24,7 +26,7 @@ void AtomicBitmapMemoryManager::freeBlock(void *ptr) {
     uint32_t address = (uint32_t) ptr - memoryStartAddress;
 
     // check if pointer points to valid memory
-    if((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
+    if ((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
         return;
     }
 
@@ -36,3 +38,4 @@ void AtomicBitmapMemoryManager::freeBlock(void *ptr) {
     freeMemory += blockSize;
 }
 
+}

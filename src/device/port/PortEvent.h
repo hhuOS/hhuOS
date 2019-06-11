@@ -3,7 +3,7 @@
 
 #include "kernel/event/Event.h"
 
-class PortEvent : public Event {
+class PortEvent : public Kernel::Event {
 
 public:
 

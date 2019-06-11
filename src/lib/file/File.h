@@ -19,7 +19,7 @@
 
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/core/FsNode.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/stream/InputStream.h"
 #include <cstdint>
 

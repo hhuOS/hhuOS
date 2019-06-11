@@ -2,15 +2,17 @@
 #include "lib/util/LinkedBlockingQueue.h"
 #include "BootCoordinator.h"
 
-BootCoordinator::BootCoordinator(Util::Array<BootComponent*> components, void (*onFinish)()) :
+namespace Kernel {
+
+BootCoordinator::BootCoordinator(Util::Array<BootComponent *> components, void (*onFinish)()) :
         Thread("BootCoordinator", 0xff), hasStarted(false), onFinish(onFinish) {
-    for(const auto &component : components) {
+    for (const auto &component : components) {
         addComponent(component);
     }
 }
 
 void BootCoordinator::run() {
-    if(hasStarted.get()) {
+    if (hasStarted.get()) {
         return;
     }
 
@@ -18,7 +20,7 @@ void BootCoordinator::run() {
 
     buildComponentLayers();
 
-    for(const auto &layer : layeredComponents) {
+    for (const auto &layer : layeredComponents) {
         for (const auto &component : *layer) {
             component->start();
         }
@@ -34,20 +36,20 @@ void BootCoordinator::run() {
 }
 
 void BootCoordinator::addComponent(BootComponent *component) {
-    if(!hasStarted.get()) {
+    if (!hasStarted.get()) {
         components.add(component);
     }
 }
 
-Util::Array<BootComponent*> BootCoordinator::getComponents() {
+Util::Array<BootComponent *> BootCoordinator::getComponents() {
     return components.toArray();
 }
 
 void BootCoordinator::buildComponentLayers() {
-    Util::LinkedBlockingQueue<BootComponent*> queue;
+    Util::LinkedBlockingQueue<BootComponent *> queue;
 
-    for(uint32_t i = 0; !components.isEmpty(); i++) {
-        layeredComponents.add(new Util::ArrayList<BootComponent*>());
+    for (uint32_t i = 0; !components.isEmpty(); i++) {
+        layeredComponents.add(new Util::ArrayList<BootComponent *>());
 
         for (const auto &component : components) {
             if (!component->hasDependencies()) {
@@ -67,9 +69,11 @@ void BootCoordinator::buildComponentLayers() {
     }
 
     // Refill components list in correct order for printing them onto the bootscreen
-    for(const auto &layer : layeredComponents) {
+    for (const auto &layer : layeredComponents) {
         for (const auto &component : *layer) {
             components.add(component);
         }
     }
+}
+
 }

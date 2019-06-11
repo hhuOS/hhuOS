@@ -21,13 +21,16 @@
 
 #include "PacketHandler.h"
 
+namespace Kernel {
+
 void PacketHandler::onEvent(const Event &event) {
-    if((event.getType() == ReceiveEvent::TYPE)) {
-        auto &receiveEvent = (ReceiveEvent&) event;
+    if ((event.getType() == ReceiveEvent::TYPE)) {
+        auto &receiveEvent = (ReceiveEvent &) event;
         auto *packet = static_cast<uint8_t *>(receiveEvent.getPacket());
 
         log.info("Received network packet! Length: %u, First six bytes: %02x-%02x-%02x-%02x-%02x-%02x",
-                receiveEvent.getLength(), packet[0], packet[1], packet[2], packet[3], packet[4], packet[5]);
+                 receiveEvent.getLength(), packet[0], packet[1], packet[2], packet[3], packet[4], packet[5]);
     }
 }
 
+}

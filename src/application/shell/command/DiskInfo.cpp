@@ -19,8 +19,8 @@
 #include "DiskInfo.h"
 
 DiskInfo::DiskInfo(Shell &shell) : Command(shell) {
-    storageService = Kernel::getService<StorageService>();
-    fileSystem = Kernel::getService<Filesystem>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 };
 
 void DiskInfo::execute(Util::Array<String> &args) {

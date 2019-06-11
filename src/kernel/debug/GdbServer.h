@@ -22,6 +22,8 @@
 #include "kernel/thread/ThreadState.h"
 #include "device/port/Port.h"
 
+namespace Kernel {
+
 /**
  * Contains all registers of a x86-CPU
  */
@@ -93,7 +95,7 @@ public:
 
 private:
 
-    static uint8_t* getPacket();
+    static uint8_t *getPacket();
 
     static void putPacket(const uint8_t *packet);
 
@@ -117,7 +119,7 @@ private:
 
     static uint8_t outBuffer[];
 
-    static Port* port;
+    static Port *port;
 
     static const char WRITE_MEMORY_BIN = 'X';
 
@@ -142,5 +144,6 @@ private:
     static const char GET_HALT_REASON = '?';
 };
 
+}
 
 #endif

@@ -18,8 +18,10 @@
 #include "kernel/memory/MemLayout.h"
 #include "lib/graphic/Color.h"
 #include "lib/libc/printf.h"
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/Symbols.h"
 #include "BlueScreen.h"
+
+namespace Kernel {
 
 const char *BlueScreen::errorMessage = "";
 
@@ -33,11 +35,11 @@ void BlueScreen::print(InterruptFrame &frame) {
 
     printf("\n  [PANIC] %s\n\n", Cpu::getExceptionName(frame.interrupt));
 
-    if(strlen(errorMessage) != 0) {
+    if (strlen(errorMessage) != 0) {
         printf("  %s\n\n", errorMessage);
     }
 
-    uint32_t *ebp = (uint32_t*) frame.ebp;
+    uint32_t *ebp = (uint32_t *) frame.ebp;
 
     uint32_t eip = frame.eip;
 
@@ -45,13 +47,13 @@ void BlueScreen::print(InterruptFrame &frame) {
 
     while (eip) {
 
-        printf("     #%02d 0x%08x --- %s\n", i, eip, KernelSymbols::get(eip));
+        printf("     #%02d 0x%08x --- %s\n", i, eip, Symbols::get(eip));
 
         eip = ebp[1];
 
-        ebp = (uint32_t*) ebp[0];
+        ebp = (uint32_t *) ebp[0];
 
-        if ((uint32_t ) ebp < KERNEL_START) {
+        if ((uint32_t) ebp < KERNEL_START) {
 
             break;
         }
@@ -66,14 +68,13 @@ void BlueScreen::print(InterruptFrame &frame) {
 }
 
 
-
 void BlueScreen::putc(const char c) {
 
-    if(y >= rows) {
+    if (y >= rows) {
         return;
     }
 
-    if(c == '\n') {
+    if (c == '\n') {
         x = 0;
         y++;
     } else {
@@ -81,14 +82,14 @@ void BlueScreen::putc(const char c) {
         x++;
     }
 
-    if(x >= columns) {
+    if (x >= columns) {
         x = 0;
         y++;
     }
 }
 
 void BlueScreen::puts(const char *s, uint32_t n) {
-    for(uint32_t i = 0; i < n; i++) {
+    for (uint32_t i = 0; i < n; i++) {
         putc(s[i]);
     }
 }
@@ -102,4 +103,4 @@ void BlueScreen::setErrorMessage(const char *message) {
     errorMessage = message;
 }
 
-
+}

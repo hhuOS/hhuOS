@@ -15,10 +15,10 @@
  */
 
 #include "StdoutNode.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 StdoutNode::StdoutNode() : VirtualNode("stdout", FsNode::CHAR_FILE) {
-    kernelStreamService = Kernel::getService<KernelStreamService>();
+    kernelStreamService = Kernel::System::getService<Kernel::KernelStreamService>();
 }
 
 uint64_t StdoutNode::getLength() {

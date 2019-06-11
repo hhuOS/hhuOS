@@ -16,6 +16,10 @@
 
 #include "Module.h"
 
+namespace Kernel {
+
 Module::Module() = default;
 
 Module::~Module() = default;
+
+}

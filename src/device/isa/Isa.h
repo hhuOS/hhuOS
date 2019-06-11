@@ -31,7 +31,7 @@ class Isa {
 
 private:
 
-    static IsaDmaMemoryManager dmaMemoryManager;
+    static Kernel::IsaDmaMemoryManager dmaMemoryManager;
 
     static IoPort startAddressRegisters[8];
     static IoPort pageAddressRegisters[8];

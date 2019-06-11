@@ -21,7 +21,7 @@ Directory::Directory(Util::SmartPointer<FsNode> node, const String &path) : node
 };
 
 Directory *Directory::open(const String &path) {
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
 
     Util::SmartPointer<FsNode> node = fileSystem->getNode(path);
 

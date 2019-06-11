@@ -25,6 +25,8 @@
 #include "kernel/memory/manager/MemoryManager.h"
 #include "BootCoordinator.h"
 
+namespace Kernel {
+
 class BootScreen : public Thread {
 
 public:
@@ -61,7 +63,7 @@ private:
 
     Image *logo = nullptr;
 
-    Util::Array<BootComponent*> components;
+    Util::Array<BootComponent *> components;
     Util::Array<String> componentNames;
 
     char *heapStatusBuffers[3];
@@ -78,5 +80,6 @@ private:
     static const constexpr uint32_t BUFFER_SIZE = 64;
 };
 
+}
 
 #endif

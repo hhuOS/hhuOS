@@ -29,7 +29,7 @@
 #include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 #include "kernel/memory/manager/BitmapMemoryManager.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "lib/system/SystemCall.h"
 #include "application/memory/MemoryManagerDemo.h"
 #include "lib/async/SimpleThread.h"
@@ -42,7 +42,7 @@
 
 #define TEST_THREADING 0
 
-Thread *currentApp = nullptr;
+Kernel::Thread *currentApp = nullptr;
 
 uint32_t threadSum = 0;
 
@@ -51,14 +51,14 @@ uint32_t worker(const uint32_t &number) {
     return number * 2;
 }
 
-void callback(const Thread &thread, const uint32_t &number) {
+void callback(const Kernel::Thread &thread, const uint32_t &number) {
 
     threadSum += number;
 }
 
 Application::Application () : Thread ("Menu") {
-    graphicsService = Kernel::getService<GraphicsService>();
-	timeService = Kernel::getService<TimeService>();
+    graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
+	timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 Application& Application::getInstance() noexcept {
@@ -134,11 +134,11 @@ void Application::startShell() {
 }
 
 void Application::showMenu () {
-    MemoryManager *kernelHeapManager = SystemManagement::getKernelHeapManager();
-    MemoryManager *pageFrameAllocator = SystemManagement::getInstance().getPageFrameAllocator();
-    MemoryManager *ioMemoryManager = SystemManagement::getInstance().getIOMemoryManager();
+    Kernel::MemoryManager *kernelHeapManager = Kernel::Management::getKernelHeapManager();
+    Kernel::MemoryManager *pageFrameAllocator = Kernel::Management::getInstance().getPageFrameAllocator();
+    Kernel::MemoryManager *ioMemoryManager = Kernel::Management::getInstance().getIOMemoryManager();
 
-    Scheduler &scheduler = Scheduler::getInstance();
+    Kernel::Scheduler &scheduler = Kernel::Scheduler::getInstance();
 
     uint32_t kernelMemory = kernelHeapManager->getEndAddress() - kernelHeapManager->getStartAddress();
     uint32_t physicalMemory = pageFrameAllocator->getEndAddress() - pageFrameAllocator->getStartAddress();
@@ -264,8 +264,8 @@ void Application::startBugDefender() {
 
     currentApp = new SimpleThread([]{
 
-        auto *timeService = Kernel::getService<TimeService>();
-        auto *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+        auto *timeService = Kernel::System::getService<Kernel::TimeService>();
+        auto *lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
         lfb->init(640, 480, 16);
         lfb->enableDoubleBuffering();
@@ -300,7 +300,7 @@ void Application::startBugDefender() {
 }
 
 void Application::waitForCurrentApp() {
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 
     currentApp->join();
 
@@ -313,16 +313,16 @@ void Application::waitForCurrentApp() {
 
     graphicsService->getLinearFrameBuffer()->enableDoubleBuffering();
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     isRunning = true;
 }
 
 void Application::run() {
 
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
-    Util::Array<String> res = Multiboot::Structure::getKernelOption("resolution").split("x");
+    Util::Array<String> res = Kernel::Multiboot::Structure::getKernelOption("resolution").split("x");
 
     if(res.length() >= 3) {
         xres = static_cast<uint16_t>(strtoint((const char *) res[0]));
@@ -343,31 +343,31 @@ void Application::run() {
 
     lfb->enableDoubleBuffering();
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     showMenu();
 }
 
-void Application::onEvent(const Event &event) {
+void Application::onEvent(const Kernel::Event &event) {
 
-    auto &keyEvent = (KeyEvent&) event;
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
     if (!keyEvent.getKey().isPressed()) {
         return;
     }
 
     switch (keyEvent.getKey().scancode()) {
-        case KeyEvent::SPACE:
+        case Kernel::KeyEvent::SPACE:
             isRunning = false;
             break;
-        case KeyEvent::DOWN:
+        case Kernel::KeyEvent::DOWN:
             if (option >= sizeof(menuOptions) / sizeof(const char *) - 1) {
                 option = 0;
             } else {
                 option++;
             }
             break;
-        case KeyEvent::UP:
+        case Kernel::KeyEvent::UP:
             if (option <= 0) {
                 option = sizeof(menuOptions) / sizeof(const char *) - 1;
             } else {

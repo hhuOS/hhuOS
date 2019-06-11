@@ -20,7 +20,7 @@
 #include "lib/string/String.h"
 #include "filesystem/core/FsNode.h"
 #include "filesystem/core/Filesystem.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 /**
  * Check if a file or directory exists and get Meta-information about it.

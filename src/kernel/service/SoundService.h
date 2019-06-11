@@ -17,10 +17,11 @@
 #ifndef HHUOS_SOUNDSERVICE_H
 #define HHUOS_SOUNDSERVICE_H
 
-
 #include "KernelService.h"
 #include "device/sound/PcSpeaker.h"
 #include "device/sound/PcmAudioDevice.h"
+
+namespace Kernel {
 
 class SoundService : public KernelService {
 
@@ -35,16 +36,17 @@ public:
 
     SoundService();
 
-    static const constexpr char* SERVICE_NAME = "SoundService";
+    static const constexpr char *SERVICE_NAME = "SoundService";
 
     bool isPcmAudioAvailable();
 
-    PcSpeaker* getPcSpeaker();
+    PcSpeaker *getPcSpeaker();
 
-    PcmAudioDevice* getPcmAudioDevice();
+    PcmAudioDevice *getPcmAudioDevice();
 
     void setPcmAudioDevice(PcmAudioDevice *newDevice);
 };
 
+}
 
 #endif

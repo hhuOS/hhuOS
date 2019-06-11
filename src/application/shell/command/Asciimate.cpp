@@ -46,19 +46,19 @@ void Asciimate::execute(Util::Array<String> &args) {
         return;
     }
 
-    timeService = Kernel::getService<TimeService>();
-    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
+    lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
     stdout << "Playing '" << fStat->getName() << "'." << endl;
     stdout << "Press <ESC> to stop." << endl << endl;
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     play(file);
 
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 
-    TextDriver *text = Kernel::getService<GraphicsService>()->getTextDriver();
+    TextDriver *text = Kernel::System::getService<Kernel::GraphicsService>()->getTextDriver();
     text->init(text->getColumnCount(), text->getRowCount(), text->getDepth());
 
     delete fStat;
@@ -150,10 +150,10 @@ const String Asciimate::getHelpText() {
            "  -h, --help: Show this help-message";
 }
 
-void Asciimate::onEvent(const Event &event) {
-    auto &keyEvent = (KeyEvent&) event;
+void Asciimate::onEvent(const Kernel::Event &event) {
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
-    if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+    if(keyEvent.getKey().scancode() == Kernel::KeyEvent::ESCAPE) {
         isRunning = false;
     }
 }

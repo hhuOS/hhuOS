@@ -19,16 +19,16 @@
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
-#include "kernel/core/Kernel.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/System.h"
+#include "kernel/core/Management.h"
 #include "E1000.h"
 #include "kernel/service/NetworkService.h"
 
 E1000::E1000() : interruptBuffer(1024) {
-    eventBus = Kernel::getService<EventBus>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 }
 
-void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver) {
+void E1000::initialize(const Pci::Device &dev, Kernel::Logger &driverLog, E1000 *driver) {
     driverLog.info("Determining Descriptor Params");
     setUpDescriptorParams(128, 128);
 
@@ -37,13 +37,13 @@ void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver)
 
     driverLog.info("Mapping MMIO-Space");
     uint32_t bar0 = Pci::readDoubleWord(dev.bus, dev.device, dev.function, Pci::PCI_HEADER_BAR0);
-    mmioBase = (uint8_t *) SystemManagement::getInstance().mapIO(bar0 & ~0xFu, mmioSize);
+    mmioBase = (uint8_t *) Kernel::Management::getInstance().mapIO(bar0 & ~0xFu, mmioSize);
 
     driverLog.info("Allocating Descriptor Buffers");
-    auto trmDscBuffer   = (uint8_t *) SystemManagement::getInstance().mapIO(transmitBlockSize);
-    auto rcvDscBuffer   = (uint8_t *) SystemManagement::getInstance().mapIO(receiveBlockSize);
-    auto trmPhyBuffer   = (uint64_t)  SystemManagement::getInstance().getPhysicalAddress(trmDscBuffer);
-    auto rcvPhyBuffer   = (uint64_t)  SystemManagement::getInstance().getPhysicalAddress(rcvDscBuffer);
+    auto trmDscBuffer   = (uint8_t *) Kernel::Management::getInstance().mapIO(transmitBlockSize);
+    auto rcvDscBuffer   = (uint8_t *) Kernel::Management::getInstance().mapIO(receiveBlockSize);
+    auto trmPhyBuffer   = (uint64_t)  Kernel::Management::getInstance().getPhysicalAddress(trmDscBuffer);
+    auto rcvPhyBuffer   = (uint64_t)  Kernel::Management::getInstance().getPhysicalAddress(rcvDscBuffer);
 
     driverLog.info("Creating Descriptor Blocks");
     auto trmDescriptors = createTransmitDescriptorBlock(trmDscBuffer);
@@ -66,11 +66,11 @@ void E1000::initialize(const Pci::Device &dev, Logger &driverLog, E1000 *driver)
     loadMac();
 
     driverLog.info("Registering to Network Service");
-    Kernel::getService<NetworkService>()->registerDevice(*driver);
+    Kernel::System::getService<Kernel::NetworkService>()->registerDevice(*driver);
 
     driverLog.info("Setting Interrupts");
     plugin();
-    InterruptManager::getInstance().registerInterruptHandler(this);
+    Kernel::InterruptManager::getInstance().registerInterruptHandler(this);
     interruptCause->readAndClear();
 
     driverLog.info("Creating Virtual Nodes");
@@ -122,7 +122,7 @@ void E1000::getMacAddress(uint8_t *buf) {
 void E1000::parseInterruptData() {
     Util::Pair<void*, uint16_t> descriptor = interruptBuffer.pop();
 
-    Util::SmartPointer<Event> event = Util::SmartPointer<Event>(new ReceiveEvent(descriptor.first, descriptor.second));
+    Util::SmartPointer<Kernel::Event> event = Util::SmartPointer<Kernel::Event>(new Kernel::ReceiveEvent(descriptor.first, descriptor.second));
 
     eventBus->publish(event);
 }

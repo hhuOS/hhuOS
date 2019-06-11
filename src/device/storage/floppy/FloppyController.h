@@ -35,7 +35,7 @@ class FloppyDevice;
  * the command's parameters.
  * After a command has been executed, one can read the result from the fifo buffer.
  */
-class FloppyController : InterruptHandler {
+class FloppyController : Kernel::InterruptHandler {
 
     friend class FloppyDevice;
     friend class FloppyMotorControlThread;
@@ -138,10 +138,10 @@ private:
     IoPort digitalInputRegister;
     IoPort configControlRegister;
 
-    StorageService *storageService;
-    TimeService *timeService;
+    Kernel::StorageService *storageService;
+    Kernel::TimeService *timeService;
 
-    Logger *log = nullptr;
+    Kernel::Logger *log = nullptr;
 
     static const constexpr uint16_t IO_BASE_ADDRESS = 0x3f0;
     static const constexpr uint32_t FLOPPY_TIMEOUT = 2000;
@@ -326,7 +326,7 @@ public:
     /**
      * Overriding function from InterruptDispatcher.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif

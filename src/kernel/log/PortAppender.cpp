@@ -16,11 +16,15 @@
 
 #include "PortAppender.h"
 
+namespace Kernel {
+
 void PortAppender::append(const String &message) {
 
-    port.sendData((char*) (message + "\n"), message.length() + 1);
+    port.sendData((char *) (message + "\n"), message.length() + 1);
 }
 
 PortAppender::PortAppender(Port &port) : port(port) {
+
+}
 
 }

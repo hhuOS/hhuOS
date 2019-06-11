@@ -5,15 +5,17 @@
 #include "lib/util/Array.h"
 #include "lib/util/ArrayList.h"
 
+namespace Kernel {
+
 class BootComponent : public Thread {
 
 public:
 
-    BootComponent(const String &name, Util::Array<BootComponent*> dependencies, void (*function)());
+    BootComponent(const String &name, Util::Array<BootComponent *> dependencies, void (*function)());
 
     BootComponent(const BootComponent &copy) = delete;
 
-    BootComponent& operator=(const BootComponent &other) = delete;
+    BootComponent &operator=(const BootComponent &other) = delete;
 
     ~BootComponent() override = default;
 
@@ -35,9 +37,11 @@ private:
 
     bool finished;
 
-    Util::ArrayList<BootComponent*> dependencies;
+    Util::ArrayList<BootComponent *> dependencies;
 
     void (*function)();
 };
+
+}
 
 #endif

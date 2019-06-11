@@ -31,7 +31,7 @@ LinearFrameBuffer *Mandelbrot::lfb = nullptr;
 
 ColorGradient Mandelbrot::gradient(MAX_COLORS);
 
-Mandelbrot::Mandelbrot() : Thread("Mandelbrot"), log(Logger::get("Mandelbrot")) {
+Mandelbrot::Mandelbrot() : Thread("Mandelbrot"), log(Kernel::Logger::get("Mandelbrot")) {
     useSSE = (CpuId::getFeatures() & CpuId::FEATURE_SSE2) == CpuId::FEATURE_SSE2;
 }
 
@@ -47,7 +47,7 @@ void Mandelbrot::run() {
 
     shouldDraw = true;
 
-    lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
     lfb->init(640, 480, 16);
 
@@ -58,7 +58,7 @@ void Mandelbrot::run() {
 
     lfb->enableDoubleBuffering();
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     uint16_t xRes = lfb->getResX();
 
@@ -95,12 +95,12 @@ void Mandelbrot::run() {
         lfb->show();
     }
 
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 }
 
-void Mandelbrot::onEvent(const Event &event) {
+void Mandelbrot::onEvent(const Kernel::Event &event) {
 
-    auto &keyEvent = (KeyEvent&) event;
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
     if (!keyEvent.getKey().isPressed()) {
         return;
@@ -122,23 +122,23 @@ void Mandelbrot::onEvent(const Event &event) {
     }
 
     switch (keyEvent.getKey().scancode()) {
-        case KeyEvent::UP:
+        case Kernel::KeyEvent::UP:
             currentOffsetY -= OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
-        case KeyEvent::DOWN:
+        case Kernel::KeyEvent::DOWN:
             currentOffsetY += OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
-        case KeyEvent::LEFT:
+        case Kernel::KeyEvent::LEFT:
             currentOffsetX -= OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
-        case KeyEvent::RIGHT:
+        case Kernel::KeyEvent::RIGHT:
             currentOffsetX += OFFSET_STEP / currentZoom;
             hasChanged = true;
             break;
-        case KeyEvent::ESCAPE:
+        case Kernel::KeyEvent::ESCAPE:
             isRunning = false;
             break;
         default:

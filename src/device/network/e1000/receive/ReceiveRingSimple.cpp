@@ -19,8 +19,8 @@
  * 317453006EN.PDF Revision 4.0. 2009
  */
 
-#include "kernel/core/SystemManagement.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/Management.h"
+#include "kernel/core/System.h"
 #include "kernel/service/EventBus.h"
 #include "ReceiveRingSimple.h"
 
@@ -29,7 +29,7 @@ ReceiveRingSimple::ReceiveRingSimple(Descriptors<ReceiveDescriptor *> *descripto
                      HardwareDescriptorRing *initialize, Util::RingBuffer<Util::Pair<void*, uint16_t>> *interruptBuffer)
                      : descriptors(descriptors), ringInitialize(initialize), interruptBuffer(interruptBuffer)
 {
-    eventBus = Kernel::getService<EventBus>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 }
 
 ReceiveRingSimple::~ReceiveRingSimple() = default;

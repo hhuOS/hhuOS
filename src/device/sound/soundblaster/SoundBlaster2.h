@@ -35,7 +35,7 @@
  *      -Mono PCM, 4000-23000 Hz, 8-bit samples
  *      -Mono PCM, 23000-44100 Hz, 8-bit samples (only with DSP versions >= 2.01)
  */
-class SoundBlaster2 : public SoundBlaster, public InterruptHandler {
+class SoundBlaster2 : public SoundBlaster, public Kernel::InterruptHandler {
 
 private:
 
@@ -114,7 +114,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif

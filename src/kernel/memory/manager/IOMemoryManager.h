@@ -22,6 +22,7 @@
 #include "lib/async/Spinlock.h"
 #include "BitmapMemoryManager.h"
 
+namespace Kernel {
 
 /**
  * Memory manager, that manages IO-Space for HW-Buffers, DMA etc.
@@ -37,7 +38,7 @@ class IOMemoryManager : public BitmapMemoryManager {
 
 private:
 
-    Util::HashMap<void*, uint32_t> ioMemoryMap;
+    Util::HashMap<void *, uint32_t> ioMemoryMap;
 
     Spinlock lock;
 
@@ -55,7 +56,7 @@ public:
     /**
      * Copy-constructor.
      */
-     IOMemoryManager(const IOMemoryManager &copy);
+    IOMemoryManager(const IOMemoryManager &copy);
 
     /**
      * Destructor.
@@ -82,5 +83,7 @@ public:
      */
     void free(void *ptr) override;
 };
+
+}
 
 #endif

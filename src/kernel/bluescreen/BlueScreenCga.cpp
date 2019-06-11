@@ -2,6 +2,8 @@
 #include "lib/libc/printf.h"
 #include "BlueScreenCga.h"
 
+namespace Kernel {
+
 BlueScreenCga::BlueScreenCga() : BlueScreen(80, 25) {
 
 }
@@ -18,7 +20,7 @@ void BlueScreenCga::initialize() {
 
     uint64_t end = 80 * 25 * 2 / sizeof(uint64_t);
 
-    for(uint64_t i = 0; i < end; i++) {
+    for (uint64_t i = 0; i < end; i++) {
         dest[i] = 0x1000100010001000;
     }
 }
@@ -32,4 +34,6 @@ void BlueScreenCga::show(uint16_t x, uint16_t y, const char c) {
 
     *((uint8_t *) (CGA_START + pos)) = static_cast<uint8_t>(c);
     *((uint8_t *) (CGA_START + pos + 1)) = ATTRIBUTE;
+}
+
 }

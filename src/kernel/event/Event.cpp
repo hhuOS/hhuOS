@@ -16,6 +16,10 @@
 
 #include "Event.h"
 
+namespace Kernel {
+
 bool Event::is(const String &type) {
     return getType() == type;
+}
+
 }

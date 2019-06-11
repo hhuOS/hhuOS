@@ -17,6 +17,8 @@
 #ifndef __Appender_include__
 #define __Appender_include__
 
+namespace Kernel {
+
 #include "lib/string/String.h"
 
 class Appender {
@@ -29,5 +31,7 @@ public:
 
     virtual void append(const String &message) = 0;
 };
+
+}
 
 #endif

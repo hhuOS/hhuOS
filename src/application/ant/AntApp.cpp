@@ -21,8 +21,8 @@
 #include "application/ant/AntApp.h"
 
 void AntApp::run() {
-    auto *eventBus = Kernel::getService<EventBus>();
-    eventBus->subscribe(*this, KeyEvent::TYPE);
+    auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
+    eventBus->subscribe(*this, Kernel::KeyEvent::TYPE);
 
 	Color color;
 
@@ -38,14 +38,14 @@ void AntApp::run() {
 		forward();
 	}
 
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 }
 
-void AntApp::onEvent(const Event &event) {
+void AntApp::onEvent(const Kernel::Event &event) {
 
-	auto &keyEvent = (KeyEvent&) event;
+	auto &keyEvent = (Kernel::KeyEvent&) event;
 
-	if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+	if(keyEvent.getKey().scancode() == Kernel::KeyEvent::ESCAPE) {
 		isRunning = false;
 	}
 }

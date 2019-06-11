@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "printf.h"
 #include "system_interface.h"
 
@@ -27,5 +27,5 @@ void sys_free_mem(void *ptr) {
 }
 
 void *sys_realloc_mem(void *ptr, size_t size, size_t alignment) {
-    return SystemManagement::getInstance().realloc(ptr, size, alignment);
+    return Kernel::Management::getInstance().realloc(ptr, size, alignment);
 }

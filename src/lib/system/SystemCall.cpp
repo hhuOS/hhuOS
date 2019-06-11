@@ -26,7 +26,7 @@ void SystemCall::registerSystemCall(SystemCall::SystemCallCode code, void (*func
     systemCalls[code] = func;
 }
 
-void SystemCall::trigger(InterruptFrame &frame) {
+void SystemCall::trigger(Kernel::InterruptFrame &frame) {
     systemCalls[frame.eax]();
 }
 

@@ -17,12 +17,12 @@
 #ifndef __LinearFrameBuffer_include__
 #define __LinearFrameBuffer_include__
 
+#include <cstdint>
+
 #include "lib/graphic/Colors.h"
 #include "device/graphic/text/fonts/Fonts.h"
 #include "kernel/service/KernelService.h"
 #include "lib/util/ArrayList.h"
-
-#include <cstdint>
 #include "lib/string/String.h"
 
 /**

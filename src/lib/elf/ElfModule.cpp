@@ -197,7 +197,7 @@ void ElfModule::relocate() {
 
             if (address == 0) {
 
-                address = KernelSymbols::get(symbolName);
+                address = Kernel::Symbols::get(symbolName);
             }
 
             if (address == 0) {
@@ -229,7 +229,7 @@ char *ElfModule::getSectionName(uint16_t sectionIndex) {
     return &sectionNames[sectionHeader->nameOffset];
 }
 
-Module *ElfModule::getInstance() {
+Kernel::Module *ElfModule::getInstance() {
 
     if (instance == nullptr) {
 

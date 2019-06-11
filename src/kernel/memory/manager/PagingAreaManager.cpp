@@ -18,6 +18,8 @@
 #include "PagingAreaManager.h"
 #include "kernel/memory/Paging.h"
 
+namespace Kernel {
+
 PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(PAGESIZE, true) {
     BitmapMemoryManager::init(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false);
 
@@ -35,4 +37,6 @@ void PagingAreaManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddr
 
 String PagingAreaManager::getTypeName() {
     return TYPE_NAME;
+}
+
 }

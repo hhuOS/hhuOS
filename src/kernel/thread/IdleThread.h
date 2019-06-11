@@ -17,13 +17,12 @@
 #ifndef __IdleThread_include__
 #define __IdleThread_include__
 
-
 #include "kernel/thread/Thread.h"
 
-
+namespace Kernel {
 
 class IdleThread : public Thread {
-    
+
 private:
 
     bool isRunning = true;
@@ -35,9 +34,11 @@ public:
     IdleThread(const Thread &copy) = delete;
 
     ~IdleThread() override = default;
-    
+
     void run() override;
-    
- };
+
+};
+
+}
 
 #endif

@@ -28,7 +28,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2017
  */
-class Rtc : public InterruptHandler {
+class Rtc : public Kernel::InterruptHandler {
 
 public:
     /**
@@ -91,7 +91,7 @@ private:
 
     bool useTwelveHours;
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
     static const uint8_t CURRENT_CENTURY = 20;
 
@@ -145,7 +145,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     /**
      * Overriding function from InterruptHandler.

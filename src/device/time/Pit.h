@@ -20,7 +20,7 @@
 #include "lib/time/TimeProvider.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/GraphicsService.h"
 #include "kernel/service/TimeService.h"
 #include "device/graphic/text/TextDriver.h"
@@ -31,7 +31,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date HHU, 2017
  */
-class Pit : public InterruptHandler, public TimeProvider {
+class Pit : public Kernel::InterruptHandler, public TimeProvider {
 
 public:
     /**
@@ -71,7 +71,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     uint32_t getNanos() override;
 

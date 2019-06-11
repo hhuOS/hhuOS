@@ -25,7 +25,7 @@
  *
  * @author Filip Krakowski
  */
-class SystemCall : public InterruptHandler {
+class SystemCall : public Kernel::InterruptHandler {
 
 public:
 
@@ -34,7 +34,7 @@ public:
         SCHEDULER_BLOCK = 0x01
     };
 
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     static void registerSystemCall(SystemCallCode code, void(*func)());
 

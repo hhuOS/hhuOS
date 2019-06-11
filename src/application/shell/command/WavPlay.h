@@ -28,7 +28,7 @@
  * @author Fabian Ruhland
  * @date 2018
  */
-class WavPlay : public Command, Receiver {
+class WavPlay : public Command, Kernel::Receiver {
 
 public:
     /**
@@ -66,7 +66,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 };
 
 #endif

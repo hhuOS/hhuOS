@@ -17,7 +17,6 @@
 #ifndef __EventBus_include__
 #define __EventBus_include__
 
-
 #include "lib/util/ArrayList.h"
 #include "lib/util/HashMap.h"
 #include "lib/util/RingBuffer.h"
@@ -29,7 +28,8 @@
 #include "lib/util/LinkedBlockingQueue.h"
 #include "lib/util/Pair.h"
 
-class LinearFrameBuffer;
+namespace Kernel {
+
 class Scheduler;
 
 /**
@@ -74,13 +74,13 @@ public:
 
     void run() override;
 
-    static const constexpr char* SERVICE_NAME = "EventBus";
+    static const constexpr char *SERVICE_NAME = "EventBus";
 
 private:
 
-    Util::HashMap<String, Util::ArrayList<EventPublisher*>*> publishers;
+    Util::HashMap<String, Util::ArrayList<EventPublisher *> *> publishers;
 
-    Util::HashMap<Util::Pair<Receiver*, String>, EventPublisher*> receiverMap;
+    Util::HashMap<Util::Pair<Receiver *, String>, EventPublisher *> receiverMap;
 
     Util::LinkedBlockingQueue<Util::SmartPointer<Event>> eventBuffer;
 
@@ -97,5 +97,6 @@ private:
     bool isInitialized = false;
 };
 
+}
 
 #endif

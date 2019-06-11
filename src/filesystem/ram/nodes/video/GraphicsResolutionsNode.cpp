@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/graphic/text/TextDriver.h"
 #include "GraphicsResolutionsNode.h"
 

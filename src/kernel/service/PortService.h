@@ -22,11 +22,13 @@
 #include "device/port/Port.h"
 #include "lib/util/HashMap.h"
 
+namespace Kernel {
+
 class PortService : public KernelService {
 
 private:
 
-    Util::HashMap<String, Port*> portMap;
+    Util::HashMap<String, Port *> portMap;
 
 public:
 
@@ -38,7 +40,9 @@ public:
 
     bool isPortAvailable(const String &name);
 
-    static constexpr const char* SERVICE_NAME = "PortService";
+    static constexpr const char *SERVICE_NAME = "PortService";
 };
+
+}
 
 #endif

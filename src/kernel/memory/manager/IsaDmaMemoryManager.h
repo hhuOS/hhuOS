@@ -19,6 +19,8 @@
 
 #include "BitmapMemoryManager.h"
 
+namespace Kernel {
+
 /**
  * Manages the memory from 0x10000 to 0x90000. hhuOS uses this area for DMA transfers via the ISA bus.
  *
@@ -35,9 +37,9 @@ public:
 
     PROTOTYPE_IMPLEMENT_CLONE(IsaDmaMemoryManager);
 
-	/**
-	 * Constructor.
-	 */
+    /**
+     * Constructor.
+     */
     IsaDmaMemoryManager();
 
     /**
@@ -52,5 +54,7 @@ public:
 
     static const constexpr uint32_t ISA_DMA_BUF_SIZE = 0x10000;
 };
+
+}
 
 #endif

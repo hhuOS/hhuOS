@@ -45,7 +45,7 @@ public:
     /**
      * A log for providing logging information on the kernel log.
      */
-    Logger &log = Logger::get("Intel82541IP");
+    Kernel::Logger &log = Kernel::Logger::get("Intel82541IP");
 
 
     Intel82541IP() = default;
@@ -76,7 +76,7 @@ public:
     void setTransmitControl(TransmitControl *control) final;
     void setReceiveControl(ReceiveControl *control) final;
 
-    void trigger(InterruptFrame &frame) final;
+    void trigger(Kernel::InterruptFrame &frame) final;
     void loadMac() final;
     void plugin() final;
     void createNodes() final;

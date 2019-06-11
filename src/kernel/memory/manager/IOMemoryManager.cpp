@@ -17,12 +17,14 @@
 #include "kernel/memory/MemLayout.h"
 #include "lib/libc/printf.h"
 #include "IOMemoryManager.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/memory/Paging.h"
 
 extern "C" {
     #include "lib/libc/string.h"
 }
+
+namespace Kernel {
 
 IOMemoryManager::IOMemoryManager() : BitmapMemoryManager(PAGESIZE, false) {
     BitmapMemoryManager::init(VIRT_IO_START, VIRT_IO_END, true);
@@ -40,13 +42,13 @@ String IOMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 
-void* IOMemoryManager::alloc(uint32_t size){
+void *IOMemoryManager::alloc(uint32_t size) {
 
     lock.acquire();
 
     void *ret = BitmapMemoryManager::alloc(size);
 
-    if(ret != nullptr) {
+    if (ret != nullptr) {
         uint32_t pageCount = (size / PAGESIZE) + ((size % PAGESIZE == 0) ? 0 : 1);
 
         ioMemoryMap.put(ret, pageCount);
@@ -57,22 +59,22 @@ void* IOMemoryManager::alloc(uint32_t size){
     return ret;
 }
 
-void IOMemoryManager::free(void *ptr){
+void IOMemoryManager::free(void *ptr) {
 
     auto virtualAddress = (uint32_t) ptr;
 
-    if(virtualAddress < memoryStartAddress || virtualAddress >= memoryEndAddress){
+    if (virtualAddress < memoryStartAddress || virtualAddress >= memoryEndAddress) {
         return;
     }
 
-    SystemManagement &systemManagement = SystemManagement::getInstance();
+    Management &systemManagement = Management::getInstance();
 
     uint32_t pageCount = ioMemoryMap.get(ptr);
 
     lock.acquire();
 
-    for(uint32_t i = 0; i < pageCount; i++) {
-        BitmapMemoryManager::free((void*) (virtualAddress + i * PAGESIZE));
+    for (uint32_t i = 0; i < pageCount; i++) {
+        BitmapMemoryManager::free((void *) (virtualAddress + i * PAGESIZE));
 
         systemManagement.unmap(virtualAddress + i * PAGESIZE);
     }
@@ -80,4 +82,6 @@ void IOMemoryManager::free(void *ptr){
     ioMemoryMap.remove(ptr);
 
     lock.release();
+}
+
 }

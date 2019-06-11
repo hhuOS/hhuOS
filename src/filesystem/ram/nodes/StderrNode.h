@@ -32,8 +32,8 @@
 class StderrNode : public VirtualNode {
 
 private:
-    GraphicsService *graphicsService = nullptr;
-    KernelStreamService *kernelStreamService = nullptr;
+    Kernel::GraphicsService *graphicsService = nullptr;
+    Kernel::KernelStreamService *kernelStreamService = nullptr;
 
 public:
     /**

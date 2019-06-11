@@ -29,14 +29,14 @@
 #include "lib/math/Random.h"
 #include "lib/graphic/Color.h"
 #include "device/graphic/lfb/LinearFrameBuffer.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 void drawMandelbrotSSE(float xlim[2], float ylim[2], uint16_t globalOffsetX, uint16_t globalOffsetY);
 
 /**
  * Mandelbrot.
  */
-class Mandelbrot : public Thread, public Receiver {
+class Mandelbrot : public Kernel::Thread, public Kernel::Receiver {
 
     struct State {
         __m128 xmin;
@@ -83,7 +83,7 @@ public:
 
     void run() override;
 
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
     static State state;
 
@@ -99,7 +99,7 @@ public:
 
 private:
 
-    Logger &log;
+    Kernel::Logger &log;
 
     void calculatePosition();
 

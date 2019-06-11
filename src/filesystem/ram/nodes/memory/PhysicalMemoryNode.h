@@ -18,7 +18,7 @@
 #define HHUOS_PFANODE_H
 
 
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "MemoryNode.h"
 
 class PhysicalMemoryNode : public MemoryNode {

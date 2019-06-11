@@ -42,7 +42,7 @@ private:
      */
     void delay (uint32_t time);
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
 public:
     /**

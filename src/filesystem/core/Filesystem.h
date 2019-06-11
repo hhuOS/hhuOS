@@ -26,18 +26,18 @@
  * The filesystem. It works by maintaining a list of mount-points. Every request will be handled by picking the right
  * mount-point and and passing the request over to the corresponding FsDriver.
  */
-class Filesystem : public KernelService, Receiver {
+class Filesystem : public Kernel::KernelService, Kernel::Receiver {
 
 private:
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
     Util::HashMap<String, FsDriver*> mountPoints;
 
     Spinlock fsLock;
 
-    StorageService *storageService = nullptr;
-    EventBus *eventBus = nullptr;
+    Kernel::StorageService *storageService = nullptr;
+    Kernel::EventBus *eventBus = nullptr;
 
     /**
      * Get the driver, that is mounted at a specified path.
@@ -187,7 +187,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
 
     static constexpr const char* SERVICE_NAME = "Filesystem";

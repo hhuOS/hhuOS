@@ -17,7 +17,7 @@
 #ifndef HHUOS_PARALLELDRIVER_H
 #define HHUOS_PARALLELDRIVER_H
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/cpu/IoPort.h"
 #include "kernel/service/TimeService.h"
 #include "device/port/Port.h"
@@ -116,7 +116,7 @@ public:
 
 private:
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
     ParallelMode mode;
 
@@ -162,7 +162,7 @@ ParallelDriver<port>::ParallelDriver(ParallelMode mode) : mode(mode),
                                                           eppDataPort(static_cast<uint16_t>(port + 4)) {
     initializePort();
 
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 template<LptPort port>
@@ -260,10 +260,10 @@ String ParallelDriver<port>::getName() {
 
 static void initializePorts() {
 
-    Logger &log = Logger::get("PARALLEL");
+    Kernel::Logger &log = Kernel::Logger::get("PARALLEL");
 
-    auto *portService = Kernel::getService<PortService>();
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *portService = Kernel::System::getService<Kernel::PortService>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
 
     if(ParallelDriver<LPT1>::checkPort()) {
         log.info("Detected LPT1");

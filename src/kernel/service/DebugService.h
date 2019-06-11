@@ -25,6 +25,7 @@
 #include "device/input/Keyboard.h"
 #include "device/misc/Pic.h"
 
+namespace Kernel {
 
 class DebugService : public KernelService {
 
@@ -38,7 +39,7 @@ public:
 
     void printPic();
 
-    static constexpr char* SERVICE_NAME = "DebugService";
+    static constexpr char *SERVICE_NAME = "DebugService";
 
 private:
 
@@ -53,5 +54,6 @@ private:
     LinearFrameBuffer *lfb;
 };
 
+}
 
 #endif

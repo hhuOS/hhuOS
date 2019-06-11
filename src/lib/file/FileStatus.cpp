@@ -17,7 +17,7 @@
 #include "lib/string/String.h"
 #include "filesystem/core/FsNode.h"
 #include "filesystem/core/Filesystem.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "FileStatus.h"
 
 FileStatus::FileStatus(Util::SmartPointer<FsNode> node, const String &path) : node(node) {
@@ -25,12 +25,12 @@ FileStatus::FileStatus(Util::SmartPointer<FsNode> node, const String &path) : no
 }
 
 bool FileStatus::exists(const String &path) {
-    return !(Kernel::getService<Filesystem>()->getNode(path) == nullptr);
+    return !(Kernel::System::getService<Filesystem>()->getNode(path) == nullptr);
 
 }
 
 FileStatus *FileStatus::stat(const String &path) {
-    auto *filesystem = Kernel::getService<Filesystem>();
+    auto *filesystem = Kernel::System::getService<Filesystem>();
     Util::SmartPointer<FsNode> node = filesystem->getNode(path);
 
     if(node == nullptr) {

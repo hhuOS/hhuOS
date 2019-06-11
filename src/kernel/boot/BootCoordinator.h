@@ -7,38 +7,42 @@
 #include "lib/util/SmartPointer.h"
 #include "BootComponent.h"
 
+namespace Kernel {
+
 class BootCoordinator : public Thread {
 
 public:
 
-    explicit BootCoordinator(Util::Array<BootComponent*> components, void (*onFinish)());
+    explicit BootCoordinator(Util::Array<BootComponent *> components, void (*onFinish)());
 
     BootCoordinator(const BootCoordinator &copy) = delete;
 
-    BootCoordinator& operator=(const BootCoordinator &other) = delete;
+    BootCoordinator &operator=(const BootCoordinator &other) = delete;
 
     ~BootCoordinator() override = default;
 
     void run() override;
 
-    void addComponent(BootComponent* component);
+    void addComponent(BootComponent *component);
 
-    Util::Array<BootComponent*> getComponents();
+    Util::Array<BootComponent *> getComponents();
 
 private:
 
-     void buildComponentLayers();
+    void buildComponentLayers();
 
 private:
 
     Atomic<bool> hasStarted;
 
-    Util::ArrayList<BootComponent*> components;
+    Util::ArrayList<BootComponent *> components;
 
-    Util::ArrayList<Util::List<BootComponent*>*> layeredComponents;
+    Util::ArrayList<Util::List<BootComponent *> *> layeredComponents;
 
     void (*onFinish)();
 
 };
+
+}
 
 #endif

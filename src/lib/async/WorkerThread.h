@@ -23,7 +23,7 @@
  * @author Filip Krakowski
  */
 template <typename T, typename R>
-class WorkerThread : public Thread {
+class WorkerThread : public Kernel::Thread {
 
 public:
 

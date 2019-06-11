@@ -18,6 +18,7 @@
 #define __Module_include__
 
 #include <cstdint>
+
 #include "lib/string/String.h"
 
 #define MODULE_PROVIDER             \
@@ -25,6 +26,8 @@
         Module *__provider();       \
     };                              \
     Module *__provider()            \
+
+namespace Kernel {
 
 /**
  * @author Filip Krakowski
@@ -69,5 +72,7 @@ public:
      */
     virtual Util::Array<String> getDependencies() = 0;
 };
+
+}
 
 #endif

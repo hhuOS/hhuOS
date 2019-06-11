@@ -22,7 +22,7 @@
 #include "DelVdd.h"
 
 DelVdd::DelVdd(Shell &shell) : Command(shell) {
-    storageService = Kernel::getService<StorageService>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
 };
 
 void DelVdd::execute(Util::Array<String> &args) {
@@ -65,7 +65,7 @@ void DelVdd::execute(Util::Array<String> &args) {
 
     // Remove the device and all it's partitions from storage port
     Directory *dir = Directory::open("/dev/storage");
-    auto *storageService = Kernel::getService<StorageService>();
+    auto *storageService = Kernel::System::getService<Kernel::StorageService>();
 
     for (const String &name : dir->getChildren()) {
         if (name.beginsWith(file->getName())) {

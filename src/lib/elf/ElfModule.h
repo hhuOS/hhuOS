@@ -21,6 +21,7 @@
 #include "lib/elf/Elf.h"
 #include "lib/string/String.h"
 #include "kernel/module/Module.h"
+#include "kernel/service/ModuleLoader.h"
 
 /**
  * @author Filip Krakowski
@@ -40,7 +41,7 @@ public:
      *
      * @return An instance of the module
      */
-    Module *getInstance();
+    Kernel::Module *getInstance();
 
     /**
      * Returns the address for a given symbol.
@@ -61,9 +62,9 @@ private:
 
     uint32_t base;
 
-    Module* (*provider)() = nullptr;
+    Kernel::Module* (*provider)() = nullptr;
 
-    Module* instance = nullptr;
+    Kernel::Module* instance = nullptr;
 
     char *buffer = nullptr;
 
@@ -93,7 +94,7 @@ private:
 
     void relocate();
 
-    friend class ModuleLoader;
+    friend class Kernel::ModuleLoader;
 
 };
 

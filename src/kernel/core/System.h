@@ -25,16 +25,18 @@
 #include "kernel/thread/ThreadState.h"
 #include "lib/util/HashMap.h"
 
+namespace Kernel {
+
 /**
  * Provides access to registered KernelServices.
  *
  * @author Filip Krakowski
  */
-class Kernel {
+class System {
 
 public:
 
-    Kernel() = delete;
+    System() = delete;
 
     /**
      * Returns an already registered service.
@@ -43,7 +45,7 @@ public:
      * @return The service
      */
     template<class T>
-    static T* getService() {
+    static T *getService() {
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
@@ -52,7 +54,7 @@ public:
             Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT, errorMessage);
         }
 
-        return (T*) serviceMap.get(T::SERVICE_NAME);
+        return (T *) serviceMap.get(T::SERVICE_NAME);
     }
 
     /**
@@ -61,7 +63,7 @@ public:
 	 * @param serviceId The unique service id.
 	 * @param kernelService Instance of the KernelService
 	 */
-    static void registerService(const String &serviceId, KernelService* const &kernelService);
+    static void registerService(const String &serviceId, KernelService *const &kernelService);
 
     /**
      * Indicates whether a particular service has already been registered.
@@ -80,12 +82,13 @@ public:
 
 private:
 
-    static Util::HashMap<String, KernelService*> serviceMap;
+    static Util::HashMap<String, KernelService *> serviceMap;
 
     static Spinlock serviceLock;
 
     static const uint32_t SERVICE_MAP_SIZE = 47;
 };
 
+}
 
 #endif

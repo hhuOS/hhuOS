@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/event/input/KeyEvent.h"
 #include "application/loop/Loop.h"
 #include "kernel/thread/Scheduler.h"
@@ -23,29 +23,29 @@
 #include "Sound.h"
 
 LoopsAndSound::LoopsAndSound() {
-    eventBus = Kernel::getService<EventBus>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 }
 
 LoopsAndSound::~LoopsAndSound() {
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 }
 
-void LoopsAndSound::onEvent(const Event &event) {
-    if(event.getType() == KeyEvent::TYPE) {
-        auto &keyEvent = (KeyEvent&) event;
+void LoopsAndSound::onEvent(const Kernel::Event &event) {
+    if(event.getType() == Kernel::KeyEvent::TYPE) {
+        auto &keyEvent = (Kernel::KeyEvent&) event;
 
-        if(keyEvent.getKey().scancode() == KeyEvent::ESCAPE) {
+        if(keyEvent.getKey().scancode() == Kernel::KeyEvent::ESCAPE) {
             isRunning = false;
         }
     }
 }
 
 void LoopsAndSound::run() {
-    eventBus->subscribe(*this, KeyEvent::TYPE);
+    eventBus->subscribe(*this, Kernel::KeyEvent::TYPE);
 
-    Thread *thread1 = new Loop(1, 1);
-    Thread *thread2 = new Loop(2, 3);
-    Thread *thread3 = new Sound();
+    Kernel::Thread *thread1 = new Loop(1, 1);
+    Kernel::Thread *thread2 = new Loop(2, 3);
+    Kernel::Thread *thread3 = new Sound();
 
     thread1->start();
     thread2->start();
@@ -53,13 +53,13 @@ void LoopsAndSound::run() {
 
     while(isRunning);
 
-    Scheduler::getInstance().kill(*thread1);
-    Scheduler::getInstance().kill(*thread2);
-    Scheduler::getInstance().kill(*thread3);
+    Kernel::Scheduler::getInstance().kill(*thread1);
+    Kernel::Scheduler::getInstance().kill(*thread2);
+    Kernel::Scheduler::getInstance().kill(*thread3);
 
     delete thread1;
     delete thread2;
     delete thread3;
 
-    eventBus->unsubscribe(*this, KeyEvent::TYPE);
+    eventBus->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 }

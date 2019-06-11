@@ -25,7 +25,7 @@
 #include "lib/math/Random.h"
 #include "lib/graphic/Color.h"
 #include "device/graphic/lfb/LinearFrameBuffer.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 /**
  * Langstons Ant.
@@ -34,7 +34,7 @@
  * @author Jochen Peters, Fabian Ruhland, Filip Krakowski
  * @date 2017
  */
-class AntApp : public Thread, public Receiver {
+class AntApp : public Kernel::Thread, public Kernel::Receiver {
 
 private:
 	Random * _random;
@@ -60,7 +60,7 @@ public:
 	int y;
 
 	AntApp () : Thread ("ant") {
-		lfb = (Kernel::getService<GraphicsService>())->getLinearFrameBuffer();
+		lfb = (Kernel::System::getService<Kernel::GraphicsService>())->getLinearFrameBuffer();
 		_bouncing = true;
 		_random = new Random(400);
 		_col = Colors::YELLOW;
@@ -153,7 +153,7 @@ public:
 	
 	void run();
 
-	void onEvent(const Event &event) override;
+	void onEvent(const Kernel::Event &event) override;
 	
 	char * name(){ return "ant";}
 };

@@ -22,7 +22,7 @@
 #include <kernel/service/PortService.h>
 #include <filesystem/core/Filesystem.h>
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/cpu/IoPort.h"
 #include "kernel/service/EventBus.h"
 #include "lib/util/RingBuffer.h"
@@ -43,7 +43,7 @@ namespace Serial {
  * @date 2018
  */
 template<ComPort port>
-class SerialDriver : public Port, public InterruptHandler {
+class SerialDriver : public Port, public Kernel::InterruptHandler {
 
 public:
 
@@ -84,7 +84,7 @@ public:
     /**
      * Overriding function from IODevice.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     /**
      * Overriding function from Port.
@@ -125,7 +125,7 @@ public:
 
 private:
 
-    EventBus *eventBus;
+    Kernel::EventBus *eventBus;
 
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
@@ -171,7 +171,7 @@ SerialDriver<port>::SerialDriver(BaudRate speed) : interruptDataBuffer(1024), sp
                                                    lineStatusRegister(port + 5),
                                                    modemStatusRegister(port + 6),
                                                    scratchRegister(port + 7) {
-    eventBus = Kernel::getService<EventBus>();
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
 
     interruptRegister.outb(0x00);        // Disable all interrupts
     lineControlRegister.outb(0x80);      // Enable DLAB, so that the divisor can be set
@@ -204,13 +204,13 @@ void SerialDriver<port>::sendChar(char c) {
 
 template<ComPort port>
 void SerialDriver<port>::plugin() {
-    InterruptManager::getInstance().registerInterruptHandler(this);
+    Kernel::InterruptManager::getInstance().registerInterruptHandler(this);
 
     if (port == COM1 || port == COM3) {
-        InterruptDispatcher::getInstance().assign(36, *this);
+        Kernel::InterruptDispatcher::getInstance().assign(36, *this);
         Pic::getInstance().allow(Pic::Interrupt::COM1);
     } else {
-        InterruptDispatcher::getInstance().assign(35, *this);
+        Kernel::InterruptDispatcher::getInstance().assign(35, *this);
         Pic::getInstance().allow(Pic::Interrupt::COM2);
     }
 
@@ -218,7 +218,7 @@ void SerialDriver<port>::plugin() {
 }
 
 template<ComPort port>
-void SerialDriver<port>::trigger(InterruptFrame &frame) {
+void SerialDriver<port>::trigger(Kernel::InterruptFrame &frame) {
     if ((fifoControlRegister.inb() & 0x01) == 0x01) {
         return;
     }
@@ -243,7 +243,7 @@ template<ComPort port>
 void SerialDriver<port>::parseInterruptData() {
     uint8_t data = interruptDataBuffer.pop();
 
-    Util::SmartPointer<Event> event(new SerialEvent<port>(data));
+    Util::SmartPointer<Kernel::Event> event(new SerialEvent<port>(data));
 
     eventBus->publish(event);
 }
@@ -286,10 +286,10 @@ String SerialDriver<port>::getName() {
 
 static void initializePorts() {
 
-    Logger &log = Logger::get("SERIAL");
+    Kernel::Logger &log = Kernel::Logger::get("SERIAL");
 
-    auto *portService = Kernel::getService<PortService>();
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *portService = Kernel::System::getService<Kernel::PortService>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
 
     if(Serial::SerialDriver<Serial::COM1>::checkPort()) {
         log.info("Detected COM1");

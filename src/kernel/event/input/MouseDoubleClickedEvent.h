@@ -20,6 +20,8 @@
 
 #include "kernel/event/Event.h"
 
+namespace Kernel {
+
 class MouseDoubleClickedEvent : public Event {
 
 public:
@@ -31,5 +33,6 @@ public:
     static const constexpr char *TYPE = "MouseDoubleClickedEvent";
 };
 
+}
 
 #endif

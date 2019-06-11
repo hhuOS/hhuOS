@@ -17,10 +17,12 @@
 #ifndef __ModuleLoader_include__
 #define __ModuleLoader_include__
 
-
-#include "lib/elf/ElfModule.h"
+#include "lib/file/File.h"
+#include "kernel/module/Module.h"
 #include "KernelService.h"
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/Symbols.h"
+
+namespace Kernel {
 
 /**
  * Loads Modules into the kernel and initializes them.
@@ -32,11 +34,11 @@ class ModuleLoader : public KernelService {
 public:
 
     enum class Status : uint32_t {
-        OK              = 0x00,
-        MISSING_DEP     = 0x01,
-        INVALID         = 0x02,
-        WRONG_TYPE      = 0x03,
-        ERROR           = 0x04
+        OK = 0x00,
+        MISSING_DEP = 0x01,
+        INVALID = 0x02,
+        WRONG_TYPE = 0x03,
+        ERROR = 0x04
     };
 
     ModuleLoader() = default;
@@ -53,15 +55,16 @@ public:
      */
     Status load(File *file);
 
-    static constexpr const char* SERVICE_NAME = "ModuleLoader";
+    static constexpr const char *SERVICE_NAME = "ModuleLoader";
 
 private:
 
-    Util::HashMap<String, Module*> modules;
+    Util::HashMap<String, Module *> modules;
 
-    static constexpr const char* PROVIDER_SYMBOL = "__provider";
+    static constexpr const char *PROVIDER_SYMBOL = "__provider";
 
 };
 
+}
 
 #endif

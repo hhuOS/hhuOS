@@ -27,6 +27,8 @@
 #include <cstdint>
 #include "lib/system/SystemCall.h"
 
+namespace Kernel {
+
 typedef void (*debugFunction)();
 
 /**
@@ -39,7 +41,7 @@ typedef void (*debugFunction)();
 class InterruptDispatcher : public KernelService {
 
 public:
-	// enum of important interrupt numbers
+    // enum of important interrupt numbers
     enum {
         PAGEFAULT = 14,
         PIT = 32,
@@ -58,11 +60,12 @@ public:
         PRIMARY_ATA = 46,
         SECONDARY_ATA = 47,
     };
-    
+
     // no constructor needed
     InterruptDispatcher();
 
     InterruptDispatcher(const InterruptDispatcher &other) = delete;
+
     /**
      * Register an interrupt handler to an interrupt number.
      *
@@ -78,14 +81,14 @@ public:
      * @param gate Pointer to the handler itself
      */
     void assignDebug(uint8_t slot, void (*debugHandler)());
-    
+
     /**
      * Get the interrupt handlers that are registered for a specific interrupt.
      *
      * @param slot Interrupt number
      * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
      */
-    Util::List<InterruptHandler*>* report(uint8_t slot);
+    Util::List<InterruptHandler *> *report(uint8_t slot);
 
     /**
      * Get the debug handlers that are registered for a specific interrupt.
@@ -110,9 +113,11 @@ private:
 
     Util::HashMap<uint8_t, debugFunction> debugHandlers;
 
-    Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler*>*> handler;
+    Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler *> *> handler;
 
     void sendEoi(uint32_t slot);
 };
+
+}
 
 #endif

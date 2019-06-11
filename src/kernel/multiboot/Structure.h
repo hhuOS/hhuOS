@@ -24,7 +24,7 @@
 
 #define PRINT_MEMORY 0
 
-namespace Multiboot {
+namespace Kernel::Multiboot {
 
     class Structure {
 

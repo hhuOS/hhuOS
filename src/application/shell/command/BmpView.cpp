@@ -45,7 +45,7 @@ void BmpView::execute(Util::Array<String> &args) {
         return;
     }
 
-    LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    LinearFrameBuffer *lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
     double horizontalScaling = 1.0 / (lfb->getResX() / (bmp->getWidth() + 30.0));
     double verticalScaling = 1.0 / (lfb->getResY() / (bmp->getHeight() + 65.0));
@@ -66,15 +66,15 @@ void BmpView::execute(Util::Array<String> &args) {
 
     isRunning = true;
 
-    Kernel::getService<EventBus>()->subscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->subscribe(*this, Kernel::KeyEvent::TYPE);
 
     while(isRunning);
 
-    Kernel::getService<EventBus>()->unsubscribe(*this, KeyEvent::TYPE);
+    Kernel::System::getService<Kernel::EventBus>()->unsubscribe(*this, Kernel::KeyEvent::TYPE);
 
     delete bmp;
 
-    TextDriver *text = Kernel::getService<GraphicsService>()->getTextDriver();
+    TextDriver *text = Kernel::System::getService<Kernel::GraphicsService>()->getTextDriver();
     text->init(text->getColumnCount(), text->getRowCount(), text->getDepth());
 }
 
@@ -85,10 +85,10 @@ const String BmpView::getHelpText() {
            "  -h, --help: Show this help-message";
 }
 
-void BmpView::onEvent(const Event &event) {
-    auto &keyEvent = (KeyEvent&) event;
+void BmpView::onEvent(const Kernel::Event &event) {
+    auto &keyEvent = (Kernel::KeyEvent&) event;
 
-    if(keyEvent.getKey().scancode() == KeyEvent::RETURN) {
+    if(keyEvent.getKey().scancode() == Kernel::KeyEvent::RETURN) {
         isRunning = false;
     } else if(keyEvent.getKey().ascii() == '+') {
         scaleUp();
@@ -98,7 +98,7 @@ void BmpView::onEvent(const Event &event) {
 }
 
 void BmpView::scaleUp() {
-    LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    LinearFrameBuffer *lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
     if(scalingDividor > initScalingDividor) {
         scalingDividor--;
@@ -125,7 +125,7 @@ void BmpView::scaleDown() {
 }
 
 void BmpView::drawBitmap() {
-    LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    LinearFrameBuffer *lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
     String returnString = "<RETURN>";
 
     Bmp scaledBmp(*bmp);

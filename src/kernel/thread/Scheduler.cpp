@@ -17,7 +17,7 @@
 #include "device/cpu/Cpu.h"
 #include "lib/libc/printf.h"
 #include "device/misc/Pic.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/PortService.h"
 #include "device/time/Pit.h"
 #include "kernel/service/SoundService.h"
@@ -27,11 +27,13 @@
 #include "Scheduler.h"
 #include "IdleThread.h"
 
+namespace Kernel {
+
 extern "C" {
-    void startThread(Context* first);
-    void switchContext(Context **current, Context **next);
-    void setSchedInit();
-    void releaseSchedulerLock();
+void startThread(Context *first);
+void switchContext(Context **current, Context **next);
+void setSchedInit();
+void releaseSchedulerLock();
 }
 
 void releaseSchedulerLock() {
@@ -51,13 +53,13 @@ Scheduler::Scheduler(ThreadPriority &priority) : priority(priority), readyQueues
     });
 
     SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, []() {
-        if(Scheduler::getInstance().isInitialized()) {
+        if (Scheduler::getInstance().isInitialized()) {
             Scheduler::getInstance().block();
         }
     });
 }
 
-Scheduler& Scheduler::getInstance() noexcept {
+Scheduler &Scheduler::getInstance() noexcept {
 
     static AccessArrayThreadPriority priority(5);
 
@@ -84,9 +86,9 @@ void Scheduler::startUp() {
     startThread(currentThread->context);
 }
 
-void Scheduler::ready(Thread& that) {
+void Scheduler::ready(Thread &that) {
 
-    if(that.hasStarted()) {
+    if (that.hasStarted()) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: Trying to start an already running thread!");
     }
 
@@ -105,33 +107,36 @@ void Scheduler::exit() {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'exit' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                            "Scheduler: 'exit' called but scheduler is not initialized!");
     }
-    
+
     if (!isThreadWaiting()) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
-    Thread* next = getNextThread();
+    Thread *next = getNextThread();
 
     currentThread->finished = true;
 
-    dispatch (*next);
+    dispatch(*next);
 }
 
-void Scheduler::kill(Thread& that) {
+void Scheduler::kill(Thread &that) {
 
     lock.acquire();
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'kill' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                            "Scheduler: 'kill' called but scheduler is not initialized!");
     }
 
-    if(that.getId() == currentThread->getId()) {
+    if (that.getId() == currentThread->getId()) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: A thread is trying to kill itself... Use 'exit' instead!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                            "Scheduler: A thread is trying to kill itself... Use 'exit' instead!");
     }
 
     readyQueues[that.getPriority()].remove(&that);
@@ -148,7 +153,7 @@ void Scheduler::yield() {
         return;
     }
 
-    if(lock.tryAcquire()) {
+    if (lock.tryAcquire()) {
 
         Thread *next = getNextThread();
 
@@ -159,7 +164,7 @@ void Scheduler::yield() {
 }
 
 void Scheduler::block() {
-    
+
     if (!isThreadWaiting()) {
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
@@ -167,9 +172,9 @@ void Scheduler::block() {
 
     lock.acquire();
 
-    Thread* next = getNextThread();
-    
-    dispatch (*next);
+    Thread *next = getNextThread();
+
+    dispatch(*next);
 }
 
 void Scheduler::deblock(Thread &that) {
@@ -178,7 +183,8 @@ void Scheduler::deblock(Thread &that) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'deblock' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                            "Scheduler: 'deblock' called but scheduler is not initialized!");
     }
 
     readyQueues[that.getPriority()].push(&that);
@@ -190,25 +196,26 @@ void Scheduler::dispatch(Thread &next) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'dispatch' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
+                            "Scheduler: 'dispatch' called but scheduler is not initialized!");
     }
 
-    Thread* current = currentThread;
+    Thread *current = currentThread;
 
     currentThread = &next;
 
     switchContext(&current->context, &next.context);
 }
 
-Thread* Scheduler::getNextThread() {
+Thread *Scheduler::getNextThread() {
 
-    if(!isThreadWaiting()) {
+    if (!isThreadWaiting()) {
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: No thread is waiting to be scheduled!");
     }
 
-    Util::ArrayBlockingQueue<Thread*> *currentQueue = &readyQueues[priority.getNextPriority()];
+    Util::ArrayBlockingQueue<Thread *> *currentQueue = &readyQueues[priority.getNextPriority()];
 
-    while(currentQueue->isEmpty()) {
+    while (currentQueue->isEmpty()) {
         currentQueue = &readyQueues[priority.getNextPriority()];
     }
 
@@ -224,8 +231,8 @@ bool Scheduler::isInitialized() {
 
 bool Scheduler::isThreadWaiting() {
 
-    for(const auto &queue : readyQueues) {
-        if(!queue.isEmpty()) {
+    for (const auto &queue : readyQueues) {
+        if (!queue.isEmpty()) {
             return true;
         }
     }
@@ -237,7 +244,7 @@ uint32_t Scheduler::getThreadCount() {
 
     uint32_t count = 0;
 
-    for(const auto &queue : readyQueues) {
+    for (const auto &queue : readyQueues) {
         count += queue.size();
     }
 
@@ -255,7 +262,7 @@ uint8_t Scheduler::changePriority(Thread &thread, uint8_t priority) {
 
     lock.acquire();
 
-    if(&thread == currentThread) {
+    if (&thread == currentThread) {
         lock.release();
 
         return priority;
@@ -270,4 +277,4 @@ uint8_t Scheduler::changePriority(Thread &thread, uint8_t priority) {
     return priority;
 }
 
-
+}

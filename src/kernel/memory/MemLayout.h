@@ -73,7 +73,4 @@
 #define VIRT2PHYS_VAR(type, x) (*(type*)(((uint8_t*) &x) - KERNEL_START))
 #define PHYS2VIRT_VAR(type, x) (*(type*)(((uint8_t*) &x) + KERNEL_START))
 
-
-
-
 #endif

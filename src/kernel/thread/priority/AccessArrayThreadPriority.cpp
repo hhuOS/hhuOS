@@ -1,18 +1,21 @@
 #include "AccessArrayThreadPriority.h"
 
+namespace Kernel {
+
 AccessArrayThreadPriority::AccessArrayThreadPriority(uint8_t priorityCount) : ThreadPriority(priorityCount),
-        accessArray(priorityCount * (priorityCount - 1) / 2u) {
+                                                                              accessArray(priorityCount *
+                                                                                          (priorityCount - 1) / 2u) {
 
     uint8_t tmp[priorityCount];
 
-    for(uint8_t i = 0; i < priorityCount; i++) {
+    for (uint8_t i = 0; i < priorityCount; i++) {
         tmp[i] = i;
     }
 
     uint8_t index = getMaxPriority();
 
-    for(uint32_t i = 0; i < accessArray.length(); i++) {
-        while(tmp[index] == 0) {
+    for (uint32_t i = 0; i < accessArray.length(); i++) {
+        while (tmp[index] == 0) {
             index++;
             index %= priorityCount;
         }
@@ -28,7 +31,7 @@ AccessArrayThreadPriority::AccessArrayThreadPriority(uint8_t priorityCount) : Th
 uint8_t AccessArrayThreadPriority::getNextPriority() {
     auto index = static_cast<uint8_t>(currentIndex++ % (accessArray.length() + 1));
 
-    if(index == accessArray.length()) {
+    if (index == accessArray.length()) {
         return 0;
     }
 
@@ -37,4 +40,6 @@ uint8_t AccessArrayThreadPriority::getNextPriority() {
 
 void AccessArrayThreadPriority::reset() {
     currentIndex = 0;
+}
+
 }

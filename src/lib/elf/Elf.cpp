@@ -311,7 +311,7 @@ uint32_t Elf::resolveSymbol(uint32_t index) {
 
     } else {
 
-        symbolAddress = (uint32_t*) KernelSymbols::get(symbolName);
+        symbolAddress = (uint32_t*) Kernel::Symbols::get(symbolName);
     }
 
     uint32_t *offset = (uint32_t*) base + relocationEntry->offset;

@@ -26,7 +26,7 @@
 #include "device/network/e1000/transmit/descriptor/legacy/field/LegacyCommandSimple.h"
 #include "device/network/e1000/transmit/descriptor/legacy/field/TransmitStatusSimple.h"
 #include "device/network/e1000/receive/descriptor/field/RsBufferedSimple.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "device/network/e1000/receive/descriptor/ReceiveDescriptorSimple.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "Intel82540EM.h"
@@ -79,8 +79,8 @@ Descriptors<ReceiveDescriptor *> *Intel82540EM::createReceiveDescriptorBlock(uin
         auto status     = new RsBufferedSimple(address + 12);
         auto errors     = new BufferedReceiveErrors82540EM(address + 13);
 
-        auto virtualPacketBuffer    = (uint8_t *) SystemManagement::getInstance().mapIO(rxBufferSize::ext_small);
-        auto physicalPacketBuffer   = SystemManagement::getInstance().getPhysicalAddress(virtualPacketBuffer);
+        auto virtualPacketBuffer    = (uint8_t *) Kernel::Management::getInstance().mapIO(rxBufferSize::ext_small);
+        auto physicalPacketBuffer   = Kernel::Management::getInstance().getPhysicalAddress(virtualPacketBuffer);
 
         ReceiveDescriptor *descriptor = new ReceiveDescriptorSimple(address, virtualPacketBuffer, errors, status);
         descriptor->writeAddress((uint64_t) physicalPacketBuffer);
@@ -153,7 +153,7 @@ void Intel82540EM::setReceiveControl(ReceiveControl *control) {
     control->manage();
 }
 
-void Intel82540EM::trigger(InterruptFrame &frame) {
+void Intel82540EM::trigger(Kernel::InterruptFrame &frame) {
     interruptCause->readAndClear();
 
     if(interruptCause->hasLinkStatusChanged()) {
@@ -184,14 +184,14 @@ void Intel82540EM::loadMac() {
 }
 
 void Intel82540EM::plugin() {
-    InterruptDispatcher::getInstance().assign(InterruptDispatcher::FREE3, *this);
+    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::FREE3, *this);
     Pic::getInstance().allow(Pic::Interrupt::FREE3);
 }
 
 void Intel82540EM::createNodes() {
     static uint32_t cardCounter = 0;
 
-    auto *fs = Kernel::getService<Filesystem>();
+    auto *fs = Kernel::System::getService<Filesystem>();
     String path = String::format("/dev/network/intel82540EM_%u", cardCounter);
     fs->createDirectory(path);
 

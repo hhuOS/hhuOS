@@ -42,7 +42,7 @@
  *      -Stereo PCM, 5000-44100 Hz, 8-bit samples
  *      -Stereo PCM, 5000-44100 Hz, 16-bit samples
  */
-class SoundBlaster16 : public SoundBlaster, public InterruptHandler {
+class SoundBlaster16 : public SoundBlaster, public Kernel::InterruptHandler {
 
 private:
 
@@ -136,7 +136,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif

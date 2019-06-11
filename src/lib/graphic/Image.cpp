@@ -15,7 +15,7 @@
  */
 
 #include "kernel/service/GraphicsService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "Image.h"
 
 extern "C" {
@@ -23,7 +23,7 @@ extern "C" {
 }
 
 void Image::draw(uint16_t x, uint16_t y) const {
-    auto *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    auto *lfb = Kernel::System::getService<Kernel::GraphicsService>()->getLinearFrameBuffer();
 
     for(uint16_t i = 0; i < height; i++) {
         for(uint16_t j = 0; j < width; j++) {

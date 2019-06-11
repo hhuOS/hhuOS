@@ -31,7 +31,7 @@ class SoundBlaster : public PcmAudioDevice {
 
 protected:
 
-    Logger *log;
+    Kernel::Logger *log;
 
     uint16_t baseAddress;
 
@@ -47,7 +47,7 @@ protected:
     IoPort writeDataPort;
     IoPort readBufferStatusPort;
 
-    TimeService *timeService = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
 private:
 

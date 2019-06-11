@@ -21,8 +21,8 @@
 #include "MkPart.h"
 
 MkPart::MkPart(Shell &shell) : Command(shell) {
-    storageService = Kernel::getService<StorageService>();
-    fileSystem = Kernel::getService<Filesystem>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 };
 
 void MkPart::execute(Util::Array<String> &args) {

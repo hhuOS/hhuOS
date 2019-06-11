@@ -19,6 +19,8 @@
 
 #include "BlueScreen.h"
 
+namespace Kernel {
+
 /**
  * Implementation of a bluescreen for the CGA graphics mode.
  *
@@ -70,5 +72,7 @@ private:
     const char *CGA_START = reinterpret_cast<const char *>(VIRT_CGA_START);
 
 };
+
+}
 
 #endif

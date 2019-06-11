@@ -16,7 +16,7 @@
 
 #include "ElfLoader.h"
 
-KernelSymbols *ElfLoader::linkerService = nullptr;
+Kernel::Symbols *ElfLoader::linkerService = nullptr;
 
 extern "C" {
     int resolveSymbol(Elf &elf, uint32_t index);
@@ -43,5 +43,5 @@ bool ElfLoader::load(File *file, int argc, char *argv[]) {
 
 uint32_t ElfLoader::getSymbol(const String &name) {
 
-    return KernelSymbols::get(name);
+    return Kernel::Symbols::get(name);
 }

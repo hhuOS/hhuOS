@@ -25,7 +25,8 @@ Screenshot::~Screenshot() {
 }
 
 void Screenshot::take() {
-    LinearFrameBuffer *lfb = Kernel::getService<GraphicsService>()->getLinearFrameBuffer();
+    Kernel::GraphicsService *service = Kernel::System::getService<Kernel::GraphicsService>();
+    LinearFrameBuffer *lfb = service->getLinearFrameBuffer();
     bool isDoubleBuffered = lfb->isDoubleBuffered();
 
     width = lfb->getResX();

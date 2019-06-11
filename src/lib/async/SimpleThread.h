@@ -3,7 +3,7 @@
 
 #include "kernel/thread/Thread.h"
 
-class SimpleThread : public Thread {
+class SimpleThread : public Kernel::Thread {
 
 public:
 

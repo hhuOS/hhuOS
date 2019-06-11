@@ -20,6 +20,8 @@
 #include "device/port/Port.h"
 #include "Appender.h"
 
+namespace Kernel {
+
 class PortAppender : public Appender {
 
 public:
@@ -39,5 +41,6 @@ private:
     Port &port;
 };
 
+}
 
 #endif

@@ -16,6 +16,8 @@
 
 #include "SoundService.h"
 
+namespace Kernel {
+
 Logger &SoundService::log = Logger::get("SOUND");
 
 SoundService::SoundService() {
@@ -26,7 +28,7 @@ bool SoundService::isPcmAudioAvailable() {
     return pcmAudioDevice != nullptr;
 }
 
-PcSpeaker* SoundService::getPcSpeaker() {
+PcSpeaker *SoundService::getPcSpeaker() {
     return pcSpeaker;
 }
 
@@ -37,8 +39,10 @@ PcmAudioDevice *SoundService::getPcmAudioDevice() {
 void SoundService::setPcmAudioDevice(PcmAudioDevice *newDevice) {
     pcmAudioDevice = newDevice;
 
-    if(pcmAudioDevice != nullptr) {
+    if (pcmAudioDevice != nullptr) {
         log.info("PCM Audio Device is now set to '%s' by '%s'", (const char *) pcmAudioDevice->getDeviceName(),
                  (const char *) pcmAudioDevice->getVendorName());
     }
+}
+
 }

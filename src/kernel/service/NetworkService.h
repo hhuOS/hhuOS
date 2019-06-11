@@ -27,6 +27,8 @@
 #include "kernel/log/Logger.h"
 #include "kernel/network/PacketHandler.h"
 
+namespace Kernel {
+
 /**
  * This class implements the KernelService class.
  *
@@ -34,7 +36,7 @@
  * packets and others as well are meant to use this class
  * to get access of a driver.
  */
-class NetworkService final: public KernelService {
+class NetworkService final : public KernelService {
 
 private:
 
@@ -44,7 +46,7 @@ public:
     /**
      * A list where all drivers will be collected.
      */
-    Util::ArrayList<NetworkDevice*> drivers;
+    Util::ArrayList<NetworkDevice *> drivers;
 
     /**
      * Provide service information on the kernel log.
@@ -65,7 +67,7 @@ public:
      * The ID to identify this service among other in the kernel
      * registered services.
      */
-    static constexpr const char* SERVICE_NAME = "NetworkService";
+    static constexpr const char *SERVICE_NAME = "NetworkService";
 
     /**
      * @return The number of registered divers.
@@ -76,7 +78,7 @@ public:
      * @param index Index of the driver to fetch.
      * @return The corresponding driver.
      */
-    NetworkDevice& getDriver(uint8_t index);
+    NetworkDevice &getDriver(uint8_t index);
 
     /**
      * @param index Index of the driver to remove.
@@ -90,5 +92,6 @@ public:
     void registerDevice(NetworkDevice &driver);
 };
 
+}
 
 #endif

@@ -20,7 +20,7 @@
 
 #include "application/Application.h"
 #include "kernel/service/EventBus.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/event/input/MouseClickedEvent.h"
 #include "kernel/event/input/MouseReleasedEvent.h"
 #include "kernel/event/input/MouseMovedEvent.h"
@@ -30,7 +30,7 @@
 #include "lib/file/bmp/Bmp.h"
 #include "BuildConfig.h"
 
-class MouseApp : public Thread, Receiver {
+class MouseApp : public Kernel::Thread, Kernel::Receiver {
 
 private:
     int32_t xPos;
@@ -50,8 +50,8 @@ private:
     bool isRunning = true;
 
     LinearFrameBuffer *lfb = nullptr;
-    EventBus *eventBus = nullptr;
-    TimeService *timeService = nullptr;
+    Kernel::EventBus *eventBus = nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
     String version = String::format("hhuOS version %s", (const char*) String(BuildConfig::getVersion()).removeAll("v"));
     String time;
@@ -71,7 +71,7 @@ public:
 
     void drawScreen();
 
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
     void run() override;
 

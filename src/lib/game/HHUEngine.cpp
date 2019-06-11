@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/InputService.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/service/SoundService.h"
@@ -25,7 +25,7 @@ Random HHUEngine::random(42, 32768);
 Game* HHUEngine::currentGame;
 
 uint32_t hhu_engine_beep(const Util::Pair<float, uint32_t> &data) {
-    Kernel::getService<SoundService>()->getPcSpeaker()->play(data.first, data.second);
+    Kernel::System::getService<Kernel::SoundService>()->getPcSpeaker()->play(data.first, data.second);
 
     return 0;
 }
@@ -33,11 +33,11 @@ uint32_t hhu_engine_beep(const Util::Pair<float, uint32_t> &data) {
 bool HHUEngine::isKeyPressed(int scancode){
 
 
-    return Kernel::getService<InputService>()->getKeyboard()->isKeyPressed(scancode);
+    return Kernel::System::getService<Kernel::InputService>()->getKeyboard()->isKeyPressed(scancode);
 }
 
 unsigned long HHUEngine::time(){
-    return Kernel::getService<TimeService>()->getSystemTime();
+    return Kernel::System::getService<Kernel::TimeService>()->getSystemTime();
 }
 
 float HHUEngine::rand(){
@@ -49,7 +49,7 @@ void HHUEngine::setSeed(unsigned int seed){
 }
 
 void HHUEngine::beep(float frequency, uint32_t length) {
-    Kernel::getService<SoundService>()->getPcSpeaker()->play(frequency, length);
+    Kernel::System::getService<Kernel::SoundService>()->getPcSpeaker()->play(frequency, length);
 }
 
 void HHUEngine::setCurrentGame(Game* game){

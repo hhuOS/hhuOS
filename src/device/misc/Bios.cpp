@@ -21,7 +21,7 @@
 #include "lib/libc/printf.h"
 
 #include "Bios.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 
 
 // extern code in interrupt.asm
@@ -31,7 +31,7 @@ extern "C" { void bios_call(); }
 struct BIOScall_params* BC_params = (struct BIOScall_params*)VIRT_BIOS16_PARAM_BASE;
 
 bool Bios::isAvailable() {
-    return Multiboot::Structure::getKernelOption("bios_enhancements") == "true";
+    return Kernel::Multiboot::Structure::getKernelOption("bios_enhancements") == "true";
 }
 
 void Bios::init() {

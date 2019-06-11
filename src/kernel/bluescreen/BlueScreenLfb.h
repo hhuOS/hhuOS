@@ -21,6 +21,8 @@
 #include "kernel/multiboot/Structure.h"
 #include "BlueScreen.h"
 
+namespace Kernel {
+
 /**
  * Implementation of a bluescreen for a lfb-compatible graphics mode.
  *
@@ -77,5 +79,7 @@ private:
     uint8_t charHeight = font.get_char_height();
 
 };
+
+}
 
 #endif

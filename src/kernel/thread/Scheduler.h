@@ -23,8 +23,10 @@
 #include "kernel/thread/Thread.h"
 #include "lib/async/Spinlock.h"
 
+namespace Kernel {
+
 class Scheduler {
-    
+
 public:
 
     explicit Scheduler(ThreadPriority &priority);
@@ -41,19 +43,19 @@ public:
      * @return true, if the Scheduler has been initialized, false else
      */
     bool isInitialized();
-    
+
     /**
      * Starts the Scheduler.
      */
     void startUp();
-    
+
     /**
      * Registers a new Thread.
      *
      * @param that A Thread.
      */
-    void ready(Thread& that);
-    
+    void ready(Thread &that);
+
     /**
      * Terminates the current Thread.
      */
@@ -64,7 +66,7 @@ public:
      *
      * @param that A Thread
      */
-    void kill(Thread& that);
+    void kill(Thread &that);
 
     /**
      * Indicates if a Thread is waiting for execution.
@@ -72,7 +74,7 @@ public:
      * @return true, if a Thread is waiting, false else
      */
     bool isThreadWaiting();
-    
+
     /**
      * Unblocks a specific Thread.
      *
@@ -85,7 +87,7 @@ public:
      *
      * @return The active Thread
      */
-    Thread& getCurrentThread() { return *currentThread; }
+    Thread &getCurrentThread() { return *currentThread; }
 
     /**
      * Returns the number of active Threads.
@@ -96,7 +98,7 @@ public:
 
     uint8_t changePriority(Thread &thread, uint8_t priority);
 
-    Thread* getNextThread();
+    Thread *getNextThread();
 
     uint8_t getMaxPriority();
 
@@ -126,7 +128,7 @@ private:
      *
      * @param next A Thread.
      */
-    void dispatch(Thread& next);
+    void dispatch(Thread &next);
 
 private:
 
@@ -136,7 +138,9 @@ private:
 
     ThreadPriority &priority;
 
-    Util::Array<Util::ArrayBlockingQueue<Thread*>> readyQueues;
+    Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
 };
+
+}
 
 #endif

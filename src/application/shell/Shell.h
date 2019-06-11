@@ -32,7 +32,7 @@ class History;
  * @author Fabian Ruhland
  * @date 2018
  */
-class Shell : public Thread, public Receiver, public AnsiOutputStream, public InputStream {
+class Shell : public Kernel::Thread, public Kernel::Receiver, public AnsiOutputStream, public InputStream {
 
 private:
     friend History;
@@ -41,9 +41,9 @@ private:
         UP, DOWN
     };
 
-    KernelStreamService *kernelStreamService;
-    GraphicsService *graphicsService;
-    EventBus *eventBus;
+    Kernel::KernelStreamService *kernelStreamService;
+    Kernel::GraphicsService *graphicsService;
+    Kernel::EventBus *eventBus;
 
     Util::HashMap<String, Command*> commands;
     Util::ArrayList<String> history;
@@ -115,7 +115,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
     void flush() override;
 

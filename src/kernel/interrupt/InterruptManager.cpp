@@ -1,7 +1,9 @@
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/TimeService.h"
 #include "InterruptHandler.h"
 #include "InterruptManager.h"
+
+namespace Kernel {
 
 InterruptManager::InterruptManager() : Thread("InterruptManager", 0xff) {
 
@@ -30,7 +32,7 @@ void InterruptManager::deregisterInterruptHandler(InterruptHandler *device) {
 }
 
 void InterruptManager::run() {
-    while(true) {
+    while (true) {
 
         bool doYield;
 
@@ -48,7 +50,7 @@ void InterruptManager::run() {
             }
 
             lock.release();
-        } while(!doYield);
+        } while (!doYield);
 
         yield();
     }
@@ -60,4 +62,6 @@ void InterruptManager::handleDisabledInterrupts() {
     for (uint32_t i = 0; i < interruptHandler.size(); i++) {
         interruptHandler.get(i)->trigger(dummyFrame);
     }
+}
+
 }

@@ -19,11 +19,12 @@
 #ifndef HHUOS_MOUSERELEASEDEVENT_H
 #define HHUOS_MOUSERELEASEDEVENT_H
 
+namespace Kernel {
 
-class MouseReleasedEvent : public Event  {
+class MouseReleasedEvent : public Event {
 
 public:
-    MouseReleasedEvent ();
+    MouseReleasedEvent();
 
     explicit MouseReleasedEvent(uint8_t bitmask);
 
@@ -46,5 +47,7 @@ private:
      */
     uint8_t bitmask;
 };
+
+}
 
 #endif

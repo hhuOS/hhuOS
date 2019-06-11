@@ -24,14 +24,16 @@
 #include "lib/util/HashMap.h"
 #include "kernel/log/Logger.h"
 
+namespace Kernel {
+
 class GraphicsService : public KernelService {
 
 private:
 
     static Logger &log;
 
-    Util::HashMap<String, LinearFrameBuffer*> lfbMap;
-    Util::HashMap<String, TextDriver*> textMap;
+    Util::HashMap<String, LinearFrameBuffer *> lfbMap;
+    Util::HashMap<String, TextDriver *> textMap;
 
     LinearFrameBuffer *currentLfb = nullptr;
     TextDriver *currentTextDriver = nullptr;
@@ -99,8 +101,9 @@ public:
      */
     TextDriver *getTextDriver();
 
-    static const constexpr char* SERVICE_NAME = "GraphicsService";
+    static const constexpr char *SERVICE_NAME = "GraphicsService";
 };
 
+}
 
 #endif

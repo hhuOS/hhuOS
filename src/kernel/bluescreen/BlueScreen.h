@@ -21,6 +21,8 @@
 #include "lib/stream/OutputStream.h"
 #include "kernel/memory/MemLayout.h"
 
+namespace Kernel {
+
 /**
  * Interface for an error screen, that is shown after a system crash has occurred (called "bluescreen").
  *
@@ -112,5 +114,7 @@ private:
      */
     void puts(const char *s, uint32_t n);
 };
+
+}
 
 #endif

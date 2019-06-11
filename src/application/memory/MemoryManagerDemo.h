@@ -4,7 +4,7 @@
 
 #include "kernel/thread/Thread.h"
 
-class MemoryManagerDemo : public Thread {
+class MemoryManagerDemo : public Kernel::Thread {
 
 public:
 

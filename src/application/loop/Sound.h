@@ -27,13 +27,13 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2016, 2018
  */
-class Sound : public Thread {
+class Sound : public Kernel::Thread {
 
 private:
 
     PcSpeaker *speaker = nullptr;
 
-    TimeService * timeService = nullptr;
+    Kernel::TimeService * timeService = nullptr;
 
     BeepFile *tetris = nullptr;
 

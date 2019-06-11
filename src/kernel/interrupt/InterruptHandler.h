@@ -20,6 +20,8 @@
 #include "kernel/thread/ThreadState.h"
 #include "InterruptManager.h"
 
+namespace Kernel {
+
 /**
  * Interface for an interrupt handler.
  * Every interrupt hanlder should dervive from this interface.
@@ -29,7 +31,7 @@
  * @date HHU, 2018
  */
 class InterruptHandler {
-    
+
 public:
 
     InterruptHandler() = default;
@@ -37,7 +39,7 @@ public:
     InterruptHandler(const InterruptHandler &copy) = delete;
 
     InterruptHandler &operator=(const InterruptHandler &copy) = delete;
-       
+
     virtual ~InterruptHandler() = default;
 
     /**
@@ -61,5 +63,7 @@ public:
      */
     virtual void parseInterruptData() {};
 };
+
+}
 
 #endif

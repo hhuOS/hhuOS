@@ -33,7 +33,7 @@
  * @author Olaf Spinczyk, TU Dortmund; Michael Schoettner, Filip Krakowski, Fabian Ruhland, HHU
  * @date 2016, 2017, 2018
  */
-class Keyboard : public InterruptHandler {
+class Keyboard : public Kernel::InterruptHandler {
 
 private:
 
@@ -114,7 +114,7 @@ private:
     /**
      * A pointer to the global event bus.
      */
-    EventBus *eventBus;
+    Kernel::EventBus *eventBus;
 
     Util::RingBuffer<uint8_t> interruptDataBuffer;
 
@@ -170,7 +170,7 @@ public:
     /**
      * Overriding function from IODevice.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
     /**
      * Overriding function from IODevice.

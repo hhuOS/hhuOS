@@ -21,7 +21,7 @@
 #include "device/misc/Cmos.h"
 #include "Rtc.h"
 
-Logger &Rtc::log = Logger::get("RTC");
+Kernel::Logger &Rtc::log = Kernel::Logger::get("RTC");
 
 Rtc::Rtc() : interruptDataBuffer(1024) {
     useBcd = !(Cmos::readRegister(STATUS_REGISTER_B) & 0x04);
@@ -60,8 +60,8 @@ void Rtc::plugin() {
     // As long as this flag is set, the RTC won't trigger any interrupts.
     Cmos::readRegister(STATUS_REGISTER_C);
 
-    InterruptManager::getInstance().registerInterruptHandler(this);
-    InterruptDispatcher::getInstance().assign(40, *this);
+    Kernel::InterruptManager::getInstance().registerInterruptHandler(this);
+    Kernel::InterruptDispatcher::getInstance().assign(40, *this);
     Pic::getInstance().allow(Pic::Interrupt::RTC);
 
     Cmos::enableNmi();
@@ -70,7 +70,7 @@ void Rtc::plugin() {
     log.trace("Finished initializing RTC");
 }
 
-void Rtc::trigger(InterruptFrame &frame) {
+void Rtc::trigger(Kernel::InterruptFrame &frame) {
     if((Cmos::readRegister(STATUS_REGISTER_C) & 0x10) != 0x10) {
         return;
     }

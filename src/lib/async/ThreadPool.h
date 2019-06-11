@@ -26,7 +26,7 @@ class ThreadPool {
 
 private:
 
-    struct ThreadPoolWorker : public Thread {
+    struct ThreadPoolWorker : public Kernel::Thread {
 
         bool isWorking = false;
 

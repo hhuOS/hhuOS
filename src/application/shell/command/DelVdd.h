@@ -33,7 +33,7 @@
 class DelVdd : public Command {
 
 private:
-    StorageService *storageService = nullptr;
+    Kernel::StorageService *storageService = nullptr;
 
 public:
     /**

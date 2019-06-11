@@ -15,10 +15,12 @@
  */
 
 #include "device/graphic/lfb/LinearFrameBuffer.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/util/Pair.h"
 #include "kernel/thread/Scheduler.h"
 #include "EventBus.h"
+
+namespace Kernel {
 
 EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(), scheduler(Scheduler::getInstance()) {
 
@@ -29,21 +31,22 @@ void EventBus::subscribe(Receiver &receiver, const String &type) {
 
     auto *publisher = new EventPublisher(receiver);
 
-    Util::Pair<Receiver*, String> key(&receiver, type);
+    Util::Pair<Receiver *, String> key(&receiver, type);
 
     lock.acquire();
 
     if (receiverMap.containsKey(key)) {
 
-        const char *errorMessage = (const char*) String::format("EventBus: Receiver is already subscribed for event of type '%s'!", (const char*) type);
+        const char *errorMessage = (const char *) String::format(
+                "EventBus: Receiver is already subscribed for event of type '%s'!", (const char *) type);
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, errorMessage);
     }
 
     receiverMap.put(key, publisher);
 
-    if(!publishers.containsKey(type)) {
-        publishers.put(type, new Util::ArrayList<EventPublisher*>);
+    if (!publishers.containsKey(type)) {
+        publishers.put(type, new Util::ArrayList<EventPublisher *>);
     }
 
     publishers.get(type)->add(publisher);
@@ -57,11 +60,11 @@ void EventBus::subscribe(Receiver &receiver, const String &type) {
 
 void EventBus::unsubscribe(Receiver &receiver, const String &type) {
 
-    Util::Pair<Receiver*, String> key(&receiver, type);
+    Util::Pair<Receiver *, String> key(&receiver, type);
 
     lock.acquire();
 
-    if(!receiverMap.containsKey(key)) {
+    if (!receiverMap.containsKey(key)) {
 
         lock.release();
 
@@ -74,7 +77,7 @@ void EventBus::unsubscribe(Receiver &receiver, const String &type) {
 
     publishers.get(type)->remove(publisher);
 
-    if(publishers.get(type)->isEmpty()) {
+    if (publishers.get(type)->isEmpty()) {
         publishers.remove(type);
     }
 
@@ -107,11 +110,11 @@ void EventBus::notify() {
 
         Util::SmartPointer<Event> event = eventBuffer.pop();
 
-        if(!publishers.containsKey(event->getType())) {
+        if (!publishers.containsKey(event->getType())) {
             return;
         }
 
-        Util::ArrayList<EventPublisher*> &publisherList = *publishers.get(event->getType());
+        Util::ArrayList<EventPublisher *> &publisherList = *publishers.get(event->getType());
 
         for (EventPublisher *publisher : publisherList) {
 
@@ -131,4 +134,6 @@ void EventBus::publish(Util::SmartPointer<Event> event) {
 
     // TODO(krakowski)
     //  Wake up EventBus thread with priority boost
+}
+
 }

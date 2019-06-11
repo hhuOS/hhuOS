@@ -17,7 +17,7 @@
 #ifndef HHUOS_PARALLELNODE_H
 #define HHUOS_PARALLELNODE_H
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "filesystem/ram/VirtualNode.h"
 #include "Common.h"
 

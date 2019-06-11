@@ -20,6 +20,8 @@
 #include "kernel/event/Event.h"
 #include "device/storage/device/StorageDevice.h"
 
+namespace Kernel {
+
 class StorageAddEvent : public Event {
 
 public:
@@ -32,7 +34,7 @@ public:
 
     String getType() const override;
 
-    StorageDevice* getDevice();
+    StorageDevice *getDevice();
 
     static const constexpr char *TYPE = "StorageAddEvent";
 
@@ -41,5 +43,6 @@ private:
     StorageDevice *device;
 };
 
+}
 
 #endif

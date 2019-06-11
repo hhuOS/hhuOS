@@ -1,9 +1,9 @@
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include <cstdint>
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "Uhci.h"
 
-Logger &Uhci::log = Logger::get("UHCI");
+Kernel::Logger &Uhci::log = Kernel::Logger::get("UHCI");
 
 Uhci::~Uhci() {
     delete usbCommandPort;
@@ -15,7 +15,7 @@ Uhci::~Uhci() {
     delete statusControlPort1;
     delete statusControlPort2;
 
-    SystemManagement::getInstance().freeIO(frameList);
+    Kernel::Management::getInstance().freeIO(frameList);
 }
 
 void Uhci::setup(const Pci::Device &device) {
@@ -28,7 +28,7 @@ void Uhci::setup(const Pci::Device &device) {
                                    "Controller is compliant with a USB version prior to 1.0");
     log.info("IO base address: 0x%08x", baseAddress);
 
-    timeService = Kernel::getService<TimeService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 
     usbCommandPort = new IoPort(static_cast<uint16_t>(baseAddress + IORegisterOffset::USB_COMMAND_REGISTER));
     usbStatusPort = new IoPort(static_cast<uint16_t>(baseAddress + IORegisterOffset::USB_STATUS_REGISTER));
@@ -39,7 +39,7 @@ void Uhci::setup(const Pci::Device &device) {
     statusControlPort1 = new IoPort(static_cast<uint16_t>(baseAddress + IORegisterOffset::PORT_1_STATUS_CONTROL_REGISTER));
     statusControlPort2 = new IoPort(static_cast<uint16_t>(baseAddress + IORegisterOffset::PORT_2_STATUS_CONTROL_REGISTER));
 
-    frameList = static_cast<FrameListPointer *>(SystemManagement::getInstance().mapIO(1024 * sizeof(FrameListPointer)));
+    frameList = static_cast<FrameListPointer *>(Kernel::Management::getInstance().mapIO(1024 * sizeof(FrameListPointer)));
 
     memset(frameList, 0, 1024 * sizeof(FrameListPointer));
 
@@ -69,7 +69,7 @@ void Uhci::setup(const Pci::Device &device) {
 
     // Set frame list address
     frameNumberPort->outb(0x00);
-    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(SystemManagement::getInstance().getPhysicalAddress(frameList)));
+    frameListBaseAddressPort->outdw(reinterpret_cast<uint32_t>(Kernel::Management::getInstance().getPhysicalAddress(frameList)));
 
     startHostController();
 
@@ -154,6 +154,6 @@ void Uhci::resetPort(uint8_t portNum) {
     log.trace("Successfully reset port %u", portNum);
 }
 
-void Uhci::trigger(InterruptFrame &frame) {
+void Uhci::trigger(Kernel::InterruptFrame &frame) {
     log.debug("INTERRUPT");
 }

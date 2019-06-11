@@ -35,7 +35,7 @@ void Touch::execute(Util::Array<String> &args) {
         return;
     }
 
-    fileSystem = Kernel::getService<Filesystem>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 
     for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);

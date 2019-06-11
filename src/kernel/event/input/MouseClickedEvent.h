@@ -21,6 +21,8 @@
 #include <cstdint>
 #include "kernel/event/Event.h"
 
+namespace Kernel {
+
 class MouseClickedEvent : public Event {
 
 public:
@@ -49,5 +51,6 @@ private:
     uint8_t bitmask;
 };
 
+}
 
 #endif

@@ -24,7 +24,7 @@ private:
 
 private:
 
-    GraphicsService *graphicsService = nullptr;
+    Kernel::GraphicsService *graphicsService = nullptr;
 
     Color fgColor = Colors::TERM_WHITE;
 

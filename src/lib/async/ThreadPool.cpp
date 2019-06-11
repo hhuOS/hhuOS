@@ -53,7 +53,7 @@ void ThreadPool::stopWorking(bool force) {
         return;
     }
 
-    Scheduler &scheduler = Scheduler::getInstance();
+    Kernel::Scheduler &scheduler = Kernel::Scheduler::getInstance();
 
     if(!force) {
         bool allThreadsFinished = false;

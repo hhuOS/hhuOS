@@ -239,9 +239,9 @@ private:
 
     static Util::HashMap<String, Vendor> vendors;
 
-    static Logger &log;
+    static Kernel::Logger &log;
 
-    static StorageService *storageService;
+    static Kernel::StorageService *storageService;
 
     /* PCI IO ports */
     static const IoPort CONFIG_ADDRESS;

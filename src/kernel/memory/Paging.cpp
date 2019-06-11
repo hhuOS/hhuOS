@@ -36,15 +36,15 @@ extern "C" {
  * @param biosDirectory Pointer to the 4mb-Pagedirectory only used for BIOS-calls
  */
 void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
-	// calculate 4mb page where (higher-half) kernel should start
+    // calculate 4mb page where (higher-half) kernel should start
     uint32_t kernelPage = KERNEL_START >> 22U;
     // up to this phyiscal address code and data is already placed by grub/bootloader
     // this area should be identity-mapped and the heap should start above
-    uint32_t &reservedMemoryEnd = VIRT2PHYS_VAR(uint32_t, Multiboot::Structure::physReservedMemoryEnd);
+    uint32_t &reservedMemoryEnd = VIRT2PHYS_VAR(uint32_t, Kernel::Multiboot::Structure::physReservedMemoryEnd);
     // size of a 4mb page
     uint32_t bigPageSize = PAGESIZE * 1024U;
     // use alignment value to align addresses to 4mb
-    uint32_t alignment =  bigPageSize - 1U;
+    uint32_t alignment = bigPageSize - 1U;
     // align end address of reserved memory to 4mb
     reservedMemoryEnd = (reservedMemoryEnd + alignment) & ~alignment;
     // calculate pagecount where reserved memory ends
@@ -61,13 +61,13 @@ void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     }
     // the first page of the initial heap above the reserved memory is mapped to an offset of KERNEL_START
     // no identity mapping needed because the heap is only used when paging is already enabled
-    directory[kernelPage + pageCount] = (uint32_t) ((pageCount * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
+    directory[kernelPage + pageCount] = (uint32_t) ((pageCount * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE |
+                                                    PAGE_SIZE_MiB);
 
     // calculate index to first virtual address of paging area memory
     // these first 4mb of the paging area are needed to set up the final 4kb paging,
     // so map the first (phys.) 4mb after the initial 4mb-heap to this address
     uint32_t pagingAreaIndex = VIRT_PAGE_MEM_START / bigPageSize;
-    directory[pagingAreaIndex] = (uint32_t) (((pageCount + 1) * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
+    directory[pagingAreaIndex] = (uint32_t) (((pageCount + 1) * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE |
+                                             PAGE_SIZE_MiB);
 }
-
-

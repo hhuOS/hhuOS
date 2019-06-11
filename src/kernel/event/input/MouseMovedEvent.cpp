@@ -16,6 +16,8 @@
 
 #include "MouseMovedEvent.h"
 
+namespace Kernel {
+
 MouseMovedEvent::MouseMovedEvent() : Event() {
     dx = 0;
     dy = 0;
@@ -36,4 +38,6 @@ int32_t MouseMovedEvent::getXMovement() {
 
 int32_t MouseMovedEvent::getYMovement() {
     return dy;
+}
+
 }

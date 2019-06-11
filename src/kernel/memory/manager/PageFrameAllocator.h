@@ -20,6 +20,8 @@
 #include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
+namespace Kernel {
+
 /**
  * Memory manager, that ist based on the BitmapMemoryManager and is used to manage the page frames in physical memory.
  *
@@ -36,12 +38,12 @@ public:
 
     PROTOTYPE_IMPLEMENT_CLONE(PageFrameAllocator);
 
-	/**
-	 * Constructor.
-	 *
-	 * @param memoryStartAddress Start address of the memory area to manage
-	 * @param memoryEndAddress End address of the memory area to manage
-	 */
+    /**
+     * Constructor.
+     *
+     * @param memoryStartAddress Start address of the memory area to manage
+     * @param memoryEndAddress End address of the memory area to manage
+     */
     PageFrameAllocator();
 
     /**
@@ -55,5 +57,7 @@ public:
     String getTypeName() override;
 
 };
+
+}
 
 #endif

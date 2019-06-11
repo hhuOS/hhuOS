@@ -23,6 +23,8 @@
 #include <cstdint>
 #include "lib/time/TimeProvider.h"
 
+namespace Kernel {
+
 class TimeService : public KernelService {
 
 public:
@@ -31,16 +33,16 @@ public:
 
     uint32_t getSystemTime();
 
-    static constexpr const char* SERVICE_NAME = "TimeService";
+    static constexpr const char *SERVICE_NAME = "TimeService";
 
     void msleep(uint32_t ms);
 
-    Rtc* getRTC() {
-    	return rtc;
+    Rtc *getRTC() {
+        return rtc;
     }
 
     Rtc::Date getCurrentDate() {
-    	return rtc->getCurrentDate();
+        return rtc->getCurrentDate();
     }
 
 private:
@@ -50,5 +52,6 @@ private:
     TimeProvider &provider;
 };
 
+}
 
 #endif

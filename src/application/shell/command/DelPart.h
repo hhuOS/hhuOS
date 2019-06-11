@@ -34,7 +34,7 @@
 class DelPart : public Command {
 
 private:
-    StorageService *storageService = nullptr;
+    Kernel::StorageService *storageService = nullptr;
     Filesystem *fileSystem = nullptr;
 
 public:

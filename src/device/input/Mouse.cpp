@@ -16,7 +16,7 @@
 
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/misc/Pic.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/libc/printf.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/event/input/MouseMovedEvent.h"
@@ -26,7 +26,7 @@
 #include "Mouse.h"
 
 
-Logger &Mouse::log = Logger::get("MOUSE");
+Kernel::Logger &Mouse::log = Kernel::Logger::get("MOUSE");
 
 void Mouse::waitControl() {
     int time_out = 100000;
@@ -186,17 +186,17 @@ Mouse::Mouse() : ctrl_port(0x64), data_port(0x60), interruptDataBuffer(1024) {
 
 void Mouse::plugin() {
     if(available) {
-        timeService = Kernel::getService<TimeService>();
-        eventBus = Kernel::getService<EventBus>();
+        timeService = Kernel::System::getService<Kernel::TimeService>();
+        eventBus = Kernel::System::getService<Kernel::EventBus>();
 
-        InterruptManager::getInstance().registerInterruptHandler(this);
+        Kernel::InterruptManager::getInstance().registerInterruptHandler(this);
 
-        InterruptDispatcher::getInstance().assign(InterruptDispatcher::MOUSE, *this);
+        Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::MOUSE, *this);
         Pic::getInstance().allow(Pic::Interrupt::MOUSE);
     }
 }
 
-void Mouse::trigger(InterruptFrame &frame) {
+void Mouse::trigger(Kernel::InterruptFrame &frame) {
     // check if mouse data is there
     unsigned int status = ctrl_port.inb();
 
@@ -250,7 +250,7 @@ void Mouse::parseInterruptData() {
                 // check if mouse was moved
                 if(dx != 0 || dy != 0) {
                     // put MouseMovedEvent to queue and publish event
-                    Util::SmartPointer<Event> event(new MouseMovedEvent(dx, dy));
+                    Util::SmartPointer<Kernel::Event> event(new Kernel::MouseMovedEvent(dx, dy));
                     eventBus->publish(event);
                 }
             }
@@ -278,7 +278,7 @@ void Mouse::parseInterruptData() {
                         clickMask|= (0x1<<i);
 
                         if((tmpTstmp - lastClickTimestamp) < 300) {
-                            Util::SmartPointer<Event> event(new MouseDoubleClickedEvent());
+                            Util::SmartPointer<Kernel::Event> event(new Kernel::MouseDoubleClickedEvent());
                             eventBus->publish(event);
 
                             lastClickTimestamp = 0;
@@ -291,13 +291,13 @@ void Mouse::parseInterruptData() {
 
             // if new buttons were clicked -> publish new MouseClickedEvent
             if(clickEventOccurred) {
-                Util::SmartPointer<Event> event(new MouseClickedEvent(clickMask));
+                Util::SmartPointer<Kernel::Event> event(new Kernel::MouseClickedEvent(clickMask));
                 eventBus->publish(event);
             }
 
             // if new buttons were released -> publish new MouseReleasedEvent
             if(releaseEventOccurred) {
-                Util::SmartPointer<Event> event(new MouseReleasedEvent(releaseMask));
+                Util::SmartPointer<Kernel::Event> event(new Kernel::MouseReleasedEvent(releaseMask));
                 eventBus->publish(event);
             }
 

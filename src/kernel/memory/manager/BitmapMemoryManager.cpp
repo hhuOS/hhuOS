@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/misc/Bios.h"
 #include "BitmapMemoryManager.h"
 #include "kernel/memory/Paging.h"
@@ -24,9 +24,11 @@ extern "C" {
 #include "lib/libc/string.h"
 }
 
+namespace Kernel {
+
 BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) : MemoryManager(),
-        blockSize(blockSize),
-        zeroMemory(zeroMemory) {
+                                                                                blockSize(blockSize),
+                                                                                zeroMemory(zeroMemory) {
 
 }
 
@@ -35,7 +37,7 @@ BitmapMemoryManager::BitmapMemoryManager(const BitmapMemoryManager &copy) : Bitm
 }
 
 BitmapMemoryManager::~BitmapMemoryManager() {
-	delete bitmap;
+    delete bitmap;
 }
 
 void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
@@ -50,8 +52,8 @@ String BitmapMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 
-void* BitmapMemoryManager::alloc(uint32_t size) {
-    if(size == 0) {
+void *BitmapMemoryManager::alloc(uint32_t size) {
+    if (size == 0) {
         return nullptr;
     }
 
@@ -60,13 +62,13 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
 
     uint32_t block = bitmap->findAndSet(blockCount);
 
-    if(block == bitmap->getSize()) {
+    if (block == bitmap->getSize()) {
         // handle errors
-        if(managerType == PAGING_AREA_MANAGER) {
+        if (managerType == PAGING_AREA_MANAGER) {
             Cpu::throwException(Cpu::Exception::OUT_OF_PAGE_MEMORY);
         }
 
-        if(managerType == PAGE_FRAME_ALLOCATOR) {
+        if (managerType == PAGE_FRAME_ALLOCATOR) {
             Cpu::throwException(Cpu::Exception::OUT_OF_PHYS_MEMORY);
         }
 
@@ -77,7 +79,7 @@ void* BitmapMemoryManager::alloc(uint32_t size) {
 
     void *address = reinterpret_cast<void *>(memoryStartAddress + block * blockSize);
 
-    if(zeroMemory) {
+    if (zeroMemory) {
         memset(address, 0, blockCount * blockSize);
     }
 
@@ -88,7 +90,7 @@ void BitmapMemoryManager::free(void *ptr) {
     uint32_t address = (uint32_t) ptr - memoryStartAddress;
 
     // check if pointer points to valid memory
-    if((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
+    if ((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
         return;
     }
 
@@ -105,4 +107,6 @@ void BitmapMemoryManager::dump() {
     printf("  ================\n");
 
     bitmap->dump();
+}
+
 }

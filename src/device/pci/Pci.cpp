@@ -15,7 +15,7 @@
  */
 
 #include "device/storage/ahci/AhciDevice.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/log/Logger.h"
 #include "lib/libc/sprintf.h"
 #include "lib/file/tar/Archive.h"
@@ -25,7 +25,7 @@
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "PciDeviceDriver.h"
 
-Logger &Pci::log = Logger::get("PCI");
+Kernel::Logger &Pci::log = Kernel::Logger::get("PCI");
 
 // PCI registers
 const IoPort Pci::CONFIG_ADDRESS = IoPort(0xCF8);
@@ -37,7 +37,7 @@ Util::HashMap<String, Pci::Vendor> Pci::vendors;
 
 Spinlock Pci::databaseLock;
 
-StorageService *Pci::storageService = nullptr;
+Kernel::StorageService *Pci::storageService = nullptr;
 
 void Pci::prepareRegister(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) {
     uint32_t address;
@@ -268,7 +268,7 @@ void Pci::scanBus(uint8_t bus) {
 
 void Pci::scan() {
     
-    storageService = Kernel::getService<StorageService>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
 
     uint8_t function;
     uint8_t bus;

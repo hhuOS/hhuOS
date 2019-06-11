@@ -16,10 +16,10 @@
 
 #include "lib/libc/printf.h"
 #include "kernel/service/TimeService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "device/misc/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "device/misc/Cmos.h"
 #include "FloppyController.h"
 #include "FloppyDevice.h"
@@ -37,12 +37,12 @@ FloppyController::FloppyController() :
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), datarateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {
-    log = &Logger::get("FLOPPY");
+    log = &Kernel::Logger::get("FLOPPY");
     
     dmaMemory = Isa::allocDmaBuffer();
 
-    timeService = Kernel::getService<TimeService>();
-    storageService = Kernel::getService<StorageService>();
+    timeService = Kernel::System::getService<Kernel::TimeService>();
+    storageService = Kernel::System::getService<Kernel::StorageService>();
 }
 
 FloppyController::~FloppyController() {
@@ -360,18 +360,18 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 }
 
 void FloppyController::plugin() {
-    InterruptDispatcher::getInstance().assign(InterruptDispatcher::FLOPPY, *this);
+    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::FLOPPY, *this);
     Pic::getInstance().allow(Pic::Interrupt::FLOPPY);
 }
 
-void FloppyController::trigger(InterruptFrame &frame) {
+void FloppyController::trigger(Kernel::InterruptFrame &frame) {
     receivedInterrupt = true;
 }
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode) {
     Isa::selectChannel(2);
 
-    Isa::setAddress(2, (uint32_t) SystemManagement::getInstance().getPhysicalAddress(dmaMemory));
+    Isa::setAddress(2, (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(dmaMemory));
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
     Isa::setMode(2, transferMode, false, false, Isa::DMA_MODE_SINGLE_TRANSFER);
 

@@ -1,21 +1,23 @@
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
 
+namespace Kernel {
+
 NetworkService::NetworkService() {
-    Kernel::getService<EventBus>()->subscribe(packetHandler, ReceiveEvent::TYPE);
+    System::getService<EventBus>()->subscribe(packetHandler, ReceiveEvent::TYPE);
 }
 
 NetworkService::~NetworkService() {
-    Kernel::getService<EventBus>()->unsubscribe(packetHandler, ReceiveEvent::TYPE);
+    System::getService<EventBus>()->unsubscribe(packetHandler, ReceiveEvent::TYPE);
 }
 
 uint32_t NetworkService::getDeviceCount() {
     return drivers.size();
 }
 
-NetworkDevice& NetworkService::getDriver(uint8_t index) {
+NetworkDevice &NetworkService::getDriver(uint8_t index) {
     return *drivers.get(index);
 }
 
@@ -25,4 +27,6 @@ void NetworkService::removeDevice(uint8_t index) {
 
 void NetworkService::registerDevice(NetworkDevice &driver) {
     drivers.add(&driver);
+}
+
 }

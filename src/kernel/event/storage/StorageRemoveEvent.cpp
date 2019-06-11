@@ -16,6 +16,8 @@
 
 #include "StorageRemoveEvent.h"
 
+namespace Kernel {
+
 StorageRemoveEvent::StorageRemoveEvent() : Event() {
 
 }
@@ -34,4 +36,6 @@ String StorageRemoveEvent::getType() const {
 
 String StorageRemoveEvent::getDeviceName() {
     return deviceName;
+}
+
 }

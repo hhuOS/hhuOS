@@ -20,6 +20,8 @@
 #include "KernelService.h"
 #include "kernel/event/Receiver.h"
 
+namespace Kernel {
+
 class ScreenshotService : public KernelService, public Receiver {
 
 private:
@@ -36,7 +38,9 @@ public:
 
     void onEvent(const Event &event) override;
 
-    static constexpr const char* SERVICE_NAME = "ScreenshotService";
+    static constexpr const char *SERVICE_NAME = "ScreenshotService";
 };
+
+}
 
 #endif

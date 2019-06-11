@@ -33,7 +33,7 @@ void Umount::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *fileSystem = Kernel::getService<Filesystem>();
+    auto *fileSystem = Kernel::System::getService<Filesystem>();
 
     for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);

@@ -16,6 +16,8 @@
 
 #include "MouseDoubleClickedEvent.h"
 
+namespace Kernel {
+
 MouseDoubleClickedEvent::MouseDoubleClickedEvent() : Event() {
 
 }
@@ -24,3 +26,4 @@ String MouseDoubleClickedEvent::getType() const {
     return TYPE;
 }
 
+}

@@ -56,7 +56,7 @@ public:
 
     void setReceiveControl(ReceiveControl *control) final;
 
-    void trigger(InterruptFrame &frame) final;
+    void trigger(Kernel::InterruptFrame &frame) final;
 
     void loadMac() final;
 
@@ -68,7 +68,7 @@ private:
 
     EepromRead *eeprom = nullptr;
 
-    Logger &log = Logger::get("Intel82540EM");
+    Kernel::Logger &log = Kernel::Logger::get("Intel82540EM");
 
 };
 

@@ -19,6 +19,8 @@
 
 #include "Event.h"
 
+namespace Kernel {
+
 /**
  * Interface for classes, that want to receive events from the EventBus.
  *
@@ -75,5 +77,6 @@ public:
     }
 };
 
+}
 
 #endif

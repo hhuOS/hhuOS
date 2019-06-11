@@ -14,10 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "lib/elf/ElfModule.h"
 #include "lib/elf/ElfConstants.h"
 #include "ModuleLoader.h"
 
-using namespace ElfConstants;
+namespace Kernel {
 
 ModuleLoader::Status ModuleLoader::load(File *file) {
 
@@ -38,7 +39,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     module->fileHeader = (FileHeader *) module->buffer;
 
-    if ( !module->isValid() ) {
+    if (!module->isValid()) {
 
         return Status::INVALID;
     }
@@ -51,7 +52,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     module->relocate();
 
-    module->provider = (Module*(*)()) module->getSymbol(PROVIDER_SYMBOL);
+    module->provider = (Module *(*)()) module->getSymbol(PROVIDER_SYMBOL);
 
     Module *instance = module->getInstance();
 
@@ -65,4 +66,6 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
     modules.put(file->getName(), instance);
 
     return Status::OK;
+}
+
 }

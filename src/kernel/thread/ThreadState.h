@@ -19,6 +19,8 @@
 
 #include <cstdint>
 
+namespace Kernel {
+
 struct Context {
     uint32_t edi;
     uint32_t esi;
@@ -54,6 +56,8 @@ struct InterruptFrame {
     uint16_t ss;
     uint16_t pad1;
 } __attribute__((packed));
+
+}
 
 #endif
 

@@ -19,7 +19,7 @@
 
 #include "VesaGraphics.h"
 #include "device/graphic/text/TextDriver.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/graphic/Colors.h"
 #include "device/graphic/text/fonts/Fonts.h"
 

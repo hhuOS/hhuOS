@@ -20,6 +20,8 @@
 #include "kernel/event/Event.h"
 #include "device/storage/device/StorageDevice.h"
 
+namespace Kernel {
+
 class StorageRemoveEvent : public Event {
 
 public:
@@ -41,5 +43,6 @@ private:
     String deviceName;
 };
 
+}
 
 #endif

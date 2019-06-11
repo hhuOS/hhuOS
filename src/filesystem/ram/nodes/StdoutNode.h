@@ -31,7 +31,7 @@
 class StdoutNode : public VirtualNode {
 
 private:
-    KernelStreamService *kernelStreamService = nullptr;
+    Kernel::KernelStreamService *kernelStreamService = nullptr;
 
 public:
     /**

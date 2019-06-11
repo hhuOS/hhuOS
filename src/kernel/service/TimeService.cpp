@@ -18,8 +18,10 @@
 #include "lib/system/SystemCall.h"
 #include "TimeService.h"
 
-TimeService::TimeService(TimeProvider &provider) : provider(provider){
-	rtc = new Rtc();
+namespace Kernel {
+
+TimeService::TimeService(TimeProvider &provider) : provider(provider) {
+    rtc = new Rtc();
 }
 
 uint32_t TimeService::getSystemTime() {
@@ -29,11 +31,13 @@ uint32_t TimeService::getSystemTime() {
 void TimeService::msleep(uint32_t ms) {
     unsigned long st = getSystemTime();
 
-    while(true) {
-        if(getSystemTime() > (st + ms)) {
+    while (true) {
+        if (getSystemTime() > (st + ms)) {
             break;
         }
 
         Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
     }
+}
+
 }

@@ -28,7 +28,7 @@ void Clear::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *text = Kernel::getService<GraphicsService>()->getTextDriver();
+    auto *text = Kernel::System::getService<Kernel::GraphicsService>()->getTextDriver();
     text->clear();
 }
 

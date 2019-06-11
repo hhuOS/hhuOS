@@ -16,6 +16,8 @@
 
 #include "MouseClickedEvent.h"
 
+namespace Kernel {
+
 MouseClickedEvent::MouseClickedEvent() : Event() {
     bitmask = 0;
 }
@@ -38,4 +40,6 @@ bool MouseClickedEvent::isMiddleClicked() {
 
 String MouseClickedEvent::getType() const {
     return TYPE;
+}
+
 }

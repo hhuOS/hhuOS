@@ -14,12 +14,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/service/EventBus.h"
 #include "GraphicsNode.h"
 
 GraphicsNode::GraphicsNode(String name, GraphicsMode mode) : VirtualNode(name, FsNode::REGULAR_FILE), mode(mode) {
-    graphicsService = Kernel::getService<GraphicsService>();
+    graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
 }
 
 uint64_t GraphicsNode::getLength() {

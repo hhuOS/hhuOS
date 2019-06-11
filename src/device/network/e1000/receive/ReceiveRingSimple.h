@@ -67,7 +67,7 @@ private:
     /**
      * Publishes received packets.
      */
-    EventBus *eventBus;
+    Kernel::EventBus *eventBus;
 
     /**
      * Stores incoming descriptors for interrupt processing.

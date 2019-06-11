@@ -29,7 +29,7 @@
  * @author Fabian Ruhland
  * @date 2018
  */
-class Beep : public Command, Receiver {
+class Beep : public Command, Kernel::Receiver {
 
 private:
 
@@ -73,7 +73,7 @@ public:
     /**
      * Overriding function from Receiver.
      */
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 };
 
 #endif

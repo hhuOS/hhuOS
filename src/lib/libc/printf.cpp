@@ -16,7 +16,7 @@
 
 #include "lib/libc/printf.h"
 #include "lib/libc/sprintf.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/stream/OutputStream.h"
 #include "device/graphic/text/TextDriver.h"
 

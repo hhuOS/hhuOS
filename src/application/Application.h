@@ -24,7 +24,7 @@
 #include "kernel/service/TimeService.h"
 #include "kernel/service/GraphicsService.h"
 
-class Application : public Thread, public Receiver {
+class Application : public Kernel::Thread, public Kernel::Receiver {
 
 private:
     const char *menuOptions[8] = {
@@ -52,8 +52,8 @@ private:
     uint8_t option = 0;
     bool isRunning = true;
 
-    TimeService *timeService;
-    GraphicsService *graphicsService;
+    Kernel::TimeService *timeService;
+    Kernel::GraphicsService *graphicsService;
 
     explicit Application();
 
@@ -78,7 +78,7 @@ public:
 
     void run() override;
 
-    void onEvent(const Event &event) override;
+    void onEvent(const Kernel::Event &event) override;
 
     void waitForCurrentApp();
 

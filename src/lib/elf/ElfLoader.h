@@ -18,7 +18,7 @@
 #define __ElfLoader_include__
 
 #include <cstdint>
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/Symbols.h"
 #include "Elf.h"
 
 /**
@@ -34,7 +34,7 @@ public:
 
 private:
 
-    static KernelSymbols *linkerService;
+    static Kernel::Symbols *linkerService;
 
 };
 

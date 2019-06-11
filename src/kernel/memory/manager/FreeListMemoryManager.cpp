@@ -19,11 +19,13 @@
 #include "kernel/memory/Paging.h"
 #include "FreeListMemoryManager.h"
 
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/memory/MemLayout.h"
 
+namespace Kernel {
+
 FreeListMemoryManager::FreeListMemoryManager() : MemoryManager() {
-    
+
 }
 
 FreeListMemoryManager::FreeListMemoryManager(const FreeListMemoryManager &copy) : FreeListMemoryManager() {
@@ -33,12 +35,12 @@ FreeListMemoryManager::FreeListMemoryManager(const FreeListMemoryManager &copy) 
 void FreeListMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
 
-    if(freeMemory < sizeof(FLHeader)) {
+    if (freeMemory < sizeof(FLHeader)) {
         // Available Kernel-Memory is too small for a Chunk
         firstChunk = nullptr;
     } else {
         // set up first Chunk of memory
-        firstChunk = (FLHeader*) memoryStartAddress;
+        firstChunk = (FLHeader *) memoryStartAddress;
         freeMemory -= sizeof(FLHeader);
         firstChunk->size = freeMemory;
         firstChunk->next = nullptr;
@@ -50,13 +52,13 @@ String FreeListMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 
-void* FreeListMemoryManager::alloc(uint32_t size) {
-	// Allocate memory without alignment
+void *FreeListMemoryManager::alloc(uint32_t size) {
+    // Allocate memory without alignment
     return alloc(size, 0);
 }
 
-void FreeListMemoryManager::free(void* ptr) {
-	free(ptr, 0);
+void FreeListMemoryManager::free(void *ptr) {
+    free(ptr, 0);
 }
 
 void FreeListMemoryManager::free(void *ptr, uint32_t alignment) {
@@ -71,13 +73,13 @@ void FreeListMemoryManager::dump() {
     printf("  FreeListMemoryManager: Free list dump\n");
     printf("  ================\n");
 
-    FLHeader* tmp = firstChunk;
+    FLHeader *tmp = firstChunk;
 
-    while ( tmp != nullptr ) {
-        printf("    Start: %08x" , (uint32_t) tmp + HEADER_SIZE);
-        printf(", End: %08x" , (uint32_t) tmp + HEADER_SIZE + tmp->size);
+    while (tmp != nullptr) {
+        printf("    Start: %08x", (uint32_t) tmp + HEADER_SIZE);
+        printf(", End: %08x", (uint32_t) tmp + HEADER_SIZE + tmp->size);
         printf("  Next: %08x", (uint32_t) tmp->next);
-        printf(", Size: %u\n" , tmp->size);
+        printf(", Size: %u\n", tmp->size);
 
         tmp = tmp->next;
     }
@@ -85,8 +87,8 @@ void FreeListMemoryManager::dump() {
     printf("\n");
 }
 
-FreeListMemoryManager::FLHeader* FreeListMemoryManager::findNext(FLHeader *start, uint32_t reqSize) {
-	// set start point
+FreeListMemoryManager::FLHeader *FreeListMemoryManager::findNext(FLHeader *start, uint32_t reqSize) {
+    // set start point
     FLHeader *current = start;
 
     // run through free list and look for free block with correct size
@@ -107,7 +109,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
         return nullptr;
     }
 
-    if(startChunk == nullptr) {
+    if (startChunk == nullptr) {
         startChunk = firstChunk;
     }
 
@@ -118,7 +120,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     FLHeader *aligned = nullptr;
 
     // run through list and look for memory block
-    while(current != nullptr) {
+    while (current != nullptr) {
 
         if (current->size >= size) {
 
@@ -132,7 +134,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
             // Make sure the aligned Memory Block's header
             // does not overlap with the current one
-            aligned = (FLHeader*) (MemoryUtil::alignUp(data + HEADER_SIZE + MIN_BLOCK_SIZE, alignment) - HEADER_SIZE);
+            aligned = (FLHeader * )(MemoryUtil::alignUp(data + HEADER_SIZE + MIN_BLOCK_SIZE, alignment) - HEADER_SIZE);
 
             // Check if current block has enough free
             // data space to fit in the aligned block
@@ -166,7 +168,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
     // Check if the chosen chunk can be sliced in two parts
     if (current->size - size >= MIN_BLOCK_SIZE + HEADER_SIZE) {
-        auto *slice = (FLHeader*) (((uint32_t)current) + HEADER_SIZE + size);
+        auto *slice = (FLHeader * )(((uint32_t) current) + HEADER_SIZE + size);
 
         slice->size = current->size - size - HEADER_SIZE;
         slice->next = current->next;
@@ -202,12 +204,12 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
     freeMemory -= current->size;
 
-    return (void*) (((uint32_t)current) + HEADER_SIZE);
+    return (void *) (((uint32_t) current) + HEADER_SIZE);
 }
 
 void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     // check for nullpointer
-    if(ptr == nullptr) {
+    if (ptr == nullptr) {
         return;
     }
     // check if address points to valid memory for this manager
@@ -216,7 +218,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     }
 
     // get pointer to header of allocated block
-    auto *header = (FLHeader*)((uint8_t*) ptr - HEADER_SIZE);
+    auto *header = (FLHeader * )((uint8_t *) ptr - HEADER_SIZE);
 
     freeMemory += header->size;
 
@@ -226,17 +228,17 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     if (firstChunk == nullptr) {
         firstChunk = header;
         // if freed block is before first entry of free list -> freed block is new anchor
-    } else if(header < firstChunk){
+    } else if (header < firstChunk) {
         header->next = firstChunk;
         header->prev = nullptr;
         firstChunk->prev = header;
         firstChunk = header;
         // else: search for correct position of freed block in free list and place it there
     } else {
-        FLHeader* tmp = firstChunk;
-        while(tmp != nullptr){
+        FLHeader *tmp = firstChunk;
+        while (tmp != nullptr) {
 
-            if(header > tmp && (header < tmp->next || tmp->next == nullptr)){
+            if (header > tmp && (header < tmp->next || tmp->next == nullptr)) {
                 header->next = tmp->next;
                 header->prev = tmp;
 
@@ -256,12 +258,12 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     FLHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4kb of memory, a page can possibly be unmapped
-    if(doUnmap && mergedHeader->size >= PAGESIZE && SystemManagement::isInitialized()) {
+    if (doUnmap && mergedHeader->size >= PAGESIZE && Management::isInitialized()) {
         auto addr = (uint32_t) mergedHeader;
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
-        SystemManagement::getInstance().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
+        Management::getInstance().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
     }
 }
 
@@ -283,7 +285,7 @@ void *FreeListMemoryManager::alloc(uint32_t size, uint32_t alignment) {
  */
 FreeListMemoryManager::FLHeader *FreeListMemoryManager::merge(FLHeader *origin) {
 
-    if(firstChunk == nullptr) {
+    if (firstChunk == nullptr) {
         return nullptr;
     }
 
@@ -330,24 +332,24 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size) {
 void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
     void *ret = nullptr;
 
-    if(size == 0) {
+    if (size == 0) {
         free(ptr);
 
         return ret;
     }
 
-    auto *oldHeader = (FLHeader*) ((uint32_t) ptr - HEADER_SIZE);
+    auto *oldHeader = (FLHeader * )((uint32_t) ptr - HEADER_SIZE);
 
-    if(oldHeader->size == size) {
-        if(alignment == 0 || (uint32_t) ptr % alignment == 0) {
+    if (oldHeader->size == size) {
+        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
             return ptr;
         } else {
             ret = alloc(size, alignment);
         }
-    } else if(size < oldHeader->size) {
-        if(alignment == 0 || (uint32_t) ptr % alignment == 0) {
-            if(oldHeader->size - size > MIN_BLOCK_SIZE + HEADER_SIZE) {
-                auto *newHeader = (FLHeader*) ((uint32_t) ptr + size);
+    } else if (size < oldHeader->size) {
+        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
+            if (oldHeader->size - size > MIN_BLOCK_SIZE + HEADER_SIZE) {
+                auto *newHeader = (FLHeader * )((uint32_t) ptr + size);
                 newHeader->size = oldHeader->size - size - HEADER_SIZE;
 
                 free(newHeader + HEADER_SIZE);
@@ -362,39 +364,40 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
             ret = alloc(size, alignment);
         }
     } else {
-        if(alignment == 0 || (uint32_t) ptr % alignment == 0) {
+        if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
             FLHeader *currentChunk = firstChunk;
             FLHeader *returnChunk = nullptr;
 
             lock.acquire();
 
-             do {
+            do {
                 if (currentChunk->size >= size) {
-                    if(returnChunk == nullptr || currentChunk->size < returnChunk->size) {
+                    if (returnChunk == nullptr || currentChunk->size < returnChunk->size) {
                         returnChunk = currentChunk;
                     }
                 }
 
                 currentChunk = currentChunk->next;
-            } while(currentChunk != nullptr && currentChunk < ptr);
+            } while (currentChunk != nullptr && currentChunk < ptr);
 
-            if(currentChunk != nullptr) {
-                if(((uint32_t) ptr + oldHeader->size == (uint32_t) currentChunk) && (oldHeader->size + currentChunk->size + HEADER_SIZE >= size)) {
+            if (currentChunk != nullptr) {
+                if (((uint32_t) ptr + oldHeader->size == (uint32_t) currentChunk) &&
+                    (oldHeader->size + currentChunk->size + HEADER_SIZE >= size)) {
                     freeMemory -= currentChunk->size;
 
                     currentChunk->prev->next = currentChunk->next;
 
-                    if(currentChunk->next != nullptr) {
+                    if (currentChunk->next != nullptr) {
                         currentChunk->next->prev = currentChunk->prev;
                     }
 
                     oldHeader->size += currentChunk->size + HEADER_SIZE;
 
-                    if(oldHeader->size - size > HEADER_SIZE + MIN_BLOCK_SIZE) {
-                        auto *newHeader = (FLHeader*) ((uint32_t) ptr + size);
+                    if (oldHeader->size - size > HEADER_SIZE + MIN_BLOCK_SIZE) {
+                        auto *newHeader = (FLHeader * )((uint32_t) ptr + size);
                         newHeader->size = oldHeader->size - size - HEADER_SIZE;
 
-                        freeAlgorithm((uint8_t*) newHeader + HEADER_SIZE);
+                        freeAlgorithm((uint8_t *) newHeader + HEADER_SIZE);
 
                         oldHeader->size = size;
                     }
@@ -417,11 +420,13 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
         }
     }
 
-    if(ret != nullptr) {
+    if (ret != nullptr) {
         memcpy(ret, ptr, (size < oldHeader->size) ? size : oldHeader->size);
 
         free(ptr);
     }
 
     return ret;
+}
+
 }

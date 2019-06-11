@@ -4,6 +4,8 @@
 #include "lib/util/Array.h"
 #include "ThreadPriority.h"
 
+namespace Kernel {
+
 class AccessArrayThreadPriority : public ThreadPriority {
 
 public:
@@ -25,5 +27,7 @@ private:
     uint8_t currentIndex;
 
 };
+
+}
 
 #endif

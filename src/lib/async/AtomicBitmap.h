@@ -35,12 +35,6 @@ public:
 
     uint32_t findAndSet(uint32_t blockCount) override;
 
-private:
-
-    static uint32_t bitTestAndSet(uint32_t value, uint32_t bit);
-
-    static uint32_t bitTestAndReset(uint32_t value, uint32_t bit);
-
 };
 
 #endif

@@ -17,7 +17,7 @@
 #include "lib/string/String.h"
 #include "kernel/bluescreen/BlueScreen.h"
 #include "kernel/interrupt/InterruptManager.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "Cpu.h"
 
 extern "C" {
@@ -73,9 +73,9 @@ void Cpu::enableInterrupts() {
 
         asm volatile ( "sti" );
 
-        if(SystemManagement::isInitialized()) {
+        if(Kernel::Management::isInitialized()) {
 
-            InterruptManager::getInstance().handleDisabledInterrupts();
+            Kernel::InterruptManager::getInstance().handleDisabledInterrupts();
         }
     }
 }
@@ -131,7 +131,7 @@ void Cpu::throwException(Exception exception, const char *message) {
 
     disableInterrupts();
 
-    BlueScreen::setErrorMessage(message);
+    Kernel::BlueScreen::setErrorMessage(message);
 
     onException((uint32_t) exception);
 }

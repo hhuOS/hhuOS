@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/misc/Pic.h"
 #include "kernel/thread/Scheduler.h"
@@ -59,12 +59,12 @@ void Pit::plugin () {
 
     setInterval(timerInterval);
 
-    InterruptDispatcher::getInstance().assign(32, *this);
+    Kernel::InterruptDispatcher::getInstance().assign(32, *this);
 
     Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
-void Pit::trigger(InterruptFrame &frame) {
+void Pit::trigger(Kernel::InterruptFrame &frame) {
 
     time.addNanos(timerInterval);
 

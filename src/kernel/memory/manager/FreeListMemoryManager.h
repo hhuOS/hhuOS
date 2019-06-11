@@ -21,6 +21,8 @@
 #include "lib/async/Spinlock.h"
 #include "MemoryManager.h"
 
+namespace Kernel {
+
 /**
  * Memory manager, that uses a doubly linked list of free chunks of memory.
  *
@@ -37,14 +39,14 @@ private:
      * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
      */
     struct FLHeader {
-        FLHeader* prev;
-        FLHeader* next;
+        FLHeader *prev;
+        FLHeader *next;
         uint32_t size;
     };
 
     Spinlock lock;
 
-    FLHeader* firstChunk = nullptr;
+    FLHeader *firstChunk = nullptr;
 
     /**
      * Find the next chunk of memory with a required size.
@@ -82,7 +84,7 @@ private:
      *
      * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
      */
-    void* allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
+    void *allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
 
     /**
      * Implementation of the free algorithm, that is used in the free-functions.
@@ -123,12 +125,12 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void* alloc(uint32_t size) override;
+    void *alloc(uint32_t size) override;
 
     /**
      * Overriding function from MemoryManager.
      */
-    void* alloc(uint32_t size, uint32_t alignment) override;
+    void *alloc(uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -143,17 +145,19 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void free(void* ptr) override;
+    void free(void *ptr) override;
 
     /**
      * Overriding function from MemoryManager.
      */
-	void free(void* ptr, uint32_t alignment) override;
+    void free(void *ptr, uint32_t alignment) override;
 
     /**
      * Dump the list of free chunks of memory.
      */
     void dump() override;
 };
+
+}
 
 #endif

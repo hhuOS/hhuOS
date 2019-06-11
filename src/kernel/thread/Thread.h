@@ -22,6 +22,8 @@
 #include <cstdint>
 #include "lib/string/String.h"
 
+namespace Kernel {
+
 class Thread {
 
     friend class Scheduler;
@@ -71,7 +73,7 @@ public:
      */
     virtual void start() final;
 
-    virtual void run () = 0;
+    virtual void run() = 0;
 
     void join() const;
 
@@ -117,8 +119,10 @@ private:
     void init();
 
     /* 4KB Stack Size */
-    static const uint32_t   STACK_SIZE_DEFAULT            = 4096;
+    static const uint32_t STACK_SIZE_DEFAULT = 4096;
 
 };
+
+}
 
 #endif

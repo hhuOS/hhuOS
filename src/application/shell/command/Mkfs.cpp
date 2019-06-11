@@ -19,7 +19,7 @@
 #include "Mkfs.h"
 
 Mkfs::Mkfs(Shell &shell) : Command(shell) {
-    fileSystem = Kernel::getService<Filesystem>();
+    fileSystem = Kernel::System::getService<Filesystem>();
 };
 
 void Mkfs::execute(Util::Array<String> &args) {

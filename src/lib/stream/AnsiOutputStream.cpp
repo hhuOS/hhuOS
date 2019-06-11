@@ -1,9 +1,9 @@
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/graphic/Ansi.h"
 #include "AnsiOutputStream.h"
 
 AnsiOutputStream::AnsiOutputStream() {
-    graphicsService = Kernel::getService<GraphicsService>();
+    graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
 }
 
 void AnsiOutputStream::flush() {

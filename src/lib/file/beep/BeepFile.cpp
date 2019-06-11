@@ -15,7 +15,7 @@
  */
 
 #include "kernel/service/SoundService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "BeepFile.h"
 
 BeepFile::BeepFile(File *file) {
@@ -25,7 +25,7 @@ BeepFile::BeepFile(File *file) {
 
     content = (Content*) tmp;
 
-    speaker = Kernel::getService<SoundService>()->getPcSpeaker();
+    speaker = Kernel::System::getService<Kernel::SoundService>()->getPcSpeaker();
 }
 
 BeepFile::~BeepFile() {

@@ -15,9 +15,9 @@
  */
 
 #include "kernel/memory/MemLayout.h"
-#include "kernel/core/KernelSymbols.h"
+#include "kernel/core/Symbols.h"
 #include "lib/file/tar/Archive.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "lib/libc/printf.h"
 #include "lib/libc/sprintf.h"
 #include "kernel/bluescreen/BlueScreen.h"
@@ -30,44 +30,46 @@ extern "C" {
     extern char ___KERNEL_DATA_END__;
 }
 
-Multiboot::Info Multiboot::Structure::info;
+namespace Kernel::Multiboot {
 
-uint32_t Multiboot::Structure::customMemoryMapSize = 0;
+Info Structure::info;
 
-uint32_t Multiboot::Structure::physReservedMemoryStart = UINT32_MAX;
+uint32_t Structure::customMemoryMapSize = 0;
 
-uint32_t Multiboot::Structure::physReservedMemoryEnd = 0;
+uint32_t Structure::physReservedMemoryStart = UINT32_MAX;
 
-uint32_t Multiboot::Structure::kernelCopyLow = UINT32_MAX;
+uint32_t Structure::physReservedMemoryEnd = 0;
 
-uint32_t Multiboot::Structure::kernelCopyHigh = 0;
+uint32_t Structure::kernelCopyLow = UINT32_MAX;
 
-Multiboot::MemoryMapEntry Multiboot::Structure::customMemoryMap[256];
+uint32_t Structure::kernelCopyHigh = 0;
 
-Util::ArrayList<Multiboot::MemoryMapEntry> Multiboot::Structure::memoryMap;
+MemoryMapEntry Structure::customMemoryMap[256];
 
-Multiboot::FrameBufferInfo Multiboot::Structure::frameBufferInfo;
+Util::ArrayList<MemoryMapEntry> Structure::memoryMap;
 
-Util::HashMap<String, Multiboot::ModuleInfo> Multiboot::Structure::modules;
+FrameBufferInfo Structure::frameBufferInfo;
 
-Util::HashMap<String, String> Multiboot::Structure::kernelOptions;
+Util::HashMap<String, ModuleInfo> Structure::modules;
+
+Util::HashMap<String, String> Structure::kernelOptions;
 
 extern "C" {
-    void readMemoryMap(Multiboot::Info *address);
+void readMemoryMap(Info *address);
 }
 
-void readMemoryMap(Multiboot::Info *address) {
+void readMemoryMap(Info *address) {
 
-    Multiboot::Structure::readMemoryMap(address);
+    Structure::readMemoryMap(address);
 }
 
-void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
+void Structure::readMemoryMap(Info *address) {
 
-    Multiboot::Info tmp = *address;
+    Info tmp = *address;
 
-    MemoryMapEntry *memory = (MemoryMapEntry*) ((uint32_t) customMemoryMap - KERNEL_START);
+    MemoryMapEntry *memory = (MemoryMapEntry *) ((uint32_t) customMemoryMap - KERNEL_START);
 
-    uint32_t &mapSize = *((uint32_t*) ((uint32_t) &customMemoryMapSize - KERNEL_START));
+    uint32_t &mapSize = *((uint32_t *) ((uint32_t) &customMemoryMapSize - KERNEL_START));
 
     uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - KERNEL_START;
 
@@ -82,19 +84,20 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
     ElfInfo &symbolInfo = tmp.symbols.elf;
 
     ElfConstants::SectionHeader *sectionHeader = nullptr;
-    
+
     if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_ELF_SHDR)) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
-            sectionHeader = (ElfConstants::SectionHeader*) (symbolInfo.address + i * symbolInfo.sectionSize);
+            sectionHeader = (ElfConstants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
             if (sectionHeader->virtualAddress == 0x0) {
 
                 continue;
             }
 
-            uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress : sectionHeader->virtualAddress - KERNEL_START;
+            uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress :
+                                    sectionHeader->virtualAddress - KERNEL_START;
 
             memory[memoryIndex] = {0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED,};
 
@@ -106,11 +109,12 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
 
     if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_MODS)) {
 
-        auto *modInfo = (Multiboot::ModuleInfo*) tmp.moduleAddress;
+        auto *modInfo = (ModuleInfo *) tmp.moduleAddress;
 
         for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
-            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start, MULTIBOOT_MEMORY_RESERVED,};
+            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start,
+                                   MULTIBOOT_MEMORY_RESERVED,};
 
             memoryIndex++;
 
@@ -118,9 +122,9 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
         }
     }
 
-    uint32_t &maxAddress = *((uint32_t*) ((uint32_t) &physReservedMemoryEnd - KERNEL_START));
+    uint32_t &maxAddress = *((uint32_t *) ((uint32_t) &physReservedMemoryEnd - KERNEL_START));
 
-    uint32_t &minAddress = *((uint32_t*) ((uint32_t) &physReservedMemoryStart - KERNEL_START));
+    uint32_t &minAddress = *((uint32_t *) ((uint32_t) &physReservedMemoryStart - KERNEL_START));
 
     for (uint32_t i = 0; i < memoryIndex; i++) {
 
@@ -136,12 +140,12 @@ void Multiboot::Structure::readMemoryMap(Multiboot::Info *address) {
     }
 }
 
-void Multiboot::Structure::init(Multiboot::Info *address) {
+void Structure::init(Info *address) {
 
     info = *address;
 }
 
-void Multiboot::Structure::parse() {
+void Structure::parse() {
 
     parseCommandLine();
 
@@ -154,13 +158,13 @@ void Multiboot::Structure::parse() {
     parseFrameBufferInfo();
 }
 
-void Multiboot::Structure::parseCommandLine() {
+void Structure::parseCommandLine() {
 
     if (info.flags & MULTIBOOT_INFO_CMDLINE) {
 
         info.commandLine += KERNEL_START;
 
-        Util::Array<String> options = String((char*) info.commandLine).split(" ");
+        Util::Array<String> options = String((char *) info.commandLine).split(" ");
 
         for (const String &option : options) {
 
@@ -176,11 +180,11 @@ void Multiboot::Structure::parseCommandLine() {
     }
 }
 
-void Multiboot::Structure::parseMemoryMap() {
+void Structure::parseMemoryMap() {
 
     if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
 
-        MemoryMapEntry *entry = (MemoryMapEntry*) (info.memoryMapAddress + KERNEL_START);
+        MemoryMapEntry *entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
 
         uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
@@ -199,46 +203,46 @@ void Multiboot::Structure::parseMemoryMap() {
     }
 }
 
-Util::Array<Multiboot::MemoryMapEntry> Multiboot::Structure::getMemoryMap() {
+Util::Array<MemoryMapEntry> Structure::getMemoryMap() {
 
     if ((info.flags & MULTIBOOT_INFO_MEM_MAP) == 0x0) {
-        return Util::Array<Multiboot::MemoryMapEntry>(0);
+        return Util::Array<MemoryMapEntry>(0);
     }
 
-    auto *entry = (MemoryMapEntry*) (info.memoryMapAddress + KERNEL_START);
+    auto *entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
 
     uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
-    Util::Array<Multiboot::MemoryMapEntry> memoryMap(size);
+    Util::Array<MemoryMapEntry> memoryMap(size);
 
-    for (uint32_t i = 0; i < size; i ++) {
+    for (uint32_t i = 0; i < size; i++) {
         memoryMap[i] = entry[i];
     }
 
     return memoryMap;
 }
 
-Multiboot::FrameBufferInfo Multiboot::Structure::getFrameBufferInfo() {
+FrameBufferInfo Structure::getFrameBufferInfo() {
     return frameBufferInfo;
 }
 
-void Multiboot::Structure::parseSymbols() {
+void Structure::parseSymbols() {
 
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
 
         info.symbols.elf.address += KERNEL_START;
 
-        KernelSymbols::initialize(info.symbols.elf);
+        Symbols::initialize(info.symbols.elf);
     }
 }
 
-void Multiboot::Structure::parseModules() {
+void Structure::parseModules() {
 
     if (info.flags & MULTIBOOT_INFO_MODS) {
 
         info.moduleAddress += KERNEL_START;
 
-        Multiboot::ModuleInfo *modInfo = (Multiboot::ModuleInfo*) info.moduleAddress;
+        ModuleInfo *modInfo = (ModuleInfo *) info.moduleAddress;
 
         for (uint32_t i = 0; i < info.moduleCount; i++) {
 
@@ -253,7 +257,7 @@ void Multiboot::Structure::parseModules() {
     }
 }
 
-Multiboot::ModuleInfo Multiboot::Structure::getModule(const String &module) {
+ModuleInfo Structure::getModule(const String &module) {
 
     if (isModuleLoaded(module)) {
 
@@ -263,12 +267,12 @@ Multiboot::ModuleInfo Multiboot::Structure::getModule(const String &module) {
     return {0, 0, "unknown", 0};
 }
 
-bool Multiboot::Structure::isModuleLoaded(const String &module) {
+bool Structure::isModuleLoaded(const String &module) {
 
     return modules.containsKey(module);
 }
 
-String Multiboot::Structure::getKernelOption(const String &key) {
+String Structure::getKernelOption(const String &key) {
 
     if (kernelOptions.containsKey(key)) {
 
@@ -278,11 +282,11 @@ String Multiboot::Structure::getKernelOption(const String &key) {
     return String();
 }
 
-void Multiboot::Structure::parseFrameBufferInfo() {
+void Structure::parseFrameBufferInfo() {
 
     if ((info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) && (info.framebufferBpp >= 8) && (info.framebufferType == 1)) {
 
-        frameBufferInfo.address = SystemManagement::getInstance().mapIO(
+        frameBufferInfo.address = Management::getInstance().mapIO(
                 static_cast<uint32_t>(info.framebufferAddress), info.framebufferWidth * info.framebufferPitch);
         frameBufferInfo.width = static_cast<uint16_t>(info.framebufferWidth);
         frameBufferInfo.height = static_cast<uint16_t>(info.framebufferHeight);
@@ -302,5 +306,4 @@ void Multiboot::Structure::parseFrameBufferInfo() {
     }
 }
 
-
-
+}

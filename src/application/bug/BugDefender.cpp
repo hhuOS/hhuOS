@@ -15,7 +15,7 @@
  */
 
 #include "kernel/service/TimeService.h"
-#include "kernel/core/Kernel.h"
+#include "kernel/core/System.h"
 #include "lib/libc/snprintf.h"
 #include "kernel/service/DebugService.h"
 #include "application/Application.h"
@@ -164,7 +164,7 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
         showGameOver(g2d);
         g2d->show();
 
-        if(HHUEngine::isKeyPressed(KeyEvent::RETURN)) {
+        if(HHUEngine::isKeyPressed(Kernel::KeyEvent::RETURN)) {
             Game::isRunning = false;
         }
 
@@ -175,7 +175,7 @@ void BugDefender::draw(LinearFrameBuffer* g2d){
         showGameWon(g2d);
         g2d->show();
 
-        if(HHUEngine::isKeyPressed(KeyEvent::RETURN)) {
+        if(HHUEngine::isKeyPressed(Kernel::KeyEvent::RETURN)) {
             Game::isRunning = false;
         }
 

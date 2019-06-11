@@ -16,6 +16,8 @@
 
 #include "PortService.h"
 
+namespace Kernel {
+
 void PortService::registerPort(Port *port) {
     portMap.put(port->getName().toLowerCase(), port);
 }
@@ -32,4 +34,6 @@ bool PortService::isPortAvailable(const String &name) {
     driverName = driverName.toLowerCase();
 
     return portMap.containsKey(driverName);
+}
+
 }

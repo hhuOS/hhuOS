@@ -16,6 +16,8 @@
 
 #include "KernelStreamService.h"
 
+namespace Kernel {
+
 OutputStream *KernelStreamService::getStdout() {
     return stdout;
 }
@@ -38,4 +40,6 @@ InputStream *KernelStreamService::getStdin() {
 
 void KernelStreamService::setStdin(InputStream *stream) {
     stdin = stream;
+}
+
 }

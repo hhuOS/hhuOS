@@ -16,6 +16,8 @@
 
 #include "MouseReleasedEvent.h"
 
+namespace Kernel {
+
 MouseReleasedEvent::MouseReleasedEvent() : Event() {
     bitmask = 0;
 }
@@ -38,4 +40,6 @@ bool MouseReleasedEvent::isMiddleReleased() {
 
 String MouseReleasedEvent::getType() const {
     return TYPE;
+}
+
 }

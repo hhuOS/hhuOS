@@ -15,7 +15,7 @@
  */
 
 #include "device/isa/Isa.h"
-#include "kernel/core/SystemManagement.h"
+#include "kernel/core/Management.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "device/misc/Pic.h"
 #include "kernel/thread/Scheduler.h"
@@ -72,7 +72,7 @@ void SoundBlaster16::prepareDma(uint16_t addressOffset, uint32_t bufferSize, boo
 
     Isa::selectChannel(channel);
     Isa::setMode(channel, Isa::TRANSFER_MODE_READ, autoInitialize, false, Isa::DMA_MODE_SINGLE_TRANSFER);
-    Isa::setAddress(channel, (uint32_t) SystemManagement::getInstance().getPhysicalAddress(dmaMemory) + addressOffset);
+    Isa::setAddress(channel, (uint32_t) Kernel::Management::getInstance().getPhysicalAddress(dmaMemory) + addressOffset);
     Isa::setCount(channel, static_cast<uint16_t>(bufferSize - 1));
     Isa::deselectChannel(channel);
 }
@@ -185,10 +185,10 @@ void SoundBlaster16::plugin() {
 
     }
 
-    InterruptDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
+    Kernel::InterruptDispatcher::getInstance().assign(static_cast<uint8_t>(32 + irqNumber), *this);
     Pic::getInstance().allow(static_cast<Pic::Interrupt>(irqNumber));
 }
 
-void SoundBlaster16::trigger(InterruptFrame &frame) {
+void SoundBlaster16::trigger(Kernel::InterruptFrame &frame) {
     receivedInterrupt = true;
 }

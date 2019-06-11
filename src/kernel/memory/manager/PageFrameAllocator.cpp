@@ -19,6 +19,8 @@
 
 #include "kernel/memory/Paging.h"
 
+namespace Kernel {
+
 PageFrameAllocator::PageFrameAllocator() : BitmapMemoryManager(PAGESIZE, false) {
     managerType = PAGE_FRAME_ALLOCATOR;
 }
@@ -41,6 +43,4 @@ String PageFrameAllocator::getTypeName() {
     return TYPE_NAME;
 }
 
-
-
-
+}
