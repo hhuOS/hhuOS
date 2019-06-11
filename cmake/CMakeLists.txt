@@ -54,6 +54,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
 # Set source directory variables
 set(HHUOS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 set(HHUOS_SRC_DIR "${HHUOS_ROOT_DIR}/src")
+set(HHUOS_TOOL_DIR "${HHUOS_ROOT_DIR}/tool")
 
 # Set output directory variables
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/static)
@@ -82,6 +83,9 @@ add_subdirectory(filesystem)
 add_subdirectory(kernel)
 add_subdirectory(lib)
 add_subdirectory(system)
-add_subdirectory(initrd)
 add_subdirectory(iso)
+
+add_subdirectory(initrd)
 add_subdirectory(hdd)
+
+add_subdirectory(beep)

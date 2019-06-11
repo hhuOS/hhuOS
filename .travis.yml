@@ -14,6 +14,7 @@ addons:
       - g++-6
       - gcc-6-multilib
       - g++-6-multilib
+      - libboost-dev
       - grub-pc-bin
       - grub-efi-ia32-bin
       - mtools

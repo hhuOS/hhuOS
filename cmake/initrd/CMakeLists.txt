@@ -20,4 +20,4 @@ message(STATUS "Project " ${PROJECT_NAME})
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/loader/boot/hhuOS.initrd"
         COMMAND tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${HHUOS_ROOT_DIR}/loader/boot/hhuOS.initrd" ./)
 
-add_custom_target(initrd DEPENDS "${HHUOS_ROOT_DIR}/loader/boot/hhuOS.initrd")
+add_custom_target(initrd DEPENDS beep "${HHUOS_ROOT_DIR}/loader/boot/hhuOS.initrd")

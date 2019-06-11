@@ -3,15 +3,14 @@ hdd/asciimation/starwars.txt
 .gdb_history
 loader/boot/hhuOS.bin
 loader/boot/hhuOS.initrd
-initrd/mod/
-initrd/music/beep/
-music/build/
 initrd/asciimation/starwars.txt
 hdd/mod/
+tool/beepc/beepc
 *.img
 *.dump
 *.iso
-
+*.ko
+*.beep
 # Project files and folders
 cmake-build-debug/
 CMakeLists.txt.user
