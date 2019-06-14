@@ -18,7 +18,11 @@
 #define __SystemCall_include__
 
 #include <cstdint>
+#include <lib/system/Call.h>
+#include <kernel/log/Logger.h>
 #include "kernel/interrupt/InterruptHandler.h"
+
+namespace Kernel {
 
 /**
  * System call interface.
@@ -29,22 +33,21 @@ class SystemCall : public Kernel::InterruptHandler {
 
 public:
 
-    enum SystemCallCode : uint8_t {
-        SCHEDULER_YIELD = 0x00,
-        SCHEDULER_BLOCK = 0x01
-    };
-
     void trigger(Kernel::InterruptFrame &frame) override;
 
-    static void registerSystemCall(SystemCallCode code, void(*func)());
+    static void registerSystemCall(Standard::System::Call::Code code, void(*func)(uint32_t paramCount, va_list params, Standard::System::Result &result));
 
     static int32_t atExit(void (*func)());
 
 private:
 
-    static void(*systemCalls[256])();
+    static Logger &log;
+
+    static void (*systemCalls[256])(uint32_t paramCount, va_list params, Standard::System::Result &result);
 
 };
+
+}
 
 
 #endif

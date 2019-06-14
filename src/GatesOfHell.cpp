@@ -221,6 +221,25 @@ void GatesOfHell::enter() {
     log.trace("Booting hhuOS %s - git %s", BuildConfig::getVersion(), BuildConfig::getGitRevision());
     log.trace("Build date: %s", BuildConfig::getBuildDate());
 
+    Kernel::SystemCall::registerSystemCall(Standard::System::Call::SYSTEM_CALL_TEST, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
+        log.debug("System call with %d parameters!", paramCount);
+
+        uint32_t sum = 0;
+        
+        for(uint32_t i = 0; i < paramCount; i++) {
+            uint32_t param = va_arg(params, uint32_t);
+            log.debug("Parameter %d: %d", i, param);
+            sum += param;
+        }
+
+        result.setValue(sum);
+    });
+
+    Standard::System::Result result{};
+    Standard::System::Call::execute(Standard::System::Call::Code::SYSTEM_CALL_TEST, result, 3, 10, 20, 30);
+    
+    log.debug("System call returned with value: %d", result.getValue());
+
     if(Kernel::Multiboot::Structure::getKernelOption("bios_enhancements") == "true") {
         coordinator.addComponent(&initBiosComponent);
         initServicesComponent.addDependency(&initBiosComponent);

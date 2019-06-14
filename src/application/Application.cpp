@@ -30,7 +30,7 @@
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 #include "kernel/core/Management.h"
-#include "lib/system/SystemCall.h"
+#include "kernel/core/SystemCall.h"
 #include "application/memory/MemoryManagerDemo.h"
 #include "lib/async/SimpleThread.h"
 #include "application/loop/Loop.h"

@@ -25,7 +25,7 @@
 #include "lib/util/HashMap.h"
 
 #include <cstdint>
-#include "lib/system/SystemCall.h"
+#include "kernel/core/SystemCall.h"
 
 namespace Kernel {
 

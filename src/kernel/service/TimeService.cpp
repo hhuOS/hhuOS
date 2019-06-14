@@ -15,7 +15,7 @@
  */
 
 #include "kernel/thread/Scheduler.h"
-#include "lib/system/SystemCall.h"
+#include "kernel/core/SystemCall.h"
 #include "TimeService.h"
 
 namespace Kernel {
@@ -36,7 +36,7 @@ void TimeService::msleep(uint32_t ms) {
             break;
         }
 
-        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
+        Cpu::softInterrupt(Standard::System::Call::SCHEDULER_YIELD);
     }
 }
 

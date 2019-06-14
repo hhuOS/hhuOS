@@ -45,7 +45,7 @@ void Logger::trace(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(TRACE, name, String::format((char *) message, args));
+    logMessage(TRACE, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -55,7 +55,7 @@ void Logger::debug(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(DEBUG, name, String::format((char *) message, args));
+    logMessage(DEBUG, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -65,7 +65,7 @@ void Logger::info(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(INFO, name, String::format((char *) message, args));
+    logMessage(INFO, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -75,7 +75,7 @@ void Logger::warn(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(WARN, name, String::format((char *) message, args));
+    logMessage(WARN, name, String::vformat((char *) message, args));
 
     va_end(args);
 }
@@ -85,7 +85,7 @@ void Logger::error(const String &message, ...) {
     va_list args;
     va_start(args, message);
 
-    logMessage(ERROR, name, String::format((char *) message, args));
+    logMessage(ERROR, name, String::vformat((char *) message, args));
 
     va_end(args);
 }

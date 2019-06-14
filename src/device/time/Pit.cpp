@@ -70,7 +70,7 @@ void Pit::trigger(Kernel::InterruptFrame &frame) {
 
     if ((time.fraction % DEFAULT_YIELD_INTERVAL) == 0) {
 
-        Cpu::softInterrupt(SystemCall::SCHEDULER_YIELD);
+        Cpu::softInterrupt(Standard::System::Call::SCHEDULER_YIELD);
     }
 }
 

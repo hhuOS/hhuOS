@@ -21,7 +21,7 @@
 #include "kernel/service/PortService.h"
 #include "device/time/Pit.h"
 #include "kernel/service/SoundService.h"
-#include "lib/system/SystemCall.h"
+#include "kernel/core/SystemCall.h"
 #include "kernel/thread/priority/AccessArrayThreadPriority.h"
 #include "kernel/thread/Scheduler.h"
 #include "Scheduler.h"
@@ -46,13 +46,13 @@ void allowPitInterrupts() {
 
 Scheduler::Scheduler(ThreadPriority &priority) : priority(priority), readyQueues(priority.getPriorityCount()) {
 
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_YIELD, []() {
+    SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_YIELD, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
         if (Scheduler::getInstance().isInitialized()) {
             Scheduler::getInstance().yield();
         }
     });
 
-    SystemCall::registerSystemCall(SystemCall::SCHEDULER_BLOCK, []() {
+    SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_BLOCK, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
         if (Scheduler::getInstance().isInitialized()) {
             Scheduler::getInstance().block();
         }
