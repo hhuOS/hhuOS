@@ -20,18 +20,18 @@ namespace Kernel {
 
 Logger &SystemCall::log = Logger::get("SYSTEM");
 
-void (*SystemCall::systemCalls[256])(uint32_t paramCount, va_list params, Standard::System::Result &result){};
+void (*SystemCall::systemCalls[256])(uint32_t paramCount, va_list params, Standard::System::Result *result){};
 
 extern "C" {
 int32_t atexit(void (*func)()) noexcept;
 }
 
-void SystemCall::registerSystemCall(Standard::System::Call::Code code, void (*func)(uint32_t paramCount, va_list params, Standard::System::Result &result)) {
+void SystemCall::registerSystemCall(Standard::System::Call::Code code, void (*func)(uint32_t paramCount, va_list params, Standard::System::Result *result)) {
     systemCalls[code] = func;
 }
 
 void SystemCall::trigger(Kernel::InterruptFrame &frame) {
-    systemCalls[frame.eax & 0x0000ffffu](frame.eax >> 16u, reinterpret_cast<va_list>(frame.ebx), *reinterpret_cast<Standard::System::Result*>(frame.ecx));
+    systemCalls[frame.eax & 0x0000ffffu](frame.eax >> 16u, reinterpret_cast<va_list>(frame.ebx), reinterpret_cast<Standard::System::Result*>(frame.ecx));
 }
 
 int32_t atexit(void (*func)()) noexcept {

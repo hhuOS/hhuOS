@@ -14,10 +14,7 @@ public:
 
     enum Code : uint16_t {
         SYSTEM_CALL_TEST = 0x0000,
-        SCHEDULER_CREATE_THREAD = 0x0001,
-        SCHEDULER_START_THREAD = 0x0002,
-        SCHEDULER_YIELD = 0x0003,
-        SCHEDULER_BLOCK = 0x0004
+        SCHEDULER_YIELD = 0x0001,
     };
     
     Call() = delete;

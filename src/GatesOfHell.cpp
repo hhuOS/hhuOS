@@ -27,6 +27,7 @@
 #include <filesystem/ram/nodes/video/CurrentResolutionNode.h>
 #include <filesystem/ram/nodes/video/CurrentGraphicsDriverNode.h>
 #include <filesystem/ram/nodes/video/GraphicsDriversNode.h>
+#include <lib/system/SimpleResult.h>
 #include "kernel/memory/manager/StaticHeapMemoryManager.h"
 #include "filesystem/fat/FatDriver.h"
 #include "device/graphic/vesa/VesaGraphics.h"
@@ -221,7 +222,9 @@ void GatesOfHell::enter() {
     log.trace("Booting hhuOS %s - git %s", BuildConfig::getVersion(), BuildConfig::getGitRevision());
     log.trace("Build date: %s", BuildConfig::getBuildDate());
 
-    Kernel::SystemCall::registerSystemCall(Standard::System::Call::SYSTEM_CALL_TEST, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
+    Kernel::SystemCall::registerSystemCall(Standard::System::Call::SYSTEM_CALL_TEST, [](uint32_t paramCount, va_list params, Standard::System::Result *result) {
+        auto *simpleResult = reinterpret_cast<Standard::System::SimpleResult<uint32_t>*>(result);
+
         log.debug("System call with %d parameters!", paramCount);
 
         uint32_t sum = 0;
@@ -232,10 +235,10 @@ void GatesOfHell::enter() {
             sum += param;
         }
 
-        result.setValue(sum);
+        simpleResult->setValue(sum);
     });
 
-    Standard::System::Result result{};
+    Standard::System::SimpleResult<uint32_t> result{};
     Standard::System::Call::execute(Standard::System::Call::Code::SYSTEM_CALL_TEST, result, 3, 10, 20, 30);
     
     log.debug("System call returned with value: %d", result.getValue());

@@ -35,7 +35,7 @@ public:
 
     void trigger(Kernel::InterruptFrame &frame) override;
 
-    static void registerSystemCall(Standard::System::Call::Code code, void(*func)(uint32_t paramCount, va_list params, Standard::System::Result &result));
+    static void registerSystemCall(Standard::System::Call::Code code, void(*func)(uint32_t paramCount, va_list params, Standard::System::Result *result));
 
     static int32_t atExit(void (*func)());
 
@@ -43,7 +43,7 @@ private:
 
     static Logger &log;
 
-    static void (*systemCalls[256])(uint32_t paramCount, va_list params, Standard::System::Result &result);
+    static void (*systemCalls[256])(uint32_t paramCount, va_list params, Standard::System::Result *result);
 
 };
 

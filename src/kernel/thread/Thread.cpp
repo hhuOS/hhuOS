@@ -115,7 +115,8 @@ String Thread::getName() const {
 
 void Thread::yield() {
 
-    Cpu::softInterrupt(Standard::System::Call::SCHEDULER_YIELD);
+    Standard::System::Result result{};
+    Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
 }
 
 uint8_t Thread::getPriority() const {
@@ -128,7 +129,8 @@ void Thread::setPriority(uint8_t priority) {
 
 void Thread::join() const {
     while (!finished) {
-        Cpu::softInterrupt(Standard::System::Call::SCHEDULER_YIELD);
+        Standard::System::Result result{};
+        Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
     }
 }
 

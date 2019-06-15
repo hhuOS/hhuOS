@@ -9,20 +9,22 @@ class Result {
 
 public:
 
+    enum Status {
+        OK,
+        NOT_INITIALIZED
+    };
+
+public:
+
     Result();
 
     uint32_t getStatus() const;
 
-    uint32_t getValue() const;
-
-    void setStatus(uint32_t status);
-
-    void setValue(uint32_t value);
+    void setStatus(Status status);
 
 private:
 
-    uint32_t status;
-    uint32_t value;
+    Status status;
 };
 
 }

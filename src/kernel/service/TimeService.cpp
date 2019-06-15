@@ -36,7 +36,8 @@ void TimeService::msleep(uint32_t ms) {
             break;
         }
 
-        Cpu::softInterrupt(Standard::System::Call::SCHEDULER_YIELD);
+        Standard::System::Result result{};
+        Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
     }
 }
 

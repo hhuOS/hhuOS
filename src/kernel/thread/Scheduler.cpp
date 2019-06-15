@@ -44,17 +44,14 @@ void allowPitInterrupts() {
     Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
-Scheduler::Scheduler(ThreadPriority &priority) : priority(priority), readyQueues(priority.getPriorityCount()) {
+Scheduler::Scheduler(ThreadPriority &priority) : currentThread(nullptr), priority(priority), readyQueues(priority.getPriorityCount()) {
 
-    SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_YIELD, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
+    SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_YIELD, [](uint32_t paramCount, va_list params, Standard::System::Result *result) {
         if (Scheduler::getInstance().isInitialized()) {
             Scheduler::getInstance().yield();
-        }
-    });
-
-    SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_BLOCK, [](uint32_t paramCount, va_list params, Standard::System::Result &result) {
-        if (Scheduler::getInstance().isInitialized()) {
-            Scheduler::getInstance().block();
+            result->setStatus(Standard::System::Result::OK);
+        } else {
+            result->setStatus(Standard::System::Result::NOT_INITIALIZED);
         }
     });
 }
