@@ -11,6 +11,7 @@ tool/beepc/beepc
 *.iso
 *.ko
 *.beep
+.builddirs
 # Project files and folders
 cmake-build-debug/
 CMakeLists.txt.user
