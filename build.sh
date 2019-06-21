@@ -52,8 +52,8 @@ cleanup() {
     if [ -f hdd0.img ]; then
         rm hdd0.img
     fi
-    if [ -f eth0.dmp ]; then
-        rm eth0.dmp
+    if [ -f eth0.dump ]; then
+        rm eth0.dump
     fi
 
     # get all names of used build directories

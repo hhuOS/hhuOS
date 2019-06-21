@@ -58,7 +58,6 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
 
     // Extract interrupt information
     uint8_t slot = (uint8_t) frame->interrupt;
-    uint32_t flags = frame->error;
 
     // Throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && !GdbServer::isInitialized() && slot != (uint32_t) Cpu::Error::PAGE_FAULT) {
@@ -78,25 +77,6 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         return;
     }
 
-    if (slot == 14) {
-
-        GdbServer::memError = true;
-
-        // Get page fault address and flags
-        uint32_t faulting_address = 0;
-        // the faulted linear address is loaded in the cr2 register
-        asm ("mov %%cr2, %0" : "=r" (faulting_address));
-
-        // There should be no access to the first page (address 0)
-        if (faulting_address == 0) {
-            frame->interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
-            System::panic(frame);
-        }
-
-        // Pass faulting address to the system management
-        Management::getInstance().setFaultParams(faulting_address, flags);
-    }
-
     if (handler.size() == 0) {
 
         sendEoi(slot);
@@ -112,8 +92,6 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         sprintf(error, "No handler registered for interrupt number %u!", frame->interrupt);
 
         Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, error);
-
-        return;
     }
 
     if (list != nullptr) {

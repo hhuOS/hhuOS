@@ -43,9 +43,6 @@ namespace Kernel {
 class Management : public InterruptHandler {
 
 private:
-    // parameters of a page fault
-    uint32_t faultFlags{};
-    uint32_t faultedAddress{};
 
     static bool initialized;
     // usable physical memory in this system
@@ -97,21 +94,6 @@ public:
      * Handle a Page Fault
      */
     void trigger(InterruptFrame &frame) override;
-
-    /**
-	 * Sets the params for a page fault.
-	 *
-	 * @param faultAddress The address where the page fault occured
-	 * @param flags Flags of the last page fault
-	 */
-    void setFaultParams(uint32_t faultAddress, uint32_t flags);
-
-    /**
-     * Returns the faulting address of the last pagefault that occured.
-     *
-     * @return Last faulting address
-     */
-    uint32_t getFaultingAddress();
 
     // Wrappers for access to IOMemoryManager
 

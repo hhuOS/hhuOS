@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/debug/GdbServer.h>
 #include "Management.h"
 
 #include "device/misc/Bios.h"
@@ -178,13 +179,27 @@ void Management::trigger(InterruptFrame &frame) {
     printf("[PAGINGMANAGER] Flags %x\n", faultFlags);
     printf("[PAGINGMANAGER] Floored 4kb aligned address %x\n", (faultedAddress & 0xFFFFF000));
 #endif
+
+    GdbServer::memError = true;
+
+    // Get page fault address and flags
+    uint32_t faultAddress = 0;
+    // the faulted linear address is loaded in the cr2 register
+    asm ("mov %%cr2, %0" : "=r" (faultAddress));
+
+    // There should be no access to the first page (address 0)
+    if (faultAddress == 0) {
+        frame.interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
+        System::panic(&frame);
+    }
+    
     // check if pagefault was caused by illegal page access
-    if ((faultFlags & 0x00000001) > 0) {
+    if ((frame.error & 0x00000001u) > 0) {
         Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
     }
 
     // Map the faulted Page
-    map(faultedAddress, PAGE_PRESENT | PAGE_READ_WRITE);
+    map(faultAddress, PAGE_PRESENT | PAGE_READ_WRITE);
     // TODO: Check other Faults
 }
 
@@ -439,10 +454,6 @@ bool Management::isKernelMode() {
     return kernelMode;
 }
 
-uint32_t Management::getFaultingAddress() {
-    return faultedAddress;
-}
-
 void Management::calcTotalPhysicalMemory() {
 
     Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::Structure::getMemoryMap();
@@ -517,11 +528,6 @@ void Management::freePageTable(void *virtTableAddress) {
     pagingAreaManager->free(virtTableAddress);
     // free physical memory
     pageFrameAllocator->free(physAddress);
-}
-
-void Management::setFaultParams(uint32_t faultAddress, uint32_t flags) {
-    faultedAddress = faultAddress;
-    faultFlags = flags;
 }
 
 Management &Management::getInstance() noexcept {
