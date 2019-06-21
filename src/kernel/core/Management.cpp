@@ -192,7 +192,7 @@ void Management::trigger(InterruptFrame &frame) {
         frame.interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
         System::panic(&frame);
     }
-    
+
     // check if pagefault was caused by illegal page access
     if ((frame.error & 0x00000001u) > 0) {
         Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
@@ -591,14 +591,13 @@ void operator delete[](void *ptr) {
     }
 }
 
-// Placement new
 void *operator new(size_t, void *p) { return p; }
 
 void *operator new[](size_t, void *p) { return p; }
 
-void operator delete(void *, void *) {};
+void operator delete(void *, void *) {}
 
-void operator delete[](void *, void *) {};
+void operator delete[](void *, void *) {}
 
 void *operator new(size_t size, uint32_t alignment) {
     if (!Kernel::Management::isKernelMode()) {

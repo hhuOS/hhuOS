@@ -335,6 +335,14 @@ public:
 
 }
 
+void *operator new(size_t, void *p);
+
+void *operator new[](size_t, void *p);
+
+void operator delete(void *, void *);
+
+void operator delete[](void *, void *);
+
 void *operator new(size_t size, uint32_t alignment);
 
 void *operator new[](size_t size, uint32_t alignment);

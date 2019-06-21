@@ -27,12 +27,6 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const
     this->pageDirectory = new PageDirectory(basePageDirectory);
     // the kernelspace heap manager is static and global for the system
     this->kernelSpaceHeapManager = Management::getKernelHeapManager();
-    // create a new memory manager for userspace
-    if (!Management::isInitialized()) {
-        this->userSpaceHeapManager = new FreeListMemoryManager();
-    } else {
-        this->userSpaceHeapManager = (MemoryManager *) MemoryManager::createInstance(memoryManagerType);
-    }
     // this is no bootstrap address space
     bootstrapAddressSpace = false;
 }
@@ -57,9 +51,19 @@ VirtualAddressSpace::~VirtualAddressSpace() {
 }
 
 void VirtualAddressSpace::init() {
-    if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->init(PAGESIZE, KERNEL_START, true);
+    // create a new memory manager for userspace
+    if (!Management::isInitialized()) {
+        this->userSpaceHeapManager = new (reinterpret_cast<void*>(PAGESIZE)) FreeListMemoryManager();
+    } else {
+        //this->userSpaceHeapManager = (MemoryManager *) MemoryManager::createInstance(memoryManagerType);
     }
+
+    if (userSpaceHeapManager != nullptr) {
+        userSpaceHeapManager->init(2 * PAGESIZE, KERNEL_START, true);
+    }
+
+    void *test = userSpaceHeapManager->alloc(1024);
+    userSpaceHeapManager->free(test);
 
     initialized = true;
 }
