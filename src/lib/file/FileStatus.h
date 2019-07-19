@@ -94,6 +94,11 @@ public:
      * Get the file type.
      */
     uint32_t getFileType();
+
+    /**
+     * Get the file size.
+     */
+    uint64_t getLength();
 };
 
 #endif

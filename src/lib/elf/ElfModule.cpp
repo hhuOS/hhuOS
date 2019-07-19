@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/elf/ElfLoader.h"
 #include "ElfModule.h"
 
 uint32_t ElfModule::getSymbol(const String &name) {
@@ -39,29 +38,29 @@ bool ElfModule::isValid() {
         return false;
     }
 
-    return fileHeader->type == ElfType::RELOCATABLE;
+    return true; //fileHeader->type == ElfType::RELOCATABLE;
 }
 
 void ElfModule::loadSectionNames() {
 
-    SectionHeader *sectionHeader = nullptr;
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
 
-    sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + fileHeader->sectionHeaderStringIndex * fileHeader->sectionHeaderEntrySize];
+    sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + fileHeader->sectionHeaderStringIndex * fileHeader->sectionHeaderEntrySize];
 
     sectionNames = &buffer[sectionHeader->offset];
 }
 
 void ElfModule::loadSections() {
 
-    SectionHeader *sectionHeader = nullptr;
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
 
     char *sectionName = nullptr;
 
     for (elf32_word i = 0; i < fileHeader->sectionHeaderEntries; i++) {
 
-        sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + i * fileHeader->sectionHeaderEntrySize];
+        sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + i * fileHeader->sectionHeaderEntrySize];
 
-        if (sectionHeader->type == SectionHeaderType::NONE) {
+        if (sectionHeader->type == ElfConstants::SectionHeaderType::NONE) {
 
             continue;
         }
@@ -76,7 +75,7 @@ void ElfModule::loadSections() {
 
         if ( strcmp(sectionName, ".symtab") == 0 ) {
 
-            symbolTable = (SymbolEntry*) sectionHeader->virtualAddress;
+            symbolTable = (ElfConstants::SymbolEntry*) sectionHeader->virtualAddress;
 
             symbolTableSize = sectionHeader->size / sectionHeader->entrySize;
 
@@ -91,11 +90,11 @@ void ElfModule::loadSections() {
 
 void ElfModule::parseSymbolTable() {
 
-    SectionHeader *sectionHeader = nullptr;
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
 
-    SymbolEntry *symbolEntry = nullptr;
+    ElfConstants::SymbolEntry *symbolEntry = nullptr;
 
-    SymbolBinding symbolBinding;
+    ElfConstants::SymbolBinding symbolBinding;
 
     char *symbolName = nullptr;
 
@@ -115,7 +114,7 @@ void ElfModule::parseSymbolTable() {
 
         symbolBinding = symbolEntry->getSymbolBinding();
 
-        if (symbolBinding != SymbolBinding::GLOBAL && symbolBinding != SymbolBinding::WEAK && symbolBinding != SymbolBinding::LOCAL) {
+        if (symbolBinding != ElfConstants::SymbolBinding::GLOBAL && symbolBinding != ElfConstants::SymbolBinding::WEAK && symbolBinding != ElfConstants::SymbolBinding::LOCAL) {
 
             continue;
         }
@@ -124,12 +123,12 @@ void ElfModule::parseSymbolTable() {
 
         bool isPresent = localSymbols.containsKey(symbolName);
 
-        if (isPresent && symbolBinding == SymbolBinding::WEAK) {
+        if (isPresent && symbolBinding == ElfConstants::SymbolBinding::WEAK) {
 
             continue;
         }
 
-        sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + symbolEntry->section * fileHeader->sectionHeaderEntrySize];
+        sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + symbolEntry->section * fileHeader->sectionHeaderEntrySize];
 
         localSymbols.put(symbolName, (sectionHeader->virtualAddress + symbolEntry->value));
     }
@@ -137,13 +136,13 @@ void ElfModule::parseSymbolTable() {
 
 void ElfModule::relocate() {
 
-    SectionHeader *sectionHeader = nullptr;
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
 
-    RelocationEntry *relocationTable = nullptr;
+    ElfConstants::RelocationEntry *relocationTable = nullptr;
 
-    RelocationEntry *relocationEntry = nullptr;
+    ElfConstants::RelocationEntry *relocationEntry = nullptr;
 
-    SymbolEntry *symbol = nullptr;
+    ElfConstants::SymbolEntry *symbol = nullptr;
 
     char *symbolName = nullptr;
 
@@ -155,18 +154,18 @@ void ElfModule::relocate() {
 
     for (uint32_t i = 0; i < fileHeader->sectionHeaderEntries; i++) {
 
-        sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + i * fileHeader->sectionHeaderEntrySize];
+        sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + i * fileHeader->sectionHeaderEntrySize];
 
-        if (sectionHeader->type != SectionHeaderType::REL) {
+        if (sectionHeader->type != ElfConstants::SectionHeaderType::REL) {
 
             continue;
         }
 
-        relocationTable = (RelocationEntry*) sectionHeader->virtualAddress;
+        relocationTable = (ElfConstants::RelocationEntry*) sectionHeader->virtualAddress;
 
         relocationTableSize = sectionHeader->size / sectionHeader->entrySize;
 
-        sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + sectionHeader->info * fileHeader->sectionHeaderEntrySize];
+        sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + sectionHeader->info * fileHeader->sectionHeaderEntrySize];
 
         for (uint32_t j = 0; j < relocationTableSize; j++) {
 
@@ -174,17 +173,17 @@ void ElfModule::relocate() {
 
             symbol = &symbolTable[relocationEntry->getSymbolIndex()];
 
-            if (relocationEntry->getType() == RelocationType::R_386_NONE) {
+            if (relocationEntry->getType() == ElfConstants::RelocationType::R_386_NONE) {
 
                 continue;
             }
 
-            if (symbol->getSymbolType() == SymbolType::FILE) {
+            if (symbol->getSymbolType() == ElfConstants::SymbolType::FILE) {
 
                 continue;
             }
 
-            if (symbol->getSymbolType() == SymbolType::SECTION) {
+            if (symbol->getSymbolType() == ElfConstants::SymbolType::SECTION) {
 
                 symbolName = getSectionName(symbol->section);
 
@@ -209,10 +208,10 @@ void ElfModule::relocate() {
             addend = *location;
 
             switch (relocationEntry->getType()) {
-                case RelocationType::R_386_32 :
+                case ElfConstants::RelocationType::R_386_32 :
                     *location = addend + address;
                     break;
-                case RelocationType::R_386_PC32 :
+                case ElfConstants::RelocationType::R_386_PC32 :
                     *location = addend + address - (uint32_t) location;
                     break;
                 default:
@@ -224,7 +223,7 @@ void ElfModule::relocate() {
 
 char *ElfModule::getSectionName(uint16_t sectionIndex) {
 
-    SectionHeader *sectionHeader = (SectionHeader*) &buffer[fileHeader->sectionHeader + sectionIndex * fileHeader->sectionHeaderEntrySize];
+    ElfConstants::SectionHeader *sectionHeader = (ElfConstants::SectionHeader*) &buffer[fileHeader->sectionHeader + sectionIndex * fileHeader->sectionHeaderEntrySize];
 
     return &sectionNames[sectionHeader->nameOffset];
 }

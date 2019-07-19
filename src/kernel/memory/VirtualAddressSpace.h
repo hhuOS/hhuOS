@@ -31,7 +31,8 @@ namespace Kernel {
  */
 class VirtualAddressSpace {
 private:
-    // pointer to memory managers for userspace and kernelspace
+
+// pointer to memory managers for userspace and kernelspace
     MemoryManager *kernelSpaceHeapManager = nullptr;
     MemoryManager *userSpaceHeapManager = nullptr;
     // pointer to page directory
@@ -40,19 +41,21 @@ private:
     // and only for temporary use
     bool bootstrapAddressSpace = false;
 
+    String managerType = "";
+    uint32_t heapAddress = 0;
+
     bool initialized = false;
 public:
     /**
-     * Constructor for an address space.
+     * Constructor for an address space with a loaded application.
      */
-    explicit VirtualAddressSpace(PageDirectory *basePageDirectory,
-                                 const String &memoryManagerType = "FreeListMemoryManager");
+    VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const String &memoryManagerType = "FreeListMemoryManager");
 
     /**
-     * Constructor for the very first address space for bootstrapping reasons.
-     * The memory manager for user space is set manually since it does not exist.
+     * Constructor for an address space without a loaded application.
+     * The heap always start at 0x2000.
      */
-    VirtualAddressSpace(PageDirectory *pageDirectory, MemoryManager *userSpaceHeapManager);
+    explicit VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType = "FreeListMemoryManager");
 
     /**
      * Destructor

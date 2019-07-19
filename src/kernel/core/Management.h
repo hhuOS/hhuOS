@@ -17,6 +17,7 @@
 #ifndef __SYSTEMMANAGEMENT_H__
 #define __SYSTEMMANAGEMENT_H__
 
+#include <lib/file/File.h>
 #include "kernel/interrupt/InterruptHandler.h"
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
@@ -44,6 +45,8 @@ class Management : public InterruptHandler {
 
 private:
 
+    static Logger &LOG;
+    
     static bool initialized;
     // usable physical memory in this system
     uint32_t totalPhysMemory = 0;
@@ -60,6 +63,8 @@ private:
     PagingAreaManager *pagingAreaManager{};
     // IO memory manager
     IOMemoryManager *ioMemManager{};
+
+    VirtualAddressSpace *mainAddressSpace{};
 
     // list of all address spaces
     Util::ArrayList<VirtualAddressSpace *> *addressSpaces{};
@@ -163,7 +168,7 @@ public:
      *
      * @return Pointer to the new address space
      */
-    VirtualAddressSpace *createAddressSpace();
+    VirtualAddressSpace *createAddressSpace(uint32_t managerOffset, const String &managerType);
 
     /**
      * Switches to a given address space.
@@ -178,6 +183,8 @@ public:
      * @param adressSpace AdressSpace that should be removed
      */
     void removeAddressSpace(VirtualAddressSpace *addressSpace);
+
+    void loadApplication(const String &path);
 
 
     // Mappings and unmappings

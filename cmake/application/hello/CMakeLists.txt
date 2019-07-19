@@ -14,25 +14,17 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(application)
+project(hello)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
+# Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/Application.cpp)
+        ${HHUOS_SRC_DIR}/application/hello/hello.c)
 
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-# Add subdirectories
-add_subdirectory(ant)
-add_subdirectory(bug)
-add_subdirectory(loop)
-add_subdirectory(mandelbrot)
-add_subdirectory(memory)
-add_subdirectory(mouse)
-add_subdirectory(shell)
+set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${HHUOS_ROOT_DIR}/initrd/bin/)
 
-add_subdirectory(hello)
-
-target_link_libraries(${PROJECT_NAME} device filesystem kernel lib)
+set(CMAKE_C_FLAGS "-m32 -nostdlib -ffreestanding -O0 -fno-pic -no-pie -Wl,--hash-style=sysv,-emain -T ${HHUOS_SRC_DIR}/application/link.ld")

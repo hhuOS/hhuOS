@@ -26,13 +26,16 @@ bool FileHeader::isValid() {
         return false;
     }
 
-    if (architecture != Architecture::BIT_32||
-        byteOrder != ByteOrder::LITTLE_ENDIAN     ||
-        machine != MachineType::X86) {
+    if(architecture != Architecture::BIT_32) {
         return false;
     }
 
-    return !(type != ElfType::RELOCATABLE && type != ElfType::EXECUTABLE);
+    if(byteOrder != ByteOrder::LITTLE_ENDIAN) {
+        return false;
+    }
+
+    return machine == MachineType::X86;
+
 }
 
 bool FileHeader::hasProgramEntries() {

@@ -18,7 +18,7 @@
 #define __ElfModule_include__
 
 #include "lib/util/HashMap.h"
-#include "lib/elf/Elf.h"
+#include "lib/elf/ElfConstants.h"
 #include "lib/string/String.h"
 #include "kernel/module/Module.h"
 #include "kernel/service/ModuleLoader.h"
@@ -68,13 +68,13 @@ private:
 
     char *buffer = nullptr;
 
-    FileHeader *fileHeader;
+    ElfConstants::FileHeader *fileHeader;
 
     Util::HashMap<String, uint32_t> localSymbols;
 
-    Util::HashMap<String, SectionHeader*> sections;
+    Util::HashMap<String, ElfConstants::SectionHeader*> sections;
 
-    SymbolEntry *symbolTable = nullptr;
+    ElfConstants::SymbolEntry *symbolTable = nullptr;
 
     uint32_t symbolTableSize;
 

@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/memory/MemoryUtil.h>
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Management.h"
@@ -22,7 +23,8 @@
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const String &memoryManagerType) :
+        managerType(memoryManagerType), heapAddress(MemoryUtil::alignUp(heapAddress, PAGESIZE)) {
     // create a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
     // the kernelspace heap manager is static and global for the system
@@ -31,15 +33,19 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const
     bootstrapAddressSpace = false;
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *pageDirectory, MemoryManager *userSpaceHeapManager) {
-    // use the basePageDirectory here since it is not possible to create a new one right now
-    this->pageDirectory = pageDirectory;
-    // get the global kernel heap memory manager
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType) :
+        managerType(memoryManagerType), heapAddress(2 * PAGESIZE) {
+    if(basePageDirectory == nullptr) {
+        this->pageDirectory = new PageDirectory();
+    } else {
+        // create a new memory abstraction through paging
+        this->pageDirectory = new PageDirectory(basePageDirectory);
+    }
+
+    // the kernelspace heap manager is static and global for the system
     this->kernelSpaceHeapManager = Management::getKernelHeapManager();
-    // the userspace memory manager is passed as an parameter
-    this->userSpaceHeapManager = userSpaceHeapManager;
-    // this is the address space only used for bootstrapping
-    bootstrapAddressSpace = true;
+    // this is no bootstrap address space
+    bootstrapAddressSpace = false;
 }
 
 VirtualAddressSpace::~VirtualAddressSpace() {
@@ -55,11 +61,11 @@ void VirtualAddressSpace::init() {
     if (!Management::isInitialized()) {
         this->userSpaceHeapManager = new (reinterpret_cast<void*>(PAGESIZE)) FreeListMemoryManager();
     } else {
-        //this->userSpaceHeapManager = (MemoryManager *) MemoryManager::createInstance(memoryManagerType);
+        this->userSpaceHeapManager = (MemoryManager*) MemoryManager::createInstance(managerType);
     }
 
     if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->init(2 * PAGESIZE, KERNEL_START, true);
+        userSpaceHeapManager->init(MemoryUtil::alignUp(heapAddress, PAGESIZE), KERNEL_START - PAGESIZE, true);
     }
 
     void *test = userSpaceHeapManager->alloc(1024);

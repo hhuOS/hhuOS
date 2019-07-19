@@ -15,6 +15,9 @@
  */
 
 #include <kernel/debug/GdbServer.h>
+#include <kernel/service/ModuleLoader.h>
+#include <lib/file/elf/Elf.h>
+#include <lib/file/FileStatus.h>
 #include "Management.h"
 
 #include "device/misc/Bios.h"
@@ -49,6 +52,8 @@ void fini_system();
 
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc);
 }
+
+Logger &Management::LOG = Logger::get("Management");
 
 // initialize static members
 Management *Management::systemManagement = nullptr;
@@ -204,11 +209,15 @@ void Management::trigger(InterruptFrame &frame) {
 }
 
 void Management::init() {
+    // to be able to map new pages, a bootstrap address space is created.
+    // It uses only the basePageDirectory with mapping for kernel space
+    currentAddressSpace = new VirtualAddressSpace(nullptr);
+
     // Init Paging Area Manager -> Manages the virtual addresses of all page tables
     // and directories
     pagingAreaManager = new PagingAreaManager();
     // create a Base Page Directory (used to map the kernel into every process)
-    basePageDirectory = new PageDirectory();
+    basePageDirectory = currentAddressSpace->getPageDirectory();
 
     // Physical Page Frame Allocator is initialized to be possible to allocate
     // physical memory (page frames)
@@ -220,10 +229,6 @@ void Management::init() {
     printf("[PAGINGMANAGER] 4KB paging is activated \n");
 #endif
 
-    // to be able to map new pages, a bootstrap address space is created.
-    // It uses only the basePageDirectory with mapping for kernel space
-    currentAddressSpace = new VirtualAddressSpace(basePageDirectory, nullptr);
-
     // register Paging Manager to handle Page Faults
     this->plugin();
 
@@ -231,12 +236,9 @@ void Management::init() {
     // Init the manager for virtual IO Memory
     ioMemManager = new IOMemoryManager();
 
-    // now create the first address space with memory managers for kernel and user space
-    VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
-    VirtualAddressSpace *tmp = currentAddressSpace;
-    switchAddressSpace(addressSpace);
-    // we can delete the bootstrap address space
-    delete tmp;
+    currentAddressSpace->init();
+    switchAddressSpace(currentAddressSpace);
+
     // add first address space to list with all address spaces
     addressSpaces = new Util::ArrayList<VirtualAddressSpace *>;
     addressSpaces->add(currentAddressSpace);
@@ -488,8 +490,8 @@ void Management::calcTotalPhysicalMemory() {
     printf("[SYSTEMMANAGEMENT] Total Physical Memory: %d MB!", totalPhysMemory / (1024 * 1024));
 }
 
-VirtualAddressSpace *Management::createAddressSpace() {
-    VirtualAddressSpace *addressSpace = new VirtualAddressSpace(basePageDirectory);
+VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const String &managerType) {
+    auto *addressSpace = new VirtualAddressSpace(basePageDirectory, managerOffset, managerType);
     // add to the list of address spaces
     addressSpaces->add(addressSpace);
 
@@ -555,6 +557,27 @@ void *Management::realloc(void *ptr, uint32_t size, uint32_t alignment) {
     } else {
         return Management::getKernelHeapManager()->realloc(ptr, size, alignment);
     }
+}
+
+void Management::loadApplication(const String &path) {
+    auto elf = Elf::load(path);
+    
+    if(elf == nullptr) {
+        return;
+    }
+
+    auto addressSpace = createAddressSpace(elf->getSizeInMemory(), "FreeListMemoryManager");
+    switchAddressSpace(addressSpace);
+
+    elf->loadProgram();
+
+    int ret = elf->getEntryPoint()(0, nullptr);
+
+    LOG.debug("Application returned with %d", ret);    
+    
+    delete elf;
+    
+    switchAddressSpace(addressSpaces->get(0));
 }
 
 }

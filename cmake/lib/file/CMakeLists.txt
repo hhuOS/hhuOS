@@ -19,6 +19,7 @@ target_sources(lib PUBLIC
         ${HHUOS_SRC_DIR}/lib/file/FileStatus.cpp
         ${HHUOS_SRC_DIR}/lib/file/Directory.cpp
         ${HHUOS_SRC_DIR}/lib/file/beep/BeepFile.cpp
+        ${HHUOS_SRC_DIR}/lib/file/elf/Elf.cpp
         ${HHUOS_SRC_DIR}/lib/file/bmp/Bmp.cpp
         ${HHUOS_SRC_DIR}/lib/file/tar/Archive.cpp
         ${HHUOS_SRC_DIR}/lib/file/tar/Constants.cpp

@@ -14,29 +14,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __ElfLoader_include__
-#define __ElfLoader_include__
+ENTRY(startup)
+OUTPUT_FORMAT(elf32-i386)
 
-#include <cstdint>
-#include "kernel/core/Symbols.h"
-#include "Elf.h"
+SECTIONS
+{
+    . = 0x2000;     /* Virtual start address */
 
-/**
- * @author Filip Krakowski
- */
-class ElfLoader {
+    ___PROGRAM_START__ = .;
 
-public:
+    .text ALIGN (4K) :
+    {
+        ___TEXT_START__ = .;
+        *(.text)
+        *(.text.*)
+        ___TEXT_END__   = .;
+    }
 
-    static bool load(File *file, int argc = 0, char *argv[] = nullptr);
+    .rodata ALIGN (4K) :
+    {
+        ___RODATA_START__ = .;
+        *(.rodata)
+        *(.rodata.*)
+        ___RODATA_END__ = .;
+    }
 
-    static uint32_t getSymbol(const String &name);
+    .data ALIGN (4K) :
+    {
+        ___DATA_START__ = .;
+        *(.data)
+        *(.data.*)
+        ___DATA_END__ = .;
+    }
 
-private:
+    .bss :
+    {
+        ___BSS_START__ = .;
+        *(.bss)
+        *(.bss.*)
+        ___BSS_END__ = .;
+    }
 
-    static Kernel::Symbols *linkerService;
-
-};
-
-
-#endif
+    /DISCARD/ :
+    {
+        *(.comment)
+        *(.eh_frame)
+        *(.eh_frame_hdr)
+    }
+}

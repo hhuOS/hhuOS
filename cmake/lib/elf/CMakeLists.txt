@@ -15,8 +15,5 @@
 cmake_minimum_required(VERSION 3.5)
  
 target_sources(lib PUBLIC
-        ${HHUOS_SRC_DIR}/lib/elf/elf_loader.asm
-        ${HHUOS_SRC_DIR}/lib/elf/Elf.cpp
         ${HHUOS_SRC_DIR}/lib/elf/ElfConstants.cpp
-        ${HHUOS_SRC_DIR}/lib/elf/ElfLoader.cpp
         ${HHUOS_SRC_DIR}/lib/elf/ElfModule.cpp)

@@ -37,7 +37,7 @@ ModuleLoader::Status ModuleLoader::load(File *file) {
 
     file->readBytes(module->buffer, fileSize);
 
-    module->fileHeader = (FileHeader *) module->buffer;
+    module->fileHeader = (ElfConstants::FileHeader *) module->buffer;
 
     if (!module->isValid()) {
 

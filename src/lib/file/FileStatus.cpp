@@ -63,3 +63,7 @@ String FileStatus::getAbsolutePath() {
 uint32_t FileStatus::getFileType() {
     return node->getFileType();
 }
+
+uint64_t FileStatus::getLength() {
+    return node->getLength();
+}

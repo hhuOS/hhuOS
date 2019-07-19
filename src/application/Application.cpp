@@ -319,6 +319,7 @@ void Application::waitForCurrentApp() {
 }
 
 void Application::run() {
+    Kernel::Management::getInstance().loadApplication("/initrd/bin/hello");
 
     timeService = Kernel::System::getService<Kernel::TimeService>();
     LinearFrameBuffer *lfb = graphicsService->getLinearFrameBuffer();
