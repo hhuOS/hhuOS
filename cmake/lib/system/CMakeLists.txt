@@ -16,5 +16,9 @@ cmake_minimum_required(VERSION 3.5)
 
 target_sources(lib PUBLIC
         ${HHUOS_SRC_DIR}/lib/system/Call.cpp
+        ${HHUOS_SRC_DIR}/lib/system/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/system/Result.cpp
-        ${HHUOS_SRC_DIR}/lib/system/SimpleResult.h)
+        ${HHUOS_SRC_DIR}/lib/system/SimpleResult.h
+        ${HHUOS_SRC_DIR}/lib/system/priority/PriorityPattern.cpp
+        ${HHUOS_SRC_DIR}/lib/system/priority/PriorityPattern.cpp
+        ${HHUOS_SRC_DIR}/lib/system/priority/AccessArrayPriorityPattern.cpp)

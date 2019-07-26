@@ -1,19 +1,17 @@
-#ifndef HHUOS_PRIORITY_H
-#define HHUOS_PRIORITY_H
+#ifndef HHUOS_PRIORITYPATTERN_H
+#define HHUOS_PRIORITYPATTERN_H
 
 #include <cstdint>
 
-namespace Kernel {
-
-class ThreadPriority {
+class PriorityPattern {
 
 public:
 
-    explicit ThreadPriority(uint8_t priorityCount);
+    explicit PriorityPattern(uint8_t priorityCount);
 
-    ThreadPriority(const ThreadPriority &copy) = delete;
+    PriorityPattern(const PriorityPattern &copy) = delete;
 
-    ~ThreadPriority() = default;
+    ~PriorityPattern() = default;
 
     uint8_t getMaxPriority();
 
@@ -30,7 +28,5 @@ protected:
     uint8_t priorityCount;
 
 };
-
-}
 
 #endif

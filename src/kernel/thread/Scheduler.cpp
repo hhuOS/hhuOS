@@ -22,7 +22,7 @@
 #include "device/time/Pit.h"
 #include "kernel/service/SoundService.h"
 #include "kernel/core/SystemCall.h"
-#include "kernel/thread/priority/AccessArrayThreadPriority.h"
+#include "lib/system/priority/AccessArrayPriorityPattern.h"
 #include "kernel/thread/Scheduler.h"
 #include "Scheduler.h"
 #include "IdleThread.h"
@@ -30,10 +30,10 @@
 namespace Kernel {
 
 extern "C" {
-void startThread(Context *first);
-void switchContext(Context **current, Context **next);
-void setSchedInit();
-void releaseSchedulerLock();
+    void startThread(Context *first);
+    void switchContext(Context **current, Context **next);
+    void setSchedInit();
+    void releaseSchedulerLock();
 }
 
 void releaseSchedulerLock() {
@@ -44,7 +44,7 @@ void allowPitInterrupts() {
     Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
 
-Scheduler::Scheduler(ThreadPriority &priority) : currentThread(nullptr), priority(priority), readyQueues(priority.getPriorityCount()) {
+Scheduler::Scheduler(PriorityPattern &priority) : currentThread(nullptr), priority(priority), readyQueues(priority.getPriorityCount()) {
 
     SystemCall::registerSystemCall(Standard::System::Call::SCHEDULER_YIELD, [](uint32_t paramCount, va_list params, Standard::System::Result *result) {
         if (Scheduler::getInstance().isInitialized()) {
@@ -58,7 +58,7 @@ Scheduler::Scheduler(ThreadPriority &priority) : currentThread(nullptr), priorit
 
 Scheduler &Scheduler::getInstance() noexcept {
 
-    static AccessArrayThreadPriority priority(5);
+    static AccessArrayPriorityPattern priority(5);
 
     static Scheduler instance(priority);
 

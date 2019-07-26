@@ -1,9 +1,7 @@
-#include "AccessArrayThreadPriority.h"
+#include "AccessArrayPriorityPattern.h"
 
-namespace Kernel {
-
-AccessArrayThreadPriority::AccessArrayThreadPriority(uint8_t priorityCount) : ThreadPriority(priorityCount),
-                                                                              accessArray(priorityCount *
+AccessArrayPriorityPattern::AccessArrayPriorityPattern(uint8_t priorityCount) : PriorityPattern(priorityCount),
+                                                                                accessArray(priorityCount *
                                                                                           (priorityCount - 1) / 2u) {
 
     uint8_t tmp[priorityCount];
@@ -28,7 +26,7 @@ AccessArrayThreadPriority::AccessArrayThreadPriority(uint8_t priorityCount) : Th
     }
 }
 
-uint8_t AccessArrayThreadPriority::getNextPriority() {
+uint8_t AccessArrayPriorityPattern::getNextPriority() {
     auto index = static_cast<uint8_t>(currentIndex++ % (accessArray.length() + 1));
 
     if (index == accessArray.length()) {
@@ -38,8 +36,6 @@ uint8_t AccessArrayThreadPriority::getNextPriority() {
     return accessArray[index];
 }
 
-void AccessArrayThreadPriority::reset() {
+void AccessArrayPriorityPattern::reset() {
     currentIndex = 0;
-}
-
 }

@@ -19,7 +19,7 @@
 
 #include "lib/util/ArrayBlockingQueue.h"
 #include "kernel/service/InputService.h"
-#include "kernel/thread/priority/ThreadPriority.h"
+#include "lib/system/priority/PriorityPattern.h"
 #include "kernel/thread/Thread.h"
 #include "lib/async/Spinlock.h"
 
@@ -29,7 +29,7 @@ class Scheduler {
 
 public:
 
-    explicit Scheduler(ThreadPriority &priority);
+    explicit Scheduler(PriorityPattern &priority);
 
     Scheduler(const Scheduler &copy) = delete;
 
@@ -136,7 +136,7 @@ private:
 
     Thread *currentThread;
 
-    ThreadPriority &priority;
+    PriorityPattern &priority;
 
     Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
 };

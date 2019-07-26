@@ -33,6 +33,7 @@ add_subdirectory(memory)
 add_subdirectory(module)
 add_subdirectory(multiboot)
 add_subdirectory(network)
+add_subdirectory(process)
 add_subdirectory(service)
 add_subdirectory(thread)
 
