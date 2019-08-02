@@ -17,13 +17,13 @@
 #ifndef HHUOS_FLOPPYMOTORCONTROLTHREAD_H
 #define HHUOS_FLOPPYMOTORCONTROLTHREAD_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "FloppyDevice.h"
 
 /**
  * Runs in background and controls the state of a floppy drive's motor.
  */
-class FloppyMotorControlThread : public Kernel::Thread {
+class FloppyMotorControlThread : public Kernel::KernelThread {
 
     friend class FloppyController;
 

@@ -20,10 +20,12 @@
 
 
 #include <cstdint>
+#include <kernel/core/Management.h>
 #include "kernel/core/SystemCall.h"
 
 extern "C" {
     void interrupt_return();
+    void kickoff();
 }
 
 void kickoff() {
@@ -35,67 +37,31 @@ void kickoff() {
 
 namespace Kernel {
 
-uint32_t threadCount = 0;
+IdGenerator Thread::idGenerator;
 
-void Thread::init() {
-
-    auto *esp = (uint32_t *) stack.getStart();
-
-    esp -= (sizeof(InterruptFrame) / 4);
-
-    interruptFrame = (InterruptFrame *) esp;
-
-    esp -= (sizeof(Context) / 4);
-
-    context = (Context *) esp;
-
-    context->eip = (uint32_t) interrupt_return;
-
-    interruptFrame->cs = 0x08;
-    interruptFrame->fs = 0x10;
-    interruptFrame->gs = 0x10;
-    interruptFrame->ds = 0x10;
-    interruptFrame->es = 0x10;
-    interruptFrame->ss = 0x10;
-
-    interruptFrame->ebx = 0;
-    interruptFrame->esi = 0;
-    interruptFrame->edi = 0;
-    interruptFrame->esp = (uint32_t) esp;
-    interruptFrame->ebp = (uint32_t) stack.getStart();
-    interruptFrame->uesp = 0;
-    interruptFrame->eflags = 0x200;
-    interruptFrame->eip = (uint32_t) kickoff;
-}
-
-Thread::Thread() : name(String::format("Thread-%u", threadCount + 1)), stack(STACK_SIZE_DEFAULT) {
+Thread::Thread() {
 
     priority = static_cast<uint8_t>(Scheduler::getInstance().getMaxPriority() / 2);
 
-    id = threadCount++;
+    id = idGenerator.getId();
 
-    init();
+    name = String::format("Thread-%u", id);
 }
 
-Thread::Thread(const String &name) : name(name), stack(STACK_SIZE_DEFAULT) {
+Thread::Thread(const String &name) : name(name) {
 
     priority = static_cast<uint8_t>(Scheduler::getInstance().getMaxPriority() / 2);
 
-    id = threadCount++;
-
-    init();
+    id = idGenerator.getId();
 }
 
-Thread::Thread(const String &name, uint8_t priority) : name(name), stack(STACK_SIZE_DEFAULT) {
+Thread::Thread(const String &name, uint8_t priority) : name(name) {
 
     Scheduler &scheduler = Scheduler::getInstance();
 
-    this->priority = static_cast<uint8_t>((priority > scheduler.getMaxPriority()) ? (scheduler.getMaxPriority())
-                                                                                  : priority);
+    this->priority = static_cast<uint8_t>((priority > scheduler.getMaxPriority()) ? (scheduler.getMaxPriority()) : priority);
 
-    id = threadCount++;
-
-    init();
+    id = idGenerator.getId();
 }
 
 void Thread::start() {
@@ -140,6 +106,14 @@ bool Thread::hasStarted() const {
 
 bool Thread::hasFinished() const {
     return finished;
+}
+
+InterruptFrame& Thread::getInterruptFrame() const {
+    return *interruptFrame;
+}
+
+Context& Thread::getKernelContext() const {
+    return *kernelContext;
 }
 
 Thread::Stack::Stack(uint32_t size) : size(size) {

@@ -55,7 +55,7 @@ extern "C" {
 #include "lib/libc/ctype.h"
 }
 
-Shell::Shell() : Thread("Shell") {
+Shell::Shell() : KernelThread("Shell") {
     kernelStreamService = Kernel::System::getService<Kernel::KernelStreamService>();
     graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
     eventBus = Kernel::System::getService<Kernel::EventBus>();

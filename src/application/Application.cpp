@@ -56,7 +56,7 @@ void callback(const Kernel::Thread &thread, const uint32_t &number) {
     threadSum += number;
 }
 
-Application::Application () : Thread ("Menu") {
+Application::Application () : Kernel::KernelThread ("Menu") {
     graphicsService = Kernel::System::getService<Kernel::GraphicsService>();
 	timeService = Kernel::System::getService<Kernel::TimeService>();
 }

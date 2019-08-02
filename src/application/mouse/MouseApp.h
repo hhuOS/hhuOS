@@ -18,6 +18,7 @@
 #define HHUOS_MOUSEAPP_H
 
 
+#include <kernel/thread/KernelThread.h>
 #include "application/Application.h"
 #include "kernel/service/EventBus.h"
 #include "kernel/core/System.h"
@@ -30,7 +31,7 @@
 #include "lib/file/bmp/Bmp.h"
 #include "BuildConfig.h"
 
-class MouseApp : public Kernel::Thread, Kernel::Receiver {
+class MouseApp : public Kernel::KernelThread, Kernel::Receiver {
 
 private:
     int32_t xPos;

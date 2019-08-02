@@ -17,7 +17,7 @@
 #ifndef HHUOS_LOOPSANDSOUND_H
 #define HHUOS_LOOPSANDSOUND_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "kernel/event/Receiver.h"
 #include "kernel/service/EventBus.h"
 
@@ -25,7 +25,7 @@
  * A simple application, that demonstrates the multi-threading capabilities of hhuOS by showing two counters, while
  * simultaneously playing melodies on the speaker.
  */
-class LoopsAndSound : public Kernel::Thread, Kernel::Receiver {
+class LoopsAndSound : public Kernel::KernelThread, Kernel::Receiver {
 
 private:
 

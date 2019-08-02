@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * Heinrich-Heine University
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
@@ -14,29 +14,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __IdleThread_include__
-#define __IdleThread_include__
+#ifndef HHUOS_KERNELTHREAD_H
+#define HHUOS_KERNELTHREAD_H
 
-#include "kernel/thread/KernelThread.h"
+#include "Thread.h"
 
 namespace Kernel {
 
-class IdleThread : public KernelThread {
-
-private:
-
-    bool isRunning = true;
+class KernelThread : public Thread {
 
 public:
 
-    IdleThread();
+    KernelThread();
 
-    IdleThread(const Thread &copy) = delete;
+    explicit KernelThread(const String &name);
 
-    ~IdleThread() override = default;
+    KernelThread(const String &name, uint8_t priority);
 
-    void run() override;
+    KernelThread(const Thread &copy) = delete;
 
+    ~KernelThread() override = default;
+
+    Stack &getUserStack() override;
+
+    Stack &getKernelStack() override;
+
+    void run() override = 0;
+
+private:
+
+    void init();
+
+    Stack kernelStack;
 };
 
 }

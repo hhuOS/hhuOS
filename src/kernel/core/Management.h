@@ -25,6 +25,7 @@
 #include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
+#include "kernel/core/TaskStateSegment.h"
 #include "lib/util/ArrayList.h"
 
 #define DEBUG_PM 0
@@ -51,6 +52,8 @@ private:
     // usable physical memory in this system
     uint32_t totalPhysMemory = 0;
 
+    static TaskStateSegment taskStateSegment;
+
     // base page directory for for kernel mappings -> these mappings have to
     // appear in each process` page directory
     PageDirectory *basePageDirectory{};
@@ -71,8 +74,6 @@ private:
 
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
-
-    //
     static Management *systemManagement;
     static MemoryManager *kernelMemoryManager;
 
@@ -315,6 +316,10 @@ public:
 	 */
     static MemoryManager *getKernelHeapManager() {
         return kernelMemoryManager;
+    }
+
+    static TaskStateSegment &getTaskStateSegment() {
+        return taskStateSegment;
     }
 
     /**

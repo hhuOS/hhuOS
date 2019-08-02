@@ -18,7 +18,7 @@
 #define __Sound_include__
 
 #include "lib/file/beep/BeepFile.h"
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "device/sound/PcSpeaker.h"
 
 /**
@@ -27,7 +27,7 @@
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2016, 2018
  */
-class Sound : public Kernel::Thread {
+class Sound : public Kernel::KernelThread {
 
 private:
 

@@ -65,7 +65,7 @@ PageDirectory::PageDirectory() {
     for (uint32_t idx = startIdx; idx < startIdx + 256; idx++) {
         // pointer to the corresponding pagetable (phys. address) - placed right after phys. addresses of the initial heap
         pageDirectory[idx] = (uint32_t) ((reservedMemoryEnd + PAGESIZE * 1024 + i * PAGESIZE) | PAGE_PRESENT |
-                                         PAGE_READ_WRITE);
+                                         PAGE_READ_WRITE | PAGE_ACCESS_ALL);
         // pointer to corresponding pagetable (virt. address) - placed at the beginning of PagingAreaMemory
         virtTableAddresses[idx] = VIRT_PAGE_MEM_START + i * PAGESIZE;
         i++;
@@ -77,7 +77,7 @@ PageDirectory::PageDirectory() {
         // this is the physical address of the memory belonging to this page
         uint32_t physAddr = i * PAGESIZE;
         // build up entry for page table by hand (Read/Write and Present bit)
-        *((uint32_t *) virtTableAddresses[idx] + i) = physAddr | PAGE_READ_WRITE | PAGE_PRESENT;
+        *((uint32_t *) virtTableAddresses[idx] + i) = physAddr | PAGE_READ_WRITE | PAGE_PRESENT | PAGE_ACCESS_ALL;
         // protect kernel code
         if (i < reservedMemoryEnd / PAGESIZE) {
             *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_WRITE_PROTECTED;

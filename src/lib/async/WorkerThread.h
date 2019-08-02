@@ -17,13 +17,13 @@
 #ifndef __WorkerThread_include__
 #define __WorkerThread_include__
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 
 /**
  * @author Filip Krakowski
  */
 template <typename T, typename R>
-class WorkerThread : public Kernel::Thread {
+class WorkerThread : public Kernel::KernelThread {
 
 public:
 

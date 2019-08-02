@@ -17,6 +17,7 @@
 #ifndef HHUOS_THREADPOOL_H
 #define HHUOS_THREADPOOL_H
 
+#include <kernel/thread/KernelThread.h>
 #include "lib/util/Queue.h"
 #include "lib/util/ArrayBlockingQueue.h"
 #include "lib/async/Spinlock.h"
@@ -26,7 +27,7 @@ class ThreadPool {
 
 private:
 
-    struct ThreadPoolWorker : public Kernel::Thread {
+    struct ThreadPoolWorker : public Kernel::KernelThread {
 
         bool isWorking = false;
 

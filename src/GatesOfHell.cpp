@@ -217,8 +217,34 @@ Kernel::BootCoordinator GatesOfHell::coordinator(Util::Array<Kernel::BootCompone
     Application::getInstance().start();
 });
 
-void GatesOfHell::enter() {
 
+//static int counter = 0;
+
+void GatesOfHell::enter() {
+    
+    /*asm volatile("cli");
+    
+    auto thread1 = new SimpleThread([]{
+        while(true) {
+            counter++;
+        }
+    });
+
+    auto thread2 = new SimpleThread([]{
+        while(true) {
+            counter++;
+        }
+    });
+
+    thread1->start();
+    thread2->start();
+
+    Kernel::Scheduler::getInstance().startUp();*/
+    
+    
+
+
+    
     log.trace("Booting hhuOS %s - git %s", BuildConfig::getVersion(), BuildConfig::getGitRevision());
     log.trace("Build date: %s", BuildConfig::getBuildDate());
 

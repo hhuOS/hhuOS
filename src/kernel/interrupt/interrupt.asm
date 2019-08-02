@@ -30,13 +30,13 @@ global idt
 
 extern preempt
 extern dispatchInterrupt
-extern switch_context
 extern gdt_desc
 extern gdt_bios_desc
 extern BIOS_Page_Directory
 extern stack
 extern enable_interrupts
 extern disable_interrupts
+extern setTssStackEntry
 
 
 [SECTION .text]
@@ -213,12 +213,17 @@ wrapper_%1:
 
 ; create first 14 wrappers
 %assign i 0
-%rep 14
+%rep 13
 wrapper i
 %assign i i+1
 %endrep
 
-; Page-Fault wrapper is different, because error code ist pushed
+wrapper_13:
+
+    push    0x0D
+    jmp	wrapper_body
+
+; Page-Fault wrapper is different, because error code is pushed
 wrapper_14:
 
     push    0x0E
@@ -263,6 +268,11 @@ wrapper_body:
 
 interrupt_return:
 
+    ; Set TSS to current kernel stack
+    push    esp
+    call    setTssStackEntry
+    add     esp, 0x04
+
     ; Load new state
     pop     gs
     pop     fs
@@ -274,12 +284,7 @@ interrupt_return:
     ; Remove error code and interrupt number
     add     esp, 0x08
 
-    ; Set interrupt flag in EFLAGS
-    ;or dword [esp + 0x08], 0x200
-
     iret
-
-
 
 
 [SECTION .data]

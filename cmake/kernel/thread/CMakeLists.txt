@@ -17,5 +17,7 @@ cmake_minimum_required(VERSION 3.5)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/thread/thread.asm
         ${HHUOS_SRC_DIR}/kernel/thread/Thread.cpp
+        ${HHUOS_SRC_DIR}/kernel/thread/KernelThread.cpp
+        ${HHUOS_SRC_DIR}/kernel/thread/UserThread.cpp
         ${HHUOS_SRC_DIR}/kernel/thread/IdleThread.cpp
         ${HHUOS_SRC_DIR}/kernel/thread/Scheduler.cpp)

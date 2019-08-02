@@ -27,7 +27,7 @@
 
 namespace Kernel {
 
-class BootScreen : public Thread {
+class BootScreen : public KernelThread {
 
 public:
 

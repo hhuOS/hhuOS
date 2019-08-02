@@ -37,7 +37,7 @@ class Scheduler;
  *
  * @author Filip Krakowski
  */
-class EventBus : public Thread, public KernelService {
+class EventBus : public KernelThread, public KernelService {
 
 public:
 

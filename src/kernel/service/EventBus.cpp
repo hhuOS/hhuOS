@@ -22,7 +22,7 @@
 
 namespace Kernel {
 
-EventBus::EventBus() : Thread("EventBus", 0xff), receiverMap(), scheduler(Scheduler::getInstance()) {
+EventBus::EventBus() : KernelThread("EventBus", 0xff), receiverMap(), scheduler(Scheduler::getInstance()) {
 
     isInitialized = true;
 }

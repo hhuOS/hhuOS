@@ -17,6 +17,7 @@
 #ifndef __Shell_include__
 #define __Shell_include__
 
+#include <kernel/thread/KernelThread.h>
 #include "kernel/service/GraphicsService.h"
 #include "kernel/service/EventBus.h"
 #include "lib/file/Directory.h"
@@ -32,7 +33,7 @@ class History;
  * @author Fabian Ruhland
  * @date 2018
  */
-class Shell : public Kernel::Thread, public Kernel::Receiver, public AnsiOutputStream, public InputStream {
+class Shell : public Kernel::KernelThread, public Kernel::Receiver, public AnsiOutputStream, public InputStream {
 
 private:
     friend History;

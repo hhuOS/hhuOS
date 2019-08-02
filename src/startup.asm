@@ -297,7 +297,7 @@ section .data
 
 ;global descriptor table
 gdt:
-	times (20) dw 0
+	times (24) dw 0
 
 ; global descriptor table for bios calls
 gdt_bios:

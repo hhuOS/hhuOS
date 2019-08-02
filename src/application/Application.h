@@ -24,7 +24,7 @@
 #include "kernel/service/TimeService.h"
 #include "kernel/service/GraphicsService.h"
 
-class Application : public Kernel::Thread, public Kernel::Receiver {
+class Application : public Kernel::KernelThread, public Kernel::Receiver {
 
 private:
     const char *menuOptions[8] = {

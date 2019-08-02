@@ -18,7 +18,6 @@
 #include "kernel/event/input/KeyEvent.h"
 #include "application/loop/Loop.h"
 #include "kernel/thread/Scheduler.h"
-#include "application/Application.h"
 #include "LoopsAndSound.h"
 #include "Sound.h"
 

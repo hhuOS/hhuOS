@@ -18,8 +18,7 @@
 #define __AntApp_include__
 
 #include "kernel/event/Receiver.h"
-#include <cstdint>
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 
 #include "application/ant/Limits.h"
 #include "lib/math/Random.h"
@@ -34,7 +33,7 @@
  * @author Jochen Peters, Fabian Ruhland, Filip Krakowski
  * @date 2017
  */
-class AntApp : public Kernel::Thread, public Kernel::Receiver {
+class AntApp : public Kernel::KernelThread, public Kernel::Receiver {
 
 private:
 	Random * _random;
@@ -59,7 +58,7 @@ public:
 	int x;
 	int y;
 
-	AntApp () : Thread ("ant") {
+	AntApp () : KernelThread("ant") {
 		lfb = (Kernel::System::getService<Kernel::GraphicsService>())->getLinearFrameBuffer();
 		_bouncing = true;
 		_random = new Random(400);

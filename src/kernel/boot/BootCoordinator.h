@@ -1,7 +1,7 @@
 #ifndef HHUOS_BOOTSEQUENCE_H
 #define HHUOS_BOOTSEQUENCE_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "lib/async/Spinlock.h"
 #include "lib/util/ArrayList.h"
 #include "lib/util/SmartPointer.h"
@@ -9,7 +9,7 @@
 
 namespace Kernel {
 
-class BootCoordinator : public Thread {
+class BootCoordinator : public KernelThread {
 
 public:
 

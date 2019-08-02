@@ -1,11 +1,10 @@
-#include "application/Application.h"
 #include "lib/util/LinkedBlockingQueue.h"
 #include "BootCoordinator.h"
 
 namespace Kernel {
 
 BootCoordinator::BootCoordinator(Util::Array<BootComponent *> components, void (*onFinish)()) :
-        Thread("BootCoordinator", 0xff), hasStarted(false), onFinish(onFinish) {
+        KernelThread("BootCoordinator", 0xff), hasStarted(false), onFinish(onFinish) {
     for (const auto &component : components) {
         addComponent(component);
     }

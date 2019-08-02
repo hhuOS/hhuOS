@@ -1,7 +1,7 @@
 #ifndef HHUOS_IODEVICEMANAGER_H
 #define HHUOS_IODEVICEMANAGER_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "lib/async/Spinlock.h"
 #include "lib/util/ArrayList.h"
 
@@ -9,7 +9,7 @@ namespace Kernel {
 
 class InterruptHandler;
 
-class InterruptManager : public Thread {
+class InterruptManager : public KernelThread {
 
 private:
 

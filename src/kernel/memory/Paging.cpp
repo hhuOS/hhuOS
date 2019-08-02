@@ -53,11 +53,11 @@ void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // now set up the identity mapping for the code and data up to the end of reserved memory
     // everything should be mapped at its phys. address and at an offset of KERNEL_START
     for (uint32_t i = 0; i < pageCount; i++) {
-        directory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
-        directory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
+        directory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+        directory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
 
-        biosDirectory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
-        biosDirectory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
+        biosDirectory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+        biosDirectory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
     }
     // the first page of the initial heap above the reserved memory is mapped to an offset of KERNEL_START
     // no identity mapping needed because the heap is only used when paging is already enabled

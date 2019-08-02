@@ -2,7 +2,7 @@
 
 namespace Kernel {
 
-IdleThread::IdleThread() : Thread("IdleThread", 0) {
+IdleThread::IdleThread() : KernelThread("IdleThread", 0) {
 
 }
 

@@ -16,6 +16,7 @@ global startThread
 global switchContext
 
 extern releaseSchedulerLock
+extern flush_tss
 
 section .text
 
@@ -29,6 +30,8 @@ startThread:
     pop esi
     pop ebx
     pop ebp
+
+    call flush_tss
 
     call releaseSchedulerLock
 

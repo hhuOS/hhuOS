@@ -36,8 +36,6 @@ namespace Kernel {
 // some external functions are implemented in assembler code
 extern "C" {
 
-#include "lib/libc/string.h"
-
 // load CR3 with physical address of page directory
 void load_page_directory(uint32_t *pdAddress);
 
@@ -56,6 +54,7 @@ void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *g
 Logger &Management::LOG = Logger::get("Management");
 
 // initialize static members
+TaskStateSegment Management::taskStateSegment{};
 Management *Management::systemManagement = nullptr;
 MemoryManager *Management::kernelMemoryManager = nullptr;
 bool Management::initialized = false;
@@ -112,6 +111,12 @@ void fini_system() {
  * @param gdt_bios_desc Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
  */
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc) {
+    // Set first 6 GDT entries to 0
+    memset(gdt, 0, 48);
+
+    // Set first 4 bios GDT entries to 0
+    memset(gdt_bios, 0, 32);
+
     // first set up general GDT for the system
     // first entry has to be null
     Management::createGDTEntry(gdt, 0, 0, 0, 0, 0);
@@ -123,14 +128,16 @@ void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *g
     Management::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
     // user data segment
     Management::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
+    // tss segment
+    Management::createGDTEntry(gdt, 5, reinterpret_cast<uint32_t>(&Management::getTaskStateSegment()), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
-    *((uint16_t *) gdt_desc) = 5 * 8;
+    *((uint16_t *) gdt_desc) = 6 * 8;
     // the normal descriptor should contain the virtual address of GDT
     *((uint32_t *) (gdt_desc + 1)) = (uint32_t) gdt + KERNEL_START;
 
     // set up descriptor for GDT with phys. address - needed for bootstrapping
-    *((uint16_t *) gdt_phys_desc) = 5 * 8;
+    *((uint16_t *) gdt_phys_desc) = 6 * 8;
     // this descriptor should contain the physical address of GDT
     *((uint32_t *) (gdt_phys_desc + 1)) = (uint32_t) gdt;
 
@@ -200,7 +207,7 @@ void Management::trigger(InterruptFrame &frame) {
 
     // check if pagefault was caused by illegal page access
     if ((frame.error & 0x00000001u) > 0) {
-        Cpu::throwException(Cpu::Exception::ILLEGEAL_PAGE_ACCESS);
+        Cpu::throwException(Cpu::Exception::ILLEGAL_PAGE_ACCESS);
     }
 
     // Map the faulted Page

@@ -14,17 +14,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/core/Management.h>
 #include "device/cpu/Cpu.h"
 #include "lib/libc/printf.h"
 #include "device/misc/Pic.h"
-#include "kernel/core/System.h"
-#include "kernel/service/PortService.h"
-#include "device/time/Pit.h"
-#include "kernel/service/SoundService.h"
 #include "kernel/core/SystemCall.h"
 #include "lib/system/priority/AccessArrayPriorityPattern.h"
 #include "kernel/thread/Scheduler.h"
-#include "Scheduler.h"
 #include "IdleThread.h"
 
 namespace Kernel {
@@ -78,9 +74,11 @@ void Scheduler::startUp() {
 
     initialized = true;
 
+    Kernel::Management::getTaskStateSegment().ss0 = 0x10;
+
     setSchedInit();
 
-    startThread(currentThread->context);
+    startThread(currentThread->kernelContext);
 }
 
 void Scheduler::ready(Thread &that) {
@@ -201,7 +199,7 @@ void Scheduler::dispatch(Thread &next) {
 
     currentThread = &next;
 
-    switchContext(&current->context, &next.context);
+    switchContext(&current->kernelContext, &next.kernelContext);
 }
 
 Thread *Scheduler::getNextThread() {

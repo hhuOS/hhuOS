@@ -24,7 +24,7 @@
 
 Spinlock Loop::printLock;
 
-Loop::Loop(uint32_t id, uint8_t priority) : Thread(String::format("Loop%u", id), priority) {
+Loop::Loop(uint32_t id, uint8_t priority) : KernelThread(String::format("Loop%u", id), priority) {
     myID = id;
 }
 

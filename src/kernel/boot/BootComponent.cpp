@@ -3,7 +3,7 @@
 namespace Kernel {
 
 BootComponent::BootComponent(const String &name, Util::Array<BootComponent *> dependencies, void (*function)()) :
-        Thread(name, 0xff), waiting(true), finished(false), dependencies(dependencies), function(function) {
+        KernelThread(name, 0xff), waiting(true), finished(false), dependencies(dependencies), function(function) {
 
 }
 

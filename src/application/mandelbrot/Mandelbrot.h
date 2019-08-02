@@ -17,7 +17,7 @@
 #ifndef __Mandelbrot_include__
 #define __Mandelbrot_include__
 
-#include <cstdint>
+#include <kernel/thread/KernelThread.h>
 
 #include "kernel/event/Receiver.h"
 #include "kernel/log/Logger.h"
@@ -36,7 +36,7 @@ void drawMandelbrotSSE(float xlim[2], float ylim[2], uint16_t globalOffsetX, uin
 /**
  * Mandelbrot.
  */
-class Mandelbrot : public Kernel::Thread, public Kernel::Receiver {
+class Mandelbrot : public Kernel::KernelThread, public Kernel::Receiver {
 
     struct State {
         __m128 xmin;

@@ -1,9 +1,9 @@
 #ifndef HHUOS_SIMPLETHREAD_H
 #define HHUOS_SIMPLETHREAD_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 
-class SimpleThread : public Kernel::Thread {
+class SimpleThread : public Kernel::KernelThread {
 
 public:
 

@@ -2,9 +2,9 @@
 #define HHUOS_MEMORYMANAGERDEMO_H
 
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 
-class MemoryManagerDemo : public Kernel::Thread {
+class MemoryManagerDemo : public Kernel::KernelThread {
 
 public:
 

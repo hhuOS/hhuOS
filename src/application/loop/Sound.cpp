@@ -18,7 +18,7 @@
 #include "kernel/service/SoundService.h"
 #include "Sound.h"
 
-Sound::Sound() : Thread("Sound") {
+Sound::Sound() : KernelThread("Sound") {
     speaker = Kernel::System::getService<Kernel::SoundService>()->getPcSpeaker();
     timeService = Kernel::System::getService<Kernel::TimeService>();
 

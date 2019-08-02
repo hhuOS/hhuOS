@@ -19,7 +19,7 @@
 #include "kernel/thread/Scheduler.h"
 #include "MouseApp.h"
 
-MouseApp::MouseApp() : Thread("MouseApp"), Receiver() {
+MouseApp::MouseApp() : KernelThread("MouseApp"), Receiver() {
 
     logo = Bmp::load("/initrd/os/logo_v3.bmp");
     mouseDefault = Bmp::load("/initrd/icons/mouse_default.bmp");

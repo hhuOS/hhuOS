@@ -19,7 +19,7 @@
 
 #include "lib/util/SmartPointer.h"
 #include "lib/util/LinkedBlockingQueue.h"
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "kernel/event/Event.h"
 #include "kernel/event/Receiver.h"
 #include "lib/async/Spinlock.h"
@@ -38,7 +38,7 @@ namespace Kernel {
  * @author Filip Krakowski, Fabian Ruhland
  * @date 2018
  */
-class EventPublisher : public Thread {
+class EventPublisher : public KernelThread {
 
 public:
 

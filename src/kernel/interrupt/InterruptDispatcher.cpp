@@ -16,12 +16,8 @@
 
 #include "kernel/core/System.h"
 #include "kernel/core/Symbols.h"
-#include "device/cpu/IoPort.h"
-#include "lib/libc/printf.h"
 #include "device/sound/PcSpeaker.h"
-#include "lib/math/Random.h"
 #include "kernel/debug/GdbServer.h"
-#include "kernel/thread/Scheduler.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/core/Management.h"
@@ -32,6 +28,14 @@ namespace Kernel {
 
 extern "C" {
 void dispatchInterrupt(InterruptFrame *frame);
+void switchToKernelStack();
+void switchToUserStack();
+void switchContext(Context **current, Context **next);
+void setTssStackEntry(uint32_t esp0);
+}
+
+void setTssStackEntry(uint32_t esp0) {
+    Kernel::Management::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
 }
 
 /**

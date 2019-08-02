@@ -20,6 +20,7 @@
 #include "kernel/thread/ThreadState.h"
 
 #include <cstdint>
+#include <lib/system/IdGenerator.h>
 #include "lib/string/String.h"
 
 namespace Kernel {
@@ -30,9 +31,25 @@ class Thread {
 
 public:
 
-    InterruptFrame *interruptFrame;
+    class Stack {
 
-    Context *context;
+    public:
+
+        explicit Stack(uint32_t size);
+
+        ~Stack();
+
+        uint8_t *getStart();
+
+    private:
+
+        uint8_t *stack;
+
+        uint32_t size;
+
+    };
+
+protected:
 
     Thread();
 
@@ -40,11 +57,19 @@ public:
 
     Thread(const String &name, uint8_t priority);
 
+public:
+
     Thread(const Thread &copy) = delete;
 
     Thread &operator=(const Thread &other) = delete;
 
     virtual ~Thread() = default;
+
+public:
+
+    InterruptFrame *interruptFrame = nullptr;
+
+    Context *kernelContext = nullptr;
 
     /**
      * Returns this Thread's thread id.
@@ -73,13 +98,23 @@ public:
      */
     virtual void start() final;
 
+    void join() const;
+
     virtual void run() = 0;
 
-    void join() const;
+    virtual Stack& getUserStack() = 0;
+
+    virtual Stack& getKernelStack() = 0;
 
 protected:
 
-    void yield();
+    static void yield();
+
+    InterruptFrame& getInterruptFrame() const;
+
+    Context& getKernelContext() const;
+
+    static const uint32_t STACK_SIZE_DEFAULT = 4096;
 
 private:
 
@@ -93,33 +128,7 @@ private:
 
     bool finished = false;
 
-    class Stack {
-
-    public:
-
-        explicit Stack(uint32_t size);
-
-        ~Stack();
-
-        uint8_t *getStart();
-
-    private:
-
-        uint8_t *stack;
-
-        uint32_t size;
-
-    };
-
-    Stack stack;
-
-    /**
-     * Initializes this Thread.
-     */
-    void init();
-
-    /* 4KB Stack Size */
-    static const uint32_t STACK_SIZE_DEFAULT = 4096;
+    static IdGenerator idGenerator;
 
 };
 

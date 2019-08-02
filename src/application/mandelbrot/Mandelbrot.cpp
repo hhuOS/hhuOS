@@ -31,7 +31,7 @@ LinearFrameBuffer *Mandelbrot::lfb = nullptr;
 
 ColorGradient Mandelbrot::gradient(MAX_COLORS);
 
-Mandelbrot::Mandelbrot() : Thread("Mandelbrot"), log(Kernel::Logger::get("Mandelbrot")) {
+Mandelbrot::Mandelbrot() : KernelThread("Mandelbrot"), log(Kernel::Logger::get("Mandelbrot")) {
     useSSE = (CpuId::getFeatures() & CpuId::FEATURE_SSE2) == CpuId::FEATURE_SSE2;
 }
 

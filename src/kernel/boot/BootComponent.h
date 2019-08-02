@@ -1,13 +1,13 @@
 #ifndef HHUOS_BOOTCOMPONENT_H
 #define HHUOS_BOOTCOMPONENT_H
 
-#include "kernel/thread/Thread.h"
+#include "kernel/thread/KernelThread.h"
 #include "lib/util/Array.h"
 #include "lib/util/ArrayList.h"
 
 namespace Kernel {
 
-class BootComponent : public Thread {
+class BootComponent : public KernelThread {
 
 public:
 

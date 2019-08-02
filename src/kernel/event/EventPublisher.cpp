@@ -15,7 +15,7 @@
 
 namespace Kernel {
 
-EventPublisher::EventPublisher(Receiver &receiver) : Thread("EventPublisher", 0xff), receiver(receiver) {
+EventPublisher::EventPublisher(Receiver &receiver) : KernelThread("EventPublisher", 0xff), receiver(receiver) {
 
 }
 

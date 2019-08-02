@@ -91,7 +91,7 @@ parse_debug() {
     echo "set architecture i386" > /tmp/gdbcommands.$(id -u)
     echo "set disassembly-flavor intel" >> /tmp/gdbcommands.$(id -u)
     echo "break main" >> /tmp/gdbcommands.$(id -u)
-    echo "target remote 127.0.0.1:1234" >> /tmp/gdbcommands.$(id -u)
+    echo "target remote 127.0.0.1:${port}" >> /tmp/gdbcommands.$(id -u)
     echo "continue" >> /tmp/gdbcommands.$(id -u)
     
     QEMU_GDB_PORT="${port}"
