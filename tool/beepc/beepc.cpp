@@ -15,9 +15,10 @@
  */
 
 #include <iostream>
-#include <fstream>
 #include <vector>
+#include <experimental/filesystem>
 #include <boost/algorithm/string.hpp>
+#include <fstream>
 
 const uint32_t BEEP_MAGIC = 0x42454550;
 
@@ -38,6 +39,13 @@ int main(int argc, char *argv[]) {
     std::vector<std::string> lines;
     for (std::string line; std::getline(in, str);) {
         lines.push_back(str);
+    }
+
+    // Create output directory if necessary
+    std::experimental::filesystem::path output(argv[2]);
+    
+    if(!std::experimental::filesystem::exists(output.parent_path())) {
+        std::experimental::filesystem::create_directory(output.parent_path());
     }
 
     // Write file header

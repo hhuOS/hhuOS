@@ -21,12 +21,13 @@ set(BEEPC_DIR ${HHUOS_TOOL_DIR}/beepc)
 set(BEEP_SOURCE_DIR ${HHUOS_ROOT_DIR}/music/beep)
 set(BEEP_OUTPUT_DIR ${HHUOS_ROOT_DIR}/initrd/music/beep)
 
-set(CMAKE_CXX_FLAGS "")
+set(CMAKE_CXX_FLAGS "-std=c++17")
 
 set(SOURCE_FILES
         ${BEEPC_DIR}/beepc.cpp)
 
 add_executable(beepc ${SOURCE_FILES})
+target_link_libraries(beepc stdc++fs)
 
 set_target_properties(beepc PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${HHUOS_TOOL_DIR}/beepc/)
 
