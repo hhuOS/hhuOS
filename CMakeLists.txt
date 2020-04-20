@@ -14,4 +14,6 @@
 
 cmake_minimum_required(VERSION 3.5)
 
+project(hhuOS)
+
 add_subdirectory(cmake) 

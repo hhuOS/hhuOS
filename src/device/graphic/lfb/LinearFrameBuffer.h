@@ -68,7 +68,7 @@ public:
      * @var resY Vertical resolution
      * @var depth Color-depth in bits
      * @var modeNumber Unique number, used to identify the mode.
-     *      May be ignored of not needed.
+     *      May be ignored if not needed.
      */
     struct LfbResolution {
         uint16_t resX;
