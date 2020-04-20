@@ -17,7 +17,6 @@
 #include <iostream>
 #include <vector>
 #include <experimental/filesystem>
-#include <boost/algorithm/string.hpp>
 #include <fstream>
 
 const uint32_t BEEP_MAGIC = 0x42454550;
@@ -50,19 +49,16 @@ int main(int argc, char *argv[]) {
 
     // Write file header
     uint32_t size = lines.size();
-    out.write((char*)&BEEP_MAGIC, sizeof(uint32_t));
-    out.write((char*)&size, sizeof(float));
+    out.write(reinterpret_cast<const char*>(&BEEP_MAGIC), sizeof(uint32_t));
+    out.write(reinterpret_cast<const char*>(&size), sizeof(float));
 
     // Write sound entries
-    std::vector<std::string> split;
-    for (auto &tmp : lines) {
-        boost::split(split, tmp, [](char c){return c == ',';});
+    for (const auto &line : lines) {
+        float frequency = std::stof(line.substr(0, line.find(',')));
+        uint32_t length = std::stoul(line.substr(line.find(',') + 1));
 
-        float frequency = std::stof(split[0]);
-        uint32_t length = std::stoul(split[1]);
-
-        out.write((char*)&frequency, sizeof(float));
-        out.write((char*)&length, sizeof(uint32_t));
+        out.write(reinterpret_cast<const char*>(&frequency), sizeof(float));
+        out.write(reinterpret_cast<const char*>(&length), sizeof(uint32_t));
     }
 
     out.close();
