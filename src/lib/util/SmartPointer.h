@@ -1,7 +1,7 @@
 #ifndef HHUOS_SMARTPOINTER_H
 #define HHUOS_SMARTPOINTER_H
 
-#include "lib/async/Atomic.h"
+#include "lib/async/Spinlock.h"
 
 namespace Util {
 
@@ -11,7 +11,9 @@ class SmartPointer {
 private:
 
     T *pointer = nullptr;
-    Atomic<uint32_t> *counter;
+    uint32_t counter;
+
+    Spinlock lock;
 
 public:
 
@@ -25,9 +27,11 @@ public:
 
     ~SmartPointer();
 
-    T &operator*();
+    T* get();
 
-    T *operator->();
+    T& operator*();
+
+    T* operator->();
 
     bool operator==(const SmartPointer<T> &other);
 
@@ -45,34 +49,52 @@ public:
 
 template<typename T>
 SmartPointer<T>::SmartPointer() {
-    this->pointer = nullptr;
-    this->counter = new Atomic<uint32_t>();
+    lock.acquire();
 
-    counter->fetchAndInc();
+    pointer = nullptr;
+    counter = 1;
+
+    lock.release();
 }
 
 template<typename T>
-SmartPointer<T>::SmartPointer(T *pointer) {
-    this->pointer = pointer;
-    this->counter = new Atomic<uint32_t>();
+SmartPointer<T>::SmartPointer(T *pointer) : pointer(pointer), counter(0) {
+    lock.acquire();
 
-    counter->fetchAndInc();
+    this->pointer = pointer;
+    counter = 1;
+
+    lock.release();
 }
 
 template<typename T>
 SmartPointer<T>::SmartPointer(const SmartPointer<T> &copy) {
+    lock.acquire();
+
     pointer = copy.pointer;
     counter = copy.counter;
+    counter++;
 
-    counter->fetchAndInc();
+    lock.release();
 }
 
 template<typename T>
 SmartPointer<T>::~SmartPointer() {
-    if (counter->fetchAndDec() == 1) {
+    lock.acquire();
+
+    if (counter-- == 0) {
+        lock.release();
         delete pointer;
-        delete counter;
+
+        return;
     }
+
+    lock.release();
+}
+
+template<typename T>
+T * SmartPointer<T>::get() {
+    return pointer;
 }
 
 template<typename T>
@@ -81,15 +103,18 @@ SmartPointer<T> &SmartPointer<T>::operator=(const SmartPointer<T> &other) {
         return *this;
     }
 
-    if (counter->fetchAndDec() == 1) {
+    lock.acquire();
+
+    if (counter-- == 0) {
         delete pointer;
-        delete counter;
     }
 
     pointer = other.pointer;
     counter = other.counter;
 
-    counter->fetchAndInc();
+    counter++;
+
+    lock.release();
 
     return *this;
 }
