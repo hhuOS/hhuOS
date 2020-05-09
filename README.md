@@ -19,15 +19,7 @@ Check out our [website](https://hhuos.github.io)!
 
 # Compiling
 
-GCC 7 or a newer version of GCC is required to compile hhuOS.  
-On Ubuntu 16.04 you can install GCC with the following commands:
-
-```sh
-sudo add-apt-repository ppa:ubuntu-toolchain-r/test
-sudo apt update
-sudo apt install gcc-8 gcc-8-multilib g++-8 g++-8-multilib
-```
-
+GCC 7 and CMake 3.7 or newer versions of GCC and CMake are required to compile hhuOS.  
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command.
 
 ```sh
@@ -43,12 +35,6 @@ git clone https://github.com/hhuOS/hhuOS.git
 cd hhuOS/
 ./build.sh
 ./run.sh
-```
-
-If you are running Ubuntu 16.04 and have installed GCC 8 with the above commands, you need to explicitly set the compiler, when running `build.sh`:
-
-```sh
-CC=gcc-8 CXX=g++-8 ./build.sh
 ```
 
 # Kernel parameters

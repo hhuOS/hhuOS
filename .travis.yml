@@ -1,20 +1,16 @@
 language: cpp
 compiler: gcc
-dist: xenial
+os: linux
+dist: bionic
 
 addons:
   apt:
-    sources:
-      - ubuntu-toolchain-r-test
     packages:
       - cmake
       - make
       - nasm
-      - gcc-6
-      - g++-6
-      - gcc-6-multilib
-      - g++-6-multilib
-      - libboost-dev
+      - gcc-multilib
+      - g++-multilib
       - grub-pc-bin
       - grub-efi-ia32-bin
       - mtools
@@ -24,9 +20,6 @@ env:
   global:
     - KERNEL_BINARY=loader/boot/hhuOS.bin
     - PUBLISH_FILE=${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
-
-before_install:
-  - eval "CC=gcc-6 && CXX=g++-6"
 
 stages:
   - name: build
@@ -41,8 +34,8 @@ before_deploy:
 
 deploy:
   provider: releases
-  api_key: ${API_KEY}
-  skip_cleanup: true
+  token: ${API_KEY}
+  cleanup: false
   file: ${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
   on:
     repo: hhuOS/hhuOS

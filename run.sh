@@ -5,7 +5,7 @@ readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=off"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2/ovmf-ia32/OVMF_CODE.fd"
+readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2-ovmf/ia32/OVMF_CODE.fd"
 readonly CONST_QEMU_RAM="256M"
 readonly CONST_QEMU_ARGS="
     -boot d
