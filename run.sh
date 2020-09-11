@@ -18,11 +18,18 @@ readonly CONST_QEMU_ARGS="
     -drive format=raw,file=hdd0.img,if=none,id=disk0
     -device ich9-ahci,id=ahci
     -device ide-hd,drive=disk0,bus=ahci.0
-    -device sb16,irq=10,dma=1
-    -soundhw pcspk
     -netdev user,id=eth0,hostfwd=tcp::8821-:8821
     -device e1000,netdev=eth0
     -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump"
+readonly CONST_QEMU_OLD_AUDIO_ARGS="
+  -soundhw pcspk
+  -device sb16,irq=10,dma=1
+"
+readonly CONST_QEMU_NEW_AUDIO_ARGS="
+  -audiodev alsa,id=alsa
+  -machine pcspk-audiodev=alsa
+  -device sb16,irq=10,dma=1,audiodev=alsa
+"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
@@ -31,6 +38,21 @@ QEMU_RAM="${CONST_QEMU_RAM}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
+
+version_lt() {
+  test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "$2"
+}
+
+get_audio_parameters() {
+  qemu_version=$(${QEMU_BIN} --version | head -n 1 | cut -c 23-)
+
+  if version_lt "$qemu_version" "5.0.0"; then
+    printf "%s" "${CONST_QEMU_OLD_AUDIO_ARGS}"
+    return
+  fi
+
+  printf "%s" "${CONST_QEMU_NEW_AUDIO_ARGS}"
+}
 
 check_file() {
   local file=$1
@@ -107,7 +129,7 @@ print_usage() {
     -b, --bios
         Set the bios, which qemu should use ([bios,default] | [efi] | [/path/to/bios.file]) (Default: bios)
     -r, --ram
-        Set the amount of ram, which qemu should use (e.g. 128, 1G, ...) (Default: 128M)
+        Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 256M)
     -d, --debug
         Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help
@@ -176,4 +198,6 @@ check_file hdd0.img
 
 parse_args "$@"
 
-run_qemu "${QEMU_BIN_X86_64}" "${QEMU_MACHINE_PC_KVM}" "${QEMU_BIOS_PC}" "${QEMU_ARGUMENTS}"
+QEMU_ARGS="${QEMU_ARGS} $(get_audio_parameters)"
+
+run_qemu
