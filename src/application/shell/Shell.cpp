@@ -40,6 +40,8 @@
 #include "application/shell/command/MkPart.h"
 #include "application/shell/command/MkPartTable.h"
 #include "application/shell/command/DelPart.h"
+#include "application/shell/command/Rmdir.h"
+#include "application/shell/command/Pwd.h"
 #include "lib/graphic/Ansi.h"
 #include "application/shell/command/MkVdd.h"
 #include "application/shell/command/DelVdd.h"
@@ -74,6 +76,8 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("ls", new Ls(*this));
     commands.put("touch", new Touch(*this));
     commands.put("mkdir", new Mkdir(*this));
+    commands.put("rmdir", new Rmdir(*this));
+    commands.put("pwd", new Pwd(*this));
     commands.put("rm", new Rm(*this));
     commands.put("insmod", new Insmod(*this));
     commands.put("mount", new Mount(*this));

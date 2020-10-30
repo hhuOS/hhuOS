@@ -30,6 +30,7 @@ void Cd::execute(Util::Array<String> &args) {
     }
 
     if(parser.getUnnamedArguments().length() < 1) {
+        shell.setCurrentWorkingDirectory(Directory::open("/"));
         return;
     }
 
