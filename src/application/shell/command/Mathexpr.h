@@ -44,7 +44,7 @@ public:
      */
     void execute(Util::Array<String> &args) override;
 
-    double calculateExpression(String expr);
+    int calculateExpression(String expr);
 
     /**
      * Overriding function from Command.
