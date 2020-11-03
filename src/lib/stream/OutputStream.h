@@ -106,6 +106,13 @@ public:
     OutputStream& operator << (unsigned short ival);
 
     /**
+     * Write an float and display it according to the current base.
+     *
+     * @param ival The floating point number.
+     */
+    // OutputStream& operator << (double ival);
+
+    /**
      * Write an integer and display it according to the current base.
      *
      * @param ival The integer.

@@ -5,6 +5,8 @@
 int precedence(char op){
     if(op == '+'||op == '-')
     return 1;
+    if(op == '%') 
+    return 2;
     if(op == '*'||op == '/')
     return 3;
     return 0;
@@ -16,6 +18,7 @@ int applyOperation(int a, int b, char op){
         case '-': return a - b;
         case '*': return a * b;
         case '/': return a / b;
+        case '%': return a % b;
     }
     return 0;
 }
@@ -106,7 +109,6 @@ int Mathexpr::calculateExpression(String tokens){
 
 void Mathexpr::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
-
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
