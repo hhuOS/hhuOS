@@ -16,13 +16,16 @@
 
 #include "lib/libc/printf.h"
 #include "Date.h"
+#include "kernel/process/ProcessScheduler.h"
+#include "kernel/process/Process.h"
+
 
 const char *Date::weekdays[7] = {
         "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 };
 
 const char *Date::months[12] = {
-        "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 Date::Date(Shell &shell) : Command(shell) {
@@ -77,10 +80,15 @@ void Date::execute(Util::Array<String> &args) {
 
     if(parser.checkSwitch("pretty-print")) {
         printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
-               months[date.month], date.hours, date.minutes, date.seconds, date.year);
+               months[date.month-1], date.hours, date.minutes, date.seconds, date.year);
     } else {
+        String processData = Kernel::ProcessScheduler::getInstance().getAllProcesses();
+
         printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,
                 date.seconds);
+        printf("-----------------------\n");
+        printf("Length : %d\n",Kernel::ProcessScheduler::getInstance().getLength());
+        printf("Process info :\n %s\n",processData);        
     }
 }
 
@@ -93,10 +101,10 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
     auto centuryCode = centuryCodes[(date.year / 100) % 4];
     auto leapYearCode = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0) ? 1 : 0;
 
-    auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode) % 7;
+    auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode ) % 7;
 
-    ret = ret == 0 ? 6 : ret - 1;
-
+    // ret = ret == 0 ? 6 : ret - 1;
+    
     return static_cast<uint8_t>(ret);
 }
 

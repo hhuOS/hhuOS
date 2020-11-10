@@ -42,6 +42,10 @@ public:
 
     Spinlock lock;
 
+    String getAllProcesses();
+
+    uint32_t getLength();
+
 private:
 
     Process& getNextProcess();

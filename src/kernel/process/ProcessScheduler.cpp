@@ -1,5 +1,7 @@
 #include <lib/system/priority/AccessArrayPriorityPattern.h>
 #include "ProcessScheduler.h"
+#include "Process.h"
+#include "lib/libc/sprintf.h"
 
 extern "C" {
     extern void setSchedInit();
@@ -168,6 +170,28 @@ uint8_t ProcessScheduler::changePriority(Process &process, uint8_t priority) {
 
 Process& ProcessScheduler::getCurrentProcess() {
     return *currentProcess;
+}
+
+String ProcessScheduler::getAllProcesses(){
+    
+    String data="";
+    for (const auto &queue : readyQueues) {
+       for(auto x : queue){
+           char temp[100];
+           sprintf(temp,"%d",x->getPid());
+           char temp2[100];
+           sprintf(temp2,"%d",x->getPriority()); 
+           data += String(temp);
+           data += " ";
+           data += String(temp2);
+           data += "\n"; 
+       }
+    }
+    return data;
+}
+
+uint32_t ProcessScheduler::getLength(){
+    return readyQueues[0].toArray()[0]->getPid();
 }
 
 }

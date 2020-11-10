@@ -18,11 +18,11 @@ private:
     const Kernel::VirtualAddressSpace &addressSpace;
 
 private:
-
+    // uint32_t id;
     explicit Process(const Kernel::VirtualAddressSpace &addressSpace);
 
 public:
-
+    // uint32_t id;
     static Process *loadExecutable(const String &path);
 
     Process(const Process &other) = delete;
@@ -30,6 +30,8 @@ public:
     Process &operator=(const Process &other) = delete;
 
     ~Process() = default;
+
+    uint32_t getPid();
 
     uint8_t getPriority();
 
