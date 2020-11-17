@@ -172,26 +172,25 @@ Process& ProcessScheduler::getCurrentProcess() {
     return *currentProcess;
 }
 
-String ProcessScheduler::getAllProcesses(){
-    
-    String data="";
-    for (const auto &queue : readyQueues) {
+char* ProcessScheduler::getAllProcesses(){
+    char* data = "";
+     for (const auto &queue : readyQueues) {
        for(auto x : queue){
-           char temp[100];
+           char *temp;
            sprintf(temp,"%d",x->getPid());
-           char temp2[100];
+           char *temp2;
            sprintf(temp2,"%d",x->getPriority()); 
-           data += String(temp);
-           data += " ";
-           data += String(temp2);
-           data += "\n"; 
+           strcat(data,temp);
+           strcat(data," ");
+           strcat(data,temp2);
+           strcat(data,"\n"); 
        }
     }
     return data;
 }
 
 uint32_t ProcessScheduler::getLength(){
-    return readyQueues[0].toArray()[0]->getPid();
+    return getProcessCount();
 }
 
 }

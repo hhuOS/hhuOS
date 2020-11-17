@@ -93,6 +93,10 @@ public:
 
     void setPriority(uint8_t priority);
 
+    // uint32_t getPid();
+
+
+
     /**
      * Starts this Thread.
      */

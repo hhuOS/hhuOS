@@ -102,6 +102,10 @@ public:
 
     uint8_t getMaxPriority();
 
+    String getAllProcesses();
+
+    uint32_t getLength();
+
     /**
      * Returns an instance of the Scheduler.
      *
@@ -110,6 +114,8 @@ public:
     static Scheduler &getInstance() noexcept;
 
     Spinlock lock;
+
+    Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
 
 private:
 
@@ -138,7 +144,7 @@ private:
 
     PriorityPattern &priority;
 
-    Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
+    
 };
 
 }

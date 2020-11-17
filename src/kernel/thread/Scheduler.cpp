@@ -22,6 +22,7 @@
 #include "lib/system/priority/AccessArrayPriorityPattern.h"
 #include "kernel/thread/Scheduler.h"
 #include "IdleThread.h"
+#include "lib/libc/sprintf.h"
 
 namespace Kernel {
 
@@ -269,6 +270,29 @@ uint8_t Scheduler::changePriority(Thread &thread, uint8_t priority) {
     lock.release();
 
     return priority;
+}
+
+String Scheduler::getAllProcesses(){
+    String data = "";
+    for (const auto &queue : readyQueues) {
+        for(auto x : queue){
+            // char temp[50];
+            // sprintf(temp,"%d",x->getId());
+    //        char *temp2;
+    //        sprintf(temp2,"%d",x->getName()); 
+            data += x->getName();
+            data += "\n";
+    //        strcat(data," ");
+    //        strcat(data,temp2);
+    //        strcat(data,"\n"); 
+        }
+        // strcat(data,"N");
+    }
+    return data;
+}
+
+uint32_t Scheduler::getLength(){
+    return getThreadCount();
 }
 
 }

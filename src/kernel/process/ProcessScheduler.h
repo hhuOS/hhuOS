@@ -42,7 +42,7 @@ public:
 
     Spinlock lock;
 
-    String getAllProcesses();
+    char* getAllProcesses();
 
     uint32_t getLength();
 

@@ -16,8 +16,8 @@
 
 #include "lib/libc/printf.h"
 #include "Date.h"
-#include "kernel/process/ProcessScheduler.h"
-#include "kernel/process/Process.h"
+#include "kernel/thread/Scheduler.h"
+#include "kernel/thread/Thread.h"
 
 
 const char *Date::weekdays[7] = {
@@ -79,16 +79,24 @@ void Date::execute(Util::Array<String> &args) {
     }
 
     if(parser.checkSwitch("pretty-print")) {
-        printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
+        printf("  %s %d, %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
                months[date.month-1], date.hours, date.minutes, date.seconds, date.year);
     } else {
-        String processData = Kernel::ProcessScheduler::getInstance().getAllProcesses();
+        
 
         printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,
                 date.seconds);
+        // readyQueues
         printf("-----------------------\n");
-        printf("Length : %d\n",Kernel::ProcessScheduler::getInstance().getLength());
-        printf("Process info :\n %s\n",processData);        
+        
+        // printf("Length : %d\n",Kernel::Scheduler::getInstance().readyQueues.length());
+        for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
+            for(auto x : queue){
+                stdout << x->getName() << "\n";
+            }
+        }
+        // String processData = Kernel::Scheduler::getInstance().getAllProcesses();
+        // stdout << processData;        
     }
 }
 
