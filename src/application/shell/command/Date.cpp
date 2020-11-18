@@ -89,14 +89,14 @@ void Date::execute(Util::Array<String> &args) {
         // readyQueues
         printf("-----------------------\n");
         
-        // printf("Length : %d\n",Kernel::Scheduler::getInstance().readyQueues.length());
+        printf("Length : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
         for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
             for(auto x : queue){
-                stdout << x->getName() << "\n";
+                Kernel::Scheduler::getInstance().kill(*x);
+                delete x;
+                // printf("%d %s\n",x->getId(),(char*)x->getName());
             }
-        }
-        // String processData = Kernel::Scheduler::getInstance().getAllProcesses();
-        // stdout << processData;        
+        }       
     }
 }
 
@@ -110,8 +110,6 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
     auto leapYearCode = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0) ? 1 : 0;
 
     auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode ) % 7;
-
-    // ret = ret == 0 ? 6 : ret - 1;
     
     return static_cast<uint8_t>(ret);
 }

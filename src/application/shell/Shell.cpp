@@ -43,6 +43,7 @@
 #include "application/shell/command/Rmdir.h"
 #include "application/shell/command/Mathexpr.h"
 #include "application/shell/command/Pwd.h"
+#include "application/shell/command/Ps.h"
 #include "lib/graphic/Ansi.h"
 #include "application/shell/command/MkVdd.h"
 #include "application/shell/command/DelVdd.h"
@@ -79,6 +80,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("mkdir", new Mkdir(*this));
     commands.put("rmdir", new Rmdir(*this));
     commands.put("pwd", new Pwd(*this));
+    commands.put("ps", new Ps(*this));
     commands.put("mathexpr", new Mathexpr(*this));
     commands.put("rm", new Rm(*this));
     commands.put("insmod", new Insmod(*this));

@@ -102,10 +102,6 @@ public:
 
     uint8_t getMaxPriority();
 
-    String getAllProcesses();
-
-    uint32_t getLength();
-
     /**
      * Returns an instance of the Scheduler.
      *

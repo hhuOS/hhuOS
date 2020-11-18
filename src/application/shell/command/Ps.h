@@ -1,47 +1,43 @@
-
-#ifndef __DiskInfo_include__
-#define __DiskInfo_include__
+#ifndef __Ps_include__
+#define __Ps_include__
 
 #include "lib/stream/OutputStream.h"
 #include "lib/string/String.h"
-#include "kernel/service/TimeService.h"
 #include "Command.h"
 
 /**
  * Implementation of Command.
- * Shows information about a storage device.
+ * Displays the whole path of the current working directory.
  *
  * -h, --help: Show help message
  *
+ * @author Namit Shah, Martand Javia
+ * @date 2020
  */
-class DiskInfo : public Command {
-
-private:
-    Kernel::StorageService *storageService = nullptr;
-    Filesystem *fileSystem = nullptr;
+class Ps : public Command {
 
 public:
     /**
      * Default-constructor.
      */
-    DiskInfo() = delete;
+    Ps() = delete;
 
     /**
      * Copy-constructor.
      */
-    DiskInfo(const DiskInfo &copy) = delete;
+    Ps(const Ps &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit DiskInfo(Shell &shell);
+    explicit Ps(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~DiskInfo() override = default;
+    ~Ps() override = default;
 
     /**
      * Overriding function from Command.
