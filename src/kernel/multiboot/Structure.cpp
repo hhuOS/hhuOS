@@ -28,6 +28,7 @@
 extern "C" {
     extern char ___KERNEL_DATA_START__;
     extern char ___KERNEL_DATA_END__;
+    extern size_t MULTIBOOT_SIZE;
 }
 
 namespace Kernel::Multiboot {
@@ -55,12 +56,88 @@ Util::HashMap<String, ModuleInfo> Structure::modules;
 Util::HashMap<String, String> Structure::kernelOptions;
 
 extern "C" {
-void readMemoryMap(Info *address);
+    void readMemoryMap(Info *address);
+    void copyMultibootInfo(Info *address, uint8_t *destination);
 }
 
 void readMemoryMap(Info *address) {
 
     Structure::readMemoryMap(address);
+}
+
+/**
+ * The information passed by the bootloader may be anywhere in memory and it
+ * also contains pointers. We can't be sure to still have access after enabling
+ * paging, so lets copy it recursively to BSS. We have MULTIBOOT_SIZE (512KB)
+ * reserved for that. (This includes all symbols and strings.)
+ */
+void copyMultibootInfo(Info *info, uint8_t *destination) {
+    uint8_t *original_ptr = destination;
+    
+    // first, copy the struct itself
+    memcpy(destination, info, sizeof(Info));
+    info = (Info*)destination;
+    destination += sizeof(Info);
+    
+    // then copy the commandline
+    if(info->flags & MULTIBOOT_INFO_CMDLINE) {
+        strncpy((char*)destination, (char*)info->commandLine, 4095);
+        destination[4095] = '\0';
+        info->commandLine = (uint32_t) destination;
+        destination += 4096;
+    }
+    
+    // TODO: the following lines may write past the end of our destination buf
+    
+    // then copy the module information
+    if(info->flags & MULTIBOOT_INFO_MODS) {
+        size_t len = info->moduleCount * sizeof(ModuleInfo);
+        memcpy(destination, (void*)info->moduleAddress, len);
+        info->moduleAddress = (uint32_t)destination;
+        destination += len;
+        ModuleInfo *mods = (ModuleInfo*) info->moduleAddress;
+        for(uint32_t i = 0; i < info->moduleCount; i++) {
+            strncpy((char*) destination, (char*)mods[i].string, 511);
+            destination[511] = '\0';
+            mods[i].string = (char*)destination;
+            destination += 512;
+        }
+    }
+    
+    // then copy the symbol headers and the symbols
+    if(info->flags & MULTIBOOT_INFO_ELF_SHDR) {
+        size_t len = (
+            info->symbols.elf.sectionSize * info->symbols.elf.sectionCount
+        );
+        memcpy(destination, (void*)info->symbols.elf.address, len);
+        info->symbols.elf.address = (uint32_t)destination;
+        destination += len;
+        Symbols::copy(info->symbols.elf, destination);
+    }
+    
+    // then copy the memory map
+    if(info->flags & MULTIBOOT_INFO_MEM_MAP) {
+        memcpy(destination, (void*)info->memoryMapAddress, info->memoryMapLength);
+        info->memoryMapAddress = (uint32_t)destination;
+        destination += info->memoryMapLength;
+    }
+    
+    // then copy the drives
+    if(info -> flags &  MULTIBOOT_INFO_DRIVE_INFO) {
+        memcpy(destination, (void*)info->driveAddress, info->driveLength);
+        info->driveAddress = (uint32_t)destination;
+        destination += info->driveLength;
+    }
+    
+    // then copy the boot loader name
+    if(info->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
+        strncpy((char*)destination, (char*)info->bootloaderName, 4095);
+        destination[4095] = '\0';
+        info->bootloaderName = (uint32_t) destination;
+        destination += 4096;
+    }
+    
+    //assert(destination - original_ptr <= MULTIBOOT_SIZE);
 }
 
 void Structure::readMemoryMap(Info *address) {
