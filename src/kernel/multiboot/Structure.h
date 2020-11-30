@@ -26,6 +26,11 @@
 
 namespace Kernel::Multiboot {
 
+    struct MemoryBlock {
+        uint64_t startAddress;
+        uint64_t endAddress;
+    };
+
     class Structure {
 
     public:
@@ -79,6 +84,8 @@ namespace Kernel::Multiboot {
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 
         static MemoryMapEntry customMemoryMap[256];
+
+        static MemoryBlock blockMap[256];
 
         static FrameBufferInfo frameBufferInfo;
 

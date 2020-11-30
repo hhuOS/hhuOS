@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/memory/Paging.h>
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Symbols.h"
 #include "lib/file/tar/Archive.h"
@@ -46,6 +47,8 @@ uint32_t Structure::kernelCopyLow = UINT32_MAX;
 uint32_t Structure::kernelCopyHigh = 0;
 
 MemoryMapEntry Structure::customMemoryMap[256];
+
+MemoryBlock Structure::blockMap[256];
 
 Util::ArrayList<MemoryMapEntry> Structure::memoryMap;
 
@@ -146,13 +149,15 @@ void Structure::readMemoryMap(Info *address) {
 
     MemoryMapEntry *memory = (MemoryMapEntry *) ((uint32_t) customMemoryMap - KERNEL_START);
 
+    MemoryBlock *blocks = (MemoryBlock *) ((uint32_t) blockMap - KERNEL_START);
+
     uint32_t &mapSize = *((uint32_t *) ((uint32_t) &customMemoryMapSize - KERNEL_START));
 
     uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - KERNEL_START;
 
     uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - KERNEL_START;
 
-    memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED};
+    memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED };
 
     mapSize++;
 
@@ -176,7 +181,7 @@ void Structure::readMemoryMap(Info *address) {
             uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress :
                                     sectionHeader->virtualAddress - KERNEL_START;
 
-            memory[memoryIndex] = {0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED,};
+            memory[memoryIndex] = { 0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED };
 
             memoryIndex++;
 
@@ -190,12 +195,39 @@ void Structure::readMemoryMap(Info *address) {
 
         for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
-            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start,
-                                   MULTIBOOT_MEMORY_RESERVED,};
+            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start, MULTIBOOT_MEMORY_AVAILABLE };
 
             memoryIndex++;
 
             mapSize++;
+        }
+    }
+
+    bool sorted;
+
+    do {
+        sorted = true;
+
+        for (uint32_t i = 0; i < memoryIndex - 1; i++) {
+            if (memory[i].address > memory[i + 1].address) {
+                MemoryMapEntry help = memory[i];
+                memory[i] = memory[i + 1];
+                memory[i + 1] = help;
+
+                sorted = false;
+            }
+        }
+    } while (!sorted);
+
+    uint32_t blockIndex = 0;
+    blocks[blockIndex] = { memory[0].address, memory[0].address + memory[0].length};
+
+    for (uint32_t i = 1; i < memoryIndex; i++) {
+
+        if (memory[i].address > blocks[blockIndex].endAddress + PAGESIZE) {
+            blocks[++blockIndex] = { memory[i].address, memory[i].address + memory[i].length};
+        } else if (memory[i].address + memory[i].length > blocks[blockIndex].endAddress) {
+            blocks[blockIndex].endAddress = memory[i].address + memory[i].length;
         }
     }
 
