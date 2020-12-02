@@ -37,6 +37,9 @@ int Mathexpr::calculateExpression(String tokens){
         if(tokens[i] == '('){
             ops.add(tokens[i]);
         }
+
+        // (4+2)*(4/2)
+        // ops : ((
          
        
         else if(tokens[i]>=48 && tokens[i]<=57){
@@ -70,7 +73,7 @@ int Mathexpr::calculateExpression(String tokens){
          
         
         else {
-            while(!ops.isEmpty() && precedence(ops.get(0)) >= precedence(tokens[i])){
+            while(!ops.isEmpty() && precedence(ops.get(ops.size()-1)) >= precedence(tokens[i])){
                 int val2 = values.get(values.size()-1);
                 values.remove(values.size()-1);
                  

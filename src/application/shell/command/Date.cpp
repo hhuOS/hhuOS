@@ -84,19 +84,19 @@ void Date::execute(Util::Array<String> &args) {
     } else {
         
 
-        printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,
-                date.seconds);
-        // readyQueues
-        printf("-----------------------\n");
+        printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,date.seconds);
+       
+       
+        // printf("-----------------------\n");
         
-        printf("Length : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
-        for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
-            for(auto x : queue){
-                Kernel::Scheduler::getInstance().kill(*x);
-                delete x;
-                // printf("%d %s\n",x->getId(),(char*)x->getName());
-            }
-        }       
+        // printf("Length : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
+        // for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
+        //     for(auto x : queue){
+        //         Kernel::Scheduler::getInstance().kill(*x);
+        //         delete x;
+        //         // printf("%d %s\n",x->getId(),(char*)x->getName());
+        //     }
+        // }       
     }
 }
 
