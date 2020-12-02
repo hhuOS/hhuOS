@@ -4,7 +4,6 @@
 #include "lib/stream/OutputStream.h"
 #include "lib/string/String.h"
 #include "Command.h"
-
 /**
  * Implementation of Command.
  * Calculated the expression 
@@ -21,31 +20,26 @@ public:
      * Default-constructor.
      */
     Mathexpr() = delete;
-
     /**
      * Copy-constructor.
      */
     Mathexpr(const Mathexpr &copy) = delete;
-
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
     explicit Mathexpr(Shell &shell);
-
     /**
      * Destructor.
      */
     ~Mathexpr() override = default;
-
     /**
      * Overriding function from Command.
      */
     void execute(Util::Array<String> &args) override;
 
     int calculateExpression(String expr);
-
     /**
      * Overriding function from Command.
      */

@@ -20,7 +20,9 @@ readonly CONST_QEMU_ARGS="
     -device ide-hd,drive=disk0,bus=ahci.0
     -netdev user,id=eth0,hostfwd=tcp::8821-:8821
     -device e1000,netdev=eth0
-    -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump"
+    -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump
+    -device isa-debug-exit"
+    
 readonly CONST_QEMU_OLD_AUDIO_ARGS="
   -soundhw pcspk
   -device sb16,irq=10,dma=1

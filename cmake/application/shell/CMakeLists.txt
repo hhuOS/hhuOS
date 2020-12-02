@@ -20,6 +20,7 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/Mathexpr.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Rmdir.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Pwd.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Shutdown.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Ps.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Asciimate.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Beep.cpp

@@ -26,6 +26,7 @@
 #include "application/shell/command/Mkdir.h"
 #include "application/shell/command/Rm.h"
 #include "application/shell/command/Cd.h"
+#include "application/shell/command/Shutdown.h"
 #include "application/shell/command/Clear.h"
 #include "application/shell/command/Insmod.h"
 #include "application/shell/command/Mount.h"
@@ -77,6 +78,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("tail", new Tail(*this));
     commands.put("ls", new Ls(*this));
     commands.put("touch", new Touch(*this));
+    commands.put("shutdown", new Shutdown(*this));
     commands.put("mkdir", new Mkdir(*this));
     commands.put("rmdir", new Rmdir(*this));
     commands.put("pwd", new Pwd(*this));

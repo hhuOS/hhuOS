@@ -32,6 +32,12 @@ void ArgumentParser::addParameter(const String &name, const String &abbreviation
     }
 }
 
+String ArgumentParser::getEnteredCommand(){
+    String command = "";
+    for(auto it:unnamedArguments) command += it + " ";
+    return command;
+}
+
 void ArgumentParser::addSwitch(const String &name, const String &abbreviation) {
     switches.add(name);
     abbreviationMap.put(abbreviation, name);

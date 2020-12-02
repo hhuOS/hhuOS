@@ -3,19 +3,16 @@
 #include "kernel/thread/Scheduler.h"
 #include "kernel/thread/Thread.h"
 
-
 Ps::Ps(Shell &shell) : Command(shell) {
 
 };
 
 void Ps::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
-
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
-        
     printf("Total Processes : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
     printf("-------------------------------\n");
     printf("PID   Process Name\n");
@@ -33,4 +30,3 @@ const String Ps::getHelpText() {
            "Options:\n"
            "  -h, --help: Shows the help-message.";
 }
-

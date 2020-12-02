@@ -9,9 +9,7 @@ void Rmdir::deleteFile(const String &progName, FileStatus &fStat) {
         stderr << progName << ": '" << fStat.getName() << "': Cannot delete the current working directory!" << endl;
         return;
     }
-
     auto ret = fileSystem->deleteFile(fStat.getAbsolutePath());
-
     switch(ret) {
         case Filesystem::SUCCESS :
             break;
@@ -30,7 +28,6 @@ void Rmdir::deleteFile(const String &progName, FileStatus &fStat) {
 }
 
 void Rmdir::deleteDirectory(const String &progName, Directory &dir) {
-    
     FileStatus *fStat = FileStatus::stat(dir.getAbsolutePath());
     if(dir.getChildren().length()==0){
         deleteFile(progName,*fStat);
@@ -38,40 +35,30 @@ void Rmdir::deleteDirectory(const String &progName, Directory &dir) {
     } else {
         stderr << progName << ": '" << dir.getName() << "': The directory is not empty" << endl;
     }
-    
 }
 
 void Rmdir::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
-
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
-
     fileSystem = Kernel::System::getService<Filesystem>();
-
     for(const String &path : parser.getUnnamedArguments()) {
         String absolutePath = calcAbsolutePath(path);
-
         if (!FileStatus::exists(absolutePath)) {
             stderr << args[0] << ": '" << path << "': File or Directory not found!" << endl;
             continue;
         }
-
         FileStatus *fStat = FileStatus::stat(absolutePath);
-
         if(fStat->getFileType() != FsNode::DIRECTORY_FILE) {
             stderr << args[0] << ": '" << path << "': Invalid command" << endl;
             continue;
         } else {
-            
             Directory *dir  = Directory::open(absolutePath);
             deleteDirectory(args[0], *dir);
             delete dir;
-            
         }
-
         delete fStat;
     }
 }
