@@ -1,7 +1,6 @@
 #include "lib/file/FileStatus.h"
 #include "Mathexpr.h"
 
-
 int precedence(char op){
     if(op == '+'||op == '-')
     return 1;
@@ -37,10 +36,6 @@ int Mathexpr::calculateExpression(String tokens){
         if(tokens[i] == '('){
             ops.add(tokens[i]);
         }
-
-        // (4+2)*(4/2)
-        // ops : ((
-         
        
         else if(tokens[i]>=48 && tokens[i]<=57){
             int val = 0;
@@ -106,9 +101,6 @@ int Mathexpr::calculateExpression(String tokens){
     }
     return values.get(values.size()-1);
 }
-
-
-
 
 void Mathexpr::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);

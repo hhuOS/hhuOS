@@ -19,30 +19,17 @@
 
 #include "lib/stream/OutputStream.h"
 #include "lib/string/String.h"
-// #include "kernel/service/TimeService.h"
 #include "Command.h"
 #include "device/cpu/IoPort.h"
 
 class Shutdown : public Command {
 
 private:
-    // Kernel::TimeService *timeService = nullptr;
-
-    // static const char *weekdays[7];
-    // static const char *months[12];
 
     /**
-     * Calculate the weekday of a specified date.
+     * Quits qemu emulator
      *
-     * Based on: https://blog.artofmemory.com/how-to-calculate-the-day-of-the-week-4203.html
-     *
-     * @param date The date
-     *
-     * @return The calculate weekday (0-6)
      */
-    // uint8_t calculateDayOfWeek(Rtc::Date date);
-
-    // const IoPort dataPort;
 
 public:
     /**
@@ -53,7 +40,7 @@ public:
     /**
      * Copy-constructor.
      */
-    // Shutdown(const Date &copy) = delete;
+    Shutdown(const Shutdown &copy) = delete;
 
     /**
      * Constructor.

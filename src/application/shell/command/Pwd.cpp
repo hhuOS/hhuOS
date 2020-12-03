@@ -1,12 +1,6 @@
 #include "lib/file/FileStatus.h"
 #include "Pwd.h"
 
-// String getEnteredCommand(Util::Array<String> unamedArguments){
-//     String command = "";
-//     for(auto it:unamedArguments) command += it + " ";
-//     return command;
-// }
-
 Pwd::Pwd(Shell &shell) : Command(shell) {
 
 };
