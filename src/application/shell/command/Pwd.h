@@ -11,7 +11,7 @@
  *
  * -h, --help: Show help message
  *
- * @author Namit Shah, Martand Javia
+ * @author Namit Shah, Martand Javia & Harvish Jariwala
  * @date 2020
  */
 class Pwd : public Command {

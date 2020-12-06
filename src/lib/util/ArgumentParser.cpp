@@ -32,6 +32,7 @@ void ArgumentParser::addParameter(const String &name, const String &abbreviation
     }
 }
 
+/* Displays the whole command entered by the user in the shell */
 String ArgumentParser::getEnteredCommand(){
     String command = "";
     for(auto it:unnamedArguments) command += it + " ";
@@ -52,7 +53,7 @@ bool ArgumentParser::parse(Util::Array<String> &arguments) {
     switchMap.clear();
     unnamedArguments.clear();
 
-    for (uint32_t i = startIndex; i < arguments.length(); i++) {
+    for (uint32_t i = startIndex; i < arguments.length(); i++){
         String &currentArg = arguments[i];
 
         if (!currentArg.beginsWith("-") || currentArg == "-") {

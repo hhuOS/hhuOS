@@ -82,21 +82,7 @@ void Date::execute(Util::Array<String> &args) {
         printf("  %s %d, %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
                months[date.month-1], date.hours, date.minutes, date.seconds, date.year);
     } else {
-        
-
         printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,date.seconds);
-       
-       
-        // printf("-----------------------\n");
-        
-        // printf("Length : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
-        // for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
-        //     for(auto x : queue){
-        //         Kernel::Scheduler::getInstance().kill(*x);
-        //         delete x;
-        //         // printf("%d %s\n",x->getId(),(char*)x->getName());
-        //     }
-        // }       
     }
 }
 
@@ -104,11 +90,13 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
     const uint8_t monthCodes[12] = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
     const uint8_t centuryCodes[4] = { 6, 0, 2, 4 };
 
+    /* Handling different conditions like leap year and by using the formula, day of the week is calculated */
     auto yearCode = (date.year % 1000 + ((date.year % 1000) / 4)) % 7;
     auto monthCode = monthCodes[date.month - 1];
     auto centuryCode = centuryCodes[(date.year / 100) % 4];
     auto leapYearCode = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0) ? 1 : 0;
 
+    /* Calculates correct day of the week */
     auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode ) % 7;
     
     return static_cast<uint8_t>(ret);

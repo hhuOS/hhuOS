@@ -5,11 +5,11 @@
 #include "Command.h"
 /**
  * Implementation of Command.
- * Displays the whole path of the current working directory.
+ * Displays all the threads of the ready queue
  *
  * -h, --help: Show help message
  *
- * @author Namit Shah, Martand Javia
+ * @author Namit Shah, Martand Javia & Harvish Jariwala
  * @date 2020
  */
 class Ps : public Command {

@@ -7,23 +7,29 @@ Ps::Ps(Shell &shell) : Command(shell) {
 
 };
 
+
+/*Driver code of ps command*/
 void Ps::execute(Util::Array<String> &args) {
+    /*Parses the help text for --help flag*/
     Util::ArgumentParser parser(getHelpText(), 1);
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
+
+    /*Creates an instance of scheduler to access all the processes and counts the number of active processes*/
     printf("Total Processes : %d\n",Kernel::Scheduler::getInstance().getThreadCount());
     printf("-------------------------------\n");
     printf("PID   Process Name\n");
     printf("-------------------------------\n");
+    /*For each ready queue(based on priority order) we get the process info of all the processes in the queue*/
     for (const auto &queue : Kernel::Scheduler::getInstance().readyQueues) {
         for(auto x : queue){
             printf("%02d    %s\n",x->getId(),(char*)x->getName());
         }
     }       
 }
-
+/*Help message for the command*/
 const String Ps::getHelpText() {
     return "Shows all the background processes/threads running.\n\n"
            "Usage: ps [OPTION]...\n\n"

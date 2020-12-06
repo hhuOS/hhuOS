@@ -22,14 +22,17 @@
 #include "Command.h"
 #include "device/cpu/IoPort.h"
 
+/**
+ * Implementation of Command.
+ * Shuts down the qemu emulator
+ *
+ * -h, --help: Show help message
+ *
+ * @author Namit Shah, Martand Javia & Harvish Jariwala
+ * @date 2020
+ */
+
 class Shutdown : public Command {
-
-private:
-
-    /**
-     * Quits qemu emulator
-     *
-     */
 
 public:
     /**

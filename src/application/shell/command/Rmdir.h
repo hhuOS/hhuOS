@@ -1,10 +1,12 @@
 #ifndef __Rmdir_include__
 #define __Rmdir_include__
+
 #include "lib/stream/OutputStream.h"
 #include "lib/string/String.h"
 #include "lib/file/FileStatus.h"
 #include "Command.h"
-/**  need to change this
+
+/** 
  * Implementation of Command.
  * Deletes empty directory.
  *

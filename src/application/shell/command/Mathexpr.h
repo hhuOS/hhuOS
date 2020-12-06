@@ -6,7 +6,7 @@
 #include "Command.h"
 /**
  * Implementation of Command.
- * Calculated the expression 
+ * Calculates the mathematical expression 
  *
  * -h, --help: Show help message
  *

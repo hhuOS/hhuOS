@@ -42,10 +42,6 @@ public:
 
     Spinlock lock;
 
-    char* getAllProcesses();
-
-    uint32_t getLength();
-
 private:
 
     Process& getNextProcess();

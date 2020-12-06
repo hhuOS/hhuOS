@@ -172,25 +172,4 @@ Process& ProcessScheduler::getCurrentProcess() {
     return *currentProcess;
 }
 
-char* ProcessScheduler::getAllProcesses(){
-    char* data = "";
-     for (const auto &queue : readyQueues) {
-       for(auto x : queue){
-           char *temp;
-           sprintf(temp,"%d",x->getPid());
-           char *temp2;
-           sprintf(temp2,"%d",x->getPriority()); 
-           strcat(data,temp);
-           strcat(data," ");
-           strcat(data,temp2);
-           strcat(data,"\n"); 
-       }
-    }
-    return data;
-}
-
-uint32_t ProcessScheduler::getLength(){
-    return getProcessCount();
-}
-
 }
