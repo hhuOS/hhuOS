@@ -48,7 +48,7 @@ uint32_t Structure::kernelCopyHigh = 0;
 
 MemoryMapEntry Structure::customMemoryMap[256];
 
-MemoryBlock Structure::blockMap[256];
+Structure::MemoryBlock Structure::blockMap[256];
 
 Util::ArrayList<MemoryMapEntry> Structure::memoryMap;
 
@@ -220,15 +220,27 @@ void Structure::readMemoryMap(Info *address) {
     } while (!sorted);
 
     uint32_t blockIndex = 0;
-    blocks[blockIndex] = { memory[0].address, memory[0].address + memory[0].length};
+    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), static_cast<uint32_t>(memory[0].length), 0};
 
     for (uint32_t i = 1; i < memoryIndex; i++) {
 
-        if (memory[i].address > blocks[blockIndex].endAddress + PAGESIZE) {
-            blocks[++blockIndex] = { memory[i].address, memory[i].address + memory[i].length};
-        } else if (memory[i].address + memory[i].length > blocks[blockIndex].endAddress) {
-            blocks[blockIndex].endAddress = memory[i].address + memory[i].length;
+        if (memory[i].address > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes + PAGESIZE) {
+            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), static_cast<uint32_t>(memory[i].length), 0};
+        } else if (memory[i].address + memory[i].length > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes) {
+            blocks[blockIndex].lengthInBytes = (memory[i].address + memory[i].length) - blocks[blockIndex].startAddress;
         }
+    }
+
+    uint32_t alignment = 4 * 1024 * 1024;
+    for (uint32_t i = 0; i <= blockIndex; i++) {
+
+        // Align start address down to the beginning of the 4MB page (uses integer division)
+        uint64_t tmpAddress = blocks[i].startAddress;
+        blocks[i].startAddress = (blocks[i].startAddress / alignment) * alignment;
+        blocks[i].lengthInBytes += tmpAddress - blocks[i].startAddress;
+
+        blocks[i].blockCount = blocks[i].lengthInBytes % alignment == 0 ? (blocks[i].lengthInBytes / alignment) :
+                                        (blocks[i].lengthInBytes / alignment + 1);
     }
 
     uint32_t &maxAddress = *((uint32_t *) ((uint32_t) &physReservedMemoryEnd - KERNEL_START));
