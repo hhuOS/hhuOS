@@ -26,14 +26,15 @@
 
 namespace Kernel::Multiboot {
 
-    struct MemoryBlock {
-        uint64_t startAddress;
-        uint64_t endAddress;
-    };
-
     class Structure {
 
     public:
+
+        struct MemoryBlock {
+            uint32_t startAddress;
+            uint32_t lengthInBytes;
+            uint32_t blockCount;
+        };
 
         Structure() = delete;
 
@@ -63,6 +64,8 @@ namespace Kernel::Multiboot {
 
         static uint32_t physReservedMemoryStart;
 
+        static MemoryBlock blockMap[256];
+
     private:
 
         static void parseCommandLine();
@@ -84,8 +87,6 @@ namespace Kernel::Multiboot {
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 
         static MemoryMapEntry customMemoryMap[256];
-
-        static MemoryBlock blockMap[256];
 
         static FrameBufferInfo frameBufferInfo;
 

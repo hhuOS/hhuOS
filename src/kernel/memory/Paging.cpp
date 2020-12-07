@@ -38,36 +38,50 @@ extern "C" {
 void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // calculate 4mb page where (higher-half) kernel should start
     uint32_t kernelPage = KERNEL_START >> 22U;
-    // up to this phyiscal address code and data is already placed by grub/bootloader
-    // this area should be identity-mapped and the heap should start above
-    uint32_t &reservedMemoryEnd = VIRT2PHYS_VAR(uint32_t, Kernel::Multiboot::Structure::physReservedMemoryEnd);
     // size of a 4mb page
     uint32_t bigPageSize = PAGESIZE * 1024U;
-    // use alignment value to align addresses to 4mb
-    uint32_t alignment = bigPageSize - 1U;
-    // align end address of reserved memory to 4mb
-    reservedMemoryEnd = (reservedMemoryEnd + alignment) & ~alignment;
-    // calculate pagecount where reserved memory ends
-    uint32_t pageCount = reservedMemoryEnd / bigPageSize;
 
-    // now set up the identity mapping for the code and data up to the end of reserved memory
-    // everything should be mapped at its phys. address and at an offset of KERNEL_START
-    for (uint32_t i = 0; i < pageCount; i++) {
-        directory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
-        directory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+    // Kernel::Multiboot::Structure::MemoryBlock* &blockMap = *VIRT2PHYS_VAR(Kernel::Multiboot::Structure::MemoryBlock**, Kernel::Multiboot::Structure::blockMap);
+    auto* blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (&Kernel::Multiboot::Structure::blockMap) - 0xC0000000);
 
-        biosDirectory[i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
-        biosDirectory[kernelPage + i] = (uint32_t) ((i * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+    uint32_t pageCount = 0;
+    for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
+        uint32_t startAddress = blockMap[i].startAddress;
+
+        for (uint32_t j = 0; j < blockMap[i].blockCount; j++) {
+            directory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+            directory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+
+            biosDirectory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+            biosDirectory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
+
+            pageCount++;
+        }
     }
+
+    // Search 8 free physical MB for initial heap and paging area
+    uint32_t freePhysicalAddress = 0;
+    for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
+        if (blockMap[i + 1].blockCount == 0) {
+            // No 8 MB gap has been found -> We use the memory after the last block
+            freePhysicalAddress = blockMap[i].startAddress + blockMap[i].blockCount * bigPageSize;
+            blockMap[i + 1] = {freePhysicalAddress, 2 * bigPageSize, 2};
+            break;
+        }
+
+        if (blockMap[i + 1].startAddress - (blockMap[i].startAddress + blockMap[i].blockCount * bigPageSize) >= 2 * bigPageSize) {
+            freePhysicalAddress = blockMap[i].startAddress + blockMap[i].blockCount * bigPageSize;
+            blockMap[i + 1] = {freePhysicalAddress, 2 * bigPageSize, 2};
+        }
+    }
+
     // the first page of the initial heap above the reserved memory is mapped to an offset of KERNEL_START
     // no identity mapping needed because the heap is only used when paging is already enabled
-    directory[kernelPage + pageCount] = (uint32_t) ((pageCount * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE |
-                                                    PAGE_SIZE_MiB);
+    directory[kernelPage + pageCount] = (uint32_t) (freePhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 
     // calculate index to first virtual address of paging area memory
     // these first 4mb of the paging area are needed to set up the final 4kb paging,
     // so map the first (phys.) 4mb after the initial 4mb-heap to this address
     uint32_t pagingAreaIndex = VIRT_PAGE_MEM_START / bigPageSize;
-    directory[pagingAreaIndex] = (uint32_t) (((pageCount + 1) * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE |
-                                             PAGE_SIZE_MiB);
+    directory[pagingAreaIndex] = (uint32_t) ((freePhysicalAddress + bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 }
