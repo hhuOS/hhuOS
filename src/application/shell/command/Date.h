@@ -30,7 +30,7 @@
  * -s, --set: Set the date (format: dd.mm.(yy)yy-hh:mm:ss)
  * -h, --help: Show help message
  *
- * @author Fabian Ruhland
+ * @author Fabian Ruhland,Namit Shah, Martand Javia & Harvish Jariwala
  * @date 2018
  */
 class Date : public Command {

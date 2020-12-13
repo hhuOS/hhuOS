@@ -57,10 +57,6 @@ OutputStream& OutputStream::operator << (unsigned short ival) {
     return *this << (unsigned long) ival;
 }
 
-// OutputStream& OutputStream::operator << (double ival) {
-//     return *this << (double) ival;
-// }
-
 OutputStream& OutputStream::operator << (int ival) {
     return *this << (long) ival;
 }

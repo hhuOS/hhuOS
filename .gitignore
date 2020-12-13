@@ -4,6 +4,9 @@ hdd/asciimation/starwars.txt
 loader/boot/hhuOS.bin
 loader/boot/hhuOS.initrd
 initrd/asciimation/starwars.txt
+src/os/dep/*
+src/loader/boot/hhuOS.bin
+src/loader/boot/hhuOS.initrd
 hdd/mod/
 tool/beepc/beepc
 *.img

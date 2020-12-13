@@ -28,10 +28,6 @@ uint8_t Process::getPriority() {
     return priority;
 }
 
-uint32_t Process::getPid(){
-    return id;
-}
-
 void Process::setPriority(uint8_t priority) {
     this->priority = ProcessScheduler::getInstance().changePriority(*this, priority);
 }

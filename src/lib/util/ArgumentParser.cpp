@@ -35,7 +35,9 @@ void ArgumentParser::addParameter(const String &name, const String &abbreviation
 /* Displays the whole command entered by the user in the shell */
 String ArgumentParser::getEnteredCommand(){
     String command = "";
-    for(auto it:unnamedArguments) command += it + " ";
+    for(auto it:unnamedArguments) {
+        command += it + " ";
+    }
     return command;
 }
 

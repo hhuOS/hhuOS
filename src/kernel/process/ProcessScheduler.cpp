@@ -1,7 +1,5 @@
 #include <lib/system/priority/AccessArrayPriorityPattern.h>
 #include "ProcessScheduler.h"
-#include "Process.h"
-#include "lib/libc/sprintf.h"
 
 extern "C" {
     extern void setSchedInit();

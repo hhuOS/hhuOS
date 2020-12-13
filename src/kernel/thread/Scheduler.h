@@ -111,7 +111,7 @@ public:
 
     Spinlock lock;
 
-    Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
+    void getReadyQueue();
 
 private:
 
@@ -140,6 +140,7 @@ private:
 
     PriorityPattern &priority;
 
+    Util::Array<Util::ArrayBlockingQueue<Thread *>> readyQueues;
     
 };
 

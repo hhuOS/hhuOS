@@ -30,8 +30,6 @@ void Cd::execute(Util::Array<String> &args) {
     }
 
     if(parser.getUnnamedArguments().length() < 1) {
-        /* For cd command with no arguments will change the current working directory to the root directory */
-        shell.setCurrentWorkingDirectory(Directory::open("/"));
         return;
     }
 

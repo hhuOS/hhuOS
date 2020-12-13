@@ -22,7 +22,6 @@
 #include "lib/system/priority/AccessArrayPriorityPattern.h"
 #include "kernel/thread/Scheduler.h"
 #include "IdleThread.h"
-#include "lib/libc/sprintf.h"
 
 namespace Kernel {
 
@@ -244,6 +243,14 @@ uint32_t Scheduler::getThreadCount() {
     }
 
     return count;
+}
+
+void Scheduler::getReadyQueue(){
+    for (const auto &queue : readyQueues) {
+        for(auto x : queue){
+            printf("%02d    %s\n",x->getId(),(char*)x->getName());
+        }
+    }  
 }
 
 uint8_t Scheduler::getMaxPriority() {
