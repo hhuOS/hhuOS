@@ -16,13 +16,16 @@
 
 #include "lib/libc/printf.h"
 #include "Date.h"
+#include "kernel/thread/Scheduler.h"
+#include "kernel/thread/Thread.h"
+
 
 const char *Date::weekdays[7] = {
         "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"
 };
 
 const char *Date::months[12] = {
-        "Jan", "Feb", "Mar", "Apr", "Mai", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan", "Feb", "Mar", "Apr", "May", "June", "July", "Aug", "Sep", "Oct", "Nov", "Dec"
 };
 
 Date::Date(Shell &shell) : Command(shell) {
@@ -76,11 +79,10 @@ void Date::execute(Util::Array<String> &args) {
     }
 
     if(parser.checkSwitch("pretty-print")) {
-        printf("  %s %d. %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
-               months[date.month], date.hours, date.minutes, date.seconds, date.year);
+        printf("  %s %d, %s %02d:%02d:%02d %04d\n", weekdays[calculateDayOfWeek(date)], date.dayOfMonth,
+               months[date.month-1], date.hours, date.minutes, date.seconds, date.year);
     } else {
-        printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,
-                date.seconds);
+        printf("  %02d.%02d.%04d %02d:%02d:%02d\n", date.dayOfMonth, date.month, date.year, date.hours, date.minutes,date.seconds);
     }
 }
 
@@ -88,15 +90,15 @@ uint8_t Date::calculateDayOfWeek(Rtc::Date date) {
     const uint8_t monthCodes[12] = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
     const uint8_t centuryCodes[4] = { 6, 0, 2, 4 };
 
+    /* Handling different conditions like leap year and by using the formula, day of the week is calculated */
     auto yearCode = (date.year % 1000 + ((date.year % 1000) / 4)) % 7;
     auto monthCode = monthCodes[date.month - 1];
     auto centuryCode = centuryCodes[(date.year / 100) % 4];
     auto leapYearCode = date.year % 4 == 0 && (date.year % 100 != 0 || date.year % 400 == 0) ? 1 : 0;
 
-    auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode) % 7;
-
-    ret = ret == 0 ? 6 : ret - 1;
-
+    /* Calculates correct day of the week */
+    auto ret = (yearCode + monthCode + centuryCode + date.dayOfMonth - leapYearCode ) % 7;
+    
     return static_cast<uint8_t>(ret);
 }
 

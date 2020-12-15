@@ -62,6 +62,9 @@ public:
     const String getNamedArgument(const String &argument);
 
     bool checkSwitch(const String &name);
+
+    String getEnteredCommand();
+
 };
 
 }

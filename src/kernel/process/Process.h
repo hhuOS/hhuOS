@@ -18,11 +18,11 @@ private:
     const Kernel::VirtualAddressSpace &addressSpace;
 
 private:
-
+    
     explicit Process(const Kernel::VirtualAddressSpace &addressSpace);
 
 public:
-
+    
     static Process *loadExecutable(const String &path);
 
     Process(const Process &other) = delete;

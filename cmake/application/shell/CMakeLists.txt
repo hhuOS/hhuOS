@@ -17,6 +17,11 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/Shell.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Command.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Mathexpr.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Rmdir.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Pwd.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Shutdown.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Ps.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Asciimate.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Beep.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/BmpView.cpp

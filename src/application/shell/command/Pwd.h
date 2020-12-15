@@ -1,6 +1,6 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2020 Namit Shah, Martand Javia & Harvish Jariwala
+ * Ahmedabad University
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,66 +14,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Date_include__
-#define __Date_include__
+#ifndef __Pwd_include__
+#define __Pwd_include__
 
 #include "lib/stream/OutputStream.h"
 #include "lib/string/String.h"
-#include "kernel/service/TimeService.h"
 #include "Command.h"
 
 /**
  * Implementation of Command.
- * Shows the system's Date.
+ * Displays the whole path of the current working directory.
  *
- * -p, --pretty-print: Pretty print the current date
- * -s, --set: Set the date (format: dd.mm.(yy)yy-hh:mm:ss)
  * -h, --help: Show help message
  *
- * @author Fabian Ruhland,Namit Shah, Martand Javia & Harvish Jariwala
- * @date 2018
+ * @author Namit Shah, Martand Javia & Harvish Jariwala
+ * @date 2020
  */
-class Date : public Command {
-
-private:
-    Kernel::TimeService *timeService = nullptr;
-
-    static const char *weekdays[7];
-    static const char *months[12];
-
-    /**
-     * Calculate the weekday of a specified date.
-     *
-     * Based on: https://blog.artofmemory.com/how-to-calculate-the-day-of-the-week-4203.html
-     *
-     * @param date The date
-     *
-     * @return The calculate weekday (0-6)
-     */
-    uint8_t calculateDayOfWeek(Rtc::Date date);
+class Pwd : public Command {
 
 public:
     /**
      * Default-constructor.
      */
-    Date() = delete;
+    Pwd() = delete;
 
     /**
      * Copy-constructor.
      */
-    Date(const Date &copy) = delete;
+    Pwd(const Pwd &copy) = delete;
 
     /**
      * Constructor.
      *
      * @param shell The shell, that executes this command
      */
-    explicit Date(Shell &shell);
+    explicit Pwd(Shell &shell);
 
     /**
      * Destructor.
      */
-    ~Date() override = default;
+    ~Pwd() override = default;
 
     /**
      * Overriding function from Command.

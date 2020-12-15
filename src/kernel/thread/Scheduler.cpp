@@ -102,8 +102,7 @@ void Scheduler::exit() {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
-                            "Scheduler: 'exit' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'exit' called but scheduler is not initialized!");
     }
 
     if (!isThreadWaiting()) {
@@ -148,9 +147,11 @@ void Scheduler::yield() {
         return;
     }
 
+
     if (lock.tryAcquire()) {
 
         Thread *next = getNextThread();
+
 
         readyQueues[currentThread->getPriority()].push(currentThread);
 
@@ -178,8 +179,7 @@ void Scheduler::deblock(Thread &that) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
-                            "Scheduler: 'deblock' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'deblock' called but scheduler is not initialized!");
     }
 
     readyQueues[that.getPriority()].push(&that);
@@ -191,8 +191,7 @@ void Scheduler::dispatch(Thread &next) {
 
     if (!initialized) {
 
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE,
-                            "Scheduler: 'dispatch' called but scheduler is not initialized!");
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Scheduler: 'dispatch' called but scheduler is not initialized!");
     }
 
     Thread *current = currentThread;
@@ -244,6 +243,14 @@ uint32_t Scheduler::getThreadCount() {
     }
 
     return count;
+}
+
+void Scheduler::getReadyQueue(){
+    for (const auto &queue : readyQueues) {
+        for(auto x : queue){
+            printf("%02d    %s\n",x->getId(),(char*)x->getName());
+        }
+    }  
 }
 
 uint8_t Scheduler::getMaxPriority() {

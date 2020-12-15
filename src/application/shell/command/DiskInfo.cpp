@@ -19,24 +19,29 @@
 #include "DiskInfo.h"
 
 DiskInfo::DiskInfo(Shell &shell) : Command(shell) {
+    /* Defining the services which are needed for the diskinfo command */
     storageService = Kernel::System::getService<Kernel::StorageService>();
-    fileSystem = Kernel::System::getService<Filesystem>();
+    fileSystem = Kernel::System::getService<Filesystem>(); 
 };
 
 void DiskInfo::execute(Util::Array<String> &args) {
     Util::ArrayList<String> devicePaths;
 
+    /* Adding help flag (-h or --help) */
     Util::ArgumentParser parser(getHelpText(), 1);
 
+    /* Check for any parsing error of the command entered by the user */
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
+    /* If there are any devices specified by the user then add them to the devices list */
     for(const String &path : parser.getUnnamedArguments()) {
         devicePaths.add(path);
     }
 
+    /* If the device list is empty then add the default devices which are present in the /dev/storage to the devices list */
     if(devicePaths.isEmpty()) {
         Directory *dir = Directory::open("/dev/storage");
 
@@ -47,6 +52,7 @@ void DiskInfo::execute(Util::Array<String> &args) {
         delete dir;
     }
 
+    /* Iterate through the devices list and print the details of each device to the shell */
     for(const String &devicePath : devicePaths) {
 
         String absoluteDevicePath = calcAbsolutePath(devicePath);
@@ -57,14 +63,12 @@ void DiskInfo::execute(Util::Array<String> &args) {
         }
 
         FileStatus *fStat = FileStatus::stat(absoluteDevicePath);
-
         StorageDevice *device = storageService->getDevice(fStat->getName());
 
         if (device == nullptr) {
             stderr << args[0] << ": Unable to open device '" << fStat->getName() << "'!" << endl;
             return;
         }
-
         stdout << fStat->getAbsolutePath() << ":" << endl;
         stdout << "  Device name:  " << device->getHardwareName() << endl;
         stdout << "  Sector size:  " << dec << device->getSectorSize() << endl;
@@ -75,6 +79,7 @@ void DiskInfo::execute(Util::Array<String> &args) {
     }
 }
 
+/* Help Text for the flag -h or --help */
 const String DiskInfo::getHelpText() {
     return "Shows information about a storage device.\n\n"
            "Usage: diskinfo [DEVICE]... [OPTION]...\n\n"
