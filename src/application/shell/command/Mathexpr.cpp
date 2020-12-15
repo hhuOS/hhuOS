@@ -138,8 +138,11 @@ void Mathexpr::execute(Util::Array<String> &args) {
         return;
     }
     /* Check whether more than one unamed arguments are given by the user and display the appropriate message it they do */
-    if(parser.getUnnamedArguments().length()>1 || parser.getUnnamedArguments().length()==0){
-        stderr << args[0] << ": Invalid command" << endl;
+    if(parser.getUnnamedArguments().length()>1){
+        stderr << args[0] << ": Invalid number of arguments" << endl;
+        return;
+    } else if(parser.getUnnamedArguments().length()==0){
+        stderr << args[0] << ": Arguments missing" << endl;
         return;
     }
     /* Calcualting the expression */
