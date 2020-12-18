@@ -60,6 +60,7 @@ extern fini_system
 extern setup_idt
 extern paging_bootstrap
 extern enable_interrupts
+extern copyMultibootInfo
 extern readMemoryMap
 extern init_gdt
 
@@ -166,9 +167,22 @@ clear_bss:
 
     ; set stack again to cut off possible old values
     mov esp, (stack - KERNEL_START + STACK_SIZE)
-
-    ; read memory map and push parameters before
+    
+    ; copy the Multiboot info struct recursively
+    mov eax, multiboot_data
+    sub eax, KERNEL_START
+    push eax
     push ebx
+    mov eax, copyMultibootInfo
+    sub eax, KERNEL_START
+    call eax
+    add esp, 0x04
+    mov ebx, 0
+    
+    ; read memory map and push parameters before
+    mov eax, multiboot_data
+    sub eax, KERNEL_START
+    push eax
     mov eax, readMemoryMap
     sub eax, KERNEL_START
     call eax
@@ -197,7 +211,7 @@ on_paging_enabled:
 	call	reprogram_pics
 
     ; initialize system
-    push dword [multiboot_addr]
+    push multiboot_data
     ; call to SystemManagement.cpp
     call    init_system
     add  esp, 0x4
@@ -327,3 +341,7 @@ section .bss
 align 32
 stack:
     resb STACK_SIZE
+
+; reserve space for a copy of the Multiboot information
+multiboot_data:
+    resb MULTIBOOT_SIZE

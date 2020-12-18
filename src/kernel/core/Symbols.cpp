@@ -151,6 +151,25 @@ void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
     initialized = true;
 }
 
+void Symbols::copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination) {
+    ElfConstants::SectionHeader *sectionHeader = nullptr;
+    for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
+        sectionHeader = (ElfConstants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
+        // only copy the sections that are not part of the loaded program
+        if ((sectionHeader->virtualAddress & KERNEL_START) == 0) {
+            // only copy symbols and strings, discard the rest
+            if (sectionHeader->type == ElfConstants::SectionHeaderType::SYMTAB
+            || sectionHeader->type == ElfConstants::SectionHeaderType::STRTAB) {
+                memcpy(destination, (void*)sectionHeader->virtualAddress, sectionHeader->size);
+                sectionHeader->virtualAddress = (elf32_addr) destination;
+                destination += sectionHeader->size;
+            } else {
+                sectionHeader->virtualAddress = 0;
+            }
+        }
+    }
+}
+
 bool Symbols::isInitialized() {
 
     return initialized;

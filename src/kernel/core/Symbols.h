@@ -65,6 +65,11 @@ public:
      * @return true, if all kernel symbols have been loaded, false else
      */
     static bool isInitialized();
+    
+    /**
+     * Copy the symbols to memory. (Call before paging is enabled.)
+     */
+    static void copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination);
 
 private:
 
