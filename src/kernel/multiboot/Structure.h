@@ -30,10 +30,18 @@ namespace Kernel::Multiboot {
 
     public:
 
+        enum BlockType : uint8_t {
+            MULTIBOOT_RESERVED = 0x00,
+            HEAP_RESERVED = 0x01,
+            PAGING_RESERVED = 0x02
+        };
+
         struct MemoryBlock {
             uint32_t startAddress;
+            uint32_t virtualStartAddress;
             uint32_t lengthInBytes;
             uint32_t blockCount;
+            BlockType type;
         };
 
         Structure() = delete;

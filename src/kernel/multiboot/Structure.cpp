@@ -75,8 +75,6 @@ void readMemoryMap(Info *address) {
  * reserved for that. (This includes all symbols and strings.)
  */
 void copyMultibootInfo(Info *info, uint8_t *destination) {
-    uint8_t *original_ptr = destination;
-    
     // first, copy the struct itself
     memcpy(destination, info, sizeof(Info));
     info = (Info*)destination;
@@ -220,12 +218,12 @@ void Structure::readMemoryMap(Info *address) {
     } while (!sorted);
 
     uint32_t blockIndex = 0;
-    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), static_cast<uint32_t>(memory[0].length), 0};
+    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), 0, static_cast<uint32_t>(memory[0].length), 0, MULTIBOOT_RESERVED};
 
     for (uint32_t i = 1; i < memoryIndex; i++) {
 
         if (memory[i].address > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes + PAGESIZE) {
-            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), static_cast<uint32_t>(memory[i].length), 0};
+            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), 0, static_cast<uint32_t>(memory[i].length), 0, MULTIBOOT_RESERVED};
         } else if (memory[i].address + memory[i].length > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes) {
             blocks[blockIndex].lengthInBytes = (memory[i].address + memory[i].length) - blocks[blockIndex].startAddress;
         }

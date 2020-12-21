@@ -101,6 +101,8 @@ multiboot_header:
 	dd GRAPHICS_BPP
 
 startup:
+    ; save multiboot structure address
+    mov [multiboot_phys_addr - KERNEL_START], ebx
 
     ; enable SSE
     mov eax, cr0
@@ -172,7 +174,7 @@ clear_bss:
     mov eax, multiboot_data
     sub eax, KERNEL_START
     push eax
-    push ebx
+    push dword [multiboot_phys_addr - KERNEL_START]
     mov eax, copyMultibootInfo
     sub eax, KERNEL_START
     call eax
@@ -198,13 +200,8 @@ on_paging_enabled:
     ; load GDT from virtual address
 	lgdt	[gdt_desc]
 
-    ; save multiboot structure address
-    add ebx, KERNEL_START
-    mov [multiboot_addr], ebx
-
     ; set init stack
 	mov esp, (stack + STACK_SIZE)
-
 
     ; setup interrupts (see interrupts.asm)
 	call	setup_idt
@@ -212,7 +209,6 @@ on_paging_enabled:
 
     ; initialize system
     push multiboot_data
-    ; call to SystemManagement.cpp
     call    init_system
     add  esp, 0x4
 
@@ -332,9 +328,8 @@ gdt_bios_desc:
 	dw	0						   ; GDT limit
 	dd	0         				   ; physical BIOS-GDT address
 
-multiboot_addr:
+multiboot_phys_addr:
     dd  0x00000000
-
 
 ; reserve space for initial kernel stack
 section .bss

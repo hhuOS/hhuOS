@@ -216,6 +216,12 @@ void Management::trigger(InterruptFrame &frame) {
 }
 
 void Management::init() {
+    // Physical Page Frame Allocator is initialized to be possible to allocate
+    // physical memory (page frames)
+    calcTotalPhysicalMemory();
+    pageFrameAllocator = new PageFrameAllocator();
+    pageFrameAllocator->init(0, totalPhysMemory, false);
+
     // to be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space
     currentAddressSpace = new VirtualAddressSpace(nullptr);
@@ -225,12 +231,6 @@ void Management::init() {
     pagingAreaManager = new PagingAreaManager();
     // create a Base Page Directory (used to map the kernel into every process)
     basePageDirectory = currentAddressSpace->getPageDirectory();
-
-    // Physical Page Frame Allocator is initialized to be possible to allocate
-    // physical memory (page frames)
-    calcTotalPhysicalMemory();
-    pageFrameAllocator = new PageFrameAllocator();
-    pageFrameAllocator->init(0, totalPhysMemory, false);
 
 #if DEBUG_PM
     printf("[PAGINGMANAGER] 4KB paging is activated \n");
@@ -542,12 +542,20 @@ void Management::freePageTable(void *virtTableAddress) {
 Management &Management::getInstance() noexcept {
     if (systemManagement == nullptr) {
         // create a static memory manager for the kernel heap
-        static FreeListMemoryManager heapMemoryManager;
-        heapMemoryManager.init(PHYS2VIRT(Multiboot::Structure::physReservedMemoryEnd), VIRT_KERNEL_HEAP_END, true);
-        // set the kernel heap memory manager to this manager
-        kernelMemoryManager = &heapMemoryManager;
-        // use the new memory manager to alloc memory for the instance of SystemManegement
-        systemManagement = new Management();
+        for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+            const auto &block = Multiboot::Structure::blockMap[i];
+
+            if (block.type == Multiboot::Structure::HEAP_RESERVED) {
+                static FreeListMemoryManager heapMemoryManager;
+                heapMemoryManager.init(block.virtualStartAddress, VIRT_KERNEL_HEAP_END, true);
+                // set the kernel heap memory manager to this manager
+                kernelMemoryManager = &heapMemoryManager;
+                // use the new memory manager to alloc memory for the instance of SystemManegement
+                systemManagement = new Management();
+
+                break;
+            }
+        }
     }
 
     return *systemManagement;
