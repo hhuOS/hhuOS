@@ -28,15 +28,15 @@ PageFrameAllocator::PageFrameAllocator() : BitmapMemoryManager(PAGESIZE, false) 
 void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     BitmapMemoryManager::init(memoryStartAddress, memoryEndAddress, false);
 
-    // read out how much memory is already used by the system and the initrd
-    uint32_t maxIndex = (Multiboot::Structure::physReservedMemoryEnd / PAGESIZE + 1024 + 256) / 32;
+    // Reserve blocks already used by system image and initrd
+    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+        const auto &block = Multiboot::Structure::blockMap[i];
+        uint32_t start = block.startAddress / PAGESIZE;
+        uint32_t length = block.blockCount * 1024;
 
-    // first X MB are already allocated by 4MB paging
-    // X MB + 8KB are already used by kernel and page tables/dirs
-    bitmap->setRange(0, maxIndex * 32 + 2);
-
-    // subtract already reserved memory from free memory
-    freeMemory -= (maxIndex * 32 * blockSize + 2 * blockSize);
+        bitmap->setRange(start, length);
+        freeMemory -= length * blockSize;
+    }
 }
 
 String PageFrameAllocator::getTypeName() {

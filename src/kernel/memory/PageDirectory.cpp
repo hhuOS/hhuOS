@@ -40,56 +40,55 @@ namespace Kernel {
  * and is built manually for bootstrapping.
  */
 PageDirectory::PageDirectory() {
+    uint32_t physPagingAreaStart = 0;
+
+    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+        const auto &block = Multiboot::Structure::blockMap[i];
+
+        if (block.type == Multiboot::Structure::PAGING_RESERVED) {
+            physPagingAreaStart = block.startAddress;
+            break;
+        }
+    }
+
     // calculate end of data and code that is placed by grub/bootloader
-    uint32_t reservedMemoryEnd = Multiboot::Structure::physReservedMemoryEnd;
+    // uint32_t reservedMemoryEnd = Multiboot::Structure::physReservedMemoryEnd;
     // calculate page count containing all memory up to reservedMemoryEnd
     // plus 1024 pages for the initial heap (4mb)
-    uint32_t pageCount = reservedMemoryEnd / PAGESIZE + 1024;
+    // uint32_t pageCount = reservedMemoryEnd / PAGESIZE + 1024;
 
     // table with virtual PT-addresses placed after the PD itself
-    virtTableAddresses = (uint32_t *) (VIRT_PAGE_MEM_START + 0x101000);
+    virtTableAddresses = (uint32_t *) (VIRT_PAGE_MEM_START + 257 * PAGESIZE);
     // zero memory for PageTables and PageDirectrories
     memset((void *) VIRT_PAGE_MEM_START, 0, PAGESIZE * 1024);
     // base page directory is located at VIRT_PAGE_MEM_START + 1MB,
     // because the first 1MB is used for all Kernel page tables (mapping the kernelspace)
-    pageDirectory = (uint32_t *) (VIRT_PAGE_MEM_START + 0x100000);
+    pageDirectory = (uint32_t *) (VIRT_PAGE_MEM_START + 256 * PAGESIZE);
 
-    // calculate the phys. address of the first pagedirectory
-    physPageDirectoryAddress = (uint32_t *) (reservedMemoryEnd + PAGESIZE * 1024 + 0x100000);
+    // calculate the phys. address of the first pagedirectory (reserve 1 MB for kernel page tables)
+    physPageDirectoryAddress = (uint32_t *) (physPagingAreaStart + 256 * PAGESIZE);
 
     // set up page directory entries for pagetables containing kernel mappings
-    // (all pagetables addressing > KERNEL_START are located at at the first MB of Paging Area)
+    // (all pagetables addressing > KERNEL_START are located at the first MB of Paging Area)
     // calculate virtual addresses for these tables
-    uint32_t i = 0;
     uint32_t startIdx = KERNEL_START / (PAGESIZE * 1024);
-    for (uint32_t idx = startIdx; idx < startIdx + 256; idx++) {
+    for (uint32_t i = 0; i < 256; i++) {
         // pointer to the corresponding pagetable (phys. address) - placed right after phys. addresses of the initial heap
-        pageDirectory[idx] = (uint32_t) ((reservedMemoryEnd + PAGESIZE * 1024 + i * PAGESIZE) | PAGE_PRESENT |
-                                         PAGE_READ_WRITE | PAGE_ACCESS_ALL);
+        pageDirectory[startIdx + i] = (physPagingAreaStart + i * PAGESIZE) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_ACCESS_ALL;
         // pointer to corresponding pagetable (virt. address) - placed at the beginning of PagingAreaMemory
-        virtTableAddresses[idx] = VIRT_PAGE_MEM_START + i * PAGESIZE;
-        i++;
+        virtTableAddresses[startIdx + i] = VIRT_PAGE_MEM_START + i * PAGESIZE;
     }
 
     // set the entries for the mapping of reserved memory + initial 4mb-heap
-    uint32_t idx = KERNEL_START / (PAGESIZE * 1024);
-    for (uint16_t i = 0; i < pageCount; i++) {
-        // this is the physical address of the memory belonging to this page
-        uint32_t physAddr = i * PAGESIZE;
-        // build up entry for page table by hand (Read/Write and Present bit)
-        *((uint32_t *) virtTableAddresses[idx] + i) = physAddr | PAGE_READ_WRITE | PAGE_PRESENT | PAGE_ACCESS_ALL;
-        // protect kernel code
-        if (i < reservedMemoryEnd / PAGESIZE) {
-            *((uint32_t *) virtTableAddresses[idx] + i) |= PAGE_WRITE_PROTECTED;
-        }
-    }
+    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+        const auto &block = Multiboot::Structure::blockMap[i];
 
-    // create Mappings for the first pagedirectory and all of the pagetables addressing the kernelspace
-    idx = VIRT_PAGE_MEM_START / (PAGESIZE * 1024);
-    for (uint32_t i = 0; i < 258; i++) {
-        uint32_t physAddr = reservedMemoryEnd + PAGESIZE * 1024 + i * PAGESIZE;
-        // write entry for mapping into pagetable
-        *((uint32_t *) virtTableAddresses[idx] + i) = physAddr | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_WRITE_PROTECTED;
+        for (uint32_t j = 0; j < block.blockCount * 1024; j++) {
+            uint16_t pageDirectoryIndex = GET_PD_IDX((block.virtualStartAddress + j * PAGESIZE));
+            uint16_t pageTableIndex = GET_PT_IDX((block.virtualStartAddress + j * PAGESIZE));
+
+            *((uint32_t *) virtTableAddresses[pageDirectoryIndex] + pageTableIndex) = (block.startAddress + j * PAGESIZE) | PAGE_READ_WRITE | PAGE_PRESENT | PAGE_ACCESS_ALL;
+        }
     }
 
     // now, all important mappings in kernelspace (> KERNEL_START) are set up
@@ -99,12 +98,6 @@ PageDirectory::PageDirectory() {
     // load the Page Directory into cr3 and enable 4kb-paging via assembler
     load_page_directory(physPageDirectoryAddress);
     enable_4KB_paging();
-
-#if DEBUG_PD
-    printf("[PAGEDIRECTORY] Created BasePageDirectory\n");
-#endif
-
-
 }
 
 /**
