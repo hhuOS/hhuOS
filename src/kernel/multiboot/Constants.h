@@ -162,6 +162,9 @@ struct MemoryMapEntry {
     uint64_t length;
     uint32_t type;
 
+    uint64_t alignedAddress;
+    uint32_t blockCount;
+
     bool operator!=(const MemoryMapEntry &other) const {
 
         return address != other.address;

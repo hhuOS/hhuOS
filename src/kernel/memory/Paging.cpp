@@ -70,10 +70,10 @@ void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
 
             if (blocksFound == 0) {
                 heapPhysicalAddress = physicalAddress;
-                blockMap[i + 1] = {physicalAddress, (kernelPage + pageCount) * bigPageSize, bigPageSize, 1, Kernel::Multiboot::Structure::HEAP_RESERVED};
+                blockMap[i + 1] = {physicalAddress, (kernelPage + pageCount) * bigPageSize, 1, Kernel::Multiboot::Structure::HEAP_RESERVED};
             } else {
                 pagingAreaPhysicalAddress = physicalAddress;
-                blockMap[i + 1] = {physicalAddress, VIRT_PAGE_MEM_START, bigPageSize, 1, Kernel::Multiboot::Structure::PAGING_RESERVED};
+                blockMap[i + 1] = {physicalAddress, VIRT_PAGE_MEM_START, 1, Kernel::Multiboot::Structure::PAGING_RESERVED};
             }
 
             blocksFound++;

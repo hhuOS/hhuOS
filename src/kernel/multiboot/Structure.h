@@ -39,7 +39,6 @@ namespace Kernel::Multiboot {
         struct MemoryBlock {
             uint32_t startAddress;
             uint32_t virtualStartAddress;
-            uint32_t lengthInBytes;
             uint32_t blockCount;
             BlockType type;
         };

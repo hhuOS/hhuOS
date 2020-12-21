@@ -165,6 +165,8 @@ void Structure::readMemoryMap(Info *address) {
 
     ElfConstants::SectionHeader *sectionHeader = nullptr;
 
+    uint32_t alignment = 4 * 1024 * 1024;
+
     if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_ELF_SHDR)) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
@@ -179,7 +181,10 @@ void Structure::readMemoryMap(Info *address) {
             uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress :
                                     sectionHeader->virtualAddress - KERNEL_START;
 
-            memory[memoryIndex] = { 0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED };
+            uint64_t alignedAddress = (startAddress / alignment) * alignment;
+            uint32_t blockCount = sectionHeader->size % alignment == 0 ? (sectionHeader->size / alignment) : (sectionHeader->size / alignment + 1);
+
+            memory[memoryIndex] = { 0x0, startAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED, alignedAddress, blockCount };
 
             memoryIndex++;
 
@@ -193,7 +198,11 @@ void Structure::readMemoryMap(Info *address) {
 
         for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
-            memory[memoryIndex] = {0x0, modInfo[i].start, modInfo[i].end - modInfo[i].start, MULTIBOOT_MEMORY_AVAILABLE };
+            uint32_t length = modInfo[i].end - modInfo[i].start;
+            uint64_t alignedAddress = (modInfo[i].start / alignment) * alignment;
+            uint32_t blockCount = length % alignment == 0 ? (length / alignment) : (length / alignment + 1);
+
+            memory[memoryIndex] = {0x0, modInfo[i].start, length, MULTIBOOT_MEMORY_AVAILABLE, alignedAddress, blockCount };
 
             memoryIndex++;
 
@@ -207,7 +216,7 @@ void Structure::readMemoryMap(Info *address) {
         sorted = true;
 
         for (uint32_t i = 0; i < memoryIndex - 1; i++) {
-            if (memory[i].address > memory[i + 1].address) {
+            if (memory[i].alignedAddress > memory[i + 1].alignedAddress) {
                 MemoryMapEntry help = memory[i];
                 memory[i] = memory[i + 1];
                 memory[i + 1] = help;
@@ -218,27 +227,14 @@ void Structure::readMemoryMap(Info *address) {
     } while (!sorted);
 
     uint32_t blockIndex = 0;
-    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), 0, static_cast<uint32_t>(memory[0].length), 0, MULTIBOOT_RESERVED};
+    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].alignedAddress), 0, memory[0].blockCount, MULTIBOOT_RESERVED};
 
     for (uint32_t i = 1; i < memoryIndex; i++) {
-
-        if (memory[i].address > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes + PAGESIZE) {
-            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), 0, static_cast<uint32_t>(memory[i].length), 0, MULTIBOOT_RESERVED};
-        } else if (memory[i].address + memory[i].length > blocks[blockIndex].startAddress + blocks[blockIndex].lengthInBytes) {
-            blocks[blockIndex].lengthInBytes = (memory[i].address + memory[i].length) - blocks[blockIndex].startAddress;
+        if (memory[i].alignedAddress > blocks[blockIndex].startAddress + (blocks[blockIndex].blockCount + 1) * PAGESIZE * 1024) {
+            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), 0, memory[i].blockCount, MULTIBOOT_RESERVED};
+        } else if (memory[i].alignedAddress + memory[i].blockCount * PAGESIZE * 1024 > blocks[blockIndex].startAddress + blocks[blockIndex].blockCount * PAGESIZE * 1024) {
+            blocks[blockIndex].blockCount = ((memory[i].alignedAddress + memory[i].blockCount * PAGESIZE * 1024) - blocks[blockIndex].startAddress) / (PAGESIZE * 1024);
         }
-    }
-
-    uint32_t alignment = 4 * 1024 * 1024;
-    for (uint32_t i = 0; i <= blockIndex; i++) {
-
-        // Align start address down to the beginning of the 4MB page (uses integer division)
-        uint64_t tmpAddress = blocks[i].startAddress;
-        blocks[i].startAddress = (blocks[i].startAddress / alignment) * alignment;
-        blocks[i].lengthInBytes += tmpAddress - blocks[i].startAddress;
-
-        blocks[i].blockCount = blocks[i].lengthInBytes % alignment == 0 ? (blocks[i].lengthInBytes / alignment) :
-                                        (blocks[i].lengthInBytes / alignment + 1);
     }
 
     uint32_t &maxAddress = *((uint32_t *) ((uint32_t) &physReservedMemoryEnd - KERNEL_START));
