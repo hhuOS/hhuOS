@@ -18,7 +18,6 @@
 #define __InterruptHandler_include__
 
 #include "kernel/thread/ThreadState.h"
-#include "InterruptManager.h"
 
 namespace Kernel {
 

@@ -3,7 +3,9 @@
 
 #include <cstdint>
 
-template <typename T>
+namespace Async {
+
+template<typename T>
 class Atomic {
 
 private:
@@ -26,7 +28,7 @@ public:
 
     Atomic(const Atomic<T> &other);
 
-    Atomic<T>& operator=(const Atomic<T> &other);
+    Atomic<T> &operator=(const Atomic<T> &other);
 
     ~Atomic() = default;
 
@@ -46,12 +48,27 @@ public:
 
 };
 
-template class Atomic<bool>;
-template class Atomic<int8_t>;
-template class Atomic<uint8_t>;
-template class Atomic<int16_t>;
-template class Atomic<uint16_t>;
-template class Atomic<int32_t>;
-template class Atomic<uint32_t>;
+template
+class Atomic<bool>;
+
+template
+class Atomic<int8_t>;
+
+template
+class Atomic<uint8_t>;
+
+template
+class Atomic<int16_t>;
+
+template
+class Atomic<uint16_t>;
+
+template
+class Atomic<int32_t>;
+
+template
+class Atomic<uint32_t>;
+
+}
 
 #endif

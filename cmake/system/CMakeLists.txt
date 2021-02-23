@@ -30,4 +30,4 @@ add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${HHUOS_ROOT_DIR}/loader/boot/)
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "hhuOS.bin")
 
-target_link_libraries(${PROJECT_NAME} application device filesystem kernel lib)
+target_link_libraries(${PROJECT_NAME} device kernel lib)

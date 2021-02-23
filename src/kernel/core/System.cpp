@@ -14,23 +14,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/libc/printf.h"
-#include "kernel/bluescreen/BlueScreen.h"
-#include "kernel/bluescreen/BlueScreenCga.h"
-#include "kernel/bluescreen/BlueScreenLfb.h"
 #include "System.h"
 #include "Symbols.h"
 #include "device/cpu/Cpu.h"
-#include "device/misc/Bios.h"
+
+extern "C" {
+int32_t atexit (void (*func)()) noexcept;
+}
+
+int32_t atexit (void (*func)()) noexcept {
+    return 0;
+}
 
 namespace Kernel {
 
-Spinlock System::serviceLock;
+Async::Spinlock System::serviceLock;
 
-Util::HashMap<String, KernelService *> System::serviceMap(SERVICE_MAP_SIZE);
+Util::HashMap<Util::String, KernelService *> System::serviceMap(SERVICE_MAP_SIZE);
 
-
-void System::registerService(const String &serviceId, KernelService *const &kernelService) {
+void System::registerService(const Util::String &serviceId, KernelService *const &kernelService) {
 
     serviceLock.acquire();
 
@@ -39,31 +41,16 @@ void System::registerService(const String &serviceId, KernelService *const &kern
     serviceLock.release();
 }
 
-bool System::isServiceRegistered(const String &serviceId) {
+bool System::isServiceRegistered(const Util::String &serviceId) {
 
     return serviceMap.containsKey(serviceId);
 }
 
 void System::panic(InterruptFrame *frame) {
 
-    Cpu::disableInterrupts();
+    Device::Cpu::disableInterrupts();
 
-    if (Bios::isAvailable()) {
-        BlueScreenCga blueScreen;
-
-        blueScreen.initialize();
-
-        blueScreen.print(*frame);
-    } else {
-
-        BlueScreenLfb blueScreen;
-
-        blueScreen.initialize();
-
-        blueScreen.print(*frame);
-    }
-
-    Cpu::halt();
+    Device::Cpu::halt();
 }
 
 }

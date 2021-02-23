@@ -19,8 +19,6 @@
 
 #include <cstdint>
 
-#define DEBUG_PD 0
-
 namespace Kernel {
 
 /** 

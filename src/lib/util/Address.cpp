@@ -41,4 +41,16 @@ bool Address::operator==(const Address &other) const {
     return address == other.address;
 }
 
+uint32_t Address::alignUp(uint32_t value, uint32_t alignment) {
+
+    if (alignment == 0) {
+
+        return value;
+    }
+
+    alignment--;
+
+    return (value + alignment) & ~alignment;
+}
+
 }

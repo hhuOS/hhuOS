@@ -14,22 +14,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/debug/GdbServer.h>
-#include <kernel/service/ModuleLoader.h>
-#include <lib/file/elf/Elf.h>
-#include <lib/file/FileStatus.h>
 #include "Management.h"
 
-#include "device/misc/Bios.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "lib/libc/printf.h"
 #include "kernel/multiboot/Structure.h"
-#include "kernel/log/Logger.h"
-#include "device/time/Pit.h"
-#include "kernel/log/StdOutAppender.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/MemLayout.h"
+#include "System.h"
 
 namespace Kernel {
 
@@ -51,8 +43,6 @@ void fini_system();
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc);
 }
 
-Logger &Management::LOG = Logger::get("Management");
-
 // initialize static members
 TaskStateSegment Management::taskStateSegment{};
 Management *Management::systemManagement = nullptr;
@@ -66,7 +56,7 @@ bool Management::kernelMode = true;
  */
 void init_system(Multiboot::Info *address) {
     // enable interrupts afterwards
-    Cpu::enableInterrupts();
+    Device::Cpu::enableInterrupts();
 
     Multiboot::Structure::init(address);
 
@@ -78,11 +68,11 @@ void init_system(Multiboot::Info *address) {
 
     Multiboot::Structure::parse();
 
-    Pit::getInstance().plugin();
+    /* Pit::getInstance().plugin();
 
-    Logger::initialize();
+    // Logger::initialize();
 
-    Logger::setLevel(Multiboot::Structure::getKernelOption("log_level"));
+    Logger::setLevel(Multiboot::Structure::getKernelOption("log_level")); */
 
     if (Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
         systemManagement.writeProtectKernelCode();
@@ -185,14 +175,8 @@ void Management::plugin() {
 
 
 void Management::trigger(InterruptFrame &frame) {
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Pagefault occured\n");
-    printf("[PAGINGMANAGER] Address %x\n", faultedAddress);
-    printf("[PAGINGMANAGER] Flags %x\n", faultFlags);
-    printf("[PAGINGMANAGER] Floored 4kb aligned address %x\n", (faultedAddress & 0xFFFFF000));
-#endif
 
-    GdbServer::memError = true;
+    // GdbServer::memError = true;
 
     // Get page fault address and flags
     uint32_t faultAddress = 0;
@@ -201,13 +185,13 @@ void Management::trigger(InterruptFrame &frame) {
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {
-        frame.interrupt = (uint32_t) Cpu::Exception::NULLPOINTER;
+        frame.interrupt = (uint32_t) Device::Cpu::Exception::NULLPOINTER;
         System::panic(&frame);
     }
 
     // check if pagefault was caused by illegal page access
     if ((frame.error & 0x00000001u) > 0) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_PAGE_ACCESS);
+        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_PAGE_ACCESS);
     }
 
     // Map the faulted Page
@@ -231,10 +215,6 @@ void Management::init() {
     pagingAreaManager = new PagingAreaManager();
     // create a Base Page Directory (used to map the kernel into every process)
     basePageDirectory = currentAddressSpace->getPageDirectory();
-
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] 4KB paging is activated \n");
-#endif
 
     // register Paging Manager to handle Page Faults
     this->plugin();
@@ -262,16 +242,9 @@ void Management::map(uint32_t virtAddress, uint16_t flags) {
     uint32_t physAddress = (uint32_t) pageFrameAllocator->alloc(PAGESIZE);
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
-
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Map virtual address %x to phys address %x\n", (virtAddress & 0xFFFFF000), physAddress);
-#endif
 }
 
 void Management::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress) {
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Map virtual address %x to phys address %x\n", (virtAddress & 0xFFFFF000), physAddress);
-#endif
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
 }
@@ -299,10 +272,6 @@ uint32_t Management::createPageTable(PageDirectory *dir, uint32_t idx) {
     // there must be no mapping from virtual to physical address be done here,
     // because the page is zeroed out after allocation by the PagingAreaManager
 
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Create new page table for index %d\n", idx);
-#endif
-
     // create the table in the page directory
     dir->createTable(idx, (uint32_t) physAddress, (uint32_t) virtAddress);
     return 0;
@@ -312,17 +281,11 @@ uint32_t Management::unmap(uint32_t virtAddress) {
     // request the pagedirectory to unmap the page
     uint32_t physAddress = currentAddressSpace->getPageDirectory()->unmap(virtAddress);
     if (!physAddress) {
-#if DEBUG_PM
-        printf("[PAGINGMAMNAGER] WARN: Page was not present\n");
-#endif
         return 0;
     }
 
     pageFrameAllocator->free((void *) (physAddress));
 
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Unmap page with virtual address %x\n", virtAddress);
-#endif
     // invalidate entry in TLB
     asm volatile("push %%edx;"
                  "movl %0,%%edx;"
@@ -350,10 +313,6 @@ uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
     }
     // amount of pages to be unmapped
     uint32_t pageCnt = (endVAddr - startVAddr) / PAGESIZE + 1;
-
-#if DEBUG_PM
-    printf("[PAGINGMANAGER] Unmap range [%x, %x] #page %d\n", startVAddr, endVAddr, pageCnt);
-#endif
 
     // loop through the pages and unmap them
     uint32_t ret = 0;
@@ -389,7 +348,7 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
-        Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
@@ -423,7 +382,7 @@ void *Management::mapIO(uint32_t size) {
 
     // check for nullpointer
     if (virtStartAddress == nullptr) {
-        Cpu::throwException(Cpu::Exception::OUT_OF_MEMORY);
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
@@ -478,7 +437,7 @@ void Management::calcTotalPhysicalMemory() {
     }
 
     if (maxEntry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "No usable memory found!");
+        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "No usable memory found!");
     }
 
     totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
@@ -490,14 +449,11 @@ void Management::calcTotalPhysicalMemory() {
 
     // We need at least 10MB physical memory to run properly
     if (totalPhysMemory < 10 * 1024 * 1024) {
-        printf("[MEMORYMANAGEMENT] Kernel Panic: not enough RAM!");
-        Cpu::halt();
+        Device::Cpu::halt();
     }
-
-    printf("[SYSTEMMANAGEMENT] Total Physical Memory: %d MB!", totalPhysMemory / (1024 * 1024));
 }
 
-VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const String &managerType) {
+VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const Util::String &managerType) {
     auto *addressSpace = new VirtualAddressSpace(basePageDirectory, managerOffset, managerType);
     // add to the list of address spaces
     addressSpaces->add(addressSpace);
@@ -572,27 +528,6 @@ void *Management::realloc(void *ptr, uint32_t size, uint32_t alignment) {
     } else {
         return Management::getKernelHeapManager()->realloc(ptr, size, alignment);
     }
-}
-
-void Management::loadApplication(const String &path) {
-    auto elf = Elf::load(path);
-    
-    if(elf == nullptr) {
-        return;
-    }
-
-    auto addressSpace = createAddressSpace(elf->getSizeInMemory(), "FreeListMemoryManager");
-    switchAddressSpace(addressSpace);
-
-    elf->loadProgram();
-
-    int ret = elf->getEntryPoint()(0, nullptr);
-
-    LOG.debug("Application returned with %d", ret);    
-    
-    delete elf;
-    
-    switchAddressSpace(addressSpaces->get(0));
 }
 
 }

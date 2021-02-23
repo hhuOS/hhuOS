@@ -129,7 +129,7 @@ namespace Util {
 
         if (index >= capacity) {
 
-            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS);
         }
 
         return array[index];
@@ -140,7 +140,7 @@ namespace Util {
 
         if (index >= capacity) {
 
-            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS);
         }
 
         return array[index];

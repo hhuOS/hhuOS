@@ -17,8 +17,6 @@
 #ifndef __Map_include__
 #define __Map_include__
 
-#include "Set.h"
-
 namespace Util {
 
     /**

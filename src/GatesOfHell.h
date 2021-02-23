@@ -17,21 +17,6 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-
-#include <cstdint>
-#include "kernel/boot/BootScreen.h"
-#include "lib/file/tar/Archive.h"
-#include "kernel/service/ModuleLoader.h"
-#include "kernel/service/GraphicsService.h"
-#include "kernel/thread/IdleThread.h"
-#include "lib/async/SimpleThread.h"
-
-#include "lib/util/SmartPointer.h"
-#include "kernel/event/input/KeyEvent.h"
-#include "kernel/boot/BootComponent.h"
-#include "kernel/boot/BootCoordinator.h"
-#include "lib/stream/AnsiOutputStream.h"
-
 class GatesOfHell {
 
 public:
@@ -47,54 +32,6 @@ public:
     [[noreturn]] static void enter();
 
 private:
-
-    static void registerServices();
-
-    static void afterInitrdModHook();
-
-    static void afterFsInitModHook();
-
-    static void initializeGraphics();
-
-    static void afterPciScanModHook();
-
-    static void initializeMemoryManagers();
-
-    static void initializePorts();
-
-    static bool loadModule(const String &path);
-
-    static Kernel::Logger &log;
-
-    static AnsiOutputStream *outputStream;
-
-    static Kernel::BootScreen *bootscreen;
-
-    static Kernel::IdleThread *idleThread;
-
-    static uint16_t xres;
-
-    static uint16_t yres;
-
-    static uint8_t bpp;
-
-    static Kernel::BootComponent initBiosComponent;
-
-    static Kernel::BootComponent initServicesComponent;
-
-    static Kernel::BootComponent initFilesystemComponent;
-
-    static Kernel::BootComponent initGraphicsComponent;
-
-    static Kernel::BootComponent initPortsComponent;
-
-    static Kernel::BootComponent initMemoryManagersComponent;
-
-    static Kernel::BootComponent scanPciBusComponent;
-
-    static Kernel::BootComponent parsePciDatabaseComponent;
-
-    static Kernel::BootCoordinator coordinator;
 };
 
 

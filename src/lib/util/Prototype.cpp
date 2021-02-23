@@ -18,27 +18,25 @@
 
 namespace Util {
 
-Util::HashMap<String, Prototype*> Prototype::prototypeTable;
+Util::HashMap<Util::String, Prototype*> Prototype::prototypeTable;
 
-Prototype *Prototype::createInstance(String type) {
-    String key = type.toLowerCase();
+Prototype *Prototype::createInstance(Util::String type) {
+    Util::String key = type.toLowerCase();
 
     if (prototypeTable.containsKey(key)) {
         return prototypeTable.get(key)->clone();
     }
 
-    const char *errorMessage = (const char *) String::format("No prototype registered for '%s'!", (const char *) type);
-
-    Cpu::throwException(Cpu::Exception::UNKNOWN_TYPE, errorMessage);
+    Device::Cpu::throwException(Device::Cpu::Exception::INVALID_ARGUMENT, "Prototype not found!");
 }
 
 void Prototype::registerPrototype(Prototype *prototype) {
-    String key = prototype->getTypeName().toLowerCase();
+    Util::String key = prototype->getTypeName().toLowerCase();
 
     prototypeTable.put(key, prototype);
 }
 
-void Prototype::deregisterPrototype(String type) {
+void Prototype::deregisterPrototype(Util::String type) {
     if (prototypeTable.containsKey(type)) {
         delete prototypeTable.get(type);
         prototypeTable.remove(type);

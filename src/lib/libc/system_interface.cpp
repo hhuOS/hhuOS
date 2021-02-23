@@ -15,7 +15,6 @@
  */
 
 #include "kernel/core/Management.h"
-#include "printf.h"
 #include "system_interface.h"
 
 void *sys_alloc_mem(uint32_t size, uint32_t alignment) {

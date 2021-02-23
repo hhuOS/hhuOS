@@ -42,6 +42,8 @@ public:
 
     explicit operator uint32_t() const;
 
+    static uint32_t alignUp(uint32_t value, uint32_t alignment);
+
 private:
 
     uint32_t address;

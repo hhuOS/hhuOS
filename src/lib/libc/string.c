@@ -317,25 +317,3 @@ size_t strlen(const char *s) {
 
     return i;
 }
-
-int strtoint(const char* str) {
-    size_t length = strlen(str);
-    int limit = 0, modifier = 1, result = 0;
-
-    if (str[0] == '-') {
-        limit = 1;
-        modifier = -1;
-    }
-
-    int j = 1;
-    int num = 0;
-    for(int i = length - 1; i >= limit; i--) {
-        num = (str[i] - '0');
-        if (num >= 0 && num <= 10) {
-            result += num * j;
-            j *= 10;
-        }
-    }
-
-    return result * modifier;
-}

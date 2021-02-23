@@ -16,12 +16,11 @@
 
 #include "kernel/memory/MemLayout.h"
 #include "Management.h"
-#include "lib/libc/printf.h"
 #include "Symbols.h"
 
 namespace Kernel {
 
-Util::HashMap<String, Util::Address> Symbols::symbolTable(1129);
+Util::HashMap<Util::String, Util::Address> Symbols::symbolTable(1129);
 
 Util::HashMap<Util::Address, char *> Symbols::debugTable(1129);
 
@@ -78,7 +77,7 @@ uint32_t hextoint(const char *hexString) {
     return ret;
 }
 
-uint32_t Symbols::get(const String &name) {
+uint32_t Symbols::get(const Util::String &name) {
 
     if (symbolTable.containsKey((char *) name)) {
 
@@ -107,9 +106,9 @@ void Symbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    ElfConstants::SymbolEntry *entry = (ElfConstants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
+    auto *entry = (ElfConstants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
 
-    ElfConstants::SectionHeader *stringSection = (ElfConstants::SectionHeader *) (symbolInfo.address +
+    auto *stringSection = (ElfConstants::SectionHeader *) (symbolInfo.address +
                                                                                   sectionHeader.link *
                                                                                   symbolInfo.sectionSize);
 

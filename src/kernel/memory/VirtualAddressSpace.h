@@ -41,7 +41,7 @@ private:
     // and only for temporary use
     bool bootstrapAddressSpace = false;
 
-    String managerType = "";
+    Util::String managerType = "";
     uint32_t heapAddress = 0;
 
     bool initialized = false;
@@ -49,13 +49,13 @@ public:
     /**
      * Constructor for an address space with a loaded application.
      */
-    VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const String &memoryManagerType = "FreeListMemoryManager");
+    VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::String &memoryManagerType = "FreeListMemoryManager");
 
     /**
      * Constructor for an address space without a loaded application.
      * The heap always start at 0x2000.
      */
-    explicit VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType = "FreeListMemoryManager");
+    explicit VirtualAddressSpace(PageDirectory *basePageDirectory, const Util::String &memoryManagerType = "FreeListMemoryManager");
 
     /**
      * Destructor

@@ -19,6 +19,6 @@ message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
         COMMAND grub-mkrescue /usr/lib/grub/i386-pc /usr/lib/grub/i386-efi -o ${HHUOS_ROOT_DIR}/hhuOS.iso ${HHUOS_ROOT_DIR}/loader/
-        DEPENDS system initrd hdd)
+        DEPENDS system)
 
 add_custom_target(iso DEPENDS "${HHUOS_ROOT_DIR}/hhuOS.iso")

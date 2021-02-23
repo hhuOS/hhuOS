@@ -22,6 +22,8 @@
 #include "lib/async/Atomic.h"
 #include "Lock.h"
 
+namespace Async {
+
 /**
  * A simple spinlock implemented using test&set instructions.
  *
@@ -58,6 +60,8 @@ private:
 
     Atomic<uint8_t> lockVar;
 };
+
+}
 
 #endif
 

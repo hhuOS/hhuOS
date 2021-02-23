@@ -18,7 +18,7 @@
 #define __KernelSymbols_include__
 
 #include "lib/util/Address.h"
-#include "lib/string/String.h"
+#include "lib/util/String.h"
 #include "lib/util/HashMap.h"
 #include "kernel/multiboot/Constants.h"
 #include "lib/elf/ElfConstants.h"
@@ -42,7 +42,7 @@ public:
      * @param name The symbol
      * @return The symbol's address
      */
-    static uint32_t get(const String &name);
+    static uint32_t get(const Util::String &name);
 
     /**
      * Returns the symbol name for a given address.
@@ -75,7 +75,7 @@ private:
 
     static Multiboot::ElfInfo symbolInfo;
 
-    static Util::HashMap<String, Util::Address> symbolTable;
+    static Util::HashMap<Util::String, Util::Address> symbolTable;
 
     static Util::HashMap<Util::Address, char *> debugTable;
 

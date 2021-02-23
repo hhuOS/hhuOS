@@ -16,7 +16,6 @@
 
 #include <cstdint>
 #include "kernel/multiboot/Structure.h"
-#include "lib/memory/MemoryUtil.h"
 #include "Paging.h"
 #include "MemLayout.h"
 

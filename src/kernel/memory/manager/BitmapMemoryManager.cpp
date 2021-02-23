@@ -15,10 +15,8 @@
  */
 
 #include "kernel/core/System.h"
-#include "device/misc/Bios.h"
 #include "BitmapMemoryManager.h"
 #include "kernel/memory/Paging.h"
-#include "lib/libc/printf.h"
 
 extern "C" {
 #include "lib/libc/string.h"
@@ -43,12 +41,12 @@ BitmapMemoryManager::~BitmapMemoryManager() {
 void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
 
-    bitmap = new Bitmap((memoryEndAddress - memoryStartAddress) / blockSize);
+    bitmap = new Util::Bitmap((memoryEndAddress - memoryStartAddress) / blockSize);
 
     freeMemory = bitmap->getSize() * blockSize;
 }
 
-String BitmapMemoryManager::getTypeName() {
+Util::String BitmapMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 
@@ -65,11 +63,11 @@ void *BitmapMemoryManager::alloc(uint32_t size) {
     if (block == bitmap->getSize()) {
         // handle errors
         if (managerType == PAGING_AREA_MANAGER) {
-            Cpu::throwException(Cpu::Exception::OUT_OF_PAGE_MEMORY);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_PAGE_MEMORY);
         }
 
         if (managerType == PAGE_FRAME_ALLOCATOR) {
-            Cpu::throwException(Cpu::Exception::OUT_OF_PHYS_MEMORY);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_PHYS_MEMORY);
         }
 
         return nullptr;
@@ -100,13 +98,6 @@ void BitmapMemoryManager::free(void *ptr) {
     bitmap->unset(blockNumber);
 
     freeMemory += blockSize;
-}
-
-void BitmapMemoryManager::dump() {
-    printf("  BitmapMemoryManager: Free bitmap dump\n");
-    printf("  ================\n");
-
-    bitmap->dump();
 }
 
 }

@@ -20,11 +20,8 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/memory/PageDirectory.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/VirtualAddressSpace.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/MemoryManager.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/manager/StaticHeapMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/BitmapMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/FreeListMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/IOMemoryManager.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/manager/IsaDmaMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/PageFrameAllocator.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/manager/PagingAreaManager.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/manager/special/AtomicBitmapMemoryManager.cpp)
+        ${HHUOS_SRC_DIR}/kernel/memory/manager/PagingAreaManager.cpp)

@@ -13,7 +13,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.7)
- 
+
 target_sources(lib PUBLIC
-        ${HHUOS_SRC_DIR}/lib/elf/ElfConstants.cpp
-        ${HHUOS_SRC_DIR}/lib/elf/ElfModule.cpp)
+        ${HHUOS_SRC_DIR}/lib/elf/ElfConstants.cpp)

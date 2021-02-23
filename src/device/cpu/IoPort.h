@@ -19,6 +19,7 @@
 
 #include <cstdint>
 
+namespace Device {
 
 class IoPort {
 
@@ -37,20 +38,20 @@ public:
      * @param val 8-bit value to write.
      */
     void outb(uint8_t val) const;
-    
+
     /**
 	 * Writes a byte to IO-port with an offset to port address
 	 *
 	 * @param addr_offset Offset to port address
 	 * @param val 8-bit value to write.
 	 */
-	void outb(uint16_t addr_offset, uint8_t val) const;
-    	
-	/**
-	 * Writes a word to IO-port.
-	 *
-	 * @param val 16-bit value to write.
-	 */
+    void outb(uint16_t addr_offset, uint8_t val) const;
+
+    /**
+     * Writes a word to IO-port.
+     *
+     * @param val 16-bit value to write.
+     */
     void outw(uint16_t val) const;
 
     /**
@@ -66,22 +67,22 @@ public:
 	 * @return 8-bit value from IO-port
 	 */
     uint8_t inb() const;
-    
+
     /**
 	 * Reads a byte from IO-port with offset
 	 *
 	 * @param addr_offset Offset to port address
 	 * @return 8-bit value from IO-port
 	 */
-	uint8_t inb(uint16_t addr_offset) const;
-	
-	/**
-	 * Reads a word from IO-port.
-	 *
-	 * @return 16-bit value from IO-port
-	 */
+    uint8_t inb(uint16_t addr_offset) const;
+
+    /**
+     * Reads a word from IO-port.
+     *
+     * @return 16-bit value from IO-port
+     */
     uint16_t inw() const;
-    
+
     /**
 	 * Reads a a doubleword (32 bit) from IO-port.
 	 *
@@ -96,5 +97,7 @@ public:
      */
     uint16_t getAddress();
 };
+
+}
 
 #endif

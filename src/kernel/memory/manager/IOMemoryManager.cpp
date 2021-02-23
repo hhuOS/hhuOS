@@ -15,14 +15,9 @@
  */
 
 #include "kernel/memory/MemLayout.h"
-#include "lib/libc/printf.h"
 #include "IOMemoryManager.h"
 #include "kernel/core/Management.h"
 #include "kernel/memory/Paging.h"
-
-extern "C" {
-    #include "lib/libc/string.h"
-}
 
 namespace Kernel {
 
@@ -38,7 +33,7 @@ void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddres
     // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
 }
 
-String IOMemoryManager::getTypeName() {
+Util::String IOMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 

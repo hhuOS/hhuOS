@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/memory/MemoryUtil.h>
+#include <lib/util/Address.h>
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Management.h"
@@ -23,8 +23,8 @@
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const String &memoryManagerType) :
-        managerType(memoryManagerType), heapAddress(MemoryUtil::alignUp(heapAddress, PAGESIZE)) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::String &memoryManagerType) :
+        managerType(memoryManagerType), heapAddress(Util::Address::alignUp(heapAddress, PAGESIZE)) {
     // create a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
     // the kernelspace heap manager is static and global for the system
@@ -33,7 +33,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint3
     bootstrapAddressSpace = false;
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const String &memoryManagerType) :
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const Util::String &memoryManagerType) :
         managerType(memoryManagerType), heapAddress(2 * PAGESIZE) {
     if(basePageDirectory == nullptr) {
         this->pageDirectory = new PageDirectory();
@@ -65,7 +65,7 @@ void VirtualAddressSpace::init() {
     }
 
     if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->init(MemoryUtil::alignUp(heapAddress, PAGESIZE), KERNEL_START - PAGESIZE, true);
+        userSpaceHeapManager->init(Util::Address::alignUp(heapAddress, PAGESIZE), KERNEL_START - PAGESIZE, true);
     }
 
     void *test = userSpaceHeapManager->alloc(1024);

@@ -56,14 +56,14 @@ cleanup() {
         rm eth0.dump
     fi
 
+    local builddirs="";
+
     # get all names of used build directories
     if [ -f .builddirs ]; then
-        local builddirs=$(cat .builddirs)
-    else
-        local builddirs=""
+        builddirs=$(cat .builddirs)
     fi
 
-    # remove builddirectories and remove their names from .git/info/exclude
+    # remove build directories and remove their names from .git/info/exclude
     for dir in $builddirs; do
         if [ "$(echo $FORBIDDEN_DIR_NAMES | grep -w ${dir})" == "" ] && [ -d $dir ]; then
             printf "Remove build directory '${dir}'\n"
@@ -134,7 +134,7 @@ parse_args() {
 build() {
     echo "[INFO] Create build-directory $BUILD_DIR"
     mkdir -p $BUILD_DIR
-    cd $BUILD_DIR
+    cd $BUILD_DIR || exit
 
     echo "[INFO] Use $CORE_COUNT CPU-Cores for make"
 

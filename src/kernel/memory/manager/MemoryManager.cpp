@@ -32,20 +32,20 @@ void *MemoryManager::alloc(uint32_t size) {
 }
 
 void *MemoryManager::alloc(uint32_t size, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned alloc' is not supported!");
 
     return nullptr;
 }
 
 void *MemoryManager::realloc(void *ptr, uint32_t size) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'realloc' is not supported!");
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'realloc' is not supported!");
 
     return nullptr;
 }
 
 void *MemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned realloc' is not supported!");
 
     return nullptr;
@@ -56,12 +56,8 @@ void MemoryManager::free(void *ptr) {
 }
 
 void MemoryManager::free(void *ptr, uint32_t alignment) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned free' is not supported!");
-}
-
-void MemoryManager::dump() {
-    printf("MemoryManager: dump() not implemented!\n");
 }
 
 uint32_t MemoryManager::getStartAddress() {

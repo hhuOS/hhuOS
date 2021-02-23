@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+namespace Async {
+
 class Lock {
 
 public:
@@ -40,5 +42,6 @@ public:
     virtual bool isLocked() = 0;
 };
 
+}
 
 #endif

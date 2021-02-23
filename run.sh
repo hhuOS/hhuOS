@@ -4,57 +4,23 @@ readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=off"
+readonly CONST_QEMU_MIN_BIOS_CPU="486"
+readonly CONST_QEMU_MIN_EFI_CPU="pentium"
+readonly CONST_QEMU_MIN_BIOS_RAM="16M"
+readonly CONST_QEMU_MIN_EFI_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2-ovmf/ia32/OVMF_CODE.fd"
-readonly CONST_QEMU_RAM="256M"
-readonly CONST_QEMU_ARGS="
-    -boot d
-    -cdrom hhuOS.iso
-    -vga std
-    -monitor stdio
-    -cpu pentium,+sse,+sse2
-    -rtc base=localtime,clock=host
-    -drive index=0,if=floppy
-    -drive format=raw,file=hdd0.img,if=none,id=disk0
-    -device ich9-ahci,id=ahci
-    -device ide-hd,drive=disk0,bus=ahci.0
-    -netdev user,id=eth0,hostfwd=tcp::8821-:8821
-    -device e1000,netdev=eth0
-    -object filter-dump,id=filter0,netdev=eth0,file=eth0.dump
-    -device isa-debug-exit"
-    
-readonly CONST_QEMU_OLD_AUDIO_ARGS="
-  -soundhw pcspk
-  -device sb16,irq=10,dma=1
-"
-readonly CONST_QEMU_NEW_AUDIO_ARGS="
-  -audiodev alsa,id=alsa
-  -machine pcspk-audiodev=alsa
-  -device sb16,irq=10,dma=1,audiodev=alsa
-"
+readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2-ovmf/ia32/OVMF.fd"
+readonly CONST_QEMU_ARGS="-boot d -cdrom hhuOS.iso -vga std -monitor stdio"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
 QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
-QEMU_RAM="${CONST_QEMU_RAM}"
+QEMU_MIN_RAM="${CONST_QEMU_MIN_BIOS_RAM}"
+QEMU_RAM=""
+QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
-
-version_lt() {
-  test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "$2"
-}
-
-get_audio_parameters() {
-  qemu_version=$(${QEMU_BIN} --version | head -n 1 | cut -c 23-)
-
-  if version_lt "$qemu_version" "5.0.0"; then
-    printf "%s" "${CONST_QEMU_OLD_AUDIO_ARGS}"
-    return
-  fi
-
-  printf "%s" "${CONST_QEMU_NEW_AUDIO_ARGS}"
-}
 
 check_file() {
   local file=$1
@@ -96,10 +62,15 @@ parse_bios() {
 
   if [ "${bios}" == "bios" ] || [ "${bios}" == "default" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
+    QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
+    QEMU_MIN_RAM="${CONST_QEMU_MIN_BIOS_RAM}"
   elif [ "${bios}" == "efi" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
+    QEMU_CPU="${CONST_QEMU_MIN_EFI_CPU}"
+    QEMU_MIN_RAM="${CONST_QEMU_MIN_EFI_RAM}"
   else
-    QEMU_BIOS="${bios}"
+    printf "Invalid BIOS '%s'!\\n" "${machine}"
+    exit 1
   fi
 }
 
@@ -137,7 +108,7 @@ print_usage() {
     -m, --machine
         Set the machine profile, which qemu should emulate ([pc] | [pc-kvm]) (Defualt: pc)
     -b, --bios
-        Set the bios, which qemu should use ([bios,default] | [efi] | [/path/to/bios.file]) (Default: bios)
+        Set the BIOS, which qemu should use ([bios,default] | [efi] | [/path/to/bios.file]) (Default: bios)
     -r, --ram
         Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 256M)
     -d, --debug
@@ -195,9 +166,13 @@ run_qemu() {
     command="${command} -bios ${QEMU_BIOS}"
   fi
 
-  command="${command} -m ${QEMU_RAM}"
+  if [ ! -n "${QEMU_RAM}" ]; then
+    QEMU_RAM="${QEMU_MIN_RAM}"
+  fi
 
-  command="${command} ${QEMU_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS}"
+  
+  printf "Running: %s\\n" "${command}"
 
   if [ -n "${QEMU_GDB_PORT}" ]; then
     $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
@@ -207,10 +182,9 @@ run_qemu() {
 }
 
 check_file hhuOS.iso
-check_file hdd0.img
 
 parse_args "$@"
 
-QEMU_ARGS="${QEMU_ARGS} $(get_audio_parameters)"
+QEMU_ARGS="${QEMU_ARGS}"
 
 run_qemu

@@ -44,7 +44,7 @@ private:
         uint32_t size;
     };
 
-    Spinlock lock;
+    Async::Spinlock lock;
 
     FLHeader *firstChunk = nullptr;
 
@@ -120,7 +120,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getTypeName() override;
+    Util::String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.
@@ -151,11 +151,6 @@ public:
      * Overriding function from MemoryManager.
      */
     void free(void *ptr, uint32_t alignment) override;
-
-    /**
-     * Dump the list of free chunks of memory.
-     */
-    void dump() override;
 };
 
 }

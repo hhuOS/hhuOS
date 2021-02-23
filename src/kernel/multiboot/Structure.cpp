@@ -17,12 +17,7 @@
 #include <kernel/memory/Paging.h>
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Symbols.h"
-#include "lib/file/tar/Archive.h"
 #include "kernel/core/Management.h"
-#include "lib/libc/printf.h"
-#include "lib/libc/sprintf.h"
-#include "kernel/bluescreen/BlueScreen.h"
-#include "kernel/bluescreen/BlueScreenLfb.h"
 #include "Structure.h"
 #include "Constants.h"
 
@@ -54,9 +49,9 @@ Util::ArrayList<MemoryMapEntry> Structure::memoryMap;
 
 FrameBufferInfo Structure::frameBufferInfo;
 
-Util::HashMap<String, ModuleInfo> Structure::modules;
+Util::HashMap<Util::String, ModuleInfo> Structure::modules;
 
-Util::HashMap<String, String> Structure::kernelOptions;
+Util::HashMap<Util::String, Util::String> Structure::kernelOptions;
 
 extern "C" {
     void readMemoryMap(Info *address);
@@ -137,8 +132,6 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
         info->bootloaderName = (uint32_t) destination;
         destination += 4096;
     }
-    
-    //assert(destination - original_ptr <= MULTIBOOT_SIZE);
 }
 
 void Structure::readMemoryMap(Info *address) {
@@ -283,11 +276,11 @@ void Structure::parseCommandLine() {
 
         info.commandLine += KERNEL_START;
 
-        Util::Array<String> options = String((char *) info.commandLine).split(" ");
+        Util::Array<Util::String> options = Util::String((char *) info.commandLine).split(" ");
 
-        for (const String &option : options) {
+        for (const Util::String &option : options) {
 
-            Util::Array<String> pair = option.split("=");
+            Util::Array<Util::String> pair = option.split("=");
 
             if (pair.length() != 2) {
 
@@ -376,7 +369,7 @@ void Structure::parseModules() {
     }
 }
 
-ModuleInfo Structure::getModule(const String &module) {
+ModuleInfo Structure::getModule(const Util::String &module) {
 
     if (isModuleLoaded(module)) {
 
@@ -386,19 +379,19 @@ ModuleInfo Structure::getModule(const String &module) {
     return {0, 0, "unknown", 0};
 }
 
-bool Structure::isModuleLoaded(const String &module) {
+bool Structure::isModuleLoaded(const Util::String &module) {
 
     return modules.containsKey(module);
 }
 
-String Structure::getKernelOption(const String &key) {
+Util::String Structure::getKernelOption(const Util::String &key) {
 
     if (kernelOptions.containsKey(key)) {
 
         return kernelOptions.get(key);
     }
 
-    return String();
+    return Util::String();
 }
 
 void Structure::parseFrameBufferInfo() {
@@ -412,11 +405,9 @@ void Structure::parseFrameBufferInfo() {
         frameBufferInfo.bpp = info.framebufferBpp;
         frameBufferInfo.pitch = static_cast<uint16_t>(info.framebufferPitch);
         frameBufferInfo.type = info.framebufferType;
-
-        BlueScreenLfb::fbInfo = frameBufferInfo;
     } else {
 
-        frameBufferInfo.address = 0;
+        frameBufferInfo.address = nullptr;
         frameBufferInfo.width = 0;
         frameBufferInfo.height = 0;
         frameBufferInfo.bpp = 0;

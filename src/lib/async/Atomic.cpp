@@ -1,6 +1,7 @@
 #include "device/cpu/Cpu.h"
 #include "Atomic.h"
-#include "lib/string/String.h"
+
+namespace Async {
 
 template<typename T>
 Atomic<T>::Atomic(T value) noexcept {
@@ -14,7 +15,7 @@ Atomic<T>::Atomic(const Atomic<T> &other) {
 
 template<typename T>
 Atomic<T> &Atomic<T>::operator=(const Atomic<T> &other) {
-    if(this == &other) {
+    if (this == &other) {
         return *this;
     }
 
@@ -26,20 +27,20 @@ Atomic<T> &Atomic<T>::operator=(const Atomic<T> &other) {
 template<typename T>
 void Atomic<T>::exchange(volatile void *ptr, T newValue) {
     asm volatile (
-        "lock xchg %0, %1"
-        :
-        : "q"(newValue), "m"(*(volatile T*)ptr)
-        : "memory"
+    "lock xchg %0, %1"
+    :
+    : "q"(newValue), "m"(*(volatile T *) ptr)
+    : "memory"
     );
 }
 
 template<typename T>
 T Atomic<T>::fetchAndAdd(volatile void *ptr, T addend) {
     asm volatile (
-        "lock xadd %0, %1"
-        : "+r" (addend), "+m" (*(volatile T*)ptr)
-        :
-        : "memory"
+    "lock xadd %0, %1"
+    : "+r" (addend), "+m" (*(volatile T *) ptr)
+    :
+    : "memory"
     );
 
     return addend;
@@ -51,7 +52,7 @@ T Atomic<T>::compareAndExchange(volatile void *ptr, T oldValue, T newValue) {
 
     asm volatile (
     "lock cmpxchg %2, %1"
-    : "=a"(ret), "+m"(*(volatile T*)ptr)
+    : "=a"(ret), "+m"(*(volatile T *) ptr)
     : "r"(newValue), "0"(oldValue)
     : "memory"
     );
@@ -78,6 +79,7 @@ template<typename T>
 T Atomic<T>::fetchAndAdd(T addend) {
     return fetchAndAdd(&value, addend);
 }
+
 template<typename T>
 T Atomic<T>::fetchAndSub(T subtrahend) {
     return fetchAndAdd(&value, subtrahend * (-1));
@@ -95,10 +97,12 @@ T Atomic<T>::fetchAndDec() {
 
 template<>
 bool Atomic<bool>::fetchAndAdd(bool subtrahend) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "Cannot add to a boolean type value!");
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "Atomic: Cannot add to a boolean type value!");
 }
 
 template<>
 bool Atomic<bool>::fetchAndSub(bool subtrahend) {
-    Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION, "Cannot subtract from a boolean type value!");
+    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "Atomic: Cannot subtract from a boolean type value!");
+}
+
 }

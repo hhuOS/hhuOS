@@ -19,14 +19,9 @@
 
 #include <cstdint>
 #include "lib/util/Prototype.h"
-#include "lib/string/String.h"
+#include "lib/util/String.h"
 #include "lib/util/HashMap.h"
-#include "lib/libc/printf.h"
 #include "device/cpu/Cpu.h"
-
-extern "C" {
-#include "lib/libc/string.h"
-};
 
 namespace Kernel {
 
@@ -134,11 +129,6 @@ public:
 	 * @param alignment Alignment of the chunk
 	 */
     virtual void free(void *ptr, uint32_t alignment);
-
-    /**
-     * Dump the data structure, that a specific implementation uses to keep track of free/allocated memory.
-     */
-    virtual void dump();
 
     /**
      * Get the start address of the managed memory.

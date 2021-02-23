@@ -14,18 +14,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/string/String.h"
-#include "kernel/bluescreen/BlueScreen.h"
-#include "kernel/interrupt/InterruptManager.h"
+#include "lib/util/String.h"
 #include "kernel/core/Management.h"
 #include "Cpu.h"
 
+// enabling and disabling interrupts is done in assembler code
 extern "C" {
-    [[ noreturn ]] void onException(uint32_t exception);
+void enable_interrupts();
+void disable_interrupts();
+[[ noreturn ]] void onException(uint32_t exception);
 }
 
+namespace Device {
+
 // lists of Exceptions that can occur
-const char* Cpu::hardwareExceptions[] = {
+const char *Cpu::hardwareExceptions[] = {
         "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
         "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
         "Double Fault", "Coprocessor Segment Overrun", "Invalid TSS", "Segment Not Present",
@@ -35,7 +38,7 @@ const char* Cpu::hardwareExceptions[] = {
         "Reserved", "Reserved", "Reserved", "Security Exception", "Reserved"
 };
 
-const char* Cpu::softwareExceptions[] {
+const char *Cpu::softwareExceptions[]{
         "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
         "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
         "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownType Exception",
@@ -43,12 +46,6 @@ const char* Cpu::softwareExceptions[] {
 };
 
 int32_t Cpu::cliCount = 1; // GRUB disables all interrupts on startup
-
-// enabling and disabling interrupts is done in assembler code
-extern "C" {
-    void enable_interrupts();
-    void disable_interrupts();
-};
 
 void enable_interrupts() {
 
@@ -73,10 +70,10 @@ void Cpu::enableInterrupts() {
 
         asm volatile ( "sti" );
 
-        if(Kernel::Management::isInitialized()) {
+        /*if(Kernel::Management::isInitialized()) {
 
             Kernel::InterruptManager::getInstance().handleDisabledInterrupts();
-        }
+        }*/
     }
 }
 
@@ -87,13 +84,13 @@ void Cpu::disableInterrupts() {
     cliCount++;
 }
 
-void Cpu::idle () {
+void Cpu::idle() {
     asm volatile ( "sti\n"
                    "hlt"
     );
 }
 
-void Cpu::halt () {
+void Cpu::halt() {
     asm volatile ( "cli\n"
                    "hlt"
     );
@@ -101,8 +98,8 @@ void Cpu::halt () {
 }
 
 unsigned long long int Cpu::rdtsc() {
-    unsigned long long int  ret;
-    asm volatile ( "rdtsc" : "=A"(ret) );
+    unsigned long long int ret;
+    asm volatile ( "rdtsc" : "=A"(ret));
     return ret;
 }
 
@@ -131,13 +128,13 @@ void Cpu::throwException(Exception exception, const char *message) {
 
     disableInterrupts();
 
-    Kernel::BlueScreen::setErrorMessage(message);
-
     onException((uint32_t) exception);
 }
 
 void Cpu::softInterrupt(uint32_t function) {
     asm volatile ( "movl %0, %%eax;"
                    "int $0x80;"
-                   : : "r"(function) );
+    : : "r"(function));
+}
+
 }

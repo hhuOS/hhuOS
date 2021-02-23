@@ -23,16 +23,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
 add_subdirectory(cpu)
-add_subdirectory(graphic)
-add_subdirectory(input)
-add_subdirectory(isa)
-add_subdirectory(misc)
-add_subdirectory(network)
-add_subdirectory(pci)
-add_subdirectory(port)
-add_subdirectory(sound)
-add_subdirectory(storage)
-add_subdirectory(time)
-add_subdirectory(usb)
+add_subdirectory(interrupt)
 
-target_link_libraries(${PROJECT_NAME} filesystem kernel lib)
+target_link_libraries(${PROJECT_NAME} kernel lib)

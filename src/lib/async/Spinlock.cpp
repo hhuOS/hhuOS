@@ -1,16 +1,18 @@
 #include "device/cpu/Cpu.h"
 #include "Spinlock.h"
 
-Spinlock::Spinlock() noexcept : lockVar(SPINLOCK_UNLOCK) {
+namespace Async {
+
+Spinlock::Spinlock() noexcept: lockVar(SPINLOCK_UNLOCK) {
 
 }
 
-void Spinlock::acquire() {
-    while(lockVar.getAndSet(SPINLOCK_LOCK) !=  SPINLOCK_UNLOCK);
+void Async::Spinlock::acquire() {
+    while (lockVar.getAndSet(SPINLOCK_LOCK) != SPINLOCK_UNLOCK);
 }
 
 bool Spinlock::tryAcquire() {
-    return lockVar.getAndSet(SPINLOCK_LOCK) ==  SPINLOCK_UNLOCK;
+    return lockVar.getAndSet(SPINLOCK_LOCK) == SPINLOCK_UNLOCK;
 }
 
 void Spinlock::release() {
@@ -21,4 +23,4 @@ bool Spinlock::isLocked() {
     return lockVar.get() == SPINLOCK_LOCK;
 }
 
-
+}

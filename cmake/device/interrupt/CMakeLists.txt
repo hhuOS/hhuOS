@@ -14,6 +14,5 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib PUBLIC
-        ${HHUOS_SRC_DIR}/lib/async/Atomic.cpp
-        ${HHUOS_SRC_DIR}/lib/async/Spinlock.cpp)
+target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/interrupt/Pic.cpp)

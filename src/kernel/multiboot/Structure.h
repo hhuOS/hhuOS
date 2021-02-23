@@ -18,11 +18,9 @@
 #define __Multiboot_include__
 
 #include <cstdint>
-#include "lib/string/String.h"
 #include "Constants.h"
+#include "lib/util/String.h"
 #include "lib/util/HashMap.h"
-
-#define PRINT_MEMORY 0
 
 namespace Kernel::Multiboot {
 
@@ -58,15 +56,15 @@ namespace Kernel::Multiboot {
 
         static void readMemoryMap(Info *address);
 
-        static Multiboot::ModuleInfo getModule(const String &module);
+        static Multiboot::ModuleInfo getModule(const Util::String &module);
 
         static Util::Array<Multiboot::MemoryMapEntry> getMemoryMap();
 
         static FrameBufferInfo getFrameBufferInfo();
 
-        static bool isModuleLoaded(const String &module);
+        static bool isModuleLoaded(const Util::String &module);
 
-        static String getKernelOption(const String &key);
+        static Util::String getKernelOption(const Util::String &key);
 
         static uint32_t physReservedMemoryEnd;
 
@@ -88,9 +86,9 @@ namespace Kernel::Multiboot {
 
         static Info info;
 
-        static Util::HashMap<String, Multiboot::ModuleInfo> modules;
+        static Util::HashMap<Util::String, Multiboot::ModuleInfo> modules;
 
-        static Util::HashMap<String, String> kernelOptions;
+        static Util::HashMap<Util::String, Util::String> kernelOptions;
 
         static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 

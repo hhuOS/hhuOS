@@ -17,19 +17,14 @@
 #ifndef __InterruptDispatcher_include__
 #define __InterruptDispatcher_include__
 
-#include "kernel/interrupt/InterruptHandler.h"
+#include <cstdint>
+#include "InterruptHandler.h"
 #include "kernel/thread/ThreadState.h"
 #include "kernel/service/KernelService.h"
-
 #include "lib/util/ArrayList.h"
 #include "lib/util/HashMap.h"
 
-#include <cstdint>
-#include "kernel/core/SystemCall.h"
-
 namespace Kernel {
-
-typedef void (*debugFunction)();
 
 /**
  * InterruptDispatcher - responsible for registering and dispatching interrupts to the
@@ -61,8 +56,10 @@ public:
         SECONDARY_ATA = 47,
     };
 
-    // no constructor needed
-    InterruptDispatcher();
+    /**
+     * Default constructor.
+     */
+    InterruptDispatcher() = default;
 
     InterruptDispatcher(const InterruptDispatcher &other) = delete;
 
@@ -75,28 +72,12 @@ public:
     void assign(uint8_t slot, InterruptHandler &gate);
 
     /**
-     * Register a debug handler to an interrupt number.
-     *
-     * @param slot Interrupt number for this handler
-     * @param gate Pointer to the handler itself
-     */
-    void assignDebug(uint8_t slot, void (*debugHandler)());
-
-    /**
      * Get the interrupt handlers that are registered for a specific interrupt.
      *
      * @param slot Interrupt number
      * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
      */
     Util::List<InterruptHandler *> *report(uint8_t slot);
-
-    /**
-     * Get the debug handlers that are registered for a specific interrupt.
-     *
-     * @param slot Interrupt number
-     * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
-     */
-    debugFunction reportDebug(uint8_t slot);
 
     /**
      * Dispatched the interrupt to all registered interrupt handlers.
@@ -109,13 +90,9 @@ public:
 
 private:
 
-    SystemCall systemCall;
-
-    Util::HashMap<uint8_t, debugFunction> debugHandlers;
-
     Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler *> *> handler;
 
-    void sendEoi(uint32_t slot);
+    static void sendEoi(uint32_t slot);
 };
 
 }

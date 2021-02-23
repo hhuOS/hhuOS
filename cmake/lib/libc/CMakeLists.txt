@@ -19,8 +19,4 @@ target_sources(lib PUBLIC
         ${HHUOS_SRC_DIR}/lib/libc/math.c
         ${HHUOS_SRC_DIR}/lib/libc/stdlib.c
         ${HHUOS_SRC_DIR}/lib/libc/string.c
-        ${HHUOS_SRC_DIR}/lib/libc/printf.cpp
-        ${HHUOS_SRC_DIR}/lib/libc/sprintf.cpp
-        ${HHUOS_SRC_DIR}/lib/libc/snprintf.cpp
-        ${HHUOS_SRC_DIR}/lib/libc/strformat.cpp
         ${HHUOS_SRC_DIR}/lib/libc/system_interface.cpp)

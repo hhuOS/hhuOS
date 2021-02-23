@@ -40,7 +40,7 @@ private:
 
     Util::HashMap<void *, uint32_t> ioMemoryMap;
 
-    Spinlock lock;
+    Async::Spinlock lock;
 
     static const constexpr char *TYPE_NAME = "IOMemoryManager";
 
@@ -71,7 +71,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getTypeName() override;
+    Util::String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

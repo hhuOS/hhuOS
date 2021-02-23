@@ -21,7 +21,7 @@
 #include "lib/async/Spinlock.h"
 
 #include <cstdint>
-#include "lib/string/String.h"
+#include "lib/util/String.h"
 #include "kernel/thread/ThreadState.h"
 #include "lib/util/HashMap.h"
 
@@ -49,9 +49,9 @@ public:
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
-            const char *errorMessage = String::format("Invalid port '%s'!", T::SERVICE_NAME);
+            const char *errorMessage = Util::String::format("Invalid port '%s'!", T::SERVICE_NAME);
 
-            Cpu::throwException(Cpu::Exception::INVALID_ARGUMENT, errorMessage);
+            Device::Cpu::throwException(Device::Cpu::Exception::INVALID_ARGUMENT, errorMessage);
         }
 
         return (T *) serviceMap.get(T::SERVICE_NAME);
@@ -63,7 +63,7 @@ public:
 	 * @param serviceId The unique service id.
 	 * @param kernelService Instance of the KernelService
 	 */
-    static void registerService(const String &serviceId, KernelService *const &kernelService);
+    static void registerService(const Util::String &serviceId, KernelService *const &kernelService);
 
     /**
      * Indicates whether a particular service has already been registered.
@@ -71,7 +71,7 @@ public:
      * @param serviceId The service's id
      * @return true, if the service has already been registered, false else
      */
-    static bool isServiceRegistered(const String &serviceId);
+    static bool isServiceRegistered(const Util::String &serviceId);
 
     /**
      * Triggers a kernel panic printing relevant information inside a bluescreen.
@@ -82,9 +82,9 @@ public:
 
 private:
 
-    static Util::HashMap<String, KernelService *> serviceMap;
+    static Util::HashMap<Util::String, KernelService *> serviceMap;
 
-    static Spinlock serviceLock;
+    static Async::Spinlock serviceLock;
 
     static const uint32_t SERVICE_MAP_SIZE = 47;
 };

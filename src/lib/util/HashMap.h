@@ -26,9 +26,6 @@
 
 #include <cstdint>
 
-extern "C" {
-    #include "lib/libc/string.h"
-};
 
 namespace Util {
 
@@ -175,7 +172,7 @@ namespace Util {
             entry = entry->getNext();
         }
 
-        Cpu::throwException(Cpu::Exception::KEY_NOT_FOUND);
+        Device::Cpu::throwException(Device::Cpu::Exception::KEY_NOT_FOUND);
 
         return *(V*) nullptr;
     }
@@ -203,7 +200,7 @@ namespace Util {
 
         if (entry == nullptr) {
 
-            Cpu::throwException(Cpu::Exception::KEY_NOT_FOUND);
+            Device::Cpu::throwException(Device::Cpu::Exception::KEY_NOT_FOUND);
 
             return *(V*) nullptr;
         }

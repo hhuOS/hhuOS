@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/libc/printf.h"
 #include "kernel/multiboot/Structure.h"
 #include "kernel/memory/PageDirectory.h"
 
@@ -114,7 +113,6 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
     if (pageDirectory == nullptr || virtTableAddresses == nullptr) {
         Management::getInstance().freePageTable(pageDirectory);
         Management::getInstance().freePageTable(virtTableAddresses);
-        printf("[PAGEDIRECTORY] Error: could not create PageDirectory\n");
         return;
 
     }
@@ -185,18 +183,13 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
     // check if the requested page is already mapped -> error
     if ((*((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) != 0) {
 
-        Cpu::throwException(Cpu::Exception::PAGING_ERROR);
+        Device::Cpu::throwException(Device::Cpu::Exception::PAGING_ERROR);
 
 
         return;
     }
     // create the entry in the corresponding page table
     *((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) = physAddress | flags;
-
-#if DEBUG_PD
-    printf("[PAGEDIRECTORY] Mapped virtual address %x to phys address %x\n", (virtAddress & 0xFFFFF000), physAddress);
-#endif
-
 }
 
 /**
@@ -221,9 +214,6 @@ uint32_t PageDirectory::unmap(uint32_t virtAddress) {
 
     // do not unmap if page is protected
     if (vTableAddress[pt_idx] & PAGE_WRITE_PROTECTED) {
-#if DEBUG_PD
-        printf("[PAGEDIRECTORY] Unmap not possible - page is protected\n");
-#endif
         return 0;
     }
 
@@ -243,9 +233,6 @@ void PageDirectory::createTable(uint32_t idx, uint32_t physAddress, uint32_t vir
     pageDirectory[idx] = physAddress | PAGE_PRESENT | PAGE_READ_WRITE;
     // keep track of the virtual address of the table
     virtTableAddresses[idx] = virtAddress;
-#if DEBUG_PD
-    printf("[PAGEDIRECTORY] Created new page table at virtual address %x\n", virtAddress);
-#endif
 }
 
 /**
@@ -284,16 +271,10 @@ void PageDirectory::protectPage(uint32_t virtAddress) {
 
     // if requested page table is not present, the page cannot be protected
     if ((pageDirectory[pd_idx] & PAGE_PRESENT) == 0) {
-#if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page table not present - cannot protect page\n");
-#endif
         return;
     }
     // if the page is not mapped, it cannot be protected
     if ((*((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) == 0) {
-#if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page not present - cannot protect page\n");
-#endif
         return;
     }
 
@@ -331,16 +312,10 @@ void PageDirectory::unprotectPage(uint32_t virtAddress) {
 
     // if requested page table is not present, the page cannot be unprotected
     if ((pageDirectory[pd_idx] & PAGE_PRESENT) == 0) {
-#if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page table not present - cannot unprotect page\n");
-#endif
         return;
     }
     // if the page is not mapped, it cannot be unprotected
     if ((*((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) == 0) {
-#if DEBUG_PD
-        printf("[PAGEDIRECTORY] WARN: Page not present - cannot unprotect page\n");
-#endif
         return;
     }
 

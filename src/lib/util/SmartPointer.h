@@ -13,7 +13,7 @@ private:
     T *pointer = nullptr;
     uint32_t counter;
 
-    Spinlock lock;
+    Async::Spinlock lock;
 
 public:
 

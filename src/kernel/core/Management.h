@@ -17,7 +17,6 @@
 #ifndef __SYSTEMMANAGEMENT_H__
 #define __SYSTEMMANAGEMENT_H__
 
-#include <lib/file/File.h>
 #include "kernel/interrupt/InterruptHandler.h"
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
@@ -25,8 +24,8 @@
 #include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "kernel/core/TaskStateSegment.h"
 #include "lib/util/ArrayList.h"
+#include "TaskStateSegment.h"
 
 #define DEBUG_PM 0
 
@@ -45,8 +44,6 @@ namespace Kernel {
 class Management : public InterruptHandler {
 
 private:
-
-    static Logger &LOG;
     
     static bool initialized;
     // usable physical memory in this system
@@ -169,7 +166,7 @@ public:
      *
      * @return Pointer to the new address space
      */
-    VirtualAddressSpace *createAddressSpace(uint32_t managerOffset, const String &managerType);
+    VirtualAddressSpace *createAddressSpace(uint32_t managerOffset, const Util::String &managerType);
 
     /**
      * Switches to a given address space.
@@ -185,7 +182,7 @@ public:
      */
     void removeAddressSpace(VirtualAddressSpace *addressSpace);
 
-    void loadApplication(const String &path);
+    void loadApplication(const Util::String &path);
 
 
     // Mappings and unmappings
@@ -260,13 +257,6 @@ public:
      * @return uint32_t Physical address of the given virtual address (4kb-aligned)
      */
     void *getPhysicalAddress(void *virtAddress);
-
-    /**
-     * Dumps all free IO Memory blocks.
-     */
-    void dumpFreeIOMemBlocks() {
-        ioMemManager->dump();
-    }
 
     /**
      * Checks if the system management is fully initialized.

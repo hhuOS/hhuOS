@@ -1,24 +1,26 @@
 #include "IoPort.h"
 
-IoPort::IoPort(uint16_t a) noexcept : address(a) {
+namespace Device {
+
+IoPort::IoPort(uint16_t a) noexcept: address(a) {
 
 };
 
 void IoPort::outb(uint8_t val) const {
-    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(address) );
+    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(address));
 }
 
 void IoPort::outb(uint16_t addr_offset, uint8_t val) const {
     uint16_t addr = address + addr_offset;
-    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(addr) );
+    asm volatile ( "outb %0, %1" : : "a"(val), "Nd"(addr));
 }
 
 void IoPort::outw(uint16_t val) const {
-    asm volatile ( "outw %0, %1" : : "a"(val), "Nd"(address) );
+    asm volatile ( "outw %0, %1" : : "a"(val), "Nd"(address));
 }
 
 void IoPort::outdw(uint32_t val) const {
-    asm volatile ( "outl %0, %1" : : "a"(val), "Nd"(address) );
+    asm volatile ( "outl %0, %1" : : "a"(val), "Nd"(address));
 }
 
 uint8_t IoPort::inb() const {
@@ -26,7 +28,7 @@ uint8_t IoPort::inb() const {
 
     asm volatile ( "inb %1, %0"
     : "=a"(ret)
-    : "Nd"(address) );
+    : "Nd"(address));
     return ret;
 }
 
@@ -35,7 +37,7 @@ uint8_t IoPort::inb(uint16_t addr_offset) const {
     uint16_t addr = address + addr_offset;
     asm volatile ( "inb %1, %0"
     : "=a"(ret)
-    : "Nd"(addr) );
+    : "Nd"(addr));
     return ret;
 }
 
@@ -44,7 +46,7 @@ uint16_t IoPort::inw() const {
 
     asm volatile ( "inw %1, %0"
     : "=a"(ret)
-    : "Nd"(address) );
+    : "Nd"(address));
     return ret;
 }
 
@@ -53,10 +55,12 @@ uint32_t IoPort::indw() const {
 
     asm volatile ( "inl %1, %0"
     : "=a"(ret)
-    : "Nd"(address) );
+    : "Nd"(address));
     return ret;
 }
 
 uint16_t IoPort::getAddress() {
     return address;
+}
+
 }

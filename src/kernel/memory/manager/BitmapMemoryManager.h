@@ -18,8 +18,8 @@
 #define __BITMAPMEMORYMANAGER_H__
 
 #include "MemoryManager.h"
-#include "lib/string/String.h"
-#include "lib/bit/Bitmap.h"
+#include "lib/util/String.h"
+#include "lib/util/Bitmap.h"
 
 namespace Kernel {
 
@@ -51,7 +51,7 @@ protected:
     /**
      * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
      */
-    Bitmap *bitmap;
+    Util::Bitmap *bitmap;
 
     /**
      * The size of a single chunk of memory.
@@ -75,7 +75,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    String getTypeName() override;
+    Util::String getTypeName() override;
 
     /**
      * Constructor.
@@ -106,11 +106,6 @@ public:
      * Overriding function from memory manager.
      */
     void free(void *ptr) override;
-
-    /**
-     * Dump the bitmap.
-     */
-    void dump() override;
 };
 
 }

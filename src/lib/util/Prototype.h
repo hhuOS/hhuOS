@@ -20,7 +20,7 @@
 #define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(*this); }
 
 #include "lib/util/HashMap.h"
-#include "lib/string/String.h"
+#include "lib/util/String.h"
 
 namespace Util {
 
@@ -35,7 +35,7 @@ private:
     /**
      * Contains prototypes for all available implementations.
      */
-    static Util::HashMap<String, Prototype *> prototypeTable;
+    static Util::HashMap<Util::String, Prototype *> prototypeTable;
 
 public:
 
@@ -59,7 +59,7 @@ public:
     /**
      * Get the name, under which the prototype will be registered and usable for the user.
      */
-    virtual String getTypeName() = 0;
+    virtual Util::String getTypeName() = 0;
 
     /**
      * Create a new instance of a given prototype.
@@ -69,7 +69,7 @@ public:
      *
      * @return A pointer to newly created instance
      */
-    static Prototype *createInstance(String type);
+    static Prototype *createInstance(Util::String type);
 
     /**
      * Add a prototype.
@@ -85,7 +85,7 @@ public:
      *
      * @param type The type
      */
-    static void deregisterPrototype(String type);
+    static void deregisterPrototype(Util::String type);
 
 };
 

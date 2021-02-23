@@ -15,8 +15,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/core/System.cpp
-        ${HHUOS_SRC_DIR}/kernel/core/Symbols.cpp
         ${HHUOS_SRC_DIR}/kernel/core/Management.cpp
-        ${HHUOS_SRC_DIR}/kernel/core/SystemCall.cpp
-        ${HHUOS_SRC_DIR}/kernel/core/ring_protection.asm)
+        ${HHUOS_SRC_DIR}/kernel/core/Symbols.cpp
+        ${HHUOS_SRC_DIR}/kernel/core/System.cpp
+        ${HHUOS_SRC_DIR}/kernel/core/constants.asm)

@@ -222,14 +222,6 @@ void *memset(void *s, int c, size_t n);
 char *strerror(int errnum);
 
 /**
- * Converts a string into an integer.
- *
- * @param s The string.
- *
- * @return The converted integer.
- */
-int  strtoint(const char* s);
-/**
  * Calculates the length of the string pointed to by 's'.
  *
  * @param s The string.

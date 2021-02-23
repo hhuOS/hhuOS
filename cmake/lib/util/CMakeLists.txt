@@ -16,6 +16,6 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/Address.cpp
-        ${HHUOS_SRC_DIR}/lib/util/ArgumentParser.cpp
+        ${HHUOS_SRC_DIR}/lib/util/Bitmap.cpp
         ${HHUOS_SRC_DIR}/lib/util/Prototype.cpp
-        ${HHUOS_SRC_DIR}/lib/util/ArrayList.h)
+        ${HHUOS_SRC_DIR}/lib/util/String.cpp)

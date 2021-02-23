@@ -17,7 +17,7 @@
 #ifndef __ArrayList_include__
 #define __ArrayList_include__
 
-#include "lib/string/String.h"
+#include "lib/util/String.h"
 #include "device/cpu/Cpu.h"
 #include "List.h"
 
@@ -140,9 +140,7 @@ namespace Util {
 
         if (index >= length) {
 
-            const char *errorMessage = String::format("ArrayList: Trying to access an element at index %u, but length is %u!", index, length);
-
-            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
         }
 
         return elements[index];
@@ -208,9 +206,7 @@ namespace Util {
 
         if (index >= length) {
 
-            const char *errorMessage = String::format("ArrayList: Trying to access an element at index %u, but length is %u!", index, length);
-
-            Cpu::throwException(Cpu::Exception::OUT_OF_BOUNDS, errorMessage);
+            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
         }
 
         T tmp = elements[index];
