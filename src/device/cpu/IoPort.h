@@ -18,84 +18,122 @@
 #define __IoPort_include__
 
 #include <cstdint>
+#include <lib/util/Address.h>
 
 namespace Device {
 
+/**
+ * Represents an IO-port int the 16-bit address space.
+ */
 class IoPort {
-
-    // 16 bit address in IO address space where this port is placed
-    uint16_t address;
 
 public:
     /**
-     * Constructor, takes address of this port
-     */
-    IoPort(uint16_t a) noexcept;
-
-    /**
-     * Writes a byte to IO-port
+     * Constructor.
      *
-     * @param val 8-bit value to write.
+     * @param address The 16-bit address in the IO address space, at which this port is located
      */
-    void outb(uint8_t val) const;
+    explicit IoPort(uint16_t address) noexcept;
 
     /**
-	 * Writes a byte to IO-port with an offset to port address
-	 *
-	 * @param addr_offset Offset to port address
-	 * @param val 8-bit value to write.
-	 */
-    void outb(uint16_t addr_offset, uint8_t val) const;
+     * Copy-constructor.
+     */
+    IoPort(const IoPort &other) = delete;
 
     /**
-     * Writes a word to IO-port.
+     * Assignment operator.
+     */
+    IoPort &operator=(const IoPort &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~IoPort() = default;
+
+    /**
+     * Returns the address of this IO-port.
      *
-     * @param val 16-bit value to write.
+     * @return The address of this port
      */
-    void outw(uint16_t val) const;
+    [[nodiscard]] Util::Address<uint16_t> getAddress() const;
 
     /**
-	 * Writes a doubleword (32 bit) to IO-port.
+     * Write a byte to this IO-port.
+     *
+     * @param value 8-bit value to write
+     */
+    void writeByte(uint8_t value) const;
+
+    /**
+	 * Write a byte to this IO-port this with an offset to the address.
 	 *
-	 * @param val 32-bit value to write.
+	 * @param offset Offset to port address
+	 * @param val 8-bit value to write
 	 */
-    void outdw(uint32_t val) const;
+    void writeByte(uint16_t offset, uint8_t val) const;
 
     /**
-	 * Reads a byte from IO-port.
+     * Write a word to this IO-port.
+     *
+     * @param value 16-bit value to write
+     */
+    void writeWord(uint16_t value) const;
+
+    /**
+	 * Write a double word to this IO-port.
 	 *
+	 * @param value 32-bit value to write
+	 */
+    void writeDoubleWord(uint32_t value) const;
+
+    /**
+	 * Read a byte from this IO-port.
+	 *
+	 * @return 8-bit value read from IO-port
+	 */
+    [[nodiscard]] uint8_t readByte() const;
+
+    /**
+	 * Read a byte from this IO-port with an offset to the address.
+	 *
+	 * @param offset Offset to port address
+	 * @return 8-bit value read from IO-port
+	 */
+    [[nodiscard]] uint8_t readByte(uint16_t offset) const;
+
+    /**
+     * Read a word from this IO-port.
+     *
+     * @return 16-bit value read from IO-port
+     */
+    [[nodiscard]] uint16_t readWord() const;
+
+    /**
+	 * Read a word from this IO-port with an offset to the address.
+	 *
+	 * @param offset Offset to port address
+	 * @return 8-bit value read from IO-port
+	 */
+    [[nodiscard]] uint16_t readWord(uint16_t offset) const;
+
+    /**
+	 * Read a double word from this IO-port.
+	 *
+	 * @return 32-bit value read from IO-port
+	 */
+    [[nodiscard]] uint32_t readDoubleWord() const;
+
+    /**
+	 * Read a double word from this IO-port with an offset to the address.
+	 *
+	 * @param offset Offset to port address
 	 * @return 8-bit value from IO-port
 	 */
-    uint8_t inb() const;
+    [[nodiscard]] uint32_t readDoubleWord(uint16_t offset) const;
 
-    /**
-	 * Reads a byte from IO-port with offset
-	 *
-	 * @param addr_offset Offset to port address
-	 * @return 8-bit value from IO-port
-	 */
-    uint8_t inb(uint16_t addr_offset) const;
+private:
 
-    /**
-     * Reads a word from IO-port.
-     *
-     * @return 16-bit value from IO-port
-     */
-    uint16_t inw() const;
-
-    /**
-	 * Reads a a doubleword (32 bit) from IO-port.
-	 *
-	 * @return 32-bit value from IO-port
-	 */
-    uint32_t indw() const;
-
-    /**
-     * Returns address of this IO-port.
-     *
-     * @return Address of the current port
-     */
-    uint16_t getAddress();
+    const Util::Address<uint16_t> address;
 };
 
 }

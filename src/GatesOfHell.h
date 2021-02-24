@@ -17,21 +17,38 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
+/**
+ * Represents the entry point for the operating system.
+ */
 class GatesOfHell {
 
 public:
-
+    /**
+     * Default-constructor.
+     * Deleted, as this class has only static members.
+     */
     GatesOfHell() = delete;
 
-    virtual ~GatesOfHell() = delete;
-
+    /**
+     * Copy-constructor.
+     */
     GatesOfHell(const GatesOfHell &other) = delete;
 
+    /**
+     * Assignment operator.
+     */
     GatesOfHell &operator=(const GatesOfHell &other) = delete;
 
-    [[noreturn]] static void enter();
+    /**
+     * Destructor.
+     */
+    ~GatesOfHell() = delete;
 
-private:
+    /**
+     * Entry point for the operating system.
+     * This method is invoked by the main() method, after boot strapping process is finished an paging is setup.
+     */
+    [[noreturn]] static void enter();
 };
 
 

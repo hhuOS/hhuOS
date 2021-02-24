@@ -34,13 +34,24 @@ namespace Device {
 class Pic {
 
 public:
-
+    /**
+     * Copy-constructor.
+     */
     Pic(const Pic &copy) = delete;
 
+    /**
+     * Assignment operator.
+     */
     Pic &operator=(const Pic &other) = delete;
 
+    /**
+     * Destructor.
+     */
     ~Pic() = default;
 
+    /**
+     * An enumeration of all interrupt numbers available on the PIC.
+     */
     enum class Interrupt : uint8_t {
         PIT = 0x00,
         KEYBOARD = 0x01,
@@ -61,82 +72,90 @@ public:
     };
 
     /**
-     * Get or create the singleton instance
+     * Get or create the singleton instance.
      */
     static Pic &getInstance() noexcept;
 
     /**
-     * Demasks an interrupt number in the corresponding PIC. If this is done,
+     * Unmask an interrupt number in the corresponding PIC. If this is done,
      * all interrupts with this number will be passed to the CPU.
      *
-     * @param interrupt The number of the interrupt that should be activated.
+     * @param interrupt The number of the interrupt to activated
      */
     void allow(Interrupt interrupt);
 
     /**
-     * Forbids an interrupt. If this is done, the interrupt is masked out
-     * and every interrupts with this number that is thrown will be
-     * surpressed and not arrive the CPU.
+     * Forbid an interrupt. If this is done, the interrupt is masked out
+     * and every interrupt with this number that is thrown will be
+     * suppressed and not arrive the CPU.
      *
-     * @param interrupt The number of the interrupt that should be deactivated/masked out.
+     * @param interrupt The number of the interrupt to deactivate
      */
     void forbid(Interrupt interrupt);
 
     /**
-     * Gets the state of this interrupt - whether it is masked out or not.
+     * Get the state of this interrupt - whether it is masked out or not.
      *
-     * @param interrupt The number of the interrupt we want to get the state.
-     * @return Status of the bit for the interrupt device
+     * @param interrupt The number of the interrupt
+     * @return true, if the interrupt is disabled
      */
     bool status(Interrupt interrupt);
 
     /**
      * Send an end of interrupt signal to the corresponding PIC.
      *
-     * @param interrupt The number of the interrupt for which we want to send an EOI.
+     * @param interrupt The number of the interrupt for which to send an EOI
      */
     void sendEOI(Interrupt interrupt);
 
     /**
-     * Indicates if a spurious interrupt has occured.
+     * Check if a spurious interrupt has occurred.
      *
-     * @return true, if a spurious interrupt has occured, false else
+     * @return true, if a spurious interrupt has occurred
      */
-    static bool isSpurious();
+    bool isSpurious();
 
 private:
-
+    /**
+     * Default-Constructor.
+     */
     Pic() = default;
 
     /**
-     * Returns the PIC's data port for the specified interrupt.
+     * Get the PIC's data port for the specified interrupt.
      *
      * @param interrupt The interrupt
      * @return The corresponding PIC's data port
      */
-    IoPort &getDataPort(Interrupt interrupt);
+    const IoPort& getDataPort(Interrupt interrupt);
 
     /**
-     * Returns the PIC's comand port for the specified interrupt.
+     * Get the PIC's command port for the specified interrupt.
      *
      * @param interrupt The interrupt
      * @return The corresponding PIC's command port
      */
-    IoPort &getCommandPort(Interrupt interrupt);
+    const IoPort& getCommandPort(Interrupt interrupt);
 
     /**
-     * Returns the mask for the specified interrupt.
+     * Get the mask for the specified interrupt.
      *
      * @param interrupt The interrupt
      * @return The interrupt's mask
      */
-    uint8_t getMask(Interrupt interrupt);
+    static uint8_t getMask(Interrupt interrupt);
 
-    static const uint8_t EOI = 0x20;
+private:
 
-    static const uint8_t READ_ISR = 0x0B;
+    const IoPort masterCommandPort = IoPort(0x20);
+    const IoPort masterDataPort = IoPort(0x21);
 
-    static const uint8_t SPURIOUS_INTERRUPT = 0x80;
+    const IoPort slaveCommandPort = IoPort(0xA0);
+    const IoPort slaveDataPort = IoPort(0xA1);
+
+    static const constexpr uint8_t EOI = 0x20;
+    static const constexpr uint8_t READ_ISR = 0x0B;
+    static const constexpr uint8_t SPURIOUS_INTERRUPT = 0x80;
 };
 
 }

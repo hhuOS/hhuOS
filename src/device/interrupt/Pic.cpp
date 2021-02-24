@@ -19,80 +19,55 @@
 
 namespace Device {
 
-static IoPort PIC1_DATA(0x21);
-
-static IoPort PIC2_DATA(0xA1);
-
-static IoPort PIC1_COMMAND(0x20);
-
-static IoPort PIC2_COMMAND(0xA0);
-
 Pic &Pic::getInstance() noexcept {
-
     static Pic instance;
-
     return instance;
 }
 
 void Pic::allow(Pic::Interrupt interrupt) {
-
-    IoPort &port = getDataPort(interrupt);
-
+    auto &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
-    port.outb(port.inb() & ~mask);
+    port.writeByte(port.readByte() & ~mask);
 }
 
 void Pic::forbid(Pic::Interrupt interrupt) {
-
-    IoPort &port = getDataPort(interrupt);
-
+    auto &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
-    port.outb(port.inb() | mask);
+    port.writeByte(port.readByte() | mask);
 }
 
 bool Pic::status(Pic::Interrupt interrupt) {
-
-    IoPort &port = getDataPort(interrupt);
-
+    const IoPort &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
 
-    return port.inb() & mask;
+    return port.readByte() & mask;
 }
 
 void Pic::sendEOI(Pic::Interrupt interrupt) {
-    if (interrupt >= Interrupt::RTC) {
-        PIC2_COMMAND.outb(EOI);
-    }
-
-    PIC1_COMMAND.outb(EOI);
+    auto &port = getCommandPort(interrupt);
+    port.writeByte(EOI);
 }
 
-IoPort &Pic::getDataPort(Pic::Interrupt interrupt) {
-
+const IoPort &Pic::getDataPort(Pic::Interrupt interrupt) {
     if (interrupt >= Interrupt::RTC) {
-
-        return PIC2_DATA;
+        return slaveDataPort;
     }
 
-    return PIC1_DATA;
+    return masterDataPort;
 }
 
-IoPort &Pic::getCommandPort(Pic::Interrupt interrupt) {
-
+const IoPort &Pic::getCommandPort(Pic::Interrupt interrupt) {
     if (interrupt >= Interrupt::RTC) {
-
-        return PIC2_COMMAND;
+        return slaveCommandPort;
     }
 
-    return PIC1_COMMAND;
+    return masterCommandPort;
 }
 
 uint8_t Pic::getMask(Pic::Interrupt interrupt) {
-
     if (interrupt >= Interrupt::RTC) {
-
         return (uint8_t) (1 << ((uint8_t) interrupt - 8));
     }
 
@@ -100,9 +75,8 @@ uint8_t Pic::getMask(Pic::Interrupt interrupt) {
 }
 
 bool Pic::isSpurious() {
-    PIC1_COMMAND.outb(READ_ISR);
-
-    return (PIC1_COMMAND.inb() & SPURIOUS_INTERRUPT) == 0;
+    masterCommandPort.writeByte(READ_ISR);
+    return (masterCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0;
 }
 
 }

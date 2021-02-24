@@ -20,9 +20,9 @@
 
 namespace Kernel {
 
-Util::HashMap<Util::String, Util::Address> Symbols::symbolTable(1129);
+Util::HashMap<Util::String, Util::Address<uint32_t>> Symbols::symbolTable(1129);
 
-Util::HashMap<Util::Address, char *> Symbols::debugTable(1129);
+Util::HashMap<Util::Address<uint32_t>, char *> Symbols::debugTable(1129);
 
 Multiboot::ElfInfo Symbols::symbolInfo;
 

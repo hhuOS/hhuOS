@@ -27,7 +27,6 @@ void disable_interrupts();
 
 namespace Device {
 
-// lists of Exceptions that can occur
 const char *Cpu::hardwareExceptions[] = {
         "Divide-by-zero Error", "Debug", "Non-maskable Interrupt", "Breakpoint",
         "Overflow", "Bound Range Exceeded", "Invalid Opcode", "Device not available",
@@ -45,43 +44,31 @@ const char *Cpu::softwareExceptions[]{
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-int32_t Cpu::cliCount = 1; // GRUB disables all interrupts on startup
+Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on startup
 
 void enable_interrupts() {
-
     Cpu::enableInterrupts();
 }
 
 void disable_interrupts() {
-
     Cpu::disableInterrupts();
 }
 
 void Cpu::enableInterrupts() {
-
-    cliCount--;
-
-    if (cliCount < 0) {
-
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
-    }
-
-    if (cliCount == 0) {
-
+    if (cliCount.fetchAndDec() == 0) {
         asm volatile ( "sti" );
 
         /*if(Kernel::Management::isInitialized()) {
-
             Kernel::InterruptManager::getInstance().handleDisabledInterrupts();
         }*/
+    } else if (cliCount.get() < 0) {
+        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
     }
 }
 
 void Cpu::disableInterrupts() {
-
     asm volatile ( "cli" );
-
-    cliCount++;
+    cliCount.fetchAndInc();
 }
 
 void Cpu::idle() {
@@ -103,9 +90,8 @@ unsigned long long int Cpu::rdtsc() {
     return ret;
 }
 
-const char *Cpu::getExceptionName(Cpu::Error exception) {
-
-    uint32_t slot = (uint32_t) exception;
+const char* Cpu::getExceptionName(Cpu::Error exception) {
+    auto slot = static_cast<uint32_t>(exception);
 
     if (slot >= SOFTWARE_EXCEPTIONS_START) {
         return softwareExceptions[slot - SOFTWARE_EXCEPTIONS_START];
@@ -115,8 +101,7 @@ const char *Cpu::getExceptionName(Cpu::Error exception) {
 }
 
 
-const char *Cpu::getExceptionName(uint32_t exception) {
-
+const char* Cpu::getExceptionName(uint32_t exception) {
     if (exception >= SOFTWARE_EXCEPTIONS_START) {
         return softwareExceptions[exception - SOFTWARE_EXCEPTIONS_START];
     }
@@ -125,9 +110,7 @@ const char *Cpu::getExceptionName(uint32_t exception) {
 }
 
 void Cpu::throwException(Exception exception, const char *message) {
-
     disableInterrupts();
-
     onException((uint32_t) exception);
 }
 

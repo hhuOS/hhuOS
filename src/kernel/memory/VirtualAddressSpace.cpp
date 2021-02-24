@@ -24,7 +24,7 @@
 namespace Kernel {
 
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::String &memoryManagerType) :
-        managerType(memoryManagerType), heapAddress(Util::Address::alignUp(heapAddress, PAGESIZE)) {
+        managerType(memoryManagerType), heapAddress(Util::Address(heapAddress).alignUp(PAGESIZE)) {
     // create a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
     // the kernelspace heap manager is static and global for the system
@@ -65,7 +65,7 @@ void VirtualAddressSpace::init() {
     }
 
     if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->init(Util::Address::alignUp(heapAddress, PAGESIZE), KERNEL_START - PAGESIZE, true);
+        userSpaceHeapManager->init(Util::Address(heapAddress).alignUp(PAGESIZE).get(), KERNEL_START - PAGESIZE, true);
     }
 
     void *test = userSpaceHeapManager->alloc(1024);

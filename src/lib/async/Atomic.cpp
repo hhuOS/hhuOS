@@ -61,13 +61,18 @@ T Atomic<T>::compareAndExchange(volatile void *ptr, T oldValue, T newValue) {
 }
 
 template<typename T>
-T Atomic<T>::getAndSet(T newValue) {
-    return compareAndExchange(&value, value, newValue);
+Atomic<T>::operator T() const {
+    return get();
 }
 
 template<typename T>
-T Atomic<T>::get() {
+T Atomic<T>::get() const {
     return value;
+}
+
+template<typename T>
+T Atomic<T>::getAndSet(T newValue) {
+    return compareAndExchange(&value, value, newValue);
 }
 
 template<typename T>

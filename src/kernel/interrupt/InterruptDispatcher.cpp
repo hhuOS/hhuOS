@@ -69,7 +69,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     }
 
     // Ignore spurious interrupts
-    if (slot == 39 && Device::Pic::isSpurious()) {
+    if (slot == 39 && Device::Pic::getInstance().isSpurious()) {
 
         return;
     }

@@ -17,18 +17,19 @@
 #ifndef __Address_include__
 #define __Address_include__
 
-
 #include <cstdint>
+#include <lib/async/Atomic.h>
 
 namespace Util {
 
+template<typename T>
 class Address {
 
 public:
 
     Address();
 
-    explicit Address(uint32_t address);
+    explicit Address(T address);
 
     ~Address() = default;
 
@@ -40,15 +41,29 @@ public:
 
     bool operator==(const Address &other) const;
 
-    explicit operator uint32_t() const;
+    explicit operator T() const;
 
-    static uint32_t alignUp(uint32_t value, uint32_t alignment);
+    [[nodiscard]] T get() const;
+
+    [[nodiscard]] Address<T> add(T value) const;
+
+    [[nodiscard]] Address<T> subtract(T value) const;
+
+    [[nodiscard]] Address alignUp(T alignment) const;
 
 private:
 
-    uint32_t address;
-
+    T address;
 };
+
+template
+class Address<uint8_t>;
+
+template
+class Address<uint16_t>;
+
+template
+class Address<uint32_t>;
 
 }
 

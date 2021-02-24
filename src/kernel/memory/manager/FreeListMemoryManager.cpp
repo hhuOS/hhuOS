@@ -94,7 +94,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     }
 
     // align requested size to 4 byte
-    size = Util::Address::alignUp(size, sizeof(uint32_t));
+    size = Util::Address<uint32_t>(size).alignUp(sizeof(uint32_t)).get();
 
     FLHeader *current = startChunk;
     FLHeader *aligned = nullptr;
@@ -105,7 +105,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
         if (current->size >= size) {
 
             uint32_t data = ((uint32_t) current) + HEADER_SIZE;
-            uint32_t alignedData = Util::Address::alignUp(data, alignment);
+            uint32_t alignedData = Util::Address(data).alignUp(alignment).get();
 
             // Found free Memory Block with required alignment
             if (data == alignedData) {
@@ -114,7 +114,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
             // Make sure the aligned Memory Block's header
             // does not overlap with the current one
-            aligned = (FLHeader * )(Util::Address::alignUp(data + HEADER_SIZE + MIN_BLOCK_SIZE, alignment) - HEADER_SIZE);
+            aligned = (FLHeader * )(Util::Address(data + HEADER_SIZE + MIN_BLOCK_SIZE).alignUp(alignment).get() - HEADER_SIZE);
 
             // Check if current block has enough free
             // data space to fit in the aligned block

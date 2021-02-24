@@ -23,19 +23,38 @@
 class BuildConfig {
 
 public:
-
+    /**
+     * Get the version number.
+     *
+     * @return The version number
+     */
     static inline const char* getVersion() {
         return VERSION;
     }
 
+    /**
+     * Get the git revision.
+     *
+     * @return The git revision
+     */
     static inline const char* getGitRevision() {
         return GIT_REV;
     }
 
+    /**
+     * Get the git branch.
+     *
+     * @return The git branch
+     */
     static inline const char* getGitBranch() {
         return GIT_BRANCH;
     }
 
+    /**
+     * Get the build date.
+     *
+     * @return The build date
+     */
     static inline const char* getBuildDate() {
         return BUILD_DATE;
     }

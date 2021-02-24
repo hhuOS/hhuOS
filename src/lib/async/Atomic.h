@@ -32,9 +32,11 @@ public:
 
     ~Atomic() = default;
 
-    T getAndSet(T newValue);
+    explicit operator T() const;
 
-    T get();
+    T get() const;
+
+    T getAndSet(T newValue);
 
     void set(T newValue);
 

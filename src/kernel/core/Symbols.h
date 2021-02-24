@@ -75,9 +75,9 @@ private:
 
     static Multiboot::ElfInfo symbolInfo;
 
-    static Util::HashMap<Util::String, Util::Address> symbolTable;
+    static Util::HashMap<Util::String, Util::Address<uint32_t>> symbolTable;
 
-    static Util::HashMap<Util::Address, char *> debugTable;
+    static Util::HashMap<Util::Address<uint32_t>, char *> debugTable;
 
     static bool initialized;
 

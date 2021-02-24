@@ -18,6 +18,7 @@
 #define __CPU_include__
 
 #include <cstdint>
+#include <lib/async/Atomic.h>
 
 namespace Device {
 
@@ -31,9 +32,9 @@ namespace Device {
 class Cpu {
 
 public:
-
     /**
-     * Constructor.
+     * Default-Constructor.
+     * Deleted, as this class has only static members.
      */
     Cpu() = delete;
 
@@ -53,17 +54,17 @@ public:
     ~Cpu() = default;
 
     /**
-     * Enables hardware interrupts on CPU.
+     * Enable hardware interrupts on CPU.
      */
     static void enableInterrupts();
 
     /**
-     * Disables hardware interrupts on CPU.
+     * Disable hardware interrupts on CPU.
      */
     static void disableInterrupts();
 
     /**
-     * Stop CPU unitl next interrupt.
+     * Stop CPU until next interrupt.
      */
     static void idle();
 
@@ -73,13 +74,15 @@ public:
     [[noreturn]] static void halt();
 
     /**
-     * Reads the time stamp counter.
+     * Read the time stamp counter.
      *
      * @return The current time stamp counter value.
      */
     static unsigned long long int rdtsc();
 
-    // enumeration of hardware exceptions
+    /**
+     * Enumeration of all hardware exceptions
+     */
     enum class Error : uint32_t {
         DIVIDE_BY_ZERO = 0x00,
         DEBUG = 0x01,
@@ -113,9 +116,11 @@ public:
         RESERVED_10 = 0x1D,
         SECURITY_EXCEPTION = 0x1E,
         RESERVED_11 = 0x1F,
-
     };
-    // enumeration of software exceptions
+
+    /**
+     * Enumeration of all hardware exceptions
+     */
     enum class Exception : uint32_t {
         NULLPOINTER = 0xC8,
         OUT_OF_BOUNDS = 0xC9,
@@ -131,10 +136,18 @@ public:
         UNSUPPORTED_OPERATION = 0xD3
     };
 
+    /**
+     * Trigger a software interrupt (system call).
+     *
+     * @param function The system call number
+     */
     static void softInterrupt(uint32_t function);
 
     /**
-     * Throws an exception.
+     * Throw an exception.
+     *
+     * @param exception The exception number
+     * @param message An error message, that will be shown on the bluescreen
      */
     [[noreturn]] static void throwException(Exception exception, const char *message = "");
 
@@ -143,16 +156,16 @@ public:
      *
      * @return String with name of exception
      */
-    static const char *getExceptionName(uint32_t exception);
+    static const char* getExceptionName(uint32_t exception);
 
     /**
      * Returns the name of the Exception from the enumeration.
      *
      * @return String with name of exception
      */
-    static const char *getExceptionName(Error exception);
+    static const char* getExceptionName(Error exception);
 
-    // Pointers to lists with hardware(software exceptions
+    // Pointers to lists with hardware (software) exceptions
     static const char *hardwareExceptions[];
     static const char *softwareExceptions[];
 
@@ -160,8 +173,11 @@ public:
     static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
 
 private:
-
-    static int32_t cliCount;
+    /**
+     * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.
+     * Interrupts stay disabled, as long as this number is greater than zero.
+     */
+    static Async::Atomic<int32_t> cliCount;
 };
 
 }

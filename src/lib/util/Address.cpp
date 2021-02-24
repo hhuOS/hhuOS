@@ -18,39 +18,55 @@
 
 namespace Util {
 
-Address::Address() : address(0) {
+template<typename T>
+Address<T>::Address() : address(0) {
 
 }
 
-Address::Address(uint32_t address) : address(address) {
+template<typename T>
+Address<T>::Address(T address) : address(address) {
 
 }
 
-Address::operator uint32_t() const {
-
-    return address;
-}
-
-bool Address::operator!=(const Address &other) const {
-
+template<typename T>
+bool Address<T>::operator!=(const Address &other) const {
     return address != other.address;
 }
 
-bool Address::operator==(const Address &other) const {
-
+template<typename T>
+bool Address<T>::operator==(const Address &other) const {
     return address == other.address;
 }
 
-uint32_t Address::alignUp(uint32_t value, uint32_t alignment) {
+template<typename T>
+Address<T>::operator T() const {
+    return address;
+}
 
+template<typename T>
+T Address<T>::get() const {
+    return address;
+}
+
+template<typename T>
+Address<T> Address<T>::add(T value) const {
+    return Address(address + value);
+}
+
+template<typename T>
+Address<T> Address<T>::subtract(T value) const {
+    return Address<T>(address - value);
+}
+
+template<typename T>
+Address<T> Address<T>::alignUp(T alignment) const {
     if (alignment == 0) {
-
-        return value;
+        return *this;
     }
 
     alignment--;
 
-    return (value + alignment) & ~alignment;
+    return Address((address + alignment) & ~alignment);
 }
 
 }
