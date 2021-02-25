@@ -14,22 +14,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
-#include <device/cpu/Cpu.h>
-#include <device/graphic/LinearFrameBuffer.h>
-#include <kernel/multiboot/Structure.h>
-#include <lib/graphic/Fonts.h>
-#include "GatesOfHell.h"
+#include "Font.h"
 
-int32_t main() {
-    GatesOfHell::enter();
+namespace Util {
+
+Font::Font(uint8_t charWidth, uint8_t charHeight, uint8_t *fontData) : charWidth(charWidth), charHeight(charHeight), charMemSize((charWidth / 8) * charHeight), fontData(fontData) {
+
 }
 
-void GatesOfHell::enter() {
-    auto fbInfo = Kernel::Multiboot::Structure::getFrameBufferInfo();
-    auto lfb = new Device::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
+uint8_t Font::getCharWidth() const {
+    return charWidth;
+}
 
-    lfb->drawString(Util::Fonts::TERMINAL_FONT, 0, 0, "Welcome to hhuOS!", Util::Colors::TERM_WHITE, Util::Colors::TERM_BLACK);
+uint8_t Font::getCharHeight() const {
+    return charHeight;
+}
 
-    Device::Cpu::halt();
+uint8_t *Font::getChar(uint8_t c) const {
+    return &fontData[charMemSize * c];
+}
+
 }

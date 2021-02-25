@@ -14,18 +14,6 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(lib)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(async)
-add_subdirectory(elf)
-add_subdirectory(graphic)
-add_subdirectory(libc)
-add_subdirectory(util)
-
-target_link_libraries(${PROJECT_NAME} device kernel)
+target_sources(lib PUBLIC
+        ${HHUOS_SRC_DIR}/lib/graphic/Color.cpp
+        ${HHUOS_SRC_DIR}/lib/graphic/Font.cpp)
