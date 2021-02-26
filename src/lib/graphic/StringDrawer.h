@@ -1,0 +1,102 @@
+/*
+ * Copyright (C) 2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ *
+ * This program is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation, either version 3 of the License,
+ * or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+ * See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
+#ifndef HHUOS_STRINGDRAWER_H
+#define HHUOS_STRINGDRAWER_H
+
+#include <lib/util/String.h>
+#include "PixelDrawer.h"
+#include "Font.h"
+
+namespace Util {
+
+/**
+ * Uses a PixelDrawer to draw characters and strings.
+ */
+class StringDrawer {
+
+public:
+
+    /**
+     * Constructor.
+     *
+     * @param pixelDrawer The PixelDrawer to use for drawing characters
+     */
+    explicit StringDrawer(PixelDrawer &pixelDrawer);
+
+    /**
+     * Copy constructor.
+     */
+    StringDrawer(const StringDrawer &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    StringDrawer &operator=(const StringDrawer &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~StringDrawer() = default;
+
+    /**
+     * Draw a character at a given position.
+     *
+     * @param font The font
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param c The character
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     */
+    void drawChar(Font &font, uint16_t x, uint16_t y, char c, Color &fgColor, Color &bgColor);
+
+    /**
+     * Draw a null-terminated string at a given position.
+     *
+     * @param font The font
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param s The string
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     */
+    void drawString(Font &font, uint16_t x, uint16_t y, const char *string, Color &fgColor, Color &bgColor);
+
+private:
+
+    /**
+     * Draw a monochrome bitmap at a given position. Each pixel to be drawn is represented by a single bit in the bitmap.
+     * If the bit is set to 1, the foreground color is used to draw the pixel, else the background color is used.
+     *
+     * @param x The x coordinate of upper left corner
+     * @param y The y coordinate of upper left corner
+     * @param width The bitmap's width
+     * @param height The bitmap's height
+     * @param fgColor The foreground color
+     * @param bgColor The background color
+     * @param bitmap The bitmap's data.
+     */
+    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Color &fgColor, Color &bgColor, uint8_t *bitmap);
+
+    PixelDrawer &pixelDrawer;
+};
+
+}
+
+#endif

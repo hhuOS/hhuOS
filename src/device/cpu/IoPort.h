@@ -36,7 +36,7 @@ public:
     explicit IoPort(uint16_t address) noexcept;
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     IoPort(const IoPort &other) = delete;
 

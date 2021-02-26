@@ -34,7 +34,7 @@ public:
 
     explicit operator T() const;
 
-    T get() const;
+    [[nodiscard]] T get() const;
 
     T getAndSet(T newValue);
 

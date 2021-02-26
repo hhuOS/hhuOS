@@ -45,7 +45,7 @@ public:
     Font& operator=(const Font &other) = delete;
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     Font(const Font &copy) = delete;
 

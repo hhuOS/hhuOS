@@ -54,7 +54,7 @@ public:
     IOMemoryManager();
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     IOMemoryManager(const IOMemoryManager &copy);
 

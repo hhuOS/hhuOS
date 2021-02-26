@@ -103,7 +103,7 @@ public:
     FreeListMemoryManager();
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     FreeListMemoryManager(const FreeListMemoryManager &copy);
 

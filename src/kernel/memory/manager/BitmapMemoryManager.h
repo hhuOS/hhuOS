@@ -83,7 +83,7 @@ public:
     explicit BitmapMemoryManager(uint32_t blockSize = 128, bool zeroMemory = false);
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     BitmapMemoryManager(const BitmapMemoryManager &copy);
 

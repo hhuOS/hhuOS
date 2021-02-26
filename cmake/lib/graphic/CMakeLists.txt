@@ -16,4 +16,7 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib PUBLIC
         ${HHUOS_SRC_DIR}/lib/graphic/Color.cpp
-        ${HHUOS_SRC_DIR}/lib/graphic/Font.cpp)
+        ${HHUOS_SRC_DIR}/lib/graphic/Font.cpp
+        ${HHUOS_SRC_DIR}/lib/graphic/LinearFrameBuffer.cpp
+        ${HHUOS_SRC_DIR}/lib/graphic/PixelDrawer.cpp
+        ${HHUOS_SRC_DIR}/lib/graphic/StringDrawer.cpp)

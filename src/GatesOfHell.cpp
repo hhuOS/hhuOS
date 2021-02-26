@@ -16,9 +16,12 @@
 
 #include <cstdint>
 #include <device/cpu/Cpu.h>
-#include <device/graphic/LinearFrameBuffer.h>
+#include <lib/graphic/LinearFrameBuffer.h>
 #include <kernel/multiboot/Structure.h>
+#include <lib/graphic/Colors.h>
 #include <lib/graphic/Fonts.h>
+#include <lib/graphic/PixelDrawer.h>
+#include <lib/graphic/StringDrawer.h>
 #include "GatesOfHell.h"
 
 int32_t main() {
@@ -27,9 +30,11 @@ int32_t main() {
 
 void GatesOfHell::enter() {
     auto fbInfo = Kernel::Multiboot::Structure::getFrameBufferInfo();
-    auto lfb = new Device::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
+    auto lfb = new Util::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
+    auto pixelDrawer = new Util::PixelDrawer(*lfb);
+    auto stringDrawer = new Util::StringDrawer(*pixelDrawer);
 
-    lfb->drawString(Util::Fonts::TERMINAL_FONT, 0, 0, "Welcome to hhuOS!", Util::Colors::TERM_WHITE, Util::Colors::TERM_BLACK);
+    stringDrawer->drawString(Util::Fonts::TERMINAL_FONT, 0, 0, "Welcome to hhuOS!", Util::Colors::TERM_WHITE, Util::Colors::TERM_BLACK);
 
     Device::Cpu::halt();
 }

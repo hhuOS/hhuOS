@@ -30,7 +30,7 @@ public:
     GatesOfHell() = delete;
 
     /**
-     * Copy-constructor.
+     * Copy constructor.
      */
     GatesOfHell(const GatesOfHell &other) = delete;
 

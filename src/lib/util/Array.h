@@ -54,7 +54,7 @@ namespace Util {
 
         void clear();
 
-        uint32_t length() const;
+        [[nodiscard]] uint32_t length() const;
 
         T *begin() const;
 

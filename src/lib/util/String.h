@@ -40,41 +40,41 @@ public:
 
     ~String();
 
-    uint32_t hashCode() const;
+    [[nodiscard]] uint32_t hashCode() const;
 
-    uint32_t length() const;
+    [[nodiscard]] uint32_t length() const;
 
-    uint32_t indexOf(char character, uint32_t start = 0) const;
+    [[nodiscard]] uint32_t indexOf(char character, uint32_t start = 0) const;
 
-    uint32_t indexOf(const String &other, uint32_t start = 0) const;
+    [[nodiscard]] uint32_t indexOf(const String &other, uint32_t start = 0) const;
 
-    bool isEmpty() const;
+    [[nodiscard]] bool isEmpty() const;
 
-    String substring(uint32_t begin, uint32_t end) const;
+    [[nodiscard]] String substring(uint32_t begin, uint32_t end) const;
 
     String strip();
 
-    Util::Array<String> split(const String &delimiter, uint32_t limit = 0) const;
+    [[nodiscard]] Util::Array<String> split(const String &delimiter, uint32_t limit = 0) const;
 
-    String remove(const String &string) const;
+    [[nodiscard]] String remove(const String &string) const;
 
-    String removeAll(const String &string) const;
+    [[nodiscard]] String removeAll(const String &string) const;
 
-    bool beginsWith(const String &string) const;
+    [[nodiscard]] bool beginsWith(const String &string) const;
 
-    bool endsWith(const String &string) const;
+    [[nodiscard]] bool endsWith(const String &string) const;
 
     static String valueOf(bool value);
 
-    static String valueOf(int32_t value, uint8_t radix, bool sign = true);
+    // static String valueOf(int32_t value, uint8_t radix, bool sign = true);
 
-    static String valueOf(int32_t value, uint8_t radix, uint8_t padding, bool sign = true);
+    // static String valueOf(int32_t value, uint8_t radix, uint8_t padding, bool sign = true);
 
     static String join(const String &separator, const Util::Array<String> &elements);
 
-    static String format(const char *fmt, ...);
+    // static String format(const char *fmt, ...);
 
-    static String vformat(const char *fmt, va_list args);
+    // static String vformat(const char *fmt, va_list args);
 
     static bool isAlpha(char c);
 
@@ -100,7 +100,7 @@ public:
 
     friend String operator+(const char *first, const String &second);
 
-//  friend OutputStream &operator<<(OutputStream &outStream, const String &string);
+    // friend OutputStream &operator<<(OutputStream &outStream, const String &string);
 
     char operator[](uint32_t index) const;
 

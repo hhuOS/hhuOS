@@ -49,9 +49,7 @@ public:
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
-            const char *errorMessage = Util::String::format("Invalid port '%s'!", T::SERVICE_NAME);
-
-            Device::Cpu::throwException(Device::Cpu::Exception::INVALID_ARGUMENT, errorMessage);
+            Device::Cpu::throwException(Device::Cpu::Exception::INVALID_ARGUMENT, "Invalid service!");
         }
 
         return (T *) serviceMap.get(T::SERVICE_NAME);
