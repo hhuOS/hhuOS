@@ -28,6 +28,16 @@ Address<T>::Address(T address) : address(address) {
 
 }
 
+template<>
+Address<uint32_t>::Address(void *pointer) : Address<uint32_t>(reinterpret_cast<uint32_t>(pointer)) {
+
+}
+
+template<>
+Address<uint32_t>::Address(const void *pointer) : Address<uint32_t>((void*) pointer) {
+
+}
+
 template<typename T>
 bool Address<T>::operator!=(const Address &other) const {
     return address != other.address;
@@ -67,6 +77,87 @@ Address<T> Address<T>::alignUp(T alignment) const {
     alignment--;
 
     return Address((address + alignment) & ~alignment);
+}
+
+template<typename T>
+T Address<T>::stringLength() {
+    auto stringAddress = reinterpret_cast<uint8_t*>(address);
+
+    uint32_t i;
+    for (i = 0; stringAddress[i] != 0; i++);
+
+    return i;
+}
+
+template<typename T>
+void Address<T>::setRange(uint8_t value, T amount) {
+    auto *destination = reinterpret_cast<uint8_t*>(address);
+
+    for (T i = 0; i < amount; i++) {
+        destination[i] = value;
+    }
+}
+
+template<typename T>
+void Address<T>::copyRange(Address<T> sourceAddress, T length) {
+    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.get());
+    auto *destination = reinterpret_cast<uint8_t*>(address);
+
+    T i;
+    for (i = 0; i < length; i++) {
+        destination[i] = source[i];
+    }
+}
+
+template<typename T>
+void Address<T>::copyString(Address<T> sourceAddress) {
+    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.get());
+    auto *destination = reinterpret_cast<uint8_t*>(address);
+
+    T i;
+    for (i = 0; source[i] != 0; i++) {
+        destination[i] = source[i];
+    }
+    destination[i] = 0;
+}
+
+template<typename T>
+void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) {
+    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.get());
+    auto *destination = reinterpret_cast<uint8_t*>(address);
+
+    T i;
+    for (i = 0; source[i] != 0 && i < maxBytes; i++) {
+        destination[i] = source[i];
+    }
+
+    for (; i < maxBytes; i++) {
+        destination[i] = 0;
+    }
+
+    destination[i] = 0;
+}
+
+template<typename T>
+T Address<T>::compareRange(Address<T> otherAddress, T length) {
+    auto *current = reinterpret_cast<uint8_t*>(address);
+    auto *other = reinterpret_cast<uint8_t*>(otherAddress.get());
+
+    T i;
+    for (i = 0; i < length && current[i] == other[i]; i++);
+
+    return i == length ? 0 : current[i] - other[i];
+}
+
+template<typename T>
+T Address<T>::compareString(Address<T> otherAddress) {
+    auto *current = reinterpret_cast<uint8_t*>(address);
+    auto *other = reinterpret_cast<uint8_t*>(otherAddress.get());
+
+    T i;
+    for (i = 0; current[i] != 0 && other[i] != 0 && current[i] == other[i]; i++);
+
+    return current[i] - other[i];
 }
 
 }

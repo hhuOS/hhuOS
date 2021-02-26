@@ -14,13 +14,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/Address.h>
 #include "kernel/core/System.h"
 #include "BitmapMemoryManager.h"
 #include "kernel/memory/Paging.h"
-
-extern "C" {
-#include "lib/libc/string.h"
-}
 
 namespace Kernel {
 
@@ -78,7 +75,7 @@ void *BitmapMemoryManager::alloc(uint32_t size) {
     void *address = reinterpret_cast<void *>(memoryStartAddress + block * blockSize);
 
     if (zeroMemory) {
-        memset(address, 0, blockCount * blockSize);
+        Util::Address<uint32_t>(address).setRange(0, blockCount * blockSize);
     }
 
     return address;

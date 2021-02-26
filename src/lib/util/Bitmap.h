@@ -29,7 +29,7 @@ public:
 
     virtual ~Bitmap();
 
-    uint32_t getSize();
+    uint32_t getSize() const;
 
     virtual void set(uint32_t block);
 

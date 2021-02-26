@@ -31,6 +31,10 @@ public:
 
     explicit Address(T address);
 
+    explicit Address(void *pointer);
+
+    explicit Address(const void *pointer);
+
     ~Address() = default;
 
     Address(const Address &other) = default;
@@ -50,6 +54,20 @@ public:
     [[nodiscard]] Address<T> subtract(T value) const;
 
     [[nodiscard]] Address alignUp(T alignment) const;
+
+    [[nodiscard]] T stringLength();
+
+    [[nodiscard]] T compareRange(Address<T> otherAddress, T length);
+
+    [[nodiscard]] T compareString(Address<T> otherAddress);
+
+    void setRange(uint8_t value, T amount);
+
+    void copyRange(Address<T> sourceAddress, T length);
+
+    void copyString(Address<T> sourceAddress);
+
+    void copyString(Address<T> sourceAddress, T maxBytes);
 
 private:
 

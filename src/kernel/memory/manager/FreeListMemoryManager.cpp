@@ -401,7 +401,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
     }
 
     if (ret != nullptr) {
-        memcpy(ret, ptr, (size < oldHeader->size) ? size : oldHeader->size);
+        Util::Address<uint32_t>(ret).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
 
         free(ptr);
     }

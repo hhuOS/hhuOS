@@ -14,14 +14,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/core/Management.h>
 #include "lib/util/List.h"
 #include "lib/util/ArrayList.h"
 #include "String.h"
-
-extern "C" {
-    #include "lib/libc/string.h"
-    #include "lib/libc/stdlib.h"
-}
+#include "Address.h"
 
 namespace Util {
 
@@ -40,18 +37,20 @@ String::String(char character) noexcept {
 
 String::String(const char *string) noexcept {
 
+    auto address = Address<uint32_t>(string);
+
     if (string == nullptr) {
 
         len = 0;
 
     } else {
 
-        len = strlen(string);
+        len = address.stringLength();
     }
 
     buffer = new char[len + 1];
 
-    memcpy(buffer, string, len);
+    Address<uint32_t>(buffer).copyRange(address, len);
 
     buffer[len] = '\0';
 }
@@ -62,7 +61,7 @@ String::String(const String &other) noexcept {
 
     buffer = new char[len + 1];
 
-    memcpy(buffer, other.buffer, len);
+    Address<uint32_t>(buffer).copyRange(Address<uint32_t>(other.buffer), len);
 
     buffer[len] = '\0';
 }
@@ -96,7 +95,7 @@ String String::substring(uint32_t begin, uint32_t end) const {
 
     char *buffer = new char[length + 1];
 
-    memcpy(buffer, this->buffer + begin, length);
+    Address<uint32_t>(buffer).copyRange(Address<uint32_t>(this->buffer + begin), length);
 
     String tmp = "";
 
@@ -229,11 +228,11 @@ uint32_t String::length() const {
 }
 
 bool String::operator==(const String &other) const {
-    return strcmp(buffer, other.buffer) == 0;
+    return Address<uint32_t>(buffer).compareString(Address<uint32_t>(other.buffer)) == 0;
 }
 
 bool String::operator!=(const String &other) const {
-    return strcmp(buffer, other.buffer) != 0;
+    return Address<uint32_t>(buffer).compareString(Address<uint32_t>(other.buffer)) != 0;
 }
 
 String &String::operator=(const String &other) {
@@ -251,7 +250,7 @@ String &String::operator=(const String &other) {
     buffer = new char[len + 1];
 
     if (other.buffer != nullptr) {
-        memcpy(buffer, other.buffer, len + 1);
+        Address<uint32_t>(buffer).copyRange(Address<uint32_t>(other.buffer), len + 1);
     }
 
     return *this;
@@ -259,9 +258,9 @@ String &String::operator=(const String &other) {
 
 String &String::operator+=(const String &other) {
 
-    buffer = (char *) realloc(buffer, len + other.len + 1);
+    Kernel::Management::getInstance().realloc(buffer, len + other.len + 1);
 
-    memcpy(buffer + len, other.buffer, other.len + 1);
+    Address<uint32_t>(buffer + len).copyRange(Address<uint32_t>(other.buffer), other.len + 1);
 
     len += other.len;
 

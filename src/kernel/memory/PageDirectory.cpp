@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/Address.h>
 #include "kernel/multiboot/Structure.h"
 #include "kernel/memory/PageDirectory.h"
 
@@ -22,7 +23,6 @@
 #include "MemLayout.h"
 
 extern "C" {
-    #include "lib/libc/string.h"
     // extern functions from assembler code paging.asm
     void load_page_directory(uint32_t* pdAddress);
     void enable_4KB_paging();
@@ -59,7 +59,7 @@ PageDirectory::PageDirectory() {
     // table with virtual PT-addresses placed after the PD itself
     virtTableAddresses = (uint32_t *) (VIRT_PAGE_MEM_START + 257 * PAGESIZE);
     // zero memory for PageTables and PageDirectrories
-    memset((void *) VIRT_PAGE_MEM_START, 0, PAGESIZE * 1024);
+    Util::Address<uint32_t>((void *) VIRT_PAGE_MEM_START).setRange(0, PAGESIZE * 1024);
     // base page directory is located at VIRT_PAGE_MEM_START + 1MB,
     // because the first 1MB is used for all Kernel page tables (mapping the kernelspace)
     pageDirectory = (uint32_t *) (VIRT_PAGE_MEM_START + 256 * PAGESIZE);

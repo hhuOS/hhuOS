@@ -27,8 +27,6 @@
 #include "lib/util/ArrayList.h"
 #include "TaskStateSegment.h"
 
-#define DEBUG_PM 0
-
 namespace Kernel {
 
 /**
@@ -337,17 +335,17 @@ public:
 
 }
 
-void *operator new(size_t, void *p);
+void *operator new(uint32_t, void *p);
 
-void *operator new[](size_t, void *p);
+void *operator new[](uint32_t, void *p);
 
 void operator delete(void *, void *);
 
 void operator delete[](void *, void *);
 
-void *operator new(size_t size, uint32_t alignment);
+void *operator new(uint32_t size, uint32_t alignment);
 
-void *operator new[](size_t size, uint32_t alignment);
+void *operator new[](uint32_t size, uint32_t alignment);
 
 void operator delete(void *ptr, uint32_t alignment);
 

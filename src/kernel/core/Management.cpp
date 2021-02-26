@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/Address.h>
 #include "Management.h"
 
 #include "kernel/interrupt/InterruptDispatcher.h"
@@ -102,10 +103,10 @@ void fini_system() {
  */
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc) {
     // Set first 6 GDT entries to 0
-    memset(gdt, 0, 48);
+    Util::Address<uint32_t>(gdt).setRange(0, 48);
 
     // Set first 4 bios GDT entries to 0
-    memset(gdt_bios, 0, 32);
+    Util::Address<uint32_t>(gdt_bios).setRange(0, 32);
 
     // first set up general GDT for the system
     // first entry has to be null
@@ -564,15 +565,15 @@ void operator delete[](void *ptr) {
     }
 }
 
-void *operator new(size_t, void *p) { return p; }
+void *operator new(uint32_t, void *p) { return p; }
 
-void *operator new[](size_t, void *p) { return p; }
+void *operator new[](uint32_t, void *p) { return p; }
 
 void operator delete(void *, void *) {}
 
 void operator delete[](void *, void *) {}
 
-void *operator new(size_t size, uint32_t alignment) {
+void *operator new(uint32_t size, uint32_t alignment) {
     if (!Kernel::Management::isKernelMode()) {
         return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {
@@ -580,7 +581,7 @@ void *operator new(size_t size, uint32_t alignment) {
     }
 }
 
-void *operator new[](size_t size, uint32_t alignment) {
+void *operator new[](uint32_t size, uint32_t alignment) {
     if (!Kernel::Management::isKernelMode()) {
         return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
     } else {

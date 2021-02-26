@@ -49,7 +49,7 @@ uint32_t pow(uint32_t base, uint32_t exponent) {
 
 uint32_t hextoint(const char *hexString) {
 
-    uint32_t len = strlen(hexString);
+    uint32_t len = Util::Address<uint32_t>(hexString).stringLength();
 
     uint32_t ret = 0;
 
@@ -159,7 +159,7 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination) {
             // only copy symbols and strings, discard the rest
             if (sectionHeader->type == ElfConstants::SectionHeaderType::SYMTAB
             || sectionHeader->type == ElfConstants::SectionHeaderType::STRTAB) {
-                memcpy(destination, (void*)sectionHeader->virtualAddress, sectionHeader->size);
+                Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(sectionHeader->virtualAddress), sectionHeader->size);
                 sectionHeader->virtualAddress = (elf32_addr) destination;
                 destination += sectionHeader->size;
             } else {

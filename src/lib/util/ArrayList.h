@@ -21,11 +21,6 @@
 #include "device/cpu/Cpu.h"
 #include "List.h"
 
-extern "C" {
-    #include "lib/libc/string.h"
-    #include "lib/libc/stdlib.h"
-};
-
 namespace Util {
 
     /**

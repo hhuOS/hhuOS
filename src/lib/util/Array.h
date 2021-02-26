@@ -22,10 +22,6 @@
 
 #include "device/cpu/Cpu.h"
 
-extern "C" {
-    #include "lib/libc/string.h"
-};
-
 namespace Util {
 
     /**
@@ -60,7 +56,7 @@ namespace Util {
 
         T *end() const;
 
-        static Array<T> wrap(const T *source, size_t size);
+        static Array<T> wrap(const T *source, uint32_t size);
 
         static void sort(Array<T> &array);
 
@@ -68,7 +64,7 @@ namespace Util {
 
         T* array;
 
-        size_t capacity;
+        uint32_t capacity;
 
     };
 
@@ -173,7 +169,7 @@ namespace Util {
     }
 
     template <class T>
-    Array<T> Array<T>::wrap(const T *source, size_t size) {
+    Array<T> Array<T>::wrap(const T *source, uint32_t size) {
 
         Array tmp(size);
 

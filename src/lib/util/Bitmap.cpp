@@ -1,17 +1,14 @@
 #include "Bitmap.h"
+#include "Address.h"
 
 namespace Util {
-
-extern "C" {
-    #include "lib/libc/string.h"
-}
 
 Bitmap::Bitmap(uint32_t blockCount) : blocks(blockCount) {
     arraySize = (blockCount % 32 == 0) ? (blockCount / 32) : (blockCount / 32 + 1);
 
     bitmap = new uint32_t[arraySize];
 
-    memset(bitmap, 0, arraySize * sizeof(uint32_t));
+    Address<uint32_t>(bitmap).setRange(0, arraySize * sizeof(uint32_t));
 }
 
 Bitmap::Bitmap(uint32_t blockCount, uint32_t reservedBlocksAtBeginning) {
@@ -19,7 +16,7 @@ Bitmap::Bitmap(uint32_t blockCount, uint32_t reservedBlocksAtBeginning) {
 
     bitmap = new uint32_t[arraySize];
 
-    memset(bitmap, 0, arraySize * sizeof(uint32_t));
+    Address<uint32_t>(bitmap).setRange(0, arraySize * sizeof(uint32_t));
 
     setRange(0, reservedBlocksAtBeginning);
 }
@@ -28,7 +25,7 @@ Bitmap::~Bitmap() {
     delete bitmap;
 }
 
-uint32_t Bitmap::getSize() {
+uint32_t Bitmap::getSize() const {
     return blocks;
 }
 

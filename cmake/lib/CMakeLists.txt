@@ -25,7 +25,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 add_subdirectory(async)
 add_subdirectory(elf)
 add_subdirectory(graphic)
-add_subdirectory(libc)
 add_subdirectory(util)
 
 target_link_libraries(${PROJECT_NAME} device kernel)

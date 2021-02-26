@@ -24,7 +24,7 @@
 extern "C" {
     extern char ___KERNEL_DATA_START__;
     extern char ___KERNEL_DATA_END__;
-    extern size_t MULTIBOOT_SIZE;
+    extern uint32_t MULTIBOOT_SIZE;
 }
 
 namespace Kernel::Multiboot {
@@ -71,13 +71,13 @@ void readMemoryMap(Info *address) {
  */
 void copyMultibootInfo(Info *info, uint8_t *destination) {
     // first, copy the struct itself
-    memcpy(destination, info, sizeof(Info));
+    Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info), sizeof(Info));
     info = (Info*)destination;
     destination += sizeof(Info);
     
     // then copy the commandline
     if(info->flags & MULTIBOOT_INFO_CMDLINE) {
-        strncpy((char*)destination, (char*)info->commandLine, 4095);
+        Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(info->commandLine), 4095);
         destination[4095] = '\0';
         info->commandLine = (uint32_t) destination;
         destination += 4096;
@@ -87,13 +87,13 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
     
     // then copy the module information
     if(info->flags & MULTIBOOT_INFO_MODS) {
-        size_t len = info->moduleCount * sizeof(ModuleInfo);
-        memcpy(destination, (void*)info->moduleAddress, len);
+        uint32_t len = info->moduleCount * sizeof(ModuleInfo);
+        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->moduleAddress), len);
         info->moduleAddress = (uint32_t)destination;
         destination += len;
         ModuleInfo *mods = (ModuleInfo*) info->moduleAddress;
         for(uint32_t i = 0; i < info->moduleCount; i++) {
-            strncpy((char*) destination, (char*)mods[i].string, 511);
+            Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(mods[i].string), 511);
             destination[511] = '\0';
             mods[i].string = (char*)destination;
             destination += 512;
@@ -102,10 +102,8 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
     
     // then copy the symbol headers and the symbols
     if(info->flags & MULTIBOOT_INFO_ELF_SHDR) {
-        size_t len = (
-            info->symbols.elf.sectionSize * info->symbols.elf.sectionCount
-        );
-        memcpy(destination, (void*)info->symbols.elf.address, len);
+        uint32_t len = info->symbols.elf.sectionSize * info->symbols.elf.sectionCount;
+        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->symbols.elf.address), len);
         info->symbols.elf.address = (uint32_t)destination;
         destination += len;
         Symbols::copy(info->symbols.elf, destination);
@@ -113,21 +111,21 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
     
     // then copy the memory map
     if(info->flags & MULTIBOOT_INFO_MEM_MAP) {
-        memcpy(destination, (void*)info->memoryMapAddress, info->memoryMapLength);
+        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->memoryMapAddress), info->memoryMapLength);
         info->memoryMapAddress = (uint32_t)destination;
         destination += info->memoryMapLength;
     }
     
     // then copy the drives
     if(info -> flags &  MULTIBOOT_INFO_DRIVE_INFO) {
-        memcpy(destination, (void*)info->driveAddress, info->driveLength);
+        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->driveAddress), info->driveLength);
         info->driveAddress = (uint32_t)destination;
         destination += info->driveLength;
     }
     
     // then copy the boot loader name
     if(info->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-        strncpy((char*)destination, (char*)info->bootloaderName, 4095);
+        Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(info->bootloaderName), 4095);
         destination[4095] = '\0';
         info->bootloaderName = (uint32_t) destination;
         destination += 4096;
