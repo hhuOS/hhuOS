@@ -35,9 +35,9 @@ public:
 
     virtual ~InputStream() = default;
 
-    virtual int8_t read() = 0;
+    virtual int16_t read() = 0;
 
-    virtual int8_t read(int8_t *target, uint32_t offset, uint32_t length);
+    virtual uint32_t read(uint8_t *target, uint32_t offset, uint32_t length);
 
     virtual void close();
 };

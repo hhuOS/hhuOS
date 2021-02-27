@@ -16,33 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINALOUTPUTSTREAM_H
-#define HHUOS_TERMINALOUTPUTSTREAM_H
+#ifndef HHUOS_BYTEARRAYINPUTSTREAM_H
+#define HHUOS_BYTEARRAYINPUTSTREAM_H
 
-#include <util/graphic/Terminal.h>
-#include "OutputStream.h"
+#include "InputStream.h"
 
-namespace Util::Stream  {
+namespace Util::Stream {
 
-class TerminalOutputStream : public OutputStream {
+class ByteArrayInputStream : public InputStream {
 
 public:
 
-    explicit TerminalOutputStream(Graphic::Terminal &terminal);
+    ByteArrayInputStream(uint8_t *buffer, uint32_t size);
 
-    TerminalOutputStream(const TerminalOutputStream &copy) = delete;
+    ByteArrayInputStream(const ByteArrayInputStream &copy) = delete;
 
-    TerminalOutputStream &operator=(const TerminalOutputStream &copy) = delete;
+    ByteArrayInputStream &operator=(const ByteArrayInputStream &copy) = delete;
 
-    ~TerminalOutputStream() override = default;
+    int16_t read() override;
 
-    void write(uint8_t c) override;
-
-    void write(const uint8_t *source, uint32_t offset, uint32_t length) override;
+    uint32_t read(uint8_t *target, uint32_t offset, uint32_t length) override;
 
 private:
 
-    Graphic::Terminal &terminal;
+    uint8_t *buffer;
+    uint32_t size;
+    uint32_t position = 0;
+
 };
 
 }

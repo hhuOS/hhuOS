@@ -16,25 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINALOUTPUTSTREAM_H
-#define HHUOS_TERMINALOUTPUTSTREAM_H
+#ifndef HHUOS_BYTEARRAYOUTPUTSTREAM_H
+#define HHUOS_BYTEARRAYOUTPUTSTREAM_H
 
-#include <util/graphic/Terminal.h>
+#include <util/data/Array.h>
 #include "OutputStream.h"
 
-namespace Util::Stream  {
+namespace Util::Stream {
 
-class TerminalOutputStream : public OutputStream {
+class ByteArrayOutputStream : public OutputStream {
 
 public:
 
-    explicit TerminalOutputStream(Graphic::Terminal &terminal);
+    ByteArrayOutputStream();
 
-    TerminalOutputStream(const TerminalOutputStream &copy) = delete;
+    explicit ByteArrayOutputStream(uint32_t size);
 
-    TerminalOutputStream &operator=(const TerminalOutputStream &copy) = delete;
+    ByteArrayOutputStream(const ByteArrayOutputStream &copy) = delete;
 
-    ~TerminalOutputStream() override = default;
+    ByteArrayOutputStream &operator=(const ByteArrayOutputStream &copy) = delete;
+
+    ~ByteArrayOutputStream() override;
+
+    [[nodiscard]] uint32_t getSize() const;
+
+    void getContent(uint8_t *target, uint32_t length) const;
+
+    void reset();
 
     void write(uint8_t c) override;
 
@@ -42,7 +50,13 @@ public:
 
 private:
 
-    Graphic::Terminal &terminal;
+    void ensureRemainingCapacity(uint32_t);
+
+    uint8_t *buffer;
+    uint32_t size;
+    uint32_t position = 0;
+
+    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 32;
 };
 
 }

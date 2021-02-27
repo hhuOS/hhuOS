@@ -54,4 +54,8 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     return Color(*(reinterpret_cast<uint32_t*>(ptr)), bitsPerPixel);
 }
 
+void LinearFrameBuffer::clear() {
+    Memory::Address<uint32_t>(buffer).setRange(0, getPitch() * getResolutionY());
+}
+
 }

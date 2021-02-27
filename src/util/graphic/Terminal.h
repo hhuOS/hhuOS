@@ -24,6 +24,7 @@
 #include "PixelDrawer.h"
 #include "StringDrawer.h"
 #include "Fonts.h"
+#include "BufferScroller.h"
 
 namespace Util::Graphic {
 
@@ -51,13 +52,11 @@ public:
 
 private:
 
-    void scrollUp();
-
     const uint16_t columns;
     const uint16_t rows;
     const char cursor;
 
-    LinearFrameBuffer &lfb;
+    BufferScroller scroller;
     PixelDrawer pixelDrawer;
     StringDrawer stringDrawer;
 

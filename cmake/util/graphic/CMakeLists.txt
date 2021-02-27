@@ -16,6 +16,7 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(util PUBLIC
         ${HHUOS_SRC_DIR}/util/graphic/BufferedLinearFrameBuffer.cpp
+        ${HHUOS_SRC_DIR}/util/graphic/BufferScroller.cpp
         ${HHUOS_SRC_DIR}/util/graphic/Color.cpp
         ${HHUOS_SRC_DIR}/util/graphic/Font.cpp
         ${HHUOS_SRC_DIR}/util/graphic/LinearFrameBuffer.cpp

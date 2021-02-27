@@ -16,33 +16,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINALOUTPUTSTREAM_H
-#define HHUOS_TERMINALOUTPUTSTREAM_H
+#ifndef HHUOS_FILTERINPUTSTREAM_H
+#define HHUOS_FILTERINPUTSTREAM_H
 
-#include <util/graphic/Terminal.h>
-#include "OutputStream.h"
+#include "InputStream.h"
 
-namespace Util::Stream  {
+namespace Util::Stream {
 
-class TerminalOutputStream : public OutputStream {
+class FilterInputStream : public InputStream {
 
 public:
 
-    explicit TerminalOutputStream(Graphic::Terminal &terminal);
+    explicit FilterInputStream(InputStream &stream);
 
-    TerminalOutputStream(const TerminalOutputStream &copy) = delete;
+    FilterInputStream(const FilterInputStream &copy) = delete;
 
-    TerminalOutputStream &operator=(const TerminalOutputStream &copy) = delete;
+    FilterInputStream &operator=(const FilterInputStream &copy) = delete;
 
-    ~TerminalOutputStream() override = default;
+    ~FilterInputStream() override = default;
 
-    void write(uint8_t c) override;
+    int16_t read() override;
 
-    void write(const uint8_t *source, uint32_t offset, uint32_t length) override;
+    uint32_t read(uint8_t *target, uint32_t offset, uint32_t length) override;
+
+    void close() override;
 
 private:
 
-    Graphic::Terminal &terminal;
+    InputStream &stream;
 };
 
 }

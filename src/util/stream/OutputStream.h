@@ -25,9 +25,6 @@ namespace Util::Stream {
 
 /**
  * Interface for classes, that write output as a stream of bytes.
- * The C++ output stream operator can be used, to write strings. Numbers will be converted to their string representation before writing.
- *
- * The C++ output stream operator is based on work by Olaf Spinczyk, TU Dortmund (2017).
  */
 class OutputStream {
 
@@ -49,92 +46,7 @@ public:
 
     virtual void close();
 
-    /**
-     * Write the string representation of a character.
-     *
-     * @param c The char.
-     */
-    OutputStream& operator<<(char c);
-
-    /**
-     * Write the string representation of a null-terminated string.
-     *
-     * @param string The string.
-     */
-    OutputStream& operator<<(const char *string);
-
-    /**
-     * Covert a short integer.
-     *
-     * @param value The integer.
-     */
-    OutputStream& operator<<(int16_t value);
-
-    /**
-     * Write the string representation of an unsigned short integer.
-     *
-     * @param value The integer.
-     */
-    OutputStream& operator<<(uint16_t value);
-
-    /**
-     * Write the string representation of an integer.
-     *
-     * @param value The integer.
-     */
-    OutputStream& operator<<(int32_t value);
-
-    /**
-     * Write the string representation of an unsigned integer.
-     *
-     * @param value The integer.
-     */
-    OutputStream& operator<<(uint32_t value);
-
-    /**
-     * Write the string representation of a pointer (same as uint32_t).
-     *
-     * @param ptr The pointer
-     */
-    OutputStream& operator<<(void *ptr);
-
-    /**
-     * Manipulate the stream using the manipulator functions.
-     */
-    OutputStream& operator<<(OutputStream& (*f) (OutputStream&));
-
-    /**
-     * Line break.
-     */
-    static OutputStream& endl(OutputStream& os);
-
-    /**
-     * Change the OutputStream's base to 2.
-     * All numbers will then be converted to binary notation.
-     */
-    static OutputStream& bin(OutputStream& os);
-
-    /**
-     * Change the OutputStream's base to 8.
-     * All numbers will then be converted to octal notation.
-     */
-    static OutputStream& oct(OutputStream& os);
-
-    /**
-     * Change the OutputStream's base to 10.
-     * All numbers will then be converted to decimal notation.
-     */
-    static OutputStream& dec(OutputStream& os);
-
-    /**
-     * Change the OutputStream's base to 16.
-     * All numbers will then be converted to hexadecimal notation.
-     */
-    static OutputStream& hex(OutputStream& os);
-
-private:
-
-    Async::Atomic<uint8_t> base = Async::Atomic<uint8_t>(10);
+    virtual OutputStream& operator<<(uint8_t c);
 };
 
 }

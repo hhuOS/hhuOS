@@ -19,6 +19,8 @@
 #include <kernel/multiboot/Structure.h>
 #include <util/graphic/Terminal.h>
 #include <util/stream/TerminalOutputStream.h>
+#include <util/stream/StringFormatOutputStream.h>
+#include <util/stream/BufferedOutputStream.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -30,12 +32,15 @@ void GatesOfHell::enter() {
     auto fbInfo = Kernel::Multiboot::Structure::getFrameBufferInfo();
     auto lfb = Util::Graphic::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
     auto terminal = Util::Graphic::Terminal(lfb);
-    auto outputStream =  Util::Stream::TerminalOutputStream(terminal);
+    auto terminalStream = Util::Stream::TerminalOutputStream(terminal);
+    auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream);
+    auto outputStream = Util::Stream::StringFormatOutputStream(bufferedStream);
 
-    outputStream << "Welcome to hhuOS!" << Util::Stream::OutputStream::endl
-        << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::OutputStream::endl
-        << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::OutputStream::endl
-        << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::OutputStream::endl;
+    outputStream << "Welcome to hhuOS!" << Util::Stream::StringFormatOutputStream::endl
+                 << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")"
+                 << Util::Stream::StringFormatOutputStream::endl
+                 << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::StringFormatOutputStream::endl
+                 << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::StringFormatOutputStream::endl;
 
     Device::Cpu::halt();
 }

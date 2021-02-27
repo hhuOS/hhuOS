@@ -21,9 +21,9 @@
 
 namespace Util::Stream {
 
-int8_t InputStream::read(int8_t *target, uint32_t offset, uint32_t length) {
+uint32_t InputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
     if (offset < 0 || length < 0) {
-        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "InputStream: Negative offset or length!");
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "InputStream: Negative offset or size!");
     }
 
     uint32_t i;

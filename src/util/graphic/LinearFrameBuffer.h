@@ -98,6 +98,8 @@ public:
      */
     [[nodiscard]] Color readPixel(uint16_t x, uint16_t y) const;
 
+    void clear();
+
 private:
     uint8_t *buffer = nullptr;
 

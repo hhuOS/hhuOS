@@ -16,33 +16,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINALOUTPUTSTREAM_H
-#define HHUOS_TERMINALOUTPUTSTREAM_H
+#ifndef HHUOS_BUFFEREDINPUTSTREAM_H
+#define HHUOS_BUFFEREDINPUTSTREAM_H
 
-#include <util/graphic/Terminal.h>
-#include "OutputStream.h"
+#include "FilterInputStream.h"
 
-namespace Util::Stream  {
+namespace Util::Stream {
 
-class TerminalOutputStream : public OutputStream {
+class BufferedInputStream : public FilterInputStream {
 
 public:
 
-    explicit TerminalOutputStream(Graphic::Terminal &terminal);
+    explicit BufferedInputStream(InputStream &stream);
 
-    TerminalOutputStream(const TerminalOutputStream &copy) = delete;
+    BufferedInputStream(InputStream &stream, uint32_t size);
 
-    TerminalOutputStream &operator=(const TerminalOutputStream &copy) = delete;
+    BufferedInputStream(const BufferedInputStream &copy) = delete;
 
-    ~TerminalOutputStream() override = default;
+    BufferedInputStream &operator=(const BufferedInputStream &copy) = delete;
 
-    void write(uint8_t c) override;
+    ~BufferedInputStream() override;
 
-    void write(const uint8_t *source, uint32_t offset, uint32_t length) override;
+    int16_t read() override;
+
+    uint32_t read(uint8_t *target, uint32_t offset, uint32_t length) override;
+
+    void close() override;
 
 private:
 
-    Graphic::Terminal &terminal;
+    bool refill();
+
+    uint8_t *buffer;
+    uint32_t size;
+    uint32_t position = 0;
+    uint32_t valid = 0;
+
+    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 512;
 };
 
 }
