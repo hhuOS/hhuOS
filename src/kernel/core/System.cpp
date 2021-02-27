@@ -28,11 +28,11 @@ int32_t atexit (void (*func)()) noexcept {
 
 namespace Kernel {
 
-Async::Spinlock System::serviceLock;
+Util::Async::Spinlock System::serviceLock;
 
-Util::HashMap<Util::String, KernelService *> System::serviceMap(SERVICE_MAP_SIZE);
+Util::Data::HashMap<Util::Memory::String, KernelService *> System::serviceMap(sizeof(uint8_t));
 
-void System::registerService(const Util::String &serviceId, KernelService *const &kernelService) {
+void System::registerService(const Util::Memory::String &serviceId, KernelService *const &kernelService) {
 
     serviceLock.acquire();
 
@@ -41,7 +41,7 @@ void System::registerService(const Util::String &serviceId, KernelService *const
     serviceLock.release();
 }
 
-bool System::isServiceRegistered(const Util::String &serviceId) {
+bool System::isServiceRegistered(const Util::Memory::String &serviceId) {
 
     return serviceMap.containsKey(serviceId);
 }

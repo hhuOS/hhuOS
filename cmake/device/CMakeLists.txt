@@ -25,4 +25,4 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 add_subdirectory(cpu)
 add_subdirectory(interrupt)
 
-target_link_libraries(${PROJECT_NAME} kernel lib)
+target_link_libraries(${PROJECT_NAME} kernel util)

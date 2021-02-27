@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/Address.h>
+#include <util/memory/Address.h>
 #include "kernel/memory/Paging.h"
 #include "FreeListMemoryManager.h"
 
@@ -46,7 +46,7 @@ void FreeListMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEnd
     }
 }
 
-Util::String FreeListMemoryManager::getTypeName() {
+Util::Memory::String FreeListMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 
@@ -94,7 +94,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     }
 
     // align requested size to 4 byte
-    size = Util::Address<uint32_t>(size).alignUp(sizeof(uint32_t)).get();
+    size = Util::Memory::Address<uint32_t>(size).alignUp(sizeof(uint32_t)).get();
 
     FLHeader *current = startChunk;
     FLHeader *aligned = nullptr;
@@ -105,7 +105,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
         if (current->size >= size) {
 
             uint32_t data = ((uint32_t) current) + HEADER_SIZE;
-            uint32_t alignedData = Util::Address(data).alignUp(alignment).get();
+            uint32_t alignedData = Util::Memory::Address(data).alignUp(alignment).get();
 
             // Found free Memory Block with required alignment
             if (data == alignedData) {
@@ -114,7 +114,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
             // Make sure the aligned Memory Block's header
             // does not overlap with the current one
-            aligned = (FLHeader * )(Util::Address(data + HEADER_SIZE + MIN_BLOCK_SIZE).alignUp(alignment).get() - HEADER_SIZE);
+            aligned = (FLHeader * )(Util::Memory::Address(data + HEADER_SIZE + MIN_BLOCK_SIZE).alignUp(alignment).get() - HEADER_SIZE);
 
             // Check if current block has enough free
             // data space to fit in the aligned block
@@ -401,7 +401,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
     }
 
     if (ret != nullptr) {
-        Util::Address<uint32_t>(ret).copyRange(Util::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
+        Util::Memory::Address<uint32_t>(ret).copyRange(Util::Memory::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
 
         free(ptr);
     }

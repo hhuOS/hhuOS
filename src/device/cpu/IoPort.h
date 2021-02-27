@@ -18,7 +18,7 @@
 #define __IoPort_include__
 
 #include <cstdint>
-#include <lib/util/Address.h>
+#include <util/memory/Address.h>
 
 namespace Device {
 
@@ -55,7 +55,7 @@ public:
      *
      * @return The address of this port
      */
-    [[nodiscard]] Util::Address<uint16_t> getAddress() const;
+    [[nodiscard]] Util::Memory::Address<uint16_t> getAddress() const;
 
     /**
      * Write a byte to this IO-port.
@@ -133,7 +133,7 @@ public:
 
 private:
 
-    const Util::Address<uint16_t> address;
+    const Util::Memory::Address<uint16_t> address;
 };
 
 }

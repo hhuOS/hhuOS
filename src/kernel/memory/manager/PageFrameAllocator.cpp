@@ -39,7 +39,7 @@ void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAdd
     }
 }
 
-Util::String PageFrameAllocator::getTypeName() {
+Util::Memory::String PageFrameAllocator::getTypeName() {
     return TYPE_NAME;
 }
 

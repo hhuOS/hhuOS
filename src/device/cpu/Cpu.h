@@ -18,7 +18,7 @@
 #define __CPU_include__
 
 #include <cstdint>
-#include <lib/async/Atomic.h>
+#include <util/async/Atomic.h>
 
 namespace Device {
 
@@ -177,7 +177,7 @@ private:
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.
      * Interrupts stay disabled, as long as this number is greater than zero.
      */
-    static Async::Atomic<int32_t> cliCount;
+    static Util::Async::Atomic<int32_t> cliCount;
 };
 
 }

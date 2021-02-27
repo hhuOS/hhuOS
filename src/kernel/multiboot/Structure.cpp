@@ -45,13 +45,13 @@ MemoryMapEntry Structure::customMemoryMap[256];
 
 Structure::MemoryBlock Structure::blockMap[256];
 
-Util::ArrayList<MemoryMapEntry> Structure::memoryMap;
+Util::Data::ArrayList<MemoryMapEntry> Structure::memoryMap;
 
 FrameBufferInfo Structure::frameBufferInfo;
 
-Util::HashMap<Util::String, ModuleInfo> Structure::modules;
+Util::Data::HashMap<Util::Memory::String, ModuleInfo> Structure::modules;
 
-Util::HashMap<Util::String, Util::String> Structure::kernelOptions;
+Util::Data::HashMap<Util::Memory::String, Util::Memory::String> Structure::kernelOptions;
 
 extern "C" {
     void readMemoryMap(Info *address);
@@ -71,29 +71,29 @@ void readMemoryMap(Info *address) {
  */
 void copyMultibootInfo(Info *info, uint8_t *destination) {
     // first, copy the struct itself
-    Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info), sizeof(Info));
+    Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(info), sizeof(Info));
     info = (Info*)destination;
     destination += sizeof(Info);
     
     // then copy the commandline
     if(info->flags & MULTIBOOT_INFO_CMDLINE) {
-        Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(info->commandLine), 4095);
+        Util::Memory::Address<uint32_t>(destination).copyString(Util::Memory::Address<uint32_t>(info->commandLine), 4095);
         destination[4095] = '\0';
         info->commandLine = (uint32_t) destination;
         destination += 4096;
     }
     
-    // TODO: the following lines may write past the end of our destination buf
+    // TODO: the following rows may write past the end of our destination buf
     
     // then copy the module information
     if(info->flags & MULTIBOOT_INFO_MODS) {
         uint32_t len = info->moduleCount * sizeof(ModuleInfo);
-        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->moduleAddress), len);
+        Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(info->moduleAddress), len);
         info->moduleAddress = (uint32_t)destination;
         destination += len;
         ModuleInfo *mods = (ModuleInfo*) info->moduleAddress;
         for(uint32_t i = 0; i < info->moduleCount; i++) {
-            Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(mods[i].string), 511);
+            Util::Memory::Address<uint32_t>(destination).copyString(Util::Memory::Address<uint32_t>(mods[i].string), 511);
             destination[511] = '\0';
             mods[i].string = (char*)destination;
             destination += 512;
@@ -103,7 +103,7 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
     // then copy the symbol headers and the symbols
     if(info->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t len = info->symbols.elf.sectionSize * info->symbols.elf.sectionCount;
-        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->symbols.elf.address), len);
+        Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(info->symbols.elf.address), len);
         info->symbols.elf.address = (uint32_t)destination;
         destination += len;
         Symbols::copy(info->symbols.elf, destination);
@@ -111,21 +111,21 @@ void copyMultibootInfo(Info *info, uint8_t *destination) {
     
     // then copy the memory map
     if(info->flags & MULTIBOOT_INFO_MEM_MAP) {
-        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->memoryMapAddress), info->memoryMapLength);
+        Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(info->memoryMapAddress), info->memoryMapLength);
         info->memoryMapAddress = (uint32_t)destination;
         destination += info->memoryMapLength;
     }
     
     // then copy the drives
     if(info -> flags &  MULTIBOOT_INFO_DRIVE_INFO) {
-        Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(info->driveAddress), info->driveLength);
+        Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(info->driveAddress), info->driveLength);
         info->driveAddress = (uint32_t)destination;
         destination += info->driveLength;
     }
     
     // then copy the boot loader name
     if(info->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-        Util::Address<uint32_t>(destination).copyString(Util::Address<uint32_t>(info->bootloaderName), 4095);
+        Util::Memory::Address<uint32_t>(destination).copyString(Util::Memory::Address<uint32_t>(info->bootloaderName), 4095);
         destination[4095] = '\0';
         info->bootloaderName = (uint32_t) destination;
         destination += 4096;
@@ -154,13 +154,13 @@ void Structure::readMemoryMap(Info *address) {
 
     ElfInfo &symbolInfo = tmp.symbols.elf;
 
-    ElfConstants::SectionHeader *sectionHeader = nullptr;
+    Elf::Constants::SectionHeader *sectionHeader = nullptr;
 
     if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_ELF_SHDR)) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
-            sectionHeader = (ElfConstants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
+            sectionHeader = (Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
             if (sectionHeader->virtualAddress == 0x0) {
 
@@ -274,11 +274,11 @@ void Structure::parseCommandLine() {
 
         info.commandLine += KERNEL_START;
 
-        Util::Array<Util::String> options = Util::String((char *) info.commandLine).split(" ");
+        Util::Data::Array<Util::Memory::String> options = Util::Memory::String((char *) info.commandLine).split(" ");
 
-        for (const Util::String &option : options) {
+        for (const Util::Memory::String &option : options) {
 
-            Util::Array<Util::String> pair = option.split("=");
+            Util::Data::Array<Util::Memory::String> pair = option.split("=");
 
             if (pair.length() != 2) {
 
@@ -313,17 +313,17 @@ void Structure::parseMemoryMap() {
     }
 }
 
-Util::Array<MemoryMapEntry> Structure::getMemoryMap() {
+Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
 
     if ((info.flags & MULTIBOOT_INFO_MEM_MAP) == 0x0) {
-        return Util::Array<MemoryMapEntry>(0);
+        return Util::Data::Array<MemoryMapEntry>(0);
     }
 
     auto *entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
 
     uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
-    Util::Array<MemoryMapEntry> memoryMap(size);
+    Util::Data::Array<MemoryMapEntry> memoryMap(size);
 
     for (uint32_t i = 0; i < size; i++) {
         memoryMap[i] = entry[i];
@@ -367,7 +367,7 @@ void Structure::parseModules() {
     }
 }
 
-ModuleInfo Structure::getModule(const Util::String &module) {
+ModuleInfo Structure::getModule(const Util::Memory::String &module) {
 
     if (isModuleLoaded(module)) {
 
@@ -377,19 +377,19 @@ ModuleInfo Structure::getModule(const Util::String &module) {
     return {0, 0, "unknown", 0};
 }
 
-bool Structure::isModuleLoaded(const Util::String &module) {
+bool Structure::isModuleLoaded(const Util::Memory::String &module) {
 
     return modules.containsKey(module);
 }
 
-Util::String Structure::getKernelOption(const Util::String &key) {
+Util::Memory::String Structure::getKernelOption(const Util::Memory::String &key) {
 
     if (kernelOptions.containsKey(key)) {
 
         return kernelOptions.get(key);
     }
 
-    return Util::String();
+    return Util::Memory::String();
 }
 
 void Structure::parseFrameBufferInfo() {

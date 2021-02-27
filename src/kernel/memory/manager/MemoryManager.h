@@ -18,9 +18,9 @@
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
 #include <cstdint>
-#include "lib/util/Prototype.h"
-#include "lib/util/String.h"
-#include "lib/util/HashMap.h"
+#include "util/reflection/Prototype.h"
+#include "util/memory/String.h"
+#include "util/data/HashMap.h"
 #include "device/cpu/Cpu.h"
 
 namespace Kernel {
@@ -31,7 +31,7 @@ namespace Kernel {
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
-class MemoryManager : public Util::Prototype {
+class MemoryManager : public Util::Reflection::Prototype {
 
 protected:
 

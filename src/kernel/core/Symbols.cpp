@@ -20,9 +20,9 @@
 
 namespace Kernel {
 
-Util::HashMap<Util::String, Util::Address<uint32_t>> Symbols::symbolTable(1129);
+Util::Data::HashMap<Util::Memory::String, Util::Memory::Address<uint32_t>> Symbols::symbolTable(1129);
 
-Util::HashMap<Util::Address<uint32_t>, char *> Symbols::debugTable(1129);
+Util::Data::HashMap<Util::Memory::Address<uint32_t>, char *> Symbols::debugTable(1129);
 
 Multiboot::ElfInfo Symbols::symbolInfo;
 
@@ -49,7 +49,7 @@ uint32_t pow(uint32_t base, uint32_t exponent) {
 
 uint32_t hextoint(const char *hexString) {
 
-    uint32_t len = Util::Address<uint32_t>(hexString).stringLength();
+    uint32_t len = Util::Memory::Address<uint32_t>(hexString).stringLength();
 
     uint32_t ret = 0;
 
@@ -77,7 +77,7 @@ uint32_t hextoint(const char *hexString) {
     return ret;
 }
 
-uint32_t Symbols::get(const Util::String &name) {
+uint32_t Symbols::get(const Util::Memory::String &name) {
 
     if (symbolTable.containsKey((char *) name)) {
 
@@ -94,21 +94,21 @@ const char *Symbols::get(uint32_t eip) {
         return NO_INFORMATION;
     }
 
-    while (!debugTable.containsKey(Util::Address(eip))) {
+    while (!debugTable.containsKey(Util::Memory::Address(eip))) {
 
         eip--;
     }
 
-    return debugTable.get(Util::Address(eip));
+    return debugTable.get(Util::Memory::Address(eip));
 }
 
-void Symbols::load(const ElfConstants::SectionHeader &sectionHeader) {
+void Symbols::load(const Elf::Constants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    auto *entry = (ElfConstants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
+    auto *entry = (Elf::Constants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
 
-    auto *stringSection = (ElfConstants::SectionHeader *) (symbolInfo.address +
+    auto *stringSection = (Elf::Constants::SectionHeader *) (symbolInfo.address +
                                                                                   sectionHeader.link *
                                                                                   symbolInfo.sectionSize);
 
@@ -116,7 +116,7 @@ void Symbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
-        if (entry->value < KERNEL_START || entry->getSymbolType() == ElfConstants::SymbolType::SECTION) {
+        if (entry->value < KERNEL_START || entry->getSymbolType() == Elf::Constants::SymbolType::SECTION) {
 
             continue;
         }
@@ -125,9 +125,9 @@ void Symbols::load(const ElfConstants::SectionHeader &sectionHeader) {
 
         uint32_t address = entry->value;
 
-        symbolTable.put(symbol, Util::Address(address));
+        symbolTable.put(symbol, Util::Memory::Address(address));
 
-        debugTable.put(Util::Address(address), symbol);
+        debugTable.put(Util::Memory::Address(address), symbol);
     }
 }
 
@@ -135,13 +135,13 @@ void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
 
     symbolInfo = elfInfo;
 
-    ElfConstants::SectionHeader *sectionHeader = nullptr;
+    Elf::Constants::SectionHeader *sectionHeader = nullptr;
 
     for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
-        sectionHeader = (ElfConstants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
+        sectionHeader = (Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
-        if (sectionHeader->type == ElfConstants::SectionHeaderType::SYMTAB) {
+        if (sectionHeader->type == Elf::Constants::SectionHeaderType::SYMTAB) {
 
             load(*sectionHeader);
         }
@@ -151,15 +151,15 @@ void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
 }
 
 void Symbols::copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination) {
-    ElfConstants::SectionHeader *sectionHeader = nullptr;
+    Elf::Constants::SectionHeader *sectionHeader = nullptr;
     for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
-        sectionHeader = (ElfConstants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
+        sectionHeader = (Elf::Constants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
         // only copy the sections that are not part of the loaded program
         if ((sectionHeader->virtualAddress & KERNEL_START) == 0) {
             // only copy symbols and strings, discard the rest
-            if (sectionHeader->type == ElfConstants::SectionHeaderType::SYMTAB
-            || sectionHeader->type == ElfConstants::SectionHeaderType::STRTAB) {
-                Util::Address<uint32_t>(destination).copyRange(Util::Address<uint32_t>(sectionHeader->virtualAddress), sectionHeader->size);
+            if (sectionHeader->type == Elf::Constants::SectionHeaderType::SYMTAB
+            || sectionHeader->type == Elf::Constants::SectionHeaderType::STRTAB) {
+                Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(sectionHeader->virtualAddress), sectionHeader->size);
                 sectionHeader->virtualAddress = (elf32_addr) destination;
                 destination += sectionHeader->size;
             } else {

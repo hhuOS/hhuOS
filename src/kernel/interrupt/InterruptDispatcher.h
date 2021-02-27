@@ -21,8 +21,8 @@
 #include "InterruptHandler.h"
 #include "kernel/thread/ThreadState.h"
 #include "kernel/service/KernelService.h"
-#include "lib/util/ArrayList.h"
-#include "lib/util/HashMap.h"
+#include "util/data/ArrayList.h"
+#include "util/data/HashMap.h"
 
 namespace Kernel {
 
@@ -77,7 +77,7 @@ public:
      * @param slot Interrupt number
      * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
      */
-    Util::List<InterruptHandler *> *report(uint8_t slot);
+    Util::Data::List<InterruptHandler *> *report(uint8_t slot);
 
     /**
      * Dispatched the interrupt to all registered interrupt handlers.
@@ -90,7 +90,7 @@ public:
 
 private:
 
-    Util::HashMap<uint8_t, Util::ArrayList<InterruptHandler *> *> handler;
+    Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *> *> handler;
 
     static void sendEoi(uint32_t slot);
 };

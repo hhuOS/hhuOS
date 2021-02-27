@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/Address.h>
+#include <util/memory/Address.h>
 #include "Management.h"
 
 #include "kernel/interrupt/InterruptDispatcher.h"
@@ -103,10 +103,10 @@ void fini_system() {
  */
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc) {
     // Set first 6 GDT entries to 0
-    Util::Address<uint32_t>(gdt).setRange(0, 48);
+    Util::Memory::Address<uint32_t>(gdt).setRange(0, 48);
 
     // Set first 4 bios GDT entries to 0
-    Util::Address<uint32_t>(gdt_bios).setRange(0, 32);
+    Util::Memory::Address<uint32_t>(gdt_bios).setRange(0, 32);
 
     // first set up general GDT for the system
     // first entry has to be null
@@ -228,7 +228,7 @@ void Management::init() {
     switchAddressSpace(currentAddressSpace);
 
     // add first address space to list with all address spaces
-    addressSpaces = new Util::ArrayList<VirtualAddressSpace *>;
+    addressSpaces = new Util::Data::ArrayList<VirtualAddressSpace *>;
     addressSpaces->add(currentAddressSpace);
 
     // Initialize global objects afterwards, because now missing pages can be mapped
@@ -425,7 +425,7 @@ bool Management::isKernelMode() {
 
 void Management::calcTotalPhysicalMemory() {
 
-    Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::Structure::getMemoryMap();
+    Util::Data::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::Structure::getMemoryMap();
     Multiboot::MemoryMapEntry &maxEntry = memoryMap[0];
     for (const auto &entry : memoryMap) {
         if (entry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
@@ -454,7 +454,7 @@ void Management::calcTotalPhysicalMemory() {
     }
 }
 
-VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const Util::String &managerType) {
+VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const Util::Memory::String &managerType) {
     auto *addressSpace = new VirtualAddressSpace(basePageDirectory, managerOffset, managerType);
     // add to the list of address spaces
     addressSpaces->add(addressSpace);

@@ -33,7 +33,7 @@ void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddres
     // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
 }
 
-Util::String IOMemoryManager::getTypeName() {
+Util::Memory::String IOMemoryManager::getTypeName() {
     return TYPE_NAME;
 }
 

@@ -54,7 +54,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::String getTypeName() override;
+    Util::Memory::String getTypeName() override;
 
 };
 

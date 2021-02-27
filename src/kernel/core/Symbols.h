@@ -17,11 +17,11 @@
 #ifndef __KernelSymbols_include__
 #define __KernelSymbols_include__
 
-#include "lib/util/Address.h"
-#include "lib/util/String.h"
-#include "lib/util/HashMap.h"
+#include "util/memory/Address.h"
+#include "util/memory/String.h"
+#include "util/data/HashMap.h"
 #include "kernel/multiboot/Constants.h"
-#include "lib/elf/ElfConstants.h"
+#include "util/elf/ElfConstants.h"
 
 namespace Kernel {
 
@@ -42,7 +42,7 @@ public:
      * @param name The symbol
      * @return The symbol's address
      */
-    static uint32_t get(const Util::String &name);
+    static uint32_t get(const Util::Memory::String &name);
 
     /**
      * Returns the symbol name for a given address.
@@ -75,13 +75,13 @@ private:
 
     static Multiboot::ElfInfo symbolInfo;
 
-    static Util::HashMap<Util::String, Util::Address<uint32_t>> symbolTable;
+    static Util::Data::HashMap<Util::Memory::String, Util::Memory::Address<uint32_t>> symbolTable;
 
-    static Util::HashMap<Util::Address<uint32_t>, char *> debugTable;
+    static Util::Data::HashMap<Util::Memory::Address<uint32_t>, char *> debugTable;
 
     static bool initialized;
 
-    static void load(const ElfConstants::SectionHeader &sectionHeader);
+    static void load(const Elf::Constants::SectionHeader &sectionHeader);
 
     static const constexpr char *NO_INFORMATION = "<no information>";
 

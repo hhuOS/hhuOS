@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/String.h"
+#include "util/memory/String.h"
 #include "kernel/core/Management.h"
 #include "Cpu.h"
 
@@ -44,7 +44,7 @@ const char *Cpu::softwareExceptions[]{
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on startup
+Util::Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on startup
 
 void enable_interrupts() {
     Cpu::enableInterrupts();

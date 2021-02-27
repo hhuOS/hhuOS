@@ -81,7 +81,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         return;
     }
 
-    Util::List<InterruptHandler *> *list = report(slot);
+    Util::Data::List<InterruptHandler*> *list = report(slot);
 
     if (list == nullptr && slot >= 32) {
         Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "No handler registered!");
@@ -103,13 +103,13 @@ void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
 
     if (!handler.containsKey(slot)) {
 
-        handler.put(slot, new Util::ArrayList<InterruptHandler *>);
+        handler.put(slot, new Util::Data::ArrayList<InterruptHandler *>);
     }
 
     handler.get(slot)->add(&isr);
 }
 
-Util::List<InterruptHandler *> *InterruptDispatcher::report(uint8_t slot) {
+Util::Data::List<InterruptHandler*>* InterruptDispatcher::report(uint8_t slot) {
 
     if (!handler.containsKey(slot)) {
 

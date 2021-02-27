@@ -18,8 +18,8 @@
 #define __IOMEMMANAGER_H__
 
 #include <cstdint>
-#include "lib/util/HashMap.h"
-#include "lib/async/Spinlock.h"
+#include "util/data/HashMap.h"
+#include "util/async/Spinlock.h"
 #include "BitmapMemoryManager.h"
 
 namespace Kernel {
@@ -38,9 +38,9 @@ class IOMemoryManager : public BitmapMemoryManager {
 
 private:
 
-    Util::HashMap<void *, uint32_t> ioMemoryMap;
+    Util::Data::HashMap<void *, uint32_t> ioMemoryMap;
 
-    Async::Spinlock lock;
+    Util::Async::Spinlock lock;
 
     static const constexpr char *TYPE_NAME = "IOMemoryManager";
 
@@ -71,7 +71,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::String getTypeName() override;
+    Util::Memory::String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

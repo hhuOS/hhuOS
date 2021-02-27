@@ -19,8 +19,8 @@
 
 #include <cstdint>
 #include "Constants.h"
-#include "lib/util/String.h"
-#include "lib/util/HashMap.h"
+#include "util/memory/String.h"
+#include "util/data/HashMap.h"
 
 namespace Kernel::Multiboot {
 
@@ -56,15 +56,15 @@ namespace Kernel::Multiboot {
 
         static void readMemoryMap(Info *address);
 
-        static Multiboot::ModuleInfo getModule(const Util::String &module);
+        static Multiboot::ModuleInfo getModule(const Util::Memory::String &module);
 
-        static Util::Array<Multiboot::MemoryMapEntry> getMemoryMap();
+        static Util::Data::Array<Multiboot::MemoryMapEntry> getMemoryMap();
 
         static FrameBufferInfo getFrameBufferInfo();
 
-        static bool isModuleLoaded(const Util::String &module);
+        static bool isModuleLoaded(const Util::Memory::String &module);
 
-        static Util::String getKernelOption(const Util::String &key);
+        static Util::Memory::String getKernelOption(const Util::Memory::String &key);
 
         static uint32_t physReservedMemoryEnd;
 
@@ -86,11 +86,11 @@ namespace Kernel::Multiboot {
 
         static Info info;
 
-        static Util::HashMap<Util::String, Multiboot::ModuleInfo> modules;
+        static Util::Data::HashMap<Util::Memory::String, Multiboot::ModuleInfo> modules;
 
-        static Util::HashMap<Util::String, Util::String> kernelOptions;
+        static Util::Data::HashMap<Util::Memory::String, Util::Memory::String> kernelOptions;
 
-        static Util::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
+        static Util::Data::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 
         static MemoryMapEntry customMemoryMap[256];
 

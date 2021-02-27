@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/HashMap.h"
+#include "util/data/HashMap.h"
 #include "MemoryManager.h"
 
 namespace Kernel {

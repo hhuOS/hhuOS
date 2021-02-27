@@ -16,13 +16,11 @@
 
 #include <cstdint>
 #include <device/cpu/Cpu.h>
-#include <lib/graphic/LinearFrameBuffer.h>
 #include <kernel/multiboot/Structure.h>
-#include <lib/graphic/Colors.h>
-#include <lib/graphic/Fonts.h>
-#include <lib/graphic/PixelDrawer.h>
-#include <lib/graphic/StringDrawer.h>
+#include <util/graphic/Terminal.h>
+#include <util/stream/TerminalOutputStream.h>
 #include "GatesOfHell.h"
+#include "BuildConfig.h"
 
 int32_t main() {
     GatesOfHell::enter();
@@ -30,11 +28,14 @@ int32_t main() {
 
 void GatesOfHell::enter() {
     auto fbInfo = Kernel::Multiboot::Structure::getFrameBufferInfo();
-    auto lfb = new Util::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
-    auto pixelDrawer = new Util::PixelDrawer(*lfb);
-    auto stringDrawer = new Util::StringDrawer(*pixelDrawer);
+    auto lfb = Util::Graphic::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
+    auto terminal = Util::Graphic::Terminal(lfb);
+    auto outputStream =  Util::Stream::TerminalOutputStream(terminal);
 
-    stringDrawer->drawString(Util::Fonts::TERMINAL_FONT, 0, 0, "Welcome to hhuOS!", Util::Colors::TERM_WHITE, Util::Colors::TERM_BLACK);
+    outputStream << "Welcome to hhuOS!" << Util::Stream::OutputStream::endl
+        << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::OutputStream::endl
+        << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::OutputStream::endl
+        << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::OutputStream::endl;
 
     Device::Cpu::halt();
 }

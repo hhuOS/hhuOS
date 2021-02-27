@@ -24,7 +24,7 @@
 #include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "lib/util/ArrayList.h"
+#include "util/data/ArrayList.h"
 #include "TaskStateSegment.h"
 
 namespace Kernel {
@@ -65,7 +65,7 @@ private:
     VirtualAddressSpace *mainAddressSpace{};
 
     // list of all address spaces
-    Util::ArrayList<VirtualAddressSpace *> *addressSpaces{};
+    Util::Data::ArrayList<VirtualAddressSpace *> *addressSpaces{};
 
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
@@ -164,7 +164,7 @@ public:
      *
      * @return Pointer to the new address space
      */
-    VirtualAddressSpace *createAddressSpace(uint32_t managerOffset, const Util::String &managerType);
+    VirtualAddressSpace *createAddressSpace(uint32_t managerOffset, const Util::Memory::String &managerType);
 
     /**
      * Switches to a given address space.
@@ -180,7 +180,7 @@ public:
      */
     void removeAddressSpace(VirtualAddressSpace *addressSpace);
 
-    void loadApplication(const Util::String &path);
+    void loadApplication(const Util::Memory::String &path);
 
 
     // Mappings and unmappings

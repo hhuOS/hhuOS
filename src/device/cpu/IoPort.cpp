@@ -22,7 +22,7 @@ IoPort::IoPort(uint16_t a) noexcept: address(a) {
 
 };
 
-Util::Address<uint16_t> IoPort::getAddress() const {
+Util::Memory::Address<uint16_t> IoPort::getAddress() const {
     return address;
 }
 

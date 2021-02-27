@@ -18,7 +18,7 @@
 #define __FREELISTMEMORYMANAGER_H__
 
 #include <cstdint>
-#include "lib/async/Spinlock.h"
+#include "util/async/Spinlock.h"
 #include "MemoryManager.h"
 
 namespace Kernel {
@@ -44,7 +44,7 @@ private:
         uint32_t size;
     };
 
-    Async::Spinlock lock;
+    Util::Async::Spinlock lock;
 
     FLHeader *firstChunk = nullptr;
 
@@ -120,7 +120,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::String getTypeName() override;
+    Util::Memory::String getTypeName() override;
 
     /**
      * Overriding function from MemoryManager.

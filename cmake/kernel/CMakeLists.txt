@@ -27,4 +27,4 @@ add_subdirectory(interrupt)
 add_subdirectory(memory)
 add_subdirectory(multiboot)
 
-target_link_libraries(${PROJECT_NAME} device lib)
+target_link_libraries(${PROJECT_NAME} device util)

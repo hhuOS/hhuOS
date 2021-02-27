@@ -82,6 +82,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wl,--build-id=none -Wn
 # Add subdirectories
 add_subdirectory(device)
 add_subdirectory(kernel)
-add_subdirectory(lib)
+add_subdirectory(util)
 add_subdirectory(system)
 add_subdirectory(iso)
