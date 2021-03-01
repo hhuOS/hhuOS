@@ -79,7 +79,7 @@ Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffe
     auto vbeModeInfo = getModeInfo(modeInfo.modeNumber);
     setMode(modeInfo.modeNumber);
 
-    // Map new buffer into IO memory
+    // Map frame buffer into IO memory
     auto frameBuffer = Kernel::Management::getInstance().mapIO(vbeModeInfo->physbase, static_cast<uint32_t>(vbeModeInfo->pitch * vbeModeInfo->Yres));
     return *new Util::Graphic::LinearFrameBuffer(frameBuffer, vbeModeInfo->Xres, vbeModeInfo->Yres, vbeModeInfo->bpp, vbeModeInfo->pitch);
 }

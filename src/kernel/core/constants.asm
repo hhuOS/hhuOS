@@ -17,6 +17,6 @@
 
 %define KERNEL_START     0xC0000000
 %define STACK_SIZE       0x00004000
-%define MULTIBOOT_SIZE   512 * 1024
+%define MULTIBOOT_SIZE   256 * 1024
 
 %endif

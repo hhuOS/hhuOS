@@ -169,17 +169,15 @@ clear_bss:
 
     ; set stack again to cut off possible old values
     mov esp, (stack - KERNEL_START + STACK_SIZE)
-    
+
     ; copy the Multiboot info struct recursively
-    mov eax, multiboot_data
-    sub eax, KERNEL_START
-    push eax
+    push dword MULTIBOOT_SIZE
+    push dword multiboot_data - KERNEL_START
     push dword [multiboot_phys_addr - KERNEL_START]
     mov eax, copyMultibootInfo
     sub eax, KERNEL_START
     call eax
     add esp, 0x04
-    mov ebx, 0
     
     ; read memory map and push parameters before
     mov eax, multiboot_data

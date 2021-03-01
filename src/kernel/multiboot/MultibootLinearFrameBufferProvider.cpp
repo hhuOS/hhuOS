@@ -1,3 +1,4 @@
+#include <kernel/core/Management.h>
 #include "MultibootLinearFrameBufferProvider.h"
 #include "Structure.h"
 
@@ -8,7 +9,9 @@ MultibootLinearFrameBufferProvider::MultibootLinearFrameBufferProvider() : frame
 }
 
 Util::Graphic::LinearFrameBuffer& MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(MultibootLinearFrameBufferProvider::ModeInfo &modeInfo) {
-    return *new Util::Graphic::LinearFrameBuffer(frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
+    // Map frame buffer into IO memory
+    auto frameBuffer = Kernel::Management::getInstance().mapIO(frameBufferInfo.address, frameBufferInfo.pitch * frameBufferInfo.height);
+    return *new Util::Graphic::LinearFrameBuffer(frameBuffer, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
 }
 
 void MultibootLinearFrameBufferProvider::destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) {

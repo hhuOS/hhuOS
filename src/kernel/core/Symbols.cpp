@@ -150,7 +150,7 @@ void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
     initialized = true;
 }
 
-void Symbols::copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination) {
+void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint32_t> &destination) {
     Elf::Constants::SectionHeader *sectionHeader = nullptr;
     for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
         sectionHeader = (Elf::Constants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
@@ -159,9 +159,10 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, uint8_t* &destination) {
             // only copy symbols and strings, discard the rest
             if (sectionHeader->type == Elf::Constants::SectionHeaderType::SYMTAB
             || sectionHeader->type == Elf::Constants::SectionHeaderType::STRTAB) {
-                Util::Memory::Address<uint32_t>(destination).copyRange(Util::Memory::Address<uint32_t>(sectionHeader->virtualAddress), sectionHeader->size);
-                sectionHeader->virtualAddress = (elf32_addr) destination;
-                destination += sectionHeader->size;
+                auto source = Util::Memory::Address<uint32_t>(sectionHeader->virtualAddress, sectionHeader->size);
+                destination.copyRange(source, sectionHeader->size);
+                sectionHeader->virtualAddress = (elf32_addr) destination.get();
+                destination = destination.add(sectionHeader->size);
             } else {
                 sectionHeader->virtualAddress = 0;
             }

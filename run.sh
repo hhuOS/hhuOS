@@ -85,18 +85,13 @@ parse_debug() {
 
   echo "set architecture i386
       set disassembly-flavor intel
-      break *(debug_label - 0xC0000000)
-      target remote 127.0.0.1:${port}
-      continue" >/tmp/gdbcommands."$(id -u)"
+      target remote 127.0.0.1:${port}" >/tmp/gdbcommands."$(id -u)"
 
   QEMU_GDB_PORT="${port}"
 }
 
 start_gdb() {
-  local port=$1
-
-  gdb -x /tmp/gdbcommands.$(id -u) "loader/boot/hhuOS.bin"
-  
+  gdb -x "/tmp/gdbcommands.$(id -u)" "loader/boot/hhuOS.bin"
   exit $?
 }
 

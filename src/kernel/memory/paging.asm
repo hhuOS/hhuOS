@@ -62,7 +62,6 @@ paging_bootstrap:
     call bootstrapPaging
     add esp, 0x08
 
-debug_label:
     ; load address of 4mb - page directory
     mov ecx, Bootstrap_Page_Directory
     ; calculate phys. address since paging is not enabled yet

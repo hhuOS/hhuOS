@@ -73,7 +73,7 @@ struct ModuleInfo {
 };
 
 struct FrameBufferInfo {
-    void *address;
+    uint32_t address;
     uint16_t width;
     uint16_t height;
     uint16_t pitch;

@@ -67,7 +67,7 @@ Address<T> Address<T>::set(T newAddress) const {
     auto ret = Address<T>(newAddress);
     ret.limit = limit;
 
-    return Address(newAddress, limit);
+    return ret;
 }
 
 template<typename T>
@@ -144,7 +144,7 @@ template<typename T>
 void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) const {
     T i;
     for (i = 0; sourceAddress.getByte(i) != 0 && i < maxBytes; i++) {
-        setByte(i, getByte(i));
+        setByte(i, sourceAddress.getByte(i));
     }
 
     for (; i < maxBytes; i++) {

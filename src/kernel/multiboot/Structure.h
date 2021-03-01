@@ -28,6 +28,8 @@ namespace Kernel::Multiboot {
 
     public:
 
+        static uint32_t usedBytes;
+
         enum BlockType : uint8_t {
             MULTIBOOT_RESERVED = 0x00,
             HEAP_RESERVED = 0x01,
@@ -72,6 +74,7 @@ namespace Kernel::Multiboot {
 
         static MemoryBlock blockMap[256];
 
+        static Info info;
     private:
 
         static void parseCommandLine();
@@ -83,8 +86,6 @@ namespace Kernel::Multiboot {
         static void parseModules();
 
         static void parseFrameBufferInfo();
-
-        static Info info;
 
         static Util::Data::HashMap<Util::Memory::String, Multiboot::ModuleInfo> modules;
 
