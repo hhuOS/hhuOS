@@ -18,7 +18,7 @@
 #define __PIC_include__
 
 #include <cstdint>
-#include "device/cpu/IoPort.h"
+#include <device/cpu/IoPort.h>
 
 namespace Device {
 

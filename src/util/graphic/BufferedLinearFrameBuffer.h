@@ -32,7 +32,7 @@ public:
      * @param address The buffer address
      * @param resolutionX The horizontal resolution
      * @param resolutionY The vertical resolution
-     * @param bitsPerPixel The color depth
+     * @param bitsPerPixel The color colorDepth
      * @param pitch The pitch
      */
     BufferedLinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch);

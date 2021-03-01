@@ -80,6 +80,16 @@ Address<T> Address<T>::alignUp(T alignment) const {
 }
 
 template<typename T>
+uint8_t Address<T>::getByte(T offset) const {
+    return reinterpret_cast<uint8_t*>(address)[offset];
+}
+
+template<typename T>
+void Address<T>::setByte(T offset, uint8_t value) const {
+    reinterpret_cast<uint8_t*>(address)[offset] = value;
+}
+
+template<typename T>
 T Address<T>::stringLength() const {
     auto stringAddress = reinterpret_cast<uint8_t*>(address);
 

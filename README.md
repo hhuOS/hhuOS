@@ -59,7 +59,7 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 hhuOS can be enhanced at runtime by loading kernel modules. Kernel modules can be loaded at boot time via the `hook`-parameters, or later via the shell command `insmod`. The following kernel modules are available:
 
 - `cga` is a driver for the CGA graphics standard. CGA offers a frame buffer mode with a resolution of either 320x200 pixels with 4 colors or 640x200 pixels with 2 colors and a text mode with either 80x25 or 40x25 characters and 16 colors. This module requires BIOS enhancements to be turned on.
-- `vesa` is a driver for the VESA BIOS Extensions, which offer high resolution frame buffers with up to 32-bit color depth (depending on your graphics card and monitor). Text modes are simulated by drawing character sprites on the frame buffer. This module requires BIOS enhancements to be turned on.
+- `vesa` is a driver for the VESA BIOS Extensions, which offer high resolution frame buffers with up to 32-bit color colorDepth (depending on your graphics card and monitor). Text modes are simulated by drawing character sprites on the frame buffer. This module requires BIOS enhancements to be turned on.
 - `fat` adds support for FAT12/16/32 partitions to the filesystem.
 - `fs_memory` adds nodes, which hold information about the memory management, to `/dev/memory/`.
 - `fs_video` adds nodes, which hold information about the current graphics driver, to `/dev/video/`.

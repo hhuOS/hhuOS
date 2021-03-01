@@ -16,11 +16,14 @@
 
 #include <cstdint>
 #include <device/cpu/Cpu.h>
-#include <kernel/multiboot/Structure.h>
-#include <util/graphic/Terminal.h>
 #include <util/stream/TerminalOutputStream.h>
 #include <util/stream/StringFormatOutputStream.h>
 #include <util/stream/BufferedOutputStream.h>
+#include <device/bios/Bios.h>
+#include <device/graphic/VesaBiosExtensions.h>
+#include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
+#include <device/graphic/LinearFrameBufferTerminalProvider.h>
+#include <device/graphic/ColorGraphicsArrayProvider.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -29,9 +32,28 @@ int32_t main() {
 }
 
 void GatesOfHell::enter() {
-    auto fbInfo = Kernel::Multiboot::Structure::getFrameBufferInfo();
-    auto lfb = Util::Graphic::LinearFrameBuffer(fbInfo.address, fbInfo.width, fbInfo.height, fbInfo.bpp, fbInfo.pitch);
-    auto terminal = Util::Graphic::Terminal(lfb);
+    if (Device::Bios::isAvailable()) {
+        Device::Bios::init();
+    }
+
+    Device::Graphic::LinearFrameBufferProvider *lfbProvider;
+    Device::Graphic::TerminalProvider *terminalProvider;
+
+    if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
+        lfbProvider = new Device::Graphic::VesaBiosExtensions();
+    } else {
+        lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
+    }
+
+    terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(*lfbProvider);
+
+    // Uncomment to use CGA graphics
+    /*if (Device::Graphic::ColorGraphicsArrayProvider::isAvailable()) {
+        terminalProvider = new Device::Graphic::ColorGraphicsArrayProvider();
+    }*/
+
+    auto resolution = terminalProvider->searchMode(100, 37, 24);
+    auto &terminal = terminalProvider->initializeTerminal(resolution);
     auto terminalStream = Util::Stream::TerminalOutputStream(terminal);
     auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream);
     auto outputStream = Util::Stream::StringFormatOutputStream(bufferedStream);

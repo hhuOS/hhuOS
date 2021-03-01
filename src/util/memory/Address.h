@@ -61,6 +61,10 @@ public:
 
     [[nodiscard]] T compareString(Address<T> otherAddress) const;
 
+    [[nodiscard]] uint8_t getByte(T offset) const;
+
+    void setByte(T offset, uint8_t value) const;
+
     void setRange(uint8_t value, T amount) const;
 
     void copyRange(Address<T> sourceAddress, T length) const;

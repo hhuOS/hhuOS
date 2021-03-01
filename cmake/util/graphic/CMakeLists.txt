@@ -20,6 +20,7 @@ target_sources(util PUBLIC
         ${HHUOS_SRC_DIR}/util/graphic/Color.cpp
         ${HHUOS_SRC_DIR}/util/graphic/Font.cpp
         ${HHUOS_SRC_DIR}/util/graphic/LinearFrameBuffer.cpp
+        ${HHUOS_SRC_DIR}/util/graphic/LinearFrameBufferTerminal.cpp
         ${HHUOS_SRC_DIR}/util/graphic/PixelDrawer.cpp
         ${HHUOS_SRC_DIR}/util/graphic/StringDrawer.cpp
         ${HHUOS_SRC_DIR}/util/graphic/Terminal.cpp)

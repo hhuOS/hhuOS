@@ -26,7 +26,6 @@ namespace Util::Graphic {
 class BufferScroller {
 
 public:
-
     /**
      * Constructor.
      *

@@ -33,7 +33,7 @@ class Cpu {
 
 public:
     /**
-     * Default-Constructor.
+     * Default Constructor.
      * Deleted, as this class has only static members.
      */
     Cpu() = delete;

@@ -82,7 +82,7 @@ static Color HHU_TURQUOISE_50 = Color(101, 190, 201);
 static Color HHU_TURQUOISE_30 = Color(141, 194, 201);
 static Color HHU_TURQUOISE_10 = Color(181, 199, 201);
 
-// Terminal colors
+// LinearFrameBufferTerminal colors
 
 static Color TERM_BLACK = Color(0, 0, 0);
 static Color TERM_RED = Color(205, 0, 0);

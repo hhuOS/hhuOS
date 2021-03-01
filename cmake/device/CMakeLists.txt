@@ -22,7 +22,9 @@ include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
+add_subdirectory(bios)
 add_subdirectory(cpu)
+add_subdirectory(graphic)
 add_subdirectory(interrupt)
 
 target_link_libraries(${PROJECT_NAME} kernel util)

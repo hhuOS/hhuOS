@@ -93,7 +93,7 @@ public:
      * Constructor, which takes a composed RGB-value and the corresponding color-value
      *
      * @param rgb The RGB-value
-     * @param depth The color-depth
+     * @param depth The color-colorDepth
      */
     Color(uint32_t rgb, uint8_t depth);
 
@@ -136,7 +136,7 @@ public:
      * Decode a composed RGB-value and set red, green, blue and alpha to the decoded values.
      *
      * @param rgb The composed rgb-value
-     * @param depth The color-depth
+     * @param depth The color-colorDepth
      */
     void setRGB(uint32_t rgb, uint8_t depth);
 
@@ -257,9 +257,9 @@ public:
     uint8_t getRGB1();
 
     /**
-     * Get the RGB-value for a given color-depth.
+     * Get the RGB-value for a given color-colorDepth.
      *
-     * @param depth The color-depth
+     * @param depth The color-colorDepth
      */
     uint32_t getColorForDepth(uint8_t depth);
 

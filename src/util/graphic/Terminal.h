@@ -19,12 +19,8 @@
 #ifndef HHUOS_TERMINAL_H
 #define HHUOS_TERMINAL_H
 
-#include "LinearFrameBuffer.h"
-#include "Colors.h"
-#include "PixelDrawer.h"
-#include "StringDrawer.h"
-#include "Fonts.h"
-#include "BufferScroller.h"
+#include <cstdint>
+#include "Color.h"
 
 namespace Util::Graphic {
 
@@ -32,39 +28,35 @@ class Terminal {
 
 public:
 
-    explicit Terminal(LinearFrameBuffer &lfb, Font &font = Fonts::TERMINAL_FONT, char cursor = '_');
+    Terminal(uint16_t columns, uint16_t rows);
 
     Terminal(const Terminal &copy) = delete;
 
     Terminal &operator=(const Terminal &other) = delete;
 
-    ~Terminal() = default;
+    virtual ~Terminal() = default;
 
-    void putChar(char c);
+    virtual void putChar(char c) = 0;
 
-    void putString(const char *string);
+    virtual void putString(const char *string);
 
-    void setPosition(uint16_t x, uint16_t y);
+    virtual void clear() = 0;
 
-    void setForegroundColor(Color &color);
+    virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
-    void setBackgroundColor(Color &color);
+    virtual void setForegroundColor(Color &color) = 0;
+
+    virtual void setBackgroundColor(Color &color) = 0;
+
+    [[nodiscard]] uint16_t getColumns() const;
+
+    [[nodiscard]] uint16_t getRows() const;
 
 private:
 
     const uint16_t columns;
     const uint16_t rows;
-    const char cursor;
 
-    BufferScroller scroller;
-    PixelDrawer pixelDrawer;
-    StringDrawer stringDrawer;
-
-    Font &font;
-    Color fgColor = Colors::TERM_WHITE;
-    Color bgColor = Colors::TERM_BLACK;
-    uint16_t currentColumn = 0;
-    uint16_t currentRow = 0;
 };
 
 }
