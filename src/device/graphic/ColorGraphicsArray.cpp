@@ -3,9 +3,8 @@
 
 namespace Device::Graphic {
 
-const Util::Memory::Address<uint32_t> ColorGraphicsArray::CGA_MEMORY(VIRT_CGA_START);
-
-ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Terminal(columns, rows), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
+ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Terminal(columns, rows),
+        cgaMemory(VIRT_CGA_START, columns * rows * BYTES_PER_CHARACTER), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
     ColorGraphicsArray::clear();
 }
 
@@ -17,8 +16,8 @@ void ColorGraphicsArray::putChar(char c) {
         currentRow++;
         currentColumn = 0;
     } else {
-        CGA_MEMORY.setByte(position, c);
-        CGA_MEMORY.setByte(position + 1, colorAttribute);
+        cgaMemory.setByte(position, c);
+        cgaMemory.setByte(position + 1, colorAttribute);
         currentColumn++;
     }
 
@@ -37,11 +36,11 @@ void ColorGraphicsArray::putChar(char c) {
 }
 
 void ColorGraphicsArray::clear() {
-    CGA_MEMORY.setRange(0, getRows() * getColumns() * BYTES_PER_CHARACTER);
+    cgaMemory.setRange(0, getRows() * getColumns() * BYTES_PER_CHARACTER);
 
     currentRow = 0;
     currentColumn = 0;
-    // updateCursorPosition();
+    updateCursorPosition();
 }
 
 void ColorGraphicsArray::setPosition(uint16_t column, uint16_t row) {
@@ -62,7 +61,7 @@ void ColorGraphicsArray::updateCursorPosition() {
 
     // Set color attribute, so that the cursor will be visible
     uint8_t colorAttribute = (bgColor.getRGB4() << 4) | fgColor.getRGB4();
-    CGA_MEMORY.setByte(position * BYTES_PER_CHARACTER + 1, colorAttribute);
+    cgaMemory.setByte(position * BYTES_PER_CHARACTER + 1, colorAttribute);
 
     auto low  = static_cast<uint8_t>(position & 0xff);
     auto high = static_cast<uint8_t>((position >> 8) & 0xff);
@@ -81,11 +80,11 @@ void ColorGraphicsArray::scrollUp() {
     auto rows = getRows();
 
     // Move screen upwards by one row
-    auto source = Util::Memory::Address<uint32_t>(CGA_MEMORY.get() + columns * BYTES_PER_CHARACTER);
-    CGA_MEMORY.copyRange(source, columns * (rows - 1) * BYTES_PER_CHARACTER);
+    auto source = cgaMemory.add(columns * BYTES_PER_CHARACTER);
+    cgaMemory.copyRange(source, columns * (rows - 1) * BYTES_PER_CHARACTER);
 
     // Clear last row
-    auto clear = Util::Memory::Address<uint32_t>(CGA_MEMORY.get() + columns * (rows - 1) * BYTES_PER_CHARACTER);
+    auto clear = cgaMemory.add(columns * (rows - 1) * BYTES_PER_CHARACTER);
     clear.setRange(0, getColumns() * BYTES_PER_CHARACTER);
 }
 

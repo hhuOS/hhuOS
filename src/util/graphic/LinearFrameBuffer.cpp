@@ -15,13 +15,12 @@
  */
 
 #include <device/cpu/Cpu.h>
-#include <util/memory/Address.h>
 #include "LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        buffer(static_cast<uint8_t*>(address)), resolutionX(resolutionX), resolutionY(resolutionY), bitsPerPixel(colorDepth), pitch(pitch) {}
+        buffer(address, pitch * resolutionY), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 uint16_t LinearFrameBuffer::getResolutionX() const {
     return resolutionX;
@@ -32,14 +31,14 @@ uint16_t LinearFrameBuffer::getResolutionY() const {
 }
 
 uint8_t LinearFrameBuffer::getColorDepth() const {
-    return bitsPerPixel;
+    return colorDepth;
 }
 
 uint16_t LinearFrameBuffer::getPitch() const {
     return pitch;
 }
 
-uint8_t *LinearFrameBuffer::getBuffer() const {
+Memory::Address<uint32_t> LinearFrameBuffer::getBuffer() const {
     return buffer;
 }
 
@@ -48,14 +47,14 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "LinearFrameBuffer: Trying to read a pixel out of bounds!");
     }
 
-    auto bpp = static_cast<uint8_t>(bitsPerPixel == 15 ? 16 : bitsPerPixel);
-    uint8_t *ptr = getBuffer() + (x * (bpp / 8)) + y * pitch;
+    auto bpp = static_cast<uint8_t>(colorDepth == 15 ? 16 : colorDepth);
+    auto address = buffer.add((x * (bpp / 8)) + y * pitch);
 
-    return Color(*(reinterpret_cast<uint32_t*>(ptr)), bitsPerPixel);
+    return Color(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
 }
 
 void LinearFrameBuffer::clear() {
-    Memory::Address<uint32_t>(buffer).setRange(0, getPitch() * getResolutionY());
+    buffer.setRange(0, getPitch() * getResolutionY());
 }
 
 }

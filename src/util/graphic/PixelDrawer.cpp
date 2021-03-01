@@ -44,11 +44,11 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, Color &color) {
     uint32_t rgbColor = color.getColorForDepth(lfb.getColorDepth());
 
     //Calculate pixel offset
-    uint8_t *ptr = lfb.getBuffer() + (x * (bpp / 8)) + y * lfb.getPitch();
+    auto address = lfb.getBuffer().add((x * (bpp / 8)) + y * lfb.getPitch());
 
     //Write color to pixel offset
     for(uint32_t i = 0; i < (bpp / 8); i++) {
-        ptr[i] = static_cast<uint8_t>((rgbColor >> (i * 8)) & 0xff);
+        address.setByte(i, (rgbColor >> (i * 8)) & 0xff);
     }
 }
 

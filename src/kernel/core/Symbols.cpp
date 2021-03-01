@@ -106,9 +106,9 @@ void Symbols::load(const Elf::Constants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    auto *entry = (Elf::Constants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
+    auto entry = (Elf::Constants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
 
-    auto *stringSection = (Elf::Constants::SectionHeader *) (symbolInfo.address +
+    auto stringSection = (Elf::Constants::SectionHeader *) (symbolInfo.address +
                                                                                   sectionHeader.link *
                                                                                   symbolInfo.sectionSize);
 

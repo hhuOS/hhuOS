@@ -455,7 +455,7 @@ void Management::calcTotalPhysicalMemory() {
 }
 
 VirtualAddressSpace *Management::createAddressSpace(uint32_t managerOffset, const Util::Memory::String &managerType) {
-    auto *addressSpace = new VirtualAddressSpace(basePageDirectory, managerOffset, managerType);
+    auto addressSpace = new VirtualAddressSpace(basePageDirectory, managerOffset, managerType);
     // add to the list of address spaces
     addressSpaces->add(addressSpace);
 

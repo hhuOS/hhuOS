@@ -52,14 +52,16 @@ public:
      */
     ~BufferedLinearFrameBuffer() override;
 
-    [[nodiscard]] uint8_t* getBuffer() const override;
+    /**
+     * Overriding function from LinearFrameBuffer.
+     */
+    [[nodiscard]] Memory::Address<uint32_t> getBuffer() const override;
 
     void flush() const;
 
 private:
 
-    uint8_t *softwareBuffer;
-
+    Memory::Address<uint32_t> softwareBuffer;
 };
 
 }

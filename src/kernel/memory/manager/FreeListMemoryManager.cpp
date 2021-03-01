@@ -148,7 +148,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
     // Check if the chosen chunk can be sliced in two parts
     if (current->size - size >= MIN_BLOCK_SIZE + HEADER_SIZE) {
-        auto *slice = (FLHeader * )(((uint32_t) current) + HEADER_SIZE + size);
+        auto slice = (FLHeader * )(((uint32_t) current) + HEADER_SIZE + size);
 
         slice->size = current->size - size - HEADER_SIZE;
         slice->next = current->next;
@@ -198,7 +198,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     }
 
     // get pointer to header of allocated block
-    auto *header = (FLHeader * )((uint8_t *) ptr - HEADER_SIZE);
+    auto header = (FLHeader * )((uint8_t *) ptr - HEADER_SIZE);
 
     freeMemory += header->size;
 
@@ -318,7 +318,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
         return ret;
     }
 
-    auto *oldHeader = (FLHeader * )((uint32_t) ptr - HEADER_SIZE);
+    auto oldHeader = (FLHeader * )((uint32_t) ptr - HEADER_SIZE);
 
     if (oldHeader->size == size) {
         if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
@@ -329,7 +329,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
     } else if (size < oldHeader->size) {
         if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
             if (oldHeader->size - size > MIN_BLOCK_SIZE + HEADER_SIZE) {
-                auto *newHeader = (FLHeader * )((uint32_t) ptr + size);
+                auto newHeader = (FLHeader * )((uint32_t) ptr + size);
                 newHeader->size = oldHeader->size - size - HEADER_SIZE;
 
                 free(newHeader + HEADER_SIZE);
@@ -374,7 +374,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
                     oldHeader->size += currentChunk->size + HEADER_SIZE;
 
                     if (oldHeader->size - size > HEADER_SIZE + MIN_BLOCK_SIZE) {
-                        auto *newHeader = (FLHeader * )((uint32_t) ptr + size);
+                        auto newHeader = (FLHeader * )((uint32_t) ptr + size);
                         newHeader->size = oldHeader->size - size - HEADER_SIZE;
 
                         freeAlgorithm((uint8_t *) newHeader + HEADER_SIZE);

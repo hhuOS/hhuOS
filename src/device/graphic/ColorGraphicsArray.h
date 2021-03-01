@@ -58,10 +58,9 @@ private:
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
+    Util::Memory::Address<uint32_t> cgaMemory;
     IoPort indexPort;
     IoPort dataPort;
-
-    static const Util::Memory::Address<uint32_t> CGA_MEMORY;
 
     static const constexpr uint8_t BYTES_PER_CHARACTER = 2;
     static const constexpr uint16_t INDEX_PORT_ADDRESS = 0x03d4;

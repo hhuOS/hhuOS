@@ -18,6 +18,7 @@
 #define __LinearFrameBuffer_include__
 
 #include <cstdint>
+#include <util/memory/Address.h>
 #include "Color.h"
 
 namespace Util::Graphic {
@@ -87,7 +88,7 @@ public:
      *
      * @return The buffer address
      */
-    [[nodiscard]] virtual uint8_t* getBuffer() const;
+    [[nodiscard]] virtual Memory::Address<uint32_t> getBuffer() const;
 
     /**
      * Read the color of a pixel at a given position.
@@ -101,11 +102,11 @@ public:
     void clear();
 
 private:
-    uint8_t *buffer = nullptr;
+    Memory::Address<uint32_t> buffer;
 
     uint16_t resolutionX = 0;
     uint16_t resolutionY = 0;
-    uint8_t bitsPerPixel = 0;
+    uint8_t colorDepth = 0;
     uint16_t pitch = 0;
 
 };

@@ -29,11 +29,11 @@ public:
 
     Address();
 
-    explicit Address(T address);
+    explicit Address(T address, T limitOffset = static_cast<T>(0xffffffff));
 
-    explicit Address(void *pointer);
+    explicit Address(void *pointer, uint32_t limit = 0xffffffff);
 
-    explicit Address(const void *pointer);
+    explicit Address(const void *pointer, uint32_t limit = 0xffffffff);
 
     ~Address() = default;
 
@@ -48,6 +48,10 @@ public:
     explicit operator T() const;
 
     [[nodiscard]] T get() const;
+
+    [[nodiscard]] T getLimit() const;
+
+    [[nodiscard]] Address set(T newAddress) const;
 
     [[nodiscard]] Address<T> add(T value) const;
 
@@ -76,6 +80,7 @@ public:
 private:
 
     T address;
+    T limit;
 };
 
 template

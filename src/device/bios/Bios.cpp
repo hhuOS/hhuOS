@@ -38,7 +38,7 @@ void Bios::init() {
     }
 
     // pointer to memory segment for 16 bit code
-    auto *codeAddress = reinterpret_cast<uint8_t *>(VIRT_BIOS16_CODE_MEMORY_START);
+    auto codeAddress = reinterpret_cast<uint8_t *>(VIRT_BIOS16_CODE_MEMORY_START);
 
     // the assembler instructions are placed manually into the memory
     // in the following steps
@@ -223,7 +223,7 @@ void Bios::interrupt(int interruptNumber, CallParameters &callParameters) {
     target.copyRange(source, sizeof(CallParameters));
 
     // get pointer to bios call segment
-    auto *ptr = reinterpret_cast<uint8_t*>(VIRT_BIOS16_CODE_MEMORY_START);
+    auto ptr = reinterpret_cast<uint8_t*>(VIRT_BIOS16_CODE_MEMORY_START);
     // write number of bios interrupt manually into the segment
     *(ptr + 48) = static_cast<uint8_t>(interruptNumber);
 

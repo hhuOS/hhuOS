@@ -58,7 +58,7 @@ void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
         newSize *= 2;
     }
 
-    auto *newBuffer = new uint8_t[newSize];
+    auto newBuffer = new uint8_t[newSize];
     Memory::Address<uint32_t> source(buffer);
     Memory::Address<uint32_t> target(newBuffer);
     target.copyRange(source, position);

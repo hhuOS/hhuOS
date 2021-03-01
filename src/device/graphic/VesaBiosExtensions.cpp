@@ -9,7 +9,7 @@ const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_
 const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS(BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS.get() + KERNEL_START);
 
 VesaBiosExtensions::VesaBiosExtensions() {
-    auto *vbeInfo = getVbeInfo();
+    auto vbeInfo = getVbeInfo();
 
     // Get vendor name, device name and memory size
     const char *vendorNameAddress = reinterpret_cast<const char*>(PHYS2VIRT((vbeInfo->vendor[1] << 4) + vbeInfo->vendor[0]));
@@ -20,21 +20,21 @@ VesaBiosExtensions::VesaBiosExtensions() {
     memorySize = vbeInfo->video_memory * 65536;
 
     // Get available resolutions
-    auto *modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + KERNEL_START);
+    auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + KERNEL_START);
 
     // Calculate amount of modes
     uint32_t modeCount;
     for (modeCount = 0; modePointer[modeCount] != MODE_LIST_END_MARKER; modeCount++);
 
     // Copy mode numbers to a new array
-    auto *vbeModes = new uint16_t[modeCount];
+    auto vbeModes = new uint16_t[modeCount];
     for (uint32_t i = 0; i < modeCount; i++) {
         vbeModes[i] = modePointer[i];
     }
 
     // Check details of each mode and it to the supported modes, if it is as a valid lfb mode
     for (uint32_t i = 0; i < modeCount; i++) {
-        auto *vbeModeInfo = getModeInfo(vbeModes[i]);
+        auto vbeModeInfo = getModeInfo(vbeModes[i]);
 
         if (vbeModeInfo->physbase == 0 || vbeModeInfo->bpp < 15 || !(vbeModeInfo->attributes & MODE_ATTRIBUTES_HARDWARE_SUPPORT_BIT) ||
             !(vbeModeInfo->attributes & MODE_ATTRIBUTES_LFB_BIT) || (vbeModeInfo->memory_model != PACKED_PIXEL && vbeModeInfo->memory_model != DIRECT_COLOR)) {
@@ -76,7 +76,7 @@ bool VesaBiosExtensions::isAvailable() {
 
 Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffer(LinearFrameBufferProvider::ModeInfo &modeInfo) {
     // Get mode info and set mode
-    auto *vbeModeInfo = getModeInfo(modeInfo.modeNumber);
+    auto vbeModeInfo = getModeInfo(modeInfo.modeNumber);
     setMode(modeInfo.modeNumber);
 
     // Map new buffer into IO memory
@@ -85,7 +85,7 @@ Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffe
 }
 
 void VesaBiosExtensions::destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) {
-    Kernel::Management::getInstance().freeIO(lfb.getBuffer());
+    Kernel::Management::getInstance().freeIO(reinterpret_cast<void*>(lfb.getBuffer().get()));
     delete &lfb;
 }
 

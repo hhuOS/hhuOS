@@ -180,7 +180,7 @@ void Structure::readMemoryMap(Info *address) {
 
     if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_MODS)) {
 
-        auto *modInfo = (ModuleInfo *) tmp.moduleAddress;
+        auto modInfo = (ModuleInfo *) tmp.moduleAddress;
 
         for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
@@ -319,7 +319,7 @@ Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
         return Util::Data::Array<MemoryMapEntry>(0);
     }
 
-    auto *entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
+    auto entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
 
     uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
