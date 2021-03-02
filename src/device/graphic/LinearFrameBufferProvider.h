@@ -22,10 +22,11 @@
 #include <util/data/Array.h>
 #include <util/memory/String.h>
 #include <util/graphic/LinearFrameBuffer.h>
+#include <util/reflection/Prototype.h>
 
 namespace Device::Graphic {
 
-class LinearFrameBufferProvider {
+class LinearFrameBufferProvider : public Util::Reflection::Prototype {
 
 public:
     /**
@@ -131,6 +132,11 @@ public:
      * @return The found ModeInfo struct
      */
     [[nodiscard]] ModeInfo searchMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const;
+
+    /**
+     * Overriding function from Prototype.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override = 0;
 };
 
 }

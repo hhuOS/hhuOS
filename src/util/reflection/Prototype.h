@@ -17,10 +17,9 @@
 #ifndef HHUOS_PROTOTYPE_H
 #define HHUOS_PROTOTYPE_H
 
-#define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(*this); }
+#define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(); }
 
-#include "util/data/HashMap.h"
-#include "util/memory/String.h"
+#include <util/memory/String.h>
 
 namespace Util::Reflection {
 
@@ -30,15 +29,7 @@ namespace Util::Reflection {
  */
 class Prototype {
 
-private:
-
-    /**
-     * Contains prototypes for all available implementations.
-     */
-    static Data::HashMap<Memory::String, Prototype*> prototypeTable;
-
 public:
-
     /**
      * Constructor.
      */
@@ -50,43 +41,19 @@ public:
     virtual ~Prototype() = default;
 
     /**
+     * Get the name, under which the prototype will be registered and usable for the user.
+     */
+    [[nodiscard]] virtual Memory::String getClassName() = 0;
+
+private:
+    /**
      * Create a copy of this instance.
      *
      * @return A pointer to the copy
      */
-    [[nodiscard]] virtual Prototype *clone() const = 0;
+    [[nodiscard]] virtual Prototype *clone() const;
 
-    /**
-     * Get the name, under which the prototype will be registered and usable for the user.
-     */
-    virtual Memory::String getTypeName() = 0;
-
-    /**
-     * Create a new instance of a given prototype.
-     * Throws an exception, if the type is unknown.
-     *
-     * @param type The type
-     *
-     * @return A pointer to newly created instance
-     */
-    static Prototype *createInstance(Memory::String &type);
-
-    /**
-     * Add a prototype.
-     * Instances of this type can then be created by calling 'Prototype::createInstance(type)'.
-     *
-     * @param type The type
-     * @param prototype Instance, that will be used as a prototype for further instances
-     */
-    static void registerPrototype(Prototype *prototype);
-
-    /**
-     * Remove a prototype.
-     *
-     * @param type The type
-     */
-    static void deregisterPrototype(const Memory::String &type);
-
+    friend class InstanceFactory;
 };
 
 }

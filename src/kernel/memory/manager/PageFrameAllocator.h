@@ -30,14 +30,7 @@ namespace Kernel {
  */
 class PageFrameAllocator : public BitmapMemoryManager {
 
-private:
-
-    static const constexpr char *TYPE_NAME = "PageFrameAllocator";
-
 public:
-
-    PROTOTYPE_IMPLEMENT_CLONE(PageFrameAllocator);
-
     /**
      * Constructor.
      *
@@ -47,6 +40,16 @@ public:
     PageFrameAllocator();
 
     /**
+     * Copy constructor.
+     */
+    PageFrameAllocator(const PageFrameAllocator &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    PageFrameAllocator& operator=(const PageFrameAllocator &other) = delete;
+
+    /**
      * Overriding function from MemoryManager.
      */
     void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
@@ -54,8 +57,11 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::Memory::String getTypeName() override;
+    Util::Memory::String getClassName() override;
 
+private:
+
+    static const constexpr char *CLASS_NAME = "Kernel::PageFrameAllocator";
 };
 
 }

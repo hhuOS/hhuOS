@@ -25,16 +25,12 @@ IOMemoryManager::IOMemoryManager() : BitmapMemoryManager(PAGESIZE, false) {
     BitmapMemoryManager::init(VIRT_IO_START, VIRT_IO_END, true);
 }
 
-IOMemoryManager::IOMemoryManager(const IOMemoryManager &copy) : IOMemoryManager() {
-
-}
-
 void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
     // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
 }
 
-Util::Memory::String IOMemoryManager::getTypeName() {
-    return TYPE_NAME;
+Util::Memory::String IOMemoryManager::getClassName() {
+    return CLASS_NAME;
 }
 
 void *IOMemoryManager::alloc(uint32_t size) {

@@ -66,6 +66,8 @@ namespace Kernel::Multiboot {
 
         static bool isModuleLoaded(const Util::Memory::String &module);
 
+        static bool hasKernelOption(const Util::Memory::String &key);
+
         static Util::Memory::String getKernelOption(const Util::Memory::String &key);
 
         static uint32_t physReservedMemoryEnd;

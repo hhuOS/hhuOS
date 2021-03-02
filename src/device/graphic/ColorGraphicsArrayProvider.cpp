@@ -5,7 +5,11 @@
 
 namespace Device::Graphic {
 
-ColorGraphicsArrayProvider::ColorGraphicsArrayProvider() : supportedModes(2) {
+ColorGraphicsArrayProvider::ColorGraphicsArrayProvider(bool prototypeInstance) : supportedModes(2) {
+    if (prototypeInstance) {
+        return;
+    }
+
     supportedModes[0] = {40, 25, 4, 0x01};
     supportedModes[1] = {80, 25, 4, 0x03};
 
@@ -91,6 +95,10 @@ uint32_t ColorGraphicsArrayProvider::getVideoMemorySize() const {
 
 Util::Memory::String ColorGraphicsArrayProvider::getDeviceName() const {
     return deviceName;
+}
+
+Util::Memory::String ColorGraphicsArrayProvider::getClassName() {
+    return CLASS_NAME;
 }
 
 }

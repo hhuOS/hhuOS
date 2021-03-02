@@ -35,6 +35,10 @@ void ColorGraphicsArray::putChar(char c) {
     updateCursorPosition();
 }
 
+void ColorGraphicsArray::putString(const char *string) {
+    Terminal::putString(string);
+}
+
 void ColorGraphicsArray::clear() {
     cgaMemory.setRange(0, getRows() * getColumns() * BYTES_PER_CHARACTER);
 

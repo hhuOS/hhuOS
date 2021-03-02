@@ -15,21 +15,12 @@
  */
 
 #include <util/memory/Address.h>
-#include "kernel/core/System.h"
 #include "BitmapMemoryManager.h"
-#include "kernel/memory/Paging.h"
 
 namespace Kernel {
 
-BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) : MemoryManager(),
-                                                                                blockSize(blockSize),
-                                                                                zeroMemory(zeroMemory) {
-
-}
-
-BitmapMemoryManager::BitmapMemoryManager(const BitmapMemoryManager &copy) : BitmapMemoryManager() {
-
-}
+BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) :
+        MemoryManager(), blockSize(blockSize), zeroMemory(zeroMemory) {}
 
 BitmapMemoryManager::~BitmapMemoryManager() {
     delete bitmap;
@@ -43,8 +34,8 @@ void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAd
     freeMemory = bitmap->getSize() * blockSize;
 }
 
-Util::Memory::String BitmapMemoryManager::getTypeName() {
-    return TYPE_NAME;
+Util::Memory::String BitmapMemoryManager::getClassName() {
+    return CLASS_NAME;
 }
 
 void *BitmapMemoryManager::alloc(uint32_t size) {

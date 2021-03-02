@@ -122,7 +122,7 @@ public:
      * Enumeration of all hardware exceptions
      */
     enum class Exception : uint32_t {
-        NULLPOINTER = 0xC8,
+        NULL_POINTER = 0xC8,
         OUT_OF_BOUNDS = 0xC9,
         INVALID_ARGUMENT = 0xCA,
         KEY_NOT_FOUND = 0xCB,
@@ -131,7 +131,7 @@ public:
         OUT_OF_PHYS_MEMORY = 0xCE,
         OUT_OF_PAGE_MEMORY = 0xCF,
         ILLEGAL_PAGE_ACCESS = 0xD0,
-        UNKNOWN_TYPE = 0xD1,
+        CLASS_NOT_FOUND = 0xD1,
         PAGING_ERROR = 0xD2,
         UNSUPPORTED_OPERATION = 0xD3
     };

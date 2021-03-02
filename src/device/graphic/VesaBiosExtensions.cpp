@@ -8,7 +8,11 @@ namespace Device::Graphic {
 const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS(PHYS_BIOS_RETURN_MEM);
 const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS(BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS.get() + KERNEL_START);
 
-VesaBiosExtensions::VesaBiosExtensions() {
+VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
+    if (prototypeInstance) {
+        return;
+    }
+
     auto vbeInfo = getVbeInfo();
 
     // Get vendor name, device name and memory size
@@ -159,6 +163,10 @@ VesaBiosExtensions::VbeModeInfo* VesaBiosExtensions::getModeInfo(uint16_t mode) 
     }
 
     return reinterpret_cast<VbeModeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());
+}
+
+Util::Memory::String VesaBiosExtensions::getClassName() {
+    return CLASS_NAME;
 }
 
 }

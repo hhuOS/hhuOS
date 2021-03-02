@@ -15,4 +15,5 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(util PUBLIC
+        ${HHUOS_SRC_DIR}/util/reflection/InstanceFactory.cpp
         ${HHUOS_SRC_DIR}/util/reflection/Prototype.cpp)

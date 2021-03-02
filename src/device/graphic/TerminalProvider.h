@@ -22,10 +22,11 @@
 #include <util/data/Array.h>
 #include <util/memory/String.h>
 #include <util/graphic/Terminal.h>
+#include <util/reflection/Prototype.h>
 
 namespace Device::Graphic {
 
-class TerminalProvider {
+class TerminalProvider : public Util::Reflection::Prototype {
 
 public:
     /**
@@ -71,7 +72,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~TerminalProvider() = default;
+    ~TerminalProvider() override = default;
 
     /**
      * Create a terminal with a given mode info.
@@ -129,6 +130,11 @@ public:
      * @return The found ModeInfo struct
      */
     [[nodiscard]] ModeInfo searchMode(uint16_t columns, uint16_t rows, uint8_t colorDepth) const;
+
+    /**
+     * Overriding function from Prototype.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override = 0;
 };
 
 }

@@ -62,11 +62,16 @@ public:
      */
     [[nodiscard]] Util::Data::Array <ModeInfo> getAvailableModes() const override;
 
+    /**
+     * Overriding function from Prototype.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override;
+
 private:
 
     FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
-
+    static const constexpr char *CLASS_NAME = "Device::Graphic::VesaBiosExtensions";
 };
 
 }

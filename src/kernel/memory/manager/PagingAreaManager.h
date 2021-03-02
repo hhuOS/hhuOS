@@ -30,18 +30,21 @@ namespace Kernel {
  */
 class PagingAreaManager : public BitmapMemoryManager {
 
-private:
-
-    static const constexpr char *TYPE_NAME = "PagingAreaManager";
-
 public:
-
-    PROTOTYPE_IMPLEMENT_CLONE(PagingAreaManager);
-
     /**
      * Constructor.
      */
     PagingAreaManager();
+
+    /**
+     * Copy constructor.
+     */
+    PagingAreaManager(const PagingAreaManager &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    PagingAreaManager& operator=(const PagingAreaManager &other) = delete;
 
     /**
      * Overriding function from MemoryManager.
@@ -51,8 +54,11 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::Memory::String getTypeName() override;
+    Util::Memory::String getClassName() override;
 
+private:
+
+    static const constexpr char *CLASS_NAME = "Kernel::PagingAreaManager";
 };
 
 }

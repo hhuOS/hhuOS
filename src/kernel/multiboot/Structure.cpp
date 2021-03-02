@@ -389,6 +389,10 @@ bool Structure::isModuleLoaded(const Util::Memory::String &module) {
     return modules.containsKey(module);
 }
 
+bool Structure::hasKernelOption(const Util::Memory::String &key) {
+    return kernelOptions.containsKey(key);
+}
+
 Util::Memory::String Structure::getKernelOption(const Util::Memory::String &key) {
 
     if (kernelOptions.containsKey(key)) {

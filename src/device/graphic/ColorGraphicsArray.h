@@ -39,6 +39,8 @@ public:
 
     void putChar(char c) override;
 
+    void putString(const char *string) override;
+
     void clear() override;
 
     void setPosition(uint16_t column, uint16_t row) override;

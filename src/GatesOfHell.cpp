@@ -24,6 +24,8 @@
 #include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
 #include <device/graphic/LinearFrameBufferTerminalProvider.h>
 #include <device/graphic/ColorGraphicsArrayProvider.h>
+#include <util/reflection/InstanceFactory.h>
+#include <kernel/multiboot/Structure.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -36,21 +38,30 @@ void GatesOfHell::enter() {
         Device::Bios::init();
     }
 
+    if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
+        Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::VesaBiosExtensions(true));
+    }
+
+    if (Device::Graphic::ColorGraphicsArrayProvider::isAvailable()) {
+        Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::ColorGraphicsArrayProvider(true));
+    }
+
     Device::Graphic::LinearFrameBufferProvider *lfbProvider;
     Device::Graphic::TerminalProvider *terminalProvider;
 
-    if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
-        lfbProvider = new Device::Graphic::VesaBiosExtensions();
+    if (Kernel::Multiboot::Structure::hasKernelOption("lfb_provider")) {
+        auto providerName = Kernel::Multiboot::Structure::getKernelOption("lfb_provider");
+        lfbProvider = reinterpret_cast<Device::Graphic::LinearFrameBufferProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else {
         lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
     }
 
-    terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(*lfbProvider);
-
-    // Uncomment to use CGA graphics
-    /*if (Device::Graphic::ColorGraphicsArrayProvider::isAvailable()) {
-        terminalProvider = new Device::Graphic::ColorGraphicsArrayProvider();
-    }*/
+    if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
+        auto providerName = Kernel::Multiboot::Structure::getKernelOption("terminal_provider");
+        terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
+    } else {
+        terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(*lfbProvider);
+    }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);

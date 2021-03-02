@@ -28,10 +28,13 @@ namespace Device::Graphic {
 class ColorGraphicsArrayProvider : public TerminalProvider {
 
 public:
+
+    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsArrayProvider);
+
     /**
      * Default Constructor.
      */
-    ColorGraphicsArrayProvider();
+    explicit ColorGraphicsArrayProvider(bool prototypeInstance = false);
 
     /**
      * Copy constructor.
@@ -48,6 +51,11 @@ public:
      */
     ~ColorGraphicsArrayProvider() override = default;
 
+    /**
+     * Check if a CGA compatible graphics card is available and this driver can be used.
+     *
+     * @return true, if this driver can be used
+     */
     [[nodiscard]] static bool isAvailable();
 
     /**
@@ -75,6 +83,11 @@ public:
      */
     [[nodiscard]] Util::Memory::String getDeviceName() const override;
 
+    /**
+     * Overriding function from TerminalProvider.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override;
+
 private:
 
     enum BiosFunction : uint16_t {
@@ -101,7 +114,8 @@ private:
     Util::Memory::String deviceName = "Unknown";
     Util::Data::Array<ModeInfo> supportedModes;
 
-    static const constexpr uint16_t CURSOR_SHAPE_OPTIONS = 0x0607;
+    static const constexpr uint16_t CURSOR_SHAPE_OPTIONS = 0x0e0f;
+    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArrayProvider";
 };
 
 }

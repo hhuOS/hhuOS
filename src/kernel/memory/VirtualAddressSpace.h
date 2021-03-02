@@ -64,7 +64,7 @@ public:
 
     void init();
 
-    bool isInitialized();
+    bool isInitialized() const;
 
     /**
      * Get the memory manager for kernelspace

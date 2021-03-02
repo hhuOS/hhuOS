@@ -50,6 +50,16 @@ public:
     MemoryManager() = default;
 
     /**
+     * Copy constructor.
+     */
+    MemoryManager(const MemoryManager &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    MemoryManager& operator=(const MemoryManager &other) = delete;
+
+    /**
      * Destructor.
      */
     ~MemoryManager() override = default;

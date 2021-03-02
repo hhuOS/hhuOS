@@ -186,7 +186,7 @@ void Management::trigger(InterruptFrame &frame) {
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {
-        frame.interrupt = (uint32_t) Device::Cpu::Exception::NULLPOINTER;
+        frame.interrupt = (uint32_t) Device::Cpu::Exception::NULL_POINTER;
         System::panic(&frame);
     }
 

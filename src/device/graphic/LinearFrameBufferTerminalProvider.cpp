@@ -40,4 +40,8 @@ Util::Memory::String LinearFrameBufferTerminalProvider::getVendorName() const {
 Util::Memory::String LinearFrameBufferTerminalProvider::getDeviceName() const {
     return lfbProvider.getDeviceName();
 }
+
+Util::Memory::String LinearFrameBufferTerminalProvider::getClassName() {
+    return CLASS_NAME;
+}
 }

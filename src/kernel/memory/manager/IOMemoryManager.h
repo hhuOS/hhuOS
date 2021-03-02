@@ -36,18 +36,7 @@ namespace Kernel {
  */
 class IOMemoryManager : public BitmapMemoryManager {
 
-private:
-
-    Util::Data::HashMap<void *, uint32_t> ioMemoryMap;
-
-    Util::Async::Spinlock lock;
-
-    static const constexpr char *TYPE_NAME = "IOMemoryManager";
-
 public:
-
-    PROTOTYPE_IMPLEMENT_CLONE(IOMemoryManager);
-
     /**
      * Constructor.
      */
@@ -56,7 +45,12 @@ public:
     /**
      * Copy constructor.
      */
-    IOMemoryManager(const IOMemoryManager &copy);
+    IOMemoryManager(const IOMemoryManager &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    IOMemoryManager& operator=(const IOMemoryManager &other) = delete;
 
     /**
      * Destructor.
@@ -71,7 +65,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::Memory::String getTypeName() override;
+    Util::Memory::String getClassName() override;
 
     /**
      * Overriding function from MemoryManager.
@@ -82,6 +76,12 @@ public:
      * Overriding function from MemoryManager.
      */
     void free(void *ptr) override;
+
+private:
+    Util::Data::HashMap<void *, uint32_t> ioMemoryMap;
+    Util::Async::Spinlock lock;
+
+    static const constexpr char *CLASS_NAME = "Kernel::IOMemoryManager";
 };
 
 }

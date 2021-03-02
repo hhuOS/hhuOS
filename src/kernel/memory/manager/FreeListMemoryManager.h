@@ -33,66 +33,6 @@ namespace Kernel {
  */
 class FreeListMemoryManager : public MemoryManager {
 
-private:
-
-    /**
-     * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
-     */
-    struct FLHeader {
-        FLHeader *prev;
-        FLHeader *next;
-        uint32_t size;
-    };
-
-    Util::Async::Spinlock lock;
-
-    FLHeader *firstChunk = nullptr;
-
-    /**
-     * Find the next chunk of memory with a required size.
-     *
-     * @param start Pointer to the chunk of memory from where to start the search
-     * @param reqSize Minimal size that is required for the chunk
-     *
-     * @return Header of the free chunk with the required size or nullptr, if none is found
-     */
-    FLHeader *findNext(FLHeader *start, uint32_t reqSize);
-
-    /**
-     * Merge a chunk of free memory with it's neighbours, if possible.
-     *
-     * @param origin Chunk of free memory to be merged
-     */
-    FLHeader *merge(FLHeader *origin);
-
-    static const constexpr char *TYPE_NAME = "FreeListMemoryManager";
-
-    static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
-
-    static const constexpr uint32_t HEADER_SIZE = sizeof(FLHeader);
-
-private:
-
-    /**
-     * Implementation of the allocation algorithm, that is used in the alloc-functions.
-     *
-     * The first-fit algorithm is used to search for a fitting chunk of free memory.
-     *
-     * @param size Size of the chunk of memory to be allocated
-     * @param alignment Alignment, that chunk of memory should have
-     * @param startChunk The chunk of free memory from which to start searching for a fitting chunk
-     *
-     * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
-     */
-    void *allocAlgorithm(uint32_t size, uint32_t alignment, FLHeader *startChunk);
-
-    /**
-     * Implementation of the free algorithm, that is used in the free-functions.
-     *
-     * @param ptr Pointer to the chunk of memory to be freed
-     */
-    void freeAlgorithm(void *ptr);
-
 public:
 
     PROTOTYPE_IMPLEMENT_CLONE(FreeListMemoryManager);
@@ -100,12 +40,17 @@ public:
     /**
      * Constructor.
      */
-    FreeListMemoryManager();
+    FreeListMemoryManager() = default;
 
     /**
      * Copy constructor.
      */
-    FreeListMemoryManager(const FreeListMemoryManager &copy);
+    FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    FreeListMemoryManager& operator=(const FreeListMemoryManager &other) = delete;
 
     /**
      * Destructor.
@@ -120,7 +65,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::Memory::String getTypeName() override;
+    Util::Memory::String getClassName() override;
 
     /**
      * Overriding function from MemoryManager.
@@ -151,6 +96,65 @@ public:
      * Overriding function from MemoryManager.
      */
     void free(void *ptr, uint32_t alignment) override;
+
+private:
+    /**
+     * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
+     */
+    struct FreeListHeader {
+        FreeListHeader *prev;
+        FreeListHeader *next;
+        uint32_t size;
+    };
+
+    /**
+     * Implementation of the allocation algorithm, that is used in the alloc-functions.
+     *
+     * The first-fit algorithm is used to search for a fitting chunk of free memory.
+     *
+     * @param size Size of the chunk of memory to be allocated
+     * @param alignment Alignment, that chunk of memory should have
+     * @param startChunk The chunk of free memory from which to start searching for a fitting chunk
+     *
+     * @return Pointer to the allocated chunk of memory or nullptr if no chunk with the required size is available
+     */
+    void *allocAlgorithm(uint32_t size, uint32_t alignment, FreeListHeader *startChunk);
+
+    /**
+     * Implementation of the free algorithm, that is used in the free-functions.
+     *
+     * @param ptr Pointer to the chunk of memory to be freed
+     */
+    void freeAlgorithm(void *ptr);
+
+private:
+
+    Util::Async::Spinlock lock;
+
+    FreeListHeader *firstChunk = nullptr;
+
+    /**
+     * Find the next chunk of memory with a required size.
+     *
+     * @param start Pointer to the chunk of memory from where to start the search
+     * @param reqSize Minimal size that is required for the chunk
+     *
+     * @return Header of the free chunk with the required size or nullptr, if none is found
+     */
+    FreeListHeader *findNext(FreeListHeader *start, uint32_t reqSize);
+
+    /**
+     * Merge a chunk of free memory with it's neighbours, if possible.
+     *
+     * @param origin Chunk of free memory to be merged
+     */
+    FreeListHeader *merge(FreeListHeader *origin);
+
+    static const constexpr char *CLASS_NAME = "Kernel::FreeListMemoryManager";
+
+    static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
+
+    static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
 };
 
 }

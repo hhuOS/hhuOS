@@ -41,42 +41,6 @@ public:
         MISC
     };
 
-protected:
-
-    /**
-     * The type of this memory manager.
-     */
-    ManagerType managerType = MISC;
-
-    /**
-     * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
-     */
-    Util::Memory::Bitmap *bitmap;
-
-    /**
-     * The size of a single chunk of memory.
-     */
-    uint32_t blockSize;
-
-    /**
-     * Indicates, whether or not allocated memory shall be zero-initialized.
-     * This is needed for page tables, that get allocated by a bitmap memory manager.
-     */
-    bool zeroMemory = false;
-
-private:
-
-    static const constexpr char *TYPE_NAME = "BitmapMemoryManager";
-
-public:
-
-    PROTOTYPE_IMPLEMENT_CLONE(BitmapMemoryManager);
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    Util::Memory::String getTypeName() override;
-
     /**
      * Constructor.
      */
@@ -85,7 +49,12 @@ public:
     /**
      * Copy constructor.
      */
-    BitmapMemoryManager(const BitmapMemoryManager &copy);
+    BitmapMemoryManager(const BitmapMemoryManager &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    BitmapMemoryManager& operator=(const BitmapMemoryManager &other) = delete;
 
     /**
      * Destructor.
@@ -106,6 +75,37 @@ public:
      * Overriding function from memory manager.
      */
     void free(void *ptr) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    Util::Memory::String getClassName() override;
+
+protected:
+    /**
+     * The type of this memory manager.
+     */
+    ManagerType managerType = MISC;
+
+    /**
+     * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
+     */
+    Util::Memory::Bitmap *bitmap = nullptr;
+
+    /**
+     * The size of a single chunk of memory.
+     */
+    uint32_t blockSize;
+
+    /**
+     * Indicates, whether or not allocated memory shall be zero-initialized.
+     * This is needed for page tables, that get allocated by a bitmap memory manager.
+     */
+    bool zeroMemory = false;
+
+private:
+
+    static const constexpr char *CLASS_NAME = "Kernel::BitmapMemoryManager";
 };
 
 }

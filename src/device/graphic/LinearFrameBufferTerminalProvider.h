@@ -80,6 +80,11 @@ public:
      */
     [[nodiscard]] Util::Memory::String getDeviceName() const override;
 
+    /**
+     * Overriding function from TerminalProvider.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override;
+
 private:
 
     LinearFrameBufferProvider &lfbProvider;
@@ -87,6 +92,8 @@ private:
     char cursor;
 
     Util::Data::Array<ModeInfo> supportedModes;
+
+    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArray";
 };
 
 }

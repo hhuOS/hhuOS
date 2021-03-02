@@ -28,10 +28,13 @@ namespace Device::Graphic {
 class VesaBiosExtensions : public LinearFrameBufferProvider {
 
 public:
+
+    PROTOTYPE_IMPLEMENT_CLONE(VesaBiosExtensions);
+
     /**
      * Default Constructor.
      */
-    VesaBiosExtensions();
+    explicit VesaBiosExtensions(bool prototypeInstance = false);
 
     /**
      * Copy constructor.
@@ -49,7 +52,7 @@ public:
     ~VesaBiosExtensions() override = default;
 
     /**
-     * Check if a VESA compatible is available and this driver can be used.
+     * Check if a VESA compatible graphics card is available and this driver can be used.
      *
      * @return true, if this driver can be used
      */
@@ -84,6 +87,11 @@ public:
      * Overriding virtual function from LinearFrameBufferProvider.
      */
     [[nodiscard]] Util::Memory::String getDeviceName() const override;
+
+    /**
+     * Overriding function from Prototype.
+     */
+    [[nodiscard]] Util::Memory::String getClassName() override;
 
 private:
     /**
@@ -190,6 +198,7 @@ private:
     static const constexpr uint16_t MODE_ATTRIBUTES_HARDWARE_SUPPORT_BIT = 1 >> 0;
     static const constexpr uint16_t MODE_ATTRIBUTES_LFB_BIT = 1 << 7;
     static const constexpr char *VESA_SIGNATURE = "VESA";
+    static const constexpr char *CLASS_NAME = "Device::Graphic::VesaBiosExtensions";
 };
 
 }

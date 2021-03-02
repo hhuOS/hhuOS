@@ -15,6 +15,7 @@
  */
 
 #include <util/memory/Address.h>
+#include <util/reflection/InstanceFactory.h>
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Management.h"
@@ -61,7 +62,7 @@ void VirtualAddressSpace::init() {
     if (!Management::isInitialized()) {
         this->userSpaceHeapManager = new (reinterpret_cast<void*>(PAGESIZE)) FreeListMemoryManager();
     } else {
-        this->userSpaceHeapManager = (MemoryManager*) MemoryManager::createInstance(managerType);
+        this->userSpaceHeapManager = (MemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
     }
 
     if (userSpaceHeapManager != nullptr) {
@@ -74,7 +75,7 @@ void VirtualAddressSpace::init() {
     initialized = true;
 }
 
-bool VirtualAddressSpace::isInitialized() {
+bool VirtualAddressSpace::isInitialized() const {
     return initialized;
 }
 
