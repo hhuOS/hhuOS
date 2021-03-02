@@ -20,9 +20,7 @@
 namespace Util::Memory {
 
 template<typename T>
-Address<T>::Address() : address(0) {
-
-}
+Address<T>::Address() : address(0) {}
 
 template<typename T>
 Address<T>::Address(T address, T limitOffset) : address(address), limit(address + limitOffset < address ? static_cast<T>(0xffffffff) : address + limitOffset) {}
@@ -97,7 +95,34 @@ uint8_t Address<T>::getByte(T offset) const {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Read access above limit!");
     }
 
-    return reinterpret_cast<uint8_t*>(address)[offset];
+    return *reinterpret_cast<uint8_t*>(address + offset);
+}
+
+template<typename T>
+uint16_t Address<T>::getShort(T offset) const {
+    if (address + offset + sizeof(uint16_t) - 1 > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+    return *reinterpret_cast<uint16_t*>(address + offset);
+}
+
+template<typename T>
+uint32_t Address<T>::getInt(T offset) const {
+    if (address + offset + sizeof(uint32_t) - 1 > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+    return *reinterpret_cast<uint32_t*>(address + offset);
+}
+
+template<typename T>
+uint64_t Address<T>::getLong(T offset) const {
+    if (address + offset + sizeof(uint64_t) - 1 > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+    return *reinterpret_cast<uint64_t*>(address + offset);
 }
 
 template<typename T>
@@ -106,7 +131,34 @@ void Address<T>::setByte(T offset, uint8_t value) const {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
     }
 
-    reinterpret_cast<uint8_t*>(address)[offset] = value;
+    *reinterpret_cast<uint8_t*>(address + offset) = value;
+}
+
+template<typename T>
+void Address<T>::setShort(T offset, uint16_t value) const {
+    if (address + offset + sizeof(uint16_t) > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+   *reinterpret_cast<uint16_t*>(address + offset) = value;
+}
+
+template<typename T>
+void Address<T>::setInt(T offset, uint32_t value) const {
+    if (address + offset + sizeof(uint32_t) > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+    *reinterpret_cast<uint32_t*>(address + offset) = value;
+}
+
+template<typename T>
+void Address<T>::setLong(T offset, uint64_t value) const {
+    if (address + offset + sizeof(uint64_t) > limit) {
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
+    }
+
+    *reinterpret_cast<uint64_t*>(address + offset) = value;
 }
 
 template<typename T>
@@ -118,15 +170,28 @@ T Address<T>::stringLength() const {
 }
 
 template<typename T>
-void Address<T>::setRange(uint8_t value, T amount) const {
-    for (T i = 0; i < amount; i++) {
+void Address<T>::setRange(uint8_t value, T length) const {
+    auto longValue = static_cast<uint64_t>(value);
+    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
+
+    T i;
+    for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
+        setLong(i, longValue);
+    }
+
+    for (; i < length; i++) {
         setByte(i, value);
     }
 }
 
 template<typename T>
 void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
-    for (T i = 0; i < length; i++) {
+    T i;
+    for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
+        setLong(i, sourceAddress.getLong(i));
+    }
+
+    for (; i < length; i++) {
         setByte(i, sourceAddress.getByte(i));
     }
 }

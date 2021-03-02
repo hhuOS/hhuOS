@@ -67,9 +67,21 @@ public:
 
     [[nodiscard]] uint8_t getByte(T offset) const;
 
+    [[nodiscard]] uint16_t getShort(T offset) const;
+
+    [[nodiscard]] uint32_t getInt(T offset) const;
+
+    [[nodiscard]] uint64_t getLong(T offset) const;
+
     void setByte(T offset, uint8_t value) const;
 
-    void setRange(uint8_t value, T amount) const;
+    void setShort(T offset, uint16_t value) const;
+
+    void setInt(T offset, uint32_t value) const;
+
+    void setLong(T offset, uint64_t value) const;
+
+    void setRange(uint8_t value, T length) const;
 
     void copyRange(Address<T> sourceAddress, T length) const;
 
@@ -82,9 +94,6 @@ private:
     T address;
     T limit;
 };
-
-template
-class Address<uint8_t>;
 
 template
 class Address<uint16_t>;
