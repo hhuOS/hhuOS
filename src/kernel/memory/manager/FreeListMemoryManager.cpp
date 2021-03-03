@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -229,7 +230,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     // merge freed block of memory with neighbours if possible
     FreeListHeader *mergedHeader = merge(header);
 
-    // if the free chunk has more than 4kb of memory, a page can possibly be unmapped
+    // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
     if (doUnmap && mergedHeader->size >= PAGESIZE && Management::isInitialized()) {
         auto addr = (uint32_t) mergedHeader;
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);

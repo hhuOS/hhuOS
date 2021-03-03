@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,30 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "kernel/multiboot/Structure.h"
 #include "Paging.h"
 #include "MemLayout.h"
 
-extern "C" {
-    void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory);
-}
-
-/**
- * Function to set up the 4mb Pagedirectories needed for bootstrapping and BIOS-calls.
- * The parameters are assumed to point to physical addresses since paging is not enabled here.
- * In the bootstrap-PD a first initial heap with 4mb and the first 4mb of PagingAreaMemory are mapped
- * because they are needed to bootstrap the final 4kb-paging.
- * Accordingly, until the 4kb paging with pagefault-handling is enabled, the heap should only be used
- * for small allocations so that it does not exceed 4mb.
- *
- * @param directory Pointer to the bootstrapping 4mb-Pagedirectory
- * @param biosDirectory Pointer to the 4mb-Pagedirectory only used for BIOS-calls
- */
-void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
-    // calculate 4mb page where (higher-half) kernel should start
+void Kernel::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
+    // calculate 4MB page where (higher-half) kernel should start
     uint32_t kernelPage = KERNEL_START >> 22U;
-    // size of a 4mb page
+    // size of a 4MB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
     // Kernel::Multiboot::Structure::MemoryBlock* &blockMap = *VIRT2PHYS_VAR(Kernel::Multiboot::Structure::MemoryBlock**, Kernel::Multiboot::Structure::blockMap);
@@ -84,8 +69,8 @@ void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     directory[kernelPage + pageCount] = (uint32_t) (heapPhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 
     // calculate index to first virtual address of paging area memory
-    // these first 4mb of the paging area are needed to set up the final 4kb paging,
-    // so map the first (phys.) 4mb after the initial 4mb-heap to this address
+    // these first 4MB of the paging area are needed to set up the final 4KB paging,
+    // so map the first (phys.) 4MB after the initial 4MB-heap to this address
     uint32_t pagingAreaIndex = VIRT_PAGE_MEM_START / bigPageSize;
     directory[pagingAreaIndex] = (uint32_t) (pagingAreaPhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 }

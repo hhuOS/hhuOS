@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,17 +16,12 @@
  */
 
 #include <kernel/memory/Paging.h>
+#include <asm_interface.h>
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Symbols.h"
 #include "kernel/core/Management.h"
 #include "Structure.h"
 #include "Constants.h"
-
-extern "C" {
-    extern char ___KERNEL_DATA_START__;
-    extern char ___KERNEL_DATA_END__;
-    extern uint32_t MULTIBOOT_SIZE;
-}
 
 namespace Kernel::Multiboot {
 
@@ -53,50 +49,40 @@ Util::Data::HashMap<Util::Memory::String, ModuleInfo> Structure::modules;
 
 Util::Data::HashMap<Util::Memory::String, Util::Memory::String> Structure::kernelOptions;
 
-extern "C" {
-    void readMemoryMap(Info *address);
-    void copyMultibootInfo(Info *address, uint8_t *destination, uint32_t maxBytes);
-}
-
-void readMemoryMap(Info *address) {
-
-    Structure::readMemoryMap(address);
-}
-
 /**
  * The information passed by the bootloader may be anywhere in memory and it
  * also contains pointers. We can't be sure to still have access after enabling
  * paging, so lets copy it recursively to BSS. We have MULTIBOOT_SIZE (512KB)
  * reserved for that. (This includes all symbols and strings.)
  */
-void copyMultibootInfo(Info *info, uint8_t *destination, uint32_t maxBytes) {
+void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes) {
     auto destinationAddress = Util::Memory::Address<uint32_t>(destination, maxBytes);
 
     // first, copy the struct itself
-    destinationAddress.copyRange(Util::Memory::Address<uint32_t>(info), sizeof(Info));
-    info = reinterpret_cast<Info *>(destinationAddress.get());
+    destinationAddress.copyRange(Util::Memory::Address<uint32_t>(source), sizeof(Info));
+    auto multibootInfo = reinterpret_cast<Info *>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Info));
     
     // then copy the commandline
-    if(info->flags & MULTIBOOT_INFO_CMDLINE) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->commandLine);
+    if(multibootInfo->flags & MULTIBOOT_INFO_CMDLINE) {
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->commandLine);
         destinationAddress.copyString(sourceAddress);
-        info->commandLine = destinationAddress.get();
+        multibootInfo->commandLine = destinationAddress.get();
         destinationAddress = destinationAddress.add(sourceAddress.stringLength() + 1);
     }
     
     // TODO: the following rows may write past the end of our destination buf
     
     // then copy the module information
-    if(info->flags & MULTIBOOT_INFO_MODS) {
-        uint32_t length = info->moduleCount * sizeof(ModuleInfo);
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->moduleAddress, length);
+    if(multibootInfo->flags & MULTIBOOT_INFO_MODS) {
+        uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress, length);
         destinationAddress.copyRange(sourceAddress, length);
-        info->moduleAddress = destinationAddress.get();
+        multibootInfo->moduleAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
 
-        auto mods = reinterpret_cast<ModuleInfo *>(info->moduleAddress);
-        for(uint32_t i = 0; i < info->moduleCount; i++) {
+        auto mods = reinterpret_cast<ModuleInfo *>(multibootInfo->moduleAddress);
+        for(uint32_t i = 0; i < multibootInfo->moduleCount; i++) {
             sourceAddress = Util::Memory::Address<uint32_t>(mods[i].string);
             destinationAddress.copyString(sourceAddress);
             mods[i].string = reinterpret_cast<char *>(destinationAddress.get());
@@ -105,36 +91,36 @@ void copyMultibootInfo(Info *info, uint8_t *destination, uint32_t maxBytes) {
     }
     
     // then copy the symbol headers and the symbols
-    if(info->flags & MULTIBOOT_INFO_ELF_SHDR) {
-        uint32_t length = info->symbols.elf.sectionSize * info->symbols.elf.sectionCount;
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->symbols.elf.address, length);
+    if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
+        uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address, length);
         destinationAddress.copyRange(sourceAddress, length);
-        info->symbols.elf.address = destinationAddress.get();
+        multibootInfo->symbols.elf.address = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
-        Symbols::copy(info->symbols.elf, destinationAddress);
+        Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
     }
     
     // then copy the memory map
-    if(info->flags & MULTIBOOT_INFO_MEM_MAP) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->memoryMapAddress, info->memoryMapLength);
-        destinationAddress.copyRange(sourceAddress, info->memoryMapLength);
-        info->memoryMapAddress = destinationAddress.get();
-        destinationAddress = destinationAddress.add(info->memoryMapLength);
+    if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress, multibootInfo->memoryMapLength);
+        destinationAddress.copyRange(sourceAddress, multibootInfo->memoryMapLength);
+        multibootInfo->memoryMapAddress = destinationAddress.get();
+        destinationAddress = destinationAddress.add(multibootInfo->memoryMapLength);
     }
     
     // then copy the drives
-    if(info -> flags &  MULTIBOOT_INFO_DRIVE_INFO) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->driveAddress, info->driveLength);
-        destinationAddress.copyRange(sourceAddress, info->driveLength);
-        info->driveAddress = destinationAddress.get();
-        destinationAddress = destinationAddress.add(info->driveLength);
+    if(multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress, multibootInfo->driveLength);
+        destinationAddress.copyRange(sourceAddress, multibootInfo->driveLength);
+        multibootInfo->driveAddress = destinationAddress.get();
+        destinationAddress = destinationAddress.add(multibootInfo->driveLength);
     }
     
     // then copy the boot loader name
-    if(info->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(info->bootloaderName);
+    if(multibootInfo->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->bootloaderName);
         destinationAddress.copyString(sourceAddress);
-        info->bootloaderName = destinationAddress.get();
+        multibootInfo->bootloaderName = destinationAddress.get();
         destinationAddress = destinationAddress.add(sourceAddress.stringLength());
     }
 }
@@ -405,8 +391,7 @@ Util::Memory::String Structure::getKernelOption(const Util::Memory::String &key)
 
 void Structure::parseFrameBufferInfo() {
 
-    if ((info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) && (info.framebufferBpp >= 8) && (info.framebufferType == 1)) {
-
+    if (info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) {
         frameBufferInfo.address = static_cast<uint32_t>(info.framebufferAddress);
         frameBufferInfo.width = static_cast<uint16_t>(info.framebufferWidth);
         frameBufferInfo.height = static_cast<uint16_t>(info.framebufferHeight);
@@ -414,7 +399,6 @@ void Structure::parseFrameBufferInfo() {
         frameBufferInfo.pitch = static_cast<uint16_t>(info.framebufferPitch);
         frameBufferInfo.type = info.framebufferType;
     } else {
-
         frameBufferInfo.address = 0;
         frameBufferInfo.width = 0;
         frameBufferInfo.height = 0;

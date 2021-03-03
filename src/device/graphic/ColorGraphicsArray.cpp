@@ -16,8 +16,8 @@ void ColorGraphicsArray::putChar(char c) {
         currentRow++;
         currentColumn = 0;
     } else {
-        cgaMemory.setByte(position, c);
-        cgaMemory.setByte(position + 1, colorAttribute);
+        cgaMemory.setByte(c, position);
+        cgaMemory.setByte(colorAttribute, position + 1);
         currentColumn++;
     }
 
@@ -33,10 +33,6 @@ void ColorGraphicsArray::putChar(char c) {
     }
 
     updateCursorPosition();
-}
-
-void ColorGraphicsArray::putString(const char *string) {
-    Terminal::putString(string);
 }
 
 void ColorGraphicsArray::clear() {
@@ -65,7 +61,7 @@ void ColorGraphicsArray::updateCursorPosition() {
 
     // Set color attribute, so that the cursor will be visible
     uint8_t colorAttribute = (bgColor.getRGB4() << 4) | fgColor.getRGB4();
-    cgaMemory.setByte(position * BYTES_PER_CHARACTER + 1, colorAttribute);
+    cgaMemory.setByte(colorAttribute, position * BYTES_PER_CHARACTER + 1);
 
     auto low  = static_cast<uint8_t>(position & 0xff);
     auto high = static_cast<uint8_t>((position >> 8) & 0xff);

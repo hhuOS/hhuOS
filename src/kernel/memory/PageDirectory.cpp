@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,22 +16,13 @@
  */
 
 #include <util/memory/Address.h>
+#include <asm_interface.h>
 #include "kernel/multiboot/Structure.h"
 #include "kernel/memory/PageDirectory.h"
 
 #include "kernel/memory/Paging.h"
 #include "kernel/core/Management.h"
 #include "MemLayout.h"
-
-extern "C" {
-    // extern functions from assembler code paging.asm
-    void load_page_directory(uint32_t* pdAddress);
-    void enable_4KB_paging();
-}
-
-// These area should be write-protected because it contains the kernel code
-extern uint32_t ___WRITE_PROTECTED_START__[];
-extern uint32_t ___WRITE_PROTECTED_END__[];
 
 namespace Kernel {
 
@@ -53,7 +45,7 @@ PageDirectory::PageDirectory() {
     // calculate end of data and code that is placed by grub/bootloader
     // uint32_t reservedMemoryEnd = Multiboot::Structure::physReservedMemoryEnd;
     // calculate page count containing all memory up to reservedMemoryEnd
-    // plus 1024 pages for the initial heap (4mb)
+    // plus 1024 pages for the initial heap (4MB)
     // uint32_t pageCount = reservedMemoryEnd / PAGESIZE + 1024;
 
     // table with virtual PT-addresses placed after the PD itself
@@ -78,7 +70,7 @@ PageDirectory::PageDirectory() {
         virtTableAddresses[startIdx + i] = VIRT_PAGE_MEM_START + i * PAGESIZE;
     }
 
-    // set the entries for the mapping of reserved memory + initial 4mb-heap
+    // set the entries for the mapping of reserved memory + initial 4MB-heap
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];
 
@@ -92,11 +84,11 @@ PageDirectory::PageDirectory() {
 
     // now, all important mappings in kernelspace (> KERNEL_START) are set up
     // kernelcode + data loaded by grub is placed at KERNEL_START, the initial heap is placed
-    // afterwards and the first 4kb pagetables and directories are placed at VIRT_PAGE_MEM_START
+    // afterwards and the first 4KB pagetables and directories are placed at VIRT_PAGE_MEM_START
 
-    // load the Page Directory into cr3 and enable 4kb-paging via assembler
+    // load the Page Directory into cr3 and enable 4KB-paging via assembler
     load_page_directory(physPageDirectoryAddress);
-    enable_4KB_paging();
+    enable_system_paging();
 }
 
 /**
@@ -236,7 +228,7 @@ void PageDirectory::createTable(uint32_t idx, uint32_t physAddress, uint32_t vir
 }
 
 /**
- * Get 4kb-aligned physical address corresponding to the given virtual address.
+ * Get 4KB-aligned physical address corresponding to the given virtual address.
  */
 void *PageDirectory::getPhysicalAddress(void *virtAddress) {
     // get indices into Page Table and Directory
@@ -263,7 +255,7 @@ void *PageDirectory::getPhysicalAddress(void *virtAddress) {
  * Protects a given page from unmapping.
  */
 void PageDirectory::protectPage(uint32_t virtAddress) {
-    // align 4kb
+    // align 4KB
     uint32_t vaddr = virtAddress & 0xFFFFF000;
     // get indices into Page Table and Directory
     uint32_t pd_idx = GET_PD_IDX(vaddr);
@@ -288,7 +280,7 @@ void PageDirectory::protectPage(uint32_t virtAddress) {
  * Protects a range of pages from unmapping.
  */
 void PageDirectory::protectPage(uint32_t virtStartAddress, uint32_t virtEndAddress) {
-    // align addresses 4kb
+    // align addresses 4KB
     uint32_t startAddr = virtStartAddress & 0xFFFFF000;
     uint32_t endAddr = virtEndAddress & 0xFFFFF000;
 
@@ -304,7 +296,7 @@ void PageDirectory::protectPage(uint32_t virtStartAddress, uint32_t virtEndAddre
  * Unprotects a given page from unmapping.
  */
 void PageDirectory::unprotectPage(uint32_t virtAddress) {
-    // align 4kb
+    // align 4KB
     uint32_t vaddr = virtAddress & 0xFFFFF000;
     // get indices into Page Table and Directory
     uint32_t pd_idx = GET_PD_IDX(vaddr);
@@ -329,7 +321,7 @@ void PageDirectory::unprotectPage(uint32_t virtAddress) {
  * Unprotects a range of pages from unmapping.
  */
 void PageDirectory::unprotectPage(uint32_t virtStartAddress, uint32_t virtEndAddress) {
-    // get 4kb aligned addresses
+    // get 4KB aligned addresses
     uint32_t startAddr = virtStartAddress & 0xFFFFF000;
     uint32_t endAddr = virtEndAddress & 0xFFFFF000;
 

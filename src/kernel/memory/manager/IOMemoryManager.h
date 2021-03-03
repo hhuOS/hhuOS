@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -27,7 +28,7 @@ namespace Kernel {
 /**
  * Memory manager, that manages IO-Space for HW-Buffers, DMA etc.
  * Maps a given physical address (for example LFB) into the virtual IO-space
- * as defined in MemLayout.h or allocates an 4kb-aligned physical buffer and
+ * as defined in MemLayout.h or allocates an 4KB-aligned physical buffer and
  * maps it into virtual IO-space.
  * It is based on the BitmapMemoryManager.
  *

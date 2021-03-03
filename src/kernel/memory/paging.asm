@@ -1,5 +1,6 @@
-; Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-; Heinrich-Heine University
+; Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+; Institute of Computer Science, Department Operating Systems
+; Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 ;
 ; This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 ; License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,87 +14,71 @@
 ; along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 ; Contains all functions for paging / virtual memory implemented in assember
-; the kernel is mapped to high addresses with 4mb paging first, thenSp
-; a 4kb page-directory is built up
+; the kernel is mapped to high addresses with 4MB paging first, thenSp
+; a 4KB page-directory is built up
 
-; Created by Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner, HHU 2018
+%include "constants.asm"
 
-%include "kernel/core/constants.asm"
-
-global paging_bootstrap
-global enable_4KB_paging
+global enable_bootstrap_paging
+global enable_system_paging
 global load_page_directory
-global BIOS_Page_Directory
+global bios_page_directory
 
 extern on_paging_enabled
-extern bootstrapPaging
+extern bootstrap_paging
 
-; calculate index to 4mb page where kernel should be placed
-KERNEL_PG_NUM equ (KERNEL_START >> 22)
+; Calculate index to 4MB page where kernel should be placed
+KERNEL_PAGE equ (KERNEL_START >> 22)
 
-[SECTION .data]
-; all paging stuff has to be 4kb - aligned
-align 0x1000
+section .text
+; Set up first page table with 4MB pages to map kernel to higher half
+enable_bootstrap_paging:
+    push bios_page_directory - KERNEL_START
+    push bootstrap_page_directory - KERNEL_START
+    call bootstrap_paging
 
-; These Directories are set up in bootstrapPaging
-
-; Page Directory for Bootstrapping
-Bootstrap_Page_Directory:
-    times (1024) dd 0
-
-; Page directory with 4mb pages for BIOS-calls
-BIOS_Page_Directory:
-    times (1024) dd 0
-
-
-[SECTION .text]
-; set up first pagetable with 4MB pages to map kernel
-; to higher half
-paging_bootstrap:
-
-    mov ecx, BIOS_Page_Directory
-    sub ecx, KERNEL_START
-    push ecx
-
-    mov ecx, Bootstrap_Page_Directory
-    sub ecx, KERNEL_START
-    push ecx
-
-    call bootstrapPaging
-    add esp, 0x08
-
-    ; load address of 4mb - page directory
-    mov ecx, Bootstrap_Page_Directory
-    ; calculate phys. address since paging is not enabled yet
-    sub ecx, KERNEL_START
-    ; load cr3 with phys. address of page directory
+    ; Load physical address of 4MB page directory into cr3
+    mov ecx, bootstrap_page_directory - KERNEL_START
     mov cr3, ecx
 
-    ; enable pse bit for 4mb paging
+    ; Enable pse bit for 4MB paging
     mov ecx, cr4
     or  ecx, 0x00000010
     mov cr4, ecx
 
-    ; enable paging and page protection in cr0
+    ; Enable paging and page protection in cr0
     mov ecx, cr0
-    or ecx, 0x80010000
+    or  ecx, 0x80010000
     mov cr0, ecx
 
-    ; jump back to startup sequence in startup.asm
+    ; Jump back to boot sequence in boot.asm
     lea ecx, [on_paging_enabled]
     jmp ecx
 
-; switch from 4mb paging to 4kb paging
-enable_4KB_paging:
+; Switch from 4MB paging to 4KB paging
+enable_system_paging:
     mov ecx, cr4
     and ecx, 0xFFFFFFEF
     mov cr4, ecx
     ret
 
-
-; load phys. address of page directory into cr3
+; Load physical address of page directory into cr3
 load_page_directory:
-	; address is passed as an parameter
+	; The address is passed as a parameter
     mov	ecx,[4+esp]
     mov cr3, ecx
     ret
+
+section .data
+; All paging stuff has to be 4KB aligned
+align 0x1000
+
+; The following directories are set up in bootstrap_paging
+
+; Page Directory for Bootstrapping
+bootstrap_page_directory:
+    times (1024) dd 0
+
+; Page directory with 4MB pages for BIOS-calls
+bios_page_directory:
+    times (1024) dd 0

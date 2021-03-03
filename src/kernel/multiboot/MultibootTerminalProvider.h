@@ -15,36 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
-#define HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
+#ifndef HHUOS_MULTIBOOTTERMINALPROVIDER_H
+#define HHUOS_MULTIBOOTTERMINALPROVIDER_H
 
-#include <device/graphic/LinearFrameBufferProvider.h>
+#include <device/graphic/TerminalProvider.h>
 #include "Constants.h"
 
 namespace Kernel::Multiboot {
 
-class MultibootLinearFrameBufferProvider : public Device::Graphic::LinearFrameBufferProvider {
+class MultibootTerminalProvider : public Device::Graphic::TerminalProvider {
 
 public:
     /**
      * Default Constructor.
      */
-    MultibootLinearFrameBufferProvider();
+    MultibootTerminalProvider();
 
     /**
      * Copy constructor.
      */
-    MultibootLinearFrameBufferProvider(const MultibootLinearFrameBufferProvider &other) = delete;
+    MultibootTerminalProvider(const MultibootTerminalProvider &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MultibootLinearFrameBufferProvider &operator=(const MultibootLinearFrameBufferProvider &other) = delete;
+    MultibootTerminalProvider &operator=(const MultibootTerminalProvider &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MultibootLinearFrameBufferProvider() override = default;
+    ~MultibootTerminalProvider() override = default;
 
     /**
      * Check if the framebuffer, provided by the bootloader, has the correct type and this driver can be used.
@@ -54,22 +54,22 @@ public:
     [[nodiscard]] static bool isAvailable();
 
     /**
-     * Overriding virtual function from LinearFrameBufferProvider.
-     */
-    Util::Graphic::LinearFrameBuffer& initializeLinearFrameBuffer(ModeInfo &modeInfo) override;
+ * Overriding function from TerminalProvider.
+ */
+    Util::Graphic::Terminal &initializeTerminal(ModeInfo &modeInfo) override;
 
     /**
-     * Overriding virtual function from LinearFrameBufferProvider.
+     * Overriding function from TerminalProvider.
      */
-    void destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) override;
+    void destroyTerminal(Util::Graphic::Terminal &terminal) override;
 
     /**
-     * Overriding virtual function from LinearFrameBufferProvider.
+     * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array <ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
     /**
-     * Overriding function from Prototype.
+     * Overriding function from TerminalProvider.
      */
     [[nodiscard]] Util::Memory::String getClassName() override;
 
@@ -77,7 +77,7 @@ private:
 
     FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
-    static const constexpr char *CLASS_NAME = "Kernel::Multiboot::MultibootLinearFrameBufferProvider";
+    static const constexpr char *CLASS_NAME = "Kernel::Multiboot::MultibootTerminalProvider";
 };
 
 }

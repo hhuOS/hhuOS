@@ -15,24 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Font.h"
+#include <cstdint>
 
-namespace Util::Graphic {
+// Import asm variables
+extern uint32_t ___WRITE_PROTECTED_START__;
+extern uint32_t ___WRITE_PROTECTED_END__;
+extern char ___KERNEL_DATA_START__;
+extern char ___KERNEL_DATA_END__;
+extern uint32_t MULTIBOOT_SIZE;
 
-Font::Font(uint8_t charWidth, uint8_t charHeight, uint8_t *fontData) : charWidth(charWidth), charHeight(charHeight), charMemSize((charWidth / 8) * charHeight), fontData(fontData) {
-
-}
-
-uint8_t Font::getCharWidth() const {
-    return charWidth;
-}
-
-uint8_t Font::getCharHeight() const {
-    return charHeight;
-}
-
-uint8_t *Font::getChar(uint8_t c) const {
-    return &fontData[charMemSize * c];
-}
-
+// Import asm functions
+extern "C" {
+void load_page_directory(uint32_t*);
+void enable_system_paging();
+void bios_call();
+[[noreturn]] void on_exception(uint32_t);
+void _init();
+void _fini();
 }

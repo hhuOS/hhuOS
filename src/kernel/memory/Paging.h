@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -23,6 +24,8 @@
 #ifndef __PAGING_H__
 #define __PAGING_H__
 
+#include <cstdint>
+
  //Page Directory only Flags
 #define PAGE_SIZE_KiB			        0x000
 #define PAGE_SIZE_MiB			        0x080
@@ -35,7 +38,6 @@
 #define PAGE_NOT_GLOBAL		            0x000
 // prevents the TLB from updating the address in its cache if CR3 is reset (Bit in CR4 must be set)
 #define PAGE_GLOBAL				        0x100 
-
 
 //Common Flags
 #define PAGE_NOT_PRESENT 	            0x000
@@ -58,7 +60,24 @@
 #define GET_OFFSET(x)                   (x & 0xFFF)
 #define GET_FLAGS(x)                    (x & 0xFFF)
 
-// pagesize = 4kb
+// pagesize = 4KB
 #define PAGESIZE 0x1000
+
+namespace Kernel {
+
+/**
+ * Function to set up the 4MB page directories needed for bootstrapping and BIOS-calls.
+ * The parameters are assumed to point to physical addresses since paging is not enabled here.
+ * In the bootstrap-PD a first initial heap with 4MB and the first 4MB of PagingAreaMemory are mapped
+ * because they are needed to bootstrap the final 4KB-paging.
+ * Accordingly, until the 4KB paging with pagefault-handling is enabled, the heap should only be used
+ * for small allocations so that it does not exceed 4MB.
+ *
+ * @param directory Pointer to the bootstrapping 4MB page directory
+ * @param biosDirectory Pointer to the 4MB page directory only used for BIOS-calls
+ */
+void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory);
+
+}
 
 #endif

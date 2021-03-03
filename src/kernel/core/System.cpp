@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -17,14 +18,6 @@
 #include "System.h"
 #include "Symbols.h"
 #include "device/cpu/Cpu.h"
-
-extern "C" {
-int32_t atexit (void (*func)()) noexcept;
-}
-
-int32_t atexit (void (*func)()) noexcept {
-    return 0;
-}
 
 namespace Kernel {
 

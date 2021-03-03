@@ -68,6 +68,10 @@ bool ColorGraphicsArrayProvider::isAvailable() {
 }
 
 Util::Graphic::Terminal &ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo) {
+    if (!isAvailable()) {
+        Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
+    }
+
     // Set video mode
     Bios::CallParameters biosParameters{};
     biosParameters.ax = modeInfo.modeNumber;

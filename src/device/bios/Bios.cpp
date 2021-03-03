@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -18,12 +19,10 @@
 #include <kernel/memory/MemLayout.h>
 #include <kernel/multiboot/Structure.h>
 #include <util/memory/Address.h>
+#include <asm_interface.h>
 #include "Bios.h"
 
 namespace Device {
-
-// extern code in interrupt.asm
-extern "C" { void bios_call(); }
 
 // pointer to memory for parameters
 const Bios::CallParameters *Bios::parameters = reinterpret_cast<const Bios::CallParameters*>(VIRT_BIOS16_PARAM_BASE);
@@ -37,182 +36,181 @@ void Bios::init() {
         Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }
 
-    // pointer to memory segment for 16 bit code
-    auto codeAddress = reinterpret_cast<uint8_t *>(VIRT_BIOS16_CODE_MEMORY_START);
+    // Address to memory segment for 16 bit code
+    const auto codeAddress = Util::Memory::Address<uint32_t>(VIRT_BIOS16_CODE_MEMORY_START);
+    uint32_t offset = 0;
 
-    // the assembler instructions are placed manually into the memory
-    // in the following steps
-
+    // the assembler instructions are placed manually into the memory in the following steps
     // mov eax, 5000
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0xB8;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x50;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0xB8, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x50, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov [eax], esp
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x67;
-    *codeAddress++ = 0x89;
-    *codeAddress++ = 0x20;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x67, offset++);
+    codeAddress.setByte(0x89, offset++);
+    codeAddress.setByte(0x20, offset++);
 
     // mov eax,cr0
-    *codeAddress++ = 0x0F;
-    *codeAddress++ = 0x20;
-    *codeAddress++ = 0xC0;
+    codeAddress.setByte(0x0F, offset++);
+    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0xC0, offset++);
 
     // and eax, 7FFEFFFE
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x25;
-    *codeAddress++ = 0xFE;
-    *codeAddress++ = 0xFF;
-    *codeAddress++ = 0xFE;
-    *codeAddress++ = 0x7F;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x25, offset++);
+    codeAddress.setByte(0xFE, offset++);
+    codeAddress.setByte(0xFF, offset++);
+    codeAddress.setByte(0xFE, offset++);
+    codeAddress.setByte(0x7F, offset++);
 
     // mov cr0, eax
-    *codeAddress++ = 0x0F;
-    *codeAddress++ = 0x22;
-    *codeAddress++ = 0xC0;
+    codeAddress.setByte(0x0F, offset++);
+    codeAddress.setByte(0x22, offset++);
+    codeAddress.setByte(0xC0, offset++);
 
     // jmp 2400:001B flush pipeline & switch decoding unit
     // 0400:001B (0400<<4 = 4000 + 1B)
-    *codeAddress++ = 0xEA;
-    *codeAddress++ = 0x1B;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x04;
+    codeAddress.setByte(0xEA, offset++);
+    codeAddress.setByte(0x1B, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x04, offset++);
 
     // mov ds,400
-    *codeAddress++ = 0xBA;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x04;
+    codeAddress.setByte(0xBA, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x04, offset++);
 
     // mov ss,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xD2;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xD2, offset++);
 
     // mov gs,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xEA;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xEA, offset++);
 
     // mov esp,2000 -> BIOS16_PARAM_BASE 0x6000
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0xBC;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x20;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0xBC, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // pop ds
-    *codeAddress++ = 0x1F;
+    codeAddress.setByte(0x1F, offset++);
 
     // pop es
-    *codeAddress++ = 0x07;
+    codeAddress.setByte(0x07, offset++);
 
     // pop fs
-    *codeAddress++ = 0x0f;
-    *codeAddress++ = 0xa1;
+    codeAddress.setByte(0x0f, offset++);
+    codeAddress.setByte(0xa1, offset++);
 
     // pop ax -> we have to pop something for symmetry
-    *codeAddress++ = 0x58;
+    codeAddress.setByte(0x58, offset++);
 
     // popad
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x61;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x61, offset++);
 
     // interrupt number (written here)
-    *codeAddress++ = 0xCD;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0xCD, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // pushad
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x60;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x60, offset++);
 
     // pushf
-    *codeAddress++ = 0x9C;
+    codeAddress.setByte(0x9C, offset++);
 
     // push fs
-    *codeAddress++ = 0x0f;
-    *codeAddress++ = 0xa0;
+    codeAddress.setByte(0x0f, offset++);
+    codeAddress.setByte(0xa0, offset++);
 
     // push es
-    *codeAddress++ = 0x06;
+    codeAddress.setByte(0x06, offset++);
 
     // push ds
-    *codeAddress++ = 0x1E;
+    codeAddress.setByte(0x1E, offset++);
 
     // mov eax,cr0
-    *codeAddress++ = 0x0F;
-    *codeAddress++ = 0x20;
-    *codeAddress++ = 0xC0;
+    codeAddress.setByte(0x0F, offset++);
+    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0xC0, offset++);
 
     // or eax, 00010001 (protected mode without paging)
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x0D;
-    *codeAddress++ = 0x01;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x01;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x0D, offset++);
+    codeAddress.setByte(0x01, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x01, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov cr0, eax
-    *codeAddress++ = 0x0F;
-    *codeAddress++ = 0x22;
-    *codeAddress++ = 0xC0;
+    codeAddress.setByte(0x0F, offset++);
+    codeAddress.setByte(0x22, offset++);
+    codeAddress.setByte(0xC0, offset++);
 
     // jmp 0018:0049, flush pipeline & switch decoding
     // 0018:0049
-    *codeAddress++ = 0xEA;
-    *codeAddress++ = 0x49;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x18;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0xEA, offset++);
+    codeAddress.setByte(0x49, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x18, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov dx,0010
-    *codeAddress++ = 0xBA;
-    *codeAddress++ = 0x10;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0xBA, offset++);
+    codeAddress.setByte(0x10, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov ds,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xDA;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xDA, offset++);
 
     // mov es,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xC2;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xC2, offset++);
 
     // mov es,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xE2;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xE2, offset++);
 
     // mov fs,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xEA;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xEA, offset++);
 
     // mov ss,dx
-    *codeAddress++ = 0x8E;
-    *codeAddress++ = 0xD2;
+    codeAddress.setByte(0x8E, offset++);
+    codeAddress.setByte(0xD2, offset++);
 
     // mov eax, 25000
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0xB8;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x50;
-    *codeAddress++ = 0x00;
-    *codeAddress++ = 0x00;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0xB8, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x50, offset++);
+    codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov esp, [eax]
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0x67;
-    *codeAddress++ = 0x8B;
-    *codeAddress++ = 0x20;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0x67, offset++);
+    codeAddress.setByte(0x8B, offset++);
+    codeAddress.setByte(0x20, offset++);
 
     // far ret
-    *codeAddress++ = 0x66;
-    *codeAddress++ = 0xCB;
+    codeAddress.setByte(0x66, offset++);
+    codeAddress.setByte(0xCB, offset);
 }
 
-void Bios::interrupt(int interruptNumber, CallParameters &callParameters) {
+void Bios::interrupt(int interruptNumber, const CallParameters &callParameters) {
     if (!isAvailable()) {
         Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }

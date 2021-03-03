@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -60,7 +61,7 @@ public:
     static void initialize(const Multiboot::ElfInfo &elfInfo);
 
     /**
-     * Inidicates if all kernel symbols have been loaded.
+     * Indicates if all kernel symbols have been loaded.
      *
      * @return true, if all kernel symbols have been loaded, false else
      */

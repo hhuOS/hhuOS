@@ -7,7 +7,6 @@ LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Fon
         Terminal(lfb.getResolutionX() / font.getCharWidth(), lfb.getResolutionY() / font.getCharHeight()),
         cursor(cursor), lfb(lfb), scroller(lfb), pixelDrawer(lfb), stringDrawer(pixelDrawer), font(font) {
     LinearFrameBufferTerminal::clear();
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, fgColor, bgColor);
 }
 
 void LinearFrameBufferTerminal::putChar(char c) {
@@ -31,7 +30,7 @@ void LinearFrameBufferTerminal::putChar(char c) {
         currentRow = getRows() - 1 ;
     }
 
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, fgColor, bgColor);
+    updateCursorPosition();
 }
 
 void LinearFrameBufferTerminal::clear() {
@@ -39,6 +38,7 @@ void LinearFrameBufferTerminal::clear() {
 
     currentRow = 0;
     currentColumn = 0;
+    updateCursorPosition();
 }
 
 void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
@@ -56,6 +56,10 @@ void LinearFrameBufferTerminal::setBackgroundColor(Color &color) {
 
 LinearFrameBuffer &LinearFrameBufferTerminal::getLinearFrameBuffer() const {
     return lfb;
+}
+
+void LinearFrameBufferTerminal::updateCursorPosition() {
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, fgColor, bgColor);
 }
 
 }

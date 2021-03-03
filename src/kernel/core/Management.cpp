@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,6 +16,7 @@
  */
 
 #include <util/memory/Address.h>
+#include <asm_interface.h>
 #include "Management.h"
 
 #include "kernel/interrupt/InterruptDispatcher.h"
@@ -25,24 +27,6 @@
 #include "System.h"
 
 namespace Kernel {
-
-// some external functions are implemented in assembler code
-extern "C" {
-
-// load CR3 with physical address of page directory
-void load_page_directory(uint32_t *pdAddress);
-
-// functions to set up memory management and paging
-void _init();
-
-void _fini();
-
-void init_system(Multiboot::Info *address);
-
-void fini_system();
-
-void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc);
-}
 
 // initialize static members
 TaskStateSegment Management::taskStateSegment{};
@@ -55,37 +39,19 @@ bool Management::kernelMode = true;
  * Is called from assembler code before calling the main function, because it sets up
  * everything to get the system run.
  */
-void init_system(Multiboot::Info *address) {
-    // enable interrupts afterwards
+void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     Device::Cpu::enableInterrupts();
+    Multiboot::Structure::init(multibootInfoAddress);
 
-    Multiboot::Structure::init(address);
+    // create an instance of the SystemManagement and initialize it (sets up paging and system management)
+    auto &management = Management::getInstance();
+    management.init();
 
-    // create an instance of the SystemManagement and initialize it
-    // (sets up paging and system management)
-    Management &systemManagement = Management::getInstance();
-
-    systemManagement.init();
-
+    // Parse multiboot structure
     Multiboot::Structure::parse();
 
-    /* Pit::getInstance().plugin();
-
-    // Logger::initialize();
-
-    Logger::setLevel(Multiboot::Structure::getKernelOption("log_level")); */
-
-    if (Multiboot::Structure::getKernelOption("gdb").isEmpty()) {
-        systemManagement.writeProtectKernelCode();
-    }
-}
-
-/**
- * Finishes the system and calls global destructors.
- */
-void fini_system() {
-
-    _fini();
+    // Protect kernel code
+    management.writeProtectKernelCode();
 }
 
 /**
@@ -95,58 +61,58 @@ void fini_system() {
  * Therefore we assume that the given pointers are physical addresses  - this is very important
  * to guarantee correct GDT descriptors using this setup-function.
  *
- * @param gdt Pointer to the GDT of the system
- * @param gdt_bios Pointer to the GDT for BIOS-calls
- * @param gdt_desc Pointer to the descriptor of GDT; this descriptor should contain the virtual address of GDT
- * @param gdt_phys_desc Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
- * @param gdt_bios_desc Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
+ * @param systemGdt Pointer to the GDT of the system
+ * @param biosGdt Pointer to the GDT for BIOS-calls
+ * @param systemGdtDescriptor Pointer to the descriptor of GDT; this descriptor should contain the virtual address of GDT
+ * @param biosGdtDescriptor Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
+ * @param PhysicalGdtDescriptor Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
  */
-void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_desc, uint16_t *gdt_bios_desc, uint16_t *gdt_phys_desc) {
+void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *PhysicalGdtDescriptor) {
     // Set first 6 GDT entries to 0
-    Util::Memory::Address<uint32_t>(gdt).setRange(0, 48);
+    Util::Memory::Address<uint32_t>(systemGdt).setRange(0, 48);
 
     // Set first 4 bios GDT entries to 0
-    Util::Memory::Address<uint32_t>(gdt_bios).setRange(0, 32);
+    Util::Memory::Address<uint32_t>(biosGdt).setRange(0, 32);
 
     // first set up general GDT for the system
     // first entry has to be null
-    Management::createGDTEntry(gdt, 0, 0, 0, 0, 0);
+    Management::createGDTEntry(systemGdt, 0, 0, 0, 0, 0);
     // kernel code segment
-    Management::createGDTEntry(gdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+    Management::createGDTEntry(systemGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
     // kernel data segment
-    Management::createGDTEntry(gdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+    Management::createGDTEntry(systemGdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
     // user code segment
-    Management::createGDTEntry(gdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
+    Management::createGDTEntry(systemGdt, 3, 0, 0xFFFFFFFF, 0xFA, 0xC);
     // user data segment
-    Management::createGDTEntry(gdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
+    Management::createGDTEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
     // tss segment
-    Management::createGDTEntry(gdt, 5, reinterpret_cast<uint32_t>(&Management::getTaskStateSegment()), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
+    Management::createGDTEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&Management::getTaskStateSegment()), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
-    *((uint16_t *) gdt_desc) = 6 * 8;
+    *((uint16_t *) systemGdtDescriptor) = 6 * 8;
     // the normal descriptor should contain the virtual address of GDT
-    *((uint32_t *) (gdt_desc + 1)) = (uint32_t) gdt + KERNEL_START;
+    *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + KERNEL_START;
 
     // set up descriptor for GDT with phys. address - needed for bootstrapping
-    *((uint16_t *) gdt_phys_desc) = 6 * 8;
+    *((uint16_t *) PhysicalGdtDescriptor) = 6 * 8;
     // this descriptor should contain the physical address of GDT
-    *((uint32_t *) (gdt_phys_desc + 1)) = (uint32_t) gdt;
+    *((uint32_t *) (PhysicalGdtDescriptor + 1)) = (uint32_t) systemGdt;
 
     // now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
     // first entry has to be null
-    Management::createGDTEntry(gdt_bios, 0, 0, 0, 0, 0);
+    Management::createGDTEntry(biosGdt, 0, 0, 0, 0, 0);
     // kernel code segment
-    Management::createGDTEntry(gdt_bios, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
+    Management::createGDTEntry(biosGdt, 1, 0, 0xFFFFFFFF, 0x9A, 0xC);
     // kernel data segment
-    Management::createGDTEntry(gdt_bios, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
+    Management::createGDTEntry(biosGdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
     // prepared BIOS-call segment (contains 16-bit code etc...)
-    Management::createGDTEntry(gdt_bios, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
+    Management::createGDTEntry(biosGdt, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
 
 
     // set up descriptor for BIOS-GDT
-    *((uint16_t *) gdt_bios_desc) = 4 * 8;
+    *((uint16_t *) biosGdtDescriptor) = 4 * 8;
     // the descriptor should contain physical address of BIOS-GDT because paging is not enabled during BIOS-calls
-    *((uint32_t *) (gdt_bios_desc + 1)) = (uint32_t) gdt_bios;
+    *((uint32_t *) (biosGdtDescriptor + 1)) = (uint32_t) biosGdt;
 }
 
 /**
@@ -255,7 +221,7 @@ void Management::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress)
  * Directory .
  */
 void Management::map(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags) {
-    // get 4kb-aligned start and end address
+    // get 4KB-aligned start and end address
     uint32_t alignedStartAddress = virtStartAddress & 0xFFFFF000;
     uint32_t alignedEndAddress = virtEndAddress & 0xFFFFF000;
     alignedEndAddress += (virtEndAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
@@ -344,7 +310,7 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
 
-    // allocate 4kb-aligned virtual IO-memory
+    // allocate 4KB-aligned virtual IO-memory
     void *virtStartAddress = ioMemManager->alloc(size);
 
     // Check for nullpointer
@@ -378,7 +344,7 @@ void *Management::mapIO(uint32_t size) {
     // allocate block of physical memory
     void *physStartAddress = pageFrameAllocator->alloc(size);
 
-    // allocate 4kb-aligned virtual IO-memory
+    // allocate 4KB-aligned virtual IO-memory
     void *virtStartAddress = ioMemManager->alloc(size);
 
     // check for nullpointer

@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -22,27 +23,6 @@
 #include "kernel/core/Management.h"
 
 namespace Kernel {
-
-extern "C" {
-void dispatchInterrupt(InterruptFrame *frame);
-void switchToKernelStack();
-void switchToUserStack();
-void switchContext(Context **current, Context **next);
-void setTssStackEntry(uint32_t esp0);
-}
-
-void setTssStackEntry(uint32_t esp0) {
-    Kernel::Management::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
-}
-
-/**
- * Central function to deal with interrupts and faults - is called from assembler code
- *
- * @param *frame - pointer to the interrupt frame containing all relevant data
- */
-void dispatchInterrupt(InterruptFrame *frame) {
-    InterruptDispatcher::getInstance().dispatch(frame);
-}
 
 InterruptDispatcher &InterruptDispatcher::getInstance() noexcept {
 

@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -55,7 +56,7 @@
 #define PHYS_BIOS_RETURN_MEM 0x9F000
 #define VIRT_BIOS_RETURN_MEM (PHYS_BIOS_RETURN_MEM + KERNEL_START)
 
-// Look into startup.asm for corresponding GDT-Entry
+// Look into boot.asm for corresponding GDT-Entry
 #define PHYS_BIOS16_CODE_MEMORY_START 0x4000
 #define VIRT_BIOS16_CODE_MEMORY_START (PHYS_BIOS16_CODE_MEMORY_START + KERNEL_START)
 

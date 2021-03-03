@@ -79,6 +79,10 @@ bool VesaBiosExtensions::isAvailable() {
 }
 
 Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffer(LinearFrameBufferProvider::ModeInfo &modeInfo) {
+    if (!isAvailable()) {
+        Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "VBE is not available on this machine!");
+    }
+
     // Get mode info and set mode
     auto vbeModeInfo = getModeInfo(modeInfo.modeNumber);
     setMode(modeInfo.modeNumber);

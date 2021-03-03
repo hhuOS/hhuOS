@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,16 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <asm_interface.h>
 #include "util/memory/String.h"
 #include "kernel/core/Management.h"
 #include "Cpu.h"
-
-// enabling and disabling interrupts is done in assembler code
-extern "C" {
-void enable_interrupts();
-void disable_interrupts();
-[[ noreturn ]] void onException(uint32_t exception);
-}
 
 namespace Device {
 
@@ -44,15 +39,7 @@ const char *Cpu::softwareExceptions[]{
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-Util::Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on startup
-
-void enable_interrupts() {
-    Cpu::enableInterrupts();
-}
-
-void disable_interrupts() {
-    Cpu::disableInterrupts();
-}
+Util::Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on boot
 
 void Cpu::enableInterrupts() {
     if (cliCount.fetchAndDec() == 0) {
@@ -111,7 +98,7 @@ const char* Cpu::getExceptionName(uint32_t exception) {
 
 void Cpu::throwException(Exception exception, const char *message) {
     disableInterrupts();
-    onException((uint32_t) exception);
+    on_exception((uint32_t) exception);
 }
 
 void Cpu::softInterrupt(uint32_t function) {

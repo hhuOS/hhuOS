@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -65,23 +66,23 @@ public:
 
     [[nodiscard]] T compareString(Address<T> otherAddress) const;
 
-    [[nodiscard]] uint8_t getByte(T offset) const;
+    [[nodiscard]] uint8_t getByte(T offset = 0) const;
 
-    [[nodiscard]] uint16_t getShort(T offset) const;
+    [[nodiscard]] uint16_t getShort(T offset = 0) const;
 
-    [[nodiscard]] uint32_t getInt(T offset) const;
+    [[nodiscard]] uint32_t getInt(T offset = 0) const;
 
-    [[nodiscard]] uint64_t getLong(T offset) const;
+    [[nodiscard]] uint64_t getLong(T offset = 0) const;
 
-    void setByte(T offset, uint8_t value) const;
+    void setByte(uint8_t value, T offset = 0) const;
 
-    void setShort(T offset, uint16_t value) const;
+    void setShort(uint16_t value, T offset = 0) const;
 
-    void setInt(T offset, uint32_t value) const;
+    void setInt(uint32_t value, T offset = 0) const;
 
-    void setLong(T offset, uint64_t value) const;
+    void setLong(uint64_t value, T offset = 0) const;
 
-    void setRange(uint8_t value, T length) const;
+    void setRange(uint8_t value, T length = 0) const;
 
     void copyRange(Address<T> sourceAddress, T length) const;
 

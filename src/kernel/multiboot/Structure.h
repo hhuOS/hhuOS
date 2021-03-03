@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -52,11 +53,13 @@ namespace Kernel::Multiboot {
 
         ~Structure() = delete;
 
+        static void copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes);
+
+        static void readMemoryMap(Info *address);
+
         static void parse();
 
         static void init(Multiboot::Info *address);
-
-        static void readMemoryMap(Info *address);
 
         static Multiboot::ModuleInfo getModule(const Util::Memory::String &module);
 
@@ -77,6 +80,7 @@ namespace Kernel::Multiboot {
         static MemoryBlock blockMap[256];
 
         static Info info;
+
     private:
 
         static void parseCommandLine();

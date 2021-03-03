@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -126,7 +127,7 @@ uint64_t Address<T>::getLong(T offset) const {
 }
 
 template<typename T>
-void Address<T>::setByte(T offset, uint8_t value) const {
+void Address<T>::setByte(uint8_t value, T offset) const {
     if (address + offset > limit) {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
     }
@@ -135,7 +136,7 @@ void Address<T>::setByte(T offset, uint8_t value) const {
 }
 
 template<typename T>
-void Address<T>::setShort(T offset, uint16_t value) const {
+void Address<T>::setShort(uint16_t value, T offset) const {
     if (address + offset + sizeof(uint16_t) > limit) {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
     }
@@ -144,7 +145,7 @@ void Address<T>::setShort(T offset, uint16_t value) const {
 }
 
 template<typename T>
-void Address<T>::setInt(T offset, uint32_t value) const {
+void Address<T>::setInt(uint32_t value, T offset) const {
     if (address + offset + sizeof(uint32_t) > limit) {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
     }
@@ -153,7 +154,7 @@ void Address<T>::setInt(T offset, uint32_t value) const {
 }
 
 template<typename T>
-void Address<T>::setLong(T offset, uint64_t value) const {
+void Address<T>::setLong(uint64_t value, T offset) const {
     if (address + offset + sizeof(uint64_t) > limit) {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
     }
@@ -176,11 +177,11 @@ void Address<T>::setRange(uint8_t value, T length) const {
 
     T i;
     for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
-        setLong(i, longValue);
+        setLong(longValue, i);
     }
 
     for (; i < length; i++) {
-        setByte(i, value);
+        setByte(value, i);
     }
 }
 
@@ -188,11 +189,11 @@ template<typename T>
 void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
     T i;
     for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
-        setLong(i, sourceAddress.getLong(i));
+        setLong(sourceAddress.getLong(i), i);
     }
 
     for (; i < length; i++) {
-        setByte(i, sourceAddress.getByte(i));
+        setByte(sourceAddress.getByte(i), i);
     }
 }
 
@@ -200,20 +201,20 @@ template<typename T>
 void Address<T>::copyString(Address<T> sourceAddress) const {
     T i;
     for (i = 0; sourceAddress.getByte(i) != 0; i++) {
-        setByte(i, sourceAddress.getByte(i));
+        setByte(sourceAddress.getByte(i), i);
     }
-    setByte(i, 0);
+    setByte(0, i);
 }
 
 template<typename T>
 void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) const {
     T i;
     for (i = 0; sourceAddress.getByte(i) != 0 && i < maxBytes; i++) {
-        setByte(i, sourceAddress.getByte(i));
+        setByte(sourceAddress.getByte(i), i);
     }
 
     for (; i < maxBytes; i++) {
-        setByte(i, 0);
+        setByte(0, i);
     }
 }
 

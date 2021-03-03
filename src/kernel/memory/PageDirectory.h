@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -81,10 +82,10 @@ public:
     uint32_t unmap(uint32_t virtAddress);
 
     /**
-     * Get 4kb-aligned physical address corresponding to the given virtual address.
+     * Get 4KB-aligned physical address corresponding to the given virtual address.
      *
      * @param virtAddress Virtual address
-     * @return uint32_t Physical address where virtual address is mapped (4kb-aligned)
+     * @return uint32_t Physical address where virtual address is mapped (4KB-aligned)
      */
     void *getPhysicalAddress(void *virtAddress);
 

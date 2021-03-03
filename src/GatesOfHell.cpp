@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include <device/cpu/Cpu.h>
 #include <util/stream/TerminalOutputStream.h>
 #include <util/stream/StringFormatOutputStream.h>
@@ -26,12 +26,9 @@
 #include <device/graphic/ColorGraphicsArrayProvider.h>
 #include <util/reflection/InstanceFactory.h>
 #include <kernel/multiboot/Structure.h>
+#include <kernel/multiboot/MultibootTerminalProvider.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
-
-int32_t main() {
-    GatesOfHell::enter();
-}
 
 void GatesOfHell::enter() {
     if (Device::Bios::isAvailable()) {
@@ -46,21 +43,25 @@ void GatesOfHell::enter() {
         Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::ColorGraphicsArrayProvider(true));
     }
 
-    Device::Graphic::LinearFrameBufferProvider *lfbProvider;
+    Device::Graphic::LinearFrameBufferProvider *lfbProvider = nullptr;
     Device::Graphic::TerminalProvider *terminalProvider;
 
     if (Kernel::Multiboot::Structure::hasKernelOption("lfb_provider")) {
         auto providerName = Kernel::Multiboot::Structure::getKernelOption("lfb_provider");
         lfbProvider = reinterpret_cast<Device::Graphic::LinearFrameBufferProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
-    } else {
+    } else if (Kernel::Multiboot::MultibootLinearFrameBufferProvider::isAvailable()) {
         lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
     }
 
     if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
         auto providerName = Kernel::Multiboot::Structure::getKernelOption("terminal_provider");
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
-    } else {
+    } else if (lfbProvider != nullptr) {
         terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(*lfbProvider);
+    }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
+        terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
+    } else {
+        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "Unable to find a suiting graphics driver for this machine!");
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);

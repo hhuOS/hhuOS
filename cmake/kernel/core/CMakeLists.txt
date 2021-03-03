@@ -1,5 +1,7 @@
-# Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-# Heinrich-Heine University
+# Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+# Institute of Computer Science, Department Operating Systems
+# Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+#
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -17,5 +19,4 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/core/Management.cpp
         ${HHUOS_SRC_DIR}/kernel/core/Symbols.cpp
-        ${HHUOS_SRC_DIR}/kernel/core/System.cpp
-        ${HHUOS_SRC_DIR}/kernel/core/constants.asm)
+        ${HHUOS_SRC_DIR}/kernel/core/System.cpp)

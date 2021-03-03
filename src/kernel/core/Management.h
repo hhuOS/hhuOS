@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -26,6 +27,7 @@
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "util/data/ArrayList.h"
 #include "TaskStateSegment.h"
+#include "Symbols.h"
 
 namespace Kernel {
 
@@ -54,7 +56,7 @@ private:
     PageDirectory *basePageDirectory{};
     // pointer to the currently active address space
     VirtualAddressSpace *currentAddressSpace{};
-    // Page frame Allocator to alloc physical memory in 4kb-blocks
+    // Page frame Allocator to alloc physical memory in 4KB-blocks
     PageFrameAllocator *pageFrameAllocator{};
     // Paging Area Manager to manage the virtual memory reserved for page tables
     // and directories
@@ -100,9 +102,9 @@ public:
 
     /**
      * Maps a physical address into the IO-space of the system, located at the upper
-     * end of the virtual memory. The allocated memory is 4kb-aligned, therefore the
-     * returned virtual memory address is also 4kb-aligned. If the given physical
-     * address is not 4kb-aligned, one has to add a offset to the returned virtual
+     * end of the virtual memory. The allocated memory is 4KB-aligned, therefore the
+     * returned virtual memory address is also 4KB-aligned. If the given physical
+     * address is not 4KB-aligned, one has to add a offset to the returned virtual
      * memory address in order to obtain the corresponding virtual address.
      *
      * @param physAddr Physical address to be mapped. This address is usually given
@@ -116,7 +118,7 @@ public:
 
     /**
      * Maps IO-space for a device and allocates physical memory for it. All
-     * allocations are 4kb-aligned.
+     * allocations are 4KB-aligned.
      *
      * @param size Size of IO-memory to be allocated
      * @return Pointer to virtual IO memory block
@@ -247,12 +249,12 @@ public:
 
     /**
      * Gets the physical address of a given virtual address. The returned
-     * physical address is 4kb-aligned, so sometimes an offset may be calculated
+     * physical address is 4KB-aligned, so sometimes an offset may be calculated
      * in order to get the exact physical address corresponding to the virtual
      * address.
      *
      * @param virtAddr Virtual address
-     * @return uint32_t Physical address of the given virtual address (4kb-aligned)
+     * @return uint32_t Physical address of the given virtual address (4KB-aligned)
      */
     void *getPhysicalAddress(void *virtAddress);
 
@@ -331,6 +333,10 @@ public:
     }
 
     void *realloc(void *ptr, uint32_t size, uint32_t alignment = 0);
+
+    static void initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *PhysicalGdtDescriptor);
+
+    static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress);
 };
 
 }

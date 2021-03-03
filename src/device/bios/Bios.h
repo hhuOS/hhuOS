@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,23 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __BIOS_include__
-#define __BIOS_include__
+#ifndef HHUOS_DEVICE_BIOS_H
+#define HHUOS_DEVICE_BIOS_H
 
 #include <cstdint>
 
 namespace Device {
 
 /**
- * BIOS - provides BIOS-call functions in Protected Mode / Paging - environment
- *
- * @author Michael Schoettner, Filip Krakowski, Christian Gesse, Fabian Ruhland, Burak Akguel
- * @date HHU, 2018
+ * Provides static functions, that allow performing BIOS calls in Protected Mode
  */
 class Bios {
 
 public:
-    // struct to pass parameters to a bios call
+    /**
+     * State of the 16-bit registers, that shall be loaded once the switch to real mode has been performed.
+     * This way, parameters can be passed to a BIOS call.
+     */
     struct CallParameters {
         uint16_t ds;
         uint16_t es;
@@ -70,14 +71,13 @@ public:
 
     /**
      * Check if BIOS-calls are activated.
-     * BIOS-calls can be de-/activated with the kernel parameter 'bios_enhancements=true/false'.
+     * BIOS-calls can be de-/activated with the kernel parameter 'bios=true/false'.
      */
     static bool isAvailable();
 
     /**
      * Initializes segment for bios call.
-     * Builds up a 16-bit code segment manually. The start address
-     * of this code segment is in the GDT for bios calls
+     * Builds up a 16-bit code segment manually. The start address of this code segment is in the GDT for bios calls.
      */
     static void init();
 
@@ -87,10 +87,10 @@ public:
      * @param Interrupt number number of the bios call
      * @param callParameters Parameter struct for the bios call
      */
-    static void interrupt(int interruptNumber, CallParameters &callParameters);
+    static void interrupt(int interruptNumber, const CallParameters &callParameters);
 
 private:
-    // pointer to memory-block where bios call parameters should be stored
+
     static const CallParameters *parameters;
 };
 
