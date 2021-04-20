@@ -36,6 +36,7 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/Head.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/History.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Insmod.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Ip.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/License.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Ls.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Mkdir.cpp

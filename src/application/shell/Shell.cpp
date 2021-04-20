@@ -29,6 +29,7 @@
 #include "application/shell/command/Shutdown.h"
 #include "application/shell/command/Clear.h"
 #include "application/shell/command/Insmod.h"
+#include "application/shell/command/Ip.h"
 #include "application/shell/command/Mount.h"
 #include "application/shell/command/Umount.h"
 #include "application/shell/command/Head.h"
@@ -86,6 +87,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("mathexpr", new Mathexpr(*this));
     commands.put("rm", new Rm(*this));
     commands.put("insmod", new Insmod(*this));
+    commands.put("ip", new Ip(*this));
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
     commands.put("mkparttable", new MkPartTable(*this));
