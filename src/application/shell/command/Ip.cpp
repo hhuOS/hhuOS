@@ -2,6 +2,7 @@
 // Created by hannes on 20.04.21.
 //
 
+#include <lib/libc/printf.h>
 #include "Ip.h"
 
 Ip::Ip(Shell &shell) : Command(shell) {
@@ -11,7 +12,7 @@ Ip::Ip(Shell &shell) : Command(shell) {
 void Ip::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
-    parser.addParameter("link", "l", false);
+    parser.addSwitch("link","lnk");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -25,7 +26,7 @@ void Ip::execute(Util::Array<String> &args) {
         return;
     }
 
-    if(!parser.getNamedArgument("link").isEmpty()) {
+    if(parser.checkSwitch("link")) {
         link(networkService);
     }
 }
@@ -33,25 +34,23 @@ void Ip::execute(Util::Array<String> &args) {
 void Ip::link(Kernel::NetworkService* networkService) {
     stdout << "Print available network links\n" << endl;
 
-    uint8_t macAddress=0;
+    auto * macAddress = (uint8_t*) malloc(6 * sizeof( uint8_t));
     uint32_t count = networkService->getDeviceCount();
 
-    for(uint8_t i=0;(uint32_t)i<count;i++){
-        networkService->getDriver(i).getMacAddress(&macAddress);
-
-        stdout
-        << "Link No. " << i << ": MAC='"
-        << macAddress
-        << "'\n"
-        << endl;
+    for(uint32_t i=0;i<count;i++){
+        networkService->getDriver(i).getMacAddress(macAddress);
+        stdout << "Link No. " << i << ": MAC='" << getMACAsString(macAddress) << "'" << endl;
     }
+}
+
+String Ip::getMACAsString(uint8_t *mac) {
+    return String::format("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"
-            "Usage: ip [COMMAND] [OPTIONS]\n"
-            "Commands:\n"
-            "   link: List all available network links and their attributes\n"
+            "Usage: ip [OPTIONS]\n"
             "Options:\n"
-            "   -h, --help: Show this help-message\n";
+            "   -h, --help: Show this help-message\n"
+            "   -lnk, --link: List all available network links and their attributes\n";
 }

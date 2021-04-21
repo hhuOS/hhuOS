@@ -10,5 +10,11 @@ void Loopback::sendPacket(void *address, uint16_t length){
 }
 
 void Loopback::getMacAddress(uint8_t *buf){
-    printf("Method getMacAddress() has been called");
+    if(buf== nullptr){
+        printf("No valid buffer for MAC address given! Exit");
+        return;
+    }
+    for(int i=0;i<6;i++){
+        buf[i]=0;
+    }
 }

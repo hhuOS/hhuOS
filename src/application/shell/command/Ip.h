@@ -24,6 +24,8 @@ public:
     void execute(Util::Array<String> &args) override;
 
     const String getHelpText() override;
+
+    static String getMACAsString(uint8_t* mac);
 };
 
 
