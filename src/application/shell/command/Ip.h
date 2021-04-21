@@ -14,18 +14,20 @@ class Ip : public Command {
 public:
 
     Ip() = delete;
+
     Ip(const Ip &copy) = delete;
+
     ~Ip() override = default;
 
     explicit Ip(Shell &shell);
 
-    void link(Kernel::NetworkService* networkService);
+    void link(Kernel::NetworkService *networkService);
 
     void execute(Util::Array<String> &args) override;
 
     const String getHelpText() override;
 
-    static String getMACAsString(uint8_t* mac);
+    static String getMACAsString(uint8_t *mac);
 };
 
 

@@ -12,7 +12,7 @@ Ip::Ip(Shell &shell) : Command(shell) {
 void Ip::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
-    parser.addSwitch("link","lnk");
+    parser.addSwitch("link", "lnk");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -21,23 +21,23 @@ void Ip::execute(Util::Array<String> &args) {
 
     auto *networkService = Kernel::System::getService<Kernel::NetworkService>();
 
-    if(networkService->getDeviceCount() == 0) {
+    if (networkService->getDeviceCount() == 0) {
         stderr << args[0] << ": No network devices available!" << endl;
         return;
     }
 
-    if(parser.checkSwitch("link")) {
+    if (parser.checkSwitch("link")) {
         link(networkService);
     }
 }
 
-void Ip::link(Kernel::NetworkService* networkService) {
+void Ip::link(Kernel::NetworkService *networkService) {
     stdout << "Print available network links\n" << endl;
 
-    auto * macAddress = (uint8_t*) malloc(6 * sizeof( uint8_t));
+    auto *macAddress = (uint8_t *) malloc(6 * sizeof(uint8_t));
     uint32_t count = networkService->getDeviceCount();
 
-    for(uint32_t i=0;i<count;i++){
+    for (uint32_t i = 0; i < count; i++) {
         networkService->getDriver(i).getMacAddress(macAddress);
         stdout << "Link No. " << i << ": MAC='" << getMACAsString(macAddress) << "'" << endl;
     }
@@ -49,8 +49,8 @@ String Ip::getMACAsString(uint8_t *mac) {
 
 const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"
-            "Usage: ip [OPTIONS]\n"
-            "Options:\n"
-            "   -h, --help: Show this help-message\n"
-            "   -lnk, --link: List all available network links and their attributes\n";
+           "Usage: ip [OPTIONS]\n"
+           "Options:\n"
+           "   -h, --help: Show this help-message\n"
+           "   -lnk, --link: List all available network links and their attributes\n";
 }
