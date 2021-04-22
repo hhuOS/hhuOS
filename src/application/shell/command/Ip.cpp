@@ -78,8 +78,10 @@ const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"
            "Usage: ip [OPTIONS]\n"
            "Options:\n"
-           "   -h, --help: Show this help-message\n"
-           "   -lnk, --link: List all available network links and their attributes\n";
+           "   -lnk, --link: List all available network links and their attributes\n"
+           "   -lo, --loopback: Enables loopback device if it's not already enabled.\n"
+           "                    This will be done as first action if combined with other parameters.\n"
+           "   -h, --help: Show this help-message";
 }
 
 Ip::~Ip() {
