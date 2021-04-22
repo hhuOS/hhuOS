@@ -22,7 +22,7 @@ void Ip::execute(Util::Array<String> &args) {
 
     auto *networkService = Kernel::System::getService<Kernel::NetworkService>();
 
-    if (parser.checkSwitch("loopback")){
+    if (parser.checkSwitch("loopback")) {
         Ip::loopback(networkService);
     }
 
@@ -37,12 +37,12 @@ void Ip::execute(Util::Array<String> &args) {
 }
 
 void Ip::link(Kernel::NetworkService *networkService) {
-    if(networkService == nullptr){
+    if (networkService == nullptr) {
         printf("No valid network service given! Exit");
         return;
     }
 
-    stdout << "Print available network links\n" << endl;
+    stdout << "Print available network links" << endl;
 
     auto *macAddress = (uint8_t *) malloc(6 * sizeof(uint8_t));
     uint32_t count = networkService->getDeviceCount();
@@ -56,12 +56,12 @@ void Ip::link(Kernel::NetworkService *networkService) {
 }
 
 void Ip::loopback(Kernel::NetworkService *networkService) {
-    if(networkService == nullptr){
+    if (networkService == nullptr) {
         printf("No valid network service given! Exit");
         return;
     }
-    stdout << "Enable Loopback Interface\n" << endl;
-    if(loopbackInterface != nullptr){
+    stdout << "Enable Loopback Interface" << endl;
+    if (loopbackInterface != nullptr) {
         stdout << "Loopback already enabled!" << endl;
         return;
     }

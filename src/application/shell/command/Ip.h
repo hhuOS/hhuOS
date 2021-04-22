@@ -13,7 +13,7 @@
 class Ip : public Command {
 
 private:
-   Loopback *loopbackInterface = nullptr;
+    Loopback *loopbackInterface = nullptr;
 
 public:
 
