@@ -5,15 +5,31 @@
 #ifndef HHUOS_LOOPBACK_H
 #define HHUOS_LOOPBACK_H
 
-#include <device/network/NetworkDevice.h>
+#include <kernel/event/network/ReceiveEvent.h>
 #include <kernel/service/EventBus.h>
+#include <kernel/core/System.h>
+#include <kernel/log/Logger.h>
+
+#include <lib/util/SmartPointer.h>
+
+#include <device/network/NetworkDevice.h>
 
 /**
  *
  */
 class Loopback : public NetworkDevice {
 
+private:
+    /**
+     * A logger to provide logging information on the kernel log.
+     */
+    Kernel::Logger &log = Kernel::Logger::get("Loopback");
+
+    Kernel::EventBus *eventBus = nullptr;
+
 public:
+    Loopback();
+
     /**
      * Overriding function from NetworkDevice.
      */

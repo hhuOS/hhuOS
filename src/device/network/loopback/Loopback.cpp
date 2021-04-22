@@ -2,16 +2,31 @@
 // Created by hannes on 19.04.21.
 //
 
-#include <cstdio>
 #include "Loopback.h"
 
+Loopback::Loopback() {
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
+}
+
 void Loopback::sendPacket(void *address, uint16_t length) {
-    printf("Method sendPacket() has been called");
+    if (length == 0 || address == nullptr) {
+        log.error("Invalid values for packet address and/or length");
+        return;
+    }
+    if (eventBus == nullptr) {
+        log.error("Could not send packet, event bus was null!");
+        return;
+    }
+    eventBus->publish(
+            Util::SmartPointer<Kernel::Event>(
+                    new Kernel::ReceiveEvent(address, length)
+            )
+    );
 }
 
 void Loopback::getMacAddress(uint8_t *buf) {
     if (buf == nullptr) {
-        printf("No valid buffer for MAC address given! Exit");
+        log.error("No valid buffer for MAC address given! Exit");
         return;
     }
     for (int i = 0; i < 6; i++) {
@@ -20,5 +35,5 @@ void Loopback::getMacAddress(uint8_t *buf) {
 }
 
 void Loopback::trigger(Kernel::InterruptFrame &frame) {
-
+//TODO: Implement this one
 }
