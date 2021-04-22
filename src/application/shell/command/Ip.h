@@ -8,8 +8,12 @@
 
 #include "Command.h"
 #include <kernel/service/NetworkService.h>
+#include <device/network/loopback/Loopback.h>
 
 class Ip : public Command {
+
+private:
+   Loopback *loopbackInterface = nullptr;
 
 public:
 
@@ -17,11 +21,13 @@ public:
 
     Ip(const Ip &copy) = delete;
 
-    ~Ip() override = default;
+    virtual ~Ip();
 
     explicit Ip(Shell &shell);
 
     void link(Kernel::NetworkService *networkService);
+
+    void loopback(Kernel::NetworkService *networkService);
 
     void execute(Util::Array<String> &args) override;
 

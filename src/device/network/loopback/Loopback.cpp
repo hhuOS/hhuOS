@@ -18,3 +18,7 @@ void Loopback::getMacAddress(uint8_t *buf) {
         buf[i] = 0;
     }
 }
+
+void Loopback::trigger(Kernel::InterruptFrame &frame) {
+
+}

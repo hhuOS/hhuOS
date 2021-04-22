@@ -23,6 +23,8 @@ public:
      * Overriding function from NetworkDevice.
      */
     void getMacAddress(uint8_t *buf) override;
+
+    void trigger(Kernel::InterruptFrame &frame) override;
 };
 
 #endif //HHUOS_LOOPBACK_H
