@@ -145,8 +145,11 @@ const String NetworkTest::getHelpText() {
     return "Small utility for testing network devices and measuring network send performance.\n\n"
            "Usage: nettest [OPTIONS]...\n\n"
            "Options:\n"
-           "  -s, --send: Send packets via the first network device.\n"
+           "  -i, --index: Select device with given index for your test run.\n"
+           "               Default is 0 for the first device listed.\n"
+           "               Device list can be shown by 'ip --link'.\n"
+           "  -s, --send: Send packets via the selected network device.\n"
            "    -t, --time: Suboption for --send - Run a send benchmark for a given amount of milliseconds\n"
-           "    -c, --count: Suboption fo --send - Run a send benchmark with a given amount of packets\n"
+           "    -c, --count: Suboption for --send - Run a send benchmark with a given amount of packets\n"
            "  -h, --help: Show this help-message.";
 }
