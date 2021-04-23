@@ -49,15 +49,14 @@ void NetworkTest::execute(Util::Array<String> &args) {
     }
 
     uint8_t index = 0;
-
     if(!parser.getNamedArgument("index").isEmpty()){
         index = static_cast<uint8_t>(strtoint((char *) parser.getNamedArgument("index")));
         if(index<0 || index >= UINT8_MAX || index >= networkService->getDeviceCount()){
             stderr << "Invalid index value! Falling back to zero (default)" << endl;
             index = 0;
         }
-        printf("Device with index %d chosen\n",index);
     }
+    printf("Device with index %d chosen\n",index);
 
     NetworkDevice &driver = Kernel::System::getService<Kernel::NetworkService>()->getDriver(index);
 
