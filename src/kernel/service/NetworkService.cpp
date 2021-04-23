@@ -7,9 +7,13 @@ namespace Kernel {
 
 NetworkService::NetworkService() {
     System::getService<EventBus>()->subscribe(packetHandler, ReceiveEvent::TYPE);
+    loopbackInterface = new Loopback();
+    registerDevice(*loopbackInterface);
 }
 
 NetworkService::~NetworkService() {
+    delete loopbackInterface;
+    //TODO: Synchronisierung nötig?
     System::getService<EventBus>()->unsubscribe(packetHandler, ReceiveEvent::TYPE);
 }
 

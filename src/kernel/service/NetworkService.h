@@ -22,6 +22,7 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
+#include <device/network/loopback/Loopback.h>
 #include "KernelService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
@@ -41,6 +42,7 @@ class NetworkService final : public KernelService {
 private:
 
     PacketHandler packetHandler;
+    Loopback *loopbackInterface;
 
 public:
     /**
@@ -55,6 +57,7 @@ public:
 
     /**
      * Constructor.
+     * It registers a Loopback interface at startup.
      */
     NetworkService();
 

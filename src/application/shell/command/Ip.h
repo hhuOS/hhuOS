@@ -12,22 +12,15 @@
 
 class Ip : public Command {
 
-private:
-    Loopback *loopbackInterface = nullptr;
-
 public:
 
     Ip() = delete;
 
     Ip(const Ip &copy) = delete;
 
-    virtual ~Ip();
-
     explicit Ip(Shell &shell);
 
     void link(Kernel::NetworkService *networkService);
-
-    void loopback(Kernel::NetworkService *networkService);
 
     void execute(Util::Array<String> &args) override;
 

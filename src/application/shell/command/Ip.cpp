@@ -12,8 +12,7 @@ Ip::Ip(Shell &shell) : Command(shell) {
 void Ip::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
-    parser.addSwitch("link", "lnk");
-    parser.addSwitch("loopback", "lo");
+    parser.addSwitch("link", "l");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -21,10 +20,6 @@ void Ip::execute(Util::Array<String> &args) {
     }
 
     auto *networkService = Kernel::System::getService<Kernel::NetworkService>();
-
-    if (parser.checkSwitch("loopback")) {
-        Ip::loopback(networkService);
-    }
 
     if (networkService->getDeviceCount() == 0) {
         stderr << args[0] << ": No network devices available!" << endl;
@@ -55,21 +50,6 @@ void Ip::link(Kernel::NetworkService *networkService) {
     free(macAddress);
 }
 
-void Ip::loopback(Kernel::NetworkService *networkService) {
-    if (networkService == nullptr) {
-        printf("No valid network service given! Exit");
-        return;
-    }
-    stdout << "Enable Loopback Interface" << endl;
-    if (loopbackInterface != nullptr) {
-        stdout << "Loopback already enabled!" << endl;
-        return;
-    }
-    loopbackInterface = new Loopback();
-    networkService->registerDevice((*loopbackInterface));
-    stdout << "Loopback Interface enabled!" << endl;
-}
-
 String Ip::getMACAsString(uint8_t *mac) {
     return String::format("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
@@ -78,15 +58,6 @@ const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"
            "Usage: ip [OPTIONS]\n"
            "Options:\n"
-           "   -lnk, --link: List all available network links and their attributes\n"
-           "   -lo, --loopback: Enables loopback device if it's not already enabled.\n"
-           "                    This will be done as first action if combined with other parameters.\n"
+           "   -l, --link: List all available network links and their attributes\n"
            "   -h, --help: Show this help-message";
-}
-
-Ip::~Ip() {
-    auto *networkService = Kernel::System::getService<Kernel::NetworkService>();
-    uint8_t loopbackIndex = networkService->getDeviceCount() - 1;
-    networkService->removeDevice(loopbackIndex);
-    delete loopbackInterface;
 }
