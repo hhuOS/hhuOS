@@ -45,7 +45,8 @@ public:
     void link(Kernel::NetworkService *networkService);
 
     /**
-     * Format a given MAC address encoded in uint8_t as a String
+     * Format a given MAC address encoded in uint8_t as a String.
+     * Used McBuffered::getStringRepresentation() as a reference.
      *
      * @param mac The MAC address you want to format.
      * @return The given MAC address as a String like "xx:xx:xx:xx:xx:xx".
