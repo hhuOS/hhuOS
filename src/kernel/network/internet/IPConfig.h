@@ -42,16 +42,6 @@
 #define __UIP_CONF_H__
 
 /**
- * Statistics datatype
- *
- * This typedef defines the dataype used for keeping statistics in
- * uIP.
- *
- * \hideinitializer
- */
-typedef unsigned short uip_stats_t;
-
-/**
  * Maximum number of TCP connections.
  *
  * \hideinitializer
@@ -99,23 +89,6 @@ typedef unsigned short uip_stats_t;
  * \hideinitializer
  */
 #define UIP_CONF_UDP_CHECKSUMS   1
-
-/**
- * uIP statistics on or off
- *
- * \hideinitializer
- */
-#define UIP_CONF_STATISTICS      1
-
-/* Here we include the header file for the application(s) we use in
-   our project. */
-/*#include "smtp.h"*/
-/*#include "hello-world.h"*/
-/*#include "telnetd.h"*/
-/*#include "webserver.h"*/
-/*#include "dhcpc.h"*/
-/*#include "resolv.h"*/
-/*#include "webclient.h"*/
 
 #endif /* __UIP_CONF_H__ */
 
