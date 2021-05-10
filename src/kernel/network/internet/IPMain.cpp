@@ -36,6 +36,7 @@
  */
 
 
+#include <lib/libc/printf.h>
 #include "IPModule.h"
 #include "ARPModule.h"
 #include "tapdev.h"
@@ -69,31 +70,10 @@ main(void)
   uip_ipaddr(ipaddr, 255,255,255,0);
   uip_setnetmask(ipaddr);
 
-  httpd_init();
-  
-  /*  telnetd_init();*/
-  
-  /*  hello_world_init();*/
-
   /*  {
       u8_t mac[6] = {1,2,3,4,5,6};
       dhcpc_init(&mac, 6);
       }*/
-  
-  /*uip_ipaddr(ipaddr, 127,0,0,1);
-  smtp_configure("localhost", ipaddr);
-  SMTP_SEND("adam@sics.se", NULL, "uip-testing@example.com",
-	    "Testing SMTP from uIP",
-	    "Test message sent by uIP\r\n");*/
-
-  /*
-    webclient_init();
-    resolv_init();
-    uip_ipaddr(ipaddr, 195,54,122,204);
-    resolv_conf(ipaddr);
-    resolv_query("www.sics.se");*/
-
-
   
   while(1) {
     uip_len = tapdev_read();
@@ -130,19 +110,6 @@ main(void)
 	  tapdev_send();
 	}
       }
-
-#if UIP_UDP
-      for(i = 0; i < UIP_UDP_CONNS; i++) {
-	uip_udp_periodic(i);
-	/* If the above function invocation resulted in data that
-	   should be sent out on the network, the global variable
-	   uip_len is set to a value > 0. */
-	if(uip_len > 0) {
-	  uip_arp_out();
-	  tapdev_send();
-	}
-      }
-#endif /* UIP_UDP */
       
       /* Call the ARP timer function every 10 seconds. */
       if(timer_expired(&arp_timer)) {
@@ -160,9 +127,9 @@ uip_log(char *m)
   printf("uIP log message: %s\n", m);
 }
 void
-resolv_found(char *name, u16_t *ipaddr)
+resolv_found(char *name, uint16_t *ipaddr)
 {
-  u16_t *ipaddr2;
+  uint16_t *ipaddr2;
   
   if(ipaddr == NULL) {
     printf("Host '%s' not found.\n", name);
@@ -172,7 +139,6 @@ resolv_found(char *name, u16_t *ipaddr)
 	   htons(ipaddr[0]) & 0xff,
 	   htons(ipaddr[1]) >> 8,
 	   htons(ipaddr[1]) & 0xff);
-    /*    webclient_get("www.sics.se", 80, "/~adam/uip");*/
   }
 }
 #ifdef __DHCPC_H__
@@ -185,34 +151,3 @@ dhcpc_configured(const struct dhcpc_state *s)
   resolv_conf(s->dnsaddr);
 }
 #endif /* __DHCPC_H__ */
-void
-smtp_done(unsigned char code)
-{
-  printf("SMTP done with code %d\n", code);
-}
-void
-webclient_closed(void)
-{
-  printf("Webclient: connection closed\n");
-}
-void
-webclient_aborted(void)
-{
-  printf("Webclient: connection aborted\n");
-}
-void
-webclient_timedout(void)
-{
-  printf("Webclient: connection timed out\n");
-}
-void
-webclient_connected(void)
-{
-  printf("Webclient: connected, waiting for data...\n");
-}
-void
-webclient_datahandler(char *data, u16_t len)
-{
-  printf("Webclient: got %d bytes of data.\n", len);
-}
-/*---------------------------------------------------------------------------*/
