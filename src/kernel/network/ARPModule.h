@@ -1,20 +1,3 @@
-/**
- * \addtogroup uip
- * @{
- */
-
-/**
- * \addtogroup uiparp
- * @{
- */
- 
-/**
- * \file
- * Macros and definitions for the ARP module.
- * \author Adam Dunkels <adam@dunkels.com>
- */
-  
-
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * All rights reserved.

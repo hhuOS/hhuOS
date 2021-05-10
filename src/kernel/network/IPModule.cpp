@@ -1,24 +1,3 @@
-#define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
-
-/**
- * \defgroup uip The uIP TCP/IP stack
- * @{
- *
- * uIP is an implementation of the TCP/IP protocol stack intended for
- * small 8-bit and 16-bit microcontrollers.
- *
- * uIP provides the necessary protocols for Internet communication,
- * with a very small code footprint and RAM requirements - the uIP
- * code size is on the order of a few kilobytes and RAM usage is on
- * the order of a few hundred bytes.
- */
-
-/**
- * \file
- * The uIP TCP/IP stack code.
- * \author Adam Dunkels <adam@dunkels.com>
- */
-
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * All rights reserved.

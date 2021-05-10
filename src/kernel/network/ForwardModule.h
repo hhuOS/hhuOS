@@ -1,14 +1,3 @@
-/**
- * \addtogroup uipfw
- * @{
- */
-
-/**
- * \file
- * uIP packet forwarding header file.
- * \author Adam Dunkels <adam@sics.se>
- */
-
 /*
  * Copyright (c) 2004, Swedish Institute of Computer Science.
  * All rights reserved.

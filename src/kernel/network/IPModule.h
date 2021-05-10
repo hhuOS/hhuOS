@@ -1,21 +1,3 @@
-
-/**
- * \addtogroup uip
- * @{
- */
-
-/**
- * \file
- * Header file for the uIP TCP/IP stack.
- * \author Adam Dunkels <adam@dunkels.com>
- *
- * The uIP TCP/IP stack header file contains definitions for a number
- * of C macros that are used by uIP programs as well as internal uIP
- * structures, TCP/IP header structures and function declarations.
- *
- */
-
-
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * All rights reserved.
