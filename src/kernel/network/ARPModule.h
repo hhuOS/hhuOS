@@ -35,7 +35,7 @@
 #ifndef __UIP_ARP_H__
 #define __UIP_ARP_H__
 
-#include "uip.h"
+#include "IPModule.h"
 
 
 extern struct uip_eth_addr uip_ethaddr;
@@ -46,7 +46,7 @@ extern struct uip_eth_addr uip_ethaddr;
 struct uip_eth_hdr {
   struct uip_eth_addr dest;
   struct uip_eth_addr src;
-  u16_t type;
+  uint16_t type;
 };
 
 #define UIP_ETHTYPE_ARP 0x0806
