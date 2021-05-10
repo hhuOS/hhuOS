@@ -147,9 +147,7 @@ struct fwcache_entry {
   uint16_t payload[2];
 #endif
 
-#if UIP_REASSEMBLY > 0
   uint16_t len, offset;
-#endif
 };
 
 /*
@@ -309,10 +307,8 @@ fwcache_register(void)
   fw->payload[0] = BUF->srcport;
   fw->payload[1] = BUF->destport;
 #endif
-#if UIP_REASSEMBLY > 0
   fw->len = BUF->len;
   fw->offset = BUF->ipoffset;
-#endif
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -429,10 +425,8 @@ uip_fw_forward(void)
 
   for(fw = fwcache; fw < &fwcache[FWCACHE_SIZE]; ++fw) {
     if(fw->timer != 0 &&
-#if UIP_REASSEMBLY > 0
        fw->len == BUF->len &&
        fw->offset == BUF->ipoffset &&
-#endif
        fw->ipid == BUF->ipid &&
        fw->srcipaddr[0] == BUF->srcipaddr[0] &&
        fw->srcipaddr[1] == BUF->srcipaddr[1] &&

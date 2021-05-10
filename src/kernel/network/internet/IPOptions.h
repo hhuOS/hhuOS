@@ -61,17 +61,6 @@
 */
 
 /**
- * Determines if uIP should use a fixed IP address or not.
- *
- * If uIP should use a fixed IP address, the settings are set in the
- * uipopt.h file. If not, the macros uip_sethostaddr(),
- * uip_setdraddr() and uip_setnetmask() should be used instead.
- *
- * \hideinitializer
- */
-#define UIP_FIXEDADDR    0
-
-/**
  * Ping IP address asignment.
  *
  * uIP uses a "ping" packets for setting its own IP address if this
@@ -89,18 +78,6 @@
 #define UIP_PINGADDRCONF 0
 #endif /* UIP_CONF_PINGADDRCONF */
 
-
-/**
- * Specifies if the uIP ARP module should be compiled with a fixed
- * Ethernet MAC address or not.
- *
- * If this configuration option is 0, the macro uip_setethaddr() can
- * be used to specify the Ethernet address at run-time.
- *
- * \hideinitializer
- */
-#define UIP_FIXEDETHADDR 0
-
 /** @} */
 /*------------------------------------------------------------------------------*/
 /**
@@ -114,21 +91,6 @@
  * This should normally not be changed.
  */
 #define UIP_TTL         64
-
-/**
- * Turn on support for IP packet reassembly.
- *
- * uIP supports reassembly of fragmented IP packets. This features
- * requires an additonal amount of RAM to hold the reassembly buffer
- * and the reassembly code size is approximately 700 bytes.  The
- * reassembly buffer is of the same size as the uip_buf buffer
- * (configured by UIP_BUFSIZE).
- *
- * \note IP packet reassembly is not heavily tested.
- *
- * \hideinitializer
- */
-#define UIP_REASSEMBLY 1
 
 /**
  * The maximum time an IP fragment should wait in the reassembly
@@ -399,14 +361,6 @@
 #else /* UIP_CONF_BROADCAST */
 #define UIP_BROADCAST UIP_CONF_BROADCAST
 #endif /* UIP_CONF_BROADCAST */
-
-/**
- * Print out a uIP log message.
- *
- * This function must be implemented by the module that uses uIP, and
- * is called by uIP whenever a log message is generated.
- */
-void uip_log(char *msg);
 
 /**
  * The link level header length.

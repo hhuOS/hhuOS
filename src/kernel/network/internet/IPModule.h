@@ -651,14 +651,7 @@ struct uip_icmpip_hdr {
 							  header */
 #define UIP_TCPIP_HLEN UIP_IPTCPH_LEN
 
-
-#if UIP_FIXEDADDR
-extern const uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
-#else /* UIP_FIXEDADDR */
 extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
-#endif /* UIP_FIXEDADDR */
-
-
 
 /**
  * Representation of a 48-bit Ethernet address.

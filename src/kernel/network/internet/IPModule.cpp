@@ -147,7 +147,6 @@ uip_init(void)
 /*---------------------------------------------------------------------------*/
 /* XXX: IP fragment reassembly: not well-tested. */
 
-#if UIP_REASSEMBLY
 #define UIP_REASS_BUFSIZE (UIP_BUFSIZE - UIP_LLH_LEN)
 static uint8_t uip_reassbuf[UIP_REASS_BUFSIZE];
 static uint8_t uip_reassbitmap[UIP_REASS_BUFSIZE / (8 * 8)];
@@ -275,7 +274,6 @@ uip_reass(void)
  nullreturn:
   return 0;
 }
-#endif /* UIP_REASSEMBLY */
 /*---------------------------------------------------------------------------*/
 
 void
@@ -285,11 +283,9 @@ uip_process(uint8_t flag)
 
 //  /* Check if we were invoked because of the perodic timer fireing. */
 //  if(flag == UIP_TIMER) {
-//#if UIP_REASSEMBLY
 //    if(uip_reasstmr != 0) {
 //      --uip_reasstmr;
 //    }
-//#endif /* UIP_REASSEMBLY */
 //  }
 
   /* This is where the input processing starts. */
