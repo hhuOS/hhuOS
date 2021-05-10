@@ -287,9 +287,6 @@ uip_init(void)
   for(c = 0; c < UIP_LISTENPORTS; ++c) {
     uip_listenports[c] = 0;
   }
-  for(c = 0; c < UIP_CONNS; ++c) {
-    uip_conns[c].tcpstateflags = UIP_CLOSED;
-  }
 
   /* IPv4 initialization. */
 #if UIP_FIXEDADDR == 0
