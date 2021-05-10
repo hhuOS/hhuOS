@@ -34,7 +34,7 @@
  */
 
 
-#include "uip.h"
+#include "IPModule.h"
 #include "IPLibrary.h"
 
 
