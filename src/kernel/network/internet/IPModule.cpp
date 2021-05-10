@@ -32,37 +32,11 @@
  *
  */
 
-/*
- * uIP is a small implementation of the IP, UDP and TCP protocols (as
- * well as some basic ICMP stuff). The implementation couples the IP,
- * UDP, TCP and the application layers very tightly. To keep the size
- * of the compiled code down, this code frequently uses the goto
- * statement. While it would be possible to break the uip_process()
- * function into many smaller functions, this would increase the code
- * size because of the overhead of parameter passing and the fact that
- * the optimier would not be as efficient.
- *
- * The principle is that we have a small buffer, called the uip_buf,
- * in which the device driver puts an incoming packet. The TCP/IP
- * stack parses the headers in the packet, and calls the
- * application. If the remote host has sent data to the application,
- * this data is present in the uip_buf and the application read the
- * data from there. It is up to the application to put this data into
- * a byte stream if needed. The application will not be fed with data
- * that is out of sequence.
- *
- * If the application whishes to send data to the peer, it should put
- * its data into the uip_buf. The uip_appdata pointer points to the
- * first available byte. The TCP/IP stack will calculate the
- * checksums, and fill in the necessary header fields and finally send
- * the packet back to the peer.
-*/
-
 #include "IPModule.h"
 #include "IPOptions.h"
 #include "IPArchitecture.h"
 
-#include <string.h>
+#include <cstring>
 
 #define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
 
@@ -362,30 +336,11 @@ uip_process(uint8_t flag)
       goto drop;
     }
   }
-
-  if(uip_ipaddr_cmp(uip_hostaddr, all_zeroes_addr)) {
-    /* If we are configured to use ping IP address configuration and
-       hasn't been assigned an IP address yet, we accept all ICMP
-       packets. */
-
-  } else {
-    /* If IP broadcast support is configured, we check for a broadcast
-       UDP packet, which may be destined to us. */
-#if UIP_BROADCAST
-    DEBUG_PRINTF("UDP IP checksum 0x%04x\n", uip_ipchksum());
-    if(BUF->proto == UIP_PROTO_UDP &&
-       uip_ipaddr_cmp(BUF->destipaddr, all_ones_addr)
-       /*&&
-	 uip_ipchksum() == 0xffff*/) {
-      goto udp_input;
-    }
-#endif /* UIP_BROADCAST */
     
     /* Check if the packet is destined for our IP address. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
       goto drop;
     }
-  }
 
   if(uip_ipchksum() != 0xffff) { /* Compute and check the IP header
 				    checksum. */
