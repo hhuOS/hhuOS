@@ -575,7 +575,7 @@ uip_process(uint8_t flag)
  send:
   DEBUG_PRINTF("Sending packet with length %d (%d)\n", uip_len,
 	       (BUF->len[0] << 8) | BUF->len[1]);
-  
+
   UIP_STAT(++uip_stat.ip.sent);
   /* Return and let the caller do the actual transmission. */
   uip_flags = 0;
@@ -592,14 +592,3 @@ htons(uint16_t val)
   return HTONS(val);
 }
 /*---------------------------------------------------------------------------*/
-void
-uip_send(const void *data, int len)
-{
-  if(len > 0) {
-    uip_slen = len;
-    if(data != uip_sappdata) {
-      memcpy(uip_sappdata, (data), uip_slen);
-    }
-  }
-}
-/** @} */
