@@ -640,12 +640,6 @@ uip_process(uint8_t flag)
     goto drop;
   }
 
-  if(BUF->proto == UIP_PROTO_TCP) { /* Check for TCP packet. If so,
-				       proceed with TCP input
-				       processing. */
-    goto tcp_input;
-  }
-
   /* ICMPv4 processing code follows. */
   if(BUF->proto != UIP_PROTO_ICMP) { /* We only allow ICMP packets from
 					here. */
