@@ -54,7 +54,7 @@
  */
 
 #include "IPModule.h"
-#include "uip_arch.h"
+#include "IPArchitecture.h"
 #include "ForwardModule.h"
 
 #include <string.h> /* for memcpy() */

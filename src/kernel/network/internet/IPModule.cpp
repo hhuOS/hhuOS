@@ -59,8 +59,8 @@
 */
 
 #include "IPModule.h"
-#include "uipopt.h"
-#include "uip_arch.h"
+#include "IPOptions.h"
+#include "IPArchitecture.h"
 
 #include <string.h>
 
