@@ -360,21 +360,6 @@ uip_fw_output(void)
   }
 
   fwcache_register();
-
-#if UIP_BROADCAST
-  /* Link local broadcasts go out on all interfaces. */
-  if(/*BUF->proto == UIP_PROTO_UDP &&*/
-     BUF->destipaddr[0] == 0xffff &&
-     BUF->destipaddr[1] == 0xffff) {
-    if(defaultnetif != NULL) {
-      defaultnetif->output();
-    }
-    for(netif = netifs; netif != NULL; netif = netif->next) {
-      netif->output();
-    }
-    return UIP_FW_OK;
-  }
-#endif /* UIP_BROADCAST */
   
   netif = find_netif();
   /*  printf("uip_fw_output: netif %p ->output %p len %d\n", netif,
@@ -467,12 +452,6 @@ uip_fw_forward(void)
     uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_TCPIP_HLEN];
     uip_fw_output();
   }
-
-#if UIP_BROADCAST
-  if(BUF->destipaddr[0] == 0xffff && BUF->destipaddr[1] == 0xffff) {
-    return UIP_FW_LOCAL;
-  }
-#endif /* UIP_BROADCAST */
 
   /* Return non-zero to indicate that the packet was forwarded and that no
      other processing should be made. */
