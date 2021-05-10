@@ -440,120 +440,16 @@ uip_add_rcv_nxt(uint16_t n)
 void
 uip_process(uint8_t flag)
 {
-  register struct uip_conn *uip_connr = uip_conn;
-
   uip_sappdata = uip_appdata = &uip_buf[UIP_IPTCPH_LEN + UIP_LLH_LEN];
 
-  /* Check if we were invoked because of a poll request for a
-     particular connection. */
-  if(flag == UIP_POLL_REQUEST) {
-    if((uip_connr->tcpstateflags & UIP_TS_MASK) == UIP_ESTABLISHED &&
-       !uip_outstanding(uip_connr)) {
-	uip_flags = UIP_POLL;
-	UIP_APPCALL();
-	goto appsend;
-    }
-    goto drop;
-
-    /* Check if we were invoked because of the perodic timer fireing. */
-  } else if(flag == UIP_TIMER) {
-#if UIP_REASSEMBLY
-    if(uip_reasstmr != 0) {
-      --uip_reasstmr;
-    }
-#endif /* UIP_REASSEMBLY */
-    /* Increase the initial sequence number. */
-    if(++iss[3] == 0) {
-      if(++iss[2] == 0) {
-	if(++iss[1] == 0) {
-	  ++iss[0];
-	}
-      }
-    }
-
-    /* Reset the length variables. */
-    uip_len = 0;
-    uip_slen = 0;
-
-    /* Check if the connection is in a state in which we simply wait
-       for the connection to time out. If so, we increase the
-       connection's timer and remove the connection if it times
-       out. */
-    if(uip_connr->tcpstateflags == UIP_TIME_WAIT ||
-       uip_connr->tcpstateflags == UIP_FIN_WAIT_2) {
-      ++(uip_connr->timer);
-      if(uip_connr->timer == UIP_TIME_WAIT_TIMEOUT) {
-	uip_connr->tcpstateflags = UIP_CLOSED;
-      }
-    } else if(uip_connr->tcpstateflags != UIP_CLOSED) {
-      /* If the connection has outstanding data, we increase the
-	 connection's timer and see if it has reached the RTO value
-	 in which case we retransmit. */
-      if(uip_outstanding(uip_connr)) {
-	if(uip_connr->timer-- == 0) {
-	  if(uip_connr->nrtx == UIP_MAXRTX ||
-	     ((uip_connr->tcpstateflags == UIP_SYN_SENT ||
-	       uip_connr->tcpstateflags == UIP_SYN_RCVD) &&
-	      uip_connr->nrtx == UIP_MAXSYNRTX)) {
-	    uip_connr->tcpstateflags = UIP_CLOSED;
-
-	    /* We call UIP_APPCALL() with uip_flags set to
-	       UIP_TIMEDOUT to inform the application that the
-	       connection has timed out. */
-	    uip_flags = UIP_TIMEDOUT;
-	    UIP_APPCALL();
-
-	    /* We also send a reset packet to the remote host. */
-	    BUF->flags = TCP_RST | TCP_ACK;
-	    goto tcp_send_nodata;
-	  }
-
-	  /* Exponential backoff. */
-	  uip_connr->timer = UIP_RTO << (uip_connr->nrtx > 4?
-					 4:
-					 uip_connr->nrtx);
-	  ++(uip_connr->nrtx);
-	  
-	  /* Ok, so we need to retransmit. We do this differently
-	     depending on which state we are in. In ESTABLISHED, we
-	     call upon the application so that it may prepare the
-	     data for the retransmit. In SYN_RCVD, we resend the
-	     SYNACK that we sent earlier and in LAST_ACK we have to
-	     retransmit our FINACK. */
-	  UIP_STAT(++uip_stat.tcp.rexmit);
-	  switch(uip_connr->tcpstateflags & UIP_TS_MASK) {
-	  case UIP_SYN_RCVD:
-	    /* In the SYN_RCVD state, we should retransmit our
-               SYNACK. */
-	    goto tcp_send_synack;
-	    
-	  case UIP_ESTABLISHED:
-	    /* In the ESTABLISHED state, we call upon the application
-               to do the actual retransmit after which we jump into
-               the code for sending out the packet (the apprexmit
-               label). */
-	    uip_flags = UIP_REXMIT;
-	    UIP_APPCALL();
-	    goto apprexmit;
-	    
-	  case UIP_FIN_WAIT_1:
-	  case UIP_CLOSING:
-	  case UIP_LAST_ACK:
-	    /* In all these states we should retransmit a FINACK. */
-	    goto tcp_send_finack;
-	    
-	  }
-	}
-      } else if((uip_connr->tcpstateflags & UIP_TS_MASK) == UIP_ESTABLISHED) {
-	/* If there was no need for a retransmission, we poll the
-           application for new data. */
-	uip_flags = UIP_POLL;
-	UIP_APPCALL();
-	goto appsend;
-      }
-    }
-    goto drop;
-  }
+//  /* Check if we were invoked because of the perodic timer fireing. */
+//  if(flag == UIP_TIMER) {
+//#if UIP_REASSEMBLY
+//    if(uip_reasstmr != 0) {
+//      --uip_reasstmr;
+//    }
+//#endif /* UIP_REASSEMBLY */
+//  }
 
   /* This is where the input processing starts. */
   UIP_STAT(++uip_stat.ip.recv);
