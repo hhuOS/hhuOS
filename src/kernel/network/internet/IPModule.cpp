@@ -385,16 +385,7 @@ uip_reass(void)
 }
 #endif /* UIP_REASSEMBLY */
 /*---------------------------------------------------------------------------*/
-static void
-uip_add_rcv_nxt(uint16_t n)
-{
-  uip_add32(uip_conn->rcv_nxt, n);
-  uip_conn->rcv_nxt[0] = uip_acc32[0];
-  uip_conn->rcv_nxt[1] = uip_acc32[1];
-  uip_conn->rcv_nxt[2] = uip_acc32[2];
-  uip_conn->rcv_nxt[3] = uip_acc32[3];
-}
-/*---------------------------------------------------------------------------*/
+
 void
 uip_process(uint8_t flag)
 {
