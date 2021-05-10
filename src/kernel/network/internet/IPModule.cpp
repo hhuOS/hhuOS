@@ -69,15 +69,6 @@ uint16_t uip_len, uip_slen;
 				depending on the maximum packet
 				size. */
 
-uint8_t uip_flags;     /* The uip_flags variable is used for
-				communication between the TCP/IP stack
-				and the application program. */
-struct uip_conn *uip_conn;   /* uip_conn always points to the current
-				connection. */
-
-struct uip_conn uip_conns[UIP_CONNS];
-                             /* The uip_conns array holds all TCP
-				connections. */
 uint16_t uip_listenports[UIP_LISTENPORTS];
                              /* The uip_listenports list all currently
 				listning ports. */
@@ -88,18 +79,13 @@ static uint16_t ipid;           /* Ths ipid variable is an increasing
 
 void uip_setipid(uint16_t id) { ipid = id; }
 
-static uint8_t iss[4];          /* The iss variable is used for the TCP
-				initial sequence number. */
-
 #if UIP_ACTIVE_OPEN
 static uint16_t lastport;       /* Keeps track of the last port used for
 				a new connection. */
 #endif /* UIP_ACTIVE_OPEN */
 
 /* Temporary variables. */
-uint8_t uip_acc32[4];
 static uint8_t c, opt;
-static uint16_t tmp16;
 
 /* Structures and definitions. */
 #define ICMP_ECHO_REPLY 0
@@ -109,7 +95,6 @@ static uint16_t tmp16;
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define FBUF ((struct uip_tcpip_hdr *)&uip_reassbuf[0])
 #define ICMPBUF ((struct uip_icmpip_hdr *)&uip_buf[UIP_LLH_LEN])
-#define UDPBUF ((struct uip_udpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
 static uint16_t
 chksum(uint16_t sum, const uint8_t *data, uint16_t len)
