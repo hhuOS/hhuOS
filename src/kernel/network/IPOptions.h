@@ -1,28 +1,3 @@
-/**
- * \defgroup uipopt Configuration options for uIP
- * @{
- *
- * uIP is configured using the per-project configuration file
- * uipopt.h. This file contains all compile-time options for uIP and
- * should be tweaked to match each specific project. The uIP
- * distribution contains a documented example "uipopt.h" that can be
- * copied and modified for each project.
- *
- * \note Most of the configuration options in the uipopt.h should not
- * be changed, but rather the per-project uip-conf.h file.
- */
-
-/**
- * \file
- * Configuration options for uIP.
- * \author Adam Dunkels <adam@dunkels.com>
- *
- * This file is used for tweaking various configuration options for
- * uIP. You should make a copy of this file into one of your project's
- * directories instead of editing this example "uipopt.h" file that
- * comes with the uIP distribution.
- */
-
 /*
  * Copyright (c) 2001-2003, Adam Dunkels.
  * All rights reserved.
@@ -67,7 +42,7 @@
 #define UIP_BIG_ENDIAN     1234
 #endif /* UIP_BIG_ENDIAN */
 
-#include "uip-conf.h"
+#include "IPConfig.h"
 
 /*------------------------------------------------------------------------------*/
 
