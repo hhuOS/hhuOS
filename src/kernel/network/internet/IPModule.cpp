@@ -137,22 +137,6 @@ static uint16_t tmp16;
 #define ICMPBUF ((struct uip_icmpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UDPBUF ((struct uip_udpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
-
-#if UIP_STATISTICS == 1
-struct uip_stats uip_stat;
-#define UIP_STAT(s) s
-#else
-#define UIP_STAT(s)
-#endif /* UIP_STATISTICS == 1 */
-
-#if UIP_LOGGING == 1
-#include <stdio.h>
-void uip_log(char *msg);
-#define UIP_LOG(m) uip_log(m)
-#else
-#define UIP_LOG(m)
-#endif /* UIP_LOGGING == 1 */
-
 #if ! UIP_ARCH_ADD32
 void
 uip_add32(uint8_t *op32, uint16_t op16)
@@ -161,15 +145,15 @@ uip_add32(uint8_t *op32, uint16_t op16)
   uip_acc32[2] = op32[2] + (op16 >> 8);
   uip_acc32[1] = op32[1];
   uip_acc32[0] = op32[0];
-  
+
   if(uip_acc32[2] < (op16 >> 8)) {
     ++uip_acc32[1];
     if(uip_acc32[1] == 0) {
       ++uip_acc32[0];
     }
   }
-  
-  
+
+
   if(uip_acc32[3] < (op16 & 0xff)) {
     ++uip_acc32[2];
     if(uip_acc32[2] == 0) {
@@ -426,15 +410,10 @@ uip_process(uint8_t flag)
 //  }
 
   /* This is where the input processing starts. */
-  UIP_STAT(++uip_stat.ip.recv);
-
   /* Start of IP input header processing code. */
   
   /* Check validity of the IP header. */
   if(BUF->vhl != 0x45)  { /* IP version and header length. */
-    UIP_STAT(++uip_stat.ip.drop);
-    UIP_STAT(++uip_stat.ip.vhlerr);
-    UIP_LOG("ip: invalid version or header length.");
     goto drop;
   }
 
@@ -448,7 +427,6 @@ uip_process(uint8_t flag)
   if((BUF->len[0] << 8) + BUF->len[1] <= uip_len) {
     uip_len = (BUF->len[0] << 8) + BUF->len[1];
   } else {
-    UIP_LOG("ip: packet shorter than reported in IP header.");
     goto drop;
   }
 
@@ -481,37 +459,25 @@ uip_process(uint8_t flag)
     
     /* Check if the packet is destined for our IP address. */
     if(!uip_ipaddr_cmp(BUF->destipaddr, uip_hostaddr)) {
-      UIP_STAT(++uip_stat.ip.drop);
       goto drop;
     }
   }
 
   if(uip_ipchksum() != 0xffff) { /* Compute and check the IP header
 				    checksum. */
-    UIP_STAT(++uip_stat.ip.drop);
-    UIP_STAT(++uip_stat.ip.chkerr);
-    UIP_LOG("ip: bad checksum.");
     goto drop;
   }
 
   /* ICMPv4 processing code follows. */
   if(BUF->proto != UIP_PROTO_ICMP) { /* We only allow ICMP packets from
 					here. */
-    UIP_STAT(++uip_stat.ip.drop);
-    UIP_STAT(++uip_stat.ip.protoerr);
-    UIP_LOG("ip: neither tcp nor icmp.");
     goto drop;
   }
-
-  UIP_STAT(++uip_stat.icmp.recv);
 
   /* ICMP echo (i.e., ping) processing. This is simple, we only change
      the ICMP type from ECHO to ECHO_REPLY and adjust the ICMP
      checksum before we return the packet. */
   if(ICMPBUF->type != ICMP_ECHO) {
-    UIP_STAT(++uip_stat.icmp.drop);
-    UIP_STAT(++uip_stat.icmp.typeerr);
-    UIP_LOG("icmp: not icmp echo.");
     goto drop;
   }
 
@@ -527,7 +493,6 @@ uip_process(uint8_t flag)
   uip_ipaddr_copy(BUF->destipaddr, BUF->srcipaddr);
   uip_ipaddr_copy(BUF->srcipaddr, uip_hostaddr);
 
-  UIP_STAT(++uip_stat.icmp.sent);
   goto send;
 
   /* End of IPv4 input header processing code. */
@@ -545,12 +510,10 @@ uip_process(uint8_t flag)
   BUF->ipchksum = ~(uip_ipchksum());
   DEBUG_PRINTF("uip ip_send_nolen: chkecum 0x%04x\n", uip_ipchksum());
 
-  UIP_STAT(++uip_stat.tcp.sent);
  send:
   DEBUG_PRINTF("Sending packet with length %d (%d)\n", uip_len,
 	       (BUF->len[0] << 8) | BUF->len[1]);
 
-  UIP_STAT(++uip_stat.ip.sent);
   /* Return and let the caller do the actual transmission. */
   uip_flags = 0;
   return;
