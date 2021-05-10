@@ -64,6 +64,8 @@
 
 #include <string.h>
 
+#define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
+
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
 

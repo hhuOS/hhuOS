@@ -36,7 +36,7 @@
 #define __UIP_H__
 
 #include <cstdint>
-#include "uipopt.h"
+#include "IPOptions.h"
 
 /**
  * Repressentation of an IP address.
@@ -550,42 +550,6 @@ uint16_t htons(uint16_t val);
  *
  */
 extern uint16_t uip_len;
-
-/** @} */
-
-/**
- * The structure holding the TCP/IP statistics that are gathered if
- * UIP_STATISTICS is set to 1.
- *
- */
-struct uip_stats {
-  struct {
-    uip_stats_t drop;     /**< Number of dropped packets at the IP
-			     layer. */
-    uip_stats_t recv;     /**< Number of received packets at the IP
-			     layer. */
-    uip_stats_t sent;     /**< Number of sent packets at the IP
-			     layer. */
-    uip_stats_t vhlerr;   /**< Number of packets dropped due to wrong
-			     IP version or header length. */
-    uip_stats_t hblenerr; /**< Number of packets dropped due to wrong
-			     IP length, high byte. */
-    uip_stats_t lblenerr; /**< Number of packets dropped due to wrong
-			     IP length, low byte. */
-    uip_stats_t fragerr;  /**< Number of packets dropped since they
-			     were IP fragments. */
-    uip_stats_t chkerr;   /**< Number of packets dropped due to IP
-			     checksum errors. */
-    uip_stats_t protoerr; /**< Number of packets dropped since they
-			     were neither ICMP, UDP nor TCP. */
-  } ip;                   /**< IP statistics. */
-  struct {
-    uip_stats_t drop;     /**< Number of dropped ICMP packets. */
-    uip_stats_t recv;     /**< Number of received ICMP packets. */
-    uip_stats_t sent;     /**< Number of sent ICMP packets. */
-    uip_stats_t typeerr;  /**< Number of ICMP packets with a wrong
-			     type. */
-  } icmp;                 /**< ICMP statistics. */
 
 /*---------------------------------------------------------------------------*/
 /* All the stuff below this point is internal to uIP and should not be
