@@ -617,30 +617,6 @@ struct uip_icmpip_hdr {
   uint16_t id, seqno;
 };
 
-
-/* The UDP and IP headers. */
-struct uip_udpip_hdr {
-  /* IP header. */
-  uint8_t vhl,
-    tos,
-    len[2],
-    ipid[2],
-    ipoffset[2],
-    ttl,
-    proto;
-  uint16_t ipchksum;
-  uint16_t srcipaddr[2],
-    destipaddr[2];
-
-  /* UDP header. */
-  uint16_t srcport,
-    destport;
-  uint16_t udplen;
-  uint16_t udpchksum;
-};
-
-
-
 /**
  * The buffer size available for user data in the \ref uip_buf buffer.
  *
