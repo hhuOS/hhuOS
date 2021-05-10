@@ -76,16 +76,8 @@ static const uip_ipaddr_t all_ones_addr =
 static const uip_ipaddr_t all_zeroes_addr =
   {0x0000,0x0000};
 
-#if UIP_FIXEDETHADDR
-const struct uip_eth_addr uip_ethaddr = {{UIP_ETHADDR0,
-					  UIP_ETHADDR1,
-					  UIP_ETHADDR2,
-					  UIP_ETHADDR3,
-					  UIP_ETHADDR4,
-					  UIP_ETHADDR5}};
-#else
+
 struct uip_eth_addr uip_ethaddr = {{0,0,0,0,0,0}};
-#endif
 
 #ifndef UIP_CONF_EXTERNAL_BUFFER
 uint8_t uip_buf[UIP_BUFSIZE + 2];   /* The packet buffer that contains
