@@ -36,8 +36,8 @@
  */
 
 
-#include "uip.h"
-#include "uip_arp.h"
+#include "IPModule.h"
+#include "ARPModule.h"
 #include "tapdev.h"
 
 #include "timer.h"
