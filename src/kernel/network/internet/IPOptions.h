@@ -128,7 +128,7 @@
  *
  * \hideinitializer
  */
-#define UIP_REASSEMBLY 0
+#define UIP_REASSEMBLY 1
 
 /**
  * The maximum time an IP fragment should wait in the reassembly

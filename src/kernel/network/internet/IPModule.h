@@ -570,6 +570,33 @@ extern uint8_t uip_flags;
  */
 void uip_process(uint8_t flag);
 
+/* The TCP and IP headers. */
+struct uip_tcpip_hdr {
+    /* IPv4 header. */
+    uint8_t vhl,
+            tos,
+            len[2],
+            ipid[2],
+            ipoffset[2],
+            ttl,
+            proto;
+    uint16_t ipchksum;
+    uint16_t srcipaddr[2],
+            destipaddr[2];
+
+    /* TCP header. */
+    uint16_t srcport,
+            destport;
+    uint8_t seqno[4],
+            ackno[4],
+            tcpoffset,
+            flags,
+            wnd[2];
+    uint16_t tcpchksum;
+    uint8_t urgp[2];
+    uint8_t optdata[4];
+};
+
 /* The ICMP and IP headers. */
 struct uip_icmpip_hdr {
   /* IPv4 header. */
