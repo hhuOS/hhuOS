@@ -137,36 +137,6 @@ static uint16_t tmp16;
 #define ICMPBUF ((struct uip_icmpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define UDPBUF ((struct uip_udpip_hdr *)&uip_buf[UIP_LLH_LEN])
 
-#if ! UIP_ARCH_ADD32
-void
-uip_add32(uint8_t *op32, uint16_t op16)
-{
-  uip_acc32[3] = op32[3] + (op16 & 0xff);
-  uip_acc32[2] = op32[2] + (op16 >> 8);
-  uip_acc32[1] = op32[1];
-  uip_acc32[0] = op32[0];
-
-  if(uip_acc32[2] < (op16 >> 8)) {
-    ++uip_acc32[1];
-    if(uip_acc32[1] == 0) {
-      ++uip_acc32[0];
-    }
-  }
-
-
-  if(uip_acc32[3] < (op16 & 0xff)) {
-    ++uip_acc32[2];
-    if(uip_acc32[2] == 0) {
-      ++uip_acc32[1];
-      if(uip_acc32[1] == 0) {
-	++uip_acc32[0];
-      }
-    }
-  }
-}
-
-#endif /* UIP_ARCH_ADD32 */
-
 #if ! UIP_ARCH_CHKSUM
 /*---------------------------------------------------------------------------*/
 static uint16_t
