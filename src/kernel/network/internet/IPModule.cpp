@@ -69,23 +69,7 @@
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */
 
-
-/* The IP address of this host. If it is defined to be fixed (by
-   setting UIP_FIXEDADDR to 1 in uipopt.h), the address is set
-   here. Otherwise, the address */
-#if UIP_FIXEDADDR > 0
-const uip_ipaddr_t uip_hostaddr =
-  {HTONS((UIP_IPADDR0 << 8) | UIP_IPADDR1),
-   HTONS((UIP_IPADDR2 << 8) | UIP_IPADDR3)};
-const uip_ipaddr_t uip_draddr =
-  {HTONS((UIP_DRIPADDR0 << 8) | UIP_DRIPADDR1),
-   HTONS((UIP_DRIPADDR2 << 8) | UIP_DRIPADDR3)};
-const uip_ipaddr_t uip_netmask =
-  {HTONS((UIP_NETMASK0 << 8) | UIP_NETMASK1),
-   HTONS((UIP_NETMASK2 << 8) | UIP_NETMASK3)};
-#else
 uip_ipaddr_t uip_hostaddr, uip_draddr, uip_netmask;
-#endif /* UIP_FIXEDADDR */
 
 static const uip_ipaddr_t all_ones_addr =
   {0xffff,0xffff};
@@ -289,9 +273,7 @@ uip_init(void)
   }
 
   /* IPv4 initialization. */
-#if UIP_FIXEDADDR == 0
-  /*  uip_hostaddr[0] = uip_hostaddr[1] = 0;*/
-#endif /* UIP_FIXEDADDR */
+  uip_hostaddr[0] = uip_hostaddr[1] = 0;
 
 }
 /*---------------------------------------------------------------------------*/
