@@ -16,7 +16,5 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/IPModule.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IPLibrary.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/ARPModule.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IPMain.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/ForwardModule.cpp)

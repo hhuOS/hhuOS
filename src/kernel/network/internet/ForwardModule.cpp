@@ -438,7 +438,7 @@ uip_fw_forward(void)
   }
 
   if(uip_len > 0) {
-    uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_TCPIP_HLEN];
+//    uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_TCPIP_HLEN];
     uip_fw_output();
   }
 

@@ -767,47 +767,6 @@ uint16_t uip_chksum(uint16_t *buf, uint16_t len);
  */
 uint16_t uip_ipchksum(void);
 
-
-/**
- * Representation of a uIP TCP connection.
- *
- * The uip_conn structure is used for identifying a connection. All
- * but one field in the structure are to be considered read-only by an
- * application. The only exception is the appstate field whos purpose
- * is to let the application store application-specific state (e.g.,
- * file pointers) for the connection. The type of this field is
- * configured in the "uipopt.h" header file.
- */
-struct uip_conn {
-    uip_ipaddr_t ripaddr;   /**< The IP address of the remote host. */
-
-    uint16_t lport;        /**< The local TCP port, in network byte order. */
-    uint16_t rport;        /**< The local remote TCP port, in network byte
-			 order. */
-
-    uint8_t rcv_nxt[4];    /**< The sequence number that we expect to
-			 receive next. */
-    uint8_t snd_nxt[4];    /**< The sequence number that was last sent by
-                         us. */
-    uint16_t len;          /**< Length of the data that was previously sent. */
-    uint16_t mss;          /**< Current maximum segment size for the
-			 connection. */
-    uint16_t initialmss;   /**< Initial maximum segment size for the
-			 connection. */
-    uint8_t sa;            /**< Retransmission time-out calculation state
-			 variable. */
-    uint8_t sv;            /**< Retransmission time-out calculation state
-			 variable. */
-    uint8_t rto;           /**< Retransmission time-out. */
-    uint8_t tcpstateflags; /**< TCP state and flags. */
-    uint8_t timer;         /**< The retransmission timer. */
-    uint8_t nrtx;          /**< The number of retransmissions for the last
-			 segment sent. */
-
-    /** The application state. */
-//    uip_tcp_appstate_t appstate;
-};
-
 #endif /* __UIP_H__ */
 
 
