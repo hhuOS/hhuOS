@@ -5,12 +5,13 @@ readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=off"
 readonly CONST_QEMU_MIN_BIOS_CPU="486"
-readonly CONST_QEMU_MIN_EFI_CPU="pentium"
+readonly CONST_QEMU_MIN_EFI_CPU="pentium2"
 readonly CONST_QEMU_MIN_BIOS_RAM="16M"
 readonly CONST_QEMU_MIN_EFI_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2-ovmf/ia32/OVMF.fd"
-readonly CONST_QEMU_ARGS="-boot d -cdrom hhuOS.iso -vga std -monitor stdio"
+readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-cdrom hhuOS.iso"
+readonly CONST_QEMU_ARGS="-vga std -monitor stdio"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
@@ -18,6 +19,7 @@ QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
 QEMU_MIN_RAM="${CONST_QEMU_MIN_BIOS_RAM}"
 QEMU_RAM=""
 QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
+QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
@@ -26,9 +28,24 @@ check_file() {
   local file=$1
 
   if [ ! -f "$file" ]; then
-    printf "File '%s' does not exist! Did you run build.sh?\\n" "${file}"
+    printf "File '%s' does not exist!\\n" "${file}"
     exit 1
   fi
+}
+
+parse_file() {
+  local path=$1
+  
+  if [[ $path == *.iso ]]; then
+    QEMU_BOOT_DEVICE="-cdrom ${path}"
+  elif [[ $path == *.img ]]; then
+    QEMU_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=${path}"
+  else
+    printf "Invalid file '%s'!\\n" "${path}"
+    exit 1
+  fi
+  
+  check_file $path
 }
 
 parse_architecture() {
@@ -98,6 +115,8 @@ start_gdb() {
 print_usage() {
   printf "Usage: ./run.sh [OPTION...]
     Available options:
+    -f, --file
+        Set the .iso or .img file, which qemu should boot (Default: hhuOS.iso)
     -a, --architecture
         Set the architecture, which qemu should emulate ([i386,x86] | [x86_64,x64]) (Default: i386)
     -m, --machine
@@ -118,6 +137,9 @@ parse_args() {
     local val=$2
 
     case $arg in
+    -f | --file)
+      parse_file "$val"
+      ;;
     -a | --architecture)
       parse_architecture "$val"
       ;;
@@ -165,7 +187,7 @@ run_qemu() {
     QEMU_RAM="${QEMU_MIN_RAM}"
   fi
 
-  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_BOOT_DEVICE} ${QEMU_ARGS}"
   
   printf "Running: %s\\n" "${command}"
 
@@ -175,8 +197,6 @@ run_qemu() {
     $command
   fi
 }
-
-check_file hhuOS.iso
 
 parse_args "$@"
 

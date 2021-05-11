@@ -16,11 +16,14 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(iso)
+project(towboot)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        COMMAND grub-mkrescue /usr/lib/grub/i386-pc /usr/lib/grub/i386-efi -o ${HHUOS_ROOT_DIR}/hhuOS.iso ${HHUOS_ROOT_DIR}/loader/
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.img"
+        WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/loader/towboot/
+        COMMAND cp $<TARGET_FILE:system> ${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.bin
+        COMMAND ${HHUOS_ROOT_DIR}/loader/towboot/build.sh
+        COMMAND mv ${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.img ${HHUOS_ROOT_DIR}/
         DEPENDS system)
 
-add_custom_target(iso DEPENDS "${HHUOS_ROOT_DIR}/hhuOS.iso")
+add_custom_target(towboot DEPENDS "${HHUOS_ROOT_DIR}/hhuOS.img")

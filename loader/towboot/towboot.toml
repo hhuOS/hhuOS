@@ -1,0 +1,9 @@
+default = "hhuOS"
+timeout = 0
+log_level = "info"
+
+[entries]
+  [entries.hhuOS]
+    name = "hhuOS"
+    image = "\\hhuOS.bin"
+    argv = ""

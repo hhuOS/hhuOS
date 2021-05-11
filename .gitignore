@@ -1,8 +1,9 @@
 build/
 hdd/asciimation/starwars.txt
 .gdb_history
-loader/boot/hhuOS.bin
-loader/boot/hhuOS.initrd
+hhuOS.bin
+hhuOS.initrd
+towboot.efi
 initrd/asciimation/starwars.txt
 src/os/dep/*
 src/loader/boot/hhuOS.bin

@@ -18,7 +18,7 @@ addons:
       
 env:
   global:
-    - KERNEL_BINARY=loader/boot/hhuOS.bin
+    - KERNEL_BINARY=build/bin/system
     - PUBLISH_FILE=${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
 
 stages:

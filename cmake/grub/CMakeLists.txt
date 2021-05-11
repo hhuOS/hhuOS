@@ -16,19 +16,12 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(system)
+project(grub)
 message(STATUS "Project " ${PROJECT_NAME})
 
-include_directories(${HHUOS_SRC_DIR})
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
+        COMMAND cp $<TARGET_FILE:system> ${HHUOS_ROOT_DIR}/loader/grub/boot/hhuOS.bin
+        COMMAND grub-mkrescue /usr/lib/grub/i386-pc /usr/lib/grub/i386-efi -o ${HHUOS_ROOT_DIR}/hhuOS.iso ${HHUOS_ROOT_DIR}/loader/grub/
+        DEPENDS system)
 
-# Set source files
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm
-        ${HHUOS_SRC_DIR}/boot.asm)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} device kernel util)
+add_custom_target(grub DEPENDS "${HHUOS_ROOT_DIR}/hhuOS.iso")

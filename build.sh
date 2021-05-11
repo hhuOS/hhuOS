@@ -139,7 +139,7 @@ build() {
     echo "[INFO] Use $CORE_COUNT CPU-Cores for make"
 
     cmake ..
-    make -j$CORE_COUNT iso
+    make -j$CORE_COUNT grub towboot
 }
 
 parse_args "$@"
