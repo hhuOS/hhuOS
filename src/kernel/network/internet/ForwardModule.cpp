@@ -54,10 +54,9 @@
  */
 
 #include "IPModule.h"
-#include "IPArchitecture.h"
 #include "ForwardModule.h"
 
-#include <string.h> /* for memcpy() */
+#include <cstring> /* for memcpy() */
 
 /*
  * The list of registered network interfaces.
@@ -394,16 +393,6 @@ uip_fw_forward(void)
      BUF->destipaddr[1] == uip_hostaddr[1]) {
     return UIP_FW_LOCAL;
   }
-
-  /* If we use ping IP address configuration, and our IP address is
-     not yet configured, we should intercept all ICMP echo packets. */
-#if UIP_PINGADDRCONF
-  if((uip_hostaddr[0] | uip_hostaddr[1]) == 0 &&
-     BUF->proto == UIP_PROTO_ICMP &&
-     ICMPBUF->type == ICMP_ECHO) {
-    return UIP_FW_LOCAL;
-  }
-#endif /* UIP_PINGADDRCONF */
 
   /* Check if the packet is in the forwarding cache already, and if so
      we drop it. */
