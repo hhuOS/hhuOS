@@ -141,13 +141,3 @@ resolv_found(char *name, uint16_t *ipaddr)
 	   htons(ipaddr[1]) & 0xff);
   }
 }
-#ifdef __DHCPC_H__
-void
-dhcpc_configured(const struct dhcpc_state *s)
-{
-  uip_sethostaddr(s->ipaddr);
-  uip_setnetmask(s->netmask);
-  uip_setdraddr(s->default_router);
-  resolv_conf(s->dnsaddr);
-}
-#endif /* __DHCPC_H__ */

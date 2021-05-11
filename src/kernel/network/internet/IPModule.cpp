@@ -46,6 +46,19 @@
 #define UIP_BIG_ENDIAN     1234
 #endif /* UIP_BIG_ENDIAN */
 
+/**
+ * The IP TTL (time to live) of IP packets sent by uIP.
+ *
+ * This should normally not be changed.
+ */
+#define UIP_TTL         64
+
+/**
+ * The maximum time an IP fragment should wait in the reassembly
+ * buffer before it is dropped.
+ *
+ */
+#define UIP_REASS_MAXAGE 40
 
 /**
  * Maximum number of TCP connections.
@@ -125,20 +138,11 @@ uint16_t uip_len, uip_slen;
 				depending on the maximum packet
 				size. */
 
-uint16_t uip_listenports[UIP_LISTENPORTS];
-                             /* The uip_listenports list all currently
-				listning ports. */
-
 static uint16_t ipid;           /* Ths ipid variable is an increasing
 				number that is used for the IP ID
 				field. */
 
 void uip_setipid(uint16_t id) { ipid = id; }
-
-#if UIP_ACTIVE_OPEN
-static uint16_t lastport;       /* Keeps track of the last port used for
-				a new connection. */
-#endif /* UIP_ACTIVE_OPEN */
 
 /* Temporary variables. */
 static uint8_t c, opt;
@@ -151,6 +155,38 @@ static uint8_t c, opt;
 #define BUF ((struct uip_tcpip_hdr *)&uip_buf[UIP_LLH_LEN])
 #define FBUF ((struct uip_tcpip_hdr *)&uip_reassbuf[0])
 #define ICMPBUF ((struct uip_icmpip_hdr *)&uip_buf[UIP_LLH_LEN])
+
+unsigned char
+uiplib_ipaddrconv(char *addrstr, unsigned char *ipaddr)
+{
+    unsigned char tmp;
+    char c;
+    unsigned char i, j;
+
+    tmp = 0;
+
+    for(i = 0; i < 4; ++i) {
+        j = 0;
+        do {
+            c = *addrstr;
+            ++j;
+            if(j > 4) {
+                return 0;
+            }
+            if(c == '.' || c == 0) {
+                *ipaddr = tmp;
+                ++ipaddr;
+                tmp = 0;
+            } else if(c >= '0' && c <= '9') {
+                tmp = (tmp * 10) + (c - '0');
+            } else {
+                return 0;
+            }
+            ++addrstr;
+        } while(c != '.' && c != 0);
+    }
+    return 1;
+}
 
 static uint16_t
 chksum(uint16_t sum, const uint8_t *data, uint16_t len)
@@ -192,13 +228,8 @@ uip_chksum(uint16_t *data, uint16_t len)
 void
 uip_init(void)
 {
-  for(c = 0; c < UIP_LISTENPORTS; ++c) {
-    uip_listenports[c] = 0;
-  }
-
   /* IPv4 initialization. */
   uip_hostaddr[0] = uip_hostaddr[1] = 0;
-
 }
 /*---------------------------------------------------------------------------*/
 /* XXX: IP fragment reassembly: not well-tested. */

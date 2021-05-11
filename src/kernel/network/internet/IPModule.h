@@ -39,11 +39,57 @@
 #include "IPOptions.h"
 
 /**
+ * The size of the uIP packet buffer.
+ *
+ * The uIP packet buffer should not be smaller than 60 bytes, and does
+ * not need to be larger than 1500 bytes. Lower size results in lower
+ * TCP throughput, larger size results in higher TCP throughput.
+ *
+ * \hideinitializer
+ */
+#define UIP_BUFSIZE     400
+
+/**
+ * \name CPU architecture configuration
+ * @{
+ *
+ * The CPU architecture configuration is where the endianess of the
+ * CPU on which uIP is to be run is specified. Most CPUs today are
+ * little endian, and the most notable exception are the Motorolas
+ * which are big endian. The BYTE_ORDER macro should be changed to
+ * reflect the CPU architecture on which uIP is to be run.
+ */
+/**
+ * The byte order of the CPU architecture on which uIP is to be run.
+ *
+ * This option can be either BIG_ENDIAN (Motorola byte order) or
+ * LITTLE_ENDIAN (Intel byte order).
+ *
+ * \hideinitializer
+ */
+#ifdef UIP_CONF_BYTE_ORDER
+#define UIP_BYTE_ORDER     UIP_CONF_BYTE_ORDER
+#else /* UIP_CONF_BYTE_ORDER */
+#define UIP_BYTE_ORDER     UIP_LITTLE_ENDIAN
+#endif /* UIP_CONF_BYTE_ORDER */
+
+/**
  * The IP TTL (time to live) of IP packets sent by uIP.
  *
  * This should normally not be changed.
  */
 #define UIP_TTL         64
+
+/**
+ * The link level header length.
+ *
+ * This is the offset into the uip_buf where the IP header can be
+ * found. For Ethernet, this should be set to 14. For SLIP, this
+ * should be set to 0.
+ *
+ * \hideinitializer
+ */
+#define UIP_LLH_LEN     14
 
 /**
  * The maximum time an IP fragment should wait in the reassembly
@@ -161,6 +207,24 @@ typedef uip_ip4addr_t uip_ipaddr_t;
  * \hideinitializer
  */
 #define uip_getnetmask(addr) uip_ipaddr_copy((addr), uip_netmask)
+
+/**
+ * Convert a textual representation of an IP address to a numerical representation.
+ *
+ * This function takes a textual representation of an IP address in
+ * the form a.b.c.d and converts it into a 4-byte array that can be
+ * used by other uIP functions.
+ *
+ * \param addrstr A pointer to a string containing the IP address in
+ * textual form.
+ *
+ * \param addr A pointer to a 4-byte array that will be filled in with
+ * the numerical representation of the address.
+ *
+ * \retval 0 If the IP address could not be parsed.
+ * \retval Non-zero If the IP address was parsed.
+ */
+unsigned char uiplib_ipaddrconv(char *addrstr, unsigned char *addr);
 
 /** @} */
 

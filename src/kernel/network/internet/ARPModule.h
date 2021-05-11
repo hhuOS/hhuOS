@@ -37,6 +37,23 @@
 
 #include "IPModule.h"
 
+/**
+ * The size of the ARP table.
+ *
+ * This option should be set to a larger value if this uIP node will
+ * have many connections from the local network.
+ *
+ * \hideinitializer
+ */
+#define UIP_ARPTAB_SIZE 8
+
+/**
+ * The maxium age of ARP table entries measured in 10ths of seconds.
+ *
+ * An UIP_ARP_MAXAGE of 120 corresponds to 20 minutes (BSD
+ * default).
+ */
+#define UIP_ARP_MAXAGE 120
 
 extern struct uip_eth_addr uip_ethaddr;
 
