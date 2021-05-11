@@ -34,11 +34,67 @@
 
 #include "IPModule.h"
 #include "IPOptions.h"
-#include "IPArchitecture.h"
 
 #include <cstring>
 
 #define DEBUG_PRINTF(...) /*printf(__VA_ARGS__)*/
+
+#ifndef UIP_LITTLE_ENDIAN
+#define UIP_LITTLE_ENDIAN  3412
+#endif /* UIP_LITTLE_ENDIAN */
+#ifndef UIP_BIG_ENDIAN
+#define UIP_BIG_ENDIAN     1234
+#endif /* UIP_BIG_ENDIAN */
+
+
+/**
+ * Maximum number of TCP connections.
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_MAX_CONNECTIONS 40
+
+/**
+ * Maximum number of listening TCP ports.
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_MAX_LISTENPORTS 40
+
+/**
+ * uIP buffer size.
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_BUFFER_SIZE     420
+
+/**
+ * CPU byte order.
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_BYTE_ORDER      LITTLE_ENDIAN
+
+/**
+ * Logging on or off
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_LOGGING         1
+
+/**
+ * UDP support on or off
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_UDP             0
+
+/**
+ * UDP checksums on or off
+ *
+ * \hideinitializer
+ */
+#define UIP_CONF_UDP_CHECKSUMS   1
 
 /*---------------------------------------------------------------------------*/
 /* Variable definitions. */

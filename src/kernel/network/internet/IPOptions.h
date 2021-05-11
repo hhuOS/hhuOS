@@ -42,8 +42,6 @@
 #define UIP_BIG_ENDIAN     1234
 #endif /* UIP_BIG_ENDIAN */
 
-#include "IPConfig.h"
-
 /*------------------------------------------------------------------------------*/
 
 /**
@@ -199,41 +197,6 @@
 #endif /* UIP_CONF_MAX_LISTENPORTS */
 
 /**
- * Determines if support for TCP urgent data notification should be
- * compiled in.
- *
- * Urgent data (out-of-band data) is a rarely used TCP feature that
- * very seldom would be required.
- *
- * \hideinitializer
- */
-#define UIP_URGDATA      0
-
-/**
- * The initial retransmission timeout counted in timer pulses.
- *
- * This should not be changed.
- */
-#define UIP_RTO         3
-
-/**
- * The maximum number of times a segment should be retransmitted
- * before the connection should be aborted.
- *
- * This should not be changed.
- */
-#define UIP_MAXRTX      8
-
-/**
- * The maximum number of times a SYN segment should be retransmitted
- * before a connection request should be deemed to have been
- * unsuccessful.
- *
- * This should not need to be changed.
- */
-#define UIP_MAXSYNRTX      5
-
-/**
  * The TCP maximum segment size.
  *
  * This is should not be to set to more than
@@ -255,15 +218,6 @@
 #else
 #define UIP_RECEIVE_WINDOW UIP_CONF_RECEIVE_WINDOW
 #endif
-
-/**
- * How long a connection should stay in the TIME_WAIT state.
- *
- * This configiration option has no real implication, and it should be
- * left untouched.
- */
-#define UIP_TIME_WAIT_TIMEOUT 120
-
 
 /** @} */
 /*------------------------------------------------------------------------------*/

@@ -39,6 +39,20 @@
 #include "IPOptions.h"
 
 /**
+ * The IP TTL (time to live) of IP packets sent by uIP.
+ *
+ * This should normally not be changed.
+ */
+#define UIP_TTL         64
+
+/**
+ * The maximum time an IP fragment should wait in the reassembly
+ * buffer before it is dropped.
+ *
+ */
+#define UIP_REASS_MAXAGE 40
+
+/**
  * Repressentation of an IP address.
  *
  */
