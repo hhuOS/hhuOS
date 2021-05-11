@@ -36,7 +36,6 @@
 #define __UIP_H__
 
 #include <cstdint>
-#include "IPOptions.h"
 
 /**
  * The size of the uIP packet buffer.

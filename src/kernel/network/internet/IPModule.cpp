@@ -33,7 +33,6 @@
  */
 
 #include "IPModule.h"
-#include "IPOptions.h"
 
 #include <cstring>
 
