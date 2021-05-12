@@ -15,42 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDOUTPUTSTREAM_H
-#define HHUOS_BUFFEREDOUTPUTSTREAM_H
-
-#include "FilterOutputStream.h"
+#include "Writer.h"
 
 namespace Util::Stream {
 
-class BufferedOutputStream : public FilterOutputStream {
-
-public:
-
-    explicit BufferedOutputStream(OutputStream &stream, uint32_t size = DEFAULT_BUFFER_SIZE);
-
-    BufferedOutputStream(const BufferedOutputStream &copy) = delete;
-
-    BufferedOutputStream &operator=(const BufferedOutputStream &copy) = delete;
-
-    ~BufferedOutputStream() override;
-
-    void write(uint8_t c) override;
-
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-    void flush() override;
-
-    void close() override;
-
-private:
-
-    uint8_t *buffer;
-    uint32_t size;
-    uint32_t position = 0;
-
-    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 512;
-};
-
+void Writer::write(const char *sourceBuffer, uint32_t length) {
+    write(sourceBuffer, 0, length);
 }
 
-#endif
+void Writer::write(const Memory::String &string) {
+    write(string, 0, string.length());
+}
+
+void Writer::write(const Memory::String &string, uint32_t offset, uint32_t length) {
+    write(static_cast<char*>(string), offset, length);
+}
+
+}

@@ -44,8 +44,6 @@ public:
     virtual void flush();
 
     virtual void close();
-
-    virtual OutputStream& operator<<(uint8_t c);
 };
 
 }

@@ -17,7 +17,6 @@
 
 #include <device/cpu/Cpu.h>
 #include <util/stream/TerminalOutputStream.h>
-#include <util/stream/StringFormatOutputStream.h>
 #include <util/stream/BufferedOutputStream.h>
 #include <device/bios/Bios.h>
 #include <device/graphic/VesaBiosExtensions.h>
@@ -29,6 +28,8 @@
 #include <kernel/multiboot/MultibootTerminalProvider.h>
 #include <device/hid/Keyboard.h>
 #include <util/stream/PipedInputStream.h>
+#include <util/stream/PrintWriter.h>
+#include <util/stream/BufferedWriter.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -63,27 +64,27 @@ void GatesOfHell::enter() {
     }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
         terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
     } else {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "Unable to find a suiting graphics driver for this machine!");
+        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
     auto terminalStream = Util::Stream::TerminalOutputStream(terminal);
     auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream, resolution.columns);
-    auto outputStream = Util::Stream::StringFormatOutputStream(bufferedStream);
+    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
-    outputStream << "Welcome to hhuOS!" << Util::Stream::StringFormatOutputStream::endl
-                 << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")"
-                 << Util::Stream::StringFormatOutputStream::endl
-                 << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::StringFormatOutputStream::endl
-                 << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::StringFormatOutputStream::endl;
+    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
+            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")"
+            << Util::Stream::PrintWriter::endl
+            << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
+            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
 
     Util::Stream::PipedInputStream keyboardInputStream;
     auto keyboard = Device::Keyboard(keyboardInputStream);
     keyboard.plugin();
 
     while(true) {
-        outputStream << (char) keyboardInputStream.read();
-        outputStream.flush();
+        writer << (char) keyboardInputStream.read();
+        writer.flush();
     }
 }

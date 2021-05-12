@@ -16,18 +16,27 @@
  */
 
 #include <util/memory/Address.h>
-#include <device/cpu/Cpu.h>
-#include "BufferedOutputStream.h"
+#include "BufferedWriter.h"
 
 namespace Util::Stream {
 
-BufferedOutputStream::BufferedOutputStream(OutputStream &stream, uint32_t size): FilterOutputStream(stream), buffer(new uint8_t[size]), size(size) {}
+BufferedWriter::BufferedWriter(Writer &writer, uint32_t size) : writer(writer), buffer(new uint8_t[size]), size(size) {}
 
-BufferedOutputStream::~BufferedOutputStream() {
+BufferedWriter::~BufferedWriter() {
     delete[] buffer;
 }
 
-void BufferedOutputStream::write(uint8_t c) {
+void BufferedWriter::close() {
+    writer.close();
+}
+
+void BufferedWriter::flush() {
+    writer.write(reinterpret_cast<const char*>(buffer), 0, position);
+    position = 0;
+    writer.flush();
+}
+
+void BufferedWriter::write(char c) {
     if (position == size) {
         flush();
     }
@@ -35,9 +44,9 @@ void BufferedOutputStream::write(uint8_t c) {
     buffer[position++] = c;
 }
 
-void BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+void BufferedWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
     if (offset < 0 || length < 0) {
-        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "BufferedOutputStream: Negative offset or size!");
+        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "BufferedWriter: Negative offset or size!");
     }
 
     if (length < (size - position)) {
@@ -48,17 +57,8 @@ void BufferedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, u
         position += length;
     } else {
         flush();
-        FilterOutputStream::write(sourceBuffer, offset, length);
+        writer.write(sourceBuffer, offset, length);
     }
 }
 
-void BufferedOutputStream::flush() {
-    FilterOutputStream::write(buffer, 0, position);
-    position = 0;
-    FilterOutputStream::flush();
-}
-
-void BufferedOutputStream::close() {
-    FilterOutputStream::close();
-}
 }

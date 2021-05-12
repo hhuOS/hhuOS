@@ -40,7 +40,7 @@ public:
 
     PipedInputStream &operator=(const PipedInputStream &copy) = delete;
 
-    ~PipedInputStream() override = default;
+    ~PipedInputStream() override;
 
     void connect(PipedOutputStream &outputStream);
 

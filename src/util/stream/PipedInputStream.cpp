@@ -28,6 +28,10 @@ PipedInputStream::PipedInputStream(PipedOutputStream &outputStream) : buffer(new
     connect(outputStream);
 }
 
+PipedInputStream::~PipedInputStream() {
+    delete[] buffer;
+}
+
 void PipedInputStream::connect(PipedOutputStream &outputStream) {
     if (source != nullptr) {
         Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "PipedOutputStream: Already connected!");

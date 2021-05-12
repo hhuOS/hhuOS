@@ -19,13 +19,16 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(util PUBLIC
         ${HHUOS_SRC_DIR}/util/stream/BufferedInputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/BufferedOutputStream.cpp
+        ${HHUOS_SRC_DIR}/util/stream/BufferedWriter.cpp
         ${HHUOS_SRC_DIR}/util/stream/ByteArrayOutputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/ByteArrayInputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/FilterInputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/InputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/OutputStream.cpp
+        ${HHUOS_SRC_DIR}/util/stream/OutputStreamWriter.cpp
         ${HHUOS_SRC_DIR}/util/stream/PipedInputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/PipedOutputStream.cpp
-        ${HHUOS_SRC_DIR}/util/stream/StringFormatOutputStream.cpp
-        ${HHUOS_SRC_DIR}/util/stream/TerminalOutputStream.cpp)
+        ${HHUOS_SRC_DIR}/util/stream/PrintWriter.cpp
+        ${HHUOS_SRC_DIR}/util/stream/TerminalOutputStream.cpp
+        ${HHUOS_SRC_DIR}/util/stream/Writer.cpp)

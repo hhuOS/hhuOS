@@ -15,40 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDOUTPUTSTREAM_H
-#define HHUOS_BUFFEREDOUTPUTSTREAM_H
+#ifndef HHUOS_OUTPUTSTREAMWRITER_H
+#define HHUOS_OUTPUTSTREAMWRITER_H
 
-#include "FilterOutputStream.h"
+#include "Writer.h"
+#include "OutputStream.h"
 
 namespace Util::Stream {
 
-class BufferedOutputStream : public FilterOutputStream {
+class OutputStreamWriter : public Writer {
 
 public:
+    
+    explicit OutputStreamWriter(OutputStream &outputStream);
 
-    explicit BufferedOutputStream(OutputStream &stream, uint32_t size = DEFAULT_BUFFER_SIZE);
+    OutputStreamWriter(const OutputStreamWriter &copy) = delete;
 
-    BufferedOutputStream(const BufferedOutputStream &copy) = delete;
+    OutputStreamWriter &operator=(const OutputStreamWriter &copy) = delete;
 
-    BufferedOutputStream &operator=(const BufferedOutputStream &copy) = delete;
-
-    ~BufferedOutputStream() override;
-
-    void write(uint8_t c) override;
-
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-    void flush() override;
+    ~OutputStreamWriter() override = default;
 
     void close() override;
 
+    void flush() override;
+
+    void write(char c) override;
+
+    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
+
 private:
 
-    uint8_t *buffer;
-    uint32_t size;
-    uint32_t position = 0;
+    OutputStream &outputStream;
 
-    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 512;
 };
 
 }

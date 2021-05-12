@@ -15,40 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDOUTPUTSTREAM_H
-#define HHUOS_BUFFEREDOUTPUTSTREAM_H
+#ifndef HHUOS_WRITER_H
+#define HHUOS_WRITER_H
 
-#include "FilterOutputStream.h"
+#include <util/async/Spinlock.h>
+#include <util/memory/String.h>
 
 namespace Util::Stream {
 
-class BufferedOutputStream : public FilterOutputStream {
+class Writer {
 
 public:
 
-    explicit BufferedOutputStream(OutputStream &stream, uint32_t size = DEFAULT_BUFFER_SIZE);
+    Writer() = default;
 
-    BufferedOutputStream(const BufferedOutputStream &copy) = delete;
+    Writer(const Writer &copy) = delete;
 
-    BufferedOutputStream &operator=(const BufferedOutputStream &copy) = delete;
+    Writer &operator=(const Writer &copy) = delete;
 
-    ~BufferedOutputStream() override;
+    virtual ~Writer() = default;
 
-    void write(uint8_t c) override;
+    virtual void close() = 0;
 
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+    virtual void flush() = 0;
 
-    void flush() override;
+    virtual void write(char c) = 0;
 
-    void close() override;
+    virtual void write(const char *sourceBuffer, uint32_t offset, uint32_t length) = 0;
 
-private:
+    void write(const char *sourceBuffer, uint32_t length);
 
-    uint8_t *buffer;
-    uint32_t size;
-    uint32_t position = 0;
+    void write(const Util::Memory::String &string);
 
-    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 512;
+    void write(const Util::Memory::String &string, uint32_t offset, uint32_t length);
+
 };
 
 }
