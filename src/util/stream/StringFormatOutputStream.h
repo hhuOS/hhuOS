@@ -43,8 +43,6 @@ public:
 
     void write(uint8_t c) override;
 
-    void write(const uint8_t *source, uint32_t offset, uint32_t length) override;
-
     /**
      * Write the string representation of a character.
      *

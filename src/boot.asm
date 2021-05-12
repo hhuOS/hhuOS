@@ -59,6 +59,7 @@ extern read_memory_map
 extern initialize_system
 extern finish_system
 extern setup_idt
+extern reprogram_pics
 extern enable_bootstrap_paging
 extern enable_interrupts
 
@@ -199,46 +200,6 @@ _fini_loop:
 	add	 edi, 4
 	ja	 _fini_loop
 _fini_done:
-	ret
-
-; Reprogram PICs: All 15 hardware interrupts are one after each other in the IDT
-reprogram_pics:	
-	mov	 al,0x11     ; ICW1: 8086 Mode with ICW4
-	out	 0x20,al
-	call delay
-	out	 0xa0,al
-	call delay
-	mov	 al,0x20     ; ICW2 Master: IRQ # Offset (32)
-	out	 0x21,al
-	call delay
-	mov	 al,0x28     ; ICW2 Slave: IRQ # Offset (40)
-	out	 0xa1,al
-	call delay
-	mov	 al,0x04     ; ICW3 Master: Slaves at IRQs
-	out	 0x21,al
-	call delay
-	mov	 al,0x02     ; ICW3 Slave: Connected with IRQ2 of master
-	out	 0xa1,al
-    call delay
-	mov	 al,0x07     ; ICW4 Master: 8086 Mode and automatic EIO
-	out	 0x21,al
-	call delay
-	mov  al,0x03     ; ICW4 Slave: 8086 Mode and automatic EIO
-	out	 0xa1,al
-	call delay
-
-	mov	 al,0xff     ; Mask HW-Interrupts from PICs
-	out	 0xa1,al     ; Use only interrupt 2 to cascade the PICs
-    call delay
-	mov	 al,0xfb
-	out	 0x21,al
-
-	ret
-
-; Delay function
-delay:
-	jmp	.L2
-.L2:
 	ret
 
 ; This function is used when global constructors are called

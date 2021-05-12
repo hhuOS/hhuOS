@@ -234,7 +234,7 @@ void Bios::interrupt(int interruptNumber, const CallParameters &callParameters) 
 
     // Copy the struct used by the 16-bit code back into the given parameters
     // This way, it is possible to pass return values via cpu registers from real mode to protected mode
-    source.copyRange(target, sizeof(CallParameters));;
+    source.copyRange(target, sizeof(CallParameters));
 }
 
 }

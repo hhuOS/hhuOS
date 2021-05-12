@@ -15,37 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __InterruptHandler_include__
-#define __InterruptHandler_include__
+#ifndef HHUOS_PIPEDOUTPUTSTREAM_H
+#define HHUOS_PIPEDOUTPUTSTREAM_H
 
-#include "kernel/thread/ThreadState.h"
+#include "OutputStream.h"
+#include "PipedInputStream.h"
 
-namespace Kernel {
+namespace Util::Stream {
 
-/**
- * Interface for an interrupt handler.
- * Every interrupt hanlder should dervive from this interface.
- * The trigger-method is called if an interrupt occured.
- *
- * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
- * @date HHU, 2018
- */
-class InterruptHandler {
+class PipedOutputStream : public OutputStream {
+
+friend class PipedInputStream;
 
 public:
 
-    InterruptHandler() = default;
+    PipedOutputStream() = default;
 
-    InterruptHandler(const InterruptHandler &copy) = delete;
+    PipedOutputStream(PipedInputStream &inputStream);
 
-    InterruptHandler &operator=(const InterruptHandler &copy) = delete;
+    PipedOutputStream(const PipedOutputStream &copy) = delete;
 
-    virtual ~InterruptHandler() = default;
+    PipedOutputStream &operator=(const PipedOutputStream &copy) = delete;
 
-    /**
-     * Routine to handle an interrupt. Needs to be implemented in deriving class.
-     */
-    virtual void trigger(InterruptFrame &frame) = 0;
+    ~PipedOutputStream() override = default;
+
+    void connect(PipedInputStream &sink);
+
+    void write(uint8_t c) override;
+
+    void write(const uint8_t *source, uint32_t offset, uint32_t length) override;
+
+private:
+
+    PipedInputStream *sink = nullptr;
+
 };
 
 }

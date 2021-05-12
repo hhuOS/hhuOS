@@ -6,10 +6,9 @@ StringFormatOutputStream::StringFormatOutputStream(OutputStream &stream) : Filte
 
 void StringFormatOutputStream::write(uint8_t c) {
     FilterOutputStream::write(c);
-}
-
-void StringFormatOutputStream::write(const uint8_t *source, uint32_t offset, uint32_t length) {
-    FilterOutputStream::write(source, offset, length);
+    if (c == '\n') {
+        flush();
+    }
 }
 
 StringFormatOutputStream& StringFormatOutputStream::operator<<(char c) {

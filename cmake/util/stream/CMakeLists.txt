@@ -25,5 +25,7 @@ target_sources(util PUBLIC
         ${HHUOS_SRC_DIR}/util/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/InputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/OutputStream.cpp
+        ${HHUOS_SRC_DIR}/util/stream/PipedInputStream.cpp
+        ${HHUOS_SRC_DIR}/util/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/StringFormatOutputStream.cpp
         ${HHUOS_SRC_DIR}/util/stream/TerminalOutputStream.cpp)

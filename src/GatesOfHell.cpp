@@ -27,6 +27,8 @@
 #include <util/reflection/InstanceFactory.h>
 #include <kernel/multiboot/Structure.h>
 #include <kernel/multiboot/MultibootTerminalProvider.h>
+#include <device/hid/Keyboard.h>
+#include <util/stream/PipedInputStream.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -67,7 +69,7 @@ void GatesOfHell::enter() {
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
     auto terminalStream = Util::Stream::TerminalOutputStream(terminal);
-    auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream);
+    auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream, resolution.columns);
     auto outputStream = Util::Stream::StringFormatOutputStream(bufferedStream);
 
     outputStream << "Welcome to hhuOS!" << Util::Stream::StringFormatOutputStream::endl
@@ -76,5 +78,12 @@ void GatesOfHell::enter() {
                  << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::StringFormatOutputStream::endl
                  << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::StringFormatOutputStream::endl;
 
-    Device::Cpu::halt();
+    Util::Stream::PipedInputStream keyboardInputStream;
+    auto keyboard = Device::Keyboard(keyboardInputStream);
+    keyboard.plugin();
+
+    while(true) {
+        outputStream << (char) keyboardInputStream.read();
+        outputStream.flush();
+    }
 }
