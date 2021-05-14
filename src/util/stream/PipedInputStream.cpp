@@ -48,7 +48,7 @@ int16_t PipedInputStream::read() {
     return count == 0 ? 0 : ret;
 }
 
-uint32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     if (source == nullptr) {
         Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "PipedOutputStream: Source is null!");
     }

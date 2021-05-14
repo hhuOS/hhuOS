@@ -15,41 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WRITER_H
-#define HHUOS_WRITER_H
-
-#include <util/memory/String.h>
+#include "InputStreamReader.h"
 
 namespace Util::Stream {
 
-class Writer {
-
-public:
-
-    Writer() = default;
-
-    Writer(const Writer &copy) = delete;
-
-    Writer &operator=(const Writer &copy) = delete;
-
-    virtual ~Writer() = default;
-
-    virtual void close() = 0;
-
-    virtual void flush() = 0;
-
-    virtual void write(const char *sourceBuffer, uint32_t offset, uint32_t length) = 0;
-
-    virtual void write(const char *sourceBuffer, uint32_t length) = 0;
-
-    virtual void write(char c) = 0;
-
-    virtual void write(const Util::Memory::String &string) = 0;
-
-    virtual void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) = 0;
-
-};
+InputStreamReader::InputStreamReader(InputStream &stream) : stream(stream) {
 
 }
 
-#endif
+void InputStreamReader::close() {
+    stream.close();
+}
+
+int32_t InputStreamReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
+    return stream.read(reinterpret_cast<uint8_t *>(targetBuffer), offset, length);
+}
+
+int32_t InputStreamReader::read(char *targetBuffer, uint32_t length) {
+    return read(targetBuffer, 0, length);
+}
+
+char InputStreamReader::read() {
+    char c = 0;
+    int32_t count = read(&c, 0, 1);
+
+    return count > 0 ? c : -1;
+}
+
+Memory::String InputStreamReader::read(uint32_t length) {
+    char *tmpBuffer = new char[length + 1];
+    int32_t count = read(tmpBuffer, length);
+    tmpBuffer[count] = 0;
+
+    Memory::String ret = count <= 0 ? Memory::String() : Memory::String(tmpBuffer);
+
+    delete[] tmpBuffer;
+    return ret;
+}
+
+}

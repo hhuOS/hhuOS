@@ -41,9 +41,15 @@ public:
 
     void flush() override;
 
+    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+    void write(const char *sourceBuffer, uint32_t length) override;
+
     void write(char c) override;
 
-    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
+    void write(const Util::Memory::String &string) override;
+
+    void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) override;
 
     void setBase(uint8_t newBase);
 
@@ -107,15 +113,17 @@ public:
 
     PrintWriter& operator<<(PrintWriter& (*f)(PrintWriter&));
 
-    static PrintWriter& endl(PrintWriter& stream);
+    static PrintWriter& flush(PrintWriter& writer);
 
-    static PrintWriter& bin(PrintWriter& stream);
+    static PrintWriter& endl(PrintWriter& writer);
 
-    static PrintWriter& oct(PrintWriter& stream);
+    static PrintWriter& bin(PrintWriter& writer);
 
-    static PrintWriter& dec(PrintWriter& stream);
+    static PrintWriter& oct(PrintWriter& writer);
 
-    static PrintWriter& hex(PrintWriter& stream);
+    static PrintWriter& dec(PrintWriter& writer);
+
+    static PrintWriter& hex(PrintWriter& writer);
 
 private:
 

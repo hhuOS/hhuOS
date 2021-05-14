@@ -29,7 +29,7 @@
 #include <device/hid/Keyboard.h>
 #include <util/stream/PipedInputStream.h>
 #include <util/stream/PrintWriter.h>
-#include <util/stream/BufferedWriter.h>
+#include <util/stream/InputStreamReader.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -79,12 +79,12 @@ void GatesOfHell::enter() {
             << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
             << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
 
-    Util::Stream::PipedInputStream keyboardInputStream;
+    auto keyboardInputStream = Util::Stream::PipedInputStream();
+    auto reader = Util::Stream::InputStreamReader(keyboardInputStream);
     auto keyboard = Device::Keyboard(keyboardInputStream);
     keyboard.plugin();
 
     while(true) {
-        writer << (char) keyboardInputStream.read();
-        writer.flush();
+        writer << reader.read() << Util::Stream::PrintWriter::flush;
     }
 }

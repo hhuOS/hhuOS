@@ -39,9 +39,15 @@ public:
 
     void flush() override;
 
+    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+    void write(const char *sourceBuffer, uint32_t length) override;
+
     void write(char c) override;
 
-    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
+    void write(const Util::Memory::String &string) override;
+
+    void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) override;
 
 private:
 

@@ -20,22 +20,8 @@
 
 namespace Util::Stream  {
 
-void OutputStream::write(const uint8_t *source, uint32_t offset, uint32_t length) {
-    if (offset < 0 || length < 0) {
-        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "OutputStream: Negative offset or size!");
-    }
+void OutputStream::flush() {}
 
-    for (uint32_t i = 0; i < length; i++) {
-        write(source[offset + i]);
-    }
-}
-
-void OutputStream::flush() {
-
-}
-
-void OutputStream::close() {
-
-}
+void OutputStream::close() {}
 
 }

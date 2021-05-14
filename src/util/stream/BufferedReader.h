@@ -1,3 +1,8 @@
+#ifndef HHUOS_BUFFEREDREADER_H
+#define HHUOS_BUFFEREDREADER_H
+
+#include "Reader.h"
+
 /*
  * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
@@ -15,38 +20,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WRITER_H
-#define HHUOS_WRITER_H
-
-#include <util/memory/String.h>
-
 namespace Util::Stream {
 
-class Writer {
+class BufferedReader : public Reader {
 
 public:
 
-    Writer() = default;
+    explicit BufferedReader(Reader &reader, uint32_t size = DEFAULT_BUFFER_SIZE);
 
-    Writer(const Writer &copy) = delete;
+    BufferedReader(const BufferedReader &copy) = delete;
 
-    Writer &operator=(const Writer &copy) = delete;
+    BufferedReader &operator=(const BufferedReader &copy) = delete;
 
-    virtual ~Writer() = default;
+    ~BufferedReader() override;
 
-    virtual void close() = 0;
+    void close() override;
 
-    virtual void flush() = 0;
+    int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) override;
 
-    virtual void write(const char *sourceBuffer, uint32_t offset, uint32_t length) = 0;
+    int32_t read(char *targetBuffer, uint32_t length) override;
 
-    virtual void write(const char *sourceBuffer, uint32_t length) = 0;
+    char read() override;
 
-    virtual void write(char c) = 0;
+    Memory::String read(uint32_t length) override;
 
-    virtual void write(const Util::Memory::String &string) = 0;
+private:
 
-    virtual void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) = 0;
+    bool refill();
+
+    Reader &reader;
+    char *buffer;
+    uint32_t size;
+    uint32_t position = 0;
+    uint32_t valid = 0;
+
+    static const constexpr uint32_t DEFAULT_BUFFER_SIZE = 8192;
 
 };
 

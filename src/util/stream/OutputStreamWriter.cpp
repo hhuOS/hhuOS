@@ -29,12 +29,24 @@ void OutputStreamWriter::flush() {
     outputStream.flush();
 }
 
-void OutputStreamWriter::write(char c) {
-    outputStream.write(c);
-}
-
 void OutputStreamWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
     outputStream.write(reinterpret_cast<const uint8_t *>(sourceBuffer), offset, length);
+}
+
+void OutputStreamWriter::write(const char *sourceBuffer, uint32_t length) {
+    write(sourceBuffer, 0, length);
+}
+
+void OutputStreamWriter::write(const Memory::String &string) {
+    write(string, 0, string.length());
+}
+
+void OutputStreamWriter::write(const Memory::String &string, uint32_t offset, uint32_t length) {
+    write(static_cast<char*>(string), offset, length);
+}
+
+void OutputStreamWriter::write(char c) {
+    write(&c, 0, 1);
 }
 
 }

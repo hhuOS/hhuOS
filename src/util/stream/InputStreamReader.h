@@ -15,20 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Writer.h"
+#ifndef HHUOS_INPUTSTREAMREADER_H
+#define HHUOS_INPUTSTREAMREADER_H
+
+#include "Reader.h"
+#include "InputStream.h"
 
 namespace Util::Stream {
 
-void Writer::write(const char *sourceBuffer, uint32_t length) {
-    write(sourceBuffer, 0, length);
+class InputStreamReader : public Reader {
+
+public:
+
+    explicit InputStreamReader(InputStream &stream);
+
+    InputStreamReader(const InputStreamReader &copy) = delete;
+
+    InputStreamReader &operator=(const InputStreamReader &copy) = delete;
+
+    ~InputStreamReader() override = default;
+
+    void close() override;
+
+    int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    int32_t read(char *targetBuffer, uint32_t length) override;
+
+    char read() override;
+
+    Memory::String read(uint32_t length) override;
+
+private:
+
+    InputStream &stream;
+
+};
+
 }
 
-void Writer::write(const Memory::String &string) {
-    write(string, 0, string.length());
-}
-
-void Writer::write(const Memory::String &string, uint32_t offset, uint32_t length) {
-    write(static_cast<char*>(string), offset, length);
-}
-
-}
+#endif

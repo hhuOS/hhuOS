@@ -36,7 +36,7 @@ public:
 
     virtual int16_t read() = 0;
 
-    virtual uint32_t read(uint8_t *target, uint32_t offset, uint32_t length);
+    virtual int32_t read(uint8_t *target, uint32_t offset, uint32_t length) = 0;
 
     virtual void close();
 };

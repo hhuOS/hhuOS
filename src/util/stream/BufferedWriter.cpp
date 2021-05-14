@@ -20,7 +20,7 @@
 
 namespace Util::Stream {
 
-BufferedWriter::BufferedWriter(Writer &writer, uint32_t size) : writer(writer), buffer(new uint8_t[size]), size(size) {}
+BufferedWriter::BufferedWriter(Writer &writer, uint32_t size) : writer(writer), buffer(new char[size]), size(size) {}
 
 BufferedWriter::~BufferedWriter() {
     delete[] buffer;
@@ -34,14 +34,6 @@ void BufferedWriter::flush() {
     writer.write(reinterpret_cast<const char*>(buffer), 0, position);
     position = 0;
     writer.flush();
-}
-
-void BufferedWriter::write(char c) {
-    if (position == size) {
-        flush();
-    }
-
-    buffer[position++] = c;
 }
 
 void BufferedWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {

@@ -15,41 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_WRITER_H
-#define HHUOS_WRITER_H
-
-#include <util/memory/String.h>
+#include "Reader.h"
 
 namespace Util::Stream {
 
-class Writer {
+uint32_t Reader::skip(uint32_t amount) {
+    if (amount <= 0) {
+        return 0;
+    }
 
-public:
+    uint32_t remaining = amount;
+    uint32_t bufferSize = amount > SKIP_BUFFER_SIZE ? SKIP_BUFFER_SIZE : amount;
+    char *buffer = new char[bufferSize];
 
-    Writer() = default;
+    while (remaining > 0) {
+        int32_t skipped = read(buffer, 0, bufferSize > remaining ? remaining : bufferSize);
+        if (skipped <= 0) {
+            break;
+        }
 
-    Writer(const Writer &copy) = delete;
+        remaining -= skipped;
+    }
 
-    Writer &operator=(const Writer &copy) = delete;
-
-    virtual ~Writer() = default;
-
-    virtual void close() = 0;
-
-    virtual void flush() = 0;
-
-    virtual void write(const char *sourceBuffer, uint32_t offset, uint32_t length) = 0;
-
-    virtual void write(const char *sourceBuffer, uint32_t length) = 0;
-
-    virtual void write(char c) = 0;
-
-    virtual void write(const Util::Memory::String &string) = 0;
-
-    virtual void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) = 0;
-
-};
-
+    delete[] buffer;
+    return amount - remaining;
 }
 
-#endif
+}

@@ -20,14 +20,14 @@
 
 namespace Util::Stream {
 
-uint32_t InputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
+/*int32_t InputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
     if (offset < 0 || length < 0) {
         Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_BOUNDS, "InputStream: Negative offset or size!");
     }
 
     uint32_t i;
     for (i = 0; i < length; i++) {
-        int8_t c = read();
+        int16_t c = read();
 
         // Check for EOF
         if (c < 0) {
@@ -39,7 +39,7 @@ uint32_t InputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
     }
 
     return i;
-}
+}*/
 
 void InputStream::close() {
 

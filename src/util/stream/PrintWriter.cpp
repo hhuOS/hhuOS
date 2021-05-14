@@ -42,12 +42,24 @@ void PrintWriter::flush() {
     writer.flush();
 }
 
-void PrintWriter::write(char c) {
-    writer.write(c);
-}
-
 void PrintWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
     writer.write(sourceBuffer, offset, length);
+}
+
+void PrintWriter::write(const char *sourceBuffer, uint32_t length) {
+    write(sourceBuffer, 0, length);
+}
+
+void PrintWriter::write(const Memory::String &string) {
+    write(string, 0, string.length());
+}
+
+void PrintWriter::write(const Memory::String &string, uint32_t offset, uint32_t length) {
+    write(static_cast<char*>(string), offset, length);
+}
+
+void PrintWriter::write(char c) {
+    write(&c, 0, 1);
 }
 
 void PrintWriter::setBase(uint8_t newBase) {
@@ -226,28 +238,33 @@ PrintWriter &PrintWriter::operator<<(PrintWriter &(*f)(PrintWriter &)) {
     return f(*this);
 }
 
+PrintWriter &PrintWriter::flush(PrintWriter &writer) {
+    writer.flush();
+    return writer;
+}
+
 PrintWriter &PrintWriter::endl(PrintWriter &writer) {
     writer.println();
     return writer;
 }
 
 PrintWriter &PrintWriter::bin(PrintWriter &writer) {
-    writer.base = 2;
+    writer.setBase(2);
     return writer;
 }
 
 PrintWriter &PrintWriter::oct(PrintWriter &writer) {
-    writer.base = 8;
+    writer.setBase(8);
     return writer;
 }
 
 PrintWriter &PrintWriter::dec(PrintWriter &writer) {
-    writer.base = 10;
+    writer.setBase(10);
     return writer;
 }
 
 PrintWriter &PrintWriter::hex(PrintWriter &writer) {
-    writer.base = 16;
+    writer.setBase(16);
     return writer;
 }
 

@@ -32,7 +32,7 @@ int16_t ByteArrayInputStream::read() {
     return buffer[position++];
 }
 
-uint32_t ByteArrayInputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
+int32_t ByteArrayInputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
     if (position >= size) {
         return -1;
     }

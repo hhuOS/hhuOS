@@ -38,14 +38,12 @@ public:
 
     void flush() override;
 
-    void write(char c) override;
-
     void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
 
 private:
 
     Writer &writer;
-    uint8_t *buffer;
+    char *buffer;
     uint32_t size;
     uint32_t position = 0;
 
