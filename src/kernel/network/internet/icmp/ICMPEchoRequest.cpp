@@ -6,4 +6,13 @@
 
 ICMPEchoRequest::ICMPEchoRequest() {
 
+
+}
+
+void *ICMPEchoRequest::getData() {
+    return nullptr;
+}
+
+uint16_t ICMPEchoRequest::getLength() {
+    return 0;
 }

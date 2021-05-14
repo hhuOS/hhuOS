@@ -6,10 +6,14 @@
 #define HHUOS_ICMPECHOREQUEST_H
 
 #include <cinttypes>
+#include <kernel/network/internet/IP4DataPart.h>
 
-class ICMPEchoRequest {
+class ICMPEchoRequest : public IP4DataPart{
 public:
     ICMPEchoRequest();
+
+    void *getData() override;
+    uint16_t getLength() override;
 };
 
 

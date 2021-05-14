@@ -8,12 +8,9 @@
 #include <cinttypes>
 
 class IP4DataPart {
-private:
-    void* data;
-    uint16_t length;
-
 public:
-    IP4DataPart(void* data, uint16_t length);
+    virtual void *getData() = 0;
+    virtual uint16_t getLength() = 0;
 };
 
 

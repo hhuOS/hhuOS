@@ -7,10 +7,11 @@
 
 #include <cinttypes>
 #include "IP4Address.h"
+#include "IP4DataPart.h"
 
 class IP4Datagram {
 public:
-    IP4Datagram(IP4Address destinationAddress, IP4DataPart dataPart);
+    IP4Datagram(IP4Address *destinationAddress, IP4DataPart *dataPart);
 };
 
 

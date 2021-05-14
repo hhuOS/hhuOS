@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Address.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4DataPart.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
 )
 
 add_subdirectory(icmp)

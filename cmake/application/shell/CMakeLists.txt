@@ -46,6 +46,7 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/MkVdd.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Mount.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/NetworkTest.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Ping.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Rm.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Tail.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Touch.cpp
