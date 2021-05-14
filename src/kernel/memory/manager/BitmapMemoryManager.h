@@ -19,8 +19,8 @@
 #define __BITMAPMEMORYMANAGER_H__
 
 #include "MemoryManager.h"
-#include "util/memory/String.h"
-#include "util/memory/Bitmap.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/memory/Bitmap.h"
 
 namespace Kernel {
 

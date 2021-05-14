@@ -32,7 +32,7 @@ bool MultibootTerminalProvider::isAvailable() {
 
 Util::Graphic::Terminal &MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo) {
     if (!isAvailable()) {
-        Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been setup correctly by the bootloader!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been setup correctly by the bootloader!");
     }
 
     return *new Device::Graphic::ColorGraphicsArray(frameBufferInfo.width, frameBufferInfo.height);

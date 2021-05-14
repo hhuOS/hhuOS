@@ -64,7 +64,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     Util::Data::List<InterruptHandler*> *list = report(slot);
 
     if (list == nullptr && slot >= 32) {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "No handler registered!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
 
     if (list != nullptr) {

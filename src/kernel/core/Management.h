@@ -25,7 +25,7 @@
 #include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "util/data/ArrayList.h"
+#include "lib/util/data/ArrayList.h"
 #include "TaskStateSegment.h"
 #include "Symbols.h"
 
@@ -300,9 +300,9 @@ public:
     }
 
     /**
-	 * Returns the current kernelspace memory manager.
+	 * Returns the current kernel memory manager.
 	 *
-	 * @return Pointer to the current kernelspace memory manager
+	 * @return Pointer to the current kernel memory manager
 	 */
     static MemoryManager *getKernelHeapManager() {
         return kernelMemoryManager;
@@ -340,21 +340,5 @@ public:
 };
 
 }
-
-void *operator new(uint32_t, void *p);
-
-void *operator new[](uint32_t, void *p);
-
-void operator delete(void *, void *);
-
-void operator delete[](void *, void *);
-
-void *operator new(uint32_t size, uint32_t alignment);
-
-void *operator new[](uint32_t size, uint32_t alignment);
-
-void operator delete(void *ptr, uint32_t alignment);
-
-void operator delete[](void *ptr, uint32_t alignment);
 
 #endif

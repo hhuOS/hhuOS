@@ -19,12 +19,12 @@
 #define __Kernel_include__
 
 #include "kernel/service/KernelService.h"
-#include "util/async/Spinlock.h"
+#include "lib/util/async/Spinlock.h"
 
 #include <cstdint>
-#include "util/memory/String.h"
+#include "lib/util/memory/String.h"
 #include "kernel/thread/ThreadState.h"
-#include "util/data/HashMap.h"
+#include "lib/util/data/HashMap.h"
 
 namespace Kernel {
 
@@ -50,7 +50,7 @@ public:
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
-            Device::Cpu::throwException(Device::Cpu::Exception::INVALID_ARGUMENT, "Invalid service!");
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid service!");
         }
 
         return (T *) serviceMap.get(T::SERVICE_NAME);

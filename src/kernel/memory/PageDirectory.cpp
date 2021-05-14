@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include <asm_interface.h>
 #include "kernel/multiboot/Structure.h"
 #include "kernel/memory/PageDirectory.h"
@@ -53,7 +53,7 @@ PageDirectory::PageDirectory() {
     // zero memory for PageTables and PageDirectrories
     Util::Memory::Address<uint32_t>((void *) VIRT_PAGE_MEM_START).setRange(0, PAGESIZE * 1024);
     // base page directory is located at VIRT_PAGE_MEM_START + 1MB,
-    // because the first 1MB is used for all Kernel page tables (mapping the kernelspace)
+    // because the first 1MB is used for all Kernel page tables (mapping the kernel)
     pageDirectory = (uint32_t *) (VIRT_PAGE_MEM_START + 256 * PAGESIZE);
 
     // calculate the phys. address of the first pagedirectory (reserve 1 MB for kernel page tables)
@@ -82,7 +82,7 @@ PageDirectory::PageDirectory() {
         }
     }
 
-    // now, all important mappings in kernelspace (> KERNEL_START) are set up
+    // now, all important mappings in kernel (> KERNEL_START) are set up
     // kernelcode + data loaded by grub is placed at KERNEL_START, the initial heap is placed
     // afterwards and the first 4KB pagetables and directories are placed at VIRT_PAGE_MEM_START
 
@@ -114,10 +114,10 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
     uint32_t *bp_VirtAddress = basePageDirectory->getPageDirectoryVirtualAddress();
     // get pointer to virtual table addresses from basePageDirectory
     uint32_t *bp_VirtTableAddresses = basePageDirectory->getVirtTableAddresses();
-    // calculate at which index the kernelspace starts
+    // calculate at which index the kernel starts
     uint32_t idx = KERNEL_START / (PAGESIZE * 1024);
 
-    // map the whole kernelspace from the basePageDirectory into the new page directory
+    // map the whole kernel from the basePageDirectory into the new page directory
     for (; idx < 1024; idx++) {
         pageDirectory[idx] = bp_VirtAddress[idx];
         virtTableAddresses[idx] = bp_VirtTableAddresses[idx];
@@ -175,7 +175,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
     // check if the requested page is already mapped -> error
     if ((*((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) & PAGE_PRESENT) != 0) {
 
-        Device::Cpu::throwException(Device::Cpu::Exception::PAGING_ERROR);
+        Util::Exception::throwException(Util::Exception::PAGING_ERROR);
 
 
         return;

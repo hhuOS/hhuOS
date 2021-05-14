@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "util/data/HashMap.h"
+#include "lib/util/data/HashMap.h"
 #include "MemoryManager.h"
 
 namespace Kernel {
@@ -33,20 +33,20 @@ void *MemoryManager::alloc(uint32_t size) {
 }
 
 void *MemoryManager::alloc(uint32_t size, uint32_t alignment) {
-    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned alloc' is not supported!");
 
     return nullptr;
 }
 
 void *MemoryManager::realloc(void *ptr, uint32_t size) {
-    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'realloc' is not supported!");
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'realloc' is not supported!");
 
     return nullptr;
 }
 
 void *MemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned realloc' is not supported!");
 
     return nullptr;
@@ -57,7 +57,7 @@ void MemoryManager::free(void *ptr) {
 }
 
 void MemoryManager::free(void *ptr, uint32_t alignment) {
-    Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION,
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
                         "MemoryManager: Operation 'aligned free' is not supported!");
 }
 

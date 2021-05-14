@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include <asm_interface.h>
 #include "Management.h"
 
@@ -152,13 +152,13 @@ void Management::trigger(InterruptFrame &frame) {
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {
-        frame.interrupt = (uint32_t) Device::Cpu::Exception::NULL_POINTER;
+        frame.interrupt = (uint32_t) Util::Exception::NULL_POINTER;
         System::panic(&frame);
     }
 
     // check if pagefault was caused by illegal page access
     if ((frame.error & 0x00000001u) > 0) {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_PAGE_ACCESS);
+        Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS);
     }
 
     // Map the faulted Page
@@ -315,7 +315,7 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
-        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_MEMORY);
+        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
@@ -349,7 +349,7 @@ void *Management::mapIO(uint32_t size) {
 
     // check for nullpointer
     if (virtStartAddress == nullptr) {
-        Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_MEMORY);
+        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY);
     }
 
     // map the allocated virtual IO memory to physical addresses
@@ -404,7 +404,7 @@ void Management::calcTotalPhysicalMemory() {
     }
 
     if (maxEntry.type != Multiboot::MULTIBOOT_MEMORY_AVAILABLE) {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "No usable memory found!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No usable memory found!");
     }
 
     totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
@@ -497,76 +497,4 @@ void *Management::realloc(void *ptr, uint32_t size, uint32_t alignment) {
     }
 }
 
-}
-
-void *operator new(uint32_t size) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->alloc(size);
-    }
-}
-
-void *operator new[](uint32_t count) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(count);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->alloc(count);
-    }
-}
-
-void operator delete(void *ptr) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->free(ptr);
-    }
-}
-
-void operator delete[](void *ptr) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->free(ptr);
-    }
-}
-
-void *operator new(uint32_t, void *p) { return p; }
-
-void *operator new[](uint32_t, void *p) { return p; }
-
-void operator delete(void *, void *) {}
-
-void operator delete[](void *, void *) {}
-
-void *operator new(uint32_t size, uint32_t alignment) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->alloc(size, alignment);
-    }
-}
-
-void *operator new[](uint32_t size, uint32_t alignment) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->alloc(size, alignment);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->alloc(size, alignment);
-    }
-}
-
-void operator delete(void *ptr, uint32_t alignment) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->free(ptr);
-    }
-}
-
-void operator delete[](void *ptr, uint32_t alignment) {
-    if (!Kernel::Management::isKernelMode()) {
-        return Kernel::Management::getInstance().getCurrentUserSpaceHeapManager()->free(ptr, alignment);
-    } else {
-        return Kernel::Management::getKernelHeapManager()->free(ptr);
-    }
 }

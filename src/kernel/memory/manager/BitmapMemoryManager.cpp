@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include "BitmapMemoryManager.h"
 
 namespace Kernel {
@@ -52,11 +52,11 @@ void *BitmapMemoryManager::alloc(uint32_t size) {
     if (block == bitmap->getSize()) {
         // handle errors
         if (managerType == PAGING_AREA_MANAGER) {
-            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_PAGE_MEMORY);
+            Util::Exception::throwException(Util::Exception::OUT_OF_PAGE_MEMORY);
         }
 
         if (managerType == PAGE_FRAME_ALLOCATOR) {
-            Device::Cpu::throwException(Device::Cpu::Exception::OUT_OF_PHYS_MEMORY);
+            Util::Exception::throwException(Util::Exception::OUT_OF_PHYS_MEMORY);
         }
 
         return nullptr;

@@ -20,8 +20,8 @@
 
 #include <cstdint>
 #include "Constants.h"
-#include "util/memory/String.h"
-#include "util/data/HashMap.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/data/HashMap.h"
 
 namespace Kernel::Multiboot {
 

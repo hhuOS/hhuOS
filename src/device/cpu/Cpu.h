@@ -18,7 +18,8 @@
 #define __CPU_include__
 
 #include <cstdint>
-#include <util/async/Atomic.h>
+#include <lib/util/async/Atomic.h>
+#include <lib/util/Exception.h>
 
 namespace Device {
 
@@ -64,21 +65,9 @@ public:
     static void disableInterrupts();
 
     /**
-     * Stop CPU until next interrupt.
-     */
-    static void idle();
-
-    /**
      * Stop the processor via hlt instruction.
      */
     [[noreturn]] static void halt();
-
-    /**
-     * Read the time stamp counter.
-     *
-     * @return The current time stamp counter value.
-     */
-    static unsigned long long int rdtsc();
 
     /**
      * Enumeration of all hardware exceptions
@@ -119,22 +108,12 @@ public:
     };
 
     /**
-     * Enumeration of all hardware exceptions
+     * Throw an exception.
+     *
+     * @param error The exception number
+     * @param message An error message, that will be shown on the bluescreen
      */
-    enum class Exception : uint32_t {
-        NULL_POINTER = 0xC8,
-        OUT_OF_BOUNDS = 0xC9,
-        INVALID_ARGUMENT = 0xCA,
-        KEY_NOT_FOUND = 0xCB,
-        ILLEGAL_STATE = 0xCC,
-        OUT_OF_MEMORY = 0XCD,
-        OUT_OF_PHYS_MEMORY = 0xCE,
-        OUT_OF_PAGE_MEMORY = 0xCF,
-        ILLEGAL_PAGE_ACCESS = 0xD0,
-        CLASS_NOT_FOUND = 0xD1,
-        PAGING_ERROR = 0xD2,
-        UNSUPPORTED_OPERATION = 0xD3
-    };
+    [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
 
     /**
      * Trigger a software interrupt (system call).
@@ -143,28 +122,6 @@ public:
      */
     static void softInterrupt(uint32_t function);
 
-    /**
-     * Throw an exception.
-     *
-     * @param exception The exception number
-     * @param message An error message, that will be shown on the bluescreen
-     */
-    [[noreturn]] static void throwException(Exception exception, const char *message = "");
-
-    /**
-     * Returns the name of the Exception from the number.
-     *
-     * @return String with name of exception
-     */
-    static const char* getExceptionName(uint32_t exception);
-
-    /**
-     * Returns the name of the Exception from the enumeration.
-     *
-     * @return String with name of exception
-     */
-    static const char* getExceptionName(Error exception);
-
     // Pointers to lists with hardware (software) exceptions
     static const char *hardwareExceptions[];
     static const char *softwareExceptions[];
@@ -172,7 +129,6 @@ public:
     // start number for software exceptions
     static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
 
-private:
     /**
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.
      * Interrupts stay disabled, as long as this number is greater than zero.

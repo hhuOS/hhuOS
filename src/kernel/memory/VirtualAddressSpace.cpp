@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <util/memory/Address.h>
-#include <util/reflection/InstanceFactory.h>
+#include <lib/util/memory/Address.h>
+#include <lib/util/memory/operators.h>
+#include <lib/util/reflection/InstanceFactory.h>
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "kernel/memory/MemLayout.h"
 #include "kernel/core/Management.h"
@@ -29,7 +30,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint3
         managerType(memoryManagerType), heapAddress(Util::Memory::Address(heapAddress).alignUp(PAGESIZE)) {
     // create a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
-    // the kernelspace heap manager is static and global for the system
+    // the kernel heap manager is static and global for the system
     this->kernelSpaceHeapManager = Management::getKernelHeapManager();
     // this is no bootstrap address space
     bootstrapAddressSpace = false;
@@ -44,7 +45,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const
         this->pageDirectory = new PageDirectory(basePageDirectory);
     }
 
-    // the kernelspace heap manager is static and global for the system
+    // the kernel heap manager is static and global for the system
     this->kernelSpaceHeapManager = Management::getKernelHeapManager();
     // this is no bootstrap address space
     bootstrapAddressSpace = false;

@@ -18,8 +18,8 @@
 #ifndef HHUOS_VESABIOSEXTENSIONS_H
 #define HHUOS_VESABIOSEXTENSIONS_H
 
-#include <util/memory/Address.h>
-#include <util/data/ArrayList.h>
+#include <lib/util/memory/Address.h>
+#include <lib/util/data/ArrayList.h>
 #include "LinearFrameBufferProvider.h"
 
 namespace Device::Graphic {

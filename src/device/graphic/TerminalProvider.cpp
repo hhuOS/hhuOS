@@ -1,4 +1,4 @@
-#include <util/data/ArrayList.h>
+#include <lib/util/data/ArrayList.h>
 #include "TerminalProvider.h"
 
 namespace Device::Graphic {
@@ -20,7 +20,7 @@ TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16
     auto candidates = Util::Data::ArrayList<ModeInfo>();
 
     if (modes.length() == 0) {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "LinearFrameBufferProvider: No graphics mode available!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LinearFrameBufferProvider: No graphics mode available!");
     }
 
     uint32_t bestDiff = 0xffffffff;

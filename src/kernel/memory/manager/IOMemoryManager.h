@@ -19,8 +19,8 @@
 #define __IOMEMMANAGER_H__
 
 #include <cstdint>
-#include "util/data/HashMap.h"
-#include "util/async/Spinlock.h"
+#include "lib/util/data/HashMap.h"
+#include "lib/util/async/Spinlock.h"
 #include "BitmapMemoryManager.h"
 
 namespace Kernel {

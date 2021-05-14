@@ -16,20 +16,20 @@
  */
 
 #include <device/cpu/Cpu.h>
-#include <util/stream/TerminalOutputStream.h>
-#include <util/stream/BufferedOutputStream.h>
+#include <lib/util/stream/TerminalOutputStream.h>
+#include <lib/util/stream/BufferedOutputStream.h>
 #include <device/bios/Bios.h>
 #include <device/graphic/VesaBiosExtensions.h>
 #include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
 #include <device/graphic/LinearFrameBufferTerminalProvider.h>
 #include <device/graphic/ColorGraphicsArrayProvider.h>
-#include <util/reflection/InstanceFactory.h>
+#include <lib/util/reflection/InstanceFactory.h>
 #include <kernel/multiboot/Structure.h>
 #include <kernel/multiboot/MultibootTerminalProvider.h>
 #include <device/hid/Keyboard.h>
-#include <util/stream/PipedInputStream.h>
-#include <util/stream/PrintWriter.h>
-#include <util/stream/InputStreamReader.h>
+#include <lib/util/stream/PipedInputStream.h>
+#include <lib/util/stream/PrintWriter.h>
+#include <lib/util/stream/InputStreamReader.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -64,7 +64,7 @@ void GatesOfHell::enter() {
     }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
         terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
     } else {
-        Device::Cpu::throwException(Device::Cpu::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);

@@ -18,11 +18,11 @@
 #ifndef __KernelSymbols_include__
 #define __KernelSymbols_include__
 
-#include "util/memory/Address.h"
-#include "util/memory/String.h"
-#include "util/data/HashMap.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/data/HashMap.h"
 #include "kernel/multiboot/Constants.h"
-#include "util/elf/ElfConstants.h"
+#include "lib/util/elf/ElfConstants.h"
 
 namespace Kernel {
 

@@ -15,7 +15,7 @@ bool MultibootLinearFrameBufferProvider::isAvailable() {
 
 Util::Graphic::LinearFrameBuffer& MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(MultibootLinearFrameBufferProvider::ModeInfo &modeInfo) {
     if (!isAvailable()) {
-        Device::Cpu::throwException(Device::Cpu::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
     }
 
     // Map frame buffer into IO memory

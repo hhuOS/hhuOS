@@ -25,7 +25,7 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
-// let kernelspace start at 3GB
+// let kernel start at 3GB
 #define KERNEL_START 0xC0000000
 
 // start address for heap

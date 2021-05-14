@@ -16,8 +16,6 @@
  */
 
 #include <asm_interface.h>
-#include "util/memory/String.h"
-#include "kernel/core/Management.h"
 #include "Cpu.h"
 
 namespace Device {
@@ -44,24 +42,14 @@ Util::Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts o
 void Cpu::enableInterrupts() {
     if (cliCount.fetchAndDec() == 0) {
         asm volatile ( "sti" );
-
-        /*if(Kernel::Management::isInitialized()) {
-            Kernel::InterruptManager::getInstance().handleDisabledInterrupts();
-        }*/
     } else if (cliCount.get() < 0) {
-        Cpu::throwException(Cpu::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
+        throwException(Util::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
     }
 }
 
 void Cpu::disableInterrupts() {
     asm volatile ( "cli" );
     cliCount.fetchAndInc();
-}
-
-void Cpu::idle() {
-    asm volatile ( "sti\n"
-                   "hlt"
-    );
 }
 
 void Cpu::halt() {
@@ -71,34 +59,9 @@ void Cpu::halt() {
     __builtin_unreachable();
 }
 
-unsigned long long int Cpu::rdtsc() {
-    unsigned long long int ret;
-    asm volatile ( "rdtsc" : "=A"(ret));
-    return ret;
-}
-
-const char* Cpu::getExceptionName(Cpu::Error exception) {
-    auto slot = static_cast<uint32_t>(exception);
-
-    if (slot >= SOFTWARE_EXCEPTIONS_START) {
-        return softwareExceptions[slot - SOFTWARE_EXCEPTIONS_START];
-    }
-
-    return hardwareExceptions[slot];
-}
-
-
-const char* Cpu::getExceptionName(uint32_t exception) {
-    if (exception >= SOFTWARE_EXCEPTIONS_START) {
-        return softwareExceptions[exception - SOFTWARE_EXCEPTIONS_START];
-    }
-
-    return hardwareExceptions[exception];
-}
-
-void Cpu::throwException(Exception exception, const char *message) {
+void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
-    on_exception((uint32_t) exception);
+    on_exception((uint32_t) error);
 }
 
 void Cpu::softInterrupt(uint32_t function) {

@@ -33,7 +33,7 @@ namespace Kernel {
 class VirtualAddressSpace {
 private:
 
-// pointer to memory managers for userspace and kernelspace
+// pointer to memory managers for userspace and kernel
     MemoryManager *kernelSpaceHeapManager = nullptr;
     MemoryManager *userSpaceHeapManager = nullptr;
     // pointer to page directory
@@ -68,9 +68,9 @@ public:
     bool isInitialized() const;
 
     /**
-     * Get the memory manager for kernelspace
+     * Get the memory manager for kernel
      *
-     * @return Pointer to the kernelspace memory manager
+     * @return Pointer to the kernel memory manager
      */
     MemoryManager *getKernelSpaceHeapManager() const {
         return kernelSpaceHeapManager;

@@ -19,9 +19,9 @@
 #define __KERNEL_MEMORY_MEMORYMANAGER_H__
 
 #include <cstdint>
-#include "util/reflection/Prototype.h"
-#include "util/memory/String.h"
-#include "util/data/HashMap.h"
+#include "lib/util/reflection/Prototype.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/data/HashMap.h"
 #include "device/cpu/Cpu.h"
 
 namespace Kernel {

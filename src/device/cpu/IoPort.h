@@ -19,7 +19,7 @@
 #define __IoPort_include__
 
 #include <cstdint>
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 
 namespace Device {
 

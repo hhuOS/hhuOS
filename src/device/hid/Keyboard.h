@@ -20,8 +20,8 @@
 
 #include <kernel/interrupt/InterruptHandler.h>
 #include <device/cpu/IoPort.h>
-#include <util/stream/ByteArrayOutputStream.h>
-#include <util/stream/PipedOutputStream.h>
+#include <lib/util/stream/ByteArrayOutputStream.h>
+#include <lib/util/stream/PipedOutputStream.h>
 #include "Key.h"
 
 namespace Device {

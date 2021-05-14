@@ -18,7 +18,7 @@
 
 #include <kernel/memory/MemLayout.h>
 #include <kernel/multiboot/Structure.h>
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include <asm_interface.h>
 #include "Bios.h"
 
@@ -33,7 +33,7 @@ bool Bios::isAvailable() {
 
 void Bios::init() {
     if (!isAvailable()) {
-        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
+        Cpu::throwException(Util::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }
 
     // Address to memory segment for 16 bit code
@@ -212,7 +212,7 @@ void Bios::init() {
 
 void Bios::interrupt(int interruptNumber, const CallParameters &callParameters) {
     if (!isAvailable()) {
-        Cpu::throwException(Cpu::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }
 
     // Copy given parameters into the struct used by the 16-bit code

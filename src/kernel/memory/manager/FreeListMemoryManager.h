@@ -19,7 +19,7 @@
 #define __FREELISTMEMORYMANAGER_H__
 
 #include <cstdint>
-#include "util/async/Spinlock.h"
+#include "lib/util/async/Spinlock.h"
 #include "MemoryManager.h"
 
 namespace Kernel {

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include "kernel/memory/Paging.h"
 #include "FreeListMemoryManager.h"
 

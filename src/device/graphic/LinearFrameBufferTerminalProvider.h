@@ -18,11 +18,11 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 
-#include <util/data/Array.h>
+#include <lib/util/data/Array.h>
 #include <device/graphic/TerminalProvider.h>
 #include <device/graphic/LinearFrameBufferProvider.h>
-#include "util/graphic/Font.h"
-#include "util/graphic/Fonts.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/Fonts.h"
 
 namespace Device::Graphic {
 

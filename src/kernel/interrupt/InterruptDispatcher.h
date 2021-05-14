@@ -22,8 +22,8 @@
 #include "InterruptHandler.h"
 #include "kernel/thread/ThreadState.h"
 #include "kernel/service/KernelService.h"
-#include "util/data/ArrayList.h"
-#include "util/data/HashMap.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/HashMap.h"
 
 namespace Kernel {
 

@@ -30,4 +30,4 @@ add_subdirectory(graphic)
 add_subdirectory(hid)
 add_subdirectory(interrupt)
 
-target_link_libraries(${PROJECT_NAME} kernel util)
+target_link_libraries(${PROJECT_NAME} kernel)

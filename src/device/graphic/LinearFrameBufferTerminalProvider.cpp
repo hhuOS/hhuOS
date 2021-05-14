@@ -1,5 +1,5 @@
 #include "LinearFrameBufferTerminalProvider.h"
-#include "util/graphic/LinearFrameBufferTerminal.h"
+#include "lib/util/graphic/LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {
 

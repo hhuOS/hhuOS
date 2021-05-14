@@ -18,7 +18,7 @@
 #ifndef HHUOS_COLORGRAPHICSARRAYPROVIDER_H
 #define HHUOS_COLORGRAPHICSARRAYPROVIDER_H
 
-#include <util/memory/Address.h>
+#include <lib/util/memory/Address.h>
 #include <device/cpu/IoPort.h>
 #include "TerminalProvider.h"
 
