@@ -639,7 +639,6 @@ extern uint16_t uip_len;
  * that are defined in this file. Please read below for more
  * infomation.
  */
-extern uint8_t uip_flags;
 
 /* uip_process(flag):
  *
@@ -764,7 +763,7 @@ uint16_t uip_chksum(uint16_t *buf, uint16_t len);
  * \return The IP header checksum of the IP header in the uip_buf
  * buffer.
  */
-uint16_t uip_ipchksum(void);
+uint16_t uip_ipchksum();
 
 #endif /* __UIP_H__ */
 
