@@ -28,6 +28,4 @@ public:
 
 };
 
-}
-
 #endif //HHUOS_ETHERNETMODULE_H
