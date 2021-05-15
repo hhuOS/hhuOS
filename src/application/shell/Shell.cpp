@@ -14,6 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <application/shell/command/Ping.h>
 #include "Shell.h"
 #include "kernel/event/input/KeyEvent.h"
 #include "application/shell/command/Echo.h"
@@ -105,6 +106,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("license", new License(*this));
     commands.put("asciimate", new Asciimate(*this));
     commands.put("nettest", new NetworkTest(*this));
+    commands.put("ping", new Ping(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
