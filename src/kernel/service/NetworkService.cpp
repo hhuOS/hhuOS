@@ -1,4 +1,5 @@
 
+#include <kernel/event/network/IP4SendEvent.h>
 #include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
@@ -6,15 +7,19 @@
 namespace Kernel {
 
 NetworkService::NetworkService() {
-    System::getService<EventBus>()->subscribe(packetHandler, ReceiveEvent::TYPE);
+    auto *eventBus = System::getService<EventBus>();
+    eventBus->subscribe(packetHandler, ReceiveEvent::TYPE);
+    eventBus->subscribe(ip4Module, IP4SendEvent::TYPE);
     loopbackInterface = new Loopback();
     registerDevice(*loopbackInterface);
 }
 
 NetworkService::~NetworkService() {
+    auto *eventBus = System::getService<EventBus>();
     delete loopbackInterface;
     //TODO: Synchronisierung nötig?
-    System::getService<EventBus>()->unsubscribe(packetHandler, ReceiveEvent::TYPE);
+    eventBus->unsubscribe(packetHandler, ReceiveEvent::TYPE);
+    eventBus->unsubscribe(ip4Module, IP4SendEvent::TYPE);
 }
 
 uint32_t NetworkService::getDeviceCount() {

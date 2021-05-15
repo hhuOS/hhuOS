@@ -23,6 +23,7 @@
 #define HHUOS_NETWORKSERVICE_H
 
 #include <device/network/loopback/Loopback.h>
+#include <kernel/network/internet/IP4Module.h>
 #include "KernelService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
@@ -42,6 +43,8 @@ class NetworkService final : public KernelService {
 private:
 
     PacketHandler packetHandler;
+    IP4Module ip4Module;
+
     Loopback *loopbackInterface;
 
 public:
