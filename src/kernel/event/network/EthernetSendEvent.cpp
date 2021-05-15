@@ -10,3 +10,11 @@ Kernel::EthernetSendEvent::EthernetSendEvent(NetworkDevice *outInterface, Ethern
 String Kernel::EthernetSendEvent::getType() const {
     return TYPE;
 }
+
+NetworkDevice *Kernel::EthernetSendEvent::getOutInterface() const {
+    return outInterface;
+}
+
+EthernetFrame *Kernel::EthernetSendEvent::getEthernetFrame() const {
+    return ethernetFrame;
+}

@@ -24,6 +24,7 @@
 
 #include <device/network/loopback/Loopback.h>
 #include <kernel/network/internet/IP4Module.h>
+#include <kernel/network/ethernet/EthernetModule.h>
 #include "KernelService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
@@ -44,6 +45,7 @@ private:
 
     PacketHandler packetHandler;
     IP4Module ip4Module;
+    EthernetModule ethernetModule;
 
     Loopback *loopbackInterface;
 

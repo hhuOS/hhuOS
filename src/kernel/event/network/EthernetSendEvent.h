@@ -21,6 +21,10 @@ private:
 public:
     EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame);
 
+    NetworkDevice *getOutInterface() const;
+
+    EthernetFrame *getEthernetFrame() const;
+
     String getType() const override;
 
     static const constexpr char *TYPE = "EthernetSendEvent";
