@@ -27,13 +27,13 @@ namespace Kernel {
             auto *nextHop = matchedRoute->getNextHop();
 
 //           datagram->setSourceAddress(outInterface->getIP4Address())
-            EthernetAddress *destinationAddress = arpModule->resolveIP4(nextHop);
+            EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(nextHop);
             if(destinationAddress== nullptr){
                 log.info("No ARP entry for IPv4 address found, ARP Request has been sent");
                 return;
             }
 
-            auto *outFrame = new EthernetFrame(destinationAddress,0x0800,datagram);
+            auto *outFrame = new EthernetFrame(destinationEthernetAddress,0x0800,datagram);
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(
