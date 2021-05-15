@@ -8,16 +8,24 @@
 
 #include <kernel/event/Receiver.h>
 #include <kernel/log/Logger.h>
+#include <kernel/network/internet/routing/IP4RoutingModule.h>
 
 namespace Kernel {
 
 class IP4Module final : public Receiver {
+private:
+    IP4RoutingModule *routingModule;
+
+public:
+
     /**
      * A logger to provide information on the kernel log.
      */
     Logger &log = Logger::get("IP4Module");
 
-    /**
+    IP4Module();
+
+/**
      * Inherited method from Receiver.
      * This method is meant to be overridden and
      * implemented by this class.
