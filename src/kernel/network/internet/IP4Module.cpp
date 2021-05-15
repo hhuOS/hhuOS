@@ -20,12 +20,16 @@ namespace Kernel {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             log.info("Received IP4 Datagram to be sent");
             IP4Datagram *datagram=((IP4SendEvent &) event).getDatagram();
+            IP4Address *destinationAddress=datagram->getDestinationAddress();
 
-            IP4Route *matchedRoute=routingModule->findRouteFor(datagram->getDestinationAddress());
-//            datagram->setSourceAddress(matchedRoute->getOutInterface()->getIP4Address())
-            EthernetAddress *destinationAddress = arpModule->resolveIP4(matchedRoute->getNextHop());
+            IP4Route *matchedRoute=routingModule->findRouteFor(destinationAddress);
+            auto *outInterface = matchedRoute->getOutInterface();
+            auto *nextHop = matchedRoute->getNextHop();
+
+//           datagram->setSourceAddress(outInterface->getIP4Address())
+            EthernetAddress *destinationAddress = arpModule->resolveIP4(nextHop);
             if(destinationAddress== nullptr){
-                log.info("No ARP entry for IPv4 address, ARP Request has been sent");
+                log.info("No ARP entry for IPv4 address found, ARP Request has been sent");
                 return;
             }
 
@@ -33,7 +37,7 @@ namespace Kernel {
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(
-                            new Kernel::EthernetSendEvent(matchedRoute->getOutInterface(),outFrame)
+                            new Kernel::EthernetSendEvent(outInterface,outFrame)
                     )
             );
         }
