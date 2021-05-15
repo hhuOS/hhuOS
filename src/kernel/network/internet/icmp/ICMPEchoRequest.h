@@ -6,9 +6,9 @@
 #define HHUOS_ICMPECHOREQUEST_H
 
 #include <cinttypes>
-#include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/NetworkDataPart.h>
 
-class ICMPEchoRequest : public IP4DataPart{
+class ICMPEchoRequest : public NetworkDataPart{
 public:
     ICMPEchoRequest();
 

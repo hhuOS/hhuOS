@@ -3,7 +3,7 @@
 //
 
 #include <kernel/event/network/IP4SendEvent.h>
-#include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/NetworkDataPart.h>
 #include <kernel/network/internet/icmp/ICMPEchoRequest.h>
 #include "Ping.h"
 

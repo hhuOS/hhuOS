@@ -4,6 +4,6 @@
 
 #include "IP4Datagram.h"
 
-IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *dataPart) {
+IP4Datagram::IP4Datagram(IP4Address *destinationAddress, NetworkDataPart *dataPart) {
 
 }
