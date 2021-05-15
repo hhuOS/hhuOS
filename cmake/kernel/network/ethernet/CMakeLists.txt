@@ -15,14 +15,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMPEchoRequest.cpp
-
-        ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4RoutingModule.cpp
-
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Netmask.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Address.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
-
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetAddress.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetFrame.cpp
 )

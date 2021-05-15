@@ -19,12 +19,12 @@ void Ping::execute(Util::Array<String> &args) {
 //        return;
 //    }
 
-    IP4Address *localhost = new IP4Address(127,0,0,1);
-    ICMPEchoRequest *pingRequest = new ICMPEchoRequest();
+    auto *localhost = new IP4Address(127,0,0,1);
+    auto *pingRequest = new ICMPEchoRequest();
 
-    IP4Datagram *toBeSent = new IP4Datagram(localhost,pingRequest);
+    auto *toBeSent = new IP4Datagram(1,localhost,pingRequest);
 
-    Kernel::EventBus *eventBus = Kernel::System::getService<Kernel::EventBus>();
+    auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
     eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
                     new Kernel::IP4SendEvent(toBeSent)

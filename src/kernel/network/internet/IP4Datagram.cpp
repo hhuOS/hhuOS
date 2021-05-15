@@ -4,9 +4,14 @@
 
 #include "IP4Datagram.h"
 
-IP4Datagram::IP4Datagram(IP4Address *destinationAddress, NetworkDataPart *dataPart) {
-    this->destinationAddress=destinationAddress;
+IP4Datagram::IP4Datagram(uint8_t protocol,IP4Address *destinationAddress, NetworkDataPart *dataPart) {
+    this->protocol=protocol;
     this->dataPart=dataPart;
+    this->destinationAddress=destinationAddress;
+}
+
+uint8_t IP4Datagram::getProtocol() const {
+    return protocol;
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
@@ -31,4 +36,12 @@ void IP4Datagram::setDestinationAddress(IP4Address *destinationAddress) {
 
 void IP4Datagram::setDataPart(NetworkDataPart *dataPart) {
     IP4Datagram::dataPart = dataPart;
+}
+
+void *IP4Datagram::getData() {
+    return nullptr;
+}
+
+uint16_t IP4Datagram::getLength() {
+    return 0;
 }

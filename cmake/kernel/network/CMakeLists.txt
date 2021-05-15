@@ -17,5 +17,6 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/PacketHandler.cpp)
 
-add_subdirectory(uIP)
 add_subdirectory(internet)
+add_subdirectory(ethernet)
+add_subdirectory(arp)

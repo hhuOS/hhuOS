@@ -24,5 +24,6 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/event/input/MouseReleasedEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/ReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/IP4SendEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/EthernetSendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageAddEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageRemoveEvent.cpp)
