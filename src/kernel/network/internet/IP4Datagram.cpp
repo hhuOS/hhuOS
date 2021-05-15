@@ -4,10 +4,10 @@
 
 #include "IP4Datagram.h"
 
-IP4Datagram::IP4Datagram(uint8_t protocol,IP4Address *destinationAddress, NetworkDataPart *dataPart) {
-    this->protocol=protocol;
-    this->dataPart=dataPart;
-    this->destinationAddress=destinationAddress;
+IP4Datagram::IP4Datagram(uint8_t protocol, IP4Address *destinationAddress, NetworkDataPart *dataPart) {
+    this->protocol = protocol;
+    this->dataPart = dataPart;
+    this->destinationAddress = destinationAddress;
 }
 
 uint8_t IP4Datagram::getProtocol() const {

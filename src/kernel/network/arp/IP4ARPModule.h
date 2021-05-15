@@ -11,8 +11,10 @@
 
 class IP4ARPModule {
 private:
-    Util::HashMap<IP4Address *,EthernetAddress *> arpTable;
+    Util::HashMap<IP4Address *, EthernetAddress *> arpTable;
+
     void sendARPRequest(IP4Address *ip4Address);
+
 public:
     EthernetAddress *resolveIP4(IP4Address *ip4Address);
 };

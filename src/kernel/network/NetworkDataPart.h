@@ -10,6 +10,7 @@
 class NetworkDataPart {
 public:
     virtual void *getData() = 0;
+
     virtual uint16_t getLength() = 0;
 };
 

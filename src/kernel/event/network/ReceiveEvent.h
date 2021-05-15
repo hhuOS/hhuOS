@@ -38,42 +38,42 @@ namespace Kernel {
  * It provides all relevant information of the packet:
  * Its length and the whole packet itself.
  */
-class ReceiveEvent : public Event {
+    class ReceiveEvent : public Event {
 
-public:
-    ReceiveEvent() = default;
+    public:
+        ReceiveEvent() = default;
 
-    explicit ReceiveEvent(void *packet, uint16_t length);
+        explicit ReceiveEvent(void *packet, uint16_t length);
 
-    ReceiveEvent(const ReceiveEvent &other);
+        ReceiveEvent(const ReceiveEvent &other);
 
-    ~ReceiveEvent();
+        ~ReceiveEvent();
 
-    String getType() const override;
+        String getType() const override;
 
-    /**
-     * @return A pointer to the packet that will be dispatched.
-     */
-    void *getPacket();
+        /**
+         * @return A pointer to the packet that will be dispatched.
+         */
+        void *getPacket();
 
-    /**
-     * @return The length of the packet.
-     */
-    uint16_t getLength();
+        /**
+         * @return The length of the packet.
+         */
+        uint16_t getLength();
 
-    static const constexpr char *TYPE = "ReceiveEvent";
+        static const constexpr char *TYPE = "ReceiveEvent";
 
-private:
-    /**
-     * Stores a pointer to the packet.
-     */
-    void *packet = nullptr;
+    private:
+        /**
+         * Stores a pointer to the packet.
+         */
+        void *packet = nullptr;
 
-    /**
-     * Stores the length of the packet.
-     */
-    uint16_t length = 0;
-};
+        /**
+         * Stores the length of the packet.
+         */
+        uint16_t length = 0;
+    };
 
 }
 

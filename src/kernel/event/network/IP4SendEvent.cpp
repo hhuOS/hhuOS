@@ -4,9 +4,9 @@
 
 #include "IP4SendEvent.h"
 
-namespace Kernel{
+namespace Kernel {
 
-    IP4SendEvent::IP4SendEvent(IP4Datagram *datagram) : Event(){
+    IP4SendEvent::IP4SendEvent(IP4Datagram *datagram) : Event() {
         this->datagram = datagram;
     }
 

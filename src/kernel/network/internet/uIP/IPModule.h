@@ -337,7 +337,7 @@ void uip_setipid(uint16_t id);
  }
  \endcode
  */
-extern uint8_t uip_buf[UIP_BUFSIZE+2];
+extern uint8_t uip_buf[UIP_BUFSIZE + 2];
 
 /** @} */
 
@@ -350,7 +350,7 @@ extern uint8_t uip_buf[UIP_BUFSIZE+2];
  * These functions can be used for converting between different data
  * formats used by uIP.
  */
- 
+
 /**
  * Construct an IP address from four bytes.
  *
@@ -377,7 +377,7 @@ extern uint8_t uip_buf[UIP_BUFSIZE+2];
  *
  * \hideinitializer
  */
-#define uip_ipaddr(addr, addr0,addr1,addr2,addr3) do { \
+#define uip_ipaddr(addr, addr0, addr1, addr2, addr3) do { \
                      ((uint16_t *)(addr))[0] = HTONS(((addr0) << 8) | (addr1)); \
                      ((uint16_t *)(addr))[1] = HTONS(((addr2) << 8) | (addr3)); \
                   } while(0)
@@ -426,7 +426,7 @@ extern uint8_t uip_buf[UIP_BUFSIZE+2];
  * \hideinitializer
  */
 #define uip_ipaddr_cmp(addr1, addr2) (((uint16_t *)addr1)[0] == ((uint16_t *)addr2)[0] && \
-				      ((uint16_t *)addr1)[1] == ((uint16_t *)addr2)[1])
+                      ((uint16_t *)addr1)[1] == ((uint16_t *)addr2)[1])
 
 /**
  * Compare two IP addresses with netmasks
@@ -595,7 +595,9 @@ extern uint8_t uip_buf[UIP_BUFSIZE+2];
  * network byte order, use the HTONS() macro instead.
  */
 #ifndef htons
+
 uint16_t htons(uint16_t val);
+
 #endif /* htons */
 #ifndef ntohs
 #define ntohs htons
@@ -675,22 +677,22 @@ struct uip_tcpip_hdr {
 
 /* The ICMP and IP headers. */
 struct uip_icmpip_hdr {
-  /* IPv4 header. */
-  uint8_t vhl,
-    tos,
-    len[2],
-    ipid[2],
-    ipoffset[2],
-    ttl,
-    proto;
-  uint16_t ipchksum;
-  uint16_t srcipaddr[2],
-    destipaddr[2];
+    /* IPv4 header. */
+    uint8_t vhl,
+            tos,
+            len[2],
+            ipid[2],
+            ipoffset[2],
+            ttl,
+            proto;
+    uint16_t ipchksum;
+    uint16_t srcipaddr[2],
+            destipaddr[2];
 
-  /* ICMP (echo) header. */
-  uint8_t type, icode;
-  uint16_t icmpchksum;
-  uint16_t id, seqno;
+    /* ICMP (echo) header. */
+    uint8_t type, icode;
+    uint16_t icmpchksum;
+    uint16_t id, seqno;
 };
 
 /**
@@ -733,7 +735,7 @@ extern uip_ipaddr_t uip_hostaddr, uip_netmask, uip_draddr;
  * Representation of a 48-bit Ethernet address.
  */
 struct uip_eth_addr {
-  uint8_t addr[6];
+    uint8_t addr[6];
 };
 
 /**

@@ -8,7 +8,7 @@
 
 #include "Command.h"
 
-class Ping : public Command{
+class Ping : public Command {
 
 /**
  * Implementation of Command.

@@ -69,48 +69,48 @@ static struct uip_fw_netif *netifs = NULL;
 static struct uip_fw_netif *defaultnetif = NULL;
 
 struct tcpip_hdr {
-  /* IP header. */
-  uint8_t vhl,
-    tos;
-  uint16_t len,
-    ipid,
-    ipoffset;
-  uint8_t ttl,
-    proto;
-  uint16_t ipchksum;
-  uint16_t srcipaddr[2],
-    destipaddr[2];
-  
-  /* TCP header. */
-  uint16_t srcport,
-    destport;
-  uint8_t seqno[4],
-    ackno[4],
-    tcpoffset,
-    flags,
-    wnd[2];
-  uint16_t tcpchksum;
-  uint8_t urgp[2];
-  uint8_t optdata[4];
+    /* IP header. */
+    uint8_t vhl,
+            tos;
+    uint16_t len,
+            ipid,
+            ipoffset;
+    uint8_t ttl,
+            proto;
+    uint16_t ipchksum;
+    uint16_t srcipaddr[2],
+            destipaddr[2];
+
+    /* TCP header. */
+    uint16_t srcport,
+            destport;
+    uint8_t seqno[4],
+            ackno[4],
+            tcpoffset,
+            flags,
+            wnd[2];
+    uint16_t tcpchksum;
+    uint8_t urgp[2];
+    uint8_t optdata[4];
 };
 
 struct icmpip_hdr {
-  /* IP header. */
-  uint8_t vhl,
-    tos,
-    len[2],
-    ipid[2],
-    ipoffset[2],
-    ttl,
-    proto;
-  uint16_t ipchksum;
-  uint16_t srcipaddr[2],
-    destipaddr[2];
-  /* ICMP (echo) header. */
-  uint8_t type, icode;
-  uint16_t icmpchksum;
-  uint16_t id, seqno;
-  uint8_t payload[1];
+    /* IP header. */
+    uint8_t vhl,
+            tos,
+            len[2],
+            ipid[2],
+            ipoffset[2],
+            ttl,
+            proto;
+    uint16_t ipchksum;
+    uint16_t srcipaddr[2],
+            destipaddr[2];
+    /* ICMP (echo) header. */
+    uint8_t type, icode;
+    uint16_t icmpchksum;
+    uint16_t id, seqno;
+    uint8_t payload[1];
 };
 
 /* ICMP ECHO. */
@@ -134,19 +134,19 @@ struct icmpip_hdr {
  * duplicate packets.
  */
 struct fwcache_entry {
-  uint16_t timer;
-  
-  uint16_t srcipaddr[2];
-  uint16_t destipaddr[2];
-  uint16_t ipid;
-  uint8_t proto;
-  uint8_t unused;
+    uint16_t timer;
+
+    uint16_t srcipaddr[2];
+    uint16_t destipaddr[2];
+    uint16_t ipid;
+    uint8_t proto;
+    uint8_t unused;
 
 #if notdef
-  uint16_t payload[2];
+    uint16_t payload[2];
 #endif
 
-  uint16_t len, offset;
+    uint16_t len, offset;
 };
 
 /*
@@ -177,15 +177,14 @@ static struct fwcache_entry fwcache[FWCACHE_SIZE];
  */
 /*------------------------------------------------------------------------------*/
 void
-uip_fw_init(void)
-{
-  struct uip_fw_netif *t;
-  defaultnetif = NULL;
-  while(netifs != NULL) {
-    t = netifs;
-    netifs = netifs->next;
-    t->next = NULL;
-  }
+uip_fw_init(void) {
+    struct uip_fw_netif *t;
+    defaultnetif = NULL;
+    while (netifs != NULL) {
+        t = netifs;
+        netifs = netifs->next;
+        t->next = NULL;
+    }
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -201,10 +200,9 @@ uip_fw_init(void)
  */
 /*------------------------------------------------------------------------------*/
 static unsigned char
-ipaddr_maskcmp(uint16_t *ipaddr, uint16_t *netipaddr, uint16_t *netmask)
-{
-  return (ipaddr[0] & netmask [0]) == (netipaddr[0] & netmask[0]) &&
-    (ipaddr[1] & netmask[1]) == (netipaddr[1] & netmask[1]);
+ipaddr_maskcmp(uint16_t *ipaddr, uint16_t *netipaddr, uint16_t *netmask) {
+    return (ipaddr[0] & netmask[0]) == (netipaddr[0] & netmask[0]) &&
+           (ipaddr[1] & netmask[1]) == (netipaddr[1] & netmask[1]);
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -216,55 +214,54 @@ ipaddr_maskcmp(uint16_t *ipaddr, uint16_t *netipaddr, uint16_t *netmask)
  */
 /*------------------------------------------------------------------------------*/
 static void
-time_exceeded(void)
-{
-  uint16_t tmp16;
+time_exceeded(void) {
+    uint16_t tmp16;
 
-  /* We don't send out ICMP errors for ICMP messages. */
-  if(ICMPBUF->proto == UIP_PROTO_ICMP) {
-    uip_len = 0;
-    return;
-  }
-  /* Copy fields from packet header into payload of this ICMP packet. */
-  memcpy(&(ICMPBUF->payload[0]), ICMPBUF, 28);
+    /* We don't send out ICMP errors for ICMP messages. */
+    if (ICMPBUF->proto == UIP_PROTO_ICMP) {
+        uip_len = 0;
+        return;
+    }
+    /* Copy fields from packet header into payload of this ICMP packet. */
+    memcpy(&(ICMPBUF->payload[0]), ICMPBUF, 28);
 
-  /* Set the ICMP type and code. */
-  ICMPBUF->type = ICMP_TE;
-  ICMPBUF->icode = 0;
+    /* Set the ICMP type and code. */
+    ICMPBUF->type = ICMP_TE;
+    ICMPBUF->icode = 0;
 
-  /* Calculate the ICMP checksum. */
-  ICMPBUF->icmpchksum = 0;
-  ICMPBUF->icmpchksum = ~uip_chksum((uint16_t *)&(ICMPBUF->type), 36);
+    /* Calculate the ICMP checksum. */
+    ICMPBUF->icmpchksum = 0;
+    ICMPBUF->icmpchksum = ~uip_chksum((uint16_t *) &(ICMPBUF->type), 36);
 
-  /* Set the IP destination address to be the source address of the
-     original packet. */
-  tmp16= BUF->destipaddr[0];
-  BUF->destipaddr[0] = BUF->srcipaddr[0];
-  BUF->srcipaddr[0] = tmp16;
-  tmp16 = BUF->destipaddr[1];
-  BUF->destipaddr[1] = BUF->srcipaddr[1];
-  BUF->srcipaddr[1] = tmp16;
+    /* Set the IP destination address to be the source address of the
+       original packet. */
+    tmp16 = BUF->destipaddr[0];
+    BUF->destipaddr[0] = BUF->srcipaddr[0];
+    BUF->srcipaddr[0] = tmp16;
+    tmp16 = BUF->destipaddr[1];
+    BUF->destipaddr[1] = BUF->srcipaddr[1];
+    BUF->srcipaddr[1] = tmp16;
 
-  /* Set our IP address as the source address. */
-  BUF->srcipaddr[0] = uip_hostaddr[0];
-  BUF->srcipaddr[1] = uip_hostaddr[1];
+    /* Set our IP address as the source address. */
+    BUF->srcipaddr[0] = uip_hostaddr[0];
+    BUF->srcipaddr[1] = uip_hostaddr[1];
 
-  /* The size of the ICMP time exceeded packet is 36 + the size of the
-     IP header (20) = 56. */
-  uip_len = 56;
-  ICMPBUF->len[0] = 0;
-  ICMPBUF->len[1] = uip_len;
+    /* The size of the ICMP time exceeded packet is 36 + the size of the
+       IP header (20) = 56. */
+    uip_len = 56;
+    ICMPBUF->len[0] = 0;
+    ICMPBUF->len[1] = uip_len;
 
-  /* Fill in the other fields in the IP header. */
-  ICMPBUF->vhl = 0x45;
-  ICMPBUF->tos = 0;
-  ICMPBUF->ipoffset[0] = ICMPBUF->ipoffset[1] = 0;
-  ICMPBUF->ttl  = UIP_TTL;
-  ICMPBUF->proto = UIP_PROTO_ICMP;
-  
-  /* Calculate IP checksum. */
-  ICMPBUF->ipchksum = 0;
-  ICMPBUF->ipchksum = ~(uip_ipchksum());
+    /* Fill in the other fields in the IP header. */
+    ICMPBUF->vhl = 0x45;
+    ICMPBUF->tos = 0;
+    ICMPBUF->ipoffset[0] = ICMPBUF->ipoffset[1] = 0;
+    ICMPBUF->ttl = UIP_TTL;
+    ICMPBUF->proto = UIP_PROTO_ICMP;
+
+    /* Calculate IP checksum. */
+    ICMPBUF->ipchksum = 0;
+    ICMPBUF->ipchksum = ~(uip_ipchksum());
 
 
 }
@@ -276,38 +273,37 @@ time_exceeded(void)
  */
 /*------------------------------------------------------------------------------*/
 static void
-fwcache_register(void)
-{
-  struct fwcache_entry *fw;
-  int i, oldest;
+fwcache_register(void) {
+    struct fwcache_entry *fw;
+    int i, oldest;
 
-  oldest = FW_TIME;
-  fw = NULL;
-  
-  /* Find the oldest entry in the cache. */
-  for(i = 0; i < FWCACHE_SIZE; ++i) {
-    if(fwcache[i].timer == 0) {
-      fw = &fwcache[i];
-      break;
-    } else if(fwcache[i].timer <= oldest) {
-      fw = &fwcache[i];
-      oldest = fwcache[i].timer;
+    oldest = FW_TIME;
+    fw = NULL;
+
+    /* Find the oldest entry in the cache. */
+    for (i = 0; i < FWCACHE_SIZE; ++i) {
+        if (fwcache[i].timer == 0) {
+            fw = &fwcache[i];
+            break;
+        } else if (fwcache[i].timer <= oldest) {
+            fw = &fwcache[i];
+            oldest = fwcache[i].timer;
+        }
     }
-  }
 
-  fw->timer = FW_TIME;
-  fw->ipid = BUF->ipid;
-  fw->srcipaddr[0] = BUF->srcipaddr[0];
-  fw->srcipaddr[1] = BUF->srcipaddr[1];
-  fw->destipaddr[0] = BUF->destipaddr[0];
-  fw->destipaddr[1] = BUF->destipaddr[1];
-  fw->proto = BUF->proto;
+    fw->timer = FW_TIME;
+    fw->ipid = BUF->ipid;
+    fw->srcipaddr[0] = BUF->srcipaddr[0];
+    fw->srcipaddr[1] = BUF->srcipaddr[1];
+    fw->destipaddr[0] = BUF->destipaddr[0];
+    fw->destipaddr[1] = BUF->destipaddr[1];
+    fw->proto = BUF->proto;
 #if notdef
-  fw->payload[0] = BUF->srcport;
-  fw->payload[1] = BUF->destport;
+    fw->payload[0] = BUF->srcport;
+    fw->payload[1] = BUF->destport;
 #endif
-  fw->len = BUF->len;
-  fw->offset = BUF->ipoffset;
+    fw->len = BUF->len;
+    fw->offset = BUF->ipoffset;
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -316,21 +312,20 @@ fwcache_register(void)
  */
 /*------------------------------------------------------------------------------*/
 static struct uip_fw_netif *
-find_netif(void)
-{
-  struct uip_fw_netif *netif;
-  
-  /* Walk through every network interface to check for a match. */
-  for(netif = netifs; netif != NULL; netif = netif->next) {
-    if(ipaddr_maskcmp(BUF->destipaddr, netif->ipaddr,
-		      netif->netmask)) {
-      /* If there was a match, we break the loop. */
-      return netif;
+find_netif(void) {
+    struct uip_fw_netif *netif;
+
+    /* Walk through every network interface to check for a match. */
+    for (netif = netifs; netif != NULL; netif = netif->next) {
+        if (ipaddr_maskcmp(BUF->destipaddr, netif->ipaddr,
+                           netif->netmask)) {
+            /* If there was a match, we break the loop. */
+            return netif;
+        }
     }
-  }
-  
-  /* If no matching netif was found, we use default netif. */
-  return defaultnetif;
+
+    /* If no matching netif was found, we use default netif. */
+    return defaultnetif;
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -350,27 +345,26 @@ find_netif(void)
  */
 /*------------------------------------------------------------------------------*/
 uint8_t
-uip_fw_output(void)
-{
-  struct uip_fw_netif *netif;
+uip_fw_output(void) {
+    struct uip_fw_netif *netif;
 
-  if(uip_len == 0) {
-    return UIP_FW_ZEROLEN;
-  }
+    if (uip_len == 0) {
+        return UIP_FW_ZEROLEN;
+    }
 
-  fwcache_register();
-  
-  netif = find_netif();
-  /*  printf("uip_fw_output: netif %p ->output %p len %d\n", netif,
-	 netif->output,
-	 uip_len);*/
+    fwcache_register();
 
-  if(netif == NULL) {
-    return UIP_FW_NOROUTE;
-  }
-  /* If we now have found a suitable network interface, we call its
-     output function to send out the packet. */
-  return netif->output();
+    netif = find_netif();
+    /*  printf("uip_fw_output: netif %p ->output %p len %d\n", netif,
+       netif->output,
+       uip_len);*/
+
+    if (netif == NULL) {
+        return UIP_FW_NOROUTE;
+    }
+    /* If we now have found a suitable network interface, we call its
+       output function to send out the packet. */
+    return netif->output();
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -383,68 +377,67 @@ uip_fw_output(void)
  */
 /*------------------------------------------------------------------------------*/
 uint8_t
-uip_fw_forward(void)
-{
-  struct fwcache_entry *fw;
+uip_fw_forward(void) {
+    struct fwcache_entry *fw;
 
-  /* First check if the packet is destined for ourselves and return 0
-     to indicate that the packet should be processed locally. */
-  if(BUF->destipaddr[0] == uip_hostaddr[0] &&
-     BUF->destipaddr[1] == uip_hostaddr[1]) {
-    return UIP_FW_LOCAL;
-  }
+    /* First check if the packet is destined for ourselves and return 0
+       to indicate that the packet should be processed locally. */
+    if (BUF->destipaddr[0] == uip_hostaddr[0] &&
+        BUF->destipaddr[1] == uip_hostaddr[1]) {
+        return UIP_FW_LOCAL;
+    }
 
-  /* Check if the packet is in the forwarding cache already, and if so
-     we drop it. */
+    /* Check if the packet is in the forwarding cache already, and if so
+       we drop it. */
 
-  for(fw = fwcache; fw < &fwcache[FWCACHE_SIZE]; ++fw) {
-    if(fw->timer != 0 &&
-       fw->len == BUF->len &&
-       fw->offset == BUF->ipoffset &&
-       fw->ipid == BUF->ipid &&
-       fw->srcipaddr[0] == BUF->srcipaddr[0] &&
-       fw->srcipaddr[1] == BUF->srcipaddr[1] &&
-       fw->destipaddr[0] == BUF->destipaddr[0] &&
-       fw->destipaddr[1] == BUF->destipaddr[1] &&
-#if notdef
-       fw->payload[0] == BUF->srcport &&
+    for (fw = fwcache; fw < &fwcache[FWCACHE_SIZE]; ++fw) {
+        if (fw->timer != 0 &&
+            fw->len == BUF->len &&
+            fw->offset == BUF->ipoffset &&
+            fw->ipid == BUF->ipid &&
+            fw->srcipaddr[0] == BUF->srcipaddr[0] &&
+            fw->srcipaddr[1] == BUF->srcipaddr[1] &&
+            fw->destipaddr[0] == BUF->destipaddr[0] &&
+            fw->destipaddr[1] == BUF->destipaddr[1] &&
+            #if notdef
+            fw->payload[0] == BUF->srcport &&
        fw->payload[1] == BUF->destport &&
-#endif
-       fw->proto == BUF->proto) {
-      /* Drop packet. */
-      return UIP_FW_FORWARDED;
+            #endif
+            fw->proto == BUF->proto) {
+            /* Drop packet. */
+            return UIP_FW_FORWARDED;
+        }
     }
-  }
 
-  /* If the TTL reaches zero we produce an ICMP time exceeded message
-     in the uip_buf buffer and forward that packet back to the sender
-     of the packet. */
-  if(BUF->ttl <= 1) {
-    /* No time exceeded for broadcasts and multicasts! */
-    if(BUF->destipaddr[0] == 0xffff && BUF->destipaddr[1] == 0xffff) {
-      return UIP_FW_LOCAL;
+    /* If the TTL reaches zero we produce an ICMP time exceeded message
+       in the uip_buf buffer and forward that packet back to the sender
+       of the packet. */
+    if (BUF->ttl <= 1) {
+        /* No time exceeded for broadcasts and multicasts! */
+        if (BUF->destipaddr[0] == 0xffff && BUF->destipaddr[1] == 0xffff) {
+            return UIP_FW_LOCAL;
+        }
+        time_exceeded();
     }
-    time_exceeded();
-  }
-  
-  /* Decrement the TTL (time-to-live) value in the IP header */
-  BUF->ttl = BUF->ttl - 1;
-  
-  /* Update the IP checksum. */
-  if(BUF->ipchksum >= HTONS(0xffff - 0x0100)) {
-    BUF->ipchksum = BUF->ipchksum + HTONS(0x0100) + 1;
-  } else {
-    BUF->ipchksum = BUF->ipchksum + HTONS(0x0100);
-  }
 
-  if(uip_len > 0) {
+    /* Decrement the TTL (time-to-live) value in the IP header */
+    BUF->ttl = BUF->ttl - 1;
+
+    /* Update the IP checksum. */
+    if (BUF->ipchksum >= HTONS(0xffff - 0x0100)) {
+        BUF->ipchksum = BUF->ipchksum + HTONS(0x0100) + 1;
+    } else {
+        BUF->ipchksum = BUF->ipchksum + HTONS(0x0100);
+    }
+
+    if (uip_len > 0) {
 //    uip_appdata = &uip_buf[UIP_LLH_LEN + UIP_TCPIP_HLEN];
-    uip_fw_output();
-  }
+        uip_fw_output();
+    }
 
-  /* Return non-zero to indicate that the packet was forwarded and that no
-     other processing should be made. */
-  return UIP_FW_FORWARDED;
+    /* Return non-zero to indicate that the packet was forwarded and that no
+       other processing should be made. */
+    return UIP_FW_FORWARDED;
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -455,10 +448,9 @@ uip_fw_forward(void)
  */
 /*------------------------------------------------------------------------------*/
 void
-uip_fw_register(struct uip_fw_netif *netif)
-{
-  netif->next = netifs;
-  netifs = netif;
+uip_fw_register(struct uip_fw_netif *netif) {
+    netif->next = netifs;
+    netifs = netif;
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -472,9 +464,8 @@ uip_fw_register(struct uip_fw_netif *netif)
  */
 /*------------------------------------------------------------------------------*/
 void
-uip_fw_default(struct uip_fw_netif *netif)
-{
-  defaultnetif = netif;
+uip_fw_default(struct uip_fw_netif *netif) {
+    defaultnetif = netif;
 }
 /*------------------------------------------------------------------------------*/
 /**
@@ -482,13 +473,12 @@ uip_fw_default(struct uip_fw_netif *netif)
  */
 /*------------------------------------------------------------------------------*/
 void
-uip_fw_periodic(void)
-{
-  struct fwcache_entry *fw;
-  for(fw = fwcache; fw < &fwcache[FWCACHE_SIZE]; ++fw) {
-    if(fw->timer > 0) {
-      --fw->timer;
+uip_fw_periodic(void) {
+    struct fwcache_entry *fw;
+    for (fw = fwcache; fw < &fwcache[FWCACHE_SIZE]; ++fw) {
+        if (fw->timer > 0) {
+            --fw->timer;
+        }
     }
-  }
 }
 /*------------------------------------------------------------------------------*/

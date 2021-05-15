@@ -6,11 +6,11 @@
 #include "EthernetModule.h"
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
-    if((event.getType()==EthernetSendEvent::TYPE)){
-        auto sendEvent=((EthernetSendEvent &) event);
-        NetworkDevice *outInterface=sendEvent.getOutInterface();
-        EthernetFrame *outFrame=sendEvent.getEthernetFrame();
+    if ((event.getType() == EthernetSendEvent::TYPE)) {
+        auto sendEvent = ((EthernetSendEvent &) event);
+        NetworkDevice *outInterface = sendEvent.getOutInterface();
+        EthernetFrame *outFrame = sendEvent.getEthernetFrame();
 
-        outInterface->sendPacket(outFrame->getDataAsByteBlock(),outFrame->getLength());
+        outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLength());
     }
 }

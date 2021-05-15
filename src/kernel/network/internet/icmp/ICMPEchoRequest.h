@@ -8,11 +8,12 @@
 #include <cinttypes>
 #include <kernel/network/NetworkDataPart.h>
 
-class ICMPEchoRequest : public NetworkDataPart{
+class ICMPEchoRequest : public NetworkDataPart {
 public:
     ICMPEchoRequest();
 
     void *getData() override;
+
     uint16_t getLength() override;
 };
 

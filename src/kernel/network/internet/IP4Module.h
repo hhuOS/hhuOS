@@ -13,27 +13,27 @@
 
 namespace Kernel {
 
-class IP4Module final : public Receiver {
-private:
-    IP4RoutingModule *routingModule;
-    IP4ARPModule *arpModule;
+    class IP4Module final : public Receiver {
+    private:
+        IP4RoutingModule *routingModule;
+        IP4ARPModule *arpModule;
 
-public:
+    public:
 
-    /**
-     * A logger to provide information on the kernel log.
-     */
-    Logger &log = Logger::get("IP4Module");
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("IP4Module");
 
-    IP4Module();
+        IP4Module();
 
 /**
      * Inherited method from Receiver.
      * This method is meant to be overridden and
      * implemented by this class.
      */
-    void onEvent(const Event &event) override;
-};
+        void onEvent(const Event &event) override;
+    };
 
 }
 

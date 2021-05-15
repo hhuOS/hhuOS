@@ -11,19 +11,19 @@
 
 namespace Kernel {
 
-class IP4SendEvent : public Event {
-private:
-    IP4Datagram *datagram;
+    class IP4SendEvent : public Event {
+    private:
+        IP4Datagram *datagram;
 
-public:
-    IP4SendEvent(IP4Datagram *datagram);
+    public:
+        IP4SendEvent(IP4Datagram *datagram);
 
-    IP4Datagram *getDatagram();
+        IP4Datagram *getDatagram();
 
-    String getType() const override;
+        String getType() const override;
 
-    static const constexpr char *TYPE = "IP4SendEvent";
-};
+        static const constexpr char *TYPE = "IP4SendEvent";
+    };
 
 }
 

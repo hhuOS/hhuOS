@@ -36,19 +36,19 @@ namespace Kernel {
  * dispatch them to other classes by sending other kinds of events rather
  * then a ReceiveEvent.
  */
-class PacketHandler final : public Receiver {
-    /**
-     * A logger to provide information on the kernel log.
-     */
-    Logger &log = Logger::get("PacketHandler");
+    class PacketHandler final : public Receiver {
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("PacketHandler");
 
-    /**
-     * Inherited method from Receiver.
-     * This method is meant to be overridden and
-     * implemented by this class.
-     */
-    void onEvent(const Event &event) override;
-};
+        /**
+         * Inherited method from Receiver.
+         * This method is meant to be overridden and
+         * implemented by this class.
+         */
+        void onEvent(const Event &event) override;
+    };
 
 }
 

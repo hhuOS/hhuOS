@@ -12,7 +12,7 @@ private:
     uint8_t address[4];
 
 public:
-    IP4Address(uint8_t first,uint8_t second,uint8_t third,uint8_t fourth);
+    IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
 };
 
 

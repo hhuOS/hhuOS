@@ -9,7 +9,7 @@
 #include "IP4Address.h"
 #include "kernel/network/NetworkDataPart.h"
 
-class IP4Datagram : public NetworkDataPart{
+class IP4Datagram : public NetworkDataPart {
 private:
     uint8_t protocol;
     IP4Address *sourceAddress;

@@ -13,22 +13,22 @@
 
 namespace Kernel {
 
-class EthernetSendEvent : public Event{
-private:
-    NetworkDevice *outInterface;
-    EthernetFrame *ethernetFrame;
+    class EthernetSendEvent : public Event {
+    private:
+        NetworkDevice *outInterface;
+        EthernetFrame *ethernetFrame;
 
-public:
-    EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame);
+    public:
+        EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame);
 
-    NetworkDevice *getOutInterface() const;
+        NetworkDevice *getOutInterface() const;
 
-    EthernetFrame *getEthernetFrame() const;
+        EthernetFrame *getEthernetFrame() const;
 
-    String getType() const override;
+        String getType() const override;
 
-    static const constexpr char *TYPE = "EthernetSendEvent";
-};
+        static const constexpr char *TYPE = "EthernetSendEvent";
+    };
 
 }
 
