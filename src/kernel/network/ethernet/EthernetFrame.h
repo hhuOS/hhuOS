@@ -18,6 +18,8 @@ private:
 public:
     EthernetFrame(EthernetAddress *destinationAddress, uint16_t protocolType, NetworkDataPart *dataPart);
 
+    EthernetFrame(void *packet, uint16_t length);
+
     void *getDataAsByteBlock();
 
     uint16_t getLength();

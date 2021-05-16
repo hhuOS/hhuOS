@@ -14,3 +14,7 @@ void *EthernetFrame::getDataAsByteBlock() {
 uint16_t EthernetFrame::getLength() {
     return 0;
 }
+
+EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
+
+}

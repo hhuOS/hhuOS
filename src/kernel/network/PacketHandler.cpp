@@ -19,6 +19,10 @@
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
+#include <kernel/network/ethernet/EthernetFrame.h>
+#include <kernel/core/System.h>
+#include <kernel/service/EventBus.h>
+#include <kernel/event/network/EthernetReceiveEvent.h>
 #include "PacketHandler.h"
 
 namespace Kernel {
@@ -26,10 +30,13 @@ namespace Kernel {
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             auto &receiveEvent = (ReceiveEvent &) event;
-            auto *packet = static_cast<uint8_t *>(receiveEvent.getPacket());
-
-            log.info("Received network packet! Length: %u, First six bytes: %02x-%02x-%02x-%02x-%02x-%02x",
-                     receiveEvent.getLength(), packet[0], packet[1], packet[2], packet[3], packet[4], packet[5]);
+            auto *inFrame = new EthernetFrame(receiveEvent.getPacket(),receiveEvent.getLength());
+            auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
+            eventBus->publish(
+                    Util::SmartPointer<Kernel::Event>(
+                            new Kernel::EthernetReceiveEvent(inFrame)
+                    )
+            );
         }
     }
 
