@@ -9,14 +9,15 @@
 #include <kernel/event/Receiver.h>
 #include <kernel/log/Logger.h>
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
-#include <kernel/network/arp/IP4ARPModule.h>
+#include <kernel/network/internet/arp/ARPModule.h>
 
 namespace Kernel {
 
     class IP4Module final : public Receiver {
     private:
+        Kernel::EventBus *eventBus;
         IP4RoutingModule *routingModule;
-        IP4ARPModule *arpModule;
+        ARPModule *arpModule;
 
     public:
 

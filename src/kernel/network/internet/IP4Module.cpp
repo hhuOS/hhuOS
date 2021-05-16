@@ -8,12 +8,13 @@
 #include <kernel/core/System.h>
 #include <kernel/service/EventBus.h>
 #include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/network/arp/ARPRequest.h>
+#include <kernel/network/internet/arp/ARPRequest.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
+    this->eventBus=Kernel::System::getService<Kernel::EventBus>();
     this->routingModule = new IP4RoutingModule();
-    this->arpModule = new IP4ARPModule();
+    this->arpModule = new ARPModule();
 }
 
 namespace Kernel {
@@ -39,7 +40,6 @@ namespace Kernel {
                 auto *arpRequest= new ARPRequest(nextHopAddress);
                 auto *outFrame = new EthernetFrame(destinationEthernetAddress, arpRequest);
                 //TODO: Implement data structure for waiting IP4Datagrams
-                auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::EthernetSendEvent(outInterface, outFrame)
@@ -49,7 +49,6 @@ namespace Kernel {
             }
 
             auto *outFrame = new EthernetFrame(destinationEthernetAddress, datagram);
-            auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(
                             new Kernel::EthernetSendEvent(outInterface, outFrame)
