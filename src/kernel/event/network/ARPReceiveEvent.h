@@ -6,8 +6,8 @@
 #define HHUOS_ARPRECEIVEEVENT_H
 
 
-#include <kernel/network/arp/ARPResponse.h>
 #include <kernel/event/Event.h>
+#include <kernel/network/internet/arp/ARPResponse.h>
 
 namespace Kernel {
 

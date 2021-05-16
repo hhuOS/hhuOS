@@ -11,10 +11,16 @@
 
 class ARPModule {
 private:
-    Util::HashMap<IP4Address *, EthernetAddress *> arpTable;
+    Util::HashMap<IP4Address *, EthernetAddress *> *arpTable;
 
 public:
+    ARPModule();
+
+    virtual ~ARPModule();
+
     EthernetAddress *resolveIP4(IP4Address *ip4Address);
+
+    void addEntry(IP4Address *ip4Address,EthernetAddress *ethernetAddress);
 };
 
 

@@ -9,6 +9,7 @@
 #include <kernel/service/EventBus.h>
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/network/internet/arp/ARPRequest.h>
+#include <kernel/event/network/ARPReceiveEvent.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -54,6 +55,12 @@ namespace Kernel {
                             new Kernel::EthernetSendEvent(outInterface, outFrame)
                     )
             );
+            return;
+        }
+        if(event.getType()==ARPReceiveEvent::TYPE){
+            auto *arpResponse=((ARPReceiveEvent &)event).getArpResponse();
+            arpModule->addEntry(arpResponse->getIp4Address(),arpResponse->getEthernetAddress());
+            //TODO: Add check for waiting IP4Datagrams and send them again
             return;
         }
     }

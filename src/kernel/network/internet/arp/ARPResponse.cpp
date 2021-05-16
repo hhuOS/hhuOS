@@ -9,3 +9,11 @@ ARPResponse::ARPResponse(EthernetDataPart *dataPart) {
     this->ethernetAddress= nullptr;
     this->ip4Address= nullptr;
 }
+
+IP4Address *ARPResponse::getIp4Address() const {
+    return ip4Address;
+}
+
+EthernetAddress *ARPResponse::getEthernetAddress() const {
+    return ethernetAddress;
+}

@@ -17,6 +17,10 @@ private:
 
 public:
     ARPResponse(EthernetDataPart *dataPart);
+
+    IP4Address *getIp4Address() const;
+
+    EthernetAddress *getEthernetAddress() const;
 };
 
 
