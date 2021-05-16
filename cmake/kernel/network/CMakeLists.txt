@@ -19,4 +19,3 @@ target_sources(kernel PUBLIC
 
 add_subdirectory(internet)
 add_subdirectory(ethernet)
-add_subdirectory(arp)
