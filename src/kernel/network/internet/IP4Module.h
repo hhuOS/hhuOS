@@ -20,12 +20,16 @@ namespace Kernel {
 
     public:
 
+        IP4Module();
+
+        ~IP4Module() override;
+
         /**
          * A logger to provide information on the kernel log.
          */
         Logger &log = Logger::get("IP4Module");
 
-        IP4Module();
+
 
 /**
      * Inherited method from Receiver.
@@ -33,6 +37,7 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
+
     };
 
 }

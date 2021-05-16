@@ -17,6 +17,11 @@ Kernel::IP4Module::IP4Module() {
 }
 
 namespace Kernel {
+    IP4Module::~IP4Module() {
+        delete routingModule;
+        delete arpModule;
+    }
+
     void Kernel::IP4Module::onEvent(const Kernel::Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             log.info("Received IP4 Datagram to be sent");

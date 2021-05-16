@@ -44,9 +44,9 @@ class NetworkService final : public KernelService {
 private:
 
     PacketHandler packetHandler;
-    IP4Module ip4Module;
-    EthernetModule ethernetModule;
 
+    IP4Module* ip4Module;
+    EthernetModule* ethernetModule;
     Loopback *loopbackInterface;
 
 public:
