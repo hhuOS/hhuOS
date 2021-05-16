@@ -8,6 +8,7 @@
 #include <kernel/core/System.h>
 #include <kernel/service/EventBus.h>
 #include <kernel/event/network/EthernetSendEvent.h>
+#include <kernel/network/arp/ARPRequest.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -24,12 +25,21 @@ namespace Kernel {
 
             IP4Route *matchedRoute = routingModule->findRouteFor(destinationAddress);
             auto *outInterface = matchedRoute->getOutInterface();
-            auto *nextHop = matchedRoute->getNextHop();
+            auto *nextHopAddress = matchedRoute->getNextHopAddress();
 
 //           datagram->setSourceAddress(outInterface->getIP4Address())
-            EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(nextHop);
+            EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(nextHopAddress);
             if (destinationAddress == nullptr) {
-                log.info("No ARP entry for IPv4 address found, ARP Request has been sent");
+                log.info("No ARP entry for IPv4 address found, sending ARP Request");
+                auto *arpRequest= new ARPRequest(nextHopAddress);
+                auto *outFrame = new EthernetFrame(destinationEthernetAddress, EthernetFrame::ETHERTYPE_ARP, arpRequest);
+                //TODO: Implement data structure for waiting IP4Datagrams
+                auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
+                eventBus->publish(
+                        Util::SmartPointer<Kernel::Event>(
+                                new Kernel::EthernetSendEvent(outInterface, outFrame)
+                        )
+                );
                 return;
             }
 

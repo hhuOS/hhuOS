@@ -8,6 +8,8 @@
 #include <kernel/service/EventBus.h>
 #include <kernel/network/internet/IP4Datagram.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
+#include <kernel/network/arp/ARPResponse.h>
+#include <kernel/event/network/ARPReceiveEvent.h>
 #include "EthernetModule.h"
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
@@ -29,6 +31,15 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(
                             new Kernel::IP4ReceiveEvent(inDatagram)
+                    )
+            );
+            return;
+        }
+        if(inFrame->getProtocolType() == EthernetFrame::ETHERTYPE_ARP){
+            auto *inARPResponse = new ARPResponse(inFrame->getDataPart());
+            eventBus->publish(
+                    Util::SmartPointer<Kernel::Event>(
+                            new Kernel::ARPReceiveEvent(inARPResponse)
                     )
             );
             return;

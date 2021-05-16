@@ -15,7 +15,7 @@ class IP4Route {
 private:
     IP4Address *netAddress;
     IP4Netmask *netMask;
-    IP4Address *nextHop;
+    IP4Address *nextHopAddress;
     NetworkDevice *outInterface;
 
 public:
@@ -25,7 +25,7 @@ public:
 
     IP4Netmask *getNetMask() const;
 
-    IP4Address *getNextHop() const;
+    IP4Address *getNextHopAddress() const;
 
     NetworkDevice *getOutInterface() const;
 };
