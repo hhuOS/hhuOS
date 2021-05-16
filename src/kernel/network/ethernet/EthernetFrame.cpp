@@ -18,3 +18,19 @@ uint16_t EthernetFrame::getLength() {
 EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 
 }
+
+EthernetAddress *EthernetFrame::getDestinationAddress() const {
+    return destinationAddress;
+}
+
+EthernetAddress *EthernetFrame::getSourceAddress() const {
+    return sourceAddress;
+}
+
+uint16_t EthernetFrame::getProtocolType() const {
+    return protocolType;
+}
+
+NetworkDataPart *EthernetFrame::getDataPart() const {
+    return dataPart;
+}

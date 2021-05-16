@@ -33,7 +33,7 @@ namespace Kernel {
                 return;
             }
 
-            auto *outFrame = new EthernetFrame(destinationEthernetAddress, 0x0800, datagram);
+            auto *outFrame = new EthernetFrame(destinationEthernetAddress, EthernetFrame::ETHERTYPE_IP4, datagram);
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(
