@@ -19,6 +19,8 @@ public:
     void *getData() override;
 
     uint16_t getLength() override;
+
+    uint16_t getEtherType();
 };
 
 

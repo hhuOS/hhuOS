@@ -13,10 +13,10 @@ class EthernetFrame {
 private:
     EthernetAddress *destinationAddress;
     EthernetAddress *sourceAddress;
-    uint16_t protocolType;
+    uint16_t etherType;
     NetworkDataPart *dataPart;
 public:
-    EthernetFrame(EthernetAddress *destinationAddress, uint16_t protocolType, NetworkDataPart *dataPart);
+    EthernetFrame(EthernetAddress *destinationAddress, uint16_t etherType, NetworkDataPart *dataPart);
 
     EthernetFrame(void *packet, uint16_t length);
 

@@ -38,7 +38,7 @@ public:
 
     uint16_t getLength() override;
 
-    uint8_t getAProtocol() const;
+    uint16_t getEtherType();
 };
 
 

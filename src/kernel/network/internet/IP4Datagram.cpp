@@ -2,6 +2,7 @@
 // Created by hannes on 14.05.21.
 //
 
+#include <kernel/network/ethernet/EthernetFrame.h>
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(uint8_t protocol, IP4Address *destinationAddress, NetworkDataPart *dataPart) {
@@ -48,4 +49,8 @@ uint16_t IP4Datagram::getLength() {
 
 IP4Datagram::IP4Datagram(NetworkDataPart *dataPart) {
 
+}
+
+uint16_t IP4Datagram::getEtherType() {
+    return EthernetFrame::ETHERTYPE_IP4;
 }
