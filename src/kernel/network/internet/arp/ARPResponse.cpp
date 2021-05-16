@@ -6,8 +6,8 @@
 
 ARPResponse::ARPResponse(EthernetDataPart *dataPart) {
     //TODO: Implement parsing from incoming data
-    this->ethernetAddress= nullptr;
-    this->ip4Address= nullptr;
+    this->ethernetAddress = nullptr;
+    this->ip4Address = nullptr;
 }
 
 IP4Address *ARPResponse::getIp4Address() const {

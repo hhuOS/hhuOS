@@ -10,7 +10,7 @@ uint16_t ARPRequest::getLength() {
 }
 
 ARPRequest::ARPRequest(IP4Address *ip4Address) {
-    this->ip4Address=ip4Address;
+    this->ip4Address = ip4Address;
 }
 
 EtherType ARPRequest::getEtherType() {

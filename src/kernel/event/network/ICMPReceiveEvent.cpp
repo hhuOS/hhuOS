@@ -5,7 +5,7 @@
 #include "ICMPReceiveEvent.h"
 
 Kernel::ICMPReceiveEvent::ICMPReceiveEvent(IP4DataPart *ip4DataPart) {
-    this->ip4DataPart=ip4DataPart;
+    this->ip4DataPart = ip4DataPart;
 }
 
 IP4DataPart *Kernel::ICMPReceiveEvent::getIp4DataPart() const {

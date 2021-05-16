@@ -31,7 +31,6 @@ namespace Kernel {
         Logger &log = Logger::get("IP4Module");
 
 
-
 /**
      * Inherited method from Receiver.
      * This method is meant to be overridden and

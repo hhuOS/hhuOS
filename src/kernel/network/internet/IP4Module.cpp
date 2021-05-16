@@ -15,7 +15,7 @@
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
-    this->eventBus=Kernel::System::getService<Kernel::EventBus>();
+    this->eventBus = Kernel::System::getService<Kernel::EventBus>();
     this->routingModule = new IP4RoutingModule();
     this->arpModule = new ARPModule();
 }
@@ -40,7 +40,7 @@ namespace Kernel {
             EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(nextHopAddress);
             if (destinationAddress == nullptr) {
                 log.info("No ARP entry for IPv4 address found, sending ARP Request");
-                auto *arpRequest= new ARPRequest(nextHopAddress);
+                auto *arpRequest = new ARPRequest(nextHopAddress);
                 auto *outFrame = new EthernetFrame(destinationEthernetAddress, arpRequest);
                 //TODO: Implement data structure for waiting IP4Datagrams
                 eventBus->publish(
@@ -59,8 +59,8 @@ namespace Kernel {
             );
             return;
         }
-        if(event.getType()==IP4ReceiveEvent::TYPE){
-            auto *datagram = ((IP4ReceiveEvent &)event).getDatagram();
+        if (event.getType() == IP4ReceiveEvent::TYPE) {
+            auto *datagram = ((IP4ReceiveEvent &) event).getDatagram();
             switch (datagram->getIp4ProtocolType()) {
                 case IP4ProtocolType::ICMP:
                     eventBus->publish(
@@ -74,9 +74,9 @@ namespace Kernel {
             }
             return;
         }
-        if(event.getType()==ARPReceiveEvent::TYPE){
-            auto *arpResponse=((ARPReceiveEvent &)event).getArpResponse();
-            arpModule->addEntry(arpResponse->getIp4Address(),arpResponse->getEthernetAddress());
+        if (event.getType() == ARPReceiveEvent::TYPE) {
+            auto *arpResponse = ((ARPReceiveEvent &) event).getArpResponse();
+            arpModule->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
             //TODO: Add check for waiting IP4Datagrams and send them again
             return;
         }

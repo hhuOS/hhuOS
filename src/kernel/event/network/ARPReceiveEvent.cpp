@@ -5,7 +5,7 @@
 #include "ARPReceiveEvent.h"
 
 Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPResponse *arpResponse) {
-    this->arpResponse=arpResponse;
+    this->arpResponse = arpResponse;
 }
 
 ARPResponse *Kernel::ARPReceiveEvent::getArpResponse() const {

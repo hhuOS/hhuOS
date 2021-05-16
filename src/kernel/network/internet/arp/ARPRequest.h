@@ -8,7 +8,7 @@
 
 #include <kernel/network/internet/IP4Address.h>
 
-class ARPRequest : public EthernetDataPart{
+class ARPRequest : public EthernetDataPart {
 private:
     IP4Address *ip4Address;
 

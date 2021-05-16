@@ -30,7 +30,7 @@ namespace Kernel {
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             auto &receiveEvent = (ReceiveEvent &) event;
-            auto *inFrame = new EthernetFrame(receiveEvent.getPacket(),receiveEvent.getLength());
+            auto *inFrame = new EthernetFrame(receiveEvent.getPacket(), receiveEvent.getLength());
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(

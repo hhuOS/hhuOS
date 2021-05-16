@@ -21,18 +21,18 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLength());
         return;
     }
-    if(event.getType() == EthernetReceiveEvent::TYPE){
+    if (event.getType() == EthernetReceiveEvent::TYPE) {
         auto receiveEvent = ((EthernetReceiveEvent &) event);
         EthernetFrame *inFrame = receiveEvent.getEthernetFrame();
         auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
 
-        switch(inFrame->getEtherType()){
+        switch (inFrame->getEtherType()) {
             case EtherType::IP4:
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::IP4ReceiveEvent(
                                         new IP4Datagram(inFrame->getDataPart())
-                                        )
+                                )
                         )
                 );
                 return;
@@ -41,7 +41,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ARPReceiveEvent(
                                         new ARPResponse(inFrame->getDataPart())
-                                        )
+                                )
                         )
                 );
                 return;

@@ -6,8 +6,8 @@
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *dataPart) {
     this->destinationAddress = destinationAddress;
-    this->etherType=dataPart->getEtherType();
-    this->dataPart=dataPart;
+    this->etherType = dataPart->getEtherType();
+    this->dataPart = dataPart;
 }
 
 void *EthernetFrame::getDataAsByteBlock() {

@@ -39,66 +39,66 @@ namespace Kernel {
  * packets and others as well are meant to use this class
  * to get access of a driver.
  */
-class NetworkService final : public KernelService {
+    class NetworkService final : public KernelService {
 
-private:
+    private:
 
-    PacketHandler packetHandler;
+        PacketHandler packetHandler;
 
-    IP4Module* ip4Module;
-    EthernetModule* ethernetModule;
-    Loopback *loopbackInterface;
+        IP4Module *ip4Module;
+        EthernetModule *ethernetModule;
+        Loopback *loopbackInterface;
 
-public:
-    /**
-     * A list where all drivers will be collected.
-     */
-    Util::ArrayList<NetworkDevice *> drivers;
+    public:
+        /**
+         * A list where all drivers will be collected.
+         */
+        Util::ArrayList<NetworkDevice *> drivers;
 
-    /**
-     * Provide service information on the kernel log.
-     */
-    static Logger &log;
+        /**
+         * Provide service information on the kernel log.
+         */
+        static Logger &log;
 
-    /**
-     * Constructor.
-     * It registers a Loopback interface at startup.
-     */
-    NetworkService();
+        /**
+         * Constructor.
+         * It registers a Loopback interface at startup.
+         */
+        NetworkService();
 
-    /**
-     * Destructor.
-     */
-    ~NetworkService();
+        /**
+         * Destructor.
+         */
+        ~NetworkService();
 
-    /**
-     * The ID to identify this service among other in the kernel
-     * registered services.
-     */
-    static constexpr const char *SERVICE_NAME = "NetworkService";
+        /**
+         * The ID to identify this service among other in the kernel
+         * registered services.
+         */
+        static constexpr const char *SERVICE_NAME = "NetworkService";
 
-    /**
-     * @return The number of registered divers.
-     */
-    uint32_t getDeviceCount();
+        /**
+         * @return The number of registered divers.
+         */
+        uint32_t getDeviceCount();
 
-    /**
-     * @param index Index of the driver to fetch.
-     * @return The corresponding driver.
-     */
-    NetworkDevice &getDriver(uint8_t index);
+        /**
+         * @param index Index of the driver to fetch.
+         * @return The corresponding driver.
+         */
+        NetworkDevice &getDriver(uint8_t index);
 
-    /**
-     * @param index Index of the driver to remove.
-     */
-    void removeDevice(uint8_t index);
+        /**
+         * @param index Index of the driver to remove.
+         */
+        void removeDevice(uint8_t index);
 
-    /**
-     * Adds the driver to the list.
-     * @param driver The driver to add.
-     */
-    void registerDevice(NetworkDevice &driver);
-};
+        /**
+         * Adds the driver to the list.
+         * @param driver The driver to add.
+         */
+        void registerDevice(NetworkDevice &driver);
+    };
 
 }
 

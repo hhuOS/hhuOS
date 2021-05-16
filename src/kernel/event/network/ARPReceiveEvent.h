@@ -11,7 +11,7 @@
 
 namespace Kernel {
 
-    class ARPReceiveEvent : public Event{
+    class ARPReceiveEvent : public Event {
     private:
         ARPResponse *arpResponse;
 

@@ -5,9 +5,9 @@
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-    this->ip4ProtocolType=ip4DataPart->getIP4ProtocolType();
-    this->destinationAddress=destinationAddress;
-    this->ip4DataPart=ip4DataPart;
+    this->ip4ProtocolType = ip4DataPart->getIP4ProtocolType();
+    this->destinationAddress = destinationAddress;
+    this->ip4DataPart = ip4DataPart;
 }
 
 IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {

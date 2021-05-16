@@ -11,7 +11,7 @@ namespace Kernel {
     }
 
     IP4ReceiveEvent::IP4ReceiveEvent(IP4Datagram *datagram) {
-        this->datagram=datagram;
+        this->datagram = datagram;
     }
 
     IP4Datagram *IP4ReceiveEvent::getDatagram() {

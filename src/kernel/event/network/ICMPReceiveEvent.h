@@ -10,7 +10,7 @@
 
 namespace Kernel {
 
-    class ICMPReceiveEvent : public Event{
+    class ICMPReceiveEvent : public Event {
     private:
         //We do not know the exact type of ICMP message here
         //-> Parsing needs to be done in ICMP Module later

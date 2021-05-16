@@ -12,7 +12,7 @@ EthernetAddress *ARPModule::resolveIP4(IP4Address *ip4Address) {
 }
 
 ARPModule::ARPModule() {
-    arpTable=new Util::HashMap<IP4Address *,EthernetAddress *>();
+    arpTable = new Util::HashMap<IP4Address *, EthernetAddress *>();
 }
 
 ARPModule::~ARPModule() {
@@ -20,5 +20,5 @@ ARPModule::~ARPModule() {
 }
 
 void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
-    arpTable->put(ip4Address,ethernetAddress);
+    arpTable->put(ip4Address, ethernetAddress);
 }
