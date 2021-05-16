@@ -37,6 +37,7 @@ namespace Kernel {
                             new Kernel::EthernetReceiveEvent(inFrame)
                     )
             );
+            return;
         }
     }
 

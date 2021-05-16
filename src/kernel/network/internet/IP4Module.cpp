@@ -40,6 +40,7 @@ namespace Kernel {
                             new Kernel::EthernetSendEvent(outInterface, outFrame)
                     )
             );
+            return;
         }
     }
 }

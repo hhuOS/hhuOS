@@ -17,6 +17,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();
 
         outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLength());
+        return;
     }
     if(event.getType() == EthernetReceiveEvent::TYPE){
         auto receiveEvent = ((EthernetReceiveEvent &) event);
@@ -30,6 +31,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                             new Kernel::IP4ReceiveEvent(inDatagram)
                     )
             );
+            return;
         }
     }
 }
