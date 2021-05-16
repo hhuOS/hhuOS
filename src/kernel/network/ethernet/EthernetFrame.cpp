@@ -4,7 +4,7 @@
 
 #include "EthernetFrame.h"
 
-EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, uint16_t etherType, NetworkDataPart *dataPart)
+EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EtherType etherType, NetworkDataPart *dataPart)
         : destinationAddress(destinationAddress), etherType(etherType), dataPart(dataPart) {}
 
 void *EthernetFrame::getDataAsByteBlock() {
@@ -27,8 +27,8 @@ EthernetAddress *EthernetFrame::getSourceAddress() const {
     return sourceAddress;
 }
 
-uint16_t EthernetFrame::getProtocolType() const {
-    return protocolType;
+EtherType EthernetFrame::getEtherType() const {
+    return etherType;
 }
 
 NetworkDataPart *EthernetFrame::getDataPart() const {

@@ -26,23 +26,27 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         EthernetFrame *inFrame = receiveEvent.getEthernetFrame();
         auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
 
-        if(inFrame->getProtocolType() == EthernetFrame::ETHERTYPE_IP4){
-            auto *inDatagram = new IP4Datagram(inFrame->getDataPart());
-            eventBus->publish(
-                    Util::SmartPointer<Kernel::Event>(
-                            new Kernel::IP4ReceiveEvent(inDatagram)
-                    )
-            );
-            return;
-        }
-        if(inFrame->getProtocolType() == EthernetFrame::ETHERTYPE_ARP){
-            auto *inARPResponse = new ARPResponse(inFrame->getDataPart());
-            eventBus->publish(
-                    Util::SmartPointer<Kernel::Event>(
-                            new Kernel::ARPReceiveEvent(inARPResponse)
-                    )
-            );
-            return;
+        switch(inFrame->getEtherType()){
+            case EtherType::IP4:
+                eventBus->publish(
+                        Util::SmartPointer<Kernel::Event>(
+                                new Kernel::IP4ReceiveEvent(
+                                        new IP4Datagram(inFrame->getDataPart())
+                                        )
+                        )
+                );
+                return;
+            case EtherType::ARP:
+                eventBus->publish(
+                        Util::SmartPointer<Kernel::Event>(
+                                new Kernel::ARPReceiveEvent(
+                                        new ARPResponse(inFrame->getDataPart())
+                                        )
+                        )
+                );
+                return;
+            case EtherType::IP6:
+                break;
         }
     }
 }

@@ -20,7 +20,7 @@ public:
 
     uint16_t getLength() override;
 
-    uint16_t getEtherType();
+    EtherType getEtherType();
 };
 
 

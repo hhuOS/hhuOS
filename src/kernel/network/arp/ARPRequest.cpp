@@ -17,6 +17,6 @@ ARPRequest::ARPRequest(IP4Address *ip4Address) {
     this->ip4Address=ip4Address;
 }
 
-uint16_t ARPRequest::getEtherType() {
-    return EthernetFrame::ETHERTYPE_ARP;
+EtherType ARPRequest::getEtherType() {
+    return EtherType::ARP;
 }
