@@ -28,5 +28,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/event/network/ARPReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/EthernetSendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/EthernetReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/ICMPReceiveEvent.cpp
+        #${HHUOS_SRC_DIR}/kernel/event/network/UDPReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageAddEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageRemoveEvent.cpp)

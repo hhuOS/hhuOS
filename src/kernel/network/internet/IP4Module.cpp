@@ -10,6 +10,8 @@
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/network/internet/arp/ARPRequest.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
+#include <kernel/event/network/IP4ReceiveEvent.h>
+#include <kernel/event/network/ICMPReceiveEvent.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -55,6 +57,21 @@ namespace Kernel {
                             new Kernel::EthernetSendEvent(outInterface, outFrame)
                     )
             );
+            return;
+        }
+        if(event.getType()==IP4ReceiveEvent::TYPE){
+            auto *datagram = ((IP4ReceiveEvent &)event).getDatagram();
+            switch (datagram->getIp4ProtocolType()) {
+                case IP4ProtocolType::ICMP:
+                    eventBus->publish(
+                            Util::SmartPointer<Kernel::Event>(
+                                    new Kernel::ICMPReceiveEvent(datagram->getIp4DataPart())
+                            )
+                    );
+                    break;
+                case IP4ProtocolType::UDP:
+                    break;
+            }
             return;
         }
         if(event.getType()==ARPReceiveEvent::TYPE){
