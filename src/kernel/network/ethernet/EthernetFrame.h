@@ -6,18 +6,18 @@
 #define HHUOS_ETHERNETFRAME_H
 
 
-#include <kernel/network/NetworkDataPart.h>
 #include "EthernetAddress.h"
 #include "EtherType.h"
+#include "EthernetDataPart.h"
 
 class EthernetFrame {
 private:
     EthernetAddress *destinationAddress;
     EthernetAddress *sourceAddress;
     EtherType etherType;
-    NetworkDataPart *dataPart;
+    EthernetDataPart *dataPart;
 public:
-    EthernetFrame(EthernetAddress *destinationAddress, EtherType etherType, NetworkDataPart *dataPart);
+    EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *dataPart);
 
     EthernetFrame(void *packet, uint16_t length);
 
@@ -27,7 +27,7 @@ public:
 
     EtherType getEtherType() const;
 
-    NetworkDataPart *getDataPart() const;
+    EthernetDataPart *getDataPart() const;
 
     void *getDataAsByteBlock();
 

@@ -9,10 +9,14 @@ ICMPEchoRequest::ICMPEchoRequest() {
 
 }
 
-void *ICMPEchoRequest::getData() {
+void *ICMPEchoRequest::getMemoryAddress() {
     return nullptr;
 }
 
 uint16_t ICMPEchoRequest::getLength() {
     return 0;
+}
+
+IP4ProtocolType ICMPEchoRequest::getIP4ProtocolType() {
+    return IP4ProtocolType::ICMP;
 }

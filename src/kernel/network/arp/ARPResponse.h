@@ -8,7 +8,7 @@
 
 #include <kernel/network/internet/IP4Address.h>
 #include <kernel/network/ethernet/EthernetAddress.h>
-#include <kernel/network/NetworkDataPart.h>
+#include <kernel/network/ethernet/EthernetDataPart.h>
 
 class ARPResponse {
 private:
@@ -16,7 +16,7 @@ private:
     EthernetAddress *ethernetAddress;
 
 public:
-    ARPResponse(NetworkDataPart *dataPart);
+    ARPResponse(EthernetDataPart *dataPart);
 };
 
 

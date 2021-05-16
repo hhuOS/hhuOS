@@ -6,39 +6,38 @@
 #define HHUOS_IP4DATAGRAM_H
 
 #include <cinttypes>
+#include <kernel/network/ethernet/EthernetDataPart.h>
+#include <kernel/network/ethernet/EtherType.h>
 #include "IP4Address.h"
-#include "kernel/network/NetworkDataPart.h"
+#include "IP4DataPart.h"
+#include "IP4ProtocolType.h"
 
-class IP4Datagram : public NetworkDataPart {
+class IP4Datagram : public EthernetDataPart {
 private:
-    uint8_t protocol;
+    IP4ProtocolType ip4ProtocolType;
     IP4Address *sourceAddress;
     IP4Address *destinationAddress;
-    NetworkDataPart *dataPart;
+    IP4DataPart *ip4DataPart;
 public:
-    IP4Datagram(uint8_t protocol, IP4Address *destinationAddress, NetworkDataPart *dataPart);
+    IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
-    IP4Datagram(NetworkDataPart *dataPart);
+    IP4Datagram(EthernetDataPart *ethernetDataPart);
 
-    uint8_t getProtocol() const;
+    IP4ProtocolType getIp4ProtocolType() const;
 
     IP4Address *getSourceAddress() const;
 
-    IP4Address *getDestinationAddress() const;
-
-    NetworkDataPart *getDataPart() const;
-
     void setSourceAddress(IP4Address *sourceAddress);
 
-    void setDestinationAddress(IP4Address *destinationAddress);
+    IP4Address *getDestinationAddress() const;
 
-    void setDataPart(NetworkDataPart *dataPart);
+    IP4DataPart *getIp4DataPart() const;
 
-    void *getData() override;
+    void *getMemoryAddress() override;
 
     uint16_t getLength() override;
 
-    uint16_t getEtherType();
+    EtherType getEtherType();
 };
 
 

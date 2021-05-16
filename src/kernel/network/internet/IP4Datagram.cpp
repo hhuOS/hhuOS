@@ -2,25 +2,20 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/ethernet/EthernetFrame.h>
 #include "IP4Datagram.h"
 
-IP4Datagram::IP4Datagram(uint8_t protocol, IP4Address *destinationAddress, NetworkDataPart *dataPart) {
-    this->protocol = protocol;
-    this->dataPart = dataPart;
-    this->destinationAddress = destinationAddress;
+IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
+    this->ip4ProtocolType=ip4DataPart->getIP4ProtocolType();
+    this->destinationAddress=destinationAddress;
+    this->ip4DataPart=ip4DataPart;
 }
 
-uint8_t IP4Datagram::getProtocol() const {
-    return protocol;
+IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
+//TODO: Implement parsing of parameters from given ethernetDataPart
 }
 
-IP4Address *IP4Datagram::getDestinationAddress() const {
-    return destinationAddress;
-}
-
-NetworkDataPart *IP4Datagram::getDataPart() const {
-    return dataPart;
+IP4ProtocolType IP4Datagram::getIp4ProtocolType() const {
+    return ip4ProtocolType;
 }
 
 IP4Address *IP4Datagram::getSourceAddress() const {
@@ -31,15 +26,15 @@ void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
     IP4Datagram::sourceAddress = sourceAddress;
 }
 
-void IP4Datagram::setDestinationAddress(IP4Address *destinationAddress) {
-    IP4Datagram::destinationAddress = destinationAddress;
+IP4Address *IP4Datagram::getDestinationAddress() const {
+    return destinationAddress;
 }
 
-void IP4Datagram::setDataPart(NetworkDataPart *dataPart) {
-    IP4Datagram::dataPart = dataPart;
+IP4DataPart *IP4Datagram::getIp4DataPart() const {
+    return ip4DataPart;
 }
 
-void *IP4Datagram::getData() {
+void *IP4Datagram::getMemoryAddress() {
     return nullptr;
 }
 
@@ -47,10 +42,6 @@ uint16_t IP4Datagram::getLength() {
     return 0;
 }
 
-IP4Datagram::IP4Datagram(NetworkDataPart *dataPart) {
-
-}
-
-uint16_t IP4Datagram::getEtherType() {
-    return EthernetFrame::ETHERTYPE_IP4;
+EtherType IP4Datagram::getEtherType() {
+    return EtherType::IP4;
 }

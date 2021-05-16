@@ -4,7 +4,8 @@
 
 #include "ARPResponse.h"
 
-ARPResponse::ARPResponse(NetworkDataPart *dataPart) {
+ARPResponse::ARPResponse(EthernetDataPart *dataPart) {
+    //TODO: Implement parsing from incoming data
     this->ethernetAddress= nullptr;
     this->ip4Address= nullptr;
 }

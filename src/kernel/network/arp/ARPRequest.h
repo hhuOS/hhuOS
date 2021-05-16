@@ -7,16 +7,15 @@
 
 
 #include <kernel/network/internet/IP4Address.h>
-#include <kernel/network/NetworkDataPart.h>
 
-class ARPRequest : public NetworkDataPart{
+class ARPRequest : public EthernetDataPart{
 private:
     IP4Address *ip4Address;
 
 public:
     ARPRequest(IP4Address *ip4Address);
 
-    void *getData() override;
+    void *getMemoryAddress() override;
 
     uint16_t getLength() override;
 

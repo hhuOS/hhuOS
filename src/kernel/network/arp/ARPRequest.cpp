@@ -5,10 +5,6 @@
 #include <kernel/network/ethernet/EthernetFrame.h>
 #include "ARPRequest.h"
 
-void *ARPRequest::getData() {
-    return nullptr;
-}
-
 uint16_t ARPRequest::getLength() {
     return 0;
 }
@@ -19,4 +15,8 @@ ARPRequest::ARPRequest(IP4Address *ip4Address) {
 
 EtherType ARPRequest::getEtherType() {
     return EtherType::ARP;
+}
+
+void *ARPRequest::getMemoryAddress() {
+    return nullptr;
 }

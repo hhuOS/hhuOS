@@ -32,7 +32,7 @@ namespace Kernel {
             if (destinationAddress == nullptr) {
                 log.info("No ARP entry for IPv4 address found, sending ARP Request");
                 auto *arpRequest= new ARPRequest(nextHopAddress);
-                auto *outFrame = new EthernetFrame(destinationEthernetAddress, arpRequest->getEtherType(), arpRequest);
+                auto *outFrame = new EthernetFrame(destinationEthernetAddress, arpRequest);
                 //TODO: Implement data structure for waiting IP4Datagrams
                 auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
                 eventBus->publish(
@@ -43,7 +43,7 @@ namespace Kernel {
                 return;
             }
 
-            auto *outFrame = new EthernetFrame(destinationEthernetAddress, datagram->getEtherType(), datagram);
+            auto *outFrame = new EthernetFrame(destinationEthernetAddress, datagram);
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
                     Util::SmartPointer<Kernel::Event>(

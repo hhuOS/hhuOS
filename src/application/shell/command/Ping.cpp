@@ -3,7 +3,6 @@
 //
 
 #include <kernel/event/network/IP4SendEvent.h>
-#include <kernel/network/NetworkDataPart.h>
 #include <kernel/network/internet/icmp/ICMPEchoRequest.h>
 #include "Ping.h"
 
@@ -22,7 +21,7 @@ void Ping::execute(Util::Array<String> &args) {
     auto *localhost = new IP4Address(127, 0, 0, 1);
     auto *pingRequest = new ICMPEchoRequest();
 
-    auto *toBeSent = new IP4Datagram(1, localhost, pingRequest);
+    auto *toBeSent = new IP4Datagram(localhost, pingRequest);
 
     auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
     eventBus->publish(
