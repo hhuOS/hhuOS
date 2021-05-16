@@ -16,7 +16,7 @@ namespace Kernel {
         /**
          * A logger to provide information on the kernel log.
          */
-        Logger &log = Logger::get("IP4Module");
+        Logger &log = Logger::get("EthernetModule");
 
 /**
      * Inherited method from Receiver.
