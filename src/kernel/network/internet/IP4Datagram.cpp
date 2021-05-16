@@ -45,3 +45,7 @@ void *IP4Datagram::getData() {
 uint16_t IP4Datagram::getLength() {
     return 0;
 }
+
+IP4Datagram::IP4Datagram(NetworkDataPart *dataPart) {
+
+}

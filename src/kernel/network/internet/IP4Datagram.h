@@ -18,6 +18,8 @@ private:
 public:
     IP4Datagram(uint8_t protocol, IP4Address *destinationAddress, NetworkDataPart *dataPart);
 
+    IP4Datagram(NetworkDataPart *dataPart);
+
     uint8_t getProtocol() const;
 
     IP4Address *getSourceAddress() const;
