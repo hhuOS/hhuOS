@@ -2,14 +2,14 @@
 // Created by hannes on 15.05.21.
 //
 
-#include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/core/System.h>
 #include <kernel/service/EventBus.h>
-#include <kernel/network/internet/IP4Datagram.h>
+#include <kernel/event/network/EthernetSendEvent.h>
+#include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
-#include <kernel/network/arp/ARPResponse.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
+#include <kernel/network/internet/IP4Datagram.h>
+
 #include "EthernetModule.h"
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
