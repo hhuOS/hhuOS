@@ -6,7 +6,7 @@
 #define HHUOS_ICMP4ECHOREPLYEVENT_H
 
 
-#include <kernel/network/internet/icmp/ICMP4EchoReply.h>
+#include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
 #include <lib/string/String.h>
 #include <kernel/event/Event.h>
 

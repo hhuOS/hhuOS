@@ -6,7 +6,7 @@
 #include <kernel/event/network/ICMP4EchoReplyEvent.h>
 #include "ICMP4Module.h"
 #include "ICMP4MessageType.h"
-#include "ICMP4EchoReply.h"
+#include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if(event.getType()==ICMP4ReceiveEvent::TYPE){

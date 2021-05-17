@@ -3,7 +3,7 @@
 //
 
 #include <kernel/event/network/IP4SendEvent.h>
-#include <kernel/network/internet/icmp/ICMP4EchoRequest.h>
+#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
@@ -19,7 +19,7 @@ void Ping::execute(Util::Array<String> &args) {
 //    }
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
-    auto *pingRequest = new ICMP4EchoRequest();
+    auto *pingRequest = new ICMP4Echo();
 
     auto *toBeSent = new IP4Datagram(localhost, pingRequest);
 

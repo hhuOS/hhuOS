@@ -33,6 +33,17 @@ namespace Kernel {
             IP4Address *destinationAddress = datagram->getDestinationAddress();
 
             IP4Route *matchedRoute = routingModule->findRouteFor(destinationAddress);
+            if(matchedRoute== nullptr){
+                eventBus->publish(
+                        Util::SmartPointer<Kernel::Event>(
+                                new Kernel::ICMP4ReceiveEvent(
+                                        new ICMP
+                                        )
+                        )
+                );
+                return;
+            }
+
             auto *outInterface = matchedRoute->getOutInterface();
             auto *nextHopAddress = matchedRoute->getNextHopAddress();
 
