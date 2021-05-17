@@ -8,9 +8,17 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 
-class ICMP4EchoReply {
+class ICMP4EchoReply : IP4DataPart{
 public:
+    ICMP4EchoReply();
+
     ICMP4EchoReply(IP4DataPart *dataPart);
+
+    void *getMemoryAddress() override;
+
+    uint16_t getLength() override;
+
+    IP4ProtocolType getIP4ProtocolType() override;
 };
 
 

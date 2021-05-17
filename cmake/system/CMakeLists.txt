@@ -23,7 +23,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/startup.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp)
+        ${HHUOS_SRC_DIR}/GatesOfHell.cpp ../../src/kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.cpp ../../src/kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

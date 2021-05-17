@@ -12,6 +12,7 @@
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
+#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -37,7 +38,7 @@ namespace Kernel {
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
-                                        new ICMP
+                                        new ICMP4DestinationUnreachable()
                                         )
                         )
                 );
