@@ -2,15 +2,15 @@
 // Created by hannes on 14.05.21.
 //
 
-#ifndef HHUOS_ICMPECHOREQUEST_H
-#define HHUOS_ICMPECHOREQUEST_H
+#ifndef HHUOS_ICMP4ECHOREQUEST_H
+#define HHUOS_ICMP4ECHOREQUEST_H
 
 #include <cinttypes>
 #include <kernel/network/internet/IP4DataPart.h>
 
-class ICMPEchoRequest : public IP4DataPart {
+class ICMP4EchoRequest : public IP4DataPart {
 public:
-    ICMPEchoRequest();
+    ICMP4EchoRequest();
 
     void *getMemoryAddress() override;
 
@@ -20,4 +20,4 @@ public:
 };
 
 
-#endif //HHUOS_ICMPECHOREQUEST_H
+#endif //HHUOS_ICMP4ECHOREQUEST_H

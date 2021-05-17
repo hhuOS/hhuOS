@@ -2,31 +2,31 @@
 // Created by hannes on 17.05.21.
 //
 
-#ifndef HHUOS_ICMPRECEIVEEVENT_H
-#define HHUOS_ICMPRECEIVEEVENT_H
+#ifndef HHUOS_ICMP4RECEIVEEVENT_H
+#define HHUOS_ICMP4RECEIVEEVENT_H
 
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/IP4DataPart.h>
 
 namespace Kernel {
 
-    class ICMPReceiveEvent : public Event {
+    class ICMP4ReceiveEvent : public Event {
     private:
         //We do not know the exact type of ICMP message here
         //-> Parsing needs to be done in ICMP Module later
         IP4DataPart *ip4DataPart;
     public:
 
-        ICMPReceiveEvent(IP4DataPart *ip4DataPart);
+        ICMP4ReceiveEvent(IP4DataPart *ip4DataPart);
 
         IP4DataPart *getIp4DataPart() const;
 
         String getType() const override;
 
-        static const constexpr char *TYPE = "ICMPReceiveEvent";
+        static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };
 
 }
 
 
-#endif //HHUOS_ICMPRECEIVEEVENT_H
+#endif //HHUOS_ICMP4RECEIVEEVENT_H

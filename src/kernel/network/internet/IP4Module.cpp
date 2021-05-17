@@ -11,7 +11,7 @@
 #include <kernel/network/internet/arp/ARPRequest.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
-#include <kernel/event/network/ICMPReceiveEvent.h>
+#include <kernel/event/network/ICMP4ReceiveEvent.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -65,7 +65,7 @@ namespace Kernel {
                 case IP4ProtocolType::ICMP:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
-                                    new Kernel::ICMPReceiveEvent(datagram->getIp4DataPart())
+                                    new Kernel::ICMP4ReceiveEvent(datagram->getIp4DataPart())
                             )
                     );
                     break;

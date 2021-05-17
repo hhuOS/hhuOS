@@ -15,18 +15,20 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMPEchoRequest.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4Module.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4EchoRequest.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4EchoReply.cpp
 
-        ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4RoutingModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp
 
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPRequest.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPResponse.cpp
 
+        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Netmask.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Address.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
 
 )
