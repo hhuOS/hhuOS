@@ -5,6 +5,7 @@
 #ifndef HHUOS_NETWORKDATAPART_H
 #define HHUOS_NETWORKDATAPART_H
 
+#include <cinttypes>
 #include "IP4ProtocolType.h"
 
 class IP4DataPart {

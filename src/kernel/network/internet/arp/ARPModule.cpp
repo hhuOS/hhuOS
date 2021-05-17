@@ -15,10 +15,6 @@ ARPModule::ARPModule() {
     arpTable = new Util::HashMap<IP4Address *, EthernetAddress *>();
 }
 
-ARPModule::~ARPModule() {
-    delete arpTable;
-}
-
 void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
     arpTable->put(ip4Address, ethernetAddress);
 }

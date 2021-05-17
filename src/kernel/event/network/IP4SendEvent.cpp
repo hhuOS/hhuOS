@@ -10,7 +10,9 @@ namespace Kernel {
         this->datagram = datagram;
     }
 
-    IP4Datagram *IP4SendEvent::getDatagram() {}
+    IP4Datagram *IP4SendEvent::getDatagram() {
+        return datagram;
+    }
 
     String IP4SendEvent::getType() const {
         return TYPE;

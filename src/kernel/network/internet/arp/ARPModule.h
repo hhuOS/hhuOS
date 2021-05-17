@@ -16,8 +16,6 @@ private:
 public:
     ARPModule();
 
-    virtual ~ARPModule();
-
     EthernetAddress *resolveIP4(IP4Address *ip4Address);
 
     void addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);

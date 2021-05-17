@@ -14,12 +14,33 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         ICMP4MessageType messageType=parseMessageType(dataPart);
         switch (messageType) {
             case ICMP4MessageType::ECHO_REPLY:
-                auto *reply=new ICMP4EchoReply(dataPart);
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
-                                new Kernel::ICMP4EchoReplyEvent(reply)
+                                new Kernel::ICMP4EchoReplyEvent(
+                                        new ICMP4EchoReply(dataPart)
+                                        )
                         )
                 );
+                break;
+            case ICMP4MessageType::DESTINATION_UNREACHABLE:
+                break;
+            case ICMP4MessageType::SOURCE_QUENCH:
+                break;
+            case ICMP4MessageType::REDIRECT:
+                break;
+            case ICMP4MessageType::ECHO:
+                break;
+            case ICMP4MessageType::TIME_EXCEEDED:
+                break;
+            case ICMP4MessageType::PARAMETER_PROBLEM:
+                break;
+            case ICMP4MessageType::TIMESTAMP:
+                break;
+            case ICMP4MessageType::TIMESTAMP_REPLY:
+                break;
+            case ICMP4MessageType::INFORMATION_REQUEST:
+                break;
+            case ICMP4MessageType::INFORMATION_REPLY:
                 break;
         }
     }
