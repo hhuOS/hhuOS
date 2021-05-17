@@ -4,17 +4,22 @@
 
 #include "EthernetSendEvent.h"
 
-Kernel::EthernetSendEvent::EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame) : outInterface(
-        outInterface), ethernetFrame(ethernetFrame) {}
+namespace Kernel {
 
-String Kernel::EthernetSendEvent::getType() const {
-    return TYPE;
-}
+    EthernetSendEvent::EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame)
+            : outInterface(
+            outInterface), ethernetFrame(ethernetFrame) {}
 
-NetworkDevice *Kernel::EthernetSendEvent::getOutInterface() const {
-    return outInterface;
-}
+    String EthernetSendEvent::getType() const {
+        return TYPE;
+    }
 
-EthernetFrame *Kernel::EthernetSendEvent::getEthernetFrame() const {
-    return ethernetFrame;
+    NetworkDevice *EthernetSendEvent::getOutInterface() const {
+        return outInterface;
+    }
+
+    EthernetFrame *EthernetSendEvent::getEthernetFrame() const {
+        return ethernetFrame;
+    }
+
 }

@@ -4,12 +4,15 @@
 
 #include "EthernetReceiveEvent.h"
 
-Kernel::EthernetReceiveEvent::EthernetReceiveEvent(EthernetFrame *ethernetFrame) : ethernetFrame(ethernetFrame) {}
+namespace Kernel {
 
-String Kernel::EthernetReceiveEvent::getType() const {
-    return TYPE;
-}
+    EthernetReceiveEvent::EthernetReceiveEvent(EthernetFrame *ethernetFrame) : ethernetFrame(ethernetFrame) {}
 
-EthernetFrame *Kernel::EthernetReceiveEvent::getEthernetFrame() const {
-    return ethernetFrame;
+    String EthernetReceiveEvent::getType() const {
+        return TYPE;
+    }
+
+    EthernetFrame *EthernetReceiveEvent::getEthernetFrame() const {
+        return ethernetFrame;
+    }
 }

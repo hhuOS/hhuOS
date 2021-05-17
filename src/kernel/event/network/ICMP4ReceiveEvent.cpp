@@ -4,14 +4,18 @@
 
 #include "ICMP4ReceiveEvent.h"
 
-Kernel::ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4DataPart *ip4DataPart) {
-    this->ip4DataPart = ip4DataPart;
-}
+namespace Kernel {
 
-IP4DataPart *Kernel::ICMP4ReceiveEvent::getIp4DataPart() const {
-    return ip4DataPart;
-}
+    ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4DataPart *ip4DataPart) {
+        this->ip4DataPart = ip4DataPart;
+    }
 
-String Kernel::ICMP4ReceiveEvent::getType() const {
-    return TYPE;
+    IP4DataPart *ICMP4ReceiveEvent::getIp4DataPart() const {
+        return ip4DataPart;
+    }
+
+    String ICMP4ReceiveEvent::getType() const {
+        return TYPE;
+    }
+
 }

@@ -4,14 +4,18 @@
 
 #include "ICMP4EchoReplyEvent.h"
 
-Kernel::ICMP4EchoReplyEvent::ICMP4EchoReplyEvent(ICMP4EchoReply *reply) {
-    this->reply=reply;
-}
+namespace Kernel {
 
-ICMP4EchoReply *Kernel::ICMP4EchoReplyEvent::getReply() const {
-    return reply;
-}
+    ICMP4EchoReplyEvent::ICMP4EchoReplyEvent(ICMP4EchoReply *reply) {
+        this->reply = reply;
+    }
 
-String Kernel::ICMP4EchoReplyEvent::getType() const {
-    return TYPE;
+    ICMP4EchoReply *ICMP4EchoReplyEvent::getReply() const {
+        return reply;
+    }
+
+    String ICMP4EchoReplyEvent::getType() const {
+        return TYPE;
+    }
+
 }

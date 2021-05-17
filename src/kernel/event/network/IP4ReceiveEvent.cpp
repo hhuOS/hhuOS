@@ -6,12 +6,12 @@
 
 namespace Kernel {
 
-    String IP4ReceiveEvent::getType() const {
-        return TYPE;
-    }
-
     IP4ReceiveEvent::IP4ReceiveEvent(IP4Datagram *datagram) {
         this->datagram = datagram;
+    }
+
+    String IP4ReceiveEvent::getType() const {
+        return TYPE;
     }
 
     IP4Datagram *IP4ReceiveEvent::getDatagram() {
