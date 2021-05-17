@@ -5,10 +5,25 @@
 #ifndef HHUOS_UDPRECEIVEEVENT_H
 #define HHUOS_UDPRECEIVEEVENT_H
 
+#include <kernel/event/Event.h>
+#include <kernel/network/udp/UDPDatagram.h>
 
-class UDPReceiveEvent {
+namespace Kernel {
 
-};
+    class UDPReceiveEvent : public Event {
+    private:
+        UDPDatagram *datagram;
 
+    public:
+        UDPReceiveEvent(UDPDatagram *datagram);
+
+        UDPDatagram *getDatagram();
+
+        String getType() const override;
+
+        static const constexpr char *TYPE = "UDPReceiveEvent";
+    };
+
+}
 
 #endif //HHUOS_UDPRECEIVEEVENT_H

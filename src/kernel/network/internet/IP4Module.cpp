@@ -13,6 +13,7 @@
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
+#include <kernel/event/network/UDPReceiveEvent.h>
 #include "IP4Module.h"
 
 Kernel::IP4Module::IP4Module() {
@@ -72,16 +73,25 @@ namespace Kernel {
             return;
         }
         if (event.getType() == IP4ReceiveEvent::TYPE) {
-            auto *datagram = ((IP4ReceiveEvent &) event).getDatagram();
-            switch (datagram->getIp4ProtocolType()) {
+            auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
+            switch (ip4Datagram->getIp4ProtocolType()) {
                 case IP4ProtocolType::ICMP:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
-                                    new Kernel::ICMP4ReceiveEvent(datagram->getIp4DataPart())
+                                    new Kernel::ICMP4ReceiveEvent(ip4Datagram->getIp4DataPart())
                             )
                     );
                     break;
                 case IP4ProtocolType::UDP:
+                    eventBus->publish(
+                            Util::SmartPointer<Kernel::Event>(
+                                    new Kernel::UDPReceiveEvent(
+                                            new UDPDatagram(
+                                                        ip4Datagram->getIp4DataPart()
+                                                    )
+                                            )
+                            )
+                    );
                     break;
             }
             return;
