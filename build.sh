@@ -1,34 +1,42 @@
 #!/bin/bash
 
+TARGET="towboot"
+BUILD_DIR="build"
 CORE_COUNT=$(nproc)
-BUILD_DIR=build
-FORBIDDEN_DIR_NAMES="cmake hdd initrd loader media music src tool"
+VALID_TARGETS="grub towboot"
+FORBIDDEN_DIR_NAMES="cmake loader media src"
 
-parse_ncores() {
-    local ncores=$1
-
-    if [ ! $ncores == 0 ]; then
-        CORE_COUNT=$ncores
-    fi
+parse_target() {
+    local target=$1
+    
+    for name in ${VALID_TARGETS}; do
+        if [ "${target}" == ${name} ]; then
+            TARGET=${target}
+            return
+        fi
+    done
+    
+    printf "Invalid target '%s'!" "${target}"
+    exit 1
 }
 
-parse_direcory() {
+parse_directory() {
     local directory=$1
 
     # check if dir-name is already used by this project
     for name in $FORBIDDEN_DIR_NAMES; do
-        if [ "${directory}" == $name ]; then
-            printf "Please use another name than '%s' for the build-directory!\n" "${name}"
+        if [[ "${directory}" == *"${name}"* ]]; then
+            printf "Please use another name than '%s' for the build directory!\n" "${name}"
             exit 1
         fi
     done
 
-    BUILD_DIR=$directory
+    BUILD_DIR=${directory}
 
     # add name of directory to local git ignore list
     if [ ! "${directory}" == "build" ] && [ "$(grep -w ${directory} .git/info/exclude)" == "" ]; then
         echo "${directory}/" >> .git/info/exclude
-        printf "[INFO] Added '%s' to .git/info/exclude\n" "${directory}"
+        printf "Added '%s' to .git/info/exclude\n" "${directory}"
     fi
 
     if [ ! -f .builddirs ] && [ ! "${directory}" == "build" ]; then
@@ -38,22 +46,42 @@ parse_direcory() {
     # add name of directory to list of used build-dirs
     if [ ! "${directory}" == "build" ] && [ "$(grep -w ${directory} .builddirs)" == "" ]; then
         echo "${directory}" >> .builddirs
-        printf "[INFO] Added '%s' to .builddirs\n" "${directory}"
+        printf "Added '%s' to .builddirs\n" "${directory}"
+    fi
+}
+
+parse_ncores() {
+    local ncores=$1
+
+    if [ ${ncores} != 0 ]; then
+        CORE_COUNT=${ncores}
     fi
 }
 
 cleanup() {
-
-    # remove iso and img files
     if [ -f hhuOS.iso ]; then
+        printf "Removing 'hhuOS.iso'\\n"
         rm hhuOS.iso
     fi
-
-    if [ -f hdd0.img ]; then
-        rm hdd0.img
+    
+    if [ -f hhuOS.img ]; then
+        printf "Removing 'hhuOS.img'\\n"
+        rm hhuOS.img
     fi
-    if [ -f eth0.dump ]; then
-        rm eth0.dump
+    
+    if [ -f loader/grub/boot/hhuOS.bin ]; then
+        printf "Removing 'loader/grub/boot/hhuOS.bin'\\n"
+        rm loader/grub/boot/hhuOS.bin
+    fi
+    
+    if [ -f loader/towboot/hhuOS.bin ]; then
+        printf "Removing 'loader/towboot/hhuOS.bin'\\n"
+        rm loader/towboot/hhuOS.bin
+    fi
+    
+    if [ -f loader/towboot/towboot.efi ]; then
+        printf "Removing 'loader/towboot/towboot.efi'\\n"
+        rm loader/towboot/towboot.efi
     fi
 
     local builddirs="";
@@ -64,9 +92,9 @@ cleanup() {
     fi
 
     # remove build directories and remove their names from .git/info/exclude
-    for dir in $builddirs; do
-        if [ "$(echo $FORBIDDEN_DIR_NAMES | grep -w ${dir})" == "" ] && [ -d $dir ]; then
-            printf "Remove build directory '${dir}'\n"
+    for dir in ${builddirs}; do
+        if [ "$(echo ${FORBIDDEN_DIR_NAMES} | grep -w ${dir})" == "" ] && [ -d $dir ]; then
+            printf "Removing build directory '${dir}'\n"
             rm -r $dir
         fi
 
@@ -77,7 +105,7 @@ cleanup() {
 
     # remove default directory
     if [ -d build ]; then
-        printf "Remove build directory 'build'\n"
+        printf "Removing build directory 'build'\n"
         rm -r "build"
     fi
 
@@ -90,6 +118,8 @@ cleanup() {
 print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
+    -t, --target
+        Set the the build target (grub/towboot, default: towboot)
     -d, --directory
         Set the build directory.
     -n, --ncore
@@ -107,11 +137,14 @@ parse_args() {
         local val=$2
 
         case $arg in
-            -n|--ncores)
-            parse_ncores $val
+            -t|--target)
+            parse_target $val
             ;;
             -d|--directory)
-            parse_direcory $val
+            parse_directory $val
+            ;;
+            -n|--ncores)
+            parse_ncores $val
             ;;
             -c|--clean)
             cleanup
@@ -132,14 +165,14 @@ parse_args() {
 }
 
 build() {
-    echo "[INFO] Create build-directory $BUILD_DIR"
-    mkdir -p $BUILD_DIR
+    echo "Creating build-directory ${BUILD_DIR}"
+    mkdir -p ${BUILD_DIR}
     cd $BUILD_DIR || exit
 
-    echo "[INFO] Use $CORE_COUNT CPU-Cores for make"
+    echo "Using ${CORE_COUNT} CPU-Cores for make"
 
     cmake ..
-    make -j$CORE_COUNT grub towboot
+    make -j ${CORE_COUNT} ${TARGET}
 }
 
 parse_args "$@"

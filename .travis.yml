@@ -3,44 +3,45 @@ compiler: gcc
 os: linux
 dist: bionic
 
-addons:
-  apt:
-    packages:
-      - cmake
-      - make
-      - nasm
-      - gcc-multilib
-      - g++-multilib
-      - grub-pc-bin
-      - grub-efi-ia32-bin
-      - mtools
-      - xorriso
-      
-env:
-  global:
-    - KERNEL_BINARY=build/bin/system
-    - PUBLISH_FILE=${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
-
-stages:
-  - name: build
-
 jobs:
   include:
-    - stage: build
-      script: ./build.sh
+    - name: towboot
+      addons:
+        apt:
+          packages:
+            - cmake
+            - make
+            - nasm
+            - gcc-multilib
+            - g++-multilib
+            - mtools
+      script: ./build.sh --target towboot
+      deploy:
+        provider: releases
+        token: ${API_KEY}
+        cleanup: false
+        file:
+            - build/bin/system
+            - hhuOS.img
+        on:
+            repo: hhuOS/hhuOS
+            branch: master
+            tags: true
       
-before_deploy:
-  - cp ${KERNEL_BINARY} ${PUBLISH_FILE}
-
-deploy:
-  provider: releases
-  token: ${API_KEY}
-  cleanup: false
-  file: ${TRAVIS_BUILD_DIR}/hhuOS-${TRAVIS_TAG}.bin
-  on:
-    repo: hhuOS/hhuOS
-    branch: master
-    tags: true
+    - name: grub
+      addons:
+        apt:
+          packages:
+            - cmake
+            - make
+            - nasm
+            - gcc-multilib
+            - g++-multilib
+            - mtools
+            - grub-pc-bin
+            - grub-efi-ia32-bin
+            - xorriso
+      script: ./build.sh --target grub
 
 notifications:
   email: false

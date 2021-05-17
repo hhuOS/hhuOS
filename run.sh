@@ -6,19 +6,17 @@ readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=off"
 readonly CONST_QEMU_MIN_BIOS_CPU="486"
 readonly CONST_QEMU_MIN_EFI_CPU="pentium2"
-readonly CONST_QEMU_MIN_BIOS_RAM="16M"
-readonly CONST_QEMU_MIN_EFI_RAM="64M"
+readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="/usr/share/edk2-ovmf/ia32/OVMF.fd"
-readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-cdrom hhuOS.iso"
+readonly CONST_QEMU_BIOS_EFI="${OVMF:-/usr/share/edk2-ovmf/ia32/OVMF.fd}"
+readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_ARGS="-vga std -monitor stdio"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
-QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
-QEMU_MIN_RAM="${CONST_QEMU_MIN_BIOS_RAM}"
-QEMU_RAM=""
-QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
+QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
+QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
+QEMU_CPU="${CONST_QEMU_MIN_EFI_CPU}"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
@@ -77,14 +75,12 @@ parse_machine() {
 parse_bios() {
   local bios=$1
 
-  if [ "${bios}" == "bios" ] || [ "${bios}" == "default" ]; then
+  if [ "${bios}" == "bios" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
     QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
-    QEMU_MIN_RAM="${CONST_QEMU_MIN_BIOS_RAM}"
-  elif [ "${bios}" == "efi" ]; then
+  elif [ "${bios}" == "uefi" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
     QEMU_CPU="${CONST_QEMU_MIN_EFI_CPU}"
-    QEMU_MIN_RAM="${CONST_QEMU_MIN_EFI_RAM}"
   else
     printf "Invalid BIOS '%s'!\\n" "${machine}"
     exit 1
@@ -116,15 +112,15 @@ print_usage() {
   printf "Usage: ./run.sh [OPTION...]
     Available options:
     -f, --file
-        Set the .iso or .img file, which qemu should boot (Default: hhuOS.iso)
+        Set the .iso or .img file, which qemu should boot (Default: hhuOS.img)
     -a, --architecture
         Set the architecture, which qemu should emulate ([i386,x86] | [x86_64,x64]) (Default: i386)
     -m, --machine
         Set the machine profile, which qemu should emulate ([pc] | [pc-kvm]) (Defualt: pc)
     -b, --bios
-        Set the BIOS, which qemu should use ([bios,default] | [efi] | [/path/to/bios.file]) (Default: bios)
+        Set the BIOS, which qemu should use ([bios | uefi]) (Default: uefi)
     -r, --ram
-        Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 256M)
+        Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 64M)
     -d, --debug
         Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help
@@ -181,10 +177,6 @@ run_qemu() {
 
   if [ -n "${QEMU_BIOS}" ]; then
     command="${command} -bios ${QEMU_BIOS}"
-  fi
-
-  if [ ! -n "${QEMU_RAM}" ]; then
-    QEMU_RAM="${QEMU_MIN_RAM}"
   fi
 
   command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_BOOT_DEVICE} ${QEMU_ARGS}"

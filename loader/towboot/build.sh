@@ -7,7 +7,7 @@ if [ ! -f "towboot.efi" ]; then
   wget -O towboot.efi "https://github.com/hhuOS/towboot/releases/download/v${CONST_TOWBOOT_VERSION}/towboot-v${CONST_TOWBOOT_VERSION}-i686.efi"
 fi
 
-mformat -i part.img -C -T ${CONST_PART_SECTORS}
+mformat -i part.img -C -T ${CONST_PART_SECTORS} -h 1 -s ${CONST_PART_SECTORS}
 mmd -i part.img efi
 mmd -i part.img efi/boot
 mcopy -i part.img towboot.efi ::efi/boot/bootia32.efi

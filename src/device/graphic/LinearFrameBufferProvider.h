@@ -73,7 +73,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~LinearFrameBufferProvider() = default;
+    ~LinearFrameBufferProvider() override = default;
 
     /**
      * Create a linear frame buffer with a given mode info.
