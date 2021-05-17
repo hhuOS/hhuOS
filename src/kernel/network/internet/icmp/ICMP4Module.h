@@ -7,6 +7,7 @@
 
 #include <kernel/service/EventBus.h>
 #include <kernel/log/Logger.h>
+#include "ICMP4MessageType.h"
 
 namespace Kernel {
 
@@ -26,6 +27,8 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
+
+        static ICMP4MessageType parseMessageType(IP4DataPart *pPart);
     };
 }
 

@@ -6,8 +6,11 @@
 #define HHUOS_ICMP4ECHOREPLY_H
 
 
-class ICMP4EchoReply {
+#include <kernel/network/internet/IP4DataPart.h>
 
+class ICMP4EchoReply {
+public:
+    ICMP4EchoReply(IP4DataPart *dataPart);
 };
 
 
