@@ -30,6 +30,7 @@
 #include <lib/util/stream/PipedInputStream.h>
 #include <lib/util/stream/PrintWriter.h>
 #include <lib/util/stream/InputStreamReader.h>
+#include <filesystem/core/Filesystem.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -66,6 +67,9 @@ void GatesOfHell::enter() {
     } else {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
+
+    auto filesystem = Filesystem::Filesystem();
+    filesystem.init();
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
