@@ -3,7 +3,6 @@
 //
 
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/event/network/ICMP4EchoReplyEvent.h>
 #include "ICMP4Module.h"
 #include "ICMP4MessageType.h"
 #include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
@@ -13,14 +12,8 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         auto dataPart=((ICMP4ReceiveEvent &)event).getIp4DataPart();
         ICMP4MessageType messageType=parseMessageType(dataPart);
         switch (messageType) {
+            //TODO: Do magic
             case ICMP4MessageType::ECHO_REPLY:
-                eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
-                                new Kernel::ICMP4EchoReplyEvent(
-                                        new ICMP4EchoReply(dataPart)
-                                        )
-                        )
-                );
                 break;
             case ICMP4MessageType::DESTINATION_UNREACHABLE:
                 break;
