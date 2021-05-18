@@ -18,6 +18,8 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
+#include <lib/util/stream/PrintWriter.h>
+
 /**
  * Represents the entry point for the operating system.
  */
@@ -50,6 +52,11 @@ public:
      * This method is invoked by the main() method, after boot strapping process is finished an paging is setup.
      */
     [[noreturn]] static void enter();
+
+private:
+
+    static uint8_t* printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address);
+
 };
 
 

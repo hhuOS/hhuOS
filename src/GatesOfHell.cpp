@@ -28,9 +28,9 @@
 #include <kernel/multiboot/MultibootTerminalProvider.h>
 #include <device/hid/Keyboard.h>
 #include <lib/util/stream/PipedInputStream.h>
-#include <lib/util/stream/PrintWriter.h>
 #include <lib/util/stream/InputStreamReader.h>
 #include <filesystem/core/Filesystem.h>
+#include <lib/util/file/tar/Archive.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -77,17 +77,53 @@ void GatesOfHell::enter() {
     auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream, resolution.columns);
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
-    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
-            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
-            << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
-            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+    if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
+        auto module = Kernel::Multiboot::Structure::getModule("initrd");
+        auto *tarArchive = Util::File::Tar::Archive::from(module.start);
+        uint8_t *file = tarArchive->getFile("banner.txt");
+
+        file = printBannerLine(writer, file);
+        writer << Util::Stream::PrintWriter::endl;
+        file = printBannerLine(writer, file);
+        writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
+        file = printBannerLine(writer, file);
+        writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+        file = printBannerLine(writer, file);
+        writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
+        printBannerLine(writer, file);
+        writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::endl;
+
+        delete tarArchive;
+    } else {
+        writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
+                << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
+                << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
+                << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+    }
 
     auto keyboardInputStream = Util::Stream::PipedInputStream();
     auto reader = Util::Stream::InputStreamReader(keyboardInputStream);
     auto keyboard = Device::Keyboard(keyboardInputStream);
     keyboard.plugin();
 
+    writer << "> " << Util::Stream::PrintWriter::flush;
+
     while(true) {
-        writer << reader.read() << Util::Stream::PrintWriter::flush;
+        char input = reader.read();
+        writer << input;
+
+        if (input == '\n') {
+            writer << "> ";
+        }
+
+        writer << Util::Stream::PrintWriter::flush;
     }
+}
+
+uint8_t* GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address) {
+    while (*address != '\n') {
+        writer.write(static_cast<char>(*address++));
+    }
+
+    return address + 1;
 }

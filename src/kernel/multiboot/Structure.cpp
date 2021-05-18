@@ -81,11 +81,11 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         multibootInfo->moduleAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
 
-        auto mods = reinterpret_cast<ModuleInfo *>(multibootInfo->moduleAddress);
+        auto mods = reinterpret_cast<ModuleInfo*>(multibootInfo->moduleAddress);
         for(uint32_t i = 0; i < multibootInfo->moduleCount; i++) {
             sourceAddress = Util::Memory::Address<uint32_t>(mods[i].string);
             destinationAddress.copyString(sourceAddress);
-            mods[i].string = reinterpret_cast<char *>(destinationAddress.get());
+            mods[i].string = reinterpret_cast<char*>(destinationAddress.get());
             destinationAddress = destinationAddress.add(sourceAddress.stringLength() + 1);
         }
     }

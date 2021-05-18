@@ -1,10 +1,10 @@
 default = "hhuOS"
 timeout = 0
-log_level = "info"
+log_level = "debug"
 
 [entries]
   [entries.hhuOS]
     name = "hhuOS"
     image = "\\hhuOS.bin"
     modules = [ { image = "\\hhuOS.initrd", argv = "initrd" } ]
-    argv = ""
+    quirks = [ "ModulesBelow200Mb" ]
