@@ -21,7 +21,7 @@ private:
 
 public:
     //Sending constructor
-    ICMP4Echo(uint16_t identifier,uint16_t sequenceNumber);
+    ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber);
 
     //Receiveing constructor
     ICMP4Echo(IP4DataPart *dataPart);

@@ -8,14 +8,14 @@
 #include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
-    if(event.getType()==ICMP4ReceiveEvent::TYPE){
-        auto dataPart=((ICMP4ReceiveEvent &)event).getIp4DataPart();
-        if(dataPart->getLength()==0){
+    if (event.getType() == ICMP4ReceiveEvent::TYPE) {
+        auto dataPart = ((ICMP4ReceiveEvent &) event).getIp4DataPart();
+        if (dataPart->getLength() == 0) {
             log.error("Given IP4DataPart was empty! Ignoring...");
             return;
         }
         uint8_t firstByte = static_cast<uint8_t *>(dataPart->getMemoryAddress())[0];
-        ICMP4MessageType messageType=ICMP4Message::parseMessageType(firstByte);
+        ICMP4MessageType messageType = ICMP4Message::parseMessageType(firstByte);
         switch (messageType) {
             //TODO: Do magic
             case ICMP4MessageType::ECHO_REPLY:

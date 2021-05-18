@@ -7,7 +7,7 @@
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4EchoReply : public ICMP4Message{
+class ICMP4EchoReply : public ICMP4Message {
 public:
     //Sending constructor
     ICMP4EchoReply();

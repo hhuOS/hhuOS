@@ -8,7 +8,7 @@
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4TimeExceeded : public ICMP4Message{
+class ICMP4TimeExceeded : public ICMP4Message {
     //Sending constructor
     ICMP4TimeExceeded();
 
