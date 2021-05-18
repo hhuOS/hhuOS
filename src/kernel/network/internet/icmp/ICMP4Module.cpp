@@ -27,15 +27,15 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 //TODO: Notify application
                 return;
             case ICMP4MessageType::ECHO: {
-                auto *echoRequest=new ICMP4Echo(dataPart);
-                auto *echoReply=new ICMP4EchoReply(
+                auto *echoRequest = new ICMP4Echo(dataPart);
+                auto *echoReply = new ICMP4EchoReply(
                         echoRequest->getIdentifier(),
                         echoRequest->getSequenceNumber()
                 );
-                auto *outDatagram=new IP4Datagram(
+                auto *outDatagram = new IP4Datagram(
                         receiveEvent.getSourceAddress(),
                         echoReply
-                        );
+                );
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::IP4SendEvent(outDatagram)
@@ -46,7 +46,8 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             case ICMP4MessageType::TIME_EXCEEDED:
                 //TODO: Notify application
                 return;
-            default: return;
+            default:
+                return;
         }
     }
 }
