@@ -19,7 +19,7 @@ void Ping::execute(Util::Array<String> &args) {
 //    }
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
-    auto *pingRequest = new ICMP4Echo();
+    auto *pingRequest = new ICMP4Echo(42,0);
 
     auto *toBeSent = new IP4Datagram(localhost, pingRequest);
 

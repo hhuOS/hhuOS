@@ -8,9 +8,20 @@
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
 class ICMP4Echo : public ICMP4Message {
+private:
+    typedef struct icmp4echo {
+        uint8_t type;
+        uint8_t code;
+        uint16_t checksum;
+        uint16_t identifier;
+        uint16_t sequenceNumber;
+    } echoMessage;
+
+    echoMessage myMessage;
+
 public:
     //Sending constructor
-    ICMP4Echo();
+    ICMP4Echo(uint16_t identifier,uint16_t sequenceNumber);
 
     //Receiveing constructor
     ICMP4Echo(IP4DataPart *dataPart);
@@ -18,6 +29,10 @@ public:
     void *getMemoryAddress() override;
 
     uint16_t getLength() override;
+
+    uint16_t getIdentifier();
+
+    uint16_t getSequenceNumber();
 };
 
 
