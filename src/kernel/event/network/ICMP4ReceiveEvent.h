@@ -7,17 +7,25 @@
 
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/internet/IP4Address.h>
 
 namespace Kernel {
 
     class ICMP4ReceiveEvent : public Event {
     private:
+        IP4Address *sourceAddress;
+        IP4Address *destinationAddress;
+
         //We do not know the exact type of ICMP message here
         //-> Parsing needs to be done in ICMP Module later
         IP4DataPart *ip4DataPart;
     public:
 
-        ICMP4ReceiveEvent(IP4DataPart *ip4DataPart);
+        ICMP4ReceiveEvent(IP4Address *sourceAddress, IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
+
+        IP4Address *getSourceAddress() const;
+
+        IP4Address *getDestinationAddress() const;
 
         IP4DataPart *getIp4DataPart() const;
 

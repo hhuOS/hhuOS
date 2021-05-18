@@ -39,8 +39,10 @@ namespace Kernel {
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
+                                        datagram->getSourceAddress(),
+                                        datagram->getDestinationAddress(),
                                         new ICMP4DestinationUnreachable()
-                                        )
+                                )
                         )
                 );
                 return;
@@ -78,7 +80,11 @@ namespace Kernel {
                 case IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
-                                    new Kernel::ICMP4ReceiveEvent(ip4Datagram->getIp4DataPart())
+                                    new Kernel::ICMP4ReceiveEvent(
+                                            ip4Datagram->getSourceAddress(),
+                                            ip4Datagram->getDestinationAddress(),
+                                            ip4Datagram->getIp4DataPart()
+                                            )
                             )
                     );
                     break;
