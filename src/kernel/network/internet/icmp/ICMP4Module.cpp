@@ -10,36 +10,38 @@
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if(event.getType()==ICMP4ReceiveEvent::TYPE){
         auto dataPart=((ICMP4ReceiveEvent &)event).getIp4DataPart();
-        ICMP4MessageType messageType=parseMessageType(dataPart);
+        if(dataPart->getLength()==0){
+            log.error("Given IP4DataPart was empty! Ignoring...");
+            return;
+        }
+        uint8_t firstByte = static_cast<uint8_t *>(dataPart->getMemoryAddress())[0];
+        ICMP4MessageType messageType=ICMP4Message::parseMessageType(firstByte);
         switch (messageType) {
             //TODO: Do magic
             case ICMP4MessageType::ECHO_REPLY:
-                break;
+                return;
             case ICMP4MessageType::DESTINATION_UNREACHABLE:
-                break;
+                return;
             case ICMP4MessageType::SOURCE_QUENCH:
-                break;
+                return;
             case ICMP4MessageType::REDIRECT:
-                break;
+                return;
             case ICMP4MessageType::ECHO:
-                break;
+                return;
             case ICMP4MessageType::TIME_EXCEEDED:
-                break;
+                return;
             case ICMP4MessageType::PARAMETER_PROBLEM:
-                break;
+                return;
             case ICMP4MessageType::TIMESTAMP:
-                break;
+                return;
             case ICMP4MessageType::TIMESTAMP_REPLY:
-                break;
+                return;
             case ICMP4MessageType::INFORMATION_REQUEST:
-                break;
+                return;
             case ICMP4MessageType::INFORMATION_REPLY:
-                break;
+                return;
+            case ICMP4MessageType::INVALID_MESSAGE_TYPE:
+                return;
         }
     }
-}
-
-ICMP4MessageType Kernel::ICMP4Module::parseMessageType(IP4DataPart *pPart) {
-    //TODO: Implement matching of first by in dataPart to ICMP4MessageType
-    return ICMP4MessageType::ECHO_REPLY;
 }

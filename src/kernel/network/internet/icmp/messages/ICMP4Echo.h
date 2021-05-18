@@ -5,20 +5,19 @@
 #ifndef HHUOS_ICMP4ECHO_H
 #define HHUOS_ICMP4ECHO_H
 
-#include <cinttypes>
-#include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4Echo : public IP4DataPart {
+class ICMP4Echo : public ICMP4Message {
 public:
+    //Sending constructor
     ICMP4Echo();
 
+    //Receiveing constructor
     ICMP4Echo(IP4DataPart *dataPart);
 
     void *getMemoryAddress() override;
 
     uint16_t getLength() override;
-
-    IP4ProtocolType getIP4ProtocolType() override;
 };
 
 

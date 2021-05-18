@@ -7,8 +7,9 @@
 
 
 #include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4EchoReply : IP4DataPart{
+class ICMP4EchoReply : public ICMP4Message{
 public:
     ICMP4EchoReply();
 
@@ -17,8 +18,6 @@ public:
     void *getMemoryAddress() override;
 
     uint16_t getLength() override;
-
-    IP4ProtocolType getIP4ProtocolType() override;
 };
 
 

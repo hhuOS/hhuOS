@@ -20,7 +20,3 @@ void *ICMP4Echo::getMemoryAddress() {
 uint16_t ICMP4Echo::getLength() {
     return 0;
 }
-
-IP4ProtocolType ICMP4Echo::getIP4ProtocolType() {
-    return IP4ProtocolType::ICMP;
-}

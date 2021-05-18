@@ -17,7 +17,3 @@ void *ICMP4DestinationUnreachable::getMemoryAddress() {
 uint16_t ICMP4DestinationUnreachable::getLength() {
     return 0;
 }
-
-IP4ProtocolType ICMP4DestinationUnreachable::getIP4ProtocolType() {
-    return IP4ProtocolType::ICMP;
-}

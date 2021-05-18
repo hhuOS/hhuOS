@@ -6,9 +6,9 @@
 #define HHUOS_ICMP4DESTINATIONUNREACHABLE_H
 
 
-#include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4DestinationUnreachable : public IP4DataPart {
+class ICMP4DestinationUnreachable : public ICMP4Message {
 public:
     ICMP4DestinationUnreachable();
 
@@ -17,8 +17,6 @@ public:
     void *getMemoryAddress() override;
 
     uint16_t getLength() override;
-
-    IP4ProtocolType getIP4ProtocolType() override;
 };
 
 

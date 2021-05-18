@@ -27,8 +27,6 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
-
-        static ICMP4MessageType parseMessageType(IP4DataPart *pPart);
     };
 }
 

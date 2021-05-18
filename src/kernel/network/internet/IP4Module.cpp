@@ -75,7 +75,7 @@ namespace Kernel {
         if (event.getType() == IP4ReceiveEvent::TYPE) {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
             switch (ip4Datagram->getIp4ProtocolType()) {
-                case IP4ProtocolType::ICMP:
+                case IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
                                     new Kernel::ICMP4ReceiveEvent(ip4Datagram->getIp4DataPart())

@@ -7,7 +7,7 @@
 
 
 enum class IP4ProtocolType {
-    ICMP = 1,
+    ICMP4 = 1,
     UDP = 17
 };
 
