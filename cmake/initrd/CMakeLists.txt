@@ -1,7 +1,5 @@
-# Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
-# Institute of Computer Science, Department Operating Systems
-# Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-#
+# Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+# Heinrich-Heine University
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -16,13 +14,10 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(grub)
+project(initrd)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        COMMAND cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/boot/hhuOS.bin"
-        COMMAND cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/grub/boot/hhuOS.initrd"
-        COMMAND grub-mkrescue "/usr/lib/grub/i386-pc" "/usr/lib/grub/i386-efi" -o "${HHUOS_ROOT_DIR}/hhuOS.iso" "${HHUOS_ROOT_DIR}/loader/grub/"
-        DEPENDS system)
+add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
+        COMMAND tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./)
 
-add_custom_target(grub DEPENDS "${HHUOS_ROOT_DIR}/hhuOS.iso")
+add_custom_target(initrd DEPENDS "${CMAKE_BINARY_DIR}/hhuOS.initrd")

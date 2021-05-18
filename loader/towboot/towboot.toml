@@ -6,4 +6,5 @@ log_level = "info"
   [entries.hhuOS]
     name = "hhuOS"
     image = "\\hhuOS.bin"
+    modules = [ { image = "\\hhuOS.initrd", argv = "initrd" } ]
     argv = ""

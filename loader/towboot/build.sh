@@ -13,6 +13,7 @@ mmd -i part.img efi/boot
 mcopy -i part.img towboot.efi ::efi/boot/bootia32.efi
 mcopy -i part.img towboot.toml ::
 mcopy -i part.img hhuOS.bin ::
+mcopy -i part.img hhuOS.initrd ::
 
 fallocate -l 1M fill.img
 cat fill.img part.img fill.img > hhuOS.img

@@ -78,8 +78,7 @@ void GatesOfHell::enter() {
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
     writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
-            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")"
-            << Util::Stream::PrintWriter::endl
+            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
             << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
             << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
 
