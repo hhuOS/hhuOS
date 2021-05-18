@@ -12,7 +12,7 @@ public:
     //Sending constructor
     ICMP4EchoReply();
 
-    //Receiveing constructor
+    //Receiving constructor
     ICMP4EchoReply(IP4DataPart *dataPart);
 
     void *getMemoryAddress() override;

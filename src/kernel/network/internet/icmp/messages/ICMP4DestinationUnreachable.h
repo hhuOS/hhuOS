@@ -10,8 +10,10 @@
 
 class ICMP4DestinationUnreachable : public ICMP4Message {
 public:
+    //Sending constructor
     ICMP4DestinationUnreachable();
 
+    //Receiving constructor
     ICMP4DestinationUnreachable(IP4DataPart *dataPart);
 
     void *getMemoryAddress() override;
