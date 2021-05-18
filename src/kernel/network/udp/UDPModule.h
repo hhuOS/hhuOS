@@ -7,10 +7,11 @@
 
 #include <kernel/log/Logger.h>
 #include <kernel/event/Event.h>
+#include <kernel/event/Receiver.h>
 
 namespace Kernel {
 
-    class UDPModule {
+    class UDPModule : public Receiver{
     public:
         Logger &log = Logger::get("UDPModule");
 
