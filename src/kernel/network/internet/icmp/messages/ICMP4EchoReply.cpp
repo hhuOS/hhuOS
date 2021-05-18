@@ -4,9 +4,7 @@
 
 #include "ICMP4EchoReply.h"
 
-ICMP4EchoReply::ICMP4EchoReply() {
-
-}
+ICMP4EchoReply::ICMP4EchoReply() {}
 
 ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
     //TODO: Implement parsing from input
