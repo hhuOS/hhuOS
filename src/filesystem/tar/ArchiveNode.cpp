@@ -19,7 +19,7 @@
 
 namespace Filesystem::Tar {
 
-ArchiveNode::ArchiveNode(Util::File::Tar::Archive &archive, Util::File::Tar::Archive::Header fileHeader) {
+ArchiveNode::ArchiveNode(Util::File::Tar::Archive &archive, Util::File::Tar::Archive::Header fileHeader) : type(Util::File::REGULAR) {
     auto path = Util::Memory::String(fileHeader.filename);
     if(!path.isEmpty()) {
         Util::Data::Array<Util::Memory::String> tokens = path.split("/");
@@ -27,10 +27,10 @@ ArchiveNode::ArchiveNode(Util::File::Tar::Archive &archive, Util::File::Tar::Arc
     }
 
     size = Util::File::Tar::Archive::calculateFileSize(fileHeader);
-    dataAddress = Util::Memory::Address<uint32_t>(archive.getFile(path));
+    dataAddress = Util::Memory::Address<uint32_t>(archive.getFile(path), size);
 }
 
-ArchiveNode::ArchiveNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path) : dataAddress(static_cast<uint32_t>(0), 0) {
+ArchiveNode::ArchiveNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path) : type(Util::File::DIRECTORY), dataAddress(static_cast<uint32_t>(0), 0) {
     if(path.isEmpty() || path == "/") {
         name = "/";
     } else {
@@ -56,6 +56,10 @@ Util::Memory::String ArchiveNode::getName() {
     return name;
 }
 
+Util::File::Type ArchiveNode::getFileType() {
+    return type;
+}
+
 uint64_t ArchiveNode::getLength() {
     return size;
 }
@@ -77,8 +81,8 @@ uint64_t ArchiveNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t num
         numBytes = (size - pos);
     }
 
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer, pos + numBytes);
-    targetAddress.copyRange(dataAddress, numBytes);
+    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer, numBytes);
+    targetAddress.copyRange(dataAddress.add(pos), numBytes);
 
     return numBytes;
 }

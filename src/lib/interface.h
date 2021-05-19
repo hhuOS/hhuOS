@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include <lib/util/Exception.h>
+#include <lib/util/file/Node.h>
 
 void* allocateMemory(uint32_t size);
 void* reallocateMemory(void *pointer, uint32_t size);
@@ -27,6 +28,10 @@ void freeMemory(void *pointer);
 
 void* allocateMemory(uint32_t size, uint32_t alignment);
 void freeMemory(void *pointer, uint32_t alignment);
+
+Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
+Util::File::Node* openFile(const Util::Memory::String &path);
+bool createFile(const Util::Memory::String &path, Util::File::Type type);
 
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);
 

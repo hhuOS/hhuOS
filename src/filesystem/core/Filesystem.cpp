@@ -15,12 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/file/File.h>
 #include "Filesystem.h"
 
 namespace Filesystem {
 
-Util::Memory::String Filesystem::parsePath(const Util::Memory::String &path) {
-    Util::Data::Array<Util::Memory::String> token = path.split(Filesystem::SEPARATOR);
+Util::Memory::String Filesystem::getCanonicalPath(const Util::Memory::String &path) {
+    Util::Data::Array<Util::Memory::String> token = path.split(Util::File::File::SEPARATOR);
     Util::Data::ArrayList<Util::Memory::String> parsedToken;
 
     for (const Util::Memory::String &string : token) {
@@ -39,13 +40,13 @@ Util::Memory::String Filesystem::parsePath(const Util::Memory::String &path) {
         return "";
     }
 
-    Util::Memory::String parsedPath = Filesystem::SEPARATOR + Util::Memory::String::join(Filesystem::SEPARATOR, parsedToken.toArray());
+    Util::Memory::String parsedPath = Util::File::File::SEPARATOR + Util::Memory::String::join(Util::File::File::SEPARATOR, parsedToken.toArray());
     return parsedPath;
 }
 
 Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
-    if (!path.endsWith(Filesystem::SEPARATOR)) {
-        path += Filesystem::SEPARATOR;
+    if (!path.endsWith(Util::File::File::SEPARATOR)) {
+        path += Util::File::File::SEPARATOR;
     }
 
     Util::Memory::String ret;
@@ -75,8 +76,8 @@ void Filesystem::init() {
 }
 
 bool Filesystem::mount(const Util::Memory::String &targetPath, Driver &driver) {
-    Util::Memory::String parsedPath = parsePath(targetPath) + Filesystem::SEPARATOR;
-    Node *targetNode = getNode(parsedPath);
+    Util::Memory::String parsedPath = getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
+    Util::File::Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
@@ -100,8 +101,8 @@ bool Filesystem::mount(const Util::Memory::String &targetPath, Driver &driver) {
 }
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = parsePath(path) + Filesystem::SEPARATOR;
-    Node *targetNode = getNode(parsedPath);
+    Util::Memory::String parsedPath = getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    Util::File::Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
         if (path != "/") {
@@ -128,8 +129,8 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
     return lock.releaseAndReturn(false);
 }
 
-Node* Filesystem::getNode(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = parsePath(path);
+Util::File::Node* Filesystem::getNode(const Util::Memory::String &path) {
+    Util::Memory::String parsedPath = getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -137,12 +138,12 @@ Node* Filesystem::getNode(const Util::Memory::String &path) {
         return lock.releaseAndReturn(nullptr);
     }
 
-    Node *ret = driver->getNode(parsedPath);
+    Util::File::Node *ret = driver->getNode(parsedPath);
     return lock.releaseAndReturn(ret);
 }
 
 bool Filesystem::createFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = parsePath(path);
+    Util::Memory::String parsedPath = getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -155,7 +156,7 @@ bool Filesystem::createFile(const Util::Memory::String &path) {
 }
 
 bool Filesystem::createDirectory(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = parsePath(path);
+    Util::Memory::String parsedPath = getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -169,7 +170,7 @@ bool Filesystem::createDirectory(const Util::Memory::String &path) {
 }
 
 bool Filesystem::deleteFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = parsePath(path);
+    Util::Memory::String parsedPath = getCanonicalPath(path);
     lock.acquire();
 
     for (const Util::Memory::String &key : mountPoints.keySet()) {

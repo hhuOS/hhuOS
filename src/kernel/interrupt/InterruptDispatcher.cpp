@@ -17,10 +17,8 @@
 
 #include <device/interrupt/Pic.h>
 #include "kernel/core/System.h"
-#include "kernel/core/Symbols.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "kernel/core/Management.h"
 
 namespace Kernel {
 

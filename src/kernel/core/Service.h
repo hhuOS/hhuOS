@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,30 +14,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_INPUTSTREAM_H
-#define HHUOS_INPUTSTREAM_H
+#ifndef __KernelService_include__
+#define __KernelService_include__
 
-#include <cstdint>
+namespace Kernel {
 
-namespace Util::Stream {
-
-class InputStream {
+/**
+ * KernelService - Base class for all Kernel services.
+ *
+ * @author Michael Schoettner, Filip Krakowski, Christian Gesse, Fabian Ruhland, Burak Akguel
+ * @date HHU, 2018
+ */
+class Service {
 
 public:
 
-    InputStream() = default;
+    Service() = default;
 
-    InputStream(const InputStream &copy) = delete;
-
-    InputStream& operator=(const InputStream &copy) = delete;
-
-    virtual ~InputStream() = default;
-
-    virtual int16_t read() = 0;
-
-    virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
-
-    virtual void close();
 };
 
 }

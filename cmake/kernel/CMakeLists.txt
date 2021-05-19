@@ -28,5 +28,3 @@ add_subdirectory(core)
 add_subdirectory(interrupt)
 add_subdirectory(memory)
 add_subdirectory(multiboot)
-
-target_link_libraries(${PROJECT_NAME} device filesystem lib.kernel)

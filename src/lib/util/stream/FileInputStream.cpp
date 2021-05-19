@@ -15,32 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_INPUTSTREAM_H
-#define HHUOS_INPUTSTREAM_H
-
-#include <cstdint>
+#include <lib/util/file/File.h>
+#include "FileInputStream.h"
 
 namespace Util::Stream {
 
-class InputStream {
+FileInputStream::FileInputStream(File::File &file) : file(file) {}
 
-public:
+int16_t FileInputStream::read() {
+    uint8_t c;
+    int32_t count = read(&c, 0, 1);
 
-    InputStream() = default;
-
-    InputStream(const InputStream &copy) = delete;
-
-    InputStream& operator=(const InputStream &copy) = delete;
-
-    virtual ~InputStream() = default;
-
-    virtual int16_t read() = 0;
-
-    virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
-
-    virtual void close();
-};
-
+    return count > 0 ? c : -1;
 }
 
-#endif
+int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+    if (file.node == nullptr) {
+        return -1;
+    }
+
+    if (pos >= file.getLength()) {
+        return -1;
+    }
+
+    uint32_t count = file.node->readData(targetBuffer + offset, pos, length);
+    pos += count;
+
+    return count > 0 ? count : -1;
+}
+
+void FileInputStream::close() {
+    InputStream::close();
+}
+}

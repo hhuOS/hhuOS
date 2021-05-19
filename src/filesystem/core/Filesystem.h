@@ -20,6 +20,7 @@
 
 #include <lib/util/async/Spinlock.h>
 #include <lib/util/data/HashMap.h>
+#include <kernel/core/Service.h>
 #include "Driver.h"
 
 namespace Filesystem {
@@ -28,7 +29,7 @@ namespace Filesystem {
  * The filesystem. It works by maintaining a list of mount-points. Every request will be handled by picking the right
  * mount-point and and passing the request over to the corresponding Driver.
  */
-class Filesystem {
+class Filesystem : public Kernel::Service {
 
 public:
     /**
@@ -57,7 +58,7 @@ public:
      * @param path The path
      * @return The processed path
      */
-    static Util::Memory::String parsePath(const Util::Memory::String &path);
+    static Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 
     /**
      * Initialize the Filesystem.
@@ -93,7 +94,7 @@ public:
      *
      * @return The node (or nullptr on failure)
      */
-    Node* getNode(const Util::Memory::String &path);
+    Util::File::Node* getNode(const Util::Memory::String &path);
 
     /**
      * Create a file at a specified path.
@@ -124,6 +125,8 @@ public:
      * @return true on success
      */
     bool deleteFile(const Util::Memory::String &path);
+
+    static const constexpr char *SERVICE_NAME = "Filesystem";
     
 private:
 
@@ -141,8 +144,6 @@ private:
      * @return The driver (or nullptr on failure)
      */
     Driver* getMountedDriver(Util::Memory::String &path);
-
-    static constexpr const char *SEPARATOR = "/";
     
 };
 

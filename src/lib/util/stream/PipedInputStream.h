@@ -28,8 +28,6 @@ class PipedOutputStream;
 
 class PipedInputStream : public InputStream {
 
-friend class PipedOutputStream;
-
 public:
 
     PipedInputStream();
@@ -61,6 +59,8 @@ private:
     int32_t outPosition = 0;
 
     static const constexpr uint32_t BUFFER_SIZE = 16;
+
+    friend class PipedOutputStream;
 
 };
 

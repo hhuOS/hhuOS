@@ -23,13 +23,13 @@ namespace Kernel {
 
 Util::Async::Spinlock System::serviceLock;
 
-Util::Data::HashMap<Util::Memory::String, KernelService *> System::serviceMap(sizeof(uint8_t));
+Util::Data::HashMap<Util::Memory::String, Service*> System::serviceMap(sizeof(uint8_t));
 
-void System::registerService(const Util::Memory::String &serviceId, KernelService *const &kernelService) {
+void System::registerService(const Util::Memory::String &serviceId, Service &kernelService) {
 
     serviceLock.acquire();
 
-    serviceMap.put(serviceId, kernelService);
+    serviceMap.put(serviceId, &kernelService);
 
     serviceLock.release();
 }

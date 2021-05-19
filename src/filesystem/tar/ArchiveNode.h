@@ -20,11 +20,11 @@
 
 #include <lib/util/file/tar/Archive.h>
 #include <lib/util/memory/Address.h>
-#include <filesystem/core/Node.h>
+#include <lib/util/file/Node.h>
 
 namespace Filesystem::Tar {
 
-class ArchiveNode : public Node {
+class ArchiveNode : public Util::File::Node {
 
 public:
     /**
@@ -55,6 +55,11 @@ public:
     /**
      * Overriding function from Node.
      */
+    Util::File::Type getFileType() override;
+
+    /**
+     * Overriding function from Node.
+     */
     uint64_t getLength() override;
 
     /**
@@ -75,6 +80,7 @@ public:
 private:
 
     uint32_t size = 0;
+    Util::File::Type type;
     Util::Memory::Address<uint32_t> dataAddress;
     Util::Memory::String name;
     Util::Data::ArrayList<Util::Memory::String> children;

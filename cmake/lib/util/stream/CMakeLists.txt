@@ -23,6 +23,7 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/stream/BufferedWriter.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/ByteArrayOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/ByteArrayInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/stream/FileInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/FilterInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/InputStream.cpp

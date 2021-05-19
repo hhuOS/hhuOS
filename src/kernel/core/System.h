@@ -18,7 +18,7 @@
 #ifndef __Kernel_include__
 #define __Kernel_include__
 
-#include "kernel/service/KernelService.h"
+#include "Service.h"
 #include "lib/util/async/Spinlock.h"
 
 #include <cstdint>
@@ -62,7 +62,7 @@ public:
 	 * @param serviceId The unique service id.
 	 * @param kernelService Instance of the KernelService
 	 */
-    static void registerService(const Util::Memory::String &serviceId, KernelService *const &kernelService);
+    static void registerService(const Util::Memory::String &serviceId, Service &kernelService);
 
     /**
      * Indicates whether a particular service has already been registered.
@@ -81,7 +81,7 @@ public:
 
 private:
 
-    static Util::Data::HashMap<Util::Memory::String, KernelService *> serviceMap;
+    static Util::Data::HashMap<Util::Memory::String, Service *> serviceMap;
 
     static Util::Async::Spinlock serviceLock;
 };

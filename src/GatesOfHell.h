@@ -19,6 +19,7 @@
 #define __KernelEntry_include__
 
 #include <lib/util/stream/PrintWriter.h>
+#include <lib/util/stream/Reader.h>
 
 /**
  * Represents the entry point for the operating system.
@@ -57,7 +58,7 @@ private:
 
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
-    static uint8_t* printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address);
+    static void printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader);
 
 };
 

@@ -24,6 +24,7 @@
 #include <device/graphic/LinearFrameBufferTerminalProvider.h>
 #include <device/graphic/ColorGraphicsArrayProvider.h>
 #include <lib/util/reflection/InstanceFactory.h>
+#include <kernel/core/System.h>
 #include <kernel/multiboot/Structure.h>
 #include <kernel/multiboot/MultibootTerminalProvider.h>
 #include <device/hid/Keyboard.h>
@@ -32,6 +33,8 @@
 #include <filesystem/core/Filesystem.h>
 #include <lib/util/file/tar/Archive.h>
 #include <filesystem/tar/ArchiveDriver.h>
+#include <lib/util/file/File.h>
+#include <lib/util/stream/BufferedReader.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -69,8 +72,9 @@ void GatesOfHell::enter() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
 
-    auto filesystem = Filesystem::Filesystem();
+    auto &filesystem = *new Filesystem::Filesystem();
     filesystem.init();
+    Kernel::System::registerService(Filesystem::Filesystem::SERVICE_NAME, filesystem);
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
@@ -84,26 +88,27 @@ void GatesOfHell::enter() {
         auto tarDriver = Filesystem::Tar::ArchiveDriver(tarArchive);
         filesystem.mount("/", tarDriver);
 
-        auto bannerNode = filesystem.getNode("/banner.txt");
-        if (bannerNode == nullptr) {
+        auto bannerFile = Util::File::File("/banner.txt");
+        if (!bannerFile.exists()) {
             printDefaultBanner(writer);
         } else {
-            auto *bannerData = new uint8_t[bannerNode->getLength()];
-            bannerNode->readData(bannerData, 0, bannerNode->getLength());
+            auto *bannerData = new uint8_t[bannerFile.getLength()];
+            auto bannerStream = Util::Stream::FileInputStream(bannerFile);
+            auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
+            auto reader = Util::Stream::BufferedReader(bannerReader);
 
-            auto currentData = printBannerLine(writer, bannerData);
+            printBannerLine(writer, reader);
             writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
-            currentData = printBannerLine(writer, currentData);
+            printBannerLine(writer, reader);
             writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
-            currentData = printBannerLine(writer, currentData);
+            printBannerLine(writer, reader);
             writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
-            currentData = printBannerLine(writer, currentData);
+            printBannerLine(writer, reader);
             writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
-            printBannerLine(writer, currentData);
+            printBannerLine(writer, reader);
             writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 
             delete[] bannerData;
-            delete bannerNode;
         }
 
         filesystem.unmount("/");
@@ -137,10 +142,10 @@ void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 }
 
-uint8_t* GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address) {
-    while (*address != '\n') {
-        writer.write(static_cast<char>(*address++));
+void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader) {
+    char c = reader.read();
+    while (c != '\n') {
+        writer << c;
+        c = reader.read();
     }
-
-    return address + 1;
 }

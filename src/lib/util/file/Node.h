@@ -19,8 +19,9 @@
 #define __FsNode_include__
 
 #include "lib/util/memory/String.h"
+#include "Type.h"
 
-namespace Filesystem {
+namespace Util::File {
 
 /**
  * Represents a node in the filesystem-tree.
@@ -31,6 +32,7 @@ namespace Filesystem {
 class Node {
 
 public:
+
     /**
      * Constructor.
      */
@@ -55,6 +57,11 @@ public:
      * Get the name.
      */
     virtual Util::Memory::String getName() = 0;
+
+    /**
+     * Get the file type.
+     */
+    virtual Type getFileType() = 0;
 
     /**
      * Get the length (in bytes) of the node's data.

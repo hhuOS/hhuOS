@@ -25,8 +25,8 @@ int16_t FilterInputStream::read() {
     return stream.read();
 }
 
-int32_t FilterInputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
-    return stream.read(target, offset, length);
+int32_t FilterInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+    return stream.read(targetBuffer, offset, length);
 }
 
 void FilterInputStream::close() {

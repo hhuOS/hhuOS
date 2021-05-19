@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,23 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __KernelService_include__
-#define __KernelService_include__
+#ifndef HHUOS_TYPE_H
+#define HHUOS_TYPE_H
 
-namespace Kernel {
+namespace Util::File {
 
 /**
- * KernelService - Base class for all Kernel services.
- *
- * @author Michael Schoettner, Filip Krakowski, Christian Gesse, Fabian Ruhland, Burak Akguel
- * @date HHU, 2018
+ * Enumeration of different file types.
  */
-class KernelService {
-
-public:
-
-    KernelService() = default;
-
+enum Type : uint8_t {
+    REGULAR,
+    DIRECTORY
 };
 
 }

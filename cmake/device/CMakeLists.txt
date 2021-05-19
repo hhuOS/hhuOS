@@ -29,5 +29,3 @@ add_subdirectory(cpu)
 add_subdirectory(graphic)
 add_subdirectory(hid)
 add_subdirectory(interrupt)
-
-target_link_libraries(${PROJECT_NAME} kernel)

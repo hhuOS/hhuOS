@@ -118,8 +118,6 @@ private:
     uint32_t len;
 
     char *buffer;
-
-    friend class Logger;
 };
 
 }

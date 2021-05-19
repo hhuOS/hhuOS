@@ -27,4 +27,4 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.img"
         COMMAND mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.img" "${HHUOS_ROOT_DIR}"
         DEPENDS system)
 
-add_custom_target(towboot DEPENDS initrd "${HHUOS_ROOT_DIR}/hhuOS.img")
+add_custom_target(towboot DEPENDS system initrd "${HHUOS_ROOT_DIR}/hhuOS.img")

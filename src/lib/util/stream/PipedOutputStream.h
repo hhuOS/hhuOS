@@ -25,8 +25,6 @@ namespace Util::Stream {
 
 class PipedOutputStream : public OutputStream {
 
-friend class PipedInputStream;
-
 public:
 
     PipedOutputStream() = default;
@@ -48,6 +46,8 @@ public:
 private:
 
     PipedInputStream *sink = nullptr;
+
+    friend class PipedInputStream;
 
 };
 

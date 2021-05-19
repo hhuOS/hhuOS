@@ -15,30 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_INPUTSTREAM_H
-#define HHUOS_INPUTSTREAM_H
+#ifndef HHUOS_FILEINPUTSTREAM_H
+#define HHUOS_FILEINPUTSTREAM_H
 
-#include <cstdint>
+#include <lib/util/file/File.h>
+
+#include "InputStream.h"
+
+namespace Util::File {
+    class File;
+}
 
 namespace Util::Stream {
 
-class InputStream {
+class FileInputStream : public InputStream {
 
 public:
 
-    InputStream() = default;
+    explicit FileInputStream(File::File &file);
 
-    InputStream(const InputStream &copy) = delete;
+    FileInputStream(const FileInputStream &copy) = delete;
 
-    InputStream& operator=(const InputStream &copy) = delete;
+    FileInputStream &operator=(const FileInputStream &copy) = delete;
 
-    virtual ~InputStream() = default;
+    ~FileInputStream() override = default;
 
-    virtual int16_t read() = 0;
+    int16_t read() override;
 
-    virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
+    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
-    virtual void close();
+    void close() override;
+
+private:
+
+    uint32_t pos = 0;
+    File::File &file;
+
 };
 
 }

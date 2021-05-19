@@ -16,33 +16,50 @@
  */
 
 #include <lib/interface.h>
+#include "File.h"
 
-void *allocateMemory(uint32_t size) {
-    return nullptr;
+namespace Util::File {
+
+File::File(const Memory::String &path) : path(path), node(openFile(path)) {}
+
+File::~File() {
+    delete node;
 }
 
-void* reallocateMemory(void *pointer, uint32_t size) {
-    return nullptr;
+bool File::exists() const {
+    return node != nullptr;
 }
 
-void freeMemory(void *pointer) {}
-
-void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return nullptr;
+bool File::isFile() const {
+    return node != nullptr && (node->getFileType() == REGULAR);
 }
 
-void freeMemory(void *pointer, uint32_t alignment) {}
-
-Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
-    return "";
+bool File::isDirectory() const {
+    return node != nullptr && (node->getFileType() == DIRECTORY);
 }
 
-Util::File::Node* openFile(const Util::Memory::String &path) {
-    return nullptr;
+uint32_t File::File::getLength() const {
+    return node == nullptr ? 0 : node->getLength();
 }
 
-bool createFile(const Util::Memory::String &path, Util::File::Type type) {
-    return false;
+Memory::String File::getName() const {
+    return node == nullptr ? "" : node->getName();
 }
 
-void throwError(Util::Exception error, const char *message) {}
+Memory::String File::getCanonicalPath() const {
+    return ::getCanonicalPath(path);
+}
+
+Memory::String File::getParent() const {
+    return ::getCanonicalPath(path + "/..");
+}
+
+File File::getParentFile() const {
+    return File(getParent());
+}
+
+bool File::create(Type fileType) {
+    return createFile(path, fileType);
+}
+
+}

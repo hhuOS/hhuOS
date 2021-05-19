@@ -19,7 +19,7 @@
 #define __FsDriver_include__
 
 #include <lib/util/reflection/Prototype.h>
-#include "Node.h"
+#include <lib/util/file/Node.h>
 
 namespace Filesystem {
 
@@ -58,7 +58,7 @@ public:
      *
      * @return The FsNode (or nulltpr on failure)
      */
-    virtual Node* getNode(const Util::Memory::String &path) = 0;
+    virtual Util::File::Node* getNode(const Util::Memory::String &path) = 0;
 
     /**
      * Create a new empty file or directory at a given path.

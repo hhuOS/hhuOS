@@ -32,7 +32,7 @@ bool ArchiveDriver::mount() {
     return true;
 }
 
-Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
+Util::File::Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
     for(const auto &header : archive.getFileHeaders()) {
         Util::Memory::String currentPath = header.filename;
 

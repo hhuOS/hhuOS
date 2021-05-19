@@ -21,7 +21,7 @@
 #include <cstdint>
 #include "InterruptHandler.h"
 #include "kernel/thread/ThreadState.h"
-#include "kernel/service/KernelService.h"
+#include "kernel/core/Service.h"
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/HashMap.h"
 
@@ -34,7 +34,7 @@ namespace Kernel {
  * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  * @date HHU, 2018
  */
-class InterruptDispatcher : public KernelService {
+class InterruptDispatcher : public Service {
 
 public:
     // enum of important interrupt numbers
