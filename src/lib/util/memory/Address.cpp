@@ -33,13 +33,23 @@ template<>
 Address<uint32_t>::Address(const void *pointer, uint32_t limitOffset) : Address<uint32_t>((void*) pointer, limitOffset) {}
 
 template<typename T>
+bool Address<T>::operator==(const Address &other) const {
+    return address == other.address;
+}
+
+template<typename T>
 bool Address<T>::operator!=(const Address &other) const {
     return address != other.address;
 }
 
 template<typename T>
-bool Address<T>::operator==(const Address &other) const {
-    return address == other.address;
+bool Address<T>::operator==(T otherAddress) const {
+    return address == otherAddress;
+}
+
+template<typename T>
+bool Address<T>::operator!=(T otherAddress) const {
+    return address != otherAddress;
 }
 
 template<typename T>

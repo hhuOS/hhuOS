@@ -42,9 +42,13 @@ public:
 
     Address &operator=(const Address &other) = default;
 
+    bool operator==(const Address &other) const;
+
     bool operator!=(const Address &other) const;
 
-    bool operator==(const Address &other) const;
+    bool operator==(T otherAddress) const;
+
+    bool operator!=(T otherAddress) const;
 
     explicit operator T() const;
 

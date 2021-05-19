@@ -25,8 +25,8 @@ namespace Util::File::Tar {
 
 class Archive {
 
-private:
-    
+public:
+
     struct Header {
         char filename[100];
         uint8_t mode[8];
@@ -41,6 +41,8 @@ private:
     
 public:
 
+    explicit Archive(uint32_t address);
+
     ~Archive() = default;
 
     Archive(const Archive &other) = delete;
@@ -48,19 +50,11 @@ public:
     Archive& operator=(const Archive &other) = delete;
 
     /**
-     * Reads a tar archive from a specific address in memory.
-     *
-     * @param address The address at which the tar archive starts
-     * @return The tar archive
-     */
-    static Archive * from(uint32_t address);
-
-    /**
      * Returns all file headers within this archive.
      *
      * @return All file headers.
      */
-    Util::Data::Array<Header*> getFileHeaders();
+    Util::Data::Array<Header> getFileHeaders();
 
     /**
      * Returns the specified file within this archive.
@@ -70,22 +64,20 @@ public:
      */
     uint8_t* getFile(const Util::Memory::String &path);
 
-private:
-
-    Archive() = default;
-
-    uint32_t fileCount = 0;
-    uint32_t totalSize = 0;
-
-    Util::Data::ArrayList<Header*> headers;
-
     /**
      * Converts the size (base8) to the decimal system.
      *
      * @param size The size in base8
      * @return The size in base10
      */
-    static uint32_t calculateSize(const uint8_t *size);
+    static uint32_t calculateFileSize(const Header &header);
+
+private:
+
+    uint32_t fileCount = 0;
+    uint32_t totalSize = 0;
+
+    Util::Data::ArrayList<Header*> headers;
 
     static const constexpr uint8_t LF_NORMAL = 0;
     static const constexpr uint8_t LF_LINK = 1;

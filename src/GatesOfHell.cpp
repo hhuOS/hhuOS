@@ -31,6 +31,7 @@
 #include <lib/util/stream/InputStreamReader.h>
 #include <filesystem/core/Filesystem.h>
 #include <lib/util/file/tar/Archive.h>
+#include <filesystem/tar/ArchiveDriver.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -79,26 +80,35 @@ void GatesOfHell::enter() {
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         auto module = Kernel::Multiboot::Structure::getModule("initrd");
-        auto *tarArchive = Util::File::Tar::Archive::from(module.start);
-        uint8_t *file = tarArchive->getFile("banner.txt");
+        auto tarArchive = Util::File::Tar::Archive(module.start);
+        auto tarDriver = Filesystem::Tar::ArchiveDriver(tarArchive);
+        filesystem.mount("/", tarDriver);
 
-        file = printBannerLine(writer, file);
-        writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
-        file = printBannerLine(writer, file);
-        writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
-        file = printBannerLine(writer, file);
-        writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
-        file = printBannerLine(writer, file);
-        writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
-        printBannerLine(writer, file);
-        writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::endl;
+        auto bannerNode = filesystem.getNode("/banner.txt");
+        if (bannerNode == nullptr) {
+            printDefaultBanner(writer);
+        } else {
+            auto *bannerData = new uint8_t[bannerNode->getLength()];
+            bannerNode->readData(bannerData, 0, bannerNode->getLength());
 
-        delete tarArchive;
+            auto currentData = printBannerLine(writer, bannerData);
+            writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
+            currentData = printBannerLine(writer, currentData);
+            writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
+            currentData = printBannerLine(writer, currentData);
+            writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+            currentData = printBannerLine(writer, currentData);
+            writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
+            printBannerLine(writer, currentData);
+            writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+
+            delete[] bannerData;
+            delete bannerNode;
+        }
+
+        filesystem.unmount("/");
     } else {
-        writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
-                << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
-                << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
-                << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+        printDefaultBanner(writer);
     }
 
     auto keyboardInputStream = Util::Stream::PipedInputStream();
@@ -118,6 +128,13 @@ void GatesOfHell::enter() {
 
         writer << Util::Stream::PrintWriter::flush;
     }
+}
+
+void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
+    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
+           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
+           << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
+           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 }
 
 uint8_t* GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address) {

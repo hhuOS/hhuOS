@@ -55,6 +55,8 @@ public:
 
 private:
 
+    static void printDefaultBanner(Util::Stream::PrintWriter &writer);
+
     static uint8_t* printBannerLine(Util::Stream::PrintWriter &writer, uint8_t *address);
 
 };

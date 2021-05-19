@@ -73,25 +73,25 @@ public:
      * If pos is greater than the data's length, END_OF_FILE shall be the first and only character,
      * that is written to buf.
      *
-     * @param buf The buffer to write to (Needs to be allocated already!)
+     * @param targetBuffer The buffer to write to (Needs to be allocated already!)
      * @param pos The offset
      * @param numBytes The amount of bytes to read
      *
      * @return The amount of actually read bytes
      */
-    virtual uint64_t readData(char *buf, uint64_t pos, uint64_t numBytes) = 0;
+    virtual uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) = 0;
 
     /**
      * Write bytes to the node's data. If the offset points right into the existing data,
      * it shall be overwritten with the new data. If the new data does not fit, the data size shall be increased.
      *
-     * @param buf The data to write
+     * @param sourceBuffer The data to write
      * @param pos The offset
      * @param numBytes The amount of bytes to write
      *
      * @return The amount of actually written bytes
      */
-    virtual uint64_t writeData(char *buf, uint64_t pos, uint64_t length) = 0;
+    virtual uint64_t writeData(uint8_t *sourceBuffer, uint64_t pos, uint64_t length) = 0;
 };
 
 }

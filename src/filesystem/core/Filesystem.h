@@ -65,6 +65,26 @@ public:
     void init();
 
     /**
+     * Mounts a device at a specified location.
+     *
+     * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
+     * @param targetPath The mount-path
+     * @param fsType The filesystem-type
+     *
+     * @return Return code
+     */
+    bool mount(const Util::Memory::String &targetPath, Driver &driver);
+
+    /**
+     * Unmounts a device from a specified location.
+     *
+     * @param path The mount-path
+     *
+     * @return Return code.
+     */
+    bool unmount(const Util::Memory::String &path);
+
+    /**
      * Get a node at a specified path.
      * CAUTION: May return nullptr, if the file does not exist.
      *          Always check the return value!

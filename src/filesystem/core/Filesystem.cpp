@@ -74,6 +74,60 @@ void Filesystem::init() {
     mountPoints.clear();
 }
 
+bool Filesystem::mount(const Util::Memory::String &targetPath, Driver &driver) {
+    Util::Memory::String parsedPath = parsePath(targetPath) + Filesystem::SEPARATOR;
+    Node *targetNode = getNode(parsedPath);
+
+    if (targetNode == nullptr) {
+        if (mountPoints.size() != 0) {
+            return false;
+        }
+    }
+
+    delete targetNode;
+    lock.acquire();
+
+    if (mountPoints.containsKey(parsedPath)) {
+        return lock.releaseAndReturn(false);
+    }
+
+    if (!driver.mount()) {
+        return lock.releaseAndReturn(false);
+    }
+
+    mountPoints.put(parsedPath, &driver);
+    return lock.releaseAndReturn(true);
+}
+
+bool Filesystem::unmount(const Util::Memory::String &path) {
+    Util::Memory::String parsedPath = parsePath(path) + Filesystem::SEPARATOR;
+    Node *targetNode = getNode(parsedPath);
+
+    if (targetNode == nullptr) {
+        if (path != "/") {
+            return false;
+        }
+    }
+
+    delete targetNode;
+    lock.acquire();
+
+    for(const Util::Memory::String &key : mountPoints.keySet()) {
+        if(key.beginsWith(parsedPath)) {
+            if(key != parsedPath) {
+                return lock.releaseAndReturn(false);
+            }
+        }
+    }
+
+    if(mountPoints.containsKey(parsedPath)) {
+        mountPoints.remove(parsedPath);
+        return lock.releaseAndReturn(true);
+    }
+
+    return lock.releaseAndReturn(false);
+}
+
 Node* Filesystem::getNode(const Util::Memory::String &path) {
     Util::Memory::String parsedPath = parsePath(path);
     lock.acquire();

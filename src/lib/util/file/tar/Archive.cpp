@@ -19,69 +19,67 @@
 
 namespace Util::File::Tar {
 
-    uint32_t Archive::calculateSize(const uint8_t *size) {
-        uint32_t ret = 0;
-        uint32_t count = 1;
+Archive::Archive(uint32_t address) {
+    auto archiveAddress = Util::Memory::Address<uint32_t>(address);
 
-        for (uint32_t i = 11; i > 0; i--, count *= 8) {
-            ret += ((size[i - 1] - '0') * count);
+    for (uint32_t i = 0; ; i++) {
+        auto *header = reinterpret_cast<Header*>(archiveAddress.get());
+        if (header->filename[0] == '\0') {
+            break;
         }
 
-        return ret;
-    }
+        uint32_t size = calculateFileSize(*header);
+        totalSize += size;
+        headers.add(header);
 
-    Archive *Archive::from(uint32_t address) {
-        auto *tar = new Archive();
-        auto archiveAddress = Util::Memory::Address<uint32_t>(address);
-
-        for (uint32_t i = 0; ; i++) {
-            auto *header = reinterpret_cast<Header*>(archiveAddress.get());
-            if (header->filename[0] == '\0') {
-                break;
-            }
-
-            uint32_t size = calculateSize(header->size);
-            tar->totalSize += size;
-            tar->headers.add(header);
-
-            if (header->typeFlag == LF_OLDNORMAL) {
-                tar->fileCount++;
-            }
-
-            archiveAddress = archiveAddress.add(((size / BLOCKSIZE) + 1) * BLOCKSIZE);
-            if (size % 512) {
-                archiveAddress = archiveAddress.add(512);
-            }
+        if (header->typeFlag == LF_OLDNORMAL) {
+            fileCount++;
         }
 
-        return tar;
-    }
-
-    Util::Data::Array<Archive::Header*> Archive::getFileHeaders() {
-        Util::Data::Array<Header*> fileHeaders(fileCount);
-        uint32_t arrayIndex = 0;
-
-        Header *header;
-        for (uint32_t i = 0; i < headers.size(); i++) {
-            header = headers.get(i);
-            if (header->typeFlag == LF_OLDNORMAL) {
-                fileHeaders[arrayIndex] = header;
-                arrayIndex++;
-            }
+        archiveAddress = archiveAddress.add(((size / BLOCKSIZE) + 1) * BLOCKSIZE);
+        if (size % 512) {
+            archiveAddress = archiveAddress.add(512);
         }
+    }
+}
 
-        return fileHeaders;
+uint32_t Archive::calculateFileSize(const Header &header) {
+    uint32_t ret = 0;
+    uint32_t count = 1;
+
+    for (uint32_t i = 11; i > 0; i--, count *= 8) {
+        ret += ((header.size[i - 1] - '0') * count);
     }
 
-    uint8_t *Archive::getFile(const Util::Memory::String &path) {
-        for (auto &header : getFileHeaders()) {
-            if (path == header->filename) {
-                return reinterpret_cast<uint8_t*>(header) + BLOCKSIZE;
-            }
+    return ret;
+}
+
+Util::Data::Array<Archive::Header> Archive::getFileHeaders() {
+    Util::Data::Array<Header> fileHeaders(fileCount);
+    uint32_t arrayIndex = 0;
+
+    Header *header;
+    for (uint32_t i = 0; i < headers.size(); i++) {
+        header = headers.get(i);
+        if (header->typeFlag == LF_OLDNORMAL) {
+            fileHeaders[arrayIndex] = *header;
+            arrayIndex++;
         }
-
-        return nullptr;
     }
+
+    return fileHeaders;
+}
+
+uint8_t *Archive::getFile(const Util::Memory::String &path) {
+    for (auto *header : headers) {
+        if (path == header->filename) {
+            return reinterpret_cast<uint8_t*>(header) + BLOCKSIZE;
+        }
+    }
+
+    return nullptr;
+}
+
 }
 
 
