@@ -40,7 +40,6 @@ namespace Kernel::Multiboot {
         struct MemoryBlock {
             uint32_t startAddress;
             uint32_t virtualStartAddress;
-            uint32_t lengthInBytes;
             uint32_t blockCount;
             BlockType type;
         };
@@ -73,10 +72,6 @@ namespace Kernel::Multiboot {
 
         static Util::Memory::String getKernelOption(const Util::Memory::String &key);
 
-        static uint32_t physReservedMemoryEnd;
-
-        static uint32_t physReservedMemoryStart;
-
         static MemoryBlock blockMap[256];
 
         static Info info;
@@ -104,10 +99,6 @@ namespace Kernel::Multiboot {
         static FrameBufferInfo frameBufferInfo;
 
         static uint32_t customMemoryMapSize;
-
-        static uint32_t kernelCopyLow;
-
-        static uint32_t kernelCopyHigh;
     };
 }
 

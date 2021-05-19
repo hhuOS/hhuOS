@@ -83,7 +83,7 @@ void GatesOfHell::enter() {
         uint8_t *file = tarArchive->getFile("banner.txt");
 
         file = printBannerLine(writer, file);
-        writer << Util::Stream::PrintWriter::endl;
+        writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
         file = printBannerLine(writer, file);
         writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
         file = printBannerLine(writer, file);

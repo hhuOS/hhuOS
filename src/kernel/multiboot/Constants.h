@@ -164,7 +164,6 @@ struct MemoryMapEntry {
     uint32_t type;
 
     bool operator!=(const MemoryMapEntry &other) const {
-
         return address != other.address;
     }
 };
