@@ -40,12 +40,12 @@ bool Management::kernelMode = true;
  * everything to get the system run.
  */
 void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
-    Device::Cpu::enableInterrupts();
     Multiboot::Structure::init(multibootInfoAddress);
 
     // create an instance of the SystemManagement and initialize it (sets up paging and system management)
     auto &management = Management::getInstance();
     management.init();
+    Device::Cpu::enableInterrupts();
 
     // Parse multiboot structure
     Multiboot::Structure::parse();

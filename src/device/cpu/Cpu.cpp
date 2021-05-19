@@ -37,12 +37,15 @@ const char *Cpu::softwareExceptions[]{
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-Util::Async::Atomic<int32_t> Cpu::cliCount(1); // GRUB disables all interrupts on boot
+Util::Async::Atomic<int32_t> Cpu::cliCount(1); // Interrupts are disabled on startup
 
 void Cpu::enableInterrupts() {
-    if (cliCount.fetchAndDec() == 0) {
+    int count = cliCount.fetchAndDec();
+    if (count == 1) {
+        // cliCount has been decreased to 0 -> Enable interrupts
         asm volatile ( "sti" );
-    } else if (cliCount.get() < 0) {
+    } else if (count < 1) {
+        // cliCount has been decreased to a negative value -> Illegal state
         throwException(Util::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
     }
 }
