@@ -15,9 +15,9 @@ private:
         uint16_t checksum;
         uint16_t identifier;
         uint16_t sequenceNumber;
-    } echoMessage;
+    } echo_t;
 
-    echoMessage myMessage;
+    echo_t myMessage;
 
 public:
     //Sending constructor
