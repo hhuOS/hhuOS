@@ -11,12 +11,12 @@ Ping::Ping(Shell &shell) : Command(shell) {
 }
 
 void Ping::execute(Util::Array<String> &args) {
-//    Util::ArgumentParser parser(getHelpText(), 1);
-//
-//    if (!parser.parse(args)) {
-//        stderr << args[0] << ": " << parser.getErrorString() << endl;
-//        return;
-//    }
+    Util::ArgumentParser parser(getHelpText(), 1);
+
+    if (!parser.parse(args)) {
+        stderr << args[0] << ": " << parser.getErrorString() << endl;
+        return;
+    }
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
     auto *pingRequest = new ICMP4Echo(42,0);
