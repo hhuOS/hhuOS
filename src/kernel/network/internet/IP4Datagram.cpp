@@ -58,8 +58,8 @@ void *IP4Datagram::getMemoryAddress() {
     return nullptr;
 }
 
-uint16_t IP4Datagram::getLength() {
-    return 0;
+uint16_t IP4Datagram::getLengthInBytes() {
+    return header.totalLength;
 }
 
 EtherType IP4Datagram::getEtherType() {

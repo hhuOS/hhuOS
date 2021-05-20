@@ -11,7 +11,7 @@ class EthernetDataPart {
 public:
     virtual void *getMemoryAddress() = 0;
 
-    virtual uint16_t getLength() = 0;
+    virtual uint16_t getLengthInBytes() = 0;
 
     virtual EtherType getEtherType() = 0;
 };

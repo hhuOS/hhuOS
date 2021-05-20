@@ -5,7 +5,7 @@
 #include <kernel/network/ethernet/EthernetFrame.h>
 #include "ARPRequest.h"
 
-uint16_t ARPRequest::getLength() {
+uint16_t ARPRequest::getLengthInBytes() {
     return 0;
 }
 
