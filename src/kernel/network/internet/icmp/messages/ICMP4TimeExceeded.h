@@ -17,7 +17,7 @@ class ICMP4TimeExceeded : public ICMP4Message {
 
     void *getMemoryAddress() override;
 
-    uint16_t getLength() override;
+    uint16_t getLengthInBytes() override;
 };
 
 

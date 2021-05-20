@@ -28,7 +28,7 @@ public:
 
     void *getMemoryAddress() override;
 
-    uint16_t getLength() override;
+    uint16_t getLengthInBytes() override;
 
     uint16_t getIdentifier();
 

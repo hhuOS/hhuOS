@@ -19,7 +19,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();
 
         log.info("EthernetSendEvent with EthernetFrame received");
-//        outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLength());
+//        outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLengthInBytes());
         return;
     }
     if (event.getType() == EthernetReceiveEvent::TYPE) {

@@ -7,12 +7,13 @@
 
 #include <cinttypes>
 #include "IP4ProtocolType.h"
+#include "IP4HeaderChecksum.h"
 
 class IP4DataPart {
 public:
     virtual void *getMemoryAddress() = 0;
 
-    virtual uint16_t getLength() = 0;
+    virtual uint16_t getLengthInBytes() = 0;
 
     virtual IP4ProtocolType getIP4ProtocolType() = 0;
 };

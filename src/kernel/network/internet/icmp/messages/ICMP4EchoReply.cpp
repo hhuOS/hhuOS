@@ -25,7 +25,7 @@ void *ICMP4EchoReply::getMemoryAddress() {
     return &myMessage;
 }
 
-uint16_t ICMP4EchoReply::getLength() {
+uint16_t ICMP4EchoReply::getLengthInBytes() {
     return sizeof(echoReplyMessage);
 }
 
