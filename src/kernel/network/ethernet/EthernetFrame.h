@@ -15,9 +15,9 @@ private:
     EthernetAddress *destinationAddress;
     EthernetAddress *sourceAddress;
     EtherType etherType;
-    EthernetDataPart *dataPart;
+    EthernetDataPart *ethernetDataPart;
 public:
-    EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *dataPart);
+    EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
     EthernetFrame(void *packet, uint16_t length);
 

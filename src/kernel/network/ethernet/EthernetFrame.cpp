@@ -4,10 +4,10 @@
 
 #include "EthernetFrame.h"
 
-EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *dataPart) {
+EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
     this->destinationAddress = destinationAddress;
-    this->etherType = dataPart->getEtherType();
-    this->dataPart = dataPart;
+    this->etherType = ethernetDataPart->getEtherType();
+    this->ethernetDataPart = ethernetDataPart;
 }
 
 void *EthernetFrame::getDataAsByteBlock() {
@@ -35,5 +35,5 @@ EtherType EthernetFrame::getEtherType() const {
 }
 
 EthernetDataPart *EthernetFrame::getDataPart() const {
-    return dataPart;
+    return ethernetDataPart;
 }
