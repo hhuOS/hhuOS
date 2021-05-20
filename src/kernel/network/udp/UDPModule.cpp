@@ -9,8 +9,8 @@ namespace Kernel {
 
     void UDPModule::onEvent(const Kernel::Event &event) {
         if (event.getType() == UDPReceiveEvent::TYPE) {
-            auto *udpDatagram = ((UDPReceiveEvent &) event).getDatagram();
-            //TODO: Implement notification of receiver app
+            //auto *udpDatagram = ((UDPReceiveEvent &) event).getDatagram();
+            return;
         }
     }
 
