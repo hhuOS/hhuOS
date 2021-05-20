@@ -35,7 +35,7 @@ namespace Kernel {
             IP4Address *destinationAddress = datagram->getDestinationAddress();
 
             IP4Route *matchedRoute = routingModule->findRouteFor(destinationAddress);
-            if(matchedRoute== nullptr){
+            if (matchedRoute == nullptr) {
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
@@ -84,7 +84,7 @@ namespace Kernel {
                                             ip4Datagram->getSourceAddress(),
                                             ip4Datagram->getDestinationAddress(),
                                             ip4Datagram->getIp4DataPart()
-                                            )
+                                    )
                             )
                     );
                     break;
@@ -93,9 +93,9 @@ namespace Kernel {
                             Util::SmartPointer<Kernel::Event>(
                                     new Kernel::UDPReceiveEvent(
                                             new UDPDatagram(
-                                                        ip4Datagram->getIp4DataPart()
-                                                    )
+                                                    ip4Datagram->getIp4DataPart()
                                             )
+                                    )
                             )
                     );
                     break;

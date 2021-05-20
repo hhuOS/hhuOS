@@ -334,7 +334,8 @@ uip_reass(void) {
             /* Check the last byte in the bitmap. It should contain just the
            right amount of bits. */
             if (uip_reassbitmap[uip_reasslen / (8 * 8)] !=
-                (uint8_t) ~bitmap_bits[uip_reasslen / 8 & 7]) {
+                (uint8_t)
+                ~bitmap_bits[uip_reasslen / 8 & 7]) {
                 goto nullreturn;
             }
 

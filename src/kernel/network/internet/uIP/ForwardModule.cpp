@@ -231,7 +231,7 @@ time_exceeded(void) {
 
     /* Calculate the ICMP checksum. */
     ICMPBUF->icmpchksum = 0;
-    ICMPBUF->icmpchksum = ~uip_chksum((uint16_t *) &(ICMPBUF->type), 36);
+    ICMPBUF->icmpchksum = ~uip_chksum((uint16_t * ) & (ICMPBUF->type), 36);
 
     /* Set the IP destination address to be the source address of the
        original packet. */

@@ -11,7 +11,7 @@
 
 namespace Kernel {
 
-    class UDPModule : public Receiver{
+    class UDPModule : public Receiver {
     public:
         Logger &log = Logger::get("UDPModule");
 

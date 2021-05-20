@@ -18,7 +18,7 @@ private:
     //Defined internally, should not be visible outside
     //Usage of IP4Datagram should only happen via given public methods
     //-> changing our header's internal representation is possible at any time then!
-    typedef struct ip4header{
+    typedef struct ip4header {
         uint8_t version_headerLength;
         uint8_t typeOfService;
         uint16_t totalLength;

@@ -11,21 +11,21 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 
     //First four bits are value "4" -> IPv4
     //Second four bits are value "5" -> 5 "lines" header length, 4 Bytes per line
-    header.version_headerLength=0x45;
+    header.version_headerLength = 0x45;
 
     //standard type of service, no priority etc.
-    header.typeOfService=0;
+    header.typeOfService = 0;
 
     //header length is given in "lines" of 4 Bytes each
     //-> total size in Bytes is (header length)*4 + length of data part in Bytes
-    header.totalLength=(header.version_headerLength - 0x40)*4 + ip4DataPart->getLengthInBytes();
+    header.totalLength = (header.version_headerLength - 0x40) * 4 + ip4DataPart->getLengthInBytes();
 
     //fragmentation not used here, fragment parameters not set
-    header.identification=0;
-    header.flags_fragmentOffset=0;
+    header.identification = 0;
+    header.flags_fragmentOffset = 0;
 
     //solid default value for small LANs, can be set from constructor if necessary
-    header.timeToLive=64;
+    header.timeToLive = 64;
 
     headerChecksum = new IP4HeaderChecksum();
 }
