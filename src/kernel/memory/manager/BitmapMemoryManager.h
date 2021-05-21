@@ -35,17 +35,10 @@ namespace Kernel {
 class BitmapMemoryManager : public MemoryManager {
 
 public:
-
-    enum ManagerType {
-        PAGE_FRAME_ALLOCATOR,
-        PAGING_AREA_MANAGER,
-        MISC
-    };
-
     /**
      * Constructor.
      */
-    explicit BitmapMemoryManager(uint32_t blockSize = 128, bool zeroMemory = false);
+    explicit BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 128, bool zeroMemory = false);
 
     /**
      * Copy constructor.
@@ -63,11 +56,6 @@ public:
     ~BitmapMemoryManager() override;
 
     /**
-     * Overriding function from MemoryManager.
-     */
-    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
-
-    /**
      * Overriding function from memory manager.
      */
     void *alloc(uint32_t size) override;
@@ -77,17 +65,9 @@ public:
      */
     void free(void *ptr) override;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    Util::Memory::String getClassName() override;
+    virtual void onError();
 
 protected:
-    /**
-     * The type of this memory manager.
-     */
-    ManagerType managerType = MISC;
-
     /**
      * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
      */
@@ -103,10 +83,6 @@ protected:
      * This is needed for page tables, that get allocated by a bitmap memory manager.
      */
     bool zeroMemory = false;
-
-private:
-
-    static const constexpr char *CLASS_NAME = "Kernel::BitmapMemoryManager";
 };
 
 }

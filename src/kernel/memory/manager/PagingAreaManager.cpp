@@ -21,23 +21,14 @@
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(PAGESIZE, true) {
-    BitmapMemoryManager::init(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, false);
-
-    managerType = PAGING_AREA_MANAGER;
-
+PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, true) {
     // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
     bitmap->setRange(0, 8 * 32 + 2);
-
     freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
 }
 
-void PagingAreaManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-    // Do nothing. The PagingAreaManager will always be initialized by the kernel and has hardcoded values.
-}
-
-Util::Memory::String PagingAreaManager::getClassName() {
-    return CLASS_NAME;
+void PagingAreaManager::onError() {
+    Util::Exception::throwException(Util::Exception::OUT_OF_PAGE_MEMORY);
 }
 
 }

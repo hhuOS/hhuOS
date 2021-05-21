@@ -20,7 +20,7 @@
 
 #include <cstdint>
 #include "lib/util/async/Spinlock.h"
-#include "MemoryManager.h"
+#include "HeapMemoryManager.h"
 
 namespace Kernel {
 
@@ -32,7 +32,7 @@ namespace Kernel {
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
-class FreeListMemoryManager : public MemoryManager {
+class FreeListMemoryManager : public HeapMemoryManager {
 
 public:
 
@@ -61,7 +61,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+    void initialize(uint32_t startAddress, uint32_t endAddress) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -76,7 +76,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void *alloc(uint32_t size, uint32_t alignment) override;
+    void *allignedAlloc(uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -96,7 +96,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void free(void *ptr, uint32_t alignment) override;
+    void alignedFree(void *ptr, uint32_t alignment) override;
 
 private:
     /**
@@ -109,7 +109,7 @@ private:
     };
 
     /**
-     * Implementation of the allocation algorithm, that is used in the alloc-functions.
+     * Implementation of the allocation algorithm, that is used in the allignedAlloc-functions.
      *
      * The first-fit algorithm is used to search for a fitting chunk of free memory.
      *
@@ -142,7 +142,7 @@ private:
      *
      * @return Header of the free chunk with the required size or nullptr, if none is found
      */
-    FreeListHeader *findNext(FreeListHeader *start, uint32_t reqSize);
+    static FreeListHeader *findNext(FreeListHeader *start, uint32_t reqSize);
 
     /**
      * Merge a chunk of free memory with it's neighbours, if possible.

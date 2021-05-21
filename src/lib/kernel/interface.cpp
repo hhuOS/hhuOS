@@ -33,11 +33,11 @@ void freeMemory(void *pointer) {
 }
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return Kernel::Management::getKernelHeapManager()->alloc(size, alignment);
+    return Kernel::Management::getKernelHeapManager()->allignedAlloc(size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    Kernel::Management::getKernelHeapManager()->free(pointer, alignment);
+    Kernel::Management::getKernelHeapManager()->alignedFree(pointer, alignment);
 }
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {

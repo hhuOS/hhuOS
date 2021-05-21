@@ -20,56 +20,17 @@
 
 namespace Kernel {
 
-void MemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-    this->memoryStartAddress = memoryStartAddress;
-    this->memoryEndAddress = memoryEndAddress;
-    this->doUnmap = doUnmap;
+MemoryManager::MemoryManager(uint32_t startAddress, uint32_t endAddress) : memoryStartAddress(startAddress), memoryEndAddress(endAddress), freeMemory(endAddress - startAddress) {}
 
-    freeMemory = memoryEndAddress - memoryStartAddress;
-}
-
-void *MemoryManager::alloc(uint32_t size) {
-    return nullptr;
-}
-
-void *MemoryManager::alloc(uint32_t size, uint32_t alignment) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
-                        "MemoryManager: Operation 'aligned alloc' is not supported!");
-
-    return nullptr;
-}
-
-void *MemoryManager::realloc(void *ptr, uint32_t size) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryManager: Operation 'realloc' is not supported!");
-
-    return nullptr;
-}
-
-void *MemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
-                        "MemoryManager: Operation 'aligned realloc' is not supported!");
-
-    return nullptr;
-}
-
-void MemoryManager::free(void *ptr) {
-
-}
-
-void MemoryManager::free(void *ptr, uint32_t alignment) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,
-                        "MemoryManager: Operation 'aligned free' is not supported!");
-}
-
-uint32_t MemoryManager::getStartAddress() {
+uint32_t MemoryManager::getStartAddress() const {
     return memoryStartAddress;
 }
 
-uint32_t MemoryManager::getEndAddress() {
+uint32_t MemoryManager::getEndAddress() const {
     return memoryEndAddress;
 }
 
-uint32_t MemoryManager::getFreeMemory() {
+uint32_t MemoryManager::getFreeMemory() const {
     return freeMemory;
 }
 

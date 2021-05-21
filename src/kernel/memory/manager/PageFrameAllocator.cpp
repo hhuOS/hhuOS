@@ -22,13 +22,7 @@
 
 namespace Kernel {
 
-PageFrameAllocator::PageFrameAllocator() : BitmapMemoryManager(PAGESIZE, false) {
-    managerType = PAGE_FRAME_ALLOCATOR;
-}
-
-void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-    BitmapMemoryManager::init(memoryStartAddress, memoryEndAddress, false);
-
+PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddress) : BitmapMemoryManager(startAddress, endAddress, PAGESIZE, false) {
     // Reserve blocks already used by system image and initrd
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];
@@ -40,8 +34,8 @@ void PageFrameAllocator::init(uint32_t memoryStartAddress, uint32_t memoryEndAdd
     }
 }
 
-Util::Memory::String PageFrameAllocator::getClassName() {
-    return CLASS_NAME;
+void PageFrameAllocator::onError() {
+    Util::Exception::throwException(Util::Exception::OUT_OF_PHYS_MEMORY);
 }
 
 }

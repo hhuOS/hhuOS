@@ -34,11 +34,8 @@ class PageFrameAllocator : public BitmapMemoryManager {
 public:
     /**
      * Constructor.
-     *
-     * @param memoryStartAddress Start address of the memory area to manage
-     * @param memoryEndAddress End address of the memory area to manage
      */
-    PageFrameAllocator();
+    PageFrameAllocator(uint32_t startAddress, uint32_t endAddress);
 
     /**
      * Copy constructor.
@@ -50,19 +47,8 @@ public:
      */
     PageFrameAllocator& operator=(const PageFrameAllocator &other) = delete;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+    void onError() override;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    Util::Memory::String getClassName() override;
-
-private:
-
-    static const constexpr char *CLASS_NAME = "Kernel::PageFrameAllocator";
 };
 
 }

@@ -28,9 +28,6 @@
 // let kernel start at 3GB
 #define KERNEL_START 0xC0000000
 
-// start address for heap
-#define PHYS_KERNEL_HEAP_START 0x400000
-#define VIRT_KERNEL_HEAP_START (PHYS_KERNEL_HEAP_START + KERNEL_START)
 // start of virtual area for page tables and directories (3.5 GB)
 #define VIRT_PAGE_MEM_START (KERNEL_START + 0x1F400000)
 // end of virtual kernel memory for heap

@@ -31,7 +31,7 @@ namespace Kernel {
 // initialize static members
 TaskStateSegment Management::taskStateSegment{};
 Management *Management::systemManagement = nullptr;
-MemoryManager *Management::kernelMemoryManager = nullptr;
+HeapMemoryManager *Management::kernelMemoryManager = nullptr;
 bool Management::initialized = false;
 bool Management::kernelMode = true;
 
@@ -170,8 +170,7 @@ void Management::init() {
     // Physical Page Frame Allocator is initialized to be possible to allocate
     // physical memory (page frames)
     calcTotalPhysicalMemory();
-    pageFrameAllocator = new PageFrameAllocator();
-    pageFrameAllocator->init(0, totalPhysMemory, false);
+    pageFrameAllocator = new PageFrameAllocator(0, totalPhysMemory);
 
     // to be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space
@@ -470,7 +469,7 @@ Management &Management::getInstance() noexcept {
 
             if (block.type == Multiboot::Structure::HEAP_RESERVED) {
                 static FreeListMemoryManager heapMemoryManager;
-                heapMemoryManager.init(block.virtualStartAddress, VIRT_KERNEL_HEAP_END, true);
+                heapMemoryManager.initialize(block.virtualStartAddress, VIRT_KERNEL_HEAP_END);
                 // set the kernel heap memory manager to this manager
                 kernelMemoryManager = &heapMemoryManager;
                 // use the new memory manager to alloc memory for the instance of SystemManegement
@@ -487,14 +486,6 @@ Management &Management::getInstance() noexcept {
 
 void Management::writeProtectKernelCode() {
     basePageDirectory->writeProtectKernelCode();
-}
-
-void *Management::realloc(void *ptr, uint32_t size, uint32_t alignment) {
-    if (!Management::isKernelMode()) {
-        return Management::getInstance().getCurrentUserSpaceHeapManager()->realloc(ptr, size, alignment);
-    } else {
-        return Management::getKernelHeapManager()->realloc(ptr, size, alignment);
-    }
 }
 
 }

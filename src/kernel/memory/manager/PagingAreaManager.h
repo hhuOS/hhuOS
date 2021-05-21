@@ -23,7 +23,8 @@
 
 namespace Kernel {
 
-/* Memory manager, that ist based on the BitmapMemoryManager and is used to manage the part of virtual memory,
+/**
+ * Memory manager, that ist based on the BitmapMemoryManager and is used to manage the part of virtual memory,
  * that is reserved for page tables and directories.
  *
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
@@ -47,19 +48,8 @@ public:
      */
     PagingAreaManager& operator=(const PagingAreaManager &other) = delete;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
+    void onError() override;
 
-    /**
-     * Overriding function from MemoryManager.
-     */
-    Util::Memory::String getClassName() override;
-
-private:
-
-    static const constexpr char *CLASS_NAME = "Kernel::PagingAreaManager";
 };
 
 }

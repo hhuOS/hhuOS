@@ -33,9 +33,9 @@ namespace Kernel {
 class VirtualAddressSpace {
 private:
 
-// pointer to memory managers for userspace and kernel
-    MemoryManager *kernelSpaceHeapManager = nullptr;
-    MemoryManager *userSpaceHeapManager = nullptr;
+    // pointer to memory managers for userspace and kernel
+    HeapMemoryManager *kernelSpaceHeapManager = nullptr;
+    HeapMemoryManager *userSpaceHeapManager = nullptr;
     // pointer to page directory
     PageDirectory *pageDirectory = nullptr;
     // the bootstrap address space is the first address space ever created
@@ -72,7 +72,7 @@ public:
      *
      * @return Pointer to the kernel memory manager
      */
-    MemoryManager *getKernelSpaceHeapManager() const {
+    HeapMemoryManager *getKernelSpaceHeapManager() const {
         return kernelSpaceHeapManager;
     }
 
@@ -85,7 +85,7 @@ public:
      *
      * @return Pointer to the userspace memory manager
      */
-    MemoryManager *getUserSpaceHeapManager() const {
+    HeapMemoryManager *getUserSpaceHeapManager() const {
         return userSpaceHeapManager;
     }
 
@@ -94,7 +94,7 @@ public:
      *
      * @param userSpaceHeapManager Pointer to the userspace memory manager
      */
-    void setUserSpaceHeapManager(MemoryManager *userSpaceHeapManager) {
+    void setUserSpaceHeapManager(HeapMemoryManager *userSpaceHeapManager) {
         this->userSpaceHeapManager = userSpaceHeapManager;
     }
 };

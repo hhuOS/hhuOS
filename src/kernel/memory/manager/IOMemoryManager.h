@@ -61,16 +61,6 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    Util::Memory::String getClassName() override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
     void *alloc(uint32_t size) override;
 
     /**
@@ -81,8 +71,6 @@ public:
 private:
     Util::Data::HashMap<void *, uint32_t> ioMemoryMap;
     Util::Async::Spinlock lock;
-
-    static const constexpr char *CLASS_NAME = "Kernel::IOMemoryManager";
 };
 
 }

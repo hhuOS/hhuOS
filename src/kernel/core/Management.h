@@ -72,7 +72,7 @@ private:
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
     static Management *systemManagement;
-    static MemoryManager *kernelMemoryManager;
+    static HeapMemoryManager *kernelMemoryManager;
 
 public:
 
@@ -304,7 +304,7 @@ public:
 	 *
 	 * @return Pointer to the current kernel memory manager
 	 */
-    static MemoryManager *getKernelHeapManager() {
+    static HeapMemoryManager * getKernelHeapManager() {
         return kernelMemoryManager;
     }
 
@@ -331,8 +331,6 @@ public:
     PagingAreaManager *getPagingAreaManager() {
         return pagingAreaManager;
     }
-
-    void *realloc(void *ptr, uint32_t size, uint32_t alignment = 0);
 
     static void initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *PhysicalGdtDescriptor);
 

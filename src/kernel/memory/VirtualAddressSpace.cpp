@@ -64,11 +64,12 @@ void VirtualAddressSpace::init() {
     if (!Management::isInitialized()) {
         this->userSpaceHeapManager = new (reinterpret_cast<void*>(PAGESIZE)) FreeListMemoryManager();
     } else {
-        this->userSpaceHeapManager = (MemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
+        this->userSpaceHeapManager = (HeapMemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
     }
 
     if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->init(Util::Memory::Address(heapAddress).alignUp(PAGESIZE).get(), KERNEL_START - PAGESIZE, true);
+        userSpaceHeapManager->initialize(Util::Memory::Address(heapAddress).alignUp(PAGESIZE).get(),
+                                         KERNEL_START - PAGESIZE);
     }
 
     void *test = userSpaceHeapManager->alloc(1024);

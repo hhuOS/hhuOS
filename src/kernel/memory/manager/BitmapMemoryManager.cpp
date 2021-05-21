@@ -20,23 +20,13 @@
 
 namespace Kernel {
 
-BitmapMemoryManager::BitmapMemoryManager(uint32_t blockSize, bool zeroMemory) :
-        MemoryManager(), blockSize(blockSize), zeroMemory(zeroMemory) {}
-
-BitmapMemoryManager::~BitmapMemoryManager() {
-    delete bitmap;
-}
-
-void BitmapMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-    MemoryManager::init(memoryStartAddress, memoryEndAddress, doUnmap);
-
-    bitmap = new Util::Memory::Bitmap((memoryEndAddress - memoryStartAddress) / blockSize);
-
+BitmapMemoryManager::BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize, bool zeroMemory) : MemoryManager(startAddress, endAddress), blockSize(blockSize), zeroMemory(zeroMemory) {
+    bitmap = new Util::Memory::Bitmap((endAddress - startAddress) / blockSize);
     freeMemory = bitmap->getSize() * blockSize;
 }
 
-Util::Memory::String BitmapMemoryManager::getClassName() {
-    return CLASS_NAME;
+BitmapMemoryManager::~BitmapMemoryManager() {
+    delete bitmap;
 }
 
 void *BitmapMemoryManager::alloc(uint32_t size) {
@@ -50,15 +40,7 @@ void *BitmapMemoryManager::alloc(uint32_t size) {
     uint32_t block = bitmap->findAndSet(blockCount);
 
     if (block == bitmap->getSize()) {
-        // handle errors
-        if (managerType == PAGING_AREA_MANAGER) {
-            Util::Exception::throwException(Util::Exception::OUT_OF_PAGE_MEMORY);
-        }
-
-        if (managerType == PAGE_FRAME_ALLOCATOR) {
-            Util::Exception::throwException(Util::Exception::OUT_OF_PHYS_MEMORY);
-        }
-
+        onError();
         return nullptr;
     }
 
@@ -87,6 +69,10 @@ void BitmapMemoryManager::free(void *ptr) {
     bitmap->unset(blockNumber);
 
     freeMemory += blockSize;
+}
+
+void BitmapMemoryManager::onError() {
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "BitmapMemoryManager: Out of memory!");
 }
 
 }

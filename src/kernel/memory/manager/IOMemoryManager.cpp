@@ -22,17 +22,7 @@
 
 namespace Kernel {
 
-IOMemoryManager::IOMemoryManager() : BitmapMemoryManager(PAGESIZE, false) {
-    BitmapMemoryManager::init(VIRT_IO_START, VIRT_IO_END, true);
-}
-
-void IOMemoryManager::init(uint32_t memoryStartAddress, uint32_t memoryEndAddress, bool doUnmap) {
-    // Do nothing. The IOMemoryManager will always be initialized by the kernel and has hardcoded values.
-}
-
-Util::Memory::String IOMemoryManager::getClassName() {
-    return CLASS_NAME;
-}
+IOMemoryManager::IOMemoryManager() : BitmapMemoryManager(VIRT_IO_START, VIRT_IO_END, PAGESIZE, false) {}
 
 void *IOMemoryManager::alloc(uint32_t size) {
 
