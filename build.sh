@@ -74,14 +74,29 @@ cleanup() {
         rm loader/grub/boot/hhuOS.bin
     fi
     
+    if [ -f loader/grub/boot/hhuOS.initrd ]; then
+        printf "Removing 'loader/grub/boot/hhuOS.initrd'\\n"
+        rm loader/grub/boot/hhuOS.initrd
+    fi
+    
     if [ -f loader/towboot/hhuOS.bin ]; then
         printf "Removing 'loader/towboot/hhuOS.bin'\\n"
         rm loader/towboot/hhuOS.bin
     fi
     
+    if [ -f loader/towboot/hhuOS.initrd ]; then
+        printf "Removing 'loader/towboot/hhuOS.initrd'\\n"
+        rm loader/towboot/hhuOS.initrd
+    fi
+    
     if [ -f loader/towboot/towboot.efi ]; then
         printf "Removing 'loader/towboot/towboot.efi'\\n"
         rm loader/towboot/towboot.efi
+    fi
+    
+    if [ -d initrd/bin/ ]; then
+        printf "Removing 'initrd/bin/'\\n"
+        rm -r initrd/bin/
     fi
 
     local builddirs="";

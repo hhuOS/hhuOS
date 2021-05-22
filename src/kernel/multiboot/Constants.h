@@ -64,7 +64,7 @@ struct ElfInfo {
 struct ModuleInfo {
     uint32_t start;
     uint32_t end;
-    char *string;
+    const char *string;
     uint32_t reserved;
 
     bool operator!=(const ModuleInfo &other) {

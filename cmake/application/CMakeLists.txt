@@ -14,12 +14,16 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(initrd)
+project(application)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
-        COMMAND mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
-        COMMAND cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/initrd/bin/hello"
-        COMMAND tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./)
+include_directories(${HHUOS_SRC_DIR})
 
-add_custom_target(initrd DEPENDS hello "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+set(CMAKE_C_FLAGS "-m32 -march=i486 -mno-sse -g -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding -Wl,--hash-style=sysv,-emain")
+if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
+endif()
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/application/link.ld")
+
+# Add subdirectories
+add_subdirectory(hello)

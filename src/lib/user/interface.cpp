@@ -45,4 +45,7 @@ bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 
-void throwError(Util::Exception error, const char *message) {}
+void throwError(Util::Exception::Error error, const char *message) {
+    asm volatile ("hlt");
+    while(true);
+}

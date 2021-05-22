@@ -14,12 +14,13 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(initrd)
+project(hello)
 message(STATUS "Project " ${PROJECT_NAME})
 
-add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
-        COMMAND mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
-        COMMAND cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/initrd/bin/hello"
-        COMMAND tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./)
+include_directories(${HHUOS_SRC_DIR})
 
-add_custom_target(initrd DEPENDS hello "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/hello/hello.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})

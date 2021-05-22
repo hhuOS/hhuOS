@@ -46,13 +46,6 @@ string(TIMESTAMP HHUOS_BUILD_DATE "%Y-%m-%d %H:%M:%S")
 # Print build information
 message("hhuOS ${HHUOS_VERSION} - git ${HHUOS_GIT_REV}, build date: ${HHUOS_BUILD_DATE}")
 
-# Set preprocessor defines
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
-    -DHHUOS_VERSION='${HHUOS_VERSION}'\
-    -DHHUOS_GIT_REV='${HHUOS_GIT_REV}'\
-    -DHHUOS_GIT_BRANCH='${HHUOS_GIT_BRANCH}'\
-    -DHHUOS_BUILD_DATE='${HHUOS_BUILD_DATE}'")
-
 # Set source directory variables
 set(HHUOS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 set(HHUOS_SRC_DIR "${HHUOS_ROOT_DIR}/src")
@@ -75,11 +68,18 @@ ENABLE_LANGUAGE(ASM_NASM)
 set(CMAKE_ASM_NASM_OBJECT_FORMAT "elf32")
 set(CMAKE_ASM_NASM_INCLUDES "${HHUOS_SRC_DIR}/")
 set(CMAKE_ASM_NASM_COMPILE_OBJECT "<CMAKE_ASM_NASM_COMPILER> -I${CMAKE_ASM_NASM_INCLUDES} -f ${CMAKE_ASM_NASM_OBJECT_FORMAT} -o <OBJECT> <SOURCE>")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -m32 -g -Wall -Wno-write-strings -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding -mno-sse -march=i486")
+set(CMAKE_C_FLAGS "-m32 -march=i486 -mno-sse -g -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding")
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} ${CMAKE_CXX_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/link.ld")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/link.ld")
+
+# Set preprocessor defines
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
+    -DHHUOS_VERSION='${HHUOS_VERSION}'\
+    -DHHUOS_GIT_REV='${HHUOS_GIT_REV}'\
+    -DHHUOS_GIT_BRANCH='${HHUOS_GIT_BRANCH}'\
+    -DHHUOS_BUILD_DATE='${HHUOS_BUILD_DATE}'")
 
 # Add subdirectories
 add_subdirectory(device)
@@ -90,3 +90,5 @@ add_subdirectory(lib)
 add_subdirectory(system)
 add_subdirectory(grub)
 add_subdirectory(towboot)
+
+add_subdirectory(application)
