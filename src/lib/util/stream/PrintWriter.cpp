@@ -34,10 +34,6 @@ PrintWriter::~PrintWriter() {
     }
 }
 
-void PrintWriter::close() {
-    writer.close();
-}
-
 void PrintWriter::flush() {
     writer.flush();
 }

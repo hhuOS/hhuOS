@@ -37,8 +37,6 @@ public:
 
     ~PrintWriter() override;
 
-    void close() override;
-
     void flush() override;
 
     void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;

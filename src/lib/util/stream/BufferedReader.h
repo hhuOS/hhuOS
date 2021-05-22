@@ -34,13 +34,11 @@ public:
 
     ~BufferedReader() override;
 
-    void close() override;
-
-    int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) override;
+    char read() override;
 
     int32_t read(char *targetBuffer, uint32_t length) override;
 
-    char read() override;
+    int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) override;
 
     Memory::String read(uint32_t length) override;
 

@@ -26,13 +26,13 @@ void TerminalOutputStream::write(uint8_t c) {
     terminal.putChar(c);
 }
 
-void TerminalOutputStream::write(const uint8_t *source, uint32_t offset, uint32_t length) {
+void TerminalOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (offset < 0 || length < 0) {
         Exception::throwException(Exception::OUT_OF_BOUNDS, "OutputStream: Negative offset or size!");
     }
 
     for (uint32_t i = 0; i < length; i++) {
-        write(source[offset + i]);
+        write(sourceBuffer[offset + i]);
     }
 }
 

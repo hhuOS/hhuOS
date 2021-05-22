@@ -35,6 +35,10 @@
 #include <filesystem/tar/ArchiveDriver.h>
 #include <lib/util/file/File.h>
 #include <lib/util/stream/BufferedReader.h>
+#include <kernel/service/FilesystemService.h>
+#include <filesystem/memory/MemoryDriver.h>
+#include <lib/util/stream/OutputStreamWriter.h>
+#include <lib/util/stream/BufferedWriter.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -72,9 +76,20 @@ void GatesOfHell::enter() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
 
-    auto &filesystem = *new Filesystem::Filesystem();
-    filesystem.init();
-    Kernel::System::registerService(Filesystem::Filesystem::SERVICE_NAME, filesystem);
+    Kernel::System::registerService(Kernel::FilesystemService::SERVICE_NAME, *new Kernel::FilesystemService());
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+
+    auto *memoryDriver = new Filesystem::Memory::MemoryDriver();
+    filesystem.mountVirtualDriver("/", *memoryDriver);
+
+    if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
+        auto module = Kernel::Multiboot::Structure::getModule("initrd");
+        auto *tarArchive = new Util::File::Tar::Archive(module.start);
+        auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
+
+        filesystem.createDirectory("/initrd");
+        filesystem.mountVirtualDriver("/initrd", *tarDriver);
+    }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
@@ -82,38 +97,27 @@ void GatesOfHell::enter() {
     auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream, resolution.columns);
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
-    if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
-        auto module = Kernel::Multiboot::Structure::getModule("initrd");
-        auto tarArchive = Util::File::Tar::Archive(module.start);
-        auto tarDriver = Filesystem::Tar::ArchiveDriver(tarArchive);
-        filesystem.mount("/", tarDriver);
-
-        auto bannerFile = Util::File::File("/banner.txt");
-        if (!bannerFile.exists()) {
-            printDefaultBanner(writer);
-        } else {
-            auto *bannerData = new uint8_t[bannerFile.getLength()];
-            auto bannerStream = Util::Stream::FileInputStream(bannerFile);
-            auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
-            auto reader = Util::Stream::BufferedReader(bannerReader);
-
-            printBannerLine(writer, reader);
-            writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
-            printBannerLine(writer, reader);
-            writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
-            printBannerLine(writer, reader);
-            writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
-            printBannerLine(writer, reader);
-            writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
-            printBannerLine(writer, reader);
-            writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
-
-            delete[] bannerData;
-        }
-
-        filesystem.unmount("/");
-    } else {
+    auto bannerFile = Util::File::File("/initrd/banner.txt");
+    if (!bannerFile.exists()) {
         printDefaultBanner(writer);
+    } else {
+        auto *bannerData = new uint8_t[bannerFile.getLength()];
+        auto bannerStream = Util::Stream::FileInputStream(bannerFile);
+        auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
+        auto reader = Util::Stream::BufferedReader(bannerReader);
+
+        printBannerLine(writer, reader);
+        writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
+        printBannerLine(writer, reader);
+        writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
+        printBannerLine(writer, reader);
+        writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
+        printBannerLine(writer, reader);
+        writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
+        printBannerLine(writer, reader);
+        writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+
+        delete[] bannerData;
     }
 
     auto keyboardInputStream = Util::Stream::PipedInputStream();

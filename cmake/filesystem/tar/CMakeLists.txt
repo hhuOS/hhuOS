@@ -15,5 +15,6 @@
 cmake_minimum_required(VERSION 3.7)
  
 target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/tar/ArchiveDirectoryNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/tar/ArchiveDriver.cpp
-        ${HHUOS_SRC_DIR}/filesystem/tar/ArchiveNode.cpp)
+        ${HHUOS_SRC_DIR}/filesystem/tar/ArchiveFileNode.cpp)

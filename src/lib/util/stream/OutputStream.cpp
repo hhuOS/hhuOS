@@ -21,6 +21,4 @@ namespace Util::Stream  {
 
 void OutputStream::flush() {}
 
-void OutputStream::close() {}
-
 }

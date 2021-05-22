@@ -45,7 +45,7 @@
        maskUnits="userSpaceOnUse"
        id="mask4404">
       <g
-         style="font-style:normal;font-weight:normal;font-size:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:9.27112389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="font-style:normal;font-weight:normal;font-length:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:9.27112389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="g4406"
          transform="translate(5.0195766e-6,-2.4799449e-7)">
         <path
@@ -59,7 +59,7 @@
        maskUnits="userSpaceOnUse"
        id="mask4404-8">
       <g
-         style="font-style:normal;font-weight:normal;font-size:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:9.27112389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         style="font-style:normal;font-weight:normal;font-length:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:9.27112389;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
          id="g4406-9"
          transform="translate(5.0195766e-6,-2.4799449e-7)">
         <path
@@ -264,7 +264,7 @@
      inkscape:label="Ebene 2"
      style="display:none">
     <g
-       style="font-style:normal;font-weight:normal;font-size:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d9dadb;fill-opacity:1;stroke:none;stroke-width:2.31778097;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       style="font-style:normal;font-weight:normal;font-length:276.71499634px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#d9dadb;fill-opacity:1;stroke:none;stroke-width:2.31778097;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        id="text4236"
        transform="matrix(0.86289427,0,0,0.86289427,208.60779,-501.49527)"
        mask="url(#mask4404-8)">

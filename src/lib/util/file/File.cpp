@@ -59,7 +59,12 @@ File File::getParentFile() const {
 }
 
 bool File::create(Type fileType) {
-    return createFile(path, fileType);
+    bool ret = createFile(path, fileType);
+    if (ret) {
+        node = openFile(path);
+    }
+
+    return ret;
 }
 
 }

@@ -28,19 +28,19 @@ class ArchiveNode : public Util::File::Node {
 
 public:
     /**
-     * File Constructor.
+     * Constructor.
      */
-    ArchiveNode(Util::File::Tar::Archive &archive, Util::File::Tar::Archive::Header fileHeader);
-
-    /**
-     * Directory Constructor.
-     */
-    ArchiveNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path);
+    ArchiveNode() = default;
 
     /**
      * Copy-constructor.
      */
     ArchiveNode(const ArchiveNode &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    ArchiveNode& operator=(const ArchiveNode &other) = delete;
 
     /**
      * Destructor.
@@ -50,40 +50,32 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::Memory::String getName() override = 0;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::File::Type getFileType() override = 0;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t getLength() override;
+    uint64_t getLength() override = 0;
 
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Data::Array<Util::Memory::String> getChildren() override = 0;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override = 0;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t writeData(uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-
-private:
-
-    uint32_t size = 0;
-    Util::File::Type type;
-    Util::Memory::Address<uint32_t> dataAddress;
-    Util::Memory::String name;
-    Util::Data::ArrayList<Util::Memory::String> children;
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override = 0;
 
 };
 

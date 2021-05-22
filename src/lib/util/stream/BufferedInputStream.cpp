@@ -62,10 +62,6 @@ int32_t BufferedInputStream::read(uint8_t *target, uint32_t offset, uint32_t len
     return ret;
 }
 
-void BufferedInputStream::close() {
-    FilterInputStream::close();
-}
-
 bool BufferedInputStream::refill() {
     if (position == valid) {
         position = 0;

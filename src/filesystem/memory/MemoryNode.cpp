@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,25 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __KernelService_include__
-#define __KernelService_include__
+#include "MemoryNode.h"
 
-namespace Kernel {
+namespace Filesystem::Memory {
 
-/**
- * KernelService - Base class for all Kernel services.
- *
- * @author Michael Schoettner, Filip Krakowski, Christian Gesse, Fabian Ruhland, Burak Akguel
- * @date HHU, 2018
- */
-class Service {
+MemoryNode::MemoryNode(const Util::Memory::String &name) : name(name) {}
 
-public:
-
-    Service() = default;
-
-};
-
+Util::Memory::String MemoryNode::getName() {
+    return name;
 }
 
-#endif
+}

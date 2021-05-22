@@ -20,16 +20,15 @@
 
 #include <lib/util/async/Spinlock.h>
 #include <lib/util/data/HashMap.h>
-#include <kernel/core/Service.h>
 #include "Driver.h"
 
 namespace Filesystem {
 
 /**
- * The filesystem. It works by maintaining a list of mount-points. Every request will be handled by picking the right
- * mount-point and and passing the request over to the corresponding Driver.
+ * The filesystem. It works by maintaining a list of mountVirtualDriver-points. Every request will be handled by picking the right
+ * mountVirtualDriver-point and and passing the request over to the corresponding Driver.
  */
-class Filesystem : public Kernel::Service {
+class Filesystem {
 
 public:
     /**
@@ -61,25 +60,20 @@ public:
     static Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 
     /**
-     * Initialize the Filesystem.
-     */
-    void init();
-
-    /**
      * Mounts a device at a specified location.
      *
      * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
-     * @param targetPath The mount-path
+     * @param targetPath The mountVirtualDriver-path
      * @param fsType The filesystem-type
      *
      * @return Return code
      */
-    bool mount(const Util::Memory::String &targetPath, Driver &driver);
+    bool mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver);
 
     /**
      * Unmounts a device from a specified location.
      *
-     * @param path The mount-path
+     * @param path The mountVirtualDriver-path
      *
      * @return Return code.
      */
@@ -125,8 +119,6 @@ public:
      * @return true on success
      */
     bool deleteFile(const Util::Memory::String &path);
-
-    static const constexpr char *SERVICE_NAME = "Filesystem";
     
 private:
 
@@ -138,7 +130,7 @@ private:
      * CAUTION: May return nullptr, if the file does not exist.
      *          Always check the return value!
      *
-     * @param path The path. After successful execution, the part up to the mount point will truncated,
+     * @param path The path. After successful execution, the part up to the mountVirtualDriver point will truncated,
      *             so that the path can be used for the returned driver.
      *
      * @return The driver (or nullptr on failure)

@@ -23,23 +23,19 @@ InputStreamReader::InputStreamReader(InputStream &stream) : stream(stream) {
 
 }
 
-void InputStreamReader::close() {
-    stream.close();
-}
+char InputStreamReader::read() {
+    char c = 0;
+    int32_t count = read(&c, 0, 1);
 
-int32_t InputStreamReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
-    return stream.read(reinterpret_cast<uint8_t *>(targetBuffer), offset, length);
+    return count > 0 ? c : -1;
 }
 
 int32_t InputStreamReader::read(char *targetBuffer, uint32_t length) {
     return read(targetBuffer, 0, length);
 }
 
-char InputStreamReader::read() {
-    char c = 0;
-    int32_t count = read(&c, 0, 1);
-
-    return count > 0 ? c : -1;
+int32_t InputStreamReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
+    return stream.read(reinterpret_cast<uint8_t *>(targetBuffer), offset, length);
 }
 
 Memory::String InputStreamReader::read(uint32_t length) {

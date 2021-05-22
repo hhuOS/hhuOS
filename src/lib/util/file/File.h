@@ -20,6 +20,9 @@
 
 #include <lib/util/memory/String.h>
 #include <lib/util/stream/FileInputStream.h>
+#include <lib/util/stream/FileOutputStream.h>
+#include <lib/util/stream/FileReader.h>
+#include <lib/util/stream/FileWriter.h>
 #include "Node.h"
 
 namespace Util::File {
@@ -54,7 +57,7 @@ public:
 
     [[nodiscard]] File getParentFile() const;
 
-    bool create(Type fileType = REGULAR);
+    bool create(Type fileType);
 
     static constexpr const char *SEPARATOR = "/";
 
@@ -73,6 +76,9 @@ private:
     Node *node;
 
     friend class Stream::FileInputStream;
+    friend class Stream::FileOutputStream;
+    friend class Stream::FileWriter;
+    friend class Stream::FileReader;
 
 };
 

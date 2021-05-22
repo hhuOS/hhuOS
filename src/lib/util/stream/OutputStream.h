@@ -39,11 +39,9 @@ public:
 
     virtual void write(uint8_t c) = 0;
 
-    virtual void write(const uint8_t *source, uint32_t offset, uint32_t length) = 0;
+    virtual void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) = 0;
 
     virtual void flush();
-
-    virtual void close();
 };
 
 }

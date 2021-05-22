@@ -18,10 +18,10 @@
 #ifndef __Kernel_include__
 #define __Kernel_include__
 
-#include "Service.h"
 #include "lib/util/async/Spinlock.h"
 
 #include <cstdint>
+#include <kernel/service/Service.h>
 #include "lib/util/memory/String.h"
 #include "kernel/thread/ThreadState.h"
 #include "lib/util/data/HashMap.h"

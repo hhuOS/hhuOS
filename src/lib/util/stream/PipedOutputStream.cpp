@@ -40,12 +40,12 @@ void PipedOutputStream::write(uint8_t c) {
     sink->write(c);
 }
 
-void PipedOutputStream::write(const uint8_t *source, uint32_t offset, uint32_t length) {
+void PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (sink == nullptr) {
         Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Sink is null!");
     }
 
-    sink->write(source, offset, length);
+    sink->write(sourceBuffer, offset, length);
 }
 
 }

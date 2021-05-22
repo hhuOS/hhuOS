@@ -38,7 +38,12 @@ public:
 
     virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
 
-    virtual void close();
+    uint32_t skip(uint32_t amount);
+
+private:
+
+    static const constexpr uint32_t SKIP_BUFFER_SIZE = 1024;
+
 };
 
 }

@@ -31,7 +31,7 @@ int16_t FileInputStream::read() {
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     if (file.node == nullptr) {
-        return -1;
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: File does not exist!");
     }
 
     if (pos >= file.getLength()) {
@@ -44,7 +44,4 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
     return count > 0 ? count : -1;
 }
 
-void FileInputStream::close() {
-    InputStream::close();
-}
 }

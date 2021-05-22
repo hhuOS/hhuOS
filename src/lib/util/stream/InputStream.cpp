@@ -19,29 +19,26 @@
 
 namespace Util::Stream {
 
-/*int32_t InputStream::read(uint8_t *target, uint32_t offset, uint32_t length) {
-    if (offset < 0 || length < 0) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "InputStream: Negative offset or size!");
+uint32_t InputStream::skip(uint32_t amount) {
+    if (amount <= 0) {
+        return 0;
     }
 
-    uint32_t i;
-    for (i = 0; i < length; i++) {
-        int16_t c = read();
+    uint32_t remaining = amount;
+    uint32_t bufferSize = amount > SKIP_BUFFER_SIZE ? SKIP_BUFFER_SIZE : amount;
+    auto *buffer = new uint8_t[bufferSize];
 
-        // Check for EOF
-        if (c < 0) {
-            return i == 0 ? -1 : 0;
+    while (remaining > 0) {
+        int32_t skipped = read(buffer, 0, bufferSize > remaining ? remaining : bufferSize);
+        if (skipped <= 0) {
+            break;
         }
 
-        // Copy read byte to target buffer;
-        target[offset + i] = c;
+        remaining -= skipped;
     }
 
-    return i;
-}*/
-
-void InputStream::close() {
-
+    delete[] buffer;
+    return amount - remaining;
 }
 
 }

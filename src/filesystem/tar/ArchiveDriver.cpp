@@ -16,7 +16,8 @@
  */
 
 #include "ArchiveDriver.h"
-#include "ArchiveNode.h"
+#include "ArchiveFileNode.h"
+#include "ArchiveDirectoryNode.h"
 
 namespace Filesystem::Tar {
 
@@ -24,31 +25,23 @@ ArchiveDriver::ArchiveDriver(Util::File::Tar::Archive &archive) : archive(archiv
 
 }
 
-Util::Memory::String ArchiveDriver::getClassName() {
-    return CLASS_NAME;
-}
-
-bool ArchiveDriver::mount() {
-    return true;
-}
-
 Util::File::Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
     for(const auto &header : archive.getFileHeaders()) {
         Util::Memory::String currentPath = header.filename;
 
         if(path == currentPath) {
-            return new ArchiveNode(archive, header);
+            return new ArchiveFileNode(archive, header);
         }
 
         if((path == "") || (currentPath.beginsWith(path) && currentPath[path.length()] == '/')) {
-            return new ArchiveNode(archive, path);
+            return new ArchiveDirectoryNode(archive, path);
         }
     }
 
     return nullptr;
 }
 
-bool ArchiveDriver::createNode(const Util::Memory::String &path) {
+bool ArchiveDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 

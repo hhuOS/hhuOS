@@ -33,8 +33,4 @@ void FilterOutputStream::flush() {
     stream.flush();
 }
 
-void FilterOutputStream::close() {
-    stream.close();
-}
-
 }

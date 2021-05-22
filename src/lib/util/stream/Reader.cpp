@@ -26,7 +26,7 @@ uint32_t Reader::skip(uint32_t amount) {
 
     uint32_t remaining = amount;
     uint32_t bufferSize = amount > SKIP_BUFFER_SIZE ? SKIP_BUFFER_SIZE : amount;
-    char *buffer = new char[bufferSize];
+    auto *buffer = new char[bufferSize];
 
     while (remaining > 0) {
         int32_t skipped = read(buffer, 0, bufferSize > remaining ? remaining : bufferSize);

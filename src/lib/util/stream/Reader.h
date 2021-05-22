@@ -34,13 +34,11 @@ public:
 
     virtual ~Reader() = default;
 
-    virtual void close() = 0;
-
-    virtual int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) = 0;
+    virtual char read() = 0;
 
     virtual int32_t read(char *targetBuffer, uint32_t length) = 0;
 
-    virtual char read() = 0;
+    virtual int32_t read(char *targetBuffer, uint32_t offset, uint32_t length) = 0;
 
     virtual Memory::String read(uint32_t length) = 0;
 

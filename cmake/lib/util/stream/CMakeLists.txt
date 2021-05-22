@@ -24,6 +24,9 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/stream/ByteArrayOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/ByteArrayInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/FileInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/stream/FileOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/stream/FileReader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/stream/FileWriter.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/FilterInputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/FilterOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/InputStream.cpp
@@ -34,4 +37,5 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/PrintWriter.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/Reader.cpp
-        ${HHUOS_SRC_DIR}/lib/util/stream/TerminalOutputStream.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/stream/TerminalOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/stream/Writer.cpp)

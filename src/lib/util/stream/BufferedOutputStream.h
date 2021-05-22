@@ -40,8 +40,6 @@ public:
 
     void flush() override;
 
-    void close() override;
-
 private:
 
     uint8_t *buffer;

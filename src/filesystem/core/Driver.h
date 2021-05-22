@@ -18,17 +18,14 @@
 #ifndef __FsDriver_include__
 #define __FsDriver_include__
 
-#include <lib/util/reflection/Prototype.h>
 #include <lib/util/file/Node.h>
 
 namespace Filesystem {
 
 /**
- * An interface between the Filesystem-class and a filesystem-driver.
- * Every filesystem-driver needs to implement the functions, that are specified by this class.
- * The Filesystem-class can then communicate with the respective driver.
+ * Interface class for filesystem drivers.
  */
-class Driver : public Util::Reflection::Prototype {
+class Driver {
 
 public:
     /**
@@ -37,19 +34,19 @@ public:
     Driver() = default;
 
     /**
-     * Destructor.
+     * Copy constructor.
      */
-    ~Driver() override = default;
+    Driver(const Driver &copy) = delete;
 
     /**
-     * Mount a device.
-     * After this function has succeeded, the driver must be ready to answer process requests for this device.
-     *
-     * @param device The device
-     *
-     * @return true, on success
+     * Assignment operator.
      */
-    virtual bool mount() = 0;
+    Driver& operator=(const Driver &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    virtual ~Driver() = default;
 
     /**
      * Get an FsNode, representing a file or directory that a given path points to.
@@ -68,7 +65,7 @@ public:
      *
      * @return true on success
      */
-    virtual bool createNode(const Util::Memory::String &path) = 0;
+    virtual bool createNode(const Util::Memory::String &path, Util::File::Type type) = 0;
 
     /**
      * Delete an existing file or directory at a given path.

@@ -67,15 +67,7 @@ Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
     return mountPoints.get(ret);
 }
 
-void Filesystem::init() {
-    for (const Util::Memory::String &path : mountPoints.keySet()) {
-        delete mountPoints.get(path);
-    }
-
-    mountPoints.clear();
-}
-
-bool Filesystem::mount(const Util::Memory::String &targetPath, Driver &driver) {
+bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver) {
     Util::Memory::String parsedPath = getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
     Util::File::Node *targetNode = getNode(parsedPath);
 
@@ -89,10 +81,6 @@ bool Filesystem::mount(const Util::Memory::String &targetPath, Driver &driver) {
     lock.acquire();
 
     if (mountPoints.containsKey(parsedPath)) {
-        return lock.releaseAndReturn(false);
-    }
-
-    if (!driver.mount()) {
         return lock.releaseAndReturn(false);
     }
 
@@ -151,7 +139,7 @@ bool Filesystem::createFile(const Util::Memory::String &path) {
         return lock.releaseAndReturn(false);
     }
 
-    bool ret = driver->createNode(parsedPath);
+    bool ret = driver->createNode(parsedPath, Util::File::REGULAR);
     return lock.releaseAndReturn(ret);
 }
 
@@ -160,12 +148,11 @@ bool Filesystem::createDirectory(const Util::Memory::String &path) {
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
-
     if (driver == nullptr) {
         return lock.releaseAndReturn(false);
     }
 
-    bool ret = driver->createNode(parsedPath);
+    bool ret = driver->createNode(parsedPath, Util::File::DIRECTORY);
     return lock.releaseAndReturn(ret);
 }
 

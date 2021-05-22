@@ -17,8 +17,8 @@
 
 #include <lib/interface.h>
 #include <kernel/core/Management.h>
-#include <filesystem/core/Filesystem.h>
 #include <kernel/core/System.h>
+#include <kernel/service/FilesystemService.h>
 
 void *allocateMemory(uint32_t size) {
     return Kernel::Management::getKernelHeapManager()->alloc(size);
@@ -45,12 +45,12 @@ Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
 }
 
 Util::File::Node* openFile(const Util::Memory::String &path) {
-    auto &filesystem = *Kernel::System::getService<Filesystem::Filesystem>();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
     return filesystem.getNode(path);
 }
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
-    auto &filesystem = *Kernel::System::getService<Filesystem::Filesystem>();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
     if (type == Util::File::REGULAR) {
         return filesystem.createFile(path);
     } else if (type == Util::File::DIRECTORY) {

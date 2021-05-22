@@ -58,7 +58,4 @@ void BufferedOutputStream::flush() {
     FilterOutputStream::flush();
 }
 
-void BufferedOutputStream::close() {
-    FilterOutputStream::close();
-}
 }

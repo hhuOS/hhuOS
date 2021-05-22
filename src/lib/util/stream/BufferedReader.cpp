@@ -26,8 +26,15 @@ BufferedReader::~BufferedReader() {
     delete[] buffer;
 }
 
-void BufferedReader::close() {
-    reader.close();
+char BufferedReader::read() {
+    char c = 0;
+    int32_t count = read(&c, 0, 1);
+
+    return count > 0 ? c : -1;
+}
+
+int32_t BufferedReader::read(char *targetBuffer, uint32_t length) {
+    return read(targetBuffer, 0, length);
 }
 
 int32_t BufferedReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
@@ -56,15 +63,14 @@ int32_t BufferedReader::read(char *targetBuffer, uint32_t offset, uint32_t lengt
     return ret;
 }
 
-int32_t BufferedReader::read(char *targetBuffer, uint32_t length) {
-    return read(targetBuffer, 0, length);
-}
+Memory::String BufferedReader::read(uint32_t length) {
+    char *tmpBuffer = new char[length + 1];
+    int32_t count = read(tmpBuffer, length);
 
-char BufferedReader::read() {
-    char c = 0;
-    int32_t count = read(&c, 0, 1);
+    Memory::String ret = count <= 0 ? Memory::String() : Memory::String(tmpBuffer);
 
-    return count > 0 ? c : -1;
+    delete[] tmpBuffer;
+    return ret;
 }
 
 bool BufferedReader::refill() {
@@ -81,16 +87,6 @@ bool BufferedReader::refill() {
 
     valid += readCount;
     return true;
-}
-
-Memory::String BufferedReader::read(uint32_t length) {
-    char *tmpBuffer = new char[length + 1];
-    int32_t count = read(tmpBuffer, length);
-
-    Memory::String ret = count <= 0 ? Memory::String() : Memory::String(tmpBuffer);
-
-    delete[] tmpBuffer;
-    return ret;
 }
 
 }

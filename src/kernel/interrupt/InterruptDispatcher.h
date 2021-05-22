@@ -21,7 +21,7 @@
 #include <cstdint>
 #include "InterruptHandler.h"
 #include "kernel/thread/ThreadState.h"
-#include "kernel/core/Service.h"
+#include "kernel/service/Service.h"
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/HashMap.h"
 

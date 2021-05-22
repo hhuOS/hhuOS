@@ -40,8 +40,6 @@ public:
 
     int32_t read(uint8_t *target, uint32_t offset, uint32_t length) override;
 
-    void close() override;
-
 private:
 
     bool refill();

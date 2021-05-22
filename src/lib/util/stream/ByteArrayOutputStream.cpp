@@ -52,13 +52,13 @@ void ByteArrayOutputStream::write(uint8_t c) {
     buffer[position++] = c;
 }
 
-void ByteArrayOutputStream::write(const uint8_t *source, uint32_t offset, uint32_t length) {
+void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (offset < 0 || length < 0) {
         Exception::throwException(Exception::OUT_OF_BOUNDS, "ByteArrayOutputStream: Negative offset or size!");
     }
 
     ensureRemainingCapacity(length);
-    auto sourceAddress = Memory::Address<uint32_t>(source, length + offset).add(offset);
+    auto sourceAddress = Memory::Address<uint32_t>(sourceBuffer, length + offset).add(offset);
     auto targetAddress = Memory::Address<uint32_t>(buffer, size).add(position);
     targetAddress.copyRange(sourceAddress, length);
 

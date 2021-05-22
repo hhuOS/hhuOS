@@ -23,4 +23,5 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
 add_subdirectory(core)
+add_subdirectory(memory)
 add_subdirectory(tar)

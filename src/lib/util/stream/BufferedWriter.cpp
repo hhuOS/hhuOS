@@ -26,14 +26,18 @@ BufferedWriter::~BufferedWriter() {
     delete[] buffer;
 }
 
-void BufferedWriter::close() {
-    writer.close();
-}
-
 void BufferedWriter::flush() {
     writer.write(reinterpret_cast<const char*>(buffer), 0, position);
     position = 0;
     writer.flush();
+}
+
+void BufferedWriter::write(char c) {
+    write(&c, 0,1);
+}
+
+void BufferedWriter::write(const char *sourceBuffer, uint32_t length) {
+    write(sourceBuffer, 0, length);
 }
 
 void BufferedWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
@@ -51,6 +55,14 @@ void BufferedWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t l
         flush();
         writer.write(sourceBuffer, offset, length);
     }
+}
+
+void BufferedWriter::write(const Memory::String &string) {
+    write(string, 0, string.length());
+}
+
+void BufferedWriter::write(const Memory::String &string, uint32_t offset, uint32_t length) {
+    write(static_cast<char*>(string), offset, length);
 }
 
 }

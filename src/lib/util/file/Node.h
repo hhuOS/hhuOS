@@ -98,7 +98,7 @@ public:
      *
      * @return The amount of actually written bytes
      */
-    virtual uint64_t writeData(uint8_t *sourceBuffer, uint64_t pos, uint64_t length) = 0;
+    virtual uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) = 0;
 };
 
 }

@@ -18,12 +18,12 @@
 #ifndef HHUOS_ARCHIVEDRIVER_H
 #define HHUOS_ARCHIVEDRIVER_H
 
-#include <filesystem/core/Driver.h>
+#include <filesystem/core/VirtualDriver.h>
 #include <lib/util/file/tar/Archive.h>
 
 namespace Filesystem::Tar {
 
-class ArchiveDriver : public Driver {
+class ArchiveDriver : public VirtualDriver {
 
 public:
     /**
@@ -34,32 +34,32 @@ public:
     explicit ArchiveDriver(Util::File::Tar::Archive &archive);
 
     /**
+     * Copy constructor.
+     */
+    ArchiveDriver(const ArchiveDriver &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    ArchiveDriver& operator=(const ArchiveDriver &other) = delete;
+
+    /**
      * Destructor.
      */
     ~ArchiveDriver() override = default;
 
     /**
-     * Overriding virtual function from Driver.
-     */
-    Util::Memory::String getClassName() override;
-
-    /**
-     * Overriding virtual function from Driver.
-     */
-    bool mount() override;
-
-    /**
-     * Overriding virtual function from Driver.
+     * Overriding virtual function from VirtualDriver.
      */
     Util::File::Node* getNode(const Util::Memory::String &path) override;
 
     /**
-     * Overriding virtual function from Driver.
+     * Overriding virtual function from VirtualDriver.
      */
-    bool createNode(const Util::Memory::String &path) override;
+    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
 
     /**
-     * Overriding virtual function from Driver.
+     * Overriding virtual function from VirtualDriver.
      */
     bool deleteNode(const Util::Memory::String &path) override;
 
@@ -67,8 +67,6 @@ private:
 
     Util::File::Tar::Archive &archive ;
     Util::Data::Array<Util::File::Tar::Archive::Header*> fileHeaders{};
-
-    static const constexpr char *CLASS_NAME = "Filesystem::Tar::ArchiveDriver";
 
 };
 

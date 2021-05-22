@@ -34,10 +34,6 @@ public:
 
     virtual ~Writer() = default;
 
-    virtual void close() = 0;
-
-    virtual void flush() = 0;
-
     virtual void write(const char *sourceBuffer, uint32_t offset, uint32_t length) = 0;
 
     virtual void write(const char *sourceBuffer, uint32_t length) = 0;
@@ -47,6 +43,8 @@ public:
     virtual void write(const Util::Memory::String &string) = 0;
 
     virtual void write(const Util::Memory::String &string, uint32_t offset, uint32_t length) = 0;
+
+    virtual void flush();
 
 };
 
