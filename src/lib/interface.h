@@ -31,6 +31,7 @@ void freeMemory(void *pointer, uint32_t alignment);
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 Util::File::Node* openFile(const Util::Memory::String &path);
+void closeFile(Util::File::Node *node);
 bool createFile(const Util::Memory::String &path, Util::File::Type type);
 
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);

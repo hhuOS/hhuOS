@@ -15,13 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/file/File.h>
+#include <lib/interface.h>
 #include "FileWriter.h"
 
 namespace Util::Stream {
 
-FileWriter::FileWriter(File::File &file) : file(file) {
+FileWriter::FileWriter(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
 
+FileWriter::FileWriter(const Memory::String &path) : node(openFile(path)) {}
+
+FileWriter::~FileWriter() {
+    closeFile(node);
 }
 
 void FileWriter::write(char c) {
@@ -33,11 +37,11 @@ void FileWriter::write(const char *sourceBuffer, uint32_t length) {
 }
 
 void FileWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (file.node == nullptr) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileWriter: File does not exist!");
+    if (node == nullptr) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileWriter: Unable to open file!");
     }
 
-    pos += file.node->writeData(reinterpret_cast<const uint8_t*>(sourceBuffer + offset), pos, length);
+    pos += node->writeData(reinterpret_cast<const uint8_t*>(sourceBuffer + offset), pos, length);
 }
 
 void FileWriter::write(const Memory::String &string) {

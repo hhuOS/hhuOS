@@ -30,15 +30,13 @@
 #include <device/hid/Keyboard.h>
 #include <lib/util/stream/PipedInputStream.h>
 #include <lib/util/stream/InputStreamReader.h>
-#include <filesystem/core/Filesystem.h>
 #include <lib/util/file/tar/Archive.h>
 #include <filesystem/tar/ArchiveDriver.h>
 #include <lib/util/file/File.h>
 #include <lib/util/stream/BufferedReader.h>
 #include <kernel/service/FilesystemService.h>
 #include <filesystem/memory/MemoryDriver.h>
-#include <lib/util/stream/OutputStreamWriter.h>
-#include <lib/util/stream/BufferedWriter.h>
+#include <lib/util/stream/FileInputStream.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 

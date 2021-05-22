@@ -15,12 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/file/File.h>
+#include <lib/interface.h>
 #include "FileInputStream.h"
 
 namespace Util::Stream {
 
-FileInputStream::FileInputStream(File::File &file) : file(file) {}
+FileInputStream::FileInputStream(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+
+FileInputStream::FileInputStream(const Memory::String &path) : node(openFile(path)) {}
+
+FileInputStream::~FileInputStream() {
+    closeFile(node);
+}
 
 int16_t FileInputStream::read() {
     uint8_t c;
@@ -30,15 +36,15 @@ int16_t FileInputStream::read() {
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    if (file.node == nullptr) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: File does not exist!");
+    if (node == nullptr) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
     }
 
-    if (pos >= file.getLength()) {
+    if (pos >= node->getLength()) {
         return -1;
     }
 
-    uint32_t count = file.node->readData(targetBuffer + offset, pos, length);
+    uint32_t count = node->readData(targetBuffer + offset, pos, length);
     pos += count;
 
     return count > 0 ? count : -1;

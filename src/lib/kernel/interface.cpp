@@ -60,6 +60,10 @@ bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 
+void closeFile(Util::File::Node *node) {
+    delete node;
+}
+
 void throwError(Util::Exception::Error error, const char *message){
     Device::Cpu::throwException(error, message);
 }

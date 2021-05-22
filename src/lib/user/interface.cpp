@@ -41,6 +41,8 @@ Util::File::Node* openFile(const Util::Memory::String &path) {
     return nullptr;
 }
 
+void closeFile(Util::File::Node *node) {}
+
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }

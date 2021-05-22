@@ -19,12 +19,7 @@
 #define HHUOS_FILEINPUTSTREAM_H
 
 #include <lib/util/file/File.h>
-
 #include "InputStream.h"
-
-namespace Util::File {
-    class File;
-}
 
 namespace Util::Stream {
 
@@ -32,13 +27,15 @@ class FileInputStream : public InputStream {
 
 public:
 
-    explicit FileInputStream(File::File &file);
+    explicit FileInputStream(const File::File &file);
+
+    FileInputStream(const Memory::String &path);
 
     FileInputStream(const FileInputStream &copy) = delete;
 
     FileInputStream &operator=(const FileInputStream &copy) = delete;
 
-    ~FileInputStream() override = default;
+    ~FileInputStream() override;
 
     int16_t read() override;
 
@@ -47,7 +44,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::File &file;
+    File::Node *node;
 
 };
 

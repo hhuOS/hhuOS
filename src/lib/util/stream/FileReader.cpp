@@ -15,12 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/file/File.h>
+#include <lib/interface.h>
 #include "FileReader.h"
 
 namespace Util::Stream {
 
-FileReader::FileReader(File::File &file) : file(file) {}
+FileReader::FileReader(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+
+FileReader::FileReader(const Memory::String &path) : node(openFile(path)) {}
+
+FileReader::~FileReader() {
+    closeFile(node);
+}
 
 char FileReader::read() {
     char c = 0;
@@ -34,15 +40,15 @@ int32_t FileReader::read(char *targetBuffer, uint32_t length) {
 }
 
 int32_t FileReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
-    if (file.node == nullptr) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: File does not exist!");
+    if (node == nullptr) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
     }
 
-    if (pos >= file.getLength()) {
+    if (pos >= node->getLength()) {
         return -1;
     }
 
-    uint32_t count = file.node->readData(reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
+    uint32_t count = node->readData(reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
     pos += count;
 
     return count > 0 ? count : -1;

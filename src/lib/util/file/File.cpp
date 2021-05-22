@@ -20,30 +20,46 @@
 
 namespace Util::File {
 
-File::File(const Memory::String &path) : path(path), node(openFile(path)) {}
-
-File::~File() {
-    delete node;
-}
+File::File(const Memory::String &path) : path(path) {}
 
 bool File::exists() const {
-    return node != nullptr;
+    auto *node = openFile(path);
+    auto ret = node != nullptr;
+
+    delete node;
+    return ret;
 }
 
 bool File::isFile() const {
-    return node != nullptr && (node->getFileType() == REGULAR);
+    auto *node = openFile(path);
+    auto ret = node != nullptr && (node->getFileType() == REGULAR);
+
+    delete node;
+    return ret;
 }
 
 bool File::isDirectory() const {
-    return node != nullptr && (node->getFileType() == DIRECTORY);
+    auto *node = openFile(path);
+    auto ret = node != nullptr && (node->getFileType() == DIRECTORY);
+
+    delete node;
+    return ret;
 }
 
 uint32_t File::File::getLength() const {
-    return node == nullptr ? 0 : node->getLength();
+    auto *node = openFile(path);
+    auto ret = node == nullptr ? 0 : node->getLength();
+
+    delete node;
+    return ret;
 }
 
 Memory::String File::getName() const {
-    return node == nullptr ? "" : node->getName();
+    auto *node = openFile(path);
+    auto ret = node == nullptr ? "" : node->getName();
+
+    delete node;
+    return ret;
 }
 
 Memory::String File::getCanonicalPath() const {
@@ -58,13 +74,8 @@ File File::getParentFile() const {
     return File(getParent());
 }
 
-bool File::create(Type fileType) {
-    bool ret = createFile(path, fileType);
-    if (ret) {
-        node = openFile(path);
-    }
-
-    return ret;
+bool File::create(Type fileType) const {
+    return createFile(path, fileType);
 }
 
 }

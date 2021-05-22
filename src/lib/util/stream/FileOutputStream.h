@@ -18,11 +18,8 @@
 #ifndef HHUOS_FILEOUTPUTSTREAM_H
 #define HHUOS_FILEOUTPUTSTREAM_H
 
+#include <lib/util/file/File.h>
 #include "OutputStream.h"
-
-namespace Util::File {
-class File;
-}
 
 namespace Util::Stream {
 
@@ -30,13 +27,15 @@ class FileOutputStream : public OutputStream {
 
 public:
 
-    explicit FileOutputStream(File::File &file);
+    explicit FileOutputStream(const File::File &file);
+
+    FileOutputStream(const Memory::String &path);
 
     FileOutputStream(const FileOutputStream &copy) = delete;
 
     FileOutputStream &operator=(const FileOutputStream &copy) = delete;
 
-    ~FileOutputStream() override = default;
+    ~FileOutputStream() override;
 
     void write(uint8_t c) override;
 
@@ -45,7 +44,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::File &file;
+    File::Node *node;
 
 };
 

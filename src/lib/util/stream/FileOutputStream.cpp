@@ -15,23 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/file/File.h>
+#include <lib/interface.h>
 #include "FileOutputStream.h"
 
 namespace Util::Stream {
 
-FileOutputStream::FileOutputStream(File::File &file) : file(file) {}
+FileOutputStream::FileOutputStream(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+
+FileOutputStream::FileOutputStream(const Memory::String &path) : node(openFile(path)) {}
+
+FileOutputStream::~FileOutputStream() {
+    closeFile(node);
+}
 
 void FileOutputStream::write(uint8_t c) {
     write(&c, 0, 1);
 }
 
 void FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (file.node == nullptr) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: File does not exist!");
+    if (node == nullptr) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 
-    uint32_t count = file.node->writeData(sourceBuffer + offset, pos, length);
+    uint32_t count = node->writeData(sourceBuffer + offset, pos, length);
     pos += count;
 }
 

@@ -19,10 +19,6 @@
 #define HHUOS_FILE_H
 
 #include <lib/util/memory/String.h>
-#include <lib/util/stream/FileInputStream.h>
-#include <lib/util/stream/FileOutputStream.h>
-#include <lib/util/stream/FileReader.h>
-#include <lib/util/stream/FileWriter.h>
 #include "Node.h"
 
 namespace Util::File {
@@ -30,16 +26,25 @@ namespace Util::File {
 class File {
 
 public:
-
     /**
      * Constructor.
      */
     explicit File(const Memory::String &path);
 
     /**
+     * Copy-constructor.
+     */
+    File(const File &copy) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    File& operator=(const File &other) = delete;
+
+    /**
      * Destructor.
      */
-    ~File();
+    ~File() = default;
 
     [[nodiscard]] bool exists() const;
 
@@ -57,28 +62,13 @@ public:
 
     [[nodiscard]] File getParentFile() const;
 
-    bool create(Type fileType);
+    [[nodiscard]] bool create(Type fileType) const;
 
     static constexpr const char *SEPARATOR = "/";
 
 private:
-    /**
-     * Copy-constructor.
-     */
-    File(const File &copy) = default;
-
-    /**
-     * Assignment operator.
-     */
-    File& operator=(const File &other) = default;
 
     Memory::String path;
-    Node *node;
-
-    friend class Stream::FileInputStream;
-    friend class Stream::FileOutputStream;
-    friend class Stream::FileWriter;
-    friend class Stream::FileReader;
 
 };
 

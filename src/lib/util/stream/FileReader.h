@@ -18,11 +18,8 @@
 #ifndef HHUOS_FILEREADER_H
 #define HHUOS_FILEREADER_H
 
+#include <lib/util/file/File.h>
 #include "Reader.h"
-
-namespace Util::File {
-class File;
-}
 
 namespace Util::Stream {
 
@@ -30,13 +27,15 @@ class FileReader : public Reader {
 
 public:
 
-    explicit FileReader(Util::File::File &file);
+    explicit FileReader(const File::File &file);
+
+    FileReader(const Memory::String &path);
 
     FileReader(const FileReader &copy) = delete;
 
     FileReader &operator=(const FileReader &copy) = delete;
 
-    ~FileReader() override = default;
+    ~FileReader() override;
 
     char read() override;
 
@@ -49,7 +48,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    Util::File::File &file;
+    File::Node *node;
 
 };
 

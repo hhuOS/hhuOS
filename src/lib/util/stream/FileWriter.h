@@ -18,11 +18,8 @@
 #ifndef HHUOS_FILEWRITER_H
 #define HHUOS_FILEWRITER_H
 
+#include <lib/util/file/File.h>
 #include "Writer.h"
-
-namespace Util::File {
-class File;
-}
 
 namespace Util::Stream {
 
@@ -30,13 +27,15 @@ class FileWriter : public Writer {
 
 public:
 
-    explicit FileWriter(Util::File::File &file);
+    explicit FileWriter(const File::File &file);
+
+    FileWriter(const Memory::String &path);
 
     FileWriter(const FileWriter &copy) = delete;
 
     FileWriter &operator=(const FileWriter &copy) = delete;
 
-    ~FileWriter() override = default;
+    ~FileWriter() override;
 
     void write(char c) override;
 
@@ -51,7 +50,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    Util::File::File &file;
+    File::Node *node;
 
 };
 
