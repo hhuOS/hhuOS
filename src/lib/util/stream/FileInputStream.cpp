@@ -20,12 +20,12 @@
 
 namespace Util::Stream {
 
-FileInputStream::FileInputStream(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
 
-FileInputStream::FileInputStream(const Memory::String &path) : node(openFile(path)) {}
+FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
 
 FileInputStream::~FileInputStream() {
-    closeFile(node);
+    closeFile(fileDescriptor);
 }
 
 int16_t FileInputStream::read() {
@@ -36,15 +36,15 @@ int16_t FileInputStream::read() {
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    if (node == nullptr) {
+    if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
     }
 
-    if (pos >= node->getLength()) {
+    if (pos >= getFileLength(fileDescriptor)) {
         return -1;
     }
 
-    uint32_t count = node->readData(targetBuffer + offset, pos, length);
+    uint32_t count = readFile(fileDescriptor, targetBuffer + offset, pos, length);
     pos += count;
 
     return count > 0 ? count : -1;

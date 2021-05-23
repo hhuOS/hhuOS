@@ -18,12 +18,12 @@
 #ifndef HHUOS_MEMORYWRAPPERNODE_H
 #define HHUOS_MEMORYWRAPPERNODE_H
 
-#include <lib/util/file/Node.h>
+#include <filesystem/core/Node.h>
 #include "MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-class MemoryWrapperNode : public Util::File::Node {
+class MemoryWrapperNode : public Node {
 
 public:
     /**

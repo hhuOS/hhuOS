@@ -18,12 +18,12 @@
 #ifndef HHUOS_MEMORYNODE_H
 #define HHUOS_MEMORYNODE_H
 
-#include <lib/util/file/Node.h>
+#include <filesystem/core/Node.h>
 #include <lib/util/data/ArrayList.h>
 
 namespace Filesystem::Memory {
 
-class MemoryNode : public Util::File::Node {
+class MemoryNode : public Node {
 
 public:
     /**

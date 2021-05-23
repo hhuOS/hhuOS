@@ -20,11 +20,11 @@
 
 #include <lib/util/file/tar/Archive.h>
 #include <lib/util/memory/Address.h>
-#include <lib/util/file/Node.h>
+#include <filesystem/core/Node.h>
 
 namespace Filesystem::Tar {
 
-class ArchiveNode : public Util::File::Node {
+class ArchiveNode : public Node {
 
 public:
     /**

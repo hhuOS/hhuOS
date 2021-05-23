@@ -308,6 +308,10 @@ public:
         return kernelMemoryManager;
     }
 
+    VirtualAddressSpace& getCurrentAddressSpace() {
+        return *currentAddressSpace;
+    }
+
     static TaskStateSegment &getTaskStateSegment() {
         return taskStateSegment;
     }

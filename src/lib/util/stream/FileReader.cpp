@@ -20,12 +20,12 @@
 
 namespace Util::Stream {
 
-FileReader::FileReader(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+FileReader::FileReader(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
 
-FileReader::FileReader(const Memory::String &path) : node(openFile(path)) {}
+FileReader::FileReader(const Memory::String &path) : fileDescriptor(openFile(path)) {}
 
 FileReader::~FileReader() {
-    closeFile(node);
+    closeFile(fileDescriptor);
 }
 
 char FileReader::read() {
@@ -40,15 +40,15 @@ int32_t FileReader::read(char *targetBuffer, uint32_t length) {
 }
 
 int32_t FileReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
-    if (node == nullptr) {
+    if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
     }
 
-    if (pos >= node->getLength()) {
+    if (pos >= getFileLength(fileDescriptor)) {
         return -1;
     }
 
-    uint32_t count = node->readData(reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
+    uint32_t count = readFile(fileDescriptor, reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
     pos += count;
 
     return count > 0 ? count : -1;

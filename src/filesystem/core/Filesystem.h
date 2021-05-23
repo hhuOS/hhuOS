@@ -88,7 +88,7 @@ public:
      *
      * @return The node (or nullptr on failure)
      */
-    Util::File::Node* getNode(const Util::Memory::String &path);
+    Node* getNode(const Util::Memory::String &path);
 
     /**
      * Create a file at a specified path.

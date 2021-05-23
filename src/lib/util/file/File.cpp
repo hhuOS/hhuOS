@@ -23,42 +23,42 @@ namespace Util::File {
 File::File(const Memory::String &path) : path(path) {}
 
 bool File::exists() const {
-    auto *node = openFile(path);
-    auto ret = node != nullptr;
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0;
 
-    delete node;
+    closeFile(fileDescriptor);
     return ret;
 }
 
 bool File::isFile() const {
-    auto *node = openFile(path);
-    auto ret = node != nullptr && (node->getFileType() == REGULAR);
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0 && (getFileType(fileDescriptor) == REGULAR);
 
-    delete node;
+    closeFile(fileDescriptor);
     return ret;
 }
 
 bool File::isDirectory() const {
-    auto *node = openFile(path);
-    auto ret = node != nullptr && (node->getFileType() == DIRECTORY);
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0 && (getFileType(fileDescriptor) == DIRECTORY);
 
-    delete node;
+    closeFile(fileDescriptor);
     return ret;
 }
 
 uint32_t File::File::getLength() const {
-    auto *node = openFile(path);
-    auto ret = node == nullptr ? 0 : node->getLength();
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0 ? 0 : getFileLength(fileDescriptor);
 
-    delete node;
+    closeFile(fileDescriptor);
     return ret;
 }
 
 Memory::String File::getName() const {
-    auto *node = openFile(path);
-    auto ret = node == nullptr ? "" : node->getName();
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0 ? "" : getFileName(fileDescriptor);
 
-    delete node;
+    closeFile(fileDescriptor);
     return ret;
 }
 
@@ -68,6 +68,14 @@ Memory::String File::getCanonicalPath() const {
 
 Memory::String File::getParent() const {
     return ::getCanonicalPath(path + "/..");
+}
+
+Data::Array<Memory::String> File::getChildren() const {
+    auto fileDescriptor = openFile(path);
+    auto ret = fileDescriptor >= 0 ? Data::Array<Memory::String>(0) : getFileChildren(fileDescriptor);
+
+    closeFile(fileDescriptor);
+    return ret;
 }
 
 File File::getParentFile() const {

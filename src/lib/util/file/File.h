@@ -19,7 +19,7 @@
 #define HHUOS_FILE_H
 
 #include <lib/util/memory/String.h>
-#include "Node.h"
+#include "filesystem/core/Node.h"
 
 namespace Util::File {
 
@@ -59,6 +59,8 @@ public:
     [[nodiscard]] Memory::String getCanonicalPath() const;
 
     [[nodiscard]] Memory::String getParent() const;
+
+    [[nodiscard]] Data::Array<Memory::String> getChildren() const;
 
     [[nodiscard]] File getParentFile() const;
 

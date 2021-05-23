@@ -18,10 +18,9 @@
 #include <lib/util/memory/Address.h>
 #include <lib/util/memory/operators.h>
 #include <lib/util/reflection/InstanceFactory.h>
-#include "kernel/memory/VirtualAddressSpace.h"
-#include "kernel/memory/MemLayout.h"
-#include "kernel/core/Management.h"
-#include "kernel/memory/Paging.h"
+#include <kernel/core/Management.h>
+#include "MemLayout.h"
+#include "Paging.h"
 #include "VirtualAddressSpace.h"
 
 namespace Kernel {
@@ -80,6 +79,10 @@ void VirtualAddressSpace::init() {
 
 bool VirtualAddressSpace::isInitialized() const {
     return initialized;
+}
+
+FileDescriptorManager& VirtualAddressSpace::getFileDescriptorManager() {
+    return fileDescriptorManager;
 }
 
 }

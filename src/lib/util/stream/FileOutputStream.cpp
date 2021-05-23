@@ -20,12 +20,12 @@
 
 namespace Util::Stream {
 
-FileOutputStream::FileOutputStream(const File::File &file) : node(openFile(file.getCanonicalPath())) {}
+FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
 
-FileOutputStream::FileOutputStream(const Memory::String &path) : node(openFile(path)) {}
+FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
 
 FileOutputStream::~FileOutputStream() {
-    closeFile(node);
+    closeFile(fileDescriptor);
 }
 
 void FileOutputStream::write(uint8_t c) {
@@ -33,11 +33,11 @@ void FileOutputStream::write(uint8_t c) {
 }
 
 void FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (node == nullptr) {
+    if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
     }
 
-    uint32_t count = node->writeData(sourceBuffer + offset, pos, length);
+    uint32_t count = writeFile(fileDescriptor, sourceBuffer + offset, pos, length);
     pos += count;
 }
 

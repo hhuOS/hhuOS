@@ -29,7 +29,7 @@ public:
 
     explicit FileReader(const File::File &file);
 
-    FileReader(const Memory::String &path);
+    explicit FileReader(const Memory::String &path);
 
     FileReader(const FileReader &copy) = delete;
 
@@ -48,7 +48,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::Node *node;
+    int32_t fileDescriptor;
 
 };
 

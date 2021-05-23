@@ -16,17 +16,5 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(kernel)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(core)
-add_subdirectory(file)
-add_subdirectory(interrupt)
-add_subdirectory(memory)
-add_subdirectory(multiboot)
-add_subdirectory(service)
+target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/file/FileDescriptorManager.cpp)

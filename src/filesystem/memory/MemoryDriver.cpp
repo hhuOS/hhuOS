@@ -29,7 +29,7 @@ MemoryDriver::~MemoryDriver() {
     delete rootNode;
 }
 
-Util::File::Node *MemoryDriver::getNode(const Util::Memory::String &path) {
+Node *MemoryDriver::getNode(const Util::Memory::String &path) {
     if(path.length() == 0){
         return rootNode;
     }

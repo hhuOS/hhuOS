@@ -46,7 +46,13 @@ public:
      */
     ~FilesystemService() override = default;
 
-    Filesystem::Filesystem& getFilesystem();
+    int32_t openFile(const Util::Memory::String &path);
+
+    void closeFile(int32_t fileDescriptor);
+
+    Filesystem::Node& getNode(int32_t fileDescriptor);
+
+    [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 
     static const constexpr char *SERVICE_NAME = "Filesystem";
 

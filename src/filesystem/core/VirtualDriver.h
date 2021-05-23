@@ -55,7 +55,7 @@ public:
      *
      * @return The FsNode (or nulltpr on failure)
      */
-    Util::File::Node* getNode(const Util::Memory::String &path) override = 0;
+    Node* getNode(const Util::Memory::String &path) override = 0;
 
     /**
      * Create a new empty file or directory at a given path.

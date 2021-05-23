@@ -18,6 +18,7 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
+#include <kernel/file/FileDescriptorManager.h>
 #include "kernel/memory/manager/FreeListMemoryManager.h"
 #include "kernel/memory/PageDirectory.h"
 
@@ -33,6 +34,7 @@ namespace Kernel {
 class VirtualAddressSpace {
 private:
 
+    FileDescriptorManager fileDescriptorManager;
     // pointer to memory managers for userspace and kernel
     HeapMemoryManager *kernelSpaceHeapManager = nullptr;
     HeapMemoryManager *userSpaceHeapManager = nullptr;
@@ -97,6 +99,8 @@ public:
     void setUserSpaceHeapManager(HeapMemoryManager *userSpaceHeapManager) {
         this->userSpaceHeapManager = userSpaceHeapManager;
     }
+
+    FileDescriptorManager& getFileDescriptorManager();
 };
 
 }

@@ -29,7 +29,7 @@ public:
 
     explicit FileWriter(const File::File &file);
 
-    FileWriter(const Memory::String &path);
+    explicit FileWriter(const Memory::String &path);
 
     FileWriter(const FileWriter &copy) = delete;
 
@@ -50,7 +50,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::Node *node;
+    int32_t fileDescriptor;
 
 };
 

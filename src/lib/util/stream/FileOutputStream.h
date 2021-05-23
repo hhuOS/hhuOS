@@ -29,7 +29,7 @@ public:
 
     explicit FileOutputStream(const File::File &file);
 
-    FileOutputStream(const Memory::String &path);
+    explicit FileOutputStream(const Memory::String &path);
 
     FileOutputStream(const FileOutputStream &copy) = delete;
 
@@ -44,7 +44,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::Node *node;
+    int32_t fileDescriptor;
 
 };
 

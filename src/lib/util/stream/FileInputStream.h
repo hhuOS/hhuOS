@@ -29,7 +29,7 @@ public:
 
     explicit FileInputStream(const File::File &file);
 
-    FileInputStream(const Memory::String &path);
+    explicit FileInputStream(const Memory::String &path);
 
     FileInputStream(const FileInputStream &copy) = delete;
 
@@ -44,7 +44,7 @@ public:
 private:
 
     uint32_t pos = 0;
-    File::Node *node;
+    int32_t fileDescriptor;
 
 };
 

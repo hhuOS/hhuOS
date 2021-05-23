@@ -69,7 +69,7 @@ Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
 
 bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver) {
     Util::Memory::String parsedPath = getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
-    Util::File::Node *targetNode = getNode(parsedPath);
+    Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
@@ -90,7 +90,7 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Driv
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
     Util::Memory::String parsedPath = getCanonicalPath(path) + Util::File::File::SEPARATOR;
-    Util::File::Node *targetNode = getNode(parsedPath);
+    Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
         if (path != "/") {
@@ -117,7 +117,7 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
     return lock.releaseAndReturn(false);
 }
 
-Util::File::Node* Filesystem::getNode(const Util::Memory::String &path) {
+Node* Filesystem::getNode(const Util::Memory::String &path) {
     Util::Memory::String parsedPath = getCanonicalPath(path);
     lock.acquire();
 
@@ -126,7 +126,7 @@ Util::File::Node* Filesystem::getNode(const Util::Memory::String &path) {
         return lock.releaseAndReturn(nullptr);
     }
 
-    Util::File::Node *ret = driver->getNode(parsedPath);
+    Node *ret = driver->getNode(parsedPath);
     return lock.releaseAndReturn(ret);
 }
 

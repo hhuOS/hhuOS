@@ -37,14 +37,38 @@ Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
     return "";
 }
 
-Util::File::Node* openFile(const Util::Memory::String &path) {
-    return nullptr;
-}
-
-void closeFile(Util::File::Node *node) {}
-
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
+}
+
+int32_t openFile(const Util::Memory::String &path) {
+    return -1;
+}
+
+void closeFile(int32_t fileDescriptor) {}
+
+Util::File::Type getFileType(int32_t fileDescriptor) {
+    return Util::File::REGULAR;
+}
+
+uint32_t getFileLength(int32_t fileDescriptor) {
+    return -1;
+}
+
+Util::Memory::String getFileName(int32_t fileDescriptor) {
+    return "";
+}
+
+Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor) {
+    return Util::Data::Array<Util::Memory::String>(0);
+}
+
+uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
+    return 0;
 }
 
 void throwError(Util::Exception::Error error, const char *message) {

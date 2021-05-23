@@ -15,12 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <kernel/core/Management.h>
 #include "FilesystemService.h"
 
 namespace Kernel {
 
 Filesystem::Filesystem &FilesystemService::getFilesystem() {
     return filesystem;
+}
+
+int32_t FilesystemService::openFile(const Util::Memory::String &path) {
+    return Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().openFile(path);
+}
+
+void FilesystemService::closeFile(int32_t fileDescriptor) {
+    Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().closeFile(fileDescriptor);
+}
+
+Filesystem::Node &FilesystemService::getNode(int32_t fileDescriptor) {
+    return Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().getNode(fileDescriptor);
 }
 
 }

@@ -51,7 +51,7 @@ public:
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    Util::File::Node* getNode(const Util::Memory::String &path) override;
+    Node* getNode(const Util::Memory::String &path) override;
 
     /**
      * Overriding virtual function from VirtualDriver.

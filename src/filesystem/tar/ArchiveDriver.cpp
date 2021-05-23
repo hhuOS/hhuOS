@@ -25,7 +25,7 @@ ArchiveDriver::ArchiveDriver(Util::File::Tar::Archive &archive) : archive(archiv
 
 }
 
-Util::File::Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
+Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
     for(const auto &header : archive.getFileHeaders()) {
         Util::Memory::String currentPath = header.filename;
 

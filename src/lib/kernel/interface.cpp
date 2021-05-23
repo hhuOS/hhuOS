@@ -44,11 +44,6 @@ Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
     return Filesystem::Filesystem::getCanonicalPath(path);
 }
 
-Util::File::Node* openFile(const Util::Memory::String &path) {
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
-    return filesystem.getNode(path);
-}
-
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
     if (type == Util::File::REGULAR) {
@@ -60,8 +55,36 @@ bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 
-void closeFile(Util::File::Node *node) {
-    delete node;
+int32_t openFile(const Util::Memory::String &path) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->openFile(path);
+}
+
+void closeFile(int32_t fileDescriptor) {
+    Kernel::System::getService<Kernel::FilesystemService>()->closeFile(fileDescriptor);
+}
+
+Util::File::Type getFileType(int32_t fileDescriptor) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).getFileType();
+}
+
+uint32_t getFileLength(int32_t fileDescriptor) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).getLength();
+}
+
+Util::Memory::String getFileName(int32_t fileDescriptor) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).getName();
+}
+
+Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).getChildren();
+}
+
+uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).readData(targetBuffer, pos, numBytes);
+}
+
+uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
+    return Kernel::System::getService<Kernel::FilesystemService>()->getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
 }
 
 void throwError(Util::Exception::Error error, const char *message){
