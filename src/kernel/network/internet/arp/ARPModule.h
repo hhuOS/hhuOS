@@ -6,7 +6,7 @@
 #define HHUOS_ARPMODULE_H
 
 #include <lib/util/HashMap.h>
-#include <kernel/network/internet/IP4Address.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/ethernet/EthernetAddress.h>
 
 class ARPModule {

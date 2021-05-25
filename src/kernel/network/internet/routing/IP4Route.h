@@ -6,8 +6,8 @@
 #define HHUOS_IP4ROUTE_H
 
 
-#include <kernel/network/internet/IP4Address.h>
-#include <kernel/network/internet/IP4Netmask.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/addressing/IP4Netmask.h>
 #include <device/network/NetworkDevice.h>
 
 class IP4Route {

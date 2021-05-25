@@ -7,7 +7,7 @@
 
 
 #include <device/network/NetworkDevice.h>
-#include <kernel/network/internet/IP4Address.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/ethernet/EthernetFrame.h>
 #include <kernel/event/Event.h>
 

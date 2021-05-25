@@ -7,7 +7,7 @@
 
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/IP4DataPart.h>
-#include <kernel/network/internet/IP4Address.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 
 namespace Kernel {
 

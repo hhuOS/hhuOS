@@ -6,7 +6,7 @@
 #define HHUOS_ARPREQUEST_H
 
 
-#include <kernel/network/internet/IP4Address.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 
 class ARPRequest : public EthernetDataPart {
 private:
