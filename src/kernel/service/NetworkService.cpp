@@ -4,6 +4,7 @@
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
+#include <kernel/network/ethernet/EthernetDeviceWrapper.h>
 #include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
@@ -14,7 +15,9 @@ namespace Kernel {
         auto *eventBus = System::getService<EventBus>();
 
         ethernetModule = new EthernetModule();
-        ip4Module = new IP4Module();
+        ip4Module = new IP4Module(eventBus);
+
+        registerDevice(*(new Loopback(eventBus)));
 
 //        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
@@ -24,8 +27,6 @@ namespace Kernel {
         eventBus->subscribe(*ethernetModule, EthernetSendEvent::TYPE);
         eventBus->subscribe(*ip4Module, IP4SendEvent::TYPE);
 
-        loopbackInterface = new Loopback();
-        registerDevice(*loopbackInterface);
     }
 
     NetworkService::~NetworkService() {
@@ -41,7 +42,6 @@ namespace Kernel {
 //
         delete ip4Module;
         delete ethernetModule;
-        delete loopbackInterface;
     }
 
     uint32_t NetworkService::getDeviceCount() {
@@ -53,11 +53,23 @@ namespace Kernel {
     }
 
     void NetworkService::removeDevice(uint8_t index) {
+        //TODO: Löschen aus EthernetModule einbauen
         drivers.remove(index);
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
+        auto *deviceWrapper=new EthernetDeviceWrapper(&driver);
+        ip4Module->registerDevice(deviceWrapper);
+        ethernetModule->registerEthernetDevice(deviceWrapper);
         drivers.add(&driver);
+    }
+
+    IP4Module *NetworkService::getIP4Module() const {
+        return ip4Module;
+    }
+
+    EthernetModule *NetworkService::getEthernetModule() const {
+        return ethernetModule;
     }
 
 }

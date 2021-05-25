@@ -39,19 +39,9 @@ void Ip::link(Kernel::NetworkService *networkService) {
 
     stdout << "Print available network links" << endl;
 
-    auto *macAddress = (uint8_t *) malloc(6 * sizeof(uint8_t));
-    uint32_t count = networkService->getDeviceCount();
-
-    for (uint32_t i = 0; i < count; i++) {
-        networkService->getDriver(i).getMacAddress(macAddress);
-        stdout << "Link No. " << i << ": MAC='" << getMACAsString(macAddress) << "'" << endl;
+    for (EthernetDevice *currentDevice:*networkService->getEthernetModule()->getEthernetDevices()) {
+        stdout << ": MAC='" << currentDevice->getEthernetAddress() << "'" << endl;
     }
-
-    free(macAddress);
-}
-
-String Ip::getMACAsString(uint8_t *mac) {
-    return String::format("%02x:%02x:%02x:%02x:%02x:%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 const String Ip::getHelpText() {

@@ -22,8 +22,6 @@
 class Loopback : public NetworkDevice {
 
 private:
-    IP4Address *ip4Address = nullptr;
-    IP4Netmask *ip4Netmask = nullptr;
 
     /**
      * A logger to provide logging information on the kernel log.
@@ -33,11 +31,7 @@ private:
     Kernel::EventBus *eventBus = nullptr;
 
 public:
-    Loopback();
-
-    IP4Address *getIp4Address() const;
-
-    IP4Netmask *getIp4Netmask() const;
+    Loopback(Kernel::EventBus *eventBus);
 
     /**
      * Overriding function from NetworkDevice.

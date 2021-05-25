@@ -47,7 +47,6 @@ namespace Kernel {
 
         IP4Module *ip4Module;
         EthernetModule *ethernetModule;
-        Loopback *loopbackInterface;
 
     public:
         /**
@@ -98,6 +97,10 @@ namespace Kernel {
          * @param driver The driver to add.
          */
         void registerDevice(NetworkDevice &driver);
+
+        IP4Module *getIP4Module() const;
+
+        EthernetModule *getEthernetModule() const;
     };
 
 }

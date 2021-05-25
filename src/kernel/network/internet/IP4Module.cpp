@@ -2,39 +2,33 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/event/network/IP4SendEvent.h>
-#include <kernel/network/ethernet/EthernetFrame.h>
-#include <kernel/network/ethernet/EthernetAddress.h>
-#include <kernel/core/System.h>
-#include <kernel/service/EventBus.h>
-#include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/network/internet/arp/ARPRequest.h>
-#include <kernel/event/network/ARPReceiveEvent.h>
-#include <kernel/event/network/IP4ReceiveEvent.h>
-#include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
-#include <kernel/event/network/UDPReceiveEvent.h>
 #include "IP4Module.h"
 
-Kernel::IP4Module::IP4Module() {
-    this->eventBus = Kernel::System::getService<Kernel::EventBus>();
-    this->routingModule = new IP4RoutingModule();
-    this->arpModule = new ARPModule();
-}
-
 namespace Kernel {
-    IP4Module::~IP4Module() {
-        delete routingModule;
-        delete arpModule;
+    IP4Module::IP4Module(EventBus *eventBus) {
+        this->eventBus = eventBus;
+        this->routingModule = new IP4RoutingModule();
+        this->interfaces = new Util::ArrayList<IP4Interface *>();
     }
 
-    void Kernel::IP4Module::onEvent(const Kernel::Event &event) {
+    IP4Module::~IP4Module() {
+        delete routingModule;
+    }
+
+    void IP4Module::registerDevice(EthernetDevice *device) {
+        this->interfaces->add(new IP4Interface(eventBus, device));
+    }
+
+    void IP4Module::unregisterDevice(EthernetDevice *device) {
+        //TODO: Entferne IP4Interface, dessen EthernetDevice das übergebene ist
+    }
+
+    void IP4Module::onEvent(const Kernel::Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             log.info("Received IP4 Datagram to be sent");
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
-            IP4Address *destinationAddress = datagram->getDestinationAddress();
 
-            IP4Route *matchedRoute = routingModule->findRouteFor(destinationAddress);
+            IP4Route *matchedRoute = routingModule->findRouteFor(datagram->getDestinationAddress());
             if (matchedRoute == nullptr) {
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
@@ -48,33 +42,20 @@ namespace Kernel {
                 return;
             }
 
-            auto *outInterface = matchedRoute->getOutInterface();
-            auto *nextHopAddress = matchedRoute->getNextHopAddress();
-
-//           datagram->setSourceAddress(outInterface->getIP4Address())
-            EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(nextHopAddress);
-            if (destinationAddress == nullptr) {
-                log.info("No ARP entry for IPv4 address found, sending ARP Request");
-                auto *arpRequest = new ARPRequest(nextHopAddress);
-                auto *outFrame = new EthernetFrame(destinationEthernetAddress, arpRequest);
-                //TODO: Implement data structure for waiting IP4Datagrams
-                eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
-                                new Kernel::EthernetSendEvent(outInterface, outFrame)
-                        )
-                );
+            IP4Interface *outInterface = matchedRoute->getOutInterface();
+            if(matchedRoute->getNextHopAddress()!= nullptr){
+                //If destination address is not directly accessible,
+                // we replace target address for ARPResolve with matched route's next hop
+                outInterface->sendIP4Datagram(matchedRoute->getNextHopAddress(),datagram);
                 return;
             }
 
-            auto *outFrame = new EthernetFrame(destinationEthernetAddress, datagram);
-            eventBus->publish(
-                    Util::SmartPointer<Kernel::Event>(
-                            new Kernel::EthernetSendEvent(outInterface, outFrame)
-                    )
-            );
+            outInterface->sendIP4Datagram(datagram->getDestinationAddress(),datagram);
             return;
         }
+
         if (event.getType() == IP4ReceiveEvent::TYPE) {
+            log.info("Received IP4 Datagram to be opened");
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
             switch (ip4Datagram->getIp4ProtocolType()) {
                 case IP4ProtocolType::ICMP4:
@@ -103,8 +84,10 @@ namespace Kernel {
             return;
         }
         if (event.getType() == ARPReceiveEvent::TYPE) {
-            auto *arpResponse = ((ARPReceiveEvent &) event).getArpResponse();
-            arpModule->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
+            log.info("Received ARPResponse to be opened");
+//            auto *arpResponse = ((ARPReceiveEvent &) event).getArpResponse();
+            //TODO: Implement finding proper interface for ARP Update
+//            arpModule->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
             //TODO: Add check for waiting IP4Datagrams and send them again
             return;
         }

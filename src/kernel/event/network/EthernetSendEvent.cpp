@@ -6,16 +6,15 @@
 
 namespace Kernel {
 
-    EthernetSendEvent::EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame)
-            : outInterface(
-            outInterface), ethernetFrame(ethernetFrame) {}
+    EthernetSendEvent::EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame)
+            : outDevice(outDevice), ethernetFrame(ethernetFrame) {}
 
     String EthernetSendEvent::getType() const {
         return TYPE;
     }
 
-    NetworkDevice *EthernetSendEvent::getOutInterface() const {
-        return outInterface;
+    EthernetDevice *EthernetSendEvent::getOutDevice() const {
+        return outDevice;
     }
 
     EthernetFrame *EthernetSendEvent::getEthernetFrame() const {

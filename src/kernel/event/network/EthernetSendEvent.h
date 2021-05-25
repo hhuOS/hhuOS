@@ -10,18 +10,19 @@
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/ethernet/EthernetFrame.h>
 #include <kernel/event/Event.h>
+#include <kernel/network/ethernet/EthernetDevice.h>
 
 namespace Kernel {
 
     class EthernetSendEvent : public Event {
     private:
-        NetworkDevice *outInterface;
+        EthernetDevice *outDevice;
         EthernetFrame *ethernetFrame;
 
     public:
-        EthernetSendEvent(NetworkDevice *outInterface, EthernetFrame *ethernetFrame);
+        EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame);
 
-        NetworkDevice *getOutInterface() const;
+        EthernetDevice *getOutDevice() const;
 
         EthernetFrame *getEthernetFrame() const;
 

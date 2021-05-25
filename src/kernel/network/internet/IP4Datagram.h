@@ -8,7 +8,7 @@
 #include <cinttypes>
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include <kernel/network/ethernet/EtherType.h>
-#include "IP4Address.h"
+#include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 #include "IP4ProtocolType.h"
 #include "IP4HeaderChecksum.h"

@@ -2,15 +2,14 @@
 // Created by hannes on 16.05.21.
 //
 
-#include <kernel/network/ethernet/EthernetFrame.h>
 #include "ARPRequest.h"
+
+ARPRequest::ARPRequest(IP4Address *ip4Address) {
+    this->ip4Address=ip4Address;
+}
 
 uint16_t ARPRequest::getLengthInBytes() {
     return 0;
-}
-
-ARPRequest::ARPRequest(IP4Address *ip4Address) {
-    this->ip4Address = ip4Address;
 }
 
 EtherType ARPRequest::getEtherType() {

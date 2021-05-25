@@ -7,11 +7,15 @@
 
 #include <kernel/log/Logger.h>
 #include <kernel/event/Receiver.h>
+#include "EthernetDevice.h"
 
 namespace Kernel {
 
     class EthernetModule : public Receiver {
+    private:
+        Util::ArrayList<EthernetDevice *> *ethernetDevices;
     public:
+        EthernetModule();
 
         /**
          * A logger to provide information on the kernel log.
@@ -24,6 +28,12 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
+
+        Util::ArrayList<EthernetDevice *> *getEthernetDevices() const;
+
+        void registerEthernetDevice(EthernetDevice *ethernetDevice);
+
+        void unregisterEthernetDevice(EthernetDevice *ethernetDevice);
     };
 
 };

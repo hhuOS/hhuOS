@@ -12,14 +12,36 @@
 
 #include "EthernetModule.h"
 
+
+
+Kernel::EthernetModule::EthernetModule() {
+    this->ethernetDevices = new Util::ArrayList<EthernetDevice *>();
+}
+
+Util::ArrayList<EthernetDevice *> *Kernel::EthernetModule::getEthernetDevices() const {
+    return ethernetDevices;
+}
+
+void Kernel::EthernetModule::registerEthernetDevice(EthernetDevice *ethernetDevice) {
+    this->ethernetDevices->add(ethernetDevice);
+}
+
+void Kernel::EthernetModule::unregisterEthernetDevice(EthernetDevice *ethernetDevice) {
+    this->ethernetDevices->remove(ethernetDevice);
+}
+
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
     if (event.getType() == EthernetSendEvent::TYPE) {
+        log.info("EthernetSendEvent with EthernetFrame received");
+
         auto sendEvent = ((EthernetSendEvent &) event);
-        NetworkDevice *outInterface = sendEvent.getOutInterface();
+        EthernetDevice *outDevice = sendEvent.getOutDevice();
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();
 
-        log.info("EthernetSendEvent with EthernetFrame received");
-//        outInterface->sendPacket(outFrame->getDataAsByteBlock(), outFrame->getLengthInBytes());
+        if(outFrame!= nullptr && outDevice!= nullptr){
+            outDevice->sendEthernetFrame(outFrame);
+        }
+
         return;
     }
     if (event.getType() == EthernetReceiveEvent::TYPE) {

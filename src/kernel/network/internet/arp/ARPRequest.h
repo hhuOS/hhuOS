@@ -5,7 +5,8 @@
 #ifndef HHUOS_ARPREQUEST_H
 #define HHUOS_ARPREQUEST_H
 
-
+#include <kernel/network/ethernet/EthernetFrame.h>
+#include <kernel/network/ethernet/EtherType.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 
 class ARPRequest : public EthernetDataPart {
@@ -19,7 +20,7 @@ public:
 
     uint16_t getLengthInBytes() override;
 
-    EtherType getEtherType();
+    EtherType getEtherType() override;
 };
 
 

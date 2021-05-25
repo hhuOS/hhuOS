@@ -8,6 +8,7 @@
 
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>
+#include <kernel/network/internet/IP4Interface.h>
 #include <device/network/NetworkDevice.h>
 
 class IP4Route {
@@ -16,10 +17,12 @@ private:
     IP4Address *netAddress;
     IP4Netmask *netMask;
     IP4Address *nextHopAddress;
-    NetworkDevice *outInterface;
+    IP4Interface *outInterface;
 
 public:
-    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, NetworkDevice *outInterface);
+    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, IP4Interface *outInterface);
+
+    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
 
     IP4Address *getNetAddress() const;
 
@@ -27,8 +30,7 @@ public:
 
     IP4Address *getNextHopAddress() const;
 
-    NetworkDevice *getOutInterface() const;
+    IP4Interface *getOutInterface() const;
 };
-
 
 #endif //HHUOS_IP4ROUTE_H

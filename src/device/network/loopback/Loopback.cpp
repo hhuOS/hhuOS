@@ -4,11 +4,8 @@
 
 #include "Loopback.h"
 
-Loopback::Loopback() {
-    eventBus = Kernel::System::getService<Kernel::EventBus>();
-
-    this->ip4Address=new IP4Address(127,0,0,1);
-    this->ip4Netmask=new IP4Netmask(255,0,0,0);
+Loopback::Loopback(Kernel::EventBus *eventBus) {
+    this->eventBus=eventBus;
 }
 
 void Loopback::sendPacket(void *address, uint16_t length) {
@@ -39,12 +36,4 @@ void Loopback::getMacAddress(uint8_t *buf) {
 
 void Loopback::trigger(Kernel::InterruptFrame &frame) {
 //TODO: Implement this one
-}
-
-IP4Address *Loopback::getIp4Address() const {
-    return ip4Address;
-}
-
-IP4Netmask *Loopback::getIp4Netmask() const {
-    return ip4Netmask;
 }

@@ -15,8 +15,9 @@ private:
 public:
     IP4RoutingModule();
 
+    void addRouteForInterface(IP4Interface *ip4Interface);
+
     IP4Route *findRouteFor(IP4Address *receiverAddress);
 };
-
 
 #endif //HHUOS_IP4ROUTINGMODULE_H
