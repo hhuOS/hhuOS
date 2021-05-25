@@ -19,8 +19,6 @@
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include <cstdint>
-#include <kernel/network/internet/IP4Address.h>
-#include <kernel/network/internet/IP4Netmask.h>
 
 /**
  * Interface for network cards
