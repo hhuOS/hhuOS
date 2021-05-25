@@ -13,7 +13,6 @@
 #include "EthernetModule.h"
 
 
-
 Kernel::EthernetModule::EthernetModule() {
     this->ethernetDevices = new Util::ArrayList<EthernetDevice *>();
 }
@@ -38,7 +37,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         EthernetDevice *outDevice = sendEvent.getOutDevice();
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();
 
-        if(outFrame!= nullptr && outDevice!= nullptr){
+        if (outFrame != nullptr && outDevice != nullptr) {
             outDevice->sendEthernetFrame(outFrame);
         }
 

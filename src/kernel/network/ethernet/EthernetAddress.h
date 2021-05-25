@@ -11,11 +11,11 @@
 
 class EthernetAddress {
 private:
-    uint8_t macAddress[6]{0,0,0,0,0,0};
+    uint8_t macAddress[6]{0, 0, 0, 0, 0, 0};
 public:
     EthernetAddress(
-            uint8_t firstByte,uint8_t secondByte,uint8_t thirdByte,
-            uint8_t fourthByte,uint8_t fifthByte,uint8_t sixthByte);
+            uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte,
+            uint8_t fourthByte, uint8_t fifthByte, uint8_t sixthByte);
 
     String asString();
 };

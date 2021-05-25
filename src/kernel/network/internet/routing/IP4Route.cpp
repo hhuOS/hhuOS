@@ -5,18 +5,18 @@
 #include "IP4Route.h"
 
 IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop,
-                           IP4Interface *outInterface) {
+                   IP4Interface *outInterface) {
     this->netAddress = netAddress;
-    this->netMask=netMask;
-    this->nextHopAddress=nextHop;
-    this->outInterface=outInterface;
+    this->netMask = netMask;
+    this->nextHopAddress = nextHop;
+    this->outInterface = outInterface;
 }
 
 IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
     this->netAddress = netAddress;
-    this->netMask=netMask;
-    this->nextHopAddress= nullptr;
-    this->outInterface=outInterface;
+    this->netMask = netMask;
+    this->nextHopAddress = nullptr;
+    this->outInterface = outInterface;
 }
 
 IP4Address *IP4Route::getNetAddress() const {

@@ -43,14 +43,14 @@ namespace Kernel {
             }
 
             IP4Interface *outInterface = matchedRoute->getOutInterface();
-            if(matchedRoute->getNextHopAddress()!= nullptr){
+            if (matchedRoute->getNextHopAddress() != nullptr) {
                 //If destination address is not directly accessible,
                 // we replace target address for ARPResolve with matched route's next hop
-                outInterface->sendIP4Datagram(matchedRoute->getNextHopAddress(),datagram);
+                outInterface->sendIP4Datagram(matchedRoute->getNextHopAddress(), datagram);
                 return;
             }
 
-            outInterface->sendIP4Datagram(datagram->getDestinationAddress(),datagram);
+            outInterface->sendIP4Datagram(datagram->getDestinationAddress(), datagram);
             return;
         }
 

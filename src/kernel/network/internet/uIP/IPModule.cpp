@@ -335,7 +335,7 @@ uip_reass(void) {
            right amount of bits. */
             if (uip_reassbitmap[uip_reasslen / (8 * 8)] !=
                 (uint8_t)
-                ~bitmap_bits[uip_reasslen / 8 & 7]) {
+                        ~bitmap_bits[uip_reasslen / 8 & 7]) {
                 goto nullreturn;
             }
 

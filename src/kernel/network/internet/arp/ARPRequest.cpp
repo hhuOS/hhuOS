@@ -5,7 +5,7 @@
 #include "ARPRequest.h"
 
 ARPRequest::ARPRequest(IP4Address *ip4Address) {
-    this->ip4Address=ip4Address;
+    this->ip4Address = ip4Address;
 }
 
 uint16_t ARPRequest::getLengthInBytes() {

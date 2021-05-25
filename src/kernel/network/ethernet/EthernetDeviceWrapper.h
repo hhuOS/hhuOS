@@ -11,7 +11,7 @@
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
 
-class EthernetDeviceWrapper : public EthernetDevice{
+class EthernetDeviceWrapper : public EthernetDevice {
 private:
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;

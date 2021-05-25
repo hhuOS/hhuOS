@@ -58,7 +58,7 @@ namespace Kernel {
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        auto *deviceWrapper=new EthernetDeviceWrapper(&driver);
+        auto *deviceWrapper = new EthernetDeviceWrapper(&driver);
         ip4Module->registerDevice(deviceWrapper);
         ethernetModule->registerEthernetDevice(deviceWrapper);
         drivers.add(&driver);

@@ -6,7 +6,7 @@
 #include "IP4RoutingModule.h"
 
 IP4RoutingModule::IP4RoutingModule() {
-    this->routes=new Util::ArrayList<IP4Route *>();
+    this->routes = new Util::ArrayList<IP4Route *>();
 }
 
 IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
@@ -16,5 +16,5 @@ IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
 
 void IP4RoutingModule::addRouteForInterface(IP4Interface *ip4Interface) {
     routes->add(
-            new IP4Route(ip4Interface->getIp4Address(),ip4Interface->getIp4Netmask(),ip4Interface));
+            new IP4Route(ip4Interface->getIp4Address(), ip4Interface->getIp4Netmask(), ip4Interface));
 }
