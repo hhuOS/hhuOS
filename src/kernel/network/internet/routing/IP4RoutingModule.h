@@ -10,8 +10,10 @@
 
 class IP4RoutingModule {
 private:
-    Util::ArrayList<IP4Route *> routes;
+    Util::ArrayList<IP4Route *> *routes;
 public:
+    IP4RoutingModule();
+
     IP4Route *findRouteFor(IP4Address *receiverAddress);
 };
 

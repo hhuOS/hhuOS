@@ -7,3 +7,7 @@
 IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
     return new IP4Route(nullptr, nullptr, nullptr, nullptr);
 }
+
+IP4RoutingModule::IP4RoutingModule() {
+    this->routes=new Util::ArrayList<IP4Route *>();
+}
