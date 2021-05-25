@@ -37,3 +37,11 @@ void Loopback::getMacAddress(uint8_t *buf) {
 void Loopback::trigger(Kernel::InterruptFrame &frame) {
 //TODO: Implement this one
 }
+
+IP4Address *Loopback::getIp4Address() const {
+    return ip4Address;
+}
+
+IP4Netmask *Loopback::getIp4Netmask() const {
+    return ip4Netmask;
+}

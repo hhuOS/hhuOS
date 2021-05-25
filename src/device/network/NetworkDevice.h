@@ -29,10 +29,6 @@
  * @date 2019
  */
 class NetworkDevice : public Kernel::InterruptHandler {
-private:
-    IP4Address *ip4Address = nullptr;
-    IP4Netmask *ip4Netmask = nullptr;
-
 public:
 
     /**
@@ -44,22 +40,6 @@ public:
      * Copy-constructor.
      */
     NetworkDevice(const NetworkDevice &copy) = delete;
-
-    IP4Address *getIp4Address() const {
-        return ip4Address;
-    }
-
-    void setIp4Address(IP4Address *ip4Address) {
-        NetworkDevice::ip4Address = ip4Address;
-    }
-
-    IP4Netmask *getIp4Netmask() const {
-        return ip4Netmask;
-    }
-
-    void setIp4Netmask(IP4Netmask *ip4Netmask) {
-        NetworkDevice::ip4Netmask = ip4Netmask;
-    }
 
     /**
      * Assignment operator.
