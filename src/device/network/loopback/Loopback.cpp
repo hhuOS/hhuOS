@@ -6,6 +6,9 @@
 
 Loopback::Loopback() {
     eventBus = Kernel::System::getService<Kernel::EventBus>();
+
+    this->ip4Address=new IP4Address(127,0,0,1);
+    this->ip4Netmask=new IP4Netmask(255,0,0,0);
 }
 
 void Loopback::sendPacket(void *address, uint16_t length) {
