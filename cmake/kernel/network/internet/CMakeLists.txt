@@ -28,9 +28,11 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPRequest.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPResponse.cpp
 
+        ${HHUOS_SRC_DIR}/kernel/network/internet/addressing/IP4Address.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/addressing/IP4Netmask.cpp
+#        ${HHUOS_SRC_DIR}/kernel/network/internet/addressing/IP4Netpart.cpp
+
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Netmask.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Address.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4HeaderChecksum.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp
 
