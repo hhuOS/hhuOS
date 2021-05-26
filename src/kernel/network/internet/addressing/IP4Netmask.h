@@ -6,13 +6,19 @@
 #define HHUOS_IP4NETMASK_H
 
 #include <cinttypes>
+#include "IP4Address.h"
 
 class IP4Netmask {
 private:
-    uint8_t netmask[4];
+    uint32_t netmask = 0;
+    uint8_t bitCount = 0;
 
 public:
-    IP4Netmask(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
+    IP4Netmask(uint8_t bitCount);
+
+    uint8_t getBitCount() const;
+
+    IP4Address *extractNetPart(IP4Address *ip4Address);
 };
 
 

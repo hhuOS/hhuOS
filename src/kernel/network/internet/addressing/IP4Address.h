@@ -13,6 +13,12 @@ private:
 
 public:
     IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
+
+    IP4Address(uint32_t fullAddress);
+
+    uint32_t asInt();
+
+    uint8_t equals(IP4Address *ip4Address);
 };
 
 

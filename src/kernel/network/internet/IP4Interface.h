@@ -21,13 +21,15 @@ private:
     EthernetDevice *ethernetDevice;
 
 public:
-    IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice);
+    IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
     void sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram);
 
     IP4Address *getIp4Address() const;
 
     IP4Netmask *getIp4Netmask() const;
+
+    virtual ~IP4Interface();
 };
 
 #endif //HHUOS_IP4INT_H

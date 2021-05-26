@@ -18,6 +18,7 @@ private:
     IP4Netmask *netMask;
     IP4Address *nextHopAddress;
     IP4Interface *outInterface;
+    IP4Address *netPart;
 
 public:
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, IP4Interface *outInterface);
@@ -31,6 +32,8 @@ public:
     IP4Address *getNextHopAddress() const;
 
     IP4Interface *getOutInterface() const;
+
+    uint8_t matchingBits(IP4Address *pAddress);
 };
 
 #endif //HHUOS_IP4ROUTE_H

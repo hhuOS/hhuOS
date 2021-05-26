@@ -7,12 +7,16 @@
 #include "IP4Interface.h"
 #include "IP4Datagram.h"
 
-IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice) {
+IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
     this->eventBus = eventBus;
     this->arpModule = new ARPModule();
     this->ethernetDevice = ethernetDevice;
-    this->ip4Address = new IP4Address(0, 0, 0, 0);
-    this->ip4Netmask = new IP4Netmask(0, 0, 0, 0);
+    this->ip4Address = ip4Address;
+    this->ip4Netmask = ip4Netmask;
+}
+
+IP4Interface::~IP4Interface() {
+    delete this->arpModule;
 }
 
 void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {

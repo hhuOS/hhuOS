@@ -12,10 +12,13 @@
 class IP4RoutingModule {
 private:
     Util::ArrayList<IP4Route *> *routes;
+    IP4Route *defaultRoute;
 public:
     IP4RoutingModule();
 
     void addRouteForInterface(IP4Interface *ip4Interface);
+
+    void setDefaultRoute(IP4Address *nextHop,IP4Interface *outInterface);
 
     IP4Route *findRouteFor(IP4Address *receiverAddress);
 };
