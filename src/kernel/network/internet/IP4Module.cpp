@@ -18,8 +18,8 @@ namespace Kernel {
         }
     }
 
-    void IP4Module::registerDevice(EthernetDevice *device) {
-        this->interfaces->add(new IP4Interface(eventBus, device));
+    void IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+        this->interfaces->add(new IP4Interface(eventBus, device, ip4Address, ip4Netmask));
     }
 
     void IP4Module::unregisterDevice(EthernetDevice *device) {

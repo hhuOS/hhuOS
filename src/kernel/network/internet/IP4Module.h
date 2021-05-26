@@ -48,7 +48,7 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        void registerDevice(EthernetDevice *device);
+        void registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
         void unregisterDevice(EthernetDevice *device);
     };
