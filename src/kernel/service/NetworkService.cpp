@@ -12,7 +12,7 @@
 namespace Kernel {
 
     NetworkService::NetworkService() {
-        auto *eventBus = System::getService<EventBus>();
+        eventBus = System::getService<EventBus>();
 
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
@@ -30,7 +30,6 @@ namespace Kernel {
     }
 
     NetworkService::~NetworkService() {
-        auto *eventBus = System::getService<EventBus>();
         //TODO: Synchronisierung nötig?
         eventBus->unsubscribe(*ip4Module, IP4SendEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetSendEvent::TYPE);

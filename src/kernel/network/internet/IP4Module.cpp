@@ -13,6 +13,9 @@ namespace Kernel {
 
     IP4Module::~IP4Module() {
         delete routingModule;
+        for(IP4Interface *current:*interfaces){
+            delete current;
+        }
     }
 
     void IP4Module::registerDevice(EthernetDevice *device) {

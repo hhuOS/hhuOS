@@ -42,7 +42,7 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
-
+        EventBus *eventBus;
         PacketHandler packetHandler;
 
         IP4Module *ip4Module;
