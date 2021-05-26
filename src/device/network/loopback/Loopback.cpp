@@ -5,7 +5,7 @@
 #include "Loopback.h"
 
 Loopback::Loopback(Kernel::EventBus *eventBus) {
-    this->eventBus=eventBus;
+    this->eventBus = eventBus;
 }
 
 void Loopback::sendPacket(void *address, uint16_t length) {
