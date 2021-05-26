@@ -1,10 +1,8 @@
 
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/event/network/EthernetReceiveEvent.h>
-#include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
-#include <kernel/network/ethernet/EthernetDeviceWrapper.h>
+#include <kernel/network/ethernet/EthernetDevice.h>
 #include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
@@ -52,13 +50,12 @@ namespace Kernel {
     }
 
     void NetworkService::removeDevice(uint8_t index) {
-        //TODO: Löschen aus EthernetModule einbauen
+        ethernetModule->unregisterNetworkDevice(drivers.get(index));
         drivers.remove(index);
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        auto *deviceWrapper = new EthernetDeviceWrapper(&driver);
-        ethernetModule->registerEthernetDevice(deviceWrapper);
+        ethernetModule->registerNetworkDevice(&driver);
         drivers.add(&driver);
     }
 

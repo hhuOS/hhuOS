@@ -32,9 +32,9 @@ namespace Kernel {
 
         Util::ArrayList<EthernetDevice *> *getEthernetDevices() const;
 
-        void registerEthernetDevice(EthernetDevice *ethernetDevice);
+        void registerNetworkDevice(NetworkDevice *networkDevice);
 
-        void unregisterEthernetDevice(EthernetDevice *ethernetDevice);
+        void unregisterNetworkDevice(NetworkDevice *ethernetDevice);
     };
 
 };

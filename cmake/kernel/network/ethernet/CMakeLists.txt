@@ -18,5 +18,5 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetAddress.cpp
         ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetFrame.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetDeviceWrapper.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/ethernet/EthernetDevice.cpp
 )

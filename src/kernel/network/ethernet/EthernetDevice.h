@@ -6,14 +6,24 @@
 #define HHUOS_ETHERNETDEVICE_H
 
 
+#include <device/network/NetworkDevice.h>
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
 
 class EthernetDevice {
+private:
+    NetworkDevice *networkDevice;
+    EthernetAddress *ethernetAddress;
 public:
-    virtual EthernetAddress *getEthernetAddress() = 0;
+    EthernetDevice(NetworkDevice *networkDevice);
 
-    virtual void sendEthernetFrame(EthernetFrame *ethernetFrame) = 0;
+    EthernetAddress *getEthernetAddress();
+
+    void sendEthernetFrame(EthernetFrame *ethernetFrame);
+
+    uint8_t equals(EthernetDevice *ethernetDevice);
+
+    uint8_t connectedTo(NetworkDevice *networkDevice);
 };
 
 
