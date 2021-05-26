@@ -42,22 +42,22 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
-        EventBus *eventBus;
-        PacketHandler packetHandler;
+        /**
+         * Provide service information on the kernel log.
+         */
+        static Logger &log;
 
-        IP4Module *ip4Module;
-        EthernetModule *ethernetModule;
-
-    public:
         /**
          * A list where all drivers will be collected.
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        /**
-         * Provide service information on the kernel log.
-         */
-        static Logger &log;
+        EventBus *eventBus;
+        PacketHandler packetHandler;
+        IP4Module *ip4Module;
+        EthernetModule *ethernetModule;
+
+    public:
 
         /**
          * Constructor.
