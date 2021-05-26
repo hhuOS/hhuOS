@@ -59,12 +59,9 @@ namespace Kernel {
         drivers.add(&driver);
     }
 
-    IP4Module *NetworkService::getIP4Module() const {
-        return ip4Module;
+    void NetworkService::fillInEthernetAddresses(Util::ArrayList<String> *strings) {
+        for(EthernetDevice *current:*ethernetModule->getEthernetDevices()){
+            strings->add(current->getEthernetAddress()->asString());
+        }
     }
-
-    EthernetModule *NetworkService::getEthernetModule() const {
-        return ethernetModule;
-    }
-
 }
