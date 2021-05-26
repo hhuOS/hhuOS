@@ -13,7 +13,8 @@
 #include "EthernetModule.h"
 
 
-Kernel::EthernetModule::EthernetModule() {
+Kernel::EthernetModule::EthernetModule(Kernel::EventBus *eventBus) {
+    this->eventBus=eventBus;
     this->ethernetDevices = new Util::ArrayList<EthernetDevice *>();
 }
 
@@ -46,7 +47,6 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
     if (event.getType() == EthernetReceiveEvent::TYPE) {
         auto receiveEvent = ((EthernetReceiveEvent &) event);
         EthernetFrame *inFrame = receiveEvent.getEthernetFrame();
-        auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
 
         switch (inFrame->getEtherType()) {
             case EtherType::IP4:

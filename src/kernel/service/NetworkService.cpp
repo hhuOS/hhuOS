@@ -14,7 +14,7 @@ namespace Kernel {
     NetworkService::NetworkService() {
         auto *eventBus = System::getService<EventBus>();
 
-        ethernetModule = new EthernetModule();
+        ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
 
         registerDevice(*(new Loopback(eventBus)));

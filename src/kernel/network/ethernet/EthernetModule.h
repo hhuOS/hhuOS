@@ -13,9 +13,10 @@ namespace Kernel {
 
     class EthernetModule : public Receiver {
     private:
+        Kernel::EventBus *eventBus;
         Util::ArrayList<EthernetDevice *> *ethernetDevices;
     public:
-        EthernetModule();
+        EthernetModule(Kernel::EventBus *eventBus);
 
         /**
          * A logger to provide information on the kernel log.

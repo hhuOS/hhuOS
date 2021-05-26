@@ -19,7 +19,7 @@ uint16_t EthernetFrame::getLength() {
 }
 
 EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
-
+//TODO:Implement parsing from incoming data
 }
 
 EthernetAddress *EthernetFrame::getDestinationAddress() const {

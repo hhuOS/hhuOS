@@ -13,7 +13,7 @@ EthernetDeviceWrapper::EthernetDeviceWrapper(NetworkDevice *networkDevice) {
             macAddress[2],
             macAddress[3],
             macAddress[4],
-            macAddress[4]
+            macAddress[5]
     );
 }
 
