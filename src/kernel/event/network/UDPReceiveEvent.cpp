@@ -9,7 +9,7 @@ String Kernel::UDPReceiveEvent::getType() const {
 }
 
 Kernel::UDPReceiveEvent::UDPReceiveEvent(UDPDatagram *datagram) {
-this->datagram=datagram;
+    this->datagram = datagram;
 }
 
 UDPDatagram *Kernel::UDPReceiveEvent::getDatagram() {

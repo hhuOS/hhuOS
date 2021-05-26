@@ -6,9 +6,10 @@
 
 namespace Kernel {
 
-    ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4Address *sourceAddress, IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-        this->sourceAddress=sourceAddress;
-        this->destinationAddress=destinationAddress;
+    ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4Address *sourceAddress, IP4Address *destinationAddress,
+                                         IP4DataPart *ip4DataPart) {
+        this->sourceAddress = sourceAddress;
+        this->destinationAddress = destinationAddress;
         this->ip4DataPart = ip4DataPart;
     }
 
