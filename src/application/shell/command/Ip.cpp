@@ -58,6 +58,8 @@ void Ip::link(Kernel::NetworkService *networkService) {
     for (uint32_t i = 0; i < linkAttributes->size(); i++) {
         stdout << "\nDevice " << i << ": " << linkAttributes->get(i) << endl;
     }
+
+    delete linkAttributes;
 }
 
 void Ip::address(Kernel::NetworkService *networkService) {
@@ -74,6 +76,8 @@ void Ip::address(Kernel::NetworkService *networkService) {
     for (uint32_t i = 0; i < interfaceAttributes->size(); i++) {
         stdout << "\nDevice " << i << ": " << interfaceAttributes->get(i) << endl;
     }
+
+    delete interfaceAttributes;
 }
 
 void Ip::route(Kernel::NetworkService *networkService) {
@@ -90,6 +94,8 @@ void Ip::route(Kernel::NetworkService *networkService) {
     for (uint32_t i = 0; i < routeAttributes->size(); i++) {
         stdout << "\nRoute " << i << ": " << routeAttributes->get(i) << endl;
     }
+
+    delete routeAttributes;
 }
 
 const String Ip::getHelpText() {
