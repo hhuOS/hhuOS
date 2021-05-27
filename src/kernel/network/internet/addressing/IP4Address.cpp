@@ -27,5 +27,5 @@ uint8_t IP4Address::equals(IP4Address *ip4Address) {
 }
 
 String IP4Address::asString() {
-    return String::format("%d.%d.%d.%d",address[0], address[1], address[2],address[3]);
+    return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
 }

@@ -16,7 +16,7 @@ namespace Kernel {
     }
 
     void IP4Module::collectIP4InterfaceAttributes(Util::ArrayList<String> *strings) {
-        for(EthernetDevice *currentDevice:interfaces->keySet()){
+        for (EthernetDevice *currentDevice:interfaces->keySet()) {
             strings->add(interfaces->get(currentDevice)->asString());
         }
     }
