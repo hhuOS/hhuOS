@@ -9,8 +9,8 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     if (this->bitCount > 32) {
         this->bitCount = 32;
     }
-    //Set all bits to '1'
-    this->netmask = UINT32_MAX;
+    //Set all bits to '1' (works because netmask is unsigned)
+    this->netmask = -1;
     //Set right [bitCount] bits to '0'
     this->netmask = this->netmask << (32 - bitCount);
 }
@@ -26,5 +26,5 @@ uint8_t IP4Netmask::getBitCount() const {
 
 String IP4Netmask::asString() {
     auto *parts = (uint8_t *)&netmask;
-    return String::format("%d.%d.%d.%d",parts[0], parts[1], parts[2], parts[3]);
+    return String::format("%d.%d.%d.%d",parts[3], parts[2], parts[1], parts[0]);
 }
