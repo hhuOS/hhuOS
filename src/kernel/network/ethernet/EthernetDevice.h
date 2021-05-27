@@ -12,16 +12,17 @@
 
 class EthernetDevice {
 private:
+    String identifier;
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;
 public:
-    EthernetDevice(NetworkDevice *networkDevice);
+    EthernetDevice(String identifier, NetworkDevice *networkDevice);
+
+    const String &getIdentifier() const;
 
     EthernetAddress *getEthernetAddress();
 
     void sendEthernetFrame(EthernetFrame *ethernetFrame);
-
-    uint8_t equals(EthernetDevice *ethernetDevice);
 
     uint8_t connectedTo(NetworkDevice *networkDevice);
 };

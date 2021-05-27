@@ -13,8 +13,9 @@ namespace Kernel {
 
     class EthernetModule : public Receiver {
     private:
+        uint8_t deviceCounter;
         Kernel::EventBus *eventBus;
-        Util::ArrayList<EthernetDevice *> *ethernetDevices;
+        Util::HashMap<String,EthernetDevice *> *ethernetDevices;
     public:
         EthernetModule(Kernel::EventBus *eventBus);
 
@@ -30,11 +31,17 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        Util::ArrayList<EthernetDevice *> *getEthernetDevices() const;
+        Util::Array<String> getDeviceIdentifiers();
+
+        EthernetDevice *getEthernetDevice(const String& identifier);
+
+        EthernetDevice *getEthernetDevice(NetworkDevice *pDevice);
 
         void registerNetworkDevice(NetworkDevice *networkDevice);
 
-        void unregisterNetworkDevice(NetworkDevice *ethernetDevice);
+        void registerNetworkDevice(const String& identifier, NetworkDevice *networkDevice);
+
+        void unregisterNetworkDevice(NetworkDevice *networkDevice);
 
         void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
     };

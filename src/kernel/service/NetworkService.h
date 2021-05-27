@@ -42,6 +42,8 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
+        String loopbackIdentifier;
+
         /**
          * Provide service information on the kernel log.
          */
@@ -58,7 +60,6 @@ namespace Kernel {
         EthernetModule *ethernetModule;
 
     public:
-
         /**
          * Constructor.
          * It registers a Loopback interface at startup.
@@ -98,9 +99,10 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
+        void registerDevice(const String& identifier, NetworkDevice &driver);
+
         void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
 
-        int assignIP4Address(String identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
     };
 
 }

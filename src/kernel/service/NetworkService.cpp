@@ -10,12 +10,14 @@
 namespace Kernel {
 
     NetworkService::NetworkService() {
+        loopbackIdentifier="lo";
         eventBus = System::getService<EventBus>();
 
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
 
-        registerDevice(*(new Loopback(eventBus)));
+        //Setup Loopback with 127.0.0.1/8
+        registerDevice(loopbackIdentifier,*(new Loopback(eventBus)));
 
 //        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
@@ -56,6 +58,14 @@ namespace Kernel {
         }
         ethernetModule->unregisterNetworkDevice(selectedDriver);
         drivers.remove(selectedDriver);
+    }
+
+    void NetworkService::registerDevice(const String &identifier, NetworkDevice &driver) {
+        if(drivers.contains(&driver)){
+            return;
+        }
+        ethernetModule->registerNetworkDevice(identifier,&driver);
+        drivers.add(&driver);
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
