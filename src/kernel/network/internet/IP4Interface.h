@@ -21,7 +21,8 @@ private:
     EthernetDevice *ethernetDevice;
 
 public:
-    IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+    IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+                 IP4Netmask *ip4Netmask);
 
     void sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram);
 

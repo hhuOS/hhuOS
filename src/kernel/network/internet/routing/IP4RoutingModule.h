@@ -18,7 +18,7 @@ public:
 
     void addRouteFor(IP4Interface *ip4Interface);
 
-    void setDefaultRoute(IP4Address *nextHop,IP4Interface *outInterface);
+    void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
     IP4Route *findRouteFor(IP4Address *receiverAddress);
 

@@ -8,7 +8,7 @@ namespace Kernel {
     IP4Module::IP4Module(EventBus *eventBus) {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
-        this->interfaces = new Util::HashMap<EthernetDevice *,IP4Interface *>();
+        this->interfaces = new Util::HashMap<EthernetDevice *, IP4Interface *>();
     }
 
     IP4Module::~IP4Module() {
@@ -16,11 +16,11 @@ namespace Kernel {
     }
 
     void IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
-        if(device== nullptr || ip4Address== nullptr || ip4Netmask== nullptr){
+        if (device == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");
             return;
         }
-        if(interfaces->containsKey(device)){
+        if (interfaces->containsKey(device)) {
             log.error("Ethernet device already registered, not registering it");
             return;
         }
@@ -30,13 +30,13 @@ namespace Kernel {
     }
 
     void IP4Module::unregisterDevice(EthernetDevice *device) {
-        if(device== nullptr){
+        if (device == nullptr) {
             log.error("Given device was null, not unregistering anything");
             return;
         }
-        if(interfaces->containsKey(device)){
+        if (interfaces->containsKey(device)) {
             routingModule->removeRoutesFor(interfaces->get(device));
-           interfaces->remove(device);
+            interfaces->remove(device);
         }
     }
 

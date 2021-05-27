@@ -7,7 +7,8 @@
 #include "IP4Interface.h"
 #include "IP4Datagram.h"
 
-IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+                           IP4Netmask *ip4Netmask) {
     this->eventBus = eventBus;
     this->arpModule = new ARPModule();
     this->ethernetDevice = ethernetDevice;
@@ -46,7 +47,7 @@ IP4Netmask *IP4Interface::getIp4Netmask() const {
 }
 
 bool IP4Interface::equals(IP4Interface *compare) {
-    return this->ethernetDevice==compare->ethernetDevice;
+    return this->ethernetDevice == compare->ethernetDevice;
 }
 
 IP4Address *IP4Interface::getNetAddress() const {

@@ -27,5 +27,5 @@ String EthernetDevice::asString() {
 }
 
 bool EthernetDevice::equals(EthernetDevice *compare) {
-    return this->networkDevice==compare->networkDevice;
+    return this->networkDevice == compare->networkDevice;
 }

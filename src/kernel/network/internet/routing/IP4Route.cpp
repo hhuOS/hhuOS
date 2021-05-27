@@ -38,7 +38,7 @@ IP4Interface *IP4Route::getOutInterface() const {
 
 uint8_t IP4Route::matchingBits(IP4Address *ip4Address) {
     IP4Address *addressNetPart = this->netMask->extractNetPart(ip4Address);
-    if(addressNetPart->equals(this->netPart)){
+    if (addressNetPart->equals(this->netPart)) {
         return this->netMask->getBitCount();
     }
     return 0;
