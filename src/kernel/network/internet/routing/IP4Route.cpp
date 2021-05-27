@@ -50,3 +50,10 @@ IP4Route::IP4Route(IP4Interface *ip4Interface) {
     this->nextHopAddress = nullptr;
     this->outInterface = ip4Interface;
 }
+
+String IP4Route::asString() {
+    if(nextHopAddress== nullptr){
+        return "\nNetAddress: " + netAddress->asString() + ",\nNetMask: " + netMask->asString() + ",\nNextHop: null" + ",\nOutInterface: " + outInterface->asString();
+    }
+    return "\nNetAddress: " + netAddress->asString() + ",\nNetMask: " + netMask->asString() + ",\nNextHop: " + nextHopAddress->asString() + ",\nOutInterface: " + outInterface->asString();
+}

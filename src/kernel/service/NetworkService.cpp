@@ -88,6 +88,10 @@ namespace Kernel {
         this->ip4Module->collectIP4InterfaceAttributes(strings);
     }
 
+    void NetworkService::collectRouteAttributes(Util::ArrayList<String> *strings) {
+        this->ip4Module->collectIP4RouteAttributes(strings);
+    }
+
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
     void NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {

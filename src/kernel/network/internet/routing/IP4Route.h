@@ -36,6 +36,8 @@ public:
     IP4Interface *getOutInterface() const;
 
     uint8_t matchingBits(IP4Address *pAddress);
+
+    String asString();
 };
 
 #endif //HHUOS_IP4ROUTE_H

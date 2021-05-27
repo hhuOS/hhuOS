@@ -55,6 +55,8 @@ public:
     const String getHelpText() override;
 
     void address(Kernel::NetworkService *pService);
+
+    void route(Kernel::NetworkService *networkService);
 };
 
 

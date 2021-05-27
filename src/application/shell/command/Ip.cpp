@@ -13,7 +13,8 @@ void Ip::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
     parser.addSwitch("link", "l");
-    parser.addSwitch("address", "l");
+    parser.addSwitch("address", "a");
+    parser.addSwitch("route", "r");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -29,10 +30,17 @@ void Ip::execute(Util::Array<String> &args) {
 
     if (parser.checkSwitch("link")) {
         link(networkService);
+        return;
     }
 
     if (parser.checkSwitch("address")) {
         address(networkService);
+        return;
+    }
+
+    if (parser.checkSwitch("route")) {
+        route(networkService);
+        return;
     }
 }
 
@@ -48,7 +56,7 @@ void Ip::link(Kernel::NetworkService *networkService) {
     networkService->collectLinkAttributes(linkAttributes);
 
     for (uint32_t i=0; i < linkAttributes->size(); i++) {
-        stdout << "Device " << i << ": "  << linkAttributes->get(i) << endl;
+        stdout << "\nDevice " << i << ": "  << linkAttributes->get(i) << endl;
     }
 }
 
@@ -64,10 +72,25 @@ void Ip::address(Kernel::NetworkService *networkService) {
     networkService->collectInterfaceAttributes(interfaceAttributes);
 
     for (uint32_t i=0; i < interfaceAttributes->size(); i++) {
-        stdout << "Device " << i << ": "  << interfaceAttributes->get(i) << endl;
+        stdout << "\nDevice " << i << ": "  << interfaceAttributes->get(i) << endl;
     }
 }
 
+void Ip::route(Kernel::NetworkService *networkService) {
+    if (networkService == nullptr) {
+        printf("No valid network service given! Exit");
+        return;
+    }
+
+    stdout << "Print existing ip routes" << endl;
+
+    auto * routeAttributes=new Util::ArrayList<String>();
+    networkService->collectRouteAttributes(routeAttributes);
+
+    for (uint32_t i=0; i < routeAttributes->size(); i++) {
+        stdout << "\nRoute " << i << ": "  << routeAttributes->get(i) << endl;
+    }
+}
 
 const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"

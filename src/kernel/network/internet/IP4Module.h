@@ -53,6 +53,8 @@ namespace Kernel {
         void unregisterDevice(EthernetDevice *device);
 
         void collectIP4InterfaceAttributes(Util::ArrayList<String> *strings);
+
+        void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
     };
 
 }

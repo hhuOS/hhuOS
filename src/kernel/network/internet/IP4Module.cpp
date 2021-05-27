@@ -21,6 +21,10 @@ namespace Kernel {
         }
     }
 
+    void IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
+        this->routingModule->collectIP4RouteAttributes(strings);
+    }
+
     void IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (device == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");

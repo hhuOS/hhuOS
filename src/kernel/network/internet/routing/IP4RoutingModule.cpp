@@ -10,6 +10,12 @@ IP4RoutingModule::IP4RoutingModule() {
     this->defaultRoute = nullptr;
 }
 
+void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
+    for(IP4Route *current:*this->routes){
+        strings->add(current->asString());
+    }
+}
+
 void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
     if (this->defaultRoute != nullptr) {
         delete this->defaultRoute;

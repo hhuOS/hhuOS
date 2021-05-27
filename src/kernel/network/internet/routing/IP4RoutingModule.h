@@ -23,6 +23,8 @@ public:
     IP4Route *findRouteFor(IP4Address *receiverAddress);
 
     void removeRoutesFor(IP4Interface *ip4Interface);
+
+    void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 };
 
 #endif //HHUOS_IP4ROUTINGMODULE_H
