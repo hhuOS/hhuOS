@@ -52,11 +52,11 @@ void Ip::link(Kernel::NetworkService *networkService) {
 
     stdout << "Print available network links" << endl;
 
-    auto * linkAttributes=new Util::ArrayList<String>();
+    auto *linkAttributes = new Util::ArrayList<String>();
     networkService->collectLinkAttributes(linkAttributes);
 
-    for (uint32_t i=0; i < linkAttributes->size(); i++) {
-        stdout << "\nDevice " << i << ": "  << linkAttributes->get(i) << endl;
+    for (uint32_t i = 0; i < linkAttributes->size(); i++) {
+        stdout << "\nDevice " << i << ": " << linkAttributes->get(i) << endl;
     }
 }
 
@@ -68,11 +68,11 @@ void Ip::address(Kernel::NetworkService *networkService) {
 
     stdout << "Print available ip interfaces" << endl;
 
-    auto * interfaceAttributes=new Util::ArrayList<String>();
+    auto *interfaceAttributes = new Util::ArrayList<String>();
     networkService->collectInterfaceAttributes(interfaceAttributes);
 
-    for (uint32_t i=0; i < interfaceAttributes->size(); i++) {
-        stdout << "\nDevice " << i << ": "  << interfaceAttributes->get(i) << endl;
+    for (uint32_t i = 0; i < interfaceAttributes->size(); i++) {
+        stdout << "\nDevice " << i << ": " << interfaceAttributes->get(i) << endl;
     }
 }
 
@@ -84,11 +84,11 @@ void Ip::route(Kernel::NetworkService *networkService) {
 
     stdout << "Print existing ip routes" << endl;
 
-    auto * routeAttributes=new Util::ArrayList<String>();
+    auto *routeAttributes = new Util::ArrayList<String>();
     networkService->collectRouteAttributes(routeAttributes);
 
-    for (uint32_t i=0; i < routeAttributes->size(); i++) {
-        stdout << "\nRoute " << i << ": "  << routeAttributes->get(i) << endl;
+    for (uint32_t i = 0; i < routeAttributes->size(); i++) {
+        stdout << "\nRoute " << i << ": " << routeAttributes->get(i) << endl;
     }
 }
 

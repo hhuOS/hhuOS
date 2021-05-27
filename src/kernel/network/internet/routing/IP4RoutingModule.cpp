@@ -11,7 +11,7 @@ IP4RoutingModule::IP4RoutingModule() {
 }
 
 void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
-    for(IP4Route *current:*this->routes){
+    for (IP4Route *current:*this->routes) {
         strings->add(current->asString());
     }
 }

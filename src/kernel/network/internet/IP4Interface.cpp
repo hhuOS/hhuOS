@@ -55,5 +55,6 @@ IP4Address *IP4Interface::getNetAddress() const {
 }
 
 String IP4Interface::asString() {
-    return this->ethernetDevice->asString() + ",\nIP4Address: " + this->ip4Address->asString() + ",\nIP4Netmask: " + this->ip4Netmask->asString();
+    return this->ethernetDevice->asString() + ",\nIP4Address: " + this->ip4Address->asString() + ",\nIP4Netmask: " +
+           this->ip4Netmask->asString();
 }

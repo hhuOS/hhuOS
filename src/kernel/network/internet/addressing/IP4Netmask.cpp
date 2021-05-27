@@ -20,8 +20,8 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     auto tempParts = (uint8_t *) &tempMask;
     auto *maskParts = (uint8_t *) &netmask;
 
-    for(uint8_t i=0;i<4;i++){
-        maskParts[i]=tempParts[3-i];
+    for (uint8_t i = 0; i < 4; i++) {
+        maskParts[i] = tempParts[3 - i];
     }
 }
 
