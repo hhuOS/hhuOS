@@ -4,27 +4,14 @@
 
 #include "EthernetDevice.h"
 
-EthernetDevice::EthernetDevice(String identifier, NetworkDevice *networkDevice) {
+EthernetDevice::EthernetDevice(const String& identifier, NetworkDevice *networkDevice) {
     this->identifier=identifier;
-
-    uint8_t macAddress[6]{0, 0, 0, 0, 0, 0};
-    networkDevice->getMacAddress(macAddress);
-    this->ethernetAddress = new EthernetAddress(
-            macAddress[0],
-            macAddress[1],
-            macAddress[2],
-            macAddress[3],
-            macAddress[4],
-            macAddress[5]
-    );
+    this->networkDevice=networkDevice;
+    this->ethernetAddress=new EthernetAddress(networkDevice);
 }
 
 const String &EthernetDevice::getIdentifier() const {
     return identifier;
-}
-
-EthernetAddress *EthernetDevice::getEthernetAddress() {
-    return ethernetAddress;
 }
 
 void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
@@ -33,4 +20,8 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
 
 uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {
     return this->networkDevice==networkDevice;
+}
+
+String EthernetDevice::asString() {
+    return "ID: " + identifier + ", MAC: " + ethernetAddress->asString();
 }

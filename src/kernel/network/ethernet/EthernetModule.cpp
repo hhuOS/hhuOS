@@ -9,7 +9,6 @@
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/network/internet/IP4Datagram.h>
-#include <device/network/loopback/Loopback.h>
 
 #include "EthernetModule.h"
 #include "EthernetDevice.h"
@@ -91,7 +90,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
 
 void Kernel::EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
     for(const String& currentKey:ethernetDevices->keySet()){
-        strings->add(getEthernetDevice(currentKey)->getEthernetAddress()->asString());
+        strings->add(getEthernetDevice(currentKey)->asString());
     }
 }
 

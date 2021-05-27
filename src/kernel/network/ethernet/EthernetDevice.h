@@ -16,15 +16,15 @@ private:
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;
 public:
-    EthernetDevice(String identifier, NetworkDevice *networkDevice);
+    EthernetDevice(const String& identifier, NetworkDevice *networkDevice);
 
     const String &getIdentifier() const;
-
-    EthernetAddress *getEthernetAddress();
 
     void sendEthernetFrame(EthernetFrame *ethernetFrame);
 
     uint8_t connectedTo(NetworkDevice *networkDevice);
+
+    String asString();
 };
 
 

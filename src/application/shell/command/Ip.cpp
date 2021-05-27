@@ -39,11 +39,11 @@ void Ip::link(Kernel::NetworkService *networkService) {
 
     stdout << "Print available network links" << endl;
 
-    auto * addressList=new Util::ArrayList<String>();
-    networkService->collectEthernetDeviceAttributes(addressList);
+    auto * linkAttributes=new Util::ArrayList<String>();
+    networkService->collectLinkAttributes(linkAttributes);
 
-    for (uint32_t i=0; i < addressList->size(); i++) {
-        stdout << "Device " << i << ": MAC='" << addressList->get(i) << "'" << endl;
+    for (uint32_t i=0; i < linkAttributes->size(); i++) {
+        stdout << "Device " << i << ": "  << linkAttributes->get(i) << endl;
     }
 }
 
