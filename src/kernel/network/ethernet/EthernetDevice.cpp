@@ -25,3 +25,7 @@ uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {
 String EthernetDevice::asString() {
     return "ID: " + *identifier + ", MAC: " + ethernetAddress->asString();
 }
+
+bool EthernetDevice::equals(EthernetDevice *compare) {
+    return this->networkDevice==compare->networkDevice;
+}

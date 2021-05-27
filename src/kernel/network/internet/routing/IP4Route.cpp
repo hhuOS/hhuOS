@@ -43,3 +43,10 @@ uint8_t IP4Route::matchingBits(IP4Address *ip4Address) {
     }
     return 0;
 }
+
+IP4Route::IP4Route(IP4Interface *ip4Interface) {
+    this->netAddress = ip4Interface->getNetAddress();
+    this->netMask = ip4Interface->getIp4Netmask();
+    this->nextHopAddress = nullptr;
+    this->outInterface = ip4Interface;
+}

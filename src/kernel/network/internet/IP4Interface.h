@@ -29,7 +29,11 @@ public:
 
     IP4Netmask *getIp4Netmask() const;
 
+    IP4Address *getNetAddress() const;
+
     virtual ~IP4Interface();
+
+    bool equals(IP4Interface *compare);
 };
 
 #endif //HHUOS_IP4INT_H

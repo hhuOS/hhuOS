@@ -44,3 +44,11 @@ IP4Address *IP4Interface::getIp4Address() const {
 IP4Netmask *IP4Interface::getIp4Netmask() const {
     return ip4Netmask;
 }
+
+bool IP4Interface::equals(IP4Interface *compare) {
+    return this->ethernetDevice==compare->ethernetDevice;
+}
+
+IP4Address *IP4Interface::getNetAddress() const {
+    return this->ip4Netmask->extractNetPart(this->getIp4Address());
+}

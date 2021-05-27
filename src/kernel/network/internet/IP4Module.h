@@ -27,7 +27,7 @@ namespace Kernel {
     private:
         Kernel::EventBus *eventBus;
         IP4RoutingModule *routingModule;
-        Util::ArrayList<IP4Interface *> *interfaces;
+        Util::HashMap<EthernetDevice *,IP4Interface *> *interfaces;
 
     public:
 

@@ -57,10 +57,11 @@ namespace Kernel {
     }
 
     void NetworkService::removeDevice(uint8_t index) {
-        NetworkDevice *selectedDriver = drivers.get(index);
-        if(!drivers.contains(selectedDriver)){
+        if(index>=getDeviceCount()){
             return;
         }
+        NetworkDevice *selectedDriver = drivers.get(index);
+        ip4Module->unregisterDevice(ethernetModule->getEthernetDevice(selectedDriver));
         ethernetModule->unregisterNetworkDevice(selectedDriver);
         drivers.remove(selectedDriver);
     }
@@ -83,6 +84,7 @@ namespace Kernel {
         this->ethernetModule->collectEthernetDeviceAttributes(strings);
     }
 
+    //We don't know IP4Addresses at system startup, so we need to set it later via this method here
     void NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if(identifier== nullptr || ip4Address== nullptr || ip4Netmask== nullptr){
             log.error("At least one of given attributes were null, not assigning IP4 address");

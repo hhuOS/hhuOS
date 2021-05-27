@@ -54,7 +54,6 @@ void Kernel::EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevic
     EthernetDevice *connectedDevice = getEthernetDevice(networkDevice);
     if (connectedDevice != nullptr) {
         this->ethernetDevices->remove(connectedDevice->getIdentifier());
-        delete connectedDevice;
     }
 }
 

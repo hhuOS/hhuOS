@@ -25,6 +25,8 @@ public:
 
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
 
+    IP4Route(IP4Interface *ip4Interface);
+
     IP4Address *getNetAddress() const;
 
     IP4Netmask *getNetMask() const;

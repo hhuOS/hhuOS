@@ -24,6 +24,8 @@ public:
 
     uint8_t connectedTo(NetworkDevice *networkDevice);
 
+    bool equals(EthernetDevice *compare);
+
     String asString();
 };
 

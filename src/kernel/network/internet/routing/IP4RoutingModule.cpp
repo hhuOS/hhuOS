@@ -24,15 +24,11 @@ void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInt
         );
 }
 
-void IP4RoutingModule::addRouteForInterface(IP4Interface *ip4Interface) {
+void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
     //Add a direct route for a given new IP4Interface
     //-> Extract Network Address from interface's IP4Address with its Netmask
     //-> NextHop is null, we are directly connected here
-    this->routes->add(
-            new IP4Route(
-                    ip4Interface->getIp4Netmask()->extractNetPart(ip4Interface->getIp4Address()),
-                    ip4Interface->getIp4Netmask(), ip4Interface)
-                    );
+    this->routes->add(new IP4Route(ip4Interface));
 }
 
 IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
@@ -58,4 +54,14 @@ IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
         return this->defaultRoute;
     }
     return bestRoute;
+}
+
+void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
+    //TODO: Synchronisierung!
+    for(uint32_t i=0;i<routes->size();i++){
+        if(routes->get(i)->getOutInterface()->equals(ip4Interface)){
+            routes->remove(i);
+            i--;
+        }
+    }
 }
