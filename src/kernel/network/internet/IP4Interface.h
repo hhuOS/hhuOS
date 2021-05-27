@@ -35,6 +35,8 @@ public:
     virtual ~IP4Interface();
 
     bool equals(IP4Interface *compare);
+
+    String asString();
 };
 
 #endif //HHUOS_IP4INT_H

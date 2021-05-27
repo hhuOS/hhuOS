@@ -18,6 +18,8 @@ public:
 
     uint8_t getBitCount() const;
 
+    String asString();
+
     IP4Address *extractNetPart(IP4Address *ip4Address);
 };
 

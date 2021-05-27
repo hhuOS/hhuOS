@@ -6,6 +6,7 @@
 #define HHUOS_IP4ADDRESS_H
 
 #include <cinttypes>
+#include <lib/string/String.h>
 
 class IP4Address {
 private:
@@ -17,6 +18,8 @@ public:
     IP4Address(uint32_t fullAddress);
 
     uint32_t asInt();
+
+    String asString();
 
     uint8_t equals(IP4Address *ip4Address);
 };

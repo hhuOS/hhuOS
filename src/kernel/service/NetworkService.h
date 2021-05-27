@@ -104,6 +104,8 @@ namespace Kernel {
         void collectLinkAttributes(Util::ArrayList<String> *strings);
 
         void assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+
+        void collectInterfaceAttributes(Util::ArrayList<String> *strings);
     };
 
 }

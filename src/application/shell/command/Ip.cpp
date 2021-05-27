@@ -13,6 +13,7 @@ void Ip::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
     parser.addSwitch("link", "l");
+    parser.addSwitch("address", "l");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -28,6 +29,10 @@ void Ip::execute(Util::Array<String> &args) {
 
     if (parser.checkSwitch("link")) {
         link(networkService);
+    }
+
+    if (parser.checkSwitch("address")) {
+        address(networkService);
     }
 }
 
@@ -46,6 +51,23 @@ void Ip::link(Kernel::NetworkService *networkService) {
         stdout << "Device " << i << ": "  << linkAttributes->get(i) << endl;
     }
 }
+
+void Ip::address(Kernel::NetworkService *networkService) {
+    if (networkService == nullptr) {
+        printf("No valid network service given! Exit");
+        return;
+    }
+
+    stdout << "Print available ip interfaces" << endl;
+
+    auto * interfaceAttributes=new Util::ArrayList<String>();
+    networkService->collectInterfaceAttributes(interfaceAttributes);
+
+    for (uint32_t i=0; i < interfaceAttributes->size(); i++) {
+        stdout << "Device " << i << ": "  << interfaceAttributes->get(i) << endl;
+    }
+}
+
 
 const String Ip::getHelpText() {
     return "Utility for reading and setting attributes for IP network interfaces\n\n"

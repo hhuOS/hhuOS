@@ -23,3 +23,8 @@ IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
 uint8_t IP4Netmask::getBitCount() const {
     return this->bitCount;
 }
+
+String IP4Netmask::asString() {
+    auto *parts = (uint8_t *)&netmask;
+    return String::format("%d.%d.%d.%d",parts[0], parts[1], parts[2], parts[3]);
+}

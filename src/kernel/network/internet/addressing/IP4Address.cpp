@@ -25,3 +25,9 @@ IP4Address::IP4Address(uint32_t fullAddress) {
 uint8_t IP4Address::equals(IP4Address *ip4Address) {
     return ip4Address->asInt() == this->asInt();
 }
+
+String IP4Address::asString() {
+    return String::format("%d.%d.%d.%d",
+                          address[0], address[1], address[2],address[3]
+                          );
+}

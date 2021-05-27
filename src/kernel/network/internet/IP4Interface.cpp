@@ -53,3 +53,7 @@ bool IP4Interface::equals(IP4Interface *compare) {
 IP4Address *IP4Interface::getNetAddress() const {
     return this->ip4Netmask->extractNetPart(this->getIp4Address());
 }
+
+String IP4Interface::asString() {
+    return this->ethernetDevice->asString() + ", IP4Address: " + this->ip4Address->asString() + ", IP4Netmask: " + this->ip4Netmask->asString();
+}

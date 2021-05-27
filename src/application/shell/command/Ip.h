@@ -53,6 +53,8 @@ public:
      * Overriding function from Command.
      */
     const String getHelpText() override;
+
+    void address(Kernel::NetworkService *pService);
 };
 
 
