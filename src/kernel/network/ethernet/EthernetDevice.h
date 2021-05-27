@@ -12,13 +12,13 @@
 
 class EthernetDevice {
 private:
-    String identifier;
+    String *identifier;
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;
 public:
-    EthernetDevice(const String& identifier, NetworkDevice *networkDevice);
+    EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 
-    const String &getIdentifier() const;
+    String *getIdentifier() const;
 
     void sendEthernetFrame(EthernetFrame *ethernetFrame);
 

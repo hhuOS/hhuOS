@@ -10,7 +10,7 @@
 namespace Kernel {
 
     NetworkService::NetworkService() {
-        loopbackIdentifier="lo";
+        loopbackIdentifier=new String("lo");
         eventBus = System::getService<EventBus>();
 
         ethernetModule = new EthernetModule(eventBus);
@@ -56,10 +56,6 @@ namespace Kernel {
         return *drivers.get(index);
     }
 
-    const String &NetworkService::getLoopbackIdentifier() const {
-        return loopbackIdentifier;
-    }
-
     void NetworkService::removeDevice(uint8_t index) {
         NetworkDevice *selectedDriver = drivers.get(index);
         if(!drivers.contains(selectedDriver)){
@@ -69,8 +65,9 @@ namespace Kernel {
         drivers.remove(selectedDriver);
     }
 
-    void NetworkService::registerDevice(const String &identifier, NetworkDevice &driver) {
-        if(drivers.contains(&driver)){
+    void NetworkService::registerDevice(String *identifier, NetworkDevice &driver) {
+        if(identifier== nullptr){
+            log.error("Given identifier was null, not registering it");
             return;
         }
         ethernetModule->registerNetworkDevice(identifier,&driver);
@@ -78,9 +75,6 @@ namespace Kernel {
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        if(drivers.contains(&driver)){
-            return;
-        }
         ethernetModule->registerNetworkDevice(&driver);
         drivers.add(&driver);
     }
@@ -89,12 +83,16 @@ namespace Kernel {
         this->ethernetModule->collectEthernetDeviceAttributes(strings);
     }
 
-    int NetworkService::assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+    void NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+        if(identifier== nullptr || ip4Address== nullptr || ip4Netmask== nullptr){
+            log.error("At least one of given attributes were null, not assigning IP4 address");
+            return;
+        }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if(selected== nullptr){
-            return 1;
+            log.error("No ethernet device exists for given identifier, not assigning IP4 address");
+            return;
         }
         this->ip4Module->registerDevice(selected,ip4Address,ip4Netmask);
-        return 0;
     }
 }

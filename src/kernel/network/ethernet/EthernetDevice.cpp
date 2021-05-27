@@ -4,13 +4,13 @@
 
 #include "EthernetDevice.h"
 
-EthernetDevice::EthernetDevice(const String& identifier, NetworkDevice *networkDevice) {
+EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {
     this->identifier=identifier;
     this->networkDevice=networkDevice;
     this->ethernetAddress=new EthernetAddress(networkDevice);
 }
 
-const String &EthernetDevice::getIdentifier() const {
+String *EthernetDevice::getIdentifier() const {
     return identifier;
 }
 
@@ -23,5 +23,5 @@ uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {
 }
 
 String EthernetDevice::asString() {
-    return "ID: " + identifier + ", MAC: " + ethernetAddress->asString();
+    return "ID: " + *identifier + ", MAC: " + ethernetAddress->asString();
 }

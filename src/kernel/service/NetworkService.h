@@ -42,12 +42,12 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
-        String loopbackIdentifier;
+        String *loopbackIdentifier;
 
         /**
          * Provide service information on the kernel log.
          */
-        static Logger &log;
+        Logger &log = Logger::get("NetworkService");
 
         /**
          * A list where all drivers will be collected.
@@ -77,8 +77,6 @@ namespace Kernel {
          */
         static constexpr const char *SERVICE_NAME = "NetworkService";
 
-        const String &getLoopbackIdentifier() const;
-
         /**
          * @return The number of registered divers.
          */
@@ -101,11 +99,11 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        void registerDevice(const String& identifier, NetworkDevice &driver);
+        void registerDevice(String *identifier, NetworkDevice &driver);
 
         void collectLinkAttributes(Util::ArrayList<String> *strings);
 
-        int assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+        void assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
     };
 
 }

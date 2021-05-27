@@ -17,20 +17,33 @@
 Kernel::EthernetModule::EthernetModule(Kernel::EventBus *eventBus) {
     this->deviceCounter=0;
     this->eventBus=eventBus;
-    this->ethernetDevices = new Util::HashMap<String, EthernetDevice *>();
+    this->ethernetDevices = new Util::HashMap<String *, EthernetDevice *>();
 }
 
 void Kernel::EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
+    if(networkDevice== nullptr){
+        log.error("Given network device was null, not registering it");
+        return;
+    }
     this->registerNetworkDevice(
-            String::format("eth%d",deviceCounter),
+            new String(String::format("eth%d",deviceCounter)),
             networkDevice
             );
     deviceCounter++;
 }
 
-void Kernel::EthernetModule::registerNetworkDevice(const String& identifier, NetworkDevice *networkDevice) {
+void Kernel::EthernetModule::registerNetworkDevice(String *identifier, NetworkDevice *networkDevice) {
+    if(identifier== nullptr){
+        log.error("Given identifier was null, not registering it");
+        return;
+    }
+    if(networkDevice== nullptr){
+        log.error("Given network device was null, not registering it");
+        return;
+    }
     //Return if an ethernet device connected to the same network device could be found
     if(ethernetDevices->containsKey(identifier)){
+        log.error("Given identifier already exists, ignoring it");
         return;
     }
     //Add a new connected ethernet device if no duplicate found
@@ -43,6 +56,30 @@ void Kernel::EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevic
         this->ethernetDevices->remove(connectedDevice->getIdentifier());
         delete connectedDevice;
     }
+}
+
+void Kernel::EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
+    for(String *currentKey:ethernetDevices->keySet()){
+        strings->add(getEthernetDevice(currentKey)->asString());
+    }
+}
+
+//Get ethernet device via identifier
+EthernetDevice *Kernel::EthernetModule::getEthernetDevice(String *identifier) {
+    if(ethernetDevices->containsKey(identifier)){
+        return ethernetDevices->get(identifier);
+    }
+    return nullptr;
+}
+
+//Get ethernet device via network device it's connected to
+EthernetDevice *Kernel::EthernetModule::getEthernetDevice(NetworkDevice *networkDevice) {
+    for(String *current:this->ethernetDevices->keySet()){
+        if(getEthernetDevice(current)->connectedTo(networkDevice)){
+            return getEthernetDevice(current);
+        }
+    }
+    return nullptr;
 }
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
@@ -86,28 +123,4 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                 break;
         }
     }
-}
-
-void Kernel::EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
-    for(const String& currentKey:ethernetDevices->keySet()){
-        strings->add(getEthernetDevice(currentKey)->asString());
-    }
-}
-
-//Get ethernet device via identifier
-EthernetDevice *Kernel::EthernetModule::getEthernetDevice(const String& identifier) {
-    if(ethernetDevices->containsKey(identifier)){
-        return ethernetDevices->get(identifier);
-    }
-    return nullptr;
-}
-
-//Get ethernet device via network device it's connected to
-EthernetDevice *Kernel::EthernetModule::getEthernetDevice(NetworkDevice *networkDevice) {
-    for(const String& current:this->ethernetDevices->keySet()){
-        if(getEthernetDevice(current)->connectedTo(networkDevice)){
-            return getEthernetDevice(current);
-        }
-    }
-    return nullptr;
 }
