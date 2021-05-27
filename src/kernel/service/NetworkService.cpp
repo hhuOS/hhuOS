@@ -18,6 +18,11 @@ namespace Kernel {
 
         //Setup Loopback with 127.0.0.1/8
         registerDevice(loopbackIdentifier,*(new Loopback(eventBus)));
+        assignIP4Address(
+                loopbackIdentifier,
+                new IP4Address(127,0,0,1),
+                new IP4Netmask(8)
+                );
 
 //        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
@@ -51,6 +56,10 @@ namespace Kernel {
         return *drivers.get(index);
     }
 
+    const String &NetworkService::getLoopbackIdentifier() const {
+        return loopbackIdentifier;
+    }
+
     void NetworkService::removeDevice(uint8_t index) {
         NetworkDevice *selectedDriver = drivers.get(index);
         if(!drivers.contains(selectedDriver)){
@@ -76,7 +85,16 @@ namespace Kernel {
         drivers.add(&driver);
     }
 
-    void NetworkService::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
+    void NetworkService::collectLinkAttributes(Util::ArrayList<String> *strings) {
         this->ethernetModule->collectEthernetDeviceAttributes(strings);
+    }
+
+    int NetworkService::assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+        EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
+        if(selected== nullptr){
+            return 1;
+        }
+        this->ip4Module->registerDevice(selected,ip4Address,ip4Netmask);
+        return 0;
     }
 }

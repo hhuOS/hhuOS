@@ -77,6 +77,8 @@ namespace Kernel {
          */
         static constexpr const char *SERVICE_NAME = "NetworkService";
 
+        const String &getLoopbackIdentifier() const;
+
         /**
          * @return The number of registered divers.
          */
@@ -101,8 +103,9 @@ namespace Kernel {
 
         void registerDevice(const String& identifier, NetworkDevice &driver);
 
-        void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
+        void collectLinkAttributes(Util::ArrayList<String> *strings);
 
+        int assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
     };
 
 }
