@@ -55,7 +55,7 @@ namespace Kernel {
             return;
         }
         ethernetModule->unregisterNetworkDevice(selectedDriver);
-        drivers.remove(index);
+        drivers.remove(selectedDriver);
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
