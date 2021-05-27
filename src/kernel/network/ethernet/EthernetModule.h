@@ -15,7 +15,7 @@ namespace Kernel {
     private:
         uint8_t deviceCounter;
         Kernel::EventBus *eventBus;
-        Util::HashMap<String *,EthernetDevice *> *ethernetDevices;
+        Util::HashMap<String *, EthernetDevice *> *ethernetDevices;
     public:
         EthernetModule(Kernel::EventBus *eventBus);
 

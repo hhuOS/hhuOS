@@ -5,9 +5,9 @@
 #include "EthernetDevice.h"
 
 EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {
-    this->identifier=identifier;
-    this->networkDevice=networkDevice;
-    this->ethernetAddress=new EthernetAddress(networkDevice);
+    this->identifier = identifier;
+    this->networkDevice = networkDevice;
+    this->ethernetAddress = new EthernetAddress(networkDevice);
 }
 
 String *EthernetDevice::getIdentifier() const {
@@ -19,7 +19,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
 }
 
 uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {
-    return this->networkDevice==networkDevice;
+    return this->networkDevice == networkDevice;
 }
 
 String EthernetDevice::asString() {
