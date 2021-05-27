@@ -50,16 +50,23 @@ namespace Kernel {
     }
 
     void NetworkService::removeDevice(uint8_t index) {
-        ethernetModule->unregisterNetworkDevice(drivers.get(index));
+        NetworkDevice *selectedDriver = drivers.get(index);
+        if(!drivers.contains(selectedDriver)){
+            return;
+        }
+        ethernetModule->unregisterNetworkDevice(selectedDriver);
         drivers.remove(index);
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
+        if(drivers.contains(&driver)){
+            return;
+        }
         ethernetModule->registerNetworkDevice(&driver);
         drivers.add(&driver);
     }
 
-    void NetworkService::fillInEthernetAddresses(Util::ArrayList<String> *strings) {
+    void NetworkService::collectEthernetAddresses(Util::ArrayList<String> *strings) {
         for(EthernetDevice *current:*ethernetModule->getEthernetDevices()){
             strings->add(current->getEthernetAddress()->asString());
         }

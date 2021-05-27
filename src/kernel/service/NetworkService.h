@@ -98,7 +98,7 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        void fillInEthernetAddresses(Util::ArrayList<String> *strings);
+        void collectEthernetAddresses(Util::ArrayList<String> *strings);
     };
 
 }
