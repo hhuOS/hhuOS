@@ -19,10 +19,6 @@ Kernel::EthernetModule::EthernetModule(Kernel::EventBus *eventBus) {
     this->ethernetDevices = new Util::ArrayList<EthernetDevice *>();
 }
 
-Util::ArrayList<EthernetDevice *> *Kernel::EthernetModule::getEthernetDevices() const {
-    return ethernetDevices;
-}
-
 void Kernel::EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
     for(uint32_t i=0;i<ethernetDevices->size();i++){
         //Return if an ethernet device connected to the same network device could be found
@@ -85,5 +81,11 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
             case EtherType::IP6:
                 break;
         }
+    }
+}
+
+void Kernel::EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
+    for(EthernetDevice *current:*ethernetDevices){
+        strings->add(current->getEthernetAddress()->asString());
     }
 }

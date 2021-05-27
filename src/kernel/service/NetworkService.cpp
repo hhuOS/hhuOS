@@ -66,9 +66,7 @@ namespace Kernel {
         drivers.add(&driver);
     }
 
-    void NetworkService::collectEthernetAddresses(Util::ArrayList<String> *strings) {
-        for(EthernetDevice *current:*ethernetModule->getEthernetDevices()){
-            strings->add(current->getEthernetAddress()->asString());
-        }
+    void NetworkService::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
+        this->ethernetModule->collectEthernetDeviceAttributes(strings);
     }
 }

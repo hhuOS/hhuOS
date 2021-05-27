@@ -98,7 +98,9 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        void collectEthernetAddresses(Util::ArrayList<String> *strings);
+        void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
+
+        int assignIP4Address(String identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
     };
 
 }
