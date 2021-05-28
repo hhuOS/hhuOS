@@ -33,7 +33,7 @@ void freeMemory(void *pointer) {
 }
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return Kernel::Management::getKernelHeapManager()->allignedAlloc(size, alignment);
+    return Kernel::Management::getKernelHeapManager()->alignedAlloc(size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {

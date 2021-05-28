@@ -22,7 +22,6 @@
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
-#include "kernel/memory/manager/MemoryManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "lib/util/data/ArrayList.h"
@@ -295,7 +294,7 @@ public:
      *
      * @return Pointer to the current userspace memory manager
      */
-    MemoryManager *getCurrentUserSpaceHeapManager() {
+    HeapMemoryManager* getCurrentUserSpaceHeapManager() {
         return currentAddressSpace->getUserSpaceHeapManager();
     }
 

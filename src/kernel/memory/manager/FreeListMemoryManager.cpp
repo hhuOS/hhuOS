@@ -25,6 +25,7 @@ namespace Kernel {
 
 void FreeListMemoryManager::initialize(uint32_t startAddress, uint32_t endAddress) {
     HeapMemoryManager::initialize(startAddress, endAddress);
+    freeMemory = endAddress - startAddress;
 
     if (freeMemory < sizeof(FreeListHeader)) {
         // Available Kernel-Memory is too small for a Chunk
@@ -45,7 +46,7 @@ Util::Memory::String FreeListMemoryManager::getClassName() {
 
 void *FreeListMemoryManager::alloc(uint32_t size) {
     // Allocate memory without alignment
-    return allignedAlloc(size, 0);
+    return alignedAlloc(size, 0);
 }
 
 void FreeListMemoryManager::free(void *ptr) {
@@ -186,7 +187,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
         return;
     }
     // check if address points to valid memory for this manager
-    if ((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr > memoryEndAddress) {
+    if ((uint32_t) ptr < getStartAddress() || (uint32_t) ptr > getEndAddress()) {
         return;
     }
 
@@ -243,7 +244,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
 /**
  * Allocate aligned memory block with given size.
  */
-void *FreeListMemoryManager::allignedAlloc(uint32_t size, uint32_t alignment) {
+void *FreeListMemoryManager::alignedAlloc(uint32_t size, uint32_t alignment) {
     lock.acquire();
 
     void *ret = allocAlgorithm(size, alignment, firstChunk);
@@ -299,10 +300,10 @@ FreeListMemoryManager::FreeListHeader *FreeListMemoryManager::merge(FreeListHead
 }
 
 void *FreeListMemoryManager::realloc(void *ptr, uint32_t size) {
-    return realloc(ptr, size, 0);
+    return alignedRealloc(ptr, size, 0);
 }
 
-void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignment) {
+void *FreeListMemoryManager::alignedRealloc(void *ptr, uint32_t size, uint32_t alignment) {
     void *ret = nullptr;
 
     if (size == 0) {
@@ -317,7 +318,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
         if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
             return ptr;
         } else {
-            ret = allignedAlloc(size, alignment);
+            ret = alignedAlloc(size, alignment);
         }
     } else if (size < oldHeader->size) {
         if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
@@ -334,7 +335,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
                 return ptr;
             }
         } else {
-            ret = allignedAlloc(size, alignment);
+            ret = alignedAlloc(size, alignment);
         }
     } else {
         if (alignment == 0 || (uint32_t) ptr % alignment == 0) {
@@ -389,7 +390,7 @@ void *FreeListMemoryManager::realloc(void *ptr, uint32_t size, uint32_t alignmen
 
             lock.release();
         } else {
-            ret = allignedAlloc(size, alignment);
+            ret = alignedAlloc(size, alignment);
         }
     }
 

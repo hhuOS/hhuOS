@@ -18,9 +18,8 @@
 #ifndef __BITMAPMEMORYMANAGER_H__
 #define __BITMAPMEMORYMANAGER_H__
 
-#include "MemoryManager.h"
 #include "lib/util/memory/String.h"
-#include "lib/util/memory/Bitmap.h"
+#include "lib/util/memory/AtomicBitmap.h"
 
 namespace Kernel {
 
@@ -32,13 +31,13 @@ namespace Kernel {
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class BitmapMemoryManager : public MemoryManager {
+class BitmapMemoryManager {
 
 public:
     /**
      * Constructor.
      */
-    explicit BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 128, bool zeroMemory = false);
+    BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 4096, bool zeroMemory = false);
 
     /**
      * Copy constructor.
@@ -53,36 +52,49 @@ public:
     /**
      * Destructor.
      */
-    ~BitmapMemoryManager() override;
+    virtual ~BitmapMemoryManager() = default;
 
-    /**
-     * Overriding function from memory manager.
-     */
-    void *alloc(uint32_t size) override;
+    virtual void *alloc(uint32_t size);
 
-    /**
-     * Overriding function from memory manager.
-     */
-    void free(void *ptr) override;
+    virtual void free(void *ptr);
 
     virtual void onError();
 
+    /**
+     * Get the start address of the managed memory.
+     */
+    [[nodiscard]] uint32_t getStartAddress() const;
+
+    /**
+     * Get the end address of the managed memory.
+     */
+    [[nodiscard]] uint32_t getEndAddress() const;
+
+    /**
+     * Get the block size.
+     */
+    [[nodiscard]] uint32_t getBlockSize() const;
+
+    /**
+     * Get the amount of free memory.
+     */
+    [[nodiscard]] virtual uint32_t getFreeMemory() const;
+
 protected:
-    /**
-     * Bitmap array, which indicates, whether a chunk of memory is free, nor not.
-     */
-    Util::Memory::Bitmap *bitmap = nullptr;
 
-    /**
-     * The size of a single chunk of memory.
-     */
+    void setRange(uint32_t startBlock, uint32_t blockCount);
+
+private:
+
+    uint32_t memoryStartAddress;
+    uint32_t memoryEndAddress;
+    uint32_t freeMemory;
+
     uint32_t blockSize;
-
-    /**
-     * Indicates, whether or not allocated memory shall be zero-initialized.
-     * This is needed for page tables, that get allocated by a bitmap memory manager.
-     */
     bool zeroMemory = false;
+
+    Util::Memory::AtomicBitmap bitmap;
+
 };
 
 }

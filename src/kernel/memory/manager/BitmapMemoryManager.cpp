@@ -20,14 +20,9 @@
 
 namespace Kernel {
 
-BitmapMemoryManager::BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize, bool zeroMemory) : MemoryManager(startAddress, endAddress), blockSize(blockSize), zeroMemory(zeroMemory) {
-    bitmap = new Util::Memory::Bitmap((endAddress - startAddress) / blockSize);
-    freeMemory = bitmap->getSize() * blockSize;
-}
-
-BitmapMemoryManager::~BitmapMemoryManager() {
-    delete bitmap;
-}
+BitmapMemoryManager::BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize, bool zeroMemory) :
+        memoryStartAddress(startAddress), memoryEndAddress(endAddress), freeMemory(endAddress - startAddress),
+        blockSize(blockSize), zeroMemory(zeroMemory), bitmap((endAddress - startAddress) / blockSize) {}
 
 void *BitmapMemoryManager::alloc(uint32_t size) {
     if (size == 0) {
@@ -37,9 +32,9 @@ void *BitmapMemoryManager::alloc(uint32_t size) {
     // get count of blocks that corresponds to aligned size
     uint32_t blockCount = (size / blockSize) + ((size % blockSize == 0) ? 0 : 1);
 
-    uint32_t block = bitmap->findAndSet(blockCount);
+    uint32_t block = bitmap.findAndSet();
 
-    if (block == bitmap->getSize()) {
+    if (block == bitmap.getSize()) {
         onError();
         return nullptr;
     }
@@ -66,13 +61,41 @@ void BitmapMemoryManager::free(void *ptr) {
     // find number of block corresponding to physical address
     auto blockNumber = (uint32_t) (address / blockSize);
 
-    bitmap->unset(blockNumber);
+    bitmap.unset(blockNumber);
 
     freeMemory += blockSize;
 }
 
 void BitmapMemoryManager::onError() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "BitmapMemoryManager: Out of memory!");
+}
+
+void BitmapMemoryManager::setRange(uint32_t startBlock, uint32_t blockCount) {
+    for(uint32_t i = 0; i < blockCount; i++) {
+        if(startBlock + i >= bitmap.getSize()) {
+            return;
+        }
+
+        bitmap.set(startBlock + i);
+    }
+
+    freeMemory -= blockCount * blockSize;
+}
+
+uint32_t BitmapMemoryManager::getStartAddress() const {
+    return memoryStartAddress;
+}
+
+uint32_t BitmapMemoryManager::getEndAddress() const {
+    return memoryEndAddress;
+}
+
+uint32_t BitmapMemoryManager::getFreeMemory() const {
+    return freeMemory;
+}
+
+uint32_t BitmapMemoryManager::getBlockSize() const {
+    return blockSize;
 }
 
 }

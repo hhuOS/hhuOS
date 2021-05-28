@@ -23,8 +23,7 @@ namespace Kernel {
 
 PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, true) {
     // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
-    bitmap->setRange(0, 8 * 32 + 2);
-    freeMemory -= (8 * 32 * blockSize + 2 * blockSize);
+    setRange(0, 8 * 32 + 2);
 }
 
 void PagingAreaManager::onError() {

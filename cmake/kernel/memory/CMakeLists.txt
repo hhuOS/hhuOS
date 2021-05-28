@@ -21,7 +21,6 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/memory/Paging.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PageDirectory.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/VirtualAddressSpace.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/manager/MemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/BitmapMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/FreeListMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/manager/HeapMemoryManager.cpp

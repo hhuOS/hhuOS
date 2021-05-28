@@ -47,7 +47,10 @@ public:
      */
     PageFrameAllocator& operator=(const PageFrameAllocator &other) = delete;
 
-    void onError() override;
+    /**
+     * Destructor.
+     */
+     ~PageFrameAllocator() override = default;
 
 };
 

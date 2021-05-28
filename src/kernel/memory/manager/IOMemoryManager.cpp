@@ -32,7 +32,6 @@ void *IOMemoryManager::alloc(uint32_t size) {
 
     if (ret != nullptr) {
         uint32_t pageCount = (size / PAGESIZE) + ((size % PAGESIZE == 0) ? 0 : 1);
-
         ioMemoryMap.put(ret, pageCount);
     }
 
@@ -45,7 +44,7 @@ void IOMemoryManager::free(void *ptr) {
 
     auto virtualAddress = (uint32_t) ptr;
 
-    if (virtualAddress < memoryStartAddress || virtualAddress >= memoryEndAddress) {
+    if (virtualAddress < getStartAddress() || virtualAddress >= getEndAddress()) {
         return;
     }
 
@@ -57,7 +56,6 @@ void IOMemoryManager::free(void *ptr) {
 
     for (uint32_t i = 0; i < pageCount; i++) {
         BitmapMemoryManager::free((void *) (virtualAddress + i * PAGESIZE));
-
         systemManagement.unmap(virtualAddress + i * PAGESIZE);
     }
 

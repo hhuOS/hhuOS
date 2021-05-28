@@ -48,6 +48,11 @@ public:
      */
     PagingAreaManager& operator=(const PagingAreaManager &other) = delete;
 
+    /**
+     * Destructor.
+     */
+     ~PagingAreaManager() override = default;
+
     void onError() override;
 
 };

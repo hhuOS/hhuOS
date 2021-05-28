@@ -69,8 +69,9 @@ public:
     void free(void *ptr) override;
 
 private:
-    Util::Data::HashMap<void *, uint32_t> ioMemoryMap;
+    Util::Data::HashMap<void*, uint32_t> ioMemoryMap;
     Util::Async::Spinlock lock;
+
 };
 
 }

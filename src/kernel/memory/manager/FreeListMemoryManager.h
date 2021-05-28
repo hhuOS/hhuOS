@@ -76,7 +76,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void *allignedAlloc(uint32_t size, uint32_t alignment) override;
+    void *alignedAlloc(uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -86,7 +86,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    void *realloc(void *ptr, uint32_t size, uint32_t alignment) override;
+    void *alignedRealloc(void *ptr, uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from MemoryManager.
@@ -109,7 +109,7 @@ private:
     };
 
     /**
-     * Implementation of the allocation algorithm, that is used in the allignedAlloc-functions.
+     * Implementation of the allocation algorithm, that is used in the alignedAlloc-functions.
      *
      * The first-fit algorithm is used to search for a fitting chunk of free memory.
      *
@@ -131,8 +131,8 @@ private:
 private:
 
     Util::Async::Spinlock lock;
-
     FreeListHeader *firstChunk = nullptr;
+    uint32_t freeMemory = 0;
 
     /**
      * Find the next chunk of memory with a required size.
@@ -152,9 +152,7 @@ private:
     FreeListHeader *merge(FreeListHeader *origin);
 
     static const constexpr char *CLASS_NAME = "Kernel::FreeListMemoryManager";
-
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
-
     static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
 };
 
