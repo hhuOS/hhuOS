@@ -29,3 +29,7 @@ String EthernetDevice::asString() {
 bool EthernetDevice::equals(EthernetDevice *compare) {
     return this->networkDevice == compare->networkDevice;
 }
+
+EthernetAddress *EthernetDevice::getAddress() {
+    return ethernetAddress;
+}

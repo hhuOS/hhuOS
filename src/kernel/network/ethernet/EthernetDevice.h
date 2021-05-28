@@ -27,6 +27,8 @@ public:
     bool equals(EthernetDevice *compare);
 
     String asString();
+
+    EthernetAddress *getAddress();
 };
 
 

@@ -14,6 +14,8 @@ IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetD
     this->ethernetDevice = ethernetDevice;
     this->ip4Address = ip4Address;
     this->ip4Netmask = ip4Netmask;
+
+    this->arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
 }
 
 IP4Interface::~IP4Interface() {
@@ -22,8 +24,9 @@ IP4Interface::~IP4Interface() {
 
 void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
     EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(receiver);
-    EthernetFrame *outFrame;
+    ip4Datagram->setSourceAddress(this->ip4Address);
 
+    EthernetFrame *outFrame;
     if (destinationEthernetAddress == nullptr) {
         outFrame = new EthernetFrame(destinationEthernetAddress, new ARPRequest(receiver));
         //TODO: Implement data structure for waiting IP4Datagrams
