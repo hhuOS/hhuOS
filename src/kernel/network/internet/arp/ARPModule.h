@@ -8,10 +8,11 @@
 #include <lib/util/HashMap.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/ethernet/EthernetAddress.h>
+#include "ARPEntry.h"
 
 class ARPModule {
 private:
-    Util::HashMap<IP4Address *, EthernetAddress *> *arpTable;
+    Util::ArrayList<ARPEntry *> *arpTable;
 
 public:
     ARPModule();

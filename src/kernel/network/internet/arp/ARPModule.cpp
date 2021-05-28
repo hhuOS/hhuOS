@@ -5,16 +5,18 @@
 #include "ARPModule.h"
 
 EthernetAddress *ARPModule::resolveIP4(IP4Address *ip4Address) {
-    if (arpTable->containsKey(ip4Address)) {
-        return arpTable->get(ip4Address);
+    for(ARPEntry *current:*arpTable){
+        if(current->matches(ip4Address)){
+            return current->getEthernetAddress();
+        }
     }
     return nullptr;
 }
 
 ARPModule::ARPModule() {
-    arpTable = new Util::HashMap<IP4Address *, EthernetAddress *>();
+    arpTable = new Util::ArrayList<ARPEntry *>();
 }
 
 void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
-    arpTable->put(ip4Address, ethernetAddress);
+    arpTable->add(new ARPEntry(ip4Address,ethernetAddress));
 }

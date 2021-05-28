@@ -25,6 +25,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp
 
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPEntry.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPRequest.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/arp/ARPResponse.cpp
 
