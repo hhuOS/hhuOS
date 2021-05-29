@@ -5,6 +5,7 @@
 #ifndef HHUOS_ETHERNETADDRESS_H
 #define HHUOS_ETHERNETADDRESS_H
 
+#define MAC_SIZE 6
 
 #include <cinttypes>
 #include <lib/string/String.h>
@@ -21,6 +22,8 @@ public:
             uint8_t fourthByte, uint8_t fifthByte, uint8_t sixthByte);
 
     String asString();
+
+    void copyTo(uint8_t *target);
 };
 
 

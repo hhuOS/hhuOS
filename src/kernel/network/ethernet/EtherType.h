@@ -9,7 +9,8 @@
 enum class EtherType {
     IP4 = 0x0800,
     ARP = 0x0806,
-    IP6 = 0x86dd
+    IP6 = 0x86dd,
+    INVALID = 0
 };
 
 

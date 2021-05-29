@@ -27,4 +27,8 @@ String EthernetAddress::asString() {
     );
 }
 
+void EthernetAddress::copyTo(uint8_t *target) {
+    memcpy(target,macAddress,MAC_SIZE);
+}
+
 

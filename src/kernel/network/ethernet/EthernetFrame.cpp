@@ -5,8 +5,7 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    this->destinationAddress = destinationAddress;
-    this->etherType = ethernetDataPart->getEtherType();
+    destinationAddress->copyTo(header.destinationAddress);
     this->ethernetDataPart = ethernetDataPart;
 }
 
@@ -23,13 +22,18 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 }
 
 EtherType EthernetFrame::getEtherType() const {
-    return etherType;
+    switch ((uint16_t) *header.etherType) {
+        case 0x0800: return EtherType::IP4;
+        case 0x0806: return EtherType::ARP;
+        case 0x86dd: return EtherType::IP6;
+        default: return EtherType::INVALID;
+    }
 }
 
 EthernetDataPart *EthernetFrame::getDataPart() const {
     return ethernetDataPart;
 }
 
-void EthernetFrame::setSourceAddress(EthernetAddress *ethernetAddress) {
-    this->sourceAddress=ethernetAddress;
+void EthernetFrame::setSourceAddress(EthernetAddress *sourceAddress) {
+    sourceAddress->copyTo(header.sourceAddress);
 }

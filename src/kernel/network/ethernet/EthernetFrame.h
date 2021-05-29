@@ -22,9 +22,6 @@ private:
     } ethHeader_t;
 
     ethHeader_t header;
-    EthernetAddress *destinationAddress;
-    EthernetAddress *sourceAddress;
-    EtherType etherType;
     EthernetDataPart *ethernetDataPart;
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
@@ -39,7 +36,7 @@ public:
 
     uint16_t getLength();
 
-    void setSourceAddress(EthernetAddress *ethernetAddress);
+    void setSourceAddress(EthernetAddress *sourceAddress);
 };
 
 
