@@ -16,12 +16,7 @@ public:
     };
 
     uint16_t getEtherTypeAsInt(){
-        switch (getEtherType()) {
-            case EtherType::IP4: return 0x0800;
-            case EtherType::ARP: return 0x0806;
-            case EtherType::IP6: return 0x86dd;
-            default: return 0;
-        }
+        return (uint16_t) getEtherType();
     }
 
     virtual void *getMemoryAddress() = 0;
