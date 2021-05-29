@@ -12,6 +12,7 @@
 
 class ARPModule {
 private:
+    //HashMap did not work here, possible bug in HashMap implementation?
     Util::ArrayList<ARPEntry *> *arpTable;
 
 public:

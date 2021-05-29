@@ -22,23 +22,31 @@ IP4Interface::~IP4Interface() {
     delete this->arpModule;
 }
 
-void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
-    EthernetAddress *destinationEthernetAddress = arpModule->resolveIP4(receiver);
-    ip4Datagram->setSourceAddress(this->ip4Address);
-
-    EthernetFrame *outFrame;
-    if (destinationEthernetAddress == nullptr) {
-        outFrame = new EthernetFrame(destinationEthernetAddress, new ARPRequest(receiver));
-        //TODO: Implement data structure for waiting IP4Datagrams
-    } else {
-        outFrame = new EthernetFrame(destinationEthernetAddress, ip4Datagram);
-    }
-
-    eventBus->publish(
+//Private method!
+void IP4Interface::sendEthernetFrame(EthernetFrame *outFrame) {
+    this->eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    new Kernel::EthernetSendEvent(ethernetDevice, outFrame)
+                    new Kernel::EthernetSendEvent(this->ethernetDevice, outFrame)
             )
     );
+}
+
+void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
+    EthernetAddress *destinationEthernetAddress = this->arpModule->resolveIP4(receiver);
+    ip4Datagram->setSourceAddress(this->ip4Address);
+
+    if (destinationEthernetAddress == nullptr) {
+        sendEthernetFrame(
+                new EthernetFrame(
+                        destinationEthernetAddress, new ARPRequest(receiver)
+                        )
+                );
+        //TODO: Implement data structure for waiting IP4Datagrams
+    } else {
+        sendEthernetFrame(
+                new EthernetFrame(destinationEthernetAddress, ip4Datagram)
+                );
+    }
 }
 
 IP4Address *IP4Interface::getIp4Address() const {
