@@ -2,7 +2,6 @@
 // Created by hannes on 25.05.21.
 //
 
-#include <kernel/network/internet/arp/ARPRequest.h>
 #include <kernel/event/network/EthernetSendEvent.h>
 #include "IP4Interface.h"
 #include "IP4Datagram.h"
@@ -22,31 +21,16 @@ IP4Interface::~IP4Interface() {
     delete this->arpModule;
 }
 
-//Private method!
-void IP4Interface::sendEthernetFrame(EthernetFrame *outFrame) {
+void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
+    ip4Datagram->setSourceAddress(this->ip4Address);
     this->eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    new Kernel::EthernetSendEvent(this->ethernetDevice, outFrame)
+                    new Kernel::EthernetSendEvent(
+                            this->ethernetDevice,
+                            this->arpModule->initEthernetFrame(receiver,ip4Datagram)
+                            )
             )
     );
-}
-
-void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
-    EthernetAddress *destinationEthernetAddress = this->arpModule->resolveIP4(receiver);
-    ip4Datagram->setSourceAddress(this->ip4Address);
-
-    if (destinationEthernetAddress == nullptr) {
-        sendEthernetFrame(
-                new EthernetFrame(
-                        destinationEthernetAddress, new ARPRequest(receiver)
-                        )
-                );
-        //TODO: Implement data structure for waiting IP4Datagrams
-    } else {
-        sendEthernetFrame(
-                new EthernetFrame(destinationEthernetAddress, ip4Datagram)
-                );
-    }
 }
 
 IP4Address *IP4Interface::getIp4Address() const {

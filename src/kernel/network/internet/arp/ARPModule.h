@@ -8,19 +8,24 @@
 #include <lib/util/HashMap.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/ethernet/EthernetAddress.h>
+#include <kernel/network/ethernet/EthernetFrame.h>
+#include <kernel/network/internet/IP4Datagram.h>
 #include "ARPEntry.h"
 
 class ARPModule {
 private:
     //HashMap did not work here, possible bug in HashMap implementation?
     Util::ArrayList<ARPEntry *> *arpTable;
-
-public:
-    ARPModule();
+    EthernetAddress *broadcastAddress;
 
     EthernetAddress *resolveIP4(IP4Address *ip4Address);
+public:
+
+    ARPModule();
 
     void addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
+
+    EthernetFrame *initEthernetFrame(IP4Address *ip4address, IP4Datagram *ip4datagram);
 };
 
 

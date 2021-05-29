@@ -32,6 +32,8 @@ public:
     void *getDataAsByteBlock();
 
     uint16_t getLength();
+
+    void setSourceAddress(EthernetAddress *ethernetAddress);
 };
 
 

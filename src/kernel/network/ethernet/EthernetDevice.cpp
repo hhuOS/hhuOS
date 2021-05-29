@@ -15,7 +15,11 @@ String *EthernetDevice::getIdentifier() const {
 }
 
 void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
-    networkDevice->sendPacket(ethernetFrame->getDataAsByteBlock(), ethernetFrame->getLength());
+    ethernetFrame->setSourceAddress(this->ethernetAddress);
+    this->networkDevice->sendPacket(
+            ethernetFrame->getDataAsByteBlock(),
+            ethernetFrame->getLength()
+            );
 }
 
 uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {

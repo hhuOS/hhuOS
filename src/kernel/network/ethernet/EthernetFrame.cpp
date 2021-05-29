@@ -37,3 +37,7 @@ EtherType EthernetFrame::getEtherType() const {
 EthernetDataPart *EthernetFrame::getDataPart() const {
     return ethernetDataPart;
 }
+
+void EthernetFrame::setSourceAddress(EthernetAddress *ethernetAddress) {
+    this->sourceAddress=ethernetAddress;
+}
