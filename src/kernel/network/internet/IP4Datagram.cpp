@@ -34,7 +34,7 @@ IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
 //TODO: Implement parsing of parameters from given ethernetDataPart
 }
 
-IP4ProtocolType IP4Datagram::getIp4ProtocolType() const {
+IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
     return ip4ProtocolType;
 }
 

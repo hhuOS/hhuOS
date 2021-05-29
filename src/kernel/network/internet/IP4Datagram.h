@@ -9,7 +9,6 @@
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
-#include "IP4ProtocolType.h"
 #include "IP4HeaderChecksum.h"
 
 class IP4Datagram : public EthernetDataPart {
@@ -31,7 +30,7 @@ private:
     } ip4Header_t;
 
     ip4Header_t header;
-    IP4ProtocolType ip4ProtocolType;
+    IP4DataPart::IP4ProtocolType ip4ProtocolType;
     IP4HeaderChecksum *headerChecksum;
     IP4Address *sourceAddress;
     IP4Address *destinationAddress;
@@ -44,7 +43,7 @@ public:
 
     void setSourceAddress(IP4Address *sourceAddress);
 
-    IP4ProtocolType getIp4ProtocolType() const;
+    IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
     IP4Address *getSourceAddress() const;
 

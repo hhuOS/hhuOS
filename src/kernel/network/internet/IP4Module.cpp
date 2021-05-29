@@ -84,8 +84,8 @@ namespace Kernel {
         if (event.getType() == IP4ReceiveEvent::TYPE) {
             log.info("Received IP4 Datagram to be opened");
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
-            switch (ip4Datagram->getIp4ProtocolType()) {
-                case IP4ProtocolType::ICMP4:
+            switch (ip4Datagram->getIP4ProtocolType()) {
+                case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
                                     new Kernel::ICMP4ReceiveEvent(
@@ -96,7 +96,7 @@ namespace Kernel {
                             )
                     );
                     break;
-                case IP4ProtocolType::UDP:
+                case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
                             Util::SmartPointer<Kernel::Event>(
                                     new Kernel::UDPReceiveEvent(
