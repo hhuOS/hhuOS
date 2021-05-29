@@ -7,7 +7,6 @@
 
 
 #include "EthernetAddress.h"
-#include "EtherType.h"
 #include "EthernetDataPart.h"
 
 class EthernetFrame {
@@ -28,7 +27,7 @@ public:
 
     EthernetFrame(void *packet, uint16_t length);
 
-    EtherType getEtherType() const;
+    EthernetDataPart::EtherType getEtherType() const;
 
     EthernetDataPart *getDataPart() const;
 

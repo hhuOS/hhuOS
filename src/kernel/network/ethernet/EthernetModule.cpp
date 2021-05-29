@@ -100,7 +100,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         EthernetFrame *inFrame = receiveEvent.getEthernetFrame();
 
         switch (inFrame->getEtherType()) {
-            case EtherType::IP4:
+            case EthernetDataPart::EtherType::IP4:
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::IP4ReceiveEvent(
@@ -109,7 +109,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                         )
                 );
                 return;
-            case EtherType::ARP:
+            case EthernetDataPart::EtherType::ARP:
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ARPReceiveEvent(
@@ -118,8 +118,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                         )
                 );
                 return;
-            case EtherType::IP6:
-                break;
+            default: return;
         }
     }
 }

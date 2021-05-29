@@ -12,7 +12,7 @@ uint16_t ARPRequest::getLengthInBytes() {
     return 0;
 }
 
-EtherType ARPRequest::getEtherType() {
+EthernetDataPart::EtherType ARPRequest::getEtherType() {
     return EtherType::ARP;
 }
 

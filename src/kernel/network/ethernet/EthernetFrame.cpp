@@ -5,8 +5,11 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    destinationAddress->copyTo(header.destinationAddress);
     this->ethernetDataPart = ethernetDataPart;
+    destinationAddress->copyTo(header.destinationAddress);
+
+    uint16_t etherTypInt = ethernetDataPart->getEtherTypeAsInt();
+    memcpy(header.etherType,&etherTypInt,2);
 }
 
 void *EthernetFrame::getDataAsByteBlock() {
@@ -21,12 +24,12 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 //TODO:Implement parsing from incoming data
 }
 
-EtherType EthernetFrame::getEtherType() const {
+EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
     switch ((uint16_t) *header.etherType) {
-        case 0x0800: return EtherType::IP4;
-        case 0x0806: return EtherType::ARP;
-        case 0x86dd: return EtherType::IP6;
-        default: return EtherType::INVALID;
+        case 0x0800: return EthernetDataPart::EtherType::IP4;
+        case 0x0806: return EthernetDataPart::EtherType::ARP;
+        case 0x86dd: return EthernetDataPart::EtherType::IP6;
+        default: return EthernetDataPart::EtherType::INVALID;
     }
 }
 

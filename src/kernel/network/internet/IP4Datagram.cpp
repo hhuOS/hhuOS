@@ -62,6 +62,6 @@ uint16_t IP4Datagram::getLengthInBytes() {
     return header.totalLength;
 }
 
-EtherType IP4Datagram::getEtherType() {
+EthernetDataPart::EtherType IP4Datagram::getEtherType() {
     return EtherType::IP4;
 }
