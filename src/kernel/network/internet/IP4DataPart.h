@@ -12,11 +12,20 @@ class IP4DataPart {
 public:
     enum class IP4ProtocolType {
         ICMP4 = 1,
-        UDP = 17
+        UDP = 17,
+        INVALID = 0
     };
 
     uint8_t getIP4ProtocolTypeAsInt(){
         return (uint8_t) getIP4ProtocolType();
+    }
+
+    static IP4ProtocolType parseInt(uint8_t value){
+        switch (value) {
+            case 1: return IP4ProtocolType::ICMP4;
+            case 17: return IP4ProtocolType::UDP;
+            default: return IP4ProtocolType::INVALID;
+        }
     }
 
     virtual void *getMemoryAddress() = 0;

@@ -17,12 +17,22 @@ private:
     //Usage of IP4Datagram should only happen via given public methods
     //-> changing our header's internal representation is possible at any time then!
     typedef struct ip4header {
-        uint8_t version_headerLength = 0;
+        //First four bits are value "4" -> IPv4
+        //Second four bits are value "5" -> 5 "lines" header length, 4 Bytes per line
+        uint8_t version_headerLength = 0x45;
+
+        //standard type of service, no priority etc.
         uint8_t typeOfService = 0;
+
         uint16_t totalLength = 0;
+
+        //fragmentation not used here, fragment parameters not set
         uint16_t identification = 0;
         uint16_t flags_fragmentOffset = 0;
-        uint8_t timeToLive = 0;
+
+        //solid default value for small LANs, can be set from constructor if necessary
+        uint8_t timeToLive = 64;
+
         uint8_t protocolType = 0;
         uint16_t headerChecksum = 0;
         uint32_t sourceAddress = 0;
@@ -30,10 +40,6 @@ private:
     } ip4Header_t;
 
     ip4Header_t header;
-    IP4DataPart::IP4ProtocolType ip4ProtocolType;
-    IP4HeaderChecksum *headerChecksum;
-    IP4Address *sourceAddress;
-    IP4Address *destinationAddress;
     IP4DataPart *ip4DataPart;
 public:
 

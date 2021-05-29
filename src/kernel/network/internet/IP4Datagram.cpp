@@ -5,29 +5,15 @@
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-    this->ip4ProtocolType = ip4DataPart->getIP4ProtocolType();
-    this->destinationAddress = destinationAddress;
-    this->ip4DataPart = ip4DataPart;
-
-    //First four bits are value "4" -> IPv4
-    //Second four bits are value "5" -> 5 "lines" header length, 4 Bytes per line
-    header.version_headerLength = 0x45;
-
-    //standard type of service, no priority etc.
-    header.typeOfService = 0;
-
     //header length is given in "lines" of 4 Bytes each
     //-> total size in Bytes is (header length)*4 + length of data part in Bytes
-    header.totalLength = (header.version_headerLength - 0x40) * 4 + ip4DataPart->getLengthInBytes();
+    uint8_t headerLength = (header.version_headerLength - 0x40);
+    header.totalLength =  headerLength* 4 + ip4DataPart->getLengthInBytes();
 
-    //fragmentation not used here, fragment parameters not set
-    header.identification = 0;
-    header.flags_fragmentOffset = 0;
+    uint8_t protocolTypeInt=ip4DataPart->getIP4ProtocolTypeAsInt();
+    memcpy(&header.protocolType,&protocolTypeInt,1);
 
-    //solid default value for small LANs, can be set from constructor if necessary
-    header.timeToLive = 64;
-
-    headerChecksum = new IP4HeaderChecksum();
+    header.destinationAddress = destinationAddress->asInt();
 }
 
 IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
@@ -35,19 +21,19 @@ IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
-    return ip4ProtocolType;
+    return IP4DataPart::parseInt(header.protocolType);
 }
 
 IP4Address *IP4Datagram::getSourceAddress() const {
-    return sourceAddress;
+    return new IP4Address(header.sourceAddress);
 }
 
 void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
-    IP4Datagram::sourceAddress = sourceAddress;
+    header.sourceAddress=sourceAddress->asInt();
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
-    return destinationAddress;
+    return new IP4Address(header.destinationAddress);
 }
 
 IP4DataPart *IP4Datagram::getIp4DataPart() const {

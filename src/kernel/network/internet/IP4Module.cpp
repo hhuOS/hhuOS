@@ -107,6 +107,7 @@ namespace Kernel {
                             )
                     );
                     break;
+                default: return;
             }
             return;
         }
