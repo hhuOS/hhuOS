@@ -22,14 +22,6 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 //TODO:Implement parsing from incoming data
 }
 
-EthernetAddress *EthernetFrame::getDestinationAddress() const {
-    return destinationAddress;
-}
-
-EthernetAddress *EthernetFrame::getSourceAddress() const {
-    return sourceAddress;
-}
-
 EtherType EthernetFrame::getEtherType() const {
     return etherType;
 }

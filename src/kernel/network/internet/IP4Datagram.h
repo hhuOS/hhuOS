@@ -19,15 +19,19 @@ private:
     //Usage of IP4Datagram should only happen via given public methods
     //-> changing our header's internal representation is possible at any time then!
     typedef struct ip4header {
-        uint8_t version_headerLength;
-        uint8_t typeOfService;
-        uint16_t totalLength;
-        uint16_t identification;
-        uint16_t flags_fragmentOffset;
-        uint8_t timeToLive;
-    } header_t;
+        uint8_t version_headerLength = 0;
+        uint8_t typeOfService = 0;
+        uint16_t totalLength = 0;
+        uint16_t identification = 0;
+        uint16_t flags_fragmentOffset = 0;
+        uint8_t timeToLive = 0;
+        uint8_t protocolType = 0;
+        uint16_t headerChecksum = 0;
+        uint32_t sourceAddress = 0;
+        uint32_t destinationAddress = 0;
+    } ip4Header_t;
 
-    header_t header;
+    ip4Header_t header;
     IP4ProtocolType ip4ProtocolType;
     IP4HeaderChecksum *headerChecksum;
     IP4Address *sourceAddress;

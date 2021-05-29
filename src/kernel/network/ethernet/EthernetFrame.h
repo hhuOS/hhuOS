@@ -12,6 +12,16 @@
 
 class EthernetFrame {
 private:
+    //Defined internally, should not be visible outside
+    //Usage of IP4Datagram should only happen via given public methods
+    //-> changing our header's internal representation is possible at any time then!
+    typedef struct ethernetHeader {
+        uint8_t destinationAddress[6]{0,0,0,0,0,0};
+        uint8_t sourceAddress[6]{0,0,0,0,0,0};
+        uint8_t etherType[2]{0,0};
+    } ethHeader_t;
+
+    ethHeader_t header;
     EthernetAddress *destinationAddress;
     EthernetAddress *sourceAddress;
     EtherType etherType;
@@ -20,10 +30,6 @@ public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
     EthernetFrame(void *packet, uint16_t length);
-
-    EthernetAddress *getDestinationAddress() const;
-
-    EthernetAddress *getSourceAddress() const;
 
     EtherType getEtherType() const;
 

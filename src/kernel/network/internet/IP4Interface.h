@@ -20,8 +20,6 @@ private:
     IP4Netmask *ip4Netmask;
     EthernetDevice *ethernetDevice;
 
-    void sendEthernetFrame(EthernetFrame *outFrame);
-
 public:
 
     IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
