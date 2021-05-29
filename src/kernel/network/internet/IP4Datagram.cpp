@@ -21,7 +21,7 @@ IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
-    return IP4DataPart::parseInt(header.protocolType);
+    return IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType);
 }
 
 IP4Address *IP4Datagram::getSourceAddress() const {

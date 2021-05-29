@@ -20,7 +20,7 @@ public:
         return (uint8_t) getIP4ProtocolType();
     }
 
-    static IP4ProtocolType parseInt(uint8_t value){
+    static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value){
         switch (value) {
             case 1: return IP4ProtocolType::ICMP4;
             case 17: return IP4ProtocolType::UDP;

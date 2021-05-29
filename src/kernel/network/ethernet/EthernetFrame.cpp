@@ -25,12 +25,7 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
-    switch ((uint16_t) *header.etherType) {
-        case 0x0800: return EthernetDataPart::EtherType::IP4;
-        case 0x0806: return EthernetDataPart::EtherType::ARP;
-        case 0x86dd: return EthernetDataPart::EtherType::IP6;
-        default: return EthernetDataPart::EtherType::INVALID;
-    }
+    return EthernetDataPart::parseIntAsEtherType((uint16_t)*header.etherType);
 }
 
 EthernetDataPart *EthernetFrame::getDataPart() const {
