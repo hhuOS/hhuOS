@@ -16,7 +16,7 @@ ICMP4Echo::ICMP4Echo(IP4DataPart *dataPart) {
 }
 
 uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
-    if(byteBlock== nullptr) {
+    if (byteBlock == nullptr) {
         return 1;
     }
     return byteBlock->writeBytes(&this->echoMessage, this->getLengthInBytes());
