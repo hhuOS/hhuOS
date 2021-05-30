@@ -8,11 +8,9 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     //header length is given in "lines" of 4 Bytes each
     //->header length in Bytes is value of headerLength field multiplied by 4
     this->headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
+
     header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
-
-    uint8_t protocolTypeInt = ip4DataPart->getIP4ProtocolTypeAsInt();
-    memcpy(&header.protocolType, &protocolTypeInt, 1);
-
+    header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
     header.destinationAddress = destinationAddress->asInt();
 
     this->ip4DataPart = ip4DataPart;
