@@ -23,7 +23,7 @@ private:
     } ethHeader_t;
 
     ethHeader_t header;
-    EthernetDataPart *ethernetDataPart;
+    EthernetDataPart *ethernetDataPart= nullptr;
 
     static size_t getHeaderSizeInBytes();
 public:
@@ -35,7 +35,7 @@ public:
 
     EthernetDataPart *getDataPart() const;
 
-    void *getDataAsByteBlock();
+    uint8_t copyDataTo(uint8_t *byteBlock);
 
     uint16_t getTotalLengthInBytes();
 

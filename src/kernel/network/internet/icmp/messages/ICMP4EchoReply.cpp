@@ -13,7 +13,7 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
-    auto *input = static_cast<echoReplyMessage *>(dataPart->getMemoryAddress());
+    auto *input = static_cast<echoReplyMessage *>(dataPart->copyDataTo(nullptr));
     //TODO: Check for valid type
     myMessage.code = input->code;
     myMessage.checksum = input->checksum;
@@ -21,7 +21,7 @@ ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
     myMessage.sequenceNumber = input->sequenceNumber;
 }
 
-void *ICMP4EchoReply::getMemoryAddress() {
+uint8_t ICMP4EchoReply::copyDataTo(uint8_t *byteBlock) {
     return &myMessage;
 }
 

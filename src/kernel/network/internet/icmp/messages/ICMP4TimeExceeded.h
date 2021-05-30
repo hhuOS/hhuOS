@@ -15,7 +15,7 @@ class ICMP4TimeExceeded : public ICMP4Message {
     //Receiveing constructor
     ICMP4TimeExceeded(IP4DataPart *dataPart);
 
-    void *getMemoryAddress() override;
+    uint8_t copyDataTo(uint8_t *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

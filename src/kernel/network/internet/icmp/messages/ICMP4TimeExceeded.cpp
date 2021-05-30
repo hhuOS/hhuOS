@@ -10,7 +10,7 @@ ICMP4TimeExceeded::ICMP4TimeExceeded(IP4DataPart *dataPart) {
     //TODO: Implement parsing from input
 }
 
-void *ICMP4TimeExceeded::getMemoryAddress() {
+uint8_t ICMP4TimeExceeded::copyDataTo(uint8_t *byteBlock) {
     return nullptr;
 }
 

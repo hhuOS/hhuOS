@@ -6,14 +6,16 @@
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
     //header length is given in "lines" of 4 Bytes each
-    //-> total size in Bytes is (header length)*4 + length of data part in Bytes
-    uint8_t headerLength = (header.version_headerLength - 0x40);
-    header.totalLength =  headerLength* 4 + ip4DataPart->getLengthInBytes();
+    //->header length in Bytes is value of headerLength field multiplied by 4
+    this->headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
+    header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
 
     uint8_t protocolTypeInt=ip4DataPart->getIP4ProtocolTypeAsInt();
     memcpy(&header.protocolType,&protocolTypeInt,1);
 
     header.destinationAddress = destinationAddress->asInt();
+
+    this->ip4DataPart=ip4DataPart;
 }
 
 IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
@@ -40,8 +42,12 @@ IP4DataPart *IP4Datagram::getIp4DataPart() const {
     return ip4DataPart;
 }
 
-void *IP4Datagram::getDataAsByteBlock() {
-    return nullptr;
+uint8_t IP4Datagram::copyDataTo(uint8_t *byteBlock) {
+    if(this->ip4DataPart== nullptr || byteBlock== nullptr){
+        return 1;
+    }
+    memcpy(byteBlock,&this->header,this->headerLengthInBytes);
+    return this->ip4DataPart->copyDataTo(byteBlock+this->headerLengthInBytes);
 }
 
 uint16_t IP4Datagram::getLengthInBytes() {

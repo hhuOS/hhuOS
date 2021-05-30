@@ -13,16 +13,11 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 ICMP4Echo::ICMP4Echo(IP4DataPart *dataPart) {
-    auto *input = static_cast<echo_t *>(dataPart->getMemoryAddress());
-    //TODO: Check for valid type
-    myMessage.code = input->code;
-    myMessage.checksum = input->checksum;
-    myMessage.identifier = input->identifier;
-    myMessage.sequenceNumber = input->sequenceNumber;
 }
 
-void *ICMP4Echo::getMemoryAddress() {
-    return &myMessage;
+uint8_t ICMP4Echo::copyDataTo(uint8_t *byteBlock) {
+    //TODO: Implement this one!
+    return 1;
 }
 
 uint16_t ICMP4Echo::getLengthInBytes() {

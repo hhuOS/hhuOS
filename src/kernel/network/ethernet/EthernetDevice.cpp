@@ -15,11 +15,24 @@ String *EthernetDevice::getIdentifier() const {
 }
 
 void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
+    if(ethernetFrame== nullptr){
+        return;
+    }
     ethernetFrame->setSourceAddress(this->ethernetAddress);
-    this->networkDevice->sendPacket(
-            ethernetFrame->getDataAsByteBlock(),
-            ethernetFrame->getTotalLengthInBytes()
-            );
+    uint16_t frameLength = ethernetFrame->getTotalLengthInBytes();
+    if(frameLength==0){
+        return;
+    }
+    auto *byteBlock=(uint8_t *)malloc(frameLength);
+    if(byteBlock== nullptr){
+        return;
+    }
+    if(ethernetFrame->copyDataTo(byteBlock)){
+        free(byteBlock);
+        return;
+    }
+    this->networkDevice->sendPacket(byteBlock,frameLength);
+    free(byteBlock);
 }
 
 uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {

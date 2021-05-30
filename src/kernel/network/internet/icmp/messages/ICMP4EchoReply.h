@@ -25,7 +25,7 @@ public:
     //Receiving constructor
     ICMP4EchoReply(IP4DataPart *dataPart);
 
-    void *getMemoryAddress() override;
+    uint8_t copyDataTo(uint8_t *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

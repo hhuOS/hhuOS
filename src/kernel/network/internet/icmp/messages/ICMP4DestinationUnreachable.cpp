@@ -10,7 +10,7 @@ ICMP4DestinationUnreachable::ICMP4DestinationUnreachable(IP4DataPart *dataPart) 
     //TODO: Implement parsing from input
 }
 
-void *ICMP4DestinationUnreachable::getMemoryAddress() {
+uint8_t ICMP4DestinationUnreachable::copyDataTo(uint8_t *byteBlock) {
     return nullptr;
 }
 

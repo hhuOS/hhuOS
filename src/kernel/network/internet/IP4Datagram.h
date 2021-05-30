@@ -39,8 +39,10 @@ private:
         uint32_t destinationAddress = 0;
     } ip4Header_t;
 
+    uint8_t headerLengthInBytes=0;
     ip4Header_t header;
-    IP4DataPart *ip4DataPart;
+    IP4DataPart *ip4DataPart= nullptr;
+
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
@@ -57,7 +59,7 @@ public:
 
     IP4DataPart *getIp4DataPart() const;
 
-    void *getDataAsByteBlock() override;
+    uint8_t copyDataTo(uint8_t *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 
