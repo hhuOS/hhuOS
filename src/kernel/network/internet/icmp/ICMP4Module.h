@@ -7,7 +7,6 @@
 
 #include <kernel/service/EventBus.h>
 #include <kernel/log/Logger.h>
-#include "ICMP4MessageType.h"
 
 namespace Kernel {
 

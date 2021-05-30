@@ -32,6 +32,8 @@ public:
     uint16_t getIdentifier();
 
     uint16_t getSequenceNumber();
+
+    ICMP4MessageType getICMP4MessageType() override;
 };
 
 

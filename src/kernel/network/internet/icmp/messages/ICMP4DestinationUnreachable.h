@@ -19,6 +19,8 @@ public:
     void *getMemoryAddress() override;
 
     uint16_t getLengthInBytes() override;
+
+    ICMP4MessageType getICMP4MessageType() override;
 };
 
 

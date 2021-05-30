@@ -17,3 +17,7 @@ void *ICMP4TimeExceeded::getMemoryAddress() {
 uint16_t ICMP4TimeExceeded::getLengthInBytes() {
     return 0;
 }
+
+ICMP4Message::ICMP4MessageType ICMP4TimeExceeded::getICMP4MessageType() {
+    return ICMP4MessageType::TIME_EXCEEDED;
+}

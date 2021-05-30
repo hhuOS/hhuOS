@@ -36,3 +36,7 @@ uint16_t ICMP4Echo::getIdentifier() {
 uint16_t ICMP4Echo::getSequenceNumber() {
     return myMessage.sequenceNumber;
 }
+
+ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
+    return ICMP4MessageType::ECHO;
+}

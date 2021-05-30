@@ -6,28 +6,26 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "ICMP4Module.h"
-#include "ICMP4MessageType.h"
 #include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if (event.getType() == ICMP4ReceiveEvent::TYPE) {
         auto receiveEvent = (ICMP4ReceiveEvent &) event;
-        auto dataPart = receiveEvent.getIp4DataPart();
-        if (dataPart->getLengthInBytes() == 0) {
+        auto icmp4message = (ICMP4Message *)receiveEvent.getIp4DataPart();
+        if (icmp4message->getLengthInBytes() == 0) {
             log.error("Given IP4DataPart was empty! Ignoring...");
             return;
         }
-        uint8_t firstByte = static_cast<uint8_t *>(dataPart->getMemoryAddress())[0];
-        ICMP4MessageType messageType = ICMP4Message::parseMessageType(firstByte);
-        switch (messageType) {
-            case ICMP4MessageType::ECHO_REPLY:
+
+        switch (icmp4message->getICMP4MessageTypeFromFirstByte()) {
+            case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                 //TODO: Notify application
                 return;
-            case ICMP4MessageType::DESTINATION_UNREACHABLE:
+            case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
                 //TODO: Notify application
                 return;
-            case ICMP4MessageType::ECHO: {
-                auto *echoRequest = new ICMP4Echo(dataPart);
+            case ICMP4Message::ICMP4MessageType::ECHO: {
+                auto *echoRequest = new ICMP4Echo(icmp4message);
                 auto *echoReply = new ICMP4EchoReply(
                         echoRequest->getIdentifier(),
                         echoRequest->getSequenceNumber()
@@ -43,9 +41,10 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 );
                 return;
             }
-            case ICMP4MessageType::TIME_EXCEEDED:
+            case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
                 //TODO: Notify application
                 return;
+            //Just ignore input if message type not implemented
             default:
                 return;
         }
