@@ -10,6 +10,41 @@ IP4RoutingModule::IP4RoutingModule() {
     this->defaultRoute = nullptr;
 }
 
+//Private method!
+IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
+    uint8_t matchingBits, bestMatch = 0;
+    IP4Route *bestRoute = nullptr;
+
+    for (IP4Route *current:*this->routes) {
+        matchingBits = current->matchingBits(receiverAddress);
+        if (matchingBits > 32) {
+            //If matching bits calculation is broken return nullpointer
+            //-> This will cause an ICMP4DestinationUnreachable message
+            return nullptr;
+        }
+        if (matchingBits > bestMatch) {
+            bestRoute = current;
+            bestMatch = matchingBits;
+        }
+    }
+    //Return default route if no other route could be found
+    //If no default route is set, return nullpointer
+    //-> This will cause an ICMP4DestinationUnreachable message
+    if (bestRoute == nullptr && this->defaultRoute != nullptr) {
+        return this->defaultRoute;
+    }
+    return bestRoute;
+}
+
+int IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
+    IP4Route *matchedRoute = this->findBestRouteFor(datagram->getDestinationAddress());
+    if (matchedRoute == nullptr) {
+        return 3;
+    }
+    matchedRoute->sendOut(datagram);
+    return 0;
+}
+
 void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
     for (IP4Route *current:*this->routes) {
         strings->add(current->asString());
@@ -35,31 +70,6 @@ void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
     //-> Extract Network Address from interface's IP4Address with its Netmask
     //-> NextHop is null, we are directly connected here
     this->routes->add(new IP4Route(ip4Interface));
-}
-
-IP4Route *IP4RoutingModule::findRouteFor(IP4Address *receiverAddress) {
-    uint8_t matchingBits, bestMatch = 0;
-    IP4Route *bestRoute = nullptr;
-
-    for (IP4Route *current:*this->routes) {
-        matchingBits = current->matchingBits(receiverAddress);
-        if (matchingBits > 32) {
-            //If matching bits calculation is broken return nullpointer
-            //-> This will cause an ICMP4DestinationUnreachable message
-            return nullptr;
-        }
-        if (matchingBits > bestMatch) {
-            bestRoute = current;
-            bestMatch = matchingBits;
-        }
-    }
-    //Return default route if no other route could be found
-    //If no default route is set, return nullpointer
-    //-> This will cause an ICMP4DestinationUnreachable message
-    if (bestRoute == nullptr && this->defaultRoute != nullptr) {
-        return this->defaultRoute;
-    }
-    return bestRoute;
 }
 
 void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {

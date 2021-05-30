@@ -55,8 +55,7 @@ namespace Kernel {
             log.info("Received IP4 Datagram to be sent");
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
 
-            IP4Route *matchedRoute = routingModule->findRouteFor(datagram->getDestinationAddress());
-            if (matchedRoute == nullptr) {
+            if(routingModule->sendViaBestRoute(datagram)){
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
@@ -66,19 +65,7 @@ namespace Kernel {
                                 )
                         )
                 );
-                return;
             }
-
-            IP4Interface *outInterface = matchedRoute->getOutInterface();
-            if (matchedRoute->getNextHopAddress() != nullptr) {
-                //If destination address is not directly accessible,
-                // we replace target address for ARPResolve with matched route's next hop
-                outInterface->sendIP4Datagram(matchedRoute->getNextHopAddress(), datagram);
-                return;
-            }
-
-            outInterface->sendIP4Datagram(datagram->getDestinationAddress(), datagram);
-            return;
         }
 
         if (event.getType() == IP4ReceiveEvent::TYPE) {

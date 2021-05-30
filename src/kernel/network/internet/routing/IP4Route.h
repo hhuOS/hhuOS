@@ -26,6 +26,8 @@ public:
 
     IP4Route(IP4Interface *ip4Interface);
 
+    void sendOut(IP4Datagram *datagram);
+
     IP4Address *getNextHopAddress() const;
 
     IP4Interface *getOutInterface() const;

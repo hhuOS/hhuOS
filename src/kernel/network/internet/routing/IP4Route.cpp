@@ -19,6 +19,14 @@ IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *ou
     this->outInterface = outInterface;
 }
 
+void IP4Route::sendOut(IP4Datagram *datagram) {
+    if(this->nextHopAddress== nullptr){
+        this->outInterface->sendIP4Datagram(datagram->getDestinationAddress(),datagram);
+        return;
+    }
+    this->outInterface->sendIP4Datagram(this->nextHopAddress,datagram);
+}
+
 IP4Address *IP4Route::getNextHopAddress() const {
     return nextHopAddress;
 }

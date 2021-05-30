@@ -13,18 +13,21 @@ class IP4RoutingModule {
 private:
     Util::ArrayList<IP4Route *> *routes;
     IP4Route *defaultRoute;
+
+    IP4Route *findBestRouteFor(IP4Address *receiverAddress);
 public:
+
     IP4RoutingModule();
 
     void addRouteFor(IP4Interface *ip4Interface);
 
     void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
-    IP4Route *findRouteFor(IP4Address *receiverAddress);
-
     void removeRoutesFor(IP4Interface *ip4Interface);
 
     void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
+
+    int sendViaBestRoute(IP4Datagram *datagram);
 };
 
 #endif //HHUOS_IP4ROUTINGMODULE_H
