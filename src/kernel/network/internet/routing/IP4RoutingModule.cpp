@@ -39,7 +39,7 @@ IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
 int IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
     IP4Route *matchedRoute = this->findBestRouteFor(datagram->getDestinationAddress());
     if (matchedRoute == nullptr) {
-        return 3;
+        return 1;
     }
     matchedRoute->sendOut(datagram);
     return 0;

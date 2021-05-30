@@ -28,7 +28,7 @@ public:
 
     void *getBytes();
 
-    size_t getCurrentIndex();
+    size_t getCurrentIndex() const;
 };
 
 

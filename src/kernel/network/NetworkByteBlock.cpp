@@ -26,12 +26,12 @@ void NetworkByteBlock::freeBytes() {
 
 uint8_t NetworkByteBlock::writeBytes(void *memoryAddress, size_t byteCount) {
     //Avoid writing beyond last byte
+    if (isNull() || (this->currentIndex + byteCount) >= this->length) {
+        return 1;
+    }
     if (byteCount == 0) {
         //It's not an error if nothing needs to be done...
         return 0;
-    }
-    if ((this->currentIndex + byteCount) >= this->length) {
-        return 1;
     }
     memcpy(this->bytes, memoryAddress, byteCount);
     this->currentIndex += byteCount;
@@ -42,6 +42,6 @@ void *NetworkByteBlock::getBytes() {
     return (void *) this->bytes;
 }
 
-size_t NetworkByteBlock::getCurrentIndex() {
+size_t NetworkByteBlock::getCurrentIndex() const {
     return currentIndex;
 }

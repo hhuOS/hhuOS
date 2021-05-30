@@ -29,7 +29,7 @@ void Loopback::sendPacket(void *address, uint16_t length) {
     if(byteBlock->writeBytes(address,length)||
             byteBlock->getCurrentIndex()!=(length-1)){
         log.error("Could not copy incoming data to byteBlock, discarding packet");
-        byteBlock->freeBytes();
+        delete byteBlock;
         free(address);
         return;
     }

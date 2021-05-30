@@ -33,20 +33,20 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     }
     if (ethernetFrame->copyDataTo(byteBlock)) {
         log.error("Could not copy EthernetFrame data to byteBlock, discarding frame");
-        byteBlock->freeBytes();
+        delete byteBlock;
         delete ethernetFrame;
         return;
     }
     if (byteBlock->getCurrentIndex() != (frameLength - 1)) {
         log.error("Could not completely copy EthernetFrame data to byteBlock, discarding frame");
-        byteBlock->freeBytes();
+        delete byteBlock;
         delete ethernetFrame;
         return;
     }
     this->networkDevice->sendPacket(byteBlock->getBytes(), frameLength);
 
     //Cleanup memory, avoid memory leaks
-    byteBlock->freeBytes();
+    delete byteBlock;
     delete ethernetFrame;
 }
 
