@@ -16,6 +16,6 @@ EthernetDataPart::EtherType ARPRequest::getEtherType() {
     return EtherType::ARP;
 }
 
-void *ARPRequest::getMemoryAddress() {
+void *ARPRequest::getDataAsByteBlock() {
     return nullptr;
 }

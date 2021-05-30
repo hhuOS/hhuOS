@@ -12,12 +12,24 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     memcpy(header.etherType,&etherTypInt,2);
 }
 
-void *EthernetFrame::getDataAsByteBlock() {
-    return nullptr;
+//Private method!
+size_t EthernetFrame::getHeaderSizeInBytes() {
+    return sizeof(ethHeader_t);
 }
 
-uint16_t EthernetFrame::getLength() {
-    return 0;
+void *EthernetFrame::getDataAsByteBlock() {
+    if(ethernetDataPart->getLengthInBytes()>ETHERNETDATAPART_MAX_LENGTH ||
+            getHeaderSizeInBytes() > ETHERNETHEADER_MAX_LENGTH){
+        return nullptr;
+    }
+    auto *byteBlock=(uint8_t *)malloc(getTotalLengthInBytes());
+    memcpy(byteBlock,&header,getHeaderSizeInBytes());
+    memcpy(byteBlock+getHeaderSizeInBytes(),ethernetDataPart->getDataAsByteBlock(),ethernetDataPart->getLengthInBytes());
+    return ethernetDataPart->getDataAsByteBlock();
+}
+
+uint16_t EthernetFrame::getTotalLengthInBytes() {
+    return getHeaderSizeInBytes() + ethernetDataPart->getLengthInBytes();
 }
 
 EthernetFrame::EthernetFrame(void *packet, uint16_t length) {

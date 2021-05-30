@@ -15,7 +15,7 @@ private:
 public:
     ARPRequest(IP4Address *ip4Address);
 
-    void *getMemoryAddress() override;
+    void *getDataAsByteBlock() override;
 
     uint16_t getLengthInBytes() override;
 

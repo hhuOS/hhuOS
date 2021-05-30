@@ -40,7 +40,7 @@ IP4DataPart *IP4Datagram::getIp4DataPart() const {
     return ip4DataPart;
 }
 
-void *IP4Datagram::getMemoryAddress() {
+void *IP4Datagram::getDataAsByteBlock() {
     return nullptr;
 }
 

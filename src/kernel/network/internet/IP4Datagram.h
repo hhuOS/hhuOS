@@ -57,7 +57,7 @@ public:
 
     IP4DataPart *getIp4DataPart() const;
 
-    void *getMemoryAddress() override;
+    void *getDataAsByteBlock() override;
 
     uint16_t getLengthInBytes() override;
 

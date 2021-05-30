@@ -5,6 +5,8 @@
 #ifndef HHUOS_ETHERNETFRAME_H
 #define HHUOS_ETHERNETFRAME_H
 
+#define ETHERNETDATAPART_MAX_LENGTH 1500
+#define ETHERNETHEADER_MAX_LENGTH 14
 
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
@@ -22,6 +24,8 @@ private:
 
     ethHeader_t header;
     EthernetDataPart *ethernetDataPart;
+
+    static size_t getHeaderSizeInBytes();
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
@@ -33,7 +37,7 @@ public:
 
     void *getDataAsByteBlock();
 
-    uint16_t getLength();
+    uint16_t getTotalLengthInBytes();
 
     void setSourceAddress(EthernetAddress *sourceAddress);
 };

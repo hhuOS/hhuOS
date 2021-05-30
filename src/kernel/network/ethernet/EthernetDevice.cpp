@@ -18,7 +18,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     ethernetFrame->setSourceAddress(this->ethernetAddress);
     this->networkDevice->sendPacket(
             ethernetFrame->getDataAsByteBlock(),
-            ethernetFrame->getLength()
+            ethernetFrame->getTotalLengthInBytes()
             );
 }
 

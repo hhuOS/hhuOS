@@ -28,7 +28,7 @@ public:
         }
     }
 
-    virtual void *getMemoryAddress() = 0;
+    virtual void *getDataAsByteBlock() = 0;
 
     virtual uint16_t getLengthInBytes() = 0;
 
