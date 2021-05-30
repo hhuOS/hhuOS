@@ -24,9 +24,9 @@ private:
     } ethHeader_t;
 
     ethHeader_t header;
+    size_t headerLengthInBytes=sizeof(header);
     EthernetDataPart *ethernetDataPart= nullptr;
 
-    static size_t getHeaderSizeInBytes();
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 

@@ -13,16 +13,12 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
-    auto *input = static_cast<echoReplyMessage *>(dataPart->copyDataTo(nullptr));
-    //TODO: Check for valid type
-    myMessage.code = input->code;
-    myMessage.checksum = input->checksum;
-    myMessage.identifier = input->identifier;
-    myMessage.sequenceNumber = input->sequenceNumber;
+    //TODO: Implement this one!
 }
 
 uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
-    return &myMessage;
+    //TODO: Implement this one!
+    return 1;
 }
 
 uint16_t ICMP4EchoReply::getLengthInBytes() {
@@ -39,4 +35,9 @@ uint16_t ICMP4EchoReply::getSequenceNumber() {
 
 ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
+}
+
+void *ICMP4EchoReply::getMemoryAddress() {
+    //TODO: Implement this one!
+    return nullptr;
 }

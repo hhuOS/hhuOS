@@ -5,6 +5,8 @@
 #ifndef HHUOS_ETHERNETDATAPART_H
 #define HHUOS_ETHERNETDATAPART_H
 
+#include <kernel/network/NetworkByteBlock.h>
+
 class EthernetDataPart {
 public:
     //Relevant EtherTypes -> full list available in RFC7042 Appendix B

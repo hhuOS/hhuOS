@@ -7,6 +7,7 @@
 
 #include "lib/libc/stdlib.h"
 #include "IP4HeaderChecksum.h"
+#include <kernel/network/NetworkByteBlock.h>
 
 class IP4DataPart {
 public:

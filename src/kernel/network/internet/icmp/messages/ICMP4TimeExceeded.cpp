@@ -12,13 +12,20 @@ ICMP4TimeExceeded::ICMP4TimeExceeded(IP4DataPart *dataPart) {
 }
 
 uint8_t ICMP4TimeExceeded::copyDataTo(NetworkByteBlock *byteBlock) {
-    return nullptr;
+    //TODO: Implement this one!
+    return 1;
 }
 
 uint16_t ICMP4TimeExceeded::getLengthInBytes() {
+    //TODO: Implement this one!
     return 0;
 }
 
 ICMP4Message::ICMP4MessageType ICMP4TimeExceeded::getICMP4MessageType() {
     return ICMP4MessageType::TIME_EXCEEDED;
+}
+
+void *ICMP4TimeExceeded::getMemoryAddress() {
+    //TODO: Implement this one!
+    return nullptr;
 }

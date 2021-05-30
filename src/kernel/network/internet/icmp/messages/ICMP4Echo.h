@@ -35,6 +35,8 @@ public:
     uint16_t getSequenceNumber();
 
     ICMP4MessageType getICMP4MessageType() override;
+
+    void *getMemoryAddress() override;
 };
 
 

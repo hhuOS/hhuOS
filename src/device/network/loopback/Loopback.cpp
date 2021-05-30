@@ -2,6 +2,7 @@
 // Created by hannes on 19.04.21.
 //
 
+#include <kernel/network/NetworkByteBlock.h>
 #include "Loopback.h"
 
 Loopback::Loopback(Kernel::EventBus *eventBus) {
@@ -17,9 +18,24 @@ void Loopback::sendPacket(void *address, uint16_t length) {
         log.error("Could not send packet, event bus was null!");
         return;
     }
+
+    //Outgoing EthernetFrames will be dropped after sending, so we need to copy our data first
+    auto *byteBlock = new NetworkByteBlock(length);
+    if(byteBlock->isNull()){
+        log.error("Could not init byteBlock, discarding packet");
+        free(address);
+        return;
+    }
+    if(byteBlock->writeBytes(address,length)||
+            byteBlock->getCurrentIndex()!=(length-1)){
+        log.error("Could not copy incoming data to byteBlock, discarding packet");
+        byteBlock->freeBytes();
+        free(address);
+        return;
+    }
     eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    new Kernel::ReceiveEvent(address, length)
+                    new Kernel::ReceiveEvent(byteBlock->getBytes(), length)
             )
     );
 }

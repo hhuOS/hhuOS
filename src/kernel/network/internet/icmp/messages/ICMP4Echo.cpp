@@ -36,3 +36,8 @@ uint16_t ICMP4Echo::getSequenceNumber() {
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
+
+void *ICMP4Echo::getMemoryAddress() {
+    //TODO: Implement this one!
+    return nullptr;
+}
