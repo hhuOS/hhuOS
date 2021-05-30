@@ -6,8 +6,8 @@
 #define HHUOS_NETWORKBYTEBLOCK_H
 
 extern "C" {
-    #include "lib/libc/stdlib.h"
-    #include "lib/libc/string.h"
+#include "lib/libc/stdlib.h"
+#include "lib/libc/string.h"
 }
 
 class NetworkByteBlock {
