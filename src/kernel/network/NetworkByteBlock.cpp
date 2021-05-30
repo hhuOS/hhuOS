@@ -17,6 +17,12 @@ bool NetworkByteBlock::isNull() {
     return this->bytes == nullptr;
 }
 
+//If our byteBlock is perfectly filled, this->currentIndex points to the first 'illegal' byte
+// => (this->currentIndex+byteCount) is exactly equal this->length then!
+bool NetworkByteBlock::isCompletelyFilled() const {
+    return this->currentIndex == this->length;
+}
+
 void NetworkByteBlock::freeBytes() {
     if (!isNull()) {
         free(this->bytes);
@@ -26,7 +32,7 @@ void NetworkByteBlock::freeBytes() {
 
 uint8_t NetworkByteBlock::writeBytes(void *memoryAddress, size_t byteCount) {
     //Avoid writing beyond last byte
-    if (isNull() || (this->currentIndex + byteCount) >= this->length) {
+    if (isNull() || (this->currentIndex + byteCount) > this->length) {
         return 1;
     }
     if (byteCount == 0) {
@@ -42,6 +48,6 @@ void *NetworkByteBlock::getBytes() {
     return (void *) this->bytes;
 }
 
-size_t NetworkByteBlock::getCurrentIndex() const {
-    return currentIndex;
+size_t NetworkByteBlock::getLength() const {
+    return length;
 }

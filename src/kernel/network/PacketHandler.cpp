@@ -29,6 +29,7 @@ namespace Kernel {
 
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {
+            log.info("Incoming packet received");
             auto &receiveEvent = (ReceiveEvent &) event;
             auto *inFrame = new EthernetFrame(receiveEvent.getPacket(), receiveEvent.getLength());
             auto *eventBus = Kernel::System::getService<Kernel::EventBus>();

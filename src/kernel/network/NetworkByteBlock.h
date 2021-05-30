@@ -18,7 +18,11 @@ private:
 public:
     NetworkByteBlock(size_t length);
 
+    size_t getLength() const;
+
     bool isNull();
+
+    bool isCompletelyFilled() const;
 
     void freeBytes();
 
@@ -27,8 +31,6 @@ public:
     uint8_t writeBytes(void *memoryAddress, size_t byteCount);
 
     void *getBytes();
-
-    size_t getCurrentIndex() const;
 };
 
 

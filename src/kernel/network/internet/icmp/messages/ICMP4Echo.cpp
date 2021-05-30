@@ -6,31 +6,32 @@
 #include "ICMP4Echo.h"
 
 ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
-    myMessage.type = 8; //8 for echo, 0 for echo reply (RFC792)
-    myMessage.code = 0;
-    myMessage.checksum = 0;
-    myMessage.identifier = identifier;
-    myMessage.sequenceNumber = sequenceNumber;
+    echoMessage.checksum = 0; //TODO: Implement checksum calculation
+    echoMessage.identifier = identifier;
+    echoMessage.sequenceNumber = sequenceNumber;
 }
 
 ICMP4Echo::ICMP4Echo(IP4DataPart *dataPart) {
+    //TODO: Implement this one!
 }
 
 uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
-    //TODO: Implement this one!
-    return 1;
+    if(byteBlock== nullptr) {
+        return 1;
+    }
+    return byteBlock->writeBytes(&this->echoMessage, this->getLengthInBytes());
 }
 
 uint16_t ICMP4Echo::getLengthInBytes() {
-    return sizeof(echo_t);
+    return sizeof(this->echoMessage);
 }
 
-uint16_t ICMP4Echo::getIdentifier() {
-    return myMessage.identifier;
+uint16_t ICMP4Echo::getIdentifier() const {
+    return echoMessage.identifier;
 }
 
-uint16_t ICMP4Echo::getSequenceNumber() {
-    return myMessage.sequenceNumber;
+uint16_t ICMP4Echo::getSequenceNumber() const {
+    return echoMessage.sequenceNumber;
 }
 
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
@@ -38,6 +39,5 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
 }
 
 void *ICMP4Echo::getMemoryAddress() {
-    //TODO: Implement this one!
-    return nullptr;
+    return &this->echoMessage;
 }

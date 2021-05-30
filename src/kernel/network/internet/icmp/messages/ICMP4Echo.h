@@ -10,14 +10,14 @@
 class ICMP4Echo : public ICMP4Message {
 private:
     typedef struct icmp4echo {
-        uint8_t type;
-        uint8_t code;
-        uint16_t checksum;
-        uint16_t identifier;
-        uint16_t sequenceNumber;
+        uint8_t type = 8; //8 for echo, 0 for echo reply (RFC792)
+        uint8_t code = 0;
+        uint16_t checksum = 0;
+        uint16_t identifier = 0;
+        uint16_t sequenceNumber = 0;
     } echo_t;
 
-    echo_t myMessage;
+    echo_t echoMessage;
 
 public:
     //Sending constructor
@@ -30,9 +30,9 @@ public:
 
     uint16_t getLengthInBytes() override;
 
-    uint16_t getIdentifier();
+    uint16_t getIdentifier() const;
 
-    uint16_t getSequenceNumber();
+    uint16_t getSequenceNumber() const;
 
     ICMP4MessageType getICMP4MessageType() override;
 

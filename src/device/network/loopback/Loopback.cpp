@@ -26,9 +26,14 @@ void Loopback::sendPacket(void *address, uint16_t length) {
         free(address);
         return;
     }
-    if(byteBlock->writeBytes(address,length)||
-            byteBlock->getCurrentIndex()!=(length-1)){
+    if(byteBlock->writeBytes(address,length)){
         log.error("Could not copy incoming data to byteBlock, discarding packet");
+        delete byteBlock;
+        free(address);
+        return;
+    }
+    if(!byteBlock->isCompletelyFilled()){
+        log.error("Could not copy incoming data completely to byteBlock, discarding packet");
         delete byteBlock;
         free(address);
         return;
