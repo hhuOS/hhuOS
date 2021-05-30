@@ -8,6 +8,7 @@
 #define ETHERNETDATAPART_MAX_LENGTH 1500
 #define ETHERNETHEADER_MAX_LENGTH 14
 
+#include <kernel/network/NetworkByteBlock.h>
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
 
@@ -35,7 +36,7 @@ public:
 
     EthernetDataPart *getDataPart() const;
 
-    uint8_t copyDataTo(uint8_t *byteBlock);
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock);
 
     uint16_t getTotalLengthInBytes();
 

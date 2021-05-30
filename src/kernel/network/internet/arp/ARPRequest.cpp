@@ -16,7 +16,7 @@ EthernetDataPart::EtherType ARPRequest::getEtherType() {
     return EtherType::ARP;
 }
 
-uint8_t ARPRequest::copyDataTo(uint8_t *byteBlock) {
+uint8_t ARPRequest::copyDataTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
 }

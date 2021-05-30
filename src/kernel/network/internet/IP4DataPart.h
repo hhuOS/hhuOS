@@ -30,7 +30,7 @@ public:
 
     virtual void * getMemoryAddress() = 0;
 
-    virtual uint8_t copyDataTo(uint8_t *byteBlock) = 0;
+    virtual uint8_t copyDataTo(NetworkByteBlock *byteBlock) = 0;
 
     virtual uint16_t getLengthInBytes() = 0;
 

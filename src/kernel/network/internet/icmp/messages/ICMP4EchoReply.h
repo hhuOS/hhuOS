@@ -6,6 +6,7 @@
 #define HHUOS_ICMP4ECHOREPLY_H
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
+#include <kernel/network/NetworkByteBlock.h>
 
 class ICMP4EchoReply : public ICMP4Message {
 private:
@@ -25,7 +26,7 @@ public:
     //Receiving constructor
     ICMP4EchoReply(IP4DataPart *dataPart);
 
-    uint8_t copyDataTo(uint8_t *byteBlock) override;
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

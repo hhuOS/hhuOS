@@ -2,6 +2,7 @@
 // Created by hannes on 26.05.21.
 //
 
+#include <kernel/network/NetworkByteBlock.h>
 #include "EthernetDevice.h"
 
 EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {
@@ -21,18 +22,30 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     ethernetFrame->setSourceAddress(this->ethernetAddress);
     uint16_t frameLength = ethernetFrame->getTotalLengthInBytes();
     if(frameLength==0){
+        log.error("EthernetFrame had zero length, discarding frame");
         return;
     }
-    auto *byteBlock=(uint8_t *)malloc(frameLength);
-    if(byteBlock== nullptr){
+    auto *byteBlock=new NetworkByteBlock(frameLength);
+    if(byteBlock->isNull()){
+        log.error("Could not allocate byteBlock, discarding frame");
+        delete ethernetFrame;
         return;
     }
     if(ethernetFrame->copyDataTo(byteBlock)){
-        free(byteBlock);
+        log.error("Could not copy EthernetFrame data to byteBlock, discarding frame");
+        byteBlock->freeBytes();
+        delete ethernetFrame;
         return;
     }
-    this->networkDevice->sendPacket(byteBlock,frameLength);
-    free(byteBlock);
+    if(byteBlock->getCurrentIndex()!=(frameLength-1)){
+        log.error("Could not completely copy EthernetFrame data to byteBlock, discarding frame");
+        byteBlock->freeBytes();
+        delete ethernetFrame;
+        return;
+    }
+    this->networkDevice->sendPacket(byteBlock->getBytes(),frameLength);
+    byteBlock->freeBytes();
+    delete ethernetFrame;
 }
 
 uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {

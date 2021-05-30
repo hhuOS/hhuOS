@@ -21,7 +21,7 @@ ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
     myMessage.sequenceNumber = input->sequenceNumber;
 }
 
-uint8_t ICMP4EchoReply::copyDataTo(uint8_t *byteBlock) {
+uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
     return &myMessage;
 }
 

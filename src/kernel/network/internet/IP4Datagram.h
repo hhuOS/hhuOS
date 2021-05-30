@@ -7,6 +7,7 @@
 
 #include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
+#include <kernel/network/NetworkByteBlock.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 #include "IP4HeaderChecksum.h"
@@ -59,7 +60,7 @@ public:
 
     IP4DataPart *getIp4DataPart() const;
 
-    uint8_t copyDataTo(uint8_t *byteBlock) override;
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

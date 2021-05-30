@@ -17,15 +17,15 @@ size_t EthernetFrame::getHeaderSizeInBytes() {
     return sizeof(ethHeader_t);
 }
 
-uint8_t EthernetFrame::copyDataTo(uint8_t *byteBlock) {
+uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
     if(this->ethernetDataPart->getLengthInBytes()>ETHERNETDATAPART_MAX_LENGTH ||
             getHeaderSizeInBytes() > ETHERNETHEADER_MAX_LENGTH ||
             byteBlock == nullptr){
         return 1;
     }
-    memcpy(byteBlock,&this->header,getHeaderSizeInBytes());
+    byteBlock->writeBytes(&this->header,getHeaderSizeInBytes());
     //Header bytes have been copied to byte block, increment position to show beginning of data part
-    return this->ethernetDataPart->copyDataTo(byteBlock+getHeaderSizeInBytes());
+    return this->ethernetDataPart->copyDataTo(byteBlock);
 }
 
 uint16_t EthernetFrame::getTotalLengthInBytes() {

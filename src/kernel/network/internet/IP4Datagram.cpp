@@ -42,12 +42,14 @@ IP4DataPart *IP4Datagram::getIp4DataPart() const {
     return ip4DataPart;
 }
 
-uint8_t IP4Datagram::copyDataTo(uint8_t *byteBlock) {
+uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if(this->ip4DataPart== nullptr || byteBlock== nullptr){
         return 1;
     }
-    memcpy(byteBlock,&this->header,this->headerLengthInBytes);
-    return this->ip4DataPart->copyDataTo(byteBlock+this->headerLengthInBytes);
+    if(byteBlock->writeBytes(&this->header,sizeof (this->header))){
+        return 1;
+    }
+    return this->ip4DataPart->copyDataTo(byteBlock);
 }
 
 uint16_t IP4Datagram::getLengthInBytes() {

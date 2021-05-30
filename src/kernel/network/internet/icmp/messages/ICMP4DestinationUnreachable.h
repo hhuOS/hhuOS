@@ -7,6 +7,7 @@
 
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
+#include <kernel/network/NetworkByteBlock.h>
 
 class ICMP4DestinationUnreachable : public ICMP4Message {
 public:
@@ -16,7 +17,7 @@ public:
     //Receiving constructor
     ICMP4DestinationUnreachable(IP4DataPart *dataPart);
 
-    uint8_t copyDataTo(uint8_t *byteBlock) override;
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

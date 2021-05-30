@@ -7,6 +7,7 @@
 
 
 #include <device/network/NetworkDevice.h>
+#include <kernel/log/Logger.h>
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
 
@@ -15,6 +16,11 @@ private:
     String *identifier;
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;
+
+    /**
+         * A logger to provide information on the kernel log.
+         */
+    Kernel::Logger &log = Kernel::Logger::get("EthernetDevice");
 public:
     EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 

@@ -2,6 +2,7 @@
 // Created by hannes on 14.05.21.
 //
 
+#include <kernel/network/NetworkByteBlock.h>
 #include "ICMP4Echo.h"
 
 ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
@@ -15,7 +16,7 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
 ICMP4Echo::ICMP4Echo(IP4DataPart *dataPart) {
 }
 
-uint8_t ICMP4Echo::copyDataTo(uint8_t *byteBlock) {
+uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
 }

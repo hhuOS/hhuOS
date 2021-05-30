@@ -26,7 +26,7 @@ public:
     //Receiving constructor
     ICMP4Echo(IP4DataPart *dataPart);
 
-    uint8_t copyDataTo(uint8_t *byteBlock) override;
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     uint16_t getLengthInBytes() override;
 

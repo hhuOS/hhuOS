@@ -2,6 +2,7 @@
 // Created by hannes on 18.05.21.
 //
 
+#include <kernel/network/NetworkByteBlock.h>
 #include "ICMP4TimeExceeded.h"
 
 ICMP4TimeExceeded::ICMP4TimeExceeded() {}
@@ -10,7 +11,7 @@ ICMP4TimeExceeded::ICMP4TimeExceeded(IP4DataPart *dataPart) {
     //TODO: Implement parsing from input
 }
 
-uint8_t ICMP4TimeExceeded::copyDataTo(uint8_t *byteBlock) {
+uint8_t ICMP4TimeExceeded::copyDataTo(NetworkByteBlock *byteBlock) {
     return nullptr;
 }
 
