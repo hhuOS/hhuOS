@@ -5,8 +5,10 @@
 #ifndef HHUOS_NETWORKBYTEBLOCK_H
 #define HHUOS_NETWORKBYTEBLOCK_H
 
-#include "lib/libc/stdlib.h"
-#include "lib/libc/string.h"
+extern "C" {
+    #include "lib/libc/stdlib.h"
+    #include "lib/libc/string.h"
+}
 
 class NetworkByteBlock {
 private:
