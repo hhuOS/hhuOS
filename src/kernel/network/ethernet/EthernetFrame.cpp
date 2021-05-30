@@ -5,11 +5,10 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    this->ethernetDataPart = ethernetDataPart;
+    //MAC addresses have 6 Bytes, no integer type available here
     destinationAddress->copyTo(header.destinationAddress);
-
-    uint16_t etherTypInt = ethernetDataPart->getEtherTypeAsInt();
-    memcpy(header.etherType, &etherTypInt, 2);
+    header.etherType = ethernetDataPart->getEtherTypeAsInt();
+    this->ethernetDataPart = ethernetDataPart;
 }
 
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
@@ -33,7 +32,7 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
-    return EthernetDataPart::parseIntAsEtherType((uint16_t) *header.etherType);
+    return EthernetDataPart::parseIntAsEtherType(header.etherType);
 }
 
 EthernetDataPart *EthernetFrame::getDataPart() const {

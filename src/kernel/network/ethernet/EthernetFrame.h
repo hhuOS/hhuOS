@@ -20,7 +20,7 @@ private:
     typedef struct ethernetHeader {
         uint8_t destinationAddress[6]{0, 0, 0, 0, 0, 0};
         uint8_t sourceAddress[6]{0, 0, 0, 0, 0, 0};
-        uint8_t etherType[2]{0, 0};
+        uint16_t etherType=0;
     } ethHeader_t;
 
     ethHeader_t header;
