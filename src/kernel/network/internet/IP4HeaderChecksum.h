@@ -6,7 +6,7 @@
 #define HHUOS_IP4HEADERCHECKSUM_H
 
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 
 class IP4HeaderChecksum {
 private:

@@ -7,7 +7,7 @@
 
 #define MAC_SIZE 6
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 #include <lib/string/String.h>
 #include <device/network/NetworkDevice.h>
 

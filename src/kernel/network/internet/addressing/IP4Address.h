@@ -5,7 +5,7 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 #include <lib/string/String.h>
 
 class IP4Address {

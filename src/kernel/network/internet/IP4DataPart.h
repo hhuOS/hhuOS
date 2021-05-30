@@ -5,7 +5,7 @@
 #ifndef HHUOS_NETWORKDATAPART_H
 #define HHUOS_NETWORKDATAPART_H
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 #include "IP4HeaderChecksum.h"
 
 class IP4DataPart {

@@ -5,7 +5,7 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"

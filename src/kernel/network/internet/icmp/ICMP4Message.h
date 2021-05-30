@@ -5,7 +5,7 @@
 #ifndef HHUOS_ICMP4MESSAGE_H
 #define HHUOS_ICMP4MESSAGE_H
 
-#include <cinttypes>
+#include "lib/libc/stdlib.h"
 #include <kernel/network/internet/IP4DataPart.h>
 
 class ICMP4Message : public IP4DataPart {
