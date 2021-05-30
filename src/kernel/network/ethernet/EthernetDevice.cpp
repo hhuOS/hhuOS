@@ -16,34 +16,36 @@ String *EthernetDevice::getIdentifier() const {
 }
 
 void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
-    if(ethernetFrame== nullptr){
+    if (ethernetFrame == nullptr) {
         return;
     }
     ethernetFrame->setSourceAddress(this->ethernetAddress);
     uint16_t frameLength = ethernetFrame->getTotalLengthInBytes();
-    if(frameLength==0){
+    if (frameLength == 0) {
         log.error("EthernetFrame had zero length, discarding frame");
         return;
     }
-    auto *byteBlock=new NetworkByteBlock(frameLength);
-    if(byteBlock->isNull()){
+    auto *byteBlock = new NetworkByteBlock(frameLength);
+    if (byteBlock->isNull()) {
         log.error("Could not allocate byteBlock, discarding frame");
         delete ethernetFrame;
         return;
     }
-    if(ethernetFrame->copyDataTo(byteBlock)){
+    if (ethernetFrame->copyDataTo(byteBlock)) {
         log.error("Could not copy EthernetFrame data to byteBlock, discarding frame");
         byteBlock->freeBytes();
         delete ethernetFrame;
         return;
     }
-    if(byteBlock->getCurrentIndex()!=(frameLength-1)){
+    if (byteBlock->getCurrentIndex() != (frameLength - 1)) {
         log.error("Could not completely copy EthernetFrame data to byteBlock, discarding frame");
         byteBlock->freeBytes();
         delete ethernetFrame;
         return;
     }
-    this->networkDevice->sendPacket(byteBlock->getBytes(),frameLength);
+    this->networkDevice->sendPacket(byteBlock->getBytes(), frameLength);
+
+    //Cleanup memory, avoid memory leaks
     byteBlock->freeBytes();
     delete ethernetFrame;
 }

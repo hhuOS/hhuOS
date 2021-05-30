@@ -10,12 +10,12 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     this->headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
     header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
 
-    uint8_t protocolTypeInt=ip4DataPart->getIP4ProtocolTypeAsInt();
-    memcpy(&header.protocolType,&protocolTypeInt,1);
+    uint8_t protocolTypeInt = ip4DataPart->getIP4ProtocolTypeAsInt();
+    memcpy(&header.protocolType, &protocolTypeInt, 1);
 
     header.destinationAddress = destinationAddress->asInt();
 
-    this->ip4DataPart=ip4DataPart;
+    this->ip4DataPart = ip4DataPart;
 }
 
 IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
@@ -31,7 +31,7 @@ IP4Address *IP4Datagram::getSourceAddress() const {
 }
 
 void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
-    header.sourceAddress=sourceAddress->asInt();
+    header.sourceAddress = sourceAddress->asInt();
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
@@ -43,10 +43,10 @@ IP4DataPart *IP4Datagram::getIp4DataPart() const {
 }
 
 uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
-    if(this->ip4DataPart== nullptr || byteBlock== nullptr){
+    if (this->ip4DataPart == nullptr || byteBlock == nullptr) {
         return 1;
     }
-    if(byteBlock->writeBytes(&this->header,sizeof (this->header))){
+    if (byteBlock->writeBytes(&this->header, sizeof(this->header))) {
         return 1;
     }
     return this->ip4DataPart->copyDataTo(byteBlock);

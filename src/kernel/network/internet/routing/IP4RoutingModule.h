@@ -15,6 +15,7 @@ private:
     IP4Route *defaultRoute;
 
     IP4Route *findBestRouteFor(IP4Address *receiverAddress);
+
 public:
 
     IP4RoutingModule();

@@ -9,16 +9,16 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     destinationAddress->copyTo(header.destinationAddress);
 
     uint16_t etherTypInt = ethernetDataPart->getEtherTypeAsInt();
-    memcpy(header.etherType,&etherTypInt,2);
+    memcpy(header.etherType, &etherTypInt, 2);
 }
 
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
-    if(this->ethernetDataPart->getLengthInBytes()>ETHERNETDATAPART_MAX_LENGTH ||
-       this->headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH ||
-            byteBlock == nullptr){
+    if (this->ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
+        this->headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH ||
+        byteBlock == nullptr) {
         return 1;
     }
-    if(byteBlock->writeBytes(&this->header,this->headerLengthInBytes)){
+    if (byteBlock->writeBytes(&this->header, this->headerLengthInBytes)) {
         return 1;
     }
     return this->ethernetDataPart->copyDataTo(byteBlock);
@@ -33,7 +33,7 @@ EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
-    return EthernetDataPart::parseIntAsEtherType((uint16_t)*header.etherType);
+    return EthernetDataPart::parseIntAsEtherType((uint16_t) *header.etherType);
 }
 
 EthernetDataPart *EthernetFrame::getDataPart() const {

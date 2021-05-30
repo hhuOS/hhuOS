@@ -17,7 +17,7 @@ private:
 public:
     ARPEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
 
-    bool matches(IP4Address * ip4Address);
+    bool matches(IP4Address *ip4Address);
 
     EthernetAddress *getEthernetAddress();
 };

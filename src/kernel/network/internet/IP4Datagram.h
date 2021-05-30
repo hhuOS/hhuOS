@@ -40,9 +40,9 @@ private:
         uint32_t destinationAddress = 0;
     } ip4Header_t;
 
-    uint8_t headerLengthInBytes=0;
+    uint8_t headerLengthInBytes = 0;
     ip4Header_t header;
-    IP4DataPart *ip4DataPart= nullptr;
+    IP4DataPart *ip4DataPart = nullptr;
 
 public:
 

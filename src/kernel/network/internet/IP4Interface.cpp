@@ -27,8 +27,8 @@ void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagra
             Util::SmartPointer<Kernel::Event>(
                     new Kernel::EthernetSendEvent(
                             this->ethernetDevice,
-                            this->arpModule->initEthernetFrame(receiver,ip4Datagram)
-                            )
+                            this->arpModule->initEthernetFrame(receiver, ip4Datagram)
+                    )
             )
     );
 }

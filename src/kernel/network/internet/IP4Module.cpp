@@ -55,7 +55,7 @@ namespace Kernel {
             log.info("Received IP4 Datagram to be sent");
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
 
-            if(routingModule->sendViaBestRoute(datagram)){
+            if (routingModule->sendViaBestRoute(datagram)) {
                 eventBus->publish(
                         Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
@@ -94,7 +94,8 @@ namespace Kernel {
                             )
                     );
                     break;
-                default: return;
+                default:
+                    return;
             }
             return;
         }

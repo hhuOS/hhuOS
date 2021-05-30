@@ -19,6 +19,7 @@ private:
     EthernetAddress *broadcastAddress;
 
     EthernetAddress *resolveIP4(IP4Address *ip4Address);
+
 public:
 
     ARPModule();

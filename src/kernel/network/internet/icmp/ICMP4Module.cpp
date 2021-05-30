@@ -11,7 +11,7 @@
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if (event.getType() == ICMP4ReceiveEvent::TYPE) {
         auto receiveEvent = (ICMP4ReceiveEvent &) event;
-        auto icmp4message = (ICMP4Message *)receiveEvent.getIp4DataPart();
+        auto icmp4message = (ICMP4Message *) receiveEvent.getIp4DataPart();
         if (icmp4message->getLengthInBytes() == 0) {
             log.error("Given IP4DataPart was empty! Ignoring...");
             return;
@@ -44,7 +44,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
                 //TODO: Notify application
                 return;
-            //Just ignore input if message type not implemented
+                //Just ignore input if message type not implemented
             default:
                 return;
         }

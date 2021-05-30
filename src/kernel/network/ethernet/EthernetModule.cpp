@@ -118,7 +118,8 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                         )
                 );
                 return;
-            default: return;
+            default:
+                return;
         }
     }
 }

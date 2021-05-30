@@ -17,19 +17,22 @@ public:
         INVALID = 0
     };
 
-    uint8_t getIP4ProtocolTypeAsInt(){
+    uint8_t getIP4ProtocolTypeAsInt() {
         return (uint8_t) getIP4ProtocolType();
     }
 
-    static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value){
+    static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value) {
         switch (value) {
-            case 1: return IP4ProtocolType::ICMP4;
-            case 17: return IP4ProtocolType::UDP;
-            default: return IP4ProtocolType::INVALID;
+            case 1:
+                return IP4ProtocolType::ICMP4;
+            case 17:
+                return IP4ProtocolType::UDP;
+            default:
+                return IP4ProtocolType::INVALID;
         }
     }
 
-    virtual void * getMemoryAddress() = 0;
+    virtual void *getMemoryAddress() = 0;
 
     virtual uint8_t copyDataTo(NetworkByteBlock *byteBlock) = 0;
 

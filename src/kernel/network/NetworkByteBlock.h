@@ -10,8 +10,8 @@
 
 class NetworkByteBlock {
 private:
-    uint8_t *bytes= nullptr;
-    size_t length,currentIndex=0;
+    uint8_t *bytes = nullptr;
+    size_t length, currentIndex = 0;
 
 public:
     NetworkByteBlock(size_t length);
