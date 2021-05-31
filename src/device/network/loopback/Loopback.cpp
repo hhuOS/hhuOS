@@ -18,29 +18,12 @@ void Loopback::sendPacket(void *address, uint16_t length) {
         log.error("Could not send packet, event bus was null!");
         return;
     }
-
-    //Outgoing EthernetFrames will be dropped after sending, so we need to copy our data first
-    auto *byteBlock = new NetworkByteBlock(length);
-    if(byteBlock->isNull()){
-        log.error("Could not init byteBlock, discarding packet");
-        delete (uint8_t *)address;
-        return;
-    }
-    if(byteBlock->writeBytes(address,length)){
-        log.error("Could not copy incoming data to byteBlock, discarding packet");
-        delete byteBlock;
-        delete (uint8_t *)address;
-        return;
-    }
-    if(!byteBlock->isCompletelyFilled()){
-        log.error("Could not copy incoming data completely to byteBlock, discarding packet");
-        delete byteBlock;
-        delete (uint8_t *)address;
-        return;
-    }
     eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    byteBlock->buildReceiveEventFromBytes()
+                    //our outgoing EthernetFrame will be dropped afterwards,
+                    //but a ReceiveEvent copies incoming data into a separate array,
+                    // so no need to copy data here
+                    new Kernel::ReceiveEvent(address, length)
             )
     );
 }

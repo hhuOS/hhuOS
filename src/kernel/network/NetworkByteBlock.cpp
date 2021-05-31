@@ -59,7 +59,3 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
     networkDevice->sendPacket(bytes,length);
     return 0;
 }
-
-Kernel::ReceiveEvent *NetworkByteBlock::buildReceiveEventFromBytes() {
-    return new Kernel::ReceiveEvent(bytes, length);
-}
