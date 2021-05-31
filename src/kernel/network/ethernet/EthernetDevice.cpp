@@ -43,7 +43,9 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         delete ethernetFrame;
         return;
     }
-    this->networkDevice->sendPacket(byteBlock->getBytes(), byteBlock->getLength());
+    if(byteBlock->sendOutVia(this->networkDevice)){
+        log.error("Could not send out byteBlock via network device, discarding frame");
+    }
 
     //Cleanup memory, avoid memory leaks
     delete byteBlock;

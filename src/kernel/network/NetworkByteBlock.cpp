@@ -44,10 +44,18 @@ uint8_t NetworkByteBlock::writeBytes(void *memoryAddress, size_t byteCount) {
     return 0;
 }
 
-void *NetworkByteBlock::getBytes() {
-    return (void *) this->bytes;
-}
-
 size_t NetworkByteBlock::getLength() const {
     return length;
+}
+
+uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
+    if(this->length==0){
+        //It's not an error if nothing needs to be done
+        return 0;
+    }
+    if(networkDevice== nullptr||this->isNull()){
+        return 1;
+    }
+    networkDevice->sendPacket(bytes,length);
+    return 0;
 }

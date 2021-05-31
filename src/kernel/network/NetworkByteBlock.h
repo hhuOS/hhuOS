@@ -5,6 +5,8 @@
 #ifndef HHUOS_NETWORKBYTEBLOCK_H
 #define HHUOS_NETWORKBYTEBLOCK_H
 
+#include <device/network/NetworkDevice.h>
+
 extern "C" {
 #include "lib/libc/stdlib.h"
 #include "lib/libc/string.h"
@@ -30,7 +32,7 @@ public:
 
     uint8_t writeBytes(void *memoryAddress, size_t byteCount);
 
-    void *getBytes();
+    uint8_t sendOutVia(NetworkDevice *pDevice);
 };
 
 
