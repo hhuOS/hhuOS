@@ -23,24 +23,24 @@ void Loopback::sendPacket(void *address, uint16_t length) {
     auto *byteBlock = new NetworkByteBlock(length);
     if(byteBlock->isNull()){
         log.error("Could not init byteBlock, discarding packet");
-        free(address);
+        delete (uint8_t *)address;
         return;
     }
     if(byteBlock->writeBytes(address,length)){
         log.error("Could not copy incoming data to byteBlock, discarding packet");
         delete byteBlock;
-        free(address);
+        delete (uint8_t *)address;
         return;
     }
     if(!byteBlock->isCompletelyFilled()){
         log.error("Could not copy incoming data completely to byteBlock, discarding packet");
         delete byteBlock;
-        free(address);
+        delete (uint8_t *)address;
         return;
     }
     eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    new Kernel::ReceiveEvent(byteBlock->getBytes(), length)
+                    byteBlock->buildReceiveEventFromBytes()
             )
     );
 }

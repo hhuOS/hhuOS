@@ -5,7 +5,7 @@
 #include "NetworkByteBlock.h"
 
 NetworkByteBlock::NetworkByteBlock(size_t length) {
-    this->bytes = (uint8_t *) malloc(length);
+    this->bytes = new uint8_t[length];
     this->length = length;
 }
 
@@ -25,7 +25,7 @@ bool NetworkByteBlock::isCompletelyFilled() const {
 
 void NetworkByteBlock::freeBytes() {
     if (!isNull()) {
-        free(this->bytes);
+        delete (uint8_t *)this->bytes;
         this->bytes = nullptr;
     }
 }
@@ -58,4 +58,8 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
     }
     networkDevice->sendPacket(bytes,length);
     return 0;
+}
+
+Kernel::ReceiveEvent *NetworkByteBlock::buildReceiveEventFromBytes() {
+    return new Kernel::ReceiveEvent(bytes, length);
 }

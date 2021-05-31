@@ -6,11 +6,7 @@
 #define HHUOS_NETWORKBYTEBLOCK_H
 
 #include <device/network/NetworkDevice.h>
-
-extern "C" {
-#include "lib/libc/stdlib.h"
-#include "lib/libc/string.h"
-}
+#include <kernel/event/network/ReceiveEvent.h>
 
 class NetworkByteBlock {
 private:
@@ -33,6 +29,8 @@ public:
     uint8_t writeBytes(void *memoryAddress, size_t byteCount);
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
+
+    Kernel::ReceiveEvent *buildReceiveEventFromBytes();
 };
 
 
