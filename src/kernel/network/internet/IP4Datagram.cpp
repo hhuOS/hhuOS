@@ -44,13 +44,13 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if (this->ip4DataPart == nullptr || byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.version_headerLength,
             sizeof(this->header.version_headerLength))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.typeOfService,
             sizeof(this->header.typeOfService))
             ) {
@@ -74,13 +74,13 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.timeToLive,
             sizeof(this->header.timeToLive))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.protocolType,
             sizeof(this->header.protocolType))
             ) {
