@@ -39,7 +39,7 @@ uint8_t NetworkByteBlock::writeBytes(void *memoryAddress, size_t byteCount) {
         //It's not an error if nothing needs to be done...
         return 0;
     }
-    memcpy(this->bytes, memoryAddress, byteCount);
+    memcpy(this->bytes+currentIndex, memoryAddress, byteCount);
     this->currentIndex += byteCount;
     return 0;
 }
