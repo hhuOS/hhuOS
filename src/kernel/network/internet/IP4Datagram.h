@@ -36,8 +36,8 @@ private:
 
         uint8_t protocolType = 0;
         uint16_t headerChecksum = 0;
-        uint32_t sourceAddress = 0;
-        uint32_t destinationAddress = 0;
+        uint8_t sourceAddress[IP4ADDRESS_LENGH]{0,0,0,0};
+        uint8_t destinationAddress[IP4ADDRESS_LENGH]{0,0,0,0};
     } ip4Header_t;
 
     uint8_t headerLengthInBytes = 0;

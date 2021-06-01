@@ -9,24 +9,24 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     if (this->bitCount > 32) {
         this->bitCount = 32;
     }
-    //Set all bits to '1' (works because netmask is unsigned)
-    uint32_t tempMask = -1;
-    //Set right [bitCount] bits to '0'
-    tempMask = tempMask << (32 - bitCount);
+    uint8_t fullByteCount= bitCount / 8;
+    for(uint8_t i=0; i <= fullByteCount; i++){
+        //Set all Bytes with at least one '1' to its maximum of 255,
+        //the trick with '-1' works because each Byte is unsigned!
+        this->netmask[i]=-1;
+    }
 
-    //Swap byte order so that bytes in IP4Netmask have the same order as bytes in IP4Address
-    //Also known as Endianess, which may differ between Big Endian and Little Endian
-    //TODO: Use htonl() or ntohl() from netinet/in.h
-    auto tempParts = (uint8_t *) &tempMask;
-    auto *maskParts = (uint8_t *) &netmask;
-
-    for (uint8_t i = 0; i < 4; i++) {
-        maskParts[i] = tempParts[3 - i];
+    //Check if one Byte is not completely filled with '1'
+    uint8_t remainingBits = bitCount % 8;
+    if(remainingBits!=0){
+        //If one Byte is not completely filled with '1', bit shift it left for the number of '0' in it
+        //->this sets all other bits to '0', our netmask is filled with exactly [bitCount] bits now
+        this->netmask[fullByteCount]=this->netmask[fullByteCount]<<(8-remainingBits);
     }
 }
 
 IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
-    return new IP4Address(ip4Address->asInt() & this->netmask);
+    return ip4Address->calculateAND(this->netmask);
 }
 
 uint8_t IP4Netmask::getBitCount() const {
@@ -34,6 +34,5 @@ uint8_t IP4Netmask::getBitCount() const {
 }
 
 String IP4Netmask::asString() {
-    auto *parts = (uint8_t *) &netmask;
-    return String::format("%d.%d.%d.%d /%d", parts[0], parts[1], parts[2], parts[3], bitCount);
+    return String::format("%d.%d.%d.%d /%d", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
 }

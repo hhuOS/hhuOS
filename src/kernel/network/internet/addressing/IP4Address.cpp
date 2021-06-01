@@ -11,28 +11,34 @@ IP4Address::IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fou
     address[3] = fourth;
 }
 
-uint32_t IP4Address::asInt() {
-    return (uint32_t) *address;
-}
-
-IP4Address::IP4Address(uint32_t fullAddress) {
-    auto resultBytes = (uint8_t *) &fullAddress;
-    for (int i = 0; i < 4; i++) {
-        this->address[i] = resultBytes[i];
+IP4Address::IP4Address(const uint8_t *bytes) {
+    for (int i = 0; i < IP4ADDRESS_LENGH; i++) {
+        this->address[i] = bytes[i];
     }
 }
 
-uint8_t IP4Address::equals(IP4Address *ip4Address) {
-    return ip4Address->asInt() == this->asInt();
+bool IP4Address::equals(IP4Address *other) {
+    return
+    (this->address[0] == other->address[0] &&
+    this->address[1] == other->address[1] &&
+    this->address[2] == other->address[2] &&
+    this->address[3] == other->address[3]);
+}
+
+void IP4Address::copyTo(uint8_t *target) {
+    for (int i = 0; i < IP4ADDRESS_LENGH; i++) {
+         target[i]=this->address[i];
+    }
 }
 
 String IP4Address::asString() {
     return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
 }
 
-void IP4Address::copyTo(uint32_t *target) {
-    auto *targetBytes=(uint8_t*)target;
-    for (int i = 0; i < 4; i++) {
-         targetBytes[i]=this->address[i];
+IP4Address *IP4Address::calculateAND(const uint8_t *netmask) {
+    uint8_t bytes[IP4ADDRESS_LENGH];
+    for(uint8_t i=0; i < IP4ADDRESS_LENGH; i++){
+        bytes[i]=(this->address[i] & netmask[i]);
     }
+    return new IP4Address(bytes);
 }

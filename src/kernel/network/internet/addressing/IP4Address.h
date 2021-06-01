@@ -5,8 +5,11 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
+#define IP4ADDRESS_LENGH 4
+
 #include "lib/libc/stdlib.h"
 #include <lib/string/String.h>
+
 
 class IP4Address {
 private:
@@ -15,15 +18,17 @@ private:
 public:
     IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
 
-    IP4Address(uint32_t fullAddress);
+    IP4Address(const uint8_t *bytes);
 
     uint32_t asInt();
 
     String asString();
 
-    uint8_t equals(IP4Address *ip4Address);
+    bool equals(IP4Address *other);
 
-    void copyTo(uint32_t *target);
+    void copyTo(uint8_t *target);
+
+    IP4Address *calculateAND(const uint8_t netmask[4]);
 };
 
 

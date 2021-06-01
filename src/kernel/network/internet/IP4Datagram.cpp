@@ -11,7 +11,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 
     header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
     header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
-    destinationAddress->copyTo(&header.destinationAddress);
+    destinationAddress->copyTo(header.destinationAddress);
 
     this->ip4DataPart = ip4DataPart;
 }
@@ -29,7 +29,7 @@ IP4Address *IP4Datagram::getSourceAddress() const {
 }
 
 void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
-    sourceAddress->copyTo(&header.sourceAddress);
+    sourceAddress->copyTo(header.sourceAddress);
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
