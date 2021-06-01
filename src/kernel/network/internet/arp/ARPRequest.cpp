@@ -8,7 +8,7 @@ ARPRequest::ARPRequest(IP4Address *ip4Address) {
     this->ip4Address = ip4Address;
 }
 
-uint16_t ARPRequest::getLengthInBytes() {
+size_t ARPRequest::getLengthInBytes() {
     return 0;
 }
 

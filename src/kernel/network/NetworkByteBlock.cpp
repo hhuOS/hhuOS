@@ -2,11 +2,17 @@
 // Created by hannes on 30.05.21.
 //
 
+#include <lib/libc/printf.h>
 #include "NetworkByteBlock.h"
 
 NetworkByteBlock::NetworkByteBlock(size_t length) {
     this->bytes = new uint8_t[length];
     this->length = length;
+
+    //Cleanup memory
+    for(size_t i=0;i<length;i++){
+        bytes[i]=0;
+    }
 }
 
 NetworkByteBlock::~NetworkByteBlock() {
@@ -46,6 +52,7 @@ uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, siz
         this->bytes[currentIndex+i]=source[byteCount-1-i];
     }
     this->currentIndex += byteCount;
+    printBytes();
     return 0;
 }
 
@@ -63,4 +70,15 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
     }
     networkDevice->sendPacket(bytes, length);
     return 0;
+}
+
+void NetworkByteBlock::printBytes() {
+    if(isNull()){
+        return;
+    }
+    printf("\nBytes: ");
+    for(size_t i=0;i<length;i++){
+        printf("%02x ",bytes[i]);
+    }
+    printf("\n\n");
 }

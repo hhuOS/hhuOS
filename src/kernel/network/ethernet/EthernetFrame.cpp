@@ -17,9 +17,25 @@ uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
         byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(&this->header, this->headerLengthInBytes)) {
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.destinationAddress,
+            sizeof this->header.destinationAddress)
+            ) {
         return 1;
     }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.sourceAddress,
+            sizeof this->header.sourceAddress)
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.etherType,
+            sizeof this->header.etherType)
+            ) {
+        return 1;
+    }
+
     return this->ethernetDataPart->copyDataTo(byteBlock);
 }
 
