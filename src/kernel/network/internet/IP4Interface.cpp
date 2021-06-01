@@ -6,7 +6,7 @@
 #include "IP4Interface.h"
 #include "IP4Datagram.h"
 
-IP4Interface::IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+IP4Interface::IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                            IP4Netmask *ip4Netmask) {
     this->eventBus = eventBus;
     this->arpModule = new ARPModule();
@@ -24,12 +24,10 @@ IP4Interface::~IP4Interface() {
 void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
     ip4Datagram->setSourceAddress(this->ip4Address);
     this->eventBus->publish(
-            Util::SmartPointer<Kernel::Event>(
                     new Kernel::EthernetSendEvent(
                             this->ethernetDevice,
                             this->arpModule->initEthernetFrame(receiver, ip4Datagram)
                     )
-            )
     );
 }
 

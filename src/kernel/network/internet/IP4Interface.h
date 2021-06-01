@@ -10,19 +10,20 @@
 #include <kernel/network/ethernet/EthernetDevice.h>
 #include <kernel/service/EventBus.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>
+#include <kernel/network/NetworkEventBus.h>
 #include "IP4Datagram.h"
 
 class IP4Interface {
 private:
     ARPModule *arpModule;
-    Kernel::EventBus *eventBus;
+    Kernel::NetworkEventBus *eventBus;
     IP4Address *ip4Address;
     IP4Netmask *ip4Netmask;
     EthernetDevice *ethernetDevice;
 
 public:
 
-    IP4Interface(Kernel::EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+    IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                  IP4Netmask *ip4Netmask);
 
     void sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram);

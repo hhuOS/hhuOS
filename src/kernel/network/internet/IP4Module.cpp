@@ -2,10 +2,11 @@
 // Created by hannes on 14.05.21.
 //
 
+#include <kernel/network/NetworkEventBus.h>
 #include "IP4Module.h"
 
 namespace Kernel {
-    IP4Module::IP4Module(EventBus *eventBus) {
+    IP4Module::IP4Module(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
         this->interfaces = new Util::HashMap<EthernetDevice *, IP4Interface *>();
@@ -57,12 +58,10 @@ namespace Kernel {
 
             if (routingModule->sendViaBestRoute(datagram)) {
                 eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ICMP4ReceiveEvent(
                                         datagram->getSourceAddress(),
                                         datagram->getDestinationAddress(),
                                         new ICMP4DestinationUnreachable()
-                                )
                         )
                 );
             }
@@ -74,24 +73,20 @@ namespace Kernel {
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
-                            Util::SmartPointer<Kernel::Event>(
                                     new Kernel::ICMP4ReceiveEvent(
                                             ip4Datagram->getSourceAddress(),
                                             ip4Datagram->getDestinationAddress(),
                                             ip4Datagram->getIp4DataPart()
-                                    )
                             )
                     );
                     break;
                 case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
-                            Util::SmartPointer<Kernel::Event>(
                                     new Kernel::UDPReceiveEvent(
                                             new UDPDatagram(
                                                     ip4Datagram->getIp4DataPart()
                                             )
                                     )
-                            )
                     );
                     break;
                 default:

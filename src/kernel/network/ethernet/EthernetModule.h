@@ -7,6 +7,7 @@
 
 #include <kernel/log/Logger.h>
 #include <kernel/event/Receiver.h>
+#include <kernel/network/NetworkEventBus.h>
 #include "EthernetDevice.h"
 
 namespace Kernel {
@@ -14,10 +15,10 @@ namespace Kernel {
     class EthernetModule : public Receiver {
     private:
         uint8_t deviceCounter;
-        Kernel::EventBus *eventBus;
+        NetworkEventBus *eventBus;
         Util::HashMap<String *, EthernetDevice *> *ethernetDevices;
     public:
-        EthernetModule(Kernel::EventBus *eventBus);
+        EthernetModule(NetworkEventBus *eventBus);
 
         /**
          * A logger to provide information on the kernel log.

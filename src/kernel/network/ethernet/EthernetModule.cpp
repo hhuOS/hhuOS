@@ -14,7 +14,7 @@
 #include "EthernetDevice.h"
 
 
-Kernel::EthernetModule::EthernetModule(Kernel::EventBus *eventBus) {
+Kernel::EthernetModule::EthernetModule(NetworkEventBus *eventBus) {
     this->deviceCounter = 0;
     this->eventBus = eventBus;
     this->ethernetDevices = new Util::HashMap<String *, EthernetDevice *>();
@@ -102,19 +102,15 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         switch (inFrame->getEtherType()) {
             case EthernetDataPart::EtherType::IP4:
                 eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
                                 new Kernel::IP4ReceiveEvent(
                                         new IP4Datagram(inFrame->getDataPart())
-                                )
                         )
                 );
                 return;
             case EthernetDataPart::EtherType::ARP:
                 eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
                                 new Kernel::ARPReceiveEvent(
                                         new ARPResponse(inFrame->getDataPart())
-                                )
                         )
                 );
                 return;

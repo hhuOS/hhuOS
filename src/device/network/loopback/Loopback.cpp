@@ -5,7 +5,7 @@
 #include <kernel/network/NetworkByteBlock.h>
 #include "Loopback.h"
 
-Loopback::Loopback(Kernel::EventBus *eventBus) {
+Loopback::Loopback(Kernel::NetworkEventBus *eventBus) {
     this->eventBus = eventBus;
 }
 
@@ -19,12 +19,10 @@ void Loopback::sendPacket(void *address, uint16_t length) {
         return;
     }
     eventBus->publish(
-            Util::SmartPointer<Kernel::Event>(
                     //our outgoing EthernetFrame will be dropped afterwards,
                     //but a ReceiveEvent copies incoming data into a separate array,
                     // so no need to copy data here
                     new Kernel::ReceiveEvent(address, length)
-            )
     );
 }
 

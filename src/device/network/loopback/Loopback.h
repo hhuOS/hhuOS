@@ -15,6 +15,7 @@
 #include <device/network/NetworkDevice.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>
+#include <kernel/network/NetworkEventBus.h>
 
 /**
  *
@@ -28,10 +29,10 @@ private:
      */
     Kernel::Logger &log = Kernel::Logger::get("Loopback");
 
-    Kernel::EventBus *eventBus = nullptr;
+    Kernel::NetworkEventBus *eventBus = nullptr;
 
 public:
-    Loopback(Kernel::EventBus *eventBus);
+    Loopback(Kernel::NetworkEventBus *eventBus);
 
     /**
      * Overriding function from NetworkDevice.

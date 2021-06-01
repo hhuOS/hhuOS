@@ -27,6 +27,7 @@
 #include <kernel/network/ethernet/EthernetModule.h>
 #include "KernelService.h"
 #include "device/network/NetworkDevice.h"
+#include <kernel/network/NetworkEventBus.h>
 #include "kernel/log/Logger.h"
 #include "kernel/network/PacketHandler.h"
 
@@ -54,7 +55,7 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        EventBus *eventBus;
+        NetworkEventBus *eventBus;
         PacketHandler packetHandler;
         IP4Module *ip4Module;
         EthernetModule *ethernetModule;

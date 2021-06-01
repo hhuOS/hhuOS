@@ -7,7 +7,6 @@
 
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/core/System.h>
-#include <kernel/service/EventBus.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
@@ -25,13 +24,13 @@ namespace Kernel {
 
     class IP4Module final : public Receiver {
     private:
-        Kernel::EventBus *eventBus;
+        NetworkEventBus *eventBus;
         IP4RoutingModule *routingModule;
         Util::HashMap<EthernetDevice *, IP4Interface *> *interfaces;
 
     public:
 
-        IP4Module(Kernel::EventBus *eventBus);
+        IP4Module(NetworkEventBus *eventBus);
 
         ~IP4Module() override;
 

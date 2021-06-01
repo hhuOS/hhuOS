@@ -11,7 +11,7 @@ namespace Kernel {
 
     NetworkService::NetworkService() {
         loopbackIdentifier = new String("lo");
-        eventBus = System::getService<EventBus>();
+        eventBus = new NetworkEventBus(System::getService<EventBus>());
 
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
