@@ -24,10 +24,10 @@ IP4Interface::~IP4Interface() {
 void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
     ip4Datagram->setSourceAddress(this->ip4Address);
     this->eventBus->publish(
-                    new Kernel::EthernetSendEvent(
-                            this->ethernetDevice,
-                            this->arpModule->initEthernetFrame(receiver, ip4Datagram)
-                    )
+            new Kernel::EthernetSendEvent(
+                    this->ethernetDevice,
+                    this->arpModule->initEthernetFrame(receiver, ip4Datagram)
+            )
     );
 }
 

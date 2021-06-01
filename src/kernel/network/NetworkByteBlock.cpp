@@ -25,7 +25,7 @@ bool NetworkByteBlock::isCompletelyFilled() const {
 
 void NetworkByteBlock::freeBytes() {
     if (!isNull()) {
-        delete (uint8_t *)this->bytes;
+        delete (uint8_t *) this->bytes;
         this->bytes = nullptr;
     }
 }
@@ -49,13 +49,13 @@ size_t NetworkByteBlock::getLength() const {
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
-    if(this->length==0){
+    if (this->length == 0) {
         //It's not an error if nothing needs to be done
         return 0;
     }
-    if(networkDevice== nullptr||this->isNull()){
+    if (networkDevice == nullptr || this->isNull()) {
         return 1;
     }
-    networkDevice->sendPacket(bytes,length);
+    networkDevice->sendPacket(bytes, length);
     return 0;
 }

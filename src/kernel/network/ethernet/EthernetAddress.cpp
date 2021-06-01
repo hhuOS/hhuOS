@@ -31,7 +31,7 @@ void EthernetAddress::copyTo(uint8_t *target) {
     memcpy(target, macAddress, MAC_SIZE);
 }
 
-void EthernetAddress::copyTo(uint8_t *target,uint8_t *source) {
+void EthernetAddress::copyTo(uint8_t *target, uint8_t *source) {
     memcpy(target, source, MAC_SIZE);
 }
 

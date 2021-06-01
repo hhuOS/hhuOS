@@ -25,7 +25,7 @@ public:
 
     void copyTo(uint8_t *target);
 
-    static void copyTo(uint8_t *target,uint8_t *source);
+    static void copyTo(uint8_t *target, uint8_t *source);
 };
 
 

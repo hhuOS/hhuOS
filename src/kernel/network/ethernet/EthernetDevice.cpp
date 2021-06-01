@@ -43,7 +43,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         delete ethernetFrame;
         return;
     }
-    if(byteBlock->sendOutVia(this->networkDevice)){
+    if (byteBlock->sendOutVia(this->networkDevice)) {
         log.error("Could not send out byteBlock via network device, discarding frame");
     }
 
