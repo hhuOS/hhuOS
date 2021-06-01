@@ -5,7 +5,6 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    //MAC addresses have 6 Bytes, no integer type available here
     destinationAddress->copyTo(header.destinationAddress);
     header.etherType = ethernetDataPart->getEtherTypeAsInt();
     this->ethernetDataPart = ethernetDataPart;
@@ -17,13 +16,13 @@ uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
         byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.destinationAddress,
             sizeof this->header.destinationAddress)
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesStraight(
             &this->header.sourceAddress,
             sizeof this->header.sourceAddress)
             ) {
