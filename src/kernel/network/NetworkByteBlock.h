@@ -29,6 +29,8 @@ public:
     uint8_t appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount);
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
+
+    void printBytes();
 };
 
 
