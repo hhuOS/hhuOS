@@ -5,24 +5,17 @@
 #include "IP4Netmask.h"
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {
-    this->bitCount = bitCount;
-    if (this->bitCount > 32) {
-        this->bitCount = 32;
+    uint8_t maxBitCount = IP4ADDRESS_LENGH * 8;
+    if (bitCount>maxBitCount) {
+        bitCount=maxBitCount;
     }
+    this->bitCount = bitCount;
+
     uint8_t fullByteCount = bitCount / 8;
     for (uint8_t i = 0; i <= fullByteCount; i++) {
-        //Set all Bytes with at least one '1' to its maximum of 255,
-        //the trick with '-1' works because each Byte is unsigned!
         this->netmask[i] = -1;
     }
-
-    //Check if one Byte is not completely filled with '1'
-    uint8_t remainingBits = bitCount % 8;
-    if (remainingBits != 0) {
-        //If one Byte is not completely filled with '1', bit shift it left for the number of '0' in it
-        //->this sets all other bits to '0', our netmask is filled with exactly [bitCount] bits now
-        this->netmask[fullByteCount] = this->netmask[fullByteCount] << (8 - remainingBits);
-    }
+    this->netmask[fullByteCount] = this->netmask[fullByteCount] << (8 - (bitCount % 8));
 }
 
 IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
