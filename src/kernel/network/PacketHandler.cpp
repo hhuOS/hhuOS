@@ -27,16 +27,15 @@
 
 namespace Kernel {
 
+    PacketHandler::PacketHandler(NetworkEventBus *eventBus) : eventBus(eventBus) {}
+
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             log.info("Incoming packet received");
             auto &receiveEvent = (ReceiveEvent &) event;
             auto *inFrame = new EthernetFrame(receiveEvent.getPacket(), receiveEvent.getLength());
-            auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
             eventBus->publish(
-                    Util::SmartPointer<Kernel::Event>(
                             new Kernel::EthernetReceiveEvent(inFrame)
-                    )
             );
             return;
         }

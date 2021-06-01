@@ -25,6 +25,7 @@
 #include "kernel/event/Receiver.h"
 #include "kernel/log/Logger.h"
 #include "kernel/event/network/ReceiveEvent.h"
+#include "NetworkEventBus.h"
 
 namespace Kernel {
 
@@ -37,10 +38,16 @@ namespace Kernel {
  * then a ReceiveEvent.
  */
     class PacketHandler final : public Receiver {
+    private:
+        NetworkEventBus * eventBus;
+
         /**
          * A logger to provide information on the kernel log.
          */
         Logger &log = Logger::get("PacketHandler");
+
+    public:
+        PacketHandler(NetworkEventBus *eventBus);
 
         /**
          * Inherited method from Receiver.

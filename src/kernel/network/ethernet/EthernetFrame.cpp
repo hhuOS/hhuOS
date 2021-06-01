@@ -10,6 +10,10 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     this->ethernetDataPart = ethernetDataPart;
 }
 
+EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
+//TODO:Implement parsing from incoming data
+}
+
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
     if (this->ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
         this->headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH ||
@@ -40,10 +44,6 @@ uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
 
 uint16_t EthernetFrame::getTotalLengthInBytes() {
     return this->headerLengthInBytes + this->ethernetDataPart->getLengthInBytes();
-}
-
-EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
-//TODO:Implement parsing from incoming data
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {

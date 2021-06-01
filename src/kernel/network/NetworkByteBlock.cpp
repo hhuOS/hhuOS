@@ -50,7 +50,6 @@ uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCo
         this->bytes[currentIndex + i] = source[i];
     }
     this->currentIndex += byteCount;
-    printBytes();
     return 0;
 }
 
@@ -70,7 +69,6 @@ uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, siz
         this->bytes[currentIndex + i] = source[byteCount - 1 - i];
     }
     this->currentIndex += byteCount;
-    printBytes();
     return 0;
 }
 
@@ -91,7 +89,7 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
 }
 
 void NetworkByteBlock::printBytes() {
-    if (isNull()) {
+    if (this->bytes == nullptr) {
         return;
     }
     printf("\nBytes: ");

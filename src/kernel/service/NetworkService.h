@@ -56,7 +56,7 @@ namespace Kernel {
         Util::ArrayList<NetworkDevice *> drivers;
 
         NetworkEventBus *eventBus;
-        PacketHandler packetHandler;
+        PacketHandler *packetHandler;
         IP4Module *ip4Module;
         EthernetModule *ethernetModule;
 
