@@ -10,7 +10,7 @@
 
 class IP4Netmask {
 private:
-    uint8_t netmask[4]{0,0,0,0};
+    uint8_t netmask[4]{0, 0, 0, 0};
     uint8_t bitCount = 0;
 
 public:

@@ -10,8 +10,8 @@ NetworkByteBlock::NetworkByteBlock(size_t length) {
     this->length = length;
 
     //Cleanup memory
-    for(size_t i=0;i<length;i++){
-        bytes[i]=0;
+    for (size_t i = 0; i < length; i++) {
+        bytes[i] = 0;
     }
 }
 
@@ -37,17 +37,17 @@ void NetworkByteBlock::freeBytes() {
 }
 
 uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCount) {
-    auto *source=(uint8_t *)memoryAddress;
+    auto *source = (uint8_t *) memoryAddress;
     //Avoid writing beyond last byte
-    if (this->bytes== nullptr || (this->currentIndex + byteCount) > this->length) {
+    if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
         return 1;
     }
     if (byteCount == 0) {
         //It's not an error if nothing needs to be done...
         return 0;
     }
-    for(size_t i=0;i<byteCount;i++){
-        this->bytes[currentIndex+i]=source[i];
+    for (size_t i = 0; i < byteCount; i++) {
+        this->bytes[currentIndex + i] = source[i];
     }
     this->currentIndex += byteCount;
     printBytes();
@@ -55,9 +55,9 @@ uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCo
 }
 
 uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount) {
-    auto *source=(uint8_t *)memoryAddress;
+    auto *source = (uint8_t *) memoryAddress;
     //Avoid writing beyond last byte
-    if (this->bytes== nullptr || (this->currentIndex + byteCount) > this->length) {
+    if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
         return 1;
     }
     if (byteCount == 0) {
@@ -66,8 +66,8 @@ uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, siz
     }
     //Write bytes in switched order to convert data to BigEndian, as we are running on LittleEndian here
     //-> RFC1700 page 3 defines BigEndian as byte order for communication via Internet Protocols
-    for(size_t i=0;i<byteCount;i++){
-        this->bytes[currentIndex+i]=source[byteCount-1-i];
+    for (size_t i = 0; i < byteCount; i++) {
+        this->bytes[currentIndex + i] = source[byteCount - 1 - i];
     }
     this->currentIndex += byteCount;
     printBytes();
@@ -91,12 +91,12 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
 }
 
 void NetworkByteBlock::printBytes() {
-    if(isNull()){
+    if (isNull()) {
         return;
     }
     printf("\nBytes: ");
-    for(size_t i=0;i<length;i++){
-        printf("%02x ",bytes[i]);
+    for (size_t i = 0; i < length; i++) {
+        printf("%02x ", bytes[i]);
     }
     printf("\n\n");
 }

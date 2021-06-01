@@ -19,15 +19,15 @@ IP4Address::IP4Address(const uint8_t *bytes) {
 
 bool IP4Address::equals(IP4Address *other) {
     return
-    (this->address[0] == other->address[0] &&
-    this->address[1] == other->address[1] &&
-    this->address[2] == other->address[2] &&
-    this->address[3] == other->address[3]);
+            (this->address[0] == other->address[0] &&
+             this->address[1] == other->address[1] &&
+             this->address[2] == other->address[2] &&
+             this->address[3] == other->address[3]);
 }
 
 void IP4Address::copyTo(uint8_t *target) {
     for (int i = 0; i < IP4ADDRESS_LENGH; i++) {
-         target[i]=this->address[i];
+        target[i] = this->address[i];
     }
 }
 
@@ -37,8 +37,8 @@ String IP4Address::asString() {
 
 IP4Address *IP4Address::calculateAND(const uint8_t *netmask) {
     uint8_t bytes[IP4ADDRESS_LENGH];
-    for(uint8_t i=0; i < IP4ADDRESS_LENGH; i++){
-        bytes[i]=(this->address[i] & netmask[i]);
+    for (uint8_t i = 0; i < IP4ADDRESS_LENGH; i++) {
+        bytes[i] = (this->address[i] & netmask[i]);
     }
     return new IP4Address(bytes);
 }
