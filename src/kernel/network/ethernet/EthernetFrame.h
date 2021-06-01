@@ -26,11 +26,12 @@ private:
     ethHeader_t header;
     size_t headerLengthInBytes = sizeof(header);
     EthernetDataPart *ethernetDataPart = nullptr;
+    NetworkByteBlock *incomingData = nullptr;
 
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
-    EthernetFrame(void *packet, uint16_t length);
+    EthernetFrame(NetworkByteBlock *byteBlock);
 
     EthernetDataPart::EtherType getEtherType() const;
 

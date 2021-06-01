@@ -33,9 +33,20 @@ namespace Kernel {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             log.info("Incoming packet received");
             auto &receiveEvent = (ReceiveEvent &) event;
-            auto *inFrame = new EthernetFrame(receiveEvent.getPacket(), receiveEvent.getLength());
+            if(receiveEvent.getLength()==0){
+                log.info("Incoming data was empty, return");
+                return;
+            }
+            if(receiveEvent.getPacket()== nullptr){
+                log.error("Incoming data was null, return");
+                return;
+            }
+            auto *byteBlock = new NetworkByteBlock(receiveEvent.getLength());
+            byteBlock->appendBytesStraight(receiveEvent.getPacket(), receiveEvent.getLength());
+            receiveEvent.dropPacket();
+
             eventBus->publish(
-                            new Kernel::EthernetReceiveEvent(inFrame)
+                            new Kernel::EthernetReceiveEvent(new EthernetFrame(byteBlock))
             );
             return;
         }

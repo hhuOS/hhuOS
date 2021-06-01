@@ -48,7 +48,14 @@ namespace Kernel {
     }
 
     ReceiveEvent::~ReceiveEvent() {
-        delete (char *) packet;
+        dropPacket();
+    }
+
+    void ReceiveEvent::dropPacket() {
+        if(this->packet!= nullptr){
+            delete (char *) this->packet;
+            this->packet= nullptr;
+        }
     }
 
 }

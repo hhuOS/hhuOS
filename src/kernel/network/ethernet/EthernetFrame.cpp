@@ -10,8 +10,9 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     this->ethernetDataPart = ethernetDataPart;
 }
 
-EthernetFrame::EthernetFrame(void *packet, uint16_t length) {
-//TODO:Implement parsing from incoming data
+EthernetFrame::EthernetFrame(NetworkByteBlock *byteBlock) {
+    byteBlock->printBytes();
+    this->incomingData=byteBlock;
 }
 
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {

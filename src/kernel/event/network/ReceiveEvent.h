@@ -56,6 +56,8 @@ namespace Kernel {
          */
         void *getPacket();
 
+        void dropPacket();
+
         /**
          * @return The length of the packet.
          */
