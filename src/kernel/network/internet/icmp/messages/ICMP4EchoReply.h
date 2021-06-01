@@ -18,7 +18,7 @@ private:
         uint16_t sequenceNumber;
     } echoReplyMessage;
 
-    echoReplyMessage myMessage;
+    echoReplyMessage echoReply;
 public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
