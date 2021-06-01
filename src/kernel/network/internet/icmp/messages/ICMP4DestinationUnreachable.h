@@ -19,7 +19,7 @@ public:
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
-    uint16_t getLengthInBytes() override;
+    size_t getLengthInBytes() override;
 
     ICMP4MessageType getICMP4MessageType() override;
 

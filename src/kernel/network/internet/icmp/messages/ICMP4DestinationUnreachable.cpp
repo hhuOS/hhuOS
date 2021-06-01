@@ -15,7 +15,7 @@ uint8_t ICMP4DestinationUnreachable::copyDataTo(NetworkByteBlock *byteBlock) {
     return 1;
 }
 
-uint16_t ICMP4DestinationUnreachable::getLengthInBytes() {
+size_t ICMP4DestinationUnreachable::getLengthInBytes() {
     //TODO: Implement this one!
     return 0;
 }

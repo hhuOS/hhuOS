@@ -36,6 +36,24 @@ void NetworkByteBlock::freeBytes() {
     }
 }
 
+uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCount) {
+    auto *source=(uint8_t *)memoryAddress;
+    //Avoid writing beyond last byte
+    if (this->bytes== nullptr || (this->currentIndex + byteCount) > this->length) {
+        return 1;
+    }
+    if (byteCount == 0) {
+        //It's not an error if nothing needs to be done...
+        return 0;
+    }
+    for(size_t i=0;i<byteCount;i++){
+        this->bytes[currentIndex+i]=source[i];
+    }
+    this->currentIndex += byteCount;
+    printBytes();
+    return 0;
+}
+
 uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount) {
     auto *source=(uint8_t *)memoryAddress;
     //Avoid writing beyond last byte

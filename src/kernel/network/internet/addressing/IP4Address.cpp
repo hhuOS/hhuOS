@@ -29,3 +29,10 @@ uint8_t IP4Address::equals(IP4Address *ip4Address) {
 String IP4Address::asString() {
     return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
 }
+
+void IP4Address::copyTo(uint32_t *target) {
+    auto *targetBytes=(uint8_t*)target;
+    for (int i = 0; i < 4; i++) {
+         targetBytes[i]=this->address[i];
+    }
+}

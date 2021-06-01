@@ -21,7 +21,7 @@ uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
     return 1;
 }
 
-uint16_t ICMP4EchoReply::getLengthInBytes() {
+size_t ICMP4EchoReply::getLengthInBytes() {
     return sizeof(echoReplyMessage);
 }
 

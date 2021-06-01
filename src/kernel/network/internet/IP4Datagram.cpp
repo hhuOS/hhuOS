@@ -11,7 +11,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 
     header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
     header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
-    header.destinationAddress = destinationAddress->asInt();
+    destinationAddress->copyTo(&header.destinationAddress);
 
     this->ip4DataPart = ip4DataPart;
 }
@@ -29,7 +29,7 @@ IP4Address *IP4Datagram::getSourceAddress() const {
 }
 
 void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
-    header.sourceAddress = sourceAddress->asInt();
+    sourceAddress->copyTo(&header.sourceAddress);
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
@@ -45,8 +45,62 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
         return 1;
     }
     if (byteBlock->appendBytesInNetworkByteOrder(
-            &this->header,
-            sizeof(this->header))
+            &this->header.version_headerLength,
+            sizeof(this->header.version_headerLength))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.typeOfService,
+            sizeof(this->header.typeOfService))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.totalLength,
+            sizeof(this->header.totalLength))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.identification,
+            sizeof(this->header.identification))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.flags_fragmentOffset,
+            sizeof(this->header.flags_fragmentOffset))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.timeToLive,
+            sizeof(this->header.timeToLive))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.protocolType,
+            sizeof(this->header.protocolType))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesInNetworkByteOrder(
+            &this->header.headerChecksum,
+            sizeof(this->header.headerChecksum))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesStraight(
+            &this->header.sourceAddress,
+            sizeof(this->header.sourceAddress))
+            ) {
+        return 1;
+    }
+    if (byteBlock->appendBytesStraight(
+            &this->header.destinationAddress,
+            sizeof(this->header.destinationAddress))
             ) {
         return 1;
     }

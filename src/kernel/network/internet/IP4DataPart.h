@@ -36,7 +36,7 @@ public:
 
     virtual uint8_t copyDataTo(NetworkByteBlock *byteBlock) = 0;
 
-    virtual uint16_t getLengthInBytes() = 0;
+    virtual size_t getLengthInBytes() = 0;
 
     virtual IP4ProtocolType getIP4ProtocolType() = 0;
 };

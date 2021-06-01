@@ -16,7 +16,7 @@ uint8_t ICMP4TimeExceeded::copyDataTo(NetworkByteBlock *byteBlock) {
     return 1;
 }
 
-uint16_t ICMP4TimeExceeded::getLengthInBytes() {
+size_t ICMP4TimeExceeded::getLengthInBytes() {
     //TODO: Implement this one!
     return 0;
 }

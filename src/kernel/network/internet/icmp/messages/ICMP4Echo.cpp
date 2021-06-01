@@ -22,7 +22,7 @@ uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
     return byteBlock->appendBytesInNetworkByteOrder(&this->echoMessage, this->getLengthInBytes());
 }
 
-uint16_t ICMP4Echo::getLengthInBytes() {
+size_t ICMP4Echo::getLengthInBytes() {
     return sizeof(this->echoMessage);
 }
 
