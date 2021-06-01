@@ -26,7 +26,7 @@ public:
 
     virtual ~NetworkByteBlock();
 
-    uint8_t writeBytes(void *memoryAddress, size_t byteCount);
+    uint8_t appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount);
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
 };

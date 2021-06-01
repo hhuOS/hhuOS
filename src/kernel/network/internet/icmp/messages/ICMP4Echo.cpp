@@ -19,7 +19,7 @@ uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }
-    return byteBlock->writeBytes(&this->echoMessage, this->getLengthInBytes());
+    return byteBlock->appendBytesInNetworkByteOrder(&this->echoMessage, this->getLengthInBytes());
 }
 
 uint16_t ICMP4Echo::getLengthInBytes() {

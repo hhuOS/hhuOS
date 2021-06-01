@@ -44,7 +44,7 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if (this->ip4DataPart == nullptr || byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->writeBytes(&this->header, sizeof(this->header))) {
+    if (byteBlock->appendBytesInNetworkByteOrder(&this->header, sizeof(this->header))) {
         return 1;
     }
     return this->ip4DataPart->copyDataTo(byteBlock);
