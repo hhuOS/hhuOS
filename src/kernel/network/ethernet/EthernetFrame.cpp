@@ -11,17 +11,17 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 }
 
 EthernetFrame::EthernetFrame(NetworkByteBlock *input) {
-    this->input=input;
+    this->input = input;
 }
 
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
     if (
-            //if initialized with input byteBlock, this method must not continue
+        //if initialized with input byteBlock, this method must not continue
             this->ethernetDataPart == nullptr ||
             byteBlock == nullptr ||
             this->ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
             this->headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH
-        ) {
+            ) {
         return 1;
     }
     if (byteBlock->appendBytesStraight(
@@ -63,26 +63,26 @@ void EthernetFrame::setSourceAddress(EthernetAddress *sourceAddress) {
 }
 
 uint8_t EthernetFrame::parseInput() {
-    if(input== nullptr){
+    if (input == nullptr) {
         return 1;
     }
     this->input->resetCurrentIndex();
-    if(this->input->writeBytesStraightTo(
+    if (this->input->writeBytesStraightTo(
             &this->header.destinationAddress,
             sizeof(this->header.destinationAddress))
-            ){
+            ) {
         return 1;
     }
-    if(this->input->writeBytesStraightTo(
+    if (this->input->writeBytesStraightTo(
             &this->header.sourceAddress,
             sizeof(this->header.sourceAddress))
-            ){
+            ) {
         return 1;
     }
-    if(this->input->writeBytesInHostByteOrderTo(
+    if (this->input->writeBytesInHostByteOrderTo(
             &this->header.etherType,
-            sizeof (this->header.etherType))
-            ){
+            sizeof(this->header.etherType))
+            ) {
         return 1;
     }
     return 0;

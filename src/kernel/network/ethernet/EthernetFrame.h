@@ -51,7 +51,7 @@ public:
 
     IP4Datagram *buildIP4DatagramWithInput();
 
-    ARPMessage * buildARPMessageWithInput();
+    ARPMessage *buildARPMessageWithInput();
 };
 
 

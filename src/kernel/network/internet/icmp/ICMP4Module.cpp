@@ -16,7 +16,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             log.error("Given IP4DataPart was empty! Ignoring...");
             return;
         }
-        if(genericIcmp4Message->parseInput()){
+        if (genericIcmp4Message->parseInput()) {
             log.error("Parsing of incoming generic ICMP4Message failed, discarding");
             delete genericIcmp4Message;
             return;

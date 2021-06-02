@@ -17,8 +17,8 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     this->ip4DataPart = ip4DataPart;
 }
 
-IP4Datagram::IP4Datagram(NetworkByteBlock *input){
-    this->input=input;
+IP4Datagram::IP4Datagram(NetworkByteBlock *input) {
+    this->input = input;
 }
 
 IP4Datagram::~IP4Datagram() {
@@ -47,10 +47,10 @@ IP4DataPart *IP4Datagram::getIp4DataPart() const {
 
 uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if (
-            //if initialized with input byteBlock, this method must not continue
+        //if initialized with input byteBlock, this method must not continue
             this->ip4DataPart == nullptr ||
             byteBlock == nullptr ||
-            this->ip4DataPart->getLengthInBytes() > (IP4DATAPART_MAX_LENGTH-this->headerLengthInBytes) ||
+            this->ip4DataPart->getLengthInBytes() > (IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
             this->headerLengthInBytes > IP4HEADER_MAX_LENGTH
             ) {
         return 1;
@@ -127,7 +127,7 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 }
 
 uint8_t IP4Datagram::parseInput() {
-    if(input== nullptr){
+    if (input == nullptr) {
         return 1;
     }
     if (input->writeBytesStraightTo(
@@ -198,5 +198,5 @@ GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
             new IP4Address(this->header.destinationAddress),
             new IP4Address(this->header.sourceAddress),
             this->input
-            );
+    );
 }

@@ -9,7 +9,7 @@
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 
-class GenericICMP4Message : public ICMP4Message{
+class GenericICMP4Message : public ICMP4Message {
 private:
     IP4Address *destinationAddress = nullptr;
     IP4Address *sourceAddress = nullptr;

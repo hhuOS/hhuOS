@@ -41,7 +41,7 @@ size_t NetworkByteBlock::getLength() const {
 }
 
 void NetworkByteBlock::resetCurrentIndex() {
-    this->currentIndex=0;
+    this->currentIndex = 0;
 }
 
 void NetworkByteBlock::printBytes() {
@@ -104,37 +104,37 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
 }
 
 uint8_t NetworkByteBlock::writeBytesStraightTo(void *target, size_t byteCount) {
-    if(
-            this->currentIndex==this->length ||
+    if (
+            this->currentIndex == this->length ||
             byteCount == 0 ||
             target == nullptr ||
-            this->bytes== nullptr||
-            this->currentIndex+byteCount>this->length
-    ){
+            this->bytes == nullptr ||
+            this->currentIndex + byteCount > this->length
+            ) {
         return 1;
     }
-    auto *targetBytes=(uint8_t*)target;
-    for(size_t i=0;i<byteCount;i++){
-        targetBytes[i]=this->bytes[currentIndex+i];
+    auto *targetBytes = (uint8_t *) target;
+    for (size_t i = 0; i < byteCount; i++) {
+        targetBytes[i] = this->bytes[currentIndex + i];
     }
-    currentIndex+=byteCount;
+    currentIndex += byteCount;
     return 0;
 }
 
 uint8_t NetworkByteBlock::writeBytesInHostByteOrderTo(void *target, size_t byteCount) {
-    if(
-            this->currentIndex==this->length ||
+    if (
+            this->currentIndex == this->length ||
             byteCount == 0 ||
             target == nullptr ||
-            this->bytes== nullptr||
-            this->currentIndex+byteCount>this->length
-            ){
+            this->bytes == nullptr ||
+            this->currentIndex + byteCount > this->length
+            ) {
         return 1;
     }
-    auto *targetBytes=(uint8_t*)target;
-    for(size_t i=0;i<byteCount;i++){
-        targetBytes[byteCount-1-i]=this->bytes[currentIndex+i];
+    auto *targetBytes = (uint8_t *) target;
+    for (size_t i = 0; i < byteCount; i++) {
+        targetBytes[byteCount - 1 - i] = this->bytes[currentIndex + i];
     }
-    currentIndex+=byteCount;
+    currentIndex += byteCount;
     return 0;
 }

@@ -70,7 +70,7 @@ namespace Kernel {
         if (event.getType() == IP4ReceiveEvent::TYPE) {
             log.info("Received IP4 Datagram to be opened");
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
-            if(ip4Datagram->parseInput()){
+            if (ip4Datagram->parseInput()) {
                 log.error("Parsing of incoming IP4Datagram failed, discarding");
                 delete ip4Datagram;
                 return;

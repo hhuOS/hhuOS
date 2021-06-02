@@ -6,8 +6,8 @@
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {
     uint8_t maxBitCount = IP4ADDRESS_LENGH * 8;
-    if (bitCount>maxBitCount) {
-        bitCount=maxBitCount;
+    if (bitCount > maxBitCount) {
+        bitCount = maxBitCount;
     }
     this->bitCount = bitCount;
 

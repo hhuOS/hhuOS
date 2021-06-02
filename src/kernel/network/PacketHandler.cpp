@@ -33,11 +33,11 @@ namespace Kernel {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             log.info("Incoming packet received");
             auto &receiveEvent = (ReceiveEvent &) event;
-            if(receiveEvent.getLength()==0){
+            if (receiveEvent.getLength() == 0) {
                 log.info("Incoming data was empty, return");
                 return;
             }
-            if(receiveEvent.getPacket()== nullptr){
+            if (receiveEvent.getPacket() == nullptr) {
                 log.error("Incoming data was null, return");
                 return;
             }
@@ -46,7 +46,7 @@ namespace Kernel {
             receiveEvent.dropPacket();
 
             eventBus->publish(
-                            new Kernel::EthernetReceiveEvent(new EthernetFrame(byteBlock))
+                    new Kernel::EthernetReceiveEvent(new EthernetFrame(byteBlock))
             );
             return;
         }
