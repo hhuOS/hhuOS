@@ -48,7 +48,7 @@ public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
-    IP4Datagram(EthernetDataPart *ethernetDataPart);
+    IP4Datagram(NetworkByteBlock *input);
 
     void setSourceAddress(IP4Address *sourceAddress);
 

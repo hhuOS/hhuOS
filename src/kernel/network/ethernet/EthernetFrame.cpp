@@ -85,3 +85,11 @@ uint8_t EthernetFrame::parseInput() {
 EthernetFrame::~EthernetFrame() {
     delete this->input;
 }
+
+IP4Datagram *EthernetFrame::buildIP4DatagramWithInput() {
+    return new IP4Datagram(this->input);
+}
+
+ARPMessage *EthernetFrame::buildARPMessageWithInput() {
+    return new ARPMessage(this->input);
+}

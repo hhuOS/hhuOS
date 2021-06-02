@@ -108,14 +108,14 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
             case EthernetDataPart::EtherType::IP4:
                 eventBus->publish(
                         new Kernel::IP4ReceiveEvent(
-                                new IP4Datagram(inFrame->getDataPart())
+                                inFrame->buildIP4DatagramWithInput()
                         )
                 );
                 return;
             case EthernetDataPart::EtherType::ARP:
                 eventBus->publish(
                         new Kernel::ARPReceiveEvent(
-                                new ARPResponse(inFrame->getDataPart())
+                                inFrame->buildARPMessageWithInput()
                         )
                 );
                 return;

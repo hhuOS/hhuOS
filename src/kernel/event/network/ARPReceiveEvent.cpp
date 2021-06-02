@@ -4,11 +4,11 @@
 
 #include "ARPReceiveEvent.h"
 
-Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPResponse *arpResponse) {
-    this->arpResponse = arpResponse;
+Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage) {
+    this->arpResponse = arpMessage;
 }
 
-ARPResponse *Kernel::ARPReceiveEvent::getArpResponse() const {
+ARPMessage *Kernel::ARPReceiveEvent::getARPMessage() const {
     return arpResponse;
 }
 

@@ -16,7 +16,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     this->ip4DataPart = ip4DataPart;
 }
 
-IP4Datagram::IP4Datagram(EthernetDataPart *ethernetDataPart) {
+IP4Datagram::IP4Datagram(NetworkByteBlock *input) {
 //TODO: Implement parsing of parameters from given ethernetDataPart
 }
 

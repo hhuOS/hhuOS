@@ -96,9 +96,9 @@ namespace Kernel {
         }
         if (event.getType() == ARPReceiveEvent::TYPE) {
             log.info("Received ARPResponse to be opened");
-//            auto *arpResponse = ((ARPReceiveEvent &) event).getArpResponse();
+            auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             //TODO: Implement finding proper interface for ARP Update
-//            arpModule->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
+//            this->arp->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
             //TODO: Add check for waiting IP4Datagrams and send them again
             return;
         }

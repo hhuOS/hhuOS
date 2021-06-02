@@ -8,17 +8,18 @@
 
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/arp/ARPResponse.h>
+#include <kernel/network/internet/arp/ARPMessage.h>
 
 namespace Kernel {
 
     class ARPReceiveEvent : public Event {
     private:
-        ARPResponse *arpResponse;
+        ARPMessage *arpResponse;
 
     public:
-        ARPReceiveEvent(ARPResponse *arpResponse);
+        ARPReceiveEvent(ARPMessage *arpMessage);
 
-        ARPResponse *getArpResponse() const;
+        ARPMessage *getARPMessage() const;
 
         String getType() const override;
 

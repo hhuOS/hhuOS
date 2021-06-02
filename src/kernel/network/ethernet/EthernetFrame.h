@@ -9,6 +9,8 @@
 #define ETHERNETHEADER_MAX_LENGTH 14
 
 #include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/internet/IP4Datagram.h>
+#include <kernel/network/internet/arp/ARPMessage.h>
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
 
@@ -46,6 +48,10 @@ public:
     void setSourceAddress(EthernetAddress *sourceAddress);
 
     uint8_t parseInput();
+
+    IP4Datagram *buildIP4DatagramWithInput();
+
+    ARPMessage * buildARPMessageWithInput();
 };
 
 
