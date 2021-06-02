@@ -14,8 +14,8 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 ICMP4EchoReply::ICMP4EchoReply(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input) {
-    this->destinationAddress=destinationAddress;
-    this->sourceAddress=sourceAddress;
+    this->destinationAddress = destinationAddress;
+    this->sourceAddress = sourceAddress;
     this->input = input;
 }
 

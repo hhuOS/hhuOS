@@ -58,7 +58,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                     return;
                 }
                 //Save destination address or we will loose it when we delete echoRequest later!
-                uint8_t addressBytes[4]{0,0,0,0};
+                uint8_t addressBytes[4]{0, 0, 0, 0};
                 echoRequest->getSourceAddress()->copyTo(addressBytes);
 
                 eventBus->publish(
@@ -66,9 +66,9 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                                 new IP4Datagram(
                                         new IP4Address(addressBytes),
                                         echoRequest->buildEchoReply()
-                                        )
                                 )
-                        );
+                        )
+                );
                 delete echoRequest;
                 return;
             }
