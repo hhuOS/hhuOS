@@ -19,10 +19,10 @@ void Loopback::sendPacket(void *address, uint16_t length) {
         return;
     }
     eventBus->publish(
-                    //our outgoing EthernetFrame will be dropped afterwards,
-                    //but a ReceiveEvent copies incoming data into a separate array,
-                    // so no need to copy data here
-                    new Kernel::ReceiveEvent(address, length)
+            //our outgoing EthernetFrame will be dropped afterwards,
+            //but a ReceiveEvent copies incoming data into a separate array,
+            // so no need to copy data here
+            new Kernel::ReceiveEvent(address, length)
     );
 }
 

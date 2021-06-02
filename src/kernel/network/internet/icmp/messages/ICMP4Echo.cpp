@@ -12,7 +12,7 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 ICMP4Echo::ICMP4Echo(NetworkByteBlock *input) {
-    this->input=input;
+    this->input = input;
 }
 
 ICMP4Echo::~ICMP4Echo() {
@@ -73,7 +73,7 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
 }
 
 uint8_t ICMP4Echo::parseInput() {
-    if (input== nullptr) {
+    if (input == nullptr) {
         return 1;
     }
     //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!

@@ -37,13 +37,13 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO: {
                 auto *echoRequest = genericIcmp4Message->buildICMP4EchoWithInput();
-                if(echoRequest->parseInput()){
+                if (echoRequest->parseInput()) {
                     log.error("Parsing of incoming ICMP4 echo failed, discarding");
                     delete echoRequest;
                     return;
                 }
                 log.info("Echo request received. Identifier: %d, Sequence: %d",
-                       echoRequest->getIdentifier(),echoRequest->getSequenceNumber());
+                         echoRequest->getIdentifier(), echoRequest->getSequenceNumber());
                 return;
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:

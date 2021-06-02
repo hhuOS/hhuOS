@@ -52,9 +52,9 @@ namespace Kernel {
     }
 
     void ReceiveEvent::dropPacket() {
-        if(this->packet!= nullptr){
+        if (this->packet != nullptr) {
             delete (char *) this->packet;
-            this->packet= nullptr;
+            this->packet = nullptr;
         }
     }
 

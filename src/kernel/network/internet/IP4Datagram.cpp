@@ -46,7 +46,7 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
         //if initialized with input byteBlock, this method must not continue
             this->ip4DataPart == nullptr ||
             byteBlock == nullptr ||
-            this->ip4DataPart->getLengthInBytes() > (size_t)(IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
+            this->ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
             this->headerLengthInBytes > IP4HEADER_MAX_LENGTH
             ) {
         return 1;
