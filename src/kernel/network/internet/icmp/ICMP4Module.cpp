@@ -3,10 +3,8 @@
 //
 
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "ICMP4Module.h"
-#include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
 
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
