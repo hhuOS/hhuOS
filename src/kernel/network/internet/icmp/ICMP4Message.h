@@ -33,7 +33,7 @@ public:
         return (uint8_t) getICMP4MessageType();
     }
 
-    static ICMP4MessageType parseIntAsICMP4MessageType(uint8_t type) {
+    static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {
         switch (type) {
             case 0:
                 return ICMP4MessageType::ECHO_REPLY;

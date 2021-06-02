@@ -8,6 +8,8 @@
 #include "ICMP4Module.h"
 #include "kernel/network/internet/icmp/messages/ICMP4EchoReply.h"
 
+Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
+
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if (event.getType() == ICMP4ReceiveEvent::TYPE) {
         auto receiveEvent = (ICMP4ReceiveEvent &) event;

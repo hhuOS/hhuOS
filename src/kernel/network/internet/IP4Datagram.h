@@ -59,6 +59,8 @@ public:
 
     void setSourceAddress(IP4Address *sourceAddress);
 
+    GenericICMP4Message *buildGenericICMP4MessageWithInput();
+
     IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
     IP4Address *getSourceAddress() const;
@@ -74,8 +76,6 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parseInput();
-
-    GenericICMP4Message *buildGenericICMP4MessageWithInput();
 };
 
 

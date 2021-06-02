@@ -5,15 +5,17 @@
 #ifndef HHUOS_ICMP4MODULE_H
 #define HHUOS_ICMP4MODULE_H
 
-#include <kernel/service/EventBus.h>
 #include <kernel/log/Logger.h>
+#include <kernel/network/NetworkEventBus.h>
 
 namespace Kernel {
 
     class ICMP4Module : public Receiver {
     private:
-        EventBus *eventBus;
+        NetworkEventBus *eventBus;
     public:
+        ICMP4Module(NetworkEventBus *eventBus);
+
         /**
          * A logger to provide information on the kernel log.
          */

@@ -17,6 +17,7 @@ namespace Kernel {
         packetHandler = new PacketHandler(eventBus);
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
+        icmp4Module = new ICMP4Module(eventBus);
 
         //Setup Loopback with 127.0.0.1/8
         registerDevice(loopbackIdentifier, *(new Loopback(eventBus)));
@@ -26,8 +27,10 @@ namespace Kernel {
                 new IP4Netmask(8)
         );
 
+        eventBus->subscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
-//        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
+        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
+        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->subscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
         eventBus->subscribe(*packetHandler, ReceiveEvent::TYPE);
 
@@ -37,14 +40,16 @@ namespace Kernel {
 
     NetworkService::~NetworkService() {
         //TODO: Synchronisierung nötig?
+        eventBus->unsubscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4SendEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetSendEvent::TYPE);
 
         eventBus->unsubscribe(*packetHandler, ReceiveEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
-//        eventBus->unsubscribe(*ip4Module, ARPReceiveEvent::TYPE);
+        eventBus->unsubscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //
+        delete icmp4Module;
         delete ip4Module;
         delete ethernetModule;
         delete packetHandler;

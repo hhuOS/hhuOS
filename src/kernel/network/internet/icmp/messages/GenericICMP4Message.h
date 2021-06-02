@@ -14,8 +14,11 @@ private:
     IP4Address *destinationAddress = nullptr;
     IP4Address *sourceAddress = nullptr;
     NetworkByteBlock *input = nullptr;
+    ICMP4MessageType messageType = ICMP4MessageType::INVALID;
 public:
     GenericICMP4Message(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input);
+
+    GenericICMP4Message(IP4Address *destinationAddress, IP4Address *sourceAddress, ICMP4Message *message);
 
     uint8_t parseInput();
 

@@ -59,9 +59,11 @@ namespace Kernel {
             if (routingModule->sendViaBestRoute(datagram)) {
                 eventBus->publish(
                         new Kernel::ICMP4ReceiveEvent(
-                                datagram->getSourceAddress(),
-                                datagram->getDestinationAddress(),
-                                new ICMP4DestinationUnreachable()
+                                new GenericICMP4Message(
+                                        datagram->getSourceAddress(),
+                                        datagram->getDestinationAddress(),
+                                        new ICMP4DestinationUnreachable()
+                                )
                         )
                 );
             }

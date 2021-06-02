@@ -22,14 +22,15 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
+#include <kernel/network/internet/icmp/ICMP4Module.h>
+#include "kernel/network/PacketHandler.h"
+#include <kernel/network/ethernet/EthernetModule.h>
 #include <device/network/loopback/Loopback.h>
 #include <kernel/network/internet/IP4Module.h>
-#include <kernel/network/ethernet/EthernetModule.h>
-#include "KernelService.h"
 #include "device/network/NetworkDevice.h"
 #include <kernel/network/NetworkEventBus.h>
 #include "kernel/log/Logger.h"
-#include "kernel/network/PacketHandler.h"
+#include "KernelService.h"
 
 namespace Kernel {
 
@@ -56,9 +57,11 @@ namespace Kernel {
         Util::ArrayList<NetworkDevice *> drivers;
 
         NetworkEventBus *eventBus;
+
         PacketHandler *packetHandler;
         IP4Module *ip4Module;
         EthernetModule *ethernetModule;
+        ICMP4Module *icmp4Module;
 
     public:
         /**
