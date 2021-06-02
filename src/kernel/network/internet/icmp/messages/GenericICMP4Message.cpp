@@ -40,11 +40,12 @@ IP4DataPart::IP4ProtocolType GenericICMP4Message::getIP4ProtocolType() {
 }
 
 uint8_t GenericICMP4Message::copyDataTo(NetworkByteBlock *byteBlock) {
+    //This is only for matching incoming data, so no writing to outgoing byte block
     return 1;
 }
 
 size_t GenericICMP4Message::getLengthInBytes() {
-    return 0;
+    return this->input->bytesRemaining();
 }
 
 ICMP4Echo *GenericICMP4Message::buildICMP4EchoWithInput() {

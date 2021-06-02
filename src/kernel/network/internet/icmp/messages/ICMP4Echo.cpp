@@ -76,12 +76,9 @@ uint8_t ICMP4Echo::parseInput() {
     if (input== nullptr) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
-            &this->echoMessage.type,
-            sizeof(this->echoMessage.type))
-            ) {
-        return 1;
-    }
+    //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
+    //-> the next Byte in our NetworkByteBlock is 'code', the next value!
+    //This is no problem here, because the 'type' value is constant '8' per definition
     if (input->writeBytesStraightTo(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))

@@ -138,3 +138,7 @@ uint8_t NetworkByteBlock::writeBytesInHostByteOrderTo(void *target, size_t byteC
     currentIndex += byteCount;
     return 0;
 }
+
+size_t NetworkByteBlock::bytesRemaining() {
+    return this->length - this->currentIndex;
+}

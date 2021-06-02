@@ -39,6 +39,8 @@ public:
     uint8_t writeBytesStraightTo(void *target, size_t byteCount);
 
     uint8_t writeBytesInHostByteOrderTo(void *target, size_t byteCount);
+
+    size_t bytesRemaining();
 };
 
 

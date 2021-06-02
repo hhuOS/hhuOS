@@ -10,11 +10,12 @@
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
-    if (event.getType() == ICMP4ReceiveEvent::TYPE) {
+    if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
         auto receiveEvent = (ICMP4ReceiveEvent &) event;
         auto genericIcmp4Message = receiveEvent.getGenericIcmp4Message();
         if (genericIcmp4Message->getLengthInBytes() == 0) {
-            log.error("Given IP4DataPart was empty! Ignoring...");
+            log.error("Given data was empty! Ignoring...");
+            delete genericIcmp4Message;
             return;
         }
         if (genericIcmp4Message->parseInput()) {
@@ -22,6 +23,11 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             delete genericIcmp4Message;
             return;
         }
+        //NOTE: No message should read its 'type' byte internally!
+        //-> this byte already is in GenericICMP4Message!
+        //Our NetworkByteBlock would read one byte too much and fail...
+        //But this is no problem here, because all 'type' values are constant per definition
+        //-> check out header structs in our ICMP4Messages for default values
         switch (genericIcmp4Message->getICMP4MessageType()) {
             case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                 //TODO: Notify application
@@ -36,7 +42,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                     delete echoRequest;
                     return;
                 }
-                printf("Echo request received. Identifier: %d, Sequence: %d",
+                log.info("Echo request received. Identifier: %d, Sequence: %d",
                        echoRequest->getIdentifier(),echoRequest->getSequenceNumber());
                 return;
             }
