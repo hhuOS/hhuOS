@@ -25,7 +25,3 @@ ICMP4Message::ICMP4MessageType ICMP4TimeExceeded::getICMP4MessageType() {
     return ICMP4MessageType::TIME_EXCEEDED;
 }
 
-void *ICMP4TimeExceeded::getMemoryAddress() {
-    //TODO: Implement this one!
-    return nullptr;
-}

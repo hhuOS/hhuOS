@@ -33,14 +33,6 @@ public:
         return (uint8_t) getICMP4MessageType();
     }
 
-    ICMP4MessageType getICMP4MessageTypeFromFirstByte() {
-        if (this->getLengthInBytes() == 0) {
-            return ICMP4MessageType::INVALID;
-        }
-        uint8_t firstByte = static_cast<uint8_t *>(this->getMemoryAddress())[0];
-        return parseIntAsICMP4MessageType(firstByte);
-    }
-
     static ICMP4MessageType parseIntAsICMP4MessageType(uint8_t type) {
         switch (type) {
             case 0:

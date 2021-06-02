@@ -68,6 +68,3 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-void *ICMP4Echo::getMemoryAddress() {
-    return &this->echoMessage;
-}

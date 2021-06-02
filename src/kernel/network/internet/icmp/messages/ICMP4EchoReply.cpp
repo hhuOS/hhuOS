@@ -69,7 +69,3 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
-void *ICMP4EchoReply::getMemoryAddress() {
-    //TODO: Implement this one!
-    return nullptr;
-}

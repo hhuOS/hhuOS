@@ -11,13 +11,17 @@
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if (event.getType() == ICMP4ReceiveEvent::TYPE) {
         auto receiveEvent = (ICMP4ReceiveEvent &) event;
-        auto icmp4message = (ICMP4Message *) receiveEvent.getIp4DataPart();
-        if (icmp4message->getLengthInBytes() == 0) {
+        auto genericIcmp4Message = receiveEvent.getGenericIcmp4Message();
+        if (genericIcmp4Message->getLengthInBytes() == 0) {
             log.error("Given IP4DataPart was empty! Ignoring...");
             return;
         }
-
-        switch (icmp4message->getICMP4MessageTypeFromFirstByte()) {
+        if(genericIcmp4Message->parseInput()){
+            log.error("Parsing of incoming Generic ICMP4Message failed, discarding");
+            delete genericIcmp4Message;
+            return;
+        }
+        switch (genericIcmp4Message->getICMP4MessageType()) {
             case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                 //TODO: Notify application
                 return;
@@ -25,20 +29,20 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 //TODO: Notify application
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO: {
-                auto *echoRequest = new ICMP4Echo(icmp4message);
-                auto *echoReply = new ICMP4EchoReply(
-                        echoRequest->getIdentifier(),
-                        echoRequest->getSequenceNumber()
-                );
-                auto *outDatagram = new IP4Datagram(
-                        receiveEvent.getSourceAddress(),
-                        echoReply
-                );
-                eventBus->publish(
-                        Util::SmartPointer<Kernel::Event>(
-                                new Kernel::IP4SendEvent(outDatagram)
-                        )
-                );
+//                auto *echoRequest = new ICMP4Echo(icmp4message);
+//                auto *echoReply = new ICMP4EchoReply(
+//                        echoRequest->getIdentifier(),
+//                        echoRequest->getSequenceNumber()
+//                );
+//                auto *outDatagram = new IP4Datagram(
+//                        receiveEvent.getSourceAddress(),
+//                        echoReply
+//                );
+//                eventBus->publish(
+//                        Util::SmartPointer<Kernel::Event>(
+//                                new Kernel::IP4SendEvent(outDatagram)
+//                        )
+//                );
                 return;
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:

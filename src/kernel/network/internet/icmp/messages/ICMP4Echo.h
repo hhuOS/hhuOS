@@ -36,7 +36,6 @@ public:
 
     ICMP4MessageType getICMP4MessageType() override;
 
-    void *getMemoryAddress() override;
 };
 
 

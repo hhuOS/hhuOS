@@ -24,7 +24,3 @@ ICMP4Message::ICMP4MessageType ICMP4DestinationUnreachable::getICMP4MessageType(
     return ICMP4MessageType::DESTINATION_UNREACHABLE;
 }
 
-void *ICMP4DestinationUnreachable::getMemoryAddress() {
-    //TODO: Implement this one!
-    return nullptr;
-}
