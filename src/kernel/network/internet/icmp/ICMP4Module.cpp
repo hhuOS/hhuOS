@@ -40,7 +40,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                     log.error("Parsing of incoming ICMP4 echo failed, discarding");
                     delete echoRequest;
                     return;
-                }:w
+                }
 
                 return;
             }
