@@ -17,7 +17,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             return;
         }
         if(genericIcmp4Message->parseInput()){
-            log.error("Parsing of incoming Generic ICMP4Message failed, discarding");
+            log.error("Parsing of incoming generic ICMP4Message failed, discarding");
             delete genericIcmp4Message;
             return;
         }

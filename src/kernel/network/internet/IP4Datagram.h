@@ -74,6 +74,8 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parseInput();
+
+    GenericICMP4Message *buildGenericICMP4MessageWithInput();
 };
 
 

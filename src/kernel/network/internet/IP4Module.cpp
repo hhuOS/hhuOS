@@ -79,9 +79,7 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             new Kernel::ICMP4ReceiveEvent(
-                                    ip4Datagram->getSourceAddress(),
-                                    ip4Datagram->getDestinationAddress(),
-                                    ip4Datagram->getIp4DataPart()
+                                    ip4Datagram->buildGenericICMP4MessageWithInput()
                             )
                     );
                     break;

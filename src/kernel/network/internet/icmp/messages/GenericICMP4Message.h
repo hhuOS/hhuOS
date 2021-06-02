@@ -23,6 +23,11 @@ public:
 
     virtual ~GenericICMP4Message();
 
+    IP4ProtocolType getIP4ProtocolType() override;
+
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+
+    size_t getLengthInBytes() override;
 };
 
 

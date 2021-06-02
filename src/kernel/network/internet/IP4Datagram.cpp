@@ -192,3 +192,11 @@ uint8_t IP4Datagram::parseInput() {
     }
     return 0;
 }
+
+GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
+    return new GenericICMP4Message(
+            new IP4Address(this->header.destinationAddress),
+            new IP4Address(this->header.sourceAddress),
+            this->input
+            );
+}
