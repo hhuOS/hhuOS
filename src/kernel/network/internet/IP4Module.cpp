@@ -88,9 +88,7 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
                             new Kernel::UDPReceiveEvent(
-                                    new UDPDatagram(
-                                            ip4Datagram->getIp4DataPart()
-                                    )
+                                    ip4Datagram->buildUDPDatagramWithInput()
                             )
                     );
                     break;
@@ -101,7 +99,7 @@ namespace Kernel {
         }
         if (event.getType() == ARPReceiveEvent::TYPE) {
             log.info("Received ARPResponse to be opened");
-            auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
+            //auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             //TODO: Implement finding proper interface for ARP Update
 //            this->arp->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
             //TODO: Add check for waiting IP4Datagrams and send them again

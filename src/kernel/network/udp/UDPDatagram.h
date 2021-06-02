@@ -11,7 +11,7 @@
 class UDPDatagram {
 
 public:
-    UDPDatagram(IP4DataPart *dataPart);
+    UDPDatagram(NetworkByteBlock *input);
 };
 
 

@@ -4,6 +4,6 @@
 
 #include "UDPDatagram.h"
 
-UDPDatagram::UDPDatagram(IP4DataPart *dataPart) {
+UDPDatagram::UDPDatagram(NetworkByteBlock *input) {
 //TODO: Implement parsing from given input
 }

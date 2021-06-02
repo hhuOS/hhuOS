@@ -12,6 +12,7 @@
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include <kernel/network/NetworkByteBlock.h>
 #include <kernel/network/internet/icmp/messages/GenericICMP4Message.h>
+#include <kernel/network/udp/UDPDatagram.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 #include "IP4HeaderChecksum.h"
@@ -67,8 +68,6 @@ public:
 
     IP4Address *getDestinationAddress() const;
 
-    IP4DataPart *getIp4DataPart() const;
-
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
@@ -76,6 +75,8 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parseInput();
+
+    UDPDatagram *buildUDPDatagramWithInput();
 };
 
 

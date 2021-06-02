@@ -41,16 +41,12 @@ IP4Address *IP4Datagram::getDestinationAddress() const {
     return new IP4Address(header.destinationAddress);
 }
 
-IP4DataPart *IP4Datagram::getIp4DataPart() const {
-    return ip4DataPart;
-}
-
 uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if (
         //if initialized with input byteBlock, this method must not continue
             this->ip4DataPart == nullptr ||
             byteBlock == nullptr ||
-            this->ip4DataPart->getLengthInBytes() > (IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
+            this->ip4DataPart->getLengthInBytes() > (size_t)(IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
             this->headerLengthInBytes > IP4HEADER_MAX_LENGTH
             ) {
         return 1;
@@ -199,4 +195,8 @@ GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
             new IP4Address(this->header.sourceAddress),
             this->input
     );
+}
+
+UDPDatagram *IP4Datagram::buildUDPDatagramWithInput() {
+    return new UDPDatagram(this->input);
 }
