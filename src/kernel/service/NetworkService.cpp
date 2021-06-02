@@ -26,7 +26,7 @@ namespace Kernel {
                 new IP4Netmask(8)
         );
 
-//        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
+        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //        eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->subscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
         eventBus->subscribe(*packetHandler, ReceiveEvent::TYPE);
@@ -43,7 +43,7 @@ namespace Kernel {
         eventBus->unsubscribe(*packetHandler, ReceiveEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
 //        eventBus->unsubscribe(*ip4Module, ARPReceiveEvent::TYPE);
-//        eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
+        eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
 //
         delete ip4Module;
         delete ethernetModule;

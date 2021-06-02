@@ -3,7 +3,6 @@
 //
 
 #include <kernel/core/System.h>
-#include <kernel/service/EventBus.h>
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
@@ -103,7 +102,6 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
             delete inFrame;
             return;
         }
-
         switch (inFrame->getEtherType()) {
             case EthernetDataPart::EtherType::IP4:
                 eventBus->publish(

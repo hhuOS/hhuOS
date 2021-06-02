@@ -5,9 +5,13 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
+#define IP4DATAPART_MAX_LENGTH 576//Recommended in RFC 791 page 13
+#define IP4HEADER_MAX_LENGTH 60 //RFC 791 page 13
+
 #include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 #include "IP4HeaderChecksum.h"
@@ -43,12 +47,15 @@ private:
     uint8_t headerLengthInBytes = 0;
     ip4Header_t header;
     IP4DataPart *ip4DataPart = nullptr;
+    NetworkByteBlock *input = nullptr;
 
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
     IP4Datagram(NetworkByteBlock *input);
+
+    virtual ~IP4Datagram();
 
     void setSourceAddress(IP4Address *sourceAddress);
 
@@ -65,6 +72,8 @@ public:
     size_t getLengthInBytes() override;
 
     EtherType getEtherType() override;
+
+    uint8_t parseInput();
 };
 
 
