@@ -74,7 +74,7 @@ public:
 
     EtherType getEtherType() override;
 
-    uint8_t parseInput();
+    uint8_t parseInput() override;
 
     UDPDatagram *buildUDPDatagramWithInput();
 };

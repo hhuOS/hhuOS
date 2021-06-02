@@ -69,3 +69,7 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
+uint8_t ICMP4EchoReply::parseInput() {
+    return 1;
+}
+

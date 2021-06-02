@@ -37,7 +37,7 @@ public:
 
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parseInput();
+    uint8_t parseInput() override;
 
     virtual ~ICMP4Echo();
 };

@@ -20,6 +20,8 @@ public:
     size_t getLengthInBytes() override;
 
     EtherType getEtherType() override;
+
+    uint8_t parseInput() override;
 };
 
 

@@ -17,3 +17,7 @@ IP4Address *ARPResponse::getIp4Address() const {
 EthernetAddress *ARPResponse::getEthernetAddress() const {
     return ethernetAddress;
 }
+
+uint8_t ARPResponse::parseInput() {
+    return 1;
+}

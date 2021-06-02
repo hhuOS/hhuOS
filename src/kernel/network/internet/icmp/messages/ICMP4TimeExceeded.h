@@ -22,6 +22,7 @@ class ICMP4TimeExceeded : public ICMP4Message {
 public:
     ICMP4MessageType getICMP4MessageType() override;
 
+    uint8_t parseInput() override;
 };
 
 

@@ -21,7 +21,7 @@ public:
 
     GenericICMP4Message(IP4Address *destinationAddress, IP4Address *sourceAddress, ICMP4Message *message);
 
-    uint8_t parseInput();
+    uint8_t parseInput() override;
 
     ICMP4MessageType getICMP4MessageType() override;
 

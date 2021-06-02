@@ -20,3 +20,7 @@ uint8_t ARPRequest::copyDataTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
 }
+
+uint8_t ARPRequest::parseInput() {
+    return 1;
+}

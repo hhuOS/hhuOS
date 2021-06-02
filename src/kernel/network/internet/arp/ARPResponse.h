@@ -10,7 +10,7 @@
 #include <kernel/network/ethernet/EthernetAddress.h>
 #include <kernel/network/ethernet/EthernetDataPart.h>
 
-class ARPResponse {
+class ARPResponse : public EthernetDataPart {
 private:
     IP4Address *ip4Address;
     EthernetAddress *ethernetAddress;
@@ -21,6 +21,8 @@ public:
     IP4Address *getIp4Address() const;
 
     EthernetAddress *getEthernetAddress() const;
+
+    uint8_t parseInput() override;
 };
 
 

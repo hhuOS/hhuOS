@@ -7,14 +7,23 @@
 
 
 #include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/ethernet/EthernetDataPart.h>
 
-class ARPMessage {
+class ARPMessage : public EthernetDataPart {
 private:
     NetworkByteBlock *input;
 
 public:
     ARPMessage(NetworkByteBlock *input);
     //TODO: Let other ARPMessages extend this one!
+
+    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+
+    size_t getLengthInBytes() override;
+
+    EtherType getEtherType() override;
+
+    uint8_t parseInput() override;
 };
 
 

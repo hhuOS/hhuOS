@@ -25,3 +25,7 @@ ICMP4Message::ICMP4MessageType ICMP4TimeExceeded::getICMP4MessageType() {
     return ICMP4MessageType::TIME_EXCEEDED;
 }
 
+uint8_t ICMP4TimeExceeded::parseInput() {
+    return 1;
+}
+
