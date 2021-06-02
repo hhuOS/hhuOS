@@ -4,6 +4,7 @@
 
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
+#include <lib/libc/printf.h>
 #include "ICMP4Module.h"
 
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
@@ -29,20 +30,14 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 //TODO: Notify application
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO: {
-//                auto *echoRequest = new ICMP4Echo(icmp4message);
-//                auto *echoReply = new ICMP4EchoReply(
-//                        echoRequest->getIdentifier(),
-//                        echoRequest->getSequenceNumber()
-//                );
-//                auto *outDatagram = new IP4Datagram(
-//                        receiveEvent.getSourceAddress(),
-//                        echoReply
-//                );
-//                eventBus->publish(
-//                        Util::SmartPointer<Kernel::Event>(
-//                                new Kernel::IP4SendEvent(outDatagram)
-//                        )
-//                );
+                auto *echoRequest = genericIcmp4Message->buildICMP4EchoWithInput();
+                if(echoRequest->parseInput()){
+                    log.error("Parsing of incoming ICMP4 echo failed, discarding");
+                    delete echoRequest;
+                    return;
+                }
+                printf("Echo request received. Identifier: %d, Sequence: %d",
+                       echoRequest->getIdentifier(),echoRequest->getSequenceNumber());
                 return;
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:

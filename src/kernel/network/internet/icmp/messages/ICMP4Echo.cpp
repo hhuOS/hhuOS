@@ -11,39 +11,43 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
     echoMessage.sequenceNumber = sequenceNumber;
 }
 
-ICMP4Echo::ICMP4Echo(IP4DataPart *dataPart) {
-    //TODO: Implement this one!
+ICMP4Echo::ICMP4Echo(NetworkByteBlock *input) {
+    this->input=input;
 }
 
-uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
-    if (byteBlock == nullptr) {
+ICMP4Echo::~ICMP4Echo() {
+    delete this->input;
+}
+
+uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *input) {
+    if (input == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (input->appendBytesStraight(
             &this->echoMessage.type,
             sizeof(this->echoMessage.type))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (input->appendBytesStraight(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (input->appendBytesInNetworkByteOrder(
             &this->echoMessage.checksum,
             sizeof(this->echoMessage.checksum))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (input->appendBytesInNetworkByteOrder(
             &this->echoMessage.identifier,
             sizeof(this->echoMessage.identifier))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (input->appendBytesInNetworkByteOrder(
             &this->echoMessage.sequenceNumber,
             sizeof(this->echoMessage.sequenceNumber))
             ) {
@@ -66,5 +70,42 @@ uint16_t ICMP4Echo::getSequenceNumber() const {
 
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
+}
+
+uint8_t ICMP4Echo::parseInput() {
+    if (input== nullptr) {
+        return 1;
+    }
+    if (input->writeBytesStraightTo(
+            &this->echoMessage.type,
+            sizeof(this->echoMessage.type))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesStraightTo(
+            &this->echoMessage.code,
+            sizeof(this->echoMessage.code))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoMessage.checksum,
+            sizeof(this->echoMessage.checksum))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoMessage.identifier,
+            sizeof(this->echoMessage.identifier))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoMessage.sequenceNumber,
+            sizeof(this->echoMessage.sequenceNumber))
+            ) {
+        return 1;
+    }
+    return 0;
 }
 

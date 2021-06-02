@@ -47,4 +47,8 @@ size_t GenericICMP4Message::getLengthInBytes() {
     return 0;
 }
 
+ICMP4Echo *GenericICMP4Message::buildICMP4EchoWithInput() {
+    return new ICMP4Echo(this->input);
+}
+
 

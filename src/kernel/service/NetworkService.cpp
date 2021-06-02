@@ -29,7 +29,6 @@ namespace Kernel {
 
         eventBus->subscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
-        eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
         eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->subscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
         eventBus->subscribe(*packetHandler, ReceiveEvent::TYPE);
@@ -40,7 +39,6 @@ namespace Kernel {
 
     NetworkService::~NetworkService() {
         //TODO: Synchronisierung nötig?
-        eventBus->unsubscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4SendEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetSendEvent::TYPE);
 
@@ -48,6 +46,7 @@ namespace Kernel {
         eventBus->unsubscribe(*ethernetModule, EthernetReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
+        eventBus->unsubscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
 //
         delete icmp4Module;
         delete ip4Module;

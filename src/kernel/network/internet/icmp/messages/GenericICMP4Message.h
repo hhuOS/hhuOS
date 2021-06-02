@@ -8,6 +8,7 @@
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
+#include "ICMP4Echo.h"
 
 class GenericICMP4Message : public ICMP4Message {
 private:
@@ -31,6 +32,8 @@ public:
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
+
+    ICMP4Echo *buildICMP4EchoWithInput();
 };
 
 

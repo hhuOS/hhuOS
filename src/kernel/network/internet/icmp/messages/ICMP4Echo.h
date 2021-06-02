@@ -18,13 +18,14 @@ private:
     } echo_t;
 
     echo_t echoMessage;
+    NetworkByteBlock *input;
 
 public:
     //Sending constructor
     ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber);
 
     //Receiving constructor
-    ICMP4Echo(IP4DataPart *dataPart);
+    ICMP4Echo(NetworkByteBlock *input);
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 
@@ -36,6 +37,9 @@ public:
 
     ICMP4MessageType getICMP4MessageType() override;
 
+    uint8_t parseInput();
+
+    virtual ~ICMP4Echo();
 };
 
 
