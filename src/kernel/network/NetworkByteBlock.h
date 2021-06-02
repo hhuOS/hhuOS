@@ -24,6 +24,8 @@ public:
 
     void freeBytes();
 
+    void resetCurrentIndex();
+
     virtual ~NetworkByteBlock();
 
     uint8_t appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount);
@@ -33,6 +35,10 @@ public:
     uint8_t sendOutVia(NetworkDevice *pDevice);
 
     void printBytes();
+
+    uint8_t writeBytesStraightTo(void *target, size_t byteCount);
+
+    uint8_t writeBytesInHostByteOrderTo(void *target, size_t byteCount);
 };
 
 

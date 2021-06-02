@@ -10,9 +10,9 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     this->ethernetDataPart = ethernetDataPart;
 }
 
-EthernetFrame::EthernetFrame(NetworkByteBlock *byteBlock) {
-    byteBlock->printBytes();
-    this->incomingData=byteBlock;
+EthernetFrame::EthernetFrame(NetworkByteBlock *input) {
+    input->printBytes();
+    this->input=input;
 }
 
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
@@ -57,4 +57,31 @@ EthernetDataPart *EthernetFrame::getDataPart() const {
 
 void EthernetFrame::setSourceAddress(EthernetAddress *sourceAddress) {
     sourceAddress->copyTo(header.sourceAddress);
+}
+
+uint8_t EthernetFrame::parseInput() {
+    this->input->resetCurrentIndex();
+    if(this->input->writeBytesStraightTo(
+            &this->header.destinationAddress,
+            sizeof(this->header.destinationAddress))
+            ){
+        return 1;
+    }
+    if(this->input->writeBytesStraightTo(
+            &this->header.sourceAddress,
+            sizeof(this->header.sourceAddress))
+            ){
+        return 1;
+    }
+    if(this->input->writeBytesInHostByteOrderTo(
+            &this->header.etherType,
+            sizeof (this->header.etherType))
+            ){
+        return 1;
+    }
+    return 0;
+}
+
+EthernetFrame::~EthernetFrame() {
+    delete this->input;
 }

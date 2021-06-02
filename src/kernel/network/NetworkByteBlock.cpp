@@ -36,21 +36,23 @@ void NetworkByteBlock::freeBytes() {
     }
 }
 
-uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCount) {
-    auto *source = (uint8_t *) memoryAddress;
-    //Avoid writing beyond last byte
-    if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
-        return 1;
+size_t NetworkByteBlock::getLength() const {
+    return length;
+}
+
+void NetworkByteBlock::resetCurrentIndex() {
+    this->currentIndex=0;
+}
+
+void NetworkByteBlock::printBytes() {
+    if (this->bytes == nullptr) {
+        return;
     }
-    if (byteCount == 0) {
-        //It's not an error if nothing needs to be done...
-        return 0;
+    printf("\nBytes: ");
+    for (size_t i = 0; i < length; i++) {
+        printf("%02x ", bytes[i]);
     }
-    for (size_t i = 0; i < byteCount; i++) {
-        this->bytes[currentIndex + i] = source[i];
-    }
-    this->currentIndex += byteCount;
-    return 0;
+    printf("\n\n");
 }
 
 uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount) {
@@ -72,8 +74,21 @@ uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, siz
     return 0;
 }
 
-size_t NetworkByteBlock::getLength() const {
-    return length;
+uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCount) {
+    auto *source = (uint8_t *) memoryAddress;
+    //Avoid writing beyond last byte
+    if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
+        return 1;
+    }
+    if (byteCount == 0) {
+        //It's not an error if nothing needs to be done...
+        return 0;
+    }
+    for (size_t i = 0; i < byteCount; i++) {
+        this->bytes[currentIndex + i] = source[i];
+    }
+    this->currentIndex += byteCount;
+    return 0;
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
@@ -88,13 +103,38 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
     return 0;
 }
 
-void NetworkByteBlock::printBytes() {
-    if (this->bytes == nullptr) {
-        return;
+uint8_t NetworkByteBlock::writeBytesStraightTo(void *target, size_t byteCount) {
+    if(
+            this->currentIndex==this->length ||
+            byteCount == 0 ||
+            target == nullptr ||
+            this->bytes== nullptr||
+            this->currentIndex+byteCount>this->length
+    ){
+        return 1;
     }
-    printf("\nBytes: ");
-    for (size_t i = 0; i < length; i++) {
-        printf("%02x ", bytes[i]);
+    auto *targetBytes=(uint8_t*)target;
+    for(size_t i=0;i<byteCount;i++){
+        targetBytes[i]=this->bytes[currentIndex+i];
     }
-    printf("\n\n");
+    currentIndex+=byteCount;
+    return 0;
+}
+
+uint8_t NetworkByteBlock::writeBytesInHostByteOrderTo(void *target, size_t byteCount) {
+    if(
+            this->currentIndex==this->length ||
+            byteCount == 0 ||
+            target == nullptr ||
+            this->bytes== nullptr||
+            this->currentIndex+byteCount>this->length
+            ){
+        return 1;
+    }
+    auto *targetBytes=(uint8_t*)target;
+    for(size_t i=0;i<byteCount;i++){
+        targetBytes[byteCount-1-i]=this->bytes[currentIndex+i];
+    }
+    currentIndex+=byteCount;
+    return 0;
 }

@@ -26,12 +26,14 @@ private:
     ethHeader_t header;
     size_t headerLengthInBytes = sizeof(header);
     EthernetDataPart *ethernetDataPart = nullptr;
-    NetworkByteBlock *incomingData = nullptr;
+    NetworkByteBlock *input = nullptr;
 
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
-    EthernetFrame(NetworkByteBlock *byteBlock);
+    EthernetFrame(NetworkByteBlock *input);
+
+    virtual ~EthernetFrame();
 
     EthernetDataPart::EtherType getEtherType() const;
 
@@ -42,6 +44,8 @@ public:
     uint16_t getTotalLengthInBytes();
 
     void setSourceAddress(EthernetAddress *sourceAddress);
+
+    uint8_t parseInput();
 };
 
 
