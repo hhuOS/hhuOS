@@ -2,6 +2,7 @@
 // Created by hannes on 17.05.21.
 //
 
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include "ICMP4EchoReply.h"
 
 ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
@@ -12,8 +13,10 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
-ICMP4EchoReply::ICMP4EchoReply(IP4DataPart *dataPart) {
-    //TODO: Implement this one!
+ICMP4EchoReply::ICMP4EchoReply(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input) {
+    this->destinationAddress=destinationAddress;
+    this->sourceAddress=sourceAddress;
+    this->input = input;
 }
 
 uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
@@ -70,6 +73,44 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
 }
 
 uint8_t ICMP4EchoReply::parseInput() {
-    return 1;
+    if (input == nullptr) {
+        return 1;
+    }
+    //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
+    //-> the next Byte in our NetworkByteBlock is 'code', the next value!
+    //This is no problem here, because the 'type' value is constant '0' per definition
+    if (input->writeBytesStraightTo(
+            &this->echoReply.code,
+            sizeof(this->echoReply.code))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoReply.checksum,
+            sizeof(this->echoReply.checksum))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoReply.identifier,
+            sizeof(this->echoReply.identifier))
+            ) {
+        return 1;
+    }
+    if (input->writeBytesInHostByteOrderTo(
+            &this->echoReply.sequenceNumber,
+            sizeof(this->echoReply.sequenceNumber))
+            ) {
+        return 1;
+    }
+    return 0;
+}
+
+IP4Address *ICMP4EchoReply::getSourceAddress() const {
+    return sourceAddress;
+}
+
+ICMP4EchoReply::~ICMP4EchoReply() {
+    delete input;
 }
 

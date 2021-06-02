@@ -49,7 +49,11 @@ size_t GenericICMP4Message::getLengthInBytes() {
 }
 
 ICMP4Echo *GenericICMP4Message::buildICMP4EchoWithInput() {
-    return new ICMP4Echo(this->input);
+    return new ICMP4Echo(this->destinationAddress, this->sourceAddress, this->input);
+}
+
+ICMP4EchoReply *GenericICMP4Message::buildICMP4EchoReplyWithInput() {
+    return new ICMP4EchoReply(this->destinationAddress, this->sourceAddress, this->input);
 }
 
 

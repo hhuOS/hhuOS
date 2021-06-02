@@ -3,6 +3,7 @@
 //
 
 #include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include "ICMP4Echo.h"
 
 ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
@@ -11,12 +12,30 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
     echoMessage.sequenceNumber = sequenceNumber;
 }
 
-ICMP4Echo::ICMP4Echo(NetworkByteBlock *input) {
+ICMP4Echo::ICMP4Echo(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input) {
+    this->destinationAddress=destinationAddress;
+    this->sourceAddress=sourceAddress;
     this->input = input;
 }
 
 ICMP4Echo::~ICMP4Echo() {
     delete this->input;
+}
+
+size_t ICMP4Echo::getLengthInBytes() {
+    return sizeof(this->echoMessage);
+}
+
+IP4Address *ICMP4Echo::getSourceAddress() const {
+    return sourceAddress;
+}
+
+ICMP4EchoReply *ICMP4Echo::buildEchoReply() {
+    return new ICMP4EchoReply(this->echoMessage.identifier,this->echoMessage.sequenceNumber + 1);
+}
+
+ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
+    return ICMP4MessageType::ECHO;
 }
 
 uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *input) {
@@ -54,22 +73,6 @@ uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *input) {
         return 1;
     }
     return 0;
-}
-
-size_t ICMP4Echo::getLengthInBytes() {
-    return sizeof(this->echoMessage);
-}
-
-uint16_t ICMP4Echo::getIdentifier() const {
-    return echoMessage.identifier;
-}
-
-uint16_t ICMP4Echo::getSequenceNumber() const {
-    return echoMessage.sequenceNumber;
-}
-
-ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
-    return ICMP4MessageType::ECHO;
 }
 
 uint8_t ICMP4Echo::parseInput() {

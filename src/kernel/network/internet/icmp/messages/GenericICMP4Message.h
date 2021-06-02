@@ -34,6 +34,8 @@ public:
     size_t getLengthInBytes() override;
 
     ICMP4Echo *buildICMP4EchoWithInput();
+
+    ICMP4EchoReply *buildICMP4EchoReplyWithInput();
 };
 
 
