@@ -82,8 +82,6 @@ EthernetDevice *Kernel::EthernetModule::getEthernetDevice(NetworkDevice *network
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
     if (event.getType() == EthernetSendEvent::TYPE) {
-        log.info("EthernetSendEvent with EthernetFrame received");
-
         auto sendEvent = ((EthernetSendEvent &) event);
         EthernetDevice *outDevice = sendEvent.getOutDevice();
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();

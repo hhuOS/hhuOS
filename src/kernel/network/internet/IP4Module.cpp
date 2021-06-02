@@ -53,7 +53,6 @@ namespace Kernel {
 
     void IP4Module::onEvent(const Kernel::Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
-            log.info("Received IP4 Datagram to be sent");
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
 
             if (routingModule->sendViaBestRoute(datagram)) {
