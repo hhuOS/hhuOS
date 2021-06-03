@@ -66,10 +66,10 @@ namespace Kernel {
                         )
                 );
             }
+            return;
         }
 
-        if (event.getType() == IP4ReceiveEvent::TYPE) {
-            log.info("Received IP4 Datagram to be opened");
+        if ((event.getType() == IP4ReceiveEvent::TYPE)) {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
             if (ip4Datagram->parseInput()) {
                 log.error("Parsing of incoming IP4Datagram failed, discarding");
@@ -83,20 +83,21 @@ namespace Kernel {
                                     ip4Datagram->buildGenericICMP4MessageWithInput()
                             )
                     );
-                    break;
+                    return;
                 case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
                             new Kernel::UDPReceiveEvent(
                                     ip4Datagram->buildUDPDatagramWithInput()
                             )
                     );
-                    break;
+                    return;
                 default:
+                    log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
+                    delete ip4Datagram;
                     return;
             }
-            return;
         }
-        if (event.getType() == ARPReceiveEvent::TYPE) {
+        if ((event.getType() == ARPReceiveEvent::TYPE)) {
             log.info("Received ARPResponse to be opened");
             //auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             //TODO: Implement finding proper interface for ARP Update

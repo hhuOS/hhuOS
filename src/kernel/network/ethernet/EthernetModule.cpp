@@ -81,7 +81,7 @@ EthernetDevice *Kernel::EthernetModule::getEthernetDevice(NetworkDevice *network
 }
 
 void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
-    if (event.getType() == EthernetSendEvent::TYPE) {
+    if ((event.getType() == EthernetSendEvent::TYPE)) {
         auto sendEvent = ((EthernetSendEvent &) event);
         EthernetDevice *outDevice = sendEvent.getOutDevice();
         EthernetFrame *outFrame = sendEvent.getEthernetFrame();
@@ -89,12 +89,10 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
         if (outFrame != nullptr && outDevice != nullptr) {
             outDevice->sendEthernetFrame(outFrame);
         }
-
         return;
     }
-    if (event.getType() == EthernetReceiveEvent::TYPE) {
-        auto receiveEvent = ((EthernetReceiveEvent &) event);
-        EthernetFrame *inFrame = receiveEvent.getEthernetFrame();
+    if ((event.getType() == EthernetReceiveEvent::TYPE)) {
+        EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
         if (inFrame->parseInput()) {
             log.error("Parsing of incoming EthernetFrame failed, discarding");
             delete inFrame;
@@ -116,6 +114,8 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
                 );
                 return;
             default:
+                log.info("EtherType of incoming EthernetFrame not supported, discarding");
+                delete inFrame;
                 return;
         }
     }

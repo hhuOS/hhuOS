@@ -12,10 +12,9 @@ Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus)
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
-        auto receiveEvent = (ICMP4ReceiveEvent &) event;
-        auto genericIcmp4Message = receiveEvent.getGenericIcmp4Message();
+        auto genericIcmp4Message = ((ICMP4ReceiveEvent &) event).getGenericIcmp4Message();
         if (genericIcmp4Message->getLengthInBytes() == 0) {
-            log.error("Given data was empty! Ignoring...");
+            log.error("Incoming generic ICMP4Message was empty, discarding");
             delete genericIcmp4Message;
             return;
         }
@@ -27,11 +26,13 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         //NOTE: No message should read its 'type' byte internally!
         //-> this byte already is in GenericICMP4Message!
         //Our NetworkByteBlock would read one byte too much and fail...
-        //But this is no problem here, because all 'type' values are constant per definition
-        //-> check out header structs in our ICMP4Messages for default values
+        //This is no problem here because all 'type' values are constant per definition
+        //-> check out header structs in ICMP4Messages for default values
         switch (genericIcmp4Message->getICMP4MessageType()) {
             case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
                 auto *echoReply = genericIcmp4Message->buildICMP4EchoReplyWithInput();
+                //we are still in ICMP area, so parsing happens in the same module
+                //-> we would send our echoReply to the next module responsible via EventBus otherwise
                 if (echoReply->parseInput()) {
                     log.error("Parsing of incoming ICMP4 echo reply failed, discarding");
                     delete echoReply;
@@ -44,6 +45,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                        addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3],
                        echoReply->getIdentifier(), echoReply->getSequenceNumber()
                 );
+                //We are done here, cleanup memory
                 delete echoReply;
                 return;
             }
@@ -61,6 +63,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 uint8_t addressBytes[4]{0, 0, 0, 0};
                 echoRequest->getSourceAddress()->copyTo(addressBytes);
 
+                //create and send reply
                 eventBus->publish(
                         new Kernel::IP4SendEvent(
                                 new IP4Datagram(
@@ -69,14 +72,16 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                                 )
                         )
                 );
+                //We are done here, cleanup memory
                 delete echoRequest;
                 return;
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
                 //TODO: Notify application
                 return;
-                //Just ignore input if message type not implemented
             default:
+                log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding");
+                delete genericIcmp4Message;
                 return;
         }
     }
