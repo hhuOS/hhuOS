@@ -4,7 +4,6 @@
 
 #include <kernel/event/network/EthernetSendEvent.h>
 #include "IP4Interface.h"
-#include "IP4Datagram.h"
 
 IP4Interface::IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                            IP4Netmask *ip4Netmask) {

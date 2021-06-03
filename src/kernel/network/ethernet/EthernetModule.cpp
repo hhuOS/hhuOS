@@ -9,7 +9,6 @@
 #include <kernel/event/network/ARPReceiveEvent.h>
 
 #include "EthernetModule.h"
-#include "EthernetDevice.h"
 
 
 Kernel::EthernetModule::EthernetModule(NetworkEventBus *eventBus) {
