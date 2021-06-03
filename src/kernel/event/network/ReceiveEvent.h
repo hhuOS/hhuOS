@@ -47,9 +47,9 @@ namespace Kernel {
 
         ReceiveEvent(const ReceiveEvent &other);
 
-        ~ReceiveEvent();
+        ~ReceiveEvent() override;
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         /**
          * @return A pointer to the packet that will be dispatched.
@@ -61,7 +61,7 @@ namespace Kernel {
         /**
          * @return The length of the packet.
          */
-        uint16_t getLength();
+        [[nodiscard]] uint16_t getLength() const;
 
         static const constexpr char *TYPE = "ReceiveEvent";
 

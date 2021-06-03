@@ -11,16 +11,16 @@
 class ICMP4EchoReply : public ICMP4Message {
 private:
     typedef struct icmp4echoReply {
-        uint8_t type;
-        uint8_t code;
-        uint16_t checksum;
-        uint16_t identifier;
-        uint16_t sequenceNumber;
+        uint8_t type = 0; //0 for echo reply, 8 for echo (RFC792)
+        uint8_t code = 0;
+        uint16_t checksum = 0;
+        uint16_t identifier = 0;
+        uint16_t sequenceNumber = 0;
     } echoReplyMessage;
 
     echoReplyMessage echoReply;
 
-    NetworkByteBlock *input;
+    NetworkByteBlock *input = nullptr;
     IP4Address *destinationAddress = nullptr;
     IP4Address *sourceAddress = nullptr;
 public:
@@ -40,7 +40,7 @@ public:
 
     uint16_t getSequenceNumber();
 
-    IP4Address *getSourceAddress() const;
+    [[nodiscard]] IP4Address *getSourceAddress() const;
 
     ICMP4MessageType getICMP4MessageType() override;
 

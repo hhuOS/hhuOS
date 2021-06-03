@@ -30,7 +30,7 @@ namespace Kernel {
 
     public:
 
-        IP4Module(NetworkEventBus *eventBus);
+        explicit IP4Module(NetworkEventBus *eventBus);
 
         ~IP4Module() override;
 

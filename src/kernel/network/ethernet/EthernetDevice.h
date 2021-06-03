@@ -24,11 +24,11 @@ private:
 public:
     EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 
-    String *getIdentifier() const;
+    [[nodiscard]] String *getIdentifier() const;
 
     void sendEthernetFrame(EthernetFrame *ethernetFrame);
 
-    uint8_t connectedTo(NetworkDevice *networkDevice);
+    uint8_t connectedTo(NetworkDevice *otherDevice);
 
     bool equals(EthernetDevice *compare);
 

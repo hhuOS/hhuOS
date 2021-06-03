@@ -139,6 +139,6 @@ uint8_t NetworkByteBlock::writeBytesInHostByteOrderTo(void *target, size_t byteC
     return 0;
 }
 
-size_t NetworkByteBlock::bytesRemaining() {
+size_t NetworkByteBlock::bytesRemaining() const {
     return this->length - this->currentIndex;
 }

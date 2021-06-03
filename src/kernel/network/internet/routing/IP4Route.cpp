@@ -27,10 +27,6 @@ void IP4Route::sendOut(IP4Datagram *datagram) {
     this->outInterface->sendIP4Datagram(this->nextHopAddress, datagram);
 }
 
-IP4Address *IP4Route::getNextHopAddress() const {
-    return nextHopAddress;
-}
-
 IP4Interface *IP4Route::getOutInterface() const {
     return outInterface;
 }

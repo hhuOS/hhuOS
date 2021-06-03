@@ -32,7 +32,7 @@ private:
     Kernel::NetworkEventBus *eventBus = nullptr;
 
 public:
-    Loopback(Kernel::NetworkEventBus *eventBus);
+    explicit Loopback(Kernel::NetworkEventBus *eventBus);
 
     /**
      * Overriding function from NetworkDevice.

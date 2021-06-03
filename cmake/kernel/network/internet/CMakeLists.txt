@@ -36,7 +36,6 @@ target_sources(kernel PUBLIC
 
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Interface.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4HeaderChecksum.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp
 
 )

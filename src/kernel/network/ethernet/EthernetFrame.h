@@ -33,13 +33,11 @@ private:
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
-    EthernetFrame(NetworkByteBlock *input);
+    explicit EthernetFrame(NetworkByteBlock *input);
 
     virtual ~EthernetFrame();
 
-    EthernetDataPart::EtherType getEtherType() const;
-
-    EthernetDataPart *getDataPart() const;
+    [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock);
 

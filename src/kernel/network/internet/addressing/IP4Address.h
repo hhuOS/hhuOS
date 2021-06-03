@@ -18,9 +18,7 @@ private:
 public:
     IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth);
 
-    IP4Address(const uint8_t *bytes);
-
-    uint32_t asInt();
+    explicit IP4Address(const uint8_t *bytes);
 
     String asString();
 

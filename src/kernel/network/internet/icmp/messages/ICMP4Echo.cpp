@@ -30,7 +30,7 @@ IP4Address *ICMP4Echo::getSourceAddress() const {
     return sourceAddress;
 }
 
-ICMP4EchoReply *ICMP4Echo::buildEchoReply() {
+ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     return new ICMP4EchoReply(this->echoMessage.identifier, this->echoMessage.sequenceNumber + 1);
 }
 
@@ -38,35 +38,35 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *input) {
-    if (input == nullptr) {
+uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
+    if (byteBlock == nullptr) {
         return 1;
     }
-    if (input->appendBytesStraight(
+    if (byteBlock->appendBytesStraight(
             &this->echoMessage.type,
             sizeof(this->echoMessage.type))
             ) {
         return 1;
     }
-    if (input->appendBytesStraight(
+    if (byteBlock->appendBytesStraight(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {
         return 1;
     }
-    if (input->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesInNetworkByteOrder(
             &this->echoMessage.checksum,
             sizeof(this->echoMessage.checksum))
             ) {
         return 1;
     }
-    if (input->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesInNetworkByteOrder(
             &this->echoMessage.identifier,
             sizeof(this->echoMessage.identifier))
             ) {
         return 1;
     }
-    if (input->appendBytesInNetworkByteOrder(
+    if (byteBlock->appendBytesInNetworkByteOrder(
             &this->echoMessage.sequenceNumber,
             sizeof(this->echoMessage.sequenceNumber))
             ) {

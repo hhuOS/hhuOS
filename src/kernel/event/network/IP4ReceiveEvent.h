@@ -16,11 +16,11 @@ namespace Kernel {
         IP4Datagram *datagram;
 
     public:
-        IP4ReceiveEvent(IP4Datagram *datagram);
+        explicit IP4ReceiveEvent(IP4Datagram *datagram);
 
         IP4Datagram *getDatagram();
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "IP4ReceiveEvent";
     };

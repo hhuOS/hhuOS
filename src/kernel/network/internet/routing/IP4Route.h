@@ -24,13 +24,11 @@ public:
 
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
 
-    IP4Route(IP4Interface *ip4Interface);
+    explicit IP4Route(IP4Interface *ip4Interface);
 
     void sendOut(IP4Datagram *datagram);
 
-    IP4Address *getNextHopAddress() const;
-
-    IP4Interface *getOutInterface() const;
+    [[nodiscard]] IP4Interface *getOutInterface() const;
 
     uint8_t matchingBits(IP4Address *pAddress);
 

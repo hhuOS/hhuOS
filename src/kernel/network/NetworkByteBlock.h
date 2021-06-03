@@ -40,7 +40,7 @@ public:
 
     uint8_t writeBytesInHostByteOrderTo(void *target, size_t byteCount);
 
-    size_t bytesRemaining();
+    size_t bytesRemaining() const;
 };
 
 

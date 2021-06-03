@@ -18,7 +18,7 @@ namespace Kernel {
         NetworkEventBus *eventBus;
         Util::HashMap<String *, EthernetDevice *> *ethernetDevices;
     public:
-        EthernetModule(NetworkEventBus *eventBus);
+        explicit EthernetModule(NetworkEventBus *eventBus);
 
         /**
          * A logger to provide information on the kernel log.

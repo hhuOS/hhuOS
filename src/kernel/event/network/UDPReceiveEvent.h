@@ -15,11 +15,11 @@ namespace Kernel {
         UDPDatagram *datagram;
 
     public:
-        UDPReceiveEvent(UDPDatagram *datagram);
+        explicit UDPReceiveEvent(UDPDatagram *datagram);
 
         UDPDatagram *getDatagram();
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "UDPReceiveEvent";
     };

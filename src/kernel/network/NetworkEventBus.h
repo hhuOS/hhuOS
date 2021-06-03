@@ -14,7 +14,7 @@ namespace Kernel {
         Kernel::EventBus *eventBus;
 
     public:
-        NetworkEventBus(Kernel::EventBus *eventBus);
+        explicit NetworkEventBus(Kernel::EventBus *eventBus);
 
         void publish(Kernel::Event *event);
 

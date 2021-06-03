@@ -14,7 +14,7 @@ namespace Kernel {
     private:
         NetworkEventBus *eventBus;
     public:
-        ICMP4Module(NetworkEventBus *eventBus);
+        explicit ICMP4Module(NetworkEventBus *eventBus);
 
         /**
          * A logger to provide information on the kernel log.

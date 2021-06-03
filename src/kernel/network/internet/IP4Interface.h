@@ -28,11 +28,11 @@ public:
 
     void sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram);
 
-    IP4Address *getIp4Address() const;
+    [[nodiscard]] IP4Address *getIp4Address() const;
 
-    IP4Netmask *getIp4Netmask() const;
+    [[nodiscard]] IP4Netmask *getIp4Netmask() const;
 
-    IP4Address *getNetAddress() const;
+    [[nodiscard]] IP4Address *getNetAddress() const;
 
     virtual ~IP4Interface();
 

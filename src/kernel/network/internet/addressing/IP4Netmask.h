@@ -14,9 +14,9 @@ private:
     uint8_t bitCount = 0;
 
 public:
-    IP4Netmask(uint8_t bitCount);
+    explicit IP4Netmask(uint8_t bitCount);
 
-    uint8_t getBitCount() const;
+    [[nodiscard]] uint8_t getBitCount() const;
 
     String asString();
 

@@ -18,11 +18,11 @@ namespace Kernel {
 
     public:
 
-        ICMP4ReceiveEvent(GenericICMP4Message *genericIcmp4Message);
+        explicit ICMP4ReceiveEvent(GenericICMP4Message *genericIcmp4Message);
 
-        GenericICMP4Message *getGenericIcmp4Message() const;
+        [[nodiscard]] GenericICMP4Message *getGenericIcmp4Message() const;
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };

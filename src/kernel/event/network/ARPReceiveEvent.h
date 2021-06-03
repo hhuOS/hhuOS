@@ -17,11 +17,11 @@ namespace Kernel {
         ARPMessage *arpResponse;
 
     public:
-        ARPReceiveEvent(ARPMessage *arpMessage);
+        explicit ARPReceiveEvent(ARPMessage *arpMessage);
 
-        ARPMessage *getARPMessage() const;
+        [[nodiscard]] ARPMessage *getARPMessage() const;
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "ARPReceiveEvent";
     };

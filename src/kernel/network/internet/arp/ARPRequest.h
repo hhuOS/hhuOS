@@ -13,7 +13,7 @@ private:
     IP4Address *ip4Address;
 
 public:
-    ARPRequest(IP4Address *ip4Address);
+    explicit ARPRequest(IP4Address *ip4Address);
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 

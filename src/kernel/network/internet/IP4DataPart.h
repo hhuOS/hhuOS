@@ -6,7 +6,6 @@
 #define HHUOS_NETWORKDATAPART_H
 
 #include "lib/libc/stdlib.h"
-#include "IP4HeaderChecksum.h"
 #include <kernel/network/NetworkByteBlock.h>
 
 class IP4DataPart {

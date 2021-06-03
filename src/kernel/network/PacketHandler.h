@@ -47,7 +47,7 @@ namespace Kernel {
         Logger &log = Logger::get("PacketHandler");
 
     public:
-        PacketHandler(NetworkEventBus *eventBus);
+        explicit PacketHandler(NetworkEventBus *eventBus);
 
         /**
          * Inherited method from Receiver.

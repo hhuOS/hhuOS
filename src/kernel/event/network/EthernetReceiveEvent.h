@@ -18,11 +18,11 @@ namespace Kernel {
         EthernetFrame *ethernetFrame;
 
     public:
-        EthernetReceiveEvent(EthernetFrame *ethernetFrame);
+        explicit EthernetReceiveEvent(EthernetFrame *ethernetFrame);
 
-        EthernetFrame *getEthernetFrame() const;
+        [[nodiscard]] EthernetFrame *getEthernetFrame() const;
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "EthernetReceiveEvent";
     };

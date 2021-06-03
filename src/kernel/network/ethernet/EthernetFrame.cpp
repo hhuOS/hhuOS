@@ -54,10 +54,6 @@ EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
     return EthernetDataPart::parseIntAsEtherType(header.etherType);
 }
 
-EthernetDataPart *EthernetFrame::getDataPart() const {
-    return ethernetDataPart;
-}
-
 void EthernetFrame::setSourceAddress(EthernetAddress *sourceAddress) {
     sourceAddress->copyTo(header.sourceAddress);
 }

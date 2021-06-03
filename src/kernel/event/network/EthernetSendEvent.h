@@ -22,11 +22,11 @@ namespace Kernel {
     public:
         EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame);
 
-        EthernetDevice *getOutDevice() const;
+        [[nodiscard]] EthernetDevice *getOutDevice() const;
 
-        EthernetFrame *getEthernetFrame() const;
+        [[nodiscard]] EthernetFrame *getEthernetFrame() const;
 
-        String getType() const override;
+        [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "EthernetSendEvent";
     };

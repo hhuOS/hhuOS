@@ -15,7 +15,6 @@
 #include <kernel/network/udp/UDPDatagram.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
-#include "IP4HeaderChecksum.h"
 
 class IP4Datagram : public EthernetDataPart {
 private:
@@ -54,7 +53,7 @@ public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
-    IP4Datagram(NetworkByteBlock *input);
+    explicit IP4Datagram(NetworkByteBlock *input);
 
     virtual ~IP4Datagram();
 
@@ -62,11 +61,11 @@ public:
 
     GenericICMP4Message *buildGenericICMP4MessageWithInput();
 
-    IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
-    IP4Address *getSourceAddress() const;
+    [[nodiscard]] IP4Address *getSourceAddress() const;
 
-    IP4Address *getDestinationAddress() const;
+    [[nodiscard]] IP4Address *getDestinationAddress() const;
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
 

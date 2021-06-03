@@ -52,8 +52,8 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     delete ethernetFrame;
 }
 
-uint8_t EthernetDevice::connectedTo(NetworkDevice *networkDevice) {
-    return this->networkDevice == networkDevice;
+uint8_t EthernetDevice::connectedTo(NetworkDevice *otherDevice) {
+    return this->networkDevice == otherDevice;
 }
 
 String EthernetDevice::asString() {

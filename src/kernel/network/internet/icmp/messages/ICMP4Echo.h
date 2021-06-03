@@ -20,7 +20,7 @@ private:
 
     echo_t echoMessage;
 
-    NetworkByteBlock *input;
+    NetworkByteBlock *input = nullptr;
     IP4Address *destinationAddress = nullptr;
     IP4Address *sourceAddress = nullptr;
 public:
@@ -34,7 +34,7 @@ public:
 
     size_t getLengthInBytes() override;
 
-    IP4Address *getSourceAddress() const;
+    [[nodiscard]] IP4Address *getSourceAddress() const;
 
     ICMP4MessageType getICMP4MessageType() override;
 
@@ -42,7 +42,7 @@ public:
 
     virtual ~ICMP4Echo();
 
-    ICMP4EchoReply *buildEchoReply();
+    ICMP4EchoReply *buildEchoReply() const;
 };
 
 

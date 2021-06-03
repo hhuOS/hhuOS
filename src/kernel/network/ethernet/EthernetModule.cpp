@@ -7,7 +7,6 @@
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
-#include <kernel/network/internet/IP4Datagram.h>
 
 #include "EthernetModule.h"
 #include "EthernetDevice.h"

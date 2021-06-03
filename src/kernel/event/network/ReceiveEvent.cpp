@@ -38,7 +38,7 @@ namespace Kernel {
         return this->packet;
     }
 
-    uint16_t ReceiveEvent::getLength() {
+    uint16_t ReceiveEvent::getLength() const {
         return this->length;
     }
 
