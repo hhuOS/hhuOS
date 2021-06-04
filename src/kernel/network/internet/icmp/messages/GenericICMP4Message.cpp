@@ -39,7 +39,7 @@ IP4DataPart::IP4ProtocolType GenericICMP4Message::getIP4ProtocolType() {
     return IP4ProtocolType::ICMP4;
 }
 
-uint8_t GenericICMP4Message::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t GenericICMP4Message::copyTo(NetworkByteBlock *byteBlock) {
     //This is only for matching incoming data, so no writing to outgoing byte block
     return 1;
 }

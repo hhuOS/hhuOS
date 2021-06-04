@@ -17,7 +17,7 @@ public:
     //Receiving constructor
     ICMP4DestinationUnreachable(IP4DataPart *dataPart);
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 

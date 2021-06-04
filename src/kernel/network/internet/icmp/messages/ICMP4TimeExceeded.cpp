@@ -11,7 +11,7 @@ ICMP4TimeExceeded::ICMP4TimeExceeded(IP4DataPart *dataPart) {
     //TODO: Implement parsing from input
 }
 
-uint8_t ICMP4TimeExceeded::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t ICMP4TimeExceeded::copyTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
 }

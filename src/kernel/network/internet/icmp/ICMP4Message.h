@@ -62,7 +62,7 @@ public:
         }
     }
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override = 0;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
 
     size_t getLengthInBytes() override = 0;
 

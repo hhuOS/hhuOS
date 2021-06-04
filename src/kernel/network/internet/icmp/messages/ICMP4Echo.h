@@ -30,7 +30,7 @@ public:
     //Receiving constructor
     ICMP4Echo(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input);
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 

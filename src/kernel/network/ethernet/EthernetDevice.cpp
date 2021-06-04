@@ -20,7 +20,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         return;
     }
     ethernetFrame->setSourceAddress(this->ethernetAddress);
-    uint16_t frameLength = ethernetFrame->getTotalLengthInBytes();
+    uint16_t frameLength = ethernetFrame->getLengthInBytes();
     if (frameLength == 0) {
         log.error("EthernetFrame had zero length, discarding frame");
         return;

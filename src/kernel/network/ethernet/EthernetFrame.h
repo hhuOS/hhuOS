@@ -42,7 +42,7 @@ public:
 
     uint8_t copyTo(NetworkByteBlock *output);
 
-    uint16_t getTotalLengthInBytes();
+    uint16_t getLengthInBytes();
 
     void setSourceAddress(EthernetAddress *source);
 

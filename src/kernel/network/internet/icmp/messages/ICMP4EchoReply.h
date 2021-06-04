@@ -32,7 +32,7 @@ public:
 
     virtual ~ICMP4EchoReply();
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 

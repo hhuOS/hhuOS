@@ -31,13 +31,15 @@ public:
         }
     }
 
-    virtual uint8_t copyDataTo(NetworkByteBlock *byteBlock) = 0;
+    virtual uint8_t copyTo(NetworkByteBlock *byteBlock) = 0;
 
     virtual size_t getLengthInBytes() = 0;
 
     virtual IP4ProtocolType getIP4ProtocolType() = 0;
 
-    virtual uint8_t parseInput() = 0;
+    virtual uint8_t parse(NetworkByteBlock *input) = 0;
+
+    virtual void freeMemory() = 0;
 };
 
 

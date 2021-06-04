@@ -12,7 +12,7 @@ IP4Address::IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fou
 }
 
 IP4Address::IP4Address(const uint8_t *bytes) {
-    for (int i = 0; i < IP4ADDRESS_LENGH; i++) {
+    for (int i = 0; i < IP4ADDRESS_LENGTH; i++) {
         this->address[i] = bytes[i];
     }
 }
@@ -26,7 +26,7 @@ bool IP4Address::equals(IP4Address *other) {
 }
 
 void IP4Address::copyTo(uint8_t *target) {
-    for (int i = 0; i < IP4ADDRESS_LENGH; i++) {
+    for (int i = 0; i < IP4ADDRESS_LENGTH; i++) {
         target[i] = this->address[i];
     }
 }
@@ -36,8 +36,8 @@ String IP4Address::asString() {
 }
 
 IP4Address *IP4Address::calculateAND(const uint8_t *netmask) {
-    uint8_t bytes[IP4ADDRESS_LENGH];
-    for (uint8_t i = 0; i < IP4ADDRESS_LENGH; i++) {
+    uint8_t bytes[IP4ADDRESS_LENGTH];
+    for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
         bytes[i] = (this->address[i] & netmask[i]);
     }
     return new IP4Address(bytes);

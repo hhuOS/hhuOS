@@ -5,7 +5,7 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
-#define IP4ADDRESS_LENGH 4
+#define IP4ADDRESS_LENGTH 4
 
 #include "lib/libc/stdlib.h"
 #include <lib/string/String.h>

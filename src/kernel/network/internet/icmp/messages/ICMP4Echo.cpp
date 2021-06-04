@@ -38,7 +38,7 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t ICMP4Echo::copyTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }

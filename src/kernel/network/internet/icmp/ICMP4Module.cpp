@@ -17,7 +17,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             delete genericIcmp4Message;
             return;
         }
-        if (genericIcmp4Message->parseInput()) {
+        if (genericIcmp4Message->parse(nullptr)) {
             log.error("Parsing of incoming generic ICMP4Message failed, discarding");
             delete genericIcmp4Message;
             return;
@@ -32,7 +32,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 auto *echoReply = genericIcmp4Message->buildICMP4EchoReplyWithInput();
                 //we are still in ICMP area, so parsing happens in the same module
                 //-> we would send our echoReply to the next module responsible via EventBus otherwise
-                if (echoReply->parseInput()) {
+                if (echoReply->parse(nullptr)) {
                     log.error("Parsing of incoming ICMP4 echo reply failed, discarding");
                     delete echoReply;
                     return;
@@ -53,7 +53,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO: {
                 auto *echoRequest = genericIcmp4Message->buildICMP4EchoWithInput();
-                if (echoRequest->parseInput()) {
+                if (echoRequest->parse(nullptr)) {
                     log.error("Parsing of incoming ICMP4 echo failed, discarding");
                     delete echoRequest;
                     return;

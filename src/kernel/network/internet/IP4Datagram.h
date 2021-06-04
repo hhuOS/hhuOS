@@ -40,41 +40,41 @@ private:
 
         uint8_t protocolType = 0;
         uint16_t headerChecksum = 0;
-        uint8_t sourceAddress[IP4ADDRESS_LENGH]{0, 0, 0, 0};
-        uint8_t destinationAddress[IP4ADDRESS_LENGH]{0, 0, 0, 0};
+        uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
+        uint8_t destinationAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
     } ip4Header_t;
 
     ip4Header_t header;
 
-    IP4Address *destinationAddress = nullptr;
-    IP4Address *sourceAddress = nullptr;
     IP4DataPart *ip4DataPart = nullptr;
 
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
+    IP4Datagram() = default;
+
     virtual ~IP4Datagram();
 
-    void setSourceAddress(IP4Address *source);
+    IP4DataPart *getIP4DataPart() const;
 
-    GenericICMP4Message *buildGenericICMP4MessageWithInput();
-
-    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
-
-    [[nodiscard]] IP4Address *getSourceAddress() const;
-
-    [[nodiscard]] IP4Address *getDestinationAddress() const;
+    EtherType getEtherType() override;
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
-    EtherType getEtherType() override;
+    void setSourceAddress(IP4Address *source);
 
     uint8_t parse(NetworkByteBlock *input) override;
 
-    UDPDatagram *buildUDPDatagramWithInput();
+    [[nodiscard]] IP4Address *getSourceAddress() const;
+
+    [[nodiscard]] IP4Address *getDestinationAddress() const;
+
+    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+
+    void freeMemory() override;
 };
 
 

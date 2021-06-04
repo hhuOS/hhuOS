@@ -5,7 +5,7 @@
 #include "IP4Netmask.h"
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {
-    uint8_t maxBitCount = IP4ADDRESS_LENGH * 8;
+    uint8_t maxBitCount = IP4ADDRESS_LENGTH * 8;
     if (bitCount > maxBitCount) {
         bitCount = maxBitCount;
     }

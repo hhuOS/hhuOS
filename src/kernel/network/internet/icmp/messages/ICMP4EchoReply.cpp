@@ -19,7 +19,7 @@ ICMP4EchoReply::ICMP4EchoReply(IP4Address *destinationAddress, IP4Address *sourc
     this->input = input;
 }
 
-uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }

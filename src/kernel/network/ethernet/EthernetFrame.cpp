@@ -14,7 +14,7 @@ EthernetFrame::~EthernetFrame() {
     ethernetDataPart->freeMemory();
 }
 
-uint16_t EthernetFrame::getTotalLengthInBytes() {
+uint16_t EthernetFrame::getLengthInBytes() {
     return sizeof header + ethernetDataPart->getLengthInBytes();
 }
 
@@ -38,7 +38,7 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
             ethernetDataPart == nullptr ||
             output == nullptr ||
             ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
-            sizeof (header) > ETHERNETHEADER_MAX_LENGTH
+            sizeof header > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;
     }
