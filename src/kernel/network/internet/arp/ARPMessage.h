@@ -21,22 +21,40 @@ private:
         uint16_t opCode = 0; //1 is REQUEST, 2 is REPLY, 0 is undefined here
     } arpheader_t;
 
-    arpheader_t header;
-    EthernetAddress *senderHardwareAddress = nullptr;
-    IP4Address *senderProtocolAddress = nullptr;
+    typedef struct arpMessage {
+        arpheader_t header;
+        uint8_t senderHardwareAddress[MAC_SIZE]{0,0,0,0,0,0};
+        uint8_t senderProtocolAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
 
-    EthernetAddress *targetHardwareAddress = nullptr;
-    IP4Address *targetProtocolAddress = nullptr;
+        uint8_t targetHardwareAddress[MAC_SIZE]{0,0,0,0,0,0};
+        uint8_t targetProtocolAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+    } arpmessage_t;
+
+    arpmessage_t message;
 
 public:
-    //Request constructor
-    ARPMessage(IP4Address *targetProtocolAddress, EthernetAddress *senderHardwareAddress,
-               IP4Address *senderProtocolAddress);
+    enum class OpCode{
+        REQUEST = 1,
+        REPLY = 2
+    };
+
+    //Sending constructor
+    explicit ARPMessage(OpCode opCode);
 
     //Incoming constructor
     ARPMessage() = default;
 
     ~ARPMessage() override = default;
+
+    static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
+
+    void setSenderHardwareAddress(EthernetAddress *senderHardwareAddress);
+
+    void setSenderProtocolAddress(IP4Address *senderProtocolAddress);
+
+    void setTargetHardwareAddress(EthernetAddress *targetHardwareAddress);
+
+    void setTargetProtocolAddress(IP4Address *targetProtocolAddress);
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 

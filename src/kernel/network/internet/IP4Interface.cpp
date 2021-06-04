@@ -26,7 +26,14 @@ void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagra
 
     EthernetFrame *outFrame;
     if (destinationAddress == nullptr) {
-        auto *arpRequest = new ARPMessage(receiver, this->ethernetDevice->getAddress(), this->ip4Address);
+        auto *arpRequest = new ARPMessage(ARPMessage::OpCode::REQUEST);
+
+        arpRequest->setSenderHardwareAddress(this->ethernetDevice->getAddress());
+        arpRequest->setSenderProtocolAddress(this->ip4Address);
+
+        arpRequest->setTargetHardwareAddress(arpModule->getBroadcastAddress());
+        arpRequest->setTargetProtocolAddress(receiver);
+
         outFrame = new EthernetFrame(arpModule->getBroadcastAddress(), arpRequest);
     } else {
         outFrame = new EthernetFrame(destinationAddress, ip4Datagram);

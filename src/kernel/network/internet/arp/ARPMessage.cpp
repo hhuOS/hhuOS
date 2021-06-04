@@ -4,8 +4,11 @@
 
 #include "ARPMessage.h"
 
-uint8_t ARPMessage::copyTo(NetworkByteBlock *byteBlock) {
+ARPMessage::ARPMessage(ARPMessage::OpCode opCode) {
+    message.header.opCode = getOpCodeAsInt(opCode);
+}
 
+uint8_t ARPMessage::copyTo(NetworkByteBlock *byteBlock) {
     return 0;
 }
 
@@ -21,10 +24,22 @@ uint8_t ARPMessage::parse(NetworkByteBlock *input) {
     return 1;
 }
 
-ARPMessage::ARPMessage(IP4Address *targetProtocolAddress, EthernetAddress *senderHardwareAddress,
-                       IP4Address *senderProtocolAddress) {
-    this->targetProtocolAddress = targetProtocolAddress;
-    this->senderHardwareAddress = senderHardwareAddress;
-    this->senderProtocolAddress = senderProtocolAddress;
-    header.opCode = 1; //This is a request
+uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode){
+    return (uint16_t) opCode;
+}
+
+void ARPMessage::setSenderHardwareAddress(EthernetAddress *senderHardwareAddress) {
+    senderHardwareAddress->copyTo(message.senderHardwareAddress);
+}
+
+void ARPMessage::setSenderProtocolAddress(IP4Address *senderProtocolAddress) {
+    senderProtocolAddress->copyTo(message.senderProtocolAddress);
+}
+
+void ARPMessage::setTargetHardwareAddress(EthernetAddress *targetHardwareAddress) {
+    targetHardwareAddress->copyTo(message.targetHardwareAddress);
+}
+
+void ARPMessage::setTargetProtocolAddress(IP4Address *targetProtocolAddress) {
+    targetProtocolAddress->copyTo(message.targetProtocolAddress);
 }
