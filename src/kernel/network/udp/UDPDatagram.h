@@ -8,10 +8,20 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 
-class UDPDatagram {
+class UDPDatagram : public IP4DataPart{
 
 public:
-    UDPDatagram(NetworkByteBlock *input);
+    UDPDatagram() = default;
+
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
+
+    size_t getLengthInBytes() override;
+
+    IP4ProtocolType getIP4ProtocolType() override;
+
+    uint8_t parse(NetworkByteBlock *input) override;
+
+    void freeMemory() override;
 };
 
 

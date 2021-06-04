@@ -13,10 +13,7 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
-ICMP4EchoReply::ICMP4EchoReply(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input) {
-    this->destinationAddress = destinationAddress;
-    this->sourceAddress = sourceAddress;
-    this->input = input;
+ICMP4EchoReply::~ICMP4EchoReply() {
 }
 
 uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *byteBlock) {
@@ -72,7 +69,7 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
-uint8_t ICMP4EchoReply::parseInput() {
+uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
     if (input == nullptr) {
         return 1;
     }
@@ -110,7 +107,7 @@ IP4Address *ICMP4EchoReply::getSourceAddress() const {
     return sourceAddress;
 }
 
-ICMP4EchoReply::~ICMP4EchoReply() {
-    delete input;
+uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
+    return 1;
 }
 

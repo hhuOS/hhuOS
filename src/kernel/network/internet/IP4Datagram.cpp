@@ -3,6 +3,10 @@
 //
 
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
+#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
+#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
+#include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
+#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
@@ -71,9 +75,14 @@ uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
     errors+=output->append(header.headerChecksum);
     errors+=output->append(header.sourceAddress, IP4ADDRESS_LENGTH);
     errors+=output->append(header.destinationAddress, IP4ADDRESS_LENGTH);
-    errors+= ip4DataPart->copyTo(output);
 
-    return errors;
+    //True if errors>0
+    if(errors){
+        return errors;
+    }
+
+    //Call next level if no errors occurred yet
+    return ip4DataPart->copyTo(output);
 }
 
 uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
@@ -97,17 +106,37 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
 
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
         case IP4DataPart::IP4ProtocolType::ICMP4:{
-            this->ip4DataPart = new GenericICMP4Message();
-            errors+= ip4DataPart->parse(input);
+            uint8_t typeByte = 0;
+            input->read(&typeByte);
+            switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
+                case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
+                    this->ip4DataPart=new ICMP4EchoReply();
+                    break;
+                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
+                    this->ip4DataPart=new ICMP4DestinationUnreachable();
+                    break;
+                case ICMP4Message::ICMP4MessageType::ECHO:
+                    this->ip4DataPart=new ICMP4Echo();
+                    break;
+                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
+                    this->ip4DataPart=new ICMP4TimeExceeded();
+                    break;
+                default: errors++;
+            }
             break;
         }
         case IP4DataPart::IP4ProtocolType::UDP:{
             this->ip4DataPart = new UDPDatagram();
-            errors+= ip4DataPart->parse(input);
             break;
         }
         default: errors++;
     }
 
-    return errors;
+    //True if errors>0
+    if(errors){
+        return errors;
+    }
+
+    //Call next level if no errors occurred yet
+    return ip4DataPart->parse(input);
 }

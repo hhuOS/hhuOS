@@ -19,16 +19,11 @@ private:
     } echoReplyMessage;
 
     echoReplyMessage echoReply;
-
-    NetworkByteBlock *input = nullptr;
-    IP4Address *destinationAddress = nullptr;
-    IP4Address *sourceAddress = nullptr;
 public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
 
-    //Receiving constructor
-    ICMP4EchoReply(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input);
+    ICMP4EchoReply() = default;
 
     virtual ~ICMP4EchoReply();
 
@@ -44,7 +39,7 @@ public:
 
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 
 };
 

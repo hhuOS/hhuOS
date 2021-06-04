@@ -47,9 +47,14 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
     errors+=output->append(&header.destinationAddress, sizeof header.destinationAddress);
     errors+=output->append(&header.sourceAddress, sizeof header.sourceAddress);
     errors+=output->append(header.etherType);
-    errors+= ethernetDataPart->copyTo(output);
 
-    return errors;
+    //True if errors>0
+    if(errors){
+        return errors;
+    }
+
+    //Call next level if no errors occurred yet
+    return ethernetDataPart->copyTo(output);
 }
 
 uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
@@ -65,17 +70,21 @@ uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
 
     switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
         case EthernetDataPart::EtherType::IP4: {
-            this->ethernetDataPart = new IP4Datagram();
-            errors+= ethernetDataPart->parse(input);
+            ethernetDataPart = new IP4Datagram();
             break;
         }
         case EthernetDataPart::EtherType::ARP: {
-            this->ethernetDataPart = new ARPMessage();
-            errors+= ethernetDataPart->parse(input);
+            ethernetDataPart = new ARPMessage();
             break;
         }
         default: errors++;
     }
 
-    return errors;
+    //True if errors>0
+    if(errors){
+        return errors;
+    }
+
+    //Call next level if no errors occurred yet
+    return ethernetDataPart->parse(input);
 }

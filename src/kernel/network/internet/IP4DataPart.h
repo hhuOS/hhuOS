@@ -16,10 +16,6 @@ public:
         INVALID = 0
     };
 
-    uint8_t getIP4ProtocolTypeAsInt() {
-        return (uint8_t) getIP4ProtocolType();
-    }
-
     static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value) {
         switch (value) {
             case 1:
@@ -29,6 +25,10 @@ public:
             default:
                 return IP4ProtocolType::INVALID;
         }
+    }
+
+    uint8_t getIP4ProtocolTypeAsInt() {
+        return (uint8_t) getIP4ProtocolType();
     }
 
     virtual uint8_t copyTo(NetworkByteBlock *byteBlock) = 0;

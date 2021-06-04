@@ -4,8 +4,6 @@
 
 #include "ARPMessage.h"
 
-ARPMessage::ARPMessage(NetworkByteBlock *input) : input(input) {}
-
 uint8_t ARPMessage::copyTo(NetworkByteBlock *byteBlock) {
     return 0;
 }
@@ -20,4 +18,8 @@ EthernetDataPart::EtherType ARPMessage::getEtherType() {
 
 uint8_t ARPMessage::parse(NetworkByteBlock *input) {
     return 1;
+}
+
+void ARPMessage::freeMemory() {
+
 }

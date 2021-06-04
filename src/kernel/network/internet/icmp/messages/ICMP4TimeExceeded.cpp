@@ -5,12 +5,6 @@
 #include <kernel/network/NetworkByteBlock.h>
 #include "ICMP4TimeExceeded.h"
 
-ICMP4TimeExceeded::ICMP4TimeExceeded() {}
-
-ICMP4TimeExceeded::ICMP4TimeExceeded(IP4DataPart *dataPart) {
-    //TODO: Implement parsing from input
-}
-
 uint8_t ICMP4TimeExceeded::copyTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
@@ -25,7 +19,6 @@ ICMP4Message::ICMP4MessageType ICMP4TimeExceeded::getICMP4MessageType() {
     return ICMP4MessageType::TIME_EXCEEDED;
 }
 
-uint8_t ICMP4TimeExceeded::parseInput() {
+uint8_t ICMP4TimeExceeded::parse(NetworkByteBlock *input) {
     return 1;
 }
-

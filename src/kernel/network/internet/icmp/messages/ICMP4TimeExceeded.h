@@ -9,20 +9,16 @@
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
 class ICMP4TimeExceeded : public ICMP4Message {
+public:
     //Sending constructor
-    ICMP4TimeExceeded();
-
-    //Receiveing constructor
-    ICMP4TimeExceeded(IP4DataPart *dataPart);
+    ICMP4TimeExceeded() = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
-
-public:
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 };
 
 

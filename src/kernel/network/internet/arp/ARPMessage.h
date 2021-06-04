@@ -10,11 +10,8 @@
 #include <kernel/network/ethernet/EthernetDataPart.h>
 
 class ARPMessage : public EthernetDataPart {
-private:
-    NetworkByteBlock *input;
-
 public:
-    explicit ARPMessage(NetworkByteBlock *input);
+    ARPMessage() = default;
     //TODO: Let other ARPMessages extend this one!
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
@@ -24,6 +21,8 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
+
+    void freeMemory() override;
 };
 
 

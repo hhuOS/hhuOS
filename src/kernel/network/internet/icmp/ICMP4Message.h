@@ -33,6 +33,20 @@ public:
         return (uint8_t) getICMP4MessageType();
     }
 
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
+
+    size_t getLengthInBytes() override = 0;
+
+    virtual ICMP4MessageType getICMP4MessageType() = 0;
+
+    uint8_t parse(NetworkByteBlock *input) override {
+        return 0;
+    }
+
+    void freeMemory() override {
+
+    }
+
     static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {
         switch (type) {
             case 0:
@@ -61,12 +75,6 @@ public:
                 return ICMP4MessageType::INVALID;
         }
     }
-
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
-
-    size_t getLengthInBytes() override = 0;
-
-    virtual ICMP4MessageType getICMP4MessageType() = 0;
 };
 
 

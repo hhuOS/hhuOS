@@ -20,25 +20,19 @@ private:
 
     echo_t echoMessage;
 
-    NetworkByteBlock *input = nullptr;
-    IP4Address *destinationAddress = nullptr;
-    IP4Address *sourceAddress = nullptr;
 public:
     //Sending constructor
     ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber);
 
-    //Receiving constructor
-    ICMP4Echo(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input);
+    ICMP4Echo() = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 
-    [[nodiscard]] IP4Address *getSourceAddress() const;
-
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 
     virtual ~ICMP4Echo();
 

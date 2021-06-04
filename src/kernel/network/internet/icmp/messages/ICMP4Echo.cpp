@@ -75,7 +75,7 @@ uint8_t ICMP4Echo::copyTo(NetworkByteBlock *byteBlock) {
     return 0;
 }
 
-uint8_t ICMP4Echo::parseInput() {
+uint8_t ICMP4Echo::parse(NetworkByteBlock *input) {
     if (input == nullptr) {
         return 1;
     }
