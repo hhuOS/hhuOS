@@ -19,7 +19,3 @@ EthernetDataPart::EtherType ARPMessage::getEtherType() {
 uint8_t ARPMessage::parse(NetworkByteBlock *input) {
     return 1;
 }
-
-void ARPMessage::freeMemory() {
-
-}

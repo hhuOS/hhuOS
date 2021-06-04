@@ -18,12 +18,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 }
 
 IP4Datagram::~IP4Datagram() {
-    freeMemory();
-}
-
-void IP4Datagram::freeMemory() {
-    //Use this method to cleanup allocated memory if necessary
-    ip4DataPart->freeMemory();
+    delete ip4DataPart;
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {

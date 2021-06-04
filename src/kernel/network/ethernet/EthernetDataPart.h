@@ -17,6 +17,8 @@ public:
         INVALID = 0
     };
 
+    virtual ~EthernetDataPart() = 0;
+
     uint16_t getEtherTypeAsInt() {
         return (uint16_t) getEtherType();
     }
@@ -41,8 +43,6 @@ public:
     virtual EtherType getEtherType() = 0;
 
     virtual uint8_t parse(NetworkByteBlock *input) = 0;
-
-    virtual void freeMemory() = 0;
 };
 
 

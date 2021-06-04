@@ -11,7 +11,7 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 }
 
 EthernetFrame::~EthernetFrame() {
-    ethernetDataPart->freeMemory();
+    delete ethernetDataPart;
 }
 
 uint16_t EthernetFrame::getLengthInBytes() {

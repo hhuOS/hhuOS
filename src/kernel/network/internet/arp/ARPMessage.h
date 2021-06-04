@@ -12,7 +12,8 @@
 class ARPMessage : public EthernetDataPart {
 public:
     ARPMessage() = default;
-    //TODO: Let other ARPMessages extend this one!
+
+    ~ARPMessage() override = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
@@ -21,8 +22,6 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
-
-    void freeMemory() override;
 };
 
 

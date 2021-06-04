@@ -34,8 +34,6 @@ public:
 
     uint8_t parse(NetworkByteBlock *input) override;
 
-    virtual ~ICMP4Echo();
-
     ICMP4EchoReply *buildEchoReply() const;
 };
 

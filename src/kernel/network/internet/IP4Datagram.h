@@ -73,8 +73,6 @@ public:
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
-
-    void freeMemory() override;
 };
 
 

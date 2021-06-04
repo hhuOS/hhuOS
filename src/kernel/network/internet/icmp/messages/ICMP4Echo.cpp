@@ -12,16 +12,6 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
     echoMessage.sequenceNumber = sequenceNumber;
 }
 
-ICMP4Echo::ICMP4Echo(IP4Address *destinationAddress, IP4Address *sourceAddress, NetworkByteBlock *input) {
-    this->destinationAddress = destinationAddress;
-    this->sourceAddress = sourceAddress;
-    this->input = input;
-}
-
-ICMP4Echo::~ICMP4Echo() {
-    delete this->input;
-}
-
 size_t ICMP4Echo::getLengthInBytes() {
     return sizeof(this->echoMessage);
 }

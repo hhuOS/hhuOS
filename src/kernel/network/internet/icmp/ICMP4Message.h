@@ -25,6 +25,10 @@ public:
         INVALID
     };
 
+    //Our ICMP4Messages have no dynamically allocated memory inside
+    //-> default destructor works fine here
+    ~ICMP4Message() override = default;
+
     IP4ProtocolType getIP4ProtocolType() override {
         return IP4ProtocolType::ICMP4;
     }
@@ -41,10 +45,6 @@ public:
 
     uint8_t parse(NetworkByteBlock *input) override {
         return 0;
-    }
-
-    void freeMemory() override {
-
     }
 
     static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {

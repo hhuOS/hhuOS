@@ -27,6 +27,8 @@ public:
         }
     }
 
+    virtual ~IP4DataPart() = 0;
+
     uint8_t getIP4ProtocolTypeAsInt() {
         return (uint8_t) getIP4ProtocolType();
     }
@@ -38,8 +40,6 @@ public:
     virtual IP4ProtocolType getIP4ProtocolType() = 0;
 
     virtual uint8_t parse(NetworkByteBlock *input) = 0;
-
-    virtual void freeMemory() = 0;
 };
 
 
