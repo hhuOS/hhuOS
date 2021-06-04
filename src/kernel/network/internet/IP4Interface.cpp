@@ -22,10 +22,20 @@ IP4Interface::~IP4Interface() {
 
 void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
     ip4Datagram->setSourceAddress(this->ip4Address);
+    EthernetAddress *destinationAddress = this->arpModule->resolveIP4(receiver);
+
+    EthernetFrame *outFrame;
+    if (destinationAddress == nullptr) {
+        auto *arpRequest = new ARPMessage(receiver,this->ethernetDevice->getAddress(),this->ip4Address);
+        outFrame= new EthernetFrame(arpModule->getBroadcastAddress(),arpRequest);
+    }
+    else{
+        outFrame=new EthernetFrame(destinationAddress, ip4Datagram);
+    }
     this->eventBus->publish(
             new Kernel::EthernetSendEvent(
                     this->ethernetDevice,
-                    this->arpModule->initEthernetFrame(receiver, ip4Datagram)
+                    outFrame
             )
     );
 }

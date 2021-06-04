@@ -18,15 +18,14 @@ private:
     Util::ArrayList<ARPEntry *> *arpTable;
     EthernetAddress *broadcastAddress;
 
-    EthernetAddress *resolveIP4(IP4Address *ip4Address);
-
 public:
-
     ARPModule();
+
+    EthernetAddress *getBroadcastAddress() const;
 
     void addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
 
-    EthernetFrame *initEthernetFrame(IP4Address *ip4address, IP4Datagram *ip4datagram);
+    EthernetAddress *resolveIP4(IP4Address *ip4Address);
 };
 
 
