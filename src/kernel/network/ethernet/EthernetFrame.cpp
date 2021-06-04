@@ -24,19 +24,19 @@ uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.destinationAddress,
             sizeof this->header.destinationAddress)
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.sourceAddress,
             sizeof this->header.sourceAddress)
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->header.etherType,
             sizeof this->header.etherType)
             ) {
@@ -63,19 +63,19 @@ uint8_t EthernetFrame::parseInput() {
         return 1;
     }
     this->input->resetCurrentIndex();
-    if (this->input->writeBytesStraightTo(
+    if (this->input->readBytesStraightTo(
             &this->header.destinationAddress,
             sizeof(this->header.destinationAddress))
             ) {
         return 1;
     }
-    if (this->input->writeBytesStraightTo(
+    if (this->input->readBytesStraightTo(
             &this->header.sourceAddress,
             sizeof(this->header.sourceAddress))
             ) {
         return 1;
     }
-    if (this->input->writeBytesInHostByteOrderTo(
+    if (this->input->readBytesInHostByteOrderTo(
             &this->header.etherType,
             sizeof(this->header.etherType))
             ) {

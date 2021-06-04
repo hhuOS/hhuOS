@@ -28,17 +28,17 @@ public:
 
     virtual ~NetworkByteBlock();
 
-    uint8_t appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount);
+    uint8_t writeBytesInNetworkByteOrderFrom(void *memoryAddress, size_t byteCount);
 
-    uint8_t appendBytesStraight(void *memoryAddress, size_t byteCount);
+    uint8_t writeBytesStraightFrom(void *memoryAddress, size_t byteCount);
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
 
     void printBytes();
 
-    uint8_t writeBytesStraightTo(void *target, size_t byteCount);
+    uint8_t readBytesStraightTo(void *target, size_t byteCount);
 
-    uint8_t writeBytesInHostByteOrderTo(void *target, size_t byteCount);
+    uint8_t readBytesInHostByteOrderTo(void *target, size_t byteCount);
 
     size_t bytesRemaining() const;
 };

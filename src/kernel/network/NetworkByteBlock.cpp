@@ -55,7 +55,7 @@ void NetworkByteBlock::printBytes() {
     printf("\n\n");
 }
 
-uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, size_t byteCount) {
+uint8_t NetworkByteBlock::writeBytesInNetworkByteOrderFrom(void *memoryAddress, size_t byteCount) {
     auto *source = (uint8_t *) memoryAddress;
     //Avoid writing beyond last byte
     if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
@@ -74,7 +74,7 @@ uint8_t NetworkByteBlock::appendBytesInNetworkByteOrder(void *memoryAddress, siz
     return 0;
 }
 
-uint8_t NetworkByteBlock::appendBytesStraight(void *memoryAddress, size_t byteCount) {
+uint8_t NetworkByteBlock::writeBytesStraightFrom(void *memoryAddress, size_t byteCount) {
     auto *source = (uint8_t *) memoryAddress;
     //Avoid writing beyond last byte
     if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
@@ -103,7 +103,7 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
     return 0;
 }
 
-uint8_t NetworkByteBlock::writeBytesStraightTo(void *target, size_t byteCount) {
+uint8_t NetworkByteBlock::readBytesStraightTo(void *target, size_t byteCount) {
     if (
             this->currentIndex == this->length ||
             byteCount == 0 ||
@@ -121,7 +121,7 @@ uint8_t NetworkByteBlock::writeBytesStraightTo(void *target, size_t byteCount) {
     return 0;
 }
 
-uint8_t NetworkByteBlock::writeBytesInHostByteOrderTo(void *target, size_t byteCount) {
+uint8_t NetworkByteBlock::readBytesInHostByteOrderTo(void *target, size_t byteCount) {
     if (
             this->currentIndex == this->length ||
             byteCount == 0 ||

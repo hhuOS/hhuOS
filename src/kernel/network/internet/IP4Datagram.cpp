@@ -51,61 +51,61 @@ uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.version_headerLength,
             sizeof(this->header.version_headerLength))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.typeOfService,
             sizeof(this->header.typeOfService))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->header.totalLength,
             sizeof(this->header.totalLength))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->header.identification,
             sizeof(this->header.identification))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->header.flags_fragmentOffset,
             sizeof(this->header.flags_fragmentOffset))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.timeToLive,
             sizeof(this->header.timeToLive))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.protocolType,
             sizeof(this->header.protocolType))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->header.headerChecksum,
             sizeof(this->header.headerChecksum))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.sourceAddress,
             sizeof(this->header.sourceAddress))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->header.destinationAddress,
             sizeof(this->header.destinationAddress))
             ) {
@@ -126,61 +126,61 @@ uint8_t IP4Datagram::parseInput() {
     if (input == nullptr) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.version_headerLength,
             sizeof(this->header.version_headerLength))
             ) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.typeOfService,
             sizeof(this->header.typeOfService))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->header.totalLength,
             sizeof(this->header.totalLength))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->header.identification,
             sizeof(this->header.identification))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->header.flags_fragmentOffset,
             sizeof(this->header.flags_fragmentOffset))
             ) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.timeToLive,
             sizeof(this->header.timeToLive))
             ) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.protocolType,
             sizeof(this->header.protocolType))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->header.headerChecksum,
             sizeof(this->header.headerChecksum))
             ) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.sourceAddress,
             sizeof(this->header.sourceAddress))
             ) {
         return 1;
     }
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->header.destinationAddress,
             sizeof(this->header.destinationAddress))
             ) {

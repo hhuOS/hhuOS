@@ -42,31 +42,31 @@ uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->echoMessage.type,
             sizeof(this->echoMessage.type))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoMessage.checksum,
             sizeof(this->echoMessage.checksum))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoMessage.identifier,
             sizeof(this->echoMessage.identifier))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoMessage.sequenceNumber,
             sizeof(this->echoMessage.sequenceNumber))
             ) {
@@ -82,25 +82,25 @@ uint8_t ICMP4Echo::parseInput() {
     //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
     //-> the next Byte in our NetworkByteBlock is 'code', the next value!
     //This is no problem here, because the 'type' value is constant '8' per definition
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoMessage.checksum,
             sizeof(this->echoMessage.checksum))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoMessage.identifier,
             sizeof(this->echoMessage.identifier))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoMessage.sequenceNumber,
             sizeof(this->echoMessage.sequenceNumber))
             ) {

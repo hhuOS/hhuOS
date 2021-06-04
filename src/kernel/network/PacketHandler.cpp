@@ -41,7 +41,7 @@ namespace Kernel {
                 return;
             }
             auto *byteBlock = new NetworkByteBlock(receiveEvent.getLength());
-            byteBlock->appendBytesStraight(receiveEvent.getPacket(), receiveEvent.getLength());
+            byteBlock->writeBytesStraightFrom(receiveEvent.getPacket(), receiveEvent.getLength());
             receiveEvent.dropPacket();
 
             eventBus->publish(

@@ -23,31 +23,31 @@ uint8_t ICMP4EchoReply::copyDataTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->echoReply.type,
             sizeof(this->echoReply.type))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesStraight(
+    if (byteBlock->writeBytesStraightFrom(
             &this->echoReply.code,
             sizeof(this->echoReply.code))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoReply.checksum,
             sizeof(this->echoReply.checksum))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoReply.identifier,
             sizeof(this->echoReply.identifier))
             ) {
         return 1;
     }
-    if (byteBlock->appendBytesInNetworkByteOrder(
+    if (byteBlock->writeBytesInNetworkByteOrderFrom(
             &this->echoReply.sequenceNumber,
             sizeof(this->echoReply.sequenceNumber))
             ) {
@@ -79,25 +79,25 @@ uint8_t ICMP4EchoReply::parseInput() {
     //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
     //-> the next Byte in our NetworkByteBlock is 'code', the next value!
     //This is no problem here, because the 'type' value is constant '0' per definition
-    if (input->writeBytesStraightTo(
+    if (input->readBytesStraightTo(
             &this->echoReply.code,
             sizeof(this->echoReply.code))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoReply.checksum,
             sizeof(this->echoReply.checksum))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoReply.identifier,
             sizeof(this->echoReply.identifier))
             ) {
         return 1;
     }
-    if (input->writeBytesInHostByteOrderTo(
+    if (input->readBytesInHostByteOrderTo(
             &this->echoReply.sequenceNumber,
             sizeof(this->echoReply.sequenceNumber))
             ) {
