@@ -41,6 +41,8 @@ public:
     virtual EtherType getEtherType() = 0;
 
     virtual uint8_t parseInput() = 0;
+
+    virtual void freeMemory() = 0;
 };
 
 

@@ -41,9 +41,10 @@ namespace Kernel {
                 return;
             }
             auto *byteBlock = new NetworkByteBlock(receiveEvent.getPacket(), receiveEvent.getLength());
+            auto *inFrame = new EthernetFrame(byteBlock);
+
             receiveEvent.dropPacket();
 
-            auto *inFrame = new EthernetFrame(byteBlock);
             if(!byteBlock->isCompletelyFilled() || inFrame->parseInput()){
                 log.error("Parsing incoming packet failed, discarding");
                 delete inFrame;

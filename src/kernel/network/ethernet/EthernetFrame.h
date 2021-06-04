@@ -20,15 +20,17 @@ private:
     //Usage of IP4Datagram should only happen via given public methods
     //-> changing our header's internal representation is possible at any time then!
     typedef struct ethernetHeader {
-        uint8_t destinationAddress[6]{0, 0, 0, 0, 0, 0};
-        uint8_t sourceAddress[6]{0, 0, 0, 0, 0, 0};
+        uint8_t destinationAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
+        uint8_t sourceAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
         uint16_t etherType = 0;
     } ethHeader_t;
 
     ethHeader_t header;
-    size_t headerLengthInBytes = sizeof(header);
-    EthernetDataPart *ethernetDataPart = nullptr;
     NetworkByteBlock *input = nullptr;
+
+    EthernetAddress *destinationAddress = nullptr;
+    EthernetAddress *sourceAddress = nullptr;
+    EthernetDataPart *ethernetDataPart = nullptr;
 
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
@@ -37,19 +39,17 @@ public:
 
     virtual ~EthernetFrame();
 
+    [[nodiscard]] EthernetDataPart *getEthernetDataPart() const;
+
     [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
     uint8_t copyDataTo(NetworkByteBlock *byteBlock);
 
     uint16_t getTotalLengthInBytes();
 
-    void setSourceAddress(EthernetAddress *sourceAddress);
+    void setSourceAddress(EthernetAddress *source);
 
     uint8_t parseInput();
-
-    IP4Datagram *buildIP4DatagramWithInput();
-
-    ARPMessage *buildARPMessageWithInput();
 };
 
 
