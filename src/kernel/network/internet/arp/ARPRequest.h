@@ -15,13 +15,13 @@ private:
 public:
     explicit ARPRequest(IP4Address *ip4Address);
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 
     EtherType getEtherType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 };
 
 

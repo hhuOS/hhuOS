@@ -5,57 +5,57 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    this->destinationAddress = destinationAddress;
+    destinationAddress->copyTo(header.destinationAddress);
+    header.etherType = ethernetDataPart->getEtherTypeAsInt();
     this->ethernetDataPart = ethernetDataPart;
 }
 
-EthernetFrame::EthernetFrame(NetworkByteBlock *input) {
-    this->input = input;
-}
-
 EthernetFrame::~EthernetFrame() {
-    delete destinationAddress;
-    delete sourceAddress;
-    delete input;
     ethernetDataPart->freeMemory();
 }
 
 uint16_t EthernetFrame::getTotalLengthInBytes() {
-    return sizeof (ethernetHeader) + ethernetDataPart->getLengthInBytes();
+    return sizeof header + ethernetDataPart->getLengthInBytes();
 }
 
 void EthernetFrame::setSourceAddress(EthernetAddress *source) {
-    this->sourceAddress = source;
+    if(source== nullptr){
+        return;
+    }
+    source->copyTo(header.sourceAddress);
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
     return ethernetDataPart->getEtherType();
 }
 
-uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
+EthernetDataPart *EthernetFrame::getEthernetDataPart() const {
+    return ethernetDataPart;
+}
+
+uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
     if (
             ethernetDataPart == nullptr ||
-            byteBlock == nullptr ||
+            output == nullptr ||
             ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
-            sizeof (ethernetHeader) > ETHERNETHEADER_MAX_LENGTH
+            sizeof (header) > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;
     }
-    destinationAddress->copyTo(header.destinationAddress);
-    sourceAddress->copyTo(header.sourceAddress);
-    header.etherType = ethernetDataPart->getEtherTypeAsInt();
 
     uint8_t errors=0;
-    errors+=byteBlock->append(&header.destinationAddress, sizeof header.destinationAddress);
-    errors+=byteBlock->append(&header.sourceAddress, sizeof header.sourceAddress);
-    errors+=byteBlock->append(header.etherType);
-    errors+=ethernetDataPart->copyDataTo(byteBlock);
+    errors+=output->append(&header.destinationAddress, sizeof header.destinationAddress);
+    errors+=output->append(&header.sourceAddress, sizeof header.sourceAddress);
+    errors+=output->append(header.etherType);
+    errors+= ethernetDataPart->copyTo(output);
 
     return errors;
 }
 
-uint8_t EthernetFrame::parseInput() {
-    if (input == nullptr) {
+uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
+    if (input == nullptr ||
+        input->bytesRemaining() <= sizeof header
+        ) {
         return 1;
     }
     uint8_t errors=0;
@@ -65,21 +65,17 @@ uint8_t EthernetFrame::parseInput() {
 
     switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
         case EthernetDataPart::EtherType::IP4: {
-            this->ethernetDataPart = new IP4Datagram(input);
-            errors+=ethernetDataPart->parseInput();
+            this->ethernetDataPart = new IP4Datagram();
+            errors+= ethernetDataPart->parse(input);
             break;
         }
         case EthernetDataPart::EtherType::ARP: {
-            this->ethernetDataPart = new ARPMessage(input);
-            errors+=ethernetDataPart->parseInput();
+            this->ethernetDataPart = new ARPMessage();
+            errors+= ethernetDataPart->parse(input);
             break;
         }
         default: errors++;
     }
 
     return errors;
-}
-
-EthernetDataPart *EthernetFrame::getEthernetDataPart() const {
-    return ethernetDataPart;
 }

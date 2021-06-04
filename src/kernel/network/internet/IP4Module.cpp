@@ -71,7 +71,7 @@ namespace Kernel {
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
-            if (ip4Datagram->parseInput()) {
+            if (ip4Datagram->parse(nullptr)) {
                 log.error("Parsing of incoming IP4Datagram failed, discarding");
                 delete ip4Datagram;
                 return;

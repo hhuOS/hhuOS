@@ -6,7 +6,7 @@
 
 ARPMessage::ARPMessage(NetworkByteBlock *input) : input(input) {}
 
-uint8_t ARPMessage::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t ARPMessage::copyTo(NetworkByteBlock *byteBlock) {
     return 0;
 }
 
@@ -18,6 +18,6 @@ EthernetDataPart::EtherType ARPMessage::getEtherType() {
     return EtherType::INVALID;
 }
 
-uint8_t ARPMessage::parseInput() {
+uint8_t ARPMessage::parse(NetworkByteBlock *input) {
     return 1;
 }

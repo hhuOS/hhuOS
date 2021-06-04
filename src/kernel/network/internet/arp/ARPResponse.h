@@ -22,7 +22,7 @@ public:
 
     EthernetAddress *getEthernetAddress() const;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 };
 
 

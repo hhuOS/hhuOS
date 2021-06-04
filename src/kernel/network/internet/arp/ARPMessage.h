@@ -17,13 +17,13 @@ public:
     explicit ARPMessage(NetworkByteBlock *input);
     //TODO: Let other ARPMessages extend this one!
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 
     EtherType getEtherType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 };
 
 

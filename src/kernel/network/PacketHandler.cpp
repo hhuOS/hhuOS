@@ -40,21 +40,20 @@ namespace Kernel {
                 log.error("Incoming data was null, return");
                 return;
             }
-            auto *byteBlock = new NetworkByteBlock(receiveEvent.getPacket(), receiveEvent.getLength());
-            auto *inFrame = new EthernetFrame(byteBlock);
-
+            auto *input = new NetworkByteBlock(receiveEvent.getPacket(), receiveEvent.getLength());
             receiveEvent.dropPacket();
 
-            if(!byteBlock->isCompletelyFilled() || inFrame->parseInput()){
+            auto *inFrame = new EthernetFrame();
+            if(!input->isCompletelyFilled() || inFrame->parse(input)){
                 log.error("Parsing incoming packet failed, discarding");
                 delete inFrame;
-                delete byteBlock;
+                delete input;
                 return;
             }
-
             eventBus->publish(
                     new Kernel::EthernetReceiveEvent(inFrame)
             );
+            delete input;
             return;
         }
     }

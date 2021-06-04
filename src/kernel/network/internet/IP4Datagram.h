@@ -44,20 +44,19 @@ private:
         uint8_t destinationAddress[IP4ADDRESS_LENGH]{0, 0, 0, 0};
     } ip4Header_t;
 
-    uint8_t headerLengthInBytes = 0;
     ip4Header_t header;
+
+    IP4Address *destinationAddress = nullptr;
+    IP4Address *sourceAddress = nullptr;
     IP4DataPart *ip4DataPart = nullptr;
-    NetworkByteBlock *input = nullptr;
 
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
-    explicit IP4Datagram(NetworkByteBlock *input);
-
     virtual ~IP4Datagram();
 
-    void setSourceAddress(IP4Address *sourceAddress);
+    void setSourceAddress(IP4Address *source);
 
     GenericICMP4Message *buildGenericICMP4MessageWithInput();
 
@@ -67,13 +66,13 @@ public:
 
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
     EtherType getEtherType() override;
 
-    uint8_t parseInput() override;
+    uint8_t parse(NetworkByteBlock *input) override;
 
     UDPDatagram *buildUDPDatagramWithInput();
 };

@@ -31,7 +31,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         delete ethernetFrame;
         return;
     }
-    if (ethernetFrame->copyDataTo(byteBlock)) {
+    if (ethernetFrame->copyTo(byteBlock)) {
         log.error("Could not copy EthernetFrame data to byteBlock, discarding frame");
         delete byteBlock;
         delete ethernetFrame;

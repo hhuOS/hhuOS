@@ -18,6 +18,6 @@ EthernetAddress *ARPResponse::getEthernetAddress() const {
     return ethernetAddress;
 }
 
-uint8_t ARPResponse::parseInput() {
+uint8_t ARPResponse::parse(NetworkByteBlock *input) {
     return 1;
 }

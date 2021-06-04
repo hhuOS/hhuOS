@@ -6,92 +6,100 @@
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-    //header length is given in "lines" of 4 Bytes each
-    //->header length in Bytes is value of headerLength field multiplied by 4
-    headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
-
-    header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
-    header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
-    destinationAddress->copyTo(header.destinationAddress);
-
+    this->destinationAddress=destinationAddress;
     this->ip4DataPart = ip4DataPart;
 }
 
-IP4Datagram::IP4Datagram(NetworkByteBlock *input) {
-    this->input = input;
-}
-
-IP4Datagram::~IP4Datagram() {
-    delete input;
-}
-
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
-    return IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType);
+    return ip4DataPart->getIP4ProtocolType();
 }
 
 IP4Address *IP4Datagram::getSourceAddress() const {
-    return new IP4Address(header.sourceAddress);
+    return sourceAddress;
 }
 
-void IP4Datagram::setSourceAddress(IP4Address *sourceAddress) {
-    sourceAddress->copyTo(header.sourceAddress);
+void IP4Datagram::setSourceAddress(IP4Address *source) {
+    this->sourceAddress = source;
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
-    return new IP4Address(header.destinationAddress);
-}
-
-uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
-    if (
-        //if initialized with input byteBlock, this method must not continue
-            ip4DataPart == nullptr ||
-            byteBlock == nullptr ||
-            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - headerLengthInBytes) ||
-            headerLengthInBytes > IP4HEADER_MAX_LENGTH
-            ) {
-        return 1;
-    }
-    uint8_t retVals = 0;
-    retVals+=byteBlock->append(header.version_headerLength);
-    retVals+=byteBlock->append(header.typeOfService);
-    retVals+=byteBlock->append(header.totalLength);
-    retVals+=byteBlock->append(header.identification);
-    retVals+=byteBlock->append(header.flags_fragmentOffset);
-    retVals+=byteBlock->append(header.timeToLive);
-    retVals+=byteBlock->append(header.protocolType);
-    retVals+=byteBlock->append(header.headerChecksum);
-    retVals+=byteBlock->append(header.sourceAddress, IP4ADDRESS_LENGH);
-    retVals+=byteBlock->append(header.destinationAddress, IP4ADDRESS_LENGH);
-    retVals+=ip4DataPart->copyDataTo(byteBlock);
-
-    return retVals;
+    return destinationAddress;
 }
 
 size_t IP4Datagram::getLengthInBytes() {
-    return header.totalLength;
+    return sizeof (header) + ip4DataPart->getLengthInBytes();
 }
 
 EthernetDataPart::EtherType IP4Datagram::getEtherType() {
     return EtherType::IP4;
 }
 
-uint8_t IP4Datagram::parseInput() {
+uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
+    if (
+        //if initialized with input byteBlock, this method must not continue
+            ip4DataPart == nullptr ||
+            destinationAddress == nullptr ||
+            output == nullptr ||
+            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - sizeof(header)) ||
+            sizeof (header) > IP4HEADER_MAX_LENGTH
+            ) {
+        return 1;
+    }
+
+    destinationAddress->copyTo(header.destinationAddress);
+    sourceAddress->copyTo(header.sourceAddress);
+    header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
+
+    header.totalLength = getLengthInBytes();
+
+    uint8_t errors = 0;
+    errors+=output->append(header.version_headerLength);
+    errors+=output->append(header.typeOfService);
+    errors+=output->append(header.totalLength);
+    errors+=output->append(header.identification);
+    errors+=output->append(header.flags_fragmentOffset);
+    errors+=output->append(header.timeToLive);
+    errors+=output->append(header.protocolType);
+    errors+=output->append(header.headerChecksum);
+    errors+=output->append(header.sourceAddress, IP4ADDRESS_LENGH);
+    errors+=output->append(header.destinationAddress, IP4ADDRESS_LENGH);
+    errors+=ip4DataPart->copyDataTo(output);
+
+    return errors;
+}
+
+uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     if (input == nullptr) {
         return 1;
     }
-    uint8_t retVals = 0;
-    retVals+=input->read(&header.version_headerLength);
-    retVals+=input->read(&header.typeOfService);
-    retVals+=input->read(&header.totalLength);
-    retVals+=input->read(&header.identification);
-    retVals+=input->read(&header.flags_fragmentOffset);
-    retVals+=input->read(&header.timeToLive);
-    retVals+=input->read(&header.protocolType);
-    retVals+=input->read(&header.headerChecksum);
-    retVals+=input->read(header.sourceAddress, IP4ADDRESS_LENGH);
-    retVals+=input->read(header.destinationAddress, IP4ADDRESS_LENGH);
+    uint8_t errors = 0;
+    errors+=input->read(&header.version_headerLength);
+    errors+=input->read(&header.typeOfService);
+    errors+=input->read(&header.totalLength);
+    errors+=input->read(&header.identification);
+    errors+=input->read(&header.flags_fragmentOffset);
+    errors+=input->read(&header.timeToLive);
+    errors+=input->read(&header.protocolType);
+    errors+=input->read(&header.headerChecksum);
+    errors+=input->read(header.sourceAddress, IP4ADDRESS_LENGH);
+    errors+=input->read(header.destinationAddress, IP4ADDRESS_LENGH);
 
-    return retVals;
+    switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
+        case IP4DataPart::IP4ProtocolType::ICMP4:{
+            this->ip4DataPart = new GenericICMP4Message(input);
+            errors+=ip4DataPart->parseInput();
+            break;
+        }
+        case IP4DataPart::IP4ProtocolType::UDP:{
+            this->ip4DataPart = new UDPDatagram(input);
+            errors+=ip4DataPart->parseInput();
+            break;
+        }
+        case IP4DataPart::IP4ProtocolType::INVALID:
+            break;
+    }
+
+    return errors;
 }
 
 GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
@@ -104,4 +112,10 @@ GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
 
 UDPDatagram *IP4Datagram::buildUDPDatagramWithInput() {
     return new UDPDatagram(input);
+}
+
+IP4Datagram::~IP4Datagram() {
+    delete destinationAddress;
+    delete sourceAddress;
+    ip4DataPart->freeMemory();
 }

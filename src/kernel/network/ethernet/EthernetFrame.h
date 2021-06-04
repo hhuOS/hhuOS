@@ -26,16 +26,13 @@ private:
     } ethHeader_t;
 
     ethHeader_t header;
-    NetworkByteBlock *input = nullptr;
 
-    EthernetAddress *destinationAddress = nullptr;
-    EthernetAddress *sourceAddress = nullptr;
     EthernetDataPart *ethernetDataPart = nullptr;
 
 public:
     EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart);
 
-    explicit EthernetFrame(NetworkByteBlock *input);
+    EthernetFrame() = default;
 
     virtual ~EthernetFrame();
 
@@ -43,13 +40,13 @@ public:
 
     [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
-    uint8_t copyDataTo(NetworkByteBlock *byteBlock);
+    uint8_t copyTo(NetworkByteBlock *output);
 
     uint16_t getTotalLengthInBytes();
 
     void setSourceAddress(EthernetAddress *source);
 
-    uint8_t parseInput();
+    uint8_t parse(NetworkByteBlock *input);
 };
 
 

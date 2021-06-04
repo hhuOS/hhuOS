@@ -91,7 +91,7 @@ void Kernel::EthernetModule::onEvent(const Kernel::Event &event) {
     }
     if ((event.getType() == EthernetReceiveEvent::TYPE)) {
         EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
-        if (inFrame->parseInput()) {
+        if (inFrame->parse(nullptr)) {
             log.error("Parsing of incoming EthernetFrame failed, discarding");
             delete inFrame;
             return;

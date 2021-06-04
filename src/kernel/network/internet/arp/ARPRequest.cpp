@@ -16,11 +16,11 @@ EthernetDataPart::EtherType ARPRequest::getEtherType() {
     return EtherType::ARP;
 }
 
-uint8_t ARPRequest::copyDataTo(NetworkByteBlock *byteBlock) {
+uint8_t ARPRequest::copyTo(NetworkByteBlock *byteBlock) {
     //TODO: Implement this one!
     return 1;
 }
 
-uint8_t ARPRequest::parseInput() {
+uint8_t ARPRequest::parse(NetworkByteBlock *input) {
     return 1;
 }
