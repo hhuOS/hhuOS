@@ -2,6 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
+#include <netinet/in.h>
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
@@ -17,37 +18,24 @@ EthernetFrame::EthernetFrame(NetworkByteBlock *input) {
 uint8_t EthernetFrame::copyDataTo(NetworkByteBlock *byteBlock) {
     if (
         //if initialized with input byteBlock, this method must not continue
-            this->ethernetDataPart == nullptr ||
+            ethernetDataPart == nullptr ||
             byteBlock == nullptr ||
-            this->ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
-            this->headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH
+            ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
+            headerLengthInBytes > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;
     }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.destinationAddress,
-            sizeof this->header.destinationAddress)
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.sourceAddress,
-            sizeof this->header.sourceAddress)
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->header.etherType,
-            sizeof this->header.etherType)
-            ) {
-        return 1;
-    }
+    byteBlock->append(&header.destinationAddress,sizeof header.destinationAddress);
+    byteBlock->append(&header.sourceAddress,sizeof header.sourceAddress);
 
-    return this->ethernetDataPart->copyDataTo(byteBlock);
+    htons(header.etherType);
+    byteBlock->append(&header.etherType,sizeof header.etherType);
+
+    return ethernetDataPart->copyDataTo(byteBlock);
 }
 
 uint16_t EthernetFrame::getTotalLengthInBytes() {
-    return this->headerLengthInBytes + this->ethernetDataPart->getLengthInBytes();
+    return headerLengthInBytes + ethernetDataPart->getLengthInBytes();
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
@@ -62,22 +50,22 @@ uint8_t EthernetFrame::parseInput() {
     if (input == nullptr) {
         return 1;
     }
-    this->input->resetCurrentIndex();
-    if (this->input->readBytesStraightTo(
-            &this->header.destinationAddress,
-            sizeof(this->header.destinationAddress))
+    input->resetCurrentIndex();
+    if (input->read(
+            &header.destinationAddress,
+            sizeof(header.destinationAddress))
             ) {
         return 1;
     }
-    if (this->input->readBytesStraightTo(
-            &this->header.sourceAddress,
-            sizeof(this->header.sourceAddress))
+    if (input->read(
+            &header.sourceAddress,
+            sizeof(header.sourceAddress))
             ) {
         return 1;
     }
-    if (this->input->readBytesInHostByteOrderTo(
-            &this->header.etherType,
-            sizeof(this->header.etherType))
+    if (input->readBytesInHostByteOrderTo(
+            &header.etherType,
+            sizeof(header.etherType))
             ) {
         return 1;
     }
@@ -85,13 +73,13 @@ uint8_t EthernetFrame::parseInput() {
 }
 
 EthernetFrame::~EthernetFrame() {
-    delete this->input;
+    delete input;
 }
 
 IP4Datagram *EthernetFrame::buildIP4DatagramWithInput() {
-    return new IP4Datagram(this->input);
+    return new IP4Datagram(input);
 }
 
 ARPMessage *EthernetFrame::buildARPMessageWithInput() {
-    return new ARPMessage(this->input);
+    return new ARPMessage(input);
 }

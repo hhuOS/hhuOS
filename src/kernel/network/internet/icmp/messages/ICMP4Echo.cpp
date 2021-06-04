@@ -42,13 +42,13 @@ uint8_t ICMP4Echo::copyDataTo(NetworkByteBlock *byteBlock) {
     if (byteBlock == nullptr) {
         return 1;
     }
-    if (byteBlock->writeBytesStraightFrom(
+    if (byteBlock->append(
             &this->echoMessage.type,
             sizeof(this->echoMessage.type))
             ) {
         return 1;
     }
-    if (byteBlock->writeBytesStraightFrom(
+    if (byteBlock->append(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {
@@ -82,7 +82,7 @@ uint8_t ICMP4Echo::parseInput() {
     //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
     //-> the next Byte in our NetworkByteBlock is 'code', the next value!
     //This is no problem here, because the 'type' value is constant '8' per definition
-    if (input->readBytesStraightTo(
+    if (input->read(
             &this->echoMessage.code,
             sizeof(this->echoMessage.code))
             ) {

@@ -14,7 +14,12 @@ private:
     size_t length, currentIndex = 0;
 
 public:
+
+    NetworkByteBlock(void *packet, size_t length);
+
     NetworkByteBlock(size_t length);
+
+    virtual ~NetworkByteBlock();
 
     size_t getLength() const;
 
@@ -22,25 +27,29 @@ public:
 
     bool isCompletelyFilled() const;
 
+    void printBytes();
+
     void freeBytes();
 
-    void resetCurrentIndex();
-
-    virtual ~NetworkByteBlock();
-
-    uint8_t writeBytesInNetworkByteOrderFrom(void *memoryAddress, size_t byteCount);
-
-    uint8_t writeBytesStraightFrom(void *memoryAddress, size_t byteCount);
+    size_t bytesRemaining() const;
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
 
-    void printBytes();
+    uint8_t append(uint8_t oneByte);
 
-    uint8_t readBytesStraightTo(void *target, size_t byteCount);
+    uint8_t append(uint16_t twoBytes);
 
-    uint8_t readBytesInHostByteOrderTo(void *target, size_t byteCount);
+    uint8_t append(uint32_t fourBytes);
 
-    size_t bytesRemaining() const;
+    uint8_t append(void *source, size_t byteCount);
+
+    uint8_t read(uint8_t *oneByte);
+
+    uint8_t read(uint16_t *twoBytes);
+
+    uint8_t read(uint32_t *fourBytes);
+
+    uint8_t read(void *target, size_t byteCount);
 };
 
 

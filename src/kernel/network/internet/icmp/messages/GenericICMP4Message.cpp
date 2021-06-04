@@ -27,7 +27,7 @@ uint8_t GenericICMP4Message::parseInput() {
         return 1;
     }
     uint8_t messageTypeAsByte = 0;
-    this->input->readBytesStraightTo(&messageTypeAsByte, 1);
+    this->input->read(&messageTypeAsByte, 1);
     this->messageType = parseByteAsICMP4MessageType(messageTypeAsByte);
     if (this->messageType == ICMP4MessageType::INVALID) {
         return 1;

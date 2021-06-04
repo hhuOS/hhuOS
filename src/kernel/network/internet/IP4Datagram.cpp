@@ -8,7 +8,7 @@
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
     //header length is given in "lines" of 4 Bytes each
     //->header length in Bytes is value of headerLength field multiplied by 4
-    this->headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
+    headerLengthInBytes = (header.version_headerLength - 0x40) * 4;
 
     header.totalLength = headerLengthInBytes + ip4DataPart->getLengthInBytes();
     header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
@@ -22,7 +22,7 @@ IP4Datagram::IP4Datagram(NetworkByteBlock *input) {
 }
 
 IP4Datagram::~IP4Datagram() {
-    delete this->input;
+    delete input;
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
@@ -44,74 +44,27 @@ IP4Address *IP4Datagram::getDestinationAddress() const {
 uint8_t IP4Datagram::copyDataTo(NetworkByteBlock *byteBlock) {
     if (
         //if initialized with input byteBlock, this method must not continue
-            this->ip4DataPart == nullptr ||
+            ip4DataPart == nullptr ||
             byteBlock == nullptr ||
-            this->ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - this->headerLengthInBytes) ||
-            this->headerLengthInBytes > IP4HEADER_MAX_LENGTH
+            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - headerLengthInBytes) ||
+            headerLengthInBytes > IP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.version_headerLength,
-            sizeof(this->header.version_headerLength))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.typeOfService,
-            sizeof(this->header.typeOfService))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->header.totalLength,
-            sizeof(this->header.totalLength))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->header.identification,
-            sizeof(this->header.identification))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->header.flags_fragmentOffset,
-            sizeof(this->header.flags_fragmentOffset))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.timeToLive,
-            sizeof(this->header.timeToLive))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.protocolType,
-            sizeof(this->header.protocolType))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->header.headerChecksum,
-            sizeof(this->header.headerChecksum))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.sourceAddress,
-            sizeof(this->header.sourceAddress))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesStraightFrom(
-            &this->header.destinationAddress,
-            sizeof(this->header.destinationAddress))
-            ) {
-        return 1;
-    }
-    return this->ip4DataPart->copyDataTo(byteBlock);
+    uint8_t retVals = 0;
+    retVals+=byteBlock->append(header.version_headerLength);
+    retVals+=byteBlock->append(header.typeOfService);
+    retVals+=byteBlock->append(header.totalLength);
+    retVals+=byteBlock->append(header.identification);
+    retVals+=byteBlock->append(header.flags_fragmentOffset);
+    retVals+=byteBlock->append(header.timeToLive);
+    retVals+=byteBlock->append(header.protocolType);
+    retVals+=byteBlock->append(header.headerChecksum);
+    retVals+=byteBlock->append(header.sourceAddress, IP4ADDRESS_LENGH);
+    retVals+=byteBlock->append(header.destinationAddress, IP4ADDRESS_LENGH);
+    retVals+=ip4DataPart->copyDataTo(byteBlock);
+
+    return retVals;
 }
 
 size_t IP4Datagram::getLengthInBytes() {
@@ -126,77 +79,29 @@ uint8_t IP4Datagram::parseInput() {
     if (input == nullptr) {
         return 1;
     }
-    if (input->readBytesStraightTo(
-            &this->header.version_headerLength,
-            sizeof(this->header.version_headerLength))
-            ) {
-        return 1;
-    }
-    if (input->readBytesStraightTo(
-            &this->header.typeOfService,
-            sizeof(this->header.typeOfService))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->header.totalLength,
-            sizeof(this->header.totalLength))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->header.identification,
-            sizeof(this->header.identification))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->header.flags_fragmentOffset,
-            sizeof(this->header.flags_fragmentOffset))
-            ) {
-        return 1;
-    }
-    if (input->readBytesStraightTo(
-            &this->header.timeToLive,
-            sizeof(this->header.timeToLive))
-            ) {
-        return 1;
-    }
-    if (input->readBytesStraightTo(
-            &this->header.protocolType,
-            sizeof(this->header.protocolType))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->header.headerChecksum,
-            sizeof(this->header.headerChecksum))
-            ) {
-        return 1;
-    }
-    if (input->readBytesStraightTo(
-            &this->header.sourceAddress,
-            sizeof(this->header.sourceAddress))
-            ) {
-        return 1;
-    }
-    if (input->readBytesStraightTo(
-            &this->header.destinationAddress,
-            sizeof(this->header.destinationAddress))
-            ) {
-        return 1;
-    }
-    return 0;
+    uint8_t retVals = 0;
+    retVals+=input->read(&header.version_headerLength);
+    retVals+=input->read(&header.typeOfService);
+    retVals+=input->read(&header.totalLength);
+    retVals+=input->read(&header.identification);
+    retVals+=input->read(&header.flags_fragmentOffset);
+    retVals+=input->read(&header.timeToLive);
+    retVals+=input->read(&header.protocolType);
+    retVals+=input->read(&header.headerChecksum);
+    retVals+=input->read(header.sourceAddress, IP4ADDRESS_LENGH);
+    retVals+=input->read(header.destinationAddress, IP4ADDRESS_LENGH);
+
+    return retVals;
 }
 
 GenericICMP4Message *IP4Datagram::buildGenericICMP4MessageWithInput() {
     return new GenericICMP4Message(
-            new IP4Address(this->header.destinationAddress),
-            new IP4Address(this->header.sourceAddress),
-            this->input
+            new IP4Address(header.destinationAddress),
+            new IP4Address(header.sourceAddress),
+            input
     );
 }
 
 UDPDatagram *IP4Datagram::buildUDPDatagramWithInput() {
-    return new UDPDatagram(this->input);
+    return new UDPDatagram(input);
 }
