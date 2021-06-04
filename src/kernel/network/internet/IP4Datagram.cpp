@@ -14,7 +14,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
     this->ip4DataPart = ip4DataPart;
 
-    header.totalLength = sizeof (header) + ip4DataPart->getLengthInBytes();
+    header.totalLength = sizeof(header) + ip4DataPart->getLengthInBytes();
 }
 
 IP4Datagram::~IP4Datagram() {
@@ -60,19 +60,19 @@ uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
     }
 
     uint8_t errors = 0;
-    errors+=output->append(header.version_headerLength);
-    errors+=output->append(header.typeOfService);
-    errors+=output->append(header.totalLength);
-    errors+=output->append(header.identification);
-    errors+=output->append(header.flags_fragmentOffset);
-    errors+=output->append(header.timeToLive);
-    errors+=output->append(header.protocolType);
-    errors+=output->append(header.headerChecksum);
-    errors+=output->append(header.sourceAddress, IP4ADDRESS_LENGTH);
-    errors+=output->append(header.destinationAddress, IP4ADDRESS_LENGTH);
+    errors += output->append(header.version_headerLength);
+    errors += output->append(header.typeOfService);
+    errors += output->append(header.totalLength);
+    errors += output->append(header.identification);
+    errors += output->append(header.flags_fragmentOffset);
+    errors += output->append(header.timeToLive);
+    errors += output->append(header.protocolType);
+    errors += output->append(header.headerChecksum);
+    errors += output->append(header.sourceAddress, IP4ADDRESS_LENGTH);
+    errors += output->append(header.destinationAddress, IP4ADDRESS_LENGTH);
 
     //True if errors>0
-    if(errors){
+    if (errors) {
         return errors;
     }
 
@@ -83,52 +83,54 @@ uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
 uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     if (input == nullptr ||
         input->bytesRemaining() <= sizeof header
-    ){
+            ) {
         return 1;
     }
     //TODO: Add check for correct size! It must fail if header is larger that 20 bytes
     uint8_t errors = 0;
-    errors+=input->read(&header.version_headerLength);
-    errors+=input->read(&header.typeOfService);
-    errors+=input->read(&header.totalLength);
-    errors+=input->read(&header.identification);
-    errors+=input->read(&header.flags_fragmentOffset);
-    errors+=input->read(&header.timeToLive);
-    errors+=input->read(&header.protocolType);
-    errors+=input->read(&header.headerChecksum);
-    errors+=input->read(header.sourceAddress, IP4ADDRESS_LENGTH);
-    errors+=input->read(header.destinationAddress, IP4ADDRESS_LENGTH);
+    errors += input->read(&header.version_headerLength);
+    errors += input->read(&header.typeOfService);
+    errors += input->read(&header.totalLength);
+    errors += input->read(&header.identification);
+    errors += input->read(&header.flags_fragmentOffset);
+    errors += input->read(&header.timeToLive);
+    errors += input->read(&header.protocolType);
+    errors += input->read(&header.headerChecksum);
+    errors += input->read(header.sourceAddress, IP4ADDRESS_LENGTH);
+    errors += input->read(header.destinationAddress, IP4ADDRESS_LENGTH);
 
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
-        case IP4DataPart::IP4ProtocolType::ICMP4:{
+        case IP4DataPart::IP4ProtocolType::ICMP4: {
             uint8_t typeByte = 0;
             input->read(&typeByte);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                    this->ip4DataPart=new ICMP4EchoReply();
+                    this->ip4DataPart = new ICMP4EchoReply();
                     break;
                 case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    this->ip4DataPart=new ICMP4DestinationUnreachable();
+                    this->ip4DataPart = new ICMP4DestinationUnreachable();
                     break;
                 case ICMP4Message::ICMP4MessageType::ECHO:
-                    this->ip4DataPart=new ICMP4Echo();
+                    this->ip4DataPart = new ICMP4Echo();
                     break;
                 case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                    this->ip4DataPart=new ICMP4TimeExceeded();
+                    this->ip4DataPart = new ICMP4TimeExceeded();
                     break;
-                default: errors++;
+                default:
+                    errors++;
             }
             break;
         }
-        case IP4DataPart::IP4ProtocolType::UDP:{
+        case IP4DataPart::IP4ProtocolType::UDP: {
             this->ip4DataPart = new UDPDatagram();
             break;
         }
-        default: errors++;
+        default:
+            errors++;
     }
 
     //True if errors>0
-    if(errors){
+    if (errors) {
         return errors;
     }
 

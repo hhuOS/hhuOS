@@ -30,7 +30,8 @@ private:
 
 public:
     //Request constructor
-    ARPMessage(IP4Address *targetProtocolAddress, EthernetAddress *senderHardwareAddress, IP4Address *senderProtocolAddress);
+    ARPMessage(IP4Address *targetProtocolAddress, EthernetAddress *senderHardwareAddress,
+               IP4Address *senderProtocolAddress);
 
     //Incoming constructor
     ARPMessage() = default;

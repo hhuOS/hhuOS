@@ -23,8 +23,8 @@ uint8_t ARPMessage::parse(NetworkByteBlock *input) {
 
 ARPMessage::ARPMessage(IP4Address *targetProtocolAddress, EthernetAddress *senderHardwareAddress,
                        IP4Address *senderProtocolAddress) {
-    this->targetProtocolAddress=targetProtocolAddress;
-    this->senderHardwareAddress=senderHardwareAddress;
-    this->senderProtocolAddress=senderProtocolAddress;
-    header.opCode=1; //This is a request
+    this->targetProtocolAddress = targetProtocolAddress;
+    this->senderHardwareAddress = senderHardwareAddress;
+    this->senderProtocolAddress = senderProtocolAddress;
+    header.opCode = 1; //This is a request
 }
