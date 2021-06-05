@@ -14,9 +14,9 @@ namespace Kernel {
 
     class EthernetModule : public Receiver {
     private:
-        uint8_t deviceCounter;
-        NetworkEventBus *eventBus;
-        Util::HashMap<String *, EthernetDevice *> *ethernetDevices;
+        uint8_t deviceCounter = 0;
+        NetworkEventBus *eventBus = nullptr;
+        Util::HashMap<String *, EthernetDevice *> *ethernetDevices = nullptr;
     public:
         explicit EthernetModule(NetworkEventBus *eventBus);
 
@@ -34,7 +34,7 @@ namespace Kernel {
 
         EthernetDevice *getEthernetDevice(String *identifier);
 
-        EthernetDevice *getEthernetDevice(NetworkDevice *pDevice);
+        EthernetDevice *getEthernetDevice(NetworkDevice *networkDevice);
 
         void registerNetworkDevice(NetworkDevice *networkDevice);
 
