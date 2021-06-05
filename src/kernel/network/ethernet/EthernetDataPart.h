@@ -17,8 +17,6 @@ public:
         INVALID = 0
     };
 
-    virtual ~EthernetDataPart() = 0;
-
     uint16_t getEtherTypeAsInt() {
         return (uint16_t) getEtherType();
     }

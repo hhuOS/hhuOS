@@ -29,6 +29,10 @@ public:
     //Sending constructor
     ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber);
 
+    ICMP4Echo() = default;
+
+    ~ICMP4Echo() = default;
+
     void setSourceAddress(IP4Address *ip4Address);
 
     IP4Address *getSourceAddress();

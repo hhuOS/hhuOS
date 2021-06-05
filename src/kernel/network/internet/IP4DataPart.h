@@ -27,8 +27,6 @@ public:
         }
     }
 
-    virtual ~IP4DataPart() = 0;
-
     uint8_t getIP4ProtocolTypeAsInt() {
         return (uint8_t) getIP4ProtocolType();
     }

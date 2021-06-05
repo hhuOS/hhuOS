@@ -29,6 +29,10 @@ public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
 
+    ICMP4EchoReply() = default;
+
+    ~ICMP4EchoReply() = default;
+
     uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;

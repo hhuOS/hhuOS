@@ -34,7 +34,7 @@ public:
 
     EthernetFrame() = default;
 
-    virtual ~EthernetFrame();
+    ~EthernetFrame() = default;
 
     [[nodiscard]] EthernetDataPart *getEthernetDataPart() const;
 

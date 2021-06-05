@@ -10,10 +10,6 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
     this->ethernetDataPart = ethernetDataPart;
 }
 
-EthernetFrame::~EthernetFrame() {
-    delete ethernetDataPart;
-}
-
 uint16_t EthernetFrame::getLengthInBytes() {
     return sizeof header + ethernetDataPart->getLengthInBytes();
 }

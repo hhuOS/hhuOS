@@ -45,7 +45,7 @@ public:
     //Incoming constructor
     ARPMessage() = default;
 
-    ~ARPMessage() override = default;
+    ~ARPMessage() = default;
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 

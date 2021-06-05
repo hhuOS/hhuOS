@@ -68,17 +68,19 @@ uint8_t NetworkByteBlock::append(uint8_t oneByte) {
 }
 
 uint8_t NetworkByteBlock::append(uint16_t twoBytes) {
-    uint16_t switchedBytes = htons(twoBytes);
-    return append(&switchedBytes, sizeof twoBytes);
+    auto *twoBytesAsArray = (uint8_t *)&twoBytes;
+    uint8_t switchedBytes[2]={twoBytesAsArray[1], twoBytesAsArray[0]};
+    return append(switchedBytes, sizeof twoBytes);
 }
 
 uint8_t NetworkByteBlock::append(uint32_t fourBytes) {
-    uint32_t switchedBytes = htons(fourBytes);
-    return append(&switchedBytes, sizeof fourBytes);
+    auto *fourBytesAsArray = (uint8_t *)&fourBytes;
+    uint8_t switchedBytes[4] = {fourBytesAsArray[3],fourBytesAsArray[2],fourBytesAsArray[1],fourBytesAsArray[0]};
+    return append(switchedBytes, sizeof fourBytes);
 }
 
 uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
-    auto *source = (uint8_t *) source;
+    auto *sourceAsByteArray = (uint8_t *) source;
     //Avoid writing beyond last byte
     if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
         return 1;
@@ -88,7 +90,7 @@ uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
         return 0;
     }
     for (size_t i = 0; i < byteCount; i++) {
-        this->bytes[currentIndex + i] = source[i];
+        this->bytes[currentIndex + i] = sourceAsByteArray[i];
     }
     this->currentIndex += byteCount;
     return 0;
@@ -103,7 +105,11 @@ uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
     if(read(&tempValue, sizeof tempValue)){
         return 1;
     }
-    *twoBytes= ntohs(tempValue);
+    auto *tempValueAsArray = (uint8_t *)&tempValue;
+    auto *twoBytesAsArray = (uint8_t *)twoBytes;
+
+    twoBytesAsArray[0]=tempValueAsArray[1];
+    twoBytesAsArray[1]=tempValueAsArray[0];
     return 0;
 }
 
@@ -112,7 +118,13 @@ uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
     if(read(&tempValue, sizeof tempValue)){
         return 1;
     }
-    *fourBytes= ntohs(tempValue);
+    auto *tempValueAsArray = (uint8_t *)&tempValue;
+    auto *fourBytesAsArray = (uint8_t *)fourBytes;
+
+    fourBytesAsArray[0]=tempValueAsArray[3];
+    fourBytesAsArray[1]=tempValueAsArray[2];
+    fourBytesAsArray[2]=tempValueAsArray[1];
+    fourBytesAsArray[3]=tempValueAsArray[0];
     return 0;
 }
 

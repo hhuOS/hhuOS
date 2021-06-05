@@ -13,9 +13,7 @@ class UDPDatagram : public IP4DataPart{
 public:
     UDPDatagram() = default;
 
-    //Default destructor works for now
-    //TODO: Replace with real destructor when implementing UDP
-    ~UDPDatagram() override = default;
+    ~UDPDatagram() = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 

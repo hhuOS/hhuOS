@@ -17,16 +17,8 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     header.totalLength = sizeof(header) + ip4DataPart->getLengthInBytes();
 }
 
-IP4Datagram::~IP4Datagram() {
-    delete ip4DataPart;
-}
-
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
     return ip4DataPart->getIP4ProtocolType();
-}
-
-IP4Address *IP4Datagram::getSourceAddress() const {
-    return new IP4Address(header.sourceAddress);
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {

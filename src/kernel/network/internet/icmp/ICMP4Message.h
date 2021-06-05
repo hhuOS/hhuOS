@@ -27,10 +27,6 @@ public:
 
     ICMP4Message() = default;
 
-    //Our ICMP4Messages have no dynamically allocated memory inside
-    //-> default destructor works fine here
-    ~ICMP4Message() override = default;
-
     IP4ProtocolType getIP4ProtocolType() override {
         return IP4ProtocolType::ICMP4;
     }
