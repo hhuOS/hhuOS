@@ -35,7 +35,8 @@ private:
 public:
     enum class OpCode{
         REQUEST = 1,
-        REPLY = 2
+        REPLY = 2,
+        INVALID
     };
 
     //Sending constructor
@@ -47,6 +48,12 @@ public:
     ~ARPMessage() override = default;
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
+
+
+
+    OpCode getOpCode();
+
+    static ARPMessage::OpCode parseOpCodeFromInteger(uint16_t value);
 
     void setSenderHardwareAddress(EthernetAddress *senderHardwareAddress);
 

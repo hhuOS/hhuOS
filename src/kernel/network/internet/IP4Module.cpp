@@ -58,11 +58,7 @@ namespace Kernel {
             if (routingModule->sendViaBestRoute(datagram)) {
                 eventBus->publish(
                         new Kernel::ICMP4ReceiveEvent(
-                                new GenericICMP4Message(
-                                        datagram->getSourceAddress(),
-                                        datagram->getDestinationAddress(),
-                                        new ICMP4DestinationUnreachable()
-                                )
+                                new ICMP4DestinationUnreachable()
                         )
                 );
             }
@@ -80,14 +76,14 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             new Kernel::ICMP4ReceiveEvent(
-                                    ip4Datagram->buildGenericICMP4MessageWithInput()
+                                    (ICMP4Message *)ip4Datagram->getIP4DataPart()
                             )
                     );
                     return;
                 case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
                             new Kernel::UDPReceiveEvent(
-                                    ip4Datagram->buildUDPDatagramWithInput()
+                                    (UDPDatagram *)ip4Datagram->getIP4DataPart()
                             )
                     );
                     return;
@@ -98,11 +94,20 @@ namespace Kernel {
             }
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
-            log.info("Received ARPResponse to be opened");
-            //auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
-            //TODO: Implement finding proper interface for ARP Update
-//            this->arp->addEntry(arpResponse->getIp4Address(), arpResponse->getEthernetAddress());
-            //TODO: Add check for waiting IP4Datagrams and send them again
+            auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
+            //TODO: Implement processing of incoming ARP Messages here
+
+            switch (arpMessage->getOpCode()) {
+                case ARPMessage::OpCode::REQUEST:
+                    break;
+                case ARPMessage::OpCode::REPLY:
+                    break;
+                default: {
+                    log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
+                    delete arpMessage;
+                    return;
+                }
+            }
             return;
         }
     }

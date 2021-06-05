@@ -24,9 +24,9 @@ namespace Kernel {
 
     class IP4Module final : public Receiver {
     private:
-        NetworkEventBus *eventBus;
-        IP4RoutingModule *routingModule;
-        Util::HashMap<EthernetDevice *, IP4Interface *> *interfaces;
+        NetworkEventBus *eventBus = nullptr;
+        IP4RoutingModule *routingModule = nullptr;
+        Util::HashMap<EthernetDevice *, IP4Interface *> *interfaces = nullptr;
 
     public:
 

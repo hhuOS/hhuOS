@@ -8,19 +8,19 @@
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/IP4DataPart.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/internet/icmp/messages/GenericICMP4Message.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 
 namespace Kernel {
 
     class ICMP4ReceiveEvent : public Event {
     private:
-        GenericICMP4Message *genericIcmp4Message = nullptr;
+        ICMP4Message *icmp4Message = nullptr;
 
     public:
 
-        explicit ICMP4ReceiveEvent(GenericICMP4Message *genericIcmp4Message);
+        explicit ICMP4ReceiveEvent(ICMP4Message *icmp4Message);
 
-        [[nodiscard]] GenericICMP4Message *getGenericIcmp4Message() const;
+        [[nodiscard]] ICMP4Message * getIcmp4Message() const;
 
         [[nodiscard]] String getType() const override;
 

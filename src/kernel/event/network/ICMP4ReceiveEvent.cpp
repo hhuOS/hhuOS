@@ -10,10 +10,10 @@ namespace Kernel {
         return TYPE;
     }
 
-    ICMP4ReceiveEvent::ICMP4ReceiveEvent(GenericICMP4Message *genericIcmp4Message) : genericIcmp4Message(
-            genericIcmp4Message) {}
+    ICMP4ReceiveEvent::ICMP4ReceiveEvent(ICMP4Message *icmp4Message) : icmp4Message(
+            icmp4Message) {}
 
-    GenericICMP4Message *ICMP4ReceiveEvent::getGenericIcmp4Message() const {
-        return genericIcmp4Message;
+    ICMP4Message * ICMP4ReceiveEvent::getIcmp4Message() const {
+        return icmp4Message;
     }
 }

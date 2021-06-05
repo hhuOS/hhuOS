@@ -43,3 +43,15 @@ void ARPMessage::setTargetHardwareAddress(EthernetAddress *targetHardwareAddress
 void ARPMessage::setTargetProtocolAddress(IP4Address *targetProtocolAddress) {
     targetProtocolAddress->copyTo(message.targetProtocolAddress);
 }
+
+ARPMessage::OpCode ARPMessage::getOpCode() {
+    return parseOpCodeFromInteger(message.header.opCode);
+}
+
+ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
+    switch (value) {
+        case 1: return OpCode::REQUEST;
+        case 2: return OpCode::REPLY;
+        default: return OpCode::INVALID;
+    }
+}

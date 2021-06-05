@@ -11,7 +11,7 @@ Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus)
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
     if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
-        auto genericIcmp4Message = ((ICMP4ReceiveEvent &) event).getGenericIcmp4Message();
+        auto genericIcmp4Message = ((ICMP4ReceiveEvent &) event).getIcmp4Message();
         if (genericIcmp4Message->getLengthInBytes() == 0) {
             log.error("Incoming generic ICMP4Message was empty, discarding");
             delete genericIcmp4Message;
