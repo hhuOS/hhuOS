@@ -50,6 +50,7 @@ IP4Address *ICMP4EchoReply::getSourceAddress() const {
 
 void ICMP4EchoReply::setSourceAddress(IP4Address *sourceAddress) {
     sourceAddress->copyTo(ip4Info.sourceAddress);
+    delete sourceAddress;
 }
 
 uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {

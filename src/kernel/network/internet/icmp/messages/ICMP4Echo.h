@@ -31,7 +31,7 @@ public:
 
     void setSourceAddress(IP4Address *ip4Address);
 
-    IP4Address* getSourceAddress();
+    IP4Address *getSourceAddress();
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 

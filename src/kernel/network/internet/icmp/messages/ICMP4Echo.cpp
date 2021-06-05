@@ -25,10 +25,11 @@ void ICMP4Echo::setSourceAddress(IP4Address *ip4Address) {
 }
 
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
-    return new ICMP4EchoReply(
-            this->echoMessage.identifier,
-            this->echoMessage.sequenceNumber + 1
+    auto *result = new ICMP4EchoReply(this->echoMessage.identifier,
+                                      this->echoMessage.sequenceNumber + 1
             );
+    result->setSourceAddress(new IP4Address(ip4Info.sourceAddress));
+    return result;
 }
 
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
