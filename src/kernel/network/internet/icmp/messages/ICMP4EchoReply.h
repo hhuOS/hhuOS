@@ -18,22 +18,28 @@ private:
         uint16_t sequenceNumber = 0;
     } echoReplyMessage;
 
+    typedef struct ip4information {
+        uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+    } ip4info_t;
+
     echoReplyMessage echoReply;
+    ip4info_t ip4Info;
+
 public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
 
-    ICMP4EchoReply() = default;
-
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
-    uint16_t getIdentifier();
+    uint16_t getIdentifier() const;
 
-    uint16_t getSequenceNumber();
+    uint16_t getSequenceNumber() const;
 
     [[nodiscard]] IP4Address *getSourceAddress() const;
+
+    void setSourceAddress(IP4Address *sourceAddress);
 
     ICMP4MessageType getICMP4MessageType() override;
 

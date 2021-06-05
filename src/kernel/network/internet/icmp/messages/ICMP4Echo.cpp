@@ -13,89 +13,58 @@ ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
 }
 
 size_t ICMP4Echo::getLengthInBytes() {
-    return sizeof(this->echoMessage);
+    return sizeof echoMessage;
 }
 
-IP4Address *ICMP4Echo::getSourceAddress() const {
-    return sourceAddress;
+IP4Address *ICMP4Echo::getSourceAddress() {
+    return new IP4Address(ip4Info.sourceAddress);;
+}
+
+void ICMP4Echo::setSourceAddress(IP4Address *ip4Address) {
+    ip4Address->copyTo(ip4Info.sourceAddress);
 }
 
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
-    return new ICMP4EchoReply(this->echoMessage.identifier, this->echoMessage.sequenceNumber + 1);
+    return new ICMP4EchoReply(
+            this->echoMessage.identifier,
+            this->echoMessage.sequenceNumber + 1
+            );
 }
 
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-uint8_t ICMP4Echo::copyTo(NetworkByteBlock *byteBlock) {
-    if (byteBlock == nullptr) {
+uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
+    if (output == nullptr) {
         return 1;
     }
-    if (byteBlock->append(
-            &this->echoMessage.type,
-            sizeof(this->echoMessage.type))
-            ) {
-        return 1;
-    }
-    if (byteBlock->append(
-            &this->echoMessage.code,
-            sizeof(this->echoMessage.code))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->echoMessage.checksum,
-            sizeof(this->echoMessage.checksum))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->echoMessage.identifier,
-            sizeof(this->echoMessage.identifier))
-            ) {
-        return 1;
-    }
-    if (byteBlock->writeBytesInNetworkByteOrderFrom(
-            &this->echoMessage.sequenceNumber,
-            sizeof(this->echoMessage.sequenceNumber))
-            ) {
-        return 1;
-    }
-    return 0;
+
+    uint8_t errors = 0;
+    errors += output->append(echoMessage.type);
+    errors += output->append(echoMessage.code);
+    errors += output->append(echoMessage.checksum);
+    errors += output->append(echoMessage.identifier);
+    errors += output->append(echoMessage.sequenceNumber);
+
+    return errors;
 }
 
 uint8_t ICMP4Echo::parse(NetworkByteBlock *input) {
-    if (input == nullptr) {
+    if (input == nullptr ||
+        input->bytesRemaining() <= sizeof echoMessage
+        ) {
         return 1;
     }
-    //NOTE: The first Byte for 'type' is already in our GenericICMP4Message!
+    //NOTE: The first Byte for 'type' is already read in IP4Datagram!
     //-> the next Byte in our NetworkByteBlock is 'code', the next value!
     //This is no problem here, because the 'type' value is constant '8' per definition
-    if (input->read(
-            &this->echoMessage.code,
-            sizeof(this->echoMessage.code))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->echoMessage.checksum,
-            sizeof(this->echoMessage.checksum))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->echoMessage.identifier,
-            sizeof(this->echoMessage.identifier))
-            ) {
-        return 1;
-    }
-    if (input->readBytesInHostByteOrderTo(
-            &this->echoMessage.sequenceNumber,
-            sizeof(this->echoMessage.sequenceNumber))
-            ) {
-        return 1;
-    }
-    return 0;
+    uint8_t errors = 0;
+    errors += input->read(&echoMessage.code);
+    errors += input->read(&echoMessage.checksum);
+    errors += input->read(&echoMessage.identifier);
+    errors += input->read(&echoMessage.sequenceNumber);
+
+    return errors;
 }
 

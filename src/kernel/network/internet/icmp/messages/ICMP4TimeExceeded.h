@@ -10,9 +10,6 @@
 
 class ICMP4TimeExceeded : public ICMP4Message {
 public:
-    //Sending constructor
-    ICMP4TimeExceeded() = default;
-
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;

@@ -11,8 +11,6 @@
 
 class ICMP4DestinationUnreachable : public ICMP4Message {
 public:
-    ICMP4DestinationUnreachable() = default;
-
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
@@ -20,6 +18,7 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
+
 };
 
 
