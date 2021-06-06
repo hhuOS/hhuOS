@@ -30,6 +30,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/event/network/ARPReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/EthernetSendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/EthernetReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4SendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4ReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/UDPReceiveEvent.cpp
 

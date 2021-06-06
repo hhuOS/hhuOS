@@ -6,13 +6,26 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <lib/libc/printf.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
+#include <kernel/event/network/ICMP4SendEvent.h>
 #include "ICMP4Module.h"
 
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
+    if ((event.getType() == ICMP4SendEvent::TYPE)){
+        auto *destinationAddress = ((ICMP4SendEvent &) event).getDestinationAddress();
+        auto *icmp4Message = ((ICMP4SendEvent &) event).getIcmp4Message();
+        eventBus->publish(
+                new Kernel::IP4SendEvent(
+                        new IP4Datagram(
+                                destinationAddress,
+                                icmp4Message
+                        )
+                )
+        );
+    }
     if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
-        auto icmp4Message = ((ICMP4ReceiveEvent &) event).getIcmp4Message();
+        auto *icmp4Message = ((ICMP4ReceiveEvent &) event).getIcmp4Message();
         //NOTE: No message should read its 'type' byte internally!
         //-> this byte already is in GenericICMP4Message!
         //Our NetworkByteBlock would read one byte too much and fail...
