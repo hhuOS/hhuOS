@@ -15,12 +15,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/network/PacketHandler.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/NetworkByteBlock.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/NetworkEventBus.cpp
-        )
-
-add_subdirectory(udp)
-add_subdirectory(internet)
-add_subdirectory(arp)
-add_subdirectory(ethernet)
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ARPModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ARPEntry.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/arp/ARPMessage.cpp
+)

@@ -6,7 +6,7 @@
 #define HHUOS_IP4INT_H
 
 
-#include <kernel/network/internet/arp/ARPModule.h>
+#include <kernel/network/arp/ARPModule.h>
 #include <kernel/network/ethernet/EthernetDevice.h>
 #include <kernel/service/EventBus.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>

@@ -5,20 +5,24 @@
 #ifndef HHUOS_IP4MODULE_H
 #define HHUOS_IP4MODULE_H
 
-#include <kernel/event/network/IP4SendEvent.h>
+#include <kernel/log/Logger.h>
 #include <kernel/core/System.h>
+
+#include <kernel/event/Receiver.h>
+#include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
 #include <kernel/event/network/UDPReceiveEvent.h>
-#include "IP4Module.h"
-#include "IP4Interface.h"
-#include <kernel/event/Receiver.h>
-#include <kernel/log/Logger.h>
+
+#include <kernel/network/NetworkEventBus.h>
+#include <kernel/network/arp/ARPModule.h>
+#include <kernel/network/arp/ARPMessage.h>
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
-#include <kernel/network/internet/arp/ARPModule.h>
+#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
+
 #include "IP4Interface.h"
+#include "IP4Module.h"
 
 namespace Kernel {
 

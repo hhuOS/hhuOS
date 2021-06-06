@@ -2,7 +2,6 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/NetworkEventBus.h>
 #include "IP4Module.h"
 
 namespace Kernel {

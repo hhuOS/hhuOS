@@ -7,7 +7,7 @@
 
 
 #include <kernel/event/Event.h>
-#include <kernel/network/internet/arp/ARPMessage.h>
+#include <kernel/network/arp/ARPMessage.h>
 
 namespace Kernel {
 
