@@ -22,10 +22,10 @@ IP4Interface::~IP4Interface() {
 }
 
 uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
-    if(ip4Datagram == nullptr) {
+    if (ip4Datagram == nullptr) {
         return IP4_DATAGRAM_NULL;
     }
-    if (receiver == nullptr){
+    if (receiver == nullptr) {
         return IP4_RECEIVER_ADDRESS_NULL;
     }
     //interface selection happens in routing module
@@ -33,7 +33,7 @@ uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Data
     ip4Datagram->setSourceAddress(this->ip4Address);
     EthernetAddress *destinationAddress = nullptr;
     uint8_t arpError = arpModule->resolveTo(&destinationAddress, receiver);
-    if(arpError){
+    if (arpError) {
         return arpError;
     }
 

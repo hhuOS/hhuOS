@@ -5,14 +5,14 @@
 #include "ICMP4DestinationUnreachable.h"
 
 ICMP4DestinationUnreachable::ICMP4DestinationUnreachable(size_t ip4HeaderSize) {
-    if(ip4HeaderSize > IP4HEADER_MAX_LENGTH){
-        ip4HeaderSize=IP4HEADER_MAX_LENGTH;
+    if (ip4HeaderSize > IP4HEADER_MAX_LENGTH) {
+        ip4HeaderSize = IP4HEADER_MAX_LENGTH;
     }
     this->bytes = new NetworkByteBlock(sizeof this->header + ip4HeaderSize + 8);
 }
 
 ICMP4DestinationUnreachable::ICMP4DestinationUnreachable(uint8_t errorCode, IP4Datagram *datagram) {
-    header.code=errorCode;
+    header.code = errorCode;
 
     this->bytes = new NetworkByteBlock(datagram->getHeaderLengthInBytes() + 8);
 
@@ -27,22 +27,22 @@ ICMP4DestinationUnreachable::~ICMP4DestinationUnreachable() {
 }
 
 uint8_t ICMP4DestinationUnreachable::copyTo(NetworkByteBlock *byteBlock) {
-    if(byteBlock == nullptr || bytes== nullptr){
+    if (byteBlock == nullptr || bytes == nullptr) {
         return 1;
     }
-    uint8_t errors=0;
-    errors+=byteBlock->append(header.type);
-    errors+=byteBlock->append(header.code);
-    errors+=byteBlock->append(header.checksum);
-    errors+=byteBlock->append(header.unused);
-    if(errors){
+    uint8_t errors = 0;
+    errors += byteBlock->append(header.type);
+    errors += byteBlock->append(header.code);
+    errors += byteBlock->append(header.checksum);
+    errors += byteBlock->append(header.unused);
+    if (errors) {
         return errors;
     }
     return byteBlock->append(this->bytes, this->bytes->getLength());
 }
 
 size_t ICMP4DestinationUnreachable::getLengthInBytes() {
-    if(bytes== nullptr){
+    if (bytes == nullptr) {
         return sizeof header;
     }
     return sizeof header + bytes->getLength();
@@ -65,11 +65,11 @@ uint8_t ICMP4DestinationUnreachable::parse(NetworkByteBlock *input) {
     errors += input->read(&header.code);
     errors += input->read(&header.checksum);
     errors += input->read(&header.unused);
-    if(errors){
+    if (errors) {
         return errors;
     }
 
-    auto *ip4Datagram=new IP4Datagram();
+    auto *ip4Datagram = new IP4Datagram();
     //This will stop with an error if datagram's body is greater than eight bytes
     //-> we will ignore this error here,
     // because the first eight bytes should be enough to identify the sending process

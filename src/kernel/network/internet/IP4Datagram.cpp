@@ -110,8 +110,8 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
 
     uint8_t remainingHeaderBytes = ((header.version_headerLength - 0x40) * 4) - sizeof this->header;
     //True if remainingHeaderBytes > 0
-    if(remainingHeaderBytes){
-        errors+=input->skip(remainingHeaderBytes);
+    if (remainingHeaderBytes) {
+        errors += input->skip(remainingHeaderBytes);
     }
 
     //True if errors>0
@@ -122,7 +122,7 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
         case IP4DataPart::IP4ProtocolType::ICMP4: {
             uint8_t typeByte = 0;
-            errors+=input->read(&typeByte);
+            errors += input->read(&typeByte);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                     this->ip4DataPart = new ICMP4EchoReply();

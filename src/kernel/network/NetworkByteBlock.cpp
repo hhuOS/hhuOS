@@ -70,7 +70,7 @@ uint8_t NetworkByteBlock::append(uint32_t fourBytes) {
 
 uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCount) {
     //Return error if we can't read all bytes from the other byteBlock
-    if(byteCount>otherByteBlock->bytesRemaining()){
+    if (byteCount > otherByteBlock->bytesRemaining()) {
         return 1;
     }
     //The other byteBlock has the same type
@@ -146,11 +146,11 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
-    if (networkDevice == nullptr){
+    if (networkDevice == nullptr) {
         return BYTEBLOCK_NETWORK_DEVICE_NULL;
     }
 
-    if(bytes == nullptr) {
+    if (bytes == nullptr) {
         return BYTEBLOCK_BYTES_NULL;
     }
 
@@ -178,6 +178,6 @@ uint8_t NetworkByteBlock::skip(uint8_t byteCount) {
         return 1;
     }
     //No problem if byteCount == 0 here
-    this->currentIndex+=byteCount;
+    this->currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;
 }

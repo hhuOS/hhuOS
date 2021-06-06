@@ -115,7 +115,7 @@ namespace Kernel {
                 log.error("Outgoing frame was null, ignoring");
                 return;
             }
-            if (outFrame->getLengthInBytes()==0){
+            if (outFrame->getLengthInBytes() == 0) {
                 log.error("Outgoing frame was empty, discarding frame");
                 delete outFrame;
                 return;
@@ -152,7 +152,7 @@ namespace Kernel {
                     log.error("Sending failed with unknown error, discarding frame");
                     break;
             }
-            //we are done here, delete outFrame no matter if sending worked or not
+            //We are done here, delete outFrame no matter if sending worked or not
             //-> we still have our log entry if sending failed
             //NOTE: An embedded IP4Datagram will be deleted here
             delete outFrame;

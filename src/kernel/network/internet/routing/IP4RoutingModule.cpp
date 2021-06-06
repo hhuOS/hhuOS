@@ -14,7 +14,7 @@ IP4RoutingModule::IP4RoutingModule() {
 //Private method!
 uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
     uint8_t matchingBits, bestMatch = 0;
-    *bestRoute= nullptr;
+    *bestRoute = nullptr;
 
     if (receiverAddress == nullptr) {
         return IP4_RECEIVER_ADDRESS_NULL;
@@ -26,19 +26,19 @@ uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress
             return IP4_MATCHING_BITS_FUNCTION_BROKEN;
         }
         if (matchingBits > bestMatch) {
-            *bestRoute=currentRoute;
+            *bestRoute = currentRoute;
             bestMatch = matchingBits;
         }
     }
 
     //Return successful if best route found
-    if(*bestRoute!= nullptr){
+    if (*bestRoute != nullptr) {
         return 0;
     }
 
     //Set to default route if it exists and return successful
     if (this->defaultRoute != nullptr) {
-        *bestRoute=this->defaultRoute;
+        *bestRoute = this->defaultRoute;
         return 0;
     }
 
@@ -51,7 +51,7 @@ uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
         return IP4_DATAGRAM_NULL;
     }
     IP4Route *matchedRoute = nullptr;
-    uint8_t findError= find(&matchedRoute, datagram->getDestinationAddress());
+    uint8_t findError = find(&matchedRoute, datagram->getDestinationAddress());
     if (findError) {
         return findError;
     }

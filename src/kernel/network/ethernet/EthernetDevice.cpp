@@ -17,7 +17,7 @@ String *EthernetDevice::getIdentifier() const {
 }
 
 uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
-    if (ethernetFrame == nullptr){
+    if (ethernetFrame == nullptr) {
         return ETH_FRAME_NULL;
     }
     if (this->networkDevice == nullptr) {
@@ -30,11 +30,11 @@ uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
 
     //ethernetFrame will be deleted in EthernetModule later
     //-> no 'delete ethernetFrame' here!
-    if (ethernetFrame->copyTo(byteBlock)){
+    if (ethernetFrame->copyTo(byteBlock)) {
         delete byteBlock;
         return ETH_COPY_BYTEBLOCK_FAILED;
     }
-    if(!byteBlock->isCompletelyFilled()) {
+    if (!byteBlock->isCompletelyFilled()) {
         delete byteBlock;
         return ETH_COPY_BYTEBLOCK_INCOMPLETE;
     }

@@ -11,10 +11,10 @@ ARPModule::ARPModule() {
 }
 
 uint8_t ARPModule::resolveTo(EthernetAddress **ethernetAddress, IP4Address *ip4Address) {
-    if (ip4Address == nullptr){
+    if (ip4Address == nullptr) {
         return ARP_PROTOCOL_ADDRESS_NULL;
     }
-    if(arpTable == nullptr) {
+    if (arpTable == nullptr) {
         return ARP_TABLE_NULL;
     }
     *ethernetAddress = nullptr;

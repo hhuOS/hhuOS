@@ -78,7 +78,7 @@ namespace Kernel {
                 log.error("Outgoing datagram was null, ignoring");
                 return;
             }
-            if(datagram->getLengthInBytes() == 0){
+            if (datagram->getLengthInBytes() == 0) {
                 log.error("Outgoing datagram was empty, discarding it");
                 delete datagram;
                 return;
@@ -94,15 +94,15 @@ namespace Kernel {
                     log.error("Outgoing interface was null, discarding datagram");
                     break;
                 }
-                case IP4_RECEIVER_ADDRESS_NULL:{
+                case IP4_RECEIVER_ADDRESS_NULL: {
                     log.error("Given receiver address was null, discarding datagram");
                     break;
                 }
-                case IP4_MATCHING_BITS_FUNCTION_BROKEN:{
+                case IP4_MATCHING_BITS_FUNCTION_BROKEN: {
                     log.error("matchingBits() function in routing module is broken, discarding datagram");
                     break;
                 }
-                case IP4_NO_ROUTE_FOUND:{
+                case IP4_NO_ROUTE_FOUND: {
                     log.error("No route to host could be found, discarding datagram");
                     eventBus->publish(
                             new Kernel::ICMP4ReceiveEvent(
@@ -113,15 +113,15 @@ namespace Kernel {
                     //-> we can delete datagram now
                     break;
                 }
-                case ARP_PROTOCOL_ADDRESS_NULL:{
+                case ARP_PROTOCOL_ADDRESS_NULL: {
                     log.error("IP4 address given to ARP module was null, discarding datagram");
                     break;
                 }
-                case ARP_TABLE_NULL:{
+                case ARP_TABLE_NULL: {
                     log.error("Table in ARP module was null, discarding datagram");
                     break;
                 }
-                default:{
+                default: {
                     log.error("Sending failed with unknown error code, discarding datagram");
                     break;
                 }
