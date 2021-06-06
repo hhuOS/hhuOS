@@ -90,7 +90,6 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
             ) {
         return 1;
     }
-    //TODO: Add check for correct size! It must fail if header is larger that 20 bytes
     uint8_t errors = 0;
     errors += input->read(&header.version_headerLength);
     errors += input->read(&header.typeOfService);
@@ -108,6 +107,7 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
         return errors;
     }
 
+    //Skip additional bytes if incoming header is larger than our internal one
     uint8_t remainingHeaderBytes = ((header.version_headerLength - 0x40) * 4) - sizeof this->header;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
