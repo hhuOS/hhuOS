@@ -136,7 +136,7 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
-    if (networkDevice == nullptr || bytes== nullptr) {
+    if (networkDevice == nullptr || bytes == nullptr) {
         return 1;
     }
 

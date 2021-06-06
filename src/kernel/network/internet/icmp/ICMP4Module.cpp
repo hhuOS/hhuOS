@@ -12,22 +12,22 @@
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
 void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
-    if ((event.getType() == ICMP4SendEvent::TYPE)){
+    if ((event.getType() == ICMP4SendEvent::TYPE)) {
         auto *destinationAddress = ((ICMP4SendEvent &) event).getDestinationAddress();
         auto *icmp4Message = ((ICMP4SendEvent &) event).getIcmp4Message();
-        if(destinationAddress== nullptr) {
+        if (destinationAddress == nullptr) {
             log.error("Destination address was null, discarding message");
             delete icmp4Message;
             return;
         }
-        if(icmp4Message== nullptr) {
+        if (icmp4Message == nullptr) {
             log.error("Outgoing ICMP4 message was null, ignoring");
             delete destinationAddress;
             return;
         }
         eventBus->publish(
                 new Kernel::IP4SendEvent(
-                        new IP4Datagram(destinationAddress,icmp4Message)
+                        new IP4Datagram(destinationAddress, icmp4Message)
                 )
         );
     }

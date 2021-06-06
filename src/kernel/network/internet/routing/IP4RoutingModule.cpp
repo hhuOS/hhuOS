@@ -15,7 +15,7 @@ IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
     uint8_t matchingBits, bestMatch = 0;
     IP4Route *bestRoute = nullptr;
 
-    if(receiverAddress== nullptr){
+    if (receiverAddress == nullptr) {
         return nullptr;
     }
 
@@ -41,7 +41,7 @@ IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
 }
 
 uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
-    if(datagram== nullptr){
+    if (datagram == nullptr) {
         return 1;
     }
     //TODO: Return specific error codes depending on what happened! (Like 1=NO_ROUTE_FOUND etc.)
@@ -54,7 +54,7 @@ uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
 }
 
 void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
-    if(strings == nullptr){
+    if (strings == nullptr) {
         return;
     }
     for (IP4Route *current:*this->routes) {
@@ -77,7 +77,7 @@ void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInt
 }
 
 void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
-    if(ip4Interface== nullptr){
+    if (ip4Interface == nullptr) {
         return;
     }
     //Add a direct route for a given new IP4Interface
@@ -87,7 +87,7 @@ void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
 }
 
 void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
-    if(ip4Interface== nullptr){
+    if (ip4Interface == nullptr) {
         return;
     }
     //TODO: Synchronisierung!

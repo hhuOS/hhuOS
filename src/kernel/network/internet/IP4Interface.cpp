@@ -21,18 +21,18 @@ IP4Interface::~IP4Interface() {
 }
 
 uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
-    if(receiver== nullptr || ip4Datagram == nullptr){
+    if (receiver == nullptr || ip4Datagram == nullptr) {
         return 1;
     }
     //interface selection happens in routing module
     // -> we don't know source address before this point here!
     ip4Datagram->setSourceAddress(this->ip4Address);
     EthernetAddress *destinationAddress = nullptr;
-    if(this->arpModule->resolveTo(&destinationAddress, receiver)){
+    if (this->arpModule->resolveTo(&destinationAddress, receiver)) {
         return 1;
     }
 
-    if (destinationAddress== nullptr) {
+    if (destinationAddress == nullptr) {
         auto *arpRequest = new ARPMessage(ARPMessage::OpCode::REQUEST);
 
         arpRequest->setSenderHardwareAddress(this->ethernetDevice->getAddress());

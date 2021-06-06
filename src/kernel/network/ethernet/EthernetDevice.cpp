@@ -29,13 +29,13 @@ uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     auto *byteBlock = new NetworkByteBlock(frameLength);
     if (ethernetFrame->copyTo(byteBlock) ||
         !byteBlock->isCompletelyFilled()
-        ) {
+            ) {
         //ethernetFrame will be deleted in EthernetModule later
         //-> no delete here!
         delete byteBlock;
         return 1;
     }
-    if(byteBlock->sendOutVia(this->networkDevice)){
+    if (byteBlock->sendOutVia(this->networkDevice)) {
         delete byteBlock;
         return 1;
     }

@@ -17,7 +17,7 @@ namespace Kernel {
     }
 
     void IP4Module::collectIP4InterfaceAttributes(Util::ArrayList<String> *strings) {
-        if(strings== nullptr || interfaces== nullptr){
+        if (strings == nullptr || interfaces == nullptr) {
             return;
         }
         for (EthernetDevice *currentDevice:interfaces->keySet()) {
@@ -26,7 +26,7 @@ namespace Kernel {
     }
 
     void IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
-        if(strings== nullptr || routingModule== nullptr){
+        if (strings == nullptr || routingModule == nullptr) {
             return;
         }
         routingModule->collectIP4RouteAttributes(strings);
@@ -37,7 +37,7 @@ namespace Kernel {
             log.error("At least one given parameter was null, not registering new device");
             return;
         }
-        if(interfaces == nullptr || routingModule== nullptr){
+        if (interfaces == nullptr || routingModule == nullptr) {
             log.error("Internal interface list or routing module was null, not registering new device");
             return;
         }
@@ -55,7 +55,7 @@ namespace Kernel {
             log.error("Given device was null, not unregistering device");
             return;
         }
-        if(interfaces == nullptr || routingModule== nullptr){
+        if (interfaces == nullptr || routingModule == nullptr) {
             log.error("Internal interface list or routing module was null, not unregistering device");
             return;
         }
@@ -68,13 +68,13 @@ namespace Kernel {
     void IP4Module::onEvent(const Kernel::Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
-            if(routingModule== nullptr){
+            if (routingModule == nullptr) {
                 log.error("Internal routing module was null, not sending anything");
                 //delete on NULL objects simply does nothing!
                 delete datagram;
                 return;
             }
-            if(datagram== nullptr){
+            if (datagram == nullptr) {
                 log.error("Outgoing datagram was null, ignoring");
                 return;
             }

@@ -111,11 +111,11 @@ namespace Kernel {
                 delete outFrame;
                 return;
             }
-            if(outFrame == nullptr){
+            if (outFrame == nullptr) {
                 log.error("Outgoing frame was null, ignoring");
                 return;
             }
-            if(outDevice->sendEthernetFrame(outFrame)){
+            if (outDevice->sendEthernetFrame(outFrame)) {
                 log.error("Error while sending out EthernetFrame, discarding");
             }
             //we are done here, delete outFrame no matter if sending worked or not
