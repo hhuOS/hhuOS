@@ -43,7 +43,7 @@ namespace Kernel {
         }
         //Return if an ethernet device connected to the same network device could be found
         if (ethernetDevices->containsKey(identifier)) {
-            log.error("Given identifier already exists, ignoring it");
+            log.info("Given identifier already exists, ignoring it");
             return;
         }
         //Add a new connected ethernet device if no duplicate found
@@ -53,6 +53,7 @@ namespace Kernel {
     void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
         EthernetDevice *connectedDevice = getEthernetDevice(networkDevice);
         if (connectedDevice == nullptr) {
+            log.info("No connected ethernet device could be found, not unregistering network device");
             return;
         }
         if (ethernetDevices == nullptr) {
@@ -76,6 +77,7 @@ namespace Kernel {
 //Get ethernet device via identifier
     EthernetDevice *EthernetModule::getEthernetDevice(String *identifier) {
         if (ethernetDevices == nullptr) {
+            log.error("Internal list of ethernet devices was null, not searching ethernet device");
             return nullptr;
         }
         if (ethernetDevices->containsKey(identifier)) {
@@ -87,6 +89,7 @@ namespace Kernel {
 //Get ethernet device via network device it's connected to
     EthernetDevice *EthernetModule::getEthernetDevice(NetworkDevice *networkDevice) {
         if (ethernetDevices == nullptr) {
+            log.error("Internal list of ethernet devices was null, not searching ethernet device");
             return nullptr;
         }
         for (String *current:ethernetDevices->keySet()) {
