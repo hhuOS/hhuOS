@@ -28,7 +28,7 @@ public:
 
     void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
-    int sendViaBestRoute(IP4Datagram *datagram);
+    uint8_t sendViaBestRoute(IP4Datagram *datagram);
 };
 
 #endif //HHUOS_IP4ROUTINGMODULE_H

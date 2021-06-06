@@ -33,4 +33,8 @@ void EthernetAddress::copyTo(uint8_t *target) {
     }
 }
 
+EthernetAddress::EthernetAddress(EthernetAddress *other) {
+    other->copyTo(macAddress);
+}
+
 

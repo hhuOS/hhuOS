@@ -26,7 +26,7 @@ public:
 
     explicit IP4Route(IP4Interface *ip4Interface);
 
-    void sendOut(IP4Datagram *datagram);
+    uint8_t sendOut(IP4Datagram *datagram);
 
     [[nodiscard]] IP4Interface *getOutInterface() const;
 

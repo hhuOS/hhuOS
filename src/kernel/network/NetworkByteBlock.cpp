@@ -28,24 +28,13 @@ NetworkByteBlock::NetworkByteBlock(void *packet, size_t length) {
 }
 
 NetworkByteBlock::~NetworkByteBlock() {
-    freeBytes();
-}
-
-bool NetworkByteBlock::isNull() {
-    return this->bytes == nullptr;
+    delete this->bytes;
 }
 
 //If our byteBlock is perfectly filled, this->currentIndex points to the first 'illegal' byte
 // => (this->currentIndex+byteCount) is exactly equal this->length then!
 bool NetworkByteBlock::isCompletelyFilled() const {
     return this->currentIndex == this->length;
-}
-
-void NetworkByteBlock::freeBytes() {
-    if (!isNull()) {
-        delete (this->bytes);
-        this->bytes = nullptr;
-    }
 }
 
 size_t NetworkByteBlock::getLength() const {
@@ -147,14 +136,17 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
+    if (networkDevice == nullptr || bytes== nullptr) {
+        return 1;
+    }
+
     if (this->length == 0) {
         //It's not an error if nothing needs to be done
         return 0;
     }
-    if (networkDevice == nullptr || this->isNull()) {
-        return 1;
-    }
     networkDevice->sendPacket(bytes, static_cast<uint16_t>(length));
+    //NetworkDevices return no information about errors or successful sending
+    //-> we just can return successful here
     return 0;
 }
 

@@ -17,16 +17,12 @@ private:
     NetworkDevice *networkDevice;
     EthernetAddress *ethernetAddress;
 
-    /**
-         * A logger to provide information on the kernel log.
-         */
-    Kernel::Logger &log = Kernel::Logger::get("EthernetDevice");
 public:
     EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 
     [[nodiscard]] String *getIdentifier() const;
 
-    void sendEthernetFrame(EthernetFrame *ethernetFrame);
+    uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
 
     bool connectedTo(NetworkDevice *otherDevice);
 

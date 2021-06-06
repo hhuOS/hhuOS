@@ -20,12 +20,19 @@ IP4Interface::~IP4Interface() {
     delete this->arpModule;
 }
 
-void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
+uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
+    if(receiver== nullptr || ip4Datagram == nullptr){
+        return 1;
+    }
+    //interface selection happens in routing module
+    // -> we don't know source address before this point here!
     ip4Datagram->setSourceAddress(this->ip4Address);
-    EthernetAddress *destinationAddress = this->arpModule->resolveIP4(receiver);
+    EthernetAddress *destinationAddress = nullptr;
+    if(this->arpModule->resolveTo(&destinationAddress, receiver)){
+        return 1;
+    }
 
-    EthernetFrame *outFrame;
-    if (destinationAddress == nullptr) {
+    if (destinationAddress== nullptr) {
         auto *arpRequest = new ARPMessage(ARPMessage::OpCode::REQUEST);
 
         arpRequest->setSenderHardwareAddress(this->ethernetDevice->getAddress());
@@ -34,16 +41,22 @@ void IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagra
         arpRequest->setTargetHardwareAddress(arpModule->getBroadcastAddress());
         arpRequest->setTargetProtocolAddress(receiver);
 
-        outFrame = new EthernetFrame(arpModule->getBroadcastAddress(), arpRequest);
-    } else {
-        outFrame = new EthernetFrame(destinationAddress, ip4Datagram);
+        //TODO: Add Datagram to internal data structure for pending requests
+        this->eventBus->publish(
+                new Kernel::EthernetSendEvent(
+                        this->ethernetDevice,
+                        new EthernetFrame(arpModule->getBroadcastAddress(), arpRequest)
+                )
+        );
+        return 0;
     }
     this->eventBus->publish(
             new Kernel::EthernetSendEvent(
                     this->ethernetDevice,
-                    outFrame
+                    new EthernetFrame(destinationAddress, ip4Datagram)
             )
     );
+    return 0;
 }
 
 IP4Address *IP4Interface::getIp4Address() const {

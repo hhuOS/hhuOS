@@ -102,13 +102,25 @@ namespace Kernel {
 
     void EthernetModule::onEvent(const Event &event) {
         if ((event.getType() == EthernetSendEvent::TYPE)) {
-            auto sendEvent = ((EthernetSendEvent &) event);
-            EthernetDevice *outDevice = sendEvent.getOutDevice();
-            EthernetFrame *outFrame = sendEvent.getEthernetFrame();
+            EthernetDevice *outDevice = ((EthernetSendEvent &) event).getOutDevice();
+            EthernetFrame *outFrame = ((EthernetSendEvent &) event).getEthernetFrame();
 
-            if (outFrame != nullptr && outDevice != nullptr) {
-                outDevice->sendEthernetFrame(outFrame);
+            if (outDevice == nullptr) {
+                log.error("Outgoing device was null, discarding outgoing frame");
+                //delete on NULL objects simply does nothing
+                delete outFrame;
+                return;
             }
+            if(outFrame == nullptr){
+                log.error("Outgoing frame was null, ignoring");
+                return;
+            }
+            if(outDevice->sendEthernetFrame(outFrame)){
+                log.error("Error while sending out EthernetFrame, discarding");
+            }
+            //we are done here, delete outFrame no matter if sending worked or not
+            //-> we still have our log entry if sending failed
+            delete outFrame;
             return;
         }
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {

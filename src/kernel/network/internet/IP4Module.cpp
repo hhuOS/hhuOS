@@ -69,16 +69,25 @@ namespace Kernel {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
             if(routingModule== nullptr){
-                log.error("Internal routing module was null, no sending anything");
+                log.error("Internal routing module was null, not sending anything");
+                //delete on NULL objects simply does nothing!
+                delete datagram;
                 return;
             }
+            if(datagram== nullptr){
+                log.error("Outgoing datagram was null, ignoring");
+                return;
+            }
+            //Method returns a value !=0 if something went wrong
             if (routingModule->sendViaBestRoute(datagram)) {
+                delete datagram;
                 eventBus->publish(
                         new Kernel::ICMP4ReceiveEvent(
+                                //TODO: Implement this one
                                 new ICMP4DestinationUnreachable()
                         )
                 );
-            }
+            }//TODO: Let sendViaBestRoute() return a specific error code that will be sent via ICMP4Message (has a code attribute)
             return;
         }
 

@@ -15,6 +15,10 @@ IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
     uint8_t matchingBits, bestMatch = 0;
     IP4Route *bestRoute = nullptr;
 
+    if(receiverAddress== nullptr){
+        return nullptr;
+    }
+
     for (IP4Route *current:*this->routes) {
         matchingBits = current->matchingBits(receiverAddress);
         if (matchingBits > 32) {
@@ -36,16 +40,23 @@ IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
     return bestRoute;
 }
 
-int IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
+uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
+    if(datagram== nullptr){
+        return 1;
+    }
+    //TODO: Return specific error codes depending on what happened! (Like 1=NO_ROUTE_FOUND etc.)
     IP4Route *matchedRoute = this->findBestRouteFor(datagram->getDestinationAddress());
     if (matchedRoute == nullptr) {
         return 1;
     }
-    matchedRoute->sendOut(datagram);
-    return 0;
+    //Go to next level if everything worked fine
+    return matchedRoute->sendOut(datagram);
 }
 
 void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
+    if(strings == nullptr){
+        return;
+    }
     for (IP4Route *current:*this->routes) {
         strings->add(current->asString());
     }
@@ -66,6 +77,9 @@ void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInt
 }
 
 void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
+    if(ip4Interface== nullptr){
+        return;
+    }
     //Add a direct route for a given new IP4Interface
     //-> Extract Network Address from interface's IP4Address with its Netmask
     //-> NextHop is null, we are directly connected here
@@ -73,6 +87,9 @@ void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
 }
 
 void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
+    if(ip4Interface== nullptr){
+        return;
+    }
     //TODO: Synchronisierung!
     for (uint32_t i = 0; i < routes->size(); i++) {
         if (routes->get(i)->getOutInterface()->equals(ip4Interface)) {

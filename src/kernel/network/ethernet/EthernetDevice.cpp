@@ -15,41 +15,33 @@ String *EthernetDevice::getIdentifier() const {
     return identifier;
 }
 
-void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
-    if (ethernetFrame == nullptr) {
-        return;
+uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
+    if (ethernetFrame == nullptr || this->networkDevice == nullptr) {
+        return 1;
     }
+    //interface selection happens in routing module
+    // -> we don't know source address before this point here!
     ethernetFrame->setSourceAddress(this->ethernetAddress);
     uint16_t frameLength = ethernetFrame->getLengthInBytes();
     if (frameLength == 0) {
-        log.error("EthernetFrame had zero length, discarding frame");
-        return;
+        return 1;
     }
     auto *byteBlock = new NetworkByteBlock(frameLength);
-    if (byteBlock->isNull()) {
-        log.error("Could not allocate byteBlock, discarding frame");
-        delete ethernetFrame;
-        return;
-    }
-    if (ethernetFrame->copyTo(byteBlock)) {
-        log.error("Could not copy EthernetFrame data to byteBlock, discarding frame");
+    if (ethernetFrame->copyTo(byteBlock) ||
+        !byteBlock->isCompletelyFilled()
+        ) {
+        //ethernetFrame will be deleted in EthernetModule later
+        //-> no delete here!
         delete byteBlock;
-        delete ethernetFrame;
-        return;
+        return 1;
     }
-    if (!byteBlock->isCompletelyFilled()) {
-        log.error("Could not completely copy EthernetFrame data to byteBlock, discarding frame");
+    if(byteBlock->sendOutVia(this->networkDevice)){
         delete byteBlock;
-        delete ethernetFrame;
-        return;
-    }
-    if (byteBlock->sendOutVia(this->networkDevice)) {
-        log.error("Could not send out byteBlock via network device, discarding frame");
+        return 1;
     }
 
-    //Cleanup memory, avoid memory leaks
     delete byteBlock;
-    delete ethernetFrame;
+    return 0;
 }
 
 bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {

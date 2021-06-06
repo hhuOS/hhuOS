@@ -19,12 +19,16 @@ IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *ou
     this->outInterface = outInterface;
 }
 
-void IP4Route::sendOut(IP4Datagram *datagram) {
-    if (this->nextHopAddress == nullptr) {
-        this->outInterface->sendIP4Datagram(datagram->getDestinationAddress(), datagram);
-        return;
+uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
+    if(datagram== nullptr){
+        return 1;
     }
-    this->outInterface->sendIP4Datagram(this->nextHopAddress, datagram);
+    if (nextHopAddress == nullptr) {
+        //direct route
+        return outInterface->sendIP4Datagram(datagram->getDestinationAddress(), datagram);
+    }
+    //indirect route
+    return outInterface->sendIP4Datagram(nextHopAddress, datagram);
 }
 
 IP4Interface *IP4Route::getOutInterface() const {
@@ -32,18 +36,18 @@ IP4Interface *IP4Route::getOutInterface() const {
 }
 
 uint8_t IP4Route::matchingBits(IP4Address *ip4Address) {
-    IP4Address *addressNetPart = this->netMask->extractNetPart(ip4Address);
-    if (addressNetPart->equals(this->netAddress)) {
-        return this->netMask->getBitCount();
+    IP4Address *addressNetPart = netMask->extractNetPart(ip4Address);
+    if (addressNetPart->equals(netAddress)) {
+        return netMask->getBitCount();
     }
     return 0;
 }
 
 IP4Route::IP4Route(IP4Interface *ip4Interface) {
-    this->netAddress = ip4Interface->getNetAddress();
-    this->netMask = ip4Interface->getIp4Netmask();
-    this->nextHopAddress = nullptr;
-    this->outInterface = ip4Interface;
+    netAddress = ip4Interface->getNetAddress();
+    netMask = ip4Interface->getIp4Netmask();
+    nextHopAddress = nullptr;
+    outInterface = ip4Interface;
 }
 
 String IP4Route::asString() {

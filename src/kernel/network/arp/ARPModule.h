@@ -25,7 +25,7 @@ public:
 
     void addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
 
-    EthernetAddress *resolveIP4(IP4Address *ip4Address);
+    uint8_t resolveTo(EthernetAddress **ethernetAddress, IP4Address *ip4Address);
 };
 
 

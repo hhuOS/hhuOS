@@ -23,13 +23,9 @@ public:
 
     [[nodiscard]] size_t getLength() const;
 
-    bool isNull();
-
     [[nodiscard]] bool isCompletelyFilled() const;
 
     void printBytes();
-
-    void freeBytes();
 
     [[nodiscard]] size_t bytesRemaining() const;
 
