@@ -85,7 +85,9 @@ namespace Kernel {
             }
             switch (routingModule->sendViaBestRoute(datagram)) {
                 case IP4_DELIVER_SUCCESS:
-                    break;
+                    //Datagram will be deleted in EthernetModule after send
+                    //-> no delete here!
+                    return;
                 case IP4_DATAGRAM_NULL: {
                     log.error("Outgoing datagram was null, ignoring");
                     return;
