@@ -24,6 +24,9 @@ uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
     if (datagram == nullptr) {
         return IP4_DATAGRAM_NULL;
     }
+    if(outInterface== nullptr){
+        return IP4_INTERFACE_NULL;
+    }
     if (nextHopAddress == nullptr) {
         //direct route
         return outInterface->sendIP4Datagram(datagram->getDestinationAddress(), datagram);

@@ -106,7 +106,7 @@ namespace Kernel {
             EthernetFrame *outFrame = ((EthernetSendEvent &) event).getEthernetFrame();
 
             if (outDevice == nullptr) {
-                log.error("Outgoing device was null, discarding outgoing frame");
+                log.error("Outgoing device was null, discarding frame");
                 //delete on NULL objects simply does nothing
                 delete outFrame;
                 return;
@@ -115,11 +115,46 @@ namespace Kernel {
                 log.error("Outgoing frame was null, ignoring");
                 return;
             }
-            if (outDevice->sendEthernetFrame(outFrame)) {
-                log.error("Error while sending out EthernetFrame, discarding");
+            if (outFrame->getLengthInBytes()==0){
+                log.error("Outgoing frame was empty, discarding frame");
+                delete outFrame;
+                return;
+            }
+            switch (outDevice->sendEthernetFrame(outFrame)) {
+                case ETH_DELIVER_SUCCESS: {
+                    break;
+                }
+                case ETH_FRAME_NULL: {
+                    log.error("Outgoing frame was null, ignoring");
+                    return;
+                }
+                case ETH_DEVICE_NULL: {
+                    log.error("Outgoing device was null, discarding frame");
+                    break;
+                }
+                case ETH_COPY_BYTEBLOCK_FAILED: {
+                    log.error("Copy to byteBlock failed, discarding frame");
+                    break;
+                }
+                case ETH_COPY_BYTEBLOCK_INCOMPLETE: {
+                    log.error("Copy to byteBlock incomplete, discarding frame");
+                    break;
+                }
+                case BYTEBLOCK_NETWORK_DEVICE_NULL: {
+                    log.error("Network device in byteBlock was null, discarding frame");
+                    break;
+                }
+                case BYTEBLOCK_BYTES_NULL: {
+                    log.error("Internal bytes in byteBlock were null, discarding frame");
+                    break;
+                }
+                default:
+                    log.error("Sending failed with unknown error, discarding frame");
+                    break;
             }
             //we are done here, delete outFrame no matter if sending worked or not
             //-> we still have our log entry if sending failed
+            //NOTE: An embedded IP4Datagram will be deleted here
             delete outFrame;
             return;
         }

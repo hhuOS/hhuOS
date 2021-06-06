@@ -4,6 +4,7 @@
 
 #include <kernel/network/NetworkByteBlock.h>
 #include "EthernetDevice.h"
+#include "EthernetModule.h"
 
 EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {
     this->identifier = identifier;
@@ -16,32 +17,36 @@ String *EthernetDevice::getIdentifier() const {
 }
 
 uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
-    if (ethernetFrame == nullptr || this->networkDevice == nullptr) {
-        return 1;
+    if (ethernetFrame == nullptr){
+        return ETH_FRAME_NULL;
+    }
+    if (this->networkDevice == nullptr) {
+        return ETH_DEVICE_NULL;
     }
     //interface selection happens in routing module
     // -> we don't know source address before this point here!
     ethernetFrame->setSourceAddress(this->ethernetAddress);
-    uint16_t frameLength = ethernetFrame->getLengthInBytes();
-    if (frameLength == 0) {
-        return 1;
-    }
-    auto *byteBlock = new NetworkByteBlock(frameLength);
-    if (ethernetFrame->copyTo(byteBlock) ||
-        !byteBlock->isCompletelyFilled()
-            ) {
-        //ethernetFrame will be deleted in EthernetModule later
-        //-> no delete here!
+    auto *byteBlock = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
+
+    //ethernetFrame will be deleted in EthernetModule later
+    //-> no 'delete ethernetFrame' here!
+    if (ethernetFrame->copyTo(byteBlock)){
         delete byteBlock;
-        return 1;
+        return ETH_COPY_BYTEBLOCK_FAILED;
     }
-    if (byteBlock->sendOutVia(this->networkDevice)) {
+    if(!byteBlock->isCompletelyFilled()) {
         delete byteBlock;
-        return 1;
+        return ETH_COPY_BYTEBLOCK_INCOMPLETE;
+    }
+
+    uint8_t byteBlockError = byteBlock->sendOutVia(this->networkDevice);
+    if (byteBlockError) {
+        delete byteBlock;
+        return byteBlockError;
     }
 
     delete byteBlock;
-    return 0;
+    return ETH_DELIVER_SUCCESS;
 }
 
 bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {

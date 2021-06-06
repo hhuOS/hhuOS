@@ -86,13 +86,13 @@ uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
     }
     if (byteCount == 0) {
         //It's not an error if nothing needs to be done...
-        return 0;
+        return BYTEBLOCK_ACTION_SUCCESS;
     }
     for (size_t i = 0; i < byteCount; i++) {
         this->bytes[currentIndex + i] = sourceAsByteArray[i];
     }
     this->currentIndex += byteCount;
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
@@ -109,7 +109,7 @@ uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
 
     twoBytesAsArray[0] = tempValueAsArray[1];
     twoBytesAsArray[1] = tempValueAsArray[0];
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
@@ -124,7 +124,7 @@ uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
     fourBytesAsArray[1] = tempValueAsArray[2];
     fourBytesAsArray[2] = tempValueAsArray[1];
     fourBytesAsArray[3] = tempValueAsArray[0];
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
@@ -142,22 +142,26 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
         targetBytes[i] = this->bytes[currentIndex + i];
     }
     currentIndex += byteCount;
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
-    if (networkDevice == nullptr || bytes == nullptr) {
-        return 1;
+    if (networkDevice == nullptr){
+        return BYTEBLOCK_NETWORK_DEVICE_NULL;
+    }
+
+    if(bytes == nullptr) {
+        return BYTEBLOCK_BYTES_NULL;
     }
 
     if (this->length == 0) {
         //It's not an error if nothing needs to be done
-        return 0;
+        return BYTEBLOCK_ACTION_SUCCESS;
     }
     networkDevice->sendPacket(bytes, static_cast<uint16_t>(length));
     //NetworkDevices return no information about errors or successful sending
     //-> we just can return successful here
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 size_t NetworkByteBlock::bytesRemaining() const {
@@ -175,5 +179,5 @@ uint8_t NetworkByteBlock::skip(uint8_t byteCount) {
     }
     //No problem if byteCount == 0 here
     this->currentIndex+=byteCount;
-    return 0;
+    return BYTEBLOCK_ACTION_SUCCESS;
 }

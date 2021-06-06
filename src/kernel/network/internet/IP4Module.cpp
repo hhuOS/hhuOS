@@ -78,24 +78,29 @@ namespace Kernel {
                 log.error("Outgoing datagram was null, ignoring");
                 return;
             }
+            if(datagram->getLengthInBytes() == 0){
+                log.error("Outgoing datagram was empty, discarding it");
+                delete datagram;
+                return;
+            }
             switch (routingModule->sendViaBestRoute(datagram)) {
                 case IP4_DELIVER_SUCCESS:
-                    //Datagram will be deleted afters sending in EthernetModule
-                    //-> no delete here
-                    return;
+                    break;
                 case IP4_DATAGRAM_NULL: {
                     log.error("Outgoing datagram was null, ignoring");
                     return;
                 }
+                case IP4_INTERFACE_NULL: {
+                    log.error("Outgoing interface was null, discarding datagram");
+                    break;
+                }
                 case IP4_RECEIVER_ADDRESS_NULL:{
                     log.error("Given receiver address was null, discarding datagram");
-                    delete datagram;
-                    return;
+                    break;
                 }
                 case IP4_MATCHING_BITS_FUNCTION_BROKEN:{
                     log.error("matchingBits() function in routing module is broken, discarding datagram");
-                    delete datagram;
-                    return;
+                    break;
                 }
                 case IP4_NO_ROUTE_FOUND:{
                     log.error("No route to host could be found, discarding datagram");
@@ -106,25 +111,25 @@ namespace Kernel {
                     );
                     //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
                     //-> we can delete datagram now
-                    delete datagram;
-                    return;
+                    break;
                 }
                 case ARP_PROTOCOL_ADDRESS_NULL:{
                     log.error("IP4 address given to ARP module was null, discarding datagram");
-                    delete datagram;
-                    return;
+                    break;
                 }
                 case ARP_TABLE_NULL:{
                     log.error("Table in ARP module was null, discarding datagram");
-                    delete datagram;
-                    return;
+                    break;
                 }
                 default:{
                     log.error("Sending failed with unknown error code, discarding datagram");
-                    delete datagram;
-                    return;
+                    break;
                 }
             }
+            //We are done here, delete datagram no matter if delivery worked or not
+            //-> we still have our log entry if sending failed
+            delete datagram;
+            return;
         }
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
