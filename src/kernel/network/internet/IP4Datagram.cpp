@@ -17,6 +17,10 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     header.totalLength = sizeof(header) + ip4DataPart->getLengthInBytes();
 }
 
+IP4Datagram::~IP4Datagram() {
+    ip4DataPart->freeMemory();
+}
+
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
     return ip4DataPart->getIP4ProtocolType();
 }
@@ -128,4 +132,8 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
 
     //Call next level if no errors occurred yet
     return ip4DataPart->parse(input);
+}
+
+void IP4Datagram::freeMemory() {
+
 }

@@ -46,6 +46,8 @@ public:
     uint8_t parse(NetworkByteBlock *input) override;
 
     [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
+
+    void freeMemory() override;
 };
 
 

@@ -19,3 +19,7 @@ IP4DataPart::IP4ProtocolType UDPDatagram::getIP4ProtocolType() {
 uint8_t UDPDatagram::parse(NetworkByteBlock *input) {
     return 1;
 }
+
+void UDPDatagram::freeMemory() {
+
+}

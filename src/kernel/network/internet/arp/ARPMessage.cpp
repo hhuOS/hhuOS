@@ -58,3 +58,7 @@ ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
             return OpCode::INVALID;
     }
 }
+
+void ARPMessage::freeMemory() {
+
+}

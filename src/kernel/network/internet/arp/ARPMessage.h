@@ -69,6 +69,8 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
+
+    void freeMemory() override;
 };
 
 

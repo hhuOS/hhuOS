@@ -49,6 +49,7 @@ public:
 
     uint8_t parse(NetworkByteBlock *input) override;
 
+    void freeMemory() override;
 };
 
 

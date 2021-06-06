@@ -34,7 +34,7 @@ private:
         uint16_t identification = 0;
         uint16_t flags_fragmentOffset = 0;
 
-        //solid default value for small LANs, can be set from constructor if necessary
+        //solid default value, can be set from constructor if necessary
         uint8_t timeToLive = 64;
 
         uint8_t protocolType = 0;
@@ -53,9 +53,9 @@ public:
 
     IP4Datagram() = default;
 
-    ~IP4Datagram() = default;
+    virtual ~IP4Datagram();
 
-    IP4DataPart *getIP4DataPart() const;
+    [[nodiscard]] IP4DataPart *getIP4DataPart() const;
 
     EtherType getEtherType() override;
 
@@ -67,11 +67,11 @@ public:
 
     uint8_t parse(NetworkByteBlock *input) override;
 
-    [[nodiscard]] IP4Address *getSourceAddress() const;
-
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+
+    void freeMemory() override;
 };
 
 

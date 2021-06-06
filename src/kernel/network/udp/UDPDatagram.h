@@ -22,6 +22,8 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
+
+    void freeMemory() override;
 };
 
 

@@ -17,6 +17,8 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
+
+    void freeMemory() override;
 };
 
 

@@ -21,3 +21,7 @@ ICMP4Message::ICMP4MessageType ICMP4DestinationUnreachable::getICMP4MessageType(
 uint8_t ICMP4DestinationUnreachable::parse(NetworkByteBlock *input) {
     return 1;
 }
+
+void ICMP4DestinationUnreachable::freeMemory() {
+
+}
