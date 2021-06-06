@@ -75,7 +75,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
                 log.info("Received TIME_EXCEEDED");
-                delete (ICMP4TimeExceeded *)icmp4Message;
+                delete (ICMP4TimeExceeded *) icmp4Message;
                 return;
             default:
                 log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding");

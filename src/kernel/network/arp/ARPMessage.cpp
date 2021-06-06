@@ -48,16 +48,16 @@ uint8_t ARPMessage::parse(NetworkByteBlock *input) {
 
     errors += input->read(
             message.senderHardwareAddress,
-                          header.hardwareAddressLength);
+            header.hardwareAddressLength);
     errors += input->read(
             message.senderProtocolAddress,
-                          header.protocolAddressLength);
+            header.protocolAddressLength);
     errors += input->read(
             message.targetHardwareAddress,
-                          header.hardwareAddressLength);
+            header.hardwareAddressLength);
     errors += input->read(
             message.targetProtocolAddress,
-                          header.protocolAddressLength);
+            header.protocolAddressLength);
 
     return errors;
 }
