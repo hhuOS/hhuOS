@@ -67,11 +67,6 @@ namespace Kernel {
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
-            if (ip4Datagram->parse(nullptr)) {
-                log.error("Parsing of incoming IP4Datagram failed, discarding");
-                delete ip4Datagram;
-                return;
-            }
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
@@ -96,7 +91,6 @@ namespace Kernel {
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             //TODO: Implement processing of incoming ARP Messages here
-
             switch (arpMessage->getOpCode()) {
                 case ARPMessage::OpCode::REQUEST:
                     break;
