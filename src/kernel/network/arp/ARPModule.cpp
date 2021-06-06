@@ -22,12 +22,12 @@ uint8_t ARPModule::resolveTo(EthernetAddress **ethernetAddress, IP4Address *ip4A
         if (current->matches(ip4Address)) {
             //We need to copy our ARP entry's address, because the frame's address will be deleted after sending
             *ethernetAddress = new EthernetAddress(current->getEthernetAddress());
-            return 0;
+            return ARP_RESOLVE_SUCCESS;
         }
     }
     //If no entry could be found, simply return nullptr as ethernetAddress
     //-> this will cause an ARP resolve
-    return 0;
+    return ARP_RESOLVE_SUCCESS;
 }
 
 void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
@@ -36,4 +36,8 @@ void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddres
 
 EthernetAddress *ARPModule::getBroadcastAddress() const {
     return broadcastAddress;
+}
+
+ARPModule::~ARPModule() {
+    delete broadcastAddress;
 }

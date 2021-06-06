@@ -22,7 +22,6 @@ private:
     } arpheader_t;
 
     typedef struct arpMessage {
-        arpheader_t header;
         uint8_t senderHardwareAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
         uint8_t senderProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
 
@@ -30,6 +29,7 @@ private:
         uint8_t targetProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
     } arpmessage_t;
 
+    arpheader_t header;
     arpmessage_t message;
 
 public:
@@ -45,12 +45,11 @@ public:
     //Incoming constructor
     ARPMessage() = default;
 
-    ~ARPMessage() = default;
-
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 
+    virtual ~ARPMessage();
 
-    OpCode getOpCode() const;
+    [[nodiscard]] OpCode getOpCode() const;
 
     static ARPMessage::OpCode parseOpCodeFromInteger(uint16_t value);
 
@@ -62,7 +61,7 @@ public:
 
     void setTargetProtocolAddress(IP4Address *targetProtocolAddress);
 
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 

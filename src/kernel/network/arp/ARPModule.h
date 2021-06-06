@@ -12,6 +12,7 @@
 #include <kernel/network/internet/IP4Datagram.h>
 #include "ARPEntry.h"
 
+#define ARP_RESOLVE_SUCCESS 0
 #define ARP_PROTOCOL_ADDRESS_NULL 11
 #define ARP_TABLE_NULL 12
 
@@ -23,6 +24,8 @@ private:
 
 public:
     ARPModule();
+
+    virtual ~ARPModule();
 
     [[nodiscard]] EthernetAddress *getBroadcastAddress() const;
 
