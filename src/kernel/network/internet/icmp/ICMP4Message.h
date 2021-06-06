@@ -5,7 +5,6 @@
 #ifndef HHUOS_ICMP4MESSAGE_H
 #define HHUOS_ICMP4MESSAGE_H
 
-#include "lib/libc/stdlib.h"
 #include <kernel/network/internet/IP4DataPart.h>
 
 class ICMP4Message : public IP4DataPart {
@@ -24,22 +23,6 @@ public:
         INFORMATION_REPLY = 16,
         INVALID
     };
-
-    ICMP4Message() = default;
-
-    IP4ProtocolType getIP4ProtocolType() override {
-        return IP4ProtocolType::ICMP4;
-    }
-
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
-
-    size_t getLengthInBytes() override = 0;
-
-    virtual ICMP4MessageType getICMP4MessageType() = 0;
-
-    uint8_t parse(NetworkByteBlock *input) override {
-        return 0;
-    }
 
     static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {
         switch (type) {
@@ -69,7 +52,20 @@ public:
                 return ICMP4MessageType::INVALID;
         }
     }
-};
 
+    IP4ProtocolType getIP4ProtocolType() override {
+        return IP4ProtocolType::ICMP4;
+    }
+
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
+
+    size_t getLengthInBytes() override = 0;
+
+    virtual ICMP4MessageType getICMP4MessageType() = 0;
+
+    uint8_t parse(NetworkByteBlock *input) override {
+        return 0;
+    }
+};
 
 #endif //HHUOS_ICMP4MESSAGE_H

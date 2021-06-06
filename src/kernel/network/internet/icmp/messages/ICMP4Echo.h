@@ -31,7 +31,7 @@ public:
 
     ICMP4Echo() = default;
 
-    ~ICMP4Echo() = default;
+    virtual ~ICMP4Echo();
 
     void setSourceAddress(IP4Address *ip4Address);
 

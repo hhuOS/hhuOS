@@ -10,6 +10,8 @@
 
 class ICMP4TimeExceeded : public ICMP4Message {
 public:
+    virtual ~ICMP4TimeExceeded();
+
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;

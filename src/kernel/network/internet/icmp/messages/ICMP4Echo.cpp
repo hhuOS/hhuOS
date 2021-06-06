@@ -73,3 +73,7 @@ void ICMP4Echo::freeMemory() {
 
 }
 
+ICMP4Echo::~ICMP4Echo() {
+    freeMemory();
+}
+

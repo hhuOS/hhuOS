@@ -19,11 +19,11 @@ private:
         uint32_t unused = 0; //32 Bits are unused per definition in RFC792 page 4
     } header_t;
     header_t header;
-    NetworkByteBlock *bytes = nullptr;
+    NetworkByteBlock *internalBytes = nullptr;
 public:
     ICMP4DestinationUnreachable(uint8_t errorCode, IP4Datagram *datagram);
 
-    ICMP4DestinationUnreachable(size_t ip4HeaderSize);
+    explicit ICMP4DestinationUnreachable(size_t ip4HeaderSize);
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 

@@ -17,7 +17,7 @@ private:
 public:
     explicit EthernetAddress(NetworkDevice *networkDevice);
 
-    EthernetAddress(EthernetAddress *other);
+    explicit EthernetAddress(EthernetAddress *other);
 
     EthernetAddress(
             uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte,

@@ -74,3 +74,7 @@ uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
 void ICMP4EchoReply::freeMemory() {
 
 }
+
+ICMP4EchoReply::~ICMP4EchoReply() {
+    freeMemory();
+}

@@ -7,6 +7,7 @@
 #include <lib/libc/printf.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
+#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
 #include "ICMP4Module.h"
 
 Kernel::ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
@@ -17,7 +18,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         auto *icmp4Message = ((ICMP4SendEvent &) event).getIcmp4Message();
         if (destinationAddress == nullptr) {
             log.error("Destination address was null, discarding message");
-            delete icmp4Message;
+            icmp4Message->freeMemory();
             return;
         }
         if (icmp4Message == nullptr) {
@@ -73,12 +74,14 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 return;
             }
             case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                //TODO: Notify application
+                log.info("Received TIME_EXCEEDED");
+                delete (ICMP4TimeExceeded *)icmp4Message;
                 return;
             default:
                 log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding");
-                delete icmp4Message;
+                icmp4Message->freeMemory();
                 return;
         }
     }
 }
+

@@ -13,6 +13,7 @@ namespace Kernel {
     class ICMP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus;
+
     public:
         explicit ICMP4Module(NetworkEventBus *eventBus);
 

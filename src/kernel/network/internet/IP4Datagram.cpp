@@ -14,10 +14,14 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
     header.protocolType = ip4DataPart->getIP4ProtocolTypeAsInt();
     this->ip4DataPart = ip4DataPart;
 
-    header.totalLength = sizeof(header) + ip4DataPart->getLengthInBytes();
+    header.totalLength = sizeof header + ip4DataPart->getLengthInBytes();
 }
 
 IP4Datagram::~IP4Datagram() {
+    freeMemory();
+}
+
+void IP4Datagram::freeMemory() {
     ip4DataPart->freeMemory();
 }
 
@@ -43,10 +47,6 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 
 IP4DataPart *IP4Datagram::getIP4DataPart() const {
     return ip4DataPart;
-}
-
-void IP4Datagram::freeMemory() {
-
 }
 
 size_t IP4Datagram::getHeaderLengthInBytes() {
@@ -86,7 +86,7 @@ uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
 
 uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     if (input == nullptr ||
-        input->bytesRemaining() <= sizeof header
+        input->bytesRemaining() <= sizeof this->header
             ) {
         return 1;
     }

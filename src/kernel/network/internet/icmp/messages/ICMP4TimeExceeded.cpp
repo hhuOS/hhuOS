@@ -26,3 +26,7 @@ uint8_t ICMP4TimeExceeded::parse(NetworkByteBlock *input) {
 void ICMP4TimeExceeded::freeMemory() {
 
 }
+
+ICMP4TimeExceeded::~ICMP4TimeExceeded() {
+    freeMemory();
+}

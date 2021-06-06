@@ -31,7 +31,7 @@ public:
 
     ICMP4EchoReply() = default;
 
-    ~ICMP4EchoReply() = default;
+    virtual ~ICMP4EchoReply();
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
@@ -50,6 +50,7 @@ public:
     uint8_t parse(NetworkByteBlock *input) override;
 
     void freeMemory() override;
+
 };
 
 
