@@ -55,7 +55,7 @@ namespace Kernel {
         if (connectedDevice == nullptr) {
             return;
         }
-        if(ethernetDevices== nullptr){
+        if (ethernetDevices == nullptr) {
             log.error("Internal list of ethernet devices was null, not unregistering network device");
             return;
         }
@@ -63,9 +63,9 @@ namespace Kernel {
     }
 
     void EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
-        if(ethernetDevices== nullptr||
-            strings== nullptr
-            ){
+        if (ethernetDevices == nullptr ||
+            strings == nullptr
+                ) {
             return;
         }
         for (String *currentKey:ethernetDevices->keySet()) {
@@ -75,7 +75,7 @@ namespace Kernel {
 
 //Get ethernet device via identifier
     EthernetDevice *EthernetModule::getEthernetDevice(String *identifier) {
-        if (ethernetDevices== nullptr){
+        if (ethernetDevices == nullptr) {
             return nullptr;
         }
         if (ethernetDevices->containsKey(identifier)) {
@@ -86,7 +86,7 @@ namespace Kernel {
 
 //Get ethernet device via network device it's connected to
     EthernetDevice *EthernetModule::getEthernetDevice(NetworkDevice *networkDevice) {
-        if(ethernetDevices== nullptr){
+        if (ethernetDevices == nullptr) {
             return nullptr;
         }
         for (String *current:ethernetDevices->keySet()) {
@@ -114,14 +114,14 @@ namespace Kernel {
                 case EthernetDataPart::EtherType::IP4:
                     eventBus->publish(
                             new IP4ReceiveEvent(
-                                    (IP4Datagram *)inFrame->getEthernetDataPart()
+                                    (IP4Datagram *) inFrame->getEthernetDataPart()
                             )
                     );
                     return;
                 case EthernetDataPart::EtherType::ARP:
                     eventBus->publish(
                             new ARPReceiveEvent(
-                                    (ARPMessage *)inFrame->getEthernetDataPart()
+                                    (ARPMessage *) inFrame->getEthernetDataPart()
                             )
                     );
                     return;

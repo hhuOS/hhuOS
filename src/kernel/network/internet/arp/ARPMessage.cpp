@@ -24,7 +24,7 @@ uint8_t ARPMessage::parse(NetworkByteBlock *input) {
     return 1;
 }
 
-uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode){
+uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode) {
     return (uint16_t) opCode;
 }
 
@@ -50,8 +50,11 @@ ARPMessage::OpCode ARPMessage::getOpCode() {
 
 ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
     switch (value) {
-        case 1: return OpCode::REQUEST;
-        case 2: return OpCode::REPLY;
-        default: return OpCode::INVALID;
+        case 1:
+            return OpCode::REQUEST;
+        case 2:
+            return OpCode::REPLY;
+        default:
+            return OpCode::INVALID;
     }
 }

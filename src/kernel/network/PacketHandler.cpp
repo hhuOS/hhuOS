@@ -44,7 +44,7 @@ namespace Kernel {
             receiveEvent.dropPacket();
 
             auto *inFrame = new EthernetFrame();
-            if(!input->isCompletelyFilled() || inFrame->parse(input)){
+            if (!input->isCompletelyFilled() || inFrame->parse(input)) {
                 log.error("Parsing incoming packet failed, discarding");
                 delete inFrame;
                 delete input;

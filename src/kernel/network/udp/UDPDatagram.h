@@ -8,7 +8,7 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 
-class UDPDatagram : public IP4DataPart{
+class UDPDatagram : public IP4DataPart {
 
 public:
     UDPDatagram() = default;

@@ -19,7 +19,7 @@ private:
     } echo_t;
 
     typedef struct ip4information {
-        uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+        uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
     } ip4info_t;
 
     echo_t echoMessage;

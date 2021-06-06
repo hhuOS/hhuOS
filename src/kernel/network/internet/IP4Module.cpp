@@ -76,14 +76,14 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::ICMP4:
                     eventBus->publish(
                             new Kernel::ICMP4ReceiveEvent(
-                                    (ICMP4Message *)ip4Datagram->getIP4DataPart()
+                                    (ICMP4Message *) ip4Datagram->getIP4DataPart()
                             )
                     );
                     return;
                 case IP4DataPart::IP4ProtocolType::UDP:
                     eventBus->publish(
                             new Kernel::UDPReceiveEvent(
-                                    (UDPDatagram *)ip4Datagram->getIP4DataPart()
+                                    (UDPDatagram *) ip4Datagram->getIP4DataPart()
                             )
                     );
                     return;

@@ -27,7 +27,7 @@ void ICMP4Echo::setSourceAddress(IP4Address *ip4Address) {
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     auto *result = new ICMP4EchoReply(this->echoMessage.identifier,
                                       this->echoMessage.sequenceNumber + 1
-            );
+    );
     result->setSourceAddress(new IP4Address(ip4Info.sourceAddress));
     return result;
 }
@@ -54,7 +54,7 @@ uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
 uint8_t ICMP4Echo::parse(NetworkByteBlock *input) {
     if (input == nullptr ||
         input->bytesRemaining() <= sizeof echoMessage
-        ) {
+            ) {
         return 1;
     }
     //NOTE: The first Byte for 'type' is already read in IP4Datagram!

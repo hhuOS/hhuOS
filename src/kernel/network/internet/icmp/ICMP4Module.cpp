@@ -20,7 +20,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         //-> check out header structs in ICMP4Messages for default values
         switch (icmp4Message->getICMP4MessageType()) {
             case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                auto *echoReply = (ICMP4EchoReply *)icmp4Message;
+                auto *echoReply = (ICMP4EchoReply *) icmp4Message;
 
                 uint8_t addressBytes[4]{0, 0, 0, 0};
                 echoReply->getSourceAddress()->copyTo(addressBytes);
@@ -37,7 +37,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 //TODO: Notify application
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO: {
-                auto *echoRequest = (ICMP4Echo *)icmp4Message;
+                auto *echoRequest = (ICMP4Echo *) icmp4Message;
 
                 //create and send reply
                 eventBus->publish(

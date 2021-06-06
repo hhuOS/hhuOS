@@ -15,7 +15,7 @@ uint16_t EthernetFrame::getLengthInBytes() {
 }
 
 void EthernetFrame::setSourceAddress(EthernetAddress *source) {
-    if(source== nullptr){
+    if (source == nullptr) {
         return;
     }
     source->copyTo(header.sourceAddress);
@@ -39,13 +39,13 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
         return 1;
     }
 
-    uint8_t errors=0;
-    errors+=output->append(&header.destinationAddress, sizeof header.destinationAddress);
-    errors+=output->append(&header.sourceAddress, sizeof header.sourceAddress);
-    errors+=output->append(header.etherType);
+    uint8_t errors = 0;
+    errors += output->append(&header.destinationAddress, sizeof header.destinationAddress);
+    errors += output->append(&header.sourceAddress, sizeof header.sourceAddress);
+    errors += output->append(header.etherType);
 
     //True if errors>0
-    if(errors){
+    if (errors) {
         return errors;
     }
 
@@ -56,13 +56,13 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
 uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
     if (input == nullptr ||
         input->bytesRemaining() <= sizeof header
-        ) {
+            ) {
         return 1;
     }
-    uint8_t errors=0;
-    errors+=input->read(&header.destinationAddress, MAC_SIZE);
-    errors+=input->read(&header.sourceAddress, MAC_SIZE);
-    errors+=input->read(&header.etherType);
+    uint8_t errors = 0;
+    errors += input->read(&header.destinationAddress, MAC_SIZE);
+    errors += input->read(&header.sourceAddress, MAC_SIZE);
+    errors += input->read(&header.etherType);
 
     switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
         case EthernetDataPart::EtherType::IP4: {
@@ -73,11 +73,12 @@ uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
             ethernetDataPart = new ARPMessage();
             break;
         }
-        default: errors++;
+        default:
+            errors++;
     }
 
     //True if errors>0
-    if(errors){
+    if (errors) {
         return errors;
     }
 

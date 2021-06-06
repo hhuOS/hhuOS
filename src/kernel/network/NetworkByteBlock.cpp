@@ -19,12 +19,12 @@ NetworkByteBlock::NetworkByteBlock(size_t length) {
 
 //Constructor for given input to be parsed later
 NetworkByteBlock::NetworkByteBlock(void *packet, size_t length) {
-    this->bytes = new uint8_t [length];
-    this->length=length;
+    this->bytes = new uint8_t[length];
+    this->length = length;
 
     append(packet, length);
 
-    this->currentIndex=0;
+    this->currentIndex = 0;
 }
 
 NetworkByteBlock::~NetworkByteBlock() {
@@ -68,14 +68,14 @@ uint8_t NetworkByteBlock::append(uint8_t oneByte) {
 }
 
 uint8_t NetworkByteBlock::append(uint16_t twoBytes) {
-    auto *twoBytesAsArray = (uint8_t *)&twoBytes;
-    uint8_t switchedBytes[2]={twoBytesAsArray[1], twoBytesAsArray[0]};
+    auto *twoBytesAsArray = (uint8_t *) &twoBytes;
+    uint8_t switchedBytes[2] = {twoBytesAsArray[1], twoBytesAsArray[0]};
     return append(switchedBytes, sizeof twoBytes);
 }
 
 uint8_t NetworkByteBlock::append(uint32_t fourBytes) {
-    auto *fourBytesAsArray = (uint8_t *)&fourBytes;
-    uint8_t switchedBytes[4] = {fourBytesAsArray[3],fourBytesAsArray[2],fourBytesAsArray[1],fourBytesAsArray[0]};
+    auto *fourBytesAsArray = (uint8_t *) &fourBytes;
+    uint8_t switchedBytes[4] = {fourBytesAsArray[3], fourBytesAsArray[2], fourBytesAsArray[1], fourBytesAsArray[0]};
     return append(switchedBytes, sizeof fourBytes);
 }
 
@@ -102,29 +102,29 @@ uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
 
 uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
     uint16_t tempValue = 0;
-    if(read(&tempValue, sizeof tempValue)){
+    if (read(&tempValue, sizeof tempValue)) {
         return 1;
     }
-    auto *tempValueAsArray = (uint8_t *)&tempValue;
-    auto *twoBytesAsArray = (uint8_t *)twoBytes;
+    auto *tempValueAsArray = (uint8_t *) &tempValue;
+    auto *twoBytesAsArray = (uint8_t *) twoBytes;
 
-    twoBytesAsArray[0]=tempValueAsArray[1];
-    twoBytesAsArray[1]=tempValueAsArray[0];
+    twoBytesAsArray[0] = tempValueAsArray[1];
+    twoBytesAsArray[1] = tempValueAsArray[0];
     return 0;
 }
 
 uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
     uint32_t tempValue = 0;
-    if(read(&tempValue, sizeof tempValue)){
+    if (read(&tempValue, sizeof tempValue)) {
         return 1;
     }
-    auto *tempValueAsArray = (uint8_t *)&tempValue;
-    auto *fourBytesAsArray = (uint8_t *)fourBytes;
+    auto *tempValueAsArray = (uint8_t *) &tempValue;
+    auto *fourBytesAsArray = (uint8_t *) fourBytes;
 
-    fourBytesAsArray[0]=tempValueAsArray[3];
-    fourBytesAsArray[1]=tempValueAsArray[2];
-    fourBytesAsArray[2]=tempValueAsArray[1];
-    fourBytesAsArray[3]=tempValueAsArray[0];
+    fourBytesAsArray[0] = tempValueAsArray[3];
+    fourBytesAsArray[1] = tempValueAsArray[2];
+    fourBytesAsArray[2] = tempValueAsArray[1];
+    fourBytesAsArray[3] = tempValueAsArray[0];
     return 0;
 }
 

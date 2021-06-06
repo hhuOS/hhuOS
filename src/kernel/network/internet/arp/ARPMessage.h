@@ -23,17 +23,17 @@ private:
 
     typedef struct arpMessage {
         arpheader_t header;
-        uint8_t senderHardwareAddress[MAC_SIZE]{0,0,0,0,0,0};
-        uint8_t senderProtocolAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+        uint8_t senderHardwareAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
+        uint8_t senderProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
 
-        uint8_t targetHardwareAddress[MAC_SIZE]{0,0,0,0,0,0};
-        uint8_t targetProtocolAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+        uint8_t targetHardwareAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
+        uint8_t targetProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
     } arpmessage_t;
 
     arpmessage_t message;
 
 public:
-    enum class OpCode{
+    enum class OpCode {
         REQUEST = 1,
         REPLY = 2,
         INVALID
@@ -48,7 +48,6 @@ public:
     ~ARPMessage() = default;
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
-
 
 
     OpCode getOpCode();
