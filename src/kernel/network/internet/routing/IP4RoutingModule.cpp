@@ -3,6 +3,7 @@
 //
 
 #include <kernel/network/internet/IP4Interface.h>
+#include <kernel/network/internet/IP4Module.h>
 #include "IP4RoutingModule.h"
 
 IP4RoutingModule::IP4RoutingModule() {
@@ -11,43 +12,48 @@ IP4RoutingModule::IP4RoutingModule() {
 }
 
 //Private method!
-IP4Route *IP4RoutingModule::findBestRouteFor(IP4Address *receiverAddress) {
+uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
     uint8_t matchingBits, bestMatch = 0;
-    IP4Route *bestRoute = nullptr;
+    *bestRoute= nullptr;
 
     if (receiverAddress == nullptr) {
-        return nullptr;
+        return IP4_RECEIVER_ADDRESS_NULL;
     }
 
-    for (IP4Route *current:*this->routes) {
-        matchingBits = current->matchingBits(receiverAddress);
+    for (IP4Route *currentRoute:*this->routes) {
+        matchingBits = currentRoute->matchingBits(receiverAddress);
         if (matchingBits > 32) {
-            //If matching bits calculation is broken return nullpointer
-            //-> This will cause an ICMP4DestinationUnreachable message
-            return nullptr;
+            return IP4_MATCHING_BITS_FUNCTION_BROKEN;
         }
         if (matchingBits > bestMatch) {
-            bestRoute = current;
+            *bestRoute=currentRoute;
             bestMatch = matchingBits;
         }
     }
-    //Return default route if no other route could be found
-    //If no default route is set, return nullpointer
-    //-> This will cause an ICMP4DestinationUnreachable message
-    if (bestRoute == nullptr && this->defaultRoute != nullptr) {
-        return this->defaultRoute;
+
+    //Return successful if best route found
+    if(*bestRoute!= nullptr){
+        return 0;
     }
-    return bestRoute;
+
+    //Set to default route if it exists and return successful
+    if (this->defaultRoute != nullptr) {
+        *bestRoute=this->defaultRoute;
+        return 0;
+    }
+
+    //Return error if no route could be found at all
+    return IP4_NO_ROUTE_FOUND;
 }
 
 uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
     if (datagram == nullptr) {
-        return 1;
+        return IP4_DATAGRAM_NULL;
     }
-    //TODO: Return specific error codes depending on what happened! (Like 1=NO_ROUTE_FOUND etc.)
-    IP4Route *matchedRoute = this->findBestRouteFor(datagram->getDestinationAddress());
-    if (matchedRoute == nullptr) {
-        return 1;
+    IP4Route *matchedRoute = nullptr;
+    uint8_t findError= find(&matchedRoute, datagram->getDestinationAddress());
+    if (findError) {
+        return findError;
     }
     //Go to next level if everything worked fine
     return matchedRoute->sendOut(datagram);

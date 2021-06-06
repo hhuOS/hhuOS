@@ -45,6 +45,14 @@ IP4DataPart *IP4Datagram::getIP4DataPart() const {
     return ip4DataPart;
 }
 
+void IP4Datagram::freeMemory() {
+
+}
+
+size_t IP4Datagram::getHeaderLengthInBytes() {
+    return sizeof header;
+}
+
 uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
     if (
             ip4DataPart == nullptr ||
@@ -95,16 +103,32 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     errors += input->read(header.sourceAddress, IP4ADDRESS_LENGTH);
     errors += input->read(header.destinationAddress, IP4ADDRESS_LENGTH);
 
+    //True if errors>0
+    if (errors) {
+        return errors;
+    }
+
+    uint8_t remainingHeaderBytes = ((header.version_headerLength - 0x40) * 4) - sizeof this->header;
+    //True if remainingHeaderBytes > 0
+    if(remainingHeaderBytes){
+        errors+=input->skip(remainingHeaderBytes);
+    }
+
+    //True if errors>0
+    if (errors) {
+        return errors;
+    }
+
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
         case IP4DataPart::IP4ProtocolType::ICMP4: {
             uint8_t typeByte = 0;
-            input->read(&typeByte);
+            errors+=input->read(&typeByte);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                     this->ip4DataPart = new ICMP4EchoReply();
                     break;
                 case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    this->ip4DataPart = new ICMP4DestinationUnreachable();
+                    this->ip4DataPart = new ICMP4DestinationUnreachable(0);
                     break;
                 case ICMP4Message::ICMP4MessageType::ECHO:
                     this->ip4DataPart = new ICMP4Echo();
@@ -132,8 +156,4 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
 
     //Call next level if no errors occurred yet
     return ip4DataPart->parse(input);
-}
-
-void IP4Datagram::freeMemory() {
-
 }

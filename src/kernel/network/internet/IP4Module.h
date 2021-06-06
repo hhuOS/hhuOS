@@ -24,6 +24,12 @@
 #include "IP4Interface.h"
 #include "IP4Module.h"
 
+#define IP4_DELIVER_SUCCESS 0
+#define IP4_DATAGRAM_NULL 1
+#define IP4_RECEIVER_ADDRESS_NULL 2
+#define IP4_MATCHING_BITS_FUNCTION_BROKEN 3
+#define IP4_NO_ROUTE_FOUND 4
+
 namespace Kernel {
 
     class IP4Module final : public Receiver {

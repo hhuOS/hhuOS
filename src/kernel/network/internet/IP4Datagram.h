@@ -61,6 +61,8 @@ public:
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
+    size_t getHeaderLengthInBytes();
+
     size_t getLengthInBytes() override;
 
     void setSourceAddress(IP4Address *source);

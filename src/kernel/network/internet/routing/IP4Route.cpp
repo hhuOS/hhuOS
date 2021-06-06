@@ -2,6 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
+#include <kernel/network/internet/IP4Module.h>
 #include "IP4Route.h"
 
 IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop,
@@ -21,7 +22,7 @@ IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *ou
 
 uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
     if (datagram == nullptr) {
-        return 1;
+        return IP4_DATAGRAM_NULL;
     }
     if (nextHopAddress == nullptr) {
         //direct route

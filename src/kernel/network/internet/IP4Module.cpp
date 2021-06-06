@@ -78,17 +78,53 @@ namespace Kernel {
                 log.error("Outgoing datagram was null, ignoring");
                 return;
             }
-            //Method returns a value !=0 if something went wrong
-            if (routingModule->sendViaBestRoute(datagram)) {
-                delete datagram;
-                eventBus->publish(
-                        new Kernel::ICMP4ReceiveEvent(
-                                //TODO: Implement this one
-                                new ICMP4DestinationUnreachable()
-                        )
-                );
-            }//TODO: Let sendViaBestRoute() return a specific error code that will be sent via ICMP4Message (has a code attribute)
-            return;
+            switch (routingModule->sendViaBestRoute(datagram)) {
+                case IP4_DELIVER_SUCCESS:
+                    //Datagram will be deleted afters sending in EthernetModule
+                    //-> no delete here
+                    return;
+                case IP4_DATAGRAM_NULL: {
+                    log.error("Outgoing datagram was null, ignoring");
+                    return;
+                }
+                case IP4_RECEIVER_ADDRESS_NULL:{
+                    log.error("Given receiver address was null, discarding datagram");
+                    delete datagram;
+                    return;
+                }
+                case IP4_MATCHING_BITS_FUNCTION_BROKEN:{
+                    log.error("matchingBits() function in routing module is broken, discarding datagram");
+                    delete datagram;
+                    return;
+                }
+                case IP4_NO_ROUTE_FOUND:{
+                    log.error("No route to host could be found, discarding datagram");
+                    eventBus->publish(
+                            new Kernel::ICMP4ReceiveEvent(
+                                    new ICMP4DestinationUnreachable(0, datagram)
+                            )
+                    );
+                    //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
+                    //-> we can delete datagram now
+                    delete datagram;
+                    return;
+                }
+                case ARP_PROTOCOL_ADDRESS_NULL:{
+                    log.error("IP4 address given to ARP module was null, discarding datagram");
+                    delete datagram;
+                    return;
+                }
+                case ARP_TABLE_NULL:{
+                    log.error("Table in ARP module was null, discarding datagram");
+                    delete datagram;
+                    return;
+                }
+                default:{
+                    log.error("Sending failed with unknown error code, discarding datagram");
+                    delete datagram;
+                    return;
+                }
+            }
         }
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {

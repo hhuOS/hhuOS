@@ -39,6 +39,8 @@ public:
 
     uint8_t append(void *source, size_t byteCount);
 
+    uint8_t append(NetworkByteBlock *otherByteBlock, size_t byteCount);
+
     uint8_t read(uint8_t *oneByte);
 
     uint8_t read(uint16_t *twoBytes);
@@ -46,6 +48,8 @@ public:
     uint8_t read(uint32_t *fourBytes);
 
     uint8_t read(void *target, size_t byteCount);
+
+    uint8_t skip(uint8_t byteCount);
 };
 
 

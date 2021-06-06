@@ -11,9 +11,13 @@ ARPModule::ARPModule() {
 }
 
 uint8_t ARPModule::resolveTo(EthernetAddress **ethernetAddress, IP4Address *ip4Address) {
-    if (ip4Address == nullptr || arpTable == nullptr) {
-        return 1;
+    if (ip4Address == nullptr){
+        return ARP_PROTOCOL_ADDRESS_NULL;
     }
+    if(arpTable == nullptr) {
+        return ARP_TABLE_NULL;
+    }
+    *ethernetAddress = nullptr;
     for (ARPEntry *current:*arpTable) {
         if (current->matches(ip4Address)) {
             //We need to copy our ARP entry's address, because the frame's address will be deleted after sending
@@ -21,9 +25,8 @@ uint8_t ARPModule::resolveTo(EthernetAddress **ethernetAddress, IP4Address *ip4A
             return 0;
         }
     }
-    //set destination address to NULL if no ARP entry could be found
-    //-> this will cause an ARPRequest
-    *ethernetAddress = nullptr;
+    //If no entry could be found, simply return nullptr as ethernetAddress
+    //-> this will cause an ARP resolve
     return 0;
 }
 

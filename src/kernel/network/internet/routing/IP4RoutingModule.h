@@ -14,7 +14,7 @@ private:
     Util::ArrayList<IP4Route *> *routes;
     IP4Route *defaultRoute;
 
-    IP4Route *findBestRouteFor(IP4Address *receiverAddress);
+    uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
 
 public:
 

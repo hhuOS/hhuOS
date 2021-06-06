@@ -68,6 +68,16 @@ uint8_t NetworkByteBlock::append(uint32_t fourBytes) {
     return append(switchedBytes, sizeof fourBytes);
 }
 
+uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCount) {
+    //Return error if we can't read all bytes from the other byteBlock
+    if(byteCount>otherByteBlock->bytesRemaining()){
+        return 1;
+    }
+    //The other byteBlock has the same type
+    //-> we can access its internal attributes here!
+    return append(otherByteBlock->bytes, byteCount);
+}
+
 uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
     auto *sourceAsByteArray = (uint8_t *) source;
     //Avoid writing beyond last byte
@@ -152,4 +162,18 @@ uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
 
 size_t NetworkByteBlock::bytesRemaining() const {
     return this->length - this->currentIndex;
+}
+
+uint8_t NetworkByteBlock::skip(uint8_t byteCount) {
+    if (
+            this->currentIndex == this->length ||
+            byteCount == 0 ||
+            this->bytes == nullptr ||
+            this->currentIndex + byteCount > this->length
+            ) {
+        return 1;
+    }
+    //No problem if byteCount == 0 here
+    this->currentIndex+=byteCount;
+    return 0;
 }
