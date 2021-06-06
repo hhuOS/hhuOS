@@ -44,7 +44,7 @@ void ARPMessage::setTargetProtocolAddress(IP4Address *targetProtocolAddress) {
     targetProtocolAddress->copyTo(message.targetProtocolAddress);
 }
 
-ARPMessage::OpCode ARPMessage::getOpCode() {
+ARPMessage::OpCode ARPMessage::getOpCode() const {
     return parseOpCodeFromInteger(message.header.opCode);
 }
 

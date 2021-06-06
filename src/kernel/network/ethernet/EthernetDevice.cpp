@@ -52,7 +52,7 @@ void EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
     delete ethernetFrame;
 }
 
-uint8_t EthernetDevice::connectedTo(NetworkDevice *otherDevice) {
+bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {
     return this->networkDevice == otherDevice;
 }
 

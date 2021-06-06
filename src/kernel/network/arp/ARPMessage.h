@@ -50,7 +50,7 @@ public:
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 
 
-    OpCode getOpCode();
+    OpCode getOpCode() const;
 
     static ARPMessage::OpCode parseOpCodeFromInteger(uint16_t value);
 

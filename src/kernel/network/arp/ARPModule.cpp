@@ -7,7 +7,7 @@
 ARPModule::ARPModule() {
     arpTable = new Util::ArrayList<ARPEntry *>();
     broadcastAddress =
-            new EthernetAddress(-1, -1, -1, -1, -1, -1);
+            new EthernetAddress(0xff, 0xff, 0xff, 0xff, 0xff, 0xff);
 }
 
 EthernetAddress *ARPModule::resolveIP4(IP4Address *ip4Address) {

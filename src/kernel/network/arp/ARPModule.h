@@ -21,7 +21,7 @@ private:
 public:
     ARPModule();
 
-    EthernetAddress *getBroadcastAddress() const;
+    [[nodiscard]] EthernetAddress *getBroadcastAddress() const;
 
     void addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
 

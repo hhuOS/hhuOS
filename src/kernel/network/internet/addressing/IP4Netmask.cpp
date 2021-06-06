@@ -11,9 +11,9 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     }
     this->bitCount = bitCount;
 
-    uint8_t fullByteCount = bitCount / 8;
+    uint8_t fullByteCount = static_cast<uint8_t>(bitCount / (uint8_t) 8);
     for (uint8_t i = 0; i <= fullByteCount; i++) {
-        this->netmask[i] = -1;
+        this->netmask[i] = static_cast<uint8_t>(-1);
     }
     this->netmask[fullByteCount] = this->netmask[fullByteCount] << (8 - (bitCount % 8));
 }

@@ -37,9 +37,9 @@ public:
 
     size_t getLengthInBytes() override;
 
-    uint16_t getIdentifier() const;
+    [[nodiscard]] uint16_t getIdentifier() const;
 
-    uint16_t getSequenceNumber() const;
+    [[nodiscard]] uint16_t getSequenceNumber() const;
 
     [[nodiscard]] IP4Address *getSourceAddress() const;
 

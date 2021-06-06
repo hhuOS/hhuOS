@@ -17,21 +17,21 @@ public:
 
     NetworkByteBlock(void *packet, size_t length);
 
-    NetworkByteBlock(size_t length);
+    explicit NetworkByteBlock(size_t length);
 
     virtual ~NetworkByteBlock();
 
-    size_t getLength() const;
+    [[nodiscard]] size_t getLength() const;
 
     bool isNull();
 
-    bool isCompletelyFilled() const;
+    [[nodiscard]] bool isCompletelyFilled() const;
 
     void printBytes();
 
     void freeBytes();
 
-    size_t bytesRemaining() const;
+    [[nodiscard]] size_t bytesRemaining() const;
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
 

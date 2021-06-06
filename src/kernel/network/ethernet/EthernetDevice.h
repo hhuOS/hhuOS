@@ -28,7 +28,7 @@ public:
 
     void sendEthernetFrame(EthernetFrame *ethernetFrame);
 
-    uint8_t connectedTo(NetworkDevice *otherDevice);
+    bool connectedTo(NetworkDevice *otherDevice);
 
     bool equals(EthernetDevice *compare);
 

@@ -20,7 +20,6 @@
  */
 
 #include <kernel/network/ethernet/EthernetFrame.h>
-#include <kernel/service/EventBus.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include "PacketHandler.h"
 

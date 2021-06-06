@@ -12,22 +12,33 @@ namespace Kernel {
     }
 
     IP4Module::~IP4Module() {
+        //No 'delete interfaces' necessary here, HashMaps are deleted automatically
         delete routingModule;
     }
 
     void IP4Module::collectIP4InterfaceAttributes(Util::ArrayList<String> *strings) {
+        if(strings== nullptr || interfaces== nullptr){
+            return;
+        }
         for (EthernetDevice *currentDevice:interfaces->keySet()) {
             strings->add(interfaces->get(currentDevice)->asString());
         }
     }
 
     void IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
-        this->routingModule->collectIP4RouteAttributes(strings);
+        if(strings== nullptr || routingModule== nullptr){
+            return;
+        }
+        routingModule->collectIP4RouteAttributes(strings);
     }
 
     void IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (device == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");
+            return;
+        }
+        if(interfaces == nullptr || routingModule== nullptr){
+            log.error("Internal interface list or routing module was null, not registering new device");
             return;
         }
         if (interfaces->containsKey(device)) {
@@ -41,7 +52,11 @@ namespace Kernel {
 
     void IP4Module::unregisterDevice(EthernetDevice *device) {
         if (device == nullptr) {
-            log.error("Given device was null, not unregistering anything");
+            log.error("Given device was null, not unregistering device");
+            return;
+        }
+        if(interfaces == nullptr || routingModule== nullptr){
+            log.error("Internal interface list or routing module was null, not unregistering device");
             return;
         }
         if (interfaces->containsKey(device)) {
@@ -53,7 +68,10 @@ namespace Kernel {
     void IP4Module::onEvent(const Kernel::Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
-
+            if(routingModule== nullptr){
+                log.error("Internal routing module was null, no sending anything");
+                return;
+            }
             if (routingModule->sendViaBestRoute(datagram)) {
                 eventBus->publish(
                         new Kernel::ICMP4ReceiveEvent(
