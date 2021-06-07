@@ -15,7 +15,7 @@
 class NetworkByteBlock {
 private:
     uint8_t *bytes = nullptr;
-    size_t length, currentIndex = 0;
+    size_t length = 0, currentIndex = 0;
 
 public:
 
@@ -53,7 +53,9 @@ public:
 
     uint8_t read(void *target, size_t byteCount);
 
-    uint8_t skip(uint8_t byteCount);
+    uint8_t skip(size_t byteCount);
+
+    uint8_t goBack(size_t byteCount);
 };
 
 

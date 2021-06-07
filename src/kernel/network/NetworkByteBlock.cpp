@@ -168,7 +168,7 @@ size_t NetworkByteBlock::bytesRemaining() const {
     return this->length - this->currentIndex;
 }
 
-uint8_t NetworkByteBlock::skip(uint8_t byteCount) {
+uint8_t NetworkByteBlock::skip(size_t byteCount) {
     if (
             this->currentIndex == this->length ||
             byteCount == 0 ||
@@ -180,4 +180,12 @@ uint8_t NetworkByteBlock::skip(uint8_t byteCount) {
     //No problem if byteCount == 0 here
     this->currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;
+}
+
+uint8_t NetworkByteBlock::goBack(size_t byteCount) {
+    if(byteCount > currentIndex){
+        return 1;
+    }
+    currentIndex-=byteCount;
+    return 0;
 }
