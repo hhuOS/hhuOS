@@ -20,7 +20,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 IP4Datagram::~IP4Datagram() {
     //dataPart is null if this datagram is an incoming one!
     //-> deleting is only necessary in an outgoing datagram
-    if(ip4DataPart== nullptr){
+    if (ip4DataPart == nullptr) {
         return;
     }
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
