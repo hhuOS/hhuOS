@@ -35,7 +35,7 @@ EthernetDataPart::EtherType ARPMessage::getEtherType() {
     return EtherType::ARP;
 }
 
-uint8_t ARPMessage::parse(NetworkByteBlock *input) {
+uint8_t ARPMessage::parseHeader(NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() < this->getLengthInBytes()) {
         return 1;
     }

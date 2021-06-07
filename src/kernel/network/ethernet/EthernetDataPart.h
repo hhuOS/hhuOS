@@ -42,7 +42,7 @@ public:
 
     virtual EtherType getEtherType() = 0;
 
-    virtual uint8_t parse(NetworkByteBlock *input) = 0;
+    virtual uint8_t parseHeader(NetworkByteBlock *input) = 0;
 };
 
 

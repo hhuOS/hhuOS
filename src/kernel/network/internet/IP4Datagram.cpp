@@ -18,35 +18,43 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 }
 
 IP4Datagram::~IP4Datagram() {
+    //dataPart is null if this datagram is an incoming one!
+    //-> deleting is only necessary in an outgoing datagram
+    if(ip4DataPart== nullptr){
+        return;
+    }
     switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
         case IP4DataPart::IP4ProtocolType::ICMP4: {
-            switch (((ICMP4Message *)ip4DataPart)->getICMP4MessageType()) {
+            switch (((ICMP4Message *) ip4DataPart)->getICMP4MessageType()) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                    delete (ICMP4EchoReply*)ip4DataPart;
+                    delete (ICMP4EchoReply *) ip4DataPart;
                     break;
                 case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    delete (ICMP4DestinationUnreachable*)ip4DataPart;
+                    delete (ICMP4DestinationUnreachable *) ip4DataPart;
                     break;
                 case ICMP4Message::ICMP4MessageType::ECHO:
-                    delete (ICMP4Echo*)ip4DataPart;
+                    delete (ICMP4Echo *) ip4DataPart;
                     break;
                 case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                    delete (ICMP4TimeExceeded*)ip4DataPart;
+                    delete (ICMP4TimeExceeded *) ip4DataPart;
                     break;
-                default:break;
+                default:
+                    break;
             }
             break;
         }
         case IP4DataPart::IP4ProtocolType::UDP: {
-            delete (UDPDatagram *)ip4DataPart;
+            delete (UDPDatagram *) ip4DataPart;
             break;
         }
-        default:break;
+        default:
+            break;
     }
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
-    return ip4DataPart->getIP4ProtocolType();
+    //get IP4ProtocolType via header, dataPart can be null!
+    return IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType);
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
@@ -104,10 +112,8 @@ uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
     return ip4DataPart->copyTo(output);
 }
 
-uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
-    if (input == nullptr ||
-        input->bytesRemaining() <= sizeof this->header
-            ) {
+uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
+    if (input == nullptr || input->bytesRemaining() < sizeof this->header) {
         return 1;
     }
     uint8_t errors = 0;
@@ -122,58 +128,13 @@ uint8_t IP4Datagram::parse(NetworkByteBlock *input) {
     errors += input->read(header.sourceAddress, IP4ADDRESS_LENGTH);
     errors += input->read(header.destinationAddress, IP4ADDRESS_LENGTH);
 
-    //True if errors>0
-    if (errors) {
-        return errors;
-    }
-
     //Skip additional bytes if incoming header is larger than our internal one
+    //-> next layer would read our remaining header bytes as data otherwise!
     uint8_t remainingHeaderBytes = ((header.version_headerLength - 0x40) * 4) - sizeof this->header;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
         errors += input->skip(remainingHeaderBytes);
     }
 
-    //True if errors>0
-    if (errors) {
-        return errors;
-    }
-
-    switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
-        case IP4DataPart::IP4ProtocolType::ICMP4: {
-            uint8_t typeByte = 0;
-            errors += input->read(&typeByte);
-            switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
-                case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                    this->ip4DataPart = new ICMP4EchoReply();
-                    break;
-                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    this->ip4DataPart = new ICMP4DestinationUnreachable(0);
-                    break;
-                case ICMP4Message::ICMP4MessageType::ECHO:
-                    this->ip4DataPart = new ICMP4Echo();
-                    break;
-                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                    this->ip4DataPart = new ICMP4TimeExceeded();
-                    break;
-                default:
-                    errors++;
-            }
-            break;
-        }
-        case IP4DataPart::IP4ProtocolType::UDP: {
-            this->ip4DataPart = new UDPDatagram();
-            break;
-        }
-        default:
-            errors++;
-    }
-
-    //True if errors>0
-    if (errors) {
-        return errors;
-    }
-
-    //Call next level if no errors occurred yet
-    return ip4DataPart->parse(input);
+    return errors;
 }

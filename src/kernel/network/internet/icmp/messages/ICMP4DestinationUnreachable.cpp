@@ -73,7 +73,7 @@ uint8_t ICMP4DestinationUnreachable::parse(NetworkByteBlock *input) {
     //This will stop with an error if datagram's body is greater than eight bytes
     //-> we will ignore this error here,
     // because the first eight bytes should be enough to identify the sending process
-    ip4Datagram->parse(input);
+    ip4Datagram->parseHeader(input);
 
     //TODO: Implement further processing
     switch (ip4Datagram->getIP4DataPart()->getIP4ProtocolType()) {

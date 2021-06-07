@@ -67,7 +67,7 @@ public:
 
     void setSourceAddress(IP4Address *source);
 
-    uint8_t parse(NetworkByteBlock *input) override;
+    uint8_t parseHeader(NetworkByteBlock *input) override;
 
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 

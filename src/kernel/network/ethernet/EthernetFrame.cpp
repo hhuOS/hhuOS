@@ -13,19 +13,20 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 EthernetFrame::~EthernetFrame() {
     //dataPart is null if this frame is an incoming one!
     //-> deleting is only necessary in an outgoing frame
-    if(ethernetDataPart!= nullptr) {
-        switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
-            case EthernetDataPart::EtherType::IP4: {
-                delete (IP4Datagram *) ethernetDataPart;
-                break;
-            }
-            case EthernetDataPart::EtherType::ARP: {
-                delete (ARPMessage *) ethernetDataPart;
-                break;
-            }
-            default:
-                break;
+    if(ethernetDataPart== nullptr){
+        return;
+    }
+    switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
+        case EthernetDataPart::EtherType::IP4: {
+            delete (IP4Datagram *) ethernetDataPart;
+            break;
         }
+        case EthernetDataPart::EtherType::ARP: {
+            delete (ARPMessage *) ethernetDataPart;
+            break;
+        }
+        default:
+            break;
     }
 }
 
