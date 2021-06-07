@@ -63,7 +63,7 @@ public:
 
     virtual ICMP4MessageType getICMP4MessageType() = 0;
 
-    uint8_t parse(NetworkByteBlock *input) override {
+    uint8_t parseHeader(NetworkByteBlock *input) override {
         return 0;
     }
 };

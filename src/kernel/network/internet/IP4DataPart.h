@@ -37,7 +37,7 @@ public:
 
     virtual IP4ProtocolType getIP4ProtocolType() = 0;
 
-    virtual uint8_t parse(NetworkByteBlock *input) = 0;
+    virtual uint8_t parseHeader(NetworkByteBlock *input) = 0;
 };
 
 

@@ -52,7 +52,7 @@ ICMP4Message::ICMP4MessageType ICMP4DestinationUnreachable::getICMP4MessageType(
     return ICMP4MessageType::DESTINATION_UNREACHABLE;
 }
 
-uint8_t ICMP4DestinationUnreachable::parse(NetworkByteBlock *input) {
+uint8_t ICMP4DestinationUnreachable::parseHeader(NetworkByteBlock *input) {
     if (input == nullptr ||
         input->bytesRemaining() <= sizeof header
             ) {

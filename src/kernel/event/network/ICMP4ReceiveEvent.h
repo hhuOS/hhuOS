@@ -15,14 +15,17 @@ namespace Kernel {
     class ICMP4ReceiveEvent : public Event {
     private:
         ICMP4Message *icmp4Message = nullptr;
+        NetworkByteBlock *input = nullptr;
 
     public:
 
-        explicit ICMP4ReceiveEvent(ICMP4Message *icmp4Message);
+        explicit ICMP4ReceiveEvent(ICMP4Message *icmp4Message, NetworkByteBlock *input);
 
         [[nodiscard]] ICMP4Message * getIcmp4Message() const;
 
         [[nodiscard]] String getType() const override;
+
+        NetworkByteBlock *getInput() const;
 
         static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };

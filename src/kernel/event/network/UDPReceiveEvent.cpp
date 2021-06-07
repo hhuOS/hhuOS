@@ -8,10 +8,14 @@ String Kernel::UDPReceiveEvent::getType() const {
     return TYPE;
 }
 
-Kernel::UDPReceiveEvent::UDPReceiveEvent(UDPDatagram *datagram) {
+Kernel::UDPReceiveEvent::UDPReceiveEvent(UDPDatagram *datagram, NetworkByteBlock *input) {
     this->datagram = datagram;
 }
 
 UDPDatagram *Kernel::UDPReceiveEvent::getDatagram() {
     return datagram;
+}
+
+NetworkByteBlock *Kernel::UDPReceiveEvent::getInput() const {
+    return input;
 }

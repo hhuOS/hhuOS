@@ -47,7 +47,7 @@ public:
 
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parse(NetworkByteBlock *input) override;
+    uint8_t parseHeader(NetworkByteBlock *input) override;
 
     IP4ProtocolType getIP4ProtocolType() override;
 };

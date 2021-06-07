@@ -13,11 +13,14 @@ namespace Kernel {
     class UDPReceiveEvent : public Event {
     private:
         UDPDatagram *datagram;
+        NetworkByteBlock *input;
 
     public:
-        explicit UDPReceiveEvent(UDPDatagram *datagram);
+        explicit UDPReceiveEvent(UDPDatagram *datagram, NetworkByteBlock *input);
 
         UDPDatagram *getDatagram();
+
+        NetworkByteBlock *getInput() const;
 
         [[nodiscard]] String getType() const override;
 

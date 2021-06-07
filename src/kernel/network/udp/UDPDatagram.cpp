@@ -16,6 +16,6 @@ IP4DataPart::IP4ProtocolType UDPDatagram::getIP4ProtocolType() {
     return IP4ProtocolType::INVALID;
 }
 
-uint8_t UDPDatagram::parse(NetworkByteBlock *input) {
+uint8_t UDPDatagram::parseHeader(NetworkByteBlock *input) {
     return 1;
 }

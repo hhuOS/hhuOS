@@ -2,6 +2,9 @@
 // Created by hannes on 14.05.21.
 //
 
+#include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
+#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
+#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
 #include "IP4Module.h"
 
 namespace Kernel {
@@ -65,7 +68,7 @@ namespace Kernel {
         }
     }
 
-    void IP4Module::onEvent(const Kernel::Event &event) {
+    void IP4Module::onEvent(const Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
             if (routingModule == nullptr) {
@@ -107,9 +110,8 @@ namespace Kernel {
                 case IP4_NO_ROUTE_FOUND: {
                     log.error("No route to host could be found, discarding datagram");
                     eventBus->publish(
-                            new Kernel::ICMP4ReceiveEvent(
-                                    new ICMP4DestinationUnreachable(0, datagram)
-                            )
+                            new ICMP4ReceiveEvent(
+                                    new ICMP4DestinationUnreachable(0, datagram), nullptr)
                     );
                     //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
                     //-> we can delete datagram now
@@ -130,30 +132,101 @@ namespace Kernel {
             }
             //We are done here, delete datagram no matter if delivery worked or not
             //-> we still have our log entry if sending failed
+            //NOTE: Any embedded data (like an ICMP4Message) will be deleted here
             delete datagram;
             return;
         }
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
+            auto *input = ((IP4ReceiveEvent &) event).getInput();
+
             switch (ip4Datagram->getIP4ProtocolType()) {
-                case IP4DataPart::IP4ProtocolType::ICMP4:
-                    eventBus->publish(
-                            new Kernel::ICMP4ReceiveEvent(
-                                    (ICMP4Message *) ip4Datagram->getIP4DataPart()
-                            )
-                    );
+                case IP4DataPart::IP4ProtocolType::ICMP4: {
+                    ICMP4Message *outMessage = nullptr;
+                    uint8_t typeByte = 0;
+                    input->read(&typeByte);
+                    //Decrement index by one
+                    //-> now it points to first message byte again!
+                    input->decrementIndex(1);
+                    switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
+                        case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
+                            outMessage = (ICMP4Message *) new ICMP4EchoReply();
+                            break;
+                        }
+                        case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE: {
+                            outMessage =
+                                    (ICMP4Message *) new ICMP4DestinationUnreachable(
+                                            ip4Datagram->getHeaderLengthInBytes()
+                                            );
+                            break;
+                        }
+                        case ICMP4Message::ICMP4MessageType::ECHO: {
+                            outMessage = (ICMP4Message *) new ICMP4Echo();
+                            break;
+                        }
+                        case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED: {
+                            outMessage = (ICMP4Message *) new ICMP4TimeExceeded();
+                            break;
+                        }
+                        default: {
+                            log.error("Type of ICMP4Message unknown or not implemented, discarding data");
+                            delete ip4Datagram;
+                            delete input;
+                            return;
+                        }
+                    }
+                    if (outMessage->parseHeader(input)) {
+                        log.error("Could not assemble ICMP4Message header, discarding data");
+                        //outMessage is not part of ip4Datagram here
+                        //-> we need to delete it separately!
+                        switch (outMessage->getICMP4MessageType()) {
+                            case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
+                                delete (ICMP4EchoReply *) outMessage;
+                                break;
+                            case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
+                                delete (ICMP4DestinationUnreachable *) outMessage;
+                                break;
+                            case ICMP4Message::ICMP4MessageType::ECHO:
+                                delete (ICMP4Echo *) outMessage;
+                                break;
+                            case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
+                                delete (ICMP4TimeExceeded *) outMessage;
+                                break;
+                            default:
+                                break;
+                        }
+                        delete ip4Datagram;
+                        delete input;
+                        return;
+                    }
+                    eventBus->publish(new ICMP4ReceiveEvent(outMessage, input));
+
+                    //IP4Datagram not needed anymore, can be deleted now
+                    delete ip4Datagram;
                     return;
-                case IP4DataPart::IP4ProtocolType::UDP:
-                    eventBus->publish(
-                            new Kernel::UDPReceiveEvent(
-                                    (UDPDatagram *) ip4Datagram->getIP4DataPart()
-                            )
-                    );
+                }
+                case IP4DataPart::IP4ProtocolType::UDP: {
+                    auto *udpDatagram = new UDPDatagram();
+                    if(udpDatagram->parseHeader(input)){
+                        log.error("Could not assemble UDP header, discarding data");
+                        //udpDatagram is not part of ip4Datagram here
+                        //-> we need to delete it separately!
+                        delete udpDatagram;
+                        delete ip4Datagram;
+                        delete input;
+                        return;
+                    }
+                    eventBus->publish(new UDPReceiveEvent(udpDatagram, input));
+
+                    //IP4Datagram not needed anymore, can be deleted now
+                    delete ip4Datagram;
                     return;
+                }
                 default:
                     log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
                     delete ip4Datagram;
+                    delete input;
                     return;
             }
         }

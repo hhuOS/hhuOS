@@ -53,7 +53,7 @@ void ICMP4EchoReply::setSourceAddress(IP4Address *sourceAddress) {
     delete sourceAddress;
 }
 
-uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
+uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
     if (input == nullptr ||
         input->bytesRemaining() <= sizeof echoReply
             ) {

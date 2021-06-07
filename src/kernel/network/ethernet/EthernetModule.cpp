@@ -162,7 +162,7 @@ namespace Kernel {
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
             EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
             NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
-            //TODO: Check frame's Source-MAC if it's for us or at leas a BROADCAST message
+            //TODO: Check frame's Source-MAC if it's for us or at least a BROADCAST message
             switch (inFrame->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
                     auto *datagram = new IP4Datagram();
