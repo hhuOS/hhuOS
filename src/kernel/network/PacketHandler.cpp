@@ -61,10 +61,10 @@ namespace Kernel {
             }
 
             eventBus->publish(
-                    new Kernel::EthernetReceiveEvent(inFrame)
+                    new Kernel::EthernetReceiveEvent(inFrame, input)
             );
 
-            //inFrame will be deleted in EthernetModule, so no delete here
+            //inFrame and input will be deleted in EthernetModule, so no delete here
             return;
         }
     }
