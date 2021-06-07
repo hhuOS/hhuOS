@@ -155,7 +155,7 @@ namespace Kernel {
             }
             //We are done here, delete outFrame no matter if sending worked or not
             //-> we still have our log entry if sending failed
-            //NOTE: An embedded IP4Datagram will be deleted here
+            //NOTE: Any embedded data (like an IP4Datagram) will be deleted here
             delete outFrame;
             return;
         }
