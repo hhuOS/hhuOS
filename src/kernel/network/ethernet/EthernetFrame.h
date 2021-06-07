@@ -46,7 +46,7 @@ public:
 
     void setSourceAddress(EthernetAddress *source);
 
-    uint8_t parse(NetworkByteBlock *input);
+    uint8_t parseHeader(NetworkByteBlock *input);
 };
 
 

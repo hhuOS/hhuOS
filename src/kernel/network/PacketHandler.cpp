@@ -48,7 +48,7 @@ namespace Kernel {
                 return;
             }
             auto *inFrame = new EthernetFrame();
-            if(inFrame->parse(input)) {
+            if(inFrame->parseHeader(input)) {
                 log.error("Parsing incoming packet failed, discarding");
                 delete input;
                 delete inFrame;

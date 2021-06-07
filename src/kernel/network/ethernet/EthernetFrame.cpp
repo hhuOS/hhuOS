@@ -11,20 +11,28 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 }
 
 EthernetFrame::~EthernetFrame() {
-    switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
-        case EthernetDataPart::EtherType::IP4: {
-            delete (IP4Datagram *)ethernetDataPart;
-            break;
+    //dataPart is null if this frame is an incoming one!
+    //-> deleting is only necessary in an outgoing frame
+    if(ethernetDataPart!= nullptr) {
+        switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
+            case EthernetDataPart::EtherType::IP4: {
+                delete (IP4Datagram *) ethernetDataPart;
+                break;
+            }
+            case EthernetDataPart::EtherType::ARP: {
+                delete (ARPMessage *) ethernetDataPart;
+                break;
+            }
+            default:
+                break;
         }
-        case EthernetDataPart::EtherType::ARP: {
-            delete (ARPMessage *)ethernetDataPart;
-            break;
-        }
-        default: break;
     }
 }
 
 uint16_t EthernetFrame::getLengthInBytes() {
+    if(ethernetDataPart== nullptr){
+        return sizeof header;
+    }
     return sizeof header + ethernetDataPart->getLengthInBytes();
 }
 
@@ -36,7 +44,8 @@ void EthernetFrame::setSourceAddress(EthernetAddress *source) {
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
-    return ethernetDataPart->getEtherType();
+    //get EtherType via header, dataPart can be null!
+    return EthernetDataPart::parseIntAsEtherType(header.etherType);
 }
 
 EthernetDataPart *EthernetFrame::getEthernetDataPart() const {
@@ -67,35 +76,17 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
     return ethernetDataPart->copyTo(output);
 }
 
-uint8_t EthernetFrame::parse(NetworkByteBlock *input) {
-    if (input == nullptr ||
-        input->bytesRemaining() <= sizeof header
-            ) {
+uint8_t EthernetFrame::parseHeader(NetworkByteBlock *input) {
+    if (input == nullptr || input->bytesRemaining() < sizeof header) {
         return 1;
     }
+
     uint8_t errors = 0;
     errors += input->read(&header.destinationAddress, MAC_SIZE);
     errors += input->read(&header.sourceAddress, MAC_SIZE);
     errors += input->read(&header.etherType);
 
-    switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
-        case EthernetDataPart::EtherType::IP4: {
-            ethernetDataPart = new IP4Datagram();
-            break;
-        }
-        case EthernetDataPart::EtherType::ARP: {
-            ethernetDataPart = new ARPMessage();
-            break;
-        }
-        default:
-            errors++;
-    }
+    //dataPart is not set in an incoming frame!
 
-    //True if errors>0
-    if (errors) {
-        return errors;
-    }
-
-    //Call next level if no errors occurred yet
-    return ethernetDataPart->parse(input);
+    return errors;
 }
