@@ -176,6 +176,8 @@ namespace Kernel {
                         return;
                     }
                     eventBus->publish(new IP4ReceiveEvent(datagram, input));
+                    //Frame not needed anymore, can be deleted now
+                    delete inFrame;
                     return;
                 }
                 case EthernetDataPart::EtherType::ARP: {
@@ -190,6 +192,9 @@ namespace Kernel {
                         return;
                     }
                     eventBus->publish(new ARPReceiveEvent(arpMessage, input));
+
+                    //Frame not needed anymore, can be deleted now
+                    delete inFrame;
                     return;
                 }
                 default: {
