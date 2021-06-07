@@ -161,25 +161,43 @@ namespace Kernel {
         }
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
             EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
+            NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
+
             switch (inFrame->getEtherType()) {
-                case EthernetDataPart::EtherType::IP4:
-                    eventBus->publish(
-                            new IP4ReceiveEvent(
-                                    (IP4Datagram *) inFrame->getEthernetDataPart()
-                            )
-                    );
+                case EthernetDataPart::EtherType::IP4: {
+                    auto *datagram = new IP4Datagram();
+                    if (datagram->parseHeader(input)) {
+                        log.error("Could not assemble IP4 header, discarding data");
+                        //datagram is not part of inFrame here
+                        //-> we need to delete it separately!
+                        delete datagram;
+                        delete inFrame;
+                        delete input;
+                        return;
+                    }
+                    eventBus->publish(new IP4ReceiveEvent(datagram, input));
                     return;
-                case EthernetDataPart::EtherType::ARP:
-                    eventBus->publish(
-                            new ARPReceiveEvent(
-                                    (ARPMessage *) inFrame->getEthernetDataPart()
-                            )
-                    );
+                }
+                case EthernetDataPart::EtherType::ARP: {
+                    auto *arpMessage = new ARPMessage();
+                    if (arpMessage->parseHeader(input)) {
+                        log.error("Could not assemble ARP header, discarding data");
+                        //arpMessage is not part of inFrame here
+                        //-> we need to delete it separately!
+                        delete arpMessage;
+                        delete inFrame;
+                        delete input;
+                        return;
+                    }
+                    eventBus->publish(new ARPReceiveEvent(arpMessage, input));
                     return;
-                default:
-                    log.info("EtherType of incoming EthernetFrame not supported, discarding");
+                }
+                default: {
+                    log.info("EtherType of incoming EthernetFrame not supported, discarding data");
                     delete inFrame;
+                    delete input;
                     return;
+                }
             }
         }
     }

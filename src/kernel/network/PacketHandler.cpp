@@ -60,9 +60,7 @@ namespace Kernel {
                 return;
             }
 
-            eventBus->publish(
-                    new Kernel::EthernetReceiveEvent(inFrame, input)
-            );
+            eventBus->publish(new EthernetReceiveEvent(inFrame, input));
 
             //inFrame and input will be deleted in EthernetModule, so no delete here
             return;

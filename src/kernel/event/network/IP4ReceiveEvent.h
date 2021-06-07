@@ -14,11 +14,14 @@ namespace Kernel {
     class IP4ReceiveEvent : public Event {
     private:
         IP4Datagram *datagram;
+        NetworkByteBlock *input;
 
     public:
-        explicit IP4ReceiveEvent(IP4Datagram *datagram);
+        explicit IP4ReceiveEvent(IP4Datagram *datagram, NetworkByteBlock *input);
 
         IP4Datagram *getDatagram();
+
+        [[nodiscard]] NetworkByteBlock *getInput() const;
 
         [[nodiscard]] String getType() const override;
 
