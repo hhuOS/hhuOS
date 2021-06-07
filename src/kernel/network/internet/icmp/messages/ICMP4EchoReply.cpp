@@ -71,10 +71,6 @@ uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
     return errors;
 }
 
-void ICMP4EchoReply::freeMemory() {
-
-}
-
-ICMP4EchoReply::~ICMP4EchoReply() {
-    freeMemory();
+IP4DataPart::IP4ProtocolType ICMP4EchoReply::getIP4ProtocolType() {
+    return ICMP4Message::getIP4ProtocolType();
 }

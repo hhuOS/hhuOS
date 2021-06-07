@@ -8,7 +8,7 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 
-class UDPDatagram : public IP4DataPart {
+class UDPDatagram final : public IP4DataPart {
 
 public:
     UDPDatagram() = default;
@@ -22,8 +22,6 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
-
-    void freeMemory() override;
 };
 
 

@@ -11,7 +11,7 @@
 #include <kernel/network/ethernet/EthernetAddress.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 
-class ARPMessage : public EthernetDataPart {
+class ARPMessage final : public EthernetDataPart {
 private:
     typedef struct arpHeader {
         uint16_t hardwareType = 1; //1 is for Ethernet
@@ -47,7 +47,7 @@ public:
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 
-    virtual ~ARPMessage();
+    ~ARPMessage() = default;
 
     [[nodiscard]] OpCode getOpCode() const;
 
@@ -68,8 +68,6 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
-
-    void freeMemory() override;
 };
 
 

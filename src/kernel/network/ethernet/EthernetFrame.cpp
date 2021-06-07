@@ -11,7 +11,17 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 }
 
 EthernetFrame::~EthernetFrame() {
-    ethernetDataPart->freeMemory();
+    switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
+        case EthernetDataPart::EtherType::IP4: {
+            delete (IP4Datagram *)ethernetDataPart;
+            break;
+        }
+        case EthernetDataPart::EtherType::ARP: {
+            delete (ARPMessage *)ethernetDataPart;
+            break;
+        }
+        default: break;
+    }
 }
 
 uint16_t EthernetFrame::getLengthInBytes() {

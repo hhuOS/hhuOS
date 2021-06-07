@@ -8,9 +8,9 @@
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
-class ICMP4TimeExceeded : public ICMP4Message {
+class ICMP4TimeExceeded final : public ICMP4Message {
 public:
-    virtual ~ICMP4TimeExceeded();
+    ~ICMP4TimeExceeded() = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
@@ -19,8 +19,6 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
-
-    void freeMemory() override;
 };
 
 

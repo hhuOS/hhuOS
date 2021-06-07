@@ -34,6 +34,8 @@ public:
         }
     }
 
+
+
     virtual uint8_t copyTo(NetworkByteBlock *output) = 0;
 
     virtual size_t getLengthInBytes() = 0;
@@ -41,9 +43,6 @@ public:
     virtual EtherType getEtherType() = 0;
 
     virtual uint8_t parse(NetworkByteBlock *input) = 0;
-
-    //Cleanup memory
-    virtual void freeMemory() = 0;
 };
 
 

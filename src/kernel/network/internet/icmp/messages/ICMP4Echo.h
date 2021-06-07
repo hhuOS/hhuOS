@@ -8,7 +8,7 @@
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 #include "ICMP4EchoReply.h"
 
-class ICMP4Echo : public ICMP4Message {
+class ICMP4Echo final : public ICMP4Message {
 private:
     typedef struct icmp4echo {
         uint8_t type = 8; //8 for echo, 0 for echo reply (RFC792)
@@ -31,7 +31,7 @@ public:
 
     ICMP4Echo() = default;
 
-    virtual ~ICMP4Echo();
+    ~ICMP4Echo() = default;
 
     void setSourceAddress(IP4Address *ip4Address);
 
@@ -46,8 +46,6 @@ public:
     uint8_t parse(NetworkByteBlock *input) override;
 
     [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
-
-    void freeMemory() override;
 };
 
 

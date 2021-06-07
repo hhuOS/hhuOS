@@ -14,10 +14,10 @@
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
 
-class EthernetFrame {
+class EthernetFrame final {
 private:
     //Defined internally, should not be visible outside
-    //Usage of IP4Datagram should only happen via given public methods
+    //Usage of EthernetFrame should only happen via given public methods
     //-> changing our header's internal representation is possible at any time then!
     typedef struct ethernetHeader {
         uint8_t destinationAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};

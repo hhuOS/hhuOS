@@ -23,7 +23,7 @@ ICMP4DestinationUnreachable::ICMP4DestinationUnreachable(uint8_t errorCode, IP4D
 }
 
 ICMP4DestinationUnreachable::~ICMP4DestinationUnreachable() {
-    freeMemory();
+    delete internalBytes;
 }
 
 uint8_t ICMP4DestinationUnreachable::copyTo(NetworkByteBlock *byteBlock) {
@@ -85,8 +85,4 @@ uint8_t ICMP4DestinationUnreachable::parse(NetworkByteBlock *input) {
             break;
     }
     return 0;
-}
-
-void ICMP4DestinationUnreachable::freeMemory() {
-    delete internalBytes;
 }

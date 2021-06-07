@@ -18,7 +18,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
         auto *icmp4Message = ((ICMP4SendEvent &) event).getIcmp4Message();
         if (destinationAddress == nullptr) {
             log.error("Destination address was null, discarding message");
-            icmp4Message->freeMemory();
+            //icmp4Message->freeMemory(); // TODO: FIX THIS ONE!
             return;
         }
         if (icmp4Message == nullptr) {
@@ -79,7 +79,7 @@ void Kernel::ICMP4Module::onEvent(const Kernel::Event &event) {
                 return;
             default:
                 log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding");
-                icmp4Message->freeMemory();
+//                icmp4Message->freeMemory(); // TODO: FIX THIS ONE!
                 return;
         }
     }

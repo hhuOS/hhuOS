@@ -18,11 +18,31 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 }
 
 IP4Datagram::~IP4Datagram() {
-    freeMemory();
-}
-
-void IP4Datagram::freeMemory() {
-    ip4DataPart->freeMemory();
+    switch (IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType)) {
+        case IP4DataPart::IP4ProtocolType::ICMP4: {
+            switch (((ICMP4Message *)ip4DataPart)->getICMP4MessageType()) {
+                case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
+                    delete (ICMP4EchoReply*)ip4DataPart;
+                    break;
+                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
+                    delete (ICMP4DestinationUnreachable*)ip4DataPart;
+                    break;
+                case ICMP4Message::ICMP4MessageType::ECHO:
+                    delete (ICMP4Echo*)ip4DataPart;
+                    break;
+                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
+                    delete (ICMP4TimeExceeded*)ip4DataPart;
+                    break;
+                default:break;
+            }
+            break;
+        }
+        case IP4DataPart::IP4ProtocolType::UDP: {
+            delete (UDPDatagram *)ip4DataPart;
+            break;
+        }
+        default:break;
+    }
 }
 
 IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {

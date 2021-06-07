@@ -10,7 +10,7 @@
 #include <kernel/network/NetworkByteBlock.h>
 #include <kernel/network/internet/IP4Datagram.h>
 
-class ICMP4DestinationUnreachable : public ICMP4Message {
+class ICMP4DestinationUnreachable final : public ICMP4Message {
 private:
     typedef struct destinationUnreachableHeader {
         uint8_t type = 3; // RFC792 page 4
@@ -25,6 +25,8 @@ public:
 
     explicit ICMP4DestinationUnreachable(size_t ip4HeaderSize);
 
+    virtual ~ICMP4DestinationUnreachable();
+
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
@@ -32,10 +34,6 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parse(NetworkByteBlock *input) override;
-
-    void freeMemory() override;
-
-    virtual ~ICMP4DestinationUnreachable();
 };
 
 

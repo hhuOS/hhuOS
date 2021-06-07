@@ -15,7 +15,7 @@
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 
-class IP4Datagram : public EthernetDataPart {
+class IP4Datagram final : public EthernetDataPart {
 private:
     //Defined internally, should not be visible outside
     //Usage of IP4Datagram should only happen via given public methods
@@ -72,8 +72,6 @@ public:
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
-
-    void freeMemory() override;
 };
 
 
