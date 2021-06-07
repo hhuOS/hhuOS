@@ -58,10 +58,8 @@ uint8_t ICMP4DestinationUnreachable::parseHeader(NetworkByteBlock *input) {
             ) {
         return 1;
     }
-    //NOTE: The first Byte for 'type' is already read in IP4Datagram!
-    //-> the next Byte in our NetworkByteBlock is 'code', the next value!
-    //This is no problem here, because the 'type' value is constant '3' per definition
     uint8_t errors = 0;
+    errors += input->read(&header.type);
     errors += input->read(&header.code);
     errors += input->read(&header.checksum);
     errors += input->read(&header.unused);

@@ -59,10 +59,8 @@ uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
             ) {
         return 1;
     }
-    //NOTE: The first Byte for 'type' is already read in IP4Datagram!
-    //-> the next Byte in our NetworkByteBlock is 'code', the next value!
-    //This is no problem here, because the 'type' value is constant '0' per definition
     uint8_t errors = 0;
+    errors += input->read(&echoReply.type);
     errors += input->read(&echoReply.code);
     errors += input->read(&echoReply.checksum);
     errors += input->read(&echoReply.identifier);
