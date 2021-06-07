@@ -17,16 +17,6 @@ NetworkByteBlock::NetworkByteBlock(size_t length) {
     }
 }
 
-//Constructor for given input to be parsed later
-NetworkByteBlock::NetworkByteBlock(void *packet, size_t length) {
-    this->bytes = new uint8_t[length];
-    this->length = length;
-
-    append(packet, length);
-
-    this->currentIndex = 0;
-}
-
 NetworkByteBlock::~NetworkByteBlock() {
     delete this->bytes;
 }
@@ -182,7 +172,7 @@ uint8_t NetworkByteBlock::skip(size_t byteCount) {
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
-uint8_t NetworkByteBlock::goBack(size_t byteCount) {
+uint8_t NetworkByteBlock::decrementIndex(size_t byteCount) {
     if(byteCount > currentIndex){
         return 1;
     }

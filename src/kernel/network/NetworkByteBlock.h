@@ -18,9 +18,6 @@ private:
     size_t length = 0, currentIndex = 0;
 
 public:
-
-    NetworkByteBlock(void *packet, size_t length);
-
     explicit NetworkByteBlock(size_t length);
 
     virtual ~NetworkByteBlock();
@@ -55,7 +52,7 @@ public:
 
     uint8_t skip(size_t byteCount);
 
-    uint8_t goBack(size_t byteCount);
+    uint8_t decrementIndex(size_t byteCount);
 };
 
 

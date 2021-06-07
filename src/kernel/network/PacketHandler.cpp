@@ -40,13 +40,18 @@ namespace Kernel {
                 return;
             }
 
-            auto *input = new NetworkByteBlock(receiveEvent.getPacket(), receiveEvent.getLength());
+            auto *input = new NetworkByteBlock(receiveEvent.getLength());
+            input->append(receiveEvent.getPacket(), receiveEvent.getLength());
             receiveEvent.dropPacket();
+
             if (!input->isCompletelyFilled()){
                 log.error("Incoming data could not be loaded completely, discarding packet");
                 delete input;
                 return;
             }
+            //Reset index to zero to prepare reading headers and data
+            input->decrementIndex(input->getLength());
+
             auto *inFrame = new EthernetFrame();
             if(inFrame->parseHeader(input)) {
                 log.error("Parsing incoming packet failed, discarding");
@@ -54,7 +59,6 @@ namespace Kernel {
                 delete inFrame;
                 return;
             }
-            delete input;
 
             eventBus->publish(
                     new Kernel::EthernetReceiveEvent(inFrame)
