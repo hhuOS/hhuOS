@@ -39,20 +39,28 @@ namespace Kernel {
                 log.error("Incoming data was null, return");
                 return;
             }
+
             auto *input = new NetworkByteBlock(receiveEvent.getPacket(), receiveEvent.getLength());
             receiveEvent.dropPacket();
-
-            auto *inFrame = new EthernetFrame();
-            if (!input->isCompletelyFilled() || inFrame->parse(input)) {
-                log.error("Parsing incoming packet failed, discarding");
-                delete inFrame;
+            if (!input->isCompletelyFilled()){
+                log.error("Incoming data could not be loaded completely, discarding packet");
                 delete input;
                 return;
             }
+            auto *inFrame = new EthernetFrame();
+            if(inFrame->parse(input)) {
+                log.error("Parsing incoming packet failed, discarding");
+                delete input;
+                delete inFrame;
+                return;
+            }
+            delete input;
+
             eventBus->publish(
                     new Kernel::EthernetReceiveEvent(inFrame)
             );
-            delete input;
+
+            //inFrame will be deleted in EthernetModule, so no delete here
             return;
         }
     }

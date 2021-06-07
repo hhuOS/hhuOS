@@ -122,6 +122,7 @@ namespace Kernel {
             }
             switch (outDevice->sendEthernetFrame(outFrame)) {
                 case ETH_DELIVER_SUCCESS: {
+                    //Frame will be deleted at the end of this method
                     break;
                 }
                 case ETH_FRAME_NULL: {
