@@ -162,7 +162,7 @@ namespace Kernel {
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
             EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
             NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
-
+            //TODO: Check frame's Source-MAC if it's for us or at leas a BROADCAST message
             switch (inFrame->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
                     auto *datagram = new IP4Datagram();
@@ -175,6 +175,7 @@ namespace Kernel {
                         delete input;
                         return;
                     }
+                    //send input to next module via EventBus
                     eventBus->publish(new IP4ReceiveEvent(datagram, input));
                     //Frame not needed anymore, can be deleted now
                     delete inFrame;
@@ -191,6 +192,7 @@ namespace Kernel {
                         delete input;
                         return;
                     }
+                    //send input to next module via EventBus
                     eventBus->publish(new ARPReceiveEvent(arpMessage, input));
 
                     //Frame not needed anymore, can be deleted now
