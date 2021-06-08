@@ -44,7 +44,7 @@ namespace Kernel {
             input->append(receiveEvent.getPacket(), receiveEvent.getLength());
             receiveEvent.dropPacket();
 
-            if (!input->isCompletelyFilled()){
+            if (!input->isCompletelyFilled()) {
                 log.error("Incoming data could not be loaded completely, discarding packet");
                 delete input;
                 return;
@@ -53,7 +53,7 @@ namespace Kernel {
             input->decrementIndex(input->getLength());
 
             auto *inFrame = new EthernetFrame();
-            if(inFrame->parseHeader(input)) {
+            if (inFrame->parseHeader(input)) {
                 log.error("Parsing incoming packet failed, discarding");
                 delete input;
                 delete inFrame;

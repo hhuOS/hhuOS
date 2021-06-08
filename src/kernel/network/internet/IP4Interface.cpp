@@ -87,7 +87,7 @@ String IP4Interface::asString() {
 
 uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
     switch (message->getOpCode()) {
-        case ARPMessage::OpCode::REQUEST:{
+        case ARPMessage::OpCode::REQUEST: {
             //Use each message as a possible ARP update
             //TODO: Synchronize access!!
             arpModule->addEntry(
@@ -100,7 +100,7 @@ uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
 
             auto *response = message->buildResponse(myAddressAsBytes);
             auto *outFrame =
-                    new EthernetFrame(new EthernetAddress(myAddressAsBytes),response);
+                    new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
             this->eventBus->publish(
                     new Kernel::EthernetSendEvent(this->ethernetDevice, outFrame)
             );
@@ -111,7 +111,7 @@ uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
             arpModule->addEntry(
                     new IP4Address(message->getSenderProtocolAddress()),
                     new EthernetAddress(message->getSenderHardwareAddress())
-                    );
+            );
             break;
         }
         case ARPMessage::OpCode::INVALID: {

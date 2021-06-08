@@ -158,7 +158,7 @@ namespace Kernel {
                             outMessage =
                                     (ICMP4Message *) new ICMP4DestinationUnreachable(
                                             ip4Datagram->getHeaderLengthInBytes()
-                                            );
+                                    );
                             break;
                         }
                         case ICMP4Message::ICMP4MessageType::ECHO: {
@@ -208,7 +208,7 @@ namespace Kernel {
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
                     auto *udpDatagram = new UDPDatagram();
-                    if(udpDatagram->parseHeader(input)){
+                    if (udpDatagram->parseHeader(input)) {
                         log.error("Could not assemble UDP header, discarding data");
                         //udpDatagram is not part of ip4Datagram here
                         //-> we need to delete it separately!
@@ -233,7 +233,7 @@ namespace Kernel {
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             auto *input = ((ARPReceiveEvent &) event).getInput();
-            if(interfaces== nullptr){
+            if (interfaces == nullptr) {
                 log.error("Internal interface list is null, discarding data");
                 //NOTE: delete on null objects simply does nothing!
                 delete arpMessage;
@@ -241,14 +241,14 @@ namespace Kernel {
                 return;
 
             }
-            if(arpMessage->parseBody(input)){
+            if (arpMessage->parseBody(input)) {
                 log.error("Could not assemble ARP message body, discarding data");
                 //NOTE: delete on null objects simply does nothing!
                 delete arpMessage;
                 delete input;
                 return;
             }
-            if(input->bytesRemaining()>0){
+            if (input->bytesRemaining() > 0) {
                 log.error("Not all data could be parsed, discarding");
                 //NOTE: delete on null objects simply does nothing!
                 delete arpMessage;
@@ -262,8 +262,8 @@ namespace Kernel {
             EthernetDataPart::EtherType arpProtocolType =
                     EthernetDataPart::parseIntAsEtherType(
                             arpMessage->getProtocolType()
-                            );
-            if(arpProtocolType!=EthernetDataPart::EtherType::IP4){
+                    );
+            if (arpProtocolType != EthernetDataPart::EtherType::IP4) {
                 log.error("Incoming ARP message was not for IPv4, discarding");
                 delete arpMessage;
                 return;
@@ -272,10 +272,10 @@ namespace Kernel {
             auto *destinationAddress =
                     new IP4Address(arpMessage->getTargetProtocolAddress());
             IP4Interface *currentInterface;
-            for(EthernetDevice *currentDevice:interfaces->keySet()){
+            for (EthernetDevice *currentDevice:interfaces->keySet()) {
                 currentInterface = interfaces->get(currentDevice);
-                if(currentInterface->getIp4Address()->equals(destinationAddress)){
-                    if(currentInterface->notifyARPModule(arpMessage)){
+                if (currentInterface->getIp4Address()->equals(destinationAddress)) {
+                    if (currentInterface->notifyARPModule(arpMessage)) {
                         log.error("Notify ARP module failed");
                     }
                     //All data processed, final cleanup

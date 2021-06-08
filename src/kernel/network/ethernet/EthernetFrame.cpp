@@ -13,7 +13,7 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 EthernetFrame::~EthernetFrame() {
     //dataPart is null if this frame is an incoming one!
     //-> deleting is only necessary in an outgoing frame
-    if(ethernetDataPart== nullptr){
+    if (ethernetDataPart == nullptr) {
         return;
     }
     switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
@@ -31,7 +31,7 @@ EthernetFrame::~EthernetFrame() {
 }
 
 uint16_t EthernetFrame::getLengthInBytes() {
-    if(ethernetDataPart== nullptr){
+    if (ethernetDataPart == nullptr) {
         return sizeof header;
     }
     return sizeof header + ethernetDataPart->getLengthInBytes();

@@ -35,6 +35,7 @@ private:
     void copyProtocolAddress(uint8_t *target, const uint8_t *source) const;
 
     void copyHardwareAddress(uint8_t *target, const uint8_t *source) const;
+
 public:
     enum class OpCode {
         REQUEST = 1,
@@ -65,8 +66,6 @@ public:
     void setTargetProtocolAddress(IP4Address *targetProtocolAddress);
 
     uint8_t *getTargetProtocolAddress();
-
-    uint8_t *getTargetHardwareAddress();
 
     uint8_t *getSenderProtocolAddress();
 

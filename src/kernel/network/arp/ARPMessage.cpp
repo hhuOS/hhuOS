@@ -122,22 +122,22 @@ uint8_t *ARPMessage::getSenderHardwareAddress() {
 }
 
 void ARPMessage::copyProtocolAddress(uint8_t *target, const uint8_t *source) const {
-    for(size_t i=0;i<header.protocolAddressLength;i++){
-        target[i]=source[i];
+    for (size_t i = 0; i < header.protocolAddressLength; i++) {
+        target[i] = source[i];
     }
 }
 
 void ARPMessage::copyHardwareAddress(uint8_t *target, const uint8_t *source) const {
-    for(size_t i=0;i<header.hardwareAddressLength;i++){
-        target[i]=source[i];
+    for (size_t i = 0; i < header.hardwareAddressLength; i++) {
+        target[i] = source[i];
     }
 }
 
 ARPMessage *ARPMessage::buildResponse(uint8_t *ourAddressAsBytes) {
-    auto *response=new ARPMessage();
+    auto *response = new ARPMessage();
     //Same type
     //-> we can access internal attributes directly
-    response->header.opCode= getOpCodeAsInt(OpCode::REPLY);
+    response->header.opCode = getOpCodeAsInt(OpCode::REPLY);
     copyProtocolAddress(
             response->message.targetProtocolAddress,
             this->message.senderProtocolAddress);
