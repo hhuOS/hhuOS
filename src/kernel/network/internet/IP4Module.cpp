@@ -2,9 +2,6 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
-#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
-#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
 #include "IP4Module.h"
 
 namespace Kernel {
