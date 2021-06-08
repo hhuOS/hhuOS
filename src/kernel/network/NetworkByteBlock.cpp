@@ -86,7 +86,7 @@ uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
 }
 
 uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
-    return read(oneByte, sizeof oneByte);
+    return read(oneByte, sizeof *oneByte);
 }
 
 uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
