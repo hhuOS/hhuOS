@@ -145,7 +145,7 @@ namespace Kernel {
                     input->read(&typeByte);
                     //Decrement index by one
                     //-> now it points to first message byte again!
-                    input->decrementIndex(1);
+                    input->decreaseIndex(1);
                     switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                         case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
                             outMessage = (ICMP4Message *) new ICMP4EchoReply();

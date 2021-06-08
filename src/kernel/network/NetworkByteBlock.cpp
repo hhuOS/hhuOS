@@ -172,7 +172,7 @@ uint8_t NetworkByteBlock::skip(size_t byteCount) {
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
-uint8_t NetworkByteBlock::decrementIndex(size_t byteCount) {
+uint8_t NetworkByteBlock::decreaseIndex(size_t byteCount) {
     if (byteCount > currentIndex) {
         return 1;
     }

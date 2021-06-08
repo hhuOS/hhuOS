@@ -52,7 +52,7 @@ public:
 
     uint8_t skip(size_t byteCount);
 
-    uint8_t decrementIndex(size_t byteCount);
+    uint8_t decreaseIndex(size_t byteCount);
 };
 
 

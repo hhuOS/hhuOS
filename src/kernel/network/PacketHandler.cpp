@@ -50,7 +50,7 @@ namespace Kernel {
                 return;
             }
             //Reset index to zero to prepare reading headers and data
-            input->decrementIndex(input->getLength());
+            input->decreaseIndex(input->getLength());
 
             auto *inFrame = new EthernetFrame();
             if (inFrame->parseHeader(input)) {
