@@ -143,7 +143,7 @@ namespace Kernel {
 
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
-                    ICMP4Message *outMessage = nullptr;
+                    ICMP4Message *outMessage;
                     uint8_t typeByte = 0;
                     input->read(&typeByte);
                     //Decrement index by one
@@ -233,14 +233,30 @@ namespace Kernel {
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             auto *input = ((ARPReceiveEvent &) event).getInput();
+            if(interfaces== nullptr){
+                log.error("Internal interface list is null, discarding data");
+                //NOTE: delete on null objects simply does nothing!
+                delete arpMessage;
+                delete input;
+                return;
+
+            }
             if(arpMessage->parseBody(input)){
                 log.error("Could not assemble ARP message body, discarding data");
+                //NOTE: delete on null objects simply does nothing!
                 delete arpMessage;
                 delete input;
                 return;
             }
+            if(input->bytesRemaining()>0){
+                log.error("Not all data could be parsed, discarding");
+                //NOTE: delete on null objects simply does nothing!
+                delete arpMessage;
+                delete input;
+                return;
+            }
+
             //data parsed, input obsolete
-            //TODO: Check if 'input->bytesRemaining()==0'
             delete input;
 
             EthernetDataPart::EtherType arpProtocolType =
@@ -255,8 +271,7 @@ namespace Kernel {
 
             auto *destinationAddress =
                     new IP4Address(arpMessage->getTargetProtocolAddress());
-            //TODO: Check for null
-            IP4Interface *currentInterface = nullptr;
+            IP4Interface *currentInterface;
             for(EthernetDevice *currentDevice:interfaces->keySet()){
                 currentInterface = interfaces->get(currentDevice);
                 if(currentInterface->getIp4Address()->equals(destinationAddress)){
