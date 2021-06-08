@@ -32,6 +32,9 @@ private:
     arpheader_t header;
     arpmessage_t message;
 
+    void copyProtocolAddress(uint8_t *target, const uint8_t *source) const;
+
+    void copyHardwareAddress(uint8_t *target, const uint8_t *source) const;
 public:
     enum class OpCode {
         REQUEST = 1,
@@ -61,6 +64,16 @@ public:
 
     void setTargetProtocolAddress(IP4Address *targetProtocolAddress);
 
+    uint8_t *getTargetProtocolAddress();
+
+    uint8_t *getTargetHardwareAddress();
+
+    uint8_t *getSenderProtocolAddress();
+
+    uint8_t *getSenderHardwareAddress();
+
+    [[nodiscard]] uint16_t getProtocolType() const;
+
     uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
@@ -68,6 +81,10 @@ public:
     EtherType getEtherType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
+
+    uint8_t parseBody(NetworkByteBlock *input);
+
+    ARPMessage *buildResponse(uint8_t *ourAddressAsBytes);
 };
 
 

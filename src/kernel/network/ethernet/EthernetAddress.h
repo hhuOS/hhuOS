@@ -15,9 +15,11 @@ class EthernetAddress {
 private:
     uint8_t macAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
 public:
-    explicit EthernetAddress(NetworkDevice *networkDevice);
+    EthernetAddress(NetworkDevice *networkDevice);
 
-    explicit EthernetAddress(EthernetAddress *other);
+    EthernetAddress(EthernetAddress *other);
+
+    EthernetAddress(uint8_t *bytes);
 
     EthernetAddress(
             uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte,

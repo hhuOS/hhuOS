@@ -36,7 +36,7 @@ EthernetDataPart::EtherType ARPMessage::getEtherType() {
 }
 
 uint8_t ARPMessage::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() < this->getLengthInBytes()) {
+    if (input == nullptr || input->bytesRemaining() < sizeof header) {
         return 1;
     }
     uint8_t errors = 0;
@@ -45,19 +45,6 @@ uint8_t ARPMessage::parseHeader(NetworkByteBlock *input) {
     errors += input->read(&header.hardwareAddressLength);
     errors += input->read(&header.protocolAddressLength);
     errors += input->read(&header.opCode);
-
-    errors += input->read(
-            message.senderHardwareAddress,
-            header.hardwareAddressLength);
-    errors += input->read(
-            message.senderProtocolAddress,
-            header.protocolAddressLength);
-    errors += input->read(
-            message.targetHardwareAddress,
-            header.hardwareAddressLength);
-    errors += input->read(
-            message.targetProtocolAddress,
-            header.protocolAddressLength);
 
     return errors;
 }
@@ -95,4 +82,74 @@ ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
         default:
             return OpCode::INVALID;
     }
+}
+
+uint8_t ARPMessage::parseBody(NetworkByteBlock *input) {
+    if (input == nullptr || input->bytesRemaining() != sizeof message) {
+        return 1;
+    }
+    uint8_t errors = 0;
+    errors += input->read(
+            message.senderHardwareAddress,
+            header.hardwareAddressLength);
+    errors += input->read(
+            message.senderProtocolAddress,
+            header.protocolAddressLength);
+    errors += input->read(
+            message.targetHardwareAddress,
+            header.hardwareAddressLength);
+    errors += input->read(
+            message.targetProtocolAddress,
+            header.protocolAddressLength);
+
+    return errors;
+}
+
+uint8_t *ARPMessage::getTargetProtocolAddress() {
+    return message.targetProtocolAddress;
+}
+
+uint16_t ARPMessage::getProtocolType() const {
+    return header.protocolType;
+}
+
+uint8_t *ARPMessage::getSenderProtocolAddress() {
+    return message.senderProtocolAddress;
+}
+
+uint8_t *ARPMessage::getSenderHardwareAddress() {
+    return message.senderHardwareAddress;
+}
+
+void ARPMessage::copyProtocolAddress(uint8_t *target, const uint8_t *source) const {
+    for(size_t i=0;i<header.protocolAddressLength;i++){
+        target[i]=source[i];
+    }
+}
+
+void ARPMessage::copyHardwareAddress(uint8_t *target, const uint8_t *source) const {
+    for(size_t i=0;i<header.hardwareAddressLength;i++){
+        target[i]=source[i];
+    }
+}
+
+ARPMessage *ARPMessage::buildResponse(uint8_t *ourAddressAsBytes) {
+    auto *response=new ARPMessage();
+    //Same type
+    //-> we can access internal attributes directly
+    response->header.opCode= getOpCodeAsInt(OpCode::REPLY);
+    copyProtocolAddress(
+            response->message.targetProtocolAddress,
+            this->message.senderProtocolAddress);
+    copyProtocolAddress(
+            response->message.senderProtocolAddress,
+            this->message.targetProtocolAddress);
+
+    copyHardwareAddress(
+            response->message.targetHardwareAddress,
+            this->message.senderHardwareAddress);
+    copyHardwareAddress(
+            response->message.senderHardwareAddress,
+            ourAddressAsBytes);
+    return response;
 }

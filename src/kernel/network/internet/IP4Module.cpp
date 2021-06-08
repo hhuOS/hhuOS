@@ -232,18 +232,44 @@ namespace Kernel {
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
-            //TODO: Implement processing of incoming ARP Messages here
-            switch (arpMessage->getOpCode()) {
-                case ARPMessage::OpCode::REQUEST:
-                    break;
-                case ARPMessage::OpCode::REPLY:
-                    break;
-                default: {
-                    log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
+            auto *input = ((ARPReceiveEvent &) event).getInput();
+            if(arpMessage->parseBody(input)){
+                log.error("Could not assemble ARP message body, discarding data");
+                delete arpMessage;
+                delete input;
+                return;
+            }
+            //data parsed, input obsolete
+            //TODO: Check if 'input->bytesRemaining()==0'
+            delete input;
+
+            EthernetDataPart::EtherType arpProtocolType =
+                    EthernetDataPart::parseIntAsEtherType(
+                            arpMessage->getProtocolType()
+                            );
+            if(arpProtocolType!=EthernetDataPart::EtherType::IP4){
+                log.error("Incoming ARP message was not for IPv4, discarding");
+                delete arpMessage;
+                return;
+            }
+
+            auto *destinationAddress =
+                    new IP4Address(arpMessage->getTargetProtocolAddress());
+            //TODO: Check for null
+            IP4Interface *currentInterface = nullptr;
+            for(EthernetDevice *currentDevice:interfaces->keySet()){
+                currentInterface = interfaces->get(currentDevice);
+                if(currentInterface->getIp4Address()->equals(destinationAddress)){
+                    if(currentInterface->notifyARPModule(arpMessage)){
+                        log.error("Notify ARP module failed");
+                    }
+                    //All data processed, final cleanup
                     delete arpMessage;
                     return;
                 }
             }
+            log.error("No matching interface for ARP message found, discarding");
+            delete arpMessage;
             return;
         }
     }

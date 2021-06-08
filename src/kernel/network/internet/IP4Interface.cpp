@@ -84,3 +84,39 @@ String IP4Interface::asString() {
     return this->ethernetDevice->asString() + ",\nIP4Address: " + this->ip4Address->asString() + ",\nIP4Netmask: " +
            this->ip4Netmask->asString();
 }
+
+uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
+    switch (message->getOpCode()) {
+        case ARPMessage::OpCode::REQUEST:{
+            //Use each message as a possible ARP update
+            //TODO: Synchronize access!!
+            arpModule->addEntry(
+                    new IP4Address(message->getSenderProtocolAddress()),
+                    new EthernetAddress(message->getSenderHardwareAddress())
+            );
+
+            uint8_t myAddressAsBytes[MAC_SIZE];
+            this->ethernetDevice->getAddress()->copyTo(myAddressAsBytes);
+
+            auto *response = message->buildResponse(myAddressAsBytes);
+            auto *outFrame =
+                    new EthernetFrame(new EthernetAddress(myAddressAsBytes),response);
+            this->eventBus->publish(
+                    new Kernel::EthernetSendEvent(this->ethernetDevice, outFrame)
+            );
+            break;
+        }
+        case ARPMessage::OpCode::REPLY: {
+            //TODO: Synchronize access!!
+            arpModule->addEntry(
+                    new IP4Address(message->getSenderProtocolAddress()),
+                    new EthernetAddress(message->getSenderHardwareAddress())
+                    );
+            break;
+        }
+        case ARPMessage::OpCode::INVALID: {
+            return 1;
+        }
+    }
+    return 0;
+}

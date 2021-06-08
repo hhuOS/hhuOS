@@ -39,6 +39,8 @@ public:
     bool equals(IP4Interface *compare);
 
     String asString();
+
+    uint8_t notifyARPModule(ARPMessage *message);
 };
 
 #endif //HHUOS_IP4INT_H
