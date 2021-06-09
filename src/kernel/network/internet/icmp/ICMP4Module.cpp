@@ -25,15 +25,16 @@ namespace Kernel {
                 log.error("Destination address was null, discarding message");
                 switch (icmp4Message->getICMP4MessageType()) {
                     case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                        delete (ICMP4EchoReply *)icmp4Message;
+                        delete (ICMP4EchoReply *) icmp4Message;
                         return;
                     case ICMP4Message::ICMP4MessageType::ECHO:
-                        delete (ICMP4Echo *)icmp4Message;
+                        delete (ICMP4Echo *) icmp4Message;
                         return;
                         //All implemented messages are deleted now
                         //-> we can break here
                         //NOTE: Please add new ICMP4Messages here if implemented!
-                    default: break;
+                    default:
+                        break;
                 }
             }
             eventBus->publish(
@@ -47,10 +48,10 @@ namespace Kernel {
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
             auto *ip4Datagram = new IP4Datagram();
-            if(
+            if (
                     ip4Datagram->parseHeader(input) ||
                     ip4Datagram->copyHeader(&headerInfo, sizeof headerInfo)
-            ){
+                    ) {
                 log.error("Parsing IP4 information failed, discarding");
                 delete ip4Datagram;
                 delete input;
@@ -67,7 +68,7 @@ namespace Kernel {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
                     auto *sourceAddress = new IP4Address(headerInfo.sourceAddress);
                     auto *echoReply = new ICMP4EchoReply(sourceAddress);
-                    if(echoReply->parseHeader(input)){
+                    if (echoReply->parseHeader(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
                         delete echoReply;
                         delete input;
@@ -83,7 +84,7 @@ namespace Kernel {
                 }
                 case ICMP4Message::ICMP4MessageType::ECHO: {
                     auto *echoRequest = new ICMP4Echo();
-                    if(echoRequest->parseHeader(input)){
+                    if (echoRequest->parseHeader(input)) {
                         log.error("Parsing ICMP4Echo failed, discarding");
                         delete echoRequest;
                         delete input;

@@ -67,7 +67,7 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 }
 
 size_t IP4Datagram::getHeaderLengthInBytes() const {
-    return (size_t)(header.version_headerLength - 0x40) * 4;
+    return (size_t) (header.version_headerLength - 0x40) * 4;
 }
 
 uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
@@ -133,7 +133,7 @@ uint8_t IP4Datagram::prepareForParsingAgain(NetworkByteBlock *input) const {
 }
 
 uint8_t IP4Datagram::copyHeader(void *information, size_t length) {
-    if(length!=sizeof this->header){
+    if (length != sizeof this->header) {
         return 1;
     }
     memcpy(information, &header, length);

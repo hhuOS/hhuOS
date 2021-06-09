@@ -132,7 +132,7 @@ namespace Kernel {
 
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
-                    if(input->bytesRemaining() == 0){
+                    if (input->bytesRemaining() == 0) {
                         log.error("Incoming ICMP4Message was empty, discarding");
                         delete ip4Datagram;
                         delete input;

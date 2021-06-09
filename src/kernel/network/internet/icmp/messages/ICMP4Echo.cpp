@@ -20,8 +20,8 @@ ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     auto *reply =
             new ICMP4EchoReply(
                     this->echoMessage.identifier,
-                                      this->echoMessage.sequenceNumber + 1
-    );
+                    this->echoMessage.sequenceNumber + 1
+            );
     return reply;
 }
 

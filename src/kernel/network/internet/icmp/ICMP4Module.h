@@ -32,8 +32,8 @@ namespace Kernel {
 
             uint8_t protocolType = 0;
             uint16_t headerChecksum = 0;
-            uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
-            uint8_t destinationAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+            uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
+            uint8_t destinationAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
         } ip4info_t;
 
         ip4info_t headerInfo;
