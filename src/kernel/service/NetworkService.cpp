@@ -6,6 +6,7 @@
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
 #include <kernel/event/network/UDP4ReceiveEvent.h>
+#include <kernel/event/network/UDP4SendEvent.h>
 #include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
@@ -40,10 +41,12 @@ namespace Kernel {
         eventBus->subscribe(*ethernetModule, EthernetSendEvent::TYPE);
         eventBus->subscribe(*ip4Module, IP4SendEvent::TYPE);
         eventBus->subscribe(*icmp4Module, ICMP4SendEvent::TYPE);
+        eventBus->subscribe(*udp4Module, UDP4SendEvent::TYPE);
     }
 
     NetworkService::~NetworkService() {
         //TODO: Synchronisierung nötig?
+        eventBus->unsubscribe(*udp4Module, UDP4SendEvent::TYPE);
         eventBus->unsubscribe(*icmp4Module, ICMP4SendEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4SendEvent::TYPE);
         eventBus->unsubscribe(*ethernetModule, EthernetSendEvent::TYPE);
