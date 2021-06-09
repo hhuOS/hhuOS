@@ -12,14 +12,14 @@
 
 namespace Kernel {
 
-    class UDPModule : public Receiver {
+    class UDP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus;
 
     public:
-        UDPModule(Kernel::NetworkEventBus *eventBus);
+        UDP4Module(Kernel::NetworkEventBus *eventBus);
 
-        Logger &log = Logger::get("UDPModule");
+        Logger &log = Logger::get("UDP4Module");
 
         /**
          * Inherited method from Receiver.

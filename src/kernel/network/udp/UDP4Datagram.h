@@ -8,12 +8,12 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 
-class UDPDatagram final : public IP4DataPart {
+class UDP4Datagram final : public IP4DataPart {
 
 public:
-    UDPDatagram() = default;
+    UDP4Datagram() = default;
 
-    ~UDPDatagram() = default;
+    ~UDP4Datagram() = default;
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 

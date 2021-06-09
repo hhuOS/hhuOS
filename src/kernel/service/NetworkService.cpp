@@ -5,6 +5,7 @@
 #include <kernel/network/ethernet/EthernetDevice.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
+#include <kernel/event/network/UDP4ReceiveEvent.h>
 #include "kernel/core/System.h"
 #include "NetworkService.h"
 #include "EventBus.h"
@@ -19,7 +20,7 @@ namespace Kernel {
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
         icmp4Module = new ICMP4Module(eventBus);
-        udp4Module = new UDPModule(eventBus);
+        udp4Module = new UDP4Module(eventBus);
 
         //Setup Loopback with 127.0.0.1/8
         registerDevice(loopbackIdentifier, *(new Loopback(eventBus)));
@@ -29,7 +30,7 @@ namespace Kernel {
                 new IP4Netmask(8)
         );
 
-        eventBus->subscribe(*udp4Module, UDPReceiveEvent::TYPE);
+        eventBus->subscribe(*udp4Module, UDP4ReceiveEvent::TYPE);
         eventBus->subscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->subscribe(*ip4Module, IP4ReceiveEvent::TYPE);
         eventBus->subscribe(*ip4Module, ARPReceiveEvent::TYPE);
@@ -52,7 +53,7 @@ namespace Kernel {
         eventBus->unsubscribe(*ip4Module, ARPReceiveEvent::TYPE);
         eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
         eventBus->unsubscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
-        eventBus->unsubscribe(*udp4Module, UDPReceiveEvent::TYPE);
+        eventBus->unsubscribe(*udp4Module, UDP4ReceiveEvent::TYPE);
 //
         delete udp4Module;
         delete icmp4Module;

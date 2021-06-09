@@ -13,7 +13,7 @@
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/event/network/UDPReceiveEvent.h>
+#include <kernel/event/network/UDP4ReceiveEvent.h>
 
 #include <kernel/network/NetworkEventBus.h>
 

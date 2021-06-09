@@ -2,6 +2,8 @@
 // Created by hannes on 14.05.21.
 //
 
+#include <kernel/network/udp/UDP4Datagram.h>
+#include <kernel/event/network/UDP4ReceiveEvent.h>
 #include "IP4Module.h"
 
 namespace Kernel {
@@ -157,7 +159,7 @@ namespace Kernel {
                     return;
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
-                    auto *udpDatagram = new UDPDatagram();
+                    auto *udpDatagram = new UDP4Datagram();
                     if (udpDatagram->parseHeader(input)) {
                         log.error("Could not assemble UDP header, discarding data");
                         //udpDatagram is not part of ip4Datagram here
@@ -167,7 +169,7 @@ namespace Kernel {
                         delete input;
                         break;
                     }
-                    eventBus->publish(new UDPReceiveEvent(udpDatagram, ip4Datagram, input));
+                    eventBus->publish(new UDP4ReceiveEvent(udpDatagram, ip4Datagram, input));
                     //We need input AND ip4datagram in next module
                     //-> don't delete anything here!
                     return;

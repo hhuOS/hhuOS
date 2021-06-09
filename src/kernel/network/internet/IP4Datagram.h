@@ -11,7 +11,7 @@
 #include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include <kernel/network/NetworkByteBlock.h>
-#include <kernel/network/udp/UDPDatagram.h>
+#include <kernel/network/udp/UDP4Datagram.h>
 #include "addressing/IP4Address.h"
 #include "IP4DataPart.h"
 

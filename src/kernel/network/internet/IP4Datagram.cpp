@@ -37,7 +37,7 @@ IP4Datagram::~IP4Datagram() {
             break;
         }
         case IP4DataPart::IP4ProtocolType::UDP: {
-            delete (UDPDatagram *) ip4DataPart;
+            delete (UDP4Datagram *) ip4DataPart;
             break;
         }
         default:

@@ -15,6 +15,6 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/network/udp/UDPDatagram.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/udp/UDPModule.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/UDP4Datagram.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/UDP4Module.cpp
 )

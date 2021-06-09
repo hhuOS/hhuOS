@@ -6,21 +6,21 @@
 #define HHUOS_UDPRECEIVEEVENT_H
 
 #include <kernel/event/Event.h>
-#include <kernel/network/udp/UDPDatagram.h>
+#include <kernel/network/udp/UDP4Datagram.h>
 #include <kernel/network/internet/IP4Datagram.h>
 
 namespace Kernel {
 
-    class UDPReceiveEvent : public Event {
+    class UDP4ReceiveEvent : public Event {
     private:
-        UDPDatagram *udpDatagram;
+        UDP4Datagram *udpDatagram;
         IP4Datagram *ip4Datagram;
         NetworkByteBlock *input;
 
     public:
-        explicit UDPReceiveEvent(UDPDatagram *udpDatagram, IP4Datagram *ip4Datagram, NetworkByteBlock *input);
+        explicit UDP4ReceiveEvent(UDP4Datagram *udpDatagram, IP4Datagram *ip4Datagram, NetworkByteBlock *input);
 
-        UDPDatagram *getUDPDatagram();
+        UDP4Datagram *getUDP4Datagram();
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 
@@ -28,7 +28,7 @@ namespace Kernel {
 
         [[nodiscard]] IP4Datagram *getIp4Datagram() const;
 
-        static const constexpr char *TYPE = "UDPReceiveEvent";
+        static const constexpr char *TYPE = "UDP4ReceiveEvent";
     };
 
 }
