@@ -156,6 +156,16 @@ namespace Kernel {
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
             EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
             NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
+            if (inFrame== nullptr) {
+                log.error("Incoming EthernetFrame was null, discarding input");
+                delete input;
+                return;
+            }
+            if (input== nullptr) {
+                log.error("Incoming input was null, discarding EthernetFrame");
+                delete inFrame;
+                return;
+            }
             //TODO: Check frame's Source-MAC if it's for us or at least a BROADCAST message
             switch (inFrame->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
@@ -165,15 +175,11 @@ namespace Kernel {
                         //datagram is not part of inFrame here
                         //-> we need to delete it separately!
                         delete datagram;
-                        delete inFrame;
-                        delete input;
-                        return;
+                        break;
                     }
                     //send input to next module via EventBus
                     eventBus->publish(new IP4ReceiveEvent(datagram, input));
-                    //Frame not needed anymore, can be deleted now
-                    delete inFrame;
-                    return;
+                    break;
                 }
                 case EthernetDataPart::EtherType::ARP: {
                     auto *arpMessage = new ARPMessage();
@@ -182,24 +188,20 @@ namespace Kernel {
                         //arpMessage is not part of inFrame here
                         //-> we need to delete it separately!
                         delete arpMessage;
-                        delete inFrame;
-                        delete input;
-                        return;
+                        break;
                     }
                     //send input to next module via EventBus
                     eventBus->publish(new ARPReceiveEvent(arpMessage, input));
-
-                    //Frame not needed anymore, can be deleted now
-                    delete inFrame;
-                    return;
+                    break;
                 }
                 default: {
                     log.info("EtherType of incoming EthernetFrame not supported, discarding data");
-                    delete inFrame;
-                    delete input;
-                    return;
+                    break;
                 }
             }
+            //We are done here, cleanup memory
+            delete inFrame;
+            delete input;
         }
     }
 }
