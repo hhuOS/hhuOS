@@ -144,9 +144,7 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {
                         log.error("Incoming ICMP4Message was empty, discarding");
-                        delete ip4Datagram;
-                        delete input;
-                        return;
+                        break;
                     }
                     //We don't care about all the possible ICMP4 messages here
                     //-> send full input to ICMP4Module for parsing and processing
@@ -162,26 +160,32 @@ namespace Kernel {
                         //udpDatagram is not part of ip4Datagram here
                         //-> we need to delete it separately!
                         delete udpDatagram;
-                        delete ip4Datagram;
-                        delete input;
-                        return;
+                        break;
                     }
                     eventBus->publish(new UDPReceiveEvent(udpDatagram, input));
-
-                    //IP4Datagram not needed anymore, can be deleted now
-                    delete ip4Datagram;
-                    return;
+                    break;
                 }
                 default:
                     log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
-                    delete ip4Datagram;
-                    delete input;
-                    return;
+                    break;
             }
+            //We are done here, cleanup memory
+            delete ip4Datagram;
+            delete input;
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             auto *input = ((ARPReceiveEvent &) event).getInput();
+            if (arpMessage== nullptr) {
+                log.error("Incoming ARPMessage was null, discarding input");
+                delete input;
+                return;
+            }
+            if (input== nullptr) {
+                log.error("Incoming input was null, discarding ARPMessage");
+                delete arpMessage;
+                return;
+            }
             if (interfaces == nullptr) {
                 log.error("Internal interface list is null, discarding data");
                 //NOTE: delete on null objects simply does nothing!
