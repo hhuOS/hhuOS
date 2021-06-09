@@ -49,6 +49,8 @@ namespace Kernel {
                             new IP4Datagram(destinationAddress, icmp4Message)
                     )
             );
+            //Address has been copied inside constructor, can be deleted now
+            delete destinationAddress;
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
