@@ -32,6 +32,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/event/network/EthernetReceiveEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4SendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4ReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/UDP4SendEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/network/UDP4ReceiveEvent.cpp
 
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageAddEvent.cpp
