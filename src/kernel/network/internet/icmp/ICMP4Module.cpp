@@ -8,6 +8,7 @@
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
+#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {
@@ -17,15 +18,31 @@ namespace Kernel {
         if ((event.getType() == ICMP4SendEvent::TYPE)) {
             auto *destinationAddress = ((ICMP4SendEvent &) event).getDestinationAddress();
             auto *icmp4Message = ((ICMP4SendEvent &) event).getIcmp4Message();
-            if (destinationAddress == nullptr) {
-                log.error("Destination address was null, discarding message");
-                //icmp4Message->freeMemory(); // TODO: FIX THIS ONE!
-                return;
-            }
             if (icmp4Message == nullptr) {
                 log.error("Outgoing ICMP4 message was null, ignoring");
                 delete destinationAddress;
                 return;
+            }
+            if (destinationAddress == nullptr) {
+                log.error("Destination address was null, discarding message");
+                switch (icmp4Message->getICMP4MessageType()) {
+                    case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
+                        delete (ICMP4EchoReply *)icmp4Message;
+                        return;
+                    case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
+                        delete (ICMP4DestinationUnreachable *)icmp4Message;
+                        return;
+                    case ICMP4Message::ICMP4MessageType::ECHO:
+                        delete (ICMP4Echo *)icmp4Message;
+                        return;
+                    case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
+                        delete (ICMP4TimeExceeded *)icmp4Message;
+                        return;
+                        //All implemented messages are deleted now
+                        //-> we can break here
+                        //NOTE: Please add new ICMP4Messages here if implemented!
+                    default: break;
+                }
             }
             eventBus->publish(
                     new IP4SendEvent(
@@ -34,32 +51,50 @@ namespace Kernel {
             );
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
-            auto *icmp4Message = ((ICMP4ReceiveEvent &) event).getIcmp4Message();
-            //NOTE: No message should read its 'type' byte internally!
-            //-> this byte already is in GenericICMP4Message!
-            //Our NetworkByteBlock would read one byte too much and fail...
-            //This is no problem here because all 'type' values are constant per definition
-            //-> check out header structs in ICMP4Messages for default values
-            switch (icmp4Message->getICMP4MessageType()) {
+            auto *input = ((ICMP4ReceiveEvent &) event).getInput();
+            uint8_t typeByte = 0;
+            input->read(&typeByte);
+            //Decrement index by one
+            //-> now it points to first message byte again!
+            input->decreaseIndex(1);
+            switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                    auto *echoReply = (ICMP4EchoReply *) icmp4Message;
+                    auto *echoReply = new ICMP4EchoReply();
+                    if(echoReply->parseHeader(input)){
+                        log.error("Parsing ICMP4EchoReply failed, discarding");
+                        delete echoReply;
+                        delete input;
+                        return;
+                    }
 
-                    uint8_t addressBytes[4]{0, 0, 0, 0};
-                    echoReply->getSourceAddress()->copyTo(addressBytes);
-
-                    printf("Echo reply from %d.%d.%d.%d received! Identifier: %d, SequenceNumber: %d",
-                           addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3],
-                           echoReply->getIdentifier(), echoReply->getSequenceNumber()
-                    );
+                    echoReply->printAttributes();
                     //We are done here, cleanup memory
                     delete echoReply;
+                    delete input;
                     return;
                 }
-                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    //TODO: Notify application
+                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE: {
+                    auto *destinationUnreachable = new ICMP4DestinationUnreachable(0);
+                    if (destinationUnreachable->parseHeader(input) || destinationUnreachable->parseDataBytes(input)) {
+                        log.error("Parsing ICMP4DestinationUnreachable failed, discarding");
+                        delete destinationUnreachable;
+                        delete input;
+                        return;
+                    }
+
+                    //destinationUnreachable->collectDatagramAttributes(nullptr); //TODO: Implement printing!
+                    delete destinationUnreachable;
+                    delete input;
                     return;
+                }
                 case ICMP4Message::ICMP4MessageType::ECHO: {
-                    auto *echoRequest = (ICMP4Echo *) icmp4Message;
+                    auto *echoRequest = new ICMP4Echo();
+                    if(echoRequest->parseHeader(input)){
+                        log.error("Parsing ICMP4Echo failed, discarding");
+                        delete echoRequest;
+                        delete input;
+                        return;
+                    }
 
                     //create and send reply
                     eventBus->publish(
@@ -72,15 +107,26 @@ namespace Kernel {
                     );
                     //We are done here, cleanup memory
                     delete echoRequest;
+                    delete input;
                     return;
                 }
-                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
+                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED: {
+                    auto *timeExceeded = new ICMP4TimeExceeded();
+                    if (timeExceeded->parseHeader(input)) {
+                        log.error("Parsing ICMP4TimeExceeded failed, discarding");
+                        delete timeExceeded;
+                        delete input;
+                        return;
+                    }
                     log.info("Received TIME_EXCEEDED");
-                    delete (ICMP4TimeExceeded *) icmp4Message;
+                    delete timeExceeded;
+                    delete input;
                     return;
+                }
                 default:
-                    log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding");
-//                icmp4Message->freeMemory(); // TODO: FIX THIS ONE!
+                    log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
+                    //No message parsed here, we just need to delete incoming input
+                    delete input;
                     return;
             }
         }

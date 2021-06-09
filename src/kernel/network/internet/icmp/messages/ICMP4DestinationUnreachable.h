@@ -34,6 +34,10 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
+
+    uint8_t parseDataBytes(NetworkByteBlock *input);
+
+    void collectDatagramAttributes(Util::ArrayList<String> *strings);
 };
 
 

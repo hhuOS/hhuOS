@@ -10,12 +10,7 @@ namespace Kernel {
         return TYPE;
     }
 
-    ICMP4ReceiveEvent::ICMP4ReceiveEvent(ICMP4Message *icmp4Message, NetworkByteBlock *input) : icmp4Message(
-            icmp4Message) {}
-
-    ICMP4Message * ICMP4ReceiveEvent::getIcmp4Message() const {
-        return icmp4Message;
-    }
+    ICMP4ReceiveEvent::ICMP4ReceiveEvent(NetworkByteBlock *input) : input(input) {}
 
     NetworkByteBlock *ICMP4ReceiveEvent::getInput() const {
         return input;

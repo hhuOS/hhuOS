@@ -37,12 +37,6 @@ public:
 
     size_t getLengthInBytes() override;
 
-    [[nodiscard]] uint16_t getIdentifier() const;
-
-    [[nodiscard]] uint16_t getSequenceNumber() const;
-
-    [[nodiscard]] IP4Address *getSourceAddress() const;
-
     void setSourceAddress(IP4Address *sourceAddress);
 
     ICMP4MessageType getICMP4MessageType() override;
@@ -50,6 +44,8 @@ public:
     uint8_t parseHeader(NetworkByteBlock *input) override;
 
     IP4ProtocolType getIP4ProtocolType() override;
+
+    void printAttributes();
 };
 
 

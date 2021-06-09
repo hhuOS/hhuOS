@@ -25,10 +25,12 @@ void ICMP4Echo::setSourceAddress(IP4Address *ip4Address) {
 }
 
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
+    auto *sourceAddress=new IP4Address(ip4Info.sourceAddress);
     auto *result = new ICMP4EchoReply(this->echoMessage.identifier,
                                       this->echoMessage.sequenceNumber + 1
     );
-    result->setSourceAddress(new IP4Address(ip4Info.sourceAddress));
+    result->setSourceAddress(sourceAddress);
+    delete sourceAddress;
     return result;
 }
 
@@ -52,8 +54,7 @@ uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
 }
 
 uint8_t ICMP4Echo::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr ||
-        input->bytesRemaining() <= sizeof echoMessage
+    if (input == nullptr || input->bytesRemaining() <= sizeof echoMessage
             ) {
         return 1;
     }

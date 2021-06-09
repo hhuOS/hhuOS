@@ -88,6 +88,24 @@ namespace Kernel {
                     //Datagram will be deleted in EthernetModule after send
                     //-> no delete here!
                     return;
+                case IP4_NO_ROUTE_FOUND: {
+                    log.error("No route to host could be found, discarding datagram");
+                    //Datagram content is copied in constructor, we can delete it afterwards
+                    auto *destinationUnreachable =
+                            new ICMP4DestinationUnreachable(0, datagram);
+                    auto *inputWithMessage =
+                            new NetworkByteBlock(destinationUnreachable->getLengthInBytes());
+                    destinationUnreachable->copyTo(inputWithMessage);
+                    eventBus->publish(
+                            new ICMP4ReceiveEvent(inputWithMessage)
+                    );
+                    //All data has been copied to inputWithMessage, we can delete message now
+                    delete destinationUnreachable;
+                    //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
+                    //-> we can delete datagram now
+                    delete datagram;
+                    return;
+                }
                 case IP4_DATAGRAM_NULL: {
                     log.error("Outgoing datagram was null, ignoring");
                     return;
@@ -104,16 +122,6 @@ namespace Kernel {
                     log.error("matchingBits() function in routing module is broken, discarding datagram");
                     break;
                 }
-                case IP4_NO_ROUTE_FOUND: {
-                    log.error("No route to host could be found, discarding datagram");
-                    eventBus->publish(
-                            new ICMP4ReceiveEvent(
-                                    new ICMP4DestinationUnreachable(0, datagram), nullptr)
-                    );
-                    //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
-                    //-> we can delete datagram now
-                    break;
-                }
                 case ARP_PROTOCOL_ADDRESS_NULL: {
                     log.error("IP4 address given to ARP module was null, discarding datagram");
                     break;
@@ -127,9 +135,7 @@ namespace Kernel {
                     break;
                 }
             }
-            //We are done here, delete datagram no matter if delivery worked or not
-            //-> we still have our log entry if sending failed
-            //NOTE: Any embedded data (like an ICMP4Message) will be deleted here
+            //Cleanup after logging errors
             delete datagram;
             return;
         }
@@ -140,64 +146,15 @@ namespace Kernel {
 
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
-                    ICMP4Message *outMessage;
-                    uint8_t typeByte = 0;
-                    input->read(&typeByte);
-                    //Decrement index by one
-                    //-> now it points to first message byte again!
-                    input->decreaseIndex(1);
-                    switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
-                        case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                            outMessage = (ICMP4Message *) new ICMP4EchoReply();
-                            break;
-                        }
-                        case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE: {
-                            outMessage =
-                                    (ICMP4Message *) new ICMP4DestinationUnreachable(
-                                            ip4Datagram->getHeaderLengthInBytes()
-                                    );
-                            break;
-                        }
-                        case ICMP4Message::ICMP4MessageType::ECHO: {
-                            outMessage = (ICMP4Message *) new ICMP4Echo();
-                            break;
-                        }
-                        case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED: {
-                            outMessage = (ICMP4Message *) new ICMP4TimeExceeded();
-                            break;
-                        }
-                        default: {
-                            log.error("Type of ICMP4Message unknown or not implemented, discarding data");
-                            delete ip4Datagram;
-                            delete input;
-                            return;
-                        }
-                    }
-                    if (outMessage->parseHeader(input)) {
-                        log.error("Could not assemble ICMP4Message header, discarding data");
-                        //outMessage is not part of ip4Datagram here
-                        //-> we need to delete it separately!
-                        switch (outMessage->getICMP4MessageType()) {
-                            case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                                delete (ICMP4EchoReply *) outMessage;
-                                break;
-                            case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                                delete (ICMP4DestinationUnreachable *) outMessage;
-                                break;
-                            case ICMP4Message::ICMP4MessageType::ECHO:
-                                delete (ICMP4Echo *) outMessage;
-                                break;
-                            case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                                delete (ICMP4TimeExceeded *) outMessage;
-                                break;
-                            default:
-                                break;
-                        }
+                    if(input->bytesRemaining()==0){
+                        log.error("Incoming ICMP4Message was empty, discarding");
                         delete ip4Datagram;
                         delete input;
                         return;
                     }
-                    eventBus->publish(new ICMP4ReceiveEvent(outMessage, input));
+                    //We don't care about all the possible ICMP4 messages here
+                    //-> send full input to ICMP4Module for parsing and processing
+                    eventBus->publish(new ICMP4ReceiveEvent(input));
 
                     //IP4Datagram not needed anymore, can be deleted now
                     delete ip4Datagram;

@@ -2,6 +2,7 @@
 // Created by hannes on 17.05.21.
 //
 
+#include <lib/libc/printf.h>
 #include "ICMP4DestinationUnreachable.h"
 
 ICMP4DestinationUnreachable::ICMP4DestinationUnreachable(size_t ip4HeaderSize) {
@@ -53,9 +54,7 @@ ICMP4Message::ICMP4MessageType ICMP4DestinationUnreachable::getICMP4MessageType(
 }
 
 uint8_t ICMP4DestinationUnreachable::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr ||
-        input->bytesRemaining() <= sizeof header
-            ) {
+    if (input == nullptr || input->bytesRemaining() != (sizeof header + 8)) {
         return 1;
     }
     uint8_t errors = 0;
@@ -67,20 +66,19 @@ uint8_t ICMP4DestinationUnreachable::parseHeader(NetworkByteBlock *input) {
         return errors;
     }
 
-    auto *ip4Datagram = new IP4Datagram();
-    //This will stop with an error if datagram's body is greater than eight bytes
-    //-> we will ignore this error here,
-    // because the first eight bytes should be enough to identify the sending process
-    ip4Datagram->parseHeader(input);
-
-    //TODO: Implement further processing
-    switch (ip4Datagram->getIP4DataPart()->getIP4ProtocolType()) {
-        case IP4ProtocolType::ICMP4:
-            break;
-        case IP4ProtocolType::UDP:
-            break;
-        case IP4ProtocolType::INVALID:
-            break;
-    }
     return 0;
+}
+
+uint8_t ICMP4DestinationUnreachable::parseDataBytes(NetworkByteBlock *input) {
+    internalBytes->append(input, input->getLength());
+    return 0;
+}
+
+void ICMP4DestinationUnreachable::collectDatagramAttributes(Util::ArrayList<String> *strings) {
+    auto *datagram = new IP4Datagram();
+    datagram->parseHeader(internalBytes);
+    printf("Destination unreachable!\n");
+//    datagram->printHeaderInformation(); //TODO: Implement this one!
+//    internalBytes->printRemainingBytes();
+    delete datagram;
 }
