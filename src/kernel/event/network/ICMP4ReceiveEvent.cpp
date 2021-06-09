@@ -10,7 +10,7 @@ namespace Kernel {
         return TYPE;
     }
 
-    ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4Datagram *datagram, NetworkByteBlock *input) : input(input) {}
+    ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4Datagram *datagram, NetworkByteBlock *input) : datagram(datagram), input(input) {}
 
     NetworkByteBlock *ICMP4ReceiveEvent::getInput() const {
         return input;
