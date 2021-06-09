@@ -55,13 +55,11 @@ public:
 
     virtual ~IP4Datagram();
 
-    [[nodiscard]] IP4DataPart *getIP4DataPart() const;
-
     EtherType getEtherType() override;
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
-    size_t getHeaderLengthInBytes();
+    size_t getHeaderLengthInBytes() const;
 
     size_t getLengthInBytes() override;
 
@@ -72,6 +70,10 @@ public:
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+
+    uint8_t prepareForParsingAgain(NetworkByteBlock *input) const;
+
+    uint8_t copyHeader(void *information, size_t length);
 };
 
 

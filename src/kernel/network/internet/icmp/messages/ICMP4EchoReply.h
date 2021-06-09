@@ -29,15 +29,13 @@ public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
 
-    ICMP4EchoReply() = default;
+    ICMP4EchoReply(uint8_t *sourceAddress);
 
     ~ICMP4EchoReply() = default;
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
-
-    void setSourceAddress(IP4Address *sourceAddress);
 
     ICMP4MessageType getICMP4MessageType() override;
 

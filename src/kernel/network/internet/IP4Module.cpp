@@ -146,7 +146,7 @@ namespace Kernel {
 
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
-                    if(input->bytesRemaining()==0){
+                    if(input->bytesRemaining() == 0){
                         log.error("Incoming ICMP4Message was empty, discarding");
                         delete ip4Datagram;
                         delete input;
@@ -154,6 +154,7 @@ namespace Kernel {
                     }
                     //We don't care about all the possible ICMP4 messages here
                     //-> send full input to ICMP4Module for parsing and processing
+                    ip4Datagram->prepareForParsingAgain(input);
                     eventBus->publish(new ICMP4ReceiveEvent(input));
 
                     //IP4Datagram not needed anymore, can be deleted now

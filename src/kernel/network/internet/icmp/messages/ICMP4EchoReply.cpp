@@ -14,6 +14,10 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
+ICMP4EchoReply::ICMP4EchoReply(uint8_t *sourceAddress) {
+    memcpy(ip4Info.sourceAddress, sourceAddress, IP4ADDRESS_LENGTH);
+}
+
 uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *output) {
     if (output == nullptr) {
         return 1;
@@ -44,14 +48,8 @@ void ICMP4EchoReply::printAttributes() {
     );
 }
 
-void ICMP4EchoReply::setSourceAddress(IP4Address *sourceAddress) {
-    sourceAddress->copyTo(ip4Info.sourceAddress);
-}
-
 uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr ||
-        input->bytesRemaining() <= sizeof echoReply
-            ) {
+    if (input == nullptr || input->bytesRemaining() != sizeof echoReply) {
         return 1;
     }
     uint8_t errors = 0;

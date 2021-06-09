@@ -74,12 +74,8 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
     return EtherType::IP4;
 }
 
-IP4DataPart *IP4Datagram::getIP4DataPart() const {
-    return ip4DataPart;
-}
-
-size_t IP4Datagram::getHeaderLengthInBytes() {
-    return sizeof header;
+size_t IP4Datagram::getHeaderLengthInBytes() const {
+    return (size_t)(header.version_headerLength - 0x40) * 4;
 }
 
 uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
@@ -131,11 +127,22 @@ uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
 
     //Skip additional bytes if incoming header is larger than our internal one
     //-> next layer would read our remaining header bytes as data otherwise!
-    uint8_t remainingHeaderBytes = ((header.version_headerLength - 0x40) * 4) - sizeof this->header;
+    uint8_t remainingHeaderBytes = getHeaderLengthInBytes() - sizeof this->header;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
         errors += input->skip(remainingHeaderBytes);
     }
 
     return errors;
+}
+
+uint8_t IP4Datagram::prepareForParsingAgain(NetworkByteBlock *input) const {
+    return input->decreaseIndex(getHeaderLengthInBytes());
+}
+
+uint8_t IP4Datagram::copyHeader(void *information, size_t length) {
+    if(length!=sizeof this->header){
+        return 1;
+    }
+    memcpy(information, &header, length);
 }

@@ -27,6 +27,10 @@ bool NetworkByteBlock::isCompletelyFilled() const {
     return this->currentIndex == this->length;
 }
 
+size_t NetworkByteBlock::getCurrentIndex() const {
+    return currentIndex;
+}
+
 size_t NetworkByteBlock::getLength() const {
     return length;
 }

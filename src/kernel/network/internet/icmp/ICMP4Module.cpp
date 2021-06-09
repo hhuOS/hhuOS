@@ -52,6 +52,18 @@ namespace Kernel {
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
+            auto *ip4Datagram = new IP4Datagram();
+            if(
+                    ip4Datagram->parseHeader(input) ||
+                    ip4Datagram->copyHeader(&info, sizeof info)
+            ){
+                log.error("Parsing IP4 information failed, discarding");
+                delete ip4Datagram;
+                delete input;
+                return;
+            }
+            delete ip4Datagram;
+
             uint8_t typeByte = 0;
             input->read(&typeByte);
             //Decrement index by one
@@ -59,7 +71,7 @@ namespace Kernel {
             input->decreaseIndex(1);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                    auto *echoReply = new ICMP4EchoReply();
+                    auto *echoReply = new ICMP4EchoReply(info.sourceAddress);
                     if(echoReply->parseHeader(input)){
                         log.error("Parsing ICMP4EchoReply failed, discarding");
                         delete echoReply;
