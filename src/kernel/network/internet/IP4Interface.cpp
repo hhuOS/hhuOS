@@ -21,36 +21,54 @@ IP4Interface::~IP4Interface() {
     delete this->arpModule;
 }
 
-uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram) {
+uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
     if (ip4Datagram == nullptr) {
         return IP4_DATAGRAM_NULL;
     }
-    if (receiver == nullptr) {
+    if (receiverAddress == nullptr) {
         return IP4_RECEIVER_ADDRESS_NULL;
     }
     //interface selection happens in routing module
     // -> we don't know source address before this point here!
     ip4Datagram->setSourceAddress(this->ip4Address);
     EthernetAddress *destinationAddress = nullptr;
-    uint8_t arpError = arpModule->resolveTo(&destinationAddress, receiver);
+    uint8_t arpError = arpModule->resolveTo(&destinationAddress, receiverAddress);
     if (arpError) {
         return arpError;
     }
 
     if (destinationAddress == nullptr) {
-        auto *arpRequest = new ARPMessage(ARPMessage::OpCode::REQUEST);
+        //See RFC 826 page 3 for details
+        auto *arpRequest = new ARPMessage(
+                1, // 1 for Ethernet, RFC 826 page 3
+                (uint16_t ) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
+                MAC_SIZE,
+                IP4ADDRESS_LENGTH,
+                ARPMessage::OpCode::REQUEST
+                );
 
-        arpRequest->setSenderHardwareAddress(this->ethernetDevice->getAddress());
-        arpRequest->setSenderProtocolAddress(this->ip4Address);
+        uint8_t hardwareAddress[MAC_SIZE];
+        uint8_t protocolAddress[IP4ADDRESS_LENGTH];
 
-        arpRequest->setTargetHardwareAddress(arpModule->getBroadcastAddress());
-        arpRequest->setTargetProtocolAddress(receiver);
+        this->ethernetDevice->getAddress()->copyTo(hardwareAddress);
+        arpRequest->setSenderHardwareAddress(hardwareAddress);
+
+        this->ip4Address->copyTo(protocolAddress);
+        arpRequest->setSenderProtocolAddress(protocolAddress);
+
+        arpModule->getBroadcastAddress()->copyTo(hardwareAddress);
+        arpRequest->setTargetHardwareAddress(hardwareAddress);
+
+        receiverAddress->copyTo(protocolAddress);
+        arpRequest->setTargetProtocolAddress(protocolAddress);
 
         //TODO: Add Datagram to internal data structure for pending requests
         this->eventBus->publish(
                 new Kernel::EthernetSendEvent(
                         this->ethernetDevice,
-                        new EthernetFrame(arpModule->getBroadcastAddress(), arpRequest)
+                        new EthernetFrame(
+                                arpModule->getBroadcastAddress(), arpRequest
+                                )
                 )
         );
         return 0;

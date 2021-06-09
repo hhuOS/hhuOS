@@ -26,7 +26,7 @@ public:
     IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                  IP4Netmask *ip4Netmask);
 
-    uint8_t sendIP4Datagram(IP4Address *receiver, IP4Datagram *ip4Datagram);
+    uint8_t sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram);
 
     [[nodiscard]] IP4Address *getIp4Address() const;
 

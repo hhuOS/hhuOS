@@ -8,33 +8,28 @@
 
 #include <kernel/network/NetworkByteBlock.h>
 #include <kernel/network/ethernet/EthernetDataPart.h>
-#include <kernel/network/ethernet/EthernetAddress.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
 
 class ARPMessage final : public EthernetDataPart {
 private:
     typedef struct arpHeader {
-        uint16_t hardwareType = 1; //1 is for Ethernet
-        uint16_t protocolType = 0x0800; //Value for IPv4
-        uint8_t hardwareAddressLength = MAC_SIZE;
-        uint8_t protocolAddressLength = IP4ADDRESS_LENGTH;
+        //See RFC 826 page 3 for details
+        uint16_t hardwareType = 0;
+        uint16_t protocolType = 0;
+        uint8_t hardwareAddressLength = 0;
+        uint8_t protocolAddressLength = 0;
         uint16_t opCode = 0; //1 is REQUEST, 2 is REPLY, 0 is undefined here
-    } arpheader_t;
+    } header_t;
 
-    typedef struct arpMessage {
-        uint8_t senderHardwareAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
-        uint8_t senderProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
+    typedef struct arpBody {
+        uint8_t *senderHardwareAddress = nullptr;
+        uint8_t *senderProtocolAddress = nullptr;
 
-        uint8_t targetHardwareAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
-        uint8_t targetProtocolAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-    } arpmessage_t;
+        uint8_t *targetHardwareAddress = nullptr;
+        uint8_t *targetProtocolAddress = nullptr;
+    } body_t;
 
-    arpheader_t header;
-    arpmessage_t message;
-
-    void copyProtocolAddress(uint8_t *target, const uint8_t *source) const;
-
-    void copyHardwareAddress(uint8_t *target, const uint8_t *source) const;
+    header_t header;
+    body_t body;
 
 public:
     enum class OpCode {
@@ -42,34 +37,34 @@ public:
         REPLY = 2,
         INVALID
     };
-
     //Sending constructor
-    explicit ARPMessage(OpCode opCode);
+    explicit ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
+                        uint8_t protocolAddressLength, OpCode opCode);
 
     //Incoming constructor
     ARPMessage() = default;
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 
-    ~ARPMessage() = default;
+    ~ARPMessage();
 
     [[nodiscard]] OpCode getOpCode() const;
 
     static ARPMessage::OpCode parseOpCodeFromInteger(uint16_t value);
 
-    void setSenderHardwareAddress(EthernetAddress *senderHardwareAddress);
+    void setSenderHardwareAddress(uint8_t *senderHardwareAddress) const;
 
-    void setSenderProtocolAddress(IP4Address *senderProtocolAddress);
+    void setSenderProtocolAddress(uint8_t *senderProtocolAddress) const;
 
-    void setTargetHardwareAddress(EthernetAddress *targetHardwareAddress);
+    void setTargetHardwareAddress(uint8_t *targetHardwareAddress) const;
 
-    void setTargetProtocolAddress(IP4Address *targetProtocolAddress);
+    void setTargetProtocolAddress(uint8_t *targetProtocolAddress) const;
 
-    uint8_t *getTargetProtocolAddress();
+    [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
 
-    uint8_t *getSenderProtocolAddress();
+    [[nodiscard]] uint8_t *getSenderProtocolAddress() const;
 
-    uint8_t *getSenderHardwareAddress();
+    [[nodiscard]] uint8_t *getSenderHardwareAddress() const;
 
     [[nodiscard]] uint16_t getProtocolType() const;
 
@@ -77,13 +72,15 @@ public:
 
     size_t getLengthInBytes() override;
 
+    [[nodiscard]] size_t getBodyLengthInBytes() const;
+
     EtherType getEtherType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
 
     uint8_t parseBody(NetworkByteBlock *input);
 
-    ARPMessage *buildResponse(uint8_t *ourAddressAsBytes);
+    ARPMessage *buildResponse(uint8_t *ourAddressAsBytes) const;
 };
 
 
