@@ -29,7 +29,7 @@ public:
     //Sending constructor
     ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber);
 
-    ICMP4EchoReply(uint8_t *sourceAddress);
+    ICMP4EchoReply(IP4Address *sourceAddress);
 
     ~ICMP4EchoReply() = default;
 

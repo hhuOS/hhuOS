@@ -55,7 +55,7 @@ namespace Kernel {
             auto *ip4Datagram = new IP4Datagram();
             if(
                     ip4Datagram->parseHeader(input) ||
-                    ip4Datagram->copyHeader(&info, sizeof info)
+                    ip4Datagram->copyHeader(&headerInfo, sizeof headerInfo)
             ){
                 log.error("Parsing IP4 information failed, discarding");
                 delete ip4Datagram;
@@ -71,7 +71,8 @@ namespace Kernel {
             input->decreaseIndex(1);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                    auto *echoReply = new ICMP4EchoReply(info.sourceAddress);
+                    auto *sourceAddress = new IP4Address(headerInfo.sourceAddress);
+                    auto *echoReply = new ICMP4EchoReply(sourceAddress);
                     if(echoReply->parseHeader(input)){
                         log.error("Parsing ICMP4EchoReply failed, discarding");
                         delete echoReply;
@@ -81,6 +82,7 @@ namespace Kernel {
 
                     echoReply->printAttributes();
                     //We are done here, cleanup memory
+                    delete sourceAddress;
                     delete echoReply;
                     delete input;
                     return;
@@ -112,7 +114,7 @@ namespace Kernel {
                     eventBus->publish(
                             new IP4SendEvent(
                                     new IP4Datagram(
-                                            echoRequest->getSourceAddress(),
+                                            new IP4Address(headerInfo.sourceAddress),
                                             echoRequest->buildEchoReply()
                                     )
                             )

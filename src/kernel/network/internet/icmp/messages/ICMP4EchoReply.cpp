@@ -14,8 +14,8 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
-ICMP4EchoReply::ICMP4EchoReply(uint8_t *sourceAddress) {
-    memcpy(ip4Info.sourceAddress, sourceAddress, IP4ADDRESS_LENGTH);
+ICMP4EchoReply::ICMP4EchoReply(IP4Address *sourceAddress) {
+    sourceAddress->copyTo(ip4Info.sourceAddress);
 }
 
 uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *output) {

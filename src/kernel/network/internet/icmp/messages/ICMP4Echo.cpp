@@ -16,14 +16,6 @@ size_t ICMP4Echo::getLengthInBytes() {
     return sizeof echoMessage;
 }
 
-IP4Address *ICMP4Echo::getSourceAddress() {
-    return new IP4Address(ip4Info.sourceAddress);;
-}
-
-void ICMP4Echo::setSourceAddress(IP4Address *ip4Address) {
-    ip4Address->copyTo(ip4Info.sourceAddress);
-}
-
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     auto *reply =
             new ICMP4EchoReply(

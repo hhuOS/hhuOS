@@ -145,4 +145,5 @@ uint8_t IP4Datagram::copyHeader(void *information, size_t length) {
         return 1;
     }
     memcpy(information, &header, length);
+    return 0;
 }

@@ -8,6 +8,8 @@
 #include <kernel/log/Logger.h>
 #include <kernel/network/NetworkEventBus.h>
 
+#define IP4ADDRESS_LENGTH 4
+
 namespace Kernel {
 
     class ICMP4Module : public Receiver {
@@ -30,11 +32,11 @@ namespace Kernel {
 
             uint8_t protocolType = 0;
             uint16_t headerChecksum = 0;
-            uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-            uint8_t destinationAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
+            uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
+            uint8_t destinationAddress[IP4ADDRESS_LENGTH]{0,0,0,0};
         } ip4info_t;
 
-        ip4info_t info;
+        ip4info_t headerInfo;
     public:
         explicit ICMP4Module(NetworkEventBus *eventBus);
 

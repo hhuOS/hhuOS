@@ -18,12 +18,7 @@ private:
         uint16_t sequenceNumber = 0;
     } echo_t;
 
-    typedef struct ip4information {
-        uint8_t sourceAddress[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-    } ip4info_t;
-
     echo_t echoMessage;
-    ip4info_t ip4Info;
 
 public:
     //Sending constructor
@@ -32,10 +27,6 @@ public:
     ICMP4Echo() = default;
 
     ~ICMP4Echo() = default;
-
-    void setSourceAddress(IP4Address *ip4Address);
-
-    IP4Address *getSourceAddress();
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
