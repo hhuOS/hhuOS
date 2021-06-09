@@ -8,11 +8,17 @@
 #include <kernel/log/Logger.h>
 #include <kernel/event/Event.h>
 #include <kernel/event/Receiver.h>
+#include <kernel/network/NetworkEventBus.h>
 
 namespace Kernel {
 
     class UDPModule : public Receiver {
+    private:
+        NetworkEventBus *eventBus;
+
     public:
+        UDPModule(Kernel::NetworkEventBus *eventBus);
+
         Logger &log = Logger::get("UDPModule");
 
         /**

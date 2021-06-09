@@ -167,10 +167,9 @@ namespace Kernel {
                         delete input;
                         break;
                     }
-                    eventBus->publish(new UDPReceiveEvent(udpDatagram, input));
+                    eventBus->publish(new UDPReceiveEvent(udpDatagram, ip4Datagram, input));
                     //We need input AND ip4datagram in next module
                     //-> don't delete anything here!
-                    //TODO: Implement UDP processing from here, starting with sending IP4Datagram via Event
                     return;
                 }
                 default:

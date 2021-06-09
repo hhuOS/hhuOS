@@ -29,6 +29,7 @@
 #include <kernel/network/internet/IP4Module.h>
 #include "device/network/NetworkDevice.h"
 #include <kernel/network/NetworkEventBus.h>
+#include <kernel/network/udp/UDPModule.h>
 #include "kernel/log/Logger.h"
 #include "KernelService.h"
 
@@ -62,6 +63,7 @@ namespace Kernel {
         IP4Module *ip4Module;
         EthernetModule *ethernetModule;
         ICMP4Module *icmp4Module;
+        UDPModule *udp4Module;
 
     public:
         /**
