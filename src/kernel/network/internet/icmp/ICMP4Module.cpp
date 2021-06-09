@@ -105,7 +105,7 @@ namespace Kernel {
                     break;
                 }
                 default:
-                    log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
+                    log.error("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
                     break;
             }
 

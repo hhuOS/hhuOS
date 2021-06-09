@@ -37,7 +37,7 @@ namespace Kernel {
                 return;
             }
             if (length == 0) {
-                log.info("Incoming data was empty, ignoring");
+                log.error("Incoming data was empty, ignoring");
                 delete (uint8_t *) packet;
                 return;
             }

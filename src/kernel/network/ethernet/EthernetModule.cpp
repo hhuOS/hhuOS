@@ -37,7 +37,7 @@ namespace Kernel {
         }
         //Return if an ethernet device connected to the same network device could be found
         if (ethernetDevices->containsKey(identifier)) {
-            log.info("Given identifier already exists, ignoring it");
+            log.error("Given identifier already exists, ignoring it");
             return;
         }
         //Add a new connected ethernet device if no duplicate found
@@ -47,7 +47,7 @@ namespace Kernel {
     void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
         EthernetDevice *connectedDevice = getEthernetDevice(networkDevice);
         if (connectedDevice == nullptr) {
-            log.info("No connected ethernet device could be found, not unregistering network device");
+            log.error("No connected ethernet device could be found, not unregistering network device");
             return;
         }
         if (ethernetDevices == nullptr) {
@@ -197,7 +197,7 @@ namespace Kernel {
                     break;
                 }
                 default: {
-                    log.info("EtherType of incoming EthernetFrame not supported, discarding data");
+                    log.error("EtherType of incoming EthernetFrame not supported, discarding data");
                     delete input;
                     break;
                 }
