@@ -7,18 +7,18 @@
 ARPMessage::ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
                        uint8_t protocolAddressLength, OpCode opCode) {
     header.hardwareType = hardwareType;
-    header.protocolType=protocolType;
+    header.protocolType = protocolType;
 
     header.hardwareAddressLength = hardwareAddressLength;
     header.protocolAddressLength = protocolAddressLength;
 
     header.opCode = getOpCodeAsInt(opCode);
 
-    body.senderHardwareAddress = new uint8_t [header.hardwareAddressLength];
-    body.senderProtocolAddress = new uint8_t [header.protocolAddressLength];
+    body.senderHardwareAddress = new uint8_t[header.hardwareAddressLength];
+    body.senderProtocolAddress = new uint8_t[header.protocolAddressLength];
 
-    body.targetHardwareAddress = new uint8_t [header.hardwareAddressLength];
-    body.targetProtocolAddress = new uint8_t [header.protocolAddressLength];
+    body.targetHardwareAddress = new uint8_t[header.hardwareAddressLength];
+    body.targetProtocolAddress = new uint8_t[header.protocolAddressLength];
 }
 
 ARPMessage::~ARPMessage() {
@@ -42,19 +42,19 @@ uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode) {
 }
 
 void ARPMessage::setSenderHardwareAddress(uint8_t *bytes) const {
-    memcpy(body.senderHardwareAddress,bytes,header.hardwareAddressLength);
+    memcpy(body.senderHardwareAddress, bytes, header.hardwareAddressLength);
 }
 
 void ARPMessage::setSenderProtocolAddress(uint8_t *bytes) const {
-    memcpy(body.senderProtocolAddress,bytes,header.protocolAddressLength);
+    memcpy(body.senderProtocolAddress, bytes, header.protocolAddressLength);
 }
 
 void ARPMessage::setTargetHardwareAddress(uint8_t *bytes) const {
-    memcpy(body.targetHardwareAddress,bytes,header.hardwareAddressLength);
+    memcpy(body.targetHardwareAddress, bytes, header.hardwareAddressLength);
 }
 
 void ARPMessage::setTargetProtocolAddress(uint8_t *bytes) const {
-    memcpy(body.targetProtocolAddress,bytes,header.protocolAddressLength);
+    memcpy(body.targetProtocolAddress, bytes, header.protocolAddressLength);
 }
 
 ARPMessage::OpCode ARPMessage::getOpCode() const {
@@ -133,11 +133,11 @@ uint8_t ARPMessage::parseBody(NetworkByteBlock *input) {
     }
     uint8_t errors = 0;
 
-    body.targetHardwareAddress = new uint8_t [header.hardwareAddressLength];
-    body.targetProtocolAddress = new uint8_t [header.protocolAddressLength];
+    body.targetHardwareAddress = new uint8_t[header.hardwareAddressLength];
+    body.targetProtocolAddress = new uint8_t[header.protocolAddressLength];
 
-    body.senderHardwareAddress = new uint8_t [header.hardwareAddressLength];
-    body.senderProtocolAddress = new uint8_t [header.protocolAddressLength];
+    body.senderHardwareAddress = new uint8_t[header.hardwareAddressLength];
+    body.senderProtocolAddress = new uint8_t[header.protocolAddressLength];
 
     errors += input->read(
             body.senderProtocolAddress,
@@ -186,7 +186,7 @@ ARPMessage *ARPMessage::buildResponse(uint8_t *ourAddressAsBytes) const {
             response->body.targetHardwareAddress,
             this->body.senderHardwareAddress,
             this->header.hardwareAddressLength
-            );
+    );
     memcpy(
             response->body.targetProtocolAddress,
             this->body.senderProtocolAddress,

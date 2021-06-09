@@ -41,11 +41,11 @@ uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *
         //See RFC 826 page 3 for details
         auto *arpRequest = new ARPMessage(
                 1, // 1 for Ethernet, RFC 826 page 3
-                (uint16_t ) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
+                (uint16_t) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
                 MAC_SIZE,
                 IP4ADDRESS_LENGTH,
                 ARPMessage::OpCode::REQUEST
-                );
+        );
 
         uint8_t hardwareAddress[MAC_SIZE];
         uint8_t protocolAddress[IP4ADDRESS_LENGTH];
@@ -68,7 +68,7 @@ uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *
                         this->ethernetDevice,
                         new EthernetFrame(
                                 arpModule->getBroadcastAddress(), arpRequest
-                                )
+                        )
                 )
         );
         return 0;

@@ -37,6 +37,7 @@ public:
         REPLY = 2,
         INVALID
     };
+
     //Sending constructor
     explicit ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
                         uint8_t protocolAddressLength, OpCode opCode);

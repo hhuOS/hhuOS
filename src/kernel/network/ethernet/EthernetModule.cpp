@@ -156,12 +156,12 @@ namespace Kernel {
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
             EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
             NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
-            if (inFrame== nullptr) {
+            if (inFrame == nullptr) {
                 log.error("Incoming EthernetFrame was null, discarding input");
                 delete input;
                 return;
             }
-            if (input== nullptr) {
+            if (input == nullptr) {
                 log.error("Incoming input was null, discarding EthernetFrame");
                 delete inFrame;
                 return;

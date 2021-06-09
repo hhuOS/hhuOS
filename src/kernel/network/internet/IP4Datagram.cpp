@@ -130,13 +130,13 @@ uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
         errors += input->skip(remainingHeaderBytes);
     }
 
-    if(sourceAddress!= nullptr){
+    if (sourceAddress != nullptr) {
         //already initialized!
         errors++;
         return errors;
     }
 
-    this->sourceAddress=new IP4Address(header.sourceAddress);
+    this->sourceAddress = new IP4Address(header.sourceAddress);
 
     return errors;
 }

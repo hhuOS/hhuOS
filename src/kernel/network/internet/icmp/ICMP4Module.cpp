@@ -54,7 +54,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if (input== nullptr) {
+            if (input == nullptr) {
                 log.error("Incoming input was null, discarding datagram");
                 delete inDatagram;
                 return;
@@ -98,9 +98,9 @@ namespace Kernel {
                                     new IP4Datagram(
                                             inDatagram->getSourceAddress(),
                                             echoRequest->buildEchoReply()
-                                            )
                                     )
-                            );
+                            )
+                    );
                     delete echoRequest;
                     break;
                 }

@@ -35,8 +35,8 @@ String IP4Address::asString() {
     return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
 }
 
-char *IP4Address::asChars(){
-    return (char *)asString();
+char *IP4Address::asChars() {
+    return (char *) asString();
 }
 
 IP4Address *IP4Address::calculateAND(const uint8_t *netmask) {

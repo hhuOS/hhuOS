@@ -43,7 +43,7 @@ namespace Kernel {
             }
 
             auto *input = new NetworkByteBlock(length);
-            if(input->append(packet, length)){
+            if (input->append(packet, length)) {
                 log.error("Reading of data into NetworkByteBlock failed, discarding");
                 delete (uint8_t *) packet;
                 delete input;
@@ -59,7 +59,7 @@ namespace Kernel {
                 return;
             }
             //Reset index to zero to prepare reading headers and data
-            if(input->decreaseIndex(input->getLength())){
+            if (input->decreaseIndex(input->getLength())) {
                 log.error("Index reset for input byteBlock failed, discarding");
                 delete input;
                 return;

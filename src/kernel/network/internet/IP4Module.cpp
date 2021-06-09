@@ -130,12 +130,12 @@ namespace Kernel {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
             auto *input = ((IP4ReceiveEvent &) event).getInput();
 
-            if (ip4Datagram== nullptr) {
+            if (ip4Datagram == nullptr) {
                 log.error("Incoming IP4Datagram was null, discarding input");
                 delete input;
                 return;
             }
-            if (input== nullptr) {
+            if (input == nullptr) {
                 log.error("Incoming input was null, discarding datagram");
                 delete ip4Datagram;
                 return;
@@ -183,12 +183,12 @@ namespace Kernel {
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             auto *input = ((ARPReceiveEvent &) event).getInput();
-            if (arpMessage== nullptr) {
+            if (arpMessage == nullptr) {
                 log.error("Incoming ARPMessage was null, discarding input");
                 delete input;
                 return;
             }
-            if (input== nullptr) {
+            if (input == nullptr) {
                 log.error("Incoming input was null, discarding ARPMessage");
                 delete arpMessage;
                 return;
