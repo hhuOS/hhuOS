@@ -175,6 +175,7 @@ namespace Kernel {
                         //datagram is not part of inFrame here
                         //-> we need to delete it separately!
                         delete datagram;
+                        delete input;
                         break;
                     }
                     //send input to next module via EventBus
@@ -188,6 +189,7 @@ namespace Kernel {
                         //arpMessage is not part of inFrame here
                         //-> we need to delete it separately!
                         delete arpMessage;
+                        delete input;
                         break;
                     }
                     //send input to next module via EventBus
@@ -196,12 +198,13 @@ namespace Kernel {
                 }
                 default: {
                     log.info("EtherType of incoming EthernetFrame not supported, discarding data");
+                    delete input;
                     break;
                 }
             }
             //We are done here, cleanup memory
+            //Input will be used in next module, so no delete here
             delete inFrame;
-            delete input;
         }
     }
 }

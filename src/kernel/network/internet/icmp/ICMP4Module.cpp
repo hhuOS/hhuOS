@@ -109,7 +109,7 @@ namespace Kernel {
                     break;
             }
 
-            //We are done here, cleanup memory
+            //We are done processing input here, cleanup memory
             delete inDatagram;
             delete input;
             return;

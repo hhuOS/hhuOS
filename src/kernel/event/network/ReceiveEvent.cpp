@@ -48,11 +48,6 @@ namespace Kernel {
     }
 
     ReceiveEvent::~ReceiveEvent() {
-        dropPacket();
-    }
-
-    void ReceiveEvent::dropPacket() {
         delete (char *) this->packet;
     }
-
 }

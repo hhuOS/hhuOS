@@ -29,32 +29,45 @@ namespace Kernel {
 
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {
-            log.info("Incoming packet received");
-            auto &receiveEvent = (ReceiveEvent &) event;
-            if (receiveEvent.getLength() == 0) {
-                log.info("Incoming data was empty, return");
+            auto length = ((ReceiveEvent &) event).getLength();
+            auto *packet = ((ReceiveEvent &) event).getPacket();
+
+            if (packet == nullptr) {
+                log.error("Incoming data was null, ignoring");
                 return;
             }
-            if (receiveEvent.getPacket() == nullptr) {
-                log.error("Incoming data was null, return");
+            if (length == 0) {
+                log.info("Incoming data was empty, ignoring");
+                delete (uint8_t *) packet;
                 return;
             }
 
-            auto *input = new NetworkByteBlock(receiveEvent.getLength());
-            input->append(receiveEvent.getPacket(), receiveEvent.getLength());
-            receiveEvent.dropPacket();
+            auto *input = new NetworkByteBlock(length);
+            if(input->append(packet, length)){
+                log.error("Reading of data into NetworkByteBlock failed, discarding");
+                delete (uint8_t *) packet;
+                delete input;
+                return;
+            }
+            //Incoming packet is in NetworkByteBlock now
+            //-> packet can be deleted
+            delete (uint8_t *) packet;
 
             if (!input->isCompletelyFilled()) {
-                log.error("Incoming data could not be loaded completely, discarding packet");
+                log.error("Incoming data could not be loaded completely, discarding input");
                 delete input;
                 return;
             }
             //Reset index to zero to prepare reading headers and data
-            input->decreaseIndex(input->getLength());
+            if(input->decreaseIndex(input->getLength())){
+                log.error("Index reset for input byteBlock failed, discarding");
+                delete input;
+                return;
+            }
 
             auto *inFrame = new EthernetFrame();
             if (inFrame->parseHeader(input)) {
-                log.error("Parsing incoming packet failed, discarding");
+                log.error("Parsing incoming packet as EthernetFrame failed, discarding");
                 delete input;
                 delete inFrame;
                 return;
@@ -62,9 +75,9 @@ namespace Kernel {
 
             eventBus->publish(new EthernetReceiveEvent(inFrame, input));
 
-            //inFrame and input will be deleted in EthernetModule, so no delete here
+            //inFrame and input will be deleted in EthernetModule after procesing
+            //-> no delete here
             return;
         }
     }
-
 }

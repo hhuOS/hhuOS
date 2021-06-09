@@ -144,13 +144,16 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {
                         log.error("Incoming ICMP4Message was empty, discarding");
-                        break;
+                        delete ip4Datagram;
+                        delete input;
+                        return;
                     }
                     //We don't care about all the possible ICMP4 messages here
                     //-> send full input to ICMP4Module for parsing and processing
                     eventBus->publish(new ICMP4ReceiveEvent(ip4Datagram, input));
 
-                    //IP4Datagram still needed in ICMP4Module, don't delete it here!
+                    //We need input AND ip4datagram in next module
+                    //-> don't delete anything here!
                     return;
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
@@ -160,18 +163,22 @@ namespace Kernel {
                         //udpDatagram is not part of ip4Datagram here
                         //-> we need to delete it separately!
                         delete udpDatagram;
+                        delete ip4Datagram;
+                        delete input;
                         break;
                     }
                     eventBus->publish(new UDPReceiveEvent(udpDatagram, input));
-                    break;
+                    //We need input AND ip4datagram in next module
+                    //-> don't delete anything here!
+                    //TODO: Implement UDP processing from here, starting with sending IP4Datagram via Event
+                    return;
                 }
                 default:
-                    log.info("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
-                    break;
+                    log.error("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
+                    delete ip4Datagram;
+                    delete input;
+                    return;
             }
-            //We are done here, cleanup memory
-            delete ip4Datagram;
-            delete input;
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
