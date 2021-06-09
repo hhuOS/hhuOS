@@ -47,6 +47,7 @@ private:
 
     IP4DataPart *ip4DataPart = nullptr;
 
+    IP4Address *sourceAddress = nullptr;
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
@@ -72,8 +73,6 @@ public:
     [[nodiscard]] IP4Address *getSourceAddress() const;
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
-
-    uint8_t copyHeader(void *information, size_t length);
 };
 
 

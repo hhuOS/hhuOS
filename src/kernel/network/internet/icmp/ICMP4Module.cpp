@@ -47,20 +47,19 @@ namespace Kernel {
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
-            auto *ip4Datagram = ((ICMP4ReceiveEvent &) event).getDatagram();
+            auto *inDatagram = ((ICMP4ReceiveEvent &) event).getDatagram();
 
-            if (ip4Datagram== nullptr) {
+            if (inDatagram == nullptr) {
                 log.error("Incoming IP4Datagram was null, discarding input");
                 delete input;
                 return;
             }
             if (input== nullptr) {
                 log.error("Incoming input was null, discarding datagram");
-                delete ip4Datagram;
+                delete inDatagram;
                 return;
             }
 
-            auto *sourceAddress = ip4Datagram->getSourceAddress();
             uint8_t typeByte = 0;
             input->read(&typeByte);
             //Decrement index by one
@@ -72,22 +71,20 @@ namespace Kernel {
 
                     if (echoReply->parseHeader(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
-                        delete sourceAddress;
-                        delete ip4Datagram;
+                        delete inDatagram;
                         delete echoReply;
                         delete input;
                         return;
                     }
 
                     printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
-                           sourceAddress->asChars(),
+                           inDatagram->getSourceAddress()->asChars(),
                            echoReply->getIdentifier(),
                            echoReply->getSequenceNumber()
                     );
 
                     //We are done here, cleanup memory
-                    delete sourceAddress;
-                    delete ip4Datagram;
+                    delete inDatagram;
                     delete echoReply;
                     delete input;
                     return;
@@ -96,8 +93,7 @@ namespace Kernel {
                     auto *echoRequest = new ICMP4Echo();
                     if (echoRequest->parseHeader(input)) {
                         log.error("Parsing ICMP4Echo failed, discarding");
-                        delete sourceAddress;
-                        delete ip4Datagram;
+                        delete inDatagram;
                         delete echoRequest;
                         delete input;
                         return;
@@ -106,20 +102,21 @@ namespace Kernel {
                     //create and send reply
                     eventBus->publish(
                             new IP4SendEvent(
-                                    new IP4Datagram(sourceAddress,echoRequest->buildEchoReply())
+                                    new IP4Datagram(
+                                            inDatagram->getSourceAddress(),
+                                            echoRequest->buildEchoReply()
+                                            )
                                     )
                             );
                     //We are done here, cleanup memory
-                    delete sourceAddress;
-                    delete ip4Datagram;
+                    delete inDatagram;
                     delete echoRequest;
                     delete input;
                     return;
                 }
                 default:
                     log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
-                    delete sourceAddress;
-                    delete ip4Datagram;
+                    delete inDatagram;
                     delete input;
                     return;
             }

@@ -2,7 +2,6 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/event/network/ICMP4ReceiveEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "IP4Datagram.h"
@@ -16,6 +15,7 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 }
 
 IP4Datagram::~IP4Datagram() {
+    delete sourceAddress;
     //dataPart is null if this datagram is an incoming one!
     //-> deleting is only necessary in an outgoing datagram
     if (ip4DataPart == nullptr) {
@@ -51,7 +51,7 @@ IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
 }
 
 IP4Address *IP4Datagram::getSourceAddress() const {
-    return new IP4Address(header.sourceAddress);
+    return this->sourceAddress;
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
@@ -60,6 +60,7 @@ IP4Address *IP4Datagram::getDestinationAddress() const {
 
 void IP4Datagram::setSourceAddress(IP4Address *source) {
     source->copyTo(header.sourceAddress);
+    this->sourceAddress = new IP4Address(header.sourceAddress);
 }
 
 size_t IP4Datagram::getLengthInBytes() {
@@ -129,13 +130,13 @@ uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
         errors += input->skip(remainingHeaderBytes);
     }
 
-    return errors;
-}
-
-uint8_t IP4Datagram::copyHeader(void *information, size_t length) {
-    if (length != sizeof this->header) {
-        return 1;
+    if(sourceAddress!= nullptr){
+        //already initialized!
+        errors++;
+        return errors;
     }
-    memcpy(information, &header, length);
-    return 0;
+
+    this->sourceAddress=new IP4Address(header.sourceAddress);
+
+    return errors;
 }
