@@ -22,6 +22,8 @@ public:
 
     String asString();
 
+    char *asChars();
+
     bool equals(IP4Address *other);
 
     void copyTo(uint8_t *target);

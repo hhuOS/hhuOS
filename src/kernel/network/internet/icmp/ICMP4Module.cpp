@@ -47,18 +47,20 @@ namespace Kernel {
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
-            auto *ip4Datagram = new IP4Datagram();
-            if (
-                    ip4Datagram->parseHeader(input) ||
-                    ip4Datagram->copyHeader(&headerInfo, sizeof headerInfo)
-                    ) {
-                log.error("Parsing IP4 information failed, discarding");
-                delete ip4Datagram;
+            auto *ip4Datagram = ((ICMP4ReceiveEvent &) event).getDatagram();
+
+            if (ip4Datagram== nullptr) {
+                log.error("Incoming IP4Datagram was null, discarding input");
                 delete input;
                 return;
             }
-            delete ip4Datagram;
+            if (input== nullptr) {
+                log.error("Incoming input was null, discarding datagram");
+                delete ip4Datagram;
+                return;
+            }
 
+            auto *sourceAddress = ip4Datagram->getSourceAddress();
             uint8_t typeByte = 0;
             input->read(&typeByte);
             //Decrement index by one
@@ -66,18 +68,26 @@ namespace Kernel {
             input->decreaseIndex(1);
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                    auto *sourceAddress = new IP4Address(headerInfo.sourceAddress);
-                    auto *echoReply = new ICMP4EchoReply(sourceAddress);
+                    auto *echoReply = new ICMP4EchoReply();
+
                     if (echoReply->parseHeader(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
+                        delete sourceAddress;
+                        delete ip4Datagram;
                         delete echoReply;
                         delete input;
                         return;
                     }
 
-                    echoReply->printAttributes();
+                    printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
+                           sourceAddress->asChars(),
+                           echoReply->getIdentifier(),
+                           echoReply->getSequenceNumber()
+                    );
+
                     //We are done here, cleanup memory
                     delete sourceAddress;
+                    delete ip4Datagram;
                     delete echoReply;
                     delete input;
                     return;
@@ -86,6 +96,8 @@ namespace Kernel {
                     auto *echoRequest = new ICMP4Echo();
                     if (echoRequest->parseHeader(input)) {
                         log.error("Parsing ICMP4Echo failed, discarding");
+                        delete sourceAddress;
+                        delete ip4Datagram;
                         delete echoRequest;
                         delete input;
                         return;
@@ -94,20 +106,20 @@ namespace Kernel {
                     //create and send reply
                     eventBus->publish(
                             new IP4SendEvent(
-                                    new IP4Datagram(
-                                            new IP4Address(headerInfo.sourceAddress),
-                                            echoRequest->buildEchoReply()
+                                    new IP4Datagram(sourceAddress,echoRequest->buildEchoReply())
                                     )
-                            )
-                    );
+                            );
                     //We are done here, cleanup memory
+                    delete sourceAddress;
+                    delete ip4Datagram;
                     delete echoRequest;
                     delete input;
                     return;
                 }
                 default:
                     log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
-                    //No message parsed here, we just need to delete incoming input
+                    delete sourceAddress;
+                    delete ip4Datagram;
                     delete input;
                     return;
             }

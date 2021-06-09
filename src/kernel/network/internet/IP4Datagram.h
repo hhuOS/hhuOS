@@ -69,9 +69,9 @@ public:
 
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
-    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+    [[nodiscard]] IP4Address *getSourceAddress() const;
 
-    uint8_t prepareForParsingAgain(NetworkByteBlock *input) const;
+    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
     uint8_t copyHeader(void *information, size_t length);
 };

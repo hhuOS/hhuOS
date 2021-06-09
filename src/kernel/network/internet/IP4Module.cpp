@@ -130,6 +130,16 @@ namespace Kernel {
             auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
             auto *input = ((IP4ReceiveEvent &) event).getInput();
 
+            if (ip4Datagram== nullptr) {
+                log.error("Incoming IP4Datagram was null, discarding input");
+                delete input;
+                return;
+            }
+            if (input== nullptr) {
+                log.error("Incoming input was null, discarding datagram");
+                delete ip4Datagram;
+                return;
+            }
             switch (ip4Datagram->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {
@@ -140,11 +150,9 @@ namespace Kernel {
                     }
                     //We don't care about all the possible ICMP4 messages here
                     //-> send full input to ICMP4Module for parsing and processing
-                    ip4Datagram->prepareForParsingAgain(input);
-                    eventBus->publish(new ICMP4ReceiveEvent(input));
+                    eventBus->publish(new ICMP4ReceiveEvent(ip4Datagram, input));
 
-                    //IP4Datagram not needed anymore, can be deleted now
-                    delete ip4Datagram;
+                    //IP4Datagram still needed in ICMP4Module, don't delete it here!
                     return;
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {

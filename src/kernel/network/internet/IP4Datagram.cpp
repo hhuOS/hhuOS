@@ -50,6 +50,10 @@ IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
     return IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType);
 }
 
+IP4Address *IP4Datagram::getSourceAddress() const {
+    return new IP4Address(header.sourceAddress);
+}
+
 IP4Address *IP4Datagram::getDestinationAddress() const {
     return new IP4Address(header.destinationAddress);
 }
@@ -126,10 +130,6 @@ uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
     }
 
     return errors;
-}
-
-uint8_t IP4Datagram::prepareForParsingAgain(NetworkByteBlock *input) const {
-    return input->decreaseIndex(getHeaderLengthInBytes());
 }
 
 uint8_t IP4Datagram::copyHeader(void *information, size_t length) {

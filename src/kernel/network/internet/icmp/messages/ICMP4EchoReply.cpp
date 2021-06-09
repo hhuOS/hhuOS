@@ -14,10 +14,6 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
-ICMP4EchoReply::ICMP4EchoReply(IP4Address *sourceAddress) {
-    sourceAddress->copyTo(ip4Info.sourceAddress);
-}
-
 uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *output) {
     if (output == nullptr) {
         return 1;
@@ -41,13 +37,6 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
-void ICMP4EchoReply::printAttributes() {
-    printf("Echo reply from %d.%d.%d.%d received! Identifier: %d, SequenceNumber: %d",
-           ip4Info.sourceAddress[0], ip4Info.sourceAddress[1], ip4Info.sourceAddress[2], ip4Info.sourceAddress[3],
-           echoReply.identifier, echoReply.sequenceNumber
-    );
-}
-
 uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != sizeof echoReply) {
         return 1;
@@ -64,4 +53,12 @@ uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
 
 IP4DataPart::IP4ProtocolType ICMP4EchoReply::getIP4ProtocolType() {
     return ICMP4Message::getIP4ProtocolType();
+}
+
+uint8_t ICMP4EchoReply::getIdentifier() {
+    return echoReply.identifier;
+}
+
+uint8_t ICMP4EchoReply::getSequenceNumber() {
+    return echoReply.sequenceNumber;
 }
