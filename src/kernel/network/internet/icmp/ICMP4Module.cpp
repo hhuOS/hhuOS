@@ -71,10 +71,8 @@ namespace Kernel {
 
                     if (echoReply->parseHeader(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
-                        delete inDatagram;
                         delete echoReply;
-                        delete input;
-                        return;
+                        break;
                     }
 
                     printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
@@ -83,20 +81,15 @@ namespace Kernel {
                            echoReply->getSequenceNumber()
                     );
 
-                    //We are done here, cleanup memory
-                    delete inDatagram;
                     delete echoReply;
-                    delete input;
-                    return;
+                    break;
                 }
                 case ICMP4Message::ICMP4MessageType::ECHO: {
                     auto *echoRequest = new ICMP4Echo();
                     if (echoRequest->parseHeader(input)) {
                         log.error("Parsing ICMP4Echo failed, discarding");
-                        delete inDatagram;
                         delete echoRequest;
-                        delete input;
-                        return;
+                        break;
                     }
 
                     //create and send reply
@@ -108,18 +101,18 @@ namespace Kernel {
                                             )
                                     )
                             );
-                    //We are done here, cleanup memory
-                    delete inDatagram;
                     delete echoRequest;
-                    delete input;
-                    return;
+                    break;
                 }
                 default:
                     log.info("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
-                    delete inDatagram;
-                    delete input;
-                    return;
+                    break;
             }
+
+            //We are done here, cleanup memory
+            delete inDatagram;
+            delete input;
+            return;
         }
     }
 }
