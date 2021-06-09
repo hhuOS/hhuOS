@@ -7,8 +7,6 @@
 #include <lib/libc/printf.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
-#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
-#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {
@@ -29,14 +27,8 @@ namespace Kernel {
                     case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                         delete (ICMP4EchoReply *)icmp4Message;
                         return;
-                    case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                        delete (ICMP4DestinationUnreachable *)icmp4Message;
-                        return;
                     case ICMP4Message::ICMP4MessageType::ECHO:
                         delete (ICMP4Echo *)icmp4Message;
-                        return;
-                    case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                        delete (ICMP4TimeExceeded *)icmp4Message;
                         return;
                         //All implemented messages are deleted now
                         //-> we can break here
@@ -89,20 +81,6 @@ namespace Kernel {
                     delete input;
                     return;
                 }
-                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE: {
-                    auto *destinationUnreachable = new ICMP4DestinationUnreachable(0);
-                    if (destinationUnreachable->parseHeader(input) || destinationUnreachable->parseDataBytes(input)) {
-                        log.error("Parsing ICMP4DestinationUnreachable failed, discarding");
-                        delete destinationUnreachable;
-                        delete input;
-                        return;
-                    }
-
-                    //destinationUnreachable->collectDatagramAttributes(nullptr); //TODO: Implement printing!
-                    delete destinationUnreachable;
-                    delete input;
-                    return;
-                }
                 case ICMP4Message::ICMP4MessageType::ECHO: {
                     auto *echoRequest = new ICMP4Echo();
                     if(echoRequest->parseHeader(input)){
@@ -123,19 +101,6 @@ namespace Kernel {
                     );
                     //We are done here, cleanup memory
                     delete echoRequest;
-                    delete input;
-                    return;
-                }
-                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED: {
-                    auto *timeExceeded = new ICMP4TimeExceeded();
-                    if (timeExceeded->parseHeader(input)) {
-                        log.error("Parsing ICMP4TimeExceeded failed, discarding");
-                        delete timeExceeded;
-                        delete input;
-                        return;
-                    }
-                    log.info("Received TIME_EXCEEDED");
-                    delete timeExceeded;
                     delete input;
                     return;
                 }

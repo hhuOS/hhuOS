@@ -22,10 +22,8 @@
 
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
 
-#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
 #include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
-#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
 
 #include "IP4Interface.h"
 #include "IP4Module.h"

@@ -17,9 +17,7 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4Module.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/messages/ICMP4EchoReply.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/messages/ICMP4Echo.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/messages/ICMP4TimeExceeded.cpp
 
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4RoutingModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp

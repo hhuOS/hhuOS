@@ -3,8 +3,6 @@
 //
 
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/network/internet/icmp/messages/ICMP4DestinationUnreachable.h>
-#include <kernel/network/internet/icmp/messages/ICMP4TimeExceeded.h>
 #include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include "IP4Datagram.h"
@@ -30,14 +28,8 @@ IP4Datagram::~IP4Datagram() {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
                     delete (ICMP4EchoReply *) ip4DataPart;
                     break;
-                case ICMP4Message::ICMP4MessageType::DESTINATION_UNREACHABLE:
-                    delete (ICMP4DestinationUnreachable *) ip4DataPart;
-                    break;
                 case ICMP4Message::ICMP4MessageType::ECHO:
                     delete (ICMP4Echo *) ip4DataPart;
-                    break;
-                case ICMP4Message::ICMP4MessageType::TIME_EXCEEDED:
-                    delete (ICMP4TimeExceeded *) ip4DataPart;
                     break;
                 default:
                     break;

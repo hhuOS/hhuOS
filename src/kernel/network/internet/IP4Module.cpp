@@ -88,27 +88,13 @@ namespace Kernel {
                     //Datagram will be deleted in EthernetModule after send
                     //-> no delete here!
                     return;
-                case IP4_NO_ROUTE_FOUND: {
-                    log.error("No route to host could be found, discarding datagram");
-                    //Datagram content is copied in constructor, we can delete it afterwards
-                    auto *destinationUnreachable =
-                            new ICMP4DestinationUnreachable(0, datagram);
-                    auto *inputWithMessage =
-                            new NetworkByteBlock(destinationUnreachable->getLengthInBytes());
-                    destinationUnreachable->copyTo(inputWithMessage);
-                    eventBus->publish(
-                            new ICMP4ReceiveEvent(inputWithMessage)
-                    );
-                    //All data has been copied to inputWithMessage, we can delete message now
-                    delete destinationUnreachable;
-                    //Relevant bytes have been copied to internal byteBlock in ICMP4DestinationUnreachable
-                    //-> we can delete datagram now
-                    delete datagram;
-                    return;
-                }
                 case IP4_DATAGRAM_NULL: {
                     log.error("Outgoing datagram was null, ignoring");
                     return;
+                }
+                case IP4_NO_ROUTE_FOUND: {
+                    log.error("No route to host could be found, discarding datagram");
+                    break;
                 }
                 case IP4_INTERFACE_NULL: {
                     log.error("Outgoing interface was null, discarding datagram");
