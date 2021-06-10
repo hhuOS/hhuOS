@@ -9,6 +9,7 @@
 #include <kernel/event/Event.h>
 #include <kernel/event/Receiver.h>
 #include <kernel/network/NetworkEventBus.h>
+#include "UDP4Port.h"
 
 namespace Kernel {
 
@@ -17,7 +18,7 @@ namespace Kernel {
         NetworkEventBus *eventBus;
 
     public:
-        UDP4Module(Kernel::NetworkEventBus *eventBus);
+        explicit UDP4Module(Kernel::NetworkEventBus *eventBus);
 
         Logger &log = Logger::get("UDP4Module");
 
