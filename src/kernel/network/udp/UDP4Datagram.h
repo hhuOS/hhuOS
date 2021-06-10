@@ -9,6 +9,15 @@
 #include <kernel/network/internet/IP4DataPart.h>
 
 class UDP4Datagram final : public IP4DataPart {
+private:
+    typedef struct udp4Header{
+        uint16_t sourcePort = 0;
+        uint16_t destinationPort = 0;
+        uint16_t length = 0;
+        uint16_t checksum = 0;
+    } header_t;
+
+    header_t header;
 
 public:
     UDP4Datagram() = default;
