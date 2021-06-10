@@ -6,7 +6,8 @@
 
 namespace Kernel {
 
-    UDP4SendEvent::UDP4SendEvent(UDP4Datagram *datagram) : Event() {
+    UDP4SendEvent::UDP4SendEvent(IP4Address *destinationAddress, UDP4Datagram *datagram) : Event() {
+        this->destinationAddress = destinationAddress;
         this->datagram = datagram;
     }
 
@@ -16,6 +17,10 @@ namespace Kernel {
 
     String UDP4SendEvent::getType() const {
         return TYPE;
+    }
+
+    IP4Address *UDP4SendEvent::getDestinationAddress() {
+        return destinationAddress;
     }
 
 }
