@@ -8,8 +8,9 @@
 
 #include <cstdio>
 #include <kernel/network/NetworkByteBlock.h>
+#include "UDP4DataPart.h"
 
-class TransmittableString {
+class TransmittableString : public UDP4DataPart {
 private:
     NetworkByteBlock *characters;
 public:
@@ -18,6 +19,12 @@ public:
     virtual ~TransmittableString();
 
     void append(char *chars, size_t length);
+
+    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
+
+    size_t getLengthInBytes() override;
+
+    uint8_t parseData(NetworkByteBlock *input) override;
 };
 
 

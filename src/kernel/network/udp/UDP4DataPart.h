@@ -15,7 +15,7 @@ public:
 
     virtual size_t getLengthInBytes() = 0;
 
-    virtual uint8_t parseHeader(NetworkByteBlock *input) = 0;
+    virtual uint8_t parseData(NetworkByteBlock *input) = 0;
 };
 
 

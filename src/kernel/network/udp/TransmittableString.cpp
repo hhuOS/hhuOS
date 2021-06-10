@@ -15,3 +15,18 @@ TransmittableString::~TransmittableString() {
 void TransmittableString::append(char *chars, size_t length) {
     characters->append(chars,length);
 }
+
+uint8_t TransmittableString::copyTo(NetworkByteBlock *byteBlock) {
+    return byteBlock->append(characters,characters->getLength());
+}
+
+size_t TransmittableString::getLengthInBytes() {
+    return characters->getLength();
+}
+
+uint8_t TransmittableString::parseData(NetworkByteBlock *input) {
+    if(characters->getCurrentIndex()>0){
+        return 1;
+    }
+    return characters->append(input, input->getLength());
+}
