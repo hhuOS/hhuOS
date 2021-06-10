@@ -6,7 +6,6 @@
 #define HHUOS_TRANSMITTABLESTRING_H
 
 
-#include <cstdio>
 #include <kernel/network/NetworkByteBlock.h>
 #include "UDP4DataPart.h"
 
@@ -18,13 +17,15 @@ public:
 
     virtual ~TransmittableString();
 
-    void append(char *chars, size_t length);
+    void append(void *chars, size_t length);
 
     uint8_t copyTo(NetworkByteBlock *byteBlock) override;
 
     size_t getLengthInBytes() override;
 
     uint8_t parseData(NetworkByteBlock *input) override;
+
+    void copyTo(char * target, size_t byteCount);
 };
 
 

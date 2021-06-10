@@ -25,6 +25,8 @@ private:
 public:
     UDP4Datagram(uint16_t destinationPort, UDP4DataPart *udp4DataPart);
 
+    UDP4Datagram() = default;
+
     ~UDP4Datagram() = default;
 
     uint8_t copyTo(NetworkByteBlock *output) override;
@@ -34,8 +36,6 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
-
-    char *firstBytesAsChars();
 };
 
 

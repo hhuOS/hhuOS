@@ -54,8 +54,3 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
 
     return errors;
 }
-
-char *UDP4Datagram::firstBytesAsChars() {
-    //TODO: Implement printing of first bytes in DataPart
-    return "ASDF";
-}

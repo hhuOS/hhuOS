@@ -7,6 +7,7 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <lib/libc/printf.h>
 #include "UDP4Module.h"
+#include "TransmittableString.h"
 
 namespace Kernel {
 
@@ -66,8 +67,15 @@ namespace Kernel {
                 return;
             }
             //TODO: Add nullcheck for internal data structure
-            printf("Incoming UDP4Datagram: %s\n",
-                   udp4Datagram->firstBytesAsChars());
+            auto *helloWorld=new TransmittableString(input->bytesRemaining());
+            helloWorld->append(input,input->bytesRemaining());
+
+            char *printBytes=new char [helloWorld->getLengthInBytes()];
+            helloWorld->copyTo(printBytes,helloWorld->getLengthInBytes());
+
+            printf("UDP4Datagram received, data string was: %s", printBytes);
+
+            delete[] printBytes;
             return;
         }
     }
