@@ -7,6 +7,7 @@
 
 
 #include <kernel/network/internet/IP4DataPart.h>
+#include "UDP4DataPart.h"
 
 class UDP4Datagram final : public IP4DataPart {
 private:
@@ -19,12 +20,14 @@ private:
 
     header_t header;
 
+    UDP4DataPart *udp4DataPart = nullptr;
+
 public:
-    UDP4Datagram() = default;
+    UDP4Datagram(uint16_t destinationPort, UDP4DataPart *udp4DataPart);
 
     ~UDP4Datagram() = default;
 
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override;
+    uint8_t copyTo(NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
