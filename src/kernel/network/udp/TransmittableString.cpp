@@ -27,13 +27,11 @@ size_t TransmittableString::getLengthInBytes() {
 }
 
 uint8_t TransmittableString::parseData(NetworkByteBlock *input) {
-    if(characters->getCurrentIndex()>0){
-        return 1;
-    }
-    return characters->append(input, input->getLength());
+    return characters->append(input, input->bytesRemaining());
 }
 
 void TransmittableString::copyTo(void *target, size_t byteCount) {
+    characters->printBytes();
     characters->decreaseIndex(characters->getLength());
     characters->read(target,byteCount);
 }

@@ -25,7 +25,7 @@ public:
 
     uint8_t parseData(NetworkByteBlock *input) override;
 
-    void copyTo(char * target, size_t byteCount);
+    void copyTo(void * target, size_t byteCount);
 };
 
 

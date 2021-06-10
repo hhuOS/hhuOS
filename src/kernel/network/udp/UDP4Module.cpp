@@ -66,12 +66,10 @@ namespace Kernel {
                 delete ip4Datagram;
                 return;
             }
+            input->printBytes();
             //TODO: Add nullcheck for internal data structure
-            auto *helloWorld=new TransmittableString(input->bytesRemaining());
-            helloWorld->append(input,input->bytesRemaining());
-
-            char *printBytes=new char [helloWorld->getLengthInBytes()];
-            helloWorld->copyTo(printBytes,helloWorld->getLengthInBytes());
+            char *printBytes=new char [input->bytesRemaining()];
+            input->read(printBytes, input->bytesRemaining());
 
             printf("UDP4Datagram received, data string was: %s", printBytes);
 
