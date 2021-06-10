@@ -26,7 +26,7 @@ namespace Kernel {
 
         [[nodiscard]] String getType() const override;
 
-        [[nodiscard]] IP4Datagram *getIp4Datagram() const;
+        [[nodiscard]] IP4Datagram *getIP4Datagram() const;
 
         static const constexpr char *TYPE = "UDP4ReceiveEvent";
     };

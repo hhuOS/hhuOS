@@ -18,7 +18,7 @@ UDP4Datagram *Kernel::UDP4ReceiveEvent::getUDP4Datagram() {
     return udpDatagram;
 }
 
-IP4Datagram *Kernel::UDP4ReceiveEvent::getIp4Datagram() const {
+IP4Datagram *Kernel::UDP4ReceiveEvent::getIP4Datagram() const {
     return ip4Datagram;
 }
 

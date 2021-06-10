@@ -5,6 +5,7 @@
 #include <kernel/event/network/UDP4ReceiveEvent.h>
 #include <kernel/event/network/UDP4SendEvent.h>
 #include <kernel/event/network/IP4SendEvent.h>
+#include <lib/libc/printf.h>
 #include "UDP4Module.h"
 
 namespace Kernel {
@@ -42,7 +43,31 @@ namespace Kernel {
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
-            //auto *udpDatagram = ((UDP4ReceiveEvent &) event).getDatagram();
+            auto *udp4Datagram = ((UDP4ReceiveEvent &) event).getUDP4Datagram();
+            auto *ip4Datagram = ((UDP4ReceiveEvent &) event).getIP4Datagram();
+            auto *input = ((UDP4ReceiveEvent &) event).getInput();
+
+            if (udp4Datagram == nullptr) {
+                log.error("Incoming UDP4Datagram was null, discarding input");
+                delete ip4Datagram;
+                delete input;
+                return;
+            }
+            if (ip4Datagram == nullptr) {
+                log.error("Incoming IP4Datagram was null, discarding input");
+                delete udp4Datagram;
+                delete input;
+                return;
+            }
+            if (input == nullptr) {
+                log.error("Incoming input was null, discarding datagrams");
+                delete udp4Datagram;
+                delete ip4Datagram;
+                return;
+            }
+            //TODO: Add nullcheck for internal data structure
+            printf("Incoming UDP4Datagram: %s\n",
+                   udp4Datagram->firstBytesAsChars());
             return;
         }
     }

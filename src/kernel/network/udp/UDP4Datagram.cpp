@@ -19,3 +19,8 @@ IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
 uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
     return 1;
 }
+
+char *UDP4Datagram::firstBytesAsChars() {
+    //TODO: Implement printing of first bytes in DataPart
+    return "ASDF";
+}
