@@ -36,8 +36,6 @@ public:
 
     virtual ~EthernetFrame();
 
-    [[nodiscard]] EthernetDataPart *getEthernetDataPart() const;
-
     [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
     uint8_t copyTo(NetworkByteBlock *output);

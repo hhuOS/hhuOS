@@ -22,8 +22,6 @@ public:
 
     virtual ~NetworkByteBlock();
 
-    [[nodiscard]] size_t getCurrentIndex() const;
-
     [[nodiscard]] size_t getLength() const;
 
     [[nodiscard]] bool isCompletelyFilled() const;

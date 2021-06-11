@@ -124,7 +124,7 @@ uint8_t IP4Datagram::parseHeader(NetworkByteBlock *input) {
 
     //Skip additional bytes if incoming header is larger than our internal one
     //-> next layer would read our remaining header bytes as data otherwise!
-    uint8_t remainingHeaderBytes = getHeaderLengthInBytes() - sizeof this->header;
+    size_t remainingHeaderBytes = getHeaderLengthInBytes() - sizeof this->header;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
         errors += input->skip(remainingHeaderBytes);

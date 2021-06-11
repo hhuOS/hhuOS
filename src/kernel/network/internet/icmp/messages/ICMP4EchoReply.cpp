@@ -3,7 +3,6 @@
 //
 
 #include <kernel/network/internet/addressing/IP4Address.h>
-#include <lib/libc/printf.h>
 #include "ICMP4EchoReply.h"
 
 ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
@@ -55,10 +54,10 @@ IP4DataPart::IP4ProtocolType ICMP4EchoReply::getIP4ProtocolType() {
     return ICMP4Message::getIP4ProtocolType();
 }
 
-uint8_t ICMP4EchoReply::getIdentifier() {
+uint16_t ICMP4EchoReply::getIdentifier() const {
     return echoReply.identifier;
 }
 
-uint8_t ICMP4EchoReply::getSequenceNumber() {
+uint16_t ICMP4EchoReply::getSequenceNumber() const {
     return echoReply.sequenceNumber;
 }

@@ -4,7 +4,6 @@
 
 #include <kernel/network/internet/IP4Interface.h>
 #include <kernel/network/internet/IP4Module.h>
-#include "IP4RoutingModule.h"
 
 IP4RoutingModule::IP4RoutingModule() {
     this->routes = new Util::ArrayList<IP4Route *>();

@@ -38,9 +38,9 @@ public:
 
     IP4ProtocolType getIP4ProtocolType() override;
 
-    uint8_t getIdentifier();
+    [[nodiscard]] uint16_t getIdentifier() const;
 
-    uint8_t getSequenceNumber();
+    [[nodiscard]] uint16_t getSequenceNumber() const;
 };
 
 

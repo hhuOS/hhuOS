@@ -2,14 +2,13 @@
 // Created by hannes on 17.05.21.
 //
 
-#ifndef HHUOS_UDPMODULE_H
-#define HHUOS_UDPMODULE_H
+#ifndef HHUOS_UDP4MODULE_H
+#define HHUOS_UDP4MODULE_H
 
 #include <kernel/log/Logger.h>
 #include <kernel/event/Event.h>
 #include <kernel/event/Receiver.h>
 #include <kernel/network/NetworkEventBus.h>
-#include "UDP4Port.h"
 
 namespace Kernel {
 
@@ -32,4 +31,4 @@ namespace Kernel {
 
 }
 
-#endif //HHUOS_UDPMODULE_H
+#endif //HHUOS_UDP4MODULE_H

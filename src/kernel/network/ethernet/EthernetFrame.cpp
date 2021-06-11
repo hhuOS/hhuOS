@@ -49,10 +49,6 @@ EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
     return EthernetDataPart::parseIntAsEtherType(header.etherType);
 }
 
-EthernetDataPart *EthernetFrame::getEthernetDataPart() const {
-    return ethernetDataPart;
-}
-
 uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
     if (
             ethernetDataPart == nullptr ||

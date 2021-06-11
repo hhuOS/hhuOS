@@ -60,7 +60,7 @@ public:
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
-    size_t getHeaderLengthInBytes() const;
+    [[nodiscard]] size_t getHeaderLengthInBytes() const;
 
     size_t getLengthInBytes() override;
 

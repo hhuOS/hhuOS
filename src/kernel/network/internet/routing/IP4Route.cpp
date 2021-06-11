@@ -3,7 +3,6 @@
 //
 
 #include <kernel/network/internet/IP4Module.h>
-#include "IP4Route.h"
 
 IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop,
                    IP4Interface *outInterface) {

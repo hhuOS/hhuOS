@@ -3,7 +3,6 @@
 //
 
 #include <kernel/network/NetworkByteBlock.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
 #include "ICMP4Echo.h"
 
 ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
@@ -20,7 +19,7 @@ ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     auto *reply =
             new ICMP4EchoReply(
                     this->echoMessage.identifier,
-                    this->echoMessage.sequenceNumber + 1
+                    this->echoMessage.sequenceNumber + (uint16_t )1
             );
     return reply;
 }

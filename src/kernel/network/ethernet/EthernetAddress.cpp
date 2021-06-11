@@ -37,7 +37,7 @@ EthernetAddress::EthernetAddress(EthernetAddress *other) {
     other->copyTo(macAddress);
 }
 
-EthernetAddress::EthernetAddress(uint8_t *bytes) {
+EthernetAddress::EthernetAddress(const uint8_t *bytes) {
     for (uint8_t i = 0; i < MAC_SIZE; i++) {
         this->macAddress[i] = bytes[i];
     }
