@@ -18,7 +18,7 @@ namespace Kernel {
         if (event.getType() == UDP4SendEvent::TYPE) {
             auto *destinationAddress = ((UDP4SendEvent &) event).getDestinationAddress();
             auto *udp4Datagram = ((UDP4SendEvent &) event).getDatagram();
-            //TODO: Add nullcheck for internal data structure
+            //TODO: Add null check for internal data structure
             if (udp4Datagram == nullptr) {
                 log.error("Outgoing UDP4 datagram was null, ignoring");
                 return;
@@ -66,7 +66,7 @@ namespace Kernel {
                 return;
             }
             input->printBytes();
-            //TODO: Add nullcheck for internal data structure
+            //TODO: Add null check for internal data structure
             char *printBytes = new char[input->bytesRemaining()];
             input->read(printBytes, input->bytesRemaining());
 

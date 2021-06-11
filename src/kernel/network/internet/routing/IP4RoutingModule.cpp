@@ -67,7 +67,7 @@ void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *string
     }
 }
 
-void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
+[[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
     if (this->defaultRoute != nullptr) {
         delete this->defaultRoute;
         this->defaultRoute = nullptr;
@@ -95,7 +95,7 @@ void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
     if (ip4Interface == nullptr) {
         return;
     }
-    //TODO: Synchronisierung!
+    //TODO: Synchronization!
     for (uint32_t i = 0; i < routes->size(); i++) {
         if (routes->get(i)->getOutInterface()->equals(ip4Interface)) {
             routes->remove(i);

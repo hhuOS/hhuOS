@@ -2,8 +2,8 @@
 // Created by hannes on 17.05.21.
 //
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_UDP4DATAGRAM_H
+#define HHUOS_UDP4DATAGRAM_H
 
 
 #include <kernel/network/internet/IP4DataPart.h>
@@ -39,4 +39,4 @@ public:
 };
 
 
-#endif //HHUOS_UDPDATAGRAM_H
+#endif //HHUOS_UDP4DATAGRAM_H

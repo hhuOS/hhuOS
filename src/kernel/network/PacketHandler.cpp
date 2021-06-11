@@ -75,7 +75,7 @@ namespace Kernel {
 
             eventBus->publish(new EthernetReceiveEvent(inFrame, input));
 
-            //inFrame and input will be deleted in EthernetModule after procesing
+            //inFrame and input will be deleted in EthernetModule after processing
             //-> no delete here
             return;
         }
