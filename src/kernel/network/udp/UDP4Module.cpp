@@ -7,7 +7,6 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <lib/libc/printf.h>
 #include "UDP4Module.h"
-#include "TransmittableString.h"
 
 namespace Kernel {
 
@@ -20,11 +19,11 @@ namespace Kernel {
             auto *destinationAddress = ((UDP4SendEvent &) event).getDestinationAddress();
             auto *udp4Datagram = ((UDP4SendEvent &) event).getDatagram();
             //TODO: Add nullcheck for internal data structure
-            if(udp4Datagram == nullptr){
+            if (udp4Datagram == nullptr) {
                 log.error("Outgoing UDP4 datagram was null, ignoring");
                 return;
             }
-            if(destinationAddress == nullptr){
+            if (destinationAddress == nullptr) {
                 log.error("Destination address was null, discarding message");
                 delete udp4Datagram;
                 return;
@@ -68,7 +67,7 @@ namespace Kernel {
             }
             input->printBytes();
             //TODO: Add nullcheck for internal data structure
-            char *printBytes=new char [input->bytesRemaining()];
+            char *printBytes = new char[input->bytesRemaining()];
             input->read(printBytes, input->bytesRemaining());
 
             printf("UDP4Datagram received, data string was: %s", printBytes);

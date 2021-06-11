@@ -5,7 +5,7 @@
 #include "UDP4Datagram.h"
 
 UDP4Datagram::UDP4Datagram(uint16_t destinationPort, UDP4DataPart *udp4DataPart) {
-    header.destinationPort=destinationPort;
+    header.destinationPort = destinationPort;
     this->udp4DataPart = udp4DataPart;
 }
 

@@ -11,7 +11,7 @@
 
 class UDP4Datagram final : public IP4DataPart {
 private:
-    typedef struct udp4Header{
+    typedef struct udp4Header {
         uint16_t sourcePort = 0;
         uint16_t destinationPort = 0;
         uint16_t length = 0;
