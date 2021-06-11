@@ -19,6 +19,7 @@
 #define __PAGINGAREAMANAGER_H__
 
 #include <cstdint>
+#include <lib/util/data/Pool.h>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 
 namespace Kernel {
@@ -53,7 +54,19 @@ public:
      */
      ~PagingAreaManager() override = default;
 
-    void onError() override;
+     void* alloc() override;
+
+     void free(void *pointer) override;
+
+     void onError() override;
+
+     void refillPool();
+
+private:
+
+    Util::Data::Pool<void> blockPool;
+
+    static const constexpr uint32_t BLOCK_POOL_SIZE = 128;
 
 };
 

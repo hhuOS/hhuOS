@@ -20,6 +20,7 @@
 
 #include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
+#include "TableMemoryManager.h"
 
 namespace Kernel {
 
@@ -29,7 +30,7 @@ namespace Kernel {
  * @author Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  * @date 2018
  */
-class PageFrameAllocator : public BitmapMemoryManager {
+class PageFrameAllocator : public TableMemoryManager {
 
 public:
     /**

@@ -29,6 +29,10 @@ public:
 
     uint32_t findAndSet();
 
+    uint32_t findAndUnset();
+
+    static const constexpr uint32_t INVALID_INDEX = 0xffffffff;
+
 private:
 
     uint32_t *bitmap = nullptr;

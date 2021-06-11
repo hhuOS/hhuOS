@@ -109,8 +109,8 @@ void GatesOfHell::enter() {
     }
 
     if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
-        log.info("Terminal provider set to [%s] -> Starting initialization");
         auto providerName = Kernel::Multiboot::Structure::getKernelOption("terminal_provider");
+        log.info("Terminal provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
         log.info("Terminal provider is not set -> Initializing terminal provider with LFB");

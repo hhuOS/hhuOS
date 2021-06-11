@@ -21,13 +21,39 @@
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, true) {
+PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(VIRT_PAGE_MEM_START, VIRT_PAGE_MEM_END, PAGESIZE, true),
+                                         blockPool(BLOCK_POOL_SIZE) {
     // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
     setRange(0, 8 * 32 + 2);
+    refillPool();
 }
 
 void PagingAreaManager::onError() {
     Util::Exception::throwException(Util::Exception::OUT_OF_PAGE_MEMORY);
+}
+
+void *PagingAreaManager::alloc() {
+    return blockPool.pop();
+}
+
+void PagingAreaManager::free(void *pointer) {
+    if (!blockPool.push(pointer)) {
+        BitmapMemoryManager::free(pointer);
+    }
+}
+
+void PagingAreaManager::refillPool() {
+    if (blockPool.isFull()) {
+        return;
+    }
+
+    for (uint32_t i = 0; i < blockPool.getCapacity(); i++) {
+        void *block = BitmapMemoryManager::alloc();
+        if (!blockPool.push(block)) {
+            BitmapMemoryManager::free(block);
+            return;
+        }
+    }
 }
 
 }

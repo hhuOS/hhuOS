@@ -63,6 +63,30 @@ uint32_t AtomicBitmap::findAndSet() {
         }
     }
 
+    if (i == blocks) {
+        return INVALID_INDEX;
+    }
+
+    return i;
+}
+
+uint32_t AtomicBitmap::findAndUnset() {
+    uint32_t i;
+
+    for (i = 0; i < blocks; i++) {
+        uint32_t index = i / 32;
+        uint32_t bit = i % 32;
+
+        Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
+        if (bitmapWrapper.bitTestAndReset(31 - bit)) {
+            break;
+        }
+    }
+
+    if (i == blocks) {
+        return INVALID_INDEX;
+    }
+
     return i;
 }
 

@@ -50,8 +50,8 @@ PageDirectory::PageDirectory() {
 
     // table with virtual PT-addresses placed after the PD itself
     virtTableAddresses = (uint32_t *) (VIRT_PAGE_MEM_START + 257 * PAGESIZE);
-    // zero memory for PageTables and PageDirectrories
-    Util::Memory::Address<uint32_t>((void *) VIRT_PAGE_MEM_START).setRange(0, PAGESIZE * 1024);
+    // zero memory for PageTables and PageDirectories
+    Util::Memory::Address<uint32_t>((void *) VIRT_PAGE_MEM_START).setRange(0, PAGESIZE * 258);
     // base page directory is located at VIRT_PAGE_MEM_START + 1MB,
     // because the first 1MB is used for all Kernel page tables (mapping the kernel)
     pageDirectory = (uint32_t *) (VIRT_PAGE_MEM_START + 256 * PAGESIZE);
