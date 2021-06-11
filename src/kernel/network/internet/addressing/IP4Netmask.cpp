@@ -26,9 +26,9 @@ String IP4Netmask::asString() {
 }
 
 void IP4Netmask::calculateBitmask(uint8_t *target, uint8_t oneBitNumber) {
-    auto fullByteCount = (uint8_t)(oneBitNumber / (uint8_t) 8);
+    auto fullByteCount = (uint8_t) (oneBitNumber / (uint8_t) 8);
     for (uint8_t i = 0; i <= fullByteCount; i++) {
-        target[i] = (uint8_t)(-1);
+        target[i] = (uint8_t) (-1);
     }
     target[fullByteCount] = target[fullByteCount] << (8 - (oneBitNumber % 8));
 }

@@ -78,10 +78,10 @@ uint8_t *ARPMessage::getSenderHardwareAddress() const {
 }
 
 size_t ARPMessage::getBodyLengthInBytes() const {
-    auto twoSize=(size_t)2;
+    auto twoSize = (size_t) 2;
     return
-    twoSize * header.hardwareAddressLength +
-    twoSize * header.protocolAddressLength;
+            twoSize * header.hardwareAddressLength +
+            twoSize * header.protocolAddressLength;
 }
 
 ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
