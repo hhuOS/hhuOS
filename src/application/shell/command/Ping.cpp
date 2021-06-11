@@ -5,8 +5,6 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
-#include <kernel/network/udp/TransmittableString.h>
-#include <kernel/event/network/UDP4SendEvent.h>
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
@@ -22,27 +20,15 @@ void Ping::execute(Util::Array<String> &args) {
     }
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
-//    auto *pingRequest = new ICMP4Echo(42,0);
+    auto *pingRequest = new ICMP4Echo(42,0);
 
-    //TODO: Move back to original version when testing is done
     auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
-//    eventBus->publish(
-//            Util::SmartPointer<Kernel::Event>(
-//                    new Kernel::ICMP4SendEvent(localhost, pingRequest)
-//            )
-//    );
-
-    String helloWorld = "Hello world!";
-    auto *testString = new TransmittableString(helloWorld.length());
-    testString->append((char*)helloWorld, helloWorld.length());
-
-    auto *datagram = new UDP4Datagram(0, testString);
-
     eventBus->publish(
             Util::SmartPointer<Kernel::Event>(
-                    new Kernel::UDP4SendEvent(localhost, datagram)
+                    new Kernel::ICMP4SendEvent(localhost, pingRequest)
             )
     );
+
 }
 
 const String Ping::getHelpText() {
