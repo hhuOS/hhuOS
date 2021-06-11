@@ -10,12 +10,7 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
         bitCount = maxBitCount;
     }
     this->bitCount = bitCount;
-
-    auto fullByteCount = static_cast<uint8_t>(bitCount / (uint8_t) 8);
-    for (uint8_t i = 0; i <= fullByteCount; i++) {
-        this->netmask[i] = static_cast<uint8_t>(-1);
-    }
-    this->netmask[fullByteCount] = this->netmask[fullByteCount] << (8 - (bitCount % 8));
+    calculateBitmask(this->netmask, bitCount);
 }
 
 IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
@@ -28,4 +23,12 @@ uint8_t IP4Netmask::getBitCount() const {
 
 String IP4Netmask::asString() {
     return String::format("%d.%d.%d.%d /%d", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
+}
+
+void IP4Netmask::calculateBitmask(uint8_t *target, uint8_t oneBitNumber) {
+    auto fullByteCount = (uint8_t)(oneBitNumber / (uint8_t) 8);
+    for (uint8_t i = 0; i <= fullByteCount; i++) {
+        target[i] = (uint8_t)(-1);
+    }
+    target[fullByteCount] = target[fullByteCount] << (8 - (oneBitNumber % 8));
 }
