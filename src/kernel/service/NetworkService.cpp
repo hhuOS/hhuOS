@@ -122,4 +122,25 @@ namespace Kernel {
         }
         this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask);
     }
+
+    uint8_t NetworkService::linkEventBus(NetworkEventBus **target) {
+        if(
+                target== nullptr ||
+                this->eventBus == nullptr
+                ){
+            return 1;
+        }
+        *target=this->eventBus;
+        return 0;
+    }
+
+    uint8_t NetworkService::registerPort(uint16_t listeningPort, uint8_t *receiveBuffer, size_t bufferSize) {
+        //TODO: Implement this one!
+        return 0;
+    }
+
+    uint8_t NetworkService::unregisterPort(uint16_t listeningPort) {
+        //TODO: Implement this one!
+        return 0;
+    }
 }

@@ -20,6 +20,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/NetworkEventBus.cpp
         )
 
+add_subdirectory(applications)
 add_subdirectory(udp)
 add_subdirectory(internet)
 add_subdirectory(arp)

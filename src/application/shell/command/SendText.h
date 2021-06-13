@@ -9,6 +9,8 @@
 #include "Command.h"
 
 class SendText : public Command {
+private:
+    uint16_t serverPort = 16000;
 
 /**
  * Implementation of Command.

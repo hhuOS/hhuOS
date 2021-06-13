@@ -114,6 +114,12 @@ namespace Kernel {
         void collectInterfaceAttributes(Util::ArrayList<String> *strings);
 
         void collectRouteAttributes(Util::ArrayList<String> *strings);
+
+        uint8_t linkEventBus(NetworkEventBus **target);
+
+        uint8_t registerPort(uint16_t listeningPort, uint8_t receiveBuffer[1024], size_t bufferSize);
+
+        uint8_t unregisterPort(uint16_t listeningPort);
     };
 
 }
