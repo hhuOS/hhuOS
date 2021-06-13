@@ -65,7 +65,6 @@ namespace Kernel {
                 delete ip4Datagram;
                 return;
             }
-            input->printBytes();
             //TODO: Add null check for internal data structure
             char *printBytes = new char[input->bytesRemaining()];
             input->read(printBytes, input->bytesRemaining());

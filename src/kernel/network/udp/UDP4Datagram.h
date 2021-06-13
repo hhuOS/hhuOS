@@ -5,9 +5,11 @@
 #ifndef HHUOS_UDP4DATAGRAM_H
 #define HHUOS_UDP4DATAGRAM_H
 
+//TODO: Verify values with RFC Sources
+#define UDP4DATAPART_MAX_LENGTH 1500
+#define UDP4HEADER_MAX_LENGTH 0xffff
 
 #include <kernel/network/internet/IP4DataPart.h>
-#include "UDP4DataPart.h"
 
 class UDP4Datagram final : public IP4DataPart {
 private:
@@ -19,11 +21,11 @@ private:
     } header_t;
 
     header_t header;
-
-    UDP4DataPart *udp4DataPart = nullptr;
+    void *dataBytes = nullptr;
+    size_t length = 0;
 
 public:
-    UDP4Datagram(uint16_t destinationPort, UDP4DataPart *udp4DataPart);
+    UDP4Datagram(uint16_t destinationPort, void *dataBytes, size_t length);
 
     UDP4Datagram() = default;
 

@@ -48,6 +48,7 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/NetworkTest.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Ping.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Rm.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/SendText.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Tail.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Touch.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Umount.cpp

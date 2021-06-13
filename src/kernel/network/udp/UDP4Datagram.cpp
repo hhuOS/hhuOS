@@ -4,16 +4,17 @@
 
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(uint16_t destinationPort, UDP4DataPart *udp4DataPart) {
+UDP4Datagram::UDP4Datagram(uint16_t destinationPort, void *dataBytes, size_t length) {
     header.destinationPort = destinationPort;
-    this->udp4DataPart = udp4DataPart;
+    this->dataBytes = dataBytes;
+    this->length = length;
 }
 
 uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     if (
-            udp4DataPart == nullptr ||
+            dataBytes == nullptr ||
             output == nullptr ||
-            udp4DataPart->getLengthInBytes() > (size_t) (UDP4DATAPART_MAX_LENGTH - sizeof header) ||
+            length > (size_t) (UDP4DATAPART_MAX_LENGTH - sizeof header) ||
             sizeof header > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
@@ -30,12 +31,12 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
         return errors;
     }
 
-    //Call next level if no errors occurred yet
-    return udp4DataPart->copyTo(output);
+    //Append dataBytes if no errors occurred yet
+    return output->append(dataBytes, length);
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
-    return sizeof header + udp4DataPart->getLengthInBytes();
+    return (sizeof header) + length;
 }
 
 IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
