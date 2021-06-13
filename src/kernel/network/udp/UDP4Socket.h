@@ -28,9 +28,11 @@ public:
 
     uint8_t close();
 
-    int send(void *bytes, size_t length);
+    int send(uint8_t *bytes, size_t length);
 
-    int receive(void *targetBuffer);
+    int send(const char *bytes, size_t length);
+
+    int receive(uint8_t *targetBuffer);
 
     virtual ~UDP4Socket();
 };

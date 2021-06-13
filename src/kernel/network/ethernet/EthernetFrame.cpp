@@ -60,8 +60,8 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
     }
 
     uint8_t errors = 0;
-    errors += output->append(&header.destinationAddress, sizeof header.destinationAddress);
-    errors += output->append(&header.sourceAddress, sizeof header.sourceAddress);
+    errors += output->append(header.destinationAddress, MAC_SIZE);
+    errors += output->append(header.sourceAddress, MAC_SIZE);
     errors += output->append(header.etherType);
 
     //True if errors>0
@@ -79,8 +79,8 @@ uint8_t EthernetFrame::parseHeader(NetworkByteBlock *input) {
     }
 
     uint8_t errors = 0;
-    errors += input->read(&header.destinationAddress, MAC_SIZE);
-    errors += input->read(&header.sourceAddress, MAC_SIZE);
+    errors += input->read(header.destinationAddress, MAC_SIZE);
+    errors += input->read(header.sourceAddress, MAC_SIZE);
     errors += input->read(&header.etherType);
 
     //dataPart is not set in an incoming frame!

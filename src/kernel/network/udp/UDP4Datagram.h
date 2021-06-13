@@ -25,7 +25,7 @@ private:
     size_t length = 0;
 
 public:
-    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, void *dataBytes, size_t length);
+    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *dataBytes, size_t length);
 
     UDP4Datagram() = default;
 

@@ -68,8 +68,7 @@ uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCo
     return append(otherByteBlock->bytes, byteCount);
 }
 
-uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
-    auto *sourceAsByteArray = (uint8_t *) source;
+uint8_t NetworkByteBlock::append(const uint8_t *source, size_t byteCount) {
     //Avoid writing beyond last byte
     if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
         return 1;
@@ -79,45 +78,35 @@ uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
         return BYTEBLOCK_ACTION_SUCCESS;
     }
     for (size_t i = 0; i < byteCount; i++) {
-        this->bytes[currentIndex + i] = sourceAsByteArray[i];
+        this->bytes[currentIndex + i] = source[i];
     }
     this->currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
-    return read(oneByte, sizeof *oneByte);
+    return read(oneByte, 1);
 }
 
 uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
-    uint16_t tempValue = 0;
-    if (read(&tempValue, sizeof tempValue)) {
-        return 1;
-    }
-    auto *tempValueAsArray = (uint8_t *) &tempValue;
     auto *twoBytesAsArray = (uint8_t *) twoBytes;
 
-    twoBytesAsArray[0] = tempValueAsArray[1];
-    twoBytesAsArray[1] = tempValueAsArray[0];
+    read(&twoBytesAsArray[1]);
+    read(&twoBytesAsArray[0]);
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
 uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
-    uint32_t tempValue = 0;
-    if (read(&tempValue, sizeof tempValue)) {
-        return 1;
-    }
-    auto *tempValueAsArray = (uint8_t *) &tempValue;
     auto *fourBytesAsArray = (uint8_t *) fourBytes;
 
-    fourBytesAsArray[0] = tempValueAsArray[3];
-    fourBytesAsArray[1] = tempValueAsArray[2];
-    fourBytesAsArray[2] = tempValueAsArray[1];
-    fourBytesAsArray[3] = tempValueAsArray[0];
+    read(&fourBytesAsArray[3]);
+    read(&fourBytesAsArray[2]);
+    read(&fourBytesAsArray[1]);
+    read(&fourBytesAsArray[0]);
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
-uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
+uint8_t NetworkByteBlock::read(uint8_t *target, size_t byteCount) {
     if (
             this->currentIndex == this->length ||
             byteCount == 0 ||
@@ -127,9 +116,8 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
             ) {
         return 1;
     }
-    auto *targetBytes = (uint8_t *) target;
     for (size_t i = 0; i < byteCount; i++) {
-        targetBytes[i] = this->bytes[currentIndex + i];
+        target[i] = this->bytes[currentIndex + i];
     }
     currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;
