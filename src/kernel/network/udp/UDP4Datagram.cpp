@@ -4,9 +4,10 @@
 
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(uint16_t destinationPort, void *dataBytes, size_t length) {
+UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, void *dataBytes, size_t length) {
     header.destinationPort = destinationPort;
-    this->dataBytes = dataBytes;
+    header.sourcePort = sourcePort;
+    this->dataBytes = (uint8_t*)dataBytes;
     this->length = length;
 }
 
@@ -32,7 +33,14 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     }
 
     //Append dataBytes if no errors occurred yet
-    return output->append(dataBytes, length);
+    auto dataArray = new uint8_t [length];
+    for(int i=0;i<length;i++){
+        dataArray[i]=dataBytes[i];
+    }
+
+    output->append(dataBytes, length);
+    output->printBytes();
+    return 0;
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
