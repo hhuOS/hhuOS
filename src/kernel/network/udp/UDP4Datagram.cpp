@@ -8,6 +8,7 @@
 UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *outgoingBytes, size_t length) {
     this->dataBytes=new NetworkByteBlock(length);
     this->dataBytes->append(outgoingBytes, length);
+    this->dataBytes->resetIndex();
 
     header.destinationPort = destinationPort;
     header.sourcePort = sourcePort;
