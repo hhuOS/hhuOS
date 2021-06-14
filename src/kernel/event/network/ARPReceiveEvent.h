@@ -23,7 +23,7 @@ namespace Kernel {
 
         [[nodiscard]] String getType() const override;
 
-        NetworkByteBlock *getInput() const;
+        [[nodiscard]] NetworkByteBlock *getInput() const;
 
         static const constexpr char *TYPE = "ARPReceiveEvent";
     };

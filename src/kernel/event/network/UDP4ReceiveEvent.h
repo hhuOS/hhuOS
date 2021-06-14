@@ -2,8 +2,8 @@
 // Created by hannes on 17.05.21.
 //
 
-#ifndef HHUOS_UDPRECEIVEEVENT_H
-#define HHUOS_UDPRECEIVEEVENT_H
+#ifndef HHUOS_UDP4RECEIVEEVENT_H
+#define HHUOS_UDP4RECEIVEEVENT_H
 
 #include <kernel/event/Event.h>
 #include <kernel/network/udp/UDP4Datagram.h>
@@ -33,4 +33,4 @@ namespace Kernel {
 
 }
 
-#endif //HHUOS_UDPRECEIVEEVENT_H
+#endif //HHUOS_UDP4RECEIVEEVENT_H
