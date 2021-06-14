@@ -134,7 +134,7 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkService::registerListeningPort(uint16_t listeningPort, uint8_t *receiveBuffer, size_t bufferSize) {
+    uint8_t NetworkService::registerListeningPort(uint16_t listeningPort, NetworkByteBlock *receiveBuffer) {
         //TODO: Implement this one!
         return 0;
     }

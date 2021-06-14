@@ -21,15 +21,15 @@ private:
     } header_t;
 
     header_t header;
-    uint8_t *dataBytes = nullptr;
+    NetworkByteBlock *dataBytes = nullptr;
     size_t length = 0;
 
 public:
-    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *dataBytes, size_t length);
+    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *dataBytes);
 
     UDP4Datagram() = default;
 
-    ~UDP4Datagram() = default;
+    ~UDP4Datagram();
 
     uint8_t copyTo(NetworkByteBlock *output) override;
 
@@ -38,8 +38,6 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
-
-    void printBytes();
 };
 
 

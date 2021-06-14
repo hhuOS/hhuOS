@@ -167,3 +167,18 @@ uint8_t NetworkByteBlock::decreaseIndex(size_t byteCount) {
     currentIndex -= byteCount;
     return 0;
 }
+
+uint8_t NetworkByteBlock::setContentTo(uint8_t byteValue) {
+    if(bytes== nullptr){
+        return 1;
+    }
+    for(size_t i=0;i<length;i++){
+        bytes[i]=byteValue;
+    }
+    return 0;
+}
+
+uint8_t NetworkByteBlock::resetIndex() {
+    currentIndex = 0;
+    return 0;
+}
