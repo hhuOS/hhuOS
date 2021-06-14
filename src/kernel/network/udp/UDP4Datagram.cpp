@@ -12,7 +12,7 @@ UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_
 
     header.destinationPort = destinationPort;
     header.sourcePort = sourcePort;
-    header.length = getLengthInBytes();
+    header.length = (uint16_t) getLengthInBytes();
     //TODO: Implement checksum calculation
     header.checksum = 0;
 }

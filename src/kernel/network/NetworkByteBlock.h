@@ -26,7 +26,7 @@ public:
 
     [[nodiscard]] bool isCompletelyFilled() const;
 
-    void printBytes();
+//    void printBytes();
 
     [[nodiscard]] size_t bytesRemaining() const;
 
@@ -53,8 +53,6 @@ public:
     uint8_t skip(size_t byteCount);
 
     uint8_t decreaseIndex(size_t byteCount);
-
-    uint8_t setContentTo(uint8_t byteValue);
 
     uint8_t resetIndex();
 };

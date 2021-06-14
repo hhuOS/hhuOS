@@ -31,16 +31,16 @@ size_t NetworkByteBlock::getLength() const {
     return length;
 }
 
-void NetworkByteBlock::printBytes() {
-    if (this->bytes == nullptr) {
-        return;
-    }
-    printf("\nBytes: ");
-    for (size_t i = 0; i < length; i++) {
-        printf("%02x ", bytes[i]);
-    }
-    printf("\n\n");
-}
+//void NetworkByteBlock::printBytes() {
+//    if (this->bytes == nullptr) {
+//        return;
+//    }
+//    printf("\nBytes: ");
+//    for (size_t i = 0; i < length; i++) {
+//        printf("%02x ", bytes[i]);
+//    }
+//    printf("\n\n");
+//}
 
 uint8_t NetworkByteBlock::append(uint8_t oneByte) {
     return append(&oneByte, sizeof oneByte);
@@ -165,16 +165,6 @@ uint8_t NetworkByteBlock::decreaseIndex(size_t byteCount) {
         return 1;
     }
     currentIndex -= byteCount;
-    return 0;
-}
-
-uint8_t NetworkByteBlock::setContentTo(uint8_t byteValue) {
-    if(bytes== nullptr){
-        return 1;
-    }
-    for(size_t i=0;i<length;i++){
-        bytes[i]=byteValue;
-    }
     return 0;
 }
 

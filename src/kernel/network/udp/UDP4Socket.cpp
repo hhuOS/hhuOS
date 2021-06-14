@@ -6,7 +6,6 @@
 #include <kernel/core/System.h>
 #include <kernel/service/NetworkService.h>
 #include "UDP4Socket.h"
-#include "UDP4Datagram.h"
 
 UDP4Socket::UDP4Socket(uint16_t listeningPort) {
     this->networkService = Kernel::System::getService<Kernel::NetworkService>();
