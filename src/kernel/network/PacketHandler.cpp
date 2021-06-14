@@ -60,7 +60,7 @@ namespace Kernel {
                 return;
             }
             //Reset index to zero to prepare reading headers and data
-            if (input->decreaseIndex(input->getLength())) {
+            if (input->resetIndex()) {
                 log.error("Index reset for input byteBlock failed, discarding");
                 delete input;
                 return;
