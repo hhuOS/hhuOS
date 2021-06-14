@@ -7,7 +7,7 @@
 namespace Kernel {
 
     EthernetReceiveEvent::EthernetReceiveEvent(EthernetFrame *ethernetFrame, NetworkByteBlock *input)
-            : ethernetFrame(ethernetFrame),input(input) {}
+            : ethernetFrame(ethernetFrame), input(input) {}
 
     String EthernetReceiveEvent::getType() const {
         return TYPE;
