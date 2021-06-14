@@ -22,10 +22,9 @@ private:
 
     header_t header;
     NetworkByteBlock *dataBytes = nullptr;
-    size_t length = 0;
 
 public:
-    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *dataBytes);
+    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *outgoingBytes, size_t length);
 
     UDP4Datagram() = default;
 

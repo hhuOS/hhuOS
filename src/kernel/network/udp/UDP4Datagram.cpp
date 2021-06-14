@@ -5,18 +5,27 @@
 #include <lib/libc/printf.h>
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *dataBytes) {
+UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *outgoingBytes, size_t length) {
+    this->dataBytes=new NetworkByteBlock(length);
+    this->dataBytes->append(outgoingBytes, length);
+
     header.destinationPort = destinationPort;
     header.sourcePort = sourcePort;
-    this->dataBytes = dataBytes;
-    this->length = dataBytes->getLength();
+    header.length = getLengthInBytes();
+    //TODO: Implement checksum calculation
+    header.checksum = 0;
+}
+
+UDP4Datagram::~UDP4Datagram() {
+    delete dataBytes;
 }
 
 uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     if (
             dataBytes == nullptr ||
             output == nullptr ||
-            length > (size_t) (UDP4DATAPART_MAX_LENGTH - sizeof header) ||
+            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - sizeof header) ||
+            dataBytes->getLength() == 0 ||
             sizeof header > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
@@ -34,12 +43,12 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     }
 
     //Append dataBytes if no errors occurred yet
-    output->append(dataBytes, length);
+    output->append(dataBytes, dataBytes->getLength());
     return 0;
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
-    return (sizeof header) + length;
+    return (sizeof header) + dataBytes->getLength();
 }
 
 IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
@@ -57,9 +66,4 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
     errors += input->read(&header.checksum);
 
     return errors;
-}
-
-UDP4Datagram::~UDP4Datagram() {
-    //TODO: Rework cleanup, this here will kill sendBuffer after first outgoing datagram!
-    delete dataBytes;
 }

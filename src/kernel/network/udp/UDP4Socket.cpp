@@ -11,7 +11,6 @@
 UDP4Socket::UDP4Socket(uint16_t listeningPort) {
     this->networkService = Kernel::System::getService<Kernel::NetworkService>();
     this->listeningPort = listeningPort;
-    sendBuffer = new NetworkByteBlock(BUFFER_SIZE);
     receiveBuffer = new NetworkByteBlock(BUFFER_SIZE);
     networkService->linkEventBus(&this->eventBus);
 }
@@ -21,14 +20,12 @@ UDP4Socket::UDP4Socket(IP4Address *targetAddress, uint16_t remotePort) {
     this->destinationAddress = targetAddress;
     this->remotePort = remotePort;
     this->listeningPort = 16123;
-    sendBuffer = new NetworkByteBlock(BUFFER_SIZE);
     receiveBuffer = new NetworkByteBlock(BUFFER_SIZE);
     networkService->linkEventBus(&this->eventBus);
 }
 
 UDP4Socket::~UDP4Socket() {
-    //TODO: Implement check for running send() before deleting!
-    delete sendBuffer;
+    //TODO: Implement check for running processing before deleting!
     delete receiveBuffer;
 }
 
@@ -41,13 +38,12 @@ uint8_t UDP4Socket::close() {
     return networkService->unregisterListeningPort(listeningPort);
 }
 
-uint8_t UDP4Socket::send(const char *dataBytes, size_t length) {
+uint8_t UDP4Socket::send(char *dataBytes, size_t length) {
     if (
             dataBytes == nullptr ||
             destinationAddress == nullptr ||
             length == 0 ||
-            eventBus == nullptr ||
-            length > sendBuffer->getLength()
+            eventBus == nullptr
             ) {
         return 1;
     }
@@ -56,29 +52,20 @@ uint8_t UDP4Socket::send(const char *dataBytes, size_t length) {
     return send((uint8_t *) dataBytes, length);
 }
 
-uint8_t UDP4Socket::send(const uint8_t *dataBytes, size_t length) {
+uint8_t UDP4Socket::send(uint8_t *dataBytes, size_t length) {
     if (
             dataBytes == nullptr ||
             destinationAddress == nullptr ||
             length == 0 ||
-            eventBus == nullptr ||
-            length > sendBuffer->getLength()
+            eventBus == nullptr
             ) {
         return 1;
     }
 
-    //delete buffer content
-    sendBuffer->setContentTo(0);
-    sendBuffer->resetIndex();
-
-    //We have no control about incoming data, especially the time when it is deleted
-    //-> copy to buffer and sending buffer content instead is the only way to make sure it's not deleted before sending!
-    sendBuffer->append(dataBytes, length);
-
     eventBus->publish(
             new Kernel::UDP4SendEvent(
                     destinationAddress,
-                    new UDP4Datagram(listeningPort, remotePort, sendBuffer)
+                    new UDP4Datagram(listeningPort, remotePort, dataBytes, length)
             )
     );
     return 0;
