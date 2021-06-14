@@ -48,7 +48,7 @@ void SendText::execute(Util::Array<String> &args) {
 }
 
 const String SendText::getHelpText() {
-    return "Utility for testing our UDP/IP protocol stack by sending and receiving a given text over it\n\n"
+    return "Utility for testing our UDP/IP protocol stack by sending and receiving a given text\n\n"
            "Usage: sendtext [TEXT]\n"
            "Options:\n"
            "   -h, --help: Show this help-message";

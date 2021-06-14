@@ -29,7 +29,9 @@ public:
 
     uint8_t close();
 
-    int send(void *dataBytes, size_t length);
+    uint8_t send(const char *dataBytes, size_t length);
+
+    uint8_t send(const uint8_t *dataBytes, size_t length);
 
     int receive(uint8_t *targetBuffer);
 

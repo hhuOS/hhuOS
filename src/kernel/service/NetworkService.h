@@ -117,9 +117,9 @@ namespace Kernel {
 
         uint8_t linkEventBus(NetworkEventBus **target);
 
-        uint8_t registerPort(uint16_t listeningPort, uint8_t receiveBuffer[1024], size_t bufferSize);
+        uint8_t registerListeningPort(uint16_t listeningPort, uint8_t *receiveBuffer, size_t bufferSize);
 
-        uint8_t unregisterPort(uint16_t listeningPort);
+        uint8_t unregisterListeningPort(uint16_t listeningPort);
     };
 
 }
