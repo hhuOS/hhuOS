@@ -74,6 +74,14 @@ namespace Kernel {
             printf("UDP4Datagram received, data string was: %s", printBytes);
 
             delete[] printBytes;
+
+            //udp4Datagram is not part of ip4Datagram here
+            //-> we need to delete it separately!
+            delete ip4Datagram;
+            delete udp4Datagram;
+
+            //Input processing done, cleanup
+            delete input;
             return;
         }
     }

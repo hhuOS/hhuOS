@@ -18,6 +18,7 @@ UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_
 }
 
 UDP4Datagram::~UDP4Datagram() {
+    //delete on nullptr simply does nothing!
     delete dataBytes;
 }
 
