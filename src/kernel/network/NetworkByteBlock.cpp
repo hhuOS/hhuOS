@@ -2,8 +2,6 @@
 // Created by hannes on 30.05.21.
 //
 
-#include <lib/libc/printf.h>
-#include <netinet/in.h>
 #include "NetworkByteBlock.h"
 
 //Constructor for blank ByteBlock to be filled
@@ -30,17 +28,6 @@ bool NetworkByteBlock::isCompletelyFilled() const {
 size_t NetworkByteBlock::getLength() const {
     return length;
 }
-
-//void NetworkByteBlock::printBytes() {
-//    if (this->bytes == nullptr) {
-//        return;
-//    }
-//    printf("\nBytes: ");
-//    for (size_t i = 0; i < length; i++) {
-//        printf("%02x ", bytes[i]);
-//    }
-//    printf("\n\n");
-//}
 
 uint8_t NetworkByteBlock::append(uint8_t oneByte) {
     return append(&oneByte, sizeof oneByte);

@@ -26,8 +26,6 @@ public:
 
     [[nodiscard]] bool isCompletelyFilled() const;
 
-//    void printBytes();
-
     [[nodiscard]] size_t bytesRemaining() const;
 
     uint8_t sendOutVia(NetworkDevice *pDevice);
