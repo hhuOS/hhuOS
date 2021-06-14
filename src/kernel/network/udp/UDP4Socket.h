@@ -30,8 +30,6 @@ public:
 
     int send(uint8_t *bytes, size_t length);
 
-    int send(const char *bytes, size_t length);
-
     int receive(uint8_t *targetBuffer);
 
     virtual ~UDP4Socket();

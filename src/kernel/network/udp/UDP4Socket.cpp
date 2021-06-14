@@ -37,24 +37,6 @@ uint8_t UDP4Socket::close() {
     return networkService->unregisterPort(listeningPort);
 }
 
-int UDP4Socket::send(const char *bytes, size_t length) {
-    if(
-            bytes== nullptr ||
-            destinationAddress == nullptr ||
-            length == 0 ||
-            eventBus == nullptr
-            ) {
-        return 1;
-    }
-    auto *bytesAsInt=new uint8_t [length];
-    for(size_t i=0;i<length;i++){
-        bytesAsInt[i]=bytes[i];
-    }
-    uint8_t returnValue= send(bytesAsInt, length);
-    delete[] bytesAsInt;
-    return returnValue;
-}
-
 int UDP4Socket::send(uint8_t *bytes, size_t length) {
     if(
             bytes== nullptr ||
