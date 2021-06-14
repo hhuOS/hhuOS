@@ -5,6 +5,7 @@
 #ifndef HHUOS_UDP4SOCKET_H
 #define HHUOS_UDP4SOCKET_H
 
+#define BUFFER_SIZE 1024
 
 #include <cstdint>
 #include <kernel/network/internet/addressing/IP4Address.h>
@@ -14,7 +15,7 @@
 class UDP4Socket {
 private:
     uint16_t listeningPort = 0, remotePort = 0;
-    uint8_t *receiveBuffer = nullptr;
+    uint8_t *sendBuffer = nullptr, *receiveBuffer = nullptr;
     IP4Address *destinationAddress= nullptr;
     Kernel::NetworkEventBus *eventBus = nullptr;
     Kernel::NetworkService *networkService = nullptr;
@@ -28,7 +29,7 @@ public:
 
     uint8_t close();
 
-    int send(uint8_t *bytes, size_t length);
+    int send(void *dataBytes, size_t length);
 
     int receive(uint8_t *targetBuffer);
 

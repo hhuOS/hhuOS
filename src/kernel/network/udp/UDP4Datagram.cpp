@@ -34,13 +34,7 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     }
 
     //Append dataBytes if no errors occurred yet
-    auto dataArray = new uint8_t [length];
-    for(size_t i=0;i<length;i++){
-        dataArray[i]=dataBytes[i];
-    }
-
     output->append(dataBytes, length);
-    output->printBytes();
     return 0;
 }
 
@@ -66,7 +60,7 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
 }
 
 void UDP4Datagram::printBytes() {
-    printf("Bytes in copyTo():\n");
+    printf("Bytes in UDP4Datagram:\n");
     for(size_t i=0;i<length;i++){
         printf("Byte at %d is %d, char is %c\n",i,this->dataBytes[i],this->dataBytes[i]);
     }
