@@ -16,7 +16,7 @@ class UDP4Socket {
 private:
     uint16_t listeningPort = 0, remotePort = 0;
     uint8_t *sendBuffer = nullptr, *receiveBuffer = nullptr;
-    IP4Address *destinationAddress= nullptr;
+    IP4Address *destinationAddress = nullptr;
     Kernel::NetworkEventBus *eventBus = nullptr;
     Kernel::NetworkService *networkService = nullptr;
 
