@@ -25,15 +25,15 @@ void SendText::execute(Util::Array<String> &args) {
 //        return;
 //    }
 
-    auto testString = new char [6]{'H','e','l','l','o','\0'};
     auto *localhost = new IP4Address(127, 0, 0, 1);
 
-    stdout << "CLIENT: Sending text '" << testString << "'" << endl;
+    auto *testString = new String("Hello world! Now it works...\0");
+    stdout << "CLIENT: Sending text '" << *testString << "'" << endl;
 
     auto *sendSocket = new UDP4Socket(localhost, serverPort);
-    sendSocket->send((uint8_t*)testString,6);
+    sendSocket->send((char *)*testString,testString->length());
 //    delete sendSocket;
-//    delete[] testString;
+//    delete testString;
 
 //    auto *response = new char [testString->length()];
 //    sendSocket->receive(response);
