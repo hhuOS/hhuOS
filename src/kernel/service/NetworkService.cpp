@@ -124,13 +124,13 @@ namespace Kernel {
     }
 
     uint8_t NetworkService::linkEventBus(NetworkEventBus **target) {
-        if(
-                target== nullptr ||
+        if (
+                target == nullptr ||
                 this->eventBus == nullptr
-                ){
+                ) {
             return 1;
         }
-        *target=this->eventBus;
+        *target = this->eventBus;
         return 0;
     }
 
