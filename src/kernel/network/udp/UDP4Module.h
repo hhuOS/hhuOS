@@ -9,12 +9,14 @@
 #include <kernel/event/Event.h>
 #include <kernel/event/Receiver.h>
 #include <kernel/network/NetworkEventBus.h>
+#include <kernel/network/udp/sockets/UDP4SocketManager.h>
 
 namespace Kernel {
 
     class UDP4Module : public Receiver {
     private:
-        NetworkEventBus *eventBus;
+        NetworkEventBus *eventBus = nullptr;
+        UDP4SocketManager *socketManager = nullptr;
 
     public:
         explicit UDP4Module(Kernel::NetworkEventBus *eventBus);
@@ -27,6 +29,10 @@ namespace Kernel {
          * implemented by this class.
          */
         void onEvent(const Event &event) override;
+
+        uint8_t registerController(UDP4SocketController *attributes);
+
+        uint8_t unregisterController(UDP4Port *port);
     };
 
 }

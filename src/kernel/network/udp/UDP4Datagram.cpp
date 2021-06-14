@@ -5,21 +5,26 @@
 #include <lib/libc/printf.h>
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *outgoingBytes, size_t length) {
+UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t length) {
     this->dataBytes=new NetworkByteBlock(length);
     this->dataBytes->append(outgoingBytes, length);
     this->dataBytes->resetIndex();
 
-    header.destinationPort = destinationPort;
-    header.sourcePort = sourcePort;
+    destinationPort->copyTo(header.destinationPort);
+    sourcePort->copyTo(header.sourcePort);
     header.length = (uint16_t) getLengthInBytes();
     //TODO: Implement checksum calculation
     header.checksum = 0;
+
+    this->sourcePort = sourcePort;
+    this->destinationPort = destinationPort;
 }
 
 UDP4Datagram::~UDP4Datagram() {
     //delete on nullptr simply does nothing!
     delete dataBytes;
+    delete destinationPort;
+    delete sourcePort;
 }
 
 uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
@@ -68,4 +73,8 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
     errors += input->read(&header.checksum);
 
     return errors;
+}
+
+UDP4Port *UDP4Datagram::getDestinationPort() const{
+    return destinationPort;
 }

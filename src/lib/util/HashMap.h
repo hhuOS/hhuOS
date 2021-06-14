@@ -50,7 +50,7 @@ namespace Util {
 
         HashMap(const HashMap<K, V> &other) = delete;
 
-        HashMap<K, V> &operator=(const HashMap<K, V> &other) = delete;
+        HashMap<K, V> &operator=(HashMap *other) = delete;
 
         ~HashMap();
 

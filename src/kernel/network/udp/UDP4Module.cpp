@@ -5,13 +5,37 @@
 #include <kernel/event/network/UDP4ReceiveEvent.h>
 #include <kernel/event/network/UDP4SendEvent.h>
 #include <kernel/event/network/IP4SendEvent.h>
-#include <lib/libc/printf.h>
 #include "UDP4Module.h"
 
 namespace Kernel {
 
     UDP4Module::UDP4Module(Kernel::NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
+        socketManager = new UDP4SocketManager();
+    }
+
+    uint8_t UDP4Module::registerController(UDP4SocketController *controller) {
+        if(controller== nullptr){
+            log.error("Given controller was null, not registering");
+            return 1;
+        }
+        if(socketManager == nullptr){
+            log.error("Socket manager not initialized, not registering controller");
+            return 1;
+        }
+        return socketManager->addController(controller);
+    }
+
+    uint8_t UDP4Module::unregisterController(UDP4Port *port) {
+        if(port== nullptr){
+            log.error("Given port was null, not unregistering controller");
+            return 1;
+        }
+        if(socketManager == nullptr){
+            log.error("Socket manager not initialized, not unregistering controller");
+            return 1;
+        }
+        return socketManager->removeController(port);
     }
 
     void UDP4Module::onEvent(const Kernel::Event &event) {
@@ -65,15 +89,18 @@ namespace Kernel {
                 delete ip4Datagram;
                 return;
             }
-            //TODO: Add null check for internal data structure
-            size_t bytesRemaining = input->bytesRemaining();
-            auto *printBytes = new uint8_t[bytesRemaining + 1];
-            input->read(printBytes, bytesRemaining);
-            printBytes[bytesRemaining] = 0;
 
-            printf("UDP4Datagram received, data string was: %s", printBytes);
+            if(socketManager== nullptr){
+                log.error("Internal socket manager was null, discarding incoming data");
+                delete udp4Datagram;
+                delete ip4Datagram;
+                delete input;
+                return;
+            }
 
-            delete[] printBytes;
+            if(socketManager->notifyDestinationSocket(ip4Datagram, udp4Datagram, input)){
+                log.error("Could not deliver input to destination socket");
+            }
 
             //udp4Datagram is not part of ip4Datagram here
             //-> we need to delete it separately!

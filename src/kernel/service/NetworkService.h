@@ -22,13 +22,13 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
-#include <kernel/network/internet/icmp/ICMP4Module.h>
-#include "kernel/network/PacketHandler.h"
-#include <kernel/network/ethernet/EthernetModule.h>
-#include <device/network/loopback/Loopback.h>
-#include <kernel/network/internet/IP4Module.h>
-#include "device/network/NetworkDevice.h"
 #include <kernel/network/NetworkEventBus.h>
+#include "kernel/network/PacketHandler.h"
+#include <device/network/loopback/Loopback.h>
+#include <kernel/network/ethernet/EthernetModule.h>
+#include <kernel/network/internet/IP4Module.h>
+#include <kernel/network/internet/icmp/ICMP4Module.h>
+#include <kernel/network/udp/sockets/UDP4SocketController.h>
 #include <kernel/network/udp/UDP4Module.h>
 #include "kernel/log/Logger.h"
 #include "KernelService.h"
@@ -117,9 +117,9 @@ namespace Kernel {
 
         uint8_t linkEventBus(NetworkEventBus **target);
 
-        uint8_t registerListeningPort(uint16_t listeningPort, NetworkByteBlock *receiveBuffer);
+        uint8_t registerSocketController(UDP4SocketController *controller);
 
-        uint8_t unregisterListeningPort(uint16_t listeningPort);
+        uint8_t unregisterSocketController(UDP4Port *port);
     };
 
 }

@@ -106,6 +106,7 @@ namespace Kernel {
         this->ip4Module->collectIP4RouteAttributes(strings);
     }
 
+    //TODO: Add error codes as return values!
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
     void NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
@@ -131,13 +132,29 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkService::registerListeningPort(uint16_t listeningPort, NetworkByteBlock *receiveBuffer) {
-        //TODO: Implement this one!
-        return 0;
+    uint8_t NetworkService::registerSocketController(UDP4SocketController *controller) {
+        if(controller == nullptr){
+            log.error("Controller was null, not registering");
+            return 1;
+        }
+        if(udp4Module== nullptr){
+            log.error("UDP4Module not initialized, not registering controller");
+            return 1;
+        }
+        return udp4Module->registerController(controller);
     }
 
-    uint8_t NetworkService::unregisterListeningPort(uint16_t listeningPort) {
-        //TODO: Implement this one!
-        return 0;
+    //uint8_t NetworkService::registerSocketController(TCP4SocketController *controller) ...
+
+    uint8_t NetworkService::unregisterSocketController(UDP4Port *port) {
+        if(port == nullptr){
+            log.error("Port was null, not unregistering controller");
+            return 1;
+        }
+        if(udp4Module== nullptr){
+            log.error("UDP4Module not initialized, not unregistering controller");
+            return 1;
+        }
+        return udp4Module->unregisterController(port);
     }
 }

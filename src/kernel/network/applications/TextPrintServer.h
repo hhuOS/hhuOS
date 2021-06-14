@@ -7,12 +7,12 @@
 
 
 #include <cstdint>
-#include <kernel/network/udp/UDP4Socket.h>
+#include <kernel/network/udp/sockets/UDP4Socket.h>
 
 class TextPrintServer {
 private:
     uint16_t port = 0;
-    UDP4Socket *socket = nullptr;
+    Kernel::UDP4Socket *socket = nullptr;
 
 public:
     explicit TextPrintServer(uint16_t port);

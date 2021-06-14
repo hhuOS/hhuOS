@@ -10,6 +10,7 @@
 #define UDP4HEADER_MAX_LENGTH 0xffff
 
 #include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/udp/sockets/UDP4Port.h>
 
 class UDP4Datagram final : public IP4DataPart {
 private:
@@ -23,8 +24,11 @@ private:
     header_t header;
     NetworkByteBlock *dataBytes = nullptr;
 
+    UDP4Port *sourcePort = nullptr;
+    UDP4Port *destinationPort = nullptr;
+
 public:
-    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *outgoingBytes, size_t length);
+    UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t length);
 
     UDP4Datagram() = default;
 
@@ -37,6 +41,8 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
+
+    UDP4Port *getDestinationPort() const;
 };
 
 
