@@ -25,13 +25,13 @@ void SendText::execute(Util::Array<String> &args) {
 //        return;
 //    }
 
-    auto testString = new uint8_t [6]{'H','e','l','l','o','\0'};
+    auto testString = new char [6]{'H','e','l','l','o','\0'};
     auto *localhost = new IP4Address(127, 0, 0, 1);
 
     stdout << "CLIENT: Sending text '" << testString << "'" << endl;
 
     auto *sendSocket = new UDP4Socket(localhost, serverPort);
-    sendSocket->send(testString,6);
+    sendSocket->send((uint8_t*)testString,6);
 //    delete sendSocket;
 //    delete[] testString;
 
