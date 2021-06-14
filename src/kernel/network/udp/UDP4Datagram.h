@@ -42,7 +42,7 @@ public:
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
 
-    UDP4Port *getDestinationPort() const;
+    [[nodiscard]] UDP4Port *getDestinationPort() const;
 };
 
 

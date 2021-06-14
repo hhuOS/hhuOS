@@ -132,7 +132,7 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkService::registerSocketController(UDP4SocketController *controller) {
+    uint8_t NetworkService::registerSocketControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller) {
         if(controller == nullptr){
             log.error("Controller was null, not registering");
             return 1;
@@ -141,20 +141,20 @@ namespace Kernel {
             log.error("UDP4Module not initialized, not registering controller");
             return 1;
         }
-        return udp4Module->registerController(controller);
+        return udp4Module->registerControllerFor(destinationPort, controller);
     }
 
     //uint8_t NetworkService::registerSocketController(TCP4SocketController *controller) ...
 
-    uint8_t NetworkService::unregisterSocketController(UDP4Port *port) {
-        if(port == nullptr){
-            log.error("Port was null, not unregistering controller");
+    uint8_t NetworkService::unregisterSocketController(UDP4Port *destinationPort) {
+        if(destinationPort == nullptr){
+            log.error("Destination port was null, not unregistering controller");
             return 1;
         }
         if(udp4Module== nullptr){
             log.error("UDP4Module not initialized, not unregistering controller");
             return 1;
         }
-        return udp4Module->unregisterController(port);
+        return udp4Module->unregisterControllerFor(destinationPort);
     }
 }

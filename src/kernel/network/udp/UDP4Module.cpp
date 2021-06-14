@@ -2,40 +2,40 @@
 // Created by hannes on 17.05.21.
 //
 
-#include <kernel/event/network/UDP4ReceiveEvent.h>
-#include <kernel/event/network/UDP4SendEvent.h>
-#include <kernel/event/network/IP4SendEvent.h>
 #include "UDP4Module.h"
 
 namespace Kernel {
-
     UDP4Module::UDP4Module(Kernel::NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
-        socketManager = new UDP4SocketManager();
+        sockets = new Util::HashMap<UDP4Port *, UDP4SocketController *>();
     }
 
-    uint8_t UDP4Module::registerController(UDP4SocketController *controller) {
+    uint8_t UDP4Module::registerControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller) {
         if(controller== nullptr){
             log.error("Given controller was null, not registering");
             return 1;
         }
-        if(socketManager == nullptr){
-            log.error("Socket manager not initialized, not registering controller");
+        if(sockets == nullptr){
+            log.error("Socket map not initialized, not registering controller");
             return 1;
         }
-        return socketManager->addController(controller);
+        sockets->put(destinationPort,controller);
+        return 0;
     }
 
-    uint8_t UDP4Module::unregisterController(UDP4Port *port) {
-        if(port== nullptr){
+    uint8_t UDP4Module::unregisterControllerFor(UDP4Port *destinationPort) {
+        if(destinationPort == nullptr){
             log.error("Given port was null, not unregistering controller");
             return 1;
         }
-        if(socketManager == nullptr){
-            log.error("Socket manager not initialized, not unregistering controller");
+        if(sockets == nullptr){
+            log.error("Socket map not initialized, not unregistering controller");
             return 1;
         }
-        return socketManager->removeController(port);
+        if(sockets->containsKey(destinationPort)) {
+            sockets->remove(destinationPort);
+        }
+        return 0;
     }
 
     void UDP4Module::onEvent(const Kernel::Event &event) {
@@ -67,45 +67,53 @@ namespace Kernel {
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
-            auto *udp4Datagram = ((UDP4ReceiveEvent &) event).getUDP4Datagram();
-            auto *ip4Datagram = ((UDP4ReceiveEvent &) event).getIP4Datagram();
+            auto *udp4Header = ((UDP4ReceiveEvent &) event).getUDP4Datagram();
+            auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Datagram();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
 
-            if (udp4Datagram == nullptr) {
+            if (udp4Header == nullptr) {
                 log.error("Incoming UDP4Datagram was null, discarding input");
-                delete ip4Datagram;
+                delete ip4Header;
                 delete input;
                 return;
             }
-            if (ip4Datagram == nullptr) {
+            if (ip4Header == nullptr) {
                 log.error("Incoming IP4Datagram was null, discarding input");
-                delete udp4Datagram;
+                delete udp4Header;
                 delete input;
                 return;
             }
             if (input == nullptr) {
                 log.error("Incoming input was null, discarding datagrams");
-                delete udp4Datagram;
-                delete ip4Datagram;
+                delete udp4Header;
+                delete ip4Header;
                 return;
             }
 
-            if(socketManager== nullptr){
-                log.error("Internal socket manager was null, discarding incoming data");
-                delete udp4Datagram;
-                delete ip4Datagram;
+            if(sockets == nullptr){
+                log.error("Internal socket map was null, discarding incoming data");
+                delete udp4Header;
+                delete ip4Header;
                 delete input;
                 return;
             }
 
-            if(socketManager->notifyDestinationSocket(ip4Datagram, udp4Datagram, input)){
+            if(!sockets->containsKey(udp4Header->getDestinationPort())){
+                log.error("No socket registered for datagram's destination port, discarding");
+                delete udp4Header;
+                delete ip4Header;
+                delete input;
+                return;
+            }
+
+            if(sockets->get(udp4Header->getDestinationPort())->process(input)){
                 log.error("Could not deliver input to destination socket");
             }
 
             //udp4Datagram is not part of ip4Datagram here
             //-> we need to delete it separately!
-            delete ip4Datagram;
-            delete udp4Datagram;
+            delete ip4Header;
+            delete udp4Header;
 
             //Input processing done, cleanup
             delete input;

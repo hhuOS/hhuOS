@@ -2,9 +2,6 @@
 // Created by hannes on 13.06.21.
 //
 
-#include <kernel/event/network/UDP4SendEvent.h>
-#include <kernel/core/System.h>
-#include <kernel/service/NetworkService.h>
 #include "UDP4Socket.h"
 
 namespace Kernel {
@@ -31,13 +28,13 @@ namespace Kernel {
         openLock = new Spinlock();
         closeLock = new Spinlock();
         return System::getService<NetworkService>()
-                ->registerSocketController(
-                        new UDP4SocketController(
-                                receiveBuffer,
-                                openLock,
-                                closeLock
-                                )
-                        );
+                ->registerSocketControllerFor(listeningPort,
+                                              new UDP4SocketController(
+                                                      receiveBuffer,
+                                                      openLock,
+                                                      closeLock
+                                              )
+                );
     }
 
     uint8_t UDP4Socket::close() {

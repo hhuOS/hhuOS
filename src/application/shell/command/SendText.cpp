@@ -30,7 +30,7 @@ void SendText::execute(Util::Array<String> &args) {
     auto *testString = new String("Hello world! Now it works...\0");
     stdout << "CLIENT: Sending text '" << *testString << "'" << endl;
 
-    auto *sendSocket = new UDP4Socket(localhost, serverPort);
+    auto *sendSocket = new Kernel::UDP4Socket(localhost, serverPort);
     sendSocket->send((char *)*testString,testString->length());
 //    delete sendSocket;
 //    delete testString;

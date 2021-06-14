@@ -20,7 +20,7 @@ namespace Kernel {
     public:
         UDP4SocketController(NetworkByteBlock *receiveBuffer, Spinlock *open, Spinlock *close);
 
-        UDP4Port *getListeningPort() const;
+        [[nodiscard]] UDP4Port *getListeningPort() const;
 
         uint8_t process(NetworkByteBlock *input);
     };

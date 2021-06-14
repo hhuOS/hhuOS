@@ -11,6 +11,9 @@
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/service/NetworkService.h>
+#include <kernel/event/network/UDP4SendEvent.h>
+#include <kernel/core/System.h>
+#include <kernel/service/NetworkService.h>
 
 namespace  Kernel {
     class UDP4Socket {

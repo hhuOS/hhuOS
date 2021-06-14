@@ -117,9 +117,9 @@ namespace Kernel {
 
         uint8_t linkEventBus(NetworkEventBus **target);
 
-        uint8_t registerSocketController(UDP4SocketController *controller);
+        uint8_t registerSocketControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller);
 
-        uint8_t unregisterSocketController(UDP4Port *port);
+        uint8_t unregisterSocketController(UDP4Port *destinationPort);
     };
 
 }
