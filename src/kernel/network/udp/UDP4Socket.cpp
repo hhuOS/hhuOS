@@ -53,7 +53,7 @@ uint8_t UDP4Socket::send(const char *dataBytes, size_t length) {
     }
     //Trivial but helpful to centralize access here
     //-> we can filter, convert etc. incoming data here if necessary
-    return send((uint8_t*)dataBytes, length);
+    return send((uint8_t *) dataBytes, length);
 }
 
 uint8_t UDP4Socket::send(const uint8_t *dataBytes, size_t length) {
@@ -68,13 +68,13 @@ uint8_t UDP4Socket::send(const uint8_t *dataBytes, size_t length) {
     }
     //We have no control about incoming data, especially the time when it is deleted
     //-> copy to buffer and sending buffer instead is the only way to make sure it's not deleted before sending!
-    for(size_t i=0;i<length;i++){
-        sendBuffer[i]=dataBytes[i];
+    for (size_t i = 0; i < length; i++) {
+        sendBuffer[i] = dataBytes[i];
     }
 
     //delete remaining buffer space
-    for(size_t i=length;i<BUFFER_SIZE;i++){
-        sendBuffer[i]=0;
+    for (size_t i = length; i < BUFFER_SIZE; i++) {
+        sendBuffer[i] = 0;
     }
 
     eventBus->publish(
