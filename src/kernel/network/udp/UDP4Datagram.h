@@ -38,6 +38,8 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
+
+    void printBytes();
 };
 
 

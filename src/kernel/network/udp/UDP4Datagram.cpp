@@ -2,6 +2,7 @@
 // Created by hannes on 17.05.21.
 //
 
+#include <lib/libc/printf.h>
 #include "UDP4Datagram.h"
 
 UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, uint8_t *dataBytes, size_t length) {
@@ -62,4 +63,11 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
     errors += input->read(&header.checksum);
 
     return errors;
+}
+
+void UDP4Datagram::printBytes() {
+    printf("Bytes in copyTo():\n");
+    for(size_t i=0;i<length;i++){
+        printf("Byte at %d is %d, char is %c\n",i,this->dataBytes[i],this->dataBytes[i]);
+    }
 }
