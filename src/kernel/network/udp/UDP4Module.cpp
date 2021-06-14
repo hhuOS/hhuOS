@@ -66,8 +66,10 @@ namespace Kernel {
                 return;
             }
             //TODO: Add null check for internal data structure
-            auto *printBytes = new uint8_t[input->bytesRemaining()];
-            input->read(printBytes, input->bytesRemaining());
+            size_t bytesRemaining = input->bytesRemaining();
+            auto *printBytes = new uint8_t[bytesRemaining + 1];
+            input->read(printBytes, bytesRemaining);
+            printBytes[bytesRemaining]=0;
 
             printf("UDP4Datagram received, data string was: %s", printBytes);
 
