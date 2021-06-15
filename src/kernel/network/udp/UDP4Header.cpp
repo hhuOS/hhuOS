@@ -6,7 +6,7 @@
 
 UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes) {
     header.length = sizeof header + dataBytes->getLength();
-    header.checksum = calculateChecksum(dataBytes);
+    header.checksum = 0; //Checksum may be zero, RFC 768 page 3 middle
 
     //create ports once here, delete with this object
     //-> getter don't create new objects each time
@@ -23,8 +23,9 @@ UDP4Header::~UDP4Header() {
     delete destinationPort;
 }
 
+//Can be implemented by someone brave...
 bool UDP4Header::checksumCorrect(NetworkByteBlock *input) {
-    return calculateChecksum(input) == header.checksum;
+    return true;
 }
 
 size_t UDP4Header::getHeaderSize() {

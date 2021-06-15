@@ -91,6 +91,15 @@ uint8_t IP4Header::parse(NetworkByteBlock *input) {
     return errors;
 }
 
+bool IP4Header::headerValid() {
+    return calculateChecksum() == header.headerChecksum;
+}
+
+uint16_t IP4Header::calculateChecksum() {
+    //TODO: Implement this one!
+    return 0;
+}
+
 
 
 

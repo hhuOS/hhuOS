@@ -41,12 +41,14 @@ private:
     ip4Header_t header;
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;
 
+    uint16_t calculateChecksum();
 public:
+
     IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart);
 
     IP4Header() = default;
 
-    IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
+    [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
     IP4Address *getDestinationAddress();
 
@@ -56,13 +58,15 @@ public:
 
     virtual ~IP4Header();
 
-    size_t getTotalLength() const;
+    [[nodiscard]] size_t getTotalLength() const;
 
-    size_t getSize() const;
+    [[nodiscard]] size_t getSize() const;
 
     uint8_t copyTo(NetworkByteBlock *output);
 
     uint8_t parse(NetworkByteBlock *input);
+
+    bool headerValid();
 };
 
 

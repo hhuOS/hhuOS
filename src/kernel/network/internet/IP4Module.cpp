@@ -142,6 +142,12 @@ namespace Kernel {
                 delete ip4Header;
                 return;
             }
+            if(!ip4Header->headerValid()){
+                log.error("Incoming IP4Header corrupted, discarding datagram");
+                delete ip4Header;
+                delete input;
+                return;
+            }
             switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {
