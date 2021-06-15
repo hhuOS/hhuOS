@@ -14,11 +14,11 @@ namespace Kernel {
     class UDP4ReceiveEvent : public Event {
     private:
         UDP4Header *udp4Header;
-        IP4Datagram *ip4Datagram;
+        IP4Header *ip4Header;
         NetworkByteBlock *input;
 
     public:
-        explicit UDP4ReceiveEvent(UDP4Header *udp4header, IP4Datagram *ip4Datagram, NetworkByteBlock *input);
+        explicit UDP4ReceiveEvent(UDP4Header *udp4header, IP4Header *ip4Header, NetworkByteBlock *input);
 
         UDP4Header * getUDP4Datagram();
 
@@ -26,7 +26,7 @@ namespace Kernel {
 
         [[nodiscard]] String getType() const override;
 
-        [[nodiscard]] IP4Datagram *getIP4Datagram() const;
+        [[nodiscard]] IP4Header * getIP4Header() const;
 
         static const constexpr char *TYPE = "UDP4ReceiveEvent";
     };

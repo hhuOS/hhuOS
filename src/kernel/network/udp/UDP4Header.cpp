@@ -8,7 +8,7 @@ UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkB
     this->sourcePort = sourcePort;
     this->destinationPort = destinationPort;
 
-    header.length = dataBytes->getLength() + sizeof header;
+    header.length = sizeof header + dataBytes->getLength();
     header.checksum = calculateChecksum(dataBytes);
 
     //create ports once here, delete with this object

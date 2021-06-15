@@ -77,9 +77,7 @@ public:
 
     EtherType getEtherType() override;
 
-    uint8_t parseHeader(NetworkByteBlock *input) override;
-
-    uint8_t parseBody(NetworkByteBlock *input);
+    uint8_t parse(NetworkByteBlock *input);
 
     ARPMessage *buildResponse(uint8_t *ourAddressAsBytes) const;
 };

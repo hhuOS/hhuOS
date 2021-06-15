@@ -40,8 +40,6 @@ public:
     virtual size_t getLengthInBytes() = 0;
 
     virtual EtherType getEtherType() = 0;
-
-    virtual uint8_t parseHeader(NetworkByteBlock *input) = 0;
 };
 
 

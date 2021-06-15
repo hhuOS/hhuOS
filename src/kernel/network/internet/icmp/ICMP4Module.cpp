@@ -47,16 +47,16 @@ namespace Kernel {
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *input = ((ICMP4ReceiveEvent &) event).getInput();
-            auto *inDatagram = ((ICMP4ReceiveEvent &) event).getDatagram();
+            auto *inIP4Header = ((ICMP4ReceiveEvent &) event).getIP4Header();
 
-            if (inDatagram == nullptr) {
+            if (inIP4Header == nullptr) {
                 log.error("Incoming IP4Datagram was null, discarding input");
                 delete input;
                 return;
             }
             if (input == nullptr) {
                 log.error("Incoming input was null, discarding datagram");
-                delete inDatagram;
+                delete inIP4Header;
                 return;
             }
 
@@ -76,7 +76,7 @@ namespace Kernel {
                     }
 
                     printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
-                           inDatagram->getSourceAddress()->asChars(),
+                           inIP4Header->getSourceAddress()->asChars(),
                            echoReply->getIdentifier(),
                            echoReply->getSequenceNumber()
                     );
@@ -96,7 +96,7 @@ namespace Kernel {
                     eventBus->publish(
                             new IP4SendEvent(
                                     new IP4Datagram(
-                                            inDatagram->getSourceAddress(),
+                                            inIP4Header->getSourceAddress(),
                                             echoRequest->buildEchoReply()
                                     )
                             )
@@ -110,7 +110,7 @@ namespace Kernel {
             }
 
             //We are done processing input here, cleanup memory
-            delete inDatagram;
+            delete inIP4Header;
             delete input;
             return;
         }

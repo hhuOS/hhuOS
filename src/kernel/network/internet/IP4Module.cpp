@@ -129,30 +129,30 @@ namespace Kernel {
         }
 
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
-            auto *ip4Datagram = ((IP4ReceiveEvent &) event).getDatagram();
+            auto *ip4Header = ((IP4ReceiveEvent &) event).getHeader();
             auto *input = ((IP4ReceiveEvent &) event).getInput();
 
-            if (ip4Datagram == nullptr) {
+            if (ip4Header == nullptr) {
                 log.error("Incoming IP4Datagram was null, discarding input");
                 delete input;
                 return;
             }
             if (input == nullptr) {
                 log.error("Incoming input was null, discarding datagram");
-                delete ip4Datagram;
+                delete ip4Header;
                 return;
             }
-            switch (ip4Datagram->getIP4ProtocolType()) {
+            switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {
                         log.error("Incoming ICMP4Message was empty, discarding");
-                        delete ip4Datagram;
+                        delete ip4Header;
                         delete input;
                         return;
                     }
                     //We don't care about all the possible ICMP4 messages here
                     //-> send full input to ICMP4Module for parsing and processing
-                    eventBus->publish(new ICMP4ReceiveEvent(ip4Datagram, input));
+                    eventBus->publish(new ICMP4ReceiveEvent(ip4Header, input));
 
                     //We need input AND ip4datagram in next module
                     //-> don't delete anything here!
@@ -165,61 +165,24 @@ namespace Kernel {
                         //udpDatagram is not part of ip4Datagram here
                         //-> we need to delete it separately!
                         delete udp4Header;
-                        delete ip4Datagram;
+                        delete ip4Header;
                         delete input;
                         return;
                     }
-                    eventBus->publish(new UDP4ReceiveEvent(udp4Header, ip4Datagram, input));
+                    eventBus->publish(new UDP4ReceiveEvent(udp4Header, ip4Header, input));
                     //We need input AND ip4datagram in next module
                     //-> don't delete anything here!
                     return;
                 }
                 default:
                     log.error("IP4ProtocolType of incoming IP4Datagram not supported, discarding");
-                    delete ip4Datagram;
+                    delete ip4Header;
                     delete input;
                     return;
             }
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
-            auto *input = ((ARPReceiveEvent &) event).getInput();
-            if (arpMessage == nullptr) {
-                log.error("Incoming ARPMessage was null, discarding input");
-                delete input;
-                return;
-            }
-            if (input == nullptr) {
-                log.error("Incoming input was null, discarding ARPMessage");
-                delete arpMessage;
-                return;
-            }
-            if (interfaces == nullptr) {
-                log.error("Internal interface list is null, discarding data");
-                //NOTE: delete on null objects simply does nothing!
-                delete arpMessage;
-                delete input;
-                return;
-
-            }
-            if (arpMessage->parseBody(input)) {
-                log.error("Could not assemble ARP message body, discarding data");
-                //NOTE: delete on null objects simply does nothing!
-                delete arpMessage;
-                delete input;
-                return;
-            }
-            if (input->bytesRemaining() > 0) {
-                log.error("Not all data could be parsed, discarding");
-                //NOTE: delete on null objects simply does nothing!
-                delete arpMessage;
-                delete input;
-                return;
-            }
-
-            //data parsed, input obsolete
-            delete input;
-
             EthernetDataPart::EtherType arpProtocolType =
                     EthernetDataPart::parseIntAsEtherType(
                             arpMessage->getProtocolType()

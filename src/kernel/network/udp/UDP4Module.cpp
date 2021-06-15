@@ -68,7 +68,7 @@ namespace Kernel {
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
             auto *udp4Header = ((UDP4ReceiveEvent &) event).getUDP4Datagram();
-            auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Datagram();
+            auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
 
             if (udp4Header == nullptr) {

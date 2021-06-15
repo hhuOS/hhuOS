@@ -15,18 +15,18 @@ namespace Kernel {
 
     class ICMP4ReceiveEvent : public Event {
     private:
-        IP4Datagram *datagram = nullptr;
+        IP4Header *ip4Header = nullptr;
         NetworkByteBlock *input = nullptr;
 
     public:
 
-        explicit ICMP4ReceiveEvent(IP4Datagram *datagram, NetworkByteBlock *input);
+        explicit ICMP4ReceiveEvent(IP4Header *ip4Header, NetworkByteBlock *input);
 
         [[nodiscard]] String getType() const override;
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 
-        [[nodiscard]] IP4Datagram *getDatagram() const;
+        [[nodiscard]] IP4Header * getIP4Header() const;
 
         static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };

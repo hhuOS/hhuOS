@@ -115,25 +115,17 @@ uint8_t ARPMessage::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t ARPMessage::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() < sizeof header) {
+uint8_t ARPMessage::parse(NetworkByteBlock *input) {
+    if (input == nullptr || input->bytesRemaining() != getLengthInBytes()) {
         return 1;
     }
     uint8_t errors = 0;
+
     errors += input->read(&header.hardwareType);
     errors += input->read(&header.protocolType);
     errors += input->read(&header.hardwareAddressLength);
     errors += input->read(&header.protocolAddressLength);
     errors += input->read(&header.opCode);
-
-    return errors;
-}
-
-uint8_t ARPMessage::parseBody(NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() != getBodyLengthInBytes()) {
-        return 1;
-    }
-    uint8_t errors = 0;
 
     body.targetHardwareAddress = new uint8_t[header.hardwareAddressLength];
     body.targetProtocolAddress = new uint8_t[header.protocolAddressLength];

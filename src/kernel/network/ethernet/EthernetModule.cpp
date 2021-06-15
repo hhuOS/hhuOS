@@ -169,22 +169,22 @@ namespace Kernel {
             //TODO: Check frame's Source-MAC if it's for us or at least a BROADCAST message
             switch (inFrame->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
-                    auto *datagram = new IP4Datagram();
-                    if (datagram->parseHeader(input)) {
+                    auto *ip4Header = new IP4Header();
+                    if (ip4Header->parse(input)) {
                         log.error("Could not assemble IP4 header, discarding data");
                         //datagram is not part of inFrame here
                         //-> we need to delete it separately!
-                        delete datagram;
+                        delete ip4Header;
                         delete input;
                         break;
                     }
                     //send input to next module via EventBus
-                    eventBus->publish(new IP4ReceiveEvent(datagram, input));
+                    eventBus->publish(new IP4ReceiveEvent(ip4Header, input));
                     break;
                 }
                 case EthernetDataPart::EtherType::ARP: {
                     auto *arpMessage = new ARPMessage();
-                    if (arpMessage->parseHeader(input)) {
+                    if (arpMessage->parse(input)) {
                         log.error("Could not assemble ARP header, discarding data");
                         //arpMessage is not part of inFrame here
                         //-> we need to delete it separately!
@@ -192,8 +192,10 @@ namespace Kernel {
                         delete input;
                         break;
                     }
+                    //Input has been parsed completely here, can be deleted
+                    delete input;
                     //send input to next module via EventBus
-                    eventBus->publish(new ARPReceiveEvent(arpMessage, input));
+                    eventBus->publish(new ARPReceiveEvent(arpMessage));
                     break;
                 }
                 default: {

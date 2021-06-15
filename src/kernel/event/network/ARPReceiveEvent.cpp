@@ -4,9 +4,8 @@
 
 #include "ARPReceiveEvent.h"
 
-Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage, NetworkByteBlock *input) {
+Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage) {
     this->arpMessage = arpMessage;
-    this->input = input;
 }
 
 ARPMessage *Kernel::ARPReceiveEvent::getARPMessage() const {
@@ -15,8 +14,4 @@ ARPMessage *Kernel::ARPReceiveEvent::getARPMessage() const {
 
 String Kernel::ARPReceiveEvent::getType() const {
     return TYPE;
-}
-
-NetworkByteBlock *Kernel::ARPReceiveEvent::getInput() const {
-    return input;
 }
