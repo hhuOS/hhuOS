@@ -3,18 +3,16 @@
 //
 
 #include <lib/libc/printf.h>
-#include "TextPrintServer.h"
+#include "EchoServer.h"
 
-TextPrintServer::TextPrintServer(uint16_t port) {
+EchoServer::EchoServer(uint16_t port) {
     this->socket = new Kernel::UDP4Socket(port);
     isRunning = new Atomic<bool>;
     isRunning->set(false);
-    serverThread = new SimpleThread([]{
-        printf("Hello world!");
-    });
+    serverThread =
 }
 
-TextPrintServer::~TextPrintServer() {
+EchoServer::~EchoServer() {
     delete socket;
     delete isRunning;
     if(serverThread->hasFinished()){
@@ -22,7 +20,7 @@ TextPrintServer::~TextPrintServer() {
     }
 }
 
-uint8_t TextPrintServer::start() {
+uint8_t EchoServer::start() {
     if (
             serverThread == nullptr ||
             isRunning== nullptr ||
@@ -36,7 +34,7 @@ uint8_t TextPrintServer::start() {
     return 0;
 }
 
-uint8_t TextPrintServer::stop() {
+uint8_t EchoServer::stop() {
     if (socket == nullptr) {
         return 1;
     }
