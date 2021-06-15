@@ -23,8 +23,10 @@ private:
     UDP4Port *sourcePort = nullptr;
     UDP4Port *destinationPort = nullptr;
 
+    uint16_t calculateChecksum(NetworkByteBlock *input);
+
 public:
-    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, uint16_t dataLength, uint16_t checksum);
+    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes);
 
     UDP4Header() = default;
 
@@ -32,7 +34,11 @@ public:
 
     uint8_t parse(NetworkByteBlock *input);
 
-    size_t getSize();
+    size_t getHeaderSize();
+
+    size_t getDatagramLength();
+
+    bool checksumCorrect(NetworkByteBlock *input);
 
     UDP4Port *getSourcePort() const;
 

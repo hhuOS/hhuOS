@@ -4,12 +4,12 @@
 
 #include "UDP4Header.h"
 
-UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, uint16_t dataLength, uint16_t checksum) {
+UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes) {
     this->sourcePort = sourcePort;
     this->destinationPort = destinationPort;
 
-    header.length = dataLength + sizeof header;
-    header.checksum = checksum;
+    header.length = dataBytes->getLength() + sizeof header;
+    header.checksum = calculateChecksum(dataBytes);
 
     //create ports once here, delete with this object
     //-> getter don't create new objects each time
@@ -23,7 +23,11 @@ UDP4Header::~UDP4Header() {
     delete destinationPort;
 }
 
-size_t UDP4Header::getSize() {
+bool UDP4Header::checksumCorrect(NetworkByteBlock *input){
+    return calculateChecksum(input) == header.checksum;
+}
+
+size_t UDP4Header::getHeaderSize() {
     return sizeof header;
 }
 
@@ -33,6 +37,10 @@ UDP4Port *UDP4Header::getSourcePort() const {
 
 UDP4Port *UDP4Header::getDestinationPort() const {
     return destinationPort;
+}
+
+size_t UDP4Header::getDatagramLength() {
+    return (size_t)header.length;
 }
 
 uint8_t UDP4Header::copyTo(NetworkByteBlock *output) {
@@ -60,4 +68,9 @@ uint8_t UDP4Header::parse(NetworkByteBlock *input) {
     destinationPort = new UDP4Port(header.destinationPort);
 
     return errors;
+}
+
+uint16_t UDP4Header::calculateChecksum(NetworkByteBlock *input) {
+    //TODO: Implement this one!
+    return 0;
 }

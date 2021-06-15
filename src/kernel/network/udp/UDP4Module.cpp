@@ -89,7 +89,20 @@ namespace Kernel {
                 delete ip4Header;
                 return;
             }
-
+            if(udp4Header->getDatagramLength()!=input->bytesRemaining()){
+                log.error("Length value in UDP4 header was incorrect, discarding");
+                delete udp4Header;
+                delete ip4Header;
+                delete input;
+                return;
+            }
+            if(udp4Header->checksumCorrect(input)){
+                log.error("UDP4 checksum was incorrect, discarding");
+                delete udp4Header;
+                delete ip4Header;
+                delete input;
+                return;
+            }
             if(sockets == nullptr){
                 log.error("Internal socket map was null, discarding incoming data");
                 delete udp4Header;
