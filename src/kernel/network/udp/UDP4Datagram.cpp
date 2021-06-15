@@ -10,39 +10,28 @@ UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint
     this->dataBytes->append(outgoingBytes, length);
     this->dataBytes->resetIndex();
 
-    destinationPort->copyTo(header.destinationPort);
-    sourcePort->copyTo(header.sourcePort);
-    header.length = (uint16_t) getLengthInBytes();
-    //TODO: Implement checksum calculation
-    header.checksum = 0;
-
-    this->sourcePort = sourcePort;
-    this->destinationPort = destinationPort;
+    this->header= new UDP4Header(sourcePort, destinationPort, getLengthInBytes(), 0);
 }
 
 UDP4Datagram::~UDP4Datagram() {
     //delete on nullptr simply does nothing!
+    delete header;
     delete dataBytes;
-    delete destinationPort;
-    delete sourcePort;
 }
 
 uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     if (
             dataBytes == nullptr ||
             output == nullptr ||
-            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - sizeof header) ||
+            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - header->getSize()) ||
             dataBytes->getLength() == 0 ||
-            sizeof header > UDP4HEADER_MAX_LENGTH
+            header->getSize() > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }
 
     uint8_t errors = 0;
-    errors += output->append(header.sourcePort);
-    errors += output->append(header.destinationPort);
-    errors += output->append(header.length);
-    errors += output->append(header.checksum);
+    errors += header->copyTo(output);
 
     //True if errors>0
     if (errors) {
@@ -55,7 +44,10 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
-    return (sizeof header) + dataBytes->getLength();
+    if(header == nullptr || dataBytes== nullptr){
+        return 0;
+    }
+    return header->getSize() + dataBytes->getLength();
 }
 
 IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
@@ -63,21 +55,15 @@ IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
 }
 
 uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() < sizeof this->header) {
+    if (
+            input == nullptr ||
+            header == nullptr ||
+            input->bytesRemaining() < header->getSize()
+            ) {
         return 1;
     }
     uint8_t errors = 0;
-    errors += input->read(&header.sourcePort);
-    errors += input->read(&header.destinationPort);
-    errors += input->read(&header.length);
-    errors += input->read(&header.checksum);
-
-    this->destinationPort = new UDP4Port(header.destinationPort);
-    this->sourcePort = new UDP4Port(header.sourcePort);
+    errors += header->parse(input);
 
     return errors;
-}
-
-UDP4Port *UDP4Datagram::getDestinationPort() const{
-    return destinationPort;
 }

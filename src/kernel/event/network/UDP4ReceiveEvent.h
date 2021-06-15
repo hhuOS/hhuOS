@@ -13,14 +13,14 @@ namespace Kernel {
 
     class UDP4ReceiveEvent : public Event {
     private:
-        UDP4Datagram *udpDatagram;
+        UDP4Header *udp4Header;
         IP4Datagram *ip4Datagram;
         NetworkByteBlock *input;
 
     public:
-        explicit UDP4ReceiveEvent(UDP4Datagram *udpDatagram, IP4Datagram *ip4Datagram, NetworkByteBlock *input);
+        explicit UDP4ReceiveEvent(UDP4Header *udp4header, IP4Datagram *ip4Datagram, NetworkByteBlock *input);
 
-        UDP4Datagram *getUDP4Datagram();
+        UDP4Header * getUDP4Datagram();
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 

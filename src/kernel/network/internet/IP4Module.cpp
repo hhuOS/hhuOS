@@ -159,17 +159,17 @@ namespace Kernel {
                     return;
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
-                    auto *udpDatagram = new UDP4Datagram();
-                    if (udpDatagram->parseHeader(input)) {
+                    auto *udp4Header = new UDP4Header();
+                    if (udp4Header->parse(input)) {
                         log.error("Could not assemble UDP header, discarding data");
                         //udpDatagram is not part of ip4Datagram here
                         //-> we need to delete it separately!
-                        delete udpDatagram;
+                        delete udp4Header;
                         delete ip4Datagram;
                         delete input;
                         return;
                     }
-                    eventBus->publish(new UDP4ReceiveEvent(udpDatagram, ip4Datagram, input));
+                    eventBus->publish(new UDP4ReceiveEvent(udp4Header, ip4Datagram, input));
                     //We need input AND ip4datagram in next module
                     //-> don't delete anything here!
                     return;

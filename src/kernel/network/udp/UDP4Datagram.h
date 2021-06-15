@@ -11,26 +11,15 @@
 
 #include <kernel/network/internet/IP4DataPart.h>
 #include <kernel/network/udp/sockets/UDP4Port.h>
+#include "UDP4Header.h"
 
 class UDP4Datagram final : public IP4DataPart {
 private:
-    typedef struct udp4Header {
-        uint16_t sourcePort = 0;
-        uint16_t destinationPort = 0;
-        uint16_t length = 0;
-        uint16_t checksum = 0;
-    } header_t;
-
-    header_t header;
+    UDP4Header *header = nullptr;
     NetworkByteBlock *dataBytes = nullptr;
-
-    UDP4Port *sourcePort = nullptr;
-    UDP4Port *destinationPort = nullptr;
 
 public:
     UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t length);
-
-    UDP4Datagram() = default;
 
     ~UDP4Datagram();
 
@@ -41,8 +30,6 @@ public:
     IP4ProtocolType getIP4ProtocolType() override;
 
     uint8_t parseHeader(NetworkByteBlock *input) override;
-
-    [[nodiscard]] UDP4Port *getDestinationPort() const;
 };
 
 
