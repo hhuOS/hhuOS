@@ -15,7 +15,7 @@ private:
 public:
     explicit UDP4Port(uint16_t number);
 
-    void copyTo(uint16_t target) const;
+    void copyTo(uint16_t *target) const;
 };
 
 

@@ -24,7 +24,7 @@ private:
     UDP4Port *destinationPort = nullptr;
 
 public:
-    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, uint16_t length, uint16_t checksum);
+    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, uint16_t dataLength, uint16_t checksum);
 
     UDP4Header() = default;
 

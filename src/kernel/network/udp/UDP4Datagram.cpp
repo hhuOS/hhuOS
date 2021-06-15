@@ -5,12 +5,12 @@
 #include <lib/libc/printf.h>
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t length) {
-    this->dataBytes=new NetworkByteBlock(length);
-    this->dataBytes->append(outgoingBytes, length);
+UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t dataLength) {
+    this->dataBytes=new NetworkByteBlock(dataLength);
+    this->dataBytes->append(outgoingBytes, dataLength);
     this->dataBytes->resetIndex();
 
-    this->header= new UDP4Header(sourcePort, destinationPort, getLengthInBytes(), 0);
+    this->header= new UDP4Header(sourcePort, destinationPort, dataLength, 0);
 }
 
 UDP4Datagram::~UDP4Datagram() {
@@ -21,6 +21,7 @@ UDP4Datagram::~UDP4Datagram() {
 
 uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     if (
+            header == nullptr ||
             dataBytes == nullptr ||
             output == nullptr ||
             dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - header->getSize()) ||
@@ -39,8 +40,7 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
     }
 
     //Append dataBytes if no errors occurred yet
-    output->append(dataBytes, dataBytes->getLength());
-    return 0;
+    return output->append(dataBytes, dataBytes->getLength());
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
