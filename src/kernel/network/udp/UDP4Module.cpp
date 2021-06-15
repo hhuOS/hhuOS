@@ -11,28 +11,28 @@ namespace Kernel {
     }
 
     uint8_t UDP4Module::registerControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller) {
-        if(controller== nullptr){
+        if (controller == nullptr) {
             log.error("Given controller was null, not registering");
             return 1;
         }
-        if(sockets == nullptr){
+        if (sockets == nullptr) {
             log.error("Socket map not initialized, not registering controller");
             return 1;
         }
-        sockets->put(destinationPort,controller);
+        sockets->put(destinationPort, controller);
         return 0;
     }
 
     uint8_t UDP4Module::unregisterControllerFor(UDP4Port *destinationPort) {
-        if(destinationPort == nullptr){
+        if (destinationPort == nullptr) {
             log.error("Given port was null, not unregistering controller");
             return 1;
         }
-        if(sockets == nullptr){
+        if (sockets == nullptr) {
             log.error("Socket map not initialized, not unregistering controller");
             return 1;
         }
-        if(sockets->containsKey(destinationPort)) {
+        if (sockets->containsKey(destinationPort)) {
             sockets->remove(destinationPort);
         }
         return 0;
@@ -89,21 +89,21 @@ namespace Kernel {
                 delete ip4Header;
                 return;
             }
-            if(udp4Header->getDatagramLength()!=input->bytesRemaining()){
+            if (udp4Header->getDatagramLength() != input->bytesRemaining()) {
                 log.error("Length value in UDP4 header was incorrect, discarding");
                 delete udp4Header;
                 delete ip4Header;
                 delete input;
                 return;
             }
-            if(udp4Header->checksumCorrect(input)){
+            if (udp4Header->checksumCorrect(input)) {
                 log.error("UDP4 checksum was incorrect, discarding");
                 delete udp4Header;
                 delete ip4Header;
                 delete input;
                 return;
             }
-            if(sockets == nullptr){
+            if (sockets == nullptr) {
                 log.error("Internal socket map was null, discarding incoming data");
                 delete udp4Header;
                 delete ip4Header;
@@ -112,7 +112,7 @@ namespace Kernel {
             }
 
             auto *destinationPort = udp4Header->getDestinationPort();
-            if(!sockets->containsKey(destinationPort)){
+            if (!sockets->containsKey(destinationPort)) {
                 log.error("No socket registered for datagram's destination port, discarding");
                 delete udp4Header;
                 delete ip4Header;
@@ -120,7 +120,7 @@ namespace Kernel {
                 return;
             }
 
-            if(sockets->get(destinationPort)->notifySocket(input)){
+            if (sockets->get(destinationPort)->notifySocket(input)) {
                 log.error("Could not deliver input to destination socket");
             }
 

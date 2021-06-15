@@ -6,11 +6,11 @@
 #include "UDP4Datagram.h"
 
 UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t dataLength) {
-    this->dataBytes=new NetworkByteBlock(dataLength);
+    this->dataBytes = new NetworkByteBlock(dataLength);
     this->dataBytes->append(outgoingBytes, dataLength);
     this->dataBytes->resetIndex();
 
-    this->header= new UDP4Header(sourcePort, destinationPort, this->dataBytes);
+    this->header = new UDP4Header(sourcePort, destinationPort, this->dataBytes);
 }
 
 UDP4Datagram::~UDP4Datagram() {
@@ -26,7 +26,7 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
             output == nullptr ||
             dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - header->getHeaderSize()) ||
             dataBytes->getLength() == 0 ||
-                    header->getHeaderSize() > UDP4HEADER_MAX_LENGTH
+            header->getHeaderSize() > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }
@@ -44,7 +44,7 @@ uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
 }
 
 size_t UDP4Datagram::getLengthInBytes() {
-    if(header == nullptr){
+    if (header == nullptr) {
         return 0;
     }
     return header->getDatagramLength();

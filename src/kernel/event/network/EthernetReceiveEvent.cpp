@@ -13,7 +13,7 @@ namespace Kernel {
         return TYPE;
     }
 
-    EthernetHeader * EthernetReceiveEvent::getEthernetHeader() const {
+    EthernetHeader *EthernetReceiveEvent::getEthernetHeader() const {
         return ethernetHeader;
     }
 

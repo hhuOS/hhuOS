@@ -20,13 +20,13 @@ namespace Kernel {
     public:
         explicit UDP4ReceiveEvent(UDP4Header *udp4header, IP4Header *ip4Header, NetworkByteBlock *input);
 
-        UDP4Header * getUDP4Datagram();
+        UDP4Header *getUDP4Datagram();
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 
         [[nodiscard]] String getType() const override;
 
-        [[nodiscard]] IP4Header * getIP4Header() const;
+        [[nodiscard]] IP4Header *getIP4Header() const;
 
         static const constexpr char *TYPE = "UDP4ReceiveEvent";
     };

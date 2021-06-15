@@ -24,7 +24,7 @@ namespace Kernel {
 
         uint8_t notifySocket(NetworkByteBlock *input);
 
-        int receive(uint8_t* targetBuffer, size_t length);
+        int receive(uint8_t *targetBuffer, size_t length);
 
         uint8_t publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram);
     };

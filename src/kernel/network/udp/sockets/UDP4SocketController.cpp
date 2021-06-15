@@ -23,20 +23,20 @@ namespace Kernel {
     }
 
     int UDP4SocketController::receive(uint8_t *targetBuffer, size_t length) {
-        if(
+        if (
                 receiveBuffer == nullptr ||
                 targetBuffer == nullptr ||
                 length > receiveBuffer->getLength()
-                ){
+                ) {
             return -1;
         }
         //TODO: Translate return values
-        receiveBuffer->read(targetBuffer,length);
+        receiveBuffer->read(targetBuffer, length);
         return 0;
     }
 
     uint8_t UDP4SocketController::publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram) {
-        if(outDatagram== nullptr){
+        if (outDatagram == nullptr) {
             return 1;
         }
         eventBus->publish(

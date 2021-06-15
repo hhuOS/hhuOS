@@ -18,7 +18,7 @@ IP4Header::~IP4Header() {
 }
 
 size_t IP4Header::getTotalLength() {
-    return (size_t)header.totalLength;
+    return (size_t) header.totalLength;
 }
 
 IP4DataPart::IP4ProtocolType IP4Header::getIP4ProtocolType() {
@@ -45,7 +45,7 @@ size_t IP4Header::getSize() {
 }
 
 uint8_t IP4Header::copyTo(NetworkByteBlock *output) {
-    uint8_t errors=0;
+    uint8_t errors = 0;
     errors += output->append(header.version_headerLength);
     errors += output->append(header.typeOfService);
     errors += output->append(header.totalLength);
@@ -63,7 +63,7 @@ uint8_t IP4Header::parse(NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() < sizeof this->header) {
         return 1;
     }
-    uint8_t errors=0;
+    uint8_t errors = 0;
     errors += input->read(&header.version_headerLength);
     errors += input->read(&header.typeOfService);
     errors += input->read(&header.totalLength);

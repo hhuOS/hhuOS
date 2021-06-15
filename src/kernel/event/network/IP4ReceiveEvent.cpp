@@ -15,7 +15,7 @@ namespace Kernel {
         return TYPE;
     }
 
-    IP4Header * IP4ReceiveEvent::getHeader() {
+    IP4Header *IP4ReceiveEvent::getHeader() {
         return ip4Header;
     }
 

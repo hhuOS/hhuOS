@@ -11,13 +11,13 @@ namespace Kernel {
     }
 
     ICMP4ReceiveEvent::ICMP4ReceiveEvent(IP4Header *ip4Header, NetworkByteBlock *input) : ip4Header(ip4Header),
-                                                                                           input(input) {}
+                                                                                          input(input) {}
 
     NetworkByteBlock *ICMP4ReceiveEvent::getInput() const {
         return input;
     }
 
-    IP4Header * ICMP4ReceiveEvent::getIP4Header() const {
+    IP4Header *ICMP4ReceiveEvent::getIP4Header() const {
         return ip4Header;
     }
 }

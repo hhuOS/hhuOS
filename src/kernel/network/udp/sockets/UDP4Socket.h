@@ -13,10 +13,10 @@
 #include <kernel/core/System.h>
 #include <kernel/service/NetworkService.h>
 
-namespace  Kernel {
+namespace Kernel {
     class UDP4Socket {
     private:
-        NetworkService *networkService= nullptr;
+        NetworkService *networkService = nullptr;
         UDP4Port *listeningPort = nullptr, *remotePort = nullptr;
         IP4Address *destinationAddress = nullptr;
         UDP4SocketController *controller = nullptr;

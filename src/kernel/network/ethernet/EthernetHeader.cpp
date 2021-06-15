@@ -20,10 +20,10 @@ size_t EthernetHeader::getSize() {
 
 void EthernetHeader::setSourceAddress(EthernetAddress *address) {
     address->copyTo(header.sourceAddress);
-    if(this->sourceAddress!= nullptr){
+    if (this->sourceAddress != nullptr) {
         return;
     }
-    this->sourceAddress =new EthernetAddress(header.sourceAddress);
+    this->sourceAddress = new EthernetAddress(header.sourceAddress);
 }
 
 uint8_t EthernetHeader::copyTo(NetworkByteBlock *output) {

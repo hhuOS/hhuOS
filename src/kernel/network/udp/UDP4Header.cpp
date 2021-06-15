@@ -23,7 +23,7 @@ UDP4Header::~UDP4Header() {
     delete destinationPort;
 }
 
-bool UDP4Header::checksumCorrect(NetworkByteBlock *input){
+bool UDP4Header::checksumCorrect(NetworkByteBlock *input) {
     return calculateChecksum(input) == header.checksum;
 }
 
@@ -40,7 +40,7 @@ UDP4Port *UDP4Header::getDestinationPort() const {
 }
 
 size_t UDP4Header::getDatagramLength() {
-    return (size_t)header.length;
+    return (size_t) header.length;
 }
 
 uint8_t UDP4Header::copyTo(NetworkByteBlock *output) {
@@ -53,11 +53,11 @@ uint8_t UDP4Header::copyTo(NetworkByteBlock *output) {
 }
 
 uint8_t UDP4Header::parse(NetworkByteBlock *input) {
-    if(
+    if (
             sourcePort != nullptr ||
             destinationPort != nullptr ||
             input->bytesRemaining() <= sizeof header
-        ){
+            ) {
         return 1;
     }
 

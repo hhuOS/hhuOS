@@ -27,7 +27,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4Socket::bind() {
-        if(networkService->registerSocketController(listeningPort,controller)){
+        if (networkService->registerSocketController(listeningPort, controller)) {
             return 1;
         }
         return 0;
@@ -60,7 +60,7 @@ namespace Kernel {
         }
         controller->publishSendEvent(
                 destinationAddress,
-                             new UDP4Datagram(listeningPort, remotePort, dataBytes, length)
+                new UDP4Datagram(listeningPort, remotePort, dataBytes, length)
         );
         return 0;
     }

@@ -19,7 +19,7 @@ namespace Kernel {
     public:
         explicit IP4ReceiveEvent(IP4Header *ip4Header, NetworkByteBlock *input);
 
-        IP4Header * getHeader();
+        IP4Header *getHeader();
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 

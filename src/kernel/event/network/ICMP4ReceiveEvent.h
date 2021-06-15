@@ -26,7 +26,7 @@ namespace Kernel {
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 
-        [[nodiscard]] IP4Header * getIP4Header() const;
+        [[nodiscard]] IP4Header *getIP4Header() const;
 
         static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };

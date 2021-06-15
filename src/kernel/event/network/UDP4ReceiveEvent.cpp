@@ -15,11 +15,11 @@ Kernel::UDP4ReceiveEvent::UDP4ReceiveEvent(UDP4Header *udp4header, IP4Header *ip
     this->input = input;
 }
 
-UDP4Header * Kernel::UDP4ReceiveEvent::getUDP4Datagram() {
+UDP4Header *Kernel::UDP4ReceiveEvent::getUDP4Datagram() {
     return udp4Header;
 }
 
-IP4Header * Kernel::UDP4ReceiveEvent::getIP4Header() const {
+IP4Header *Kernel::UDP4ReceiveEvent::getIP4Header() const {
     return ip4Header;
 }
 
