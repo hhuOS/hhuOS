@@ -192,7 +192,11 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-
+            if(interfaces== nullptr){
+                log.error("Internal interface list not initialized, discarding");
+                delete arpMessage;
+                return;
+            }
             auto *destinationAddress =
                     new IP4Address(arpMessage->getTargetProtocolAddress());
             IP4Interface *currentInterface;

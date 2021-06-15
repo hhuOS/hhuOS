@@ -17,11 +17,11 @@ IP4Header::~IP4Header() {
     delete destinationAddress;
 }
 
-size_t IP4Header::getTotalLength() {
+size_t IP4Header::getTotalLength() const {
     return (size_t) header.totalLength;
 }
 
-IP4DataPart::IP4ProtocolType IP4Header::getIP4ProtocolType() {
+IP4DataPart::IP4ProtocolType IP4Header::getIP4ProtocolType() const {
     return IP4DataPart::parseIntAsIP4ProtocolType(header.protocolType);
 }
 
@@ -38,7 +38,7 @@ void IP4Header::setSourceAddress(IP4Address *address) {
     this->sourceAddress = new IP4Address(header.sourceAddress);
 }
 
-size_t IP4Header::getSize() {
+size_t IP4Header::getSize() const {
     //IP4 header length is not fixed size
     //-> calculate it from real header value for header length!
     return (size_t) (header.version_headerLength - 0x40) * 4;

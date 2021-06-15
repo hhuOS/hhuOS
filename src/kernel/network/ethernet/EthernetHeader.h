@@ -29,7 +29,7 @@ public:
 
     EthernetHeader() = default;
 
-    EthernetDataPart::EtherType getEtherType();
+    EthernetDataPart::EtherType getEtherType() const;
 
     size_t getSize();
 

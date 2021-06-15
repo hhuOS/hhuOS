@@ -46,10 +46,6 @@ IP4DataPart::IP4ProtocolType IP4Datagram::getIP4ProtocolType() const {
     return header->getIP4ProtocolType();
 }
 
-IP4Address *IP4Datagram::getSourceAddress() const {
-    return header->getSourceAddress();
-}
-
 IP4Address *IP4Datagram::getDestinationAddress() const {
     return header->getDestinationAddress();
 }

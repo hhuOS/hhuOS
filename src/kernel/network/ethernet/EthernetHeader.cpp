@@ -10,7 +10,7 @@ EthernetHeader::EthernetHeader(EthernetAddress *destinationAddress, EthernetData
     this->destinationAddress = new EthernetAddress(header.destinationAddress);
 }
 
-EthernetDataPart::EtherType EthernetHeader::getEtherType() {
+EthernetDataPart::EtherType EthernetHeader::getEtherType() const {
     return EthernetDataPart::parseIntAsEtherType(header.etherType);
 }
 
@@ -47,5 +47,4 @@ uint8_t EthernetHeader::parse(NetworkByteBlock *input) {
     //dataPart is not set in an incoming frame!
 
     return errors;
-    return 0;
 }

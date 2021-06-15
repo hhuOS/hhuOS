@@ -31,19 +31,15 @@ size_t UDP4Header::getHeaderSize() {
     return sizeof header;
 }
 
-UDP4Port *UDP4Header::getSourcePort() const {
-    return sourcePort;
-}
-
 UDP4Port *UDP4Header::getDestinationPort() const {
     return destinationPort;
 }
 
-size_t UDP4Header::getDatagramLength() {
+size_t UDP4Header::getDatagramLength() const {
     return (size_t) header.length;
 }
 
-uint8_t UDP4Header::copyTo(NetworkByteBlock *output) {
+uint8_t UDP4Header::copyTo(NetworkByteBlock *output) const {
     uint8_t errors = 0;
     errors += output->append(header.sourcePort);
     errors += output->append(header.destinationPort);

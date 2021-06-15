@@ -46,7 +46,7 @@ public:
 
     IP4Header() = default;
 
-    IP4DataPart::IP4ProtocolType getIP4ProtocolType();
+    IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
     IP4Address *getDestinationAddress();
 
@@ -56,9 +56,9 @@ public:
 
     virtual ~IP4Header();
 
-    size_t getTotalLength();
+    size_t getTotalLength() const;
 
-    size_t getSize();
+    size_t getSize() const;
 
     uint8_t copyTo(NetworkByteBlock *output);
 

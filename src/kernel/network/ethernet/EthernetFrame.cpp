@@ -31,9 +31,9 @@ EthernetFrame::~EthernetFrame() {
 
 uint16_t EthernetFrame::getLengthInBytes() {
     if (ethernetDataPart == nullptr) {
-        return header->getSize();
+        return static_cast<uint16_t>(header->getSize());
     }
-    return header->getSize() + ethernetDataPart->getLengthInBytes();
+    return static_cast<uint16_t>(header->getSize() + ethernetDataPart->getLengthInBytes());
 }
 
 void EthernetFrame::setSourceAddress(EthernetAddress *source) {
@@ -41,11 +41,6 @@ void EthernetFrame::setSourceAddress(EthernetAddress *source) {
         return;
     }
     header->setSourceAddress(source);
-}
-
-EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
-    //get EtherType via header, dataPart can be null!
-    return header->getEtherType();
 }
 
 uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {

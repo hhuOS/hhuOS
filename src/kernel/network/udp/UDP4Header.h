@@ -30,19 +30,17 @@ public:
 
     UDP4Header() = default;
 
-    uint8_t copyTo(NetworkByteBlock *output);
+    uint8_t copyTo(NetworkByteBlock *output) const;
 
     uint8_t parse(NetworkByteBlock *input);
 
     size_t getHeaderSize();
 
-    size_t getDatagramLength();
+    size_t getDatagramLength() const;
 
     bool checksumCorrect(NetworkByteBlock *input);
 
-    UDP4Port *getSourcePort() const;
-
-    UDP4Port *getDestinationPort() const;
+    [[nodiscard]] UDP4Port *getDestinationPort() const;
 
     virtual ~UDP4Header();
 };

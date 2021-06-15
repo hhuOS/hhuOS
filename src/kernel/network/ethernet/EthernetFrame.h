@@ -27,8 +27,6 @@ public:
 
     virtual ~EthernetFrame();
 
-    [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
-
     uint8_t copyTo(NetworkByteBlock *output);
 
     uint16_t getLengthInBytes();
