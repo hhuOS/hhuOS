@@ -9,10 +9,12 @@ TextPrintServer::TextPrintServer(uint16_t port) {
 }
 
 uint8_t TextPrintServer::start() {
-    if (socket == nullptr) {
+    if (
+            socket == nullptr ||
+            socket->bind()
+        ) {
         return 1;
     }
-    return socket->bind();
 }
 
 uint8_t TextPrintServer::stop() {

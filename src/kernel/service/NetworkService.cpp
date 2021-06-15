@@ -108,17 +108,18 @@ namespace Kernel {
 
     //TODO: Add error codes as return values!
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
-    void NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+    uint8_t NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one of given attributes were null, not assigning IP4 address");
-            return;
+            return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
             log.error("No ethernet device exists for given identifier, not assigning IP4 address");
-            return;
+            return 1;
         }
         this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask);
+        return 0;
     }
 
     UDP4SocketController *NetworkService::createSocketController() {

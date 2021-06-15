@@ -8,11 +8,12 @@
 
 #include <cstdint>
 #include <kernel/network/udp/sockets/UDP4Socket.h>
+#include <lib/async/SimpleThread.h>
 
 class TextPrintServer {
 private:
-    uint16_t port = 0;
     Kernel::UDP4Socket *socket = nullptr;
+    SimpleThread *serverThread = nullptr;
 
 public:
     explicit TextPrintServer(uint16_t port);

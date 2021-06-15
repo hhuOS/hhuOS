@@ -27,10 +27,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4Socket::bind() {
-        if (networkService->registerSocketController(listeningPort, controller)) {
-            return 1;
-        }
-        return 0;
+        return networkService->registerSocketController(listeningPort, controller);
     }
 
     uint8_t UDP4Socket::close() {

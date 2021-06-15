@@ -97,9 +97,5 @@ bool IP4Header::headerValid() {
 
 uint16_t IP4Header::calculateChecksum() {
     //TODO: Implement this one!
-    return 0;
+    return header.headerChecksum;
 }
-
-
-
-
