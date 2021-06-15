@@ -8,6 +8,7 @@ namespace Kernel {
     UDP4Socket::UDP4Socket(uint16_t listeningPort) {
         this->listeningPort = new UDP4Port(listeningPort);
         networkService = System::getService<NetworkService>();
+        controller = networkService->createSocketController();
     }
 
     UDP4Socket::UDP4Socket(IP4Address *targetAddress, uint16_t remotePort) {
@@ -15,16 +16,18 @@ namespace Kernel {
         this->remotePort = new UDP4Port(remotePort);
         this->listeningPort = new UDP4Port(16123);
         networkService = System::getService<NetworkService>();
+        networkService->createSocketController();
     }
 
     UDP4Socket::~UDP4Socket() {
+        close();
         delete listeningPort;
         delete remotePort;
-        close();
+        delete controller;
     }
 
     uint8_t UDP4Socket::bind() {
-        if(networkService->createSocketController(listeningPort,&controller)){
+        if(networkService->registerSocketController(listeningPort,controller)){
             return 1;
         }
         return 0;

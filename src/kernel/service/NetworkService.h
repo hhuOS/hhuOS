@@ -116,9 +116,11 @@ namespace Kernel {
 
         void collectRouteAttributes(Util::ArrayList<String> *strings);
 
-        uint8_t createSocketController(UDP4Port *destinationPort, UDP4SocketController **targetAddress);
+        UDP4SocketController * createSocketController();
 
         uint8_t unregisterSocketController(UDP4Port *destinationPort);
+
+        uint8_t registerSocketController(UDP4Port *listeningPort, UDP4SocketController *controller);
     };
 
 }
