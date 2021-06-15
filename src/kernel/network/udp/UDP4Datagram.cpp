@@ -72,6 +72,9 @@ uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
     errors += input->read(&header.length);
     errors += input->read(&header.checksum);
 
+    this->destinationPort = new UDP4Port(header.destinationPort);
+    this->sourcePort = new UDP4Port(header.sourcePort);
+
     return errors;
 }
 

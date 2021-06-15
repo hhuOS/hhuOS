@@ -16,7 +16,7 @@ namespace Kernel {
         this->remotePort = new UDP4Port(remotePort);
         this->listeningPort = new UDP4Port(16123);
         networkService = System::getService<NetworkService>();
-        networkService->createSocketController();
+        controller = networkService->createSocketController();
     }
 
     UDP4Socket::~UDP4Socket() {
