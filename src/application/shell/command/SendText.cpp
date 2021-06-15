@@ -18,20 +18,20 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-//    auto *server = new TextPrintServer(serverPort);
-//    if(server->start()){
-//        stderr << "Starting server failed!" << endl;
-//        delete server;
-//        return;
-//    }
-
-    auto *localhost = new IP4Address(127, 0, 0, 1);
-
-    auto *testString = new String("Hello world! Now it works...\0");
-    stdout << "CLIENT: Sending text '" << *testString << "'" << endl;
-
-    auto *sendSocket = new Kernel::UDP4Socket(localhost, serverPort);
-    sendSocket->send((char *)*testString,testString->length());
+    auto *server = new TextPrintServer(serverPort);
+    if(server->start()){
+        stderr << "Starting server failed!" << endl;
+        delete server;
+        return;
+    }
+//
+//    auto *localhost = new IP4Address(127, 0, 0, 1);
+//
+//    auto *testString = new String("Hello world! Now it works...\0");
+//    stdout << "CLIENT: Sending text '" << *testString << "'" << endl;
+//
+//    auto *sendSocket = new Kernel::UDP4Socket(localhost, serverPort);
+//    sendSocket->send((char *)*testString,testString->length());
 //    delete sendSocket;
 //    delete testString;
 

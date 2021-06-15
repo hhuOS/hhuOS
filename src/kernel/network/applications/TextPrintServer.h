@@ -14,6 +14,7 @@ class TextPrintServer {
 private:
     Kernel::UDP4Socket *socket = nullptr;
     SimpleThread *serverThread = nullptr;
+    Atomic<bool> *isRunning = nullptr;
 
 public:
     explicit TextPrintServer(uint16_t port);
@@ -21,6 +22,8 @@ public:
     uint8_t start();
 
     uint8_t stop();
+
+    virtual ~TextPrintServer();
 };
 
 
