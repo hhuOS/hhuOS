@@ -69,7 +69,7 @@ namespace Kernel {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
                     auto *echoReply = new ICMP4EchoReply();
 
-                    if (echoReply->parseHeader(input)) {
+                    if (echoReply->parse(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
                         delete echoReply;
                         break;
@@ -86,7 +86,7 @@ namespace Kernel {
                 }
                 case ICMP4Message::ICMP4MessageType::ECHO: {
                     auto *echoRequest = new ICMP4Echo();
-                    if (echoRequest->parseHeader(input)) {
+                    if (echoRequest->parse(input)) {
                         log.error("Parsing ICMP4Echo failed, discarding");
                         delete echoRequest;
                         break;

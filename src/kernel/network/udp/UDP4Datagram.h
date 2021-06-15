@@ -28,8 +28,6 @@ public:
     size_t getLengthInBytes() override;
 
     IP4ProtocolType getIP4ProtocolType() override;
-
-    uint8_t parseHeader(NetworkByteBlock *input) override;
 };
 
 

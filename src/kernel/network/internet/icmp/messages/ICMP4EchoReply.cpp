@@ -36,7 +36,7 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
-uint8_t ICMP4EchoReply::parseHeader(NetworkByteBlock *input) {
+uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != sizeof echoReply) {
         return 1;
     }

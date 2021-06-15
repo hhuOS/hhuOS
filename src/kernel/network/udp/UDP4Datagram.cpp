@@ -53,17 +53,3 @@ size_t UDP4Datagram::getLengthInBytes() {
 IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {
     return IP4ProtocolType::UDP;
 }
-
-uint8_t UDP4Datagram::parseHeader(NetworkByteBlock *input) {
-    if (
-            input == nullptr ||
-            header == nullptr ||
-            input->bytesRemaining() < header->getHeaderSize()
-            ) {
-        return 1;
-    }
-    uint8_t errors = 0;
-    errors += header->parse(input);
-
-    return errors;
-}

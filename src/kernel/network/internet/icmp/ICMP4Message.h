@@ -62,8 +62,6 @@ public:
     size_t getLengthInBytes() override = 0;
 
     virtual ICMP4MessageType getICMP4MessageType() = 0;
-
-    uint8_t parseHeader(NetworkByteBlock *input) override = 0;
 };
 
 #endif //HHUOS_ICMP4MESSAGE_H

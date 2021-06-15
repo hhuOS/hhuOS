@@ -53,8 +53,11 @@ uint8_t UDP4Header::copyTo(NetworkByteBlock *output) {
 }
 
 uint8_t UDP4Header::parse(NetworkByteBlock *input) {
-    if(sourcePort != nullptr || destinationPort != nullptr){
-        //Already initialized!
+    if(
+            sourcePort != nullptr ||
+            destinationPort != nullptr ||
+            input->bytesRemaining() <= sizeof header
+        ){
         return 1;
     }
 

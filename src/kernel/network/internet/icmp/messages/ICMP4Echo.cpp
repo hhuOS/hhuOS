@@ -43,7 +43,7 @@ uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t ICMP4Echo::parseHeader(NetworkByteBlock *input) {
+uint8_t ICMP4Echo::parse(NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != sizeof echoMessage) {
         return 1;
     }
