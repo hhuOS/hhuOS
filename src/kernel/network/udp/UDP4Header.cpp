@@ -5,9 +5,6 @@
 #include "UDP4Header.h"
 
 UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes) {
-    this->sourcePort = sourcePort;
-    this->destinationPort = destinationPort;
-
     header.length = sizeof header + dataBytes->getLength();
     header.checksum = calculateChecksum(dataBytes);
 
@@ -16,6 +13,9 @@ UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkB
     //-> reduces number of new() calls
     sourcePort->copyTo(&header.sourcePort);
     destinationPort->copyTo(&header.destinationPort);
+
+    this->sourcePort = new UDP4Port(header.sourcePort);
+    this->destinationPort = new UDP4Port(header.destinationPort);
 }
 
 UDP4Header::~UDP4Header() {

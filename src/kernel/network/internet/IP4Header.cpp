@@ -5,12 +5,11 @@
 #include "IP4Header.h"
 
 IP4Header::IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart) {
-    this->destinationAddress=destinationAddress;
-
     header.totalLength = sizeof header + dataPart->getLengthInBytes();
     header.protocolType = dataPart->getIP4ProtocolTypeAsInt();
 
     destinationAddress->copyTo(header.destinationAddress);
+    this->destinationAddress = new IP4Address(header.destinationAddress);
 }
 
 IP4Header::~IP4Header() {
@@ -35,8 +34,8 @@ IP4Address *IP4Header::getSourceAddress() {
 }
 
 void IP4Header::setSourceAddress(IP4Address *address) {
-    this->sourceAddress = address;
     address->copyTo(header.sourceAddress);
+    this->sourceAddress = new IP4Address(header.sourceAddress);
 }
 
 size_t IP4Header::getSize() {
