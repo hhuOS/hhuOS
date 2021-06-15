@@ -66,15 +66,15 @@ namespace Kernel {
                 return;
             }
 
-            auto *inFrame = new EthernetFrame();
-            if (inFrame->parseHeader(input)) {
+            auto *ethernetHeader = new EthernetHeader();
+            if (ethernetHeader->parse(input)) {
                 log.error("Parsing incoming packet as EthernetFrame failed, discarding");
                 delete input;
-                delete inFrame;
+                delete ethernetHeader;
                 return;
             }
 
-            eventBus->publish(new EthernetReceiveEvent(inFrame, input));
+            eventBus->publish(new EthernetReceiveEvent(ethernetHeader, input));
 
             //inFrame and input will be deleted in EthernetModule after processing
             //-> no delete here

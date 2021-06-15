@@ -5,9 +5,8 @@
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    destinationAddress->copyTo(header.destinationAddress);
-    header.etherType = ethernetDataPart->getEtherTypeAsInt();
     this->ethernetDataPart = ethernetDataPart;
+    this->header = new EthernetHeader(destinationAddress, ethernetDataPart);
 }
 
 EthernetFrame::~EthernetFrame() {
@@ -16,7 +15,7 @@ EthernetFrame::~EthernetFrame() {
     if (ethernetDataPart == nullptr) {
         return;
     }
-    switch (EthernetDataPart::parseIntAsEtherType(header.etherType)) {
+    switch (header->getEtherType()) {
         case EthernetDataPart::EtherType::IP4: {
             delete (IP4Datagram *) ethernetDataPart;
             break;
@@ -32,21 +31,21 @@ EthernetFrame::~EthernetFrame() {
 
 uint16_t EthernetFrame::getLengthInBytes() {
     if (ethernetDataPart == nullptr) {
-        return sizeof header;
+        return header->getSize();
     }
-    return sizeof header + ethernetDataPart->getLengthInBytes();
+    return header->getSize() + ethernetDataPart->getLengthInBytes();
 }
 
 void EthernetFrame::setSourceAddress(EthernetAddress *source) {
     if (source == nullptr) {
         return;
     }
-    source->copyTo(header.sourceAddress);
+    header->setSourceAddress(source);
 }
 
 EthernetDataPart::EtherType EthernetFrame::getEtherType() const {
     //get EtherType via header, dataPart can be null!
-    return EthernetDataPart::parseIntAsEtherType(header.etherType);
+    return header->getEtherType();
 }
 
 uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
@@ -54,15 +53,12 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
             ethernetDataPart == nullptr ||
             output == nullptr ||
             ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
-            sizeof header > ETHERNETHEADER_MAX_LENGTH
+            header->getSize() > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;
     }
 
-    uint8_t errors = 0;
-    errors += output->append(header.destinationAddress, MAC_SIZE);
-    errors += output->append(header.sourceAddress, MAC_SIZE);
-    errors += output->append(header.etherType);
+    uint8_t errors = header->copyTo(output);
 
     //True if errors>0
     if (errors) {
@@ -71,19 +67,4 @@ uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
 
     //Call next level if no errors occurred yet
     return ethernetDataPart->copyTo(output);
-}
-
-uint8_t EthernetFrame::parseHeader(NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() < sizeof header) {
-        return 1;
-    }
-
-    uint8_t errors = 0;
-    errors += input->read(header.destinationAddress, MAC_SIZE);
-    errors += input->read(header.sourceAddress, MAC_SIZE);
-    errors += input->read(&header.etherType);
-
-    //dataPart is not set in an incoming frame!
-
-    return errors;
 }

@@ -13,20 +13,11 @@
 #include <kernel/network/arp/ARPMessage.h>
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
+#include "EthernetHeader.h"
 
 class EthernetFrame final {
 private:
-    //Defined internally, should not be visible outside
-    //Usage of EthernetFrame should only happen via given public methods
-    //-> changing our header's internal representation is possible at any time then!
-    typedef struct ethernetHeader {
-        uint8_t destinationAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
-        uint8_t sourceAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
-        uint16_t etherType = 0;
-    } ethHeader_t;
-
-    ethHeader_t header;
-
+    EthernetHeader *header = nullptr;
     EthernetDataPart *ethernetDataPart = nullptr;
 
 public:
@@ -43,8 +34,6 @@ public:
     uint16_t getLengthInBytes();
 
     void setSourceAddress(EthernetAddress *source);
-
-    uint8_t parseHeader(NetworkByteBlock *input);
 };
 
 

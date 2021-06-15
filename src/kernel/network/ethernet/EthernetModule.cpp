@@ -154,25 +154,25 @@ namespace Kernel {
             return;
         }
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
-            EthernetFrame *inFrame = ((EthernetReceiveEvent &) event).getEthernetFrame();
-            NetworkByteBlock *input = ((EthernetReceiveEvent &) event).getInput();
-            if (inFrame == nullptr) {
-                log.error("Incoming EthernetFrame was null, discarding input");
+            auto *ethernetHeader = ((EthernetReceiveEvent &) event).getEthernetHeader();
+            auto *input = ((EthernetReceiveEvent &) event).getInput();
+            if (ethernetHeader == nullptr) {
+                log.error("Incoming EthernetHeader was null, discarding input");
                 delete input;
                 return;
             }
             if (input == nullptr) {
-                log.error("Incoming input was null, discarding EthernetFrame");
-                delete inFrame;
+                log.error("Incoming input was null, discarding EthernetHeader");
+                delete ethernetHeader;
                 return;
             }
             //TODO: Check frame's Source-MAC if it's for us or at least a BROADCAST message
-            switch (inFrame->getEtherType()) {
+            switch (ethernetHeader->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
                     auto *ip4Header = new IP4Header();
                     if (ip4Header->parse(input)) {
                         log.error("Could not assemble IP4 header, discarding data");
-                        //datagram is not part of inFrame here
+                        //ip4Header is not part of inFrame here
                         //-> we need to delete it separately!
                         delete ip4Header;
                         delete input;
@@ -185,7 +185,7 @@ namespace Kernel {
                 case EthernetDataPart::EtherType::ARP: {
                     auto *arpMessage = new ARPMessage();
                     if (arpMessage->parse(input)) {
-                        log.error("Could not assemble ARP header, discarding data");
+                        log.error("Could not assemble ARP message, discarding data");
                         //arpMessage is not part of inFrame here
                         //-> we need to delete it separately!
                         delete arpMessage;
@@ -206,7 +206,7 @@ namespace Kernel {
             }
             //We are done here, cleanup memory
             //Input will be used in next module, so no delete here
-            delete inFrame;
+            delete ethernetHeader;
         }
     }
 }

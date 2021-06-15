@@ -15,13 +15,13 @@ namespace Kernel {
 
     class EthernetReceiveEvent : public Event {
     private:
-        EthernetFrame *ethernetFrame;
+        EthernetHeader *ethernetHeader;
         NetworkByteBlock *input;
 
     public:
-        explicit EthernetReceiveEvent(EthernetFrame *ethernetFrame, NetworkByteBlock *input);
+        explicit EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input);
 
-        [[nodiscard]] EthernetFrame *getEthernetFrame() const;
+        [[nodiscard]] EthernetHeader * getEthernetHeader() const;
 
         [[nodiscard]] String getType() const override;
 

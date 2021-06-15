@@ -6,15 +6,15 @@
 
 namespace Kernel {
 
-    EthernetReceiveEvent::EthernetReceiveEvent(EthernetFrame *ethernetFrame, NetworkByteBlock *input)
-            : ethernetFrame(ethernetFrame), input(input) {}
+    EthernetReceiveEvent::EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input)
+            : ethernetHeader(ethernetHeader), input(input) {}
 
     String EthernetReceiveEvent::getType() const {
         return TYPE;
     }
 
-    EthernetFrame *EthernetReceiveEvent::getEthernetFrame() const {
-        return ethernetFrame;
+    EthernetHeader * EthernetReceiveEvent::getEthernetHeader() const {
+        return ethernetHeader;
     }
 
     NetworkByteBlock *EthernetReceiveEvent::getInput() const {
