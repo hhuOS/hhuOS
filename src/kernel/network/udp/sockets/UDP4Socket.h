@@ -22,9 +22,9 @@ namespace Kernel {
         UDP4SocketController *controller = nullptr;
 
     public:
-        explicit UDP4Socket(uint16_t listeningPort);
+        explicit UDP4Socket(UDP4Port *listeningPort);
 
-        UDP4Socket(IP4Address *targetAddress, uint16_t remotePort);
+        UDP4Socket(IP4Address *targetAddress, UDP4Port *targetPort);
 
         virtual ~UDP4Socket();
 
@@ -37,6 +37,8 @@ namespace Kernel {
         uint8_t send(uint8_t *dataBytes, size_t length);
 
         int receive(uint8_t *targetBuffer, size_t length);
+
+        void copyListeningPortTo(uint16_t* target);
     };
 }
 

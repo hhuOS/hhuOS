@@ -5,15 +5,15 @@
 #include "UDP4Socket.h"
 
 namespace Kernel {
-    UDP4Socket::UDP4Socket(uint16_t listeningPort) {
+    UDP4Socket::UDP4Socket(UDP4Port *listeningPort) {
         this->listeningPort = new UDP4Port(listeningPort);
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
     }
 
-    UDP4Socket::UDP4Socket(IP4Address *targetAddress, uint16_t remotePort) {
+    UDP4Socket::UDP4Socket(IP4Address *targetAddress, UDP4Port *targetPort) {
         this->destinationAddress = targetAddress;
-        this->remotePort = new UDP4Port(remotePort);
+        this->remotePort = new UDP4Port(targetPort);
         this->listeningPort = new UDP4Port(16123);
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
@@ -64,5 +64,9 @@ namespace Kernel {
 
     int UDP4Socket::receive(uint8_t *targetBuffer, size_t length) {
         return controller->receive(targetBuffer, length);
+    }
+
+    void UDP4Socket::copyListeningPortTo(uint16_t *target) {
+        listeningPort->copyTo(target);
     }
 }

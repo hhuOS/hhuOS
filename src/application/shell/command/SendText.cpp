@@ -3,7 +3,7 @@
 //
 
 #include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/applications/TextPrintServer.h>
+#include <kernel/network/applications/EchoServer.h>
 #include "SendText.h"
 
 SendText::SendText(Shell &shell) : Command(shell) {
@@ -18,12 +18,14 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *server = new TextPrintServer(serverPort);
+    auto *server = new EchoServer();
     if(server->start()){
         stderr << "Starting server failed!" << endl;
         delete server;
         return;
     }
+    server->stop();
+    delete server;
 //
 //    auto *localhost = new IP4Address(127, 0, 0, 1);
 //
