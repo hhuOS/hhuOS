@@ -55,7 +55,7 @@ void EchoServer::EchoThread::run() {
     uint16_t listeningPort = 0;
     attributes.socket->copyListeningPortTo(&listeningPort);
 
-    while(attributes.isRunning->get()) {
+//    while(attributes.isRunning->get()) {
         printf("Hello world! Listening on port %d\n", listeningPort);
-    }
+//    }
 }
