@@ -121,19 +121,8 @@ namespace Kernel {
         this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask);
     }
 
-    uint8_t NetworkService::linkEventBus(NetworkEventBus **target) {
-        if (
-                target == nullptr ||
-                this->eventBus == nullptr
-                ) {
-            return 1;
-        }
-        *target = this->eventBus;
-        return 0;
-    }
-
-    uint8_t NetworkService::registerSocketControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller) {
-        if(controller == nullptr){
+    uint8_t NetworkService::createSocketController(UDP4Port *destinationPort, UDP4SocketController **targetAddress) {
+        if(targetAddress == nullptr){
             log.error("Controller was null, not registering");
             return 1;
         }
@@ -141,7 +130,8 @@ namespace Kernel {
             log.error("UDP4Module not initialized, not registering controller");
             return 1;
         }
-        return udp4Module->registerControllerFor(destinationPort, controller);
+        *targetAddress= new UDP4SocketController(this->eventBus, this->bufferSize);
+        return udp4Module->registerControllerFor(destinationPort, *targetAddress);
     }
 
     //uint8_t NetworkService::registerSocketController(TCP4SocketController *controller) ...

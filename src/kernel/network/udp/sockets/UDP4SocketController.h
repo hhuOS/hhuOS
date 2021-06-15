@@ -5,24 +5,28 @@
 #ifndef HHUOS_UDP4SOCKETCONTROLLER_H
 #define HHUOS_UDP4SOCKETCONTROLLER_H
 
-
+#include <kernel/event/network/UDP4SendEvent.h>
 #include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/udp/UDP4Datagram.h>
+#include <kernel/network/NetworkEventBus.h>
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include "UDP4Port.h"
 
 namespace Kernel {
 
     class UDP4SocketController {
     private:
-        UDP4Port *listeningPort = nullptr;
         NetworkByteBlock *receiveBuffer = nullptr;
-        Spinlock *open = nullptr, *close = nullptr;
+        NetworkEventBus *eventBus = nullptr;
 
     public:
-        UDP4SocketController(NetworkByteBlock *receiveBuffer, Spinlock *open, Spinlock *close);
+        explicit UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize);
 
-        [[nodiscard]] UDP4Port *getListeningPort() const;
+        uint8_t notifySocket(NetworkByteBlock *input);
 
-        uint8_t process(NetworkByteBlock *input);
+        int receive(uint8_t* targetBuffer, size_t length);
+
+        uint8_t publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram);
     };
 }
 

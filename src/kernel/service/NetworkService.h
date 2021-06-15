@@ -46,6 +46,7 @@ namespace Kernel {
 
     private:
         String *loopbackIdentifier;
+        size_t bufferSize = 1024;
 
         /**
          * Provide service information on the kernel log.
@@ -115,9 +116,7 @@ namespace Kernel {
 
         void collectRouteAttributes(Util::ArrayList<String> *strings);
 
-        uint8_t linkEventBus(NetworkEventBus **target);
-
-        uint8_t registerSocketControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller);
+        uint8_t createSocketController(UDP4Port *destinationPort, UDP4SocketController **targetAddress);
 
         uint8_t unregisterSocketController(UDP4Port *destinationPort);
     };

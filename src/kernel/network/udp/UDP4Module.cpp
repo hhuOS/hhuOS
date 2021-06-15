@@ -98,7 +98,8 @@ namespace Kernel {
                 return;
             }
 
-            if(!sockets->containsKey(udp4Header->getDestinationPort())){
+            auto *destinationPort = udp4Header->getDestinationPort();
+            if(!sockets->containsKey(destinationPort)){
                 log.error("No socket registered for datagram's destination port, discarding");
                 delete udp4Header;
                 delete ip4Header;
@@ -106,7 +107,7 @@ namespace Kernel {
                 return;
             }
 
-            if(sockets->get(udp4Header->getDestinationPort())->process(input)){
+            if(sockets->get(destinationPort)->notifySocket(input)){
                 log.error("Could not deliver input to destination socket");
             }
 
