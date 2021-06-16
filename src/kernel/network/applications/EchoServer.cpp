@@ -45,6 +45,7 @@ uint8_t EchoServer::start() {
     if(attributes.socket->bind()){
         log.error("Binding socket in EchoServer failed");
         cleanup();
+        return 1;
     }
     attributes.isRunning->set(true);
     serverThread->start();
@@ -65,7 +66,7 @@ uint8_t EchoServer::stop() {
 }
 
 void EchoServer::EchoThread::run() {
-    int bytesReceived = 0;
+    int bytesReceived;
     IP4Header *ip4Header = nullptr;
     UDP4Header *udp4Header = nullptr;
 
