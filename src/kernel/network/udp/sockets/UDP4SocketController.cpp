@@ -8,27 +8,35 @@
 namespace Kernel {
     UDP4SocketController::UDP4SocketController(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
-        receiveLock = new Spinlock();
+        readLock = new Spinlock();
+        readLock->acquire();
+        writeLock=new Spinlock();
+        writeLock->release();
     }
 
-    uint8_t UDP4SocketController::notifySocket(IP4Header *ip4Header, UDP4Header *udp4Header, NetworkByteBlock *input) {
+    uint8_t UDP4SocketController::notifySocket(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header, NetworkByteBlock *input) {
         if (
-                ip4Header == nullptr ||
-                udp4Header == nullptr ||
-                input == nullptr
+                incomingIP4Header == nullptr ||
+                incomingUDP4Header == nullptr ||
+                input == nullptr ||
+                readLock== nullptr ||
+                writeLock== nullptr
                 ) {
             return 1;
         }
-
-        this->ip4Header = ip4Header;
-        this->udp4Header = udp4Header;
+        writeLock->acquire();
+        this->ip4Header = incomingIP4Header;
+        this->udp4Header = incomingUDP4Header;
         this->content = input;
+        readLock->release();
         return 0;
     }
 
     int
-    UDP4SocketController::receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header) {
+    UDP4SocketController::receive(void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable) {
         if (
+                readLock== nullptr ||
+                writeLock== nullptr ||
                 content == nullptr ||
                 targetBuffer == nullptr ||
                 length == 0 ||
@@ -40,29 +48,40 @@ namespace Kernel {
             return -1;
         }
 
+        readLock->acquire();
         size_t totalBytesRead = content->bytesRemaining();
         //Cleanup if reading fails
         if (content->read(targetBuffer, length)) {
             delete content;
+            content= nullptr;
             delete this->ip4Header;
+            this->ip4Header= nullptr;
             delete this->udp4Header;
+            this->udp4Header= nullptr;
             return -1;
         }
+        totalBytesRead -= content->bytesRemaining();
 
-        if (ip4Header == nullptr) {
+        if (ip4HeaderVariable == nullptr) {
             delete this->ip4Header;
         } else if (this->ip4Header != nullptr) {
-            *ip4Header = this->ip4Header;
+            *ip4HeaderVariable = this->ip4Header;
         }
 
-        if (udp4Header == nullptr) {
+        if (udp4HeaderVariable == nullptr) {
             delete this->udp4Header;
         } else if (this->udp4Header != nullptr) {
-            *udp4Header = this->udp4Header;
+            *udp4HeaderVariable = this->udp4Header;
         }
 
-        totalBytesRead -= content->bytesRemaining();
         delete content;
+        content = nullptr;
+        //Headers are in use somewhere else
+        //-> no delete here! Just set them to nullptr to avoid using them again
+        this->ip4Header= nullptr;
+        this->udp4Header= nullptr;
+        readLock->acquire();
+        writeLock->release();
 
         return totalBytesRead;
     }

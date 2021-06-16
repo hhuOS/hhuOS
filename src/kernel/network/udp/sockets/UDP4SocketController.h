@@ -22,14 +22,14 @@ namespace Kernel {
         NetworkByteBlock *content = nullptr;
 
         NetworkEventBus *eventBus = nullptr;
-        Spinlock *receiveLock = nullptr;
+        Spinlock *readLock = nullptr, *writeLock = nullptr;
 
     public:
         explicit UDP4SocketController(NetworkEventBus *eventBus);
 
-        uint8_t notifySocket(IP4Header *ip4Header, UDP4Header *udp4Header, NetworkByteBlock *input);
+        uint8_t notifySocket(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header, NetworkByteBlock *input);
 
-        int receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header);
+        int receive(void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable);
 
         uint8_t publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram);
     };
