@@ -29,6 +29,7 @@ uint8_t EchoServer::start() {
             attributes.socket == nullptr ||
             attributes.isRunning== nullptr ||
             serverThread == nullptr ||
+            attributes.inputBuffer->getLength() == 0 ||
             attributes.socket->bind()
         ) {
         return 1;
@@ -52,10 +53,22 @@ uint8_t EchoServer::stop() {
 }
 
 void EchoServer::EchoThread::run() {
+    size_t bytesReceived = 0;
     uint16_t listeningPort = 0;
+
     attributes.socket->copyListeningPortTo(&listeningPort);
 
     while(attributes.isRunning->get()) {
-
+//        bytesReceived = attributes.inputBuffer->getLength();
+//        attributes.inputBuffer->resetIndex();
+//
+//        attributes.socket->receive(
+//                attributes.inputBuffer,
+//                attributes.inputBuffer->getLength()
+//                );
+//        attributes.log.info("Incoming datagram, sending response");
+//
+//        bytesReceived-=attributes.inputBuffer->bytesRemaining();
+//        attributes.socket->send(attributes.inputBuffer, bytesReceived);
     }
 }

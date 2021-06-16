@@ -5,8 +5,6 @@
 #ifndef HHUOS_ECHOSERVER_H
 #define HHUOS_ECHOSERVER_H
 
-#define ECHO_PORT_NUMBER 7 //RFC 862
-
 #include <cstdint>
 #include <kernel/network/udp/sockets/UDP4Socket.h>
 
@@ -16,6 +14,7 @@ private:
         NetworkByteBlock *inputBuffer = nullptr;
         Kernel::UDP4Socket *socket = nullptr;
         Atomic<bool> *isRunning = nullptr;
+        Kernel::Logger &log = Kernel::Logger::get("EchoServer");
     } attr_t;
 
     class EchoThread : public Kernel::KernelThread {
