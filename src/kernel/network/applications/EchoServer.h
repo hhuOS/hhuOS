@@ -13,10 +13,11 @@ private:
     Kernel::Logger &log = Kernel::Logger::get("EchoServer");
 
     typedef struct threadAttributes{
-        NetworkByteBlock *inputBuffer = nullptr;
         Kernel::UDP4Socket *socket = nullptr;
         Atomic<bool> *isRunning = nullptr;
         Kernel::Logger *log = nullptr;
+        uint8_t *inputBuffer = nullptr;
+        size_t inputBufferSize=0;
     } attr_t;
 
     class EchoThread : public Kernel::KernelThread {
@@ -28,7 +29,6 @@ private:
         }
         void run() override;
     };
-
     attr_t attributes;
     EchoThread *serverThread = nullptr;
 public:
@@ -39,6 +39,8 @@ public:
     uint8_t stop();
 
     virtual ~EchoServer();
+
+    void cleanup() const;
 };
 
 

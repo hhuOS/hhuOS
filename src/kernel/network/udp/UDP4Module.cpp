@@ -67,44 +67,23 @@ namespace Kernel {
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
-            auto *udp4Header = ((UDP4ReceiveEvent &) event).getUDP4Datagram();
-            auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
+            IP4Header *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
+            auto *udp4Header = ((UDP4ReceiveEvent &) event).getUDP4Header();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
 
-            if (udp4Header == nullptr) {
-                log.error("Incoming UDP4Datagram was null, discarding input");
+            if (
+                    udp4Header == nullptr ||
+                    ip4Header == nullptr ||
+                    input == nullptr ||
+                    sockets == nullptr
+                ) {
+                log.error("One of incoming objects or socket map was null, discarding input");
                 delete ip4Header;
                 delete input;
-                return;
-            }
-            if (ip4Header == nullptr) {
-                log.error("Incoming IP4Datagram was null, discarding input");
-                delete udp4Header;
-                delete input;
-                return;
-            }
-            if (input == nullptr) {
-                log.error("Incoming input was null, discarding datagrams");
-                delete udp4Header;
-                delete ip4Header;
                 return;
             }
             if (udp4Header->getDatagramLength() != input->bytesRemaining()) {
                 log.error("Length value in UDP4 header was incorrect, discarding");
-                delete udp4Header;
-                delete ip4Header;
-                delete input;
-                return;
-            }
-            if (udp4Header->checksumCorrect(input)) {
-                log.error("UDP4 checksum was incorrect, discarding");
-                delete udp4Header;
-                delete ip4Header;
-                delete input;
-                return;
-            }
-            if (sockets == nullptr) {
-                log.error("Internal socket map was null, discarding incoming data");
                 delete udp4Header;
                 delete ip4Header;
                 delete input;
@@ -120,17 +99,13 @@ namespace Kernel {
                 return;
             }
 
-            if (sockets->get(destinationPort)->notifySocket(input)) {
+            if (sockets->get(destinationPort)->notifySocket(ip4Header,udp4Header,input)) {
                 log.error("Could not deliver input to destination socket");
+                delete udp4Header;
+                delete ip4Header;
+                delete input;
+                return;
             }
-
-            //udp4Datagram is not part of ip4Datagram here
-            //-> we need to delete it separately!
-            delete ip4Header;
-            delete udp4Header;
-
-            //Input processing done, cleanup
-            delete input;
             return;
         }
     }

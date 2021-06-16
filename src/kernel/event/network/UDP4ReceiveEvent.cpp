@@ -8,19 +8,18 @@ String Kernel::UDP4ReceiveEvent::getType() const {
     return TYPE;
 }
 
-Kernel::UDP4ReceiveEvent::UDP4ReceiveEvent(UDP4Header *udp4header, IP4Header *ip4Header,
-                                           NetworkByteBlock *input) {
+Kernel::UDP4ReceiveEvent::UDP4ReceiveEvent(IP4Header *ip4Header, UDP4Header *udp4header, NetworkByteBlock *input) {
     this->udp4Header = udp4header;
     this->ip4Header = ip4Header;
     this->input = input;
 }
 
-UDP4Header *Kernel::UDP4ReceiveEvent::getUDP4Datagram() {
-    return udp4Header;
-}
-
 IP4Header *Kernel::UDP4ReceiveEvent::getIP4Header() const {
     return ip4Header;
+}
+
+UDP4Header *Kernel::UDP4ReceiveEvent::getUDP4Header() {
+    return udp4Header;
 }
 
 NetworkByteBlock *Kernel::UDP4ReceiveEvent::getInput() const {

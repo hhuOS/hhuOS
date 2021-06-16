@@ -34,26 +34,37 @@ namespace Kernel {
         return networkService->unregisterSocketController(listeningPort);
     }
 
+    //Client send()
+    //-> destination address and remote port should be given via constructor
     uint8_t UDP4Socket::send(void *dataBytes, size_t length) {
+        return send(dataBytes, length, this->destinationAddress, this->remotePort);
+    }
+
+    //Server send()
+    //->we need to read destination address and remote port from incoming datagrams here
+    uint8_t UDP4Socket::send(void *dataBytes, size_t length, IP4Address *givenDestination, UDP4Port *givenRemotePort) {
         if (
                 dataBytes == nullptr ||
-                destinationAddress == nullptr ||
+                givenDestination == nullptr ||
+                givenRemotePort == nullptr ||
                 length == 0
                 ) {
             return 1;
         }
         controller->publishSendEvent(
-                destinationAddress,
-                new UDP4Datagram(listeningPort, remotePort, dataBytes, length)
+                givenDestination,
+                new UDP4Datagram(this->listeningPort, givenRemotePort, dataBytes, length)
         );
         return 0;
     }
 
+    //Regular receive() for clients
     int UDP4Socket::receive(uint8_t *targetBuffer, size_t length) {
-        return controller->receive(targetBuffer, length);
+        return receive(targetBuffer, length, nullptr, nullptr);
     }
 
-    void UDP4Socket::copyListeningPortTo(uint16_t *target) {
-        listeningPort->copyTo(target);
+    //Extended receive() for server and clients who need to know IP4 or UDP4 headers
+    int UDP4Socket::receive(uint8_t *targetBuffer, size_t length,IP4Header **ip4Header, UDP4Header **udp4Header) {
+        return controller->receive(targetBuffer, length, ip4Header, udp4Header);
     }
 }

@@ -123,7 +123,7 @@ namespace Kernel {
     }
 
     UDP4SocketController *NetworkService::createSocketController() {
-        return new UDP4SocketController(this->eventBus, this->bufferSize);
+        return new UDP4SocketController(this->eventBus);
     }
 
     uint8_t NetworkService::registerSocketController(UDP4Port *listeningPort, UDP4SocketController *controller) {

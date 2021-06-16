@@ -10,21 +10,26 @@
 #include <kernel/network/udp/UDP4Datagram.h>
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Header.h>
 #include "UDP4Port.h"
 
 namespace Kernel {
 
     class UDP4SocketController {
     private:
-        NetworkByteBlock *receiveBuffer = nullptr;
+        IP4Header *ip4Header = nullptr;
+        UDP4Header *udp4Header = nullptr;
+        NetworkByteBlock *content = nullptr;
+
         NetworkEventBus *eventBus = nullptr;
+        Spinlock *receiveLock = nullptr;
 
     public:
-        explicit UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize);
+        explicit UDP4SocketController(NetworkEventBus *eventBus);
 
-        uint8_t notifySocket(NetworkByteBlock *input);
+        uint8_t notifySocket(IP4Header *ip4Header, UDP4Header *udp4Header, NetworkByteBlock *input);
 
-        int receive(uint8_t *targetBuffer, size_t length);
+        int receive(uint8_t *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header);
 
         uint8_t publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram);
     };
