@@ -16,13 +16,15 @@ uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress
     *bestRoute = nullptr;
 
     if (receiverAddress == nullptr) {
-        return IP4_RECEIVER_ADDRESS_NULL;
+        log.error("Given receiver address was null, discarding datagram");
+        return 1;
     }
 
     for (IP4Route *currentRoute:*this->routes) {
         matchingBits = currentRoute->matchingBits(receiverAddress);
         if (matchingBits > 32) {
-            return IP4_MATCHING_BITS_FUNCTION_BROKEN;
+            log.error("matchingBits() function is broken, discarding datagram");
+            return 1;
         }
         if (matchingBits > bestMatch) {
             *bestRoute = currentRoute;
@@ -42,12 +44,14 @@ uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress
     }
 
     //Return error if no route could be found at all
-    return IP4_NO_ROUTE_FOUND;
+    log.error("No route to host could be found, discarding datagram");
+    return 1;
 }
 
 uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
     if (datagram == nullptr) {
-        return IP4_DATAGRAM_NULL;
+        log.error("Outgoing datagram was null, ignoring");
+        return 1;
     }
     IP4Route *matchedRoute = nullptr;
     uint8_t findError = find(&matchedRoute, datagram->getDestinationAddress());

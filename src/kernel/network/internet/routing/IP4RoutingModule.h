@@ -16,6 +16,10 @@ private:
 
     uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
 
+    /**
+             * A logger to provide information on the kernel log.
+             */
+    Kernel::Logger &log = Kernel::Logger::get("IP4RoutingModule");
 public:
 
     IP4RoutingModule();

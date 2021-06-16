@@ -90,24 +90,11 @@ namespace Kernel {
                     //Datagram will be deleted in EthernetModule after send
                     //-> no delete here!
                     return;
-                case IP4_DATAGRAM_NULL: {
-                    log.error("Outgoing datagram was null, ignoring");
-                    return;
-                }
-                case IP4_NO_ROUTE_FOUND: {
-                    log.error("No route to host could be found, discarding datagram");
-                    break;
-                }
                 case IP4_INTERFACE_NULL: {
                     log.error("Outgoing interface was null, discarding datagram");
                     break;
                 }
                 case IP4_RECEIVER_ADDRESS_NULL: {
-                    log.error("Given receiver address was null, discarding datagram");
-                    break;
-                }
-                case IP4_MATCHING_BITS_FUNCTION_BROKEN: {
-                    log.error("matchingBits() function in routing module is broken, discarding datagram");
                     break;
                 }
                 default: {
