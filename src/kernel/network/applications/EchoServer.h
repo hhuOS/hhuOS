@@ -10,11 +10,13 @@
 
 class EchoServer {
 private:
+    Kernel::Logger &log = Kernel::Logger::get("EchoServer");
+
     typedef struct threadAttributes{
         NetworkByteBlock *inputBuffer = nullptr;
         Kernel::UDP4Socket *socket = nullptr;
         Atomic<bool> *isRunning = nullptr;
-        Kernel::Logger &log = Kernel::Logger::get("EchoServer");
+        Kernel::Logger *log = nullptr;
     } attr_t;
 
     class EchoThread : public Kernel::KernelThread {

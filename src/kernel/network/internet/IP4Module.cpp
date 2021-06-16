@@ -86,7 +86,7 @@ namespace Kernel {
                 return;
             }
             switch (routingModule->sendViaBestRoute(datagram)) {
-                case IP4_DELIVER_SUCCESS:
+                case 0:
                     //Datagram will be deleted in EthernetModule after send
                     //-> no delete here!
                     return;
@@ -110,16 +110,8 @@ namespace Kernel {
                     log.error("matchingBits() function in routing module is broken, discarding datagram");
                     break;
                 }
-                case ARP_PROTOCOL_ADDRESS_NULL: {
-                    log.error("IP4 address given to ARP module was null, discarding datagram");
-                    break;
-                }
-                case ARP_TABLE_NULL: {
-                    log.error("Table in ARP module was null, discarding datagram");
-                    break;
-                }
                 default: {
-                    log.error("Sending failed with unknown error code, discarding datagram");
+                    log.error("Sending failed, discarding datagram. See syslog for more details");
                     break;
                 }
             }

@@ -3,9 +3,11 @@
 //
 
 #include <lib/libc/printf.h>
+#include <kernel/network/NetworkDefinitions.h>
 #include "EchoServer.h"
 
 EchoServer::EchoServer(size_t inputBufferSize) {
+    attributes.log=&log;
     attributes.socket =
         new Kernel::UDP4Socket(
                 new UDP4Port(ECHO_PORT_NUMBER)
@@ -53,7 +55,7 @@ uint8_t EchoServer::stop() {
 }
 
 void EchoServer::EchoThread::run() {
-    size_t bytesReceived = 0;
+//    size_t bytesReceived = 0;
     uint16_t listeningPort = 0;
 
     attributes.socket->copyListeningPortTo(&listeningPort);
