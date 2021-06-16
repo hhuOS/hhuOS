@@ -18,7 +18,7 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *server = new EchoServer();
+    auto *server = new EchoServer(0);
     if(server->start()){
         stderr << "Starting server failed!" << endl;
         delete server;

@@ -13,6 +13,7 @@
 class EchoServer {
 private:
     typedef struct threadAttributes{
+        NetworkByteBlock *inputBuffer = nullptr;
         Kernel::UDP4Socket *socket = nullptr;
         Atomic<bool> *isRunning = nullptr;
     } attr_t;
@@ -27,12 +28,10 @@ private:
         void run() override;
     };
 
-    Kernel::UDP4Socket *socket = nullptr;
-    EchoThread *serverThread = nullptr;
-    Atomic<bool> *isRunning = nullptr;
     attr_t attributes;
+    EchoThread *serverThread = nullptr;
 public:
-    explicit EchoServer();
+    explicit EchoServer(size_t inputBufferSize);
 
     uint8_t start();
 
