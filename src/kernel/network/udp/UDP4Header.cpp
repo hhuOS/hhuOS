@@ -23,13 +23,12 @@ UDP4Header::~UDP4Header() {
     delete destinationPort;
 }
 
-//Can be implemented by someone brave...
-bool UDP4Header::checksumCorrect(NetworkByteBlock *input) {
-    return true;
-}
-
 size_t UDP4Header::getHeaderSize() {
     return sizeof header;
+}
+
+UDP4Port *UDP4Header::getSourcePort() const {
+    return sourcePort;
 }
 
 UDP4Port *UDP4Header::getDestinationPort() const {
@@ -68,9 +67,4 @@ uint8_t UDP4Header::parse(NetworkByteBlock *input) {
     destinationPort = new UDP4Port(header.destinationPort);
 
     return errors;
-}
-
-uint16_t UDP4Header::calculateChecksum(NetworkByteBlock *input) {
-    //TODO: Implement this one!
-    return 0;
 }

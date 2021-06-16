@@ -81,9 +81,20 @@ void EchoServer::EchoThread::run() {
             delete udp4Header;
             return;
         }
-        (*attributes.log).info("Incoming datagram, sending response");
+        (*attributes.log).info(
+                "Incoming datagram from %s with content '%s', sending response",
+                ip4Header->getSourceAddress()->asChars(),
+                attributes.inputBuffer
+                );
 
-        attributes.socket->send(attributes.inputBuffer,bytesReceived);
+        attributes.socket->send(
+                ip4Header->getSourceAddress(),
+                udp4Header->getSourcePort(),
+                attributes.inputBuffer,
+                bytesReceived
+                );
+        delete ip4Header;
+        delete udp4Header;
     }
 }
 

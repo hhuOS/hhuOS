@@ -36,13 +36,11 @@ public:
 
     size_t getDatagramLength() const;
 
-    bool checksumCorrect(NetworkByteBlock *input);
+    UDP4Port *getSourcePort() const;
 
     [[nodiscard]] UDP4Port *getDestinationPort() const;
 
     virtual ~UDP4Header();
-
-    uint16_t calculateChecksum(NetworkByteBlock *input);
 };
 
 

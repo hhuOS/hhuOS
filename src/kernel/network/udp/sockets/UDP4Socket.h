@@ -34,7 +34,7 @@ namespace Kernel {
 
         uint8_t send(void *dataBytes, size_t length);
 
-        uint8_t send(void *dataBytes, size_t length, IP4Address *givenDestination, UDP4Port *givenRemotePort);
+        uint8_t send(IP4Address *givenDestination, UDP4Port *givenRemotePort, void *dataBytes, size_t length);
 
         int receive(uint8_t *targetBuffer, size_t length);
 

@@ -37,12 +37,12 @@ namespace Kernel {
     //Client send()
     //-> destination address and remote port should be given via constructor
     uint8_t UDP4Socket::send(void *dataBytes, size_t length) {
-        return send(dataBytes, length, this->destinationAddress, this->remotePort);
+        return send(this->destinationAddress, this->remotePort, dataBytes, length);
     }
 
     //Server send()
     //->we need to read destination address and remote port from incoming datagrams here
-    uint8_t UDP4Socket::send(void *dataBytes, size_t length, IP4Address *givenDestination, UDP4Port *givenRemotePort) {
+    uint8_t UDP4Socket::send(IP4Address *givenDestination, UDP4Port *givenRemotePort, void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
                 givenDestination == nullptr ||
