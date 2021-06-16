@@ -8,10 +8,6 @@
 #define MAC_SIZE 6
 #define IP4ADDRESS_LENGTH 4
 
-#define ARP_RESOLVE_SUCCESS 0
-#define ARP_PROTOCOL_ADDRESS_NULL 11
-#define ARP_TABLE_NULL 12
-
 #define ECHO_PORT_NUMBER 7 //RFC 862
 //TODO: Verify values with RFC Sources
 #define UDP4DATAPART_MAX_LENGTH 1500
