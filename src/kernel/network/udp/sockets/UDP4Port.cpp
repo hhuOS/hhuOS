@@ -13,5 +13,5 @@ void UDP4Port::copyTo(uint16_t *target) const {
 }
 
 UDP4Port::UDP4Port(UDP4Port *otherPort) {
-    this->number=otherPort->number;
+    this->number = otherPort->number;
 }

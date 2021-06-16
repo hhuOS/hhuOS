@@ -7,13 +7,13 @@
 #include "EchoServer.h"
 
 EchoServer::EchoServer(size_t inputBufferSize) {
-    attributes.log=&log;
+    attributes.log = &log;
     attributes.socket =
-        new Kernel::UDP4Socket(
-                new UDP4Port(ECHO_PORT_NUMBER)
-                );
-    attributes.inputBufferSize=inputBufferSize;
-    attributes.inputBuffer = new uint8_t (inputBufferSize);
+            new Kernel::UDP4Socket(
+                    new UDP4Port(ECHO_PORT_NUMBER)
+            );
+    attributes.inputBufferSize = inputBufferSize;
+    attributes.inputBuffer = new uint8_t(inputBufferSize);
     attributes.isRunning = new Atomic<bool>;
     attributes.isRunning->set(false);
 
@@ -35,14 +35,14 @@ uint8_t EchoServer::start() {
     if (
             attributes.inputBuffer == nullptr ||
             attributes.socket == nullptr ||
-            attributes.isRunning== nullptr ||
+            attributes.isRunning == nullptr ||
             attributes.log == nullptr ||
             serverThread == nullptr
-        ) {
+            ) {
         cleanup();
         return 1;
     }
-    if(attributes.socket->bind()){
+    if (attributes.socket->bind()) {
         log.error("Binding socket in EchoServer failed");
         cleanup();
         return 1;
@@ -55,13 +55,13 @@ uint8_t EchoServer::start() {
 uint8_t EchoServer::stop() {
     if (
             attributes.socket == nullptr ||
-            attributes.isRunning== nullptr ||
+            attributes.isRunning == nullptr ||
             serverThread == nullptr
-        ) {
+            ) {
         return 1;
     }
     attributes.isRunning->set(false);
-    while(!serverThread->hasFinished()){}
+    while (!serverThread->hasFinished()) {}
     return attributes.socket->close();
 }
 
@@ -70,13 +70,13 @@ void EchoServer::EchoThread::run() {
     IP4Header *ip4Header = nullptr;
     UDP4Header *udp4Header = nullptr;
 
-    while(attributes.isRunning->get()) {
+    while (attributes.isRunning->get()) {
         bytesReceived = attributes.socket->receive(
                 attributes.inputBuffer,
                 attributes.inputBufferSize,
-                &ip4Header,&udp4Header
+                &ip4Header, &udp4Header
         );
-        if(bytesReceived<=0){
+        if (bytesReceived <= 0) {
             (*attributes.log).error("Error while receiving data, stopping");
             delete ip4Header;
             delete udp4Header;
@@ -86,15 +86,15 @@ void EchoServer::EchoThread::run() {
                 "Incoming datagram from %s with content '%s', sending response",
                 ip4Header->getSourceAddress()->asChars(),
                 attributes.inputBuffer
-                );
+        );
 
-        if(attributes.socket->send(
+        if (attributes.socket->send(
                 ip4Header->getSourceAddress(),
                 udp4Header->getSourcePort(),
                 attributes.inputBuffer,
                 bytesReceived
-                )
-        ){
+        )
+                ) {
             (*attributes.log).error("Sending response failed, stopping");
             delete ip4Header;
             delete udp4Header;

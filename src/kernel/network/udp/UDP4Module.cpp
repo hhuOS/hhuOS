@@ -76,7 +76,7 @@ namespace Kernel {
                     ip4Header == nullptr ||
                     input == nullptr ||
                     sockets == nullptr
-                ) {
+                    ) {
                 log.error("One of incoming objects or socket map was null, discarding input");
                 delete ip4Header;
                 delete input;
@@ -99,7 +99,7 @@ namespace Kernel {
                 return;
             }
 
-            if (sockets->get(destinationPort)->notifySocket(ip4Header,udp4Header,input)) {
+            if (sockets->get(destinationPort)->notifySocket(ip4Header, udp4Header, input)) {
                 log.error("Could not deliver input to destination socket");
                 delete udp4Header;
                 delete ip4Header;

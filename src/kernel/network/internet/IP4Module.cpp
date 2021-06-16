@@ -108,7 +108,7 @@ namespace Kernel {
                 delete ip4Header;
                 return;
             }
-            if(!ip4Header->headerValid()){
+            if (!ip4Header->headerValid()) {
                 log.error("Incoming IP4Header corrupted, discarding datagram");
                 delete ip4Header;
                 delete input;
@@ -164,7 +164,7 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            if(interfaces== nullptr){
+            if (interfaces == nullptr) {
                 log.error("Internal interface list not initialized, discarding");
                 delete arpMessage;
                 return;

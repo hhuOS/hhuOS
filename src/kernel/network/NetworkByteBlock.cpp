@@ -64,7 +64,7 @@ uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
         //It's not an error if nothing needs to be done...
         return BYTEBLOCK_ACTION_SUCCESS;
     }
-    auto *sourceAsBytes=(uint8_t*)source;
+    auto *sourceAsBytes = (uint8_t *) source;
     for (size_t i = 0; i < byteCount; i++) {
         this->bytes[currentIndex + i] = sourceAsBytes[i];
     }
@@ -104,7 +104,7 @@ uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
             ) {
         return 1;
     }
-    auto *targetBytes=(uint8_t*)target;
+    auto *targetBytes = (uint8_t *) target;
     for (size_t i = 0; i < byteCount; i++) {
         targetBytes[i] = this->bytes[currentIndex + i];
     }
