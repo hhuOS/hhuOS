@@ -29,7 +29,7 @@ namespace Kernel {
 
         uint8_t notifySocket(IP4Header *ip4Header, UDP4Header *udp4Header, NetworkByteBlock *input);
 
-        int receive(uint8_t *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header);
+        int receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header);
 
         uint8_t publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram);
     };

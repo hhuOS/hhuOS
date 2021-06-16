@@ -36,9 +36,9 @@ namespace Kernel {
 
         uint8_t send(IP4Address *givenDestination, UDP4Port *givenRemotePort, void *dataBytes, size_t length);
 
-        int receive(uint8_t *targetBuffer, size_t length);
+        int receive(void *targetBuffer, size_t length);
 
-        int receive(uint8_t *targetBuffer, size_t length,IP4Header **ip4Header, UDP4Header **udp4Header);
+        int receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header);
     };
 }
 

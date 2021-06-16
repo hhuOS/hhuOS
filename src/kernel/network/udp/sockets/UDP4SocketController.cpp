@@ -26,7 +26,7 @@ namespace Kernel {
         return 0;
     }
 
-    int UDP4SocketController::receive(uint8_t *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header) {
+    int UDP4SocketController::receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header) {
         if (
                 content == nullptr ||
                 targetBuffer == nullptr ||

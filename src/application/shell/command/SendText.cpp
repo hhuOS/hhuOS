@@ -33,20 +33,23 @@ void SendText::execute(Util::Array<String> &args) {
     stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
 
     auto *sendSocket = new Kernel::UDP4Socket(localhost,echoPort);
-    auto *response = new char [testString->length()];
+    auto *response = new char [testString->length() + 1];
+    response[testString->length()]='\0';
 
-    sendSocket->send((char *)*testString,testString->length());
-//    sendSocket->receive(response, testString->length());
-
-    stdout << "CLIENT: Response was '" << response << "'" << endl;
-
+    if(!sendSocket->send((char *)*testString,testString->length())) {
+        sendSocket->receive(response, testString->length());
+        stdout << "CLIENT: Response was '" << response << "'" << endl;
+    } else{
+        stderr << "CLIENT: Error while sending!" << endl;
+    }
+    sendSocket->close();
     delete sendSocket;
     delete testString;
+    delete[] response;
 
     if(server->stop()){
         stderr << "Stopping server failed!" << endl;
     }
-
     delete server;
 }
 

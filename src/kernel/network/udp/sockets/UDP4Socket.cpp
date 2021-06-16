@@ -59,12 +59,12 @@ namespace Kernel {
     }
 
     //Regular receive() for clients
-    int UDP4Socket::receive(uint8_t *targetBuffer, size_t length) {
+    int UDP4Socket::receive(void *targetBuffer, size_t length) {
         return receive(targetBuffer, length, nullptr, nullptr);
     }
 
     //Extended receive() for server and clients who need to know IP4 or UDP4 headers
-    int UDP4Socket::receive(uint8_t *targetBuffer, size_t length,IP4Header **ip4Header, UDP4Header **udp4Header) {
+    int UDP4Socket::receive(void *targetBuffer, size_t length, IP4Header **ip4Header, UDP4Header **udp4Header) {
         return controller->receive(targetBuffer, length, ip4Header, udp4Header);
     }
 }
