@@ -55,7 +55,7 @@ uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCo
     return append(otherByteBlock->bytes, byteCount);
 }
 
-uint8_t NetworkByteBlock::append(const uint8_t *source, size_t byteCount) {
+uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
     //Avoid writing beyond last byte
     if (this->bytes == nullptr || (this->currentIndex + byteCount) > this->length) {
         return 1;
@@ -64,8 +64,9 @@ uint8_t NetworkByteBlock::append(const uint8_t *source, size_t byteCount) {
         //It's not an error if nothing needs to be done...
         return BYTEBLOCK_ACTION_SUCCESS;
     }
+    auto *sourceAsBytes=(uint8_t*)source;
     for (size_t i = 0; i < byteCount; i++) {
-        this->bytes[currentIndex + i] = source[i];
+        this->bytes[currentIndex + i] = sourceAsBytes[i];
     }
     this->currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;
@@ -93,7 +94,7 @@ uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
     return BYTEBLOCK_ACTION_SUCCESS;
 }
 
-uint8_t NetworkByteBlock::read(uint8_t *target, size_t byteCount) {
+uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
     if (
             this->currentIndex == this->length ||
             byteCount == 0 ||
@@ -103,8 +104,9 @@ uint8_t NetworkByteBlock::read(uint8_t *target, size_t byteCount) {
             ) {
         return 1;
     }
+    auto *targetBytes=(uint8_t*)target;
     for (size_t i = 0; i < byteCount; i++) {
-        target[i] = this->bytes[currentIndex + i];
+        targetBytes[i] = this->bytes[currentIndex + i];
     }
     currentIndex += byteCount;
     return BYTEBLOCK_ACTION_SUCCESS;

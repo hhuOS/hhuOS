@@ -19,7 +19,7 @@ private:
     NetworkByteBlock *dataBytes = nullptr;
 
 public:
-    UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, uint8_t *outgoingBytes, size_t dataLength);
+    UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength);
 
     ~UDP4Datagram();
 

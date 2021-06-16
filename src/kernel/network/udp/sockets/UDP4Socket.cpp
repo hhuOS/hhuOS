@@ -34,20 +34,7 @@ namespace Kernel {
         return networkService->unregisterSocketController(listeningPort);
     }
 
-    uint8_t UDP4Socket::send(char *dataBytes, size_t length) {
-        if (
-                dataBytes == nullptr ||
-                destinationAddress == nullptr ||
-                length == 0
-                ) {
-            return 1;
-        }
-        //Trivial but helpful to centralize access here
-        //-> we can filter, convert etc. incoming data here if necessary
-        return send((uint8_t *) dataBytes, length);
-    }
-
-    uint8_t UDP4Socket::send(uint8_t *dataBytes, size_t length) {
+    uint8_t UDP4Socket::send(void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
                 destinationAddress == nullptr ||

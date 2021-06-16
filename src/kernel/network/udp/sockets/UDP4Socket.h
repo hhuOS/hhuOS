@@ -32,9 +32,7 @@ namespace Kernel {
 
         uint8_t close();
 
-        uint8_t send(char *dataBytes, size_t length);
-
-        uint8_t send(uint8_t *dataBytes, size_t length);
+        uint8_t send(void *dataBytes, size_t length);
 
         int receive(uint8_t *targetBuffer, size_t length);
 
