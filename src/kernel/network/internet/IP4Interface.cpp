@@ -4,7 +4,6 @@
 
 #include <kernel/event/network/EthernetSendEvent.h>
 #include "IP4Interface.h"
-#include "IP4Module.h"
 
 IP4Interface::IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                            IP4Netmask *ip4Netmask) {
@@ -22,11 +21,8 @@ IP4Interface::~IP4Interface() {
 }
 
 uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
-    if (ip4Datagram == nullptr) {
-        return IP4_DATAGRAM_NULL;
-    }
-    if (receiverAddress == nullptr) {
-        return IP4_RECEIVER_ADDRESS_NULL;
+    if (ip4Datagram == nullptr || receiverAddress == nullptr) {
+        return 1;
     }
     //interface selection happens in routing module
     // -> we don't know source address before this point here!
@@ -40,7 +36,7 @@ uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *
     if (destinationAddress == nullptr) {
         //See RFC 826 page 3 for details
         auto *arpRequest = new ARPMessage(
-                1, // 1 for Ethernet, RFC 826 page 3
+                1, // 1 for Ethernet
                 (uint16_t) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
                 MAC_SIZE,
                 IP4ADDRESS_LENGTH,

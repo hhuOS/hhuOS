@@ -85,25 +85,12 @@ namespace Kernel {
                 delete datagram;
                 return;
             }
-            switch (routingModule->sendViaBestRoute(datagram)) {
-                case 0:
-                    //Datagram will be deleted in EthernetModule after send
-                    //-> no delete here!
-                    return;
-                case IP4_INTERFACE_NULL: {
-                    log.error("Outgoing interface was null, discarding datagram");
-                    break;
-                }
-                case IP4_RECEIVER_ADDRESS_NULL: {
-                    break;
-                }
-                default: {
-                    log.error("Sending failed, discarding datagram. See syslog for more details");
-                    break;
-                }
+            if (routingModule->sendViaBestRoute(datagram)) {
+                log.error("Sending failed, discarding datagram. See syslog for more details");
+                delete datagram;
             }
-            //Cleanup after logging errors
-            delete datagram;
+            //Datagram will be deleted in EthernetModule after sending
+            //-> no delete here!
             return;
         }
 

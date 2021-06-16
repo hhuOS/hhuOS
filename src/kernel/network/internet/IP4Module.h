@@ -20,6 +20,8 @@
 #include <kernel/network/arp/ARPModule.h>
 #include <kernel/network/arp/ARPMessage.h>
 
+#include <kernel/network/ethernet/EthernetDevice.h>
+
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
 
 #include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
@@ -27,13 +29,6 @@
 
 #include "IP4Interface.h"
 #include "IP4Module.h"
-
-#define IP4_DELIVER_SUCCESS 0
-#define IP4_DATAGRAM_NULL 1
-#define IP4_INTERFACE_NULL 2
-#define IP4_RECEIVER_ADDRESS_NULL 3
-#define IP4_MATCHING_BITS_FUNCTION_BROKEN 4
-#define IP4_NO_ROUTE_FOUND 5
 
 namespace Kernel {
 

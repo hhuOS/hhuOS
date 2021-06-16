@@ -20,11 +20,8 @@ IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *ou
 }
 
 uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
-    if (datagram == nullptr) {
-        return IP4_DATAGRAM_NULL;
-    }
-    if (outInterface == nullptr) {
-        return IP4_INTERFACE_NULL;
+    if (datagram == nullptr || outInterface == nullptr){
+        return 1;
     }
     if (nextHopAddress == nullptr) {
         //direct route
