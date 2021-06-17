@@ -5,6 +5,7 @@
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/applications/EchoServer.h>
 #include <kernel/network/NetworkDefinitions.h>
+#include <kernel/network/udp/sockets/UDP4ClientSocket.h>
 #include "SendText.h"
 
 SendText::SendText(Shell &shell) : Command(shell) {
@@ -31,7 +32,7 @@ void SendText::execute(Util::Array<String> &args) {
     auto *localhost = new IP4Address(127, 0, 0, 1);
     stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
 
-    auto *sendSocket = new Kernel::UDP4Socket(localhost, ECHO_PORT_NUMBER);
+    auto *sendSocket = new Kernel::UDP4ClientSocket(localhost, ECHO_PORT_NUMBER);
     auto *response = new char [testString->length() + 1];
     response[testString->length()]='\0';
 

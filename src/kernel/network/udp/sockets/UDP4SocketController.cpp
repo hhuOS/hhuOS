@@ -89,7 +89,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4SocketController::publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram) {
-        if (outDatagram == nullptr) {
+        if (destinationAddress == nullptr || outDatagram == nullptr) {
             return 1;
         }
         eventBus->publish(
