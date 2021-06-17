@@ -126,7 +126,7 @@ namespace Kernel {
                     //-> send full input to ICMP4Module for parsing and processing
                     eventBus->publish(new ICMP4ReceiveEvent(ip4Header, input));
 
-                    //We need input AND ip4datagram in next module
+                    //We need input AND ip4Header in next module
                     //-> don't delete anything here!
                     return;
                 }
@@ -134,7 +134,7 @@ namespace Kernel {
                     auto *udp4Header = new UDP4Header();
                     if (udp4Header->parse(input)) {
                         log.error("Could not assemble UDP header, discarding data");
-                        //udpDatagram is not part of ip4Datagram here
+                        //udp4Header is not part of ip4Datagram here
                         //-> we need to delete it separately!
                         delete udp4Header;
                         delete ip4Header;
@@ -142,7 +142,7 @@ namespace Kernel {
                         return;
                     }
                     eventBus->publish(new UDP4ReceiveEvent(ip4Header, udp4Header, input));
-                    //We need input AND ip4datagram in next module
+                    //We need input AND both headers in next module
                     //-> don't delete anything here!
                     return;
                 }

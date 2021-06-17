@@ -29,7 +29,7 @@ private:
     //solid default value, can be set from constructor if necessary
     uint8_t timeToLive = 64;
 
-    uint8_t protocolType = 0;
+    IP4DataPart::IP4ProtocolType protocolType = IP4DataPart::IP4ProtocolType::INVALID;
     uint16_t headerChecksum = 0;
 
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;

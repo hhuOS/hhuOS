@@ -6,7 +6,7 @@
 
 IP4Header::IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart) {
     this->destinationAddress = destinationAddress;
-    protocolType = dataPart->getIP4ProtocolTypeAsInt();
+    protocolType = dataPart->getIP4ProtocolType();
 
     //we use minimal header if we create one
     totalLength = IP4HEADER_MIN_LENGTH + dataPart->getLengthInBytes();
@@ -22,7 +22,7 @@ size_t IP4Header::getTotalDatagramLength() const {
 }
 
 IP4DataPart::IP4ProtocolType IP4Header::getIP4ProtocolType() const {
-    return IP4DataPart::parseIntAsIP4ProtocolType(protocolType);
+    return protocolType;
 }
 
 IP4Address *IP4Header::getDestinationAddress() {
@@ -53,7 +53,7 @@ uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
     errors += output->append(identification);
     errors += output->append(flags_fragmentOffset);
     errors += output->append(timeToLive);
-    errors += output->append(protocolType);
+    errors += output->append((uint8_t)protocolType);
     errors += output->append(headerChecksum);
     errors += output->append(sourceAddress, IP4ADDRESS_LENGTH);
     errors += output->append(destinationAddress, IP4ADDRESS_LENGTH);
@@ -78,12 +78,18 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
     errors += input->read(&identification);
     errors += input->read(&flags_fragmentOffset);
     errors += input->read(&timeToLive);
-    errors += input->read(&protocolType);
+
+    uint8_t typeValue = 0;
+    errors += input->read(&typeValue);
+    protocolType= IP4DataPart::parseIntAsIP4ProtocolType(typeValue);
+
     errors += input->read(&headerChecksum);
 
     uint8_t addressBytes[IP4ADDRESS_LENGTH];
+
     errors += input->read(addressBytes, IP4ADDRESS_LENGTH);
     sourceAddress=new IP4Address(addressBytes);
+
     errors += input->read(addressBytes, IP4ADDRESS_LENGTH);
     destinationAddress=new IP4Address(addressBytes);
 
