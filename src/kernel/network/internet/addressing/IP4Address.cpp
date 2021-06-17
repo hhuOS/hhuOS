@@ -20,6 +20,10 @@ IP4Address::IP4Address(const uint8_t *bytes) {
     }
 }
 
+IP4Address::~IP4Address() {
+    delete address;
+}
+
 bool IP4Address::equals(IP4Address *other) {
     if(other== nullptr){
         return false;

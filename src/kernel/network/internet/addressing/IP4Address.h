@@ -27,6 +27,8 @@ public:
     void copyTo(uint8_t *target);
 
     IP4Address *calculateAND(const uint8_t netmask[4]);
+
+    virtual ~IP4Address();
 };
 
 
