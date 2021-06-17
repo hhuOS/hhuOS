@@ -3,6 +3,7 @@
 //
 
 #include <lib/libc/printf.h>
+#include <kernel/network/NetworkDefinitions.h>
 #include "UDP4Datagram.h"
 
 UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength) {

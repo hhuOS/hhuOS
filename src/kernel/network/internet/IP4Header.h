@@ -8,6 +8,7 @@
 
 #include <cstdint>
 #include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/NetworkDefinitions.h>
 #include "IP4DataPart.h"
 
 class IP4Header {

@@ -8,8 +8,6 @@
 #include <kernel/log/Logger.h>
 #include <kernel/network/NetworkEventBus.h>
 
-#define IP4ADDRESS_LENGTH 4
-
 namespace Kernel {
     class ICMP4Module : public Receiver {
     private:

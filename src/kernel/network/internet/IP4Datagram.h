@@ -5,9 +5,6 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
-#define IP4DATAPART_MAX_LENGTH 576 //Recommended in RFC 791 page 13
-#define IP4HEADER_MAX_LENGTH 60 //RFC 791 page 13
-
 #include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
 #include <kernel/network/NetworkByteBlock.h>

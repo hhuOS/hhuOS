@@ -2,6 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
+#include <kernel/network/NetworkDefinitions.h>
 #include "IP4Netmask.h"
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {

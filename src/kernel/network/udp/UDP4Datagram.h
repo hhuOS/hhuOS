@@ -5,10 +5,6 @@
 #ifndef HHUOS_UDP4DATAGRAM_H
 #define HHUOS_UDP4DATAGRAM_H
 
-//TODO: Verify values with RFC Sources
-#define UDP4DATAPART_MAX_LENGTH 1500
-#define UDP4HEADER_MAX_LENGTH 0xffff
-
 #include <kernel/network/internet/IP4DataPart.h>
 #include <kernel/network/udp/sockets/UDP4Port.h>
 #include "UDP4Header.h"

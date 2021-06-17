@@ -5,9 +5,6 @@
 #ifndef HHUOS_ETHERNETFRAME_H
 #define HHUOS_ETHERNETFRAME_H
 
-#define ETHERNETDATAPART_MAX_LENGTH 1500
-#define ETHERNETHEADER_MAX_LENGTH 14
-
 #include <kernel/network/NetworkByteBlock.h>
 #include <kernel/network/internet/IP4Datagram.h>
 #include <kernel/network/arp/ARPMessage.h>
