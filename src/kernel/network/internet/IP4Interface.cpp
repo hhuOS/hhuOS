@@ -89,7 +89,10 @@ namespace Kernel {
                     new Kernel::EthernetSendEvent(
                             this->ethernetDevice,
                             new EthernetFrame(
-                                    arpModule->getBroadcastAddress(), arpRequest
+                                    //The frame's attributes will be deleted after sending
+                                    //-> copy it here!
+                                    new EthernetAddress(arpModule->getBroadcastAddress()),
+                                    arpRequest
                             )
                     )
             );

@@ -94,7 +94,9 @@ namespace Kernel {
                     eventBus->publish(
                             new IP4SendEvent(
                                     new IP4Datagram(
-                                            inIP4Header->getSourceAddress(),
+                                            //The datagram's attributes will be deleted after sending
+                                            //-> copy it here!
+                                            new IP4Address(inIP4Header->getSourceAddress()),
                                             echoRequest->buildEchoReply()
                                     )
                             )

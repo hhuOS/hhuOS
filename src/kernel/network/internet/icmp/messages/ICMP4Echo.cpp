@@ -19,7 +19,7 @@ ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
     auto *reply =
             new ICMP4EchoReply(
                     this->echoMessage.identifier,
-                    this->echoMessage.sequenceNumber + (uint16_t) 1
+                    this->echoMessage.sequenceNumber
             );
     return reply;
 }
