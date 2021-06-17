@@ -43,8 +43,7 @@ namespace Kernel {
             }
 
             auto *input = new NetworkByteBlock(length);
-            //TODO: Check this one!
-            if (input->append((uint8_t *) packet, length)) {
+            if (input->append(packet, length)) {
                 log.error("Reading of data into NetworkByteBlock failed, discarding");
                 delete (uint8_t *) packet;
                 delete input;

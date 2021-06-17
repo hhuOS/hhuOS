@@ -50,6 +50,8 @@ namespace Kernel {
         uint8_t decrementIndex();
 
         uint8_t resetIndex();
+
+        [[maybe_unused]] void printBytes();
     };
 }
 

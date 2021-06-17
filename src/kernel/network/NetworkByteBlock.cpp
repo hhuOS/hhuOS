@@ -2,6 +2,7 @@
 // Created by hannes on 30.05.21.
 //
 
+#include <lib/libc/printf.h>
 #include "NetworkByteBlock.h"
 
 namespace Kernel {
@@ -135,6 +136,7 @@ namespace Kernel {
             //It's not an error if nothing needs to be done
             return 0;
         }
+        printBytes();
         networkDevice->sendPacket(bytes, static_cast<uint16_t>(length));
         //NetworkDevices return no information about errors or successful sending
         //-> we just can return successful here
@@ -167,5 +169,16 @@ namespace Kernel {
     uint8_t NetworkByteBlock::resetIndex() {
         currentIndex = 0;
         return 0;
+    }
+
+    [[maybe_unused]] void NetworkByteBlock::printBytes() {
+        if (this->bytes == nullptr) {
+            return;
+        }
+        printf("\nBytes: ");
+        for (size_t i = 0; i < length; i++) {
+            printf("%02x ", bytes[i]);
+        }
+        printf("\n\n");
     }
 }
