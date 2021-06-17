@@ -12,8 +12,8 @@
 namespace Kernel {
     class IP4RoutingModule {
     private:
-        Util::ArrayList<IP4Route *> *routes;
-        IP4Route *defaultRoute;
+        Util::ArrayList<IP4Route *> *routes = nullptr;
+        IP4Route *defaultRoute = nullptr;
 
         uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
 
@@ -27,7 +27,7 @@ namespace Kernel {
 
         void addRouteFor(IP4Interface *ip4Interface);
 
-        [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
+        void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
         void removeRoutesFor(IP4Interface *ip4Interface);
 

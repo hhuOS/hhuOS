@@ -8,7 +8,6 @@
 namespace Kernel {
     IP4RoutingModule::IP4RoutingModule() {
         this->routes = new Util::ArrayList<IP4Route *>();
-        this->defaultRoute = nullptr;
     }
 
 //Private method!
@@ -17,14 +16,19 @@ namespace Kernel {
         *bestRoute = nullptr;
 
         if (receiverAddress == nullptr) {
-            log.error("Given receiver address was null, discarding datagram");
+            log.error("Given receiver address was null");
+            return 1;
+        }
+
+        if (routes == nullptr) {
+            log.error("Internal data structure for routes not initialized, not finding best one");
             return 1;
         }
 
         for (IP4Route *currentRoute:*this->routes) {
             matchingBits = currentRoute->matchingBits(receiverAddress);
             if (matchingBits > 32) {
-                log.error("matchingBits() function is broken, discarding datagram");
+                log.error("matchingBits() function is broken");
                 return 1;
             }
             if (matchingBits > bestMatch) {
@@ -45,7 +49,7 @@ namespace Kernel {
         }
 
         //Return error if no route could be found at all
-        log.error("No route to host could be found, discarding datagram");
+        log.error("No route to host could be found");
         return 1;
     }
 
@@ -69,12 +73,16 @@ namespace Kernel {
         if (strings == nullptr) {
             return;
         }
+        if (routes == nullptr) {
+            log.error("Internal data structure for routes not initialized, not collecting route attributes");
+            return;
+        }
         for (IP4Route *current:*this->routes) {
             strings->add(current->asString());
         }
     }
 
-    [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
+    void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
         if (this->defaultRoute != nullptr) {
             delete this->defaultRoute;
             this->defaultRoute = nullptr;
@@ -92,6 +100,10 @@ namespace Kernel {
         if (ip4Interface == nullptr) {
             return;
         }
+        if (routes == nullptr) {
+            log.error("Internal data structure for routes not initialized, not adding route");
+            return;
+        }
         //Add a direct route for a given new IP4Interface
         //-> Extract Network Address from interface's IP4Address with its Netmask
         //-> NextHop is null, we are directly connected here
@@ -100,6 +112,10 @@ namespace Kernel {
 
     void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
         if (ip4Interface == nullptr) {
+            return;
+        }
+        if (routes == nullptr) {
+            log.error("Internal data structure for routes not initialized, not removing route");
             return;
         }
         //TODO: Synchronization!
