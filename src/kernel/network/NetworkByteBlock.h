@@ -8,10 +8,6 @@
 #include <device/network/NetworkDevice.h>
 #include <kernel/event/network/ReceiveEvent.h>
 
-#define BYTEBLOCK_ACTION_SUCCESS 0
-#define BYTEBLOCK_NETWORK_DEVICE_NULL 30
-#define BYTEBLOCK_BYTES_NULL 31
-
 namespace Kernel {
     class NetworkByteBlock {
     private:
