@@ -53,21 +53,21 @@ namespace Kernel {
     }
 
     bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {
-        if(networkDevice== nullptr || otherDevice== nullptr){
+        if (networkDevice == nullptr || otherDevice == nullptr) {
             return false;
         }
         return this->networkDevice == otherDevice;
     }
 
     String EthernetDevice::asString() {
-        if(identifier== nullptr || ethernetAddress== nullptr){
+        if (identifier == nullptr || ethernetAddress == nullptr) {
             return "NULL";
         }
         return "\nID: " + *identifier + ",\nMAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {
-        if(networkDevice== nullptr || compare== nullptr){
+        if (networkDevice == nullptr || compare == nullptr) {
             return false;
         }
         return this->networkDevice == compare->networkDevice;

@@ -43,11 +43,11 @@ void EthernetFrame::setSourceAddress(EthernetAddress *source) {
 
 uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
-            header== nullptr ||
+            header == nullptr ||
             ethernetDataPart == nullptr ||
             output == nullptr ||
             ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
-                    EthernetHeader::getHeaderLength() > ETHERNETHEADER_MAX_LENGTH
+            EthernetHeader::getHeaderLength() > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;
     }

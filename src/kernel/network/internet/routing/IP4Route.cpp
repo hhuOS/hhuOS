@@ -36,24 +36,24 @@ Kernel::IP4Interface *IP4Route::getOutInterface() const {
 }
 
 uint8_t IP4Route::matchingBits(uint8_t *targetBitCount, IP4Address *ip4Address) {
-    if(netAddress== nullptr || targetBitCount == nullptr || ip4Address== nullptr){
-        *targetBitCount= 0;
+    if (netAddress == nullptr || targetBitCount == nullptr || ip4Address == nullptr) {
+        *targetBitCount = 0;
         return 1;
     }
 
     IP4Address *addressNetPart = nullptr;
-    if(netMask->extractNetPart(&addressNetPart, ip4Address) || addressNetPart== nullptr){
+    if (netMask->extractNetPart(&addressNetPart, ip4Address) || addressNetPart == nullptr) {
         delete addressNetPart;
-        *targetBitCount=0;
+        *targetBitCount = 0;
         return 1;
     }
     if (addressNetPart->equals(netAddress)) {
         delete addressNetPart;
-        *targetBitCount=netMask->getBitCount();
+        *targetBitCount = netMask->getBitCount();
         return 0;
     }
     delete addressNetPart;
-    *targetBitCount=0;
+    *targetBitCount = 0;
     return 0;
 }
 
@@ -65,7 +65,7 @@ IP4Route::IP4Route(Kernel::IP4Interface *ip4Interface) {
 }
 
 String IP4Route::asString() {
-    if(netAddress== nullptr || netMask== nullptr || outInterface == nullptr){
+    if (netAddress == nullptr || netMask == nullptr || outInterface == nullptr) {
         return "NULL";
     }
     if (nextHopAddress == nullptr) {

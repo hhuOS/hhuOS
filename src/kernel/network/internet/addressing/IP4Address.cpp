@@ -14,7 +14,7 @@ IP4Address::IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fou
 }
 
 IP4Address::IP4Address(const uint8_t *bytes) {
-    if(bytes!= nullptr) {
+    if (bytes != nullptr) {
         address = new uint8_t[IP4ADDRESS_LENGTH];
         for (int i = 0; i < IP4ADDRESS_LENGTH; i++) {
             this->address[i] = bytes[i];
@@ -23,7 +23,7 @@ IP4Address::IP4Address(const uint8_t *bytes) {
 }
 
 IP4Address::IP4Address(IP4Address *other) {
-    if(other!= nullptr) {
+    if (other != nullptr) {
         address = new uint8_t[IP4ADDRESS_LENGTH];
         other->copyTo(address);
     }
@@ -34,7 +34,7 @@ IP4Address::~IP4Address() {
 }
 
 bool IP4Address::equals(IP4Address *other) {
-    if(address == nullptr || other== nullptr){
+    if (address == nullptr || other == nullptr) {
         return false;
     }
     return
@@ -45,7 +45,7 @@ bool IP4Address::equals(IP4Address *other) {
 }
 
 void IP4Address::copyTo(uint8_t *target) {
-    if(address== nullptr || target == nullptr){
+    if (address == nullptr || target == nullptr) {
         return;
     }
     for (int i = 0; i < IP4ADDRESS_LENGTH; i++) {
@@ -54,7 +54,7 @@ void IP4Address::copyTo(uint8_t *target) {
 }
 
 String IP4Address::asString() {
-    if(address== nullptr){
+    if (address == nullptr) {
         return "NULL";
     }
     return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
@@ -65,13 +65,13 @@ char *IP4Address::asChars() {
 }
 
 uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask) {
-    if(netmask== nullptr || address== nullptr || ANDedAddress== nullptr){
+    if (netmask == nullptr || address == nullptr || ANDedAddress == nullptr) {
         return 1;
     }
     uint8_t bytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
     for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
         bytes[i] = (this->address[i] & netmask[i]);
     }
-    *ANDedAddress=new IP4Address(bytes);
+    *ANDedAddress = new IP4Address(bytes);
     return 0;
 }

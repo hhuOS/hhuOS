@@ -14,9 +14,9 @@ namespace Kernel {
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
         this->ip4Netmask = ip4Netmask;
-        if(ip4Netmask->extractNetPart(&this->ip4NetAddress, ip4Address)){
+        if (ip4Netmask->extractNetPart(&this->ip4NetAddress, ip4Address)) {
             delete ip4NetAddress;
-            ip4NetAddress= nullptr;
+            ip4NetAddress = nullptr;
         }
 
         this->arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
@@ -32,19 +32,19 @@ namespace Kernel {
     }
 
     uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
-        if(ethernetDevice== nullptr){
+        if (ethernetDevice == nullptr) {
             log.error("Connected EthernetDevice was null, not sending anything");
             return 1;
         }
-        if (ip4Datagram == nullptr){
+        if (ip4Datagram == nullptr) {
             log.error("%s: Given IP4 datagram was null, return", ethernetDevice->getIdentifier());
             return 1;
         }
-        if(receiverAddress == nullptr) {
+        if (receiverAddress == nullptr) {
             log.error("%s: Given receiver IP4 address was null, return", ethernetDevice->getIdentifier());
             return 1;
         }
-        if(arpModule== nullptr){
+        if (arpModule == nullptr) {
             log.error("%s: ARP module was not initialized, do not send anything",
                       ethernetDevice->getIdentifier());
             return 1;
@@ -52,10 +52,10 @@ namespace Kernel {
         //We need to copy our own address, because the datagram's address will be deleted after sending
         ip4Datagram->setSourceAddress(new IP4Address(this->ip4Address));
         EthernetAddress *destinationAddress = nullptr;
-        if(arpModule->resolveTo(&destinationAddress, receiverAddress)){
+        if (arpModule->resolveTo(&destinationAddress, receiverAddress)) {
             log.error("%s: ARP module failed to resolve destination address, do not send anything",
                       ethernetDevice->getIdentifier()
-                      );
+            );
             return 1;
         }
 
@@ -123,14 +123,14 @@ namespace Kernel {
     }
 
     bool IP4Interface::equals(IP4Interface *compare) {
-        if(this->ethernetDevice== nullptr || compare == nullptr){
+        if (this->ethernetDevice == nullptr || compare == nullptr) {
             return false;
         }
         return this->ethernetDevice == compare->ethernetDevice;
     }
 
     String IP4Interface::asString() {
-        if(ethernetDevice== nullptr || ip4Netmask== nullptr || ip4Address== nullptr){
+        if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr) {
             return "NULL";
         }
         return this->ethernetDevice->asString() + ",\nIP4Address: " + this->ip4Address->asString() + ",\nIP4Netmask: " +
@@ -138,19 +138,19 @@ namespace Kernel {
     }
 
     uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
-        if(ethernetDevice== nullptr || eventBus== nullptr){
+        if (ethernetDevice == nullptr || eventBus == nullptr) {
             return 1;
         }
-        if(message== nullptr){
+        if (message == nullptr) {
             log.error("%s: ARP message was null, not processing",
                       ethernetDevice->getIdentifier()
             );
             return 1;
         }
-        if(arpModule== nullptr){
+        if (arpModule == nullptr) {
             log.error("%s: ARP module was not initialized, not processing ARP message",
                       ethernetDevice->getIdentifier()
-                      );
+            );
             return 1;
         }
         switch (message->getOpCode()) {

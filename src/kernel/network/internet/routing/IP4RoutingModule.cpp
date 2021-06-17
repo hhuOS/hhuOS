@@ -26,7 +26,7 @@ namespace Kernel {
         }
 
         for (IP4Route *currentRoute:*this->routes) {
-            if(currentRoute->matchingBits(&matchingBits, receiverAddress)){
+            if (currentRoute->matchingBits(&matchingBits, receiverAddress)) {
                 log.error("Matching bits calculation failed, not finding best route");
                 return 1;
             }
@@ -62,7 +62,7 @@ namespace Kernel {
             return 1;
         }
         IP4Route *matchedRoute = nullptr;
-        if(find(&matchedRoute, datagram->getDestinationAddress())){
+        if (find(&matchedRoute, datagram->getDestinationAddress())) {
             log.error("Finding best route failed, return");
             //Datagram will be deleted in IP4Module
             //-> no delete here!

@@ -49,7 +49,7 @@ namespace Kernel {
 
     uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCount) {
         //Return error if we can't read all bytes from the other byteBlock
-        if (otherByteBlock== nullptr || byteCount > otherByteBlock->bytesRemaining()) {
+        if (otherByteBlock == nullptr || byteCount > otherByteBlock->bytesRemaining()) {
             return 1;
         }
         //The other byteBlock has the same type
@@ -63,7 +63,7 @@ namespace Kernel {
                 source == nullptr ||
                 this->bytes == nullptr ||
                 (this->currentIndex + byteCount) > this->length
-            ) {
+                ) {
             return 1;
         }
         if (byteCount == 0) {
@@ -79,14 +79,14 @@ namespace Kernel {
     }
 
     uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
-        if(oneByte== nullptr){
+        if (oneByte == nullptr) {
             return 1;
         }
         return read(oneByte, 1);
     }
 
     uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
-        if(twoBytes== nullptr){
+        if (twoBytes == nullptr) {
             return 1;
         }
         auto *twoBytesAsArray = (uint8_t *) twoBytes;
@@ -97,7 +97,7 @@ namespace Kernel {
     }
 
     uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
-        if(fourBytes== nullptr){
+        if (fourBytes == nullptr) {
             return 1;
         }
         auto *fourBytesAsArray = (uint8_t *) fourBytes;

@@ -15,7 +15,7 @@ namespace Kernel {
                         0xff,
                         0xff,
                         0xff
-                        );
+                );
     }
 
     ARPModule::~ARPModule() {
@@ -44,19 +44,19 @@ namespace Kernel {
         }
         //If no entry could be found, simply return nullptr as ethernetAddress
         //-> this will cause an ARP resolve
-        *ethernetAddress= nullptr;
+        *ethernetAddress = nullptr;
         return 0;
     }
 
     void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
-        if(ip4Address== nullptr){
+        if (ip4Address == nullptr) {
             log.error("Given IP4 address was null, not adding entry");
             return;
         }
-        if(ethernetAddress== nullptr){
+        if (ethernetAddress == nullptr) {
             log.error("Given Ethernet address was null, not adding entry");
         }
-        if(arpTable== nullptr){
+        if (arpTable == nullptr) {
             log.error("ARP table was null, not adding entry");
             return;
         }

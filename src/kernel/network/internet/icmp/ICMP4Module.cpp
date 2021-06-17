@@ -90,10 +90,10 @@ namespace Kernel {
                     //create and send reply
                     eventBus->publish(
                             new ICMP4SendEvent(
-                               //The datagram's attributes will be deleted after sending
-                                //-> copy it here!
-                                new IP4Address(inIP4Header->getSourceAddress()),
-                                echoRequest->buildEchoReply()
+                                    //The datagram's attributes will be deleted after sending
+                                    //-> copy it here!
+                                    new IP4Address(inIP4Header->getSourceAddress()),
+                                    echoRequest->buildEchoReply()
                             )
                     );
                     delete echoRequest;
