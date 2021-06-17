@@ -25,9 +25,9 @@ namespace Kernel {
             log.error("%s: Outgoing device was null, discarding frame", identifier);
             return 1;
         }
-        //interface selection happens in routing module
-        // -> we don't know source address before this point here!
-        ethernetFrame->setSourceAddress(this->ethernetAddress);
+        //The frame's attributes will be deleted after sending
+        //-> copy it here!
+        ethernetFrame->setSourceAddress(new EthernetAddress(this->ethernetAddress));
         auto *byteBlock = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
 
         //ethernetFrame will be deleted in EthernetModule later
@@ -43,10 +43,9 @@ namespace Kernel {
             return 1;
         }
 
-        uint8_t byteBlockError = byteBlock->sendOutVia(this->networkDevice);
-        if (byteBlockError) {
+        if (byteBlock->sendOutVia(this->networkDevice)) {
             delete byteBlock;
-            return byteBlockError;
+            return 1;
         }
 
         delete byteBlock;
@@ -54,14 +53,23 @@ namespace Kernel {
     }
 
     bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {
+        if(networkDevice== nullptr || otherDevice== nullptr){
+            return false;
+        }
         return this->networkDevice == otherDevice;
     }
 
     String EthernetDevice::asString() {
+        if(identifier== nullptr || ethernetAddress== nullptr){
+            return "NULL";
+        }
         return "\nID: " + *identifier + ",\nMAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {
+        if(networkDevice== nullptr || compare== nullptr){
+            return false;
+        }
         return this->networkDevice == compare->networkDevice;
     }
 

@@ -14,9 +14,9 @@
 namespace Kernel {
     class EthernetDevice {
     private:
-        String *identifier;
-        NetworkDevice *networkDevice;
-        EthernetAddress *ethernetAddress;
+        String *identifier = nullptr;
+        NetworkDevice *networkDevice = nullptr;
+        EthernetAddress *ethernetAddress = nullptr;
 
         /**
          * A logger to provide information on the kernel log.
