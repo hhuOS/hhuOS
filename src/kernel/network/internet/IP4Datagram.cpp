@@ -8,8 +8,8 @@
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-    this->ip4DataPart = ip4DataPart;
     this->header = new IP4Header(destinationAddress, ip4DataPart);
+    this->ip4DataPart = ip4DataPart;
 }
 
 IP4Datagram::~IP4Datagram() {
@@ -56,7 +56,7 @@ void IP4Datagram::setSourceAddress(IP4Address *source) {
 }
 
 size_t IP4Datagram::getLengthInBytes() {
-    return header->getTotalLength();
+    return header->getTotalDatagramLength();
 }
 
 EthernetDataPart::EtherType IP4Datagram::getEtherType() {
@@ -67,8 +67,8 @@ uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ip4DataPart == nullptr ||
             output == nullptr ||
-            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getSize()) ||
-            header->getSize() > IP4HEADER_MAX_LENGTH
+            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
+                    header->getHeaderLength() > IP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }

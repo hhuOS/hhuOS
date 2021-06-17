@@ -70,14 +70,14 @@ namespace Kernel {
     void IP4Module::onEvent(const Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
+            if (datagram == nullptr) {
+                log.error("Outgoing datagram was null, ignoring");
+                return;
+            }
             if (routingModule == nullptr) {
                 log.error("Internal routing module was null, not sending anything");
                 //delete on NULL objects simply does nothing!
                 delete datagram;
-                return;
-            }
-            if (datagram == nullptr) {
-                log.error("Outgoing datagram was null, ignoring");
                 return;
             }
             if (datagram->getLengthInBytes() == 0) {
