@@ -12,7 +12,7 @@ namespace Kernel {
 
 //Private method!
     uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
-        uint8_t matchingBits, bestMatch = 0;
+        uint8_t matchingBits = 0, bestMatch = 0;
         *bestRoute = nullptr;
 
         if (receiverAddress == nullptr) {
@@ -26,7 +26,10 @@ namespace Kernel {
         }
 
         for (IP4Route *currentRoute:*this->routes) {
-            matchingBits = currentRoute->matchingBits(receiverAddress);
+            if(currentRoute->matchingBits(&matchingBits, receiverAddress)){
+                log.error("Matching bits calculation failed, not finding best route");
+                return 1;
+            }
             if (matchingBits > 32) {
                 log.error("matchingBits() function is broken");
                 return 1;
