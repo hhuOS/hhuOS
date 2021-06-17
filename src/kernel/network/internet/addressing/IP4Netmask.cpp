@@ -7,6 +7,8 @@
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {
     uint8_t maxBitCount = IP4ADDRESS_LENGTH * 8;
+    netmask=new uint8_t [IP4ADDRESS_LENGTH];
+
     if (bitCount > maxBitCount) {
         bitCount = maxBitCount;
     }
@@ -14,6 +16,12 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     calculateBitmask(this->netmask, bitCount);
 }
 
+IP4Netmask::~IP4Netmask() {
+    delete netmask;
+}
+
+//NOTE: This method creates a new IP4Address!
+//-> don't forget to delete it after usage!
 IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
     return ip4Address->calculateAND(this->netmask);
 }

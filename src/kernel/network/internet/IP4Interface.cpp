@@ -14,12 +14,16 @@ namespace Kernel {
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
         this->ip4Netmask = ip4Netmask;
+        ip4NetAddress= ip4Netmask->extractNetPart(ip4Address);
 
         this->arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
     }
 
     IP4Interface::~IP4Interface() {
-        delete this->arpModule;
+        delete arpModule;
+        delete ip4Address;
+        delete ip4Netmask;
+        delete ip4NetAddress;
     }
 
     uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
@@ -29,6 +33,10 @@ namespace Kernel {
         }
         if(receiverAddress == nullptr) {
             log.error("%s: Given receiver IP4 address was null, return", ethernetDevice->getIdentifier());
+            return 1;
+        }
+        if(arpModule== nullptr){
+            log.error("%s: ARP module was not initialized, do not send anything", ethernetDevice->getIdentifier());
             return 1;
         }
         //interface selection happens in routing module
@@ -93,12 +101,12 @@ namespace Kernel {
         return ip4Netmask;
     }
 
-    bool IP4Interface::equals(IP4Interface *compare) {
-        return this->ethernetDevice == compare->ethernetDevice;
+    IP4Address *IP4Interface::getNetAddress() const {
+        return ip4NetAddress;
     }
 
-    IP4Address *IP4Interface::getNetAddress() const {
-        return this->ip4Netmask->extractNetPart(this->getIp4Address());
+    bool IP4Interface::equals(IP4Interface *compare) {
+        return this->ethernetDevice == compare->ethernetDevice;
     }
 
     String IP4Interface::asString() {
@@ -107,6 +115,12 @@ namespace Kernel {
     }
 
     uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
+        if(arpModule== nullptr){
+            log.error("%s: ARP module was not initialized, not processing ARP message",
+                      ethernetDevice->getIdentifier()
+                      );
+            return 1;
+        }
         switch (message->getOpCode()) {
             case ARPMessage::OpCode::REQUEST: {
                 //Use each message as a possible ARP update

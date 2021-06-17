@@ -15,11 +15,11 @@
 namespace Kernel {
     class IP4Interface {
     private:
-        ARPModule *arpModule;
-        NetworkEventBus *eventBus;
-        IP4Address *ip4Address;
-        IP4Netmask *ip4Netmask;
-        EthernetDevice *ethernetDevice;
+        ARPModule *arpModule = nullptr;
+        NetworkEventBus *eventBus = nullptr;
+        IP4Address *ip4Address = nullptr, *ip4NetAddress = nullptr;
+        IP4Netmask *ip4Netmask = nullptr;
+        EthernetDevice *ethernetDevice = nullptr;
 
         /**
          * A logger to provide information on the kernel log.

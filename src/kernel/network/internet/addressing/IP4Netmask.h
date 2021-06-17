@@ -10,7 +10,7 @@
 
 class IP4Netmask {
 private:
-    uint8_t netmask[4]{0, 0, 0, 0};
+    uint8_t *netmask;
     uint8_t bitCount = 0;
 
 public:
@@ -23,6 +23,8 @@ public:
     IP4Address *extractNetPart(IP4Address *ip4Address);
 
     static void calculateBitmask(uint8_t *target, uint8_t oneBitNumber);
+
+    virtual ~IP4Netmask();
 };
 
 
