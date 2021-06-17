@@ -8,10 +8,7 @@
 
 EchoServer::EchoServer(size_t inputBufferSize) {
     attributes.log = &log;
-    attributes.socket =
-            new Kernel::UDP4Socket(
-                    new UDP4Port(ECHO_PORT_NUMBER)
-            );
+    attributes.socket = new Kernel::UDP4Socket(ECHO_PORT_NUMBER);
     attributes.inputBufferSize = inputBufferSize;
     attributes.inputBuffer = new uint8_t(inputBufferSize);
     attributes.isRunning = new Atomic<bool>;

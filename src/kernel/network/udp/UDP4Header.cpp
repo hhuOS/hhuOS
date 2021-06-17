@@ -4,67 +4,48 @@
 
 #include "UDP4Header.h"
 
-UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, Kernel::NetworkByteBlock *dataBytes) {
-    header.length = sizeof header + dataBytes->getLength();
-    header.checksum = 0; //Checksum may be zero, RFC 768 page 3 middle
-
-    //create ports once here, delete with this object
-    //-> getter don't create new objects each time
-    //-> reduces number of new() calls
-    sourcePort->copyTo(&header.sourcePort);
-    destinationPort->copyTo(&header.destinationPort);
-
-    this->sourcePort = new UDP4Port(header.sourcePort);
-    this->destinationPort = new UDP4Port(header.destinationPort);
+UDP4Header::UDP4Header(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes) {
+    this->sourcePort = sourcePort;
+    this->destinationPort = destinationPort;
+    checksum = 0; //Checksum may be zero, RFC 768 page 3 middle
+    length = UDP4Header::getHeaderLength() + dataBytes->getLength();
 }
 
-UDP4Header::~UDP4Header() {
-    delete sourcePort;
-    delete destinationPort;
+size_t UDP4Header::getHeaderLength() {
+    return 4 * sizeof (uint16_t);
 }
 
-size_t UDP4Header::getHeaderSize() {
-    return sizeof header;
-}
-
-UDP4Port *UDP4Header::getSourcePort() const {
+uint16_t UDP4Header::getSourcePort() const {
     return sourcePort;
 }
 
-UDP4Port *UDP4Header::getDestinationPort() const {
+uint16_t UDP4Header::getDestinationPort() const {
     return destinationPort;
 }
 
-size_t UDP4Header::getDatagramLength() const {
-    return (size_t) header.length;
+size_t UDP4Header::getTotalDatagramLength() const {
+    return (size_t) length;
 }
 
 uint8_t UDP4Header::copyTo(Kernel::NetworkByteBlock *output) const {
     uint8_t errors = 0;
-    errors += output->append(header.sourcePort);
-    errors += output->append(header.destinationPort);
-    errors += output->append(header.length);
-    errors += output->append(header.checksum);
+    errors += output->append(sourcePort);
+    errors += output->append(destinationPort);
+    errors += output->append(length);
+    errors += output->append(checksum);
     return errors;
 }
 
 uint8_t UDP4Header::parse(Kernel::NetworkByteBlock *input) {
-    if (
-            sourcePort != nullptr ||
-            destinationPort != nullptr ||
-            input->bytesRemaining() <= sizeof header
-            ) {
+    if (input->bytesRemaining() <= UDP4Header::getHeaderLength()) {
         return 1;
     }
 
     uint8_t errors = 0;
-    errors += input->read(&header.sourcePort);
-    errors += input->read(&header.destinationPort);
-    errors += input->read(&header.length);
-    errors += input->read(&header.checksum);
-
-    sourcePort = new UDP4Port(header.sourcePort);
-    destinationPort = new UDP4Port(header.destinationPort);
+    errors += input->read(&sourcePort);
+    errors += input->read(&destinationPort);
+    errors += input->read(&length);
+    errors += input->read(&checksum);
 
     return errors;
 }

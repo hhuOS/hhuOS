@@ -29,10 +29,9 @@ void SendText::execute(Util::Array<String> &args) {
     auto *testString = new String("Hello world! Now it works...\0");
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
-    auto *echoPort = new UDP4Port(ECHO_PORT_NUMBER);
     stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
 
-    auto *sendSocket = new Kernel::UDP4Socket(localhost,echoPort);
+    auto *sendSocket = new Kernel::UDP4Socket(localhost, ECHO_PORT_NUMBER);
     auto *response = new char [testString->length() + 1];
     response[testString->length()]='\0';
 

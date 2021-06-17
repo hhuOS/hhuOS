@@ -5,24 +5,23 @@
 #include "UDP4Socket.h"
 
 namespace Kernel {
-    UDP4Socket::UDP4Socket(UDP4Port *listeningPort) {
-        this->listeningPort = new UDP4Port(listeningPort);
+    UDP4Socket::UDP4Socket(uint16_t listeningPort) {
+        this->listeningPort=listeningPort;
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
     }
 
-    UDP4Socket::UDP4Socket(IP4Address *targetAddress, UDP4Port *targetPort) {
+    UDP4Socket::UDP4Socket(IP4Address *targetAddress, uint16_t targetPort) {
         this->destinationAddress = targetAddress;
-        this->remotePort = new UDP4Port(targetPort);
-        this->listeningPort = new UDP4Port(16123);
+        this->targetPort = targetPort;
+        this->listeningPort = 16123;
+        //TODO: Implement find logic for free port number
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
     }
 
     UDP4Socket::~UDP4Socket() {
         close();
-        delete listeningPort;
-        delete remotePort;
         delete controller;
     }
 
@@ -37,23 +36,28 @@ namespace Kernel {
     //Client send()
     //-> destination address and remote port should be given via constructor
     uint8_t UDP4Socket::send(void *dataBytes, size_t length) {
-        return send(this->destinationAddress, this->remotePort, dataBytes, length);
+        return send(this->destinationAddress, this->targetPort, dataBytes, length);
     }
 
     //Server send()
-    //->we need to read destination address and remote port from incoming datagrams here
-    uint8_t UDP4Socket::send(IP4Address *givenDestination, UDP4Port *givenRemotePort, void *dataBytes, size_t length) {
+    uint8_t UDP4Socket::send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
                 givenDestination == nullptr ||
-                givenRemotePort == nullptr ||
-                length == 0
+                length == 0 ||
+                givenRemotePort == 0
                 ) {
             return 1;
         }
+        auto *byteBlock = new NetworkByteBlock(length);
+        if(byteBlock->append(dataBytes,length)){
+            delete byteBlock;
+            return 1;
+        }
+
         controller->publishSendEvent(
-                givenDestination,
-                new UDP4Datagram(this->listeningPort, givenRemotePort, dataBytes, length)
+                new IP4Address(givenDestination),
+                new UDP4Datagram(this->listeningPort, givenRemotePort, byteBlock)
         );
         return 0;
     }

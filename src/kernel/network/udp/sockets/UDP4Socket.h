@@ -16,15 +16,15 @@
 namespace Kernel {
     class UDP4Socket {
     private:
+        uint16_t listeningPort = 0, targetPort = 0;
         NetworkService *networkService = nullptr;
-        UDP4Port *listeningPort = nullptr, *remotePort = nullptr;
         IP4Address *destinationAddress = nullptr;
         UDP4SocketController *controller = nullptr;
 
     public:
-        explicit UDP4Socket(UDP4Port *listeningPort);
+        explicit UDP4Socket(uint16_t listeningPort);
 
-        UDP4Socket(IP4Address *targetAddress, UDP4Port *targetPort);
+        UDP4Socket(IP4Address *targetAddress, uint16_t targetPort);
 
         virtual ~UDP4Socket();
 
@@ -34,7 +34,7 @@ namespace Kernel {
 
         uint8_t send(void *dataBytes, size_t length);
 
-        uint8_t send(IP4Address *givenDestination, UDP4Port *givenRemotePort, void *dataBytes, size_t length);
+        uint8_t send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length);
 
         int receive(void *targetBuffer, size_t length);
 

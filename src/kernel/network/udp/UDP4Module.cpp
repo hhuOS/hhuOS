@@ -7,10 +7,14 @@
 namespace Kernel {
     UDP4Module::UDP4Module(Kernel::NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
-        sockets = new Util::HashMap<UDP4Port *, UDP4SocketController *>();
+        sockets = new Util::HashMap<uint16_t, UDP4SocketController *>();
     }
 
-    uint8_t UDP4Module::registerControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller) {
+    uint8_t UDP4Module::registerControllerFor(uint16_t destinationPort, UDP4SocketController *controller) {
+        if (destinationPort == 0) {
+            log.error("Given port was zero, not registering controller");
+            return 1;
+        }
         if (controller == nullptr) {
             log.error("Given controller was null, not registering");
             return 1;
@@ -23,9 +27,9 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t UDP4Module::unregisterControllerFor(UDP4Port *destinationPort) {
-        if (destinationPort == nullptr) {
-            log.error("Given port was null, not unregistering controller");
+    uint8_t UDP4Module::unregisterControllerFor(uint16_t destinationPort) {
+        if (destinationPort == 0) {
+            log.error("Given port was zero, not unregistering controller");
             return 1;
         }
         if (sockets == nullptr) {
@@ -62,8 +66,6 @@ namespace Kernel {
                             new IP4Datagram(destinationAddress, udp4Datagram)
                     )
             );
-            //Address has been copied inside constructor, can be deleted now
-            delete destinationAddress;
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
@@ -82,7 +84,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if (udp4Header->getDatagramLength() != input->bytesRemaining()) {
+            if (udp4Header->getTotalDatagramLength() != input->bytesRemaining()) {
                 log.error("Length value in UDP4 header was incorrect, discarding");
                 delete udp4Header;
                 delete ip4Header;
@@ -90,7 +92,7 @@ namespace Kernel {
                 return;
             }
 
-            auto *destinationPort = udp4Header->getDestinationPort();
+            auto destinationPort = udp4Header->getDestinationPort();
             if (!sockets->containsKey(destinationPort)) {
                 log.error("No socket registered for datagram's destination port, discarding");
                 delete udp4Header;

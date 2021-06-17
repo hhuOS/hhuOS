@@ -11,7 +11,6 @@
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/internet/IP4Header.h>
-#include "UDP4Port.h"
 
 namespace Kernel {
     class UDP4SocketController {

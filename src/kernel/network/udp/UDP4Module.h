@@ -17,7 +17,7 @@ namespace Kernel {
     class UDP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus = nullptr;
-        Util::HashMap<UDP4Port *, UDP4SocketController *> *sockets;
+        Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
 
     public:
         explicit UDP4Module(NetworkEventBus *eventBus);
@@ -31,9 +31,9 @@ namespace Kernel {
          */
         void onEvent(const Event &event) override;
 
-        uint8_t registerControllerFor(UDP4Port *destinationPort, UDP4SocketController *controller);
+        uint8_t registerControllerFor(uint16_t destinationPort, UDP4SocketController *controller);
 
-        uint8_t unregisterControllerFor(UDP4Port *destinationPort);
+        uint8_t unregisterControllerFor(uint16_t destinationPort);
     };
 
 }

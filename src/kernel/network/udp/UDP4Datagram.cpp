@@ -6,12 +6,9 @@
 #include <kernel/network/NetworkDefinitions.h>
 #include "UDP4Datagram.h"
 
-UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength) {
-    this->dataBytes = new Kernel::NetworkByteBlock(dataLength);
-    this->dataBytes->append(outgoingBytes, dataLength);
-    this->dataBytes->resetIndex();
-
-    this->header = new UDP4Header(sourcePort, destinationPort, this->dataBytes);
+UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes) {
+    this->header = new UDP4Header(sourcePort, destinationPort, dataBytes);
+    this->dataBytes = dataBytes;
 }
 
 UDP4Datagram::~UDP4Datagram() {
@@ -25,9 +22,9 @@ uint8_t UDP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
             header == nullptr ||
             dataBytes == nullptr ||
             output == nullptr ||
-            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - header->getHeaderSize()) ||
+            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength()) ||
             dataBytes->getLength() == 0 ||
-            header->getHeaderSize() > UDP4HEADER_MAX_LENGTH
+                    UDP4Header::getHeaderLength() > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }
@@ -48,7 +45,7 @@ size_t UDP4Datagram::getLengthInBytes() {
     if (header == nullptr) {
         return 0;
     }
-    return header->getDatagramLength();
+    return header->getTotalDatagramLength();
 }
 
 IP4DataPart::IP4ProtocolType UDP4Datagram::getIP4ProtocolType() {

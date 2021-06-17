@@ -6,7 +6,6 @@
 #define HHUOS_UDP4DATAGRAM_H
 
 #include <kernel/network/internet/IP4DataPart.h>
-#include <kernel/network/udp/sockets/UDP4Port.h>
 #include "UDP4Header.h"
 
 class UDP4Datagram final : public IP4DataPart {
@@ -15,7 +14,7 @@ private:
     Kernel::NetworkByteBlock *dataBytes = nullptr;
 
 public:
-    UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength);
+    UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes);
 
     ~UDP4Datagram();
 
