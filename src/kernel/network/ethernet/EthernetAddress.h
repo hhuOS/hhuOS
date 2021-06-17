@@ -12,7 +12,7 @@
 
 class EthernetAddress {
 private:
-    uint8_t macAddress[MAC_SIZE]{0, 0, 0, 0, 0, 0};
+    uint8_t *macAddress = nullptr;
 public:
     explicit EthernetAddress(NetworkDevice *networkDevice);
 
@@ -27,6 +27,8 @@ public:
     String asString();
 
     void copyTo(uint8_t *target);
+
+    virtual ~EthernetAddress();
 };
 
 
