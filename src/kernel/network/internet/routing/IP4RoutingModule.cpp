@@ -55,9 +55,11 @@ namespace Kernel {
             return 1;
         }
         IP4Route *matchedRoute = nullptr;
-        uint8_t findError = find(&matchedRoute, datagram->getDestinationAddress());
-        if (findError) {
-            return findError;
+        if(find(&matchedRoute, datagram->getDestinationAddress())){
+            log.error("Finding best route failed, return");
+            //Datagram will be deleted in IP4Module
+            //-> no delete here!
+            return 1;
         }
         //Go to next level if everything worked fine
         return matchedRoute->sendOut(datagram);
