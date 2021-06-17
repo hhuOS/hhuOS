@@ -136,7 +136,6 @@ namespace Kernel {
             //It's not an error if nothing needs to be done
             return 0;
         }
-        printBytes();
         networkDevice->sendPacket(bytes, static_cast<uint16_t>(length));
         //NetworkDevices return no information about errors or successful sending
         //-> we just can return successful here
