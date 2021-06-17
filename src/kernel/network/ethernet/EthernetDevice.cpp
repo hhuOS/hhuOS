@@ -19,10 +19,12 @@ namespace Kernel {
 
     uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         if (ethernetFrame == nullptr) {
-            return ETH_FRAME_NULL;
+            log.error("%s: Outgoing frame was null, ignoring", identifier);
+            return 1;
         }
         if (this->networkDevice == nullptr) {
-            return ETH_DEVICE_NULL;
+            log.error("%s: Outgoing device was null, discarding frame", identifier);
+            return 1;
         }
         //interface selection happens in routing module
         // -> we don't know source address before this point here!
@@ -33,11 +35,13 @@ namespace Kernel {
         //-> no 'delete ethernetFrame' here!
         if (ethernetFrame->copyTo(byteBlock)) {
             delete byteBlock;
-            return ETH_COPY_BYTEBLOCK_FAILED;
+            log.error("%s: Copy to byteBlock failed, discarding frame", identifier);
+            return 1;
         }
         if (!byteBlock->isCompletelyFilled()) {
             delete byteBlock;
-            return ETH_COPY_BYTEBLOCK_INCOMPLETE;
+            log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier);
+            return 1;
         }
 
         uint8_t byteBlockError = byteBlock->sendOutVia(this->networkDevice);
@@ -47,7 +51,7 @@ namespace Kernel {
         }
 
         delete byteBlock;
-        return ETH_DELIVER_SUCCESS;
+        return 0;
     }
 
     bool EthernetDevice::connectedTo(NetworkDevice *otherDevice) {

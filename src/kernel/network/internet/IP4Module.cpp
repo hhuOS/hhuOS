@@ -86,7 +86,7 @@ namespace Kernel {
                 return;
             }
             if (routingModule->sendViaBestRoute(datagram)) {
-                log.error("Sending failed, discarding datagram. See syslog for more details");
+                log.error("Sending failed, see syslog for more details");
                 delete datagram;
             }
             //Datagram will be deleted in EthernetModule after sending

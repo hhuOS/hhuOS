@@ -18,6 +18,11 @@ namespace Kernel {
         NetworkDevice *networkDevice;
         EthernetAddress *ethernetAddress;
 
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("EthernetDevice");
+
     public:
         EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 

@@ -21,6 +21,11 @@ namespace Kernel {
         IP4Netmask *ip4Netmask;
         EthernetDevice *ethernetDevice;
 
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("IP4Interface");
+
     public:
 
         IP4Interface(NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,

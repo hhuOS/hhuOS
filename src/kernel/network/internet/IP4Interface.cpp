@@ -23,7 +23,12 @@ namespace Kernel {
     }
 
     uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
-        if (ip4Datagram == nullptr || receiverAddress == nullptr) {
+        if (ip4Datagram == nullptr){
+            log.error("%s: Given IP4 datagram was null, return", ethernetDevice->getIdentifier());
+            return 1;
+        }
+        if(receiverAddress == nullptr) {
+            log.error("%s: Given receiver IP4 address was null, return", ethernetDevice->getIdentifier());
             return 1;
         }
         //interface selection happens in routing module

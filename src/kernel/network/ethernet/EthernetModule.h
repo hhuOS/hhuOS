@@ -16,12 +16,6 @@
 
 #include "EthernetDevice.h"
 
-#define ETH_DELIVER_SUCCESS 0
-#define ETH_FRAME_NULL 21
-#define ETH_DEVICE_NULL 22
-#define ETH_COPY_BYTEBLOCK_FAILED 23
-#define ETH_COPY_BYTEBLOCK_INCOMPLETE 24
-
 namespace Kernel {
     class EthernetModule : public Receiver {
     private:
