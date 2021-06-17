@@ -43,7 +43,7 @@ void EthernetFrame::setSourceAddress(EthernetAddress *source) {
     header->setSourceAddress(source);
 }
 
-uint8_t EthernetFrame::copyTo(NetworkByteBlock *output) {
+uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ethernetDataPart == nullptr ||
             output == nullptr ||

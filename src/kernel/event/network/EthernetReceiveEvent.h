@@ -12,7 +12,6 @@
 #include <kernel/event/Event.h>
 
 namespace Kernel {
-
     class EthernetReceiveEvent : public Event {
     private:
         EthernetHeader *ethernetHeader;

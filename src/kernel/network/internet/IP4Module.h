@@ -31,7 +31,6 @@
 #include "IP4Module.h"
 
 namespace Kernel {
-
     class IP4Module final : public Receiver {
     private:
         NetworkEventBus *eventBus = nullptr;

@@ -5,7 +5,6 @@
 #include "IP4ReceiveEvent.h"
 
 namespace Kernel {
-
     IP4ReceiveEvent::IP4ReceiveEvent(IP4Header *ip4Header, NetworkByteBlock *input) {
         this->ip4Header = ip4Header;
         this->input = input;
@@ -22,5 +21,4 @@ namespace Kernel {
     NetworkByteBlock *IP4ReceiveEvent::getInput() const {
         return input;
     }
-
 }

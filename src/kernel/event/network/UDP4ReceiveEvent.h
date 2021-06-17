@@ -10,7 +10,6 @@
 #include <kernel/network/internet/IP4Datagram.h>
 
 namespace Kernel {
-
     class UDP4ReceiveEvent : public Event {
     private:
         UDP4Header *udp4Header;
@@ -30,7 +29,6 @@ namespace Kernel {
 
         static const constexpr char *TYPE = "UDP4ReceiveEvent";
     };
-
 }
 
 #endif //HHUOS_UDP4RECEIVEEVENT_H

@@ -5,7 +5,6 @@
 #include "IP4SendEvent.h"
 
 namespace Kernel {
-
     IP4SendEvent::IP4SendEvent(IP4Datagram *datagram) : Event() {
         this->datagram = datagram;
     }
@@ -17,5 +16,4 @@ namespace Kernel {
     String IP4SendEvent::getType() const {
         return TYPE;
     }
-
 }

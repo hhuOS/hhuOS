@@ -11,7 +11,6 @@
 #define IP4ADDRESS_LENGTH 4
 
 namespace Kernel {
-
     class ICMP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus;

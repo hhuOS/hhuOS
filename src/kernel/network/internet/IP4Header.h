@@ -63,9 +63,9 @@ public:
 
     [[nodiscard]] size_t getSize() const;
 
-    uint8_t copyTo(NetworkByteBlock *output);
+    uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
-    uint8_t parse(NetworkByteBlock *input);
+    uint8_t parse(Kernel::NetworkByteBlock *input);
 
     bool headerValid();
 };

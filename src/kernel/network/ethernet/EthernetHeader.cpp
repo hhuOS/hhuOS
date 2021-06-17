@@ -26,7 +26,7 @@ void EthernetHeader::setSourceAddress(EthernetAddress *address) {
     this->sourceAddress = new EthernetAddress(header.sourceAddress);
 }
 
-uint8_t EthernetHeader::copyTo(NetworkByteBlock *output) {
+uint8_t EthernetHeader::copyTo(Kernel::NetworkByteBlock *output) {
     uint8_t errors = 0;
     errors += output->append(header.destinationAddress, MAC_SIZE);
     errors += output->append(header.sourceAddress, MAC_SIZE);
@@ -34,7 +34,7 @@ uint8_t EthernetHeader::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t EthernetHeader::parse(NetworkByteBlock *input) {
+uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() < getSize()) {
         return 1;
     }

@@ -10,7 +10,6 @@
 #include <kernel/network/internet/IP4Datagram.h>
 
 namespace Kernel {
-
     class IP4ReceiveEvent : public Event {
     private:
         IP4Header *ip4Header;
@@ -27,7 +26,6 @@ namespace Kernel {
 
         static const constexpr char *TYPE = "IP4ReceiveEvent";
     };
-
 }
 
 #endif //HHUOS_IP4RECEIVEEVENT_H

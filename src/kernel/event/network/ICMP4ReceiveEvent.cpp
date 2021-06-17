@@ -5,7 +5,6 @@
 #include "ICMP4ReceiveEvent.h"
 
 namespace Kernel {
-
     String ICMP4ReceiveEvent::getType() const {
         return TYPE;
     }

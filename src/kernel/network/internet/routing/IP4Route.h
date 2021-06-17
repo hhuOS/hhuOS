@@ -17,18 +17,18 @@ private:
     IP4Address *netAddress;
     IP4Netmask *netMask;
     IP4Address *nextHopAddress;
-    IP4Interface *outInterface;
+    Kernel::IP4Interface *outInterface;
 
 public:
-    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, IP4Interface *outInterface);
+    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, Kernel::IP4Interface *outInterface);
 
-    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
+    IP4Route(IP4Address *netAddress, IP4Netmask *netMask, Kernel::IP4Interface *outInterface);
 
-    explicit IP4Route(IP4Interface *ip4Interface);
+    explicit IP4Route(Kernel::IP4Interface *ip4Interface);
 
     uint8_t sendOut(IP4Datagram *datagram);
 
-    [[nodiscard]] IP4Interface *getOutInterface() const;
+    [[nodiscard]] Kernel::IP4Interface *getOutInterface() const;
 
     uint8_t matchingBits(IP4Address *pAddress);
 

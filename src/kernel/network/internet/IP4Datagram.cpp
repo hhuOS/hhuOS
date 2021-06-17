@@ -62,7 +62,7 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
     return EtherType::IP4;
 }
 
-uint8_t IP4Datagram::copyTo(NetworkByteBlock *output) {
+uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ip4DataPart == nullptr ||
             output == nullptr ||

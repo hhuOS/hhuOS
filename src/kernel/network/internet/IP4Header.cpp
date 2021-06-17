@@ -44,7 +44,7 @@ size_t IP4Header::getSize() const {
     return (size_t) (header.version_headerLength - 0x40) * 4;
 }
 
-uint8_t IP4Header::copyTo(NetworkByteBlock *output) {
+uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
     uint8_t errors = 0;
     errors += output->append(header.version_headerLength);
     errors += output->append(header.typeOfService);
@@ -59,7 +59,7 @@ uint8_t IP4Header::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t IP4Header::parse(NetworkByteBlock *input) {
+uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() < sizeof this->header) {
         return 1;
     }

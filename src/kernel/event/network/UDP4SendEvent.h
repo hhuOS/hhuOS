@@ -11,7 +11,6 @@
 #include <kernel/network/internet/addressing/IP4Address.h>
 
 namespace Kernel {
-
     class UDP4SendEvent : public Event {
     private:
         IP4Address *destinationAddress;
@@ -28,7 +27,6 @@ namespace Kernel {
 
         IP4Address *getDestinationAddress();
     };
-
 }
 
 #endif //HHUOS_UDP4SENDEVENT_H

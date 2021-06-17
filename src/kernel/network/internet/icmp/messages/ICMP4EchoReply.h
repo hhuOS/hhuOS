@@ -28,13 +28,13 @@ public:
 
     ~ICMP4EchoReply() = default;
 
-    uint8_t copyTo(NetworkByteBlock *output) override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
     ICMP4MessageType getICMP4MessageType() override;
 
-    uint8_t parse(NetworkByteBlock *input);
+    uint8_t parse(Kernel::NetworkByteBlock *input);
 
     IP4ProtocolType getIP4ProtocolType() override;
 

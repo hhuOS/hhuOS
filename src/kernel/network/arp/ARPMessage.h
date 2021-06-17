@@ -69,7 +69,7 @@ public:
 
     [[nodiscard]] uint16_t getProtocolType() const;
 
-    uint8_t copyTo(NetworkByteBlock *output) override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 
@@ -77,7 +77,7 @@ public:
 
     EtherType getEtherType() override;
 
-    uint8_t parse(NetworkByteBlock *input);
+    uint8_t parse(Kernel::NetworkByteBlock *input);
 
     ARPMessage *buildResponse(uint8_t *ourAddressAsBytes) const;
 };

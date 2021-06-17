@@ -30,7 +30,7 @@ public:
 
     EtherType getEtherType() override;
 
-    uint8_t copyTo(NetworkByteBlock *output) override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 

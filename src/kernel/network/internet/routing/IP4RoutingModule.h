@@ -9,30 +9,32 @@
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include "IP4Route.h"
 
-class IP4RoutingModule {
-private:
-    Util::ArrayList<IP4Route *> *routes;
-    IP4Route *defaultRoute;
+namespace Kernel {
+    class IP4RoutingModule {
+    private:
+        Util::ArrayList<IP4Route *> *routes;
+        IP4Route *defaultRoute;
 
-    uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
+        uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
 
-    /**
-             * A logger to provide information on the kernel log.
-             */
-    Kernel::Logger &log = Kernel::Logger::get("IP4RoutingModule");
-public:
+        /**
+                 * A logger to provide information on the kernel log.
+                 */
+        Logger &log = Logger::get("IP4RoutingModule");
+    public:
 
-    IP4RoutingModule();
+        IP4RoutingModule();
 
-    void addRouteFor(IP4Interface *ip4Interface);
+        void addRouteFor(IP4Interface *ip4Interface);
 
-    [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
+        [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
-    void removeRoutesFor(IP4Interface *ip4Interface);
+        void removeRoutesFor(IP4Interface *ip4Interface);
 
-    void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
+        void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
-    uint8_t sendViaBestRoute(IP4Datagram *datagram);
-};
+        uint8_t sendViaBestRoute(IP4Datagram *datagram);
+    };
+}
 
 #endif //HHUOS_IP4ROUTINGMODULE_H

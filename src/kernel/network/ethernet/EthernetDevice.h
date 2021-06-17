@@ -11,27 +11,29 @@
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
 
-class EthernetDevice {
-private:
-    String *identifier;
-    NetworkDevice *networkDevice;
-    EthernetAddress *ethernetAddress;
+namespace Kernel {
+    class EthernetDevice {
+    private:
+        String *identifier;
+        NetworkDevice *networkDevice;
+        EthernetAddress *ethernetAddress;
 
-public:
-    EthernetDevice(String *identifier, NetworkDevice *networkDevice);
+    public:
+        EthernetDevice(String *identifier, NetworkDevice *networkDevice);
 
-    [[nodiscard]] String *getIdentifier() const;
+        [[nodiscard]] String *getIdentifier() const;
 
-    uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
+        uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
 
-    bool connectedTo(NetworkDevice *otherDevice);
+        bool connectedTo(NetworkDevice *otherDevice);
 
-    bool equals(EthernetDevice *compare);
+        bool equals(EthernetDevice *compare);
 
-    String asString();
+        String asString();
 
-    EthernetAddress *getAddress();
-};
+        EthernetAddress *getAddress();
+    };
+}
 
 
 #endif //HHUOS_ETHERNETDEVICE_H

@@ -14,7 +14,6 @@
 #include "UDP4Port.h"
 
 namespace Kernel {
-
     class UDP4SocketController {
     private:
         IP4Header *ip4Header = nullptr;

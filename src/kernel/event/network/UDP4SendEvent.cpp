@@ -5,7 +5,6 @@
 #include "UDP4SendEvent.h"
 
 namespace Kernel {
-
     UDP4SendEvent::UDP4SendEvent(IP4Address *destinationAddress, UDP4Datagram *datagram) : Event() {
         this->destinationAddress = destinationAddress;
         this->datagram = datagram;
@@ -22,5 +21,4 @@ namespace Kernel {
     IP4Address *UDP4SendEvent::getDestinationAddress() {
         return destinationAddress;
     }
-
 }

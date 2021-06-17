@@ -10,7 +10,6 @@
 #include <kernel/network/internet/IP4Datagram.h>
 
 namespace Kernel {
-
     class IP4SendEvent : public Event {
     private:
         IP4Datagram *datagram;
@@ -24,7 +23,6 @@ namespace Kernel {
 
         static const constexpr char *TYPE = "IP4SendEvent";
     };
-
 }
 
 #endif //HHUOS_IP4SENDEVENT_H

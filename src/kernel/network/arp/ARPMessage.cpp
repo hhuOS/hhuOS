@@ -95,7 +95,7 @@ ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
     }
 }
 
-uint8_t ARPMessage::copyTo(NetworkByteBlock *output) {
+uint8_t ARPMessage::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr || output->bytesRemaining() > this->getLengthInBytes()) {
         return 1;
     }
@@ -115,7 +115,7 @@ uint8_t ARPMessage::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t ARPMessage::parse(NetworkByteBlock *input) {
+uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != getLengthInBytes()) {
         return 1;
     }

@@ -31,7 +31,7 @@ public:
         return (uint8_t) getIP4ProtocolType();
     }
 
-    virtual uint8_t copyTo(NetworkByteBlock *byteBlock) = 0;
+    virtual uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock) = 0;
 
     virtual size_t getLengthInBytes() = 0;
 

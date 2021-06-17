@@ -23,7 +23,6 @@
 #define ETH_COPY_BYTEBLOCK_INCOMPLETE 24
 
 namespace Kernel {
-
     class EthernetModule : public Receiver {
     private:
         uint8_t deviceCounter = 0;

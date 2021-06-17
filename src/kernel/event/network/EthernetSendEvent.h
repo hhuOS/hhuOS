@@ -13,7 +13,6 @@
 #include <kernel/network/ethernet/EthernetDevice.h>
 
 namespace Kernel {
-
     class EthernetSendEvent : public Event {
     private:
         EthernetDevice *outDevice;

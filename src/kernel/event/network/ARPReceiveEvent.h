@@ -10,7 +10,6 @@
 #include <kernel/network/arp/ARPMessage.h>
 
 namespace Kernel {
-
     class ARPReceiveEvent : public Event {
     private:
         ARPMessage *arpMessage;

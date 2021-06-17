@@ -12,34 +12,36 @@
 #include <kernel/network/NetworkEventBus.h>
 #include "IP4Datagram.h"
 
-class IP4Interface {
-private:
-    ARPModule *arpModule;
-    Kernel::NetworkEventBus *eventBus;
-    IP4Address *ip4Address;
-    IP4Netmask *ip4Netmask;
-    EthernetDevice *ethernetDevice;
+namespace Kernel {
+    class IP4Interface {
+    private:
+        ARPModule *arpModule;
+        NetworkEventBus *eventBus;
+        IP4Address *ip4Address;
+        IP4Netmask *ip4Netmask;
+        EthernetDevice *ethernetDevice;
 
-public:
+    public:
 
-    IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
-                 IP4Netmask *ip4Netmask);
+        IP4Interface(NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+                     IP4Netmask *ip4Netmask);
 
-    uint8_t sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram);
+        uint8_t sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram);
 
-    [[nodiscard]] IP4Address *getIp4Address() const;
+        [[nodiscard]] IP4Address *getIp4Address() const;
 
-    [[nodiscard]] IP4Netmask *getIp4Netmask() const;
+        [[nodiscard]] IP4Netmask *getIp4Netmask() const;
 
-    [[nodiscard]] IP4Address *getNetAddress() const;
+        [[nodiscard]] IP4Address *getNetAddress() const;
 
-    virtual ~IP4Interface();
+        virtual ~IP4Interface();
 
-    bool equals(IP4Interface *compare);
+        bool equals(IP4Interface *compare);
 
-    String asString();
+        String asString();
 
-    uint8_t notifyARPModule(ARPMessage *message);
-};
+        uint8_t notifyARPModule(ARPMessage *message);
+    };
+}
 
 #endif //HHUOS_IP4INT_H

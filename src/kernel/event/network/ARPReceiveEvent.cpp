@@ -4,14 +4,16 @@
 
 #include "ARPReceiveEvent.h"
 
-Kernel::ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage) {
-    this->arpMessage = arpMessage;
-}
+namespace Kernel {
+    ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage) {
+        this->arpMessage = arpMessage;
+    }
 
-ARPMessage *Kernel::ARPReceiveEvent::getARPMessage() const {
-    return arpMessage;
-}
+    ARPMessage *ARPReceiveEvent::getARPMessage() const {
+        return arpMessage;
+    }
 
-String Kernel::ARPReceiveEvent::getType() const {
-    return TYPE;
+    String ARPReceiveEvent::getType() const {
+        return TYPE;
+    }
 }

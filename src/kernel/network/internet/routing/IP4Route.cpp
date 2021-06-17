@@ -5,14 +5,14 @@
 #include <kernel/network/internet/IP4Module.h>
 
 IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop,
-                   IP4Interface *outInterface) {
+                   Kernel::IP4Interface *outInterface) {
     this->netAddress = netAddress;
     this->netMask = netMask;
     this->nextHopAddress = nextHop;
     this->outInterface = outInterface;
 }
 
-IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
+IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, Kernel::IP4Interface *outInterface) {
     this->netAddress = netAddress;
     this->netMask = netMask;
     this->nextHopAddress = nullptr;
@@ -31,7 +31,7 @@ uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
     return outInterface->sendIP4Datagram(nextHopAddress, datagram);
 }
 
-IP4Interface *IP4Route::getOutInterface() const {
+Kernel::IP4Interface *IP4Route::getOutInterface() const {
     return outInterface;
 }
 
@@ -43,7 +43,7 @@ uint8_t IP4Route::matchingBits(IP4Address *ip4Address) {
     return 0;
 }
 
-IP4Route::IP4Route(IP4Interface *ip4Interface) {
+IP4Route::IP4Route(Kernel::IP4Interface *ip4Interface) {
     netAddress = ip4Interface->getNetAddress();
     netMask = ip4Interface->getIp4Netmask();
     nextHopAddress = nullptr;

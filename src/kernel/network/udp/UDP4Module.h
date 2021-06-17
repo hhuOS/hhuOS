@@ -14,14 +14,13 @@
 #include <kernel/event/network/UDP4ReceiveEvent.h>
 
 namespace Kernel {
-
     class UDP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus = nullptr;
         Util::HashMap<UDP4Port *, UDP4SocketController *> *sockets;
 
     public:
-        explicit UDP4Module(Kernel::NetworkEventBus *eventBus);
+        explicit UDP4Module(NetworkEventBus *eventBus);
 
         Logger &log = Logger::get("UDP4Module");
 

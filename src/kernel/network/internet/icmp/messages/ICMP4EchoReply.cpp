@@ -13,7 +13,7 @@ ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     echoReply.sequenceNumber = sequenceNumber;
 }
 
-uint8_t ICMP4EchoReply::copyTo(NetworkByteBlock *output) {
+uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr) {
         return 1;
     }
@@ -36,7 +36,7 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
-uint8_t ICMP4EchoReply::parse(NetworkByteBlock *input) {
+uint8_t ICMP4EchoReply::parse(Kernel::NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != sizeof echoReply) {
         return 1;
     }

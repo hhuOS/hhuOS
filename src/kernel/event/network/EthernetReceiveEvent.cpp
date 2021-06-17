@@ -5,7 +5,6 @@
 #include "EthernetReceiveEvent.h"
 
 namespace Kernel {
-
     EthernetReceiveEvent::EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input)
             : ethernetHeader(ethernetHeader), input(input) {}
 

@@ -16,14 +16,14 @@
 class UDP4Datagram final : public IP4DataPart {
 private:
     UDP4Header *header = nullptr;
-    NetworkByteBlock *dataBytes = nullptr;
+    Kernel::NetworkByteBlock *dataBytes = nullptr;
 
 public:
     UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength);
 
     ~UDP4Datagram();
 
-    uint8_t copyTo(NetworkByteBlock *output) override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 

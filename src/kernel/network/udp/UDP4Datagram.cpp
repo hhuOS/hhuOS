@@ -6,7 +6,7 @@
 #include "UDP4Datagram.h"
 
 UDP4Datagram::UDP4Datagram(UDP4Port *sourcePort, UDP4Port *destinationPort, void *outgoingBytes, size_t dataLength) {
-    this->dataBytes = new NetworkByteBlock(dataLength);
+    this->dataBytes = new Kernel::NetworkByteBlock(dataLength);
     this->dataBytes->append(outgoingBytes, dataLength);
     this->dataBytes->resetIndex();
 
@@ -19,7 +19,7 @@ UDP4Datagram::~UDP4Datagram() {
     delete dataBytes;
 }
 
-uint8_t UDP4Datagram::copyTo(NetworkByteBlock *output) {
+uint8_t UDP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||
             dataBytes == nullptr ||

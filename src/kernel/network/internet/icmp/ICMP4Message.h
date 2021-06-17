@@ -57,7 +57,7 @@ public:
         return IP4ProtocolType::ICMP4;
     }
 
-    uint8_t copyTo(NetworkByteBlock *byteBlock) override = 0;
+    uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock) override = 0;
 
     size_t getLengthInBytes() override = 0;
 

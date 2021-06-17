@@ -11,12 +11,12 @@
 namespace Kernel {
     class NetworkEventBus {
     private:
-        Kernel::EventBus *eventBus;
+        EventBus *eventBus;
 
     public:
-        explicit NetworkEventBus(Kernel::EventBus *eventBus);
+        explicit NetworkEventBus(EventBus *eventBus);
 
-        void publish(Kernel::Event *event);
+        void publish(Event *event);
 
         /**
          * Subscribes to a certain type of Event.
@@ -24,7 +24,7 @@ namespace Kernel {
          * @param receiver The Receiver
          * @param type The Event type
          */
-        void subscribe(Kernel::Receiver &receiver, const String &type);
+        void subscribe(Receiver &receiver, const String &type);
 
         /**
          * Unsubscribes from a certain type of Event.
@@ -32,7 +32,7 @@ namespace Kernel {
          * @param receiver The Receiver
          * @param type The Event type
          */
-        void unsubscribe(Kernel::Receiver &receiver, const String &type);
+        void unsubscribe(Receiver &receiver, const String &type);
     };
 }
 

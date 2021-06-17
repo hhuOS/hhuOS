@@ -24,13 +24,13 @@ private:
     UDP4Port *destinationPort = nullptr;
 
 public:
-    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes);
+    UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, Kernel::NetworkByteBlock *dataBytes);
 
     UDP4Header() = default;
 
-    uint8_t copyTo(NetworkByteBlock *output) const;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) const;
 
-    uint8_t parse(NetworkByteBlock *input);
+    uint8_t parse(Kernel::NetworkByteBlock *input);
 
     size_t getHeaderSize();
 

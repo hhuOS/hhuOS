@@ -28,7 +28,7 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
+uint8_t ICMP4Echo::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr) {
         return 1;
     }
@@ -43,7 +43,7 @@ uint8_t ICMP4Echo::copyTo(NetworkByteBlock *output) {
     return errors;
 }
 
-uint8_t ICMP4Echo::parse(NetworkByteBlock *input) {
+uint8_t ICMP4Echo::parse(Kernel::NetworkByteBlock *input) {
     if (input == nullptr || input->bytesRemaining() != sizeof echoMessage) {
         return 1;
     }

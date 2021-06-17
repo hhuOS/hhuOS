@@ -4,7 +4,7 @@
 
 #include "UDP4Header.h"
 
-UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, NetworkByteBlock *dataBytes) {
+UDP4Header::UDP4Header(UDP4Port *sourcePort, UDP4Port *destinationPort, Kernel::NetworkByteBlock *dataBytes) {
     header.length = sizeof header + dataBytes->getLength();
     header.checksum = 0; //Checksum may be zero, RFC 768 page 3 middle
 
@@ -39,7 +39,7 @@ size_t UDP4Header::getDatagramLength() const {
     return (size_t) header.length;
 }
 
-uint8_t UDP4Header::copyTo(NetworkByteBlock *output) const {
+uint8_t UDP4Header::copyTo(Kernel::NetworkByteBlock *output) const {
     uint8_t errors = 0;
     errors += output->append(header.sourcePort);
     errors += output->append(header.destinationPort);
@@ -48,7 +48,7 @@ uint8_t UDP4Header::copyTo(NetworkByteBlock *output) const {
     return errors;
 }
 
-uint8_t UDP4Header::parse(NetworkByteBlock *input) {
+uint8_t UDP4Header::parse(Kernel::NetworkByteBlock *input) {
     if (
             sourcePort != nullptr ||
             destinationPort != nullptr ||

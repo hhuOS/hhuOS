@@ -12,7 +12,6 @@
 #include <kernel/network/internet/IP4Datagram.h>
 
 namespace Kernel {
-
     class ICMP4ReceiveEvent : public Event {
     private:
         IP4Header *ip4Header = nullptr;
@@ -30,7 +29,6 @@ namespace Kernel {
 
         static const constexpr char *TYPE = "ICMP4ReceiveEvent";
     };
-
 }
 
 

@@ -34,7 +34,7 @@ public:
         }
     }
 
-    virtual uint8_t copyTo(NetworkByteBlock *output) = 0;
+    virtual uint8_t copyTo(Kernel::NetworkByteBlock *output) = 0;
 
     virtual size_t getLengthInBytes() = 0;
 

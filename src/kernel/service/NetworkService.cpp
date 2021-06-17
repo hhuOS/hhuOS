@@ -106,7 +106,6 @@ namespace Kernel {
         this->ip4Module->collectIP4RouteAttributes(strings);
     }
 
-    //TODO: Add error codes as return values!
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
     uint8_t NetworkService::assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {

@@ -5,7 +5,6 @@
 #include "EthernetSendEvent.h"
 
 namespace Kernel {
-
     EthernetSendEvent::EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame)
             : outDevice(outDevice), ethernetFrame(ethernetFrame) {}
 
@@ -20,5 +19,4 @@ namespace Kernel {
     EthernetFrame *EthernetSendEvent::getEthernetFrame() const {
         return ethernetFrame;
     }
-
 }
