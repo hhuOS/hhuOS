@@ -82,19 +82,19 @@ void EchoServer::EchoThread::run() {
                 ip4Header->getSourceAddress()->asChars(),
                 attributes.inputBuffer
         );
-
-        if (attributes.socket->send(
-                ip4Header->getSourceAddress(),
-                udp4Header->getSourcePort(),
-                attributes.inputBuffer,
-                bytesReceived
-        )
-                ) {
-            (*attributes.log).error("Sending response failed, stopping");
-            delete ip4Header;
-            delete udp4Header;
-            return;
-        }
+//
+//        if (attributes.socket->send(
+//                ip4Header->getSourceAddress(),
+//                udp4Header->getSourcePort(),
+//                attributes.inputBuffer,
+//                bytesReceived
+//        )
+//                ) {
+//            (*attributes.log).error("Sending response failed, stopping");
+//            delete ip4Header;
+//            delete udp4Header;
+//            return;
+//        }
         delete ip4Header;
         delete udp4Header;
     }

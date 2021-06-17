@@ -49,15 +49,15 @@ void SendText::execute(Util::Array<String> &args) {
         delete server;
         return;
     }
-
-    size_t totalBytesRead = 0;
-    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
-        totalBytesRead!=testString->length()
-        ){
-        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
-    } else {
-        stdout << "CLIENT: Response was '" << response << "'" << endl;
-    }
+//
+//    size_t totalBytesRead = 0;
+//    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
+//        totalBytesRead!=testString->length()
+//        ){
+//        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
+//    } else {
+//        stdout << "CLIENT: Response was '" << response << "'" << endl;
+//    }
     sendSocket->close();
     delete sendSocket;
     delete testString;

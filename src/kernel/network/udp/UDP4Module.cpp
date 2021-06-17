@@ -84,13 +84,6 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if (udp4Header->getTotalDatagramLength() != input->bytesRemaining()) {
-                log.error("Length value in UDP4 header was incorrect, discarding");
-                delete udp4Header;
-                delete ip4Header;
-                delete input;
-                return;
-            }
 
             auto destinationPort = udp4Header->getDestinationPort();
             if (!sockets->containsKey(destinationPort)) {

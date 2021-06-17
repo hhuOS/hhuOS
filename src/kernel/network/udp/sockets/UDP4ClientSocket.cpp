@@ -40,6 +40,7 @@ namespace Kernel {
             delete byteBlock;
             return 1;
         }
+        byteBlock->resetIndex();
 
         controller->publishSendEvent(
                 new IP4Address(destinationAddress),
