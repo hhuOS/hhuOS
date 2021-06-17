@@ -18,6 +18,8 @@ public:
 
     explicit IP4Address(const uint8_t *bytes);
 
+    explicit IP4Address(IP4Address *other);
+
     String asString();
 
     char *asChars();
@@ -26,7 +28,7 @@ public:
 
     void copyTo(uint8_t *target);
 
-    IP4Address *calculateAND(const uint8_t netmask[4]);
+    uint8_t calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask);
 
     virtual ~IP4Address();
 };

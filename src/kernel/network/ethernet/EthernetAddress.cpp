@@ -5,8 +5,10 @@
 #include "EthernetAddress.h"
 
 EthernetAddress::EthernetAddress(NetworkDevice *networkDevice) {
-    macAddress = new uint8_t[MAC_SIZE];
-    networkDevice->getMacAddress(macAddress);
+    if(networkDevice!= nullptr) {
+        macAddress = new uint8_t[MAC_SIZE];
+        networkDevice->getMacAddress(macAddress);
+    }
 }
 
 EthernetAddress::EthernetAddress(
@@ -23,14 +25,18 @@ EthernetAddress::EthernetAddress(
 }
 
 EthernetAddress::EthernetAddress(EthernetAddress *other) {
-    macAddress = new uint8_t[MAC_SIZE];
-    other->copyTo(macAddress);
+    if(other!= nullptr) {
+        macAddress = new uint8_t[MAC_SIZE];
+        other->copyTo(macAddress);
+    }
 }
 
 EthernetAddress::EthernetAddress(const uint8_t *bytes) {
-    macAddress = new uint8_t[MAC_SIZE];
-    for (uint8_t i = 0; i < MAC_SIZE; i++) {
-        this->macAddress[i] = bytes[i];
+    if(bytes!= nullptr) {
+        macAddress = new uint8_t[MAC_SIZE];
+        for (uint8_t i = 0; i < MAC_SIZE; i++) {
+            this->macAddress[i] = bytes[i];
+        }
     }
 }
 
@@ -49,7 +55,7 @@ String EthernetAddress::asString() {
 }
 
 void EthernetAddress::copyTo(uint8_t *target) {
-    if(macAddress== nullptr){
+    if(macAddress== nullptr || target == nullptr){
         return;
     }
     for (uint8_t i = 0; i < MAC_SIZE; i++) {

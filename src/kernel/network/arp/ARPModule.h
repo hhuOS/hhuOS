@@ -17,8 +17,8 @@ namespace Kernel {
     class ARPModule {
     private:
         //HashMap did not work here, possible bug in HashMap implementation?
-        Util::ArrayList<ARPEntry *> *arpTable;
-        EthernetAddress *broadcastAddress;
+        Util::ArrayList<ARPEntry *> *arpTable = nullptr;
+        EthernetAddress *broadcastAddress = nullptr;
         /**
              * A logger to provide information on the kernel log.
              */

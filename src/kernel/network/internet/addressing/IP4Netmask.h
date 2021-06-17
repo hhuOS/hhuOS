@@ -20,7 +20,7 @@ public:
 
     String asString();
 
-    IP4Address *extractNetPart(IP4Address *ip4Address);
+    uint8_t extractNetPart(IP4Address **targetNetPart, IP4Address *ip4Address);
 
     static void calculateBitmask(uint8_t *target, uint8_t oneBitNumber);
 

@@ -22,11 +22,11 @@ IP4Netmask::~IP4Netmask() {
 
 //NOTE: This method creates a new IP4Address!
 //-> don't forget to delete it after usage!
-IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
-    if(netmask== nullptr){
-        return nullptr;
+uint8_t IP4Netmask::extractNetPart(IP4Address **targetNetPart, IP4Address *ip4Address) {
+    if(this->netmask== nullptr || ip4Address== nullptr || targetNetPart== nullptr){
+        return 1;
     }
-    return ip4Address->calculateAND(this->netmask);
+    return ip4Address->calculateAND(targetNetPart, this->netmask);
 }
 
 uint8_t IP4Netmask::getBitCount() const {
