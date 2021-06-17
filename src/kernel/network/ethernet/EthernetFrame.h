@@ -29,7 +29,7 @@ public:
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
-    uint16_t getLengthInBytes();
+    size_t getLengthInBytes();
 
     void setSourceAddress(EthernetAddress *source);
 };

@@ -29,11 +29,11 @@ EthernetFrame::~EthernetFrame() {
     }
 }
 
-uint16_t EthernetFrame::getLengthInBytes() {
+size_t EthernetFrame::getLengthInBytes() {
     if (ethernetDataPart == nullptr) {
-        return static_cast<uint16_t>(header->getSize());
+        header->getSize();
     }
-    return static_cast<uint16_t>(header->getSize() + ethernetDataPart->getLengthInBytes());
+    return header->getSize() + ethernetDataPart->getLengthInBytes();
 }
 
 void EthernetFrame::setSourceAddress(EthernetAddress *source) {
