@@ -75,6 +75,7 @@ uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
 
     uint16_t typeValue = 0;
     errors+=input->read(&typeValue);
+    etherType=EthernetDataPart::parseIntAsEtherType(typeValue);
 
     return errors;
 }
