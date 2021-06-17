@@ -32,6 +32,10 @@ namespace Kernel {
     }
 
     uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
+        if(ethernetDevice== nullptr){
+            log.error("Connected EthernetDevice was null, not sending anything");
+            return 1;
+        }
         if (ip4Datagram == nullptr){
             log.error("%s: Given IP4 datagram was null, return", ethernetDevice->getIdentifier());
             return 1;
@@ -49,7 +53,7 @@ namespace Kernel {
         ip4Datagram->setSourceAddress(new IP4Address(this->ip4Address));
         EthernetAddress *destinationAddress = nullptr;
         if(arpModule->resolveTo(&destinationAddress, receiverAddress)){
-            log.error("%s: ARP module could not resolve destination address, do not send anything",
+            log.error("%s: ARP module failed to resolve destination address, do not send anything",
                       ethernetDevice->getIdentifier()
                       );
             return 1;
@@ -94,7 +98,10 @@ namespace Kernel {
         this->eventBus->publish(
                 new Kernel::EthernetSendEvent(
                         this->ethernetDevice,
-                        new EthernetFrame(destinationAddress, ip4Datagram)
+                        //The frame's attributes will be deleted after sending
+                        //-> copy it here!
+                        new EthernetFrame(new EthernetAddress(destinationAddress),
+                                          ip4Datagram)
                 )
         );
         return 0;

@@ -38,14 +38,14 @@ namespace Kernel {
         *ethernetAddress = nullptr;
         for (ARPEntry *current:*arpTable) {
             if (current->matches(ip4Address)) {
-                //We need to copy our ARP entry's address, because the frame's address will be deleted after sending
-                *ethernetAddress = new EthernetAddress(current->getEthernetAddress());
+                *ethernetAddress = current->getEthernetAddress();
                 return 0;
             }
         }
         //If no entry could be found, simply return nullptr as ethernetAddress
         //-> this will cause an ARP resolve
-        return 1;
+        *ethernetAddress= nullptr;
+        return 0;
     }
 
     void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {

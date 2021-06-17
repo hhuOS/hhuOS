@@ -65,6 +65,9 @@ IP4Route::IP4Route(Kernel::IP4Interface *ip4Interface) {
 }
 
 String IP4Route::asString() {
+    if(netAddress== nullptr || netMask== nullptr || outInterface == nullptr){
+        return "NULL";
+    }
     if (nextHopAddress == nullptr) {
         return "\nNetAddress: " + netAddress->asString() + ",\nNetMask: " + netMask->asString() + ",\nNextHop: null" +
                ",\nOutInterface: " + outInterface->asString();
