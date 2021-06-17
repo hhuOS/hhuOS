@@ -52,6 +52,9 @@ IP4Address *IP4Datagram::getDestinationAddress() const {
 }
 
 void IP4Datagram::setSourceAddress(IP4Address *source) {
+    if(source== nullptr){
+        return;
+    }
     header->setSourceAddress(source);
 }
 
@@ -65,6 +68,7 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 
 uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     if (
+            header== nullptr ||
             ip4DataPart == nullptr ||
             output == nullptr ||
             ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
