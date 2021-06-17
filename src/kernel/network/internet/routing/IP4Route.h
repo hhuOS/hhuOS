@@ -14,10 +14,10 @@
 class IP4Route {
 
 private:
-    IP4Address *netAddress;
-    IP4Netmask *netMask;
-    IP4Address *nextHopAddress;
-    Kernel::IP4Interface *outInterface;
+    IP4Address *netAddress = nullptr;
+    IP4Netmask *netMask = nullptr;
+    IP4Address *nextHopAddress = nullptr;
+    Kernel::IP4Interface *outInterface = nullptr;
 
 public:
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, Kernel::IP4Interface *outInterface);
