@@ -23,6 +23,9 @@ IP4Netmask::~IP4Netmask() {
 //NOTE: This method creates a new IP4Address!
 //-> don't forget to delete it after usage!
 IP4Address *IP4Netmask::extractNetPart(IP4Address *ip4Address) {
+    if(netmask== nullptr){
+        return nullptr;
+    }
     return ip4Address->calculateAND(this->netmask);
 }
 
@@ -31,10 +34,16 @@ uint8_t IP4Netmask::getBitCount() const {
 }
 
 String IP4Netmask::asString() {
+    if(netmask== nullptr){
+        return "NULL";
+    }
     return String::format("%d.%d.%d.%d /%d", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
 }
 
 void IP4Netmask::calculateBitmask(uint8_t *target, uint8_t oneBitNumber) {
+    if(target== nullptr){
+        return;
+    }
     auto fullByteCount = (uint8_t) (oneBitNumber / (uint8_t) 8);
     for (uint8_t i = 0; i <= fullByteCount; i++) {
         target[i] = (uint8_t) (-1);

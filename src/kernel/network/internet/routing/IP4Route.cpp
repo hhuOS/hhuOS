@@ -36,7 +36,13 @@ Kernel::IP4Interface *IP4Route::getOutInterface() const {
 }
 
 uint8_t IP4Route::matchingBits(IP4Address *ip4Address) {
+    if(netAddress== nullptr){
+        return 0;
+    }
     IP4Address *addressNetPart = netMask->extractNetPart(ip4Address);
+    if(addressNetPart== nullptr){
+        return 0;
+    }
     if (addressNetPart->equals(netAddress)) {
         delete addressNetPart;
         return netMask->getBitCount();
