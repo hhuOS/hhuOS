@@ -18,6 +18,7 @@ namespace Kernel {
     private:
         NetworkEventBus *eventBus = nullptr;
         Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
+        Spinlock *socketAccessLock = nullptr;
 
     public:
         explicit UDP4Module(NetworkEventBus *eventBus);
