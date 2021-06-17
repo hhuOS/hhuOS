@@ -42,7 +42,7 @@ private:
     ip4Header_t header;
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;
 
-    uint16_t calculateChecksum();
+    uint16_t calculateChecksum() const;
 
 public:
 

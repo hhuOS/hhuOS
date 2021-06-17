@@ -92,7 +92,7 @@ void EchoServer::EchoThread::run() {
                 ip4Header->getSourceAddress(),
                 udp4Header->getSourcePort(),
                 attributes.inputBuffer,
-                bytesReceived
+                static_cast<size_t>(bytesReceived)
         )
                 ) {
             (*attributes.log).error("Sending response failed, stopping");

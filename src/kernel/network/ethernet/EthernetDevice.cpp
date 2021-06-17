@@ -4,7 +4,6 @@
 
 #include <kernel/network/NetworkByteBlock.h>
 #include "EthernetDevice.h"
-#include "EthernetModule.h"
 
 namespace Kernel {
     EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {

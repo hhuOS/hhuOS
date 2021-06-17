@@ -34,9 +34,9 @@ public:
 
     size_t getHeaderSize();
 
-    size_t getDatagramLength() const;
+    [[nodiscard]] size_t getDatagramLength() const;
 
-    UDP4Port *getSourcePort() const;
+    [[nodiscard]] UDP4Port *getSourcePort() const;
 
     [[nodiscard]] UDP4Port *getDestinationPort() const;
 
