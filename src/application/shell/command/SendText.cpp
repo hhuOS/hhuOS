@@ -20,7 +20,7 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *server = new EchoServer(0);
+    auto *server = new EchoServer(1024);
     if(server->start()){
         stderr << "Starting server failed!" << endl;
         delete server;
@@ -36,18 +36,34 @@ void SendText::execute(Util::Array<String> &args) {
     auto *response = new char [testString->length() + 1];
     response[testString->length()]='\0';
 
-    if(!sendSocket->send((char *)*testString,testString->length())) {
-        sendSocket->receive(response, testString->length());
-        stdout << "CLIENT: Response was '" << response << "'" << endl;
-    } else{
+    if(sendSocket->send((char *)*testString,testString->length())) {
         stderr << "CLIENT: Error while sending!" << endl;
+        sendSocket->close();
+        delete sendSocket;
+        delete testString;
+        delete[] response;
+
+        if (server->stop()) {
+            stderr << "Stopping server failed!" << endl;
+        }
+        delete server;
+        return;
+    }
+
+    size_t totalBytesRead = 0;
+    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
+        totalBytesRead!=testString->length()
+        ){
+        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
+    } else {
+        stdout << "CLIENT: Response was '" << response << "'" << endl;
     }
     sendSocket->close();
     delete sendSocket;
     delete testString;
     delete[] response;
 
-    if(server->stop()){
+    if (server->stop()) {
         stderr << "Stopping server failed!" << endl;
     }
     delete server;

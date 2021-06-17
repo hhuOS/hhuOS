@@ -33,25 +33,29 @@ namespace Kernel {
         return 0;
     }
 
-    int
-    UDP4SocketController::receive(void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+    uint8_t
+    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
+                                  IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
-        if (
-                readLock == nullptr ||
-                writeLock == nullptr ||
-                content == nullptr ||
-                targetBuffer == nullptr ||
-                length == 0 ||
-                content->bytesRemaining() < length
-                ) {
+        if (readLock == nullptr){
+            return 1;
+        }
+        readLock->acquire();
+        if(
+            writeLock == nullptr ||
+            content == nullptr ||
+            targetBuffer == nullptr ||
+            length == 0
+        ) {
+            readLock->release();
             delete content;
             delete this->ip4Header;
             delete this->udp4Header;
-            return -1;
+            return 1;
         }
-
-        readLock->acquire();
-        size_t totalBytesRead = content->bytesRemaining();
+        if(totalBytesRead!= nullptr) {
+            *totalBytesRead = content->bytesRemaining();
+        }
         //Cleanup if reading fails
         if (content->read(targetBuffer, length)) {
             delete content;
@@ -60,9 +64,11 @@ namespace Kernel {
             this->ip4Header = nullptr;
             delete this->udp4Header;
             this->udp4Header = nullptr;
-            return -1;
+            return 1;
         }
-        totalBytesRead -= content->bytesRemaining();
+        if(totalBytesRead!= nullptr) {
+            *totalBytesRead = *totalBytesRead - content->bytesRemaining();
+        }
 
         if (ip4HeaderVariable == nullptr) {
             delete this->ip4Header;
@@ -85,7 +91,7 @@ namespace Kernel {
         readLock->acquire();
         writeLock->release();
 
-        return totalBytesRead;
+        return 0;
     }
 
     uint8_t UDP4SocketController::publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram) {

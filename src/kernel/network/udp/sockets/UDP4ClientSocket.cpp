@@ -49,10 +49,14 @@ namespace Kernel {
     }
 
     //Regular receive() for clients
-    int UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
+    uint8_t UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
         if(bindState!=0){
-            return -1;
+            return 1;
         }
-        return controller->receive(targetBuffer, length, nullptr, nullptr);
+        return controller->receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
+    }
+
+    uint8_t UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
+        return receive(nullptr, targetBuffer, length);
     }
 }

@@ -63,17 +63,15 @@ uint8_t EchoServer::stop() {
 }
 
 void EchoServer::EchoThread::run() {
-    int bytesReceived;
+    size_t bytesReceived = 0;
     IP4Header *ip4Header = nullptr;
     UDP4Header *udp4Header = nullptr;
 
     while (attributes.isRunning->get()) {
-        bytesReceived = attributes.socket->receive(
-                attributes.inputBuffer,
-                attributes.inputBufferSize,
-                &ip4Header, &udp4Header
-        );
-        if (bytesReceived <= 0) {
+        if (attributes.socket
+            ->receive(&bytesReceived,attributes.inputBuffer,attributes.inputBufferSize,&ip4Header, &udp4Header) ||
+            bytesReceived==0
+            ) {
             (*attributes.log).error("Error while receiving data, stopping");
             delete ip4Header;
             delete udp4Header;
@@ -89,7 +87,7 @@ void EchoServer::EchoThread::run() {
                 ip4Header->getSourceAddress(),
                 udp4Header->getSourcePort(),
                 attributes.inputBuffer,
-                static_cast<size_t>(bytesReceived)
+                bytesReceived
         )
                 ) {
             (*attributes.log).error("Sending response failed, stopping");

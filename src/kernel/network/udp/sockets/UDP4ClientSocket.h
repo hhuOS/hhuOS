@@ -31,7 +31,9 @@ namespace Kernel {
 
         uint8_t send(void *dataBytes, size_t length);
 
-        int receive(void *targetBuffer, size_t length);
+        uint8_t receive(void *targetBuffer, size_t length);
+
+        uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length);
     };
 }
 
