@@ -66,19 +66,16 @@ namespace Kernel {
             switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
                 case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
                     auto *echoReply = new ICMP4EchoReply();
-
                     if (echoReply->parse(input)) {
                         log.error("Parsing ICMP4EchoReply failed, discarding");
                         delete echoReply;
                         break;
                     }
-
                     printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
                            inIP4Header->getSourceAddress()->asChars(),
                            echoReply->getIdentifier(),
                            echoReply->getSequenceNumber()
                     );
-
                     delete echoReply;
                     break;
                 }
@@ -92,13 +89,11 @@ namespace Kernel {
 
                     //create and send reply
                     eventBus->publish(
-                            new IP4SendEvent(
-                                    new IP4Datagram(
-                                            //The datagram's attributes will be deleted after sending
-                                            //-> copy it here!
-                                            new IP4Address(inIP4Header->getSourceAddress()),
-                                            echoRequest->buildEchoReply()
-                                    )
+                            new ICMP4SendEvent(
+                               //The datagram's attributes will be deleted after sending
+                                //-> copy it here!
+                                new IP4Address(inIP4Header->getSourceAddress()),
+                                echoRequest->buildEchoReply()
                             )
                     );
                     delete echoRequest;
