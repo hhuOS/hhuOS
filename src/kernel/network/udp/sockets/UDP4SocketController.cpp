@@ -46,24 +46,30 @@ namespace Kernel {
 
     uint8_t UDP4SocketController::notifySocket(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header,
                                                NetworkByteBlock *input) {
-        if (
-                incomingIP4Header == nullptr ||
-                incomingUDP4Header == nullptr ||
-                input == nullptr ||
-                readLock == nullptr ||
-                writeLock == nullptr ||
-                isClosed == nullptr
-                ) {
+        //Directly return if one of the main elments is not initialized
+        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr) {
+            //Return error, this will tell UDP4Module to drop incoming data
             return 1;
         }
         //writeLock is opened after receive()
         //-> we will wait here until a reader is finished!
         writeLock->acquire();
+        //Check if we are not started yet or already closing
         if(isClosed->get()){
             log.error("Socket is closed, dropping incoming data");
             //Let all writers come to this point here and return 1
             //-> release writeLock again instead of readLock!
             writeLock->release();
+            //Return error, this will tell UDP4Module to drop incoming data
+            return 1;
+        }
+        //Check if given parameters are valid
+        if(incomingIP4Header == nullptr || incomingUDP4Header == nullptr || input == nullptr){
+            log.error("Incoming IP4Header, UDP4Header or Input was null, returning");
+            //We are not closed here, but parameters are invalid
+            //-> next step will be a read as usual
+            //-> open readLock to start next round
+            readLock->release();
             //Return error, this will tell UDP4Module to drop incoming data
             return 1;
         }
@@ -79,7 +85,7 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if(readLock == nullptr || writeLock== nullptr ||isClosed== nullptr ||
+        if(readLock == nullptr || writeLock== nullptr || isClosed== nullptr ||
             targetBuffer == nullptr || length == 0
         ) {
             return 1;
@@ -90,6 +96,18 @@ namespace Kernel {
             //Let all readers come to this point here and return 1
             //-> release readLock again instead of writeLock!
             readLock->release();
+            if(totalBytesRead!= nullptr){
+                *totalBytesRead=0;
+            }
+            return 1;
+        }
+        if(ip4Header == nullptr || udp4Header == nullptr || content == nullptr){
+            log.error("IP4Header, UDP4Header or Content was null, return");
+            //We are not closed here, but previous writing has failed anyway
+            //-> next step will be a read as usual
+            //-> open writeLock or we will freeze here when doing shutdown!
+            //  --> shutdown waits for writeLock...
+            writeLock->release();
             if(totalBytesRead!= nullptr){
                 *totalBytesRead=0;
             }
@@ -115,13 +133,13 @@ namespace Kernel {
         if (ip4HeaderVariable == nullptr) {
             //delete IP4Header if not requested
             delete this->ip4Header;
-        } else if (this->ip4Header != nullptr) {
+        } else {
             *ip4HeaderVariable = this->ip4Header;
         }
         if (udp4HeaderVariable == nullptr) {
             //delete UDP4Header if not requested
             delete this->udp4Header;
-        } else if (this->udp4Header != nullptr) {
+        } else {
             *udp4HeaderVariable = this->udp4Header;
         }
 
@@ -132,6 +150,7 @@ namespace Kernel {
         //-> no delete here! Just set them to nullptr to avoid using them again
         this->ip4Header = nullptr;
         this->udp4Header = nullptr;
+        //Start next round by allowing next writer
         writeLock->release();
         return 0;
     }
