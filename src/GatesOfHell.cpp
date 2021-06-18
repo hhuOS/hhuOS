@@ -118,6 +118,11 @@ void GatesOfHell::enter() {
         delete[] bannerData;
     }
 
+    auto totalMemory = Kernel::Management::getInstance().getTotalPhysicalMemory();
+    writer << Util::Stream::PrintWriter::dec << (totalMemory / 1024 / 1024) << " MiB RAM detected!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+
+    auto tableMemoryManager = Kernel::TableMemoryManager(*Kernel::Management::getInstance().getPagingAreaManager(), writer, 0, totalMemory - 1, 4096);
+
     auto keyboardInputStream = Util::Stream::PipedInputStream();
     auto reader = Util::Stream::InputStreamReader(keyboardInputStream);
     auto keyboard = Device::Keyboard(keyboardInputStream);

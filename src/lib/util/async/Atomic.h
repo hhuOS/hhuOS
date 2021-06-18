@@ -10,7 +10,7 @@ class Atomic {
 
 private:
 
-    T value = 0;
+    T &value;
 
 private:
 
@@ -22,13 +22,11 @@ private:
 
 public:
 
-    explicit Atomic() noexcept = default;
+    explicit Atomic(T &value);
 
-    explicit Atomic(T value) noexcept;
+    Atomic(const Atomic<T> &other) = delete;
 
-    Atomic(const Atomic<T> &other);
-
-    Atomic<T> &operator=(const Atomic<T> &other);
+    Atomic<T> &operator=(const Atomic<T> &other) = delete;
 
     ~Atomic() = default;
 
@@ -36,7 +34,7 @@ public:
 
     [[nodiscard]] T get() const;
 
-    T getAndSet(T newValue);
+    [[nodiscard]] T getAndSet(T newValue);
 
     void set(T newValue);
 
@@ -48,16 +46,17 @@ public:
 
     T fetchAndDec();
 
+    [[nodiscard]] bool bitTest(T index);
+
+    void bitSet(T index);
+
+    void bitReset(T index);
+
+    [[nodiscard]] bool bitTestAndSet(T index);
+
+    [[nodiscard]] bool bitTestAndReset(T index);
+
 };
-
-template
-class Atomic<bool>;
-
-template
-class Atomic<int8_t>;
-
-template
-class Atomic<uint8_t>;
 
 template
 class Atomic<int16_t>;

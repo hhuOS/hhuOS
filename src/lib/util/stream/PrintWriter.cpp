@@ -205,6 +205,11 @@ PrintWriter &PrintWriter::operator<<(const Memory::String &string) {
     return *this;
 }
 
+PrintWriter &PrintWriter::operator<<(bool boolean) {
+    print(boolean);
+    return *this;
+}
+
 PrintWriter &PrintWriter::operator<<(int16_t number) {
     print(number);
     return *this;

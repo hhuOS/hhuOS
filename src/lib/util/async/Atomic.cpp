@@ -3,26 +3,27 @@
 
 namespace Util::Async {
 
-template<typename T>
-Atomic<T>::Atomic(T value) noexcept {
-    set(value);
+/*
+ * Dummy functions used to return true/false from assembly.
+ * These functions should not be called. They are just wrappers for labels, directly jumped at from assembly code.
+ */
+
+bool dummyUnset() {
+    asm volatile(
+    "CF_UNSET:"
+    );
+    return false;
+}
+
+bool dummySet() {
+    asm volatile(
+    "CF_SET:"
+    );
+    return true;
 }
 
 template<typename T>
-Atomic<T>::Atomic(const Atomic<T> &other) {
-    set(other.value);
-}
-
-template<typename T>
-Atomic<T> &Atomic<T>::operator=(const Atomic<T> &other) {
-    if (this == &other) {
-        return *this;
-    }
-
-    set(other.value);
-
-    return *this;
-}
+Atomic<T>::Atomic(T &value) : value(value) {}
 
 template<typename T>
 void Atomic<T>::exchange(volatile void *ptr, T newValue) {
@@ -100,14 +101,64 @@ T Atomic<T>::fetchAndDec() {
     return fetchAndAdd(&value, -1);
 }
 
-template<>
-bool Atomic<bool>::fetchAndAdd(bool subtrahend) {
-    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Atomic: Cannot add to a boolean type value!");
+template<typename T>
+bool Atomic<T>::bitTest(T index) {
+    asm volatile (
+    "bt %1, %0;"
+    "jc CF_SET;"
+    "jmp CF_UNSET;"
+    : "+m"(value)
+    : "r"(index)
+    );
+
+    // Should never be executed
+    return true;
 }
 
-template<>
-bool Atomic<bool>::fetchAndSub(bool subtrahend) {
-    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "Atomic: Cannot subtract from a boolean type value!");
+template<typename T>
+void Atomic<T>::bitSet(T index) {
+    asm volatile (
+    "lock bts %1, %0"
+    : "+m"(value)
+    : "r"(index)
+    );
+}
+
+template<typename T>
+void Atomic<T>::bitReset(T index) {
+    asm volatile (
+    "lock btr %1, %0"
+    : "+m"(value)
+    : "r"(index)
+    );
+}
+
+template<typename T>
+bool Atomic<T>::bitTestAndSet(T index) {
+    asm volatile (
+    "lock bts %1, %0;"
+    "jc CF_SET;"
+    "jmp CF_UNSET;"
+    : "+m"(value)
+    : "r"(index)
+    );
+
+    // Should never be executed
+    return true;
+}
+
+template<typename T>
+bool Atomic<T>::bitTestAndReset(T index) {
+    asm volatile (
+    "lock btr %1, %0;"
+    "jc CF_SET;"
+    "jmp CF_UNSET;"
+    : "+m"(value)
+    : "r"(index)
+    );
+
+    // Should never be executed
+    return true;
 }
 
 }

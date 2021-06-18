@@ -52,13 +52,13 @@ public:
 
 private:
 
-    static const uint8_t SPINLOCK_UNLOCK = 0x00;
-
-    static const uint8_t SPINLOCK_LOCK = 0x01;
+    static const constexpr uint8_t SPINLOCK_UNLOCK = 0x00;
+    static const constexpr uint8_t SPINLOCK_LOCK = 0x01;
 
 private:
 
-    Atomic<uint8_t> lockVar;
+    uint16_t lockVar = SPINLOCK_UNLOCK;
+    Atomic<uint16_t> lockVarWrapper;
 };
 
 }

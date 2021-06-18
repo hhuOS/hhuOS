@@ -1,26 +1,25 @@
-#include "device/cpu/Cpu.h"
 #include "Spinlock.h"
 
 namespace Util::Async {
 
-Spinlock::Spinlock() noexcept: lockVar(SPINLOCK_UNLOCK) {
+Spinlock::Spinlock() noexcept: lockVarWrapper(lockVar) {
 
 }
 
 void Async::Spinlock::acquire() {
-    while (lockVar.getAndSet(SPINLOCK_LOCK) != SPINLOCK_UNLOCK);
+    while (lockVarWrapper.getAndSet(SPINLOCK_LOCK) != SPINLOCK_UNLOCK);
 }
 
 bool Spinlock::tryAcquire() {
-    return lockVar.getAndSet(SPINLOCK_LOCK) == SPINLOCK_UNLOCK;
+    return lockVarWrapper.getAndSet(SPINLOCK_LOCK) == SPINLOCK_UNLOCK;
 }
 
 void Spinlock::release() {
-    lockVar.set(SPINLOCK_UNLOCK);
+    lockVarWrapper.set(SPINLOCK_UNLOCK);
 }
 
 bool Spinlock::isLocked() {
-    return lockVar.get() == SPINLOCK_LOCK;
+    return lockVarWrapper.get() == SPINLOCK_LOCK;
 }
 
 }

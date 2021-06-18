@@ -99,6 +99,8 @@ public:
 
     PrintWriter& operator<<(const Memory::String &string);
 
+    PrintWriter& operator<<(bool boolean);
+
     PrintWriter& operator<<(int16_t value);
 
     PrintWriter& operator<<(uint16_t value);

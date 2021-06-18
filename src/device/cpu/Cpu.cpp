@@ -37,10 +37,11 @@ const char *Cpu::softwareExceptions[]{
         "PagingError Exception", "UnsupportedOperation Exception"
 };
 
-Util::Async::Atomic<int32_t> Cpu::cliCount(1); // Interrupts are disabled on startup
+int32_t Cpu::cliCount = 1; // Interrupts are disabled on startup
+Util::Async::Atomic<int32_t> Cpu::cliCountWrapper(Cpu::cliCount);
 
 void Cpu::enableInterrupts() {
-    int count = cliCount.fetchAndDec();
+    int count = cliCountWrapper.fetchAndDec();
     if (count == 1) {
         // cliCount has been decreased to 0 -> Enable interrupts
         asm volatile ( "sti" );
@@ -52,7 +53,7 @@ void Cpu::enableInterrupts() {
 
 void Cpu::disableInterrupts() {
     asm volatile ( "cli" );
-    cliCount.fetchAndInc();
+    cliCountWrapper.fetchAndInc();
 }
 
 void Cpu::halt() {

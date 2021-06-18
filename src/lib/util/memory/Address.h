@@ -19,7 +19,6 @@
 #define __Address_include__
 
 #include <cstdint>
-#include <lib/util/async/Atomic.h>
 
 namespace Util::Memory {
 

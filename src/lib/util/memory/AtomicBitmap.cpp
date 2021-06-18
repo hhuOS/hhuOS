@@ -1,3 +1,4 @@
+#include <lib/util/async/Atomic.h>
 #include "AtomicBitmap.h"
 #include "Address.h"
 
@@ -21,11 +22,8 @@ void AtomicBitmap::set(uint32_t block) {
     uint32_t index = block / 32;
     uint32_t bit = block % 32;
 
-    asm volatile (
-    "lock bts %1, %0"
-    : "+m"(bitmap[index])
-    : "r"(31 - bit)
-    );
+    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
+    bitmapWrapper.bitSet(31 - bit);
 }
 
 void AtomicBitmap::unset(uint32_t block) {
@@ -36,26 +34,20 @@ void AtomicBitmap::unset(uint32_t block) {
     uint32_t index = block / 32;
     uint32_t bit = block % 32;
 
-    asm volatile (
-    "lock btr %1, %0"
-    : "+m"(bitmap[index])
-    : "r"(31 - bit)
-    );
+    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
+    bitmapWrapper.bitReset(31 - bit);
 }
 
 bool AtomicBitmap::check(uint32_t block, bool set) {
-    if(block >= blocks) {
+    if (block >= blocks) {
         return false;
     }
 
     uint32_t index = block / 32;
     uint32_t bit = block % 32;
 
-    if(set) {
-        return (bitmap[index] & (1 << (31 - bit))) != 0;
-    } else {
-        return (bitmap[index] & (1 << (31 - bit))) == 0;
-    }
+    Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
+    return bitmapWrapper.bitTest(31 - bit) == set;
 }
 
 uint32_t AtomicBitmap::findAndSet() {
@@ -65,18 +57,11 @@ uint32_t AtomicBitmap::findAndSet() {
         uint32_t index = i / 32;
         uint32_t bit = i % 32;
 
-        asm volatile (
-        "lock bts %1, %0;"
-        "jnc FOUND;"
-        : "+m"(bitmap[index])
-        : "r"(31 - bit)
-        );
+        Async::Atomic<uint32_t> bitmapWrapper(bitmap[index]);
+        if (!bitmapWrapper.bitTestAndSet(31 - bit)) {
+            break;
+        }
     }
-
-    // NICE!
-    asm volatile (
-    "FOUND:"
-    );
 
     return i;
 }
