@@ -12,6 +12,36 @@ namespace Kernel {
         readLock->acquire();
         writeLock = new Spinlock();
         writeLock->release();
+        isClosed=new Atomic<bool>;
+        isClosed->set(true);
+    }
+
+    uint8_t UDP4SocketController::startup() {
+        if(writeLock== nullptr || isClosed == nullptr){
+            return 1;
+        }
+        writeLock->acquire();
+        isClosed->set(false);
+        writeLock->release();
+        return 0;
+    }
+
+    uint8_t UDP4SocketController::shutdown() {
+        if(writeLock== nullptr || isClosed == nullptr || readLock== nullptr){
+            return 1;
+        }
+        writeLock->acquire();
+        isClosed->set(true);
+        //make sure that deleteData() is only called once
+        //-> don't call it in notifySocket() nor in receive()!
+        deleteData();
+
+        //When isClosed==true,
+        // readers AND writers simply open their own locks and return 1
+        //-> no critical access to central data anymore, we can open both locks now
+        writeLock->release();
+        readLock->release();
+        return 0;
     }
 
     uint8_t UDP4SocketController::notifySocket(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header,
@@ -21,11 +51,22 @@ namespace Kernel {
                 incomingUDP4Header == nullptr ||
                 input == nullptr ||
                 readLock == nullptr ||
-                writeLock == nullptr
+                writeLock == nullptr ||
+                isClosed == nullptr
                 ) {
             return 1;
         }
+        //writeLock is opened after receive()
+        //-> we will wait here until a reader is finished!
         writeLock->acquire();
+        if(isClosed->get()){
+            log.error("Socket is closed, dropping incoming data");
+            //Let all writers come to this point here and return 1
+            //-> release writeLock again instead of readLock!
+            writeLock->release();
+            //Return error, this will tell UDP4Module to drop incoming data
+            return 1;
+        }
         this->ip4Header = incomingIP4Header;
         this->udp4Header = incomingUDP4Header;
         this->content = input;
@@ -37,20 +78,26 @@ namespace Kernel {
     UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
-        if (readLock == nullptr) {
-            return 1;
-        }
-        readLock->acquire();
+
         if (
-                writeLock == nullptr ||
+                readLock == nullptr ||
+                isClosed== nullptr ||
+                writeLock== nullptr ||
                 content == nullptr ||
                 targetBuffer == nullptr ||
                 length == 0
                 ) {
+            return 1;
+        }
+        readLock->acquire();
+        if(isClosed->get()){
+            log.error("Socket is closed, not reading any data");
+            //Let all readers come to this point here and return 1
+            //-> release readLock again instead of writeLock!
             readLock->release();
-            delete content;
-            delete this->ip4Header;
-            delete this->udp4Header;
+            if(totalBytesRead!= nullptr){
+                *totalBytesRead=0;
+            }
             return 1;
         }
         if (totalBytesRead != nullptr) {
@@ -63,25 +110,19 @@ namespace Kernel {
 
         //Cleanup if reading fails
         if (content->read(targetBuffer, length)) {
-            delete content;
-            content = nullptr;
-            delete this->ip4Header;
-            this->ip4Header = nullptr;
-            delete this->udp4Header;
-            this->udp4Header = nullptr;
+            deleteData();
+            writeLock->release();
             return 1;
         }
         if (totalBytesRead != nullptr) {
             *totalBytesRead = *totalBytesRead - content->bytesRemaining();
         }
-
         if (ip4HeaderVariable == nullptr) {
             //delete IP4Header if not requested
             delete this->ip4Header;
         } else if (this->ip4Header != nullptr) {
             *ip4HeaderVariable = this->ip4Header;
         }
-
         if (udp4HeaderVariable == nullptr) {
             //delete UDP4Header if not requested
             delete this->udp4Header;
@@ -96,9 +137,7 @@ namespace Kernel {
         //-> no delete here! Just set them to nullptr to avoid using them again
         this->ip4Header = nullptr;
         this->udp4Header = nullptr;
-        readLock->acquire();
         writeLock->release();
-
         return 0;
     }
 
@@ -110,5 +149,15 @@ namespace Kernel {
                 new UDP4SendEvent(destinationAddress, outDatagram)
         );
         return 0;
+    }
+
+    //Private method!
+    void UDP4SocketController::deleteData() {
+        delete this->ip4Header;
+        delete this->udp4Header;
+        delete this->content;
+        this->ip4Header= nullptr;
+        this->udp4Header= nullptr;
+        this->content = nullptr;
     }
 }

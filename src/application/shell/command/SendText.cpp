@@ -28,33 +28,30 @@ void SendText::execute(Util::Array<String> &args) {
         delete server;
         return;
     }
-    auto * timeService = Kernel::System::getService<Kernel::TimeService>();
-    timeService->msleep(2000);
-
-    auto *testString = new String("Hello world! Now it works...\0");
-    auto *localhost = new IP4Address(127, 0, 0, 1);
-    stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
-
-
-    auto *sendSocket = new Kernel::UDP4ClientSocket(localhost, ECHO_PORT_NUMBER);
-    auto *response = new char [testString->length() + 1];
-    response[testString->length()]='\0';
-
-    if(sendSocket->send((char *)*testString,testString->length())) {
-        stderr << "CLIENT: Error while sending!" << endl;
-        sendSocket->close();
-        delete sendSocket;
-        delete testString;
-        delete[] response;
-
-        if (server->stop()) {
-            stderr << "Stopping server failed!" << endl;
-        }
-        delete server;
-        return;
-    }
-
-    timeService->msleep(2000);
+//    auto *testString = new String("Hello world! Now it works...\0");
+//    auto *localhost = new IP4Address(127, 0, 0, 1);
+//    stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
+//
+//
+//    auto *sendSocket = new Kernel::UDP4ClientSocket(localhost, ECHO_PORT_NUMBER);
+//    auto *response = new char [testString->length() + 1];
+//    response[testString->length()]='\0';
+//
+//    if(sendSocket->send((char *)*testString,testString->length())) {
+//        stderr << "CLIENT: Error while sending!" << endl;
+//        sendSocket->close();
+//        delete sendSocket;
+//        delete testString;
+//        delete[] response;
+//
+//        if (server->stop()) {
+//            stderr << "Stopping server failed!" << endl;
+//        }
+//        delete server;
+//        return;
+//    }
+//
+//    timeService->msleep(2000);
 //
 //    size_t totalBytesRead = 0;
 //    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
@@ -64,17 +61,16 @@ void SendText::execute(Util::Array<String> &args) {
 //    } else {
 //        stdout << "CLIENT: Response was '" << response << "'" << endl;
 //    }
-
-    sendSocket->close();
-    delete sendSocket;
-    delete testString;
-    delete[] response;
-
+//
+//    sendSocket->close();
+//    delete sendSocket;
+//    delete testString;
+//    delete[] response;
+//
     stdout << "Stopping ECHO server" << endl;
     if (server->stop()) {
         stderr << "Stopping server failed!" << endl;
     }
-    timeService->msleep(2000);
     delete server;
 }
 

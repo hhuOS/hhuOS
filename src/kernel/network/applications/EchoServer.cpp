@@ -58,8 +58,9 @@ uint8_t EchoServer::stop() {
         return 1;
     }
     attributes.isRunning->set(false);
+    attributes.socket->close();
     while (!serverThread->hasFinished()) {}
-    return attributes.socket->close();
+    return 0;
 }
 
 void EchoServer::EchoThread::run() {
