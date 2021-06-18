@@ -56,6 +56,10 @@ namespace Kernel {
         if(totalBytesRead!= nullptr) {
             *totalBytesRead = content->bytesRemaining();
         }
+        if(length>content->bytesRemaining()){
+            length=content->bytesRemaining();
+        }
+
         //Cleanup if reading fails
         if (content->read(targetBuffer, length)) {
             delete content;
