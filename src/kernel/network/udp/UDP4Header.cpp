@@ -12,7 +12,7 @@ UDP4Header::UDP4Header(uint16_t sourcePort, uint16_t destinationPort, Kernel::Ne
 }
 
 size_t UDP4Header::getHeaderLength() {
-    return 4 * sizeof (uint16_t);
+    return 4 * sizeof(uint16_t);
 }
 
 uint16_t UDP4Header::getSourcePort() const {

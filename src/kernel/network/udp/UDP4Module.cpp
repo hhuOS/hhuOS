@@ -25,7 +25,7 @@ namespace Kernel {
             return 1;
         }
         socketAccessLock->acquire();
-        if(sockets->containsKey(destinationPort)){
+        if (sockets->containsKey(destinationPort)) {
             socketAccessLock->release();
             //Already registered here
             return 1;

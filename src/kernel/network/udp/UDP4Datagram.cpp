@@ -24,7 +24,7 @@ uint8_t UDP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
             output == nullptr ||
             dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength()) ||
             dataBytes->getLength() == 0 ||
-                    UDP4Header::getHeaderLength() > UDP4HEADER_MAX_LENGTH
+            UDP4Header::getHeaderLength() > UDP4HEADER_MAX_LENGTH
             ) {
         return 1;
     }

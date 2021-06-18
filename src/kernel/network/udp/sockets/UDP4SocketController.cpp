@@ -37,27 +37,27 @@ namespace Kernel {
     UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
-        if (readLock == nullptr){
+        if (readLock == nullptr) {
             return 1;
         }
         readLock->acquire();
-        if(
-            writeLock == nullptr ||
-            content == nullptr ||
-            targetBuffer == nullptr ||
-            length == 0
-        ) {
+        if (
+                writeLock == nullptr ||
+                content == nullptr ||
+                targetBuffer == nullptr ||
+                length == 0
+                ) {
             readLock->release();
             delete content;
             delete this->ip4Header;
             delete this->udp4Header;
             return 1;
         }
-        if(totalBytesRead!= nullptr) {
+        if (totalBytesRead != nullptr) {
             *totalBytesRead = content->bytesRemaining();
         }
-        if(length>content->bytesRemaining()){
-            length=content->bytesRemaining();
+        if (length > content->bytesRemaining()) {
+            length = content->bytesRemaining();
         }
 
         //Cleanup if reading fails
@@ -70,7 +70,7 @@ namespace Kernel {
             this->udp4Header = nullptr;
             return 1;
         }
-        if(totalBytesRead!= nullptr) {
+        if (totalBytesRead != nullptr) {
             *totalBytesRead = *totalBytesRead - content->bytesRemaining();
         }
 

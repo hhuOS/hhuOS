@@ -69,9 +69,10 @@ void EchoServer::EchoThread::run() {
 
     while (attributes.isRunning->get()) {
         if (attributes.socket
-            ->receive(&bytesReceived,attributes.inputBuffer,attributes.inputBufferSize,&ip4Header, &udp4Header) ||
-            bytesReceived==0
-            ) {
+                    ->receive(&bytesReceived, attributes.inputBuffer, attributes.inputBufferSize, &ip4Header,
+                              &udp4Header) ||
+            bytesReceived == 0
+                ) {
             (*attributes.log).error("Error while receiving data, stopping");
             delete ip4Header;
             delete udp4Header;

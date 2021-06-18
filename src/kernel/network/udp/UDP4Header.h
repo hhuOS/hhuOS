@@ -12,10 +12,10 @@
 class UDP4Header {
 private:
     uint16_t
-    sourcePort = 0,
-    destinationPort = 0,
-    length = 0,
-    checksum = 0;
+            sourcePort = 0,
+            destinationPort = 0,
+            length = 0,
+            checksum = 0;
 
 public:
     UDP4Header(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes);

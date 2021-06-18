@@ -3,9 +3,10 @@
 //
 
 #include "UDP4ServerSocket.h"
-namespace Kernel{
+
+namespace Kernel {
     UDP4ServerSocket::UDP4ServerSocket(uint16_t listeningPort) {
-        this->listeningPort=listeningPort;
+        this->listeningPort = listeningPort;
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
     }
@@ -24,7 +25,8 @@ namespace Kernel{
     }
 
     //Server send()
-    uint8_t UDP4ServerSocket::send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length) {
+    uint8_t
+    UDP4ServerSocket::send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
                 givenDestination == nullptr ||
@@ -34,7 +36,7 @@ namespace Kernel{
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
-        if(byteBlock->append(dataBytes,length)){
+        if (byteBlock->append(dataBytes, length)) {
             delete byteBlock;
             return 1;
         }

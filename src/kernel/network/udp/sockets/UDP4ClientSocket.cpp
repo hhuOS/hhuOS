@@ -12,7 +12,7 @@ namespace Kernel {
         //TODO: Implement find logic for free port number
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
-        bindState=networkService->registerSocketController(listeningPort, controller);
+        bindState = networkService->registerSocketController(listeningPort, controller);
     }
 
     UDP4ClientSocket::~UDP4ClientSocket() {
@@ -29,14 +29,14 @@ namespace Kernel {
     uint8_t UDP4ClientSocket::send(void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
-                destinationAddress== nullptr ||
+                destinationAddress == nullptr ||
                 length == 0 ||
                 targetPort == 0
                 ) {
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
-        if(byteBlock->append(dataBytes,length)){
+        if (byteBlock->append(dataBytes, length)) {
             delete byteBlock;
             return 1;
         }
@@ -51,7 +51,7 @@ namespace Kernel {
 
     //Regular receive() for clients
     uint8_t UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
-        if(bindState!=0){
+        if (bindState != 0) {
             return 1;
         }
         return controller->receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
