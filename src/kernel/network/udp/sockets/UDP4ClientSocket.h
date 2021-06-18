@@ -12,12 +12,13 @@
 #include <kernel/event/network/UDP4SendEvent.h>
 #include <kernel/core/System.h>
 #include <kernel/service/NetworkService.h>
+#include <kernel/service/TimeService.h>
 
 namespace Kernel {
     class UDP4ClientSocket {
     private:
-        uint8_t bindState = 1;
         uint16_t listeningPort = 0, targetPort = 0;
+        TimeService *timeService= nullptr;
         NetworkService *networkService = nullptr;
         IP4Address *destinationAddress = nullptr;
         UDP4SocketController *controller = nullptr;
@@ -26,6 +27,8 @@ namespace Kernel {
         UDP4ClientSocket(IP4Address *targetAddress, uint16_t targetPort);
 
         virtual ~UDP4ClientSocket();
+
+        uint8_t bind();
 
         uint8_t close();
 

@@ -11,8 +11,8 @@ namespace Kernel {
         this->listeningPort = 16123;
         //TODO: Implement find logic for free port number
         networkService = System::getService<NetworkService>();
+        timeService = System::getService<TimeService>();
         controller = networkService->createSocketController();
-        bindState = networkService->registerSocketController(listeningPort, controller);
     }
 
     UDP4ClientSocket::~UDP4ClientSocket() {
@@ -20,8 +20,22 @@ namespace Kernel {
         delete controller;
     }
 
+    uint8_t UDP4ClientSocket::bind() {
+        if(controller->startup()){
+            return 1;
+        }
+        //Make sure all locks and data structures are prepared
+        timeService->msleep(2000);
+        return networkService->registerSocketController(listeningPort, controller);
+    }
+
     uint8_t UDP4ClientSocket::close() {
-        return networkService->unregisterSocketController(listeningPort);
+        if(networkService->unregisterSocketController(listeningPort)){
+            return 1;
+        }
+        //Make sure all processes on incoming packets are finished
+        timeService->msleep(2000);
+        return controller->shutdown();
     }
 
     //Client send()
@@ -41,7 +55,6 @@ namespace Kernel {
             return 1;
         }
         byteBlock->resetIndex();
-
         controller->publishSendEvent(
                 new IP4Address(destinationAddress),
                 new UDP4Datagram(this->listeningPort, targetPort, byteBlock)
@@ -51,9 +64,6 @@ namespace Kernel {
 
     //Regular receive() for clients
     uint8_t UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
-        if (bindState != 0) {
-            return 1;
-        }
         return controller->receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
     }
 

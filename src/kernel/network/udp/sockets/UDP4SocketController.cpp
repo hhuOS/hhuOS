@@ -79,14 +79,9 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if (
-                readLock == nullptr ||
-                isClosed== nullptr ||
-                writeLock== nullptr ||
-                content == nullptr ||
-                targetBuffer == nullptr ||
-                length == 0
-                ) {
+        if(readLock == nullptr || writeLock== nullptr ||isClosed== nullptr ||
+            targetBuffer == nullptr || length == 0
+        ) {
             return 1;
         }
         readLock->acquire();

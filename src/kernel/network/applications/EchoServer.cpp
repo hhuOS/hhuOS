@@ -34,7 +34,8 @@ uint8_t EchoServer::start() {
             attributes.socket == nullptr ||
             attributes.isRunning == nullptr ||
             attributes.log == nullptr ||
-            serverThread == nullptr
+            serverThread == nullptr ||
+            attributes.inputBufferSize == 0
             ) {
         cleanup();
         return 1;
@@ -69,11 +70,11 @@ void EchoServer::EchoThread::run() {
     UDP4Header *udp4Header = nullptr;
 
     while (attributes.isRunning->get()) {
-        if (attributes.socket
-                    ->receive(&bytesReceived, attributes.inputBuffer, attributes.inputBufferSize, &ip4Header,
-                              &udp4Header) ||
-            bytesReceived == 0
-                ) {
+        if (attributes.socket->receive(
+                &bytesReceived, attributes.inputBuffer, attributes.inputBufferSize,
+                &ip4Header,&udp4Header
+                ) || bytesReceived == 0
+            ) {
             (*attributes.log).error("Error while receiving data, stopping");
             delete ip4Header;
             delete udp4Header;
@@ -84,19 +85,18 @@ void EchoServer::EchoThread::run() {
                 ip4Header->getSourceAddress()->asChars(),
                 attributes.inputBuffer
         );
-//
-//        if (attributes.socket->send(
-//                ip4Header->getSourceAddress(),
-//                udp4Header->getSourcePort(),
-//                attributes.inputBuffer,
-//                bytesReceived
-//        )
-//                ) {
-//            (*attributes.log).error("Sending response failed, stopping");
-//            delete ip4Header;
-//            delete udp4Header;
-//            return;
-//        }
+
+        if (
+                attributes.socket->send(
+                        ip4Header->getSourceAddress(),udp4Header->getSourcePort(),
+                        attributes.inputBuffer,bytesReceived
+                        )
+                ) {
+            (*attributes.log).error("Sending response failed, stopping");
+            delete ip4Header;
+            delete udp4Header;
+            return;
+        }
         delete ip4Header;
         delete udp4Header;
     }

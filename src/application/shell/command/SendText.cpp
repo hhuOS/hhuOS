@@ -28,45 +28,59 @@ void SendText::execute(Util::Array<String> &args) {
         delete server;
         return;
     }
-//    auto *testString = new String("Hello world! Now it works...\0");
-//    auto *localhost = new IP4Address(127, 0, 0, 1);
-//    stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
-//
-//
-//    auto *sendSocket = new Kernel::UDP4ClientSocket(localhost, ECHO_PORT_NUMBER);
-//    auto *response = new char [testString->length() + 1];
-//    response[testString->length()]='\0';
-//
-//    if(sendSocket->send((char *)*testString,testString->length())) {
-//        stderr << "CLIENT: Error while sending!" << endl;
-//        sendSocket->close();
-//        delete sendSocket;
-//        delete testString;
-//        delete[] response;
-//
-//        if (server->stop()) {
-//            stderr << "Stopping server failed!" << endl;
-//        }
-//        delete server;
-//        return;
-//    }
-//
-//    timeService->msleep(2000);
-//
-//    size_t totalBytesRead = 0;
-//    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
-//        totalBytesRead!=testString->length()
-//        ){
-//        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
-//    } else {
-//        stdout << "CLIENT: Response was '" << response << "'" << endl;
-//    }
-//
-//    sendSocket->close();
-//    delete sendSocket;
-//    delete testString;
-//    delete[] response;
-//
+
+    auto *sendSocket = new Kernel::UDP4ClientSocket(
+            new IP4Address(127, 0, 0, 1),
+            ECHO_PORT_NUMBER
+            );
+
+    stdout << "CLIENT: Binding socket for receive" << endl;
+    if(sendSocket->bind()){
+        stderr << "CLIENT: Binding socket to receive response failed!" << endl;
+        sendSocket->close();
+        delete sendSocket;
+        if (server->stop()) {
+            stderr << "Stopping server failed!" << endl;
+        }
+        delete server;
+        return;
+    }
+
+    auto *testString = new String("Hello world! Now it works...\0");
+    auto *response = new char [testString->length()];
+
+    stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
+    if(sendSocket->send((char *)*testString,testString->length())) {
+        stderr << "CLIENT: Error while sending!" << endl;
+        sendSocket->close();
+        delete sendSocket;
+        delete testString;
+        delete[] response;
+
+        stdout << "Stopping ECHO server" << endl;
+        if (server->stop()) {
+            stderr << "Stopping server failed!" << endl;
+        }
+        delete server;
+        return;
+    }
+
+    size_t totalBytesRead = 0;
+    stdout << "CLIENT: Reading response" << endl;
+    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
+        totalBytesRead!=testString->length()
+        ){
+        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
+    } else {
+        stdout << "CLIENT: Response was '" << response << "'" << endl;
+    }
+
+    stdout << "CLIENT: Closing socket" << endl;
+    sendSocket->close();
+    delete sendSocket;
+    delete testString;
+    delete[] response;
+
     stdout << "Stopping ECHO server" << endl;
     if (server->stop()) {
         stderr << "Stopping server failed!" << endl;
