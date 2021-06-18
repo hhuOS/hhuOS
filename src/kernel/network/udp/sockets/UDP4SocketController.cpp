@@ -54,6 +54,7 @@ namespace Kernel {
             return 1;
         }
         if (totalBytesRead != nullptr) {
+            //count bytes read if requested
             *totalBytesRead = content->bytesRemaining();
         }
         if (length > content->bytesRemaining()) {
@@ -75,12 +76,14 @@ namespace Kernel {
         }
 
         if (ip4HeaderVariable == nullptr) {
+            //delete IP4Header if not requested
             delete this->ip4Header;
         } else if (this->ip4Header != nullptr) {
             *ip4HeaderVariable = this->ip4Header;
         }
 
         if (udp4HeaderVariable == nullptr) {
+            //delete UDP4Header if not requested
             delete this->udp4Header;
         } else if (this->udp4Header != nullptr) {
             *udp4HeaderVariable = this->udp4Header;
@@ -88,6 +91,7 @@ namespace Kernel {
 
         delete content;
         content = nullptr;
+
         //Headers are in use somewhere else
         //-> no delete here! Just set them to nullptr to avoid using them again
         this->ip4Header = nullptr;
