@@ -18,7 +18,7 @@ namespace Kernel {
     }
 
     NetworkByteBlock::~NetworkByteBlock() {
-        delete this->bytes;
+        delete[] this->bytes;
     }
 
 //If our byteBlock is perfectly filled, this->currentIndex points to the first 'illegal' byte
