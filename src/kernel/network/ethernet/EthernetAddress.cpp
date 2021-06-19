@@ -2,6 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
+#include <kernel/network/NetworkDefinitions.h>
 #include "EthernetAddress.h"
 
 EthernetAddress::EthernetAddress(NetworkDevice *networkDevice) {

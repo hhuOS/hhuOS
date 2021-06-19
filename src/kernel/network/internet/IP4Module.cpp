@@ -2,8 +2,11 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/udp/UDP4Datagram.h>
 #include <kernel/event/network/UDP4ReceiveEvent.h>
+#include <kernel/event/network/IP4SendEvent.h>
+#include <kernel/event/network/IP4ReceiveEvent.h>
+#include <kernel/event/network/ICMP4ReceiveEvent.h>
+#include <kernel/event/network/ARPReceiveEvent.h>
 #include "IP4Module.h"
 
 namespace Kernel {

@@ -5,7 +5,6 @@
 #ifndef HHUOS_IP4SENDEVENT_H
 #define HHUOS_IP4SENDEVENT_H
 
-#include <cstdint>
 #include <kernel/event/Event.h>
 #include <kernel/network/internet/IP4Datagram.h>
 

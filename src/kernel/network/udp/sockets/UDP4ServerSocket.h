@@ -5,7 +5,6 @@
 #ifndef HHUOS_UDP4SERVERSOCKET_H
 #define HHUOS_UDP4SERVERSOCKET_H
 
-#include <cstdint>
 #include <kernel/service/NetworkService.h>
 #include <kernel/service/TimeService.h>
 

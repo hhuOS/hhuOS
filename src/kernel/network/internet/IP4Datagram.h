@@ -5,12 +5,7 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
-#include "lib/libc/stdlib.h"
 #include <kernel/network/ethernet/EthernetDataPart.h>
-#include <kernel/network/NetworkByteBlock.h>
-#include <kernel/network/udp/UDP4Datagram.h>
-#include "addressing/IP4Address.h"
-#include "IP4DataPart.h"
 #include "IP4Header.h"
 
 class IP4Datagram final : public EthernetDataPart {

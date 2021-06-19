@@ -6,7 +6,6 @@
 #define HHUOS_ETHERNETDEVICE_H
 
 
-#include <device/network/NetworkDevice.h>
 #include <kernel/log/Logger.h>
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"

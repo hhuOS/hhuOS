@@ -6,7 +6,6 @@
 #define HHUOS_IP4ROUTINGMODULE_H
 
 
-#include <kernel/network/internet/addressing/IP4Address.h>
 #include "IP4Route.h"
 
 namespace Kernel {

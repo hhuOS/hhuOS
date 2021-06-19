@@ -127,8 +127,8 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *networkDevice) {
-        if (networkDevice == nullptr || bytes == nullptr) {
+    uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *outDevice) {
+        if (outDevice == nullptr || bytes == nullptr) {
             return 1;
         }
 
@@ -136,7 +136,7 @@ namespace Kernel {
             //It's not an error if nothing needs to be done
             return 0;
         }
-        networkDevice->sendPacket(bytes, static_cast<uint16_t>(length));
+        outDevice->sendPacket(bytes, static_cast<uint16_t>(length));
         //NetworkDevices return no information about errors or successful sending
         //-> we just can return successful here
         return 0;

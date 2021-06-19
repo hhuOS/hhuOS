@@ -5,9 +5,8 @@
 #ifndef HHUOS_IP4RECEIVEEVENT_H
 #define HHUOS_IP4RECEIVEEVENT_H
 
-#include <cstdint>
 #include <kernel/event/Event.h>
-#include <kernel/network/internet/IP4Datagram.h>
+#include <kernel/network/internet/IP4Header.h>
 
 namespace Kernel {
     class IP4ReceiveEvent : public Event {

@@ -6,7 +6,6 @@
 #define HHUOS_UDP4HEADER_H
 
 
-#include <cstdint>
 #include <kernel/network/NetworkByteBlock.h>
 
 class UDP4Header {

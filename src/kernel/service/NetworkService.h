@@ -23,15 +23,11 @@
 #define HHUOS_NETWORKSERVICE_H
 
 #include <kernel/network/NetworkEventBus.h>
-#include "kernel/network/PacketHandler.h"
-#include <device/network/loopback/Loopback.h>
-#include <kernel/network/ethernet/EthernetModule.h>
+#include <kernel/network/PacketHandler.h>
 #include <kernel/network/internet/IP4Module.h>
+#include <kernel/network/ethernet/EthernetModule.h>
 #include <kernel/network/internet/icmp/ICMP4Module.h>
-#include <kernel/network/udp/sockets/UDP4SocketController.h>
 #include <kernel/network/udp/UDP4Module.h>
-#include "kernel/log/Logger.h"
-#include "KernelService.h"
 
 namespace Kernel {
 

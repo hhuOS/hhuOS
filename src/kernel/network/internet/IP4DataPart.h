@@ -5,7 +5,6 @@
 #ifndef HHUOS_NETWORKDATAPART_H
 #define HHUOS_NETWORKDATAPART_H
 
-#include "lib/libc/stdlib.h"
 #include <kernel/network/NetworkByteBlock.h>
 
 class IP4DataPart {

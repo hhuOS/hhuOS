@@ -3,6 +3,7 @@
 //
 
 #include <kernel/network/internet/IP4Header.h>
+#include <kernel/event/network/UDP4SendEvent.h>
 #include "UDP4SocketController.h"
 
 namespace Kernel {

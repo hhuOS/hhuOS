@@ -6,8 +6,8 @@
 #define HHUOS_UDP4RECEIVEEVENT_H
 
 #include <kernel/event/Event.h>
-#include <kernel/network/udp/UDP4Datagram.h>
-#include <kernel/network/internet/IP4Datagram.h>
+#include <kernel/network/udp/UDP4Header.h>
+#include <kernel/network/internet/IP4Header.h>
 
 namespace Kernel {
     class UDP4ReceiveEvent : public Event {

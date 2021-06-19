@@ -6,10 +6,8 @@
 #define HHUOS_ETHERNETRECEIVEEVENT_H
 
 
-#include <device/network/NetworkDevice.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/ethernet/EthernetFrame.h>
 #include <kernel/event/Event.h>
+#include <kernel/network/ethernet/EthernetHeader.h>
 
 namespace Kernel {
     class EthernetReceiveEvent : public Event {

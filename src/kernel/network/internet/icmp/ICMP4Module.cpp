@@ -2,11 +2,12 @@
 // Created by hannes on 17.05.21.
 //
 
-#include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <kernel/event/network/IP4SendEvent.h>
-#include <lib/libc/printf.h>
-#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
+#include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
+#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
+#include <kernel/event/network/IP4SendEvent.h>
+#include <kernel/event/network/ICMP4ReceiveEvent.h>
+#include <lib/libc/printf.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {

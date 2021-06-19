@@ -2,6 +2,9 @@
 // Created by hannes on 17.05.21.
 //
 
+#include <kernel/event/network/UDP4SendEvent.h>
+#include <kernel/event/network/IP4SendEvent.h>
+#include <kernel/event/network/UDP4ReceiveEvent.h>
 #include "UDP4Module.h"
 
 namespace Kernel {

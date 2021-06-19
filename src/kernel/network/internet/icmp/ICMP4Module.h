@@ -5,8 +5,8 @@
 #ifndef HHUOS_ICMP4MODULE_H
 #define HHUOS_ICMP4MODULE_H
 
-#include <kernel/log/Logger.h>
 #include <kernel/network/NetworkEventBus.h>
+#include <kernel/log/Logger.h>
 
 namespace Kernel {
     class ICMP4Module : public Receiver {

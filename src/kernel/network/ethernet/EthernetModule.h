@@ -5,15 +5,7 @@
 #ifndef HHUOS_ETHERNETMODULE_H
 #define HHUOS_ETHERNETMODULE_H
 
-#include <kernel/core/System.h>
-#include <kernel/log/Logger.h>
-#include <kernel/event/Receiver.h>
-#include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/event/network/EthernetReceiveEvent.h>
-#include <kernel/event/network/IP4ReceiveEvent.h>
-#include <kernel/event/network/ARPReceiveEvent.h>
 #include <kernel/network/NetworkEventBus.h>
-
 #include "EthernetDevice.h"
 
 namespace Kernel {

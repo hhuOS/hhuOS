@@ -2,6 +2,7 @@
 // Created by hannes on 15.06.21.
 //
 
+#include <kernel/network/NetworkDefinitions.h>
 #include "IP4Header.h"
 
 IP4Header::IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart) {

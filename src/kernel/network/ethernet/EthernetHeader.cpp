@@ -2,6 +2,7 @@
 // Created by hannes on 15.06.21.
 //
 
+#include <kernel/network/NetworkDefinitions.h>
 #include "EthernetHeader.h"
 
 EthernetHeader::EthernetHeader(EthernetAddress *destinationAddress, EthernetDataPart *dataPart) {

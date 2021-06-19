@@ -5,11 +5,6 @@
 #ifndef HHUOS_ETHERNETFRAME_H
 #define HHUOS_ETHERNETFRAME_H
 
-#include <kernel/network/NetworkByteBlock.h>
-#include <kernel/network/internet/IP4Datagram.h>
-#include <kernel/network/arp/ARPMessage.h>
-#include "EthernetAddress.h"
-#include "EthernetDataPart.h"
 #include "EthernetHeader.h"
 
 class EthernetFrame final {

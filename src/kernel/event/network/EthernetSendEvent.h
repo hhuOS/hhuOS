@@ -6,11 +6,8 @@
 #define HHUOS_ETHERNETSENDEVENT_H
 
 
-#include <device/network/NetworkDevice.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/ethernet/EthernetFrame.h>
-#include <kernel/event/Event.h>
 #include <kernel/network/ethernet/EthernetDevice.h>
+#include <kernel/event/Event.h>
 
 namespace Kernel {
     class EthernetSendEvent : public Event {

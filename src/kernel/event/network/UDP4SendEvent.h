@@ -5,10 +5,9 @@
 #ifndef HHUOS_UDP4SENDEVENT_H
 #define HHUOS_UDP4SENDEVENT_H
 
-#include <cstdint>
 #include <kernel/event/Event.h>
-#include <kernel/network/udp/UDP4Datagram.h>
 #include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/udp/UDP4Datagram.h>
 
 namespace Kernel {
     class UDP4SendEvent : public Event {

@@ -5,6 +5,7 @@
 #include <kernel/network/internet/icmp/messages/ICMP4EchoReply.h>
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/network/NetworkDefinitions.h>
+#include <kernel/network/udp/UDP4Datagram.h>
 #include "IP4Datagram.h"
 
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {

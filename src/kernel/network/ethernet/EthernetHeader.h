@@ -6,7 +6,6 @@
 #define HHUOS_ETHERNETHEADER_H
 
 
-#include <cstdint>
 #include "EthernetAddress.h"
 #include "EthernetDataPart.h"
 

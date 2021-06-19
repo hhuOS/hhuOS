@@ -5,11 +5,7 @@
 #ifndef HHUOS_ARPMODULE_H
 #define HHUOS_ARPMODULE_H
 
-#include <lib/util/HashMap.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/ethernet/EthernetAddress.h>
-#include <kernel/network/ethernet/EthernetFrame.h>
-#include <kernel/network/internet/IP4Datagram.h>
+#include <lib/util/ArrayList.h>
 #include <kernel/log/Logger.h>
 #include "ARPEntry.h"
 

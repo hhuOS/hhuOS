@@ -7,11 +7,7 @@
 
 
 #include <kernel/network/NetworkEventBus.h>
-#include <kernel/log/Logger.h>
 #include <kernel/network/udp/sockets/UDP4SocketController.h>
-#include <kernel/event/network/UDP4SendEvent.h>
-#include <kernel/event/network/IP4SendEvent.h>
-#include <kernel/event/network/UDP4ReceiveEvent.h>
 
 namespace Kernel {
     class UDP4Module : public Receiver {

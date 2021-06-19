@@ -5,13 +5,10 @@
 #ifndef HHUOS_UDP4SOCKETCONTROLLER_H
 #define HHUOS_UDP4SOCKETCONTROLLER_H
 
-#include <kernel/event/network/UDP4SendEvent.h>
-#include <kernel/network/NetworkByteBlock.h>
-#include <kernel/network/udp/UDP4Datagram.h>
+#include <kernel/network/udp/UDP4Header.h>
 #include <kernel/network/NetworkEventBus.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/internet/IP4Header.h>
 #include <kernel/log/Logger.h>
+#include <kernel/network/udp/UDP4Datagram.h>
 
 namespace Kernel {
     class UDP4SocketController {

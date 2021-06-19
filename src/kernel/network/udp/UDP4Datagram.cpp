@@ -2,7 +2,6 @@
 // Created by hannes on 17.05.21.
 //
 
-#include <lib/libc/printf.h>
 #include <kernel/network/NetworkDefinitions.h>
 #include "UDP4Datagram.h"
 

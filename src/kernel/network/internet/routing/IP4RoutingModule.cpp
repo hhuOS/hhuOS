@@ -2,8 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
-#include <kernel/network/internet/IP4Interface.h>
-#include <kernel/network/internet/IP4Module.h>
+#include "IP4RoutingModule.h"
 
 namespace Kernel {
     IP4RoutingModule::IP4RoutingModule() {

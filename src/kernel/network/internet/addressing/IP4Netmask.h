@@ -5,7 +5,6 @@
 #ifndef HHUOS_IP4NETMASK_H
 #define HHUOS_IP4NETMASK_H
 
-#include "lib/libc/stdlib.h"
 #include "IP4Address.h"
 
 class IP4Netmask {

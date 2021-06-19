@@ -6,7 +6,6 @@
 #define HHUOS_NETWORKBYTEBLOCK_H
 
 #include <device/network/NetworkDevice.h>
-#include <kernel/event/network/ReceiveEvent.h>
 
 namespace Kernel {
     class NetworkByteBlock {
@@ -25,7 +24,7 @@ namespace Kernel {
 
         [[nodiscard]] size_t bytesRemaining() const;
 
-        uint8_t sendOutVia(NetworkDevice *pDevice);
+        uint8_t sendOutVia(NetworkDevice *outDevice);
 
         uint8_t append(uint8_t oneByte);
 

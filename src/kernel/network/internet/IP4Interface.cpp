@@ -3,6 +3,7 @@
 //
 
 #include <kernel/event/network/EthernetSendEvent.h>
+#include <kernel/network/NetworkDefinitions.h>
 #include "IP4Interface.h"
 
 namespace Kernel {

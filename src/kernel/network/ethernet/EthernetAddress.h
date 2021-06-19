@@ -5,10 +5,7 @@
 #ifndef HHUOS_ETHERNETADDRESS_H
 #define HHUOS_ETHERNETADDRESS_H
 
-#include "lib/libc/stdlib.h"
-#include <lib/string/String.h>
 #include <device/network/NetworkDevice.h>
-#include <kernel/network/NetworkDefinitions.h>
 
 class EthernetAddress {
 private:
