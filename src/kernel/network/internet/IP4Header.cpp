@@ -10,7 +10,7 @@ IP4Header::IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart) {
     protocolType = dataPart->getIP4ProtocolType();
 
     //we use minimal header if we create one
-    totalLength = (uint16_t)IP4HEADER_MIN_LENGTH + (uint16_t)dataPart->getLengthInBytes();
+    totalLength = (uint16_t) IP4HEADER_MIN_LENGTH + (uint16_t) dataPart->getLengthInBytes();
 }
 
 IP4Header::~IP4Header() {

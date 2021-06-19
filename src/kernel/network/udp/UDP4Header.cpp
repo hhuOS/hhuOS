@@ -8,7 +8,7 @@ UDP4Header::UDP4Header(uint16_t sourcePort, uint16_t destinationPort, Kernel::Ne
     this->sourcePort = sourcePort;
     this->destinationPort = destinationPort;
     checksum = 0; //Checksum may be zero, RFC 768 page 3 middle
-    length = (uint16_t)UDP4Header::getHeaderLength() + (uint16_t)dataBytes->getLength();
+    length = (uint16_t) UDP4Header::getHeaderLength() + (uint16_t) dataBytes->getLength();
 }
 
 size_t UDP4Header::getHeaderLength() {
