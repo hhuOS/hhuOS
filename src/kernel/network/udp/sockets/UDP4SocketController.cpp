@@ -11,10 +11,33 @@ namespace Kernel {
         this->eventBus = eventBus;
         readLock = new Spinlock();
         readLock->acquire();
+
         writeLock = new Spinlock();
         writeLock->release();
+
         isClosed = new Atomic<bool>;
         isClosed->set(true);
+    }
+
+    UDP4SocketController::~UDP4SocketController() {
+        deleteData();
+        if(isClosed!= nullptr) {
+            isClosed->set(true);
+        }
+        delete isClosed;
+        isClosed= nullptr;
+
+        if(writeLock!= nullptr) {
+            writeLock->release();
+            delete writeLock;
+            writeLock = nullptr;
+        }
+
+        if(readLock!= nullptr) {
+            readLock->release();
+            delete readLock;
+            readLock = nullptr;
+        }
     }
 
     uint8_t UDP4SocketController::startup() {

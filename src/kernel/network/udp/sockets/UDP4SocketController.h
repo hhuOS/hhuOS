@@ -28,6 +28,8 @@ namespace Kernel {
     public:
         explicit UDP4SocketController(NetworkEventBus *eventBus);
 
+        virtual ~UDP4SocketController();
+
         uint8_t shutdown();
 
         uint8_t startup();
