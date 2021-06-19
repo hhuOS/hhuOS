@@ -2,6 +2,7 @@
 // Created by hannes on 13.06.21.
 
 
+#include <kernel/network/NetworkDefinitions.h>
 #include "EchoServer.h"
 
 EchoServer::EchoServer(size_t inputBufferSize) {

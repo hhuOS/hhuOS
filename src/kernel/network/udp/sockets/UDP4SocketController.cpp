@@ -47,7 +47,7 @@ namespace Kernel {
 
     uint8_t UDP4SocketController::notifySocket(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header,
                                                NetworkByteBlock *input) {
-        //Directly return if one of the main elments is not initialized
+        //Directly return if one of the main elements is not initialized
         if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr) {
             //Return error, this will tell UDP4Module to drop incoming data
             return 1;

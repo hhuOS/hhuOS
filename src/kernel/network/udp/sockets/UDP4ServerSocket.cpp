@@ -2,6 +2,7 @@
 // Created by hannes on 17.06.21.
 //
 
+#include <kernel/core/System.h>
 #include "UDP4ServerSocket.h"
 
 namespace Kernel {

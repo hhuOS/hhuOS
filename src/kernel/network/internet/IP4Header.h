@@ -32,7 +32,7 @@ private:
 
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;
 
-    uint16_t calculateChecksum() const;
+    [[nodiscard]] uint16_t calculateChecksum() const;
 
 public:
 

@@ -26,7 +26,7 @@ namespace Kernel {
 
         void addRouteFor(IP4Interface *ip4Interface);
 
-        void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
+        [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
         void removeRoutesFor(IP4Interface *ip4Interface);
 

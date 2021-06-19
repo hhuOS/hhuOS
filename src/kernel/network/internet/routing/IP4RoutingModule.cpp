@@ -84,7 +84,7 @@ namespace Kernel {
         }
     }
 
-    void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
+    [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
         if (this->defaultRoute != nullptr) {
             delete this->defaultRoute;
             this->defaultRoute = nullptr;

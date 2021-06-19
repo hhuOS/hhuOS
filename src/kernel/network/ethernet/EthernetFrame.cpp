@@ -3,6 +3,8 @@
 //
 
 #include <kernel/network/NetworkDefinitions.h>
+#include <kernel/network/internet/IP4Datagram.h>
+#include <kernel/network/arp/ARPMessage.h>
 #include "EthernetFrame.h"
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
