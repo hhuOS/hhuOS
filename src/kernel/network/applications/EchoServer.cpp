@@ -10,7 +10,7 @@ EchoServer::EchoServer(size_t inputBufferSize) {
     attributes.log = &log;
     attributes.socket = new Kernel::UDP4ServerSocket(ECHO_PORT_NUMBER);
     attributes.inputBufferSize = inputBufferSize;
-    attributes.inputBuffer = new uint8_t(inputBufferSize);
+    attributes.inputBuffer = new uint8_t[inputBufferSize + 1];
     attributes.isRunning = new Atomic<bool>;
     attributes.isRunning->set(false);
 
@@ -65,6 +65,7 @@ uint8_t EchoServer::stop() {
 }
 
 void EchoServer::EchoThread::run() {
+    uint8_t addressBytes[IP4ADDRESS_LENGTH];
     size_t bytesReceived = 0;
     IP4Header *ip4Header = nullptr;
     UDP4Header *udp4Header = nullptr;
@@ -75,19 +76,25 @@ void EchoServer::EchoThread::run() {
                 &ip4Header,&udp4Header
                 ) || bytesReceived == 0
             ) {
-            (*attributes.log).error("Error while receiving data, stopping");
+            if(attributes.isRunning->get()){
+                (*attributes.log).error("Error while receiving data, stopping");
+            } else{
+                (*attributes.log).info("Socket is shutting down, not receiving anything");
+            }
             delete ip4Header;
             delete udp4Header;
             return;
         }
+        //Set end character for printout
+        attributes.inputBuffer[bytesReceived] = 0;
+        ip4Header->getSourceAddress()->copyTo(addressBytes);
+
         (*attributes.log).info(
-                "Incoming datagram from %s with content '%s', sending response",
-                ip4Header->getSourceAddress()->asChars(),
-                attributes.inputBuffer
+                "Incoming datagram from %d.%d.%d.%d with content '%s', sending response",
+                addressBytes[0],addressBytes[1],addressBytes[2],addressBytes[3], attributes.inputBuffer
         );
 
-        if (
-                attributes.socket->send(
+        if (attributes.socket->send(
                         ip4Header->getSourceAddress(),udp4Header->getSourcePort(),
                         attributes.inputBuffer,bytesReceived
                         )

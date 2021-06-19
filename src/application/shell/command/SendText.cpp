@@ -47,7 +47,6 @@ void SendText::execute(Util::Array<String> &args) {
     }
 
     auto *testString = new String("Hello world! Now it works...\0");
-    auto *response = new char [testString->length()];
 
     stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
     if(sendSocket->send((char *)*testString,testString->length())) {
@@ -55,7 +54,6 @@ void SendText::execute(Util::Array<String> &args) {
         sendSocket->close();
         delete sendSocket;
         delete testString;
-        delete[] response;
 
         stdout << "Stopping ECHO server" << endl;
         if (server->stop()) {
@@ -66,6 +64,9 @@ void SendText::execute(Util::Array<String> &args) {
     }
 
     size_t totalBytesRead = 0;
+    auto *response = new char [testString->length() + 1];
+    response[testString->length()] = '\0';
+
     stdout << "CLIENT: Reading response" << endl;
     if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
         totalBytesRead!=testString->length()
