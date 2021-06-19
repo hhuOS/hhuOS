@@ -5,7 +5,7 @@
 #ifndef HHUOS_ECHOSERVER_H
 #define HHUOS_ECHOSERVER_H
 
-#include <cstdint>
+#include <kernel/log/Logger.h>
 #include <kernel/network/udp/sockets/UDP4ServerSocket.h>
 
 class EchoServer {
