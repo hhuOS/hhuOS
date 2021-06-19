@@ -24,6 +24,7 @@ namespace Kernel {
         Logger &log = Logger::get("UDP4SocketController");
 
         void deleteData();
+
     public:
         explicit UDP4SocketController(NetworkEventBus *eventBus);
 

@@ -21,7 +21,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4ClientSocket::bind() {
-        if(controller->startup()){
+        if (controller->startup()) {
             return 1;
         }
         //Make sure all locks and data structures are prepared
@@ -30,7 +30,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4ClientSocket::close() {
-        if(networkService->unregisterSocketController(listeningPort)){
+        if (networkService->unregisterSocketController(listeningPort)) {
             return 1;
         }
         //Make sure all processes on incoming packets are finished

@@ -13,12 +13,12 @@ namespace Kernel {
         readLock->acquire();
         writeLock = new Spinlock();
         writeLock->release();
-        isClosed=new Atomic<bool>;
+        isClosed = new Atomic<bool>;
         isClosed->set(true);
     }
 
     uint8_t UDP4SocketController::startup() {
-        if(writeLock== nullptr || isClosed == nullptr){
+        if (writeLock == nullptr || isClosed == nullptr) {
             return 1;
         }
         writeLock->acquire();
@@ -28,7 +28,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4SocketController::shutdown() {
-        if(writeLock== nullptr || isClosed == nullptr || readLock== nullptr){
+        if (writeLock == nullptr || isClosed == nullptr || readLock == nullptr) {
             return 1;
         }
         writeLock->acquire();
@@ -56,7 +56,7 @@ namespace Kernel {
         //-> we will wait here until a reader is finished!
         writeLock->acquire();
         //Check if we are not started yet or already closing
-        if(isClosed->get()){
+        if (isClosed->get()) {
             log.error("Socket is closed, dropping incoming data");
             //Let all writers come to this point here and return 1
             //-> release writeLock again instead of readLock!
@@ -65,7 +65,7 @@ namespace Kernel {
             return 1;
         }
         //Check if given parameters are valid
-        if(incomingIP4Header == nullptr || incomingUDP4Header == nullptr || input == nullptr){
+        if (incomingIP4Header == nullptr || incomingUDP4Header == nullptr || input == nullptr) {
             log.error("Incoming IP4Header, UDP4Header or Input was null, returning");
             //We are not closed here, but parameters are invalid
             //-> next step will be a read as usual
@@ -86,31 +86,31 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if(readLock == nullptr || writeLock== nullptr || isClosed== nullptr ||
+        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr ||
             targetBuffer == nullptr || length == 0
-        ) {
+                ) {
             return 1;
         }
         readLock->acquire();
-        if(isClosed->get()){
+        if (isClosed->get()) {
             log.error("Socket is closed, not reading any data");
             //Let all readers come to this point here and return 1
             //-> release readLock again instead of writeLock!
             readLock->release();
-            if(totalBytesRead!= nullptr){
-                *totalBytesRead=0;
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
             }
             return 1;
         }
-        if(ip4Header == nullptr || udp4Header == nullptr || content == nullptr){
+        if (ip4Header == nullptr || udp4Header == nullptr || content == nullptr) {
             log.error("IP4Header, UDP4Header or Content was null, return");
             //We are not closed here, but previous writing has failed anyway
             //-> next step will be a read as usual
             //-> open writeLock or we will freeze here when doing shutdown!
             //  --> shutdown waits for writeLock...
             writeLock->release();
-            if(totalBytesRead!= nullptr){
-                *totalBytesRead=0;
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
             }
             return 1;
         }
@@ -171,8 +171,8 @@ namespace Kernel {
         delete this->ip4Header;
         delete this->udp4Header;
         delete this->content;
-        this->ip4Header= nullptr;
-        this->udp4Header= nullptr;
+        this->ip4Header = nullptr;
+        this->udp4Header = nullptr;
         this->content = nullptr;
     }
 }

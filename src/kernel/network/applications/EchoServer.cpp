@@ -71,12 +71,12 @@ void EchoServer::EchoThread::run() {
     while (attributes.isRunning->get()) {
         if (attributes.socket->receive(
                 &bytesReceived, attributes.inputBuffer, attributes.inputBufferSize,
-                &ip4Header,&udp4Header
-                ) || bytesReceived == 0
-            ) {
-            if(attributes.isRunning->get()){
+                &ip4Header, &udp4Header
+        ) || bytesReceived == 0
+                ) {
+            if (attributes.isRunning->get()) {
                 (*attributes.log).error("Error while receiving data, stopping");
-            } else{
+            } else {
                 (*attributes.log).info("Socket is shutting down, not receiving anything");
             }
             delete ip4Header;
@@ -89,13 +89,13 @@ void EchoServer::EchoThread::run() {
 
         (*attributes.log).info(
                 "Incoming datagram from %d.%d.%d.%d with content '%s', sending response",
-                addressBytes[0],addressBytes[1],addressBytes[2],addressBytes[3], attributes.inputBuffer
+                addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3], attributes.inputBuffer
         );
 
         if (attributes.socket->send(
-                        ip4Header->getSourceAddress(),udp4Header->getSourcePort(),
-                        attributes.inputBuffer,bytesReceived
-                        )
+                ip4Header->getSourceAddress(), udp4Header->getSourcePort(),
+                attributes.inputBuffer, bytesReceived
+        )
                 ) {
             (*attributes.log).error("Sending response failed, stopping");
             delete ip4Header;

@@ -18,7 +18,7 @@ namespace Kernel {
     public:
         explicit EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input);
 
-        [[nodiscard]] EthernetHeader * getEthernetHeader() const;
+        [[nodiscard]] EthernetHeader *getEthernetHeader() const;
 
         [[nodiscard]] String getType() const override;
 

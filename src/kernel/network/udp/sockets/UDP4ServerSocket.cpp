@@ -18,7 +18,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4ServerSocket::bind() {
-        if(controller->startup()){
+        if (controller->startup()) {
             return 1;
         }
         //Make sure all locks and data structures are prepared
@@ -27,7 +27,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4ServerSocket::close() {
-        if(networkService->unregisterSocketController(listeningPort)){
+        if (networkService->unregisterSocketController(listeningPort)) {
             return 1;
         }
         //Make sure all processes on incoming packets are finished
@@ -42,7 +42,7 @@ namespace Kernel {
                 givenDestination == nullptr ||
                 length == 0 ||
                 givenRemotePort == 0
-                )  {
+                ) {
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
