@@ -109,9 +109,7 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr ||
-            targetBuffer == nullptr || length == 0
-                ) {
+        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr){
             return 1;
         }
         readLock->acquire();
@@ -125,8 +123,10 @@ namespace Kernel {
             }
             return 1;
         }
-        if (ip4Header == nullptr || udp4Header == nullptr || content == nullptr) {
-            log.error("IP4Header, UDP4Header or Content was null, return");
+        if (ip4Header == nullptr || udp4Header == nullptr || content == nullptr ||
+            targetBuffer == nullptr || length == 0
+            ) {
+            log.error("IP4Header, UDP4Header, Content or TargetBuffer was null, return");
             //We are not closed here, but previous writing has failed anyway
             //-> next step will be a read as usual
             //-> open writeLock or we will freeze here when doing shutdown!
