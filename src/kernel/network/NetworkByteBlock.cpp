@@ -37,7 +37,8 @@ namespace Kernel {
 
     uint8_t NetworkByteBlock::appendTwoBytesSwapped(uint16_t twoBytes) {
         auto *twoBytesAsArray = (uint8_t *) &twoBytes;
-        uint8_t switchedBytes[sizeof twoBytes] {twoBytesAsArray[1], twoBytesAsArray[0]};
+        uint8_t switchedBytes[sizeof twoBytes]
+            {twoBytesAsArray[1], twoBytesAsArray[0]};
         return appendStraightFrom(switchedBytes, sizeof twoBytes);
     }
 
