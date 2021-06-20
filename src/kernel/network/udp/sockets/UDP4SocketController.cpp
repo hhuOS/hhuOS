@@ -21,19 +21,19 @@ namespace Kernel {
 
     UDP4SocketController::~UDP4SocketController() {
         deleteData();
-        if(isClosed!= nullptr) {
+        if (isClosed != nullptr) {
             isClosed->set(true);
         }
         delete isClosed;
-        isClosed= nullptr;
+        isClosed = nullptr;
 
-        if(writeLock!= nullptr) {
+        if (writeLock != nullptr) {
             writeLock->release();
             delete writeLock;
             writeLock = nullptr;
         }
 
-        if(readLock!= nullptr) {
+        if (readLock != nullptr) {
             readLock->release();
             delete readLock;
             readLock = nullptr;
@@ -109,7 +109,7 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr){
+        if (readLock == nullptr || writeLock == nullptr || isClosed == nullptr) {
             return 1;
         }
         readLock->acquire();
@@ -125,7 +125,7 @@ namespace Kernel {
         }
         if (ip4Header == nullptr || udp4Header == nullptr || content == nullptr ||
             targetBuffer == nullptr || length == 0
-            ) {
+                ) {
             log.error("IP4Header, UDP4Header, Content or TargetBuffer was null, return");
             //We are not closed here, but previous writing has failed anyway
             //-> next step will be a read as usual

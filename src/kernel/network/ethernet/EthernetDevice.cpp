@@ -12,7 +12,7 @@ namespace Kernel {
         this->ethernetAddress = new EthernetAddress(networkDevice);
     }
 
-    EthernetDeviceIdentifier * EthernetDevice::getIdentifier() const {
+    EthernetDeviceIdentifier *EthernetDevice::getIdentifier() const {
         return identifier;
     }
 

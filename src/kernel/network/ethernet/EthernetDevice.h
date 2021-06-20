@@ -26,7 +26,7 @@ namespace Kernel {
     public:
         EthernetDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
-        [[nodiscard]] EthernetDeviceIdentifier * getIdentifier() const;
+        [[nodiscard]] EthernetDeviceIdentifier *getIdentifier() const;
 
         uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
 

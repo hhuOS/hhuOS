@@ -72,39 +72,39 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         return;
     }
 
-    if(parser->checkSwitch("set")){
+    if (parser->checkSwitch("set")) {
         auto unnamedArguments = parser->getUnnamedArguments();
-        if(unnamedArguments.length()!=3){
+        if (unnamedArguments.length() != 3) {
             stderr << "Invalid argument number, please give three arguments: "
                       "[Interface identifier] [IP4Address] [bitCount Netmask]" << endl;
             return;
         }
-        uint8_t addressBytes[IP4ADDRESS_LENGTH]{0,0,0,0}, bitCount = 0;
+        uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0}, bitCount = 0;
         IP4Address::parseTo(addressBytes, &unnamedArguments[1]);
 
-        bitCount=strtoint((const char *) unnamedArguments[2]);
-        if(bitCount>32){
+        bitCount = strtoint((const char *) unnamedArguments[2]);
+        if (bitCount > 32) {
             stderr << "Invalid bit count for Netmask length, please use values between 0 and 32" << endl;
             return;
         }
 
-        if(networkService->assignIP4Address(
+        if (networkService->assignIP4Address(
                 new EthernetDeviceIdentifier(&unnamedArguments[0]),
                 new IP4Address(addressBytes),
                 new IP4Netmask(bitCount)
-                )
-        ){
+        )
+                ) {
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
         }
         return;
-    } else if(parser->checkSwitch("unset")){
+    } else if (parser->checkSwitch("unset")) {
         auto unnamedArguments = parser->getUnnamedArguments();
-        if(unnamedArguments.length()!=1){
+        if (unnamedArguments.length() != 1) {
             stderr << "Invalid argument number, please give only one argument: [Interface identifier]" << endl;
             return;
         }
 
-        if(networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))){
+        if (networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))) {
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
         }
         return;

@@ -52,7 +52,7 @@ namespace Kernel {
         }
         auto *newInterface = new IP4Interface(eventBus, device, ip4Address, ip4Netmask);
         interfaces->put(device, newInterface);
-        if(routingModule->addRouteFor(newInterface)){
+        if (routingModule->addRouteFor(newInterface)) {
             log.error("Adding route for new IP4Interface failed, rollback");
             interfaces->remove(device);
             delete newInterface;

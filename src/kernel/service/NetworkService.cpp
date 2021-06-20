@@ -111,7 +111,8 @@ namespace Kernel {
     }
 
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
-    uint8_t NetworkService::assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+    uint8_t NetworkService::assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address,
+                                             IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one of given attributes were null, not assigning IP4 address");
             delete ip4Address;
@@ -125,7 +126,7 @@ namespace Kernel {
             delete ip4Netmask;
             return 1;
         }
-        if(this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)){
+        if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
             log.error("Registering device failed");
             delete ip4Address;
             delete ip4Netmask;
@@ -145,7 +146,7 @@ namespace Kernel {
             delete identifier;
             return 1;
         }
-        if(this->ip4Module->unregisterDevice(selected)){
+        if (this->ip4Module->unregisterDevice(selected)) {
             delete identifier;
             log.error("UnRegistering device failed");
             return 1;

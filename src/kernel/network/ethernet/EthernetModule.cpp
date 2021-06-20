@@ -44,7 +44,7 @@ namespace Kernel {
         }
         //Return if an ethernet device connected to the same network device could be found
         for (EthernetDevice *currentDevice:*ethernetDevices) {
-            if(currentDevice->connectedTo(networkDevice)) {
+            if (currentDevice->connectedTo(networkDevice)) {
                 log.error("Given network device already registered, ignoring it");
                 return;
             }
@@ -63,8 +63,8 @@ namespace Kernel {
             log.error("Internal list of ethernet devices was null, not unregistering network device");
             return;
         }
-        for(size_t i=0;i<ethernetDevices->size();i++){
-            if(ethernetDevices->get(i)->connectedTo(networkDevice)){
+        for (size_t i = 0; i < ethernetDevices->size(); i++) {
+            if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
                 ethernetDevices->remove(i);
                 break;
             }
@@ -90,7 +90,7 @@ namespace Kernel {
             return nullptr;
         }
         for (EthernetDevice *currentDevice:*ethernetDevices) {
-            if(currentDevice->sameIdentifierAs(identifier)){
+            if (currentDevice->sameIdentifierAs(identifier)) {
                 return currentDevice;
             }
         }
@@ -104,7 +104,7 @@ namespace Kernel {
             return nullptr;
         }
         for (EthernetDevice *currentDevice:*ethernetDevices) {
-            if(currentDevice->connectedTo(networkDevice)){
+            if (currentDevice->connectedTo(networkDevice)) {
                 return currentDevice;
             }
         }
