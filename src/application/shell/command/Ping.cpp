@@ -5,6 +5,7 @@
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
 #include <cstdio>
+#include <kernel/network/NetworkDefinitions.h>
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
@@ -15,18 +16,38 @@ Ping::Ping(Shell &shell) : Command(shell) {
 void Ping::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
+    parser.addParameter("target","t", false);
+    parser.addParameter("count", "n", false);
+
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
     }
 
-    auto *localhost = new IP4Address(127, 0, 0, 1);
-    uint8_t pingCount = 10;
+    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127,0,0,1}, numberOfPings = 10;
 
-    for(uint8_t i=0;i<pingCount;i++){
+    if(!parser.getNamedArgument("target").isEmpty()) {
+        auto target = parser.getNamedArgument("target");
+
+        auto addressParts = target.split(".");
+        if (addressParts.length() != IP4ADDRESS_LENGTH) {
+            stderr << "Malformed IPv4 address! We need exactly format [0-255].[0-255].[0-255].[0-255]" << endl;
+            return;
+        }
+
+        for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
+            addressBytes[i] = strtoint((const char *) addressParts[i]);
+        }
+    }
+
+    if(!parser.getNamedArgument("number").isEmpty()){
+        numberOfPings= strtoint((const char *) parser.getNamedArgument("number"));
+    }
+
+    for(uint8_t i=0;i<numberOfPings;i++){
         eventBus->publish(
                 new Kernel::ICMP4SendEvent(
-                        new IP4Address(localhost),
+                        new IP4Address(addressBytes),
                         new ICMP4Echo(42,i)
                         )
         );
