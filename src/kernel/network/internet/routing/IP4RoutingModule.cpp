@@ -113,13 +113,13 @@ namespace Kernel {
         return 0;
     }
 
-    void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
+    uint8_t IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {
         if (ip4Interface == nullptr) {
-            return;
+            return 1;
         }
         if (routes == nullptr) {
             log.error("Internal data structure for routes not initialized, not removing route");
-            return;
+            return 1;
         }
         //TODO: Synchronization!
         for (uint32_t i = 0; i < routes->size(); i++) {
@@ -128,5 +128,6 @@ namespace Kernel {
                 i--;
             }
         }
+        return 0;
     }
 }

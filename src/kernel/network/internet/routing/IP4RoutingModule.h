@@ -28,7 +28,7 @@ namespace Kernel {
 
         [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
-        void removeRoutesFor(IP4Interface *ip4Interface);
+        uint8_t removeRoutesFor(IP4Interface *ip4Interface);
 
         void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
