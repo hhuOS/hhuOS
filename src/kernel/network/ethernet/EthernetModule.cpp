@@ -9,11 +9,12 @@
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include "EthernetModule.h"
+#include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     EthernetModule::EthernetModule(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
-        ethernetDevices = new Util::HashMap<String *, EthernetDevice *>();
+        ethernetDevices = new Util::ArrayList<EthernetDevice *>();
     }
 
     void EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
@@ -22,13 +23,13 @@ namespace Kernel {
             return;
         }
         this->registerNetworkDevice(
-                new String(String::format("eth%d", deviceCounter)),
+                new EthernetDeviceIdentifier(deviceCounter),
                 networkDevice
         );
         deviceCounter++;
     }
 
-    void EthernetModule::registerNetworkDevice(String *identifier, NetworkDevice *networkDevice) {
+    void EthernetModule::registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice) {
         if (identifier == nullptr) {
             log.error("Given identifier was null, not registering it");
             return;
@@ -42,12 +43,14 @@ namespace Kernel {
             return;
         }
         //Return if an ethernet device connected to the same network device could be found
-        if (ethernetDevices->containsKey(identifier)) {
-            log.error("Given identifier already exists, ignoring it");
-            return;
+        for (EthernetDevice *currentDevice:*ethernetDevices) {
+            if(currentDevice->connectedTo(networkDevice)) {
+                log.error("Given network device already registered, ignoring it");
+                return;
+            }
         }
         //Add a new connected ethernet device if no duplicate found
-        this->ethernetDevices->put(identifier, new EthernetDevice(identifier, networkDevice));
+        this->ethernetDevices->add(new EthernetDevice(identifier, networkDevice));
     }
 
     void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
@@ -60,7 +63,13 @@ namespace Kernel {
             log.error("Internal list of ethernet devices was null, not unregistering network device");
             return;
         }
-        ethernetDevices->remove(connectedDevice->getIdentifier());
+        for(size_t i=0;i<ethernetDevices->size();i++){
+            if(ethernetDevices->get(i)->connectedTo(networkDevice)){
+                ethernetDevices->remove(i);
+                break;
+            }
+        }
+
     }
 
     void EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
@@ -69,19 +78,21 @@ namespace Kernel {
                 ) {
             return;
         }
-        for (String *currentKey:ethernetDevices->keySet()) {
-            strings->add(getEthernetDevice(currentKey)->asString());
+        for (EthernetDevice *currentDevice:*ethernetDevices) {
+            strings->add(currentDevice->asString());
         }
     }
 
 //Get ethernet device via identifier
-    EthernetDevice *EthernetModule::getEthernetDevice(String *identifier) {
+    EthernetDevice *EthernetModule::getEthernetDevice(EthernetDeviceIdentifier *identifier) {
         if (ethernetDevices == nullptr) {
             log.error("Internal list of ethernet devices was null, not searching ethernet device");
             return nullptr;
         }
-        if (ethernetDevices->containsKey(identifier)) {
-            return ethernetDevices->get(identifier);
+        for (EthernetDevice *currentDevice:*ethernetDevices) {
+            if(currentDevice->sameIdentifierAs(identifier)){
+                return currentDevice;
+            }
         }
         return nullptr;
     }
@@ -92,9 +103,9 @@ namespace Kernel {
             log.error("Internal list of ethernet devices was null, not searching ethernet device");
             return nullptr;
         }
-        for (String *current:ethernetDevices->keySet()) {
-            if (getEthernetDevice(current)->connectedTo(networkDevice)) {
-                return getEthernetDevice(current);
+        for (EthernetDevice *currentDevice:*ethernetDevices) {
+            if(currentDevice->connectedTo(networkDevice)){
+                return currentDevice;
             }
         }
         return nullptr;

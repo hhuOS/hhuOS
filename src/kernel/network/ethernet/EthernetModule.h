@@ -7,13 +7,14 @@
 
 #include <kernel/network/NetworkEventBus.h>
 #include "EthernetDevice.h"
+#include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     class EthernetModule : public Receiver {
     private:
         uint8_t deviceCounter = 0;
         NetworkEventBus *eventBus = nullptr;
-        Util::HashMap<String *, EthernetDevice *> *ethernetDevices = nullptr;
+        Util::ArrayList<EthernetDevice *> *ethernetDevices;
     public:
         explicit EthernetModule(NetworkEventBus *eventBus);
 
@@ -29,13 +30,13 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        EthernetDevice *getEthernetDevice(String *identifier);
+        EthernetDevice *getEthernetDevice(EthernetDeviceIdentifier *identifier);
 
         EthernetDevice *getEthernetDevice(NetworkDevice *networkDevice);
 
         void registerNetworkDevice(NetworkDevice *networkDevice);
 
-        void registerNetworkDevice(String *identifier, NetworkDevice *networkDevice);
+        void registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
         void unregisterNetworkDevice(NetworkDevice *networkDevice);
 

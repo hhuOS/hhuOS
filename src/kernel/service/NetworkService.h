@@ -28,6 +28,7 @@
 #include <kernel/network/ethernet/EthernetModule.h>
 #include <kernel/network/internet/icmp/ICMP4Module.h>
 #include <kernel/network/udp/UDP4Module.h>
+#include <kernel/network/ethernet/EthernetDeviceIdentifier.h>
 
 namespace Kernel {
 
@@ -41,7 +42,7 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
-        String *loopbackIdentifier;
+        EthernetDeviceIdentifier *loopbackIdentifier;
         size_t bufferSize = 1024;
 
         /**
@@ -102,11 +103,11 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        void registerDevice(String *identifier, NetworkDevice &driver);
+        void registerDevice(EthernetDeviceIdentifier *identifier, NetworkDevice &driver);
 
         void collectLinkAttributes(Util::ArrayList<String> *strings);
 
-        uint8_t assignIP4Address(String *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+        uint8_t assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
         void collectInterfaceAttributes(Util::ArrayList<String> *strings);
 

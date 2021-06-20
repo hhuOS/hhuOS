@@ -9,11 +9,12 @@
 #include <kernel/log/Logger.h>
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
+#include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     class EthernetDevice {
     private:
-        String *identifier = nullptr;
+        EthernetDeviceIdentifier *identifier = nullptr;
         NetworkDevice *networkDevice = nullptr;
         EthernetAddress *ethernetAddress = nullptr;
 
@@ -23,9 +24,9 @@ namespace Kernel {
         Logger &log = Logger::get("EthernetDevice");
 
     public:
-        EthernetDevice(String *identifier, NetworkDevice *networkDevice);
+        EthernetDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
-        [[nodiscard]] String *getIdentifier() const;
+        [[nodiscard]] EthernetDeviceIdentifier * getIdentifier() const;
 
         uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
 
@@ -36,6 +37,8 @@ namespace Kernel {
         String asString();
 
         EthernetAddress *getAddress();
+
+        bool sameIdentifierAs(EthernetDeviceIdentifier *other);
     };
 }
 

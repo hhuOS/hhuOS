@@ -3,6 +3,7 @@
 //
 
 #include <lib/libc/printf.h>
+#include <kernel/network/NetworkDefinitions.h>
 #include "Ip.h"
 
 Ip::Ip(Shell &shell) : Command(shell) {
@@ -15,6 +16,8 @@ void Ip::execute(Util::Array<String> &args) {
     parser.addSwitch("link", "l");
     parser.addSwitch("address", "a");
     parser.addSwitch("route", "r");
+
+    parser.addSwitch("set", "s");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -34,7 +37,7 @@ void Ip::execute(Util::Array<String> &args) {
     }
 
     if (parser.checkSwitch("address")) {
-        address(networkService);
+        address(networkService, &parser);
         return;
     }
 
@@ -62,14 +65,41 @@ void Ip::link(Kernel::NetworkService *networkService) {
     delete linkAttributes;
 }
 
-void Ip::address(Kernel::NetworkService *networkService) {
+void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *parser) {
     if (networkService == nullptr) {
         printf("No valid network service given! Exit");
         return;
     }
 
-    stdout << "Print available ip interfaces" << endl;
+    if(parser->checkSwitch("set")){
+        auto unnamedArguments = parser->getUnnamedArguments();
+        if(unnamedArguments.length()!=3){
+            stderr << "Invalid argument number, please give three arguments: "
+                      "[Interface identifier] [IP4Address] [bitCount Netmask]" << endl;
+            return;
+        }
+        uint8_t addressBytes[IP4ADDRESS_LENGTH]{0,0,0,0}, bitCount = 0;
+        IP4Address::parseTo(addressBytes, &unnamedArguments[1]);
 
+        bitCount=strtoint((const char *) unnamedArguments[2]);
+        if(bitCount>32){
+            stderr << "Invalid bit count for Netmask length, please use values between 0 and 32" << endl;
+            return;
+        }
+
+        if(networkService->assignIP4Address(
+                new EthernetDeviceIdentifier(&unnamedArguments[0]),
+                new IP4Address(addressBytes),
+                new IP4Netmask(bitCount)
+                )
+        ){
+            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+        }
+        return;
+    }
+
+    //Print interface attributes if 'set' switch not active
+    stdout << "Print available ip interfaces" << endl;
     auto *interfaceAttributes = new Util::ArrayList<String>();
     networkService->collectInterfaceAttributes(interfaceAttributes);
 

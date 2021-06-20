@@ -37,22 +37,23 @@ namespace Kernel {
         routingModule->collectIP4RouteAttributes(strings);
     }
 
-    void IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+    uint8_t IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (device == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");
-            return;
+            return 1;
         }
         if (interfaces == nullptr || routingModule == nullptr) {
             log.error("Internal interface list or routing module was null, not registering new device");
-            return;
+            return 1;
         }
         if (interfaces->containsKey(device)) {
             log.error("Ethernet device already registered, not registering it");
-            return;
+            return 1;
         }
         auto *newInterface = new IP4Interface(eventBus, device, ip4Address, ip4Netmask);
         interfaces->put(device, newInterface);
         routingModule->addRouteFor(newInterface);
+        return 0;
     }
 
     void IP4Module::unregisterDevice(EthernetDevice *device) {

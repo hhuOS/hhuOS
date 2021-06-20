@@ -6,13 +6,13 @@
 #include "EthernetDevice.h"
 
 namespace Kernel {
-    EthernetDevice::EthernetDevice(String *identifier, NetworkDevice *networkDevice) {
+    EthernetDevice::EthernetDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice) {
         this->identifier = identifier;
         this->networkDevice = networkDevice;
         this->ethernetAddress = new EthernetAddress(networkDevice);
     }
 
-    String *EthernetDevice::getIdentifier() const {
+    EthernetDeviceIdentifier * EthernetDevice::getIdentifier() const {
         return identifier;
     }
 
@@ -63,7 +63,7 @@ namespace Kernel {
         if (identifier == nullptr || ethernetAddress == nullptr) {
             return "NULL";
         }
-        return "\nID: " + *identifier + ",\nMAC: " + ethernetAddress->asString();
+        return "\nID: " + identifier->asString() + ",\nMAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {
@@ -75,5 +75,9 @@ namespace Kernel {
 
     EthernetAddress *EthernetDevice::getAddress() {
         return ethernetAddress;
+    }
+
+    bool EthernetDevice::sameIdentifierAs(EthernetDeviceIdentifier *other) {
+        return this->identifier->equals(other);
     }
 }
