@@ -100,17 +100,17 @@ uint8_t ARPMessage::copyTo(Kernel::NetworkByteBlock *output) {
         return 1;
     }
     uint8_t errors = 0;
-    errors += output->append(header.hardwareType);
-    errors += output->append(header.protocolType);
-    errors += output->append(header.hardwareAddressLength);
-    errors += output->append(header.protocolAddressLength);
-    errors += output->append(header.opCode);
+    errors += output->appendTwoBytesSwapped(header.hardwareType);
+    errors += output->appendTwoBytesSwapped(header.protocolType);
+    errors += output->appendOneByte(header.hardwareAddressLength);
+    errors += output->appendOneByte(header.protocolAddressLength);
+    errors += output->appendTwoBytesSwapped(header.opCode);
 
-    errors += output->append(body.senderHardwareAddress, header.hardwareAddressLength);
-    errors += output->append(body.senderProtocolAddress, header.protocolAddressLength);
+    errors += output->appendStraightFrom(body.senderHardwareAddress, header.hardwareAddressLength);
+    errors += output->appendStraightFrom(body.senderProtocolAddress, header.protocolAddressLength);
 
-    errors += output->append(body.targetHardwareAddress, header.hardwareAddressLength);
-    errors += output->append(body.targetProtocolAddress, header.protocolAddressLength);
+    errors += output->appendStraightFrom(body.targetHardwareAddress, header.hardwareAddressLength);
+    errors += output->appendStraightFrom(body.targetProtocolAddress, header.protocolAddressLength);
 
     return errors;
 }
@@ -121,11 +121,11 @@ uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     }
     uint8_t errors = 0;
 
-    errors += input->read(&header.hardwareType);
-    errors += input->read(&header.protocolType);
-    errors += input->read(&header.hardwareAddressLength);
-    errors += input->read(&header.protocolAddressLength);
-    errors += input->read(&header.opCode);
+    errors += input->readTwoBytesSwappedTo(&header.hardwareType);
+    errors += input->readTwoBytesSwappedTo(&header.protocolType);
+    errors += input->readOneByteTo(&header.hardwareAddressLength);
+    errors += input->readOneByteTo(&header.protocolAddressLength);
+    errors += input->readTwoBytesSwappedTo(&header.opCode);
 
     body.targetHardwareAddress = new uint8_t[header.hardwareAddressLength];
     body.targetProtocolAddress = new uint8_t[header.protocolAddressLength];
@@ -133,26 +133,26 @@ uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     body.senderHardwareAddress = new uint8_t[header.hardwareAddressLength];
     body.senderProtocolAddress = new uint8_t[header.protocolAddressLength];
 
-    errors += input->read(
+    errors += input->readStraightTo(
             body.senderProtocolAddress,
             header.protocolAddressLength);
-    errors += input->read(
+    errors += input->readStraightTo(
             body.targetHardwareAddress,
             header.hardwareAddressLength);
-    errors += input->read(
+    errors += input->readStraightTo(
             body.targetProtocolAddress,
             header.protocolAddressLength);
 
-    errors += input->read(
+    errors += input->readStraightTo(
             body.senderHardwareAddress,
             header.hardwareAddressLength);
-    errors += input->read(
+    errors += input->readStraightTo(
             body.senderProtocolAddress,
             header.protocolAddressLength);
-    errors += input->read(
+    errors += input->readStraightTo(
             body.targetHardwareAddress,
             header.hardwareAddressLength);
-    errors += input->read(
+    errors += input->readStraightTo(
             body.targetProtocolAddress,
             header.protocolAddressLength);
 

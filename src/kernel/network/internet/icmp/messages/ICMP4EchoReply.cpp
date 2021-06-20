@@ -19,11 +19,11 @@ uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
     }
 
     uint8_t errors = 0;
-    errors += output->append(echoReply.type);
-    errors += output->append(echoReply.code);
-    errors += output->append(echoReply.checksum);
-    errors += output->append(echoReply.identifier);
-    errors += output->append(echoReply.sequenceNumber);
+    errors += output->appendOneByte(echoReply.type);
+    errors += output->appendOneByte(echoReply.code);
+    errors += output->appendTwoBytesSwapped(echoReply.checksum);
+    errors += output->appendTwoBytesSwapped(echoReply.identifier);
+    errors += output->appendTwoBytesSwapped(echoReply.sequenceNumber);
 
     return errors;
 }
@@ -41,11 +41,11 @@ uint8_t ICMP4EchoReply::parse(Kernel::NetworkByteBlock *input) {
         return 1;
     }
     uint8_t errors = 0;
-    errors += input->read(&echoReply.type);
-    errors += input->read(&echoReply.code);
-    errors += input->read(&echoReply.checksum);
-    errors += input->read(&echoReply.identifier);
-    errors += input->read(&echoReply.sequenceNumber);
+    errors += input->readOneByteTo(&echoReply.type);
+    errors += input->readOneByteTo(&echoReply.code);
+    errors += input->readTwoBytesSwappedTo(&echoReply.checksum);
+    errors += input->readTwoBytesSwappedTo(&echoReply.identifier);
+    errors += input->readTwoBytesSwappedTo(&echoReply.sequenceNumber);
 
     return errors;
 }

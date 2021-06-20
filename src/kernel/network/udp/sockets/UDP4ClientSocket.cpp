@@ -51,7 +51,7 @@ namespace Kernel {
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
-        if (byteBlock->append(dataBytes, length)) {
+        if (byteBlock->appendStraightFrom(dataBytes, length)) {
             delete byteBlock;
             return 1;
         }

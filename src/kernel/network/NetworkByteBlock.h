@@ -26,23 +26,19 @@ namespace Kernel {
 
         uint8_t sendOutVia(NetworkDevice *outDevice);
 
-        uint8_t append(uint8_t oneByte);
+        uint8_t appendOneByte(uint8_t oneByte);
 
-        uint8_t append(uint16_t twoBytes);
+        uint8_t appendTwoBytesSwapped(uint16_t twoBytes);
 
-        uint8_t append(uint32_t fourBytes);
+        uint8_t appendStraightFrom(void *source, size_t byteCount);
 
-        uint8_t append(void *source, size_t byteCount);
+        uint8_t appendStraightFrom(NetworkByteBlock *otherByteBlock, size_t byteCount);
 
-        uint8_t append(NetworkByteBlock *otherByteBlock, size_t byteCount);
+        uint8_t readOneByteTo(uint8_t *oneByte);
 
-        uint8_t read(uint8_t *oneByte);
+        uint8_t readTwoBytesSwappedTo(uint16_t *twoBytes);
 
-        uint8_t read(uint16_t *twoBytes);
-
-        uint8_t read(uint32_t *fourBytes);
-
-        uint8_t read(void *target, size_t byteCount);
+        uint8_t readStraightTo(void *target, size_t byteCount);
 
         uint8_t skip(size_t byteCount);
 

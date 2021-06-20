@@ -48,14 +48,14 @@ size_t IP4Header::getHeaderLength() const {
 
 uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
     uint8_t errors = 0;
-    errors += output->append(version_headerLength);
-    errors += output->append(typeOfService);
-    errors += output->append(totalLength);
-    errors += output->append(identification);
-    errors += output->append(flags_fragmentOffset);
-    errors += output->append(timeToLive);
-    errors += output->append((uint8_t) protocolType);
-    errors += output->append(headerChecksum);
+    errors += output->appendOneByte(version_headerLength);
+    errors += output->appendOneByte(typeOfService);
+    errors += output->appendTwoBytesSwapped(totalLength);
+    errors += output->appendTwoBytesSwapped(identification);
+    errors += output->appendTwoBytesSwapped(flags_fragmentOffset);
+    errors += output->appendOneByte(timeToLive);
+    errors += output->appendOneByte((uint8_t) protocolType);
+    errors += output->appendTwoBytesSwapped(headerChecksum);
 
     if (errors) {
         return errors;
@@ -63,14 +63,14 @@ uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
 
     uint8_t addressBytes[IP4ADDRESS_LENGTH];
     sourceAddress->copyTo(addressBytes);
-    errors += output->append(addressBytes, IP4ADDRESS_LENGTH);
+    errors += output->appendStraightFrom(addressBytes, IP4ADDRESS_LENGTH);
 
     if (errors) {
         return errors;
     }
 
     destinationAddress->copyTo(addressBytes);
-    errors += output->append(addressBytes, IP4ADDRESS_LENGTH);
+    errors += output->appendStraightFrom(addressBytes, IP4ADDRESS_LENGTH);
     return errors;
 }
 
@@ -86,18 +86,18 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
     }
 
     uint8_t errors = 0;
-    errors += input->read(&version_headerLength);
-    errors += input->read(&typeOfService);
-    errors += input->read(&totalLength);
-    errors += input->read(&identification);
-    errors += input->read(&flags_fragmentOffset);
-    errors += input->read(&timeToLive);
+    errors += input->readOneByteTo(&version_headerLength);
+    errors += input->readOneByteTo(&typeOfService);
+    errors += input->readTwoBytesSwappedTo(&totalLength);
+    errors += input->readTwoBytesSwappedTo(&identification);
+    errors += input->readTwoBytesSwappedTo(&flags_fragmentOffset);
+    errors += input->readOneByteTo(&timeToLive);
 
     uint8_t typeValue = 0;
-    errors += input->read(&typeValue);
+    errors += input->readOneByteTo(&typeValue);
     protocolType = IP4DataPart::parseIntAsIP4ProtocolType(typeValue);
 
-    errors += input->read(&headerChecksum);
+    errors += input->readTwoBytesSwappedTo(&headerChecksum);
 
     if (errors) {
         return errors;
@@ -105,14 +105,14 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
 
     uint8_t addressBytes[IP4ADDRESS_LENGTH];
 
-    errors += input->read(addressBytes, IP4ADDRESS_LENGTH);
+    errors += input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH);
     sourceAddress = new IP4Address(addressBytes);
 
     if (errors) {
         return errors;
     }
 
-    errors += input->read(addressBytes, IP4ADDRESS_LENGTH);
+    errors += input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH);
     destinationAddress = new IP4Address(addressBytes);
 
     if (errors) {

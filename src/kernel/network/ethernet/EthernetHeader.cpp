@@ -35,20 +35,20 @@ uint8_t EthernetHeader::copyTo(Kernel::NetworkByteBlock *output) {
 
     uint8_t addressBytes[MAC_SIZE];
     destinationAddress->copyTo(addressBytes);
-    errors += output->append(addressBytes, MAC_SIZE);
+    errors += output->appendStraightFrom(addressBytes, MAC_SIZE);
 
     if (errors) {
         return errors;
     }
 
     sourceAddress->copyTo(addressBytes);
-    errors += output->append(addressBytes, MAC_SIZE);
+    errors += output->appendStraightFrom(addressBytes, MAC_SIZE);
 
     if (errors) {
         return errors;
     }
 
-    errors += output->append((uint16_t) etherType);
+    errors += output->appendTwoBytesSwapped((uint16_t) etherType);
     return errors;
 }
 
@@ -60,14 +60,14 @@ uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
     uint8_t errors = 0;
     uint8_t addressBytes[MAC_SIZE];
 
-    errors += input->read(addressBytes, MAC_SIZE);
+    errors += input->readStraightTo(addressBytes, MAC_SIZE);
     destinationAddress = new EthernetAddress(addressBytes);
 
     if (errors) {
         return errors;
     }
 
-    errors += input->read(addressBytes, MAC_SIZE);
+    errors += input->readStraightTo(addressBytes, MAC_SIZE);
     sourceAddress = new EthernetAddress(addressBytes);
 
     if (errors) {
@@ -75,7 +75,7 @@ uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
     }
 
     uint16_t typeValue = 0;
-    errors += input->read(&typeValue);
+    errors += input->readTwoBytesSwappedTo(&typeValue);
     etherType = EthernetDataPart::parseIntAsEtherType(typeValue);
 
     return errors;

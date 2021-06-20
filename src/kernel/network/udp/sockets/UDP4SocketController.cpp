@@ -146,7 +146,7 @@ namespace Kernel {
         }
 
         //Cleanup if reading fails
-        if (content->read(targetBuffer, length)) {
+        if (content->readStraightTo(targetBuffer, length)) {
             deleteData();
             writeLock->release();
             return 1;

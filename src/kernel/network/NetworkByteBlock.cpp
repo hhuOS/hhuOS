@@ -31,33 +31,27 @@ namespace Kernel {
         return length;
     }
 
-    uint8_t NetworkByteBlock::append(uint8_t oneByte) {
-        return append(&oneByte, sizeof oneByte);
+    uint8_t NetworkByteBlock::appendOneByte(uint8_t oneByte) {
+        return appendStraightFrom(&oneByte, sizeof oneByte);
     }
 
-    uint8_t NetworkByteBlock::append(uint16_t twoBytes) {
+    uint8_t NetworkByteBlock::appendTwoBytesSwapped(uint16_t twoBytes) {
         auto *twoBytesAsArray = (uint8_t *) &twoBytes;
-        uint8_t switchedBytes[2] = {twoBytesAsArray[1], twoBytesAsArray[0]};
-        return append(switchedBytes, sizeof twoBytes);
+        uint8_t switchedBytes[sizeof twoBytes] {twoBytesAsArray[1], twoBytesAsArray[0]};
+        return appendStraightFrom(switchedBytes, sizeof twoBytes);
     }
 
-    uint8_t NetworkByteBlock::append(uint32_t fourBytes) {
-        auto *fourBytesAsArray = (uint8_t *) &fourBytes;
-        uint8_t switchedBytes[4] = {fourBytesAsArray[3], fourBytesAsArray[2], fourBytesAsArray[1], fourBytesAsArray[0]};
-        return append(switchedBytes, sizeof fourBytes);
-    }
-
-    uint8_t NetworkByteBlock::append(NetworkByteBlock *otherByteBlock, size_t byteCount) {
+    uint8_t NetworkByteBlock::appendStraightFrom(NetworkByteBlock *otherByteBlock, size_t byteCount) {
         //Return error if we can't read all bytes from the other byteBlock
         if (otherByteBlock == nullptr || byteCount > otherByteBlock->bytesRemaining()) {
             return 1;
         }
         //The other byteBlock has the same type
         //-> we can access its internal attributes here!
-        return append(otherByteBlock->bytes, byteCount);
+        return appendStraightFrom(otherByteBlock->bytes, byteCount);
     }
 
-    uint8_t NetworkByteBlock::append(void *source, size_t byteCount) {
+    uint8_t NetworkByteBlock::appendStraightFrom(void *source, size_t byteCount) {
         //Avoid writing beyond last byte
         if (
                 source == nullptr ||
@@ -78,38 +72,25 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkByteBlock::read(uint8_t *oneByte) {
+    uint8_t NetworkByteBlock::readOneByteTo(uint8_t *oneByte) {
         if (oneByte == nullptr) {
             return 1;
         }
-        return read(oneByte, 1);
+        return readStraightTo(oneByte, sizeof *oneByte);
     }
 
-    uint8_t NetworkByteBlock::read(uint16_t *twoBytes) {
+    uint8_t NetworkByteBlock::readTwoBytesSwappedTo(uint16_t *twoBytes) {
         if (twoBytes == nullptr) {
             return 1;
         }
         auto *twoBytesAsArray = (uint8_t *) twoBytes;
 
-        read(&twoBytesAsArray[1]);
-        read(&twoBytesAsArray[0]);
+        readOneByteTo(&twoBytesAsArray[1]);
+        readOneByteTo(&twoBytesAsArray[0]);
         return 0;
     }
 
-    uint8_t NetworkByteBlock::read(uint32_t *fourBytes) {
-        if (fourBytes == nullptr) {
-            return 1;
-        }
-        auto *fourBytesAsArray = (uint8_t *) fourBytes;
-
-        read(&fourBytesAsArray[3]);
-        read(&fourBytesAsArray[2]);
-        read(&fourBytesAsArray[1]);
-        read(&fourBytesAsArray[0]);
-        return 0;
-    }
-
-    uint8_t NetworkByteBlock::read(void *target, size_t byteCount) {
+    uint8_t NetworkByteBlock::readStraightTo(void *target, size_t byteCount) {
         if (
                 this->currentIndex == this->length ||
                 byteCount == 0 ||

@@ -37,7 +37,7 @@ uint8_t UDP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     }
 
     //Append dataBytes if no errors occurred yet
-    return output->append(dataBytes, dataBytes->getLength());
+    return output->appendStraightFrom(dataBytes, dataBytes->getLength());
 }
 
 size_t UDP4Datagram::getLengthInBytes() {

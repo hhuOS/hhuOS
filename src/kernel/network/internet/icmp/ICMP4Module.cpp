@@ -60,7 +60,7 @@ namespace Kernel {
             }
 
             uint8_t typeByte = 0;
-            input->read(&typeByte);
+            input->readOneByteTo(&typeByte);
             //Decrement index by one
             //-> now it points to first message byte again!
             input->decrementIndex();

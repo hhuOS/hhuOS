@@ -29,10 +29,10 @@ size_t UDP4Header::getTotalDatagramLength() const {
 
 uint8_t UDP4Header::copyTo(Kernel::NetworkByteBlock *output) const {
     uint8_t errors = 0;
-    errors += output->append(sourcePort);
-    errors += output->append(destinationPort);
-    errors += output->append(length);
-    errors += output->append(checksum);
+    errors += output->appendTwoBytesSwapped(sourcePort);
+    errors += output->appendTwoBytesSwapped(destinationPort);
+    errors += output->appendTwoBytesSwapped(length);
+    errors += output->appendTwoBytesSwapped(checksum);
     return errors;
 }
 
@@ -42,10 +42,10 @@ uint8_t UDP4Header::parse(Kernel::NetworkByteBlock *input) {
     }
 
     uint8_t errors = 0;
-    errors += input->read(&sourcePort);
-    errors += input->read(&destinationPort);
-    errors += input->read(&length);
-    errors += input->read(&checksum);
+    errors += input->readTwoBytesSwappedTo(&sourcePort);
+    errors += input->readTwoBytesSwappedTo(&destinationPort);
+    errors += input->readTwoBytesSwappedTo(&length);
+    errors += input->readTwoBytesSwappedTo(&checksum);
 
     return errors;
 }
