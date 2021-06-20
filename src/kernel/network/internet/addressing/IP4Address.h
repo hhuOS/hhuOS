@@ -30,6 +30,8 @@ public:
     uint8_t calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask);
 
     virtual ~IP4Address();
+
+    static uint8_t parseTo(uint8_t *targetBytes, String *fromString);
 };
 
 

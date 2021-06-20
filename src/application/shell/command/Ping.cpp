@@ -26,22 +26,14 @@ void Ping::execute(Util::Array<String> &args) {
 
     uint8_t addressBytes[IP4ADDRESS_LENGTH]{127,0,0,1}, numberOfPings = 10;
 
-    if(!parser.getNamedArgument("target").isEmpty()) {
-        auto target = parser.getNamedArgument("target");
-
-        auto addressParts = target.split(".");
-        if (addressParts.length() != IP4ADDRESS_LENGTH) {
-            stderr << "Malformed IPv4 address! We need exactly format [0-255].[0-255].[0-255].[0-255]" << endl;
-            return;
-        }
-
-        for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
-            addressBytes[i] = strtoint((const char *) addressParts[i]);
-        }
+    auto target = parser.getNamedArgument("target");
+    if(!target.isEmpty()) {
+        IP4Address::parseTo(addressBytes,&target);
     }
 
-    if(!parser.getNamedArgument("count").isEmpty()){
-        numberOfPings= strtoint((const char *) parser.getNamedArgument("count"));
+    auto count = parser.getNamedArgument("count");
+    if(!count.isEmpty()){
+        numberOfPings= strtoint((const char *) count);
     }
 
     for(uint8_t i=0;i<numberOfPings;i++){

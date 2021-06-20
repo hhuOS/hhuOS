@@ -75,3 +75,15 @@ uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netma
     *ANDedAddress = new IP4Address(bytes);
     return 0;
 }
+
+uint8_t IP4Address::parseTo(uint8_t *targetBytes, String *fromString) {
+    auto addressParts = fromString->split(".");
+    if (addressParts.length() != IP4ADDRESS_LENGTH) {
+        return 1;
+    }
+
+    for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
+        targetBytes[i] = strtoint((const char *) addressParts[i]);
+    }
+    return 0;
+}
