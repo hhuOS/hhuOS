@@ -6,6 +6,8 @@
 #define HHUOS_PING_H
 
 
+#include <kernel/network/NetworkEventBus.h>
+#include <kernel/service/TimeService.h>
 #include "Command.h"
 
 class Ping : public Command {
@@ -15,6 +17,10 @@ class Ping : public Command {
  *
  * This application provides IP protocol stack testing via ICMP Echo and ICMP Echo Reply
  */
+
+private:
+    Kernel::NetworkEventBus *eventBus = nullptr;
+    Kernel::TimeService *timeService= nullptr;
 
 public:
 

@@ -72,7 +72,7 @@ namespace Kernel {
                         delete echoReply;
                         break;
                     }
-                    printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d",
+                    printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
                            inIP4Header->getSourceAddress()->asChars(),
                            echoReply->getIdentifier(),
                            echoReply->getSequenceNumber()

@@ -4,10 +4,12 @@
 
 #include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
+#include <cstdio>
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
-
+    eventBus = new Kernel::NetworkEventBus(Kernel::System::getService<Kernel::EventBus>());
+    timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
 void Ping::execute(Util::Array<String> &args) {
@@ -19,14 +21,18 @@ void Ping::execute(Util::Array<String> &args) {
     }
 
     auto *localhost = new IP4Address(127, 0, 0, 1);
-    auto *pingRequest = new ICMP4Echo(42,0);
+    uint8_t pingCount = 10;
 
-    auto *eventBus = Kernel::System::getService<Kernel::EventBus>();
-    eventBus->publish(
-            Util::SmartPointer<Kernel::Event>(
-                    new Kernel::ICMP4SendEvent(localhost, pingRequest)
-            )
-    );
+    for(uint8_t i=0;i<pingCount;i++){
+        eventBus->publish(
+                new Kernel::ICMP4SendEvent(
+                        new IP4Address(localhost),
+                        new ICMP4Echo(42,i)
+                        )
+        );
+        timeService->msleep(1000);
+    }
+
 
 }
 
