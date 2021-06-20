@@ -52,23 +52,32 @@ namespace Kernel {
         }
         auto *newInterface = new IP4Interface(eventBus, device, ip4Address, ip4Netmask);
         interfaces->put(device, newInterface);
-        routingModule->addRouteFor(newInterface);
+        if(routingModule->addRouteFor(newInterface)){
+            log.error("Adding route for new IP4Interface failed, rollback");
+            interfaces->remove(device);
+            delete newInterface;
+            return 1;
+        }
         return 0;
     }
 
-    void IP4Module::unregisterDevice(EthernetDevice *device) {
+    uint8_t IP4Module::unregisterDevice(EthernetDevice *device) {
         if (device == nullptr) {
             log.error("Given device was null, not unregistering device");
-            return;
+            return 1;
         }
         if (interfaces == nullptr || routingModule == nullptr) {
             log.error("Internal interface list or routing module was null, not unregistering device");
-            return;
+            return 1;
         }
         if (interfaces->containsKey(device)) {
-            routingModule->removeRoutesFor(interfaces->get(device));
+            auto *removeInterface = interfaces->get(device);
+            //Removing not that critical, return values not important here
+            routingModule->removeRoutesFor(removeInterface);
             interfaces->remove(device);
+            delete removeInterface;
         }
+        return 0;
     }
 
     void IP4Module::onEvent(const Event &event) {

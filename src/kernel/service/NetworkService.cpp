@@ -134,6 +134,26 @@ namespace Kernel {
         return 0;
     }
 
+    uint8_t NetworkService::unAssignIP4Address(EthernetDeviceIdentifier *identifier) {
+        if (identifier == nullptr) {
+            log.error("Given identifier was null, not unAssigning IP4 address");
+            return 1;
+        }
+        EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
+        if (selected == nullptr) {
+            log.error("No ethernet device exists for given identifier, not unAssigning IP4 address");
+            delete identifier;
+            return 1;
+        }
+        if(this->ip4Module->unregisterDevice(selected)){
+            delete identifier;
+            log.error("UnRegistering device failed");
+            return 1;
+        }
+        delete identifier;
+        return 0;
+    }
+
     UDP4SocketController *NetworkService::createSocketController() {
         //TODO: Add TimeService here
         return new UDP4SocketController(this->eventBus);

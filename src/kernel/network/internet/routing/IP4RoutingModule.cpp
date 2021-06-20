@@ -98,18 +98,19 @@ namespace Kernel {
                 );
     }
 
-    void IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
+    uint8_t IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
         if (ip4Interface == nullptr) {
-            return;
+            return 1;
         }
         if (routes == nullptr) {
             log.error("Internal data structure for routes not initialized, not adding route");
-            return;
+            return 1;
         }
         //Add a direct route for a given new IP4Interface
         //-> Extract Network Address from interface's IP4Address with its Netmask
         //-> NextHop is null, we are directly connected here
         this->routes->add(new IP4Route(ip4Interface));
+        return 0;
     }
 
     void IP4RoutingModule::removeRoutesFor(IP4Interface *ip4Interface) {

@@ -18,6 +18,7 @@ void Ip::execute(Util::Array<String> &args) {
     parser.addSwitch("route", "r");
 
     parser.addSwitch("set", "s");
+    parser.addSwitch("unset", "u");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -93,6 +94,17 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
                 new IP4Netmask(bitCount)
                 )
         ){
+            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+        }
+        return;
+    } else if(parser->checkSwitch("unset")){
+        auto unnamedArguments = parser->getUnnamedArguments();
+        if(unnamedArguments.length()!=1){
+            stderr << "Invalid argument number, please give only one argument: [Interface identifier]" << endl;
+            return;
+        }
+
+        if(networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))){
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
         }
         return;

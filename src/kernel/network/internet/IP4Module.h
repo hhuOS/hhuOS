@@ -37,13 +37,12 @@ namespace Kernel {
 
         uint8_t registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
-        void unregisterDevice(EthernetDevice *device);
+        uint8_t unregisterDevice(EthernetDevice *device);
 
         void collectIP4InterfaceAttributes(Util::ArrayList<String> *strings);
 
         void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
     };
-
 }
 
 
