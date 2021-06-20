@@ -40,8 +40,8 @@ void Ping::execute(Util::Array<String> &args) {
         }
     }
 
-    if(!parser.getNamedArgument("number").isEmpty()){
-        numberOfPings= strtoint((const char *) parser.getNamedArgument("number"));
+    if(!parser.getNamedArgument("count").isEmpty()){
+        numberOfPings= strtoint((const char *) parser.getNamedArgument("count"));
     }
 
     for(uint8_t i=0;i<numberOfPings;i++){
