@@ -22,9 +22,13 @@ namespace Kernel {
     EthernetModule::~EthernetModule() {
         EthernetDevice *toDelete;
         for (size_t i = 0; i < ethernetDevices->size(); i++) {
+            //Deleting while iterating is always dangerous
+            //-> execute get() and remove() separately!
             toDelete = ethernetDevices->get(i);
             ethernetDevices->remove(i);
-            deleteEthernetDevice(toDelete);
+            i--;
+            deleteSendBuffer(toDelete);
+            delete toDelete;
         }
         delete ethernetDevices;
     }
@@ -89,25 +93,25 @@ namespace Kernel {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
                 auto *toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
-                deleteEthernetDevice(toDelete);
-                break;
+                deleteSendBuffer(toDelete);
+                delete toDelete;
+                return;
             }
         }
 
     }
 
-    void EthernetModule::deleteEthernetDevice(const EthernetDevice *toDelete) {
-        if(toDelete== nullptr){
+    void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
+        if(ethernetDevice == nullptr){
             return;
         }
-        if (toDelete->getPhysicalBufferAddress() != nullptr) {
+        if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
             //Free mapped IO if physical interface
-            systemManagement->freeIO(toDelete->getSendBuffer());
+            systemManagement->freeIO(ethernetDevice->getSendBuffer());
         } else {
             //Simply delete allocated buffer if virtual interface
-            delete toDelete->getSendBuffer();
+            delete ethernetDevice->getSendBuffer();
         }
-        delete toDelete;
     }
 
     void EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
