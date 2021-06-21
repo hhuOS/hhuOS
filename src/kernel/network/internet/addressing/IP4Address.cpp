@@ -82,8 +82,13 @@ uint8_t IP4Address::parseTo(uint8_t *targetBytes, String *fromString) {
         return 1;
     }
 
+    int parsedValue;
     for (uint8_t i = 0; i < IP4ADDRESS_LENGTH; i++) {
-        targetBytes[i] = strtoint((const char *) addressParts[i]);
+        parsedValue = strtoint((const char *) addressParts[i]);
+        if(parsedValue>255){
+            return 1;
+        }
+        targetBytes[i]=(uint8_t)parsedValue;
     }
     return 0;
 }

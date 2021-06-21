@@ -8,9 +8,7 @@
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
-#include <kernel/core/Management.h>
 #include "EthernetModule.h"
-#include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     EthernetModule::EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,

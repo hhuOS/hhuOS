@@ -11,7 +11,7 @@
 class EthernetDeviceIdentifier {
 private:
     char *characters = nullptr;
-    uint8_t length = 0;
+    uint32_t length = 0;
 
 public:
     explicit EthernetDeviceIdentifier(String *string);

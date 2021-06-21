@@ -7,7 +7,9 @@
 EthernetDeviceIdentifier::EthernetDeviceIdentifier(String *string) {
     auto *stringAsChars = (char *) *string;
 
-    length = string->length() + 1;
+    length = string->length();
+    //Add one byte for '\0'
+    length++;
     characters = new char[length];
     for (uint8_t i = 0; i < 4; i++) {
         this->characters[i] = stringAsChars[i];
@@ -19,7 +21,9 @@ EthernetDeviceIdentifier::EthernetDeviceIdentifier(uint8_t deviceIndex) {
     auto ethString = String::format("eth%d", deviceIndex);
     auto identifierChars = (char *) ethString;
 
-    length = ethString.length() + 1;
+    length = ethString.length();
+    //Add one byte for '\0'
+    length++;
     characters = new char[length];
     for (uint8_t i = 0; i < 4; i++) {
         this->characters[i] = identifierChars[i];
