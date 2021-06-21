@@ -19,6 +19,16 @@ namespace Kernel {
     }
 
     ARPModule::~ARPModule() {
+        if(arpTable!= nullptr) {
+            ARPEntry *toDelete;
+            for (size_t i = 0; i < arpTable->size(); i++) {
+                toDelete=arpTable->get(i);
+                arpTable->remove(i);
+                i--;
+                delete toDelete;
+            }
+        }
+        delete arpTable;
         delete broadcastAddress;
     }
 
