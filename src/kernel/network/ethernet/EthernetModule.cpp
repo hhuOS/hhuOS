@@ -102,7 +102,7 @@ namespace Kernel {
     }
 
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
-        if(ethernetDevice == nullptr){
+        if (ethernetDevice == nullptr) {
             return;
         }
         if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {

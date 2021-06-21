@@ -20,6 +20,7 @@ namespace Kernel {
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
+
     public:
 
         explicit EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,

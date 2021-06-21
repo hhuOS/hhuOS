@@ -92,9 +92,9 @@ namespace Kernel {
 
         sendLock->acquire();
 
-        if(byteBlock->readStraightTo(sendBuffer, blockLength)){
+        if (byteBlock->readStraightTo(sendBuffer, blockLength)) {
             sendLock->release();
-            log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame",identifier);
+            log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame", identifier);
             delete byteBlock;
             return 1;
         }
