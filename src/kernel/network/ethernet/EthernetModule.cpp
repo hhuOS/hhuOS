@@ -68,11 +68,14 @@ namespace Kernel {
 
         if (identifier->equals(loopbackIdentifier)) {
             auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
+            memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
             this->ethernetDevices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
             return;
         }
 
         auto *sendBuffer = (uint8_t *) this->systemManagement->mapIO(EthernetHeader::getMaximumFrameLength());
+        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
+
         auto *physicalBufferAddress = this->systemManagement->getPhysicalAddress(sendBuffer);
         auto *toAdd = new EthernetDevice(sendBuffer, physicalBufferAddress, identifier, networkDevice);
 

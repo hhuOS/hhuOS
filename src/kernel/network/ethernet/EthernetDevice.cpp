@@ -104,6 +104,7 @@ namespace Kernel {
         } else {
             networkDevice->sendPacket(sendBuffer, static_cast<uint16_t>(blockLength));
         }
+        memset(sendBuffer, 0, blockLength);
 
         sendLock->release();
 
