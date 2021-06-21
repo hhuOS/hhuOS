@@ -18,7 +18,10 @@ namespace Kernel {
         Util::ArrayList<EthernetDevice *> *ethernetDevices;
         NetworkEventBus *eventBus = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
+
+        void deleteEthernetDevice(const EthernetDevice *toDelete);
     public:
+
         explicit EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
                                 EthernetDeviceIdentifier *loopbackIdentifier);
 
@@ -45,6 +48,8 @@ namespace Kernel {
         void unregisterNetworkDevice(NetworkDevice *networkDevice);
 
         void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
+
+        ~EthernetModule() override;
     };
 
 };

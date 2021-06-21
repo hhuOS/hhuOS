@@ -19,6 +19,16 @@ namespace Kernel {
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
     }
 
+    EthernetModule::~EthernetModule() {
+        EthernetDevice *toDelete;
+        for (size_t i = 0; i < ethernetDevices->size(); i++) {
+            toDelete = ethernetDevices->get(i);
+            ethernetDevices->remove(i);
+            deleteEthernetDevice(toDelete);
+        }
+        delete ethernetDevices;
+    }
+
     void EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
         if (networkDevice == nullptr) {
             log.error("Given network device was null, not registering it");
@@ -79,18 +89,25 @@ namespace Kernel {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
                 auto *toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
-                if (toDelete->getPhysicalBufferAddress() != nullptr) {
-                    //Free mapped IO if physical interface
-                    this->systemManagement->freeIO(toDelete->getSendBuffer());
-                } else {
-                    //Simply delete allocated buffer if virtual interface
-                    delete toDelete->getSendBuffer();
-                }
-                delete toDelete;
+                deleteEthernetDevice(toDelete);
                 break;
             }
         }
 
+    }
+
+    void EthernetModule::deleteEthernetDevice(const EthernetDevice *toDelete) {
+        if(toDelete== nullptr){
+            return;
+        }
+        if (toDelete->getPhysicalBufferAddress() != nullptr) {
+            //Free mapped IO if physical interface
+            systemManagement->freeIO(toDelete->getSendBuffer());
+        } else {
+            //Simply delete allocated buffer if virtual interface
+            delete toDelete->getSendBuffer();
+        }
+        delete toDelete;
     }
 
     void EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
