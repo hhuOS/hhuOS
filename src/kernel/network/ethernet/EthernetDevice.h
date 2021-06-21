@@ -28,9 +28,10 @@ namespace Kernel {
         Logger &log = Logger::get("EthernetDevice");
     public:
 
-        EthernetDevice(uint8_t* sendBuffer, void *physicalBufferAddress, EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+        EthernetDevice(uint8_t *sendBuffer, void *physicalBufferAddress, EthernetDeviceIdentifier *identifier,
+                       NetworkDevice *networkDevice);
 
-        EthernetDevice(uint8_t* sendBuffer,EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+        EthernetDevice(uint8_t *sendBuffer, EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
         [[nodiscard]] uint8_t *getSendBuffer() const;
 

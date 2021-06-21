@@ -54,13 +54,13 @@ namespace Kernel {
             }
         }
 
-        if(identifier->equals(loopbackIdentifier)){
+        if (identifier->equals(loopbackIdentifier)) {
             auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
             this->ethernetDevices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
             return;
         }
 
-        auto *sendBuffer = (uint8_t *)this->systemManagement->mapIO(EthernetHeader::getMaximumFrameLength());
+        auto *sendBuffer = (uint8_t *) this->systemManagement->mapIO(EthernetHeader::getMaximumFrameLength());
         auto *physicalBufferAddress = this->systemManagement->getPhysicalAddress(sendBuffer);
         auto *toAdd = new EthernetDevice(sendBuffer, physicalBufferAddress, identifier, networkDevice);
 
@@ -81,10 +81,10 @@ namespace Kernel {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
                 auto *toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
-                if(toDelete->getPhysicalBufferAddress()!= nullptr){
+                if (toDelete->getPhysicalBufferAddress() != nullptr) {
                     //Free mapped IO if physical interface
                     this->systemManagement->freeIO(toDelete->getSendBuffer());
-                } else{
+                } else {
                     //Simply delete allocated buffer if virtual interface
                     delete toDelete->getSendBuffer();
                 }

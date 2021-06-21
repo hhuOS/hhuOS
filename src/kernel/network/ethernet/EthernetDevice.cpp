@@ -19,7 +19,8 @@ namespace Kernel {
         this->sendBuffer = sendBuffer;
     }
 
-    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, void *physicalBufferAddress, EthernetDeviceIdentifier *identifier,
+    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, void *physicalBufferAddress,
+                                   EthernetDeviceIdentifier *identifier,
                                    NetworkDevice *networkDevice) {
         this->identifier = identifier;
 
@@ -91,9 +92,9 @@ namespace Kernel {
 
         byteBlock->copyTo(sendBuffer);
 
-        if(physicalBufferAddress!= nullptr){
+        if (physicalBufferAddress != nullptr) {
             networkDevice->sendPacket(physicalBufferAddress, blockLength);
-        } else{
+        } else {
             networkDevice->sendPacket(sendBuffer, blockLength);
         }
 
