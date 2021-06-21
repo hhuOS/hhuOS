@@ -109,11 +109,6 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkByteBlock::copyTo(uint8_t *sendBuffer) {
-        memcpy(sendBuffer, this->bytes, this->length);
-        return 0;
-    }
-
     size_t NetworkByteBlock::bytesRemaining() const {
         return this->length - this->currentIndex;
     }

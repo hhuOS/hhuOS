@@ -73,6 +73,8 @@ namespace Kernel {
             delete byteBlock;
             return 1;
         }
+        //Reset currentIndex to zero to prepare reading all content to sendBuffer
+        byteBlock->resetIndex();
 
         size_t blockLength = byteBlock->getLength();
 
@@ -90,7 +92,12 @@ namespace Kernel {
 
         sendLock->acquire();
 
-        byteBlock->copyTo(sendBuffer);
+        if(byteBlock->readStraightTo(sendBuffer, blockLength)){
+            sendLock->release();
+            log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame",identifier);
+            delete byteBlock;
+            return 1;
+        }
 
         if (physicalBufferAddress != nullptr) {
             networkDevice->sendPacket(physicalBufferAddress, blockLength);

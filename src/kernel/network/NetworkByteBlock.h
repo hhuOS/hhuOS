@@ -24,8 +24,6 @@ namespace Kernel {
 
         [[nodiscard]] size_t bytesRemaining() const;
 
-        uint8_t copyTo(uint8_t *sendBuffer);
-
         uint8_t appendOneByte(uint8_t oneByte);
 
         uint8_t appendTwoBytesSwapped(uint16_t twoBytes);
