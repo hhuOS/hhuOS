@@ -42,9 +42,6 @@ namespace Kernel {
     class NetworkService final : public KernelService {
 
     private:
-        EthernetDeviceIdentifier *loopbackIdentifier;
-        size_t bufferSize = 1024;
-
         /**
          * Provide service information on the kernel log.
          */
@@ -55,6 +52,10 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
+        size_t bufferSize = 1024;
+        EthernetDeviceIdentifier *loopbackIdentifier;
+
+        Management *management;
         NetworkEventBus *eventBus;
 
         PacketHandler *packetHandler;

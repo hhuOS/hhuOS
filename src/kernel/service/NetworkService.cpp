@@ -18,9 +18,10 @@ namespace Kernel {
     NetworkService::NetworkService() {
         loopbackIdentifier = new EthernetDeviceIdentifier(new String("lo"));
         eventBus = new NetworkEventBus(System::getService<EventBus>());
+        management = &Management::getInstance();
 
         packetHandler = new PacketHandler(eventBus);
-        ethernetModule = new EthernetModule(eventBus);
+        ethernetModule = new EthernetModule(management, eventBus, loopbackIdentifier);
         ip4Module = new IP4Module(eventBus);
         icmp4Module = new ICMP4Module(eventBus);
         udp4Module = new UDP4Module(eventBus);
@@ -64,6 +65,8 @@ namespace Kernel {
         delete ip4Module;
         delete ethernetModule;
         delete packetHandler;
+
+        delete loopbackIdentifier;
     }
 
     uint32_t NetworkService::getDeviceCount() {

@@ -49,7 +49,7 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
             header == nullptr ||
             ethernetDataPart == nullptr ||
             output == nullptr ||
-            ethernetDataPart->getLengthInBytes() > ETHERNETDATAPART_MAX_LENGTH ||
+            ethernetDataPart->getLengthInBytes() > ETHERNET_MTU ||
             EthernetHeader::getHeaderLength() > ETHERNETHEADER_MAX_LENGTH
             ) {
         return 1;

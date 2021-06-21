@@ -6,17 +6,21 @@
 #define HHUOS_ETHERNETMODULE_H
 
 #include <kernel/network/NetworkEventBus.h>
+#include <kernel/core/Management.h>
 #include "EthernetDevice.h"
 #include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     class EthernetModule : public Receiver {
     private:
+        Management *systemManagement = nullptr;
+        Util::ArrayList<EthernetDevice *> *ethernetDevices;
         uint8_t deviceCounter = 0;
         NetworkEventBus *eventBus = nullptr;
-        Util::ArrayList<EthernetDevice *> *ethernetDevices;
+        EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
     public:
-        explicit EthernetModule(NetworkEventBus *eventBus);
+        explicit EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
+                                EthernetDeviceIdentifier *loopbackIdentifier);
 
         /**
          * A logger to provide information on the kernel log.

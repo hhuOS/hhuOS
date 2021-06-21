@@ -10,10 +10,14 @@
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include "EthernetModule.h"
 #include "EthernetDeviceIdentifier.h"
+#include "EthernetVirtualDevice.h"
 
 namespace Kernel {
-    EthernetModule::EthernetModule(NetworkEventBus *eventBus) {
+    EthernetModule::EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
+                                   EthernetDeviceIdentifier *loopbackIdentifier) {
         this->eventBus = eventBus;
+        this->loopbackIdentifier = loopbackIdentifier;
+        this->systemManagement = systemManagement;
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
     }
 
@@ -49,8 +53,15 @@ namespace Kernel {
                 return;
             }
         }
+//        //Loopback is a virtual device with another send process
+//        //-> create a virtual ethernet device for it instead
+//        if(identifier->equals(loopbackIdentifier)){
+//            this->ethernetDevices->add(new EthernetVirtualDevice(this->systemManagement, identifier, networkDevice));
+//            return;
+//        }
         //Add a new connected ethernet device if no duplicate found
-        this->ethernetDevices->add(new EthernetDevice(identifier, networkDevice));
+        auto toAdd=new EthernetDevice(this->systemManagement, identifier, networkDevice);
+        this->ethernetDevices->add();
     }
 
     void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {

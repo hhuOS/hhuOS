@@ -110,24 +110,8 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkByteBlock::sendOutVia(NetworkDevice *outDevice) {
-        if (outDevice == nullptr || bytes == nullptr) {
-            return 1;
-        }
-
-        if (this->length == 0) {
-            //It's not an error if nothing needs to be done
-            return 0;
-        }
-
-        auto *managementInstance = &Management::getInstance();
-        auto *sendBuffer = (uint8_t *)managementInstance->mapIO(length);
-
-        memcpy(sendBuffer, bytes, length);
-        outDevice->sendPacket(managementInstance->getPhysicalAddress(sendBuffer),length);
-        //NetworkDevices return no information about errors or successful sending
-        //-> we just can return successful here
-        managementInstance->freeIO(sendBuffer);
+    uint8_t NetworkByteBlock::copyTo(uint8_t *sendBuffer) {
+        memcpy(sendBuffer,this->bytes,this->length);
         return 0;
     }
 
