@@ -100,9 +100,9 @@ namespace Kernel {
         }
 
         if (physicalBufferAddress != nullptr) {
-            networkDevice->sendPacket(physicalBufferAddress, blockLength);
+            networkDevice->sendPacket(physicalBufferAddress, static_cast<uint16_t>(blockLength));
         } else {
-            networkDevice->sendPacket(sendBuffer, blockLength);
+            networkDevice->sendPacket(sendBuffer, static_cast<uint16_t>(blockLength));
         }
 
         sendLock->release();

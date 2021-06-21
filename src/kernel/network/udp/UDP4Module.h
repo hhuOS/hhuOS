@@ -32,7 +32,7 @@ namespace Kernel {
 
         uint8_t unregisterControllerFor(uint16_t destinationPort);
 
-        virtual ~UDP4Module();
+        ~UDP4Module() override;
     };
 
 }

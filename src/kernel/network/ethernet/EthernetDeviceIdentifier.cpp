@@ -43,7 +43,7 @@ bool EthernetDeviceIdentifier::equals(EthernetDeviceIdentifier *other) {
     if (this->length != other->length || this->characters == nullptr || other->characters == nullptr) {
         return false;
     }
-    for (uint8_t i = 0; i < length; i++) {
+    for (uint32_t i = 0; i < length; i++) {
         if (this->characters[i] != other->characters[i]) {
             return false;
         }
