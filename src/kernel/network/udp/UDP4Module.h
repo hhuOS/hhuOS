@@ -31,6 +31,8 @@ namespace Kernel {
         uint8_t registerControllerFor(uint16_t destinationPort, UDP4SocketController *controller);
 
         uint8_t unregisterControllerFor(uint16_t destinationPort);
+
+        virtual ~UDP4Module();
     };
 
 }

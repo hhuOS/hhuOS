@@ -14,6 +14,10 @@ namespace Kernel {
         socketAccessLock = new Spinlock();
     }
 
+    UDP4Module::~UDP4Module() {
+        delete socketAccessLock;
+    }
+
     uint8_t UDP4Module::registerControllerFor(uint16_t destinationPort, UDP4SocketController *controller) {
         if (destinationPort == 0) {
             log.error("Given port was zero, not registering controller");

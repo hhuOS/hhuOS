@@ -9,6 +9,19 @@ namespace Kernel {
         this->routes = new Util::ArrayList<IP4Route *>();
     }
 
+    IP4RoutingModule::~IP4RoutingModule() {
+        if(routes!= nullptr) {
+            IP4Route *toDelete;
+            for (size_t i = 0; i < routes->size(); i++) {
+                toDelete=routes->get(i);
+                routes->remove(i);
+                i--;
+                delete toDelete;
+            }
+        }
+        delete defaultRoute;
+    }
+
 //Private method!
     uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
         uint8_t matchingBits = 0, bestMatch = 0;
