@@ -22,6 +22,8 @@ public:
 
     static size_t getHeaderLength();
 
+    static size_t getMaximumFrameLength();
+
     void setSourceAddress(EthernetAddress *address);
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);

@@ -8,9 +8,9 @@
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
+#include <kernel/core/Management.h>
 #include "EthernetModule.h"
 #include "EthernetDeviceIdentifier.h"
-#include "EthernetVirtualDevice.h"
 
 namespace Kernel {
     EthernetModule::EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
@@ -53,15 +53,18 @@ namespace Kernel {
                 return;
             }
         }
-//        //Loopback is a virtual device with another send process
-//        //-> create a virtual ethernet device for it instead
-//        if(identifier->equals(loopbackIdentifier)){
-//            this->ethernetDevices->add(new EthernetVirtualDevice(this->systemManagement, identifier, networkDevice));
-//            return;
-//        }
-        //Add a new connected ethernet device if no duplicate found
-        auto toAdd = new EthernetDevice(this->systemManagement, identifier, networkDevice);
-        this->ethernetDevices->add();
+
+        if(identifier->equals(loopbackIdentifier)){
+            auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
+            this->ethernetDevices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
+            return;
+        }
+
+        auto *sendBuffer = (uint8_t *)this->systemManagement->mapIO(EthernetHeader::getMaximumFrameLength());
+        auto *physicalBufferAddress = this->systemManagement->getPhysicalAddress(sendBuffer);
+        auto *toAdd = new EthernetDevice(sendBuffer, physicalBufferAddress, identifier, networkDevice);
+
+        this->ethernetDevices->add(toAdd);
     }
 
     void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
@@ -76,7 +79,16 @@ namespace Kernel {
         }
         for (size_t i = 0; i < ethernetDevices->size(); i++) {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
+                auto *toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
+                if(toDelete->getPhysicalBufferAddress()!= nullptr){
+                    //Free mapped IO if physical interface
+                    this->systemManagement->freeIO(toDelete->getSendBuffer());
+                } else{
+                    //Simply delete allocated buffer if virtual interface
+                    delete toDelete->getSendBuffer();
+                }
+                delete toDelete;
                 break;
             }
         }

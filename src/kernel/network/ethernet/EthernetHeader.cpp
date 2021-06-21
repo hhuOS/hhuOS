@@ -23,6 +23,10 @@ size_t EthernetHeader::getHeaderLength() {
     return 2 * MAC_SIZE + sizeof(uint16_t);
 }
 
+size_t EthernetHeader::getMaximumFrameLength() {
+    return getHeaderLength() + ETHERNET_MTU;
+}
+
 void EthernetHeader::setSourceAddress(EthernetAddress *address) {
     if (address == nullptr) {
         return;

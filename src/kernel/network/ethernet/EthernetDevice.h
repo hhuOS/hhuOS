@@ -10,19 +10,17 @@
 #include "EthernetAddress.h"
 #include "EthernetFrame.h"
 #include "EthernetDeviceIdentifier.h"
+#include <kernel/core/Management.h>
 
 namespace Kernel {
     class EthernetDevice {
     private:
-        Management *systemManagement = nullptr;
-    protected:
         Spinlock *sendLock = nullptr;
         uint8_t *sendBuffer = nullptr;
+        void *physicalBufferAddress = nullptr;
         NetworkDevice *networkDevice = nullptr;
         EthernetAddress *ethernetAddress = nullptr;
         EthernetDeviceIdentifier *identifier = nullptr;
-
-        size_t ETHERNET_MAX_FRAME_SIZE = 0;
 
         /**
          * A logger to provide information on the kernel log.
@@ -30,8 +28,11 @@ namespace Kernel {
         Logger &log = Logger::get("EthernetDevice");
     public:
 
-        EthernetDevice(Management *systemManagement, EthernetDeviceIdentifier *identifier,
-                       NetworkDevice *networkDevice);
+        EthernetDevice(uint8_t* sendBuffer, void *physicalBufferAddress, EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+
+        EthernetDevice(uint8_t* sendBuffer,EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+
+        [[nodiscard]] uint8_t *getSendBuffer() const;
 
         [[nodiscard]] EthernetDeviceIdentifier *getIdentifier() const;
 
@@ -49,9 +50,7 @@ namespace Kernel {
 
         virtual ~EthernetDevice();
 
-        EthernetDevice(Management *pManagement, EthernetDeviceIdentifier *pIdentifier, NetworkDevice *pDevice);
-
-        EthernetDevice(Management *pManagement, EthernetDeviceIdentifier *pIdentifier, NetworkDevice *pDevice);
+        [[nodiscard]] void *getPhysicalBufferAddress() const;
     };
 }
 

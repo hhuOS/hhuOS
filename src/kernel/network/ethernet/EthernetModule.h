@@ -13,9 +13,9 @@
 namespace Kernel {
     class EthernetModule : public Receiver {
     private:
+        uint8_t deviceCounter = 0;
         Management *systemManagement = nullptr;
         Util::ArrayList<EthernetDevice *> *ethernetDevices;
-        uint8_t deviceCounter = 0;
         NetworkEventBus *eventBus = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
     public:

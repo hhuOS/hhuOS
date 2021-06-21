@@ -3,7 +3,6 @@
 //
 
 #include <lib/libc/printf.h>
-#include <kernel/core/Management.h>
 #include "NetworkByteBlock.h"
 
 namespace Kernel {

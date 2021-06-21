@@ -3,15 +3,11 @@
 //
 
 #include <kernel/network/NetworkByteBlock.h>
-#include <kernel/core/Management.h>
-#include <kernel/network/NetworkDefinitions.h>
 #include "EthernetDevice.h"
 
 namespace Kernel {
-    EthernetDevice::EthernetDevice(Management *systemManagement, EthernetDeviceIdentifier *identifier,
+    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, EthernetDeviceIdentifier *identifier,
                                    NetworkDevice *networkDevice) {
-        ETHERNET_MAX_FRAME_SIZE = EthernetHeader::getHeaderLength() + ETHERNET_MTU;
-
         this->identifier = identifier;
 
         this->sendLock = new Spinlock();
@@ -20,13 +16,24 @@ namespace Kernel {
         this->networkDevice = networkDevice;
         this->ethernetAddress = new EthernetAddress(networkDevice);
 
-        this->systemManagement = systemManagement;
-        this->sendBuffer = (uint8_t *) systemManagement->mapIO(ETHERNET_MAX_FRAME_SIZE);
+        this->sendBuffer = sendBuffer;
+    }
 
+    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, void *physicalBufferAddress, EthernetDeviceIdentifier *identifier,
+                                   NetworkDevice *networkDevice) {
+        this->identifier = identifier;
+
+        this->sendLock = new Spinlock();
+        sendLock->release();
+
+        this->networkDevice = networkDevice;
+        this->ethernetAddress = new EthernetAddress(networkDevice);
+
+        this->sendBuffer = sendBuffer;
+        this->physicalBufferAddress = physicalBufferAddress;
     }
 
     EthernetDevice::~EthernetDevice() {
-        systemManagement->freeIO(sendBuffer);
         delete ethernetAddress;
         delete sendLock;
     }
@@ -42,14 +49,8 @@ namespace Kernel {
             //-> no 'delete ethernetFrame' here!
             return 1;
         }
-        if (sendLock == nullptr || sendBuffer == nullptr || systemManagement == nullptr) {
-            log.error("%s: sendLock,sendBuffer or memoryManagement was null, discarding frame", identifier);
-            //ethernetFrame will be deleted in EthernetModule later
-            //-> no 'delete ethernetFrame' here!
-            return 1;
-        }
-        if (this->networkDevice == nullptr) {
-            log.error("%s: Outgoing device was null, discarding frame", identifier);
+        if (sendLock == nullptr || sendBuffer == nullptr || this->networkDevice == nullptr) {
+            log.error("%s: sendLock, sendBuffer or outgoing device was null, discarding frame", identifier);
             //ethernetFrame will be deleted in EthernetModule later
             //-> no 'delete ethernetFrame' here!
             return 1;
@@ -80,7 +81,7 @@ namespace Kernel {
             return 0;
         }
 
-        if (blockLength > ETHERNET_MAX_FRAME_SIZE) {
+        if (blockLength > EthernetHeader::getMaximumFrameLength()) {
             log.error("%s: %d outgoing bytes are too much, discarding frame", identifier, blockLength);
             delete byteBlock;
             return 1;
@@ -89,7 +90,12 @@ namespace Kernel {
         sendLock->acquire();
 
         byteBlock->copyTo(sendBuffer);
-        networkDevice->sendPacket(systemManagement->getPhysicalAddress(sendBuffer), blockLength);
+
+        if(physicalBufferAddress!= nullptr){
+            networkDevice->sendPacket(physicalBufferAddress, blockLength);
+        } else{
+            networkDevice->sendPacket(sendBuffer, blockLength);
+        }
 
         sendLock->release();
 
@@ -124,5 +130,13 @@ namespace Kernel {
 
     bool EthernetDevice::sameIdentifierAs(EthernetDeviceIdentifier *other) {
         return this->identifier->equals(other);
+    }
+
+    void *EthernetDevice::getPhysicalBufferAddress() const {
+        return physicalBufferAddress;
+    }
+
+    uint8_t *EthernetDevice::getSendBuffer() const {
+        return sendBuffer;
     }
 }
