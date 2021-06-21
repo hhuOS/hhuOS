@@ -3,6 +3,7 @@
 //
 
 #include <lib/libc/printf.h>
+#include <kernel/core/Management.h>
 #include "NetworkByteBlock.h"
 
 namespace Kernel {
@@ -118,9 +119,15 @@ namespace Kernel {
             //It's not an error if nothing needs to be done
             return 0;
         }
-        outDevice->sendPacket(bytes, static_cast<uint16_t>(length));
+
+        auto *managementInstance = &Management::getInstance();
+        auto *sendBuffer = (uint8_t *)managementInstance->mapIO(length);
+
+        memcpy(sendBuffer, bytes, length);
+        outDevice->sendPacket(managementInstance->getPhysicalAddress(sendBuffer),length);
         //NetworkDevices return no information about errors or successful sending
         //-> we just can return successful here
+        managementInstance->freeIO(sendBuffer);
         return 0;
     }
 
