@@ -111,7 +111,7 @@ namespace Kernel {
     }
 
     uint8_t NetworkByteBlock::copyTo(uint8_t *sendBuffer) {
-        memcpy(sendBuffer,this->bytes,this->length);
+        memcpy(sendBuffer, this->bytes, this->length);
         return 0;
     }
 

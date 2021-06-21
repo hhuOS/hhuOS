@@ -18,7 +18,7 @@ public:
 
     explicit EthernetDeviceIdentifier(uint8_t deviceIndex);
 
-    char* getCharacters();
+    char *getCharacters();
 
     String asString();
 

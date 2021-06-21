@@ -40,19 +40,19 @@ namespace Kernel {
         if (ip4Datagram == nullptr) {
             log.error("%s: Given IP4 datagram was null, return",
                       ethernetDevice->getIdentifier()->getCharacters()
-                      );
+            );
             return 1;
         }
         if (receiverAddress == nullptr) {
             log.error("%s: Given receiver IP4 address was null, return",
                       ethernetDevice->getIdentifier()->getCharacters()
-                      );
+            );
             return 1;
         }
         if (arpModule == nullptr) {
             log.error("%s: ARP module was not initialized, do not send anything",
                       ethernetDevice->getIdentifier()->getCharacters()
-                      );
+            );
             return 1;
         }
         //We need to copy our own address, because the datagram's address will be deleted after sending

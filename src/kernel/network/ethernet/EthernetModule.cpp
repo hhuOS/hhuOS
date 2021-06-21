@@ -60,7 +60,7 @@ namespace Kernel {
 //            return;
 //        }
         //Add a new connected ethernet device if no duplicate found
-        auto toAdd=new EthernetDevice(this->systemManagement, identifier, networkDevice);
+        auto toAdd = new EthernetDevice(this->systemManagement, identifier, networkDevice);
         this->ethernetDevices->add();
     }
 

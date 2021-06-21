@@ -56,14 +56,14 @@ uint8_t Kernel::EthernetVirtualDevice::sendEthernetFrame(EthernetFrame *ethernet
 
     size_t blockLength = byteBlock->getLength();
 
-    if(blockLength==0){
+    if (blockLength == 0) {
         //It's not an error if nothing needs to be done
         delete byteBlock;
         return 0;
     }
 
-    if(blockLength > ETHERNET_MAX_FRAME_SIZE){
-        log.error("%s: %d outgoing bytes are too much, discarding frame",identifier, blockLength);
+    if (blockLength > ETHERNET_MAX_FRAME_SIZE) {
+        log.error("%s: %d outgoing bytes are too much, discarding frame", identifier, blockLength);
         delete byteBlock;
         return 1;
     }

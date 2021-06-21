@@ -17,7 +17,7 @@ namespace Kernel {
         Management *systemManagement = nullptr;
     protected:
         Spinlock *sendLock = nullptr;
-        uint8_t * sendBuffer= nullptr;
+        uint8_t *sendBuffer = nullptr;
         NetworkDevice *networkDevice = nullptr;
         EthernetAddress *ethernetAddress = nullptr;
         EthernetDeviceIdentifier *identifier = nullptr;
