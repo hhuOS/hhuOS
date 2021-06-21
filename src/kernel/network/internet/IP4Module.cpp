@@ -106,7 +106,6 @@ namespace Kernel {
             //-> no delete here!
             return;
         }
-
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
             auto *ip4Header = ((IP4ReceiveEvent &) event).getHeader();
             auto *input = ((IP4ReceiveEvent &) event).getInput();

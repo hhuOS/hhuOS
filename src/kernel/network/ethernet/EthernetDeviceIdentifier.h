@@ -18,6 +18,8 @@ public:
 
     explicit EthernetDeviceIdentifier(uint8_t deviceIndex);
 
+    char* getCharacters();
+
     String asString();
 
     virtual ~EthernetDeviceIdentifier();

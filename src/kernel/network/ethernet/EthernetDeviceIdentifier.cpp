@@ -46,3 +46,7 @@ bool EthernetDeviceIdentifier::equals(EthernetDeviceIdentifier *other) {
     }
     return true;
 }
+
+char *EthernetDeviceIdentifier::getCharacters() {
+    return characters;
+}
