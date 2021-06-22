@@ -20,6 +20,8 @@ public:
     bool matches(IP4Address *otherAddress);
 
     EthernetAddress *getEthernetAddress();
+
+    void setEthernetAddress(EthernetAddress *otherAddress);
 };
 
 

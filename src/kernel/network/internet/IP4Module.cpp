@@ -221,16 +221,32 @@ namespace Kernel {
                 return;
             }
 
+            //Parsing works here, because we already checked above if this ARPMessage is for IP4 or not
             auto *destinationAddress =
-                    new EthernetAddress(arpMessage->getTargetHardwareAddress());
+                    new IP4Address(arpMessage->getTargetProtocolAddress());
             accessLock->acquire();
+            IP4Interface *targetInterface = nullptr;
             for (IP4Interface *current:*interfaces) {
-                if (current->connectedTo(destinationAddress) && current->notify(arpMessage)) {
-                    log.error("Processing ARP message failed, see syslog for more details");
+                if (current->hasAddress(destinationAddress)){
+                    targetInterface=current;
+                    break;
                 }
+            }
+            if(targetInterface== nullptr){
+                log.error("No target interface found for address %s, discarding ARP message",
+                          destinationAddress->asChars());
+                accessLock->release();
+                delete destinationAddress;
+                delete arpMessage;
+                return;
+            }
+            if(targetInterface->notify(arpMessage)){
+                log.error("Processing ARP message failed, see syslog for more details");
             }
             accessLock->release();
             delete destinationAddress;
+
+            //Processing finally done, discard incoming message
             delete arpMessage;
             return;
         }

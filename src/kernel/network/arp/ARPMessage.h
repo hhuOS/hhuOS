@@ -80,6 +80,8 @@ public:
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
     ARPMessage *buildResponse(uint8_t *ourAddressAsBytes) const;
+
+    uint8_t *getTargetProtocolAddress() const;
 };
 
 

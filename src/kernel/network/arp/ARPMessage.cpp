@@ -65,16 +65,20 @@ uint8_t *ARPMessage::getTargetHardwareAddress() const {
     return body.targetHardwareAddress;
 }
 
+uint8_t *ARPMessage::getTargetProtocolAddress() const {
+    return body.targetProtocolAddress;
+}
+
 uint16_t ARPMessage::getProtocolType() const {
     return header.protocolType;
 }
 
-uint8_t *ARPMessage::getSenderProtocolAddress() const {
-    return body.senderProtocolAddress;
-}
-
 uint8_t *ARPMessage::getSenderHardwareAddress() const {
     return body.senderHardwareAddress;
+}
+
+uint8_t *ARPMessage::getSenderProtocolAddress() const {
+    return body.senderProtocolAddress;
 }
 
 size_t ARPMessage::getBodyLengthInBytes() const {

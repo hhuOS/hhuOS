@@ -118,10 +118,10 @@ namespace Kernel {
         return ethernetDevice == otherDevice;
     }
 
-    bool IP4Interface::connectedTo(EthernetAddress *ethernetAddress) {
-        if (ethernetDevice == nullptr || ethernetAddress == nullptr) {
+    bool IP4Interface::hasAddress(IP4Address *otherAddress) {
+        if (this->ip4Address == nullptr || otherAddress == nullptr) {
             return false;
         }
-        return ethernetDevice->getAddress()->equals(ethernetAddress);
+        return this->ip4Address->equals(otherAddress);
     }
 }

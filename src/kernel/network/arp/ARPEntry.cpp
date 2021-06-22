@@ -14,3 +14,7 @@ bool ARPEntry::matches(IP4Address *otherAddress) {
 EthernetAddress *ARPEntry::getEthernetAddress() {
     return ethernetAddress;
 }
+
+void ARPEntry::setEthernetAddress(EthernetAddress *otherAddress) {
+    this->ethernetAddress=otherAddress;
+}
