@@ -26,7 +26,7 @@ namespace Kernel {
 
         virtual ~IP4RoutingModule();
 
-        uint8_t addRouteFor(IP4Interface *ip4Interface);
+        uint8_t addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
 
         [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 

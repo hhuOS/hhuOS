@@ -124,8 +124,4 @@ namespace Kernel {
         }
         return ethernetDevice->getAddress()->equals(ethernetAddress);
     }
-
-    IP4Route *IP4Interface::buildDirectRoute() {
-        return new IP4Route(ip4NetAddress, ip4Netmask, this);
-    }
 }

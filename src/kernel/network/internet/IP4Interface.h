@@ -9,6 +9,7 @@
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/network/arp/ARPModule.h>
+#include <kernel/network/internet/addressing/IP4Netmask.h>
 #include "IP4Datagram.h"
 
 namespace Kernel {
@@ -43,8 +44,6 @@ namespace Kernel {
         bool connectedTo(EthernetDevice *otherDevice);
 
         bool connectedTo(EthernetAddress *ethernetAddress);
-
-        IP4Route *buildDirectRoute();
     };
 }
 

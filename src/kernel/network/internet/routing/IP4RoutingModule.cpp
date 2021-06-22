@@ -6,7 +6,7 @@
 
 namespace Kernel {
     IP4RoutingModule::IP4RoutingModule() {
-        this->routes = new Util::ArrayList<IP4Route *>();
+        routes = new Util::ArrayList<IP4Route *>();
     }
 
     IP4RoutingModule::~IP4RoutingModule() {
@@ -37,7 +37,7 @@ namespace Kernel {
             return 1;
         }
 
-        for (IP4Route *currentRoute:*this->routes) {
+        for (IP4Route *currentRoute:*routes) {
             if (currentRoute->matchingBits(&matchingBits, receiverAddress)) {
                 log.error("Matching bits calculation failed, not finding best route");
                 return 1;
@@ -58,8 +58,8 @@ namespace Kernel {
         }
 
         //Set to default route if it exists and return successful
-        if (this->defaultRoute != nullptr) {
-            *bestRoute = this->defaultRoute;
+        if (defaultRoute != nullptr) {
+            *bestRoute = defaultRoute;
             return 0;
         }
 
@@ -92,17 +92,17 @@ namespace Kernel {
             log.error("Internal data structure for routes not initialized, not collecting route attributes");
             return;
         }
-        for (IP4Route *current:*this->routes) {
+        for (IP4Route *current:*routes) {
             strings->add(current->asString());
         }
     }
 
     [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
-        if (this->defaultRoute != nullptr) {
-            delete this->defaultRoute;
-            this->defaultRoute = nullptr;
+        if (defaultRoute != nullptr) {
+            delete defaultRoute;
+            defaultRoute = nullptr;
         }
-        this->defaultRoute =
+        defaultRoute =
                 new IP4Route(
                         new IP4Address(0, 0, 0, 0),
                         new IP4Netmask(0),
@@ -111,18 +111,12 @@ namespace Kernel {
                 );
     }
 
-    uint8_t IP4RoutingModule::addRouteFor(IP4Interface *ip4Interface) {
-        if (ip4Interface == nullptr) {
-            return 1;
-        }
+    uint8_t IP4RoutingModule::addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
         if (routes == nullptr) {
             log.error("Internal data structure for routes not initialized, not adding route");
             return 1;
         }
-        //Add a direct route for a given new IP4Interface
-        //-> Extract Network Address from interface's IP4Address with its Netmask
-        //-> NextHop is null, we are directly connected here
-        this->routes->add(ip4Interface->buildDirectRoute());
+        routes->add(new IP4Route(netAddress, netMask, outInterface));
         return 0;
     }
 

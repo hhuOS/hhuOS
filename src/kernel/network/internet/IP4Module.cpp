@@ -64,7 +64,10 @@ namespace Kernel {
         }
 
         auto *newInterface = new IP4Interface(eventBus, ethernetDevice, ip4Address, ip4Netmask);
-        if (routingModule->addRouteFor(newInterface)) {
+        IP4Address *netAddress = nullptr;
+        ip4Netmask->extractNetPart(&netAddress, ip4Address);
+
+        if (routingModule->addDirectRouteFor(ip4Address, ip4Netmask, newInterface)) {
             log.error("Adding route for new IP4Interface failed, rollback");
             delete newInterface;
             return 1;

@@ -6,7 +6,7 @@
 #define HHUOS_IP4ROUTE_H
 
 
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Datagram.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>
 #include <kernel/network/internet/IP4Interface.h>
 
