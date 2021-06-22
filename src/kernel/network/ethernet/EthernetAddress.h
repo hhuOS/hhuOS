@@ -26,6 +26,8 @@ public:
     void copyTo(uint8_t *target);
 
     virtual ~EthernetAddress();
+
+    static EthernetAddress *buildBroadcastAddress();
 };
 
 

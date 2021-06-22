@@ -4,6 +4,7 @@
 
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/network/NetworkDefinitions.h>
+#include <kernel/service/TimeService.h>
 #include "IP4Interface.h"
 
 namespace Kernel {
@@ -11,16 +12,17 @@ namespace Kernel {
                                IP4Address *ip4Address,
                                IP4Netmask *ip4Netmask) {
         this->eventBus = eventBus;
-        this->arpModule = new ARPModule();
+        arpModule = new ARPModule(eventBus, nullptr);
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
         this->ip4Netmask = ip4Netmask;
-        if (ip4Netmask->extractNetPart(&this->ip4NetAddress, ip4Address)) {
+        if (ip4Netmask->extractNetPart(&ip4NetAddress, ip4Address)) {
             delete ip4NetAddress;
             ip4NetAddress = nullptr;
         }
 
-        this->arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
+        //TODO: Reactivate this one when finished with ARP!
+//        arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
     }
 
     IP4Interface::~IP4Interface() {
@@ -32,7 +34,7 @@ namespace Kernel {
         //no delete here!
     }
 
-    uint8_t IP4Interface::sendIP4Datagram(IP4Address *receiverAddress, IP4Datagram *ip4Datagram) {
+    uint8_t IP4Interface::sendIP4Datagram(IP4Address *targetProtocolAddress, IP4Datagram *ip4Datagram) {
         if (ethernetDevice == nullptr) {
             log.error("Connected EthernetDevice was null, not sending anything");
             return 1;
@@ -43,7 +45,7 @@ namespace Kernel {
             );
             return 1;
         }
-        if (receiverAddress == nullptr) {
+        if (targetProtocolAddress == nullptr) {
             log.error("%s: Given receiver IP4 address was null, return",
                       ethernetDevice->getIdentifier()->getCharacters()
             );
@@ -56,60 +58,21 @@ namespace Kernel {
             return 1;
         }
         //We need to copy our own address, because the datagram's address will be deleted after sending
-        ip4Datagram->setSourceAddress(new IP4Address(this->ip4Address));
-        EthernetAddress *destinationAddress = nullptr;
-        if (arpModule->resolveTo(&destinationAddress, receiverAddress)) {
+        ip4Datagram->setSourceAddress(new IP4Address(ip4Address));
+
+        EthernetAddress *targetHardwareAddress = nullptr;
+        if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, this->ip4Address)) {
             log.error("%s: ARP module failed to resolve destination address, do not send anything",
                       ethernetDevice->getIdentifier()->getCharacters()
             );
             return 1;
         }
-
-        if (destinationAddress == nullptr) {
-            //See RFC 826 page 3 for details
-            auto *arpRequest = new ARPMessage(
-                    1, // 1 for Ethernet
-                    (uint16_t) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
-                    MAC_SIZE,
-                    IP4ADDRESS_LENGTH,
-                    ARPMessage::OpCode::REQUEST
-            );
-
-            uint8_t hardwareAddress[MAC_SIZE];
-            uint8_t protocolAddress[IP4ADDRESS_LENGTH];
-
-            this->ethernetDevice->getAddress()->copyTo(hardwareAddress);
-            arpRequest->setSenderHardwareAddress(hardwareAddress);
-
-            this->ip4Address->copyTo(protocolAddress);
-            arpRequest->setSenderProtocolAddress(protocolAddress);
-
-            arpModule->getBroadcastAddress()->copyTo(hardwareAddress);
-            arpRequest->setTargetHardwareAddress(hardwareAddress);
-
-            receiverAddress->copyTo(protocolAddress);
-            arpRequest->setTargetProtocolAddress(protocolAddress);
-
-            //TODO: Add Datagram to internal data structure for pending requests
-            this->eventBus->publish(
-                    new Kernel::EthernetSendEvent(
-                            this->ethernetDevice,
-                            new EthernetFrame(
-                                    //The frame's attributes will be deleted after sending
-                                    //-> copy it here!
-                                    new EthernetAddress(arpModule->getBroadcastAddress()),
-                                    arpRequest
-                            )
-                    )
-            );
-            return 0;
-        }
-        this->eventBus->publish(
+        eventBus->publish(
                 new Kernel::EthernetSendEvent(
-                        this->ethernetDevice,
+                        ethernetDevice,
                         //The frame's attributes will be deleted after sending
                         //-> copy it here!
-                        new EthernetFrame(new EthernetAddress(destinationAddress),
+                        new EthernetFrame(new EthernetAddress(targetHardwareAddress),
                                           ip4Datagram)
                 )
         );
@@ -129,18 +92,18 @@ namespace Kernel {
     }
 
     bool IP4Interface::equals(IP4Interface *compare) {
-        if (this->ethernetDevice == nullptr || compare == nullptr) {
+        if (ethernetDevice == nullptr || compare == nullptr) {
             return false;
         }
-        return this->ethernetDevice == compare->ethernetDevice;
+        return ethernetDevice == compare->ethernetDevice;
     }
 
     String IP4Interface::asString() {
         if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr) {
             return "NULL";
         }
-        return this->ethernetDevice->asString() + ",\nIP4Address: " + this->ip4Address->asString() + ",\nIP4Netmask: " +
-               this->ip4Netmask->asString();
+        return ethernetDevice->asString() + ",\nIP4Address: " + ip4Address->asString() + ",\nIP4Netmask: " +
+               ip4Netmask->asString();
     }
 
     uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
@@ -169,13 +132,13 @@ namespace Kernel {
                 );
 
                 uint8_t myAddressAsBytes[MAC_SIZE];
-                this->ethernetDevice->getAddress()->copyTo(myAddressAsBytes);
+                ethernetDevice->getAddress()->copyTo(myAddressAsBytes);
 
                 auto *response = message->buildResponse(myAddressAsBytes);
                 auto *outFrame =
                         new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
-                this->eventBus->publish(
-                        new Kernel::EthernetSendEvent(this->ethernetDevice, outFrame)
+                eventBus->publish(
+                        new Kernel::EthernetSendEvent(ethernetDevice, outFrame)
                 );
                 break;
             }

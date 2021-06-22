@@ -45,6 +45,11 @@ EthernetAddress::~EthernetAddress() {
     delete macAddress;
 }
 
+EthernetAddress *EthernetAddress::buildBroadcastAddress(){
+    uint8_t allOnesBytes[MAC_SIZE]{0xff,0xff,0xff,0xff,0xff,0xff};
+    return new EthernetAddress(allOnesBytes);
+}
+
 String EthernetAddress::asString() {
     if (macAddress == nullptr) {
         return "NULL";

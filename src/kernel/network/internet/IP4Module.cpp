@@ -166,6 +166,8 @@ namespace Kernel {
             }
         }
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
+            //Each IP4 interface has its own ARP module (RFC1180 page 12 middle)
+            //-> we need to find the destination interface first when processing ARP messages!
             auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
             EthernetDataPart::EtherType arpProtocolType =
                     EthernetDataPart::parseIntAsEtherType(
@@ -181,21 +183,19 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            auto *destinationAddress =
-                    new IP4Address(arpMessage->getTargetProtocolAddress());
-            IP4Interface *currentInterface;
-            for (EthernetDevice *currentDevice:interfaces->keySet()) {
-                currentInterface = interfaces->get(currentDevice);
-                if (currentInterface->getIp4Address()->equals(destinationAddress)) {
-                    if (currentInterface->notifyARPModule(arpMessage)) {
-                        log.error("Notify ARP module failed");
-                    }
-                    //All data processed, final cleanup
+            switch (arpMessage->getOpCode()) {
+                case ARPMessage::OpCode::REQUEST: {
+                    log.error("No matching interface for ARP message found, discarding");
+                }
+                    break;
+                case ARPMessage::OpCode::REPLY:
+                    break;
+                default:{
+                    log.error("Invalid opCode in ARP message, discarding");
                     delete arpMessage;
                     return;
                 }
             }
-            log.error("No matching interface for ARP message found, discarding");
             delete arpMessage;
             return;
         }
