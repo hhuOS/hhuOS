@@ -17,6 +17,9 @@ namespace Kernel {
     }
 
     IP4Module::~IP4Module() {
+        if(interfaces== nullptr || routingModule== nullptr){
+            return;
+        }
         IP4Interface *toDelete;
         for (size_t i = 0; i < interfaces->size(); i++) {
             //Deleting while iterating is always dangerous

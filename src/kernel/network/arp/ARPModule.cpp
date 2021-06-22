@@ -6,7 +6,6 @@
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/service/TimeService.h>
 #include "ARPModule.h"
-#include "ARPMessage.h"
 
 namespace Kernel {
     //Private method!
