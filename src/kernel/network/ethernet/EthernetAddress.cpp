@@ -69,4 +69,16 @@ void EthernetAddress::copyTo(uint8_t *target) {
     }
 }
 
+bool EthernetAddress::equals(EthernetAddress *otherAddress) {
+    if (macAddress == nullptr || otherAddress == nullptr) {
+        return false;
+    }
+    for(uint8_t i=0;i<MAC_SIZE;i++){
+        if(macAddress[i]!=otherAddress->macAddress[i]){
+            return false;
+        }
+    }
+    return true;
+}
+
 

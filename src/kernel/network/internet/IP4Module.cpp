@@ -13,11 +13,21 @@ namespace Kernel {
     IP4Module::IP4Module(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
-        this->interfaces = new Util::HashMap<EthernetDevice *, IP4Interface *>();
+        this->interfaces = new Util::ArrayList<IP4Interface *>();
     }
 
     IP4Module::~IP4Module() {
-        //No 'delete interfaces' necessary here, HashMaps are deleted automatically
+        IP4Interface *toDelete;
+        for (size_t i = 0; i < interfaces->size(); i++) {
+            //Deleting while iterating is always dangerous
+            //-> execute get() and remove() separately!
+            toDelete = interfaces->get(i);
+            routingModule->removeRoutesFor(toDelete);
+            interfaces->remove(i);
+            i--;
+            delete toDelete;
+        }
+        delete interfaces;
         delete routingModule;
     }
 
@@ -25,8 +35,8 @@ namespace Kernel {
         if (strings == nullptr || interfaces == nullptr) {
             return;
         }
-        for (EthernetDevice *currentDevice:interfaces->keySet()) {
-            strings->add(interfaces->get(currentDevice)->asString());
+        for (IP4Interface *current:*interfaces) {
+            strings->add(current->asString());
         }
     }
 
@@ -37,8 +47,8 @@ namespace Kernel {
         routingModule->collectIP4RouteAttributes(strings);
     }
 
-    uint8_t IP4Module::registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
-        if (device == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
+    uint8_t IP4Module::registerDevice(EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+        if (ethernetDevice == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");
             return 1;
         }
@@ -46,23 +56,25 @@ namespace Kernel {
             log.error("Internal interface list or routing module was null, not registering new device");
             return 1;
         }
-        if (interfaces->containsKey(device)) {
-            log.error("Ethernet device already registered, not registering it");
-            return 1;
+        for(IP4Interface *current:*interfaces){
+            if (current->connectedTo(ethernetDevice)) {
+                log.error("Ethernet device already registered, not registering it again");
+                return 1;
+            }
         }
-        auto *newInterface = new IP4Interface(eventBus, device, ip4Address, ip4Netmask);
-        interfaces->put(device, newInterface);
+
+        auto *newInterface = new IP4Interface(eventBus, ethernetDevice, ip4Address, ip4Netmask);
         if (routingModule->addRouteFor(newInterface)) {
             log.error("Adding route for new IP4Interface failed, rollback");
-            interfaces->remove(device);
             delete newInterface;
             return 1;
         }
+        interfaces->add(newInterface);
         return 0;
     }
 
-    uint8_t IP4Module::unregisterDevice(EthernetDevice *device) {
-        if (device == nullptr) {
+    uint8_t IP4Module::unregisterDevice(EthernetDevice *ethernetDevice) {
+        if (ethernetDevice == nullptr) {
             log.error("Given device was null, not unregistering device");
             return 1;
         }
@@ -70,13 +82,17 @@ namespace Kernel {
             log.error("Internal interface list or routing module was null, not unregistering device");
             return 1;
         }
-        if (interfaces->containsKey(device)) {
-            auto *removeInterface = interfaces->get(device);
-            //Removing not that critical, return values not important here
-            routingModule->removeRoutesFor(removeInterface);
-            interfaces->remove(device);
-            delete removeInterface;
+        IP4Interface *toDelete;
+        for (size_t i = 0; i < interfaces->size(); i++) {
+            if(interfaces->get(i)->connectedTo(ethernetDevice)) {
+                toDelete = interfaces->get(i);
+                routingModule->removeRoutesFor(toDelete);
+                interfaces->remove(i);
+                delete toDelete;
+                return 0;
+            }
         }
+        //It's not an error if there's nothing to delete
         return 0;
     }
 
@@ -183,19 +199,15 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            switch (arpMessage->getOpCode()) {
-                case ARPMessage::OpCode::REQUEST: {
-                    log.error("No matching interface for ARP message found, discarding");
-                }
-                    break;
-                case ARPMessage::OpCode::REPLY:
-                    break;
-                default:{
-                    log.error("Invalid opCode in ARP message, discarding");
-                    delete arpMessage;
-                    return;
+
+            auto *destinationAddress =
+                    new EthernetAddress(arpMessage->getTargetHardwareAddress());
+            for(IP4Interface *current:*interfaces){
+                if(current->connectedTo(destinationAddress) && current->notify(arpMessage)){
+                        log.error("Processing ARP message failed, see syslog for more details");
                 }
             }
+            delete destinationAddress;
             delete arpMessage;
             return;
         }

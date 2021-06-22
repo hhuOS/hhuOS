@@ -61,8 +61,8 @@ ARPMessage::OpCode ARPMessage::getOpCode() const {
     return parseOpCodeFromInteger(header.opCode);
 }
 
-uint8_t *ARPMessage::getTargetProtocolAddress() const {
-    return body.targetProtocolAddress;
+uint8_t *ARPMessage::getTargetHardwareAddress() const {
+    return body.targetHardwareAddress;
 }
 
 uint16_t ARPMessage::getProtocolType() const {

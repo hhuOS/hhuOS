@@ -28,6 +28,8 @@ public:
     virtual ~EthernetAddress();
 
     static EthernetAddress *buildBroadcastAddress();
+
+    bool equals(EthernetAddress *otherAddress);
 };
 
 

@@ -14,7 +14,7 @@ namespace Kernel {
     private:
         NetworkEventBus *eventBus = nullptr;
         IP4RoutingModule *routingModule = nullptr;
-        Util::HashMap<EthernetDevice *, IP4Interface *> *interfaces = nullptr;
+        Util::ArrayList<IP4Interface *> *interfaces = nullptr;
 
     public:
 
@@ -35,9 +35,9 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        uint8_t registerDevice(EthernetDevice *device, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+        uint8_t registerDevice(EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
-        uint8_t unregisterDevice(EthernetDevice *device);
+        uint8_t unregisterDevice(EthernetDevice *ethernetDevice);
 
         void collectIP4InterfaceAttributes(Util::ArrayList<String> *strings);
 

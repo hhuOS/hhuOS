@@ -61,7 +61,7 @@ public:
 
     void setTargetProtocolAddress(uint8_t *targetProtocolAddress) const;
 
-    [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
+    [[nodiscard]] uint8_t *getTargetHardwareAddress() const;
 
     [[nodiscard]] uint8_t *getSenderProtocolAddress() const;
 

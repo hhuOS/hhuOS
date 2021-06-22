@@ -3,8 +3,6 @@
 //
 
 #include <kernel/event/network/EthernetSendEvent.h>
-#include <kernel/network/NetworkDefinitions.h>
-#include <kernel/service/TimeService.h>
 #include "IP4Interface.h"
 
 namespace Kernel {
@@ -61,7 +59,7 @@ namespace Kernel {
         ip4Datagram->setSourceAddress(new IP4Address(ip4Address));
 
         EthernetAddress *targetHardwareAddress = nullptr;
-        if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, this->ip4Address)) {
+        if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, ip4Address)) {
             log.error("%s: ARP module failed to resolve destination address, do not send anything",
                       ethernetDevice->getIdentifier()->getCharacters()
             );
@@ -79,18 +77,6 @@ namespace Kernel {
         return 0;
     }
 
-    IP4Address *IP4Interface::getIp4Address() const {
-        return ip4Address;
-    }
-
-    IP4Netmask *IP4Interface::getIp4Netmask() const {
-        return ip4Netmask;
-    }
-
-    IP4Address *IP4Interface::getNetAddress() const {
-        return ip4NetAddress;
-    }
-
     bool IP4Interface::equals(IP4Interface *compare) {
         if (ethernetDevice == nullptr || compare == nullptr) {
             return false;
@@ -106,11 +92,11 @@ namespace Kernel {
                ip4Netmask->asString();
     }
 
-    uint8_t IP4Interface::notifyARPModule(ARPMessage *message) {
+    uint8_t IP4Interface::notify(ARPMessage *arpMessage) {
         if (ethernetDevice == nullptr || eventBus == nullptr) {
             return 1;
         }
-        if (message == nullptr) {
+        if (arpMessage == nullptr) {
             log.error("%s: ARP message was null, not processing",
                       ethernetDevice->getIdentifier()
             );
@@ -122,38 +108,24 @@ namespace Kernel {
             );
             return 1;
         }
-        switch (message->getOpCode()) {
-            case ARPMessage::OpCode::REQUEST: {
-                //Use each message as a possible ARP update
-                //TODO: Synchronize access!!
-                arpModule->addEntry(
-                        new IP4Address(message->getSenderProtocolAddress()),
-                        new EthernetAddress(message->getSenderHardwareAddress())
-                );
+        return arpModule->processIncoming(arpMessage);
+    }
 
-                uint8_t myAddressAsBytes[MAC_SIZE];
-                ethernetDevice->getAddress()->copyTo(myAddressAsBytes);
-
-                auto *response = message->buildResponse(myAddressAsBytes);
-                auto *outFrame =
-                        new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
-                eventBus->publish(
-                        new Kernel::EthernetSendEvent(ethernetDevice, outFrame)
-                );
-                break;
-            }
-            case ARPMessage::OpCode::REPLY: {
-                //TODO: Synchronize access!!
-                arpModule->addEntry(
-                        new IP4Address(message->getSenderProtocolAddress()),
-                        new EthernetAddress(message->getSenderHardwareAddress())
-                );
-                break;
-            }
-            case ARPMessage::OpCode::INVALID: {
-                return 1;
-            }
+    bool IP4Interface::connectedTo(EthernetDevice *otherDevice) {
+        if (ethernetDevice == nullptr || otherDevice == nullptr) {
+            return false;
         }
-        return 0;
+        return ethernetDevice== otherDevice;
+    }
+
+    bool IP4Interface::connectedTo(EthernetAddress *ethernetAddress) {
+        if (ethernetDevice == nullptr || ethernetAddress == nullptr) {
+            return false;
+        }
+        return ethernetDevice->getAddress()->equals(ethernetAddress);
+    }
+
+    IP4Route *IP4Interface::buildDirectRoute() {
+        return new IP4Route(ip4NetAddress, ip4Netmask, this);
     }
 }

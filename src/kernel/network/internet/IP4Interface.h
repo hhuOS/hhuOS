@@ -6,11 +6,9 @@
 #define HHUOS_IP4INT_H
 
 
-#include <kernel/network/arp/ARPModule.h>
 #include <kernel/network/NetworkEventBus.h>
-#include <kernel/network/internet/addressing/IP4Netmask.h>
-#include <kernel/network/ethernet/EthernetDevice.h>
 #include <kernel/network/arp/ARPMessage.h>
+#include <kernel/network/arp/ARPModule.h>
 #include "IP4Datagram.h"
 
 namespace Kernel {
@@ -34,19 +32,19 @@ namespace Kernel {
 
         uint8_t sendIP4Datagram(IP4Address *targetProtocolAddress, IP4Datagram *ip4Datagram);
 
-        [[nodiscard]] IP4Address *getIp4Address() const;
-
-        [[nodiscard]] IP4Netmask *getIp4Netmask() const;
-
-        [[nodiscard]] IP4Address *getNetAddress() const;
-
         virtual ~IP4Interface();
 
         bool equals(IP4Interface *compare);
 
         String asString();
 
-        uint8_t notifyARPModule(ARPMessage *message);
+        uint8_t notify(ARPMessage *arpMessage);
+
+        bool connectedTo(EthernetDevice *otherDevice);
+
+        bool connectedTo(EthernetAddress *ethernetAddress);
+
+        IP4Route *buildDirectRoute();
     };
 }
 

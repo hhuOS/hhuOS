@@ -6,6 +6,7 @@
 #define HHUOS_IP4ROUTE_H
 
 
+#include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/internet/addressing/IP4Netmask.h>
 #include <kernel/network/internet/IP4Interface.h>
 
@@ -21,8 +22,6 @@ public:
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, IP4Address *nextHop, Kernel::IP4Interface *outInterface);
 
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, Kernel::IP4Interface *outInterface);
-
-    explicit IP4Route(Kernel::IP4Interface *ip4Interface);
 
     uint8_t sendOut(IP4Datagram *datagram);
 

@@ -46,7 +46,7 @@ namespace Kernel {
 
         void registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
-        void unregisterNetworkDevice(NetworkDevice *networkDevice);
+        uint8_t unregisterNetworkDevice(NetworkDevice *networkDevice);
 
         void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
 

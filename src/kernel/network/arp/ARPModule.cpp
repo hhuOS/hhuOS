@@ -31,7 +31,7 @@ namespace Kernel {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
         arpTable = new Util::ArrayList<ARPEntry *>();
-//        timeService=Kernel::System::getService<TimeService>();
+        timeService=System::getService<TimeService>();
 
         tableAccessLock = new Spinlock();
         tableAccessLock->release();
@@ -79,21 +79,22 @@ namespace Kernel {
         return 0;
     }
 
-    void ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
+    uint8_t ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
         if (ip4Address == nullptr) {
             log.error("Given IP4 address was null, not adding entry");
-            return;
+            return 1;
         }
         if (ethernetAddress == nullptr) {
             log.error("Given Ethernet address was null, not adding entry");
         }
-        if (arpTable == nullptr) {
-            log.error("ARP table was null, not adding entry");
-            return;
+        if (arpTable == nullptr || tableAccessLock == nullptr) {
+            log.error("ARP table or access lock was null, not adding entry");
+            return 1;
         }
         tableAccessLock->acquire();
         arpTable->add(new ARPEntry(ip4Address, ethernetAddress));
         tableAccessLock->release();
+        return 0;
     }
 
     uint8_t ARPModule::sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress) {
@@ -133,6 +134,62 @@ namespace Kernel {
         eventBus->publish(
                 new EthernetSendEvent(outDevice,new EthernetFrame(broadcastAddress,arpRequest))
         );
+        return 0;
+    }
+
+    uint8_t ARPModule::processIncoming(ARPMessage *message) {
+        if(message== nullptr){
+            log.error("Incoming ARP message was null, ignoring");
+            return 1;
+        }
+        uint8_t processErrors;
+        switch (message->getOpCode()) {
+            case ARPMessage::OpCode::REQUEST: {
+                //Use incoming requests as updates
+                processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
+                         new EthernetAddress(message->getSenderHardwareAddress())
+                 );
+                if(processErrors){
+                    log.error("Could not process ARP Request: ARP table update failed!");
+                    //Message will be deleted in IP4Module after processing
+                    //-> no 'delete message' here!
+                    return processErrors;
+                }
+
+                uint8_t myAddressAsBytes[MAC_SIZE];
+                outDevice->getAddress()->copyTo(myAddressAsBytes);
+
+                auto *response = message->buildResponse(myAddressAsBytes);
+                auto *outFrame =
+                        new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
+                eventBus->publish(
+                        new EthernetSendEvent(outDevice, outFrame)
+                );
+                //Message will be deleted in IP4Module after processing
+                //-> no 'delete message' here!
+                break;
+            }
+            case ARPMessage::OpCode::REPLY:{
+                processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
+                         new EthernetAddress(message->getSenderHardwareAddress())
+                );
+                if(processErrors){
+                    log.error(("Could not process ARP Response: ARP table update failed!"));
+                    return processErrors;
+                }
+                //Message will be deleted in IP4Module after processing
+                //-> no 'delete message' here!
+                break;
+            }
+            default: {
+                log.error("Invalid opCode in incoming ARP message, ignoring");
+                //Message will be deleted in IP4Module after processing
+                //-> no 'delete message' here!
+                return 1;
+            }
+        }
+        //Message will be deleted in IP4Module after processing
+        //-> no 'delete message' here!
         return 0;
     }
 }

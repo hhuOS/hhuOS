@@ -122,7 +122,7 @@ namespace Kernel {
         //Add a direct route for a given new IP4Interface
         //-> Extract Network Address from interface's IP4Address with its Netmask
         //-> NextHop is null, we are directly connected here
-        this->routes->add(new IP4Route(ip4Interface));
+        this->routes->add(ip4Interface->buildDirectRoute());
         return 0;
     }
 

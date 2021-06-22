@@ -57,13 +57,6 @@ uint8_t IP4Route::matchingBits(uint8_t *targetBitCount, IP4Address *ip4Address) 
     return 0;
 }
 
-IP4Route::IP4Route(Kernel::IP4Interface *ip4Interface) {
-    netAddress = ip4Interface->getNetAddress();
-    netMask = ip4Interface->getIp4Netmask();
-    nextHopAddress = nullptr;
-    outInterface = ip4Interface;
-}
-
 String IP4Route::asString() {
     if (netAddress == nullptr || netMask == nullptr || outInterface == nullptr) {
         return "NULL";

@@ -82,26 +82,28 @@ namespace Kernel {
         this->ethernetDevices->add(toAdd);
     }
 
-    void EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
+    uint8_t EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
         EthernetDevice *connectedDevice = getEthernetDevice(networkDevice);
         if (connectedDevice == nullptr) {
             log.error("No connected ethernet device could be found, not unregistering network device");
-            return;
+            return 1;
         }
         if (ethernetDevices == nullptr) {
             log.error("Internal list of ethernet devices was null, not unregistering network device");
-            return;
+            return 1;
         }
+        EthernetDevice *toDelete;
         for (size_t i = 0; i < ethernetDevices->size(); i++) {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
-                auto *toDelete = ethernetDevices->get(i);
+                toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
                 deleteSendBuffer(toDelete);
                 delete toDelete;
-                return;
+                return 0;
             }
         }
-
+        //It's not an error if there's nothing to delete
+        return 0;
     }
 
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
