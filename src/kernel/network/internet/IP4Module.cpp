@@ -19,7 +19,7 @@ namespace Kernel {
 
     IP4Module::~IP4Module() {
         delete accessLock;
-        if(interfaces== nullptr || routingModule== nullptr){
+        if (interfaces == nullptr || routingModule == nullptr) {
             return;
         }
         IP4Interface *toDelete;
@@ -94,7 +94,7 @@ namespace Kernel {
             log.error("Given device was null, not unregistering device");
             return 1;
         }
-        if (interfaces == nullptr || routingModule == nullptr || accessLock== nullptr) {
+        if (interfaces == nullptr || routingModule == nullptr || accessLock == nullptr) {
             log.error("Internal interface list, routing module or accessLock was null, not unregistering device");
             return 1;
         }
@@ -213,7 +213,7 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            if (interfaces == nullptr || accessLock== nullptr) {
+            if (interfaces == nullptr || accessLock == nullptr) {
                 log.error("Internal interface list or accessLock not initialized, discarding ARP message");
                 delete arpMessage;
                 return;
