@@ -47,6 +47,7 @@ namespace Kernel {
             strings->add(current->asString());
         }
         accessLock->release();
+        return 0;
     }
 
     uint8_t IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {

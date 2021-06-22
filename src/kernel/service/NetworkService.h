@@ -106,15 +106,15 @@ namespace Kernel {
 
         void registerDevice(EthernetDeviceIdentifier *identifier, NetworkDevice &driver);
 
-        void collectLinkAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectLinkAttributes(Util::ArrayList<String> *strings);
 
         uint8_t assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
         uint8_t unAssignIP4Address(EthernetDeviceIdentifier *identifier);
 
-        void collectInterfaceAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectInterfaceAttributes(Util::ArrayList<String> *strings);
 
-        void collectRouteAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectRouteAttributes(Util::ArrayList<String> *strings);
 
         UDP4SocketController *createSocketController();
 

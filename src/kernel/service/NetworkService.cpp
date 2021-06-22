@@ -101,16 +101,16 @@ namespace Kernel {
         drivers.add(&driver);
     }
 
-    void NetworkService::collectLinkAttributes(Util::ArrayList<String> *strings) {
-        this->ethernetModule->collectEthernetDeviceAttributes(strings);
+    uint8_t NetworkService::collectLinkAttributes(Util::ArrayList<String> *strings) {
+        return this->ethernetModule->collectEthernetDeviceAttributes(strings);
     }
 
-    void NetworkService::collectInterfaceAttributes(Util::ArrayList<String> *strings) {
-        this->ip4Module->collectIP4InterfaceAttributes(strings);
+    uint8_t NetworkService::collectInterfaceAttributes(Util::ArrayList<String> *strings) {
+        return this->ip4Module->collectIP4InterfaceAttributes(strings);
     }
 
-    void NetworkService::collectRouteAttributes(Util::ArrayList<String> *strings) {
-        this->ip4Module->collectIP4RouteAttributes(strings);
+    uint8_t NetworkService::collectRouteAttributes(Util::ArrayList<String> *strings) {
+        return this->ip4Module->collectIP4RouteAttributes(strings);
     }
 
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here

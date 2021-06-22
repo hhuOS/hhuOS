@@ -14,9 +14,10 @@ namespace Kernel {
     class EthernetModule : public Receiver {
     private:
         uint8_t deviceCounter = 0;
+        Spinlock *accessLock = nullptr;
+        NetworkEventBus *eventBus = nullptr;
         Management *systemManagement = nullptr;
         Util::ArrayList<EthernetDevice *> *ethernetDevices;
-        NetworkEventBus *eventBus = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
@@ -44,11 +45,11 @@ namespace Kernel {
 
         void registerNetworkDevice(NetworkDevice *networkDevice);
 
-        void registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+        uint8_t registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
         uint8_t unregisterNetworkDevice(NetworkDevice *networkDevice);
 
-        void collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
 
         ~EthernetModule() override;
     };
