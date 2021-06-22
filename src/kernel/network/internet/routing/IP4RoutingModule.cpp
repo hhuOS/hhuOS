@@ -15,7 +15,7 @@ namespace Kernel {
             return 1;
         }
 
-        if (routes == nullptr || tableAccessLock== nullptr) {
+        if (routes == nullptr || tableAccessLock == nullptr) {
             log.error("Route table or access lock not initialized, not finding best one");
             return 1;
         }
