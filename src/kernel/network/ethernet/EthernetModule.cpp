@@ -17,7 +17,7 @@ namespace Kernel {
         this->loopbackIdentifier = loopbackIdentifier;
         this->systemManagement = systemManagement;
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
-        accessLock=new Spinlock();
+        accessLock = new Spinlock();
     }
 
     EthernetModule::~EthernetModule() {
