@@ -110,8 +110,7 @@ namespace Kernel {
                 ethernetDevices->remove(i);
                 deleteSendBuffer(toDelete);
                 delete toDelete;
-                accessLock->release();
-                return 0;
+                break;
             }
         }
         accessLock->release();
