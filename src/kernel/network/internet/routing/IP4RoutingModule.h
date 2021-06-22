@@ -33,7 +33,7 @@ namespace Kernel {
 
         uint8_t removeRoutesFor(IP4Interface *ip4Interface);
 
-        void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
         uint8_t sendViaBestRoute(IP4Datagram *datagram);
     };

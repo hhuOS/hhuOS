@@ -14,9 +14,11 @@ namespace Kernel {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
         this->interfaces = new Util::ArrayList<IP4Interface *>();
+        accessLock = new Spinlock();
     }
 
     IP4Module::~IP4Module() {
+        delete accessLock;
         if(interfaces== nullptr || routingModule== nullptr){
             return;
         }
@@ -34,20 +36,25 @@ namespace Kernel {
         delete routingModule;
     }
 
-    void IP4Module::collectIP4InterfaceAttributes(Util::ArrayList<String> *strings) {
-        if (strings == nullptr || interfaces == nullptr) {
-            return;
+    uint8_t IP4Module::collectIP4InterfaceAttributes(Util::ArrayList<String> *strings) {
+        if (strings == nullptr || interfaces == nullptr || accessLock == nullptr) {
+            log.error("Given Strings list, internal interface list or accessLock was null, "
+                      "not unregistering device");
+            return 1;
         }
+        accessLock->acquire();
         for (IP4Interface *current:*interfaces) {
             strings->add(current->asString());
         }
+        accessLock->release();
     }
 
-    void IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
+    uint8_t IP4Module::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
         if (strings == nullptr || routingModule == nullptr) {
-            return;
+            log.error("Given String list or routing module was null, not collecting route attributes");
+            return 1;
         }
-        routingModule->collectIP4RouteAttributes(strings);
+        return routingModule->collectIP4RouteAttributes(strings);
     }
 
     uint8_t IP4Module::registerDevice(EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
@@ -55,10 +62,11 @@ namespace Kernel {
             log.error("At least one given parameter was null, not registering new device");
             return 1;
         }
-        if (interfaces == nullptr || routingModule == nullptr) {
-            log.error("Internal interface list or routing module was null, not registering new device");
+        if (interfaces == nullptr || routingModule == nullptr || accessLock == nullptr) {
+            log.error("Internal interface list, routing module or accessLock was null, not registering new device");
             return 1;
         }
+        accessLock->acquire();
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
                 log.error("Ethernet device already registered, not registering it again");
@@ -72,10 +80,12 @@ namespace Kernel {
 
         if (routingModule->addDirectRouteFor(ip4Address, ip4Netmask, newInterface)) {
             log.error("Adding route for new IP4Interface failed, rollback");
+            accessLock->release();
             delete newInterface;
             return 1;
         }
         interfaces->add(newInterface);
+        accessLock->release();
         return 0;
     }
 
@@ -84,20 +94,23 @@ namespace Kernel {
             log.error("Given device was null, not unregistering device");
             return 1;
         }
-        if (interfaces == nullptr || routingModule == nullptr) {
-            log.error("Internal interface list or routing module was null, not unregistering device");
+        if (interfaces == nullptr || routingModule == nullptr || accessLock== nullptr) {
+            log.error("Internal interface list, routing module or accessLock was null, not unregistering device");
             return 1;
         }
+        accessLock->acquire();
         IP4Interface *toDelete;
         for (size_t i = 0; i < interfaces->size(); i++) {
             if (interfaces->get(i)->connectedTo(ethernetDevice)) {
                 toDelete = interfaces->get(i);
                 routingModule->removeRoutesFor(toDelete);
                 interfaces->remove(i);
+                accessLock->release();
                 delete toDelete;
                 return 0;
             }
         }
+        accessLock->release();
         //It's not an error if there's nothing to delete
         return 0;
     }
@@ -200,19 +213,21 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            if (interfaces == nullptr) {
-                log.error("Internal interface list not initialized, discarding");
+            if (interfaces == nullptr || accessLock== nullptr) {
+                log.error("Internal interface list or accessLock not initialized, discarding ARP message");
                 delete arpMessage;
                 return;
             }
 
             auto *destinationAddress =
                     new EthernetAddress(arpMessage->getTargetHardwareAddress());
+            accessLock->acquire();
             for (IP4Interface *current:*interfaces) {
                 if (current->connectedTo(destinationAddress) && current->notify(arpMessage)) {
                     log.error("Processing ARP message failed, see syslog for more details");
                 }
             }
+            accessLock->release();
             delete destinationAddress;
             delete arpMessage;
             return;

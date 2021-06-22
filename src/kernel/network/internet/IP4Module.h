@@ -12,6 +12,7 @@
 namespace Kernel {
     class IP4Module final : public Receiver {
     private:
+        Spinlock *accessLock = nullptr;
         NetworkEventBus *eventBus = nullptr;
         IP4RoutingModule *routingModule = nullptr;
         Util::ArrayList<IP4Interface *> *interfaces = nullptr;
@@ -39,9 +40,9 @@ namespace Kernel {
 
         uint8_t unregisterDevice(EthernetDevice *ethernetDevice);
 
-        void collectIP4InterfaceAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectIP4InterfaceAttributes(Util::ArrayList<String> *strings);
 
-        void collectIP4RouteAttributes(Util::ArrayList<String> *strings);
+        uint8_t collectIP4RouteAttributes(Util::ArrayList<String> *strings);
     };
 }
 

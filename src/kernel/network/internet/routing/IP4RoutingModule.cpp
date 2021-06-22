@@ -87,19 +87,20 @@ namespace Kernel {
         return matchedRoute->sendOut(datagram);
     }
 
-    void IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
+    uint8_t IP4RoutingModule::collectIP4RouteAttributes(Util::ArrayList<String> *strings) {
         if (strings == nullptr) {
-            return;
+            return 1;
         }
         if (routes == nullptr || tableAccessLock == nullptr) {
             log.error("Route table or access lock not initialized, not collecting route attributes");
-            return;
+            return 1;
         }
         tableAccessLock->acquire();
         for (IP4Route *current:*routes) {
             strings->add(current->asString());
         }
         tableAccessLock->release();
+        return 0;
     }
 
     [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
