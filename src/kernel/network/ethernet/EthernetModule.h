@@ -17,8 +17,9 @@ namespace Kernel {
         Spinlock *accessLock = nullptr;
         NetworkEventBus *eventBus = nullptr;
         Management *systemManagement = nullptr;
-        Util::ArrayList<EthernetDevice *> *ethernetDevices;
+        EthernetAddress *broadcastAddress = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
+        Util::ArrayList<EthernetDevice *> *ethernetDevices = nullptr;
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
 

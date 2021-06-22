@@ -31,6 +31,8 @@ public:
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
     virtual ~EthernetHeader();
+
+    bool destinationIs(EthernetAddress *otherAddress);
 };
 
 

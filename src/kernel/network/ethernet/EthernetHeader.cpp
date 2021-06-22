@@ -84,3 +84,10 @@ uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
 
     return errors;
 }
+
+bool EthernetHeader::destinationIs(EthernetAddress *otherAddress) {
+    if (otherAddress == nullptr || destinationAddress == nullptr) {
+        return false;
+    }
+    return destinationAddress->equals(otherAddress);
+}

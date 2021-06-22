@@ -18,10 +18,16 @@ namespace Kernel {
         this->systemManagement = systemManagement;
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
         accessLock = new Spinlock();
+        broadcastAddress = EthernetAddress::buildBroadcastAddress();
     }
 
     EthernetModule::~EthernetModule() {
         delete accessLock;
+        delete broadcastAddress;
+
+        if (ethernetDevices == nullptr) {
+            return;
+        }
         EthernetDevice *toDelete;
         for (size_t i = 0; i < ethernetDevices->size(); i++) {
             //Deleting while iterating is always dangerous
@@ -82,6 +88,8 @@ namespace Kernel {
 
         this->ethernetDevices->add(toAdd);
         accessLock->release();
+
+        return 0;
     }
 
     uint8_t EthernetModule::unregisterNetworkDevice(NetworkDevice *networkDevice) {
@@ -210,7 +218,29 @@ namespace Kernel {
                 delete ethernetHeader;
                 return;
             }
-            //TODO: Check frame's Source-MAC if it's for us or at least a BROADCAST message
+            if (ethernetDevices == nullptr || accessLock == nullptr) {
+                log.error("Internal list or accessLock was null, not searching ethernet device");
+                delete ethernetHeader;
+                delete input;
+                return;
+            }
+            if (!ethernetHeader->destinationIs(broadcastAddress)) {
+                accessLock->acquire();
+                bool isForUs = false;
+                for (EthernetDevice *current:*ethernetDevices) {
+                    isForUs = ethernetHeader->destinationIs(current->getAddress());
+                    if (isForUs) {
+                        break;
+                    }
+                }
+                accessLock->release();
+                if (!isForUs) {
+                    log.error("Incoming frame is not broadcast and not for us either");
+                    delete ethernetHeader;
+                    delete input;
+                    return;
+                }
+            }
             switch (ethernetHeader->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
                     auto *ip4Header = new IP4Header();
