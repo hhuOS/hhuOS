@@ -11,6 +11,21 @@
 #include "EthernetModule.h"
 
 namespace Kernel {
+    bool EthernetModule::isForUs(EthernetHeader *ethernetHeader) {
+        if (ethernetHeader->destinationIs(broadcastAddress)) {
+            return true;
+        }
+        accessLock->acquire();
+        for (EthernetDevice *current:*ethernetDevices) {
+            if(ethernetHeader->destinationIs(current->getAddress())){
+                accessLock->release();
+                return true;
+            }
+        }
+        accessLock->release();
+        return false;
+    }
+
     EthernetModule::EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
                                    EthernetDeviceIdentifier *loopbackIdentifier) {
         this->eventBus = eventBus;
@@ -226,22 +241,11 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if (!ethernetHeader->destinationIs(broadcastAddress)) {
-                accessLock->acquire();
-                bool isForUs = false;
-                for (EthernetDevice *current:*ethernetDevices) {
-                    isForUs = ethernetHeader->destinationIs(current->getAddress());
-                    if (isForUs) {
-                        break;
-                    }
-                }
-                accessLock->release();
-                if (!isForUs) {
-                    log.error("Incoming frame is not broadcast and not for us either");
-                    delete ethernetHeader;
-                    delete input;
-                    return;
-                }
+            if(!isForUs(ethernetHeader)){
+                log.error("Incoming frame is not broadcast and not for us either, discarding");
+                delete ethernetHeader;
+                delete input;
+                return;
             }
             switch (ethernetHeader->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {

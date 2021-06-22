@@ -22,6 +22,7 @@ namespace Kernel {
         Util::ArrayList<EthernetDevice *> *ethernetDevices = nullptr;
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
+        bool isForUs(EthernetHeader *ethernetHeader);
 
     public:
 
