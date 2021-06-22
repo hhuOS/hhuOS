@@ -18,6 +18,7 @@ namespace Kernel {
         this->systemManagement = systemManagement;
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
         accessLock = new Spinlock();
+        accessLock->release();
         broadcastAddress = EthernetAddress::buildBroadcastAddress();
     }
 
@@ -154,6 +155,7 @@ namespace Kernel {
         accessLock->acquire();
         for (EthernetDevice *currentDevice:*ethernetDevices) {
             if (currentDevice->sameIdentifierAs(identifier)) {
+                accessLock->release();
                 return currentDevice;
             }
         }
@@ -170,6 +172,7 @@ namespace Kernel {
         accessLock->acquire();
         for (EthernetDevice *currentDevice:*ethernetDevices) {
             if (currentDevice->connectedTo(networkDevice)) {
+                accessLock->release();
                 return currentDevice;
             }
         }

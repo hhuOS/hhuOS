@@ -15,6 +15,7 @@ namespace Kernel {
         this->routingModule = new IP4RoutingModule();
         this->interfaces = new Util::ArrayList<IP4Interface *>();
         accessLock = new Spinlock();
+        accessLock->release();
     }
 
     IP4Module::~IP4Module() {
@@ -71,6 +72,7 @@ namespace Kernel {
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
                 log.error("Ethernet device already registered, not registering it again");
+                accessLock->release();
                 return 1;
             }
         }
@@ -106,9 +108,8 @@ namespace Kernel {
                 toDelete = interfaces->get(i);
                 routingModule->removeRoutesFor(toDelete);
                 interfaces->remove(i);
-                accessLock->release();
                 delete toDelete;
-                return 0;
+                break;
             }
         }
         accessLock->release();

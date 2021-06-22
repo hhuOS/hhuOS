@@ -19,8 +19,7 @@ namespace Kernel {
             ip4NetAddress = nullptr;
         }
 
-        //TODO: Reactivate this one when finished with ARP!
-//        arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
+        arpModule->addEntry(ip4Address, ethernetDevice->getAddress());
     }
 
     IP4Interface::~IP4Interface() {

@@ -20,13 +20,16 @@ namespace Kernel {
             return 1;
         }
 
+        tableAccessLock->acquire();
         for (IP4Route *currentRoute:*routes) {
             if (currentRoute->matchingBits(&matchingBits, receiverAddress)) {
                 log.error("Matching bits calculation failed, not finding best route");
+                tableAccessLock->release();
                 return 1;
             }
             if (matchingBits > 32) {
                 log.error("matchingBits() function is broken");
+                tableAccessLock->release();
                 return 1;
             }
             if (matchingBits > bestMatch) {
@@ -34,6 +37,7 @@ namespace Kernel {
                 bestMatch = matchingBits;
             }
         }
+        tableAccessLock->release();
 
         //Return successful if best route found
         if (*bestRoute != nullptr) {

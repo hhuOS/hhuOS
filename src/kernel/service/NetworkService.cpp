@@ -59,7 +59,7 @@ namespace Kernel {
         eventBus->unsubscribe(*ip4Module, IP4ReceiveEvent::TYPE);
         eventBus->unsubscribe(*icmp4Module, ICMP4ReceiveEvent::TYPE);
         eventBus->unsubscribe(*udp4Module, UDP4ReceiveEvent::TYPE);
-//
+
         delete udp4Module;
         delete icmp4Module;
         delete ip4Module;
