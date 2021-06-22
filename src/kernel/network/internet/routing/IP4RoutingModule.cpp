@@ -53,7 +53,7 @@ namespace Kernel {
 
     IP4RoutingModule::IP4RoutingModule() {
         routes = new Util::ArrayList<IP4Route *>();
-        tableAccessLock=new Spinlock();
+        tableAccessLock = new Spinlock();
         tableAccessLock->release();
     }
 
@@ -91,7 +91,7 @@ namespace Kernel {
         if (strings == nullptr) {
             return;
         }
-        if (routes == nullptr || tableAccessLock== nullptr) {
+        if (routes == nullptr || tableAccessLock == nullptr) {
             log.error("Route table or access lock not initialized, not collecting route attributes");
             return;
         }
@@ -116,12 +116,13 @@ namespace Kernel {
                 );
     }
 
-    uint8_t IP4RoutingModule::addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
-        if (routes == nullptr || tableAccessLock== nullptr) {
+    uint8_t
+    IP4RoutingModule::addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
+        if (routes == nullptr || tableAccessLock == nullptr) {
             log.error("Route table or access lock not initialized, not adding direct route");
             return 1;
         }
-        if(netAddress== nullptr ||netMask== nullptr|| outInterface== nullptr){
+        if (netAddress == nullptr || netMask == nullptr || outInterface == nullptr) {
             log.error("At least one parameter was null, not adding direct route");
             return 1;
         }
@@ -135,7 +136,7 @@ namespace Kernel {
         if (ip4Interface == nullptr) {
             return 1;
         }
-        if (routes == nullptr || tableAccessLock== nullptr) {
+        if (routes == nullptr || tableAccessLock == nullptr) {
             log.error("Route table or access lock not initialized, not removing route");
             return 1;
         }

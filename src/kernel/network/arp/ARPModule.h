@@ -26,7 +26,9 @@ namespace Kernel {
         Kernel::Logger &log = Kernel::Logger::get("ARPModule");
 
         uint8_t found(EthernetAddress **ethernetAddress, IP4Address *receiverAddress);
+
         uint8_t addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
+
     public:
 
         ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice);
@@ -34,7 +36,8 @@ namespace Kernel {
         virtual ~ARPModule();
 
         uint8_t
-        resolveTo(EthernetAddress **ethernetAddress, IP4Address *targetProtocolAddress, IP4Address *senderProtocolAddress);
+        resolveTo(EthernetAddress **ethernetAddress, IP4Address *targetProtocolAddress,
+                  IP4Address *senderProtocolAddress);
 
         uint8_t sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress);
 

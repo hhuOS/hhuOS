@@ -56,7 +56,7 @@ namespace Kernel {
             log.error("Internal interface list or routing module was null, not registering new device");
             return 1;
         }
-        for(IP4Interface *current:*interfaces){
+        for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
                 log.error("Ethernet device already registered, not registering it again");
                 return 1;
@@ -87,7 +87,7 @@ namespace Kernel {
         }
         IP4Interface *toDelete;
         for (size_t i = 0; i < interfaces->size(); i++) {
-            if(interfaces->get(i)->connectedTo(ethernetDevice)) {
+            if (interfaces->get(i)->connectedTo(ethernetDevice)) {
                 toDelete = interfaces->get(i);
                 routingModule->removeRoutesFor(toDelete);
                 interfaces->remove(i);
@@ -205,9 +205,9 @@ namespace Kernel {
 
             auto *destinationAddress =
                     new EthernetAddress(arpMessage->getTargetHardwareAddress());
-            for(IP4Interface *current:*interfaces){
-                if(current->connectedTo(destinationAddress) && current->notify(arpMessage)){
-                        log.error("Processing ARP message failed, see syslog for more details");
+            for (IP4Interface *current:*interfaces) {
+                if (current->connectedTo(destinationAddress) && current->notify(arpMessage)) {
+                    log.error("Processing ARP message failed, see syslog for more details");
                 }
             }
             delete destinationAddress;

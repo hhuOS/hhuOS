@@ -115,7 +115,7 @@ namespace Kernel {
         if (ethernetDevice == nullptr || otherDevice == nullptr) {
             return false;
         }
-        return ethernetDevice== otherDevice;
+        return ethernetDevice == otherDevice;
     }
 
     bool IP4Interface::connectedTo(EthernetAddress *ethernetAddress) {

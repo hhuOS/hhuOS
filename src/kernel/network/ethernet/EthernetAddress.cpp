@@ -45,8 +45,8 @@ EthernetAddress::~EthernetAddress() {
     delete macAddress;
 }
 
-EthernetAddress *EthernetAddress::buildBroadcastAddress(){
-    uint8_t allOnesBytes[MAC_SIZE]{0xff,0xff,0xff,0xff,0xff,0xff};
+EthernetAddress *EthernetAddress::buildBroadcastAddress() {
+    uint8_t allOnesBytes[MAC_SIZE]{0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     return new EthernetAddress(allOnesBytes);
 }
 
@@ -73,8 +73,8 @@ bool EthernetAddress::equals(EthernetAddress *otherAddress) {
     if (macAddress == nullptr || otherAddress == nullptr) {
         return false;
     }
-    for(uint8_t i=0;i<MAC_SIZE;i++){
-        if(macAddress[i]!=otherAddress->macAddress[i]){
+    for (uint8_t i = 0; i < MAC_SIZE; i++) {
+        if (macAddress[i] != otherAddress->macAddress[i]) {
             return false;
         }
     }

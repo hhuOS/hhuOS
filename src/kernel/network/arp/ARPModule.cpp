@@ -11,7 +11,7 @@
 namespace Kernel {
     //Private method!
     uint8_t ARPModule::found(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
-        if(arpTable== nullptr || tableAccessLock== nullptr){
+        if (arpTable == nullptr || tableAccessLock == nullptr) {
             return 1;
         }
         tableAccessLock->acquire();
@@ -31,7 +31,7 @@ namespace Kernel {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
         arpTable = new Util::ArrayList<ARPEntry *>();
-        timeService=System::getService<TimeService>();
+        timeService = System::getService<TimeService>();
 
         tableAccessLock = new Spinlock();
         tableAccessLock->release();
@@ -52,7 +52,7 @@ namespace Kernel {
 
     uint8_t ARPModule::resolveTo(EthernetAddress **ethernetAddress, IP4Address *targetProtocolAddress,
                                  IP4Address *senderProtocolAddress) {
-        if (ethernetAddress== nullptr || targetProtocolAddress == nullptr || senderProtocolAddress == nullptr) {
+        if (ethernetAddress == nullptr || targetProtocolAddress == nullptr || senderProtocolAddress == nullptr) {
             log.error("At least one parameter was null, not resolving");
             return 1;
         }
@@ -60,19 +60,19 @@ namespace Kernel {
             log.error("ARP table or time service was null, not resolving");
             return 1;
         }
-        if(found(ethernetAddress, targetProtocolAddress)) {
+        if (found(ethernetAddress, targetProtocolAddress)) {
             return 0;
         }
 
-        log.info("No entry found for %s, sending ARP request", (char *)targetProtocolAddress->asString());
+        log.info("No entry found for %s, sending ARP request", (char *) targetProtocolAddress->asString());
         sendRequest(senderProtocolAddress, targetProtocolAddress);
 
         timeService->msleep(500);
 
-        if(!found(ethernetAddress, targetProtocolAddress)){
+        if (!found(ethernetAddress, targetProtocolAddress)) {
             log.error("No ARP response arrived in time, no resolve for %s possible",
-                      (char*)targetProtocolAddress->asString()
-                      );
+                      (char *) targetProtocolAddress->asString()
+            );
             return 1;
         }
 
@@ -98,7 +98,7 @@ namespace Kernel {
     }
 
     uint8_t ARPModule::sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress) {
-        if(senderProtocolAddress == nullptr || targetProtocolAddress == nullptr){
+        if (senderProtocolAddress == nullptr || targetProtocolAddress == nullptr) {
             log.error("senderProtocolAddress or targetProtocolAddress was null, returning");
             return 1;
         }
@@ -132,13 +132,13 @@ namespace Kernel {
         //Broadcast address will be deleted after sending here, all other addresses are just copied to ARP request
         //-> no other addresses will be deleted here!
         eventBus->publish(
-                new EthernetSendEvent(outDevice,new EthernetFrame(broadcastAddress,arpRequest))
+                new EthernetSendEvent(outDevice, new EthernetFrame(broadcastAddress, arpRequest))
         );
         return 0;
     }
 
     uint8_t ARPModule::processIncoming(ARPMessage *message) {
-        if(message== nullptr){
+        if (message == nullptr) {
             log.error("Incoming ARP message was null, ignoring");
             return 1;
         }
@@ -147,9 +147,9 @@ namespace Kernel {
             case ARPMessage::OpCode::REQUEST: {
                 //Use incoming requests as updates
                 processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
-                         new EthernetAddress(message->getSenderHardwareAddress())
-                 );
-                if(processErrors){
+                                         new EthernetAddress(message->getSenderHardwareAddress())
+                );
+                if (processErrors) {
                     log.error("Could not process ARP Request: ARP table update failed!");
                     //Message will be deleted in IP4Module after processing
                     //-> no 'delete message' here!
@@ -169,11 +169,11 @@ namespace Kernel {
                 //-> no 'delete message' here!
                 break;
             }
-            case ARPMessage::OpCode::REPLY:{
+            case ARPMessage::OpCode::REPLY: {
                 processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
-                         new EthernetAddress(message->getSenderHardwareAddress())
+                                         new EthernetAddress(message->getSenderHardwareAddress())
                 );
-                if(processErrors){
+                if (processErrors) {
                     log.error(("Could not process ARP Response: ARP table update failed!"));
                     return processErrors;
                 }
