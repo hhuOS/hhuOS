@@ -15,8 +15,8 @@ namespace Kernel {
             return 1;
         }
 
-        if (routes == nullptr) {
-            log.error("Internal data structure for routes not initialized, not finding best one");
+        if (routes == nullptr || tableAccessLock== nullptr) {
+            log.error("Route table or access lock not initialized, not finding best one");
             return 1;
         }
 

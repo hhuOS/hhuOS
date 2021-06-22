@@ -44,9 +44,10 @@ void IP4Netmask::calculateBitmask(uint8_t *target, uint8_t oneBitNumber) {
     if (target == nullptr) {
         return;
     }
-    auto fullByteCount = (uint8_t) (oneBitNumber / (uint8_t) 8);
+    uint8_t byteSize = 8;
+    uint8_t fullByteCount = oneBitNumber / byteSize;
     for (uint8_t i = 0; i <= fullByteCount; i++) {
-        target[i] = (uint8_t) (-1);
+        target[i] = 0xff;
     }
     target[fullByteCount] = target[fullByteCount] << (8 - (oneBitNumber % 8));
 }

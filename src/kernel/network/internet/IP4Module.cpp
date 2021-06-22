@@ -81,7 +81,7 @@ namespace Kernel {
         IP4Address *netAddress = nullptr;
         ip4Netmask->extractNetPart(&netAddress, ip4Address);
 
-        if (routingModule->addDirectRouteFor(ip4Address, ip4Netmask, newInterface)) {
+        if (routingModule->addDirectRouteFor(netAddress, ip4Netmask, newInterface)) {
             log.error("Adding route for new IP4Interface failed, rollback");
             accessLock->release();
             delete newInterface;
