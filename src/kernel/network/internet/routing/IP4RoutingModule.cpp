@@ -5,23 +5,6 @@
 #include "IP4RoutingModule.h"
 
 namespace Kernel {
-    IP4RoutingModule::IP4RoutingModule() {
-        routes = new Util::ArrayList<IP4Route *>();
-    }
-
-    IP4RoutingModule::~IP4RoutingModule() {
-        if (routes != nullptr) {
-            IP4Route *toDelete;
-            for (size_t i = 0; i < routes->size(); i++) {
-                toDelete = routes->get(i);
-                routes->remove(i);
-                i--;
-                delete toDelete;
-            }
-        }
-        delete defaultRoute;
-    }
-
 //Private method!
     uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
         uint8_t matchingBits = 0, bestMatch = 0;
@@ -68,6 +51,26 @@ namespace Kernel {
         return 1;
     }
 
+    IP4RoutingModule::IP4RoutingModule() {
+        routes = new Util::ArrayList<IP4Route *>();
+        tableAccessLock=new Spinlock();
+        tableAccessLock->release();
+    }
+
+    IP4RoutingModule::~IP4RoutingModule() {
+        if (routes != nullptr) {
+            IP4Route *toDelete;
+            for (size_t i = 0; i < routes->size(); i++) {
+                toDelete = routes->get(i);
+                routes->remove(i);
+                i--;
+                delete toDelete;
+            }
+        }
+        delete tableAccessLock;
+        delete defaultRoute;
+    }
+
     uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
         if (datagram == nullptr) {
             log.error("Outgoing datagram was null, ignoring");
@@ -88,13 +91,15 @@ namespace Kernel {
         if (strings == nullptr) {
             return;
         }
-        if (routes == nullptr) {
-            log.error("Internal data structure for routes not initialized, not collecting route attributes");
+        if (routes == nullptr || tableAccessLock== nullptr) {
+            log.error("Route table or access lock not initialized, not collecting route attributes");
             return;
         }
+        tableAccessLock->acquire();
         for (IP4Route *current:*routes) {
             strings->add(current->asString());
         }
+        tableAccessLock->release();
     }
 
     [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
@@ -112,11 +117,17 @@ namespace Kernel {
     }
 
     uint8_t IP4RoutingModule::addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
-        if (routes == nullptr) {
-            log.error("Internal data structure for routes not initialized, not adding route");
+        if (routes == nullptr || tableAccessLock== nullptr) {
+            log.error("Route table or access lock not initialized, not adding direct route");
             return 1;
         }
+        if(netAddress== nullptr ||netMask== nullptr|| outInterface== nullptr){
+            log.error("At least one parameter was null, not adding direct route");
+            return 1;
+        }
+        tableAccessLock->acquire();
         routes->add(new IP4Route(netAddress, netMask, outInterface));
+        tableAccessLock->release();
         return 0;
     }
 
@@ -124,17 +135,18 @@ namespace Kernel {
         if (ip4Interface == nullptr) {
             return 1;
         }
-        if (routes == nullptr) {
-            log.error("Internal data structure for routes not initialized, not removing route");
+        if (routes == nullptr || tableAccessLock== nullptr) {
+            log.error("Route table or access lock not initialized, not removing route");
             return 1;
         }
-        //TODO: Synchronization!
+        tableAccessLock->acquire();
         for (uint32_t i = 0; i < routes->size(); i++) {
             if (routes->get(i)->getOutInterface()->equals(ip4Interface)) {
                 routes->remove(i);
                 i--;
             }
         }
+        tableAccessLock->release();
         return 0;
     }
 }
