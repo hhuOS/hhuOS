@@ -25,7 +25,7 @@ namespace Kernel {
              */
         Kernel::Logger &log = Kernel::Logger::get("ARPModule");
 
-        uint8_t found(EthernetAddress **ethernetAddress, IP4Address *receiverAddress);
+        bool entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress);
 
     public:
 

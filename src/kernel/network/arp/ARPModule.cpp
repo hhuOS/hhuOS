@@ -9,9 +9,9 @@
 
 namespace Kernel {
     //Private method!
-    uint8_t ARPModule::found(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
+    bool ARPModule::entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
         if (arpTable == nullptr || tableAccessLock == nullptr) {
-            return 1;
+            return false;
         }
         tableAccessLock->acquire();
         *ethernetAddress = nullptr;
@@ -19,11 +19,11 @@ namespace Kernel {
             if (current->matches(receiverAddress)) {
                 *ethernetAddress = current->getEthernetAddress();
                 tableAccessLock->release();
-                return 0;
+                return true;
             }
         }
         tableAccessLock->release();
-        return 1;
+        return false;
     }
 
     ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice) {
@@ -59,7 +59,7 @@ namespace Kernel {
             log.error("ARP table or time service was null, not resolving");
             return 1;
         }
-        if (found(ethernetAddress, targetProtocolAddress)) {
+        if (entryFound(ethernetAddress, targetProtocolAddress)) {
             return 0;
         }
 
@@ -68,14 +68,13 @@ namespace Kernel {
 
         timeService->msleep(500);
 
-        if (!found(ethernetAddress, targetProtocolAddress)) {
-            log.error("No ARP response arrived in time, no resolve for %s possible",
-                      (char *) targetProtocolAddress->asString()
-            );
-            return 1;
+        if (entryFound(ethernetAddress, targetProtocolAddress)) {
+            return 0;
         }
-
-        return 0;
+        log.error("No ARP response arrived in time, no resolve for %s possible",
+                  (char *) targetProtocolAddress->asString()
+        );
+        return 1;
     }
 
     uint8_t ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
@@ -85,6 +84,7 @@ namespace Kernel {
         }
         if (ethernetAddress == nullptr) {
             log.error("Given Ethernet address was null, not adding entry");
+            return 1;
         }
         if (arpTable == nullptr || tableAccessLock == nullptr) {
             log.error("ARP table or access lock was null, not adding entry");
