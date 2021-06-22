@@ -116,7 +116,7 @@ uint8_t ARPMessage::copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() != getLengthInBytes()) {
+    if (input == nullptr || input->bytesRemaining() < sizeof header) {
         return 1;
     }
     uint8_t errors = 0;
@@ -127,21 +127,15 @@ uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     errors += input->readOneByteTo(&header.protocolAddressLength);
     errors += input->readTwoBytesSwappedTo(&header.opCode);
 
+    if(errors){
+        return errors;
+    }
+
     body.targetHardwareAddress = new uint8_t[header.hardwareAddressLength];
     body.targetProtocolAddress = new uint8_t[header.protocolAddressLength];
 
     body.senderHardwareAddress = new uint8_t[header.hardwareAddressLength];
     body.senderProtocolAddress = new uint8_t[header.protocolAddressLength];
-
-    errors += input->readStraightTo(
-            body.senderProtocolAddress,
-            header.protocolAddressLength);
-    errors += input->readStraightTo(
-            body.targetHardwareAddress,
-            header.hardwareAddressLength);
-    errors += input->readStraightTo(
-            body.targetProtocolAddress,
-            header.protocolAddressLength);
 
     errors += input->readStraightTo(
             body.senderHardwareAddress,
