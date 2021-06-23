@@ -61,7 +61,7 @@ public:
 
     void setTargetProtocolAddress(uint8_t *targetProtocolAddress) const;
 
-    [[nodiscard]] uint8_t *getTargetHardwareAddress() const;
+    [[maybe_unused]] [[nodiscard]] uint8_t *getTargetHardwareAddress() const;
 
     [[nodiscard]] uint8_t *getSenderProtocolAddress() const;
 
@@ -79,7 +79,7 @@ public:
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
-    ARPMessage *buildResponse(uint8_t *ourAddressAsBytes) const;
+    ARPMessage *buildReply(uint8_t *ourAddressAsBytes) const;
 
     uint8_t *getTargetProtocolAddress() const;
 };

@@ -167,7 +167,7 @@ namespace Kernel {
                 uint8_t myAddressAsBytes[MAC_SIZE];
                 outDevice->getAddress()->copyTo(myAddressAsBytes);
 
-                auto *response = message->buildResponse(myAddressAsBytes);
+                auto *response = message->buildReply(myAddressAsBytes);
                 auto *outFrame =
                         new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
                 eventBus->publish(

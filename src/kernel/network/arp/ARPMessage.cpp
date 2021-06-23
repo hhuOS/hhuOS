@@ -61,7 +61,7 @@ ARPMessage::OpCode ARPMessage::getOpCode() const {
     return parseOpCodeFromInteger(header.opCode);
 }
 
-uint8_t *ARPMessage::getTargetHardwareAddress() const {
+[[maybe_unused]] uint8_t *ARPMessage::getTargetHardwareAddress() const {
     return body.targetHardwareAddress;
 }
 
@@ -157,13 +157,17 @@ uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     return errors;
 }
 
-ARPMessage *ARPMessage::buildResponse(uint8_t *ourAddressAsBytes) const {
-    auto *response = new ARPMessage();
-    //Same type
-    //-> we can access internal attributes directly
-    response->header.opCode = getOpCodeAsInt(OpCode::REPLY);
+ARPMessage *ARPMessage::buildReply(uint8_t *ourAddressAsBytes) const {
+    auto *response =
+            new ARPMessage(
+                    header.hardwareType,
+                    header.protocolType,
+                    header.hardwareAddressLength,
+                    header.protocolAddressLength,
+                    OpCode::REPLY
+            );
     //TargetHardwareAddress is BROADCAST in Requests
-    //-> We don't copy it to response and set it to our HardwareAddress instead
+    //-> We don't copy it to response and set it to our own HardwareAddress instead
     memcpy(
             response->body.senderHardwareAddress,
             ourAddressAsBytes,
