@@ -252,7 +252,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if(notifyDestinationInterface(arpMessage)){
+            if (notifyDestinationInterface(arpMessage)) {
                 log.error("Could not notify destination interface, see syslog for more details");
             }
             //Processing finally done, cleanup

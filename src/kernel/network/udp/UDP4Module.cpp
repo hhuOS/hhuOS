@@ -10,7 +10,7 @@
 namespace Kernel {
     //Private method!
     uint8_t UDP4Module::notifyDestinationSocket(UDP4Header *udp4Header, IP4Header *ip4Header, NetworkByteBlock *input) {
-        if(sockets== nullptr || accessLock == nullptr){
+        if (sockets == nullptr || accessLock == nullptr) {
             log.error("Internal socket list or accessLock not initialized, discarding UDP4 datagram");
             return 1;
         }
@@ -86,7 +86,6 @@ namespace Kernel {
         if (event.getType() == UDP4SendEvent::TYPE) {
             auto *destinationAddress = ((UDP4SendEvent &) event).getDestinationAddress();
             auto *udp4Datagram = ((UDP4SendEvent &) event).getDatagram();
-            //TODO: Add null check for internal data structure
             if (udp4Datagram == nullptr) {
                 log.error("Outgoing UDP4 datagram was null, ignoring");
                 return;
@@ -112,7 +111,7 @@ namespace Kernel {
             auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
 
-            if (ip4Header == nullptr || input == nullptr){
+            if (ip4Header == nullptr || input == nullptr) {
                 log.error("Incoming IP4Header or input was null, discarding data");
                 delete ip4Header;
                 delete input;
@@ -126,7 +125,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if(notifyDestinationSocket(udp4Header, ip4Header, input)){
+            if (notifyDestinationSocket(udp4Header, ip4Header, input)) {
                 log.error("Could not notify destination socket, see syslog for more details");
             }
             //Processing finally done, cleanup
