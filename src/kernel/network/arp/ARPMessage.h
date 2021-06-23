@@ -81,7 +81,7 @@ public:
 
     ARPMessage *buildReply(uint8_t *ourAddressAsBytes) const;
 
-    uint8_t *getTargetProtocolAddress() const;
+    [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
 };
 
 

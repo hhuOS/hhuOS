@@ -124,9 +124,10 @@ namespace Kernel {
             if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
                 toDelete = ethernetDevices->get(i);
                 ethernetDevices->remove(i);
+                accessLock->release();
                 deleteSendBuffer(toDelete);
                 delete toDelete;
-                break;
+                return 0;
             }
         }
         accessLock->release();
