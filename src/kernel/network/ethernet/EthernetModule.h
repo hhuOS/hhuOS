@@ -57,6 +57,6 @@ namespace Kernel {
         ~EthernetModule() override;
     };
 
-};
+}
 
 #endif //HHUOS_ETHERNETMODULE_H
