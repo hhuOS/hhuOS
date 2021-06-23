@@ -5,15 +5,15 @@
 #include "ARPReceiveEvent.h"
 
 namespace Kernel {
-    ARPReceiveEvent::ARPReceiveEvent(ARPMessage *arpMessage) {
-        this->arpMessage = arpMessage;
-    }
-
-    ARPMessage *ARPReceiveEvent::getARPMessage() const {
-        return arpMessage;
+    ARPReceiveEvent::ARPReceiveEvent(NetworkByteBlock *input) {
+        this->input = input;
     }
 
     String ARPReceiveEvent::getType() const {
         return TYPE;
+    }
+
+    NetworkByteBlock *ARPReceiveEvent::getInput() const {
+        return input;
     }
 }

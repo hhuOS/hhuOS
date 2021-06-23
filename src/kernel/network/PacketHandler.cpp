@@ -30,7 +30,6 @@ namespace Kernel {
         if ((event.getType() == ReceiveEvent::TYPE)) {
             auto length = ((ReceiveEvent &) event).getLength();
             auto *packet = ((ReceiveEvent &) event).getPacket();
-
             if (packet == nullptr) {
                 log.error("Incoming data was null, ignoring");
                 return;
@@ -40,7 +39,6 @@ namespace Kernel {
                 delete (uint8_t *) packet;
                 return;
             }
-
             auto *input = new NetworkByteBlock(length);
             if (input->appendStraightFrom(packet, length)) {
                 log.error("Reading of data into NetworkByteBlock failed, discarding");
@@ -48,10 +46,6 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            //Incoming packet is in NetworkByteBlock now
-            //-> packet can be deleted
-            delete (uint8_t *) packet;
-
             if (!input->isCompletelyFilled()) {
                 log.error("Incoming data could not be loaded completely, discarding input");
                 delete input;
@@ -64,10 +58,12 @@ namespace Kernel {
                 return;
             }
 
+            //send input to EthernetModule via EventBus for further processing
             eventBus->publish(new EthernetReceiveEvent(input));
 
-            //input will be deleted in EthernetModule after processing
-            //-> no delete here
+            //input will be used in EthernetModule
+            //-> no 'delete input' here
+            delete (uint8_t *) packet;
             return;
         }
     }

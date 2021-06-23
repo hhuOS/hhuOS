@@ -174,14 +174,7 @@ namespace Kernel {
 //            }
             switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
-                    if (input->bytesRemaining() == 0) {
-                        log.error("Incoming ICMP4Message was empty, discarding");
-                        delete ip4Header;
-                        delete input;
-                        return;
-                    }
-                    //We don't care about all the possible ICMP4 messages here
-                    //-> send full input to ICMP4Module for parsing and processing
+                    //send input to ICMP4Module via EventBus for further processing
                     eventBus->publish(new ICMP4ReceiveEvent(ip4Header, input));
 
                     //We need input AND ip4Header in next module

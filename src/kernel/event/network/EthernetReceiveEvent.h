@@ -23,7 +23,6 @@ namespace Kernel {
 
         static const constexpr char *TYPE = "EthernetReceiveEvent";
     };
-
 }
 
 #endif //HHUOS_ETHERNETRECEIVEEVENT_H

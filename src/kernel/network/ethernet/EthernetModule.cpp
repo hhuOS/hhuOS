@@ -255,19 +255,8 @@ namespace Kernel {
                     break;
                 }
                 case EthernetDataPart::EtherType::ARP: {
-                    auto *arpMessage = new ARPMessage();
-                    if (arpMessage->parse(input)) {
-                        log.error("Could not assemble ARP message, discarding data");
-                        //arpMessage is not part of inFrame here
-                        //-> we need to delete it separately!
-                        delete arpMessage;
-                        delete input;
-                        break;
-                    }
-                    //Input has been parsed completely here, can be deleted
-                    delete input;
-                    //send input to next module via EventBus
-                    eventBus->publish(new ARPReceiveEvent(arpMessage));
+                    //send input to ARPModule via EventBus for further processing
+                    eventBus->publish(new ARPReceiveEvent(input));
                     break;
                 }
                 default: {
@@ -276,9 +265,10 @@ namespace Kernel {
                     break;
                 }
             }
-            //We are done here, cleanup memory
-            //Input will be used in next module, so no delete here
+            //Input will be used in next module
+            //-> no 'delete input' here
             delete ethernetHeader;
+            return;
         }
     }
 }

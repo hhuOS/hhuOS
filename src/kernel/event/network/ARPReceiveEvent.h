@@ -12,18 +12,17 @@
 namespace Kernel {
     class ARPReceiveEvent : public Event {
     private:
-        ARPMessage *arpMessage;
+        NetworkByteBlock *input;
 
     public:
-        explicit ARPReceiveEvent(ARPMessage *arpMessage);
-
-        [[nodiscard]] ARPMessage *getARPMessage() const;
+        explicit ARPReceiveEvent(NetworkByteBlock *input);
 
         [[nodiscard]] String getType() const override;
 
+        [[nodiscard]] NetworkByteBlock *getInput() const;
+
         static const constexpr char *TYPE = "ARPReceiveEvent";
     };
-
 }
 
 #endif //HHUOS_ARPRECEIVEEVENT_H
