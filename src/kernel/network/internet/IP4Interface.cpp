@@ -84,11 +84,11 @@ namespace Kernel {
     }
 
     String IP4Interface::asString() {
-        if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr) {
+        if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr || arpModule == nullptr) {
             return "NULL";
         }
         return ethernetDevice->asString() + ",\nIP4Address: " + ip4Address->asString() + ",\nIP4Netmask: " +
-               ip4Netmask->asString();
+               ip4Netmask->asString() + ",\nARPTable: {" + arpModule->asString() + "}";
     }
 
     uint8_t IP4Interface::notify(ARPMessage *arpMessage) {

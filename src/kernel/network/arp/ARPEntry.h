@@ -24,6 +24,8 @@ public:
     EthernetAddress *getEthernetAddress();
 
     void setEthernetAddress(EthernetAddress *otherAddress);
+
+    String asString();
 };
 
 

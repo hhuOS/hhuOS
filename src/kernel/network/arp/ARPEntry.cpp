@@ -23,3 +23,7 @@ EthernetAddress *ARPEntry::getEthernetAddress() {
 void ARPEntry::setEthernetAddress(EthernetAddress *otherAddress) {
     this->ethernetAddress = otherAddress;
 }
+
+String ARPEntry::asString() {
+    return "'" + ip4Address->asString() + "' => '" + ethernetAddress->asString() + "'";
+}

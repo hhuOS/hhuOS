@@ -206,4 +206,17 @@ namespace Kernel {
         //-> no 'delete message' here!
         return 0;
     }
+
+    String ARPModule::asString() {
+        if(arpTable->isEmpty()){
+            return "[empty]";
+        }
+
+        String tableContent = "\n    ";
+        for(ARPEntry *current:*arpTable){
+            tableContent+=current->asString();
+            tableContent+=",\n    ";
+        }
+        return tableContent;
+    }
 }

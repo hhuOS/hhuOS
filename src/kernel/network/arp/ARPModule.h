@@ -42,6 +42,8 @@ namespace Kernel {
         uint8_t sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress);
 
         uint8_t processIncoming(ARPMessage *message);
+
+        String asString();
     };
 }
 
