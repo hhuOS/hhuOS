@@ -13,7 +13,15 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
         bitCount = maxBitCount;
     }
     this->bitCount = bitCount;
-    calculateBitmask(this->netmask, bitCount);
+
+    uint32_t base = 0xffffffff;
+    base = base << (32 - bitCount);
+
+    auto *baseAsBytes = (uint8_t*)&base;
+    netmask[3]=baseAsBytes[0];
+    netmask[2]=baseAsBytes[1];
+    netmask[1]=baseAsBytes[2];
+    netmask[0]=baseAsBytes[3];
 }
 
 IP4Netmask::~IP4Netmask() {
@@ -38,16 +46,4 @@ String IP4Netmask::asString() {
         return "NULL";
     }
     return String::format("%d.%d.%d.%d /%d", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
-}
-
-void IP4Netmask::calculateBitmask(uint8_t *target, uint8_t oneBitNumber) {
-    if (target == nullptr) {
-        return;
-    }
-    uint8_t byteSize = 8;
-    uint8_t fullByteCount = oneBitNumber / byteSize;
-    for (uint8_t i = 0; i <= fullByteCount; i++) {
-        target[i] = 0xff;
-    }
-    target[fullByteCount] = target[fullByteCount] << (8 - (oneBitNumber % 8));
 }
