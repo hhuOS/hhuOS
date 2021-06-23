@@ -13,7 +13,6 @@ namespace Kernel {
     private:
         Util::ArrayList<IP4Route *> *routes = nullptr;
         Spinlock *tableAccessLock = nullptr;
-        IP4Route *defaultRoute = nullptr;
 
         uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
 
@@ -28,8 +27,6 @@ namespace Kernel {
         virtual ~IP4RoutingModule();
 
         uint8_t addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface);
-
-        [[maybe_unused]] void setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface);
 
         uint8_t removeRoutesFor(IP4Interface *ip4Interface);
 

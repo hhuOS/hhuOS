@@ -44,13 +44,7 @@ namespace Kernel {
             return 0;
         }
 
-        //Set to default route if it exists and return successful
-        if (defaultRoute != nullptr) {
-            *bestRoute = defaultRoute;
-            return 0;
-        }
-
-        //Return error if no route could be found at all
+        //Return error if no route could be found
         log.error("No route to host could be found");
         return 1;
     }
@@ -72,7 +66,6 @@ namespace Kernel {
             }
         }
         delete tableAccessLock;
-        delete defaultRoute;
     }
 
     uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
@@ -105,20 +98,6 @@ namespace Kernel {
         }
         tableAccessLock->release();
         return 0;
-    }
-
-    [[maybe_unused]] void IP4RoutingModule::setDefaultRoute(IP4Address *nextHop, IP4Interface *outInterface) {
-        if (defaultRoute != nullptr) {
-            delete defaultRoute;
-            defaultRoute = nullptr;
-        }
-        defaultRoute =
-                new IP4Route(
-                        new IP4Address(0, 0, 0, 0),
-                        new IP4Netmask(0),
-                        nextHop,
-                        outInterface
-                );
     }
 
     uint8_t
