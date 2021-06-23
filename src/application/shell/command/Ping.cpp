@@ -16,7 +16,6 @@ Ping::Ping(Shell &shell) : Command(shell) {
 void Ping::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
-    parser.addParameter("target","t", false);
     parser.addParameter("count", "n", false);
 
     if (!parser.parse(args)) {
@@ -24,11 +23,11 @@ void Ping::execute(Util::Array<String> &args) {
         return;
     }
 
-    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127,0,0,1}, numberOfPings = 10;
+    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127,0,0,1}, numberOfPings = 3;
 
-    auto target = parser.getNamedArgument("target");
-    if(!target.isEmpty()) {
-        IP4Address::parseTo(addressBytes,&target);
+    auto target = parser.getUnnamedArguments();
+    if(target.length()==1) {
+        IP4Address::parseTo(addressBytes,&target[0]);
     }
 
     auto count = parser.getNamedArgument("count");
@@ -45,13 +44,15 @@ void Ping::execute(Util::Array<String> &args) {
         );
         timeService->msleep(1000);
     }
-
-
 }
 
 const String Ping::getHelpText() {
     return "Utility for testing our IP protocol stack via ICMP Echo and ICMP Echo Reply\n\n"
-           "Usage: ping [OPTION]\n"
+           "Usage: ping [OPTION] [ADDRESS]\n"
+           "Address:\n"
+           "   A valid IPv4 address in format [0-255].[0-255].[0-255].[0-255].\n"
+           "Will be 127.0.0.1 (localhost) if empty\n"
            "Options:\n"
-           "   -h, --help: Show this help-message";
+           "   -n, --count: Number of pings to send, default is 3\n"
+           "   -h, --help: Show this help-message\n";
 }
