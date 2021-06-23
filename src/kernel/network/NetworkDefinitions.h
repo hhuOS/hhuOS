@@ -20,4 +20,6 @@
 #define UDP4HEADER_MAX_LENGTH 0xffff
 #define IP4DATAPART_MAX_LENGTH 576 //Recommended in RFC 791 page 13
 
+#define ARP_WAIT_TIME 100 //Time in milliseconds to wait for ARP Replies
+
 #endif //HHUOS_NETWORKDEFINITIONS_H
