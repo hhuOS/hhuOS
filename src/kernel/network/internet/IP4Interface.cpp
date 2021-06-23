@@ -14,8 +14,8 @@ namespace Kernel {
         //-> copy our addresses or we might lose them!
         arpModule =
                 new ARPModule(eventBus, ethernetDevice,
-                                  new IP4Address(ip4Address),
-                                  new EthernetAddress(ethernetDevice->getAddress())
+                              new IP4Address(ip4Address),
+                              new EthernetAddress(ethernetDevice->getAddress())
                 );
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
