@@ -114,7 +114,8 @@ namespace Kernel {
         accessLock->acquire();
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
-                log.error("Ethernet device already registered, not registering it again");
+                log.error("Ethernet device %s already registered, not registering it again",
+                          ethernetDevice->getIdentifier()->getCharacters());
                 accessLock->release();
                 return 1;
             }

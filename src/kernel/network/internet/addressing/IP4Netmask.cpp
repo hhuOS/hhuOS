@@ -46,5 +46,5 @@ String IP4Netmask::asString() {
     if (netmask == nullptr) {
         return "NULL";
     }
-    return String::format("%d.%d.%d.%d /%d", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
+    return String::format("'%d.%d.%d.%d /%d'", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
 }

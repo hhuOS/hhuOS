@@ -36,7 +36,7 @@ EthernetDeviceIdentifier::~EthernetDeviceIdentifier() {
 }
 
 String EthernetDeviceIdentifier::asString() {
-    return String::format("%s", characters);
+    return String::format("'%s'", characters);
 }
 
 bool EthernetDeviceIdentifier::equals(EthernetDeviceIdentifier *other) {

@@ -57,7 +57,7 @@ String IP4Address::asString() {
     if (address == nullptr) {
         return "NULL";
     }
-    return String::format("%d.%d.%d.%d", address[0], address[1], address[2], address[3]);
+    return String::format("'%d.%d.%d.%d'", address[0], address[1], address[2], address[3]);
 }
 
 char *IP4Address::asChars() {

@@ -25,5 +25,5 @@ void ARPEntry::setEthernetAddress(EthernetAddress *otherAddress) {
 }
 
 String ARPEntry::asString() {
-    return "'" + ip4Address->asString() + "' => '" + ethernetAddress->asString() + "'";
+    return ip4Address->asString() + " => " + ethernetAddress->asString();
 }

@@ -54,7 +54,7 @@ String EthernetAddress::asString() {
     if (macAddress == nullptr) {
         return "NULL";
     }
-    return String::format("%02x:%02x:%02x:%02x:%02x:%02x",
+    return String::format("'%02x:%02x:%02x:%02x:%02x:%02x'",
                           macAddress[0], macAddress[1], macAddress[2],
                           macAddress[3], macAddress[4], macAddress[5]
     );

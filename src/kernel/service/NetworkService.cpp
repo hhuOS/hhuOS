@@ -122,11 +122,12 @@ namespace Kernel {
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for given identifier, not assigning IP4 address");
+            log.error("No ethernet device exists for %s, not assigning IP4 address",
+                      identifier->getCharacters());
             return 1;
         }
         if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
-            log.error("Registering device failed");
+            log.error("Registering device %s failed", identifier->getCharacters());
             return 1;
         }
         return 0;
@@ -139,7 +140,8 @@ namespace Kernel {
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for given identifier, not unAssigning IP4 address");
+            log.error("No ethernet device exists for %s, not unAssigning IP4 address",
+                      identifier->getCharacters());
             return 1;
         }
         return this->ip4Module->unregisterDevice(selected);

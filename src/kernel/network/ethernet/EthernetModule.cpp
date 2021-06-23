@@ -101,7 +101,8 @@ namespace Kernel {
         //Return if an ethernet device connected to the same network device could be found
         for (EthernetDevice *currentDevice:*ethernetDevices) {
             if (currentDevice->connectedTo(networkDevice)) {
-                log.error("Given network device already registered, ignoring it");
+                log.error("Given network device %s already registered, not registering it again",
+                          identifier->getCharacters());
                 accessLock->release();
                 return 1;
             }
