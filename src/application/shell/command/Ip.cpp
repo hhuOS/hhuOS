@@ -57,7 +57,10 @@ void Ip::link(Kernel::NetworkService *networkService) {
     stdout << "Print available network links" << endl;
 
     auto *linkAttributes = new Util::ArrayList<String>();
-    networkService->collectLinkAttributes(linkAttributes);
+    if(networkService->collectLinkAttributes(linkAttributes)){
+        stderr << "Could not collect link attributes, return" << endl;
+        return;
+    }
 
     for (uint32_t i = 0; i < linkAttributes->size(); i++) {
         stdout << "\nDevice " << i << ": " << linkAttributes->get(i) << endl;
@@ -118,7 +121,10 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
     //Print interface attributes if 'set' switch not active
     stdout << "Print available ip interfaces" << endl;
     auto *interfaceAttributes = new Util::ArrayList<String>();
-    networkService->collectInterfaceAttributes(interfaceAttributes);
+    if(networkService->collectInterfaceAttributes(interfaceAttributes)){
+        stderr << "Could not collect interface attributes, return" << endl;
+        return;
+    }
 
     for (uint32_t i = 0; i < interfaceAttributes->size(); i++) {
         stdout << "\nDevice " << i << ": " << interfaceAttributes->get(i) << endl;
@@ -136,7 +142,10 @@ void Ip::route(Kernel::NetworkService *networkService) {
     stdout << "Print existing ip routes" << endl;
 
     auto *routeAttributes = new Util::ArrayList<String>();
-    networkService->collectRouteAttributes(routeAttributes);
+    if(networkService->collectRouteAttributes(routeAttributes)){
+        stderr << "Could not collect route attributes, return" << endl;
+        return;
+    }
 
     for (uint32_t i = 0; i < routeAttributes->size(); i++) {
         stdout << "\nRoute " << i << ": " << routeAttributes->get(i) << endl;
