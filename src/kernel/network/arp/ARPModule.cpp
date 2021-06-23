@@ -12,48 +12,40 @@ namespace Kernel {
     //Why private? We might delete given addresses at any time or in destructor at least
     //-> very dangerous if public, we MUST make sure that only new [Address]() is given here
     uint8_t ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
-        if (ip4Address == nullptr) {
-            log.error("Given IP4 address was null, not adding entry");
-            return 1;
-        }
-        if (ethernetAddress == nullptr) {
-            log.error("Given Ethernet address was null, not adding entry");
-            return 1;
-        }
-        if (arpTable == nullptr || tableAccessLock == nullptr) {
+        if (arpTable == nullptr || accessLock == nullptr) {
             log.error("ARP table or access lock was null, not adding entry");
             return 1;
         }
-        tableAccessLock->acquire();
+        accessLock->acquire();
         for (ARPEntry *current:*arpTable) {
             //Update existing entry instead of creating a new one if address already known
             if (current->matches(ip4Address)) {
                 delete current->getEthernetAddress();
                 current->setEthernetAddress(ethernetAddress);
-                tableAccessLock->release();
+                accessLock->release();
                 return 0;
             }
         }
         arpTable->add(new ARPEntry(ip4Address, ethernetAddress));
-        tableAccessLock->release();
+        accessLock->release();
         return 0;
     }
 
     //Private method!
     bool ARPModule::entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
-        if (arpTable == nullptr || tableAccessLock == nullptr) {
+        if (arpTable == nullptr || accessLock == nullptr) {
             return false;
         }
-        tableAccessLock->acquire();
+        accessLock->acquire();
         *ethernetAddress = nullptr;
         for (ARPEntry *current:*arpTable) {
             if (current->matches(receiverAddress)) {
                 *ethernetAddress = current->getEthernetAddress();
-                tableAccessLock->release();
+                accessLock->release();
                 return true;
             }
         }
-        tableAccessLock->release();
+        accessLock->release();
         return false;
     }
 
@@ -64,8 +56,8 @@ namespace Kernel {
 
         timeService = System::getService<TimeService>();
 
-        tableAccessLock = new Spinlock();
-        tableAccessLock->release();
+        accessLock = new Spinlock();
+        accessLock->release();
     }
 
     ARPModule::~ARPModule() {

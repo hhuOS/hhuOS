@@ -10,7 +10,7 @@
 #include "EthernetModule.h"
 
 namespace Kernel {
-    //private method!
+    //Private method!
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
         if (ethernetDevice == nullptr) {
             return;
@@ -24,13 +24,13 @@ namespace Kernel {
         }
     }
 
-    //private method!
+    //Private method!
     bool EthernetModule::isForUsOrBroadcast(EthernetHeader *ethernetHeader) {
         if (ethernetHeader->destinationIs(broadcastAddress)) {
             return true;
         }
         if (ethernetDevices == nullptr || accessLock == nullptr) {
-            log.error("Internal list or accessLock was null, not checking if frame is for us");
+            log.error("Internal device list or accessLock was null, not checking if frame is for us");
             return false;
         }
         accessLock->acquire();

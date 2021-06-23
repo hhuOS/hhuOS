@@ -7,29 +7,22 @@
 namespace Kernel {
 //Private method!
     uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
-        uint8_t matchingBits = 0, bestMatch = 0;
-        *bestRoute = nullptr;
-
-        if (receiverAddress == nullptr) {
-            log.error("Given receiver address was null");
-            return 1;
-        }
-
-        if (routes == nullptr || tableAccessLock == nullptr) {
+        if (routes == nullptr || accessLock == nullptr) {
             log.error("Route table or access lock not initialized, not finding best one");
             return 1;
         }
-
-        tableAccessLock->acquire();
+        uint8_t matchingBits = 0, bestMatch = 0;
+        *bestRoute = nullptr;
+        accessLock->acquire();
         for (IP4Route *currentRoute:*routes) {
             if (currentRoute->matchingBits(&matchingBits, receiverAddress)) {
                 log.error("Matching bits calculation failed, not finding best route");
-                tableAccessLock->release();
+                accessLock->release();
                 return 1;
             }
             if (matchingBits > 32) {
                 log.error("matchingBits() function is broken");
-                tableAccessLock->release();
+                accessLock->release();
                 return 1;
             }
             if (matchingBits > bestMatch) {
@@ -37,22 +30,20 @@ namespace Kernel {
                 bestMatch = matchingBits;
             }
         }
-        tableAccessLock->release();
+        accessLock->release();
 
-        //Return successful if best route found
-        if (*bestRoute != nullptr) {
-            return 0;
+        if (*bestRoute == nullptr) {
+            log.error("No route to host could be found");
+            return 1;
         }
 
-        //Return error if no route could be found
-        log.error("No route to host could be found");
-        return 1;
+        return 0;
     }
 
     IP4RoutingModule::IP4RoutingModule() {
         routes = new Util::ArrayList<IP4Route *>();
-        tableAccessLock = new Spinlock();
-        tableAccessLock->release();
+        accessLock = new Spinlock();
+        accessLock->release();
     }
 
     IP4RoutingModule::~IP4RoutingModule() {
@@ -65,7 +56,7 @@ namespace Kernel {
                 delete toDelete;
             }
         }
-        delete tableAccessLock;
+        delete accessLock;
     }
 
     uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
@@ -88,21 +79,21 @@ namespace Kernel {
         if (strings == nullptr) {
             return 1;
         }
-        if (routes == nullptr || tableAccessLock == nullptr) {
+        if (routes == nullptr || accessLock == nullptr) {
             log.error("Route table or access lock not initialized, not collecting route attributes");
             return 1;
         }
-        tableAccessLock->acquire();
+        accessLock->acquire();
         for (IP4Route *current:*routes) {
             strings->add(current->asString());
         }
-        tableAccessLock->release();
+        accessLock->release();
         return 0;
     }
 
     uint8_t
     IP4RoutingModule::addDirectRouteFor(IP4Address *netAddress, IP4Netmask *netMask, IP4Interface *outInterface) {
-        if (routes == nullptr || tableAccessLock == nullptr) {
+        if (routes == nullptr || accessLock == nullptr) {
             log.error("Route table or access lock not initialized, not adding direct route");
             return 1;
         }
@@ -110,9 +101,9 @@ namespace Kernel {
             log.error("At least one parameter was null, not adding direct route");
             return 1;
         }
-        tableAccessLock->acquire();
+        accessLock->acquire();
         routes->add(new IP4Route(netAddress, netMask, outInterface));
-        tableAccessLock->release();
+        accessLock->release();
         return 0;
     }
 
@@ -120,18 +111,18 @@ namespace Kernel {
         if (ip4Interface == nullptr) {
             return 1;
         }
-        if (routes == nullptr || tableAccessLock == nullptr) {
+        if (routes == nullptr || accessLock == nullptr) {
             log.error("Route table or access lock not initialized, not removing route");
             return 1;
         }
-        tableAccessLock->acquire();
+        accessLock->acquire();
         for (uint32_t i = 0; i < routes->size(); i++) {
             if (routes->get(i)->getOutInterface()->equals(ip4Interface)) {
                 routes->remove(i);
                 i--;
             }
         }
-        tableAccessLock->release();
+        accessLock->release();
         return 0;
     }
 }

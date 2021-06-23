@@ -10,7 +10,7 @@
 #include "IP4Module.h"
 
 namespace Kernel {
-    //private method!
+    //Private method!
     uint8_t IP4Module::notifyDestinationInterface(ARPMessage *arpMessage) {
         if (interfaces == nullptr || accessLock == nullptr) {
             log.error("Internal interface list or accessLock not initialized, discarding ARP message");
@@ -225,18 +225,8 @@ namespace Kernel {
                     return;
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
-                    auto *udp4Header = new UDP4Header();
-                    if (udp4Header->parse(input)) {
-                        log.error("Could not assemble UDP header, discarding data");
-                        //udp4Header is not part of ip4Datagram here
-                        //-> we need to delete it separately!
-                        delete udp4Header;
-                        delete ip4Header;
-                        delete input;
-                        return;
-                    }
-                    eventBus->publish(new UDP4ReceiveEvent(ip4Header, udp4Header, input));
-                    //We need input AND both headers in next module
+                    eventBus->publish(new UDP4ReceiveEvent(ip4Header, input));
+                    //We need input AND ip4Header in next module
                     //-> don't delete anything here!
                     return;
                 }
@@ -258,17 +248,13 @@ namespace Kernel {
             auto *arpMessage = new ARPMessage();
             if (arpMessage->parse(input)) {
                 log.error("Could not assemble ARP message, discarding data");
-                //arpMessage is not part of inFrame here
-                //-> we need to delete it separately!
                 delete arpMessage;
                 delete input;
                 return;
             }
-
             if(notifyDestinationInterface(arpMessage)){
                 log.error("Could not notify destination interface, see syslog for more details");
             }
-
             //Processing finally done, cleanup
             delete arpMessage;
             delete input;

@@ -14,7 +14,7 @@
 namespace Kernel {
     class ARPModule {
     private:
-        Spinlock *tableAccessLock = nullptr;
+        Spinlock *accessLock = nullptr;
         TimeService *timeService = nullptr;
         NetworkEventBus *eventBus = nullptr;
         EthernetDevice *outDevice = nullptr;

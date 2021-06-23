@@ -8,14 +8,37 @@
 #include "UDP4Module.h"
 
 namespace Kernel {
+    //Private method!
+    uint8_t UDP4Module::notifyDestinationSocket(UDP4Header *udp4Header, IP4Header *ip4Header, NetworkByteBlock *input) {
+        if(sockets== nullptr || accessLock == nullptr){
+            log.error("Internal socket list or accessLock not initialized, discarding UDP4 datagram");
+            return 1;
+        }
+        auto destinationPort = udp4Header->getDestinationPort();
+        accessLock->acquire();
+        if (!sockets->containsKey(destinationPort)) {
+            log.error("No socket registered for datagram's destination port, discarding");
+            accessLock->release();
+            return 1;
+        }
+
+        if (sockets->get(destinationPort)->notify(ip4Header, udp4Header, input)) {
+            log.error("Could not deliver input to destination socket");
+            accessLock->release();
+            return 1;
+        }
+        accessLock->release();
+        return 0;
+    }
+
     UDP4Module::UDP4Module(Kernel::NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         sockets = new Util::HashMap<uint16_t, UDP4SocketController *>();
-        socketAccessLock = new Spinlock();
+        accessLock = new Spinlock();
     }
 
     UDP4Module::~UDP4Module() {
-        delete socketAccessLock;
+        delete accessLock;
     }
 
     uint8_t UDP4Module::registerControllerFor(uint16_t destinationPort, UDP4SocketController *controller) {
@@ -27,18 +50,18 @@ namespace Kernel {
             log.error("Given controller was null, not registering");
             return 1;
         }
-        if (sockets == nullptr || socketAccessLock == nullptr) {
+        if (sockets == nullptr || accessLock == nullptr) {
             log.error("Socket map or socket access lock not initialized, not registering controller");
             return 1;
         }
-        socketAccessLock->acquire();
+        accessLock->acquire();
         if (sockets->containsKey(destinationPort)) {
-            socketAccessLock->release();
+            accessLock->release();
             //Already registered here
             return 1;
         }
         sockets->put(destinationPort, controller);
-        socketAccessLock->release();
+        accessLock->release();
         return 0;
     }
 
@@ -47,15 +70,15 @@ namespace Kernel {
             log.error("Given port was zero, not unregistering controller");
             return 1;
         }
-        if (sockets == nullptr || socketAccessLock == nullptr) {
+        if (sockets == nullptr || accessLock == nullptr) {
             log.error("Socket map or socket access lock not initialized, not registering controller");
             return 1;
         }
-        socketAccessLock->acquire();
+        accessLock->acquire();
         if (sockets->containsKey(destinationPort)) {
             sockets->remove(destinationPort);
         }
-        socketAccessLock->release();
+        accessLock->release();
         return 0;
     }
 
@@ -86,41 +109,30 @@ namespace Kernel {
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
-            IP4Header *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
-            auto *udp4Header = ((UDP4ReceiveEvent &) event).getUDP4Header();
+            auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
 
-            if (
-                    udp4Header == nullptr ||
-                    ip4Header == nullptr ||
-                    input == nullptr ||
-                    sockets == nullptr ||
-                    socketAccessLock == nullptr
-                    ) {
-                log.error("One of incoming objects,socket map or socket access lock was null, discarding input");
+            if (ip4Header == nullptr || input == nullptr){
+                log.error("Incoming IP4Header or input was null, discarding data");
                 delete ip4Header;
                 delete input;
                 return;
             }
-
-            auto destinationPort = udp4Header->getDestinationPort();
-            socketAccessLock->acquire();
-            if (!sockets->containsKey(destinationPort)) {
-                log.error("No socket registered for datagram's destination port, discarding");
+            auto *udp4Header = new UDP4Header();
+            if (udp4Header->parse(input)) {
+                log.error("Parsing UDP4Header failed, discarding");
                 delete udp4Header;
                 delete ip4Header;
                 delete input;
                 return;
             }
-
-            if (sockets->get(destinationPort)->notify(ip4Header, udp4Header, input)) {
-                log.error("Could not deliver input to destination socket");
-                delete udp4Header;
-                delete ip4Header;
-                delete input;
-                return;
+            if(notifyDestinationSocket(udp4Header, ip4Header, input)){
+                log.error("Could not notify destination socket, see syslog for more details");
             }
-            socketAccessLock->release();
+            //Processing finally done, cleanup
+            delete udp4Header;
+            delete ip4Header;
+            delete input;
             return;
         }
     }

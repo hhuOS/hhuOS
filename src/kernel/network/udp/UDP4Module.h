@@ -14,9 +14,12 @@ namespace Kernel {
     private:
         NetworkEventBus *eventBus = nullptr;
         Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
-        Spinlock *socketAccessLock = nullptr;
+        Spinlock *accessLock = nullptr;
+
+        uint8_t notifyDestinationSocket(UDP4Header *udp4Header, IP4Header *ip4Header, NetworkByteBlock *input);
 
     public:
+
         explicit UDP4Module(NetworkEventBus *eventBus);
 
         Logger &log = Logger::get("UDP4Module");
