@@ -88,13 +88,18 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
 
-        if (networkService->assignIP4Address(
-                new EthernetDeviceIdentifier(&unnamedArguments[0]),
-                new IP4Address(addressBytes),
-                new IP4Netmask(bitCount)
-        )
-                ) {
+        auto *identifier = new EthernetDeviceIdentifier(&unnamedArguments[0]);
+        auto *address =new IP4Address(addressBytes);
+        auto *mask = new IP4Netmask(bitCount);
+
+        if (networkService->assignIP4Address(identifier,address,mask)) {
+            delete identifier;
+            delete address;
+            delete mask;
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+        } else{
+            stdout << "Assigned address " << address->asChars() << " with mask " <<
+            mask->asString() << " to '" << identifier->asString() << "'" << endl;
         }
         return;
     } else if (parser->checkSwitch("unset")) {

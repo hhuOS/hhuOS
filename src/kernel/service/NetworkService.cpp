@@ -118,21 +118,15 @@ namespace Kernel {
                                              IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one of given attributes were null, not assigning IP4 address");
-            delete ip4Address;
-            delete ip4Netmask;
             return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
             log.error("No ethernet device exists for given identifier, not assigning IP4 address");
-            delete ip4Address;
-            delete ip4Netmask;
             return 1;
         }
         if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
             log.error("Registering device failed");
-            delete ip4Address;
-            delete ip4Netmask;
             return 1;
         }
         return 0;
@@ -146,15 +140,12 @@ namespace Kernel {
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
             log.error("No ethernet device exists for given identifier, not unAssigning IP4 address");
-            delete identifier;
             return 1;
         }
         if (this->ip4Module->unregisterDevice(selected)) {
-            delete identifier;
             log.error("UnRegistering device failed");
             return 1;
         }
-        delete identifier;
         return 0;
     }
 
