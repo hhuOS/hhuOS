@@ -27,6 +27,8 @@ namespace Kernel {
 
         bool entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress);
 
+        uint8_t addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
+
     public:
 
         ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice);
@@ -36,8 +38,6 @@ namespace Kernel {
         uint8_t
         resolveTo(EthernetAddress **ethernetAddress, IP4Address *targetProtocolAddress,
                   IP4Address *senderProtocolAddress);
-
-        uint8_t addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress);
 
         uint8_t sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress);
 

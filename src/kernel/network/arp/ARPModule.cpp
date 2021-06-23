@@ -9,6 +9,37 @@
 
 namespace Kernel {
     //Private method!
+    //Why private? We might delete given addresses at any time or in destructor at least
+    //-> very dangerous if public, we MUST make sure that only new [Address]() is given here
+    uint8_t ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
+        if (ip4Address == nullptr) {
+            log.error("Given IP4 address was null, not adding entry");
+            return 1;
+        }
+        if (ethernetAddress == nullptr) {
+            log.error("Given Ethernet address was null, not adding entry");
+            return 1;
+        }
+        if (arpTable == nullptr || tableAccessLock == nullptr) {
+            log.error("ARP table or access lock was null, not adding entry");
+            return 1;
+        }
+        tableAccessLock->acquire();
+        for (ARPEntry *current:*arpTable) {
+            //Update existing entry instead of creating a new one if address already known
+            if (current->matches(ip4Address)) {
+                delete current->getEthernetAddress();
+                current->setEthernetAddress(ethernetAddress);
+                tableAccessLock->release();
+                return 0;
+            }
+        }
+        arpTable->add(new ARPEntry(ip4Address, ethernetAddress));
+        tableAccessLock->release();
+        return 0;
+    }
+
+    //Private method!
     bool ARPModule::entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
         if (arpTable == nullptr || tableAccessLock == nullptr) {
             return false;
@@ -75,34 +106,6 @@ namespace Kernel {
                   (char *) targetProtocolAddress->asString()
         );
         return 1;
-    }
-
-    uint8_t ARPModule::addEntry(IP4Address *ip4Address, EthernetAddress *ethernetAddress) {
-        if (ip4Address == nullptr) {
-            log.error("Given IP4 address was null, not adding entry");
-            return 1;
-        }
-        if (ethernetAddress == nullptr) {
-            log.error("Given Ethernet address was null, not adding entry");
-            return 1;
-        }
-        if (arpTable == nullptr || tableAccessLock == nullptr) {
-            log.error("ARP table or access lock was null, not adding entry");
-            return 1;
-        }
-        tableAccessLock->acquire();
-        for (ARPEntry *current:*arpTable) {
-            //Update existing entry instead of creating a new one if address already known
-            if (current->matches(ip4Address)) {
-                delete current->getEthernetAddress();
-                current->setEthernetAddress(ethernetAddress);
-                tableAccessLock->release();
-                return 0;
-            }
-        }
-        arpTable->add(new ARPEntry(ip4Address, ethernetAddress));
-        tableAccessLock->release();
-        return 0;
     }
 
     uint8_t ARPModule::sendRequest(IP4Address *senderProtocolAddress, IP4Address *targetProtocolAddress) {
