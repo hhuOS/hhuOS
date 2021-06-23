@@ -101,7 +101,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if(processICMP4Message(ip4Header, input)){
+            if (processICMP4Message(ip4Header, input)) {
                 log.error("Could not process ICMP4Message, see syslog for more details");
             }
             //Processing finally done, cleanup
