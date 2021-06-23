@@ -208,14 +208,14 @@ namespace Kernel {
     }
 
     String ARPModule::asString() {
-        if(arpTable->isEmpty()){
+        if (arpTable->isEmpty()) {
             return "[empty]";
         }
 
         String tableContent = "\n    ";
-        for(ARPEntry *current:*arpTable){
-            tableContent+=current->asString();
-            tableContent+=",\n    ";
+        for (ARPEntry *current:*arpTable) {
+            tableContent += current->asString();
+            tableContent += ",\n    ";
         }
         return tableContent;
     }
