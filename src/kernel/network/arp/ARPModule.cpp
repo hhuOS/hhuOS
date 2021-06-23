@@ -94,7 +94,7 @@ namespace Kernel {
         timeService->msleep(ARP_WAIT_TIME);
 
         if (entryFound(ethernetAddress, targetProtocolAddress)) {
-            log.info("ARP reply for address %s arrived in the last %d milliseconds, returning successful",
+            log.info("ARP reply for address %s arrived in the last %d milliseconds",
                      (char *) targetProtocolAddress->asString(), ARP_WAIT_TIME);
             return 0;
         }
