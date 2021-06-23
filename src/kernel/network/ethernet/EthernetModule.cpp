@@ -17,7 +17,7 @@ namespace Kernel {
         }
         accessLock->acquire();
         for (EthernetDevice *current:*ethernetDevices) {
-            if(ethernetHeader->destinationIs(current->getAddress())){
+            if (ethernetHeader->destinationIs(current->getAddress())) {
                 accessLock->release();
                 return true;
             }
@@ -241,7 +241,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if(!isForUs(ethernetHeader)){
+            if (!isForUs(ethernetHeader)) {
                 log.error("Incoming frame is not broadcast and not for us either, discarding");
                 delete ethernetHeader;
                 delete input;

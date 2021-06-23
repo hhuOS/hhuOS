@@ -16,5 +16,5 @@ EthernetAddress *ARPEntry::getEthernetAddress() {
 }
 
 void ARPEntry::setEthernetAddress(EthernetAddress *otherAddress) {
-    this->ethernetAddress=otherAddress;
+    this->ethernetAddress = otherAddress;
 }

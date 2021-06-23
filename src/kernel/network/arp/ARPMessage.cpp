@@ -131,7 +131,7 @@ uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {
     errors += input->readOneByteTo(&header.protocolAddressLength);
     errors += input->readTwoBytesSwappedTo(&header.opCode);
 
-    if(errors){
+    if (errors) {
         return errors;
     }
 

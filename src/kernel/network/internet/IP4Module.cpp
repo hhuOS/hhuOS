@@ -227,12 +227,12 @@ namespace Kernel {
             accessLock->acquire();
             IP4Interface *targetInterface = nullptr;
             for (IP4Interface *current:*interfaces) {
-                if (current->hasAddress(destinationAddress)){
-                    targetInterface=current;
+                if (current->hasAddress(destinationAddress)) {
+                    targetInterface = current;
                     break;
                 }
             }
-            if(targetInterface== nullptr){
+            if (targetInterface == nullptr) {
                 log.error("No target interface found for address %s, discarding ARP message",
                           destinationAddress->asChars());
                 accessLock->release();
@@ -240,7 +240,7 @@ namespace Kernel {
                 delete arpMessage;
                 return;
             }
-            if(targetInterface->notify(arpMessage)){
+            if (targetInterface->notify(arpMessage)) {
                 log.error("Processing ARP message failed, see syslog for more details");
             }
             accessLock->release();

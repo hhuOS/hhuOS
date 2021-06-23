@@ -91,9 +91,9 @@ namespace Kernel {
             return 1;
         }
         tableAccessLock->acquire();
-        for(ARPEntry *current:*arpTable){
+        for (ARPEntry *current:*arpTable) {
             //Update existing entry instead of creating a new one if address already known
-            if(current->matches(ip4Address)){
+            if (current->matches(ip4Address)) {
                 delete current->getEthernetAddress();
                 current->setEthernetAddress(ethernetAddress);
                 tableAccessLock->release();
