@@ -11,13 +11,10 @@
 namespace Kernel {
     class IP4ReceiveEvent : public Event {
     private:
-        IP4Header *ip4Header;
         NetworkByteBlock *input;
 
     public:
-        explicit IP4ReceiveEvent(IP4Header *ip4Header, NetworkByteBlock *input);
-
-        IP4Header *getHeader();
+        explicit IP4ReceiveEvent(NetworkByteBlock *input);
 
         [[nodiscard]] NetworkByteBlock *getInput() const;
 

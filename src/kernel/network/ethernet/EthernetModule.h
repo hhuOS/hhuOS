@@ -23,7 +23,7 @@ namespace Kernel {
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
 
-        bool isForUs(EthernetHeader *ethernetHeader);
+        bool isForUsOrBroadcast(EthernetHeader *ethernetHeader);
 
     public:
 

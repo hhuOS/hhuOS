@@ -146,25 +146,32 @@ namespace Kernel {
             return;
         }
         if ((event.getType() == IP4ReceiveEvent::TYPE)) {
-            auto *ip4Header = ((IP4ReceiveEvent &) event).getHeader();
             auto *input = ((IP4ReceiveEvent &) event).getInput();
-
-            if (ip4Header == nullptr) {
-                log.error("Incoming IP4Datagram was null, discarding input");
+            if (input == nullptr) {
+                log.error("Incoming input was null, ignoring");
+                return;
+            }
+            auto *ip4Header = new IP4Header();
+            if (ip4Header->parse(input)) {
+                log.error("Parsing IP4Header failed, discarding");
+                delete ip4Header;
                 delete input;
                 return;
             }
-            if (input == nullptr) {
-                log.error("Incoming input was null, discarding datagram");
-                delete ip4Header;
-                return;
-            }
+            //TODO: Implement this one!
             if (!ip4Header->headerValid()) {
                 log.error("Incoming IP4Header corrupted, discarding datagram");
                 delete ip4Header;
                 delete input;
                 return;
             }
+            //TODO: Implement this one!
+//            if(!isForUsOrBroadcast(ip4Header)){
+//                log.error("Incoming datagram is not for us and not broadcast either, discarding");
+//                delete ip4Header;
+//                delete input;
+//                return;
+//            }
             switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     if (input->bytesRemaining() == 0) {

@@ -4,16 +4,34 @@
 
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
-#include <kernel/network/internet/IP4Header.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include "EthernetModule.h"
 
 namespace Kernel {
-    bool EthernetModule::isForUs(EthernetHeader *ethernetHeader) {
+    //private method!
+    void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
+        if (ethernetDevice == nullptr) {
+            return;
+        }
+        if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
+            //Free mapped IO if physical interface
+            systemManagement->freeIO(ethernetDevice->getSendBuffer());
+        } else {
+            //Simply delete allocated buffer if virtual interface
+            delete ethernetDevice->getSendBuffer();
+        }
+    }
+
+    //private method!
+    bool EthernetModule::isForUsOrBroadcast(EthernetHeader *ethernetHeader) {
         if (ethernetHeader->destinationIs(broadcastAddress)) {
             return true;
+        }
+        if (ethernetDevices == nullptr || accessLock == nullptr) {
+            log.error("Internal list or accessLock was null, not checking if frame is for us");
+            return false;
         }
         accessLock->acquire();
         for (EthernetDevice *current:*ethernetDevices) {
@@ -31,10 +49,11 @@ namespace Kernel {
         this->eventBus = eventBus;
         this->loopbackIdentifier = loopbackIdentifier;
         this->systemManagement = systemManagement;
+
+        broadcastAddress = EthernetAddress::buildBroadcastAddress();
         ethernetDevices = new Util::ArrayList<EthernetDevice *>();
         accessLock = new Spinlock();
         accessLock->release();
-        broadcastAddress = EthernetAddress::buildBroadcastAddress();
     }
 
     EthernetModule::~EthernetModule() {
@@ -135,19 +154,6 @@ namespace Kernel {
         return 1;
     }
 
-    void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
-        if (ethernetDevice == nullptr) {
-            return;
-        }
-        if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
-            //Free mapped IO if physical interface
-            systemManagement->freeIO(ethernetDevice->getSendBuffer());
-        } else {
-            //Simply delete allocated buffer if virtual interface
-            delete ethernetDevice->getSendBuffer();
-        }
-    }
-
     uint8_t EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
         if (strings == nullptr || ethernetDevices == nullptr || accessLock == nullptr) {
             log.error("Given String list, internal list or accessLock was null,"
@@ -232,35 +238,20 @@ namespace Kernel {
             auto *ethernetHeader = new EthernetHeader();
             if (ethernetHeader->parse(input)) {
                 log.error("Parsing EthernetHeader failed, discarding");
-                delete input;
-                delete ethernetHeader;
-                return;
-            }
-            if (ethernetDevices == nullptr || accessLock == nullptr) {
-                log.error("Internal list or accessLock was null, not searching ethernet device");
                 delete ethernetHeader;
                 delete input;
                 return;
             }
-            if (!isForUs(ethernetHeader)) {
-                log.error("Incoming frame is not broadcast and not for us either, discarding");
+            if (!isForUsOrBroadcast(ethernetHeader)) {
+                log.error("Incoming frame is not for us and not broadcast either, discarding");
                 delete ethernetHeader;
                 delete input;
                 return;
             }
             switch (ethernetHeader->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
-                    auto *ip4Header = new IP4Header();
-                    if (ip4Header->parse(input)) {
-                        log.error("Could not assemble IP4 header, discarding data");
-                        //ip4Header is not part of inFrame here
-                        //-> we need to delete it separately!
-                        delete ip4Header;
-                        delete input;
-                        break;
-                    }
-                    //send input to next module via EventBus
-                    eventBus->publish(new IP4ReceiveEvent(ip4Header, input));
+                    //send input to IP4Module via EventBus for further processing
+                    eventBus->publish(new IP4ReceiveEvent(input));
                     break;
                 }
                 case EthernetDataPart::EtherType::ARP: {
