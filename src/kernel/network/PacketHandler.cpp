@@ -66,7 +66,7 @@ namespace Kernel {
                 delete (uint8_t *) packet;
                 return;
             }
-            if(notifyEthernetModule(packet, length)){
+            if (notifyEthernetModule(packet, length)) {
                 log.error("Could not notify EthernetModule, see syslog for more details");
             }
             //Processing finally done, cleanup

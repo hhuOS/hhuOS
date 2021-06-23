@@ -12,7 +12,7 @@ namespace Kernel {
     //Private method!
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
         if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
-            if(systemManagement== nullptr){
+            if (systemManagement == nullptr) {
                 log.error("System management was null, not deleting sendBuffer");
                 return;
             }
