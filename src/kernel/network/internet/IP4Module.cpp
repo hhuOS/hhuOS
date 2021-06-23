@@ -10,6 +10,49 @@
 #include "IP4Module.h"
 
 namespace Kernel {
+    //private method!
+    uint8_t IP4Module::notifyDestinationInterface(ARPMessage *arpMessage) {
+        if (interfaces == nullptr || accessLock == nullptr) {
+            log.error("Internal interface list or accessLock not initialized, discarding ARP message");
+            return 1;
+        }
+        EthernetDataPart::EtherType arpProtocolType =
+                EthernetDataPart::parseIntAsEtherType(arpMessage->getProtocolType());
+        if (arpProtocolType != EthernetDataPart::EtherType::IP4) {
+            log.error("Incoming ARP message was not for IPv4, discarding ARP message");
+            return 1;
+        }
+
+        //We already checked above if this ARPMessage is for IPv4 or not
+        //-> parsing works here
+        auto *destinationAddress =
+                new IP4Address(arpMessage->getTargetProtocolAddress());
+        accessLock->acquire();
+        IP4Interface *targetInterface = nullptr;
+        for (IP4Interface *current:*interfaces) {
+            if (current->hasAddress(destinationAddress)) {
+                targetInterface = current;
+                break;
+            }
+        }
+        if (targetInterface == nullptr) {
+            log.error("No target interface found for address %s, discarding ARP message",
+                      destinationAddress->asChars());
+            accessLock->release();
+            delete destinationAddress;
+            return 1;
+        }
+        delete destinationAddress;
+
+        if (targetInterface->notify(arpMessage)) {
+            log.error("Notify interface about ARP message failed, see syslog for more details");
+            accessLock->release();
+            return 1;
+        }
+        accessLock->release();
+        return 0;
+    }
+
     IP4Module::IP4Module(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
@@ -207,49 +250,28 @@ namespace Kernel {
         if ((event.getType() == ARPReceiveEvent::TYPE)) {
             //Each IP4 interface has its own ARP module (RFC1180 page 12 middle)
             //-> we need to find the destination interface first when processing ARP messages!
-            auto *arpMessage = ((ARPReceiveEvent &) event).getARPMessage();
-            EthernetDataPart::EtherType arpProtocolType =
-                    EthernetDataPart::parseIntAsEtherType(
-                            arpMessage->getProtocolType()
-                    );
-            if (arpProtocolType != EthernetDataPart::EtherType::IP4) {
-                log.error("Incoming ARP message was not for IPv4, discarding");
-                delete arpMessage;
+            auto *input = ((ARPReceiveEvent &) event).getInput();
+            if (input == nullptr) {
+                log.error("Incoming input was null, ignoring");
                 return;
             }
-            if (interfaces == nullptr || accessLock == nullptr) {
-                log.error("Internal interface list or accessLock not initialized, discarding ARP message");
+            auto *arpMessage = new ARPMessage();
+            if (arpMessage->parse(input)) {
+                log.error("Could not assemble ARP message, discarding data");
+                //arpMessage is not part of inFrame here
+                //-> we need to delete it separately!
                 delete arpMessage;
+                delete input;
                 return;
             }
 
-            //Parsing works here, because we already checked above if this ARPMessage is for IP4 or not
-            auto *destinationAddress =
-                    new IP4Address(arpMessage->getTargetProtocolAddress());
-            accessLock->acquire();
-            IP4Interface *targetInterface = nullptr;
-            for (IP4Interface *current:*interfaces) {
-                if (current->hasAddress(destinationAddress)) {
-                    targetInterface = current;
-                    break;
-                }
+            if(notifyDestinationInterface(arpMessage)){
+                log.error("Could not notify destination interface, see syslog for more details");
             }
-            if (targetInterface == nullptr) {
-                log.error("No target interface found for address %s, discarding ARP message",
-                          destinationAddress->asChars());
-                accessLock->release();
-                delete destinationAddress;
-                delete arpMessage;
-                return;
-            }
-            if (targetInterface->notify(arpMessage)) {
-                log.error("Processing ARP message failed, see syslog for more details");
-            }
-            accessLock->release();
-            delete destinationAddress;
 
-            //Processing finally done, discard incoming message
+            //Processing finally done, cleanup
             delete arpMessage;
+            delete input;
             return;
         }
     }

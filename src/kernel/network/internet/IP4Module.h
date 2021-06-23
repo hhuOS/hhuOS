@@ -17,17 +17,19 @@ namespace Kernel {
         IP4RoutingModule *routingModule = nullptr;
         Util::ArrayList<IP4Interface *> *interfaces = nullptr;
 
+        uint8_t notifyDestinationInterface(ARPMessage *arpMessage);
+
     public:
 
         explicit IP4Module(NetworkEventBus *eventBus);
 
         ~IP4Module() override;
 
+
         /**
          * A logger to provide information on the kernel log.
          */
         Logger &log = Logger::get("IP4Module");
-
 
 /**
      * Inherited method from Receiver.
