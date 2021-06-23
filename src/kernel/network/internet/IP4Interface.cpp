@@ -10,7 +10,13 @@ namespace Kernel {
                                IP4Address *ip4Address,
                                IP4Netmask *ip4Netmask) {
         this->eventBus = eventBus;
-        arpModule = new ARPModule(eventBus, ethernetDevice);
+        //Addresses in ARPModule may be deleted at any time
+        //-> copy our addresses or we might lose them!
+        arpModule =
+                new ARPModule(eventBus, ethernetDevice,
+                                  new IP4Address(ip4Address),
+                                  new EthernetAddress(ethernetDevice->getAddress())
+                );
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
         this->ip4Netmask = ip4Netmask;

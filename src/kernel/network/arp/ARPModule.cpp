@@ -57,10 +57,13 @@ namespace Kernel {
         return false;
     }
 
-    ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice) {
+    ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice, IP4Address *ourIP4Address,
+                         EthernetAddress *ourEthernetAddress) {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
         arpTable = new Util::ArrayList<ARPEntry *>();
+        arpTable->add(new ARPEntry(ourIP4Address, ourEthernetAddress));
+
         timeService = System::getService<TimeService>();
 
         tableAccessLock = new Spinlock();
