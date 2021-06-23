@@ -19,7 +19,6 @@
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
-#include <kernel/network/ethernet/EthernetFrame.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include "PacketHandler.h"
 
@@ -65,17 +64,9 @@ namespace Kernel {
                 return;
             }
 
-            auto *ethernetHeader = new EthernetHeader();
-            if (ethernetHeader->parse(input)) {
-                log.error("Parsing incoming packet as EthernetFrame failed, discarding");
-                delete input;
-                delete ethernetHeader;
-                return;
-            }
+            eventBus->publish(new EthernetReceiveEvent(input));
 
-            eventBus->publish(new EthernetReceiveEvent(ethernetHeader, input));
-
-            //inFrame and input will be deleted in EthernetModule after processing
+            //input will be deleted in EthernetModule after processing
             //-> no delete here
             return;
         }

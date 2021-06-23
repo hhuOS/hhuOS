@@ -5,15 +5,11 @@
 #include "EthernetReceiveEvent.h"
 
 namespace Kernel {
-    EthernetReceiveEvent::EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input)
-            : ethernetHeader(ethernetHeader), input(input) {}
+    EthernetReceiveEvent::EthernetReceiveEvent(NetworkByteBlock *input)
+            : input(input) {}
 
     String EthernetReceiveEvent::getType() const {
         return TYPE;
-    }
-
-    EthernetHeader *EthernetReceiveEvent::getEthernetHeader() const {
-        return ethernetHeader;
     }
 
     NetworkByteBlock *EthernetReceiveEvent::getInput() const {

@@ -224,15 +224,15 @@ namespace Kernel {
             return;
         }
         if ((event.getType() == EthernetReceiveEvent::TYPE)) {
-            auto *ethernetHeader = ((EthernetReceiveEvent &) event).getEthernetHeader();
             auto *input = ((EthernetReceiveEvent &) event).getInput();
-            if (ethernetHeader == nullptr) {
-                log.error("Incoming EthernetHeader was null, discarding input");
-                delete input;
+            if (input == nullptr) {
+                log.error("Incoming input was null, ignoring");
                 return;
             }
-            if (input == nullptr) {
-                log.error("Incoming input was null, discarding EthernetHeader");
+            auto *ethernetHeader = new EthernetHeader();
+            if (ethernetHeader->parse(input)) {
+                log.error("Parsing EthernetHeader failed, discarding");
+                delete input;
                 delete ethernetHeader;
                 return;
             }

@@ -12,13 +12,10 @@
 namespace Kernel {
     class EthernetReceiveEvent : public Event {
     private:
-        EthernetHeader *ethernetHeader;
         NetworkByteBlock *input;
 
     public:
-        explicit EthernetReceiveEvent(EthernetHeader *ethernetHeader, NetworkByteBlock *input);
-
-        [[nodiscard]] EthernetHeader *getEthernetHeader() const;
+        explicit EthernetReceiveEvent(NetworkByteBlock *input);
 
         [[nodiscard]] String getType() const override;
 
