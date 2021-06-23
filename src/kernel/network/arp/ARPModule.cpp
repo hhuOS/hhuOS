@@ -34,6 +34,7 @@ namespace Kernel {
     //Private method!
     bool ARPModule::entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress) {
         if (arpTable == nullptr || accessLock == nullptr) {
+            log.error("ARP table or accessLock was null, not resolving");
             return false;
         }
         accessLock->acquire();

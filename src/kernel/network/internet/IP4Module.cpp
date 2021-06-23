@@ -227,6 +227,7 @@ namespace Kernel {
                 case IP4DataPart::IP4ProtocolType::UDP: {
                     //send input to UDP4Module via EventBus for further processing
                     eventBus->publish(new UDP4ReceiveEvent(ip4Header, input));
+
                     //We need input AND ip4Header in next module
                     //-> don't delete anything here!
                     return;

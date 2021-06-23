@@ -5,7 +5,7 @@
 #include "IP4RoutingModule.h"
 
 namespace Kernel {
-//Private method!
+    //Private method!
     uint8_t IP4RoutingModule::find(IP4Route **bestRoute, IP4Address *receiverAddress) {
         if (routes == nullptr || accessLock == nullptr) {
             log.error("Route table or access lock not initialized, not finding best one");

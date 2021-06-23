@@ -11,10 +11,11 @@
 namespace Kernel {
     //Private method!
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
-        if (ethernetDevice == nullptr) {
-            return;
-        }
         if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
+            if(systemManagement== nullptr){
+                log.error("System management was null, not deleting sendBuffer");
+                return;
+            }
             //Free mapped IO if physical interface
             systemManagement->freeIO(ethernetDevice->getSendBuffer());
         } else {

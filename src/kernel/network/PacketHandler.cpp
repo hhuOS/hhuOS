@@ -23,6 +23,33 @@
 #include "PacketHandler.h"
 
 namespace Kernel {
+    //Private method!
+    uint8_t PacketHandler::notifyEthernetModule(void *packet, uint16_t length) {
+        auto *input = new NetworkByteBlock(length);
+        if (input->appendStraightFrom(packet, length)) {
+            log.error("Reading of data into NetworkByteBlock failed, discarding");
+            delete input;
+            return 1;
+        }
+        if (!input->isCompletelyFilled()) {
+            log.error("Incoming data could not be loaded completely, discarding input");
+            delete input;
+            return 1;
+        }
+        //Reset index to zero to prepare reading headers and data
+        if (input->resetIndex()) {
+            log.error("Index reset for input byteBlock failed, discarding");
+            delete input;
+            return 1;
+        }
+
+        //send input to EthernetModule via EventBus for further processing
+        eventBus->publish(new EthernetReceiveEvent(input));
+
+        //We need input in EthernetModule
+        //-> no 'delete input' here
+        return 0;
+    }
 
     PacketHandler::PacketHandler(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
@@ -39,30 +66,10 @@ namespace Kernel {
                 delete (uint8_t *) packet;
                 return;
             }
-            auto *input = new NetworkByteBlock(length);
-            if (input->appendStraightFrom(packet, length)) {
-                log.error("Reading of data into NetworkByteBlock failed, discarding");
-                delete (uint8_t *) packet;
-                delete input;
-                return;
+            if(notifyEthernetModule(packet, length)){
+                log.error("Could not notify EthernetModule, see syslog for more details");
             }
-            if (!input->isCompletelyFilled()) {
-                log.error("Incoming data could not be loaded completely, discarding input");
-                delete input;
-                return;
-            }
-            //Reset index to zero to prepare reading headers and data
-            if (input->resetIndex()) {
-                log.error("Index reset for input byteBlock failed, discarding");
-                delete input;
-                return;
-            }
-
-            //send input to EthernetModule via EventBus for further processing
-            eventBus->publish(new EthernetReceiveEvent(input));
-
-            //input will be used in EthernetModule
-            //-> no 'delete input' here
+            //Processing finally done, cleanup
             delete (uint8_t *) packet;
             return;
         }
