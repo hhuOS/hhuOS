@@ -31,8 +31,7 @@ namespace Kernel {
 
     public:
 
-        ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice, IP4Address *ourIP4Address,
-                  EthernetAddress *ourEthernetAddress);
+        ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice);
 
         virtual ~ARPModule();
 

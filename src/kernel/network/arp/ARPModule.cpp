@@ -57,12 +57,10 @@ namespace Kernel {
         return false;
     }
 
-    ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice, IP4Address *ourIP4Address,
-                         EthernetAddress *ourEthernetAddress) {
+    ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice) {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
         arpTable = new Util::ArrayList<ARPEntry *>();
-        arpTable->add(new ARPEntry(ourIP4Address, ourEthernetAddress));
 
         timeService = System::getService<TimeService>();
 
@@ -103,6 +101,7 @@ namespace Kernel {
         timeService->msleep(500);
 
         if (entryFound(ethernetAddress, targetProtocolAddress)) {
+            log.info("ARP reply with requested address arrived in the last 500ms, returning successful");
             return 0;
         }
         log.error("No ARP response arrived in time, no resolve for %s possible",
