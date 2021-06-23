@@ -20,7 +20,7 @@ class Ping : public Command {
 
 private:
     Kernel::NetworkEventBus *eventBus = nullptr;
-    Kernel::TimeService *timeService= nullptr;
+    Kernel::TimeService *timeService = nullptr;
 
 public:
 

@@ -23,24 +23,24 @@ void Ping::execute(Util::Array<String> &args) {
         return;
     }
 
-    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127,0,0,1}, numberOfPings = 3;
+    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127, 0, 0, 1}, numberOfPings = 3;
 
     auto target = parser.getUnnamedArguments();
-    if(target.length()==1) {
-        IP4Address::parseTo(addressBytes,&target[0]);
+    if (target.length() == 1) {
+        IP4Address::parseTo(addressBytes, &target[0]);
     }
 
     auto count = parser.getNamedArgument("count");
-    if(!count.isEmpty()){
-        numberOfPings= strtoint((const char *) count);
+    if (!count.isEmpty()) {
+        numberOfPings = static_cast<uint8_t>(strtoint((const char *) count));
     }
 
-    for(uint8_t i=0;i<numberOfPings;i++){
+    for (uint8_t i = 0; i < numberOfPings; i++) {
         eventBus->publish(
                 new Kernel::ICMP4SendEvent(
                         new IP4Address(addressBytes),
-                        new ICMP4Echo(42,i)
-                        )
+                        new ICMP4Echo(42, i+1)
+                )
         );
         timeService->msleep(1000);
     }

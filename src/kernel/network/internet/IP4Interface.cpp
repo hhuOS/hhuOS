@@ -49,7 +49,7 @@ namespace Kernel {
             return 1;
         }
         if (arpModule == nullptr) {
-            log.error("%s: ARP module was not initialized, do not send anything",
+            log.error("%s: ARP module was not initialized, return",
                       ethernetDevice->getIdentifier()->getCharacters()
             );
             return 1;
@@ -59,7 +59,7 @@ namespace Kernel {
 
         EthernetAddress *targetHardwareAddress = nullptr;
         if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, ip4Address)) {
-            log.error("%s: ARP module failed to resolve destination address, do not send anything",
+            log.error("%s: ARP module failed to resolve destination address",
                       ethernetDevice->getIdentifier()->getCharacters()
             );
             return 1;
