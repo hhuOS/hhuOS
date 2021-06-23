@@ -12,14 +12,18 @@ namespace Kernel {
     class ICMP4Module : public Receiver {
     private:
         NetworkEventBus *eventBus;
+
+        uint8_t processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input);
+
     public:
+
         explicit ICMP4Module(NetworkEventBus *eventBus);
+
 
         /**
          * A logger to provide information on the kernel log.
          */
         Logger &log = Logger::get("ICMP4Module");
-
 
 /**
      * Inherited method from Receiver.

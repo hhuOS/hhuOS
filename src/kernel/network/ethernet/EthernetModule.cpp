@@ -5,7 +5,6 @@
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
-#include <kernel/network/arp/ARPMessage.h>
 #include <kernel/event/network/ARPReceiveEvent.h>
 #include "EthernetModule.h"
 

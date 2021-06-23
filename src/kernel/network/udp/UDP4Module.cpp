@@ -110,7 +110,6 @@ namespace Kernel {
         if (event.getType() == UDP4ReceiveEvent::TYPE) {
             auto *ip4Header = ((UDP4ReceiveEvent &) event).getIP4Header();
             auto *input = ((UDP4ReceiveEvent &) event).getInput();
-
             if (ip4Header == nullptr || input == nullptr) {
                 log.error("Incoming IP4Header or input was null, discarding data");
                 delete ip4Header;
