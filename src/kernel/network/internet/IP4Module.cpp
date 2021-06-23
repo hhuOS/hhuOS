@@ -108,13 +108,15 @@ namespace Kernel {
                 toDelete = interfaces->get(i);
                 routingModule->removeRoutesFor(toDelete);
                 interfaces->remove(i);
+                accessLock->release();
                 delete toDelete;
-                break;
+                return 0;
             }
         }
+
         accessLock->release();
-        //It's not an error if there's nothing to delete
-        return 0;
+        log.error("Given ethernet device was not registered, ignoring");
+        return 1;
     }
 
     void IP4Module::onEvent(const Event &event) {

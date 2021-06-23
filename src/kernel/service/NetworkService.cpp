@@ -142,11 +142,7 @@ namespace Kernel {
             log.error("No ethernet device exists for given identifier, not unAssigning IP4 address");
             return 1;
         }
-        if (this->ip4Module->unregisterDevice(selected)) {
-            log.error("UnRegistering device failed");
-            return 1;
-        }
-        return 0;
+        return this->ip4Module->unregisterDevice(selected);
     }
 
     UDP4SocketController *NetworkService::createSocketController() {

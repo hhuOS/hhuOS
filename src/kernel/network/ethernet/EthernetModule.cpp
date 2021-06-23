@@ -131,8 +131,8 @@ namespace Kernel {
             }
         }
         accessLock->release();
-        //It's not an error if there's nothing to delete
-        return 0;
+        log.error("Given network device was not registered, ignoring");
+        return 1;
     }
 
     void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {

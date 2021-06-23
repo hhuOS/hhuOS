@@ -82,7 +82,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
                       "[Interface identifier] [IP4Address] [bitCount Netmask]" << endl;
             return;
         }
-        uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0}, bitCount = 0;
+        uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
         IP4Address::parseTo(addressBytes, &unnamedArguments[1]);
 
         bitCount = strtoint((const char *) unnamedArguments[2]);
@@ -113,7 +113,9 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         }
 
         if (networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))) {
-            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+            stderr << "UnAssigning address for '" << unnamedArguments[0] << "' failed! See syslog for details" << endl;
+        } else{
+            stdout << "Address unAssigned for '" << unnamedArguments[0] << "'" << endl;
         }
         return;
     }

@@ -17,6 +17,7 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     uint32_t base = 0xffffffff;
     base = base << (32 - bitCount);
 
+    //byte order...
     auto *baseAsBytes = (uint8_t*)&base;
     netmask[3]=baseAsBytes[0];
     netmask[2]=baseAsBytes[1];
