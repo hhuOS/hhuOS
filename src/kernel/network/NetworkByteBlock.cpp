@@ -128,6 +128,7 @@ namespace Kernel {
     }
 
     uint8_t NetworkByteBlock::decrementIndex() {
+        //Avoid breakout
         if (currentIndex > 0) {
             currentIndex--;
         }
