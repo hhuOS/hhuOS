@@ -128,7 +128,9 @@ namespace Kernel {
     }
 
     uint8_t NetworkByteBlock::decrementIndex() {
-        currentIndex--;
+        if (currentIndex > 0) {
+            currentIndex--;
+        }
         return 0;
     }
 
