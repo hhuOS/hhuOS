@@ -102,7 +102,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
         } else{
             stdout << "Assigned address " << address->asString() << " with mask " <<
-            mask->asString() << " to '" << identifier->asString() << "'" << endl;
+            mask->asString() << " to " << identifier->asString() << endl;
         }
         return;
     } else if (parser->checkSwitch("unset")) {
