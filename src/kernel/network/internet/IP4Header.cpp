@@ -10,21 +10,21 @@ uint8_t IP4Header::calculateChecksum(uint16_t *target) {
         return 1;
     }
 
-    auto *byteBlock = new Kernel::NetworkByteBlock(IP4HEADER_MIN_LENGTH);
-    if (this->copyTo(byteBlock)) {
+    auto *headerAsBytes = new Kernel::NetworkByteBlock(IP4HEADER_MIN_LENGTH);
+    if (this->copyTo(headerAsBytes)) {
         return 1;
     }
-    byteBlock->resetIndex();
+    headerAsBytes->resetIndex();
 
-    uint16_t tempValue = 0;
-    uint16_t result = 0;
+    uint16_t tempValue = 0, result = 0;
 
     for (uint8_t i = 0; i < 5; i++) {
-        if (byteBlock->readStraightTo(&tempValue, sizeof tempValue)) {
+        if (headerAsBytes->readStraightTo(&tempValue, sizeof tempValue)) {
             return 1;
         }
         result += tempValue;
     }
+    delete headerAsBytes;
 
     *target = ~result;
 
