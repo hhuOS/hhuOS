@@ -178,14 +178,14 @@ namespace Kernel {
                 destinationAddress = new IP4Address(0, 0, 0, 0);
                 //IP4Datagram can cleanup IP4DataParts internally
                 //-> build one with given data and delete it then
-                auto *datagram = new IP4Datagram(destinationAddress, dataPart);
-                delete datagram;
+                auto *cleanup = new IP4Datagram(destinationAddress, dataPart);
+                //destinationAddress will be deleted internally
+                delete cleanup;
                 return;
             }
             auto *datagram = new IP4Datagram(destinationAddress, dataPart);
             if (routingModule == nullptr) {
                 log.error("Internal routing module was null, not sending anything");
-                //delete on NULL objects simply does nothing!
                 delete datagram;
                 return;
             }

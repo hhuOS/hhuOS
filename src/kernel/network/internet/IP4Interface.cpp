@@ -64,15 +64,14 @@ namespace Kernel {
             );
             return 1;
         }
-        eventBus->publish(
-                new EthernetSendEvent(
-                        ethernetDevice,
-                        //The frame's attributes will be deleted after sending
-                        //-> copy it here!
-                        new EthernetFrame(new EthernetAddress(targetHardwareAddress),
-                                          ip4Datagram)
-                )
-        );
+
+        //The frame's attributes will be deleted after sending
+        //-> copy it here!
+        auto *targetHardwareAddressCopy = new EthernetAddress(targetHardwareAddress);
+        eventBus->publish(new EthernetSendEvent(ethernetDevice, targetHardwareAddressCopy, ip4Datagram));
+
+        //Datagram will be deleted in EthernetModule after sending
+        //-> no delete here!
         return 0;
     }
 

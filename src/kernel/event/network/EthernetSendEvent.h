@@ -13,14 +13,18 @@ namespace Kernel {
     class EthernetSendEvent : public Event {
     private:
         EthernetDevice *outDevice;
-        EthernetFrame *ethernetFrame;
+        EthernetAddress *targetHardwareAddress;
+        EthernetDataPart *dataPart;
 
     public:
-        EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame);
+        EthernetSendEvent(EthernetDevice *outDevice, EthernetAddress *targetHardwareAddress,
+                          EthernetDataPart *dataPart);
 
         [[nodiscard]] EthernetDevice *getOutDevice() const;
 
-        [[nodiscard]] EthernetFrame *getEthernetFrame() const;
+        [[nodiscard]] EthernetAddress *getTargetHardwareAddress() const;
+
+        [[nodiscard]] EthernetDataPart *getDataPart() const;
 
         [[nodiscard]] String getType() const override;
 

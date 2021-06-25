@@ -205,21 +205,36 @@ namespace Kernel {
 
     void EthernetModule::onEvent(const Event &event) {
         if ((event.getType() == EthernetSendEvent::TYPE)) {
-            EthernetDevice *outDevice = ((EthernetSendEvent &) event).getOutDevice();
-            EthernetFrame *outFrame = ((EthernetSendEvent &) event).getEthernetFrame();
+            auto *outDevice = ((EthernetSendEvent &) event).getOutDevice();
+            auto *targetHardwareAddress = ((EthernetSendEvent &) event).getTargetHardwareAddress();
+            auto *dataPart = ((EthernetSendEvent &) event).getDataPart();
 
-            if (outDevice == nullptr) {
-                log.error("Outgoing device was null, discarding frame");
-                //delete on NULL objects simply does nothing
-                delete outFrame;
+            if (dataPart == nullptr) {
+                log.error("Outgoing data was null, ignoring");
+                delete targetHardwareAddress;
                 return;
             }
-            if (outFrame == nullptr) {
-                log.error("Outgoing frame was null, ignoring");
+            if (targetHardwareAddress == nullptr) {
+                log.error("Target hardware address was null, discarding outgoing data");
+                targetHardwareAddress =
+                        new EthernetAddress(0, 0, 0, 0, 0, 0);
+                //EthernetFrame can cleanup EthernetDataParts internally
+                //-> build one with given data and delete it then
+                auto *cleanup = new EthernetFrame(targetHardwareAddress, dataPart);
+                //targetHardwareAddress will be deleted internally
+                delete cleanup;
+                return;
+            }
+            auto *outFrame = new EthernetFrame(targetHardwareAddress, dataPart);
+            if (outDevice == nullptr) {
+                log.error("Outgoing device was null, discarding frame");
+                //targetHardwareAddress will be deleted internally
+                delete outFrame;
                 return;
             }
             if (outFrame->getLengthInBytes() == 0) {
                 log.error("Outgoing frame was empty, discarding frame");
+                //targetHardwareAddress will be deleted internally
                 delete outFrame;
                 return;
             }

@@ -5,8 +5,9 @@
 #include "EthernetSendEvent.h"
 
 namespace Kernel {
-    EthernetSendEvent::EthernetSendEvent(EthernetDevice *outDevice, EthernetFrame *ethernetFrame)
-            : outDevice(outDevice), ethernetFrame(ethernetFrame) {}
+    EthernetSendEvent::EthernetSendEvent(EthernetDevice *outDevice, EthernetAddress *targetHardwareAddress,
+                                         EthernetDataPart *dataPart)
+            : outDevice(outDevice), targetHardwareAddress(targetHardwareAddress), dataPart(dataPart) {}
 
     String EthernetSendEvent::getType() const {
         return TYPE;
@@ -16,7 +17,11 @@ namespace Kernel {
         return outDevice;
     }
 
-    EthernetFrame *EthernetSendEvent::getEthernetFrame() const {
-        return ethernetFrame;
+    EthernetAddress *EthernetSendEvent::getTargetHardwareAddress() const {
+        return targetHardwareAddress;
+    }
+
+    EthernetDataPart *EthernetSendEvent::getDataPart() const {
+        return dataPart;
     }
 }

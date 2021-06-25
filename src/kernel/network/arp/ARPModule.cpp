@@ -139,7 +139,7 @@ namespace Kernel {
         //Broadcast address will be deleted after sending here, all other addresses are just copied to ARP request
         //-> no other addresses will be deleted here!
         eventBus->publish(
-                new EthernetSendEvent(outDevice, new EthernetFrame(broadcastAddress, arpRequest))
+                new EthernetSendEvent(outDevice, new EthernetFrame(broadcastAddress, arpRequest), nullptr)
         );
         return 0;
     }
@@ -170,7 +170,7 @@ namespace Kernel {
                 auto *outFrame =
                         new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
                 eventBus->publish(
-                        new EthernetSendEvent(outDevice, outFrame)
+                        new EthernetSendEvent(outDevice, outFrame, nullptr)
                 );
                 //Message will be deleted in IP4Module after processing
                 //-> no 'delete message' here!
