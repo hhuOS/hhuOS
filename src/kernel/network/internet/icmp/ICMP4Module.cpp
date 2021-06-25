@@ -43,7 +43,7 @@ namespace Kernel {
                 }
                 //create and send reply
                 eventBus->publish(
-                        new ICMP4SendEvent(
+                        new IP4SendEvent(
                                 //The datagram's attributes will be deleted after sending
                                 //-> copy it here!
                                 new IP4Address(ip4Header->getSourceAddress()),
@@ -86,11 +86,12 @@ namespace Kernel {
                         break;
                 }
             }
-            eventBus->publish(
-                    new IP4SendEvent(
-                            new IP4Datagram(destinationAddress, icmp4Message)
-                    )
-            );
+            //Send data to IP4Module for further processing
+            eventBus->publish(new IP4SendEvent(destinationAddress, icmp4Message));
+
+            //we need destinationAddress and icmp4Message in IP4Module
+            //-> don't delete anything here
+            return;
         }
         if ((event.getType() == ICMP4ReceiveEvent::TYPE)) {
             auto *ip4Header = ((ICMP4ReceiveEvent &) event).getIP4Header();

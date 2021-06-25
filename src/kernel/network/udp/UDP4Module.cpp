@@ -100,11 +100,11 @@ namespace Kernel {
                 delete udp4Datagram;
                 return;
             }
-            eventBus->publish(
-                    new IP4SendEvent(
-                            new IP4Datagram(destinationAddress, udp4Datagram)
-                    )
-            );
+            //Send data to IP4Module for further processing
+            eventBus->publish(new IP4SendEvent(destinationAddress, udp4Datagram));
+
+            //we need destinationAddress and udp4Datagram in IP4Module
+            //-> don't delete anything here
             return;
         }
         if (event.getType() == UDP4ReceiveEvent::TYPE) {

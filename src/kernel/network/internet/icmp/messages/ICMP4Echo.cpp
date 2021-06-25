@@ -16,12 +16,10 @@ size_t ICMP4Echo::getLengthInBytes() {
 }
 
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {
-    auto *reply =
-            new ICMP4EchoReply(
-                    this->echoMessage.identifier,
-                    this->echoMessage.sequenceNumber
-            );
-    return reply;
+    return new ICMP4EchoReply(
+            this->echoMessage.identifier,
+            this->echoMessage.sequenceNumber
+    );
 }
 
 ICMP4Message::ICMP4MessageType ICMP4Echo::getICMP4MessageType() {

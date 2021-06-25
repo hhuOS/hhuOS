@@ -165,11 +165,24 @@ namespace Kernel {
 
     void IP4Module::onEvent(const Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
-            IP4Datagram *datagram = ((IP4SendEvent &) event).getDatagram();
-            if (datagram == nullptr) {
-                log.error("Outgoing datagram was null, ignoring");
+            auto *destinationAddress = ((IP4SendEvent &) event).getDestinationAddress();
+            auto *dataPart = ((IP4SendEvent &) event).getDataPart();
+
+            if (dataPart == nullptr) {
+                log.error("Outgoing data was null, ignoring");
+                delete destinationAddress;
                 return;
             }
+            if (destinationAddress == nullptr) {
+                log.error("Destination address was null, discarding outgoing data");
+                destinationAddress = new IP4Address(0, 0, 0, 0);
+                //IP4Datagram can cleanup IP4DataParts internally
+                //-> build one with given data and delete it then
+                auto *datagram = new IP4Datagram(destinationAddress, dataPart);
+                delete datagram;
+                return;
+            }
+            auto *datagram = new IP4Datagram(destinationAddress, dataPart);
             if (routingModule == nullptr) {
                 log.error("Internal routing module was null, not sending anything");
                 //delete on NULL objects simply does nothing!

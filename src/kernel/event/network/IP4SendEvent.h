@@ -11,12 +11,15 @@
 namespace Kernel {
     class IP4SendEvent : public Event {
     private:
-        IP4Datagram *datagram;
+        IP4Address *destinationAddress;
+        IP4DataPart *dataPart;
 
     public:
-        explicit IP4SendEvent(IP4Datagram *datagram);
+        explicit IP4SendEvent(IP4Address *destinationAddress, IP4DataPart *dataPart);
 
-        IP4Datagram *getDatagram();
+        IP4Address *getDestinationAddress() const;
+
+        IP4DataPart *getDataPart() const;
 
         [[nodiscard]] String getType() const override;
 
