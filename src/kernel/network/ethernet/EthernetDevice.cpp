@@ -90,6 +90,8 @@ namespace Kernel {
             return 1;
         }
 
+        printf("Data in outgoing frame:\n%s\n", (char*)ethernetFrame->asString());
+
         sendLock->acquire();
 
         if (byteBlock->readStraightTo(sendBuffer, blockLength)) {

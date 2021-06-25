@@ -24,6 +24,8 @@ public:
     size_t getLengthInBytes();
 
     void setSourceAddress(EthernetAddress *source);
+
+    String asString();
 };
 
 

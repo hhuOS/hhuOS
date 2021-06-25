@@ -88,3 +88,7 @@ uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     //Call next level if no errors occurred yet
     return ip4DataPart->copyTo(output);
 }
+
+String IP4Datagram::asString() {
+    return "[IP4Datagram]";
+}

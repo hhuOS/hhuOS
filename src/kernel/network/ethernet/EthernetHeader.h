@@ -33,6 +33,8 @@ public:
     virtual ~EthernetHeader();
 
     bool destinationIs(EthernetAddress *otherAddress);
+
+    String asString();
 };
 
 

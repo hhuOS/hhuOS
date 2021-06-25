@@ -91,3 +91,8 @@ bool EthernetHeader::destinationIs(EthernetAddress *otherAddress) {
     }
     return destinationAddress->equals(otherAddress);
 }
+
+String EthernetHeader::asString() {
+    return "Source Address:" + sourceAddress->asString() + "\nDestination Address:"+destinationAddress->asString()+
+    "\nEtherType:"+EthernetDataPart::etherTypeAsString(etherType);
+}

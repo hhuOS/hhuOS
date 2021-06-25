@@ -65,3 +65,7 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     //Call next level if no errors occurred yet
     return ethernetDataPart->copyTo(output);
 }
+
+String EthernetFrame::asString() {
+    return "Header:" + header->asString() + "\nDataPart:" + ethernetDataPart->asString();
+}
