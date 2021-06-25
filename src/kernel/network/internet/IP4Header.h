@@ -32,7 +32,7 @@ private:
 
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;
 
-    [[nodiscard]] uint16_t calculateChecksum() const;
+    [[nodiscard]] uint8_t calculateChecksum(uint16_t *target);
 
 public:
 
@@ -57,6 +57,8 @@ public:
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
+
+    uint8_t fillChecksumField();
 
     bool headerValid();
 };

@@ -5,6 +5,32 @@
 #include <kernel/network/NetworkDefinitions.h>
 #include "IP4Header.h"
 
+uint8_t IP4Header::calculateChecksum(uint16_t *target) {
+    if (target == nullptr) {
+        return 1;
+    }
+
+    auto *byteBlock = new Kernel::NetworkByteBlock(IP4HEADER_MIN_LENGTH);
+    if (this->copyTo(byteBlock)) {
+        return 1;
+    }
+    byteBlock->resetIndex();
+
+    uint16_t tempValue = 0;
+    uint16_t result = 0;
+
+    for (uint8_t i = 0; i < 5; i++) {
+        if (byteBlock->readStraightTo(&tempValue, sizeof tempValue)) {
+            return 1;
+        }
+        result += tempValue;
+    }
+
+    *target = ~result;
+
+    return 0;
+}
+
 IP4Header::IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart) {
     this->destinationAddress = destinationAddress;
     protocolType = dataPart->getIP4ProtocolType();
@@ -127,16 +153,39 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
         auto *discardedBytes = new uint8_t[remainingHeaderBytes];
         errors += input->readStraightTo(discardedBytes, remainingHeaderBytes);
         delete[] discardedBytes;
-    }
+    }//TODO: Refactor this, it will fail with checksumError that way!
 
     return errors;
 }
 
 bool IP4Header::headerValid() {
-    return calculateChecksum() == headerChecksum;
+    if (headerChecksum == 0) {
+        //Header checksum not parsed!
+        return false;
+    }
+    uint16_t calculationResult = 0,
+            tempChecksum = headerChecksum;
+
+    //set header checksum to zero for calculation
+    headerChecksum = 0;
+    if (calculateChecksum(&calculationResult)) {
+        return false;
+    }
+    //set header checksum back to previous value
+    headerChecksum = tempChecksum;
+
+    return headerChecksum == calculationResult;
 }
 
-uint16_t IP4Header::calculateChecksum() const {
-    //TODO: Implement this one!
-    return headerChecksum;
+uint8_t IP4Header::fillChecksumField() {
+    if (headerChecksum != 0) {
+        //Header checksum already set!
+        return 1;
+    }
+    uint16_t calculationResult = 0;
+    if (calculateChecksum(&calculationResult)) {
+        return 1;
+    }
+    headerChecksum = calculationResult;
+    return 0;
 }

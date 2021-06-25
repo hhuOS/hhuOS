@@ -67,6 +67,10 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
     return EtherType::IP4;
 }
 
+uint8_t IP4Datagram::fillHeaderChecksum() {
+    return header->fillChecksumField();
+}
+
 uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||

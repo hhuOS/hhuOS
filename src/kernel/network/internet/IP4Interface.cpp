@@ -56,6 +56,10 @@ namespace Kernel {
         }
         //We need to copy our own address, because the datagram's address will be deleted after sending
         ip4Datagram->setSourceAddress(new IP4Address(ip4Address));
+        if (ip4Datagram->fillHeaderChecksum()) {
+            log.error("Header checksum calculation failed!");
+            return 1;
+        }
 
         EthernetAddress *targetHardwareAddress = nullptr;
         if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, ip4Address)) {
