@@ -191,6 +191,6 @@ ARPMessage *ARPMessage::buildReply(uint8_t *ourAddressAsBytes) const {
     return response;
 }
 
-String ARPMessage::asString() {
-    return "[ARP Message]";
+String ARPMessage::asString(String spacing) {
+    return spacing + "[ARP Message]";
 }

@@ -25,7 +25,7 @@ public:
 
     void setSourceAddress(EthernetAddress *source);
 
-    String asString();
+    String asString(const String &spacing);
 };
 
 

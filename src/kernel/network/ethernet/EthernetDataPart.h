@@ -36,18 +36,18 @@ public:
 
     virtual EtherType getEtherType() = 0;
 
-    virtual String asString() = 0;
+    virtual String asString(String spacing) = 0;
 
     static String etherTypeAsString(EtherType type) {
         switch (type) {
             case EtherType::IP4:
-                return "IPv4";
+                return "'IPv4'";
             case EtherType::ARP:
-                return "ARP";
+                return "'ARP'";
             case EtherType::IP6:
-                return "IPv6";
+                return "'IPv6'";
             default:
-                return "INVALID";
+                return "'INVALID'";
         }
     }
 };

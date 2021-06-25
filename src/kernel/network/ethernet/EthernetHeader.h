@@ -34,7 +34,7 @@ public:
 
     bool destinationIs(EthernetAddress *otherAddress);
 
-    String asString();
+    String asString(const String &spacing);
 };
 
 

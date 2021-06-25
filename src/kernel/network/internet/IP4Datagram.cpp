@@ -89,6 +89,6 @@ uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
     return ip4DataPart->copyTo(output);
 }
 
-String IP4Datagram::asString() {
-    return "[IP4Datagram]";
+String IP4Datagram::asString(String spacing) {
+    return spacing + "[IP4Datagram]";
 }

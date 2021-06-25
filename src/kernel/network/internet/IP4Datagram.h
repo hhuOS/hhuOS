@@ -32,7 +32,7 @@ public:
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
-    String asString() override;
+    String asString(String spacing) override;
 };
 
 

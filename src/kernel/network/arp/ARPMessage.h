@@ -83,7 +83,7 @@ public:
 
     [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
 
-    String asString() override;
+    String asString(String spacing) override;
 };
 
 
