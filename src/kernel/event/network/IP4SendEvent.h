@@ -17,9 +17,9 @@ namespace Kernel {
     public:
         explicit IP4SendEvent(IP4Address *destinationAddress, IP4DataPart *dataPart);
 
-        IP4Address *getDestinationAddress() const;
+        [[nodiscard]] IP4Address *getDestinationAddress() const;
 
-        IP4DataPart *getDataPart() const;
+        [[nodiscard]] IP4DataPart *getDataPart() const;
 
         [[nodiscard]] String getType() const override;
 
