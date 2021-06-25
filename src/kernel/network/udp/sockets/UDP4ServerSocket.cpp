@@ -52,9 +52,11 @@ namespace Kernel {
             return 1;
         }
         byteBlock->resetIndex();
-        controller->publishSendEvent(
-                new IP4Address(givenDestination), 0, 0,
-                new UDP4Datagram(this->listeningPort, givenRemotePort, byteBlock));
+
+        //The datagram's attributes will be deleted after sending
+        //-> copy it here!
+        auto *givenDestinationCopy = new IP4Address(givenDestination);
+        controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock);
         return 0;
     }
 

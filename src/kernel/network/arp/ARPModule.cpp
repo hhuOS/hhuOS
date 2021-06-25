@@ -136,11 +136,11 @@ namespace Kernel {
         targetProtocolAddress->copyTo(protocolAddress);
         arpRequest->setTargetProtocolAddress(protocolAddress);
 
+        //Send request to EthernetModule for further processing
+        eventBus->publish(new EthernetSendEvent(outDevice, broadcastAddress, arpRequest));
+
         //Broadcast address will be deleted after sending here, all other addresses are just copied to ARP request
         //-> no other addresses will be deleted here!
-        eventBus->publish(
-                new EthernetSendEvent(outDevice, new EthernetFrame(broadcastAddress, arpRequest), nullptr)
-        );
         return 0;
     }
 
@@ -166,12 +166,12 @@ namespace Kernel {
                 uint8_t myAddressAsBytes[MAC_SIZE];
                 outDevice->getAddress()->copyTo(myAddressAsBytes);
 
-                auto *response = message->buildReply(myAddressAsBytes);
-                auto *outFrame =
-                        new EthernetFrame(new EthernetAddress(myAddressAsBytes), response);
-                eventBus->publish(
-                        new EthernetSendEvent(outDevice, outFrame, nullptr)
-                );
+                auto *reply = message->buildReply(myAddressAsBytes);
+                auto *destinationAddress = new EthernetAddress(myAddressAsBytes);
+
+                //send reply to EthernetModule for further processing
+                eventBus->publish(new EthernetSendEvent(outDevice, destinationAddress, reply));
+
                 //Message will be deleted in IP4Module after processing
                 //-> no 'delete message' here!
                 break;

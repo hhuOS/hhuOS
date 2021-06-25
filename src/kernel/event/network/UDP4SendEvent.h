@@ -18,7 +18,8 @@ namespace Kernel {
 
     public:
         explicit UDP4SendEvent(
-                IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *outData);
+                IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort,
+                NetworkByteBlock *outData);
 
         [[nodiscard]] String getType() const override;
 

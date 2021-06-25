@@ -8,8 +8,8 @@ namespace Kernel {
     UDP4SendEvent::UDP4SendEvent(IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort,
                                  NetworkByteBlock *outData) : Event() {
         this->destinationAddress = destinationAddress;
-        this->sourcePort=sourcePort;
-        this->destinationPort=destinationPort;
+        this->sourcePort = sourcePort;
+        this->destinationPort = destinationPort;
         this->outData = outData;
     }
 

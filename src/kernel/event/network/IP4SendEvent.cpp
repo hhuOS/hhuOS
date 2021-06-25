@@ -6,8 +6,8 @@
 
 namespace Kernel {
     IP4SendEvent::IP4SendEvent(IP4Address *destinationAddress, IP4DataPart *dataPart) : Event() {
-        this->destinationAddress=destinationAddress;
-        this->dataPart=dataPart;
+        this->destinationAddress = destinationAddress;
+        this->dataPart = dataPart;
     }
 
     String IP4SendEvent::getType() const {
