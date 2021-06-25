@@ -113,20 +113,6 @@ namespace Kernel {
         return this->length - this->currentIndex;
     }
 
-    uint8_t NetworkByteBlock::skip(size_t byteCount) {
-        if (
-                this->currentIndex == this->length ||
-                byteCount == 0 ||
-                this->bytes == nullptr ||
-                this->currentIndex + byteCount > this->length
-                ) {
-            return 1;
-        }
-        //No problem if byteCount == 0 here
-        this->currentIndex += byteCount;
-        return 0;
-    }
-
     uint8_t NetworkByteBlock::decrementIndex() {
         //Avoid breakout
         if (currentIndex > 0) {

@@ -124,7 +124,9 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
     size_t remainingHeaderBytes = getHeaderLength() - IP4HEADER_MIN_LENGTH;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
-        errors += input->skip(remainingHeaderBytes);
+        auto *discardedBytes = new uint8_t[remainingHeaderBytes];
+        errors += input->readStraightTo(discardedBytes, remainingHeaderBytes);
+        delete[] discardedBytes;
     }
 
     return errors;

@@ -38,8 +38,6 @@ namespace Kernel {
 
         uint8_t readStraightTo(void *target, size_t byteCount);
 
-        uint8_t skip(size_t byteCount);
-
         uint8_t decrementIndex();
 
         uint8_t resetIndex();
