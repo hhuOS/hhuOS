@@ -34,6 +34,8 @@ public:
 
     [[nodiscard]] T get() const;
 
+    [[nodiscard]] bool compareAndSet(T expectedValue, T newValue);
+
     [[nodiscard]] T getAndSet(T newValue);
 
     void set(T newValue);

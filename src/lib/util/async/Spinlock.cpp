@@ -7,7 +7,7 @@ Spinlock::Spinlock() noexcept: lockVarWrapper(lockVar) {
 }
 
 void Async::Spinlock::acquire() {
-    while (lockVarWrapper.getAndSet(SPINLOCK_LOCK) != SPINLOCK_UNLOCK);
+    while (!tryAcquire());
 }
 
 bool Spinlock::tryAcquire() {

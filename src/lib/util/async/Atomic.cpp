@@ -1,4 +1,3 @@
-#include "device/cpu/Cpu.h"
 #include "Atomic.h"
 
 namespace Util::Async {
@@ -72,8 +71,18 @@ T Atomic<T>::get() const {
 }
 
 template<typename T>
+bool Atomic<T>::compareAndSet(T expectedValue, T newValue) {
+    return compareAndExchange(&value, expectedValue, newValue) == expectedValue;
+}
+
+template<typename T>
 T Atomic<T>::getAndSet(T newValue) {
-    return compareAndExchange(&value, value, newValue);
+    uint32_t oldValue;
+    do {
+        oldValue = get();
+    } while (!compareAndSet(oldValue, newValue));
+
+    return oldValue;
 }
 
 template<typename T>
