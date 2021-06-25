@@ -6,7 +6,7 @@
 #include "IP4Interface.h"
 
 namespace Kernel {
-    IP4Interface::IP4Interface(Kernel::NetworkEventBus *eventBus, EthernetDevice *ethernetDevice,
+    IP4Interface::IP4Interface(NetworkEventBus *eventBus, EthernetDevice *ethernetDevice,
                                IP4Address *ip4Address,
                                IP4Netmask *ip4Netmask) {
         this->eventBus = eventBus;
@@ -65,7 +65,7 @@ namespace Kernel {
             return 1;
         }
         eventBus->publish(
-                new Kernel::EthernetSendEvent(
+                new EthernetSendEvent(
                         ethernetDevice,
                         //The frame's attributes will be deleted after sending
                         //-> copy it here!

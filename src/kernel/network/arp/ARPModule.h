@@ -23,7 +23,7 @@ namespace Kernel {
         /**
              * A logger to provide information on the kernel log.
              */
-        Kernel::Logger &log = Kernel::Logger::get("ARPModule");
+        Logger &log = Logger::get("ARPModule");
 
         bool entryFound(EthernetAddress **ethernetAddress, IP4Address *receiverAddress);
 

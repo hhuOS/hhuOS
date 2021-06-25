@@ -31,7 +31,7 @@ namespace Kernel {
         return 0;
     }
 
-    UDP4Module::UDP4Module(Kernel::NetworkEventBus *eventBus) {
+    UDP4Module::UDP4Module(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         sockets = new Util::HashMap<uint16_t, UDP4SocketController *>();
         accessLock = new Spinlock();
@@ -82,7 +82,7 @@ namespace Kernel {
         return 0;
     }
 
-    void UDP4Module::onEvent(const Kernel::Event &event) {
+    void UDP4Module::onEvent(const Event &event) {
         if (event.getType() == UDP4SendEvent::TYPE) {
             auto *destinationAddress = ((UDP4SendEvent &) event).getDestinationAddress();
             auto *udp4Datagram = ((UDP4SendEvent &) event).getDatagram();

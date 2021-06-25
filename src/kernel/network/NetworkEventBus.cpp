@@ -5,19 +5,19 @@
 #include "NetworkEventBus.h"
 
 namespace Kernel {
-    NetworkEventBus::NetworkEventBus(Kernel::EventBus *eventBus) : eventBus(eventBus) {}
+    NetworkEventBus::NetworkEventBus(EventBus *eventBus) : eventBus(eventBus) {}
 
-    void NetworkEventBus::publish(Kernel::Event *event) {
+    void NetworkEventBus::publish(Event *event) {
         this->eventBus->publish(
-                Util::SmartPointer<Kernel::Event>(event)
+                Util::SmartPointer<Event>(event)
         );
     }
 
-    void NetworkEventBus::subscribe(Kernel::Receiver &receiver, const String &type) {
+    void NetworkEventBus::subscribe(Receiver &receiver, const String &type) {
         this->eventBus->subscribe(receiver, type);
     }
 
-    void NetworkEventBus::unsubscribe(Kernel::Receiver &receiver, const String &type) {
+    void NetworkEventBus::unsubscribe(Receiver &receiver, const String &type) {
         this->eventBus->unsubscribe(receiver, type);
     }
 }
