@@ -68,10 +68,11 @@ namespace Kernel {
         //The frame's attributes will be deleted after sending
         //-> copy it here!
         auto *targetHardwareAddressCopy = new EthernetAddress(targetHardwareAddress);
+        //Send data to EthernetModule via EventBus for further processing
         eventBus->publish(new EthernetSendEvent(ethernetDevice, targetHardwareAddressCopy, ip4Datagram));
 
         //Datagram will be deleted in EthernetModule after sending
-        //-> no delete here!
+        //-> no delete 'targetHardwareAddressCopy' here!
         return 0;
     }
 

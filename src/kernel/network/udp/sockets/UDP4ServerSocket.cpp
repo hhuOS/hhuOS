@@ -53,9 +53,8 @@ namespace Kernel {
         }
         byteBlock->resetIndex();
         controller->publishSendEvent(
-                new IP4Address(givenDestination),
-                new UDP4Datagram(this->listeningPort, givenRemotePort, byteBlock)
-        );
+                new IP4Address(givenDestination), 0, 0,
+                new UDP4Datagram(this->listeningPort, givenRemotePort, byteBlock));
         return 0;
     }
 

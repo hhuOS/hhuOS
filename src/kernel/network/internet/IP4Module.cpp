@@ -186,16 +186,19 @@ namespace Kernel {
             auto *datagram = new IP4Datagram(destinationAddress, dataPart);
             if (routingModule == nullptr) {
                 log.error("Internal routing module was null, not sending anything");
+                //destinationAddress will be deleted internally
                 delete datagram;
                 return;
             }
             if (datagram->getLengthInBytes() == 0) {
                 log.error("Outgoing datagram was empty, discarding it");
+                //destinationAddress will be deleted internally
                 delete datagram;
                 return;
             }
             if (routingModule->sendViaBestRoute(datagram)) {
                 log.error("Sending failed, see syslog for more details");
+                //destinationAddress will be deleted internally
                 delete datagram;
             }
             //Datagram will be deleted in EthernetModule after sending

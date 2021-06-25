@@ -179,13 +179,13 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t UDP4SocketController::publishSendEvent(IP4Address *destinationAddress, UDP4Datagram *outDatagram) {
-        if (destinationAddress == nullptr || outDatagram == nullptr) {
+    uint8_t UDP4SocketController::publishSendEvent(
+            IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *outData) {
+        if (destinationAddress == nullptr || outData == nullptr) {
             return 1;
         }
-        eventBus->publish(
-                new UDP4SendEvent(destinationAddress, outDatagram)
-        );
+        //Send data to UDP4Module via EventBus for further processing
+        eventBus->publish(new UDP4SendEvent(destinationAddress, sourcePort, destinationPort, outData));
         return 0;
     }
 

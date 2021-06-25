@@ -85,16 +85,22 @@ namespace Kernel {
     void UDP4Module::onEvent(const Event &event) {
         if (event.getType() == UDP4SendEvent::TYPE) {
             auto *destinationAddress = ((UDP4SendEvent &) event).getDestinationAddress();
-            auto *udp4Datagram = ((UDP4SendEvent &) event).getDatagram();
-            if (udp4Datagram == nullptr) {
-                log.error("Outgoing UDP4 datagram was null, ignoring");
+            auto sourcePort = ((UDP4SendEvent &) event).getSourcePort();
+            auto destinationPort = ((UDP4SendEvent &) event).getDestinationPort();
+            auto *outData = ((UDP4SendEvent &) event).getOutData();
+
+            if (outData == nullptr) {
+                log.error("Outgoing data was null, ignoring");
+                delete destinationAddress;
                 return;
             }
             if (destinationAddress == nullptr) {
-                log.error("Destination address was null, discarding message");
-                delete udp4Datagram;
+                log.error("Destination address was null, discarding outgoing data");
+                delete outData;
                 return;
             }
+            auto *udp4Datagram =
+                    new UDP4Datagram(sourcePort, destinationPort, outData);
             if (udp4Datagram->getLengthInBytes() == 0) {
                 log.error("Outgoing datagram was empty, discarding it");
                 delete udp4Datagram;

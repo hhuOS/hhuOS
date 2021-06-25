@@ -12,19 +12,25 @@
 namespace Kernel {
     class UDP4SendEvent : public Event {
     private:
-        IP4Address *destinationAddress;
-        UDP4Datagram *datagram;
+        IP4Address *destinationAddress = nullptr;
+        uint16_t sourcePort = 0, destinationPort = 0;
+        NetworkByteBlock *outData = nullptr;
 
     public:
-        explicit UDP4SendEvent(IP4Address *destinationAddress, UDP4Datagram *datagram);
-
-        UDP4Datagram *getDatagram();
+        explicit UDP4SendEvent(
+                IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *outData);
 
         [[nodiscard]] String getType() const override;
 
         static const constexpr char *TYPE = "UDP4SendEvent";
 
         IP4Address *getDestinationAddress();
+
+        [[nodiscard]] NetworkByteBlock *getOutData() const;
+
+        [[nodiscard]] uint16_t getSourcePort() const;
+
+        [[nodiscard]] uint16_t getDestinationPort() const;
     };
 }
 

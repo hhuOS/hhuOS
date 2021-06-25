@@ -56,10 +56,15 @@ namespace Kernel {
             return 1;
         }
         byteBlock->resetIndex();
-        controller->publishSendEvent(
-                new IP4Address(destinationAddress),
-                new UDP4Datagram(this->listeningPort, targetPort, byteBlock)
-        );
+
+        //The datagram's attributes will be deleted after sending
+        //-> copy it here!
+        auto *destinationAddressCopy = new IP4Address(destinationAddress);
+        //Send data via controller to UDP4Module for further processing
+        controller->publishSendEvent(destinationAddressCopy, this->listeningPort, targetPort, byteBlock);
+
+        //Datagram will be deleted in EthernetModule after sending
+        //-> no 'delete destinationAddressCopy' here!
         return 0;
     }
 
