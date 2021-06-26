@@ -132,12 +132,12 @@ namespace Kernel {
             return byteString;
         }
         for (size_t i = startIndex; (i < length) && (i < endIndex); i++) {
-            if(((i-startIndex) % 20) == 0){
-                if((i-startIndex)>0) {
+            if (((i - startIndex) % 20) == 0) {
+                if ((i - startIndex) > 0) {
                     byteString += "\n";
                 }
             }
-            byteString+=String::format("%02x ", bytes[i]);
+            byteString += String::format("%02x ", bytes[i]);
         }
         return byteString;
     }

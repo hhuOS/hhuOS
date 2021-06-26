@@ -266,7 +266,7 @@ namespace Kernel {
 #ifdef DEBUG_IN_ETH_DATABYTES
             size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
             size_t endIndex = input->getLength() - 1;
-            printf("\nData bytes of incoming frame:\n%s\n", (char *) input->asString(startIndex,endIndex));
+            printf("\nData bytes of incoming frame:\n%s\n", (char *) input->asString(startIndex, endIndex));
 #endif
 
             if (!isForUsOrBroadcast(ethernetHeader)) {
