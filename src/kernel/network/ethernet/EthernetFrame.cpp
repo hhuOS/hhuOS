@@ -66,6 +66,6 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     return ethernetDataPart->copyTo(output);
 }
 
-String EthernetFrame::asString(const String &spacing) {
-    return "Header:\n" + header->asString(spacing) + "\nDataPart:\n" + ethernetDataPart->asString(spacing);
+String EthernetFrame::headerAsString(const String &spacing) {
+    return header->asString(spacing);
 }

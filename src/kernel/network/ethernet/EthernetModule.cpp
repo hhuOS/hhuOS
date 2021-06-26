@@ -2,6 +2,7 @@
 // Created by hannes on 15.05.21.
 //
 
+#include <kernel/network/DebugControl.h>
 #include <kernel/event/network/EthernetSendEvent.h>
 #include <kernel/event/network/EthernetReceiveEvent.h>
 #include <kernel/event/network/IP4ReceiveEvent.h>
@@ -258,6 +259,16 @@ namespace Kernel {
                 delete input;
                 return;
             }
+
+#ifdef DEBUG_IN_ETH_HEADER
+            printf("\nHeader of incoming frame:\n%s\n", (char *) ethernetHeader->asString(DEBUG_SPACING));
+#endif
+#ifdef DEBUG_IN_ETH_DATABYTES
+            size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
+            size_t endIndex = input->getLength() - 1;
+            printf("\nData bytes of incoming frame:\n%s\n", (char *) input->asString(startIndex,endIndex));
+#endif
+
             if (!isForUsOrBroadcast(ethernetHeader)) {
                 log.error("Incoming frame is not for us and not broadcast either, discarding");
                 delete ethernetHeader;

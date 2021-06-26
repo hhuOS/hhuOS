@@ -126,14 +126,14 @@ namespace Kernel {
         return 0;
     }
 
-    [[maybe_unused]] void NetworkByteBlock::printBytes() {
+    String NetworkByteBlock::asString(size_t startIndex, size_t endIndex) {
+        String byteString = "";
         if (this->bytes == nullptr) {
-            return;
+            return byteString;
         }
-        printf("\nBytes: ");
-        for (size_t i = 0; i < length; i++) {
-            printf("%02x ", bytes[i]);
+        for (size_t i = startIndex; (i < length) && (i < endIndex); i++) {
+            byteString+=String::format("%02x ", bytes[i]);
         }
-        printf("\n\n");
+        return byteString;
     }
 }

@@ -2,6 +2,7 @@
 // Created by hannes on 26.05.21.
 //
 
+#include <kernel/network/DebugControl.h>
 #include <kernel/network/NetworkByteBlock.h>
 #include "EthernetDevice.h"
 
@@ -61,46 +62,53 @@ namespace Kernel {
         //The frame's attributes will be deleted after sending
         //-> copy it here!
         ethernetFrame->setSourceAddress(new EthernetAddress(this->ethernetAddress));
-        auto *byteBlock = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
+        auto *output = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
 
         //ethernetFrame will be deleted in EthernetModule later
         //-> no 'delete ethernetFrame' here!
-        if (ethernetFrame->copyTo(byteBlock)) {
+        if (ethernetFrame->copyTo(output)) {
             log.error("%s: Copy to byteBlock failed, discarding frame", identifier->getCharacters());
-            delete byteBlock;
+            delete output;
             return 1;
         }
-        if (!byteBlock->isCompletelyFilled()) {
+        if (!output->isCompletelyFilled()) {
             log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier->getCharacters());
-            delete byteBlock;
+            delete output;
             return 1;
         }
         //Reset currentIndex to zero to prepare reading all content to sendBuffer
-        byteBlock->resetIndex();
+        output->resetIndex();
 
-        size_t blockLength = byteBlock->getLength();
+        size_t blockLength = output->getLength();
 
         if (blockLength == 0) {
             //It's not an error if nothing needs to be done
-            delete byteBlock;
+            delete output;
             return 0;
         }
 
         if (blockLength > EthernetHeader::getMaximumFrameLength()) {
             log.error("%s: %d outgoing bytes are too much, discarding frame", identifier, blockLength);
-            delete byteBlock;
+            delete output;
             return 1;
         }
 
-        printf("Data in outgoing frame:\n%s\n", (char *) ethernetFrame->asString("    "));
+#ifdef DEBUG_OUT_ETH_HEADER
+        printf("\nHeader of outgoing frame:\n%s\n", (char *) ethernetFrame->headerAsString(DEBUG_SPACING));
+#endif
+#ifdef DEBUG_OUT_ETH_DATABYTES
+        size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
+        size_t endIndex = output->getLength() - 1;
+        printf("\nData bytes of outgoing frame:\n%s\n", (char *) output->asString(startIndex, endIndex));
+#endif
 
         sendLock->acquire();
 
-        if (byteBlock->readStraightTo(sendBuffer, blockLength)) {
+        if (output->readStraightTo(sendBuffer, blockLength)) {
             sendLock->release();
             log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame",
                       identifier->getCharacters());
-            delete byteBlock;
+            delete output;
             return 1;
         }
 
@@ -113,7 +121,7 @@ namespace Kernel {
 
         sendLock->release();
 
-        delete byteBlock;
+        delete output;
         return 0;
     }
 
