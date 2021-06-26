@@ -45,13 +45,15 @@ namespace Kernel {
 
     uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         if (ethernetFrame == nullptr) {
-            log.error("%s: Outgoing frame was null, ignoring", identifier);
+            log.error("%s: Outgoing frame was null, ignoring",
+                      identifier->getCharacters());
             //ethernetFrame will be deleted in EthernetModule later
             //-> no 'delete ethernetFrame' here!
             return 1;
         }
         if (sendLock == nullptr || sendBuffer == nullptr || this->networkDevice == nullptr) {
-            log.error("%s: sendLock, sendBuffer or outgoing device was null, discarding frame", identifier);
+            log.error("%s: sendLock, sendBuffer or outgoing device was null, discarding frame",
+                      identifier->getCharacters());
             //ethernetFrame will be deleted in EthernetModule later
             //-> no 'delete ethernetFrame' here!
             return 1;
@@ -64,12 +66,12 @@ namespace Kernel {
         //ethernetFrame will be deleted in EthernetModule later
         //-> no 'delete ethernetFrame' here!
         if (ethernetFrame->copyTo(byteBlock)) {
-            log.error("%s: Copy to byteBlock failed, discarding frame", identifier);
+            log.error("%s: Copy to byteBlock failed, discarding frame", identifier->getCharacters());
             delete byteBlock;
             return 1;
         }
         if (!byteBlock->isCompletelyFilled()) {
-            log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier);
+            log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier->getCharacters());
             delete byteBlock;
             return 1;
         }
@@ -96,7 +98,8 @@ namespace Kernel {
 
         if (byteBlock->readStraightTo(sendBuffer, blockLength)) {
             sendLock->release();
-            log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame", identifier);
+            log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame",
+                      identifier->getCharacters());
             delete byteBlock;
             return 1;
         }
