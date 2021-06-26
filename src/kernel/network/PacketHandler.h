@@ -46,7 +46,7 @@ namespace Kernel {
          */
         Logger &log = Logger::get("PacketHandler");
 
-        uint8_t notifyEthernetModule(void *packet, uint16_t length);
+        uint8_t notifyEthernetModule(void *incomingPacket, uint16_t length);
 
     public:
 

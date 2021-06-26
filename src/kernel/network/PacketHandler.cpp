@@ -24,15 +24,15 @@
 
 namespace Kernel {
     //Private method!
-    uint8_t PacketHandler::notifyEthernetModule(void *packet, uint16_t length) {
+    uint8_t PacketHandler::notifyEthernetModule(void *incomingPacket, uint16_t length) {
         auto *input = new NetworkByteBlock(length);
-        if (input->appendStraightFrom(packet, length)) {
+        if (input->appendStraightFrom(incomingPacket, length)) {
             log.error("Reading of data into NetworkByteBlock failed, discarding");
             delete input;
             return 1;
         }
         if (!input->isCompletelyFilled()) {
-            log.error("Incoming data could not be loaded completely, discarding input");
+            log.error("Incoming data could not be loaded completely, discarding");
             delete input;
             return 1;
         }
