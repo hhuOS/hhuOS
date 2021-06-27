@@ -11,9 +11,6 @@
 class ICMP4Echo final : public ICMP4Message {
 private:
     typedef struct icmp4echo {
-        uint8_t type = 8; //8 for echo, 0 for echo reply (RFC792)
-        uint8_t code = 0;
-        uint16_t checksum = 0;
         uint16_t identifier = 0;
         uint16_t sequenceNumber = 0;
     } echo_t;

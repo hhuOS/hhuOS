@@ -219,7 +219,7 @@ namespace Kernel {
                 return;
             }
             //TODO: Implement this one!
-            if (!ip4Header->headerValid()) {
+            if (!ip4Header->headerIsValid()) {
                 log.error("Incoming IP4Header corrupted, discarding datagram");
                 delete ip4Header;
                 delete input;

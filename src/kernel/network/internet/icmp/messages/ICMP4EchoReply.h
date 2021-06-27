@@ -11,9 +11,6 @@
 class ICMP4EchoReply final : public ICMP4Message {
 private:
     typedef struct icmp4echoReply {
-        uint8_t type = 0; //0 for echo reply, 8 for echo (RFC792)
-        uint8_t code = 0;
-        uint16_t checksum = 0;
         uint16_t identifier = 0;
         uint16_t sequenceNumber = 0;
     } echoReplyMessage;
@@ -35,8 +32,6 @@ public:
     ICMP4MessageType getICMP4MessageType() override;
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
-
-    IP4ProtocolType getIP4ProtocolType() override;
 
     [[nodiscard]] uint16_t getIdentifier() const;
 

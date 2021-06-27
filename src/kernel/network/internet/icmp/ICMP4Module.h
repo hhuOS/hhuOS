@@ -7,6 +7,7 @@
 
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/log/Logger.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
 
 namespace Kernel {
     class ICMP4Module : public Receiver {
@@ -31,6 +32,8 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
+
+        static void deleteMessageSpecific(ICMP4Message *message);
     };
 }
 

@@ -6,9 +6,9 @@
 #include "ICMP4EchoReply.h"
 
 ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
-    echoReply.type = 0; //8 for echo, 0 for echo reply (RFC792)
-    echoReply.code = 0;
-    echoReply.checksum = 0;
+    header.type = 0; //8 for echo, 0 for echo reply (RFC792)
+    header.code = 0;
+    header.checksum = 0;
     echoReply.identifier = identifier;
     echoReply.sequenceNumber = sequenceNumber;
 }
@@ -19,9 +19,9 @@ uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
     }
 
     uint8_t errors = 0;
-    errors += output->appendOneByte(echoReply.type);
-    errors += output->appendOneByte(echoReply.code);
-    errors += output->appendTwoBytesSwapped(echoReply.checksum);
+    errors += output->appendOneByte(header.type);
+    errors += output->appendOneByte(header.code);
+    errors += output->appendTwoBytesSwapped(header.checksum);
     errors += output->appendTwoBytesSwapped(echoReply.identifier);
     errors += output->appendTwoBytesSwapped(echoReply.sequenceNumber);
 
@@ -29,7 +29,7 @@ uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 size_t ICMP4EchoReply::getLengthInBytes() {
-    return sizeof(echoReplyMessage);
+    return sizeof(header) + sizeof(echoReply);
 }
 
 ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
@@ -37,21 +37,17 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::getICMP4MessageType() {
 }
 
 uint8_t ICMP4EchoReply::parse(Kernel::NetworkByteBlock *input) {
-    if (input == nullptr || input->bytesRemaining() != sizeof echoReply) {
+    if (input == nullptr || input->bytesRemaining() < (sizeof header + sizeof echoReply)) {
         return 1;
     }
     uint8_t errors = 0;
-    errors += input->readOneByteTo(&echoReply.type);
-    errors += input->readOneByteTo(&echoReply.code);
-    errors += input->readTwoBytesSwappedTo(&echoReply.checksum);
+    errors += input->readOneByteTo(&header.type);
+    errors += input->readOneByteTo(&header.code);
+    errors += input->readTwoBytesSwappedTo(&header.checksum);
     errors += input->readTwoBytesSwappedTo(&echoReply.identifier);
     errors += input->readTwoBytesSwappedTo(&echoReply.sequenceNumber);
 
     return errors;
-}
-
-IP4DataPart::IP4ProtocolType ICMP4EchoReply::getIP4ProtocolType() {
-    return ICMP4Message::getIP4ProtocolType();
 }
 
 uint16_t ICMP4EchoReply::getIdentifier() const {

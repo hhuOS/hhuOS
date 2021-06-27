@@ -6,8 +6,17 @@
 #define HHUOS_ICMP4MESSAGE_H
 
 #include <kernel/network/internet/IP4DataPart.h>
+#include <kernel/network/internet/IP4Header.h>
 
 class ICMP4Message : public IP4DataPart {
+protected:
+    typedef struct basicICMP4Header {
+        uint8_t type = 0;
+        uint8_t code = 0;
+        uint16_t checksum = 0;
+    } header_t;
+
+    header_t header;
 public:
     enum class ICMP4MessageType {
         ECHO_REPLY = 0,
@@ -62,6 +71,52 @@ public:
     size_t getLengthInBytes() override = 0;
 
     virtual ICMP4MessageType getICMP4MessageType() = 0;
+
+    uint8_t fillChecksumField() {
+        if (header.checksum != 0) {
+            //Header checksum already set!
+            return 1;
+        }
+
+        auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
+        if (this->copyTo(headerAsBytes)) {
+            delete headerAsBytes;
+            return 1;
+        }
+        headerAsBytes->resetIndex();
+
+        uint16_t calculationResult = 0;
+        if (IP4Header::calculateInternetChecksum(&calculationResult, headerAsBytes)) {
+            delete headerAsBytes;
+            return 1;
+        }
+        header.checksum = calculationResult;
+        delete headerAsBytes;
+        return 0;
+    }
+
+    uint8_t checksumIsValid() {
+        if (header.checksum == 0) {
+            //Header checksum not parsed!
+            return false;
+        }
+
+        uint16_t calculationResult = 0;
+        auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
+        if (this->copyTo(headerAsBytes)) {
+            delete headerAsBytes;
+            return false;
+        }
+        headerAsBytes->resetIndex();
+
+        if (IP4Header::calculateInternetChecksum(&calculationResult, headerAsBytes)) {
+            delete headerAsBytes;
+            return false;
+        }
+
+        delete headerAsBytes;
+        return calculationResult == 0;
+    }
 };
 
 #endif //HHUOS_ICMP4MESSAGE_H

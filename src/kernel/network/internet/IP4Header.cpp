@@ -163,7 +163,7 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
     return errors;
 }
 
-bool IP4Header::headerValid() {
+bool IP4Header::headerIsValid() {
     if (headerChecksum == 0) {
         //Header checksum not parsed!
         return false;

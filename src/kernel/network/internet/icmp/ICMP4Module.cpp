@@ -26,6 +26,12 @@ namespace Kernel {
                     delete echoReply;
                     return 1;
                 }
+                if (echoReply->checksumIsValid()) {
+                    //Checksum is about full message here
+                    log.error("ICMP4EchoReply message corrupted, discarding");
+                    delete echoReply;
+                    return 1;
+                }
                 printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
                        ip4Header->getSourceAddress()->asChars(),
                        echoReply->getIdentifier(),
@@ -38,6 +44,12 @@ namespace Kernel {
                 auto *echoRequest = new ICMP4Echo();
                 if (echoRequest->parse(input)) {
                     log.error("Parsing ICMP4Echo failed, discarding");
+                    delete echoRequest;
+                    return 1;
+                }
+                if (!echoRequest->checksumIsValid()) {
+                    //Checksum is about full message here
+                    log.error("ICMP4Echo message corrupted, discarding");
                     delete echoRequest;
                     return 1;
                 }
@@ -61,6 +73,22 @@ namespace Kernel {
 
     ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
 
+    void ICMP4Module::deleteMessageSpecific(ICMP4Message *icmp4Message) {
+        switch (icmp4Message->getICMP4MessageType()) {
+            case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
+                delete (ICMP4EchoReply *) icmp4Message;
+                return;
+            case ICMP4Message::ICMP4MessageType::ECHO:
+                delete (ICMP4Echo *) icmp4Message;
+                return;
+                //All implemented messages are deleted now
+                //-> we can break here
+                //NOTE: Please add new ICMP4Messages here if implemented!
+            default:
+                break;
+        }
+    }
+
     void ICMP4Module::onEvent(const Event &event) {
         if ((event.getType() == ICMP4SendEvent::TYPE)) {
             auto *destinationAddress = ((ICMP4SendEvent &) event).getDestinationAddress();
@@ -71,21 +99,16 @@ namespace Kernel {
                 return;
             }
             if (destinationAddress == nullptr) {
-                log.error("Destination address was null, discarding message");
-                switch (icmp4Message->getICMP4MessageType()) {
-                    case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                        delete (ICMP4EchoReply *) icmp4Message;
-                        return;
-                    case ICMP4Message::ICMP4MessageType::ECHO:
-                        delete (ICMP4Echo *) icmp4Message;
-                        return;
-                        //All implemented messages are deleted now
-                        //-> we can break here
-                        //NOTE: Please add new ICMP4Messages here if implemented!
-                    default:
-                        break;
-                }
+                log.error("Destination address was null or checksum calculation failed, discarding message");
+                deleteMessageSpecific(icmp4Message);
+                return;
             }
+            if (icmp4Message->fillChecksumField()) {
+                log.error("Checksum calculation failed, discarding message");
+                deleteMessageSpecific(icmp4Message);
+                return;
+            }
+
             //Send data to IP4Module for further processing
             eventBus->publish(new IP4SendEvent(destinationAddress, icmp4Message));
 

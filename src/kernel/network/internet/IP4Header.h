@@ -60,7 +60,7 @@ public:
 
     uint8_t fillChecksumField();
 
-    bool headerValid();
+    bool headerIsValid();
 };
 
 
