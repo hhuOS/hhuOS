@@ -9,8 +9,8 @@
 
 class EthernetDataPart {
 public:
-    //Relevant EtherTypes -> full list available in RFC7042 Appendix B
-    enum class EtherType {
+    //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
+    enum EtherType : uint16_t {
         IP4 = 0x0800,
         ARP = 0x0806,
         IP6 = 0x86dd,
