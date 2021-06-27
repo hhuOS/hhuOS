@@ -9,7 +9,8 @@
 
 class IP4DataPart {
 public:
-    enum class IP4ProtocolType {
+    //see RFC 790 page 6
+    enum IP4ProtocolType : uint8_t {
         ICMP4 = 1,
         UDP = 17,
         INVALID = 0
