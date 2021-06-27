@@ -148,7 +148,6 @@ namespace Kernel {
     }
 
     UDP4SocketController *NetworkService::createSocketController() {
-        //TODO: Add TimeService here
         return new UDP4SocketController(this->eventBus);
     }
 

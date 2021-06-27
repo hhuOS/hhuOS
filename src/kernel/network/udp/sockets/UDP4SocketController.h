@@ -15,7 +15,7 @@ namespace Kernel {
     class UDP4SocketController {
     private:
         NetworkEventBus *eventBus = nullptr;
-        Spinlock *readLock = nullptr, *writeLock = nullptr;
+        Spinlock *accessLock = nullptr;
         Atomic<bool> *isClosed = nullptr;
 
         Util::RingBuffer<UDP4InputEntry*> *inputBuffer = nullptr;
