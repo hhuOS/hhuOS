@@ -12,7 +12,6 @@ namespace Kernel {
         this->listeningPort = 16123;
         //TODO: Implement find logic for free port number
         networkService = System::getService<NetworkService>();
-        timeService = System::getService<TimeService>();
         controller = networkService->createSocketController();
     }
 
@@ -26,7 +25,6 @@ namespace Kernel {
             return 1;
         }
         //Make sure all locks and data structures are prepared
-        timeService->msleep(2000);
         return networkService->registerSocketController(listeningPort, controller);
     }
 
@@ -35,7 +33,6 @@ namespace Kernel {
             return 1;
         }
         //Make sure all processes on incoming packets are finished
-        timeService->msleep(2000);
         return controller->shutdown();
     }
 

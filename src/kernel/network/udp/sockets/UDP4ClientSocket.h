@@ -12,7 +12,6 @@ namespace Kernel {
     class UDP4ClientSocket {
     private:
         uint16_t listeningPort = 0, targetPort = 0;
-        TimeService *timeService = nullptr;
         NetworkService *networkService = nullptr;
         IP4Address *destinationAddress = nullptr;
         UDP4SocketController *controller = nullptr;
