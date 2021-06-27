@@ -17,10 +17,11 @@ namespace Kernel {
 
         isClosed = new Atomic<bool>;
         isClosed->set(true);
+
+        inputBuffer= new Util::RingBuffer<UDP4InputEntry*>(8);
     }
 
     UDP4SocketController::~UDP4SocketController() {
-        deleteData();
         if (isClosed != nullptr) {
             isClosed->set(true);
         }
@@ -38,6 +39,7 @@ namespace Kernel {
             delete readLock;
             readLock = nullptr;
         }
+        //TODO: Add input buffer deletion
     }
 
     uint8_t UDP4SocketController::startup() {
@@ -56,9 +58,6 @@ namespace Kernel {
         }
         writeLock->acquire();
         isClosed->set(true);
-        //make sure that deleteData() is only called once
-        //-> don't call it in notify() nor in receive()!
-        deleteData();
 
         //When isClosed==true,
         // readers AND writers simply open their own locks and return 1
@@ -97,9 +96,7 @@ namespace Kernel {
             //Return error, this will tell UDP4Module to drop incoming data
             return 1;
         }
-        this->ip4Header = incomingIP4Header;
-        this->udp4Header = incomingUDP4Header;
-        this->content = input;
+        inputBuffer->push(new UDP4InputEntry(incomingUDP4Header,incomingIP4Header,input));
         readLock->release();
         return 0;
     }
@@ -123,57 +120,7 @@ namespace Kernel {
             }
             return 1;
         }
-        if (ip4Header == nullptr || udp4Header == nullptr || content == nullptr ||
-            targetBuffer == nullptr || length == 0
-                ) {
-            log.error("IP4Header, UDP4Header, Content or TargetBuffer was null, return");
-            //We are not closed here, but previous writing has failed anyway
-            //-> next step will be a read as usual
-            //-> open writeLock or we will freeze here when doing shutdown!
-            //  --> shutdown waits for writeLock...
-            writeLock->release();
-            if (totalBytesRead != nullptr) {
-                *totalBytesRead = 0;
-            }
-            return 1;
-        }
-        if (totalBytesRead != nullptr) {
-            //count bytes read if requested
-            *totalBytesRead = content->bytesRemaining();
-        }
-        if (length > content->bytesRemaining()) {
-            length = content->bytesRemaining();
-        }
-
-        //Cleanup if reading fails
-        if (content->readStraightTo(targetBuffer, length)) {
-            deleteData();
-            writeLock->release();
-            return 1;
-        }
-        if (totalBytesRead != nullptr) {
-            *totalBytesRead = *totalBytesRead - content->bytesRemaining();
-        }
-        if (ip4HeaderVariable == nullptr) {
-            //delete IP4Header if not requested
-            delete this->ip4Header;
-        } else {
-            *ip4HeaderVariable = this->ip4Header;
-        }
-        if (udp4HeaderVariable == nullptr) {
-            //delete UDP4Header if not requested
-            delete this->udp4Header;
-        } else {
-            *udp4HeaderVariable = this->udp4Header;
-        }
-
-        delete content;
-        content = nullptr;
-
-        //Headers are in use somewhere else
-        //-> no delete here! Just set them to nullptr to avoid using them again
-        this->ip4Header = nullptr;
-        this->udp4Header = nullptr;
+        inputBuffer->pop()->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
         //Start next round by allowing next writer
         writeLock->release();
         return 0;
@@ -187,15 +134,5 @@ namespace Kernel {
         //Send data to UDP4Module via EventBus for further processing
         eventBus->publish(new UDP4SendEvent(destinationAddress, sourcePort, destinationPort, outData));
         return 0;
-    }
-
-    //Private method!
-    void UDP4SocketController::deleteData() {
-        delete this->ip4Header;
-        delete this->udp4Header;
-        delete this->content;
-        this->ip4Header = nullptr;
-        this->udp4Header = nullptr;
-        this->content = nullptr;
     }
 }

@@ -9,21 +9,18 @@
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/log/Logger.h>
 #include <kernel/network/udp/UDP4Datagram.h>
+#include "UDP4InputEntry.h"
 
 namespace Kernel {
     class UDP4SocketController {
     private:
-        IP4Header *ip4Header = nullptr;
-        UDP4Header *udp4Header = nullptr;
-        NetworkByteBlock *content = nullptr;
-
         NetworkEventBus *eventBus = nullptr;
         Spinlock *readLock = nullptr, *writeLock = nullptr;
         Atomic<bool> *isClosed = nullptr;
 
-        Logger &log = Logger::get("UDP4SocketController");
+        Util::RingBuffer<UDP4InputEntry*> *inputBuffer = nullptr;
 
-        void deleteData();
+        Logger &log = Logger::get("UDP4SocketController");
 
     public:
         explicit UDP4SocketController(NetworkEventBus *eventBus);
