@@ -5,29 +5,34 @@
 #include <kernel/network/NetworkDefinitions.h>
 #include "IP4Header.h"
 
-uint8_t IP4Header::calculateChecksum(uint16_t *target) {
+uint8_t IP4Header::calculateInternetChecksum(uint16_t *target, Kernel::NetworkByteBlock *content) {
     if (target == nullptr) {
         return 1;
     }
 
-    auto *headerAsBytes = new Kernel::NetworkByteBlock(IP4HEADER_MIN_LENGTH);
-    if (this->copyTo(headerAsBytes)) {
+    size_t contentLength = content->getLength();
+    if((contentLength % 2) != 0){
         return 1;
     }
-    headerAsBytes->resetIndex();
 
-    uint16_t tempValue = 0, result = 0;
+    uint16_t tempValue = 0;
+    uint32_t result = 0;
 
-    for (uint8_t i = 0; i < 5; i++) {
-        if (headerAsBytes->readStraightTo(&tempValue, sizeof tempValue)) {
+    //We read two bytes at once!
+    contentLength = contentLength / 2;
+
+    for (size_t i = 0; i < contentLength; i++) {
+        if (content->readTwoBytesSwappedTo(&tempValue)) {
             return 1;
         }
         result += tempValue;
     }
-    delete headerAsBytes;
+    //add overflow bits from other two bytes
+    result += ((uint16_t*)&result)[1];
 
-    *target = ~result;
-
+    //read only first two bytes from four byte integer as result
+    tempValue=(uint16_t)result;
+    *target=~tempValue;
     return 0;
 }
 
@@ -163,18 +168,22 @@ bool IP4Header::headerValid() {
         //Header checksum not parsed!
         return false;
     }
-    uint16_t calculationResult = 0,
-            tempChecksum = headerChecksum;
 
-    //set header checksum to zero for calculation
-    headerChecksum = 0;
-    if (calculateChecksum(&calculationResult)) {
+    uint16_t calculationResult = 0;
+    auto *headerAsBytes = new Kernel::NetworkByteBlock(getHeaderLength());
+    if (this->copyTo(headerAsBytes)) {
+        delete headerAsBytes;
         return false;
     }
-    //set header checksum back to previous value
-    headerChecksum = tempChecksum;
+    headerAsBytes->resetIndex();
 
-    return headerChecksum == calculationResult;
+    if (calculateInternetChecksum(&calculationResult, headerAsBytes)) {
+        delete headerAsBytes;
+        return false;
+    }
+
+    delete headerAsBytes;
+    return calculationResult == 0;
 }
 
 uint8_t IP4Header::fillChecksumField() {
@@ -182,10 +191,20 @@ uint8_t IP4Header::fillChecksumField() {
         //Header checksum already set!
         return 1;
     }
+
+    auto *headerAsBytes = new Kernel::NetworkByteBlock(getHeaderLength());
+    if (this->copyTo(headerAsBytes)) {
+        delete headerAsBytes;
+        return 1;
+    }
+    headerAsBytes->resetIndex();
+
     uint16_t calculationResult = 0;
-    if (calculateChecksum(&calculationResult)) {
+    if (calculateInternetChecksum(&calculationResult, headerAsBytes)) {
+        delete headerAsBytes;
         return 1;
     }
     headerChecksum = calculationResult;
+    delete headerAsBytes;
     return 0;
 }

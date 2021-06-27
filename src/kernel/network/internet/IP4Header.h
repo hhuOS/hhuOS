@@ -32,13 +32,13 @@ private:
 
     IP4Address *sourceAddress = nullptr, *destinationAddress = nullptr;
 
-    [[nodiscard]] uint8_t calculateChecksum(uint16_t *target);
-
 public:
 
     IP4Header(IP4Address *destinationAddress, IP4DataPart *dataPart);
 
     IP4Header() = default;
+
+    [[nodiscard]] static uint8_t calculateInternetChecksum(uint16_t *target, Kernel::NetworkByteBlock *content);
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
 
