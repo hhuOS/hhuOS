@@ -126,13 +126,13 @@ namespace Kernel {
         return 0;
     }
 
-    String NetworkByteBlock::asString(size_t startIndex, size_t endIndex) {
+    String NetworkByteBlock::asString(size_t startIndex, size_t endIndex, size_t bytesPerLine) {
         String byteString = "";
         if (this->bytes == nullptr) {
             return byteString;
         }
         for (size_t i = startIndex; (i < length) && (i < endIndex); i++) {
-            if (((i - startIndex) % 20) == 0) {
+            if (((i - startIndex) % bytesPerLine) == 0) {
                 if ((i - startIndex) > 0) {
                     byteString += "\n";
                 }

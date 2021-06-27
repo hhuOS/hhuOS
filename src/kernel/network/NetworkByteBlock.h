@@ -42,7 +42,7 @@ namespace Kernel {
 
         uint8_t resetIndex();
 
-        String asString(size_t startIndex, size_t endIndex);
+        String asString(size_t startIndex, size_t endIndex, size_t bytesPerLine);
     };
 }
 

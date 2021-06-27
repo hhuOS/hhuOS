@@ -20,7 +20,9 @@
  */
 
 #include <kernel/event/network/EthernetReceiveEvent.h>
+#include <lib/libc/printf.h>
 #include "PacketHandler.h"
+#include "DebugPrintout.h"
 
 namespace Kernel {
     //Private method!
@@ -41,6 +43,11 @@ namespace Kernel {
             log.error("Index reset for input byteBlock failed, discarding");
             delete input;
             return 1;
+        }
+
+        if (DEBUG_IN_ALL_BYTES) {
+            printf("\nIncoming Bytes (%d per line):\n%s\n", BYTES_PER_LINE,
+                   (char *) input->asString(0, input->getLength() - 1, BYTES_PER_LINE));
         }
 
         //send input to EthernetModule via EventBus for further processing
