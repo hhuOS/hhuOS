@@ -260,10 +260,10 @@ namespace Kernel {
                 return;
             }
 
-            if(DEBUG_IN_ETH_HEADER) {
+            if (DEBUG_IN_ETH_HEADER) {
                 printf("\nHeader of incoming frame:\n%s\n", (char *) ethernetHeader->asString(DEBUG_SPACING));
             }
-            if(DEBUG_IN_ETH_DATABYTES) {
+            if (DEBUG_IN_ETH_DATABYTES) {
                 size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
                 size_t endIndex = input->getLength() - 1;
                 printf("\nData bytes of incoming frame:\n%s\n", (char *) input->asString(startIndex, endIndex));

@@ -95,7 +95,7 @@ public:
         return 0;
     }
 
-    uint8_t checksumIsValid() {
+    bool checksumIsValid() {
         if (header.checksum == 0) {
             //Header checksum not parsed!
             return false;

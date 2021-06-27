@@ -93,10 +93,10 @@ namespace Kernel {
             return 1;
         }
 
-        if(DEBUG_OUT_ETH_HEADER) {
+        if (DEBUG_OUT_ETH_HEADER) {
             printf("\nHeader of outgoing frame:\n%s\n", (char *) ethernetFrame->headerAsString(DEBUG_SPACING));
         }
-        if(DEBUG_OUT_ETH_DATABYTES) {
+        if (DEBUG_OUT_ETH_DATABYTES) {
             size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
             size_t endIndex = output->getLength() - 1;
             printf("\nData bytes of outgoing frame:\n%s\n", (char *) output->asString(startIndex, endIndex));
