@@ -11,7 +11,7 @@ uint8_t IP4Header::calculateInternetChecksum(uint16_t *target, Kernel::NetworkBy
     }
 
     size_t contentLength = content->getLength();
-    if((contentLength % 2) != 0){
+    if ((contentLength % 2) != 0) {
         return 1;
     }
 
@@ -28,11 +28,11 @@ uint8_t IP4Header::calculateInternetChecksum(uint16_t *target, Kernel::NetworkBy
         result += tempValue;
     }
     //add overflow bits from other two bytes
-    result += ((uint16_t*)&result)[1];
+    result += ((uint16_t *) &result)[1];
 
     //read only first two bytes from four byte integer as result
-    tempValue=(uint16_t)result;
-    *target=~tempValue;
+    tempValue = (uint16_t) result;
+    *target = ~tempValue;
     return 0;
 }
 
