@@ -31,7 +31,7 @@ namespace Kernel {
 
         uint8_t startup();
 
-        uint8_t notify(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header, NetworkByteBlock *input);
+        uint8_t notify(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header, NetworkByteBlock *incomingInput);
 
         uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
                         UDP4Header **udp4HeaderVariable);

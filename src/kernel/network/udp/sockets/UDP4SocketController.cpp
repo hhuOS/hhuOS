@@ -54,7 +54,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4SocketController::notify(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header,
-                                         NetworkByteBlock *input) {
+                                         NetworkByteBlock *incomingInput) {
         if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not notifying socket");
             return 1;
@@ -64,12 +64,12 @@ namespace Kernel {
             return 1;
         }
         //Check if given parameters are valid
-        if (incomingIP4Header == nullptr || incomingUDP4Header == nullptr || input == nullptr) {
+        if (incomingIP4Header == nullptr || incomingUDP4Header == nullptr || incomingInput == nullptr) {
             log.error("Incoming IP4Header, UDP4Header or Input was null, returning");
             return 1;
         }
         accessLock->acquire();
-        inputBuffer->push(new UDP4InputEntry(incomingUDP4Header, incomingIP4Header, input));
+        inputBuffer->push(new UDP4InputEntry(incomingUDP4Header, incomingIP4Header, incomingInput));
         accessLock->release();
         return 0;
     }
