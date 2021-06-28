@@ -16,13 +16,15 @@ namespace Kernel {
         }
         accessLock->acquire();
         if (!sockets->containsKey(udp4Header->getDestinationPort())) {
-            log.error("No socket registered for datagram's destination port, discarding");
+            log.error("No socket registered for datagram's destination port %s, discarding",
+                      udp4Header->getDestinationPort());
             accessLock->release();
             return 1;
         }
 
         if (sockets->get(udp4Header->getDestinationPort())->notify(ip4Header, udp4Header, input)) {
-            log.error("Could not deliver input to destination socket");
+            log.error("Could not deliver input to destination socket for port %d",
+                      udp4Header->getDestinationPort());
             accessLock->release();
             return 1;
         }
