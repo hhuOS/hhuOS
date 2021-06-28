@@ -101,7 +101,7 @@ namespace Kernel {
                 return 0;
             }
             accessLock->release();
-            //release processor
+            //release processor, be gentle to the system :D
             Standard::System::Result result{};
             Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
         }
