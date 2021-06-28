@@ -14,7 +14,7 @@ namespace Kernel {
         isClosed = new Atomic<bool>;
         isClosed->set(true);
 
-        inputBuffer= new Util::RingBuffer<UDP4InputEntry*>(8);
+        inputBuffer = new Util::RingBuffer<UDP4InputEntry *>(8);
     }
 
     UDP4SocketController::~UDP4SocketController() {
@@ -59,7 +59,7 @@ namespace Kernel {
             return 1;
         }
         accessLock->acquire();
-        inputBuffer->push(new UDP4InputEntry(incomingUDP4Header,incomingIP4Header,input));
+        inputBuffer->push(new UDP4InputEntry(incomingUDP4Header, incomingIP4Header, input));
         accessLock->release();
         return 0;
     }
@@ -69,7 +69,7 @@ namespace Kernel {
                                   IP4Header **ip4HeaderVariable,
                                   UDP4Header **udp4HeaderVariable) {
 
-        if (isClosed == nullptr || accessLock == nullptr || inputBuffer== nullptr) {
+        if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not receiving");
             return 1;
         }
@@ -93,7 +93,7 @@ namespace Kernel {
             log.error("Internal elements not initialized, not sending");
             return 1;
         }
-        if(isClosed->get()){
+        if (isClosed->get()) {
             log.error("Socket closed, not sending");
             return 1;
         }

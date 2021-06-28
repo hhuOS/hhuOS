@@ -18,7 +18,7 @@ namespace Kernel {
         Spinlock *accessLock = nullptr;
         Atomic<bool> *isClosed = nullptr;
 
-        Util::RingBuffer<UDP4InputEntry*> *inputBuffer = nullptr;
+        Util::RingBuffer<UDP4InputEntry *> *inputBuffer = nullptr;
 
         Logger &log = Logger::get("UDP4SocketController");
 
