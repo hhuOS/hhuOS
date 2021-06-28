@@ -7,8 +7,20 @@
 UDP4InputEntry::UDP4InputEntry(UDP4Header *udp4Header, IP4Header *ip4Header, Kernel::NetworkByteBlock *input)
         : udp4Header(udp4Header), ip4Header(ip4Header), input(input) {}
 
+UDP4InputEntry::~UDP4InputEntry() {
+    //'delete' simply ignores null objects!
+    //-> no check for ==nullptr necessary here
+    delete udp4Header;
+    delete ip4Header;
+    delete input;
+}
+
 uint8_t UDP4InputEntry::copyTo(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
                                UDP4Header **udp4HeaderVariable) {
+    if (udp4Header== nullptr || ip4Header == nullptr || input == nullptr) {
+        return 1;
+    }
+
     if (totalBytesRead != nullptr) {
         //count bytes read if requested
         *totalBytesRead = input->bytesRemaining();
@@ -17,28 +29,25 @@ uint8_t UDP4InputEntry::copyTo(size_t *totalBytesRead, void *targetBuffer, size_
         length = input->bytesRemaining();
     }
 
-    //Cleanup if reading fails
+    //Cleanup if copy to target buffer fails
     if (input->readStraightTo(targetBuffer, length)) {
         return 1;
     }
     if (totalBytesRead != nullptr) {
+        //set value for bytes read if requested
         *totalBytesRead = *totalBytesRead - input->bytesRemaining();
     }
-    if (ip4HeaderVariable == nullptr) {
-        //delete IP4Header if not requested
-        delete this->ip4Header;
-    } else {
-        *ip4HeaderVariable = this->ip4Header;
-    }
-    if (udp4HeaderVariable == nullptr) {
-        //delete UDP4Header if not requested
-        delete this->udp4Header;
-    } else {
+    if (udp4HeaderVariable != nullptr) {
         *udp4HeaderVariable = this->udp4Header;
+        //udp4Header is in use in our application here
+        //-> set it to null locally so that 'delete this->udp4Header' has no effect
+        this->udp4Header = nullptr;
     }
-
-    //Processing finally done, cleanup input
-    delete input;
-
+    if (ip4HeaderVariable != nullptr) {
+        *ip4HeaderVariable = this->ip4Header;
+        //ip4header is in use in our application here
+        //-> set it to null locally so that 'delete this->ip4Header' has no effect
+        this->ip4Header = nullptr;
+    }
     return 0;
 }

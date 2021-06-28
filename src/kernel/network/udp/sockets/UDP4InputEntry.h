@@ -18,6 +18,8 @@ private:
 public:
     UDP4InputEntry(UDP4Header *udp4Header, IP4Header *ip4Header, Kernel::NetworkByteBlock *input);
 
+    virtual ~UDP4InputEntry();
+
     uint8_t copyTo(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
                    UDP4Header **udp4HeaderVariable);
 };

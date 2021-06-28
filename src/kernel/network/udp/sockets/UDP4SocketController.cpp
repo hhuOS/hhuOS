@@ -16,6 +16,7 @@ namespace Kernel {
         isClosed = new Atomic<bool>;
         isClosed->set(true);
 
+        //TODO: Give inputBuffer size as parameter!
         inputBuffer = new Util::RingBuffer<UDP4InputEntry *>(8);
     }
 
@@ -81,12 +82,41 @@ namespace Kernel {
 
         if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not receiving");
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
+            }
+            if(udp4HeaderVariable!= nullptr){
+                *udp4HeaderVariable= nullptr;
+            }
+            if(ip4HeaderVariable!= nullptr){
+                *ip4HeaderVariable= nullptr;
+            }
             return 1;
         }
         if (isClosed->get()) {
-            log.error("Socket is closed, not reading any data");
+            log.error("Socket is closed, not reading any data. Please call 'bind()' first!");
             if (totalBytesRead != nullptr) {
                 *totalBytesRead = 0;
+            }
+            if(udp4HeaderVariable!= nullptr){
+                *udp4HeaderVariable= nullptr;
+            }
+            if(ip4HeaderVariable!= nullptr){
+                *ip4HeaderVariable= nullptr;
+            }
+            return 1;
+        }
+
+        if(targetBuffer== nullptr || length == 0){
+            log.error("Given target buffer was null or given length was zero, not receiving");
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
+            }
+            if(udp4HeaderVariable!= nullptr){
+                *udp4HeaderVariable= nullptr;
+            }
+            if(ip4HeaderVariable!= nullptr){
+                *ip4HeaderVariable= nullptr;
             }
             return 1;
         }
@@ -95,7 +125,21 @@ namespace Kernel {
             accessLock->acquire();
             if(!inputBuffer->isEmpty()){
                 auto *entry = inputBuffer->pop();
-                entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
+                if(entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)){
+                    log.error("Could not copy incoming data to application buffer, delete data");
+                    if(totalBytesRead!= nullptr){
+                        *totalBytesRead=0;
+                    }
+                    if(ip4HeaderVariable!= nullptr){
+                        *ip4HeaderVariable = nullptr;
+                    }
+                    if(udp4HeaderVariable!= nullptr){
+                        *udp4HeaderVariable= nullptr;
+                    }
+                    delete entry;
+                    accessLock->release();
+                    return 1;
+                }
                 delete entry;
                 accessLock->release();
                 return 0;
@@ -109,12 +153,16 @@ namespace Kernel {
 
     uint8_t UDP4SocketController::publishSendEvent(
             IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort, NetworkByteBlock *outData) {
-        if (destinationAddress == nullptr || outData == nullptr || isClosed == nullptr) {
+        if (eventBus == nullptr || isClosed == nullptr) {
             log.error("Internal elements not initialized, not sending");
             return 1;
         }
         if (isClosed->get()) {
             log.error("Socket closed, not sending");
+            return 1;
+        }
+        if(destinationAddress == nullptr || sourcePort == 0 || destinationPort == 0 || outData == nullptr){
+            log.error("Given attributes are invalid, not sending");
             return 1;
         }
         //Send data to UDP4Module via EventBus for further processing
