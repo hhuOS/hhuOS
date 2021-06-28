@@ -14,15 +14,14 @@ namespace Kernel {
             log.error("Internal socket list or accessLock not initialized, discarding UDP4 datagram");
             return 1;
         }
-        auto destinationPort = udp4Header->getDestinationPort();
         accessLock->acquire();
-        if (!sockets->containsKey(destinationPort)) {
+        if (!sockets->containsKey(udp4Header->getDestinationPort())) {
             log.error("No socket registered for datagram's destination port, discarding");
             accessLock->release();
             return 1;
         }
 
-        if (sockets->get(destinationPort)->notify(ip4Header, udp4Header, input)) {
+        if (sockets->get(udp4Header->getDestinationPort())->notify(ip4Header, udp4Header, input)) {
             log.error("Could not deliver input to destination socket");
             accessLock->release();
             return 1;
@@ -132,11 +131,12 @@ namespace Kernel {
             }
             if (notifyDestinationSocket(udp4Header, ip4Header, input)) {
                 log.error("Could not notify destination socket, see syslog for more details");
+                delete udp4Header;
+                delete ip4Header;
+                delete input;
             }
-            //Processing finally done, cleanup
-            delete udp4Header;
-            delete ip4Header;
-            delete input;
+            //Data will be used in socket and application later
+            //-> don't delete anything!
             return;
         }
     }
