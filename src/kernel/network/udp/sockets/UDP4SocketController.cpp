@@ -22,9 +22,17 @@ namespace Kernel {
             isClosed->set(true);
         }
         delete isClosed;
-        isClosed = nullptr;
-
+        if(accessLock!= nullptr){
+            accessLock->release();
+        }
         delete accessLock;
+
+        if(inputBuffer!= nullptr) {
+            while (!inputBuffer->isEmpty()) {
+                delete inputBuffer->pop();
+            }
+            delete inputBuffer;
+        }
     }
 
     uint8_t UDP4SocketController::startup() {
