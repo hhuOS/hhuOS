@@ -4,6 +4,8 @@
 
 #include <kernel/network/internet/IP4Header.h>
 #include <kernel/event/network/UDP4SendEvent.h>
+#include <lib/system/Result.h>
+#include <lib/system/Call.h>
 #include "UDP4SocketController.h"
 
 namespace Kernel {
@@ -89,10 +91,20 @@ namespace Kernel {
             return 1;
         }
 
-        accessLock->acquire();
-        inputBuffer->pop()->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
-        accessLock->release();
-        return 0;
+        while(true) {//TODO: Add Timeouts
+            accessLock->acquire();
+            if(!inputBuffer->isEmpty()){
+                auto *entry = inputBuffer->pop();
+                entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
+                delete entry;
+                accessLock->release();
+                return 0;
+            }
+            accessLock->release();
+            //release processor
+            Standard::System::Result result{};
+            Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
+        }
     }
 
     uint8_t UDP4SocketController::publishSendEvent(
