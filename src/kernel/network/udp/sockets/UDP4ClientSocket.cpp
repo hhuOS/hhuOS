@@ -66,6 +66,13 @@ namespace Kernel {
     }
 
     uint8_t UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
-        return receive(nullptr, targetBuffer, length);
+        return controller->
+        receive(nullptr, targetBuffer, length, nullptr, nullptr);
+    }
+
+    uint8_t
+    UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+                              UDP4Header **udp4HeaderVariable) {
+        return controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
     }
 }

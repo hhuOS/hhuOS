@@ -30,6 +30,9 @@ namespace Kernel {
         uint8_t receive(void *targetBuffer, size_t length);
 
         uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length);
+
+        uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+                        UDP4Header **udp4HeaderVariable);
     };
 }
 
