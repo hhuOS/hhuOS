@@ -29,11 +29,11 @@ namespace Kernel {
     }
 
     uint8_t UDP4ClientSocket::close() {
-        if (networkService->unregisterSocketController(listeningPort)) {
+        //Disable sending and receiving until socket is deleted
+        if (controller->shutdown()) {
             return 1;
         }
-        //Make sure all processes on incoming packets are finished
-        return controller->shutdown();
+        return networkService->unregisterSocketController(listeningPort);
     }
 
     //Client send()
