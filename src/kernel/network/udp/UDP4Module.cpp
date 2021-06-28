@@ -80,9 +80,9 @@ namespace Kernel {
             return 1;
         }
 
-        uint16_t nextFreePort=UDP_PRIVATE_PORT_MIN;
+        uint16_t nextFreePort = UDP_PRIVATE_PORT_MIN;
         accessLock->acquire();
-        while(sockets->containsKey(nextFreePort)) {
+        while (sockets->containsKey(nextFreePort)) {
             if (nextFreePort == UDP_PRIVATE_PORT_MAX) {
                 log.error("All ports in use, not registering");
                 accessLock->release();

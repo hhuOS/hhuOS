@@ -85,11 +85,11 @@ namespace Kernel {
             if (totalBytesRead != nullptr) {
                 *totalBytesRead = 0;
             }
-            if(udp4HeaderVariable!= nullptr){
-                *udp4HeaderVariable= nullptr;
+            if (udp4HeaderVariable != nullptr) {
+                *udp4HeaderVariable = nullptr;
             }
-            if(ip4HeaderVariable!= nullptr){
-                *ip4HeaderVariable= nullptr;
+            if (ip4HeaderVariable != nullptr) {
+                *ip4HeaderVariable = nullptr;
             }
             return 1;
         }
@@ -98,43 +98,43 @@ namespace Kernel {
             if (totalBytesRead != nullptr) {
                 *totalBytesRead = 0;
             }
-            if(udp4HeaderVariable!= nullptr){
-                *udp4HeaderVariable= nullptr;
+            if (udp4HeaderVariable != nullptr) {
+                *udp4HeaderVariable = nullptr;
             }
-            if(ip4HeaderVariable!= nullptr){
-                *ip4HeaderVariable= nullptr;
+            if (ip4HeaderVariable != nullptr) {
+                *ip4HeaderVariable = nullptr;
             }
             return 1;
         }
 
-        if(targetBuffer== nullptr || length == 0){
+        if (targetBuffer == nullptr || length == 0) {
             log.error("Given target buffer was null or given length was zero, not receiving");
             if (totalBytesRead != nullptr) {
                 *totalBytesRead = 0;
             }
-            if(udp4HeaderVariable!= nullptr){
-                *udp4HeaderVariable= nullptr;
+            if (udp4HeaderVariable != nullptr) {
+                *udp4HeaderVariable = nullptr;
             }
-            if(ip4HeaderVariable!= nullptr){
-                *ip4HeaderVariable= nullptr;
+            if (ip4HeaderVariable != nullptr) {
+                *ip4HeaderVariable = nullptr;
             }
             return 1;
         }
 
-        while(true) {//TODO: Add Timeouts
+        while (true) {//TODO: Add Timeouts
             accessLock->acquire();
-            if(!inputBuffer->isEmpty()){
+            if (!inputBuffer->isEmpty()) {
                 auto *entry = inputBuffer->pop();
-                if(entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)){
+                if (entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)) {
                     log.error("Could not copy incoming data to application buffer, delete data");
-                    if(totalBytesRead!= nullptr){
-                        *totalBytesRead=0;
+                    if (totalBytesRead != nullptr) {
+                        *totalBytesRead = 0;
                     }
-                    if(ip4HeaderVariable!= nullptr){
+                    if (ip4HeaderVariable != nullptr) {
                         *ip4HeaderVariable = nullptr;
                     }
-                    if(udp4HeaderVariable!= nullptr){
-                        *udp4HeaderVariable= nullptr;
+                    if (udp4HeaderVariable != nullptr) {
+                        *udp4HeaderVariable = nullptr;
                     }
                     delete entry;
                     accessLock->release();
@@ -161,7 +161,7 @@ namespace Kernel {
             log.error("Socket closed, not sending");
             return 1;
         }
-        if(destinationAddress == nullptr || sourcePort == 0 || destinationPort == 0 || outData == nullptr){
+        if (destinationAddress == nullptr || sourcePort == 0 || destinationPort == 0 || outData == nullptr) {
             log.error("Given attributes are invalid, not sending");
             return 1;
         }
