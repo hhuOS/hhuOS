@@ -13,7 +13,6 @@ namespace Kernel {
     private:
         uint16_t listeningPort = 0;
         NetworkService *networkService = nullptr;
-        TimeService *timeService = nullptr;
         IP4Address *destinationAddress = nullptr;
         UDP4SocketController *controller = nullptr;
 

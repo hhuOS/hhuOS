@@ -9,7 +9,6 @@ namespace Kernel {
     UDP4ServerSocket::UDP4ServerSocket(uint16_t listeningPort) {
         this->listeningPort = listeningPort;
         networkService = System::getService<NetworkService>();
-        timeService = System::getService<TimeService>();
         controller = networkService->createSocketController();
     }
 
@@ -22,18 +21,15 @@ namespace Kernel {
         if (controller->startup()) {
             return 1;
         }
-        //Make sure all locks and data structures are prepared
-        timeService->msleep(2000);
         return networkService->registerSocketController(listeningPort, controller);
     }
 
     uint8_t UDP4ServerSocket::close() {
-        if (networkService->unregisterSocketController(listeningPort)) {
+        //Disable sending and receiving until socket is deleted
+        if (controller->shutdown()) {
             return 1;
         }
-        //Make sure all processes on incoming packets are finished
-        timeService->msleep(2000);
-        return controller->shutdown();
+        return networkService->unregisterSocketController(listeningPort);
     }
 
     uint8_t

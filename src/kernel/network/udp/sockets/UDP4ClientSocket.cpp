@@ -24,7 +24,6 @@ namespace Kernel {
         if (controller->startup()) {
             return 1;
         }
-        //Make sure all locks and data structures are prepared
         return networkService->registerSocketController(listeningPort, controller);
     }
 
@@ -36,8 +35,6 @@ namespace Kernel {
         return networkService->unregisterSocketController(listeningPort);
     }
 
-    //Client send()
-    //-> destination address and remote port should be given via constructor
     uint8_t UDP4ClientSocket::send(void *dataBytes, size_t length) {
         if (
                 dataBytes == nullptr ||
