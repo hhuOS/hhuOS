@@ -22,12 +22,12 @@ namespace Kernel {
             isClosed->set(true);
         }
         delete isClosed;
-        if(accessLock!= nullptr){
+        if (accessLock != nullptr) {
             accessLock->release();
         }
         delete accessLock;
 
-        if(inputBuffer!= nullptr) {
+        if (inputBuffer != nullptr) {
             while (!inputBuffer->isEmpty()) {
                 delete inputBuffer->pop();
             }
