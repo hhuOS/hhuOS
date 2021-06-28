@@ -26,9 +26,8 @@ namespace Kernel {
 
     uint8_t UDP4ServerSocket::close() {
         //Disable sending and receiving until socket is deleted
-        if (controller->shutdown()) {
-            return 1;
-        }
+        //Errors don't matter here, our controller MUST be unregistered in any case!
+        controller->shutdown();
         return networkService->unregisterSocketController(listeningPort);
     }
 
