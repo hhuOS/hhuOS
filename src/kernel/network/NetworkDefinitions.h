@@ -22,4 +22,7 @@
 
 #define ARP_WAIT_TIME 100 //Time in milliseconds to wait for ARP Replies
 
+#define UDP_PRIVATE_PORT_MIN 49152
+#define UDP_PRIVATE_PORT_MAX 65535 //free private port range defined in RFC 6335 page 11 middle
+
 #endif //HHUOS_NETWORKDEFINITIONS_H

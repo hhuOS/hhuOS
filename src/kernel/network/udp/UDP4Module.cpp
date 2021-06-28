@@ -77,15 +77,20 @@ namespace Kernel {
             log.error("Socket map or socket access lock not initialized, not registering controller");
             return 1;
         }
-        if(nextFreePort==65535){
-            log.error("All ports in use, not registering");
-            return 1;
-        }
+
+        uint16_t nextFreePort=UDP_PRIVATE_PORT_MIN;
         accessLock->acquire();
-        *destinationPortTarget = nextFreePort;
+        while(sockets->containsKey(nextFreePort)) {
+            if (nextFreePort == UDP_PRIVATE_PORT_MAX) {
+                log.error("All ports in use, not registering");
+                return 1;
+            }
+            nextFreePort++;
+        }
         sockets->put(nextFreePort, controller);
-        nextFreePort++;
         accessLock->release();
+
+        *destinationPortTarget = nextFreePort;
         return 0;
     }
 

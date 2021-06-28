@@ -8,6 +8,7 @@
 
 #include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/udp/sockets/UDP4SocketController.h>
+#include <kernel/network/NetworkDefinitions.h>
 
 namespace Kernel {
     class UDP4Module : public Receiver {
@@ -15,7 +16,6 @@ namespace Kernel {
         NetworkEventBus *eventBus = nullptr;
         Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
         Spinlock *accessLock = nullptr;
-        uint16_t nextFreePort = 49152; //free private port range defined in RFC 6335 page 11 middle
 
         uint8_t notifyDestinationSocket(UDP4Header *udp4Header, IP4Header *ip4Header, NetworkByteBlock *input);
 
