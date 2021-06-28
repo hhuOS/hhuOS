@@ -121,6 +121,8 @@ namespace Kernel {
         uint8_t unregisterSocketController(uint16_t destinationPort);
 
         uint8_t registerSocketController(uint16_t listeningPort, UDP4SocketController *controller);
+
+        uint8_t registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller);
     };
 
 }

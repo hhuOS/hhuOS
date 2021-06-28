@@ -9,10 +9,9 @@ namespace Kernel {
     UDP4ClientSocket::UDP4ClientSocket(IP4Address *targetAddress, uint16_t targetPort) {
         this->destinationAddress = targetAddress;
         this->targetPort = targetPort;
-        this->listeningPort = 16123;
-        //TODO: Implement find logic for free port number
         networkService = System::getService<NetworkService>();
         controller = networkService->createSocketController();
+        listeningPort = 0; //Will be set when binding
     }
 
     UDP4ClientSocket::~UDP4ClientSocket() {
@@ -24,7 +23,7 @@ namespace Kernel {
         if (controller->startup()) {
             return 1;
         }
-        return networkService->registerSocketController(listeningPort, controller);
+        return networkService->registerSocketController(&listeningPort, controller);
     }
 
     uint8_t UDP4ClientSocket::close() {

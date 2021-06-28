@@ -64,6 +64,31 @@ namespace Kernel {
         return 0;
     }
 
+    uint8_t UDP4Module::registerControllerFor(uint16_t *destinationPortTarget, UDP4SocketController *controller) {
+        if (destinationPortTarget == nullptr) {
+            log.error("Given port target was null, not registering controller");
+            return 1;
+        }
+        if (controller == nullptr) {
+            log.error("Given controller was null, not registering");
+            return 1;
+        }
+        if (sockets == nullptr || accessLock == nullptr) {
+            log.error("Socket map or socket access lock not initialized, not registering controller");
+            return 1;
+        }
+        if(nextFreePort==65535){
+            log.error("All ports in use, not registering");
+            return 1;
+        }
+        accessLock->acquire();
+        *destinationPortTarget = nextFreePort;
+        sockets->put(nextFreePort, controller);
+        nextFreePort++;
+        accessLock->release();
+        return 0;
+    }
+
     uint8_t UDP4Module::unregisterControllerFor(uint16_t destinationPort) {
         if (destinationPort == 0) {
             log.error("Given port was zero, not unregistering controller");

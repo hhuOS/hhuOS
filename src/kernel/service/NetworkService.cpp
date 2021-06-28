@@ -167,6 +167,22 @@ namespace Kernel {
         return udp4Module->registerControllerFor(listeningPort, controller);
     }
 
+    uint8_t NetworkService::registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller) {
+        if (listeningPortTarget == nullptr) {
+            log.error("Listening port target was null, not registering");
+            return 1;
+        }
+        if (controller == nullptr) {
+            log.error("Controller was null, not registering");
+            return 1;
+        }
+        if (udp4Module == nullptr) {
+            log.error("UDP4Module not initialized, not registering controller");
+            return 1;
+        }
+        return udp4Module->registerControllerFor(listeningPortTarget, controller);
+    }
+
     uint8_t NetworkService::unregisterSocketController(uint16_t destinationPort) {
         if (destinationPort == 0) {
             log.error("Destination port was zero, not unregistering controller");
