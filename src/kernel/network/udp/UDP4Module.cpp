@@ -83,6 +83,7 @@ namespace Kernel {
         while(sockets->containsKey(nextFreePort)) {
             if (nextFreePort == UDP_PRIVATE_PORT_MAX) {
                 log.error("All ports in use, not registering");
+                accessLock->release();
                 return 1;
             }
             nextFreePort++;
