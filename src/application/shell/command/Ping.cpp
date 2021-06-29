@@ -23,7 +23,7 @@ void Ping::execute(Util::Array<String> &args) {
         return;
     }
 
-    uint8_t addressBytes[IP4ADDRESS_LENGTH]{127, 0, 0, 1}, numberOfPings = 3;
+    uint8_t numberOfPings = 3, addressBytes[IP4ADDRESS_LENGTH]{127, 0, 0, 1};
 
     auto target = parser.getUnnamedArguments();
     if (target.length() == 1) {
