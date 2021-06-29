@@ -26,7 +26,7 @@ namespace Kernel {
 
     public:
 
-        explicit UDP4SocketController(NetworkEventBus *eventBus);
+        explicit UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize);
 
         virtual ~UDP4SocketController();
 

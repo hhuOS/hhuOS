@@ -52,7 +52,6 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        size_t bufferSize = 1024;
         EthernetDeviceIdentifier *loopbackIdentifier;
 
         Management *management;
@@ -116,7 +115,7 @@ namespace Kernel {
 
         uint8_t collectRouteAttributes(Util::ArrayList<String> *strings);
 
-        UDP4SocketController *createSocketController();
+        UDP4SocketController *createSocketController(size_t bufferSize);
 
         uint8_t unregisterSocketController(uint16_t destinationPort);
 

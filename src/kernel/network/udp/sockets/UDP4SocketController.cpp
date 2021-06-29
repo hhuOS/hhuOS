@@ -15,15 +15,17 @@ namespace Kernel {
         Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
     }
 
-    UDP4SocketController::UDP4SocketController(NetworkEventBus *eventBus) {
+    UDP4SocketController::UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize) {
         this->eventBus = eventBus;
         accessLock = new Spinlock();
 
         isClosed = new Atomic<bool>;
         isClosed->set(true);
 
-        //TODO: Give inputBuffer size as parameter!
-        inputBuffer = new Util::RingBuffer<UDP4InputEntry *>(8);
+        if(bufferSize==0){
+            bufferSize=1;
+        }
+        inputBuffer = new Util::RingBuffer<UDP4InputEntry *>(bufferSize);
     }
 
     UDP4SocketController::~UDP4SocketController() {

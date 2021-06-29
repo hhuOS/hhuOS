@@ -9,7 +9,7 @@ namespace Kernel {
     UDP4ServerSocket::UDP4ServerSocket(uint16_t listeningPort) {
         this->listeningPort = listeningPort;
         networkService = System::getService<NetworkService>();
-        controller = networkService->createSocketController();
+        controller = networkService->createSocketController(128);
     }
 
     UDP4ServerSocket::~UDP4ServerSocket() {

@@ -147,8 +147,11 @@ namespace Kernel {
         return this->ip4Module->unregisterDevice(selected);
     }
 
-    UDP4SocketController *NetworkService::createSocketController() {
-        return new UDP4SocketController(this->eventBus);
+    UDP4SocketController *NetworkService::createSocketController(size_t bufferSize) {
+        if(bufferSize==0){
+            bufferSize=1;
+        }
+        return new UDP4SocketController(this->eventBus, bufferSize);
     }
 
     uint8_t NetworkService::registerSocketController(uint16_t listeningPort, UDP4SocketController *controller) {

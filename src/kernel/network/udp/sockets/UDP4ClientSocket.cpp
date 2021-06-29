@@ -10,7 +10,7 @@ namespace Kernel {
         this->destinationAddress = targetAddress;
         this->targetPort = targetPort;
         networkService = System::getService<NetworkService>();
-        controller = networkService->createSocketController();
+        controller = networkService->createSocketController(128);
         listeningPort = 0; //Will be set when binding
     }
 
