@@ -29,7 +29,7 @@ void EchoServer::cleanup() const {
 
 uint8_t EchoServer::start() {
     if (attributes.inputBuffer == nullptr || attributes.socket == nullptr || attributes.isRunning == nullptr ||
-    attributes.log == nullptr || serverThread == nullptr || attributes.inputBufferSize == 0) {
+        attributes.log == nullptr || serverThread == nullptr || attributes.inputBufferSize == 0) {
         cleanup();
         return 1;
     }
@@ -61,8 +61,8 @@ void EchoServer::EchoThread::run() {
 
     while (attributes.isRunning->get()) {
         if (attributes.socket->
-        receive(&bytesReceived, attributes.inputBuffer, attributes.inputBufferSize,&ip4Header, &udp4Header)
-        || bytesReceived == 0) {
+                receive(&bytesReceived, attributes.inputBuffer, attributes.inputBufferSize, &ip4Header, &udp4Header)
+            || bytesReceived == 0) {
             if (attributes.isRunning->get()) {
                 (*attributes.log).error("Error while receiving data, stopping");
             } else {
@@ -82,10 +82,10 @@ void EchoServer::EchoThread::run() {
         delete ip4Header;
 
         (*attributes.log)
-        .info("Incoming datagram from %s with content '%s', sending response",
-              (char *)senderAddress->asString(), attributes.inputBuffer);
+                .info("Incoming datagram from %s with content '%s', sending response",
+                      (char *) senderAddress->asString(), attributes.inputBuffer);
 
-        if (attributes.socket->send(senderAddress, sourcePort,attributes.inputBuffer, bytesReceived)) {
+        if (attributes.socket->send(senderAddress, sourcePort, attributes.inputBuffer, bytesReceived)) {
             (*attributes.log).error("Sending response failed, stopping");
             return;
         }

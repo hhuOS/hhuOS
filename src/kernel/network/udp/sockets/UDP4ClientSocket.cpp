@@ -62,7 +62,7 @@ namespace Kernel {
 
     uint8_t UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
         return controller->
-        receive(nullptr, targetBuffer, length, nullptr, nullptr);
+                receive(nullptr, targetBuffer, length, nullptr, nullptr);
     }
 
     uint8_t

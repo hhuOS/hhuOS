@@ -22,8 +22,8 @@ namespace Kernel {
         isClosed = new Atomic<bool>;
         isClosed->set(true);
 
-        if(bufferSize==0){
-            bufferSize=1;
+        if (bufferSize == 0) {
+            bufferSize = 1;
         }
         inputBuffer = new Util::RingBuffer<UDP4InputEntry *>(bufferSize);
     }
