@@ -84,66 +84,27 @@ namespace Kernel {
     }
 
     uint8_t
-    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
-                                  IP4Header **ip4HeaderVariable,
-                                  UDP4Header **udp4HeaderVariable) {
-
+    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable) {
         if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not receiving");
-            if (totalBytesRead != nullptr) {
-                *totalBytesRead = 0;
-            }
-            if (udp4HeaderVariable != nullptr) {
-                *udp4HeaderVariable = nullptr;
-            }
-            if (ip4HeaderVariable != nullptr) {
-                *ip4HeaderVariable = nullptr;
-            }
             return 1;
         }
         if (isClosed->get()) {
             log.error("Socket is closed, not reading any data. Please call 'bind()' first!");
-            if (totalBytesRead != nullptr) {
-                *totalBytesRead = 0;
-            }
-            if (udp4HeaderVariable != nullptr) {
-                *udp4HeaderVariable = nullptr;
-            }
-            if (ip4HeaderVariable != nullptr) {
-                *ip4HeaderVariable = nullptr;
-            }
             return 1;
         }
 
         if (targetBuffer == nullptr || length == 0) {
             log.error("Given target buffer was null or given length was zero, not receiving");
-            if (totalBytesRead != nullptr) {
-                *totalBytesRead = 0;
-            }
-            if (udp4HeaderVariable != nullptr) {
-                *udp4HeaderVariable = nullptr;
-            }
-            if (ip4HeaderVariable != nullptr) {
-                *ip4HeaderVariable = nullptr;
-            }
             return 1;
         }
 
-        while (true) {//TODO: Add Timeouts
+        while (!isClosed->get()) {
             accessLock->acquire();
             if (!inputBuffer->isEmpty()) {
                 auto *entry = inputBuffer->pop();
                 if (entry->copyTo(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)) {
                     log.error("Could not copy incoming data to application buffer, delete data");
-                    if (totalBytesRead != nullptr) {
-                        *totalBytesRead = 0;
-                    }
-                    if (ip4HeaderVariable != nullptr) {
-                        *ip4HeaderVariable = nullptr;
-                    }
-                    if (udp4HeaderVariable != nullptr) {
-                        *udp4HeaderVariable = nullptr;
-                    }
                     delete entry;
                     accessLock->release();
                     return 1;
@@ -156,6 +117,10 @@ namespace Kernel {
             //release processor, be gentle to the system :D
             yield();
         }
+        // The caller MUST NOT receive anything here,
+        // processing should be stopped and sending is already disabled
+        //-> return error
+        return 1;
     }
 
     uint8_t UDP4SocketController::publishSendEvent(

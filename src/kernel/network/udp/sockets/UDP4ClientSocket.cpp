@@ -48,26 +48,41 @@ namespace Kernel {
         //-> copy it here!
         auto *destinationAddressCopy = new IP4Address(destinationAddress);
         //Send data via controller to UDP4Module for further processing
-        controller->publishSendEvent(destinationAddressCopy, this->listeningPort, targetPort, byteBlock);
+        if(controller->publishSendEvent(destinationAddressCopy, this->listeningPort, targetPort, byteBlock)){
+            delete destinationAddressCopy;
+            delete byteBlock;
+            return 1;
+        }
 
         //Datagram will be deleted in EthernetModule after sending
         //-> no 'delete destinationAddressCopy' here!
         return 0;
     }
 
-    //Regular receive() for clients
     uint8_t UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
-        return controller->receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
+        return receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
     }
 
     uint8_t UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
-        return controller->
-                receive(nullptr, targetBuffer, length, nullptr, nullptr);
+        return receive(nullptr, targetBuffer, length, nullptr, nullptr);
     }
 
+    //Extended receive() for servers and clients who need to know IP4 or UDP4 headers
     uint8_t
     UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
                               UDP4Header **udp4HeaderVariable) {
-        return controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable);
+        if(controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)){
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
+            }
+            if (udp4HeaderVariable != nullptr) {
+                *udp4HeaderVariable = nullptr;
+            }
+            if (ip4HeaderVariable != nullptr) {
+                *ip4HeaderVariable = nullptr;
+            }
+            return 1;
+        }
+        return 0;
     }
 }

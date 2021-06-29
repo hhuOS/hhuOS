@@ -42,6 +42,9 @@ namespace Kernel {
         uint8_t publishSendEvent(
                 IP4Address *destinationAddress, uint16_t sourcePort, uint16_t destinationPort,
                 NetworkByteBlock *outData);
+
+        uint8_t handleReceive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+                              UDP4Header **udp4HeaderVariable);
     };
 }
 

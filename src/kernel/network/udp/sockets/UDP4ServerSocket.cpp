@@ -46,17 +46,41 @@ namespace Kernel {
         //The datagram's attributes will be deleted after sending
         //-> copy it here!
         auto *givenDestinationCopy = new IP4Address(givenDestination);
-        //Send data via controller to UDP4Module for further processing
-        controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock);
+        //Send data via controller to UDP4Module for further processing (if successful)
+        if(controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock)){
+            delete givenDestination;
+            delete byteBlock;
+            return 1;
+        }
 
         //Datagram will be deleted in EthernetModule after sending
         //-> no 'delete destinationAddressCopy' here!
         return 0;
     }
 
+    uint8_t UDP4ServerSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
+        return receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
+    }
+
+    uint8_t UDP4ServerSocket::receive(void *targetBuffer, size_t length) {
+        return receive(nullptr, targetBuffer, length, nullptr, nullptr);
+    }
+
     //Extended receive() for servers and clients who need to know IP4 or UDP4 headers
-    uint8_t UDP4ServerSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4Header,
-                                      UDP4Header **udp4Header) {
-        return controller->receive(totalBytesRead, targetBuffer, length, ip4Header, udp4Header);
+    uint8_t UDP4ServerSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+                                      UDP4Header **udp4HeaderVariable) {
+        if(controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)){
+            if (totalBytesRead != nullptr) {
+                *totalBytesRead = 0;
+            }
+            if (udp4HeaderVariable != nullptr) {
+                *udp4HeaderVariable = nullptr;
+            }
+            if (ip4HeaderVariable != nullptr) {
+                *ip4HeaderVariable = nullptr;
+            }
+            return 1;
+        }
+        return 0;
     }
 }

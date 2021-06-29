@@ -49,7 +49,7 @@ uint8_t EchoServer::stop() {
     }
     attributes.isRunning->set(false);
     attributes.socket->close();
-    while (!serverThread->hasFinished()) {}
+    serverThread->join();
     return 0;
 }
 
@@ -79,7 +79,10 @@ void EchoServer::EchoThread::run() {
         uint16_t sourcePort = udp4Header->getSourcePort();
 
         delete udp4Header;
+        udp4Header= nullptr;
+
         delete ip4Header;
+        ip4Header= nullptr;
 
         (*attributes.log)
                 .info("Incoming datagram from %s with content '%s', sending response",
