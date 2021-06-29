@@ -2,14 +2,13 @@
 // Created by hannes on 17.06.21.
 //
 
-#include <kernel/core/System.h>
 #include "UDP4ServerSocket.h"
 
 namespace Kernel {
     UDP4ServerSocket::UDP4ServerSocket(uint16_t listeningPort) {
         this->listeningPort = listeningPort;
         networkService = System::getService<NetworkService>();
-        controller = networkService->createSocketController(128);
+        controller = networkService->createSocketController(UDP_SOCKET_BUFFER_SIZE);
     }
 
     UDP4ServerSocket::~UDP4ServerSocket() {

@@ -19,12 +19,13 @@
 
 #define UDP4DATAPART_MAX_LENGTH 1500
 #define UDP4HEADER_MAX_LENGTH 0xffff
-
 #define IP4DATAPART_MAX_LENGTH 576 //Recommended in RFC 791 page 13
 
 #define ARP_WAIT_TIME 100 //Time in milliseconds to wait for ARP Replies
-#define UDP_PRIVATE_PORT_MIN 49152
 
+#define UDP_PRIVATE_PORT_MIN 49152
 #define UDP_PRIVATE_PORT_MAX 65535 //free private port range defined in RFC 6335 page 11 middle
+
+#define UDP_SOCKET_BUFFER_SIZE 256
 
 #endif //HHUOS_NETWORKDEFINITIONS_H

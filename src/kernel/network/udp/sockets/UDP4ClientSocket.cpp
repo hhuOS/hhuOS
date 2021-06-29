@@ -2,7 +2,6 @@
 // Created by hannes on 13.06.21.
 //
 
-#include <kernel/core/System.h>
 #include "UDP4ClientSocket.h"
 
 namespace Kernel {
@@ -10,7 +9,7 @@ namespace Kernel {
         this->destinationAddress = targetAddress;
         this->targetPort = targetPort;
         networkService = System::getService<NetworkService>();
-        controller = networkService->createSocketController(128);
+        controller = networkService->createSocketController(UDP_SOCKET_BUFFER_SIZE);
         listeningPort = 0; //Will be set when binding
     }
 
