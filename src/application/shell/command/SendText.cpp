@@ -16,6 +16,8 @@ SendText::SendText(Shell &shell) : Command(shell) {
 void SendText::execute(Util::Array<String> &args) {
     Util::ArgumentParser parser(getHelpText(), 1);
 
+    parser.addParameter("count", "n", false);
+
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
@@ -75,30 +77,38 @@ void SendText::execute(Util::Array<String> &args) {
         stringLength = ECHO_INPUT_BUFFER_SIZE;
     }
 
-    stdout << "CLIENT: Sending text '" << testString << "' to server" << endl;
-    if (sendSocket->send((char *) testString, stringLength)) {
-        stderr << "CLIENT: Error while sending!" << endl;
-        sendSocket->close();
-        delete sendSocket;
-
-        stdout << "Stopping ECHO server" << endl;
-        if (server->stop()) {
-            stderr << "Stopping server failed!" << endl;
-        }
-        delete server;
-        return;
+    uint8_t rounds = 1;
+    auto count = parser.getNamedArgument("count");
+    if (!count.isEmpty()) {
+        rounds = static_cast<uint8_t>(strtoint((const char *) count));
     }
 
-    size_t totalBytesRead = 0;
-    char response[ECHO_INPUT_BUFFER_SIZE + 1];
-    response[ECHO_INPUT_BUFFER_SIZE] = '\0';
+    for (uint8_t i = 0; i < rounds; i++) {
+        stdout << "CLIENT: Sending text '" << testString << "' to server" << endl;
+        if (sendSocket->send((char *) testString, stringLength)) {
+            stderr << "CLIENT: Error while sending!" << endl;
+            sendSocket->close();
+            delete sendSocket;
 
-    stdout << "CLIENT: Reading response" << endl;
-    if (sendSocket->receive(&totalBytesRead, response, stringLength) || totalBytesRead != stringLength) {
-        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping"
-               << endl;
-    } else {
-        stdout << "CLIENT: Response was '" << response << "'" << endl;
+            stdout << "Stopping ECHO server" << endl;
+            if (server->stop()) {
+                stderr << "Stopping server failed!" << endl;
+            }
+            delete server;
+            return;
+        }
+
+        size_t totalBytesRead = 0;
+        char response[ECHO_INPUT_BUFFER_SIZE + 1];
+        response[ECHO_INPUT_BUFFER_SIZE] = '\0';
+
+        stdout << "CLIENT: Reading response" << endl;
+        if (sendSocket->receive(&totalBytesRead, response, stringLength) || totalBytesRead != stringLength) {
+            stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping"
+                   << endl;
+        } else {
+            stdout << "CLIENT: Response was '" << response << "'" << endl;
+        }
     }
 
     stdout << "CLIENT: Closing socket" << endl;
