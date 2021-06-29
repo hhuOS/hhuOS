@@ -33,12 +33,7 @@ namespace Kernel {
 
     uint8_t
     UDP4ServerSocket::send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length) {
-        if (
-                dataBytes == nullptr ||
-                givenDestination == nullptr ||
-                length == 0 ||
-                givenRemotePort == 0
-                ) {
+        if (dataBytes == nullptr || givenDestination == nullptr || length == 0 || givenRemotePort == 0) {
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
@@ -51,7 +46,11 @@ namespace Kernel {
         //The datagram's attributes will be deleted after sending
         //-> copy it here!
         auto *givenDestinationCopy = new IP4Address(givenDestination);
+        //Send data via controller to UDP4Module for further processing
         controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock);
+
+        //Datagram will be deleted in EthernetModule after sending
+        //-> no 'delete destinationAddressCopy' here!
         return 0;
     }
 

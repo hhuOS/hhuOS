@@ -34,12 +34,7 @@ namespace Kernel {
     }
 
     uint8_t UDP4ClientSocket::send(void *dataBytes, size_t length) {
-        if (
-                dataBytes == nullptr ||
-                destinationAddress == nullptr ||
-                length == 0 ||
-                targetPort == 0
-                ) {
+        if (dataBytes == nullptr || destinationAddress == nullptr || length == 0 || targetPort == 0) {
             return 1;
         }
         auto *byteBlock = new NetworkByteBlock(length);
