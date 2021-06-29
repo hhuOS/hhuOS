@@ -9,6 +9,7 @@ EchoServer::EchoServer(size_t inputBufferSize) {
     attributes.log = &log;
     attributes.socket = new Kernel::UDP4ServerSocket(ECHO_PORT_NUMBER);
     attributes.inputBufferSize = inputBufferSize;
+    //bufferSize chars input plus one byte for '\0'
     attributes.inputBuffer = new uint8_t[inputBufferSize + 1];
     attributes.isRunning = new Atomic<bool>;
     attributes.isRunning->set(false);
@@ -28,6 +29,7 @@ void EchoServer::cleanup() const {
 }
 
 uint8_t EchoServer::start() {
+    log.info("Starting ECHO server...");
     if (attributes.inputBuffer == nullptr || attributes.socket == nullptr || attributes.isRunning == nullptr ||
         attributes.log == nullptr || serverThread == nullptr || attributes.inputBufferSize == 0) {
         cleanup();
@@ -40,16 +42,19 @@ uint8_t EchoServer::start() {
     }
     attributes.isRunning->set(true);
     serverThread->start();
+    log.info("ECHO server started");
     return 0;
 }
 
 uint8_t EchoServer::stop() {
+    log.info("Stopping ECHO server...");
     if (attributes.socket == nullptr || attributes.isRunning == nullptr || serverThread == nullptr) {
         return 1;
     }
     attributes.isRunning->set(false);
     attributes.socket->close();
     serverThread->join();
+    log.info("ECHO server stopped");
     return 0;
 }
 
@@ -73,7 +78,7 @@ void EchoServer::EchoThread::run() {
             return;
         }
         //Set end character for printout
-        attributes.inputBuffer[bytesReceived] = 0;
+        attributes.inputBuffer[bytesReceived] = '\0';
         ip4Header->getSourceAddress()->copyTo(addressBytes);
         auto *senderAddress = new IP4Address(addressBytes);
         uint16_t sourcePort = udp4Header->getSourcePort();

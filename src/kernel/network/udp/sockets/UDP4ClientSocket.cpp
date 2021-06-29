@@ -17,6 +17,7 @@ namespace Kernel {
     UDP4ClientSocket::~UDP4ClientSocket() {
         close();
         delete controller;
+        delete destinationAddress;
     }
 
     uint8_t UDP4ClientSocket::bind() {

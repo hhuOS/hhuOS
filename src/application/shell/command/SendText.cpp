@@ -21,21 +21,37 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *server = new EchoServer(1024);
+    auto unnamedArgs = parser.getUnnamedArguments();
+    String testString;
+
+    if (unnamedArgs.length() == 0) {
+        testString = "Hello world!";
+        stdout << "No text given, using '" << testString << "'" << endl;
+    } else {
+        testString = "";
+        for (size_t i = 0; i < unnamedArgs.length(); i++) {
+            testString = testString + unnamedArgs[i] + " ";
+            if (testString.length() > ECHO_INPUT_BUFFER_SIZE) {
+                break;
+            }
+        }
+    }
+
+    auto *server = new EchoServer(ECHO_INPUT_BUFFER_SIZE);
     stdout << "Starting ECHO server" << endl;
-    if(server->start()){
+    if (server->start()) {
         stderr << "Starting server failed!" << endl;
         delete server;
         return;
     }
 
-    auto *sendSocket = new Kernel::UDP4ClientSocket(
-            new IP4Address(127, 0, 0, 1),
-            ECHO_PORT_NUMBER
+    auto *sendSocket =
+            new Kernel::UDP4ClientSocket(
+                    new IP4Address(127, 0, 0, 1), ECHO_PORT_NUMBER
             );
 
     stdout << "CLIENT: Binding socket for receive" << endl;
-    if(sendSocket->bind()){
+    if (sendSocket->bind()) {
         stderr << "CLIENT: Binding socket to receive response failed!" << endl;
         sendSocket->close();
         delete sendSocket;
@@ -46,14 +62,20 @@ void SendText::execute(Util::Array<String> &args) {
         return;
     }
 
-    auto *testString = new String("Hello world! Now it works...\0");
+    //Terminate given String to be sure
+    testString = testString + '\0';
+    size_t stringLength = testString.length();
 
-    stdout << "CLIENT: Sending text '" << *testString << "' to server" << endl;
-    if(sendSocket->send((char *)*testString,testString->length())) {
+    //Cap String if too long
+    if (stringLength > ECHO_INPUT_BUFFER_SIZE) {
+        stringLength = ECHO_INPUT_BUFFER_SIZE;
+    }
+
+    stdout << "CLIENT: Sending text '" << testString << "' to server" << endl;
+    if (sendSocket->send((char *) testString, stringLength)) {
         stderr << "CLIENT: Error while sending!" << endl;
         sendSocket->close();
         delete sendSocket;
-        delete testString;
 
         stdout << "Stopping ECHO server" << endl;
         if (server->stop()) {
@@ -64,14 +86,13 @@ void SendText::execute(Util::Array<String> &args) {
     }
 
     size_t totalBytesRead = 0;
-    auto *response = new char [testString->length() + 1];
-    response[testString->length()] = '\0';
+    char response[ECHO_INPUT_BUFFER_SIZE + 1];
+    response[ECHO_INPUT_BUFFER_SIZE] = '\0';
 
     stdout << "CLIENT: Reading response" << endl;
-    if(sendSocket->receive(&totalBytesRead, response, testString->length()) ||
-        totalBytesRead!=testString->length()
-        ){
-        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping" << endl;
+    if (sendSocket->receive(&totalBytesRead, response, stringLength) || totalBytesRead != stringLength) {
+        stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping"
+               << endl;
     } else {
         stdout << "CLIENT: Response was '" << response << "'" << endl;
     }
@@ -79,8 +100,6 @@ void SendText::execute(Util::Array<String> &args) {
     stdout << "CLIENT: Closing socket" << endl;
     sendSocket->close();
     delete sendSocket;
-    delete testString;
-    delete[] response;
 
     stdout << "Stopping ECHO server" << endl;
     if (server->stop()) {
@@ -90,7 +109,7 @@ void SendText::execute(Util::Array<String> &args) {
 }
 
 const String SendText::getHelpText() {
-    return "Utility for testing our UDP/IP protocol stack by sending and receiving a given text\n\n"
+    return "Utility for testing our UDP/IP protocol stack by sending and receiving a given text via UDP\n\n"
            "Usage: sendtext [TEXT]\n"
            "Options:\n"
            "   -h, --help: Show this help-message";
