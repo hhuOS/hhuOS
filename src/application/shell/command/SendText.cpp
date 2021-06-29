@@ -35,6 +35,9 @@ void SendText::execute(Util::Array<String> &args) {
                 break;
             }
         }
+        if(testString.endsWith(" ")){
+            testString[testString.length()-1]='\0';
+        }
     }
 
     auto *server = new EchoServer(ECHO_INPUT_BUFFER_SIZE);
@@ -67,7 +70,8 @@ void SendText::execute(Util::Array<String> &args) {
     size_t stringLength = testString.length();
 
     //Cap String if too long
-    if (stringLength > ECHO_INPUT_BUFFER_SIZE) {
+    if (stringLength >= (ECHO_INPUT_BUFFER_SIZE)) {
+        testString[ECHO_INPUT_BUFFER_SIZE-1]='\0';
         stringLength = ECHO_INPUT_BUFFER_SIZE;
     }
 
