@@ -84,7 +84,8 @@ namespace Kernel {
     }
 
     uint8_t
-    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable) {
+    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
+                                  IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable) {
         if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not receiving");
             return 1;

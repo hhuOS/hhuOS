@@ -79,10 +79,10 @@ void EchoServer::EchoThread::run() {
         uint16_t sourcePort = udp4Header->getSourcePort();
 
         delete udp4Header;
-        udp4Header= nullptr;
+        udp4Header = nullptr;
 
         delete ip4Header;
-        ip4Header= nullptr;
+        ip4Header = nullptr;
 
         (*attributes.log)
                 .info("Incoming datagram from %s with content '%s', sending response",

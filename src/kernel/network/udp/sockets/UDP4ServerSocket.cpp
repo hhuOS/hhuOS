@@ -47,7 +47,7 @@ namespace Kernel {
         //-> copy it here!
         auto *givenDestinationCopy = new IP4Address(givenDestination);
         //Send data via controller to UDP4Module for further processing (if successful)
-        if(controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock)){
+        if (controller->publishSendEvent(givenDestinationCopy, this->listeningPort, givenRemotePort, byteBlock)) {
             delete givenDestination;
             delete byteBlock;
             return 1;
@@ -67,9 +67,10 @@ namespace Kernel {
     }
 
     //Extended receive() for servers and clients who need to know IP4 or UDP4 headers
-    uint8_t UDP4ServerSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
-                                      UDP4Header **udp4HeaderVariable) {
-        if(controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)){
+    uint8_t
+    UDP4ServerSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+                              UDP4Header **udp4HeaderVariable) {
+        if (controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)) {
             if (totalBytesRead != nullptr) {
                 *totalBytesRead = 0;
             }
