@@ -28,14 +28,8 @@ void EchoServer::cleanup() const {
 }
 
 uint8_t EchoServer::start() {
-    if (
-            attributes.inputBuffer == nullptr ||
-            attributes.socket == nullptr ||
-            attributes.isRunning == nullptr ||
-            attributes.log == nullptr ||
-            serverThread == nullptr ||
-            attributes.inputBufferSize == 0
-            ) {
+    if (attributes.inputBuffer == nullptr || attributes.socket == nullptr || attributes.isRunning == nullptr ||
+    attributes.log == nullptr || serverThread == nullptr || attributes.inputBufferSize == 0) {
         cleanup();
         return 1;
     }
@@ -50,11 +44,7 @@ uint8_t EchoServer::start() {
 }
 
 uint8_t EchoServer::stop() {
-    if (
-            attributes.socket == nullptr ||
-            attributes.isRunning == nullptr ||
-            serverThread == nullptr
-            ) {
+    if (attributes.socket == nullptr || attributes.isRunning == nullptr || serverThread == nullptr) {
         return 1;
     }
     attributes.isRunning->set(false);
@@ -70,11 +60,9 @@ void EchoServer::EchoThread::run() {
     UDP4Header *udp4Header = nullptr;
 
     while (attributes.isRunning->get()) {
-        if (attributes.socket->receive(
-                &bytesReceived, attributes.inputBuffer, attributes.inputBufferSize,
-                &ip4Header, &udp4Header
-        ) || bytesReceived == 0
-                ) {
+        if (attributes.socket->
+        receive(&bytesReceived, attributes.inputBuffer, attributes.inputBufferSize,&ip4Header, &udp4Header)
+        || bytesReceived == 0) {
             if (attributes.isRunning->get()) {
                 (*attributes.log).error("Error while receiving data, stopping");
             } else {
@@ -87,24 +75,20 @@ void EchoServer::EchoThread::run() {
         //Set end character for printout
         attributes.inputBuffer[bytesReceived] = 0;
         ip4Header->getSourceAddress()->copyTo(addressBytes);
+        auto *senderAddress = new IP4Address(addressBytes);
+        uint16_t sourcePort = udp4Header->getSourcePort();
 
-        (*attributes.log).info(
-                "Incoming datagram from %d.%d.%d.%d with content '%s', sending response",
-                addressBytes[0], addressBytes[1], addressBytes[2], addressBytes[3], attributes.inputBuffer
-        );
+        delete udp4Header;
+        delete ip4Header;
 
-        if (attributes.socket->send(
-                ip4Header->getSourceAddress(), udp4Header->getSourcePort(),
-                attributes.inputBuffer, bytesReceived
-        )
-                ) {
+        (*attributes.log)
+        .info("Incoming datagram from %s with content '%s', sending response",
+              (char *)senderAddress->asString(), attributes.inputBuffer);
+
+        if (attributes.socket->send(senderAddress, sourcePort,attributes.inputBuffer, bytesReceived)) {
             (*attributes.log).error("Sending response failed, stopping");
-            delete ip4Header;
-            delete udp4Header;
             return;
         }
-        delete ip4Header;
-        delete udp4Header;
     }
 }
 
