@@ -57,7 +57,7 @@ void Ip::link(Kernel::NetworkService *networkService) {
     stdout << "Print available network links" << endl;
 
     auto *linkAttributes = new Util::ArrayList<String>();
-    if(networkService->collectLinkAttributes(linkAttributes)){
+    if (networkService->collectLinkAttributes(linkAttributes)) {
         stderr << "Could not collect link attributes, return" << endl;
         return;
     }
@@ -85,24 +85,24 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
         IP4Address::parseTo(addressBytes, &unnamedArguments[1]);
 
-        bitCount = strtoint((const char *) unnamedArguments[2]);
+        bitCount = static_cast<uint8_t>(strtoint((const char *) unnamedArguments[2]));
         if (bitCount > 32) {
             stderr << "Invalid bit count for Netmask length, please use values between 0 and 32" << endl;
             return;
         }
 
         auto *identifier = new EthernetDeviceIdentifier(&unnamedArguments[0]);
-        auto *address =new IP4Address(addressBytes);
+        auto *address = new IP4Address(addressBytes);
         auto *mask = new IP4Netmask(bitCount);
 
-        if (networkService->assignIP4Address(identifier,address,mask)) {
+        if (networkService->assignIP4Address(identifier, address, mask)) {
             delete identifier;
             delete address;
             delete mask;
             stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
-        } else{
+        } else {
             stdout << "Assigned address " << address->asString() << " with mask " <<
-            mask->asString() << " to " << identifier->asString() << endl;
+                   mask->asString() << " to " << identifier->asString() << endl;
         }
         return;
     } else if (parser->checkSwitch("unset")) {
@@ -114,7 +114,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
 
         if (networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))) {
             stderr << "UnAssigning address for '" << unnamedArguments[0] << "' failed! See syslog for details" << endl;
-        } else{
+        } else {
             stdout << "Address unAssigned for '" << unnamedArguments[0] << "'" << endl;
         }
         return;
@@ -123,7 +123,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
     //Print interface attributes if 'set' switch not active
     stdout << "Print available ip interfaces" << endl;
     auto *interfaceAttributes = new Util::ArrayList<String>();
-    if(networkService->collectInterfaceAttributes(interfaceAttributes)){
+    if (networkService->collectInterfaceAttributes(interfaceAttributes)) {
         stderr << "Could not collect interface attributes, return" << endl;
         return;
     }
@@ -144,7 +144,7 @@ void Ip::route(Kernel::NetworkService *networkService) {
     stdout << "Print existing ip routes" << endl;
 
     auto *routeAttributes = new Util::ArrayList<String>();
-    if(networkService->collectRouteAttributes(routeAttributes)){
+    if (networkService->collectRouteAttributes(routeAttributes)) {
         stderr << "Could not collect route attributes, return" << endl;
         return;
     }
@@ -161,5 +161,12 @@ const String Ip::getHelpText() {
            "Usage: ip [OPTIONS]\n"
            "Options:\n"
            "   -l, --link: List all available network links and their attributes\n"
+           "   -a, --address: List all available IPv4 interfaces and their attributes\n"
+           "             --set [Link Identifier] [IPv4 Address] [IPv4 Netmask Bits]:\n"
+           "               Assign given IPv4 address to given link, only defined for --address\n"
+           "               Example: 'ip --address --set eth0 192.168.178.1 24'\n"
+           "             --unset [Link Identifier]: Remove IPv4 from given link, only defined for --address\n"
+           "               Example: 'ip --address --unset eth0'\n"
+           "   -r, --route: List all available IPv4 routes and their attributes\n"
            "   -h, --help: Show this help-message";
 }

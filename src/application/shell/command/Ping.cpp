@@ -35,11 +35,11 @@ void Ping::execute(Util::Array<String> &args) {
         numberOfPings = static_cast<uint8_t>(strtoint((const char *) count));
     }
 
-    for (uint8_t i = 0; i < numberOfPings; i++) {
+    for (uint16_t i = 0; i < numberOfPings; i++) {
         eventBus->publish(
                 new Kernel::ICMP4SendEvent(
                         new IP4Address(addressBytes),
-                        new ICMP4Echo(42, i+1)
+                        new ICMP4Echo(42, i + (uint16_t) 1)
                 )
         );
         timeService->msleep(1000);
@@ -49,9 +49,9 @@ void Ping::execute(Util::Array<String> &args) {
 const String Ping::getHelpText() {
     return "Utility for testing our IP protocol stack via ICMP Echo and ICMP Echo Reply\n\n"
            "Usage: ping [OPTION] [ADDRESS]\n"
-           "Address:\n"
+           "ADDRESS:\n"
            "   A valid IPv4 address in format [0-255].[0-255].[0-255].[0-255].\n"
-           "Will be 127.0.0.1 (localhost) if empty\n"
+           "   Will be 127.0.0.1 (localhost) if empty\n"
            "Options:\n"
            "   -n, --count: Number of pings to send, default is 3\n"
            "   -h, --help: Show this help-message\n";

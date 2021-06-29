@@ -4,9 +4,7 @@
 
 #include <kernel/network/internet/addressing/IP4Address.h>
 #include <kernel/network/applications/EchoServer.h>
-#include <kernel/network/NetworkDefinitions.h>
 #include <kernel/network/udp/sockets/UDP4ClientSocket.h>
-#include <kernel/service/TimeService.h>
 #include "SendText.h"
 
 SendText::SendText(Shell &shell) : Command(shell) {
@@ -31,8 +29,8 @@ void SendText::execute(Util::Array<String> &args) {
         stdout << "No text given, using '" << testString << "'" << endl;
     } else {
         testString = "";
-        for (size_t i = 0; i < unnamedArgs.length(); i++) {
-            testString = testString + unnamedArgs[i] + " ";
+        for (auto & unnamedArg : unnamedArgs) {
+            testString = testString + unnamedArg + " ";
             if (testString.length() > ECHO_INPUT_BUFFER_SIZE) {
                 break;
             }
@@ -123,8 +121,9 @@ void SendText::execute(Util::Array<String> &args) {
 }
 
 const String SendText::getHelpText() {
-    return "Utility for testing our UDP/IP protocol stack by sending and receiving a given text via UDP\n\n"
-           "Usage: sendtext [TEXT]\n"
+    return "Utility for testing our UDP/IP protocol stack by sending and receiving given text via UDP\n\n"
+           "Usage: sendtext [OPTION] [TEXT]\n"
            "Options:\n"
+           "   -n, --count: Send and receive given text n times\n"
            "   -h, --help: Show this help-message";
 }
