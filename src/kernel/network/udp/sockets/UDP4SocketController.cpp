@@ -9,6 +9,12 @@
 #include "UDP4SocketController.h"
 
 namespace Kernel {
+    //Private method!
+    void UDP4SocketController::yield() {
+        Standard::System::Result result{};
+        Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
+    }
+
     UDP4SocketController::UDP4SocketController(NetworkEventBus *eventBus) {
         this->eventBus = eventBus;
         accessLock = new Spinlock();
@@ -146,8 +152,7 @@ namespace Kernel {
             }
             accessLock->release();
             //release processor, be gentle to the system :D
-            Standard::System::Result result{};
-            Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
+            yield();
         }
     }
 

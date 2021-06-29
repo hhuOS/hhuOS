@@ -22,7 +22,10 @@ namespace Kernel {
 
         Logger &log = Logger::get("UDP4SocketController");
 
+        static void yield() ;
+
     public:
+
         explicit UDP4SocketController(NetworkEventBus *eventBus);
 
         virtual ~UDP4SocketController();
