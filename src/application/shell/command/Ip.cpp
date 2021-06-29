@@ -165,7 +165,8 @@ const String Ip::getHelpText() {
            "             --set [Link Identifier] [IPv4 Address] [IPv4 Netmask Bits]:\n"
            "               Assign given IPv4 address to given link, only defined for --address\n"
            "               Example: 'ip --address --set eth0 192.168.178.1 24'\n"
-           "             --unset [Link Identifier]: Remove IPv4 from given link, only defined for --address\n"
+           "             --unset [Link Identifier]: "
+           "               Remove IPv4 address from given link, only defined for --address\n"
            "               Example: 'ip --address --unset eth0'\n"
            "   -r, --route: List all available IPv4 routes and their attributes\n"
            "   -h, --help: Show this help-message";
