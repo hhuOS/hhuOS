@@ -29,7 +29,7 @@ namespace Kernel {
     uint8_t PacketHandler::notifyEthernetModule(void *incomingPacket, uint16_t length) {
         auto *input = new NetworkByteBlock(length);
         if (input->appendStraightFrom(incomingPacket, length)) {
-            log.error("Reading of data into NetworkByteBlock failed, discarding");
+            log.error("Reading data into NetworkByteBlock failed, discarding");
             delete input;
             return 1;
         }
