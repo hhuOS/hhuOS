@@ -31,13 +31,15 @@ namespace Kernel {
             }
         }
         accessLock->release();
-
-        if (*bestRoute == nullptr) {
-            log.error("No route to host could be found");
-            return 1;
+        if (*bestRoute != nullptr) {
+            return 0;
         }
-
-        return 0;
+        if(defaultRoute!= nullptr){
+            *bestRoute = defaultRoute;
+            return 0;
+        }
+        log.error("No route to host %s could be found", (char *)receiverAddress->asString());
+        return 1;
     }
 
     IP4RoutingModule::IP4RoutingModule() {
