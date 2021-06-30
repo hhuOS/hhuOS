@@ -12,6 +12,7 @@ namespace Kernel {
     class IP4RoutingModule {
     private:
         Util::ArrayList<IP4Route *> *routes = nullptr;
+        IP4Route *defaultRoute = nullptr;
         Spinlock *accessLock = nullptr;
 
         uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
@@ -33,6 +34,8 @@ namespace Kernel {
         uint8_t collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
         uint8_t sendViaBestRoute(IP4Datagram *datagram);
+
+        uint8_t setDefaultRoute(IP4Address *gatewayAddress, IP4Interface *outInterface);
     };
 }
 

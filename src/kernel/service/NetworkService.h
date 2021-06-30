@@ -122,6 +122,8 @@ namespace Kernel {
         uint8_t registerSocketController(uint16_t listeningPort, UDP4SocketController *controller);
 
         uint8_t registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller);
+
+        uint8_t setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice);
     };
 
 }

@@ -56,7 +56,7 @@ public:
 
     void address(Kernel::NetworkService *networkService, Util::ArgumentParser *parser);
 
-    void route(Kernel::NetworkService *networkService);
+    void route(Kernel::NetworkService *networkService, Util::ArgumentParser *parser);
 };
 
 

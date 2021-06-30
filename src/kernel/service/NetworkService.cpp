@@ -197,4 +197,16 @@ namespace Kernel {
         }
         return udp4Module->unregisterControllerFor(destinationPort);
     }
+
+    uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
+        if(gatewayAddress== nullptr || outDevice== nullptr){
+            log.error("Gateway address or out device was null, not setting default route");
+            return 1;
+        }
+        if(ip4Module== nullptr){
+            log.error("IP4Module not initialized, not setting default route");
+            return 1;
+        }
+        return ip4Module->setDefaultRoute(gatewayAddress, outDevice);
+    }
 }

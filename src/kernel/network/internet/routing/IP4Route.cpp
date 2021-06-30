@@ -19,6 +19,13 @@ IP4Route::IP4Route(IP4Address *netAddress, IP4Netmask *netMask, Kernel::IP4Inter
     this->outInterface = outInterface;
 }
 
+IP4Route::~IP4Route() {
+    delete netAddress;
+    delete netMask;
+    delete nextHopAddress;
+    //IP4Interfaces are stored in IP4Module, will not be deleted here
+}
+
 uint8_t IP4Route::sendOut(IP4Datagram *datagram) {
     if (datagram == nullptr || outInterface == nullptr) {
         return 1;

@@ -57,6 +57,7 @@ namespace Kernel {
             }
         }
         delete accessLock;
+        delete defaultRoute;
     }
 
     uint8_t IP4RoutingModule::sendViaBestRoute(IP4Datagram *datagram) {
@@ -84,6 +85,9 @@ namespace Kernel {
             return 1;
         }
         accessLock->acquire();
+        if(defaultRoute!= nullptr){
+            strings->add(defaultRoute->asString());
+        }
         for (IP4Route *current:*routes) {
             strings->add(current->asString());
         }
@@ -122,6 +126,24 @@ namespace Kernel {
                 i--;
             }
         }
+        accessLock->release();
+        return 0;
+    }
+
+    uint8_t IP4RoutingModule::setDefaultRoute(IP4Address *gatewayAddress, IP4Interface *outInterface) {
+        if(gatewayAddress== nullptr || outInterface == nullptr){
+            log.error("Gateway address or out interface was null, not setting default route");
+            return 1;
+        }
+        if (accessLock == nullptr) {
+            log.error("Access lock not initialized, not setting default route");
+            return 1;
+        }
+        accessLock->acquire();
+        delete defaultRoute;
+        auto *defaultAddress = new IP4Address(0,0,0,0);
+        auto *defaultNetmask = new IP4Netmask(0);
+        defaultRoute = new IP4Route(defaultAddress, defaultNetmask, gatewayAddress, outInterface);
         accessLock->release();
         return 0;
     }

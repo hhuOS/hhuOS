@@ -122,6 +122,13 @@ namespace Kernel {
         return ethernetDevice == otherDevice;
     }
 
+    bool IP4Interface::connectedTo(EthernetDeviceIdentifier *identifier) {
+        if (ethernetDevice == nullptr || identifier == nullptr) {
+            return false;
+        }
+        return ethernetDevice->getIdentifier()->equals(identifier);
+    }
+
     bool IP4Interface::hasAddress(IP4Address *otherAddress) {
         if (this->ip4Address == nullptr || otherAddress == nullptr) {
             return false;

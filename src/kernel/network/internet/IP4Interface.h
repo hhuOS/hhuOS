@@ -43,6 +43,8 @@ namespace Kernel {
 
         bool connectedTo(EthernetDevice *otherDevice);
 
+        bool connectedTo(EthernetDeviceIdentifier *identifier);
+
         bool hasAddress(IP4Address *otherAddress);
     };
 }

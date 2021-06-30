@@ -19,6 +19,7 @@ void Ip::execute(Util::Array<String> &args) {
 
     parser.addSwitch("set", "s");
     parser.addSwitch("unset", "u");
+    parser.addSwitch("default","d");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -43,7 +44,7 @@ void Ip::execute(Util::Array<String> &args) {
     }
 
     if (parser.checkSwitch("route")) {
-        route(networkService);
+        route(networkService, &parser);
         return;
     }
 }
@@ -70,8 +71,8 @@ void Ip::link(Kernel::NetworkService *networkService) {
 }
 
 void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *parser) {
-    if (networkService == nullptr) {
-        printf("No valid network service given! Exit");
+    if (networkService == nullptr || parser == nullptr) {
+        printf("No valid network service or parser given! Exit");
         return;
     }
 
@@ -96,10 +97,11 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         auto *mask = new IP4Netmask(bitCount);
 
         if (networkService->assignIP4Address(identifier, address, mask)) {
-            delete identifier;
             delete address;
             delete mask;
-            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+
+            stderr << "Assigning address for " << identifier->asString() << " failed! See syslog for details" << endl;
+            delete identifier;
         } else {
             stdout << "Assigned address " << address->asString() << " with mask " <<
                    mask->asString() << " to " << identifier->asString() << endl;
@@ -135,9 +137,34 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
     delete interfaceAttributes;
 }
 
-void Ip::route(Kernel::NetworkService *networkService) {
-    if (networkService == nullptr) {
-        printf("No valid network service given! Exit");
+void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *parser) {
+    if (networkService == nullptr || parser == nullptr) {
+        printf("No valid network service or parser given! Exit");
+        return;
+    }
+
+    if(parser->checkSwitch("default")){
+        auto unnamedArguments = parser->getUnnamedArguments();
+        if (unnamedArguments.length() != 2) {
+            stderr << "Invalid argument number, please give two arguments: "
+                      "[Gateway IP4Address] [Interface identifier]" << endl;
+            return;
+        }
+        uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
+        IP4Address::parseTo(addressBytes, &unnamedArguments[0]);
+        auto *gatewayAddress = new IP4Address(addressBytes);
+
+        auto *outInterface = new EthernetDeviceIdentifier(&unnamedArguments[1]);
+        if (networkService->setDefaultRoute(gatewayAddress, outInterface)) {
+            stderr << "Setting default route '" << gatewayAddress->asString() << " via "
+            << outInterface->asString() << "' failed! See syslog for details" << endl;
+            delete gatewayAddress;
+            delete outInterface;
+            return;
+        } else {
+            stdout << "Default route set to '" << gatewayAddress->asString() << " via "
+            << outInterface->asString() << "'" << endl;
+        }
         return;
     }
 

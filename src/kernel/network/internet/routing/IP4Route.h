@@ -23,6 +23,8 @@ public:
 
     IP4Route(IP4Address *netAddress, IP4Netmask *netMask, Kernel::IP4Interface *outInterface);
 
+    virtual ~IP4Route();
+
     uint8_t sendOut(IP4Datagram *datagram);
 
     [[nodiscard]] Kernel::IP4Interface *getOutInterface() const;

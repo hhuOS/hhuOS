@@ -163,6 +163,33 @@ namespace Kernel {
         return 1;
     }
 
+    uint8_t IP4Module::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
+        if(gatewayAddress== nullptr || outDevice== nullptr){
+            log.error("Gateway address or out device was null, not setting default route");
+            return 1;
+        }
+        if (interfaces == nullptr || routingModule == nullptr || accessLock == nullptr) {
+            log.error("Internal interface list, routing module or accessLock was null, not setting default route");
+            return 1;
+        }
+        accessLock->acquire();
+        for (IP4Interface *current:*interfaces) {
+            if (current->connectedTo(outDevice)) {
+                if(routingModule->setDefaultRoute(gatewayAddress, current)){
+                    accessLock->release();
+                    log.error("Could not set default route");
+                    return 1;
+                }
+                accessLock->release();
+                return 0;
+            }
+        }
+        accessLock->release();
+        log.error("No device with identifier %s could be found, not setting default route",
+                  (char*)outDevice->asString());
+        return 1;
+    }
+
     void IP4Module::onEvent(const Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             auto *destinationAddress = ((IP4SendEvent &) event).getDestinationAddress();
