@@ -33,7 +33,7 @@ namespace Kernel {
             delete input;
             return 1;
         }
-        if (!input->isCompletelyFilled()) {
+        if (input->bytesRemaining() != 0) {
             log.error("Incoming data could not be loaded completely, discarding");
             delete input;
             return 1;

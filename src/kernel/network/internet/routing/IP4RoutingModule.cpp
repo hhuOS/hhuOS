@@ -34,11 +34,11 @@ namespace Kernel {
         if (*bestRoute != nullptr) {
             return 0;
         }
-        if(defaultRoute!= nullptr){
+        if (defaultRoute != nullptr) {
             *bestRoute = defaultRoute;
             return 0;
         }
-        log.error("No route to host %s could be found", (char *)receiverAddress->asString());
+        log.error("No route to host %s could be found", (char *) receiverAddress->asString());
         return 1;
     }
 
@@ -87,7 +87,7 @@ namespace Kernel {
             return 1;
         }
         accessLock->acquire();
-        if(defaultRoute!= nullptr){
+        if (defaultRoute != nullptr) {
             strings->add(defaultRoute->asString());
         }
         for (IP4Route *current:*routes) {
@@ -133,7 +133,7 @@ namespace Kernel {
     }
 
     uint8_t IP4RoutingModule::setDefaultRoute(IP4Address *gatewayAddress, IP4Interface *outInterface) {
-        if(gatewayAddress== nullptr || outInterface == nullptr){
+        if (gatewayAddress == nullptr || outInterface == nullptr) {
             log.error("Gateway address or out interface was null, not setting default route");
             return 1;
         }
@@ -143,7 +143,7 @@ namespace Kernel {
         }
         accessLock->acquire();
         delete defaultRoute;
-        auto *defaultAddress = new IP4Address(0,0,0,0);
+        auto *defaultAddress = new IP4Address(0, 0, 0, 0);
         auto *defaultNetmask = new IP4Netmask(0);
         defaultRoute = new IP4Route(defaultAddress, defaultNetmask, gatewayAddress, outInterface);
         accessLock->release();

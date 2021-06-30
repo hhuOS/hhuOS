@@ -164,7 +164,7 @@ namespace Kernel {
     }
 
     uint8_t IP4Module::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
-        if(gatewayAddress== nullptr || outDevice== nullptr){
+        if (gatewayAddress == nullptr || outDevice == nullptr) {
             log.error("Gateway address or out device was null, not setting default route");
             return 1;
         }
@@ -175,7 +175,7 @@ namespace Kernel {
         accessLock->acquire();
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(outDevice)) {
-                if(routingModule->setDefaultRoute(gatewayAddress, current)){
+                if (routingModule->setDefaultRoute(gatewayAddress, current)) {
                     accessLock->release();
                     log.error("Could not set default route");
                     return 1;
@@ -186,7 +186,7 @@ namespace Kernel {
         }
         accessLock->release();
         log.error("No device with identifier %s could be found, not setting default route",
-                  (char*)outDevice->asString());
+                  (char *) outDevice->asString());
         return 1;
     }
 

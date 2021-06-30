@@ -21,12 +21,6 @@ namespace Kernel {
         delete[] this->bytes;
     }
 
-//If our byteBlock is perfectly filled, this->currentIndex points to the first 'illegal' byte
-// => (this->currentIndex+byteCount) is exactly equal this->length then!
-    bool NetworkByteBlock::isCompletelyFilled() const {
-        return this->currentIndex == this->length;
-    }
-
     size_t NetworkByteBlock::getLength() const {
         return length;
     }

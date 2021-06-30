@@ -71,13 +71,17 @@ namespace Kernel {
             delete output;
             return 1;
         }
-        if (!output->isCompletelyFilled()) {
+        if (output->bytesRemaining() != 0) {
             log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier->getCharacters());
             delete output;
             return 1;
         }
         //Reset currentIndex to zero to prepare reading all content to sendBuffer
-        output->resetIndex();
+        if (output->resetIndex()) {
+            log.error("%s: Index reset for output byteBlock failed, discarding", identifier->getCharacters());
+            delete output;
+            return 1;
+        }
 
         size_t blockLength = output->getLength();
 
