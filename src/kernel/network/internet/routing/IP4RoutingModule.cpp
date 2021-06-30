@@ -147,4 +147,16 @@ namespace Kernel {
         accessLock->release();
         return 0;
     }
+
+    uint8_t IP4RoutingModule::removeDefaultRoute() {
+        if (accessLock == nullptr) {
+            log.error("Access lock not initialized, not removing default route");
+            return 1;
+        }
+        accessLock->acquire();
+        delete defaultRoute;
+        defaultRoute = nullptr;
+        accessLock->release();
+        return 0;
+    }
 }

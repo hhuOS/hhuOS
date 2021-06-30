@@ -20,6 +20,7 @@ void Ip::execute(Util::Array<String> &args) {
     parser.addSwitch("set", "s");
     parser.addSwitch("unset", "u");
     parser.addSwitch("default","d");
+    parser.addSwitch("no-default","nd");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -164,6 +165,14 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         } else {
             stdout << "Default route set to '" << gatewayAddress->asString() << " via "
             << outInterface->asString() << "'" << endl;
+        }
+        return;
+    }
+    if(parser->checkSwitch("no-default")){
+        if(networkService->removeDefaultRoute()){
+            stderr << "Could not remove default route, see syslog for details" << endl;
+        } else{
+            stdout << "Default route removed" << endl;
         }
         return;
     }

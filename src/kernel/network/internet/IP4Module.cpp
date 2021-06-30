@@ -190,6 +190,14 @@ namespace Kernel {
         return 1;
     }
 
+    uint8_t IP4Module::removeDefaultRoute() {
+        if (routingModule == nullptr) {
+            log.error("Routing module was null, not setting default route");
+            return 1;
+        }
+        return routingModule->removeDefaultRoute();
+    }
+
     void IP4Module::onEvent(const Event &event) {
         if ((event.getType() == IP4SendEvent::TYPE)) {
             auto *destinationAddress = ((IP4SendEvent &) event).getDestinationAddress();

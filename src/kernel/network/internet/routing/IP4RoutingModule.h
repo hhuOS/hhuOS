@@ -36,6 +36,8 @@ namespace Kernel {
         uint8_t sendViaBestRoute(IP4Datagram *datagram);
 
         uint8_t setDefaultRoute(IP4Address *gatewayAddress, IP4Interface *outInterface);
+
+        uint8_t removeDefaultRoute();
     };
 }
 

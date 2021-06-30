@@ -209,4 +209,12 @@ namespace Kernel {
         }
         return ip4Module->setDefaultRoute(gatewayAddress, outDevice);
     }
+
+    uint8_t NetworkService::removeDefaultRoute() {
+        if(ip4Module== nullptr){
+            log.error("IP4Module not initialized, not removing default route");
+            return 1;
+        }
+        return ip4Module->removeDefaultRoute();
+    }
 }

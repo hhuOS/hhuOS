@@ -47,6 +47,8 @@ namespace Kernel {
         uint8_t collectIP4RouteAttributes(Util::ArrayList<String> *strings);
 
         uint8_t setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice);
+
+        uint8_t removeDefaultRoute();
     };
 }
 
