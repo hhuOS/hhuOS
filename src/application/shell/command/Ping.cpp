@@ -2,7 +2,7 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/internet/icmp/messages/ICMP4Echo.h>
+#include <kernel/network/internet/icmp/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
 #include <cstdio>
 #include <kernel/network/NetworkDefinitions.h>
