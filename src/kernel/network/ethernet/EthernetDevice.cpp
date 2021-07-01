@@ -97,15 +97,15 @@ namespace Kernel {
             return 1;
         }
 
-#if DEBUG_OUT_ALL_BYTES == 1
+#if PRINT_OUT_ALL_BYTES == 1
         printf("\nOutgoing Bytes (%d per line):\n%s\n", BYTES_PER_LINE,
                (char *) output->asString(0, output->getLength() - 1, BYTES_PER_LINE));
 #endif
-#if DEBUG_OUT_ETH_HEADER == 1
+#if PRINT_OUT_ETH_HEADER == 1
         printf("\nHeader of outgoing frame (%d per line):\n%s\n", BYTES_PER_LINE,
                (char *) ethernetFrame->headerAsString(DEBUG_SPACING));
 #endif
-#if DEBUG_OUT_ETH_DATABYTES == 1
+#if PRINT_OUT_ETH_DATABYTES == 1
         size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
         size_t endIndex = output->getLength() - 1;
         printf("\nData bytes of outgoing frame (%d per line):\n%s\n", BYTES_PER_LINE,

@@ -44,7 +44,7 @@ namespace Kernel {
             return 1;
         }
 
-#if DEBUG_IN_ALL_BYTES == 1
+#if PRINT_IN_ALL_BYTES == 1
         printf("\nIncoming Bytes (%d per line):\n%s\n", BYTES_PER_LINE,
                (char *) input->asString(0, input->getLength() - 1, BYTES_PER_LINE));
 #endif

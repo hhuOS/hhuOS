@@ -11,14 +11,14 @@
 #define BYTES_PER_LINE 20
 
 //Value of '0' disables printout, value of '1' enables it
-#define DEBUG_IN_ALL_BYTES 0
-#define DEBUG_OUT_ALL_BYTES 0
+#define PRINT_IN_ALL_BYTES 0
+#define PRINT_OUT_ALL_BYTES 0
 
-#define DEBUG_IN_ETH_HEADER 0
-#define DEBUG_OUT_ETH_HEADER 0
+#define PRINT_IN_ETH_HEADER 0
+#define PRINT_OUT_ETH_HEADER 0
 
-#define DEBUG_IN_ETH_DATABYTES 0
-#define DEBUG_OUT_ETH_DATABYTES 0
+#define PRINT_IN_ETH_DATABYTES 0
+#define PRINT_OUT_ETH_DATABYTES 0
 
 
 #endif //HHUOS_DEBUGPRINTOUT_H
