@@ -153,7 +153,7 @@ namespace Kernel {
             case ARPMessage::OpCode::REQUEST: {
                 //Use incoming requests as updates
                 processErrors += addEntry(new IP4Address(message->getSenderProtocolAddress()),
-                                         new EthernetAddress(message->getSenderHardwareAddress())
+                                          new EthernetAddress(message->getSenderHardwareAddress())
                 );
                 if (processErrors) {
                     log.error("Could not process ARP Request: ARP table update failed!");
@@ -189,7 +189,7 @@ namespace Kernel {
                 }
 
                 //Learn own addresses if not broadcast
-                if(!targetHardwareAddress->equals(broadcastAddress)){
+                if (!targetHardwareAddress->equals(broadcastAddress)) {
                     processErrors += addEntry(targetProtocolAddress, targetHardwareAddress);
                 }
                 if (processErrors) {
