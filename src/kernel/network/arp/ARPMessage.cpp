@@ -61,7 +61,7 @@ ARPMessage::OpCode ARPMessage::getOpCode() const {
     return parseOpCodeFromInteger(header.opCode);
 }
 
-[[maybe_unused]] uint8_t *ARPMessage::getTargetHardwareAddress() const {
+uint8_t *ARPMessage::getTargetHardwareAddress() const {
     return body.targetHardwareAddress;
 }
 

@@ -53,9 +53,10 @@ namespace Kernel {
     ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice) {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
-        arpTable = new Util::ArrayList<ARPEntry *>();
 
+        arpTable = new Util::ArrayList<ARPEntry *>();
         timeService = System::getService<TimeService>();
+        broadcastAddress = EthernetAddress::buildBroadcastAddress();
 
         accessLock = new Spinlock();
         accessLock->release();
@@ -110,8 +111,6 @@ namespace Kernel {
             return 1;
         }
 
-        auto *broadcastAddress = EthernetAddress::buildBroadcastAddress();
-
         //See RFC 826 page 3 for details
         auto *arpRequest = new ARPMessage(
                 1, // 1 for Ethernet
@@ -149,11 +148,11 @@ namespace Kernel {
             log.error("Incoming ARP message was null, ignoring");
             return 1;
         }
-        uint8_t processErrors;
+        uint8_t processErrors = 0;
         switch (message->getOpCode()) {
             case ARPMessage::OpCode::REQUEST: {
                 //Use incoming requests as updates
-                processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
+                processErrors += addEntry(new IP4Address(message->getSenderProtocolAddress()),
                                          new EthernetAddress(message->getSenderHardwareAddress())
                 );
                 if (processErrors) {
@@ -177,9 +176,22 @@ namespace Kernel {
                 break;
             }
             case ARPMessage::OpCode::REPLY: {
-                processErrors = addEntry(new IP4Address(message->getSenderProtocolAddress()),
-                                         new EthernetAddress(message->getSenderHardwareAddress())
-                );
+                auto *senderHardwareAddress = new EthernetAddress(message->getSenderHardwareAddress());
+                auto *senderProtocolAddress = new IP4Address(message->getSenderProtocolAddress());
+
+                auto *targetHardwareAddress = new EthernetAddress(message->getTargetHardwareAddress());
+                auto *targetProtocolAddress = new IP4Address(message->getTargetProtocolAddress());
+
+                processErrors += addEntry(senderProtocolAddress, senderHardwareAddress);
+                if (processErrors) {
+                    log.error(("Could not process ARP Response: ARP table update failed!"));
+                    return processErrors;
+                }
+
+                //Learn own addresses if not broadcast
+                if(!targetHardwareAddress->equals(broadcastAddress)){
+                    processErrors += addEntry(targetProtocolAddress, targetHardwareAddress);
+                }
                 if (processErrors) {
                     log.error(("Could not process ARP Response: ARP table update failed!"));
                     return processErrors;

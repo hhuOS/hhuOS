@@ -18,6 +18,7 @@ namespace Kernel {
         TimeService *timeService = nullptr;
         NetworkEventBus *eventBus = nullptr;
         EthernetDevice *outDevice = nullptr;
+        EthernetAddress *broadcastAddress = nullptr;
         //HashMap did not work here, possible bug in HashMap implementation?
         Util::ArrayList<ARPEntry *> *arpTable = nullptr;
         /**
