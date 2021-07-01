@@ -20,7 +20,6 @@
  */
 
 #include <kernel/event/network/EthernetReceiveEvent.h>
-#include <lib/libc/printf.h>
 #include "PacketHandler.h"
 #include "DebugPrintout.h"
 
@@ -45,11 +44,10 @@ namespace Kernel {
             return 1;
         }
 
-        if (DEBUG_IN_ALL_BYTES) {
-            printf("\nIncoming Bytes (%d per line):\n%s\n", BYTES_PER_LINE,
-                   (char *) input->asString(0, input->getLength() - 1, BYTES_PER_LINE));
-        }
-
+#if DEBUG_IN_ALL_BYTES == 1
+        printf("\nIncoming Bytes (%d per line):\n%s\n", BYTES_PER_LINE,
+               (char *) input->asString(0, input->getLength() - 1, BYTES_PER_LINE));
+#endif
         //send input to EthernetModule via EventBus for further processing
         eventBus->publish(new EthernetReceiveEvent(input));
 

@@ -2,6 +2,8 @@
 // Created by hannes on 26.06.21.
 //
 
+#include <lib/libc/printf.h>
+
 #ifndef HHUOS_DEBUGPRINTOUT_H
 #define HHUOS_DEBUGPRINTOUT_H
 
