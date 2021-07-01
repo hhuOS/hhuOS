@@ -6,7 +6,7 @@
 #define HHUOS_ICMP4SENDEVENT_H
 
 #include <kernel/event/Event.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Address.h>
 #include <kernel/network/internet/icmp/ICMP4Message.h>
 
 namespace Kernel {

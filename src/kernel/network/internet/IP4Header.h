@@ -6,7 +6,7 @@
 #define HHUOS_IP4HEADER_H
 
 
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Address.h>
 #include "IP4DataPart.h"
 
 class IP4Header {

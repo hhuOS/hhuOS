@@ -22,9 +22,8 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4RoutingModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp
 
-        ${HHUOS_SRC_DIR}/kernel/network/internet/addressing/IP4Address.cpp
-        ${HHUOS_SRC_DIR}/kernel/network/internet/addressing/IP4Netmask.cpp
-
+        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Address.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Netmask.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Interface.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Module.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/IP4Datagram.cpp

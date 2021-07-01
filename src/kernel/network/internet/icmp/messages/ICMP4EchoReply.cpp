@@ -2,7 +2,7 @@
 // Created by hannes on 17.05.21.
 //
 
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Address.h>
 #include "ICMP4EchoReply.h"
 
 ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {

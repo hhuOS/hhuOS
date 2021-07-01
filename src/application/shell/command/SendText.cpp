@@ -2,7 +2,7 @@
 // Created by hannes on 13.06.21.
 //
 
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Address.h>
 #include <kernel/network/udp/applications/EchoServer.h>
 #include <kernel/network/udp/sockets/UDP4ClientSocket.h>
 #include "SendText.h"

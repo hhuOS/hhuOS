@@ -6,7 +6,7 @@
 #define HHUOS_UDP4SENDEVENT_H
 
 #include <kernel/event/Event.h>
-#include <kernel/network/internet/addressing/IP4Address.h>
+#include <kernel/network/internet/IP4Address.h>
 #include <kernel/network/udp/UDP4Datagram.h>
 
 namespace Kernel {

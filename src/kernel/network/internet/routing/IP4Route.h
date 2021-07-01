@@ -7,7 +7,7 @@
 
 
 #include <kernel/network/internet/IP4Datagram.h>
-#include <kernel/network/internet/addressing/IP4Netmask.h>
+#include <kernel/network/internet/IP4Netmask.h>
 #include <kernel/network/internet/IP4Interface.h>
 
 class IP4Route {
