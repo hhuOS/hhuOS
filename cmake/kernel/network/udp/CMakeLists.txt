@@ -22,4 +22,5 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/udp/sockets/UDP4ClientSocket.cpp
         ${HHUOS_SRC_DIR}/kernel/network/udp/sockets/UDP4ServerSocket.cpp
         ${HHUOS_SRC_DIR}/kernel/network/udp/sockets/UDP4SocketController.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/udp/applications/EchoServer.cpp
 )

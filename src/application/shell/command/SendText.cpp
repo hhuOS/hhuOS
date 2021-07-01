@@ -3,7 +3,7 @@
 //
 
 #include <kernel/network/internet/addressing/IP4Address.h>
-#include <kernel/network/applications/EchoServer.h>
+#include <kernel/network/udp/applications/EchoServer.h>
 #include <kernel/network/udp/sockets/UDP4ClientSocket.h>
 #include "SendText.h"
 
