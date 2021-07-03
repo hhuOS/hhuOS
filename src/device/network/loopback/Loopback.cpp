@@ -19,14 +19,12 @@ namespace Kernel {
             log.error("Could not send packet, event bus was null!");
             return;
         }
+        //our outgoing EthernetFrame will be dropped afterwards,
+        //but a ReceiveEvent copies incoming data into a separate array,
+        // so no need to copy data here
         auto receivePacketEvent =
                 Util::SmartPointer<Event>(new ReceiveEvent(address, length));
-        eventBus->publish(
-                //our outgoing EthernetFrame will be dropped afterwards,
-                //but a ReceiveEvent copies incoming data into a separate array,
-                // so no need to copy data here
-
-        );
+        eventBus->publish(receivePacketEvent);
     }
 
     void Loopback::getMacAddress(uint8_t *buf) {

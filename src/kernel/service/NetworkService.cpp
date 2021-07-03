@@ -148,8 +148,8 @@ namespace Kernel {
     }
 
     UDP4SocketController *NetworkService::createSocketController(size_t bufferSize) {
-        if(bufferSize==0){
-            bufferSize=1;
+        if (bufferSize == 0) {
+            bufferSize = 1;
         }
         return new UDP4SocketController(this->eventBus, bufferSize);
     }
@@ -199,11 +199,11 @@ namespace Kernel {
     }
 
     uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
-        if(gatewayAddress== nullptr || outDevice== nullptr){
+        if (gatewayAddress == nullptr || outDevice == nullptr) {
             log.error("Gateway address or out device was null, not setting default route");
             return 1;
         }
-        if(ip4Module== nullptr){
+        if (ip4Module == nullptr) {
             log.error("IP4Module not initialized, not setting default route");
             return 1;
         }
@@ -211,7 +211,7 @@ namespace Kernel {
     }
 
     uint8_t NetworkService::removeDefaultRoute() {
-        if(ip4Module== nullptr){
+        if (ip4Module == nullptr) {
             log.error("IP4Module not initialized, not removing default route");
             return 1;
         }
