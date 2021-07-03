@@ -13,8 +13,6 @@
 #define IP4HEADER_MIN_LENGTH 20
 #define IP4HEADER_MAX_LENGTH 60 //RFC 791 page 13
 
-#define ICMP4ECHO_PRINT_REPLY 1
-
 #define ECHO_PORT_NUMBER 7 //RFC 862
 #define ECHO_INPUT_BUFFER_SIZE 1024
 //TODO: Verify values with RFC Sources

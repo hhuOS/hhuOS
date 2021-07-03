@@ -7,6 +7,7 @@
 #include <kernel/event/network/ICMP4SendEvent.h>
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
+#include <kernel/network/DebugPrintout.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {
@@ -31,7 +32,7 @@ namespace Kernel {
                     delete echoReply;
                     return 1;
                 }
-#if ICMP4ECHO_PRINT_REPLY == 1
+#if PRINT_IN_ICMP4ECHOREPLY == 1
                 printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
                        ip4Header->getSourceAddress()->asChars(),
                        echoReply->getIdentifier(),
