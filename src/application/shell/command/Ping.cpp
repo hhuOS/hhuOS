@@ -9,7 +9,7 @@
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
-    eventBus = new Kernel::EventBus(Kernel::System::getService<Kernel::EventBus>());
+    eventBus = Kernel::System::getService<Kernel::EventBus>();
     timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 
@@ -35,13 +35,16 @@ void Ping::execute(Util::Array<String> &args) {
         numberOfPings = static_cast<uint8_t>(strtoint((const char *) count));
     }
 
+    Util::SmartPointer<Kernel::Event> icmp4SendEchoRequestEvent;
     for (uint16_t i = 0; i < numberOfPings; i++) {
-        eventBus->publish(
+        icmp4SendEchoRequestEvent =
+        Util::SmartPointer<Kernel::Event>(
                 new Kernel::ICMP4SendEvent(
                         new IP4Address(addressBytes),
-                        new ICMP4Echo(42, i + (uint16_t) 1)
-                )
+                        new ICMP4Echo(42, i + 1u)
+                        )
         );
+        eventBus->publish(icmp4SendEchoRequestEvent);
         timeService->msleep(1000);
     }
 }
