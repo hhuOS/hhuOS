@@ -6,7 +6,6 @@
 #define HHUOS_IP4INT_H
 
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/arp/ARPMessage.h>
 #include <kernel/network/arp/ARPModule.h>
 #include <kernel/network/internet/IP4Netmask.h>
@@ -16,7 +15,7 @@ namespace Kernel {
     class IP4Interface {
     private:
         ARPModule *arpModule = nullptr;
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         IP4Address *ip4Address = nullptr, *ip4NetAddress = nullptr;
         IP4Netmask *ip4Netmask = nullptr;
         EthernetDevice *ethernetDevice = nullptr;
@@ -28,7 +27,7 @@ namespace Kernel {
 
     public:
 
-        IP4Interface(NetworkEventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
+        IP4Interface(EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                      IP4Netmask *ip4Netmask);
 
         uint8_t sendIP4Datagram(IP4Address *targetProtocolAddress, IP4Datagram *ip4Datagram);

@@ -5,6 +5,7 @@
 #include <kernel/event/network/UDP4SendEvent.h>
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/UDP4ReceiveEvent.h>
+#include <kernel/service/EventBus.h>
 #include "UDP4Module.h"
 
 namespace Kernel {
@@ -32,7 +33,7 @@ namespace Kernel {
         return 0;
     }
 
-    UDP4Module::UDP4Module(NetworkEventBus *eventBus) {
+    UDP4Module::UDP4Module(EventBus *eventBus) {
         this->eventBus = eventBus;
         sockets = new Util::HashMap<uint16_t, UDP4SocketController *>();
         accessLock = new Spinlock();
@@ -139,7 +140,9 @@ namespace Kernel {
                 return;
             }
             //Send data to IP4Module for further processing
-            eventBus->publish(new IP4SendEvent(destinationAddress, udp4Datagram));
+            auto ip4SendDatagramEvent =
+                    Util::SmartPointer<Event>(new IP4SendEvent(destinationAddress, udp4Datagram));
+            eventBus->publish(ip4SendDatagramEvent);
 
             //we need destinationAddress and udp4Datagram in IP4Module
             //-> don't delete anything here

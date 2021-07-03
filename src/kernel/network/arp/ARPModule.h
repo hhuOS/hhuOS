@@ -7,7 +7,6 @@
 
 #include <kernel/service/TimeService.h>
 #include <kernel/network/ethernet/EthernetDevice.h>
-#include <kernel/network/NetworkEventBus.h>
 #include "ARPEntry.h"
 #include "ARPMessage.h"
 
@@ -16,7 +15,7 @@ namespace Kernel {
     private:
         Spinlock *accessLock = nullptr;
         TimeService *timeService = nullptr;
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         EthernetDevice *outDevice = nullptr;
         EthernetAddress *broadcastAddress = nullptr;
         //HashMap did not work here, possible bug in HashMap implementation?
@@ -32,7 +31,7 @@ namespace Kernel {
 
     public:
 
-        ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice);
+        ARPModule(EventBus *eventBus, EthernetDevice *outDevice);
 
         virtual ~ARPModule();
 

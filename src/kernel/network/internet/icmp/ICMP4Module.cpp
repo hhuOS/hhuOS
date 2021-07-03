@@ -2,12 +2,11 @@
 // Created by hannes on 17.05.21.
 //
 
-#include <kernel/event/network/ICMP4SendEvent.h>
 #include <kernel/network/internet/icmp/ICMP4EchoReply.h>
 #include <kernel/network/internet/icmp/ICMP4Echo.h>
+#include <kernel/event/network/ICMP4SendEvent.h>
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
-#include <lib/libc/printf.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {
@@ -32,11 +31,13 @@ namespace Kernel {
                     delete echoReply;
                     return 1;
                 }
+#if ICMP4ECHO_PRINT_REPLY == 1
                 printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
                        ip4Header->getSourceAddress()->asChars(),
                        echoReply->getIdentifier(),
                        echoReply->getSequenceNumber()
                 );
+#endif
                 delete echoReply;
                 return 0;
             }
@@ -54,14 +55,12 @@ namespace Kernel {
                     return 1;
                 }
                 //create and send reply
-                eventBus->publish(
-                        new IP4SendEvent(
-                                //The datagram's attributes will be deleted after sending
-                                //-> copy it here!
-                                new IP4Address(ip4Header->getSourceAddress()),
-                                echoRequest->buildEchoReply()
-                        )
-                );
+                //NOTE: The datagram's attributes will be deleted after sending
+                //      -> copy it here!
+                auto sourceAddressCopy = new IP4Address(ip4Header->getSourceAddress());
+                auto ip4SendEchoReplyEvent =
+                        Util::SmartPointer<Event>(new IP4SendEvent(sourceAddressCopy, echoRequest->buildEchoReply()));
+                eventBus->publish(ip4SendEchoReplyEvent);
                 delete echoRequest;
                 return 0;
             }
@@ -71,7 +70,7 @@ namespace Kernel {
         }
     }
 
-    ICMP4Module::ICMP4Module(NetworkEventBus *eventBus) : eventBus(eventBus) {}
+    ICMP4Module::ICMP4Module(EventBus *eventBus) : eventBus(eventBus) {}
 
     void ICMP4Module::deleteMessageSpecific(ICMP4Message *icmp4Message) {
         switch (icmp4Message->getICMP4MessageType()) {
@@ -110,7 +109,9 @@ namespace Kernel {
             }
 
             //Send data to IP4Module for further processing
-            eventBus->publish(new IP4SendEvent(destinationAddress, icmp4Message));
+            auto ip4SendIcmp4MessageEvent =
+                    Util::SmartPointer<Event>(new IP4SendEvent(destinationAddress, icmp4Message));
+            eventBus->publish(ip4SendIcmp4MessageEvent);
 
             //we need destinationAddress and icmp4Message in IP4Module
             //-> don't delete anything here

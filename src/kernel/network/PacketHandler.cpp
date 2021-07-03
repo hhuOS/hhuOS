@@ -49,14 +49,16 @@ namespace Kernel {
                (char *) input->asString(0, input->getLength() - 1, BYTES_PER_LINE));
 #endif
         //send input to EthernetModule via EventBus for further processing
-        eventBus->publish(new EthernetReceiveEvent(input));
+        auto ethernetReceiveInputEvent =
+                Util::SmartPointer<Event>(new EthernetReceiveEvent(input));
+        eventBus->publish(ethernetReceiveInputEvent);
 
         //We need input in EthernetModule
         //-> no 'delete input' here
         return 0;
     }
 
-    PacketHandler::PacketHandler(NetworkEventBus *eventBus) : eventBus(eventBus) {}
+    PacketHandler::PacketHandler(EventBus *eventBus) : eventBus(eventBus) {}
 
     void PacketHandler::onEvent(const Event &event) {
         if ((event.getType() == ReceiveEvent::TYPE)) {

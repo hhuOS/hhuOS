@@ -22,7 +22,6 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/PacketHandler.h>
 #include <kernel/network/internet/IP4Module.h>
 #include <kernel/network/ethernet/EthernetModule.h>
@@ -55,7 +54,7 @@ namespace Kernel {
         EthernetDeviceIdentifier *loopbackIdentifier;
 
         Management *management;
-        NetworkEventBus *eventBus;
+        EventBus *eventBus;
 
         PacketHandler *packetHandler;
         IP4Module *ip4Module;

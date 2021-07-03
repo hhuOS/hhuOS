@@ -50,7 +50,7 @@ namespace Kernel {
         return false;
     }
 
-    ARPModule::ARPModule(NetworkEventBus *eventBus, EthernetDevice *outDevice) {
+    ARPModule::ARPModule(EventBus *eventBus, EthernetDevice *outDevice) {
         this->eventBus = eventBus;
         this->outDevice = outDevice;
 
@@ -136,7 +136,9 @@ namespace Kernel {
         arpRequest->setTargetProtocolAddress(protocolAddress);
 
         //Send request to EthernetModule for further processing
-        eventBus->publish(new EthernetSendEvent(outDevice, broadcastAddress, arpRequest));
+        auto ethernetSendARPRequestEvent =
+                Util::SmartPointer<Event>(new EthernetSendEvent(outDevice, broadcastAddress, arpRequest));
+        eventBus->publish(ethernetSendARPRequestEvent);
 
         //Broadcast address will be deleted after sending here, all other addresses are just copied to ARP request
         //-> no other addresses will be deleted here!
@@ -169,7 +171,9 @@ namespace Kernel {
                 auto *destinationAddress = new EthernetAddress(myAddressAsBytes);
 
                 //send reply to EthernetModule for further processing
-                eventBus->publish(new EthernetSendEvent(outDevice, destinationAddress, reply));
+                auto ethernetSendARPReplyEvent =
+                        Util::SmartPointer<Event>(new EthernetSendEvent(outDevice, destinationAddress, reply));
+                eventBus->publish(ethernetSendARPReplyEvent);
 
                 //Message will be deleted in IP4Module after processing
                 //-> no 'delete message' here!

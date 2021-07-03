@@ -9,7 +9,7 @@
 #include "Ping.h"
 
 Ping::Ping(Shell &shell) : Command(shell) {
-    eventBus = new Kernel::NetworkEventBus(Kernel::System::getService<Kernel::EventBus>());
+    eventBus = new Kernel::EventBus(Kernel::System::getService<Kernel::EventBus>());
     timeService = Kernel::System::getService<Kernel::TimeService>();
 }
 

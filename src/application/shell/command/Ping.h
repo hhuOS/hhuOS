@@ -6,7 +6,6 @@
 #define HHUOS_PING_H
 
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/service/TimeService.h>
 #include "Command.h"
 
@@ -19,7 +18,7 @@ class Ping : public Command {
  */
 
 private:
-    Kernel::NetworkEventBus *eventBus = nullptr;
+    Kernel::EventBus *eventBus = nullptr;
     Kernel::TimeService *timeService = nullptr;
 
 public:

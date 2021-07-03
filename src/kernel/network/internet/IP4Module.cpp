@@ -53,7 +53,7 @@ namespace Kernel {
         return 0;
     }
 
-    IP4Module::IP4Module(NetworkEventBus *eventBus) {
+    IP4Module::IP4Module(EventBus *eventBus) {
         this->eventBus = eventBus;
         this->routingModule = new IP4RoutingModule();
         this->interfaces = new Util::ArrayList<IP4Interface *>();
@@ -270,7 +270,9 @@ namespace Kernel {
             switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     //send input to ICMP4Module via EventBus for further processing
-                    eventBus->publish(new ICMP4ReceiveEvent(ip4Header, input));
+                    auto icmp4ReceiveInputEvent =
+                            Util::SmartPointer<Event>(new ICMP4ReceiveEvent(ip4Header, input));
+                    eventBus->publish(icmp4ReceiveInputEvent);
 
                     //We need input AND ip4Header in next module
                     //-> don't delete anything here!
@@ -278,7 +280,9 @@ namespace Kernel {
                 }
                 case IP4DataPart::IP4ProtocolType::UDP: {
                     //send input to UDP4Module via EventBus for further processing
-                    eventBus->publish(new UDP4ReceiveEvent(ip4Header, input));
+                    auto udp4ReceiveInputEvent =
+                            Util::SmartPointer<Event>(new UDP4ReceiveEvent(ip4Header, input));
+                    eventBus->publish(udp4ReceiveInputEvent);
 
                     //We need input AND ip4Header in next module
                     //-> don't delete anything here!

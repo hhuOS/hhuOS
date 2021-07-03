@@ -22,10 +22,10 @@
 #ifndef HHUOS_PACKETHANDLER_H
 #define HHUOS_PACKETHANDLER_H
 
+#include <kernel/service/EventBus.h>
 #include "kernel/event/Receiver.h"
 #include "kernel/log/Logger.h"
 #include "kernel/event/network/ReceiveEvent.h"
-#include "NetworkEventBus.h"
 
 namespace Kernel {
 
@@ -39,7 +39,7 @@ namespace Kernel {
  */
     class PacketHandler final : public Receiver {
     private:
-        NetworkEventBus *eventBus;
+        EventBus *eventBus;
 
         /**
          * A logger to provide information on the kernel log.
@@ -50,7 +50,7 @@ namespace Kernel {
 
     public:
 
-        explicit PacketHandler(NetworkEventBus *eventBus);
+        explicit PacketHandler(EventBus *eventBus);
 
         /**
          * Inherited method from Receiver.

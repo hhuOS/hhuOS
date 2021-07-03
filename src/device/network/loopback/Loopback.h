@@ -15,36 +15,33 @@
 #include <device/network/NetworkDevice.h>
 #include <kernel/network/internet/IP4Address.h>
 #include <kernel/network/internet/IP4Netmask.h>
-#include <kernel/network/NetworkEventBus.h>
 
-/**
- *
- */
-class Loopback : public NetworkDevice {
+namespace Kernel {
+    class Loopback : public NetworkDevice {
 
-private:
+    private:
 
-    /**
-     * A logger to provide logging information on the kernel log.
-     */
-    Kernel::Logger &log = Kernel::Logger::get("Loopback");
+        /**
+         * A logger to provide logging information on the kernel log.
+         */
+        Logger &log = Logger::get("Loopback");
 
-    Kernel::NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
 
-public:
-    explicit Loopback(Kernel::NetworkEventBus *eventBus);
+    public:
+        explicit Loopback(EventBus *eventBus);
 
-    /**
-     * Overriding function from NetworkDevice.
-     */
-    void sendPacket(void *address, uint16_t length) override;
+        /**
+         * Overriding function from NetworkDevice.
+         */
+        void sendPacket(void *address, uint16_t length) override;
 
-    /**
-     * Overriding function from NetworkDevice.
-     */
-    void getMacAddress(uint8_t *buf) override;
+        /**
+         * Overriding function from NetworkDevice.
+         */
+        void getMacAddress(uint8_t *buf) override;
 
-    void trigger(Kernel::InterruptFrame &frame) override;
-};
-
+        void trigger(InterruptFrame &frame) override;
+    };
+}
 #endif //HHUOS_LOOPBACK_H

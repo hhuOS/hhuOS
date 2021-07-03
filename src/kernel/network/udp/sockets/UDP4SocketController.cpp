@@ -6,6 +6,7 @@
 #include <kernel/event/network/UDP4SendEvent.h>
 #include <lib/system/Result.h>
 #include <lib/system/Call.h>
+#include <kernel/service/EventBus.h>
 #include "UDP4SocketController.h"
 
 namespace Kernel {
@@ -15,7 +16,7 @@ namespace Kernel {
         Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
     }
 
-    UDP4SocketController::UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize) {
+    UDP4SocketController::UDP4SocketController(EventBus *eventBus, size_t bufferSize) {
         this->eventBus = eventBus;
         accessLock = new Spinlock();
 
@@ -139,7 +140,9 @@ namespace Kernel {
             return 1;
         }
         //Send data to UDP4Module via EventBus for further processing
-        eventBus->publish(new UDP4SendEvent(destinationAddress, sourcePort, destinationPort, outData));
+        auto udp4SendDataEvent =
+                Util::SmartPointer<Event>(new UDP4SendEvent(destinationAddress, sourcePort, destinationPort, outData));
+        eventBus->publish(udp4SendDataEvent);
         return 0;
     }
 }

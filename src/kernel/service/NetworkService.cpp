@@ -17,7 +17,7 @@ namespace Kernel {
 
     NetworkService::NetworkService() {
         loopbackIdentifier = new EthernetDeviceIdentifier(new String("lo"));
-        eventBus = new NetworkEventBus(System::getService<EventBus>());
+        eventBus = System::getService<EventBus>();
         management = &Management::getInstance();
 
         packetHandler = new PacketHandler(eventBus);

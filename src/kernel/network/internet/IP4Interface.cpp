@@ -6,7 +6,7 @@
 #include "IP4Interface.h"
 
 namespace Kernel {
-    IP4Interface::IP4Interface(NetworkEventBus *eventBus, EthernetDevice *ethernetDevice,
+    IP4Interface::IP4Interface(EventBus *eventBus, EthernetDevice *ethernetDevice,
                                IP4Address *ip4Address,
                                IP4Netmask *ip4Netmask) {
         this->eventBus = eventBus;
@@ -74,7 +74,9 @@ namespace Kernel {
         //-> copy it here!
         auto *targetHardwareAddressCopy = new EthernetAddress(targetHardwareAddress);
         //Send data to EthernetModule via EventBus for further processing
-        eventBus->publish(new EthernetSendEvent(ethernetDevice, targetHardwareAddressCopy, ip4Datagram));
+        eventBus->
+                publish(Util::SmartPointer<Event>(
+                new EthernetSendEvent(ethernetDevice, targetHardwareAddressCopy, ip4Datagram)));
 
         //Datagram will be deleted in EthernetModule after sending
         //-> no delete 'targetHardwareAddressCopy' here!

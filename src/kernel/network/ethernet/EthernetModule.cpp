@@ -45,7 +45,7 @@ namespace Kernel {
         return false;
     }
 
-    EthernetModule::EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
+    EthernetModule::EthernetModule(Management *systemManagement, EventBus *eventBus,
                                    EthernetDeviceIdentifier *loopbackIdentifier) {
         this->eventBus = eventBus;
         this->loopbackIdentifier = loopbackIdentifier;
@@ -279,12 +279,16 @@ namespace Kernel {
             switch (ethernetHeader->getEtherType()) {
                 case EthernetDataPart::EtherType::IP4: {
                     //send input to IP4Module via EventBus for further processing
-                    eventBus->publish(new IP4ReceiveEvent(input));
+                    auto ip4receiveInputEvent =
+                            Util::SmartPointer<Event>(new IP4ReceiveEvent(input));
+                    eventBus->publish(ip4receiveInputEvent);
                     break;
                 }
                 case EthernetDataPart::EtherType::ARP: {
                     //send input to ARPModule via EventBus for further processing
-                    eventBus->publish(new ARPReceiveEvent(input));
+                    auto arpReceiveInputEvent =
+                            Util::SmartPointer<Event>(new ARPReceiveEvent(input));
+                    eventBus->publish(arpReceiveInputEvent);
                     break;
                 }
                 default: {

@@ -6,7 +6,6 @@
 #define HHUOS_UDP4SOCKETCONTROLLER_H
 
 #include <kernel/network/udp/UDP4Header.h>
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/log/Logger.h>
 #include <kernel/network/udp/UDP4Datagram.h>
 #include "UDP4InputEntry.h"
@@ -14,7 +13,7 @@
 namespace Kernel {
     class UDP4SocketController {
     private:
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         Spinlock *accessLock = nullptr;
         Atomic<bool> *isClosed = nullptr;
 
@@ -26,7 +25,7 @@ namespace Kernel {
 
     public:
 
-        explicit UDP4SocketController(NetworkEventBus *eventBus, size_t bufferSize);
+        explicit UDP4SocketController(EventBus *eventBus, size_t bufferSize);
 
         virtual ~UDP4SocketController();
 

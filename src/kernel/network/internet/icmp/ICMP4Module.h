@@ -5,20 +5,20 @@
 #ifndef HHUOS_ICMP4MODULE_H
 #define HHUOS_ICMP4MODULE_H
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/log/Logger.h>
 #include <kernel/network/internet/icmp/ICMP4Message.h>
+#include <kernel/service/EventBus.h>
 
 namespace Kernel {
     class ICMP4Module : public Receiver {
     private:
-        NetworkEventBus *eventBus;
+        EventBus *eventBus;
 
         uint8_t processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input);
 
     public:
 
-        explicit ICMP4Module(NetworkEventBus *eventBus);
+        explicit ICMP4Module(EventBus *eventBus);
 
 
         /**

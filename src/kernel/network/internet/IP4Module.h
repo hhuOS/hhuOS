@@ -5,7 +5,6 @@
 #ifndef HHUOS_IP4MODULE_H
 #define HHUOS_IP4MODULE_H
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
 #include <kernel/network/ethernet/EthernetDevice.h>
 
@@ -13,7 +12,7 @@ namespace Kernel {
     class IP4Module final : public Receiver {
     private:
         Spinlock *accessLock = nullptr;
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         IP4RoutingModule *routingModule = nullptr;
         Util::ArrayList<IP4Interface *> *interfaces = nullptr;
 
@@ -21,7 +20,7 @@ namespace Kernel {
 
     public:
 
-        explicit IP4Module(NetworkEventBus *eventBus);
+        explicit IP4Module(EventBus *eventBus);
 
         ~IP4Module() override;
 

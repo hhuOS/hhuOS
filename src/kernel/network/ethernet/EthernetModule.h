@@ -5,7 +5,6 @@
 #ifndef HHUOS_ETHERNETMODULE_H
 #define HHUOS_ETHERNETMODULE_H
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/core/Management.h>
 #include "EthernetDevice.h"
 #include "EthernetDeviceIdentifier.h"
@@ -15,7 +14,7 @@ namespace Kernel {
     private:
         uint8_t deviceCounter = 0;
         Spinlock *accessLock = nullptr;
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         Management *systemManagement = nullptr;
         EthernetAddress *broadcastAddress = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
@@ -27,7 +26,7 @@ namespace Kernel {
 
     public:
 
-        explicit EthernetModule(Management *systemManagement, NetworkEventBus *eventBus,
+        explicit EthernetModule(Management *systemManagement, EventBus *eventBus,
                                 EthernetDeviceIdentifier *loopbackIdentifier);
 
         /**

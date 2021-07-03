@@ -6,14 +6,13 @@
 #define HHUOS_UDP4MODULE_H
 
 
-#include <kernel/network/NetworkEventBus.h>
 #include <kernel/network/udp/sockets/UDP4SocketController.h>
 #include <kernel/network/NetworkDefinitions.h>
 
 namespace Kernel {
     class UDP4Module : public Receiver {
     private:
-        NetworkEventBus *eventBus = nullptr;
+        EventBus *eventBus = nullptr;
         Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
         Spinlock *accessLock = nullptr;
 
@@ -21,7 +20,7 @@ namespace Kernel {
 
     public:
 
-        explicit UDP4Module(NetworkEventBus *eventBus);
+        explicit UDP4Module(EventBus *eventBus);
 
         Logger &log = Logger::get("UDP4Module");
 
