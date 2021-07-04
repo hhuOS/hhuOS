@@ -30,15 +30,9 @@ namespace Kernel {
         IP4Interface(EventBus *eventBus, EthernetDevice *ethernetDevice, IP4Address *ip4Address,
                      IP4Netmask *ip4Netmask);
 
-        uint8_t sendIP4Datagram(IP4Address *targetProtocolAddress, IP4Datagram *ip4Datagram);
-
         virtual ~IP4Interface();
 
         bool equals(IP4Interface *compare);
-
-        String asString();
-
-        uint8_t notify(ARPMessage *arpMessage);
 
         bool connectedTo(EthernetDevice *otherDevice);
 
@@ -47,6 +41,12 @@ namespace Kernel {
         bool hasAddress(IP4Address *otherAddress);
 
         bool isDestinationOf(IP4Header *ip4Header);
+
+        uint8_t sendIP4Datagram(IP4Address *targetProtocolAddress, IP4Datagram *ip4Datagram);
+
+        uint8_t notify(ARPMessage *arpMessage);
+
+        String asString();
     };
 }
 
