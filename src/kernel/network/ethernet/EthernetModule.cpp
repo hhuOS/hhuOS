@@ -11,21 +11,6 @@
 
 namespace Kernel {
     //Private method!
-    void EthernetModule::deleteSendBuffer(const EthernetDevice *ethernetDevice) {
-        if (ethernetDevice->getPhysicalBufferAddress() != nullptr) {
-            if (systemManagement == nullptr) {
-                log.error("System management was null, not deleting sendBuffer");
-                return;
-            }
-            //Free mapped IO if physical interface
-            systemManagement->freeIO(ethernetDevice->getSendBuffer());
-        } else {
-            //Simply delete allocated buffer if virtual interface
-            delete ethernetDevice->getSendBuffer();
-        }
-    }
-
-    //Private method!
     bool EthernetModule::isForUsOrBroadcast(EthernetHeader *ethernetHeader) {
         if (ethernetHeader->destinationIs(broadcastAddress)) {
             return true;
@@ -45,11 +30,8 @@ namespace Kernel {
         return false;
     }
 
-    EthernetModule::EthernetModule(Management *systemManagement, EventBus *eventBus,
-                                   EthernetDeviceIdentifier *loopbackIdentifier) {
+    EthernetModule::EthernetModule(EventBus *eventBus) {
         this->eventBus = eventBus;
-        this->loopbackIdentifier = loopbackIdentifier;
-        this->systemManagement = systemManagement;
 
         broadcastAddress = EthernetAddress::buildBroadcastAddress();
         devices = new Util::ArrayList<EthernetDevice *>();
@@ -71,27 +53,23 @@ namespace Kernel {
             toDelete = devices->get(i);
             devices->remove(i);
             i--;
-            deleteSendBuffer(toDelete);
             delete toDelete;
         }
         delete devices;
     }
 
-    void EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
-        if (networkDevice == nullptr) {
-            log.error("Given network device was null, not registering it");
-            return;
-        }
-        this->registerNetworkDevice(
-                new EthernetDeviceIdentifier(deviceCounter),
-                networkDevice
-        );
+    uint8_t EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice, uint8_t *sendBuffer,
+                                                  void *physicalBufferAddress) {
+        String identifier = String::format("eth%d", deviceCounter);
         deviceCounter++;
+        return registerNetworkDevice(identifier, networkDevice, sendBuffer, physicalBufferAddress);
     }
 
-    uint8_t EthernetModule::registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice) {
-        if (identifier == nullptr || networkDevice == nullptr) {
-            log.error("Given identifier or network device was null, not registering it");
+    uint8_t
+    EthernetModule::registerNetworkDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
+                                          void *physicalBufferAddress) {
+        if (identifier.isEmpty() || networkDevice == nullptr || sendBuffer == nullptr) {
+            log.error("Given identifier was empty, network device or send buffer was null, not registering");
             return 1;
         }
         if (devices == nullptr || accessLock == nullptr) {
@@ -103,27 +81,13 @@ namespace Kernel {
         for (EthernetDevice *currentDevice:*devices) {
             if (currentDevice->connectedTo(networkDevice)) {
                 log.error("Given network device %s already registered, not registering it again",
-                          identifier->getCharacters());
+                          (char *) identifier);
                 accessLock->release();
                 return 1;
             }
         }
 
-        if (identifier->equals(loopbackIdentifier)) {
-            auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
-            memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
-            this->devices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
-            accessLock->release();
-            return 0;
-        }
-
-        auto *sendBuffer = (uint8_t *) this->systemManagement->mapIO(EthernetHeader::getMaximumFrameLength());
-        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
-
-        auto *physicalBufferAddress = this->systemManagement->getPhysicalAddress(sendBuffer);
-        auto *toAdd = new EthernetDevice(sendBuffer, physicalBufferAddress, identifier, networkDevice);
-
-        this->devices->add(toAdd);
+        this->devices->add(new EthernetDevice(identifier, networkDevice, sendBuffer, physicalBufferAddress));
         accessLock->release();
 
         return 0;
@@ -146,7 +110,6 @@ namespace Kernel {
                 toDelete = devices->get(i);
                 devices->remove(i);
                 accessLock->release();
-                deleteSendBuffer(toDelete);
                 delete toDelete;
                 return 0;
             }
@@ -171,7 +134,7 @@ namespace Kernel {
     }
 
 //Get ethernet device via identifier
-    EthernetDevice *EthernetModule::getEthernetDevice(EthernetDeviceIdentifier *identifier) {
+    EthernetDevice *EthernetModule::getEthernetDevice(const String &identifier) {
         if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal list or accessLock was null, not searching ethernet device");
             return nullptr;

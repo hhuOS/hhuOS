@@ -135,8 +135,10 @@ namespace Kernel {
         accessLock->acquire();
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
+                String identifier = "";
+                ethernetDevice->copyIdentifierTo(identifier);
                 log.error("Ethernet device %s already registered, not registering it again",
-                          ethernetDevice->getIdentifier()->getCharacters());
+                          (char *) identifier);
                 accessLock->release();
                 return 1;
             }
@@ -184,7 +186,7 @@ namespace Kernel {
         return 1;
     }
 
-    uint8_t IP4Module::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
+    uint8_t IP4Module::setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice) {
         if (gatewayAddress == nullptr || outDevice == nullptr) {
             log.error("Gateway address or out device was null, not setting default route");
             return 1;
@@ -207,7 +209,7 @@ namespace Kernel {
         }
         accessLock->release();
         log.error("No device with identifier %s could be found, not setting default route",
-                  (char *) outDevice->asString());
+                  (char *) outDevice);
         return 1;
     }
 
@@ -280,7 +282,7 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if(!isForUsOrBroadcast(ip4Header)){
+            if (!isForUsOrBroadcast(ip4Header)) {
                 log.error("Incoming datagram is not for us and not broadcast either, discarding");
                 delete ip4Header;
                 delete input;

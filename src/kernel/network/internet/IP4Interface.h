@@ -18,6 +18,7 @@ namespace Kernel {
         EventBus *eventBus = nullptr;
         IP4Address *ip4Address = nullptr, *ip4NetAddress = nullptr;
         IP4Netmask *ip4Netmask = nullptr;
+        String ethernetIdentifier = "";
         EthernetDevice *ethernetDevice = nullptr;
 
         /**
@@ -36,7 +37,7 @@ namespace Kernel {
 
         bool connectedTo(EthernetDevice *otherDevice);
 
-        bool connectedTo(EthernetDeviceIdentifier *identifier);
+        bool connectedTo(const String &identifier);
 
         bool hasAddress(IP4Address *otherAddress);
 

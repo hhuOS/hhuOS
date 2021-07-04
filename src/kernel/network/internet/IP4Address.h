@@ -31,7 +31,7 @@ public:
 
     virtual ~IP4Address();
 
-    static uint8_t parseTo(uint8_t *targetBytes, String *fromString);
+    static uint8_t parseTo(uint8_t *targetBytes, const String &fromString);
 
     static IP4Address *buildBroadcastAddress();
 };

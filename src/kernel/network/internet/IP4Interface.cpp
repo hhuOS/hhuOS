@@ -7,12 +7,8 @@
 
 namespace Kernel {
     IP4Interface::IP4Interface(EventBus *eventBus, EthernetDevice *ethernetDevice,
-                               IP4Address *ip4Address,
-                               IP4Netmask *ip4Netmask) {
+                               IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         this->eventBus = eventBus;
-        //Addresses in ARPModule may be deleted at any time
-        //-> copy our addresses or we might lose them!
-        arpModule = new ARPModule(eventBus, ethernetDevice);
         this->ethernetDevice = ethernetDevice;
         this->ip4Address = ip4Address;
         this->ip4Netmask = ip4Netmask;
@@ -20,6 +16,8 @@ namespace Kernel {
             delete ip4NetAddress;
             ip4NetAddress = nullptr;
         }
+        ethernetDevice->copyIdentifierTo(this->ethernetIdentifier);
+        arpModule = new ARPModule(eventBus, ethernetDevice);
     }
 
     IP4Interface::~IP4Interface() {
@@ -37,21 +35,15 @@ namespace Kernel {
             return 1;
         }
         if (ip4Datagram == nullptr) {
-            log.error("%s: Given IP4 datagram was null, return",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: Given IP4 datagram was null, return", (char *) ethernetIdentifier);
             return 1;
         }
         if (targetProtocolAddress == nullptr) {
-            log.error("%s: Given receiver IP4 address was null, return",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: Given receiver IP4 address was null, return", (char *) ethernetIdentifier);
             return 1;
         }
         if (arpModule == nullptr) {
-            log.error("%s: ARP module was not initialized, return",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: ARP module was not initialized, return", (char *) ethernetIdentifier);
             return 1;
         }
         //We need to copy our own address, because the datagram's address will be deleted after sending
@@ -64,9 +56,7 @@ namespace Kernel {
 
         EthernetAddress *targetHardwareAddress = nullptr;
         if (arpModule->resolveTo(&targetHardwareAddress, targetProtocolAddress, ip4Address)) {
-            log.error("%s: ARP module failed to resolve destination address",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: ARP module failed to resolve destination address", (char *) ethernetIdentifier);
             return 1;
         }
 
@@ -103,15 +93,11 @@ namespace Kernel {
             return 1;
         }
         if (arpMessage == nullptr) {
-            log.error("%s: ARP message was null, not processing",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: ARP message was null, not processing", (char *) ethernetIdentifier);
             return 1;
         }
         if (arpModule == nullptr) {
-            log.error("%s: ARP module was not initialized, not processing ARP message",
-                      ethernetDevice->getIdentifier()->getCharacters()
-            );
+            log.error("%s: ARP module was not initialized, not processing ARP message", (char *) ethernetIdentifier);
             return 1;
         }
         return arpModule->processIncoming(arpMessage);
@@ -124,11 +110,11 @@ namespace Kernel {
         return ethernetDevice == otherDevice;
     }
 
-    bool IP4Interface::connectedTo(EthernetDeviceIdentifier *identifier) {
-        if (ethernetDevice == nullptr || identifier == nullptr) {
+    bool IP4Interface::connectedTo(const String &identifier) {
+        if (ethernetDevice == nullptr) {
             return false;
         }
-        return ethernetDevice->getIdentifier()->equals(identifier);
+        return this->ethernetIdentifier == identifier;
     }
 
     bool IP4Interface::hasAddress(IP4Address *otherAddress) {

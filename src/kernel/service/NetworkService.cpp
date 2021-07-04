@@ -16,20 +16,25 @@
 namespace Kernel {
 
     NetworkService::NetworkService() {
-        loopbackIdentifier = new EthernetDeviceIdentifier(new String("lo"));
         eventBus = System::getService<EventBus>();
         management = &Management::getInstance();
 
         packetHandler = new PacketHandler(eventBus);
-        ethernetModule = new EthernetModule(management, eventBus, loopbackIdentifier);
+        ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
         icmp4Module = new ICMP4Module(eventBus);
         udp4Module = new UDP4Module(eventBus);
 
         //Setup Loopback with 127.0.0.1/8
-        registerDevice(loopbackIdentifier, *(new Loopback(eventBus)));
+        auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
+        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
+
+        auto loopbackDevice = new Loopback(eventBus);
+        drivers.add(loopbackDevice);
+        ethernetModule->
+        registerNetworkDevice("lo", loopbackDevice, sendBuffer, nullptr);
         assignIP4Address(
-                loopbackIdentifier,
+                "lo",
                 new IP4Address(127, 0, 0, 1),
                 new IP4Netmask(8)
         );
@@ -66,7 +71,7 @@ namespace Kernel {
         delete ethernetModule;
         delete packetHandler;
 
-        delete loopbackIdentifier;
+        //TODO: Implement class + data structure for sendBuffers
     }
 
     uint32_t NetworkService::getDeviceCount() {
@@ -87,17 +92,12 @@ namespace Kernel {
         drivers.remove(selectedDriver);
     }
 
-    void NetworkService::registerDevice(EthernetDeviceIdentifier *identifier, NetworkDevice &driver) {
-        if (identifier == nullptr) {
-            log.error("Given identifier was null, not registering it");
-            return;
-        }
-        ethernetModule->registerNetworkDevice(identifier, &driver);
-        drivers.add(&driver);
-    }
-
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        ethernetModule->registerNetworkDevice(&driver);
+        auto *sendBuffer = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
+        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
+
+        auto *physicalBufferAddress = management->getPhysicalAddress(sendBuffer);
+        ethernetModule->registerNetworkDevice(&driver, sendBuffer, physicalBufferAddress);
         drivers.add(&driver);
     }
 
@@ -114,34 +114,31 @@ namespace Kernel {
     }
 
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
-    uint8_t NetworkService::assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address,
-                                             IP4Netmask *ip4Netmask) {
+    uint8_t NetworkService::assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one of given attributes were null, not assigning IP4 address");
             return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for %s, not assigning IP4 address",
-                      identifier->getCharacters());
+            log.error("No ethernet device exists for %s, not assigning IP4 address", (char*) identifier);
             return 1;
         }
         if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
-            log.error("Registering device %s failed", identifier->getCharacters());
+            log.error("Registering device %s failed", (char*) identifier);
             return 1;
         }
         return 0;
     }
 
-    uint8_t NetworkService::unAssignIP4Address(EthernetDeviceIdentifier *identifier) {
+    uint8_t NetworkService::unAssignIP4Address(const String& identifier) {
         if (identifier == nullptr) {
             log.error("Given identifier was null, not unAssigning IP4 address");
             return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for %s, not unAssigning IP4 address",
-                      identifier->getCharacters());
+            log.error("No ethernet device exists for %s, not unAssigning IP4 address", (char*) identifier);
             return 1;
         }
         return this->ip4Module->unregisterDevice(selected);
@@ -198,7 +195,7 @@ namespace Kernel {
         return udp4Module->unregisterControllerFor(destinationPort);
     }
 
-    uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice) {
+    uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, const String& outDevice) {
         if (gatewayAddress == nullptr || outDevice == nullptr) {
             log.error("Gateway address or out device was null, not setting default route");
             return 1;

@@ -7,7 +7,6 @@
 
 #include <kernel/core/Management.h>
 #include "EthernetDevice.h"
-#include "EthernetDeviceIdentifier.h"
 
 namespace Kernel {
     class EthernetModule : public Receiver {
@@ -15,19 +14,16 @@ namespace Kernel {
         uint8_t deviceCounter = 0;
         Spinlock *accessLock = nullptr;
         EventBus *eventBus = nullptr;
-        Management *systemManagement = nullptr;
         EthernetAddress *broadcastAddress = nullptr;
-        EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
         Util::ArrayList<EthernetDevice *> *devices = nullptr;
-
-        void deleteSendBuffer(const EthernetDevice *ethernetDevice);
 
         bool isForUsOrBroadcast(EthernetHeader *ethernetHeader);
 
     public:
 
-        explicit EthernetModule(Management *systemManagement, EventBus *eventBus,
-                                EthernetDeviceIdentifier *loopbackIdentifier);
+        explicit EthernetModule(EventBus *eventBus);
+
+        ~EthernetModule() override;
 
         /**
          * A logger to provide information on the kernel log.
@@ -41,19 +37,18 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        EthernetDevice *getEthernetDevice(EthernetDeviceIdentifier *identifier);
+        EthernetDevice *getEthernetDevice(const String &identifier);
 
         EthernetDevice *getEthernetDevice(NetworkDevice *networkDevice);
 
-        void registerNetworkDevice(NetworkDevice *networkDevice);
+        uint8_t registerNetworkDevice(NetworkDevice *networkDevice, uint8_t *sendBuffer, void *physicalBufferAddress);
 
-        uint8_t registerNetworkDevice(EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
+        uint8_t registerNetworkDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
+                                      void *physicalBufferAddress);
 
         uint8_t unregisterNetworkDevice(NetworkDevice *networkDevice);
 
         uint8_t collectEthernetDeviceAttributes(Util::ArrayList<String> *strings);
-
-        ~EthernetModule() override;
     };
 
 }

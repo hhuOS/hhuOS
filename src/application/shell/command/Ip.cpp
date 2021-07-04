@@ -85,7 +85,10 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        IP4Address::parseTo(addressBytes, &unnamedArguments[1]);
+        if(IP4Address::parseTo(addressBytes, unnamedArguments[1])){
+            stderr << "Could not parse input " << unnamedArguments[1] << " as IP4Address!" << endl;
+            return;
+        }
 
         bitCount = static_cast<uint8_t>(strtoint((const char *) unnamedArguments[2]));
         if (bitCount > 32) {
@@ -93,19 +96,17 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
 
-        auto *identifier = new EthernetDeviceIdentifier(&unnamedArguments[0]);
         auto *address = new IP4Address(addressBytes);
         auto *mask = new IP4Netmask(bitCount);
 
-        if (networkService->assignIP4Address(identifier, address, mask)) {
+        if (networkService->assignIP4Address(unnamedArguments[0], address, mask)) {
             delete address;
             delete mask;
 
-            stderr << "Assigning address for " << identifier->asString() << " failed! See syslog for details" << endl;
-            delete identifier;
+            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
         } else {
             stdout << "Assigned address " << address->asString() << " with mask " <<
-                   mask->asString() << " to " << identifier->asString() << endl;
+                   mask->asString() << " to " << unnamedArguments[0] << endl;
         }
         return;
     } else if (parser->checkSwitch("unset")) {
@@ -115,7 +116,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
 
-        if (networkService->unAssignIP4Address(new EthernetDeviceIdentifier(&unnamedArguments[0]))) {
+        if (networkService->unAssignIP4Address(unnamedArguments[0])) {
             stderr << "UnAssigning address for '" << unnamedArguments[0] << "' failed! See syslog for details" << endl;
         } else {
             stdout << "Address unAssigned for '" << unnamedArguments[0] << "'" << endl;
@@ -152,19 +153,19 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
             return;
         }
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        IP4Address::parseTo(addressBytes, &unnamedArguments[0]);
+        if(IP4Address::parseTo(addressBytes, unnamedArguments[0])){
+            stderr << "Could not parse input " << unnamedArguments[0] << " as IP4Address!" << endl;
+            return;
+        }
         auto *gatewayAddress = new IP4Address(addressBytes);
-
-        auto *outInterface = new EthernetDeviceIdentifier(&unnamedArguments[1]);
-        if (networkService->setDefaultRoute(gatewayAddress, outInterface)) {
+        if (networkService->setDefaultRoute(gatewayAddress, unnamedArguments[1])) {
             stderr << "Setting default route '" << gatewayAddress->asString() << " via "
-            << outInterface->asString() << "' failed! See syslog for details" << endl;
+            << unnamedArguments[1] << "' failed! See syslog for details" << endl;
             delete gatewayAddress;
-            delete outInterface;
             return;
         } else {
             stdout << "Default route set to '" << gatewayAddress->asString() << " via "
-            << outInterface->asString() << "'" << endl;
+            << unnamedArguments[1] << "'" << endl;
         }
         return;
     }

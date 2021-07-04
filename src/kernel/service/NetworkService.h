@@ -27,7 +27,6 @@
 #include <kernel/network/ethernet/EthernetModule.h>
 #include <kernel/network/internet/icmp/ICMP4Module.h>
 #include <kernel/network/udp/UDP4Module.h>
-#include <kernel/network/ethernet/EthernetDeviceIdentifier.h>
 
 namespace Kernel {
 
@@ -50,8 +49,6 @@ namespace Kernel {
          * A list where all drivers will be collected.
          */
         Util::ArrayList<NetworkDevice *> drivers;
-
-        EthernetDeviceIdentifier *loopbackIdentifier;
 
         Management *management;
         EventBus *eventBus;
@@ -102,19 +99,17 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        void registerDevice(EthernetDeviceIdentifier *identifier, NetworkDevice &driver);
+        UDP4SocketController *createSocketController(size_t bufferSize);
 
         uint8_t collectLinkAttributes(Util::ArrayList<String> *strings);
 
-        uint8_t assignIP4Address(EthernetDeviceIdentifier *identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+        uint8_t assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
-        uint8_t unAssignIP4Address(EthernetDeviceIdentifier *identifier);
+        uint8_t unAssignIP4Address(const String& identifier);
 
         uint8_t collectInterfaceAttributes(Util::ArrayList<String> *strings);
 
         uint8_t collectRouteAttributes(Util::ArrayList<String> *strings);
-
-        UDP4SocketController *createSocketController(size_t bufferSize);
 
         uint8_t unregisterSocketController(uint16_t destinationPort);
 
@@ -122,7 +117,7 @@ namespace Kernel {
 
         uint8_t registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller);
 
-        uint8_t setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice);
+        uint8_t setDefaultRoute(IP4Address *gatewayAddress, const String& outDevice);
 
         uint8_t removeDefaultRoute();
     };

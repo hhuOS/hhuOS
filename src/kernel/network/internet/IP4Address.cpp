@@ -76,8 +76,8 @@ uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netma
     return 0;
 }
 
-uint8_t IP4Address::parseTo(uint8_t *targetBytes, String *fromString) {
-    auto addressParts = fromString->split(".");
+uint8_t IP4Address::parseTo(uint8_t *targetBytes, const String &fromString) {
+    auto addressParts = fromString.split(".");
     if (addressParts.length() != IP4ADDRESS_LENGTH) {
         return 1;
     }

@@ -7,8 +7,7 @@
 #include "EthernetDevice.h"
 
 namespace Kernel {
-    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, EthernetDeviceIdentifier *identifier,
-                                   NetworkDevice *networkDevice) {
+    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, const String &identifier, NetworkDevice *networkDevice) {
         this->identifier = identifier;
 
         this->sendLock = new Spinlock();
@@ -20,9 +19,8 @@ namespace Kernel {
         this->sendBuffer = sendBuffer;
     }
 
-    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, void *physicalBufferAddress,
-                                   EthernetDeviceIdentifier *identifier,
-                                   NetworkDevice *networkDevice) {
+    EthernetDevice::EthernetDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
+                                   void *physicalBufferAddress) {
         this->identifier = identifier;
 
         this->sendLock = new Spinlock();
@@ -40,21 +38,16 @@ namespace Kernel {
         delete sendLock;
     }
 
-    EthernetDeviceIdentifier *EthernetDevice::getIdentifier() const {
-        return identifier;
-    }
-
     uint8_t EthernetDevice::sendEthernetFrame(EthernetFrame *ethernetFrame) {
         if (ethernetFrame == nullptr) {
-            log.error("%s: Outgoing frame was null, ignoring",
-                      identifier->getCharacters());
+            log.error("%s: Outgoing frame was null, ignoring", (char *) this->identifier);
             //ethernetFrame will be deleted in EthernetModule later
             //-> no 'delete ethernetFrame' here!
             return 1;
         }
         if (sendLock == nullptr || sendBuffer == nullptr || this->networkDevice == nullptr) {
             log.error("%s: sendLock, sendBuffer or outgoing device was null, discarding frame",
-                      identifier->getCharacters());
+                      (char *) this->identifier);
             //ethernetFrame will be deleted in EthernetModule later
             //-> no 'delete ethernetFrame' here!
             return 1;
@@ -67,18 +60,21 @@ namespace Kernel {
         //ethernetFrame will be deleted in EthernetModule later
         //-> no 'delete ethernetFrame' here!
         if (ethernetFrame->copyTo(output)) {
-            log.error("%s: Copy to byteBlock failed, discarding frame", identifier->getCharacters());
+            log.error("%s: Copy to byteBlock failed, discarding frame",
+                      (char *) this->identifier);
             delete output;
             return 1;
         }
         if (output->bytesRemaining() != 0) {
-            log.error("%s: Copy to byteBlock incomplete, discarding frame", identifier->getCharacters());
+            log.error("%s: Copy to byteBlock incomplete, discarding frame",
+                      (char *) this->identifier);
             delete output;
             return 1;
         }
         //Reset currentIndex to zero to prepare reading all content to sendBuffer
         if (output->resetIndex()) {
-            log.error("%s: Index reset for output byteBlock failed, discarding", identifier->getCharacters());
+            log.error("%s: Index reset for output byteBlock failed, discarding",
+                      (char *) this->identifier);
             delete output;
             return 1;
         }
@@ -92,7 +88,8 @@ namespace Kernel {
         }
 
         if (blockLength > EthernetHeader::getMaximumFrameLength()) {
-            log.error("%s: %d outgoing bytes are too much, discarding frame", identifier, blockLength);
+            log.error("%s: %d outgoing bytes are too much, discarding frame",
+                      (char *) this->identifier, blockLength);
             delete output;
             return 1;
         }
@@ -116,7 +113,7 @@ namespace Kernel {
         if (output->readStraightTo(sendBuffer, blockLength)) {
             sendLock->release();
             log.error("%s: Could not copy outgoing data to sendBuffer, discarding frame",
-                      identifier->getCharacters());
+                      (char *) this->identifier);
             delete output;
             return 1;
         }
@@ -142,10 +139,10 @@ namespace Kernel {
     }
 
     String EthernetDevice::asString() {
-        if (identifier == nullptr || ethernetAddress == nullptr) {
+        if (this->identifier.isEmpty() || ethernetAddress == nullptr) {
             return "NULL";
         }
-        return "\nID: " + identifier->asString() + ",\nMAC: " + ethernetAddress->asString();
+        return "\nID: " + this->identifier + ",\nMAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {
@@ -155,16 +152,8 @@ namespace Kernel {
         return this->networkDevice == compare->networkDevice;
     }
 
-    bool EthernetDevice::sameIdentifierAs(EthernetDeviceIdentifier *other) {
-        return this->identifier->equals(other);
-    }
-
-    void *EthernetDevice::getPhysicalBufferAddress() const {
-        return physicalBufferAddress;
-    }
-
-    uint8_t *EthernetDevice::getSendBuffer() const {
-        return sendBuffer;
+    bool EthernetDevice::sameIdentifierAs(const String &other) {
+        return this->identifier == other;
     }
 
     bool EthernetDevice::isDestinationOf(EthernetHeader *ethernetHeader) {
@@ -179,5 +168,13 @@ namespace Kernel {
             return false;
         }
         return this->ethernetAddress->copyTo(target);
+    }
+
+    uint8_t EthernetDevice::copyIdentifierTo(String target) {
+        if (this->identifier.isEmpty() || !target.isEmpty()) {
+            return 1;
+        }
+        target += this->identifier;
+        return 0;
     }
 }

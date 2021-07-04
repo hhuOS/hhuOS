@@ -27,7 +27,10 @@ void Ping::execute(Util::Array<String> &args) {
 
     auto target = parser.getUnnamedArguments();
     if (target.length() == 1) {
-        IP4Address::parseTo(addressBytes, &target[0]);
+        if(IP4Address::parseTo(addressBytes, target[0])){
+            stderr << "Could not parse input " << target[0] << " as IP4Address!" << endl;
+            return;
+        }
     }
 
     auto count = parser.getNamedArgument("count");
