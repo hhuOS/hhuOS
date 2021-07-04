@@ -165,7 +165,7 @@ namespace Kernel {
 
     uint8_t EthernetDevice::copyAddressTo(uint8_t *target) {
         if (this->ethernetAddress == nullptr || target == nullptr) {
-            return false;
+            return 1;
         }
         return this->ethernetAddress->copyTo(target);
     }
