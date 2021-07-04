@@ -112,21 +112,21 @@ namespace Kernel {
         //Index 0 is for loopback!
         if (index > 0 && buffers[index - 1] != nullptr) {
             management->freeIO(buffers[index - 1]);
-            buffers[index - 1]= nullptr;
+            buffers[index - 1] = nullptr;
         }
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
         size_t targetPosition = deviceCounter;
-        if(deviceCounter==MAX_DEVICE_COUNT){
+        if (deviceCounter == MAX_DEVICE_COUNT) {
             size_t i;
-            for (i=0;i<MAX_DEVICE_COUNT;i++) {
-                if(buffers[i]== nullptr){
-                    targetPosition=i;
+            for (i = 0; i < MAX_DEVICE_COUNT; i++) {
+                if (buffers[i] == nullptr) {
+                    targetPosition = i;
                 }
             }
             //If no free position found
-            if(i==MAX_DEVICE_COUNT){
+            if (i == MAX_DEVICE_COUNT) {
                 log.error("Max device count reached, not registering new device");
                 return;
             }
