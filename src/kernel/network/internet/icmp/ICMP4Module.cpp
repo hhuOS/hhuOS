@@ -34,7 +34,7 @@ namespace Kernel {
                 }
 #if PRINT_IN_ICMP4ECHOREPLY == 1
                 printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
-                       ip4Header->getSourceAddress()->asChars(),
+                       (char *) ip4Header->getSourceAddress()->asString(),
                        echoReply->getIdentifier(),
                        echoReply->getSequenceNumber()
                 );
@@ -73,13 +73,13 @@ namespace Kernel {
 
     ICMP4Module::ICMP4Module(EventBus *eventBus) : eventBus(eventBus) {}
 
-    void ICMP4Module::deleteMessageSpecific(ICMP4Message *icmp4Message) {
-        switch (icmp4Message->getICMP4MessageType()) {
+    void ICMP4Module::deleteSpecific(ICMP4Message *message) {
+        switch (message->getICMP4MessageType()) {
             case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                delete (ICMP4EchoReply *) icmp4Message;
+                delete (ICMP4EchoReply *) message;
                 return;
             case ICMP4Message::ICMP4MessageType::ECHO:
-                delete (ICMP4Echo *) icmp4Message;
+                delete (ICMP4Echo *) message;
                 return;
                 //All implemented messages are deleted now
                 //-> we can break here
@@ -100,12 +100,12 @@ namespace Kernel {
             }
             if (destinationAddress == nullptr) {
                 log.error("Destination address was null or checksum calculation failed, discarding message");
-                deleteMessageSpecific(icmp4Message);
+                deleteSpecific(icmp4Message);
                 return;
             }
             if (icmp4Message->fillChecksumField()) {
                 log.error("Checksum calculation failed, discarding message");
-                deleteMessageSpecific(icmp4Message);
+                deleteSpecific(icmp4Message);
                 return;
             }
 

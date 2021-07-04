@@ -37,11 +37,11 @@ size_t EthernetFrame::getLengthInBytes() {
     return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
 }
 
-void EthernetFrame::setSourceAddress(EthernetAddress *source) {
+uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
     if (source == nullptr) {
-        return;
+        return 1;
     }
-    header->setSourceAddress(source);
+    return header->setSourceAddress(source);
 }
 
 uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {

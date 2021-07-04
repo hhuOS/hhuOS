@@ -27,11 +27,12 @@ size_t EthernetHeader::getMaximumFrameLength() {
     return getHeaderLength() + ETHERNET_MTU;
 }
 
-void EthernetHeader::setSourceAddress(EthernetAddress *address) {
+uint8_t EthernetHeader::setSourceAddress(EthernetAddress *address) {
     if (address == nullptr) {
-        return;
+        return 1;
     }
     this->sourceAddress = address;
+    return 0;
 }
 
 uint8_t EthernetHeader::copyTo(Kernel::NetworkByteBlock *output) {

@@ -15,12 +15,13 @@ namespace Kernel {
         IP4Route *defaultRoute = nullptr;
         Spinlock *accessLock = nullptr;
 
-        uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
-
         /**
                  * A logger to provide information on the kernel log.
                  */
         Logger &log = Logger::get("IP4RoutingModule");
+
+        uint8_t find(IP4Route **bestRoute, IP4Address *receiverAddress);
+
     public:
 
         IP4RoutingModule();

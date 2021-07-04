@@ -46,7 +46,7 @@ public:
 
     IP4Address *getSourceAddress();
 
-    void setSourceAddress(IP4Address *address);
+    uint8_t setSourceAddress(IP4Address *address);
 
     virtual ~IP4Header();
 

@@ -18,21 +18,21 @@ public:
 
     EthernetHeader() = default;
 
+    virtual ~EthernetHeader();
+
     [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
     static size_t getHeaderLength();
 
     static size_t getMaximumFrameLength();
 
-    void setSourceAddress(EthernetAddress *address);
+    bool destinationIs(EthernetAddress *otherAddress);
+
+    uint8_t setSourceAddress(EthernetAddress *address);
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
-
-    virtual ~EthernetHeader();
-
-    bool destinationIs(EthernetAddress *otherAddress);
 
     String asString(const String &spacing);
 };

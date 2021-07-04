@@ -44,13 +44,14 @@ bool IP4Address::equals(IP4Address *other) {
              this->address[3] == other->address[3]);
 }
 
-void IP4Address::copyTo(uint8_t *target) {
+uint8_t IP4Address::copyTo(uint8_t *target) {
     if (address == nullptr || target == nullptr) {
-        return;
+        return 1;
     }
     for (int i = 0; i < IP4ADDRESS_LENGTH; i++) {
         target[i] = this->address[i];
     }
+    return 0;
 }
 
 String IP4Address::asString() {
@@ -58,10 +59,6 @@ String IP4Address::asString() {
         return "NULL";
     }
     return String::format("'%d.%d.%d.%d'", address[0], address[1], address[2], address[3]);
-}
-
-char *IP4Address::asChars() {
-    return (char *) asString();
 }
 
 uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask) {

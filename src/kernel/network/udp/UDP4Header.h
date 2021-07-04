@@ -21,18 +21,17 @@ public:
 
     UDP4Header() = default;
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) const;
-
-    uint8_t parse(Kernel::NetworkByteBlock *input);
-
     static size_t getHeaderLength();
 
     [[nodiscard]] size_t getTotalDatagramLength() const;
 
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) const;
+
+    uint8_t parse(Kernel::NetworkByteBlock *input);
+
     [[nodiscard]] uint16_t getSourcePort() const;
 
     [[nodiscard]] uint16_t getDestinationPort() const;
-
 };
 
 

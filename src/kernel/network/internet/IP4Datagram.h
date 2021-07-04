@@ -20,19 +20,19 @@ public:
 
     virtual ~IP4Datagram();
 
-    EtherType getEtherType() override;
+    [[nodiscard]] IP4Address *getDestinationAddress() const;
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
+    EtherType getEtherType() override;
 
     size_t getLengthInBytes() override;
 
-    void setSourceAddress(IP4Address *source);
+    uint8_t setSourceAddress(IP4Address *source);
 
-    [[nodiscard]] IP4Address *getDestinationAddress() const;
-
-    String asString(String spacing) override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     uint8_t fillHeaderChecksum();
+
+    String asString(String spacing) override;
 };
 
 

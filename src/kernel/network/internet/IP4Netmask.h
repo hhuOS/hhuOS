@@ -15,13 +15,13 @@ private:
 public:
     explicit IP4Netmask(uint8_t bitCount);
 
-    [[nodiscard]] uint8_t getBitCount() const;
+    virtual ~IP4Netmask();
 
-    String asString();
+    [[nodiscard]] uint8_t getBitCount() const;
 
     uint8_t extractNetPart(IP4Address **targetNetPart, IP4Address *ip4Address);
 
-    virtual ~IP4Netmask();
+    String asString();
 };
 
 

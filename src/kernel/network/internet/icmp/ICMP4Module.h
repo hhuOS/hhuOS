@@ -14,17 +14,17 @@ namespace Kernel {
     private:
         EventBus *eventBus;
 
-        uint8_t processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input);
-
-    public:
-
-        explicit ICMP4Module(EventBus *eventBus);
-
-
         /**
          * A logger to provide information on the kernel log.
          */
         Logger &log = Logger::get("ICMP4Module");
+
+        uint8_t processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input);
+
+    public:
+
+
+        explicit ICMP4Module(EventBus *eventBus);
 
 /**
      * Inherited method from Receiver.
@@ -33,7 +33,7 @@ namespace Kernel {
      */
         void onEvent(const Event &event) override;
 
-        static void deleteMessageSpecific(ICMP4Message *message);
+        static void deleteSpecific(ICMP4Message *message);
     };
 }
 

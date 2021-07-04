@@ -14,6 +14,14 @@ IP4Netmask::IP4Netmask(uint8_t bitCount) {
     }
     this->bitCount = bitCount;
 
+    if (bitCount == 0) {
+        netmask[0] = 0;
+        netmask[1] = 0;
+        netmask[2] = 0;
+        netmask[3] = 0;
+        return;
+    }
+
     uint32_t base = 0xffffffff;
     base = base << (32 - bitCount);
 
@@ -29,8 +37,6 @@ IP4Netmask::~IP4Netmask() {
     delete netmask;
 }
 
-//NOTE: This method creates a new IP4Address!
-//-> don't forget to delete it after usage!
 uint8_t IP4Netmask::extractNetPart(IP4Address **targetNetPart, IP4Address *ip4Address) {
     if (this->netmask == nullptr || ip4Address == nullptr || targetNetPart == nullptr) {
         return 1;

@@ -16,13 +16,15 @@ namespace Kernel {
         Util::HashMap<uint16_t, UDP4SocketController *> *sockets = nullptr;
         Spinlock *accessLock = nullptr;
 
+        Logger &log = Logger::get("UDP4Module");
+
         uint8_t notifyDestinationSocket(UDP4Header *udp4Header, IP4Header *ip4Header, NetworkByteBlock *input);
 
     public:
 
         explicit UDP4Module(EventBus *eventBus);
 
-        Logger &log = Logger::get("UDP4Module");
+        ~UDP4Module() override;
 
         /**
          * Inherited method from Receiver.
@@ -36,8 +38,6 @@ namespace Kernel {
         uint8_t registerControllerFor(uint16_t *destinationPortTarget, UDP4SocketController *controller);
 
         uint8_t unregisterControllerFor(uint16_t destinationPort);
-
-        ~UDP4Module() override;
     };
 
 }

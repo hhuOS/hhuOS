@@ -32,17 +32,20 @@ private:
     };
 
     attr_t attributes;
+
     EchoThread *serverThread = nullptr;
+
+    void cleanup() const;
+    
 public:
+
     explicit EchoServer(size_t inputBufferSize);
+
+    virtual ~EchoServer();
 
     uint8_t start();
 
     uint8_t stop();
-
-    virtual ~EchoServer();
-
-    void cleanup() const;
 };
 
 

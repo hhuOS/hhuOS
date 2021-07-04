@@ -65,10 +65,14 @@ IP4Address *IP4Header::getSourceAddress() {
     return sourceAddress;
 }
 
-void IP4Header::setSourceAddress(IP4Address *address) {
+uint8_t IP4Header::setSourceAddress(IP4Address *address) {
+    if (address == nullptr) {
+        return 1;
+    }
     //Cleanup if already set
     delete this->sourceAddress;
     this->sourceAddress = address;
+    return 0;
 }
 
 size_t IP4Header::getHeaderLength() const {

@@ -19,21 +19,19 @@ public:
 
     explicit IP4Address(IP4Address *other);
 
-    String asString();
-
-    char *asChars();
-
-    bool equals(IP4Address *other);
-
-    void copyTo(uint8_t *target);
-
-    uint8_t calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask);
-
     virtual ~IP4Address();
 
     static uint8_t parseTo(uint8_t *targetBytes, const String &fromString);
 
     static IP4Address *buildBroadcastAddress();
+
+    bool equals(IP4Address *other);
+
+    uint8_t copyTo(uint8_t *target);
+
+    uint8_t calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask);
+
+    String asString();
 };
 
 

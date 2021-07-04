@@ -54,7 +54,11 @@ namespace Kernel {
         }
         //The frame's attributes will be deleted after sending
         //-> copy it here!
-        ethernetFrame->setSourceAddress(new EthernetAddress(this->ethernetAddress));
+        auto *addressCopy = new EthernetAddress(this->ethernetAddress);
+        if (ethernetFrame->setSourceAddress(addressCopy)) {
+            log.error("%s: Could not set frame's source address, discarding", (char *) this->identifier);
+            return 1;
+        }
         auto *output = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
 
         //ethernetFrame will be deleted in EthernetModule later
@@ -118,9 +122,11 @@ namespace Kernel {
             return 1;
         }
 
+        //Send via MMIO if we are a physical device
         if (physicalBufferAddress != nullptr) {
             networkDevice->sendPacket(physicalBufferAddress, static_cast<uint16_t>(blockLength));
         } else {
+            //Send directly inMemory if we are a virtual device (like Loopback)
             networkDevice->sendPacket(sendBuffer, static_cast<uint16_t>(blockLength));
         }
         memset(sendBuffer, 0, blockLength);

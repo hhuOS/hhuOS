@@ -48,11 +48,11 @@ IP4Address *IP4Datagram::getDestinationAddress() const {
     return header->getDestinationAddress();
 }
 
-void IP4Datagram::setSourceAddress(IP4Address *source) {
+uint8_t IP4Datagram::setSourceAddress(IP4Address *source) {
     if (source == nullptr) {
-        return;
+        return 1;
     }
-    header->setSourceAddress(source);
+    return header->setSourceAddress(source);
 }
 
 size_t IP4Datagram::getLengthInBytes() {

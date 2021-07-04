@@ -46,11 +46,16 @@ namespace Kernel {
             log.error("%s: ARP module was not initialized, return", (char *) ethernetIdentifier);
             return 1;
         }
-        //We need to copy our own address, because the datagram's address will be deleted after sending
-        ip4Datagram->setSourceAddress(new IP4Address(ip4Address));
+        //The datagram's attributes will be deleted after sending
+        //-> copy it here!
+        auto *addressCopy = new IP4Address(ip4Address);
+        if (ip4Datagram->setSourceAddress(addressCopy)) {
+            log.error("%s: Could not set datagram's source address, discarding", (char *) ethernetIdentifier);
+            return 1;
+        }
 
         if (ip4Datagram->fillHeaderChecksum()) {
-            log.error("Header checksum calculation failed!");
+            log.error("%s: Header checksum calculation failed!", (char *) ethernetIdentifier);
             return 1;
         }
 

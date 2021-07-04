@@ -18,11 +18,11 @@ public:
 
     ~UDP4Datagram();
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
+    IP4ProtocolType getIP4ProtocolType() override;
 
     size_t getLengthInBytes() override;
 
-    IP4ProtocolType getIP4ProtocolType() override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 };
 
 

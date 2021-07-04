@@ -25,9 +25,9 @@ public:
 
     virtual ~IP4Route();
 
-    uint8_t sendOut(IP4Datagram *datagram);
-
     [[nodiscard]] Kernel::IP4Interface *getOutInterface() const;
+
+    uint8_t sendOut(IP4Datagram *datagram);
 
     uint8_t matchingBits(uint8_t *targetBitCount, IP4Address *ip4Address);
 

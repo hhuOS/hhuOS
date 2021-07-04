@@ -25,15 +25,15 @@ public:
 
     ~ICMP4Echo() = default;
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
+    ICMP4MessageType getICMP4MessageType() override;
+
+    [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
 
     size_t getLengthInBytes() override;
 
-    ICMP4MessageType getICMP4MessageType() override;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
-
-    [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
 };
 
 

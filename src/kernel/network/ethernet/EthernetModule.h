@@ -17,6 +17,11 @@ namespace Kernel {
         EthernetAddress *broadcastAddress = nullptr;
         Util::ArrayList<EthernetDevice *> *devices = nullptr;
 
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("EthernetModule");
+
         bool isForUsOrBroadcast(EthernetHeader *ethernetHeader);
 
     public:
@@ -24,11 +29,6 @@ namespace Kernel {
         explicit EthernetModule(EventBus *eventBus);
 
         ~EthernetModule() override;
-
-        /**
-         * A logger to provide information on the kernel log.
-         */
-        Logger &log = Logger::get("EthernetModule");
 
 /**
      * Inherited method from Receiver.

@@ -19,11 +19,11 @@ public:
 
     virtual ~EthernetFrame();
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output);
-
     size_t getLengthInBytes();
 
-    void setSourceAddress(EthernetAddress *source);
+    uint8_t copyTo(Kernel::NetworkByteBlock *output);
+
+    uint8_t setSourceAddress(EthernetAddress *source);
 
     String headerAsString(const String &spacing);
 };
