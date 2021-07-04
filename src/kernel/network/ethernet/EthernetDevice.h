@@ -52,6 +52,8 @@ namespace Kernel {
         virtual ~EthernetDevice();
 
         [[nodiscard]] void *getPhysicalBufferAddress() const;
+
+        bool isDestinationOf(EthernetHeader *ethernetHeader);
     };
 }
 

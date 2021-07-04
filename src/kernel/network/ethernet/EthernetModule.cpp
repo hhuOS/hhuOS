@@ -36,7 +36,7 @@ namespace Kernel {
         }
         accessLock->acquire();
         for (EthernetDevice *current:*devices) {
-            if (ethernetHeader->destinationIs(current->getAddress())) {
+            if (current->isDestinationOf(ethernetHeader)) {
                 accessLock->release();
                 return true;
             }

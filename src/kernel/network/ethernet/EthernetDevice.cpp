@@ -170,4 +170,11 @@ namespace Kernel {
     uint8_t *EthernetDevice::getSendBuffer() const {
         return sendBuffer;
     }
+
+    bool EthernetDevice::isDestinationOf(EthernetHeader *ethernetHeader) {
+        if (this->ethernetAddress == nullptr || ethernetHeader == nullptr) {
+            return false;
+        }
+        return ethernetHeader->destinationIs(this->ethernetAddress);
+    }
 }

@@ -19,12 +19,14 @@ namespace Kernel {
 
         uint8_t notifyDestinationInterface(ARPMessage *arpMessage);
 
+        bool isForUsOrBroadcast(IP4Header *ip4Header);
+
     public:
 
         explicit IP4Module(EventBus *eventBus);
 
-        ~IP4Module() override;
 
+        ~IP4Module() override;
 
         /**
          * A logger to provide information on the kernel log.
@@ -49,8 +51,6 @@ namespace Kernel {
         uint8_t setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice);
 
         uint8_t removeDefaultRoute();
-
-        bool isForUsOrBroadcast(IP4Header *ip4Header);
     };
 }
 
