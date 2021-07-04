@@ -11,6 +11,26 @@
 
 namespace Kernel {
     //Private method!
+    bool IP4Module::isForUsOrBroadcast(IP4Header *ip4Header) {
+        if (ip4Header->destinationIs(broadcastAddress)) {
+            return true;
+        }
+        if (interfaces == nullptr || accessLock == nullptr) {
+            log.error("Internal interface list or accessLock was null, not checking if datagram is for us");
+            return false;
+        }
+        accessLock->acquire();
+        for (IP4Interface *current:*interfaces) {
+            if (current->isDestinationOf(ip4Header)) {
+                accessLock->release();
+                return true;
+            }
+        }
+        accessLock->release();
+        return false;
+    }
+
+    //Private method!
     uint8_t IP4Module::notifyDestinationInterface(ARPMessage *arpMessage) {
         if (interfaces == nullptr || accessLock == nullptr) {
             log.error("Internal interface list or accessLock not initialized, discarding ARP message");
@@ -55,8 +75,9 @@ namespace Kernel {
 
     IP4Module::IP4Module(EventBus *eventBus) {
         this->eventBus = eventBus;
-        this->routingModule = new IP4RoutingModule();
-        this->interfaces = new Util::ArrayList<IP4Interface *>();
+        routingModule = new IP4RoutingModule();
+        broadcastAddress = IP4Address::buildBroadcastAddress();
+        interfaces = new Util::ArrayList<IP4Interface *>();
         accessLock = new Spinlock();
         accessLock->release();
     }
@@ -253,20 +274,18 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            //TODO: Implement this one!
             if (!ip4Header->headerIsValid()) {
                 log.error("Incoming IP4Header corrupted, discarding datagram");
                 delete ip4Header;
                 delete input;
                 return;
             }
-            //TODO: Implement this one!
-//            if(!isForUsOrBroadcast(ip4Header)){
-//                log.error("Incoming datagram is not for us and not broadcast either, discarding");
-//                delete ip4Header;
-//                delete input;
-//                return;
-//            }
+            if(!isForUsOrBroadcast(ip4Header)){
+                log.error("Incoming datagram is not for us and not broadcast either, discarding");
+                delete ip4Header;
+                delete input;
+                return;
+            }
             switch (ip4Header->getIP4ProtocolType()) {
                 case IP4DataPart::IP4ProtocolType::ICMP4: {
                     //send input to ICMP4Module via EventBus for further processing

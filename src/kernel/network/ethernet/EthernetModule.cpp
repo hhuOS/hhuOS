@@ -30,12 +30,12 @@ namespace Kernel {
         if (ethernetHeader->destinationIs(broadcastAddress)) {
             return true;
         }
-        if (ethernetDevices == nullptr || accessLock == nullptr) {
+        if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal device list or accessLock was null, not checking if frame is for us");
             return false;
         }
         accessLock->acquire();
-        for (EthernetDevice *current:*ethernetDevices) {
+        for (EthernetDevice *current:*devices) {
             if (ethernetHeader->destinationIs(current->getAddress())) {
                 accessLock->release();
                 return true;
@@ -52,7 +52,7 @@ namespace Kernel {
         this->systemManagement = systemManagement;
 
         broadcastAddress = EthernetAddress::buildBroadcastAddress();
-        ethernetDevices = new Util::ArrayList<EthernetDevice *>();
+        devices = new Util::ArrayList<EthernetDevice *>();
         accessLock = new Spinlock();
         accessLock->release();
     }
@@ -61,20 +61,20 @@ namespace Kernel {
         delete accessLock;
         delete broadcastAddress;
 
-        if (ethernetDevices == nullptr) {
+        if (devices == nullptr) {
             return;
         }
         EthernetDevice *toDelete;
-        for (size_t i = 0; i < ethernetDevices->size(); i++) {
+        for (size_t i = 0; i < devices->size(); i++) {
             //Deleting while iterating is always dangerous
             //-> execute get() and remove() separately!
-            toDelete = ethernetDevices->get(i);
-            ethernetDevices->remove(i);
+            toDelete = devices->get(i);
+            devices->remove(i);
             i--;
             deleteSendBuffer(toDelete);
             delete toDelete;
         }
-        delete ethernetDevices;
+        delete devices;
     }
 
     void EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice) {
@@ -94,13 +94,13 @@ namespace Kernel {
             log.error("Given identifier or network device was null, not registering it");
             return 1;
         }
-        if (ethernetDevices == nullptr || accessLock == nullptr) {
+        if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal list or accessLock was null, not registering network device");
             return 1;
         }
         accessLock->acquire();
         //Return if an ethernet device connected to the same network device could be found
-        for (EthernetDevice *currentDevice:*ethernetDevices) {
+        for (EthernetDevice *currentDevice:*devices) {
             if (currentDevice->connectedTo(networkDevice)) {
                 log.error("Given network device %s already registered, not registering it again",
                           identifier->getCharacters());
@@ -112,7 +112,7 @@ namespace Kernel {
         if (identifier->equals(loopbackIdentifier)) {
             auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
             memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
-            this->ethernetDevices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
+            this->devices->add(new EthernetDevice(sendBuffer, identifier, networkDevice));
             accessLock->release();
             return 0;
         }
@@ -123,7 +123,7 @@ namespace Kernel {
         auto *physicalBufferAddress = this->systemManagement->getPhysicalAddress(sendBuffer);
         auto *toAdd = new EthernetDevice(sendBuffer, physicalBufferAddress, identifier, networkDevice);
 
-        this->ethernetDevices->add(toAdd);
+        this->devices->add(toAdd);
         accessLock->release();
 
         return 0;
@@ -135,16 +135,16 @@ namespace Kernel {
             log.error("No connected ethernet device could be found, not unregistering network device");
             return 1;
         }
-        if (ethernetDevices == nullptr || accessLock == nullptr) {
+        if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal list or accessLock was null, not unregistering network device");
             return 1;
         }
         accessLock->acquire();
         EthernetDevice *toDelete;
-        for (size_t i = 0; i < ethernetDevices->size(); i++) {
-            if (ethernetDevices->get(i)->connectedTo(networkDevice)) {
-                toDelete = ethernetDevices->get(i);
-                ethernetDevices->remove(i);
+        for (size_t i = 0; i < devices->size(); i++) {
+            if (devices->get(i)->connectedTo(networkDevice)) {
+                toDelete = devices->get(i);
+                devices->remove(i);
                 accessLock->release();
                 deleteSendBuffer(toDelete);
                 delete toDelete;
@@ -157,13 +157,13 @@ namespace Kernel {
     }
 
     uint8_t EthernetModule::collectEthernetDeviceAttributes(Util::ArrayList<String> *strings) {
-        if (strings == nullptr || ethernetDevices == nullptr || accessLock == nullptr) {
+        if (strings == nullptr || devices == nullptr || accessLock == nullptr) {
             log.error("Given String list, internal list or accessLock was null,"
                       "not collecting device attributes");
             return 1;
         }
         accessLock->acquire();
-        for (EthernetDevice *currentDevice:*ethernetDevices) {
+        for (EthernetDevice *currentDevice:*devices) {
             strings->add(currentDevice->asString());
         }
         accessLock->release();
@@ -172,12 +172,12 @@ namespace Kernel {
 
 //Get ethernet device via identifier
     EthernetDevice *EthernetModule::getEthernetDevice(EthernetDeviceIdentifier *identifier) {
-        if (ethernetDevices == nullptr || accessLock == nullptr) {
+        if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal list or accessLock was null, not searching ethernet device");
             return nullptr;
         }
         accessLock->acquire();
-        for (EthernetDevice *currentDevice:*ethernetDevices) {
+        for (EthernetDevice *currentDevice:*devices) {
             if (currentDevice->sameIdentifierAs(identifier)) {
                 accessLock->release();
                 return currentDevice;
@@ -189,12 +189,12 @@ namespace Kernel {
 
 //Get ethernet device via network device it's connected to
     EthernetDevice *EthernetModule::getEthernetDevice(NetworkDevice *networkDevice) {
-        if (ethernetDevices == nullptr || accessLock == nullptr) {
+        if (devices == nullptr || accessLock == nullptr) {
             log.error("Internal list or accessLock was null, not searching ethernet device");
             return nullptr;
         }
         accessLock->acquire();
-        for (EthernetDevice *currentDevice:*ethernetDevices) {
+        for (EthernetDevice *currentDevice:*devices) {
             if (currentDevice->connectedTo(networkDevice)) {
                 accessLock->release();
                 return currentDevice;

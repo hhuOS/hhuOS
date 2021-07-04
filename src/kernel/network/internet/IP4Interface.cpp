@@ -137,4 +137,11 @@ namespace Kernel {
         }
         return this->ip4Address->equals(otherAddress);
     }
+
+    bool IP4Interface::isDestinationOf(IP4Header *ip4Header) {
+        if (this->ip4Address == nullptr || ip4Header == nullptr) {
+            return false;
+        }
+        return ip4Header->destinationIs(this->ip4Address);
+    }
 }

@@ -92,3 +92,8 @@ uint8_t IP4Address::parseTo(uint8_t *targetBytes, String *fromString) {
     }
     return 0;
 }
+
+IP4Address *IP4Address::buildBroadcastAddress() {
+    uint8_t allOnesBytes[IP4ADDRESS_LENGTH]{0xff, 0xff, 0xff, 0xff};
+    return new IP4Address(allOnesBytes);
+}

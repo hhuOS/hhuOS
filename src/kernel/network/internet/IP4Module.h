@@ -13,6 +13,7 @@ namespace Kernel {
     private:
         Spinlock *accessLock = nullptr;
         EventBus *eventBus = nullptr;
+        IP4Address *broadcastAddress = nullptr;
         IP4RoutingModule *routingModule = nullptr;
         Util::ArrayList<IP4Interface *> *interfaces = nullptr;
 
@@ -48,6 +49,8 @@ namespace Kernel {
         uint8_t setDefaultRoute(IP4Address *gatewayAddress, EthernetDeviceIdentifier *outDevice);
 
         uint8_t removeDefaultRoute();
+
+        bool isForUsOrBroadcast(IP4Header *ip4Header);
     };
 }
 

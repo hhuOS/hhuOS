@@ -45,6 +45,8 @@ namespace Kernel {
         bool connectedTo(EthernetDeviceIdentifier *identifier);
 
         bool hasAddress(IP4Address *otherAddress);
+
+        bool isDestinationOf(IP4Header *ip4Header);
     };
 }
 

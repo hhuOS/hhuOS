@@ -61,6 +61,8 @@ public:
     uint8_t fillChecksumField();
 
     bool headerIsValid();
+
+    bool destinationIs(IP4Address *otherAddress);
 };
 
 

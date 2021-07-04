@@ -18,7 +18,7 @@ namespace Kernel {
         Management *systemManagement = nullptr;
         EthernetAddress *broadcastAddress = nullptr;
         EthernetDeviceIdentifier *loopbackIdentifier = nullptr;
-        Util::ArrayList<EthernetDevice *> *ethernetDevices = nullptr;
+        Util::ArrayList<EthernetDevice *> *devices = nullptr;
 
         void deleteSendBuffer(const EthernetDevice *ethernetDevice);
 

@@ -208,3 +208,10 @@ uint8_t IP4Header::fillChecksumField() {
     delete headerAsBytes;
     return 0;
 }
+
+bool IP4Header::destinationIs(IP4Address *otherAddress) {
+    if (otherAddress == nullptr || destinationAddress == nullptr) {
+        return false;
+    }
+    return destinationAddress->equals(otherAddress);
+}
