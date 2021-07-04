@@ -20,7 +20,7 @@ EthernetDataPart::EtherType EthernetHeader::getEtherType() const {
 }
 
 size_t EthernetHeader::getHeaderLength() {
-    return 2 * MAC_SIZE + sizeof(uint16_t);
+    return 2 * ETH_ADDRESS_LENGTH + sizeof(uint16_t);
 }
 
 size_t EthernetHeader::getMaximumFrameLength() {
@@ -38,16 +38,16 @@ uint8_t EthernetHeader::setSourceAddress(EthernetAddress *address) {
 uint8_t EthernetHeader::copyTo(Kernel::NetworkByteBlock *output) {
     uint8_t errors = 0;
 
-    uint8_t addressBytes[MAC_SIZE];
+    uint8_t addressBytes[ETH_ADDRESS_LENGTH];
     destinationAddress->copyTo(addressBytes);
-    errors += output->appendStraightFrom(addressBytes, MAC_SIZE);
+    errors += output->appendStraightFrom(addressBytes, ETH_ADDRESS_LENGTH);
 
     if (errors) {
         return errors;
     }
 
     sourceAddress->copyTo(addressBytes);
-    errors += output->appendStraightFrom(addressBytes, MAC_SIZE);
+    errors += output->appendStraightFrom(addressBytes, ETH_ADDRESS_LENGTH);
 
     if (errors) {
         return errors;
@@ -63,16 +63,16 @@ uint8_t EthernetHeader::parse(Kernel::NetworkByteBlock *input) {
     }
 
     uint8_t errors = 0;
-    uint8_t addressBytes[MAC_SIZE];
+    uint8_t addressBytes[ETH_ADDRESS_LENGTH];
 
-    errors += input->readStraightTo(addressBytes, MAC_SIZE);
+    errors += input->readStraightTo(addressBytes, ETH_ADDRESS_LENGTH);
     destinationAddress = new EthernetAddress(addressBytes);
 
     if (errors) {
         return errors;
     }
 
-    errors += input->readStraightTo(addressBytes, MAC_SIZE);
+    errors += input->readStraightTo(addressBytes, ETH_ADDRESS_LENGTH);
     sourceAddress = new EthernetAddress(addressBytes);
 
     if (errors) {

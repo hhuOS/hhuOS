@@ -36,7 +36,7 @@ private:
     EchoThread *serverThread = nullptr;
 
     void cleanup() const;
-    
+
 public:
 
     explicit EchoServer(size_t inputBufferSize);

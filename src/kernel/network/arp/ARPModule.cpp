@@ -115,12 +115,12 @@ namespace Kernel {
         auto *arpRequest = new ARPMessage(
                 1, // 1 for Ethernet
                 (uint16_t) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
-                MAC_SIZE,
+                ETH_ADDRESS_LENGTH,
                 IP4ADDRESS_LENGTH,
                 ARPMessage::OpCode::REQUEST
         );
 
-        uint8_t hardwareAddress[MAC_SIZE];
+        uint8_t hardwareAddress[ETH_ADDRESS_LENGTH];
         uint8_t protocolAddress[IP4ADDRESS_LENGTH];
 
         outDevice->copyAddressTo(hardwareAddress);
@@ -164,7 +164,7 @@ namespace Kernel {
                     return processErrors;
                 }
 
-                uint8_t myAddressAsBytes[MAC_SIZE];
+                uint8_t myAddressAsBytes[ETH_ADDRESS_LENGTH];
                 outDevice->copyAddressTo(myAddressAsBytes);
 
                 auto *reply = message->buildReply(myAddressAsBytes);

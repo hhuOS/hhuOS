@@ -58,13 +58,6 @@ namespace Kernel {
         delete devices;
     }
 
-    uint8_t EthernetModule::registerNetworkDevice(NetworkDevice *networkDevice, uint8_t *sendBuffer,
-                                                  void *physicalBufferAddress) {
-        String identifier = String::format("eth%d", deviceCounter);
-        deviceCounter++;
-        return registerNetworkDevice(identifier, networkDevice, sendBuffer, physicalBufferAddress);
-    }
-
     uint8_t
     EthernetModule::registerNetworkDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
                                           void *physicalBufferAddress) {

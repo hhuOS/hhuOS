@@ -11,7 +11,6 @@
 namespace Kernel {
     class EthernetModule : public Receiver {
     private:
-        uint8_t deviceCounter = 0;
         Spinlock *accessLock = nullptr;
         EventBus *eventBus = nullptr;
         EthernetAddress *broadcastAddress = nullptr;
@@ -40,8 +39,6 @@ namespace Kernel {
         EthernetDevice *getEthernetDevice(const String &identifier);
 
         EthernetDevice *getEthernetDevice(NetworkDevice *networkDevice);
-
-        uint8_t registerNetworkDevice(NetworkDevice *networkDevice, uint8_t *sendBuffer, void *physicalBufferAddress);
 
         uint8_t registerNetworkDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
                                       void *physicalBufferAddress);

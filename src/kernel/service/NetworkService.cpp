@@ -19,20 +19,24 @@ namespace Kernel {
         eventBus = System::getService<EventBus>();
         management = &Management::getInstance();
 
+        for (auto &buffer : buffers) {
+            buffer = nullptr;
+        }
+
         packetHandler = new PacketHandler(eventBus);
         ethernetModule = new EthernetModule(eventBus);
         ip4Module = new IP4Module(eventBus);
         icmp4Module = new ICMP4Module(eventBus);
         udp4Module = new UDP4Module(eventBus);
 
-        //Setup Loopback with 127.0.0.1/8
-        auto *sendBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
-        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
+        //Setup Loopback with 127.0.0.1/8 and inMemory send buffer
+        loopbackBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
+        memset(loopbackBuffer, 0, EthernetHeader::getMaximumFrameLength());
 
         auto loopbackDevice = new Loopback(eventBus);
         drivers.add(loopbackDevice);
         ethernetModule->
-                registerNetworkDevice("lo", loopbackDevice, sendBuffer, nullptr);
+                registerNetworkDevice("lo", loopbackDevice, loopbackBuffer, nullptr);
         assignIP4Address(
                 "lo",
                 new IP4Address(127, 0, 0, 1),
@@ -66,12 +70,26 @@ namespace Kernel {
         eventBus->unsubscribe(*udp4Module, UDP4ReceiveEvent::TYPE);
 
         delete udp4Module;
-        delete icmp4Module;
-        delete ip4Module;
-        delete ethernetModule;
-        delete packetHandler;
+        udp4Module = nullptr;
 
-        //TODO: Implement class + data structure for sendBuffers
+        delete icmp4Module;
+        icmp4Module = nullptr;
+
+        delete ip4Module;
+        ip4Module = nullptr;
+
+        delete ethernetModule;
+        ethernetModule = nullptr;
+
+        delete packetHandler;
+        packetHandler = nullptr;
+
+        delete loopbackBuffer;
+        for (auto &currentBuffer : buffers) {
+            if (currentBuffer != nullptr) {
+                management->freeIO(currentBuffer);
+            }
+        }
     }
 
     uint32_t NetworkService::getDeviceCount() {
@@ -90,15 +108,23 @@ namespace Kernel {
         ip4Module->unregisterDevice(ethernetModule->getEthernetDevice(selectedDriver));
         ethernetModule->unregisterNetworkDevice(selectedDriver);
         drivers.remove(selectedDriver);
+
+        if (index < deviceCounter && buffers[index] != nullptr) {
+            management->freeIO(buffers[index]);
+        }
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        auto *sendBuffer = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
-        memset(sendBuffer, 0, EthernetHeader::getMaximumFrameLength());
+        buffers[deviceCounter] = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
+        memset(buffers[deviceCounter], 0, EthernetHeader::getMaximumFrameLength());
 
-        auto *physicalBufferAddress = management->getPhysicalAddress(sendBuffer);
-        ethernetModule->registerNetworkDevice(&driver, sendBuffer, physicalBufferAddress);
+        auto *physicalBufferAddress = management->getPhysicalAddress(buffers[deviceCounter]);
+
+        String identifier = String::format("eth%d", deviceCounter);
+        ethernetModule
+        ->registerNetworkDevice(identifier, &driver, buffers[deviceCounter], physicalBufferAddress);
         drivers.add(&driver);
+        deviceCounter++;
     }
 
     uint8_t NetworkService::collectLinkAttributes(Util::ArrayList<String> *strings) {

@@ -50,14 +50,18 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        Management *management;
-        EventBus *eventBus;
+        uint8_t deviceCounter = 0;
+        uint8_t *loopbackBuffer = nullptr;
+        uint8_t *buffers[MAX_DEVICE_COUNT]{};
 
-        PacketHandler *packetHandler;
-        IP4Module *ip4Module;
-        EthernetModule *ethernetModule;
-        ICMP4Module *icmp4Module;
-        UDP4Module *udp4Module;
+        Management *management = nullptr;
+        EventBus *eventBus = nullptr;
+
+        PacketHandler *packetHandler = nullptr;
+        IP4Module *ip4Module = nullptr;
+        EthernetModule *ethernetModule = nullptr;
+        ICMP4Module *icmp4Module = nullptr;
+        UDP4Module *udp4Module = nullptr;
 
     public:
         /**
