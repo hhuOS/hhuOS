@@ -103,9 +103,9 @@ namespace Kernel {
 
         uint8_t collectLinkAttributes(Util::ArrayList<String> *strings);
 
-        uint8_t assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+        uint8_t assignIP4Address(const String &identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
 
-        uint8_t unAssignIP4Address(const String& identifier);
+        uint8_t unAssignIP4Address(const String &identifier);
 
         uint8_t collectInterfaceAttributes(Util::ArrayList<String> *strings);
 
@@ -117,7 +117,7 @@ namespace Kernel {
 
         uint8_t registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller);
 
-        uint8_t setDefaultRoute(IP4Address *gatewayAddress, const String& outDevice);
+        uint8_t setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice);
 
         uint8_t removeDefaultRoute();
     };

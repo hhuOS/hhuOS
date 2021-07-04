@@ -27,7 +27,7 @@ void Ping::execute(Util::Array<String> &args) {
 
     auto target = parser.getUnnamedArguments();
     if (target.length() == 1) {
-        if(IP4Address::parseTo(addressBytes, target[0])){
+        if (IP4Address::parseTo(addressBytes, target[0])) {
             stderr << "Could not parse input " << target[0] << " as IP4Address!" << endl;
             return;
         }
@@ -41,12 +41,12 @@ void Ping::execute(Util::Array<String> &args) {
     Util::SmartPointer<Kernel::Event> icmp4SendEchoRequestEvent;
     for (uint16_t i = 0; i < numberOfPings; i++) {
         icmp4SendEchoRequestEvent =
-        Util::SmartPointer<Kernel::Event>(
-                new Kernel::ICMP4SendEvent(
-                        new IP4Address(addressBytes),
-                        new ICMP4Echo(42, i + 1u)
+                Util::SmartPointer<Kernel::Event>(
+                        new Kernel::ICMP4SendEvent(
+                                new IP4Address(addressBytes),
+                                new ICMP4Echo(42, i + 1u)
                         )
-        );
+                );
         eventBus->publish(icmp4SendEchoRequestEvent);
         timeService->msleep(1000);
     }

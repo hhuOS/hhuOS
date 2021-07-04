@@ -19,8 +19,8 @@ void Ip::execute(Util::Array<String> &args) {
 
     parser.addSwitch("set", "s");
     parser.addSwitch("unset", "u");
-    parser.addSwitch("default","d");
-    parser.addSwitch("no-default","nd");
+    parser.addSwitch("default", "d");
+    parser.addSwitch("no-default", "nd");
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -85,7 +85,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        if(IP4Address::parseTo(addressBytes, unnamedArguments[1])){
+        if (IP4Address::parseTo(addressBytes, unnamedArguments[1])) {
             stderr << "Could not parse input " << unnamedArguments[1] << " as IP4Address!" << endl;
             return;
         }
@@ -145,7 +145,7 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         return;
     }
 
-    if(parser->checkSwitch("default")){
+    if (parser->checkSwitch("default")) {
         auto unnamedArguments = parser->getUnnamedArguments();
         if (unnamedArguments.length() != 2) {
             stderr << "Invalid argument number, please give two arguments: "
@@ -153,26 +153,26 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
             return;
         }
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        if(IP4Address::parseTo(addressBytes, unnamedArguments[0])){
+        if (IP4Address::parseTo(addressBytes, unnamedArguments[0])) {
             stderr << "Could not parse input " << unnamedArguments[0] << " as IP4Address!" << endl;
             return;
         }
         auto *gatewayAddress = new IP4Address(addressBytes);
         if (networkService->setDefaultRoute(gatewayAddress, unnamedArguments[1])) {
             stderr << "Setting default route '" << gatewayAddress->asString() << " via "
-            << unnamedArguments[1] << "' failed! See syslog for details" << endl;
+                   << unnamedArguments[1] << "' failed! See syslog for details" << endl;
             delete gatewayAddress;
             return;
         } else {
             stdout << "Default route set to '" << gatewayAddress->asString() << " via "
-            << unnamedArguments[1] << "'" << endl;
+                   << unnamedArguments[1] << "'" << endl;
         }
         return;
     }
-    if(parser->checkSwitch("no-default")){
-        if(networkService->removeDefaultRoute()){
+    if (parser->checkSwitch("no-default")) {
+        if (networkService->removeDefaultRoute()) {
             stderr << "Could not remove default route, see syslog for details" << endl;
-        } else{
+        } else {
             stdout << "Default route removed" << endl;
         }
         return;

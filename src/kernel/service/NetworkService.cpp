@@ -32,7 +32,7 @@ namespace Kernel {
         auto loopbackDevice = new Loopback(eventBus);
         drivers.add(loopbackDevice);
         ethernetModule->
-        registerNetworkDevice("lo", loopbackDevice, sendBuffer, nullptr);
+                registerNetworkDevice("lo", loopbackDevice, sendBuffer, nullptr);
         assignIP4Address(
                 "lo",
                 new IP4Address(127, 0, 0, 1),
@@ -114,31 +114,31 @@ namespace Kernel {
     }
 
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
-    uint8_t NetworkService::assignIP4Address(const String& identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
+    uint8_t NetworkService::assignIP4Address(const String &identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (identifier == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one of given attributes were null, not assigning IP4 address");
             return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for %s, not assigning IP4 address", (char*) identifier);
+            log.error("No ethernet device exists for %s, not assigning IP4 address", (char *) identifier);
             return 1;
         }
         if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
-            log.error("Registering device %s failed", (char*) identifier);
+            log.error("Registering device %s failed", (char *) identifier);
             return 1;
         }
         return 0;
     }
 
-    uint8_t NetworkService::unAssignIP4Address(const String& identifier) {
+    uint8_t NetworkService::unAssignIP4Address(const String &identifier) {
         if (identifier == nullptr) {
             log.error("Given identifier was null, not unAssigning IP4 address");
             return 1;
         }
         EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
-            log.error("No ethernet device exists for %s, not unAssigning IP4 address", (char*) identifier);
+            log.error("No ethernet device exists for %s, not unAssigning IP4 address", (char *) identifier);
             return 1;
         }
         return this->ip4Module->unregisterDevice(selected);
@@ -195,7 +195,7 @@ namespace Kernel {
         return udp4Module->unregisterControllerFor(destinationPort);
     }
 
-    uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, const String& outDevice) {
+    uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice) {
         if (gatewayAddress == nullptr || outDevice == nullptr) {
             log.error("Gateway address or out device was null, not setting default route");
             return 1;
