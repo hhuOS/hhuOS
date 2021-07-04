@@ -123,7 +123,7 @@ namespace Kernel {
         uint8_t hardwareAddress[MAC_SIZE];
         uint8_t protocolAddress[IP4ADDRESS_LENGTH];
 
-        outDevice->getAddress()->copyTo(hardwareAddress);
+        outDevice->copyAddressTo(hardwareAddress);
         arpRequest->setSenderHardwareAddress(hardwareAddress);
 
         senderProtocolAddress->copyTo(protocolAddress);
@@ -165,7 +165,7 @@ namespace Kernel {
                 }
 
                 uint8_t myAddressAsBytes[MAC_SIZE];
-                outDevice->getAddress()->copyTo(myAddressAsBytes);
+                outDevice->copyAddressTo(myAddressAsBytes);
 
                 auto *reply = message->buildReply(myAddressAsBytes);
                 auto *destinationAddress = new EthernetAddress(myAddressAsBytes);

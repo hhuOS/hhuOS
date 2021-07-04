@@ -45,8 +45,6 @@ namespace Kernel {
 
         String asString();
 
-        EthernetAddress *getAddress();
-
         bool sameIdentifierAs(EthernetDeviceIdentifier *other);
 
         virtual ~EthernetDevice();
@@ -54,6 +52,8 @@ namespace Kernel {
         [[nodiscard]] void *getPhysicalBufferAddress() const;
 
         bool isDestinationOf(EthernetHeader *ethernetHeader);
+
+        uint8_t copyAddressTo(uint8_t* target);
     };
 }
 

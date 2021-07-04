@@ -60,13 +60,14 @@ String EthernetAddress::asString() {
     );
 }
 
-void EthernetAddress::copyTo(uint8_t *target) {
+uint8_t EthernetAddress::copyTo(uint8_t *target) {
     if (macAddress == nullptr || target == nullptr) {
-        return;
+        return 1;
     }
     for (uint8_t i = 0; i < MAC_SIZE; i++) {
         target[i] = this->macAddress[i];
     }
+    return 0;
 }
 
 bool EthernetAddress::equals(EthernetAddress *otherAddress) {

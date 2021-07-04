@@ -155,10 +155,6 @@ namespace Kernel {
         return this->networkDevice == compare->networkDevice;
     }
 
-    EthernetAddress *EthernetDevice::getAddress() {
-        return ethernetAddress;
-    }
-
     bool EthernetDevice::sameIdentifierAs(EthernetDeviceIdentifier *other) {
         return this->identifier->equals(other);
     }
@@ -176,5 +172,12 @@ namespace Kernel {
             return false;
         }
         return ethernetHeader->destinationIs(this->ethernetAddress);
+    }
+
+    uint8_t EthernetDevice::copyAddressTo(uint8_t *target) {
+        if (this->ethernetAddress == nullptr || target == nullptr) {
+            return false;
+        }
+        return this->ethernetAddress->copyTo(target);
     }
 }

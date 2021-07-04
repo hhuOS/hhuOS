@@ -23,7 +23,7 @@ public:
 
     String asString();
 
-    void copyTo(uint8_t *target);
+    uint8_t copyTo(uint8_t *target);
 
     virtual ~EthernetAddress();
 
