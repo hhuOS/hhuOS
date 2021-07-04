@@ -44,9 +44,9 @@ void Ping::execute(Util::Array<String> &args) {
                 Util::SmartPointer<Kernel::Event>(
                         new Kernel::ICMP4SendEvent(
                                 new IP4Address(addressBytes),
-                                new ICMP4Echo(42, i + 1u)
-                        )
-                );
+                                new ICMP4Echo(42, i + (uint16_t) 1))
+                )
+        );
         eventBus->publish(icmp4SendEchoRequestEvent);
         timeService->msleep(1000);
     }
