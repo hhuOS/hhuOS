@@ -109,8 +109,9 @@ namespace Kernel {
         ethernetModule->unregisterNetworkDevice(selectedDriver);
         drivers.remove(selectedDriver);
 
-        if (index < deviceCounter && buffers[index] != nullptr) {
-            management->freeIO(buffers[index]);
+        //Index 0 is for loopback!
+        if (index > 0 && buffers[index - 1] != nullptr) {
+            management->freeIO(buffers[index - 1]);
         }
     }
 
@@ -122,7 +123,7 @@ namespace Kernel {
 
         String identifier = String::format("eth%d", deviceCounter);
         ethernetModule
-        ->registerNetworkDevice(identifier, &driver, buffers[deviceCounter], physicalBufferAddress);
+                ->registerNetworkDevice(identifier, &driver, buffers[deviceCounter], physicalBufferAddress);
         drivers.add(&driver);
         deviceCounter++;
     }
