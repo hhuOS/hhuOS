@@ -104,13 +104,13 @@ namespace Kernel {
         }
         if (arpMessage == nullptr) {
             log.error("%s: ARP message was null, not processing",
-                      ethernetDevice->getIdentifier()
+                      ethernetDevice->getIdentifier()->getCharacters()
             );
             return 1;
         }
         if (arpModule == nullptr) {
             log.error("%s: ARP module was not initialized, not processing ARP message",
-                      ethernetDevice->getIdentifier()
+                      ethernetDevice->getIdentifier()->getCharacters()
             );
             return 1;
         }

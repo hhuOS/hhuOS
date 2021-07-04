@@ -33,27 +33,27 @@ namespace Kernel {
 
         EthernetDevice(uint8_t *sendBuffer, EthernetDeviceIdentifier *identifier, NetworkDevice *networkDevice);
 
+        virtual ~EthernetDevice();
+
         [[nodiscard]] uint8_t *getSendBuffer() const;
 
-        [[nodiscard]] EthernetDeviceIdentifier *getIdentifier() const;
+        [[nodiscard]] void *getPhysicalBufferAddress() const;
 
-        virtual uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
+        [[nodiscard]] EthernetDeviceIdentifier *getIdentifier() const;
 
         bool connectedTo(NetworkDevice *otherDevice);
 
         bool equals(EthernetDevice *compare);
 
-        String asString();
-
         bool sameIdentifierAs(EthernetDeviceIdentifier *other);
-
-        virtual ~EthernetDevice();
-
-        [[nodiscard]] void *getPhysicalBufferAddress() const;
 
         bool isDestinationOf(EthernetHeader *ethernetHeader);
 
+        uint8_t sendEthernetFrame(EthernetFrame *ethernetFrame);
+
         uint8_t copyAddressTo(uint8_t* target);
+
+        String asString();
     };
 }
 
