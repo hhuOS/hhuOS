@@ -112,18 +112,33 @@ namespace Kernel {
         //Index 0 is for loopback!
         if (index > 0 && buffers[index - 1] != nullptr) {
             management->freeIO(buffers[index - 1]);
+            buffers[index - 1]= nullptr;
         }
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
-        buffers[deviceCounter] = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
-        memset(buffers[deviceCounter], 0, EthernetHeader::getMaximumFrameLength());
+        size_t targetPosition = deviceCounter;
+        if(deviceCounter==MAX_DEVICE_COUNT){
+            size_t i;
+            for (i=0;i<MAX_DEVICE_COUNT;i++) {
+                if(buffers[i]== nullptr){
+                    targetPosition=i;
+                }
+            }
+            //If no free position found
+            if(i==MAX_DEVICE_COUNT){
+                log.error("Max device count reached, not registering new device");
+                return;
+            }
+        }
+        buffers[targetPosition] = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
+        memset(buffers[targetPosition], 0, EthernetHeader::getMaximumFrameLength());
 
-        auto *physicalBufferAddress = management->getPhysicalAddress(buffers[deviceCounter]);
+        auto *physicalBufferAddress = management->getPhysicalAddress(buffers[targetPosition]);
 
-        String identifier = String::format("eth%d", deviceCounter);
+        String identifier = String::format("eth%d", targetPosition);
         ethernetModule
-                ->registerNetworkDevice(identifier, &driver, buffers[deviceCounter], physicalBufferAddress);
+                ->registerNetworkDevice(identifier, &driver, buffers[targetPosition], physicalBufferAddress);
         drivers.add(&driver);
         deviceCounter++;
     }
