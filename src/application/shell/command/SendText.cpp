@@ -29,7 +29,7 @@ void SendText::execute(Util::Array<String> &args) {
         stdout << "No text given, using '" << testString << "'" << endl;
     } else {
         testString = "";
-        for (auto & unnamedArg : unnamedArgs) {
+        for (auto &unnamedArg : unnamedArgs) {
             testString = testString + unnamedArg + " ";
             if (testString.length() > ECHO_INPUT_BUFFER_SIZE) {
                 break;
@@ -81,8 +81,10 @@ void SendText::execute(Util::Array<String> &args) {
         rounds = static_cast<uint8_t>(strtoint((const char *) count));
     }
 
+    auto *timeService = Kernel::System::getService<Kernel::TimeService>();
     for (uint8_t i = 0; i < rounds; i++) {
-        stdout << "CLIENT: Sending text '" << testString << "' to server" << endl;
+        stdout << "CLIENT round " << String::format("%d", i + 1) << " : Sending text '" << testString << "' to server"
+               << endl;
         if (sendSocket->send((char *) testString, stringLength)) {
             stderr << "CLIENT: Error while sending!" << endl;
             sendSocket->close();
@@ -100,13 +102,14 @@ void SendText::execute(Util::Array<String> &args) {
         char response[ECHO_INPUT_BUFFER_SIZE + 1];
         response[ECHO_INPUT_BUFFER_SIZE] = '\0';
 
-        stdout << "CLIENT: Reading response" << endl;
+        stdout << "CLIENT round " << String::format("%d", i + 1) << " : Reading response" << endl;
         if (sendSocket->receive(&totalBytesRead, response, stringLength) || totalBytesRead != stringLength) {
             stderr << "CLIENT: Receive error or unexpected number of " << totalBytesRead << " bytes received, stopping"
                    << endl;
         } else {
             stdout << "CLIENT: Response was '" << response << "'" << endl;
         }
+        timeService->msleep(1000);
     }
 
     stdout << "CLIENT: Closing socket" << endl;
