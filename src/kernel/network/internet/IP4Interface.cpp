@@ -94,14 +94,14 @@ namespace Kernel {
     }
 
     String IP4Interface::arpTableAsString() {
-        if(arpModule== nullptr){
+        if (arpModule == nullptr) {
             return "NULL";
         }
         return ethernetDevice->asString() + ",\n    ARPTable: " + arpModule->asString();
     }
 
     String IP4Interface::ethernetDeviceAsString() {
-        if(ethernetDevice == nullptr){
+        if (ethernetDevice == nullptr) {
             return "NULL";
         }
         return ethernetDevice->asString();

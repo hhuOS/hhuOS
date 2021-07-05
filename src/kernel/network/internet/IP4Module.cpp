@@ -124,13 +124,13 @@ namespace Kernel {
     }
 
     uint8_t IP4Module::collectARPTables(Util::ArrayList<String> *strings) {
-        if(strings == nullptr || interfaces == nullptr || accessLock == nullptr){
+        if (strings == nullptr || interfaces == nullptr || accessLock == nullptr) {
             log.error("Given Strings list, internal interface list or accessLock was null, "
                       "not collecting ARP tables");
             return 1;
         }
         accessLock->acquire();
-        for(uint32_t i=0;i<interfaces->size();i++){
+        for (uint32_t i = 0; i < interfaces->size(); i++) {
             strings->add(interfaces->get(i)->arpTableAsString());
         }
         accessLock->release();

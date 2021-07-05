@@ -166,7 +166,7 @@ namespace Kernel {
     }
 
     uint8_t EthernetDevice::copyIdentifierTo(String *target) {
-        if (this->identifier.isEmpty() || target== nullptr || !(*target).isEmpty()) {
+        if (this->identifier.isEmpty() || target == nullptr || !(*target).isEmpty()) {
             return 1;
         }
         *target += this->identifier;

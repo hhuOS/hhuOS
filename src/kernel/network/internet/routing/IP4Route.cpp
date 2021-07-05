@@ -69,9 +69,11 @@ String IP4Route::asString() {
         return "NULL";
     }
     if (nextHopAddress == nullptr) {
-        return "\n    NetAddress: " + netAddress->asString() + ",\n    NetMask: " + netMask->asString() + ",\n    NextHop: null" +
+        return "\n    NetAddress: " + netAddress->asString() + ",\n    NetMask: " + netMask->asString() +
+               ",\n    NextHop: null" +
                ",\n    OutDevice: " + outInterface->ethernetDeviceAsString();
     }
-    return "\n    NetAddress: " + netAddress->asString() + ",\n    NetMask: " + netMask->asString() + ",\n    NextHop: " +
+    return "\n    NetAddress: " + netAddress->asString() + ",\n    NetMask: " + netMask->asString() +
+           ",\n    NextHop: " +
            nextHopAddress->asString() + ",\n    OutDevice: " + outInterface->ethernetDeviceAsString();
 }
