@@ -50,7 +50,7 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        uint8_t deviceCounter = 0;
+        size_t deviceCounter = 0;
         uint8_t *loopbackBuffer = nullptr;
         uint8_t *buffers[MAX_DEVICE_COUNT]{};
 

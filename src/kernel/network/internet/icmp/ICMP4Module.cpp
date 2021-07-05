@@ -8,9 +8,48 @@
 #include <kernel/event/network/IP4SendEvent.h>
 #include <kernel/event/network/ICMP4ReceiveEvent.h>
 #include <kernel/network/DebugPrintout.h>
+#include <kernel/core/System.h>
 #include "ICMP4Module.h"
 
 namespace Kernel {
+
+    //Private method!
+    uint8_t ICMP4Module::startPingTime(ICMP4Echo *echoMessage) {
+        uint16_t sequenceNumber = echoMessage->getSequenceNumber();
+        if (sequenceNumber >= ICMP_PING_BUFFER_SIZE) {
+            log.error("Too many messages, not taking Ping RTT");
+            return 1;
+        }
+        accessLock->acquire();
+        if (pingTimes[sequenceNumber] != 0) {
+            log.error("Value not empty, another Ping is still running...");
+            accessLock->release();
+            return 1;
+        }
+        pingTimes[sequenceNumber] = timeService->getSystemTime();
+        accessLock->release();
+        return 0;
+    }
+
+    //Private method!
+    uint8_t ICMP4Module::stopPingTime(uint32_t *resultTarget, ICMP4EchoReply *echoReplyMessage) {
+        uint16_t sequenceNumber = echoReplyMessage->getSequenceNumber();
+        if (sequenceNumber >= ICMP_PING_BUFFER_SIZE) {
+            log.error("Sequence number too high, not taking Ping RTT");
+            return 1;
+        }
+        accessLock->acquire();
+        if (pingTimes[sequenceNumber] == 0) {
+            log.error("Value not empty, no start time has been taken...");
+            accessLock->release();
+            return 1;
+        }
+        *resultTarget = timeService->getSystemTime() - pingTimes[sequenceNumber];
+        pingTimes[sequenceNumber] = 0;
+        accessLock->release();
+        return 0;
+    }
+
     //Private method!
     uint8_t ICMP4Module::processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input) {
         uint8_t typeByte = 0;
@@ -19,29 +58,6 @@ namespace Kernel {
         //-> now it points to first message byte again!
         input->decrementIndex();
         switch (ICMP4Message::parseByteAsICMP4MessageType(typeByte)) {
-            case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
-                auto *echoReply = new ICMP4EchoReply();
-                if (echoReply->parse(input)) {
-                    log.error("Parsing ICMP4EchoReply failed, discarding");
-                    delete echoReply;
-                    return 1;
-                }
-                if (echoReply->checksumIsValid()) {
-                    //Checksum is about full message here
-                    log.error("ICMP4EchoReply message corrupted, discarding");
-                    delete echoReply;
-                    return 1;
-                }
-#if PRINT_IN_ICMP4ECHOREPLY == 1
-                printf("ICMP4EchoReply received! SourceAddress: %s, Identifier: %d, SequenceNumber: %d\n",
-                       (char *) ip4Header->getSourceAddress()->asString(),
-                       echoReply->getIdentifier(),
-                       echoReply->getSequenceNumber()
-                );
-#endif
-                delete echoReply;
-                return 0;
-            }
             case ICMP4Message::ICMP4MessageType::ECHO: {
                 auto *echoRequest = new ICMP4Echo();
                 if (echoRequest->parse(input)) {
@@ -65,13 +81,47 @@ namespace Kernel {
                 delete echoRequest;
                 return 0;
             }
+            case ICMP4Message::ICMP4MessageType::ECHO_REPLY: {
+                auto *echoReply = new ICMP4EchoReply();
+                if (echoReply->parse(input)) {
+                    log.error("Parsing ICMP4EchoReply failed, discarding");
+                    delete echoReply;
+                    return 1;
+                }
+                if (echoReply->checksumIsValid()) {
+                    //Checksum is about full message here
+                    log.error("ICMP4EchoReply message corrupted, discarding");
+                    delete echoReply;
+                    return 1;
+                }
+#if PRINT_IN_ICMP4ECHOREPLY == 1
+                uint32_t timeTotal = 0;
+                if (stopPingTime(&timeTotal, echoReply)) {
+                    printf("[Taking RTT failed] ");
+                }
+                printf("ICMP4EchoReply! Source: %s, ID: %d, Sequence: %d, RTT: %d ms\n",
+                       (char *) ip4Header->getSourceAddress()->asString(),
+                       echoReply->getIdentifier(),
+                       echoReply->getSequenceNumber(),
+                       timeTotal
+                );
+#endif
+                delete echoReply;
+                return 0;
+            }
             default:
                 log.error("ICMP4MessageType of incoming ICMP4Message not supported, discarding data");
                 return 1;
         }
     }
 
-    ICMP4Module::ICMP4Module(EventBus *eventBus) : eventBus(eventBus) {}
+    ICMP4Module::ICMP4Module(EventBus *eventBus) : eventBus(eventBus) {
+        this->timeService = System::getService<TimeService>();
+        accessLock = new Spinlock();
+        for (unsigned int &pingTime : pingTimes) {
+            pingTime = 0;
+        }
+    }
 
     void ICMP4Module::deleteSpecific(ICMP4Message *message) {
         switch (message->getICMP4MessageType()) {
@@ -108,7 +158,13 @@ namespace Kernel {
                 deleteSpecific(icmp4Message);
                 return;
             }
-
+#if PRINT_IN_ICMP4ECHOREPLY == 1
+            if (icmp4Message->getICMP4MessageType() == ICMP4Message::ICMP4MessageType::ECHO) {
+                if (startPingTime((ICMP4Echo *) icmp4Message)) {
+                    log.error("Taking RTT when sending Echo Request failed");
+                }
+            }
+#endif
             //Send data to IP4Module for further processing
             auto ip4SendIcmp4MessageEvent =
                     Util::SmartPointer<Event>(new IP4SendEvent(destinationAddress, icmp4Message));

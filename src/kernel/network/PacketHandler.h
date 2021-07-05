@@ -39,7 +39,7 @@ namespace Kernel {
  */
     class PacketHandler final : public Receiver {
     private:
-        EventBus *eventBus;
+        EventBus *eventBus = nullptr;
 
         /**
          * A logger to provide information on the kernel log.

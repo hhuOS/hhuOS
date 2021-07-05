@@ -56,3 +56,7 @@ uint8_t ICMP4Echo::parse(Kernel::NetworkByteBlock *input) {
 
     return errors;
 }
+
+uint16_t ICMP4Echo::getSequenceNumber() {
+    return echoMessage.sequenceNumber;
+}

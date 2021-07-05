@@ -6,13 +6,21 @@
 #define HHUOS_ICMP4MODULE_H
 
 #include <kernel/log/Logger.h>
-#include <kernel/network/internet/icmp/ICMP4Message.h>
 #include <kernel/service/EventBus.h>
+#include <kernel/network/internet/icmp/ICMP4Message.h>
+#include <kernel/network/internet/icmp/ICMP4Echo.h>
+#include <kernel/network/internet/icmp/ICMP4EchoReply.h>
+#include <kernel/network/NetworkDefinitions.h>
+#include <kernel/service/TimeService.h>
 
 namespace Kernel {
     class ICMP4Module : public Receiver {
     private:
-        EventBus *eventBus;
+        EventBus *eventBus = nullptr;
+        TimeService *timeService = nullptr;
+
+        Spinlock *accessLock = nullptr;
+        uint32_t pingTimes[ICMP_PING_BUFFER_SIZE]{};
 
         /**
          * A logger to provide information on the kernel log.
@@ -21,8 +29,11 @@ namespace Kernel {
 
         uint8_t processICMP4Message(IP4Header *ip4Header, NetworkByteBlock *input);
 
-    public:
+        uint8_t startPingTime(ICMP4Echo *echoMessage);
 
+        uint8_t stopPingTime(uint32_t *resultTarget, ICMP4EchoReply *echoReplyMessage);
+
+    public:
 
         explicit ICMP4Module(EventBus *eventBus);
 

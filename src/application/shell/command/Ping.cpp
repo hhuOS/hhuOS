@@ -39,12 +39,12 @@ void Ping::execute(Util::Array<String> &args) {
     }
 
     Util::SmartPointer<Kernel::Event> icmp4SendEchoRequestEvent;
-    for (uint16_t i = 0; i < numberOfPings; i++) {
+    for (uint8_t i = 0; i < numberOfPings; i++) {
         icmp4SendEchoRequestEvent =
                 Util::SmartPointer<Kernel::Event>(
                         new Kernel::ICMP4SendEvent(
                                 new IP4Address(addressBytes),
-                                new ICMP4Echo(42, i + (uint16_t) 1))
+                                new ICMP4Echo(42, i))
                 );
         eventBus->publish(icmp4SendEchoRequestEvent);
         timeService->msleep(1000);
@@ -58,6 +58,6 @@ const String Ping::getHelpText() {
            "   A valid IPv4 address in format [0-255].[0-255].[0-255].[0-255].\n"
            "   Will be 127.0.0.1 (localhost) if empty\n"
            "Options:\n"
-           "   -n, --count: Number of pings to send, default is 3\n"
+           "   -n, --count: Number of pings to send, default is 3, maximum is 256\n"
            "   -h, --help: Show this help-message\n";
 }
