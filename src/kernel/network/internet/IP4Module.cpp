@@ -150,7 +150,7 @@ namespace Kernel {
         for (IP4Interface *current:*interfaces) {
             if (current->connectedTo(ethernetDevice)) {
                 String identifier = "";
-                ethernetDevice->copyIdentifierTo(identifier);
+                ethernetDevice->copyIdentifierTo(&identifier);
                 log.error("Ethernet device %s already registered, not registering it again",
                           (char *) identifier);
                 accessLock->release();

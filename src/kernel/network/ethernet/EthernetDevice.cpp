@@ -165,11 +165,11 @@ namespace Kernel {
         return this->ethernetAddress->copyTo(target);
     }
 
-    uint8_t EthernetDevice::copyIdentifierTo(String target) {
-        if (this->identifier.isEmpty() || !target.isEmpty()) {
+    uint8_t EthernetDevice::copyIdentifierTo(String *target) {
+        if (this->identifier.isEmpty() || target== nullptr || !(*target).isEmpty()) {
             return 1;
         }
-        target += this->identifier;
+        *target += this->identifier;
         return 0;
     }
 }

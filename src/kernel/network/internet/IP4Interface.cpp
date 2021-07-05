@@ -16,7 +16,7 @@ namespace Kernel {
             delete ip4NetAddress;
             ip4NetAddress = nullptr;
         }
-        ethernetDevice->copyIdentifierTo(this->ethernetIdentifier);
+        ethernetDevice->copyIdentifierTo(&this->ethernetIdentifier);
         arpModule = new ARPModule(eventBus, ethernetDevice);
     }
 

@@ -44,7 +44,7 @@ namespace Kernel {
 
         uint8_t copyAddressTo(uint8_t *target);
 
-        uint8_t copyIdentifierTo(String target);
+        uint8_t copyIdentifierTo(String *target);
 
         String asString();
     };
