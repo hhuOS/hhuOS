@@ -149,7 +149,7 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         auto unnamedArguments = parser->getUnnamedArguments();
         if (unnamedArguments.length() != 2) {
             stderr << "Invalid argument number, please give two arguments: "
-                      "[Gateway IP4Address] [Interface identifier]" << endl;
+                      "[Gateway IP4Address] [Link identifier]" << endl;
             return;
         }
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
@@ -206,5 +206,13 @@ const String Ip::getHelpText() {
            "               Remove IPv4 address from given link, only defined for --address\n"
            "               Example: 'ip --address --unset eth0'\n"
            "   -r, --route: List all available IPv4 routes and their attributes\n"
+           "             --default [Gateway IP4Address] [Link identifier]:\n"
+           "               Set given route as default one, only defined for --route\n"
+           "               Overrides existing one if already defined\n"
+           "               Example: 'ip --route --default 192.168.178.1 eth0'\n"
+           "             --no-default:\n"
+           "               Remove default route from routing table, if existing\n"
+           "               Only directly connected hosts can be reached then\n"
+           "               Example: 'ip --route --no-default'\n"
            "   -h, --help: Show this help-message";
 }
