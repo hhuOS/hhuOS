@@ -30,8 +30,6 @@ namespace Kernel {
         EthernetDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
                        void *physicalBufferAddress);
 
-        EthernetDevice(uint8_t *sendBuffer, const String &identifier, NetworkDevice *networkDevice);
-
         virtual ~EthernetDevice();
 
         bool connectedTo(NetworkDevice *otherDevice);

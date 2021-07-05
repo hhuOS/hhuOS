@@ -7,17 +7,6 @@
 #include "EthernetDevice.h"
 
 namespace Kernel {
-    EthernetDevice::EthernetDevice(uint8_t *sendBuffer, const String &identifier, NetworkDevice *networkDevice) {
-        this->identifier = identifier;
-
-        this->sendLock = new Spinlock();
-        sendLock->release();
-
-        this->networkDevice = networkDevice;
-        this->ethernetAddress = new EthernetAddress(networkDevice);
-
-        this->sendBuffer = sendBuffer;
-    }
 
     EthernetDevice::EthernetDevice(const String &identifier, NetworkDevice *networkDevice, uint8_t *sendBuffer,
                                    void *physicalBufferAddress) {
@@ -148,7 +137,7 @@ namespace Kernel {
         if (this->identifier.isEmpty() || ethernetAddress == nullptr) {
             return "NULL";
         }
-        return "\nID: " + this->identifier + ",\nMAC: " + ethernetAddress->asString();
+        return "\nID: '" + this->identifier + "',\nMAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {
