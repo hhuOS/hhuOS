@@ -89,8 +89,22 @@ namespace Kernel {
         if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr || arpModule == nullptr) {
             return "NULL";
         }
-        return ethernetDevice->asString() + ",\nIP4Address: " + ip4Address->asString() + ",\nIP4Netmask: " +
-               ip4Netmask->asString() + ",\nARPTable: {" + arpModule->asString() + "}";
+        return ethernetDevice->asString() + ",\n    IP4Address: " + ip4Address->asString() + ",\n    IP4Netmask: " +
+               ip4Netmask->asString();
+    }
+
+    String IP4Interface::arpTableAsString() {
+        if(arpModule== nullptr){
+            return "NULL";
+        }
+        return ethernetDevice->asString() + ",\n    ARPTable: " + arpModule->asString();
+    }
+
+    String IP4Interface::ethernetDeviceAsString() {
+        if(ethernetDevice == nullptr){
+            return "NULL";
+        }
+        return ethernetDevice->asString();
     }
 
     uint8_t IP4Interface::notify(ARPMessage *arpMessage) {

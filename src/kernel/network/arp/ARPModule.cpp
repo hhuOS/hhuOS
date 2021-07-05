@@ -145,6 +145,22 @@ namespace Kernel {
         return 0;
     }
 
+    String ARPModule::asString() {
+        accessLock->acquire();
+        if (arpTable->isEmpty()) {
+            accessLock->release();
+            return "[empty]";
+        }
+
+        String tableContent = "\n    ";
+        for (ARPEntry *current:*arpTable) {
+            tableContent += current->asString();
+            tableContent += ",\n    ";
+        }
+        accessLock->release();
+        return tableContent;
+    }
+
     uint8_t ARPModule::processIncoming(ARPMessage *message) {
         if (message == nullptr) {
             log.error("Incoming ARP message was null, ignoring");
@@ -214,18 +230,5 @@ namespace Kernel {
         //Message will be deleted in IP4Module after processing
         //-> no 'delete message' here!
         return 0;
-    }
-
-    String ARPModule::asString() {
-        if (arpTable->isEmpty()) {
-            return "[empty]";
-        }
-
-        String tableContent = "\n    ";
-        for (ARPEntry *current:*arpTable) {
-            tableContent += current->asString();
-            tableContent += ",\n    ";
-        }
-        return tableContent;
     }
 }

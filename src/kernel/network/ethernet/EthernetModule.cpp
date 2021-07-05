@@ -221,7 +221,7 @@ namespace Kernel {
                    (char *) ethernetHeader->asString(DEBUG_SPACING));
 #endif
 #if PRINT_IN_ETH_DATABYTES == 1
-            size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
+            size_t startIndex = EthernetHeader::getHeaderLength();
             size_t endIndex = input->getLength() - 1;
             printf("\nData bytes of incoming frame (%d per line):\n%s\n", BYTES_PER_LINE,
                    (char *) input->asString(startIndex, endIndex, BYTES_PER_LINE));

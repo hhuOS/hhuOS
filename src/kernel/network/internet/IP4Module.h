@@ -51,6 +51,8 @@ namespace Kernel {
         uint8_t setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice);
 
         uint8_t removeDefaultRoute();
+
+        uint8_t collectARPTables(Util::ArrayList<String> *strings);
     };
 }
 

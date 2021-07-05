@@ -16,6 +16,7 @@ void Ip::execute(Util::Array<String> &args) {
     parser.addSwitch("link", "l");
     parser.addSwitch("address", "a");
     parser.addSwitch("route", "r");
+    parser.addSwitch("neighbor", "neigh");
 
     parser.addSwitch("set", "s");
     parser.addSwitch("unset", "u");
@@ -48,6 +49,11 @@ void Ip::execute(Util::Array<String> &args) {
         route(networkService, &parser);
         return;
     }
+
+    if (parser.checkSwitch("neighbor")) {
+        neighbor(networkService);
+        return;
+    }
 }
 
 void Ip::link(Kernel::NetworkService *networkService) {
@@ -65,7 +71,7 @@ void Ip::link(Kernel::NetworkService *networkService) {
     }
 
     for (uint32_t i = 0; i < linkAttributes->size(); i++) {
-        stdout << "\nDevice " << i << ": " << linkAttributes->get(i) << endl;
+        stdout << "Device " << i << ": " << linkAttributes->get(i) << endl;
     }
 
     delete linkAttributes;
@@ -133,7 +139,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
     }
 
     for (uint32_t i = 0; i < interfaceAttributes->size(); i++) {
-        stdout << "\nDevice " << i << ": " << interfaceAttributes->get(i) << endl;
+        stdout << "Device " << i << ": " << interfaceAttributes->get(i) << endl;
     }
 
     delete interfaceAttributes;
@@ -187,10 +193,31 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
     }
 
     for (uint32_t i = 0; i < routeAttributes->size(); i++) {
-        stdout << "\nRoute " << i << ": " << routeAttributes->get(i) << endl;
+        stdout << "Route " << i << ": " << routeAttributes->get(i) << endl;
     }
 
     delete routeAttributes;
+}
+
+void Ip::neighbor(Kernel::NetworkService *networkService) {
+    if (networkService == nullptr) {
+        printf("No valid network service given! Exit");
+        return;
+    }
+
+    stdout << "Print ARP tables of all IPv4 interfaces" << endl;
+
+    auto *arpTables = new Util::ArrayList<String>();
+    if (networkService->collectARPTables(arpTables)) {
+        stderr << "Could not collect ARP tables, return" << endl;
+        return;
+    }
+
+    for (uint32_t i = 0; i < arpTables->size(); i++) {
+        stdout << "Device " << i << ": " << arpTables->get(i) << endl;
+    }
+
+    delete arpTables;
 }
 
 const String Ip::getHelpText() {

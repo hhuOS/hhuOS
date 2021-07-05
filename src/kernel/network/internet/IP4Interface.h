@@ -48,6 +48,10 @@ namespace Kernel {
         uint8_t notify(ARPMessage *arpMessage);
 
         String asString();
+
+        String arpTableAsString();
+
+        String ethernetDeviceAsString();
     };
 }
 

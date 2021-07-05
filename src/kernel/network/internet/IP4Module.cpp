@@ -123,6 +123,20 @@ namespace Kernel {
         return routingModule->collectIP4RouteAttributes(strings);
     }
 
+    uint8_t IP4Module::collectARPTables(Util::ArrayList<String> *strings) {
+        if(strings == nullptr || interfaces == nullptr || accessLock == nullptr){
+            log.error("Given Strings list, internal interface list or accessLock was null, "
+                      "not collecting ARP tables");
+            return 1;
+        }
+        accessLock->acquire();
+        for(uint32_t i=0;i<interfaces->size();i++){
+            strings->add(interfaces->get(i)->arpTableAsString());
+        }
+        accessLock->release();
+        return 0;
+    }
+
     uint8_t IP4Module::registerDevice(EthernetDevice *ethernetDevice, IP4Address *ip4Address, IP4Netmask *ip4Netmask) {
         if (ethernetDevice == nullptr || ip4Address == nullptr || ip4Netmask == nullptr) {
             log.error("At least one given parameter was null, not registering new device");
