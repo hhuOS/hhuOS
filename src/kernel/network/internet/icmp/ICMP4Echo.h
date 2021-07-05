@@ -35,7 +35,7 @@ public:
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
-    uint16_t getSequenceNumber();
+    uint16_t getSequenceNumber() const;
 };
 
 
