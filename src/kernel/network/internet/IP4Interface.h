@@ -51,7 +51,7 @@ namespace Kernel {
 
         String arpTableAsString();
 
-        String ethernetDeviceAsString();
+        String getIdentifier();
     };
 }
 

@@ -100,11 +100,8 @@ namespace Kernel {
         return ethernetDevice->asString() + ",\n    ARPTable: " + arpModule->asString();
     }
 
-    String IP4Interface::ethernetDeviceAsString() {
-        if (ethernetDevice == nullptr) {
-            return "NULL";
-        }
-        return ethernetDevice->asString();
+    String IP4Interface::getIdentifier() {
+        return ethernetIdentifier;
     }
 
     uint8_t IP4Interface::notify(ARPMessage *arpMessage) {
