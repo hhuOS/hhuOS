@@ -137,7 +137,7 @@ namespace Kernel {
         if (this->identifier.isEmpty() || ethernetAddress == nullptr) {
             return "NULL";
         }
-        return "\n    ID: '" + this->identifier + "',\n    MAC: " + ethernetAddress->asString();
+        return "\n    ID:  '" + this->identifier + "',\n    MAC: " + ethernetAddress->asString();
     }
 
     bool EthernetDevice::equals(EthernetDevice *compare) {

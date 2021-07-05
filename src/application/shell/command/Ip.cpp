@@ -87,51 +87,55 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         auto unnamedArguments = parser->getUnnamedArguments();
         if (unnamedArguments.length() != 3) {
             stderr << "Invalid argument number, please give three arguments: "
-                      "[Interface identifier] [IP4Address] [bitCount Netmask]" << endl;
+                      "[Interface Identifier] [IP4Address] [bitCount Netmask]" << endl;
             return;
         }
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        if (IP4Address::parseTo(addressBytes, unnamedArguments[1])) {
-            stderr << "Could not parse input " << unnamedArguments[1] << " as IP4Address!" << endl;
+        auto addressAsString = unnamedArguments[1];
+        if (IP4Address::parseTo(addressBytes, addressAsString)) {
+            stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
             return;
         }
 
-        bitCount = static_cast<uint8_t>(strtoint((const char *) unnamedArguments[2]));
+        auto bitCountAsString = unnamedArguments[2];
+        bitCount = static_cast<uint8_t>(strtoint((const char *) bitCountAsString));
         if (bitCount > 32) {
             stderr << "Invalid bit count for Netmask length, please use values between 0 and 32" << endl;
             return;
         }
 
+        auto identifier = unnamedArguments[0];
         auto *address = new IP4Address(addressBytes);
         auto *mask = new IP4Netmask(bitCount);
 
-        if (networkService->assignIP4Address(unnamedArguments[0], address, mask)) {
+        if (networkService->assignIP4Address(identifier, address, mask)) {
             delete address;
             delete mask;
 
-            stderr << "Assigning address for " << unnamedArguments[0] << " failed! See syslog for details" << endl;
+            stderr << "Assigning address for '" << identifier << "' failed! See syslog for details" << endl;
         } else {
-            stdout << "Assigned address " << address->asString() << " with mask " <<
-                   mask->asString() << " to " << unnamedArguments[0] << endl;
+            stdout << "Assigned address " << address->asString() << String::format("/%d", bitCount)
+                   << " to '" << identifier << "'" << endl;
         }
         return;
     } else if (parser->checkSwitch("unset")) {
         auto unnamedArguments = parser->getUnnamedArguments();
         if (unnamedArguments.length() != 1) {
-            stderr << "Invalid argument number, please give only one argument: [Interface identifier]" << endl;
+            stderr << "Invalid argument number, please give only one argument: [Interface Identifier]" << endl;
             return;
         }
 
-        if (networkService->unAssignIP4Address(unnamedArguments[0])) {
-            stderr << "UnAssigning address for '" << unnamedArguments[0] << "' failed! See syslog for details" << endl;
+        auto identifier = unnamedArguments[0];
+        if (networkService->unAssignIP4Address(identifier)) {
+            stderr << "UnAssigning address for '" << identifier << "' failed! See syslog for details" << endl;
         } else {
-            stdout << "Address unAssigned for '" << unnamedArguments[0] << "'" << endl;
+            stdout << "Address unAssigned for '" << identifier << "'" << endl;
         }
         return;
     }
 
     //Print interface attributes if 'set' switch not active
-    stdout << "Print available ip interfaces" << endl;
+    stdout << "Print ip4 addresses" << endl;
     auto *interfaceAttributes = new Util::ArrayList<String>();
     if (networkService->collectInterfaceAttributes(interfaceAttributes)) {
         stderr << "Could not collect interface attributes, return" << endl;
@@ -159,19 +163,21 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
             return;
         }
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        if (IP4Address::parseTo(addressBytes, unnamedArguments[0])) {
-            stderr << "Could not parse input " << unnamedArguments[0] << " as IP4Address!" << endl;
+        auto addressAsString = unnamedArguments[0];
+        if (IP4Address::parseTo(addressBytes, addressAsString)) {
+            stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
             return;
         }
         auto *gatewayAddress = new IP4Address(addressBytes);
-        if (networkService->setDefaultRoute(gatewayAddress, unnamedArguments[1])) {
+        auto identifier = unnamedArguments[1];
+        if (networkService->setDefaultRoute(gatewayAddress, identifier)) {
             stderr << "Setting default route '" << gatewayAddress->asString() << " via "
-                   << unnamedArguments[1] << "' failed! See syslog for details" << endl;
+                   << identifier << "' failed! See syslog for details" << endl;
             delete gatewayAddress;
             return;
         } else {
             stdout << "Default route set to '" << gatewayAddress->asString() << " via "
-                   << unnamedArguments[1] << "'" << endl;
+                   << identifier << "'" << endl;
         }
         return;
     }
@@ -184,7 +190,7 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         return;
     }
 
-    stdout << "Print existing ip routes" << endl;
+    stdout << "Print ip4 routes" << endl;
 
     auto *routeAttributes = new Util::ArrayList<String>();
     if (networkService->collectRouteAttributes(routeAttributes)) {
@@ -205,7 +211,7 @@ void Ip::neighbor(Kernel::NetworkService *networkService) {
         return;
     }
 
-    stdout << "Print ARP tables of all IPv4 interfaces" << endl;
+    stdout << "Print arp tables" << endl;
 
     auto *arpTables = new Util::ArrayList<String>();
     if (networkService->collectARPTables(arpTables)) {
@@ -233,7 +239,7 @@ const String Ip::getHelpText() {
            "               Remove IPv4 address from given link, only defined for --address\n"
            "               Example: 'ip --address --unset eth0'\n"
            "   -r, --route: List all available IPv4 routes and their attributes\n"
-           "             --default [Gateway IP4Address] [Link identifier]:\n"
+           "             --default [Gateway IP4Address] [Link Identifier]:\n"
            "               Set given route as default one, only defined for --route\n"
            "               Overrides existing one if already defined\n"
            "               Example: 'ip --route --default 192.168.178.1 eth0'\n"
