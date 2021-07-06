@@ -75,9 +75,9 @@ namespace Kernel {
                 //NOTE: The datagram's attributes will be deleted after sending
                 //      -> copy it here!
                 auto sourceAddressCopy = new IP4Address(ip4Header->getSourceAddress());
-                auto ip4SendEchoReplyEvent =
-                        Util::SmartPointer<Event>(new IP4SendEvent(sourceAddressCopy, echoRequest->buildEchoReply()));
-                eventBus->publish(ip4SendEchoReplyEvent);
+                auto icmp4SendEchoReplyEvent =
+                        Util::SmartPointer<Event>(new ICMP4SendEvent(sourceAddressCopy, echoRequest->buildEchoReply()));
+                eventBus->publish(icmp4SendEchoReplyEvent);
                 delete echoRequest;
                 return 0;
             }
@@ -88,7 +88,7 @@ namespace Kernel {
                     delete echoReply;
                     return 1;
                 }
-                if (echoReply->checksumIsValid()) {
+                if (!echoReply->checksumIsValid()) {
                     //Checksum is about full message here
                     log.error("ICMP4EchoReply message corrupted, discarding");
                     delete echoReply;
