@@ -90,7 +90,7 @@ namespace Kernel {
             return "NULL";
         }
         return "\n    ID:         '" + this->ethernetIdentifier + "',\n    IP4Address: " + ip4Address->asString() +
-        ",\n    IP4Netmask: " + ip4Netmask->asString();
+               ",\n    IP4Netmask: " + ip4Netmask->asString();
     }
 
     String IP4Interface::arpTableAsString() {
