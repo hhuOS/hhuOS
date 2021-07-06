@@ -63,6 +63,8 @@ namespace Kernel {
         ICMP4Module *icmp4Module = nullptr;
         UDP4Module *udp4Module = nullptr;
 
+        Spinlock *accessLock = nullptr;
+
     public:
         /**
          * Constructor.

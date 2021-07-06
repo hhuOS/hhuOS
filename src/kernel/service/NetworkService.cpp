@@ -18,6 +18,8 @@ namespace Kernel {
     NetworkService::NetworkService() {
         eventBus = System::getService<EventBus>();
         management = &Management::getInstance();
+        accessLock = new Spinlock();
+        accessLock->release();
 
         for (auto &buffer : buffers) {
             buffer = nullptr;
@@ -93,15 +95,29 @@ namespace Kernel {
     }
 
     uint32_t NetworkService::getDeviceCount() {
-        return drivers.size();
+        uint32_t deviceCount;
+
+        accessLock->acquire();
+        deviceCount = drivers.size();
+        accessLock->release();
+
+        return deviceCount;
     }
 
     NetworkDevice &NetworkService::getDriver(uint8_t index) {
-        return *drivers.get(index);
+        NetworkDevice *driver;
+
+        accessLock->acquire();
+        driver = drivers.get(index);
+        accessLock->release();
+
+        return *driver;
     }
 
     void NetworkService::removeDevice(uint8_t index) {
-        if (index >= getDeviceCount()) {
+        accessLock->acquire();
+        if (index >= drivers.size()) {
+            accessLock->release();
             return;
         }
         NetworkDevice *selectedDriver = drivers.get(index);
@@ -114,9 +130,11 @@ namespace Kernel {
             management->freeIO(buffers[index - 1]);
             buffers[index - 1] = nullptr;
         }
+        accessLock->release();
     }
 
     void NetworkService::registerDevice(NetworkDevice &driver) {
+        accessLock->acquire();
         size_t targetPosition = deviceCounter;
         if (deviceCounter == MAX_DEVICE_COUNT) {
             size_t i;
@@ -128,6 +146,7 @@ namespace Kernel {
             //If no free position found
             if (i == MAX_DEVICE_COUNT) {
                 log.error("Max device count reached, not registering new device");
+                accessLock->release();
                 return;
             }
         }
@@ -141,22 +160,47 @@ namespace Kernel {
                 ->registerNetworkDevice(identifier, &driver, buffers[targetPosition], physicalBufferAddress);
         drivers.add(&driver);
         deviceCounter++;
+        accessLock->release();
     }
 
     uint8_t NetworkService::collectLinkAttributes(Util::ArrayList<String> *strings) {
-        return this->ethernetModule->collectEthernetDeviceAttributes(strings);
+        uint8_t result;
+
+        accessLock->acquire();
+        result = ethernetModule->collectEthernetDeviceAttributes(strings);
+        accessLock->release();
+
+        return result;
     }
 
     uint8_t NetworkService::collectInterfaceAttributes(Util::ArrayList<String> *strings) {
-        return this->ip4Module->collectIP4InterfaceAttributes(strings);
+        uint8_t result;
+
+        accessLock->acquire();
+        result = ip4Module->collectIP4InterfaceAttributes(strings);
+        accessLock->release();
+
+        return result;
     }
 
     uint8_t NetworkService::collectRouteAttributes(Util::ArrayList<String> *strings) {
-        return this->ip4Module->collectIP4RouteAttributes(strings);
+        uint8_t result;
+
+        accessLock->acquire();
+        result = ip4Module->collectIP4RouteAttributes(strings);
+        accessLock->release();
+
+        return result;
     }
 
     uint8_t NetworkService::collectARPTables(Util::ArrayList<String> *strings) {
-        return this->ip4Module->collectARPTables(strings);
+        uint8_t result;
+
+        accessLock->acquire();
+        result = ip4Module->collectARPTables(strings);
+        accessLock->release();
+
+        return result;
     }
 
     //We don't know IP4Addresses at system startup, so we need to set it later via this method here
@@ -165,15 +209,19 @@ namespace Kernel {
             log.error("At least one of given attributes were null, not assigning IP4 address");
             return 1;
         }
-        EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
+        accessLock->acquire();
+        EthernetDevice *selected = ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
             log.error("No ethernet device exists for %s, not assigning IP4 address", (char *) identifier);
+            accessLock->release();
             return 1;
         }
-        if (this->ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
+        if (ip4Module->registerDevice(selected, ip4Address, ip4Netmask)) {
             log.error("Registering device %s failed", (char *) identifier);
+            accessLock->release();
             return 1;
         }
+        accessLock->release();
         return 0;
     }
 
@@ -182,19 +230,24 @@ namespace Kernel {
             log.error("Given identifier was null, not unAssigning IP4 address");
             return 1;
         }
-        EthernetDevice *selected = this->ethernetModule->getEthernetDevice(identifier);
+        accessLock->acquire();
+        EthernetDevice *selected = ethernetModule->getEthernetDevice(identifier);
         if (selected == nullptr) {
             log.error("No ethernet device exists for %s, not unAssigning IP4 address", (char *) identifier);
+            accessLock->release();
             return 1;
         }
-        return this->ip4Module->unregisterDevice(selected);
+        uint8_t result = ip4Module->unregisterDevice(selected);
+        accessLock->release();
+        return result;
     }
 
     UDP4SocketController *NetworkService::createSocketController(size_t bufferSize) {
+        //No sync necessary here
         if (bufferSize == 0) {
             bufferSize = 1;
         }
-        return new UDP4SocketController(this->eventBus, bufferSize);
+        return new UDP4SocketController(eventBus, bufferSize);
     }
 
     uint8_t NetworkService::registerSocketController(uint16_t listeningPort, UDP4SocketController *controller) {
@@ -210,7 +263,10 @@ namespace Kernel {
             log.error("UDP4Module not initialized, not registering controller");
             return 1;
         }
-        return udp4Module->registerControllerFor(listeningPort, controller);
+        accessLock->acquire();
+        uint8_t result = udp4Module->registerControllerFor(listeningPort, controller);
+        accessLock->release();
+        return result;
     }
 
     uint8_t NetworkService::registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller) {
@@ -226,7 +282,10 @@ namespace Kernel {
             log.error("UDP4Module not initialized, not registering controller");
             return 1;
         }
-        return udp4Module->registerControllerFor(listeningPortTarget, controller);
+        accessLock->acquire();
+        uint8_t result = udp4Module->registerControllerFor(listeningPortTarget, controller);
+        accessLock->release();
+        return result;
     }
 
     uint8_t NetworkService::unregisterSocketController(uint16_t destinationPort) {
@@ -238,7 +297,10 @@ namespace Kernel {
             log.error("UDP4Module not initialized, not unregistering controller");
             return 1;
         }
-        return udp4Module->unregisterControllerFor(destinationPort);
+        accessLock->acquire();
+        uint8_t result = udp4Module->unregisterControllerFor(destinationPort);
+        accessLock->release();
+        return result;
     }
 
     uint8_t NetworkService::setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice) {
@@ -250,7 +312,10 @@ namespace Kernel {
             log.error("IP4Module not initialized, not setting default route");
             return 1;
         }
-        return ip4Module->setDefaultRoute(gatewayAddress, outDevice);
+        accessLock->acquire();
+        uint8_t result = ip4Module->setDefaultRoute(gatewayAddress, outDevice);
+        accessLock->release();
+        return result;
     }
 
     uint8_t NetworkService::removeDefaultRoute() {
@@ -258,6 +323,9 @@ namespace Kernel {
             log.error("IP4Module not initialized, not removing default route");
             return 1;
         }
-        return ip4Module->removeDefaultRoute();
+        accessLock->acquire();
+        uint8_t result = ip4Module->removeDefaultRoute();
+        accessLock->release();
+        return result;
     }
 }
