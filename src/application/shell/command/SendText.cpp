@@ -50,7 +50,8 @@ void SendText::execute(Util::Array<String> &args) {
 
     auto *sendSocket =
             new Kernel::UDP4ClientSocket(
-                    new IP4Address(127, 0, 0, 1), ECHO_PORT_NUMBER
+                    new IP4Address(127, 0, 0, 1),
+                    ECHO_PORT_NUMBER
             );
 
     stdout << "CLIENT: Binding socket for receive" << endl;
@@ -66,8 +67,9 @@ void SendText::execute(Util::Array<String> &args) {
     }
 
     //Terminate given String to be sure
-    testString = testString + '\0';
+    testString += " ";
     size_t stringLength = testString.length();
+    testString[stringLength - 1] = '\0';
 
     //Cap String if too long
     if (stringLength >= (ECHO_INPUT_BUFFER_SIZE)) {
