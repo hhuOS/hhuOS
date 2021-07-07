@@ -82,6 +82,10 @@ size_t IP4Header::getHeaderLength() const {
 }
 
 uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
+    if(output== nullptr){
+        return 1;
+    }
+
     uint8_t errors = 0;
     errors += output->appendOneByte(version_headerLength);
     errors += output->appendOneByte(typeOfService);

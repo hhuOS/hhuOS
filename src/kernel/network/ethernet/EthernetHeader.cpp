@@ -36,6 +36,9 @@ uint8_t EthernetHeader::setSourceAddress(EthernetAddress *address) {
 }
 
 uint8_t EthernetHeader::copyTo(Kernel::NetworkByteBlock *output) {
+    if(output== nullptr){
+        return 1;
+    }
     uint8_t errors = 0;
 
     uint8_t addressBytes[ETH_ADDRESS_LENGTH];
