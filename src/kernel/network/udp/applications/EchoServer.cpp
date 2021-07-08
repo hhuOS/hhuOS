@@ -5,7 +5,7 @@
 #include <kernel/network/NetworkDefinitions.h>
 #include "EchoServer.h"
 
-EchoServer::EchoServer(size_t inputBufferSize) {
+EchoServer::EchoServer(uint16_t inputBufferSize) {
     attributes.log = &log;
     attributes.socket = new Kernel::UDP4ServerSocket(ECHO_PORT_NUMBER);
     attributes.inputBufferSize = inputBufferSize;
@@ -60,7 +60,7 @@ uint8_t EchoServer::stop() {
 
 void EchoServer::EchoThread::run() {
     uint8_t addressBytes[IP4ADDRESS_LENGTH];
-    size_t bytesReceived = 0;
+    uint16_t bytesReceived = 0;
     IP4Header *ip4Header = nullptr;
     UDP4Header *udp4Header = nullptr;
 

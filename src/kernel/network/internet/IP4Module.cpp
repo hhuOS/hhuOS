@@ -88,7 +88,7 @@ namespace Kernel {
             return;
         }
         IP4Interface *toDelete;
-        for (size_t i = 0; i < interfaces->size(); i++) {
+        for (uint32_t i = 0; i < interfaces->size(); i++) {
             //Deleting while iterating is always dangerous
             //-> execute get() and remove() separately!
             toDelete = interfaces->get(i);
@@ -184,7 +184,7 @@ namespace Kernel {
         }
         accessLock->acquire();
         IP4Interface *toDelete;
-        for (size_t i = 0; i < interfaces->size(); i++) {
+        for (uint32_t i = 0; i < interfaces->size(); i++) {
             if (interfaces->get(i)->connectedTo(ethernetDevice)) {
                 toDelete = interfaces->get(i);
                 routingModule->removeRoutesFor(toDelete);

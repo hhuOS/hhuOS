@@ -33,7 +33,7 @@ namespace Kernel {
         return networkService->unregisterSocketController(listeningPort);
     }
 
-    uint8_t UDP4ClientSocket::send(void *dataBytes, size_t length) {
+    uint8_t UDP4ClientSocket::send(void *dataBytes, uint16_t length) {
         if (dataBytes == nullptr || destinationAddress == nullptr || length == 0 || targetPort == 0) {
             return 1;
         }
@@ -59,17 +59,18 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length) {
+    uint8_t UDP4ClientSocket::receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length) {
         return receive(totalBytesRead, targetBuffer, length, nullptr, nullptr);
     }
 
-    uint8_t UDP4ClientSocket::receive(void *targetBuffer, size_t length) {
+    uint8_t UDP4ClientSocket::receive(void *targetBuffer, uint16_t length) {
         return receive(nullptr, targetBuffer, length, nullptr, nullptr);
     }
 
     //Extended receive() for servers and clients who need to know IP4 or UDP4 headers
     uint8_t
-    UDP4ClientSocket::receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+    UDP4ClientSocket::receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length,
+                              IP4Header **ip4HeaderVariable,
                               UDP4Header **udp4HeaderVariable) {
         if (controller->receive(totalBytesRead, targetBuffer, length, ip4HeaderVariable, udp4HeaderVariable)) {
             if (totalBytesRead != nullptr) {

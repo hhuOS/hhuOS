@@ -36,7 +36,7 @@ String ARPMessage::do_asString(String spacing) {
 }
 
 //Private method!
-size_t ARPMessage::do_getLengthInBytes() {
+uint16_t ARPMessage::do_getLengthInBytes() {
     return sizeof header + getBodyLengthInBytes();
 }
 
@@ -114,8 +114,8 @@ uint8_t *ARPMessage::getSenderProtocolAddress() const {
     return body.senderProtocolAddress;
 }
 
-size_t ARPMessage::getBodyLengthInBytes() const {
-    auto twoSize = (size_t) 2;
+uint16_t ARPMessage::getBodyLengthInBytes() const {
+    auto twoSize = (uint16_t) 2;
     return
             twoSize * header.hardwareAddressLength +
             twoSize * header.protocolAddressLength;

@@ -17,7 +17,7 @@ private:
         Atomic<bool> *isRunning = nullptr;
         Kernel::Logger *log = nullptr;
         uint8_t *inputBuffer = nullptr;
-        size_t inputBufferSize = 0;
+        uint16_t inputBufferSize = 0;
     } attr_t;
 
     class EchoThread : public Kernel::KernelThread {
@@ -39,7 +39,7 @@ private:
 
 public:
 
-    explicit EchoServer(size_t inputBufferSize);
+    explicit EchoServer(uint16_t inputBufferSize);
 
     virtual ~EchoServer();
 

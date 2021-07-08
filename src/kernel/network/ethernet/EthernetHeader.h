@@ -22,9 +22,9 @@ public:
 
     [[nodiscard]] EthernetDataPart::EtherType getEtherType() const;
 
-    static size_t getHeaderLength();
+    static uint16_t getHeaderLength();
 
-    static size_t getMaximumFrameLength();
+    static uint16_t getMaximumFrameLength();
 
     bool destinationIs(EthernetAddress *otherAddress);
 

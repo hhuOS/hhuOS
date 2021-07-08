@@ -19,12 +19,12 @@ EthernetDataPart::EtherType EthernetHeader::getEtherType() const {
     return etherType;
 }
 
-size_t EthernetHeader::getHeaderLength() {
+uint16_t EthernetHeader::getHeaderLength() {
     return 2 * ETH_ADDRESS_LENGTH + sizeof(uint16_t);
 }
 
-size_t EthernetHeader::getMaximumFrameLength() {
-    return getHeaderLength() + ETHERNET_MTU;
+uint16_t EthernetHeader::getMaximumFrameLength() {
+    return (uint16_t) (getHeaderLength() + ETHERNET_MTU);
 }
 
 uint8_t EthernetHeader::setSourceAddress(EthernetAddress *address) {

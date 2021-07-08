@@ -68,7 +68,7 @@ void SendText::execute(Util::Array<String> &args) {
 
     //Terminate given String to be sure
     testString += " ";
-    size_t stringLength = testString.length();
+    uint16_t stringLength = testString.length();
     testString[stringLength - 1] = '\0';
 
     //Cap String if too long
@@ -100,7 +100,7 @@ void SendText::execute(Util::Array<String> &args) {
             return;
         }
 
-        size_t totalBytesRead = 0;
+        uint16_t totalBytesRead = 0;
         char response[ECHO_INPUT_BUFFER_SIZE + 1];
         response[ECHO_INPUT_BUFFER_SIZE] = '\0';
 

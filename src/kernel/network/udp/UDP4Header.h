@@ -21,9 +21,9 @@ public:
 
     UDP4Header() = default;
 
-    static size_t getHeaderLength();
+    static uint16_t getHeaderLength();
 
-    [[nodiscard]] size_t getTotalDatagramLength() const;
+    [[nodiscard]] uint16_t getTotalDatagramLength() const;
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output) const;
 

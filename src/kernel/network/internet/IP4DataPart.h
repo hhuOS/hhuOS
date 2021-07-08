@@ -5,9 +5,9 @@
 #ifndef HHUOS_IP4DATAPART_H
 #define HHUOS_IP4DATAPART_H
 
-#include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/NetworkTransmittable.h>
 
-class IP4DataPart {
+class IP4DataPart : public NetworkTransmittable {
 protected:
     IP4DataPart();
 
@@ -19,7 +19,7 @@ public:
         INVALID = 0
     };
 
-    virtual ~IP4DataPart();
+    ~IP4DataPart() override;
 
     // forbid copying
     IP4DataPart(IP4DataPart const &) = delete;
@@ -38,17 +38,9 @@ public:
         }
     }
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock);
-
-    size_t getLengthInBytes();
-
     IP4ProtocolType getIP4ProtocolType();
 
 private:
-    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
-
-    virtual size_t do_getLengthInBytes() = 0;
-
     virtual IP4ProtocolType do_getIP4ProtocolType() = 0;
 };
 

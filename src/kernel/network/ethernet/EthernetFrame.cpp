@@ -32,7 +32,7 @@ EthernetFrame::~EthernetFrame() {
     delete ethernetDataPart;
 }
 
-size_t EthernetFrame::getLengthInBytes() {
+uint16_t EthernetFrame::getLengthInBytes() {
     if (ethernetDataPart == nullptr) {
         return 0;
     }

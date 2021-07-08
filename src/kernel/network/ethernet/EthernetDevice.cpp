@@ -72,7 +72,7 @@ namespace Kernel {
             return 1;
         }
 
-        size_t blockLength = output->getLength();
+        uint16_t blockLength = output->getLength();
 
         if (blockLength == 0) {
             //It's not an error if nothing needs to be done
@@ -96,8 +96,8 @@ namespace Kernel {
                (char *) ethernetFrame->headerAsString(DEBUG_SPACING));
 #endif
 #if PRINT_OUT_ETH_DATABYTES == 1
-        size_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
-        size_t endIndex = output->getLength() - 1;
+        uint16_t startIndex = 14; //EthernetHeader is 14 bytes long, bytes[14] is first data byte
+        uint16_t endIndex = output->getLength() - 1;
         printf("\nData bytes of outgoing frame (%d per line):\n%s\n", BYTES_PER_LINE,
                (char *) output->asString(startIndex, endIndex, BYTES_PER_LINE));
 #endif

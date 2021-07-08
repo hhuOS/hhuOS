@@ -5,7 +5,6 @@
 #ifndef HHUOS_ARPMESSAGE_H
 #define HHUOS_ARPMESSAGE_H
 
-
 #include <kernel/network/ethernet/EthernetDataPart.h>
 
 class ARPMessage final : public EthernetDataPart {
@@ -32,7 +31,7 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
-    size_t do_getLengthInBytes() final;
+    uint16_t do_getLengthInBytes() final;
 
     EtherType do_getEtherType() final;
 
@@ -79,7 +78,7 @@ public:
 
     [[nodiscard]] uint16_t getProtocolType() const;
 
-    [[nodiscard]] size_t getBodyLengthInBytes() const;
+    [[nodiscard]] uint16_t getBodyLengthInBytes() const;
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
 

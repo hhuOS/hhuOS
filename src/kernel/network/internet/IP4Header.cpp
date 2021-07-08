@@ -10,7 +10,7 @@ uint8_t IP4Header::calculateInternetChecksum(uint16_t *target, Kernel::NetworkBy
         return 1;
     }
 
-    size_t contentLength = content->getLength();
+    uint16_t contentLength = content->getLength();
     if ((contentLength % 2) != 0) {
         return 1;
     }
@@ -19,9 +19,9 @@ uint8_t IP4Header::calculateInternetChecksum(uint16_t *target, Kernel::NetworkBy
     uint32_t result = 0;
 
     //We read two bytes at once!
-    contentLength = contentLength / 2;
+    contentLength = contentLength / (uint16_t) 2;
 
-    for (size_t i = 0; i < contentLength; i++) {
+    for (uint16_t i = 0; i < contentLength; i++) {
         if (content->readTwoBytesSwappedTo(&tempValue)) {
             return 1;
         }
@@ -49,8 +49,8 @@ IP4Header::~IP4Header() {
     delete destinationAddress;
 }
 
-size_t IP4Header::getTotalDatagramLength() const {
-    return (size_t) totalLength;
+uint16_t IP4Header::getTotalDatagramLength() const {
+    return totalLength;
 }
 
 IP4DataPart::IP4ProtocolType IP4Header::getIP4ProtocolType() const {
@@ -75,10 +75,10 @@ uint8_t IP4Header::setSourceAddress(IP4Address *address) {
     return 0;
 }
 
-size_t IP4Header::getHeaderLength() const {
+uint16_t IP4Header::getHeaderLength() const {
     //IP4 header length is not fixed size
     //-> calculate it from real header value for header length!
-    return (size_t) (version_headerLength - 0x40) * 4;
+    return static_cast<uint16_t>((version_headerLength - 0x40) * 4);
 }
 
 uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
@@ -160,7 +160,7 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
 
     //Skip additional bytes if incoming header is larger than our internal one
     //-> next layer would read our remaining header bytes as data otherwise!
-    size_t remainingHeaderBytes = getHeaderLength() - IP4HEADER_MIN_LENGTH;
+    uint16_t remainingHeaderBytes = getHeaderLength() - (uint16_t) IP4HEADER_MIN_LENGTH;
     //True if remainingHeaderBytes > 0
     if (remainingHeaderBytes) {
         auto *discardedBytes = new uint8_t[remainingHeaderBytes];

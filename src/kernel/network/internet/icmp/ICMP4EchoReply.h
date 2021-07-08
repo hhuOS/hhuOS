@@ -23,7 +23,7 @@ private:
 
     ICMP4MessageType do_getICMP4MessageType() final;
 
-    size_t do_getLengthInBytes() final;
+    uint16_t do_getLengthInBytes() final;
 
 public:
 

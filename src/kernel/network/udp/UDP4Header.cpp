@@ -11,7 +11,7 @@ UDP4Header::UDP4Header(uint16_t sourcePort, uint16_t destinationPort, Kernel::Ne
     length = (uint16_t) UDP4Header::getHeaderLength() + (uint16_t) dataBytes->getLength();
 }
 
-size_t UDP4Header::getHeaderLength() {
+uint16_t UDP4Header::getHeaderLength() {
     return 4 * sizeof(uint16_t);
 }
 
@@ -23,8 +23,8 @@ uint16_t UDP4Header::getDestinationPort() const {
     return destinationPort;
 }
 
-size_t UDP4Header::getTotalDatagramLength() const {
-    return (size_t) length;
+uint16_t UDP4Header::getTotalDatagramLength() const {
+    return length;
 }
 
 uint8_t UDP4Header::copyTo(Kernel::NetworkByteBlock *output) const {

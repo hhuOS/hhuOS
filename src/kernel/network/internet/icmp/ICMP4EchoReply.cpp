@@ -38,7 +38,7 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::do_getICMP4MessageType() {
 }
 
 //Private method!
-size_t ICMP4EchoReply::do_getLengthInBytes() {
+uint16_t ICMP4EchoReply::do_getLengthInBytes() {
     return sizeof(header) + sizeof(echoReply);
 }
 

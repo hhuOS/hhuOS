@@ -51,7 +51,7 @@ namespace Kernel {
     IP4RoutingModule::~IP4RoutingModule() {
         if (routes != nullptr) {
             IP4Route *toDelete;
-            for (size_t i = 0; i < routes->size(); i++) {
+            for (uint32_t i = 0; i < routes->size(); i++) {
                 toDelete = routes->get(i);
                 routes->remove(i);
                 i--;

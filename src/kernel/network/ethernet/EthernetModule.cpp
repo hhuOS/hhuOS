@@ -47,7 +47,7 @@ namespace Kernel {
             return;
         }
         EthernetDevice *toDelete;
-        for (size_t i = 0; i < devices->size(); i++) {
+        for (uint32_t i = 0; i < devices->size(); i++) {
             //Deleting while iterating is always dangerous
             //-> execute get() and remove() separately!
             toDelete = devices->get(i);
@@ -98,7 +98,7 @@ namespace Kernel {
         }
         accessLock->acquire();
         EthernetDevice *toDelete;
-        for (size_t i = 0; i < devices->size(); i++) {
+        for (uint32_t i = 0; i < devices->size(); i++) {
             if (devices->get(i)->connectedTo(networkDevice)) {
                 toDelete = devices->get(i);
                 devices->remove(i);
@@ -221,8 +221,8 @@ namespace Kernel {
                    (char *) ethernetHeader->asString(DEBUG_SPACING));
 #endif
 #if PRINT_IN_ETH_DATABYTES == 1
-            size_t startIndex = EthernetHeader::getHeaderLength();
-            size_t endIndex = input->getLength() - 1;
+            uint16_t startIndex = EthernetHeader::getHeaderLength();
+            uint16_t endIndex = input->getLength() - 1;
             printf("\nData bytes of incoming frame (%d per line):\n%s\n", BYTES_PER_LINE,
                    (char *) input->asString(startIndex, endIndex, BYTES_PER_LINE));
 #endif

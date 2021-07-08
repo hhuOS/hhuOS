@@ -17,7 +17,7 @@ private:
 
     EtherType do_getEtherType() final;
 
-    size_t do_getLengthInBytes() final;
+    uint16_t do_getLengthInBytes() final;
 
     String do_asString(String spacing) final;
 

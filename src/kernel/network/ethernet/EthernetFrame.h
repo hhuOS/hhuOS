@@ -19,7 +19,7 @@ public:
 
     virtual ~EthernetFrame();
 
-    size_t getLengthInBytes();
+    uint16_t getLengthInBytes();
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 

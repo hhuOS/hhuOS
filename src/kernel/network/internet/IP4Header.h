@@ -50,9 +50,9 @@ public:
 
     virtual ~IP4Header();
 
-    [[nodiscard]] size_t getTotalDatagramLength() const;
+    [[nodiscard]] uint16_t getTotalDatagramLength() const;
 
-    [[nodiscard]] size_t getHeaderLength() const;
+    [[nodiscard]] uint16_t getHeaderLength() const;
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 

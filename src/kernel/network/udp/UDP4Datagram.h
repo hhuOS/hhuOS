@@ -17,7 +17,7 @@ private:
 
     IP4ProtocolType do_getIP4ProtocolType() override;
 
-    size_t do_getLengthInBytes() override;
+    uint16_t do_getLengthInBytes() override;
 
 public:
 

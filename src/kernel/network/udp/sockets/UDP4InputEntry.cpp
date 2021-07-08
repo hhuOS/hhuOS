@@ -15,8 +15,9 @@ UDP4InputEntry::~UDP4InputEntry() {
     delete input;
 }
 
-uint8_t UDP4InputEntry::copyTo(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
-                               UDP4Header **udp4HeaderVariable) {
+uint8_t
+UDP4InputEntry::copyTo(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length, IP4Header **ip4HeaderVariable,
+                       UDP4Header **udp4HeaderVariable) {
     if (udp4Header == nullptr || ip4Header == nullptr || input == nullptr) {
         return 1;
     }

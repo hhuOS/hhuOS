@@ -16,7 +16,7 @@ namespace Kernel {
         Standard::System::Call::execute(Standard::System::Call::SCHEDULER_YIELD, result, 0);
     }
 
-    UDP4SocketController::UDP4SocketController(EventBus *eventBus, size_t bufferSize) {
+    UDP4SocketController::UDP4SocketController(EventBus *eventBus, uint16_t bufferSize) {
         this->eventBus = eventBus;
         accessLock = new Spinlock();
 
@@ -85,7 +85,7 @@ namespace Kernel {
     }
 
     uint8_t
-    UDP4SocketController::receive(size_t *totalBytesRead, void *targetBuffer, size_t length,
+    UDP4SocketController::receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length,
                                   IP4Header **ip4HeaderVariable, UDP4Header **udp4HeaderVariable) {
         if (isClosed == nullptr || accessLock == nullptr || inputBuffer == nullptr) {
             log.error("Internal elements not initialized, not receiving");

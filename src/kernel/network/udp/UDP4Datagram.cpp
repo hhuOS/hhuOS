@@ -10,7 +10,7 @@ uint8_t UDP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||
             dataBytes == nullptr ||
-            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength())
+            dataBytes->getLength() > (uint16_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength())
             ) {
         return 1;
     }
@@ -22,7 +22,7 @@ uint8_t UDP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 //Private method!
-size_t UDP4Datagram::do_getLengthInBytes() {
+uint16_t UDP4Datagram::do_getLengthInBytes() {
     if (header == nullptr) {
         return 0;
     }

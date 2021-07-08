@@ -25,13 +25,13 @@ namespace Kernel {
 
         uint8_t close();
 
-        uint8_t send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, size_t length);
+        uint8_t send(IP4Address *givenDestination, uint16_t givenRemotePort, void *dataBytes, uint16_t length);
 
-        uint8_t receive(void *targetBuffer, size_t length);
+        uint8_t receive(void *targetBuffer, uint16_t length);
 
-        uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length);
+        uint8_t receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length);
 
-        uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+        uint8_t receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length, IP4Header **ip4HeaderVariable,
                         UDP4Header **udp4HeaderVariable);
     };
 }

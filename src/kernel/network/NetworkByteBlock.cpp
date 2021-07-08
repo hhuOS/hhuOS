@@ -2,17 +2,16 @@
 // Created by hannes on 30.05.21.
 //
 
-#include <lib/libc/printf.h>
 #include "NetworkByteBlock.h"
 
 namespace Kernel {
 //Constructor for blank ByteBlock to be filled
-    NetworkByteBlock::NetworkByteBlock(size_t length) {
+    NetworkByteBlock::NetworkByteBlock(uint16_t length) {
         this->bytes = new uint8_t[length];
         this->length = length;
 
         //Cleanup memory
-        for (size_t i = 0; i < length; i++) {
+        for (uint16_t i = 0; i < length; i++) {
             bytes[i] = 0;
         }
     }
@@ -21,7 +20,7 @@ namespace Kernel {
         delete[] this->bytes;
     }
 
-    size_t NetworkByteBlock::getLength() const {
+    uint16_t NetworkByteBlock::getLength() const {
         return length;
     }
 
@@ -36,7 +35,7 @@ namespace Kernel {
         return appendStraightFrom(switchedBytes, sizeof twoBytes);
     }
 
-    uint8_t NetworkByteBlock::appendStraightFrom(NetworkByteBlock *otherByteBlock, size_t byteCount) {
+    uint8_t NetworkByteBlock::appendStraightFrom(NetworkByteBlock *otherByteBlock, uint16_t byteCount) {
         //Return error if we can't read all bytes from the other byteBlock
         if (otherByteBlock == nullptr || byteCount > otherByteBlock->bytesRemaining()) {
             return 1;
@@ -46,7 +45,7 @@ namespace Kernel {
         return appendStraightFrom(otherByteBlock->bytes, byteCount);
     }
 
-    uint8_t NetworkByteBlock::appendStraightFrom(void *source, size_t byteCount) {
+    uint8_t NetworkByteBlock::appendStraightFrom(void *source, uint16_t byteCount) {
         //Avoid writing beyond last byte
         if (
                 source == nullptr ||
@@ -60,7 +59,7 @@ namespace Kernel {
             return 0;
         }
         auto *sourceAsBytes = (uint8_t *) source;
-        for (size_t i = 0; i < byteCount; i++) {
+        for (uint16_t i = 0; i < byteCount; i++) {
             this->bytes[currentIndex + i] = sourceAsBytes[i];
         }
         this->currentIndex += byteCount;
@@ -85,7 +84,7 @@ namespace Kernel {
         return 0;
     }
 
-    uint8_t NetworkByteBlock::readStraightTo(void *target, size_t byteCount) {
+    uint8_t NetworkByteBlock::readStraightTo(void *target, uint16_t byteCount) {
         if (
                 this->currentIndex == this->length ||
                 byteCount == 0 ||
@@ -96,14 +95,14 @@ namespace Kernel {
             return 1;
         }
         auto *targetBytes = (uint8_t *) target;
-        for (size_t i = 0; i < byteCount; i++) {
+        for (uint16_t i = 0; i < byteCount; i++) {
             targetBytes[i] = this->bytes[currentIndex + i];
         }
         currentIndex += byteCount;
         return 0;
     }
 
-    size_t NetworkByteBlock::bytesRemaining() const {
+    uint16_t NetworkByteBlock::bytesRemaining() const {
         return this->length - this->currentIndex;
     }
 
@@ -120,12 +119,12 @@ namespace Kernel {
         return 0;
     }
 
-    String NetworkByteBlock::asString(size_t startIndex, size_t endIndex, size_t bytesPerLine) {
+    String NetworkByteBlock::asString(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine) {
         String byteString = "";
         if (this->bytes == nullptr) {
             return byteString;
         }
-        for (size_t i = startIndex; (i < length) && (i < endIndex); i++) {
+        for (uint16_t i = startIndex; (i < length) && (i < endIndex); i++) {
             if (((i - startIndex) % bytesPerLine) == 0) {
                 if ((i - startIndex) > 0) {
                     byteString += "\n";

@@ -20,7 +20,7 @@ public:
 
     virtual ~UDP4InputEntry();
 
-    uint8_t copyTo(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+    uint8_t copyTo(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length, IP4Header **ip4HeaderVariable,
                    UDP4Header **udp4HeaderVariable);
 };
 

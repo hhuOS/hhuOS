@@ -17,7 +17,7 @@ public:
 
     NetworkTransmittable &operator=(NetworkTransmittable const &) = delete;
 
-    size_t getLengthInBytes();
+    uint16_t getLengthInBytes();
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
@@ -27,7 +27,7 @@ protected:
 private:
     virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
 
-    virtual size_t do_getLengthInBytes() = 0;
+    virtual uint16_t do_getLengthInBytes() = 0;
 };
 
 

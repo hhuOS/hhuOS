@@ -25,7 +25,7 @@ namespace Kernel {
 
     public:
 
-        explicit UDP4SocketController(EventBus *eventBus, size_t bufferSize);
+        explicit UDP4SocketController(EventBus *eventBus, uint16_t bufferSize);
 
         virtual ~UDP4SocketController();
 
@@ -35,7 +35,7 @@ namespace Kernel {
 
         uint8_t notify(IP4Header *incomingIP4Header, UDP4Header *incomingUDP4Header, NetworkByteBlock *incomingInput);
 
-        uint8_t receive(size_t *totalBytesRead, void *targetBuffer, size_t length, IP4Header **ip4HeaderVariable,
+        uint8_t receive(uint16_t *totalBytesRead, void *targetBuffer, uint16_t length, IP4Header **ip4HeaderVariable,
                         UDP4Header **udp4HeaderVariable);
 
         uint8_t publishSendEvent(
