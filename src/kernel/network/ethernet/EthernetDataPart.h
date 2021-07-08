@@ -11,6 +11,9 @@ class EthernetDataPart {
 private:
     virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
 
+protected:
+    EthernetDataPart();
+
 public:
     //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
     enum EtherType : uint16_t {
@@ -21,6 +24,11 @@ public:
     };
 
     virtual ~EthernetDataPart();
+
+    // forbid copying
+    EthernetDataPart(EthernetDataPart const &) = delete;
+
+    EthernetDataPart &operator=(EthernetDataPart const &) = delete;
 
     static EtherType parseIntAsEtherType(uint16_t value) {
         switch (value) {

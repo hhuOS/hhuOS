@@ -11,6 +11,9 @@ class IP4DataPart {
 private:
     virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
 
+protected:
+    IP4DataPart();
+
 public:
     //see RFC 790 page 6
     enum IP4ProtocolType : uint8_t {
@@ -20,6 +23,12 @@ public:
     };
 
     virtual ~IP4DataPart();
+
+    // forbid copying
+    IP4DataPart(IP4DataPart const &) = delete;
+
+    IP4DataPart &operator=(IP4DataPart const &) = delete;
+
 
     static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value) {
         switch (value) {

@@ -4,6 +4,8 @@
 
 #include "EthernetDataPart.h"
 
+EthernetDataPart::EthernetDataPart() = default;
+
 EthernetDataPart::~EthernetDataPart() = default;
 
 uint8_t EthernetDataPart::copyTo(Kernel::NetworkByteBlock *output) {

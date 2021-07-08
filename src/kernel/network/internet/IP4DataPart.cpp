@@ -4,8 +4,9 @@
 
 #include "IP4DataPart.h"
 
-IP4DataPart::~IP4DataPart() = default;
+IP4DataPart::IP4DataPart() = default;
 
+IP4DataPart::~IP4DataPart() = default;
 
 uint8_t IP4DataPart::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr) {
