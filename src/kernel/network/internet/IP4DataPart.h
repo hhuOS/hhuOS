@@ -8,6 +8,9 @@
 #include <kernel/network/NetworkByteBlock.h>
 
 class IP4DataPart {
+private:
+    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
+
 public:
     //see RFC 790 page 6
     enum IP4ProtocolType : uint8_t {
@@ -15,6 +18,8 @@ public:
         UDP = 17,
         INVALID = 0
     };
+
+    virtual ~IP4DataPart();
 
     static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value) {
         switch (value) {
@@ -27,7 +32,7 @@ public:
         }
     }
 
-    virtual uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock) = 0;
+    uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock);
 
     virtual size_t getLengthInBytes() = 0;
 

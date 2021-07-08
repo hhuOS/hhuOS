@@ -17,21 +17,22 @@ private:
 
     echo_t echoMessage;
 
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+
 public:
+
     //Sending constructor
     ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber);
 
     ICMP4Echo() = default;
 
-    ~ICMP4Echo() = default;
+    ~ICMP4Echo() override = default;
 
     ICMP4MessageType getICMP4MessageType() override;
 
     [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
 
     size_t getLengthInBytes() override;
-
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
 

@@ -5,19 +5,8 @@
 #include <kernel/network/internet/IP4Address.h>
 #include "ICMP4EchoReply.h"
 
-ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
-    header.type = 0; //8 for echo, 0 for echo reply (RFC792)
-    header.code = 0;
-    header.checksum = 0;
-    echoReply.identifier = identifier;
-    echoReply.sequenceNumber = sequenceNumber;
-}
-
-uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
-    if (output == nullptr) {
-        return 1;
-    }
-
+//Private method!
+uint8_t ICMP4EchoReply::do_copyTo(Kernel::NetworkByteBlock *output) {
     uint8_t errors = 0;
     errors += output->appendOneByte(header.type);
     errors += output->appendOneByte(header.code);
@@ -26,6 +15,14 @@ uint8_t ICMP4EchoReply::copyTo(Kernel::NetworkByteBlock *output) {
     errors += output->appendTwoBytesSwapped(echoReply.sequenceNumber);
 
     return errors;
+}
+
+ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
+    header.type = 0; //8 for echo, 0 for echo reply (RFC792)
+    header.code = 0;
+    header.checksum = 0;
+    echoReply.identifier = identifier;
+    echoReply.sequenceNumber = sequenceNumber;
 }
 
 size_t ICMP4EchoReply::getLengthInBytes() {

@@ -2,11 +2,12 @@
 // Created by hannes on 08.07.21.
 //
 
-#include "EthernetDataPart.h"
+#include "IP4DataPart.h"
 
-EthernetDataPart::~EthernetDataPart() = default;
+IP4DataPart::~IP4DataPart() = default;
 
-uint8_t EthernetDataPart::copyTo(Kernel::NetworkByteBlock *output) {
+
+uint8_t IP4DataPart::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr || output->bytesRemaining() < this->getLengthInBytes()) {
         return 1;
     }

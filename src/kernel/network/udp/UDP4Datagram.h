@@ -13,16 +13,17 @@ private:
     UDP4Header *header = nullptr;
     Kernel::NetworkByteBlock *dataBytes = nullptr;
 
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+
 public:
+
     UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes);
 
-    ~UDP4Datagram();
+    ~UDP4Datagram() override;
 
     IP4ProtocolType getIP4ProtocolType() override;
 
     size_t getLengthInBytes() override;
-
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 };
 
 

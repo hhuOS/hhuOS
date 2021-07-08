@@ -36,34 +36,9 @@ IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPar
 }
 
 IP4Datagram::~IP4Datagram() {
+    //delete on nullptr simply does nothing!
     delete header;
-    //dataPart is null if this datagram is an incoming one!
-    //-> deleting is only necessary in an outgoing datagram
-    if (ip4DataPart == nullptr) {
-        return;
-    }
-    switch (header->getIP4ProtocolType()) {
-        case IP4DataPart::IP4ProtocolType::ICMP4: {
-            auto *icmp4Message = (ICMP4Message *) ip4DataPart;
-            switch (icmp4Message->getICMP4MessageType()) {
-                case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                    delete (ICMP4EchoReply *) ip4DataPart;
-                    break;
-                case ICMP4Message::ICMP4MessageType::ECHO:
-                    delete (ICMP4Echo *) ip4DataPart;
-                    break;
-                default:
-                    break;
-            }
-            break;
-        }
-        case IP4DataPart::IP4ProtocolType::UDP: {
-            delete (UDP4Datagram *) ip4DataPart;
-            break;
-        }
-        default:
-            break;
-    }
+    delete ip4DataPart;
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {

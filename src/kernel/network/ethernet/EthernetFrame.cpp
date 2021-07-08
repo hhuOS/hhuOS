@@ -7,27 +7,7 @@
 #include <kernel/network/arp/ARPMessage.h>
 #include "EthernetFrame.h"
 
-EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    this->header = new EthernetHeader(destinationAddress, ethernetDataPart);
-    this->ethernetDataPart = ethernetDataPart;
-}
-
-EthernetFrame::~EthernetFrame() {
-    delete header;
-    delete ethernetDataPart;
-}
-
-size_t EthernetFrame::getLengthInBytes() {
-    return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
-}
-
-uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
-    if (source == nullptr) {
-        return 1;
-    }
-    return header->setSourceAddress(source);
-}
-
+//Private method!
 uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||
@@ -48,6 +28,28 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
 
     //Call next level if no errors occurred yet
     return ethernetDataPart->copyTo(output);
+}
+
+EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
+    this->header = new EthernetHeader(destinationAddress, ethernetDataPart);
+    this->ethernetDataPart = ethernetDataPart;
+}
+
+EthernetFrame::~EthernetFrame() {
+    //delete on nullptr simply does nothing!
+    delete header;
+    delete ethernetDataPart;
+}
+
+size_t EthernetFrame::getLengthInBytes() {
+    return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
+}
+
+uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
+    if (source == nullptr) {
+        return 1;
+    }
+    return header->setSourceAddress(source);
 }
 
 String EthernetFrame::headerAsString(const String &spacing) {
