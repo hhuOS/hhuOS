@@ -10,19 +10,13 @@ uint8_t UDP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||
             dataBytes == nullptr ||
-            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength()) ||
-            dataBytes->getLength() == 0
+            dataBytes->getLength() > (size_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength())
             ) {
         return 1;
     }
-
-    uint8_t errors = header->copyTo(output);
-
-    //True if errors>0
-    if (errors) {
-        return errors;
+    if (header->copyTo(output)) {
+        return 1;
     }
-
     //Append dataBytes if no errors occurred yet
     return output->appendStraightFrom(dataBytes, dataBytes->getLength());
 }

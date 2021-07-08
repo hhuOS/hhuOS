@@ -12,20 +12,13 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             header == nullptr ||
             ethernetDataPart == nullptr ||
-            output == nullptr ||
-            ethernetDataPart->getLengthInBytes() > ETHERNET_MTU ||
-            EthernetHeader::getHeaderLength() > ETHERNETHEADER_MAX_LENGTH
+            ethernetDataPart->getLengthInBytes() > ETHERNET_MTU
             ) {
         return 1;
     }
-
-    uint8_t errors = header->copyTo(output);
-
-    //True if errors>0
-    if (errors) {
-        return errors;
+    if (header->copyTo(output)) {
+        return 1;
     }
-
     //Call next level if no errors occurred yet
     return ethernetDataPart->copyTo(output);
 }
@@ -42,16 +35,22 @@ EthernetFrame::~EthernetFrame() {
 }
 
 size_t EthernetFrame::getLengthInBytes() {
+    if(ethernetDataPart== nullptr){
+        return 0;
+    }
     return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
 }
 
 uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
-    if (source == nullptr) {
+    if (source == nullptr || header == nullptr) {
         return 1;
     }
     return header->setSourceAddress(source);
 }
 
 String EthernetFrame::headerAsString(const String &spacing) {
+    if(header== nullptr){
+        return "NULL";
+    }
     return header->asString(spacing);
 }

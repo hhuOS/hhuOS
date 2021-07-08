@@ -14,18 +14,13 @@ uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
             header == nullptr ||
             ip4DataPart == nullptr ||
             ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
-            header->getHeaderLength() > IP4HEADER_MAX_LENGTH
+            header->getHeaderLength() > IP4HEADER_MAX_LENGTH //IPv4 headers are dynamical!
             ) {
         return 1;
     }
-
-    uint8_t errors = header->copyTo(output);
-
-    //True if errors>0
-    if (errors) {
-        return errors;
+    if (header->copyTo(output)) {
+        return 1;
     }
-
     //Call next level if no errors occurred yet
     return ip4DataPart->copyTo(output);
 }
@@ -42,6 +37,9 @@ IP4Datagram::~IP4Datagram() {
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
+    if(header== nullptr){
+        return nullptr;
+    }
     return header->getDestinationAddress();
 }
 
@@ -53,6 +51,9 @@ uint8_t IP4Datagram::setSourceAddress(IP4Address *source) {
 }
 
 size_t IP4Datagram::getLengthInBytes() {
+    if(header== nullptr){
+        return 0;
+    }
     return header->getTotalDatagramLength();
 }
 
@@ -61,6 +62,9 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 }
 
 uint8_t IP4Datagram::fillHeaderChecksum() {
+    if(header== nullptr){
+        return 1;
+    }
     return header->fillChecksumField();
 }
 
