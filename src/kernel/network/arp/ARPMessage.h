@@ -6,7 +6,6 @@
 #define HHUOS_ARPMESSAGE_H
 
 
-#include <kernel/network/NetworkByteBlock.h>
 #include <kernel/network/ethernet/EthernetDataPart.h>
 
 class ARPMessage final : public EthernetDataPart {
@@ -76,6 +75,8 @@ public:
 
     [[nodiscard]] uint8_t *getSenderHardwareAddress() const;
 
+    [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
+
     [[nodiscard]] uint16_t getProtocolType() const;
 
     [[nodiscard]] size_t getBodyLengthInBytes() const;
@@ -83,8 +84,6 @@ public:
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
     ARPMessage *buildReply(uint8_t *ourAddressAsBytes) const;
-
-    [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
 };
 
 

@@ -5,9 +5,9 @@
 #ifndef HHUOS_ETHERNETDATAPART_H
 #define HHUOS_ETHERNETDATAPART_H
 
-#include <kernel/network/NetworkByteBlock.h>
+#include <kernel/network/NetworkTransmittable.h>
 
-class EthernetDataPart {
+class EthernetDataPart : public NetworkTransmittable {
 protected:
     EthernetDataPart();
 
@@ -20,7 +20,7 @@ public:
         INVALID = 0
     };
 
-    virtual ~EthernetDataPart();
+    ~EthernetDataPart() override;
 
     // forbid copying
     EthernetDataPart(EthernetDataPart const &) = delete;
@@ -40,10 +40,6 @@ public:
         }
     }
 
-    uint8_t copyTo(Kernel::NetworkByteBlock *output);
-
-    size_t getLengthInBytes();
-
     EtherType getEtherType();
 
     String asString(const String &spacing);
@@ -62,10 +58,6 @@ public:
     }
 
 private:
-    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
-
-    virtual size_t do_getLengthInBytes() = 0;
-
     virtual EtherType do_getEtherType() = 0;
 
     virtual String do_asString(String spacing) = 0;

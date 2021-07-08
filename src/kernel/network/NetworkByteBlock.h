@@ -4,7 +4,7 @@
 
 #ifndef HHUOS_NETWORKBYTEBLOCK_H
 #define HHUOS_NETWORKBYTEBLOCK_H
-
+//TODO: Remove this one!
 #include <device/network/NetworkDevice.h>
 
 namespace Kernel {
