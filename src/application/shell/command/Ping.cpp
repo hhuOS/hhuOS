@@ -4,7 +4,6 @@
 
 #include <kernel/network/internet/icmp/ICMP4Echo.h>
 #include <kernel/event/network/ICMP4SendEvent.h>
-#include <cstdio>
 #include <kernel/network/NetworkDefinitions.h>
 #include "Ping.h"
 

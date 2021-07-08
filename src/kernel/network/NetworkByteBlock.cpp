@@ -2,11 +2,13 @@
 // Created by hannes on 30.05.21.
 //
 
-#include <lib/libc/printf.h>
 #include "NetworkByteBlock.h"
 
+#if PRINT_IN_ALL_BYTES == 1 || PRINT_OUT_ALL_BYTES == 1
+#include <lib/libc/printf.h>
+#endif
+
 namespace Kernel {
-//Constructor for blank ByteBlock to be filled
     NetworkByteBlock::NetworkByteBlock(uint16_t length) {
         this->bytes = new uint8_t[length];
         this->length = length;
@@ -120,6 +122,7 @@ namespace Kernel {
         return 0;
     }
 
+#if PRINT_IN_ALL_BYTES == 1 || PRINT_OUT_ALL_BYTES == 1
     void NetworkByteBlock::printBytes(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine) {
         if (this->bytes == nullptr) {
             return;
@@ -134,4 +137,5 @@ namespace Kernel {
         }
         printf("\n");
     }
+#endif
 }
