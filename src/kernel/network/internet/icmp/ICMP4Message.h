@@ -22,7 +22,7 @@ protected:
 
 public:
     //see RFC 792 for details
-    enum class ICMP4MessageType : uint8_t {
+    enum ICMP4MessageType : uint8_t {
         ECHO_REPLY = 0,
         DESTINATION_UNREACHABLE = 3,
         SOURCE_QUENCH = 4,
