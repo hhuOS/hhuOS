@@ -26,7 +26,7 @@ void Pwd::execute(Util::Array<String> &args) {
 
     /*Parse the help message for --help flag*/
     Util::ArgumentParser parser(getHelpText(), 1);
-    /*Error if could not do_parse the input command*/
+    /*Error if could not parse the input command*/
     if(!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
         return;
