@@ -22,6 +22,24 @@ uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     return ip4DataPart->copyTo(output);
 }
 
+//Private method!
+size_t IP4Datagram::do_getLengthInBytes() {
+    if (header == nullptr) {
+        return 0;
+    }
+    return header->getTotalDatagramLength();
+}
+
+//Private method!
+EthernetDataPart::EtherType IP4Datagram::do_getEtherType() {
+    return EtherType::IP4;
+}
+
+String IP4Datagram::do_asString(String spacing) {
+    return spacing + "[IP4Datagram]";
+}
+
+//Private method!
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
     this->header = new IP4Header(destinationAddress, ip4DataPart);
     this->ip4DataPart = ip4DataPart;
@@ -47,24 +65,9 @@ uint8_t IP4Datagram::setSourceAddress(IP4Address *source) {
     return header->setSourceAddress(source);
 }
 
-size_t IP4Datagram::getLengthInBytes() {
-    if (header == nullptr) {
-        return 0;
-    }
-    return header->getTotalDatagramLength();
-}
-
-EthernetDataPart::EtherType IP4Datagram::getEtherType() {
-    return EtherType::IP4;
-}
-
 uint8_t IP4Datagram::fillHeaderChecksum() {
     if (header == nullptr) {
         return 1;
     }
     return header->fillChecksumField();
-}
-
-String IP4Datagram::asString(String spacing) {
-    return spacing + "[IP4Datagram]";
 }

@@ -30,6 +30,21 @@ uint8_t ARPMessage::do_copyTo(Kernel::NetworkByteBlock *output) {
     return errors;
 }
 
+//Private method!
+String ARPMessage::do_asString(String spacing) {
+    return spacing + "[ARP Message]";
+}
+
+//Private method!
+size_t ARPMessage::do_getLengthInBytes() {
+    return sizeof header + getBodyLengthInBytes();
+}
+
+//Private method!
+EthernetDataPart::EtherType ARPMessage::do_getEtherType() {
+    return EtherType::ARP;
+}
+
 ARPMessage::ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
                        uint8_t protocolAddressLength, OpCode opCode) {
     header.hardwareType = hardwareType;
@@ -53,14 +68,6 @@ ARPMessage::~ARPMessage() {
 
     delete body.targetHardwareAddress;
     delete body.targetProtocolAddress;
-}
-
-size_t ARPMessage::getLengthInBytes() {
-    return sizeof header + getBodyLengthInBytes();
-}
-
-EthernetDataPart::EtherType ARPMessage::getEtherType() {
-    return EtherType::ARP;
 }
 
 uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode) {
@@ -195,8 +202,4 @@ ARPMessage *ARPMessage::buildReply(uint8_t *ourAddressAsBytes) const {
             this->header.protocolAddressLength
     );
     return response;
-}
-
-String ARPMessage::asString(String spacing) {
-    return spacing + "[ARP Message]";
 }

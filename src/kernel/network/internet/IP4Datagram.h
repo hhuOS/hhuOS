@@ -15,6 +15,12 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
+    EtherType do_getEtherType() final;
+
+    size_t do_getLengthInBytes() final;
+
+    String do_asString(String spacing) final;
+
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
@@ -25,15 +31,9 @@ public:
 
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
-    EtherType getEtherType() override;
-
-    size_t getLengthInBytes() override;
-
     uint8_t setSourceAddress(IP4Address *source);
 
     uint8_t fillHeaderChecksum();
-
-    String asString(String spacing) override;
 };
 
 

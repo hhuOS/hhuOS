@@ -18,3 +18,18 @@ uint8_t EthernetDataPart::copyTo(Kernel::NetworkByteBlock *output) {
     }
     return do_copyTo(output);
 }
+
+size_t EthernetDataPart::getLengthInBytes() {
+    return do_getLengthInBytes();
+}
+
+EthernetDataPart::EtherType EthernetDataPart::getEtherType() {
+    return do_getEtherType();
+}
+
+String EthernetDataPart::asString(const String& spacing) {
+    if(spacing.isEmpty()){
+        return "EMPTY_SPACING";
+    }
+    return do_asString(spacing);
+}

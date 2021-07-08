@@ -33,7 +33,13 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
+    size_t do_getLengthInBytes() final;
+
+    EtherType do_getEtherType() final;
+
+    String do_asString(String spacing) final;
 public:
+
     enum class OpCode {
         REQUEST = 1,
         REPLY = 2,
@@ -71,19 +77,13 @@ public:
 
     [[nodiscard]] uint16_t getProtocolType() const;
 
-    size_t getLengthInBytes() override;
-
     [[nodiscard]] size_t getBodyLengthInBytes() const;
-
-    EtherType getEtherType() override;
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
 
     ARPMessage *buildReply(uint8_t *ourAddressAsBytes) const;
 
     [[nodiscard]] uint8_t *getTargetProtocolAddress() const;
-
-    String asString(String spacing) override;
 };
 
 

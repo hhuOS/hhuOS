@@ -8,9 +8,6 @@
 #include <kernel/network/NetworkByteBlock.h>
 
 class EthernetDataPart {
-private:
-    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
-
 protected:
     EthernetDataPart();
 
@@ -45,11 +42,11 @@ public:
 
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
-    virtual size_t getLengthInBytes() = 0;
+    size_t getLengthInBytes();
 
-    virtual EtherType getEtherType() = 0;
+    EtherType getEtherType();
 
-    virtual String asString(String spacing) = 0;
+    String asString(const String& spacing);
 
     static String etherTypeAsString(EtherType type) {
         switch (type) {
@@ -63,6 +60,11 @@ public:
                 return "'INVALID'";
         }
     }
+private:
+    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
+    virtual size_t do_getLengthInBytes() = 0;
+    virtual EtherType do_getEtherType() = 0;
+    virtual String do_asString(String spacing) = 0;
 };
 
 
