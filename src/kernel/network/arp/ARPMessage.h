@@ -31,7 +31,7 @@ private:
     header_t header;
     body_t body;
 
-    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
 public:
     enum class OpCode {

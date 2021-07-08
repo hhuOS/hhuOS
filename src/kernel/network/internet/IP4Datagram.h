@@ -13,7 +13,7 @@ private:
     IP4Header *header = nullptr;
     IP4DataPart *ip4DataPart = nullptr;
 
-    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
 public:
 

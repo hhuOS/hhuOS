@@ -17,7 +17,7 @@ private:
 
     echo_t echoMessage;
 
-    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
 public:
 

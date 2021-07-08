@@ -13,7 +13,7 @@ private:
     UDP4Header *header = nullptr;
     Kernel::NetworkByteBlock *dataBytes = nullptr;
 
-    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
 public:
 
