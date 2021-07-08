@@ -44,34 +44,7 @@ public:
 
     ICMP4Message &operator=(ICMP4Message const &) = delete;
 
-    static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {
-        switch (type) {
-            case 0:
-                return ICMP4MessageType::ECHO_REPLY;
-            case 3:
-                return ICMP4MessageType::DESTINATION_UNREACHABLE;
-            case 4:
-                return ICMP4MessageType::SOURCE_QUENCH;
-            case 5:
-                return ICMP4MessageType::REDIRECT;
-            case 8:
-                return ICMP4MessageType::ECHO;
-            case 11:
-                return ICMP4MessageType::TIME_EXCEEDED;
-            case 12:
-                return ICMP4MessageType::PARAMETER_PROBLEM;
-            case 13:
-                return ICMP4MessageType::TIMESTAMP;
-            case 14:
-                return ICMP4MessageType::TIMESTAMP_REPLY;
-            case 15:
-                return ICMP4MessageType::INFORMATION_REQUEST;
-            case 16:
-                return ICMP4MessageType::INFORMATION_REPLY;
-            default:
-                return ICMP4MessageType::INVALID;
-        }
-    }
+    static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type);
 
     bool checksumIsValid();
 

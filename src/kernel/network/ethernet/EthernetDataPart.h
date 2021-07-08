@@ -27,18 +27,7 @@ public:
 
     EthernetDataPart &operator=(EthernetDataPart const &) = delete;
 
-    static EtherType parseIntAsEtherType(uint16_t value) {
-        switch (value) {
-            case 0x0800:
-                return EthernetDataPart::EtherType::IP4;
-            case 0x0806:
-                return EthernetDataPart::EtherType::ARP;
-            case 0x86dd:
-                return EthernetDataPart::EtherType::IP6;
-            default:
-                return EthernetDataPart::EtherType::INVALID;
-        }
-    }
+    static EtherType parseIntAsEtherType(uint16_t value);
 
     EtherType getEtherType();
 

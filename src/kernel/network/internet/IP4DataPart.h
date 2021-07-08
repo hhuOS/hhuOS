@@ -26,17 +26,7 @@ public:
 
     IP4DataPart &operator=(IP4DataPart const &) = delete;
 
-
-    static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value) {
-        switch (value) {
-            case 1:
-                return IP4ProtocolType::ICMP4;
-            case 17:
-                return IP4ProtocolType::UDP;
-            default:
-                return IP4ProtocolType::INVALID;
-        }
-    }
+    static IP4ProtocolType parseIntAsIP4ProtocolType(uint8_t value);
 
     IP4ProtocolType getIP4ProtocolType();
 
