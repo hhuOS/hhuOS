@@ -8,6 +8,28 @@
 #include <kernel/network/udp/UDP4Datagram.h>
 #include "IP4Datagram.h"
 
+//Private method!
+uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
+    if (
+            header == nullptr ||
+            ip4DataPart == nullptr ||
+            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
+            header->getHeaderLength() > IP4HEADER_MAX_LENGTH
+            ) {
+        return 1;
+    }
+
+    uint8_t errors = header->copyTo(output);
+
+    //True if errors>0
+    if (errors) {
+        return errors;
+    }
+
+    //Call next level if no errors occurred yet
+    return ip4DataPart->copyTo(output);
+}
+
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
     this->header = new IP4Header(destinationAddress, ip4DataPart);
     this->ip4DataPart = ip4DataPart;
@@ -65,28 +87,6 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 
 uint8_t IP4Datagram::fillHeaderChecksum() {
     return header->fillChecksumField();
-}
-
-uint8_t IP4Datagram::copyTo(Kernel::NetworkByteBlock *output) {
-    if (
-            header == nullptr ||
-            ip4DataPart == nullptr ||
-            output == nullptr ||
-            ip4DataPart->getLengthInBytes() > (size_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
-            header->getHeaderLength() > IP4HEADER_MAX_LENGTH
-            ) {
-        return 1;
-    }
-
-    uint8_t errors = header->copyTo(output);
-
-    //True if errors>0
-    if (errors) {
-        return errors;
-    }
-
-    //Call next level if no errors occurred yet
-    return ip4DataPart->copyTo(output);
 }
 
 String IP4Datagram::asString(String spacing) {

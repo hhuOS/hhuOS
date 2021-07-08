@@ -31,6 +31,8 @@ private:
     header_t header;
     body_t body;
 
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+
 public:
     enum class OpCode {
         REQUEST = 1,
@@ -47,7 +49,7 @@ public:
 
     static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
 
-    ~ARPMessage();
+    ~ARPMessage() override;
 
     [[nodiscard]] OpCode getOpCode() const;
 
@@ -68,8 +70,6 @@ public:
     [[nodiscard]] uint8_t *getSenderHardwareAddress() const;
 
     [[nodiscard]] uint16_t getProtocolType() const;
-
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     size_t getLengthInBytes() override;
 

@@ -4,6 +4,32 @@
 
 #include "ARPMessage.h"
 
+//Private method!
+uint8_t ARPMessage::do_copyTo(Kernel::NetworkByteBlock *output) {
+    if (
+            body.senderHardwareAddress == nullptr ||
+            body.senderProtocolAddress == nullptr ||
+            body.targetHardwareAddress == nullptr ||
+            body.targetProtocolAddress == nullptr
+            ) {
+        return 1;
+    }
+    uint8_t errors = 0;
+    errors += output->appendTwoBytesSwapped(header.hardwareType);
+    errors += output->appendTwoBytesSwapped(header.protocolType);
+    errors += output->appendOneByte(header.hardwareAddressLength);
+    errors += output->appendOneByte(header.protocolAddressLength);
+    errors += output->appendTwoBytesSwapped(header.opCode);
+
+    errors += output->appendStraightFrom(body.senderHardwareAddress, header.hardwareAddressLength);
+    errors += output->appendStraightFrom(body.senderProtocolAddress, header.protocolAddressLength);
+
+    errors += output->appendStraightFrom(body.targetHardwareAddress, header.hardwareAddressLength);
+    errors += output->appendStraightFrom(body.targetProtocolAddress, header.protocolAddressLength);
+
+    return errors;
+}
+
 ARPMessage::ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
                        uint8_t protocolAddressLength, OpCode opCode) {
     header.hardwareType = hardwareType;
@@ -97,26 +123,6 @@ ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
         default:
             return OpCode::INVALID;
     }
-}
-
-uint8_t ARPMessage::copyTo(Kernel::NetworkByteBlock *output) {
-    if (output == nullptr || output->bytesRemaining() > this->getLengthInBytes()) {
-        return 1;
-    }
-    uint8_t errors = 0;
-    errors += output->appendTwoBytesSwapped(header.hardwareType);
-    errors += output->appendTwoBytesSwapped(header.protocolType);
-    errors += output->appendOneByte(header.hardwareAddressLength);
-    errors += output->appendOneByte(header.protocolAddressLength);
-    errors += output->appendTwoBytesSwapped(header.opCode);
-
-    errors += output->appendStraightFrom(body.senderHardwareAddress, header.hardwareAddressLength);
-    errors += output->appendStraightFrom(body.senderProtocolAddress, header.protocolAddressLength);
-
-    errors += output->appendStraightFrom(body.targetHardwareAddress, header.hardwareAddressLength);
-    errors += output->appendStraightFrom(body.targetProtocolAddress, header.protocolAddressLength);
-
-    return errors;
 }
 
 uint8_t ARPMessage::parse(Kernel::NetworkByteBlock *input) {

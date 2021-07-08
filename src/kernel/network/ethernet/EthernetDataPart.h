@@ -8,6 +8,9 @@
 #include <kernel/network/NetworkByteBlock.h>
 
 class EthernetDataPart {
+private:
+    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
+
 public:
     //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
     enum EtherType : uint16_t {
@@ -16,6 +19,8 @@ public:
         IP6 = 0x86dd,
         INVALID = 0
     };
+
+    virtual ~EthernetDataPart();
 
     static EtherType parseIntAsEtherType(uint16_t value) {
         switch (value) {
@@ -30,7 +35,7 @@ public:
         }
     }
 
-    virtual uint8_t copyTo(Kernel::NetworkByteBlock *output) = 0;
+    uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
     virtual size_t getLengthInBytes() = 0;
 

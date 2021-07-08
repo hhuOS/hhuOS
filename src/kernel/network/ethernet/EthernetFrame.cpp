@@ -14,23 +14,7 @@ EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPa
 
 EthernetFrame::~EthernetFrame() {
     delete header;
-    //dataPart is null if this frame is an incoming one!
-    //-> deleting is only necessary in an outgoing frame
-    if (ethernetDataPart == nullptr) {
-        return;
-    }
-    switch (header->getEtherType()) {
-        case EthernetDataPart::EtherType::IP4: {
-            delete (IP4Datagram *) ethernetDataPart;
-            break;
-        }
-        case EthernetDataPart::EtherType::ARP: {
-            delete (ARPMessage *) ethernetDataPart;
-            break;
-        }
-        default:
-            break;
-    }
+    delete ethernetDataPart;
 }
 
 size_t EthernetFrame::getLengthInBytes() {

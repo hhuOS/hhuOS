@@ -82,7 +82,7 @@ size_t IP4Header::getHeaderLength() const {
 }
 
 uint8_t IP4Header::copyTo(Kernel::NetworkByteBlock *output) {
-    if(output== nullptr){
+    if (output == nullptr) {
         return 1;
     }
 

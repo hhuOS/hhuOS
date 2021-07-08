@@ -12,13 +12,16 @@ class IP4Datagram final : public EthernetDataPart {
 private:
     IP4Header *header = nullptr;
     IP4DataPart *ip4DataPart = nullptr;
+
+    uint8_t do_copyTo(Kernel::NetworkByteBlock *output) override;
+
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);
 
     IP4Datagram() = default;
 
-    virtual ~IP4Datagram();
+    ~IP4Datagram() override;
 
     [[nodiscard]] IP4Address *getDestinationAddress() const;
 
@@ -27,8 +30,6 @@ public:
     size_t getLengthInBytes() override;
 
     uint8_t setSourceAddress(IP4Address *source);
-
-    uint8_t copyTo(Kernel::NetworkByteBlock *output) override;
 
     uint8_t fillHeaderChecksum();
 
