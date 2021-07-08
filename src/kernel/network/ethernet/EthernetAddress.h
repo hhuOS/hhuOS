@@ -21,8 +21,6 @@ public:
             uint8_t firstByte, uint8_t secondByte, uint8_t thirdByte,
             uint8_t fourthByte, uint8_t fifthByte, uint8_t sixthByte);
 
-    String asString();
-
     uint8_t copyTo(uint8_t *target);
 
     virtual ~EthernetAddress();
@@ -30,6 +28,8 @@ public:
     static EthernetAddress *buildBroadcastAddress();
 
     bool equals(EthernetAddress *otherAddress);
+
+    char *asChars();
 };
 
 

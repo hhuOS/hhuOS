@@ -19,8 +19,6 @@ private:
 
     uint16_t do_getLengthInBytes() final;
 
-    String do_asString(String spacing) final;
-
 public:
 
     IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart);

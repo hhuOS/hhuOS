@@ -100,7 +100,7 @@ namespace Kernel {
                     printf("[Taking RTT failed] ");
                 }
                 printf("ICMP4EchoReply! Source: %s, ID: %d, Sequence: %d, RTT: %d ms\n",
-                       (char *) ip4Header->getSourceAddress()->asString(),
+                       ip4Header->getSourceAddress()->asChars(),
                        echoReply->getIdentifier(),
                        echoReply->getSequenceNumber(),
                        timeTotal

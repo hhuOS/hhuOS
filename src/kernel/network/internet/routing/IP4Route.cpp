@@ -69,13 +69,13 @@ String IP4Route::asString() {
         return "NULL";
     }
     if (nextHopAddress == nullptr) {
-        return "\n    NetAddress: " + netAddress->asString() +
-               ",\n    NetMask:    " + netMask->asString() +
+        return "\n    NetAddress: " + String(netAddress->asChars()) +
+               ",\n    NetMask:    " + String(netMask->asChars()) +
                ",\n    NextHop:    null" +
                ",\n    OutDevice:  '" + outInterface->getIdentifier() + "'";
     }
-    return "\n    NetAddress: " + netAddress->asString() +
-           ",\n    NetMask:    " + netMask->asString() +
-           ",\n    NextHop:    " + nextHopAddress->asString() +
+    return "\n    NetAddress: " + String(netAddress->asChars()) +
+           ",\n    NetMask:    " + String(netMask->asChars()) +
+           ",\n    NextHop:    " + String(nextHopAddress->asChars()) +
            ",\n    OutDevice:  '" + outInterface->getIdentifier() + "'";
 }

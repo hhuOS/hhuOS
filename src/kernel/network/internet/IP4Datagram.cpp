@@ -35,10 +35,6 @@ EthernetDataPart::EtherType IP4Datagram::do_getEtherType() {
     return EtherType::IP4;
 }
 
-String IP4Datagram::do_asString(String spacing) {
-    return spacing + "[IP4Datagram]";
-}
-
 //Private method!
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
     this->header = new IP4Header(destinationAddress, ip4DataPart);

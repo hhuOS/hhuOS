@@ -91,7 +91,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
             return;
         }
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        auto addressAsString = unnamedArguments[1];
+        auto *addressAsString = (char *) unnamedArguments[1];
         if (IP4Address::parseTo(addressBytes, addressAsString)) {
             stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
             return;
@@ -114,7 +114,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
 
             stderr << "Assigning address for '" << identifier << "' failed! See syslog for details" << endl;
         } else {
-            stdout << "Assigned address " << address->asString() << String::format("/%d", bitCount)
+            stdout << "Assigned address " << address->asChars() << String::format("/%d", bitCount)
                    << " to '" << identifier << "'" << endl;
         }
         return;
@@ -163,7 +163,7 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
             return;
         }
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
-        auto addressAsString = unnamedArguments[0];
+        auto *addressAsString = (char *) unnamedArguments[0];
         if (IP4Address::parseTo(addressBytes, addressAsString)) {
             stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
             return;
@@ -171,12 +171,12 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         auto *gatewayAddress = new IP4Address(addressBytes);
         auto identifier = unnamedArguments[1];
         if (networkService->setDefaultRoute(gatewayAddress, identifier)) {
-            stderr << "Setting default route '" << gatewayAddress->asString() << " via "
+            stderr << "Setting default route '" << gatewayAddress->asChars() << " via "
                    << identifier << "' failed! See syslog for details" << endl;
             delete gatewayAddress;
             return;
         } else {
-            stdout << "Default route set to '" << gatewayAddress->asString() << " via "
+            stdout << "Default route set to '" << gatewayAddress->asChars() << " via "
                    << identifier << "'" << endl;
         }
         return;

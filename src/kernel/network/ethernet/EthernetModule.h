@@ -5,7 +5,6 @@
 #ifndef HHUOS_ETHERNETMODULE_H
 #define HHUOS_ETHERNETMODULE_H
 
-#include <kernel/core/Management.h>
 #include "EthernetDevice.h"
 
 namespace Kernel {

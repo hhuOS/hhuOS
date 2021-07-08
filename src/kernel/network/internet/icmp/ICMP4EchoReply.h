@@ -6,7 +6,6 @@
 #define HHUOS_ICMP4ECHOREPLY_H
 
 #include <kernel/network/internet/icmp/ICMP4Message.h>
-#include <kernel/network/NetworkByteBlock.h>
 
 class ICMP4EchoReply final : public ICMP4Message {
 private:

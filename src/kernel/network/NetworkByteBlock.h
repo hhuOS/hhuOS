@@ -6,7 +6,6 @@
 #define HHUOS_NETWORKBYTEBLOCK_H
 
 #include <cstdint>
-#include <lib/string/String.h>
 
 namespace Kernel {
     class NetworkByteBlock {
@@ -41,7 +40,7 @@ namespace Kernel {
 
         uint8_t resetIndex();
 
-        String asString(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine);
+        void printBytes(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine);
     };
 }
 

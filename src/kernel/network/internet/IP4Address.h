@@ -6,7 +6,6 @@
 #define HHUOS_IP4ADDRESS_H
 
 #include <cstdint>
-#include <lib/string/String.h>
 
 class IP4Address {
 private:
@@ -21,8 +20,6 @@ public:
 
     virtual ~IP4Address();
 
-    static uint8_t parseTo(uint8_t *targetBytes, const String &fromString);
-
     static IP4Address *buildBroadcastAddress();
 
     bool equals(IP4Address *other);
@@ -31,7 +28,9 @@ public:
 
     uint8_t calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask);
 
-    String asString();
+    static uint8_t parseTo(uint8_t *targetBytes, char *input);
+
+    char *asChars();
 };
 
 

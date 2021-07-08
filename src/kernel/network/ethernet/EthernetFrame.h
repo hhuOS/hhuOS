@@ -24,8 +24,6 @@ public:
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
     uint8_t setSourceAddress(EthernetAddress *source);
-
-    String headerAsString(const String &spacing);
 };
 
 

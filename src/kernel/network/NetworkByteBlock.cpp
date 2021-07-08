@@ -2,6 +2,7 @@
 // Created by hannes on 30.05.21.
 //
 
+#include <lib/libc/printf.h>
 #include "NetworkByteBlock.h"
 
 namespace Kernel {
@@ -119,19 +120,18 @@ namespace Kernel {
         return 0;
     }
 
-    String NetworkByteBlock::asString(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine) {
-        String byteString = "";
+    void NetworkByteBlock::printBytes(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine) {
         if (this->bytes == nullptr) {
-            return byteString;
+            return;
         }
         for (uint16_t i = startIndex; (i < length) && (i < endIndex); i++) {
             if (((i - startIndex) % bytesPerLine) == 0) {
                 if ((i - startIndex) > 0) {
-                    byteString += "\n";
+                    printf("\n");
                 }
             }
-            byteString += String::format("%02x ", bytes[i]);
+            printf("%02x ", bytes[i]);
         }
-        return byteString;
+        printf("\n");
     }
 }

@@ -2,6 +2,7 @@
 // Created by hannes on 02.06.21.
 //
 
+#include <cstring>
 #include "ARPMessage.h"
 
 //Private method!
@@ -28,11 +29,6 @@ uint8_t ARPMessage::do_copyTo(Kernel::NetworkByteBlock *output) {
     errors += output->appendStraightFrom(body.targetProtocolAddress, header.protocolAddressLength);
 
     return errors;
-}
-
-//Private method!
-String ARPMessage::do_asString(String spacing) {
-    return spacing + "[ARP Message]";
 }
 
 //Private method!

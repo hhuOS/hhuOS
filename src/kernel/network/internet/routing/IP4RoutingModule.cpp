@@ -38,7 +38,7 @@ namespace Kernel {
             *bestRoute = defaultRoute;
             return 0;
         }
-        log.error("No route to host %s could be found", (char *) receiverAddress->asString());
+        log.error("No route to host %s could be found", receiverAddress->asChars());
         return 1;
     }
 

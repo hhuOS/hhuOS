@@ -3,6 +3,7 @@
 //
 
 #include <kernel/network/NetworkDefinitions.h>
+#include <lib/string/String.h>
 #include "IP4Netmask.h"
 
 IP4Netmask::IP4Netmask(uint8_t bitCount) {
@@ -48,9 +49,9 @@ uint8_t IP4Netmask::getBitCount() const {
     return this->bitCount;
 }
 
-String IP4Netmask::asString() {
+char *IP4Netmask::asChars() {
     if (netmask == nullptr) {
-        return "NULL";
+        return nullptr;
     }
-    return String::format("'%d.%d.%d.%d /%d'", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
+    return (char *) String::format("'%d.%d.%d.%d /%d'", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
 }

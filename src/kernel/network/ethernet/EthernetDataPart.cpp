@@ -11,10 +11,3 @@ EthernetDataPart::~EthernetDataPart() = default;
 EthernetDataPart::EtherType EthernetDataPart::getEtherType() {
     return do_getEtherType();
 }
-
-String EthernetDataPart::asString(const String &spacing) {
-    if (spacing.isEmpty()) {
-        return "EMPTY_SPACING";
-    }
-    return do_asString(spacing);
-}

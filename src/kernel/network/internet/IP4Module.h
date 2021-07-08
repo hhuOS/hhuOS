@@ -6,7 +6,6 @@
 #define HHUOS_IP4MODULE_H
 
 #include <kernel/network/internet/routing/IP4RoutingModule.h>
-#include <kernel/network/ethernet/EthernetDevice.h>
 
 namespace Kernel {
     class IP4Module final : public Receiver {

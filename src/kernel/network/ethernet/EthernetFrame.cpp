@@ -45,10 +45,3 @@ uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
     }
     return header->setSourceAddress(source);
 }
-
-String EthernetFrame::headerAsString(const String &spacing) {
-    if (header == nullptr) {
-        return "NULL";
-    }
-    return header->asString(spacing);
-}

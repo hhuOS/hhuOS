@@ -42,25 +42,8 @@ public:
 
     EtherType getEtherType();
 
-    String asString(const String &spacing);
-
-    static String etherTypeAsString(EtherType type) {
-        switch (type) {
-            case EtherType::IP4:
-                return "'IPv4'";
-            case EtherType::ARP:
-                return "'ARP'";
-            case EtherType::IP6:
-                return "'IPv6'";
-            default:
-                return "'INVALID'";
-        }
-    }
-
 private:
     virtual EtherType do_getEtherType() = 0;
-
-    virtual String do_asString(String spacing) = 0;
 };
 
 

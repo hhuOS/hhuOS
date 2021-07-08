@@ -35,8 +35,6 @@ private:
 
     EtherType do_getEtherType() final;
 
-    String do_asString(String spacing) final;
-
 public:
 
     enum class OpCode {

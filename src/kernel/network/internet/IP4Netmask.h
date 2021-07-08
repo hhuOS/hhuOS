@@ -21,7 +21,7 @@ public:
 
     uint8_t extractNetPart(IP4Address **targetNetPart, IP4Address *ip4Address);
 
-    String asString();
+    char *asChars();
 };
 
 

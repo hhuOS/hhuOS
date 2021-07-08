@@ -3,6 +3,7 @@
 //
 
 #include <kernel/network/NetworkDefinitions.h>
+#include <lib/string/String.h>
 #include "IP4Address.h"
 
 IP4Address::IP4Address(uint8_t first, uint8_t second, uint8_t third, uint8_t fourth) {
@@ -54,11 +55,11 @@ uint8_t IP4Address::copyTo(uint8_t *target) {
     return 0;
 }
 
-String IP4Address::asString() {
+char *IP4Address::asChars() {
     if (address == nullptr) {
-        return "NULL";
+        return nullptr;
     }
-    return String::format("'%d.%d.%d.%d'", address[0], address[1], address[2], address[3]);
+    return (char *) String::format("'%d.%d.%d.%d'", address[0], address[1], address[2], address[3]);
 }
 
 uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask) {
@@ -73,8 +74,8 @@ uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netma
     return 0;
 }
 
-uint8_t IP4Address::parseTo(uint8_t *targetBytes, const String &fromString) {
-    auto addressParts = fromString.split(".");
+uint8_t IP4Address::parseTo(uint8_t *targetBytes, char *input) {
+    auto addressParts = String(input).split(".");
     if (addressParts.length() != IP4ADDRESS_LENGTH) {
         return 1;
     }

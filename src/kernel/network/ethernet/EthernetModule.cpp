@@ -215,17 +215,6 @@ namespace Kernel {
                 delete input;
                 return;
             }
-
-#if PRINT_IN_ETH_HEADER == 1
-            printf("\nHeader of incoming frame:\n%s\n",
-                   (char *) ethernetHeader->asString(DEBUG_SPACING));
-#endif
-#if PRINT_IN_ETH_DATABYTES == 1
-            uint16_t startIndex = EthernetHeader::getHeaderLength();
-            uint16_t endIndex = input->getLength() - 1;
-            printf("\nData bytes of incoming frame (%d per line):\n%s\n", BYTES_PER_LINE,
-                   (char *) input->asString(startIndex, endIndex, BYTES_PER_LINE));
-#endif
             if (!isForUsOrBroadcast(ethernetHeader)) {
                 log.error("Incoming frame is not for us and not broadcast either, discarding");
                 delete ethernetHeader;

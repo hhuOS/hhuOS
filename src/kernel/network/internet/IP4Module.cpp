@@ -57,7 +57,7 @@ namespace Kernel {
         }
         if (targetInterface == nullptr) {
             log.error("No target interface found for address %s, discarding ARP message",
-                      (char *) destinationAddress->asString());
+                      destinationAddress->asChars());
             accessLock->release();
             delete destinationAddress;
             return 1;

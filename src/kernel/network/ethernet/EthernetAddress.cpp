@@ -50,13 +50,13 @@ EthernetAddress *EthernetAddress::buildBroadcastAddress() {
     return new EthernetAddress(allOnesBytes);
 }
 
-String EthernetAddress::asString() {
+char *EthernetAddress::asChars() {
     if (macAddress == nullptr) {
-        return "NULL";
+        return nullptr;
     }
-    return String::format("'%02x:%02x:%02x:%02x:%02x:%02x'",
-                          macAddress[0], macAddress[1], macAddress[2],
-                          macAddress[3], macAddress[4], macAddress[5]
+    return (char *) String::format("'%02x:%02x:%02x:%02x:%02x:%02x'",
+                                   macAddress[0], macAddress[1], macAddress[2],
+                                   macAddress[3], macAddress[4], macAddress[5]
     );
 }
 

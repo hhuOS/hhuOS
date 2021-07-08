@@ -33,8 +33,6 @@ public:
     uint8_t copyTo(Kernel::NetworkByteBlock *output);
 
     uint8_t parse(Kernel::NetworkByteBlock *input);
-
-    String asString(const String &spacing);
 };
 
 
