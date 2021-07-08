@@ -129,6 +129,6 @@ const String SendText::getHelpText() {
     return "Utility for testing our UDP/IP protocol stack by sending and receiving given text via UDP\n\n"
            "Usage: sendtext [OPTION] [TEXT]\n"
            "Options:\n"
-           "   -n, --count: Send and receive given text n times\n"
+           "   -n, --count: Send and receive given text n times, default is 1, maximum is 255\n"
            "   -h, --help: Show this help-message";
 }
