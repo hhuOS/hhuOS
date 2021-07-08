@@ -15,15 +15,15 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
+    IP4ProtocolType do_getIP4ProtocolType() override;
+
+    size_t do_getLengthInBytes() override;
+
 public:
 
     UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes);
 
     ~UDP4Datagram() override;
-
-    IP4ProtocolType getIP4ProtocolType() override;
-
-    size_t getLengthInBytes() override;
 };
 
 

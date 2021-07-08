@@ -37,16 +37,17 @@ ICMP4Message::ICMP4MessageType ICMP4EchoReply::do_getICMP4MessageType() {
     return ICMP4MessageType::ECHO_REPLY;
 }
 
+//Private method!
+size_t ICMP4EchoReply::do_getLengthInBytes() {
+    return sizeof(header) + sizeof(echoReply);
+}
+
 ICMP4EchoReply::ICMP4EchoReply(uint16_t identifier, uint16_t sequenceNumber) {
     header.type = 0; //8 for echo, 0 for echo reply (RFC792)
     header.code = 0;
     header.checksum = 0;
     echoReply.identifier = identifier;
     echoReply.sequenceNumber = sequenceNumber;
-}
-
-size_t ICMP4EchoReply::getLengthInBytes() {
-    return sizeof(header) + sizeof(echoReply);
 }
 
 uint16_t ICMP4EchoReply::getIdentifier() const {

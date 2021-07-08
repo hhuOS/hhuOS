@@ -18,3 +18,11 @@ uint8_t IP4DataPart::copyTo(Kernel::NetworkByteBlock *output) {
     }
     return do_copyTo(output);
 }
+
+size_t IP4DataPart::getLengthInBytes() {
+    return do_getLengthInBytes();
+}
+
+IP4DataPart::IP4ProtocolType IP4DataPart::getIP4ProtocolType() {
+    return do_getIP4ProtocolType();
+}

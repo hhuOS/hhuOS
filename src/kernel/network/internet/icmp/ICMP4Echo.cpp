@@ -37,16 +37,16 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::do_getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
+size_t ICMP4Echo::do_getLengthInBytes() {
+    return sizeof(header) + sizeof echoMessage;
+}
+
 ICMP4Echo::ICMP4Echo(uint16_t identifier, uint16_t sequenceNumber) {
     header.type = 8; //8 for echo, 0 for echo reply (RFC792)
     header.code = 0;
     header.checksum = 0;
     echoMessage.identifier = identifier;
     echoMessage.sequenceNumber = sequenceNumber;
-}
-
-size_t ICMP4Echo::getLengthInBytes() {
-    return sizeof(header) + sizeof echoMessage;
 }
 
 ICMP4EchoReply *ICMP4Echo::buildEchoReply() const {

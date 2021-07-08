@@ -23,6 +23,8 @@ private:
 
     ICMP4MessageType do_getICMP4MessageType() final;
 
+    size_t do_getLengthInBytes() final;
+
 public:
 
     //Sending constructor
@@ -33,8 +35,6 @@ public:
     ~ICMP4Echo() override = default;
 
     [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
-
-    size_t getLengthInBytes() override;
 
     [[nodiscard]] uint16_t getSequenceNumber() const;
 };

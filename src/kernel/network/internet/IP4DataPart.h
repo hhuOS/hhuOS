@@ -8,9 +8,6 @@
 #include <kernel/network/NetworkByteBlock.h>
 
 class IP4DataPart {
-private:
-    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
-
 protected:
     IP4DataPart();
 
@@ -43,9 +40,16 @@ public:
 
     uint8_t copyTo(Kernel::NetworkByteBlock *byteBlock);
 
-    virtual size_t getLengthInBytes() = 0;
+    size_t getLengthInBytes();
 
-    virtual IP4ProtocolType getIP4ProtocolType() = 0;
+    IP4ProtocolType getIP4ProtocolType();
+
+private:
+    virtual uint8_t do_copyTo(Kernel::NetworkByteBlock *output) = 0;
+
+    virtual size_t do_getLengthInBytes() = 0;
+
+    virtual IP4ProtocolType do_getIP4ProtocolType() = 0;
 };
 
 

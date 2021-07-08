@@ -73,8 +73,6 @@ public:
         }
     }
 
-    IP4ProtocolType getIP4ProtocolType() override;
-
     bool checksumIsValid();
 
     uint8_t fillChecksumField();
@@ -87,6 +85,8 @@ private:
     virtual uint8_t do_parse(Kernel::NetworkByteBlock *input) = 0;
 
     virtual ICMP4MessageType do_getICMP4MessageType() = 0;
+
+    IP4ProtocolType do_getIP4ProtocolType() final;
 };
 
 #endif //HHUOS_ICMP4MESSAGE_H

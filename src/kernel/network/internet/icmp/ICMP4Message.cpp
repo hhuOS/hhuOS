@@ -8,10 +8,6 @@ ICMP4Message::ICMP4Message() = default;
 
 ICMP4Message::~ICMP4Message() = default;
 
-IP4DataPart::IP4ProtocolType ICMP4Message::getIP4ProtocolType() {
-    return IP4ProtocolType::ICMP4;
-}
-
 uint8_t ICMP4Message::fillChecksumField() {
     if (header.checksum != 0) {
         //Header checksum already set!
@@ -56,6 +52,10 @@ bool ICMP4Message::checksumIsValid() {
 
     delete headerAsBytes;
     return calculationResult == 0;
+}
+
+IP4DataPart::IP4ProtocolType ICMP4Message::do_getIP4ProtocolType() {
+    return IP4DataPart::ICMP4;
 }
 
 uint8_t ICMP4Message::parse(Kernel::NetworkByteBlock *input) {
