@@ -19,6 +19,10 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
+    uint8_t do_parse(Kernel::NetworkByteBlock *input) final;
+
+    ICMP4MessageType do_getICMP4MessageType() final;
+
 public:
 
     //Sending constructor
@@ -28,13 +32,9 @@ public:
 
     ~ICMP4Echo() override = default;
 
-    ICMP4MessageType getICMP4MessageType() override;
-
     [[nodiscard]] ICMP4EchoReply *buildEchoReply() const;
 
     size_t getLengthInBytes() override;
-
-    uint8_t parse(Kernel::NetworkByteBlock *input);
 
     [[nodiscard]] uint16_t getSequenceNumber() const;
 };

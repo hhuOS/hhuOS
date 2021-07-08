@@ -18,6 +18,7 @@ target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4Module.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4EchoReply.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4Echo.cpp
+        ${HHUOS_SRC_DIR}/kernel/network/internet/icmp/ICMP4Message.cpp
 
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4RoutingModule.cpp
         ${HHUOS_SRC_DIR}/kernel/network/internet/routing/IP4Route.cpp

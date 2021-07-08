@@ -17,7 +17,11 @@ protected:
     } header_t;
 
     header_t header;
+
+    ICMP4Message();
+
 public:
+    //see RFC 792 for details
     enum class ICMP4MessageType {
         ECHO_REPLY = 0,
         DESTINATION_UNREACHABLE = 3,
@@ -32,6 +36,13 @@ public:
         INFORMATION_REPLY = 16,
         INVALID
     };
+
+    ~ICMP4Message() override;
+
+    // forbid copying
+    ICMP4Message(ICMP4Message const &) = delete;
+
+    ICMP4Message &operator=(ICMP4Message const &) = delete;
 
     static ICMP4MessageType parseByteAsICMP4MessageType(uint8_t type) {
         switch (type) {
@@ -62,59 +73,20 @@ public:
         }
     }
 
-    IP4ProtocolType getIP4ProtocolType() override {
-        return IP4ProtocolType::ICMP4;
-    }
+    IP4ProtocolType getIP4ProtocolType() override;
 
-    size_t getLengthInBytes() override = 0;
+    bool checksumIsValid();
 
-    virtual ICMP4MessageType getICMP4MessageType() = 0;
+    uint8_t fillChecksumField();
 
-    uint8_t fillChecksumField() {
-        if (header.checksum != 0) {
-            //Header checksum already set!
-            return 1;
-        }
+    uint8_t parse(Kernel::NetworkByteBlock *input);
 
-        auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
-        if (this->copyTo(headerAsBytes)) {
-            delete headerAsBytes;
-            return 1;
-        }
-        headerAsBytes->resetIndex();
+    ICMP4MessageType getICMP4MessageType();
 
-        uint16_t calculationResult = 0;
-        if (IP4Header::calculateInternetChecksum(&calculationResult, headerAsBytes)) {
-            delete headerAsBytes;
-            return 1;
-        }
-        header.checksum = calculationResult;
-        delete headerAsBytes;
-        return 0;
-    }
+private:
+    virtual uint8_t do_parse(Kernel::NetworkByteBlock *input) = 0;
 
-    bool checksumIsValid() {
-        if (header.checksum == 0) {
-            //Header checksum not parsed!
-            return false;
-        }
-
-        uint16_t calculationResult = 0;
-        auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
-        if (this->copyTo(headerAsBytes)) {
-            delete headerAsBytes;
-            return false;
-        }
-        headerAsBytes->resetIndex();
-
-        if (IP4Header::calculateInternetChecksum(&calculationResult, headerAsBytes)) {
-            delete headerAsBytes;
-            return false;
-        }
-
-        delete headerAsBytes;
-        return calculationResult == 0;
-    }
+    virtual ICMP4MessageType do_getICMP4MessageType() = 0;
 };
 
 #endif //HHUOS_ICMP4MESSAGE_H

@@ -93,7 +93,7 @@ void Ip::address(Kernel::NetworkService *networkService, Util::ArgumentParser *p
         uint8_t bitCount, addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
         auto addressAsString = unnamedArguments[1];
         if (IP4Address::parseTo(addressBytes, addressAsString)) {
-            stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
+            stderr << "Could not do_parse input " << addressAsString << " as IP4Address!" << endl;
             return;
         }
 
@@ -165,7 +165,7 @@ void Ip::route(Kernel::NetworkService *networkService, Util::ArgumentParser *par
         uint8_t addressBytes[IP4ADDRESS_LENGTH]{0, 0, 0, 0};
         auto addressAsString = unnamedArguments[0];
         if (IP4Address::parseTo(addressBytes, addressAsString)) {
-            stderr << "Could not parse input " << addressAsString << " as IP4Address!" << endl;
+            stderr << "Could not do_parse input " << addressAsString << " as IP4Address!" << endl;
             return;
         }
         auto *gatewayAddress = new IP4Address(addressBytes);
