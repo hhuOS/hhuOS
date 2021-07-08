@@ -37,7 +37,7 @@ IP4Datagram::~IP4Datagram() {
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
-    if(header== nullptr){
+    if (header == nullptr) {
         return nullptr;
     }
     return header->getDestinationAddress();
@@ -51,7 +51,7 @@ uint8_t IP4Datagram::setSourceAddress(IP4Address *source) {
 }
 
 size_t IP4Datagram::getLengthInBytes() {
-    if(header== nullptr){
+    if (header == nullptr) {
         return 0;
     }
     return header->getTotalDatagramLength();
@@ -62,7 +62,7 @@ EthernetDataPart::EtherType IP4Datagram::getEtherType() {
 }
 
 uint8_t IP4Datagram::fillHeaderChecksum() {
-    if(header== nullptr){
+    if (header == nullptr) {
         return 1;
     }
     return header->fillChecksumField();

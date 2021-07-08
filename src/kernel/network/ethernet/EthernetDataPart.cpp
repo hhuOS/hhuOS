@@ -7,11 +7,11 @@
 EthernetDataPart::~EthernetDataPart() = default;
 
 uint8_t EthernetDataPart::copyTo(Kernel::NetworkByteBlock *output) {
-    if (output == nullptr){
+    if (output == nullptr) {
         return 1;
     }
     size_t lengthInBytes = this->getLengthInBytes();
-    if(lengthInBytes == 0 || output->bytesRemaining() < lengthInBytes){
+    if (lengthInBytes == 0 || output->bytesRemaining() < lengthInBytes) {
         return 1;
     }
     return do_copyTo(output);

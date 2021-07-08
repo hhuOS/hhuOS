@@ -35,7 +35,7 @@ EthernetFrame::~EthernetFrame() {
 }
 
 size_t EthernetFrame::getLengthInBytes() {
-    if(ethernetDataPart== nullptr){
+    if (ethernetDataPart == nullptr) {
         return 0;
     }
     return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
@@ -49,7 +49,7 @@ uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
 }
 
 String EthernetFrame::headerAsString(const String &spacing) {
-    if(header== nullptr){
+    if (header == nullptr) {
         return "NULL";
     }
     return header->asString(spacing);
