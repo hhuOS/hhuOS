@@ -247,5 +247,6 @@ const String Ip::getHelpText() {
            "               Remove default route from routing table, if existing\n"
            "               Only directly connected hosts can be reached then\n"
            "               Example: 'ip --route --no-default'\n"
+           "   -neigh, --neighbor: List ARP tables of all registered interfaces\n"
            "   -h, --help: Show this help-message";
 }
