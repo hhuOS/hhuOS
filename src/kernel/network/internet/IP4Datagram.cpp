@@ -2,10 +2,7 @@
 // Created by hannes on 14.05.21.
 //
 
-#include <kernel/network/internet/icmp/ICMP4EchoReply.h>
-#include <kernel/network/internet/icmp/ICMP4Echo.h>
 #include <kernel/network/NetworkDefinitions.h>
-#include <kernel/network/udp/UDP4Datagram.h>
 #include "IP4Datagram.h"
 
 //Private method!
