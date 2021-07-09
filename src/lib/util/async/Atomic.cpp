@@ -112,16 +112,19 @@ T Atomic<T>::fetchAndDec() {
 
 template<typename T>
 bool Atomic<T>::bitTest(T index) {
+    uint32_t ret = 0;
+
     asm volatile (
     "bt %1, %0;"
-    "jc CF_SET;"
-    "jmp CF_UNSET;"
     : "+m"(value)
     : "r"(index)
     );
 
-    // Should never be executed
-    return true;
+    asm volatile (
+    "lahf;" : "=a"(ret)
+    );
+
+    return (ret & 0x0100) != 0;
 }
 
 template<typename T>
@@ -144,30 +147,36 @@ void Atomic<T>::bitReset(T index) {
 
 template<typename T>
 bool Atomic<T>::bitTestAndSet(T index) {
+    uint32_t ret = 0;
+
     asm volatile (
     "lock bts %1, %0;"
-    "jc CF_SET;"
-    "jmp CF_UNSET;"
     : "+m"(value)
     : "r"(index)
     );
 
-    // Should never be executed
-    return true;
+    asm volatile (
+    "lahf;" : "=a"(ret)
+    );
+
+    return (ret & 0x0100) != 0;
 }
 
 template<typename T>
 bool Atomic<T>::bitTestAndReset(T index) {
+    uint32_t ret = 0;
+
     asm volatile (
     "lock btr %1, %0;"
-    "jc CF_SET;"
-    "jmp CF_UNSET;"
     : "+m"(value)
     : "r"(index)
     );
 
-    // Should never be executed
-    return true;
+    asm volatile (
+    "lahf;" : "=a"(ret)
+    );
+
+    return (ret & 0x0100) != 0;
 }
 
 }
