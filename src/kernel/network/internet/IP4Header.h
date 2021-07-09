@@ -63,6 +63,8 @@ public:
     bool headerIsValid();
 
     bool destinationIs(IP4Address *otherAddress);
+
+    bool hasOptionsOrFragmentation() const;
 };
 
 

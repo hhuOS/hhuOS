@@ -144,29 +144,15 @@ uint8_t IP4Header::parse(Kernel::NetworkByteBlock *input) {
 
     uint8_t addressBytes[IP4ADDRESS_LENGTH];
 
-    errors += input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH);
+    if (input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH)) {
+        return 1;
+    }
     sourceAddress = new IP4Address(addressBytes);
 
-    if (errors) {
-        return errors;
+    if (input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH)) {
+        return 1;
     }
-
-    errors += input->readStraightTo(addressBytes, IP4ADDRESS_LENGTH);
     destinationAddress = new IP4Address(addressBytes);
-
-    if (errors) {
-        return errors;
-    }
-
-    //Skip additional bytes if incoming header is larger than our internal one
-    //-> next layer would read our remaining header bytes as data otherwise!
-    uint16_t remainingHeaderBytes = getHeaderLength() - (uint16_t) IP4HEADER_MIN_LENGTH;
-    //True if remainingHeaderBytes > 0
-    if (remainingHeaderBytes) {
-        auto *discardedBytes = new uint8_t[remainingHeaderBytes];
-        errors += input->readStraightTo(discardedBytes, remainingHeaderBytes);
-        delete[] discardedBytes;
-    }//TODO: Refactor this, it will fail with checksumError that way!
 
     return errors;
 }
@@ -222,4 +208,10 @@ bool IP4Header::destinationIs(IP4Address *otherAddress) {
         return false;
     }
     return destinationAddress->equals(otherAddress);
+}
+
+bool IP4Header::hasOptionsOrFragmentation() const {
+    return
+            getHeaderLength() > IP4HEADER_MIN_LENGTH || //OPTIONS field ist behind regular fields
+            (flags_fragmentOffset + identification) > 0;
 }

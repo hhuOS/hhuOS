@@ -296,6 +296,12 @@ namespace Kernel {
                 delete input;
                 return;
             }
+            if (ip4Header->hasOptionsOrFragmentation()) {
+                log.error("Incoming IP4Header has options or fragmentation, discarding datagram");
+                delete ip4Header;
+                delete input;
+                return;
+            }
             if (!isForUsOrBroadcast(ip4Header)) {
                 log.error("Incoming datagram is not for us and not broadcast either, discarding");
                 delete ip4Header;
