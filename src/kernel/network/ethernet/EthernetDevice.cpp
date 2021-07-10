@@ -87,7 +87,7 @@ namespace Kernel {
             return 1;
         }
 
-#if PRINT_OUT_ALL_BYTES == 1
+#if PRINT_OUTGOING_BYTES == 1
         printf("\nOutgoing Bytes (%d per line):\n", BYTES_PER_LINE);
         output->printBytes(0, output->getLength() - (uint16_t) 1, BYTES_PER_LINE);
 #endif

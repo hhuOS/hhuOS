@@ -41,7 +41,7 @@ namespace Kernel {
 
         uint8_t resetIndex();
 
-#if PRINT_IN_ALL_BYTES == 1 || PRINT_OUT_ALL_BYTES == 1
+#if PRINT_INCOMING_BYTES == 1 || PRINT_OUTGOING_BYTES == 1
         void printBytes(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine);
 #endif
     };

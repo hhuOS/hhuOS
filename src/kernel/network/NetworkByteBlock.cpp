@@ -4,7 +4,7 @@
 
 #include "NetworkByteBlock.h"
 
-#if PRINT_IN_ALL_BYTES == 1 || PRINT_OUT_ALL_BYTES == 1
+#if PRINT_INCOMING_BYTES == 1 || PRINT_OUTGOING_BYTES == 1
 #include <lib/libc/printf.h>
 #endif
 
@@ -122,7 +122,7 @@ namespace Kernel {
         return 0;
     }
 
-#if PRINT_IN_ALL_BYTES == 1 || PRINT_OUT_ALL_BYTES == 1
+#if PRINT_INCOMING_BYTES == 1 || PRINT_OUTGOING_BYTES == 1
     void NetworkByteBlock::printBytes(uint16_t startIndex, uint16_t endIndex, uint16_t bytesPerLine) {
         if (this->bytes == nullptr) {
             return;
