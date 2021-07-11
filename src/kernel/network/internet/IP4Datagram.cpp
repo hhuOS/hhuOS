@@ -10,7 +10,7 @@ uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ip4Header == nullptr ||
             ip4DataPart == nullptr ||
-                    ip4DataPart->length() > (uint16_t) (IP4DATAPART_MAX_LENGTH - ip4Header->getHeaderLength()) ||
+            ip4DataPart->length() > (uint16_t) (IP4DATAPART_MAX_LENGTH - ip4Header->getHeaderLength()) ||
             ip4Header->getHeaderLength() > IP4HEADER_MAX_LENGTH //IPv4 headers are dynamical!
             ) {
         return 1;

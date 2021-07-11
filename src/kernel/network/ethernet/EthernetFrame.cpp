@@ -10,7 +10,7 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ethernetHeader == nullptr ||
             ethernetDataPart == nullptr ||
-                    ethernetDataPart->length() > ETHERNET_MTU
+            ethernetDataPart->length() > ETHERNET_MTU
             ) {
         return 1;
     }
