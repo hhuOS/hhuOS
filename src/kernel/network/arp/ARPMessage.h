@@ -31,7 +31,7 @@ private:
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 
-    uint16_t do_getLengthInBytes() final;
+    uint16_t do_length() final;
 
     EtherType do_getEtherType() final;
 

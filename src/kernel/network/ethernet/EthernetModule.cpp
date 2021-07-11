@@ -189,7 +189,7 @@ namespace Kernel {
                 delete outFrame;
                 return;
             }
-            if (outFrame->getLengthInBytes() == 0) {
+            if (outFrame->length() == 0) {
                 log.error("Outgoing frame was empty, discarding frame");
                 //targetHardwareAddress will be deleted internally
                 delete outFrame;

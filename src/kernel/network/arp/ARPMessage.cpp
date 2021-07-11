@@ -32,7 +32,7 @@ uint8_t ARPMessage::do_copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 //Private method!
-uint16_t ARPMessage::do_getLengthInBytes() {
+uint16_t ARPMessage::do_length() {
     return sizeof header + getBodyLengthInBytes();
 }
 

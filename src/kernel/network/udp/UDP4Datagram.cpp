@@ -22,7 +22,7 @@ uint8_t UDP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 //Private method!
-uint16_t UDP4Datagram::do_getLengthInBytes() {
+uint16_t UDP4Datagram::do_length() {
     if (udp4Header == nullptr) {
         return 0;
     }

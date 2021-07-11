@@ -14,7 +14,7 @@ uint8_t ICMP4Message::fillChecksumField() {
         return 1;
     }
 
-    auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
+    auto *headerAsBytes = new Kernel::NetworkByteBlock(length());
     if (this->copyTo(headerAsBytes)) {
         delete headerAsBytes;
         return 1;
@@ -38,7 +38,7 @@ bool ICMP4Message::checksumIsValid() {
     }
 
     uint16_t calculationResult = 0;
-    auto *headerAsBytes = new Kernel::NetworkByteBlock(getLengthInBytes());
+    auto *headerAsBytes = new Kernel::NetworkByteBlock(length());
     if (this->copyTo(headerAsBytes)) {
         delete headerAsBytes;
         return false;

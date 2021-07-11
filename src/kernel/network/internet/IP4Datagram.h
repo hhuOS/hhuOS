@@ -17,7 +17,7 @@ private:
 
     EtherType do_getEtherType() final;
 
-    uint16_t do_getLengthInBytes() final;
+    uint16_t do_length() final;
 
 public:
 

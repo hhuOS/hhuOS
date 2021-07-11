@@ -10,7 +10,7 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
             ethernetHeader == nullptr ||
             ethernetDataPart == nullptr ||
-            ethernetDataPart->getLengthInBytes() > ETHERNET_MTU
+                    ethernetDataPart->length() > ETHERNET_MTU
             ) {
         return 1;
     }
@@ -32,11 +32,11 @@ EthernetFrame::~EthernetFrame() {
     delete ethernetDataPart;
 }
 
-uint16_t EthernetFrame::getLengthInBytes() {
+uint16_t EthernetFrame::length() {
     if (ethernetDataPart == nullptr) {
         return 0;
     }
-    return EthernetHeader::getHeaderLength() + ethernetDataPart->getLengthInBytes();
+    return EthernetHeader::getHeaderLength() + ethernetDataPart->length();
 }
 
 uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {

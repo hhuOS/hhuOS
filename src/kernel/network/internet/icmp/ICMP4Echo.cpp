@@ -37,7 +37,7 @@ ICMP4Message::ICMP4MessageType ICMP4Echo::do_getICMP4MessageType() {
     return ICMP4MessageType::ECHO;
 }
 
-uint16_t ICMP4Echo::do_getLengthInBytes() {
+uint16_t ICMP4Echo::do_length() {
     return sizeof(header) + sizeof echoMessage;
 }
 

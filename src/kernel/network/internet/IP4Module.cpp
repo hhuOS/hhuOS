@@ -262,7 +262,7 @@ namespace Kernel {
                 delete datagram;
                 return;
             }
-            if (datagram->getLengthInBytes() == 0) {
+            if (datagram->length() == 0) {
                 log.error("Outgoing datagram was empty, discarding it");
                 //destinationAddress will be deleted internally
                 delete datagram;

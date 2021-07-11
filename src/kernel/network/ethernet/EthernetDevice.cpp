@@ -48,7 +48,7 @@ namespace Kernel {
             log.error("%s: Could not set frame's source address, discarding", (char *) this->identifier);
             return 1;
         }
-        auto *output = new NetworkByteBlock(ethernetFrame->getLengthInBytes());
+        auto *output = new NetworkByteBlock(ethernetFrame->length());
 
         //ethernetFrame will be deleted in EthernetModule later
         //-> no 'delete ethernetFrame' here!

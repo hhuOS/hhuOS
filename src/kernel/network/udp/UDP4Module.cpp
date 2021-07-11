@@ -134,7 +134,7 @@ namespace Kernel {
             }
             auto *udp4Datagram =
                     new UDP4Datagram(sourcePort, destinationPort, outData);
-            if (udp4Datagram->getLengthInBytes() == 0) {
+            if (udp4Datagram->length() == 0) {
                 log.error("Outgoing datagram was empty, discarding it");
                 delete udp4Datagram;
                 return;

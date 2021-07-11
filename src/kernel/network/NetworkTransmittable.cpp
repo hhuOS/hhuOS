@@ -12,13 +12,13 @@ uint8_t NetworkTransmittable::copyTo(Kernel::NetworkByteBlock *output) {
     if (output == nullptr) {
         return 1;
     }
-    uint16_t lengthInBytes = this->getLengthInBytes();
+    uint16_t lengthInBytes = this->length();
     if (lengthInBytes == 0 || output->bytesRemaining() < lengthInBytes) {
         return 1;
     }
     return do_copyTo(output);
 }
 
-uint16_t NetworkTransmittable::getLengthInBytes() {
-    return do_getLengthInBytes();
+uint16_t NetworkTransmittable::length() {
+    return do_length();
 }
