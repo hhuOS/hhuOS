@@ -103,10 +103,10 @@ namespace Kernel {
 
         //Send via MMIO if we are a physical device
         if (physicalBufferAddress != nullptr) {
-            networkDevice->sendPacket(physicalBufferAddress, static_cast<uint16_t>(blockLength));
+            networkDevice->sendPacket(physicalBufferAddress, blockLength);
         } else {
             //Send directly inMemory if we are a virtual device (like Loopback)
-            networkDevice->sendPacket(sendBuffer, static_cast<uint16_t>(blockLength));
+            networkDevice->sendPacket(sendBuffer, blockLength);
         }
         memset(sendBuffer, 0, blockLength);
 
