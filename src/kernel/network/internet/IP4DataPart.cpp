@@ -22,3 +22,18 @@ IP4DataPart::IP4ProtocolType IP4DataPart::parseIntAsIP4ProtocolType(uint8_t valu
             return IP4ProtocolType::INVALID;
     }
 }
+
+uint8_t IP4DataPart::copyTo(Kernel::NetworkByteBlock *output) {
+    if (output == nullptr) {
+        return 1;
+    }
+    uint16_t lengthInBytes = this->length();
+    if (lengthInBytes == 0 || output->bytesRemaining() < lengthInBytes) {
+        return 1;
+    }
+    return do_copyTo(output);
+}
+
+uint16_t IP4DataPart::length() {
+    return do_length();
+}

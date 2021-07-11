@@ -24,3 +24,18 @@ EthernetDataPart::EtherType EthernetDataPart::parseIntAsEtherType(uint16_t value
             return EthernetDataPart::EtherType::INVALID;
     }
 }
+
+uint8_t EthernetDataPart::copyTo(Kernel::NetworkByteBlock *output) {
+    if (output == nullptr) {
+        return 1;
+    }
+    uint16_t lengthInBytes = this->length();
+    if (lengthInBytes == 0 || output->bytesRemaining() < lengthInBytes) {
+        return 1;
+    }
+    return do_copyTo(output);
+}
+
+uint16_t EthernetDataPart::length() {
+    return do_length();
+}
