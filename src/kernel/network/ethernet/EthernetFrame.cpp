@@ -8,13 +8,13 @@
 //Private method!
 uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
     if (
-            header == nullptr ||
+            ethernetHeader == nullptr ||
             ethernetDataPart == nullptr ||
             ethernetDataPart->getLengthInBytes() > ETHERNET_MTU
             ) {
         return 1;
     }
-    if (header->copyTo(output)) {
+    if (ethernetHeader->copyTo(output)) {
         return 1;
     }
     //Call next level if no errors occurred yet
@@ -22,13 +22,13 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
 }
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
-    this->header = new EthernetHeader(destinationAddress, ethernetDataPart);
+    this->ethernetHeader = new EthernetHeader(destinationAddress, ethernetDataPart);
     this->ethernetDataPart = ethernetDataPart;
 }
 
 EthernetFrame::~EthernetFrame() {
     //delete on nullptr simply does nothing!
-    delete header;
+    delete ethernetHeader;
     delete ethernetDataPart;
 }
 
@@ -40,8 +40,8 @@ uint16_t EthernetFrame::getLengthInBytes() {
 }
 
 uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
-    if (source == nullptr || header == nullptr) {
+    if (source == nullptr || ethernetHeader == nullptr) {
         return 1;
     }
-    return header->setSourceAddress(source);
+    return ethernetHeader->setSourceAddress(source);
 }

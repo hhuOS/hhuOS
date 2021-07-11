@@ -10,7 +10,7 @@
 
 class IP4Datagram final : public EthernetDataPart {
 private:
-    IP4Header *header = nullptr;
+    IP4Header *ip4Header = nullptr;
     IP4DataPart *ip4DataPart = nullptr;
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;

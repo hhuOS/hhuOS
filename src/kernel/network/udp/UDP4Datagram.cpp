@@ -8,25 +8,25 @@
 //Private method!
 uint8_t UDP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     if (
-            header == nullptr ||
-            dataBytes == nullptr ||
-            dataBytes->getLength() > (uint16_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength())
+            udp4Header == nullptr ||
+            udp4DataBytes == nullptr ||
+            udp4DataBytes->getLength() > (uint16_t) (UDP4DATAPART_MAX_LENGTH - UDP4Header::getHeaderLength())
             ) {
         return 1;
     }
-    if (header->copyTo(output)) {
+    if (udp4Header->copyTo(output)) {
         return 1;
     }
     //Append dataBytes if no errors occurred yet
-    return output->appendStraightFrom(dataBytes, dataBytes->getLength());
+    return output->appendStraightFrom(udp4DataBytes, udp4DataBytes->getLength());
 }
 
 //Private method!
 uint16_t UDP4Datagram::do_getLengthInBytes() {
-    if (header == nullptr) {
+    if (udp4Header == nullptr) {
         return 0;
     }
-    return header->getTotalDatagramLength();
+    return udp4Header->getTotalDatagramLength();
 }
 
 //Private method!
@@ -35,12 +35,12 @@ IP4DataPart::IP4ProtocolType UDP4Datagram::do_getIP4ProtocolType() {
 }
 
 UDP4Datagram::UDP4Datagram(uint16_t sourcePort, uint16_t destinationPort, Kernel::NetworkByteBlock *dataBytes) {
-    this->header = new UDP4Header(sourcePort, destinationPort, dataBytes);
-    this->dataBytes = dataBytes;
+    this->udp4Header = new UDP4Header(sourcePort, destinationPort, dataBytes);
+    this->udp4DataBytes = dataBytes;
 }
 
 UDP4Datagram::~UDP4Datagram() {
     //delete on nullptr simply does nothing!
-    delete header;
-    delete dataBytes;
+    delete udp4Header;
+    delete udp4DataBytes;
 }

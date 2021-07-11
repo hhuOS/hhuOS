@@ -9,7 +9,7 @@
 
 class EthernetFrame final {
 private:
-    EthernetHeader *header = nullptr;
+    EthernetHeader *ethernetHeader = nullptr;
     EthernetDataPart *ethernetDataPart = nullptr;
 
 public:

@@ -10,8 +10,8 @@
 
 class UDP4Datagram final : public IP4DataPart {
 private:
-    UDP4Header *header = nullptr;
-    Kernel::NetworkByteBlock *dataBytes = nullptr;
+    UDP4Header *udp4Header = nullptr;
+    Kernel::NetworkByteBlock *udp4DataBytes = nullptr;
 
     uint8_t do_copyTo(Kernel::NetworkByteBlock *output) final;
 

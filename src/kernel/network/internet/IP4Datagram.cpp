@@ -8,14 +8,14 @@
 //Private method!
 uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
     if (
-            header == nullptr ||
+            ip4Header == nullptr ||
             ip4DataPart == nullptr ||
-            ip4DataPart->getLengthInBytes() > (uint16_t) (IP4DATAPART_MAX_LENGTH - header->getHeaderLength()) ||
-            header->getHeaderLength() > IP4HEADER_MAX_LENGTH //IPv4 headers are dynamical!
+            ip4DataPart->getLengthInBytes() > (uint16_t) (IP4DATAPART_MAX_LENGTH - ip4Header->getHeaderLength()) ||
+            ip4Header->getHeaderLength() > IP4HEADER_MAX_LENGTH //IPv4 headers are dynamical!
             ) {
         return 1;
     }
-    if (header->copyTo(output)) {
+    if (ip4Header->copyTo(output)) {
         return 1;
     }
     //Call next level if no errors occurred yet
@@ -24,10 +24,10 @@ uint8_t IP4Datagram::do_copyTo(Kernel::NetworkByteBlock *output) {
 
 //Private method!
 uint16_t IP4Datagram::do_getLengthInBytes() {
-    if (header == nullptr) {
+    if (ip4Header == nullptr) {
         return 0;
     }
-    return header->getTotalDatagramLength();
+    return ip4Header->getTotalDatagramLength();
 }
 
 //Private method!
@@ -37,33 +37,33 @@ EthernetDataPart::EtherType IP4Datagram::do_getEtherType() {
 
 //Private method!
 IP4Datagram::IP4Datagram(IP4Address *destinationAddress, IP4DataPart *ip4DataPart) {
-    this->header = new IP4Header(destinationAddress, ip4DataPart);
+    this->ip4Header = new IP4Header(destinationAddress, ip4DataPart);
     this->ip4DataPart = ip4DataPart;
 }
 
 IP4Datagram::~IP4Datagram() {
     //delete on nullptr simply does nothing!
-    delete header;
+    delete ip4Header;
     delete ip4DataPart;
 }
 
 IP4Address *IP4Datagram::getDestinationAddress() const {
-    if (header == nullptr) {
+    if (ip4Header == nullptr) {
         return nullptr;
     }
-    return header->getDestinationAddress();
+    return ip4Header->getDestinationAddress();
 }
 
 uint8_t IP4Datagram::setSourceAddress(IP4Address *source) {
     if (source == nullptr) {
         return 1;
     }
-    return header->setSourceAddress(source);
+    return ip4Header->setSourceAddress(source);
 }
 
 uint8_t IP4Datagram::fillHeaderChecksum() {
-    if (header == nullptr) {
+    if (ip4Header == nullptr) {
         return 1;
     }
-    return header->fillChecksumField();
+    return ip4Header->fillChecksumField();
 }
