@@ -45,7 +45,7 @@ namespace Kernel {
         }
 
 #if PRINT_INCOMING_BYTES == 1
-        printf("\nIncoming Bytes (%d per line):\n", BYTES_PER_LINE);
+        printf("\nIncoming Bytes (%d per line, %d total):\n", BYTES_PER_LINE, input->getLength());
         input->printBytes(0, input->getLength() - (uint16_t) 1, BYTES_PER_LINE);
 #endif
         //send input to EthernetModule via EventBus for further processing

@@ -127,7 +127,7 @@ namespace Kernel {
         if (this->bytes == nullptr) {
             return;
         }
-        for (uint16_t i = startIndex; (i < length) && (i < endIndex); i++) {
+        for (uint16_t i = startIndex; (i < length) && (i <= endIndex); i++) {
             if (((i - startIndex) % bytesPerLine) == 0) {
                 if ((i - startIndex) > 0) {
                     printf("\n");
