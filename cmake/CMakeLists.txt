@@ -72,7 +72,7 @@ set(CMAKE_C_FLAGS "-m32 -march=i486 -mno-sse -g -Wall -fno-stack-protector -nost
 if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
 endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/link.ld")
+set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -Wplacement-new=0 -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/link.ld")
 
 # Set preprocessor defines
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\

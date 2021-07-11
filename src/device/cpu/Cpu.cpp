@@ -52,8 +52,14 @@ void Cpu::enableInterrupts() {
 }
 
 void Cpu::disableInterrupts() {
-    asm volatile ( "cli" );
-    cliCountWrapper.fetchAndInc();
+    int count = cliCountWrapper.fetchAndInc();
+    if (count == 0) {
+        // cliCount has been increased from 0 to 1 -> Disable interrupts
+        asm volatile ( "cli" );
+    } else if (count < 0) {
+        // cliCount is negative -> Illegal state
+        throwException(Util::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
+    }
 }
 
 void Cpu::halt() {
