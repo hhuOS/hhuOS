@@ -19,6 +19,7 @@
 #define HHUOS_BYTEARRAYOUTPUTSTREAM_H
 
 #include <lib/util/data/Array.h>
+#include <lib/util/memory/String.h>
 #include "OutputStream.h"
 
 namespace Util::Stream {
@@ -40,6 +41,8 @@ public:
     [[nodiscard]] uint32_t getSize() const;
 
     void getContent(uint8_t *target, uint32_t length) const;
+
+    [[nodiscard]] Memory::String getContent() const;
 
     void reset();
 

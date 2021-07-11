@@ -16,6 +16,8 @@
  */
 
 #include <lib/interface.h>
+#include <lib/util/stream/ByteArrayOutputStream.h>
+#include <lib/util/stream/PrintWriter.h>
 #include "lib/util/data/ArrayList.h"
 #include "String.h"
 #include "lib/util/memory/Address.h"
@@ -353,10 +355,6 @@ String String::join(const String &separator, const Util::Data::Array<String> &el
     return tmp;
 }
 
-String String::valueOf(bool value) {
-    return value ? String("true") : String("false");
-}
-
 String String::toUpperCase() {
 
     String tmp = *this;
@@ -446,6 +444,65 @@ String String::strip() {
     }
 
     return substring(startIndex, endIndex + 1);
+}
+
+String String::format(const char *format, ...) {
+    va_list args;
+    va_start(args, format);
+
+    String tmp = vformat(format, args);
+
+    va_end(args);
+
+    return tmp;
+}
+
+String String::vformat(const char *format, va_list args) {
+    auto stream = Stream::ByteArrayOutputStream();
+    auto writer = Stream::PrintWriter(stream);
+
+    for (uint32_t i = 0; format[i] != '\0'; i++) {
+        uint32_t j;
+        for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++);
+
+        writer.write(format, i, j);
+
+        if (format[i + j] == '%') {
+            char specifier = format[i + ++j];
+            switch (specifier) {
+                case 'c' :
+                    writer << static_cast<char>(va_arg(args, int32_t));
+                    break;
+                case 'd' :
+                    writer << Stream::PrintWriter::dec << va_arg(args, int32_t);
+                    break;
+                case 'u' :
+                    writer << Stream::PrintWriter::dec << va_arg(args, uint32_t);
+                    break;
+                case 'o':
+                    writer << Stream::PrintWriter::oct << va_arg(args, uint32_t);
+                    break;
+                case 's':
+                    writer << va_arg(args, char*);
+                    break;
+                case 'x':
+                    writer << Stream::PrintWriter::hex << va_arg(args, uint32_t);
+                    break;
+                case 'b':
+                    writer << Stream::PrintWriter::bin << va_arg(args, uint32_t);
+                    break;
+                default:
+                    Exception::throwException(Exception::INVALID_ARGUMENT, "String: Invalid format specifier!");
+            }
+        } else {
+            writer.write('\0');
+            break;
+        }
+
+        i += j;
+    }
+
+    return stream.getContent();
 }
 
 }

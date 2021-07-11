@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __deprecated_String_include__
-#define __deprecated_String_include__
+#ifndef __String_include__
+#define __String_include__
 
 #include <cstdint>
 #include <cstdarg>
@@ -65,17 +65,9 @@ public:
 
     [[nodiscard]] bool endsWith(const String &string) const;
 
-    static String valueOf(bool value);
-
-    // static String valueOf(int32_t value, uint8_t radix, bool sign = true);
-
-    // static String valueOf(int32_t value, uint8_t radix, uint8_t padding, bool sign = true);
-
     static String join(const String &separator, const Util::Data::Array<String> &elements);
 
-    // static String format(const char *fmt, ...);
-
-    // static String vformat(const char *fmt, va_list args);
+    static String format(const char *format, ...);
 
     static bool isAlpha(char c);
 
@@ -101,8 +93,6 @@ public:
 
     friend String operator+(const char *first, const String &second);
 
-    // friend OutputStream &operator<<(OutputStream &outStream, const String &string);
-
     char operator[](uint32_t index) const;
 
     char &operator[](uint32_t index);
@@ -112,6 +102,8 @@ public:
     explicit operator uint32_t() const;
 
 private:
+
+    static String vformat(const char *format, va_list args);
 
     static const uint8_t CASE_OFFSET = 32;
 

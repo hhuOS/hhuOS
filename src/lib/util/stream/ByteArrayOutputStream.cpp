@@ -33,10 +33,14 @@ ByteArrayOutputStream::~ByteArrayOutputStream() {
 }
 
 void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
-    auto sourceAddress = Memory::Address<uint32_t>(buffer, size).add(position);
+    auto sourceAddress = Memory::Address<uint32_t>(buffer, size);
     auto targetAddress = Memory::Address<uint32_t>(target, length);
 
-    targetAddress.copyRange(sourceAddress, position > length ? length : position);
+    targetAddress.copyRange(sourceAddress, size > length ? length : size);
+}
+
+Memory::String ByteArrayOutputStream::getContent() const {
+    return Memory::String(reinterpret_cast<const char*>(buffer));
 }
 
 uint32_t ByteArrayOutputStream::getSize() const {
