@@ -80,7 +80,7 @@ namespace Kernel {
             return 0;
         }
 
-        if (blockLength > EthernetHeader::getMaximumFrameLength()) {
+        if (blockLength > EthernetHeader::maximumFrameLength()) {
             log.error("%s: %d outgoing bytes are too much, discarding frame",
                       (char *) this->identifier, blockLength);
             delete output;

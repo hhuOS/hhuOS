@@ -36,7 +36,7 @@ uint16_t EthernetFrame::length() {
     if (ethernetDataPart == nullptr) {
         return 0;
     }
-    return EthernetHeader::getHeaderLength() + ethernetDataPart->length();
+    return EthernetHeader::length() + ethernetDataPart->length();
 }
 
 uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {

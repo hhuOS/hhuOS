@@ -38,6 +38,8 @@ public:
 
     IP4Header() = default;
 
+    virtual ~IP4Header();
+
     [[nodiscard]] static uint8_t calculateInternetChecksum(uint16_t *target, Kernel::NetworkByteBlock *content);
 
     [[nodiscard]] IP4DataPart::IP4ProtocolType getIP4ProtocolType() const;
@@ -47,8 +49,6 @@ public:
     IP4Address *getSourceAddress();
 
     uint8_t setSourceAddress(IP4Address *address);
-
-    virtual ~IP4Header();
 
     [[nodiscard]] uint16_t getTotalDatagramLength() const;
 
@@ -64,7 +64,7 @@ public:
 
     bool destinationIs(IP4Address *otherAddress);
 
-    bool hasOptionsOrFragmentation() const;
+    [[nodiscard]] bool hasOptionsOrFragmentation() const;
 };
 
 

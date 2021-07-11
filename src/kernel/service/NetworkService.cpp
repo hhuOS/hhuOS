@@ -32,8 +32,8 @@ namespace Kernel {
         udp4Module = new UDP4Module(eventBus);
 
         //Setup Loopback with 127.0.0.1/8 and inMemory send buffer
-        loopbackBuffer = new uint8_t[EthernetHeader::getMaximumFrameLength()];
-        memset(loopbackBuffer, 0, EthernetHeader::getMaximumFrameLength());
+        loopbackBuffer = new uint8_t[EthernetHeader::maximumFrameLength()];
+        memset(loopbackBuffer, 0, EthernetHeader::maximumFrameLength());
 
         auto loopbackDevice = new Loopback(eventBus);
         drivers.add(loopbackDevice);
@@ -150,8 +150,8 @@ namespace Kernel {
                 return;
             }
         }
-        buffers[targetPosition] = (uint8_t *) management->mapIO(EthernetHeader::getMaximumFrameLength());
-        memset(buffers[targetPosition], 0, EthernetHeader::getMaximumFrameLength());
+        buffers[targetPosition] = (uint8_t *) management->mapIO(EthernetHeader::maximumFrameLength());
+        memset(buffers[targetPosition], 0, EthernetHeader::maximumFrameLength());
 
         auto *physicalBufferAddress = management->getPhysicalAddress(buffers[targetPosition]);
 
