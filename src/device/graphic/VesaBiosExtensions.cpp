@@ -169,7 +169,7 @@ VesaBiosExtensions::VbeModeInfo* VesaBiosExtensions::getModeInfo(uint16_t mode) 
     return reinterpret_cast<VbeModeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());
 }
 
-Util::Memory::String VesaBiosExtensions::getClassName() {
+Util::Memory::String VesaBiosExtensions::getClassName() const {
     return CLASS_NAME;
 }
 

@@ -88,7 +88,7 @@ public:
     /**
      * Set the controller's repeat rate.
      *
-     * @param speed The speed, at which the controller shall operate
+     * @param speed The dataRate, at which the controller shall operate
      * @param delay The delay
      */
     void setRepeatRate(uint32_t speed, uint32_t delay);
@@ -113,7 +113,7 @@ public:
     /**
      * Enable keyboard-interrupts.
      */
-    void plugin();
+    void plugin() override;
 
     /**
      * Overriding function from InterruptHandler.
@@ -140,7 +140,7 @@ private:
     uint32_t keysPressed = 0;
     uint32_t buffer[BUFFER_SIZE]{};
 
-    Util::Stream::PipedOutputStream outputStream = Util::Stream::PipedOutputStream();
+    Util::Stream::PipedOutputStream outputStream;
 
     /**
      * Decode make- and break-codes from the keyboard.

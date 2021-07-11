@@ -44,7 +44,7 @@ public:
     /**
      * Get the name, under which the prototype will be registered and usable for the user.
      */
-    [[nodiscard]] virtual Memory::String getClassName() = 0;
+    [[nodiscard]] virtual Memory::String getClassName() const = 0;
 
 private:
     /**

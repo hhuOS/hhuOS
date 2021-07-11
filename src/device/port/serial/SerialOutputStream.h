@@ -15,42 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __InterruptHandler_include__
-#define __InterruptHandler_include__
+#ifndef HHUOS_SERIALOUTPUTSTREAM_H
+#define HHUOS_SERIALOUTPUTSTREAM_H
 
-#include "kernel/thread/ThreadState.h"
+#include <lib/util/stream/OutputStream.h>
+#include "SerialPort.h"
 
-namespace Kernel {
+namespace Device {
 
-/**
- * Interface for an interrupt handler.
- * Every interrupt hanlder should dervive from this interface.
- * The trigger-method is called if an interrupt occured.
- *
- * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
- * @date HHU, 2018
- */
-class InterruptHandler {
+class SerialOutputStream : public Util::Stream::OutputStream {
 
 public:
-
-    InterruptHandler() = default;
-
-    InterruptHandler(const InterruptHandler &copy) = delete;
-
-    InterruptHandler &operator=(const InterruptHandler &copy) = delete;
-
-    virtual ~InterruptHandler() = default;
+    /**
+     * Default Constructor.
+     */
+    explicit SerialOutputStream(SerialPort &port);
 
     /**
-     * Enable interrupts for this handler.
+     * Copy constructor.
      */
-    virtual void plugin() = 0;
+    SerialOutputStream(const SerialOutputStream &other) = delete;
 
     /**
-     * Routine to handle an interrupt. Needs to be implemented in deriving class.
+     * Assignment operator.
      */
-    virtual void trigger(InterruptFrame &frame) = 0;
+    SerialOutputStream &operator=(const SerialOutputStream &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~SerialOutputStream() override = default;
+
+    /**
+     * Overriding function from OutputStream
+     */
+    void write(uint8_t c) override;
+
+    /**
+     * Overriding function from OutputStream
+     */
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+private:
+
+    SerialPort &port;
+
 };
 
 }

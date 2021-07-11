@@ -94,7 +94,7 @@ public:
      *
      * @return An array, containing all available graphics modes
      */
-    [[nodiscard]] virtual Util::Data::Array <ModeInfo> getAvailableModes() const = 0;
+    [[nodiscard]] virtual Util::Data::Array<ModeInfo> getAvailableModes() const = 0;
 
     /**
      * Get the amount of video memory, that the device has.
@@ -133,7 +133,7 @@ public:
     /**
      * Overriding function from Prototype.
      */
-    [[nodiscard]] Util::Memory::String getClassName() override = 0;
+    [[nodiscard]] Util::Memory::String getClassName() const override = 0;
 };
 
 }

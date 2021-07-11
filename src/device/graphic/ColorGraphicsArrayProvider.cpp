@@ -101,7 +101,7 @@ Util::Memory::String ColorGraphicsArrayProvider::getDeviceName() const {
     return deviceName;
 }
 
-Util::Memory::String ColorGraphicsArrayProvider::getClassName() {
+Util::Memory::String ColorGraphicsArrayProvider::getClassName() const {
     return CLASS_NAME;
 }
 

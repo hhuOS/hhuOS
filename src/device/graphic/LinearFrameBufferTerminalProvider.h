@@ -82,7 +82,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Memory::String getClassName() override;
+    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
 

@@ -135,7 +135,7 @@ public:
     /**
      * Overriding function from Prototype.
      */
-    [[nodiscard]] Util::Memory::String getClassName() override = 0;
+    [[nodiscard]] Util::Memory::String getClassName() const override = 0;
 };
 
 }

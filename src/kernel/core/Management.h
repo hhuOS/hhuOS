@@ -90,7 +90,7 @@ public:
     /**
      * Plugin to register for interrupt handling
      */
-    void plugin();
+    void plugin() override;
 
     /**
      * Handle a Page Fault

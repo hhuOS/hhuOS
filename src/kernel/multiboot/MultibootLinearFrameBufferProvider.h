@@ -66,12 +66,12 @@ public:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    [[nodiscard]] Util::Data::Array <ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
     /**
      * Overriding function from Prototype.
      */
-    [[nodiscard]] Util::Memory::String getClassName() override;
+    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
 

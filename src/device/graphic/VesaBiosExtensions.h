@@ -90,7 +90,7 @@ public:
     /**
      * Overriding function from Prototype.
      */
-    [[nodiscard]] Util::Memory::String getClassName() override;
+    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
     /**

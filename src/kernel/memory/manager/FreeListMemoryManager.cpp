@@ -40,7 +40,7 @@ void FreeListMemoryManager::initialize(uint32_t startAddress, uint32_t endAddres
     }
 }
 
-Util::Memory::String FreeListMemoryManager::getClassName() {
+Util::Memory::String FreeListMemoryManager::getClassName() const {
     return CLASS_NAME;
 }
 
