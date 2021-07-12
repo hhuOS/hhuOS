@@ -123,22 +123,6 @@ namespace Kernel {
         }
     }
 
-    void ICMP4Module::deleteSpecific(ICMP4Message *message) {
-        switch (message->getICMP4MessageType()) {
-            case ICMP4Message::ICMP4MessageType::ECHO_REPLY:
-                delete (ICMP4EchoReply *) message;
-                return;
-            case ICMP4Message::ICMP4MessageType::ECHO:
-                delete (ICMP4Echo *) message;
-                return;
-                //All implemented messages are deleted now
-                //-> we can break here
-                //NOTE: Please add new ICMP4Messages here if implemented!
-            default:
-                break;
-        }
-    }
-
     void ICMP4Module::onEvent(const Event &event) {
         if ((event.getType() == ICMP4SendEvent::TYPE)) {
             auto *destinationAddress = ((ICMP4SendEvent &) event).getDestinationAddress();
@@ -150,12 +134,12 @@ namespace Kernel {
             }
             if (destinationAddress == nullptr) {
                 log.error("Destination address was null or checksum calculation failed, discarding message");
-                deleteSpecific(icmp4Message);
+                delete icmp4Message;
                 return;
             }
             if (icmp4Message->fillChecksumField()) {
                 log.error("Checksum calculation failed, discarding message");
-                deleteSpecific(icmp4Message);
+                delete icmp4Message;
                 return;
             }
 #if PRINT_IN_ICMP4ECHOREPLY == 1

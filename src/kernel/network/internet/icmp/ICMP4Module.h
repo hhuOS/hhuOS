@@ -43,8 +43,6 @@ namespace Kernel {
      * implemented by this class.
      */
         void onEvent(const Event &event) override;
-
-        static void deleteSpecific(ICMP4Message *message);
     };
 }
 
