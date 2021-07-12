@@ -216,7 +216,8 @@ namespace Kernel {
                 return;
             }
             if (!isForUsOrBroadcast(ethernetHeader)) {
-                log.error("Incoming frame is not for us and not broadcast either, discarding");
+                log.error("Incoming frame is for %s, not for us or broadcast either, discarding",
+                          ethernetHeader->getDestinationAddress()->asChars());
                 delete ethernetHeader;
                 delete input;
                 return;

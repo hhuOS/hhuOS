@@ -303,7 +303,8 @@ namespace Kernel {
                 return;
             }
             if (!isForUsOrBroadcast(ip4Header)) {
-                log.error("Incoming datagram is not for us and not broadcast either, discarding");
+                log.error("Incoming datagram is for %s, not for us or broadcast either, discarding",
+                          ip4Header->getDestinationAddress()->asChars());
                 delete ip4Header;
                 delete input;
                 return;

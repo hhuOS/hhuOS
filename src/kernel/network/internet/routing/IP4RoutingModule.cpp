@@ -31,10 +31,14 @@ namespace Kernel {
             }
         }
         accessLock->release();
+        //If a good route has been found
         if (*bestRoute != nullptr) {
             return 0;
         }
+        log.info("No route for %s has been found, try default route", receiverAddress->asChars());
         if (defaultRoute != nullptr) {
+            log.info("Default route has been set, interface: %s",
+                     (char *) defaultRoute->getOutInterface()->asString());
             *bestRoute = defaultRoute;
             return 0;
         }

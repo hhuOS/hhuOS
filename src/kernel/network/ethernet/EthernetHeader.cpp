@@ -27,6 +27,10 @@ uint16_t EthernetHeader::maximumFrameLength() {
     return (uint16_t) (length() + ETHERNET_MTU);
 }
 
+EthernetAddress *EthernetHeader::getDestinationAddress() {
+    return destinationAddress;
+}
+
 uint8_t EthernetHeader::setSourceAddress(EthernetAddress *address) {
     if (address == nullptr) {
         return 1;
