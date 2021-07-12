@@ -20,8 +20,7 @@
 
 #include <cstdint>
 #include <initializer_list>
-
-#include "device/cpu/Cpu.h"
+#include <lib/util/Exception.h>
 
 namespace Util::Data {
 

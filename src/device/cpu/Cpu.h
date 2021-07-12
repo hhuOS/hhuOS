@@ -20,6 +20,7 @@
 #include <cstdint>
 #include <lib/util/async/Atomic.h>
 #include <lib/util/Exception.h>
+#include <kernel/log/Logger.h>
 
 namespace Device {
 
@@ -122,12 +123,16 @@ public:
      */
     static void softInterrupt(uint32_t function);
 
+    // start number for software exceptions
+    static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
+
+private:
+
     // Pointers to lists with hardware (software) exceptions
     static const char *hardwareExceptions[];
     static const char *softwareExceptions[];
 
-    // start number for software exceptions
-    static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
+    static Kernel::Logger exceptionLog;
 
     /**
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.

@@ -20,6 +20,7 @@
 #include <kernel/multiboot/Structure.h>
 #include <lib/util/memory/Address.h>
 #include <asm_interface.h>
+#include <device/cpu/Cpu.h>
 #include "Bios.h"
 
 namespace Device {
@@ -33,7 +34,7 @@ bool Bios::isAvailable() {
 
 void Bios::init() {
     if (!isAvailable()) {
-        Cpu::throwException(Util::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }
 
     // Address to memory segment for 16 bit code

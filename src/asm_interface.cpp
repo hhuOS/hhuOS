@@ -19,6 +19,7 @@
 #include <kernel/core/Management.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <kernel/memory/Paging.h>
+#include <device/cpu/Cpu.h>
 #include "GatesOfHell.h"
 
 // Import functions

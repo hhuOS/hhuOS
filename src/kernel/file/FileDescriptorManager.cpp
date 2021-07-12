@@ -3,8 +3,12 @@
 
 namespace Kernel {
 
-FileDescriptorManager::FileDescriptorManager(uint32_t size) : size(size), descriptorTable(new Filesystem::Node*[size]) {
-    for (uint32_t i = 0; i < size; i++) {
+FileDescriptorManager::FileDescriptorManager(int32_t size) : size(size), descriptorTable(new Filesystem::Node*[size]) {
+    if (size < 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "FileDescriptorManager: Size is negative!");
+    }
+
+    for (int32_t i = 0; i < size; i++) {
         descriptorTable[i] = nullptr;
     }
 }
@@ -16,8 +20,7 @@ int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
         return -1;
     }
 
-    uint32_t fileDescriptor;
-    for (fileDescriptor = 0; fileDescriptor < size; fileDescriptor++) {
+    for (int32_t fileDescriptor = 0; fileDescriptor < size; fileDescriptor++) {
         if (descriptorTable[fileDescriptor] == nullptr) {
             descriptorTable[fileDescriptor] = node;
             return fileDescriptor;

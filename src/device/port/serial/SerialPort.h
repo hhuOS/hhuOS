@@ -137,9 +137,9 @@ public:
     };
 
 public:
-    /**
-     * Default Constructor.
-     */
+
+    explicit SerialPort(ComPort port, BaudRate dataRate = BaudRate::BAUD_115200);
+
     explicit SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate = BaudRate::BAUD_115200);
 
     /**
@@ -155,7 +155,7 @@ public:
     /**
      * Destructor.
      */
-    ~SerialPort() = default;
+    ~SerialPort() override = default;
 
     /**
      * Check if a COM-port exists.
@@ -167,7 +167,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void plugin();
+    void plugin() override;
 
     /**
      * Overriding function from InterruptHandler.

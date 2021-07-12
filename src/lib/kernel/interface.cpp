@@ -19,6 +19,7 @@
 #include <kernel/core/Management.h>
 #include <kernel/core/System.h>
 #include <kernel/service/FilesystemService.h>
+#include <device/cpu/Cpu.h>
 
 void *allocateMemory(uint32_t size) {
     return Kernel::Management::getKernelHeapManager()->alloc(size);

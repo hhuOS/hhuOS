@@ -21,12 +21,10 @@
 
 namespace Device {
 
-SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate) :
+SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
         lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
         modemStatusRegister(port + 6), scratchRegister(port + 7) {
-    outputStream.connect(inputStream);
-
     interruptRegister.writeByte(0x00);      // Disable all interrupts
     lineControlRegister.writeByte(0x80);    // Enable DLAB, so that the divisor can be set
 
@@ -36,6 +34,10 @@ SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream
     lineControlRegister.writeByte(0x03);    // 8 bits per char, no parity, one stop bit
     fifoControlRegister.writeByte(0x07);    // Enable FIFO-buffers, Clear FIFO-buffers, Trigger interrupt after each byte
     modemControlRegister.writeByte(0x0b);   // Enable data lines
+}
+
+SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate) : SerialPort(port, dataRate) {
+    outputStream.connect(inputStream);
 }
 
 bool SerialPort::checkPort(ComPort port) {
@@ -104,6 +106,7 @@ void SerialPort::write(uint8_t c) {
 
     while ((lineStatusRegister.readByte() & 0x20) == 0);
     dataRegister.writeByte(c);
+
 }
 
 }

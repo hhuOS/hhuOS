@@ -39,6 +39,7 @@ const char *Cpu::softwareExceptions[]{
 
 int32_t Cpu::cliCount = 1; // Interrupts are disabled on startup
 Util::Async::Atomic<int32_t> Cpu::cliCountWrapper(Cpu::cliCount);
+Kernel::Logger Cpu::exceptionLog = Kernel::Logger::get("Exception");
 
 void Cpu::enableInterrupts() {
     int count = cliCountWrapper.fetchAndDec();
@@ -71,6 +72,7 @@ void Cpu::halt() {
 
 void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
+    exceptionLog.error(message);
     on_exception((uint32_t) error);
 }
 

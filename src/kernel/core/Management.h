@@ -24,7 +24,6 @@
 #include "kernel/memory/manager/PagingAreaManager.h"
 #include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
-#include "lib/util/data/ArrayList.h"
 #include "TaskStateSegment.h"
 #include "Symbols.h"
 

@@ -18,6 +18,7 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
+#include <kernel/log/Logger.h>
 #include <lib/util/stream/PrintWriter.h>
 #include <lib/util/stream/Reader.h>
 
@@ -59,6 +60,10 @@ private:
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
     static void printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader);
+
+    static void enableSerialLogging();
+
+    static Kernel::Logger log;
 
 };
 

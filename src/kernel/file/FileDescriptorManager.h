@@ -12,7 +12,7 @@ public:
     /**
      * Constructor.
      */
-    explicit FileDescriptorManager(uint32_t size = DEFAULT_TABLE_SIZE);
+    explicit FileDescriptorManager(int32_t size = DEFAULT_TABLE_SIZE);
 
     /**
      * Copy constructor.
@@ -37,10 +37,10 @@ public:
 
 private:
 
-    uint32_t size;
+    int32_t size;
     Filesystem::Node **descriptorTable;
 
-    static const constexpr uint32_t DEFAULT_TABLE_SIZE = 1024;
+    static const constexpr int32_t DEFAULT_TABLE_SIZE = 1024;
 
 };
 

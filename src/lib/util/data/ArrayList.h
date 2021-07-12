@@ -19,7 +19,6 @@
 #define __ArrayList_include__
 
 #include "lib/util/memory/String.h"
-#include "device/cpu/Cpu.h"
 #include "List.h"
 
 namespace Util::Data {

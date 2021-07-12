@@ -16,19 +16,5 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(system)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-# Set source files
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/boot.asm
-        ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm)
-
-add_executable(${PROJECT_NAME} ${SOURCE_FILES})
-
-target_link_libraries(${PROJECT_NAME} device filesystem kernel lib.kernel)
+target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/log/Logger.cpp)

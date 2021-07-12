@@ -17,11 +17,12 @@
 
 #include <lib/util/memory/Address.h>
 #include <asm_interface.h>
+#include <device/port/serial/SerialPort.h>
+#include <device/cpu/Cpu.h>
 #include "Management.h"
 
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/multiboot/Structure.h"
-#include "device/cpu/Cpu.h"
 #include "kernel/memory/Paging.h"
 #include "kernel/memory/MemLayout.h"
 #include "System.h"
@@ -193,7 +194,7 @@ void Management::init() {
     switchAddressSpace(currentAddressSpace);
 
     // add first address space to list with all address spaces
-    addressSpaces = new Util::Data::ArrayList<VirtualAddressSpace *>;
+    addressSpaces = new Util::Data::ArrayList<VirtualAddressSpace*>;
     addressSpaces->add(currentAddressSpace);
 
     // Initialize global objects afterwards, because now missing pages can be mapped
@@ -409,9 +410,9 @@ void Management::calcTotalPhysicalMemory() {
     totalPhysMemory = static_cast<uint32_t>(maxEntry.length);
 
     // if there is more than 3,75GB memory apply a cap
-    if (totalPhysMemory > PHYS_MEM_CAP) {
+    /*if (totalPhysMemory > PHYS_MEM_CAP) {
         totalPhysMemory = PHYS_MEM_CAP;
-    }
+    }*/
 
     // We need at least 10MB physical memory to run properly
     if (totalPhysMemory < 10 * 1024 * 1024) {

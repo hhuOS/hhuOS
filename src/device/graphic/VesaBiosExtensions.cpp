@@ -123,7 +123,7 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
     Bios::interrupt(0x10, biosParameters);
 
     if (biosParameters.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
-        Cpu::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 }
 
@@ -142,7 +142,7 @@ VesaBiosExtensions::VbeInfo* VesaBiosExtensions::getVbeInfo() {
     Bios::interrupt(0x10, biosParameters);
 
     if (biosParameters.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
-        Cpu::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: VesaBiosExtensions Bios Extensions are not supported!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: VesaBiosExtensions Bios Extensions are not supported!");
     }
 
     return reinterpret_cast<VbeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());
@@ -163,7 +163,7 @@ VesaBiosExtensions::VbeModeInfo* VesaBiosExtensions::getModeInfo(uint16_t mode) 
     Bios::interrupt(0x10, biosParameters);
 
     if (biosParameters.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
-        Cpu::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 
     return reinterpret_cast<VbeModeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());

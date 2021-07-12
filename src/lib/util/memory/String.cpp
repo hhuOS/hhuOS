@@ -318,10 +318,6 @@ String::operator char *() const {
     return buffer;
 }
 
-/*OutputStream &operator<<(OutputStream &outStream, const String &string) {
-    return outStream << string.buffer;
-}*/
-
 char String::operator[](uint32_t index) const {
     return buffer[index];
 }
@@ -495,13 +491,13 @@ String String::vformat(const char *format, va_list args) {
                     Exception::throwException(Exception::INVALID_ARGUMENT, "String: Invalid format specifier!");
             }
         } else {
-            writer.write('\0');
             break;
         }
 
         i += j;
     }
 
+    writer.write('\0');
     return stream.getContent();
 }
 

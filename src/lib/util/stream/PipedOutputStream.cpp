@@ -34,7 +34,7 @@ void PipedOutputStream::connect(PipedInputStream &inputStream) {
 
 void PipedOutputStream::write(uint8_t c) {
     if (sink == nullptr) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Sink is null!");
+        return;
     }
 
     sink->write(c);
@@ -42,7 +42,7 @@ void PipedOutputStream::write(uint8_t c) {
 
 void PipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
     if (sink == nullptr) {
-        Exception::throwException(Exception::ILLEGAL_STATE, "PipedOutputStream: Sink is null!");
+        return;
     }
 
     sink->write(sourceBuffer, offset, length);
