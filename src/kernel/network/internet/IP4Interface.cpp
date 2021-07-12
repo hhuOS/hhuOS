@@ -89,8 +89,7 @@ namespace Kernel {
         if (ethernetDevice == nullptr || ip4Netmask == nullptr || ip4Address == nullptr || arpModule == nullptr) {
             return "NULL";
         }
-        return "\n    ID:         '" + this->ethernetIdentifier + "',\n    IP4Address: " +
-               String(ip4Address->asChars()) +
+        return "\n    ID:         '" + this->ethernetIdentifier + "',\n    IP4Address: " + ip4Address->asString() +
                ",\n    IP4Netmask: " + String(ip4Netmask->asChars());
     }
 

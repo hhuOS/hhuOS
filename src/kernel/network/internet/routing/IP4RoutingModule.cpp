@@ -35,14 +35,14 @@ namespace Kernel {
         if (*bestRoute != nullptr) {
             return 0;
         }
-        log.info("No route for %s has been found, try default route", receiverAddress->asChars());
+        log.info("No route for %s has been found, try default route", (char *) receiverAddress->asString());
         if (defaultRoute != nullptr) {
             log.info("Default route has been set, interface: %s",
                      (char *) defaultRoute->getOutInterface()->asString());
             *bestRoute = defaultRoute;
             return 0;
         }
-        log.error("No route to host %s could be found", receiverAddress->asChars());
+        log.error("No route to host %s could be found", (char *) receiverAddress->asString());
         return 1;
     }
 

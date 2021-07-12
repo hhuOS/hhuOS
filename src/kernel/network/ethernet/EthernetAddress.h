@@ -6,6 +6,7 @@
 #define HHUOS_ETHERNETADDRESS_H
 
 #include <device/network/NetworkDevice.h>
+#include <lib/string/String.h>
 
 class EthernetAddress {
 private:
@@ -29,7 +30,7 @@ public:
 
     bool equals(EthernetAddress *otherAddress);
 
-    char *asChars();
+    String asString();
 };
 
 

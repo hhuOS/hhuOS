@@ -55,11 +55,11 @@ uint8_t IP4Address::copyTo(uint8_t *target) {
     return 0;
 }
 
-char *IP4Address::asChars() {
+String IP4Address::asString() {
     if (address == nullptr) {
         return nullptr;
     }
-    return (char *) String::format("'%d.%d.%d.%d'", address[0], address[1], address[2], address[3]);
+    return String::format("'%d.%d.%d.%d'\0", address[0], address[1], address[2], address[3]);
 }
 
 uint8_t IP4Address::calculateAND(IP4Address **ANDedAddress, const uint8_t *netmask) {

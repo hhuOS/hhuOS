@@ -57,7 +57,7 @@ namespace Kernel {
         }
         if (targetInterface == nullptr) {
             log.error("No target interface found for address %s, discarding ARP message",
-                      destinationAddress->asChars());
+                      (char *) destinationAddress->asString());
             accessLock->release();
             delete destinationAddress;
             return 1;
@@ -304,7 +304,7 @@ namespace Kernel {
             }
             if (!isForUsOrBroadcast(ip4Header)) {
                 log.error("Incoming datagram is for %s, not for us or broadcast either, discarding",
-                          ip4Header->getDestinationAddress()->asChars());
+                          (char *) ip4Header->getDestinationAddress()->asString());
                 delete ip4Header;
                 delete input;
                 return;

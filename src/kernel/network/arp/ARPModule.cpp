@@ -89,18 +89,18 @@ namespace Kernel {
             return 0;
         }
 
-        log.info("No entry found for %s, sending ARP request", targetProtocolAddress->asChars());
+        log.info("No entry found for %s, sending ARP request", (char *) targetProtocolAddress->asString());
         sendRequest(senderProtocolAddress, targetProtocolAddress);
 
         timeService->msleep(ARP_WAIT_TIME);
 
         if (entryFound(ethernetAddress, targetProtocolAddress)) {
             log.info("ARP reply for address %s arrived in the last %d milliseconds",
-                     targetProtocolAddress->asChars(), ARP_WAIT_TIME);
+                     (char *) targetProtocolAddress->asString(), ARP_WAIT_TIME);
             return 0;
         }
         log.error("No ARP reply arrived in time, no resolve for %s possible",
-                  targetProtocolAddress->asChars()
+                  (char *) targetProtocolAddress->asString()
         );
         return 1;
     }

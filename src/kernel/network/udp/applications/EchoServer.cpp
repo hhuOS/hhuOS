@@ -91,7 +91,7 @@ void EchoServer::EchoThread::run() {
 
         (*attributes.log)
                 .info("Incoming datagram from %s with content '%s', sending response",
-                      senderAddress->asChars(), attributes.inputBuffer);
+                      (char *) senderAddress->asString(), attributes.inputBuffer);
 
         if (attributes.socket->send(senderAddress, sourcePort, attributes.inputBuffer, bytesReceived)) {
             (*attributes.log).error("Sending response failed, stopping");
