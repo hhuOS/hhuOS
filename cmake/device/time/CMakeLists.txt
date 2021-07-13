@@ -15,19 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.7)
-
-project(device)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(bios)
-add_subdirectory(cpu)
-add_subdirectory(graphic)
-add_subdirectory(hid)
-add_subdirectory(interrupt)
-add_subdirectory(port)
-add_subdirectory(time)
+ 
+target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/time/Pit.cpp
+        ${HHUOS_SRC_DIR}/device/time/TimeProvider.cpp)

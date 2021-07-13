@@ -26,6 +26,7 @@
 #include <device/port/serial/SerialPort.h>
 #include <device/port/serial/SerialOutputStream.h>
 #include <lib/util/stream/PrintWriter.h>
+#include <device/time/TimeProvider.h>
 
 namespace Kernel {
 
@@ -56,6 +57,8 @@ public:
     static void setLevel(LogLevel level);
 
     static void setLevel(Util::Memory::String level);
+
+    static void setTimeProvider(Device::TimeProvider &provider);
 
     static void addOutputStream(Util::Stream::OutputStream &stream);
 
@@ -89,6 +92,7 @@ private:
     static Util::Async::Spinlock lock;
     static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
     static Util::Data::ArrayList<Util::Memory::String> buffer;
+    static Device::TimeProvider *timeProvider;
     static LogLevel currentLevel;
 
     static constexpr const char *LEVEL_TRACE = "TRACE";
@@ -96,6 +100,7 @@ private:
     static constexpr const char *LEVEL_INFO = "INFO";
     static constexpr const char *LEVEL_WARN = "WARN";
     static constexpr const char *LEVEL_ERROR = "ERROR";
+
 };
 
 }
