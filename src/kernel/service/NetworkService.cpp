@@ -242,7 +242,7 @@ namespace Kernel {
         return result;
     }
 
-    UDP4SocketController *NetworkService::createSocketController(size_t bufferSize) {
+    UDP4SocketController *NetworkService::createSocketController(uint16_t bufferSize) {
         //No sync necessary here
         if (bufferSize == 0) {
             bufferSize = 1;

@@ -50,7 +50,7 @@ namespace Kernel {
          */
         Util::ArrayList<NetworkDevice *> drivers;
 
-        size_t deviceCounter = 0;
+        uint16_t deviceCounter = 0;
         uint8_t *loopbackBuffer = nullptr;
         uint8_t *buffers[MAX_DEVICE_COUNT]{};
 
@@ -105,7 +105,7 @@ namespace Kernel {
          */
         void registerDevice(NetworkDevice &driver);
 
-        UDP4SocketController *createSocketController(size_t bufferSize);
+        UDP4SocketController *createSocketController(uint16_t bufferSize);
 
         uint8_t collectLinkAttributes(Util::ArrayList<String> *strings);
 
