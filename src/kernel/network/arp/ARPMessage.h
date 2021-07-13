@@ -38,7 +38,7 @@ private:
 public:
 
     //see RFC 826 page 3
-    enum OpCode : uint16_t {
+    enum ARPOpCode : uint16_t {
         REQUEST = 1,
         REPLY = 2,
         INVALID
@@ -46,18 +46,18 @@ public:
 
     //Sending constructor
     explicit ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
-                        uint8_t protocolAddressLength, OpCode opCode);
+                        uint8_t protocolAddressLength, ARPOpCode opCode);
 
     //Incoming constructor
     ARPMessage() = default;
 
-    static uint16_t getOpCodeAsInt(ARPMessage::OpCode opCode);
+    static uint16_t getOpCodeAsInt(ARPMessage::ARPOpCode opCode);
 
     ~ARPMessage() override;
 
-    [[nodiscard]] OpCode getOpCode() const;
+    [[nodiscard]] ARPOpCode getOpCode() const;
 
-    static ARPMessage::OpCode parseOpCodeFromInteger(uint16_t value);
+    static ARPMessage::ARPOpCode parseOpCodeFromInteger(uint16_t value);
 
     void setSenderHardwareAddress(uint8_t *senderHardwareAddress) const;
 

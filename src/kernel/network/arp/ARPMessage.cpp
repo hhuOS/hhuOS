@@ -42,7 +42,7 @@ EthernetDataPart::EtherType ARPMessage::do_getEtherType() {
 }
 
 ARPMessage::ARPMessage(uint16_t hardwareType, uint16_t protocolType, uint8_t hardwareAddressLength,
-                       uint8_t protocolAddressLength, OpCode opCode) {
+                       uint8_t protocolAddressLength, ARPOpCode opCode) {
     header.hardwareType = hardwareType;
     header.protocolType = protocolType;
 
@@ -66,7 +66,7 @@ ARPMessage::~ARPMessage() {
     delete body.targetProtocolAddress;
 }
 
-uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::OpCode opCode) {
+uint16_t ARPMessage::getOpCodeAsInt(ARPMessage::ARPOpCode opCode) {
     return (uint16_t) opCode;
 }
 
@@ -86,7 +86,7 @@ void ARPMessage::setTargetProtocolAddress(uint8_t *bytes) const {
     memcpy(body.targetProtocolAddress, bytes, header.protocolAddressLength);
 }
 
-ARPMessage::OpCode ARPMessage::getOpCode() const {
+ARPMessage::ARPOpCode ARPMessage::getOpCode() const {
     return parseOpCodeFromInteger(header.opCode);
 }
 
@@ -117,14 +117,14 @@ uint16_t ARPMessage::getBodyLengthInBytes() const {
             twoSize * header.protocolAddressLength;
 }
 
-ARPMessage::OpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
+ARPMessage::ARPOpCode ARPMessage::parseOpCodeFromInteger(uint16_t value) {
     switch (value) {
         case 1:
-            return OpCode::REQUEST;
+            return ARPOpCode::REQUEST;
         case 2:
-            return OpCode::REPLY;
+            return ARPOpCode::REPLY;
         default:
-            return OpCode::INVALID;
+            return ARPOpCode::INVALID;
     }
 }
 
@@ -173,7 +173,7 @@ ARPMessage *ARPMessage::buildReply(uint8_t *ourAddressAsBytes) const {
                     header.protocolType,
                     header.hardwareAddressLength,
                     header.protocolAddressLength,
-                    OpCode::REPLY
+                    ARPOpCode::REPLY
             );
     //TargetHardwareAddress is BROADCAST in Requests
     //-> We don't copy it to response and set it to our own HardwareAddress instead

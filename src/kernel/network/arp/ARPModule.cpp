@@ -117,7 +117,7 @@ namespace Kernel {
                 (uint16_t) EthernetDataPart::EtherType::IP4, // 0x0800 for IPv4
                 ETH_ADDRESS_LENGTH,
                 IP4ADDRESS_LENGTH,
-                ARPMessage::OpCode::REQUEST
+                ARPMessage::ARPOpCode::REQUEST
         );
 
         uint8_t hardwareAddress[ETH_ADDRESS_LENGTH];
@@ -168,7 +168,7 @@ namespace Kernel {
         }
         uint8_t processErrors = 0;
         switch (message->getOpCode()) {
-            case ARPMessage::OpCode::REQUEST: {
+            case ARPMessage::ARPOpCode::REQUEST: {
                 //Use incoming requests as updates
                 processErrors += addEntry(new IP4Address(message->getSenderProtocolAddress()),
                                           new EthernetAddress(message->getSenderHardwareAddress())
@@ -195,7 +195,7 @@ namespace Kernel {
                 //-> no 'delete message' here!
                 break;
             }
-            case ARPMessage::OpCode::REPLY: {
+            case ARPMessage::ARPOpCode::REPLY: {
                 auto *senderHardwareAddress = new EthernetAddress(message->getSenderHardwareAddress());
                 auto *senderProtocolAddress = new IP4Address(message->getSenderProtocolAddress());
 
