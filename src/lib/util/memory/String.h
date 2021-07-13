@@ -35,6 +35,8 @@ public:
 
     String(const char string[]) noexcept;
 
+    String(uint8_t *data, uint32_t length) noexcept;
+
     String(char character) noexcept;
 
     String(const String &other) noexcept;

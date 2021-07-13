@@ -51,6 +51,8 @@ public:
 
     void setBase(uint8_t newBase);
 
+    void setNumberPadding(uint8_t padding);
+
     void print(const Util::Memory::String &string);
 
     void print(const char *string);
@@ -131,6 +133,8 @@ private:
     bool autoFlush;
     bool deleteWriter;
     uint8_t base = 10;
+    uint8_t numberPadding = 0;
+
 };
 
 }

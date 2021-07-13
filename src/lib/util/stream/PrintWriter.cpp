@@ -17,6 +17,7 @@
 
 #include "PrintWriter.h"
 #include "OutputStreamWriter.h"
+#include "ByteArrayOutputStream.h"
 
 namespace Util::Stream {
 
@@ -62,6 +63,10 @@ void PrintWriter::setBase(uint8_t newBase) {
     base = newBase;
 }
 
+void PrintWriter::setNumberPadding(uint8_t padding) {
+    numberPadding = padding;
+}
+
 void PrintWriter::print(const char *string) {
     for (uint32_t i = 0; string[i] != 0; i++) {
         write(string[i]);
@@ -97,20 +102,29 @@ void PrintWriter::print(uint32_t number) {
         write('x');
     }
 
+    auto numberStream = Stream::ByteArrayOutputStream();
+    auto numberWriter = Stream::PrintWriter(numberStream);
+
     for (div = 1; number / div >= currentBase; div *= currentBase);
 
     for (; div > 0; div /= currentBase) {
         digit = static_cast<char>(number / div);
 
         if (digit < 10) {
-            write(static_cast<char>('0' + digit));
+            numberWriter << static_cast<char>('0' + digit);
         }
         else {
-            write(static_cast<char>('A' + digit - 10));
+            numberWriter << static_cast<char>('A' + digit - 10);
         }
 
         number %= div;
     }
+
+    for (uint32_t i = numberStream.getSize(); i < numberPadding; i++) {
+        write('0');
+    }
+
+    write(numberStream.getContent());
 }
 
 void PrintWriter::print(int16_t number) {

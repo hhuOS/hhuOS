@@ -57,6 +57,19 @@ String::String(const char *string) noexcept {
     buffer[len] = '\0';
 }
 
+String::String(uint8_t *data, uint32_t length) noexcept {
+
+    auto address = Memory::Address<uint32_t>(data, length);
+
+    len = length;
+
+    buffer = new char[len + 1];
+
+    Memory::Address<uint32_t>(buffer).copyRange(address, len);
+
+    buffer[len] = '\0';
+}
+
 String::String(const String &other) noexcept {
 
     len = other.len;
@@ -464,6 +477,16 @@ String String::vformat(const char *format, va_list args) {
         writer.write(format, i, j);
 
         if (format[i + j] == '%') {
+            if (format[i + j + 1] == '0') {
+                uint8_t padding = format[i + j + 2] - '0';
+                if (padding < 0 || padding > 9) {
+                    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "String: Format padding must be between 01 and 09");
+                }
+
+                writer.setNumberPadding(padding);
+                j += 2;
+            }
+
             char specifier = format[i + ++j];
             switch (specifier) {
                 case 'c' :
@@ -494,10 +517,10 @@ String String::vformat(const char *format, va_list args) {
             break;
         }
 
+        writer.setNumberPadding(0);
         i += j;
     }
 
-    writer.write('\0');
     return stream.getContent();
 }
 

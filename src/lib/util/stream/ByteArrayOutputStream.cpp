@@ -40,7 +40,7 @@ void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
 }
 
 Memory::String ByteArrayOutputStream::getContent() const {
-    return Memory::String(reinterpret_cast<const char*>(buffer));
+    return Memory::String(buffer, position);
 }
 
 uint32_t ByteArrayOutputStream::getSize() const {
