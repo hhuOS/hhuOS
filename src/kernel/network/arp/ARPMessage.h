@@ -37,7 +37,8 @@ private:
 
 public:
 
-    enum class OpCode {
+    //see RFC 826 page 3
+    enum OpCode : uint16_t {
         REQUEST = 1,
         REPLY = 2,
         INVALID
