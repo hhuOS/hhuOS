@@ -296,8 +296,9 @@ namespace Kernel {
                 delete input;
                 return;
             }
-            if (ip4Header->hasOptionsOrFragmentation()) {
-                log.error("Incoming IP4Header has options or fragmentation, discarding datagram");
+            if (ip4Header->hasUnimplementedFieldsSetOrTTLZero()) {
+                log.error("Incoming IP4Header has unimplemented fields set or TTL is zero ,"
+                          "discarding datagram");
                 delete ip4Header;
                 delete input;
                 return;

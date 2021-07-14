@@ -64,7 +64,7 @@ public:
 
     bool destinationIs(IP4Address *otherAddress);
 
-    [[nodiscard]] bool hasOptionsOrFragmentation() const;
+    [[nodiscard]] bool hasUnimplementedFieldsSetOrTTLZero() const;
 };
 
 

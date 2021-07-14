@@ -210,8 +210,10 @@ bool IP4Header::destinationIs(IP4Address *otherAddress) {
     return destinationAddress->equals(otherAddress);
 }
 
-bool IP4Header::hasOptionsOrFragmentation() const {
+bool IP4Header::hasUnimplementedFieldsSetOrTTLZero() const {
     return
-            getHeaderLength() > IP4HEADER_MIN_LENGTH || //OPTIONS field ist behind regular fields
-            (flags_fragmentOffset + identification) > 0;
+            getHeaderLength() > IP4HEADER_MIN_LENGTH || //OPTIONS field exists
+            (flags_fragmentOffset + identification) != 0 || //fragmentation enabled
+            typeOfService != 0 || //Type of service specified
+            timeToLive == 0; //End of live reached
 }
