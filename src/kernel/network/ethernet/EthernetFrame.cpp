@@ -18,7 +18,17 @@ uint8_t EthernetFrame::copyTo(Kernel::NetworkByteBlock *output) {
         return 1;
     }
     //Call next level if no errors occurred yet
-    return ethernetDataPart->copyTo(output);
+    if (ethernetDataPart->copyTo(output)) {
+        return 1;
+    }
+    //Add padding if necessary, to reach minimum frame size -> RFC 894 page 1
+    uint8_t errors = 0;
+    if (output->bytesRemaining() != 0) {
+        while (output->bytesRemaining()) {
+            errors += output->appendOneByte(0);
+        }
+    }
+    return errors;
 }
 
 EthernetFrame::EthernetFrame(EthernetAddress *destinationAddress, EthernetDataPart *ethernetDataPart) {
@@ -36,7 +46,12 @@ uint16_t EthernetFrame::length() {
     if (ethernetDataPart == nullptr) {
         return 0;
     }
-    return EthernetHeader::length() + ethernetDataPart->length();
+    uint16_t totalLength = EthernetHeader::length() + ethernetDataPart->length();
+    //Return minimum frame size if padding is necessary
+    if (totalLength < ETHERNET_MIN_FRAME_SIZE) {
+        return ETHERNET_MIN_FRAME_SIZE;
+    }
+    return totalLength;
 }
 
 uint8_t EthernetFrame::setSourceAddress(EthernetAddress *source) {
