@@ -7,7 +7,8 @@
 
 #define ETH_ADDRESS_LENGTH 6
 #define ETHERNET_MTU 1500
-#define ETHERNET_MIN_FRAME_SIZE 64 //46 bytes payload, 14 bytes header + 4 bytes FCS -> RFC 894 page 1
+#define ETHERNET_MIN_FRAME_SIZE 60 \
+//46 bytes payload, 14 bytes header (4 bytes FCS not added) -> RFC 894 page 1
 
 #define IP4ADDRESS_LENGTH 4
 #define IP4HEADER_MIN_LENGTH 20
