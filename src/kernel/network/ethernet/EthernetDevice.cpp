@@ -88,7 +88,7 @@ namespace Kernel {
         }
 
 #if PRINT_OUTGOING_BYTES == 1
-        printf("\nOutgoing Bytes (%d per line, %d total):\n", BYTES_PER_LINE, blockLength);
+        printf("\nOutgoing Bytes (%d per line, %d total incl. padding):\n", BYTES_PER_LINE, blockLength);
         output->printBytes(0, blockLength - (uint16_t) 1, BYTES_PER_LINE);
 #endif
         sendLock->acquire();
