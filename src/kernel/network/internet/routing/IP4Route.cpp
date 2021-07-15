@@ -70,12 +70,12 @@ String IP4Route::asString() {
     }
     if (nextHopAddress == nullptr) {
         return "\n    NetAddress: " + netAddress->asString() +
-               ",\n    NetMask:    " + netMask->asChars() +
+               ",\n    NetMask:    " + netMask->asString() +
                ",\n    NextHop:    null" +
                ",\n    OutDevice:  '" + outInterface->getIdentifier() + "'";
     }
     return "\n    NetAddress: " + netAddress->asString() +
-           ",\n    NetMask:    " + netMask->asChars() +
+           ",\n    NetMask:    " + netMask->asString() +
            ",\n    NextHop:    " + nextHopAddress->asString() +
            ",\n    OutDevice:  '" + outInterface->getIdentifier() + "'";
 }

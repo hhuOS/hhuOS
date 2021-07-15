@@ -49,9 +49,9 @@ uint8_t IP4Netmask::getBitCount() const {
     return this->bitCount;
 }
 
-char *IP4Netmask::asChars() {
+String IP4Netmask::asString() {
     if (netmask == nullptr) {
         return nullptr;
     }
-    return (char *) String::format("'%d.%d.%d.%d /%d'", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
+    return String::format("'%d.%d.%d.%d /%d'", netmask[0], netmask[1], netmask[2], netmask[3], bitCount);
 }
