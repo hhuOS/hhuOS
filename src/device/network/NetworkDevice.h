@@ -27,7 +27,6 @@
  * @date 2019
  */
 class NetworkDevice : public Kernel::InterruptHandler {
-
 public:
 
     /**

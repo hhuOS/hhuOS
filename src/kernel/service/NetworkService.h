@@ -22,10 +22,11 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
-#include "KernelService.h"
-#include "device/network/NetworkDevice.h"
-#include "kernel/log/Logger.h"
-#include "kernel/network/PacketHandler.h"
+#include <kernel/network/PacketHandler.h>
+#include <kernel/network/internet/IP4Module.h>
+#include <kernel/network/ethernet/EthernetModule.h>
+#include <kernel/network/internet/icmp/ICMP4Module.h>
+#include <kernel/network/udp/UDP4Module.h>
 
 namespace Kernel {
 
@@ -36,61 +37,98 @@ namespace Kernel {
  * packets and others as well are meant to use this class
  * to get access of a driver.
  */
-class NetworkService final : public KernelService {
+    class NetworkService final : public KernelService {
 
-private:
+    private:
+        /**
+         * Provide service information on the kernel log.
+         */
+        Logger &log = Logger::get("NetworkService");
 
-    PacketHandler packetHandler;
+        /**
+         * A list where all drivers will be collected.
+         */
+        Util::ArrayList<NetworkDevice *> drivers;
 
-public:
-    /**
-     * A list where all drivers will be collected.
-     */
-    Util::ArrayList<NetworkDevice *> drivers;
+        uint16_t deviceCounter = 0;
+        uint8_t *loopbackBuffer = nullptr;
+        uint8_t *buffers[MAX_DEVICE_COUNT]{};
 
-    /**
-     * Provide service information on the kernel log.
-     */
-    static Logger &log;
+        Management *management = nullptr;
+        EventBus *eventBus = nullptr;
 
-    /**
-     * Constructor.
-     */
-    NetworkService();
+        PacketHandler *packetHandler = nullptr;
+        IP4Module *ip4Module = nullptr;
+        EthernetModule *ethernetModule = nullptr;
+        ICMP4Module *icmp4Module = nullptr;
+        UDP4Module *udp4Module = nullptr;
 
-    /**
-     * Destructor.
-     */
-    ~NetworkService();
+        Spinlock *accessLock = nullptr;
 
-    /**
-     * The ID to identify this service among other in the kernel
-     * registered services.
-     */
-    static constexpr const char *SERVICE_NAME = "NetworkService";
+    public:
+        /**
+         * Constructor.
+         * It registers a Loopback interface at startup.
+         */
+        NetworkService();
 
-    /**
-     * @return The number of registered divers.
-     */
-    uint32_t getDeviceCount();
+        /**
+         * Destructor.
+         */
+        ~NetworkService();
 
-    /**
-     * @param index Index of the driver to fetch.
-     * @return The corresponding driver.
-     */
-    NetworkDevice &getDriver(uint8_t index);
+        /**
+         * The ID to identify this service among other in the kernel
+         * registered services.
+         */
+        static constexpr const char *SERVICE_NAME = "NetworkService";
 
-    /**
-     * @param index Index of the driver to remove.
-     */
-    void removeDevice(uint8_t index);
+        /**
+         * @return The number of registered divers.
+         */
+        uint32_t getDeviceCount();
 
-    /**
-     * Adds the driver to the list.
-     * @param driver The driver to add.
-     */
-    void registerDevice(NetworkDevice &driver);
-};
+        /**
+         * @param index Index of the driver to fetch.
+         * @return The corresponding driver.
+         */
+        NetworkDevice &getDriver(uint8_t index);
+
+        /**
+         * @param index Index of the driver to remove.
+         */
+        void removeDevice(uint8_t index);
+
+        /**
+         * Adds the driver to the list.
+         * @param driver The driver to add.
+         */
+        void registerDevice(NetworkDevice &driver);
+
+        UDP4SocketController *createSocketController(uint16_t bufferSize);
+
+        uint8_t collectLinkAttributes(Util::ArrayList<String> *strings);
+
+        uint8_t collectInterfaceAttributes(Util::ArrayList<String> *strings);
+
+        uint8_t collectRouteAttributes(Util::ArrayList<String> *strings);
+
+        uint8_t collectARPTables(Util::ArrayList<String> *strings);
+
+        uint8_t assignIP4Address(const String &identifier, IP4Address *ip4Address, IP4Netmask *ip4Netmask);
+
+        uint8_t unAssignIP4Address(const String &identifier);
+
+        uint8_t registerSocketController(uint16_t listeningPort, UDP4SocketController *controller);
+
+        uint8_t registerSocketController(uint16_t *listeningPortTarget, UDP4SocketController *controller);
+
+        uint8_t unregisterSocketController(uint16_t destinationPort);
+
+        uint8_t setDefaultRoute(IP4Address *gatewayAddress, const String &outDevice);
+
+        uint8_t removeDefaultRoute();
+    };
 
 }
 

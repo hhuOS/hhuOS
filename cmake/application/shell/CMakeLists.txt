@@ -36,6 +36,7 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/Head.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/History.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Insmod.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Ip.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/License.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Ls.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Mkdir.cpp
@@ -45,7 +46,9 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/MkVdd.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Mount.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/NetworkTest.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/Ping.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Rm.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/SendText.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Tail.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Touch.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Umount.cpp

@@ -22,6 +22,7 @@
 #ifndef HHUOS_PACKETHANDLER_H
 #define HHUOS_PACKETHANDLER_H
 
+#include <kernel/service/EventBus.h>
 #include "kernel/event/Receiver.h"
 #include "kernel/log/Logger.h"
 #include "kernel/event/network/ReceiveEvent.h"
@@ -36,19 +37,28 @@ namespace Kernel {
  * dispatch them to other classes by sending other kinds of events rather
  * then a ReceiveEvent.
  */
-class PacketHandler final : public Receiver {
-    /**
-     * A logger to provide information on the kernel log.
-     */
-    Logger &log = Logger::get("PacketHandler");
+    class PacketHandler final : public Receiver {
+    private:
+        EventBus *eventBus = nullptr;
 
-    /**
-     * Inherited method from Receiver.
-     * This method is meant to be overridden and
-     * implemented by this class.
-     */
-    void onEvent(const Event &event) override;
-};
+        /**
+         * A logger to provide information on the kernel log.
+         */
+        Logger &log = Logger::get("PacketHandler");
+
+        uint8_t notifyEthernetModule(void *incomingPacket, uint16_t length);
+
+    public:
+
+        explicit PacketHandler(EventBus *eventBus);
+
+        /**
+         * Inherited method from Receiver.
+         * This method is meant to be overridden and
+         * implemented by this class.
+         */
+        void onEvent(const Event &event) override;
+    };
 
 }
 

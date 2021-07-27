@@ -1,0 +1,47 @@
+//
+// Created by hannes on 19.04.21.
+//
+
+#ifndef HHUOS_LOOPBACK_H
+#define HHUOS_LOOPBACK_H
+
+#include <kernel/event/network/ReceiveEvent.h>
+#include <kernel/service/EventBus.h>
+#include <kernel/core/System.h>
+#include <kernel/log/Logger.h>
+
+#include <lib/util/SmartPointer.h>
+
+#include <device/network/NetworkDevice.h>
+#include <kernel/network/internet/IP4Address.h>
+#include <kernel/network/internet/IP4Netmask.h>
+
+namespace Kernel {
+    class Loopback : public NetworkDevice {
+
+    private:
+
+        /**
+         * A logger to provide logging information on the kernel log.
+         */
+        Logger &log = Logger::get("Loopback");
+
+        EventBus *eventBus = nullptr;
+
+    public:
+        explicit Loopback(EventBus *eventBus);
+
+        /**
+         * Overriding function from NetworkDevice.
+         */
+        void sendPacket(void *address, uint16_t length) override;
+
+        /**
+         * Overriding function from NetworkDevice.
+         */
+        void getMacAddress(uint8_t *buf) override;
+
+        void trigger(InterruptFrame &frame) override;
+    };
+}
+#endif //HHUOS_LOOPBACK_H

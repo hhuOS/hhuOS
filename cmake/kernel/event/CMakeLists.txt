@@ -17,11 +17,23 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/event/Event.cpp
         ${HHUOS_SRC_DIR}/kernel/event/EventPublisher.cpp
+
         ${HHUOS_SRC_DIR}/kernel/event/input/KeyEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/input/MouseClickedEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/input/MouseDoubleClickedEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/input/MouseMovedEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/input/MouseReleasedEvent.cpp
+
         ${HHUOS_SRC_DIR}/kernel/event/network/ReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/IP4SendEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/IP4ReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/ARPReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/EthernetSendEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/EthernetReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4SendEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/ICMP4ReceiveEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/UDP4SendEvent.cpp
+        ${HHUOS_SRC_DIR}/kernel/event/network/UDP4ReceiveEvent.cpp
+
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageAddEvent.cpp
         ${HHUOS_SRC_DIR}/kernel/event/storage/StorageRemoveEvent.cpp)

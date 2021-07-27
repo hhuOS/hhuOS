@@ -18,3 +18,4 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/network/NetworkDevice.h)
 
 add_subdirectory(e1000)
+add_subdirectory(loopback)

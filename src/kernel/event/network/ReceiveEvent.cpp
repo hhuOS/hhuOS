@@ -23,32 +23,31 @@
 
 namespace Kernel {
 
-ReceiveEvent::ReceiveEvent(void *packet, uint16_t length) : Event() {
-    this->packet = new char[length];
-    this->length = length;
+    ReceiveEvent::ReceiveEvent(void *packet, uint16_t length) : Event() {
+        this->packet = new char[length];
+        this->length = length;
 
-    memcpy(this->packet, packet, length);
-}
+        memcpy(this->packet, packet, length);
+    }
 
-String ReceiveEvent::getType() const {
-    return TYPE;
-}
+    String ReceiveEvent::getType() const {
+        return TYPE;
+    }
 
-void *ReceiveEvent::getPacket() {
-    return this->packet;
-}
+    void *ReceiveEvent::getPacket() {
+        return this->packet;
+    }
 
-uint16_t ReceiveEvent::getLength() {
-    return this->length;
-}
+    uint16_t ReceiveEvent::getLength() const {
+        return this->length;
+    }
 
-ReceiveEvent::ReceiveEvent(const ReceiveEvent &other) : Event(other) {
-    this->packet = other.packet;
-    this->length = other.length;
-}
+    ReceiveEvent::ReceiveEvent(const ReceiveEvent &other) : Event(other) {
+        this->packet = other.packet;
+        this->length = other.length;
+    }
 
-ReceiveEvent::~ReceiveEvent() {
-    delete (char *) packet;
-}
-
+    ReceiveEvent::~ReceiveEvent() {
+        delete (char *) this->packet;
+    }
 }

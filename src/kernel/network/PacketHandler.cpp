@@ -19,18 +19,66 @@
  * 317453006EN.PDF Revision 4.0. 2009.
  */
 
+#include <kernel/event/network/EthernetReceiveEvent.h>
 #include "PacketHandler.h"
+#include "DebugPrintout.h"
 
 namespace Kernel {
+    //Private method!
+    uint8_t PacketHandler::notifyEthernetModule(void *incomingPacket, uint16_t length) {
+        auto *input = new NetworkByteBlock(length);
+        if (input->appendStraightFrom(incomingPacket, length)) {
+            log.error("Reading data into NetworkByteBlock failed, discarding");
+            delete input;
+            return 1;
+        }
+        if (input->bytesRemaining() != 0) {
+            log.error("Incoming data could not be loaded completely, discarding");
+            delete input;
+            return 1;
+        }
+        //Reset index to zero to prepare reading headers and data
+        if (input->resetIndex()) {
+            log.error("Index reset for input byteBlock failed, discarding");
+            delete input;
+            return 1;
+        }
 
-void PacketHandler::onEvent(const Event &event) {
-    if ((event.getType() == ReceiveEvent::TYPE)) {
-        auto &receiveEvent = (ReceiveEvent &) event;
-        auto *packet = static_cast<uint8_t *>(receiveEvent.getPacket());
+#if PRINT_INCOMING_BYTES == 1
+        printf("\nIncoming Bytes (%d per line, %d total):\n", BYTES_PER_LINE, input->getLength());
+        input->printBytes(0, input->getLength() - (uint16_t) 1, BYTES_PER_LINE);
+#endif
+        //send input to EthernetModule via EventBus for further processing
+        auto ethernetReceiveInputEvent =
+                Util::SmartPointer<Event>(new EthernetReceiveEvent(input));
+        eventBus->publish(ethernetReceiveInputEvent);
 
-        log.info("Received network packet! Length: %u, First six bytes: %02x-%02x-%02x-%02x-%02x-%02x",
-                 receiveEvent.getLength(), packet[0], packet[1], packet[2], packet[3], packet[4], packet[5]);
+        //We need input in EthernetModule
+        //-> no 'delete input' here
+        return 0;
     }
-}
 
+    PacketHandler::PacketHandler(EventBus *eventBus) : eventBus(eventBus) {}
+
+    void PacketHandler::onEvent(const Event &event) {
+        if ((event.getType() == ReceiveEvent::TYPE)) {
+            auto length = ((ReceiveEvent &) event).getLength();
+            auto *packet = ((ReceiveEvent &) event).getPacket();
+            if (packet == nullptr) {
+                log.error("Incoming data was null, ignoring");
+                return;
+            }
+            if (length == 0) {
+                log.error("Incoming data was empty, ignoring");
+                delete (uint8_t *) packet;
+                return;
+            }
+            if (notifyEthernetModule(packet, length)) {
+                log.error("Could not notify EthernetModule, see syslog for more details");
+            }
+            //Processing finally done, cleanup
+            delete (uint8_t *) packet;
+            return;
+        }
+    }
 }

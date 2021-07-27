@@ -14,6 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <application/shell/command/Ping.h>
+#include <application/shell/command/SendText.h>
 #include "Shell.h"
 #include "kernel/event/input/KeyEvent.h"
 #include "application/shell/command/Echo.h"
@@ -29,6 +31,7 @@
 #include "application/shell/command/Shutdown.h"
 #include "application/shell/command/Clear.h"
 #include "application/shell/command/Insmod.h"
+#include "application/shell/command/Ip.h"
 #include "application/shell/command/Mount.h"
 #include "application/shell/command/Umount.h"
 #include "application/shell/command/Head.h"
@@ -86,6 +89,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("mathexpr", new Mathexpr(*this));
     commands.put("rm", new Rm(*this));
     commands.put("insmod", new Insmod(*this));
+    commands.put("ip", new Ip(*this));
     commands.put("mount", new Mount(*this));
     commands.put("umount", new Umount(*this));
     commands.put("mkparttable", new MkPartTable(*this));
@@ -103,6 +107,8 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("license", new License(*this));
     commands.put("asciimate", new Asciimate(*this));
     commands.put("nettest", new NetworkTest(*this));
+    commands.put("ping", new Ping(*this));
+    commands.put("sendtext", new SendText(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }

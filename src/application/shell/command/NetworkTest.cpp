@@ -34,6 +34,7 @@ void NetworkTest::execute(Util::Array<String> &args) {
     parser.addParameter("send", "s", false);
     parser.addParameter("time", "t", false);
     parser.addParameter("count", "c", false);
+    parser.addParameter("index", "i",false);
 
     if (!parser.parse(args)) {
         stderr << args[0] << ": " << parser.getErrorString() << endl;
@@ -47,7 +48,17 @@ void NetworkTest::execute(Util::Array<String> &args) {
         return;
     }
 
-    NetworkDevice &driver = Kernel::System::getService<Kernel::NetworkService>()->getDriver(0);
+    uint8_t index = 0;
+    if(!parser.getNamedArgument("index").isEmpty()){
+        index = static_cast<uint8_t>(strtoint((char *) parser.getNamedArgument("index")));
+        if(index<0 || index >= UINT8_MAX || index >= networkService->getDeviceCount()){
+            stderr << "Invalid index value! Falling back to zero (default)" << endl;
+            index = 0;
+        }
+    }
+    printf("Device with index %d chosen\n",index);
+
+    NetworkDevice &driver = Kernel::System::getService<Kernel::NetworkService>()->getDriver(index);
 
     if(!parser.getNamedArgument("send").isEmpty()) {
         int length = static_cast<uint32_t>(strtoint((char *) parser.getNamedArgument("send")));
@@ -133,8 +144,11 @@ const String NetworkTest::getHelpText() {
     return "Small utility for testing network devices and measuring network send performance.\n\n"
            "Usage: nettest [OPTIONS]...\n\n"
            "Options:\n"
-           "  -s, --send: Send packets via the first network device.\n"
+           "  -i, --index: Select device with given index for your test run.\n"
+           "               Default is 0 for the first device listed.\n"
+           "               Device list can be shown by 'ip --link'.\n"
+           "  -s, --send: Send packets via the selected network device.\n"
            "    -t, --time: Suboption for --send - Run a send benchmark for a given amount of milliseconds\n"
-           "    -c, --count: Suboption fo --send - Run a send benchmark with a given amount of packets\n"
+           "    -c, --count: Suboption for --send - Run a send benchmark with a given amount of packets\n"
            "  -h, --help: Show this help-message.";
 }
