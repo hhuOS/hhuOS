@@ -45,6 +45,7 @@ void Pit::plugin () {
 
 void Pit::trigger(Kernel::InterruptFrame &frame) {
     time.addNanos(timerInterval);
+    advanceTime(timerInterval);
 }
 
 uint32_t Pit::getNanos() {

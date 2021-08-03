@@ -16,7 +16,6 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/FunctionPointerRunnable.cpp
-        ${HHUOS_SRC_DIR}/lib/util/async/Spinlock.cpp)
+target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/job/Job.cpp
+        ${HHUOS_SRC_DIR}/kernel/job/JobExecutor.cpp)

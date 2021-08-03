@@ -20,11 +20,12 @@
 
 #include <kernel/interrupt/InterruptHandler.h>
 #include <device/cpu/IoPort.h>
+#include <kernel/job/JobExecutor.h>
 #include "TimeProvider.h"
 
 namespace Device {
 
-class Pit : public Kernel::InterruptHandler, public TimeProvider {
+class Pit : public Kernel::InterruptHandler, public Kernel::JobExecutor, public TimeProvider {
 
 public:
 
