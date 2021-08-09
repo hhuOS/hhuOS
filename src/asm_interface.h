@@ -30,6 +30,7 @@ void load_page_directory(uint32_t*);
 void enable_system_paging();
 void bios_call();
 [[noreturn]] void on_exception(uint32_t);
+[[nodiscard]] int32_t is_cpuid_available();
 void _init();
 void _fini();
 }

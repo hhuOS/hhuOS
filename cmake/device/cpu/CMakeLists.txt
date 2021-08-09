@@ -18,4 +18,6 @@ cmake_minimum_required(VERSION 3.7)
  
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/cpu/Cpu.cpp
-        ${HHUOS_SRC_DIR}/device/cpu/IoPort.cpp)
+        ${HHUOS_SRC_DIR}/device/cpu/CpuId.cpp
+        ${HHUOS_SRC_DIR}/device/cpu/IoPort.cpp
+        ${HHUOS_SRC_DIR}/device/cpu/cpuid.asm)

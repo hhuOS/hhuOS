@@ -38,6 +38,7 @@
 #include <lib/util/stream/FileInputStream.h>
 #include <kernel/core/Management.h>
 #include <device/time/Pit.h>
+#include <device/cpu/CpuId.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -52,6 +53,23 @@ void GatesOfHell::enter() {
 
     log.info("Welcome to hhuOS");
     log.info("%u MiB of physical memory detected", Kernel::Management::getInstance().getTotalPhysicalMemory() / 1024 / 1024);
+
+    if (Device::CpuId::isAvailable()) {
+        log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));
+
+        const auto info = Device::CpuId::getCpuInfo();
+        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
+
+        const auto features = Device::CpuId::getCpuFeatures();
+        Util::Memory::String featureString;
+        for (uint32_t i = 0; i < features.length(); i++) {
+            featureString += Device::CpuId::getFeatureAsString(features[i]);
+            if (i < features.length() - 1) {
+                featureString += ",";
+            }
+        }
+        log.info("CPU features: %s", static_cast<const char*>(featureString));
+    }
 
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
