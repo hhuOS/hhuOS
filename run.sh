@@ -10,7 +10,7 @@ readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="${OVMF:-/usr/share/edk2-ovmf/ia32/OVMF.fd}"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
-readonly CONST_QEMU_ARGS="-vga std -monitor stdio"
+readonly CONST_QEMU_ARGS="-vga std -monitor stdio -audiodev alsa,id=alsa -machine pcspk-audiodev=alsa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"

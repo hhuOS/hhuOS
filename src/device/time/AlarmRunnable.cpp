@@ -15,52 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_JOBEXECUTOR_H
-#define HHUOS_JOBEXECUTOR_H
+#include "AlarmRunnable.h"
+#include <device/sound/PcSpeaker.h>
 
-#include <lib/util/data/ArrayList.h>
-#include "Job.h"
+namespace Device {
 
-namespace Kernel {
-
-class JobExecutor {
-
-public:
-    /**
-     * Default Constructor.
-     */
-    JobExecutor() = default;
-
-    /**
-     * Copy constructor.
-     */
-    JobExecutor(const JobExecutor &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    JobExecutor &operator=(const JobExecutor &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~JobExecutor() = default;
-
-    void advanceTime(uint32_t elapsedTime);
-
-    uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval);
-
-    uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval, int32_t repetitions);
-
-    void deleteJob(uint32_t id);
-
-private:
-
-    Util::Data::ArrayList<Job> jobs;
-
-};
-
+void AlarmRunnable::run() {
+    if (speakerOn) {
+        PcSpeaker::off();
+        speakerOn = false;
+    } else {
+        PcSpeaker::play(PcSpeaker::A1);
+        speakerOn = true;
+    }
 }
 
-
-#endif
+}

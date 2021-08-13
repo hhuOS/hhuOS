@@ -73,6 +73,10 @@ void GatesOfHell::enter() {
         log.info("CPU features: %s", static_cast<const char*>(featureString));
     }
 
+    if (!Device::Rtc::isValid()) {
+        log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
+    }
+
     if (Device::Bios::isAvailable()) {
         log.info("BIOS detected");
         Device::Bios::init();

@@ -30,7 +30,7 @@ public:
 
     Job() = default;
 
-    Job(Util::Async::Runnable &runnable, int64_t interval);
+    Job(Util::Async::Runnable &runnable, int64_t interval, int32_t repetitions = -1);
 
     /**
      * Copy constructor.
@@ -51,6 +51,8 @@ public:
 
     [[nodiscard]] uint32_t getId() const;
 
+    [[nodiscard]] bool isFinished() const;
+
     bool operator==(const Job &other) const;
 
     bool operator!=(const Job &other) const;
@@ -64,6 +66,7 @@ private:
     uint32_t id = 0;
     int64_t interval = 0;
     int64_t currentTime = 0;
+    int32_t repetitionsLeft = 0;
 
 };
 

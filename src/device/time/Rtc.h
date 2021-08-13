@@ -20,6 +20,7 @@
 
 #include <kernel/interrupt/InterruptHandler.h>
 #include "DateProvider.h"
+#include "AlarmRunnable.h"
 
 namespace Device {
 
@@ -62,6 +63,13 @@ public:
     void trigger(Kernel::InterruptFrame &frame) override;
 
     /**
+     * Check if CMOS data is valid or if power was lost.
+     *
+     * @return true, if CMOS data is valid
+     */
+    [[nodiscard]] static bool isValid();
+
+    /**
      * Get the current date.
      */
     [[nodiscard]] Date getCurrentDate() override;
@@ -70,6 +78,13 @@ public:
      * Set the RTC's date.
      */
     void setHardwareDate(const Date &date);
+
+    /**
+     * Set an alarm at a specific time.
+     *
+     * @param date The time, at which the alarm should start (date is ignored)
+     */
+    void setAlarm(const Date &date) const;
 
 private:
     /**
@@ -94,15 +109,28 @@ private:
      */
     [[nodiscard]] static bool isUpdating();
 
+    /**
+     * Read the current date from the RTC.
+     *
+     * @return The date
+     */
     [[nodiscard]] Date readDate() const;
+
+    /**
+     * Notify the user about an alarm.
+     */
+    static void alarm();
 
     /**
      * RTC-Registers.
      */
-    enum REGISTERS {
+    enum RtcRegister : uint8_t {
         SECONDS_REGISTER = 0x00,
+        ALARM_SECONDS_REGISTER = 0x01,
         MINUTES_REGISTER = 0x02,
+        ALARM_MINUTES_REGISTER = 0x03,
         HOURS_REGISTER = 0x04,
+        ALARM_HOURS_REGISTER = 0x05,
         DAY_OF_WEEK_REGISTER = 0x06,
         DAY_OF_MONTH_REGISTER = 0x07,
         MONTH_REGISTER = 0x08,
@@ -110,7 +138,8 @@ private:
         CENTURY_REGISTER = 0x32,
         STATUS_REGISTER_A = 0x0A,
         STATUS_REGISTER_B = 0x0B,
-        STATUS_REGISTER_C = 0x0C
+        STATUS_REGISTER_C = 0x0C,
+        STATUS_REGISTER_D = 0x0D
     };
 
     Rtc::Date currentDate {};
@@ -119,6 +148,9 @@ private:
 
     static const constexpr uint8_t CURRENT_CENTURY = 20;
     static const constexpr uint8_t RTC_RATE = 0x06;
+
+    static const constexpr uint8_t INTERRUPT_UPDATE_ENDED = 0x10;
+    static const constexpr uint8_t INTERRUPT_ALARM = 0x20;
 
 };
 

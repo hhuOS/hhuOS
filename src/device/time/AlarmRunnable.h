@@ -15,52 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_JOBEXECUTOR_H
-#define HHUOS_JOBEXECUTOR_H
+#ifndef HHUOS_ALARMRUNNABLE_H
+#define HHUOS_ALARMRUNNABLE_H
 
-#include <lib/util/data/ArrayList.h>
-#include "Job.h"
+#include <lib/util/async/Runnable.h>
 
-namespace Kernel {
+namespace Device {
 
-class JobExecutor {
+class AlarmRunnable : public Util::Async::Runnable {
 
 public:
     /**
      * Default Constructor.
      */
-    JobExecutor() = default;
+    AlarmRunnable() = default;
 
     /**
      * Copy constructor.
      */
-    JobExecutor(const JobExecutor &other) = delete;
+    AlarmRunnable(const AlarmRunnable &other) = delete;
 
     /**
      * Assignment operator.
      */
-    JobExecutor &operator=(const JobExecutor &other) = delete;
+    AlarmRunnable &operator=(const AlarmRunnable &other) = delete;
 
     /**
      * Destructor.
      */
-    ~JobExecutor() = default;
+    ~AlarmRunnable() = default;
 
-    void advanceTime(uint32_t elapsedTime);
-
-    uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval);
-
-    uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval, int32_t repetitions);
-
-    void deleteJob(uint32_t id);
+    void run() override;
 
 private:
 
-    Util::Data::ArrayList<Job> jobs;
+    bool speakerOn = false;
 
 };
 
 }
-
 
 #endif

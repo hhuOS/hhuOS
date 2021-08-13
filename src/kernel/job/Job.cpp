@@ -19,13 +19,18 @@
 
 namespace Kernel {
 
-Job::Job(Util::Async::Runnable &runnable, int64_t interval) : runnable(&runnable), id(generateId()), interval(interval), currentTime(interval) {}
+Job::Job(Util::Async::Runnable &runnable, int64_t interval, int32_t repetitions) : runnable(&runnable), id(generateId()), interval(interval), currentTime(interval), repetitionsLeft(repetitions) {}
 
 void Job::advanceTime(int64_t elapsedTime) {
+    if (repetitionsLeft == 0) {
+        return;
+    }
+
     currentTime -= elapsedTime;
     if (currentTime <= 0) {
         currentTime = interval + currentTime;
         runnable->run();
+        repetitionsLeft--;
     }
 }
 
@@ -38,6 +43,10 @@ uint32_t Job::generateId() {
 
 uint32_t Job::getId() const {
     return id;
+}
+
+bool Job::isFinished() const {
+    return repetitionsLeft == 0;
 }
 
 bool Job::operator==(const Job &other) const {

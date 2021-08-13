@@ -18,14 +18,16 @@
 #include <device/cpu/Cpu.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <device/interrupt/Pic.h>
+#include <device/sound/PcSpeaker.h>
 #include "Rtc.h"
 #include "Cmos.h"
+#include "Pit.h"
 
 namespace Device {
 
 Rtc::Rtc() {
-    useBcd = !(Cmos::read(STATUS_REGISTER_B) & 0x04);
-    useTwelveHours = !(Cmos::read(STATUS_REGISTER_B) & 0x02);
+    useBcd = (Cmos::read(STATUS_REGISTER_B) & 0x04) == 0;
+    useTwelveHours = (Cmos::read(STATUS_REGISTER_B) & 0x02) == 0;
     currentDate = readDate();
 }
 
@@ -38,15 +40,15 @@ void Rtc::plugin() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    // Enable 'Update interrupts': An Interrupt will be triggered after every RTC-update.
+    // Enable 'update ended interrupts': An Interrupt will be triggered after every RTC-update.
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
-    Cmos::write(STATUS_REGISTER_B, oldValue | 0x10);
+    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED);
 
     // Set the periodic interrupt rate.
     oldValue = Cmos::read(STATUS_REGISTER_A);
-    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xF0u) | RTC_RATE);
+    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | RTC_RATE);
 
-    // Read Register C. This will clear the data-flag.
+    // Read status register C. This will clear the data-flag.
     // As long as this flag is set, the RTC won't trigger any interrupts.
     Cmos::read(STATUS_REGISTER_C);
 
@@ -58,11 +60,21 @@ void Rtc::plugin() {
 }
 
 void Rtc::trigger(Kernel::InterruptFrame &frame) {
-    if((Cmos::read(STATUS_REGISTER_C) & 0x10) != 0x10) {
-        return;
+    uint8_t interruptStatus = Cmos::read(STATUS_REGISTER_C);
+
+    if ((interruptStatus & INTERRUPT_UPDATE_ENDED) != 0) {
+        currentDate = readDate();
     }
 
-    currentDate = readDate();
+    if ((interruptStatus & INTERRUPT_ALARM) != 0) {
+        alarm();
+    }
+}
+
+bool Rtc::isValid() {
+    // The high bit in status register D indicates validity
+    uint8_t value = Cmos::read(STATUS_REGISTER_D);
+    return (value & 0x80) != 0;
 }
 
 DateProvider::Date Rtc::getCurrentDate() {
@@ -73,18 +85,18 @@ void Rtc::setHardwareDate(const DateProvider::Date &date) {
     Date outDate = date;
     uint8_t century;
 
-    if(outDate.year < 100) {
+    if (outDate.year < 100) {
         century = CURRENT_CENTURY;
     } else {
         century = outDate.year / 100;
         outDate.year = outDate.year % 100;
     }
 
-    if(useTwelveHours) {
+    if (useTwelveHours) {
         outDate.hours = outDate.hours % 12;
     }
 
-    if(useBcd) {
+    if (useBcd) {
         outDate.seconds = binaryToBcd(outDate.seconds);
         outDate.minutes = binaryToBcd(outDate.minutes);
         outDate.hours = binaryToBcd(outDate.hours);
@@ -94,7 +106,7 @@ void Rtc::setHardwareDate(const DateProvider::Date &date) {
         century = binaryToBcd(century);
     }
 
-    while(isUpdating());
+    while (isUpdating());
 
     Cpu::disableInterrupts();
     Cmos::disableNmi();
@@ -113,6 +125,28 @@ void Rtc::setHardwareDate(const DateProvider::Date &date) {
     Cpu::enableInterrupts();
 }
 
+void Rtc::setAlarm(const DateProvider::Date &date) const {
+    Date alarmDate = date;
+
+    if (useTwelveHours) {
+        alarmDate.hours = alarmDate.hours % 12;
+    }
+
+    if (useBcd) {
+        alarmDate.seconds = binaryToBcd(alarmDate.seconds);
+        alarmDate.minutes = binaryToBcd(alarmDate.minutes);
+        alarmDate.hours = binaryToBcd(alarmDate.hours);
+    }
+
+    Cmos::write(ALARM_SECONDS_REGISTER, alarmDate.seconds);
+    Cmos::write(ALARM_MINUTES_REGISTER, alarmDate.minutes);
+    Cmos::write(ALARM_HOURS_REGISTER, alarmDate.hours);
+
+    // Enable 'alarm interrupts': An Interrupt will be triggered every 24 hours at the set alarm time.
+    uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
+    Cmos::write(STATUS_REGISTER_B, oldValue | 0x20);
+}
+
 uint8_t Rtc::bcdToBinary(uint8_t bcd) {
     return (bcd & 0x0F) + ((bcd / 16) * 10);
 }
@@ -126,7 +160,7 @@ bool Rtc::isUpdating() {
 }
 
 DateProvider::Date Rtc::readDate() const {
-    while(isUpdating());
+    while (isUpdating());
 
     Date date;
     date.seconds = Cmos::read(SECONDS_REGISTER);
@@ -137,11 +171,11 @@ DateProvider::Date Rtc::readDate() const {
     date.year = Cmos::read(YEAR_REGISTER);
 
     uint8_t century = Cmos::read(CENTURY_REGISTER);
-    if(century == 0) {
+    if (century == 0) {
         century = CURRENT_CENTURY;
     }
 
-    if(useBcd) {
+    if (useBcd) {
         date.seconds = bcdToBinary(date.seconds);
         date.minutes = bcdToBinary(date.minutes);
         date.hours = bcdToBinary(date.hours) | (date.hours & 0x80);
@@ -153,11 +187,16 @@ DateProvider::Date Rtc::readDate() const {
 
     date.year += century * 100;
 
-    if(useTwelveHours && (date.hours & 0x80)) {
+    if (useTwelveHours && (date.hours & 0x80)) {
         date.hours = ((date.hours & 0x7F) + 12) % 24;
     }
 
     return date;
+}
+
+void Rtc::alarm() {
+    static AlarmRunnable alarmRunnable;
+    Pit::getInstance().registerJob(alarmRunnable, 500000000, 6);
 }
 
 }

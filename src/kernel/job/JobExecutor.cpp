@@ -24,10 +24,21 @@ void Kernel::JobExecutor::advanceTime(uint32_t elapsedTime) {
         job.advanceTime(elapsedTime);
         jobs.set(i, job);
     }
+
+    for (uint32_t i = 0; i < jobs.size(); i++) {
+        if (jobs.get(i).isFinished()) {
+            jobs.remove(i);
+            i = 0;
+        }
+    }
 }
 
 uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, uint32_t interval) {
-    auto job = Job(runnable, interval);
+    return registerJob(runnable, interval, -1);
+}
+
+uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, uint32_t interval, int32_t repetitions) {
+    auto job = Job(runnable, interval, repetitions);
     jobs.add(job);
     return job.getId();
 }
