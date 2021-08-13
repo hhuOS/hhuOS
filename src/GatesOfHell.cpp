@@ -39,6 +39,7 @@
 #include <kernel/core/Management.h>
 #include <device/time/Pit.h>
 #include <device/cpu/CpuId.h>
+#include <device/time/Rtc.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -46,6 +47,7 @@ Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
     Device::Pit::getInstance().plugin();
+    Device::Rtc::getInstance().plugin();
 
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);

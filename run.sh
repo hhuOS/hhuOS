@@ -4,8 +4,8 @@ readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm"
-readonly CONST_QEMU_MIN_BIOS_CPU="486"
-readonly CONST_QEMU_MIN_EFI_CPU="pentium2"
+readonly CONST_QEMU_BIOS_CPU="486"
+readonly CONST_QEMU_EFI_CPU="pentium2"
 readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="${OVMF:-/usr/share/edk2-ovmf/ia32/OVMF.fd}"
@@ -16,7 +16,7 @@ QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
 QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
-QEMU_CPU="${CONST_QEMU_MIN_EFI_CPU}"
+QEMU_CPU="${CONST_QEMU_EFI_CPU}"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
@@ -77,10 +77,10 @@ parse_bios() {
 
   if [ "${bios}" == "bios" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
-    QEMU_CPU="${CONST_QEMU_MIN_BIOS_CPU}"
+    QEMU_CPU="${CONST_QEMU_BIOS_CPU}"
   elif [ "${bios}" == "uefi" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
-    QEMU_CPU="${CONST_QEMU_MIN_EFI_CPU}"
+    QEMU_CPU="${CONST_QEMU_EFI_CPU}"
   else
     printf "Invalid BIOS '%s'!\\n" "${machine}"
     exit 1

@@ -23,7 +23,7 @@ namespace Device {
 
 Pit::Pit(uint32_t timerInterval) : timerInterval(timerInterval) {}
 
-Pit& Pit::getInstance() noexcept {
+Pit& Pit::getInstance() {
     static Pit instance;
     return instance;
 }

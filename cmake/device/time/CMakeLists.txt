@@ -17,5 +17,7 @@
 cmake_minimum_required(VERSION 3.7)
  
 target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/time/Cmos.cpp
         ${HHUOS_SRC_DIR}/device/time/Pit.cpp
+        ${HHUOS_SRC_DIR}/device/time/Rtc.cpp
         ${HHUOS_SRC_DIR}/device/time/TimeProvider.cpp)

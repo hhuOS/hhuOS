@@ -49,7 +49,7 @@ public:
      *
      * @return The instance of the PIT
      */
-    [[nodiscard]] static Pit& getInstance() noexcept;
+    [[nodiscard]] static Pit& getInstance();
 
     /**
      * Overriding function from InterruptHandler.
