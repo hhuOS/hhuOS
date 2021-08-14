@@ -139,7 +139,6 @@ private:
      * Interrupts stay disabled, as long as this number is greater than zero.
      */
     static int32_t cliCount;
-    static Util::Async::Atomic<int32_t> cliCountWrapper;
 };
 
 }

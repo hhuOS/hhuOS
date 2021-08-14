@@ -21,24 +21,28 @@
 
 namespace Device {
 
-Pit::Pit(uint32_t timerInterval) : timerInterval(timerInterval) {}
+Pit::Pit(uint16_t interruptRateDivisor) {
+    setInterruptRate(interruptRateDivisor);
+}
 
 Pit& Pit::getInstance() {
     static Pit instance;
     return instance;
 }
 
-void Pit::setInterval(uint32_t ns) {
-    timerInterval = ns;
-    uint32_t divisor = ns / TIME_BASE;
+void Pit::setInterruptRate(uint16_t divisor) {
+    if (divisor == 0) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PIT: Divisor may not be set to 0!");
+    }
 
     controlPort.writeByte(0x36); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
     dataPort0.writeByte((uint8_t) (divisor & 0xff)); // Low byte
     dataPort0.writeByte((uint8_t) (divisor >> 8)); // High byte
+
+    timerInterval = static_cast<uint32_t>(1000000000 / (BASE_FREQUENCY / divisor));
 }
 
-void Pit::plugin () {
-    setInterval(timerInterval);
+void Pit::plugin() {
     Kernel::InterruptDispatcher::getInstance().assign(32, *this);
     Pic::getInstance().allow(Pic::Interrupt::PIT);
 }
@@ -48,36 +52,8 @@ void Pit::trigger(Kernel::InterruptFrame &frame) {
     advanceTime(timerInterval);
 }
 
-uint32_t Pit::getNanos() {
-    return time.toNanos();
-}
-
-uint32_t Pit::getMicros() {
-    return time.toMicros();
-}
-
-uint32_t Pit::getMillis() {
-    return time.toMillis();
-}
-
-uint32_t Pit::getSeconds() {
-    return time.seconds;
-}
-
-uint32_t Pit::getMinutes() {
-    return time.toMinutes();
-}
-
-uint32_t Pit::getHours() {
-    return time.toHours();
-}
-
-uint32_t Pit::getDays() {
-    return time.toDays();
-}
-
-uint32_t Pit::getYears() {
-    return time.toYears();
+TimeProvider::Time Pit::getTime() {
+    return time;
 }
 
 }

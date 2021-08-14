@@ -46,13 +46,15 @@ public:
      */
     ~JobExecutor() = default;
 
-    void advanceTime(uint32_t elapsedTime);
-
     uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval);
 
     uint32_t registerJob(Util::Async::Runnable &runnable, uint32_t interval, int32_t repetitions);
 
     void deleteJob(uint32_t id);
+
+protected:
+
+    void advanceTime(uint32_t elapsedTime);
 
 private:
 

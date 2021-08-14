@@ -21,14 +21,14 @@
 #include <device/sound/PcSpeaker.h>
 #include "Rtc.h"
 #include "Cmos.h"
-#include "Pit.h"
 
 namespace Device {
 
-Rtc::Rtc() {
+Rtc::Rtc(uint8_t interruptRateDivisor) {
     useBcd = (Cmos::read(STATUS_REGISTER_B) & 0x04) == 0;
     useTwelveHours = (Cmos::read(STATUS_REGISTER_B) & 0x02) == 0;
     currentDate = readDate();
+    setInterruptRate(interruptRateDivisor);
 }
 
 Rtc &Rtc::getInstance() {
@@ -41,12 +41,9 @@ void Rtc::plugin() {
     Cmos::disableNmi();
 
     // Enable 'update ended interrupts': An Interrupt will be triggered after every RTC-update.
+    // Enable 'periodic interrupts': Periodic interrupts will be triggered at the set rate.
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
-    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED);
-
-    // Set the periodic interrupt rate.
-    oldValue = Cmos::read(STATUS_REGISTER_A);
-    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | RTC_RATE);
+    Cmos::write(STATUS_REGISTER_B, oldValue | INTERRUPT_UPDATE_ENDED | INTERRUPT_PERIODIC);
 
     // Read status register C. This will clear the data-flag.
     // As long as this flag is set, the RTC won't trigger any interrupts.
@@ -68,6 +65,11 @@ void Rtc::trigger(Kernel::InterruptFrame &frame) {
 
     if ((interruptStatus & INTERRUPT_ALARM) != 0) {
         alarm();
+    }
+
+    if ((interruptStatus & INTERRUPT_PERIODIC) != 0) {
+        time.addNanos(timerInterval);
+        advanceTime(timerInterval);
     }
 }
 
@@ -196,7 +198,47 @@ DateProvider::Date Rtc::readDate() const {
 
 void Rtc::alarm() {
     static AlarmRunnable alarmRunnable;
-    Pit::getInstance().registerJob(alarmRunnable, 500000000, 6);
+    registerJob(alarmRunnable, 500000000, 6);
+}
+
+void Rtc::setInterruptRate(uint8_t divisor) {
+    if (divisor < 3 || divisor > 15) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "RTC: Interrupt rate divisor must be between 3 and 15");
+    }
+
+    uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
+    Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisor);
+
+    // Frequency is divided by 2^divisor
+    timerInterval = static_cast<uint32_t>(1000000000 / (BASE_FREQUENCY / (1 << (divisor - 1))));
+}
+
+TimeProvider::Time Rtc::getTime() {
+    return time;
+}
+
+bool Rtc::isAvailable() {
+    Cpu::disableInterrupts();
+    Cmos::disableNmi();
+
+    uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
+
+    for (uint8_t i = 3; i <= 15; i++) {
+        Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | i);
+        uint8_t currentValue = Cmos::read(STATUS_REGISTER_A) & 0x0f;
+
+        if (currentValue != i) {
+            Cmos::enableNmi();
+            Cpu::enableInterrupts();
+            return false;
+        }
+    }
+
+    Cmos::write(STATUS_REGISTER_A, oldValue);
+
+    Cmos::enableNmi();
+    Cpu::enableInterrupts();
+    return true;
 }
 
 }

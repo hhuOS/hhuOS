@@ -47,7 +47,6 @@ Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
     Device::Pit::getInstance().plugin();
-    Device::Rtc::getInstance().plugin();
 
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
@@ -73,8 +72,13 @@ void GatesOfHell::enter() {
         log.info("CPU features: %s", static_cast<const char*>(featureString));
     }
 
-    if (!Device::Rtc::isValid()) {
-        log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
+    if (Device::Rtc::isAvailable()) {
+        log.info("RTC detected");
+        Device::Rtc::getInstance().plugin();
+
+        if (!Device::Rtc::isValid()) {
+            log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
+        }
     }
 
     if (Device::Bios::isAvailable()) {

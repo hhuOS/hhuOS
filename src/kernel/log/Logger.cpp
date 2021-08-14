@@ -131,7 +131,7 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
 
     lock.acquire();
 
-    uint32_t millis = timeProvider->getMillis();
+    uint32_t millis = timeProvider->getTime().toMillis();
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 

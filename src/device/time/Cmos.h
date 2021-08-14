@@ -61,6 +61,12 @@ private:
     static IoPort registerPort;
     static IoPort dataPort;
 
+    /**
+     * Keeps track of how often disableNmi() and enableNmi() have been called.
+     * Non-maskable interrupts stay disabled, as long as this number is greater than zero.
+     */
+    static int32_t nmiCount;
+
 };
 
 }

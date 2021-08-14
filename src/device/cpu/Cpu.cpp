@@ -38,28 +38,31 @@ const char *Cpu::softwareExceptions[]{
 };
 
 int32_t Cpu::cliCount = 1; // Interrupts are disabled on startup
-Util::Async::Atomic<int32_t> Cpu::cliCountWrapper(Cpu::cliCount);
 Kernel::Logger Cpu::exceptionLog = Kernel::Logger::get("Exception");
 
 void Cpu::enableInterrupts() {
+    auto cliCountWrapper = Util::Async::Atomic<int32_t>(cliCount);
     int count = cliCountWrapper.fetchAndDec();
+
     if (count == 1) {
-        // cliCount has been decreased to 0 -> Enable interrupts
+        // nmiCount has been decreased to 0 -> Enable interrupts
         asm volatile ( "sti" );
     } else if (count < 1) {
-        // cliCount has been decreased to a negative value -> Illegal state
-        throwException(Util::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
+        // nmiCount has been decreased to a negative value -> Illegal state
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 }
 
 void Cpu::disableInterrupts() {
+    auto cliCountWrapper = Util::Async::Atomic<int32_t>(cliCount);
     int count = cliCountWrapper.fetchAndInc();
+
     if (count == 0) {
-        // cliCount has been increased from 0 to 1 -> Disable interrupts
+        // nmiCount has been increased from 0 to 1 -> Disable interrupts
         asm volatile ( "cli" );
     } else if (count < 0) {
-        // cliCount is negative -> Illegal state
-        throwException(Util::Exception::ILLEGAL_STATE, "Cpu: cliCount is less than 0!");
+        // nmiCount is negative -> Illegal state
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CPU: nmiCount is less than 0!");
     }
 }
 

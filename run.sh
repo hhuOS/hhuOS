@@ -3,7 +3,7 @@
 readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
-readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm"
+readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
 readonly CONST_QEMU_BIOS_CPU="486"
 readonly CONST_QEMU_EFI_CPU="pentium2"
 readonly CONST_QEMU_DEFAULT_RAM="64M"

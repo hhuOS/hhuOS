@@ -28,7 +28,6 @@ namespace Device {
 class Pit : public Kernel::InterruptHandler, public Kernel::JobExecutor, public TimeProvider {
 
 public:
-
     /**
      * Copy constructor.
      */
@@ -64,69 +63,30 @@ public:
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] uint32_t getNanos() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getMicros() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getMillis() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getSeconds() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getMinutes() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getHours() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getDays() override;
-
-    /**
-     * Overriding function from TimeProvider.
-     */
-    [[nodiscard]] uint32_t getYears() override;
+    [[nodiscard]] Time getTime() override;
 
 private:
-
     /**
      * Constructor.
      *
      * @param timerInterval The interval, at which the PIT shall trigger interrupts.
      */
-    explicit Pit(uint32_t timerInterval = DEFAULT_TIMER_INTERVAL);
+    explicit Pit(uint16_t interruptRateDivisor = 1194);
 
     /**
      * Sets the interval at which the PIT fires interrupts.
      *
      * @param ns The interval in nanoseconds
      */
-    void setInterval(uint32_t ns);
+    void setInterruptRate(uint16_t divisor);
 
-    static Pit *instance;
-
-    Time time;
-    uint32_t timerInterval;
+    Time time{};
+    uint32_t timerInterval = 0;
 
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);
 
-    static const constexpr uint32_t TIME_BASE = 838;
-    static const constexpr uint32_t DEFAULT_TIMER_INTERVAL = 1000000;
+    static const constexpr double BASE_FREQUENCY = 1193182;
 
 };
 

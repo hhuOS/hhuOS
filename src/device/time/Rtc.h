@@ -19,7 +19,9 @@
 #define HHUOS_RTC_H
 
 #include <kernel/interrupt/InterruptHandler.h>
+#include <kernel/job/JobExecutor.h>
 #include "DateProvider.h"
+#include "TimeProvider.h"
 #include "AlarmRunnable.h"
 
 namespace Device {
@@ -27,14 +29,9 @@ namespace Device {
 /**
  * Driver for the CMOS Realtime clock.
  */
-class Rtc : public DateProvider, Kernel::InterruptHandler {
+class Rtc : public DateProvider, public TimeProvider, public Kernel::JobExecutor, public Kernel::InterruptHandler {
 
 public:
-    /**
-     * Constructor.
-     */
-    Rtc();
-
     /**
      * Copy-constructor.
      */
@@ -51,6 +48,13 @@ public:
      * @return The instance of the RTC
      */
     [[nodiscard]] static Rtc& getInstance();
+
+    /**
+     * Check, if an RTC is installed in the system, by trying to set different rates for the periodic interrupt.
+     *
+     * @return true, if an RTC is available
+     */
+    [[nodiscard]] static bool isAvailable();
 
     /**
      * Enable periodic interrupts for the RTC.
@@ -70,7 +74,7 @@ public:
     [[nodiscard]] static bool isValid();
 
     /**
-     * Get the current date.
+     * Overriding function from DateProvider
      */
     [[nodiscard]] Date getCurrentDate() override;
 
@@ -86,7 +90,39 @@ public:
      */
     void setAlarm(const Date &date) const;
 
+    /**
+     * Overriding function from TimeProvider.
+     */
+    [[nodiscard]] Time getTime() override;
+
 private:
+
+    /**
+     * RTC-Registers.
+     */
+    enum RtcRegister : uint8_t {
+        SECONDS_REGISTER = 0x00,
+        ALARM_SECONDS_REGISTER = 0x01,
+        MINUTES_REGISTER = 0x02,
+        ALARM_MINUTES_REGISTER = 0x03,
+        HOURS_REGISTER = 0x04,
+        ALARM_HOURS_REGISTER = 0x05,
+        DAY_OF_WEEK_REGISTER = 0x06,
+        DAY_OF_MONTH_REGISTER = 0x07,
+        MONTH_REGISTER = 0x08,
+        YEAR_REGISTER = 0x09,
+        CENTURY_REGISTER = 0x32,
+        STATUS_REGISTER_A = 0x0A,
+        STATUS_REGISTER_B = 0x0B,
+        STATUS_REGISTER_C = 0x0C,
+        STATUS_REGISTER_D = 0x0D
+    };
+
+    /**
+     * Constructor.
+     */
+    explicit Rtc(uint8_t interruptRateDivisor = 15);
+
     /**
      * Converts a number from bcd format to binary format.
      *
@@ -119,38 +155,27 @@ private:
     /**
      * Notify the user about an alarm.
      */
-    static void alarm();
+    void alarm();
 
     /**
-     * RTC-Registers.
+     * Set the rate at which the RTC fires periodic interrupts.
+     *
+     * @param ns The interval in nanoseconds
      */
-    enum RtcRegister : uint8_t {
-        SECONDS_REGISTER = 0x00,
-        ALARM_SECONDS_REGISTER = 0x01,
-        MINUTES_REGISTER = 0x02,
-        ALARM_MINUTES_REGISTER = 0x03,
-        HOURS_REGISTER = 0x04,
-        ALARM_HOURS_REGISTER = 0x05,
-        DAY_OF_WEEK_REGISTER = 0x06,
-        DAY_OF_MONTH_REGISTER = 0x07,
-        MONTH_REGISTER = 0x08,
-        YEAR_REGISTER = 0x09,
-        CENTURY_REGISTER = 0x32,
-        STATUS_REGISTER_A = 0x0A,
-        STATUS_REGISTER_B = 0x0B,
-        STATUS_REGISTER_C = 0x0C,
-        STATUS_REGISTER_D = 0x0D
-    };
+    void setInterruptRate(uint8_t divisor);
 
-    Rtc::Date currentDate {};
+    Time time{};
+    Date currentDate{};
+    uint32_t timerInterval = 0;
     bool useBcd;
     bool useTwelveHours;
 
+    static const constexpr double BASE_FREQUENCY = 32768;
     static const constexpr uint8_t CURRENT_CENTURY = 20;
-    static const constexpr uint8_t RTC_RATE = 0x06;
 
     static const constexpr uint8_t INTERRUPT_UPDATE_ENDED = 0x10;
     static const constexpr uint8_t INTERRUPT_ALARM = 0x20;
+    static const constexpr uint8_t INTERRUPT_PERIODIC = 0x40;
 
 };
 

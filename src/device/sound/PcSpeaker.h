@@ -120,7 +120,6 @@ private:
     static void delay (uint32_t time);
 
     static IoPort controlPort;
-    static IoPort dataPort0;
     static IoPort dataPort2;
     static IoPort ppi;
 

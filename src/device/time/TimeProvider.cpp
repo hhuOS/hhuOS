@@ -57,7 +57,7 @@ uint32_t TimeProvider::convert(uint32_t value, TimeProvider::TimeUnit from, Time
 void TimeProvider::Time::addNanos(uint32_t value) {
     fraction += value;
 
-    if (fraction >= 1000000000) {
+    while (fraction >= 1000000000) {
         fraction -= 1000000000;
         seconds++;
     }

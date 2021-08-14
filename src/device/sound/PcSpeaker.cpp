@@ -21,7 +21,6 @@
 namespace Device {
 
 IoPort PcSpeaker::controlPort(0x43);
-IoPort PcSpeaker::dataPort0(0x40);
 IoPort PcSpeaker::dataPort2(0x42);
 IoPort PcSpeaker::ppi(0x61);
 TimeProvider *PcSpeaker::timeProvider = &Device::Pit::getInstance();
@@ -59,8 +58,8 @@ void PcSpeaker::off() {
 }
 
 void PcSpeaker::delay(uint32_t time) {
-    uint32_t end = timeProvider->getMillis() + time;
-    while (timeProvider->getMillis() < end);
+    uint32_t end = timeProvider->getTime().toMillis() + time;
+    while (timeProvider->getTime().toMillis() < end);
 }
 
 }

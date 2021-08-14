@@ -90,21 +90,7 @@ public:
      */
     virtual ~TimeProvider() = default;
 
-    [[nodiscard]] virtual uint32_t getNanos() = 0;
-
-    [[nodiscard]] virtual uint32_t getMicros() = 0;
-
-    [[nodiscard]] virtual uint32_t getMillis() = 0;
-
-    [[nodiscard]] virtual uint32_t getSeconds() = 0;
-
-    [[nodiscard]] virtual uint32_t getMinutes() = 0;
-
-    [[nodiscard]] virtual uint32_t getHours() = 0;
-
-    [[nodiscard]] virtual uint32_t getDays() = 0;
-
-    [[nodiscard]] virtual uint32_t getYears() = 0;
+    [[nodiscard]] virtual Time getTime() = 0;
 
     static uint32_t convert(uint32_t value, TimeProvider::TimeUnit from, TimeProvider::TimeUnit to);
 
