@@ -200,7 +200,7 @@ run_qemu() {
   command="${command} ${QEMU_ARGS}"
 
   if [ -n "${QEMU_GDB_PORT}" ]; then
-    $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
+    $command -gdb tcp::"${QEMU_GDB_PORT}" -S
   else
     $command
   fi
