@@ -1,0 +1,97 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "qemu-gdb (BIOS)",
+            "type": "shell",
+            "command": "./run.sh",
+            "isBackground": true,
+            "args": [
+                {
+                    "value": "--bios",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "bios",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--file",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "hhuOS.iso",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--machine",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "pc",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--debug",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "2345",
+                    "quoting": "escape"
+                }
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+            },
+        },
+        {
+            "label": "qemu-gdb (UEFI)",
+            "type": "shell",
+            "command": "./run.sh",
+            "isBackground": true,
+            "args": [
+                {
+                    "value": "--bios",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "uefi",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--file",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "hhuOS.img",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--machine",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "pc",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "--debug",
+                    "quoting": "escape"
+                },
+                {
+                    "value": "2345",
+                    "quoting": "escape"
+                }
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+            },
+        }
+    ]
+}

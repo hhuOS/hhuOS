@@ -55,7 +55,7 @@ public:
      *
      * @return The FsNode (or nulltpr on failure)
      */
-    virtual Filesystem::Node* getNode(const Util::Memory::String &path) = 0;
+    virtual Node* getNode(const Util::Memory::String &path) = 0;
 
     /**
      * Create a new empty file or directory at a given path.

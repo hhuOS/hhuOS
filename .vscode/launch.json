@@ -1,0 +1,127 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "build (GRUB)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/build.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--target", "grub"]
+        },
+        {
+            "name": "build (towboot)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/build.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--target", "towboot"]
+        },
+        {
+            "name": "clean",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/build.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--clean"]
+        },
+        {
+            "name": "qemu (BIOS)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/run.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--bios", "bios", "--file", "hhuOS.iso", "--machine", "pc"]
+        },
+        {
+            "name": "qemu (UEFI)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/run.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--bios", "uefi", "--file", "hhuOS.img", "--machine", "pc"]
+        },
+        {
+            "name": "qemu-kvm (BIOS)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/run.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--bios", "bios", "--file", "hhuOS.iso", "--machine", "pc-kvm"]
+        },
+        {
+            "name": "qemu-kvm (UEFI)",
+            "type": "bashdb",
+            "request": "launch",
+            "program": "${workspaceRoot}/run.sh",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "terminalKind": "integrated",
+            "args": ["--bios", "uefi", "--file", "hhuOS.img", "--machine", "pc-kvm"]
+        },
+        {
+            "name": "qemu-gdb (BIOS)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/bin/system",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "miDebuggerServerAddress": ":2345",
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false,
+                },
+                {
+                    "text": "set disassembly-flavor intel"
+                },
+                {
+                    "text": "set architecture i386"
+                }
+            ],
+            "preLaunchTask": "qemu-gdb (BIOS)",
+        },
+        {
+            "name": "qemu-gdb (UEFI)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/build/bin/system",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "miDebuggerServerAddress": ":2345",
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false,
+                },
+                {
+                    "text": "set disassembly-flavor intel"
+                },
+                {
+                    "text": "set architecture i386"
+                }
+            ],
+            "preLaunchTask": "qemu-gdb (UEFI)",
+        },
+    ]
+}

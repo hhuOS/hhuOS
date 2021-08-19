@@ -23,8 +23,8 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 .gdb_history
-.vscode/
 .cproject
 .project
 .settings/
 .idea
+.memory.hex

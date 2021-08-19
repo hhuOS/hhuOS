@@ -184,7 +184,11 @@ run_qemu() {
   printf "Running: %s\\n" "${command}"
 
   if [ -n "${QEMU_GDB_PORT}" ]; then
-    $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
+    if [ "${QEMU_GDB_PORT}" == "1234" ]; then
+      $command -gdb tcp::"${QEMU_GDB_PORT}" -S &
+    else
+      $command -gdb tcp::"${QEMU_GDB_PORT}" -S
+    fi
   else
     $command
   fi
