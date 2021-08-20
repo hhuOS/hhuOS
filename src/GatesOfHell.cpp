@@ -37,7 +37,6 @@
 #include <filesystem/memory/MemoryDriver.h>
 #include <lib/util/stream/FileInputStream.h>
 #include <kernel/core/Management.h>
-#include <device/time/Pit.h>
 #include <device/cpu/CpuId.h>
 #include <device/time/Rtc.h>
 #include "GatesOfHell.h"
@@ -46,8 +45,6 @@
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
-    Device::Pit::getInstance().plugin();
-
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
     enableSerialLogging();
@@ -70,15 +67,6 @@ void GatesOfHell::enter() {
             }
         }
         log.info("CPU features: %s", static_cast<const char*>(featureString));
-    }
-
-    if (Device::Rtc::isAvailable()) {
-        log.info("RTC detected");
-        Device::Rtc::getInstance().plugin();
-
-        if (!Device::Rtc::isValid()) {
-            log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
-        }
     }
 
     if (Device::Bios::isAvailable()) {

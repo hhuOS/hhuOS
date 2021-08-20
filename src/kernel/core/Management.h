@@ -71,6 +71,7 @@ private:
     static bool kernelMode;
     static Management *systemManagement;
     static HeapMemoryManager *kernelMemoryManager;
+    static Logger log; // Use only after _init() has finished!
 
 public:
 

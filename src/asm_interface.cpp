@@ -44,6 +44,7 @@ int32_t atexit (void (*func)()) noexcept;
 }
 
 void main() {
+    Kernel::Logger::get("Management").info("Entering Gates Of Hell");
     GatesOfHell::enter();
 }
 

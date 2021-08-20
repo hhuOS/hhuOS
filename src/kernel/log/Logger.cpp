@@ -62,6 +62,7 @@ void Logger::addOutputStream(Util::Stream::OutputStream &stream) {
     auto *writer = new Util::Stream::PrintWriter(stream);
     for (const auto &message : buffer) {
         writer->write(message);
+        writer->println();
     }
 
     writerMap.put(&stream, writer);

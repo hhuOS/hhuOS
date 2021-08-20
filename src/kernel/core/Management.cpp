@@ -19,12 +19,14 @@
 #include <asm_interface.h>
 #include <device/port/serial/SerialPort.h>
 #include <device/cpu/Cpu.h>
+#include <device/time/Rtc.h>
+#include <lib/util/async/FunctionPointerRunnable.h>
+#include <device/time/Pit.h>
+#include <kernel/interrupt/InterruptDispatcher.h>
+#include <kernel/multiboot/Structure.h>
+#include <kernel/memory/Paging.h>
+#include <kernel/memory/MemLayout.h>
 #include "Management.h"
-
-#include "kernel/interrupt/InterruptDispatcher.h"
-#include "kernel/multiboot/Structure.h"
-#include "kernel/memory/Paging.h"
-#include "kernel/memory/MemLayout.h"
 #include "System.h"
 
 namespace Kernel {
@@ -33,6 +35,7 @@ namespace Kernel {
 TaskStateSegment Management::taskStateSegment{};
 Management *Management::systemManagement = nullptr;
 HeapMemoryManager *Management::kernelMemoryManager = nullptr;
+Logger Management::log = Logger::get("Management");
 bool Management::initialized = false;
 bool Management::kernelMode = true;
 
@@ -46,8 +49,25 @@ void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // create an instance of the SystemManagement and initialize it (sets up paging and system management)
     auto &management = Management::getInstance();
     management.init();
-    Device::Cpu::enableInterrupts();
+    log.info("Base system initialized");
 
+    log.info("Enabling interrupts and starting system timer");
+    Device::Cpu::enableInterrupts();
+    Device::Pit::getInstance().plugin();
+
+    if (Device::Rtc::isAvailable()) {
+        log.info("RTC detected");
+        Device::Rtc::getInstance().plugin();
+
+        if (!Device::Rtc::isValid()) {
+            log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
+        }
+        Device::Rtc::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), 1000000000);
+    } else {
+        Device::Pit::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), 1000000000);
+    }
+
+    log.info("Parsing multiboot structure");
     // Parse multiboot structure
     Multiboot::Structure::parse();
 
