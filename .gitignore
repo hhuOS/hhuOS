@@ -34,3 +34,4 @@ _deps
 .project
 .settings/
 .idea
+.memory.hex
