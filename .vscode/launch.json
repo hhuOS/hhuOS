@@ -1,0 +1,32 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Attach to QEMU",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceRoot}/loader/boot/hhuOS.bin",
+            "stopAtEntry": false,
+            "cwd": "${workspaceRoot}",
+            "miDebuggerServerAddress": ":1234",
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": false,
+                },
+                {
+                    "text": "set disassembly-flavor intel"
+                },
+                {
+                    "text": "set architecture i386"
+                }
+            ],
+            "preLaunchTask": "Run QEMU debug",
+        }
+    ]
+}

@@ -29,7 +29,7 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 .gdb_history
-.vscode/
+.vscode/settings.json
 .cproject
 .project
 .settings/
