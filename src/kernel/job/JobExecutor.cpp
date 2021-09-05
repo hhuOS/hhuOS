@@ -18,7 +18,7 @@
 #include "JobExecutor.h"
 
 
-void Kernel::JobExecutor::advanceTime(uint32_t elapsedTime) {
+void Kernel::JobExecutor::advanceTime(Util::Time::Timestamp elapsedTime) {
     for (uint32_t i = 0; i < jobs.size(); i++) {
         auto job = jobs.get(i);
         job.advanceTime(elapsedTime);
@@ -33,11 +33,11 @@ void Kernel::JobExecutor::advanceTime(uint32_t elapsedTime) {
     }
 }
 
-uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, uint32_t interval) {
+uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval) {
     return registerJob(runnable, interval, -1);
 }
 
-uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, uint32_t interval, int32_t repetitions) {
+uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) {
     auto job = Job(runnable, interval, repetitions);
     jobs.add(job);
     return job.getId();

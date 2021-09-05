@@ -18,35 +18,13 @@
 #ifndef HHUOS_DATEPROVIDER_H
 #define HHUOS_DATEPROVIDER_H
 
-#include <cstdint>
+#include <lib/util/time/Date.h>
 
 namespace Device {
 
 class DateProvider {
 
 public:
-    /**
-     * Contains Date- and Time-information.
-     */
-    struct Date {
-        uint8_t seconds = 0;
-        uint8_t minutes = 0;
-        uint8_t hours = 0;
-        uint8_t dayOfMonth = 0;
-        uint8_t month = 0;
-        uint16_t year = 0;
-
-        bool operator== (Date &date) const {
-            return seconds == date.seconds && minutes == date.minutes && hours == date.hours &&
-            dayOfMonth == date.dayOfMonth && month == date.month && year == date.year;
-        }
-
-        bool operator!= (Date &date) const {
-            return seconds != date.seconds || minutes != date.minutes || hours != date.hours ||
-            dayOfMonth != date.dayOfMonth || month != date.month || year != date.year;
-        }
-    };
-
     /**
      * Default Constructor.
      */
@@ -70,7 +48,7 @@ public:
     /**
      * Get the current date.
      */
-    [[nodiscard]] virtual Date getCurrentDate() = 0;
+    [[nodiscard]] virtual Util::Time::Date getCurrentDate() = 0;
 
 };
 

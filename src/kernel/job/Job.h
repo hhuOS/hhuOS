@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <lib/util/async/Runnable.h>
 #include <lib/util/async/Spinlock.h>
+#include <lib/util/time/Timestamp.h>
 
 namespace Kernel {
 
@@ -30,7 +31,7 @@ public:
 
     Job() = default;
 
-    Job(Util::Async::Runnable &runnable, int64_t interval, int32_t repetitions = -1);
+    Job(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions = -1);
 
     /**
      * Copy constructor.
@@ -47,7 +48,7 @@ public:
      */
     ~Job() = default;
 
-    void advanceTime(int64_t elapsedTime);
+    void advanceTime(Util::Time::Timestamp elapsedTime);
 
     [[nodiscard]] uint32_t getId() const;
 

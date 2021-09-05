@@ -63,7 +63,7 @@ public:
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] Time getTime() override;
+    [[nodiscard]] Util::Time::Timestamp getTime() override;
 
 private:
     /**
@@ -80,7 +80,7 @@ private:
      */
     void setInterruptRate(uint16_t divisor);
 
-    Time time{};
+    Util::Time::Timestamp time{};
     uint32_t timerInterval = 0;
 
     IoPort controlPort = IoPort(0x43);

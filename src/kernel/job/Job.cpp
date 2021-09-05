@@ -19,14 +19,15 @@
 
 namespace Kernel {
 
-Job::Job(Util::Async::Runnable &runnable, int64_t interval, int32_t repetitions) : runnable(&runnable), id(generateId()), interval(interval), currentTime(interval), repetitionsLeft(repetitions) {}
+Job::Job(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) :
+        runnable(&runnable), id(generateId()), interval(interval.toNanoseconds()), currentTime(interval.toNanoseconds()), repetitionsLeft(repetitions) {}
 
-void Job::advanceTime(int64_t elapsedTime) {
+void Job::advanceTime(Util::Time::Timestamp elapsedTime) {
     if (repetitionsLeft == 0) {
         return;
     }
 
-    currentTime -= elapsedTime;
+    currentTime -= elapsedTime.toNanoseconds();
     if (currentTime <= 0) {
         currentTime = interval + currentTime;
         runnable->run();

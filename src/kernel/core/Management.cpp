@@ -62,9 +62,9 @@ void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
         if (!Device::Rtc::isValid()) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
-        Device::Rtc::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), 1000000000);
+        Device::Rtc::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), Util::Time::Timestamp(0, 1000000000));
     } else {
-        Device::Pit::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), 1000000000);
+        Device::Pit::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), Util::Time::Timestamp(0, 1000000000));
     }
 
     log.info("Parsing multiboot structure");

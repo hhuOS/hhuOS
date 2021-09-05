@@ -38,6 +38,11 @@ public:
     Rtc(const Rtc &copy) = delete;
 
     /**
+     * Assignment operator.
+     */
+    Rtc& operator=(const Rtc &other) = delete;
+
+    /**
      * Destructor.
      */
     ~Rtc() override = default;
@@ -76,24 +81,24 @@ public:
     /**
      * Overriding function from DateProvider
      */
-    [[nodiscard]] Date getCurrentDate() override;
+    [[nodiscard]] Util::Time::Date getCurrentDate() override;
 
     /**
      * Set the RTC's date.
      */
-    void setHardwareDate(const Date &date);
+    void setHardwareDate(const Util::Time::Date &date);
 
     /**
      * Set an alarm at a specific time.
      *
      * @param date The time, at which the alarm should start (date is ignored)
      */
-    void setAlarm(const Date &date) const;
+    void setAlarm(const Util::Time::Date &date) const;
 
     /**
      * Overriding function from TimeProvider.
      */
-    [[nodiscard]] Time getTime() override;
+    [[nodiscard]] Util::Time::Timestamp getTime() override;
 
 private:
 
@@ -150,7 +155,7 @@ private:
      *
      * @return The date
      */
-    [[nodiscard]] Date readDate() const;
+    [[nodiscard]] Util::Time::Date readDate() const;
 
     /**
      * Notify the user about an alarm.
@@ -164,8 +169,8 @@ private:
      */
     void setInterruptRate(uint8_t divisor);
 
-    Time time{};
-    Date currentDate{};
+    Util::Time::Timestamp time{};
+    Util::Time::Date currentDate{};
     uint32_t timerInterval = 0;
     bool useBcd;
     bool useTwelveHours;

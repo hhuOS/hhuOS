@@ -48,11 +48,11 @@ void Pit::plugin() {
 }
 
 void Pit::trigger(Kernel::InterruptFrame &frame) {
-    time.addNanos(timerInterval);
-    advanceTime(timerInterval);
+    time.addNanoseconds(timerInterval);
+    advanceTime(Util::Time::Timestamp(0, timerInterval));
 }
 
-TimeProvider::Time Pit::getTime() {
+Util::Time::Timestamp Pit::getTime() {
     return time;
 }
 

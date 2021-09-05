@@ -58,8 +58,8 @@ void PcSpeaker::off() {
 }
 
 void PcSpeaker::delay(uint32_t time) {
-    uint32_t end = timeProvider->getTime().toMillis() + time;
-    while (timeProvider->getTime().toMillis() < end);
+    uint32_t end = timeProvider->getTime().toMilliseconds() + time;
+    while (timeProvider->getTime().toMilliseconds() < end) {}
 }
 
 }

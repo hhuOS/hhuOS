@@ -19,57 +19,13 @@
 #define HHUOS_TIMEPROVIDER_H
 
 #include <cstdint>
+#include <lib/util/time/Timestamp.h>
 
 namespace Device {
 
 class TimeProvider {
 
 public:
-
-    struct Time {
-        uint32_t seconds = 0;
-        uint32_t fraction = 0;
-
-        void addNanos(uint32_t value);
-
-        void addSeconds(uint32_t value);
-
-        bool operator>(const Time &other) const;
-
-        bool operator>=(const Time &other) const;
-
-        bool operator<(const Time &other) const;
-
-        bool operator<=(const Time &other) const;
-
-        [[nodiscard]] uint32_t toNanos() const;
-
-        [[nodiscard]] uint32_t toMicros() const;
-
-        [[nodiscard]] uint32_t toMillis() const;
-
-        [[nodiscard]] uint32_t toSeconds() const;
-
-        [[nodiscard]] uint32_t toMinutes() const;
-
-        [[nodiscard]] uint32_t toHours() const;
-
-        [[nodiscard]] uint32_t toDays() const;
-
-        [[nodiscard]] uint32_t toYears() const;
-    };
-
-    enum TimeUnit {
-        NANO    = 0x01,
-        MICRO   = 0x02,
-        MILLI   = 0x03,
-        SECONDS = 0x04,
-        MINUTES = 0x05,
-        HOURS   = 0x06,
-        DAYS    = 0x07,
-        YEARS   = 0x08
-    };
-
     /**
      * Default Constructor.
      */
@@ -90,13 +46,7 @@ public:
      */
     virtual ~TimeProvider() = default;
 
-    [[nodiscard]] virtual Time getTime() = 0;
-
-    static uint32_t convert(uint32_t value, TimeProvider::TimeUnit from, TimeProvider::TimeUnit to);
-
-private:
-
-    static uint32_t conversionMap[8][8];
+    [[nodiscard]] virtual Util::Time::Timestamp getTime() = 0;
 
 };
 

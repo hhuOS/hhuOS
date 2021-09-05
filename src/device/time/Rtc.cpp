@@ -68,8 +68,8 @@ void Rtc::trigger(Kernel::InterruptFrame &frame) {
     }
 
     if ((interruptStatus & INTERRUPT_PERIODIC) != 0) {
-        time.addNanos(timerInterval);
-        advanceTime(timerInterval);
+        time.addNanoseconds(timerInterval);
+        advanceTime(Util::Time::Timestamp(0, timerInterval));
     }
 }
 
@@ -79,32 +79,34 @@ bool Rtc::isValid() {
     return (value & 0x80) != 0;
 }
 
-DateProvider::Date Rtc::getCurrentDate() {
+Util::Time::Date Rtc::getCurrentDate() {
     return currentDate;
 }
 
-void Rtc::setHardwareDate(const DateProvider::Date &date) {
-    Date outDate = date;
+void Rtc::setHardwareDate(const Util::Time::Date &date) {
+    Util::Time::Date outDate = date;
     uint8_t century;
 
-    if (outDate.year < 100) {
+    if (outDate.getYear() < 100) {
         century = CURRENT_CENTURY;
     } else {
-        century = outDate.year / 100;
-        outDate.year = outDate.year % 100;
+        century = outDate.getYear() / 100;
+        uint8_t year = outDate.getYear() % 100;
+        outDate.setYear(year);
     }
 
     if (useTwelveHours) {
-        outDate.hours = outDate.hours % 12;
+        uint8_t hours = outDate.getHours() % 12;
+        outDate.setHours(hours);
     }
 
     if (useBcd) {
-        outDate.seconds = binaryToBcd(outDate.seconds);
-        outDate.minutes = binaryToBcd(outDate.minutes);
-        outDate.hours = binaryToBcd(outDate.hours);
-        outDate.dayOfMonth = binaryToBcd(outDate.dayOfMonth);
-        outDate.month = binaryToBcd(outDate.month);
-        outDate.year = binaryToBcd(outDate.year);
+        outDate.setSeconds(binaryToBcd(outDate.getSeconds()));
+        outDate.setMinutes(binaryToBcd(outDate.getMinutes()));
+        outDate.setHours(binaryToBcd(outDate.getHours()));
+        outDate.setDayOfMonth(binaryToBcd(outDate.getDayOfMonth()));
+        outDate.setMonth(binaryToBcd(outDate.getMonth()));
+        outDate.setYear(binaryToBcd(outDate.getYear()));
         century = binaryToBcd(century);
     }
 
@@ -113,12 +115,12 @@ void Rtc::setHardwareDate(const DateProvider::Date &date) {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
 
-    Cmos::write(SECONDS_REGISTER, outDate.seconds);
-    Cmos::write(MINUTES_REGISTER, outDate.minutes);
-    Cmos::write(HOURS_REGISTER, outDate.hours);
-    Cmos::write(DAY_OF_MONTH_REGISTER, outDate.dayOfMonth);
-    Cmos::write(MONTH_REGISTER, outDate.month);
-    Cmos::write(YEAR_REGISTER, outDate.year);
+    Cmos::write(SECONDS_REGISTER, outDate.getSeconds());
+    Cmos::write(MINUTES_REGISTER, outDate.getMinutes());
+    Cmos::write(HOURS_REGISTER, outDate.getHours());
+    Cmos::write(DAY_OF_MONTH_REGISTER, outDate.getDayOfMonth());
+    Cmos::write(MONTH_REGISTER, outDate.getMonth());
+    Cmos::write(YEAR_REGISTER, outDate.getYear());
     Cmos::write(CENTURY_REGISTER, century);
 
     currentDate = date;
@@ -127,22 +129,23 @@ void Rtc::setHardwareDate(const DateProvider::Date &date) {
     Cpu::enableInterrupts();
 }
 
-void Rtc::setAlarm(const DateProvider::Date &date) const {
-    Date alarmDate = date;
+void Rtc::setAlarm(const Util::Time::Date &date) const {
+    Util::Time::Date alarmDate = date;
 
     if (useTwelveHours) {
-        alarmDate.hours = alarmDate.hours % 12;
+        uint8_t hours = alarmDate.getHours() % 12;
+        alarmDate.setHours(hours);
     }
 
     if (useBcd) {
-        alarmDate.seconds = binaryToBcd(alarmDate.seconds);
-        alarmDate.minutes = binaryToBcd(alarmDate.minutes);
-        alarmDate.hours = binaryToBcd(alarmDate.hours);
+        alarmDate.setSeconds(binaryToBcd(alarmDate.getSeconds()));
+        alarmDate.setMinutes(binaryToBcd(alarmDate.getMinutes()));
+        alarmDate.setHours(binaryToBcd(alarmDate.getHours()));
     }
 
-    Cmos::write(ALARM_SECONDS_REGISTER, alarmDate.seconds);
-    Cmos::write(ALARM_MINUTES_REGISTER, alarmDate.minutes);
-    Cmos::write(ALARM_HOURS_REGISTER, alarmDate.hours);
+    Cmos::write(ALARM_SECONDS_REGISTER, alarmDate.getSeconds());
+    Cmos::write(ALARM_MINUTES_REGISTER, alarmDate.getMinutes());
+    Cmos::write(ALARM_HOURS_REGISTER, alarmDate.getHours());
 
     // Enable 'alarm interrupts': An Interrupt will be triggered every 24 hours at the set alarm time.
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_B);
@@ -161,16 +164,16 @@ bool Rtc::isUpdating() {
     return (Cmos::read(STATUS_REGISTER_A) & 0x80) == 0x80;
 }
 
-DateProvider::Date Rtc::readDate() const {
+Util::Time::Date Rtc::readDate() const {
     while (isUpdating());
 
-    Date date;
-    date.seconds = Cmos::read(SECONDS_REGISTER);
-    date.minutes = Cmos::read(MINUTES_REGISTER);
-    date.hours = Cmos::read(HOURS_REGISTER);
-    date.dayOfMonth = Cmos::read(DAY_OF_MONTH_REGISTER);
-    date.month = Cmos::read(MONTH_REGISTER);
-    date.year = Cmos::read(YEAR_REGISTER);
+    Util::Time::Date date;
+    date.setSeconds(Cmos::read(SECONDS_REGISTER));
+    date.setMinutes(Cmos::read(MINUTES_REGISTER));
+    date.setHours(Cmos::read(HOURS_REGISTER));
+    date.setDayOfMonth(Cmos::read(DAY_OF_MONTH_REGISTER));
+    date.setMonth(Cmos::read(MONTH_REGISTER));
+    date.setYear(Cmos::read(YEAR_REGISTER));
 
     uint8_t century = Cmos::read(CENTURY_REGISTER);
     if (century == 0) {
@@ -178,19 +181,18 @@ DateProvider::Date Rtc::readDate() const {
     }
 
     if (useBcd) {
-        date.seconds = bcdToBinary(date.seconds);
-        date.minutes = bcdToBinary(date.minutes);
-        date.hours = bcdToBinary(date.hours) | (date.hours & 0x80);
-        date.dayOfMonth = bcdToBinary(date.dayOfMonth);
-        date.month = bcdToBinary(date.month);
-        date.year = bcdToBinary(date.year);
         century = bcdToBinary(century);
+        date.setSeconds(bcdToBinary(date.getSeconds()));
+        date.setMinutes(bcdToBinary(date.getMinutes()));
+        date.setHours(bcdToBinary(date.getHours()) | (date.getHours() & 0x80));
+        date.setDayOfMonth(bcdToBinary(date.getDayOfMonth()));
+        date.setMonth(bcdToBinary(date.getMonth()));
+        date.setYear(bcdToBinary(date.getYear()) + (century * 100));
     }
 
-    date.year += century * 100;
-
-    if (useTwelveHours && (date.hours & 0x80)) {
-        date.hours = ((date.hours & 0x7F) + 12) % 24;
+    if (useTwelveHours && (date.getHours() & 0x80)) {
+        uint8_t hours = ((date.getHours() & 0x7F) + 12) % 24;
+        date.setHours(hours);
     }
 
     return date;
@@ -198,7 +200,7 @@ DateProvider::Date Rtc::readDate() const {
 
 void Rtc::alarm() {
     static AlarmRunnable alarmRunnable;
-    registerJob(alarmRunnable, 500000000, 6);
+    registerJob(alarmRunnable, Util::Time::Timestamp(0, 500000000), 6);
 }
 
 void Rtc::setInterruptRate(uint8_t divisor) {
@@ -213,7 +215,7 @@ void Rtc::setInterruptRate(uint8_t divisor) {
     timerInterval = static_cast<uint32_t>(1000000000 / (BASE_FREQUENCY / (1 << (divisor - 1))));
 }
 
-TimeProvider::Time Rtc::getTime() {
+Util::Time::Timestamp Rtc::getTime() {
     return time;
 }
 
