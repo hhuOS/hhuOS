@@ -57,13 +57,25 @@ public:
 
 private:
 
-    static void printDefaultBanner(Util::Stream::PrintWriter &writer);
+    static void enableSerialLogging();
+
+    static void initializeKeyboard();
+
+    static void initializeFilesystem();
+
+    static void initializeTerminal();
+
+    static void initializeHeadlessMode();
+
+    static void printBanner();
 
     static void printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader);
 
-    static void enableSerialLogging();
+    static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
     static Kernel::Logger log;
+    static Util::Stream::InputStream *inputStream;
+    static Util::Stream::OutputStream *outputStream;
 
 };
 

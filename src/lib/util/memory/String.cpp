@@ -364,7 +364,7 @@ String String::join(const String &separator, const Util::Data::Array<String> &el
     return tmp;
 }
 
-String String::toUpperCase() {
+String String::toUpperCase() const {
 
     String tmp = *this;
 
@@ -389,7 +389,7 @@ String String::toUpperCase() {
     return tmp;
 }
 
-String String::toLowerCase() {
+String String::toLowerCase() const {
 
     String tmp = *this;
 

@@ -38,7 +38,7 @@ cd hhuOS/
 
 ## Bootloader
 
-hhuOS implements the Multiboot standard and can (in theory) be booted by any Multiboot compliant bootloader. Per default, our own bootloader [towboot](https://github.com/hhuOS/towboot) is used for booting hhuOS. However, it is possible to boot hhuOS using GRUB. Since towboot only support UEFI-based system, it is necessary to use GRUB for booting hhuOS on (older) BIOS-based systems. To use GRUB, some additional packages need to be installed:
+hhuOS implements the Multiboot standard and can (in theory) be booted by any Multiboot compliant bootloader. Per default, our own bootloader [towboot](https://github.com/hhuOS/towboot) is used for booting hhuOS. However, it is possible to boot hhuOS using GRUB. Since towboot only support UEFI-based systems, it is necessary to use GRUB for booting hhuOS on (older) BIOS-based systems. To use GRUB, some additional packages need to be installed:
 
 ```sh
 sudo apt install grub-pc-bin grub-efi-ia32-bin xorriso
@@ -79,5 +79,7 @@ To run hhuOS with GRUB on a BIOS-based machine, use:
 hhuOS can be configured via kernel parameters, that are passed to the system by the bootloader. The following parameters are available:
 
 - `bios` can be set to `true` to activate support for BIOS-calls. This enables support for *VESA* and *CGA* graphics modes. CAUTION: Enabling this option will cause hhuOS to not boot on most UEFI-based systems.
-- `lfb_provider` is used to set the framebuffer-implementation, that should be used to draw on the screen. The default implementation is named `Kernel::Multiboot::MultibootLinearFrameBufferProvider` and should always work (as long as the bootloader finds a video mode). However, the resolution stays fixes with this configuration. If BIOS-calls are activated, `Device::Graphic::VesaBiosExtensions` may be used to enable support for multiple resolutions and resolution switching.
+- `lfb_provider` is used to set the framebuffer-implementation, that should be used to draw on the screen. The default implementation is named `Kernel::Multiboot::MultibootLinearFrameBufferProvider` and should always work (as long as the bootloader finds a video mode). However, the resolution stays fixed with this configuration. If BIOS-calls are activated, `Device::Graphic::VesaBiosExtensions` may be used to enable support for multiple resolutions and resolution switching.
 - `text_provider` is used to set the implementation for drawing text on the screen. The default implementation is named `Device::Graphic::LinearFrameBufferTerminalProvider` and uses rasterized fonts to draw on an underlying linear framebuffer. It works with `lfb_provider` being set to `Kernel::Multiboot::MultibootLinearFrameBufferProvider` or `Device::Graphic::VesaBiosExtensions`. As an alternative, it may be set to `Device::Graphic::ColorGraphicsArrayProvider` (with activated BIOS-calls), to make use of *CGA* text modes, providing a higher drawing speed, but lower resolutions and only 16 colors.
+- `log_com_port` is used to enable log output via a serial port. Valid values are `COM1`, `COM2`, `COM3` and `COM4`.
+- `headless_com_port` is used to enable headless mode via a serial port. All graphical output will be disabled and the system is controllable via the serial port. Valid values are `COM1`, `COM2`, `COM3` and `COM4`.

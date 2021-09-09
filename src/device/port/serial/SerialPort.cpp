@@ -109,4 +109,20 @@ void SerialPort::write(uint8_t c) {
 
 }
 
+SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portName) {
+    const auto port = portName.toLowerCase();
+
+    if (port == "com1") {
+        return Device::SerialPort::COM1;
+    } else if (port == "com2") {
+        return Device::SerialPort::COM2;
+    } else if (port == "com3") {
+        return Device::SerialPort::COM3;
+    } else if (port == "com4") {
+        return Device::SerialPort::COM4;
+    } else {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
+    }
+}
+
 }

@@ -75,9 +75,9 @@ public:
 
     static bool isAlpha(char c);
 
-    String toUpperCase();
+    String toUpperCase() const;
 
-    String toLowerCase();
+    String toLowerCase() const;
 
     bool operator==(const String &other) const;
 

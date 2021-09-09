@@ -18,9 +18,10 @@
 #ifndef HHUOS_SERIALPORT_H
 #define HHUOS_SERIALPORT_H
 
-#include <kernel/interrupt/InterruptHandler.h>
 #include <device/cpu/IoPort.h>
+#include <kernel/interrupt/InterruptHandler.h>
 #include <lib/util/stream/PipedOutputStream.h>
+#include <lib/util/memory/String.h>
 
 namespace Device {
 
@@ -190,6 +191,8 @@ public:
      * Write a character to the port.
      */
     void write(uint8_t c);
+
+    [[nodiscard]] static ComPort portFromString(const Util::Memory::String &portName);
 
 private:
 

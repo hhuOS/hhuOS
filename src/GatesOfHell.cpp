@@ -38,11 +38,12 @@
 #include <lib/util/stream/FileInputStream.h>
 #include <kernel/core/Management.h>
 #include <device/cpu/CpuId.h>
-#include <device/time/Rtc.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
+Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
+Util::Stream::OutputStream *GatesOfHell::outputStream = nullptr;
 
 void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
@@ -73,6 +74,47 @@ void GatesOfHell::enter() {
         log.info("BIOS detected");
         Device::Bios::init();
     }
+
+    initializeKeyboard();
+
+    if (Kernel::Multiboot::Structure::hasKernelOption("headless_com_port")) {
+        initializeHeadlessMode();
+    } else {
+        initializeTerminal();
+    }
+
+    initializeFilesystem();
+
+    printBanner();
+
+    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
+    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
+    auto reader = Util::Stream::InputStreamReader(*inputStream);
+
+    writer << "> " << Util::Stream::PrintWriter::flush;
+
+    while(true) {
+        char input = reader.read();
+        writer << input;
+
+        if (input == '\n') {
+            writer << "> ";
+        }
+
+        writer << Util::Stream::PrintWriter::flush;
+    }
+}
+
+void GatesOfHell::initializeKeyboard() {
+    log.info("Initializing keyboard");
+    auto keyboardInputStream = new Util::Stream::PipedInputStream();
+    auto keyboard = new Device::Keyboard(*keyboardInputStream);
+    inputStream = keyboardInputStream;
+    keyboard->plugin();
+}
+
+void GatesOfHell::initializeTerminal() {
+    log.info("Initializing graphical terminal");
 
     if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
         log.info("VESA graphics detected");
@@ -110,6 +152,43 @@ void GatesOfHell::enter() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
 
+    auto resolution = terminalProvider->searchMode(100, 37, 24);
+    auto &terminal = terminalProvider->initializeTerminal(resolution);
+    outputStream = new Util::Stream::TerminalOutputStream(terminal);
+}
+
+void GatesOfHell::initializeHeadlessMode() {
+    log.info("Headless mode enabled -> Initializing serial input/output");
+
+    auto port = Device::SerialPort::portFromString(Kernel::Multiboot::Structure::getKernelOption("headless_com_port"));
+    if (!Device::SerialPort::checkPort(port)) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Headless mode: The requested serial port is not present!");
+    } else {
+        auto *serialInputStream = new Util::Stream::PipedInputStream();
+        auto *serial = new Device::SerialPort(port, *serialInputStream);
+        inputStream = serialInputStream;
+        outputStream = new Device::SerialOutputStream(*serial);
+        serial->plugin();
+    }
+}
+
+void GatesOfHell::enableSerialLogging() {
+    if (!Kernel::Multiboot::Structure::hasKernelOption("log_com_port")) {
+        return;
+    }
+
+    auto port = Device::SerialPort::portFromString(Kernel::Multiboot::Structure::getKernelOption("log_com_port"));
+    if (!Device::SerialPort::checkPort(port)) {
+        log.error("No serial port present at %04x", port);
+        return;
+    }
+
+    auto *comPort = new Device::SerialPort(port);
+    auto *comStream = new Device::SerialOutputStream(*comPort);
+    Kernel::Logger::addOutputStream(*comStream);
+}
+
+void GatesOfHell::initializeFilesystem() {
     log.info("Initializing filesystem");
     Kernel::System::registerService(Kernel::FilesystemService::SERVICE_NAME, *new Kernel::FilesystemService());
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
@@ -127,19 +206,11 @@ void GatesOfHell::enter() {
         filesystem.createDirectory("/initrd");
         filesystem.mountVirtualDriver("/initrd", *tarDriver);
     }
+}
 
-    log.info("Initializing graphical terminal");
-    auto resolution = terminalProvider->searchMode(100, 37, 24);
-    auto &terminal = terminalProvider->initializeTerminal(resolution);
-    auto terminalStream = Util::Stream::TerminalOutputStream(terminal);
-    auto bufferedStream = Util::Stream::BufferedOutputStream(terminalStream, resolution.columns);
+void GatesOfHell::printBanner() {
+    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
-    log.info("Initializing keyboard");
-    auto keyboardInputStream = Util::Stream::PipedInputStream();
-    auto reader = Util::Stream::InputStreamReader(keyboardInputStream);
-    auto keyboard = Device::Keyboard(keyboardInputStream);
-    keyboard.plugin();
 
     auto bannerFile = Util::File::File("/initrd/banner.txt");
     if (!bannerFile.exists()) {
@@ -163,26 +234,6 @@ void GatesOfHell::enter() {
 
         delete[] bannerData;
     }
-
-    writer << "> " << Util::Stream::PrintWriter::flush;
-
-    while(true) {
-        char input = reader.read();
-        writer << input;
-
-        if (input == '\n') {
-            writer << "> ";
-        }
-
-        writer << Util::Stream::PrintWriter::flush;
-    }
-}
-
-void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
-    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
-           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
-           << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
-           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 }
 
 void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader) {
@@ -193,30 +244,9 @@ void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Strea
     }
 }
 
-void GatesOfHell::enableSerialLogging() {
-    if (!Kernel::Multiboot::Structure::hasKernelOption("log_com_port")) {
-        return;
-    }
-
-    Device::SerialPort::ComPort port;
-    const auto portName = Kernel::Multiboot::Structure::getKernelOption("log_com_port").toLowerCase();
-    if (portName == "com1") {
-        port = Device::SerialPort::COM1;
-    } else if (portName == "com2") {
-        port = Device::SerialPort::COM2;
-    } else if (portName == "com3") {
-        port = Device::SerialPort::COM3;
-    } else if (portName == "com4") {
-        port = Device::SerialPort::COM4;
-    } else {
-        return;
-    }
-
-    if (!Device::SerialPort::checkPort(port)) {
-        return;
-    }
-
-    auto *comPort = new Device::SerialPort(port);
-    auto *comStream = new Device::SerialOutputStream(*comPort);
-    Kernel::Logger::addOutputStream(*comStream);
+void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
+    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
+           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
+           << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
+           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 }
