@@ -50,6 +50,7 @@ void Pit::plugin() {
 void Pit::trigger(Kernel::InterruptFrame &frame) {
     time.addNanoseconds(timerInterval);
     advanceTime(Util::Time::Timestamp(0, timerInterval));
+    executePendingJobs();
 }
 
 Util::Time::Timestamp Pit::getTime() {

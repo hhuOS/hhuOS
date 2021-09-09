@@ -56,9 +56,12 @@ protected:
 
     void advanceTime(Util::Time::Timestamp elapsedTime);
 
+    void executePendingJobs();
+
 private:
 
-    Util::Data::ArrayList<Job> jobs;
+    Util::Data::ArrayList<Job*> jobs;
+    Util::Async::Spinlock executionLock;
 
 };
 

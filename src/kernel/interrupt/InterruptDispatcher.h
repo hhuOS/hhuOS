@@ -34,10 +34,10 @@ namespace Kernel {
  * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  * @date HHU, 2018
  */
-class InterruptDispatcher : public Service {
+class InterruptDispatcher {
 
 public:
-    // enum of important interrupt numbers
+
     enum {
         PAGEFAULT = 14,
         PIT = 32,
@@ -64,6 +64,12 @@ public:
 
     InterruptDispatcher(const InterruptDispatcher &other) = delete;
 
+    InterruptDispatcher& operator=(const InterruptDispatcher &other) = delete;
+
+    ~InterruptDispatcher() = default;
+
+    static InterruptDispatcher &getInstance() noexcept;
+
     /**
      * Register an interrupt handler to an interrupt number.
      *
@@ -73,27 +79,30 @@ public:
     void assign(uint8_t slot, InterruptHandler &gate);
 
     /**
-     * Get the interrupt handlers that are registered for a specific interrupt.
-     *
-     * @param slot Interrupt number
-     * @return Pointer to a list of all registered handlers or <em>nullptr</em> if no handlers are registered
-     */
-    Util::Data::List<InterruptHandler *> *report(uint8_t slot);
-
-    /**
      * Dispatched the interrupt to all registered interrupt handlers.
      *
      * @param frame The interrupt frame
      */
     void dispatch(InterruptFrame *frame);
 
-    static InterruptDispatcher &getInstance() noexcept;
+    [[nodiscard]] uint32_t getInterruptDepth() const;
 
 private:
 
+    uint32_t interruptDepth = 0;
+
+    /**
+     * Get the interrupt handlers that are registered for a specific interrupt.
+     *
+     * @param slot Interrupt number
+     * @return Pointer to a list of all registered handlers or nullptr if no handlers are registered
+     */
+    Util::Data::List<InterruptHandler*> *getHandlerForSlot(uint8_t slot);
+
     Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *> *> handler;
 
-    static void sendEoi(uint32_t slot);
+    void sendEoi(uint32_t slot);
+
 };
 
 }

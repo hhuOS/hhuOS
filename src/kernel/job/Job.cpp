@@ -28,6 +28,9 @@ void Job::advanceTime(Util::Time::Timestamp elapsedTime) {
     }
 
     currentTime -= elapsedTime.toNanoseconds();
+}
+
+void Job::executeIfPending() {
     if (currentTime <= 0) {
         currentTime = interval + currentTime;
         runnable->run();

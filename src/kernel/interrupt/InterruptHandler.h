@@ -24,8 +24,8 @@ namespace Kernel {
 
 /**
  * Interface for an interrupt handler.
- * Every interrupt hanlder should dervive from this interface.
- * The trigger-method is called if an interrupt occured.
+ * Every interrupt handler should derive from this interface.
+ * The trigger-method is called if an interrupt occurred.
  *
  * @author Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  * @date HHU, 2018

@@ -70,6 +70,7 @@ void Rtc::trigger(Kernel::InterruptFrame &frame) {
     if ((interruptStatus & INTERRUPT_PERIODIC) != 0) {
         time.addNanoseconds(timerInterval);
         advanceTime(Util::Time::Timestamp(0, timerInterval));
+        executePendingJobs();
     }
 }
 

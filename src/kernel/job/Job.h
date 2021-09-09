@@ -50,6 +50,8 @@ public:
 
     void advanceTime(Util::Time::Timestamp elapsedTime);
 
+    void executeIfPending();
+
     [[nodiscard]] uint32_t getId() const;
 
     [[nodiscard]] bool isFinished() const;
