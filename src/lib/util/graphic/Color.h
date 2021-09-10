@@ -104,6 +104,16 @@ public:
     ~Color() = default;
 
     /**
+     * Brighten the color.
+     */
+    void brighten();
+
+    /**
+     * Dim the color.
+     */
+    void dim();
+
+    /**
      * Set the red value.
      */
     void setRed(uint8_t red);
@@ -326,6 +336,9 @@ private:
      * Calculate the 1-bit value.
      */
     [[nodiscard]] uint8_t calcRGB1() const;
+
+    static const constexpr uint8_t BRIGHTNESS_SHIFT = 80;
+
 };
 
 }

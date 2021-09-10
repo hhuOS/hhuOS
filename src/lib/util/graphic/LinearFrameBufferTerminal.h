@@ -46,9 +46,9 @@ public:
 
     void clear() override;
 
-    void setForegroundColor(Color &color) override;
+    void setForegroundColor(const Color &color) override;
 
-    void setBackgroundColor(Color &color) override;
+    void setBackgroundColor(const Color &color) override;
 
     [[nodiscard]] LinearFrameBuffer& getLinearFrameBuffer() const;
 
@@ -64,8 +64,8 @@ private:
     StringDrawer stringDrawer;
 
     Font &font;
-    Color fgColor = Colors::TERM_WHITE;
-    Color bgColor = Colors::TERM_BLACK;
+    Color foregroundColor = Colors::TERM_WHITE;
+    Color backgroundColor = Colors::TERM_BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 };

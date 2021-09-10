@@ -42,9 +42,9 @@ public:
 
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void setForegroundColor(Util::Graphic::Color &color) override;
+    void setForegroundColor(const Util::Graphic::Color &color) override;
 
-    void setBackgroundColor(Util::Graphic::Color &color) override;
+    void setBackgroundColor(const Util::Graphic::Color &color) override;
 
 private:
 
@@ -52,8 +52,8 @@ private:
 
     void scrollUp();
 
-    Util::Graphic::Color fgColor = Util::Graphic::Colors::TERM_WHITE;
-    Util::Graphic::Color bgColor = Util::Graphic::Colors::TERM_BLACK;
+    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::TERM_WHITE;
+    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::TERM_BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 

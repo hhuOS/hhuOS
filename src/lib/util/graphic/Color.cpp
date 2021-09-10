@@ -65,6 +65,50 @@ Color::Color(uint32_t rgb, uint8_t depth) : red(0), green(0), blue(0), alpha(255
     }
 }
 
+void Color::brighten() {
+    uint8_t brightRed = red + BRIGHTNESS_SHIFT;
+    uint8_t brightGreen = green + BRIGHTNESS_SHIFT;
+    uint8_t brightBlue = blue + BRIGHTNESS_SHIFT;
+
+    if (brightRed < red) {
+        brightRed = 255;
+    }
+
+    if (brightGreen < green) {
+        brightGreen = 255;
+    }
+
+    if (brightBlue < blue) {
+        brightBlue = 255;
+    }
+
+    red = brightRed;
+    green = brightGreen;
+    blue = brightBlue;
+}
+
+void Color::dim() {
+    uint8_t dimRed = red - BRIGHTNESS_SHIFT;
+    uint8_t dimGreen = green - BRIGHTNESS_SHIFT;
+    uint8_t dimBlue = blue - BRIGHTNESS_SHIFT;
+
+    if (dimRed > red) {
+        dimRed = 255;
+    }
+
+    if (dimGreen > green) {
+        dimGreen = 255;
+    }
+
+    if (dimBlue > blue) {
+        dimBlue = 255;
+    }
+
+    red = dimRed;
+    green = dimGreen;
+    blue = dimBlue;
+}
+
 void Color::invalidate() {
     rgb32 = -1;
     rgb24 = -1;

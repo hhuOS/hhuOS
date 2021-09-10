@@ -85,22 +85,23 @@ private:
 
     static const char* getLevelAsString(const LogLevel &level);
 
+    static const char *getColor(const LogLevel &level);
+
     static void logMessage(const LogLevel &level, const Util::Memory::String &name, const Util::Memory::String &message);
 
     const Util::Memory::String name;
 
+    static LogLevel currentLevel;
     static Util::Async::Spinlock lock;
     static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
     static Util::Data::ArrayList<Util::Memory::String> buffer;
     static Device::TimeProvider *timeProvider;
-    static LogLevel currentLevel;
 
     static constexpr const char *LEVEL_TRACE = "TRACE";
     static constexpr const char *LEVEL_DEBUG = "DEBUG";
     static constexpr const char *LEVEL_INFO = "INFO";
     static constexpr const char *LEVEL_WARN = "WARN";
     static constexpr const char *LEVEL_ERROR = "ERROR";
-
 };
 
 }

@@ -28,11 +28,11 @@ LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Fon
 
 void LinearFrameBufferTerminal::putChar(char c) {
     if (c == '\n') {
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', fgColor, bgColor);
+        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::TERM_BLACK);
         currentRow++;
         currentColumn = 0;
     } else {
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, fgColor, bgColor);
+        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), c, foregroundColor, backgroundColor);
         currentColumn++;
     }
 
@@ -63,12 +63,12 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     currentRow = row;
 }
 
-void LinearFrameBufferTerminal::setForegroundColor(Color &color) {
-    fgColor = color;
+void LinearFrameBufferTerminal::setForegroundColor(const Color &color) {
+    foregroundColor = color;
 }
 
-void LinearFrameBufferTerminal::setBackgroundColor(Color &color) {
-    bgColor = color;
+void LinearFrameBufferTerminal::setBackgroundColor(const Color &color) {
+    backgroundColor = color;
 }
 
 LinearFrameBuffer &LinearFrameBufferTerminal::getLinearFrameBuffer() const {
@@ -76,7 +76,7 @@ LinearFrameBuffer &LinearFrameBufferTerminal::getLinearFrameBuffer() const {
 }
 
 void LinearFrameBufferTerminal::updateCursorPosition() {
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, fgColor, bgColor);
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, foregroundColor, Colors::BLACK);
 }
 
 }

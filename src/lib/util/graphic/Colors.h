@@ -83,8 +83,7 @@ static Color HHU_TURQUOISE_50 = Color(101, 190, 201);
 static Color HHU_TURQUOISE_30 = Color(141, 194, 201);
 static Color HHU_TURQUOISE_10 = Color(181, 199, 201);
 
-// LinearFrameBufferTerminal colors
-
+// Terminal colors
 static Color TERM_BLACK = Color(0, 0, 0);
 static Color TERM_RED = Color(205, 0, 0);
 static Color TERM_GREEN = Color(0, 205, 0);
@@ -93,15 +92,6 @@ static Color TERM_BLUE = Color(0, 0, 238);
 static Color TERM_MAGENTA = Color(205, 0, 205);
 static Color TERM_CYAN = Color(0, 205, 205);
 static Color TERM_WHITE = Color(229, 229, 229);
-
-static Color TERM_BRIGHT_BLACK = Color(127, 127, 127);
-static Color TERM_BRIGHT_RED = Color(255, 0, 0);
-static Color TERM_BRIGHT_GREEN = Color(0, 255, 0);
-static Color TERM_BRIGHT_YELLOW = Color(255, 255, 0);
-static Color TERM_BRIGHT_BLUE = Color(92, 92, 255);
-static Color TERM_BRIGHT_MAGENTA = Color(255, 0, 255);
-static Color TERM_BRIGHT_CYAN = Color(0, 255, 255);
-static Color TERM_BRIGHT_WHITE = Color(255, 255, 255);
 
 }
 

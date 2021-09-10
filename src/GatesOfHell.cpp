@@ -38,6 +38,7 @@
 #include <lib/util/stream/FileInputStream.h>
 #include <kernel/core/Management.h>
 #include <device/cpu/CpuId.h>
+#include <lib/util/graphic/Ansi.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -237,11 +238,15 @@ void GatesOfHell::printBanner() {
 }
 
 void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader) {
+    writer.write(Util::Graphic::Ansi::BRIGHT_BLUE);
+
     char c = reader.read();
     while (c != '\n') {
         writer << c;
         c = reader.read();
     }
+
+    writer.write(Util::Graphic::Ansi::RESET);
 }
 
 void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {

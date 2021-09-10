@@ -19,6 +19,7 @@
 #define HHUOS_TERMINALOUTPUTSTREAM_H
 
 #include <lib/util/graphic/Terminal.h>
+#include <lib/util/graphic/Colors.h>
 #include "OutputStream.h"
 
 namespace Util::Stream  {
@@ -41,7 +42,26 @@ public:
 
 private:
 
+    [[nodiscard]] int32_t extractNextAnsiCode(uint32_t &index) const;
+
+    [[nodiscard]] static Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor);
+
+    void parseGraphicRendition(uint8_t code);
+
     Graphic::Terminal &terminal;
+
+    char currentEscapeCode[16]{};
+    uint8_t escapeCodeIndex = 0;
+    bool isEscapeActive = false;
+
+    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::TERM_WHITE;
+    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::TERM_BLACK;
+    bool brightForeground = false;
+    bool brightBackground = false;
+
+    bool invert = false;
+    bool bright = false;
+    bool dim = false;
 };
 
 }

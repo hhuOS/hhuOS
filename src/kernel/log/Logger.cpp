@@ -17,15 +17,16 @@
 
 #include <lib/util/stream/OutputStreamWriter.h>
 #include <device/time/Pit.h>
+#include <lib/util/graphic/Ansi.h>
 #include "Logger.h"
 
 namespace Kernel {
 
-Device::TimeProvider *Logger::timeProvider = &Device::Pit::getInstance();
-Util::Async::Spinlock Logger::lock;
 Logger::LogLevel Logger::currentLevel = LogLevel::TRACE;
+Util::Async::Spinlock Logger::lock;
 Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> Logger::writerMap;
 Util::Data::ArrayList<Util::Memory::String> Logger::buffer;
+Device::TimeProvider *Logger::timeProvider = &Device::Pit::getInstance();
 
 Logger::Logger(const Util::Memory::String &name) : name(name) {}
 
@@ -54,6 +55,12 @@ void Logger::setLevel(Util::Memory::String level) {
     } else {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Logger: Invalid log level!");
     }
+}
+
+void Logger::setTimeProvider(Device::TimeProvider &provider) {
+    lock.acquire();
+    timeProvider = &provider;
+    lock.release();
 }
 
 void Logger::addOutputStream(Util::Stream::OutputStream &stream) {
@@ -136,7 +143,9 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 
-    const auto logMessage = Util::Memory::String::format("[%d.%03d][%s][%s] %s", seconds, fraction, getLevelAsString(level), static_cast<const char*>(name), static_cast<const char*>(message));
+    const auto logMessage = Util::Memory::String::format("%s[%d.%03d]%s[%s]%s[%s] %s", Util::Graphic::Ansi::CYAN, seconds, fraction,
+                                                         getColor(level), getLevelAsString(level), Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
+
     buffer.add(logMessage);
 
     for (auto *stream : writerMap.keySet()) {
@@ -164,10 +173,21 @@ const char *Logger::getLevelAsString(const LogLevel &level) {
     }
 }
 
-void Logger::setTimeProvider(Device::TimeProvider &provider) {
-    lock.acquire();
-    timeProvider = &provider;
-    lock.release();
+const char *Logger::getColor(const Logger::LogLevel &level) {
+    switch (level) {
+        case TRACE:
+            return Util::Graphic::Ansi::BRIGHT_WHITE;
+        case DEBUG:
+            return Util::Graphic::Ansi::BRIGHT_GREEN;
+        case INFO:
+            return Util::Graphic::Ansi::BRIGHT_BLUE;
+        case WARN:
+            return Util::Graphic::Ansi::BRIGHT_YELLOW;
+        case ERROR:
+            return Util::Graphic::Ansi::BRIGHT_RED;
+        default:
+            return Util::Graphic::Ansi::BRIGHT_WHITE;
+    }
 }
 
 }

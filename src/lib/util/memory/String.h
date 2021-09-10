@@ -75,6 +75,10 @@ public:
 
     static bool isAlpha(char c);
 
+    static bool isNumeric(char c);
+
+    static int32_t parseInt(const char *string);
+
     String toUpperCase() const;
 
     String toLowerCase() const;

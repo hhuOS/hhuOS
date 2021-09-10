@@ -10,9 +10,11 @@ ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Termin
 
 void ColorGraphicsArray::putChar(char c) {
     uint16_t position = (currentRow * getColumns() + currentColumn) * BYTES_PER_CHARACTER;
-    uint8_t colorAttribute = (bgColor.getRGB4() << 4) | fgColor.getRGB4();
+    uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
 
     if (c == '\n') {
+        cgaMemory.setByte(' ', position);
+        cgaMemory.setByte(0, position + 1);
         currentRow++;
         currentColumn = 0;
     } else {
@@ -48,19 +50,19 @@ void ColorGraphicsArray::setPosition(uint16_t column, uint16_t row) {
     currentRow = row;
 }
 
-void ColorGraphicsArray::setForegroundColor(Util::Graphic::Color &color) {
-    fgColor = color;
+void ColorGraphicsArray::setForegroundColor(const Util::Graphic::Color &color) {
+    foregroundColor = color;
 }
 
-void ColorGraphicsArray::setBackgroundColor(Util::Graphic::Color &color) {
-    bgColor = color;
+void ColorGraphicsArray::setBackgroundColor(const Util::Graphic::Color &color) {
+    backgroundColor = color;
 }
 
 void ColorGraphicsArray::updateCursorPosition() {
     uint16_t position = currentRow * getColumns() + currentColumn;
 
     // Set color attribute, so that the cursor will be visible
-    uint8_t colorAttribute = (bgColor.getRGB4() << 4) | fgColor.getRGB4();
+    uint8_t colorAttribute = (cgaMemory.getByte(position * BYTES_PER_CHARACTER + 1) & 0xf0) | foregroundColor.getRGB4();
     cgaMemory.setByte(colorAttribute, position * BYTES_PER_CHARACTER + 1);
 
     auto low  = static_cast<uint8_t>(position & 0xff);

@@ -43,9 +43,9 @@ public:
 
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
-    virtual void setForegroundColor(Color &color) = 0;
+    virtual void setForegroundColor(const Color &color) = 0;
 
-    virtual void setBackgroundColor(Color &color) = 0;
+    virtual void setBackgroundColor(const Color &color) = 0;
 
     [[nodiscard]] uint16_t getColumns() const;
 

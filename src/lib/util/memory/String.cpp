@@ -419,6 +419,11 @@ bool String::isAlpha(const char c) {
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
+bool String::isNumeric(const char c) {
+
+    return (c >= '0' && c <= '9');
+}
+
 String String::strip() {
 
     uint32_t startIndex = 0;
@@ -525,6 +530,30 @@ String String::vformat(const char *format, va_list args) {
     }
 
     return stream.getContent();
+}
+
+int32_t String::parseInt(const char *string) {
+    int32_t length;
+    for (length = 0; string[length] != '\0'; length ++) {}
+
+    int32_t limit = 0;
+    int32_t modifier = 1;
+    int32_t result = 0;
+
+    if (string[0] == '-') {
+        limit = 1;
+        modifier = -1;
+    }
+
+    int32_t j = 1;
+    for(int32_t i = length - 1; i >= limit; i--) {
+        if (isNumeric(string[i])) {
+            result += (string[i] - '0') * j;
+            j *= 10;
+        }
+    }
+
+    return result * modifier;
 }
 
 }
