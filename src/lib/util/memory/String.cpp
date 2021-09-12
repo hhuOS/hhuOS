@@ -96,6 +96,11 @@ uint32_t String::hashCode() const {
     return hash;
 }
 
+String String::substring(uint32_t begin) const {
+
+    return substring(0, length() - 1);
+}
+
 String String::substring(uint32_t begin, uint32_t end) const {
 
     if (begin > end || begin >= len) {
@@ -554,6 +559,10 @@ int32_t String::parseInt(const char *string) {
     }
 
     return result * modifier;
+}
+
+int32_t String::parseInt(const String &string) {
+    return parseInt(static_cast<const char*>(string));
 }
 
 }

@@ -17,7 +17,6 @@
 
 #include <lib/util/Exception.h>
 #include <lib/util/graphic/Ansi.h>
-#include <lib/util/memory/String.h>
 #include "TerminalOutputStream.h"
 
 namespace Util::Stream  {
@@ -33,26 +32,30 @@ void TerminalOutputStream::write(uint8_t c) {
     }
 
     if (isEscapeActive && c == Graphic::Ansi::ESCAPE_END) {
-        uint32_t index = 0;
-        while (true) {
-            int32_t code = extractNextAnsiCode(index);
-            if (code == -1) {
-                break;
-            }
+        if (currentEscapeCode[1] == '[') {
+            currentEscapeCode = currentEscapeCode.substring(2, currentEscapeCode.length());
+        } else {
+            currentEscapeCode = currentEscapeCode.substring(1, currentEscapeCode.length());
+        }
+
+        const auto codes = currentEscapeCode.split(';');
+
+        for (uint32_t i = 0; i < codes.length(); i++) {
+            int32_t code = Memory::String::parseInt(codes[i]);
 
             if (code < 30) {
                 parseGraphicRendition(code);
             } else if (code < 40) {
-                foregroundColor = getColor(code - 30, Util::Graphic::Colors::WHITE, index);
+                foregroundColor = getColor(code - 30, Util::Graphic::Colors::WHITE, codes, i);
                 brightForeground = false;
             } else if (code < 50) {
-                backgroundColor = getColor(code - 40, Util::Graphic::Colors::BLACK, index);
+                backgroundColor = getColor(code - 40, Util::Graphic::Colors::BLACK, codes, i);
                 brightBackground = false;
             } else if (code < 98) {
-                foregroundColor = getColor(code - 90, Util::Graphic::Colors::WHITE, index);
+                foregroundColor = getColor(code - 90, Util::Graphic::Colors::WHITE, codes, i);
                 brightForeground = true;
             } else if (code < 108) {
-                backgroundColor = getColor(code - 100, Util::Graphic::Colors::BLACK, index);
+                backgroundColor = getColor(code - 100, Util::Graphic::Colors::BLACK, codes, i);
                 brightBackground = true;
             }
         }
@@ -82,9 +85,9 @@ void TerminalOutputStream::write(uint8_t c) {
         terminal.setBackgroundColor(background);
 
         isEscapeActive = false;
-        escapeCodeIndex = 0;
+        currentEscapeCode = "";
     } else if (isEscapeActive) {
-        currentEscapeCode[escapeCodeIndex++] = c;
+        currentEscapeCode += c;
     } else {
         terminal.putChar(c);
     }
@@ -100,24 +103,7 @@ void TerminalOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, u
     }
 }
 
-int32_t TerminalOutputStream::extractNextAnsiCode(uint32_t &index) const {
-    while (!Util::Memory::String::isNumeric(currentEscapeCode[index]) && index < escapeCodeIndex) {
-        index++;
-    }
-
-    if (index >= escapeCodeIndex) {
-        return -1;
-    }
-
-    char code[sizeof(currentEscapeCode)]{};
-    for (uint32_t i = 0; Util::Memory::String::isNumeric(currentEscapeCode[index]) && index < escapeCodeIndex; index++, i++) {
-        code[i] = currentEscapeCode[index];
-    }
-
-    return Util::Memory::String::parseInt(code);
-}
-
-Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, uint32_t &index) {
+Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Data::Array<Memory::String> &codes, uint32_t &index) {
     switch (colorCode) {
         case 0:
             return Util::Graphic::Colors::BLACK;
@@ -136,7 +122,7 @@ Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Gra
         case 7:
             return Util::Graphic::Colors::WHITE;
         case 8:
-            return parseComplexColor(index);
+            return parseComplexColor(codes, ++index);
         case 9:
             return defaultColor;
         default:
@@ -144,37 +130,27 @@ Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Gra
     }
 }
 
-Graphic::Color TerminalOutputStream::parseComplexColor(uint32_t &index) {
-    int32_t mode = extractNextAnsiCode(index);
+Graphic::Color TerminalOutputStream::parseComplexColor(const Data::Array<Memory::String> &codes, uint32_t &index) {
+    int32_t mode = Memory::String::parseInt(codes[index++]);
     switch (mode) {
-        case -1:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing color code!");
         case 2:
-            return parseTrueColor(index);
+            return parseTrueColor(codes, index);
         case 5:
-            return parse256Color(index);
+            return parse256Color(codes, index);
         default:
             Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
     }
 }
 
-Graphic::Color TerminalOutputStream::parse256Color(uint32_t &index) {
-    int32_t colorIndex = extractNextAnsiCode(index);
-    if (colorIndex == -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing index for 8-bit color!");
-    }
-
+Graphic::Color TerminalOutputStream::parse256Color(const Data::Array<Memory::String> &codes, uint32_t &index) {
+    int32_t colorIndex = Memory::String::parseInt(codes[index++]);
     return Graphic::Ansi::get8BitColor(colorIndex);
 }
 
-Graphic::Color TerminalOutputStream::parseTrueColor(uint32_t &index) {
-    int32_t red = extractNextAnsiCode(index);
-    int32_t green = extractNextAnsiCode(index);
-    int32_t blue = extractNextAnsiCode(index);
-
-    if (red == -1 || green == -1 || blue == -1) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing value for 24-bit color!");
-    }
+Graphic::Color TerminalOutputStream::parseTrueColor(const Data::Array<Memory::String> &codes, uint32_t &index) {
+    int32_t red = Memory::String::parseInt(codes[index++]);;
+    int32_t green = Memory::String::parseInt(codes[index++]);
+    int32_t blue = Memory::String::parseInt(codes[index++]);
 
     return { static_cast<uint8_t>(red), static_cast<uint8_t>(green), static_cast<uint8_t>(blue) };
 }

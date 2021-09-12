@@ -20,6 +20,7 @@
 
 #include <lib/util/graphic/Terminal.h>
 #include <lib/util/graphic/Colors.h>
+#include <lib/util/memory/String.h>
 #include "OutputStream.h"
 
 namespace Util::Stream  {
@@ -42,22 +43,19 @@ public:
 
 private:
 
-    [[nodiscard]] int32_t extractNextAnsiCode(uint32_t &index) const;
+    [[nodiscard]] static Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Data::Array<Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, uint32_t &index);
+    [[nodiscard]] static Graphic::Color parseComplexColor(const Data::Array<Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] Graphic::Color parseComplexColor(uint32_t &index);
+    [[nodiscard]] static Graphic::Color parse256Color(const Data::Array<Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] Graphic::Color parse256Color(uint32_t &index);
-
-    [[nodiscard]] Graphic::Color parseTrueColor(uint32_t &index);
+    [[nodiscard]] static Graphic::Color parseTrueColor(const Data::Array<Memory::String> &codes, uint32_t &index);
 
     void parseGraphicRendition(uint8_t code);
 
     Graphic::Terminal &terminal;
 
-    char currentEscapeCode[64]{};
-    uint8_t escapeCodeIndex = 0;
+    Memory::String currentEscapeCode;
     bool isEscapeActive = false;
 
     Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;

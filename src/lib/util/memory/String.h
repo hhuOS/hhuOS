@@ -53,6 +53,8 @@ public:
 
     [[nodiscard]] bool isEmpty() const;
 
+    [[nodiscard]] String substring(uint32_t begin) const;
+
     [[nodiscard]] String substring(uint32_t begin, uint32_t end) const;
 
     String strip();
@@ -78,6 +80,8 @@ public:
     static bool isNumeric(char c);
 
     static int32_t parseInt(const char *string);
+
+    static int32_t parseInt(const String &string);
 
     String toUpperCase() const;
 
