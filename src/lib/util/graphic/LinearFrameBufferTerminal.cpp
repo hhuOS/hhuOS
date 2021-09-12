@@ -28,7 +28,7 @@ LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Fon
 
 void LinearFrameBufferTerminal::putChar(char c) {
     if (c == '\n') {
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::TERM_BLACK);
+        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::BLACK);
         currentRow++;
         currentColumn = 0;
     } else {

@@ -51,7 +51,7 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     auto bpp = static_cast<uint8_t>(colorDepth == 15 ? 16 : colorDepth);
     auto address = buffer.add((x * (bpp / 8)) + y * pitch);
 
-    return Color(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
+    return Color::fromRGB(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
 }
 
 void LinearFrameBuffer::clear() {

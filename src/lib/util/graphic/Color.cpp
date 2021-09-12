@@ -15,294 +15,158 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/util/Exception.h>
 #include "Color.h"
 
 namespace Util::Graphic {
 
-Color::Color() : red(0), green(0), blue(0), alpha(255) {
+Color::Color() : red(0), green(0), blue(0), alpha(255) {}
 
-}
+Color::Color(uint8_t red, uint8_t green, uint8_t blue) : red(red), green(green), blue(blue), alpha(255) {}
 
-Color::Color(uint8_t red, uint8_t green, uint8_t blue) : red(red), green(green), blue(blue), alpha(255) {
+Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : red(red), green(green), blue(blue), alpha(alpha) {}
 
-}
-
-
-Color::Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) : red(red), green(green), blue(blue),
-                                                                        alpha(alpha) {
-
-}
-
-Color::Color(uint32_t rgb, uint8_t depth) : red(0), green(0), blue(0), alpha(255) {
+Color Color::fromRGB(uint32_t rgb, uint8_t depth) {
     switch (depth) {
         case 32:
-            setRGB32(rgb);
-            break;
+            return fromRGB32(rgb);
         case 24:
-            setRGB24(rgb);
-            break;
+            return fromRGB24(rgb);
         case 16:
-            setRGB16(static_cast<uint16_t>(rgb));
-            break;
+            return fromRGB16(rgb);
         case 15:
-            setRGB15(static_cast<uint16_t>(rgb));
-            break;
+            return fromRGB15(rgb);
         case 8:
-            setRGB8(static_cast<uint8_t>(rgb));
-            break;
+            return fromRGB8(rgb);
         case 4:
-            setRGB4(static_cast<uint8_t>(rgb));
-            break;
+            return fromRGB4(rgb);
         case 2:
-            setRGB2(static_cast<uint8_t>(rgb));
-            break;
+            return fromRGB2(rgb);
         case 1:
-            setRGB1(static_cast<uint8_t>(rgb));
-            break;
+            return fromRGB1(rgb);
         default:
-            setRGB32(rgb);
-            break;
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Color: Invalid depth!");
     }
 }
 
-void Color::brighten() {
-    uint8_t brightRed = red + BRIGHTNESS_SHIFT;
-    uint8_t brightGreen = green + BRIGHTNESS_SHIFT;
-    uint8_t brightBlue = blue + BRIGHTNESS_SHIFT;
-
-    if (brightRed < red) {
-        brightRed = 255;
-    }
-
-    if (brightGreen < green) {
-        brightGreen = 255;
-    }
-
-    if (brightBlue < blue) {
-        brightBlue = 255;
-    }
-
-    red = brightRed;
-    green = brightGreen;
-    blue = brightBlue;
+uint32_t Color::getRGB32() const {
+    return (alpha << 24) + (red << 16) + (green << 8) + blue;
 }
 
-void Color::dim() {
-    uint8_t dimRed = red - BRIGHTNESS_SHIFT;
-    uint8_t dimGreen = green - BRIGHTNESS_SHIFT;
-    uint8_t dimBlue = blue - BRIGHTNESS_SHIFT;
-
-    if (dimRed > red) {
-        dimRed = 255;
-    }
-
-    if (dimGreen > green) {
-        dimGreen = 255;
-    }
-
-    if (dimBlue > blue) {
-        dimBlue = 255;
-    }
-
-    red = dimRed;
-    green = dimGreen;
-    blue = dimBlue;
+uint32_t Color::getRGB24() const {
+    return (red << 16) + (green << 8) + blue;
 }
 
-void Color::invalidate() {
-    rgb32 = -1;
-    rgb24 = -1;
-    rgb16 = -1;
-    rgb15 = -1;
-    rgb8 = -1;
-    rgb4 = -1;
-    rgb2 = -1;
-    rgb1 = -1;
+uint16_t Color::getRGB16() const {
+    return (blue >> 3) | ((green >> 2) << 5) | ((red >> 3) << 11);
 }
 
-uint32_t Color::calcRGB32() const {
-    return (uint32_t) ((alpha << 24) + (red << 16) + (green << 8) + blue);
+uint16_t Color::getRGB15() const {
+    return (blue >> 3) | ((green >> 3) << 5) | ((red >> 3) << 10);
 }
 
-uint32_t Color::calcRGB24() const {
-    return (uint32_t) ((red << 16) + (green << 8) + blue);
+uint8_t Color::getRGB8() const {
+    return (blue >> 6) | ((green >> 5) << 2) | ((red >> 5) << 5);
 }
 
-uint16_t Color::calcRGB16() const {
-    return (uint16_t) ((blue >> 3) | ((green >> 2) << 5) | ((red >> 3) << 11));
-}
-
-uint16_t Color::calcRGB15() const {
-    return (uint16_t) ((blue >> 3) | ((green >> 3) << 5) | ((red >> 3) << 10));
-}
-
-uint8_t Color::calcRGB8() const {
-    return (uint8_t) ((blue >> 6) | ((green >> 5) << 2) | ((red >> 5) << 5));
-}
-
-uint8_t Color::calcRGB4() const {
-    uint8_t ret = ((blue >> 7) | ((green >> 7) << 1) | ((red >> 7) << 2));
-
-    auto brightness = static_cast<uint16_t>((red + green + blue) / 3);
+uint8_t Color::getRGB4() const {
+    uint8_t ret = (blue >> 7) | ((green >> 7) << 1) | ((red >> 7) << 2);
+    auto brightness = (red + green + blue) / 3;
 
     //Special case for gray
-    if (ret == 0 && brightness > 42)
-        return static_cast<uint8_t>(ret + 8);
+    if (ret == 0 && brightness > 42) {
+        return ret + 8;
+    }
 
     //Special case for light gray
-    if (ret == 7 && brightness < 212)
+    if (ret == 7 && brightness < 212) {
         return ret;
+    }
 
-    if (brightness > 127)
-        return static_cast<uint8_t>(ret + 8);
+    if (brightness > 127) {
+        return ret + 8;
+    }
 
     return ret;
 }
 
-uint8_t Color::calcRGB2() const {
-    uint8_t red = this->red >> 7;
-    uint8_t green = this->green >> 7;
-    uint8_t blue = this->blue >> 7;
+uint8_t Color::getRGB2() const {
+    uint8_t r = this->red >> 7;
+    uint8_t g = this->green >> 7;
+    uint8_t b = this->blue >> 7;
 
     //BLACK
-    if (!blue && !green && !red)
+    if (!b && !g && !r) {
         return 0;
+    }
 
     //CYAN or GREEN
-    if ((blue || green) && !red)
+    if ((b || g) && !r) {
         return 1;
+    }
 
     //MAGENTA or GREEN
-    if ((blue || red) && !green)
+    if ((b || r) && !g) {
         return 2;
+    }
 
     //WHITE or YELLOW
     return 3;
 }
 
-uint8_t Color::calcRGB1() const {
-    if ((red >> 7) || (green >> 7) || (blue >> 7))
+uint8_t Color::getRGB1() const {
+    if ((red >> 7) || (green >> 7) || (blue >> 7)) {
         return 1;
+    }
 
     return 0;
 }
 
-void Color::setRed(uint8_t red) {
-    this->red = red;
-    invalidate();
+Color Color::fromRGB32(uint32_t rgba) {
+    uint8_t alpha = rgba >> 24;
+    uint8_t red = rgba >> 16;
+    uint8_t green = (rgba & 65280) >> 8;
+    uint8_t blue = rgba & 255;
+
+    return {red, green, blue, alpha};
 }
 
-void Color::setGreen(uint8_t green) {
-    this->green = green;
-    invalidate();
+Color Color::fromRGB24(uint32_t rgb) {
+    uint8_t red = rgb >> 16;
+    uint8_t green = (rgb & 65280) >> 8;
+    uint8_t blue = rgb & 255;
+
+    return {red, green, blue, 255};
 }
 
-void Color::setBlue(uint8_t blue) {
-    this->blue = blue;
-    invalidate();
+Color Color::fromRGB16(uint16_t rgb) {
+    uint8_t red = (rgb >> 11) * (256 / 32);
+    uint8_t green = ((rgb & 2016) >> 5) * (256 / 64);
+    uint8_t blue = (rgb & 31) * (256 / 32);
+
+    return {red, green, blue, 255};
 }
 
-void Color::setAlpha(uint8_t alpha) {
-    this->alpha = alpha;
-    invalidate();
+Color Color::fromRGB15(uint16_t rgb) {
+    uint8_t red = (rgb >> 10) * (256 / 32);
+    uint8_t green = ((rgb & 992) >> 5) * (256 / 32);
+    uint8_t blue = (rgb & 31) * (256 / 32);
+
+    return {red, green, blue, 255};
 }
 
-void Color::setRGB(uint8_t red, uint8_t green, uint8_t blue) {
-    this->red = red;
-    this->green = green;
-    this->blue = blue;
-    invalidate();
+Color Color::fromRGB8(uint8_t rgb) {
+    uint8_t red = (rgb >> 5) * (256 / 8);
+    uint8_t green = ((rgb & 28) >> 2) * (256 / 8);
+    uint8_t blue = (rgb & 3) * (256 / 4);
+
+    return {red, green, blue, 255};
 }
 
-void Color::setRGBA(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) {
-    this->red = red;
-    this->green = green;
-    this->blue = blue;
-    this->alpha = 0;
-    invalidate();
-}
-
-void Color::setRGB(uint32_t rgb, uint8_t depth) {
-    switch (depth) {
-        case 32:
-            setRGB32(rgb);
-        case 24:
-            setRGB24(rgb);
-            break;
-        case 16:
-            setRGB16(static_cast<uint16_t>(rgb));
-            break;
-        case 15:
-            setRGB15(static_cast<uint16_t>(rgb));
-            break;
-        case 8:
-            setRGB8(static_cast<uint8_t>(rgb));
-            break;
-        case 4:
-            setRGB4(static_cast<uint8_t>(rgb));
-            break;
-        case 2:
-            setRGB2(static_cast<uint8_t>(rgb));
-            break;
-        case 1:
-            setRGB1(static_cast<uint8_t>(rgb));
-            break;
-        default:
-            setRGB32(rgb);
-            break;
-    }
-}
-
-void Color::setRGB32(uint32_t rgba) {
-    alpha = static_cast<uint8_t>(rgba >> 24);
-    red = static_cast<uint8_t>(rgba >> 16);
-    green = static_cast<uint8_t>((rgba & 65280) >> 8);
-    blue = static_cast<uint8_t>(rgba & 255);
-
-    invalidate();
-}
-
-void Color::setRGB24(uint32_t rgb) {
-    red = static_cast<uint8_t>(rgb >> 16);
-    green = static_cast<uint8_t>((rgb & 65280) >> 8);
-    blue = static_cast<uint8_t>(rgb & 255);
-    alpha = 255;
-
-    invalidate();
-}
-
-void Color::setRGB16(uint16_t rgb) {
-    red = static_cast<uint8_t>((rgb >> 11) * (256 / 32));
-    green = static_cast<uint8_t>(((rgb & 2016) >> 5) * (256 / 64));
-    blue = static_cast<uint8_t>((rgb & 31) * (256 / 32));
-    alpha = 255;
-
-    invalidate();
-}
-
-void Color::setRGB15(uint16_t rgb) {
-    red = static_cast<uint8_t>((rgb >> 10) * (256 / 32));
-    green = static_cast<uint8_t>(((rgb & 992) >> 5) * (256 / 32));
-    blue = static_cast<uint8_t>((rgb & 31) * (256 / 32));
-    alpha = 255;
-
-    invalidate();
-}
-
-void Color::setRGB8(uint8_t rgb) {
-    red = static_cast<uint8_t>((rgb >> 5) * (256 / 8));
-    green = static_cast<uint8_t>(((rgb & 28) >> 2) * (256 / 8));
-    blue = static_cast<uint8_t>((rgb & 3) * (256 / 4));
-    alpha = 255;
-
-    invalidate();
-}
-
-void Color::setRGB4(uint8_t rgb) {
-    red = static_cast<uint8_t>((rgb & 4) ? 170 : 0);
-    green = static_cast<uint8_t>((rgb & 2) ? 170 : 0);
-    blue = static_cast<uint8_t>((rgb & 1) ? 170 : 0);
-    alpha = 255;
+Color Color::fromRGB4(uint8_t rgb) {
+    uint8_t red = (rgb & 4) ? 170 : 0;
+    uint8_t green = (rgb & 2) ? 170 : 0;
+    uint8_t blue = (rgb & 1) ? 170 : 0;
 
     if (rgb & 8) {
         red = 85;
@@ -310,25 +174,21 @@ void Color::setRGB4(uint8_t rgb) {
         blue = 85;
     }
 
-    invalidate();
+    return {red, green, blue, 255};
 }
 
-void Color::setRGB2(uint8_t rgb) {
-    red = static_cast<uint8_t>((rgb & 2) ? 170 : 0);
-    blue = static_cast<uint8_t>(((rgb & 1) | (rgb & 2)) ? 170 : 0);
-    green = static_cast<uint8_t>((rgb & 1) ? 170 : 0);
-    alpha = 255;
+Color Color::fromRGB2(uint8_t rgb) {
+    uint8_t red = (rgb & 2) ? 170 : 0;
+    uint8_t blue = ((rgb & 1) | (rgb & 2)) ? 170 : 0;
+    uint8_t green = (rgb & 1) ? 170 : 0;
 
-    invalidate();
+    return {red, green, blue, 255};
 }
 
-void Color::setRGB1(uint8_t rgb) {
-    red = static_cast<uint8_t>(rgb ? 255 : 0);
-    green = red;
-    blue = red;
-    alpha = 255;
+Color Color::fromRGB1(uint8_t rgb) {
+    uint8_t color = rgb ? 255 : 0;
 
-    invalidate();
+    return {color, color, color, 255};
 }
 
 uint8_t Color::getRed() const {
@@ -347,63 +207,7 @@ uint8_t Color::getAlpha() const {
     return alpha;
 }
 
-uint32_t Color::getRGB32() {
-    if (rgb32 == -1)
-        rgb32 = calcRGB32();
-
-    return static_cast<uint32_t>(rgb32);
-}
-
-uint32_t Color::getRGB24() {
-    if (rgb24 == -1)
-        rgb24 = calcRGB24();
-
-    return static_cast<uint32_t>(rgb24);
-}
-
-uint16_t Color::getRGB16() {
-    if (rgb16 == -1)
-        rgb16 = calcRGB16();
-
-    return static_cast<uint16_t>(rgb16);
-}
-
-uint16_t Color::getRGB15() {
-    if (rgb15 == -1)
-        rgb15 = calcRGB15();
-
-    return static_cast<uint16_t>(rgb15);
-}
-
-uint8_t Color::getRGB8() {
-    if (rgb8 == -1)
-        rgb8 = calcRGB8();
-
-    return static_cast<uint8_t>(rgb8);
-}
-
-uint8_t Color::getRGB4() {
-    if (rgb4 == -1)
-        rgb4 = calcRGB4();
-
-    return static_cast<uint8_t>(rgb4);
-}
-
-uint8_t Color::getRGB2() {
-    if (rgb2 == -1)
-        rgb2 = calcRGB2();
-
-    return static_cast<uint8_t>(rgb2);
-}
-
-uint8_t Color::getRGB1() {
-    if (rgb1 == -1)
-        rgb1 = calcRGB1();
-
-    return static_cast<uint8_t>(rgb1);
-}
-
-uint32_t Color::getColorForDepth(uint8_t depth) {
+uint32_t Color::getColorForDepth(uint8_t depth) const {
     switch (depth) {
         case 32:
             return getRGB32();
@@ -426,31 +230,65 @@ uint32_t Color::getColorForDepth(uint8_t depth) {
     }
 }
 
-void Color::blendWith(Color color) {
+Color Color::bright() const {
+    uint8_t r = red + BRIGHTNESS_SHIFT;
+    uint8_t g = green + BRIGHTNESS_SHIFT;
+    uint8_t b = blue + BRIGHTNESS_SHIFT;
+
+    if (r < red) {
+        r = 255;
+    }
+
+    if (g < green) {
+        g = 255;
+    }
+
+    if (b < blue) {
+        b = 255;
+    }
+
+    return {r, g, b};
+}
+
+Color Color::dim() const {
+    uint8_t r = red - BRIGHTNESS_SHIFT;
+    uint8_t g = green - BRIGHTNESS_SHIFT;
+    uint8_t b = blue - BRIGHTNESS_SHIFT;
+
+    if (r > red) {
+        r = 255;
+    }
+
+    if (g > green) {
+        g = 255;
+    }
+
+    if (b > blue) {
+        b = 255;
+    }
+
+    return {r, g, b};
+}
+
+Color Color::blend(const Color &color) const {
     if (color.alpha == 0) {
-        return;
+        return {red, green, blue, alpha};
     }
 
     if (alpha == 0 || color.alpha == 255) {
-        red = color.red;
-        green = color.green;
-        blue = color.blue;
-        alpha = color.alpha;
-
-        invalidate();
-        return;
+        return {color.red, color.green, color.blue, color.alpha};
     }
 
     double alpha1 = (static_cast<double>(color.alpha) / 255);
     double alpha2 = (static_cast<double>(alpha) / static_cast<float>(255));
     double alpha3 = alpha1 + (1 - alpha1) * alpha2;
 
-    red = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.red + (1 - alpha1) * alpha2 * red));
-    green = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.green + (1 - alpha1) * alpha2 * green));
-    blue = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.blue + (1 - alpha1) * alpha2 * blue));
-    alpha = static_cast<uint8_t>(alpha3 * 255);
+    auto r = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.red + (1 - alpha1) * alpha2 * red));
+    auto g = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.green + (1 - alpha1) * alpha2 * green));
+    auto b = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.blue + (1 - alpha1) * alpha2 * blue));
+    auto a = static_cast<uint8_t>(alpha3 * 255);
 
-    invalidate();
+    return {r, g, b, a};
 }
 
 }

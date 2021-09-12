@@ -17,6 +17,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib.util PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferScroller.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Color.cpp

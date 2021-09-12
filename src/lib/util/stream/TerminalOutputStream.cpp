@@ -43,16 +43,16 @@ void TerminalOutputStream::write(uint8_t c) {
             if (code < 30) {
                 parseGraphicRendition(code);
             } else if (code < 40) {
-                foregroundColor = getColor(code - 30, Util::Graphic::Colors::TERM_WHITE);
+                foregroundColor = getColor(code - 30, Util::Graphic::Colors::WHITE, index);
                 brightForeground = false;
             } else if (code < 50) {
-                backgroundColor = getColor(code - 40, Util::Graphic::Colors::TERM_BLACK);
+                backgroundColor = getColor(code - 40, Util::Graphic::Colors::BLACK, index);
                 brightBackground = false;
             } else if (code < 98) {
-                foregroundColor = getColor(code - 90, Util::Graphic::Colors::TERM_WHITE);
+                foregroundColor = getColor(code - 90, Util::Graphic::Colors::WHITE, index);
                 brightForeground = true;
             } else if (code < 108) {
-                backgroundColor = getColor(code - 100, Util::Graphic::Colors::TERM_BLACK);
+                backgroundColor = getColor(code - 100, Util::Graphic::Colors::BLACK, index);
                 brightBackground = true;
             }
         }
@@ -67,15 +67,15 @@ void TerminalOutputStream::write(uint8_t c) {
         }
 
         if (bright || brightForeground) {
-            foreground.brighten();
+            foreground = foreground.bright();
         }
 
         if (dim) {
-            foreground.dim();
+            foreground = foreground.dim();
         }
 
         if (brightBackground) {
-            background.brighten();
+            background = background.bright();
         }
 
         terminal.setForegroundColor(foreground);
@@ -117,46 +117,73 @@ int32_t TerminalOutputStream::extractNextAnsiCode(uint32_t &index) const {
     return Util::Memory::String::parseInt(code);
 }
 
-Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor) {
-    Util::Graphic::Color color;
-    
+Graphic::Color TerminalOutputStream::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, uint32_t &index) {
     switch (colorCode) {
         case 0:
-            color = Util::Graphic::Colors::TERM_BLACK;
-            break;
+            return Util::Graphic::Colors::BLACK;
         case 1:
-            color = Util::Graphic::Colors::TERM_RED;
-            break;
+            return Util::Graphic::Colors::RED;
         case 2:
-            color = Util::Graphic::Colors::TERM_GREEN;
-            break;
+            return Util::Graphic::Colors::GREEN;
         case 3:
-            color = Util::Graphic::Colors::TERM_YELLOW;
-            break;
+            return Util::Graphic::Colors::YELLOW;
         case 4:
-            color = Util::Graphic::Colors::TERM_BLUE;
-            break;
+            return Util::Graphic::Colors::BLUE;
         case 5:
-            color = Util::Graphic::Colors::TERM_MAGENTA;
-            break;
+            return Util::Graphic::Colors::MAGENTA;
         case 6:
-            color = Util::Graphic::Colors::TERM_CYAN;
-            break;
+            return Util::Graphic::Colors::CYAN;
         case 7:
-            color = Util::Graphic::Colors::TERM_WHITE;
-            break;
+            return Util::Graphic::Colors::WHITE;
+        case 8:
+            return parseComplexColor(index);
+        case 9:
+            return defaultColor;
         default:
-            color = defaultColor;
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Invalid color!");
+    }
+}
+
+Graphic::Color TerminalOutputStream::parseComplexColor(uint32_t &index) {
+    int32_t mode = extractNextAnsiCode(index);
+    switch (mode) {
+        case -1:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing color code!");
+        case 2:
+            return parseTrueColor(index);
+        case 5:
+            return parse256Color(index);
+        default:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Invalid color mode!");
+    }
+}
+
+Graphic::Color TerminalOutputStream::parse256Color(uint32_t &index) {
+    int32_t colorIndex = extractNextAnsiCode(index);
+    if (colorIndex == -1) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing index for 8-bit color!");
     }
 
-    return color;
+    return Graphic::Ansi::get8BitColor(colorIndex);
+}
+
+Graphic::Color TerminalOutputStream::parseTrueColor(uint32_t &index) {
+    int32_t red = extractNextAnsiCode(index);
+    int32_t green = extractNextAnsiCode(index);
+    int32_t blue = extractNextAnsiCode(index);
+
+    if (red == -1 || green == -1 || blue == -1) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ansi: Missing value for 24-bit color!");
+    }
+
+    return { static_cast<uint8_t>(red), static_cast<uint8_t>(green), static_cast<uint8_t>(blue) };
 }
 
 void TerminalOutputStream::parseGraphicRendition(uint8_t code) {
     switch (code) {
         case Graphic::Ansi::GraphicRendition::NORMAL:
-            foregroundColor = Graphic::Colors::TERM_WHITE;
-            backgroundColor = Graphic::Colors::TERM_BLACK;
+            foregroundColor = Graphic::Colors::WHITE;
+            backgroundColor = Graphic::Colors::BLACK;
             invert = false;
             bright = false;
             break;

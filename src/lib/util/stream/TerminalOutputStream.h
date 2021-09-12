@@ -44,24 +44,31 @@ private:
 
     [[nodiscard]] int32_t extractNextAnsiCode(uint32_t &index) const;
 
-    [[nodiscard]] static Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor);
+    [[nodiscard]] Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, uint32_t &index);
+
+    [[nodiscard]] Graphic::Color parseComplexColor(uint32_t &index);
+
+    [[nodiscard]] Graphic::Color parse256Color(uint32_t &index);
+
+    [[nodiscard]] Graphic::Color parseTrueColor(uint32_t &index);
 
     void parseGraphicRendition(uint8_t code);
 
     Graphic::Terminal &terminal;
 
-    char currentEscapeCode[16]{};
+    char currentEscapeCode[64]{};
     uint8_t escapeCodeIndex = 0;
     bool isEscapeActive = false;
 
-    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::TERM_WHITE;
-    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::TERM_BLACK;
+    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
     bool brightForeground = false;
     bool brightBackground = false;
 
     bool invert = false;
     bool bright = false;
     bool dim = false;
+
 };
 
 }

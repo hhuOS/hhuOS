@@ -21,7 +21,7 @@ namespace Util::Graphic {
 
 PixelDrawer::PixelDrawer(LinearFrameBuffer &lfb): lfb(lfb) {}
 
-void PixelDrawer::drawPixel(uint16_t x, uint16_t y, Color &color) {
+void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) {
     // Pixels outside the visible area won't be drawn
     if(x > lfb.getResolutionX() - 1 || y > lfb.getResolutionY() - 1) {
         return;
@@ -32,15 +32,14 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, Color &color) {
         return;
     }
 
+    uint32_t rgbColor;
     auto bpp = static_cast<uint8_t>(lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth());
 
     if(color.getAlpha() < 255) {
-        Color currentColor = lfb.readPixel(x, y);
-        currentColor.blendWith(color);
-        color = currentColor;
+        rgbColor = lfb.readPixel(x, y).blend(color).getRGB32();
+    } else {
+        rgbColor = color.getColorForDepth(lfb.getColorDepth());
     }
-
-    uint32_t rgbColor = color.getColorForDepth(lfb.getColorDepth());
 
     //Calculate pixel offset
     auto address = lfb.getBuffer().add((x * (bpp / 8)) + y * lfb.getPitch());

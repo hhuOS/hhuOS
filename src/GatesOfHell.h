@@ -73,6 +73,8 @@ private:
 
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
+    static void colorTest(Util::Stream::PrintWriter &writer);
+
     static Kernel::Logger log;
     static Util::Stream::InputStream *inputStream;
     static Util::Stream::OutputStream *outputStream;

@@ -52,8 +52,8 @@ private:
 
     void scrollUp();
 
-    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::TERM_WHITE;
-    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::TERM_BLACK;
+    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 

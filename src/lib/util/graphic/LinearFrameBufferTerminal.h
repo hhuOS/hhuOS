@@ -64,8 +64,8 @@ private:
     StringDrawer stringDrawer;
 
     Font &font;
-    Color foregroundColor = Colors::TERM_WHITE;
-    Color backgroundColor = Colors::TERM_BLACK;
+    Color foregroundColor = Colors::WHITE;
+    Color backgroundColor = Colors::BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 };

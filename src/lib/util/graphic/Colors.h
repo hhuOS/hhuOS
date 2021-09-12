@@ -24,23 +24,15 @@ namespace Util::Graphic::Colors {
 
 static Color INVISIBLE = Color(0, 0, 0, 0);
 
-// CGA colors
+// ANSI colors
 static Color BLACK = Color(0, 0, 0);
-static Color BLUE = Color(0, 0, 170);
-static Color GREEN = Color(0, 170, 0);
-static Color CYAN = Color(0, 170, 170);
 static Color RED = Color(170, 0, 0);
+static Color GREEN = Color(0, 170, 0);
+static Color YELLOW = Color(170, 170, 0);
+static Color BLUE = Color(0, 0, 170);
 static Color MAGENTA = Color(170, 0, 170);
-static Color DARK_YELLOW = Color(170, 170, 0);
-static Color LIGHT_GRAY = Color(170, 170, 170);
-static Color GRAY = Color(85, 85, 85);
-static Color LIGHT_BLUE = Color(85, 85, 255);
-static Color LIGHT_GREEN = Color(85, 255, 85);
-static Color LIGHT_CYAN = Color(85, 255, 255);
-static Color LIGHT_RED = Color(255, 85, 85);
-static Color LIGHT_MAGENTA = Color(255, 85, 255);
-static Color YELLOW = Color(255, 255, 85);
-static Color WHITE = Color(255, 255, 255);
+static Color CYAN = Color(0, 170, 170);
+static Color WHITE = Color(170, 170, 170);
 
 // HHU primary colors
 static Color HHU_BLUE = Color(0, 106, 179);
@@ -82,16 +74,6 @@ static Color HHU_TURQUOISE_70 = Color(60, 185, 201);
 static Color HHU_TURQUOISE_50 = Color(101, 190, 201);
 static Color HHU_TURQUOISE_30 = Color(141, 194, 201);
 static Color HHU_TURQUOISE_10 = Color(181, 199, 201);
-
-// Terminal colors
-static Color TERM_BLACK = Color(0, 0, 0);
-static Color TERM_RED = Color(205, 0, 0);
-static Color TERM_GREEN = Color(0, 205, 0);
-static Color TERM_YELLOW = Color(205, 205, 0);
-static Color TERM_BLUE = Color(0, 0, 238);
-static Color TERM_MAGENTA = Color(205, 0, 205);
-static Color TERM_CYAN = Color(0, 205, 205);
-static Color TERM_WHITE = Color(229, 229, 229);
 
 }
 

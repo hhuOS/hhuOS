@@ -18,6 +18,7 @@
 #ifndef __Ansi_include__
 #define __Ansi_include__
 
+#include <lib/util/memory/String.h>
 #include "Color.h"
 #include "Colors.h"
 
@@ -43,41 +44,77 @@ public:
         RESET_INVERT = 27
     };
 
-    static constexpr const char *RESET = "\u001b[0m";
-    static constexpr const char *BLACK = "\u001b[30m";
-    static constexpr const char *RED = "\u001b[31m";
-    static constexpr const char *GREEN = "\u001b[32m";
-    static constexpr const char *YELLOW = "\u001b[33m";
-    static constexpr const char *BLUE = "\u001b[34m";
-    static constexpr const char *MAGENTA = "\u001b[35m";
-    static constexpr const char *CYAN = "\u001b[36m";
-    static constexpr const char *WHITE = "\u001b[37m";
-    static constexpr const char *BRIGHT_BLACK = "\u001b[90m";
-    static constexpr const char *BRIGHT_RED = "\u001b[91m";
-    static constexpr const char *BRIGHT_GREEN = "\u001b[92m";
-    static constexpr const char *BRIGHT_YELLOW = "\u001b[93m";
-    static constexpr const char *BRIGHT_BLUE = "\u001b[94m";
-    static constexpr const char *BRIGHT_MAGENTA = "\u001b[95m";
-    static constexpr const char *BRIGHT_CYAN = "\u001b[96m";
-    static constexpr const char *BRIGHT_WHITE = "\u001b[97m";
-    static constexpr const char *BACKGROUND_BLACK = "\u001b[40m";
-    static constexpr const char *BACKGROUND_RED = "\u001b[41m";
-    static constexpr const char *BACKGROUND_GREEN = "\u001b[42m";
-    static constexpr const char *BACKGROUND_YELLOW = "\u001b[43m";
-    static constexpr const char *BACKGROUND_BLUE = "\u001b[44m";
-    static constexpr const char *BACKGROUND_MAGENTA = "\u001b[45m";
-    static constexpr const char *BACKGROUND_CYAN = "\u001b[46m";
-    static constexpr const char *BACKGROUND_WHITE = "\u001b[47m";
-    static constexpr const char *BACKGROUND_BRIGHT_BLACK = "\u001b[100m";
-    static constexpr const char *BACKGROUND_BRIGHT_RED = "\u001b[101m";
-    static constexpr const char *BACKGROUND_BRIGHT_GREEN = "\u001b[102m";
-    static constexpr const char *BACKGROUND_BRIGHT_YELLOW = "\u001b[103m";
-    static constexpr const char *BACKGROUND_BRIGHT_BLUE = "\u001b[104m";
-    static constexpr const char *BACKGROUND_BRIGHT_MAGENTA = "\u001b[105m";
-    static constexpr const char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
-    static constexpr const char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
 
-    static const char ESCAPE_END = 'm';
+    /**
+     * Default Constructor.
+     * Deleted, as this class has only static members.
+     */
+    Ansi() = delete;
+
+    /**
+     * Copy constructor.
+     */
+    Ansi(const Ansi &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Ansi &operator=(const Ansi &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Ansi() = default;
+
+    static Color get8BitColor(uint8_t index);
+
+    static Memory::String foreground8BitColor(uint8_t colorIndex);
+
+    static Memory::String background8BitColor(uint8_t colorIndex);
+
+    static Memory::String foreground24BitColor(const Color &color);
+
+    static Memory::String background24BitColor(const Color &color);
+
+    static const constexpr char *RESET = "\u001b[0m";
+    static const constexpr char *BLACK = "\u001b[30m";
+    static const constexpr char *RED = "\u001b[31m";
+    static const constexpr char *GREEN = "\u001b[32m";
+    static const constexpr char *YELLOW = "\u001b[33m";
+    static const constexpr char *BLUE = "\u001b[34m";
+    static const constexpr char *MAGENTA = "\u001b[35m";
+    static const constexpr char *CYAN = "\u001b[36m";
+    static const constexpr char *WHITE = "\u001b[37m";
+    static const constexpr char *BRIGHT_BLACK = "\u001b[90m";
+    static const constexpr char *BRIGHT_RED = "\u001b[91m";
+    static const constexpr char *BRIGHT_GREEN = "\u001b[92m";
+    static const constexpr char *BRIGHT_YELLOW = "\u001b[93m";
+    static const constexpr char *BRIGHT_BLUE = "\u001b[94m";
+    static const constexpr char *BRIGHT_MAGENTA = "\u001b[95m";
+    static const constexpr char *BRIGHT_CYAN = "\u001b[96m";
+    static const constexpr char *BRIGHT_WHITE = "\u001b[97m";
+    static const constexpr char *BACKGROUND_BLACK = "\u001b[40m";
+    static const constexpr char *BACKGROUND_RED = "\u001b[41m";
+    static const constexpr char *BACKGROUND_GREEN = "\u001b[42m";
+    static const constexpr char *BACKGROUND_YELLOW = "\u001b[43m";
+    static const constexpr char *BACKGROUND_BLUE = "\u001b[44m";
+    static const constexpr char *BACKGROUND_MAGENTA = "\u001b[45m";
+    static const constexpr char *BACKGROUND_CYAN = "\u001b[46m";
+    static const constexpr char *BACKGROUND_WHITE = "\u001b[47m";
+    static const constexpr char *BACKGROUND_BRIGHT_BLACK = "\u001b[100m";
+    static const constexpr char *BACKGROUND_BRIGHT_RED = "\u001b[101m";
+    static const constexpr char *BACKGROUND_BRIGHT_GREEN = "\u001b[102m";
+    static const constexpr char *BACKGROUND_BRIGHT_YELLOW = "\u001b[103m";
+    static const constexpr char *BACKGROUND_BRIGHT_BLUE = "\u001b[104m";
+    static const constexpr char *BACKGROUND_BRIGHT_MAGENTA = "\u001b[105m";
+    static const constexpr char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
+    static const constexpr char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
+
+    static const constexpr char ESCAPE_END = 'm';
+
+private:
+
+    static const Graphic::Color colorTable256[256];
 
 };
 

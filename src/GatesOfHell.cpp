@@ -92,6 +92,10 @@ void GatesOfHell::enter() {
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
     auto reader = Util::Stream::InputStreamReader(*inputStream);
 
+    if (Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
+        colorTest(writer);
+    }
+
     writer << "> " << Util::Stream::PrintWriter::flush;
 
     while(true) {
@@ -223,7 +227,7 @@ void GatesOfHell::printBanner() {
         auto bufferedReader = Util::Stream::BufferedReader(bannerReader);
 
         printBannerLine(writer, bufferedReader);
-        writer << "# Welcome to hhuOS!" << Util::Stream::PrintWriter::endl;
+        writer << "# Welcome to " << Util::Graphic::Ansi::foreground24BitColor(Util::Graphic::Colors::HHU_BLUE) << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Colors::WHITE.bright()) << "hhuOS" << Util::Graphic::Ansi::RESET << "!" << Util::Stream::PrintWriter::endl;
         printBannerLine(writer, bufferedReader);
         writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
         printBannerLine(writer, bufferedReader);
@@ -238,7 +242,7 @@ void GatesOfHell::printBanner() {
 }
 
 void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader) {
-    writer.write(Util::Graphic::Ansi::BRIGHT_BLUE);
+    writer.write(Util::Graphic::Ansi::foreground24BitColor(Util::Graphic::Colors::HHU_BLUE));
 
     char c = reader.read();
     while (c != '\n') {
@@ -254,4 +258,40 @@ void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
            << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+}
+
+void GatesOfHell::colorTest(Util::Stream::PrintWriter &writer) {
+    writer << Util::Graphic::Ansi::RESET << "4-bit colors:" << Util::Stream::PrintWriter::endl;
+
+    for (uint32_t i = 0; i < 16; i++) {
+        writer << Util::Graphic::Ansi::background8BitColor(i) << " ";
+    }
+
+    writer << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Graphic::Ansi::RESET << "8-bit colors:";
+
+    for (uint32_t i = 0; i < 216; i++) {
+        if (i % 36 == 0) {
+            writer << Util::Stream::PrintWriter::endl;
+        }
+        writer << Util::Graphic::Ansi::background8BitColor(i + 16) << " ";
+    }
+
+    writer << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Graphic::Ansi::RESET << "Grayscale colors:" << Util::Stream::PrintWriter::endl;
+
+    for (uint32_t i = 232; i < 256; i++) {
+        writer << Util::Graphic::Ansi::background8BitColor(i) << " ";
+    }
+
+    writer << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Graphic::Ansi::RESET << "24-bit colors:" << Util::Stream::PrintWriter::endl;
+
+    for (uint32_t i = 0; i < 8; i++) {
+        for (uint32_t j = 0; j < 8; j++) {
+            for (uint32_t k = 0; k < 8; k++) {
+                writer << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Color(i * 32, j * 32, k * 32)) << " ";
+            }
+        }
+        writer << Util::Stream::PrintWriter::endl;
+    }
+
+    writer << Util::Graphic::Ansi::RESET;
 }
