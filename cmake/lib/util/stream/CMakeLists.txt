@@ -37,5 +37,4 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/stream/PipedOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/PrintWriter.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/Reader.cpp
-        ${HHUOS_SRC_DIR}/lib/util/stream/TerminalOutputStream.cpp
         ${HHUOS_SRC_DIR}/lib/util/stream/Writer.cpp)

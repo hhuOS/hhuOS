@@ -125,7 +125,7 @@ T &Array<T>::operator[](uint32_t index) {
 
     if (index >= capacity) {
 
-        Exception::throwException(Exception::OUT_OF_BOUNDS);
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
     return array[index];
@@ -136,7 +136,7 @@ const T &Array<T>::operator[](uint32_t index) const {
 
     if (index >= capacity) {
 
-        Exception::throwException(Exception::OUT_OF_BOUNDS);
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
     return array[index];

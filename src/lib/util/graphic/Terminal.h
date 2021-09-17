@@ -19,11 +19,14 @@
 #define HHUOS_TERMINAL_H
 
 #include <cstdint>
+#include <lib/util/stream/OutputStream.h>
+#include <lib/util/memory/String.h>
 #include "Color.h"
+#include "Colors.h"
 
 namespace Util::Graphic {
 
-class Terminal {
+class Terminal : public Stream::OutputStream {
 
 public:
 
@@ -33,25 +36,47 @@ public:
 
     Terminal &operator=(const Terminal &other) = delete;
 
-    virtual ~Terminal() = default;
+    ~Terminal() override = default;
 
-    virtual void putChar(char c) = 0;
+    void write(uint8_t c) override;
 
-    virtual void putString(const char *string);
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
-    virtual void clear() = 0;
+    virtual void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) = 0;
+
+    virtual void clear(const Color &backgroundColor) = 0;
 
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
-
-    virtual void setForegroundColor(const Color &color) = 0;
-
-    virtual void setBackgroundColor(const Color &color) = 0;
 
     [[nodiscard]] uint16_t getColumns() const;
 
     [[nodiscard]] uint16_t getRows() const;
 
 private:
+
+    [[nodiscard]] static Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Data::Array<Memory::String> &codes, uint32_t &index);
+
+    [[nodiscard]] static Graphic::Color parseComplexColor(const Data::Array<Memory::String> &codes, uint32_t &index);
+
+    [[nodiscard]] static Graphic::Color parse256Color(const Data::Array<Memory::String> &codes, uint32_t &index);
+
+    [[nodiscard]] static Graphic::Color parseTrueColor(const Data::Array<Memory::String> &codes, uint32_t &index);
+
+    void parseGraphicRendition(uint8_t code);
+
+    Memory::String currentEscapeCode;
+    bool isEscapeActive = false;
+
+    Util::Graphic::Color foregroundBaseColor = Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundBaseColor = Graphic::Colors::BLACK;
+    Util::Graphic::Color foregroundColor = Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundColor = Graphic::Colors::BLACK;
+    bool brightForeground = false;
+    bool brightBackground = false;
+
+    bool invert = false;
+    bool bright = false;
+    bool dim = false;
 
     const uint16_t columns;
     const uint16_t rows;

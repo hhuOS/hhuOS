@@ -15,13 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/stream/TerminalOutputStream.h>
 #include <lib/util/stream/BufferedOutputStream.h>
 #include <device/bios/Bios.h>
-#include <device/graphic/VesaBiosExtensions.h>
+#include <device/graphic/lfb/vesa/VesaBiosExtensions.h>
 #include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
-#include <device/graphic/LinearFrameBufferTerminalProvider.h>
-#include <device/graphic/ColorGraphicsArrayProvider.h>
+#include <device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h>
+#include <device/graphic/terminal/cga/ColorGraphicsArrayProvider.h>
 #include <lib/util/reflection/InstanceFactory.h>
 #include <kernel/core/System.h>
 #include <kernel/multiboot/Structure.h>
@@ -39,6 +38,8 @@
 #include <kernel/core/Management.h>
 #include <device/cpu/CpuId.h>
 #include <lib/util/graphic/Ansi.h>
+#include <device/graphic/terminal/TerminalNode.h>
+#include <lib/util/stream/FileOutputStream.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -76,15 +77,16 @@ void GatesOfHell::enter() {
         Device::Bios::init();
     }
 
+    initializeFilesystem();
+
     initializeKeyboard();
 
     if (Kernel::Multiboot::Structure::hasKernelOption("headless_com_port")) {
         initializeHeadlessMode();
     } else {
         initializeTerminal();
+        outputStream = new Util::Stream::FileOutputStream("/device/terminal");
     }
-
-    initializeFilesystem();
 
     printBanner();
 
@@ -159,7 +161,11 @@ void GatesOfHell::initializeTerminal() {
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     auto &terminal = terminalProvider->initializeTerminal(resolution);
-    outputStream = new Util::Stream::TerminalOutputStream(terminal);
+
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new Device::Graphic::TerminalNode("terminal", terminal);
+    driver.addNode("/", terminalNode);
 }
 
 void GatesOfHell::initializeHeadlessMode() {
@@ -199,8 +205,12 @@ void GatesOfHell::initializeFilesystem() {
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
 
     log.info("Mounting root filesystem");
-    auto *memoryDriver = new Filesystem::Memory::MemoryDriver();
-    filesystem.mountVirtualDriver("/", *memoryDriver);
+    auto *rootDriver = new Filesystem::Memory::MemoryDriver();
+    filesystem.mountVirtualDriver("/", *rootDriver);
+
+    auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
+    filesystem.createDirectory("/device");
+    filesystem.mountVirtualDriver("/device", *deviceDriver);
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");

@@ -63,7 +63,7 @@ public:
      * @param fgColor The foreground color
      * @param bgColor The background color
      */
-    void drawChar(Font &font, uint16_t x, uint16_t y, char c, Color &fgColor, Color &bgColor);
+    void drawChar(Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor);
 
     /**
      * Draw a null-terminated string at a given position.
@@ -75,7 +75,7 @@ public:
      * @param fgColor The foreground color
      * @param bgColor The background color
      */
-    void drawString(Font &font, uint16_t x, uint16_t y, const char *string, Color &fgColor, Color &bgColor);
+    void drawString(Font &font, uint16_t x, uint16_t y, const char *string, const Color &fgColor, const Color &bgColor);
 
 private:
 
@@ -91,7 +91,7 @@ private:
      * @param bgColor The background color
      * @param bitmap The bitmap's data.
      */
-    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, Color &fgColor, Color &bgColor, uint8_t *bitmap);
+    void drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap);
 
     PixelDrawer &pixelDrawer;
 };

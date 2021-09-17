@@ -113,4 +113,24 @@ bool MemoryDriver::deleteNode(const Util::Memory::String &path) {
     return true;
 }
 
+bool MemoryDriver::addNode(const Util::Memory::String &path, MemoryNode *node) {
+    Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
+
+    MemoryNode *currentDir = rootNode;
+    for(const auto &token : tokens) {
+        currentDir = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(token);
+        if(currentDir == nullptr || currentDir->getFileType() != Util::File::DIRECTORY) {
+            return false;
+        }
+    }
+
+    auto *checkNode = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(node->getName());
+    if(checkNode != nullptr) {
+        return false;
+    }
+
+    reinterpret_cast<MemoryDirectoryNode*>(currentDir)->addChild(node);
+    return true;
+}
+
 }

@@ -20,13 +20,13 @@
 
 namespace Util::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font, char cursor) :
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font) :
         Terminal(lfb.getResolutionX() / font.getCharWidth(), lfb.getResolutionY() / font.getCharHeight()),
-        cursor(cursor), lfb(lfb), scroller(lfb), pixelDrawer(lfb), stringDrawer(pixelDrawer), font(font) {
-    LinearFrameBufferTerminal::clear();
+        lfb(lfb), scroller(lfb), pixelDrawer(lfb), stringDrawer(pixelDrawer), font(font) {
+    LinearFrameBufferTerminal::clear(Colors::BLACK);
 }
 
-void LinearFrameBufferTerminal::putChar(char c) {
+void LinearFrameBufferTerminal::putChar(char c, const Color &foregroundColor, const Color &backgroundColor) {
     if (c == '\n') {
         stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::BLACK);
         currentRow++;
@@ -50,7 +50,7 @@ void LinearFrameBufferTerminal::putChar(char c) {
     updateCursorPosition();
 }
 
-void LinearFrameBufferTerminal::clear() {
+void LinearFrameBufferTerminal::clear(const Color &backgroundColor) {
     lfb.clear();
 
     currentRow = 0;
@@ -63,20 +63,12 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     currentRow = row;
 }
 
-void LinearFrameBufferTerminal::setForegroundColor(const Color &color) {
-    foregroundColor = color;
-}
-
-void LinearFrameBufferTerminal::setBackgroundColor(const Color &color) {
-    backgroundColor = color;
-}
-
 LinearFrameBuffer &LinearFrameBufferTerminal::getLinearFrameBuffer() const {
     return lfb;
 }
 
 void LinearFrameBufferTerminal::updateCursorPosition() {
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), cursor, foregroundColor, Colors::BLACK);
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::WHITE);
 }
 
 }

@@ -15,20 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TYPE_H
-#define HHUOS_TYPE_H
+#include <lib/util/graphic/Terminal.h>
+#include "TerminalNode.h"
 
-namespace Util::File {
+namespace Device::Graphic {
 
-/**
- * Enumeration of different file types.
- */
-enum Type : uint8_t {
-    REGULAR,
-    DIRECTORY,
-    CHARACTER
-};
+TerminalNode::TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal &terminal) : MemoryNode(name), terminal(terminal) {}
 
+Util::File::Type TerminalNode::getFileType() {
+    return Util::File::CHARACTER;
 }
 
-#endif
+uint64_t TerminalNode::getLength() {
+    return 0;
+}
+
+Util::Data::Array<Util::Memory::String> TerminalNode::getChildren() {
+    return Util::Data::Array<Util::Memory::String>(0);
+}
+
+uint64_t TerminalNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t TerminalNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    terminal.write(sourceBuffer, 0, numBytes);
+    return numBytes;
+}
+
+}

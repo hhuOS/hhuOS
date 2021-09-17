@@ -20,6 +20,7 @@
 
 #include <lib/util/async/Spinlock.h>
 #include <lib/util/data/HashMap.h>
+#include <filesystem/memory/MemoryDriver.h>
 #include "Driver.h"
 
 namespace Filesystem {
@@ -60,13 +61,12 @@ public:
     static Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 
     /**
-     * Mounts a device at a specified location.
+     * Mounts a virtual filesystem at a specified location.
      *
-     * @param devicePath The device-file (in /dev/storage) or the direct device name (e.g. "hdd0p1")
-     * @param targetPath The mountVirtualDriver-path
-     * @param fsType The filesystem-type
+     * @param targetPath The mount path
+     * @param driver The virtual filesystem driver
      *
-     * @return Return code
+     * @return true on success
      */
     bool mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver);
 
@@ -75,7 +75,7 @@ public:
      *
      * @param path The mountVirtualDriver-path
      *
-     * @return Return code.
+     * @return true on success
      */
     bool unmount(const Util::Memory::String &path);
 
@@ -119,6 +119,15 @@ public:
      * @return true on success
      */
     bool deleteFile(const Util::Memory::String &path);
+
+    /**
+     * Get the virtual driver, that is mounted at a specified path.
+     *
+     * @param path The path
+     *
+     * @return The driver
+     */
+    Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path);
     
 private:
 
@@ -130,7 +139,7 @@ private:
      * CAUTION: May return nullptr, if the file does not exist.
      *          Always check the return value!
      *
-     * @param path The path. After successful execution, the part up to the mountVirtualDriver point will truncated,
+     * @param path The path. After successful execution, the part up to the mountVirtualDriver point will be truncated,
      *             so that the path can be used for the returned driver.
      *
      * @return The driver (or nullptr on failure)

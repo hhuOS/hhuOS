@@ -70,6 +70,13 @@ public:
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
+    /**
+     * Add a virtual node to this directory.
+     *
+     * @param node The node
+     */
+    void addChild(MemoryNode *node);
+
 private:
 
     /**

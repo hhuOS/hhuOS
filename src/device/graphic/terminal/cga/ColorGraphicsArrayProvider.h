@@ -15,39 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
-#define HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
+#ifndef HHUOS_COLORGRAPHICSARRAYPROVIDER_H
+#define HHUOS_COLORGRAPHICSARRAYPROVIDER_H
 
-#include <lib/util/data/Array.h>
-#include <device/graphic/TerminalProvider.h>
-#include <device/graphic/LinearFrameBufferProvider.h>
-#include "lib/util/graphic/Font.h"
-#include "lib/util/graphic/Fonts.h"
+#include <lib/util/memory/Address.h>
+#include <device/cpu/IoPort.h>
+#include "device/graphic/terminal/TerminalProvider.h"
 
 namespace Device::Graphic {
 
-class LinearFrameBufferTerminalProvider : public TerminalProvider {
+class ColorGraphicsArrayProvider : public TerminalProvider {
 
 public:
+
+    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsArrayProvider);
+
     /**
      * Default Constructor.
      */
-    explicit LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = '_');
+    explicit ColorGraphicsArrayProvider(bool prototypeInstance = false);
 
     /**
      * Copy constructor.
      */
-    LinearFrameBufferTerminalProvider(const LinearFrameBufferTerminalProvider &other) = delete;
+    ColorGraphicsArrayProvider(const ColorGraphicsArrayProvider &other) = delete;
 
     /**
      * Assignment operator.
      */
-    LinearFrameBufferTerminalProvider &operator=(const LinearFrameBufferTerminalProvider &other) = delete;
+    ColorGraphicsArrayProvider &operator=(const ColorGraphicsArrayProvider &other) = delete;
 
     /**
      * Destructor.
      */
-    ~LinearFrameBufferTerminalProvider() override = default;
+    ~ColorGraphicsArrayProvider() override = default;
+
+    /**
+     * Check if a CGA compatible graphics card is available and this driver can be used.
+     *
+     * @return true, if this driver can be used
+     */
+    [[nodiscard]] static bool isAvailable();
 
     /**
      * Overriding function from TerminalProvider.
@@ -72,11 +80,6 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Memory::String getVendorName() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
     [[nodiscard]] Util::Memory::String getDeviceName() const override;
 
     /**
@@ -86,13 +89,32 @@ public:
 
 private:
 
-    LinearFrameBufferProvider &lfbProvider;
-    Util::Graphic::Font &font;
-    char cursor;
+    enum BiosFunction : uint16_t {
+        CHECK_VIDEO_CARD = 0x1a00,
+        SET_CURSOR_SHAPE = 0x0100
+    };
 
+    enum VideoCardType : uint8_t {
+        NO_DISPLAY = 0x00,
+        MONOCHROME = 0x01,
+        CGA_COLOR = 0x02,
+        EGA_COLOR = 0x04,
+        EGA_MONOCHROME = 0x05,
+        PGA_COLOR = 0x06,
+        VGA_MONOCHROME = 0x07,
+        VGA_COLOR = 0x08,
+        MCGA_COLOR_DIGITAL = 0x0a,
+        MCGA_MONOCHROME = 0x0b,
+        MCGA_COLOR = 0x0c,
+        UNKNOWN = 0xff
+    };
+
+    uint32_t videoMemorySize = 0;
+    Util::Memory::String deviceName = "Unknown";
     Util::Data::Array<ModeInfo> supportedModes;
 
-    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArray";
+    static const constexpr uint16_t CURSOR_SHAPE_OPTIONS = 0x0e0f;
+    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArrayProvider";
 };
 
 }

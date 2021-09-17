@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/graphic/ColorGraphicsArray.h>
+#include <device/graphic/terminal/cga/ColorGraphicsArray.h>
 #include "MultibootTerminalProvider.h"
 #include "Structure.h"
 

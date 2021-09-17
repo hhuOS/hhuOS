@@ -15,65 +15,64 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MEMORYDRIVER_H
-#define HHUOS_MEMORYDRIVER_H
+#ifndef HHUOS_TERMINALNODE_H
+#define HHUOS_TERMINALNODE_H
 
-#include <filesystem/core/VirtualDriver.h>
-#include "MemoryDirectoryNode.h"
+#include <filesystem/memory/MemoryNode.h>
 
-namespace Filesystem::Memory {
+namespace Device::Graphic {
 
-class MemoryDriver : public VirtualDriver {
+class TerminalNode : public Filesystem::Memory::MemoryNode {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    MemoryDriver();
+    TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal &terminal);
 
     /**
      * Copy constructor.
      */
-    MemoryDriver(const MemoryDriver &copy) = delete;
+    TerminalNode(const TerminalNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MemoryDriver& operator=(const MemoryDriver &other) = delete;
+    TerminalNode &operator=(const TerminalNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MemoryDriver() override;
+    ~TerminalNode() override = default;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from MemoryNode.
      */
-    Node* getNode(const Util::Memory::String &path) override;
+    Util::File::Type getFileType() override;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from MemoryNode.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    uint64_t getLength() override;
 
     /**
-     * Overriding virtual function from VirtualDriver.
+     * Overriding function from MemoryNode.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    Util::Data::Array<Util::Memory::String> getChildren() override;
 
     /**
-     * Add an existing virtual node at a specified path.
-     *
-     * @param path The path
-     * @param node The node
-     *
-     * @return true on success
+     * Overriding function from MemoryNode.
      */
-    bool addNode(const Util::Memory::String &path, MemoryNode *node);
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 
-    MemoryDirectoryNode *rootNode;
+    Util::Graphic::Terminal &terminal;
 
 };
 

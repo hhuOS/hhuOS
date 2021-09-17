@@ -36,15 +36,11 @@ public:
 
     ~ColorGraphicsArray() override = default;
 
-    void putChar(char c) override;
+    void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
-    void clear() override;
+    void clear(const Util::Graphic::Color &backgroundColor) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
-
-    void setForegroundColor(const Util::Graphic::Color &color) override;
-
-    void setBackgroundColor(const Util::Graphic::Color &color) override;
 
 private:
 
@@ -52,8 +48,6 @@ private:
 
     void scrollUp();
 
-    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;
-    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
@@ -66,6 +60,9 @@ private:
     static const constexpr uint16_t DATA_PORT_ADDRESS = 0x03d5;
     static const constexpr uint16_t CURSOR_LOW_BYTE = 0x0f;
     static const constexpr uint16_t CURSOR_HIGH_BYTE = 0x0e;
+    static const constexpr uint16_t CURSOR_START_INDEX = 0x0a;
+    static const constexpr uint16_t CURSOR_END_INDEX = 0x0b;
+
 };
 
 }

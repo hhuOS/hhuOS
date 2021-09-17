@@ -56,4 +56,8 @@ MemoryNode *MemoryDirectoryNode::getChildByName(const Util::Memory::String &chil
     return nullptr;
 }
 
+void MemoryDirectoryNode::addChild(MemoryNode *node) {
+    children.add(node);
+}
+
 }

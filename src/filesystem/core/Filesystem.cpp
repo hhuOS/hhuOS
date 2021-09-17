@@ -44,29 +44,6 @@ Util::Memory::String Filesystem::getCanonicalPath(const Util::Memory::String &pa
     return parsedPath;
 }
 
-Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
-    if (!path.endsWith(Util::File::File::SEPARATOR)) {
-        path += Util::File::File::SEPARATOR;
-    }
-
-    Util::Memory::String ret;
-
-    for (const Util::Memory::String &currentString: mountPoints.keySet()) {
-        if (path.beginsWith(currentString)) {
-            if (currentString.length() > ret.length()) {
-                ret = currentString;
-            }
-        }
-    }
-
-    if (ret.isEmpty()) {
-        return nullptr;
-    }
-
-    path = path.substring(ret.length(), path.length() - 1);
-    return mountPoints.get(ret);
-}
-
 bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver) {
     Util::Memory::String parsedPath = getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
     Node *targetNode = getNode(parsedPath);
@@ -86,6 +63,13 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Driv
 
     mountPoints.put(parsedPath, &driver);
     return lock.releaseAndReturn(true);
+}
+
+Memory::MemoryDriver &Filesystem::getVirtualDriver(const Util::Memory::String &path) {
+    Util::Memory::String parsedPath = getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    auto *driver = mountPoints.get(parsedPath);
+
+    return *reinterpret_cast<Memory::MemoryDriver*>(driver);
 }
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
@@ -174,6 +158,29 @@ bool Filesystem::deleteFile(const Util::Memory::String &path) {
 
     bool ret = driver->deleteNode(parsedPath);
     return lock.releaseAndReturn<bool>(ret);
+}
+
+Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
+    if (!path.endsWith(Util::File::File::SEPARATOR)) {
+        path += Util::File::File::SEPARATOR;
+    }
+
+    Util::Memory::String ret;
+
+    for (const Util::Memory::String &currentString: mountPoints.keySet()) {
+        if (path.beginsWith(currentString)) {
+            if (currentString.length() > ret.length()) {
+                ret = currentString;
+            }
+        }
+    }
+
+    if (ret.isEmpty()) {
+        return nullptr;
+    }
+
+    path = path.substring(ret.length(), path.length() - 1);
+    return mountPoints.get(ret);
 }
 
 }

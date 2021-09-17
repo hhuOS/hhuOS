@@ -3,8 +3,8 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font, char cursor) :
-        lfbProvider(lfbProvider), font(font), cursor(cursor), supportedModes(0) {
+LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font) :
+        lfbProvider(lfbProvider), font(font), supportedModes(0) {
     auto lfbModes = lfbProvider.getAvailableModes();
     supportedModes = Util::Data::Array<ModeInfo>(lfbModes.length());
 
@@ -21,7 +21,7 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
 
 Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo) {
     auto lfbMode = lfbProvider.searchMode(modeInfo.columns * font.getCharWidth(), modeInfo.rows * font.getCharHeight(), modeInfo.colorDepth);
-    return *new Util::Graphic::LinearFrameBufferTerminal(lfbProvider.initializeLinearFrameBuffer(lfbMode), font, cursor);
+    return *new Util::Graphic::LinearFrameBufferTerminal(lfbProvider.initializeLinearFrameBuffer(lfbMode), font);
 }
 
 void LinearFrameBufferTerminalProvider::destroyTerminal(Util::Graphic::Terminal &terminal) {

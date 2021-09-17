@@ -32,7 +32,7 @@ class LinearFrameBufferTerminal : public Terminal {
 
 public:
 
-    explicit LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font = Fonts::TERMINAL_FONT, char cursor = '_');
+    explicit LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font = Fonts::TERMINAL_FONT);
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
@@ -40,15 +40,11 @@ public:
 
     ~LinearFrameBufferTerminal() override = default;
 
-    void putChar(char c) override;
+    void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void clear() override;
-
-    void setForegroundColor(const Color &color) override;
-
-    void setBackgroundColor(const Color &color) override;
+    void clear(const Color &backgroundColor) override;
 
     [[nodiscard]] LinearFrameBuffer& getLinearFrameBuffer() const;
 
@@ -56,16 +52,12 @@ private:
 
     void updateCursorPosition();
 
-    const char cursor;
-
     LinearFrameBuffer &lfb;
     BufferScroller scroller;
     PixelDrawer pixelDrawer;
     StringDrawer stringDrawer;
 
     Font &font;
-    Color foregroundColor = Colors::WHITE;
-    Color backgroundColor = Colors::BLACK;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 };

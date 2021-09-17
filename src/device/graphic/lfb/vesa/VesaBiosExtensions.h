@@ -20,7 +20,7 @@
 
 #include <lib/util/memory/Address.h>
 #include <lib/util/data/ArrayList.h>
-#include "LinearFrameBufferProvider.h"
+#include "device/graphic/lfb/LinearFrameBufferProvider.h"
 
 namespace Device::Graphic {
 

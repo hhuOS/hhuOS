@@ -5,10 +5,16 @@ namespace Device::Graphic {
 
 ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Terminal(columns, rows),
         cgaMemory(VIRT_CGA_START, columns * rows * BYTES_PER_CHARACTER), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
-    ColorGraphicsArray::clear();
+    ColorGraphicsArray::clear(Util::Graphic::Colors::BLACK);
+
+    // Set cursor shape
+    indexPort.writeByte(CURSOR_START_INDEX);
+    dataPort.writeByte(0x00);
+    indexPort.writeByte(CURSOR_END_INDEX);
+    dataPort.writeByte(0x1F);
 }
 
-void ColorGraphicsArray::putChar(char c) {
+void ColorGraphicsArray::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
     uint16_t position = (currentRow * getColumns() + currentColumn) * BYTES_PER_CHARACTER;
     uint8_t colorAttribute = (backgroundColor.getRGB4() << 4) | foregroundColor.getRGB4();
 
@@ -37,7 +43,7 @@ void ColorGraphicsArray::putChar(char c) {
     updateCursorPosition();
 }
 
-void ColorGraphicsArray::clear() {
+void ColorGraphicsArray::clear(const Util::Graphic::Color &backgroundColor) {
     cgaMemory.setRange(0, getRows() * getColumns() * BYTES_PER_CHARACTER);
 
     currentRow = 0;
@@ -50,19 +56,11 @@ void ColorGraphicsArray::setPosition(uint16_t column, uint16_t row) {
     currentRow = row;
 }
 
-void ColorGraphicsArray::setForegroundColor(const Util::Graphic::Color &color) {
-    foregroundColor = color;
-}
-
-void ColorGraphicsArray::setBackgroundColor(const Util::Graphic::Color &color) {
-    backgroundColor = color;
-}
-
 void ColorGraphicsArray::updateCursorPosition() {
     uint16_t position = currentRow * getColumns() + currentColumn;
 
     // Set color attribute, so that the cursor will be visible
-    uint8_t colorAttribute = (cgaMemory.getByte(position * BYTES_PER_CHARACTER + 1) & 0xf0) | foregroundColor.getRGB4();
+    uint8_t colorAttribute = (cgaMemory.getByte(position * BYTES_PER_CHARACTER + 1) & 0xf0) | Util::Graphic::Colors::WHITE.getRGB4();
     cgaMemory.setByte(colorAttribute, position * BYTES_PER_CHARACTER + 1);
 
     auto low  = static_cast<uint8_t>(position & 0xff);
