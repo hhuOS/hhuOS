@@ -22,7 +22,7 @@ GCC 7 and CMake 3.7 or newer versions of GCC and CMake are required to compile h
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command (on Ubuntu 18.04):
 
 ```sh
-sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin mtools xorriso
+sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin mtools xorriso zstd
 ```
 
 ## Usage
@@ -38,13 +38,7 @@ cd hhuOS/
 
 ## Bootloader
 
-hhuOS implements the Multiboot standard and can (in theory) be booted by any Multiboot compliant bootloader. Per default, our own bootloader [towboot](https://github.com/hhuOS/towboot) is used for booting hhuOS. However, it is possible to boot hhuOS using GRUB. Since towboot only support UEFI-based systems, it is necessary to use GRUB for booting hhuOS on (older) BIOS-based systems. To use GRUB, some additional packages need to be installed:
-
-```sh
-sudo apt install grub-pc-bin grub-efi-ia32-bin xorriso
-```
-
-Furthermore, it is necessary to pass the `--target` parameter to the build script, indicating that GRUB should be used when constructing the bootable image:
+hhuOS implements the Multiboot standard and can (in theory) be booted by any Multiboot compliant bootloader. Per default, our own bootloader [towboot](https://github.com/hhuOS/towboot) is used for booting hhuOS. However, it is possible to boot hhuOS using GRUB. Since towboot only support UEFI-based systems, it is necessary to use GRUB for booting hhuOS on (older) BIOS-based systems. To use GRUB, it is necessary to pass the `--target` parameter to the build script, indicating that GRUB should be used when constructing the bootable image
 
 ```sh
 ./build.sh --target grub

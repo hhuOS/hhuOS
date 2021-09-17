@@ -8,16 +8,12 @@ readonly CONST_QEMU_BIOS_CPU="486"
 readonly CONST_QEMU_EFI_CPU="pentium2"
 readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="${OVMF:-/usr/share/ovmf/ia32/OVMF.fd}"
+readonly CONST_QEMU_BIOS_EFI="bios/ovmf-ia32/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime"
 
-readonly CONST_QEMU_OLD_AUDIO_ARGS="
-  -soundhw pcspk
-"
-readonly CONST_QEMU_NEW_AUDIO_ARGS="
-  -audiodev alsa,id=alsa -machine pcspk-audiodev=alsa
-"
+readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
+readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev alsa,id=alsa -machine pcspk-audiodev=alsa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
@@ -40,6 +36,12 @@ set_audio_parameters() {
   if version_lt "$qemu_version" "5.0.0"; then
     QEMU_AUDIO_ARGS="${CONST_QEMU_OLD_AUDIO_ARGS}"
   fi
+}
+
+get_ovmf() {
+  cd "bios/ovmf-ia32" || exit 1
+  ./build.sh || exit 1
+  cd "../.." || exit 1
 }
 
 check_file() {
@@ -215,6 +217,8 @@ run_qemu() {
 }
 
 parse_args "$@"
+
+get_ovmf
 
 QEMU_ARGS="${QEMU_ARGS}"
 set_audio_parameters

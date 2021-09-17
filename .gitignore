@@ -3,6 +3,7 @@ initrd/bin
 hhuOS.bin
 hhuOS.initrd
 towboot.efi
+OVMF.fd
 *.img
 *.dump
 *.iso
