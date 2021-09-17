@@ -20,13 +20,14 @@
 
 void* operator new(uint32_t size);
 void* operator new[](uint32_t size);
+void operator delete(void*);
+void operator delete[](void*);
 void *operator new(uint32_t size, void *pointer);
 void *operator new[](uint32_t size, void *pointer);
-void operator delete(void *, void *);
-void operator delete[](void *, void *);
-void *operator new(uint32_t size, uint32_t alignment);
-void *operator new[](uint32_t size, uint32_t alignment);
-void operator delete(void *pointer, uint32_t alignment);
-void operator delete[](void *pointer, uint32_t alignment);
+void operator delete(void*, void*);
+void operator delete[](void*, void*);
+
+void operator delete(void *pointer, uint32_t size);
+void operator delete[](void *pointer, uint32_t size);
 
 #endif

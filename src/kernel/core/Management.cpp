@@ -26,6 +26,7 @@
 #include <kernel/multiboot/Structure.h>
 #include <kernel/memory/Paging.h>
 #include <kernel/memory/MemLayout.h>
+#include <lib/util/memory/Management.h>
 #include "Management.h"
 #include "System.h"
 
@@ -207,10 +208,6 @@ void Management::init() {
     // register Paging Manager to handle Page Faults
     this->plugin();
 
-    // init io-memory afterwards, because pagefault will occur setting up the first list header
-    // Init the manager for virtual IO Memory
-    ioMemManager = new IOMemoryManager();
-
     currentAddressSpace->init();
     switchAddressSpace(currentAddressSpace);
 
@@ -327,13 +324,12 @@ uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
 }
 
 void *Management::mapIO(uint32_t physAddress, uint32_t size) {
-    // TODO: Get rid of old IOMemoryManager
     // get amount of needed pages
     uint32_t pageCnt = size / PAGESIZE;
     pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
 
-    // allocate 4KB-aligned virtual IO-memory
-    void *virtStartAddress = ioMemManager->alloc();
+    // allocate 4KB-aligned virtual memory
+    void *virtStartAddress = Util::Memory::Management::alignedAlloc(pageCnt * PAGESIZE, PAGESIZE);
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
@@ -365,35 +361,35 @@ void *Management::mapIO(uint32_t size) {
 
     // allocate block of physical memory
     void *physStartAddress = pageFrameAllocator->alloc();
+    void *currentPhysAddress = physStartAddress;
+    void *lastPhysAddress;
+    bool contiguous;
 
-    // allocate 4KB-aligned virtual IO-memory
-    void *virtStartAddress = ioMemManager->alloc();
+    do {
+        contiguous = true;
 
-    // check for nullpointer
-    if (virtStartAddress == nullptr) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY);
-    }
+        for (uint32_t i = 0; i < pageCnt; i++) {
+            lastPhysAddress = currentPhysAddress;
+            currentPhysAddress = pageFrameAllocator->allocAfterAddress(physStartAddress);
 
-    // map the allocated virtual IO memory to physical addresses
-    for (uint32_t i = 0; i < pageCnt; i++) {
-        // since the virtual memory is one block, we can update the virtual address this way
-        uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
+            if (reinterpret_cast<uint32_t>(currentPhysAddress) - reinterpret_cast<uint32_t>(lastPhysAddress) != PAGESIZE) {
+                contiguous = false;
 
-        // if the virtual address is already mapped, we have to unmap it
-        // this can happen because the headers of the free list are mapped
-        // to arbitrary physical addresses, but the IO Memory should be mapped
-        // to given physical addresses
-        Management::getInstance().unmap(virtAddress);
-        // map the page to given physical address
+                for (uint32_t j = 0; j < i; j++) {
+                    pageFrameAllocator->free(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) + j * PAGESIZE));
+                }
 
-        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, (uint32_t) physStartAddress + i * PAGESIZE);
-    }
+                physStartAddress = currentPhysAddress;
+                break;
+            }
+        }
+    } while (!contiguous);
 
-    return virtStartAddress;
+    return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size);
 }
 
 void Management::freeIO(void *ptr) {
-    ioMemManager->free(ptr);
+    Util::Memory::Management::free(ptr);
 }
 
 void *Management::getPhysicalAddress(void *virtAddress) {

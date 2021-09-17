@@ -66,7 +66,7 @@ public:
     /**
      * Overriding function from MemoryManager.
      */
-    Util::Memory::String getClassName() const override;
+    [[nodiscard]] Util::Memory::String getClassName() const override;
 
     /**
      * Overriding function from MemoryManager.

@@ -15,40 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <lib/interface.h>
 #include "Management.h"
 
-void* operator new(uint32_t size) {
-    return Util::Memory::Management::alloc(size);
+void *Util::Memory::Management::alloc(uint32_t size) {
+    return allocateMemory(size);
 }
 
-void* operator new[](uint32_t size) {
-    return Util::Memory::Management::alloc(size);
+void Util::Memory::Management::free(void *pointer) {
+    freeMemory(pointer);
 }
 
-void operator delete(void *pointer) {
-    return Util::Memory::Management::free(pointer);
+void *Util::Memory::Management::alignedAlloc(uint32_t size, uint32_t alignment) {
+    return allocateMemory(size, alignment);
 }
 
-void operator delete[](void *pointer) {
-    return Util::Memory::Management::free(pointer);
-}
-
-void *operator new(uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void *operator new[](uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void operator delete(void *, void *) {}
-
-void operator delete[](void *, void *) {}
-
-void operator delete(void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
-}
-
-void operator delete[](void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
+void Util::Memory::Management::alignedFree(void *pointer, uint32_t alignment) {
+    freeMemory(pointer, alignment);
 }

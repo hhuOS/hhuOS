@@ -15,40 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Management.h"
+#ifndef HHUOS_MANAGEMENT_H
+#define HHUOS_MANAGEMENT_H
 
-void* operator new(uint32_t size) {
-    return Util::Memory::Management::alloc(size);
+#include <cstdint>
+
+namespace Util::Memory {
+
+class Management {
+
+public:
+    /**
+     * Default Constructor.
+     * Deleted, as this class has only static members.
+     */
+    Management() = delete;
+
+    /**
+     * Copy constructor.
+     */
+    Management(const Management &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Management &operator=(const Management &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Management() = default;
+
+    static void* alloc(uint32_t size);
+
+    static void free(void *pointer);
+
+    static void* alignedAlloc(uint32_t size, uint32_t alignment);
+
+    static void alignedFree(void *pointer, uint32_t alignment);
+
+};
+
 }
 
-void* operator new[](uint32_t size) {
-    return Util::Memory::Management::alloc(size);
-}
-
-void operator delete(void *pointer) {
-    return Util::Memory::Management::free(pointer);
-}
-
-void operator delete[](void *pointer) {
-    return Util::Memory::Management::free(pointer);
-}
-
-void *operator new(uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void *operator new[](uint32_t size, void *pointer) {
-    return pointer;
-}
-
-void operator delete(void *, void *) {}
-
-void operator delete[](void *, void *) {}
-
-void operator delete(void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
-}
-
-void operator delete[](void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
-}
+#endif

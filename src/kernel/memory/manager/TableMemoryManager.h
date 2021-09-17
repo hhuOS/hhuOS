@@ -54,6 +54,8 @@ public:
 
     void* alloc(void *address);
 
+    void* allocAfterAddress(void *address);
+
     void free(void *pointer);
 
     void debugLog();

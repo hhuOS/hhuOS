@@ -22,7 +22,6 @@
 #include "kernel/memory/PageDirectory.h"
 #include "kernel/memory/manager/PageFrameAllocator.h"
 #include "kernel/memory/manager/PagingAreaManager.h"
-#include "kernel/memory/manager/IOMemoryManager.h"
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "TaskStateSegment.h"
 #include "Symbols.h"
@@ -59,8 +58,6 @@ private:
     // Paging Area Manager to manage the virtual memory reserved for page tables
     // and directories
     PagingAreaManager *pagingAreaManager{};
-    // IO memory manager
-    IOMemoryManager *ioMemManager{};
 
     VirtualAddressSpace *mainAddressSpace{};
 
@@ -322,10 +319,6 @@ public:
      * @return Pointer to the instance of the SystemManagement
      */
     static Management &getInstance() noexcept;
-
-    IOMemoryManager *getIOMemoryManager() {
-        return ioMemManager;
-    }
 
     PageFrameAllocator *getPageFrameAllocator() {
         return pageFrameAllocator;

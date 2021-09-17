@@ -148,7 +148,34 @@ uint32_t TableMemoryManager::calculateAddress(const TableMemoryManager::TableInd
 }
 
 void *TableMemoryManager::alloc() {
-    auto startIndex = calculateIndex(startAddress);
+    return allocAfterAddress(reinterpret_cast<void*>(startAddress));
+}
+
+void *TableMemoryManager::alloc(void *address) {
+    const auto index = calculateIndex(reinterpret_cast<uint32_t>(address));
+
+    auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
+    auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
+    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
+    auto &allocationTableEntry = allocationTable[index.allocationTableIndex];
+
+    allocationTableEntry.incrementUseCount();
+    return reinterpret_cast<void*>(calculateAddress(index));
+}
+
+void TableMemoryManager::free(void *pointer) {
+    const auto index = calculateIndex(reinterpret_cast<uint32_t>(pointer));
+
+    auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
+    auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
+    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
+    auto &allocationTableEntry = allocationTable[index.allocationTableIndex];
+
+    allocationTableEntry.decrementUseCount();
+}
+
+void *TableMemoryManager::allocAfterAddress(void *address) {
+    auto startIndex = calculateIndex(reinterpret_cast<uint32_t>(address));
     auto endIndex = calculateIndex(endAddress);
 
     for (uint32_t i = startIndex.referenceTableArrayIndex; i <= endIndex.referenceTableArrayIndex; i++) {
@@ -189,29 +216,6 @@ void *TableMemoryManager::alloc() {
     }
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TableMemoryManager: Allocation failed!");
-}
-
-void *TableMemoryManager::alloc(void *address) {
-    const auto index = calculateIndex(reinterpret_cast<uint32_t>(address));
-
-    auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
-    auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
-    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
-    auto &allocationTableEntry = allocationTable[index.allocationTableIndex];
-
-    allocationTableEntry.incrementUseCount();
-    return reinterpret_cast<void*>(calculateAddress(index));
-}
-
-void TableMemoryManager::free(void *pointer) {
-    const auto index = calculateIndex(reinterpret_cast<uint32_t>(pointer));
-
-    auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
-    auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
-    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
-    auto &allocationTableEntry = allocationTable[index.allocationTableIndex];
-
-    allocationTableEntry.decrementUseCount();
 }
 
 }

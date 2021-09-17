@@ -91,13 +91,12 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
     size = Util::Memory::Address<uint32_t>(size).alignUp(sizeof(uint32_t)).get();
 
     FreeListHeader *current = startChunk;
-    FreeListHeader *aligned = nullptr;
+    FreeListHeader *aligned;
 
     // run through list and look for memory block
     while (current != nullptr) {
 
         if (current->size >= size) {
-
             uint32_t data = ((uint32_t) current) + HEADER_SIZE;
             uint32_t alignedData = Util::Memory::Address(data).alignUp(alignment).get();
 
@@ -106,29 +105,29 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
                 break;
             }
 
-            // Make sure the aligned Memory Block's header
-            // does not overlap with the current one
-            aligned = (FreeListHeader * )(Util::Memory::Address(data + HEADER_SIZE + MIN_BLOCK_SIZE).alignUp(alignment).get() - HEADER_SIZE);
+            if (alignedData - HEADER_SIZE >= data + MIN_BLOCK_SIZE) {
+                aligned = reinterpret_cast<FreeListHeader*>(alignedData - HEADER_SIZE);
 
-            // Check if current block has enough free
-            // data space to fit in the aligned block
-            if (((uint32_t) aligned) + HEADER_SIZE + size <= ((uint32_t) current) + HEADER_SIZE + current->size) {
+                // Check if current block has enough free
+                // data space to fit in the aligned block
+                if (((uint32_t) aligned) + HEADER_SIZE + size <= ((uint32_t) current) + HEADER_SIZE + current->size) {
 
-                aligned->size = ((uint32_t) current) + HEADER_SIZE + current->size - ((uint32_t) aligned) + HEADER_SIZE;
-                current->size = (uint32_t) aligned - ((uint32_t) current) + HEADER_SIZE;
+                    aligned->size = ((uint32_t) current) + current->size - ((uint32_t) aligned);
+                    current->size = (uint32_t) aligned - (((uint32_t) current) + HEADER_SIZE);
 
-                aligned->prev = current;
-                aligned->next = current->next;
+                    aligned->prev = current;
+                    aligned->next = current->next;
 
-                if (aligned->next != nullptr) {
-                    aligned->next->prev = aligned;
+                    if (aligned->next != nullptr) {
+                        aligned->next->prev = aligned;
+                    }
+
+                    aligned->prev->next = aligned;
+
+                    current = aligned;
+
+                    break;
                 }
-
-                aligned->prev->next = aligned;
-
-                current = aligned;
-
-                break;
             }
         }
 
