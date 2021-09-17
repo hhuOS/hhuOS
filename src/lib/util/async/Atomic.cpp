@@ -179,4 +179,24 @@ bool Atomic<T>::bitTestAndReset(T index) {
     return (ret & 0x0100) != 0;
 }
 
+template<typename T>
+T Atomic<T>::add(T addend) {
+    return fetchAndAdd(addend);
+}
+
+template<typename T>
+T Atomic<T>::sub(T subtrahend) {
+    return fetchAndSub(subtrahend);
+}
+
+template<typename T>
+T Atomic<T>::inc() {
+    return fetchAndInc();
+}
+
+template<typename T>
+T Atomic<T>::dec() {
+    return fetchAndDec();
+}
+
 }

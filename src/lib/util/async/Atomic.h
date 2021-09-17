@@ -48,6 +48,14 @@ public:
 
     [[nodiscard]] T fetchAndDec();
 
+    T add(T addend);
+
+    T sub(T subtrahend);
+
+    T inc();
+
+    T dec();
+
     [[nodiscard]] bool bitTest(T index);
 
     void bitSet(T index);

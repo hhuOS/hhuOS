@@ -56,7 +56,8 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
 
-    interruptDepth++;
+    auto interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
+    interruptDepthWrapper.inc();
     asm volatile("sti");
 
     if (list != nullptr) {
@@ -66,8 +67,8 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
         }
     }
 
-    interruptDepth--;
     asm volatile("cli");
+    interruptDepthWrapper.dec();
 
     sendEoi(slot);
 }

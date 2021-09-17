@@ -10,7 +10,14 @@ readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_EFI="${OVMF:-/usr/share/ovmf/ia32/OVMF.fd}"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
-readonly CONST_QEMU_ARGS="-vga std -monitor stdio -audiodev alsa,id=alsa -machine pcspk-audiodev=alsa -rtc base=localtime"
+readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime"
+
+readonly CONST_QEMU_OLD_AUDIO_ARGS="
+  -soundhw pcspk
+"
+readonly CONST_QEMU_NEW_AUDIO_ARGS="
+  -audiodev alsa,id=alsa -machine pcspk-audiodev=alsa
+"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
@@ -18,9 +25,22 @@ QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
 QEMU_CPU="${CONST_QEMU_EFI_CPU}"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
+QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
+
+version_lt() {
+  test "$(printf "%s\n" "$@" | sort -V | tr ' ' '\n' | head -n 1)" != "${2}"
+}
+
+set_audio_parameters() {
+  qemu_version=$(${QEMU_BIN} --version | head -n 1 | cut -c 23-)
+
+  if version_lt "$qemu_version" "5.0.0"; then
+    QEMU_AUDIO_ARGS="${CONST_QEMU_OLD_AUDIO_ARGS}"
+  fi
+}
 
 check_file() {
   local file=$1
@@ -179,7 +199,7 @@ run_qemu() {
     command="${command} -bios ${QEMU_BIOS}"
   fi
 
-  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_BOOT_DEVICE} ${QEMU_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_BOOT_DEVICE} ${QEMU_ARGS} ${QEMU_AUDIO_ARGS}"
   
   printf "Running: %s\\n" "${command}"
 
@@ -197,5 +217,6 @@ run_qemu() {
 parse_args "$@"
 
 QEMU_ARGS="${QEMU_ARGS}"
+set_audio_parameters
 
 run_qemu
