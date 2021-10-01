@@ -194,23 +194,23 @@ public:
     /**
      * Maps a page at a given physical address to a virtual address.
      * The physical address should be allocated right now, since this function does
-     * only map it!
+     * only mapRange it!
      *
      * @param virtAddress Virtual address where a page should be mapped
      * @param flags Flags for Page Table entry
      * @param physAddress Physical address that should be mapped
      */
-    void map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress);
+    void mapPhysicalAddress(uint32_t virtAddress, uint32_t physAddress, uint16_t flags);
 
     /**
-     * Range map function to map a range of virtual addresses into the current Page
+     * Range mapPhysicalAddress function to mapRange a range of virtual addresses into the current Page
      * Directory .
      *
      * @param virtStartAddress Virtual start address of the mapping
      * @param virtEndAddress Virtual start address of the mapping
      * @param flags Flags for the Page Table entries
      */
-    void map(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags);
+    void mapRange(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags);
 
     /**
      * Unmap Page at a given virtual address.

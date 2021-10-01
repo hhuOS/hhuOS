@@ -107,17 +107,17 @@ void Symbols::load(const Elf::Constants::SectionHeader &sectionHeader) {
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    auto entry = (Elf::Constants::SymbolEntry *) PHYS2VIRT(sectionHeader.virtualAddress);
+    auto entry = (Elf::Constants::SymbolEntry *) Kernel::MemoryLayout::PHYS2VIRT(sectionHeader.virtualAddress);
 
     auto stringSection = (Elf::Constants::SectionHeader *) (symbolInfo.address +
                                                                                   sectionHeader.link *
                                                                                   symbolInfo.sectionSize);
 
-    char *stringTable = (char *) PHYS2VIRT(stringSection->virtualAddress);
+    char *stringTable = (char *) Kernel::MemoryLayout::PHYS2VIRT(stringSection->virtualAddress);
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
-        if (entry->value < KERNEL_START || entry->getSymbolType() == Elf::Constants::SymbolType::SECTION) {
+        if (entry->value < Kernel::MemoryLayout::VIRT_KERNEL_START || entry->getSymbolType() == Elf::Constants::SymbolType::SECTION) {
 
             continue;
         }
@@ -156,7 +156,7 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint
     for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
         sectionHeader = (Elf::Constants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
         // only copy the sections that are not part of the loaded program
-        if ((sectionHeader->virtualAddress & KERNEL_START) == 0) {
+        if ((sectionHeader->virtualAddress & Kernel::MemoryLayout::VIRT_KERNEL_START) == 0) {
             // only copy symbols and strings, discard the rest
             if (sectionHeader->type == Elf::Constants::SectionHeaderType::SYMTAB
             || sectionHeader->type == Elf::Constants::SectionHeaderType::STRTAB) {

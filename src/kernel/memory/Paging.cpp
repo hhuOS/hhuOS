@@ -19,21 +19,19 @@
 #include "Paging.h"
 #include "MemLayout.h"
 
-void Kernel::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
+void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // calculate 4MB page where (higher-half) kernel should start
-    uint32_t kernelPage = KERNEL_START >> 22U;
+    uint32_t kernelPage = Kernel::MemoryLayout::VIRT_KERNEL_START >> 22U;
     // size of a 4MB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
-    // Kernel::Multiboot::Structure::MemoryBlock* &blockMap = *VIRT2PHYS_VAR(Kernel::Multiboot::Structure::MemoryBlock**, Kernel::Multiboot::Structure::blockMap);
-    auto *blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (&Kernel::Multiboot::Structure::blockMap) - KERNEL_START);
+    auto *blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (&Kernel::Multiboot::Structure::blockMap) - Kernel::MemoryLayout::VIRT_KERNEL_START);
 
     uint32_t pageCount = 0;
     uint32_t blockMapIndex = 0;
     for (; blockMap[blockMapIndex].blockCount != 0; blockMapIndex++) {
         uint32_t startAddress = blockMap[blockMapIndex].startAddress;
-        // blockMap[blockMapIndex].virtualStartAddress = (kernelPage + pageCount) * bigPageSize;
-        blockMap[blockMapIndex].virtualStartAddress = KERNEL_START + startAddress;
+        blockMap[blockMapIndex].virtualStartAddress = Kernel::MemoryLayout::VIRT_KERNEL_START + startAddress;
 
         for (uint32_t j = 0; j < blockMap[blockMapIndex].blockCount; j++) {
             directory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
@@ -65,7 +63,7 @@ void Kernel::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
                 i = -1;
             } else {
                 pagingAreaPhysicalAddress = physicalAddress;
-                blockMap[i + 1] = { pagingAreaPhysicalAddress, VIRT_PAGE_MEM_START, 1, Kernel::Multiboot::Structure::PAGING_RESERVED };
+                blockMap[i + 1] = { pagingAreaPhysicalAddress, Kernel::MemoryLayout::VIRT_PAGE_MEM_START, 1, Kernel::Multiboot::Structure::PAGING_RESERVED };
             }
 
             blocksFound++;
@@ -79,6 +77,6 @@ void Kernel::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // calculate index to first virtual address of paging area memory
     // these first 4MB of the paging area are needed to set up the final 4KB paging,
     // so map the first (phys.) 4MB after the initial 4MB-heap to this address
-    uint32_t pagingAreaIndex = VIRT_PAGE_MEM_START / bigPageSize;
+    uint32_t pagingAreaIndex = Kernel::MemoryLayout::VIRT_PAGE_MEM_START / bigPageSize;
     directory[pagingAreaIndex] = (uint32_t) (pagingAreaPhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 }

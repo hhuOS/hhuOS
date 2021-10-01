@@ -23,12 +23,12 @@
 
 namespace Kernel {
 
-PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddress) : TableMemoryManager(*Management::getInstance().getPagingAreaManager(), startAddress, endAddress, PAGESIZE) {
+PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddress) : TableMemoryManager(*Management::getInstance().getPagingAreaManager(), startAddress, endAddress, Kernel::Paging::PAGESIZE) {
     // Reserve blocks already used by system image and initrd
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];
         uint32_t start = block.startAddress;
-        uint32_t end = start + block.blockCount * PAGESIZE * 1024 - 1;
+        uint32_t end = start + block.blockCount * Kernel::Paging::PAGESIZE * 1024 - 1;
 
         setMemory(start, end, 1, block.type == Multiboot::Structure::MULTIBOOT_RESERVED);
     }

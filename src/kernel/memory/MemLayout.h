@@ -25,50 +25,58 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
-// let kernel start at 3GB
-#define KERNEL_START 0xC0000000
+#include <cstdint>
 
-// start of virtual area for page tables and directories (3.5 GB)
-#define VIRT_PAGE_MEM_START (KERNEL_START + 0x1F400000)
-// end of virtual kernel memory for heap
-#define VIRT_KERNEL_HEAP_END (VIRT_PAGE_MEM_START)
-// start of virtual IO space
-#define VIRT_IO_START (KERNEL_START + 0x2EE00000)
-// end of virtual area for page tables and directories (the 4MB are for kernel stacks)
-#define VIRT_PAGE_MEM_END (VIRT_IO_START - 0x40000)
-#define VIRT_IO_END 0xFFFFFFFF
+namespace Kernel {
 
-// Cap for physical memory - I/O addresses above
-#define PHYS_MEM_CAP (0xEA600000)
+class MemoryLayout {
+    
+public:
 
-// begin of kernel code
-#define PHYS_SYS_CODE 0x100000
-#define VIRT_SYS_CODE (PHYS_SYS_CODE + KERNEL_START)
+    // let kernel start at 3GB
+    static const constexpr uint32_t VIRT_KERNEL_START = 0xC0000000;
+    static const constexpr uint32_t VIRT_MEM_END = 0xFFFFFFFF;
+    
+    // start of virtual area for page tables and directories (128 MB)
+    static const constexpr uint32_t VIRT_PAGE_MEM_START = 0xF8000000;
+    // end of virtual kernel memory for heap
+    static const constexpr uint32_t VIRT_KERNEL_HEAP_END = VIRT_PAGE_MEM_START;
+    // end of virtual area for page tables and directories
+    static const constexpr uint32_t VIRT_PAGE_MEM_END = VIRT_MEM_END;
+    
+    // begin of kernel code
+    static const constexpr uint32_t PHYS_SYS_CODE = 0x100000;
+    static const constexpr uint32_t VIRT_SYS_CODE = PHYS_SYS_CODE + VIRT_KERNEL_START;
+    
+    // start address of cga memory
+    static const constexpr uint32_t PHYS_CGA_START = 0xB8000;
+    static const constexpr uint32_t VIRT_CGA_START = PHYS_CGA_START + VIRT_KERNEL_START;
+    
+    // return address for bios calls
+    static const constexpr uint32_t PHYS_BIOS_RETURN_MEM = 0x9F000;
+    static const constexpr uint32_t VIRT_BIOS_RETURN_MEM = PHYS_BIOS_RETURN_MEM + VIRT_KERNEL_START;
+    
+    // Look into boot.asm for corresponding GDT-Entry
+    static const constexpr uint32_t PHYS_BIOS16_CODE_MEMORY_START = 0x4000;
+    static const constexpr uint32_t VIRT_BIOS16_CODE_MEMORY_START = PHYS_BIOS16_CODE_MEMORY_START + VIRT_KERNEL_START;
+    
+    // Parameter for BIOS-Calls
+    static const constexpr uint32_t PHYS_BIOS16_PARAM_BASE = 0x6000;
+    static const constexpr uint32_t VIRT_BIOS16_PARAM_BASE = PHYS_BIOS16_PARAM_BASE + VIRT_KERNEL_START;
+    
+    static const constexpr uint32_t ISA_DMA_START_ADDRESS = 0x00010000;
+    static const constexpr uint32_t ISA_DMA_END_ADDRESS = ISA_DMA_START_ADDRESS + 0x00080000;
 
-// start address of cga memory
-#define PHYS_CGA_START 0xB8000
-#define VIRT_CGA_START (PHYS_CGA_START + KERNEL_START)
+    static const constexpr uint32_t VIRT2PHYS(uint32_t address) {
+        return address - VIRT_KERNEL_START;
+    }
 
-// return address for bios calls
-#define PHYS_BIOS_RETURN_MEM 0x9F000
-#define VIRT_BIOS_RETURN_MEM (PHYS_BIOS_RETURN_MEM + KERNEL_START)
+    static const constexpr uint32_t PHYS2VIRT(uint32_t address) {
+        return address + VIRT_KERNEL_START;
+    }
+    
+};
 
-// Look into boot.asm for corresponding GDT-Entry
-#define PHYS_BIOS16_CODE_MEMORY_START 0x4000
-#define VIRT_BIOS16_CODE_MEMORY_START (PHYS_BIOS16_CODE_MEMORY_START + KERNEL_START)
-
-// Parameter for BIOS-Calls
-#define PHYS_BIOS16_PARAM_BASE 0x6000
-#define VIRT_BIOS16_PARAM_BASE (PHYS_BIOS16_PARAM_BASE + KERNEL_START)
-
-#define ISA_DMA_START_ADDRESS 0x00010000
-#define ISA_DMA_END_ADDRESS ISA_DMA_START_ADDRESS + 0x00080000
-
-// macros for address calculation
-#define VIRT2PHYS(x) ((x) - KERNEL_START)
-#define PHYS2VIRT(x) ((x) + KERNEL_START)
-
-#define VIRT2PHYS_VAR(type, x) (*(type*)(((uint8_t*) &x) - KERNEL_START))
-#define PHYS2VIRT_VAR(type, x) (*(type*)(((uint8_t*) &x) + KERNEL_START))
+}
 
 #endif

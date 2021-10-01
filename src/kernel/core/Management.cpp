@@ -113,7 +113,7 @@ void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t 
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
     // the normal descriptor should contain the virtual address of GDT
-    *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + KERNEL_START;
+    *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + Kernel::MemoryLayout::VIRT_KERNEL_START;
 
     // set up descriptor for GDT with phys. address - needed for bootstrapping
     *((uint16_t *) PhysicalGdtDescriptor) = 6 * 8;
@@ -184,7 +184,7 @@ void Management::trigger(InterruptFrame &frame) {
     }
 
     // Map the faulted Page
-    map(faultAddress, PAGE_PRESENT | PAGE_READ_WRITE);
+    map(faultAddress, Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE);
     // TODO: Check other Faults
 }
 
@@ -224,27 +224,27 @@ void Management::init() {
 
 void Management::map(uint32_t virtAddress, uint16_t flags) {
     // allocate a physical page frame where the page should be mapped
-    uint32_t physAddress = (uint32_t) pageFrameAllocator->alloc();
+    auto physAddress = (uint32_t) pageFrameAllocator->alloc();
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
 }
 
-void Management::map(uint32_t virtAddress, uint16_t flags, uint32_t physAddress) {
+void Management::mapPhysicalAddress(uint32_t virtAddress, uint32_t physAddress, uint16_t flags) {
     // map the page into the directory
     currentAddressSpace->getPageDirectory()->map(physAddress, virtAddress, flags);
 }
 
 /**
- * Range map function to map a range of virtual addresses into the current Page 
+ * Range mapPhysicalAddress function to mapRange a range of virtual addresses into the current Page
  * Directory .
  */
-void Management::map(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags) {
+void Management::mapRange(uint32_t virtStartAddress, uint32_t virtEndAddress, uint16_t flags) {
     // get 4KB-aligned start and end address
     uint32_t alignedStartAddress = virtStartAddress & 0xFFFFF000;
     uint32_t alignedEndAddress = virtEndAddress & 0xFFFFF000;
-    alignedEndAddress += (virtEndAddress % PAGESIZE == 0) ? 0 : PAGESIZE;
+    alignedEndAddress += (virtEndAddress % Kernel::Paging::PAGESIZE == 0) ? 0 : Kernel::Paging::PAGESIZE;
     // map all pages
-    for (uint32_t i = alignedStartAddress; i < alignedEndAddress; i += PAGESIZE) {
+    for (uint32_t i = alignedStartAddress; i < alignedEndAddress; i += Kernel::Paging::PAGESIZE) {
         map(i, flags);
     }
 }
@@ -286,10 +286,10 @@ uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
 
     // get aligned start and end address of the area to be freed
     uint32_t startVAddr = virtStartAddress & 0xFFFFF000;
-    startVAddr += ((virtStartAddress % PAGESIZE != 0) ? PAGESIZE : 0);
+    startVAddr += ((virtStartAddress % Kernel::Paging::PAGESIZE != 0) ? Kernel::Paging::PAGESIZE : 0);
     // calc start address of the last page we want to unmap
     uint32_t endVAddr = virtEndAddress & 0xFFFFF000;
-    endVAddr -= (((virtEndAddress + 1) % PAGESIZE != 0) ? PAGESIZE : 0);
+    endVAddr -= (((virtEndAddress + 1) % Kernel::Paging::PAGESIZE != 0) ? Kernel::Paging::PAGESIZE : 0);
 
     // check if an unmap is possible (the start and end address have to contain
     // at least one complete page)
@@ -297,14 +297,14 @@ uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
         return 0;
     }
     // amount of pages to be unmapped
-    uint32_t pageCnt = (endVAddr - startVAddr) / PAGESIZE + 1;
+    uint32_t pageCnt = (endVAddr - startVAddr) / Kernel::Paging::PAGESIZE + 1;
 
     // loop through the pages and unmap them
     uint32_t ret = 0;
     uint8_t cnt = 0;
     uint32_t i;
     for (i = 0; i < pageCnt; i++) {
-        ret = unmap(startVAddr + i * PAGESIZE);
+        ret = unmap(startVAddr + i * Kernel::Paging::PAGESIZE);
 
         if (!ret) {
             cnt++;
@@ -325,11 +325,11 @@ uint32_t Management::unmap(uint32_t virtStartAddress, uint32_t virtEndAddress) {
 
 void *Management::mapIO(uint32_t physAddress, uint32_t size) {
     // get amount of needed pages
-    uint32_t pageCnt = size / PAGESIZE;
-    pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
+    uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
+    pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
 
     // allocate 4KB-aligned virtual memory
-    void *virtStartAddress = Util::Memory::Management::alignedAlloc(pageCnt * PAGESIZE, PAGESIZE);
+    void *virtStartAddress = Util::Memory::Management::alignedAlloc(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
@@ -339,7 +339,7 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
     // map the allocated virtual IO memory to physical addresses
     for (uint32_t i = 0; i < pageCnt; i++) {
         // since the virtual memory is one block, we can update the virtual address this way
-        uint32_t virtAddress = (uint32_t) virtStartAddress + i * PAGESIZE;
+        uint32_t virtAddress = (uint32_t) virtStartAddress + i * Kernel::Paging::PAGESIZE;
 
         // if the virtual address is already mapped, we have to unmap it
         // this can happen because the headers of the free list are mapped
@@ -348,7 +348,9 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
         Management::getInstance().unmap(virtAddress);
         // map the page to given physical address
 
-        map(virtAddress, PAGE_PRESENT | PAGE_READ_WRITE | PAGE_NO_CACHING, physAddress + i * PAGESIZE);
+        mapPhysicalAddress(virtAddress, physAddress + i * Kernel::Paging::PAGESIZE,
+                           Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE |
+                           Kernel::Paging::PAGE_NO_CACHING);
     }
 
     return virtStartAddress;
@@ -356,8 +358,8 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
 
 void *Management::mapIO(uint32_t size) {
     // get amount of needed pages
-    uint32_t pageCnt = size / PAGESIZE;
-    pageCnt += (size % PAGESIZE == 0) ? 0 : 1;
+    uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
+    pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
 
     // allocate block of physical memory
     void *physStartAddress = pageFrameAllocator->alloc();
@@ -372,11 +374,11 @@ void *Management::mapIO(uint32_t size) {
             lastPhysAddress = currentPhysAddress;
             currentPhysAddress = pageFrameAllocator->allocAfterAddress(physStartAddress);
 
-            if (reinterpret_cast<uint32_t>(currentPhysAddress) - reinterpret_cast<uint32_t>(lastPhysAddress) != PAGESIZE) {
+            if (reinterpret_cast<uint32_t>(currentPhysAddress) - reinterpret_cast<uint32_t>(lastPhysAddress) != Kernel::Paging::PAGESIZE) {
                 contiguous = false;
 
                 for (uint32_t j = 0; j < i; j++) {
-                    pageFrameAllocator->free(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) + j * PAGESIZE));
+                    pageFrameAllocator->free(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) + j * Kernel::Paging::PAGESIZE));
                 }
 
                 physStartAddress = currentPhysAddress;
@@ -488,7 +490,7 @@ Management &Management::getInstance() noexcept {
 
             if (block.type == Multiboot::Structure::HEAP_RESERVED) {
                 static FreeListMemoryManager heapMemoryManager;
-                heapMemoryManager.initialize(block.virtualStartAddress, VIRT_KERNEL_HEAP_END);
+                heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::VIRT_KERNEL_HEAP_END);
                 // set the kernel heap memory manager to this manager
                 kernelMemoryManager = &heapMemoryManager;
                 // use the new memory manager to alloc memory for the instance of SystemManegement

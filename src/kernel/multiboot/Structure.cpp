@@ -121,15 +121,15 @@ void Structure::readMemoryMap(Info *address) {
 
     Info tmp = *address;
 
-    MemoryMapEntry *memory = (MemoryMapEntry *) ((uint32_t) customMemoryMap - KERNEL_START);
+    MemoryMapEntry *memory = (MemoryMapEntry *) ((uint32_t) customMemoryMap - Kernel::MemoryLayout::VIRT_KERNEL_START);
 
-    MemoryBlock *blocks = (MemoryBlock *) ((uint32_t) blockMap - KERNEL_START);
+    MemoryBlock *blocks = (MemoryBlock *) ((uint32_t) blockMap - Kernel::MemoryLayout::VIRT_KERNEL_START);
 
-    uint32_t &mapSize = *((uint32_t *) ((uint32_t) &customMemoryMapSize - KERNEL_START));
+    uint32_t &mapSize = *((uint32_t *) ((uint32_t) &customMemoryMapSize - Kernel::MemoryLayout::VIRT_KERNEL_START));
 
-    uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - KERNEL_START;
+    uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
 
-    uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - KERNEL_START;
+    uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
 
     memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED };
 
@@ -143,7 +143,7 @@ void Structure::readMemoryMap(Info *address) {
 
     uint32_t alignment = 4 * 1024 * 1024;
 
-    if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_ELF_SHDR)) {
+    if (tmp.flags & Kernel::MemoryLayout::VIRT2PHYS((uint32_t) &MULTIBOOT_INFO_ELF_SHDR)) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
@@ -154,8 +154,8 @@ void Structure::readMemoryMap(Info *address) {
                 continue;
             }
 
-            uint32_t startAddress = sectionHeader->virtualAddress < KERNEL_START ? sectionHeader->virtualAddress :
-                                    sectionHeader->virtualAddress - KERNEL_START;
+            uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::VIRT_KERNEL_START ? sectionHeader->virtualAddress :
+                                    sectionHeader->virtualAddress - Kernel::MemoryLayout::VIRT_KERNEL_START;
 
             uint64_t alignedAddress = (startAddress / alignment) * alignment;
             uint32_t blockCount = sectionHeader->size % alignment == 0 ? (sectionHeader->size / alignment) : (sectionHeader->size / alignment + 1);
@@ -168,7 +168,7 @@ void Structure::readMemoryMap(Info *address) {
         }
     }
 
-    if (tmp.flags & *VIRT2PHYS(&MULTIBOOT_INFO_MODS)) {
+    if (tmp.flags & Kernel::MemoryLayout::VIRT2PHYS((uint32_t) &MULTIBOOT_INFO_MODS)) {
 
         auto *modInfo = (ModuleInfo *) tmp.moduleAddress;
 
@@ -206,10 +206,10 @@ void Structure::readMemoryMap(Info *address) {
     blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), 0, memory[0].size, MULTIBOOT_RESERVED};
 
     for (uint32_t i = 1; i < memoryIndex; i++) {
-        if (memory[i].address > blocks[blockIndex].startAddress + (blocks[blockIndex].blockCount + 1) * PAGESIZE * 1024) {
+        if (memory[i].address > blocks[blockIndex].startAddress + (blocks[blockIndex].blockCount + 1) * Kernel::Paging::PAGESIZE * 1024) {
             blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), 0, memory[i].size, MULTIBOOT_RESERVED};
-        } else if (memory[i].address + memory[i].size * PAGESIZE * 1024 > blocks[blockIndex].startAddress + blocks[blockIndex].blockCount * PAGESIZE * 1024) {
-            blocks[blockIndex].blockCount = ((memory[i].address + memory[i].size * PAGESIZE * 1024) - blocks[blockIndex].startAddress) / (PAGESIZE * 1024);
+        } else if (memory[i].address + memory[i].size * Kernel::Paging::PAGESIZE * 1024 > blocks[blockIndex].startAddress + blocks[blockIndex].blockCount * Kernel::Paging::PAGESIZE * 1024) {
+            blocks[blockIndex].blockCount = ((memory[i].address + memory[i].size * Kernel::Paging::PAGESIZE * 1024) - blocks[blockIndex].startAddress) / (Kernel::Paging::PAGESIZE * 1024);
         }
     }
 }
@@ -236,7 +236,7 @@ void Structure::parseCommandLine() {
 
     if (info.flags & MULTIBOOT_INFO_CMDLINE) {
 
-        info.commandLine += KERNEL_START;
+        info.commandLine += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
         Util::Data::Array<Util::Memory::String> options = Util::Memory::String((char *) info.commandLine).split(" ");
 
@@ -258,7 +258,7 @@ void Structure::parseMemoryMap() {
 
     if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
 
-        MemoryMapEntry *entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
+        MemoryMapEntry *entry = (MemoryMapEntry *) (info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
 
         uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
@@ -283,7 +283,7 @@ Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
         return Util::Data::Array<MemoryMapEntry>(0);
     }
 
-    auto entry = (MemoryMapEntry *) (info.memoryMapAddress + KERNEL_START);
+    auto entry = (MemoryMapEntry *) (info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
 
     uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
@@ -304,7 +304,7 @@ void Structure::parseSymbols() {
 
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
 
-        info.symbols.elf.address += KERNEL_START;
+        info.symbols.elf.address += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
         Symbols::initialize(info.symbols.elf);
     }
@@ -314,17 +314,17 @@ void Structure::parseModules() {
 
     if (info.flags & MULTIBOOT_INFO_MODS) {
 
-        info.moduleAddress += KERNEL_START;
+        info.moduleAddress += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
         ModuleInfo *modInfo = (ModuleInfo *) info.moduleAddress;
 
         for (uint32_t i = 0; i < info.moduleCount; i++) {
 
-            modInfo[i].string += KERNEL_START;
+            modInfo[i].string += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
-            modInfo[i].start += KERNEL_START;
+            modInfo[i].start += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
-            modInfo[i].end += KERNEL_START;
+            modInfo[i].end += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
             modules.put(modInfo->string, *modInfo);
         }

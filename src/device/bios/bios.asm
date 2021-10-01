@@ -63,13 +63,13 @@ skip_stack_switch:
 
 	; Load special 4MB page directory for bios calls
 	; Only important parts are mapped here
-	mov ecx, (bios_page_directory - KERNEL_START)
+	mov ecx, (bios_page_directory - VIRT_KERNEL_START)
     mov cr3, ecx
 
 	; Jump to low address because paging will be disabled
 	; The kernel should be mapped at 0 and 3GB with bios page directory
 	; This is a necessary step, otherwise the eip points to the wrong address
-    lea ecx, [bios_call_2 - KERNEL_START]
+    lea ecx, [bios_call_2 - VIRT_KERNEL_START]
     jmp ecx
 
 bios_call_2:
@@ -81,15 +81,15 @@ bios_call_2:
     mov ecx, cr3
     mov cr3, ecx
 	; Load gdt for bios calls (with low/physical addresses)
-    lgdt [gdt_bios_descriptor - KERNEL_START]
+    lgdt [gdt_bios_descriptor - VIRT_KERNEL_START]
 
 	; Shift values of esp and ebp to low addresses, because paging is disabled
     mov ecx, esp
-    sub ecx, KERNEL_START
+    sub ecx, VIRT_KERNEL_START
     mov esp, ecx
 
     mov ecx, ebp
-    sub ecx, KERNEL_START
+    sub ecx, VIRT_KERNEL_START
     mov ebp, ecx
 
 	; Jump into bios segment
@@ -109,11 +109,11 @@ bios_call_2:
 bios_call_3:
 	; Shift values of esp and ebp to high addresses, because paging is enabled
     mov ecx, esp
-    add ecx, KERNEL_START
+    add ecx, VIRT_KERNEL_START
     mov esp, ecx
 
     mov ecx, ebp
-    add ecx, KERNEL_START
+    add ecx, VIRT_KERNEL_START
     mov ebp, ecx
 
 	; Load page table of process and enable 4KB paging

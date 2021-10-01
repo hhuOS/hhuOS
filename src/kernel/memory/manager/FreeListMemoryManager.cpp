@@ -231,7 +231,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     FreeListHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
-    if (mergedHeader->size >= PAGESIZE && Management::isInitialized()) {
+    if (mergedHeader->size >= Kernel::Paging::PAGESIZE && Management::isInitialized()) {
         auto addr = (uint32_t) mergedHeader;
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 

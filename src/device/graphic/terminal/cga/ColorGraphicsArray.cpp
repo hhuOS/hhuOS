@@ -4,7 +4,7 @@
 namespace Device::Graphic {
 
 ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Terminal(columns, rows),
-        cgaMemory(VIRT_CGA_START, columns * rows * BYTES_PER_CHARACTER), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
+        cgaMemory(Kernel::MemoryLayout::VIRT_CGA_START, columns * rows * BYTES_PER_CHARACTER), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
     ColorGraphicsArray::clear(Util::Graphic::Colors::BLACK);
 
     // Set cursor shape

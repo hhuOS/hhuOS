@@ -5,8 +5,8 @@
 
 namespace Device::Graphic {
 
-const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS(PHYS_BIOS_RETURN_MEM);
-const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS(BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS.get() + KERNEL_START);
+const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS(Kernel::MemoryLayout::PHYS_BIOS_RETURN_MEM);
+const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS(BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS.get() + Kernel::MemoryLayout::VIRT_KERNEL_START);
 
 VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
     if (prototypeInstance) {
@@ -16,15 +16,15 @@ VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
     auto vbeInfo = getVbeInfo();
 
     // Get vendor name, device name and memory size
-    const char *vendorNameAddress = reinterpret_cast<const char*>(PHYS2VIRT((vbeInfo->vendor[1] << 4) + vbeInfo->vendor[0]));
-    const char *deviceNameAddress = reinterpret_cast<const char*>(PHYS2VIRT((vbeInfo->product_name[1] << 4) + vbeInfo->product_name[0]));
+    const char *vendorNameAddress = reinterpret_cast<const char*>(Kernel::MemoryLayout::PHYS2VIRT((vbeInfo->vendor[1] << 4) + vbeInfo->vendor[0]));
+    const char *deviceNameAddress = reinterpret_cast<const char*>(Kernel::MemoryLayout::PHYS2VIRT((vbeInfo->product_name[1] << 4) + vbeInfo->product_name[0]));
 
     vendorName = vendorNameAddress == nullptr ? LinearFrameBufferProvider::getVendorName() : vendorNameAddress;
     deviceName = deviceNameAddress == nullptr ? LinearFrameBufferProvider::getDeviceName() : deviceNameAddress;
     memorySize = vbeInfo->video_memory * 65536;
 
     // Get available resolutions
-    auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + KERNEL_START);
+    auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + Kernel::MemoryLayout::VIRT_KERNEL_START);
 
     // Calculate amount of modes
     uint32_t modeCount;

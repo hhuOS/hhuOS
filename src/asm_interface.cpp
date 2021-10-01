@@ -69,7 +69,7 @@ void finish_system() {
 }
 
 void bootstrap_paging(uint32_t *directory, uint32_t *biosDirectory) {
-    Kernel::bootstrapPaging(directory, biosDirectory);
+    Kernel::Paging::bootstrapPaging(directory, biosDirectory);
 }
 
 void enable_interrupts() {
