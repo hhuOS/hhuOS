@@ -55,6 +55,7 @@ public:
         FPU = 45,
         PRIMARY_ATA = 46,
         SECONDARY_ATA = 47,
+        SYSTEM_CALL = 128
     };
 
     /**

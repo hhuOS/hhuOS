@@ -36,6 +36,7 @@ namespace Kernel {
 TaskStateSegment Management::taskStateSegment{};
 Management *Management::systemManagement = nullptr;
 HeapMemoryManager *Management::kernelMemoryManager = nullptr;
+SystemCall Management::systemCall{};
 Logger Management::log = Logger::get("Management");
 bool Management::initialized = false;
 bool Management::kernelMode = true;
@@ -67,6 +68,9 @@ void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     } else {
         Device::Pit::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), Util::Time::Timestamp(0, 1000000000));
     }
+
+    log.info("Enabling system calls");
+    systemCall.plugin();
 
     log.info("Parsing multiboot structure");
     // Parse multiboot structure

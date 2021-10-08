@@ -25,6 +25,7 @@
 #include "kernel/memory/VirtualAddressSpace.h"
 #include "TaskStateSegment.h"
 #include "Symbols.h"
+#include "SystemCall.h"
 
 namespace Kernel {
 
@@ -66,6 +67,8 @@ private:
 
     // is true if system runs in kernel mode (TODO: user mode needs to be implemented)
     static bool kernelMode;
+
+    static SystemCall systemCall;
     static Management *systemManagement;
     static HeapMemoryManager *kernelMemoryManager;
     static Logger log; // Use only after _init() has finished!

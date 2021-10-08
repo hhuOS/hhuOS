@@ -15,36 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-namespace Kernel {
+#include <cstdarg>
+#include "SystemCall.h"
 
-struct TaskStateSegment {
-    uint32_t prev_tss;
-    uint32_t esp0;      // Points to kernel stack
-    uint32_t ss0;       // Points to segment used by kernel stack
-    uint32_t esp1;
-    uint32_t ss1;
-    uint32_t esp2;
-    uint32_t ss2;
-    uint32_t cr3;
-    uint32_t eip;
-    uint32_t eflags;
-    uint32_t eax;
-    uint32_t ecx;
-    uint32_t edx;
-    uint32_t ebx;
-    uint32_t esp;
-    uint32_t ebp;
-    uint32_t esi;
-    uint32_t edi;
-    uint32_t es;
-    uint32_t cs;
-    uint32_t ss;
-    uint32_t ds;
-    uint32_t fs;
-    uint32_t gs;
-    uint32_t ldt;
-    uint16_t trap;
-    uint16_t iomap_base;
-} __attribute__((packed));
+namespace Util::System {
+
+SystemCall::Result SystemCall::execute(SystemCall::Code code, uint32_t paramCount, ...) {
+    Result result;
+    execute(code, result, paramCount);
+
+    return result;
+}
+
+void SystemCall::execute(Code code, Result &result, uint32_t paramCount, ...) {
+    va_list args;
+    va_start(args, paramCount);
+
+    auto eaxValue = static_cast<uint32_t>(code | (paramCount << 16u));
+    auto ebxValue = reinterpret_cast<uint32_t>(args);
+    auto ecxValue = reinterpret_cast<uint32_t>(&result);
+
+    asm volatile (
+    "movl %0, %%eax;"
+    "movl %1, %%ebx;"
+    "movl %2, %%ecx;"
+    "int $0x80;"
+    : :
+    "r"(eaxValue),
+    "r"(ebxValue),
+    "r"(ecxValue));
+
+    va_end(args);
+}
 
 }

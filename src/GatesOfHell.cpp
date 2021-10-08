@@ -40,6 +40,7 @@
 #include <lib/util/graphic/Ansi.h>
 #include <device/graphic/terminal/TerminalNode.h>
 #include <lib/util/stream/FileOutputStream.h>
+#include <kernel/core/SystemCall.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -97,6 +98,12 @@ void GatesOfHell::enter() {
     if (Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
         colorTest(writer);
     }
+
+    Kernel::SystemCall::registerSystemCall(Util::System::SystemCall::SYSTEM_CALL_TEST, [](uint32_t paramCount, va_list params) -> Util::System::SystemCall::Result {
+        return Util::System::SystemCall::OK;
+    });
+
+    const auto result = Util::System::SystemCall::execute(Util::System::SystemCall::SYSTEM_CALL_TEST, 0);
 
     writer << "> " << Util::Stream::PrintWriter::flush;
 
