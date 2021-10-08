@@ -231,7 +231,6 @@ void GatesOfHell::printBanner() {
     if (!bannerFile.exists()) {
         printDefaultBanner(writer);
     } else {
-        auto *bannerData = new uint8_t[bannerFile.getLength()];
         auto bannerStream = Util::Stream::FileInputStream(bannerFile);
         auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
         auto bufferedReader = Util::Stream::BufferedReader(bannerReader);
@@ -246,8 +245,6 @@ void GatesOfHell::printBanner() {
         writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
         printBannerLine(writer, bufferedReader);
         writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
-
-        delete[] bannerData;
     }
 }
 

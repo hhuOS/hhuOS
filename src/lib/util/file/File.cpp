@@ -48,7 +48,7 @@ bool File::isDirectory() const {
 
 uint32_t File::File::getLength() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0 ? 0 : getFileLength(fileDescriptor);
+    auto ret = fileDescriptor < 0 ? 0 : getFileLength(fileDescriptor);
 
     closeFile(fileDescriptor);
     return ret;

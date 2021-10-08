@@ -18,4 +18,6 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/file/File.cpp
+        ${HHUOS_SRC_DIR}/lib/util/file/elf/Constants.cpp
+        ${HHUOS_SRC_DIR}/lib/util/file/elf/File.cpp
         ${HHUOS_SRC_DIR}/lib/util/file/tar/Archive.cpp)

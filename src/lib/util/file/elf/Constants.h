@@ -30,7 +30,7 @@ typedef uint16_t    elf32_half;
 /**
  * @author Filip Krakowski
  */
-namespace Elf::Constants {
+namespace Util::File::Elf::Constants {
 
 enum class ElfType : elf32_half {
     NONE                   = 0x00,

@@ -139,7 +139,7 @@ void Structure::readMemoryMap(Info *address) {
 
     ElfInfo &symbolInfo = tmp.symbols.elf;
 
-    Elf::Constants::SectionHeader *sectionHeader = nullptr;
+    Util::File::Elf::Constants::SectionHeader *sectionHeader = nullptr;
 
     uint32_t alignment = 4 * 1024 * 1024;
 
@@ -147,7 +147,7 @@ void Structure::readMemoryMap(Info *address) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
-            sectionHeader = (Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
+            sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
             if (sectionHeader->virtualAddress == 0x0) {
 

@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ElfConstants.h"
+#include "Constants.h"
 
-namespace Elf::Constants {
+namespace Util::File::Elf::Constants {
 
 bool FileHeader::isValid() {
     if (magic[0] != 0x7F ||

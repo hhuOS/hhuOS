@@ -22,7 +22,7 @@
 #include "lib/util/memory/String.h"
 #include "lib/util/data/HashMap.h"
 #include "kernel/multiboot/Constants.h"
-#include "lib/util/elf/ElfConstants.h"
+#include "lib/util/file/elf/Constants.h"
 
 namespace Kernel {
 
@@ -82,7 +82,7 @@ private:
 
     static bool initialized;
 
-    static void load(const Elf::Constants::SectionHeader &sectionHeader);
+    static void load(const Util::File::Elf::Constants::SectionHeader &sectionHeader);
 
     static const constexpr char *NO_INFORMATION = "<no information>";
 
