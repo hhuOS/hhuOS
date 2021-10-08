@@ -31,6 +31,7 @@ void freeMemory(void *pointer, uint32_t alignment);
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 bool createFile(const Util::Memory::String &path, Util::File::Type type);
+bool deleteFile(const Util::Memory::String &path);
 int32_t openFile(const Util::Memory::String &path);
 void closeFile(int32_t fileDescriptor);
 Util::File::Type getFileType(int32_t fileDescriptor);

@@ -41,6 +41,10 @@ bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 
+bool deleteFile(const Util::Memory::String &path) {
+    return false;
+}
+
 int32_t openFile(const Util::Memory::String &path) {
     return -1;
 }

@@ -1,4 +1,6 @@
 #include <kernel/core/Management.h>
+#include <kernel/core/System.h>
+#include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "MultibootLinearFrameBufferProvider.h"
 #include "Structure.h"
 
@@ -13,18 +15,20 @@ bool MultibootLinearFrameBufferProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_RGB && frameBufferInfo.bpp >= 15;
 }
 
-Util::Graphic::LinearFrameBuffer& MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(MultibootLinearFrameBufferProvider::ModeInfo &modeInfo) {
+bool MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
     }
 
     // Map frame buffer into IO memory
     auto frameBuffer = Kernel::Management::getInstance().mapIO(frameBufferInfo.address, frameBufferInfo.pitch * frameBufferInfo.height);
-    return *new Util::Graphic::LinearFrameBuffer(frameBuffer, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
-}
 
-void MultibootLinearFrameBufferProvider::destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) {
-    delete &lfb;
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, reinterpret_cast<uint32_t>(frameBuffer),
+        frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
+    return driver.addNode("/", lfbNode);
 }
 
 Util::Data::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {

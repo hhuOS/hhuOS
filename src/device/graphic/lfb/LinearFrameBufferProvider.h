@@ -82,14 +82,7 @@ public:
      * @param modeInfo Information about the desired frame buffer resolution
      * @return A pointer to the linear frame buffer
      */
-    virtual Util::Graphic::LinearFrameBuffer& initializeLinearFrameBuffer(ModeInfo &modeInfo) = 0;
-
-    /**
-     * Destroy a linear frame buffer, that has been created by initializeLinearFrameBuffer.
-     *
-     * @param lfb The linear frame buffer
-     */
-    virtual void destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) = 0;
+    virtual bool initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
 
     /**
      * Get all available graphics modes.

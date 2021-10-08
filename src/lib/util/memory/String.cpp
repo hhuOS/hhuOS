@@ -336,6 +336,10 @@ String::operator char *() const {
     return buffer;
 }
 
+String::operator const char *() const {
+    return buffer;
+}
+
 char String::operator[](uint32_t index) const {
     return buffer[index];
 }

@@ -111,6 +111,8 @@ public:
 
     explicit operator char *() const;
 
+    explicit operator const char *() const;
+
     explicit operator uint32_t() const;
 
 private:

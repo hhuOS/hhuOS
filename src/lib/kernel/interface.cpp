@@ -56,6 +56,11 @@ bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return false;
 }
 
+bool deleteFile(const Util::Memory::String &path) {
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    return filesystem.deleteFile(path);
+}
+
 int32_t openFile(const Util::Memory::String &path) {
     return Kernel::System::getService<Kernel::FilesystemService>()->openFile(path);
 }

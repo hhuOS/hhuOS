@@ -17,6 +17,7 @@
 cmake_minimum_required(VERSION 3.7)
  
 target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/graphic/lfb/LinearFrameBufferNode.cpp
         ${HHUOS_SRC_DIR}/device/graphic/lfb/LinearFrameBufferProvider.cpp
         ${HHUOS_SRC_DIR}/device/graphic/lfb/vesa/VesaBiosExtensions.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/TerminalNode.cpp

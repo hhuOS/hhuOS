@@ -86,4 +86,8 @@ bool File::create(Type fileType) const {
     return createFile(path, fileType);
 }
 
+bool File::remove() const {
+    return deleteFile(path);
+}
+
 }

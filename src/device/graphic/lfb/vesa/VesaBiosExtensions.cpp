@@ -1,6 +1,8 @@
 #include <device/bios/Bios.h>
 #include <kernel/memory/MemLayout.h>
 #include <kernel/core/Management.h>
+#include <kernel/core/System.h>
+#include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "VesaBiosExtensions.h"
 
 namespace Device::Graphic {
@@ -78,7 +80,7 @@ bool VesaBiosExtensions::isAvailable() {
     return signature.compareString(Util::Memory::Address<uint32_t>(VESA_SIGNATURE)) == 0;
 }
 
-Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffer(LinearFrameBufferProvider::ModeInfo &modeInfo) {
+bool VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VBE is not available on this machine!");
     }
@@ -89,12 +91,12 @@ Util::Graphic::LinearFrameBuffer& VesaBiosExtensions::initializeLinearFrameBuffe
 
     // Map frame buffer into IO memory
     auto frameBuffer = Kernel::Management::getInstance().mapIO(vbeModeInfo->physbase, static_cast<uint32_t>(vbeModeInfo->pitch * vbeModeInfo->Yres));
-    return *new Util::Graphic::LinearFrameBuffer(frameBuffer, vbeModeInfo->Xres, vbeModeInfo->Yres, vbeModeInfo->bpp, vbeModeInfo->pitch);
-}
 
-void VesaBiosExtensions::destroyLinearFrameBuffer(Util::Graphic::LinearFrameBuffer &lfb) {
-    Kernel::Management::getInstance().freeIO(reinterpret_cast<void*>(lfb.getBuffer().get()));
-    delete &lfb;
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *lfbNode = new LinearFrameBufferNode(filename, reinterpret_cast<uint32_t>(frameBuffer), vbeModeInfo->Xres, vbeModeInfo->Yres, vbeModeInfo->bpp, vbeModeInfo->pitch);
+    return driver.addNode("/", lfbNode);
 }
 
 Util::Data::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {

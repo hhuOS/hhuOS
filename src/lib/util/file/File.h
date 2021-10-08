@@ -66,6 +66,8 @@ public:
 
     [[nodiscard]] bool create(Type fileType) const;
 
+    [[nodiscard]] bool remove() const;
+
     static constexpr const char *SEPARATOR = "/";
 
 private:
