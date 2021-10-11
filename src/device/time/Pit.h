@@ -33,7 +33,7 @@ public:
      *
      * @param timerInterval The interval, at which the PIT shall trigger interrupts.
      */
-    explicit Pit(uint16_t interruptRateDivisor = 1194);
+    explicit Pit(uint16_t interruptRateDivisor = 1194, uint32_t yieldInterval = 10);
 
     /**
      * Copy constructor.
@@ -76,6 +76,7 @@ private:
 
     Util::Time::Timestamp time{};
     uint32_t timerInterval = 0;
+    uint32_t yieldInterval;
 
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);

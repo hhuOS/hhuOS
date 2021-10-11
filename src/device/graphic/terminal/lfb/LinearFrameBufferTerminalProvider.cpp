@@ -97,11 +97,11 @@ bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
         i = currentChar;
     }
 
-    uint32_t address = Util::Memory::String::parseInt(reinterpret_cast<const char *>(addressBuffer));
-    uint16_t resolutionX = Util::Memory::String::parseInt(reinterpret_cast<const char *>(xBuffer));
-    uint16_t resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char *>(yBuffer));
-    uint16_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char *>(bppBuffer));
-    uint16_t pitch = Util::Memory::String::parseInt(reinterpret_cast<const char *>(pitchBuffer));
+    uint32_t address = Util::Memory::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
+    uint16_t resolutionX = Util::Memory::String::parseInt(reinterpret_cast<const char*>(xBuffer));
+    uint16_t resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
+    uint16_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
+    uint16_t pitch = Util::Memory::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
 
     Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(address, resolutionX, resolutionY, colorDepth, pitch), font, cursor);
 

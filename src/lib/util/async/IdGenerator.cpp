@@ -15,44 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#include "Atomic.h"
+#include "IdGenerator.h"
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+namespace Util::Async {
 
-namespace Kernel {
-
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
-
-public:
-    /**
-     * Constructor.
-     */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
-
-    /**
-     * Copy constructor.
-     */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PagingAreaManagerRefillRunnable() override = default;
-
-    void run() override;
-
-private:
-
-    PagingAreaManager &pagingAreaManager;
-};
-
+template<typename T>
+T IdGenerator<T>::next() {
+    return Atomic<T>(idCounter).fetchAndInc();
 }
 
-#endif
+}

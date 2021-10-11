@@ -23,11 +23,11 @@ namespace Kernel {
 
 JobService::JobService(JobExecutor &lowPriorityExecutor, JobExecutor &highPriorityExecutor) : lowPriorityExecutor(lowPriorityExecutor), highPriorityExecutor(highPriorityExecutor) {}
 
-Job::Id JobService::registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval) {
+Job::Id JobService::registerJob(Util::Async::Runnable *runnable, Job::Priority priority, Util::Time::Timestamp interval) {
     return registerJob(runnable, priority, interval, -1);
 }
 
-Job::Id JobService::registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions) {
+Job::Id JobService::registerJob(Util::Async::Runnable *runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions) {
     if (priority == Job::Priority::LOW) {
         return lowPriorityExecutor.registerJob(runnable, interval, repetitions);
     } else {

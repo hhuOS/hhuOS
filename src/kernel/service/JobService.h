@@ -46,9 +46,9 @@ public:
      */
     ~JobService() override = default;
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval);
+    Job::Id registerJob(Util::Async::Runnable *runnable, Job::Priority priority, Util::Time::Timestamp interval);
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions);
+    Job::Id registerJob(Util::Async::Runnable *runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions);
 
     static const constexpr uint8_t SERVICE_ID = 1;
 

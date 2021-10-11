@@ -16,6 +16,7 @@
  */
 
 #include <cstdint>
+#include "kernel/process/ThreadState.h"
 
 // Import asm variables
 extern const uint32_t ___WRITE_PROTECTED_START__;
@@ -29,6 +30,9 @@ extern "C" {
 void load_page_directory(uint32_t*);
 void enable_system_paging();
 void bios_call();
+void interrupt_return();
+void start_first_thread(Kernel::Context *thread);
+void switch_context(Kernel::Context **current, Kernel::Context **next);
 [[noreturn]] void on_exception(uint32_t);
 [[nodiscard]] int32_t is_cpuid_available();
 void _init();

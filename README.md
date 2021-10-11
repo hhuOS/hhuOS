@@ -56,7 +56,7 @@ hhuOS is able to boot on BIOS- as well as UEFI-based systems. To test both confi
 
 ### UEFI
 
-We use the [EDK2 OVMF](https://github.com/tianocore/edk2/tree/master/OvmfPkg) image to test hhuOS. The run script expects this image to be located at `/usr/share/ovmf/ia32/OVMF.fd`, but this can be adapted by setting the `OVMF` environment variable.
+We use the [EDK2 OVMF](https://github.com/tianocore/edk2/tree/master/OvmfPkg) image to test hhuOS. The run script automatically downloads the latest version from the [Arch Linux Repositories](https://archlinux.org/packages/extra/any/edk2-ovmf/download).
 
 ### BIOS
 
@@ -65,7 +65,7 @@ Since towboot only supports UEFI-based systems, GRUB is needed to test hhuOS on 
 To run hhuOS with GRUB on a BIOS-based machine, use:
 
 ```sh
-./run.sh --file hhuOS.iso --bios bios
+./run.sh --file hhuOS.iso --bios true
 ```
 
 ## Kernel parameters
@@ -79,3 +79,4 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 - `headless_com_port` is used to enable headless mode via a serial port. All graphical output will be disabled and the system is controllable via the serial port. Valid values are `COM1`, `COM2`, `COM3` and `COM4`.
 - `color_test` can be set to `true` to run a short demonstration of the support for ANSI color codes at startup.
 - `log_filesystem` can be set to `true` to log the full filesystem tree at startup.
+- `test_thread` can be set to `true` to start an additional thread, which logs a message each second. This is useful for validating that basic multi-threading is working.

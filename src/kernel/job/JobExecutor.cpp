@@ -47,11 +47,11 @@ void JobExecutor::executePendingJobs() {
     executionLock.release();
 }
 
-Job::Id JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval) {
+Job::Id JobExecutor::registerJob(Util::Async::Runnable *runnable, Util::Time::Timestamp interval) {
     return registerJob(runnable, interval, -1);
 }
 
-Job::Id JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) {
+Job::Id JobExecutor::registerJob(Util::Async::Runnable *runnable, Util::Time::Timestamp interval, int32_t repetitions) {
     auto *job = new Job(runnable, interval, repetitions);
     jobs.add(job);
     return job->getId();

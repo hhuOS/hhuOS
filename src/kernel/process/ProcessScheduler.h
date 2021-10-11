@@ -15,42 +15,75 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#ifndef HHUOS_PROCESSSCHEDULER_H
+#define HHUOS_PROCESSSCHEDULER_H
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+#include "Process.h"
 
 namespace Kernel {
 
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
+class ProcessScheduler {
+
+    friend class SchedulerService;
+    friend class ThreadScheduler;
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
+    ProcessScheduler() = default;
 
     /**
      * Copy constructor.
      */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
+    ProcessScheduler(const ProcessScheduler &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
+    ProcessScheduler &operator=(const ProcessScheduler &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PagingAreaManagerRefillRunnable() override = default;
+    ~ProcessScheduler() = default;
 
-    void run() override;
+    void setInitialized();
+
+    [[nodiscard]] uint32_t isInitialized() const;
+
+    void start();
+
+    void ready(Process &process);
+
+    void exit();
+
+    void kill(Process &process);
+
+    void yield();
+
+    bool isProcessWaiting();
+
+    Process &getCurrentProcess();
+
+    uint32_t getProcessCount();
+
+    uint32_t getThreadCount();
 
 private:
 
-    PagingAreaManager &pagingAreaManager;
+    Process& getNextProcess();
+
+    void forceYield();
+
+    void yieldFromThreadScheduler(bool tryLock);
+
+    void dispatch(Process &next, bool tryLock);
+
+    uint32_t initialized = 0;
+    Util::Async::Spinlock lock;
+    Process *currentProcess = nullptr;
+    Util::Data::ArrayBlockingQueue<Process*> processQueue;
 };
 
 }

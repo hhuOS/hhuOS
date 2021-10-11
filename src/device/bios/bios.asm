@@ -39,7 +39,7 @@ bios_call:
     pushfd
     pushad
 
-	; Check if scheduler is started (we have to switch the stack then,
+	; Check if threadScheduler is started (we have to switch the stack then,
 	; because bios calls expect the stack to be placed at 4MB)
     mov ebx, [scheduler_initialized]
     cmp ebx, 0
@@ -122,7 +122,7 @@ bios_call_3:
     pop ecx
     mov cr3, ecx
 
-	; Check if scheduler is active -> old stack has to be restored then
+	; Check if threadScheduler is active -> old stack has to be restored then
     mov ebx, [scheduler_initialized]
     cmp ebx, 0
     je  skip_stack_switch_2
@@ -142,7 +142,7 @@ skip_stack_switch_2:
     ret
 
 
-; Is called when scheduler starts
+; Is called when threadScheduler starts
 set_scheduler_initialized:
     mov dword [scheduler_initialized], 0x1
     ret
@@ -154,6 +154,6 @@ real_mode_idt_descriptor:
     dw	1024 ; idt contains max. 1024 entries
     dd	0    ; address 0
 
-; Indicates whether the scheduler has been started
+; Indicates whether the threadScheduler has been started
 scheduler_initialized:
     dw 0

@@ -46,7 +46,7 @@ void ColorGraphicsArray::putChar(char c, const Util::Graphic::Color &foregroundC
 
 void ColorGraphicsArray::clear(const Util::Graphic::Color &backgroundColor) {
     for (uint32_t i = 0; i < getRows() * getColumns(); i++) {
-        cgaMemory.setShort(0x000f);
+        cgaMemory.setShort(0x0700, i * 2);
     }
 
     currentRow = 0;
@@ -84,7 +84,7 @@ void ColorGraphicsArray::scrollUp() {
     // Clear last row
     auto clear = cgaMemory.add(columns * (rows - 1) * BYTES_PER_CHARACTER);
     for (uint32_t i = 0; i < getColumns(); i++) {
-        clear.add(i * 2).setShort(0x000f);
+        clear.setShort(0x0700, i * 2);
     }
 }
 

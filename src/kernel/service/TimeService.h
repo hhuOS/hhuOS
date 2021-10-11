@@ -52,7 +52,7 @@ public:
 
     void setCurrentDate(const Util::Time::Date &date);
 
-    static const constexpr uint8_t SERVICE_ID = 3;
+    static const constexpr uint8_t SERVICE_ID = 4;
 
 private:
 

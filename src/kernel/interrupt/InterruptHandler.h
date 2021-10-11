@@ -18,7 +18,7 @@
 #ifndef __InterruptHandler_include__
 #define __InterruptHandler_include__
 
-#include "kernel/thread/ThreadState.h"
+#include "kernel/process/ThreadState.h"
 
 namespace Kernel {
 

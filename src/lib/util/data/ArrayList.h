@@ -79,8 +79,6 @@ public:
 
     [[nodiscard]] Array<T> toArray() const override;
 
-    [[nodiscard]] T *getArray();
-
 private:
 
     void ensureCapacity(uint32_t newCapacity) override;
@@ -208,7 +206,7 @@ bool ArrayList<T>::removeAll(const Collection<T> &other) {
 template <class T>
 uint32_t ArrayList<T>::indexOf(const T &element) const {
     uint32_t index;
-    for (index = 0; elements[index] != element && index < length; index++) {}
+    for (index = 0; index < length && elements[index] != element; index++) {}
 
     return index == length ? UINT32_MAX : index;
 }
@@ -298,11 +296,6 @@ Array<T> ArrayList<T>::toArray() const {
     }
 
     return array;
-}
-
-template <class T>
-T *ArrayList<T>::getArray() {
-    return elements;
 }
 
 }

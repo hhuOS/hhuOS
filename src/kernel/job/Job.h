@@ -44,7 +44,7 @@ public:
 
     Job() = default;
 
-    Job(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions = -1);
+    Job(Util::Async::Runnable *runnable, Util::Time::Timestamp interval, int32_t repetitions = -1);
 
     /**
      * Copy constructor.
@@ -59,7 +59,7 @@ public:
     /**
      * Destructor.
      */
-    ~Job() = default;
+    ~Job();
 
     void advanceTime(Util::Time::Timestamp elapsedTime);
 

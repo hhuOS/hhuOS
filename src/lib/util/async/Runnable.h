@@ -41,7 +41,7 @@ public:
     /**
      * Destructor.
      */
-    ~Runnable() = default;
+    virtual ~Runnable() = default;
 
     virtual void run() = 0;
 

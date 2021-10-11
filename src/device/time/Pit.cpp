@@ -18,10 +18,11 @@
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <device/interrupt/Pic.h>
 #include "Pit.h"
+#include "kernel/system/System.h"
 
 namespace Device {
 
-Pit::Pit(uint16_t interruptRateDivisor) {
+Pit::Pit(uint16_t interruptRateDivisor, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
     setInterruptRate(interruptRateDivisor);
 }
 
@@ -46,6 +47,10 @@ void Pit::trigger(Kernel::InterruptFrame &frame) {
     time.addNanoseconds(timerInterval);
     advanceTime(Util::Time::Timestamp(0, timerInterval));
     executePendingJobs();
+
+    if (time.toMilliseconds() % yieldInterval == 0) {
+        Kernel::System::getService<Kernel::SchedulerService>().yield();
+    }
 }
 
 Util::Time::Timestamp Pit::getTime() {

@@ -44,7 +44,7 @@ void ThreadScheduler::exit() {
 
 void ThreadScheduler::kill(Thread &thread) {
     if (thread.getId() == currentThread->getId()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread is trying to kill itself... Use 'exit' instead!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"ThreadUtil: A thread is trying to kill itself... Use 'exit' instead!");
     }
 
     lock.acquire();

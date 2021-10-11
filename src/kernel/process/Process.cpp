@@ -21,10 +21,10 @@
 
 namespace Kernel {
 
-uint32_t Process::idGenerator = 0;
+Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
 Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace) :
-        id(Util::Async::Atomic<uint32_t>(idGenerator).fetchAndInc()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler) {}
+        id(idGenerator.next()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler) {}
 
 Process::~Process() {
     Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);

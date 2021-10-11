@@ -27,6 +27,11 @@ namespace Kernel {
 class SystemCall : public Kernel::InterruptHandler {
 
 public:
+
+    enum Code : uint8_t {
+        SCHEDULER_YIELD
+    };
+
     /**
      * Default Constructor.
      */

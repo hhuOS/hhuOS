@@ -27,6 +27,7 @@
 #include "TaskStateSegment.h"
 #include "Symbols.h"
 #include "SystemCall.h"
+#include "kernel/service/SchedulerService.h"
 
 namespace Kernel {
 
@@ -124,14 +125,14 @@ public:
 
     static void initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *physicalGdtDescriptor);
 
-    static TaskStateSegment &getTaskStateSegment();
-
     /**
      * Checks if the system management is fully initialized.
      *
      * @return State of the SystemManagement
      */
     static bool isInitialized();
+
+    static TaskStateSegment taskStateSegment;
 
 private:
 
@@ -150,7 +151,6 @@ private:
     static Util::Async::Spinlock serviceLock;
 
     static HeapMemoryManager *kernelHeapMemoryManager;
-    static TaskStateSegment taskStateSegment;
     static SystemCall systemCall;
     static Logger log; // Use only after _init() has finished!
 };

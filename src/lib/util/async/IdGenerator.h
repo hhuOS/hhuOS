@@ -15,43 +15,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#ifndef HHUOS_IDGENERATOR_H
+#define HHUOS_IDGENERATOR_H
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+#include <cstdint>
 
-namespace Kernel {
+namespace Util::Async {
 
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
+template<typename T>
+class IdGenerator {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
+    IdGenerator() = default;
 
     /**
      * Copy constructor.
      */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
+    IdGenerator(const IdGenerator &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
+    IdGenerator &operator=(const IdGenerator &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PagingAreaManagerRefillRunnable() override = default;
+    ~IdGenerator() = default;
 
-    void run() override;
+    [[nodiscard]] T next();
 
 private:
 
-    PagingAreaManager &pagingAreaManager;
+    T idCounter = 0;
 };
+
+template
+class IdGenerator<int8_t>;
+
+template
+class IdGenerator<uint8_t>;
+
+template
+class IdGenerator<int16_t>;
+
+template
+class IdGenerator<uint16_t>;
+
+template
+class IdGenerator<int32_t>;
+
+template
+class IdGenerator<uint32_t>;
 
 }
 

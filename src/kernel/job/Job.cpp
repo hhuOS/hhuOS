@@ -19,8 +19,8 @@
 
 namespace Kernel {
 
-Job::Job(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) :
-        runnable(&runnable), id(generateId()), interval(interval.toNanoseconds()), currentTime(interval.toNanoseconds()), repetitionsLeft(repetitions) {}
+Job::Job(Util::Async::Runnable *runnable, Util::Time::Timestamp interval, int32_t repetitions) :
+        runnable(runnable), id(generateId()), interval(interval.toNanoseconds()), currentTime(interval.toNanoseconds()), repetitionsLeft(repetitions) {}
 
 void Job::advanceTime(Util::Time::Timestamp elapsedTime) {
     if (repetitionsLeft == 0) {
@@ -59,6 +59,10 @@ bool Job::operator==(const Job &other) const {
 
 bool Job::operator!=(const Job &other) const {
     return id != other.id;
+}
+
+Job::~Job() {
+    delete runnable;
 }
 
 bool Job::Id::operator==(const Job::Id &other) const {

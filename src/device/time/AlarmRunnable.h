@@ -43,7 +43,7 @@ public:
     /**
      * Destructor.
      */
-    ~AlarmRunnable() = default;
+    ~AlarmRunnable() override = default;
 
     void run() override;
 

@@ -82,7 +82,6 @@ private:
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
-    CursorRunnable cursorRunnable;
     Util::Async::Spinlock cursorLock;
 };
 

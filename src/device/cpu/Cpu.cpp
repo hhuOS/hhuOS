@@ -79,10 +79,4 @@ void Cpu::throwException(Util::Exception::Error error, const char *message) {
     on_exception((uint32_t) error);
 }
 
-void Cpu::softInterrupt(uint32_t function) {
-    asm volatile ( "movl %0, %%eax;"
-                   "int $0x80;"
-    : : "r"(function));
-}
-
 }

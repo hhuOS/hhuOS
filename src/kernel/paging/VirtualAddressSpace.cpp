@@ -15,10 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/memory/Address.h>
 #include <lib/util/memory/operators.h>
 #include <lib/util/reflection/InstanceFactory.h>
-#include <kernel/system/System.h>
 #include "MemoryLayout.h"
 #include "Paging.h"
 #include "VirtualAddressSpace.h"
@@ -47,7 +45,7 @@ VirtualAddressSpace::~VirtualAddressSpace() {
 void VirtualAddressSpace::initialize() {
     if (!kernelAddressSpace) {
         // Initialize a new memory manager for userspace
-        memoryManager = reinterpret_cast<HeapMemoryManager*>(Util::Reflection::InstanceFactory::createInstance(managerType));
+        memoryManager = (HeapMemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
         memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::KERNEL_START - Kernel::Paging::PAGESIZE);
     }
 

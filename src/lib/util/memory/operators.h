@@ -18,6 +18,8 @@
 #ifndef HHUOS_OPERATORS_H
 #define HHUOS_OPERATORS_H
 
+#include <cstdint>
+
 void* operator new(uint32_t size);
 void* operator new[](uint32_t size);
 void operator delete(void*);

@@ -15,42 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#ifndef HHUOS_PROCESS_H
+#define HHUOS_PROCESS_H
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+#include <kernel/paging/VirtualAddressSpace.h>
+#include "Thread.h"
+#include "ThreadScheduler.h"
 
 namespace Kernel {
 
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
+class Process {
 
 public:
     /**
      * Constructor.
      */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
+    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace);
 
     /**
      * Copy constructor.
      */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
+    Process(const Process &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
+    Process &operator=(const Process &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PagingAreaManagerRefillRunnable() override = default;
+    ~Process();
 
-    void run() override;
+    void ready(Thread &thread);
+
+    void start();
+
+    [[nodiscard]] uint32_t getId() const;
+
+    VirtualAddressSpace& getAddressSpace();
+
+    ThreadScheduler& getThreadScheduler();
 
 private:
 
-    PagingAreaManager &pagingAreaManager;
+    uint32_t id;
+    VirtualAddressSpace &addressSpace;
+    ProcessScheduler &scheduler;
+    ThreadScheduler threadScheduler;
+
+    static Util::Async::IdGenerator<uint32_t> idGenerator;
 };
 
 }

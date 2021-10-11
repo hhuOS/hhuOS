@@ -26,11 +26,10 @@ namespace Device::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer),
-        shadowLfb(*lfb), shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb),
-        font(font), cursorRunnable(*this, cursor) {
+        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb),
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(font) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
-    Kernel::System::getService<Kernel::JobService>().registerJob(cursorRunnable, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, 250000000));
+    Kernel::System::getService<Kernel::JobService>().registerJob(new CursorRunnable(*this, cursor), Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, 250000000));
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {

@@ -46,9 +46,9 @@ public:
      */
     ~JobExecutor() = default;
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval);
+    Job::Id registerJob(Util::Async::Runnable *runnable, Util::Time::Timestamp interval);
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions);
+    Job::Id registerJob(Util::Async::Runnable *runnable, Util::Time::Timestamp interval, int32_t repetitions);
 
     void deleteJob(Job::Id id);
 

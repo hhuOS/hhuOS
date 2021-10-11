@@ -35,13 +35,17 @@
 #include <kernel/service/FilesystemService.h>
 #include <filesystem/memory/MemoryDriver.h>
 #include <lib/util/stream/FileInputStream.h>
-#include <kernel/system/System.h>
 #include <device/cpu/CpuId.h>
 #include <lib/util/graphic/Ansi.h>
 #include <lib/util/stream/FileOutputStream.h>
 #include <kernel/service/MemoryService.h>
+#include <lib/util/async/ThreadUtil.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
+#include "kernel/process/ProcessScheduler.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "kernel/service/SchedulerService.h"
+#include "kernel/service/TimeService.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
@@ -94,30 +98,65 @@ void GatesOfHell::enter() {
 
     printBanner();
 
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-    auto reader = Util::Stream::InputStreamReader(*inputStream);
-
     if (Kernel::Multiboot::Structure::hasKernelOption("color_test") && Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
-        colorTest(writer);
+        colorTest();
     }
 
     if (Kernel::Multiboot::Structure::hasKernelOption("log_filesystem") && Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
         listDirectory("/");
     }
 
-    writer << "> " << Util::Stream::PrintWriter::flush;
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto *process = schedulerService.createProcess(Kernel::System::getService<Kernel::MemoryService>().getCurrentAddressSpace());
 
-    while(true) {
-        char input = reader.read();
-        writer << input;
+    if (Kernel::Multiboot::Structure::hasKernelOption("test_thread") && Kernel::Multiboot::Structure::getKernelOption("test_thread") == "true") {
+        auto *testRunnable = new Util::Async::FunctionPointerRunnable([](){
+            auto log = Kernel::Logger::get("Test");
+            auto &timeService = Kernel::System::getService<Kernel::TimeService>();
 
-        if (input == '\n') {
-            writer << "> ";
-        }
+            while (true) {
+                auto time = timeService.getSystemTime();
+                if (time.toMilliseconds() % 2000 == 0) {
+                    log.info("Tock");
+                } else if (time.toMilliseconds() % 1000 == 0) {
+                    log.info("Tick");
+                }
 
-        writer << Util::Stream::PrintWriter::flush;
+                Util::Async::ThreadUtil::yield();
+            }
+        });
+
+        auto *testThread = Kernel::Thread::createKernelThread("Test", testRunnable);
+        process->ready(*testThread);
     }
+
+    auto *shellRunnable = new Util::Async::FunctionPointerRunnable([](){
+        auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
+        auto writer = Util::Stream::PrintWriter(bufferedStream, true);
+        auto reader = Util::Stream::InputStreamReader(*inputStream);
+
+        writer << "> " << Util::Stream::PrintWriter::flush;
+
+        while(true) {
+            char input = reader.read();
+            writer << input;
+
+            if (input == '\n') {
+                writer << "> ";
+            }
+
+            writer << Util::Stream::PrintWriter::flush;
+        }
+    });
+
+    auto *shellThread = Kernel::Thread::createKernelThread("Shell", shellRunnable);
+    process->ready(*shellThread);
+    schedulerService.ready(*process);
+
+    log.info("Starting scheduler!");
+    schedulerService.startScheduler();
+
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
 void GatesOfHell::initializeTerminal() {
@@ -263,7 +302,11 @@ void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
 }
 
-void GatesOfHell::colorTest(Util::Stream::PrintWriter &writer) {
+void GatesOfHell::colorTest() {
+    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
+    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
+    auto reader = Util::Stream::InputStreamReader(*inputStream);
+
     writer << Util::Graphic::Ansi::RESET << "4-bit colors:" << Util::Stream::PrintWriter::endl;
 
     for (uint32_t i = 0; i < 16; i++) {
@@ -296,7 +339,7 @@ void GatesOfHell::colorTest(Util::Stream::PrintWriter &writer) {
         writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
     }
 
-    writer << Util::Graphic::Ansi::RESET;
+    writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
 }
 
 void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level) {

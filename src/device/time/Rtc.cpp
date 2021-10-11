@@ -195,7 +195,7 @@ Util::Time::Date Rtc::readDate() const {
 }
 
 void Rtc::alarm() {
-    static AlarmRunnable alarmRunnable;
+    auto *alarmRunnable = new AlarmRunnable();
     registerJob(alarmRunnable, Util::Time::Timestamp(0, 500000000), 6);
 }
 

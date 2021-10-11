@@ -15,42 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#ifndef HHUOS_SCHEDULERSERVICE_H
+#define HHUOS_SCHEDULERSERVICE_H
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+#include "kernel/process/ProcessScheduler.h"
 
 namespace Kernel {
 
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
+class SchedulerService : public Service {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
+    SchedulerService() = default;
 
     /**
      * Copy constructor.
      */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
+    SchedulerService(const SchedulerService &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
+    SchedulerService &operator=(const SchedulerService &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PagingAreaManagerRefillRunnable() override = default;
+    ~SchedulerService() override = default;
 
-    void run() override;
+    void kickoffThread();
+
+    void startScheduler();
+
+    void ready(Process &process);
+
+    void ready(Thread &thread);
+
+    void yield();
+
+    Process* createProcess(VirtualAddressSpace &addressSpace);
+
+    void releaseSchedulerLock();
+
+    void setSchedulerInitialized();
+
+    bool isSchedulerInitialized();
+
+    static const constexpr uint8_t SERVICE_ID = 3;
 
 private:
 
-    PagingAreaManager &pagingAreaManager;
+    ProcessScheduler scheduler;
 };
 
 }

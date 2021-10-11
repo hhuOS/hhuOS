@@ -15,42 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
-#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#ifndef HHUOS_THREADUTIL_H
+#define HHUOS_THREADUTIL_H
 
-#include <lib/util/async/Runnable.h>
-#include "PagingAreaManager.h"
+namespace Util::Async {
 
-namespace Kernel {
-
-class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
+class ThreadUtil {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
+     * Deleted, as this class has only static members.
      */
-    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
+    ThreadUtil() = delete;
 
     /**
      * Copy constructor.
      */
-    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
+    ThreadUtil(const ThreadUtil &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
+    ThreadUtil &operator=(const ThreadUtil &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PagingAreaManagerRefillRunnable() override = default;
+    ~ThreadUtil() = delete;
 
-    void run() override;
-
-private:
-
-    PagingAreaManager &pagingAreaManager;
+    static void yield();
 };
 
 }

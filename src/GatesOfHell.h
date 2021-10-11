@@ -71,7 +71,7 @@ private:
 
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
-    static void colorTest(Util::Stream::PrintWriter &writer);
+    static void colorTest();
 
     static void listDirectory(const Util::Memory::String &path, uint32_t level = 0);
 

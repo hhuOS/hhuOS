@@ -28,6 +28,8 @@
 #include <kernel/memory/PagingAreaManagerRefillRunnable.h>
 #include <kernel/paging/Paging.h>
 #include "System.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/reflection/InstanceFactory.h"
 
 namespace Kernel {
 
@@ -74,8 +76,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Initialize global objects afterwards, because now missing pages can be mapped
     _init();
 
-    // Register memoryService after _init(), since the static objects serviceMap and serviceLock have now been initialized
+    // Register services _init(), since the static objects serviceMap and serviceLock have now been initialized
     registerService(MemoryService::SERVICE_ID, memoryService);
+    registerService(SchedulerService::SERVICE_ID, new SchedulerService());
 
     // The base system is initialized. We can now enable interrupts and setup timer devices
     Device::Cpu::enableInterrupts();
@@ -103,7 +106,10 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
         log.warn("RTC not detected -> Real time cannot be provided");
     }
 
-    System::getService<JobService>().registerJob(*new PagingAreaManagerRefillRunnable(*pagingAreaManager), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
+    getService<JobService>().registerJob(new PagingAreaManagerRefillRunnable(*pagingAreaManager), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
+
+    // Register memory manager
+    Util::Reflection::InstanceFactory::registerPrototype(new FreeListMemoryManager());
 
     // Enable system calls
     log.info("Enabling system calls");
@@ -186,7 +192,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // user data segment
     System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
     // tss segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::getTaskStateSegment()), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
+    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::taskStateSegment), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
@@ -276,10 +282,6 @@ HeapMemoryManager& System::initializeKernelHeap() {
     }
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No 4 MiB block available for bootstrapping the kernel heap memory manager!");
-}
-
-TaskStateSegment &System::getTaskStateSegment() {
-    return taskStateSegment;
 }
 
 }

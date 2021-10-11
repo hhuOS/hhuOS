@@ -116,13 +116,6 @@ public:
      */
     [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
 
-    /**
-     * Trigger a software interrupt (system call).
-     *
-     * @param function The system call number
-     */
-    static void softInterrupt(uint32_t function);
-
     // start number for software exceptions
     static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
 
