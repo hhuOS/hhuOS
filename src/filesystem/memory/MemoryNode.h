@@ -54,27 +54,27 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override = 0;
+    Util::File::Type getFileType() override;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t getLength() override = 0;
+    uint64_t getLength() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override = 0;
+    Util::Data::Array<Util::Memory::String> getChildren() override;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override = 0;
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override = 0;
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 

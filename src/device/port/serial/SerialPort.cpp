@@ -17,9 +17,15 @@
 
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <device/interrupt/Pic.h>
+#include <kernel/log/Logger.h>
+#include <filesystem/memory/StreamNode.h>
+#include <kernel/service/FilesystemService.h>
+#include <kernel/core/System.h>
 #include "SerialPort.h"
 
 namespace Device {
+
+Kernel::Logger SerialPort::log = Kernel::Logger::get("SerialPort");
 
 SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
@@ -38,6 +44,68 @@ SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
 
 SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate) : SerialPort(port, dataRate) {
     outputStream.connect(inputStream);
+}
+
+void SerialPort::initializeAvailablePorts() {
+    initializePort(COM1);
+    initializePort(COM2);
+    initializePort(COM3);
+    initializePort(COM4);
+}
+
+void SerialPort::initializePort(ComPort port) {
+    if (!checkPort(port)) {
+        return;
+    }
+
+    log.info("Serial port [%s] detected", portToString(port));
+
+    auto *inputStream = new Util::Stream::PipedInputStream();
+    auto *serialPort = new SerialPort(port, *inputStream);
+    auto *outputStream = new SerialOutputStream(serialPort);
+    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), outputStream, inputStream);
+
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    bool success = driver.addNode("/", streamNode);
+
+    if (success) {
+        serialPort->plugin();
+    } else {
+        log.error("Failed to create virtual node for [%s]", portToString(port));
+        delete streamNode;
+    }
+}
+
+SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portName) {
+    const auto port = portName.toLowerCase();
+
+    if (port == "com1") {
+        return COM1;
+    } else if (port == "com2") {
+        return COM2;
+    } else if (port == "com3") {
+        return COM3;
+    } else if (port == "com4") {
+        return COM4;
+    } else {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
+    }
+}
+
+const char* SerialPort::portToString(const ComPort port) {
+    switch (port) {
+        case COM1:
+            return "COM1";
+        case COM2:
+            return "COM2";
+        case COM3:
+            return "COM3";
+        case COM4:
+            return "COM4";
+        default:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
+    }
 }
 
 bool SerialPort::checkPort(ComPort port) {
@@ -106,23 +174,6 @@ void SerialPort::write(uint8_t c) {
 
     while ((lineStatusRegister.readByte() & 0x20) == 0);
     dataRegister.writeByte(c);
-
-}
-
-SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portName) {
-    const auto port = portName.toLowerCase();
-
-    if (port == "com1") {
-        return Device::SerialPort::COM1;
-    } else if (port == "com2") {
-        return Device::SerialPort::COM2;
-    } else if (port == "com3") {
-        return Device::SerialPort::COM3;
-    } else if (port == "com4") {
-        return Device::SerialPort::COM4;
-    } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
-    }
 }
 
 }

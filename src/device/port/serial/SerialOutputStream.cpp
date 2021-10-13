@@ -20,10 +20,10 @@
 
 namespace Device {
 
-SerialOutputStream::SerialOutputStream(SerialPort &port) : port(port) {}
+SerialOutputStream::SerialOutputStream(SerialPort *port) : port(port) {}
 
 void SerialOutputStream::write(uint8_t c) {
-    port.write(c);
+    port->write(c);
 }
 
 void SerialOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
@@ -34,6 +34,10 @@ void SerialOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uin
     for (uint32_t i = 0; i < length; i++) {
         write(sourceBuffer[offset + i]);
     }
+}
+
+SerialOutputStream::~SerialOutputStream() {
+    delete port;
 }
 
 }

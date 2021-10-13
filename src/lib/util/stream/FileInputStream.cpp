@@ -40,7 +40,7 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
     }
 
-    if (pos >= getFileLength(fileDescriptor)) {
+    if (getFileType(fileDescriptor) == File::REGULAR && pos >= getFileLength(fileDescriptor)) {
         return -1;
     }
 

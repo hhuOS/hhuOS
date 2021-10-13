@@ -48,27 +48,12 @@ public:
     /**
      * Overriding function from MemoryNode.
      */
-    Util::File::Type getFileType() override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
     uint64_t getLength() override;
 
     /**
      * Overriding function from MemoryNode.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 

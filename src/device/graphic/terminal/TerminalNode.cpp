@@ -26,18 +26,6 @@ Util::File::Type TerminalNode::getFileType() {
     return Util::File::CHARACTER;
 }
 
-uint64_t TerminalNode::getLength() {
-    return 0;
-}
-
-Util::Data::Array<Util::Memory::String> TerminalNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
-}
-
-uint64_t TerminalNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    return 0;
-}
-
 uint64_t TerminalNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
     terminal.write(sourceBuffer, 0, numBytes);
     return numBytes;

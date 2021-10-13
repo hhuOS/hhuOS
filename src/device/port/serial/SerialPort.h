@@ -23,6 +23,10 @@
 #include <lib/util/stream/PipedOutputStream.h>
 #include <lib/util/memory/String.h>
 
+namespace Kernel {
+    class Logger;
+}
+
 namespace Device {
 
 /**
@@ -31,7 +35,6 @@ namespace Device {
 class SerialPort : public Kernel::InterruptHandler {
 
 public:
-
     /**
      * Starting addresses of the COM port registers.
      */
@@ -143,6 +146,12 @@ public:
 
     explicit SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate = BaudRate::BAUD_115200);
 
+    static void initializeAvailablePorts();
+
+    [[nodiscard]] static ComPort portFromString(const Util::Memory::String &portName);
+
+    [[nodiscard]] static const char* portToString(ComPort port);
+
     /**
      * Copy constructor.
      */
@@ -192,9 +201,9 @@ public:
      */
     void write(uint8_t c);
 
-    [[nodiscard]] static ComPort portFromString(const Util::Memory::String &portName);
-
 private:
+
+    static void initializePort(ComPort port);
 
     Util::Stream::PipedOutputStream outputStream;
     ComPort port;
@@ -208,6 +217,9 @@ private:
     IoPort lineStatusRegister;
     IoPort modemStatusRegister;
     IoPort scratchRegister;
+
+    static Kernel::Logger log;
+
 };
 
 }

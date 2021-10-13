@@ -15,49 +15,67 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TERMINALNODE_H
-#define HHUOS_TERMINALNODE_H
+#ifndef HHUOS_STREAMNODE_H
+#define HHUOS_STREAMNODE_H
 
-#include <filesystem/memory/MemoryNode.h>
+#include <lib/util/stream/OutputStream.h>
+#include <lib/util/stream/InputStream.h>
+#include "MemoryNode.h"
 
-namespace Device::Graphic {
+namespace Filesystem::Memory {
 
-class TerminalNode : public Filesystem::Memory::MemoryNode {
+class StreamNode : public MemoryNode {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal &terminal);
+     StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream);
 
     /**
-     * Copy constructor.
+     * Constructor.
      */
-    TerminalNode(const TerminalNode &other) = delete;
+    StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream);
+
+    /**
+     * Constructor.
+     */
+    StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream);
+
+    /**
+     * Copy-constructor.
+     */
+    StreamNode(const StreamNode &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    TerminalNode &operator=(const TerminalNode &other) = delete;
+    StreamNode& operator=(const StreamNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~TerminalNode() override = default;
+    ~StreamNode() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     Util::File::Type getFileType() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from Node.
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 
-    Util::Graphic::Terminal &terminal;
+    Util::Stream::OutputStream *outputStream;
+    Util::Stream::InputStream *inputStream;
 
 };
 

@@ -26,16 +26,8 @@ LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, u
         resolutionBuffer(Util::Memory::String::format("%ux%u@%u", resolutionX, resolutionY, colorDepth)),
         pitchBuffer(Util::Memory::String::format("%u", pitch)) {}
 
-Util::File::Type LinearFrameBufferNode::getFileType() {
-    return Util::File::REGULAR;
-}
-
 uint64_t LinearFrameBufferNode::getLength() {
     return addressBuffer.length() + resolutionBuffer.length() + pitchBuffer.length() + 2;
-}
-
-Util::Data::Array<Util::Memory::String> LinearFrameBufferNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
 }
 
 uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
@@ -54,10 +46,6 @@ uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, ui
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;
-}
-
-uint64_t LinearFrameBufferNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    return 0;
 }
 
 }

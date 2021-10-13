@@ -29,7 +29,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit SerialOutputStream(SerialPort &port);
+    explicit SerialOutputStream(SerialPort *port);
 
     /**
      * Copy constructor.
@@ -44,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~SerialOutputStream() override = default;
+    ~SerialOutputStream() override;
 
     /**
      * Overriding function from OutputStream
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    SerialPort &port;
+    SerialPort *port;
 
 };
 

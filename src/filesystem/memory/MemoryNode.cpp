@@ -25,4 +25,24 @@ Util::Memory::String MemoryNode::getName() {
     return name;
 }
 
+Util::File::Type MemoryNode::getFileType() {
+    return Util::File::REGULAR;
+}
+
+uint64_t MemoryNode::getLength() {
+    return 0;
+}
+
+Util::Data::Array<Util::Memory::String> MemoryNode::getChildren() {
+    return Util::Data::Array<Util::Memory::String>(0);
+}
+
+uint64_t MemoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t MemoryNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
 }

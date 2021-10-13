@@ -40,7 +40,6 @@
 #include <lib/util/graphic/Ansi.h>
 #include <device/graphic/terminal/TerminalNode.h>
 #include <lib/util/stream/FileOutputStream.h>
-#include <kernel/core/SystemCall.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -51,7 +50,6 @@ Util::Stream::OutputStream *GatesOfHell::outputStream = nullptr;
 void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
-    enableSerialLogging();
 
     log.info("Welcome to hhuOS");
     log.info("%u MiB of physical memory detected", Kernel::Management::getInstance().getTotalPhysicalMemory() / 1024 / 1024);
@@ -80,6 +78,10 @@ void GatesOfHell::enter() {
 
     initializeFilesystem();
 
+    Device::SerialPort::initializeAvailablePorts();
+
+    enableSerialLogging();
+
     initializeKeyboard();
 
     if (Kernel::Multiboot::Structure::hasKernelOption("headless_com_port")) {
@@ -98,12 +100,6 @@ void GatesOfHell::enter() {
     if (Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
         colorTest(writer);
     }
-
-    Kernel::SystemCall::registerSystemCall(Util::System::SystemCall::SYSTEM_CALL_TEST, [](uint32_t paramCount, va_list params) -> Util::System::SystemCall::Result {
-        return Util::System::SystemCall::OK;
-    });
-
-    const auto result = Util::System::SystemCall::execute(Util::System::SystemCall::SYSTEM_CALL_TEST, 0);
 
     writer << "> " << Util::Stream::PrintWriter::flush;
 
@@ -178,16 +174,14 @@ void GatesOfHell::initializeTerminal() {
 void GatesOfHell::initializeHeadlessMode() {
     log.info("Headless mode enabled -> Initializing serial input/output");
 
-    auto port = Device::SerialPort::portFromString(Kernel::Multiboot::Structure::getKernelOption("headless_com_port"));
-    if (!Device::SerialPort::checkPort(port)) {
+    const auto port = Kernel::Multiboot::Structure::getKernelOption("log_com_port");
+    const auto file = Util::File::File("/device/" + port.toLowerCase());
+    if (!file.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Headless mode: The requested serial port is not present!");
-    } else {
-        auto *serialInputStream = new Util::Stream::PipedInputStream();
-        auto *serial = new Device::SerialPort(port, *serialInputStream);
-        inputStream = serialInputStream;
-        outputStream = new Device::SerialOutputStream(*serial);
-        serial->plugin();
     }
+
+    outputStream = new Util::Stream::FileOutputStream(file);
+    inputStream = new Util::Stream::FileInputStream(file);
 }
 
 void GatesOfHell::enableSerialLogging() {
@@ -195,15 +189,15 @@ void GatesOfHell::enableSerialLogging() {
         return;
     }
 
-    auto port = Device::SerialPort::portFromString(Kernel::Multiboot::Structure::getKernelOption("log_com_port"));
-    if (!Device::SerialPort::checkPort(port)) {
-        log.error("No serial port present at %04x", port);
+    const auto port = Kernel::Multiboot::Structure::getKernelOption("log_com_port");
+    const auto file = Util::File::File("/device/" + port.toLowerCase());
+    if (!file.exists()) {
+        log.error("Serial port [%s] not present", static_cast<const char*>(port));
         return;
     }
 
-    auto *comPort = new Device::SerialPort(port);
-    auto *comStream = new Device::SerialOutputStream(*comPort);
-    Kernel::Logger::addOutputStream(*comStream);
+    auto *stream = new Util::Stream::FileOutputStream(file);
+    Kernel::Logger::addOutputStream(*stream);
 }
 
 void GatesOfHell::initializeFilesystem() {
