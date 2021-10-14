@@ -19,6 +19,7 @@
 #define HHUOS_TERMINALNODE_H
 
 #include <filesystem/memory/MemoryNode.h>
+#include <device/graphic/terminal/Terminal.h>
 
 namespace Device::Graphic {
 
@@ -28,7 +29,7 @@ public:
     /**
      * Default Constructor.
      */
-    TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal &terminal);
+    TerminalNode(const Util::Memory::String &name, Device::Graphic::Terminal *terminal);
 
     /**
      * Copy constructor.
@@ -43,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~TerminalNode() override = default;
+    ~TerminalNode() override;
 
     /**
      * Overriding function from MemoryNode.
@@ -57,7 +58,7 @@ public:
 
 private:
 
-    Util::Graphic::Terminal &terminal;
+    Device::Graphic::Terminal &terminal;
 
 };
 

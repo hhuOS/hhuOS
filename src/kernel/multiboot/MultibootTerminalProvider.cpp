@@ -16,6 +16,9 @@
  */
 
 #include <device/graphic/terminal/cga/ColorGraphicsArray.h>
+#include <kernel/service/FilesystemService.h>
+#include <kernel/core/System.h>
+#include <device/graphic/terminal/TerminalNode.h>
 #include "MultibootTerminalProvider.h"
 #include "Structure.h"
 
@@ -30,16 +33,18 @@ bool MultibootTerminalProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_EGA_TEXT && (frameBufferInfo.width == 80 || frameBufferInfo.width == 40) && frameBufferInfo.height == 25;
 }
 
-Util::Graphic::Terminal &MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo) {
+bool MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been setup correctly by the bootloader!");
     }
 
-    return *new Device::Graphic::ColorGraphicsArray(frameBufferInfo.width, frameBufferInfo.height);
-}
+    Device::Graphic::Terminal *terminal = new Device::Graphic::ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
 
-void MultibootTerminalProvider::destroyTerminal(Util::Graphic::Terminal &terminal) {
-    delete &terminal;
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new Device::Graphic::TerminalNode(filename, terminal);
+    return driver.addNode("/", terminalNode);
 }
 
 Util::Data::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider::getAvailableModes() const {

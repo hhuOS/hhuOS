@@ -18,46 +18,44 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 
-#include "LinearFrameBuffer.h"
-#include "Colors.h"
-#include "PixelDrawer.h"
-#include "StringDrawer.h"
-#include "Fonts.h"
-#include "BufferScroller.h"
-#include "Terminal.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/Fonts.h"
+#include "lib/util/graphic/BufferScroller.h"
+#include "device/graphic/terminal/Terminal.h"
 
-namespace Util::Graphic {
+namespace Device::Graphic {
 
 class LinearFrameBufferTerminal : public Terminal {
 
 public:
 
-    explicit LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font = Fonts::TERMINAL_FONT);
+    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT);
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
     LinearFrameBufferTerminal &operator=(const LinearFrameBufferTerminal &other) = delete;
 
-    ~LinearFrameBufferTerminal() override = default;
+    ~LinearFrameBufferTerminal() override;
 
-    void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) override;
+    void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void clear(const Color &backgroundColor) override;
-
-    [[nodiscard]] LinearFrameBuffer& getLinearFrameBuffer() const;
+    void clear(const Util::Graphic::Color &backgroundColor) override;
 
 private:
 
     void updateCursorPosition();
 
-    LinearFrameBuffer &lfb;
-    BufferScroller scroller;
-    PixelDrawer pixelDrawer;
-    StringDrawer stringDrawer;
+    Util::Graphic::LinearFrameBuffer &lfb;
+    Util::Graphic::BufferScroller scroller;
+    Util::Graphic::PixelDrawer pixelDrawer;
+    Util::Graphic::StringDrawer stringDrawer;
 
-    Font &font;
+    Util::Graphic::Font &font;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 };

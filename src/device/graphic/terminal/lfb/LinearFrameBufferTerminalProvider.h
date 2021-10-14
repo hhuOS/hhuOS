@@ -52,12 +52,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    Util::Graphic::Terminal& initializeTerminal(ModeInfo &modeInfo) override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    void destroyTerminal(Util::Graphic::Terminal &terminal) override;
+    bool initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
 
     /**
      * Overriding function from TerminalProvider.

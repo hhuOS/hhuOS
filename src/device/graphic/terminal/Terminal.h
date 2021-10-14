@@ -18,15 +18,14 @@
 #ifndef HHUOS_TERMINAL_H
 #define HHUOS_TERMINAL_H
 
-#include <cstdint>
 #include <lib/util/stream/OutputStream.h>
 #include <lib/util/memory/String.h>
-#include "Color.h"
-#include "Colors.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/Colors.h"
 
-namespace Util::Graphic {
+namespace Device::Graphic {
 
-class Terminal : public Stream::OutputStream {
+class Terminal : public Util::Stream::OutputStream {
 
 public:
 
@@ -42,9 +41,9 @@ public:
 
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
-    virtual void putChar(char c, const Color &foregroundColor, const Color &backgroundColor) = 0;
+    virtual void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) = 0;
 
-    virtual void clear(const Color &backgroundColor) = 0;
+    virtual void clear(const Util::Graphic::Color &backgroundColor) = 0;
 
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
@@ -54,23 +53,23 @@ public:
 
 private:
 
-    [[nodiscard]] static Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Data::Array<Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Graphic::Color parseComplexColor(const Data::Array<Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parseComplexColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Graphic::Color parse256Color(const Data::Array<Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parse256Color(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Graphic::Color parseTrueColor(const Data::Array<Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parseTrueColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
     void parseGraphicRendition(uint8_t code);
 
-    Memory::String currentEscapeCode;
+    Util::Memory::String currentEscapeCode;
     bool isEscapeActive = false;
 
-    Util::Graphic::Color foregroundBaseColor = Graphic::Colors::WHITE;
-    Util::Graphic::Color backgroundBaseColor = Graphic::Colors::BLACK;
-    Util::Graphic::Color foregroundColor = Graphic::Colors::WHITE;
-    Util::Graphic::Color backgroundColor = Graphic::Colors::BLACK;
+    Util::Graphic::Color foregroundBaseColor = Util::Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundBaseColor = Util::Graphic::Colors::BLACK;
+    Util::Graphic::Color foregroundColor = Util::Graphic::Colors::WHITE;
+    Util::Graphic::Color backgroundColor = Util::Graphic::Colors::BLACK;
     bool brightForeground = false;
     bool brightBackground = false;
 

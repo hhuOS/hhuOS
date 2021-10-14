@@ -15,12 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/graphic/Terminal.h>
 #include "TerminalNode.h"
 
 namespace Device::Graphic {
 
-TerminalNode::TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal &terminal) : MemoryNode(name), terminal(terminal) {}
+TerminalNode::TerminalNode(const Util::Memory::String &name, Device::Graphic::Terminal *terminal) : MemoryNode(name), terminal(*terminal) {}
+
+TerminalNode::~TerminalNode() {
+    delete &terminal;
+}
 
 Util::File::Type TerminalNode::getFileType() {
     return Util::File::CHARACTER;

@@ -1,5 +1,8 @@
 #include <kernel/memory/MemLayout.h>
 #include <device/bios/Bios.h>
+#include <kernel/service/FilesystemService.h>
+#include <kernel/core/System.h>
+#include <device/graphic/terminal/TerminalNode.h>
 #include "ColorGraphicsArrayProvider.h"
 #include "ColorGraphicsArray.h"
 
@@ -67,7 +70,7 @@ bool ColorGraphicsArrayProvider::isAvailable() {
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
 
-Util::Graphic::Terminal &ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo) {
+bool ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
     }
@@ -82,11 +85,13 @@ Util::Graphic::Terminal &ColorGraphicsArrayProvider::initializeTerminal(Terminal
     biosParameters.cx = CURSOR_SHAPE_OPTIONS;
     Bios::interrupt(0x10, biosParameters);
 
-    return *new ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
-}
+    Device::Graphic::Terminal *terminal = new ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
 
-void ColorGraphicsArrayProvider::destroyTerminal(Util::Graphic::Terminal &terminal) {
-    delete &terminal;
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new TerminalNode(filename, terminal);
+    return driver.addNode("/", terminalNode);
 }
 
 Util::Data::Array<ColorGraphicsArrayProvider::ModeInfo> ColorGraphicsArrayProvider::getAvailableModes() const {

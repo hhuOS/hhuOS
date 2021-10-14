@@ -163,12 +163,10 @@ void GatesOfHell::initializeTerminal() {
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
-    auto &terminal = terminalProvider->initializeTerminal(resolution);
-
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *terminalNode = new Device::Graphic::TerminalNode("terminal", terminal);
-    driver.addNode("/", terminalNode);
+    bool success = terminalProvider->initializeTerminal(resolution, "terminal");
+    if (!success) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to create terminal!");
+    }
 }
 
 void GatesOfHell::initializeHeadlessMode() {

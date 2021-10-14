@@ -18,17 +18,21 @@
 #include <lib/util/memory/Address.h>
 #include "LinearFrameBufferTerminal.h"
 
-namespace Util::Graphic {
+namespace Device::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(LinearFrameBuffer &lfb, Font &font) :
-        Terminal(lfb.getResolutionX() / font.getCharWidth(), lfb.getResolutionY() / font.getCharHeight()),
-        lfb(lfb), scroller(lfb), pixelDrawer(lfb), stringDrawer(pixelDrawer), font(font) {
-    LinearFrameBufferTerminal::clear(Colors::BLACK);
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font) :
+        Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
+        lfb(*lfb), scroller(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), font(font) {
+    LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
 }
 
-void LinearFrameBufferTerminal::putChar(char c, const Color &foregroundColor, const Color &backgroundColor) {
+LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
+    delete &lfb;
+}
+
+void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
     if (c == '\n') {
-        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::BLACK);
+        stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::BLACK);
         currentRow++;
         currentColumn = 0;
     } else {
@@ -50,7 +54,7 @@ void LinearFrameBufferTerminal::putChar(char c, const Color &foregroundColor, co
     updateCursorPosition();
 }
 
-void LinearFrameBufferTerminal::clear(const Color &backgroundColor) {
+void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColor) {
     lfb.clear();
 
     currentRow = 0;
@@ -63,12 +67,8 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     currentRow = row;
 }
 
-LinearFrameBuffer &LinearFrameBufferTerminal::getLinearFrameBuffer() const {
-    return lfb;
-}
-
 void LinearFrameBufferTerminal::updateCursorPosition() {
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Colors::INVISIBLE, Colors::WHITE);
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::WHITE);
 }
 
 }

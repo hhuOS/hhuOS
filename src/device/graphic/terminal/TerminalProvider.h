@@ -20,7 +20,7 @@
 
 #include <lib/util/data/Array.h>
 #include <lib/util/memory/String.h>
-#include <lib/util/graphic/Terminal.h>
+#include <device/graphic/terminal/Terminal.h>
 #include <lib/util/reflection/Prototype.h>
 
 namespace Device::Graphic {
@@ -78,16 +78,11 @@ public:
      * Once the terminal is not needed anymore, it's resources should be freed by calling destroyTerminal().
      *
      * @param modeInfo Information about the desired terminal resolution
+     * @param filename The name of the file, representing the created terminal in '/device/'
+     *
      * @return A reference to the created terminal
      */
-    virtual Util::Graphic::Terminal& initializeTerminal(ModeInfo &modeInfo) = 0;
-
-    /**
-     * Destroy a terminal, that has been created by initializeTerminal.
-     *
-     * @param lfb The terminal
-     */
-    virtual void destroyTerminal(Util::Graphic::Terminal &terminal) = 0;
+    virtual bool initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
 
     /**
      * Get all available graphics modes.

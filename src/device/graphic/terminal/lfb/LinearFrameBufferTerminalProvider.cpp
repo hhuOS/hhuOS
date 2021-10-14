@@ -1,7 +1,10 @@
 #include <lib/util/file/File.h>
 #include <lib/util/stream/FileInputStream.h>
+#include <kernel/service/FilesystemService.h>
+#include <kernel/core/System.h>
+#include <device/graphic/terminal/TerminalNode.h>
 #include "LinearFrameBufferTerminalProvider.h"
-#include "lib/util/graphic/LinearFrameBufferTerminal.h"
+#include "LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {
 
@@ -21,7 +24,7 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return supportedModes;
 }
 
-Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo) {
+bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     auto lfbMode = lfbProvider.searchMode(modeInfo.columns * font.getCharWidth(), modeInfo.rows * font.getCharHeight(), modeInfo.colorDepth);
 
     auto lfbFile = Util::File::File("/device/terminal_lfb");
@@ -100,12 +103,13 @@ Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(D
     uint16_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char *>(bppBuffer));
     uint16_t pitch = Util::Memory::String::parseInt(reinterpret_cast<const char *>(pitchBuffer));
 
-    return *new Util::Graphic::LinearFrameBufferTerminal(*new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void *>(address), resolutionX, resolutionY, colorDepth, pitch));
-}
+    Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void *>(address), resolutionX, resolutionY, colorDepth, pitch));
 
-void LinearFrameBufferTerminalProvider::destroyTerminal(Util::Graphic::Terminal &terminal) {
-    delete &reinterpret_cast<Util::Graphic::LinearFrameBufferTerminal&>(terminal).getLinearFrameBuffer();
-    delete &terminal;
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new TerminalNode(filename, terminal);
+    return driver.addNode("/", terminalNode);
 }
 
 uint32_t LinearFrameBufferTerminalProvider::getVideoMemorySize() const {

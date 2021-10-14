@@ -80,6 +80,8 @@ public:
      * Once the linear frame buffer is not needed anymore, it's resources should be freed by calling destroyLinearFrameBuffer().
      *
      * @param modeInfo Information about the desired frame buffer resolution
+     * @param filename The name of the file, representing the created frame buffer in '/device/'
+     *
      * @return A pointer to the linear frame buffer
      */
     virtual bool initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
