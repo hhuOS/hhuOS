@@ -32,34 +32,43 @@ bool File::exists() const {
 
 bool File::isFile() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0 && (getFileType(fileDescriptor) == REGULAR);
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
 
+    auto ret = getFileType(fileDescriptor) != DIRECTORY;
     closeFile(fileDescriptor);
+
     return ret;
 }
 
 bool File::isDirectory() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0 && (getFileType(fileDescriptor) == DIRECTORY);
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
 
+    auto ret = getFileType(fileDescriptor) == DIRECTORY;
     closeFile(fileDescriptor);
+
     return ret;
 }
 
 uint32_t File::File::getLength() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor < 0 ? 0 : getFileLength(fileDescriptor);
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
 
+    auto ret = getFileLength(fileDescriptor);
     closeFile(fileDescriptor);
+
     return ret;
 }
 
 Memory::String File::getName() const {
-    auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0 ? "" : getFileName(fileDescriptor);
-
-    closeFile(fileDescriptor);
-    return ret;
+    const auto splitPath = ::getCanonicalPath(path).split("/");
+    return splitPath.length() == 0 ? "" : splitPath[splitPath.length() - 1];
 }
 
 Memory::String File::getCanonicalPath() const {
@@ -72,9 +81,13 @@ Memory::String File::getParent() const {
 
 Data::Array<Memory::String> File::getChildren() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0 ? Data::Array<Memory::String>(0) : getFileChildren(fileDescriptor);
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
 
+    auto ret = getFileChildren(fileDescriptor);
     closeFile(fileDescriptor);
+
     return ret;
 }
 
