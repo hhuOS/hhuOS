@@ -101,6 +101,10 @@ void GatesOfHell::enter() {
         colorTest(writer);
     }
 
+    if (Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
+        listDirectory("/");
+    }
+
     writer << "> " << Util::Stream::PrintWriter::flush;
 
     while(true) {
@@ -300,4 +304,30 @@ void GatesOfHell::colorTest(Util::Stream::PrintWriter &writer) {
     }
 
     writer << Util::Graphic::Ansi::RESET;
+}
+
+void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level) {
+    const auto file = Util::File::File(path);
+    if (!file.exists()) {
+        return;
+    }
+
+    auto string = Util::Memory::String("|-");
+    for (uint32_t i = 0; i < level; i++) {
+        string += "-";
+    }
+
+    if (file.isDirectory()) {
+        string += Util::Graphic::Ansi::BRIGHT_GREEN + file.getName() + "/" + Util::Graphic::Ansi::RESET;
+    } else {
+        string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
+    }
+
+    log.info(string);
+
+    if (file.isDirectory()) {
+        for (const auto &child : file.getChildren()) {
+            listDirectory(path + "/" + child, level + 1);
+        }
+    }
 }

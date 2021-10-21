@@ -78,3 +78,4 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 - `log_com_port` is used to enable log output via a serial port. Valid values are `COM1`, `COM2`, `COM3` and `COM4`.
 - `headless_com_port` is used to enable headless mode via a serial port. All graphical output will be disabled and the system is controllable via the serial port. Valid values are `COM1`, `COM2`, `COM3` and `COM4`.
 - `color_test` can be set to `true` to run a short demonstration of the support for ANSI color codes at startup.
+- `log_filesystem` can be set to `true` to log the full filesystem tree at startup.

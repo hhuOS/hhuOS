@@ -75,6 +75,8 @@ private:
 
     static void colorTest(Util::Stream::PrintWriter &writer);
 
+    static void listDirectory(const Util::Memory::String &path, uint32_t level = 0);
+
     static Kernel::Logger log;
     static Util::Stream::InputStream *inputStream;
     static Util::Stream::OutputStream *outputStream;
