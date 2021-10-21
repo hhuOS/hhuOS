@@ -23,7 +23,7 @@
 
 namespace Filesystem::Memory {
 
-MemoryDriver::MemoryDriver() : rootNode(new MemoryDirectoryNode("/")) {}
+MemoryDriver::MemoryDriver() : rootNode(new MemoryDirectoryNode("")) {}
 
 MemoryDriver::~MemoryDriver() {
     delete rootNode;
@@ -31,12 +31,12 @@ MemoryDriver::~MemoryDriver() {
 
 Node *MemoryDriver::getNode(const Util::Memory::String &path) {
     if(path.length() == 0){
-        return rootNode;
+        return new MemoryWrapperNode(*rootNode);
     }
 
     Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
     if(tokens.length() == 0) {
-        return rootNode;
+        return new MemoryWrapperNode(*rootNode);
     }
 
     MemoryNode *currentDir = rootNode;
