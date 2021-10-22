@@ -16,12 +16,18 @@
  */
 
 #include <lib/util/Exception.h>
+#include <lib/interface.h>
 #include "LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 
-LinearFrameBuffer::LinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        buffer(address, pitch * resolutionY), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+        buffer(mapIO(physicalAddress, pitch * resolutionY), pitch * resolutionY),
+        resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+
+LinearFrameBuffer::~LinearFrameBuffer() {
+    delete[] reinterpret_cast<uint8_t*>(buffer.get());
+}
 
 uint16_t LinearFrameBuffer::getResolutionX() const {
     return resolutionX;

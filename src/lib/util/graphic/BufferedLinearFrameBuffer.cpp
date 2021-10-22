@@ -20,8 +20,9 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch) :
-        LinearFrameBuffer(address, resolutionX, resolutionY, bitsPerPixel, pitch), softwareBuffer(new uint8_t[pitch * resolutionY], pitch * resolutionY) {
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch) :
+        LinearFrameBuffer(physicalAddress, resolutionX, resolutionY, bitsPerPixel, pitch),
+        softwareBuffer(new uint8_t[pitch * resolutionY], pitch * resolutionY) {
     Memory::Address<uint32_t>(softwareBuffer).setRange(0, pitch * resolutionY);
 }
 

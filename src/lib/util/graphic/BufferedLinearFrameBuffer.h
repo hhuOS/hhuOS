@@ -34,7 +34,7 @@ public:
      * @param bitsPerPixel The color colorDepth
      * @param pitch The pitch
      */
-    BufferedLinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch);
+    BufferedLinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch);
 
     /**
      * Assignment operator.

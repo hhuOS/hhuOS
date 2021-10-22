@@ -59,8 +59,6 @@ private:
 
     static void enableSerialLogging();
 
-    static void initializeKeyboard();
-
     static void initializeFilesystem();
 
     static void initializeTerminal();

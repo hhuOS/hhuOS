@@ -103,7 +103,7 @@ bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
     uint16_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char *>(bppBuffer));
     uint16_t pitch = Util::Memory::String::parseInt(reinterpret_cast<const char *>(pitchBuffer));
 
-    Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void *>(address), resolutionX, resolutionY, colorDepth, pitch));
+    Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(address, resolutionX, resolutionY, colorDepth, pitch));
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();

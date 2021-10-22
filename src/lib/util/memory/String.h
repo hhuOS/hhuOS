@@ -83,9 +83,9 @@ public:
 
     static int32_t parseInt(const String &string);
 
-    String toUpperCase() const;
+    [[nodiscard]] String toUpperCase() const;
 
-    String toLowerCase() const;
+    [[nodiscard]] String toLowerCase() const;
 
     bool operator==(const String &other) const;
 

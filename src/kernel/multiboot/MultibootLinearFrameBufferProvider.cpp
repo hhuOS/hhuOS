@@ -20,14 +20,10 @@ bool MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
     }
 
-    // Map frame buffer into IO memory
-    auto frameBuffer = Kernel::Management::getInstance().mapIO(frameBufferInfo.address, frameBufferInfo.pitch * frameBufferInfo.height);
-
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
-    auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, reinterpret_cast<uint32_t>(frameBuffer),
-        frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
+    auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
     return driver.addNode("/", lfbNode);
 }
 

@@ -394,10 +394,6 @@ void *Management::mapIO(uint32_t size) {
     return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size);
 }
 
-void Management::freeIO(void *ptr) {
-    Util::Memory::Management::free(ptr);
-}
-
 void *Management::getPhysicalAddress(void *virtAddress) {
     return currentAddressSpace->getPageDirectory()->getPhysicalAddress(virtAddress);
 }

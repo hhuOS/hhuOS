@@ -41,6 +41,10 @@ void freeMemory(void *pointer, uint32_t alignment) {
     Kernel::Management::getKernelHeapManager()->alignedFree(pointer, alignment);
 }
 
+void* mapIO(uint32_t physicalAddress, uint32_t size) {
+    return Kernel::Management::getInstance().mapIO(physicalAddress, size);
+}
+
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
     return Filesystem::Filesystem::getCanonicalPath(path);
 }

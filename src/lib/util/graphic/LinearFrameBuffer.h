@@ -33,13 +33,13 @@ public:
     /**
      * Constructor.
      *
-     * @param address The buffer address
+     * @param physicalAddress The buffer address
      * @param resolutionX The horizontal resolution
      * @param resolutionY The vertical resolution
      * @param colorDepth The color colorDepth
      * @param pitch The pitch
      */
-    LinearFrameBuffer(void *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
     /**
      * Assignment operator.
@@ -54,7 +54,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~LinearFrameBuffer() = default;
+    virtual ~LinearFrameBuffer();
 
     /**
      * Get the horizontal resolution.

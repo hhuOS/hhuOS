@@ -82,13 +82,14 @@ void GatesOfHell::enter() {
 
     enableSerialLogging();
 
-    initializeKeyboard();
+    Device::Keyboard::initialize();
 
     if (Kernel::Multiboot::Structure::hasKernelOption("headless_com_port")) {
         initializeHeadlessMode();
     } else {
         initializeTerminal();
         outputStream = new Util::Stream::FileOutputStream("/device/terminal");
+        inputStream = new Util::Stream::FileInputStream("/device/keyboard");
     }
 
     printBanner();
@@ -117,17 +118,6 @@ void GatesOfHell::enter() {
 
         writer << Util::Stream::PrintWriter::flush;
     }
-}
-
-void GatesOfHell::initializeKeyboard() {
-    Device::Keyboard::initialize();
-
-    const auto file = Util::File::File("/device/keyboard");
-    if (!file.exists()) {
-        log.warn("No keyboard available");
-    }
-
-    inputStream = new Util::Stream::FileInputStream(file);
 }
 
 void GatesOfHell::initializeTerminal() {

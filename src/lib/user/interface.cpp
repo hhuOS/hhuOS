@@ -33,6 +33,10 @@ void *allocateMemory(uint32_t size, uint32_t alignment) {
 
 void freeMemory(void *pointer, uint32_t alignment) {}
 
+void* mapIO(uint32_t physicalAddress, uint32_t size) {
+    return nullptr;
+}
+
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
     return "";
 }
