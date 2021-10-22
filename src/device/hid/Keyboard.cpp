@@ -17,9 +17,14 @@
 
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <device/interrupt/Pic.h>
+#include <filesystem/memory/StreamNode.h>
+#include <kernel/service/FilesystemService.h>
+#include <kernel/core/System.h>
 #include "Keyboard.h"
 
 namespace Device {
+
+Kernel::Logger Keyboard::log = Kernel::Logger::get("Keyboard");
 
 uint8_t Keyboard::normalTab[] = {
         0, 0, '1', '2', '3', '4', '5', '6', '7', '8', '9', '0', 225, 39, '\b',
@@ -63,6 +68,25 @@ Keyboard::Keyboard(Util::Stream::PipedInputStream &inputStream) {
     setRepeatRate(0, 0);
 
     outputStream.connect(inputStream);
+}
+
+void Keyboard::initialize() {
+    log.info("Initializing keyboard");
+    auto inputStream = new Util::Stream::PipedInputStream();
+    auto streamNode = new Filesystem::Memory::StreamNode("keyboard", inputStream);
+    auto keyboard = new Device::Keyboard(*inputStream);
+
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    bool success = driver.addNode("/", streamNode);
+
+    if (success) {
+        keyboard->plugin();
+    } else {
+        log.error("Failed to initialize virtual node for keyboard");
+        delete streamNode;
+        delete keyboard;
+    }
 }
 
 bool Keyboard::decodeKey(uint8_t code) {

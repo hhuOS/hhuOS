@@ -48,7 +48,7 @@ bool Management::kernelMode = true;
 void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     Multiboot::Structure::init(multibootInfoAddress);
 
-    // create an instance of the SystemManagement and initialize it (sets up paging and system management)
+    // initialize an instance of the SystemManagement and initialize it (sets up paging and system management)
     auto &management = Management::getInstance();
     management.init();
     log.info("Base system initialized");
@@ -206,7 +206,7 @@ void Management::init() {
     // to be able to map new pages, a bootstrap address space is created.
     // It uses only the basePageDirectory with mapping for kernel space
     currentAddressSpace = new VirtualAddressSpace(nullptr);
-    // create a Base Page Directory (used to map the kernel into every process)
+    // initialize a Base Page Directory (used to map the kernel into every process)
     basePageDirectory = currentAddressSpace->getPageDirectory();
 
     // register Paging Manager to handle Page Faults
@@ -261,7 +261,7 @@ uint32_t Management::createPageTable(PageDirectory *dir, uint32_t idx) {
     // there must be no mapping from virtual to physical address be done here,
     // because the page is zeroed out after allocation by the PagingAreaManager
 
-    // create the table in the page directory
+    // initialize the table in the page directory
     dir->createTable(idx, (uint32_t) physAddress, (uint32_t) virtAddress);
     return 0;
 }
@@ -488,7 +488,7 @@ void Management::freePageTable(void *virtTableAddress) {
 
 Management &Management::getInstance() noexcept {
     if (systemManagement == nullptr) {
-        // create a static memory manager for the kernel heap
+        // initialize a static memory manager for the kernel heap
         for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
             const auto &block = Multiboot::Structure::blockMap[i];
 

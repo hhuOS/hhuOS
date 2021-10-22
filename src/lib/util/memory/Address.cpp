@@ -70,7 +70,7 @@ T Address<T>::getLimit() const {
 template<typename T>
 Address<T> Address<T>::set(T newAddress) const {
     if (newAddress > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Trying to create new address above limit!");
+        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Trying to initialize new address above limit!");
     }
 
     auto ret = Address<T>(newAddress);

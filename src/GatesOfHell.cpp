@@ -120,11 +120,14 @@ void GatesOfHell::enter() {
 }
 
 void GatesOfHell::initializeKeyboard() {
-    log.info("Initializing keyboard");
-    auto keyboardInputStream = new Util::Stream::PipedInputStream();
-    auto keyboard = new Device::Keyboard(*keyboardInputStream);
-    inputStream = keyboardInputStream;
-    keyboard->plugin();
+    Device::Keyboard::initialize();
+
+    const auto file = Util::File::File("/device/keyboard");
+    if (!file.exists()) {
+        log.warn("No keyboard available");
+    }
+
+    inputStream = new Util::Stream::FileInputStream(file);
 }
 
 void GatesOfHell::initializeTerminal() {
@@ -169,7 +172,7 @@ void GatesOfHell::initializeTerminal() {
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     bool success = terminalProvider->initializeTerminal(resolution, "terminal");
     if (!success) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to create terminal!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to initialize terminal!");
     }
 }
 

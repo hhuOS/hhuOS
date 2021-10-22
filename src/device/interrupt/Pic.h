@@ -73,7 +73,7 @@ public:
     };
 
     /**
-     * Get or create the singleton instance.
+     * Get or initialize the singleton instance.
      */
     static Pic &getInstance() noexcept;
 

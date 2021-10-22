@@ -169,7 +169,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
     uint32_t pd_idx = Kernel::Paging::GET_PD_IDX(virtAddress);
     uint32_t pt_idx = Kernel::Paging::GET_PT_IDX(virtAddress);
 
-    // if requested page table is not present, create it
+    // if requested page table is not present, initialize it
     if ((pageDirectory[pd_idx] & Kernel::Paging::PAGE_PRESENT) == 0) {
         Management::getInstance().createPageTable(this, pd_idx);
     }
@@ -182,7 +182,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
 
         return;
     }
-    // create the entry in the corresponding page table
+    // initialize the entry in the corresponding page table
     *((uint32_t *) virtTableAddresses[pd_idx] + pt_idx) = physAddress | flags;
 }
 
@@ -223,7 +223,7 @@ uint32_t PageDirectory::unmap(uint32_t virtAddress) {
  * Create a new Page Table in this Page Directory
  */
 void PageDirectory::createTable(uint32_t idx, uint32_t physAddress, uint32_t virtAddress) {
-    // create the directory entry with the physical address of the table
+    // initialize the directory entry with the physical address of the table
     pageDirectory[idx] = physAddress | Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE;
     // keep track of the virtual address of the table
     virtTableAddresses[idx] = virtAddress;

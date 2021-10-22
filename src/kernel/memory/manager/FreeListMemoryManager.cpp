@@ -197,7 +197,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
 
     // Place free block at the right position in free list
 
-    // if there is no free list -> create one
+    // if there is no free list -> initialize one
     if (firstChunk == nullptr) {
         firstChunk = header;
         // if freed block is before first entry of free list -> freed block is new anchor

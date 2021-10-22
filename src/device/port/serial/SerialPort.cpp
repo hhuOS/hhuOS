@@ -72,7 +72,7 @@ void SerialPort::initializePort(ComPort port) {
     if (success) {
         serialPort->plugin();
     } else {
-        log.error("Failed to create virtual node for [%s]", portToString(port));
+        log.error("Failed to initialize virtual node for [%s]", portToString(port));
         delete streamNode;
     }
 }

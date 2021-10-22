@@ -22,6 +22,7 @@
 #include <device/cpu/IoPort.h>
 #include <lib/util/stream/ByteArrayOutputStream.h>
 #include <lib/util/stream/PipedOutputStream.h>
+#include <kernel/log/Logger.h>
 #include "Key.h"
 
 namespace Device {
@@ -34,42 +35,7 @@ namespace Device {
  */
 class Keyboard : public Kernel::InterruptHandler {
 
-private:
-
-    enum KeyboardStatus {
-        OUTB = 0x01,
-        INPB = 0x02,
-        AUXB = 0x20
-    };
-
-    enum KeyboardCommand {
-        SET_LED = 0xed,
-        SET_SPEED = 0xf3,
-        CPU_RESET = 0xfe
-    };
-
-    enum KeyboardLed {
-        CAPS_LOCK = 4,
-        NUM_LOCK = 2,
-        SCROLL_LOCK = 1
-    };
-
-    enum KeyboardReply {
-        ACK = 0xfa
-    };
-
-    enum KeyboardCode {
-        BREAK_BIT = 0x80,
-        PREFIX1 = 0xe0,
-        PREFIX2 = 0xe1
-    };
-
 public:
-    /**
-     * Constructor.
-     */
-    explicit Keyboard(Util::Stream::PipedInputStream &inputStream);
-
     /**
      * Copy-constructor.
      */
@@ -84,6 +50,11 @@ public:
      * Destructor.
      */
     ~Keyboard() override = default;
+
+    /**
+     * Create a keyboard instance, which is readable at '/device/keyboard'
+     */
+     static void initialize();
 
     /**
      * Set the controller's repeat rate.
@@ -122,25 +93,38 @@ public:
 
 private:
 
-    static const constexpr uint32_t BUFFER_SIZE = 16;
+    enum KeyboardStatus {
+        OUTB = 0x01,
+        INPB = 0x02,
+        AUXB = 0x20
+    };
 
-    static uint8_t normalTab[];
-    static uint8_t shiftTab[];
-    static uint8_t altTab[];
-    static uint8_t asciiNumTab[];
-    static uint8_t scanNumTab[];
+    enum KeyboardCommand {
+        SET_LED = 0xed,
+        SET_SPEED = 0xf3,
+        CPU_RESET = 0xfe
+    };
 
-    const IoPort controlPort = IoPort(0x64);
-    const IoPort dataPort = IoPort(0x60);
+    enum KeyboardLed {
+        CAPS_LOCK = 4,
+        NUM_LOCK = 2,
+        SCROLL_LOCK = 1
+    };
 
-    Key gather = Key();
-    uint8_t prefix = 0;
-    uint8_t leds = 0;
+    enum KeyboardReply {
+        ACK = 0xfa
+    };
 
-    uint32_t keysPressed = 0;
-    uint32_t buffer[BUFFER_SIZE]{};
+    enum KeyboardCode {
+        BREAK_BIT = 0x80,
+        PREFIX1 = 0xe0,
+        PREFIX2 = 0xe1
+    };
 
-    Util::Stream::PipedOutputStream outputStream;
+    /**
+     * Constructor.
+     */
+    explicit Keyboard(Util::Stream::PipedInputStream &inputStream);
 
     /**
      * Decode make- and break-codes from the keyboard.
@@ -163,6 +147,28 @@ private:
      * Remove a key from the software-buffer.
      */
     void removeFromBuffer(uint32_t scancode);
+
+    static const constexpr uint32_t BUFFER_SIZE = 16;
+
+    static Kernel::Logger log;
+
+    static uint8_t normalTab[];
+    static uint8_t shiftTab[];
+    static uint8_t altTab[];
+    static uint8_t asciiNumTab[];
+    static uint8_t scanNumTab[];
+
+    const IoPort controlPort = IoPort(0x64);
+    const IoPort dataPort = IoPort(0x60);
+
+    Key gather = Key();
+    uint8_t prefix = 0;
+    uint8_t leds = 0;
+
+    uint32_t keysPressed = 0;
+    uint32_t buffer[BUFFER_SIZE]{};
+
+    Util::Stream::PipedOutputStream outputStream;
 };
 
 }

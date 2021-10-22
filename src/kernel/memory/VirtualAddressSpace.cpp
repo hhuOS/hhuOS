@@ -27,7 +27,7 @@ namespace Kernel {
 
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::Memory::String &memoryManagerType) :
         managerType(memoryManagerType), heapAddress(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE)) {
-    // create a new memory abstraction through paging
+    // initialize a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
     // the kernel heap manager is static and global for the system
     this->kernelSpaceHeapManager = Management::getKernelHeapManager();
@@ -40,7 +40,7 @@ VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const
     if(basePageDirectory == nullptr) {
         this->pageDirectory = new PageDirectory();
     } else {
-        // create a new memory abstraction through paging
+        // initialize a new memory abstraction through paging
         this->pageDirectory = new PageDirectory(basePageDirectory);
     }
 
@@ -59,7 +59,7 @@ VirtualAddressSpace::~VirtualAddressSpace() {
 }
 
 void VirtualAddressSpace::init() {
-    // create a new memory manager for userspace
+    // initialize a new memory manager for userspace
     if (!Management::isInitialized()) {
         this->userSpaceHeapManager = new (reinterpret_cast<void*>(Kernel::Paging::PAGESIZE)) FreeListMemoryManager();
     } else {
