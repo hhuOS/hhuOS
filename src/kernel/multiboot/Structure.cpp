@@ -27,10 +27,6 @@ namespace Kernel::Multiboot {
 
 Info Structure::info;
 
-uint32_t Structure::customMemoryMapSize = 0;
-
-MemoryMapEntry Structure::customMemoryMap[256];
-
 Structure::MemoryBlock Structure::blockMap[256];
 
 Util::Data::ArrayList<MemoryMapEntry> Structure::memoryMap;
@@ -121,21 +117,11 @@ void Structure::readMemoryMap(Info *address) {
 
     Info tmp = *address;
 
-    MemoryMapEntry *memory = (MemoryMapEntry *) ((uint32_t) customMemoryMap - Kernel::MemoryLayout::VIRT_KERNEL_START);
-
     MemoryBlock *blocks = (MemoryBlock *) ((uint32_t) blockMap - Kernel::MemoryLayout::VIRT_KERNEL_START);
-
-    uint32_t &mapSize = *((uint32_t *) ((uint32_t) &customMemoryMapSize - Kernel::MemoryLayout::VIRT_KERNEL_START));
 
     uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
 
     uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-    memory[0] = {0x0, kernelStart, kernelEnd - kernelStart, MULTIBOOT_MEMORY_RESERVED };
-
-    mapSize++;
-
-    uint32_t memoryIndex = 1;
 
     ElfInfo &symbolInfo = tmp.symbols.elf;
 
@@ -143,7 +129,14 @@ void Structure::readMemoryMap(Info *address) {
 
     uint32_t alignment = 4 * 1024 * 1024;
 
-    if (tmp.flags & Kernel::MemoryLayout::VIRT2PHYS((uint32_t) &MULTIBOOT_INFO_ELF_SHDR)) {
+    uint32_t kernelStartAligned = (kernelStart / alignment) * alignment;
+    uint32_t kernelEndAligned = kernelEnd % alignment == 0 ? kernelEnd : (kernelEnd / alignment) * alignment + alignment;
+
+    blocks[0] = { kernelStartAligned, 0, (kernelEndAligned - kernelStartAligned) / alignment, true, MULTIBOOT_RESERVED };
+
+    uint32_t blockIndex = 1;
+
+    if (tmp.flags & MULTIBOOT_INFO_ELF_SHDR) {
 
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
 
@@ -157,32 +150,34 @@ void Structure::readMemoryMap(Info *address) {
             uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::VIRT_KERNEL_START ? sectionHeader->virtualAddress :
                                     sectionHeader->virtualAddress - Kernel::MemoryLayout::VIRT_KERNEL_START;
 
-            uint64_t alignedAddress = (startAddress / alignment) * alignment;
-            uint32_t blockCount = sectionHeader->size % alignment == 0 ? (sectionHeader->size / alignment) : (sectionHeader->size / alignment + 1);
+            uint32_t alignedStartAddress = (startAddress / alignment) * alignment;
+            uint32_t alignedEndAddress = startAddress + sectionHeader->size;
+            alignedEndAddress = alignedEndAddress % alignment == 0 ? alignedEndAddress : (alignedEndAddress / alignment) * alignment + alignment;
 
-            memory[memoryIndex] = { blockCount, alignedAddress, sectionHeader->size, MULTIBOOT_MEMORY_RESERVED };
+            uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
 
-            memoryIndex++;
+            blocks[blockIndex] = {alignedStartAddress, 0, blockCount, true, MULTIBOOT_RESERVED };
 
-            mapSize++;
+            blockIndex++;
         }
     }
 
-    if (tmp.flags & Kernel::MemoryLayout::VIRT2PHYS((uint32_t) &MULTIBOOT_INFO_MODS)) {
+    alignment = 4 * 1024;
+
+    if (tmp.flags & MULTIBOOT_INFO_MODS) {
 
         auto *modInfo = (ModuleInfo *) tmp.moduleAddress;
 
         for (uint32_t i = 0; i < tmp.moduleCount; i++) {
 
-            uint32_t length = modInfo[i].end - modInfo[i].start;
-            uint64_t alignedAddress = (modInfo[i].start / alignment) * alignment;
-            uint32_t blockCount = length % alignment == 0 ? (length / alignment) : (length / alignment + 1);
+            uint32_t alignedStartAddress = (modInfo[i].start / alignment) * alignment;
+            uint32_t alignedEndAddress = modInfo[i].end % alignment == 0 ? modInfo[i].end : (modInfo[i].end / alignment) * alignment + alignment;
 
-            memory[memoryIndex] = { blockCount, alignedAddress, length, MULTIBOOT_MEMORY_AVAILABLE };
+            uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
 
-            memoryIndex++;
+            blocks[blockIndex] = {alignedStartAddress, 0, blockCount, false, MULTIBOOT_RESERVED };
 
-            mapSize++;
+            blockIndex++;
         }
     }
 
@@ -191,25 +186,37 @@ void Structure::readMemoryMap(Info *address) {
     do {
         sorted = true;
 
-        for (uint32_t i = 0; i < memoryIndex - 1; i++) {
-            if (memory[i].address > memory[i + 1].address) {
-                MemoryMapEntry help = memory[i];
-                memory[i] = memory[i + 1];
-                memory[i + 1] = help;
+        for (uint32_t i = 0; i < blockIndex - 1; i++) {
+            if (blocks[i].startAddress > blocks[i + 1].startAddress) {
+                const auto help = blocks[i];
+                blocks[i] = blocks[i + 1];
+                blocks[i + 1] = help;
 
                 sorted = false;
             }
         }
     } while (!sorted);
 
-    uint32_t blockIndex = 0;
-    blocks[blockIndex] = {static_cast<uint32_t>(memory[0].address), 0, memory[0].size, MULTIBOOT_RESERVED};
+    // Merge consecutive blocks
+    for (uint32_t i = 0; i < blockIndex;) {
+        // initialMap -> 4 MiB granularity; else -> 4 KiB granularity
+        if (blocks[i].initialMap && blocks[i + 1].initialMap) {
+            if (blocks[i].startAddress + blocks[i].blockCount * Kernel::Paging::PAGESIZE * 1024 >= blocks[i + 1].startAddress) {
+                uint32_t firstEndAddress = blocks[i].startAddress + blocks[i].blockCount * Kernel::Paging::PAGESIZE * 1024;
+                uint32_t secondEndAddress = blocks[i + 1].startAddress + blocks[i + 1].blockCount * Kernel::Paging::PAGESIZE * 1024;
+                uint32_t endAddress = firstEndAddress > secondEndAddress ? firstEndAddress : secondEndAddress;
+                blocks[i].blockCount = (endAddress - blocks[i].startAddress) / (Kernel::Paging::PAGESIZE * 1024);
 
-    for (uint32_t i = 1; i < memoryIndex; i++) {
-        if (memory[i].address > blocks[blockIndex].startAddress + (blocks[blockIndex].blockCount + 1) * Kernel::Paging::PAGESIZE * 1024) {
-            blocks[++blockIndex] = {static_cast<uint32_t>(memory[i].address), 0, memory[i].size, MULTIBOOT_RESERVED};
-        } else if (memory[i].address + memory[i].size * Kernel::Paging::PAGESIZE * 1024 > blocks[blockIndex].startAddress + blocks[blockIndex].blockCount * Kernel::Paging::PAGESIZE * 1024) {
-            blocks[blockIndex].blockCount = ((memory[i].address + memory[i].size * Kernel::Paging::PAGESIZE * 1024) - blocks[blockIndex].startAddress) / (Kernel::Paging::PAGESIZE * 1024);
+                // Shift remaining blocks to close gap
+                for (uint32_t j = i + 1; j < blockIndex; j++) {
+                    blocks[j] = blocks[j + 1];
+                }
+
+                blocks[blockIndex] = { 0, 0, 0, false, MULTIBOOT_RESERVED};
+                blockIndex--;
+            }
+        } else {
+            i++;
         }
     }
 }
@@ -264,16 +271,8 @@ void Structure::parseMemoryMap() {
 
         for (uint32_t i = 0; i < size; i++) {
 
-#if PRINT_MEMORY
-            printf("0x%08x - 0x%08x : %u\n", (uint32_t) entry[i].address, (uint32_t) (entry[i].address + entry[i].size), entry[i].type);
-#endif
-
             memoryMap.add(entry[i]);
         }
-
-#if PRINT_MEMORY
-        while(true);
-#endif
     }
 }
 
@@ -322,9 +321,13 @@ void Structure::parseModules() {
 
             modInfo[i].string += Kernel::MemoryLayout::VIRT_KERNEL_START;
 
-            modInfo[i].start += Kernel::MemoryLayout::VIRT_KERNEL_START;
+            uint32_t size = modInfo[i].end - modInfo[i].start;
 
-            modInfo[i].end += Kernel::MemoryLayout::VIRT_KERNEL_START;
+            uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
+
+            modInfo[i].start = reinterpret_cast<uint32_t>(Kernel::Management::getInstance().mapIO(modInfo[i].start, size)) + offset;
+
+            modInfo[i].end += modInfo[i].start + size;
 
             modules.put(modInfo->string, *modInfo);
         }

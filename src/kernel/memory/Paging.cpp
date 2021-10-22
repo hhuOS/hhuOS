@@ -30,8 +30,12 @@ void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirector
     uint32_t pageCount = 0;
     uint32_t blockMapIndex = 0;
     for (; blockMap[blockMapIndex].blockCount != 0; blockMapIndex++) {
+        if (!blockMap[blockMapIndex].initialMap) {
+            continue;
+        }
+
         uint32_t startAddress = blockMap[blockMapIndex].startAddress;
-        blockMap[blockMapIndex].virtualStartAddress = Kernel::MemoryLayout::VIRT_KERNEL_START + startAddress;
+        blockMap[blockMapIndex].virtualStartAddress = (kernelPage + pageCount) * bigPageSize;
 
         for (uint32_t j = 0; j < blockMap[blockMapIndex].blockCount; j++) {
             directory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB | PAGE_ACCESS_SUPERVISOR);
@@ -49,21 +53,31 @@ void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirector
     uint32_t heapPhysicalAddress = 0;
     uint32_t pagingAreaPhysicalAddress = 0;
     for (uint32_t i = 0; blocksFound < 2; i++) {
-        if (blockMap[i + 1].startAddress - (blockMap[i].startAddress + blockMap[i].blockCount * bigPageSize) >= bigPageSize || blockMap[i + 1].blockCount == 0) {
-            uint32_t physicalAddress = blockMap[i].startAddress + blockMap[i].blockCount * bigPageSize;
+        uint32_t blockSize = blockMap[i].initialMap ? bigPageSize : PAGESIZE;
+        uint32_t freeStartAddress = blockMap[i].startAddress + blockMap[i].blockCount * blockSize;
+        uint32_t freeEndAddress = blockMap[i + 1].startAddress;
 
+        freeStartAddress = freeStartAddress % bigPageSize == 0 ? freeStartAddress : (freeStartAddress / bigPageSize) * bigPageSize + bigPageSize;
+        freeEndAddress = (freeEndAddress / bigPageSize) * bigPageSize;
+
+        // Overflow
+        if (blockMap[i + 1].blockCount != 0 && freeStartAddress > freeEndAddress) {
+            continue;
+        }
+
+        if (freeEndAddress - freeStartAddress >= bigPageSize || blockMap[i + 1].blockCount == 0) {
             // Shift block map entries to make space for inserting a new block
             for (uint32_t j = blockMapIndex; j > i; j--) {
                 blockMap[j + 1] = blockMap[j];
             }
 
             if (blocksFound == 0) {
-                heapPhysicalAddress = physicalAddress;
-                blockMap[i + 1] = { heapPhysicalAddress, (kernelPage + pageCount) * bigPageSize, 1, Kernel::Multiboot::Structure::HEAP_RESERVED };
+                heapPhysicalAddress = freeStartAddress;
+                blockMap[i + 1] = { freeStartAddress, (kernelPage + pageCount) * bigPageSize, 1, true, Kernel::Multiboot::Structure::HEAP_RESERVED };
                 i = -1;
             } else {
-                pagingAreaPhysicalAddress = physicalAddress;
-                blockMap[i + 1] = { pagingAreaPhysicalAddress, Kernel::MemoryLayout::VIRT_PAGE_MEM_START, 1, Kernel::Multiboot::Structure::PAGING_RESERVED };
+                pagingAreaPhysicalAddress = freeStartAddress;
+                blockMap[i + 1] = { freeStartAddress, Kernel::MemoryLayout::VIRT_PAGE_MEM_START, 1, true, Kernel::Multiboot::Structure::PAGING_RESERVED };
             }
 
             blocksFound++;

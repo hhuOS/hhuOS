@@ -41,6 +41,7 @@ namespace Kernel::Multiboot {
             uint32_t startAddress;
             uint32_t virtualStartAddress;
             uint32_t blockCount;
+            bool initialMap;
             BlockType type;
         };
 
@@ -94,11 +95,7 @@ namespace Kernel::Multiboot {
 
         static Util::Data::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
 
-        static MemoryMapEntry customMemoryMap[256];
-
         static FrameBufferInfo frameBufferInfo;
-
-        static uint32_t customMemoryMapSize;
     };
 }
 

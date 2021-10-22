@@ -27,8 +27,9 @@ PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddres
     // Reserve blocks already used by system image and initrd
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];
+        uint32_t blockSize = block.initialMap ? Kernel::Paging::PAGESIZE * 1024 : Kernel::Paging::PAGESIZE;
         uint32_t start = block.startAddress;
-        uint32_t end = start + block.blockCount * Kernel::Paging::PAGESIZE * 1024 - 1;
+        uint32_t end = start + block.blockCount * blockSize;
 
         setMemory(start, end, 1, block.type == Multiboot::Structure::MULTIBOOT_RESERVED);
     }

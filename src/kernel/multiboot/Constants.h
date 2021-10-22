@@ -27,25 +27,25 @@ static const uint32_t FRAMEBUFFER_TYPE_INDEXED = 0;
 static const uint32_t FRAMEBUFFER_TYPE_RGB = 1;
 static const uint32_t FRAMEBUFFER_TYPE_EGA_TEXT = 2;
 
-static const uint32_t MULTIBOOT_INFO_MEMORY = 0x00000001;
-static const uint32_t MULTIBOOT_INFO_BOOTDEV = 0x00000002;
-static const uint32_t MULTIBOOT_INFO_CMDLINE = 0x00000004;
-static const uint32_t MULTIBOOT_INFO_MODS = 0x00000008;
-static const uint32_t MULTIBOOT_INFO_AOUT_SYMS = 0x00000010;
-static const uint32_t MULTIBOOT_INFO_ELF_SHDR = 0x00000020;
-static const uint32_t MULTIBOOT_INFO_MEM_MAP = 0x00000040;
-static const uint32_t MULTIBOOT_INFO_DRIVE_INFO = 0x00000080;
-static const uint32_t MULTIBOOT_INFO_CONFIG_TABLE = 0x00000100;
-static const uint32_t MULTIBOOT_INFO_BOOT_LOADER_NAME = 0x00000200;
-static const uint32_t MULTIBOOT_INFO_APM_TABLE = 0x00000400;
-static const uint32_t MULTIBOOT_INFO_VBE_INFO = 0x00000800;
-static const uint32_t MULTIBOOT_INFO_FRAMEBUFFER_INFO = 0x00001000;
+static const constexpr uint32_t MULTIBOOT_INFO_MEMORY = 0x00000001;
+static const constexpr uint32_t MULTIBOOT_INFO_BOOTDEV = 0x00000002;
+static const constexpr uint32_t MULTIBOOT_INFO_CMDLINE = 0x00000004;
+static const constexpr uint32_t MULTIBOOT_INFO_MODS = 0x00000008;
+static const constexpr uint32_t MULTIBOOT_INFO_AOUT_SYMS = 0x00000010;
+static const constexpr uint32_t MULTIBOOT_INFO_ELF_SHDR = 0x00000020;
+static const constexpr uint32_t MULTIBOOT_INFO_MEM_MAP = 0x00000040;
+static const constexpr uint32_t MULTIBOOT_INFO_DRIVE_INFO = 0x00000080;
+static const constexpr uint32_t MULTIBOOT_INFO_CONFIG_TABLE = 0x00000100;
+static const constexpr uint32_t MULTIBOOT_INFO_BOOT_LOADER_NAME = 0x00000200;
+static const constexpr uint32_t MULTIBOOT_INFO_APM_TABLE = 0x00000400;
+static const constexpr uint32_t MULTIBOOT_INFO_VBE_INFO = 0x00000800;
+static const constexpr uint32_t MULTIBOOT_INFO_FRAMEBUFFER_INFO = 0x00001000;
 
-static const uint32_t MULTIBOOT_MEMORY_AVAILABLE = 1;
-static const uint32_t MULTIBOOT_MEMORY_RESERVED = 2;
-static const uint32_t MULTIBOOT_MEMORY_ACPI_RECLAIMABLE = 3;
-static const uint32_t MULTIBOOT_MEMORY_NVS = 4;
-static const uint32_t MULTIBOOT_MEMORY_BADRAM = 5;
+static const constexpr uint32_t MULTIBOOT_MEMORY_AVAILABLE = 1;
+static const constexpr uint32_t MULTIBOOT_MEMORY_RESERVED = 2;
+static const constexpr uint32_t MULTIBOOT_MEMORY_ACPI_RECLAIMABLE = 3;
+static const constexpr uint32_t MULTIBOOT_MEMORY_NVS = 4;
+static const constexpr uint32_t MULTIBOOT_MEMORY_BADRAM = 5;
 
 struct AoutInfo {
     uint32_t tabSize;
