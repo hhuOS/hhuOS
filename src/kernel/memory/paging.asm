@@ -31,6 +31,7 @@ extern bootstrap_paging
 KERNEL_PAGE equ (VIRT_KERNEL_START >> 22)
 
 section .text
+
 ; Set up first page table with 4MB pages to map kernel to higher half
 enable_bootstrap_paging:
     push bios_page_directory - VIRT_KERNEL_START
@@ -70,6 +71,7 @@ load_page_directory:
     ret
 
 section .data
+
 ; All paging stuff has to be 4KB aligned
 align 0x1000
 

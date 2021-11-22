@@ -34,7 +34,7 @@ extern enable_interrupts
 extern disable_interrupts
 extern set_tss_stack_entry
 
-[SECTION .text]
+section .text
 
 ; Handle exceptions
 on_exception:
@@ -180,7 +180,7 @@ interrupt_return:
     add esp, 0x08
     iret
 
-[SECTION .data]
+section .data
 
 idt_descriptor:
 	dw	256*8-1 ; idt contains 256 entries

@@ -28,6 +28,8 @@ extern gdt_bios_descriptor
 extern gdt_descriptor
 extern idt_descriptor
 
+section .text
+
 ; Perform a bios call in real mode
 ; The procedure is split into different parts, because paging need to be disabled
 bios_call:
@@ -144,6 +146,8 @@ skip_stack_switch_2:
 set_scheduler_initialized:
     mov dword [scheduler_initialized], 0x1
     ret
+
+section .data
 
 ; IDT for real mode
 real_mode_idt_descriptor:

@@ -207,8 +207,8 @@ _fini_done:
 __cxa_pure_virtual:
 	ret
 
-
 section .data
+
 ; The following lines reserve memory for the different GDTs needed in hhuOS
 ; These GDTs and descriptors are set up in init_gdt (SystemManagement.cpp)
 
@@ -239,6 +239,7 @@ multiboot_physical_addr:
     dd  0
 
 section .bss
+
 ; Reserve space for initial kernel stack
 align 32
 initial_kernel_stack:
