@@ -125,8 +125,10 @@ private:
 
     /**
      * Constructor.
+     *
+     * @param interruptRateDivisor Divisor, determining interrupt rate (14 -> 250ms)
      */
-    explicit Rtc(uint8_t interruptRateDivisor = 15);
+    explicit Rtc(uint8_t interruptRateDivisor = 14);
 
     /**
      * Converts a number from bcd format to binary format.

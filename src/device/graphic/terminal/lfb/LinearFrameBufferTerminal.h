@@ -18,19 +18,23 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Fonts.h"
-#include "lib/util/graphic/BufferScroller.h"
-#include "device/graphic/terminal/Terminal.h"
+#include <lib/util/graphic/LinearFrameBuffer.h>
+#include <lib/util/graphic/Colors.h>
+#include <lib/util/graphic/PixelDrawer.h>
+#include <lib/util/graphic/StringDrawer.h>
+#include <lib/util/graphic/Fonts.h>
+#include <lib/util/graphic/BufferScroller.h>
+#include <lib/util/async/Spinlock.h>
+#include <device/graphic/terminal/Terminal.h>
+#include "CursorRunnable.h"
 
 namespace Device::Graphic {
 
 class LinearFrameBufferTerminal : public Terminal {
 
 public:
+
+    friend class CursorRunnable;
 
     explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT);
 
@@ -48,8 +52,6 @@ public:
 
 private:
 
-    void updateCursorPosition();
-
     Util::Graphic::LinearFrameBuffer &lfb;
     Util::Graphic::BufferScroller scroller;
     Util::Graphic::PixelDrawer pixelDrawer;
@@ -58,6 +60,9 @@ private:
     Util::Graphic::Font &font;
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
+
+    CursorRunnable cursorRunnable;
+    Util::Async::Spinlock cursorLock;
 };
 
 }

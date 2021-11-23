@@ -16,14 +16,22 @@
  */
 
 #include <lib/util/memory/Address.h>
+#include <device/time/Rtc.h>
+#include <device/time/Pit.h>
 #include "LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
-        lfb(*lfb), scroller(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), font(font) {
+        lfb(*lfb), scroller(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), font(font), cursorRunnable(*this) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
+
+    if (Device::Rtc::isAvailable()) {
+        Device::Rtc::getInstance().registerJob(cursorRunnable, Util::Time::Timestamp(0, 250000000));
+    } else {
+        Device::Pit::getInstance().registerJob(cursorRunnable, Util::Time::Timestamp(0, 250000000));
+    }
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
@@ -31,6 +39,8 @@ LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
 }
 
 void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
+    cursorLock.acquire();
+
     if (c == '\n') {
         stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::BLACK);
         currentRow++;
@@ -51,24 +61,26 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
         currentRow = getRows() - 1 ;
     }
 
-    updateCursorPosition();
+    cursorLock.release();
 }
 
 void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColor) {
-    lfb.clear();
+    cursorLock.acquire();
 
+    lfb.clear();
     currentRow = 0;
     currentColumn = 0;
-    updateCursorPosition();
+
+    cursorLock.release();
 }
 
 void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
+    cursorLock.acquire();
+
     currentColumn = column;
     currentRow = row;
-}
 
-void LinearFrameBufferTerminal::updateCursorPosition() {
-    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::WHITE);
+    cursorLock.release();
 }
 
 }
