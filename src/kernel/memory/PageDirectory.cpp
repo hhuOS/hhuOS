@@ -74,6 +74,9 @@ PageDirectory::PageDirectory() {
     // set the entries for the mapping of reserved memory + initial 4MB-heap
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];
+        if (!block.initialMap) {
+            continue;
+        }
 
         for (uint32_t j = 0; j < block.blockCount * 1024; j++) {
             uint16_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX((block.virtualStartAddress + j * Kernel::Paging::PAGESIZE));
