@@ -145,8 +145,7 @@ void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t 
  * Creates an entry into a given GDT (Global Descriptor Table).
  * Memory for the GDT must be allocated before.
  */
-void Management::createGDTEntry(uint16_t *gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access,
-                                      uint8_t flags) {
+void Management::createGDTEntry(uint16_t *gdt, uint16_t num, uint32_t base, uint32_t limit, uint8_t access, uint8_t flags) {
     // each GDT-entry consists of 4 16-bit unsigned integers
     // calculate index into 16bit-array that represents GDT
     uint16_t idx = 4 * num;

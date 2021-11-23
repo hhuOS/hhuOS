@@ -92,6 +92,8 @@ public:
 private:
 
     static const CallParameters *parameters;
+
+    static const constexpr uint32_t BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET = 48;
 };
 
 }

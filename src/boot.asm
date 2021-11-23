@@ -127,7 +127,7 @@ boot:
     ; If something at the GDT is changed, this instruction may need to be changed as well
     jmp 0x8:_clear_bss
 
-    ; Zero out bss
+; Zero out bss
 clear_bss:
     mov	edi, ___PHYS_BSS_START__
 .loop:
