@@ -46,14 +46,14 @@ public:
      * @return The service
      */
     template<class T>
-    static T *getService() {
+    static T &getService() {
 
         if (!isServiceRegistered(T::SERVICE_NAME)) {
 
             Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid service!");
         }
 
-        return (T *) serviceMap.get(T::SERVICE_NAME);
+        return (T&) *serviceMap.get(T::SERVICE_NAME);
     }
 
     /**
@@ -62,7 +62,7 @@ public:
 	 * @param serviceId The unique service id.
 	 * @param kernelService Instance of the KernelService
 	 */
-    static void registerService(const Util::Memory::String &serviceId, Service &kernelService);
+    static void registerService(const Util::Memory::String &serviceId, Service *kernelService);
 
     /**
      * Indicates whether a particular service has already been registered.

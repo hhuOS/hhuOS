@@ -14,7 +14,7 @@ FileDescriptorManager::FileDescriptorManager(int32_t size) : size(size), descrip
 }
 
 int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
-    auto &filesystem = Kernel::System::getService<FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<FilesystemService>().getFilesystem();
     auto *node = filesystem.getNode(path);
     if (node == nullptr) {
         return -1;

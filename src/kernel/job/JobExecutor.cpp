@@ -17,14 +17,15 @@
 
 #include "JobExecutor.h"
 
+namespace Kernel {
 
-void Kernel::JobExecutor::advanceTime(Util::Time::Timestamp elapsedTime) {
+void JobExecutor::advanceTime(Util::Time::Timestamp elapsedTime) {
     for (uint32_t i = 0; i < jobs.size(); i++) {
         jobs.get(i)->advanceTime(elapsedTime);
     }
 }
 
-void Kernel::JobExecutor::executePendingJobs() {
+void JobExecutor::executePendingJobs() {
     if (!executionLock.tryAcquire()) {
         return;
     }
@@ -46,17 +47,17 @@ void Kernel::JobExecutor::executePendingJobs() {
     executionLock.release();
 }
 
-uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval) {
+Job::Id JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval) {
     return registerJob(runnable, interval, -1);
 }
 
-uint32_t Kernel::JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) {
+Job::Id JobExecutor::registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions) {
     auto *job = new Job(runnable, interval, repetitions);
     jobs.add(job);
     return job->getId();
 }
 
-void Kernel::JobExecutor::deleteJob(uint32_t id) {
+void JobExecutor::deleteJob(Job::Id id) {
     for (uint32_t i = 0; i < jobs.size(); i++) {
         auto *job = jobs.get(i);
         if (jobs.get(i)->getId() == id) {
@@ -65,4 +66,6 @@ void Kernel::JobExecutor::deleteJob(uint32_t id) {
             return;
         }
     }
+}
+
 }

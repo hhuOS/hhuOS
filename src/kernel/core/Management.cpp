@@ -27,6 +27,7 @@
 #include <kernel/memory/Paging.h>
 #include <kernel/memory/MemLayout.h>
 #include <lib/util/memory/Management.h>
+#include <kernel/service/JobService.h>
 #include "Management.h"
 #include "System.h"
 
@@ -64,10 +65,15 @@ void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
         if (!Device::Rtc::isValid()) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
-        Device::Rtc::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), Util::Time::Timestamp(0, 1000000000));
+
+        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(Device::Rtc::getInstance(), Device::Pit::getInstance()));
     } else {
-        Device::Pit::getInstance().registerJob(*(new Util::Async::FunctionPointerRunnable([](){ getInstance().getPagingAreaManager()->refillPool(); })), Util::Time::Timestamp(0, 1000000000));
+        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(Device::Pit::getInstance(), Device::Pit::getInstance()));
     }
+
+    System::getService<JobService>().registerJob(*(new Util::Async::FunctionPointerRunnable([](){
+        getInstance().getPagingAreaManager()->refillPool();
+    })), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
 
     log.info("Enabling system calls");
     systemCall.plugin();

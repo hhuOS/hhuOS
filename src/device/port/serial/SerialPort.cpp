@@ -65,7 +65,7 @@ void SerialPort::initializePort(ComPort port) {
     auto *outputStream = new SerialOutputStream(serialPort);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), outputStream, inputStream);
 
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 

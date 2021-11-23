@@ -21,7 +21,7 @@ bool MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
     }
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
     return driver.addNode("/", lfbNode);

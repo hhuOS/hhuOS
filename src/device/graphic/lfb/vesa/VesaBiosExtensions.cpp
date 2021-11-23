@@ -90,7 +90,7 @@ bool VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, c
     setMode(modeInfo.modeNumber);
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *lfbNode = new LinearFrameBufferNode(filename, vbeModeInfo->physbase, vbeModeInfo->Xres, vbeModeInfo->Yres, vbeModeInfo->bpp, vbeModeInfo->pitch);
     return driver.addNode("/", lfbNode);

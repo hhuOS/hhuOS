@@ -197,8 +197,8 @@ void GatesOfHell::enableSerialLogging() {
 
 void GatesOfHell::initializeFilesystem() {
     log.info("Initializing filesystem");
-    Kernel::System::registerService(Kernel::FilesystemService::SERVICE_NAME, *new Kernel::FilesystemService());
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    Kernel::System::registerService(Kernel::FilesystemService::SERVICE_NAME, new Kernel::FilesystemService());
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
 
     log.info("Mounting root filesystem");
     auto *rootDriver = new Filesystem::Memory::MemoryDriver();

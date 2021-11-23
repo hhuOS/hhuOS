@@ -41,7 +41,7 @@ bool MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProv
     Device::Graphic::Terminal *terminal = new Device::Graphic::ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *terminalNode = new Device::Graphic::TerminalNode(filename, terminal);
     return driver.addNode("/", terminalNode);

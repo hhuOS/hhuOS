@@ -15,57 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_JOBEXECUTOR_H
-#define HHUOS_JOBEXECUTOR_H
+#ifndef HHUOS_JOBSERVICE_H
+#define HHUOS_JOBSERVICE_H
 
-#include <lib/util/data/ArrayList.h>
-#include "Job.h"
+#include <kernel/job/JobExecutor.h>
+#include "Service.h"
 
 namespace Kernel {
 
-class JobExecutor {
+class JobService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    JobExecutor() = default;
+    JobService(JobExecutor &lowPriorityExecutor, JobExecutor &highPriorityExecutor);
 
     /**
      * Copy constructor.
      */
-    JobExecutor(const JobExecutor &other) = delete;
+    JobService(const JobService &other) = delete;
 
     /**
      * Assignment operator.
      */
-    JobExecutor &operator=(const JobExecutor &other) = delete;
+    JobService &operator=(const JobService &other) = delete;
 
     /**
      * Destructor.
      */
-    ~JobExecutor() = default;
+    ~JobService() override = default;
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval);
+    Job::Id registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval);
 
-    Job::Id registerJob(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions);
+    Job::Id registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions);
 
-    void deleteJob(Job::Id id);
-
-protected:
-
-    void advanceTime(Util::Time::Timestamp elapsedTime);
-
-    void executePendingJobs();
+    static const constexpr char *SERVICE_NAME = "Job";
 
 private:
 
-    Util::Data::ArrayList<Job*> jobs;
-    Util::Async::Spinlock executionLock;
-
+    JobExecutor &lowPriorityExecutor;
+    JobExecutor &highPriorityExecutor;
 };
 
 }
-
 
 #endif

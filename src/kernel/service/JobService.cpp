@@ -15,35 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "System.h"
-#include "Symbols.h"
-#include "device/cpu/Cpu.h"
+#include <device/time/Pit.h>
+#include <device/time/Rtc.h>
+#include "JobService.h"
 
 namespace Kernel {
 
-Util::Async::Spinlock System::serviceLock;
+JobService::JobService(JobExecutor &lowPriorityExecutor, JobExecutor &highPriorityExecutor) : lowPriorityExecutor(lowPriorityExecutor), highPriorityExecutor(highPriorityExecutor) {}
 
-Util::Data::HashMap<Util::Memory::String, Service*> System::serviceMap(sizeof(uint8_t));
-
-void System::registerService(const Util::Memory::String &serviceId, Service *kernelService) {
-
-    serviceLock.acquire();
-
-    serviceMap.put(serviceId, kernelService);
-
-    serviceLock.release();
+Job::Id JobService::registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval) {
+    return registerJob(runnable, priority, interval, -1);
 }
 
-bool System::isServiceRegistered(const Util::Memory::String &serviceId) {
-
-    return serviceMap.containsKey(serviceId);
-}
-
-void System::panic(InterruptFrame *frame) {
-
-    Device::Cpu::disableInterrupts();
-
-    Device::Cpu::halt();
+Job::Id JobService::registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions) {
+    if (priority == Job::Priority::LOW) {
+        return lowPriorityExecutor.registerJob(runnable, interval, repetitions);
+    } else {
+        return highPriorityExecutor.registerJob(runnable, interval, repetitions);
+    }
 }
 
 }

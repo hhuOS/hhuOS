@@ -29,6 +29,19 @@ class Job {
 
 public:
 
+    enum Priority {
+        LOW,
+        HIGH
+    };
+
+    struct Id {
+        uint32_t value;
+
+        bool operator==(const Id &other) const;
+
+        bool operator!=(const Id &other) const;
+    };
+
     Job() = default;
 
     Job(Util::Async::Runnable &runnable, Util::Time::Timestamp interval, int32_t repetitions = -1);
@@ -52,7 +65,7 @@ public:
 
     void executeIfPending();
 
-    [[nodiscard]] uint32_t getId() const;
+    [[nodiscard]] Id getId() const;
 
     [[nodiscard]] bool isFinished() const;
 
@@ -62,11 +75,11 @@ public:
 
 private:
 
-    [[nodiscard]] static uint32_t generateId();
+    [[nodiscard]] static Id generateId();
 
     Util::Async::Runnable *runnable = nullptr;
 
-    uint32_t id = 0;
+    Id id{};
     int64_t interval = 0;
     int64_t currentTime = 0;
     int32_t repetitionsLeft = 0;

@@ -38,14 +38,14 @@ void Job::executeIfPending() {
     }
 }
 
-uint32_t Job::generateId() {
+Job::Id Job::generateId() {
     static uint32_t idCounter = 0;
 
     auto idWrapper = Util::Async::Atomic<uint32_t>(idCounter);
-    return idWrapper.fetchAndInc();
+    return { idWrapper.fetchAndInc() };
 }
 
-uint32_t Job::getId() const {
+Job::Id Job::getId() const {
     return id;
 }
 
@@ -59,6 +59,14 @@ bool Job::operator==(const Job &other) const {
 
 bool Job::operator!=(const Job &other) const {
     return id != other.id;
+}
+
+bool Job::Id::operator==(const Job::Id &other) const {
+    return value == other.value;
+}
+
+bool Job::Id::operator!=(const Job::Id &other) const {
+    return value != other.value;
 }
 
 }

@@ -76,7 +76,7 @@ void Keyboard::initialize() {
     auto streamNode = new Filesystem::Memory::StreamNode("keyboard", inputStream);
     auto keyboard = new Device::Keyboard(*inputStream);
 
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 

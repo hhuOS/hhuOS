@@ -18,6 +18,8 @@
 #include <lib/util/memory/Address.h>
 #include <device/time/Rtc.h>
 #include <device/time/Pit.h>
+#include <kernel/service/JobService.h>
+#include <kernel/core/System.h>
 #include "LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {
@@ -27,11 +29,7 @@ LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameB
         lfb(*lfb), scroller(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), font(font), cursorRunnable(*this) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
 
-    if (Device::Rtc::isAvailable()) {
-        Device::Rtc::getInstance().registerJob(cursorRunnable, Util::Time::Timestamp(0, 250000000));
-    } else {
-        Device::Pit::getInstance().registerJob(cursorRunnable, Util::Time::Timestamp(0, 250000000));
-    }
+    Kernel::System::getService<Kernel::JobService>().registerJob(cursorRunnable, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, 250000000));
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {

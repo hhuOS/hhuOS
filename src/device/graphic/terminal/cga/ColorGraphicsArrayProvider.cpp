@@ -88,7 +88,7 @@ bool ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &
     Device::Graphic::Terminal *terminal = new ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
 
     // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>()->getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *terminalNode = new TerminalNode(filename, terminal);
     return driver.addNode("/", terminalNode);
