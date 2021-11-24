@@ -27,8 +27,10 @@ void CursorRunnable::run() {
         return;
     }
 
-    const auto &color = visible ? Util::Graphic::Colors::WHITE : Util::Graphic::Colors::BLACK;
-    terminal.stringDrawer.drawChar(terminal.font, terminal.currentColumn * terminal.font.getCharWidth(), terminal.currentRow * terminal.font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, color);
+    const auto character = terminal.characterBuffer[terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
+    const char c = visible ? static_cast<char>(219) : character.value;
+    terminal.stringDrawer.drawChar(terminal.font, terminal.currentColumn * terminal.font.getCharWidth(), terminal.currentRow * terminal.font.getCharHeight(), c, character.foregroundColor, character.backgroundColor);
+
     visible = !visible;
 
     terminal.cursorLock.release();

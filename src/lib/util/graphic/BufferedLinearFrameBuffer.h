@@ -28,13 +28,9 @@ public:
     /**
      * Constructor.
      *
-     * @param address The buffer address
-     * @param resolutionX The horizontal resolution
-     * @param resolutionY The vertical resolution
-     * @param bitsPerPixel The color colorDepth
-     * @param pitch The pitch
+     * @param lfb The linear frame buffer, that shall be double buffered.
      */
-    BufferedLinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch);
+    explicit BufferedLinearFrameBuffer(LinearFrameBuffer &lfb);
 
     /**
      * Assignment operator.
@@ -49,18 +45,13 @@ public:
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override;
-
-    /**
-     * Overriding function from LinearFrameBuffer.
-     */
-    [[nodiscard]] Memory::Address<uint32_t> getBuffer() const override;
+    ~BufferedLinearFrameBuffer() override = default;
 
     void flush() const;
 
 private:
 
-    Memory::Address<uint32_t> softwareBuffer;
+    LinearFrameBuffer &lfb;
 };
 
 }

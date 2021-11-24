@@ -42,6 +42,17 @@ public:
     LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
     /**
+     * Constructor.
+     *
+     * @param physicalAddress The buffer address
+     * @param resolutionX The horizontal resolution
+     * @param resolutionY The vertical resolution
+     * @param colorDepth The color colorDepth
+     * @param pitch The pitch
+     */
+    LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+
+    /**
      * Assignment operator.
      */
      LinearFrameBuffer& operator=(const LinearFrameBuffer &other) = delete;
@@ -89,7 +100,7 @@ public:
      *
      * @return The buffer address
      */
-    [[nodiscard]] virtual Memory::Address<uint32_t> getBuffer() const;
+    [[nodiscard]] Memory::Address<uint32_t> getBuffer() const;
 
     /**
      * Read the color of a pixel at a given position.

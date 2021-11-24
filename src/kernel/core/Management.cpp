@@ -342,7 +342,7 @@ void *Management::mapIO(uint32_t physAddress, uint32_t size) {
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY);
+        Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY, "mapIO: Not enough space left on kernel heap!");
     }
 
     // map the allocated virtual IO memory to physical addresses

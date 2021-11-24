@@ -20,22 +20,13 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t bitsPerPixel, uint16_t pitch) :
-        LinearFrameBuffer(physicalAddress, resolutionX, resolutionY, bitsPerPixel, pitch),
-        softwareBuffer(new uint8_t[pitch * resolutionY], pitch * resolutionY) {
-    Memory::Address<uint32_t>(softwareBuffer).setRange(0, pitch * resolutionY);
-}
-
-BufferedLinearFrameBuffer::~BufferedLinearFrameBuffer() {
-    delete[] reinterpret_cast<uint8_t*>(softwareBuffer.get());
-}
-
-Memory::Address<uint32_t> BufferedLinearFrameBuffer::getBuffer() const {
-    return softwareBuffer;
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(LinearFrameBuffer &lfb) :
+        LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()), lfb(lfb) {
+    Memory::Address<uint32_t>(getBuffer()).setRange(0, lfb.getPitch() * lfb.getResolutionY());
 }
 
 void BufferedLinearFrameBuffer::flush() const {
-    LinearFrameBuffer::getBuffer().copyRange(softwareBuffer, getPitch() * getResolutionY());
+    lfb.getBuffer().copyRange(Memory::Address<uint32_t>(getBuffer()), getPitch() * getResolutionY());
 }
 
 }

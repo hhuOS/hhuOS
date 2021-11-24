@@ -37,14 +37,16 @@ void ColorGraphicsArray::putChar(char c, const Util::Graphic::Color &foregroundC
     if (currentRow >= getRows()) {
         scrollUp();
         currentColumn = 0;
-        currentRow = getRows() - 1 ;
+        currentRow = getRows() - 1;
     }
 
     updateCursorPosition();
 }
 
 void ColorGraphicsArray::clear(const Util::Graphic::Color &backgroundColor) {
-    cgaMemory.setRange(0, getRows() * getColumns() * BYTES_PER_CHARACTER);
+    for (uint32_t i = 0; i < getRows() * getColumns(); i++) {
+        cgaMemory.setShort(0x000f);
+    }
 
     currentRow = 0;
     currentColumn = 0;
@@ -58,11 +60,6 @@ void ColorGraphicsArray::setPosition(uint16_t column, uint16_t row) {
 
 void ColorGraphicsArray::updateCursorPosition() {
     uint16_t position = currentRow * getColumns() + currentColumn;
-
-    // Set color attribute, so that the cursor will be visible
-    uint8_t colorAttribute = (cgaMemory.getByte(position * BYTES_PER_CHARACTER + 1) & 0xf0) | Util::Graphic::Colors::WHITE.getRGB4();
-    cgaMemory.setByte(colorAttribute, position * BYTES_PER_CHARACTER + 1);
-
     auto low  = static_cast<uint8_t>(position & 0xff);
     auto high = static_cast<uint8_t>((position >> 8) & 0xff);
 
@@ -85,7 +82,9 @@ void ColorGraphicsArray::scrollUp() {
 
     // Clear last row
     auto clear = cgaMemory.add(columns * (rows - 1) * BYTES_PER_CHARACTER);
-    clear.setRange(0, getColumns() * BYTES_PER_CHARACTER);
+    for (uint32_t i = 0; i < getColumns(); i++) {
+        clear.setShort(0x000f);
+    }
 }
 
 }

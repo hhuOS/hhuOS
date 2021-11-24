@@ -23,9 +23,10 @@
 #include <lib/util/graphic/PixelDrawer.h>
 #include <lib/util/graphic/StringDrawer.h>
 #include <lib/util/graphic/Fonts.h>
-#include <lib/util/graphic/BufferScroller.h>
 #include <lib/util/async/Spinlock.h>
 #include <device/graphic/terminal/Terminal.h>
+#include <lib/util/graphic/BufferedLinearFrameBuffer.h>
+#include <lib/util/graphic/BufferScroller.h>
 #include "CursorRunnable.h"
 
 namespace Device::Graphic {
@@ -52,10 +53,30 @@ public:
 
 private:
 
+    struct Character {
+        char value;
+        Util::Graphic::Color foregroundColor;
+        Util::Graphic::Color backgroundColor;
+
+        void clear() {
+            value = 0;
+            foregroundColor = Util::Graphic::Colors::WHITE;
+            backgroundColor = Util::Graphic::Colors::BLACK;
+        }
+    };
+
+    void scrollUp();
+
+    Character *characterBuffer;
+
     Util::Graphic::LinearFrameBuffer &lfb;
-    Util::Graphic::BufferScroller scroller;
     Util::Graphic::PixelDrawer pixelDrawer;
     Util::Graphic::StringDrawer stringDrawer;
+
+    Util::Graphic::BufferedLinearFrameBuffer shadowLfb;
+    Util::Graphic::PixelDrawer shadowPixelDrawer;
+    Util::Graphic::StringDrawer shadowStringDrawer;
+    Util::Graphic::BufferScroller shadowScroller;
 
     Util::Graphic::Font &font;
     uint16_t currentColumn = 0;

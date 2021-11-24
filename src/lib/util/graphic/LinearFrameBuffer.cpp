@@ -25,8 +25,11 @@ LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resoluti
         buffer(mapIO(physicalAddress, pitch * resolutionY), pitch * resolutionY),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
+LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+        buffer(virtualAddress, pitch * resolutionY), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+
 LinearFrameBuffer::~LinearFrameBuffer() {
-    delete[] reinterpret_cast<uint8_t*>(buffer.get());
+    delete[] reinterpret_cast<uint8_t *>(buffer.get());
 }
 
 uint16_t LinearFrameBuffer::getResolutionX() const {
