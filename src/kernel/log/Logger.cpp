@@ -18,6 +18,8 @@
 #include <lib/util/stream/OutputStreamWriter.h>
 #include <device/time/Pit.h>
 #include <lib/util/graphic/Ansi.h>
+#include <kernel/core/System.h>
+#include <kernel/service/TimeService.h>
 #include "Logger.h"
 
 namespace Kernel {
@@ -26,7 +28,6 @@ Logger::LogLevel Logger::currentLevel = LogLevel::TRACE;
 Util::Async::Spinlock Logger::lock;
 Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> Logger::writerMap;
 Util::Data::ArrayList<Util::Memory::String> Logger::buffer;
-Device::TimeProvider *Logger::timeProvider = &Device::Pit::getInstance();
 
 Logger::Logger(const Util::Memory::String &name) : name(name) {}
 
@@ -55,12 +56,6 @@ void Logger::setLevel(Util::Memory::String level) {
     } else {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Logger: Invalid log level!");
     }
-}
-
-void Logger::setTimeProvider(Device::TimeProvider &provider) {
-    lock.acquire();
-    timeProvider = &provider;
-    lock.release();
 }
 
 void Logger::addOutputStream(Util::Stream::OutputStream &stream) {
@@ -139,12 +134,12 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
 
     lock.acquire();
 
-    uint32_t millis = timeProvider->getTime().toMilliseconds();
+    uint32_t millis = System::getService<TimeService>().getSystemTime().toMilliseconds();
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 
     const auto logMessage = Util::Memory::String::format("%s[%d.%03d]%s[%s]%s[%s] %s", Util::Graphic::Ansi::CYAN, seconds, fraction,
-                                                         getColor(level), getLevelAsString(level), Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
+        getColor(level), getLevelAsString(level), Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
 
     buffer.add(logMessage);
 

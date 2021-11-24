@@ -28,6 +28,7 @@
 #include <kernel/memory/MemLayout.h>
 #include <lib/util/memory/Management.h>
 #include <kernel/service/JobService.h>
+#include <kernel/service/TimeService.h>
 #include "Management.h"
 #include "System.h"
 
@@ -49,37 +50,44 @@ bool Management::kernelMode = true;
 void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     Multiboot::Structure::init(multibootInfoAddress);
 
-    // initialize an instance of the SystemManagement and initialize it (sets up paging and system management)
+    // Create an instance of the SystemManagement and initialize it (sets up paging and system management)
     auto &management = Management::getInstance();
     management.init();
-    log.info("Base system initialized");
-
-    log.info("Enabling interrupts and starting system timer");
     Device::Cpu::enableInterrupts();
-    Device::Pit::getInstance().plugin();
+
+    // Setup time and date devices
+    auto *pit = new Device::Pit();
+    pit->plugin();
 
     if (Device::Rtc::isAvailable()) {
-        log.info("RTC detected");
-        Device::Rtc::getInstance().plugin();
+        auto *rtc = new Device::Rtc();
+        rtc->plugin();
 
+        System::registerService(TimeService::SERVICE_NAME, new Kernel::TimeService(pit, rtc));
+        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(*rtc, *pit));
+
+        log.info("Base system initialized");
+        log.info("RTC detected");
         if (!Device::Rtc::isValid()) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
-
-        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(Device::Rtc::getInstance(), Device::Pit::getInstance()));
     } else {
-        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(Device::Pit::getInstance(), Device::Pit::getInstance()));
+        System::registerService(TimeService::SERVICE_NAME, new Kernel::TimeService(pit, nullptr));
+        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(*pit, *pit));
+        log.info("Base system initialized");
+        log.warn("RTC not detected -> Real time cannot be provided");
     }
 
     System::getService<JobService>().registerJob(*(new Util::Async::FunctionPointerRunnable([](){
         getInstance().getPagingAreaManager()->refillPool();
     })), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
 
+    // Enable system calls
     log.info("Enabling system calls");
     systemCall.plugin();
 
-    log.info("Parsing multiboot structure");
     // Parse multiboot structure
+    log.info("Parsing multiboot structure");
     Multiboot::Structure::parse();
 
     // Protect kernel code
@@ -97,9 +105,9 @@ void Management::initializeSystem(Multiboot::Info *multibootInfoAddress) {
  * @param biosGdt Pointer to the GDT for BIOS-calls
  * @param systemGdtDescriptor Pointer to the descriptor of GDT; this descriptor should contain the virtual address of GDT
  * @param biosGdtDescriptor Pointer to the descriptor of BIOS-GDT; this descriptor should contain the physical address of BIOS-GDT
- * @param PhysicalGdtDescriptor Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
+ * @param physicalGdtDescriptor Pointer to the descriptor of GDT; this descriptor should contain the physical address of GDT
  */
-void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *PhysicalGdtDescriptor) {
+void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *physicalGdtDescriptor) {
     // Set first 6 GDT entries to 0
     Util::Memory::Address<uint32_t>(systemGdt).setRange(0, 48);
 
@@ -126,9 +134,9 @@ void Management::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t 
     *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + Kernel::MemoryLayout::VIRT_KERNEL_START;
 
     // set up descriptor for GDT with phys. address - needed for bootstrapping
-    *((uint16_t *) PhysicalGdtDescriptor) = 6 * 8;
+    *((uint16_t *) physicalGdtDescriptor) = 6 * 8;
     // this descriptor should contain the physical address of GDT
-    *((uint32_t *) (PhysicalGdtDescriptor + 1)) = (uint32_t) systemGdt;
+    *((uint32_t *) (physicalGdtDescriptor + 1)) = (uint32_t) systemGdt;
 
     // now set up GDT for BIOS-calls (notice that no userspace entries are necessary here)
     // first entry has to be null

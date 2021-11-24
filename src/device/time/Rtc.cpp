@@ -31,11 +31,6 @@ Rtc::Rtc(uint8_t interruptRateDivisor) {
     setInterruptRate(interruptRateDivisor);
 }
 
-Rtc &Rtc::getInstance() {
-    static Rtc instance;
-    return instance;
-}
-
 void Rtc::plugin() {
     Cpu::disableInterrupts();
     Cmos::disableNmi();
@@ -84,7 +79,7 @@ Util::Time::Date Rtc::getCurrentDate() {
     return currentDate;
 }
 
-void Rtc::setHardwareDate(const Util::Time::Date &date) {
+void Rtc::setCurrentDate(const Util::Time::Date &date) {
     Util::Time::Date outDate = date;
     uint8_t century;
 

@@ -331,7 +331,7 @@ public:
         return pagingAreaManager;
     }
 
-    static void initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *PhysicalGdtDescriptor);
+    static void initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *physicalGdtDescriptor);
 
     static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress);
 };

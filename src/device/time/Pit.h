@@ -29,6 +29,13 @@ class Pit : public Kernel::InterruptHandler, public Kernel::JobExecutor, public 
 
 public:
     /**
+     * Constructor.
+     *
+     * @param timerInterval The interval, at which the PIT shall trigger interrupts.
+     */
+    explicit Pit(uint16_t interruptRateDivisor = 1194);
+
+    /**
      * Copy constructor.
      */
     Pit(const Pit &other) = delete;
@@ -42,13 +49,6 @@ public:
      * Destructor.
      */
     ~Pit() override = default;
-
-    /**
-     * Get the singleton instance of the PIT.
-     *
-     * @return The instance of the PIT
-     */
-    [[nodiscard]] static Pit& getInstance();
 
     /**
      * Overriding function from InterruptHandler.
@@ -66,12 +66,6 @@ public:
     [[nodiscard]] Util::Time::Timestamp getTime() override;
 
 private:
-    /**
-     * Constructor.
-     *
-     * @param timerInterval The interval, at which the PIT shall trigger interrupts.
-     */
-    explicit Pit(uint16_t interruptRateDivisor = 1194);
 
     /**
      * Sets the interval at which the PIT fires interrupts.

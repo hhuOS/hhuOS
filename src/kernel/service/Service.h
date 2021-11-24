@@ -29,7 +29,7 @@ class Service {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
     Service() = default;
 

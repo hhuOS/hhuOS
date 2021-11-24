@@ -38,7 +38,6 @@
 #include <kernel/core/Management.h>
 #include <device/cpu/CpuId.h>
 #include <lib/util/graphic/Ansi.h>
-#include <device/graphic/terminal/TerminalNode.h>
 #include <lib/util/stream/FileOutputStream.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"

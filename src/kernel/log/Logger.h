@@ -58,8 +58,6 @@ public:
 
     static void setLevel(Util::Memory::String level);
 
-    static void setTimeProvider(Device::TimeProvider &provider);
-
     static void addOutputStream(Util::Stream::OutputStream &stream);
 
     static void removeOutputStream(Util::Stream::OutputStream &stream);
@@ -95,7 +93,6 @@ private:
     static Util::Async::Spinlock lock;
     static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
     static Util::Data::ArrayList<Util::Memory::String> buffer;
-    static Device::TimeProvider *timeProvider;
 
     static constexpr const char *LEVEL_TRACE = "TRACE";
     static constexpr const char *LEVEL_DEBUG = "DEBUG";

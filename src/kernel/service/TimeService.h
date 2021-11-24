@@ -1,7 +1,6 @@
 /*
  * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,46 +14,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DATEPROVIDER_H
-#define HHUOS_DATEPROVIDER_H
+#ifndef HHUOS_TIMESERVICE_H
+#define HHUOS_TIMESERVICE_H
 
-#include <lib/util/time/Date.h>
+#include <device/time/TimeProvider.h>
+#include <device/time/DateProvider.h>
+#include "Service.h"
 
-namespace Device {
+namespace Kernel {
 
-class DateProvider {
+class TimeService : public Service {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    DateProvider() = default;
+    TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider);
 
     /**
-     * Copy constructor.
+     * Copy-constructor.
      */
-    DateProvider(const DateProvider &other) = delete;
+    TimeService(const TimeService &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    DateProvider &operator=(const DateProvider &other) = delete;
+    TimeService& operator=(const TimeService &other) = delete;
 
     /**
      * Destructor.
      */
-    virtual ~DateProvider() = default;
+    ~TimeService() override;
 
-    /**
-     * Get the current date.
-     */
-    [[nodiscard]] virtual Util::Time::Date getCurrentDate() = 0;
+    [[nodiscard]] Util::Time::Timestamp getSystemTime() const;
 
-    /**
-     * Set the current date.
-     */
-    virtual void setCurrentDate(const Util::Time::Date &date) = 0;
+    [[nodiscard]] Util::Time::Date getCurrentDate() const;
 
+    void setCurrentDate(const Util::Time::Date &date);
+
+    static const constexpr char *SERVICE_NAME = "Time";
+
+private:
+
+    Device::TimeProvider *timeProvider;
+    Device::DateProvider *dateProvider;
 };
 
 }

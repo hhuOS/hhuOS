@@ -33,6 +33,13 @@ class Rtc : public DateProvider, public TimeProvider, public Kernel::JobExecutor
 
 public:
     /**
+     * Constructor.
+     *
+     * @param interruptRateDivisor Divisor, determining interrupt rate (14 -> 250ms)
+     */
+    explicit Rtc(uint8_t interruptRateDivisor = 14);
+
+    /**
      * Copy-constructor.
      */
     Rtc(const Rtc &copy) = delete;
@@ -46,13 +53,6 @@ public:
      * Destructor.
      */
     ~Rtc() override = default;
-
-    /**
-     * Get the singleton instance of the RTC.
-     *
-     * @return The instance of the RTC
-     */
-    [[nodiscard]] static Rtc& getInstance();
 
     /**
      * Check, if an RTC is installed in the system, by trying to set different rates for the periodic interrupt.
@@ -84,9 +84,9 @@ public:
     [[nodiscard]] Util::Time::Date getCurrentDate() override;
 
     /**
-     * Set the RTC's date.
+     * Overriding function from DateProvider
      */
-    void setHardwareDate(const Util::Time::Date &date);
+    void setCurrentDate(const Util::Time::Date &date) override;
 
     /**
      * Set an alarm at a specific time.
@@ -101,7 +101,6 @@ public:
     [[nodiscard]] Util::Time::Timestamp getTime() override;
 
 private:
-
     /**
      * RTC-Registers.
      */
@@ -122,13 +121,6 @@ private:
         STATUS_REGISTER_C = 0x0C,
         STATUS_REGISTER_D = 0x0D
     };
-
-    /**
-     * Constructor.
-     *
-     * @param interruptRateDivisor Divisor, determining interrupt rate (14 -> 250ms)
-     */
-    explicit Rtc(uint8_t interruptRateDivisor = 14);
 
     /**
      * Converts a number from bcd format to binary format.

@@ -16,6 +16,8 @@
  */
 
 #include <device/time/Pit.h>
+#include <kernel/service/TimeService.h>
+#include <kernel/core/System.h>
 #include "PcSpeaker.h"
 
 namespace Device {
@@ -23,7 +25,6 @@ namespace Device {
 IoPort PcSpeaker::controlPort(0x43);
 IoPort PcSpeaker::dataPort2(0x42);
 IoPort PcSpeaker::ppi(0x61);
-TimeProvider *PcSpeaker::timeProvider = &Device::Pit::getInstance();
 
 void PcSpeaker::play(float frequency, uint32_t length) {
     if (frequency == 0.0F) {
@@ -58,8 +59,10 @@ void PcSpeaker::off() {
 }
 
 void PcSpeaker::delay(uint32_t time) {
-    uint32_t end = timeProvider->getTime().toMilliseconds() + time;
-    while (timeProvider->getTime().toMilliseconds() < end) {}
+    const auto &timeService = Kernel::System::getService<Kernel::TimeService>();
+
+    uint32_t end = timeService.getSystemTime().toMilliseconds() + time;
+    while (timeService.getSystemTime().toMilliseconds() < end) {}
 }
 
 }

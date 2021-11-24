@@ -123,8 +123,6 @@ private:
     static IoPort dataPort2;
     static IoPort ppi;
 
-    static Device::TimeProvider *timeProvider;
-
 };
 
 }

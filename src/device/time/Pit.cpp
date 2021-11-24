@@ -25,11 +25,6 @@ Pit::Pit(uint16_t interruptRateDivisor) {
     setInterruptRate(interruptRateDivisor);
 }
 
-Pit& Pit::getInstance() {
-    static Pit instance;
-    return instance;
-}
-
 void Pit::setInterruptRate(uint16_t divisor) {
     if (divisor == 0) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PIT: Divisor may not be set to 0!");
