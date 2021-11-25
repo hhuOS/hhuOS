@@ -1,7 +1,7 @@
 #include <lib/util/file/File.h>
 #include <lib/util/stream/FileInputStream.h>
 #include <kernel/service/FilesystemService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include <device/graphic/terminal/TerminalNode.h>
 #include "LinearFrameBufferTerminalProvider.h"
 #include "LinearFrameBufferTerminal.h"

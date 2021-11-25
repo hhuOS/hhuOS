@@ -18,7 +18,6 @@
 #ifndef __PAGINGAREAMANAGER_H__
 #define __PAGINGAREAMANAGER_H__
 
-#include <cstdint>
 #include <lib/util/data/Pool.h>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 

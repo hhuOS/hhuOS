@@ -16,7 +16,7 @@
  */
 
 #include "kernel/memory/MemLayout.h"
-#include "Management.h"
+#include "System.h"
 #include "Symbols.h"
 
 namespace Kernel {

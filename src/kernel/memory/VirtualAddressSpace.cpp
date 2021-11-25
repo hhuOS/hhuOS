@@ -18,67 +18,52 @@
 #include <lib/util/memory/Address.h>
 #include <lib/util/memory/operators.h>
 #include <lib/util/reflection/InstanceFactory.h>
-#include <kernel/core/Management.h>
+#include <kernel/system/System.h>
 #include "MemLayout.h"
 #include "Paging.h"
 #include "VirtualAddressSpace.h"
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::Memory::String &memoryManagerType) :
-        managerType(memoryManagerType), heapAddress(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE)) {
-    // initialize a new memory abstraction through paging
-    this->pageDirectory = new PageDirectory(basePageDirectory);
-    // the kernel heap manager is static and global for the system
-    this->kernelSpaceHeapManager = Management::getKernelHeapManager();
-    // this is no bootstrap address space
-    bootstrapAddressSpace = false;
+VirtualAddressSpace::VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager) :
+        memoryManager(&kernelHeapMemoryManager), managerType("FreeListMemoryManager"), heapAddress(0), kernelAddressSpace(true) {
+    this->pageDirectory = new PageDirectory();
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory *basePageDirectory, const Util::Memory::String &memoryManagerType) :
-        managerType(memoryManagerType), heapAddress(2 * Kernel::Paging::PAGESIZE) {
-    if(basePageDirectory == nullptr) {
-        this->pageDirectory = new PageDirectory();
-    } else {
-        // initialize a new memory abstraction through paging
-        this->pageDirectory = new PageDirectory(basePageDirectory);
-    }
-
-    // the kernel heap manager is static and global for the system
-    this->kernelSpaceHeapManager = Management::getKernelHeapManager();
-    // this is no bootstrap address space
-    bootstrapAddressSpace = false;
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory, const Util::Memory::String &memoryManagerType) :
+        managerType(memoryManagerType), heapAddress(2 * Kernel::Paging::PAGESIZE), kernelAddressSpace(false) {
+    // Initialize a new memory abstraction through paging
+    this->pageDirectory = new PageDirectory(basePageDirectory);
 }
 
 VirtualAddressSpace::~VirtualAddressSpace() {
-    // only delete things if they were allocated by the constructor
-    if (!bootstrapAddressSpace) {
-        delete pageDirectory;
-        delete userSpaceHeapManager;
+    delete pageDirectory;
+
+    if (!kernelAddressSpace) {
+        delete memoryManager;
     }
 }
 
-void VirtualAddressSpace::init() {
-    // initialize a new memory manager for userspace
-    if (!Management::isInitialized()) {
-        this->userSpaceHeapManager = new (reinterpret_cast<void*>(Kernel::Paging::PAGESIZE)) FreeListMemoryManager();
-    } else {
-        this->userSpaceHeapManager = (HeapMemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
+void VirtualAddressSpace::initialize() {
+    if (!kernelAddressSpace) {
+        // Initialize a new memory manager for userspace
+        memoryManager = reinterpret_cast<HeapMemoryManager*>(Util::Reflection::InstanceFactory::createInstance(managerType));
+        memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::VIRT_KERNEL_START - Kernel::Paging::PAGESIZE);
     }
-
-    if (userSpaceHeapManager != nullptr) {
-        userSpaceHeapManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(),
-                                         Kernel::MemoryLayout::VIRT_KERNEL_START - Kernel::Paging::PAGESIZE);
-    }
-
-    void *test = userSpaceHeapManager->alloc(1024);
-    userSpaceHeapManager->free(test);
 
     initialized = true;
 }
 
 bool VirtualAddressSpace::isInitialized() const {
     return initialized;
+}
+
+PageDirectory &VirtualAddressSpace::getPageDirectory() const {
+    return *pageDirectory;
+}
+
+HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
+    return *memoryManager;
 }
 
 FileDescriptorManager& VirtualAddressSpace::getFileDescriptorManager() {

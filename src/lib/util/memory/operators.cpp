@@ -15,22 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Management.h"
+#include <lib/interface.h>
 
 void* operator new(uint32_t size) {
-    return Util::Memory::Management::alloc(size);
+    return allocateMemory(size);
 }
 
 void* operator new[](uint32_t size) {
-    return Util::Memory::Management::alloc(size);
+    return allocateMemory(size);
 }
 
 void operator delete(void *pointer) {
-    return Util::Memory::Management::free(pointer);
+    freeMemory(pointer);
 }
 
 void operator delete[](void *pointer) {
-    return Util::Memory::Management::free(pointer);
+    freeMemory(pointer);
 }
 
 void *operator new(uint32_t size, void *pointer) {
@@ -46,9 +46,9 @@ void operator delete(void *, void *) {}
 void operator delete[](void *, void *) {}
 
 void operator delete(void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
+    freeMemory(pointer);
 }
 
 void operator delete[](void *pointer, uint32_t size) {
-    return Util::Memory::Management::free(pointer);
+    freeMemory(pointer);
 }

@@ -32,75 +32,45 @@ namespace Kernel {
  * @date HHU, 2018
  */
 class VirtualAddressSpace {
-private:
 
-    FileDescriptorManager fileDescriptorManager;
-    // pointer to memory managers for userspace and kernel
-    HeapMemoryManager *kernelSpaceHeapManager = nullptr;
-    HeapMemoryManager *userSpaceHeapManager = nullptr;
-    // pointer to page directory
-    PageDirectory *pageDirectory = nullptr;
-    // the bootstrap address space is the first address space ever created
-    // and only for temporary use
-    bool bootstrapAddressSpace = false;
-
-    Util::Memory::String managerType = "";
-    uint32_t heapAddress = 0;
-
-    bool initialized = false;
 public:
     /**
-     * Constructor for an address space with a loaded application.
+     * Constructor for the kernel address space.
      */
-    VirtualAddressSpace(PageDirectory *basePageDirectory, uint32_t heapAddress, const Util::Memory::String &memoryManagerType = "FreeListMemoryManager");
+    explicit VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager);
 
     /**
-     * Constructor for an address space without a loaded application.
-     * The heap always start at 0x2000.
+     * Constructor for user address space.
+     * The heap always starts at 0x2000.
      */
-    explicit VirtualAddressSpace(PageDirectory *basePageDirectory, const Util::Memory::String &memoryManagerType = "FreeListMemoryManager");
+    explicit VirtualAddressSpace(PageDirectory &basePageDirectory, const Util::Memory::String &memoryManagerType = "FreeListMemoryManager");
 
     /**
      * Destructor
      */
     ~VirtualAddressSpace();
 
-    void init();
+    void initialize();
 
-    bool isInitialized() const;
+    [[nodiscard]] bool isInitialized() const;
 
-    /**
-     * Get the memory manager for kernel
-     *
-     * @return Pointer to the kernel memory manager
-     */
-    HeapMemoryManager *getKernelSpaceHeapManager() const {
-        return kernelSpaceHeapManager;
-    }
+    [[nodiscard]] PageDirectory& getPageDirectory() const;
 
-    PageDirectory *getPageDirectory() const {
-        return pageDirectory;
-    }
+    [[nodiscard]] HeapMemoryManager& getMemoryManager() const;
 
-    /**
-     * Get the memory manager for userspace
-     *
-     * @return Pointer to the userspace memory manager
-     */
-    HeapMemoryManager *getUserSpaceHeapManager() const {
-        return userSpaceHeapManager;
-    }
+    [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
 
-    /**
-     * Set the memory manager for userspace
-     *
-     * @param userSpaceHeapManager Pointer to the userspace memory manager
-     */
-    void setUserSpaceHeapManager(HeapMemoryManager *userSpaceHeapManager) {
-        this->userSpaceHeapManager = userSpaceHeapManager;
-    }
+private:
 
-    FileDescriptorManager& getFileDescriptorManager();
+    FileDescriptorManager fileDescriptorManager;
+    PageDirectory *pageDirectory;
+    HeapMemoryManager *memoryManager = nullptr;
+
+    Util::Memory::String managerType;
+    uint32_t heapAddress = 0;
+
+    bool kernelAddressSpace;
+    bool initialized = false;
 };
 
 }

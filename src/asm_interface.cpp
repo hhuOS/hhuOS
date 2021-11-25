@@ -16,7 +16,7 @@
  */
 
 #include <kernel/multiboot/Structure.h>
-#include <kernel/core/Management.h>
+#include <kernel/system/System.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <kernel/memory/Paging.h>
 #include <device/cpu/Cpu.h>
@@ -44,12 +44,12 @@ int32_t atexit (void (*func)()) noexcept;
 }
 
 void main() {
-    Kernel::Logger::get("Management").info("Entering Gates Of Hell");
+    Kernel::Logger::get("System").info("Entering Gates Of Hell");
     GatesOfHell::enter();
 }
 
 void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_descriptor, uint16_t *gdt_bios_descriptor, uint16_t *gdt_phys_descriptor) {
-    Kernel::Management::initializeGlobalDescriptorTables(gdt, gdt_bios, gdt_descriptor, gdt_bios_descriptor, gdt_phys_descriptor);
+    Kernel::System::initializeGlobalDescriptorTables(gdt, gdt_bios, gdt_descriptor, gdt_bios_descriptor, gdt_phys_descriptor);
 }
 
 void copy_multiboot_info(Kernel::Multiboot::Info *source, uint8_t *destination, uint32_t max_bytes) {
@@ -61,7 +61,7 @@ void read_memory_map(Kernel::Multiboot::Info *address) {
 }
 
 void initialize_system(Kernel::Multiboot::Info *address) {
-    Kernel::Management::initializeSystem(address);
+    Kernel::System::initializeSystem(address);
 }
 
 void finish_system() {
@@ -85,7 +85,7 @@ void dispatch_interrupt(Kernel::InterruptFrame *frame) {
 }
 
 void set_tss_stack_entry(uint32_t esp0) {
-    Kernel::Management::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
+    Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
 }
 
 int32_t atexit (void (*func)()) noexcept {

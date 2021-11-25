@@ -17,11 +17,13 @@
 
 #include <lib/util/memory/Address.h>
 #include <asm_interface.h>
+#include <kernel/system/System.h>
+#include <kernel/service/MemoryService.h>
 #include "kernel/multiboot/Structure.h"
 #include "kernel/memory/PageDirectory.h"
 
 #include "kernel/memory/Paging.h"
-#include "kernel/core/Management.h"
+#include "kernel/system/System.h"
 #include "MemLayout.h"
 
 namespace Kernel {
@@ -102,19 +104,21 @@ PageDirectory::PageDirectory() {
  * @param basePageDirectory Pointer to the Page Directory with kernel mappgins.
  */
 PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
+    auto &memoryService = System::getMemoryService();
+    
     // allocate memory for the page directory
-    pageDirectory = (uint32_t *) Management::getInstance().allocPageTable();
+    pageDirectory = (uint32_t *) memoryService.allocatePageTable();
     // allocate memory to hold the virtual addresses of page tables
-    virtTableAddresses = (uint32_t *) Management::getInstance().allocPageTable();
+    virtTableAddresses = (uint32_t *) memoryService.allocatePageTable();
     // catch errors
     if (pageDirectory == nullptr || virtTableAddresses == nullptr) {
-        Management::getInstance().freePageTable(pageDirectory);
-        Management::getInstance().freePageTable(virtTableAddresses);
+        memoryService.freePageTable(pageDirectory);
+        memoryService.freePageTable(virtTableAddresses);
         return;
 
     }
     // get the physical address of the page directory
-    physPageDirectoryAddress = (uint32_t *) Management::getInstance().getPhysicalAddress(pageDirectory);
+    physPageDirectoryAddress = (uint32_t *) memoryService.getPhysicalAddress(pageDirectory);
     // get virtual address of the basePageDirectory
     uint32_t *bp_VirtAddress = basePageDirectory->getPageDirectoryVirtualAddress();
     // get pointer to virtual table addresses from basePageDirectory
@@ -133,6 +137,8 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
  * Destructor - should never be called in  basePagedirectory
  */
 PageDirectory::~PageDirectory() {
+    auto &memoryService = System::getMemoryService();
+    
     // unmap the compelete user space and free the page frames
     for (uint32_t addr = 0; addr < Kernel::MemoryLayout::VIRT_KERNEL_START; addr += Kernel::Paging::PAGESIZE) {
         this->unmap(addr);
@@ -140,11 +146,11 @@ PageDirectory::~PageDirectory() {
     // free Page Tables corresponding to user space (< 3GB)
     uint32_t idx_max = Kernel::MemoryLayout::VIRT_KERNEL_START / (Kernel::Paging::PAGESIZE * 1024);
     for (uint32_t idx = 0; idx < idx_max; idx++) {
-        Management::getInstance().freePageTable((void *) virtTableAddresses[idx]);
+        memoryService.freePageTable((void *) virtTableAddresses[idx]);
     }
     // free PageDirectory itself and list with virtual table addresses
-    Management::getInstance().freePageTable((void *) virtTableAddresses);
-    Management::getInstance().freePageTable((void *) pageDirectory);
+    memoryService.freePageTable((void *) virtTableAddresses);
+    memoryService.freePageTable((void *) pageDirectory);
 
 }
 
@@ -167,6 +173,7 @@ void PageDirectory::writeProtectKernelCode() {
  * Maps a virtual address to a given physical address with certain flags.
  */
 void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t flags) {
+    auto &memoryService = System::getMemoryService();
 
     // use macros to calculate index into page table and directory
     uint32_t pd_idx = Kernel::Paging::GET_PD_IDX(virtAddress);
@@ -174,7 +181,7 @@ void PageDirectory::map(uint32_t physAddress, uint32_t virtAddress, uint16_t fla
 
     // if requested page table is not present, initialize it
     if ((pageDirectory[pd_idx] & Kernel::Paging::PAGE_PRESENT) == 0) {
-        Management::getInstance().createPageTable(this, pd_idx);
+        memoryService.createPageTable(this, pd_idx);
     }
 
     // check if the requested page is already mapped -> error

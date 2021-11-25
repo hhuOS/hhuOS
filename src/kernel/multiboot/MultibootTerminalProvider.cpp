@@ -17,7 +17,7 @@
 
 #include <device/graphic/terminal/cga/ColorGraphicsArray.h>
 #include <kernel/service/FilesystemService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include <device/graphic/terminal/TerminalNode.h>
 #include "MultibootTerminalProvider.h"
 #include "Structure.h"

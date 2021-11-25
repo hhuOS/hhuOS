@@ -19,4 +19,5 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/service/FilesystemService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/JobService.cpp
+        ${HHUOS_SRC_DIR}/kernel/service/MemoryService.cpp
         ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp)

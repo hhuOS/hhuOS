@@ -15,15 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/core/Management.h>
-#include "kernel/multiboot/Structure.h"
+#include <kernel/multiboot/Structure.h>
+#include <kernel/memory/Paging.h>
 #include "PageFrameAllocator.h"
-
-#include "kernel/memory/Paging.h"
 
 namespace Kernel {
 
-PageFrameAllocator::PageFrameAllocator(uint32_t startAddress, uint32_t endAddress) : TableMemoryManager(*Management::getInstance().getPagingAreaManager(), startAddress, endAddress, Kernel::Paging::PAGESIZE) {
+PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint32_t startAddress, uint32_t endAddress) :
+        TableMemoryManager(pagingAreaManager, startAddress, endAddress, Kernel::Paging::PAGESIZE) {
     // Reserve blocks already used by system image and initrd
     for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
         const auto &block = Multiboot::Structure::blockMap[i];

@@ -31,6 +31,10 @@ void *allocateMemory(uint32_t size, uint32_t alignment) {
     return nullptr;
 }
 
+void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    return nullptr;
+}
+
 void freeMemory(void *pointer, uint32_t alignment) {}
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {

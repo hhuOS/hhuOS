@@ -19,7 +19,7 @@
 #include <device/time/Rtc.h>
 #include <device/time/Pit.h>
 #include <kernel/service/JobService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include "LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {

@@ -18,9 +18,9 @@
 #ifndef __PAGEFRAMEALLOCATOR_H__
 #define __PAGEFRAMEALLOCATOR_H__
 
-#include <cstdint>
 #include "kernel/memory/manager/BitmapMemoryManager.h"
 #include "TableMemoryManager.h"
+#include "PagingAreaManager.h"
 
 namespace Kernel {
 
@@ -36,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    PageFrameAllocator(uint32_t startAddress, uint32_t endAddress);
+    PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint32_t startAddress, uint32_t endAddress);
 
     /**
      * Copy constructor.

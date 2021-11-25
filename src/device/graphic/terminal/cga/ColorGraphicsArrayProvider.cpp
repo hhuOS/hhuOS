@@ -1,7 +1,7 @@
 #include <kernel/memory/MemLayout.h>
 #include <device/bios/Bios.h>
 #include <kernel/service/FilesystemService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include <device/graphic/terminal/TerminalNode.h>
 #include "ColorGraphicsArrayProvider.h"
 #include "ColorGraphicsArray.h"

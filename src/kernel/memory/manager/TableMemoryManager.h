@@ -58,6 +58,8 @@ public:
 
     void free(void *pointer);
 
+    [[nodiscard]] uint32_t getMemorySize() const;
+
     void debugLog();
 
 private:

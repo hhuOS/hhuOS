@@ -15,21 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/interface.h>
-#include "Management.h"
+#include "PagingAreaManagerRefillRunnable.h"
 
-void *Util::Memory::Management::alloc(uint32_t size) {
-    return allocateMemory(size);
+namespace Kernel {
+
+PagingAreaManagerRefillRunnable::PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager) : pagingAreaManager(pagingAreaManager) {}
+
+void PagingAreaManagerRefillRunnable::run() {
+    pagingAreaManager.refillPool();
 }
 
-void Util::Memory::Management::free(void *pointer) {
-    freeMemory(pointer);
-}
-
-void *Util::Memory::Management::alignedAlloc(uint32_t size, uint32_t alignment) {
-    return allocateMemory(size, alignment);
-}
-
-void Util::Memory::Management::alignedFree(void *pointer, uint32_t alignment) {
-    freeMemory(pointer, alignment);
 }

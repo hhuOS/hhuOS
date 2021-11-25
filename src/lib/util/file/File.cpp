@@ -24,10 +24,12 @@ File::File(const Memory::String &path) : path(path) {}
 
 bool File::exists() const {
     auto fileDescriptor = openFile(path);
-    auto ret = fileDescriptor >= 0;
+    if (fileDescriptor >= 0) {
+        closeFile(fileDescriptor);
+        return true;
+    }
 
-    closeFile(fileDescriptor);
-    return ret;
+    return false;
 }
 
 bool File::isFile() const {

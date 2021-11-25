@@ -1,5 +1,5 @@
-#include <kernel/core/Management.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
+#include <kernel/system/System.h>
 #include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "MultibootLinearFrameBufferProvider.h"
 #include "Structure.h"

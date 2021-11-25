@@ -60,33 +60,6 @@ TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager,
     }
 }
 
-void TableMemoryManager::debugLog() {
-    uint32_t memorySize = endAddress - startAddress + 1;
-    uint32_t blockCount = memorySize / blockSize;
-
-    log.debug("startAddress: [%u]", startAddress);
-    log.debug("endAddress: [%u]", endAddress);
-    log.debug("blockSize: [%u]", blockSize);
-    log.debug("memorySize: [%u]", memorySize);
-    log.debug("blockCount: [%u]", blockCount);
-    log.debug("bitmapBlockSize: [%u]", bitmapMemoryManager.getBlockSize());
-    log.debug("allocationTableCount: [%u]", allocationTableCount);
-    log.debug("allocationTableEntriesPerBlock: [%u]", allocationTableEntriesPerBlock);
-    log.debug("managedMemoryPerAllocationTable: [%u]", managedMemoryPerAllocationTable);
-    log.debug("referenceTableEntriesPerBlock: [%u]", referenceTableEntriesPerBlock);
-    log.debug("referenceTableSizeInBlocks: [%u]", referenceTableSizeInBlocks);
-
-    for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
-        for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
-            auto entry = referenceTableArray[i][j];
-            log.debug("Index: [%04u], Allocation Table Address: [%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
-            if (entry.getAddress() > 0) {
-                printAllocationTable(i, j);
-            }
-        }
-    }
-}
-
 void TableMemoryManager::printAllocationTable(uint32_t referenceTableArrayIndex, uint32_t referenceTableIndex) {
     auto referenceTableEntry = referenceTableArray[referenceTableArrayIndex][referenceTableIndex];
     auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
@@ -216,6 +189,37 @@ void *TableMemoryManager::allocAfterAddress(void *address) {
     }
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TableMemoryManager: Allocation failed!");
+}
+
+uint32_t TableMemoryManager::getMemorySize() const {
+    return endAddress - startAddress;
+}
+
+void TableMemoryManager::debugLog() {
+    uint32_t memorySize = endAddress - startAddress + 1;
+    uint32_t blockCount = memorySize / blockSize;
+
+    log.debug("startAddress: [%u]", startAddress);
+    log.debug("endAddress: [%u]", endAddress);
+    log.debug("blockSize: [%u]", blockSize);
+    log.debug("memorySize: [%u]", memorySize);
+    log.debug("blockCount: [%u]", blockCount);
+    log.debug("bitmapBlockSize: [%u]", bitmapMemoryManager.getBlockSize());
+    log.debug("allocationTableCount: [%u]", allocationTableCount);
+    log.debug("allocationTableEntriesPerBlock: [%u]", allocationTableEntriesPerBlock);
+    log.debug("managedMemoryPerAllocationTable: [%u]", managedMemoryPerAllocationTable);
+    log.debug("referenceTableEntriesPerBlock: [%u]", referenceTableEntriesPerBlock);
+    log.debug("referenceTableSizeInBlocks: [%u]", referenceTableSizeInBlocks);
+
+    for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
+        for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
+            auto entry = referenceTableArray[i][j];
+            log.debug("Index: [%04u], Allocation Table Address: [%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
+            if (entry.getAddress() > 0) {
+                printAllocationTable(i, j);
+            }
+        }
+    }
 }
 
 }

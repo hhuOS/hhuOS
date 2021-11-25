@@ -15,25 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/core/Management.h>
+#include <kernel/system/System.h>
+#include <kernel/system/System.h>
 #include "FilesystemService.h"
+#include "MemoryService.h"
 
 namespace Kernel {
+
+
+// TODO: Replace calls to System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager()
+//       once the process scheduler is implemented.
 
 Filesystem::Filesystem &FilesystemService::getFilesystem() {
     return filesystem;
 }
 
 int32_t FilesystemService::openFile(const Util::Memory::String &path) {
-    return Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().openFile(path);
+    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().openFile(path);
 }
 
 void FilesystemService::closeFile(int32_t fileDescriptor) {
-    Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().closeFile(fileDescriptor);
+    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().closeFile(fileDescriptor);
 }
 
 Filesystem::Node &FilesystemService::getNode(int32_t fileDescriptor) {
-    return Management::getInstance().getCurrentAddressSpace().getFileDescriptorManager().getNode(fileDescriptor);
+    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().getNode(fileDescriptor);
 }
 
 }

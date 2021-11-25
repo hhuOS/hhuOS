@@ -1,4 +1,4 @@
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include "FileDescriptorManager.h"
 
 namespace Kernel {
@@ -31,6 +31,10 @@ int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
 }
 
 void FileDescriptorManager::closeFile(int32_t fileDescriptor) {
+    if (fileDescriptor == -1) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");
+    }
+
     auto *node = descriptorTable[fileDescriptor];
     if (node != nullptr) {
         delete node;
@@ -39,6 +43,10 @@ void FileDescriptorManager::closeFile(int32_t fileDescriptor) {
 }
 
 Filesystem::Node &FileDescriptorManager::getNode(int32_t fileDescriptor) {
+    if (fileDescriptor == -1) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");
+    }
+
     auto *node = descriptorTable[fileDescriptor];
     if (node == nullptr) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid file descriptor!");

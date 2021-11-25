@@ -16,7 +16,7 @@
  */
 
 #include <device/interrupt/Pic.h>
-#include "kernel/core/System.h"
+#include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 

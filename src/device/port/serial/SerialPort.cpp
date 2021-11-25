@@ -20,7 +20,7 @@
 #include <kernel/log/Logger.h>
 #include <filesystem/memory/StreamNode.h>
 #include <kernel/service/FilesystemService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include "SerialPort.h"
 
 namespace Device {

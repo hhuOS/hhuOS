@@ -15,45 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MANAGEMENT_H
-#define HHUOS_MANAGEMENT_H
+#ifndef HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
+#define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
 
-#include <cstdint>
+#include <lib/util/async/Runnable.h>
+#include "PagingAreaManager.h"
 
-namespace Util::Memory {
+namespace Kernel {
 
-class Management {
+class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
 
 public:
     /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
+     * Constructor.
      */
-    Management() = delete;
+    explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
 
     /**
      * Copy constructor.
      */
-    Management(const Management &other) = delete;
+    PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Management &operator=(const Management &other) = delete;
+    PagingAreaManagerRefillRunnable &operator=(const PagingAreaManagerRefillRunnable &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Management() = default;
+    ~PagingAreaManagerRefillRunnable() = default;
 
-    static void* alloc(uint32_t size);
+    void run() override;
 
-    static void free(void *pointer);
+private:
 
-    static void* alignedAlloc(uint32_t size, uint32_t alignment);
-
-    static void alignedFree(void *pointer, uint32_t alignment);
-
+    PagingAreaManager &pagingAreaManager;
 };
 
 }

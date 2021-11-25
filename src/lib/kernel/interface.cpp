@@ -16,33 +16,45 @@
  */
 
 #include <lib/interface.h>
-#include <kernel/core/Management.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
+#include <kernel/service/MemoryService.h>
 #include <kernel/service/FilesystemService.h>
 #include <device/cpu/Cpu.h>
 
 void *allocateMemory(uint32_t size) {
-    return Kernel::Management::getKernelHeapManager()->alloc(size);
+    if (Kernel::System::isInitialized()) {
+        return Kernel::System::getMemoryService().allocateMemory(size, 0);
+    } else {
+        return Kernel::System::allocateEarlyMemory(size);
+    }
 }
 
 void* reallocateMemory(void *pointer, uint32_t size) {
-    return Kernel::Management::getKernelHeapManager()->realloc(pointer, size);
+    return Kernel::System::getMemoryService().reallocateMemory(pointer, size, 0);
 }
 
 void freeMemory(void *pointer) {
-    Kernel::Management::getKernelHeapManager()->free(pointer);
+    if (Kernel::System::isInitialized()) {
+        Kernel::System::getMemoryService().freeMemory(pointer, 0);
+    } else {
+        Kernel::System::freeEarlyMemory(pointer);
+    }
 }
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return Kernel::Management::getKernelHeapManager()->alignedAlloc(size, alignment);
+    return Kernel::System::getMemoryService().allocateMemory(size, alignment);
+}
+
+void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    return Kernel::System::getMemoryService().reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    Kernel::Management::getKernelHeapManager()->alignedFree(pointer, alignment);
+    return Kernel::System::getMemoryService().freeMemory(pointer, alignment);
 }
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
-    return Kernel::Management::getInstance().mapIO(physicalAddress, size);
+    return Kernel::System::getMemoryService().mapIO(physicalAddress, size);
 }
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {

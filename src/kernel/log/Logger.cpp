@@ -18,7 +18,7 @@
 #include <lib/util/stream/OutputStreamWriter.h>
 #include <device/time/Pit.h>
 #include <lib/util/graphic/Ansi.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include <kernel/service/TimeService.h>
 #include "Logger.h"
 

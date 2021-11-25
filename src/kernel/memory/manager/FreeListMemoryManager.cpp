@@ -16,10 +16,12 @@
  */
 
 #include <lib/util/memory/Address.h>
+#include <kernel/system/System.h>
+#include <kernel/service/MemoryService.h>
 #include "kernel/memory/Paging.h"
 #include "FreeListMemoryManager.h"
 
-#include "kernel/core/Management.h"
+#include "kernel/system/System.h"
 
 namespace Kernel {
 
@@ -231,12 +233,12 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     FreeListHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
-    if (mergedHeader->size >= Kernel::Paging::PAGESIZE && Management::isInitialized()) {
+    if (mergedHeader->size >= Kernel::Paging::PAGESIZE && System::isInitialized()) {
         auto addr = (uint32_t) mergedHeader;
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
-        Management::getInstance().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
+        System::getMemoryService().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
     }
 }
 

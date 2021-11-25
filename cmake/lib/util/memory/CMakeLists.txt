@@ -19,6 +19,5 @@ cmake_minimum_required(VERSION 3.7)
 target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/memory/Address.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/AtomicBitmap.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/Management.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/operators.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/String.cpp)

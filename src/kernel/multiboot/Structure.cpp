@@ -17,9 +17,11 @@
 
 #include <kernel/memory/Paging.h>
 #include <asm_interface.h>
+#include <kernel/system/System.h>
+#include <kernel/service/MemoryService.h>
 #include "kernel/memory/MemLayout.h"
-#include "kernel/core/Symbols.h"
-#include "kernel/core/Management.h"
+#include "kernel/system/Symbols.h"
+#include "kernel/system/System.h"
 #include "Structure.h"
 #include "Constants.h"
 
@@ -325,7 +327,7 @@ void Structure::parseModules() {
 
             uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
 
-            modInfo[i].start = reinterpret_cast<uint32_t>(Kernel::Management::getInstance().mapIO(modInfo[i].start, size)) + offset;
+            modInfo[i].start = reinterpret_cast<uint32_t>(System::getMemoryService().mapIO(modInfo[i].start, size)) + offset;
 
             modInfo[i].end += modInfo[i].start + size;
 

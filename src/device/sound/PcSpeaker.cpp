@@ -17,7 +17,7 @@
 
 #include <device/time/Pit.h>
 #include <kernel/service/TimeService.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include "PcSpeaker.h"
 
 namespace Device {

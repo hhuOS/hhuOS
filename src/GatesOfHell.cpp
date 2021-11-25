@@ -22,7 +22,7 @@
 #include <device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h>
 #include <device/graphic/terminal/cga/ColorGraphicsArrayProvider.h>
 #include <lib/util/reflection/InstanceFactory.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
 #include <kernel/multiboot/Structure.h>
 #include <kernel/multiboot/MultibootTerminalProvider.h>
 #include <device/hid/Keyboard.h>
@@ -35,10 +35,11 @@
 #include <kernel/service/FilesystemService.h>
 #include <filesystem/memory/MemoryDriver.h>
 #include <lib/util/stream/FileInputStream.h>
-#include <kernel/core/Management.h>
+#include <kernel/system/System.h>
 #include <device/cpu/CpuId.h>
 #include <lib/util/graphic/Ansi.h>
 #include <lib/util/stream/FileOutputStream.h>
+#include <kernel/service/MemoryService.h>
 #include "GatesOfHell.h"
 #include "BuildConfig.h"
 
@@ -51,7 +52,7 @@ void GatesOfHell::enter() {
     Kernel::Logger::setLevel(logLevel);
 
     log.info("Welcome to hhuOS");
-    log.info("%u MiB of physical memory detected", Kernel::Management::getInstance().getTotalPhysicalMemory() / 1024 / 1024);
+    log.info("%u MiB of physical memory detected", Kernel::System::getMemoryService().getPhysicalMemorySize() / 1024 / 1024);
 
     if (Device::CpuId::isAvailable()) {
         log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));

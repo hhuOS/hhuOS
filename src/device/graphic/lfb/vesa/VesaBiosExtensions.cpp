@@ -1,7 +1,7 @@
 #include <device/bios/Bios.h>
 #include <kernel/memory/MemLayout.h>
-#include <kernel/core/Management.h>
-#include <kernel/core/System.h>
+#include <kernel/system/System.h>
+#include <kernel/system/System.h>
 #include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "VesaBiosExtensions.h"
 
