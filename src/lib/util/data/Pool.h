@@ -28,7 +28,7 @@ class Pool {
 
 public:
 
-    Pool(uint32_t size);
+    explicit Pool(uint32_t size);
 
     Pool(const Pool &copy) = delete;
 
@@ -38,13 +38,13 @@ public:
 
     bool push(T *element);
 
-    T* pop();
+    [[nodiscard]] T* pop();
 
-    uint32_t getCapacity();
+    [[nodiscard]] uint32_t getCapacity();
 
-    uint32_t getFillingDegree();
+    [[nodiscard]] uint32_t getFillingDegree();
 
-    bool isFull();
+    [[nodiscard]] bool isFull();
 
 private:
 

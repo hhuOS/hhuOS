@@ -52,179 +52,133 @@ public:
 
     void put(const K &key, const V &value) override;
 
-    V get(const K &key) const override;
+    [[nodiscard]] V get(const K &key) const override;
 
     V remove(const K &key) override;
 
-    bool containsKey(const K &key) const override;
+    [[nodiscard]] bool containsKey(const K &key) const override;
 
-    uint32_t size() const override;
+    [[nodiscard]] uint32_t size() const override;
 
     void clear() override;
 
-    Array<K> keySet() const override;
+    [[nodiscard]] Array<K> keySet() const override;
 
 private:
 
-    mutable HashNode <K, V> **table;
-
-    mutable bool isInitialized = false;
-
-    const uint32_t tableSize;
-
     void initialize() const;
 
-    static const uint32_t DEFAULT_TABLE_SIZE = 47;
-
+    mutable HashNode <K, V> **table;
+    mutable bool isInitialized = false;
+    const uint32_t tableSize;
     uint32_t count;
 
+    static const constexpr uint32_t DEFAULT_TABLE_SIZE = 47;
 };
 
 template<class K, class V>
-HashMap<K, V>::HashMap(uint32_t tableSize) noexcept : tableSize(tableSize), count(0) {
+HashMap<K, V>::HashMap() noexcept : tableSize(DEFAULT_TABLE_SIZE), count(0) {}
 
-}
+template<class K, class V>
+HashMap<K, V>::HashMap(uint32_t tableSize) noexcept : tableSize(tableSize), count(0) {}
 
 template<class K, class V>
 HashMap<K, V>::HashMap(std::initializer_list<Pair<K, V>> list) : tableSize(DEFAULT_TABLE_SIZE), count(list.size()) {
-
     for (auto &pair : list) {
-
         put(pair.first, pair.second);
     }
 }
 
 template<class K, class V>
-HashMap<K, V>::HashMap() noexcept : tableSize(DEFAULT_TABLE_SIZE), count(0) {
-
-}
-
-template<class K, class V>
 HashMap<K, V>::~HashMap() {
-
     clear();
-
     delete[] table;
 }
 
 template<class K, class V>
 void HashMap<K, V>::put(const K &key, const V &value) {
-
     if (!isInitialized) {
-
         initialize();
     }
 
     const uint32_t hash = (uint32_t) key % tableSize;
-
     HashNode <K, V> *previous = nullptr;
-
     HashNode <K, V> *entry = table[hash];
 
     while (entry != nullptr && entry->getKey() != key) {
-
         previous = entry;
-
         entry = entry->getNext();
     }
 
     if (entry == nullptr) {
-
         entry = new HashNode<K, V>(key, value);
 
         if (previous == nullptr) {
-
             table[hash] = entry;
-
         } else {
-
             previous->setNext(entry);
         }
 
         count++;
-
     } else {
-
         entry->setValue(value);
     }
 }
 
 template<class K, class V>
 V HashMap<K, V>::get(const K &key) const {
-
     if (!isInitialized) {
-
         initialize();
     }
 
     uint32_t hash = (uint32_t) key % tableSize;
-
     HashNode <K, V> *entry = table[hash];
 
     while (entry != nullptr) {
-
         if (entry->getKey() == key) {
-
             return entry->getValue();
         }
 
         entry = entry->getNext();
     }
 
-    Exception::throwException(Exception::KEY_NOT_FOUND);
-
-    return *(V*) nullptr;
+    Exception::throwException(Exception::KEY_NOT_FOUND, "HashMap: Key does not exist!");
 }
 
 template<class K, class V>
 V HashMap<K, V>::remove(const K &key) {
-
     if (!isInitialized) {
-
         initialize();
     }
 
     uint32_t hash = (uint32_t) key % tableSize;
-
     HashNode <K, V> *previous = nullptr;
-
     HashNode <K, V> *entry = table[hash];
 
     while (entry != nullptr && entry->getKey() != key) {
-
         previous = entry;
-
         entry = entry->getNext();
     }
 
     if (entry == nullptr) {
-
-        Exception::throwException(Exception::KEY_NOT_FOUND);
-
-        return *(V*) nullptr;
+        Exception::throwException(Exception::KEY_NOT_FOUND, "HashMap: Key does not exist!");
     }
 
     V tmp = entry->getValue();
 
     if (previous == nullptr) {
-
         table[hash] = entry->getNext();
-
     } else {
-
         previous->setNext(entry->getNext());
     }
 
-    delete entry;
-
     count--;
-
+    delete entry;
     return tmp;
 }
 
 template<class K, class V>
 void HashMap<K, V>::initialize() const {
-
     table = new HashNode <K, V> *[tableSize];
 
     for (uint32_t i = 0; i < tableSize; i++) {
@@ -236,14 +190,11 @@ void HashMap<K, V>::initialize() const {
 
 template<class K, class V>
 bool HashMap<K, V>::containsKey(const K &key) const {
-
     if (!isInitialized) {
-
         return false;
     }
 
     const uint32_t hash = (uint32_t) key % tableSize;
-
     HashNode <K, V> *entry = table[hash];
 
     while (entry != nullptr && entry->getKey() != key) {
@@ -255,32 +206,24 @@ bool HashMap<K, V>::containsKey(const K &key) const {
 
 template<class K, class V>
 uint32_t HashMap<K, V>::size() const {
-
     return count;
 }
 
 template<class K, class V>
 void HashMap<K, V>::clear() {
-
     if (!isInitialized) {
-
         initialize();
     }
 
     HashNode<K, V> *current;
-
     HashNode<K, V> *tmp;
 
     for (uint32_t i = 0; i < tableSize; i++) {
-
         current = table[i];
 
         while (current != nullptr) {
-
             tmp = current->getNext();
-
             delete current;
-
             current = tmp;
         }
 
@@ -292,24 +235,18 @@ void HashMap<K, V>::clear() {
 
 template<class K, class V>
 Array<K> HashMap<K, V>::keySet() const {
-
     if (!isInitialized) {
-
         initialize();
     }
 
     ArrayList<K> keyList;
-
     HashNode<K, V> *current;
 
     for (uint32_t i = 0; i < tableSize; i++) {
-
         current = table[i];
 
         while (current != nullptr) {
-
             keyList.add(current->getKey());
-
             current = current->getNext();
         }
     }

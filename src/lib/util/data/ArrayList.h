@@ -51,7 +51,7 @@ public:
 
     bool addAll(const Collection<T> &other) override;
 
-    T get(uint32_t index) const override;
+    [[nodiscard]] T get(uint32_t index) const override;
 
     void set(uint32_t index, const T &element) override;
 
@@ -61,13 +61,13 @@ public:
 
     T remove(uint32_t index) override;
 
-    bool contains(const T &element) const override;
+    [[nodiscard]] bool contains(const T &element) const override;
 
-    bool containsAll(const Collection<T> &other) const override;
+    [[nodiscard]] bool containsAll(const Collection<T> &other) const override;
 
-    uint32_t indexOf(const T &element) const override;
+    [[nodiscard]] uint32_t indexOf(const T &element) const override;
 
-    bool isEmpty() const override;
+    [[nodiscard]] bool isEmpty() const override;
 
     void clear() override;
 
@@ -75,66 +75,52 @@ public:
 
     Iterator<T> end() const override;
 
-    uint32_t size() const override;
+    [[nodiscard]] uint32_t size() const override;
 
-    Array<T> toArray() const override;
+    [[nodiscard]] Array<T> toArray() const override;
 
-    T *getArray();
+    [[nodiscard]] T *getArray();
 
 private:
 
-    T *elements = nullptr;
-
-    uint32_t capacity = 0;
-
-    uint32_t length = 0;
-
-    static const uint32_t DEFAULT_CAPACITY = 8;
-
     void ensureCapacity(uint32_t newCapacity) override;
 
+    T *elements = nullptr;
+    uint32_t capacity = 0;
+    uint32_t length = 0;
+
+    static const constexpr uint32_t DEFAULT_CAPACITY = 8;
 };
 
 template <class T>
 ArrayList<T>::ArrayList() noexcept {
-
     this->length = 0;
-
     this->capacity = 0;
-
     this->elements = nullptr;
 }
 
 template <class T>
 ArrayList<T>::ArrayList(uint32_t capacity) noexcept {
-
     this->length = 0;
-
     this->capacity = capacity;
-
     this->elements = new T[capacity];
 }
 
 template<typename T>
 ArrayList<T>::ArrayList(Array<T> elements) noexcept : ArrayList(elements.length()) {
-
     for(const auto &element : elements)  {
-
         add(element);
     }
 }
 
 template <class T>
 ArrayList<T>::~ArrayList() {
-
     delete[] elements;
 }
 
 template <class T>
 T ArrayList<T>::get(uint32_t index) const {
-
     if (index >= length) {
-
         Exception::throwException(Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
     }
 
@@ -143,11 +129,8 @@ T ArrayList<T>::get(uint32_t index) const {
 
 template <class T>
 bool ArrayList<T>::add(const T &element) {
-
     ensureCapacity(length + 1);
-
     elements[length] = element;
-
     length++;
 
     return true;
@@ -155,9 +138,7 @@ bool ArrayList<T>::add(const T &element) {
 
 template <class T>
 bool ArrayList<T>::addAll(const Collection<T> &other) {
-
     for (const T &element : other) {
-
         add(element);
     }
 
@@ -166,7 +147,6 @@ bool ArrayList<T>::addAll(const Collection<T> &other) {
 
 template <class T>
 void ArrayList<T>::add(uint32_t index, const T &element) {
-
     if (index > length) {
         return;
     }
@@ -178,13 +158,11 @@ void ArrayList<T>::add(uint32_t index, const T &element) {
     }
 
     elements[index] = element;
-
     length++;
 }
 
 template <class T>
 bool ArrayList<T>::remove(const T &element) {
-
     uint32_t index = indexOf(element);
 
     if (index >= length) {
@@ -192,43 +170,34 @@ bool ArrayList<T>::remove(const T &element) {
     }
 
     remove(index);
-
     return true;
 }
 
 template <class T>
 T ArrayList<T>::remove(uint32_t index) {
-
     if (index >= length) {
-
         Exception::throwException(Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
     }
 
     T tmp = elements[index];
-
     uint32_t numMoved = length - index - 1;
 
     if (numMoved != 0) {
-
         for(uint32_t i = 0; i < numMoved; i++) {
             elements[index + i] = elements[index + i + 1];
         }
     }
 
     length--;
-
     return tmp;
 }
 
 template <class T>
 bool ArrayList<T>::removeAll(const Collection<T> &other) {
-
     bool changed = false;
 
     for (const T &element : other) {
-
         if (remove(element)) {
-
             changed = true;
         }
     }
@@ -238,27 +207,21 @@ bool ArrayList<T>::removeAll(const Collection<T> &other) {
 
 template <class T>
 uint32_t ArrayList<T>::indexOf(const T &element) const {
-
     uint32_t index;
-
-    for (index = 0; elements[index] != element && index < length; index++);
+    for (index = 0; elements[index] != element && index < length; index++) {}
 
     return index == length ? UINT32_MAX : index;
 }
 
 template <class T>
 bool ArrayList<T>::contains(const T &element) const {
-
     return indexOf(element) < length;
 }
 
 template <class T>
 bool ArrayList<T>::containsAll(const Collection<T> &other) const {
-
     for (const T &element : other) {
-
         if (!contains(element)) {
-
             return false;
         }
     }
@@ -268,23 +231,18 @@ bool ArrayList<T>::containsAll(const Collection<T> &other) const {
 
 template <class T>
 void ArrayList<T>::clear() {
-
     length = 0;
 }
 
 template <class T>
 uint32_t ArrayList<T>::size() const {
-
     return length;
 }
 
 template <class T>
 void ArrayList<T>::ensureCapacity(uint32_t newCapacity) {
-
     if (capacity == 0) {
-
         capacity = DEFAULT_CAPACITY;
-
         elements = new T[capacity];
     }
 
@@ -293,17 +251,14 @@ void ArrayList<T>::ensureCapacity(uint32_t newCapacity) {
     }
 
     uint32_t oldCapacity = capacity;
-
     while (capacity < newCapacity) {
         capacity *= 2;
     }
 
     T* tmp = elements;
-
     elements = new T[capacity];
 
     for (uint32_t i = 0; i < oldCapacity; i++) {
-
         elements[i] = tmp[i];
     }
 
@@ -312,25 +267,21 @@ void ArrayList<T>::ensureCapacity(uint32_t newCapacity) {
 
 template <class T>
 Iterator<T> ArrayList<T>::begin() const {
-
     return Iterator<T>(toArray(), 0);
 }
 
 template <class T>
 Iterator<T> ArrayList<T>::end() const {
-
     return Iterator<T>(toArray(), length);
 }
 
 template <class T>
 bool ArrayList<T>::isEmpty() const {
-
     return length == 0;
 }
 
 template <class T>
 void ArrayList<T>::set(uint32_t index, const T &element) {
-
     if (index >= length) {
         return;
     }
@@ -340,11 +291,9 @@ void ArrayList<T>::set(uint32_t index, const T &element) {
 
 template <class T>
 Array<T> ArrayList<T>::toArray() const {
-
     Array<T> array(length);
 
     for (uint32_t i = 0; i < length; i++) {
-
         array[i] = elements[i];
     }
 
@@ -353,7 +302,6 @@ Array<T> ArrayList<T>::toArray() const {
 
 template <class T>
 T *ArrayList<T>::getArray() {
-
     return elements;
 }
 

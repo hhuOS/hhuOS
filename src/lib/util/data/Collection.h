@@ -42,11 +42,11 @@ public:
 
     virtual bool removeAll(const Collection<T> &other) = 0;
 
-    virtual bool contains(const T &element) const = 0;
+    [[nodiscard]] virtual bool contains(const T &element) const = 0;
 
-    virtual bool containsAll(const Collection<T> &other) const = 0;
+    [[nodiscard]] virtual bool containsAll(const Collection<T> &other) const = 0;
 
-    virtual bool isEmpty() const = 0;
+    [[nodiscard]] virtual bool isEmpty() const = 0;
 
     virtual void clear() = 0;
 
@@ -54,10 +54,9 @@ public:
 
     virtual Iterator<T> end() const = 0;
 
-    virtual uint32_t size() const = 0;
+    [[nodiscard]] virtual uint32_t size() const = 0;
 
-    virtual Array<T> toArray() const = 0;
-
+    [[nodiscard]] virtual Array<T> toArray() const = 0;
 };
 
 }

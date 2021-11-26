@@ -33,11 +33,11 @@ public:
 
     String() noexcept;
 
+    String(char character) noexcept;
+
     String(const char string[]) noexcept;
 
     String(uint8_t *data, uint32_t length) noexcept;
-
-    String(char character) noexcept;
 
     String(const String &other) noexcept;
 
@@ -57,7 +57,7 @@ public:
 
     [[nodiscard]] String substring(uint32_t begin, uint32_t end) const;
 
-    String strip();
+    [[nodiscard]] String strip();
 
     [[nodiscard]] Data::Array<String> split(const String &delimiter, uint32_t limit = 0) const;
 
@@ -69,19 +69,19 @@ public:
 
     [[nodiscard]] bool endsWith(const String &string) const;
 
-    static String join(const String &separator, const Util::Data::Array<String> &elements);
+    [[nodiscard]] static String join(const String &separator, const Util::Data::Array<String> &elements);
 
-    static String format(const char *format, ...);
+    [[nodiscard]] static String format(const char *format, ...);
 
-    static String vformat(const char *format, va_list args);
+    [[nodiscard]] static String vformat(const char *format, va_list args);
 
-    static bool isAlpha(char c);
+    [[nodiscard]] static bool isAlpha(char c);
 
-    static bool isNumeric(char c);
+    [[nodiscard]] static bool isNumeric(char c);
 
-    static int32_t parseInt(const char *string);
+    [[nodiscard]] static int32_t parseInt(const char *string);
 
-    static int32_t parseInt(const String &string);
+    [[nodiscard]] static int32_t parseInt(const String &string);
 
     [[nodiscard]] String toUpperCase() const;
 
@@ -117,11 +117,10 @@ public:
 
 private:
 
-    static const uint8_t CASE_OFFSET = 32;
-
+    char *buffer;
     uint32_t len;
 
-    char *buffer;
+    static const constexpr uint8_t CASE_OFFSET = 32;
 };
 
 }

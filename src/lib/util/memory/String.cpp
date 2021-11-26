@@ -38,51 +38,36 @@ String::String(char character) noexcept {
 }
 
 String::String(const char *string) noexcept {
-
     auto address = Memory::Address<uint32_t>(string);
 
     if (string == nullptr) {
-
         len = 0;
-
     } else {
-
         len = address.stringLength();
     }
 
     buffer = new char[len + 1];
-
     Memory::Address<uint32_t>(buffer).copyRange(address, len);
-
     buffer[len] = '\0';
 }
 
 String::String(uint8_t *data, uint32_t length) noexcept {
-
     auto address = Memory::Address<uint32_t>(data, length);
 
     len = length;
-
     buffer = new char[len + 1];
-
     Memory::Address<uint32_t>(buffer).copyRange(address, len);
-
     buffer[len] = '\0';
 }
 
 String::String(const String &other) noexcept {
-
     len = other.len;
-
     buffer = new char[len + 1];
-
     Memory::Address<uint32_t>(buffer).copyRange(Memory::Address<uint32_t>(other.buffer), len);
-
     buffer[len] = '\0';
 }
 
 String::~String() {
-
     delete[] buffer;
 }
 
@@ -97,12 +82,10 @@ uint32_t String::hashCode() const {
 }
 
 String String::substring(uint32_t begin) const {
-
     return substring(0, length() - 1);
 }
 
 String String::substring(uint32_t begin, uint32_t end) const {
-
     if (begin > end || begin >= len) {
         return "";
     }
@@ -112,22 +95,17 @@ String String::substring(uint32_t begin, uint32_t end) const {
     }
 
     uint32_t length = end - begin;
-
     char *buffer = new char[length + 1];
-
     Memory::Address<uint32_t>(buffer).copyRange(Memory::Address<uint32_t>(this->buffer + begin), length);
 
     String tmp = "";
-
     tmp.buffer = buffer;
-
     tmp.len = length;
 
     return tmp;
 }
 
 Util::Data::Array<String> String::split(const String &delimiter, uint32_t limit) const {
-
     Util::Data::ArrayList<String> result;
 
     if (len == 0) {
@@ -135,13 +113,10 @@ Util::Data::Array<String> String::split(const String &delimiter, uint32_t limit)
     }
 
     uint32_t start = 0;
-
     uint32_t end = indexOf(delimiter);
-
     String element;
 
     while (end != UINT32_MAX && result.size() + 1 != limit) {
-
         element = substring(start, end);
 
         if (!element.isEmpty()) {
@@ -149,7 +124,6 @@ Util::Data::Array<String> String::split(const String &delimiter, uint32_t limit)
         }
 
         start = end + delimiter.len;
-
         end = indexOf(delimiter, start);
     }
 
@@ -167,11 +141,8 @@ bool String::isEmpty() const {
 }
 
 uint32_t String::indexOf(char character, uint32_t start) const {
-
     for (uint32_t i = start; i < len; i++) {
-
         if (buffer[i] == character) {
-
             return i;
         }
     }
@@ -180,16 +151,12 @@ uint32_t String::indexOf(char character, uint32_t start) const {
 }
 
 uint32_t String::indexOf(const String &other, uint32_t start) const {
-
-    uint32_t i = 0;
+    uint32_t i;
     uint32_t j = 0;
 
     for (i = start; i < len; i++) {
-
         if (buffer[i] == other.buffer[0]) {
-
             for (j = 1; j < other.len; j++) {
-
                 if (i + j >= len) {
                     return UINT32_MAX;
                 }
@@ -211,20 +178,17 @@ uint32_t String::indexOf(const String &other, uint32_t start) const {
 
 
 String String::remove(const String &string) const {
-
     uint32_t index = indexOf(string);
 
     if (index == UINT32_MAX) {
-        return buffer;
+        return String(buffer);
     }
 
     return substring(0, index) + substring(index + string.len, len);
 }
 
 String String::removeAll(const String &string) const {
-
     Util::Data::Array<String> tokens = split(string);
-
     String tmp;
 
     for (const String &token : tokens) {
@@ -256,17 +220,13 @@ bool String::operator!=(const String &other) const {
 }
 
 String &String::operator=(const String &other) {
-
     if (&other == this) {
         return *this;
     }
 
     delete buffer;
-
     buffer = nullptr;
-
     len = other.len;
-
     buffer = new char[len + 1];
 
     if (other.buffer != nullptr) {
@@ -277,56 +237,43 @@ String &String::operator=(const String &other) {
 }
 
 String &String::operator+=(const String &other) {
-
     buffer = static_cast<char*>(reallocateMemory(buffer, len + other.len + 1));
-
     Memory::Address<uint32_t>(buffer + len).copyRange(Memory::Address<uint32_t>(other.buffer), other.len + 1);
-
     len += other.len;
 
     return *this;
 }
 
 String operator+(const String &first, const String &second) {
-
     String tmp = first;
-
     tmp += second;
 
     return tmp;
 }
 
 String operator+(const String &first, char second) {
-
     String tmp = first;
-
     tmp += String(second);
 
     return tmp;
 }
 
 String operator+(const String &first, const char *second) {
-
     String tmp = first;
-
     tmp += String(second);
 
     return tmp;
 }
 
 String operator+(char first, const String &second) {
-
-    String tmp = first;
-
+    String tmp(first);
     tmp += second;
 
     return tmp;
 }
 
 String operator+(const char *first, const String &second) {
-
-    String tmp = first;
-
+    String tmp(first);
     tmp += second;
 
     return tmp;
@@ -359,9 +306,7 @@ String::operator uint32_t() const {
 }
 
 String String::join(const String &separator, const Util::Data::Array<String> &elements) {
-
-    String tmp = String();
-
+    String tmp = "";
     uint32_t size = elements.length();
 
     for (uint32_t i = 0; i < size - 1; i++) {
@@ -369,24 +314,18 @@ String String::join(const String &separator, const Util::Data::Array<String> &el
     }
 
     tmp += elements[size - 1];
-
     return tmp;
 }
 
 String String::toUpperCase() const {
-
     String tmp = *this;
-
     char c;
 
     for (uint32_t i = 0; i < len; i++) {
-
         c = tmp[i];
 
         if (isAlpha(tmp[i])) {
-
             if (c <= 'Z') {
-
                 continue;
             }
 
@@ -394,24 +333,18 @@ String String::toUpperCase() const {
         }
     }
 
-
     return tmp;
 }
 
 String String::toLowerCase() const {
-
     String tmp = *this;
-
     char c;
 
     for (uint32_t i = 0; i < len; i++) {
-
         c = tmp[i];
 
         if (isAlpha(tmp[i])) {
-
             if (c >= 'a') {
-
                 continue;
             }
 
@@ -419,50 +352,39 @@ String String::toLowerCase() const {
         }
     }
 
-
     return tmp;
 }
 
 bool String::isAlpha(const char c) {
-
     return (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z');
 }
 
 bool String::isNumeric(const char c) {
-
     return (c >= '0' && c <= '9');
 }
 
 String String::strip() {
-
     uint32_t startIndex = 0;
-
     char element;
 
     for (startIndex = 0; startIndex < len; startIndex++) {
-
         element = buffer[startIndex];
 
         if (element != '\t' && element != ' ') {
-
             break;
         }
     }
 
     uint32_t endIndex;
-
     for (endIndex = len - 1; endIndex > startIndex; endIndex--) {
-
         element = buffer[endIndex];
 
         if (element != '\t' && element != ' ') {
-
             break;
         }
     }
 
     if (startIndex == endIndex) {
-
         return "";
     }
 
@@ -476,7 +398,6 @@ String String::format(const char *format, ...) {
     String tmp = vformat(format, args);
 
     va_end(args);
-
     return tmp;
 }
 

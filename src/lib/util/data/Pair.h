@@ -44,8 +44,9 @@ public:
 
     explicit operator uint32_t() const;
 
-    T first;
+public:
 
+    T first;
     U second;
 };
 
@@ -65,14 +66,8 @@ bool Pair<T, U>::operator==(const Pair &other) const {
 
 template<typename T, typename U>
 Pair<T, U>::operator uint32_t() const {
-
-    uint32_t
-    k1 = (uint32_t)
-    first;
-
-    uint32_t
-    k2 = (uint32_t)
-    second;
+    auto k1 = static_cast<uint32_t>(first);
+    auto k2 = static_cast<uint32_t>(first);
 
     return (((k1 + k2) * (k1 + k2 + 1)) / 2) + k2;
 };

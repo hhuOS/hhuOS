@@ -46,33 +46,25 @@ public:
 
     T &operator*();
 
-    bool hasNext() const;
+    [[nodiscard]] bool hasNext() const;
 
-    T &next() const;
+    [[nodiscard]] T &next() const;
 
 private:
 
     Array<T> array;
-
     mutable uint32_t index = 0;
-
 };
 
 template <class T>
-Iterator<T>::Iterator(Array<T> array, uint32_t index) : array(array), index(index) {
-
-}
+Iterator<T>::Iterator(Array<T> array, uint32_t index) : array(array), index(index) {}
 
 template <class T>
-Iterator<T>::Iterator(const Iterator<T> &other) : array(other.array), index(other.index) {
-
-}
+Iterator<T>::Iterator(const Iterator<T> &other) : array(other.array), index(other.index) {}
 
 template <class T>
 Iterator<T> &Iterator<T>::operator=(const Iterator<T> &other) {
-
     array = other.array;
-
     index = other.index;
 
     return *this;
@@ -80,35 +72,28 @@ Iterator<T> &Iterator<T>::operator=(const Iterator<T> &other) {
 
 template <class T>
 T &Iterator<T>::operator*() {
-
     return array[index];
 }
 
 template <class T>
 bool Iterator<T>::operator!=(const Iterator<T> &other) {
-
     return index != other.index;
 }
 
 template <class T>
 const Iterator<T> &Iterator<T>::operator++() {
-
     index++;
-
     return *this;
 }
 
 template <class T>
 bool Iterator<T>::hasNext() const {
-
     return index < array.length();
 }
 
 template <class T>
 T &Iterator<T>::next() const {
-
     index++;
-
     return array[index - 1];
 }
 

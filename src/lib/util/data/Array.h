@@ -56,21 +56,18 @@ public:
 
     T *end() const;
 
-    static Array<T> wrap(const T *source, uint32_t size);
+    [[nodiscard]] static Array<T> wrap(const T *source, uint32_t size);
 
     static void sort(Array<T> &array);
 
 private:
 
     T* array;
-
     uint32_t capacity;
-
 };
 
 template <class T>
 Array<T>::Array(uint32_t capacity) noexcept : capacity(capacity) {
-
     this->array = new T[capacity];
 }
 
@@ -81,22 +78,16 @@ Array<T>::~Array() {
 
 template <class T>
 Array<T>::Array(std::initializer_list<T> list) noexcept : capacity(list.size()) {
-
     this->array = new T[list.size()];
-
     const T *source = list.begin();
-
     for (uint32_t i = 0; i < capacity; i++) {
-
         this->array[i] = source[i];
     }
 }
 
 template <class T>
 Array<T>::Array(const Array<T> &other) {
-
     capacity = other.capacity;
-
     array = new T[capacity];
 
     for (uint32_t i = 0; i < capacity; i++) {
@@ -106,11 +97,8 @@ Array<T>::Array(const Array<T> &other) {
 
 template <class T>
 Array<T> &Array<T>::operator=(const Array<T> &other) {
-
     delete[] array;
-
     capacity = other.capacity;
-
     array = new T[capacity];
 
     for (uint32_t i = 0; i < capacity; i++) {
@@ -122,9 +110,7 @@ Array<T> &Array<T>::operator=(const Array<T> &other) {
 
 template <class T>
 T &Array<T>::operator[](uint32_t index) {
-
     if (index >= capacity) {
-
         Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
@@ -133,9 +119,7 @@ T &Array<T>::operator[](uint32_t index) {
 
 template <class T>
 const T &Array<T>::operator[](uint32_t index) const {
-
     if (index >= capacity) {
-
         Exception::throwException(Exception::OUT_OF_BOUNDS, "Array: Index out of bounds!");
     }
 
@@ -144,33 +128,27 @@ const T &Array<T>::operator[](uint32_t index) const {
 
 template <class T>
 uint32_t Array<T>::length() const {
-
     return capacity;
 }
 
 template <class T>
 T *Array<T>::begin() const {
-
     return array;
 }
 
 template <class T>
 T *Array<T>::end() const {
-
     return &array[capacity];
 }
 
 template <class T>
 void Array<T>::clear() {
-
     delete[] array;
-
     array = new T[capacity];
 }
 
 template <class T>
 Array<T> Array<T>::wrap(const T *source, uint32_t size) {
-
     Array tmp(size);
 
     for(uint32_t i = 0; i < size; i++) {
@@ -182,25 +160,16 @@ Array<T> Array<T>::wrap(const T *source, uint32_t size) {
 
 template<typename T>
 void Array<T>::sort(Array<T> &array) {
-
     bool hasChanged = true;
-
     uint32_t length = array.length();
 
     while(hasChanged) {
-
         hasChanged = false;
-
         for (uint32_t i = 0; i < length - 1; i++) {
-
             if (array[i] > array[i + 1]) {
-
                 T tmp = array[i];
-
                 array[i] = array[i + 1];
-
                 array[i + 1] = tmp;
-
                 hasChanged = true;
             }
         }

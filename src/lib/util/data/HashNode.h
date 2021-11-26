@@ -37,24 +37,21 @@ public:
 
     ~HashNode() = default;
 
-    K getKey() const;
+    [[nodiscard]] K getKey() const;
 
-    V getValue() const;
+    [[nodiscard]] V getValue() const;
 
     void setValue(const V &value);
 
-    HashNode *getNext() const;
+    [[nodiscard]] HashNode *getNext() const;
 
     void setNext(HashNode *next);
 
 private:
 
     K key;
-
     V value;
-
     HashNode *next;
-
 };
 
 template <class K, class V>
