@@ -16,20 +16,8 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(kernel)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(file)
-add_subdirectory(interrupt)
-add_subdirectory(job)
-add_subdirectory(log)
-add_subdirectory(memory)
-add_subdirectory(multiboot)
-add_subdirectory(paging)
-add_subdirectory(service)
-add_subdirectory(system)
+target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/paging/paging.asm
+        ${HHUOS_SRC_DIR}/kernel/paging/Paging.cpp
+        ${HHUOS_SRC_DIR}/kernel/paging/PageDirectory.cpp
+        ${HHUOS_SRC_DIR}/kernel/paging/VirtualAddressSpace.cpp)

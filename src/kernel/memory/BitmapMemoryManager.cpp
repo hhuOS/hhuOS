@@ -24,11 +24,11 @@ BitmapMemoryManager::BitmapMemoryManager(uint32_t startAddress, uint32_t endAddr
         memoryStartAddress(startAddress), memoryEndAddress(endAddress), freeMemory(endAddress - startAddress),
         blockSize(blockSize), zeroMemory(zeroMemory), bitmap((endAddress - startAddress) / blockSize) {}
 
-void *BitmapMemoryManager::alloc() {
+void *BitmapMemoryManager::allocateBlock() {
     uint32_t block = bitmap.findAndSet();
 
     if (block == bitmap.getSize()) {
-        onError();
+        handleError();
         return nullptr;
     }
 
@@ -43,11 +43,11 @@ void *BitmapMemoryManager::alloc() {
     return address;
 }
 
-void BitmapMemoryManager::free(void *ptr) {
-    uint32_t address = (uint32_t) ptr - memoryStartAddress;
+void BitmapMemoryManager::freeBlock(void *pointer) {
+    uint32_t address = (uint32_t) pointer - memoryStartAddress;
 
     // check if pointer points to valid memory
-    if ((uint32_t) ptr < memoryStartAddress || (uint32_t) ptr >= memoryEndAddress) {
+    if ((uint32_t) pointer < memoryStartAddress || (uint32_t) pointer >= memoryEndAddress) {
         return;
     }
 
@@ -59,7 +59,7 @@ void BitmapMemoryManager::free(void *ptr) {
     freeMemory += blockSize;
 }
 
-void BitmapMemoryManager::onError() {
+void BitmapMemoryManager::handleError() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "BitmapMemoryManager: Out of memory!");
 }
 

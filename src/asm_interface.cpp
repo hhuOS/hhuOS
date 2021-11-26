@@ -18,7 +18,7 @@
 #include <kernel/multiboot/Structure.h>
 #include <kernel/system/System.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
-#include <kernel/memory/Paging.h>
+#include <kernel/paging/Paging.h>
 #include <device/cpu/Cpu.h>
 #include "GatesOfHell.h"
 

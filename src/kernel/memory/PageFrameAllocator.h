@@ -18,7 +18,7 @@
 #ifndef __PAGEFRAMEALLOCATOR_H__
 #define __PAGEFRAMEALLOCATOR_H__
 
-#include "kernel/memory/manager/BitmapMemoryManager.h"
+#include "kernel/memory/BitmapMemoryManager.h"
 #include "TableMemoryManager.h"
 #include "PagingAreaManager.h"
 

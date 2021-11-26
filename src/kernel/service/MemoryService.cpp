@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/memory/Paging.h>
+#include <kernel/paging/Paging.h>
 #include <kernel/system/System.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
-#include <kernel/memory/PageDirectory.h>
+#include <kernel/paging/PageDirectory.h>
 #include <asm_interface.h>
 #include "MemoryService.h"
 
@@ -39,32 +39,32 @@ MemoryService::~MemoryService() {
 }
 
 void *MemoryService::allocateMemory(uint32_t size, uint32_t alignment) {
-    return currentAddressSpace->getMemoryManager().alignedAlloc(size, alignment);
+    return currentAddressSpace->getMemoryManager().allocateMemory(size, alignment);
 }
 
 void *MemoryService::reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
-    return currentAddressSpace->getMemoryManager().alignedRealloc(pointer, size, alignment);
+    return currentAddressSpace->getMemoryManager().reallocateMemory(pointer, size, alignment);
 }
 
 void MemoryService::freeMemory(void *pointer, uint32_t alignment) {
-    return currentAddressSpace->getMemoryManager().alignedFree(pointer, alignment);
+    return currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
 }
 
 void *MemoryService::allocatePageTable() {
-    return pagingAreaManager.alloc();
+    return pagingAreaManager.allocateBlock();
 }
 
 void MemoryService::freePageTable(void *virtualTableAddress) {
     void *physicalAddress = getPhysicalAddress(virtualTableAddress);
     // Free virtual memory
-    pagingAreaManager.free(virtualTableAddress);
+    pagingAreaManager.freeBlock(virtualTableAddress);
     // Free physical memory
-    pageFrameAllocator.free(physicalAddress);
+    pageFrameAllocator.freeBlock(physicalAddress);
 }
 
 uint32_t MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
     // Get some virtual memory for the table
-    void *virtAddress = pagingAreaManager.alloc();
+    void *virtAddress = pagingAreaManager.allocateBlock();
     // Get physical memory for the table
     void *physAddress = getPhysicalAddress(virtAddress);
     // There must be no mapping from virtual to physical address done here,
@@ -93,7 +93,7 @@ void Kernel::MemoryService::mapRange(uint32_t virtualStartAddress, uint32_t virt
 
 void Kernel::MemoryService::map(uint32_t virtualAddress, uint16_t flags) {
     // Allocate a physical page frame where the page should be mapped
-    const auto physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.alloc());
+    const auto physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlock());
     // Map the page into the directory
     currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags);
 }
@@ -104,7 +104,7 @@ uint32_t Kernel::MemoryService::unmap(uint32_t virtualAddress) {
         return 0;
     }
 
-    pageFrameAllocator.free((void *) (physAddress));
+    pageFrameAllocator.freeBlock((void *) (physAddress));
 
     // Invalidate entry in TLB
     asm volatile("push %%edx;"
@@ -163,7 +163,7 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size) {
     pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
 
     // Allocate 4 KiB aligned virtual memory
-    void *virtStartAddress = currentAddressSpace->getMemoryManager().alignedAlloc(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+    void *virtStartAddress = currentAddressSpace->getMemoryManager().allocateMemory(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
@@ -195,7 +195,7 @@ void *MemoryService::mapIO(uint32_t size) {
     pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
 
     // Allocate block of physical memory
-    void *physStartAddress = pageFrameAllocator.alloc();
+    void *physStartAddress = pageFrameAllocator.allocateBlock();
     void *currentPhysAddress = physStartAddress;
     void *lastPhysAddress;
     bool contiguous;
@@ -205,13 +205,14 @@ void *MemoryService::mapIO(uint32_t size) {
 
         for (uint32_t i = 0; i < pageCnt; i++) {
             lastPhysAddress = currentPhysAddress;
-            currentPhysAddress = pageFrameAllocator.allocAfterAddress(physStartAddress);
+            currentPhysAddress = pageFrameAllocator.allocateBlockAfterAddress(physStartAddress);
 
             if (reinterpret_cast<uint32_t>(currentPhysAddress) - reinterpret_cast<uint32_t>(lastPhysAddress) != Kernel::Paging::PAGESIZE) {
                 contiguous = false;
 
                 for (uint32_t j = 0; j < i; j++) {
-                    pageFrameAllocator.free(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) + j * Kernel::Paging::PAGESIZE));
+                    pageFrameAllocator.freeBlock(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) +
+                                                                          j * Kernel::Paging::PAGESIZE));
                 }
 
                 physStartAddress = currentPhysAddress;

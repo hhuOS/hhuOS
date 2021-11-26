@@ -1,4 +1,4 @@
-#include <kernel/memory/MemLayout.h>
+#include <kernel/paging/MemLayout.h>
 #include <device/bios/Bios.h>
 #include <kernel/service/FilesystemService.h>
 #include <kernel/system/System.h>

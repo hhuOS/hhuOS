@@ -50,7 +50,7 @@ TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager,
 
     referenceTableArray = new ReferenceTableEntry*[referenceTableSizeInBlocks];
     for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
-        referenceTableArray[i] = static_cast<ReferenceTableEntry*>(bitmapMemoryManager.alloc());
+        referenceTableArray[i] = static_cast<ReferenceTableEntry*>(bitmapMemoryManager.allocateBlock());
         for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
             bool installed = (i * (bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry)) + j) < allocationTableCount;
             auto &entry = referenceTableArray[i][j];
@@ -85,7 +85,7 @@ void TableMemoryManager::setMemory(uint32_t start, uint32_t end, uint16_t useCou
 
             uint32_t address = referenceTableEntry.getAddress();
             if (address == 0) {
-                void *block = bitmapMemoryManager.alloc();
+                void *block = bitmapMemoryManager.allocateBlock();
                 referenceTableEntry.setAddress(reinterpret_cast<uint32_t>(block));
             }
 
@@ -120,11 +120,11 @@ uint32_t TableMemoryManager::calculateAddress(const TableMemoryManager::TableInd
            + index.allocationTableIndex * blockSize;
 }
 
-void *TableMemoryManager::alloc() {
-    return allocAfterAddress(reinterpret_cast<void*>(startAddress));
+void *TableMemoryManager::allocateBlock() {
+    return allocateBlockAfterAddress(reinterpret_cast<void*>(startAddress));
 }
 
-void *TableMemoryManager::alloc(void *address) {
+void *TableMemoryManager::allocateBlockAtAddress(void *address) {
     const auto index = calculateIndex(reinterpret_cast<uint32_t>(address));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
@@ -136,7 +136,7 @@ void *TableMemoryManager::alloc(void *address) {
     return reinterpret_cast<void*>(calculateAddress(index));
 }
 
-void TableMemoryManager::free(void *pointer) {
+void TableMemoryManager::freeBlock(void *pointer) {
     const auto index = calculateIndex(reinterpret_cast<uint32_t>(pointer));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
@@ -147,7 +147,7 @@ void TableMemoryManager::free(void *pointer) {
     allocationTableEntry.decrementUseCount();
 }
 
-void *TableMemoryManager::allocAfterAddress(void *address) {
+void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
     auto startIndex = calculateIndex(reinterpret_cast<uint32_t>(address));
     auto endIndex = calculateIndex(endAddress);
 
@@ -164,7 +164,7 @@ void *TableMemoryManager::allocAfterAddress(void *address) {
 
             uint32_t address = referenceTableEntry.getAddress();
             if (address == 0) {
-                void *block = bitmapMemoryManager.alloc();
+                void *block = bitmapMemoryManager.allocateBlock();
                 referenceTableEntry.setAddress(reinterpret_cast<uint32_t>(block));
             }
 
@@ -193,6 +193,22 @@ void *TableMemoryManager::allocAfterAddress(void *address) {
 
 uint32_t TableMemoryManager::getMemorySize() const {
     return endAddress - startAddress;
+}
+
+uint32_t TableMemoryManager::getBlockSize() const {
+    return blockSize;
+}
+
+uint32_t TableMemoryManager::getFreeMemory() const {
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "TableMemoryManager: getFreeMemory() is not implemented!");
+}
+
+uint32_t TableMemoryManager::getStartAddress() const {
+    return startAddress;
+}
+
+uint32_t TableMemoryManager::getEndAddress() const {
+    return endAddress;
 }
 
 void TableMemoryManager::debugLog() {

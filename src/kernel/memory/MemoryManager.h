@@ -15,34 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_EXCEPTION_H
-#define HHUOS_EXCEPTION_H
+#ifndef HHUOS_MEMORYMANAGER_H
+#define HHUOS_MEMORYMANAGER_H
 
-#include <cstdint>
+namespace Kernel {
 
-namespace Util {
-
-class Exception {
+class MemoryManager {
 
 public:
+    /**
+     * Constructor.
+     */
+    MemoryManager() = default;
 
-    enum Error : uint32_t {
-        NULL_POINTER = 0xC8,
-        OUT_OF_BOUNDS = 0xC9,
-        INVALID_ARGUMENT = 0xCA,
-        KEY_NOT_FOUND = 0xCB,
-        ILLEGAL_STATE = 0xCC,
-        OUT_OF_MEMORY = 0XCD,
-        OUT_OF_PHYSICAL_MEMORY = 0xCE,
-        OUT_OF_PAGING_MEMORY = 0xCF,
-        ILLEGAL_PAGE_ACCESS = 0xD0,
-        CLASS_NOT_FOUND = 0xD1,
-        PAGING_ERROR = 0xD2,
-        UNSUPPORTED_OPERATION = 0xD3
-    };
+    /**
+     * Copy constructor.
+     */
+    MemoryManager(const MemoryManager &copy) = delete;
 
-    [[noreturn]] static void throwException(Error error, const char *message = "");
+    /**
+     * Assignment operator.
+     */
+    MemoryManager &operator=(const MemoryManager &other) = delete;
 
+    /**
+     * Destructor.
+     */
+    virtual ~MemoryManager() = default;
+
+    /**
+     * Get the amount of free memory.
+     */
+    [[nodiscard]] virtual uint32_t getFreeMemory() const = 0;
+
+    /**
+     * Get the start address of the managed memory.
+     */
+    [[nodiscard]] virtual uint32_t getStartAddress() const = 0;
+
+    /**
+     * Get the end address of the managed memory.
+     */
+    [[nodiscard]] virtual uint32_t getEndAddress() const = 0;
 };
 
 }

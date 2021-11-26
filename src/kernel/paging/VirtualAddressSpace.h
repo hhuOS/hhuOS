@@ -19,8 +19,8 @@
 #define __VIRTUALADDRESSSPACE__
 
 #include <kernel/file/FileDescriptorManager.h>
-#include "kernel/memory/manager/FreeListMemoryManager.h"
-#include "kernel/memory/PageDirectory.h"
+#include <kernel/memory/FreeListMemoryManager.h>
+#include <kernel/paging/PageDirectory.h>
 
 namespace Kernel {
 
@@ -44,6 +44,11 @@ public:
      * The heap always starts at 0x2000.
      */
     explicit VirtualAddressSpace(PageDirectory &basePageDirectory, const Util::Memory::String &memoryManagerType = "FreeListMemoryManager");
+
+    /**
+     * Assignment operator.
+     */
+    VirtualAddressSpace &operator=(const VirtualAddressSpace &other) = delete;
 
     /**
      * Destructor

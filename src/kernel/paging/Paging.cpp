@@ -20,9 +20,9 @@
 #include "MemLayout.h"
 
 void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
-    // calculate 4MB page where (higher-half) kernel should start
+    // Calculate 4 MiB page where (higher-half) kernel should start
     uint32_t kernelPage = Kernel::MemoryLayout::VIRT_KERNEL_START >> 22U;
-    // size of a 4MB page
+    // Size of a 4 MiB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
     auto *blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (&Kernel::Multiboot::Structure::blockMap) - Kernel::MemoryLayout::VIRT_KERNEL_START);
@@ -48,7 +48,7 @@ void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirector
         }
     }
 
-    // Search 2 free blocks (4 MB each) for initial heap and paging area
+    // Search 2 free blocks (4 MiB each) for initial heap and paging area
     uint32_t blocksFound = 0;
     uint32_t heapPhysicalAddress = 0;
     uint32_t pagingAreaPhysicalAddress = 0;
@@ -84,13 +84,13 @@ void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirector
         }
     }
 
-    // the first page of the initial heap above the reserved memory is mapped to an offset of KERNEL_START
-    // no identity mapping needed because the heap is only used when paging is already enabled
+    // The first page of the initial heap above the reserved memory is mapped to an offset of KERNEL_START
+    // No identity mapping needed because the heap is only used when paging is already enabled
     directory[kernelPage + pageCount] = (uint32_t) (heapPhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 
-    // calculate index to first virtual address of paging area memory
-    // these first 4MB of the paging area are needed to set up the final 4KB paging,
-    // so map the first (phys.) 4MB after the initial 4MB-heap to this address
+    // Calculate index to first virtual address of paging area memory
+    // These first 4 MiB of the paging area are needed to set up the final 4 KiB paging,
+    // so map the first (phys.) 4 MiB after the initial 4 MiB-heap to this address
     uint32_t pagingAreaIndex = Kernel::MemoryLayout::VIRT_PAGE_MEM_START / bigPageSize;
     directory[pagingAreaIndex] = (uint32_t) (pagingAreaPhysicalAddress | PAGE_PRESENT | PAGE_READ_WRITE | PAGE_SIZE_MiB);
 }

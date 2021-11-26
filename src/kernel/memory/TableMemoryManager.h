@@ -25,7 +25,7 @@
 
 namespace Kernel {
 
-class TableMemoryManager {
+class TableMemoryManager : public BlockMemoryManager {
 
 public:
     /**
@@ -46,19 +46,27 @@ public:
     /**
      * Destructor.
      */
-    virtual ~TableMemoryManager() = default;
+    ~TableMemoryManager() override = default;
 
     void setMemory(uint32_t start, uint32_t end, uint16_t useCount, bool reserved);
 
-    void* alloc();
+    void* allocateBlock() override;
 
-    void* alloc(void *address);
+    void* allocateBlockAtAddress(void *address);
 
-    void* allocAfterAddress(void *address);
+    void* allocateBlockAfterAddress(void *address);
 
-    void free(void *pointer);
+    void freeBlock(void *pointer) override;
 
     [[nodiscard]] uint32_t getMemorySize() const;
+
+    [[nodiscard]] uint32_t getBlockSize() const;
+
+    [[nodiscard]] uint32_t getFreeMemory() const override;
+
+    [[nodiscard]] uint32_t getStartAddress() const override;
+
+    [[nodiscard]] uint32_t getEndAddress() const override;
 
     void debugLog();
 
@@ -92,14 +100,6 @@ private:
                 oldValue = valueWrapper.get();
                 exchangeValue = (oldValue & 0x0000000f) | (address & 0xfffffff0);
             } while (valueWrapper.getAndSet(exchangeValue) != oldValue);
-        }
-
-        bool setAndCompareAddress(uint32_t oldAddress, uint32_t newAddress) {
-            auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
-            uint32_t oldValue = valueWrapper.get();
-            uint32_t exchangeValue = (oldValue & 0x0000000f) | (newAddress & 0xfffffff0);
-
-            return valueWrapper.compareAndSet(oldValue, exchangeValue);
         }
 
         void setInstalled(bool installed) {

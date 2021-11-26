@@ -59,44 +59,44 @@ public:
     ~FreeListMemoryManager() override = default;
 
     /**
-     * Overriding function from MemoryManager.
+     * Overriding function from HeapMemoryManager.
      */
     void initialize(uint32_t startAddress, uint32_t endAddress) override;
+
+    /**
+     * Overriding function from HeapMemoryManager.
+     */
+    void *allocateMemory(uint32_t size, uint32_t alignment) override;
+
+    /**
+     * Overriding function from HeapMemoryManager.
+     */
+    void *reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) override;
+
+    /**
+     * Overriding function from HeapMemoryManager.
+     */
+    void freeMemory(void *ptr, uint32_t alignment) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] uint32_t getStartAddress() const override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] uint32_t getEndAddress() const override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] uint32_t getFreeMemory() const override;
 
     /**
      * Overriding function from MemoryManager.
      */
     [[nodiscard]] Util::Memory::String getClassName() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void *alloc(uint32_t size) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void *alignedAlloc(uint32_t size, uint32_t alignment) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void *realloc(void *ptr, uint32_t size) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void *alignedRealloc(void *ptr, uint32_t size, uint32_t alignment) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void free(void *ptr) override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    void alignedFree(void *ptr, uint32_t alignment) override;
 
 private:
     /**
@@ -130,9 +130,12 @@ private:
 
 private:
 
+    uint32_t startAddress{};
+    uint32_t endAddress{};
+
     Util::Async::Spinlock lock;
     FreeListHeader *firstChunk = nullptr;
-    uint32_t freeMemory = 0;
+    uint32_t unusedMemory = 0;
 
     /**
      * Find the next chunk of memory with a required size.

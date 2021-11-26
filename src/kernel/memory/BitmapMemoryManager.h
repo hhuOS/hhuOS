@@ -18,20 +18,19 @@
 #ifndef __BITMAPMEMORYMANAGER_H__
 #define __BITMAPMEMORYMANAGER_H__
 
-#include "lib/util/memory/String.h"
-#include "lib/util/memory/AtomicBitmap.h"
+#include <lib/util/memory/String.h>
+#include <lib/util/memory/AtomicBitmap.h>
+#include "BlockMemoryManager.h"
 
 namespace Kernel {
 
 /**
  * Memory manager, that manages a given area of memory in blocks of given size using a bitmap mechanism.
  *
- * This memory manager does not allow allocation with an alignment.
- *
  * @author Burak Akguel, Christian Gesse, Filip Krakowski, Fabian Ruhland, Michael Schoettner
  * @date 2018
  */
-class BitmapMemoryManager {
+class BitmapMemoryManager : public BlockMemoryManager {
 
 public:
     /**
@@ -52,33 +51,21 @@ public:
     /**
      * Destructor.
      */
-    virtual ~BitmapMemoryManager() = default;
+    ~BitmapMemoryManager() override = default;
 
-    virtual void *alloc();
+    void *allocateBlock() override;
 
-    virtual void free(void *ptr);
+    void freeBlock(void *pointer) override;
 
-    virtual void onError();
+    virtual void handleError();
 
-    /**
-     * Get the start address of the managed memory.
-     */
-    [[nodiscard]] uint32_t getStartAddress() const;
+    [[nodiscard]] uint32_t getFreeMemory() const override;
 
-    /**
-     * Get the end address of the managed memory.
-     */
-    [[nodiscard]] uint32_t getEndAddress() const;
-
-    /**
-     * Get the block size.
-     */
     [[nodiscard]] uint32_t getBlockSize() const;
 
-    /**
-     * Get the amount of free memory.
-     */
-    [[nodiscard]] virtual uint32_t getFreeMemory() const;
+    [[nodiscard]] uint32_t getStartAddress() const override;
+
+    [[nodiscard]] uint32_t getEndAddress() const override;
 
 protected:
 

@@ -22,10 +22,10 @@
 #include <device/time/Rtc.h>
 #include <device/time/Pit.h>
 #include <kernel/multiboot/Structure.h>
-#include <kernel/memory/MemLayout.h>
+#include <kernel/paging/MemLayout.h>
 #include <kernel/service/JobService.h>
 #include <kernel/service/TimeService.h>
-#include <kernel/memory/manager/PagingAreaManagerRefillRunnable.h>
+#include <kernel/memory/PagingAreaManagerRefillRunnable.h>
 #include "System.h"
 
 namespace Kernel {
@@ -51,7 +51,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     uint32_t physicalMemorySize = calculatePhysicalMemorySize();
     // We need at least 10 MiB physical memory to run properly
     if (physicalMemorySize < 10 * 1024 * 1024) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_PHYS_MEMORY, "Not enough physical memory available to run hhuOS!");
+        Util::Exception::throwException(Util::Exception::OUT_OF_PHYSICAL_MEMORY, "Not enough physical memory available to run hhuOS!");
     }
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
@@ -111,7 +111,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     Multiboot::Structure::parse();
 
     // Protect kernel code
-    kernelAddressSpace->getPageDirectory().writeProtectKernelCode();
+    kernelAddressSpace->getPageDirectory().protectPages(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__);
 
     initialized = true;
 }
@@ -121,7 +121,7 @@ void *System::allocateEarlyMemory(uint32_t size) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "allocateEarlyMemory() called after system has been initialized!");
     }
 
-    return kernelHeapMemoryManager->alloc(size);
+    return kernelHeapMemoryManager->allocateMemory(size, 0);
 }
 
 void System::freeEarlyMemory(void *pointer) {
@@ -129,7 +129,7 @@ void System::freeEarlyMemory(void *pointer) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "freeEarlyMemory() called after system has been initialized!");
     }
 
-    kernelHeapMemoryManager->free(pointer);
+    kernelHeapMemoryManager->freeMemory(pointer, 0);
 }
 
 void System::registerService(const Util::Memory::String &serviceId, Service *kernelService) {

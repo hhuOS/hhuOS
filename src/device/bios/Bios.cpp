@@ -16,7 +16,7 @@
  */
 
 
-#include <kernel/memory/MemLayout.h>
+#include <kernel/paging/MemLayout.h>
 #include <kernel/multiboot/Structure.h>
 #include <lib/util/memory/Address.h>
 #include <asm_interface.h>

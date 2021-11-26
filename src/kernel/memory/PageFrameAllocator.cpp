@@ -16,7 +16,7 @@
  */
 
 #include <kernel/multiboot/Structure.h>
-#include <kernel/memory/Paging.h>
+#include <kernel/paging/Paging.h>
 #include "PageFrameAllocator.h"
 
 namespace Kernel {

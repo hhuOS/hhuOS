@@ -33,19 +33,9 @@ namespace Kernel {
  */
 class PageDirectory {
 
-private:
-    // virtual address of page directory
-    uint32_t *pageDirectory;
-    // physical address of page directory
-    uint32_t *physPageDirectoryAddress;
-    // array with virtual page table addresses
-    uint32_t *virtTableAddresses;
-
 public:
-
     /**
-     * Constructor for Base Page Directory. This directory contains kernel mappings
-     * and is built manually for bootstrapping.
+     * Constructor for Base Page Directory. This directory contains kernel mappings and is built manually for bootstrapping.
      */
     PageDirectory();
 
@@ -57,85 +47,85 @@ public:
     explicit PageDirectory(PageDirectory *basePageDirectory);
 
     /**
-     * Destructor - should never be called in  basePagedirectory
+     * Assignment operator.
+     */
+    PageDirectory &operator=(const PageDirectory &other) = delete;
+
+    /**
+     * Destructor.
      */
     ~PageDirectory();
-
-
-    // mappings and unmappings
 
     /**
      * Maps a virtual address to a given physical address with certain flags.
      *
-     * @param phys Physical address to be mapped
-     * @param virt Virtual address to be mapped
+     * @param physicalAddress Physical address to be mapped
+     * @param virtualAddress Virtual address to be mapped
      * @param flags Flags for entry in Page Table
      */
-    void map(uint32_t physAddress, uint32_t virtAddress, uint16_t flags);
+    void map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags);
 
     /**
      * Unmap a given virtual address from this directory.
      *
-     * @param virtAddress Virtual address to be unmapped
+     * @param virtualAddress Virtual address to be unmapped
      * @return uint32_t Physical address of the memory that was unmapped
      */
-    uint32_t unmap(uint32_t virtAddress);
+    uint32_t unmap(uint32_t virtualAddress);
 
     /**
-     * Get 4KB-aligned physical address corresponding to the given virtual address.
+     * Get 4 KiB aligned physical address corresponding to the given virtual address.
      *
-     * @param virtAddress Virtual address
+     * @param virtualAddress Virtual address
      * @return uint32_t Physical address where virtual address is mapped (4KB-aligned)
      */
-    void *getPhysicalAddress(void *virtAddress);
+    void *getPhysicalAddress(void *virtualAddress);
 
     /**
      * Create a new Page Table in this Page Directory
      *
-     * @param idx Index of the table in Page Directory
-     * @param physAddress Physical address of the Table
-     * @param virtAddress Virtual address of the table.
+     * @param index Index of the table in Page Directory
+     * @param physicalAddress Physical address of the Table
+     * @param virtualAddress Virtual address of the table.
      */
-    void createTable(uint32_t idx, uint32_t physAddress, uint32_t virtAddress);
+    void createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress);
 
     /**
      * Protects a given page from unmapping.
      *
-     * @param virtAddress Virtual address of the page that should be protected from unmapping.
+     * @param virtualAddress Virtual address of the page that should be protected from unmapping.
      */
-    void protectPage(uint32_t virtAddress);
+    void protectPage(uint32_t virtualAddress);
 
     /**
-     * Protects a range of pages from unmapping.
+     * Protect a range of pages from unmapping.
      *
-     * @param virtStartAddress Virtual address of first page to be protected
-     * @param virtStartAddress Virtual address of last page to be protected
+     * @param virtualStartAddress Virtual address of first page to be protected
+     * @param virtualStartAddress Virtual address of last page to be protected
      */
-    void protectPage(uint32_t virtStartAddress, uint32_t virtEndAddress);
-
-    void writeProtectKernelCode();
+    void protectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
 
     /**
-     * Unprotects a given page from unmapping.
+     * Unprotect a given page from unmapping.
      *
-     * @param virtAddress Virtual address of the page that should be unprotected from unmapping.
+     * @param virtualAddress Virtual address of the page that should be unprotected from unmapping.
      */
-    void unprotectPage(uint32_t virtAddress);
+    void unprotectPage(uint32_t virtualAddress);
 
     /**
-     * Unprotects a range of pages from unmapping.
+     * Unprotect a range of pages from unmapping.
      *
-     * @param virtStartAddress Virtual address of first page to be protected
-     * @param virtStartAddress Virtual address of last page to be protected
+     * @param virtualStartAddress Virtual address of first page to be protected
+     * @param virtualStartAddress Virtual address of last page to be protected
      */
-    void unprotectPage(uint32_t virtStartAddress, uint32_t virtEndAddress);
+    void unprotectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
 
     /**
      * Get virtual address of the page directory.
      *
      * @return Virtual address of page directory as pointer.
      */
-    uint32_t *getPageDirectoryVirtualAddress() {
+    uint32_t* getPageDirectoryVirtualAddress() {
         return pageDirectory;
     }
 
@@ -144,8 +134,8 @@ public:
      *
      * @return Physical address of page directory as pointer.
      */
-    uint32_t *getPageDirectoryPhysicalAddress() {
-        return physPageDirectoryAddress;
+    uint32_t* getPageDirectoryPhysicalAddress() {
+        return pageDirectoryPhysicalAddress;
     }
 
     /**
@@ -153,9 +143,17 @@ public:
      *
      * @return Pointer to virtual table addresses
      */
-    uint32_t *getVirtTableAddresses() {
-        return virtTableAddresses;
+    uint32_t* getVirtualTableAddresses() {
+        return virtualTableAddresses;
     }
+
+private:
+    // virtual address of page directory
+    uint32_t *pageDirectory;
+    // physical address of page directory
+    uint32_t *pageDirectoryPhysicalAddress;
+    // array with virtual page table addresses
+    uint32_t *virtualTableAddresses;
 };
 
 }

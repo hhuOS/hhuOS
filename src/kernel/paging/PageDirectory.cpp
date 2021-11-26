@@ -1,0 +1,284 @@
+/*
+ * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ *
+ * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
+ * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied
+ * warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ */
+
+#include <asm_interface.h>
+#include <lib/util/memory/Address.h>
+#include <kernel/system/System.h>
+#include <kernel/multiboot/Structure.h>
+#include <kernel/paging/PageDirectory.h>
+#include <kernel/paging/Paging.h>
+#include "MemLayout.h"
+
+namespace Kernel {
+
+PageDirectory::PageDirectory() {
+    uint32_t physPagingAreaStart = 0;
+
+    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+        const auto &block = Multiboot::Structure::blockMap[i];
+
+        if (block.type == Multiboot::Structure::PAGING_RESERVED) {
+            physPagingAreaStart = block.startAddress;
+            break;
+        }
+    }
+
+    // Table with virtual PT-addresses placed after the PD itself
+    virtualTableAddresses = reinterpret_cast<uint32_t*>(Kernel::MemoryLayout::VIRT_PAGE_MEM_START + 257 * Kernel::Paging::PAGESIZE);
+    // Zero memory for PageTables and PageDirectories
+    Util::Memory::Address<uint32_t>(Kernel::MemoryLayout::VIRT_PAGE_MEM_START).setRange(0, Kernel::Paging::PAGESIZE * 258);
+    // Base page directory is located at VIRT_PAGE_MEM_START + 1MB, because the first 1MB is used for all Kernel page tables (mapping the kernel)
+    pageDirectory = reinterpret_cast<uint32_t*>(Kernel::MemoryLayout::VIRT_PAGE_MEM_START + 256 * Kernel::Paging::PAGESIZE);
+
+    // Calculate the physical address of the first page directory (reserve 1 MiB for kernel page tables)
+    pageDirectoryPhysicalAddress = reinterpret_cast<uint32_t*>(physPagingAreaStart + 256 * Kernel::Paging::PAGESIZE);
+
+    // Set up page directory entries for page tables containing kernel mappings (all pagetables addressing > KERNEL_START are located at the first MB of Paging Area)
+    // Calculate virtual addresses for these tables
+    uint32_t startIndex = Kernel::MemoryLayout::VIRT_KERNEL_START / (Kernel::Paging::PAGESIZE * 1024);
+    for (uint32_t i = 0; i < 256; i++) {
+        // Pointer to the corresponding page table (physical address) - placed right after physical addresses of the initial heap
+        pageDirectory[startIndex + i] = (physPagingAreaStart + i * Kernel::Paging::PAGESIZE)
+                                        | Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE | Kernel::Paging::PAGE_ACCESS_ALL;
+        // Pointer to corresponding page table (virtual address) - placed at the beginning of PagingAreaMemory
+        virtualTableAddresses[startIndex + i] = Kernel::MemoryLayout::VIRT_PAGE_MEM_START + i * Kernel::Paging::PAGESIZE;
+    }
+
+    // set the entries for the mapping of reserved memory + initial 4MB-heap
+    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
+        const auto &block = Multiboot::Structure::blockMap[i];
+        if (!block.initialMap) {
+            continue;
+        }
+
+        // If the block has initialMap set to false, it has not been mapped by the 4MB paging. Thus, it's virtual start address is 0,
+        // which leads to virtTableAddresses[0] = 0. This would overwrite the BIOS interrupt vector table and destroy BIOS calls!
+        // Blocks with iniitalMap = false should not been mapped right now, but rather be manually mapped into the kernel heap later on.
+        for (uint32_t j = 0; j < block.blockCount * 1024; j++) {
+            uint16_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX((block.virtualStartAddress + j * Kernel::Paging::PAGESIZE));
+            uint16_t pageTableIndex = Kernel::Paging::GET_PT_IDX((block.virtualStartAddress + j * Kernel::Paging::PAGESIZE));
+
+            *(reinterpret_cast<uint32_t*>(virtualTableAddresses[pageDirectoryIndex]) + pageTableIndex) =
+                    (block.startAddress + j * Kernel::Paging::PAGESIZE) | Kernel::Paging::PAGE_READ_WRITE | Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_ACCESS_ALL;
+        }
+    }
+
+    // Now, all important mappings in kernel (> KERNEL_START) are set up
+    // Kernel code and data loaded by the bootloader are placed at KERNEL_START, the initial heap is placed
+    // afterwards and the first 4 KiB page tables and directories are placed at VIRT_PAGE_MEM_START
+
+    // Load the Page Directory into cr3 and enable 4 KiB paging via assembly code
+    load_page_directory(pageDirectoryPhysicalAddress);
+    enable_system_paging();
+}
+
+PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
+    auto &memoryService = System::getMemoryService();
+    
+    // Allocate memory for the page directory
+    pageDirectory = static_cast<uint32_t *>(memoryService.allocatePageTable());
+    // Allocate memory to hold the virtual addresses of page tables
+    virtualTableAddresses = static_cast<uint32_t *>(memoryService.allocatePageTable());
+
+    if (pageDirectory == nullptr || virtualTableAddresses == nullptr) {
+        memoryService.freePageTable(pageDirectory);
+        memoryService.freePageTable(virtualTableAddresses);
+        Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY, "PageDirectory: Failed to allocate page tables!");
+    }
+
+    // Get the physical address of the page directory
+    pageDirectoryPhysicalAddress = static_cast<uint32_t *>(memoryService.getPhysicalAddress(pageDirectory));
+    // Get virtual address of the basePageDirectory
+    uint32_t *basePageDirectoryVirtualAddress = basePageDirectory->getPageDirectoryVirtualAddress();
+    // Get pointer to virtual table addresses from basePageDirectory
+    uint32_t *basePageDirectoryVirtualTableAddress = basePageDirectory->getVirtualTableAddresses();
+
+    // Map the whole kernel from the basePageDirectory into the new page directory
+    for (uint32_t index = Kernel::MemoryLayout::VIRT_KERNEL_START / (Kernel::Paging::PAGESIZE * 1024); index < 1024; index++) {
+        pageDirectory[index] = basePageDirectoryVirtualAddress[index];
+        virtualTableAddresses[index] = basePageDirectoryVirtualTableAddress[index];
+    }
+}
+
+PageDirectory::~PageDirectory() {
+    auto &memoryService = System::getMemoryService();
+    
+    // Unmap the complete user space and free the page frames
+    for (uint32_t address = 0; address < Kernel::MemoryLayout::VIRT_KERNEL_START; address += Kernel::Paging::PAGESIZE) {
+        unmap(address);
+    }
+
+    // Free page tables corresponding to user space (< 3GB)
+    uint32_t maxIndex = Kernel::MemoryLayout::VIRT_KERNEL_START / (Kernel::Paging::PAGESIZE * 1024);
+    for (uint32_t index = 0; index < maxIndex; index++) {
+        memoryService.freePageTable((void *) virtualTableAddresses[index]);
+    }
+
+    // Free page directory itself and list with virtual table addresses
+    memoryService.freePageTable((void *) virtualTableAddresses);
+    memoryService.freePageTable((void *) pageDirectory);
+}
+
+void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags) {
+    auto &memoryService = System::getMemoryService();
+
+    // Calculate indices into page table and directory
+    uint32_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX(virtualAddress);
+    uint32_t pageTableIndex = Kernel::Paging::GET_PT_IDX(virtualAddress);
+
+    // If the requested page table is not present, initialize it
+    if ((pageDirectory[pageDirectoryIndex] & Kernel::Paging::PAGE_PRESENT) == 0) {
+        memoryService.createPageTable(this, pageDirectoryIndex);
+    }
+
+    // Check if the requested page is already mapped
+    if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Kernel::Paging::PAGE_PRESENT) != 0) {
+        Util::Exception::throwException(Util::Exception::PAGING_ERROR, "PageDirectory: Requested page is already mapped!");
+    }
+
+    // Initialize the entry in the corresponding page table
+    *((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) = physicalAddress | flags;
+}
+
+uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
+    // Get indices into page table and directory
+    uint32_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX(virtualAddress);
+    uint32_t pageTableIndex = Kernel::Paging::GET_PT_IDX(virtualAddress);
+
+    // If the requested page table is not present, the page cannot be unmapped
+    if ((pageDirectory[pageDirectoryIndex] & Kernel::Paging::PAGE_PRESENT) == 0) {
+        return 0;
+    }
+
+    // If the page is not mapped, it cannot be unmapped
+    if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Kernel::Paging::PAGE_PRESENT) == 0) {
+        return 0;
+    }
+
+    // Calculate corresponding physical Address and set entry to 0
+    auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
+
+    // do not unmap if page is protected
+    if (vTableAddress[pageTableIndex] & Kernel::Paging::PAGE_WRITE_PROTECTED) {
+        return 0;
+    }
+
+    uint32_t physAddress = (vTableAddress[pageTableIndex] & 0xFFFFF000);
+    vTableAddress[pageTableIndex] = 0;
+
+    // TODO: Unmap page directory if page table is empty (counter array?)
+    return physAddress;
+}
+
+void PageDirectory::createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress) {
+    // Initialize the directory entry with the physical address of the table
+    pageDirectory[index] = physicalAddress | Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE;
+    // Keep track of the virtual address of the table
+    virtualTableAddresses[index] = virtualAddress;
+}
+
+void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
+    // Get indices into page table and directory
+    uint32_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX((uint32_t) virtualAddress);
+    uint32_t pageTableIndex = Kernel::Paging::GET_PT_IDX((uint32_t) virtualAddress);
+
+    // If the requested page table is not present, the page cannot be mapped
+    if ((pageDirectory[pageDirectoryIndex] & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
+    }
+
+    // if the page is not mapped, it cannot be unmapped
+    if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Trying to unmap an unmapped page!");
+    }
+
+    // Calculate corresponding physical Address and set entry to 0
+    auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
+    auto physAddress = vTableAddress[pageTableIndex] & 0xFFFFF000;
+
+    return reinterpret_cast<void*>(physAddress);
+}
+
+void PageDirectory::protectPage(uint32_t virtualAddress) {
+    // Align address to 4 KiB
+    uint32_t alignedAddress = virtualAddress & 0xFFFFF000;
+
+    // Get indices into page table and directory
+    uint32_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX(alignedAddress);
+    uint32_t pageTableIndex = Kernel::Paging::GET_PT_IDX(alignedAddress);
+
+    // If the requested page table is not present, the page cannot be protected
+    if ((pageDirectory[pageDirectoryIndex] & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
+    }
+    // if the page is not mapped, it cannot be protected
+    if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Trying to protect an unmapped page!");
+    }
+
+    // Calculate virtual address of page table
+    auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
+    // Set protected bit in corresponding entry
+    vTableAddress[pageTableIndex] |= Kernel::Paging::PAGE_WRITE_PROTECTED;
+}
+
+void PageDirectory::protectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
+    // Align addresses to 4 KiB
+    uint32_t alignedStartAddress = virtualStartAddress & 0xFFFFF000;
+    uint32_t alignedEndAddress = virtualEndAddress & 0xFFFFF000;
+
+    // Protect each page
+    for (uint32_t i = 0; alignedStartAddress + i * Kernel::Paging::PAGESIZE < alignedEndAddress; i++) {
+        protectPage(alignedStartAddress + i * Kernel::Paging::PAGESIZE);
+    }
+}
+
+void PageDirectory::unprotectPage(uint32_t virtualAddress) {
+    // Align address to 4 KiB
+    uint32_t vaddr = virtualAddress & 0xFFFFF000;
+
+    // Get indices into page table and directory
+    uint32_t pageDirectoryIndex = Kernel::Paging::GET_PD_IDX(vaddr);
+    uint32_t pageTableIndex = Kernel::Paging::GET_PT_IDX(vaddr);
+
+    // If the requested page table is not present, the page cannot be unprotected
+    if ((pageDirectory[pageDirectoryIndex] & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
+    }
+    // If the page is not mapped, it cannot be unprotected
+    if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Kernel::Paging::PAGE_PRESENT) == 0) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Trying to unprotect an unmapped page!");
+    }
+
+    // Calculate virtual address of page table
+    auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
+    // Clear protected bit in corresponding entry
+    vTableAddress[pageTableIndex] &= ~Kernel::Paging::PAGE_WRITE_PROTECTED;
+}
+
+void PageDirectory::unprotectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
+    // Align addresses to 4 KiB
+    uint32_t alignedStartAddress = virtualStartAddress & 0xFFFFF000;
+    uint32_t alignedEndAddress = virtualEndAddress & 0xFFFFF000;
+
+    // Unprotect each page
+    for (uint32_t i = 0; alignedStartAddress + i * Kernel::Paging::PAGESIZE < alignedEndAddress; i++) {
+        unprotectPage(alignedStartAddress + i * Kernel::Paging::PAGESIZE);
+    }
+}
+
+}

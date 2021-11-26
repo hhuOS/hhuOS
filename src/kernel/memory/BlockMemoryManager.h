@@ -15,34 +15,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_EXCEPTION_H
-#define HHUOS_EXCEPTION_H
+#ifndef HHUOS_BLOCKMEMORYMANAGER_H
+#define HHUOS_BLOCKMEMORYMANAGER_H
 
-#include <cstdint>
+#include "MemoryManager.h"
 
-namespace Util {
+namespace Kernel {
 
-class Exception {
+class BlockMemoryManager : public MemoryManager {
 
 public:
+    /**
+     * Constructor.
+     */
+    BlockMemoryManager() = default;
 
-    enum Error : uint32_t {
-        NULL_POINTER = 0xC8,
-        OUT_OF_BOUNDS = 0xC9,
-        INVALID_ARGUMENT = 0xCA,
-        KEY_NOT_FOUND = 0xCB,
-        ILLEGAL_STATE = 0xCC,
-        OUT_OF_MEMORY = 0XCD,
-        OUT_OF_PHYSICAL_MEMORY = 0xCE,
-        OUT_OF_PAGING_MEMORY = 0xCF,
-        ILLEGAL_PAGE_ACCESS = 0xD0,
-        CLASS_NOT_FOUND = 0xD1,
-        PAGING_ERROR = 0xD2,
-        UNSUPPORTED_OPERATION = 0xD3
-    };
+    /**
+     * Copy constructor.
+     */
+    BlockMemoryManager(const BlockMemoryManager &copy) = delete;
 
-    [[noreturn]] static void throwException(Error error, const char *message = "");
+    /**
+     * Assignment operator.
+     */
+    BlockMemoryManager &operator=(const BlockMemoryManager &other) = delete;
 
+    /**
+     * Destructor.
+     */
+    ~BlockMemoryManager() override = default;
+
+    virtual void *allocateBlock() = 0;
+
+    virtual void freeBlock(void *pointer) = 0;
 };
 
 }

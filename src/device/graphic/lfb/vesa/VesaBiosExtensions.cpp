@@ -1,5 +1,5 @@
 #include <device/bios/Bios.h>
-#include <kernel/memory/MemLayout.h>
+#include <kernel/paging/MemLayout.h>
 #include <kernel/system/System.h>
 #include <kernel/system/System.h>
 #include <device/graphic/lfb/LinearFrameBufferNode.h>

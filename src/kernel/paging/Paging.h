@@ -31,6 +31,26 @@ namespace Kernel {
 class Paging {
     
 public:
+    /**
+     * Default Constructor.
+     * Deleted, as this class has only static members.
+     */
+    Paging() = delete;
+
+    /**
+     * Copy constructor.
+     */
+    Paging(const Paging &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Paging &operator=(const Paging &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Paging() = default;
 
     /**
     * Function to set up the 4MB page directories needed for bootstrapping and BIOS-calls.
@@ -45,19 +65,19 @@ public:
     */
     static void bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory);
 
-    static const constexpr uint32_t GET_PD_IDX(uint32_t x) {
+    static constexpr uint32_t GET_PD_IDX(uint32_t x) {
         return x >> 22;
     }
 
-    static const constexpr uint32_t GET_PT_IDX(uint32_t x) {
+    static constexpr uint32_t GET_PT_IDX(uint32_t x) {
         return (x >> 12) & 0x3FF;
     }
 
-    static const constexpr uint32_t GET_OFFSET(uint32_t x) {
+    static constexpr uint32_t GET_OFFSET(uint32_t x) {
         return x & 0xFFF;
     }
 
-    static const constexpr uint32_t GET_FLAGS(uint32_t x) {
+    static constexpr uint32_t GET_FLAGS(uint32_t x) {
         return 0xFFF;
     }
 

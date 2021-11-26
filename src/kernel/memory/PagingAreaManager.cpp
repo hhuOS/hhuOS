@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/memory/MemLayout.h"
+#include "kernel/paging/MemLayout.h"
 #include "PagingAreaManager.h"
-#include "kernel/memory/Paging.h"
+#include "kernel/paging/Paging.h"
 
 namespace Kernel {
 
@@ -28,17 +28,17 @@ PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(Kernel::MemoryLayou
     refillPool();
 }
 
-void PagingAreaManager::onError() {
-    Util::Exception::throwException(Util::Exception::OUT_OF_PAGE_MEMORY);
+void PagingAreaManager::handleError() {
+    Util::Exception::throwException(Util::Exception::OUT_OF_PAGING_MEMORY);
 }
 
-void *PagingAreaManager::alloc() {
+void *PagingAreaManager::allocateBlock() {
     return blockPool.pop();
 }
 
-void PagingAreaManager::free(void *pointer) {
+void PagingAreaManager::freeBlock(void *pointer) {
     if (!blockPool.push(pointer)) {
-        BitmapMemoryManager::free(pointer);
+        BitmapMemoryManager::freeBlock(pointer);
     }
 }
 
@@ -48,9 +48,9 @@ void PagingAreaManager::refillPool() {
     }
 
     for (uint32_t i = 0; i < blockPool.getCapacity(); i++) {
-        void *block = BitmapMemoryManager::alloc();
+        void *block = BitmapMemoryManager::allocateBlock();
         if (!blockPool.push(block)) {
-            BitmapMemoryManager::free(block);
+            BitmapMemoryManager::freeBlock(block);
             return;
         }
     }

@@ -1,4 +1,4 @@
-#include <kernel/memory/MemLayout.h>
+#include <kernel/paging/MemLayout.h>
 #include "ColorGraphicsArray.h"
 
 namespace Device::Graphic {

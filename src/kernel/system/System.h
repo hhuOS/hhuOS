@@ -19,10 +19,10 @@
 #define __SYSTEMMANAGEMENT_H__
 
 #include <kernel/interrupt/InterruptHandler.h>
-#include <kernel/memory/PageDirectory.h>
-#include <kernel/memory/manager/PageFrameAllocator.h>
-#include <kernel/memory/manager/PagingAreaManager.h>
-#include <kernel/memory/VirtualAddressSpace.h>
+#include <kernel/paging/PageDirectory.h>
+#include <kernel/memory/PageFrameAllocator.h>
+#include <kernel/memory/PagingAreaManager.h>
+#include <kernel/paging/VirtualAddressSpace.h>
 #include <kernel/service/MemoryService.h>
 #include "TaskStateSegment.h"
 #include "Symbols.h"
@@ -49,6 +49,21 @@ public:
      * Deleted, as this class has only static members.
      */
     System() = delete;
+
+    /**
+     * Copy constructor.
+     */
+    System(const System &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    System &operator=(const System &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~System() = default;
 
     static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress);
 
