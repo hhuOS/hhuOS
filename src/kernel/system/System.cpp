@@ -44,7 +44,7 @@ Logger System::log = Logger::get("System");
  * everything to get the system run.
  */
 void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
-    Multiboot::Structure::init(multibootInfoAddress);
+    Multiboot::Structure::initialize(multibootInfoAddress);
 
     kernelHeapMemoryManager = &initializeKernelHeap();
 
@@ -262,8 +262,10 @@ uint32_t System::calculatePhysicalMemorySize() {
 }
 
 HeapMemoryManager& System::initializeKernelHeap() {
-    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
-        const auto &block = Multiboot::Structure::blockMap[i];
+    auto *blockMap = Multiboot::Structure::getBlockMap();
+
+    for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
+        const auto &block = blockMap[i];
 
         if (block.type == Multiboot::Structure::HEAP_RESERVED) {
             static FreeListMemoryManager heapMemoryManager;

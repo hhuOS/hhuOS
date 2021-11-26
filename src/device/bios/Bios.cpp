@@ -29,7 +29,7 @@ namespace Device {
 const Bios::CallParameters *Bios::parameters = reinterpret_cast<const Bios::CallParameters*>(Kernel::MemoryLayout::VIRT_BIOS16_PARAM_BASE);
 
 bool Bios::isAvailable() {
-    return Kernel::Multiboot::Structure::getKernelOption("bios") == "true";
+    return Kernel::Multiboot::Structure::hasKernelOption("bios") && Kernel::Multiboot::Structure::getKernelOption("bios") == "true";
 }
 
 void Bios::init() {

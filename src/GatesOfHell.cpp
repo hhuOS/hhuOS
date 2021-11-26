@@ -98,11 +98,11 @@ void GatesOfHell::enter() {
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
     auto reader = Util::Stream::InputStreamReader(*inputStream);
 
-    if (Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
+    if (Kernel::Multiboot::Structure::hasKernelOption("color_test") && Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
         colorTest(writer);
     }
 
-    if (Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
+    if (Kernel::Multiboot::Structure::hasKernelOption("log_filesystem") && Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
         listDirectory("/");
     }
 

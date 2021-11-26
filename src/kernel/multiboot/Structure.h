@@ -25,78 +25,76 @@
 
 namespace Kernel::Multiboot {
 
-    class Structure {
+class Structure {
 
-    public:
+public:
 
-        static uint32_t usedBytes;
-
-        enum BlockType : uint8_t {
-            MULTIBOOT_RESERVED = 0x00,
-            HEAP_RESERVED = 0x01,
-            PAGING_RESERVED = 0x02
-        };
-
-        struct MemoryBlock {
-            uint32_t startAddress;
-            uint32_t virtualStartAddress;
-            uint32_t blockCount;
-            bool initialMap;
-            BlockType type;
-        };
-
-        Structure() = delete;
-
-        Structure(const Structure &other) = delete;
-
-        Structure &operator=(const Structure &other) = delete;
-
-        ~Structure() = delete;
-
-        static void copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes);
-
-        static void readMemoryMap(Info *address);
-
-        static void parse();
-
-        static void init(Multiboot::Info *address);
-
-        static Multiboot::ModuleInfo getModule(const Util::Memory::String &module);
-
-        static Util::Data::Array<Multiboot::MemoryMapEntry> getMemoryMap();
-
-        static FrameBufferInfo getFrameBufferInfo();
-
-        static bool isModuleLoaded(const Util::Memory::String &module);
-
-        static bool hasKernelOption(const Util::Memory::String &key);
-
-        static Util::Memory::String getKernelOption(const Util::Memory::String &key);
-
-        static MemoryBlock blockMap[256];
-
-        static Info info;
-
-    private:
-
-        static void parseCommandLine();
-
-        static void parseMemoryMap();
-
-        static void parseSymbols();
-
-        static void parseModules();
-
-        static void parseFrameBufferInfo();
-
-        static Util::Data::HashMap<Util::Memory::String, Multiboot::ModuleInfo> modules;
-
-        static Util::Data::HashMap<Util::Memory::String, Util::Memory::String> kernelOptions;
-
-        static Util::Data::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
-
-        static FrameBufferInfo frameBufferInfo;
+    enum BlockType : uint8_t {
+        MULTIBOOT_RESERVED = 0x00,
+        HEAP_RESERVED = 0x01,
+        PAGING_RESERVED = 0x02
     };
+
+    struct MemoryBlock {
+        uint32_t startAddress;
+        uint32_t virtualStartAddress;
+        uint32_t blockCount;
+        bool initialMap;
+        BlockType type;
+    };
+
+    Structure() = delete;
+
+    Structure(const Structure &other) = delete;
+
+    Structure &operator=(const Structure &other) = delete;
+
+    ~Structure() = delete;
+
+    static void parse();
+
+    static void initialize(Info *address);
+
+    static ModuleInfo getModule(const Util::Memory::String &module);
+
+    static Util::Data::Array<MemoryMapEntry> getMemoryMap();
+
+    static FrameBufferInfo getFrameBufferInfo();
+
+    static bool isModuleLoaded(const Util::Memory::String &module);
+
+    static bool hasKernelOption(const Util::Memory::String &key);
+
+    static Util::Memory::String getKernelOption(const Util::Memory::String &key);
+
+    // Used during the bootstrap process
+
+    static void copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes);
+
+    static void readMemoryMap(Info *address);
+
+    static MemoryBlock* getBlockMap();
+
+private:
+
+    static void parseCommandLine();
+
+    static void parseMemoryMap();
+
+    static void parseSymbols();
+
+    static void parseModules();
+
+    static void parseFrameBufferInfo();
+
+    static Util::Data::HashMap<Util::Memory::String, Multiboot::ModuleInfo> modules;
+    static Util::Data::HashMap<Util::Memory::String, Util::Memory::String> kernelOptions;
+    static Util::Data::ArrayList<Multiboot::MemoryMapEntry> memoryMap;
+    static FrameBufferInfo frameBufferInfo;
+    static MemoryBlock blockMap[256];
+    static Info info;
+};
+
 }
 
 

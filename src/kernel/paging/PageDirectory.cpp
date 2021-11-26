@@ -26,10 +26,11 @@
 namespace Kernel {
 
 PageDirectory::PageDirectory() {
+    auto *blockMap = Multiboot::Structure::getBlockMap();
     uint32_t physPagingAreaStart = 0;
 
-    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
-        const auto &block = Multiboot::Structure::blockMap[i];
+    for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
+        const auto &block = blockMap[i];
 
         if (block.type == Multiboot::Structure::PAGING_RESERVED) {
             physPagingAreaStart = block.startAddress;
@@ -59,8 +60,8 @@ PageDirectory::PageDirectory() {
     }
 
     // set the entries for the mapping of reserved memory + initial 4MB-heap
-    for (uint32_t i = 0; Multiboot::Structure::blockMap[i].blockCount != 0; i++) {
-        const auto &block = Multiboot::Structure::blockMap[i];
+    for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
+        const auto &block = blockMap[i];
         if (!block.initialMap) {
             continue;
         }

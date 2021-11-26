@@ -25,7 +25,7 @@ void Kernel::Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirector
     // Size of a 4 MiB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
-    auto *blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (&Kernel::Multiboot::Structure::blockMap) - Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto *blockMap = (Kernel::Multiboot::Structure::MemoryBlock*) ((uint32_t) (Kernel::Multiboot::Structure::getBlockMap()) - Kernel::MemoryLayout::VIRT_KERNEL_START);
 
     uint32_t pageCount = 0;
     uint32_t blockMapIndex = 0;

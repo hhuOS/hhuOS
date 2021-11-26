@@ -28,23 +28,138 @@
 namespace Kernel::Multiboot {
 
 Info Structure::info;
-
 Structure::MemoryBlock Structure::blockMap[256];
-
 Util::Data::ArrayList<MemoryMapEntry> Structure::memoryMap;
-
 FrameBufferInfo Structure::frameBufferInfo;
-
 Util::Data::HashMap<Util::Memory::String, ModuleInfo> Structure::modules;
-
 Util::Data::HashMap<Util::Memory::String, Util::Memory::String> Structure::kernelOptions;
 
-/**
- * The information passed by the bootloader may be anywhere in memory and it
- * also contains pointers. We can't be sure to still have access after enabling
- * paging, so lets copy it recursively to BSS. We have MULTIBOOT_SIZE (512KB)
- * reserved for that. (This includes all symbols and strings.)
- */
+void Structure::initialize(Info *address) {
+    info = *address;
+}
+
+void Structure::parse() {
+    parseCommandLine();
+    parseMemoryMap();
+    parseSymbols();
+    parseModules();
+    parseFrameBufferInfo();
+}
+
+void Structure::parseCommandLine() {
+    if (info.flags & MULTIBOOT_INFO_CMDLINE) {
+        info.commandLine += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        Util::Data::Array<Util::Memory::String> options = Util::Memory::String((char *) info.commandLine).split(" ");
+
+        for (const Util::Memory::String &option : options) {
+            Util::Data::Array<Util::Memory::String> pair = option.split("=");
+            if (pair.length() != 2) {
+                continue;
+            }
+
+            kernelOptions.put(pair[0], pair[1]);
+        }
+    }
+}
+
+void Structure::parseMemoryMap() {
+    if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
+        auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
+        uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
+
+        for (uint32_t i = 0; i < size; i++) {
+            memoryMap.add(entry[i]);
+        }
+    }
+}
+
+Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
+    if ((info.flags & MULTIBOOT_INFO_MEM_MAP) == 0x0) {
+        return Util::Data::Array<MemoryMapEntry>(0);
+    }
+
+    auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
+    uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
+    Util::Data::Array<MemoryMapEntry> copy(size);
+
+    for (uint32_t i = 0; i < size; i++) {
+        copy[i] = entry[i];
+    }
+
+    return copy;
+}
+
+FrameBufferInfo Structure::getFrameBufferInfo() {
+    return frameBufferInfo;
+}
+
+void Structure::parseSymbols() {
+    if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
+        info.symbols.elf.address += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        Symbols::initialize(info.symbols.elf);
+    }
+}
+
+void Structure::parseModules() {
+    if (info.flags & MULTIBOOT_INFO_MODS) {
+        info.moduleAddress += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        auto *modInfo = reinterpret_cast<ModuleInfo *>(info.moduleAddress);
+
+        for (uint32_t i = 0; i < info.moduleCount; i++) {
+            uint32_t size = modInfo[i].end - modInfo[i].start;
+            uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
+
+            modInfo[i].string += Kernel::MemoryLayout::VIRT_KERNEL_START;
+            modInfo[i].start = reinterpret_cast<uint32_t>(System::getMemoryService().mapIO(modInfo[i].start, size)) + offset;
+            modInfo[i].end += modInfo[i].start + size;
+
+            modules.put(modInfo->string, *modInfo);
+        }
+    }
+}
+
+ModuleInfo Structure::getModule(const Util::Memory::String &module) {
+    if (isModuleLoaded(module)) {
+        return modules.get(module);
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Request module is not loaded!");
+}
+
+bool Structure::isModuleLoaded(const Util::Memory::String &module) {
+    return modules.containsKey(module);
+}
+
+bool Structure::hasKernelOption(const Util::Memory::String &key) {
+    return kernelOptions.containsKey(key);
+}
+
+Util::Memory::String Structure::getKernelOption(const Util::Memory::String &key) {
+    if (kernelOptions.containsKey(key)) {
+        return kernelOptions.get(key);
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Request kernel option is not available!");
+}
+
+void Structure::parseFrameBufferInfo() {
+    if (info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) {
+        frameBufferInfo.address = static_cast<uint32_t>(info.framebufferAddress);
+        frameBufferInfo.width = static_cast<uint16_t>(info.framebufferWidth);
+        frameBufferInfo.height = static_cast<uint16_t>(info.framebufferHeight);
+        frameBufferInfo.bpp = info.framebufferBpp;
+        frameBufferInfo.pitch = static_cast<uint16_t>(info.framebufferPitch);
+        frameBufferInfo.type = info.framebufferType;
+    } else {
+        frameBufferInfo.address = 0;
+        frameBufferInfo.width = 0;
+        frameBufferInfo.height = 0;
+        frameBufferInfo.bpp = 0;
+        frameBufferInfo.pitch = 0;
+        frameBufferInfo.type = 0;
+    }
+}
+
 void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes) {
     auto destinationAddress = Util::Memory::Address<uint32_t>(destination, maxBytes);
 
@@ -52,7 +167,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     destinationAddress.copyRange(Util::Memory::Address<uint32_t>(source), sizeof(Info));
     auto multibootInfo = reinterpret_cast<Info *>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Info));
-    
+
     // then copy the commandline
     if(multibootInfo->flags & MULTIBOOT_INFO_CMDLINE) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->commandLine);
@@ -60,9 +175,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         multibootInfo->commandLine = destinationAddress.get();
         destinationAddress = destinationAddress.add(sourceAddress.stringLength() + 1);
     }
-    
-    // TODO: the following rows may write past the end of our destination buf
-    
+
     // then copy the module information
     if(multibootInfo->flags & MULTIBOOT_INFO_MODS) {
         uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
@@ -79,7 +192,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
             destinationAddress = destinationAddress.add(sourceAddress.stringLength() + 1);
         }
     }
-    
+
     // then copy the symbol headers and the symbols
     if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
@@ -89,7 +202,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         destinationAddress = destinationAddress.add(length);
         Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
     }
-    
+
     // then copy the memory map
     if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress, multibootInfo->memoryMapLength);
@@ -97,7 +210,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         multibootInfo->memoryMapAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(multibootInfo->memoryMapLength);
     }
-    
+
     // then copy the drives
     if(multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress, multibootInfo->driveLength);
@@ -105,8 +218,8 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         multibootInfo->driveAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(multibootInfo->driveLength);
     }
-    
-    // then copy the boot loader name
+
+    // then copy the bootloader name
     if(multibootInfo->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->bootloaderName);
         destinationAddress.copyString(sourceAddress);
@@ -116,36 +229,27 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 }
 
 void Structure::readMemoryMap(Info *address) {
+    Info info = *address;
 
-    Info tmp = *address;
+    auto *blocks = reinterpret_cast<MemoryBlock*>(reinterpret_cast<uint32_t>(blockMap) - Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto kernelStart = reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__ - Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto kernelEnd = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__ - Kernel::MemoryLayout::VIRT_KERNEL_START);
 
-    MemoryBlock *blocks = (MemoryBlock *) ((uint32_t) blockMap - Kernel::MemoryLayout::VIRT_KERNEL_START);
-
-    uint32_t kernelStart = (uint32_t) &___KERNEL_DATA_START__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-    uint32_t kernelEnd = (uint32_t) &___KERNEL_DATA_END__ - Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-    ElfInfo &symbolInfo = tmp.symbols.elf;
-
-    Util::File::Elf::Constants::SectionHeader *sectionHeader = nullptr;
+    ElfInfo &symbolInfo = info.symbols.elf;
+    Util::File::Elf::Constants::SectionHeader *sectionHeader;
 
     uint32_t alignment = 4 * 1024 * 1024;
-
     uint32_t kernelStartAligned = (kernelStart / alignment) * alignment;
     uint32_t kernelEndAligned = kernelEnd % alignment == 0 ? kernelEnd : (kernelEnd / alignment) * alignment + alignment;
 
     blocks[0] = { kernelStartAligned, 0, (kernelEndAligned - kernelStartAligned) / alignment, true, MULTIBOOT_RESERVED };
 
     uint32_t blockIndex = 1;
-
-    if (tmp.flags & MULTIBOOT_INFO_ELF_SHDR) {
-
+    if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
-
             sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
 
             if (sectionHeader->virtualAddress == 0x0) {
-
                 continue;
             }
 
@@ -157,7 +261,6 @@ void Structure::readMemoryMap(Info *address) {
             alignedEndAddress = alignedEndAddress % alignment == 0 ? alignedEndAddress : (alignedEndAddress / alignment) * alignment + alignment;
 
             uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
-
             blocks[blockIndex] = {alignedStartAddress, 0, blockCount, true, MULTIBOOT_RESERVED };
 
             blockIndex++;
@@ -166,28 +269,22 @@ void Structure::readMemoryMap(Info *address) {
 
     alignment = 4 * 1024;
 
-    if (tmp.flags & MULTIBOOT_INFO_MODS) {
+    if (info.flags & MULTIBOOT_INFO_MODS) {
+        auto *modInfo = (ModuleInfo *) info.moduleAddress;
 
-        auto *modInfo = (ModuleInfo *) tmp.moduleAddress;
-
-        for (uint32_t i = 0; i < tmp.moduleCount; i++) {
-
+        for (uint32_t i = 0; i < info.moduleCount; i++) {
             uint32_t alignedStartAddress = (modInfo[i].start / alignment) * alignment;
             uint32_t alignedEndAddress = modInfo[i].end % alignment == 0 ? modInfo[i].end : (modInfo[i].end / alignment) * alignment + alignment;
-
             uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
 
             blocks[blockIndex] = {alignedStartAddress, 0, blockCount, false, MULTIBOOT_RESERVED };
-
             blockIndex++;
         }
     }
 
     bool sorted;
-
     do {
         sorted = true;
-
         for (uint32_t i = 0; i < blockIndex - 1; i++) {
             if (blocks[i].startAddress > blocks[i + 1].startAddress) {
                 const auto help = blocks[i];
@@ -223,165 +320,8 @@ void Structure::readMemoryMap(Info *address) {
     }
 }
 
-void Structure::init(Info *address) {
-
-    info = *address;
-}
-
-void Structure::parse() {
-
-    parseCommandLine();
-
-    parseMemoryMap();
-
-    parseSymbols();
-
-    parseModules();
-
-    parseFrameBufferInfo();
-}
-
-void Structure::parseCommandLine() {
-
-    if (info.flags & MULTIBOOT_INFO_CMDLINE) {
-
-        info.commandLine += Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-        Util::Data::Array<Util::Memory::String> options = Util::Memory::String((char *) info.commandLine).split(" ");
-
-        for (const Util::Memory::String &option : options) {
-
-            Util::Data::Array<Util::Memory::String> pair = option.split("=");
-
-            if (pair.length() != 2) {
-
-                continue;
-            }
-
-            kernelOptions.put(pair[0], pair[1]);
-        }
-    }
-}
-
-void Structure::parseMemoryMap() {
-
-    if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
-
-        MemoryMapEntry *entry = (MemoryMapEntry *) (info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
-
-        uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
-
-        for (uint32_t i = 0; i < size; i++) {
-
-            memoryMap.add(entry[i]);
-        }
-    }
-}
-
-Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
-
-    if ((info.flags & MULTIBOOT_INFO_MEM_MAP) == 0x0) {
-        return Util::Data::Array<MemoryMapEntry>(0);
-    }
-
-    auto entry = (MemoryMapEntry *) (info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
-
-    uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
-
-    Util::Data::Array<MemoryMapEntry> memoryMap(size);
-
-    for (uint32_t i = 0; i < size; i++) {
-        memoryMap[i] = entry[i];
-    }
-
-    return memoryMap;
-}
-
-FrameBufferInfo Structure::getFrameBufferInfo() {
-    return frameBufferInfo;
-}
-
-void Structure::parseSymbols() {
-
-    if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
-
-        info.symbols.elf.address += Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-        Symbols::initialize(info.symbols.elf);
-    }
-}
-
-void Structure::parseModules() {
-
-    if (info.flags & MULTIBOOT_INFO_MODS) {
-
-        info.moduleAddress += Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-        ModuleInfo *modInfo = (ModuleInfo *) info.moduleAddress;
-
-        for (uint32_t i = 0; i < info.moduleCount; i++) {
-
-            modInfo[i].string += Kernel::MemoryLayout::VIRT_KERNEL_START;
-
-            uint32_t size = modInfo[i].end - modInfo[i].start;
-
-            uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
-
-            modInfo[i].start = reinterpret_cast<uint32_t>(System::getMemoryService().mapIO(modInfo[i].start, size)) + offset;
-
-            modInfo[i].end += modInfo[i].start + size;
-
-            modules.put(modInfo->string, *modInfo);
-        }
-    }
-}
-
-ModuleInfo Structure::getModule(const Util::Memory::String &module) {
-
-    if (isModuleLoaded(module)) {
-
-        return modules.get(module);
-    }
-
-    return {0, 0, "unknown", 0};
-}
-
-bool Structure::isModuleLoaded(const Util::Memory::String &module) {
-
-    return modules.containsKey(module);
-}
-
-bool Structure::hasKernelOption(const Util::Memory::String &key) {
-    return kernelOptions.containsKey(key);
-}
-
-Util::Memory::String Structure::getKernelOption(const Util::Memory::String &key) {
-
-    if (kernelOptions.containsKey(key)) {
-
-        return kernelOptions.get(key);
-    }
-
-    return Util::Memory::String();
-}
-
-void Structure::parseFrameBufferInfo() {
-
-    if (info.flags & MULTIBOOT_INFO_FRAMEBUFFER_INFO) {
-        frameBufferInfo.address = static_cast<uint32_t>(info.framebufferAddress);
-        frameBufferInfo.width = static_cast<uint16_t>(info.framebufferWidth);
-        frameBufferInfo.height = static_cast<uint16_t>(info.framebufferHeight);
-        frameBufferInfo.bpp = info.framebufferBpp;
-        frameBufferInfo.pitch = static_cast<uint16_t>(info.framebufferPitch);
-        frameBufferInfo.type = info.framebufferType;
-    } else {
-        frameBufferInfo.address = 0;
-        frameBufferInfo.width = 0;
-        frameBufferInfo.height = 0;
-        frameBufferInfo.bpp = 0;
-        frameBufferInfo.pitch = 0;
-        frameBufferInfo.type = 0;
-    }
+Structure::MemoryBlock *Structure::getBlockMap() {
+    return blockMap;
 }
 
 }
