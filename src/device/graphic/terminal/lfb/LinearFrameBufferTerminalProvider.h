@@ -32,7 +32,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT);
+    explicit LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
 
     /**
      * Copy constructor.
@@ -83,6 +83,7 @@ private:
 
     LinearFrameBufferProvider &lfbProvider;
     Util::Graphic::Font &font;
+    char cursor;
 
     Util::Data::Array<ModeInfo> supportedModes;
 

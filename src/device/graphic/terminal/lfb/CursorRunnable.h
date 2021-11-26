@@ -31,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    explicit CursorRunnable(LinearFrameBufferTerminal &terminal);
+    explicit CursorRunnable(LinearFrameBufferTerminal &terminal, char cursor);
 
     /**
      * Copy constructor.
@@ -52,8 +52,10 @@ public:
 
 private:
 
-    bool visible = true;
     LinearFrameBufferTerminal &terminal;
+    char cursor;
+
+    bool visible = true;
 };
 
 }

@@ -24,11 +24,11 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font) :
+LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
         characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer),
         shadowLfb(*lfb), shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb),
-        font(font), cursorRunnable(*this) {
+        font(font), cursorRunnable(*this, cursor) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
     Kernel::System::getService<Kernel::JobService>().registerJob(cursorRunnable, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, 250000000));
 }
@@ -64,7 +64,7 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
     if (currentRow >= getRows()) {
         scrollUp();
         currentColumn = 0;
-        currentRow = getRows() - 1 ;
+        currentRow = getRows() - 1;
     }
 
     cursorLock.release();

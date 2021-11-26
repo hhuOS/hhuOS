@@ -8,8 +8,8 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font) :
-        lfbProvider(lfbProvider), font(font), supportedModes(0) {
+LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font, char cursor) :
+        lfbProvider(lfbProvider), font(font), cursor(cursor), supportedModes(0) {
     auto lfbModes = lfbProvider.getAvailableModes();
     supportedModes = Util::Data::Array<ModeInfo>(lfbModes.length());
 
@@ -103,7 +103,7 @@ bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
     uint16_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char *>(bppBuffer));
     uint16_t pitch = Util::Memory::String::parseInt(reinterpret_cast<const char *>(pitchBuffer));
 
-    Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(address, resolutionX, resolutionY, colorDepth, pitch));
+    Terminal *terminal = new LinearFrameBufferTerminal(new Util::Graphic::LinearFrameBuffer(address, resolutionX, resolutionY, colorDepth, pitch), font, cursor);
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();

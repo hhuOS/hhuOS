@@ -37,7 +37,7 @@ public:
 
     friend class CursorRunnable;
 
-    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT);
+    explicit LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor);
 
     LinearFrameBufferTerminal(const LinearFrameBufferTerminal &copy) = delete;
 
