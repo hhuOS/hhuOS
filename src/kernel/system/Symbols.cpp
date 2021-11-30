@@ -107,17 +107,15 @@ void Symbols::load(const Util::File::Elf::Constants::SectionHeader &sectionHeade
 
     uint32_t numEntries = sectionHeader.size / sectionHeader.entrySize;
 
-    auto entry = (Util::File::Elf::Constants::SymbolEntry *) Kernel::MemoryLayout::PHYS2VIRT(sectionHeader.virtualAddress);
+    auto entry = (Util::File::Elf::Constants::SymbolEntry *) (sectionHeader.virtualAddress + Kernel::MemoryLayout::KERNEL_START);
 
-    auto stringSection = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address +
-                                                                                  sectionHeader.link *
-                                                                                  symbolInfo.sectionSize);
+    auto stringSection = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address + sectionHeader.link * symbolInfo.sectionSize);
 
-    char *stringTable = (char *) Kernel::MemoryLayout::PHYS2VIRT(stringSection->virtualAddress);
+    char *stringTable = (char *) (stringSection->virtualAddress + Kernel::MemoryLayout::KERNEL_START);
 
     for (uint32_t i = 0; i < numEntries; i++, entry++) {
 
-        if (entry->value < Kernel::MemoryLayout::VIRT_KERNEL_START || entry->getSymbolType() == Util::File::Elf::Constants::SymbolType::SECTION) {
+        if (entry->value < Kernel::MemoryLayout::KERNEL_START || entry->getSymbolType() == Util::File::Elf::Constants::SymbolType::SECTION) {
 
             continue;
         }
@@ -156,7 +154,7 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint
     for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
         sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
         // only copy the sections that are not part of the loaded program
-        if ((sectionHeader->virtualAddress & Kernel::MemoryLayout::VIRT_KERNEL_START) == 0) {
+        if ((sectionHeader->virtualAddress & Kernel::MemoryLayout::KERNEL_START) == 0) {
             // only copy symbols and strings, discard the rest
             if (sectionHeader->type == Util::File::Elf::Constants::SectionHeaderType::SYMTAB
             || sectionHeader->type == Util::File::Elf::Constants::SectionHeaderType::STRTAB) {

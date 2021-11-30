@@ -26,6 +26,7 @@
 #include <kernel/service/JobService.h>
 #include <kernel/service/TimeService.h>
 #include <kernel/memory/PagingAreaManagerRefillRunnable.h>
+#include <kernel/paging/Paging.h>
 #include "System.h"
 
 namespace Kernel {
@@ -111,7 +112,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     Multiboot::Structure::parse();
 
     // Protect kernel code
-    kernelAddressSpace->getPageDirectory().protectPages(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__);
+    kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
 
     initialized = true;
 }
@@ -190,7 +191,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
     // the normal descriptor should contain the virtual address of GDT
-    *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + Kernel::MemoryLayout::VIRT_KERNEL_START;
+    *((uint32_t *) (systemGdtDescriptor + 1)) = (uint32_t) systemGdt + Kernel::MemoryLayout::KERNEL_START;
 
     // set up descriptor for GDT with phys. address - needed for bootstrapping
     *((uint16_t *) physicalGdtDescriptor) = 6 * 8;
@@ -269,7 +270,7 @@ HeapMemoryManager& System::initializeKernelHeap() {
 
         if (block.type == Multiboot::Structure::HEAP_RESERVED) {
             static FreeListMemoryManager heapMemoryManager;
-            heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::VIRT_KERNEL_HEAP_END);
+            heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS);
             return heapMemoryManager;
         }
     }

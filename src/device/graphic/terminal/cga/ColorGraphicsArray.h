@@ -34,7 +34,7 @@ public:
 
     ColorGraphicsArray &operator=(const ColorGraphicsArray &other) = delete;
 
-    ~ColorGraphicsArray() override = default;
+    ~ColorGraphicsArray() override;
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
@@ -62,7 +62,7 @@ private:
     static const constexpr uint16_t CURSOR_HIGH_BYTE = 0x0e;
     static const constexpr uint16_t CURSOR_START_INDEX = 0x0a;
     static const constexpr uint16_t CURSOR_END_INDEX = 0x0b;
-
+    static const constexpr uint32_t CGA_START_ADDRESS = 0x000b8000;
 };
 
 }

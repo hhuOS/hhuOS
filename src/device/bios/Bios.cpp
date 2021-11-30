@@ -26,7 +26,7 @@
 namespace Device {
 
 // pointer to memory for parameters
-const Bios::CallParameters *Bios::parameters = reinterpret_cast<const Bios::CallParameters*>(Kernel::MemoryLayout::VIRT_BIOS16_PARAM_BASE);
+const Bios::CallParameters *Bios::parameters = reinterpret_cast<const Bios::CallParameters*>(Kernel::MemoryLayout::BIOS_PARAMETER_MEMORY.toVirtual().startAddress);
 
 bool Bios::isAvailable() {
     return Kernel::Multiboot::Structure::hasKernelOption("bios") && Kernel::Multiboot::Structure::getKernelOption("bios") == "true";
@@ -38,7 +38,7 @@ void Bios::init() {
     }
 
     // Address to memory segment for 16 bit code
-    const auto codeAddress = Util::Memory::Address<uint32_t>(Kernel::MemoryLayout::VIRT_BIOS16_CODE_MEMORY_START);
+    const auto codeAddress = Kernel::MemoryLayout::BIOS_CODE_MEMORY.toVirtual().toAddress();
     uint32_t offset = 0;
 
     // The following assembly instructions are manually placed into the memory starting at 0x4000
@@ -285,7 +285,7 @@ void Bios::interrupt(int interruptNumber, const CallParameters &callParameters) 
     target.copyRange(source, sizeof(CallParameters));
 
     // get pointer to bios call segment
-    auto biosCode = reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::VIRT_BIOS16_CODE_MEMORY_START);
+    auto biosCode = reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::BIOS_CODE_MEMORY.toVirtual().startAddress);
     // write number of bios interrupt manually into the segment
     *(biosCode + BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET) = static_cast<uint8_t>(interruptNumber);
 

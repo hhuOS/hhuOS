@@ -7,9 +7,6 @@
 
 namespace Device::Graphic {
 
-const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS(Kernel::MemoryLayout::PHYS_BIOS_RETURN_MEM);
-const Util::Memory::Address<uint32_t> VesaBiosExtensions::BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS(BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS.get() + Kernel::MemoryLayout::VIRT_KERNEL_START);
-
 VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
     if (prototypeInstance) {
         return;
@@ -18,15 +15,15 @@ VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
     auto vbeInfo = getVbeInfo();
 
     // Get vendor name, device name and memory size
-    const char *vendorNameAddress = reinterpret_cast<const char*>(Kernel::MemoryLayout::PHYS2VIRT((vbeInfo->vendor[1] << 4) + vbeInfo->vendor[0]));
-    const char *deviceNameAddress = reinterpret_cast<const char*>(Kernel::MemoryLayout::PHYS2VIRT((vbeInfo->product_name[1] << 4) + vbeInfo->product_name[0]));
+    const char *vendorNameAddress = reinterpret_cast<const char*>(((vbeInfo->vendor[1] << 4) + vbeInfo->vendor[0]) + Kernel::MemoryLayout::KERNEL_START);
+    const char *deviceNameAddress = reinterpret_cast<const char*>(((vbeInfo->product_name[1] << 4) + vbeInfo->product_name[0]) + Kernel::MemoryLayout::KERNEL_START);
 
     vendorName = vendorNameAddress == nullptr ? LinearFrameBufferProvider::getVendorName() : vendorNameAddress;
     deviceName = deviceNameAddress == nullptr ? LinearFrameBufferProvider::getDeviceName() : deviceNameAddress;
     memorySize = vbeInfo->video_memory * 65536;
 
     // Get available resolutions
-    auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo->video_modes[1] << 4) + vbeInfo->video_modes[0]) + Kernel::MemoryLayout::KERNEL_START);
 
     // Calculate amount of modes
     uint32_t modeCount;
@@ -58,15 +55,18 @@ bool VesaBiosExtensions::isAvailable() {
         return false;
     }
 
+    auto returnDataAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toAddress();
+    auto returnDataVirtualAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toVirtual().toAddress();
+
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
     Device::Bios::CallParameters biosParameters{};
     biosParameters.ax = BiosFunction::GET_VBE_INFO;
-    biosParameters.es = static_cast<uint16_t>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() >> 4);
-    biosParameters.di = BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() & 0x000F;
+    biosParameters.es = static_cast<uint16_t>(returnDataAddress.get() >> 4);
+    biosParameters.di = returnDataAddress.get() & 0x000F;
 
     // Initialize return data memory
     VbeInfo info{};
-    BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
+    returnDataVirtualAddress.copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
     Bios::interrupt(0x10, biosParameters);
@@ -76,7 +76,7 @@ bool VesaBiosExtensions::isAvailable() {
     }
 
     // Check if return data contains correct signature ('VESA')
-    Util::Memory::Address<uint32_t> signature(reinterpret_cast<VbeInfo *>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get())->signature);
+    Util::Memory::Address<uint32_t> signature(reinterpret_cast<VbeInfo *>(returnDataVirtualAddress.get())->signature);
     return signature.compareString(Util::Memory::Address<uint32_t>(VESA_SIGNATURE)) == 0;
 }
 
@@ -127,15 +127,18 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
 }
 
 VesaBiosExtensions::VbeInfo* VesaBiosExtensions::getVbeInfo() {
+    auto returnDataAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toAddress();
+    auto returnDataVirtualAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toVirtual().toAddress();
+
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
     Device::Bios::CallParameters biosParameters{};
     biosParameters.ax = BiosFunction::GET_VBE_INFO;
-    biosParameters.es = static_cast<uint16_t>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() >> 4);
-    biosParameters.di = BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() & 0x000F;
+    biosParameters.es = static_cast<uint16_t>(returnDataAddress.get() >> 4);
+    biosParameters.di = returnDataAddress.get() & 0x000F;
 
     // Initialize return data memory
     VbeInfo info{};
-    BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
+    returnDataVirtualAddress.copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
     Bios::interrupt(0x10, biosParameters);
@@ -144,19 +147,22 @@ VesaBiosExtensions::VbeInfo* VesaBiosExtensions::getVbeInfo() {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: VesaBiosExtensions Bios Extensions are not supported!");
     }
 
-    return reinterpret_cast<VbeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());
+    return reinterpret_cast<VbeInfo*>(returnDataVirtualAddress.get());
 }
 
 VesaBiosExtensions::VbeModeInfo* VesaBiosExtensions::getModeInfo(uint16_t mode) {
+    auto returnDataAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toAddress();
+    auto returnDataVirtualAddress = Kernel::MemoryLayout::VESA_RETURN_MEMORY.toVirtual().toAddress();
+
     // Prepare bios parameters: Store function code in AX, mode number in CX and return data address in ES:DI
     Device::Bios::CallParameters biosParameters{};
     biosParameters.ax = BiosFunction::GET_MODE_INFO;
     biosParameters.cx = mode;
-    biosParameters.es = static_cast<uint16_t>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() >> 4);
-    biosParameters.di = BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get() & 0x000F;
+    biosParameters.es = static_cast<uint16_t>(returnDataAddress.get() >> 4);
+    biosParameters.di = returnDataAddress.get() & 0x000F;
 
     // Initialize return data memory
-    BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.setRange(0, sizeof(VbeModeInfo));
+    returnDataVirtualAddress.setRange(0, sizeof(VbeModeInfo));
 
     // Perform the bios call and check if it was successful
     Bios::interrupt(0x10, biosParameters);
@@ -165,7 +171,7 @@ VesaBiosExtensions::VbeModeInfo* VesaBiosExtensions::getModeInfo(uint16_t mode) 
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 
-    return reinterpret_cast<VbeModeInfo*>(BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS.get());
+    return reinterpret_cast<VbeModeInfo*>(returnDataVirtualAddress.get());
 }
 
 Util::Memory::String VesaBiosExtensions::getClassName() const {

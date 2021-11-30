@@ -18,11 +18,11 @@
 #include <cstdint>
 
 // Import asm variables
-extern uint32_t ___WRITE_PROTECTED_START__;
-extern uint32_t ___WRITE_PROTECTED_END__;
-extern char ___KERNEL_DATA_START__;
-extern char ___KERNEL_DATA_END__;
-extern uint32_t MULTIBOOT_SIZE;
+extern const uint32_t ___WRITE_PROTECTED_START__;
+extern const uint32_t ___WRITE_PROTECTED_END__;
+extern const uint32_t ___KERNEL_DATA_START__;
+extern const uint32_t ___KERNEL_DATA_END__;
+extern const uint32_t MULTIBOOT_SIZE;
 
 // Import asm functions
 extern "C" {

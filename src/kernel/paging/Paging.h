@@ -25,12 +25,32 @@
 #define __PAGING_H__
 
 #include <cstdint>
+#include <cstdarg>
 
 namespace Kernel {
 
 class Paging {
     
 public:
+
+    enum Flag : uint32_t {
+        NONE = 0x00,
+
+        // System defined flags
+        PRESENT = 0x01,
+        READ_WRITE = 0x02,
+        USER_ACCESS = 0x04,
+        WRITE_THROUGH = 0x08,
+        CACHE_DISABLE = 0x10,
+        ACCESSED = 0x20,
+        DIRTY = 0x40,
+        PAGE_SIZE_MIB = 0x80,
+        GLOBAL = 0x100,
+
+        // User defined flags
+        DO_NOT_UNMAP = 0x200
+    };
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
@@ -80,35 +100,6 @@ public:
     static constexpr uint32_t GET_FLAGS(uint32_t x) {
         return 0xFFF;
     }
-
-    //Page Directory only Flags
-    static const constexpr uint32_t PAGE_SIZE_KiB = 0x000;
-    static const constexpr uint32_t PAGE_SIZE_MiB = 0x080;
-    // this bit will not be used (OS could use it for reserved pages ??)
-    static const constexpr uint32_t PAGE_SIZE_IGNORED = 0x100;
-    
-    //Page Table only Flags
-    static const constexpr uint32_t PAGE_NOT_DIRTY = 0x000;
-    static const constexpr uint32_t PAGE_DIRTY = 0x040;
-    static const constexpr uint32_t PAGE_NOT_GLOBAL = 0x000;
-    // prevents the TLB from updating the address in its cache if CR3 is reset (Bit in CR4 must be set)
-    static const constexpr uint32_t PAGE_GLOBAL = 0x100;
-    
-    //Common Flags
-    static const constexpr uint32_t PAGE_NOT_PRESENT = 0x000;
-    static const constexpr uint32_t PAGE_PRESENT = 0x001;
-    static const constexpr uint32_t PAGE_READ_ONLY = 0x000;
-    static const constexpr uint32_t PAGE_READ_WRITE = 0x002;
-    static const constexpr uint32_t PAGE_ACCESS_SUPERVISOR = 0x000;
-    static const constexpr uint32_t PAGE_ACCESS_ALL	= 0x004;
-    static const constexpr uint32_t PAGE_WRITE_BACK	= 0x000;
-    static const constexpr uint32_t PAGE_WRITE_THROUGH = 0x008;
-    static const constexpr uint32_t PAGE_CACHING = 0x000;
-    static const constexpr uint32_t PAGE_NO_CACHING = 0x010;
-    static const constexpr uint32_t PAGE_NOT_ACCESSED = 0x000;
-    static const constexpr uint32_t PAGE_ACCESSED = 0x020;
-    // A protected page will not be unmapped
-    static const constexpr uint32_t PAGE_WRITE_PROTECTED = 0x200;
     
     // pagesize = 4KB
     static const constexpr uint32_t PAGESIZE = 0x1000;

@@ -181,9 +181,7 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size) {
         unmap(virtAddress);
 
         // Map the page to given physical address
-        mapPhysicalAddress(virtAddress, physicalAddress + i * Kernel::Paging::PAGESIZE,
-                           Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE |
-                           Kernel::Paging::PAGE_NO_CACHING);
+        mapPhysicalAddress(virtAddress, physicalAddress + i * Kernel::Paging::PAGESIZE, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE);
     }
 
     return virtStartAddress;
@@ -211,8 +209,7 @@ void *MemoryService::mapIO(uint32_t size) {
                 contiguous = false;
 
                 for (uint32_t j = 0; j < i; j++) {
-                    pageFrameAllocator.freeBlock(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) +
-                                                                          j * Kernel::Paging::PAGESIZE));
+                    pageFrameAllocator.freeBlock(reinterpret_cast<void *>(reinterpret_cast<uint32_t>(physStartAddress) + j * Kernel::Paging::PAGESIZE));
                 }
 
                 physStartAddress = currentPhysAddress;
@@ -277,7 +274,7 @@ void MemoryService::trigger(InterruptFrame &frame) {
     }
 
     // Map the faulted Page
-    map(faultAddress, Kernel::Paging::PAGE_PRESENT | Kernel::Paging::PAGE_READ_WRITE);
+    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE);
     // TODO: Check other Faults
 }
 

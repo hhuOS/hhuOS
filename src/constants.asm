@@ -16,13 +16,13 @@
 %ifndef CONSTANTS_ASM
 %define CONSTANTS_ASM
 
-%define VIRT_KERNEL_START   0xc0000000
+%define KERNEL_START   0xc0000000
 %define STACK_SIZE          0x00004000
 %define MULTIBOOT_SIZE      256 * 1024
 
 %macro  call_physical_function 1
     mov eax, %1
-    sub eax, VIRT_KERNEL_START
+    sub eax, KERNEL_START
     call eax
 %endmacro
 

@@ -1,10 +1,11 @@
 #include <kernel/paging/MemLayout.h>
+#include <kernel/system/System.h>
 #include "ColorGraphicsArray.h"
 
 namespace Device::Graphic {
 
 ColorGraphicsArray::ColorGraphicsArray(uint16_t columns, uint16_t rows) : Terminal(columns, rows),
-        cgaMemory(Kernel::MemoryLayout::VIRT_CGA_START, columns * rows * BYTES_PER_CHARACTER), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
+        cgaMemory(Kernel::System::getMemoryService().mapIO(CGA_START_ADDRESS, columns * rows * 2)), indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
     ColorGraphicsArray::clear(Util::Graphic::Colors::BLACK);
 
     // Set cursor shape
@@ -83,8 +84,12 @@ void ColorGraphicsArray::scrollUp() {
     // Clear last row
     auto clear = cgaMemory.add(columns * (rows - 1) * BYTES_PER_CHARACTER);
     for (uint32_t i = 0; i < getColumns(); i++) {
-        clear.setShort(0x000f);
+        clear.add(i * 2).setShort(0x000f);
     }
+}
+
+ColorGraphicsArray::~ColorGraphicsArray() {
+    delete reinterpret_cast<uint8_t*>(cgaMemory.get());
 }
 
 }

@@ -28,18 +28,18 @@ extern on_paging_enabled
 extern bootstrap_paging
 
 ; Calculate index to 4MB page where kernel should be placed
-KERNEL_PAGE equ (VIRT_KERNEL_START >> 22)
+KERNEL_PAGE equ (KERNEL_START >> 22)
 
 section .text
 
 ; Set up first page table with 4MB pages to map kernel to higher half
 enable_bootstrap_paging:
-    push bios_page_directory - VIRT_KERNEL_START
-    push bootstrap_page_directory - VIRT_KERNEL_START
+    push bios_page_directory - KERNEL_START
+    push bootstrap_page_directory - KERNEL_START
     call bootstrap_paging
 
     ; Load physical address of 4MB page directory into cr3
-    mov ecx, bootstrap_page_directory - VIRT_KERNEL_START
+    mov ecx, bootstrap_page_directory - KERNEL_START
     mov cr3, ecx
 
     ; Enable pse bit for 4MB paging

@@ -48,7 +48,7 @@ void VirtualAddressSpace::initialize() {
     if (!kernelAddressSpace) {
         // Initialize a new memory manager for userspace
         memoryManager = reinterpret_cast<HeapMemoryManager*>(Util::Reflection::InstanceFactory::createInstance(managerType));
-        memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::VIRT_KERNEL_START - Kernel::Paging::PAGESIZE);
+        memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::KERNEL_START - Kernel::Paging::PAGESIZE);
     }
 
     initialized = true;

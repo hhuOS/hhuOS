@@ -183,9 +183,6 @@ private:
 
     Util::Data::ArrayList<ModeInfo> supportedModes;
 
-    static const Util::Memory::Address<uint32_t> BIOS_CALL_RETURN_DATA_PHYSICAL_ADDRESS;
-    static const Util::Memory::Address<uint32_t> BIOS_CALL_RETURN_DATA_VIRTUAL_ADDRESS;
-
     static const constexpr uint16_t BIOS_CALL_RETURN_CODE_SUCCESS = 0x004f;
     static const constexpr uint16_t MODE_LIST_END_MARKER = 0xffff;
     static const constexpr uint16_t MODE_NUMBER_LFB_BIT = 1 << 14;

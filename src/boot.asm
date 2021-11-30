@@ -77,9 +77,9 @@ extern ___TEXT_END__
 
 ; Calculate physical addresses for some labels
 ; Needed while paging is disabled, because functions are linked against high addresses
-_clear_bss          equ (clear_bss - VIRT_KERNEL_START)
-___PHYS_BSS_START__ equ (___BSS_START__ - VIRT_KERNEL_START)
-___PHYS_BSS_END__   equ (___BSS_END__ - VIRT_KERNEL_START)
+_clear_bss          equ (clear_bss - KERNEL_START)
+___PHYS_BSS_START__ equ (___BSS_START__ - KERNEL_START)
+___PHYS_BSS_END__   equ (___BSS_END__ - KERNEL_START)
 
 section .text
 
@@ -88,11 +88,11 @@ multiboot_header:
 	dd MULTIBOOT_HEADER_MAGIC
 	dd MULTIBOOT_HEADER_FLAGS
 	dd MULTIBOOT_HEADER_CHKSUM
-	dd (multiboot_header - VIRT_KERNEL_START)
-	dd (___KERNEL_DATA_START__ - VIRT_KERNEL_START)
-	dd (___KERNEL_DATA_END__ - VIRT_KERNEL_START)
-	dd (___BSS_END__ - VIRT_KERNEL_START)
-	dd (boot - VIRT_KERNEL_START)
+	dd (multiboot_header - KERNEL_START)
+	dd (___KERNEL_DATA_START__ - KERNEL_START)
+	dd (___KERNEL_DATA_END__ - KERNEL_START)
+	dd (___BSS_END__ - KERNEL_START)
+	dd (boot - KERNEL_START)
 	dd GRAPHICS_MODE
 	dd GRAPHICS_WIDTH
 	dd GRAPHICS_HEIGHT
@@ -100,21 +100,21 @@ multiboot_header:
 
 boot:
     ; Save multiboot structure address
-    mov [multiboot_physical_addr - VIRT_KERNEL_START], ebx
+    mov [multiboot_physical_addr - KERNEL_START], ebx
 
 	; Set esp to initial kernel stack
-    mov esp, (initial_kernel_stack - VIRT_KERNEL_START + STACK_SIZE)
+    mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
 	; Setup global descriptor tables
-    push dword (gdt_phys_descriptor - VIRT_KERNEL_START)
-    push dword (gdt_bios_descriptor - VIRT_KERNEL_START)
-    push dword (gdt_descriptor - VIRT_KERNEL_START)
-    push dword (gdt_bios - VIRT_KERNEL_START)
-    push dword (gdt - VIRT_KERNEL_START)
+    push dword (gdt_phys_descriptor - KERNEL_START)
+    push dword (gdt_bios_descriptor - KERNEL_START)
+    push dword (gdt_descriptor - KERNEL_START)
+    push dword (gdt_bios - KERNEL_START)
+    push dword (gdt - KERNEL_START)
     call init_gdt
 
     ; Load GDT from physical address
-    lgdt [gdt_phys_descriptor - VIRT_KERNEL_START]
+    lgdt [gdt_phys_descriptor - KERNEL_START]
 
 	; Set segment-registers
     mov	ax,0x10
@@ -137,17 +137,17 @@ clear_bss:
     jne	.loop
 
     ; Set stack again to cut off possible old values
-    mov esp, (initial_kernel_stack - VIRT_KERNEL_START + STACK_SIZE)
+    mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
 debug_label:
     ; Copy the multiboot info struct into bss
     push dword MULTIBOOT_SIZE
-    push dword (multiboot_data - VIRT_KERNEL_START)
-    push dword [multiboot_physical_addr - VIRT_KERNEL_START]
+    push dword (multiboot_data - KERNEL_START)
+    push dword [multiboot_physical_addr - KERNEL_START]
     call_physical_function copy_multiboot_info
 
     ; Read memory map from multiboot info struct
-    push dword (multiboot_data - VIRT_KERNEL_START)
+    push dword (multiboot_data - KERNEL_START)
     call_physical_function read_memory_map
 
 	; Jump into paging.asm to enable 4MB paging

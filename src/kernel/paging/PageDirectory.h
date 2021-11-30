@@ -93,9 +93,9 @@ public:
     /**
      * Protects a given page from unmapping.
      *
-     * @param virtualAddress Virtual address of the page that should be protected from unmapping.
+     * @param virtualStartAddress Virtual address of the page that should be protected from unmapping.
      */
-    void protectPage(uint32_t virtualAddress);
+    void setPageFlags(uint32_t virtualStartAddress, uint32_t flags);
 
     /**
      * Protect a range of pages from unmapping.
@@ -103,14 +103,14 @@ public:
      * @param virtualStartAddress Virtual address of first page to be protected
      * @param virtualStartAddress Virtual address of last page to be protected
      */
-    void protectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
+    void setPageFlags(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t flags);
 
     /**
      * Unprotect a given page from unmapping.
      *
      * @param virtualAddress Virtual address of the page that should be unprotected from unmapping.
      */
-    void unprotectPage(uint32_t virtualAddress);
+    void unsetPageFlags(uint32_t virtualAddress, uint32_t flags);
 
     /**
      * Unprotect a range of pages from unmapping.
@@ -118,7 +118,7 @@ public:
      * @param virtualStartAddress Virtual address of first page to be protected
      * @param virtualStartAddress Virtual address of last page to be protected
      */
-    void unprotectPages(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
+    void unsetPageFlags(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t flags);
 
     /**
      * Get virtual address of the page directory.

@@ -26,6 +26,8 @@
 #define __MEMLAYOUT_include__
 
 #include <cstdint>
+#include <lib/util/memory/Address.h>
+#include <asm_interface.h>
 
 namespace Kernel {
 
@@ -33,48 +35,68 @@ class MemoryLayout {
     
 public:
 
+    struct MemoryArea {
+        enum Type {
+            PHYSICAL,
+            VIRTUAL
+        };
+
+        const uint32_t startAddress;
+        const uint32_t endAddress;
+        const Type type;
+
+        [[nodiscard]] uint32_t getSize() const {
+            return endAddress - startAddress + 1;
+        }
+
+        [[nodiscard]] Util::Memory::Address<uint32_t> toAddress() const {
+            return Util::Memory::Address<uint32_t>(startAddress, getSize());
+        }
+
+        [[nodiscard]] MemoryArea toPhysical() const {
+            if (type == PHYSICAL) {
+                return { startAddress, endAddress, PHYSICAL };
+            } else {
+                return { startAddress - KERNEL_START, endAddress - KERNEL_START, PHYSICAL};
+            }
+        }
+
+        [[nodiscard]] MemoryArea toVirtual() const {
+            if (type == VIRTUAL) {
+                return { startAddress, endAddress, VIRTUAL };
+            } else {
+                return { startAddress + KERNEL_START, endAddress + KERNEL_START, VIRTUAL };
+            }
+        }
+    };
+
+    // Real mode address space (https://wiki.osdev.org/Memory_Map_%28x86%29)
+    static const constexpr MemoryArea REAL_MODE_INTERRUPT_VECTOR_TABLE = { 0x00000000, 0x000003ff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_DATA_AREA = { 0x00000400, 0x000004ff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea USABLE_LOW_MEMORY = { 0x00000500, 0x0007ffff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea EXTENDED_BIOS_DATA_AREA = { 0x00080000, 0x0009ffff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea VIDEO_DISPLAY_MEMORY = { 0x000a0000, 0x000bffff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea VIDEO_BIOS = { 0x000c0000, 0x000c7fff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea BIOS_EXPANSIONS = { 0x000c8000, 0x000effff, MemoryArea::PHYSICAL };
+    static const constexpr MemoryArea MOTHERBOARD_BIOS = { 0x000f0000, 0x000fffff, MemoryArea::PHYSICAL };
+
     // let kernel start at 3GB
-    static const constexpr uint32_t VIRT_KERNEL_START = 0xC0000000;
-    static const constexpr uint32_t VIRT_MEM_END = 0xFFFFFFFF;
+    static const constexpr uint32_t KERNEL_START = 0xc0000000;
+    static const constexpr uint32_t MEMORY_END = 0xffffffff;
     
     // start of virtual area for page tables and directories (128 MB)
-    static const constexpr uint32_t VIRT_PAGE_MEM_START = 0xF8000000;
+    static const constexpr MemoryArea PAGING_AREA = {0xf8000000, MEMORY_END, MemoryArea::VIRTUAL };
     // end of virtual kernel memory for heap
-    static const constexpr uint32_t VIRT_KERNEL_HEAP_END = VIRT_PAGE_MEM_START;
-    // end of virtual area for page tables and directories
-    static const constexpr uint32_t VIRT_PAGE_MEM_END = VIRT_MEM_END;
-    
-    // begin of kernel code
-    static const constexpr uint32_t PHYS_SYS_CODE = 0x100000;
-    static const constexpr uint32_t VIRT_SYS_CODE = PHYS_SYS_CODE + VIRT_KERNEL_START;
-    
-    // start address of cga memory
-    static const constexpr uint32_t PHYS_CGA_START = 0xB8000;
-    static const constexpr uint32_t VIRT_CGA_START = PHYS_CGA_START + VIRT_KERNEL_START;
+    static const constexpr uint32_t KERNEL_HEAP_END_ADDRESS = PAGING_AREA.startAddress - 1;
     
     // return address for bios calls
-    static const constexpr uint32_t PHYS_BIOS_RETURN_MEM = 0x9F000;
-    static const constexpr uint32_t VIRT_BIOS_RETURN_MEM = PHYS_BIOS_RETURN_MEM + VIRT_KERNEL_START;
+    static const constexpr MemoryArea VESA_RETURN_MEMORY = { 0x0009f000, 0x0009f200, MemoryArea::PHYSICAL };
     
     // Look into boot.asm for corresponding GDT-Entry
-    static const constexpr uint32_t PHYS_BIOS16_CODE_MEMORY_START = 0x4000;
-    static const constexpr uint32_t VIRT_BIOS16_CODE_MEMORY_START = PHYS_BIOS16_CODE_MEMORY_START + VIRT_KERNEL_START;
+    static const constexpr MemoryArea BIOS_CODE_MEMORY = {0x00004000, 0x00004fff, MemoryArea::PHYSICAL };
     
     // Parameter for BIOS-Calls
-    static const constexpr uint32_t PHYS_BIOS16_PARAM_BASE = 0x6000;
-    static const constexpr uint32_t VIRT_BIOS16_PARAM_BASE = PHYS_BIOS16_PARAM_BASE + VIRT_KERNEL_START;
-    
-    static const constexpr uint32_t ISA_DMA_START_ADDRESS = 0x00010000;
-    static const constexpr uint32_t ISA_DMA_END_ADDRESS = ISA_DMA_START_ADDRESS + 0x00080000;
-
-    static const constexpr uint32_t VIRT2PHYS(uint32_t address) {
-        return address - VIRT_KERNEL_START;
-    }
-
-    static const constexpr uint32_t PHYS2VIRT(uint32_t address) {
-        return address + VIRT_KERNEL_START;
-    }
-    
+    static const constexpr MemoryArea BIOS_PARAMETER_MEMORY = { 0x00006000, 0x00006027, MemoryArea::PHYSICAL };
 };
 
 }

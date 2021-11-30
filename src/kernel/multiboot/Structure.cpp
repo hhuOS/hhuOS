@@ -48,7 +48,7 @@ void Structure::parse() {
 
 void Structure::parseCommandLine() {
     if (info.flags & MULTIBOOT_INFO_CMDLINE) {
-        info.commandLine += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        info.commandLine += Kernel::MemoryLayout::KERNEL_START;
         Util::Data::Array<Util::Memory::String> options = Util::Memory::String((char *) info.commandLine).split(" ");
 
         for (const Util::Memory::String &option : options) {
@@ -64,7 +64,7 @@ void Structure::parseCommandLine() {
 
 void Structure::parseMemoryMap() {
     if (info.flags & MULTIBOOT_INFO_MEM_MAP) {
-        auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
+        auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::KERNEL_START);
         uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
 
         for (uint32_t i = 0; i < size; i++) {
@@ -78,7 +78,7 @@ Util::Data::Array<MemoryMapEntry> Structure::getMemoryMap() {
         return Util::Data::Array<MemoryMapEntry>(0);
     }
 
-    auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto *entry = reinterpret_cast<MemoryMapEntry*>(info.memoryMapAddress + Kernel::MemoryLayout::KERNEL_START);
     uint32_t size = info.memoryMapLength / sizeof(MemoryMapEntry);
     Util::Data::Array<MemoryMapEntry> copy(size);
 
@@ -95,21 +95,21 @@ FrameBufferInfo Structure::getFrameBufferInfo() {
 
 void Structure::parseSymbols() {
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
-        info.symbols.elf.address += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        info.symbols.elf.address += Kernel::MemoryLayout::KERNEL_START;
         Symbols::initialize(info.symbols.elf);
     }
 }
 
 void Structure::parseModules() {
     if (info.flags & MULTIBOOT_INFO_MODS) {
-        info.moduleAddress += Kernel::MemoryLayout::VIRT_KERNEL_START;
+        info.moduleAddress += Kernel::MemoryLayout::KERNEL_START;
         auto *modInfo = reinterpret_cast<ModuleInfo *>(info.moduleAddress);
 
         for (uint32_t i = 0; i < info.moduleCount; i++) {
             uint32_t size = modInfo[i].end - modInfo[i].start;
             uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
 
-            modInfo[i].string += Kernel::MemoryLayout::VIRT_KERNEL_START;
+            modInfo[i].string += Kernel::MemoryLayout::KERNEL_START;
             modInfo[i].start = reinterpret_cast<uint32_t>(System::getMemoryService().mapIO(modInfo[i].start, size)) + offset;
             modInfo[i].end += modInfo[i].start + size;
 
@@ -231,9 +231,9 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 void Structure::readMemoryMap(Info *address) {
     Info info = *address;
 
-    auto *blocks = reinterpret_cast<MemoryBlock*>(reinterpret_cast<uint32_t>(blockMap) - Kernel::MemoryLayout::VIRT_KERNEL_START);
-    auto kernelStart = reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__ - Kernel::MemoryLayout::VIRT_KERNEL_START);
-    auto kernelEnd = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__ - Kernel::MemoryLayout::VIRT_KERNEL_START);
+    auto *blocks = reinterpret_cast<MemoryBlock*>(reinterpret_cast<uint32_t>(blockMap) - Kernel::MemoryLayout::KERNEL_START);
+    auto kernelStart = reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__ - Kernel::MemoryLayout::KERNEL_START);
+    auto kernelEnd = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__ - Kernel::MemoryLayout::KERNEL_START);
 
     ElfInfo &symbolInfo = info.symbols.elf;
     Util::File::Elf::Constants::SectionHeader *sectionHeader;
@@ -253,8 +253,8 @@ void Structure::readMemoryMap(Info *address) {
                 continue;
             }
 
-            uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::VIRT_KERNEL_START ? sectionHeader->virtualAddress :
-                                    sectionHeader->virtualAddress - Kernel::MemoryLayout::VIRT_KERNEL_START;
+            uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::KERNEL_START ? sectionHeader->virtualAddress :
+                                    sectionHeader->virtualAddress - Kernel::MemoryLayout::KERNEL_START;
 
             uint32_t alignedStartAddress = (startAddress / alignment) * alignment;
             uint32_t alignedEndAddress = startAddress + sectionHeader->size;
