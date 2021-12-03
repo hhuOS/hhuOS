@@ -159,7 +159,7 @@ private:
      *
      * @return A pointer to the VBE info struct
      */
-    static VbeInfo* getVbeInfo();
+    static VbeInfo getVbeInfo();
 
     /**
      * Get information about a specific VBE graphics mode from the BIOS.
@@ -167,7 +167,7 @@ private:
      * @param mode The mode number
      * @return A pointer to the mode info struct
      */
-    static VbeModeInfo* getModeInfo(uint16_t mode);
+    static VesaBiosExtensions::VbeModeInfo getModeInfo(uint16_t mode);
 
     /**
 	 * Set the VBE device to a given mode.
@@ -183,6 +183,8 @@ private:
 
     Util::Data::ArrayList<ModeInfo> supportedModes;
 
+    static const constexpr uint32_t VBE_CONTROLLER_INFO_SIZE = 512;
+    static const constexpr uint32_t VBE_MODE_INFO_SIZE = 256;
     static const constexpr uint16_t BIOS_CALL_RETURN_CODE_SUCCESS = 0x004f;
     static const constexpr uint16_t MODE_LIST_END_MARKER = 0xffff;
     static const constexpr uint16_t MODE_NUMBER_LFB_BIT = 1 << 14;

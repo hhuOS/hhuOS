@@ -19,7 +19,7 @@
 #include <lib/util/memory/operators.h>
 #include <lib/util/reflection/InstanceFactory.h>
 #include <kernel/system/System.h>
-#include "MemLayout.h"
+#include "MemoryLayout.h"
 #include "Paging.h"
 #include "VirtualAddressSpace.h"
 

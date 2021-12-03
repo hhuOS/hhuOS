@@ -137,8 +137,8 @@ void GatesOfHell::initializeTerminal() {
     Device::Graphic::TerminalProvider *terminalProvider;
 
     if (Kernel::Multiboot::Structure::hasKernelOption("lfb_provider")) {
-        log.info("LFB provider set to [%s] -> Starting initialization");
         auto providerName = Kernel::Multiboot::Structure::getKernelOption("lfb_provider");
+        log.info("LFB provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         lfbProvider = reinterpret_cast<Device::Graphic::LinearFrameBufferProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (Kernel::Multiboot::MultibootLinearFrameBufferProvider::isAvailable()) {
         log.info("LFB provider is not set -> Initializing LFB provider with multiboot values");

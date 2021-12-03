@@ -19,7 +19,7 @@
 #include <asm_interface.h>
 #include <kernel/system/System.h>
 #include <kernel/service/MemoryService.h>
-#include "kernel/paging/MemLayout.h"
+#include "kernel/paging/MemoryLayout.h"
 #include "kernel/system/Symbols.h"
 #include "kernel/system/System.h"
 #include "Structure.h"
@@ -231,9 +231,9 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 void Structure::readMemoryMap(Info *address) {
     Info info = *address;
 
-    auto *blocks = reinterpret_cast<MemoryBlock*>(reinterpret_cast<uint32_t>(blockMap) - Kernel::MemoryLayout::KERNEL_START);
-    auto kernelStart = reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__ - Kernel::MemoryLayout::KERNEL_START);
-    auto kernelEnd = reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__ - Kernel::MemoryLayout::KERNEL_START);
+    auto *blocks = reinterpret_cast<MemoryBlock*>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(blockMap)));
+    auto kernelStart = reinterpret_cast<uint32_t>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__)));
+    auto kernelEnd = reinterpret_cast<uint32_t>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__)));
 
     ElfInfo &symbolInfo = info.symbols.elf;
     Util::File::Elf::Constants::SectionHeader *sectionHeader;
@@ -254,7 +254,7 @@ void Structure::readMemoryMap(Info *address) {
             }
 
             uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::KERNEL_START ? sectionHeader->virtualAddress :
-                                    sectionHeader->virtualAddress - Kernel::MemoryLayout::KERNEL_START;
+                                    MemoryLayout::VIRTUAL_TO_PHYSICAL(sectionHeader->virtualAddress);
 
             uint32_t alignedStartAddress = (startAddress / alignment) * alignment;
             uint32_t alignedEndAddress = startAddress + sectionHeader->size;

@@ -18,6 +18,7 @@
 #ifndef HHUOS_DEVICE_BIOS_H
 #define HHUOS_DEVICE_BIOS_H
 
+#include <lib/util/async/Spinlock.h>
 #include <cstdint>
 
 namespace Device {
@@ -32,7 +33,7 @@ public:
      * State of the 16-bit registers, that shall be loaded once the switch to real mode has been performed.
      * This way, parameters can be passed to a BIOS call.
      */
-    struct CallParameters {
+    struct RealModeContext {
         uint16_t ds;
         uint16_t es;
         uint16_t fs;
@@ -85,15 +86,16 @@ public:
      * Provides a bios call via software interrupt
      *
      * @param Interrupt number number of the bios call
-     * @param callParameters Parameter struct for the bios call
+     * @param context Parameter struct for the bios call
      */
-    static void interrupt(int interruptNumber, const CallParameters &callParameters);
+    static RealModeContext interrupt(int interruptNumber, const RealModeContext &context);
 
 private:
 
-    static const CallParameters *parameters;
+    static Util::Async::Spinlock interruptLock;
 
-    static const constexpr uint32_t BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET = 48;
+    static const constexpr uint32_t STACK_SEGMENT_ADDRESS_OFFSET = 23;
+    static const constexpr uint32_t BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET = 41;
 };
 
 }

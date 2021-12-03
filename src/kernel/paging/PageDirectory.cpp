@@ -21,7 +21,7 @@
 #include <kernel/multiboot/Structure.h>
 #include <kernel/paging/PageDirectory.h>
 #include <kernel/paging/Paging.h>
-#include "MemLayout.h"
+#include "MemoryLayout.h"
 
 namespace Kernel {
 

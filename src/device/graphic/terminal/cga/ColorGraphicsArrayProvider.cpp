@@ -1,4 +1,4 @@
-#include <kernel/paging/MemLayout.h>
+#include <kernel/paging/MemoryLayout.h>
 #include <device/bios/Bios.h>
 #include <kernel/service/FilesystemService.h>
 #include <kernel/system/System.h>
@@ -16,11 +16,11 @@ ColorGraphicsArrayProvider::ColorGraphicsArrayProvider(bool prototypeInstance) :
     supportedModes[0] = {40, 25, 4, 0x01};
     supportedModes[1] = {80, 25, 4, 0x03};
 
-    Bios::CallParameters biosParameters{};
+    Bios::RealModeContext biosParameters{};
     biosParameters.ax = BiosFunction::CHECK_VIDEO_CARD;
 
-    Bios::interrupt(0x10, biosParameters);
-    auto cardType = static_cast<VideoCardType>(biosParameters.bx);
+    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
+    auto cardType = static_cast<VideoCardType>(biosReturnContext.bx);
 
     switch (cardType) {
         case MONOCHROME:
@@ -61,11 +61,11 @@ bool ColorGraphicsArrayProvider::isAvailable() {
         return false;
     }
 
-    Bios::CallParameters biosParameters{};
+    Bios::RealModeContext biosParameters{};
     biosParameters.ax = BiosFunction::CHECK_VIDEO_CARD;
 
-    Bios::interrupt(0x10, biosParameters);
-    auto cardType = static_cast<VideoCardType>(biosParameters.bx);
+    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
+    auto cardType = static_cast<VideoCardType>(biosReturnContext.bx);
 
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
@@ -76,7 +76,7 @@ bool ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &
     }
 
     // Set video mode
-    Bios::CallParameters biosParameters{};
+    Bios::RealModeContext biosParameters{};
     biosParameters.ax = modeInfo.modeNumber;
     Bios::interrupt(0x10, biosParameters);
 

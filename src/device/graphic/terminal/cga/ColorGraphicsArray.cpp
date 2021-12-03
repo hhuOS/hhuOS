@@ -1,4 +1,4 @@
-#include <kernel/paging/MemLayout.h>
+#include <kernel/paging/MemoryLayout.h>
 #include <kernel/system/System.h>
 #include "ColorGraphicsArray.h"
 

@@ -16,17 +16,17 @@
  */
 
 
-#include <kernel/paging/MemLayout.h>
+#include <kernel/paging/MemoryLayout.h>
 #include <kernel/multiboot/Structure.h>
 #include <lib/util/memory/Address.h>
-#include <asm_interface.h>
 #include <device/cpu/Cpu.h>
+#include <asm_interface.h>
 #include "Bios.h"
+#include "kernel/system/System.h"
 
 namespace Device {
 
-// pointer to memory for parameters
-const Bios::CallParameters *Bios::parameters = reinterpret_cast<const Bios::CallParameters*>(Kernel::MemoryLayout::BIOS_PARAMETER_MEMORY.toVirtual().startAddress);
+Util::Async::Spinlock Bios::interruptLock;
 
 bool Bios::isAvailable() {
     return Kernel::Multiboot::Structure::hasKernelOption("bios") && Kernel::Multiboot::Structure::getKernelOption("bios") == "true";
@@ -41,11 +41,10 @@ void Bios::init() {
     const auto codeAddress = Kernel::MemoryLayout::BIOS_CODE_MEMORY.toVirtual().toAddress();
     uint32_t offset = 0;
 
-    // The following assembly instructions are manually placed into the memory starting at 0x4000
+    // The following assembly instructions are manually placed into the memory starting at 0x0500 (0x500 - 0x5fff is reserved for BIOS code)
     /***************************************************************************************************************************************
-     * ; Save esp to 0x5000
-     * mov eax,5000
-     * mov [eax],esp
+     * ; Save esp to 0x0ffc (last 4 bytes of memory reserved for the 16-bit code code)
+     * mov [0x0ffc],esp
      *
      * ; Turn of protected mode via cr0 (also disable write protection)
      * mov eax,cr0
@@ -53,17 +52,16 @@ void Bios::init() {
      * mov cr0,eax
      *
      * ; Flush pipeline and switch decoding unit to real mode by performing a far jump to the next instruction
-     * ; 0x0400:0x001b = (0x0400 << 4) + 0x001b = 0x4000 + 0x001b = 0x401b
-     * jmp 0x0400:0x001b
+     * ; 0x0050:0x0016 = (0x0050 << 4) + 0x0016 = 0x0500 + 0x001b = 0x0516
+     * jmp 0x0050:0x0016
      *
-     * ; Setup segment registers
-     * mov dx,0x0400
+     * ; Setup segment registers and let the stack segment point directly to the context struct
+     * ; The value 0x0000 is replaced manually with the appropriate segment address by Bios::interrupt()
+     * mov dx,0x0000
      * mov ss,dx
-     * mov gs,dx
      *
-     * ; Set esp to the parameter struct
-     * ; 0x6000 = 0x4000 (segment base) + 0x2000 (offset)
-     * mov esp,0x2000
+     * ; Set esp to 0x0000 (no offset needed, since ss already points exactly to the context struct)
+     * mov esp,0x0000
      *
      * ; Pop parameters from the struct (now on stack) into the CPU registers
      * pop ds
@@ -88,38 +86,29 @@ void Bios::init() {
      * mov cr0,eax
      *
      * ; Flush pipeline and switch decoding unit to protected mode by performing a far jump to the next instruction
-     * ; 0x0018:0x0049 = GDT[0x0018] + 0x0049 = 0x4000 + 0x0049 = 0x4049
-     * jmp 0x0018:0x0049
+     * ; 0x0018:0x0042 = GDT[0x0018] + 0x0042 = 0x0500 + 0x0042 = 0x0542
+     * jmp 0x0018:0x0042
      *
-     * ; Setup segment registers
+     * ; Restore segment registers
      * mov dx,0x0010
      * mov ds,dx
      * mov es,dx
      * mov fs,dx
-     * mov gs,dx
      * mov ss,dx
      *
-     * ; Restore esp from 0x5000
-     * mov eax,0x5000
-     * mov esp,[eax]
+     * ; Restore esp from 0x0ffc
+     * mov esp,[0x0ffc]
      *
      * ; Far return to bios.asm
      * far ret
      **************************************************************************************************************************************/
 
-    // mov eax,0x5000
+    // mov [0x0ffc],esp
     codeAddress.setByte(0x66, offset++);
-    codeAddress.setByte(0xb8, offset++);
-    codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x50, offset++);
-    codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x00, offset++);
-
-    // mov [eax],esp
-    codeAddress.setByte(0x66, offset++);
-    codeAddress.setByte(0x67, offset++);
     codeAddress.setByte(0x89, offset++);
-    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0x26, offset++);
+    codeAddress.setByte(0xfc, offset++);
+    codeAddress.setByte(0x0f, offset++);
 
     // mov eax,cr0
     codeAddress.setByte(0x0f, offset++);
@@ -139,31 +128,27 @@ void Bios::init() {
     codeAddress.setByte(0x22, offset++);
     codeAddress.setByte(0xc0, offset++);
 
-    // jmp 0400:001b
+    // jmp 0x0050:0x0016
     codeAddress.setByte(0xea, offset++);
-    codeAddress.setByte(0x1b, offset++);
+    codeAddress.setByte(0x16, offset++);
     codeAddress.setByte(0x00, offset++);
+    codeAddress.setByte(0x50, offset++);
     codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x04, offset++);
 
-    // mov dx,0x0400
+    // mov dx,0x0000
     codeAddress.setByte(0xba, offset++);
     codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x04, offset++);
+    codeAddress.setByte(0x00, offset++);
 
     // mov ss,dx
     codeAddress.setByte(0x8e, offset++);
     codeAddress.setByte(0xd2, offset++);
 
-    // mov gs,dx
-    codeAddress.setByte(0x8e, offset++);
-    codeAddress.setByte(0xea, offset++);
-
-    // mov esp,0x2000
+    // mov esp,0x0000
     codeAddress.setByte(0x66, offset++);
     codeAddress.setByte(0xbc, offset++);
     codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0x00, offset++);
     codeAddress.setByte(0x00, offset++);
     codeAddress.setByte(0x00, offset++);
 
@@ -223,9 +208,9 @@ void Bios::init() {
     codeAddress.setByte(0x22, offset++);
     codeAddress.setByte(0xc0, offset++);
 
-    // jmp 0x0018:0x0049
+    // jmp 0x0018:0x0042
     codeAddress.setByte(0xea, offset++);
-    codeAddress.setByte(0x49, offset++);
+    codeAddress.setByte(0x42, offset++);
     codeAddress.setByte(0x00, offset++);
     codeAddress.setByte(0x18, offset++);
     codeAddress.setByte(0x00, offset++);
@@ -247,58 +232,56 @@ void Bios::init() {
     codeAddress.setByte(0x8e, offset++);
     codeAddress.setByte(0xe2, offset++);
 
-    // mov gs,dx
-    codeAddress.setByte(0x8e, offset++);
-    codeAddress.setByte(0xea, offset++);
-
     // mov ss,dx
     codeAddress.setByte(0x8e, offset++);
     codeAddress.setByte(0xd2, offset++);
 
-    // mov eax,0x5000
+    // mov esp,[0x0ffc]
     codeAddress.setByte(0x66, offset++);
-    codeAddress.setByte(0xb8, offset++);
-    codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x50, offset++);
-    codeAddress.setByte(0x00, offset++);
-    codeAddress.setByte(0x00, offset++);
-
-    // mov esp,[eax]
-    codeAddress.setByte(0x66, offset++);
-    codeAddress.setByte(0x67, offset++);
     codeAddress.setByte(0x8b, offset++);
-    codeAddress.setByte(0x20, offset++);
+    codeAddress.setByte(0x26, offset++);
+    codeAddress.setByte(0xfc, offset++);
+    codeAddress.setByte(0x0f, offset++);
 
     // far ret
     codeAddress.setByte(0x66, offset++);
     codeAddress.setByte(0xcb, offset);
 }
 
-void Bios::interrupt(int interruptNumber, const CallParameters &callParameters) {
+Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext &context) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION,"BIOS-calls are deactivated! Set 'bios=true', to activate them.");
     }
 
-    // Copy given parameters into the struct used by the 16-bit code
-    Util::Memory::Address<uint32_t> source(&callParameters);
-    Util::Memory::Address<uint32_t> target(parameters);
-    target.copyRange(source, sizeof(CallParameters));
+    interruptLock.acquire();
+    // Allocate space for BIOS context inside the lower memory
+    auto *biosContext = static_cast<RealModeContext*>(Kernel::System::getMemoryService().allocateLowerMemory(sizeof(RealModeContext), 32));
 
-    // get pointer to bios call segment
+    // Copy given context into the allocated space
+    Util::Memory::Address<uint32_t> source(&context);
+    Util::Memory::Address<uint32_t> target(biosContext);
+    target.copyRange(source, sizeof(RealModeContext));
+
+    // Get pointer to bios call segment
     auto biosCode = reinterpret_cast<uint8_t*>(Kernel::MemoryLayout::BIOS_CODE_MEMORY.toVirtual().startAddress);
-    // write number of bios interrupt manually into the segment
+    // Write number of bios interrupt manually into code
     *(biosCode + BIOS_INTERRUPT_NUMBER_ADDRESS_OFFSET) = static_cast<uint8_t>(interruptNumber);
+    // Write stack segment address manually into code
+    *reinterpret_cast<uint16_t*>(biosCode + STACK_SEGMENT_ADDRESS_OFFSET) = Kernel::MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(biosContext)) >> 4;
 
-    // no interrupts during the bios call
+    // Disable interrupts during the bios call, since our protected mode handler cannot be called
     Cpu::disableInterrupts();
-    // jump into assembler code
+    // Call assembly code
     bios_call();
-    // bios call is returned, interrupts are allowed now
+    // Bios call has returned -> Enable interrupts
     Cpu::enableInterrupts();
 
-    // Copy the struct used by the 16-bit code back into the given parameters
-    // This way, it is possible to pass return values via cpu registers from real mode to protected mode
-    source.copyRange(target, sizeof(CallParameters));
+    // Create a copy of the BIOS context and free the allocated space in lower memory
+    RealModeContext ret = *biosContext;
+    Kernel::System::getMemoryService().freeLowerMemory(biosContext, 32);
+
+    interruptLock.release();
+    return ret;
 }
 
 }

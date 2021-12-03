@@ -19,6 +19,7 @@
 #include <kernel/system/System.h>
 #include <kernel/interrupt/InterruptDispatcher.h>
 #include <kernel/paging/PageDirectory.h>
+#include <kernel/paging/MemoryLayout.h>
 #include <asm_interface.h>
 #include "MemoryService.h"
 
@@ -27,6 +28,7 @@ namespace Kernel {
 MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace)
         : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
+    lowerMemoryManager.initialize(MemoryLayout::BIOS_CODE_MEMORY.toVirtual().endAddress + 1, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
 }
 
 MemoryService::~MemoryService() {
@@ -48,6 +50,18 @@ void *MemoryService::reallocateMemory(void *pointer, uint32_t size, uint32_t ali
 
 void MemoryService::freeMemory(void *pointer, uint32_t alignment) {
     return currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
+}
+
+void *MemoryService::allocateLowerMemory(uint32_t size, uint32_t alignment) {
+    return lowerMemoryManager.allocateMemory(size, alignment);
+}
+
+void *MemoryService::reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    return lowerMemoryManager.reallocateMemory(pointer, size, alignment);
+}
+
+void MemoryService::freeLowerMemory(void *pointer, uint32_t alignment) {
+    lowerMemoryManager.freeMemory(pointer, alignment);
 }
 
 void *MemoryService::allocatePageTable() {

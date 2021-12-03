@@ -22,7 +22,7 @@
 #include <device/time/Rtc.h>
 #include <device/time/Pit.h>
 #include <kernel/multiboot/Structure.h>
-#include <kernel/paging/MemLayout.h>
+#include <kernel/paging/MemoryLayout.h>
 #include <kernel/service/JobService.h>
 #include <kernel/service/TimeService.h>
 #include <kernel/memory/PagingAreaManagerRefillRunnable.h>
@@ -184,9 +184,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // user data segment
     System::createGlobalDescriptorTableEntry(systemGdt, 4, 0, 0xFFFFFFFF, 0xF2, 0xC);
     // tss segment
-    System::createGlobalDescriptorTableEntry(systemGdt, 5,
-                                                 reinterpret_cast<uint32_t>(&System::getTaskStateSegment()),
-                                                 sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
+    System::createGlobalDescriptorTableEntry(systemGdt, 5, reinterpret_cast<uint32_t>(&System::getTaskStateSegment()), sizeof(Kernel::TaskStateSegment), 0x89, 0x4);
 
     // set up descriptor for GDT
     *((uint16_t *) systemGdtDescriptor) = 6 * 8;
@@ -206,7 +204,7 @@ void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *bio
     // kernel data segment
     System::createGlobalDescriptorTableEntry(biosGdt, 2, 0, 0xFFFFFFFF, 0x92, 0xC);
     // prepared BIOS-call segment (contains 16-bit code etc...)
-    System::createGlobalDescriptorTableEntry(biosGdt, 3, 0x4000, 0xFFFFFFFF, 0x9A, 0x8);
+    System::createGlobalDescriptorTableEntry(biosGdt, 3, MemoryLayout::BIOS_CODE_MEMORY.startAddress, 0xFFFFFFFF, 0x9A, 0x8);
 
 
     // set up descriptor for BIOS-GDT

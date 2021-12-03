@@ -54,6 +54,12 @@ public:
 
     void freeMemory(void *pointer, uint32_t alignment);
 
+    void* allocateLowerMemory(uint32_t size, uint32_t alignment);
+
+    void *reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment);
+
+    void freeLowerMemory(void *pointer, uint32_t alignment);
+
     /**
      * Allocate space in PageTableArea.
      *
@@ -194,6 +200,8 @@ public:
     uint32_t getPhysicalMemorySize();
 
 private:
+
+    FreeListMemoryManager lowerMemoryManager;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;
