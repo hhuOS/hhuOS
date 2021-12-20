@@ -56,7 +56,7 @@ public:
 
     void* allocateLowerMemory(uint32_t size, uint32_t alignment);
 
-    void *reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment);
+    void* reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment);
 
     void freeLowerMemory(void *pointer, uint32_t alignment);
 

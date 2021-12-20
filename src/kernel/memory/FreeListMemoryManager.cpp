@@ -101,28 +101,31 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
                 break;
             }
 
-            if (alignedData - HEADER_SIZE >= data + MIN_BLOCK_SIZE) {
-                aligned = reinterpret_cast<FreeListHeader*>(alignedData - HEADER_SIZE);
+            // We want to place the header in front of alignedData, so we need to check, if there is enough space
+            // If the space is not sufficient, we align the address up until it is
+            while (alignedData - HEADER_SIZE < data + MIN_BLOCK_SIZE) {
+                alignedData += alignment;
+            }
 
-                // Check if current block has enough free
-                // data space to fit in the aligned block
-                if (((uint32_t) aligned) + HEADER_SIZE + size <= ((uint32_t) current) + HEADER_SIZE + current->size) {
+            aligned = reinterpret_cast<FreeListHeader*>(alignedData - HEADER_SIZE);
 
-                    aligned->size = ((uint32_t) current) + current->size - ((uint32_t) aligned);
-                    current->size = (uint32_t) aligned - (((uint32_t) current) + HEADER_SIZE);
+            // Check if current block has enough free data space to fit in the aligned block
+            if (((uint32_t) aligned) + HEADER_SIZE + size <= ((uint32_t) current) + HEADER_SIZE + current->size) {
 
-                    aligned->prev = current;
-                    aligned->next = current->next;
+                aligned->size = ((uint32_t) current) + current->size - ((uint32_t) aligned);
+                current->size = (uint32_t) aligned - (((uint32_t) current) + HEADER_SIZE);
 
-                    if (aligned->next != nullptr) {
-                        aligned->next->prev = aligned;
-                    }
+                aligned->prev = current;
+                aligned->next = current->next;
 
-                    aligned->prev->next = aligned;
-                    current = aligned;
-
-                    break;
+                if (aligned->next != nullptr) {
+                    aligned->next->prev = aligned;
                 }
+
+                aligned->prev->next = aligned;
+                current = aligned;
+
+                break;
             }
         }
 
