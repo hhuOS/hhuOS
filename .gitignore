@@ -2,7 +2,8 @@ build/
 initrd/bin
 hhuOS.bin
 hhuOS.initrd
-towboot.efi
+towboot-ia32.efi
+towboot-x64.efi
 OVMF.fd
 *.img
 *.dump

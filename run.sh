@@ -4,11 +4,12 @@ readonly CONST_QEMU_BIN_I386="qemu-system-i386"
 readonly CONST_QEMU_BIN_X86_64="qemu-system-x86_64"
 readonly CONST_QEMU_MACHINE_PC="pc"
 readonly CONST_QEMU_MACHINE_PC_KVM="pc,accel=kvm,kernel-irqchip=split"
-readonly CONST_QEMU_BIOS_CPU="486"
-readonly CONST_QEMU_EFI_CPU="pentium2"
+readonly CONST_QEMU_CPU_I386="qemu32"
+readonly CONST_QEMU_CPU_X86_64="qemu64"
 readonly CONST_QEMU_DEFAULT_RAM="64M"
 readonly CONST_QEMU_BIOS_PC=""
-readonly CONST_QEMU_BIOS_EFI="bios/ovmf-ia32/OVMF.fd"
+readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
+readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime"
 
@@ -17,9 +18,9 @@ readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev alsa,id=alsa -machine pcspk-audiod
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
-QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
+QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
-QEMU_CPU="${CONST_QEMU_EFI_CPU}"
+QEMU_CPU="${CONST_QEMU_CPU_I386}"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
@@ -39,7 +40,7 @@ set_audio_parameters() {
 }
 
 get_ovmf() {
-  cd "bios/ovmf-ia32" || exit 1
+  cd "bios/ovmf" || exit 1
   ./build.sh || exit 1
   cd "../.." || exit 1
 }
@@ -71,10 +72,18 @@ parse_file() {
 parse_architecture() {
   local architecture=$1
 
-  if [ "${architecture}" == "i386" ] || [ "${architecture}" == "x86" ]; then
+  if [ "${architecture}" == "i386" ] || [ "${architecture}" == "x86" ] || [ "${architecture}" == "ia32" ]; then
     QEMU_BIN="${CONST_QEMU_BIN_I386}"
+    QEMU_CPU="${CONST_QEMU_CPU_I386}"
+    if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
+      QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
+    fi
   elif [ "${architecture}" == "x86_64" ] || [ "${architecture}" == "x64" ]; then
     QEMU_BIN="${CONST_QEMU_BIN_X86_64}"
+    QEMU_CPU="${CONST_QEMU_CPU_X86_64}"
+    if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
+      QEMU_BIOS="${CONST_QEMU_BIOS_X64_EFI}"
+    fi
   else
     printf "Invalid architecture '%s'!\\n" "${architecture}"
     exit 1
@@ -97,14 +106,10 @@ parse_machine() {
 parse_bios() {
   local bios=$1
 
-  if [ "${bios}" == "bios" ]; then
+  if [ "${bios}" == "true" ]; then
     QEMU_BIOS="${CONST_QEMU_BIOS_PC}"
-    QEMU_CPU="${CONST_QEMU_BIOS_CPU}"
-  elif [ "${bios}" == "uefi" ]; then
-    QEMU_BIOS="${CONST_QEMU_BIOS_EFI}"
-    QEMU_CPU="${CONST_QEMU_EFI_CPU}"
   else
-    printf "Invalid BIOS '%s'!\\n" "${machine}"
+    printf "Invalid value for parameter 'bios' ('%s')!\\n" "${bios}"
     exit 1
   fi
 }
@@ -136,11 +141,11 @@ print_usage() {
     -f, --file
         Set the .iso or .img file, which qemu should boot (Default: hhuOS.img)
     -a, --architecture
-        Set the architecture, which qemu should emulate ([i386,x86] | [x86_64,x64]) (Default: i386)
+        Set the architecture, which qemu should emulate ([i386,x86,ia32] | [x86_64,x64]) (Default: i386)
     -m, --machine
         Set the machine profile, which qemu should emulate ([pc] | [pc-kvm]) (Defualt: pc)
     -b, --bios
-        Set the BIOS, which qemu should use ([bios | uefi]) (Default: uefi)
+        Set to true, to use the classic BIOS instead of UEFI
     -r, --ram
         Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 64M)
     -d, --debug

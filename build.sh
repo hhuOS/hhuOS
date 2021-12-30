@@ -89,9 +89,14 @@ cleanup() {
         rm loader/towboot/hhuOS.initrd
     fi
     
-    if [ -f loader/towboot/towboot.efi ]; then
-        printf "Removing 'loader/towboot/towboot.efi'\\n"
-        rm loader/towboot/towboot.efi
+    if [ -f loader/towboot/towboot-ia32.efi ]; then
+        printf "Removing 'loader/towboot/towboot-ia32.efi'\\n"
+        rm loader/towboot/towboot-ia32.efi
+    fi
+    
+    if [ -f loader/towboot/towboot-x64.efi ]; then
+        printf "Removing 'loader/towboot/towboot-x64.efi'\\n"
+        rm loader/towboot/towboot-x64.efi
     fi
     
     if [ -d initrd/bin/ ]; then
