@@ -33,9 +33,8 @@ namespace Kernel {
 
 bool System::initialized = false;
 Util::Async::Spinlock System::serviceLock;
-Util::Data::HashMap<Util::Memory::String, Service*> System::serviceMap(sizeof(uint8_t));
+Service* System::serviceMap[256]{};
 HeapMemoryManager *System::kernelHeapMemoryManager = nullptr;
-MemoryService *System::memoryService = nullptr;
 TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
 Logger System::log = Logger::get("System");
@@ -66,7 +65,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     auto *kernelAddressSpace = new VirtualAddressSpace(*kernelHeapMemoryManager);
 
     // Create memory service and register it to handle page faults
-    memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
+    auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
     memoryService->plugin();
 
     kernelAddressSpace->initialize();
@@ -74,6 +73,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
 
     // Initialize global objects afterwards, because now missing pages can be mapped
     _init();
+
+    // Register memoryService after _init(), since the static objects serviceMap and serviceLock have now been initialized
+    registerService(MemoryService::SERVICE_ID, memoryService);
 
     // The base system is initialized. We can now enable interrupts and setup timer devices
     Device::Cpu::enableInterrupts();
@@ -86,8 +88,8 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
         auto *rtc = new Device::Rtc();
         rtc->plugin();
 
-        System::registerService(TimeService::SERVICE_NAME, new Kernel::TimeService(pit, rtc));
-        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(*rtc, *pit));
+        registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
+        registerService(JobService::SERVICE_ID, new Kernel::JobService(*rtc, *pit));
 
         log.info("Base system initialized");
         log.info("RTC detected");
@@ -95,8 +97,8 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
     } else {
-        System::registerService(TimeService::SERVICE_NAME, new Kernel::TimeService(pit, nullptr));
-        System::registerService(JobService::SERVICE_NAME, new Kernel::JobService(*pit, *pit));
+        registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, nullptr));
+        registerService(JobService::SERVICE_ID, new Kernel::JobService(*pit, *pit));
         log.info("Base system initialized");
         log.warn("RTC not detected -> Real time cannot be provided");
     }
@@ -133,18 +135,18 @@ void System::freeEarlyMemory(void *pointer) {
     kernelHeapMemoryManager->freeMemory(pointer, 0);
 }
 
-void System::registerService(const Util::Memory::String &serviceId, Service *kernelService) {
+void System::registerService(uint32_t serviceId, Service *kernelService) {
     serviceLock.acquire();
-    serviceMap.put(serviceId, kernelService);
+    if (isServiceRegistered(serviceId)) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Service is already registered!");
+    }
+
+    serviceMap[serviceId] = kernelService;
     serviceLock.release();
 }
 
-bool System::isServiceRegistered(const Util::Memory::String &serviceId) {
-    return serviceMap.containsKey(serviceId);
-}
-
-MemoryService &System::getMemoryService() {
-    return *memoryService;
+bool System::isServiceRegistered(uint32_t serviceId) {
+    return serviceMap[serviceId] != nullptr;
 }
 
 void System::panic(InterruptFrame *frame) {

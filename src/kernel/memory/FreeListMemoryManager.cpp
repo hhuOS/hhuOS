@@ -234,7 +234,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
-        System::getMemoryService().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
+        System::getService<Kernel::MemoryService>().unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
     }
 }
 

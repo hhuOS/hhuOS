@@ -110,7 +110,7 @@ void Structure::parseModules() {
             uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
 
             modInfo[i].string += Kernel::MemoryLayout::KERNEL_START;
-            modInfo[i].start = reinterpret_cast<uint32_t>(System::getMemoryService().mapIO(modInfo[i].start, size)) + offset;
+            modInfo[i].start = reinterpret_cast<uint32_t>(System::getService<Kernel::MemoryService>().mapIO(modInfo[i].start, size)) + offset;
             modInfo[i].end += modInfo[i].start + size;
 
             modules.put(modInfo->string, *modInfo);

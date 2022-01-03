@@ -56,7 +56,7 @@ bool VesaBiosExtensions::isAvailable() {
     }
 
     // Allocate space for VBE info struct inside lower memory
-    auto vbeInfo = reinterpret_cast<VbeInfo*>(Kernel::System::getMemoryService().allocateLowerMemory(VBE_CONTROLLER_INFO_SIZE, 16));
+    auto vbeInfo = reinterpret_cast<VbeInfo*>(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(VBE_CONTROLLER_INFO_SIZE, 16));
     auto vbeInfoPhysicalAddress = Kernel::MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(vbeInfo));
 
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
@@ -76,7 +76,7 @@ bool VesaBiosExtensions::isAvailable() {
 
     // Free allocated space in lower memory and check if return data contains correct signature ('VESA')
     Util::Memory::String signature = vbeInfo->signature;
-    Kernel::System::getMemoryService().freeLowerMemory(vbeInfo, 16);
+    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(vbeInfo, 16);
 
     return signature == VESA_SIGNATURE;
 }
@@ -128,7 +128,7 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
 
 VesaBiosExtensions::VbeInfo VesaBiosExtensions::getVbeInfo() {
     // Allocate space for VBE info struct inside lower memory
-    auto vbeInfo = reinterpret_cast<VbeInfo*>(Kernel::System::getMemoryService().allocateLowerMemory(VBE_CONTROLLER_INFO_SIZE, 16));
+    auto vbeInfo = reinterpret_cast<VbeInfo*>(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(VBE_CONTROLLER_INFO_SIZE, 16));
     auto vbeInfoPhysicalAddress = Kernel::MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(vbeInfo));
 
     // Prepare bios parameters: Store function code in AX and return data address in ES:DI
@@ -148,14 +148,14 @@ VesaBiosExtensions::VbeInfo VesaBiosExtensions::getVbeInfo() {
 
     // Create a copy of the VBE info struct and free the allocated space in lower memory
     VbeInfo ret = *vbeInfo;
-    Kernel::System::getMemoryService().freeLowerMemory(vbeInfo, 16);
+    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(vbeInfo, 16);
 
     return ret;
 }
 
 VesaBiosExtensions::VbeModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     // Allocate space for VBE mode info struct inside lower memory
-    auto modeInfo = reinterpret_cast<VbeModeInfo*>(Kernel::System::getMemoryService().allocateLowerMemory(VBE_MODE_INFO_SIZE, 16));
+    auto modeInfo = reinterpret_cast<VbeModeInfo*>(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(VBE_MODE_INFO_SIZE, 16));
     auto modeInfoPhysicalAddress = Kernel::MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(modeInfo));
 
     // Prepare bios parameters: Store function code in AX, mode number in CX and return data address in ES:DI
@@ -175,7 +175,7 @@ VesaBiosExtensions::VbeModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
 
     // Create a copy of the VBE mode info struct and free the allocated space in lower memory
     VbeModeInfo ret = *modeInfo;
-    Kernel::System::getMemoryService().freeLowerMemory(modeInfo, 16);
+    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(modeInfo, 16);
 
     return ret;
 }

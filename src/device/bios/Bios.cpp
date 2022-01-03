@@ -255,7 +255,7 @@ Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext
 
     interruptLock.acquire();
     // Allocate space for BIOS context inside the lower memory
-    auto *biosContext = static_cast<RealModeContext*>(Kernel::System::getMemoryService().allocateLowerMemory(sizeof(RealModeContext), 16));
+    auto *biosContext = static_cast<RealModeContext*>(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(sizeof(RealModeContext), 16));
 
     // Copy given context into the allocated space
     Util::Memory::Address<uint32_t> source(&context);
@@ -278,7 +278,7 @@ Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext
 
     // Create a copy of the BIOS context and free the allocated space in lower memory
     RealModeContext ret = *biosContext;
-    Kernel::System::getMemoryService().freeLowerMemory(biosContext, 32);
+    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(biosContext, 32);
 
     interruptLock.release();
     return ret;

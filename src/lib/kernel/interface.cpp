@@ -23,38 +23,38 @@
 
 void *allocateMemory(uint32_t size) {
     if (Kernel::System::isInitialized()) {
-        return Kernel::System::getMemoryService().allocateMemory(size, 0);
+        return Kernel::System::getService<Kernel::MemoryService>().allocateMemory(size, 0);
     } else {
         return Kernel::System::allocateEarlyMemory(size);
     }
 }
 
 void* reallocateMemory(void *pointer, uint32_t size) {
-    return Kernel::System::getMemoryService().reallocateMemory(pointer, size, 0);
+    return Kernel::System::getService<Kernel::MemoryService>().reallocateMemory(pointer, size, 0);
 }
 
 void freeMemory(void *pointer) {
     if (Kernel::System::isInitialized()) {
-        Kernel::System::getMemoryService().freeMemory(pointer, 0);
+        Kernel::System::getService<Kernel::MemoryService>().freeMemory(pointer, 0);
     } else {
         Kernel::System::freeEarlyMemory(pointer);
     }
 }
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return Kernel::System::getMemoryService().allocateMemory(size, alignment);
+    return Kernel::System::getService<Kernel::MemoryService>().allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
-    return Kernel::System::getMemoryService().reallocateMemory(pointer, size, alignment);
+    return Kernel::System::getService<Kernel::MemoryService>().reallocateMemory(pointer, size, alignment);
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    return Kernel::System::getMemoryService().freeMemory(pointer, alignment);
+    return Kernel::System::getService<Kernel::MemoryService>().freeMemory(pointer, alignment);
 }
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
-    return Kernel::System::getMemoryService().mapIO(physicalAddress, size);
+    return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
 }
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {

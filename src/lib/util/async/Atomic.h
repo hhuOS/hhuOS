@@ -69,6 +69,12 @@ public:
 };
 
 template
+class Atomic<int8_t>;
+
+template
+class Atomic<uint8_t>;
+
+template
 class Atomic<int16_t>;
 
 template

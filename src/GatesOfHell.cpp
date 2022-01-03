@@ -52,7 +52,7 @@ void GatesOfHell::enter() {
     Kernel::Logger::setLevel(logLevel);
 
     log.info("Welcome to hhuOS");
-    log.info("%u MiB of physical memory detected", Kernel::System::getMemoryService().getPhysicalMemorySize() / 1024 / 1024);
+    log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getPhysicalMemorySize() / 1024 / 1024);
 
     if (Device::CpuId::isAvailable()) {
         log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));
@@ -197,7 +197,7 @@ void GatesOfHell::enableSerialLogging() {
 
 void GatesOfHell::initializeFilesystem() {
     log.info("Initializing filesystem");
-    Kernel::System::registerService(Kernel::FilesystemService::SERVICE_NAME, new Kernel::FilesystemService());
+    Kernel::System::registerService(Kernel::FilesystemService::SERVICE_ID, new Kernel::FilesystemService());
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
 
     log.info("Mounting root filesystem");

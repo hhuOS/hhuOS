@@ -87,7 +87,7 @@ PageDirectory::PageDirectory() {
 }
 
 PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
-    auto &memoryService = System::getMemoryService();
+    auto &memoryService = System::getService<Kernel::MemoryService>();
     
     // Allocate memory for the page directory
     pageDirectory = static_cast<uint32_t *>(memoryService.allocatePageTable());
@@ -115,7 +115,7 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
 }
 
 PageDirectory::~PageDirectory() {
-    auto &memoryService = System::getMemoryService();
+    auto &memoryService = System::getService<Kernel::MemoryService>();
     
     // Unmap the complete user space and free the page frames
     for (uint32_t address = 0; address < MemoryLayout::KERNEL_START; address += Paging::PAGESIZE) {
@@ -134,7 +134,7 @@ PageDirectory::~PageDirectory() {
 }
 
 void PageDirectory::map(uint32_t physicalAddress, uint32_t virtualAddress, uint16_t flags) {
-    auto &memoryService = System::getMemoryService();
+    auto &memoryService = System::getService<Kernel::MemoryService>();
 
     // Calculate indices into page table and directory
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX(virtualAddress);

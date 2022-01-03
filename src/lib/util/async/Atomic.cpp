@@ -1,4 +1,5 @@
 #include "Atomic.h"
+#include "lib/util/Exception.h"
 
 namespace Util::Async {
 
@@ -197,6 +198,46 @@ T Atomic<T>::inc() {
 template<typename T>
 T Atomic<T>::dec() {
     return fetchAndDec();
+}
+
+template<> bool Atomic<int8_t>::bitTest(int8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> void Atomic<int8_t>::bitSet(int8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> void Atomic<int8_t>::bitReset(int8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> bool Atomic<int8_t>::bitTestAndSet(int8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> bool Atomic<int8_t>::bitTestAndReset(int8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> bool Atomic<uint8_t>::bitTest(uint8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> void Atomic<uint8_t>::bitSet(uint8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> void Atomic<uint8_t>::bitReset(uint8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> bool Atomic<uint8_t>::bitTestAndSet(uint8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
+}
+
+template<> bool Atomic<uint8_t>::bitTestAndReset(uint8_t index) {
+    Exception::throwException(Exception::INVALID_ARGUMENT, "Bitwise atomic operation are not supported with 8-bit values!");
 }
 
 }

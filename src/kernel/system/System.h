@@ -79,11 +79,11 @@ public:
      */
     template<class T>
     static T &getService() {
-        if (!isServiceRegistered(T::SERVICE_NAME)) {
+        if (!isServiceRegistered(T::SERVICE_ID)) {
             Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Invalid service!");
         }
 
-        return (T&) *serviceMap.get(T::SERVICE_NAME);
+        return (T&) *serviceMap[T::SERVICE_ID];
     }
 
     /**
@@ -92,7 +92,7 @@ public:
 	 * @param serviceId The unique service id.
 	 * @param kernelService Instance of the KernelService
 	 */
-    static void registerService(const Util::Memory::String &serviceId, Service *kernelService);
+    static void registerService(uint32_t serviceId, Service *kernelService);
 
     /**
      * Indicates whether a particular service has already been registered.
@@ -100,9 +100,7 @@ public:
      * @param serviceId The service's id
      * @return true, if the service has already been registered, false else
      */
-    static bool isServiceRegistered(const Util::Memory::String &serviceId);
-
-    static MemoryService& getMemoryService();
+    static bool isServiceRegistered(uint32_t serviceId);
 
     /**
      * Triggers a kernel panic printing relevant information inside a bluescreen.
@@ -148,10 +146,9 @@ private:
 
     static bool initialized;
 
-    static Util::Data::HashMap<Util::Memory::String, Service *> serviceMap;
+    static Service* serviceMap[256];
     static Util::Async::Spinlock serviceLock;
 
-    static MemoryService *memoryService;
     static HeapMemoryManager *kernelHeapMemoryManager;
     static TaskStateSegment taskStateSegment;
     static SystemCall systemCall;

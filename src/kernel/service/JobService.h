@@ -50,7 +50,7 @@ public:
 
     Job::Id registerJob(Util::Async::Runnable &runnable, Job::Priority priority, Util::Time::Timestamp interval, int32_t repetitions);
 
-    static const constexpr char *SERVICE_NAME = "Job";
+    static const constexpr uint8_t SERVICE_ID = 1;
 
 private:
 

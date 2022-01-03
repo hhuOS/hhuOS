@@ -15,53 +15,39 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FILESYSTEMSERVICE_H
-#define HHUOS_FILESYSTEMSERVICE_H
-
-#include <filesystem/core/Filesystem.h>
-#include "Service.h"
+#include <kernel/system/System.h>
+#include "Process.h"
+#include "ProcessScheduler.h"
 
 namespace Kernel {
 
-class FilesystemService : public Service {
+uint32_t Process::idGenerator = 0;
 
-public:
-    /**
-     * Constructor.
-     */
-    FilesystemService() = default;
+Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace) :
+        id(Util::Async::Atomic<uint32_t>(idGenerator).fetchAndInc()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler) {}
 
-    /**
-     * Copy-constructor.
-     */
-    FilesystemService(const FilesystemService &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    FilesystemService& operator=(const FilesystemService &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~FilesystemService() override = default;
-
-    int32_t openFile(const Util::Memory::String &path);
-
-    void closeFile(int32_t fileDescriptor);
-
-    Filesystem::Node& getNode(int32_t fileDescriptor);
-
-    [[nodiscard]] Filesystem::Filesystem& getFilesystem();
-
-    static const constexpr uint8_t SERVICE_ID = 0;
-
-private:
-
-    Filesystem::Filesystem filesystem;
-
-};
-
+Process::~Process() {
+    Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
 }
 
-#endif
+void Process::ready(Thread &thread) {
+    threadScheduler.ready(thread);
+}
+
+void Process::start() {
+    scheduler.ready(*this);
+}
+
+uint32_t Process::getId() const {
+    return id;
+}
+
+VirtualAddressSpace &Process::getAddressSpace() {
+    return addressSpace;
+}
+
+ThreadScheduler &Process::getThreadScheduler() {
+    return threadScheduler;
+}
+
+}

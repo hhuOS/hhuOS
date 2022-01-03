@@ -22,8 +22,7 @@
 
 namespace Kernel {
 
-
-// TODO: Replace calls to System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager()
+// TODO: Replace calls to System::getService<Kernel::MemoryService>().getCurrentAddressSpace().getFileDescriptorManager()
 //       once the process scheduler is implemented.
 
 Filesystem::Filesystem &FilesystemService::getFilesystem() {
@@ -31,15 +30,15 @@ Filesystem::Filesystem &FilesystemService::getFilesystem() {
 }
 
 int32_t FilesystemService::openFile(const Util::Memory::String &path) {
-    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().openFile(path);
+    return System::getService<Kernel::MemoryService>().getCurrentAddressSpace().getFileDescriptorManager().openFile(path);
 }
 
 void FilesystemService::closeFile(int32_t fileDescriptor) {
-    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().closeFile(fileDescriptor);
+    return System::getService<Kernel::MemoryService>().getCurrentAddressSpace().getFileDescriptorManager().closeFile(fileDescriptor);
 }
 
 Filesystem::Node &FilesystemService::getNode(int32_t fileDescriptor) {
-    return System::getMemoryService().getCurrentAddressSpace().getFileDescriptorManager().getNode(fileDescriptor);
+    return System::getService<Kernel::MemoryService>().getCurrentAddressSpace().getFileDescriptorManager().getNode(fileDescriptor);
 }
 
 }

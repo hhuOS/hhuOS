@@ -25,7 +25,7 @@
 
 namespace Kernel {
 
-class MemoryService : InterruptHandler {
+class MemoryService : public Service, InterruptHandler {
 
 public:
     /**
@@ -198,6 +198,8 @@ public:
     VirtualAddressSpace& getCurrentAddressSpace();
 
     uint32_t getPhysicalMemorySize();
+
+    static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
 
