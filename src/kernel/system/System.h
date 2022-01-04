@@ -132,7 +132,7 @@ public:
      */
     static bool isInitialized();
 
-    static TaskStateSegment taskStateSegment;
+    static TaskStateSegment& getTaskStateSegment();
 
 private:
 
@@ -150,6 +150,7 @@ private:
     static Service* serviceMap[256];
     static Util::Async::Spinlock serviceLock;
 
+    static TaskStateSegment taskStateSegment;
     static HeapMemoryManager *kernelHeapMemoryManager;
     static SystemCall systemCall;
     static Logger log; // Use only after _init() has finished!

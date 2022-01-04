@@ -137,7 +137,7 @@ const Color Ansi::colorTable256[256] = {
 
         // 24 grayscale colors
         Color(8, 8, 8), Color(18, 18, 18), Color(28, 28, 28),
-        Color(38, 38, 8), Color(48, 48, 48), Color(58, 58, 58),
+        Color(38, 38, 38), Color(48, 48, 48), Color(58, 58, 58),
         Color(68, 68, 68), Color(78, 78, 78), Color(88, 88, 88),
         Color(98, 98, 98), Color(108, 108, 108), Color(118, 118, 118),
         Color(128, 128, 128), Color(138, 138, 138), Color(148, 148, 148),

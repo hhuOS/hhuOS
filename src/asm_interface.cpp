@@ -88,7 +88,7 @@ void dispatch_interrupt(Kernel::InterruptFrame *frame) {
 }
 
 void set_tss_stack_entry(uint32_t esp0) {
-    Kernel::System::taskStateSegment.esp0 = esp0 + sizeof(Kernel::InterruptFrame);
+    Kernel::System::getTaskStateSegment().esp0 = esp0 + sizeof(Kernel::InterruptFrame);
 }
 
 void set_process_scheduler_initialized() {

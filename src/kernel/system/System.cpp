@@ -284,4 +284,8 @@ HeapMemoryManager& System::initializeKernelHeap() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No 4 MiB block available for bootstrapping the kernel heap memory manager!");
 }
 
+TaskStateSegment &System::getTaskStateSegment() {
+    return taskStateSegment;
+}
+
 }

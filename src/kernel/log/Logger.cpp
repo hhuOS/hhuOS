@@ -138,8 +138,19 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 
-    const auto logMessage = Util::Memory::String::format("%s[%d.%03d]%s[%s]%s[%s] %s", Util::Graphic::Ansi::CYAN, seconds, fraction,
-        getColor(level), getLevelAsString(level), Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
+    Util::Memory::String threadName = "";
+    auto &schedulerService = Kernel::System::getService<SchedulerService>();
+    if (schedulerService.isSchedulerInitialized()) {
+        const auto &currentProcess = schedulerService.getCurrentProcess();
+        const auto &currentThread = schedulerService.getCurrentThread();
+        threadName = Util::Memory::String::format("%u:%u:%s", currentProcess.getId(), currentThread.getId(), static_cast<const char*>(currentThread.getName()));
+    }
+
+    const auto logMessage = Util::Memory::String::format("%s[%u.%03u][%s]%s[%s]%s[%s] %s",
+        Util::Graphic::Ansi::CYAN, seconds, fraction,
+        static_cast<const char*>(threadName),
+        getColor(level), getLevelAsString(level),
+        Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
 
     buffer.add(logMessage);
 
@@ -151,7 +162,7 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
     lock.release();
 }
 
-const char *Logger::getLevelAsString(const LogLevel &level) {
+const char* Logger::getLevelAsString(const LogLevel &level) {
     switch (level) {
         case TRACE:
             return LEVEL_TRACE;
@@ -168,7 +179,7 @@ const char *Logger::getLevelAsString(const LogLevel &level) {
     }
 }
 
-const char *Logger::getColor(const Logger::LogLevel &level) {
+const char* Logger::getColor(const Logger::LogLevel &level) {
     switch (level) {
         case TRACE:
             return Util::Graphic::Ansi::BRIGHT_WHITE;

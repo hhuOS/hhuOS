@@ -81,6 +81,8 @@ private:
      */
     Logger(const Logger &other) = default;
 
+    static const char* getThreadName();
+
     static const char* getLevelAsString(const LogLevel &level);
 
     static const char *getColor(const LogLevel &level);
@@ -94,11 +96,11 @@ private:
     static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
     static Util::Data::ArrayList<Util::Memory::String> buffer;
 
-    static constexpr const char *LEVEL_TRACE = "TRACE";
-    static constexpr const char *LEVEL_DEBUG = "DEBUG";
-    static constexpr const char *LEVEL_INFO = "INFO";
-    static constexpr const char *LEVEL_WARN = "WARN";
-    static constexpr const char *LEVEL_ERROR = "ERROR";
+    static const constexpr char *LEVEL_TRACE = "TRACE";
+    static const constexpr char *LEVEL_DEBUG = "DEBUG";
+    static const constexpr char *LEVEL_INFO = "INFO";
+    static const constexpr char *LEVEL_WARN = "WARN";
+    static const constexpr char *LEVEL_ERROR = "ERROR";
 };
 
 }

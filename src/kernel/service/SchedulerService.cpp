@@ -65,8 +65,16 @@ void SchedulerService::yield() {
     }
 }
 
-bool SchedulerService::isSchedulerInitialized() {
+bool SchedulerService::isSchedulerInitialized() const {
     return scheduler.isInitialized();
+}
+
+Process& SchedulerService::getCurrentProcess() {
+    return scheduler.getCurrentProcess();
+}
+
+Thread& SchedulerService::getCurrentThread() {
+    return scheduler.getCurrentProcess().getThreadScheduler().getCurrentThread();
 }
 
 }

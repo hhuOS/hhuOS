@@ -61,7 +61,11 @@ public:
 
     void setSchedulerInitialized();
 
-    bool isSchedulerInitialized();
+    [[nodiscard]] bool isSchedulerInitialized() const;
+
+    [[nodiscard]] Process& getCurrentProcess();
+
+    [[nodiscard]] Thread& getCurrentThread();
 
     static const constexpr uint8_t SERVICE_ID = 3;
 
