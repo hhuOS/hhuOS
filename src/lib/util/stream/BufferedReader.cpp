@@ -67,6 +67,7 @@ Memory::String BufferedReader::read(uint32_t length) {
     char *tmpBuffer = new char[length + 1];
     int32_t count = read(tmpBuffer, length);
 
+    tmpBuffer[count] = 0;
     Memory::String ret = count <= 0 ? Memory::String() : Memory::String(tmpBuffer);
 
     delete[] tmpBuffer;

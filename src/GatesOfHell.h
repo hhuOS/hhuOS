@@ -67,8 +67,6 @@ private:
 
     static void printBanner();
 
-    static void printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader);
-
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
     static void colorTest();

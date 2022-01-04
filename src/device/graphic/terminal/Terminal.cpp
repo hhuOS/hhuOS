@@ -167,6 +167,8 @@ void Terminal::parseGraphicRendition(uint8_t code) {
             backgroundBaseColor = Util::Graphic::Colors::BLACK;
             foregroundColor = Util::Graphic::Colors::WHITE;
             backgroundColor = Util::Graphic::Colors::BLACK;
+            brightForeground = false;
+            brightBackground = false;
             invert = false;
             bright = false;
             dim = false;

@@ -263,36 +263,20 @@ void GatesOfHell::printBanner() {
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
     auto bannerFile = Util::File::File("/initrd/banner.txt");
-    if (!bannerFile.exists()) {
-        printDefaultBanner(writer);
-    } else {
+    if (bannerFile.exists()) {
         auto bannerStream = Util::Stream::FileInputStream(bannerFile);
         auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
         auto bufferedReader = Util::Stream::BufferedReader(bannerReader);
 
-        printBannerLine(writer, bufferedReader);
-        writer << "# Welcome to " << Util::Graphic::Ansi::foreground24BitColor(Util::Graphic::Colors::HHU_BLUE) << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Colors::WHITE.bright()) << "hhuOS" << Util::Graphic::Ansi::RESET << "!" << Util::Stream::PrintWriter::endl;
-        printBannerLine(writer, bufferedReader);
-        writer << "# Version      : " << BuildConfig::getVersion() << Util::Stream::PrintWriter::endl;
-        printBannerLine(writer, bufferedReader);
-        writer << "# Build Date   : " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl;
-        printBannerLine(writer, bufferedReader);
-        writer << "# Git Branch   : " << BuildConfig::getGitBranch() << Util::Stream::PrintWriter::endl;
-        printBannerLine(writer, bufferedReader);
-        writer << "# Git Commit   : " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+        auto banner = bufferedReader.read(bannerFile.getLength());
+        writer << Util::Memory::String::format(static_cast<const char*>(banner),
+                                               BuildConfig::getVersion(),
+                                               BuildConfig::getBuildDate(),
+                                               BuildConfig::getGitBranch(),
+                                               BuildConfig::getGitRevision()) << Util::Stream::PrintWriter::endl;
+    } else {
+        printDefaultBanner(writer);
     }
-}
-
-void GatesOfHell::printBannerLine(Util::Stream::PrintWriter &writer, Util::Stream::Reader &reader) {
-    writer.write(Util::Graphic::Ansi::foreground24BitColor(Util::Graphic::Colors::HHU_BLUE));
-
-    char c = reader.read();
-    while (c != '\n') {
-        writer << c;
-        c = reader.read();
-    }
-
-    writer.write(Util::Graphic::Ansi::RESET);
 }
 
 void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
