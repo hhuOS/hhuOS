@@ -4,6 +4,7 @@
 #include <kernel/system/System.h>
 #include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "VesaBiosExtensions.h"
+#include "kernel/service/FilesystemService.h"
 
 namespace Device::Graphic {
 
@@ -81,7 +82,7 @@ bool VesaBiosExtensions::isAvailable() {
     return signature == VESA_SIGNATURE;
 }
 
-bool VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VBE is not available on this machine!");
     }
@@ -94,7 +95,10 @@ bool VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, c
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *lfbNode = new LinearFrameBufferNode(filename, vbeModeInfo.physbase, vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch);
-    return driver.addNode("/", lfbNode);
+
+    if (!driver.addNode("/", lfbNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "VBE: Unable to add node!");
+    }
 }
 
 Util::Data::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {

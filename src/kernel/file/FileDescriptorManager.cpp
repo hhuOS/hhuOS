@@ -1,4 +1,5 @@
 #include <kernel/system/System.h>
+#include "kernel/service/FilesystemService.h"
 #include "FileDescriptorManager.h"
 
 namespace Kernel {
@@ -14,7 +15,7 @@ FileDescriptorManager::FileDescriptorManager(int32_t size) : size(size), descrip
 }
 
 int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
-    auto &filesystem = Kernel::System::getService<FilesystemService>().getFilesystem();
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto *node = filesystem.getNode(path);
     if (node == nullptr) {
         return -1;

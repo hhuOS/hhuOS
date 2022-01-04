@@ -235,7 +235,7 @@ void *MemoryService::mapIO(uint32_t size) {
     return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size);
 }
 
-VirtualAddressSpace & MemoryService::createAddressSpace(const Util::Memory::String &managerType) {
+VirtualAddressSpace& MemoryService::createAddressSpace(const Util::Memory::String &managerType) {
     auto addressSpace = new VirtualAddressSpace(kernelAddressSpace.getPageDirectory(), managerType);
     addressSpaces.add(addressSpace);
 

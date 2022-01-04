@@ -46,7 +46,7 @@ public:
     /**
      * Destructor.
      */
-    ~ProcessScheduler() = default;
+    ~ProcessScheduler();
 
     void setInitialized();
 

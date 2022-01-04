@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    ThreadScheduler(ProcessScheduler &parent);
+    explicit ThreadScheduler(ProcessScheduler &parent);
 
     /**
      * Copy constructor.
@@ -50,7 +50,7 @@ public:
     /**
      * Destructor.
      */
-    ~ThreadScheduler() = default;
+    ~ThreadScheduler();
 
     /**
      * Registers a new Thread.
@@ -76,16 +76,9 @@ public:
      *
      * @return The active Thread
      */
-    Thread &getCurrentThread();
+    Thread& getCurrentThread();
 
-    /**
-     * Returns the number of active Threads.
-     *
-     * @return The number of active Threads
-     */
-    uint32_t getThreadCount();
-
-    Thread & getNextThread(bool tryLock);
+    Thread& getNextThread(bool tryLock);
 
 private:
 

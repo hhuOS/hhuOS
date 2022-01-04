@@ -3,6 +3,7 @@
 #include <device/graphic/lfb/LinearFrameBufferNode.h>
 #include "MultibootLinearFrameBufferProvider.h"
 #include "Structure.h"
+#include "kernel/service/FilesystemService.h"
 
 namespace Kernel::Multiboot {
 
@@ -15,7 +16,7 @@ bool MultibootLinearFrameBufferProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_RGB && frameBufferInfo.bpp >= 15;
 }
 
-bool MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
     }
@@ -24,7 +25,10 @@ bool MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
-    return driver.addNode("/", lfbNode);
+
+    if (!driver.addNode("/", lfbNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LFB: Unable to add node!");
+    }
 }
 
 Util::Data::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {

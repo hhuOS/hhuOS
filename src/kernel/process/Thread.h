@@ -67,11 +67,11 @@ public:
     /**
      * Destructor.
      */
-    ~Thread();
+    virtual ~Thread();
 
-    static Thread* createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
+    static Thread& createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 
-    static Thread* createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
+    static Thread& createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 
     [[nodiscard]] uint32_t getId() const;
 

@@ -107,7 +107,6 @@ void GatesOfHell::enter() {
     }
 
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto *process = schedulerService.createProcess(Kernel::System::getService<Kernel::MemoryService>().getCurrentAddressSpace());
 
     if (Kernel::Multiboot::Structure::hasKernelOption("test_thread") && Kernel::Multiboot::Structure::getKernelOption("test_thread") == "true") {
         auto *testRunnable = new Util::Async::FunctionPointerRunnable([](){
@@ -126,8 +125,8 @@ void GatesOfHell::enter() {
             }
         });
 
-        auto *testThread = Kernel::Thread::createKernelThread("Test", testRunnable);
-        process->ready(*testThread);
+        auto &testThread = Kernel::Thread::createKernelThread("Test", testRunnable);
+        Kernel::System::getService<Kernel::SchedulerService>().ready(testThread);
     }
 
     auto *shellRunnable = new Util::Async::FunctionPointerRunnable([](){
@@ -149,9 +148,8 @@ void GatesOfHell::enter() {
         }
     });
 
-    auto *shellThread = Kernel::Thread::createKernelThread("Shell", shellRunnable);
-    process->ready(*shellThread);
-    schedulerService.ready(*process);
+    auto &shellThread = Kernel::Thread::createKernelThread("Shell", shellRunnable);
+    schedulerService.ready(shellThread);
 
     log.info("Starting scheduler!");
     schedulerService.startScheduler();
@@ -199,10 +197,7 @@ void GatesOfHell::initializeTerminal() {
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
-    bool success = terminalProvider->initializeTerminal(resolution, "terminal");
-    if (!success) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to initialize terminal!");
-    }
+   terminalProvider->initializeTerminal(resolution, "terminal");
 }
 
 void GatesOfHell::initializeHeadlessMode() {
@@ -301,7 +296,7 @@ void GatesOfHell::colorTest() {
 
     for (uint32_t i = 0; i < 216; i++) {
         if (i % 36 == 0) {
-            writer << Util::Stream::PrintWriter::endl;
+            writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
         }
         writer << Util::Graphic::Ansi::background8BitColor(i + 16) << " ";
     }

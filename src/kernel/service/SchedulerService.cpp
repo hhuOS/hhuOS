@@ -38,8 +38,8 @@ void SchedulerService::ready(Thread &thread) {
     scheduler.getCurrentProcess().ready(thread);
 }
 
-Process *SchedulerService::createProcess(VirtualAddressSpace &addressSpace) {
-    return new Process(scheduler, addressSpace);
+Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace) {
+    return *new Process(scheduler, addressSpace);
 }
 
 void SchedulerService::releaseSchedulerLock() {

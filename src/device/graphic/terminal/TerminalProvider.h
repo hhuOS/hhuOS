@@ -75,14 +75,11 @@ public:
 
     /**
      * Create a terminal with a given mode info.
-     * Once the terminal is not needed anymore, it's resources should be freed by calling destroyTerminal().
      *
      * @param modeInfo Information about the desired terminal resolution
      * @param filename The name of the file, representing the created terminal in '/device/'
-     *
-     * @return A reference to the created terminal
      */
-    virtual bool initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
+    virtual void initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
 
     /**
      * Get all available graphics modes.

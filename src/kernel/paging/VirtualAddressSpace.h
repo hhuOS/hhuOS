@@ -63,11 +63,8 @@ public:
 
     [[nodiscard]] HeapMemoryManager& getMemoryManager() const;
 
-    [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
-
 private:
 
-    FileDescriptorManager fileDescriptorManager;
     PageDirectory *pageDirectory;
     HeapMemoryManager *memoryManager = nullptr;
 

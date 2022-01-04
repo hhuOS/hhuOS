@@ -50,4 +50,8 @@ ThreadScheduler &Process::getThreadScheduler() {
     return threadScheduler;
 }
 
+FileDescriptorManager &Process::getFileDescriptorManager() {
+    return fileDescriptorManager;
+}
+
 }

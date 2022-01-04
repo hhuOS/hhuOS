@@ -46,7 +46,7 @@ Thread::~Thread() {
     delete runnable;
 }
 
-Thread *Thread::createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
+Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
     auto *stack = new Stack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, runnable, stack, stack);
 
@@ -68,10 +68,10 @@ Thread *Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     thread->interruptFrame.eflags = 0x200;
     thread->interruptFrame.eip = reinterpret_cast<uint32_t>(kickoff);
 
-    return thread;
+    return *thread;
 }
 
-Thread *Thread::createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
+Thread& Thread::createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
     auto *kernelStack = new Stack(DEFAULT_STACK_SIZE);
     auto *userStack = new Stack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, runnable, kernelStack, userStack);
@@ -94,7 +94,7 @@ Thread *Thread::createUserThread(const Util::Memory::String &name, Util::Async::
     thread->interruptFrame.eflags = 0x200;
     thread->interruptFrame.eip = reinterpret_cast<uint32_t>(kickoff);
 
-    return thread;
+    return *thread;
 }
 
 uint32_t Thread::getId() const {

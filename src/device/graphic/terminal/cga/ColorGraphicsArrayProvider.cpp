@@ -70,7 +70,7 @@ bool ColorGraphicsArrayProvider::isAvailable() {
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
 
-bool ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
     }
@@ -91,7 +91,10 @@ bool ColorGraphicsArrayProvider::initializeTerminal(TerminalProvider::ModeInfo &
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *terminalNode = new TerminalNode(filename, terminal);
-    return driver.addNode("/", terminalNode);
+
+    if (!driver.addNode("/", terminalNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CGA: Unable to add node!");
+    }
 }
 
 Util::Data::Array<ColorGraphicsArrayProvider::ModeInfo> ColorGraphicsArrayProvider::getAvailableModes() const {

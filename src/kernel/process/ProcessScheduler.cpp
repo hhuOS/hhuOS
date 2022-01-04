@@ -20,6 +20,12 @@
 
 namespace Kernel {
 
+ProcessScheduler::~ProcessScheduler() {
+    while (!processQueue.isEmpty()) {
+        delete processQueue.pop();
+    }
+}
+
 void ProcessScheduler::setInitialized() {
     initialized = 0x123456;
 }
@@ -41,39 +47,43 @@ void ProcessScheduler::start() {
 }
 
 void ProcessScheduler::ready(Process &process) {
+    if (currentProcess == nullptr) {
+        currentProcess = &process;
+    }
+
     lock.acquire();
     processQueue.push(&process);
     lock.release();
 }
 
 void ProcessScheduler::exit() {
-    lock.acquire();
-
     if (!initialized) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil: 'exit' called but threadScheduler is not initialized!");
     }
 
+    lock.acquire();
     if (!isProcessWaiting()) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil: No process is waiting to be scheduled!");
     }
 
+    // TODO: Delete process (currently not possible, because the instance is still needed for dispatching)
     dispatch(getNextProcess(), false);
 }
 
 void ProcessScheduler::kill(Process &process) {
-    lock.acquire();
-
     if (!initialized) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"ThreadUtil: 'kill' called but threadScheduler is not initialized!");
     }
 
+    lock.acquire();
     if (process.getId() == currentProcess->getId()) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"ThreadUtil: A process is trying to kill itself... Use 'exit' instead!");
     }
 
     processQueue.remove(&process);
-
     lock.release();
+
+    delete &process;
 }
 
 bool ProcessScheduler::isProcessWaiting() {

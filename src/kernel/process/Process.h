@@ -57,12 +57,15 @@ public:
 
     ThreadScheduler& getThreadScheduler();
 
+    FileDescriptorManager& getFileDescriptorManager();
+
 private:
 
     uint32_t id;
     VirtualAddressSpace &addressSpace;
     ProcessScheduler &scheduler;
     ThreadScheduler threadScheduler;
+    FileDescriptorManager fileDescriptorManager;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
 };

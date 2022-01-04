@@ -24,7 +24,7 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return supportedModes;
 }
 
-bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     auto lfbMode = lfbProvider.searchMode(modeInfo.columns * font.getCharWidth(), modeInfo.rows * font.getCharHeight(), modeInfo.colorDepth);
 
     auto lfbFile = Util::File::File("/device/terminal_lfb");
@@ -32,8 +32,8 @@ bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to delete old lfb!");
     }
 
-    bool success = lfbProvider.initializeLinearFrameBuffer(lfbMode, "terminal_lfb");
-    if (!success || !lfbFile.exists()) {
+    lfbProvider.initializeLinearFrameBuffer(lfbMode, "terminal_lfb");
+    if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to initialize lfb!");
     }
 
@@ -109,7 +109,10 @@ bool LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     auto *terminalNode = new TerminalNode(filename, terminal);
-    return driver.addNode("/", terminalNode);
+
+    if (!driver.addNode("/", terminalNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
+    }
 }
 
 uint32_t LinearFrameBufferTerminalProvider::getVideoMemorySize() const {

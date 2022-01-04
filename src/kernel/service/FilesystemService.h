@@ -19,6 +19,7 @@
 #define HHUOS_FILESYSTEMSERVICE_H
 
 #include <filesystem/core/Filesystem.h>
+#include "kernel/file/FileDescriptorManager.h"
 #include "Service.h"
 
 namespace Kernel {

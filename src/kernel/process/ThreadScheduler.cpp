@@ -24,9 +24,19 @@ namespace Kernel {
 
 ThreadScheduler::ThreadScheduler(ProcessScheduler &parent) : parent(parent) {}
 
+ThreadScheduler::~ThreadScheduler() {
+    while (!threadQueue.isEmpty()) {
+        delete threadQueue.pop();
+    }
+}
+
 void ThreadScheduler::ready(Thread &thread) {
     if (currentThread == nullptr) {
         currentThread = &thread;
+    }
+
+    if (threadQueue.contains(&thread)) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Scheduler: Thread is already running!");
     }
 
     lock.acquire();
@@ -39,25 +49,24 @@ void ThreadScheduler::exit() {
     threadQueue.remove(currentThread);
     lock.release();
 
+    // TODO: Delete thread (currently not possible, because the instance is still needed for yielding)
     parent.forceYield();
 }
 
 void ThreadScheduler::kill(Thread &thread) {
     if (thread.getId() == currentThread->getId()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"ThreadUtil: A thread is trying to kill itself... Use 'exit' instead!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread is trying to kill itself... Use 'exit()' instead!");
     }
 
     lock.acquire();
     threadQueue.remove(&thread);
     lock.release();
+
+    delete &thread;
 }
 
 Thread &ThreadScheduler::getCurrentThread() {
     return *currentThread;
-}
-
-uint32_t ThreadScheduler::getThreadCount() {
-    return threadQueue.size();
 }
 
 Thread& ThreadScheduler::getNextThread(bool tryLock) {

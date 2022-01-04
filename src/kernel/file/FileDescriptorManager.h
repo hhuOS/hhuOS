@@ -1,7 +1,6 @@
 #ifndef HHUOS_FILEDESCRIPTORMANAGER_H
 #define HHUOS_FILEDESCRIPTORMANAGER_H
 
-#include <kernel/service/FilesystemService.h>
 #include <filesystem/core/Node.h>
 
 namespace Kernel {

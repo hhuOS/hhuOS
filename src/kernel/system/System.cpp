@@ -76,9 +76,14 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Initialize global objects afterwards, because now missing pages can be mapped
     _init();
 
-    // Register services _init(), since the static objects serviceMap and serviceLock have now been initialized
+    // Create scheduler service and register kernel process
+    auto *schedulerService = new SchedulerService();
+    auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace);
+    schedulerService->ready(kernelProcess);
+
+    // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
     registerService(MemoryService::SERVICE_ID, memoryService);
-    registerService(SchedulerService::SERVICE_ID, new SchedulerService());
+    registerService(SchedulerService::SERVICE_ID, schedulerService);
 
     // The base system is initialized. We can now enable interrupts and setup timer devices
     Device::Cpu::enableInterrupts();

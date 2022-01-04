@@ -64,8 +64,4 @@ HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
     return *memoryManager;
 }
 
-FileDescriptorManager& VirtualAddressSpace::getFileDescriptorManager() {
-    return fileDescriptorManager;
-}
-
 }
