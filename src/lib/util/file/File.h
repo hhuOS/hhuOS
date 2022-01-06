@@ -34,12 +34,12 @@ public:
     /**
      * Copy-constructor.
      */
-    File(const File &copy) = delete;
+    File(const File &copy);
 
     /**
      * Assignment operator.
      */
-    File& operator=(const File &other) = delete;
+    File& operator=(const File &other);
 
     /**
      * Destructor.

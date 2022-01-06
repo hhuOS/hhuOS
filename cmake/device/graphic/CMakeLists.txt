@@ -23,8 +23,8 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/graphic/terminal/Terminal.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/TerminalNode.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/TerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsArray.cpp
-        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsArrayProvider.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsAdapter.cpp
+        ${HHUOS_SRC_DIR}/device/graphic/terminal/cga/ColorGraphicsAdapterProvider.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/CursorRunnable.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/LinearFrameBufferTerminal.cpp
         ${HHUOS_SRC_DIR}/device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.cpp)

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/graphic/terminal/cga/ColorGraphicsArray.h>
+#include <device/graphic/terminal/cga/ColorGraphicsAdapter.h>
 #include <kernel/service/FilesystemService.h>
 #include <kernel/system/System.h>
 #include <device/graphic/terminal/TerminalNode.h>
@@ -38,7 +38,7 @@ void MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProv
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been setup correctly by the bootloader!");
     }
 
-    Device::Graphic::Terminal *terminal = new Device::Graphic::ColorGraphicsArray(modeInfo.columns, modeInfo.rows);
+    Device::Graphic::Terminal *terminal = new Device::Graphic::ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();

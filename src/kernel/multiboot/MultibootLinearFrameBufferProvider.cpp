@@ -7,6 +7,8 @@
 
 namespace Kernel::Multiboot {
 
+Kernel::Logger MultibootLinearFrameBufferProvider::log = Kernel::Logger::get("Multiboot");
+
 MultibootLinearFrameBufferProvider::MultibootLinearFrameBufferProvider() : frameBufferInfo(Structure::getFrameBufferInfo()), supportedModes(1) {
     supportedModes[0] = {frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch, 0};
 }
@@ -17,9 +19,12 @@ bool MultibootLinearFrameBufferProvider::isAvailable() {
 }
 
 void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
+    log.info("Checking framebuffer information, provided by the bootloader");
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been setup correctly by the bootloader!");
     }
+
+    log.info("Framebuffer information is valid (Address: [%08x], Resolution: [%ux%u@%u]", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
@@ -27,7 +32,7 @@ void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
     auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
 
     if (!driver.addNode("/", lfbNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LFB: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "MultibootLinearFrameBufferProvider: Unable to add node!");
     }
 }
 

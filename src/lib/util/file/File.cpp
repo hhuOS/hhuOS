@@ -22,6 +22,19 @@ namespace Util::File {
 
 File::File(const Memory::String &path) : path(path) {}
 
+File::File(const File &copy) {
+    path = copy.path;
+}
+
+File &File::operator=(const File &other) {
+    if (&other == this) {
+        return *this;
+    }
+
+    path = other.path;
+    return *this;
+}
+
 bool File::exists() const {
     auto fileDescriptor = openFile(path);
     if (fileDescriptor >= 0) {

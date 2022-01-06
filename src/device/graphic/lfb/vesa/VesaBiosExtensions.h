@@ -20,6 +20,7 @@
 
 #include <lib/util/memory/Address.h>
 #include <lib/util/data/ArrayList.h>
+#include "kernel/log/Logger.h"
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
 
 namespace Device::Graphic {
@@ -66,21 +67,6 @@ public:
      * Overriding virtual function from LinearFrameBufferProvider.
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
-
-    /**
-     * Overriding virtual function from LinearFrameBufferProvider.
-     */
-    [[nodiscard]] uint32_t getVideoMemorySize() const override;
-
-    /**
-     * Overriding virtual function from LinearFrameBufferProvider.
-     */
-    [[nodiscard]] Util::Memory::String getVendorName() const override;
-
-    /**
-     * Overriding virtual function from LinearFrameBufferProvider.
-     */
-    [[nodiscard]] Util::Memory::String getDeviceName() const override;
 
     /**
      * Overriding function from Prototype.
@@ -177,11 +163,9 @@ private:
 	 */
     static void setMode(uint16_t mode);
 
-    Util::Memory::String vendorName;
-    Util::Memory::String deviceName;
-    uint32_t memorySize;
-
     Util::Data::ArrayList<ModeInfo> supportedModes;
+
+    static Kernel::Logger log;
 
     static const constexpr uint32_t VBE_CONTROLLER_INFO_SIZE = 512;
     static const constexpr uint32_t VBE_MODE_INFO_SIZE = 256;

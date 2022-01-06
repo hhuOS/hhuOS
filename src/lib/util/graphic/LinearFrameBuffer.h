@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <lib/util/memory/Address.h>
 #include "Color.h"
+#include "lib/util/file/File.h"
 
 namespace Util::Graphic {
 
@@ -51,6 +52,8 @@ public:
      * @param pitch The pitch
      */
     LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+
+    LinearFrameBuffer(const File::File &file);
 
     /**
      * Assignment operator.

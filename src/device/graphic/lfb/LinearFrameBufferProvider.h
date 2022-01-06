@@ -91,30 +91,6 @@ public:
     [[nodiscard]] virtual Util::Data::Array<ModeInfo> getAvailableModes() const = 0;
 
     /**
-     * Get the amount of video memory, that the device has.
-     * Returns 0 if the amount is not known.
-     *
-     * @return The amount of video memory
-     */
-    [[nodiscard]] virtual uint32_t getVideoMemorySize() const;
-
-    /**
-     * Get the name of the device's vendor.
-     * Returns "Unknown", if the vendor is not known.
-     *
-     * @return The vendor's name
-     */
-    [[nodiscard]] virtual Util::Memory::String getVendorName() const;
-
-    /**
-     * Get the device's name.
-     * Returns "Unknown", if the name is not known.
-     *
-     * @return The device's name
-     */
-    [[nodiscard]] virtual Util::Memory::String getDeviceName() const;
-
-    /**
      * Search for a graphics mode, that suits the given parameters best.
      *
      * @param resolutionX The desired width

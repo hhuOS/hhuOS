@@ -18,6 +18,7 @@
 #include <lib/util/Exception.h>
 #include <lib/interface.h>
 #include "LinearFrameBuffer.h"
+#include "lib/util/stream/FileInputStream.h"
 
 namespace Util::Graphic {
 
@@ -27,6 +28,79 @@ LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resoluti
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
         buffer(virtualAddress, pitch * resolutionY), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+
+LinearFrameBuffer::LinearFrameBuffer(const File::File &file) {
+    if (!file.exists()) {
+        Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
+    }
+
+    uint8_t addressBuffer[16];
+    uint8_t xBuffer[16];
+    uint8_t yBuffer[16];
+    uint8_t bppBuffer[16];
+    uint8_t pitchBuffer[16];
+
+    Util::Memory::Address<uint32_t>(addressBuffer, sizeof(addressBuffer)).setRange(0, sizeof(addressBuffer));
+    Util::Memory::Address<uint32_t>(xBuffer, sizeof(xBuffer)).setRange(0, sizeof(xBuffer));
+    Util::Memory::Address<uint32_t>(yBuffer, sizeof(yBuffer)).setRange(0, sizeof(yBuffer));
+    Util::Memory::Address<uint32_t>(bppBuffer, sizeof(bppBuffer)).setRange(0, sizeof(bppBuffer));
+    Util::Memory::Address<uint32_t>(pitchBuffer, sizeof(pitchBuffer)).setRange(0, sizeof(pitchBuffer));
+
+    auto stream = Stream::FileInputStream(file);
+    int16_t currentChar;
+
+    for (unsigned char &i : addressBuffer) {
+        currentChar = stream.read();
+        if (currentChar == '\n') {
+            break;
+        }
+
+        i = currentChar;
+    }
+
+    for (unsigned char &i : xBuffer) {
+        currentChar = stream.read();
+        if (currentChar == 'x') {
+            break;
+        }
+
+        i = currentChar;
+    }
+
+    for (unsigned char & i : yBuffer) {
+        currentChar = stream.read();
+        if (currentChar == '@') {
+            break;
+        }
+
+        i = currentChar;
+    }
+
+    for (unsigned char & i : bppBuffer) {
+        currentChar = stream.read();
+        if (currentChar == '\n') {
+            break;
+        }
+
+        i = currentChar;
+    }
+
+    for (unsigned char & i : pitchBuffer) {
+        currentChar = stream.read();
+        if (currentChar == -1) {
+            break;
+        }
+
+        i = currentChar;
+    }
+
+    uint32_t address = Util::Memory::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
+    resolutionX = Util::Memory::String::parseInt(reinterpret_cast<const char*>(xBuffer));
+    resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
+    colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
+    pitch = Util::Memory::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
+    buffer = Memory::Address<uint32_t>(mapIO(address, pitch * resolutionY), pitch * resolutionY);
+}
 
 LinearFrameBuffer::~LinearFrameBuffer() {
     delete reinterpret_cast<uint8_t*>(buffer.get());

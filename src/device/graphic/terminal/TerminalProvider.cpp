@@ -3,18 +3,6 @@
 
 namespace Device::Graphic {
 
-uint32_t TerminalProvider::getVideoMemorySize() const {
-    return 0;
-}
-
-Util::Memory::String TerminalProvider::getVendorName() const {
-    return "Unknown";
-}
-
-Util::Memory::String TerminalProvider::getDeviceName() const {
-    return "Unknown";
-}
-
 TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16_t rows, uint8_t colorDepth) const {
     auto modes = getAvailableModes();
     auto candidates = Util::Data::ArrayList<ModeInfo>();

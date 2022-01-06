@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_COLORGRAPHICSARRAY_H
-#define HHUOS_COLORGRAPHICSARRAY_H
+#ifndef HHUOS_COLORGRAPHICSADAPTER_H
+#define HHUOS_COLORGRAPHICSADAPTER_H
 
 #include <device/graphic/terminal/Terminal.h>
 #include <device/cpu/IoPort.h>
@@ -24,17 +24,17 @@
 
 namespace Device::Graphic {
 
-class ColorGraphicsArray : public Device::Graphic::Terminal {
+class ColorGraphicsAdapter : public Device::Graphic::Terminal {
 
 public:
 
-    ColorGraphicsArray(uint16_t columns, uint16_t rows);
+    ColorGraphicsAdapter(uint16_t columns, uint16_t rows);
 
-    ColorGraphicsArray(const ColorGraphicsArray &copy) = delete;
+    ColorGraphicsAdapter(const ColorGraphicsAdapter &copy) = delete;
 
-    ColorGraphicsArray &operator=(const ColorGraphicsArray &other) = delete;
+    ColorGraphicsAdapter &operator=(const ColorGraphicsAdapter &other) = delete;
 
-    ~ColorGraphicsArray() override;
+    ~ColorGraphicsAdapter() override;
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 

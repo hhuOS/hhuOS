@@ -3,18 +3,6 @@
 
 namespace Device::Graphic {
 
-uint32_t LinearFrameBufferProvider::getVideoMemorySize() const {
-    return 0;
-}
-
-Util::Memory::String LinearFrameBufferProvider::getVendorName() const {
-    return "Unknown";
-}
-
-Util::Memory::String LinearFrameBufferProvider::getDeviceName() const {
-    return "Unknown";
-}
-
 LinearFrameBufferProvider::ModeInfo LinearFrameBufferProvider::searchMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const {
     auto modes = getAvailableModes();
     auto candidates = Util::Data::ArrayList<ModeInfo>();

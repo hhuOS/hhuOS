@@ -1,27 +1,40 @@
 #include <device/bios/Bios.h>
 #include <kernel/paging/MemoryLayout.h>
 #include <kernel/system/System.h>
-#include <kernel/system/System.h>
 #include <device/graphic/lfb/LinearFrameBufferNode.h>
-#include "VesaBiosExtensions.h"
 #include "kernel/service/FilesystemService.h"
+#include "VesaBiosExtensions.h"
 
 namespace Device::Graphic {
+
+Kernel::Logger VesaBiosExtensions::log = Kernel::Logger::get("VBE");
 
 VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
     if (prototypeInstance) {
         return;
     }
 
+    log.info("Retrieving video card info");
+    if (!isAvailable()) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "VesaBiosExtensions: No VBE compatible card found!");
+    }
+
     auto vbeInfo = getVbeInfo();
 
     // Get vendor name, device name and memory size
-    const char *vendorNameAddress = reinterpret_cast<const char*>(((vbeInfo.vendor[1] << 4) + vbeInfo.vendor[0]) + Kernel::MemoryLayout::KERNEL_START);
-    const char *deviceNameAddress = reinterpret_cast<const char*>(((vbeInfo.product_name[1] << 4) + vbeInfo.product_name[0]) + Kernel::MemoryLayout::KERNEL_START);
+    const char *vendorName = reinterpret_cast<const char*>(((vbeInfo.vendor[1] << 4) + vbeInfo.vendor[0]) + Kernel::MemoryLayout::KERNEL_START);
+    const char *deviceName = reinterpret_cast<const char*>(((vbeInfo.product_name[1] << 4) + vbeInfo.product_name[0]) + Kernel::MemoryLayout::KERNEL_START);
+    uint32_t memorySize = vbeInfo.video_memory * 65536;
 
-    vendorName = vendorNameAddress == nullptr ? LinearFrameBufferProvider::getVendorName() : vendorNameAddress;
-    deviceName = deviceNameAddress == nullptr ? LinearFrameBufferProvider::getDeviceName() : deviceNameAddress;
-    memorySize = vbeInfo.video_memory * 65536;
+    if (vendorName == nullptr) {
+        vendorName = "Unknown";
+    }
+
+    if (deviceName == nullptr) {
+        deviceName = "Unknown";
+    }
+
+    log.info("VBE compatible card found (Vendor: [%s], Device: [%s], Memory: [%u KiB])", vendorName, deviceName, memorySize / 1024);
 
     // Get available resolutions
     auto modePointer = reinterpret_cast<uint16_t*>(((vbeInfo.video_modes[1] << 4) + vbeInfo.video_modes[0]) + Kernel::MemoryLayout::KERNEL_START);
@@ -45,6 +58,7 @@ VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
             continue;
         }
 
+        log.debug("VBE compatible mode found [%ux%u@%u]", vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp);
         supportedModes.add({vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch, vbeModes[i]});
     }
 
@@ -103,18 +117,6 @@ void VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, c
 
 Util::Data::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {
     return supportedModes.toArray();
-}
-
-uint32_t VesaBiosExtensions::getVideoMemorySize() const {
-    return memorySize;
-}
-
-Util::Memory::String VesaBiosExtensions::getVendorName() const {
-    return vendorName;
-}
-
-Util::Memory::String VesaBiosExtensions::getDeviceName() const {
-    return deviceName;
 }
 
 void VesaBiosExtensions::setMode(uint16_t mode) {

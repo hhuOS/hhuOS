@@ -72,6 +72,9 @@ private:
 
     FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
+
+    static Kernel::Logger log;
+
     static const constexpr char *CLASS_NAME = "Kernel::Multiboot::MultibootLinearFrameBufferProvider";
 };
 

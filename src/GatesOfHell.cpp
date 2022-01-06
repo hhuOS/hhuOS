@@ -20,7 +20,7 @@
 #include <device/graphic/lfb/vesa/VesaBiosExtensions.h>
 #include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
 #include <device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h>
-#include <device/graphic/terminal/cga/ColorGraphicsArrayProvider.h>
+#include <device/graphic/terminal/cga/ColorGraphicsAdapterProvider.h>
 #include <lib/util/reflection/InstanceFactory.h>
 #include <kernel/system/System.h>
 #include <kernel/multiboot/Structure.h>
@@ -46,6 +46,8 @@
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/service/TimeService.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
@@ -103,22 +105,27 @@ void GatesOfHell::enter() {
     }
 
     if (Kernel::Multiboot::Structure::hasKernelOption("log_filesystem") && Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
+        log.debug("Logging filesystem");
         listDirectory("/");
     }
 
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("test_thread") && Kernel::Multiboot::Structure::getKernelOption("test_thread") == "true") {
+    if (Kernel::Multiboot::Structure::hasKernelOption("scheduler_sign") && Kernel::Multiboot::Structure::getKernelOption("scheduler_sign") == "true") {
         auto *testRunnable = new Util::Async::FunctionPointerRunnable([](){
-            auto log = Kernel::Logger::get("Test");
+            auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
+            auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
+            auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
+
+            auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
             auto &timeService = Kernel::System::getService<Kernel::TimeService>();
+            const char *characters = "|/-\\";
 
             while (true) {
                 auto time = timeService.getSystemTime();
-                if (time.toMilliseconds() % 2000 == 0) {
-                    log.info("Tock");
-                } else if (time.toMilliseconds() % 1000 == 0) {
-                    log.info("Tick");
+                if (time.toMilliseconds() % 250 == 0) {
+                    auto characterIndex = (time.toMilliseconds() % 1000) / 250;
+                    stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);
                 }
 
                 Util::Async::ThreadUtil::yield();
@@ -165,9 +172,9 @@ void GatesOfHell::initializeTerminal() {
         Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::VesaBiosExtensions(true));
     }
 
-    if (Device::Graphic::ColorGraphicsArrayProvider::isAvailable()) {
+    if (Device::Graphic::ColorGraphicsAdapterProvider::isAvailable()) {
         log.info("CGA graphics detected");
-        Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::ColorGraphicsArrayProvider(true));
+        Util::Reflection::InstanceFactory::registerPrototype(new Device::Graphic::ColorGraphicsAdapterProvider(true));
     }
 
     Device::Graphic::LinearFrameBufferProvider *lfbProvider = nullptr;
@@ -182,13 +189,18 @@ void GatesOfHell::initializeTerminal() {
         lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
     }
 
+    if (lfbProvider != nullptr) {
+        auto mode = lfbProvider->searchMode(800, 600, 32);
+        lfbProvider->initializeLinearFrameBuffer(mode, "lfb");
+    }
+
     if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
         auto providerName = Kernel::Multiboot::Structure::getKernelOption("terminal_provider");
         log.info("Terminal provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
         log.info("Terminal provider is not set -> Initializing terminal provider with LFB");
-        terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(*lfbProvider);
+        terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(Util::File::File("/device/lfb"));
     }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
         log.info("Terminal provider is not set and LFB is not available -> Initializing terminal with multiboot values");
         terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
@@ -197,7 +209,7 @@ void GatesOfHell::initializeTerminal() {
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
-   terminalProvider->initializeTerminal(resolution, "terminal");
+    terminalProvider->initializeTerminal(resolution, "terminal");
 }
 
 void GatesOfHell::initializeHeadlessMode() {
@@ -338,7 +350,7 @@ void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level
         string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
     }
 
-    log.info(string);
+    log.debug(string);
 
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {

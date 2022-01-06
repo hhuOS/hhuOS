@@ -32,7 +32,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit LinearFrameBufferTerminalProvider(LinearFrameBufferProvider &lfbProvider, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
+    explicit LinearFrameBufferTerminalProvider(const Util::File::File &lfbFile, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
 
     /**
      * Copy constructor.
@@ -62,32 +62,20 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] uint32_t getVideoMemorySize() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getVendorName() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getDeviceName() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
     [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
 
-    LinearFrameBufferProvider &lfbProvider;
+    Util::File::File lfbFile;
     Util::Graphic::Font &font;
     char cursor;
 
-    Util::Data::Array<ModeInfo> supportedModes;
+    ModeInfo mode{};
+    uint32_t memorySize;
 
-    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArray";
+    static const constexpr char *VENDOR_NAME = "LinearFrameBufferTerminalProvider";
+    static const constexpr char *DEVICE_NAME = "LinearFrameBufferTerminal";
+    static const constexpr char *CLASS_NAME = "Device::Graphic::LinearFrameBufferTerminalProvider";
 };
 
 }

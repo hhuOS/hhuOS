@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_COLORGRAPHICSARRAYPROVIDER_H
-#define HHUOS_COLORGRAPHICSARRAYPROVIDER_H
+#ifndef HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
+#define HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
 
 #include <lib/util/memory/Address.h>
 #include <device/cpu/IoPort.h>
@@ -24,31 +24,31 @@
 
 namespace Device::Graphic {
 
-class ColorGraphicsArrayProvider : public TerminalProvider {
+class ColorGraphicsAdapterProvider : public TerminalProvider {
 
 public:
 
-    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsArrayProvider);
+    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsAdapterProvider);
 
     /**
      * Default Constructor.
      */
-    explicit ColorGraphicsArrayProvider(bool prototypeInstance = false);
+    explicit ColorGraphicsAdapterProvider(bool prototypeInstance = false);
 
     /**
      * Copy constructor.
      */
-    ColorGraphicsArrayProvider(const ColorGraphicsArrayProvider &other) = delete;
+    ColorGraphicsAdapterProvider(const ColorGraphicsAdapterProvider &other) = delete;
 
     /**
      * Assignment operator.
      */
-    ColorGraphicsArrayProvider &operator=(const ColorGraphicsArrayProvider &other) = delete;
+    ColorGraphicsAdapterProvider &operator=(const ColorGraphicsAdapterProvider &other) = delete;
 
     /**
      * Destructor.
      */
-    ~ColorGraphicsArrayProvider() override = default;
+    ~ColorGraphicsAdapterProvider() override = default;
 
     /**
      * Check if a CGA compatible graphics card is available and this driver can be used.
@@ -66,16 +66,6 @@ public:
      * Overriding function from TerminalProvider.
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] uint32_t getVideoMemorySize() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getDeviceName() const override;
 
     /**
      * Overriding function from TerminalProvider.
@@ -104,12 +94,17 @@ private:
         UNKNOWN = 0xff
     };
 
-    uint32_t videoMemorySize = 0;
-    Util::Memory::String deviceName = "Unknown";
-    Util::Data::Array<ModeInfo> supportedModes;
+    static VideoCardType getVideoCardType();
+
+    static Util::Memory::String getVideoCardTypeAsString(VideoCardType cardType);
+
+    Util::Data::Array<ModeInfo> supportedModes{{40, 25, 4, 0x01},
+                                               {80, 25, 4, 0x03}};
+
+    static Kernel::Logger log;
 
     static const constexpr uint16_t CURSOR_SHAPE_OPTIONS = 0x0e0f;
-    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsArrayProvider";
+    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsAdapterProvider";
 };
 
 }
