@@ -26,8 +26,8 @@
 namespace Filesystem {
 
 /**
- * The filesystem. It works by maintaining a list of mountVirtualDriver-points. Every request will be handled by picking the right
- * mountVirtualDriver-point and and passing the request over to the corresponding Driver.
+ * The filesystem. It works by maintaining a list of mount points.
+ * Every request is handled by picking the right mount point and and passing the request over to the corresponding driver.
  */
 class Filesystem {
 
@@ -53,7 +53,7 @@ public:
     ~Filesystem() = default;
 
     /**
-     * Processes the '.' and '..' entries of a path.
+     * Process the '.' and '..' entries of a path.
      *
      * @param path The path
      * @return The processed path
@@ -61,17 +61,17 @@ public:
     static Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 
     /**
-     * Mounts a virtual filesystem at a specified location.
+     * Mount a virtual filesystem at a specified location.
      *
      * @param targetPath The mount path
      * @param driver The virtual filesystem driver
      *
      * @return true on success
      */
-    bool mountVirtualDriver(const Util::Memory::String &targetPath, Driver &driver);
+    bool mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver);
 
     /**
-     * Unmounts a device from a specified location.
+     * Unmount a device from a specified location.
      *
      * @param path The mountVirtualDriver-path
      *

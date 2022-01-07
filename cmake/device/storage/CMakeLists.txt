@@ -15,21 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.7)
-
-project(device)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(bios)
-add_subdirectory(cpu)
-add_subdirectory(graphic)
-add_subdirectory(hid)
-add_subdirectory(interrupt)
-add_subdirectory(port)
-add_subdirectory(sound)
-add_subdirectory(storage)
-add_subdirectory(time)
+ 
+target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/storage/Partition.cpp
+        ${HHUOS_SRC_DIR}/device/storage/PartitionHandler.cpp
+        ${HHUOS_SRC_DIR}/device/storage/StorageDevice.cpp
+        ${HHUOS_SRC_DIR}/device/storage/virtual/VirtualDiskDrive.cpp)

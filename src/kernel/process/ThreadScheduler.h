@@ -72,9 +72,9 @@ public:
     void kill(Thread &thread);
 
     /**
-     * Returns the active Thread.
+     * Returns the activeFlag Thread.
      *
-     * @return The active Thread
+     * @return The activeFlag Thread
      */
     Thread& getCurrentThread();
 

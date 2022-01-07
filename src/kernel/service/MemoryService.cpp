@@ -255,7 +255,7 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
     if (currentAddressSpace == &addressSpace) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MemoryService: Trying to delete the currently active address space!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MemoryService: Trying to delete the currently activeFlag address space!");
     }
 
     addressSpaces.remove(&addressSpace);

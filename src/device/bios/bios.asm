@@ -122,7 +122,7 @@ bios_call_3:
     pop ecx
     mov cr3, ecx
 
-	; Check if threadScheduler is active -> old stack has to be restored then
+	; Check if threadScheduler is activeFlag -> old stack has to be restored then
     mov ebx, [scheduler_initialized]
     cmp ebx, 0
     je  skip_stack_switch_2

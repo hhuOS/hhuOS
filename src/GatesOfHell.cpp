@@ -248,11 +248,11 @@ void GatesOfHell::initializeFilesystem() {
 
     log.info("Mounting root filesystem");
     auto *rootDriver = new Filesystem::Memory::MemoryDriver();
-    filesystem.mountVirtualDriver("/", *rootDriver);
+    filesystem.mountVirtualDriver("/", rootDriver);
 
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
     filesystem.createDirectory("/device");
-    filesystem.mountVirtualDriver("/device", *deviceDriver);
+    filesystem.mountVirtualDriver("/device", deviceDriver);
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
@@ -261,7 +261,7 @@ void GatesOfHell::initializeFilesystem() {
         auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
 
         filesystem.createDirectory("/initrd");
-        filesystem.mountVirtualDriver("/initrd", *tarDriver);
+        filesystem.mountVirtualDriver("/initrd", tarDriver);
     }
 }
 
