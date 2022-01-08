@@ -22,6 +22,7 @@
 #include <device/cpu/IoPort.h>
 #include <kernel/job/JobExecutor.h>
 #include "TimeProvider.h"
+#include "kernel/log/Logger.h"
 
 namespace Device {
 
@@ -33,7 +34,7 @@ public:
      *
      * @param timerInterval The interval, at which the PIT shall trigger interrupts.
      */
-    explicit Pit(uint16_t interruptRateDivisor = 1194, uint32_t yieldInterval = 10);
+    explicit Pit(uint16_t interruptRateDivisor = 1193, uint32_t yieldInterval = 10);
 
     /**
      * Copy constructor.
@@ -81,7 +82,9 @@ private:
     IoPort controlPort = IoPort(0x43);
     IoPort dataPort0 = IoPort(0x40);
 
-    static const constexpr double BASE_FREQUENCY = 1193182;
+    static Kernel::Logger log;
+
+    static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 
 };
 

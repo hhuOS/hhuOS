@@ -42,6 +42,10 @@ public:
 
     void setPosition(uint16_t column, uint16_t row) override;
 
+    [[nodiscard]] uint16_t getCurrentColumn() const override;
+
+    [[nodiscard]] uint16_t getCurrentRow() const override;
+
 private:
 
     void updateCursorPosition();

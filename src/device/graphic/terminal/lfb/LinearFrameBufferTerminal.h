@@ -51,6 +51,10 @@ public:
 
     void clear(const Util::Graphic::Color &backgroundColor) override;
 
+    [[nodiscard]] uint16_t getCurrentColumn() const override;
+
+    [[nodiscard]] uint16_t getCurrentRow() const override;
+
 private:
 
     struct Character {

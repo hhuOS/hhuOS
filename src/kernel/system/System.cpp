@@ -76,41 +76,45 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Initialize global objects afterwards, because now missing pages can be mapped
     _init();
 
+    // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
+    registerService(MemoryService::SERVICE_ID, memoryService);
+    log.info("Welcome to hhuOS!");
+    log.info("Memory management has been initialized");
+
     // Create scheduler service and register kernel process
+    log.info("Initializing scheduler");
     auto *schedulerService = new SchedulerService();
     auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace);
     schedulerService->ready(kernelProcess);
-
-    // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
-    registerService(MemoryService::SERVICE_ID, memoryService);
     registerService(SchedulerService::SERVICE_ID, schedulerService);
 
     // The base system is initialized. We can now enable interrupts and setup timer devices
+    log.info("Enabling interrupts");
     Device::Cpu::enableInterrupts();
 
     // Setup time and date devices
+    log.info("Initializing PIT");
     auto *pit = new Device::Pit();
     pit->plugin();
 
     if (Device::Rtc::isAvailable()) {
+        log.info("Initializing RTC");
         auto *rtc = new Device::Rtc();
         rtc->plugin();
 
         registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
         registerService(JobService::SERVICE_ID, new Kernel::JobService(*rtc, *pit));
 
-        log.info("Base system initialized");
-        log.info("RTC detected");
         if (!Device::Rtc::isValid()) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
     } else {
+        log.warn("RTC not available");
         registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, nullptr));
         registerService(JobService::SERVICE_ID, new Kernel::JobService(*pit, *pit));
-        log.info("Base system initialized");
-        log.warn("RTC not detected -> Real time cannot be provided");
     }
 
+    // Register job to refill block pool of paging area manager
     getService<JobService>().registerJob(new PagingAreaManagerRefillRunnable(*pagingAreaManager), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
 
     // Register memory manager

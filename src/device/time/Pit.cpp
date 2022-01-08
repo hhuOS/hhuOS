@@ -22,6 +22,8 @@
 
 namespace Device {
 
+Kernel::Logger Pit::log = Kernel::Logger::get("Pit");
+
 Pit::Pit(uint16_t interruptRateDivisor, uint32_t yieldInterval) : yieldInterval(yieldInterval) {
     setInterruptRate(interruptRateDivisor);
 }
@@ -31,11 +33,13 @@ void Pit::setInterruptRate(uint16_t divisor) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "PIT: Divisor may not be set to 0!");
     }
 
+    auto interval = 1000000000 / (BASE_FREQUENCY / divisor);
+    log.info("Setting PIT interval to [%uns] (Divisor: [%u])", interval, divisor);
+
     controlPort.writeByte(0x36); // Select channel 0, Use low-/high byte access mode, Set operating mode to rate generator
     dataPort0.writeByte((uint8_t) (divisor & 0xff)); // Low byte
     dataPort0.writeByte((uint8_t) (divisor >> 8)); // High byte
-
-    timerInterval = static_cast<uint32_t>(1000000000 / (BASE_FREQUENCY / divisor));
+    timerInterval = interval;
 }
 
 void Pit::plugin() {

@@ -21,13 +21,9 @@
 
 namespace Util::Stream {
 
-PrintWriter::PrintWriter(Writer &writer, bool autoFlush) : writer(writer), autoFlush(autoFlush), deleteWriter(false) {
+PrintWriter::PrintWriter(Writer &writer, bool autoFlush) : writer(writer), autoFlush(autoFlush), deleteWriter(false) {}
 
-}
-
-PrintWriter::PrintWriter(OutputStream &outputStream, bool autoFlush) : writer(*new OutputStreamWriter(outputStream)), autoFlush(autoFlush), deleteWriter(true)  {
-
-}
+PrintWriter::PrintWriter(OutputStream &outputStream, bool autoFlush) : writer(*new OutputStreamWriter(outputStream)), autoFlush(autoFlush), deleteWriter(true)  {}
 
 PrintWriter::~PrintWriter() {
     if (deleteWriter) {

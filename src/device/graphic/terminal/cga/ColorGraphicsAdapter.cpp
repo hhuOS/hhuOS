@@ -92,4 +92,12 @@ ColorGraphicsAdapter::~ColorGraphicsAdapter() {
     delete reinterpret_cast<uint8_t*>(cgaMemory.get());
 }
 
+uint16_t ColorGraphicsAdapter::getCurrentColumn() const {
+    return currentColumn;
+}
+
+uint16_t ColorGraphicsAdapter::getCurrentRow() const {
+    return currentRow;
+}
+
 }

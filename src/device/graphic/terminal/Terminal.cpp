@@ -24,6 +24,25 @@ namespace Device::Graphic {
 Terminal::Terminal(uint16_t columns, uint16_t rows) : columns(columns), rows(rows) {}
 
 void Terminal::write(uint8_t c) {
+    if (c == '\b') {
+        auto column = getCurrentColumn();
+        auto row = getCurrentRow();
+        if (column == 0) {
+            column = columns - 1;
+            row--;
+        } else {
+            column--;
+        }
+
+
+        putChar(' ', foregroundColor, backgroundColor);
+        setPosition(column, row);
+        putChar(' ', foregroundColor, backgroundColor);
+        setPosition(column, row);
+
+        return;
+    }
+
     if (c == '\u001b') {
         isEscapeActive = true;
     }

@@ -47,6 +47,10 @@ public:
 
     virtual void setPosition(uint16_t column, uint16_t row) = 0;
 
+    [[nodiscard]] virtual uint16_t getCurrentColumn() const = 0;
+
+    [[nodiscard]] virtual uint16_t getCurrentRow() const = 0;
+
     [[nodiscard]] uint16_t getColumns() const;
 
     [[nodiscard]] uint16_t getRows() const;

@@ -16,8 +16,6 @@
  */
 
 #include <lib/util/memory/Address.h>
-#include <device/time/Rtc.h>
-#include <device/time/Pit.h>
 #include <kernel/service/JobService.h>
 #include <kernel/system/System.h>
 #include "LinearFrameBufferTerminal.h"
@@ -102,6 +100,14 @@ void LinearFrameBufferTerminal::scrollUp() {
 
     shadowScroller.scrollUp(font.getCharHeight());
     shadowLfb.flush();
+}
+
+uint16_t LinearFrameBufferTerminal::getCurrentColumn() const {
+    return currentColumn;
+}
+
+uint16_t LinearFrameBufferTerminal::getCurrentRow() const {
+    return currentRow;
 }
 
 }

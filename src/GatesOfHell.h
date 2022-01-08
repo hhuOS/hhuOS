@@ -71,6 +71,8 @@ private:
 
     static void colorTest();
 
+    static void printLog();
+
     static void listDirectory(const Util::Memory::String &path, uint32_t level = 0);
 
     static Kernel::Logger log;

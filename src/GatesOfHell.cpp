@@ -57,7 +57,6 @@ void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
 
-    log.info("Welcome to hhuOS");
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getPhysicalMemorySize() / 1024 / 1024);
 
     if (Device::CpuId::isAvailable()) {
@@ -140,18 +139,45 @@ void GatesOfHell::enter() {
         auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
         auto writer = Util::Stream::PrintWriter(bufferedStream, true);
         auto reader = Util::Stream::InputStreamReader(*inputStream);
+        Util::Memory::String line = "";
 
         writer << "> " << Util::Stream::PrintWriter::flush;
 
         while(true) {
             char input = reader.read();
-            writer << input;
+            writer << input << Util::Stream::PrintWriter::flush;
 
             if (input == '\n') {
-                writer << "> ";
-            }
+                if (line == "tree") {
+                    listDirectory("/");
+                } else if (line == "log") {
+                    printLog();
+                } else if (line == "uptime") {
+                    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
+                    writer << Util::Stream::PrintWriter::dec << timeService.getSystemTime().toSeconds() << " seconds" << Util::Stream::PrintWriter::endl;
+                } else if (line == "date") {
+                    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
+                    auto date = timeService.getCurrentDate();
+                    writer << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
+                               date.getYear(), date.getMonth(), date.getDayOfMonth(),
+                               date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl;
+                } else if (line == "help") {
+                    writer << "tree - Print filesystem tree" << Util::Stream::PrintWriter::endl
+                    << "log - Print kernel log" << Util::Stream::PrintWriter::endl
+                    << "uptime - Print system uptime" << Util::Stream::PrintWriter::endl
+                    << "date - Print current date" << Util::Stream::PrintWriter::endl
+                    << "help - Print available commands" << Util::Stream::PrintWriter::endl;
+                } else {
+                    writer << "Invalid command! Use 'help' to see available commands." << Util::Stream::PrintWriter::endl;
+                }
 
-            writer << Util::Stream::PrintWriter::flush;
+                line = "";
+                writer << "> " << Util::Stream::PrintWriter::flush;
+            } else if (input == '\b') {
+                line = line.substring(0, line.length() - 1);
+            } else if (Util::Memory::String::isAlpha(input)) {
+                line += input;
+            }
         }
     });
 
@@ -185,7 +211,7 @@ void GatesOfHell::initializeTerminal() {
         log.info("LFB provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         lfbProvider = reinterpret_cast<Device::Graphic::LinearFrameBufferProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (Kernel::Multiboot::MultibootLinearFrameBufferProvider::isAvailable()) {
-        log.info("LFB provider is not set -> Initializing LFB provider with multiboot values");
+        log.info("LFB provider is not set -> Using with multiboot values");
         lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
     }
 
@@ -199,10 +225,10 @@ void GatesOfHell::initializeTerminal() {
         log.info("Terminal provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
-        log.info("Terminal provider is not set -> Initializing terminal provider with LFB");
+        log.info("Terminal provider is not set -> Using LFB terminal");
         terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(Util::File::File("/device/lfb"));
     }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
-        log.info("Terminal provider is not set and LFB is not available -> Initializing terminal with multiboot values");
+        log.info("Terminal provider is not set and LFB is not available -> Using multiboot values");
         terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
     } else {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
@@ -253,6 +279,9 @@ void GatesOfHell::initializeFilesystem() {
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
     filesystem.createDirectory("/device");
     filesystem.mountVirtualDriver("/device", deviceDriver);
+
+    filesystem.createFile("/device/log");
+    Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
@@ -333,7 +362,32 @@ void GatesOfHell::colorTest() {
     writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
 }
 
+void GatesOfHell::printLog() {
+    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
+    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
+    auto reader = Util::Stream::InputStreamReader(*inputStream);
+
+    auto logFile = Util::File::File("/device/log");
+    if (!logFile.exists()) {
+        writer << "Logfile '/device/log' does not exist!" << Util::Stream::PrintWriter::endl;
+    }
+
+    auto logStream = Util::Stream::FileInputStream(logFile);
+    auto logReader = Util::Stream::InputStreamReader(logStream);
+    auto bufferedLogReader = Util::Stream::BufferedReader(logReader);
+
+    char logChar = bufferedLogReader.read();
+    while (logChar != -1) {
+        writer << logChar;
+        logChar = bufferedLogReader.read();
+    }
+
+    writer << Util::Stream::PrintWriter::endl;
+}
+
 void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level) {
+    auto writer = Util::Stream::PrintWriter(*outputStream);
+
     const auto file = Util::File::File(path);
     if (!file.exists()) {
         return;
@@ -350,7 +404,7 @@ void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level
         string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
     }
 
-    log.debug(string);
+    writer << string << Util::Stream::PrintWriter::endl;
 
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {

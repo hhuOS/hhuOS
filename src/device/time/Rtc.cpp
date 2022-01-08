@@ -24,10 +24,17 @@
 
 namespace Device {
 
+Kernel::Logger Rtc::log = Kernel::Logger::get("Rtc");
+
 Rtc::Rtc(uint8_t interruptRateDivisor) {
     useBcd = (Cmos::read(STATUS_REGISTER_B) & 0x04) == 0;
     useTwelveHours = (Cmos::read(STATUS_REGISTER_B) & 0x02) == 0;
     currentDate = readDate();
+    log.info("Retrieved RTC state (Data format: [%s], Hour format: [%s], Current date: [%u-%02u-%02u %02u:%02u:%02u]",
+             useBcd ? "BCD" : "Binary", useTwelveHours ? "12h" : "24h",
+             currentDate.getYear(), currentDate.getMonth(), currentDate.getDayOfMonth(),
+             currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
+
     setInterruptRate(interruptRateDivisor);
 }
 
@@ -204,11 +211,13 @@ void Rtc::setInterruptRate(uint8_t divisor) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "RTC: Interrupt rate divisor must be between 3 and 15");
     }
 
+    // Frequency is divided by 2^divisor
+    auto interval = 1000000000 / (BASE_FREQUENCY / (1 << (divisor - 1)));
+    log.info("Setting RTC interval to [%uns] (Divisor: [%u])", interval, divisor);
+
     uint8_t oldValue = Cmos::read(STATUS_REGISTER_A);
     Cmos::write(STATUS_REGISTER_A, (oldValue & 0xf0) | divisor);
-
-    // Frequency is divided by 2^divisor
-    timerInterval = static_cast<uint32_t>(1000000000 / (BASE_FREQUENCY / (1 << (divisor - 1))));
+    timerInterval = interval;
 }
 
 Util::Time::Timestamp Rtc::getTime() {
