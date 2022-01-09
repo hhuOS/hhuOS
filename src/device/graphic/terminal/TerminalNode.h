@@ -18,8 +18,8 @@
 #ifndef HHUOS_TERMINALNODE_H
 #define HHUOS_TERMINALNODE_H
 
-#include <filesystem/memory/MemoryNode.h>
-#include <device/graphic/terminal/Terminal.h>
+#include "filesystem/memory/MemoryNode.h"
+#include "device/graphic/terminal/Terminal.h"
 
 namespace Device::Graphic {
 

@@ -17,8 +17,8 @@
 #ifndef HHUOS_TIMESERVICE_H
 #define HHUOS_TIMESERVICE_H
 
-#include <device/time/TimeProvider.h>
-#include <device/time/DateProvider.h>
+#include "device/time/TimeProvider.h"
+#include "device/time/DateProvider.h"
 #include "Service.h"
 
 namespace Kernel {

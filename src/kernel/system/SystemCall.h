@@ -19,8 +19,8 @@
 #define HHUOS_SYSTEMCALL_H
 
 #include <cstdarg>
-#include <kernel/interrupt/InterruptHandler.h>
-#include <lib/util/system/SystemCall.h>
+#include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/system/SystemCall.h"
 
 namespace Kernel {
 

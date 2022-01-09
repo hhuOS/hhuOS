@@ -1,8 +1,8 @@
-#include <kernel/paging/MemoryLayout.h>
-#include <device/bios/Bios.h>
-#include <kernel/service/FilesystemService.h>
-#include <kernel/system/System.h>
-#include <device/graphic/terminal/TerminalNode.h>
+#include "kernel/paging/MemoryLayout.h"
+#include "device/bios/Bios.h"
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
+#include "device/graphic/terminal/TerminalNode.h"
 #include "ColorGraphicsAdapterProvider.h"
 #include "ColorGraphicsAdapter.h"
 

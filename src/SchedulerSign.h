@@ -15,48 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PROTOTYPE_H
-#define HHUOS_PROTOTYPE_H
+#ifndef HHUOS_SCHEDULERSIGN_H
+#define HHUOS_SCHEDULERSIGN_H
 
-#define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(); }
 
-#include "lib/util/memory/String.h"
+#include "lib/util/async/Runnable.h"
 
-namespace Util::Reflection {
-
-/**
- * Implementation of the prototype pattern, based on
- * http://www.cs.sjsu.edu/faculty/pearce/modules/lectures/oop/types/reflection/prototype.htm
- */
-class Prototype {
+class SchedulerSign : public Util::Async::Runnable {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Prototype() = default;
+    SchedulerSign() = default;
+
+    /**
+     * Copy constructor.
+     */
+    SchedulerSign(const SchedulerSign &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    SchedulerSign &operator=(const SchedulerSign &other) = delete;
 
     /**
      * Destructor.
      */
-    virtual ~Prototype() = default;
+    ~SchedulerSign() override = default;
 
-    /**
-     * Get the name, under which the prototype will be registered and usable for the user.
-     */
-    [[nodiscard]] virtual Memory::String getClassName() const = 0;
-
-private:
-    /**
-     * Create a copy of this instance.
-     *
-     * @return A pointer to the copy
-     */
-    [[nodiscard]] virtual Prototype *clone() const;
-
-    friend class InstanceFactory;
+    void run();
 };
 
-}
 
 #endif

@@ -18,10 +18,10 @@
 #ifndef HHUOS_SERIALPORT_H
 #define HHUOS_SERIALPORT_H
 
-#include <device/cpu/IoPort.h>
-#include <kernel/interrupt/InterruptHandler.h>
-#include <lib/util/stream/PipedOutputStream.h>
-#include <lib/util/memory/String.h>
+#include "device/cpu/IoPort.h"
+#include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/memory/String.h"
 
 namespace Kernel {
     class Logger;

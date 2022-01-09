@@ -18,7 +18,7 @@
 #ifndef HHUOS_STRINGDRAWER_H
 #define HHUOS_STRINGDRAWER_H
 
-#include <lib/util/memory/String.h>
+#include "lib/util/memory/String.h"
 #include "PixelDrawer.h"
 #include "Font.h"
 

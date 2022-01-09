@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/memory/operators.h>
-#include <lib/util/reflection/InstanceFactory.h>
+#include "lib/util/memory/operators.h"
+#include "lib/util/reflection/InstanceFactory.h"
 #include "MemoryLayout.h"
 #include "Paging.h"
 #include "VirtualAddressSpace.h"

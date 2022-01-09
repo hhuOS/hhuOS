@@ -1,6 +1,6 @@
-#include <kernel/system/System.h>
-#include <kernel/system/System.h>
-#include <device/graphic/lfb/LinearFrameBufferNode.h>
+#include "kernel/system/System.h"
+#include "kernel/system/System.h"
+#include "device/graphic/lfb/LinearFrameBufferNode.h"
 #include "MultibootLinearFrameBufferProvider.h"
 #include "Structure.h"
 #include "kernel/service/FilesystemService.h"

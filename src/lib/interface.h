@@ -19,8 +19,8 @@
 #define HHUOS_INTERFACE_H
 
 #include <cstdint>
-#include <lib/util/Exception.h>
-#include <filesystem/core/Node.h>
+#include "lib/util/Exception.h"
+#include "filesystem/core/Node.h"
 
 void* allocateMemory(uint32_t size);
 void* reallocateMemory(void *pointer, uint32_t size);

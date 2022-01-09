@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/multiboot/Structure.h>
-#include <kernel/system/System.h>
-#include <kernel/interrupt/InterruptDispatcher.h>
-#include <kernel/paging/Paging.h>
-#include <device/cpu/Cpu.h>
+#include "kernel/multiboot/Structure.h"
+#include "kernel/system/System.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/paging/Paging.h"
+#include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
 
 // Import functions

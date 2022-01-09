@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/interface.h>
-#include <kernel/system/System.h>
-#include <kernel/service/MemoryService.h>
-#include <kernel/service/FilesystemService.h>
-#include <device/cpu/Cpu.h>
+#include "lib/interface.h"
+#include "kernel/system/System.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/FilesystemService.h"
+#include "device/cpu/Cpu.h"
 
 void *allocateMemory(uint32_t size) {
     if (Kernel::System::isInitialized()) {

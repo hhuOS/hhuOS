@@ -18,8 +18,8 @@
 #ifndef HHUOS_STREAMNODE_H
 #define HHUOS_STREAMNODE_H
 
-#include <lib/util/stream/OutputStream.h>
-#include <lib/util/stream/InputStream.h>
+#include "lib/util/stream/OutputStream.h"
+#include "lib/util/stream/InputStream.h"
 #include "MemoryNode.h"
 
 namespace Filesystem::Memory {

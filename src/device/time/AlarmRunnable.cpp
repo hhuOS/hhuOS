@@ -16,7 +16,7 @@
  */
 
 #include "AlarmRunnable.h"
-#include <device/sound/PcSpeaker.h>
+#include "device/sound/PcSpeaker.h"
 
 namespace Device {
 

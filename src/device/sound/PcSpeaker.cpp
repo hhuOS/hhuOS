@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/time/Pit.h>
-#include <kernel/service/TimeService.h>
-#include <kernel/system/System.h>
+#include "device/time/Pit.h"
+#include "kernel/service/TimeService.h"
+#include "kernel/system/System.h"
 #include "PcSpeaker.h"
 
 namespace Device {

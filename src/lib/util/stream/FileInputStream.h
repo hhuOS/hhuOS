@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILEINPUTSTREAM_H
 #define HHUOS_FILEINPUTSTREAM_H
 
-#include <lib/util/file/File.h>
+#include "lib/util/file/File.h"
 #include "InputStream.h"
 
 namespace Util::Stream {

@@ -25,7 +25,7 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
-#include <lib/util/memory/Address.h>
+#include "lib/util/memory/Address.h"
 
 namespace Kernel {
 

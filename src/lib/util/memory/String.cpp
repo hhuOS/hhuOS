@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/interface.h>
-#include <lib/util/stream/ByteArrayOutputStream.h>
-#include <lib/util/stream/PrintWriter.h>
+#include "lib/interface.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/stream/PrintWriter.h"
 #include "lib/util/data/ArrayList.h"
 #include "String.h"
 #include "lib/util/memory/Address.h"

@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/memory/Address.h>
-#include <lib/util/Exception.h>
+#include "lib/util/memory/Address.h"
+#include "lib/util/Exception.h"
 #include "PipedOutputStream.h"
 #include "PipedInputStream.h"
 

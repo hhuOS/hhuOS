@@ -18,8 +18,8 @@
 #ifndef HHUOS_TERMINAL_H
 #define HHUOS_TERMINAL_H
 
-#include <lib/util/stream/OutputStream.h>
-#include <lib/util/memory/String.h>
+#include "lib/util/stream/OutputStream.h"
+#include "lib/util/memory/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
 

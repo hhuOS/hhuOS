@@ -16,11 +16,11 @@
  */
 
 
-#include <kernel/paging/MemoryLayout.h>
-#include <kernel/multiboot/Structure.h>
-#include <lib/util/memory/Address.h>
-#include <device/cpu/Cpu.h>
-#include <asm_interface.h>
+#include "kernel/paging/MemoryLayout.h"
+#include "kernel/multiboot/Structure.h"
+#include "lib/util/memory/Address.h"
+#include "device/cpu/Cpu.h"
+#include "asm_interface.h"
 #include "Bios.h"
 #include "kernel/system/System.h"
 

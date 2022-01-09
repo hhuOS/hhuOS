@@ -18,8 +18,8 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
 #define HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
 
-#include <lib/util/memory/Address.h>
-#include <device/cpu/IoPort.h>
+#include "lib/util/memory/Address.h"
+#include "device/cpu/IoPort.h"
 #include "device/graphic/terminal/TerminalProvider.h"
 
 namespace Device::Graphic {

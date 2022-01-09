@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/interface.h>
+#include "lib/interface.h"
 
 void *allocateMemory(uint32_t size) {
     return nullptr;

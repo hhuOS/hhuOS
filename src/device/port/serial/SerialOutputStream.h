@@ -18,7 +18,7 @@
 #ifndef HHUOS_SERIALOUTPUTSTREAM_H
 #define HHUOS_SERIALOUTPUTSTREAM_H
 
-#include <lib/util/stream/OutputStream.h>
+#include "lib/util/stream/OutputStream.h"
 #include "SerialPort.h"
 
 namespace Device {

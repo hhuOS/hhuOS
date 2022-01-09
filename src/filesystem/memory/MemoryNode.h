@@ -18,8 +18,8 @@
 #ifndef HHUOS_MEMORYNODE_H
 #define HHUOS_MEMORYNODE_H
 
-#include <filesystem/core/Node.h>
-#include <lib/util/data/ArrayList.h>
+#include "filesystem/core/Node.h"
+#include "lib/util/data/ArrayList.h"
 
 namespace Filesystem::Memory {
 

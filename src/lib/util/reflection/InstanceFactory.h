@@ -18,7 +18,7 @@
 #ifndef HHUOS_INSTANCEFACTORY_H
 #define HHUOS_INSTANCEFACTORY_H
 
-#include <lib/util/data/HashMap.h>
+#include "lib/util/data/HashMap.h"
 #include "Prototype.h"
 
 namespace Util::Reflection {

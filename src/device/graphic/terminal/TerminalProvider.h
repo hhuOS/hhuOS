@@ -18,10 +18,10 @@
 #ifndef HHUOS_TERMINALPROVIDER_H
 #define HHUOS_TERMINALPROVIDER_H
 
-#include <lib/util/data/Array.h>
-#include <lib/util/memory/String.h>
-#include <device/graphic/terminal/Terminal.h>
-#include <lib/util/reflection/Prototype.h>
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+#include "device/graphic/terminal/Terminal.h"
+#include "lib/util/reflection/Prototype.h"
 
 namespace Device::Graphic {
 

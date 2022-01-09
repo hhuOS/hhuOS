@@ -18,7 +18,7 @@
 #ifndef HHUOS_DATEPROVIDER_H
 #define HHUOS_DATEPROVIDER_H
 
-#include <lib/util/time/Date.h>
+#include "lib/util/time/Date.h"
 
 namespace Device {
 

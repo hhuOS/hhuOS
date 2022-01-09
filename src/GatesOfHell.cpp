@@ -15,39 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/stream/BufferedOutputStream.h>
-#include <device/bios/Bios.h>
-#include <device/graphic/lfb/vesa/VesaBiosExtensions.h>
-#include <kernel/multiboot/MultibootLinearFrameBufferProvider.h>
-#include <device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h>
-#include <device/graphic/terminal/cga/ColorGraphicsAdapterProvider.h>
-#include <lib/util/reflection/InstanceFactory.h>
-#include <kernel/system/System.h>
-#include <kernel/multiboot/Structure.h>
-#include <kernel/multiboot/MultibootTerminalProvider.h>
-#include <device/hid/Keyboard.h>
-#include <lib/util/stream/PipedInputStream.h>
-#include <lib/util/stream/InputStreamReader.h>
-#include <lib/util/file/tar/Archive.h>
-#include <filesystem/tar/ArchiveDriver.h>
-#include <lib/util/file/File.h>
-#include <lib/util/stream/BufferedReader.h>
-#include <kernel/service/FilesystemService.h>
-#include <filesystem/memory/MemoryDriver.h>
-#include <lib/util/stream/FileInputStream.h>
-#include <device/cpu/CpuId.h>
-#include <lib/util/graphic/Ansi.h>
-#include <lib/util/stream/FileOutputStream.h>
-#include <kernel/service/MemoryService.h>
-#include <lib/util/async/ThreadUtil.h>
-#include "GatesOfHell.h"
-#include "BuildConfig.h"
+#include "lib/util/stream/BufferedOutputStream.h"
+#include "device/bios/Bios.h"
+#include "device/graphic/lfb/vesa/VesaBiosExtensions.h"
+#include "kernel/multiboot/MultibootLinearFrameBufferProvider.h"
+#include "device/graphic/terminal/lfb/LinearFrameBufferTerminalProvider.h"
+#include "device/graphic/terminal/cga/ColorGraphicsAdapterProvider.h"
+#include "lib/util/reflection/InstanceFactory.h"
+#include "kernel/system/System.h"
+#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/MultibootTerminalProvider.h"
+#include "device/hid/Keyboard.h"
+#include "lib/util/stream/InputStreamReader.h"
+#include "lib/util/file/tar/Archive.h"
+#include "filesystem/tar/ArchiveDriver.h"
+#include "lib/util/file/File.h"
+#include "lib/util/stream/BufferedReader.h"
+#include "kernel/service/FilesystemService.h"
+#include "filesystem/memory/MemoryDriver.h"
+#include "lib/util/stream/FileInputStream.h"
+#include "device/cpu/CpuId.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/stream/FileOutputStream.h"
+#include "kernel/service/MemoryService.h"
 #include "kernel/process/ProcessScheduler.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 #include "kernel/service/SchedulerService.h"
-#include "kernel/service/TimeService.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/StringDrawer.h"
+#include "BuildConfig.h"
+#include "Shell.h"
+#include "GatesOfHell.h"
+#include "SchedulerSign.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
@@ -103,85 +99,14 @@ void GatesOfHell::enter() {
         colorTest();
     }
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("log_filesystem") && Kernel::Multiboot::Structure::getKernelOption("log_filesystem") == "true") {
-        log.debug("Logging filesystem");
-        listDirectory("/");
-    }
-
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
 
     if (Kernel::Multiboot::Structure::hasKernelOption("scheduler_sign") && Kernel::Multiboot::Structure::getKernelOption("scheduler_sign") == "true") {
-        auto *testRunnable = new Util::Async::FunctionPointerRunnable([](){
-            auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
-            auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
-            auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
-
-            auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
-            auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-            const char *characters = "|/-\\";
-
-            while (true) {
-                auto time = timeService.getSystemTime();
-                if (time.toMilliseconds() % 250 == 0) {
-                    auto characterIndex = (time.toMilliseconds() % 1000) / 250;
-                    stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);
-                }
-
-                Util::Async::ThreadUtil::yield();
-            }
-        });
-
-        auto &testThread = Kernel::Thread::createKernelThread("Test", testRunnable);
+        auto &testThread = Kernel::Thread::createKernelThread("Test", new SchedulerSign());
         Kernel::System::getService<Kernel::SchedulerService>().ready(testThread);
     }
 
-    auto *shellRunnable = new Util::Async::FunctionPointerRunnable([](){
-        auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-        auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-        auto reader = Util::Stream::InputStreamReader(*inputStream);
-        Util::Memory::String line = "";
-
-        writer << "> " << Util::Stream::PrintWriter::flush;
-
-        while(true) {
-            char input = reader.read();
-            writer << input << Util::Stream::PrintWriter::flush;
-
-            if (input == '\n') {
-                if (line == "tree") {
-                    listDirectory("/");
-                } else if (line == "log") {
-                    printLog();
-                } else if (line == "uptime") {
-                    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-                    writer << Util::Stream::PrintWriter::dec << timeService.getSystemTime().toSeconds() << " seconds" << Util::Stream::PrintWriter::endl;
-                } else if (line == "date") {
-                    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-                    auto date = timeService.getCurrentDate();
-                    writer << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
-                               date.getYear(), date.getMonth(), date.getDayOfMonth(),
-                               date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl;
-                } else if (line == "help") {
-                    writer << "tree - Print filesystem tree" << Util::Stream::PrintWriter::endl
-                    << "log - Print kernel log" << Util::Stream::PrintWriter::endl
-                    << "uptime - Print system uptime" << Util::Stream::PrintWriter::endl
-                    << "date - Print current date" << Util::Stream::PrintWriter::endl
-                    << "help - Print available commands" << Util::Stream::PrintWriter::endl;
-                } else {
-                    writer << "Invalid command! Use 'help' to see available commands." << Util::Stream::PrintWriter::endl;
-                }
-
-                line = "";
-                writer << "> " << Util::Stream::PrintWriter::flush;
-            } else if (input == '\b') {
-                line = line.substring(0, line.length() - 1);
-            } else if (Util::Memory::String::isAlpha(input)) {
-                line += input;
-            }
-        }
-    });
-
-    auto &shellThread = Kernel::Thread::createKernelThread("Shell", shellRunnable);
+    auto &shellThread = Kernel::Thread::createKernelThread("Shell", new Shell());
     schedulerService.ready(shellThread);
 
     log.info("Starting scheduler!");
@@ -360,55 +285,4 @@ void GatesOfHell::colorTest() {
     }
 
     writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
-}
-
-void GatesOfHell::printLog() {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-    auto reader = Util::Stream::InputStreamReader(*inputStream);
-
-    auto logFile = Util::File::File("/device/log");
-    if (!logFile.exists()) {
-        writer << "Logfile '/device/log' does not exist!" << Util::Stream::PrintWriter::endl;
-    }
-
-    auto logStream = Util::Stream::FileInputStream(logFile);
-    auto logReader = Util::Stream::InputStreamReader(logStream);
-    auto bufferedLogReader = Util::Stream::BufferedReader(logReader);
-
-    char logChar = bufferedLogReader.read();
-    while (logChar != -1) {
-        writer << logChar;
-        logChar = bufferedLogReader.read();
-    }
-
-    writer << Util::Stream::PrintWriter::endl;
-}
-
-void GatesOfHell::listDirectory(const Util::Memory::String &path, uint32_t level) {
-    auto writer = Util::Stream::PrintWriter(*outputStream);
-
-    const auto file = Util::File::File(path);
-    if (!file.exists()) {
-        return;
-    }
-
-    auto string = Util::Memory::String("|-");
-    for (uint32_t i = 0; i < level; i++) {
-        string += "-";
-    }
-
-    if (file.isDirectory()) {
-        string += Util::Graphic::Ansi::BRIGHT_GREEN + file.getName() + "/" + Util::Graphic::Ansi::RESET;
-    } else {
-        string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
-    }
-
-    writer << string << Util::Stream::PrintWriter::endl;
-
-    if (file.isDirectory()) {
-        for (const auto &child : file.getChildren()) {
-            listDirectory(path + "/" + child, level + 1);
-        }
-    }
 }

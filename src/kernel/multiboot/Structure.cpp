@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/paging/Paging.h>
-#include <asm_interface.h>
-#include <kernel/system/System.h>
-#include <kernel/service/MemoryService.h>
+#include "kernel/paging/Paging.h"
+#include "asm_interface.h"
+#include "kernel/system/System.h"
+#include "kernel/service/MemoryService.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/system/Symbols.h"
 #include "kernel/system/System.h"

@@ -19,7 +19,7 @@
 #define HHUOS_ELFFILE_H
 
 #include <cstdint>
-#include <lib/util/data/HashMap.h>
+#include "lib/util/data/HashMap.h"
 #include "Constants.h"
 
 namespace Util::File::Elf {

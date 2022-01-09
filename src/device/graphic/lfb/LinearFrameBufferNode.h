@@ -18,7 +18,7 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERNODE_H
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
-#include <filesystem/memory/MemoryNode.h>
+#include "filesystem/memory/MemoryNode.h"
 
 namespace Device::Graphic {
 

@@ -18,8 +18,8 @@
 #ifndef HHUOS_PCSPEAKER_H
 #define HHUOS_PCSPEAKER_H
 
-#include <device/cpu/IoPort.h>
-#include <device/time/TimeProvider.h>
+#include "device/cpu/IoPort.h"
+#include "device/time/TimeProvider.h"
 
 namespace Device {
 

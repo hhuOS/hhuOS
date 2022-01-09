@@ -18,8 +18,8 @@
 #ifndef HHUOS_BYTEARRAYOUTPUTSTREAM_H
 #define HHUOS_BYTEARRAYOUTPUTSTREAM_H
 
-#include <lib/util/data/Array.h>
-#include <lib/util/memory/String.h>
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
 #include "OutputStream.h"
 
 namespace Util::Stream {

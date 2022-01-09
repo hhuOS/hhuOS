@@ -18,7 +18,7 @@
 #ifndef HHUOS_READER_H
 #define HHUOS_READER_H
 
-#include <lib/util/memory/String.h>
+#include "lib/util/memory/String.h"
 
 namespace Util::Stream {
 

@@ -19,7 +19,7 @@
 #define __LinearFrameBuffer_include__
 
 #include <cstdint>
-#include <lib/util/memory/Address.h>
+#include "lib/util/memory/Address.h"
 #include "Color.h"
 #include "lib/util/file/File.h"
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/system/System.h>
+#include "kernel/system/System.h"
 #include "Process.h"
 #include "ProcessScheduler.h"
 

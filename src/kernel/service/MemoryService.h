@@ -18,9 +18,9 @@
 #ifndef HHUOS_MEMORYSERVICE_H
 #define HHUOS_MEMORYSERVICE_H
 
-#include <kernel/memory/PageFrameAllocator.h>
-#include <kernel/memory/PagingAreaManager.h>
-#include <kernel/paging/VirtualAddressSpace.h>
+#include "kernel/memory/PageFrameAllocator.h"
+#include "kernel/memory/PagingAreaManager.h"
+#include "kernel/paging/VirtualAddressSpace.h"
 #include "Service.h"
 
 namespace Kernel {

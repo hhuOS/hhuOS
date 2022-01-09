@@ -18,7 +18,7 @@
 #ifndef HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
 #define HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
 
-#include <device/graphic/lfb/LinearFrameBufferProvider.h>
+#include "device/graphic/lfb/LinearFrameBufferProvider.h"
 #include "Constants.h"
 
 namespace Kernel::Multiboot {

@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/multiboot/Structure.h>
-#include <kernel/paging/Paging.h>
+#include "kernel/multiboot/Structure.h"
+#include "kernel/paging/Paging.h"
 #include "PageFrameAllocator.h"
 
 namespace Kernel {

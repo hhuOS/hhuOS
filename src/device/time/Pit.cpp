@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/interrupt/InterruptDispatcher.h>
-#include <device/interrupt/Pic.h>
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "device/interrupt/Pic.h"
 #include "Pit.h"
 #include "kernel/system/System.h"
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_JOBSERVICE_H
 #define HHUOS_JOBSERVICE_H
 
-#include <kernel/job/JobExecutor.h>
+#include "kernel/job/JobExecutor.h"
 #include "Service.h"
 
 namespace Kernel {

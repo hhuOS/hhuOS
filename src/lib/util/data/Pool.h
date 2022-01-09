@@ -18,7 +18,7 @@
 #ifndef HHUOS_POOL_H
 #define HHUOS_POOL_H
 
-#include <lib/util/memory/AtomicBitmap.h>
+#include "lib/util/memory/AtomicBitmap.h"
 #include "Array.h"
 
 namespace Util::Data {

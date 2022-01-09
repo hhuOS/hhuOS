@@ -15,11 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/stream/OutputStreamWriter.h>
-#include <device/time/Pit.h>
-#include <lib/util/graphic/Ansi.h>
-#include <kernel/system/System.h>
-#include <kernel/service/TimeService.h>
+#include "lib/util/stream/OutputStreamWriter.h"
+#include "lib/util/graphic/Ansi.h"
+#include "kernel/system/System.h"
+#include "kernel/service/TimeService.h"
 #include "Logger.h"
 
 namespace Kernel {

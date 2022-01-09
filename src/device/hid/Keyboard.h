@@ -18,11 +18,11 @@
 #ifndef HHUOS_KEYBOARD_H
 #define HHUOS_KEYBOARD_H
 
-#include <kernel/interrupt/InterruptHandler.h>
-#include <device/cpu/IoPort.h>
-#include <lib/util/stream/ByteArrayOutputStream.h>
-#include <lib/util/stream/PipedOutputStream.h>
-#include <kernel/log/Logger.h>
+#include "kernel/interrupt/InterruptHandler.h"
+#include "device/cpu/IoPort.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/stream/PipedOutputStream.h"
+#include "kernel/log/Logger.h"
 #include "Key.h"
 
 namespace Device {

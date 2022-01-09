@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/time/Pit.h>
-#include <device/time/Rtc.h>
+#include "device/time/Pit.h"
+#include "device/time/Rtc.h"
 #include "JobService.h"
 
 namespace Kernel {

@@ -18,9 +18,9 @@
 #ifndef HHUOS_PIT_H
 #define HHUOS_PIT_H
 
-#include <kernel/interrupt/InterruptHandler.h>
-#include <device/cpu/IoPort.h>
-#include <kernel/job/JobExecutor.h>
+#include "kernel/interrupt/InterruptHandler.h"
+#include "device/cpu/IoPort.h"
+#include "kernel/job/JobExecutor.h"
 #include "TimeProvider.h"
 #include "kernel/log/Logger.h"
 

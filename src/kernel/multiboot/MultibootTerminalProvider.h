@@ -18,7 +18,7 @@
 #ifndef HHUOS_MULTIBOOTTERMINALPROVIDER_H
 #define HHUOS_MULTIBOOTTERMINALPROVIDER_H
 
-#include <device/graphic/terminal/TerminalProvider.h>
+#include "device/graphic/terminal/TerminalProvider.h"
 #include "Constants.h"
 
 namespace Kernel::Multiboot {

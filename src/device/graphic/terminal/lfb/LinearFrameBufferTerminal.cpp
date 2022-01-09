@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/memory/Address.h>
-#include <kernel/service/JobService.h>
-#include <kernel/system/System.h>
+#include "lib/util/memory/Address.h"
+#include "kernel/service/JobService.h"
+#include "kernel/system/System.h"
 #include "LinearFrameBufferTerminal.h"
 
 namespace Device::Graphic {

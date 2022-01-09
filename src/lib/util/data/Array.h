@@ -20,7 +20,7 @@
 
 #include <cstdint>
 #include <initializer_list>
-#include <lib/util/Exception.h>
+#include "lib/util/Exception.h"
 
 namespace Util::Data {
 

@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cpuid.h>
-#include <asm_interface.h>
-#include <lib/util/data/ArrayList.h>
+#include "cpuid.h"
+#include "asm_interface.h"
+#include "lib/util/data/ArrayList.h"
 #include "CpuId.h"
 
 namespace Device {

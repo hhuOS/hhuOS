@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/graphic/terminal/cga/ColorGraphicsAdapter.h>
-#include <kernel/service/FilesystemService.h>
-#include <kernel/system/System.h>
-#include <device/graphic/terminal/TerminalNode.h>
+#include "device/graphic/terminal/cga/ColorGraphicsAdapter.h"
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
+#include "device/graphic/terminal/TerminalNode.h"
 #include "MultibootTerminalProvider.h"
 #include "Structure.h"
 

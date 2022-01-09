@@ -18,9 +18,9 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-#include <kernel/log/Logger.h>
-#include <lib/util/stream/PrintWriter.h>
-#include <lib/util/stream/Reader.h>
+#include "kernel/log/Logger.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/stream/Reader.h"
 
 /**
  * Represents the entry point for the operating system.
@@ -70,10 +70,6 @@ private:
     static void printDefaultBanner(Util::Stream::PrintWriter &writer);
 
     static void colorTest();
-
-    static void printLog();
-
-    static void listDirectory(const Util::Memory::String &path, uint32_t level = 0);
 
     static Kernel::Logger log;
     static Util::Stream::InputStream *inputStream;

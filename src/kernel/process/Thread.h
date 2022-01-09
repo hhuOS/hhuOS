@@ -18,7 +18,7 @@
 #ifndef HHUOS_THREAD_H
 #define HHUOS_THREAD_H
 
-#include <lib/util/memory/String.h>
+#include "lib/util/memory/String.h"
 #include "ThreadState.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/IdGenerator.h"

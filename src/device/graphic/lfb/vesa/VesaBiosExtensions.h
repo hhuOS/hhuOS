@@ -18,8 +18,8 @@
 #ifndef HHUOS_VESABIOSEXTENSIONS_H
 #define HHUOS_VESABIOSEXTENSIONS_H
 
-#include <lib/util/memory/Address.h>
-#include <lib/util/data/ArrayList.h>
+#include "lib/util/memory/Address.h"
+#include "lib/util/data/ArrayList.h"
 #include "kernel/log/Logger.h"
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
 

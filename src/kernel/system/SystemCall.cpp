@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/Exception.h>
-#include <kernel/interrupt/InterruptDispatcher.h>
+#include "lib/util/Exception.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
 #include "SystemCall.h"
 
 namespace Kernel {

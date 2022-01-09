@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <asm_interface.h>
-#include <lib/util/memory/Address.h>
-#include <kernel/system/System.h>
-#include <kernel/multiboot/Structure.h>
-#include <kernel/paging/PageDirectory.h>
-#include <kernel/paging/Paging.h>
+#include "asm_interface.h"
+#include "lib/util/memory/Address.h"
+#include "kernel/system/System.h"
+#include "kernel/multiboot/Structure.h"
+#include "kernel/paging/PageDirectory.h"
+#include "kernel/paging/Paging.h"
 #include "MemoryLayout.h"
 
 namespace Kernel {

@@ -18,9 +18,9 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 
-#include <lib/util/data/Array.h>
-#include <device/graphic/terminal/TerminalProvider.h>
-#include <device/graphic/lfb/LinearFrameBufferProvider.h>
+#include "lib/util/data/Array.h"
+#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/graphic/lfb/LinearFrameBufferProvider.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/Fonts.h"
 

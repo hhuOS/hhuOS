@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILEREADER_H
 #define HHUOS_FILEREADER_H
 
-#include <lib/util/file/File.h>
+#include "lib/util/file/File.h"
 #include "Reader.h"
 
 namespace Util::Stream {

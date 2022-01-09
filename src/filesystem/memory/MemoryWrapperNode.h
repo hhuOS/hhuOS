@@ -18,7 +18,7 @@
 #ifndef HHUOS_MEMORYWRAPPERNODE_H
 #define HHUOS_MEMORYWRAPPERNODE_H
 
-#include <filesystem/core/Node.h>
+#include "filesystem/core/Node.h"
 #include "MemoryNode.h"
 
 namespace Filesystem::Memory {

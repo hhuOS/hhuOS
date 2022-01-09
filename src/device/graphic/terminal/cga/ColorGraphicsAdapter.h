@@ -18,9 +18,9 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTER_H
 #define HHUOS_COLORGRAPHICSADAPTER_H
 
-#include <device/graphic/terminal/Terminal.h>
-#include <device/cpu/IoPort.h>
-#include <lib/util/graphic/Colors.h>
+#include "device/graphic/terminal/Terminal.h"
+#include "device/cpu/IoPort.h"
+#include "lib/util/graphic/Colors.h"
 
 namespace Device::Graphic {
 

@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <kernel/interrupt/InterruptDispatcher.h>
-#include <device/interrupt/Pic.h>
-#include <filesystem/memory/StreamNode.h>
-#include <kernel/service/FilesystemService.h>
-#include <kernel/system/System.h>
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "device/interrupt/Pic.h"
+#include "filesystem/memory/StreamNode.h"
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
 #include "Keyboard.h"
 
 namespace Device {

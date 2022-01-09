@@ -19,9 +19,9 @@
 #define HHUOS_JOB_H
 
 #include <cstdint>
-#include <lib/util/async/Runnable.h>
-#include <lib/util/async/Spinlock.h>
-#include <lib/util/time/Timestamp.h>
+#include "lib/util/async/Runnable.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 

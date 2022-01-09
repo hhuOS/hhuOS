@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/Exception.h>
-#include <lib/interface.h>
+#include "lib/util/Exception.h"
+#include "lib/interface.h"
 #include "LinearFrameBuffer.h"
 #include "lib/util/stream/FileInputStream.h"
 

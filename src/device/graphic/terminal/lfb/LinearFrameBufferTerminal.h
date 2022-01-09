@@ -18,15 +18,15 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 
-#include <lib/util/graphic/LinearFrameBuffer.h>
-#include <lib/util/graphic/Colors.h>
-#include <lib/util/graphic/PixelDrawer.h>
-#include <lib/util/graphic/StringDrawer.h>
-#include <lib/util/graphic/Fonts.h>
-#include <lib/util/async/Spinlock.h>
-#include <device/graphic/terminal/Terminal.h>
-#include <lib/util/graphic/BufferedLinearFrameBuffer.h>
-#include <lib/util/graphic/BufferScroller.h>
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/graphic/Fonts.h"
+#include "lib/util/async/Spinlock.h"
+#include "device/graphic/terminal/Terminal.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "lib/util/graphic/BufferScroller.h"
 #include "CursorRunnable.h"
 
 namespace Device::Graphic {

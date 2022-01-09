@@ -19,7 +19,7 @@
 #define HHUOS_TIMEPROVIDER_H
 
 #include <cstdint>
-#include <lib/util/time/Timestamp.h>
+#include "lib/util/time/Timestamp.h"
 
 namespace Device {
 

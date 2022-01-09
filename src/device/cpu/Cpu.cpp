@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <asm_interface.h>
+#include "asm_interface.h"
 #include "Cpu.h"
 
 namespace Device {

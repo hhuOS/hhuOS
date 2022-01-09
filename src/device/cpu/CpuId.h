@@ -18,8 +18,8 @@
 #ifndef HHUOS_CPUID_H
 #define HHUOS_CPUID_H
 
-#include <lib/util/memory/String.h>
-#include <lib/util/data/Array.h>
+#include "lib/util/memory/String.h"
+#include "lib/util/data/Array.h"
 
 namespace Device {
 

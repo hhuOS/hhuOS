@@ -1,6 +1,6 @@
-#include <kernel/service/FilesystemService.h>
-#include <kernel/system/System.h>
-#include <device/graphic/terminal/TerminalNode.h>
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
+#include "device/graphic/terminal/TerminalNode.h"
 #include "LinearFrameBufferTerminalProvider.h"
 #include "LinearFrameBufferTerminal.h"
 #include "lib/util/stream/FileInputStream.h"

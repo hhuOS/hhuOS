@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <device/interrupt/Pic.h>
+#include "device/interrupt/Pic.h"
 #include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "InterruptDispatcher.h"
 
 namespace Kernel {
 

@@ -19,9 +19,9 @@
 #define HHUOS_TABLEMEMORYMANAGER_H
 
 #include "BitmapMemoryManager.h"
-#include <lib/util/stream/PrintWriter.h>
-#include <lib/util/async/Atomic.h>
-#include <kernel/log/Logger.h>
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/async/Atomic.h"
+#include "kernel/log/Logger.h"
 
 namespace Kernel {
 

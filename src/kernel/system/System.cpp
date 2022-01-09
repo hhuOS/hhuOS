@@ -15,18 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/memory/Address.h>
-#include <asm_interface.h>
-#include <device/port/serial/SerialPort.h>
-#include <device/cpu/Cpu.h>
-#include <device/time/Rtc.h>
-#include <device/time/Pit.h>
-#include <kernel/multiboot/Structure.h>
-#include <kernel/paging/MemoryLayout.h>
-#include <kernel/service/JobService.h>
-#include <kernel/service/TimeService.h>
-#include <kernel/memory/PagingAreaManagerRefillRunnable.h>
-#include <kernel/paging/Paging.h>
+#include "lib/util/memory/Address.h"
+#include "asm_interface.h"
+#include "device/port/serial/SerialPort.h"
+#include "device/cpu/Cpu.h"
+#include "device/time/Rtc.h"
+#include "device/time/Pit.h"
+#include "kernel/multiboot/Structure.h"
+#include "kernel/paging/MemoryLayout.h"
+#include "kernel/service/JobService.h"
+#include "kernel/service/TimeService.h"
+#include "kernel/memory/PagingAreaManagerRefillRunnable.h"
+#include "kernel/paging/Paging.h"
 #include "System.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/reflection/InstanceFactory.h"

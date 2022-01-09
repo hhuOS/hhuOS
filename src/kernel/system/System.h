@@ -18,12 +18,12 @@
 #ifndef __SYSTEMMANAGEMENT_H__
 #define __SYSTEMMANAGEMENT_H__
 
-#include <kernel/interrupt/InterruptHandler.h>
-#include <kernel/paging/PageDirectory.h>
-#include <kernel/memory/PageFrameAllocator.h>
-#include <kernel/memory/PagingAreaManager.h>
-#include <kernel/paging/VirtualAddressSpace.h>
-#include <kernel/service/MemoryService.h>
+#include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/paging/PageDirectory.h"
+#include "kernel/memory/PageFrameAllocator.h"
+#include "kernel/memory/PagingAreaManager.h"
+#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/service/MemoryService.h"
 #include "TaskStateSegment.h"
 #include "Symbols.h"
 #include "SystemCall.h"

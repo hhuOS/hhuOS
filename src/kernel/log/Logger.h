@@ -18,15 +18,15 @@
 #ifndef HHUOS_LOGGER_H
 #define HHUOS_LOGGER_H
 
-#include <lib/util/memory/String.h>
-#include <lib/util/async/Spinlock.h>
-#include <lib/util/data/ArrayList.h>
-#include <lib/util/stream/OutputStream.h>
-#include <lib/util/data/HashMap.h>
-#include <device/port/serial/SerialPort.h>
-#include <device/port/serial/SerialOutputStream.h>
-#include <lib/util/stream/PrintWriter.h>
-#include <device/time/TimeProvider.h>
+#include "lib/util/memory/String.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/stream/OutputStream.h"
+#include "lib/util/data/HashMap.h"
+#include "device/port/serial/SerialPort.h"
+#include "device/port/serial/SerialOutputStream.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "device/time/TimeProvider.h"
 
 namespace Kernel {
 

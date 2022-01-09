@@ -18,7 +18,7 @@
 #ifndef HHUOS_PROCESS_H
 #define HHUOS_PROCESS_H
 
-#include <kernel/paging/VirtualAddressSpace.h>
+#include "kernel/paging/VirtualAddressSpace.h"
 #include "Thread.h"
 #include "ThreadScheduler.h"
 

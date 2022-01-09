@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/util/async/Atomic.h>
+#include "lib/util/async/Atomic.h"
 #include "Thread.h"
 #include "lib/util/memory/Address.h"
 #include "asm_interface.h"

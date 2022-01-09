@@ -18,8 +18,8 @@
 #ifndef HHUOS_RTC_H
 #define HHUOS_RTC_H
 
-#include <kernel/interrupt/InterruptHandler.h>
-#include <kernel/job/JobExecutor.h>
+#include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/job/JobExecutor.h"
 #include "DateProvider.h"
 #include "TimeProvider.h"
 #include "AlarmRunnable.h"

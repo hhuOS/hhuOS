@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <lib/interface.h>
+#include "lib/interface.h"
 #include "FileInputStream.h"
 
 namespace Util::Stream {

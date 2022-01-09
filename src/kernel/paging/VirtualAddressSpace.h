@@ -18,9 +18,9 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
-#include <kernel/file/FileDescriptorManager.h>
-#include <kernel/memory/FreeListMemoryManager.h>
-#include <kernel/paging/PageDirectory.h>
+#include "kernel/file/FileDescriptorManager.h"
+#include "kernel/memory/FreeListMemoryManager.h"
+#include "kernel/paging/PageDirectory.h"
 
 namespace Kernel {
 

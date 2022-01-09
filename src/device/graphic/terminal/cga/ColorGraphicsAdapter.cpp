@@ -1,5 +1,5 @@
-#include <kernel/paging/MemoryLayout.h>
-#include <kernel/system/System.h>
+#include "kernel/paging/MemoryLayout.h"
+#include "kernel/system/System.h"
 #include "ColorGraphicsAdapter.h"
 
 namespace Device::Graphic {

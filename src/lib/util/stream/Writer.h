@@ -18,7 +18,7 @@
 #ifndef HHUOS_WRITER_H
 #define HHUOS_WRITER_H
 
-#include <lib/util/memory/String.h>
+#include "lib/util/memory/String.h"
 
 namespace Util::Stream {
 

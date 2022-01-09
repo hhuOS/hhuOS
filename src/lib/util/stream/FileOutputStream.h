@@ -18,7 +18,7 @@
 #ifndef HHUOS_FILEOUTPUTSTREAM_H
 #define HHUOS_FILEOUTPUTSTREAM_H
 
-#include <lib/util/file/File.h>
+#include "lib/util/file/File.h"
 #include "OutputStream.h"
 
 namespace Util::Stream {
