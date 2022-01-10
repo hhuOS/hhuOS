@@ -66,7 +66,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
     memoryService->plugin();
 
-    kernelAddressSpace->initialize();
+    kernelAddressSpace->initialize(0);
     memoryService->switchAddressSpace(*kernelAddressSpace);
 
     // Initialize global objects afterwards, because now missing pages can be mapped

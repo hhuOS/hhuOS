@@ -40,16 +40,28 @@ MemoryService::~MemoryService() {
     }
 }
 
-void *MemoryService::allocateMemory(uint32_t size, uint32_t alignment) {
+void *MemoryService::allocateKernelMemory(uint32_t size, uint32_t alignment) {
+    return kernelAddressSpace.getMemoryManager().allocateMemory(size, alignment);
+}
+
+void *MemoryService::reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    return kernelAddressSpace.getMemoryManager().reallocateMemory(pointer, size, alignment);
+}
+
+void MemoryService::freeKernelMemory(void *pointer, uint32_t alignment) {
+    kernelAddressSpace.getMemoryManager().freeMemory(pointer, alignment);
+}
+
+void *MemoryService::allocateUserMemory(uint32_t size, uint32_t alignment) {
     return currentAddressSpace->getMemoryManager().allocateMemory(size, alignment);
 }
 
-void *MemoryService::reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
+void *MemoryService::reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment) {
     return currentAddressSpace->getMemoryManager().reallocateMemory(pointer, size, alignment);
 }
 
-void MemoryService::freeMemory(void *pointer, uint32_t alignment) {
-    return currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
+void MemoryService::freeUserMemory(void *pointer, uint32_t alignment) {
+    currentAddressSpace->getMemoryManager().freeMemory(pointer, alignment);
 }
 
 void *MemoryService::allocateLowerMemory(uint32_t size, uint32_t alignment) {
@@ -76,7 +88,7 @@ void MemoryService::freePageTable(void *virtualTableAddress) {
     pageFrameAllocator.freeBlock(physicalAddress);
 }
 
-uint32_t MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
+void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
     // Get some virtual memory for the table
     void *virtAddress = pagingAreaManager.allocateBlock();
     // Get physical memory for the table
@@ -84,9 +96,10 @@ uint32_t MemoryService::createPageTable(PageDirectory *directory, uint32_t index
     // There must be no mapping from virtual to physical address done here,
     // because the page is zeroed out after allocation by the PagingAreaManager
 
+    uint32_t startAddress = index * Kernel::Paging::PAGESIZE * 1024;
     // Initialize the table in the page directory
-    directory->createTable(index, reinterpret_cast<uint32_t>(physAddress), reinterpret_cast<uint32_t>(virtAddress));
-    return 0;
+    directory->createTable(index, reinterpret_cast<uint32_t>(physAddress),reinterpret_cast<uint32_t>(virtAddress),
+                           Paging::PRESENT | Paging::READ_WRITE | (startAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
 }
 
 void Kernel::MemoryService::mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags) {
@@ -235,8 +248,8 @@ void *MemoryService::mapIO(uint32_t size) {
     return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size);
 }
 
-VirtualAddressSpace& MemoryService::createAddressSpace(const Util::Memory::String &managerType) {
-    auto addressSpace = new VirtualAddressSpace(kernelAddressSpace.getPageDirectory(), managerType);
+VirtualAddressSpace & MemoryService::createAddressSpace() {
+    auto addressSpace = new VirtualAddressSpace(kernelAddressSpace.getPageDirectory());
     addressSpaces.add(addressSpace);
 
     return *addressSpace;
@@ -248,9 +261,9 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
     // load cr3-register with phys. address of Page Directory
     load_page_directory(addressSpace.getPageDirectory().getPageDirectoryPhysicalAddress());
 
-    if (!addressSpace.isInitialized()) {
+    /*if (!addressSpace.isInitialized()) {
         addressSpace.initialize();
-    }
+    }*/
 }
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
@@ -288,7 +301,7 @@ void MemoryService::trigger(InterruptFrame &frame) {
     }
 
     // Map the faulted Page
-    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE);
+    map(faultAddress, Paging::PRESENT | Paging::READ_WRITE | (faultAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
     // TODO: Check other Faults
 }
 

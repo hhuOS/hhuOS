@@ -53,7 +53,7 @@ PageDirectory::PageDirectory() {
     uint32_t startIndex = MemoryLayout::KERNEL_START / (Paging::PAGESIZE * 1024);
     for (uint32_t i = 0; i < 256; i++) {
         // Pointer to the corresponding page table (physical address) - placed right after physical addresses of the initial heap
-        pageDirectory[startIndex + i] = (physPagingAreaStart + i * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE | Paging::USER_ACCESS;
+        pageDirectory[startIndex + i] = (physPagingAreaStart + i * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE;
         // Pointer to corresponding page table (virtual address) - placed at the beginning of PagingAreaMemory
         virtualTableAddresses[startIndex + i] = MemoryLayout::PAGING_AREA.startAddress + i * Paging::PAGESIZE;
     }
@@ -67,13 +67,13 @@ PageDirectory::PageDirectory() {
 
         // If the block has initialMap set to false, it has not been mapped by the 4MB paging. Thus, it's virtual start address is 0,
         // which leads to virtTableAddresses[0] = 0. This would overwrite the BIOS interrupt vector table and destroy BIOS calls!
-        // Blocks with iniitalMap = false should not been mapped right now, but rather be manually mapped into the kernel heap later on.
+        // Blocks with initialMap = false should not been mapped right now, but rather be manually mapped into the kernel heap later on.
         for (uint32_t j = 0; j < block.blockCount * 1024; j++) {
             uint16_t pageDirectoryIndex = Paging::GET_PD_IDX((block.virtualStartAddress + j * Paging::PAGESIZE));
             uint16_t pageTableIndex = Paging::GET_PT_IDX((block.virtualStartAddress + j * Paging::PAGESIZE));
 
             *(reinterpret_cast<uint32_t*>(virtualTableAddresses[pageDirectoryIndex]) + pageTableIndex) =
-                    (block.startAddress + j * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE | Paging::USER_ACCESS;
+                    (block.startAddress + j * Paging::PAGESIZE) | Paging::PRESENT | Paging::READ_WRITE;
         }
     }
 
@@ -86,7 +86,7 @@ PageDirectory::PageDirectory() {
     enable_system_paging();
 }
 
-PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
+PageDirectory::PageDirectory(PageDirectory &basePageDirectory) {
     auto &memoryService = System::getService<Kernel::MemoryService>();
     
     // Allocate memory for the page directory
@@ -103,9 +103,9 @@ PageDirectory::PageDirectory(PageDirectory *basePageDirectory) {
     // Get the physical address of the page directory
     pageDirectoryPhysicalAddress = static_cast<uint32_t *>(memoryService.getPhysicalAddress(pageDirectory));
     // Get virtual address of the basePageDirectory
-    uint32_t *basePageDirectoryVirtualAddress = basePageDirectory->getPageDirectoryVirtualAddress();
+    uint32_t *basePageDirectoryVirtualAddress = basePageDirectory.getPageDirectoryVirtualAddress();
     // Get pointer to virtual table addresses from basePageDirectory
-    uint32_t *basePageDirectoryVirtualTableAddress = basePageDirectory->getVirtualTableAddresses();
+    uint32_t *basePageDirectoryVirtualTableAddress = basePageDirectory.getVirtualTableAddresses();
 
     // Map the whole kernel from the basePageDirectory into the new page directory
     for (uint32_t index = MemoryLayout::KERNEL_START / (Paging::PAGESIZE * 1024); index < 1024; index++) {
@@ -184,9 +184,9 @@ uint32_t PageDirectory::unmap(uint32_t virtualAddress) {
     return physAddress;
 }
 
-void PageDirectory::createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress) {
+void PageDirectory::createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress, uint32_t flags) {
     // Initialize the directory entry with the physical address of the table
-    pageDirectory[index] = physicalAddress | Paging::PRESENT | Paging::READ_WRITE;
+    pageDirectory[index] = physicalAddress | flags;
     // Keep track of the virtual address of the table
     virtualTableAddresses[index] = virtualAddress;
 }

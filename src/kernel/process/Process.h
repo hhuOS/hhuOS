@@ -51,6 +51,8 @@ public:
 
     void start();
 
+    void exit();
+
     [[nodiscard]] uint32_t getId() const;
 
     VirtualAddressSpace& getAddressSpace();

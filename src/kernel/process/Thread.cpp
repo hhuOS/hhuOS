@@ -30,8 +30,7 @@ namespace Kernel {
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
 Thread::Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
-        id(idGenerator.next()), name(name), runnable(runnable),
-        kernelStack(kernelStack), userStack(userStack),
+        id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(kernelStack),
         interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
         kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))) {}
 
@@ -47,7 +46,7 @@ Thread::~Thread() {
 }
 
 Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
-    auto *stack = new Stack(DEFAULT_STACK_SIZE);
+    auto *stack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, runnable, stack, stack);
 
     thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
@@ -71,10 +70,10 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     return *thread;
 }
 
-Thread& Thread::createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
-    auto *kernelStack = new Stack(DEFAULT_STACK_SIZE);
-    auto *userStack = new Stack(DEFAULT_STACK_SIZE);
-    auto *thread = new Thread(name, runnable, kernelStack, userStack);
+Thread& Thread::createUserThread(const Util::Memory::String &name, uint32_t eip) {
+    auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
+    auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
+    auto *thread = new Thread(name, nullptr, kernelStack, userStack);
 
     thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
@@ -89,10 +88,10 @@ Thread& Thread::createUserThread(const Util::Memory::String &name, Util::Async::
     thread->interruptFrame.esi = 0;
     thread->interruptFrame.edi = 0;
     thread->interruptFrame.esp = 0; // POPAD Skips ESP
-    thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(kernelStack->getStart());
-    thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(kernelStack->getStart());
+    thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(userStack->getStart());
+    thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(userStack->getStart());
     thread->interruptFrame.eflags = 0x200;
-    thread->interruptFrame.eip = reinterpret_cast<uint32_t>(kickoff);
+    thread->interruptFrame.eip = eip;
 
     return *thread;
 }
@@ -113,7 +112,7 @@ void Thread::run() {
     runnable->run();
 }
 
-Thread::Stack::Stack(uint32_t size) : stack(new uint8_t[size]), size(size) {
+Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {
     Util::Memory::Address<uint32_t>(stack, size).setRange(0, size);
 
     this->stack[0] = 0x44; // D
@@ -127,12 +126,17 @@ Thread::Stack::~Stack() {
 }
 
 uint8_t* Thread::Stack::getStart() const {
-    auto startAddress = reinterpret_cast<uint32_t>(&stack[size]);
-    if (startAddress % 16 != 0) {
-        startAddress &= -16;
-    }
+    return &stack[size];
+}
 
-    return reinterpret_cast<uint8_t*>(startAddress);
+Thread::Stack* Thread::Stack::createKernelStack(uint32_t size) {
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    return new Stack(static_cast<uint8_t*>(memoryService.allocateKernelMemory(size, 16)), size);
+}
+
+Thread::Stack* Thread::Stack::createUserStack(uint32_t size) {
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    return new Stack(static_cast<uint8_t*>(memoryService.allocateUserMemory(size, 16)), size);
 }
 
 }

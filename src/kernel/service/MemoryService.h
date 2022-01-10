@@ -60,11 +60,17 @@ public:
      */
     ~MemoryService() override;
 
-    void* allocateMemory(uint32_t size, uint32_t alignment);
+    void* allocateKernelMemory(uint32_t size, uint32_t alignment);
 
-    void *reallocateMemory(void *pointer, uint32_t size, uint32_t alignment);
+    void *reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment);
 
-    void freeMemory(void *pointer, uint32_t alignment);
+    void freeKernelMemory(void *pointer, uint32_t alignment);
+
+    void* allocateUserMemory(uint32_t size, uint32_t alignment);
+
+    void *reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment);
+
+    void freeUserMemory(void *pointer, uint32_t alignment);
 
     void* allocateLowerMemory(uint32_t size, uint32_t alignment);
 
@@ -92,7 +98,7 @@ public:
      * @param directory Page Directory where Table should be mapped
      * @param index Index into the Page Directory
      */
-    uint32_t createPageTable(PageDirectory *directory, uint32_t index);
+    void createPageTable(PageDirectory *directory, uint32_t index);
 
     /**
      * Map a page at a given physical address to a virtual address.
@@ -181,7 +187,7 @@ public:
      *
      * @return The new address space
      */
-    VirtualAddressSpace &createAddressSpace(const Util::Memory::String &managerType);
+    VirtualAddressSpace &createAddressSpace();
 
     /**
      * Switch to a given address space.

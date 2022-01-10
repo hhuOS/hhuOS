@@ -43,7 +43,7 @@ public:
      * Constructor for user address space.
      * The heap always starts at 0x2000.
      */
-    explicit VirtualAddressSpace(PageDirectory &basePageDirectory, const Util::Memory::String &memoryManagerType = "FreeListMemoryManager");
+    explicit VirtualAddressSpace(PageDirectory &basePageDirectory);
 
     /**
      * Assignment operator.
@@ -55,7 +55,7 @@ public:
      */
     ~VirtualAddressSpace();
 
-    void initialize();
+    void initialize(uint32_t heapAddress);
 
     [[nodiscard]] bool isInitialized() const;
 
@@ -68,11 +68,10 @@ private:
     PageDirectory *pageDirectory;
     HeapMemoryManager *memoryManager = nullptr;
 
-    Util::Memory::String managerType;
-    uint32_t heapAddress = 0;
-
     bool kernelAddressSpace;
     bool initialized = false;
+
+    static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x1000;
 };
 
 }

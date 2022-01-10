@@ -38,6 +38,10 @@ void Process::start() {
     scheduler.ready(*this);
 }
 
+void Process::exit() {
+    scheduler.exit();
+}
+
 uint32_t Process::getId() const {
     return id;
 }

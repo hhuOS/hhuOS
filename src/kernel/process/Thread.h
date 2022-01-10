@@ -37,17 +37,21 @@ public:
 
     public:
 
-        explicit Stack(uint32_t size);
-
         Stack(const Stack &other) = delete;
 
         Stack &operator=(const Stack &other) = delete;
 
         ~Stack();
 
+        static Stack* createKernelStack(uint32_t size);
+
+        static Stack* createUserStack(uint32_t size);
+
         [[nodiscard]] uint8_t* getStart() const;
 
     private:
+
+        explicit Stack(uint8_t *stack, uint32_t size);
 
         uint8_t *stack;
         uint32_t size;
@@ -71,7 +75,7 @@ public:
 
     static Thread& createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 
-    static Thread& createUserThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
+    static Thread& createUserThread(const Util::Memory::String &name, uint32_t eip);
 
     [[nodiscard]] uint32_t getId() const;
 

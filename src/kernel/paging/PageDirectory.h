@@ -44,7 +44,12 @@ public:
      *
      * @param basePageDirectory The Page Directory with kernel mappgins.
      */
-    explicit PageDirectory(PageDirectory *basePageDirectory);
+    explicit PageDirectory(PageDirectory &basePageDirectory);
+
+    /**
+     * Copy constructor.
+     */
+    PageDirectory(const PageDirectory &copy) = delete;
 
     /**
      * Assignment operator.
@@ -88,7 +93,7 @@ public:
      * @param physicalAddress Physical address of the Table
      * @param virtualAddress Virtual address of the table.
      */
-    void createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress);
+    void createTable(uint32_t index, uint32_t physicalAddress, uint32_t virtualAddress, uint32_t flags);
 
     /**
      * Protects a given page from unmapping.

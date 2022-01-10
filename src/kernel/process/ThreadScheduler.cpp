@@ -49,6 +49,10 @@ void ThreadScheduler::exit() {
     threadQueue.remove(currentThread);
     lock.release();
 
+    if (threadQueue.isEmpty()) {
+        parent.exit();
+    }
+
     // TODO: Delete thread (currently not possible, because the instance is still needed for yielding)
     parent.forceYield();
 }

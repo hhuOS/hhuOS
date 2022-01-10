@@ -66,6 +66,8 @@ void ProcessScheduler::exit() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil: No process is waiting to be scheduled!");
     }
 
+    processQueue.remove(currentProcess);
+
     // TODO: Delete process (currently not possible, because the instance is still needed for dispatching)
     dispatch(getNextProcess(), false);
 }

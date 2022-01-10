@@ -23,13 +23,11 @@
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager) :
-        memoryManager(&kernelHeapMemoryManager), managerType("FreeListMemoryManager"), heapAddress(0), kernelAddressSpace(true) {
+VirtualAddressSpace::VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
     this->pageDirectory = new PageDirectory();
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory, const Util::Memory::String &memoryManagerType) :
-        managerType(memoryManagerType), heapAddress(2 * Kernel::Paging::PAGESIZE), kernelAddressSpace(false) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) : kernelAddressSpace(false) {
     // Initialize a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
 }
@@ -42,10 +40,10 @@ VirtualAddressSpace::~VirtualAddressSpace() {
     }
 }
 
-void VirtualAddressSpace::initialize() {
+void VirtualAddressSpace::initialize(uint32_t heapAddress) {
     if (!kernelAddressSpace) {
         // Initialize a new memory manager for userspace
-        memoryManager = (HeapMemoryManager*) Util::Reflection::InstanceFactory::createInstance(managerType);
+        memoryManager = new (reinterpret_cast<void*>(USER_SPACE_MEMORY_MANAGER_ADDRESS)) FreeListMemoryManager();
         memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::KERNEL_START - Kernel::Paging::PAGESIZE);
     }
 

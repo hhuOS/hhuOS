@@ -190,11 +190,9 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
 
     // get pointer to header of allocated block
     auto header = (FreeListHeader * )((uint8_t *) ptr - HEADER_SIZE);
-
     unusedMemory += header->size;
 
     // Place free block at the right position in free list
-
     // if there is no free list -> initialize one
     if (firstChunk == nullptr) {
         firstChunk = header;

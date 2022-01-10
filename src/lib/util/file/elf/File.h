@@ -40,7 +40,7 @@ public:
 
     void loadProgram();
 
-    int32_t (*getEntryPoint() const)(int, char **) {
+    [[nodiscard]] int32_t (*getEntryPoint() const)(int, char **) {
         return reinterpret_cast<int (*)(int, char **)>(fileHeader.entry);
     }
 
