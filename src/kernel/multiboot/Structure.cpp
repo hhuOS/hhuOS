@@ -242,9 +242,12 @@ void Structure::readMemoryMap(Info *address) {
     uint32_t kernelStartAligned = (kernelStart / alignment) * alignment;
     uint32_t kernelEndAligned = kernelEnd % alignment == 0 ? kernelEnd : (kernelEnd / alignment) * alignment + alignment;
 
+    // Add kernel blocks
     blocks[0] = { kernelStartAligned, 0, (kernelEndAligned - kernelStartAligned) / alignment, true, MULTIBOOT_RESERVED };
+    // Add lower memory blocks
+    blocks[1] = { 0, 0, (1 * 1024 * 1024) / (4 * 1024), false, MULTIBOOT_RESERVED };
 
-    uint32_t blockIndex = 1;
+    uint32_t blockIndex = 2;
     if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
         for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
             sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);

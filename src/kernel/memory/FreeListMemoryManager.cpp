@@ -28,7 +28,7 @@ namespace Kernel {
 void FreeListMemoryManager::initialize(uint32_t startAddress, uint32_t endAddress) {
     this->startAddress = startAddress;
     this->endAddress = endAddress;
-    unusedMemory = endAddress - startAddress;
+    unusedMemory = endAddress - startAddress + 1;
 
     if (unusedMemory < sizeof(FreeListHeader)) {
         // Available memory is too small for a chunk
@@ -379,12 +379,16 @@ uint32_t FreeListMemoryManager::getStartAddress() const {
     return startAddress;
 }
 
-uint32_t FreeListMemoryManager::getEndAddress() const {
-    return endAddress;
+uint32_t FreeListMemoryManager::getTotalMemory() const {
+    return endAddress - startAddress + 1;
 }
 
 uint32_t FreeListMemoryManager::getFreeMemory() const {
     return unusedMemory;
+}
+
+uint32_t FreeListMemoryManager::getEndAddress() const {
+    return endAddress;
 }
 
 Util::Memory::String FreeListMemoryManager::getClassName() const {

@@ -292,8 +292,11 @@ void MemoryService::trigger(InterruptFrame &frame) {
     // TODO: Check other Faults
 }
 
-uint32_t MemoryService::getPhysicalMemorySize() {
-    return pageFrameAllocator.getMemorySize();
+MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
+    return {pageFrameAllocator.getTotalMemory(), pageFrameAllocator.getFreeMemory(),
+            lowerMemoryManager.getTotalMemory(), lowerMemoryManager.getFreeMemory(),
+            kernelAddressSpace.getMemoryManager().getTotalMemory(), kernelAddressSpace.getMemoryManager().getFreeMemory(),
+            pagingAreaManager.getTotalMemory(), pagingAreaManager.getFreeMemory()};
 }
 
 // TODO: Remove this method, once it is no longer needed by FilesystemService

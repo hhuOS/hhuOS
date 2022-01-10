@@ -50,9 +50,37 @@ public:
 
 private:
 
-    void printLog();
+    void parseInput(const Util::Memory::String &input);
 
-    void listDirectory(const Util::Memory::String &path, uint32_t level = 0);
+    Util::File::File getFile(const Util::Memory::String &path);
+
+    void invalid(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void help(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void uptime(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void date(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void mem(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void cat(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void cd(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void ls(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void lsDirectory(const Util::Memory::String &path);
+
+    void tree(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    void treeDirectory(const Util::Memory::String &path, uint32_t level = 0);
+
+    static const char* getFileColor(const Util::File::File &path);
+
+    static Util::Memory::String formatMemory(uint32_t value);
+
+    Util::File::File currentDirectory = Util::File::File("/");
 
     Util::Stream::InputStream *inputStream = nullptr;
     Util::Stream::OutputStream *outputStream = nullptr;

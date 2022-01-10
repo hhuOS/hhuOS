@@ -48,6 +48,8 @@ public:
 
     [[nodiscard]] bool exists() const;
 
+    [[nodiscard]] Type getType() const;
+
     [[nodiscard]] bool isFile() const;
 
     [[nodiscard]] bool isDirectory() const;

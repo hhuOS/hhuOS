@@ -60,16 +60,6 @@ TableMemoryManager::TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager,
     }
 }
 
-void TableMemoryManager::printAllocationTable(uint32_t referenceTableArrayIndex, uint32_t referenceTableIndex) {
-    auto referenceTableEntry = referenceTableArray[referenceTableArrayIndex][referenceTableIndex];
-    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
-    for (uint32_t i = 0; i < allocationTableEntriesPerBlock; i++) {
-        auto entry = allocationTable[i];
-        uint32_t address = referenceTableArrayIndex * referenceTableEntriesPerBlock * managedMemoryPerAllocationTable + referenceTableIndex * managedMemoryPerAllocationTable + i * blockSize;
-        log.debug("Index: [%04u], Address: [%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
-    }
-}
-
 void TableMemoryManager::setMemory(uint32_t start, uint32_t end, uint16_t useCount, bool reserved) {
     auto startIndex = calculateIndex(start);
     auto endIndex = calculateIndex(end);
@@ -191,8 +181,8 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TableMemoryManager: Allocation failed!");
 }
 
-uint32_t TableMemoryManager::getMemorySize() const {
-    return endAddress - startAddress;
+uint32_t TableMemoryManager::getTotalMemory() const {
+    return endAddress - startAddress + 1;
 }
 
 uint32_t TableMemoryManager::getBlockSize() const {
@@ -200,7 +190,31 @@ uint32_t TableMemoryManager::getBlockSize() const {
 }
 
 uint32_t TableMemoryManager::getFreeMemory() const {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "TableMemoryManager: getFreeMemory() is not implemented!");
+    uint32_t freeMemory = 0;
+
+    for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
+        for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
+            auto referenceTableEntry = referenceTableArray[i][j];
+            if (!referenceTableEntry.isInstalled()) {
+                continue;
+            }
+
+            if (referenceTableEntry.getAddress() == 0) {
+                freeMemory += managedMemoryPerAllocationTable;
+                continue;
+            }
+
+            auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
+            for (uint32_t k = 0; k < allocationTableEntriesPerBlock; k++) {
+                auto allocationTableEntry = allocationTable[k];
+                if (allocationTableEntry.getUseCount() == 0) {
+                    freeMemory += blockSize;
+                }
+            }
+        }
+    }
+
+    return freeMemory;
 }
 
 uint32_t TableMemoryManager::getStartAddress() const {
@@ -235,6 +249,16 @@ void TableMemoryManager::debugLog() {
                 printAllocationTable(i, j);
             }
         }
+    }
+}
+
+void TableMemoryManager::printAllocationTable(uint32_t referenceTableArrayIndex, uint32_t referenceTableIndex) {
+    auto referenceTableEntry = referenceTableArray[referenceTableArrayIndex][referenceTableIndex];
+    auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
+    for (uint32_t i = 0; i < allocationTableEntriesPerBlock; i++) {
+        auto entry = allocationTable[i];
+        uint32_t address = referenceTableArrayIndex * referenceTableEntriesPerBlock * managedMemoryPerAllocationTable + referenceTableIndex * managedMemoryPerAllocationTable + i * blockSize;
+        log.debug("Index: [%04u], Address: [%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
     }
 }
 

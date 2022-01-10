@@ -44,6 +44,11 @@ public:
     virtual ~MemoryManager() = default;
 
     /**
+     * Get the total amount of memory.
+     */
+    [[nodiscard]] virtual uint32_t getTotalMemory() const = 0;
+
+    /**
      * Get the amount of free memory.
      */
     [[nodiscard]] virtual uint32_t getFreeMemory() const = 0;

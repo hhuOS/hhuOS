@@ -45,28 +45,24 @@ bool File::exists() const {
     return false;
 }
 
-bool File::isFile() const {
+Type File::getType() const {
     auto fileDescriptor = openFile(path);
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
-    auto ret = getFileType(fileDescriptor) != DIRECTORY;
+    auto ret = getFileType(fileDescriptor);
     closeFile(fileDescriptor);
 
     return ret;
 }
 
+bool File::isFile() const {
+    return getType() != DIRECTORY;
+}
+
 bool File::isDirectory() const {
-    auto fileDescriptor = openFile(path);
-    if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
-    }
-
-    auto ret = getFileType(fileDescriptor) == DIRECTORY;
-    closeFile(fileDescriptor);
-
-    return ret;
+    return getType() == DIRECTORY;
 }
 
 uint32_t File::File::getLength() const {

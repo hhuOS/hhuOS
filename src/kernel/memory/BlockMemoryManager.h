@@ -45,9 +45,11 @@ public:
      */
     ~BlockMemoryManager() override = default;
 
-    virtual void *allocateBlock() = 0;
+    [[nodiscard]] virtual void *allocateBlock() = 0;
 
     virtual void freeBlock(void *pointer) = 0;
+
+    [[nodiscard]] virtual uint32_t getBlockSize() const = 0;
 };
 
 }

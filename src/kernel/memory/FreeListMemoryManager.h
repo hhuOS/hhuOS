@@ -66,17 +66,27 @@ public:
     /**
      * Overriding function from HeapMemoryManager.
      */
-    void *allocateMemory(uint32_t size, uint32_t alignment) override;
+    [[nodiscard]] void* allocateMemory(uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from HeapMemoryManager.
      */
-    void *reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) override;
+    [[nodiscard]] void* reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) override;
 
     /**
      * Overriding function from HeapMemoryManager.
      */
     void freeMemory(void *ptr, uint32_t alignment) override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] uint32_t getTotalMemory() const override;
+
+    /**
+     * Overriding function from MemoryManager.
+     */
+    [[nodiscard]] uint32_t getFreeMemory() const override;
 
     /**
      * Overriding function from MemoryManager.
@@ -87,11 +97,6 @@ public:
      * Overriding function from MemoryManager.
      */
     [[nodiscard]] uint32_t getEndAddress() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] uint32_t getFreeMemory() const override;
 
     /**
      * Overriding function from MemoryManager.

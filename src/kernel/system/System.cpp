@@ -51,10 +51,6 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     kernelHeapMemoryManager = &initializeKernelHeap();
 
     uint32_t physicalMemorySize = calculatePhysicalMemorySize();
-    // We need at least 10 MiB physical memory to run properly
-    if (physicalMemorySize < 10 * 1024 * 1024) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_PHYSICAL_MEMORY, "Not enough physical memory available to run hhuOS!");
-    }
 
     // Initialize Paging Area Manager -> Manages the virtual addresses of all page tables and directories
     auto *pagingAreaManager = new PagingAreaManager();

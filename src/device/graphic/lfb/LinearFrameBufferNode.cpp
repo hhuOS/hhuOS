@@ -31,7 +31,7 @@ uint64_t LinearFrameBufferNode::getLength() {
 }
 
 uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    const auto buffer = addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer;
+    const auto buffer = addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
 
     if (pos >= buffer.length()) {
         return 0;

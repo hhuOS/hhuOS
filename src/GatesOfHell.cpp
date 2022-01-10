@@ -53,7 +53,7 @@ void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
 
-    log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getPhysicalMemorySize() / 1024 / 1024);
+    log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
     if (Device::CpuId::isAvailable()) {
         log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));

@@ -21,8 +21,9 @@
 
 namespace Kernel {
 
-PagingAreaManager::PagingAreaManager() : BitmapMemoryManager(MemoryLayout::PAGING_AREA.startAddress, MemoryLayout::PAGING_AREA.endAddress, Kernel::Paging::PAGESIZE, true),
-                                         blockPool(BLOCK_POOL_SIZE) {
+PagingAreaManager::PagingAreaManager() :
+        BitmapMemoryManager(MemoryLayout::PAGING_AREA.startAddress, MemoryLayout::PAGING_AREA.endAddress, Kernel::Paging::PAGESIZE, true),
+        blockPool(BLOCK_POOL_SIZE) {
     // We use already 256 Page Tables for Kernel mappings and one Page Directory as the Kernel´s PD
     setRange(0, 8 * 32 + 2);
     refillPool();

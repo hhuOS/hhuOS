@@ -52,7 +52,6 @@ public:
      * Destructor.
      */
      ~PageFrameAllocator() override = default;
-
 };
 
 }

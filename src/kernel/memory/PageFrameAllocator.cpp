@@ -30,7 +30,7 @@ PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uin
         const auto &block = blockMap[i];
         uint32_t blockSize = block.initialMap ? Kernel::Paging::PAGESIZE * 1024 : Kernel::Paging::PAGESIZE;
         uint32_t start = block.startAddress;
-        uint32_t end = start + block.blockCount * blockSize;
+        uint32_t end = start + block.blockCount * blockSize - 1;
 
         setMemory(start, end, 1, block.type == Multiboot::Structure::MULTIBOOT_RESERVED);
     }

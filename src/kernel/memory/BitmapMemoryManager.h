@@ -53,15 +53,17 @@ public:
      */
     ~BitmapMemoryManager() override = default;
 
-    void *allocateBlock() override;
+    [[nodiscard]] void *allocateBlock() override;
 
     void freeBlock(void *pointer) override;
 
     virtual void handleError();
 
+    [[nodiscard]] uint32_t getTotalMemory() const override;
+
     [[nodiscard]] uint32_t getFreeMemory() const override;
 
-    [[nodiscard]] uint32_t getBlockSize() const;
+    [[nodiscard]] uint32_t getBlockSize() const override;
 
     [[nodiscard]] uint32_t getStartAddress() const override;
 
@@ -73,8 +75,8 @@ protected:
 
 private:
 
-    uint32_t memoryStartAddress;
-    uint32_t memoryEndAddress;
+    uint32_t startAddress;
+    uint32_t endAddress;
     uint32_t freeMemory;
 
     uint32_t blockSize;

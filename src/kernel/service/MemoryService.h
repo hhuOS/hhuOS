@@ -28,6 +28,18 @@ namespace Kernel {
 class MemoryService : public Service, InterruptHandler {
 
 public:
+
+    struct MemoryStatus {
+        uint32_t totalPhysicalMemory;
+        uint32_t freePhysicalMemory;
+        uint32_t totalLowerMemory;
+        uint32_t freeLowerMemory;
+        uint32_t totalKernelHeapMemory;
+        uint32_t freeKernelHeapMemory;
+        uint32_t totalPagingAreaMemory;
+        uint32_t freePagingAreaMemory;
+    };
+
     /**
      * Constructor.
      */
@@ -197,7 +209,7 @@ public:
 
     VirtualAddressSpace& getCurrentAddressSpace();
 
-    uint32_t getPhysicalMemorySize();
+    MemoryStatus getMemoryStatus();
 
     static const constexpr uint8_t SERVICE_ID = 2;
 
@@ -211,7 +223,6 @@ private:
     Util::Data::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;
     VirtualAddressSpace &kernelAddressSpace;
-
 };
 
 }

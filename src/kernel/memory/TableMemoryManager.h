@@ -50,17 +50,17 @@ public:
 
     void setMemory(uint32_t start, uint32_t end, uint16_t useCount, bool reserved);
 
-    void* allocateBlock() override;
+    [[nodiscard]] void* allocateBlock() override;
 
-    void* allocateBlockAtAddress(void *address);
+    [[nodiscard]] void* allocateBlockAtAddress(void *address);
 
-    void* allocateBlockAfterAddress(void *address);
+    [[nodiscard]] void* allocateBlockAfterAddress(void *address);
 
     void freeBlock(void *pointer) override;
 
-    [[nodiscard]] uint32_t getMemorySize() const;
+    [[nodiscard]] uint32_t getTotalMemory() const override;
 
-    [[nodiscard]] uint32_t getBlockSize() const;
+    [[nodiscard]] uint32_t getBlockSize() const override;
 
     [[nodiscard]] uint32_t getFreeMemory() const override;
 
@@ -86,10 +86,6 @@ private:
         uint32_t value;
 
     public:
-
-        Util::Async::Atomic<uint32_t> getAtomicWrapper() {
-            return Util::Async::Atomic<uint32_t>(value);
-        }
 
         void setAddress(uint32_t address) {
             auto valueWrapper = Util::Async::Atomic<uint32_t>(value);
