@@ -30,9 +30,9 @@ class Structure {
 public:
 
     enum BlockType : uint8_t {
-        MULTIBOOT_RESERVED = 0x00,
-        HEAP_RESERVED = 0x01,
-        PAGING_RESERVED = 0x02
+        MULTIBOOT_RESERVED,
+        HEAP_RESERVED,
+        PAGING_RESERVED
     };
 
     struct MemoryBlock {

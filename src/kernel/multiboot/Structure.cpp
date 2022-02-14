@@ -21,7 +21,6 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/system/Symbols.h"
-#include "kernel/system/System.h"
 #include "Structure.h"
 #include "Constants.h"
 
@@ -163,12 +162,12 @@ void Structure::parseFrameBufferInfo() {
 void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes) {
     auto destinationAddress = Util::Memory::Address<uint32_t>(destination, maxBytes);
 
-    // first, copy the struct itself
+    // First, copy the struct itself
     destinationAddress.copyRange(Util::Memory::Address<uint32_t>(source), sizeof(Info));
     auto multibootInfo = reinterpret_cast<Info *>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Info));
 
-    // then copy the commandline
+    // Then copy the command line
     if(multibootInfo->flags & MULTIBOOT_INFO_CMDLINE) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->commandLine);
         destinationAddress.copyString(sourceAddress);
@@ -176,7 +175,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         destinationAddress = destinationAddress.add(sourceAddress.stringLength() + 1);
     }
 
-    // then copy the module information
+    // Then copy the module information
     if(multibootInfo->flags & MULTIBOOT_INFO_MODS) {
         uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress, length);
@@ -193,7 +192,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         }
     }
 
-    // then copy the symbol headers and the symbols
+    // Then copy the symbol headers and the symbols
     if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address, length);
@@ -203,7 +202,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
     }
 
-    // then copy the memory map
+    // Then copy the memory map
     if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress, multibootInfo->memoryMapLength);
         destinationAddress.copyRange(sourceAddress, multibootInfo->memoryMapLength);
@@ -211,7 +210,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         destinationAddress = destinationAddress.add(multibootInfo->memoryMapLength);
     }
 
-    // then copy the drives
+    // Then copy the drives
     if(multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress, multibootInfo->driveLength);
         destinationAddress.copyRange(sourceAddress, multibootInfo->driveLength);
@@ -219,7 +218,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         destinationAddress = destinationAddress.add(multibootInfo->driveLength);
     }
 
-    // then copy the bootloader name
+    // Then copy the bootloader name
     if(multibootInfo->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->bootloaderName);
         destinationAddress.copyString(sourceAddress);
@@ -235,40 +234,15 @@ void Structure::readMemoryMap(Info *address) {
     auto kernelStart = reinterpret_cast<uint32_t>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(&___KERNEL_DATA_START__)));
     auto kernelEnd = reinterpret_cast<uint32_t>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(&___KERNEL_DATA_END__)));
 
-    ElfInfo &symbolInfo = info.symbols.elf;
-    Util::File::Elf::Constants::SectionHeader *sectionHeader;
-
     uint32_t alignment = 4 * 1024 * 1024;
     uint32_t kernelStartAligned = (kernelStart / alignment) * alignment;
     uint32_t kernelEndAligned = kernelEnd % alignment == 0 ? kernelEnd : (kernelEnd / alignment) * alignment + alignment;
+    uint32_t blockIndex = 0;
 
     // Add kernel blocks
-    blocks[0] = { kernelStartAligned, 0, (kernelEndAligned - kernelStartAligned) / alignment, true, MULTIBOOT_RESERVED };
+    blocks[blockIndex++] = { kernelStartAligned, 0, (kernelEndAligned - kernelStartAligned) / alignment, true, MULTIBOOT_RESERVED };
     // Add lower memory blocks
-    blocks[1] = { 0, 0, (1 * 1024 * 1024) / (4 * 1024), false, MULTIBOOT_RESERVED };
-
-    uint32_t blockIndex = 2;
-    if (info.flags & MULTIBOOT_INFO_ELF_SHDR) {
-        for (uint32_t i = 0; i < symbolInfo.sectionCount; i++) {
-            sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (symbolInfo.address + i * symbolInfo.sectionSize);
-
-            if (sectionHeader->virtualAddress == 0x0) {
-                continue;
-            }
-
-            uint32_t startAddress = sectionHeader->virtualAddress < Kernel::MemoryLayout::KERNEL_START ? sectionHeader->virtualAddress :
-                                    MemoryLayout::VIRTUAL_TO_PHYSICAL(sectionHeader->virtualAddress);
-
-            uint32_t alignedStartAddress = (startAddress / alignment) * alignment;
-            uint32_t alignedEndAddress = startAddress + sectionHeader->size;
-            alignedEndAddress = alignedEndAddress % alignment == 0 ? alignedEndAddress : (alignedEndAddress / alignment) * alignment + alignment;
-
-            uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
-            blocks[blockIndex] = {alignedStartAddress, 0, blockCount, true, MULTIBOOT_RESERVED };
-
-            blockIndex++;
-        }
-    }
+    blocks[blockIndex++] = { 0, 0, 256, false, MULTIBOOT_RESERVED };
 
     alignment = 4 * 1024;
 
@@ -280,8 +254,7 @@ void Structure::readMemoryMap(Info *address) {
             uint32_t alignedEndAddress = modInfo[i].end % alignment == 0 ? modInfo[i].end : (modInfo[i].end / alignment) * alignment + alignment;
             uint32_t blockCount = (alignedEndAddress - alignedStartAddress) / alignment;
 
-            blocks[blockIndex] = {alignedStartAddress, 0, blockCount, false, MULTIBOOT_RESERVED };
-            blockIndex++;
+            blocks[blockIndex++] = {alignedStartAddress, 0, blockCount, false, MULTIBOOT_RESERVED };
         }
     }
 
@@ -314,7 +287,7 @@ void Structure::readMemoryMap(Info *address) {
                     blocks[j] = blocks[j + 1];
                 }
 
-                blocks[blockIndex] = { 0, 0, 0, false, MULTIBOOT_RESERVED};
+                blocks[blockIndex] = { 0, 0, 0, false, MULTIBOOT_RESERVED };
                 blockIndex--;
             }
         } else {

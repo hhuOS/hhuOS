@@ -27,12 +27,11 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // Size of a 4 MiB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
-    auto *blockMap = (Multiboot::Structure::MemoryBlock *) MemoryLayout::VIRTUAL_TO_PHYSICAL(
-            reinterpret_cast<uint32_t>(Multiboot::Structure::getBlockMap()));
+    auto *blockMap = reinterpret_cast<Multiboot::Structure::MemoryBlock*>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(Multiboot::Structure::getBlockMap())));
 
     uint32_t pageCount = 0;
-    uint32_t blockMapIndex = 0;
-    for (; blockMap[blockMapIndex].blockCount != 0; blockMapIndex++) {
+    uint32_t blockMapIndex;
+    for (blockMapIndex = 0; blockMap[blockMapIndex].blockCount != 0; blockMapIndex++) {
         if (!blockMap[blockMapIndex].initialMap) {
             continue;
         }
@@ -42,13 +41,10 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
 
         for (uint32_t j = 0; j < blockMap[blockMapIndex].blockCount; j++) {
             directory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE | PAGE_SIZE_MIB);
-            directory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE |
-                                                            PAGE_SIZE_MIB);
+            directory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE | PAGE_SIZE_MIB);
 
-            biosDirectory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE |
-                                                   PAGE_SIZE_MIB);
-            biosDirectory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT |
-                                                                READ_WRITE | PAGE_SIZE_MIB);
+            biosDirectory[pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE | PAGE_SIZE_MIB);
+            biosDirectory[kernelPage + pageCount] = (uint32_t) ((startAddress + j * bigPageSize) | PRESENT | READ_WRITE | PAGE_SIZE_MIB);
 
             pageCount++;
         }
@@ -63,8 +59,7 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
         uint32_t freeStartAddress = blockMap[i].startAddress + blockMap[i].blockCount * blockSize;
         uint32_t freeEndAddress = blockMap[i + 1].startAddress;
 
-        freeStartAddress = freeStartAddress % bigPageSize == 0 ? freeStartAddress :
-                           (freeStartAddress / bigPageSize) * bigPageSize + bigPageSize;
+        freeStartAddress = freeStartAddress % bigPageSize == 0 ? freeStartAddress : (freeStartAddress / bigPageSize) * bigPageSize + bigPageSize;
         freeEndAddress = (freeEndAddress / bigPageSize) * bigPageSize;
 
         // Overflow
@@ -80,13 +75,11 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
 
             if (blocksFound == 0) {
                 heapPhysicalAddress = freeStartAddress;
-                blockMap[i + 1] = {freeStartAddress, (kernelPage + pageCount) * bigPageSize, 1, true,
-                                   Multiboot::Structure::HEAP_RESERVED};
+                blockMap[i + 1] = {freeStartAddress, (kernelPage + pageCount) * bigPageSize, 1, true, Multiboot::Structure::HEAP_RESERVED};
                 i = -1;
             } else {
                 pagingAreaPhysicalAddress = freeStartAddress;
-                blockMap[i + 1] = {freeStartAddress, MemoryLayout::PAGING_AREA.startAddress, 1, true,
-                                   Multiboot::Structure::PAGING_RESERVED};
+                blockMap[i + 1] = {freeStartAddress, MemoryLayout::PAGING_AREA.startAddress, 1, true, Multiboot::Structure::PAGING_RESERVED};
             }
 
             blocksFound++;
