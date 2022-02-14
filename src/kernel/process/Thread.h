@@ -75,7 +75,7 @@ public:
 
     static Thread& createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 
-    static Thread& createUserThread(const Util::Memory::String &name, uint32_t eip);
+    static Thread &createUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t eax, uint32_t ebx, uint32_t ecx);
 
     [[nodiscard]] uint32_t getId() const;
 

@@ -76,6 +76,8 @@ private:
 
     void treeDirectory(const Util::Memory::String &path, uint32_t level = 0);
 
+    void executeBinary(const Util::Memory::String &path, const Util::Data::Array<Util::Memory::String> &arguments);
+
     static const char* getFileColor(const Util::File::File &path);
 
     static Util::Memory::String formatMemory(uint32_t value);

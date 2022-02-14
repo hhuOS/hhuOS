@@ -38,7 +38,10 @@ void Process::start() {
     scheduler.ready(*this);
 }
 
-void Process::exit() {
+void Process::exit(int32_t code) {
+    exitCode = code;
+    finished = true;
+
     scheduler.exit();
 }
 
@@ -56,6 +59,14 @@ ThreadScheduler &Process::getThreadScheduler() {
 
 FileDescriptorManager &Process::getFileDescriptorManager() {
     return fileDescriptorManager;
+}
+
+bool Process::isFinished() const {
+    return finished;
+}
+
+int32_t Process::getExitCode() const {
+    return exitCode;
 }
 
 }

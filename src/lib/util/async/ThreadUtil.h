@@ -45,6 +45,8 @@ public:
     ~ThreadUtil() = delete;
 
     static void yield();
+
+    static void exitProcess(int32_t exitCode);
 };
 
 }

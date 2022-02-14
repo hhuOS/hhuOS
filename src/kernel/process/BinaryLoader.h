@@ -15,55 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_USER_SYSTEMCALL_H
-#define HHUOS_USER_SYSTEMCALL_H
+#ifndef HHUOS_BINARYLOADER_H
+#define HHUOS_BINARYLOADER_H
 
-#include <cstdint>
-#include <cstdarg>
+#include "lib/util/async/Runnable.h"
+#include "lib/util/memory/String.h"
 
-namespace Util::System {
+namespace Kernel {
 
-class SystemCall {
+class BinaryLoader : public Util::Async::Runnable {
 
 public:
-
-    enum Code : uint16_t {
-        SCHEDULER_YIELD,
-        SCHEDULER_EXIT
-    };
-
-    enum Result : uint16_t {
-        OK,
-        NOT_INITIALIZED
-    };
-
     /**
      * Default Constructor.
-     * Deleted, as this class has only static members.
      */
-    SystemCall() = delete;
+    explicit BinaryLoader(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
     /**
      * Copy constructor.
      */
-    SystemCall(const SystemCall &other) = delete;
+    BinaryLoader(const BinaryLoader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SystemCall &operator=(const SystemCall &other) = delete;
+    BinaryLoader &operator=(const BinaryLoader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SystemCall() = default;
+    ~BinaryLoader() override = default;
 
-    static Result execute(Code code, uint32_t paramCount...);
+    void run() override;
 
 private:
 
-    static void execute(Code code, Result &result, uint32_t paramCount, va_list args);
-
+    const Util::Memory::String path;
+    const Util::Memory::String &command;
+    const Util::Data::Array<Util::Memory::String> arguments;
 };
 
 }

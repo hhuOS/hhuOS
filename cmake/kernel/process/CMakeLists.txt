@@ -17,6 +17,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/process/BinaryLoader.cpp
         ${HHUOS_SRC_DIR}/kernel/process/Process.cpp
         ${HHUOS_SRC_DIR}/kernel/process/ProcessScheduler.cpp
         ${HHUOS_SRC_DIR}/kernel/process/Thread.cpp

@@ -14,7 +14,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-ENTRY(startup)
+ENTRY(_start)
 OUTPUT_FORMAT(elf32-i386)
 
 SECTIONS
@@ -37,6 +37,26 @@ SECTIONS
         *(.rodata)
         *(.rodata.*)
         ___RODATA_END__ = .;
+    }
+
+    .init_array ALIGN (4K) :
+    {
+       ___INIT_ARRAY_START__ = .;
+       KEEP (*(SORT(.init_array.*)))
+       KEEP (*(.init_array))
+       KEEP (*(.ctors))
+       KEEP (*(.ctor))
+       ___INIT_ARRAY_END__ = .;
+    }
+
+    .fini_array ALIGN (4K) :
+    {
+       ___FINI_ARRAY_START__ = .;
+       KEEP (*(SORT(.fini_array.*)))
+       KEEP (*(.fini_array))
+       KEEP (*(.dtors))
+       KEEP (*(.dtor))
+       ___FINI_ARRAY_END__ = .;
     }
 
     .data ALIGN (4K) :

@@ -22,6 +22,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 include_directories(${HHUOS_SRC_DIR})
 
 # Add subdirectories
+add_subdirectory(crt0)
 add_subdirectory(kernel)
 add_subdirectory(user)
 add_subdirectory(util)

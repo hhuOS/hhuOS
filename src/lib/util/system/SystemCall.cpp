@@ -15,22 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdarg>
 #include "SystemCall.h"
 
 namespace Util::System {
 
-SystemCall::Result SystemCall::execute(SystemCall::Code code, uint32_t paramCount, ...) {
+SystemCall::Result SystemCall::execute(SystemCall::Code code, uint32_t paramCount...) {
+    va_list args;
+    va_start(args, paramCount);
     Result result;
-    execute(code, result, paramCount);
 
+    execute(code, result, paramCount, args);
+
+    va_end(args);
     return result;
 }
 
-void SystemCall::execute(Code code, Result &result, uint32_t paramCount, ...) {
-    va_list args;
-    va_start(args, paramCount);
-
+void SystemCall::execute(Code code, Result &result, uint32_t paramCount, va_list args) {
     auto eaxValue = static_cast<uint32_t>(code | (paramCount << 16u));
     auto ebxValue = reinterpret_cast<uint32_t>(args);
     auto ecxValue = reinterpret_cast<uint32_t>(&result);
@@ -39,13 +39,11 @@ void SystemCall::execute(Code code, Result &result, uint32_t paramCount, ...) {
     "movl %0, %%eax;"
     "movl %1, %%ebx;"
     "movl %2, %%ecx;"
-    "int $0x80;"
+    "int $0x86;"
     : :
     "r"(eaxValue),
     "r"(ebxValue),
     "r"(ecxValue));
-
-    va_end(args);
 }
 
 }

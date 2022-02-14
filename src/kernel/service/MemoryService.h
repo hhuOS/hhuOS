@@ -60,23 +60,23 @@ public:
      */
     ~MemoryService() override;
 
-    void* allocateKernelMemory(uint32_t size, uint32_t alignment);
+    void* allocateKernelMemory(uint32_t size, uint32_t alignment = 0);
 
-    void *reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment);
+    void *reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
-    void freeKernelMemory(void *pointer, uint32_t alignment);
+    void freeKernelMemory(void *pointer, uint32_t alignment = 0);
 
-    void* allocateUserMemory(uint32_t size, uint32_t alignment);
+    void* allocateUserMemory(uint32_t size, uint32_t alignment = 0);
 
-    void *reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment);
+    void *reallocateUserMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
-    void freeUserMemory(void *pointer, uint32_t alignment);
+    void freeUserMemory(void *pointer, uint32_t alignment = 0);
 
-    void* allocateLowerMemory(uint32_t size, uint32_t alignment);
+    void* allocateLowerMemory(uint32_t size, uint32_t alignment = 0);
 
-    void* reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment);
+    void* reallocateLowerMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
 
-    void freeLowerMemory(void *pointer, uint32_t alignment);
+    void freeLowerMemory(void *pointer, uint32_t alignment = 0);
 
     /**
      * Allocate space in PageTableArea.

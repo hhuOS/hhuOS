@@ -51,15 +51,19 @@ public:
 
     void start();
 
-    void exit();
+    void exit(int32_t exitCode);
 
     [[nodiscard]] uint32_t getId() const;
 
-    VirtualAddressSpace& getAddressSpace();
+    [[nodiscard]] VirtualAddressSpace& getAddressSpace();
 
-    ThreadScheduler& getThreadScheduler();
+    [[nodiscard]] ThreadScheduler& getThreadScheduler();
 
-    FileDescriptorManager& getFileDescriptorManager();
+    [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
+
+    [[nodiscard]] bool isFinished() const;
+
+    [[nodiscard]] int32_t getExitCode() const;
 
 private:
 
@@ -68,6 +72,9 @@ private:
     ProcessScheduler &scheduler;
     ThreadScheduler threadScheduler;
     FileDescriptorManager fileDescriptorManager;
+
+    bool finished = false;
+    int32_t exitCode = -1;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
 };

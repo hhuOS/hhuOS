@@ -24,3 +24,5 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/hello/hello.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(hello lib.crt0)

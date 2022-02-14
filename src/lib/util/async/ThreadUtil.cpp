@@ -24,4 +24,8 @@ void ThreadUtil::yield() {
     System::SystemCall::execute(System::SystemCall::SCHEDULER_YIELD, 0);
 }
 
+void ThreadUtil::exitProcess(int32_t exitCode) {
+    System::SystemCall::execute(System::SystemCall::SCHEDULER_EXIT, 1, exitCode);
+}
+
 }

@@ -20,6 +20,7 @@
 #include "lib/util/stream/PrintWriter.h"
 #include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
+#include "kernel/process/BinaryLoader.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "lib/util/stream/FileOutputStream.h"
 #include "lib/util/stream/BufferedReader.h"
@@ -85,8 +86,8 @@ void Shell::parseInput(const Util::Memory::String &input) {
         tree(arguments);
     } else if (command == "help") {
         help(arguments);
-    } else if (!command.isEmpty()) {
-        invalid(arguments);
+    } else if (!command.isEmpty()){
+        executeBinary(command, arguments);
     }
 }
 
@@ -290,6 +291,35 @@ void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
             treeDirectory(file.getCanonicalPath() + "/" + child, level + 1);
         }
     }
+}
+
+void Shell::executeBinary(const Util::Memory::String &path, const Util::Data::Array<Util::Memory::String> &arguments) {
+    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
+    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
+
+    const auto file = getFile(path);
+    if (!file.exists()) {
+        writer << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        return;
+    }
+
+    if (file.isDirectory()) {
+        writer << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl;
+        return;
+    }
+
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+
+    auto &virtualAddressSpace = memoryService.createAddressSpace();
+    auto &process = schedulerService.createProcess(virtualAddressSpace);
+    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(file.getCanonicalPath(), path, arguments));
+
+    process.ready(thread);
+    schedulerService.ready(process);
+
+    while (!process.isFinished());
+    writer << "Exit code: " << process.getExitCode() << Util::Stream::PrintWriter::endl;
 }
 
 const char* Shell::getFileColor(const Util::File::File &file) {

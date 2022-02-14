@@ -58,10 +58,6 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     thread->interruptFrame.es = 0x10;
     thread->interruptFrame.ss = 0x10;
 
-    thread->interruptFrame.ebx = 0;
-    thread->interruptFrame.esi = 0;
-    thread->interruptFrame.edi = 0;
-    thread->interruptFrame.esp = 0; // POPAD Skips ESP
     thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(stack->getStart());
     thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(stack->getStart());
     thread->interruptFrame.eflags = 0x200;
@@ -70,7 +66,7 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     return *thread;
 }
 
-Thread& Thread::createUserThread(const Util::Memory::String &name, uint32_t eip) {
+Thread & Thread::createUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t eax, uint32_t ebx, uint32_t ecx) {
     auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
     auto *thread = new Thread(name, nullptr, kernelStack, userStack);
@@ -84,10 +80,9 @@ Thread& Thread::createUserThread(const Util::Memory::String &name, uint32_t eip)
     thread->interruptFrame.es = 0x23;
     thread->interruptFrame.ss = 0x23;
 
-    thread->interruptFrame.ebx = 0;
-    thread->interruptFrame.esi = 0;
-    thread->interruptFrame.edi = 0;
-    thread->interruptFrame.esp = 0; // POPAD Skips ESP
+    thread->interruptFrame.eax = eax;
+    thread->interruptFrame.ebx = ebx;
+    thread->interruptFrame.ecx = ecx;
     thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(userStack->getStart());
     thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(userStack->getStart());
     thread->interruptFrame.eflags = 0x200;

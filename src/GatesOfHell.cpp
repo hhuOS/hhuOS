@@ -44,8 +44,6 @@
 #include "Shell.h"
 #include "GatesOfHell.h"
 #include "SchedulerSign.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/file/elf/File.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
@@ -110,27 +108,6 @@ void GatesOfHell::enter() {
 
     auto &shellThread = Kernel::Thread::createKernelThread("Shell", new Shell());
     schedulerService.ready(shellThread);
-
-    /*auto &virtualAddressSpace = Kernel::System::getService<Kernel::MemoryService>().createAddressSpace();
-    auto &process = schedulerService.createProcess(virtualAddressSpace);
-    auto &thread = Kernel::Thread::createKernelThread("Loader", new Util::Async::FunctionPointerRunnable([](){
-        auto file = Util::File::File("/initrd/bin/hello");
-        auto *buffer = new uint8_t[file.getLength()];
-        auto binaryStream = Util::Stream::FileInputStream(file);
-        binaryStream.read(buffer, 0, file.getLength());
-
-        auto executable = Util::File::Elf::File(reinterpret_cast<uint32_t>(buffer));
-        executable.loadProgram();
-
-        auto &addressSpace = Kernel::System::getService<Kernel::MemoryService>().getCurrentAddressSpace();
-        addressSpace.initialize(executable.getEndAddress());
-
-        auto &userThread = Kernel::Thread::createUserThread(file.getName(), (uint32_t) executable.getEntryPoint());
-        Kernel::System::getService<Kernel::SchedulerService>().ready(userThread);
-    }));
-
-    process.ready(thread);
-    schedulerService.ready(process);*/
 
     log.info("Starting scheduler!");
     schedulerService.startScheduler();

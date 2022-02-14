@@ -129,13 +129,14 @@ boot:
 
 ; Zero out bss
 clear_bss:
-    mov	edi, ___PHYS_BSS_START__
-.loop:
-    mov	byte [edi], 0
+    mov	edi,___PHYS_BSS_START__
+clear_bss_loop:
+    cmp	edi,___PHYS_BSS_END__
+    jge clear_bss_done
+    mov	byte [edi],0
     inc	edi
-    cmp	edi, ___PHYS_BSS_END__
-    jne	.loop
-
+    jmp clear_bss_loop
+clear_bss_done:
     ; Set stack again to cut off possible old values
     mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
@@ -178,29 +179,27 @@ on_paging_enabled:
 
 ; Call constructors of global objects
 _init:
-	mov	 edi, ___INIT_ARRAY_START__
+	mov edi,___INIT_ARRAY_START__
 _init_loop:
-	cmp	 edi, ___INIT_ARRAY_END__
-	je	 _init_done
-	mov	 eax, [edi]
-	call eax
-	add	 edi, 4
-	ja	 _init_loop
+	cmp edi,___INIT_ARRAY_END__
+	jge _init_done
+	call [edi]
+	add	edi,4
+	jmp _init_loop
 _init_done:
 	ret
 
 ; Call destructors of global objects
 _fini:
-	mov	 edi, ___FINI_ARRAY_START__
+    mov	 edi,___FINI_ARRAY_START__
 _fini_loop:
-	cmp	 edi, ___FINI_ARRAY_END__
-	je	 _fini_done
-	mov	 eax, [edi]
-	call eax
-	add	 edi, 4
-	ja	 _fini_loop
+    cmp	 edi,___FINI_ARRAY_END__
+    jge _fini_done
+    call [edi]
+    add	 edi,4
+    jmp _fini_loop
 _fini_done:
-	ret
+    ret
 
 ; This function is used when global constructors are called
 ; The label must be defined but can be void

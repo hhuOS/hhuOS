@@ -58,7 +58,7 @@ void ProcessScheduler::ready(Process &process) {
 
 void ProcessScheduler::exit() {
     if (!initialized) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil: 'exit' called but threadScheduler is not initialized!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil: 'exitProcess' called but threadScheduler is not initialized!");
     }
 
     lock.acquire();
@@ -79,7 +79,7 @@ void ProcessScheduler::kill(Process &process) {
 
     lock.acquire();
     if (process.getId() == currentProcess->getId()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"ThreadUtil: A process is trying to kill itself... Use 'exit' instead!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"ThreadUtil: A process is trying to kill itself... Use 'exitProcess' instead!");
     }
 
     processQueue.remove(&process);

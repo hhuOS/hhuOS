@@ -1,5 +1,7 @@
-# Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-# Heinrich-Heine University
+# Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+# Institute of Computer Science, Department Operating Systems
+# Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+#
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,16 +16,14 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(application)
+project(lib.crt0)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-set(CMAKE_C_FLAGS "-m32 -march=i486 -mno-sse -g -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding -Wl,--hash-style=sysv")
-if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/application/link.ld")
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
-add_subdirectory(hello)
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/crt0/crt0.asm
+        ${HHUOS_SRC_DIR}/lib/crt0/crt0.cpp)

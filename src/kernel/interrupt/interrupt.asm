@@ -55,8 +55,8 @@ setup_idt:
 	shr	ebx,16        ; bx: upper 16 Bit
 	mov	ecx,255       ; counter
 .loop:
-    add	[idt+8*ecx+0],ax
-	adc	[idt+8*ecx+6],bx
+    add	[idt + 8 * ecx + 0],ax
+	adc	[idt + 8 * ecx + 6],bx
 	dec	ecx
 	jge	.loop
 
@@ -132,7 +132,7 @@ wrapper_14:
 %assign i 15
 %rep 241
 wrapper i
-%assign i i+1
+%assign i i + 1
 %endrep
 
 ; Unique body for all wrappers
@@ -183,7 +183,7 @@ interrupt_return:
 section .data
 
 idt_descriptor:
-	dw	256*8-1 ; idt contains 256 entries
+	dw	256 * 8 - 1 ; idt contains 256 entries
 	dd	idt
 
 ; Create IDT with 256 entries
@@ -191,12 +191,26 @@ idt:
 %macro idt_entry 1
 	dw	(wrapper_%1 - wrapper_0) & 0xffff
 	dw	0x0008
-	dw	0x8e00
+	dw	0xee00
 	dw	((wrapper_%1 - wrapper_0) & 0xffff0000) >> 16
 %endmacro
 
+; Create first 134 entries
 %assign i 0
-%rep 256
+%rep 134
 idt_entry i
-%assign i i+1
+%assign i i + 1
+%endrep
+
+; Create system call entry
+dw (wrapper_134 - wrapper_0) & 0xffff
+dw	0x0008
+dw	0xee00
+dw ((wrapper_134 - wrapper_0) & 0xffff) >> 16
+
+; Create remaining entries
+%assign i 135
+%rep 121
+idt_entry i
+%assign i i + 1
 %endrep
