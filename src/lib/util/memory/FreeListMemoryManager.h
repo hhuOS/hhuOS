@@ -22,7 +22,7 @@
 #include "lib/util/async/Spinlock.h"
 #include "HeapMemoryManager.h"
 
-namespace Kernel {
+namespace Util::Memory {
 
 /**
  * Memory manager, that uses a doubly linked list of free chunks of memory.
@@ -150,7 +150,7 @@ private:
      *
      * @return Header of the free chunk with the required size or nullptr, if none is found
      */
-    static FreeListHeader *findNext(FreeListHeader *start, uint32_t reqSize);
+    static FreeListHeader* findNext(FreeListHeader *start, uint32_t reqSize);
 
     /**
      * Merge a chunk of free memory with it's neighbours, if possible.
@@ -159,7 +159,7 @@ private:
      */
     FreeListHeader *merge(FreeListHeader *origin);
 
-    static const constexpr char *CLASS_NAME = "Kernel::FreeListMemoryManager";
+    static const constexpr char *CLASS_NAME = "Util::Memory::FreeListMemoryManager";
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
     static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
 };

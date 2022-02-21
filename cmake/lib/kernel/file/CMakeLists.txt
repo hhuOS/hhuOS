@@ -16,9 +16,8 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/memory/Address.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/AtomicBitmap.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/FreeListMemoryManager.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/operators.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/String.cpp)
+target_sources(lib.kernel PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/file/File.cpp
+        ${HHUOS_SRC_DIR}/lib/util/file/elf/Constants.cpp
+        ${HHUOS_SRC_DIR}/lib/util/file/elf/File.cpp
+        ${HHUOS_SRC_DIR}/lib/util/file/tar/Archive.cpp)

@@ -20,6 +20,7 @@
 #include "lib/util/stream/FileInputStream.h"
 #include "lib/util/file/elf/File.h"
 #include "kernel/system/System.h"
+#include "kernel/paging/Paging.h"
 
 namespace Kernel {
 
@@ -43,22 +44,21 @@ void BinaryLoader::run() {
     auto executable = Util::File::Elf::File(reinterpret_cast<uint32_t>(buffer));
     executable.loadProgram();
 
-    auto &memoryService = System::getService<MemoryService>();
-    auto &addressSpace = memoryService.getCurrentAddressSpace();
-    addressSpace.initialize(executable.getEndAddress());
-
     uint32_t argc = arguments.length() + 1;
-    char **argv = static_cast<char **>(memoryService.allocateUserMemory(argc * sizeof(char*)));
+    char **argv = reinterpret_cast<char**>(executable.getEndAddress() + 1);
+    auto currentAddress = reinterpret_cast<uint32_t>(argv) + sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
         auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
-        auto targetArgument = Util::Memory::Address<uint32_t>(memoryService.allocateUserMemory(sourceArgument.stringLength()));
+        auto targetArgument = Util::Memory::Address<uint32_t>(currentAddress);
 
         targetArgument.copyString(sourceArgument);
-        argv[i] = reinterpret_cast<char*>(targetArgument.get());
+        argv[i] = reinterpret_cast<char*>(currentAddress);
+        currentAddress += targetArgument.stringLength() + 1;
     }
 
-    auto &userThread = Thread::createUserThread(file.getName(), (uint32_t) executable.getEntryPoint(), argc, reinterpret_cast<uint32_t>(argv), 0);
+    auto heapAddress = Util::Memory::Address(executable.getEndAddress() + 1).alignUp(Kernel::Paging::PAGESIZE).get();
+    auto &userThread = Thread::createMainUserThread(file.getName(), (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
     System::getService<SchedulerService>().ready(userThread);
 }
 

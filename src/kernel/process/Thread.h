@@ -47,6 +47,8 @@ public:
 
         static Stack* createUserStack(uint32_t size);
 
+        static Stack* createMainUserStack();
+
         [[nodiscard]] uint8_t* getStart() const;
 
     private:
@@ -75,7 +77,7 @@ public:
 
     static Thread& createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 
-    static Thread &createUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t eax, uint32_t ebx, uint32_t ecx);
+    static Thread &createMainUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
     [[nodiscard]] uint32_t getId() const;
 

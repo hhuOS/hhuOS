@@ -21,28 +21,12 @@
 #include "kernel/service/FilesystemService.h"
 #include "device/cpu/Cpu.h"
 
-void *allocateMemory(uint32_t size) {
+void *allocateMemory(uint32_t size, uint32_t alignment) {
     if (Kernel::System::isInitialized()) {
-        return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, 0);
+        return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, alignment);
     } else {
         return Kernel::System::allocateEarlyMemory(size);
     }
-}
-
-void* reallocateMemory(void *pointer, uint32_t size) {
-    return Kernel::System::getService<Kernel::MemoryService>().reallocateKernelMemory(pointer, size, 0);
-}
-
-void freeMemory(void *pointer) {
-    if (Kernel::System::isInitialized()) {
-        Kernel::System::getService<Kernel::MemoryService>().freeKernelMemory(pointer, 0);
-    } else {
-        Kernel::System::freeEarlyMemory(pointer);
-    }
-}
-
-void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
@@ -50,11 +34,23 @@ void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
 }
 
 void freeMemory(void *pointer, uint32_t alignment) {
-    return Kernel::System::getService<Kernel::MemoryService>().freeKernelMemory(pointer, alignment);
+    if (Kernel::System::isInitialized()) {
+        Kernel::System::getService<Kernel::MemoryService>().freeKernelMemory(pointer, alignment);
+    } else {
+        Kernel::System::freeEarlyMemory(pointer);
+    }
+}
+
+bool isSystemInitialized() {
+    return Kernel::System::isInitialized();
 }
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
     return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
+}
+
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
+    Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
 }
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {

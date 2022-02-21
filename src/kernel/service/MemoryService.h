@@ -221,7 +221,7 @@ public:
 
 private:
 
-    FreeListMemoryManager lowerMemoryManager;
+    Util::Memory::FreeListMemoryManager lowerMemoryManager;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;

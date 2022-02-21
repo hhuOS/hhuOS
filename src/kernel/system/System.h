@@ -143,7 +143,7 @@ private:
      */
     static uint32_t calculatePhysicalMemorySize();
 
-    static HeapMemoryManager& initializeKernelHeap();
+    static Util::Memory::HeapMemoryManager& initializeKernelHeap();
 
     static bool initialized;
 
@@ -151,7 +151,7 @@ private:
     static Util::Async::Spinlock serviceLock;
 
     static TaskStateSegment taskStateSegment;
-    static HeapMemoryManager *kernelHeapMemoryManager;
+    static Util::Memory::HeapMemoryManager *kernelHeapMemoryManager;
     static SystemCall systemCall;
     static Logger log; // Use only after _init() has finished!
 };

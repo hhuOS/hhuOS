@@ -16,10 +16,13 @@
  */
 
 #include "lib/util/async/Atomic.h"
-#include "Thread.h"
 #include "lib/util/memory/Address.h"
-#include "asm_interface.h"
+#include "lib/util/memory/operators.h"
 #include "kernel/system/System.h"
+#include "asm_interface.h"
+#include "Thread.h"
+#include "kernel/paging/MemoryLayout.h"
+#include "kernel/paging/Paging.h"
 
 void kickoff() {
     Kernel::System::getService<Kernel::SchedulerService>().kickoffThread();
@@ -66,9 +69,9 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     return *thread;
 }
 
-Thread & Thread::createUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t eax, uint32_t ebx, uint32_t ecx) {
+Thread& Thread::createMainUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
     auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
-    auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
+    auto *userStack = Stack::createMainUserStack();
     auto *thread = new Thread(name, nullptr, kernelStack, userStack);
 
     thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
@@ -80,9 +83,10 @@ Thread & Thread::createUserThread(const Util::Memory::String &name, uint32_t eip
     thread->interruptFrame.es = 0x23;
     thread->interruptFrame.ss = 0x23;
 
-    thread->interruptFrame.eax = eax;
-    thread->interruptFrame.ebx = ebx;
-    thread->interruptFrame.ecx = ecx;
+    thread->interruptFrame.eax = argc;
+    thread->interruptFrame.ebx = reinterpret_cast<uint32_t>(argv);
+    thread->interruptFrame.ecx = reinterpret_cast<uint32_t>(envp);
+    thread->interruptFrame.edx = heapStartAddress;
     thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(userStack->getStart());
     thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(userStack->getStart());
     thread->interruptFrame.eflags = 0x200;
@@ -132,6 +136,10 @@ Thread::Stack* Thread::Stack::createKernelStack(uint32_t size) {
 Thread::Stack* Thread::Stack::createUserStack(uint32_t size) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
     return new Stack(static_cast<uint8_t*>(memoryService.allocateUserMemory(size, 16)), size);
+}
+
+Thread::Stack* Thread::Stack::createMainUserStack() {
+    return new (reinterpret_cast<void*>(Util::Memory::USER_SPACE_STACK_INSTANCE_ADDRESS)) Stack(reinterpret_cast<uint8_t*>(MemoryLayout::KERNEL_START - Paging::PAGESIZE), Paging::PAGESIZE - 16);
 }
 
 }

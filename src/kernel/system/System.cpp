@@ -36,7 +36,7 @@ namespace Kernel {
 bool System::initialized = false;
 Util::Async::Spinlock System::serviceLock;
 Service* System::serviceMap[256]{};
-HeapMemoryManager *System::kernelHeapMemoryManager = nullptr;
+Util::Memory::HeapMemoryManager *System::kernelHeapMemoryManager = nullptr;
 TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
 Logger System::log = Logger::get("System");
@@ -65,8 +65,6 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Create memory service and register it to handle page faults
     auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
     memoryService->plugin();
-
-    kernelAddressSpace->initialize(0);
     memoryService->switchAddressSpace(*kernelAddressSpace);
 
     // Initialize global objects afterwards, because now missing pages can be mapped
@@ -114,7 +112,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     getService<JobService>().registerJob(new PagingAreaManagerRefillRunnable(*pagingAreaManager), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
 
     // Register memory manager
-    Util::Reflection::InstanceFactory::registerPrototype(new FreeListMemoryManager());
+    Util::Reflection::InstanceFactory::registerPrototype(new Util::Memory::FreeListMemoryManager());
 
     // Enable system calls
     log.info("Enabling system calls");
@@ -273,14 +271,14 @@ uint32_t System::calculatePhysicalMemorySize() {
     return static_cast<uint32_t>(maxEntry.address + maxEntry.length);
 }
 
-HeapMemoryManager& System::initializeKernelHeap() {
+Util::Memory::HeapMemoryManager& System::initializeKernelHeap() {
     auto *blockMap = Multiboot::Structure::getBlockMap();
 
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
         const auto &block = blockMap[i];
 
         if (block.type == Multiboot::Structure::HEAP_RESERVED) {
-            static FreeListMemoryManager heapMemoryManager;
+            static Util::Memory::FreeListMemoryManager heapMemoryManager;
             heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS);
             return heapMemoryManager;
         }

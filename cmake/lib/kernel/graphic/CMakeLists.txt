@@ -16,9 +16,12 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/memory/Address.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/AtomicBitmap.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/FreeListMemoryManager.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/operators.cpp
-        ${HHUOS_SRC_DIR}/lib/util/memory/String.cpp)
+target_sources(lib.kernel PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/BufferScroller.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Color.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Font.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/PixelDrawer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/StringDrawer.cpp)

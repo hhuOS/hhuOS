@@ -21,7 +21,7 @@
 #include "lib/util/reflection/Prototype.h"
 #include "MemoryManager.h"
 
-namespace Kernel {
+namespace Util::Memory {
 
 class HeapMemoryManager : public MemoryManager, public Util::Reflection::Prototype {
 

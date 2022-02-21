@@ -29,11 +29,15 @@ public:
 
     enum Code : uint16_t {
         SCHEDULER_YIELD,
-        SCHEDULER_EXIT
+        SCHEDULER_EXIT,
+        UNMAP
     };
 
     enum Result : uint16_t {
         OK,
+        INVALID_ARGUMENT,
+        OUT_OF_BOUNDS,
+        ILLEGAL_STATE,
         NOT_INITIALIZED
     };
 

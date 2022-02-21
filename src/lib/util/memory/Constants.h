@@ -15,48 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ATOMICBITMAP_H
-#define HHUOS_ATOMICBITMAP_H
-
 #include <cstdint>
+#include "FreeListMemoryManager.h"
+
+#ifndef HHUOS_CONSTANTS_H
+#define HHUOS_CONSTANTS_H
 
 namespace Util::Memory {
 
-class AtomicBitmap {
-
-public:
-
-    AtomicBitmap() = default;
-
-    explicit AtomicBitmap(uint32_t blockCount);
-
-    AtomicBitmap(const AtomicBitmap &copy) = delete;
-
-    AtomicBitmap &operator=(const AtomicBitmap &other) = delete;
-
-    ~AtomicBitmap() = default;
-
-    [[nodiscard]] uint32_t getSize() const;
-
-    void set(uint32_t block);
-
-    void unset(uint32_t block);
-
-    bool check(uint32_t block, bool set);
-
-    uint32_t findAndSet();
-
-    uint32_t findAndUnset();
-
-    static const constexpr uint32_t INVALID_INDEX = 0xffffffff;
-
-private:
-
-    uint32_t *bitmap = nullptr;
-    uint32_t arraySize = 0;
-    uint32_t blocks = 0;
-
-};
+// pagesize = 4KB
+static const constexpr uint32_t PAGESIZE = 0x1000;
+static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x1000;
+static const constexpr uint32_t USER_SPACE_STACK_INSTANCE_ADDRESS = USER_SPACE_MEMORY_MANAGER_ADDRESS + sizeof(FreeListMemoryManager);
 
 }
 

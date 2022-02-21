@@ -29,6 +29,26 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         : pageFrameAllocator(*pageFrameAllocator), pagingAreaManager(*pagingAreaManager), currentAddressSpace(kernelAddressSpace), kernelAddressSpace(*kernelAddressSpace) {
     addressSpaces.add(kernelAddressSpace);
     lowerMemoryManager.initialize(MemoryLayout::BIOS_CODE_MEMORY.toVirtual().endAddress + 1, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
+
+    SystemCall::registerSystemCall(Util::System::SystemCall::UNMAP, [](uint32_t paramCount, va_list arguments) -> Util::System::SystemCall::Result {
+        if (paramCount != 2) {
+            return Util::System::SystemCall::INVALID_ARGUMENT;
+        }
+
+        uint32_t virtualStartAddress = va_arg(arguments, uint32_t);
+        uint32_t virtualEndAddress = va_arg(arguments, uint32_t);
+
+        if (virtualStartAddress > MemoryLayout::KERNEL_START || virtualEndAddress > MemoryLayout::KERNEL_START) {
+            return Util::System::SystemCall::OUT_OF_BOUNDS;
+        }
+
+        auto status = Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
+        if (status == 0) {
+            return Util::System::SystemCall::INVALID_ARGUMENT;
+        }
+
+        return Util::System::SystemCall::Result::OK;
+    });
 }
 
 MemoryService::~MemoryService() {

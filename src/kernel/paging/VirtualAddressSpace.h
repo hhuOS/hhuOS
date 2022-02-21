@@ -19,8 +19,9 @@
 #define __VIRTUALADDRESSSPACE__
 
 #include "kernel/file/FileDescriptorManager.h"
-#include "kernel/memory/FreeListMemoryManager.h"
+#include "lib/util/memory/FreeListMemoryManager.h"
 #include "kernel/paging/PageDirectory.h"
+#include "lib/util/memory/Constants.h"
 
 namespace Kernel {
 
@@ -37,7 +38,7 @@ public:
     /**
      * Constructor for the kernel address space.
      */
-    explicit VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager);
+    explicit VirtualAddressSpace(Util::Memory::HeapMemoryManager &kernelHeapMemoryManager);
 
     /**
      * Constructor for user address space.
@@ -55,23 +56,16 @@ public:
      */
     ~VirtualAddressSpace();
 
-    void initialize(uint32_t heapAddress);
-
-    [[nodiscard]] bool isInitialized() const;
-
     [[nodiscard]] PageDirectory& getPageDirectory() const;
 
-    [[nodiscard]] HeapMemoryManager& getMemoryManager() const;
+    [[nodiscard]] Util::Memory::HeapMemoryManager& getMemoryManager() const;
 
 private:
 
     PageDirectory *pageDirectory;
-    HeapMemoryManager *memoryManager = nullptr;
+    Util::Memory::HeapMemoryManager *memoryManager;
 
     bool kernelAddressSpace;
-    bool initialized = false;
-
-    static const constexpr uint32_t USER_SPACE_MEMORY_MANAGER_ADDRESS = 0x1000;
 };
 
 }

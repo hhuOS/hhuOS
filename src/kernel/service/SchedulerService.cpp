@@ -57,7 +57,11 @@ void SchedulerService::setSchedulerInitialized() {
     });
 
     SystemCall::registerSystemCall(Util::System::SystemCall::SCHEDULER_EXIT, [](uint32_t paramCount, va_list arguments) -> Util::System::SystemCall::Result {
-        int32_t exitCode = va_arg(arguments, int);
+        int32_t exitCode = 0;
+        if (paramCount == 1) {
+            exitCode = va_arg(arguments, int32_t);
+        }
+
         System::getService<SchedulerService>().getCurrentProcess().exit(exitCode);
         return Util::System::SystemCall::Result::OK;
     });

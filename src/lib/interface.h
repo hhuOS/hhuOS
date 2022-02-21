@@ -22,15 +22,13 @@
 #include "lib/util/Exception.h"
 #include "filesystem/core/Node.h"
 
-void* allocateMemory(uint32_t size);
-void* reallocateMemory(void *pointer, uint32_t size);
-void freeMemory(void *pointer);
+void* allocateMemory(uint32_t size, uint32_t alignment = 0);
+void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
+void freeMemory(void *pointer, uint32_t alignment = 0);
 
-void* allocateMemory(uint32_t size, uint32_t alignment);
-void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment);
-void freeMemory(void *pointer, uint32_t alignment);
-
+bool isSystemInitialized();
 void* mapIO(uint32_t physicalAddress, uint32_t size);
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
 bool createFile(const Util::Memory::String &path, Util::File::Type type);

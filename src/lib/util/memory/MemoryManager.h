@@ -18,7 +18,7 @@
 #ifndef HHUOS_MEMORYMANAGER_H
 #define HHUOS_MEMORYMANAGER_H
 
-namespace Kernel {
+namespace Util::Memory {
 
 class MemoryManager {
 

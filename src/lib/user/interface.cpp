@@ -16,29 +16,35 @@
  */
 
 #include "lib/interface.h"
-
-void *allocateMemory(uint32_t size) {
-    return nullptr;
-}
-
-void* reallocateMemory(void *pointer, uint32_t size) {
-    return nullptr;
-}
-
-void freeMemory(void *pointer) {}
+#include "lib/util/system/SystemCall.h"
+#include "lib/util/memory/HeapMemoryManager.h"
+#include "lib/util/memory/Constants.h"
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
-    return nullptr;
+    auto *manager = reinterpret_cast<Util::Memory::HeapMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    return manager->allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
-    return nullptr;
+    auto *manager = reinterpret_cast<Util::Memory::HeapMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    return manager->reallocateMemory(pointer, size, alignment);
 }
 
-void freeMemory(void *pointer, uint32_t alignment) {}
+void freeMemory(void *pointer, uint32_t alignment) {
+    auto *manager = reinterpret_cast<Util::Memory::HeapMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    manager->freeMemory(pointer, alignment);
+}
+
+bool isSystemInitialized() {
+    return true;
+}
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
     return nullptr;
+}
+
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
+    Util::System::SystemCall::execute(Util::System::SystemCall::UNMAP, 2, virtualStartAddress, virtualEndAddress);
 }
 
 Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {

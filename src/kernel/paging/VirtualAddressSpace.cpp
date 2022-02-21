@@ -20,45 +20,29 @@
 #include "MemoryLayout.h"
 #include "Paging.h"
 #include "VirtualAddressSpace.h"
+#include "lib/util/memory/Constants.h"
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
+VirtualAddressSpace::VirtualAddressSpace(Util::Memory::HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
     this->pageDirectory = new PageDirectory();
 }
 
-VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) : kernelAddressSpace(false) {
+VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) :
+        memoryManager(reinterpret_cast<Util::Memory::FreeListMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS)), kernelAddressSpace(false) {
     // Initialize a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
 }
 
 VirtualAddressSpace::~VirtualAddressSpace() {
     delete pageDirectory;
-
-    if (!kernelAddressSpace) {
-        delete memoryManager;
-    }
-}
-
-void VirtualAddressSpace::initialize(uint32_t heapAddress) {
-    if (!kernelAddressSpace) {
-        // Initialize a new memory manager for userspace
-        memoryManager = new (reinterpret_cast<void*>(USER_SPACE_MEMORY_MANAGER_ADDRESS)) FreeListMemoryManager();
-        memoryManager->initialize(Util::Memory::Address(heapAddress).alignUp(Kernel::Paging::PAGESIZE).get(), Kernel::MemoryLayout::KERNEL_START - Kernel::Paging::PAGESIZE);
-    }
-
-    initialized = true;
-}
-
-bool VirtualAddressSpace::isInitialized() const {
-    return initialized;
 }
 
 PageDirectory &VirtualAddressSpace::getPageDirectory() const {
     return *pageDirectory;
 }
 
-HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
+Util::Memory::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
     return *memoryManager;
 }
 

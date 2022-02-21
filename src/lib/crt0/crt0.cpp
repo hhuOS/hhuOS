@@ -1,9 +1,18 @@
 #include <cstdint>
 #include <cstdarg>
+#include "lib/util/memory/operators.h"
+#include "lib/util/memory/Constants.h"
+#include "lib/util/memory/FreeListMemoryManager.h"
 
 // Export functions
 extern "C" {
+void initMemoryManager(uint32_t, uint32_t);
 void _exit(int32_t);
+}
+
+void initMemoryManager(uint32_t startAddress, uint32_t endAddress) {
+    auto *memoryManager = new (reinterpret_cast<void*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS)) Util::Memory::FreeListMemoryManager();
+    memoryManager->initialize(startAddress, endAddress);
 }
 
 uint16_t systemCall(uint16_t code, uint32_t paramCount...) {

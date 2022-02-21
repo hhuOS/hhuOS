@@ -18,7 +18,6 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
         ${HHUOS_SRC_DIR}/kernel/memory/BitmapMemoryManager.cpp
-        ${HHUOS_SRC_DIR}/kernel/memory/FreeListMemoryManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PageFrameAllocator.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManager.cpp
         ${HHUOS_SRC_DIR}/kernel/memory/PagingAreaManagerRefillRunnable.cpp
