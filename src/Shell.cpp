@@ -86,8 +86,13 @@ void Shell::parseInput(const Util::Memory::String &input) {
         tree(arguments);
     } else if (command == "help") {
         help(arguments);
-    } else if (!command.isEmpty()){
-        executeBinary(command, arguments);
+    } else if (!command.isEmpty()) {
+        auto binaryPath = checkPath(command);
+        if (binaryPath.isEmpty()) {
+            executeBinary(command, command, arguments);
+        } else {
+            executeBinary(binaryPath, command, arguments);
+        }
     }
 }
 
@@ -293,7 +298,7 @@ void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
     }
 }
 
-void Shell::executeBinary(const Util::Memory::String &path, const Util::Data::Array<Util::Memory::String> &arguments) {
+void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
     auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
     auto writer = Util::Stream::PrintWriter(bufferedStream, true);
 
@@ -313,13 +318,12 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Data::Ar
 
     auto &virtualAddressSpace = memoryService.createAddressSpace();
     auto &process = schedulerService.createProcess(virtualAddressSpace);
-    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(file.getCanonicalPath(), path, arguments));
+    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(file.getCanonicalPath(), command, arguments));
 
     process.ready(thread);
     schedulerService.ready(process);
 
     while (!process.isFinished());
-    writer << "Exit code: " << process.getExitCode() << Util::Stream::PrintWriter::endl;
 }
 
 const char* Shell::getFileColor(const Util::File::File &file) {
@@ -341,4 +345,34 @@ Util::Memory::String Shell::formatMemory(uint32_t value) {
     uint32_t comma = (rest * 1000) / 1024 / 1024;
 
     return Util::Memory::String::format("%u.%u MiB", result, comma);
+}
+
+Util::Memory::String  Shell::checkPath(const Util::Memory::String &command) {
+    for (const auto &path : Util::Memory::String(PATH).split(":")) {
+        auto binaryPath = checkDirectory(command, Util::File::File(path));
+        if (!binaryPath.isEmpty()) {
+            return binaryPath;
+        }
+    }
+
+    return "";
+}
+
+Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) {
+    if (!directory.exists() || !directory.isDirectory()) {
+        return false;
+    }
+
+    for (const auto &child : directory.getChildren()) {
+        auto file = Util::File::File(directory.getCanonicalPath() + "/" + child);
+        if (file.isFile() && file.getName() == command) {
+            return file.getCanonicalPath();
+        }
+
+        if (file.isDirectory()) {
+            checkDirectory(command, file);
+        }
+    }
+
+    return "";
 }

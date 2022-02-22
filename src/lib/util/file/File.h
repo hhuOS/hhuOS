@@ -70,6 +70,8 @@ public:
 
     [[nodiscard]] bool remove() const;
 
+    [[nodiscard]] static Memory::String getCanonicalPath(const Util::Memory::String &path);
+
     static constexpr const char *SEPARATOR = "/";
 
 private:

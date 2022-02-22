@@ -17,4 +17,4 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/system/SystemCall.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/system/System.cpp)

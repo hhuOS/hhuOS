@@ -30,24 +30,37 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
     addressSpaces.add(kernelAddressSpace);
     lowerMemoryManager.initialize(MemoryLayout::BIOS_CODE_MEMORY.toVirtual().endAddress + 1, MemoryLayout::USABLE_LOWER_MEMORY.toVirtual().endAddress);
 
-    SystemCall::registerSystemCall(Util::System::SystemCall::UNMAP, [](uint32_t paramCount, va_list arguments) -> Util::System::SystemCall::Result {
-        if (paramCount != 2) {
-            return Util::System::SystemCall::INVALID_ARGUMENT;
+    SystemCall::registerSystemCall(Util::System::UNMAP, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 2) {
+            return Util::System::INVALID_ARGUMENT;
         }
 
         uint32_t virtualStartAddress = va_arg(arguments, uint32_t);
         uint32_t virtualEndAddress = va_arg(arguments, uint32_t);
 
         if (virtualStartAddress > MemoryLayout::KERNEL_START || virtualEndAddress > MemoryLayout::KERNEL_START) {
-            return Util::System::SystemCall::OUT_OF_BOUNDS;
+            return Util::System::OUT_OF_BOUNDS;
         }
 
         auto status = Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
         if (status == 0) {
-            return Util::System::SystemCall::INVALID_ARGUMENT;
+            return Util::System::INVALID_ARGUMENT;
         }
 
-        return Util::System::SystemCall::Result::OK;
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::MAP_IO, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 3) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        uint32_t physicalAddress = va_arg(arguments, uint32_t);
+        uint32_t size = va_arg(arguments, uint32_t);
+        void **mappedAddress = va_arg(arguments, void**);
+
+        *mappedAddress = Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
+        return Util::System::Result::OK;
     });
 }
 
@@ -123,6 +136,9 @@ void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
 }
 
 void Kernel::MemoryService::mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags) {
+    // Mark the physical page frame as used
+    physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlockAtAddress(reinterpret_cast<void *>(physicalAddress)));
+    // Map the page into the directory
     currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags);
 }
 
@@ -228,7 +244,8 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size) {
         unmap(virtAddress);
 
         // Map the page to given physical address
-        mapPhysicalAddress(virtAddress, physicalAddress + i * Kernel::Paging::PAGESIZE, Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE);
+        mapPhysicalAddress(virtAddress, physicalAddress + i * Kernel::Paging::PAGESIZE,
+                           Paging::PRESENT | Paging::READ_WRITE | Paging::CACHE_DISABLE | (virtAddress < Kernel::MemoryLayout::KERNEL_START ? Paging::USER_ACCESS : 0));
     }
 
     return virtStartAddress;

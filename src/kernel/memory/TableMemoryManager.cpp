@@ -115,6 +115,11 @@ void *TableMemoryManager::allocateBlock() {
 }
 
 void *TableMemoryManager::allocateBlockAtAddress(void *address) {
+    // TODO: Is this the right way?
+    if (reinterpret_cast<uint32_t>(address) > endAddress) {
+        return address;
+    }
+
     const auto index = calculateIndex(reinterpret_cast<uint32_t>(address));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
@@ -127,6 +132,11 @@ void *TableMemoryManager::allocateBlockAtAddress(void *address) {
 }
 
 void TableMemoryManager::freeBlock(void *pointer) {
+    // TODO: Is this the right way?
+    if (reinterpret_cast<uint32_t>(pointer) > endAddress) {
+        return;
+    }
+
     const auto index = calculateIndex(reinterpret_cast<uint32_t>(pointer));
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);

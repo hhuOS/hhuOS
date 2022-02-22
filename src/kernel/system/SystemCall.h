@@ -20,7 +20,7 @@
 
 #include <cstdarg>
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/system/SystemCall.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 
@@ -52,7 +52,7 @@ public:
      */
     ~SystemCall() override = default;
 
-    static void registerSystemCall(Util::System::SystemCall::Code code, Util::System::SystemCall::Result(*func)(uint32_t paramCount, va_list params));
+    static void registerSystemCall(Util::System::Code code, Util::System::Result(*func)(uint32_t paramCount, va_list params));
 
     void plugin() override;
 
@@ -60,7 +60,7 @@ public:
 
 private:
 
-    static Util::System::SystemCall::Result(*systemCalls[256])(uint32_t paramCount, va_list params);
+    static Util::System::Result(*systemCalls[256])(uint32_t paramCount, va_list params);
 
 };
 

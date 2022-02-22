@@ -31,6 +31,8 @@ public:
 
     explicit FileInputStream(const Memory::String &path);
 
+    explicit FileInputStream(int32_t fileDescriptor);
+
     FileInputStream(const FileInputStream &copy) = delete;
 
     FileInputStream &operator=(const FileInputStream &copy) = delete;

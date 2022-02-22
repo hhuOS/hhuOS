@@ -24,6 +24,8 @@ FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(openFi
 
 FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
 
+FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+
 FileInputStream::~FileInputStream() {
     closeFile(fileDescriptor);
 }
@@ -40,7 +42,10 @@ int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t l
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
     }
 
-    if (getFileType(fileDescriptor) == File::REGULAR && pos >= getFileLength(fileDescriptor)) {
+    auto fileType = getFileType(fileDescriptor);
+    auto fileLength = getFileLength(fileDescriptor);
+
+    if (fileType == File::REGULAR && pos >= fileLength) {
         return -1;
     }
 

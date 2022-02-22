@@ -53,10 +53,6 @@ void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
     Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
 }
 
-Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
-    return Filesystem::Filesystem::getCanonicalPath(path);
-}
-
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     if (type == Util::File::REGULAR) {
@@ -89,16 +85,12 @@ uint32_t getFileLength(int32_t fileDescriptor) {
     return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getLength();
 }
 
-Util::Memory::String getFileName(int32_t fileDescriptor) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getName();
-}
-
 Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor) {
     return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).getChildren();
 }
 
-uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, numBytes);
+uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length) {
+    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
 }
 
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {

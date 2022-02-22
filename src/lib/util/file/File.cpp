@@ -16,6 +16,7 @@
  */
 
 #include "lib/interface.h"
+#include "lib/util/data/ArrayList.h"
 #include "File.h"
 
 namespace Util::File {
@@ -78,16 +79,16 @@ uint32_t File::File::getLength() const {
 }
 
 Memory::String File::getName() const {
-    const auto splitPath = ::getCanonicalPath(path).split("/");
+    const auto splitPath = getCanonicalPath(path).split("/");
     return splitPath.length() == 0 ? "" : splitPath[splitPath.length() - 1];
 }
 
 Memory::String File::getCanonicalPath() const {
-    return ::getCanonicalPath(path);
+    return getCanonicalPath(path);
 }
 
 Memory::String File::getParent() const {
-    return ::getCanonicalPath(path + "/..");
+    return getCanonicalPath(path + "/..");
 }
 
 Data::Array<Memory::String> File::getChildren() const {
@@ -112,6 +113,30 @@ bool File::create(Type fileType) const {
 
 bool File::remove() const {
     return deleteFile(path);
+}
+
+Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
+    Util::Data::Array<Util::Memory::String> token = path.split(Util::File::File::SEPARATOR);
+    Util::Data::ArrayList<Util::Memory::String> parsedToken;
+
+    for (const Util::Memory::String &string : token) {
+        if (string == ".") {
+            continue;
+        } else if (string == "..") {
+            if (!parsedToken.isEmpty()) {
+                parsedToken.remove(parsedToken.size() - 1);
+            }
+        } else {
+            parsedToken.add(*new Util::Memory::String(string));
+        }
+    }
+
+    if (parsedToken.isEmpty()) {
+        return "";
+    }
+
+    Util::Memory::String parsedPath = Util::File::File::SEPARATOR + Util::Memory::String::join(Util::File::File::SEPARATOR, parsedToken.toArray());
+    return parsedPath;
 }
 
 }

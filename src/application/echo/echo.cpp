@@ -15,35 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SystemCall.h"
+#include <cstdint>
+#include "lib/util/system/System.h"
 
-namespace Util::System {
+int32_t main(int32_t argc, char *argv[]) {
+    for (int32_t i = 1; i < argc; i++) {
+        Util::System::out << argv[i] << " ";
+    }
 
-SystemCall::Result SystemCall::execute(SystemCall::Code code, uint32_t paramCount...) {
-    va_list args;
-    va_start(args, paramCount);
-    Result result;
-
-    execute(code, result, paramCount, args);
-
-    va_end(args);
-    return result;
-}
-
-void SystemCall::execute(Code code, Result &result, uint32_t paramCount, va_list args) {
-    auto eaxValue = static_cast<uint32_t>(code | (paramCount << 16u));
-    auto ebxValue = reinterpret_cast<uint32_t>(args);
-    auto ecxValue = reinterpret_cast<uint32_t>(&result);
-
-    asm volatile (
-    "movl %0, %%eax;"
-    "movl %1, %%ebx;"
-    "movl %2, %%ecx;"
-    "int $0x86;"
-    : :
-    "r"(eaxValue),
-    "r"(ebxValue),
-    "r"(ecxValue));
-}
-
+    Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    return 0;
 }

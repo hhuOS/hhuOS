@@ -31,6 +31,8 @@ public:
 
     explicit FileOutputStream(const Memory::String &path);
 
+    explicit FileOutputStream(int32_t fileDescriptor);
+
     FileOutputStream(const FileOutputStream &copy) = delete;
 
     FileOutputStream &operator=(const FileOutputStream &copy) = delete;

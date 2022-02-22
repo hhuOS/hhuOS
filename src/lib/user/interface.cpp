@@ -16,7 +16,7 @@
  */
 
 #include "lib/interface.h"
-#include "lib/util/system/SystemCall.h"
+#include "lib/util/system/System.h"
 #include "lib/util/memory/HeapMemoryManager.h"
 #include "lib/util/memory/Constants.h"
 
@@ -40,53 +40,70 @@ bool isSystemInitialized() {
 }
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
-    return nullptr;
+    void *mappedAddress;
+    Util::System::call(Util::System::MAP_IO, 3, physicalAddress, size, &mappedAddress);
+    return mappedAddress;
 }
 
 void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
-    Util::System::SystemCall::execute(Util::System::SystemCall::UNMAP, 2, virtualStartAddress, virtualEndAddress);
-}
-
-Util::Memory::String getCanonicalPath(const Util::Memory::String &path) {
-    return "";
+    Util::System::call(Util::System::UNMAP, 2, virtualStartAddress, virtualEndAddress);
 }
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
-    return false;
+    return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char *>(path), type) == Util::System::OK;
 }
 
 bool deleteFile(const Util::Memory::String &path) {
-    return false;
+    return Util::System::call(Util::System::DELETE_FILE, 1, static_cast<const char *>(path)) == Util::System::OK;
 }
 
 int32_t openFile(const Util::Memory::String &path) {
-    return -1;
+    int32_t fileDescriptor;
+    auto result = Util::System::call(Util::System::OPEN_FILE, 2, static_cast<const char *>(path), &fileDescriptor);
+    return result == Util::System::OK ? fileDescriptor : -1;
 }
 
-void closeFile(int32_t fileDescriptor) {}
+void closeFile(int32_t fileDescriptor) {
+    Util::System::call(Util::System::CLOSE_FILE, 1, fileDescriptor);
+}
 
 Util::File::Type getFileType(int32_t fileDescriptor) {
-    return Util::File::REGULAR;
+    Util::File::Type type;
+    Util::System::call(Util::System::FILE_TYPE, 2, fileDescriptor, &type);
+    return type;
 }
 
 uint32_t getFileLength(int32_t fileDescriptor) {
-    return -1;
-}
-
-Util::Memory::String getFileName(int32_t fileDescriptor) {
-    return "";
+    uint64_t length;
+    Util::System::call(Util::System::FILE_LENGTH, 2, fileDescriptor, &length);
+    return length;
 }
 
 Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor) {
-    return Util::Data::Array<Util::Memory::String>(0);
+    char **children;
+    uint32_t count;
+    Util::System::call(Util::System::FILE_CHILDREN, 3, fileDescriptor, &children, &count);
+
+    auto ret = Util::Data::Array<Util::Memory::String>(count);
+    for (uint32_t i = 0; i < count; i++) {
+        ret[i] = children[i];
+        delete children[i];
+    }
+
+    delete children;
+    return ret;
 }
 
-uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    return 0;
+uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length) {
+    uint64_t read;
+    Util::System::call(Util::System::READ_FILE, 5, fileDescriptor, targetBuffer, pos, length, &read);
+    return read;
 }
 
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) {
-    return 0;
+    uint64_t written;
+    Util::System::call(Util::System::WRITE_FILE, 5, fileDescriptor, sourceBuffer, pos, length, &written);
+    return written;
 }
 
 void throwError(Util::Exception::Error error, const char *message) {

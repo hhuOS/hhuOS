@@ -18,6 +18,7 @@
 #include "SchedulerService.h"
 #include "kernel/system/System.h"
 #include "JobService.h"
+#include "FilesystemService.h"
 
 namespace Kernel {
 
@@ -39,7 +40,13 @@ void SchedulerService::ready(Thread &thread) {
 }
 
 Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace) {
-    return *new Process(scheduler, addressSpace);
+    auto *process = new Process(scheduler, addressSpace);
+    // Create standard out file descriptor
+    if (System::isServiceRegistered(FilesystemService::SERVICE_ID)) {
+        process->getFileDescriptorManager().openFile("/device/terminal");
+    }
+
+    return *process;
 }
 
 void SchedulerService::releaseSchedulerLock() {
@@ -51,19 +58,19 @@ void SchedulerService::setSchedulerInitialized() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil is already initialized!");
     }
 
-    SystemCall::registerSystemCall(Util::System::SystemCall::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::SystemCall::Result {
+    SystemCall::registerSystemCall(Util::System::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::Result {
         System::getService<SchedulerService>().yield();
-        return Util::System::SystemCall::Result::OK;
+        return Util::System::Result::OK;
     });
 
-    SystemCall::registerSystemCall(Util::System::SystemCall::SCHEDULER_EXIT, [](uint32_t paramCount, va_list arguments) -> Util::System::SystemCall::Result {
+    SystemCall::registerSystemCall(Util::System::SCHEDULER_EXIT, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         int32_t exitCode = 0;
-        if (paramCount == 1) {
+        if (paramCount >= 1) {
             exitCode = va_arg(arguments, int32_t);
         }
 
         System::getService<SchedulerService>().getCurrentProcess().exit(exitCode);
-        return Util::System::SystemCall::Result::OK;
+        return Util::System::Result::OK;
     });
 
     scheduler.setInitialized();

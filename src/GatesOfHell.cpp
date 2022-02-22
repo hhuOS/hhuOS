@@ -85,13 +85,9 @@ void GatesOfHell::enter() {
 
     Device::Keyboard::initialize();
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("headless_com_port")) {
-        initializeHeadlessMode();
-    } else {
-        initializeTerminal();
-        outputStream = new Util::Stream::FileOutputStream("/device/terminal");
-        inputStream = new Util::Stream::FileInputStream("/device/keyboard");
-    }
+    initializeTerminal();
+    outputStream = new Util::Stream::FileOutputStream("/device/terminal");
+    inputStream = new Util::Stream::FileInputStream("/device/keyboard");
 
     printBanner();
 
@@ -161,19 +157,6 @@ void GatesOfHell::initializeTerminal() {
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     terminalProvider->initializeTerminal(resolution, "terminal");
-}
-
-void GatesOfHell::initializeHeadlessMode() {
-    log.info("Headless mode enabled -> Initializing serial input/output");
-
-    const auto port = Kernel::Multiboot::Structure::getKernelOption("log_com_port");
-    const auto file = Util::File::File("/device/" + port.toLowerCase());
-    if (!file.exists()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Headless mode: The requested serial port is not present!");
-    }
-
-    outputStream = new Util::Stream::FileOutputStream(file);
-    inputStream = new Util::Stream::FileInputStream(file);
 }
 
 void GatesOfHell::enableSerialLogging() {

@@ -20,17 +20,30 @@
 
 #include <cstdint>
 #include <cstdarg>
+#include "lib/util/stream/FileOutputStream.h"
+#include "lib/util/stream/BufferedOutputStream.h"
+#include "lib/util/stream/PrintWriter.h"
 
-namespace Util::System {
+namespace Util {
 
-class SystemCall {
+class System {
 
 public:
 
     enum Code : uint16_t {
         SCHEDULER_YIELD,
         SCHEDULER_EXIT,
-        UNMAP
+        UNMAP,
+        MAP_IO,
+        CREATE_FILE,
+        DELETE_FILE,
+        OPEN_FILE,
+        CLOSE_FILE,
+        FILE_TYPE,
+        FILE_LENGTH,
+        FILE_CHILDREN,
+        WRITE_FILE,
+        READ_FILE
     };
 
     enum Result : uint16_t {
@@ -45,28 +58,33 @@ public:
      * Default Constructor.
      * Deleted, as this class has only static members.
      */
-    SystemCall() = delete;
+    System() = delete;
 
     /**
      * Copy constructor.
      */
-    SystemCall(const SystemCall &other) = delete;
+    System(const System &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SystemCall &operator=(const SystemCall &other) = delete;
+    System &operator=(const System &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SystemCall() = default;
+    ~System() = default;
 
-    static Result execute(Code code, uint32_t paramCount...);
+    static Result call(Code code, uint32_t paramCount...);
+
+    static Util::Stream::PrintWriter out;
 
 private:
 
-    static void execute(Code code, Result &result, uint32_t paramCount, va_list args);
+    static void call(Code code, Result &result, uint32_t paramCount, va_list args);
+
+    static Util::Stream::FileOutputStream outStream;
+    static Util::Stream::BufferedOutputStream bufferedOutStream;
 
 };
 

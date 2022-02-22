@@ -20,32 +20,8 @@
 
 namespace Filesystem {
 
-Util::Memory::String Filesystem::getCanonicalPath(const Util::Memory::String &path) {
-    Util::Data::Array<Util::Memory::String> token = path.split(Util::File::File::SEPARATOR);
-    Util::Data::ArrayList<Util::Memory::String> parsedToken;
-
-    for (const Util::Memory::String &string : token) {
-        if (string == ".") {
-            continue;
-        } else if (string == "..") {
-            if (!parsedToken.isEmpty()) {
-                parsedToken.remove(parsedToken.size() - 1);
-            }
-        } else {
-            parsedToken.add(*new Util::Memory::String(string));
-        }
-    }
-
-    if (parsedToken.isEmpty()) {
-        return "";
-    }
-
-    Util::Memory::String parsedPath = Util::File::File::SEPARATOR + Util::Memory::String::join(Util::File::File::SEPARATOR, parsedToken.toArray());
-    return parsedPath;
-}
-
 bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver) {
-    Util::Memory::String parsedPath = getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
     Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
@@ -66,14 +42,14 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Virt
 }
 
 Memory::MemoryDriver &Filesystem::getVirtualDriver(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
     auto *driver = mountPoints.get(parsedPath);
 
     return *reinterpret_cast<Memory::MemoryDriver*>(driver);
 }
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
     Node *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
@@ -102,7 +78,7 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
 }
 
 Node* Filesystem::getNode(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path);
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -115,7 +91,7 @@ Node* Filesystem::getNode(const Util::Memory::String &path) {
 }
 
 bool Filesystem::createFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path);
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -128,7 +104,7 @@ bool Filesystem::createFile(const Util::Memory::String &path) {
 }
 
 bool Filesystem::createDirectory(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path);
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -141,7 +117,7 @@ bool Filesystem::createDirectory(const Util::Memory::String &path) {
 }
 
 bool Filesystem::deleteFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = getCanonicalPath(path);
+    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     for (const Util::Memory::String &key : mountPoints.keySet()) {

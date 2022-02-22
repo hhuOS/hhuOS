@@ -30,7 +30,7 @@ public:
     /**
      * Constructor.
      */
-    FilesystemService() = default;
+    FilesystemService();
 
     /**
      * Copy-constructor.

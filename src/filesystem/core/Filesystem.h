@@ -53,14 +53,6 @@ public:
     ~Filesystem() = default;
 
     /**
-     * Process the '.' and '..' entries of a path.
-     *
-     * @param path The path
-     * @return The processed path
-     */
-    static Util::Memory::String getCanonicalPath(const Util::Memory::String &path);
-
-    /**
      * Mount a virtual filesystem at a specified location.
      *
      * @param targetPath The mount path

@@ -76,7 +76,11 @@ private:
 
     void treeDirectory(const Util::Memory::String &path, uint32_t level = 0);
 
-    void executeBinary(const Util::Memory::String &path, const Util::Data::Array<Util::Memory::String> &arguments);
+    void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+
+    Util::Memory::String checkPath(const Util::Memory::String &command);
+
+    Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory);
 
     static const char* getFileColor(const Util::File::File &path);
 
@@ -86,6 +90,8 @@ private:
 
     Util::Stream::InputStream *inputStream = nullptr;
     Util::Stream::OutputStream *outputStream = nullptr;
+
+    static const constexpr char *PATH = "/initrd/bin";
 };
 
 

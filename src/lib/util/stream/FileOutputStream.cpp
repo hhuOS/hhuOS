@@ -24,6 +24,8 @@ FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(open
 
 FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
 
+FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+
 FileOutputStream::~FileOutputStream() {
     closeFile(fileDescriptor);
 }
