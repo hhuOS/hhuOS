@@ -20,12 +20,12 @@
 
 namespace Util::Stream {
 
-FileWriter::FileWriter(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
+FileWriter::FileWriter(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
 
-FileWriter::FileWriter(const Memory::String &path) : fileDescriptor(openFile(path)) {}
+FileWriter::FileWriter(const Memory::String &path) : fileDescriptor(File::open(path)) {}
 
 FileWriter::~FileWriter() {
-    closeFile(fileDescriptor);
+    File::close(fileDescriptor);
 }
 
 void FileWriter::write(char c) {

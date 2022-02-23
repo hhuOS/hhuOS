@@ -25,6 +25,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.img"
         COMMAND cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.initrd"
         COMMAND "${HHUOS_ROOT_DIR}/loader/towboot/build.sh"
         COMMAND mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.img" "${HHUOS_ROOT_DIR}"
-        DEPENDS system)
+        DEPENDS system initrd)
 
 add_custom_target(towboot DEPENDS system initrd "${HHUOS_ROOT_DIR}/hhuOS.img")

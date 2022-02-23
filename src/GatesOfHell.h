@@ -63,17 +63,11 @@ private:
 
     static void initializeTerminal();
 
-    static void initializeHeadlessMode();
-
     static void printBanner();
 
-    static void printDefaultBanner(Util::Stream::PrintWriter &writer);
-
-    static void colorTest();
+    static void printDefaultBanner();
 
     static Kernel::Logger log;
-    static Util::Stream::InputStream *inputStream;
-    static Util::Stream::OutputStream *outputStream;
 
 };
 

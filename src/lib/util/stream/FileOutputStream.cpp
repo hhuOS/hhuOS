@@ -20,14 +20,14 @@
 
 namespace Util::Stream {
 
-FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
+FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
 
-FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
+FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {}
 
 FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
 FileOutputStream::~FileOutputStream() {
-    closeFile(fileDescriptor);
+    File::close(fileDescriptor);
 }
 
 void FileOutputStream::write(uint8_t c) {

@@ -20,14 +20,14 @@
 
 namespace Util::Stream {
 
-FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
+FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
 
-FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(openFile(path)) {}
+FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {}
 
 FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
 FileInputStream::~FileInputStream() {
-    closeFile(fileDescriptor);
+    File::close(fileDescriptor);
 }
 
 int16_t FileInputStream::read() {

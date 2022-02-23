@@ -37,9 +37,9 @@ File &File::operator=(const File &other) {
 }
 
 bool File::exists() const {
-    auto fileDescriptor = openFile(path);
+    auto fileDescriptor = open(path);
     if (fileDescriptor >= 0) {
-        closeFile(fileDescriptor);
+        close(fileDescriptor);
         return true;
     }
 
@@ -47,13 +47,13 @@ bool File::exists() const {
 }
 
 Type File::getType() const {
-    auto fileDescriptor = openFile(path);
+    auto fileDescriptor = open(path);
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     auto ret = getFileType(fileDescriptor);
-    closeFile(fileDescriptor);
+    close(fileDescriptor);
 
     return ret;
 }
@@ -67,13 +67,13 @@ bool File::isDirectory() const {
 }
 
 uint32_t File::File::getLength() const {
-    auto fileDescriptor = openFile(path);
+    auto fileDescriptor = open(path);
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     auto ret = getFileLength(fileDescriptor);
-    closeFile(fileDescriptor);
+    close(fileDescriptor);
 
     return ret;
 }
@@ -92,13 +92,13 @@ Memory::String File::getParent() const {
 }
 
 Data::Array<Memory::String> File::getChildren() const {
-    auto fileDescriptor = openFile(path);
+    auto fileDescriptor = open(path);
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
     auto ret = getFileChildren(fileDescriptor);
-    closeFile(fileDescriptor);
+    close(fileDescriptor);
 
     return ret;
 }
@@ -137,6 +137,14 @@ Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
 
     Util::Memory::String parsedPath = Util::File::File::SEPARATOR + Util::Memory::String::join(Util::File::File::SEPARATOR, parsedToken.toArray());
     return parsedPath;
+}
+
+int32_t open(const Memory::String &path) {
+    return openFile(path);
+}
+
+void close(int32_t fileDescriptor) {
+    return closeFile(fileDescriptor);
 }
 
 }

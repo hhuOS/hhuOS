@@ -35,7 +35,6 @@
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "device/cpu/CpuId.h"
-#include "lib/util/graphic/Ansi.h"
 #include "lib/util/stream/FileOutputStream.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/process/ProcessScheduler.h"
@@ -46,8 +45,6 @@
 #include "SchedulerSign.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
-Util::Stream::InputStream *GatesOfHell::inputStream = nullptr;
-Util::Stream::OutputStream *GatesOfHell::outputStream = nullptr;
 
 void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
@@ -81,26 +78,21 @@ void GatesOfHell::enter() {
 
     Device::SerialPort::initializeAvailablePorts();
 
-    enableSerialLogging();
-
     Device::Keyboard::initialize();
 
     initializeTerminal();
-    outputStream = new Util::Stream::FileOutputStream("/device/terminal");
-    inputStream = new Util::Stream::FileInputStream("/device/keyboard");
+
+    // Open first file descriptor for Util::System::out
+    Util::File::open("/device/terminal");
+
+    Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
+    enableSerialLogging();
 
     printBanner();
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("color_test") && Kernel::Multiboot::Structure::getKernelOption("color_test") == "true") {
-        colorTest();
-    }
-
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-
-    if (Kernel::Multiboot::Structure::hasKernelOption("scheduler_sign") && Kernel::Multiboot::Structure::getKernelOption("scheduler_sign") == "true") {
-        auto &testThread = Kernel::Thread::createKernelThread("Test", new SchedulerSign());
-        schedulerService.ready(testThread);
-    }
+    auto &testThread = Kernel::Thread::createKernelThread("Test", new SchedulerSign());
+    schedulerService.ready(testThread);
 
     auto &shellThread = Kernel::Thread::createKernelThread("Shell", new Shell());
     schedulerService.ready(shellThread);
@@ -189,7 +181,6 @@ void GatesOfHell::initializeFilesystem() {
     filesystem.mountVirtualDriver("/device", deviceDriver);
 
     filesystem.createFile("/device/log");
-    Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
@@ -203,9 +194,6 @@ void GatesOfHell::initializeFilesystem() {
 }
 
 void GatesOfHell::printBanner() {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     auto bannerFile = Util::File::File("/initrd/banner.txt");
     if (bannerFile.exists()) {
         auto bannerStream = Util::Stream::FileInputStream(bannerFile);
@@ -213,59 +201,20 @@ void GatesOfHell::printBanner() {
         auto bufferedReader = Util::Stream::BufferedReader(bannerReader);
 
         auto banner = bufferedReader.read(bannerFile.getLength());
-        writer << Util::Memory::String::format(static_cast<const char*>(banner),
+        Util::System::out << Util::Memory::String::format(static_cast<const char*>(banner),
                                                BuildConfig::getVersion(),
                                                BuildConfig::getBuildDate(),
                                                BuildConfig::getGitBranch(),
-                                               BuildConfig::getGitRevision()) << Util::Stream::PrintWriter::endl;
+                                               BuildConfig::getGitRevision()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     } else {
-        printDefaultBanner(writer);
+        printDefaultBanner();
     }
 }
 
-void GatesOfHell::printDefaultBanner(Util::Stream::PrintWriter &writer) {
-    writer << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
+void GatesOfHell::printDefaultBanner() {
+    Util::System::out << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
            << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
-           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
-void GatesOfHell::colorTest() {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-    auto reader = Util::Stream::InputStreamReader(*inputStream);
-
-    writer << Util::Graphic::Ansi::RESET << "4-bit colors:" << Util::Stream::PrintWriter::endl;
-
-    for (uint32_t i = 0; i < 16; i++) {
-        writer << Util::Graphic::Ansi::background8BitColor(i) << " ";
-    }
-
-    writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "8-bit colors:";
-
-    for (uint32_t i = 0; i < 216; i++) {
-        if (i % 36 == 0) {
-            writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
-        }
-        writer << Util::Graphic::Ansi::background8BitColor(i + 16) << " ";
-    }
-
-    writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "Grayscale colors:" << Util::Stream::PrintWriter::endl;
-
-    for (uint32_t i = 232; i < 256; i++) {
-        writer << Util::Graphic::Ansi::background8BitColor(i) << " ";
-    }
-
-    writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "24-bit colors:" << Util::Stream::PrintWriter::endl;
-
-    for (uint32_t i = 0; i < 8; i++) {
-        for (uint32_t j = 0; j < 8; j++) {
-            for (uint32_t k = 0; k < 8; k++) {
-                writer << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Color(i * 32, j * 32, k * 32)) << " ";
-            }
-        }
-        writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
-    }
-
-    writer << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
-}

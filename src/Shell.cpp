@@ -28,32 +28,27 @@
 #include "Shell.h"
 
 Shell::~Shell() {
-    delete inputStream;
-    delete outputStream;
+    delete reader;
 }
 
 void Shell::run() {
-    inputStream = new Util::Stream::FileInputStream("/device/keyboard");
-    outputStream = new Util::Stream::FileOutputStream("/device/terminal");
-
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-    auto reader = Util::Stream::InputStreamReader(*inputStream);
+    auto inputStream = Util::Stream::FileInputStream("/device/keyboard");
+    reader = new Util::Stream::InputStreamReader(inputStream);
     Util::Memory::String line = "";
 
-    writer << Util::Graphic::Ansi::BRIGHT_GREEN << "["
+    Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
             << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
             << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
             << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
 
     while(true) {
-        char input = reader.read();
-        writer << input << Util::Stream::PrintWriter::flush;
+        char input = reader->read();
+        Util::System::out << input << Util::Stream::PrintWriter::flush;
 
         if (input == '\n') {
             parseInput(line);
             line = "";
-            writer << Util::Graphic::Ansi::BRIGHT_GREEN << "["
+            Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
                     << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                     << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
                     << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
@@ -105,77 +100,58 @@ Util::File::File Shell::getFile(const Util::Memory::String &path) {
 }
 
 void Shell::invalid(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
-    writer << "Invalid command! Use 'help' to see available commands." << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Invalid command! Use 'help' to see available commands." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::help(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
-    writer << "uptime - Print system uptime" << Util::Stream::PrintWriter::endl
+    Util::System::out << "uptime - Print system uptime" << Util::Stream::PrintWriter::endl
             << "date - Print current date" << Util::Stream::PrintWriter::endl
             << "cat [file]... - Print files consecutively" << Util::Stream::PrintWriter::endl
             << "ls [file]... - Print all files in a directory" << Util::Stream::PrintWriter::endl
             << "tree [file]... - Print filesystem tree" << Util::Stream::PrintWriter::endl
-            << "help - Print available commands" << Util::Stream::PrintWriter::endl;
+            << "help - Print available commands" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::uptime(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
     auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-
-    writer << Util::Stream::PrintWriter::dec << timeService.getSystemTime().toSeconds() << " seconds" << Util::Stream::PrintWriter::endl;
+    Util::System::out << Util::Stream::PrintWriter::dec << timeService.getSystemTime().toSeconds() << " seconds" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::date(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
     auto &timeService = Kernel::System::getService<Kernel::TimeService>();
     auto date = timeService.getCurrentDate();
-
-    writer << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
+    Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
                                            date.getYear(), date.getMonth(), date.getDayOfMonth(),
-                                           date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl;
+                                           date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::mem(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
     auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
-
-    writer << "Physical:      " << formatMemory(memoryStatus.freePhysicalMemory) << " / " << formatMemory(memoryStatus.totalPhysicalMemory)
+    Util::System::out << "Physical:      " << formatMemory(memoryStatus.freePhysicalMemory) << " / " << formatMemory(memoryStatus.totalPhysicalMemory)
            << Util::Stream::PrintWriter::endl
            << "Lower:         " << formatMemory(memoryStatus.freeLowerMemory) << " / " << formatMemory(memoryStatus.totalLowerMemory)
            << Util::Stream::PrintWriter::endl
            << "Kernel:        " << formatMemory(memoryStatus.freeKernelHeapMemory) << " / " << formatMemory(memoryStatus.totalKernelHeapMemory)
            << Util::Stream::PrintWriter::endl
            << "Paging Area:   " << formatMemory(memoryStatus.freePagingAreaMemory) << " / " << formatMemory(memoryStatus.totalPagingAreaMemory)
-           << Util::Stream::PrintWriter::endl;
+           << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::cat(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-    auto reader = Util::Stream::InputStreamReader(*inputStream);
-
     if (arguments.length() < 1) {
-        writer << "No arguments provided!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "No arguments provided!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
     for (const auto &path : arguments) {
         auto file = getFile(path);
         if (!file.exists()) {
-            writer << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+            Util::System::out << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            writer << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl;
+            Util::System::out << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
             continue;
         }
 
@@ -187,24 +163,21 @@ void Shell::cat(const Util::Data::Array<Util::Memory::String> &arguments) {
 
         if (fileType == Util::File::REGULAR) {
             while (logChar != -1) {
-                writer << logChar;
+                Util::System::out << logChar;
                 logChar = bufferedFileReader.read();
             }
         } else {
             while (logChar != -1) {
-                writer << logChar << Util::Stream::PrintWriter::flush;
+                Util::System::out << logChar << Util::Stream::PrintWriter::flush;
                 logChar = bufferedFileReader.read();
             }
         }
     }
 
-    writer << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     if (arguments.length() == 0) {
         return;
     }
@@ -213,12 +186,12 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
     auto file = getFile(path);
 
     if (!file.exists()) {
-        writer << "cd '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "cd '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
     if (file.isFile()) {
-        writer << "cd '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "cd '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
@@ -236,12 +209,9 @@ void Shell::ls(const Util::Data::Array<Util::Memory::String> &arguments) {
 }
 
 void Shell::lsDirectory(const Util::Memory::String &path) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     const auto file = getFile(path);
     if (!file.exists()) {
-        writer << "ls '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "ls '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
@@ -257,13 +227,10 @@ void Shell::lsDirectory(const Util::Memory::String &path) {
         string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
     }
 
-    writer << string << Util::Stream::PrintWriter::endl;
+    Util::System::out << string << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::tree(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     if (arguments.length() == 0) {
         treeDirectory(currentDirectory.getCanonicalPath(), 0);
     } else {
@@ -274,12 +241,9 @@ void Shell::tree(const Util::Data::Array<Util::Memory::String> &arguments) {
 }
 
 void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     const auto file = getFile(path);
     if (!file.exists()) {
-        writer << "tree '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "tree '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
@@ -289,7 +253,7 @@ void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
     }
 
     string += getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
-    writer << string << Util::Stream::PrintWriter::endl;
+    Util::System::out << string << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
 
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {
@@ -299,17 +263,14 @@ void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
 }
 
 void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto bufferedStream = Util::Stream::BufferedOutputStream(*outputStream);
-    auto writer = Util::Stream::PrintWriter(bufferedStream, true);
-
     const auto file = getFile(path);
     if (!file.exists()) {
-        writer << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
     if (file.isDirectory()) {
-        writer << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl;
+        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 

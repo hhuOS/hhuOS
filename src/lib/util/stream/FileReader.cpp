@@ -20,12 +20,12 @@
 
 namespace Util::Stream {
 
-FileReader::FileReader(const File::File &file) : fileDescriptor(openFile(file.getCanonicalPath())) {}
+FileReader::FileReader(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
 
-FileReader::FileReader(const Memory::String &path) : fileDescriptor(openFile(path)) {}
+FileReader::FileReader(const Memory::String &path) : fileDescriptor(File::open(path)) {}
 
 FileReader::~FileReader() {
-    closeFile(fileDescriptor);
+    File::close(fileDescriptor);
 }
 
 char FileReader::read() {

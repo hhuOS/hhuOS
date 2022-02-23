@@ -80,6 +80,10 @@ private:
 
 };
 
+int32_t open(const Util::Memory::String &path);
+
+void close(int32_t fileDescriptor);
+
 }
 
 #endif

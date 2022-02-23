@@ -88,8 +88,7 @@ private:
 
     Util::File::File currentDirectory = Util::File::File("/");
 
-    Util::Stream::InputStream *inputStream = nullptr;
-    Util::Stream::OutputStream *outputStream = nullptr;
+    Util::Stream::Reader *reader = nullptr;
 
     static const constexpr char *PATH = "/initrd/bin";
 };
