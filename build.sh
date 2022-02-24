@@ -184,6 +184,10 @@ parse_args() {
     done
 }
 
+notify() {
+  if [ "$1" -eq "0" ]; then ./rocket notify build-success; else ./rocket notify build-failure; fi
+}
+
 build() {
     echo "Creating build-directory ${BUILD_DIR}"
     mkdir -p ${BUILD_DIR}
@@ -193,6 +197,15 @@ build() {
 
     cmake ..
     make -j ${CORE_COUNT} ${TARGET}
+    exit_code=$?
+
+    cd ..
+
+    if [ "${CI}" = "true" ]; then
+      notify "$exit_code"
+    fi
+
+    exit "$exit_code";
 }
 
 parse_args "$@"

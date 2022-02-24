@@ -1,5 +1,8 @@
 ; Export functions
 global _start
+global _init
+global _fini
+global __cxa_pure_virtual
 
 ; Import functions
 extern main

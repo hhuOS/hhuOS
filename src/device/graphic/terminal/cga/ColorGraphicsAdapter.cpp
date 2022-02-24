@@ -45,7 +45,8 @@ void ColorGraphicsAdapter::putChar(char c, const Util::Graphic::Color &foregroun
 }
 
 void ColorGraphicsAdapter::clear(const Util::Graphic::Color &backgroundColor) {
-    for (uint32_t i = 0; i < getRows() * getColumns(); i++) {
+    uint32_t size = getRows() * getColumns();
+    for (uint32_t i = 0; i < size; i++) {
         cgaMemory.setShort(0x0700, i * 2);
     }
 

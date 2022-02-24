@@ -5,7 +5,7 @@ dist: bionic
 
 jobs:
   include:
-    - name: towboot
+    - name: build
       addons:
         apt:
           packages:
@@ -15,35 +15,19 @@ jobs:
             - gcc-multilib
             - g++-multilib
             - mtools
-      script: ./build.sh --target towboot
+      before_script:
+        - wget -O rocket https://github.com/krakowski/rocket/releases/download/${ROCKET_VERSION}/rocket-${ROCKET_VERSION}-linux-amd64
+        - chmod +x rocket
+      script:
+        - ./build.sh
+
       deploy:
         provider: releases
         token: ${API_KEY}
         cleanup: false
         file:
-            - build/bin/system
-            - hhuOS.img
+          - hhuOS.img
         on:
-            repo: hhuOS/hhuOS
-            branch: master
-            tags: true
-      
-    - name: grub
-      addons:
-        apt:
-          packages:
-            - cmake
-            - make
-            - nasm
-            - gcc-multilib
-            - g++-multilib
-            - mtools
-            - grub-pc-bin
-            - grub-efi-ia32-bin
-            - xorriso
-      script: ./build.sh --target grub
-
-notifications:
-  email: false
-  slack:
-    secure: IWFNiPHHK8QEFO7B+WRmD5FUUHWISvp22pX/r/b4z4pRw/dGOBRJR819stRIWCKbz7rjBtz76O1/cwagXMSpmWyD9rxu/HBqKRdxLp00OT48b68d8o/+G+yx1oDXtl2SGphOjcCm+ld7/D2heJiHri2v4eoFLV8C2D19vFhJ29DifpN/IEggVAY/DmvSN80C+wIGXa6763vW3mxQthIvc3CCcf/yyhd5U2J29+UZOavR81y9T7DQyN7/cDHRcEM1XDT87IJ98zhwdHNDLk0a9omosqTFsYWTg6NZxfeGG6shY4r0qVjQBkjnqT30B+S4JD5ICZh7tdfkgfFJh2lsUf9AwIBJvT/3nfRXVm3nIuGX4p5gCD9T8vgtU8pxRRnN9qsNwaS38kzstg17sjBX0yK1oxB+rNZrIT8bJuMn1gcVbeNuEltciYKswaFCkPxtiWWwBgFW7cel153WMPSBo7SGUneQ+FE2KMLSPvauKOD64qw+KleAIXNyaXJtsoGtXfERqSm9jDIihwmvinrQvKwU4yZzlS2wy44/ntbOwnR03zCYnNkH7gOaUYmNY5JBpZP01XPFDxBvs+rgYRFSLJmZnrFayZ4RHO4d2xwvywOxocGCKUtlkpzJZ9EEY6Ov4+sypqoFN6zrH8wjn54FjDcZdnuIvhbTUnU+wQ0RouI=
+          repo: hhuOS/hhuOS
+          branch: master
+          tags: true

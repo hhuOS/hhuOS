@@ -70,7 +70,8 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
 void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColor) {
     cursorLock.acquire();
 
-    for (uint32_t i = 0; i < getColumns() * getRows(); i++) {
+    uint32_t size = getRows() * getColumns();
+    for (uint32_t i = 0; i < size; i++) {
         characterBuffer[i].clear();
     }
 
