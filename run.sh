@@ -21,6 +21,7 @@ QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"
 QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
 QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
 QEMU_CPU="${CONST_QEMU_CPU_I386}"
+QEMU_CPU_OVERWRITE="false"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
@@ -74,13 +75,21 @@ parse_architecture() {
 
   if [ "${architecture}" == "i386" ] || [ "${architecture}" == "x86" ] || [ "${architecture}" == "ia32" ]; then
     QEMU_BIN="${CONST_QEMU_BIN_I386}"
-    QEMU_CPU="${CONST_QEMU_CPU_I386}"
+
+    if [ "${QEMU_CPU_OVERWRITE}" != "true" ]; then
+      QEMU_CPU="${CONST_QEMU_CPU_I386}"
+    fi
+
     if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
       QEMU_BIOS="${CONST_QEMU_BIOS_IA32_EFI}"
     fi
   elif [ "${architecture}" == "x86_64" ] || [ "${architecture}" == "x64" ]; then
     QEMU_BIN="${CONST_QEMU_BIN_X86_64}"
-    QEMU_CPU="${CONST_QEMU_CPU_X86_64}"
+
+    if [ "${QEMU_CPU_OVERWRITE}" != "true" ]; then
+      QEMU_CPU="${CONST_QEMU_CPU_X86_64}"
+    fi
+
     if [ "${QEMU_BIOS}" != "${CONST_QEMU_BIOS_PC}" ]; then
       QEMU_BIOS="${CONST_QEMU_BIOS_X64_EFI}"
     fi
@@ -120,6 +129,13 @@ parse_ram() {
   QEMU_RAM="${memory}"
 }
 
+parse_cpu() {
+  local cpu=$1
+
+  QEMU_CPU="${cpu}"
+  QEMU_CPU_OVERWRITE="true"
+}
+
 parse_debug() {
   local port=$1
 
@@ -148,6 +164,8 @@ print_usage() {
         Set to true, to use the classic BIOS instead of UEFI
     -r, --ram
         Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 64M)
+    -c, --cpu
+        Set the CPU model, which qemu should emulate (e.g. 486, pentium, pentium2, ...) (Default: qemu32)
     -d, --debug
         Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help
@@ -174,6 +192,9 @@ parse_args() {
       ;;
     -r | --ram)
       parse_ram "$val"
+      ;;
+    -c | --cpu)
+      parse_cpu "$val"
       ;;
     -d | --debug)
       parse_debug "$val"
