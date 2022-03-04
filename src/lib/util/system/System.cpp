@@ -40,14 +40,22 @@ void System::call(Code code, Result &result, uint32_t paramCount, va_list args) 
     auto ecxValue = reinterpret_cast<uint32_t>(&result);
 
     asm volatile (
-    "movl %0, %%eax;"
-    "movl %1, %%ebx;"
-    "movl %2, %%ecx;"
-    "int $0x86;"
-    : :
-    "r"(eaxValue),
-    "r"(ebxValue),
-    "r"(ecxValue));
+            "push %%eax;"
+            "push %%ebx;"
+            "push %%ecx;"
+
+            "movl %0, %%eax;"
+            "movl %1, %%ebx;"
+            "movl %2, %%ecx;"
+            "int $0x86;"
+
+            "pop %%ecx;"
+            "pop %%ebx;"
+            "pop %%eax;"
+            : :
+            "r"(eaxValue),
+            "r"(ebxValue),
+            "r"(ecxValue));
 }
 
 }
