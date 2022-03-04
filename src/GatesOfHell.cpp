@@ -39,6 +39,7 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/process/ProcessScheduler.h"
 #include "kernel/service/SchedulerService.h"
+#include "kernel/memory/MemoryStatusNode.h"
 #include "BuildConfig.h"
 #include "Shell.h"
 #include "GatesOfHell.h"
@@ -181,6 +182,7 @@ void GatesOfHell::initializeFilesystem() {
     filesystem.mountVirtualDriver("/device", deviceDriver);
 
     filesystem.createFile("/device/log");
+    filesystem.getVirtualDriver("/device").addNode("/", new Kernel::MemoryStatusNode("memory"));
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");

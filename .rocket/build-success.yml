@@ -1,18 +1,21 @@
-channel: '#hhuos'
-emoji: ':white_check_mark:'
+---
 attachments:
-  - text: '{{.Env.TRAVIS_COMMIT_MESSAGE}}'
-    author_name: 'Travis CI'
-    author_link: 'https://app.travis-ci.com/github/hhuOS/hhuOS'
-    author_icon: 'https://a.slack-edge.com/80588/img/services/travis_192.png'
-    title: 'Pipeline Job #{{.Env.TRAVIS_JOB_ID}}'
-    title_url: '{{.Env.TRAVIS_JOB_WEB_URL}}'
-
+  -
+    author_icon: "https://a.slack-edge.com/80588/img/services/travis_192.png"
+    author_link: "https://app.travis-ci.com/github/hhuOS/hhuOS"
+    author_name: "Travis CI"
+    color: "#23C552"
     fields:
-      - short: true
-        title: 'Branch'
-        value: '[{{.Env.TRAVIS_BRANCH}}](https://github.com/hhuOS/hhuOS/tree/{{.Env.TRAVIS_BRANCH}})'
-
-      - short: true
-        title: 'Commit'
-        value: '[{{.Env.TRAVIS_COMMIT}}](https://github.com/hhuOS/hhuOS/commit/{{.Env.TRAVIS_COMMIT}})'
+      -
+        short: true
+        title: Branch
+        value: "[{{.Env.TRAVIS_BRANCH}}](https://github.com/hhuOS/hhuOS/tree/{{.Env.TRAVIS_BRANCH}})"
+      -
+        short: true
+        title: Commit
+        value: "[{{.Env.TRAVIS_COMMIT}}](https://github.com/hhuOS/hhuOS/commit/{{.Env.TRAVIS_COMMIT}})"
+    text: "{{.Env.TRAVIS_COMMIT_MESSAGE}}"
+    title: "Pipeline Job #{{.Env.TRAVIS_JOB_ID}}"
+    title_url: "{{.Env.TRAVIS_JOB_WEB_URL}}"
+channel: "#hhuos"
+emoji: ":white_check_mark:"

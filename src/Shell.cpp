@@ -69,8 +69,6 @@ void Shell::parseInput(const Util::Memory::String &input) {
         uptime(arguments);
     } else if (command == "date") {
         date(arguments);
-    } else if (command == "mem") {
-        mem(arguments);
     } else if (command == "cat") {
         cat(arguments);
     } else if (command == "cd") {
@@ -123,18 +121,6 @@ void Shell::date(const Util::Data::Array<Util::Memory::String> &arguments) {
     Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
                                            date.getYear(), date.getMonth(), date.getDayOfMonth(),
                                            date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::mem(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
-    Util::System::out << "Physical:      " << formatMemory(memoryStatus.freePhysicalMemory) << " / " << formatMemory(memoryStatus.totalPhysicalMemory)
-           << Util::Stream::PrintWriter::endl
-           << "Lower:         " << formatMemory(memoryStatus.freeLowerMemory) << " / " << formatMemory(memoryStatus.totalLowerMemory)
-           << Util::Stream::PrintWriter::endl
-           << "Kernel:        " << formatMemory(memoryStatus.freeKernelHeapMemory) << " / " << formatMemory(memoryStatus.totalKernelHeapMemory)
-           << Util::Stream::PrintWriter::endl
-           << "Paging Area:   " << formatMemory(memoryStatus.freePagingAreaMemory) << " / " << formatMemory(memoryStatus.totalPagingAreaMemory)
-           << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::cat(const Util::Data::Array<Util::Memory::String> &arguments) {
@@ -298,14 +284,6 @@ const char* Shell::getFileColor(const Util::File::File &file) {
     }
 
     return Util::Graphic::Ansi::WHITE;
-}
-
-Util::Memory::String Shell::formatMemory(uint32_t value) {
-    uint32_t result = value / 1024 / 1024;
-    uint32_t rest = value - (result * 1024 * 1024);
-    uint32_t comma = (rest * 1000) / 1024 / 1024;
-
-    return Util::Memory::String::format("%u.%u MiB", result, comma);
 }
 
 Util::Memory::String  Shell::checkPath(const Util::Memory::String &command) {

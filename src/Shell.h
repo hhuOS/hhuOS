@@ -62,8 +62,6 @@ private:
 
     void date(const Util::Data::Array<Util::Memory::String> &arguments);
 
-    void mem(const Util::Data::Array<Util::Memory::String> &arguments);
-
     void cat(const Util::Data::Array<Util::Memory::String> &arguments);
 
     void cd(const Util::Data::Array<Util::Memory::String> &arguments);
@@ -83,8 +81,6 @@ private:
     Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory);
 
     static const char* getFileColor(const Util::File::File &path);
-
-    static Util::Memory::String formatMemory(uint32_t value);
 
     Util::File::File currentDirectory = Util::File::File("/");
 
