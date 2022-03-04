@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public

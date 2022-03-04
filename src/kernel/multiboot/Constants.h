@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 1999,2003,2007,2008,2009,2010  Free Software Foundation, Inc.
- * Copyright (C) 2018-2021 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
