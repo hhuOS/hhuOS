@@ -72,8 +72,6 @@ void Shell::parseInput(const Util::Memory::String &input) {
         uptime(arguments);
     } else if (command == "date") {
         date(arguments);
-    } else if (command == "cat") {
-        cat(arguments);
     } else if (command == "cd") {
         cd(arguments);
     }  else if (command == "ls") {
@@ -124,46 +122,6 @@ void Shell::date(const Util::Data::Array<Util::Memory::String> &arguments) {
     Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
                                            date.getYear(), date.getMonth(), date.getDayOfMonth(),
                                            date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::cat(const Util::Data::Array<Util::Memory::String> &arguments) {
-    if (arguments.length() < 1) {
-        Util::System::out << "No arguments provided!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    for (const auto &path : arguments) {
-        auto file = getFile(path);
-        if (!file.exists()) {
-            Util::System::out << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-            continue;
-        }
-
-        if (file.isDirectory()) {
-            Util::System::out << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-            continue;
-        }
-
-        auto fileType = file.getType();
-        auto fileInputStream = Util::Stream::FileInputStream(file);
-        auto fileReader = Util::Stream::InputStreamReader(fileInputStream);
-        auto bufferedFileReader = Util::Stream::BufferedReader(fileReader);
-        char logChar = bufferedFileReader.read();
-
-        if (fileType == Util::File::REGULAR) {
-            while (logChar != -1) {
-                Util::System::out << logChar;
-                logChar = bufferedFileReader.read();
-            }
-        } else {
-            while (logChar != -1) {
-                Util::System::out << logChar << Util::Stream::PrintWriter::flush;
-                logChar = bufferedFileReader.read();
-            }
-        }
-    }
-
-    Util::System::out << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
@@ -271,7 +229,7 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
 
     auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = schedulerService.createProcess(virtualAddressSpace);
+    auto &process = schedulerService.createProcess(virtualAddressSpace, Util::File::getCurrentWorkingDirectory());
     auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(file.getCanonicalPath(), command, arguments));
 
     process.ready(thread);

@@ -14,15 +14,15 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(echo)
+project(cat)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/echo/echo.cpp)
+        ${HHUOS_SRC_DIR}/application/cat/cat.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(echo lib.crt0 lib.user)
+target_link_libraries(cat lib.crt0 lib.user)

@@ -1,4 +1,4 @@
-# Copyright (C) 2019 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+# Copyright (C) 2018-2022 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
 # Heinrich-Heine University
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public

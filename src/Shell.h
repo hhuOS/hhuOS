@@ -62,8 +62,6 @@ private:
 
     void date(const Util::Data::Array<Util::Memory::String> &arguments);
 
-    void cat(const Util::Data::Array<Util::Memory::String> &arguments);
-
     void cd(const Util::Data::Array<Util::Memory::String> &arguments);
 
     void ls(const Util::Data::Array<Util::Memory::String> &arguments);
