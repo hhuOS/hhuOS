@@ -23,8 +23,8 @@ namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
-Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace) :
-        id(idGenerator.next()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler) {}
+Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory) :
+        id(idGenerator.next()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
     Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
@@ -67,6 +67,28 @@ bool Process::isFinished() const {
 
 int32_t Process::getExitCode() const {
     return exitCode;
+}
+
+bool Process::setWorkingDirectory(const Util::Memory::String &path) {
+    auto file = getFileFromPath(path);
+    if (!file.exists() || file.isFile()) {
+        return false;
+    }
+
+    workingDirectory = file;
+    return true;
+}
+
+Util::File::File Process::getWorkingDirectory() {
+    return workingDirectory;
+}
+
+Util::File::File Process::getFileFromPath(const Util::Memory::String &path) {
+    if (path[0] == '/') {
+        return Util::File::File(path);
+    }
+
+    return Util::File::File(workingDirectory.getCanonicalPath() + "/" + path);
 }
 
 }

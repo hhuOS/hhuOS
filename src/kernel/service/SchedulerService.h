@@ -19,6 +19,7 @@
 #define HHUOS_SCHEDULERSERVICE_H
 
 #include "kernel/process/ProcessScheduler.h"
+#include "lib/util/file/File.h"
 #include "Service.h"
 
 namespace Kernel {
@@ -56,7 +57,7 @@ public:
 
     void yield();
 
-    Process& createProcess(VirtualAddressSpace &addressSpace);
+    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory = Util::File::File("/"));
 
     void releaseSchedulerLock();
 

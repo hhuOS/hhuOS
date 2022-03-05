@@ -50,16 +50,16 @@ void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
 }
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
-    return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char *>(path), type) == Util::System::OK;
+    return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char*>(path), type) == Util::System::OK;
 }
 
 bool deleteFile(const Util::Memory::String &path) {
-    return Util::System::call(Util::System::DELETE_FILE, 1, static_cast<const char *>(path)) == Util::System::OK;
+    return Util::System::call(Util::System::DELETE_FILE, 1, static_cast<const char*>(path)) == Util::System::OK;
 }
 
 int32_t openFile(const Util::Memory::String &path) {
     int32_t fileDescriptor;
-    auto result = Util::System::call(Util::System::OPEN_FILE, 2, static_cast<const char *>(path), &fileDescriptor);
+    auto result = Util::System::call(Util::System::OPEN_FILE, 2, static_cast<const char*>(path), &fileDescriptor);
     return result == Util::System::OK ? fileDescriptor : -1;
 }
 
@@ -104,6 +104,17 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
     uint64_t written;
     Util::System::call(Util::System::WRITE_FILE, 5, fileDescriptor, sourceBuffer, pos, length, &written);
     return written;
+}
+
+bool changeDirectory(const Util::Memory::String &path) {
+    auto result = Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path));
+    return result == Util::System::OK;
+}
+
+Util::File::File getCurrentWorkingDirectory() {
+    char *path;
+    Util::System::call(Util::System::GET_CURRENT_WORKING_DIRECTORY, 1, &path);
+    return Util::File::File(path);
 }
 
 void throwError(Util::Exception::Error error, const char *message) {

@@ -19,6 +19,7 @@
 #define HHUOS_PROCESS_H
 
 #include "kernel/paging/VirtualAddressSpace.h"
+#include "lib/util/file/File.h"
 #include "Thread.h"
 #include "ThreadScheduler.h"
 
@@ -30,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace);
+    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory = Util::File::File("/"));
 
     /**
      * Copy constructor.
@@ -53,6 +54,8 @@ public:
 
     void exit(int32_t exitCode);
 
+    bool setWorkingDirectory(const Util::Memory::String &path);
+
     [[nodiscard]] uint32_t getId() const;
 
     [[nodiscard]] VirtualAddressSpace& getAddressSpace();
@@ -61,17 +64,22 @@ public:
 
     [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
 
+    [[nodiscard]] Util::File::File getWorkingDirectory();
+
     [[nodiscard]] bool isFinished() const;
 
     [[nodiscard]] int32_t getExitCode() const;
 
 private:
 
+    [[nodiscard]] Util::File::File getFileFromPath(const Util::Memory::String &path);
+
     uint32_t id;
     VirtualAddressSpace &addressSpace;
     ProcessScheduler &scheduler;
     ThreadScheduler threadScheduler;
     FileDescriptorManager fileDescriptorManager;
+    Util::File::File workingDirectory;
 
     bool finished = false;
     int32_t exitCode = -1;

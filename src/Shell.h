@@ -82,8 +82,6 @@ private:
 
     static const char* getFileColor(const Util::File::File &path);
 
-    Util::File::File currentDirectory = Util::File::File("/");
-
     Util::Stream::Reader *reader = nullptr;
 
     static const constexpr char *PATH = "/initrd/bin";

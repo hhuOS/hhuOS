@@ -19,37 +19,6 @@ extern ___FINI_ARRAY_END__
 
 section .text
 
-%macro prepare 0
-    push eax
-    push ecx
-    push edx
-%endmacro
-
-%macro cleanup 1
-    add esp,%1
-    pop edx
-    pop ecx
-    pop eax
-%endmacro
-
-%macro prologue 1
-    push ebp
-    mov ebp,esp
-    sub esp,%1
-    push ebx
-    push edi
-    push esi
-%endmacro
-
-%macro epilogue 0
-    pop esi
-    pop edi
-    pop ebx
-    mov esp,ebp
-    pop ebp
-    ret
-%endmacro
-
 ; Entry point
 _start:
     ; Initialize memory manager
@@ -85,7 +54,6 @@ _start:
 
 ; Zero out bss
 clear_bss:
-    prologue 0
     mov	edi,___BSS_START__
 clear_bss_loop:
     cmp	edi,___BSS_END__
@@ -94,12 +62,10 @@ clear_bss_loop:
     inc	edi
     jmp clear_bss_loop
 clear_bss_done:
-    epilogue
     ret
 
 ; Call constructors of global objects
 _init:
-    prologue 0
 	mov edi,___INIT_ARRAY_START__
 _init_loop:
 	cmp edi,___INIT_ARRAY_END__
@@ -108,12 +74,10 @@ _init_loop:
 	add	edi,4
 	jmp _init_loop
 _init_done:
-    epilogue
 	ret
 
 ; Call destructors of global objects
 _fini:
-    prologue 0
     mov	 edi,___FINI_ARRAY_START__
 _fini_loop:
     cmp	 edi,___FINI_ARRAY_END__
@@ -122,16 +86,9 @@ _fini_loop:
     add	 edi,4
     jmp _fini_loop
 _fini_done:
-    epilogue
     ret
 
 ; This function is used when global constructors are called
 ; The label must be defined but can be void
 __cxa_pure_virtual:
     ret
-
-section .data
-    argc: dd 0
-    argv: dd 0
-    envp: dd 0
-    main_ret:  dd 0

@@ -110,7 +110,7 @@ FilesystemService::FilesystemService() {
         *targetChildren = static_cast<char**>(memoryService.allocateUserMemory(children.length() * sizeof(char*)));
 
         for (uint32_t i = 0; i < children.length(); i++) {
-            (*targetChildren)[i] = static_cast<char*>(memoryService.allocateUserMemory(children[i].length() + 1));
+            (*targetChildren)[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
             auto source = Util::Memory::Address<uint32_t>(static_cast<char*>(children[i]));
             auto target = Util::Memory::Address<uint32_t>((*targetChildren)[i]);
             target.copyString(source);
@@ -146,6 +146,34 @@ FilesystemService::FilesystemService() {
         uint64_t *read = va_arg(arguments, uint64_t*);
 
         *read = System::getService<FilesystemService>().getNode(fileDescriptor).readData(targetBuffer, pos, length);
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::CHANGE_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        const char *path = va_arg(arguments, const char*);
+
+        auto result = System::getService<SchedulerService>().getCurrentProcess().setWorkingDirectory(path);
+        return result ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+    });
+
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_WORKING_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        char **targetPath = va_arg(arguments, char**);
+        auto path = System::getService<SchedulerService>().getCurrentProcess().getWorkingDirectory().getCanonicalPath();
+
+        auto &memoryService = System::getService<MemoryService>();
+        *targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
+        auto source = Util::Memory::Address<uint32_t>(static_cast<char*>(path));
+        auto target = Util::Memory::Address<uint32_t>(*targetPath);
+        target.copyString(source);
+
         return Util::System::Result::OK;
     });
 }

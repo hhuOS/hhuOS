@@ -84,6 +84,10 @@ int32_t open(const Util::Memory::String &path);
 
 void close(int32_t fileDescriptor);
 
+bool changeDirectory(const Util::Memory::String &path);
+
+[[nodiscard]] File getCurrentWorkingDirectory();
+
 }
 
 #endif

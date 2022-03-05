@@ -147,4 +147,12 @@ void close(int32_t fileDescriptor) {
     return closeFile(fileDescriptor);
 }
 
+bool changeDirectory(const Util::Memory::String &path) {
+    return ::changeDirectory(path);
+}
+
+File getCurrentWorkingDirectory() {
+    return ::getCurrentWorkingDirectory();
+}
+
 }

@@ -21,6 +21,7 @@
 #include <cstdint>
 #include "lib/util/Exception.h"
 #include "filesystem/core/Node.h"
+#include "lib/util/file/File.h"
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
@@ -39,6 +40,8 @@ uint32_t getFileLength(int32_t fileDescriptor);
 Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor);
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length);
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
+bool changeDirectory(const Util::Memory::String &path);
+Util::File::File getCurrentWorkingDirectory();
 
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);
 

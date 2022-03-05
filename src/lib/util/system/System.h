@@ -43,7 +43,9 @@ public:
         FILE_LENGTH,
         FILE_CHILDREN,
         WRITE_FILE,
-        READ_FILE
+        READ_FILE,
+        CHANGE_DIRECTORY,
+        GET_CURRENT_WORKING_DIRECTORY
     };
 
     enum Result : uint16_t {

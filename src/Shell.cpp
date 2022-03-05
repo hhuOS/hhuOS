@@ -32,6 +32,7 @@ Shell::~Shell() {
 }
 
 void Shell::run() {
+    auto currentDirectory = Util::File::getCurrentWorkingDirectory();
     auto inputStream = Util::Stream::FileInputStream("/device/keyboard");
     reader = new Util::Stream::InputStreamReader(inputStream);
     Util::Memory::String line = "";
@@ -48,6 +49,8 @@ void Shell::run() {
         if (input == '\n') {
             parseInput(line);
             line = "";
+            currentDirectory = Util::File::getCurrentWorkingDirectory();
+
             Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
                     << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                     << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
@@ -94,7 +97,7 @@ Util::File::File Shell::getFile(const Util::Memory::String &path) {
         return Util::File::File(path);
     }
 
-    return Util::File::File(currentDirectory.getCanonicalPath() + "/" + path);
+    return Util::File::File(Util::File::getCurrentWorkingDirectory().getCanonicalPath() + "/" + path);
 }
 
 void Shell::invalid(const Util::Data::Array<Util::Memory::String> &arguments) {
@@ -172,21 +175,25 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
     auto file = getFile(path);
 
     if (!file.exists()) {
-        Util::System::out << "cd '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
     if (file.isFile()) {
-        Util::System::out << "cd '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
         return;
     }
 
-    currentDirectory = file;
+    auto result = Util::File::changeDirectory(path);
+    if (!result) {
+        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        return;
+    }
 }
 
 void Shell::ls(const Util::Data::Array<Util::Memory::String> &arguments) {
     if (arguments.length() == 0) {
-        lsDirectory(currentDirectory.getCanonicalPath());
+        lsDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath());
     } else {
         for (const auto &path : arguments) {
             lsDirectory(path);
@@ -218,7 +225,7 @@ void Shell::lsDirectory(const Util::Memory::String &path) {
 
 void Shell::tree(const Util::Data::Array<Util::Memory::String> &arguments) {
     if (arguments.length() == 0) {
-        treeDirectory(currentDirectory.getCanonicalPath(), 0);
+        treeDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath(), 0);
     } else {
         for (const auto &path : arguments) {
             treeDirectory(path);

@@ -97,6 +97,14 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
     return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
 }
 
+bool changeDirectory(const Util::Memory::String &path) {
+    return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().setWorkingDirectory(path);
+}
+
+Util::File::File getCurrentWorkingDirectory() {
+    return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().getWorkingDirectory();
+}
+
 void throwError(Util::Exception::Error error, const char *message){
     Device::Cpu::throwException(error, message);
 }
