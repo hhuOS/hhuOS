@@ -27,6 +27,7 @@ jobs:
         cleanup: false
         file:
           - hhuOS.img
+          - hhuOS.bin
         on:
           repo: hhuOS/hhuOS
           branch: master
