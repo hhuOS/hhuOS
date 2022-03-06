@@ -74,10 +74,6 @@ void Shell::parseInput(const Util::Memory::String &input) {
         date(arguments);
     } else if (command == "cd") {
         cd(arguments);
-    }  else if (command == "ls") {
-        ls(arguments);
-    } else if (command == "tree") {
-        tree(arguments);
     } else if (command == "help") {
         help(arguments);
     } else if (!command.isEmpty()) {
@@ -107,8 +103,8 @@ void Shell::help(const Util::Data::Array<Util::Memory::String> &arguments) {
             << "date - Print current date" << Util::Stream::PrintWriter::endl
             << "cat [file]... - Print files consecutively" << Util::Stream::PrintWriter::endl
             << "ls [file]... - Print all files in a directory" << Util::Stream::PrintWriter::endl
-            << "tree [file]... - Print filesystem tree" << Util::Stream::PrintWriter::endl
-            << "help - Print available commands" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+            << "ls [file]... - Print filesystem ls" << Util::Stream::PrintWriter::endl
+            << "help - Print available commands" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::uptime(const Util::Data::Array<Util::Memory::String> &arguments) {
@@ -133,95 +129,31 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
     auto file = getFile(path);
 
     if (!file.exists()) {
-        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
     if (file.isFile()) {
-        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
     auto result = Util::File::changeDirectory(path);
     if (!result) {
-        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
-    }
-}
-
-void Shell::ls(const Util::Data::Array<Util::Memory::String> &arguments) {
-    if (arguments.length() == 0) {
-        lsDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath());
-    } else {
-        for (const auto &path : arguments) {
-            lsDirectory(path);
-        }
-    }
-}
-
-void Shell::lsDirectory(const Util::Memory::String &path) {
-    const auto file = getFile(path);
-    if (!file.exists()) {
-        Util::System::out << "ls '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    auto string = Util::Memory::String();
-    if (file.isDirectory()) {
-        for (const auto &child : file.getChildren()) {
-            const auto currentFile = Util::File::File(file.getCanonicalPath() + "/" + child);
-            string += getFileColor(currentFile) + currentFile.getName() + (currentFile.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
-        }
-
-        string = string.substring(0, string.length() - 1);
-    } else {
-        string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
-    }
-
-    Util::System::out << string << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::tree(const Util::Data::Array<Util::Memory::String> &arguments) {
-    if (arguments.length() == 0) {
-        treeDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath(), 0);
-    } else {
-        for (const auto &path : arguments) {
-            treeDirectory(path);
-        }
-    }
-}
-
-void Shell::treeDirectory(const Util::Memory::String &path, uint32_t level) {
-    const auto file = getFile(path);
-    if (!file.exists()) {
-        Util::System::out << "tree '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    auto string = Util::Memory::String("|-");
-    for (uint32_t i = 0; i < level; i++) {
-        string += "-";
-    }
-
-    string += getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
-    Util::System::out << string << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
-
-    if (file.isDirectory()) {
-        for (const auto &child : file.getChildren()) {
-            treeDirectory(file.getCanonicalPath() + "/" + child, level + 1);
-        }
     }
 }
 
 void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
     const auto file = getFile(path);
     if (!file.exists()) {
-        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
     if (file.isDirectory()) {
-        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
@@ -238,20 +170,7 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
     while (!process.isFinished());
 }
 
-const char* Shell::getFileColor(const Util::File::File &file) {
-    switch (file.getType()) {
-        case Util::File::DIRECTORY:
-            return Util::Graphic::Ansi::BRIGHT_BLUE;
-        case Util::File::REGULAR:
-            return Util::Graphic::Ansi::WHITE;
-        case Util::File::CHARACTER:
-            return Util::Graphic::Ansi::BRIGHT_YELLOW;
-    }
-
-    return Util::Graphic::Ansi::WHITE;
-}
-
-Util::Memory::String  Shell::checkPath(const Util::Memory::String &command) {
+Util::Memory::String Shell::checkPath(const Util::Memory::String &command) {
     for (const auto &path : Util::Memory::String(PATH).split(":")) {
         auto binaryPath = checkDirectory(command, Util::File::File(path));
         if (!binaryPath.isEmpty()) {

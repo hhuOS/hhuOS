@@ -9,7 +9,7 @@ attachments:
       -
         short: true
         title: Branch
-        value: "[{{.Env.TRAVIS_BRANCH}}](https://github.com/hhuOS/hhuOS/tree/{{.Env.TRAVIS_BRANCH}})"
+        value: "[{{.Env.TRAVIS_BRANCH}}](https://github.com/hhuOS/hhuOS/ls/{{.Env.TRAVIS_BRANCH}})"
       -
         short: true
         title: Commit

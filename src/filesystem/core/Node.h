@@ -24,7 +24,7 @@
 namespace Filesystem {
 
 /**
- * Represents a node in the filesystem-tree.
+ * Represents a node in the filesystem-ls.
  * When a file/folder is requested, the Filesystem-class returns a pointer to an FsNode,
  * that corresponds to the requested file/folder. It can then be used to read/write
  * to the file and get meta-information.

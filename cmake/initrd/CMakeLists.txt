@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(initrd)
+project(tree)
 message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
@@ -23,8 +23,10 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND cp "$<TARGET_FILE:color>" "${HHUOS_ROOT_DIR}/initrd/bin/color"
         COMMAND cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/initrd/bin/echo"
         COMMAND cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/initrd/bin/hello"
+        COMMAND cp "$<TARGET_FILE:ls>" "${HHUOS_ROOT_DIR}/initrd/bin/ls"
+        COMMAND cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/initrd/bin/tree"
         COMMAND tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
         COMMAND rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        DEPENDS cat color echo hello)
+        DEPENDS cat color echo hello ls tree)
 
-add_custom_target(initrd DEPENDS cat color echo hello "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+add_custom_target(initrd DEPENDS cat color echo hello ls tree "${CMAKE_BINARY_DIR}/hhuOS.initrd")

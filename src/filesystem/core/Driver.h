@@ -69,7 +69,7 @@ public:
 
     /**
      * Delete an existing file or directory at a given path.
-     * The file must be a regular file or an empty folder (a leaf in the filesystem tree).
+     * The file must be a regular file or an empty folder (a leaf in the filesystem ls).
      *
      * @param path The path.
      *

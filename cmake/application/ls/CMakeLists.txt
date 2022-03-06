@@ -14,21 +14,15 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(application)
+project(ls)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
-set(CMAKE_C_FLAGS "-m32 -march=i386 -mfpmath=387 -mno-mmx -mno-sse -mno-avx -g -Wall -fno-stack-protector -nostdlib -fno-pic -no-pie -ffreestanding -Wl,--hash-style=sysv")
-if(CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL 9)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mmanual-endbr")
-endif()
-set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/application/link.ld")
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/ls/ls.cpp)
 
-# Add subdirectories
-add_subdirectory(cat)
-add_subdirectory(color)
-add_subdirectory(echo)
-add_subdirectory(hello)
-add_subdirectory(ls)
-add_subdirectory(tree)
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(ls lib.crt0 lib.user)

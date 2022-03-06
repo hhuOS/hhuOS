@@ -17,6 +17,7 @@
 
 #include "lib/interface.h"
 #include "lib/util/data/ArrayList.h"
+#include "lib/util/graphic/Ansi.h"
 #include "File.h"
 
 namespace Util::File {
@@ -153,6 +154,27 @@ bool changeDirectory(const Util::Memory::String &path) {
 
 File getCurrentWorkingDirectory() {
     return ::getCurrentWorkingDirectory();
+}
+
+File getFile(const Util::Memory::String &path) {
+    if (path[0] == '/') {
+        return File(path);
+    }
+
+    return File(getCurrentWorkingDirectory().getCanonicalPath() + "/" + path);
+}
+
+const char* getFileColor(const File &file) {
+    switch (file.getType()) {
+        case DIRECTORY:
+            return Util::Graphic::Ansi::BRIGHT_BLUE;
+        case REGULAR:
+            return Util::Graphic::Ansi::WHITE;
+        case CHARACTER:
+            return Util::Graphic::Ansi::BRIGHT_YELLOW;
+    }
+
+    return Util::Graphic::Ansi::WHITE;
 }
 
 }

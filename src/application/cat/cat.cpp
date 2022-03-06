@@ -21,30 +21,22 @@
 #include "lib/util/stream/InputStreamReader.h"
 #include "lib/util/stream/FileInputStream.h"
 
-Util::File::File getFile(const Util::Memory::String &path) {
-    if (path[0] == '/') {
-        return Util::File::File(path);
-    }
-
-    return Util::File::File(Util::File::getCurrentWorkingDirectory().getCanonicalPath() + "/" + path);
-}
-
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "cat: No arguments provided!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cat: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
     for (int32_t i = 1; i < argc; i++) {
         Util::Memory::String path(argv[i]);
-        auto file = getFile(path);
+        auto file = Util::File::getFile(path);
         if (!file.exists()) {
-            Util::System::out << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+            Util::System::out << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            Util::System::out << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl  << Util::Stream::PrintWriter::flush;
+            Util::System::out << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
@@ -61,7 +53,11 @@ int32_t main(int32_t argc, char *argv[]) {
             }
         } else {
             while (logChar != -1) {
-                Util::System::out << logChar << Util::Stream::PrintWriter::flush;
+                Util::System::out << logChar;
+                if (logChar == '\n') {
+                    Util::System::out << Util::Stream::PrintWriter::flush;
+                }
+
                 logChar = bufferedFileReader.read();
             }
         }

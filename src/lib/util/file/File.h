@@ -88,6 +88,10 @@ bool changeDirectory(const Util::Memory::String &path);
 
 [[nodiscard]] File getCurrentWorkingDirectory();
 
+File getFile(const Util::Memory::String &path);
+
+const char* getFileColor(const Util::File::File &path);
+
 }
 
 #endif
