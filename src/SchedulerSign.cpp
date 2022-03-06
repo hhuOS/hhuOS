@@ -32,11 +32,10 @@ void SchedulerSign::run() {
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
     auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
-    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
     const char *characters = "|/-\\";
 
     while (true) {
-        auto time = timeService.getSystemTime();
+        auto time = Util::Time::getSystemTime();
         if (time.toMilliseconds() % 250 == 0) {
             auto characterIndex = (time.toMilliseconds() % 1000) / 250;
             stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);

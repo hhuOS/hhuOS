@@ -16,10 +16,11 @@
  */
 
 #include "Timestamp.h"
+#include "lib/interface.h"
 
 namespace Util::Time {
 
-Timestamp::Timestamp(uint32_t seconds, uint32_t fraction) : seconds(seconds), fraction(fraction) {}
+Timestamp::Timestamp(uint32_t seconds, uint32_t fraction = 0) : seconds(seconds), fraction(fraction) {}
 
 uint32_t Timestamp::convert(uint32_t value, Timestamp::TimeUnit from, Timestamp::TimeUnit to) {
     if (from == to) {
@@ -108,6 +109,10 @@ uint32_t Timestamp::toDays() const {
 
 uint32_t Timestamp::toYears() const {
     return seconds / 31536000;
+}
+
+Timestamp getSystemTime() {
+    return ::getSystemTime();
 }
 
 }

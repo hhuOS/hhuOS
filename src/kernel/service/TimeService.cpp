@@ -16,10 +16,45 @@
 
 #include "lib/util/Exception.h"
 #include "TimeService.h"
+#include "kernel/system/SystemCall.h"
+#include "kernel/system/System.h"
 
 namespace Kernel {
 
-TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {}
+TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider) : timeProvider(timeProvider), dateProvider(dateProvider) {
+    SystemCall::registerSystemCall(Util::System::GET_SYSTEM_TIME, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        Util::Time::Timestamp *targetTime = va_arg(arguments, Util::Time::Timestamp*);
+
+        *targetTime = System::getService<TimeService>().getSystemTime();
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_DATE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        Util::Time::Date *targetDate = va_arg(arguments, Util::Time::Date*);
+
+        *targetDate = System::getService<TimeService>().getCurrentDate();
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::SET_DATE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        Util::Time::Date *date = va_arg(arguments, Util::Time::Date*);
+
+        System::getService<TimeService>().setCurrentDate(*date);
+        return Util::System::Result::OK;
+    });
+}
 
 Util::Time::Timestamp TimeService::getSystemTime() const {
     if (timeProvider != nullptr) {

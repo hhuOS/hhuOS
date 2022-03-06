@@ -45,11 +45,15 @@ int32_t main(int32_t argc, char *argv[]) {
     if (argc <= 1) {
         lsDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath());
     } else {
-        for (int32_t i = 1; i < argc; i++) {
-            Util::System::out << argv[i] << ":" << Util::Stream::PrintWriter::endl;
-            lsDirectory(argv[i]);
-            if (i < argc - 1) {
-                Util::System::out << Util::Stream::PrintWriter::endl;
+        if (argc == 2) {
+            lsDirectory(argv[1]);
+        } else {
+            for (int32_t i = 1; i < argc; i++) {
+                Util::System::out << argv[i] << ":" << Util::Stream::PrintWriter::endl;
+                lsDirectory(argv[i]);
+                if (i < argc - 1) {
+                    Util::System::out << Util::Stream::PrintWriter::endl;
+                }
             }
         }
     }

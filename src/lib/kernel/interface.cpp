@@ -16,10 +16,11 @@
  */
 
 #include "lib/interface.h"
+#include "device/cpu/Cpu.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"
-#include "device/cpu/Cpu.h"
+#include "kernel/service/TimeService.h"
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
     if (Kernel::System::isInitialized()) {
@@ -103,6 +104,18 @@ bool changeDirectory(const Util::Memory::String &path) {
 
 Util::File::File getCurrentWorkingDirectory() {
     return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().getWorkingDirectory();
+}
+
+Util::Time::Timestamp getSystemTime() {
+    return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
+}
+
+Util::Time::Date getCurrentDate() {
+    return Kernel::System::getService<Kernel::TimeService>().getCurrentDate();
+}
+
+void setDate(const Util::Time::Date &date) {
+    Kernel::System::getService<Kernel::TimeService>().setCurrentDate(date);
 }
 
 void throwError(Util::Exception::Error error, const char *message){

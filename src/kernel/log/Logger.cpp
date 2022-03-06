@@ -133,7 +133,7 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
 
     lock.acquire();
 
-    uint32_t millis = System::isServiceRegistered(TimeService::SERVICE_ID) ? System::getService<TimeService>().getSystemTime().toMilliseconds() : 0;
+    uint32_t millis = System::isServiceRegistered(TimeService::SERVICE_ID) ? Util::Time::getSystemTime().toMilliseconds() : 0;
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 

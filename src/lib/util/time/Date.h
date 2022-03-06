@@ -95,6 +95,10 @@ private:
 
 };
 
+Date getCurrentDate();
+
+void setDate(const Date &date);
+
 }
 
 #endif

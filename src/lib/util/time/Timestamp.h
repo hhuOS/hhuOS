@@ -119,6 +119,8 @@ private:
 
 };
 
+Timestamp getSystemTime();
+
 }
 
 #endif

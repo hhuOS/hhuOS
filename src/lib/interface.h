@@ -22,6 +22,8 @@
 #include "lib/util/Exception.h"
 #include "filesystem/core/Node.h"
 #include "lib/util/file/File.h"
+#include "lib/util/time/Timestamp.h"
+#include "lib/util/time/Date.h"
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
@@ -42,6 +44,10 @@ uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, u
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
 bool changeDirectory(const Util::Memory::String &path);
 Util::File::File getCurrentWorkingDirectory();
+
+Util::Time::Timestamp getSystemTime();
+Util::Time::Date getCurrentDate();
+void setDate(const Util::Time::Date &date);
 
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);
 

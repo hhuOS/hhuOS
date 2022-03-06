@@ -15,9 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/time/Pit.h"
-#include "kernel/service/TimeService.h"
-#include "kernel/system/System.h"
+#include "lib/util/time/Timestamp.h"
 #include "PcSpeaker.h"
 
 namespace Device {
@@ -59,10 +57,8 @@ void PcSpeaker::off() {
 }
 
 void PcSpeaker::delay(uint32_t time) {
-    const auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-
-    uint32_t end = timeService.getSystemTime().toMilliseconds() + time;
-    while (timeService.getSystemTime().toMilliseconds() < end) {}
+    uint32_t end = Util::Time::getSystemTime().toMilliseconds() + time;
+    while (Util::Time::getSystemTime().toMilliseconds() < end) {}
 }
 
 }

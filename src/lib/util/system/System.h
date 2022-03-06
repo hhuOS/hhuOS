@@ -45,7 +45,10 @@ public:
         WRITE_FILE,
         READ_FILE,
         CHANGE_DIRECTORY,
-        GET_CURRENT_WORKING_DIRECTORY
+        GET_CURRENT_WORKING_DIRECTORY,
+        GET_SYSTEM_TIME,
+        SET_DATE,
+        GET_CURRENT_DATE
     };
 
     enum Result : uint16_t {

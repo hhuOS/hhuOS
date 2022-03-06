@@ -117,6 +117,22 @@ Util::File::File getCurrentWorkingDirectory() {
     return Util::File::File(path);
 }
 
+Util::Time::Timestamp getSystemTime() {
+    Util::Time::Timestamp systemTime;
+    Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);
+    return systemTime;
+}
+
+Util::Time::Date getCurrentDate() {
+    Util::Time::Date date;
+    Util::System::call(Util::System::GET_CURRENT_DATE, 1, &date);
+    return date;
+}
+
+void setDate(const Util::Time::Date &date) {
+    Util::System::call(Util::System::SET_DATE, 1, &date);
+}
+
 void throwError(Util::Exception::Error error, const char *message) {
     asm volatile ("hlt");
     while(true);

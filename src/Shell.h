@@ -58,10 +58,6 @@ private:
 
     void help(const Util::Data::Array<Util::Memory::String> &arguments);
 
-    void uptime(const Util::Data::Array<Util::Memory::String> &arguments);
-
-    void date(const Util::Data::Array<Util::Memory::String> &arguments);
-
     void cd(const Util::Data::Array<Util::Memory::String> &arguments);
 
     void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);

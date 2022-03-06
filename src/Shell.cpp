@@ -15,16 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/BufferedOutputStream.h"
+#include "kernel/system/System.h"
+#include "kernel/process/BinaryLoader.h"
 #include "lib/util/stream/InputStreamReader.h"
 #include "lib/util/stream/PrintWriter.h"
-#include "kernel/system/System.h"
-#include "kernel/service/TimeService.h"
-#include "kernel/process/BinaryLoader.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "lib/util/stream/FileOutputStream.h"
-#include "lib/util/stream/BufferedReader.h"
 #include "lib/util/graphic/Ansi.h"
+#include "lib/util/time/Date.h"
 #include "Shell.h"
 
 Shell::~Shell() {
@@ -68,11 +66,7 @@ void Shell::parseInput(const Util::Memory::String &input) {
     const auto rest = input.substring(input.indexOf(" "), input.length());
     const auto arguments = rest.split(" ");
 
-    if (command == "uptime") {
-        uptime(arguments);
-    } else if (command == "date") {
-        date(arguments);
-    } else if (command == "cd") {
+    if (command == "cd") {
         cd(arguments);
     } else if (command == "help") {
         help(arguments);
@@ -105,19 +99,6 @@ void Shell::help(const Util::Data::Array<Util::Memory::String> &arguments) {
             << "ls [file]... - Print all files in a directory" << Util::Stream::PrintWriter::endl
             << "ls [file]... - Print filesystem ls" << Util::Stream::PrintWriter::endl
             << "help - Print available commands" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::uptime(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-    Util::System::out << Util::Stream::PrintWriter::dec << timeService.getSystemTime().toSeconds() << " seconds" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::date(const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-    auto date = timeService.getCurrentDate();
-    Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
-                                           date.getYear(), date.getMonth(), date.getDayOfMonth(),
-                                           date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {

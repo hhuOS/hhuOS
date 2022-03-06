@@ -16,54 +16,67 @@
  */
 
 #include "Date.h"
+#include "lib/interface.h"
 
-Util::Time::Date::Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, uint16_t year) :
+namespace Util::Time {
+
+Date::Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, uint16_t year) :
         seconds(seconds), minutes(minutes), hours(hours), dayOfMonth(dayOfMonth), month(month), year(year) {}
 
-uint8_t Util::Time::Date::getSeconds() const {
+uint8_t Date::getSeconds() const {
     return seconds;
 }
 
-void Util::Time::Date::setSeconds(uint8_t seconds) {
+void Date::setSeconds(uint8_t seconds) {
     Date::seconds = seconds;
 }
 
-uint8_t Util::Time::Date::getMinutes() const {
+uint8_t Date::getMinutes() const {
     return minutes;
 }
 
-void Util::Time::Date::setMinutes(uint8_t minutes) {
+void Date::setMinutes(uint8_t minutes) {
     Date::minutes = minutes;
 }
 
-uint8_t Util::Time::Date::getHours() const {
+uint8_t Date::getHours() const {
     return hours;
 }
 
-void Util::Time::Date::setHours(uint8_t hours) {
+void Date::setHours(uint8_t hours) {
     Date::hours = hours;
 }
 
-uint8_t Util::Time::Date::getDayOfMonth() const {
+uint8_t Date::getDayOfMonth() const {
     return dayOfMonth;
 }
 
-void Util::Time::Date::setDayOfMonth(uint8_t dayOfMonth) {
+void Date::setDayOfMonth(uint8_t dayOfMonth) {
     Date::dayOfMonth = dayOfMonth;
 }
 
-uint8_t Util::Time::Date::getMonth() const {
+uint8_t Date::getMonth() const {
     return month;
 }
 
-void Util::Time::Date::setMonth(uint8_t month) {
+void Date::setMonth(uint8_t month) {
     Date::month = month;
 }
 
-uint16_t Util::Time::Date::getYear() const {
+uint16_t Date::getYear() const {
     return year;
 }
 
-void Util::Time::Date::setYear(uint16_t year) {
+void Date::setYear(uint16_t year) {
     Date::year = year;
+}
+
+Date getCurrentDate() {
+    return ::getCurrentDate();
+}
+
+void setDate(const Date &date) {
+    ::setDate(date);
+}
+
 }
