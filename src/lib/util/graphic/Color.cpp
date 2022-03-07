@@ -17,6 +17,7 @@
 
 #include "lib/util/Exception.h"
 #include "Color.h"
+#include "Colors.h"
 
 namespace Util::Graphic {
 
@@ -275,12 +276,16 @@ Color Color::blend(const Color &color) const {
         return {red, green, blue, alpha};
     }
 
-    if (alpha == 0 || color.alpha == 255) {
+    if (color.alpha == 255) {
         return {color.red, color.green, color.blue, color.alpha};
     }
 
-    double alpha1 = (static_cast<double>(color.alpha) / 255);
-    double alpha2 = (static_cast<double>(alpha) / static_cast<float>(255));
+    if (alpha == 0) {
+        return Colors::BLACK.blend(color);
+    }
+
+    double alpha1 = (static_cast<float>(color.alpha) / 255);
+    double alpha2 = (static_cast<float>(alpha) / static_cast<float>(255));
     double alpha3 = alpha1 + (1 - alpha1) * alpha2;
 
     auto r = static_cast<uint8_t>((1 / alpha3) * (alpha1 * color.red + (1 - alpha1) * alpha2 * red));
