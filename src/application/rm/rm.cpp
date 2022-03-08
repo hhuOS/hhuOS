@@ -20,21 +20,26 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "mkdir: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "rm: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
     for (int32_t i = 1; i < argc; i++) {
         Util::Memory::String path(argv[i]);
         auto file = Util::File::File(path);
-        if (file.exists()) {
-            Util::System::out << "mkdir: '" << argv[i] << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        if (!file.exists()) {
+            Util::System::out << "rm: '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
             continue;
         }
 
-        auto success = file.create(Util::File::DIRECTORY);
+        if (!file.isFile()) {
+            Util::System::out << "rm: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl;
+            continue;
+        }
+
+        auto success = file.remove();
         if (!success) {
-            Util::System::out << "mkdir: Failed to create directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::out << "rm: Failed to delete file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 
