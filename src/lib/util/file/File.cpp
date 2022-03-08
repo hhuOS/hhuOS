@@ -117,7 +117,12 @@ bool File::remove() const {
 }
 
 Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
-    Util::Data::Array<Util::Memory::String> token = path.split(Util::File::File::SEPARATOR);
+    if (path.isEmpty()) {
+        return "";
+    }
+
+    auto absolutePath = path[0] == '/' ? path : getCurrentWorkingDirectory().getCanonicalPath() + SEPARATOR + path;
+    Util::Data::Array<Util::Memory::String> token = absolutePath.split(Util::File::File::SEPARATOR);
     Util::Data::ArrayList<Util::Memory::String> parsedToken;
 
     for (const Util::Memory::String &string : token) {
@@ -154,14 +159,6 @@ bool changeDirectory(const Util::Memory::String &path) {
 
 File getCurrentWorkingDirectory() {
     return ::getCurrentWorkingDirectory();
-}
-
-File getFile(const Util::Memory::String &path) {
-    if (path[0] == '/') {
-        return File(path);
-    }
-
-    return File(getCurrentWorkingDirectory().getCanonicalPath() + "/" + path);
 }
 
 const char* getFileColor(const File &file) {

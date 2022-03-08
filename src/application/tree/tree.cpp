@@ -20,7 +20,7 @@
 #include "lib/util/system/System.h"
 
 void treeDirectory(const Util::Memory::String &path, uint32_t level) {
-    const auto file = Util::File::getFile(path);
+    const auto file = Util::File::File(path);
     if (!file.exists()) {
         Util::System::out << "tree: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
@@ -31,7 +31,7 @@ void treeDirectory(const Util::Memory::String &path, uint32_t level) {
         string += "-";
     }
 
-    string += getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
+    string += Util::File::getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
     Util::System::out << string << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
     if (file.isDirectory()) {

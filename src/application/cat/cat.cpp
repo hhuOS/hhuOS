@@ -29,7 +29,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     for (int32_t i = 1; i < argc; i++) {
         Util::Memory::String path(argv[i]);
-        auto file = Util::File::getFile(path);
+        auto file = Util::File::File(path);
         if (!file.exists()) {
             Util::System::out << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;

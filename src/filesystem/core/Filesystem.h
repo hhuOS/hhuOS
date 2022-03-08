@@ -128,10 +128,11 @@ private:
 
     /**
      * Get the driver, that is mounted at a specified path.
+     * The path needs to be absolute.
      * CAUTION: May return nullptr, if the file does not exist.
      *          Always check the return value!
      *
-     * @param path The path. After successful execution, the part up to the mountVirtualDriver point will be truncated,
+     * @param path The path. After successful execution, the part up to the mount point will be truncated,
      *             so that the path can be used for the returned driver.
      *
      * @return The driver (or nullptr on failure)
