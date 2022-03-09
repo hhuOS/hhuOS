@@ -39,11 +39,11 @@ void SchedulerService::ready(Thread &thread) {
     scheduler.getCurrentProcess().ready(thread);
 }
 
-Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory) {
+Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut) {
     auto *process = new Process(scheduler, addressSpace, workingDirectory);
     // Create standard out file descriptor
     if (System::isServiceRegistered(FilesystemService::SERVICE_ID)) {
-        process->getFileDescriptorManager().openFile("/device/terminal");
+        process->getFileDescriptorManager().openFile(standardOut.getCanonicalPath());
     }
 
     return *process;

@@ -52,19 +52,13 @@ private:
 
     void parseInput(const Util::Memory::String &input);
 
-    Util::File::File getFile(const Util::Memory::String &path);
-
-    void invalid(const Util::Data::Array<Util::Memory::String> &arguments);
-
-    void help(const Util::Data::Array<Util::Memory::String> &arguments);
-
-    void cd(const Util::Data::Array<Util::Memory::String> &arguments);
-
-    void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
-
     Util::Memory::String checkPath(const Util::Memory::String &command);
 
     Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory);
+
+    static void cd(const Util::Data::Array<Util::Memory::String> &arguments);
+
+    static void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath);
 
     Util::Stream::Reader *reader = nullptr;
 

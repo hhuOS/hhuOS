@@ -57,7 +57,7 @@ public:
 
     void yield();
 
-    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory = Util::File::File("/"));
+    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
 
     void releaseSchedulerLock();
 

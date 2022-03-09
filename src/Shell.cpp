@@ -62,93 +62,22 @@ void Shell::run() {
 }
 
 void Shell::parseInput(const Util::Memory::String &input) {
-    const auto command = input.substring(0, input.indexOf(" "));
-    const auto rest = input.substring(input.indexOf(" "), input.length());
+    const auto pipeSplit = input.split(">");
+    const auto command = pipeSplit[0].substring(0, input.indexOf(" "));
+    const auto rest = pipeSplit[0].substring(input.indexOf(" "), input.length());
     const auto arguments = rest.split(" ");
+    const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
     if (command == "cd") {
         cd(arguments);
-    } else if (command == "help") {
-        help(arguments);
     } else if (!command.isEmpty()) {
         auto binaryPath = checkPath(command);
         if (binaryPath.isEmpty()) {
-            executeBinary(command, command, arguments);
+            executeBinary(command, command, arguments, targetFile);
         } else {
-            executeBinary(binaryPath, command, arguments);
+            executeBinary(binaryPath, command, arguments, targetFile);
         }
     }
-}
-
-Util::File::File Shell::getFile(const Util::Memory::String &path) {
-    if (path[0] == '/') {
-        return Util::File::File(path);
-    }
-
-    return Util::File::File(Util::File::getCurrentWorkingDirectory().getCanonicalPath() + "/" + path);
-}
-
-void Shell::invalid(const Util::Data::Array<Util::Memory::String> &arguments) {
-    Util::System::out << "Invalid command! Use 'help' to see available commands." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::help(const Util::Data::Array<Util::Memory::String> &arguments) {
-    Util::System::out << "uptime - Print system uptime" << Util::Stream::PrintWriter::endl
-            << "date - Print current date" << Util::Stream::PrintWriter::endl
-            << "cat [file]... - Print files consecutively" << Util::Stream::PrintWriter::endl
-            << "ls [file]... - Print all files in a directory" << Util::Stream::PrintWriter::endl
-            << "ls [file]... - Print filesystem ls" << Util::Stream::PrintWriter::endl
-            << "help - Print available commands" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-}
-
-void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
-    if (arguments.length() == 0) {
-        return;
-    }
-
-    auto path = arguments[0];
-    auto file = getFile(path);
-
-    if (!file.exists()) {
-        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    if (file.isFile()) {
-        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    auto result = Util::File::changeDirectory(path);
-    if (!result) {
-        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        return;
-    }
-}
-
-void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    const auto file = getFile(path);
-    if (!file.exists()) {
-        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    if (file.isDirectory()) {
-        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        return;
-    }
-
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-
-    auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = schedulerService.createProcess(virtualAddressSpace, Util::File::getCurrentWorkingDirectory());
-    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(file.getCanonicalPath(), command, arguments));
-
-    process.ready(thread);
-    schedulerService.ready(process);
-
-    while (!process.isFinished());
 }
 
 Util::Memory::String Shell::checkPath(const Util::Memory::String &command) {
@@ -179,4 +108,61 @@ Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, 
     }
 
     return "";
+}
+
+void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
+    if (arguments.length() == 0) {
+        return;
+    }
+
+    auto path = arguments[0];
+    auto file = Util::File::File(path);
+
+    if (!file.exists()) {
+        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
+    if (file.isFile()) {
+        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
+    auto result = Util::File::changeDirectory(path);
+    if (!result) {
+        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+}
+
+void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath) {
+    const auto binaryFile = Util::File::File(path);
+    const auto outputFile = Util::File::File(outputPath);
+
+    if (!binaryFile.exists()) {
+        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
+    if (binaryFile.isDirectory()) {
+        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
+    if (!outputFile.exists() && !outputFile.create(Util::File::REGULAR)) {
+        Util::System::out << "Failed to create file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+
+    auto &virtualAddressSpace = memoryService.createAddressSpace();
+    auto &process = schedulerService.createProcess(virtualAddressSpace, Util::File::getCurrentWorkingDirectory(), outputFile);
+    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
+
+    process.ready(thread);
+    schedulerService.ready(process);
+
+    while (!process.isFinished());
 }
