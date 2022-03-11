@@ -53,7 +53,7 @@ void ThreadScheduler::exit() {
         parent.exit();
     }
 
-    // TODO: Delete thread (currently not possible, because the instance is still needed for yielding)
+    System::getService<SchedulerService>().cleanup(currentThread);
     parent.forceYield();
 }
 

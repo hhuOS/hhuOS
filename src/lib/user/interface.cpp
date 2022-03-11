@@ -45,8 +45,8 @@ void* mapIO(uint32_t physicalAddress, uint32_t size) {
     return mappedAddress;
 }
 
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
-    Util::System::call(Util::System::UNMAP, 2, virtualStartAddress, virtualEndAddress);
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
+    Util::System::call(Util::System::UNMAP, 3, virtualStartAddress, virtualEndAddress, breakCount);
 }
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {

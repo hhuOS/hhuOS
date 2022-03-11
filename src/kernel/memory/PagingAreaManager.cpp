@@ -38,9 +38,7 @@ void *PagingAreaManager::allocateBlock() {
 }
 
 void PagingAreaManager::freeBlock(void *pointer) {
-    if (!blockPool.push(pointer)) {
-        BitmapMemoryManager::freeBlock(pointer);
-    }
+    BitmapMemoryManager::freeBlock(pointer);
 }
 
 void PagingAreaManager::refillPool() {

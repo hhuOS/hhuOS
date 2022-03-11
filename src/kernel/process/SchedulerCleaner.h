@@ -15,71 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SCHEDULERSERVICE_H
-#define HHUOS_SCHEDULERSERVICE_H
+#ifndef HHUOS_SCHEDULERCLEANER_H
+#define HHUOS_SCHEDULERCLEANER_H
 
-#include "kernel/process/ProcessScheduler.h"
-#include "lib/util/file/File.h"
-#include "Service.h"
-#include "kernel/process/SchedulerCleaner.h"
+#include "Process.h"
+#include "lib/util/memory/AtomicBitmap.h"
 
 namespace Kernel {
 
-class SchedulerService : public Service {
+class SchedulerCleaner : public Util::Async::Runnable {
 
 public:
     /**
      * Default Constructor.
      */
-    SchedulerService() = default;
+    SchedulerCleaner();
 
     /**
      * Copy constructor.
      */
-    SchedulerService(const SchedulerService &other) = delete;
+    SchedulerCleaner(const SchedulerCleaner &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SchedulerService &operator=(const SchedulerService &other) = delete;
+    SchedulerCleaner &operator=(const SchedulerCleaner &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SchedulerService() override = default;
-
-    void kickoffThread();
-
-    void startScheduler();
-
-    void ready(Process &process);
-
-    void ready(Thread &thread);
-
-    void yield();
+    ~SchedulerCleaner() override;
 
     void cleanup(Process *process);
 
     void cleanup(Thread *thread);
 
-    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
-
-    void releaseSchedulerLock();
-
-    void setSchedulerInitialized();
-
-    [[nodiscard]] bool isSchedulerInitialized() const;
-
-    [[nodiscard]] Process& getCurrentProcess();
-
-    [[nodiscard]] Thread& getCurrentThread();
-
-    static const constexpr uint8_t SERVICE_ID = 3;
+    void run() override;
 
 private:
 
-    ProcessScheduler scheduler;
-    SchedulerCleaner cleaner;
+    void cleanupProcesses();
+
+    void cleanupThreads();
+
+    Process** processList;
+    Thread** threadList;
+
+    Util::Memory::AtomicBitmap processBitmap;
+    Util::Memory::AtomicBitmap threadBitmap;
+
+    static const constexpr uint32_t ARRAY_SIZE = 1024;
 };
 
 }

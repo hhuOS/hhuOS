@@ -15,43 +15,38 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ELFFILE_H
-#define HHUOS_ELFFILE_H
+#ifndef HHUOS_ADDRESSSPACECLEANER_H
+#define HHUOS_ADDRESSSPACECLEANER_H
 
 #include <cstdint>
-#include "lib/util/data/HashMap.h"
-#include "Constants.h"
+#include "lib/util/async/Runnable.h"
 
-namespace Util::File::Elf {
+namespace Kernel {
 
-class File {
+class AddressSpaceCleaner : public Util::Async::Runnable {
 
 public:
+    /**
+     * Default Constructor.
+     */
+    AddressSpaceCleaner() = default;
 
-    explicit File(uint8_t *buffer);
+    /**
+     * Copy constructor.
+     */
+    AddressSpaceCleaner(const AddressSpaceCleaner &other) = delete;
 
-    File(const File &other) = delete;
+    /**
+     * Assignment operator.
+     */
+    AddressSpaceCleaner &operator=(const AddressSpaceCleaner &other) = delete;
 
-    File& operator=(const File &other) = delete;
+    /**
+     * Destructor.
+     */
+    ~AddressSpaceCleaner() override = default;
 
-    ~File();
-
-    uint32_t getEndAddress();
-
-    void loadProgram();
-
-    [[nodiscard]] int32_t (*getEntryPoint() const)(int, char**) {
-        return reinterpret_cast<int (*)(int, char**)>(fileHeader.entry);
-    }
-
-private:
-
-    uint8_t *buffer;
-    Constants::FileHeader &fileHeader;
-
-    char *sectionNames = nullptr;
-    Constants::ProgramHeader *programHeaders = nullptr;
-    Constants::SectionHeader *sectionHeaders = nullptr;
+    void run() override;
 
 };
 

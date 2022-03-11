@@ -50,8 +50,8 @@ void* mapIO(uint32_t physicalAddress, uint32_t size) {
     return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
 }
 
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
-    Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
+    Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress, breakCount);
 }
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {

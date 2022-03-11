@@ -41,7 +41,8 @@ void BinaryLoader::run() {
     auto binaryStream = Util::Stream::FileInputStream(file);
     binaryStream.read(buffer, 0, file.getLength());
 
-    auto executable = Util::File::Elf::File(reinterpret_cast<uint32_t>(buffer));
+    // buffer is automatically deleted by file destructor
+    auto executable = Util::File::Elf::File(buffer);
     executable.loadProgram();
 
     uint32_t argc = arguments.length() + 1;
@@ -57,7 +58,7 @@ void BinaryLoader::run() {
         currentAddress += targetArgument.stringLength() + 1;
     }
 
-    auto heapAddress = Util::Memory::Address(executable.getEndAddress() + 1).alignUp(Kernel::Paging::PAGESIZE).get();
+    auto heapAddress = Util::Memory::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
     System::getService<SchedulerService>().ready(userThread);
 }

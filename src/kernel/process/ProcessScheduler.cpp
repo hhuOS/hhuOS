@@ -17,6 +17,7 @@
 
 #include "ProcessScheduler.h"
 #include "asm_interface.h"
+#include "kernel/system/System.h"
 
 namespace Kernel {
 
@@ -68,7 +69,7 @@ void ProcessScheduler::exit() {
 
     processQueue.remove(currentProcess);
 
-    // TODO: Delete process (currently not possible, because the instance is still needed for dispatching)
+    System::getService<SchedulerService>().cleanup(currentProcess);
     dispatch(getNextProcess(), false);
 }
 

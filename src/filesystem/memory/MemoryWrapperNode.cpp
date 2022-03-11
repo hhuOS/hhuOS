@@ -44,4 +44,5 @@ uint64_t MemoryWrapperNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64
 uint64_t MemoryWrapperNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
     return node.writeData(sourceBuffer, pos, numBytes);
 }
+
 }

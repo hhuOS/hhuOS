@@ -19,6 +19,7 @@
 #include "kernel/system/System.h"
 #include "JobService.h"
 #include "FilesystemService.h"
+#include "kernel/process/AddressSpaceCleaner.h"
 
 namespace Kernel {
 
@@ -28,6 +29,7 @@ void SchedulerService::kickoffThread() {
 }
 
 void SchedulerService::startScheduler() {
+    System::getService<JobService>().registerJob(&cleaner, Job::HIGH, Util::Time::Timestamp(1, 0));
     scheduler.start();
 }
 
@@ -69,7 +71,12 @@ void SchedulerService::setSchedulerInitialized() {
             exitCode = va_arg(arguments, int32_t);
         }
 
-        System::getService<SchedulerService>().getCurrentProcess().exit(exitCode);
+        auto &schedulerService = System::getService<SchedulerService>();
+        auto &cleanerThread = Thread::createKernelThread("Cleaner", new AddressSpaceCleaner());
+        schedulerService.ready(cleanerThread);
+        schedulerService.getCurrentProcess().setExitCode(exitCode);
+        schedulerService.getCurrentProcess().getThreadScheduler().exit();
+
         return Util::System::Result::OK;
     });
 
@@ -92,6 +99,14 @@ Process& SchedulerService::getCurrentProcess() {
 
 Thread& SchedulerService::getCurrentThread() {
     return scheduler.getCurrentProcess().getThreadScheduler().getCurrentThread();
+}
+
+void SchedulerService::cleanup(Process *process) {
+    cleaner.cleanup(process);
+}
+
+void SchedulerService::cleanup(Thread *thread) {
+    cleaner.cleanup(thread);
 }
 
 }

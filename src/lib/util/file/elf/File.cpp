@@ -20,15 +20,19 @@
 
 namespace Util::File::Elf {
 
-File::File(uint32_t address) : address(address), fileHeader(*reinterpret_cast<Constants::FileHeader*>(address)) {
+File::File(uint8_t *buffer) : buffer(buffer), fileHeader(*reinterpret_cast<Constants::FileHeader*>(buffer)) {
     if (!fileHeader.isValid()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Elf: Invalid file!");
     }
 
-    const auto &sectionHeaderStringHeader = *reinterpret_cast<Constants::SectionHeader*>(address + fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize);
-    sectionNames = reinterpret_cast<char *>(address + sectionHeaderStringHeader.offset);
-    programHeaders = reinterpret_cast<Constants::ProgramHeader*>(address + fileHeader.programHeader);
-    sectionHeaders = reinterpret_cast<Constants::SectionHeader*>(address + fileHeader.sectionHeader);
+    const auto &sectionHeaderStringHeader = *reinterpret_cast<Constants::SectionHeader*>(buffer + fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize);
+    sectionNames = reinterpret_cast<char*>(buffer + sectionHeaderStringHeader.offset);
+    programHeaders = reinterpret_cast<Constants::ProgramHeader*>(buffer + fileHeader.programHeader);
+    sectionHeaders = reinterpret_cast<Constants::SectionHeader*>(buffer + fileHeader.sectionHeader);
+}
+
+File::~File() {
+    delete buffer;
 }
 
 uint32_t File::getEndAddress() {
@@ -54,7 +58,7 @@ void File::loadProgram() {
         auto header = programHeaders[i];
 
         if(header.type == Constants::ProgramHeaderType::LOAD) {
-            auto sourceAddress = Util::Memory::Address<uint32_t>(address + header.offset, header.fileSize);
+            auto sourceAddress = Util::Memory::Address<uint32_t>(buffer + header.offset, header.fileSize);
             auto targetAddress = Util::Memory::Address<uint32_t>(header.virtualAddress, header.memorySize);
 
             targetAddress.copyRange(sourceAddress, header.fileSize);

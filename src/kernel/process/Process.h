@@ -52,9 +52,11 @@ public:
 
     void start();
 
-    void exit(int32_t exitCode);
+    void exit();
 
     bool setWorkingDirectory(const Util::Memory::String &path);
+
+    void setExitCode(int32_t code);
 
     [[nodiscard]] uint32_t getId() const;
 

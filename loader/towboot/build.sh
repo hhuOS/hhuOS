@@ -24,9 +24,8 @@ mcopy -i part.img towboot.toml ::
 mcopy -i part.img hhuOS.bin ::
 mcopy -i part.img hhuOS.initrd ::
 
-fallocate -l 1M pre_fill.img
-fallocate -l 100K after_fill.img
-cat pre_fill.img part.img after_fill.img > hhuOS.img
+fallocate -l 1M fill.img
+cat fill.img part.img fill.img > hhuOS.img
 echo -e "g\\nn\\n1\\n2048\\n+${SECTORS}\\nt\\n1\\nw\\n" | fdisk hhuOS.img
 
-rm -f pre_fill.img after_fill.img part.img
+rm -f fill.img part.img

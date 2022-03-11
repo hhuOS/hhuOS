@@ -15,46 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ELFFILE_H
-#define HHUOS_ELFFILE_H
+#include "AddressSpaceCleaner.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/system/System.h"
 
-#include <cstdint>
-#include "lib/util/data/HashMap.h"
-#include "Constants.h"
+namespace Kernel {
 
-namespace Util::File::Elf {
-
-class File {
-
-public:
-
-    explicit File(uint8_t *buffer);
-
-    File(const File &other) = delete;
-
-    File& operator=(const File &other) = delete;
-
-    ~File();
-
-    uint32_t getEndAddress();
-
-    void loadProgram();
-
-    [[nodiscard]] int32_t (*getEntryPoint() const)(int, char**) {
-        return reinterpret_cast<int (*)(int, char**)>(fileHeader.entry);
-    }
-
-private:
-
-    uint8_t *buffer;
-    Constants::FileHeader &fileHeader;
-
-    char *sectionNames = nullptr;
-    Constants::ProgramHeader *programHeaders = nullptr;
-    Constants::SectionHeader *sectionHeaders = nullptr;
-
-};
-
+void AddressSpaceCleaner::run() {
+    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
+    System::getService<SchedulerService>().getCurrentProcess().exit();
 }
 
-#endif
+}

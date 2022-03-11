@@ -31,7 +31,7 @@ void freeMemory(void *pointer, uint32_t alignment = 0);
 
 bool isSystemInitialized();
 void* mapIO(uint32_t physicalAddress, uint32_t size);
-void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
+void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
 
 bool createFile(const Util::Memory::String &path, Util::File::Type type);
 bool deleteFile(const Util::Memory::String &path);

@@ -116,11 +116,6 @@ PageDirectory::PageDirectory(PageDirectory &basePageDirectory) {
 
 PageDirectory::~PageDirectory() {
     auto &memoryService = System::getService<Kernel::MemoryService>();
-    
-    // Unmap the complete user space and free the page frames
-    for (uint32_t address = 0; address < MemoryLayout::KERNEL_START; address += Paging::PAGESIZE) {
-        unmap(address);
-    }
 
     // Free page tables corresponding to user space (< 3GB)
     uint32_t maxIndex = MemoryLayout::KERNEL_START / (Paging::PAGESIZE * 1024);
@@ -196,14 +191,14 @@ void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
     uint32_t pageDirectoryIndex = Paging::GET_PD_IDX((uint32_t) virtualAddress);
     uint32_t pageTableIndex = Paging::GET_PT_IDX((uint32_t) virtualAddress);
 
-    // If the requested page table is not present, the page cannot be mapped
+    // Check if the requested page table is present
     if ((pageDirectory[pageDirectoryIndex] & Paging::PRESENT) == 0) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Requested page table is not present!");
+        return nullptr;
     }
 
-    // if the page is not mapped, it cannot be unmapped
+    // Check if the requested page is present
     if ((*((uint32_t *) virtualTableAddresses[pageDirectoryIndex] + pageTableIndex) & Paging::PRESENT) == 0) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PageDirectory: Trying to unmap an unmapped page!");
+        return nullptr;
     }
 
     // Calculate corresponding physical Address and set entry to 0

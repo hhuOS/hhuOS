@@ -38,10 +38,7 @@ void Process::start() {
     scheduler.ready(*this);
 }
 
-void Process::exit(int32_t code) {
-    exitCode = code;
-    finished = true;
-
+void Process::exit() {
     scheduler.exit();
 }
 
@@ -89,6 +86,11 @@ Util::File::File Process::getFileFromPath(const Util::Memory::String &path) {
     }
 
     return Util::File::File(workingDirectory.getCanonicalPath() + "/" + path);
+}
+
+void Process::setExitCode(int32_t code) {
+    exitCode = code;
+    finished = true;
 }
 
 }

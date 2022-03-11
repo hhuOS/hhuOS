@@ -37,12 +37,13 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
 
         uint32_t virtualStartAddress = va_arg(arguments, uint32_t);
         uint32_t virtualEndAddress = va_arg(arguments, uint32_t);
+        uint32_t breakCount = va_arg(arguments, uint32_t);
 
         if (virtualStartAddress > MemoryLayout::KERNEL_START || virtualEndAddress > MemoryLayout::KERNEL_START) {
             return Util::System::OUT_OF_BOUNDS;
         }
 
-        auto status = Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress);
+        auto status = Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress, breakCount);
         if (status == 0) {
             return Util::System::INVALID_ARGUMENT;
         }
@@ -114,11 +115,13 @@ void *MemoryService::allocatePageTable() {
 }
 
 void MemoryService::freePageTable(void *virtualTableAddress) {
-    void *physicalAddress = getPhysicalAddress(virtualTableAddress);
+    uint32_t physicalAddress = unmap(reinterpret_cast<uint32_t>(virtualTableAddress));
+    if (physicalAddress == 0) {
+        return;
+    }
+
     // Free virtual memory
     pagingAreaManager.freeBlock(virtualTableAddress);
-    // Free physical memory
-    pageFrameAllocator.freeBlock(physicalAddress);
 }
 
 void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
@@ -178,7 +181,7 @@ uint32_t Kernel::MemoryService::unmap(uint32_t virtualAddress) {
     return physAddress;
 }
 
-uint32_t Kernel::MemoryService::unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress) {
+uint32_t Kernel::MemoryService::unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {
     // Remark: if given addresses are not aligned on pages, we do not want to unmap
     // data that could be on the same page before virtualStartAddress or behind virtualEndAddress
 
@@ -208,10 +211,11 @@ uint32_t Kernel::MemoryService::unmap(uint32_t virtualStartAddress, uint32_t vir
             cnt++;
         }
 
-        // If there were three pages after each other already unmapped, we break here.
+        // TODO: This is ugly! We need a proper management for mapped/unmapped pages
+        // If there were eight pages after each other already unmapped, we break here.
         // This is sort of a workaround because by merging large free memory blocks in memory management
         // it might happen that some parts of the memory are already unmapped.
-        if (cnt == 3) {
+        if (breakCount > 0 && cnt == breakCount) {
             break;
         }
     }

@@ -170,7 +170,7 @@ public:
      *
      * @return Physical address of the last unmapped page
      */
-    uint32_t unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress);
+    uint32_t unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
 
     /**
      * Get the physical address of a given virtual address. The returned physical address is 4 KiB aligned, so sometimes

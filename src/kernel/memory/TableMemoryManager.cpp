@@ -181,7 +181,8 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
                 allocationTableEntry.incrementUseCount();
                 referenceTableEntry.releaseLock();
                 const TableIndex index = {i, j, k};
-                return reinterpret_cast<void*>(calculateAddress(index));
+                auto *address = reinterpret_cast<void*>(calculateAddress(index));
+                return address;
             }
 
             referenceTableEntry.releaseLock();

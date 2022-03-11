@@ -164,5 +164,6 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
     process.ready(thread);
     schedulerService.ready(process);
 
+    // TODO: Process may get deleted before this loop finishes
     while (!process.isFinished());
 }

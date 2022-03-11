@@ -229,7 +229,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
         // try to unmap the free memory, not the list header!
-        unmap(addr + HEADER_SIZE, chunkEndAddr - 1);
+        unmap(addr + HEADER_SIZE, chunkEndAddr - 1, 8);
     }
 }
 

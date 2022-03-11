@@ -33,18 +33,14 @@ namespace Kernel {
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
 Thread::Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
-        id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(kernelStack),
+        id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
         interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
         kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))) {}
 
 Thread::~Thread() {
-    if (kernelStack == userStack) {
-        delete kernelStack;
-    } else {
-        delete kernelStack;
-        delete userStack;
-    }
-
+    // Do not delete user stack, as it is hard coded
+    // TODO: Once a process can have multiple user threads, this needs to be revised
+    delete kernelStack;
     delete runnable;
 }
 
