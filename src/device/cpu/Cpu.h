@@ -116,6 +116,8 @@ public:
      */
     [[noreturn]] static void throwException(Util::Exception::Error error, const char *message);
 
+    static const char *getExceptionName(uint32_t exception);
+
     // start number for software exceptions
     static const uint32_t SOFTWARE_EXCEPTIONS_START = 200;
 
@@ -124,8 +126,6 @@ private:
     // Pointers to lists with hardware (software) exceptions
     static const char *hardwareExceptions[];
     static const char *softwareExceptions[];
-
-    static Kernel::Logger exceptionLog;
 
     /**
      * Keeps track of how often disableInterrupts() and enableInterrupts() have been called.

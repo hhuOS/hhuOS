@@ -4,6 +4,7 @@
 #include "LinearFrameBufferTerminalProvider.h"
 #include "LinearFrameBufferTerminal.h"
 #include "lib/util/stream/FileInputStream.h"
+#include "kernel/system/BlueScreen.h"
 
 namespace Device::Graphic {
 
@@ -75,6 +76,8 @@ void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
 
     auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
     auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
+
+    Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();

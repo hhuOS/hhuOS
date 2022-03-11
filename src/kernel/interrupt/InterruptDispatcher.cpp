@@ -32,12 +32,12 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
 
     // Throw bluescreen on Protected Mode exceptions except pagefault
     if (slot < 32 && slot != static_cast<uint32_t>(Device::Cpu::Error::PAGE_FAULT)) {
-        System::panic(frame);
+        System::panic(*frame);
     }
 
     // If this is a software exception, throw a bluescreen with error data
     if (slot >= Device::Cpu::SOFTWARE_EXCEPTIONS_START) {
-        System::panic(frame);
+        System::panic(*frame);
     }
 
     // Ignore spurious interrupts

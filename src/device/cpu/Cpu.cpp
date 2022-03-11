@@ -17,6 +17,7 @@
 
 #include "asm_interface.h"
 #include "Cpu.h"
+#include "kernel/system/BlueScreen.h"
 
 namespace Device {
 
@@ -38,7 +39,6 @@ const char *Cpu::softwareExceptions[]{
 };
 
 int32_t Cpu::cliCount = 1; // Interrupts are disabled on startup
-Kernel::Logger Cpu::exceptionLog = Kernel::Logger::get("Exception");
 
 void Cpu::enableInterrupts() {
     auto cliCountWrapper = Util::Async::Atomic<int32_t>(cliCount);
@@ -75,8 +75,16 @@ void Cpu::halt() {
 
 void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
-    exceptionLog.error(message);
+    Kernel::BlueScreen::setErrorMessage(message);
     on_exception((uint32_t) error);
+}
+
+const char* Cpu::getExceptionName(uint32_t exception) {
+    if (exception >= SOFTWARE_EXCEPTIONS_START) {
+        return softwareExceptions[exception - SOFTWARE_EXCEPTIONS_START];
+    }
+
+    return hardwareExceptions[exception];
 }
 
 }

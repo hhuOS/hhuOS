@@ -30,6 +30,7 @@
 #include "System.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/reflection/InstanceFactory.h"
+#include "BlueScreen.h"
 
 namespace Kernel {
 
@@ -158,8 +159,9 @@ bool System::isServiceRegistered(uint32_t serviceId) {
     return serviceMap[serviceId] != nullptr;
 }
 
-void System::panic(InterruptFrame *frame) {
+void System::panic(const InterruptFrame &frame) {
     Device::Cpu::disableInterrupts();
+    BlueScreen::show(frame);
     Device::Cpu::halt();
 }
 

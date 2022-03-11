@@ -17,6 +17,7 @@
 cmake_minimum_required(VERSION 3.7)
 
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/system/BlueScreen.cpp
         ${HHUOS_SRC_DIR}/kernel/system/Symbols.cpp
         ${HHUOS_SRC_DIR}/kernel/system/System.cpp
         ${HHUOS_SRC_DIR}/kernel/system/SystemCall.cpp)

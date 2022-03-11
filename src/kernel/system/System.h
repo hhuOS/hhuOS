@@ -108,7 +108,7 @@ public:
      *
      * @param frame The interrupt frame
      */
-    static void panic(InterruptFrame *frame);
+    static void panic(const InterruptFrame &frame);
 
     /**
      * Creates an entry into a given GDT (Global Descriptor Table).

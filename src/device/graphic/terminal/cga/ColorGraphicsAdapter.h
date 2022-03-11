@@ -46,6 +46,8 @@ public:
 
     [[nodiscard]] uint16_t getCurrentRow() const override;
 
+    [[nodiscard]] Util::Memory::Address<uint32_t> getAddress();
+
 private:
 
     void updateCursorPosition();

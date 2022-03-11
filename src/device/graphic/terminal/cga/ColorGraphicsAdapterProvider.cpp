@@ -5,6 +5,7 @@
 #include "device/graphic/terminal/TerminalNode.h"
 #include "ColorGraphicsAdapterProvider.h"
 #include "ColorGraphicsAdapter.h"
+#include "kernel/system/BlueScreen.h"
 
 namespace Device::Graphic {
 
@@ -53,7 +54,8 @@ void ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo
     biosParameters.cx = CURSOR_SHAPE_OPTIONS;
     Bios::interrupt(0x10, biosParameters);
 
-    Device::Graphic::Terminal *terminal = new ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
+    auto *terminal = new ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
+    Kernel::BlueScreen::setCgaMode(terminal->getAddress().get(), terminal->getColumns(), terminal->getRows());
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();

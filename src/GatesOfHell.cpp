@@ -44,6 +44,7 @@
 #include "Shell.h"
 #include "GatesOfHell.h"
 #include "SchedulerSign.h"
+#include "kernel/system/BlueScreen.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
