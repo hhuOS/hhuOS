@@ -13,6 +13,8 @@ OVMF.fd
 .builddirs
 # Project files and folders
 cmake-build-debug/
+cmake-build-default/
+cmake-build-release/
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

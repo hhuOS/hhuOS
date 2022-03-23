@@ -63,12 +63,18 @@ void Shell::run() {
 
 void Shell::parseInput(const Util::Memory::String &input) {
     const auto pipeSplit = input.split(">");
+    if (pipeSplit.length() == 0) {
+        return;
+    }
+
     const auto command = pipeSplit[0].substring(0, input.indexOf(" "));
     const auto rest = pipeSplit[0].substring(input.indexOf(" "), input.length());
     const auto arguments = rest.split(" ");
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
-    if (command == "cd") {
+    if (command.isEmpty()) {
+        return;
+    } else if (command == "cd") {
         cd(arguments);
     } else if (!command.isEmpty()) {
         auto binaryPath = checkPath(command);

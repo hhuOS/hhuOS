@@ -244,4 +244,10 @@ T Address<T>::compareString(Address<T> otherAddress) const {
     return getByte(i) - otherAddress.getByte(i);
 }
 
+template<>
+uint32_t Address<uint32_t>::compareString(const char *otherString) const {
+    auto otherAddress = Address<uint32_t>(otherString);
+    return compareString(otherAddress);
+}
+
 }

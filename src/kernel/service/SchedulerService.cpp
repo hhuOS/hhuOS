@@ -29,7 +29,7 @@ void SchedulerService::kickoffThread() {
 }
 
 void SchedulerService::startScheduler() {
-    System::getService<JobService>().registerJob(&cleaner, Job::HIGH, Util::Time::Timestamp(1, 0));
+    System::getService<JobService>().registerJob(&cleaner, Job::LOW, Util::Time::Timestamp(1, 0));
     scheduler.start();
 }
 

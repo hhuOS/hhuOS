@@ -69,6 +69,8 @@ public:
 
     [[nodiscard]] T compareString(Address<T> otherAddress) const;
 
+    [[nodiscard]] uint32_t compareString(const char *otherString) const;
+
     [[nodiscard]] uint8_t getByte(T offset = 0) const;
 
     [[nodiscard]] uint16_t getShort(T offset = 0) const;
