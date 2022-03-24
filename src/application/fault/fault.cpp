@@ -15,20 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "AddressSpaceCleaner.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
+#include <cstdint>
+#include "lib/util/system/System.h"
 
-namespace Kernel {
-
-void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    while (schedulerService.getCurrentProcess().getThreadCount() > 1) {
-        schedulerService.yield();
-    }
-
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    System::getService<SchedulerService>().getCurrentProcess().exit();
-}
-
+int32_t main(int32_t argc, char *argv[]) {
+    *reinterpret_cast<uint32_t*>(0) = 1797;
+    return 0;
 }

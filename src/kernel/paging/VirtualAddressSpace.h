@@ -60,6 +60,8 @@ public:
 
     [[nodiscard]] Util::Memory::HeapMemoryManager& getMemoryManager() const;
 
+    [[nodiscard]] bool isKernelAddressSpace() const;
+
 private:
 
     PageDirectory *pageDirectory;

@@ -93,4 +93,12 @@ void Process::setExitCode(int32_t code) {
     finished = true;
 }
 
+bool Process::isKernelProcess() const {
+    return addressSpace.isKernelAddressSpace();
+}
+
+uint32_t Process::getThreadCount() const {
+    return threadScheduler.getThreadCount();
+}
+
 }

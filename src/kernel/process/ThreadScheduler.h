@@ -71,6 +71,8 @@ public:
      */
     void kill(Thread &thread);
 
+    void killAllThreadsButCurrent();
+
     /**
      * Returns the activeFlag Thread.
      *
@@ -79,6 +81,8 @@ public:
     Thread& getCurrentThread();
 
     Thread& getNextThread(bool tryLock);
+
+    [[nodiscard]] uint32_t getThreadCount() const;
 
 private:
 

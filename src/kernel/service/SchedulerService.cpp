@@ -72,10 +72,7 @@ void SchedulerService::setSchedulerInitialized() {
         }
 
         auto &schedulerService = System::getService<SchedulerService>();
-        auto &cleanerThread = Thread::createKernelThread("Cleaner", new AddressSpaceCleaner());
-        schedulerService.ready(cleanerThread);
-        schedulerService.getCurrentProcess().setExitCode(exitCode);
-        schedulerService.getCurrentProcess().getThreadScheduler().exit();
+        schedulerService.exitCurrentProcess(exitCode);
 
         return Util::System::Result::OK;
     });
@@ -107,6 +104,14 @@ void SchedulerService::cleanup(Process *process) {
 
 void SchedulerService::cleanup(Thread *thread) {
     cleaner.cleanup(thread);
+}
+
+void SchedulerService::exitCurrentProcess(int32_t exitCode) {
+    getCurrentProcess().getThreadScheduler().killAllThreadsButCurrent();
+    auto &cleanerThread = Thread::createKernelThread("Cleaner", new AddressSpaceCleaner());
+    ready(cleanerThread);
+    getCurrentProcess().setExitCode(exitCode);
+    getCurrentProcess().getThreadScheduler().exit();
 }
 
 }

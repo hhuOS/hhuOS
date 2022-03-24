@@ -332,8 +332,7 @@ void MemoryService::trigger(InterruptFrame &frame) {
 
     // There should be no access to the first page (address 0)
     if (faultAddress == 0) {
-        frame.interrupt = (uint32_t) Util::Exception::NULL_POINTER;
-        System::panic(frame);
+        Util::Exception::throwException(Util::Exception::NULL_POINTER, "Page fault at address 0!");
     }
 
     // check if page fault was caused by illegal page access

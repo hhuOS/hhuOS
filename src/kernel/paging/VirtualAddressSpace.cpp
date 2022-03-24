@@ -46,4 +46,8 @@ Util::Memory::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
     return *memoryManager;
 }
 
+bool VirtualAddressSpace::isKernelAddressSpace() const {
+    return kernelAddressSpace;
+}
+
 }

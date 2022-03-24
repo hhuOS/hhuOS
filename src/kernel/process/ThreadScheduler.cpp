@@ -49,10 +49,6 @@ void ThreadScheduler::exit() {
     threadQueue.remove(currentThread);
     lock.release();
 
-    if (threadQueue.isEmpty()) {
-        parent.exit();
-    }
-
     System::getService<SchedulerService>().cleanup(currentThread);
     parent.forceYield();
 }
@@ -111,6 +107,18 @@ void ThreadScheduler::yield(Thread &oldThread, Process &nextProcess, bool tryLoc
 void ThreadScheduler::dispatch(Thread &current, Thread &next) {
     currentThread = &next;
     switch_context(&current.kernelContext, &next.kernelContext);
+}
+
+void ThreadScheduler::killAllThreadsButCurrent() {
+    for (const auto thread : threadQueue) {
+        if (thread->getId() != currentThread->getId()) {
+            kill(*thread);
+        }
+    }
+}
+
+uint32_t ThreadScheduler::getThreadCount() const {
+    return threadQueue.size();
 }
 
 }

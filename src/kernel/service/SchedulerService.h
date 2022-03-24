@@ -64,6 +64,8 @@ public:
 
     Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
 
+    void exitCurrentProcess(int32_t exitCode);
+
     void releaseSchedulerLock();
 
     void setSchedulerInitialized();

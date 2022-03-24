@@ -60,6 +60,8 @@ public:
 
     [[nodiscard]] uint32_t getId() const;
 
+    [[nodiscard]] uint32_t getThreadCount() const;
+
     [[nodiscard]] VirtualAddressSpace& getAddressSpace();
 
     [[nodiscard]] ThreadScheduler& getThreadScheduler();
@@ -71,6 +73,8 @@ public:
     [[nodiscard]] bool isFinished() const;
 
     [[nodiscard]] int32_t getExitCode() const;
+
+    [[nodiscard]] bool isKernelProcess() const;
 
 private:
 

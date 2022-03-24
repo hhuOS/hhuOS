@@ -76,6 +76,8 @@ void Shell::parseInput(const Util::Memory::String &input) {
         return;
     } else if (command == "cd") {
         cd(arguments);
+    } else if (command == "null") {
+        *reinterpret_cast<uint32_t*>(0) = 1797;
     } else if (!command.isEmpty()) {
         auto binaryPath = checkPath(command);
         if (binaryPath.isEmpty()) {
