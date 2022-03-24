@@ -65,8 +65,8 @@ public:
 
 private:
 
-    Util::File::Tar::Archive &archive ;
-    Util::Data::Array<Util::File::Tar::Archive::Header*> fileHeaders{};
+    Util::File::Tar::Archive &archive;
+    Util::Data::Array<Util::File::Tar::Archive::Header> fileHeaders{};
 
 };
 

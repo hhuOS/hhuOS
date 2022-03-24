@@ -21,12 +21,10 @@
 
 namespace Filesystem::Tar {
 
-ArchiveDriver::ArchiveDriver(Util::File::Tar::Archive &archive) : archive(archive) {
-
-}
+ArchiveDriver::ArchiveDriver(Util::File::Tar::Archive &archive) : archive(archive), fileHeaders(archive.getFileHeaders()) {}
 
 Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
-    for(const auto &header : archive.getFileHeaders()) {
+    for(const auto &header : fileHeaders) {
         Util::Memory::String currentPath = header.filename;
 
         if(path == currentPath) {
