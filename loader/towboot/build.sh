@@ -1,7 +1,7 @@
 #!/bin/bash
 
 readonly CONST_TOWBOOT_VERSION="0.3.0"
-readonly FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "hhuOS.initrd")
+readonly FILE_LIST=("towboot-ia32.efi" "towboot-x64.efi" "hhuOS.bin" "hhuOS.initrd" "towboot.toml")
 
 if [[ ! -f "towboot-ia32.efi" || ! -f "towboot-x64.efi" ]]; then
   wget -O towboot-ia32.efi "https://github.com/hhuOS/towboot/releases/download/v${CONST_TOWBOOT_VERSION}/towboot-v${CONST_TOWBOOT_VERSION}-i686.efi"
@@ -13,7 +13,7 @@ for file in ${FILE_LIST[@]}; do
   SIZE=$(($SIZE + $(wc -c ${file} | cut -d ' ' -f 1)))
 done
 
-readonly SECTORS=$(((${SIZE} / 512) + 200))
+readonly SECTORS=$(((${SIZE} / 512) + 2048))
 
 mformat -i part.img -C -T ${SECTORS} -h 1 -s ${SECTORS}
 mmd -i part.img efi
