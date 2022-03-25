@@ -16,6 +16,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+BUILD_TYPE="Default"
 TARGET="towboot"
 BUILD_DIR="build"
 CORE_COUNT=$(nproc)
@@ -72,6 +73,12 @@ parse_ncores() {
     if [ ${ncores} != 0 ]; then
         CORE_COUNT=${ncores}
     fi
+}
+
+parse_build_type() {
+    local debug=$1
+
+    BUILD_TYPE="${debug}"
 }
 
 cleanup() {
@@ -155,14 +162,15 @@ print_usage() {
     printf "Usage: ./build.sh [OPTION...]
     Available options:
     -t, --target
-        Set the the build target (grub/towboot, default: towboot)
+        Set the the build target (grub/towboot, default: towboot).
     -d, --directory
         Set the build directory.
+    -g, type
+        Set the build type (Default/Debug).
     -n, --ncore
         Set the number of cores used by make (default: Output of nproc).
     -c, --clean
         Removes all former build directories and removes their names (except build) from .git/info/exclude
-        Finishes execution.
     -h, --help
         Show this help message.\\n"
 }
@@ -178,6 +186,9 @@ parse_args() {
             ;;
             -d|--directory)
             parse_directory $val
+            ;;
+            -g|--type)
+            parse_build_type $val
             ;;
             -n|--ncores)
             parse_ncores $val
@@ -211,8 +222,8 @@ build() {
 
     echo "Using ${CORE_COUNT} CPU-Cores for make"
 
-    cmake ..
-    make -j ${CORE_COUNT} ${TARGET}
+    cmake .. -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+    make -j "${CORE_COUNT}" "${TARGET}"
     exit_code=$?
 
     cd ..
