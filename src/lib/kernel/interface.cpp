@@ -17,6 +17,7 @@
 
 #include "lib/interface.h"
 #include "device/cpu/Cpu.h"
+#include "kernel/process/Process.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"
@@ -104,6 +105,15 @@ bool changeDirectory(const Util::Memory::String &path) {
 
 Util::File::File getCurrentWorkingDirectory() {
     return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().getWorkingDirectory();
+}
+
+Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    auto &process = Kernel::System::getService<Kernel::SchedulerService>().loadBinary(binaryFile, outputFile, command, arguments);
+    return Util::Async::Process(process.getId());
+}
+
+bool isProcessActive(uint32_t id) {
+    return Kernel::System::getService<Kernel::SchedulerService>().isProcessActive(id);
 }
 
 Util::Time::Timestamp getSystemTime() {

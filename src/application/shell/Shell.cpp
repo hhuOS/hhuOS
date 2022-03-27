@@ -15,50 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/system/System.h"
-#include "kernel/process/BinaryLoader.h"
 #include "lib/util/stream/InputStreamReader.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/FileOutputStream.h"
+#include "lib/util/async//Process.h"
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/time/Date.h"
+#include "lib/util/system/System.h"
 #include "Shell.h"
+
+Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
 
 Shell::~Shell() {
     delete reader;
 }
 
 void Shell::run() {
-    auto currentDirectory = Util::File::getCurrentWorkingDirectory();
+    if (!Util::File::changeDirectory(startDirectory)) {
+        Util::System::out << "Unable to start shell in '" << startDirectory << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return;
+    }
+
     auto inputStream = Util::Stream::FileInputStream("/device/keyboard");
     reader = new Util::Stream::InputStreamReader(inputStream);
     Util::Memory::String line = "";
 
-    Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
-            << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
-            << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
-            << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
+    beginCommandLine();
 
-    while(true) {
+    while (isRunning) {
         char input = reader->read();
         Util::System::out << input << Util::Stream::PrintWriter::flush;
 
         if (input == '\n') {
             parseInput(line);
             line = "";
-            currentDirectory = Util::File::getCurrentWorkingDirectory();
 
-            Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
-                    << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
-                    << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
-                    << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
+            if (isRunning) {
+                beginCommandLine();
+            }
         } else if (input == '\b') {
             line = line.substring(0, line.length() - 1);
         } else {
             line += input;
         }
     }
+}
+
+void Shell::beginCommandLine() {
+    auto currentDirectory = Util::File::getCurrentWorkingDirectory();
+    Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
+                      << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
+                      << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
+                      << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::parseInput(const Util::Memory::String &input) {
@@ -76,8 +83,8 @@ void Shell::parseInput(const Util::Memory::String &input) {
         return;
     } else if (command == "cd") {
         cd(arguments);
-    } else if (command == "null") {
-        *reinterpret_cast<uint32_t*>(0) = 1797;
+    } else if (command == "exit") {
+        isRunning = false;
     } else if (!command.isEmpty()) {
         auto binaryPath = checkPath(command);
         if (binaryPath.isEmpty()) {
@@ -144,8 +151,8 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
 }
 
 void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath) {
-    const auto binaryFile = Util::File::File(path);
-    const auto outputFile = Util::File::File(outputPath);
+    auto binaryFile = Util::File::File(path);
+    auto outputFile = Util::File::File(outputPath);
 
     if (!binaryFile.exists()) {
         Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
@@ -158,20 +165,12 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
     }
 
     if (!outputFile.exists() && !outputFile.create(Util::File::REGULAR)) {
-        Util::System::out << "Failed to create file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "Failed to execute file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-
-    auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = schedulerService.createProcess(virtualAddressSpace, Util::File::getCurrentWorkingDirectory(), outputFile);
-    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
-
-    process.ready(thread);
-    schedulerService.ready(process);
-
-    // TODO: Process may get deleted before this loop finishes
-    while (!process.isFinished());
+    auto process = Util::Async::Process::execute(binaryFile, outputFile, command, arguments);
+    while (process.isActive()) {
+        Util::Async::Process::yield();
+    }
 }

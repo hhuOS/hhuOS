@@ -38,7 +38,7 @@ void JobExecutor::executePendingJobs() {
     for (uint32_t i = 0; i < jobs.size(); i++) {
         auto *job = jobs.get(i);
         if (jobs.get(i)->isFinished()) {
-            jobs.remove(i);
+            jobs.removeIndex(i);
             delete job;
             i = 0;
         }
@@ -61,7 +61,7 @@ void JobExecutor::deleteJob(Job::Id id) {
     for (uint32_t i = 0; i < jobs.size(); i++) {
         auto *job = jobs.get(i);
         if (jobs.get(i)->getId() == id) {
-            jobs.remove(i);
+            jobs.removeIndex(i);
             delete job;
             return;
         }

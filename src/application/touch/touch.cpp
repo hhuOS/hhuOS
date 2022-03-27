@@ -33,7 +33,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.create(Util::File::REGULAR);
         if (!success) {
-            Util::System::out << "touch: Failed to create file '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::out << "touch: Failed to execute file '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 

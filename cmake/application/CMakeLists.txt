@@ -26,6 +26,7 @@ endif()
 set(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Wl,--build-id=none -Wno-non-virtual-dtor -fno-threadsafe-statics -fno-use-cxa-atexit -fno-rtti -fno-exceptions -std=c++17 -T ${HHUOS_SRC_DIR}/application/link.ld")
 
 # Add subdirectories
+add_subdirectory(shell)
 add_subdirectory(cat)
 add_subdirectory(color)
 add_subdirectory(cp)

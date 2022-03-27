@@ -1,7 +1,5 @@
-# Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
-# Institute of Computer Science, Department Operating Systems
-# Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
-#
+# Copyright (C) 2018-2022 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+# Heinrich-Heine University
 #
 # This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
 # License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -16,5 +14,16 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib.kernel PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/system/SystemCall.cpp)
+project(shell)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/shell/shell.cpp
+        ${HHUOS_SRC_DIR}/application/shell/Shell.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(shell lib.crt0 lib.user)

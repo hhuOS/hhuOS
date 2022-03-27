@@ -37,7 +37,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
             System::panic(*frame);
         }
 
-        Util::System::out << Device::Cpu::getExceptionName(frame->interrupt) << Util::Stream::PrintWriter::endl;
+        Util::System::out << Device::Cpu::getExceptionName(frame->interrupt) << ": " << Util::System::errorMessage << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         schedulerService.exitCurrentProcess(-1);
     }
 

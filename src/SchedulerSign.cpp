@@ -21,7 +21,7 @@
 #include "lib/util/graphic/Fonts.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/system/System.h"
-#include "lib/util/async/ThreadUtil.h"
+#include "lib/util/async/Process.h"
 #include "lib/util/graphic/Colors.h"
 #include "SchedulerSign.h"
 
@@ -41,6 +41,6 @@ void SchedulerSign::run() {
             stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);
         }
 
-        Util::Async::ThreadUtil::yield();
+        Util::Async::Process::yield();
     }
 }

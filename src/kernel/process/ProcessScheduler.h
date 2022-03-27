@@ -19,6 +19,7 @@
 #define HHUOS_PROCESSSCHEDULER_H
 
 #include "Process.h"
+#include "lib/util/data/HashMap.h"
 
 namespace Kernel {
 
@@ -64,11 +65,11 @@ public:
 
     bool isProcessWaiting();
 
-    Process &getCurrentProcess();
+    bool isProcessActive(uint32_t id);
+
+    Process& getCurrentProcess();
 
     uint32_t getProcessCount();
-
-    uint32_t getThreadCount();
 
 private:
 
@@ -84,6 +85,7 @@ private:
     Util::Async::Spinlock lock;
     Process *currentProcess = nullptr;
     Util::Data::ArrayBlockingQueue<Process*> processQueue;
+    Util::Data::ArrayList<uint32_t> processIds;
 };
 
 }

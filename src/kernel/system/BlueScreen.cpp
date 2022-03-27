@@ -23,6 +23,7 @@
 #include "lib/util/graphic/Fonts.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/paging/MemoryLayout.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 
@@ -35,7 +36,6 @@ uint16_t BlueScreen::fbPitch = 0;
 uint32_t BlueScreen::maxStacktraceSize = 0;
 uint16_t BlueScreen::posX = OFFSET_X;
 uint16_t BlueScreen::posY = OFFSET_Y;
-const char *BlueScreen::errorMessage = "";
 
 void BlueScreen::setLfbMode(uint32_t address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) {
     mode = LFB;
@@ -57,10 +57,6 @@ void BlueScreen::setCgaMode(uint32_t address, uint16_t columns, uint16_t rows) {
     maxStacktraceSize = rows - 12;
 }
 
-void BlueScreen::setErrorMessage(const char *message) {
-    errorMessage = message;
-}
-
 void BlueScreen::show(const InterruptFrame &frame) {
     auto lfb = Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(fbAddress), fbResX, fbResY, fbColorDepth, fbPitch);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
@@ -73,9 +69,9 @@ void BlueScreen::show(const InterruptFrame &frame) {
     print(stringDrawer, "] ");
     printLine(stringDrawer, Device::Cpu::getExceptionName(frame.interrupt));
 
-    if (Util::Memory::Address<uint32_t>(errorMessage).stringLength() != 0) {
+    if (Util::Memory::Address<uint32_t>(Util::System::errorMessage).stringLength() > 0) {
         printLine(stringDrawer, "");
-        printLine(stringDrawer, errorMessage);
+        printLine(stringDrawer, Util::System::errorMessage);
     }
 
     printLine(stringDrawer, "");

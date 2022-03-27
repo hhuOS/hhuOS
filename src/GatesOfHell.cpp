@@ -36,15 +36,15 @@
 #include "lib/util/stream/FileInputStream.h"
 #include "device/cpu/CpuId.h"
 #include "lib/util/stream/FileOutputStream.h"
+#include "lib/util/async/Process.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/process/ProcessScheduler.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/memory/MemoryStatusNode.h"
 #include "BuildConfig.h"
-#include "Shell.h"
 #include "GatesOfHell.h"
 #include "SchedulerSign.h"
-#include "kernel/system/BlueScreen.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -93,11 +93,10 @@ void GatesOfHell::enter() {
     printBanner();
 
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &testThread = Kernel::Thread::createKernelThread("Test", new SchedulerSign());
-    schedulerService.ready(testThread);
+    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler Sign", new SchedulerSign());
+    schedulerService.ready(schedulerSignThread);
 
-    auto &shellThread = Kernel::Thread::createKernelThread("Shell", new Shell());
-    schedulerService.ready(shellThread);
+    Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
     log.info("Starting scheduler!");
     schedulerService.startScheduler();

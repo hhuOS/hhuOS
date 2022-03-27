@@ -101,7 +101,7 @@ void ArrayBlockingQueue<T>::push(const T &element) {
 template<class T>
 T ArrayBlockingQueue<T>::pop() {
     while (isEmpty()) {}
-    return elements.remove((uint32_t) 0);
+    return elements.removeIndex((uint32_t) 0);
 }
 
 template<class T>

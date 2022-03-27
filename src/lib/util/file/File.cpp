@@ -130,7 +130,7 @@ Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
             continue;
         } else if (string == "..") {
             if (!parsedToken.isEmpty()) {
-                parsedToken.remove(parsedToken.size() - 1);
+                parsedToken.removeIndex(parsedToken.size() - 1);
             }
         } else {
             parsedToken.add(*new Util::Memory::String(string));

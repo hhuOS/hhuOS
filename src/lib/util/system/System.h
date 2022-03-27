@@ -33,6 +33,8 @@ public:
     enum Code : uint16_t {
         SCHEDULER_YIELD,
         SCHEDULER_EXIT,
+        EXECUTE_BINARY,
+        IS_PROCESS_ACTIVE,
         UNMAP,
         MAP_IO,
         CREATE_FILE,
@@ -83,6 +85,7 @@ public:
     static Result call(Code code, uint32_t paramCount...);
 
     static Util::Stream::PrintWriter out;
+    static const char *errorMessage;
 
 private:
 

@@ -22,6 +22,7 @@ namespace Util {
 Stream::FileOutputStream System::outStream(0);
 Stream::BufferedOutputStream System::bufferedOutStream(outStream);
 Stream::PrintWriter System::out(bufferedOutStream);
+const char *System::errorMessage = "";
 
 System::Result System::call(System::Code code, uint32_t paramCount...) {
     va_list args;

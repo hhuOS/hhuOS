@@ -16,8 +16,9 @@
  */
 
 #include "asm_interface.h"
-#include "Cpu.h"
 #include "kernel/system/BlueScreen.h"
+#include "lib/util/system/System.h"
+#include "Cpu.h"
 
 namespace Device {
 
@@ -75,7 +76,7 @@ void Cpu::halt() {
 
 void Cpu::throwException(Util::Exception::Error error, const char *message) {
     disableInterrupts();
-    Kernel::BlueScreen::setErrorMessage(message);
+    Util::System::errorMessage = message;
     on_exception((uint32_t) error);
 }
 

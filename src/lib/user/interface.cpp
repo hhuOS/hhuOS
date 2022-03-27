@@ -117,6 +117,18 @@ Util::File::File getCurrentWorkingDirectory() {
     return Util::File::File(path);
 }
 
+Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    uint32_t processId;
+    Util::System::call(Util::System::EXECUTE_BINARY, 5, &binaryFile, &outputFile, &command, &arguments, &processId);
+    return Util::Async::Process(processId);
+}
+
+bool isProcessActive(uint32_t id) {
+    bool isActive;
+    Util::System::call(Util::System::IS_PROCESS_ACTIVE, 2, id, &isActive);
+    return isActive;
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);

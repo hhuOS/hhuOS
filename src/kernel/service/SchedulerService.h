@@ -20,8 +20,8 @@
 
 #include "kernel/process/ProcessScheduler.h"
 #include "lib/util/file/File.h"
-#include "Service.h"
 #include "kernel/process/SchedulerCleaner.h"
+#include "Service.h"
 
 namespace Kernel {
 
@@ -64,6 +64,8 @@ public:
 
     Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
 
+    Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+
     void exitCurrentProcess(int32_t exitCode);
 
     void releaseSchedulerLock();
@@ -71,6 +73,8 @@ public:
     void setSchedulerInitialized();
 
     [[nodiscard]] bool isSchedulerInitialized() const;
+
+    [[nodiscard]] bool isProcessActive(uint32_t id);
 
     [[nodiscard]] Process& getCurrentProcess();
 
@@ -81,7 +85,7 @@ public:
 private:
 
     ProcessScheduler scheduler;
-    SchedulerCleaner cleaner;
+    SchedulerCleaner *cleaner = nullptr;
 };
 
 }

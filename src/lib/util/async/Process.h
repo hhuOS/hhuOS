@@ -15,55 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SHELL_H
-#define HHUOS_SHELL_H
+#ifndef HHUOS_UTIL_PROCESS_H
+#define HHUOS_UTIL_PROCESS_H
 
+namespace Util::Async {
 
-#include "lib/util/async/Runnable.h"
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
-
-class Shell : public Util::Async::Runnable {
+class Process {
 
 public:
     /**
      * Default Constructor.
      */
-    Shell() = default;
+    explicit Process(uint32_t id);
 
     /**
      * Copy constructor.
      */
-    Shell(const Shell &other) = delete;
+    Process(const Process &other) = default;
 
     /**
      * Assignment operator.
      */
-    Shell &operator=(const Shell &other) = delete;
+    Process &operator=(const Process &other) = default;
 
     /**
      * Destructor.
      */
-    ~Shell() override;
+    ~Process() = default;
 
-    void run() override;
+    static Process execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+
+    static void yield();
+
+    static void exit(int32_t exitCode);
+
+    [[nodiscard]] uint32_t getId() const;
+
+    [[nodiscard]] bool isActive() const;
 
 private:
 
-    void parseInput(const Util::Memory::String &input);
-
-    Util::Memory::String checkPath(const Util::Memory::String &command);
-
-    Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory);
-
-    static void cd(const Util::Data::Array<Util::Memory::String> &arguments);
-
-    static void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath);
-
-    Util::Stream::Reader *reader = nullptr;
-
-    static const constexpr char *PATH = "/initrd/bin";
+    uint32_t id;
 };
 
+}
 
 #endif

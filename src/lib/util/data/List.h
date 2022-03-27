@@ -50,7 +50,7 @@ public:
 
     virtual bool removeAll(const Collection<T> &other) = 0;
 
-    virtual T remove(uint32_t index) = 0;
+    virtual T removeIndex(uint32_t index) = 0;
 
     [[nodiscard]] virtual bool contains(const T &element) const = 0;
 

@@ -16,16 +16,31 @@
  */
 
 #include "lib/util/system/System.h"
-#include "ThreadUtil.h"
+#include "lib/interface.h"
+#include "Process.h"
 
 namespace Util::Async {
 
-void ThreadUtil::yield() {
+Process::Process(uint32_t id) : id(id) {}
+
+Process Process::execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    return ::executeBinary(binaryFile, outputFile, command, arguments);
+}
+
+void Process::yield() {
     System::System::call(System::System::SCHEDULER_YIELD, 0);
 }
 
-void ThreadUtil::exitProcess(int32_t exitCode) {
+void Process::exit(int32_t exitCode) {
     System::System::call(System::System::SCHEDULER_EXIT, 1, exitCode);
+}
+
+bool Process::isActive() const {
+    return ::isProcessActive(id);
+}
+
+uint32_t Process::getId() const {
+    return id;
 }
 
 }

@@ -59,7 +59,7 @@ public:
 
     bool removeAll(const Collection<T> &other) override;
 
-    T remove(uint32_t index) override;
+    T removeIndex(uint32_t index) override;
 
     [[nodiscard]] bool contains(const T &element) const override;
 
@@ -167,12 +167,12 @@ bool ArrayList<T>::remove(const T &element) {
         return false;
     }
 
-    remove(index);
+    removeIndex(index);
     return true;
 }
 
 template <class T>
-T ArrayList<T>::remove(uint32_t index) {
+T ArrayList<T>::removeIndex(uint32_t index) {
     if (index >= length) {
         Exception::throwException(Exception::OUT_OF_BOUNDS, "ArrayList: Trying to access an element out of bounds!");
     }

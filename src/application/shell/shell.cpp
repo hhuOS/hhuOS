@@ -15,40 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_THREADUTIL_H
-#define HHUOS_THREADUTIL_H
+#include <cstdint>
+#include "Shell.h"
 
-namespace Util::Async {
+int32_t main(int32_t argc, char *argv[]) {
+    Shell shell(argc > 1 ? argv[1] : "/");
+    shell.run();
 
-class ThreadUtil {
-
-public:
-    /**
-     * Default Constructor.
-     * Deleted, as this class has only static members.
-     */
-    ThreadUtil() = delete;
-
-    /**
-     * Copy constructor.
-     */
-    ThreadUtil(const ThreadUtil &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    ThreadUtil &operator=(const ThreadUtil &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~ThreadUtil() = delete;
-
-    static void yield();
-
-    static void exitProcess(int32_t exitCode);
-};
-
+    return 0;
 }
-
-#endif

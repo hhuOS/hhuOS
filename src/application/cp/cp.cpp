@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     if (!targetFile.exists() && !targetFile.create(Util::File::REGULAR)) {
-        Util::System::out << "cp: Failed to create file '" << argv[2] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cp: Failed to execute file '" << argv[2] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 

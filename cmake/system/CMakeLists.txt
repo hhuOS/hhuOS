@@ -27,7 +27,6 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
         ${HHUOS_SRC_DIR}/GatesOfHell.cpp
         ${HHUOS_SRC_DIR}/SchedulerSign.cpp
-        ${HHUOS_SRC_DIR}/Shell.cpp
         ${HHUOS_SRC_DIR}/asm_interface.cpp
         ${HHUOS_SRC_DIR}/constants.asm)
 

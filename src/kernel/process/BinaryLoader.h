@@ -51,7 +51,7 @@ public:
 private:
 
     const Util::Memory::String path;
-    const Util::Memory::String &command;
+    const Util::Memory::String command;
     const Util::Data::Array<Util::Memory::String> arguments;
 };
 

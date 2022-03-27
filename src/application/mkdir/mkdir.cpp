@@ -34,7 +34,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.create(Util::File::DIRECTORY);
         if (!success) {
-            Util::System::out << "mkdir: Failed to create directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::out << "mkdir: Failed to execute directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 

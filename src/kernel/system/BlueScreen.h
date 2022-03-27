@@ -50,8 +50,6 @@ public:
 
     static void setCgaMode(uint32_t address, uint16_t columns, uint16_t rows);
 
-    static void setErrorMessage(const char *message);
-
     static void show(const InterruptFrame &frame);
 
 private:
@@ -83,8 +81,6 @@ private:
     static uint16_t posX;
     static uint16_t posY;
     static uint32_t maxStacktraceSize;
-
-    static const char *errorMessage;
 
     static const constexpr uint16_t OFFSET_X = 4;
     static const constexpr uint16_t OFFSET_Y = 2;

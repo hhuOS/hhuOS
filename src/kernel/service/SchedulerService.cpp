@@ -20,6 +20,7 @@
 #include "JobService.h"
 #include "FilesystemService.h"
 #include "kernel/process/AddressSpaceCleaner.h"
+#include "kernel/process/BinaryLoader.h"
 
 namespace Kernel {
 
@@ -29,7 +30,8 @@ void SchedulerService::kickoffThread() {
 }
 
 void SchedulerService::startScheduler() {
-    System::getService<JobService>().registerJob(&cleaner, Job::LOW, Util::Time::Timestamp(1, 0));
+    cleaner = new SchedulerCleaner;
+    System::getService<JobService>().registerJob(cleaner, Job::LOW, Util::Time::Timestamp(1, 0));
     scheduler.start();
 }
 
@@ -51,13 +53,26 @@ Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, cons
     return *process;
 }
 
+Process &SchedulerService::loadBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+
+    auto &virtualAddressSpace = memoryService.createAddressSpace();
+    auto &process = createProcess(virtualAddressSpace, Util::File::getCurrentWorkingDirectory(), outputFile);
+    auto &thread = Kernel::Thread::createKernelThread("Loader", new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
+
+    process.ready(thread);
+    ready(process);
+
+    return process;
+}
+
 void SchedulerService::releaseSchedulerLock() {
     scheduler.lock.release();
 }
 
 void SchedulerService::setSchedulerInitialized() {
     if (scheduler.isInitialized()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "ThreadUtil is already initialized!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler is already initialized!");
     }
 
     SystemCall::registerSystemCall(Util::System::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::Result {
@@ -77,6 +92,38 @@ void SchedulerService::setSchedulerInitialized() {
         return Util::System::Result::OK;
     });
 
+    SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 5) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *binaryFile = va_arg(arguments, Util::File::File*);
+        auto *outputFile = va_arg(arguments, Util::File::File*);
+        auto *command = va_arg(arguments, const Util::Memory::String*);
+        auto *commandArguments = va_arg(arguments, Util::Data::Array<Util::Memory::String>*);
+        auto *processId = va_arg(arguments, uint32_t*);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        auto &process = schedulerService.loadBinary(*binaryFile, *outputFile, *command, *commandArguments);
+
+        *processId = process.getId();
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::IS_PROCESS_ACTIVE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 2) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto processId = va_arg(arguments, uint32_t);
+        auto *isActive = va_arg(arguments, bool*);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        *isActive = schedulerService.isProcessActive(processId);
+
+        return Util::System::Result::OK;
+    });
+
     scheduler.setInitialized();
 }
 
@@ -90,7 +137,11 @@ bool SchedulerService::isSchedulerInitialized() const {
     return scheduler.isInitialized();
 }
 
-Process& SchedulerService::getCurrentProcess() {
+bool SchedulerService::isProcessActive(uint32_t id) {
+    return scheduler.isProcessActive(id);
+}
+
+Kernel::Process& SchedulerService::getCurrentProcess() {
     return scheduler.getCurrentProcess();
 }
 
@@ -99,11 +150,11 @@ Thread& SchedulerService::getCurrentThread() {
 }
 
 void SchedulerService::cleanup(Process *process) {
-    cleaner.cleanup(process);
+    cleaner->cleanup(process);
 }
 
 void SchedulerService::cleanup(Thread *thread) {
-    cleaner.cleanup(thread);
+    cleaner->cleanup(thread);
 }
 
 void SchedulerService::exitCurrentProcess(int32_t exitCode) {
