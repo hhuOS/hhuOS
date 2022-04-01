@@ -32,7 +32,7 @@ void Process::yield() {
 }
 
 void Process::exit(int32_t exitCode) {
-    System::System::call(System::System::SCHEDULER_EXIT, 1, exitCode);
+    System::System::call(System::System::EXIT_PROCESS, 1, exitCode);
 }
 
 bool Process::isActive() const {

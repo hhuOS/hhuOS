@@ -43,6 +43,12 @@ public:
 
     [[noreturn]] static void throwException(Error error, const char *message = "");
 
+    [[nodiscard]] static const char* getExceptionName(Error error);
+
+private:
+
+    static const char *softwareExceptions[];
+
 };
 
 }

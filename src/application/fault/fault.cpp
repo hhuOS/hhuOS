@@ -19,6 +19,10 @@
 #include "lib/util/system/System.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    *reinterpret_cast<uint32_t*>(0) = 1797;
-    return 0;
+    if (argc <= 1) {
+        *reinterpret_cast<uint32_t*>(0) = 1797;
+    }
+
+    uint32_t exception = Util::Memory::String::parseInt(argv[1]);
+    Util::Exception::throwException(static_cast<Util::Exception::Error>(exception), "Test exception!");
 }

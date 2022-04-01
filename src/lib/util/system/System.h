@@ -32,7 +32,7 @@ public:
 
     enum Code : uint16_t {
         SCHEDULER_YIELD,
-        SCHEDULER_EXIT,
+        EXIT_PROCESS,
         EXECUTE_BINARY,
         IS_PROCESS_ACTIVE,
         UNMAP,

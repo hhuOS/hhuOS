@@ -146,6 +146,7 @@ void setDate(const Util::Time::Date &date) {
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    asm volatile ("hlt");
-    while(true);
+    Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
+    while(true) {}
 }

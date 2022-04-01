@@ -80,7 +80,7 @@ void SchedulerService::setSchedulerInitialized() {
         return Util::System::Result::OK;
     });
 
-    SystemCall::registerSystemCall(Util::System::SCHEDULER_EXIT, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         int32_t exitCode = 0;
         if (paramCount >= 1) {
             exitCode = va_arg(arguments, int32_t);

@@ -20,8 +20,23 @@
 
 namespace Util {
 
-void Exception::throwException(Exception::Error error, const char *message) {
+const char *Exception::softwareExceptions[]{
+        "NullPointer Exception", "IndexOutOfBounds Exception", "InvalidArgument Exception", "KeyNotFound Exception",
+        "IllegalState Exception", "OutOfMemoryException", "OutOfPhysicalMemory Exception",
+        "OutOfPageTableMemory Exception", "IllegalPageAccess Exception", "UnknownType Exception",
+        "PagingError Exception", "UnsupportedOperation Exception"
+};
+
+void Exception::throwException(Error error, const char *message) {
     throwError(error, message);
+}
+
+const char *Exception::getExceptionName(Error error) {
+    if (error < NULL_POINTER || error > UNSUPPORTED_OPERATION) {
+        throwException(INVALID_ARGUMENT, "Trying to throw an invalid exception!");
+    }
+
+    return softwareExceptions[error - NULL_POINTER];
 }
 
 }

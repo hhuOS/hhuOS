@@ -31,7 +31,7 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     auto slot = static_cast<uint8_t>(frame->interrupt);
 
     // Throw bluescreen on exceptions except page fault
-    if ((slot < 32 && slot != static_cast<uint32_t>(Device::Cpu::Error::PAGE_FAULT)) || (slot >= Device::Cpu::SOFTWARE_EXCEPTIONS_START)) {
+    if ((slot < 32 && slot != static_cast<uint32_t>(Device::Cpu::Error::PAGE_FAULT)) || (slot >= Util::Exception::NULL_POINTER)) {
         auto &schedulerService = System::getService<SchedulerService>();
         if (schedulerService.getCurrentProcess().isKernelProcess()) {
             System::panic(*frame);

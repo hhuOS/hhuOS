@@ -81,8 +81,8 @@ void Cpu::throwException(Util::Exception::Error error, const char *message) {
 }
 
 const char* Cpu::getExceptionName(uint32_t exception) {
-    if (exception >= SOFTWARE_EXCEPTIONS_START) {
-        return softwareExceptions[exception - SOFTWARE_EXCEPTIONS_START];
+    if (exception >= Util::Exception::NULL_POINTER) {
+        return Util::Exception::getExceptionName(static_cast<Util::Exception::Error>(exception));
     }
 
     return hardwareExceptions[exception];
