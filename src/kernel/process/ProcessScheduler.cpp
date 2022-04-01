@@ -37,13 +37,7 @@ uint32_t ProcessScheduler::isInitialized() const {
 
 void ProcessScheduler::start() {
     lock.acquire();
-
-    if (!isProcessWaiting()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Process: No process is waiting to be scheduled!");
-    }
-
     currentProcess = &getNextProcess();
-
     start_first_thread(currentProcess->getThreadScheduler().getNextThread(false).getContext());
 }
 
@@ -60,14 +54,10 @@ void ProcessScheduler::ready(Process &process) {
 
 void ProcessScheduler::exit() {
     if (!initialized) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Process: 'exit' called but threadScheduler is not initialized!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: 'exit()' called but scheduler is not initialized!");
     }
 
     lock.acquire();
-    if (!isProcessWaiting()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Process: No process is waiting to be scheduled!");
-    }
-
     processQueue.remove(currentProcess);
     processIds.remove(currentProcess->getId());
 
@@ -77,15 +67,16 @@ void ProcessScheduler::exit() {
 
 void ProcessScheduler::kill(Process &process) {
     if (!initialized) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"Process: 'kill' called but threadScheduler is not initialized!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"Scheduler: Trying to kill a process but scheduler is not initialized!");
     }
 
     lock.acquire();
     if (process.getId() == currentProcess->getId()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"Process: A process is trying to kill itself... Use 'exit' instead!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"A process is trying to kill itself... Use 'exit()' instead!");
     }
 
     processQueue.remove(&process);
+    processIds.remove(process.getId());
     lock.release();
 
     delete &process;
@@ -109,7 +100,7 @@ uint32_t ProcessScheduler::getProcessCount() {
 
 Process &ProcessScheduler::getNextProcess() {
     if (!isProcessWaiting()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Process: No thread is waiting to be scheduled!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: No process is running!");
     }
 
     Process *process = processQueue.pop();
@@ -119,10 +110,6 @@ Process &ProcessScheduler::getNextProcess() {
 }
 
 void ProcessScheduler::yield() {
-    if (!isProcessWaiting()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No process is running!");
-    }
-
     if(lock.tryAcquire()) {
         dispatch(getNextProcess(), true);
     } else {
@@ -131,10 +118,6 @@ void ProcessScheduler::yield() {
 }
 
 void ProcessScheduler::forceYield() {
-    if (!isProcessWaiting()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No process is running!");
-    }
-
     lock.acquire();
     dispatch(getNextProcess(), false);
 }
