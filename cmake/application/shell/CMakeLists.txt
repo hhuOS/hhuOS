@@ -50,4 +50,5 @@ target_sources(application PUBLIC
         ${HHUOS_SRC_DIR}/application/shell/command/Touch.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Umount.cpp
         ${HHUOS_SRC_DIR}/application/shell/command/Uptime.cpp
-        ${HHUOS_SRC_DIR}/application/shell/command/WavPlay.cpp)
+        ${HHUOS_SRC_DIR}/application/shell/command/WavPlay.cpp
+        ${HHUOS_SRC_DIR}/application/shell/command/WordCount.cpp)
