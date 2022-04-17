@@ -17,10 +17,13 @@
 #include "lib/file/FileStatus.h"
 #include "WordCount.h"
 #include "lib/file/File.h"
-#include "lib/file/FileStatus.h"
 #include <cctype>
 
 void WordCount::execute(Util::Array<String> &args) {
+
+    bytesTotal = 0;
+    wordsTotal = 0;
+    linesTotal = 0;
 
     Util::ArrayList<String> paths;
 
@@ -84,52 +87,51 @@ void WordCount::wcPrintTotal(Util::ArgumentParser* parser) {
 
 void WordCount::count(const String &absolutePath, Util::ArgumentParser* parser) {
 
-    bytes = 0;
-    words = 0;
-    lines = 0;
+    size_t bytes = 0;
+    size_t words = 0;
+    size_t lines = 0;
 
     File *file = File::open(absolutePath, "r");
 
     char c;
-    uint32_t currentWordLength = 0;
+    bool isWord = false;
 
-    while((c = file->readChar()) != FsNode::END_OF_FILE){
+    const size_t l = file->getLength();
 
-        for(size_t i = 0; i < file->getLength(); i++){
+    for(size_t i=0;i < l; i++){
 
-            switch (c) {
-                case '\n':
-                    lines++;
-                    currentWordLength = 0;
-                    break;
-                case ' ':
-                case '\t':
-                    if(currentWordLength > 0)
-                        words++;
+        c = file->readChar();
+        bytes++;
 
-                    currentWordLength = 0;
-                default:
-                    if(isprint(c))
-                        currentWordLength++;
-                    else
-                        currentWordLength = 0;
-                    break;
-            }
+        if(c == '\n')
+            lines++;
 
-            bytes++;
+        if(c == ' ' || c == '\t' || isspace(c)){
+
+            if (isWord)
+                words++;
+
+            isWord = false;
+
+            continue;
         }
+
+        if(!isspace(c) && isprint(c))
+            isWord = true;
+        else
+            isWord = false;
     }
 
     bytesTotal += bytes;
     wordsTotal += words;
     linesTotal += lines;
 
-    wcPrintStats(parser, file);
+    wcPrintStats(parser, file, bytes, words, lines);
 
     delete file;
 }
 
-void WordCount::wcPrintStats(Util::ArgumentParser* parser, File *pFile) {
+void WordCount::wcPrintStats(Util::ArgumentParser *parser, File *pFile, size_t bytes, size_t words, size_t lines) {
 
     if(parser->checkSwitch("lines")){
         stdout << lines << " ";

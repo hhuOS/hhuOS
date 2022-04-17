@@ -52,9 +52,6 @@ public:
     const String getHelpText() override;
 
 private:
-    size_t bytes = 0;
-    size_t words = 0;
-    size_t lines = 0;
 
     size_t bytesTotal = 0;
     size_t wordsTotal = 0;
@@ -62,7 +59,7 @@ private:
 
     void count(const String &absolutePath, Util::ArgumentParser* parser);
 
-    void wcPrintStats(Util::ArgumentParser* parser, File *pFile);
+    void wcPrintStats(Util::ArgumentParser *parser, File *pFile, size_t bytes, size_t words, size_t lines);
 
     void wcPrintTotal(Util::ArgumentParser* parser);
 };
