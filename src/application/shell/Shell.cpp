@@ -55,6 +55,7 @@
 #include "application/shell/command/Asciimate.h"
 #include "device/port/PortEvent.h"
 #include "application/shell/command/NetworkTest.h"
+#include "application/shell/command/WordCount.h"
 
 extern "C" {
 #include "lib/libc/ctype.h"
@@ -103,6 +104,7 @@ Shell::Shell() : KernelThread("Shell") {
     commands.put("license", new License(*this));
     commands.put("asciimate", new Asciimate(*this));
     commands.put("nettest", new NetworkTest(*this));
+    commands.put("wc", new WordCount(*this));
 
     memset(inputBuffer, 0, sizeof(inputBuffer));
 }
