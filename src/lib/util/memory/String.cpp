@@ -95,14 +95,14 @@ String String::substring(uint32_t begin, uint32_t end) const {
     }
 
     uint32_t length = end - begin;
-    char *buffer = new char[length + 1];
-    Memory::Address<uint32_t>(buffer).copyRange(Memory::Address<uint32_t>(this->buffer + begin), length);
+    char *newBuffer = new char[length + 1];
+    Memory::Address<uint32_t>(newBuffer).copyRange(Memory::Address<uint32_t>(this->buffer + begin), length);
+    newBuffer[length] = '\0';
 
-    String tmp = "";
-    tmp.buffer = buffer;
-    tmp.len = length;
+    String ret(newBuffer);
+    delete[] newBuffer;
 
-    return tmp;
+    return ret;
 }
 
 Util::Data::Array<String> String::split(const String &delimiter, uint32_t limit) const {
