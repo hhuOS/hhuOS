@@ -32,7 +32,7 @@ public:
     MultibootTerminalProvider();
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     MultibootTerminalProvider(const MultibootTerminalProvider &other) = delete;
 

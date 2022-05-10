@@ -34,7 +34,7 @@ public:
     explicit Shell(const Util::Memory::String &path = "/");
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Shell(const Shell &other) = delete;
 

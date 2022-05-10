@@ -40,7 +40,7 @@ public:
     VirtualDiskDrive(void *address, uint32_t sectorSize, uint32_t sectorCount);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     VirtualDiskDrive(const VirtualDiskDrive &other) = delete;
 

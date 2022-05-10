@@ -29,7 +29,7 @@ public:
     explicit FunctionPointerRunnable(void (*function)());
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     FunctionPointerRunnable(const FunctionPointerRunnable &other) = delete;
 

@@ -32,7 +32,7 @@ public:
     SchedulerCleaner();
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     SchedulerCleaner(const SchedulerCleaner &other) = delete;
 

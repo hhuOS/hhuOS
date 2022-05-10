@@ -32,7 +32,7 @@ public:
     JobService(JobExecutor &lowPriorityExecutor, JobExecutor &highPriorityExecutor);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     JobService(const JobService &other) = delete;
 

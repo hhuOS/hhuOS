@@ -61,7 +61,7 @@ public:
     LinearFrameBufferProvider() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     LinearFrameBufferProvider(const LinearFrameBufferProvider &other) = delete;
 

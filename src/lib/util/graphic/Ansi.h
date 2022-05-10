@@ -52,7 +52,7 @@ public:
     Ansi() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Ansi(const Ansi &other) = delete;
 

@@ -38,7 +38,7 @@ public:
     Filesystem() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Filesystem(const Filesystem &copy) = delete;
 

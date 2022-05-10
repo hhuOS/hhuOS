@@ -32,7 +32,7 @@ public:
     HeapMemoryManager() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     HeapMemoryManager(const HeapMemoryManager &copy) = delete;
 

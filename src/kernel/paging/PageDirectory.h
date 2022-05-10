@@ -47,7 +47,7 @@ public:
     explicit PageDirectory(PageDirectory &basePageDirectory);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PageDirectory(const PageDirectory &copy) = delete;
 

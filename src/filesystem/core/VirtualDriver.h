@@ -34,7 +34,7 @@ public:
     VirtualDriver() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     VirtualDriver(const VirtualDriver &copy) = delete;
 

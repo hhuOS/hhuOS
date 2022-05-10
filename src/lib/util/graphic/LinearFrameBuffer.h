@@ -61,7 +61,7 @@ public:
      LinearFrameBuffer& operator=(const LinearFrameBuffer &other) = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     LinearFrameBuffer(const LinearFrameBuffer &copy) = delete;
 

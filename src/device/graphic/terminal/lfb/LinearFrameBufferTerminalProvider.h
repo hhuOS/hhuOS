@@ -35,7 +35,7 @@ public:
     explicit LinearFrameBufferTerminalProvider(const Util::File::File &lfbFile, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     LinearFrameBufferTerminalProvider(const LinearFrameBufferTerminalProvider &other) = delete;
 

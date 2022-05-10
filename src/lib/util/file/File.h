@@ -32,7 +32,7 @@ public:
     explicit File(const Memory::String &path);
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     File(const File &copy);
 

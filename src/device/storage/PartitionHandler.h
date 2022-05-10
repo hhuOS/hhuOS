@@ -288,7 +288,7 @@ public:
     explicit PartitionHandler(StorageDevice &device);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PartitionHandler(const PartitionHandler &other) = delete;
 

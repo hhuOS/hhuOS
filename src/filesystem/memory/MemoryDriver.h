@@ -32,7 +32,7 @@ public:
     MemoryDriver();
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     MemoryDriver(const MemoryDriver &copy) = delete;
 

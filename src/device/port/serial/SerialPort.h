@@ -153,7 +153,7 @@ public:
     [[nodiscard]] static const char* portToString(ComPort port);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     SerialPort(const SerialPort &other) = delete;
 

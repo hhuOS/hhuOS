@@ -28,7 +28,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/GatesOfHell.cpp
         ${HHUOS_SRC_DIR}/SchedulerSign.cpp
         ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm)
+        ${HHUOS_SRC_DIR}/constants.asm ../../src/device/power/Machine.h ../../src/device/power/default/DefaultMachine.cpp ../../src/device/power/default/DefaultMachine.h ../../src/kernel/service/PowerManagementService.cpp ../../src/kernel/service/PowerManagementService.h ../../src/lib/util/system/Machine.cpp ../../src/lib/util/system/Machine.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

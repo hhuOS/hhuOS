@@ -31,7 +31,7 @@ public:
     explicit MemoryDirectoryNode(const Util::Memory::String &name);
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     MemoryDirectoryNode(const MemoryDirectoryNode &copy) = delete;
 

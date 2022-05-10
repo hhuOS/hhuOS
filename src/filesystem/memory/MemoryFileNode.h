@@ -31,7 +31,7 @@ public:
     explicit MemoryFileNode(const Util::Memory::String &name);
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     MemoryFileNode(const MemoryFileNode &copy) = delete;
 

@@ -34,7 +34,7 @@ public:
     explicit ArchiveDriver(Util::File::Tar::Archive &archive);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     ArchiveDriver(const ArchiveDriver &copy) = delete;
 

@@ -34,7 +34,7 @@ public:
     TableMemoryManager(BitmapMemoryManager &bitmapMemoryManager, uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 4096);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     TableMemoryManager(const TableMemoryManager &copy) = delete;
 

@@ -22,6 +22,7 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/service/TimeService.h"
+#include "kernel/service/PowerManagementService.h"
 
 void *allocateMemory(uint32_t size, uint32_t alignment) {
     if (Kernel::System::isInitialized()) {
@@ -126,6 +127,19 @@ Util::Time::Date getCurrentDate() {
 
 void setDate(const Util::Time::Date &date) {
     Kernel::System::getService<Kernel::TimeService>().setCurrentDate(date);
+}
+
+bool shutdown(Util::Machine::ShutdownType type) {
+    auto &powerManagementService = Kernel::System::getService<Kernel::PowerManagementService>();
+
+    if (type == Util::Machine::SHUTDOWN) {
+        powerManagementService.shutdownMachine();
+    } else if (type == Util::Machine::REBOOT) {
+        powerManagementService.rebootMachine();
+    }
+
+    // If this code is reached, the shutdown was not successful
+    return false;
 }
 
 void throwError(Util::Exception::Error error, const char *message){

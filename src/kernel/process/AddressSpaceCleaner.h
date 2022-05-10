@@ -32,7 +32,7 @@ public:
     AddressSpaceCleaner() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     AddressSpaceCleaner(const AddressSpaceCleaner &other) = delete;
 

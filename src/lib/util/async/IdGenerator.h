@@ -32,7 +32,7 @@ public:
     IdGenerator() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     IdGenerator(const IdGenerator &other) = delete;
 

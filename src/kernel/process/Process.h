@@ -34,7 +34,7 @@ public:
     explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory = Util::File::File("/"));
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Process(const Process &other) = delete;
 

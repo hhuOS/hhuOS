@@ -30,7 +30,7 @@ public:
     SchedulerSign() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     SchedulerSign(const SchedulerSign &other) = delete;
 

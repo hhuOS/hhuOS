@@ -25,6 +25,7 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/async/Process.h"
+#include "lib/util/system/Machine.h"
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
@@ -53,6 +54,7 @@ Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();
 void setDate(const Util::Time::Date &date);
 
+bool shutdown(Util::Machine::ShutdownType type);
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);
 
 #endif

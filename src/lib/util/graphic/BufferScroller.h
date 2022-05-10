@@ -33,7 +33,7 @@ public:
     explicit BufferScroller(LinearFrameBuffer &lfb);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     BufferScroller(const BufferScroller &copy) = delete;
 

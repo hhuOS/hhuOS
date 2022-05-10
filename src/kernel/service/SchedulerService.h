@@ -34,7 +34,7 @@ public:
     SchedulerService() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     SchedulerService(const SchedulerService &other) = delete;
 

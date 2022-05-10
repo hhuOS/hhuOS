@@ -29,13 +29,13 @@ class GatesOfHell {
 
 public:
     /**
-     * Default-constructor.
+     * Default Constructor.
      * Deleted, as this class has only static members.
      */
     GatesOfHell() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     GatesOfHell(const GatesOfHell &other) = delete;
 

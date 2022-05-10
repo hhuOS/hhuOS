@@ -34,7 +34,7 @@ public:
     explicit CursorRunnable(LinearFrameBufferTerminal &terminal, char cursor);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     CursorRunnable(const CursorRunnable &other) = delete;
 

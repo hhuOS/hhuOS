@@ -39,7 +39,7 @@ public:
     explicit StringDrawer(PixelDrawer &pixelDrawer);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     StringDrawer(const StringDrawer &copy) = delete;
 

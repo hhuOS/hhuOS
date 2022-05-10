@@ -38,14 +38,14 @@ public:
     };
 
     /**
-     * Default constructor.
+     * Default Constructor.
      */
     Timestamp() = default;
 
     Timestamp(uint32_t seconds, uint32_t fraction);
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     Timestamp(const Timestamp &copy) = default;
 

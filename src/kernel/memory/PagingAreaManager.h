@@ -39,7 +39,7 @@ public:
     PagingAreaManager();
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PagingAreaManager(const PagingAreaManager &copy) = delete;
 

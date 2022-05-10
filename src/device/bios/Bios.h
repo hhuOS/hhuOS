@@ -56,7 +56,7 @@ public:
     Bios() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Bios(const Bios &other) = delete;
 

@@ -32,7 +32,7 @@ public:
     explicit SerialOutputStream(SerialPort *port);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     SerialOutputStream(const SerialOutputStream &other) = delete;
 

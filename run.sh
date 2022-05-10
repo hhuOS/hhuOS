@@ -27,7 +27,7 @@ readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
-readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime"
+readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
 
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
 readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev alsa,id=alsa -machine pcspk-audiodev=alsa"

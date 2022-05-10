@@ -52,7 +52,7 @@ public:
     System() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     System(const System &other) = delete;
 

@@ -37,7 +37,7 @@ public:
     explicit VesaBiosExtensions(bool prototypeInstance = false);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     VesaBiosExtensions(const VesaBiosExtensions &other) = delete;
 

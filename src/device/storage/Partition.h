@@ -31,7 +31,7 @@ public:
     Partition(StorageDevice &parentDevice, uint32_t startSector, uint32_t sectorCount);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Partition(const Partition &other) = delete;
 

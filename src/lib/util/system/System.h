@@ -50,7 +50,8 @@ public:
         GET_CURRENT_WORKING_DIRECTORY,
         GET_SYSTEM_TIME,
         SET_DATE,
-        GET_CURRENT_DATE
+        GET_CURRENT_DATE,
+        SHUTDOWN
     };
 
     enum Result : uint16_t {
@@ -68,7 +69,7 @@ public:
     System() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     System(const System &other) = delete;
 

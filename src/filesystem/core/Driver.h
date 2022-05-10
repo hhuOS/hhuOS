@@ -34,7 +34,7 @@ public:
     Driver() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Driver(const Driver &copy) = delete;
 

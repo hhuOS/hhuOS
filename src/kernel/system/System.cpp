@@ -17,7 +17,6 @@
 
 #include "lib/util/memory/Address.h"
 #include "asm_interface.h"
-#include "device/port/serial/SerialPort.h"
 #include "device/cpu/Cpu.h"
 #include "device/time/Rtc.h"
 #include "device/time/Pit.h"
@@ -31,6 +30,8 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/reflection/InstanceFactory.h"
 #include "BlueScreen.h"
+#include "device/power/default/DefaultMachine.h"
+#include "kernel/service/PowerManagementService.h"
 
 namespace Kernel {
 
@@ -75,6 +76,11 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     registerService(MemoryService::SERVICE_ID, memoryService);
     log.info("Welcome to hhuOS!");
     log.info("Memory management has been initialized");
+
+    // Create and register power management service
+    auto *machine = new Device::DefaultMachine();
+    auto *powerManagementService = new PowerManagementService(machine);
+    registerService(PowerManagementService::SERVICE_ID, powerManagementService);
 
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");

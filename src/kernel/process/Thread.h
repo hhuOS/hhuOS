@@ -61,7 +61,7 @@ public:
     };
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Thread(const Thread &other) = delete;
 

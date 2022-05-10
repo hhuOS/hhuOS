@@ -35,7 +35,7 @@ public:
     PcSpeaker() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PcSpeaker(const PcSpeaker &other) = delete;
 

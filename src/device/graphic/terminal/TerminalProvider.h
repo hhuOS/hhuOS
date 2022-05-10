@@ -59,7 +59,7 @@ public:
     TerminalProvider() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     TerminalProvider(const TerminalProvider &other) = delete;
 

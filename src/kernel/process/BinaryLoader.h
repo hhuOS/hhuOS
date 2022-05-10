@@ -32,7 +32,7 @@ public:
     explicit BinaryLoader(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     BinaryLoader(const BinaryLoader &other) = delete;
 

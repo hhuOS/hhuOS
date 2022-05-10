@@ -59,7 +59,7 @@ public:
     };
 
     /**
-     * Default constructor.
+     * Default Constructor.
      */
     InterruptDispatcher() = default;
 

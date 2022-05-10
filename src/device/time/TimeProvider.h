@@ -32,7 +32,7 @@ public:
     TimeProvider() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     TimeProvider(const TimeProvider &other) = delete;
 

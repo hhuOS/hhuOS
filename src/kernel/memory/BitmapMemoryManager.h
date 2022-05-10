@@ -39,7 +39,7 @@ public:
     BitmapMemoryManager(uint32_t startAddress, uint32_t endAddress, uint32_t blockSize = 4096, bool zeroMemory = false);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     BitmapMemoryManager(const BitmapMemoryManager &copy) = delete;
 

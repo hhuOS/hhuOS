@@ -36,7 +36,7 @@ public:
     explicit ColorGraphicsAdapterProvider(bool prototypeInstance = false);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     ColorGraphicsAdapterProvider(const ColorGraphicsAdapterProvider &other) = delete;
 

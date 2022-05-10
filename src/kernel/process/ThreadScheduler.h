@@ -38,7 +38,7 @@ public:
     explicit ThreadScheduler(ProcessScheduler &parent);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     ThreadScheduler(const ThreadScheduler &other) = delete;
 

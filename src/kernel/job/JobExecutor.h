@@ -32,7 +32,7 @@ public:
     JobExecutor() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     JobExecutor(const JobExecutor &other) = delete;
 

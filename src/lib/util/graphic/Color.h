@@ -67,7 +67,7 @@ class Color {
 
 public:
     /**
-     * Default-constructor. Initializes the color as black.
+     * Default-Constructor. Initializes the color as black.
      */
     Color();
 
@@ -81,7 +81,7 @@ public:
     Color(uint8_t red, uint8_t green, uint8_t blue);
 
     /**
-     * RGBA-constructor.
+     * RGBA-Constructor.
      *
      * @param red The value for red
      * @param green The value green
@@ -91,7 +91,7 @@ public:
     Color(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Color(const Color &other) = default;
 

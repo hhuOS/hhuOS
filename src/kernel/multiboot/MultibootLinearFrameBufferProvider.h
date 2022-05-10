@@ -32,7 +32,7 @@ public:
     MultibootLinearFrameBufferProvider();
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     MultibootLinearFrameBufferProvider(const MultibootLinearFrameBufferProvider &other) = delete;
 

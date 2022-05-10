@@ -31,7 +31,7 @@ public:
     StorageDevice() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     StorageDevice(const StorageDevice &other) = delete;
 

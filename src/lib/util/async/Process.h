@@ -29,7 +29,7 @@ public:
     explicit Process(uint32_t id);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Process(const Process &other) = default;
 

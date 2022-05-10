@@ -77,7 +77,7 @@ private:
     explicit Logger(const Util::Memory::String &name);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Logger(const Logger &other) = default;
 

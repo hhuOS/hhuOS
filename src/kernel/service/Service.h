@@ -34,7 +34,7 @@ public:
     Service() = default;
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     Service(const Service &copy) = delete;
 

@@ -39,7 +39,7 @@ public:
     Node() = default;
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     Node(const Node &copy) = delete;
 

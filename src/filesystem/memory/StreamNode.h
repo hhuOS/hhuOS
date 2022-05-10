@@ -43,7 +43,7 @@ public:
     StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream);
 
     /**
-     * Copy-constructor.
+     * Copy-Constructor.
      */
     StreamNode(const StreamNode &copy) = delete;
 

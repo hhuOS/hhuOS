@@ -44,7 +44,6 @@
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
 #include "SchedulerSign.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 

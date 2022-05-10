@@ -31,7 +31,7 @@ public:
     BlockMemoryManager() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     BlockMemoryManager(const BlockMemoryManager &copy) = delete;
 

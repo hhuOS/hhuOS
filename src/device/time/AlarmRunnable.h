@@ -31,7 +31,7 @@ public:
     AlarmRunnable() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     AlarmRunnable(const AlarmRunnable &other) = delete;
 

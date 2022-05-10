@@ -32,7 +32,7 @@ public:
     TerminalNode(const Util::Memory::String &name, Device::Graphic::Terminal *terminal);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     TerminalNode(const TerminalNode &other) = delete;
 

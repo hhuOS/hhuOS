@@ -37,7 +37,7 @@ public:
     explicit PixelDrawer(LinearFrameBuffer &lfb);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PixelDrawer(const PixelDrawer &copy) = delete;
 

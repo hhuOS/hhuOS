@@ -37,7 +37,7 @@ public:
     explicit Pit(uint16_t interruptRateDivisor = 1193, uint32_t yieldInterval = 10);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Pit(const Pit &other) = delete;
 

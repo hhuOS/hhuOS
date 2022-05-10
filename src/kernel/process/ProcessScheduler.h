@@ -35,7 +35,7 @@ public:
     ProcessScheduler() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     ProcessScheduler(const ProcessScheduler &other) = delete;
 

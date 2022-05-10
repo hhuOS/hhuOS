@@ -32,7 +32,7 @@ public:
     explicit PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PagingAreaManagerRefillRunnable(const PagingAreaManagerRefillRunnable &other) = delete;
 

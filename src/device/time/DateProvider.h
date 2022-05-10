@@ -31,7 +31,7 @@ public:
     DateProvider() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     DateProvider(const DateProvider &other) = delete;
 

@@ -44,7 +44,7 @@ public:
     FreeListMemoryManager() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     FreeListMemoryManager(const FreeListMemoryManager &copy) = delete;
 

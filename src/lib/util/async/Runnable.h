@@ -29,7 +29,7 @@ public:
     Runnable() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Runnable(const Runnable &other) = delete;
 

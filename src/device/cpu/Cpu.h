@@ -41,7 +41,7 @@ public:
     Cpu() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Cpu(const Cpu &other) = delete;
 

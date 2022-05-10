@@ -112,7 +112,7 @@ public:
     CpuId() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     CpuId(const CpuId &other) = delete;
 

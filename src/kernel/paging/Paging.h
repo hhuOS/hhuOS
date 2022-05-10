@@ -58,7 +58,7 @@ public:
     Paging() = delete;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Paging(const Paging &other) = delete;
 

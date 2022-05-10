@@ -39,7 +39,7 @@ public:
     PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint32_t startAddress, uint32_t endAddress);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     PageFrameAllocator(const PageFrameAllocator &copy) = delete;
 

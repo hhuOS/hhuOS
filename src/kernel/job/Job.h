@@ -47,7 +47,7 @@ public:
     Job(Util::Async::Runnable *runnable, Util::Time::Timestamp interval, int32_t repetitions = -1);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Job(const Job &other) = default;
 

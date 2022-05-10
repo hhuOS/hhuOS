@@ -32,11 +32,12 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/cp "$<TARGET_FILE:pwd>" "${HHUOS_ROOT_DIR}/initrd/bin/pwd"
         COMMAND /bin/cp "$<TARGET_FILE:rm>" "${HHUOS_ROOT_DIR}/initrd/bin/rm"
         COMMAND /bin/cp "$<TARGET_FILE:rmdir>" "${HHUOS_ROOT_DIR}/initrd/bin/rmdir"
+        COMMAND /bin/cp "$<TARGET_FILE:shutdown>" "${HHUOS_ROOT_DIR}/initrd/bin/shutdown"
         COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/initrd/bin/touch"
         COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/initrd/bin/tree"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/initrd/bin/uptime"
         COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
         COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir touch tree uptime)
+        DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir shutdown touch tree uptime)
 
-add_custom_target(initrd DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+add_custom_target(initrd DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir shutdown touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")

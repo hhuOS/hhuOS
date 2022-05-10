@@ -145,8 +145,18 @@ void setDate(const Util::Time::Date &date) {
     Util::System::call(Util::System::SET_DATE, 1, &date);
 }
 
+bool shutdown(Util::Machine::ShutdownType type) {
+    auto result = Util::System::call(Util::System::SHUTDOWN, 1, type);
+    if (result == Util::System::OK) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown system call returned successful!");
+    }
+
+    // If this code is reached, the shutdown was not successful
+    return false;
+}
+
 void throwError(Util::Exception::Error error, const char *message) {
     Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
-    while(true) {}
+    while (true) {}
 }

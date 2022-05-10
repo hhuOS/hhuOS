@@ -14,7 +14,7 @@ public:
     explicit FileDescriptorManager(int32_t size = DEFAULT_TABLE_SIZE);
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     FileDescriptorManager(const FileDescriptorManager &copy) = delete;
 

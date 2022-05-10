@@ -36,7 +36,7 @@ class Pic {
 
 public:
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     Pic(const Pic &copy) = delete;
 

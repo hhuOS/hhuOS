@@ -32,7 +32,7 @@ public:
     BlueScreen() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     BlueScreen(const BlueScreen &other) = delete;
 

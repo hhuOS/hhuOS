@@ -29,7 +29,7 @@ public:
     MemoryManager() = default;
 
     /**
-     * Copy constructor.
+     * Copy Constructor.
      */
     MemoryManager(const MemoryManager &copy) = delete;
 
