@@ -44,6 +44,8 @@
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
 #include "SchedulerSign.h"
+#include "device/power/apm/ApmMachine.h"
+#include "kernel/service/PowerManagementService.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -83,8 +85,7 @@ void GatesOfHell::enter() {
 
     initializeTerminal();
 
-    // Open first file descriptor for Util::System::out
-    Util::File::open("/device/terminal");
+    initializePowerManagement();
 
     Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
     enableSerialLogging();
@@ -149,6 +150,9 @@ void GatesOfHell::initializeTerminal() {
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     terminalProvider->initializeTerminal(resolution, "terminal");
+
+    // Open first file descriptor for Util::System::out
+    Util::File::open("/device/terminal");
 }
 
 void GatesOfHell::enableSerialLogging() {
@@ -217,5 +221,18 @@ void GatesOfHell::printDefaultBanner() {
            << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
            << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
            << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+}
+
+void GatesOfHell::initializePowerManagement() {
+    Device::Machine *machine;
+    if (Device::ApmMachine::isAvailable()) {
+        log.info("APM is available");
+        machine = new Device::ApmMachine();
+    } else {
+        machine = new Device::DefaultMachine();
+    }
+
+    auto *powerManagementService = new Kernel::PowerManagementService(machine);
+    Kernel::System::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
 }
 

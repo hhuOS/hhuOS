@@ -48,6 +48,15 @@ public:
         uint32_t ax;
     } __attribute__((packed));
 
+    enum RegisterHalf : uint8_t {
+        LOWER,
+        HIGHER
+    };
+
+    static uint16_t construct16BitRegister(uint8_t lowerValue, uint8_t higherValue);
+
+    static uint8_t get8BitRegister(uint16_t value, RegisterHalf half);
+
 public:
     /**
      * Default-Constructor.

@@ -84,8 +84,8 @@ bool VesaBiosExtensions::isAvailable() {
     Util::Memory::Address<uint32_t>(vbeInfo).copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    if (biosReturnContext.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         return false;
     }
 
@@ -126,8 +126,8 @@ void VesaBiosExtensions::setMode(uint16_t mode) {
     biosParameters.bx = mode | MODE_NUMBER_LFB_BIT;
 
     // Perform the bios call and check if it was successful
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    if (biosReturnContext.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 }
@@ -147,8 +147,8 @@ VesaBiosExtensions::VbeInfo VesaBiosExtensions::getVbeInfo() {
     Util::Memory::Address<uint32_t>(vbeInfo).copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    if (biosReturnContext.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: VesaBiosExtensions Bios Extensions are not supported!");
     }
 
@@ -174,8 +174,8 @@ VesaBiosExtensions::VbeModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     Util::Memory::Address<uint32_t>(modeInfo).setRange(0, VBE_MODE_INFO_SIZE);
 
     // Perform the bios call and check if it was successful
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    if (biosReturnContext.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    if (biosReturn.ax != BIOS_CALL_RETURN_CODE_SUCCESS) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VesaBiosExtensions: Mode not supported!");
     }
 

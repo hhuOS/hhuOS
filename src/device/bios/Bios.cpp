@@ -28,6 +28,20 @@ namespace Device {
 
 Util::Async::Spinlock Bios::interruptLock;
 
+uint16_t Bios::construct16BitRegister(uint8_t lowerValue, uint8_t higherValue) {
+    return lowerValue | (higherValue << 8);
+}
+
+uint8_t Bios::get8BitRegister(uint16_t value, Bios::RegisterHalf half) {
+    if (half == LOWER) {
+        return value & 0x00ff;
+    } else if (half == HIGHER) {
+        return (value & 0xff00) >> 8;
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Bios: Invalid register half!");
+}
+
 bool Bios::isAvailable() {
     return Kernel::Multiboot::Structure::hasKernelOption("bios") && Kernel::Multiboot::Structure::getKernelOption("bios") == "true";
 }

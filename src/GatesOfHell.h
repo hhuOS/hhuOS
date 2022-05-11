@@ -63,6 +63,8 @@ private:
 
     static void initializeTerminal();
 
+    static void initializePowerManagement();
+
     static void printBanner();
 
     static void printDefaultBanner();

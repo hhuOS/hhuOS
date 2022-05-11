@@ -18,8 +18,8 @@
 #ifndef HHUOS_DEFAULTMACHINE_H
 #define HHUOS_DEFAULTMACHINE_H
 
-#include "device/power/Machine.h"
 #include "device/cpu/IoPort.h"
+#include "device/power/Machine.h"
 
 namespace Device {
 

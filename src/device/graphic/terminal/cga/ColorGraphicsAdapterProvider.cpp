@@ -33,8 +33,8 @@ bool ColorGraphicsAdapterProvider::isAvailable() {
     Bios::RealModeContext biosParameters{};
     biosParameters.ax = BiosFunction::CHECK_VIDEO_CARD;
 
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    auto cardType = static_cast<VideoCardType>(biosReturnContext.bx);
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    auto cardType = static_cast<VideoCardType>(biosReturn.bx);
 
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
@@ -79,8 +79,8 @@ ColorGraphicsAdapterProvider::VideoCardType ColorGraphicsAdapterProvider::getVid
     Bios::RealModeContext biosParameters{};
     biosParameters.ax = BiosFunction::CHECK_VIDEO_CARD;
 
-    auto biosReturnContext = Bios::interrupt(0x10, biosParameters);
-    return static_cast<VideoCardType>(biosReturnContext.bx);
+    auto biosReturn = Bios::interrupt(0x10, biosParameters);
+    return static_cast<VideoCardType>(biosReturn.bx);
 }
 
 Util::Memory::String ColorGraphicsAdapterProvider::getVideoCardTypeAsString(VideoCardType cardType) {

@@ -17,4 +17,5 @@
 cmake_minimum_required(VERSION 3.7)
  
 target_sources(device PUBLIC
+        ${HHUOS_SRC_DIR}/device/power/apm/ApmMachine.cpp
         ${HHUOS_SRC_DIR}/device/power/default/DefaultMachine.cpp)
