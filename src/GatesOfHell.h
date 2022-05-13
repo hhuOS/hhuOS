@@ -57,7 +57,7 @@ public:
 
 private:
 
-    static void enableSerialLogging();
+    static void enablePortLogging();
 
     static void initializeFilesystem();
 

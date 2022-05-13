@@ -15,36 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SERIALOUTPUTSTREAM_H
-#define HHUOS_SERIALOUTPUTSTREAM_H
+#ifndef HHUOS_PORTOUTPUTSTREAM_H
+#define HHUOS_PORTOUTPUTSTREAM_H
 
+#include "device/port/Port.h"
 #include "lib/util/stream/OutputStream.h"
-#include "SerialPort.h"
 
 namespace Device {
 
-class SerialOutputStream : public Util::Stream::OutputStream {
+class PortOutputStream : public Util::Stream::OutputStream {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit SerialOutputStream(SerialPort *port);
+    explicit PortOutputStream(Port *port);
 
     /**
      * Copy Constructor.
      */
-    SerialOutputStream(const SerialOutputStream &other) = delete;
+    PortOutputStream(const PortOutputStream &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SerialOutputStream &operator=(const SerialOutputStream &other) = delete;
+    PortOutputStream &operator=(const PortOutputStream &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SerialOutputStream() override;
+    ~PortOutputStream() override;
 
     /**
      * Overriding function from OutputStream
@@ -58,7 +58,7 @@ public:
 
 private:
 
-    SerialPort *port;
+    Port &port;
 
 };
 

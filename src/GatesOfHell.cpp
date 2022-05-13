@@ -35,6 +35,7 @@
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "device/cpu/CpuId.h"
+#include "device/port/parallel/ParallelPort.h"
 #include "lib/util/stream/FileOutputStream.h"
 #include "lib/util/async/Process.h"
 #include "kernel/service/MemoryService.h"
@@ -80,6 +81,7 @@ void GatesOfHell::enter() {
     initializeFilesystem();
 
     Device::SerialPort::initializeAvailablePorts();
+    Device::ParallelPort::initializeAvailablePorts();
 
     Device::Keyboard::initialize();
 
@@ -88,7 +90,7 @@ void GatesOfHell::enter() {
     initializePowerManagement();
 
     Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
-    enableSerialLogging();
+    enablePortLogging();
 
     printBanner();
 
@@ -155,20 +157,22 @@ void GatesOfHell::initializeTerminal() {
     Util::File::open("/device/terminal");
 }
 
-void GatesOfHell::enableSerialLogging() {
-    if (!Kernel::Multiboot::Structure::hasKernelOption("log_com_port")) {
+void GatesOfHell::enablePortLogging() {
+    if (!Kernel::Multiboot::Structure::hasKernelOption("log_ports")) {
         return;
     }
 
-    const auto port = Kernel::Multiboot::Structure::getKernelOption("log_com_port");
-    const auto file = Util::File::File("/device/" + port.toLowerCase());
-    if (!file.exists()) {
-        log.error("Serial port [%s] not present", static_cast<const char*>(port));
-        return;
-    }
+    const auto ports = Kernel::Multiboot::Structure::getKernelOption("log_ports").split(",");
+    for (const auto &port : ports) {
+        const auto file = Util::File::File("/device/" + port.toLowerCase());
+        if (!file.exists()) {
+            log.error("Port [%s] not present", static_cast<const char *>(port));
+            return;
+        }
 
-    auto *stream = new Util::Stream::FileOutputStream(file);
-    Kernel::Logger::addOutputStream(*stream);
+        auto *stream = new Util::Stream::FileOutputStream(file);
+        Kernel::Logger::addOutputStream(*stream);
+    }
 }
 
 void GatesOfHell::initializeFilesystem() {

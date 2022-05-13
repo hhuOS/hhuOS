@@ -25,7 +25,7 @@
 
 namespace Device {
 
-Kernel::Logger SerialPort::log = Kernel::Logger::get("SerialPort");
+Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
 
 SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
@@ -46,11 +46,17 @@ SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream
     outputStream.connect(inputStream);
 }
 
-void SerialPort::initializeAvailablePorts() {
-    initializePort(COM1);
-    initializePort(COM2);
-    initializePort(COM3);
-    initializePort(COM4);
+bool SerialPort::checkPort(ComPort port) {
+    IoPort scratchRegister(port + 7);
+
+    for (uint8_t i = 0; i < 0xff; i++) {
+        scratchRegister.writeByte(i);
+        if (scratchRegister.readByte() != i) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void SerialPort::initializePort(ComPort port) {
@@ -62,7 +68,7 @@ void SerialPort::initializePort(ComPort port) {
 
     auto *inputStream = new Util::Stream::PipedInputStream();
     auto *serialPort = new SerialPort(port, *inputStream);
-    auto *outputStream = new SerialOutputStream(serialPort);
+    auto *outputStream = new PortOutputStream(serialPort);
     auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), outputStream, inputStream);
 
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
@@ -77,6 +83,13 @@ void SerialPort::initializePort(ComPort port) {
     }
 }
 
+void SerialPort::initializeAvailablePorts() {
+    initializePort(COM1);
+    initializePort(COM2);
+    initializePort(COM3);
+    initializePort(COM4);
+}
+
 SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portName) {
     const auto port = portName.toLowerCase();
 
@@ -89,7 +102,7 @@ SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portN
     } else if (port == "com4") {
         return COM4;
     } else {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
     }
 }
 
@@ -104,21 +117,8 @@ const char* SerialPort::portToString(const ComPort port) {
         case COM4:
             return "COM4";
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Serial: Invalid port!");
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "COM: Invalid port!");
     }
-}
-
-bool SerialPort::checkPort(ComPort port) {
-    IoPort scratchRegister(port + 7);
-
-    for (uint8_t i = 0; i < 0xff; i++) {
-        scratchRegister.writeByte(i);
-        if (scratchRegister.readByte() != i) {
-            return false;
-        }
-    }
-
-    return true;
 }
 
 void SerialPort::plugin() {

@@ -22,6 +22,7 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/PipedOutputStream.h"
 #include "lib/util/memory/String.h"
+#include "device/port/Port.h"
 
 namespace Kernel {
     class Logger;
@@ -32,7 +33,7 @@ namespace Device {
 /**
  * Driver for the serial COM-ports.
  */
-class SerialPort : public Kernel::InterruptHandler {
+class SerialPort : public Port, Kernel::InterruptHandler {
 
 public:
     /**
@@ -140,11 +141,16 @@ public:
         BAUD_2 = 57600
     };
 
-public:
-
     explicit SerialPort(ComPort port, BaudRate dataRate = BaudRate::BAUD_115200);
 
     explicit SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate = BaudRate::BAUD_115200);
+
+    /**
+     * Check if a COM-port exists.
+     * Always check if the COM-port exists before creating an instance of this class!
+     *
+     */
+    static bool checkPort(ComPort port);
 
     static void initializeAvailablePorts();
 
@@ -166,13 +172,6 @@ public:
      * Destructor.
      */
     ~SerialPort() override = default;
-
-    /**
-     * Check if a COM-port exists.
-     * Always check if the COM-port exists before creating an instance of this class!
-     *
-     */
-    static bool checkPort(ComPort port);
 
     /**
      * Overriding function from InterruptHandler.
@@ -199,7 +198,7 @@ public:
     /**
      * Write a character to the port.
      */
-    void write(uint8_t c);
+    void write(uint8_t c) override;
 
 private:
 

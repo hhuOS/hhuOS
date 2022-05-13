@@ -15,29 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/Exception.h"
-#include "SerialOutputStream.h"
+#ifndef HHUOS_PORT_H
+#define HHUOS_PORT_H
+
+#include "device/cpu/IoPort.h"
+#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/memory/String.h"
 
 namespace Device {
 
-SerialOutputStream::SerialOutputStream(SerialPort *port) : port(port) {}
+/**
+ * Driver for the serial COM-ports.
+ */
+class Port {
 
-void SerialOutputStream::write(uint8_t c) {
-    port->write(c);
+public:
+    /**
+     * Constructor.
+     */
+    Port() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    Port(const Port &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Port &operator=(const Port &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    virtual~Port() = default;
+
+    /**
+     * Write a character to the port.
+     */
+    virtual void write(uint8_t c) = 0;
+};
+
 }
 
-void SerialOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (offset < 0 || length < 0) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "OutputStream: Negative offset or size!");
-    }
-
-    for (uint32_t i = 0; i < length; i++) {
-        write(sourceBuffer[offset + i]);
-    }
-}
-
-SerialOutputStream::~SerialOutputStream() {
-    delete port;
-}
-
-}
+#endif
