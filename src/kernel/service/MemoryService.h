@@ -22,6 +22,9 @@
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/paging/VirtualAddressSpace.h"
 #include "Service.h"
+#include "lib/util/stream/OutputStreamWriter.h"
+
+#define HHUOS_MEMORYSERVICE_ENABLE_DEBUG 0
 
 namespace Kernel {
 
@@ -217,6 +220,10 @@ public:
 
     MemoryStatus getMemoryStatus();
 
+    void setSerialDebugging(bool enabled);
+
+    void printDebugNumber(uint32_t number, uint8_t base);
+
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
@@ -229,6 +236,11 @@ private:
     Util::Data::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;
     VirtualAddressSpace &kernelAddressSpace;
+
+    bool serialDebuggingEnabled = false;
+    Device::SerialPort debugPort = Device::SerialPort(Device::SerialPort::COM1);
+    Device::PortOutputStream debugStream = Device::PortOutputStream(&debugPort);
+    Util::Stream::OutputStreamWriter debugWriter = Util::Stream::OutputStreamWriter(debugStream);
 };
 
 }

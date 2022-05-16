@@ -95,8 +95,6 @@ private:
         OFF = 0x03
     };
 
-    void disconnect();
-
     [[nodiscard]] bool enablePowerManagement() const;
 
     static Bios::RealModeContext callApmFunction(ApmFunction function, DeviceClass deviceClass, uint8_t deviceId, uint8_t cl = 0, uint8_t ch = 0);
