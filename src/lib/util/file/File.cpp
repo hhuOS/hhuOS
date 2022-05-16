@@ -133,7 +133,7 @@ Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
                 parsedToken.removeIndex(parsedToken.size() - 1);
             }
         } else {
-            parsedToken.add(*new Util::Memory::String(string));
+            parsedToken.add(string);
         }
     }
 
