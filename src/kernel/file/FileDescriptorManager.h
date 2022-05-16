@@ -26,7 +26,7 @@ public:
     /**
      * Destructor.
      */
-    ~FileDescriptorManager() = default;
+    ~FileDescriptorManager();
 
     int32_t openFile(const Util::Memory::String &path);
 

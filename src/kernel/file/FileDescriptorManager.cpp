@@ -14,6 +14,10 @@ FileDescriptorManager::FileDescriptorManager(int32_t size) : size(size), descrip
     }
 }
 
+FileDescriptorManager::~FileDescriptorManager() {
+    delete[] descriptorTable;
+}
+
 int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto *node = filesystem.getNode(path);
