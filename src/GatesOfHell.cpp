@@ -47,6 +47,8 @@
 #include "SchedulerSign.h"
 #include "device/power/apm/ApmMachine.h"
 #include "kernel/service/PowerManagementService.h"
+#include "device/pci/Pci.h"
+#include "device/pci/PciDevice.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -60,7 +62,7 @@ void GatesOfHell::enter() {
         log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));
 
         const auto info = Device::CpuId::getCpuInfo();
-        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], Type [%u]", info.family, info.model, info.stepping, info.type);
+        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], HEADER_TYPE [%u]", info.family, info.model, info.stepping, info.type);
 
         const auto features = Device::CpuId::getCpuFeatures();
         Util::Memory::String featureString;
@@ -91,6 +93,8 @@ void GatesOfHell::enter() {
 
     Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
     enablePortLogging();
+
+    Device::Pci::scan();
 
     printBanner();
 

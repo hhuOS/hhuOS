@@ -140,7 +140,6 @@ clear_bss_done:
     ; Set stack again to cut off possible old values
     mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
-debug_label:
     ; Copy the multiboot info struct into bss
     push dword MULTIBOOT_SIZE
     push dword (multiboot_data - KERNEL_START)

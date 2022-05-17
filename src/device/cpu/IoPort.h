@@ -69,9 +69,9 @@ public:
 	 * Write a byte to this IO-port this with an offset to the address.
 	 *
 	 * @param offset Offset to port address
-	 * @param val 8-bit value to write
+	 * @param value 8-bit value to write
 	 */
-    void writeByte(uint16_t offset, uint8_t val) const;
+    void writeByte(uint16_t offset, uint8_t value) const;
 
     /**
      * Write a word to this IO-port.
@@ -81,11 +81,27 @@ public:
     void writeWord(uint16_t value) const;
 
     /**
+	 * Write a byte to this IO-port this with an offset to the address.
+	 *
+	 * @param offset Offset to port address
+	 * @param value 8-bit value to write
+	 */
+    void writeWord(uint16_t offset, uint16_t value) const;
+
+    /**
 	 * Write a double word to this IO-port.
 	 *
 	 * @param value 32-bit value to write
 	 */
     void writeDoubleWord(uint32_t value) const;
+
+    /**
+	 * Write a byte to this IO-port this with an offset to the address.
+	 *
+	 * @param offset Offset to port address
+	 * @param val 8-bit value to write
+	 */
+    void writeDoubleWord(uint16_t offset, uint32_t value) const;
 
     /**
 	 * Read a byte from this IO-port.

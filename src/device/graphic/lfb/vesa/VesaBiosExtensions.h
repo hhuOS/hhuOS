@@ -82,7 +82,7 @@ private:
         char signature[4] = {'V', 'B', 'E', '2'};
         uint16_t version{};         // VBE version; high byte is major version, low byte is minor version
         uint32_t oem{};             // segment:offset pointer to OEM
-        uint32_t capabilities{};    // bitfield that describes card capabilities
+        uint32_t capabilities{};    // bitfield that describes card capabilitiesPointer
         uint16_t video_modes[2]{};  // segment:offset pointer to list of supported video modes
         uint16_t video_memory{};    // amount of video memory in 64KB blocks
         uint16_t software_rev{};    // software revision

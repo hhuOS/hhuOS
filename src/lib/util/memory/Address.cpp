@@ -24,7 +24,7 @@ template<typename T>
 Address<T>::Address() : address(0) {}
 
 template<typename T>
-Address<T>::Address(T address, T limitOffset) : address(address), limit(address + limitOffset < address ? static_cast<T>(0xffffffff) : address + limitOffset) {}
+Address<T>::Address(T address, T limitOffset) : address(address), limit(static_cast<T>(address + limitOffset) < address ? static_cast<T>(0xffffffff) : address + limitOffset) {}
 
 template<>
 Address<uint32_t>::Address(void *pointer, uint32_t limitOffset) : Address<uint32_t>(reinterpret_cast<uint32_t>(pointer), limitOffset) {}

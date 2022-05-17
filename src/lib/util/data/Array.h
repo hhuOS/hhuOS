@@ -60,6 +60,8 @@ public:
 
     static void sort(Array<T> &array);
 
+    bool contains(const T &element);
+
 private:
 
     T* array;
@@ -174,6 +176,17 @@ void Array<T>::sort(Array<T> &array) {
             }
         }
     }
+}
+
+template<typename T>
+bool Array<T>::contains(const T &element) {
+    for (const auto &value : *this) {
+        if (value == element) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }
