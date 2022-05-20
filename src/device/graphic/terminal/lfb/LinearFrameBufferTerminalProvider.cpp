@@ -89,8 +89,4 @@ void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
     }
 }
 
-Util::Memory::String LinearFrameBufferTerminalProvider::getClassName() const {
-    return CLASS_NAME;
-}
-
 }

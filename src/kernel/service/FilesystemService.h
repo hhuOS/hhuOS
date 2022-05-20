@@ -33,7 +33,7 @@ public:
     FilesystemService();
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     FilesystemService(const FilesystemService &copy) = delete;
 
@@ -46,6 +46,16 @@ public:
      * Destructor.
      */
     ~FilesystemService() override = default;
+
+    bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+
+    bool createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName);
+
+    bool createFile(const Util::Memory::String &path);
+
+    bool createDirectory(const Util::Memory::String &path);
+
+    bool deleteFile(const Util::Memory::String &path);
 
     int32_t openFile(const Util::Memory::String &path);
 
@@ -60,7 +70,6 @@ public:
 private:
 
     Filesystem::Filesystem filesystem;
-
 };
 
 }

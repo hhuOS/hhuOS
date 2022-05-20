@@ -14,7 +14,7 @@ public:
     ArchiveDirectoryNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     ArchiveDirectoryNode(const ArchiveDirectoryNode &copy) = delete;
 

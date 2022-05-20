@@ -32,7 +32,7 @@ public:
     TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     TimeService(const TimeService &copy) = delete;
 

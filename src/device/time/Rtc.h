@@ -40,7 +40,7 @@ public:
     explicit Rtc(uint8_t interruptRateDivisor = 14);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     Rtc(const Rtc &copy) = delete;
 

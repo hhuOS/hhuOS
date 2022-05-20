@@ -186,8 +186,4 @@ VesaBiosExtensions::VbeModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     return ret;
 }
 
-Util::Memory::String VesaBiosExtensions::getClassName() const {
-    return CLASS_NAME;
-}
-
 }

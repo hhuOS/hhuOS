@@ -132,6 +132,19 @@ cleanup() {
         rm -r initrd/bin/
     fi
 
+    if [ -d src/filesystem/fat/ff/documents ]; then
+        printf "Removing 'src/filesystem/fat/ff'\\n"
+        rm -r src/filesystem/fat/ff/documents
+        rm src/filesystem/fat/ff/LICENSE.txt
+        rm src/filesystem/fat/ff/source/00history.txt
+        rm src/filesystem/fat/ff/source/00readme.txt
+        rm src/filesystem/fat/ff/source/diskio.c
+        rm src/filesystem/fat/ff/source/diskio.h
+        rm src/filesystem/fat/ff/source/ff.h
+        rm src/filesystem/fat/ff/source/ffconf.h
+        rm src/filesystem/fat/ff/source/ffunicode.c
+    fi
+
     local builddirs="";
 
     # get all names of used build directories

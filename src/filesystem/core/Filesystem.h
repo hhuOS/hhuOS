@@ -53,6 +53,17 @@ public:
     ~Filesystem() = default;
 
     /**
+     * Mounts a device at a specified location.
+     *
+     * @param deviceName The device name (e.g. "hdd0p1")
+     * @param targetPath The mount path
+     * @param driverName The filesystem driver name
+     *
+     * @return true on success
+     */
+    bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+
+    /**
      * Mount a virtual filesystem at a specified location.
      *
      * @param targetPath The mount path
@@ -70,6 +81,16 @@ public:
      * @return true on success
      */
     bool unmount(const Util::Memory::String &path);
+
+    /**
+     * Format a device with a specified filesystem type.
+     *
+     * @param deviceName The device name (e.g. "hdd0p1")
+     * @param driverName The filesystem driver name
+     *
+     * @return Return code
+     */
+    bool createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName);
 
     /**
      * Get a node at a specified path.
@@ -122,10 +143,6 @@ public:
     Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path);
     
 private:
-
-    Util::Data::HashMap<Util::Memory::String, Driver*> mountPoints;
-    Util::Async::Spinlock lock;
-
     /**
      * Get the driver, that is mounted at a specified path.
      * The path needs to be absolute.
@@ -138,6 +155,9 @@ private:
      * @return The driver (or nullptr on failure)
      */
     Driver* getMountedDriver(Util::Memory::String &path);
+
+    Util::Data::HashMap<Util::Memory::String, Driver*> mountPoints;
+    Util::Async::Spinlock lock;
     
 };
 

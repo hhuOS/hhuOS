@@ -32,7 +32,7 @@ public:
     explicit MemoryNode(const Util::Memory::String &name);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     MemoryNode(const MemoryNode &copy) = delete;
 

@@ -18,6 +18,8 @@
 #ifndef HHUOS_INSTANCEFACTORY_H
 #define HHUOS_INSTANCEFACTORY_H
 
+#define INSTANCE_FACTORY_CREATE_INSTANCE(BASE_TYPE, TYPE) (BASE_TYPE*) Util::Reflection::InstanceFactory::createInstance(TYPE)
+
 #include "lib/util/data/HashMap.h"
 #include "Prototype.h"
 

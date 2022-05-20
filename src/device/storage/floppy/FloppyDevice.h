@@ -46,7 +46,7 @@ public:
     FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType);
 
     /**
-     * Copy-constructor.
+     * Copy Constructor.
      */
     FloppyDevice(FloppyDevice &copy) = delete;
 
@@ -111,7 +111,7 @@ private:
      *
      * @return The CHS representation
      */
-    CylinderHeadSector lbaToChs(uint32_t lbaSector);
+    [[nodiscard]] CylinderHeadSector lbaToChs(uint32_t lbaSector) const;
 
     FloppyController &controller;
     uint8_t driveNumber;

@@ -59,7 +59,7 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
     Kernel::System::getService<Kernel::JobService>().registerJob(new FloppyMotorControlJob(*this), Kernel::Job::Priority::LOW, Util::Time::Timestamp(2, 0));
 }
 
-FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) {
+FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) const {
     return {
         static_cast<uint8_t>(lbaSector / (2 * sectorsPerTrack)),
         static_cast<uint8_t>((lbaSector % (2 * sectorsPerTrack)) / sectorsPerTrack),

@@ -31,7 +31,7 @@ public:
     explicit MemoryStatusNode(const Util::Memory::String &name);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     MemoryStatusNode(const MemoryStatusNode &copy) = delete;
 

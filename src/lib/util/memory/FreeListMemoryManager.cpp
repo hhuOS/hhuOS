@@ -386,8 +386,4 @@ uint32_t FreeListMemoryManager::getEndAddress() const {
     return endAddress;
 }
 
-Util::Memory::String FreeListMemoryManager::getClassName() const {
-    return CLASS_NAME;
-}
-
 }

@@ -37,7 +37,7 @@ class Keyboard : public Kernel::InterruptHandler {
 
 public:
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     Keyboard(const Keyboard &copy) = delete;
 

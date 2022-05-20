@@ -16,6 +16,20 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-rm -f "../floppy0.img"
-mkfs.fat -C "../floppy0.img" 1440
-#mcopy -o -i "../floppy0.img" img/* ::/
+# Abort if FatFs source code already exists
+if [ -d ff/ ]; then
+  exit 0;
+fi
+
+# Download and unzip FatFs source code
+wget -O "/tmp/ff.zip" "http://elm-chan.org/fsw/ff/arc/ff14a.zip"
+unzip -o "/tmp/ff.zip" -d "ff"
+
+# Disable real time clock functionality
+sed -i "s/#define FF_FS_NORTC		0/#define FF_FS_NORTC		1/g" "ff/source/ffconf.h"
+# Set code page to 437 (U.S.)
+sed -i "s/#define FF_CODE_PAGE	932/#define FF_CODE_PAGE	437/g" "ff/source/ffconf.h"
+# Enable f_mkfs() function
+sed -i "s/#define FF_USE_MKFS		0/#define FF_USE_MKFS		1/g" "ff/source/ffconf.h"
+# Set the amount of volumes to 10 (maximum)
+sed -i "s/#define FF_VOLUMES		1/#define FF_VOLUMES		10/g" "ff/source/ffconf.h"

@@ -15,52 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_STREAMNODE_H
-#define HHUOS_STREAMNODE_H
+#ifndef HHUOS_FATDIRECTORY_H
+#define HHUOS_FATDIRECTORY_H
 
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/InputStream.h"
-#include "MemoryNode.h"
+#include "FatNode.h"
 
-namespace Filesystem::Memory {
+namespace Filesystem::Fat {
 
-class StreamNode : public MemoryNode {
+class FatDirectory : public FatNode {
 
 public:
     /**
      * Constructor.
      */
-     StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream);
-
-    /**
-     * Constructor.
-     */
-    StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream);
-
-    /**
-     * Constructor.
-     */
-    StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream);
+    FatDirectory(DIR *dir, FILINFO *info);
 
     /**
      * Copy Constructor.
      */
-    StreamNode(const StreamNode &copy) = delete;
+    FatDirectory(const FatDirectory &other) = delete;
 
     /**
      * Assignment operator.
      */
-    StreamNode& operator=(const StreamNode &other) = delete;
+    FatDirectory &operator=(const FatDirectory &other) = delete;
 
     /**
      * Destructor.
      */
-    ~StreamNode() override;
+    ~FatDirectory() override;
 
     /**
      * Overriding function from Node.
      */
     Util::File::Type getFileType() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Data::Array <Util::Memory::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -74,9 +67,7 @@ public:
 
 private:
 
-    Util::Stream::OutputStream *outputStream;
-    Util::Stream::InputStream *inputStream;
-
+    DIR *directory;
 };
 
 }

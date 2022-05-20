@@ -23,7 +23,7 @@
 namespace Filesystem {
 
 /**
- * Interface class for virtual (completely in-memory) filesystem.
+ * Interface class for virtual (completely in-memory) filesystems.
  */
 class VirtualDriver : public Driver {
 
@@ -47,35 +47,6 @@ public:
      * Destructor.
      */
     ~VirtualDriver() override = default;
-
-    /**
-     * Get an FsNode, representing a file or directory that a given path points to.
-     *
-     * @param path The path.
-     *
-     * @return The FsNode (or nulltpr on failure)
-     */
-    Node* getNode(const Util::Memory::String &path) override = 0;
-
-    /**
-     * Create a new empty file or directory at a given path.
-     * The parent-directory of the new file must exist beforehand.
-     *
-     * @param path The path
-     *
-     * @return true on success
-     */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override = 0;
-
-    /**
-     * Delete an existing file or directory at a given path.
-     * The file must be a regular file or an empty folder (a leaf in the filesystem ls).
-     *
-     * @param path The path.
-     *
-     * @return true on success
-     */
-    bool deleteNode(const Util::Memory::String &path) override = 0;
 };
 
 }

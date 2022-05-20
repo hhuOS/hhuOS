@@ -45,7 +45,7 @@ public:
     Timestamp(uint32_t seconds, uint32_t fraction);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     Timestamp(const Timestamp &copy) = default;
 

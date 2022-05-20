@@ -49,7 +49,7 @@ public:
     MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaManager *pagingAreaManager, VirtualAddressSpace *kernelAddressSpace);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     MemoryService(const MemoryService &copy) = delete;
 

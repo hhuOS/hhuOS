@@ -14,7 +14,7 @@ public:
     ArchiveFileNode(Util::File::Tar::Archive &archive, Util::File::Tar::Archive::Header fileHeader);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     ArchiveFileNode(const ArchiveFileNode &copy) = delete;
 

@@ -15,68 +15,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_STREAMNODE_H
-#define HHUOS_STREAMNODE_H
+#ifndef HHUOS_FATNODE_H
+#define HHUOS_FATNODE_H
 
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/InputStream.h"
-#include "MemoryNode.h"
+#include "filesystem/fat/ff/source/ff.h"
+#include "filesystem/core/Node.h"
 
-namespace Filesystem::Memory {
+namespace Filesystem::Fat {
 
-class StreamNode : public MemoryNode {
+class FatNode : public Node {
 
 public:
     /**
-     * Constructor.
-     */
-     StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream);
-
-    /**
-     * Constructor.
-     */
-    StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream);
-
-    /**
-     * Constructor.
-     */
-    StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream);
-
-    /**
      * Copy Constructor.
      */
-    StreamNode(const StreamNode &copy) = delete;
+    FatNode(const FatNode &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    StreamNode& operator=(const StreamNode &other) = delete;
+    FatNode &operator=(const FatNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~StreamNode() override;
+    ~FatNode() override;
+
+    static FatNode* open(const Util::Memory::String &path);
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Memory::String getName() override;
 
     /**
      * Overriding function from Node.
      */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+    uint64_t getLength() override;
 
+protected:
     /**
-     * Overriding function from Node.
+     * Constructor.
      */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
+    explicit FatNode(FILINFO *info);
 
 private:
 
-    Util::Stream::OutputStream *outputStream;
-    Util::Stream::InputStream *inputStream;
-
+    FILINFO &info;
 };
 
 }

@@ -67,7 +67,7 @@ public:
     FloppyController();
 
     /**
-     * Copy-constructor.
+     * Copy Constructor.
      */
     FloppyController(const FloppyController &copy) = delete;
 
@@ -107,7 +107,7 @@ public:
      * @param head The head
      * @param sector The sector
      *
-     * @return true, on success.
+     * @return True on success.
      */
     bool readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
 
@@ -120,7 +120,7 @@ public:
      * @param head The head
      * @param sector The sector
      *
-     * @return true, on success.
+     * @return True on success.
      */
     bool writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
 
@@ -251,7 +251,7 @@ private:
      *
      * @param device The device
      *
-     * @return true, on success
+     * @return True on success
      */
     bool resetDrive(FloppyDevice &device);
 
@@ -262,7 +262,7 @@ private:
      *
      * @param device The device
      *
-     * @return true, on success
+     * @return True on success
      */
     bool calibrateDrive(FloppyDevice &device);
 
@@ -275,7 +275,7 @@ private:
      * @param cylinder The cylinder
      * @param head The head
      *
-     * @return true, on success.
+     * @return True on success.
      */
     bool seek(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 

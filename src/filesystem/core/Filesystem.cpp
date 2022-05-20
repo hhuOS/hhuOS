@@ -16,14 +16,48 @@
  */
 
 #include "lib/util/file/File.h"
+#include "kernel/system/System.h"
+#include "kernel/service/StorageService.h"
+#include "PhysicalDriver.h"
 #include "Filesystem.h"
+#include "lib/util/reflection/InstanceFactory.h"
 
 namespace Filesystem {
 
-bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
-    Node *targetNode = getNode(parsedPath);
+bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
+    if (!storageService.isDeviceRegistered(deviceName)) {
+        return false;
+    }
 
+    auto parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
+    auto *targetNode = getNode(parsedPath);
+    if (targetNode == nullptr) {
+        if (mountPoints.size() != 0) {
+            return false;
+        }
+    }
+
+    auto &device = storageService.getDevice(deviceName);
+    auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
+    auto result = driver->mount(device);
+    if (!result) {
+        delete driver;
+        return false;
+    }
+
+    lock.acquire();
+    if (mountPoints.containsKey(parsedPath)) {
+        return lock.releaseAndReturn(false);
+    }
+
+    mountPoints.put(parsedPath, driver);
+    return lock.releaseAndReturn(true);
+}
+
+bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver) {
+    auto parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
+    auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
             return false;
@@ -42,15 +76,15 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Virt
 }
 
 Memory::MemoryDriver &Filesystem::getVirtualDriver(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    auto parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
     auto *driver = mountPoints.get(parsedPath);
 
     return *reinterpret_cast<Memory::MemoryDriver*>(driver);
 }
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
-    Node *targetNode = getNode(parsedPath);
+    auto parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
+    auto *targetNode = getNode(parsedPath);
 
     if (targetNode == nullptr) {
         if (path != "/") {
@@ -77,8 +111,22 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
     return lock.releaseAndReturn(false);
 }
 
+bool Filesystem::createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName) {
+    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
+    if (!storageService.isDeviceRegistered(deviceName)) {
+        return false;
+    }
+
+    auto &device = storageService.getDevice(deviceName);
+    auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
+    auto result = driver->createFilesystem(device);
+
+    delete driver;
+    return result;
+}
+
 Node* Filesystem::getNode(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
+    auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -91,7 +139,7 @@ Node* Filesystem::getNode(const Util::Memory::String &path) {
 }
 
 bool Filesystem::createFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
+    auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -104,7 +152,7 @@ bool Filesystem::createFile(const Util::Memory::String &path) {
 }
 
 bool Filesystem::createDirectory(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
+    auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     Driver *driver = getMountedDriver(parsedPath);
@@ -117,7 +165,7 @@ bool Filesystem::createDirectory(const Util::Memory::String &path) {
 }
 
 bool Filesystem::deleteFile(const Util::Memory::String &path) {
-    Util::Memory::String parsedPath = Util::File::File::getCanonicalPath(path);
+    auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
     for (const Util::Memory::String &key : mountPoints.keySet()) {

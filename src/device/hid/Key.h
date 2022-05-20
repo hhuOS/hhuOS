@@ -67,7 +67,7 @@ public:
     Key() = default;
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     Key(const Key &copy) = delete;
 

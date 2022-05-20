@@ -33,7 +33,7 @@ public:
     ArchiveNode() = default;
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     ArchiveNode(const ArchiveNode &copy) = delete;
 

@@ -15,68 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __FsDriver_include__
-#define __FsDriver_include__
+#ifndef HHUOS_PHYSICALDRIVER_H
+#define HHUOS_PHYSICALDRIVER_H
 
-#include "filesystem/core/Node.h"
 #include "device/storage/StorageDevice.h"
+#include "lib/util/reflection/Prototype.h"
+#include "Driver.h"
 
 namespace Filesystem {
 
-/**
- * Interface class for filesystem drivers.
- */
-class Driver {
+class PhysicalDriver : public Driver, public Util::Reflection::Prototype {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Driver() = default;
+    PhysicalDriver() = default;
 
     /**
      * Copy Constructor.
      */
-    Driver(const Driver &copy) = delete;
+    PhysicalDriver(const PhysicalDriver &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Driver& operator=(const Driver &other) = delete;
+    PhysicalDriver &operator=(const PhysicalDriver &other) = delete;
 
     /**
      * Destructor.
      */
-    virtual ~Driver() = default;
+    ~PhysicalDriver() override = default;
 
     /**
-     * Get an FsNode, representing a file or directory that a given path points to.
+     * Mount a device.
+     * After this function has succeeded, the driver must be ready to process requests for this device.
      *
-     * @param path The path.
+     * @param device The device
      *
-     * @return The FsNode (or nulltpr on failure)
+     * @return True on success
      */
-    virtual Node* getNode(const Util::Memory::String &path) = 0;
+    virtual bool mount(Device::Storage::StorageDevice &device) = 0;
 
     /**
-     * Create a new empty file or directory at a given path.
-     * The parent-directory of the new file must exist beforehand.
+     * Format a device.
      *
-     * @param path The path
+     * @param device The device
      *
-     * @return true on success
+     * @return True on success
      */
-    virtual bool createNode(const Util::Memory::String &path, Util::File::Type type) = 0;
-
-    /**
-     * Delete an existing file or directory at a given path.
-     * The file must be a regular file or an empty folder (a leaf in the filesystem ls).
-     *
-     * @param path The path.
-     *
-     * @return true on success
-     */
-    virtual bool deleteNode(const Util::Memory::String &path) = 0;
+    virtual bool createFilesystem(Device::Storage::StorageDevice &device) = 0;
 };
 
 }

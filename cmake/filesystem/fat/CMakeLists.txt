@@ -14,15 +14,14 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(filesystem)
-message(STATUS "Project " ${PROJECT_NAME})
+execute_process(COMMAND "${HHUOS_SRC_DIR}/filesystem/fat/fatfs.sh"
+        WORKING_DIRECTORY "${HHUOS_SRC_DIR}/filesystem/fat/")
 
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(core)
-add_subdirectory(memory)
-add_subdirectory(tar)
-add_subdirectory(fat)
+target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/fat/FatDriver.cpp
+        ${HHUOS_SRC_DIR}/filesystem/fat/FatDirectory.cpp
+        ${HHUOS_SRC_DIR}/filesystem/fat/FatFile.cpp
+        ${HHUOS_SRC_DIR}/filesystem/fat/FatNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/fat/diskio.cpp
+        ${HHUOS_SRC_DIR}/filesystem/fat/ff/source/ff.c
+        ${HHUOS_SRC_DIR}/filesystem/fat/ff/source/ffsystem.c)

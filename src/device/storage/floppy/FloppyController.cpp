@@ -39,7 +39,7 @@ bool FloppyController::isAvailable() {
 }
 
 FloppyController::FloppyController() :
-        dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(65536)),
+        dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(512)),
         timeService(Kernel::System::getService<Kernel::TimeService>()),
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), dataRateSelectRegister(IO_BASE_ADDRESS + 4),
@@ -337,9 +337,12 @@ void FloppyController::trigger(Kernel::InterruptFrame &frame) {
 }
 
 void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode) {
+    auto physicalAddress = reinterpret_cast<uint32_t>(Kernel::System::getService<Kernel::MemoryService>().getPhysicalAddress(dmaMemory))
+            + (reinterpret_cast<uint32_t>(dmaMemory) % Util::Memory::PAGESIZE);
+
     Isa::selectChannel(2);
 
-    Isa::setAddress(2, (uint32_t) Kernel::System::getService<Kernel::MemoryService>().getPhysicalAddress(dmaMemory));
+    Isa::setAddress(2, physicalAddress);
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
     Isa::setMode(2, transferMode, false, false, Isa::SINGLE_TRANSFER);
 

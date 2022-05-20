@@ -50,6 +50,8 @@
 #include "device/pci/Pci.h"
 #include "device/pci/PciDevice.h"
 #include "device/storage/floppy/FloppyController.h"
+#include "kernel/service/StorageService.h"
+#include "filesystem/fat/FatDriver.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 

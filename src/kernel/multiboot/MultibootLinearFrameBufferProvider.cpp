@@ -40,8 +40,4 @@ Util::Data::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearF
     return supportedModes;
 }
 
-Util::Memory::String MultibootLinearFrameBufferProvider::getClassName() const {
-    return CLASS_NAME;
-}
-
 }

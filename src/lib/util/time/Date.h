@@ -36,7 +36,7 @@ public:
     Date(uint8_t seconds, uint8_t minutes, uint8_t hours, uint8_t dayOfMonth, uint8_t month, uint16_t year);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     Date(const Date &copy) = default;
 

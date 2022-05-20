@@ -54,8 +54,4 @@ Util::Data::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider
     return supportedModes;
 }
 
-Util::Memory::String MultibootTerminalProvider::getClassName() const {
-    return CLASS_NAME;
-}
-
 }

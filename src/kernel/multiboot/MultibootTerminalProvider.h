@@ -46,6 +46,8 @@ public:
      */
     ~MultibootTerminalProvider() override = default;
 
+    PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Kernel::Multiboot::MultibootTerminalProvider")
+
     /**
      * Check if the framebuffer, provided by the bootloader, has the correct type and this driver can be used.
      *
@@ -63,16 +65,10 @@ public:
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getClassName() const override;
-
 private:
 
     FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
-    static const constexpr char *CLASS_NAME = "Kernel::Multiboot::MultibootTerminalProvider";
 };
 
 }

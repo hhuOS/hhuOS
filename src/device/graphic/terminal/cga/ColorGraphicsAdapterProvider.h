@@ -28,8 +28,6 @@ class ColorGraphicsAdapterProvider : public TerminalProvider {
 
 public:
 
-    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsAdapterProvider);
-
     /**
      * Default Constructor.
      */
@@ -50,6 +48,10 @@ public:
      */
     ~ColorGraphicsAdapterProvider() override = default;
 
+    PROTOTYPE_IMPLEMENT_CLONE(ColorGraphicsAdapterProvider);
+
+    PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Device::Graphic::ColorGraphicsAdapterProvider")
+
     /**
      * Check if a CGA compatible graphics card is available and this driver can be used.
      *
@@ -66,11 +68,6 @@ public:
      * Overriding function from TerminalProvider.
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
 
@@ -104,7 +101,6 @@ private:
     static Kernel::Logger log;
 
     static const constexpr uint16_t CURSOR_SHAPE_OPTIONS = 0x0e0f;
-    static const constexpr char *CLASS_NAME = "Device::Graphic::ColorGraphicsAdapterProvider";
 };
 
 }

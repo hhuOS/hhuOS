@@ -34,7 +34,7 @@ public:
     StorageService() = default;
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     StorageService(const StorageService &copy) = delete;
 

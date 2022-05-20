@@ -37,7 +37,7 @@ public:
     explicit FloppyMotorControlJob(FloppyDevice &device);
 
     /**
-     * Copy-constructor.
+     * Copy Constructor.
      */
     FloppyMotorControlJob(const FloppyMotorControlJob &copy) = delete;
 

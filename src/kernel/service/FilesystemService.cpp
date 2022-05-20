@@ -56,8 +56,8 @@ FilesystemService::FilesystemService() {
             return Util::System::INVALID_ARGUMENT;
         }
 
-        auto success = type == Util::File::REGULAR ? System::getService<FilesystemService>().getFilesystem().createFile(path) :
-                System::getService<FilesystemService>().getFilesystem().createDirectory(path);
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto success = type == Util::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
         return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
     });
 
@@ -68,7 +68,7 @@ FilesystemService::FilesystemService() {
 
         const char *path = va_arg(arguments, const char*);
 
-        return System::getService<FilesystemService>().getFilesystem().deleteFile(path) ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+        return System::getService<FilesystemService>().deleteFile(path) ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
     });
 
     SystemCall::registerSystemCall(Util::System::FILE_TYPE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
@@ -178,8 +178,24 @@ FilesystemService::FilesystemService() {
     });
 }
 
-Filesystem::Filesystem &FilesystemService::getFilesystem() {
-    return filesystem;
+bool FilesystemService::mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+    return filesystem.mount(deviceName, targetPath, driverName);
+}
+
+bool FilesystemService::createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName) {
+    return filesystem.createFilesystem(deviceName, driverName);
+}
+
+bool FilesystemService::createFile(const Util::Memory::String &path) {
+    return filesystem.createFile(path);
+}
+
+bool FilesystemService::createDirectory(const Util::Memory::String &path) {
+    return filesystem.createDirectory(path);
+}
+
+bool FilesystemService::deleteFile(const Util::Memory::String &path) {
+    return filesystem.deleteFile(path);
 }
 
 int32_t FilesystemService::openFile(const Util::Memory::String &path) {
@@ -192,6 +208,10 @@ void FilesystemService::closeFile(int32_t fileDescriptor) {
 
 Filesystem::Node &FilesystemService::getNode(int32_t fileDescriptor) {
     return System::getService<SchedulerService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
+}
+
+Filesystem::Filesystem &FilesystemService::getFilesystem() {
+    return filesystem;
 }
 
 }

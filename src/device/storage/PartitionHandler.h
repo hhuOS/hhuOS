@@ -306,7 +306,7 @@ public:
      * Create a new empty partition table.
      * Currently, only MBR partition tables are supported.
      *
-     * @return True, on success
+     * @return True on success
      */
     virtual void createPartitionTable();
 
@@ -326,7 +326,7 @@ public:
      * @param startSector The number of the partition's first sector, relative to the device's beginning
      * @param sectorCount The amount of sectors, that the partition consists of
      * 
-     * @return True, on success
+     * @return True on success
      */
     virtual void writePartition(uint8_t partitionNumber, bool active, SystemId systemId, uint32_t startSector, uint32_t sectorCount);
 
@@ -335,7 +335,7 @@ public:
      *
      * @param partitionNumber The partition number (1-4 --> Primary, > 4 --> Logical)
      *
-     * @return True, on success
+     * @return True on success
      */
     virtual void deletePartition(uint8_t partitionNumber);
 

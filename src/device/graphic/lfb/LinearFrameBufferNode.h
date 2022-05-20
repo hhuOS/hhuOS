@@ -31,7 +31,7 @@ public:
     explicit LinearFrameBufferNode(const Util::Memory::String &name, uint32_t address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     LinearFrameBufferNode(const LinearFrameBufferNode &copy) = delete;
 

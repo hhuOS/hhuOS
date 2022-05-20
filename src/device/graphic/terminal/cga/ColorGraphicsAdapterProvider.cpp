@@ -71,10 +71,6 @@ Util::Data::Array<ColorGraphicsAdapterProvider::ModeInfo> ColorGraphicsAdapterPr
     return supportedModes;
 }
 
-Util::Memory::String ColorGraphicsAdapterProvider::getClassName() const {
-    return CLASS_NAME;
-}
-
 ColorGraphicsAdapterProvider::VideoCardType ColorGraphicsAdapterProvider::getVideoCardType() {
     Bios::RealModeContext biosParameters{};
     biosParameters.ax = BiosFunction::CHECK_VIDEO_CARD;

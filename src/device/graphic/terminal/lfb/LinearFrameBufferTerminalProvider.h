@@ -49,6 +49,8 @@ public:
      */
     ~LinearFrameBufferTerminalProvider() override = default;
 
+    PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Device::Graphic::LinearFrameBufferTerminalProvider")
+
     /**
      * Overriding function from TerminalProvider.
      */
@@ -58,11 +60,6 @@ public:
      * Overriding function from TerminalProvider.
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
-
-    /**
-     * Overriding function from TerminalProvider.
-     */
-    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
 
@@ -75,7 +72,6 @@ private:
 
     static const constexpr char *VENDOR_NAME = "LinearFrameBufferTerminalProvider";
     static const constexpr char *DEVICE_NAME = "LinearFrameBufferTerminal";
-    static const constexpr char *CLASS_NAME = "Device::Graphic::LinearFrameBufferTerminalProvider";
 };
 
 }

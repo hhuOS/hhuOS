@@ -36,8 +36,6 @@ class FreeListMemoryManager : public HeapMemoryManager {
 
 public:
 
-    PROTOTYPE_IMPLEMENT_CLONE(FreeListMemoryManager);
-
     /**
      * Constructor.
      */
@@ -57,6 +55,10 @@ public:
      * Destructor.
      */
     ~FreeListMemoryManager() override = default;
+
+    PROTOTYPE_IMPLEMENT_CLONE(FreeListMemoryManager);
+
+    PROTOTYPE_IMPLEMENT_GET_CLASS_NAME("Util::Memory::FreeListMemoryManager")
 
     /**
      * Overriding function from HeapMemoryManager.
@@ -97,11 +99,6 @@ public:
      * Overriding function from MemoryManager.
      */
     [[nodiscard]] uint32_t getEndAddress() const override;
-
-    /**
-     * Overriding function from MemoryManager.
-     */
-    [[nodiscard]] Util::Memory::String getClassName() const override;
 
 private:
     /**
@@ -159,7 +156,6 @@ private:
      */
     FreeListHeader *merge(FreeListHeader *origin);
 
-    static const constexpr char *CLASS_NAME = "Util::Memory::FreeListMemoryManager";
     static const constexpr uint32_t MIN_BLOCK_SIZE = 4;
     static const constexpr uint32_t HEADER_SIZE = sizeof(FreeListHeader);
 };

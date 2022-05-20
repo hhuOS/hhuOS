@@ -32,7 +32,7 @@ public:
     explicit MemoryWrapperNode(MemoryNode &node);
 
     /**
-     * Copy-Constructor.
+     * Copy Constructor.
      */
     MemoryWrapperNode(const MemoryWrapperNode &copy) = delete;
 
