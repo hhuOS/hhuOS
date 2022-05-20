@@ -25,4 +25,4 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
         COMMAND grub-mkrescue "/lib/grub/i386-pc" "/lib/grub/i386-efi" -o "${HHUOS_ROOT_DIR}/hhuOS.iso" "${HHUOS_ROOT_DIR}/loader/grub/"
         DEPENDS system initrd)
 
-add_custom_target(grub DEPENDS system initrd "${HHUOS_ROOT_DIR}/hhuOS.iso")
+add_custom_target(${PROJECT_NAME} DEPENDS system initrd floppy0 "${HHUOS_ROOT_DIR}/hhuOS.iso")

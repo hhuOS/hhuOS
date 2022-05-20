@@ -56,6 +56,11 @@ TimeService::TimeService(Device::TimeProvider *timeProvider, Device::DateProvide
     });
 }
 
+TimeService::~TimeService() {
+    delete timeProvider;
+    delete dateProvider;
+}
+
 Util::Time::Timestamp TimeService::getSystemTime() const {
     if (timeProvider != nullptr) {
         return timeProvider->getTime();
@@ -80,9 +85,12 @@ void TimeService::setCurrentDate(const Util::Time::Date &date) {
     }
 }
 
-TimeService::~TimeService() {
-    delete timeProvider;
-    delete dateProvider;
+void TimeService::wait(const Util::Time::Timestamp &time) const {
+    auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
+
+    while (getSystemTime().toMilliseconds() < end) {
+        System::getService<SchedulerService>().yield();
+    }
 }
 
 }

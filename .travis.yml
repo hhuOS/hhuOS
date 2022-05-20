@@ -15,6 +15,7 @@ jobs:
             - gcc-multilib
             - g++-multilib
             - mtools
+            - dosfstools
       before_script:
         - wget -O rocket https://github.com/krakowski/rocket/releases/download/${ROCKET_VERSION}/rocket-${ROCKET_VERSION}-linux-amd64
         - chmod +x rocket

@@ -51,7 +51,7 @@ public:
 
     /**
      * Entry point for the operating system.
-     * This method is invoked by the main() method, after boot strapping process is finished an paging is setup.
+     * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableDrives.
      */
     [[noreturn]] static void enter();
 
@@ -64,6 +64,8 @@ private:
     static void initializeTerminal();
 
     static void initializePowerManagement();
+
+    static void initializeStorage();
 
     static void printBanner();
 

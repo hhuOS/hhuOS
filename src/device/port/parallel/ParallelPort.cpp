@@ -125,10 +125,7 @@ void ParallelPort::write(uint8_t c) {
     // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port
     uint8_t control = sppControlPort.readByte();
     sppControlPort.writeByte(control | CONTROL_REGISTER_STROBE);
-
-    auto start = timeService.getSystemTime().toMilliseconds();
-    while (timeService.getSystemTime().toMilliseconds() < start + 10);
-
+    timeService.wait(Util::Time::Timestamp(0, 10000000));
     sppControlPort.writeByte(control);
 
     // Wait for the printer to finish reading the data

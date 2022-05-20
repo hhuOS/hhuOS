@@ -14,52 +14,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TIMESERVICE_H
-#define HHUOS_TIMESERVICE_H
+#ifndef HHUOS_STORAGESERVICE_H
+#define HHUOS_STORAGESERVICE_H
 
-#include "device/time/TimeProvider.h"
-#include "device/time/DateProvider.h"
 #include "Service.h"
+#include "lib/util/data/HashMap.h"
+#include "device/storage/StorageDevice.h"
+#include "lib/util/async/Spinlock.h"
+#include "kernel/log/Logger.h"
 
 namespace Kernel {
 
-class TimeService : public Service {
+class StorageService : public Service {
 
 public:
     /**
      * Constructor.
      */
-    TimeService(Device::TimeProvider *timeProvider, Device::DateProvider *dateProvider);
+    StorageService() = default;
 
     /**
      * Copy-Constructor.
      */
-    TimeService(const TimeService &copy) = delete;
+    StorageService(const StorageService &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    TimeService& operator=(const TimeService &other) = delete;
+    StorageService &operator=(const StorageService &other) = delete;
 
     /**
      * Destructor.
      */
-    ~TimeService() override;
+    ~StorageService() override;
 
-    [[nodiscard]] Util::Time::Timestamp getSystemTime() const;
+    Util::Memory::String registerDevice(Device::Storage::StorageDevice *device, const Util::Memory::String &deviceClass);
 
-    [[nodiscard]] Util::Time::Date getCurrentDate() const;
+    Device::Storage::StorageDevice& getDevice(const Util::Memory::String &deviceName);
 
-    void setCurrentDate(const Util::Time::Date &date);
+    bool isDeviceRegistered(const Util::Memory::String &deviceName);
 
-    void wait(const Util::Time::Timestamp &time) const;
-
-    static const constexpr uint8_t SERVICE_ID = 4;
+    static const constexpr uint8_t SERVICE_ID = 6;
 
 private:
 
-    Device::TimeProvider *timeProvider;
-    Device::DateProvider *dateProvider;
+    Util::Async::Spinlock lock;
+    Util::Data::HashMap<Util::Memory::String, Device::Storage::StorageDevice*> deviceMap;
+
+    static Logger log;
+    static Util::Data::HashMap<Util::Memory::String, uint32_t> nameMap;
+
 };
 
 }

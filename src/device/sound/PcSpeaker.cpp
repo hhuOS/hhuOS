@@ -17,6 +17,8 @@
 
 #include "lib/util/time/Timestamp.h"
 #include "PcSpeaker.h"
+#include "kernel/system/System.h"
+#include "kernel/service/TimeService.h"
 
 namespace Device {
 

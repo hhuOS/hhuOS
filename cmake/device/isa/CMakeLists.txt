@@ -17,10 +17,4 @@
 cmake_minimum_required(VERSION 3.7)
  
 target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/storage/Partition.cpp
-        ${HHUOS_SRC_DIR}/device/storage/PartitionHandler.cpp
-        ${HHUOS_SRC_DIR}/device/storage/StorageDevice.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyController.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyDevice.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyMotorControlJob.cpp
-        ${HHUOS_SRC_DIR}/device/storage/virtual/VirtualDiskDrive.cpp)
+        ${HHUOS_SRC_DIR}/device/isa/Isa.cpp)

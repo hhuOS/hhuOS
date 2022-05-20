@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(tree)
+project(initrd)
 message(STATUS "Project " ${PROJECT_NAME})
 
 add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
@@ -40,4 +40,4 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
         DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir shutdown touch tree uptime)
 
-add_custom_target(initrd DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir shutdown touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+add_custom_target(${PROJECT_NAME} DEPENDS shell cat color cp date echo fault hello ls mkdir pwd rm rmdir shutdown touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")

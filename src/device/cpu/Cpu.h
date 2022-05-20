@@ -53,7 +53,7 @@ public:
     /**
      * Destructor.
      */
-    ~Cpu() = default;
+    ~Cpu() = delete;
 
     /**
      * Enable hardware interrupts on CPU.

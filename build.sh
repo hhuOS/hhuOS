@@ -91,6 +91,11 @@ cleanup() {
         printf "Removing 'hhuOS.img'\\n"
         rm hhuOS.img
     fi
+
+    if [ -f floppy0.img ]; then
+        printf "Removing 'hhuOS.img'\\n"
+        rm floppy0.img
+    fi
     
     if [ -f loader/grub/boot/hhuOS.bin ]; then
         printf "Removing 'loader/grub/boot/hhuOS.bin'\\n"

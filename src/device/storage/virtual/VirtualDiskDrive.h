@@ -52,7 +52,7 @@ public:
     /**
      * Destructor.
      */
-    ~VirtualDiskDrive();
+    ~VirtualDiskDrive() override;
 
     /**
      * Overriding function from StorageDevice.

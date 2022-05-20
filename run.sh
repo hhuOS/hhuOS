@@ -27,6 +27,7 @@ readonly CONST_QEMU_BIOS_PC=""
 readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
+readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img"
 readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
 
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
@@ -39,6 +40,7 @@ QEMU_RAM="${CONST_QEMU_DEFAULT_RAM}"
 QEMU_CPU="${CONST_QEMU_CPU_I386}"
 QEMU_CPU_OVERWRITE="false"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
+QEMU_STORAGE_ARGS="${CONST_QEMU_STORAGE_ARGS}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
@@ -243,7 +245,7 @@ run_qemu() {
     command="${command} -bios ${QEMU_BIOS}"
   fi
 
-  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_BOOT_DEVICE} ${QEMU_ARGS} ${QEMU_AUDIO_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS} ${QEMU_BOOT_DEVICE} ${QEMU_STORAGE_ARGS} ${QEMU_AUDIO_ARGS}"
   
   printf "Running: %s\\n" "${command}"
 

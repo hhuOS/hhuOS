@@ -15,12 +15,14 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.7)
- 
-target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/storage/Partition.cpp
-        ${HHUOS_SRC_DIR}/device/storage/PartitionHandler.cpp
-        ${HHUOS_SRC_DIR}/device/storage/StorageDevice.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyController.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyDevice.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyMotorControlJob.cpp
-        ${HHUOS_SRC_DIR}/device/storage/virtual/VirtualDiskDrive.cpp)
+
+project(floppy0)
+message(STATUS "Project " ${PROJECT_NAME})
+
+add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/floppy0.img"
+        COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/floppy0/img/bin"
+        COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/floppy0/img/bin/hello"
+        WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/floppy0 COMMAND ${HHUOS_ROOT_DIR}/floppy0/build.sh
+        DEPENDS hello)
+
+add_custom_target(${PROJECT_NAME} DEPENDS hello "${HHUOS_ROOT_DIR}/floppy0.img")

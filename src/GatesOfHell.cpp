@@ -49,6 +49,7 @@
 #include "kernel/service/PowerManagementService.h"
 #include "device/pci/Pci.h"
 #include "device/pci/PciDevice.h"
+#include "device/storage/floppy/FloppyController.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -95,6 +96,8 @@ void GatesOfHell::enter() {
     enablePortLogging();
 
     Device::Pci::scan();
+
+    initializeStorage();
 
     printBanner();
 
@@ -242,5 +245,12 @@ void GatesOfHell::initializePowerManagement() {
 
     auto *powerManagementService = new Kernel::PowerManagementService(machine);
     Kernel::System::registerService(Kernel::PowerManagementService::SERVICE_ID, powerManagementService);
+}
+
+void GatesOfHell::initializeStorage() {
+    if (Device::Storage::FloppyController::isAvailable()) {
+        auto *floppyController = new Device::Storage::FloppyController();
+        floppyController->initializeAvailableDrives();
+    }
 }
 

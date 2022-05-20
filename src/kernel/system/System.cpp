@@ -32,6 +32,7 @@
 #include "BlueScreen.h"
 #include "kernel/service/PowerManagementService.h"
 #include "device/bios/Bios.h"
+#include "kernel/service/StorageService.h"
 
 namespace Kernel {
 
@@ -84,7 +85,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     schedulerService->ready(kernelProcess);
     registerService(SchedulerService::SERVICE_ID, schedulerService);
 
-    // The base system is initialized. We can now enable interrupts and setup timer devices
+    // The base system is initialized. We can now enable interrupts and initializeAvailableDrives timer devices
     log.info("Enabling interrupts");
     Device::Cpu::enableInterrupts();
 
@@ -115,6 +116,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
 
     // Register memory manager
     Util::Reflection::InstanceFactory::registerPrototype(new Util::Memory::FreeListMemoryManager());
+
+    // Register storage service
+    registerService(StorageService::SERVICE_ID, new StorageService());
 
     // Enable system calls
     log.info("Enabling system calls");
@@ -171,7 +175,7 @@ void System::panic(const InterruptFrame &frame) {
  * Only these two GDTs are needed, because memory protection and abstractions is done via paging.
  * The memory where the parameters point to is reserved in assembler code before paging is enabled.
  * Therefore we assume that the given pointers are physical addresses  - this is very important
- * to guarantee correct GDT descriptors using this setup-function.
+ * to guarantee correct GDT descriptors using this initializeAvailableDrives-function.
  *
  * @param systemGdt Pointer to the GDT of the system
  * @param biosGdt Pointer to the GDT for BIOS-calls

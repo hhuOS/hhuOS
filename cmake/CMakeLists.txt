@@ -84,10 +84,11 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}\
 # Add subdirectories
 add_subdirectory(device)
 add_subdirectory(filesystem)
-add_subdirectory(initrd)
 add_subdirectory(kernel)
 add_subdirectory(lib)
 add_subdirectory(system)
+add_subdirectory(initrd)
+add_subdirectory(floppy0)
 add_subdirectory(grub)
 add_subdirectory(towboot)
 

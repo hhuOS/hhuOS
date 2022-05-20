@@ -43,7 +43,7 @@ public:
     /**
      * Destructor.
      */
-    ~StorageDevice() = default;
+    virtual ~StorageDevice() = default;
 
     /**
      * Get the size of a single sector in bytes.

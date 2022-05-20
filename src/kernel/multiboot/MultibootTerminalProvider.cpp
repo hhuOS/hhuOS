@@ -35,7 +35,7 @@ bool MultibootTerminalProvider::isAvailable() {
 
 void MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been setup correctly by the bootloader!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been initializeAvailableDrives correctly by the bootloader!");
     }
 
     Device::Graphic::Terminal *terminal = new Device::Graphic::ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);

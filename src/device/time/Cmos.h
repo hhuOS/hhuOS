@@ -56,8 +56,6 @@ public:
 
 private:
 
-    static bool nmiEnabled;
-
     static IoPort registerPort;
     static IoPort dataPort;
 
