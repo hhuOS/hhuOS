@@ -37,21 +37,31 @@ Util::Memory::String StorageService::registerDevice(Device::Storage::StorageDevi
     auto name = Util::Memory::String::format("%s%u", static_cast<char*>(deviceClass), value);
     deviceMap.put(name, device);
     nameMap.put(deviceClass, value + 1);
+    lock.release();
 
     log.info("Registered device '%s'",static_cast<char*>(name));
     return name;
 }
 
 Device::Storage::StorageDevice &StorageService::getDevice(const Util::Memory::String &deviceName) {
+    lock.acquire();
     if (!deviceMap.containsKey(deviceName)) {
+        lock.release();
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "StorageService: Device not found!");
     }
 
-    return *deviceMap.get(deviceName);
+    auto &result = *deviceMap.get(deviceName);
+    lock.release();
+
+    return result;
 }
 
 bool StorageService::isDeviceRegistered(const Util::Memory::String &deviceName) {
-    return deviceMap.containsKey(deviceName);
+    lock.acquire();
+    auto result = deviceMap.containsKey(deviceName);
+    lock.release();
+
+    return result;
 }
 
 }
