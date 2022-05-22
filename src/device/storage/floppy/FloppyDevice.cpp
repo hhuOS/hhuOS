@@ -22,7 +22,7 @@
 namespace Device::Storage {
 
 FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType) :
-        controller(controller), driveNumber(driveNumber), driveType(driveType) {
+        controller(controller), driveNumber(driveNumber), driveType(driveType), motorControlJob(new FloppyMotorControlJob(*this)) {
     switch (driveType) {
         case FloppyController::DRIVE_TYPE_360KB_5_25 :
             sectorsPerTrack = 9;
@@ -56,7 +56,7 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             break;
     }
 
-    Kernel::System::getService<Kernel::JobService>().registerJob(new FloppyMotorControlJob(*this), Kernel::Job::Priority::LOW, Util::Time::Timestamp(2, 0));
+    Kernel::System::getService<Kernel::JobService>().registerJob(motorControlJob, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, FloppyMotorControlJob::INTERVAL * 1000000));
 }
 
 FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) const {
@@ -131,6 +131,10 @@ FloppyController& FloppyDevice::getController() const {
 }
 
 void FloppyDevice::setMotorState(FloppyController::MotorState state) {
+    if (state == FloppyController::ON) {
+        motorControlJob->resetTime();
+    }
+
     FloppyDevice::motorState = state;
 }
 

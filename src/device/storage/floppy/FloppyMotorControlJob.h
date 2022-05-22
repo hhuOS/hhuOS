@@ -56,9 +56,15 @@ public:
      */
     void run() override;
 
+    void resetTime();
+
+    static const constexpr uint32_t TIME = 2000;
+    static const constexpr uint32_t INTERVAL = 500;
+
 private:
 
     FloppyDevice &device;
+    uint32_t remainingTime = TIME;
 };
 
 }

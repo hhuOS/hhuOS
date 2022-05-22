@@ -21,9 +21,22 @@ namespace Device::Storage {
 FloppyMotorControlJob::FloppyMotorControlJob(FloppyDevice &device) : device(device) {}
 
 void FloppyMotorControlJob::run() {
-    if (device.getMotorState() == FloppyController::WAIT) {
-        device.getController().killMotor(device);
+    if (device.getMotorState() != FloppyController::WAIT) {
+        return;
     }
+
+    remainingTime -= INTERVAL;
+    if (remainingTime <= 0) {
+        if (device.getMotorState() == FloppyController::WAIT) {
+            device.getController().killMotor(device);
+        }
+
+        resetTime();
+    }
+}
+
+void FloppyMotorControlJob::resetTime() {
+    remainingTime = TIME;
 }
 
 }

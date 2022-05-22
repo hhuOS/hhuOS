@@ -122,6 +122,7 @@ private:
     uint32_t size;
 
     FloppyController::MotorState motorState = FloppyController::OFF;
+    FloppyMotorControlJob *motorControlJob;
 };
 
 }

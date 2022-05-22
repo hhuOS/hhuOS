@@ -104,7 +104,6 @@ void FloppyController::initializeAvailableDrives() {
 
 void FloppyController::writeFifoByte(uint8_t command) {
     uint32_t timeout = 0;
-
     while (timeout < TIMEOUT) {
         if (isFifoBufferReady()) {
             fifoRegister.writeByte(command);
@@ -120,7 +119,6 @@ void FloppyController::writeFifoByte(uint8_t command) {
 
 uint8_t FloppyController::readFifoByte() {
     uint32_t timeout = 0;
-
     while (timeout < TIMEOUT) {
         if (isFifoBufferReady()) {
             return fifoRegister.readByte();
@@ -183,7 +181,6 @@ void FloppyController::killMotor(FloppyDevice &device) {
 
 bool FloppyController::checkMedia(FloppyDevice &device) {
     setMotorState(device, ON);
-
     // Check disk change indicator flag
     if (digitalInputRegister.readByte() & 0x80) {
         // If the bit is set, a disk change has occurred and we need to check, if a disk is present
@@ -201,8 +198,7 @@ bool FloppyController::checkMedia(FloppyDevice &device) {
 }
 
 bool FloppyController::resetDrive(FloppyDevice &device) {
-    log.debug("Resetting drive %u", device.getDriveNumber());
-
+    log.info("Resetting drive %u", device.getDriveNumber());
     receivedInterrupt = false;
 
     digitalOutputRegister.writeByte(0x00); // Disable controller;
@@ -255,8 +251,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 }
 
 bool FloppyController::calibrateDrive(FloppyDevice &device) {
-    log.debug("Calibrating drive %u", device.getDriveNumber());
-
+    log.info("Calibrating drive %u", device.getDriveNumber());
     setMotorState(device, ON);
 
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
@@ -293,7 +288,6 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
 
 bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head) {
     setMotorState(device, ON);
-
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
 
@@ -341,11 +335,9 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
             + (reinterpret_cast<uint32_t>(dmaMemory) % Util::Memory::PAGESIZE);
 
     Isa::selectChannel(2);
-
     Isa::setAddress(2, physicalAddress);
     Isa::setCount(2, static_cast<uint16_t>(device.getSectorSize() - 1));
     Isa::setMode(2, transferMode, false, false, Isa::SINGLE_TRANSFER);
-
     Isa::deselectChannel(2);
 }
 
@@ -355,10 +347,8 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
     }
 
     setMotorState(device, ON);
-
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-
         prepareDma(device, Isa::WRITE);
 
         writeFifoByte(READ_DATA | MULTITRACK | MFM);
