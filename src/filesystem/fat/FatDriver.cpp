@@ -25,7 +25,7 @@ Util::Memory::AtomicBitmap FatDriver::volumeIdAllocator(FF_VOLUMES);
 Util::Data::HashMap<uint32_t, Device::Storage::StorageDevice*> FatDriver::deviceMap;
 
 FatDriver::~FatDriver() {
-    f_mount(nullptr, static_cast<const char*>(Util::Memory::String::format("%u", volumeId)), 1);
+    f_mount(nullptr, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
     volumeIdAllocator.unset(volumeId);
 }
 
@@ -41,7 +41,7 @@ bool FatDriver::mount(Device::Storage::StorageDevice &device) {
 
     deviceMap.put(volumeId, &device);
 
-    auto result = f_mount(&fatVolume, static_cast<const char*>(Util::Memory::String::format("%u", volumeId)), 1);
+    auto result = f_mount(&fatVolume, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
     return result == FR_OK;
 }
 
@@ -61,8 +61,7 @@ bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
         0
     };
 
-    auto result = f_mkfs(static_cast<const char*>(Util::Memory::String::format("%u", volumeId)), &parameters, work, FF_MAX_SS);
-    volumeIdAllocator.unset(volumeId);
+    auto result = f_mkfs(static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), &parameters, work, FF_MAX_SS);
     return result == FR_OK;
 }
 

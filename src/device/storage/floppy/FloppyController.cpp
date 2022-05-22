@@ -26,7 +26,7 @@
 
 namespace Device::Storage {
 
-Kernel::Logger FloppyController::log = Kernel::Logger::get("FLOPPY");
+Kernel::Logger FloppyController::log = Kernel::Logger::get("Floppy");
 
 bool FloppyController::isAvailable() {
     Cpu::disableInterrupts();
@@ -350,8 +350,6 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
 }
 
 bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
-    auto lastSector = static_cast<uint8_t>(sector + 1 > device.getSectorsPerTrack() ? device.getSectorsPerTrack() : sector + 1);
-
     if (!seek(device, cylinder, head)) {
         return false;
     }
@@ -369,7 +367,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(sector);
         writeFifoByte(2);
-        writeFifoByte(lastSector);
+        writeFifoByte(device.getSectorsPerTrack());
         writeFifoByte(device.getGapLength());
         writeFifoByte(0xff);
 
@@ -413,8 +411,6 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
 }
 
 bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector) {
-    auto lastSector = static_cast<uint8_t>(sector + 1 > device.getSectorsPerTrack() ? device.getSectorsPerTrack() : sector + 1);
-
     auto sourceAddress = Util::Memory::Address<uint32_t>(buff);
     auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
     targetAddress.copyRange(sourceAddress, device.getSectorSize());
@@ -436,7 +432,7 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(sector);
         writeFifoByte(2);
-        writeFifoByte(lastSector);
+        writeFifoByte(device.getSectorsPerTrack());
         writeFifoByte(device.getGapLength());
         writeFifoByte(0xff);
 
@@ -456,7 +452,6 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
         }
 
         CommandStatus status = readCommandStatus();
-
         if ((status.statusRegister0 & 0xc0u) != 0) {
             if (!handleReadWriteError(device, cylinder, head)) {
                 log.error("Failed to write a sector on drive %u", device.getDriveNumber());
