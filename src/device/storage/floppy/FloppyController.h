@@ -99,30 +99,33 @@ public:
     void killMotor(FloppyDevice &device);
 
     /**
-     * Read a sector from a floppy. The sector needs to be specified in the CHS-format.
+     * Read sectors from a floppy. Only sectors inside one track can be read.
+     * Reading across multiple tracks requires multiple calls of this function.
      *
      * @param device The device
      * @param buff The buffer to write the read data to
      * @param cylinder The cylinder
      * @param head The head
-     * @param sector The sector
+     * @param startSector The first sector
+     * @param sectorCount The amount of sector to read (max. sectorsPerTrack)
      *
      * @return True on success.
      */
-    bool readSector(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
+    bool read(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
 
     /**
-     * Write a sector to a floppy. The sector needs to be specified in the CHS-format.
+     * Write sectors to a floppy. Only sectors inside one track can be written.
+     * Writing across multiple tracks requires multiple calls of this function.
      *
      * @param device The device
-     * @param buff The buffer to write to the floppy
+     * @param buffer The buffer to write to the floppy
      * @param cylinder The cylinder
      * @param head The head
-     * @param sector The sector
+     * @param startSector The startSector
      *
      * @return True on success.
      */
-    bool writeSector(FloppyDevice &device, const uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t sector);
+    bool write(FloppyDevice &device, const uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
 
     /**
      * Enable interrupts from the floppy controller.
@@ -133,6 +136,8 @@ public:
      * Overriding function from InterruptDispatcher.
      */
     void trigger(Kernel::InterruptFrame &frame) override;
+
+    static const constexpr uint32_t SECTOR_SIZE = 512;
 
 private:
 
@@ -290,7 +295,7 @@ private:
      * @param device The device
      * @param transferMode The transfer mode (ISA::READ/ISA::WRITE)
      */
-    void prepareDma(FloppyDevice &device, Isa::TransferMode transferMode);
+    void prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, uint8_t sectorCount);
 
     /**
      * Check if a disk is present and recalibrate the drive, after a read-/write-error has occurred.

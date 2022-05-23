@@ -68,8 +68,7 @@ FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) cons
 }
 
 uint32_t FloppyDevice::getSectorSize() {
-    // Floppy sectors always have a size of 512 Bytes
-    return 512;
+    return FloppyController::SECTOR_SIZE;
 }
 
 uint64_t FloppyDevice::getSectorCount() {
@@ -77,25 +76,63 @@ uint64_t FloppyDevice::getSectorCount() {
 }
 
 uint32_t FloppyDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    for (uint32_t i = 0; i < sectorCount; i++) {
-        CylinderHeadSector chs = lbaToChs(startSector + i);
+    uint32_t readSectors = 0;
+    auto startChs = lbaToChs(startSector);
+    auto endChs = lbaToChs(startSector + sectorCount - 1);
+    auto currentCylinder = startChs.cylinder;
+    auto currentHead = startChs.head;
 
-        bool result = controller.readSector(*this, buffer + i * getSectorSize(), chs.cylinder, chs.head, chs.sector);
-        if (!result) {
-            return i;
+    while (currentCylinder <= endChs.cylinder) {
+        auto firstSector = (currentCylinder == startChs.cylinder && currentHead == startChs.head) ? startChs.sector : 1;
+        auto lastSector = (currentCylinder == endChs.cylinder && currentHead == endChs.head) ? endChs.sector : sectorsPerTrack;
+        auto count = lastSector - firstSector + 1;
+
+        auto result = controller.read(*this, buffer + readSectors * getSectorSize(), currentCylinder, currentHead, firstSector, count);
+        if (result) {
+            readSectors += count;
+        } else {
+            return readSectors;
+        }
+
+        if (currentCylinder == endChs.cylinder && currentHead == endChs.head) {
+            break;
+        }
+
+        currentHead = currentHead == 0 ? 1 : 0;
+        if (currentHead == 0) {
+            currentCylinder++;
         }
     }
 
-    return sectorCount;
+    return readSectors;
 }
 
 uint32_t FloppyDevice::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    for (uint32_t i = 0; i < sectorCount; i++) {
-        CylinderHeadSector chs = lbaToChs(startSector + i);
+    uint32_t writtenSectors = 0;
+    auto startChs = lbaToChs(startSector);
+    auto endChs = lbaToChs(startSector + sectorCount - 1);
+    auto currentCylinder = startChs.cylinder;
+    auto currentHead = startChs.head;
 
-        bool result = controller.writeSector(*this, buffer + i * getSectorSize(), chs.cylinder, chs.head, chs.sector);
-        if (!result) {
-            return i;
+    while (currentCylinder <= endChs.cylinder) {
+        auto firstSector = (currentCylinder == startChs.cylinder && currentHead == startChs.head) ? startChs.sector : 1;
+        auto lastSector = (currentCylinder == endChs.cylinder && currentHead == endChs.head) ? endChs.sector : sectorsPerTrack;
+        auto count = lastSector - firstSector + 1;
+
+        auto result = controller.write(*this, buffer + writtenSectors * getSectorSize(), currentCylinder, currentHead, firstSector, count);
+        if (result) {
+            writtenSectors += count;
+        } else {
+            return writtenSectors;
+        }
+
+        if (currentCylinder == endChs.cylinder && currentHead == endChs.head) {
+            break;
+        }
+
+        currentHead = currentHead == 0 ? 1 : 0;
+        if (currentHead == 0) {
+            currentCylinder++;
         }
     }
 

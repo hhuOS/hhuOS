@@ -28,9 +28,6 @@ class FloppyMotorControlJob;
 
 /**
  * Implementation of StorageDevice for a floppy disk drive.
- *
- * @author Fabian Ruhland
- * @date 2018
  */
 class FloppyDevice : public StorageDevice {
 
