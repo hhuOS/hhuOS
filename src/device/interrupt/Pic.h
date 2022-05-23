@@ -131,14 +131,6 @@ private:
     const IoPort& getDataPort(Interrupt interrupt);
 
     /**
-     * Get the PIC's command port for the specified interrupt.
-     *
-     * @param interrupt The interrupt
-     * @return The corresponding PIC's command port
-     */
-    const IoPort& getCommandPort(Interrupt interrupt);
-
-    /**
      * Get the mask for the specified interrupt.
      *
      * @param interrupt The interrupt

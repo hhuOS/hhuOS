@@ -47,7 +47,6 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     }
 
     if (handler.size() == 0) {
-        sendEoi(slot);
         return;
     }
 
@@ -70,8 +69,6 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
 
     asm volatile("cli");
     interruptDepthWrapper.dec();
-
-    sendEoi(slot);
 }
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
@@ -93,12 +90,5 @@ Util::Data::List<InterruptHandler*>* InterruptDispatcher::getHandlerForSlot(uint
 uint32_t InterruptDispatcher::getInterruptDepth() const {
     return interruptDepth;
 }
-
-void InterruptDispatcher::sendEoi(uint32_t slot) {
-    if (slot > 32) {
-        Device::Pic::getInstance().sendEOI(Device::Pic::Interrupt(slot - 32));
-    }
-}
-
 
 }

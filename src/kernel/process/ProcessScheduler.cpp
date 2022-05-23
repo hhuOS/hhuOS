@@ -38,7 +38,7 @@ uint32_t ProcessScheduler::isInitialized() const {
 void ProcessScheduler::start() {
     lock.acquire();
     currentProcess = &getNextProcess();
-    start_first_thread(currentProcess->getThreadScheduler().getNextThread(false).getContext());
+    start_first_thread(currentProcess->getThreadScheduler().getNextThread().getContext());
 }
 
 void ProcessScheduler::ready(Process &process) {
@@ -103,15 +103,21 @@ Process &ProcessScheduler::getNextProcess() {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: No process is running!");
     }
 
-    Process *process = processQueue.pop();
-    processQueue.push(process);
+    Process *process;
+    uint32_t threadCount;
+
+    do {
+        process = processQueue.pop();
+        processQueue.push(process);
+        threadCount = process->getThreadCount();
+    } while (threadCount == 0);
 
     return *process;
 }
 
 void ProcessScheduler::yield() {
     if(lock.tryAcquire()) {
-        dispatch(getNextProcess(), true);
+        dispatch(getNextProcess(), false);
     } else {
         return;
     }
@@ -119,21 +125,21 @@ void ProcessScheduler::yield() {
 
 void ProcessScheduler::forceYield() {
     lock.acquire();
-    dispatch(getNextProcess(), false);
+    dispatch(getNextProcess(), true);
 }
 
-void ProcessScheduler::yieldFromThreadScheduler(bool tryLock) {
-    if (!isProcessWaiting()) {
-        lock.release();
-        return;
-    }
-
-    dispatch(getNextProcess(), tryLock);
-}
-
-void ProcessScheduler::dispatch(Process &next, bool tryLock) {
+void ProcessScheduler::dispatch(Process &next, bool force) {
     Thread &oldThread = currentProcess->getThreadScheduler().getCurrentThread();
-    next.getThreadScheduler().yield(oldThread, next, tryLock);
+    next.getThreadScheduler().yield(oldThread, next, force);
+}
+
+void ProcessScheduler::blockCurrentThread() {
+    currentProcess->getThreadScheduler().block();
+    forceYield();
+}
+
+void ProcessScheduler::unblockThread(Thread &thread) {
+    thread.getParent()->getThreadScheduler().unblock(thread);
 }
 
 }

@@ -21,7 +21,6 @@
 #include "lib/util/graphic/Fonts.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/system/System.h"
-#include "lib/util/async/Process.h"
 #include "lib/util/graphic/Colors.h"
 #include "SchedulerSign.h"
 
@@ -31,16 +30,13 @@ void SchedulerSign::run() {
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 
+    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
     auto &font = Util::Graphic::Fonts::TERMINAL_FONT;
     const char *characters = "|/-\\";
 
+    uint32_t characterIndex = 0;
     while (true) {
-        auto time = Util::Time::getSystemTime();
-        if (time.toMilliseconds() % 250 == 0) {
-            auto characterIndex = (time.toMilliseconds() % 1000) / 250;
-            stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);
-        }
-
-        Util::Async::Process::yield();
+        stringDrawer.drawChar(font, lfb.getResolutionX() - font.getCharWidth(), 0, characters[characterIndex++ % 4], Util::Graphic::Colors::RED, Util::Graphic::Colors::BLACK);
+        timeService.wait({0, 250000000});
     }
 }

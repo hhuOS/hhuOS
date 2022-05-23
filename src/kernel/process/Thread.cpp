@@ -107,6 +107,14 @@ void Thread::run() {
     runnable->run();
 }
 
+Process *Thread::getParent() const {
+    return parent;
+}
+
+void Thread::setParent(Process *parent) {
+    Thread::parent = parent;
+}
+
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {
     Util::Memory::Address<uint32_t>(stack).setRange(0, size);
 

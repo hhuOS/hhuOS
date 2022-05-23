@@ -31,6 +31,7 @@ Process::~Process() {
 }
 
 void Process::ready(Thread &thread) {
+    thread.setParent(this);
     threadScheduler.ready(thread);
 }
 

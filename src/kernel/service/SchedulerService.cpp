@@ -30,8 +30,10 @@ void SchedulerService::kickoffThread() {
 }
 
 void SchedulerService::startScheduler() {
-    cleaner = new SchedulerCleaner;
-    System::getService<JobService>().registerJob(cleaner, Job::LOW, Util::Time::Timestamp(1, 0));
+    cleaner = new Kernel::SchedulerCleaner();
+    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler Cleaner", cleaner);
+    ready(schedulerCleanerThread);
+    
     scheduler.start();
 }
 
@@ -163,6 +165,14 @@ void SchedulerService::exitCurrentProcess(int32_t exitCode) {
     ready(cleanerThread);
     getCurrentProcess().setExitCode(exitCode);
     getCurrentProcess().getThreadScheduler().exit();
+}
+
+void SchedulerService::block() {
+    scheduler.blockCurrentThread();
+}
+
+void SchedulerService::unblock(Thread &thread) {
+    scheduler.unblockThread(thread);
 }
 
 }

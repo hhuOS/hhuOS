@@ -85,15 +85,20 @@ public:
 
     [[nodiscard]] Context* getContext() const;
 
+    [[nodiscard]] Process* getParent() const;
+
+    void setParent(Process *parent);
+
     virtual void run();
 
 private:
 
-    Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Stack *kernelStack, Stack *userStack);
+    Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
 
     uint32_t id;
     Util::Memory::String name;
     Util::Async::Runnable *runnable;
+    Process *parent = nullptr;
 
     Stack *kernelStack;
     Stack *userStack;

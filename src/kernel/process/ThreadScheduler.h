@@ -71,6 +71,10 @@ public:
      */
     void kill(Thread &thread);
 
+    void block();
+
+    void unblock(Thread &thread);
+
     void killAllThreadsButCurrent();
 
     /**
@@ -80,19 +84,11 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread& getNextThread(bool tryLock);
+    Thread &getNextThread();
 
     [[nodiscard]] uint32_t getThreadCount() const;
 
 private:
-
-    /**
-     * Indicates if a Thread is waiting for execution.
-     *
-     * @return true, if a Thread is waiting, false else
-     */
-    bool isThreadWaiting();
-
     /**
      * Switches to the given Thread.
      *
@@ -100,7 +96,7 @@ private:
      */
     void dispatch(Thread &current, Thread &next);
 
-    void yield(Thread &oldThread, Process &nextProcess, bool tryLock);
+    void yield(Thread &oldThread, Process &nextProcess, bool force);
 
 private:
 

@@ -69,33 +69,24 @@ Thread &ThreadScheduler::getCurrentThread() {
     return *currentThread;
 }
 
-Thread& ThreadScheduler::getNextThread(bool tryLock) {
-    if (!isThreadWaiting()) {
-        lock.release();
-        parent.yieldFromThreadScheduler(tryLock);
-    }
-
+Thread & ThreadScheduler::getNextThread() {
     Thread *thread = threadQueue.pop();
     threadQueue.push(thread);
 
     return *thread;
 }
 
-bool ThreadScheduler::isThreadWaiting() {
-    return !threadQueue.isEmpty();
-}
-
-void ThreadScheduler::yield(Thread &oldThread, Process &nextProcess, bool tryLock) {
-    if (tryLock) {
+void ThreadScheduler::yield(Thread &oldThread, Process &nextProcess, bool force) {
+    if (force) {
+        lock.acquire();
+    } else {
         if (!lock.tryAcquire()) {
             parent.lock.release();
             return;
         }
-    } else {
-        lock.acquire();
     }
 
-    Thread &nextThread = getNextThread(false);
+    Thread &nextThread = getNextThread();
     lock.release();
 
     System::getService<Kernel::MemoryService>().switchAddressSpace(nextProcess.getAddressSpace());
@@ -119,6 +110,21 @@ void ThreadScheduler::killAllThreadsButCurrent() {
 
 uint32_t ThreadScheduler::getThreadCount() const {
     return threadQueue.size();
+}
+
+void ThreadScheduler::block() {
+    lock.acquire();
+    threadQueue.remove(currentThread);
+    lock.release();
+
+    //Thread &nextThread = getNextThread();
+    //dispatch(*currentThread, nextThread);
+}
+
+void ThreadScheduler::unblock(Thread &thread) {
+    lock.acquire();
+    threadQueue.push(&thread);
+    lock.release();
 }
 
 }

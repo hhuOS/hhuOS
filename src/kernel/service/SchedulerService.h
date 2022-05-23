@@ -58,6 +58,8 @@ public:
 
     void yield();
 
+    void forceYield();
+
     void cleanup(Process *process);
 
     void cleanup(Thread *thread);
@@ -71,6 +73,10 @@ public:
     void releaseSchedulerLock();
 
     void setSchedulerInitialized();
+
+    void block();
+
+    void unblock(Thread &thread);
 
     [[nodiscard]] bool isSchedulerInitialized() const;
 

@@ -47,8 +47,11 @@ bool Pic::status(Pic::Interrupt interrupt) {
 }
 
 void Pic::sendEOI(Pic::Interrupt interrupt) {
-    auto &port = getCommandPort(interrupt);
-    port.writeByte(EOI);
+    if (interrupt >= Interrupt::RTC) {
+        slaveCommandPort.writeByte(EOI);
+    }
+
+    masterCommandPort.writeByte(EOI);
 }
 
 const IoPort &Pic::getDataPort(Pic::Interrupt interrupt) {
@@ -57,14 +60,6 @@ const IoPort &Pic::getDataPort(Pic::Interrupt interrupt) {
     }
 
     return masterDataPort;
-}
-
-const IoPort &Pic::getCommandPort(Pic::Interrupt interrupt) {
-    if (interrupt >= Interrupt::RTC) {
-        return slaveCommandPort;
-    }
-
-    return masterCommandPort;
 }
 
 uint8_t Pic::getMask(Pic::Interrupt interrupt) {

@@ -67,6 +67,10 @@ public:
 
     bool isProcessActive(uint32_t id);
 
+    void blockCurrentThread();
+
+    void unblockThread(Thread &thread);
+
     Process& getCurrentProcess();
 
     uint32_t getProcessCount();
@@ -77,9 +81,7 @@ private:
 
     void forceYield();
 
-    void yieldFromThreadScheduler(bool tryLock);
-
-    void dispatch(Process &next, bool tryLock);
+    void dispatch(Process &next, bool force);
 
     uint32_t initialized = 0;
     Util::Async::Spinlock lock;

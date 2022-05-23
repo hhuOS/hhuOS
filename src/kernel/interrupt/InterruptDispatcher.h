@@ -102,8 +102,6 @@ private:
 
     Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *> *> handler;
 
-    static void sendEoi(uint32_t slot);
-
 };
 
 }

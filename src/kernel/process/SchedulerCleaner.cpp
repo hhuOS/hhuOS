@@ -16,10 +16,14 @@
  */
 
 #include "SchedulerCleaner.h"
+#include "kernel/system/System.h"
+#include "kernel/service/TimeService.h"
 
-Kernel::SchedulerCleaner::SchedulerCleaner() : processBitmap(ARRAY_SIZE), threadBitmap(ARRAY_SIZE) {
-    processList = new Process*[ARRAY_SIZE];
-    threadList = new Thread*[ARRAY_SIZE];
+namespace Kernel {
+
+SchedulerCleaner::SchedulerCleaner() : processBitmap(ARRAY_SIZE), threadBitmap(ARRAY_SIZE) {
+    processList = new Process *[ARRAY_SIZE];
+    threadList = new Thread *[ARRAY_SIZE];
 
     for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
         processList[i] = nullptr;
@@ -27,13 +31,13 @@ Kernel::SchedulerCleaner::SchedulerCleaner() : processBitmap(ARRAY_SIZE), thread
     }
 }
 
-Kernel::SchedulerCleaner::~SchedulerCleaner() {
+SchedulerCleaner::~SchedulerCleaner() {
     SchedulerCleaner::run();
     delete processList;
     delete threadList;
 }
 
-void Kernel::SchedulerCleaner::cleanup(Kernel::Process *process) {
+void SchedulerCleaner::cleanup(Process *process) {
     auto index = processBitmap.findAndSet();
     if (index == Util::Memory::AtomicBitmap::INVALID_INDEX) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many processes to cleanup!");
@@ -42,7 +46,7 @@ void Kernel::SchedulerCleaner::cleanup(Kernel::Process *process) {
     processList[index] = process;
 }
 
-void Kernel::SchedulerCleaner::cleanup(Kernel::Thread *thread) {
+void SchedulerCleaner::cleanup(Thread *thread) {
     auto index = threadBitmap.findAndSet();
     if (index == Util::Memory::AtomicBitmap::INVALID_INDEX) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many threads to cleanup!");
@@ -51,12 +55,16 @@ void Kernel::SchedulerCleaner::cleanup(Kernel::Thread *thread) {
     threadList[index] = thread;
 }
 
-void Kernel::SchedulerCleaner::run() {
-    cleanupProcesses();
-    cleanupThreads();
+void SchedulerCleaner::run() {
+    auto &timeService = System::getService<TimeService>();
+    while (true) {
+        cleanupProcesses();
+        cleanupThreads();
+        timeService.wait({1, 0});
+    }
 }
 
-void Kernel::SchedulerCleaner::cleanupProcesses() {
+void SchedulerCleaner::cleanupProcesses() {
     for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
         if (processBitmap.check(i, true) && processList[i] != nullptr) {
             delete processList[i];
@@ -66,7 +74,7 @@ void Kernel::SchedulerCleaner::cleanupProcesses() {
     }
 }
 
-void Kernel::SchedulerCleaner::cleanupThreads() {
+void SchedulerCleaner::cleanupThreads() {
     for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
         if (threadBitmap.check(i, true) && threadList[i] != nullptr) {
             delete threadList[i];
@@ -74,4 +82,6 @@ void Kernel::SchedulerCleaner::cleanupThreads() {
             threadBitmap.unset(i);
         }
     }
+}
+
 }
