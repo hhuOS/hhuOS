@@ -29,6 +29,8 @@ unzip -o "/tmp/ff.zip" -d "ff"
 sed -i "s/#define FF_FS_NORTC		0/#define FF_FS_NORTC		1/g" "ff/source/ffconf.h"
 # Set code page to 437 (U.S.)
 sed -i "s/#define FF_CODE_PAGE	932/#define FF_CODE_PAGE	437/g" "ff/source/ffconf.h"
+# Enable LFN support
+sed -i "s/#define FF_USE_LFN		0/#define FF_USE_LFN		1/g" "ff/source/ffconf.h"
 # Enable f_mkfs() function
 sed -i "s/#define FF_USE_MKFS		0/#define FF_USE_MKFS		1/g" "ff/source/ffconf.h"
 # Set the amount of volumes to 10 (maximum)

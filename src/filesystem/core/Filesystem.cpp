@@ -40,8 +40,7 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
 
     auto &device = storageService.getDevice(deviceName);
     auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
-    auto result = driver->mount(device);
-    if (!result) {
+    if (driver == nullptr || !driver->mount(device)) {
         delete driver;
         return false;
     }
@@ -129,7 +128,7 @@ Node* Filesystem::getNode(const Util::Memory::String &path) {
     auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
-    Driver *driver = getMountedDriver(parsedPath);
+    auto *driver = getMountedDriver(parsedPath);
     if (driver == nullptr) {
         return lock.releaseAndReturn(nullptr);
     }
@@ -142,7 +141,7 @@ bool Filesystem::createFile(const Util::Memory::String &path) {
     auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
-    Driver *driver = getMountedDriver(parsedPath);
+    auto *driver = getMountedDriver(parsedPath);
     if (driver == nullptr) {
         return lock.releaseAndReturn(false);
     }
@@ -155,7 +154,7 @@ bool Filesystem::createDirectory(const Util::Memory::String &path) {
     auto parsedPath = Util::File::File::getCanonicalPath(path);
     lock.acquire();
 
-    Driver *driver = getMountedDriver(parsedPath);
+    auto *driver = getMountedDriver(parsedPath);
     if (driver == nullptr) {
         return lock.releaseAndReturn(false);
     }
@@ -175,7 +174,7 @@ bool Filesystem::deleteFile(const Util::Memory::String &path) {
         }
     }
 
-    Driver *driver = getMountedDriver(parsedPath);
+    auto *driver = getMountedDriver(parsedPath);
     if (driver == nullptr) {
         return lock.releaseAndReturn(false);
     }

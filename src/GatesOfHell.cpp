@@ -83,6 +83,8 @@ void GatesOfHell::enter() {
         Device::Bios::init();
     }
 
+    initializeStorage();
+
     initializeFilesystem();
 
     Device::SerialPort::initializeAvailablePorts();
@@ -98,8 +100,6 @@ void GatesOfHell::enter() {
     enablePortLogging();
 
     Device::Pci::scan();
-
-    initializeStorage();
 
     printBanner();
 
@@ -185,20 +185,46 @@ void GatesOfHell::enablePortLogging() {
 }
 
 void GatesOfHell::initializeFilesystem() {
-    log.info("Initializing filesystem");
+    log.info("Initializing filesystemService");
     Kernel::System::registerService(Kernel::FilesystemService::SERVICE_ID, new Kernel::FilesystemService());
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto &storageService = Kernel::System::getService<Kernel::StorageService>();
 
-    log.info("Mounting root filesystem");
-    auto *rootDriver = new Filesystem::Memory::MemoryDriver();
-    filesystem.mountVirtualDriver("/", rootDriver);
+    Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Fat::FatDriver());
+
+    bool rootMounted = false;
+    if (Kernel::Multiboot::Structure::hasKernelOption("root")) {
+        auto rootOptions = Kernel::Multiboot::Structure::getKernelOption("root").split(",");
+        if (rootOptions.length() >= 2) {
+            const auto &deviceName = rootOptions[0];
+            const auto &driverName = rootOptions[1];
+
+            if (storageService.isDeviceRegistered(deviceName)) {
+                log.info("Mounting filesystem on %s as root filesystem using driver %s", static_cast<const char*>(deviceName), static_cast<const char*>(driverName));
+                rootMounted = filesystemService.mount(deviceName, "/", driverName);
+                if (!rootMounted) {
+                    log.error("Failed to mount root filesystem");
+                }
+            } else {
+                log.error("Device %s is not available", static_cast<const char*>(deviceName));
+            }
+        } else {
+            log.error("Invalid options for root filesystem given");
+        }
+    }
+
+    if (!rootMounted) {
+        log.info("Mounting virtual filesystem as root filesystem");
+        auto *rootDriver = new Filesystem::Memory::MemoryDriver();
+        filesystemService.getFilesystem().mountVirtualDriver("/", rootDriver);
+    }
 
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
-    filesystem.createDirectory("/device");
-    filesystem.mountVirtualDriver("/device", deviceDriver);
+    filesystemService.createDirectory("/device");
+    filesystemService.getFilesystem().mountVirtualDriver("/device", deviceDriver);
 
-    filesystem.createFile("/device/log");
-    filesystem.getVirtualDriver("/device").addNode("/", new Kernel::MemoryStatusNode("memory"));
+    filesystemService.createFile("/device/log");
+    deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
@@ -206,8 +232,8 @@ void GatesOfHell::initializeFilesystem() {
         auto *tarArchive = new Util::File::Tar::Archive(module.start);
         auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
 
-        filesystem.createDirectory("/initrd");
-        filesystem.mountVirtualDriver("/initrd", tarDriver);
+        filesystemService.createDirectory("/initrd");
+        filesystemService.getFilesystem().mountVirtualDriver("/initrd", tarDriver);
     }
 }
 

@@ -22,7 +22,7 @@ GCC 7 and CMake 3.7 or newer versions of GCC and CMake are required to compile h
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command (on Ubuntu 18.04):
 
 ```sh
-sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin mtools xorriso zstd
+sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin dosfstools mtools xorriso zstd
 ```
 
 ## Usage
@@ -74,6 +74,7 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 
 - `log_level` is used to set the log level. Valid levels are `trace`, `debug`, `info`, `warn` and `error`.
 - `log_ports` is used to enable log output via serial or parallel ports. Valid values are `COM1`, `COM2`, `COM3`, `COM4`, `LPT1`, `LPT2`, `LPT3`. Multiple ports may be specified via a comma-separated list.
+- `root` is used to set device to mount as root filesystem and the filesystem driver to use (e.g `floppy0,Filesystem::Fat::FatDriver`).
 - `bios` can be set to `true` to activate support for BIOS-calls. This enables support for *VESA* and *CGA* graphics modes. CAUTION: Enabling this option will cause hhuOS to not boot on most UEFI-based systems.
 - `lfb_provider` is used to set the framebuffer-implementation, that should be used to draw on the screen. The default implementation is named `Kernel::Multiboot::MultibootLinearFrameBufferProvider` and should always work (as long as the bootloader finds a video mode). However, the resolution stays fixed with this configuration. If BIOS-calls are activated, `Device::Graphic::VesaBiosExtensions` may be used to enable support for multiple resolutions and resolution switching.
 - `text_provider` is used to set the implementation for drawing text on the screen. The default implementation is named `Device::Graphic::LinearFrameBufferTerminalProvider` and uses rasterized fonts to draw on an underlying linear framebuffer. It works with `lfb_provider` being set to `Kernel::Multiboot::MultibootLinearFrameBufferProvider` or `Device::Graphic::VesaBiosExtensions`. As an alternative, it may be set to `Device::Graphic::ColorGraphicsArrayProvider` (with activated BIOS-calls), to make use of *CGA* text modes, providing a higher drawing speed, but lower resolutions and only 16 colors.

@@ -34,13 +34,13 @@ class InstanceFactory {
 public:
     /**
      * Create a new instance of a given prototype.
-     * Throws an exception, if the type is unknown.
+     * Returns nullptr, if the type is unknown.
      *
      * @param type The type
      *
      * @return A pointer to newly created instance
      */
-    static Prototype *createInstance(const Memory::String &type);
+    static Prototype* createInstance(const Memory::String &type);
 
     /**
      * Remove a prototype.

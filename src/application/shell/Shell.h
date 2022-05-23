@@ -68,7 +68,7 @@ private:
     Util::Memory::String startDirectory;
     Util::Stream::Reader *reader = nullptr;
 
-    static const constexpr char *PATH = "/initrd/bin";
+    static const constexpr char *PATH = "/bin:/initrd/bin";
 };
 
 

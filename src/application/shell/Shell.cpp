@@ -108,7 +108,7 @@ Util::Memory::String Shell::checkPath(const Util::Memory::String &command) {
 
 Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) {
     if (!directory.exists() || !directory.isDirectory()) {
-        return false;
+        return "";
     }
 
     for (const auto &child : directory.getChildren()) {

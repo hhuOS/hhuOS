@@ -9,7 +9,7 @@ Prototype* InstanceFactory::createInstance(const Memory::String &type) {
         return prototypeTable.get(type)->clone();
     }
 
-    Exception::throwException(Exception::CLASS_NOT_FOUND, "Prototype class not found!");
+    return nullptr;
 }
 
 void InstanceFactory::registerPrototype(Prototype *prototype) {

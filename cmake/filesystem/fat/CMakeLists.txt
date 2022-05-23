@@ -24,4 +24,5 @@ target_sources(filesystem PUBLIC
         ${HHUOS_SRC_DIR}/filesystem/fat/FatNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/fat/diskio.cpp
         ${HHUOS_SRC_DIR}/filesystem/fat/ff/source/ff.c
+        ${HHUOS_SRC_DIR}/filesystem/fat/ff/source/ffunicode.c
         ${HHUOS_SRC_DIR}/filesystem/fat/ff/source/ffsystem.c)

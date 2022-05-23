@@ -36,6 +36,7 @@ FatNode *FatNode::open(const Util::Memory::String &path) {
     if (result != FR_OK) {
         if (path.endsWith(":")) {
             info->fname[0] = 0;
+            info->altname[0] = 0;
             info->fattrib = AM_DIR;
         } else {
             return nullptr;
