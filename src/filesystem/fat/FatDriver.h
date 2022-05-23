@@ -85,7 +85,7 @@ private:
     FATFS fatVolume{};
 
     static Util::Memory::AtomicBitmap volumeIdAllocator;
-    static Util::Data::HashMap<uint32_t, Device::Storage::StorageDevice*> deviceMap;
+    static Util::Data::Array<Device::Storage::StorageDevice*> deviceMap;
 };
 
 }

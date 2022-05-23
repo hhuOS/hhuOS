@@ -15,14 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "FatDriver.h"
 #include "filesystem/fat/ff/source/ff.h"
 #include "FatNode.h"
+#include "FatDriver.h"
 
 namespace Filesystem::Fat {
 
 Util::Memory::AtomicBitmap FatDriver::volumeIdAllocator(FF_VOLUMES);
-Util::Data::HashMap<uint32_t, Device::Storage::StorageDevice*> FatDriver::deviceMap;
+Util::Data::Array<Device::Storage::StorageDevice*> FatDriver::deviceMap(FF_VOLUMES);
 
 FatDriver::~FatDriver() {
     f_mount(nullptr, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
@@ -30,7 +30,7 @@ FatDriver::~FatDriver() {
 }
 
 Device::Storage::StorageDevice& FatDriver::getStorageDevice(uint8_t volumeId) {
-    return *deviceMap.get(volumeId);
+    return *deviceMap[volumeId];
 }
 
 bool FatDriver::mount(Device::Storage::StorageDevice &device) {
@@ -39,7 +39,7 @@ bool FatDriver::mount(Device::Storage::StorageDevice &device) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
-    deviceMap.put(volumeId, &device);
+    deviceMap[volumeId] = &device;
 
     auto result = f_mount(&fatVolume, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
     return result == FR_OK;
@@ -51,7 +51,7 @@ bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
-    deviceMap.put(volumeId, &device);
+    deviceMap[volumeId] = &device;
     auto *work = new uint8_t[FF_MAX_SS];
     MKFS_PARM parameters{
         FM_ANY | FM_SFD,
