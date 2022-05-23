@@ -185,7 +185,7 @@ void GatesOfHell::enablePortLogging() {
 }
 
 void GatesOfHell::initializeFilesystem() {
-    log.info("Initializing filesystemService");
+    log.info("Initializing filesystem");
     Kernel::System::registerService(Kernel::FilesystemService::SERVICE_ID, new Kernel::FilesystemService());
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
     auto &storageService = Kernel::System::getService<Kernel::StorageService>();

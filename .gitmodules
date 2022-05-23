@@ -1,0 +1,3 @@
+[submodule "src/filesystem/fat/ff"]
+	path = src/filesystem/fat/ff
+	url = https://github.com/hhuos/fatfs

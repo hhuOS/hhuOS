@@ -14,9 +14,6 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-execute_process(COMMAND "${HHUOS_SRC_DIR}/filesystem/fat/fatfs.sh"
-        WORKING_DIRECTORY "${HHUOS_SRC_DIR}/filesystem/fat/")
-
 target_sources(filesystem PUBLIC
         ${HHUOS_SRC_DIR}/filesystem/fat/FatDriver.cpp
         ${HHUOS_SRC_DIR}/filesystem/fat/FatDirectory.cpp
