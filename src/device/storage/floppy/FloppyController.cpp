@@ -354,7 +354,7 @@ bool FloppyController::readSector(FloppyDevice &device, uint8_t *buff, uint8_t c
         writeFifoByte(READ_DATA | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(cylinder);
-        writeFifoByte(device.getDriveNumber() | (head << 2u));
+        writeFifoByte(head);
         writeFifoByte(sector);
         writeFifoByte(2);
         writeFifoByte(device.getSectorsPerTrack());
@@ -419,7 +419,7 @@ bool FloppyController::writeSector(FloppyDevice &device, const uint8_t *buff, ui
         writeFifoByte(WRITE_DATA | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(cylinder);
-        writeFifoByte(device.getDriveNumber() | (head << 2u));
+        writeFifoByte(head);
         writeFifoByte(sector);
         writeFifoByte(2);
         writeFifoByte(device.getSectorsPerTrack());
