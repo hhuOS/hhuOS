@@ -294,7 +294,7 @@ void Keyboard::removeFromBuffer(uint32_t scancode) {
 }
 
 void Keyboard::plugin() {
-    Util::Memory::Address<uint32_t> address(buffer, BUFFER_SIZE);
+    Util::Memory::Address<uint32_t> address(buffer);
     address.setRange(0, BUFFER_SIZE);
 
     Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::KEYBOARD, *this);

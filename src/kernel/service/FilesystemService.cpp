@@ -111,7 +111,7 @@ FilesystemService::FilesystemService() {
 
         for (uint32_t i = 0; i < children.length(); i++) {
             (*targetChildren)[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
-            auto source = Util::Memory::Address<uint32_t>(static_cast<char*>(children[i]));
+            auto source = Util::Memory::Address<uint32_t>(static_cast<char *>(children[i]));
             auto target = Util::Memory::Address<uint32_t>((*targetChildren)[i]);
             target.copyString(source);
         }
@@ -170,7 +170,7 @@ FilesystemService::FilesystemService() {
 
         auto &memoryService = System::getService<MemoryService>();
         *targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
-        auto source = Util::Memory::Address<uint32_t>(static_cast<char*>(path));
+        auto source = Util::Memory::Address<uint32_t>(static_cast<char *>(path));
         auto target = Util::Memory::Address<uint32_t>(*targetPath);
         target.copyString(source);
 

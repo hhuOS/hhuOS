@@ -28,7 +28,7 @@ readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img"
-readonly CONST_QEMU_ARGS="-vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
+readonly CONST_QEMU_ARGS="-boot d -vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
 
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
 readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev alsa,id=alsa -machine pcspk-audiodev=alsa"
@@ -77,7 +77,7 @@ parse_file() {
   local path=$1
   
   if [[ $path == *.iso ]]; then
-    QEMU_BOOT_DEVICE="-cdrom ${path}"
+    QEMU_BOOT_DEVICE="-boot d -cdrom ${path}"
   elif [[ $path == *.img ]]; then
     QEMU_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=${path}"
   else

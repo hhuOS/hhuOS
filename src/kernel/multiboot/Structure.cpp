@@ -160,7 +160,7 @@ void Structure::parseFrameBufferInfo() {
 }
 
 void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes) {
-    auto destinationAddress = Util::Memory::Address<uint32_t>(destination, maxBytes);
+    auto destinationAddress = Util::Memory::Address<uint32_t>(destination);
 
     // First, copy the struct itself
     destinationAddress.copyRange(Util::Memory::Address<uint32_t>(source), sizeof(Info));
@@ -178,7 +178,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     // Then copy the module information
     if(multibootInfo->flags & MULTIBOOT_INFO_MODS) {
         uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress, length);
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress);
         destinationAddress.copyRange(sourceAddress, length);
         multibootInfo->moduleAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
@@ -195,7 +195,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     // Then copy the symbol headers and the symbols
     if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address, length);
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address);
         destinationAddress.copyRange(sourceAddress, length);
         multibootInfo->symbols.elf.address = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
@@ -204,7 +204,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 
     // Then copy the memory map
     if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress, multibootInfo->memoryMapLength);
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->memoryMapLength);
         multibootInfo->memoryMapAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(multibootInfo->memoryMapLength);
@@ -212,7 +212,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 
     // Then copy the drives
     if(multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress, multibootInfo->driveLength);
+        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->driveLength);
         multibootInfo->driveAddress = destinationAddress.get();
         destinationAddress = destinationAddress.add(multibootInfo->driveLength);

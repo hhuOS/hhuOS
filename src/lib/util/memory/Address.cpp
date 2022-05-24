@@ -24,13 +24,13 @@ template<typename T>
 Address<T>::Address() : address(0) {}
 
 template<typename T>
-Address<T>::Address(T address, T limitOffset) : address(address), limit(static_cast<T>(address + limitOffset) < address ? static_cast<T>(0xffffffff) : address + limitOffset) {}
+Address<T>::Address(T address) : address(address) {}
 
 template<>
-Address<uint32_t>::Address(void *pointer, uint32_t limitOffset) : Address<uint32_t>(reinterpret_cast<uint32_t>(pointer), limitOffset) {}
+Address<uint32_t>::Address(void *pointer) : address(reinterpret_cast<uint32_t>(pointer)) {}
 
 template<>
-Address<uint32_t>::Address(const void *pointer, uint32_t limitOffset) : Address<uint32_t>((void*) pointer, limitOffset) {}
+Address<uint32_t>::Address(const void *pointer) : address(reinterpret_cast<uint32_t>(pointer)) {}
 
 template<typename T>
 bool Address<T>::operator==(const Address &other) const {
@@ -63,20 +63,8 @@ T Address<T>::get() const {
 }
 
 template<typename T>
-T Address<T>::getLimit() const {
-    return limit;
-}
-
-template<typename T>
 Address<T> Address<T>::set(T newAddress) const {
-    if (newAddress > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Trying to initialize new address above limit!");
-    }
-
-    auto ret = Address<T>(newAddress);
-    ret.limit = limit;
-
-    return ret;
+    return Address<T>(newAddress);
 }
 
 template<typename T>
@@ -92,162 +80,147 @@ Address<T> Address<T>::subtract(T value) const {
 template<typename T>
 Address<T> Address<T>::alignUp(T alignment) const {
     if (alignment == 0) {
-        return *this;
+        return set(address);
     }
 
     alignment--;
-
     return set((address + alignment) & ~alignment);
 }
 
 template<typename T>
 uint8_t Address<T>::getByte(T offset) const {
-    if (address + offset > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Read access above limit!");
-    }
-
     return *reinterpret_cast<uint8_t*>(address + offset);
 }
 
 template<typename T>
 uint16_t Address<T>::getShort(T offset) const {
-    if (address + offset + sizeof(uint16_t) - 1 > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     return *reinterpret_cast<uint16_t*>(address + offset);
 }
 
 template<typename T>
 uint32_t Address<T>::getInt(T offset) const {
-    if (address + offset + sizeof(uint32_t) - 1 > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     return *reinterpret_cast<uint32_t*>(address + offset);
 }
 
 template<typename T>
 uint64_t Address<T>::getLong(T offset) const {
-    if (address + offset + sizeof(uint64_t) - 1 > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     return *reinterpret_cast<uint64_t*>(address + offset);
 }
 
 template<typename T>
 void Address<T>::setByte(uint8_t value, T offset) const {
-    if (address + offset > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     *reinterpret_cast<uint8_t*>(address + offset) = value;
 }
 
 template<typename T>
 void Address<T>::setShort(uint16_t value, T offset) const {
-    if (address + offset + sizeof(uint16_t) > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
    *reinterpret_cast<uint16_t*>(address + offset) = value;
 }
 
 template<typename T>
 void Address<T>::setInt(uint32_t value, T offset) const {
-    if (address + offset + sizeof(uint32_t) > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     *reinterpret_cast<uint32_t*>(address + offset) = value;
 }
 
 template<typename T>
 void Address<T>::setLong(uint64_t value, T offset) const {
-    if (address + offset + sizeof(uint64_t) > limit) {
-        Exception::throwException(Exception::OUT_OF_BOUNDS, "Address: Write access above limit!");
-    }
-
     *reinterpret_cast<uint64_t*>(address + offset) = value;
 }
 
 template<typename T>
 T Address<T>::stringLength() const {
-    uint32_t i;
-    for (i = 0; getByte(i) != 0; i++);
+    auto *pointer = reinterpret_cast<uint8_t*>(address);
+
+    T i;
+    for (i = 0; pointer[i] != 0; i++) {}
 
     return i;
 }
 
 template<typename T>
 void Address<T>::setRange(uint8_t value, T length) const {
+    auto *pointer = reinterpret_cast<uint64_t*>(address);
     auto longValue = static_cast<uint64_t>(value);
     longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
 
     T i;
-    for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
-        setLong(longValue, i);
+    for (i = 0; i < length / sizeof(uint64_t); i++) {
+        pointer[i] = longValue;
     }
 
+    i *= sizeof(uint64_t);
     for (; i < length; i++) {
-        setByte(value, i);
+        reinterpret_cast<uint8_t*>(pointer)[i] = value;
     }
 }
 
 template<typename T>
 void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
+    auto *target = reinterpret_cast<uint64_t*>(address);
+    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
+
     T i;
-    for (i = 0; i + sizeof(uint64_t) <= length; i += sizeof(uint64_t)) {
-        setLong(sourceAddress.getLong(i), i);
+    for (i = 0; i < length / sizeof(uint64_t); i++) {
+        target[i] = source[i];
     }
 
+    i *= sizeof(uint64_t);
     for (; i < length; i++) {
-        setByte(sourceAddress.getByte(i), i);
+        reinterpret_cast<uint8_t*>(target)[i] = reinterpret_cast<uint8_t*>(source)[i];
     }
 }
 
 template<typename T>
 void Address<T>::copyString(Address<T> sourceAddress) const {
+    auto *target = reinterpret_cast<uint8_t*>(address);
+    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
+
     T i;
-    for (i = 0; sourceAddress.getByte(i) != 0; i++) {
-        setByte(sourceAddress.getByte(i), i);
+    for (i = 0; source[i] != 0; i++) {
+        target[i] = source[i];
     }
-    setByte(0, i);
+    target[i] = 0;
 }
 
 template<typename T>
 void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) const {
+    auto *target = reinterpret_cast<uint8_t*>(address);
+    auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
+
     T i;
-    for (i = 0; sourceAddress.getByte(i) != 0 && i < maxBytes; i++) {
-        setByte(sourceAddress.getByte(i), i);
+    for (i = 0; source[i] != 0 && i < maxBytes; i++) {
+        target[i] = source[i];
     }
+    target[i] = 0;
 
     for (; i < maxBytes; i++) {
-        setByte(0, i);
+        target[i] = 0;
     }
 }
 
 template<typename T>
 T Address<T>::compareRange(Address<T> otherAddress, T length) const {
-    T i;
-    for (i = 0; i < length && getByte(i) == otherAddress.getByte(i); i++);
+    auto *pointer = reinterpret_cast<uint8_t*>(address);
+    auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 
-    return i == length ? 0 : getByte(i) - otherAddress.getByte(i);
+    T i;
+    for (i = 0; i < length && pointer[i] == other[i]; i++);
+    return i == length ? 0 : pointer[i] - other[i];
 }
 
 template<typename T>
 T Address<T>::compareString(Address<T> otherAddress) const {
-    T i;
-    for (i = 0; getByte(i) != 0 && otherAddress.getByte(i) != 0 && getByte(i) == otherAddress.getByte(i); i++);
+    auto *pointer = reinterpret_cast<uint8_t*>(address);
+    auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 
-    return getByte(i) - otherAddress.getByte(i);
+    T i;
+    for (i = 0; pointer[i] != 0 && other[i] != 0 && pointer[i] == other[i]; i++);
+    return  pointer[i] - other[i];
 }
 
 template<>
 uint32_t Address<uint32_t>::compareString(const char *otherString) const {
-    auto otherAddress = Address<uint32_t>(otherString);
-    return compareString(otherAddress);
+    return compareString(Address<uint32_t>(otherString));
 }
 
 }

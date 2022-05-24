@@ -10,7 +10,7 @@ ArchiveFileNode::ArchiveFileNode(Util::File::Tar::Archive &archive, Util::File::
     }
 
     length = Util::File::Tar::Archive::calculateFileSize(fileHeader);
-    dataAddress = Util::Memory::Address<uint32_t>(archive.getFile(path), length);
+    dataAddress = Util::Memory::Address<uint32_t>(archive.getFile(path));
 }
 
 Util::Memory::String ArchiveFileNode::getName() {
@@ -42,7 +42,7 @@ uint64_t ArchiveFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t
         numBytes = (length - pos);
     }
 
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer, numBytes);
+    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(dataAddress.add(pos), numBytes);
 
     return numBytes;

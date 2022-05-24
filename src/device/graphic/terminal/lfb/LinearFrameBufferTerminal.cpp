@@ -75,7 +75,8 @@ void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColo
         characterBuffer[i].clear();
     }
 
-    lfb.clear();
+    shadowLfb.clear();
+    shadowLfb.flush();
     currentRow = 0;
     currentColumn = 0;
 
@@ -92,7 +93,7 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
 }
 
 void LinearFrameBufferTerminal::scrollUp() {
-    auto characterAddress = Util::Memory::Address<uint32_t>(characterBuffer, getColumns() * getRows() * sizeof(Character));
+    auto characterAddress = Util::Memory::Address<uint32_t>(characterBuffer);
     characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
 
     for (uint32_t i = 0; i < getColumns(); i++) {

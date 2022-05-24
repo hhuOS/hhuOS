@@ -50,7 +50,7 @@ void BinaryLoader::run() {
     auto currentAddress = reinterpret_cast<uint32_t>(argv) + sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
-        auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
+        auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char *>(i == 0 ? command : arguments[i - 1]));
         auto targetArgument = Util::Memory::Address<uint32_t>(currentAddress);
 
         targetArgument.copyString(sourceArgument);

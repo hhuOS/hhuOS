@@ -108,7 +108,7 @@ void Thread::run() {
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {
-    Util::Memory::Address<uint32_t>(stack, size).setRange(0, size);
+    Util::Memory::Address<uint32_t>(stack).setRange(0, size);
 
     this->stack[0] = 0x44; // D
     this->stack[1] = 0x41; // A

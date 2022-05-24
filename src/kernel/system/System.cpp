@@ -185,10 +185,10 @@ void System::panic(const InterruptFrame &frame) {
  */
 void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *physicalGdtDescriptor) {
     // Set first 6 GDT entries to 0
-    Util::Memory::Address<uint32_t>(systemGdt).setRange(0, 48);
+        Util::Memory::Address<uint32_t>(systemGdt).setRange(0, 48);
 
     // Set first 4 bios GDT entries to 0
-    Util::Memory::Address<uint32_t>(biosGdt).setRange(0, 32);
+        Util::Memory::Address<uint32_t>(biosGdt).setRange(0, 32);
 
     // first set up general GDT for the system
     // first entry has to be null

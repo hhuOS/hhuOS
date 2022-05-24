@@ -33,8 +33,8 @@ ByteArrayOutputStream::~ByteArrayOutputStream() {
 }
 
 void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
-    auto sourceAddress = Memory::Address<uint32_t>(buffer, size);
-    auto targetAddress = Memory::Address<uint32_t>(target, length);
+    auto sourceAddress = Memory::Address<uint32_t>(buffer);
+    auto targetAddress = Memory::Address<uint32_t>(target);
 
     targetAddress.copyRange(sourceAddress, size > length ? length : size);
 }
@@ -62,8 +62,8 @@ void ByteArrayOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, 
     }
 
     ensureRemainingCapacity(length);
-    auto sourceAddress = Memory::Address<uint32_t>(sourceBuffer, length + offset).add(offset);
-    auto targetAddress = Memory::Address<uint32_t>(buffer, size).add(position);
+    auto sourceAddress = Memory::Address<uint32_t>(sourceBuffer).add(offset);
+    auto targetAddress = Memory::Address<uint32_t>(buffer).add(position);
     targetAddress.copyRange(sourceAddress, length);
 
     position += length;
@@ -80,8 +80,8 @@ void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
     }
 
     auto newBuffer = new uint8_t[newSize];
-    Memory::Address<uint32_t> source(buffer, size);
-    Memory::Address<uint32_t> target(newBuffer, newSize);
+    Memory::Address<uint32_t> source(buffer);
+    Memory::Address<uint32_t> target(newBuffer);
     target.copyRange(source, position);
 
     delete[] buffer;

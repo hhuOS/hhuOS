@@ -38,8 +38,8 @@ int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint3
     }
 
     uint32_t count = size - position > length ? length : size - position;
-    auto sourceAddress = Memory::Address<uint32_t>(buffer, size).add(position);
-    auto targetAddress = Memory::Address<uint32_t>(targetBuffer, length + offset).add(offset);
+    auto sourceAddress = Memory::Address<uint32_t>(buffer).add(position);
+    auto targetAddress = Memory::Address<uint32_t>(targetBuffer).add(offset);
     targetAddress.copyRange(sourceAddress, count);
 
     position += count;

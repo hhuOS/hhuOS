@@ -48,7 +48,7 @@ public:
         }
 
         [[nodiscard]] Util::Memory::Address<uint32_t> toAddress() const {
-            return Util::Memory::Address<uint32_t>(startAddress, getSize());
+            return Util::Memory::Address<uint32_t>(startAddress);
         }
 
         [[nodiscard]] MemoryArea toPhysical() const {

@@ -52,7 +52,7 @@ String::String(const char *string) noexcept {
 }
 
 String::String(uint8_t *data, uint32_t length) noexcept {
-    auto address = Memory::Address<uint32_t>(data, length);
+    auto address = Memory::Address<uint32_t>(data);
 
     len = length;
     buffer = new char[len + 1];

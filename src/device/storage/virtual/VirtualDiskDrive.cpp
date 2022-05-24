@@ -47,7 +47,7 @@ uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t 
 
     auto byteCount = sectorSize * sectorCount;
     auto source = address.add(sectorSize * startSector);
-    auto target = Util::Memory::Address<uint32_t>(buffer, byteCount);
+    auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, byteCount);
 
     return sectorCount;
@@ -59,7 +59,7 @@ uint32_t VirtualDiskDrive::write(const uint8_t *buffer, uint32_t startSector, ui
     }
 
     auto byteCount = sectorSize * sectorCount;
-    auto source = Util::Memory::Address<uint32_t>(buffer, byteCount);
+    auto source = Util::Memory::Address<uint32_t>(buffer);
     auto target = address.add(sectorSize * startSector);
     target.copyRange(source, byteCount);
 

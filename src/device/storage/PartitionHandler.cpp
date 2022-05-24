@@ -213,7 +213,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
 
             // Let next entry of current boot record point to the boot record of the new partition
             auto *newEbr = new uint8_t[device.getSectorSize()];
-            auto newEbrAddress = Util::Memory::Address<uint32_t>(newEbr, device.getSectorSize());
+            auto newEbrAddress = Util::Memory::Address<uint32_t>(newEbr);
 
             // Create new boot record for the new partition
             newEbrAddress.setRange(0, device.getSectorSize());
@@ -369,7 +369,7 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
 
 void PartitionHandler::createBootRecord(uint32_t sector) {
     auto *mbr = new uint8_t[device.getSectorSize()];
-    auto mbrAddress = Util::Memory::Address<uint32_t>(mbr, device.getSectorSize());
+    auto mbrAddress = Util::Memory::Address<uint32_t>(mbr);
 
     // Create new empty boot record
     mbrAddress.setRange(0, device.getSectorSize());

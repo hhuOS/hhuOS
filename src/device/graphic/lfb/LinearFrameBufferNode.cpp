@@ -41,8 +41,8 @@ uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, ui
         numBytes = (buffer.length() - pos);
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(buffer), buffer.length()).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer, numBytes);
+    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char *>(buffer)).add(pos);
+    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;

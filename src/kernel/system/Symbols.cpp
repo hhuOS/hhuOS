@@ -158,7 +158,7 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint
             // only copy symbols and strings, discard the rest
             if (sectionHeader->type == Util::File::Elf::Constants::SectionHeaderType::SYMTAB
             || sectionHeader->type == Util::File::Elf::Constants::SectionHeaderType::STRTAB) {
-                auto source = Util::Memory::Address<uint32_t>(sectionHeader->virtualAddress, sectionHeader->size);
+                auto source = Util::Memory::Address<uint32_t>(sectionHeader->virtualAddress);
                 destination.copyRange(source, sectionHeader->size);
                 sectionHeader->virtualAddress = (elf32_addr) destination.get();
                 destination = destination.add(sectionHeader->size);

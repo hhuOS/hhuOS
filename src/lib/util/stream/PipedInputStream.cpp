@@ -72,8 +72,8 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
         }
 
         // Copy bytes from internal buffer to targetBuffer buffer
-        auto sourceAddress = Memory::Address<uint32_t>(buffer, BUFFER_SIZE).add(outPosition);
-        auto targetAddress = Memory::Address<uint32_t>(targetBuffer, length + offset).add(offset);
+        auto sourceAddress = Memory::Address<uint32_t>(buffer).add(outPosition);
+        auto targetAddress = Memory::Address<uint32_t>(targetBuffer).add(offset);
         targetAddress.copyRange(sourceAddress, toCopy);
 
         offset += toCopy;
@@ -123,8 +123,8 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
         }
 
         // Copy bytes from sourceBuffer to internal buffer
-        auto sourceAddress = Memory::Address<uint32_t>(sourceBuffer, length + offset).add(sourcePosition);
-        auto targetAddress = Memory::Address<uint32_t>(buffer, BUFFER_SIZE).add(inPosition);
+        auto sourceAddress = Memory::Address<uint32_t>(sourceBuffer).add(sourcePosition);
+        auto targetAddress = Memory::Address<uint32_t>(buffer).add(inPosition);
         targetAddress.copyRange(sourceAddress, toCopy);
 
         remaining -= toCopy;
