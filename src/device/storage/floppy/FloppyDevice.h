@@ -87,9 +87,9 @@ public:
 
     [[nodiscard]] uint8_t getGapLength() const;
 
-    [[nodiscard]] uint8_t getSectorsPerTrack() const;
+    [[nodiscard]] uint8_t getCylinders() const;
 
-    [[nodiscard]] uint32_t getSize() const;
+    [[nodiscard]] uint8_t getSectorsPerCylinder() const;
 
     [[nodiscard]] FloppyController& getController() const;
 
@@ -117,8 +117,8 @@ private:
     FloppyController::DriveType driveType;
 
     uint8_t gapLength;
-    uint8_t sectorsPerTrack;
-    uint32_t size;
+    uint8_t cylinders;
+    uint8_t sectorsPerCylinder;
 
     FloppyController::MotorState motorState = FloppyController::OFF;
     FloppyMotorControlJob *motorControlJob;

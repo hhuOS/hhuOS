@@ -24,36 +24,31 @@ namespace Device::Storage {
 FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType) :
         controller(controller), driveNumber(driveNumber), driveType(driveType), motorControlJob(new FloppyMotorControlJob(*this)) {
     switch (driveType) {
-        case FloppyController::DRIVE_TYPE_360KB_5_25 :
-            sectorsPerTrack = 9;
+        case FloppyController::DRIVE_360KB_5_25 :
+            cylinders = 40;
+            sectorsPerCylinder = 9;
             gapLength = 32;
-            size = 368640;
             break;
-        case FloppyController::DRIVE_TYPE_1200KB_5_25 :
-            sectorsPerTrack = 15;
+        case FloppyController::DRIVE_1200KB_5_25 :
+            cylinders = 80;
+            sectorsPerCylinder = 15;
             gapLength = 32;
-            size = 1228800;
             break;
-        case FloppyController::DRIVE_TYPE_720KB_3_5 :
-            sectorsPerTrack = 9;
+        case FloppyController::DRIVE_720KB_3_5 :
+            cylinders = 80;
+            sectorsPerCylinder = 9;
             gapLength = 27;
-            size = 737280;
-            break;
-        case FloppyController::DRIVE_TYPE_1440KB_3_5 :
-            sectorsPerTrack = 18;
-            gapLength = 27;
-            size = 1474560;
-            break;
-        case FloppyController::DRIVE_TYPE_2880KB_3_5 :
-            sectorsPerTrack = 36;
-            gapLength = 27;
-            size = 2949120;
             break;
         default :
-            sectorsPerTrack = 18;
-            gapLength = 32;
-            size = 1474560;
+        case FloppyController::DRIVE_1440KB_3_5 :
+            cylinders = 80;
+            sectorsPerCylinder = 18;
+            gapLength = 27;
             break;
+        case FloppyController::DRIVE_2880KB_3_5 :
+            cylinders = 80;
+            sectorsPerCylinder = 36;
+            gapLength = 27;
     }
 
     Kernel::System::getService<Kernel::JobService>().registerJob(motorControlJob, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, FloppyMotorControlJob::INTERVAL * 1000000));
@@ -61,9 +56,9 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
 
 FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) const {
     return {
-        static_cast<uint8_t>(lbaSector / (2 * sectorsPerTrack)),
-        static_cast<uint8_t>((lbaSector % (2 * sectorsPerTrack)) / sectorsPerTrack),
-        static_cast<uint8_t>((lbaSector % (2 * sectorsPerTrack)) % sectorsPerTrack + 1)
+        static_cast<uint8_t>(lbaSector / (2 * sectorsPerCylinder)),
+        static_cast<uint8_t>((lbaSector % (2 * sectorsPerCylinder)) / sectorsPerCylinder),
+        static_cast<uint8_t>((lbaSector % (2 * sectorsPerCylinder)) % sectorsPerCylinder + 1)
     };
 }
 
@@ -72,7 +67,7 @@ uint32_t FloppyDevice::getSectorSize() {
 }
 
 uint64_t FloppyDevice::getSectorCount() {
-    return size / getSectorSize();
+    return sectorsPerCylinder * cylinders * 2;
 }
 
 uint32_t FloppyDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
@@ -97,15 +92,15 @@ uint32_t FloppyDevice::performIO(FloppyController::IO operation, uint8_t *buffer
         } else if (cylinder == startChs.cylinder) {
             head = startChs.head;
             firstSector = startChs.sector;
-            count = ((sectorsPerTrack * 2) - firstSector + 1) - (head * sectorsPerTrack);
+            count = ((sectorsPerCylinder * 2) - firstSector + 1) - (head * sectorsPerCylinder);
         } else if (cylinder == endChs.cylinder) {
             head = 0;
             firstSector = 1;
-            count = endChs.head * sectorsPerTrack + endChs.sector;
+            count = endChs.head * sectorsPerCylinder + endChs.sector;
         } else {
             head = 0;
             firstSector = 1;
-            count = sectorsPerTrack * 2;
+            count = sectorsPerCylinder * 2;
         }
 
         auto result = controller.performIO(*this, operation, buffer + sectors * getSectorSize(), cylinder, head, firstSector, count);
@@ -135,12 +130,12 @@ uint8_t FloppyDevice::getGapLength() const {
     return gapLength;
 }
 
-uint8_t FloppyDevice::getSectorsPerTrack() const {
-    return sectorsPerTrack;
+uint8_t FloppyDevice::getSectorsPerCylinder() const {
+    return sectorsPerCylinder;
 }
 
-uint32_t FloppyDevice::getSize() const {
-    return size;
+uint8_t FloppyDevice::getCylinders() const {
+    return cylinders;
 }
 
 FloppyController& FloppyDevice::getController() const {

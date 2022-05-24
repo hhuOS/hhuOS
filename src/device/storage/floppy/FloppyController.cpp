@@ -39,7 +39,7 @@ bool FloppyController::isAvailable() {
 }
 
 FloppyController::FloppyController() :
-        dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(SECTOR_SIZE * 36)),
+        dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(SECTOR_SIZE * 72)),
         timeService(Kernel::System::getService<Kernel::TimeService>()),
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), dataRateSelectRegister(IO_BASE_ADDRESS + 4),
@@ -73,7 +73,7 @@ void FloppyController::initializeAvailableDrives() {
     auto primaryDriveType = static_cast<DriveType>(driveInfo >> 4u);
     auto secondaryDriveType = static_cast<DriveType>(driveInfo & static_cast<uint8_t>(0xfu));
 
-    if (primaryDriveType != DriveType::DRIVE_TYPE_NONE && primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 && primaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
+    if (primaryDriveType != NONE && primaryDriveType != UNKNOWN_1 && primaryDriveType != UNKNOWN_2) {
         log.info("Found primary floppy drive");
 
         auto *device = new FloppyDevice(*this, 0, primaryDriveType);
@@ -87,7 +87,7 @@ void FloppyController::initializeAvailableDrives() {
         }
     }
 
-    if (secondaryDriveType != DriveType::DRIVE_TYPE_NONE && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_1 && secondaryDriveType != DriveType::DRIVE_TYPE_UNKNOWN_2) {
+    if (secondaryDriveType != NONE && secondaryDriveType != UNKNOWN_1 && secondaryDriveType != UNKNOWN_2) {
         log.info("Found secondary floppy drive");
 
         auto *device = new FloppyDevice(*this, 1, secondaryDriveType);
@@ -218,29 +218,34 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
     senseInterrupt();
 
     switch (device.getDriveType()) {
-        case DRIVE_TYPE_360KB_5_25 :
-            configControlRegister.writeByte(0x02);
+        case DRIVE_360KB_5_25 :
+            configControlRegister.writeByte(RATE_300K);
             break;
-        case DRIVE_TYPE_1200KB_5_25 :
-            configControlRegister.writeByte(0x00);
+        case DRIVE_1200KB_5_25 :
+            configControlRegister.writeByte(DataRate::RATE_500K);
             break;
-        case DRIVE_TYPE_720KB_3_5 :
-            configControlRegister.writeByte(0x01);
+        case DRIVE_720KB_3_5 :
+            configControlRegister.writeByte(DataRate::RATE_250K);
             break;
-        case DRIVE_TYPE_1440KB_3_5 :
-            configControlRegister.writeByte(0x00);
+        case DRIVE_1440KB_3_5 :
+            configControlRegister.writeByte(DataRate::RATE_500K);
             break;
-        case DRIVE_TYPE_2880KB_3_5 :
-            configControlRegister.writeByte(0x00);
+        case DRIVE_2880KB_3_5 :
+            configControlRegister.writeByte(DataRate::RATE_1M);
             break;
         default :
-            configControlRegister.writeByte(0x00);
+            configControlRegister.writeByte(DataRate::RATE_500K);
             break;
     }
 
     writeFifoByte(SPECIFY);
     writeFifoByte(0xdf);
     writeFifoByte(0x02);
+
+    if (device.getDriveType() == DRIVE_2880KB_3_5) {
+        writeFifoByte(PERPENDICULAR_MODE);
+        writeFifoByte(0x04 << device.getDriveNumber());
+    }
 
     bool success = calibrateDrive(device);
     if (!success) {
@@ -271,7 +276,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
         }
 
         SenseInterruptState interruptState = senseInterrupt();
-        if ((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
+        if (interruptState.statusRegister0 != 0x20) {
             continue;
         }
 
@@ -306,7 +311,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         }
 
         SenseInterruptState interruptState = senseInterrupt();
-        if ((interruptState.statusRegister0 & 0xc0u) == 0xc0) {
+        if (interruptState.statusRegister0 != 0x20) {
             continue;
         }
 
@@ -342,8 +347,16 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
 }
 
 bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
-    if (startSector + sectorCount - 1 > device.getSectorsPerTrack() * 2) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to write out of track bounds!");
+    if (cylinder >= device.getCylinders()) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of cylinder bounds!");
+    }
+
+    if (head > 1) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of head bounds!");
+    }
+
+    if (startSector + sectorCount - 1 > device.getSectorsPerCylinder() * 2) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of track bounds!");
     }
 
     if (operation == WRITE) {
@@ -367,7 +380,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
         writeFifoByte(head);
         writeFifoByte(startSector);
         writeFifoByte(2);
-        writeFifoByte(device.getSectorsPerTrack());
+        writeFifoByte(device.getSectorsPerCylinder());
         writeFifoByte(device.getGapLength());
         writeFifoByte(0xff);
 
@@ -379,16 +392,16 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
 
         if (!receivedInterrupt) {
             if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Timeout while writing to drive %u", device.getDriveNumber());
+                log.error("Timeout while reading/writing on drive %u", device.getDriveNumber());
                 return false;
             }
             continue;
         }
 
         CommandStatus status = readCommandStatus();
-        if ((status.statusRegister0 & 0xc0u) != 0) {
+        if ((status.statusRegister0 & 0xc0) != 0) {
             if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Failed to write to drive %u", device.getDriveNumber());
+                log.error("Failed to read/write on drive %u", device.getDriveNumber());
                 return false;
             }
             continue;
@@ -405,7 +418,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
     }
 
     setMotorState(device, OFF);
-    log.error("Failed to write to drive %u", device.getDriveNumber());
+    log.error("Failed to read/write on drive %u", device.getDriveNumber());
     return false;
 }
 

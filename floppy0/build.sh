@@ -17,5 +17,5 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 rm -f "../floppy0.img"
-mkfs.fat -C "../floppy0.img" 1440
+mkfs.fat -F 12 -s 2 -C "../floppy0.img" 2880
 mcopy -s -o -i "../floppy0.img" img/* ::/

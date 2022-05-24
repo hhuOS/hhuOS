@@ -41,27 +41,40 @@ public:
     /**
      * Possible drive types.
      */
-    enum DriveType {
-        DRIVE_TYPE_NONE = 0x00,
-        DRIVE_TYPE_360KB_5_25 = 0x01,
-        DRIVE_TYPE_1200KB_5_25 = 0x02,
-        DRIVE_TYPE_720KB_3_5 = 0x03,
-        DRIVE_TYPE_1440KB_3_5 = 0x04,
-        DRIVE_TYPE_2880KB_3_5 = 0x05,
-        DRIVE_TYPE_UNKNOWN_1 = 0x06,
-        DRIVE_TYPE_UNKNOWN_2 = 0x07
+    enum DriveType : uint8_t {
+        NONE = 0x00,
+        DRIVE_360KB_5_25 = 0x01,
+        DRIVE_1200KB_5_25 = 0x02,
+        DRIVE_720KB_3_5 = 0x03,
+        DRIVE_1440KB_3_5 = 0x04,
+        DRIVE_2880KB_3_5 = 0x05,
+        UNKNOWN_1 = 0x06,
+        UNKNOWN_2 = 0x07
+    };
+
+    /**
+     * Possible data rates.
+     */
+    enum DataRate : uint8_t {
+        RATE_500K = 0x00,
+        RATE_300K = 0x01,
+        RATE_250K = 0x02,
+        RATE_1M = 0x03
     };
 
     /**
      * Possible states of a floppy drive's motor.
      */
-    enum MotorState {
+    enum MotorState : uint8_t {
         ON = 0x00,
         OFF = 0x01,
         WAIT = 0x02
     };
 
-    enum IO {
+    /**
+     * IO operations.
+     */
+    enum IO : uint8_t {
         READ, WRITE
     };
 
@@ -112,7 +125,7 @@ public:
      * @param cylinder The cylinder
      * @param head The head
      * @param startSector The first sector
-     * @param sectorCount The amount of sector to read (max. sectorsPerTrack)
+     * @param sectorCount The amount of sector to read (max. sectorsPerCylinder)
      * @return
      */
     bool performIO(FloppyDevice &device, IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
