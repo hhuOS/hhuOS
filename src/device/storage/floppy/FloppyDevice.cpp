@@ -76,67 +76,47 @@ uint64_t FloppyDevice::getSectorCount() {
 }
 
 uint32_t FloppyDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    uint32_t readSectors = 0;
-    auto startChs = lbaToChs(startSector);
-    auto endChs = lbaToChs(startSector + sectorCount - 1);
-    auto currentCylinder = startChs.cylinder;
-    auto currentHead = startChs.head;
-
-    while (currentCylinder <= endChs.cylinder) {
-        auto firstSector = (currentCylinder == startChs.cylinder && currentHead == startChs.head) ? startChs.sector : 1;
-        auto lastSector = (currentCylinder == endChs.cylinder && currentHead == endChs.head) ? endChs.sector : sectorsPerTrack;
-        auto count = lastSector - firstSector + 1;
-
-        auto result = controller.read(*this, buffer + readSectors * getSectorSize(), currentCylinder, currentHead, firstSector, count);
-        if (result) {
-            readSectors += count;
-        } else {
-            return readSectors;
-        }
-
-        if (currentCylinder == endChs.cylinder && currentHead == endChs.head) {
-            break;
-        }
-
-        currentHead = currentHead == 0 ? 1 : 0;
-        if (currentHead == 0) {
-            currentCylinder++;
-        }
-    }
-
-    return readSectors;
+    return performIO(FloppyController::READ, buffer, startSector, sectorCount);
 }
 
 uint32_t FloppyDevice::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    uint32_t writtenSectors = 0;
+    return performIO(FloppyController::WRITE, const_cast<uint8_t*>(buffer), startSector, sectorCount);
+}
+
+uint32_t FloppyDevice::performIO(FloppyController::IO operation, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
+    uint32_t sectors = 0;
     auto startChs = lbaToChs(startSector);
     auto endChs = lbaToChs(startSector + sectorCount - 1);
-    auto currentCylinder = startChs.cylinder;
-    auto currentHead = startChs.head;
 
-    while (currentCylinder <= endChs.cylinder) {
-        auto firstSector = (currentCylinder == startChs.cylinder && currentHead == startChs.head) ? startChs.sector : 1;
-        auto lastSector = (currentCylinder == endChs.cylinder && currentHead == endChs.head) ? endChs.sector : sectorsPerTrack;
-        auto count = lastSector - firstSector + 1;
-
-        auto result = controller.write(*this, buffer + writtenSectors * getSectorSize(), currentCylinder, currentHead, firstSector, count);
-        if (result) {
-            writtenSectors += count;
+    for (uint32_t cylinder = startChs.cylinder; cylinder <= endChs.cylinder; cylinder++) {
+        uint8_t head, firstSector, count;
+        if (cylinder == startChs.cylinder && cylinder == endChs.cylinder) {
+            head = startChs.head;
+            firstSector = startChs.sector;
+            count = sectorCount;
+        } else if (cylinder == startChs.cylinder) {
+            head = startChs.head;
+            firstSector = startChs.sector;
+            count = ((sectorsPerTrack * 2) - firstSector + 1) - (head * sectorsPerTrack);
+        } else if (cylinder == endChs.cylinder) {
+            head = 0;
+            firstSector = 1;
+            count = endChs.head * sectorsPerTrack + endChs.sector;
         } else {
-            return writtenSectors;
+            head = 0;
+            firstSector = 1;
+            count = sectorsPerTrack * 2;
         }
 
-        if (currentCylinder == endChs.cylinder && currentHead == endChs.head) {
-            break;
-        }
-
-        currentHead = currentHead == 0 ? 1 : 0;
-        if (currentHead == 0) {
-            currentCylinder++;
+        auto result = controller.performIO(*this, operation, buffer + sectors * getSectorSize(), cylinder, head, firstSector, count);
+        if (result) {
+            sectors += count;
+        } else {
+            return sectors;
         }
     }
 
-    return sectorCount;
+    return sectors;
 }
 
 uint8_t FloppyDevice::getDriveNumber() const {

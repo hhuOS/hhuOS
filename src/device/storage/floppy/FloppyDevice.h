@@ -77,6 +77,8 @@ public:
      */
     uint32_t write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) override;
 
+    uint32_t performIO(FloppyController::IO operation, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount);
+
     [[nodiscard]] uint8_t getDriveNumber() const;
 
     [[nodiscard]] FloppyController::MotorState getMotorState() const;

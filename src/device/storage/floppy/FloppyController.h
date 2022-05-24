@@ -61,6 +61,10 @@ public:
         WAIT = 0x02
     };
 
+    enum IO {
+        READ, WRITE
+    };
+
     /**
      * Constructor.
      */
@@ -99,33 +103,19 @@ public:
     void killMotor(FloppyDevice &device);
 
     /**
-     * Read sectors from a floppy. Only sectors inside one track can be read.
+     * Read or write sectors on a floppy disk. Only sectors inside one track can be read.
      * Reading across multiple tracks requires multiple calls of this function.
      *
      * @param device The device
+     * @param operation Read or write
      * @param buff The buffer to write the read data to
      * @param cylinder The cylinder
      * @param head The head
      * @param startSector The first sector
      * @param sectorCount The amount of sector to read (max. sectorsPerTrack)
-     *
-     * @return True on success.
+     * @return
      */
-    bool read(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
-
-    /**
-     * Write sectors to a floppy. Only sectors inside one track can be written.
-     * Writing across multiple tracks requires multiple calls of this function.
-     *
-     * @param device The device
-     * @param buffer The buffer to write to the floppy
-     * @param cylinder The cylinder
-     * @param head The head
-     * @param startSector The startSector
-     *
-     * @return True on success.
-     */
-    bool write(FloppyDevice &device, const uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
+    bool performIO(FloppyDevice &device, IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
 
     /**
      * Enable interrupts from the floppy controller.

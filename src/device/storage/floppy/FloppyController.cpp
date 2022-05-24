@@ -110,7 +110,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
             return;
         }
 
-        timeService.wait(Util::Time::Timestamp(0, 10000000));
+        timeService.wait({0, 10000000});
         timeout += 10;
     }
 
@@ -124,7 +124,7 @@ uint8_t FloppyController::readFifoByte() {
             return fifoRegister.readByte();
         }
 
-        timeService.wait(Util::Time::Timestamp(0, 10000000));
+        timeService.wait({0, 10000000});
         timeout += 10;
     }
 
@@ -206,7 +206,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 
     uint32_t timeout = 0;
     while (!receivedInterrupt) {
-        timeService.wait(Util::Time::Timestamp(0, 10000000));
+        timeService.wait({0, 10000000});
         timeout += 10;
 
         if (timeout > TIMEOUT) {
@@ -262,7 +262,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
 
         uint32_t timeout = 0;
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait(Util::Time::Timestamp(0, 10000000));
+            timeService.wait({0, 10000000});
             timeout += 10;
         }
 
@@ -297,7 +297,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         uint32_t timeout = 0;
 
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait(Util::Time::Timestamp(0, 10000000));
+            timeService.wait({0, 10000000});
             timeout += 10;
         }
 
@@ -341,77 +341,16 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
     Isa::deselectChannel(2);
 }
 
-bool FloppyController::read(FloppyDevice &device, uint8_t *buff, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
-    if (startSector + sectorCount - 1 > device.getSectorsPerTrack()) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read out of track bounds!");
-    }
-
-    if (!seek(device, cylinder, head)) {
-        return false;
-    }
-
-    setMotorState(device, ON);
-    for (uint8_t i = 0; i < RETRY_COUNT; i++) {
-        receivedInterrupt = false;
-        prepareDma(device, Isa::WRITE, sectorCount);
-
-        writeFifoByte(READ_DATA | MULTITRACK | MFM);
-        writeFifoByte(device.getDriveNumber() | (head << 2u));
-        writeFifoByte(cylinder);
-        writeFifoByte(head);
-        writeFifoByte(startSector);
-        writeFifoByte(2);
-        writeFifoByte(device.getSectorsPerTrack());
-        writeFifoByte(device.getGapLength());
-        writeFifoByte(0xff);
-
-        uint32_t timeout = 0;
-
-        while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait(Util::Time::Timestamp(0, 10000000));
-            timeout += 10;
-        }
-
-        if (!receivedInterrupt) {
-            if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Timeout while reading from drive %u", device.getDriveNumber());
-                return false;
-            }
-
-            continue;
-        }
-
-        CommandStatus status = readCommandStatus();
-        if ((status.statusRegister0 & 0xc0u) != 0) {
-            if (!handleReadWriteError(device, cylinder, head)) {
-                log.error("Failed to read from drive %u", device.getDriveNumber());
-                return false;
-            }
-
-            continue;
-        }
-
-        auto sourceAddress = Util::Memory::Address<uint32_t>(dmaMemory);
-        auto targetAddress = Util::Memory::Address<uint32_t>(buff);
-        targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
-
-        setMotorState(device, OFF);
-        return true;
-    }
-
-    setMotorState(device, OFF);
-    log.error("Failed to read from drive %u", device.getDriveNumber());
-    return false;
-}
-
-bool FloppyController::write(FloppyDevice &device, const uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
-    if (startSector + sectorCount - 1 > device.getSectorsPerTrack()) {
+bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
+    if (startSector + sectorCount - 1 > device.getSectorsPerTrack() * 2) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to write out of track bounds!");
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(buffer);
-    auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
-    targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
+    if (operation == WRITE) {
+        auto sourceAddress = Util::Memory::Address<uint32_t>(buffer);
+        auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
+        targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
+    }
 
     if (!seek(device, cylinder, head)) {
         return false;
@@ -420,9 +359,9 @@ bool FloppyController::write(FloppyDevice &device, const uint8_t *buffer, uint8_
     setMotorState(device, ON);
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-        prepareDma(device, Isa::READ, sectorCount);
+        prepareDma(device, operation == WRITE ? Isa::READ : Isa::WRITE, sectorCount);
 
-        writeFifoByte(WRITE_DATA | MULTITRACK | MFM);
+        writeFifoByte((operation == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(cylinder);
         writeFifoByte(head);
@@ -433,9 +372,8 @@ bool FloppyController::write(FloppyDevice &device, const uint8_t *buffer, uint8_
         writeFifoByte(0xff);
 
         uint32_t timeout = 0;
-
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait(Util::Time::Timestamp(0, 10000000));
+            timeService.wait({0, 10000000});
             timeout += 10;
         }
 
@@ -454,6 +392,12 @@ bool FloppyController::write(FloppyDevice &device, const uint8_t *buffer, uint8_
                 return false;
             }
             continue;
+        }
+
+        if (operation == READ) {
+            auto sourceAddress = Util::Memory::Address<uint32_t>(dmaMemory);
+            auto targetAddress = Util::Memory::Address<uint32_t>(buffer);
+            targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
 
         setMotorState(device, OFF);
