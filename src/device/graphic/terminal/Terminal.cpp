@@ -43,6 +43,11 @@ void Terminal::write(uint8_t c) {
         return;
     }
 
+    // Ignore carriage return
+    if (c == '\r') {
+        return;
+    }
+
     if (c == '\u001b') {
         isEscapeActive = true;
     }
