@@ -22,7 +22,7 @@ ColorGraphicsAdapterProvider::ColorGraphicsAdapterProvider(bool prototypeInstanc
     }
 
     auto cardType = getVideoCardType();
-    log.info("CGA compatible card found (HEADER_TYPE: [%s])", static_cast<const char*>(getVideoCardTypeAsString(cardType)));
+    log.info("CGA compatible card found (type: [%s])", static_cast<const char*>(getVideoCardTypeAsString(cardType)));
 }
 
 bool ColorGraphicsAdapterProvider::isAvailable() {

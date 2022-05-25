@@ -192,15 +192,16 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
         }
     }
 
+    // TODO: For some reason, the system won't boot, when this code is active
     // Then copy the symbol headers and the symbols
-    if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
+    /*if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address);
         destinationAddress.copyRange(sourceAddress, length);
         multibootInfo->symbols.elf.address = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
         Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
-    }
+    }*/
 
     // Then copy the memory map
     if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {

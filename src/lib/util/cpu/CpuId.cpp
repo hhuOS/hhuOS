@@ -20,7 +20,7 @@
 #include "lib/util/data/ArrayList.h"
 #include "CpuId.h"
 
-namespace Device {
+namespace Util::Cpu {
 
 bool CpuId::isAvailable() {
     return is_cpuid_available() != 0;
@@ -42,21 +42,26 @@ Util::Memory::String CpuId::getVendorString() {
     return { reinterpret_cast<uint8_t*>(vendor), 12 };
 }
 
-Util::Data::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
+uint64_t CpuId::getCpuFeatureBits() {
     auto features = Util::Data::ArrayList<CpuFeature>();
 
     uint32_t ecx, edx;
     asm volatile(
-    "mov $1,%%eax;"
-    "cpuid;"
-    "mov %%edx,%0;"
-    "mov %%ecx,%1;"
-    : "=r"(edx), "=r"(ecx)
-    :
-    : "%ecx", "%edx"
-    );
+            "mov $1,%%eax;"
+            "cpuid;"
+            "mov %%edx,%0;"
+            "mov %%ecx,%1;"
+            : "=r"(edx), "=r"(ecx)
+            :
+            : "%ecx", "%edx"
+            );
 
-    uint64_t featureBits = static_cast<uint64_t>(ecx) << 32 | edx;
+    return static_cast<uint64_t>(ecx) << 32 | edx;
+}
+
+Util::Data::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
+    auto features = Util::Data::ArrayList<CpuFeature>();
+    auto featureBits = getCpuFeatureBits();
 
     uint64_t i;
     for (i = 1; i <= CpuFeature::AVX; i *= 2) {

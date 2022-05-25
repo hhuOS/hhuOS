@@ -18,7 +18,7 @@
 
 namespace Kernel {
 
-Logger StorageService::log = Logger::get("STORAGE");
+Logger StorageService::log = Logger::get("Storage");
 Util::Data::HashMap<Util::Memory::String, uint32_t> StorageService::nameMap;
 
 StorageService::~StorageService() {

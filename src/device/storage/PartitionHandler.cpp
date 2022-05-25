@@ -62,7 +62,7 @@ Util::Data::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartiti
         };
         partitionList.add(info);
 
-        log.debug("Partition found (Number: [%u], HEADER_TYPE: [%c], Active: [%B], System ID: [%02x], Sector: [%u], Count: [%u])",
+        log.debug("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [%02x], Sector: [%u], Count: [%u])",
                   info.number, info.type, info.active, info.systemId, info.startSector, info.sectorCount);
 
         // 0x05 or 0x0f --> Extended currentPrimaryPartition
@@ -99,7 +99,7 @@ Util::Data::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartiti
                 };
                 partitionList.add(info);
 
-                log.debug("Partition found (Number: [%u], HEADER_TYPE: [%c], Active: [%B], System ID: [%02x], Sector: [%u], Count: [%u])",
+                log.debug("Partition found (Number: [%u], type: [%c], Active: [%B], System ID: [%02x], Sector: [%u], Count: [%u])",
                           info.number, info.type, info.active, info.systemId, info.startSector, info.sectorCount);
 
                 // Check system ID of next partition

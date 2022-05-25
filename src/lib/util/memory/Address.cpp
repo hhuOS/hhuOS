@@ -16,12 +16,10 @@
  */
 
 #include "lib/util/Exception.h"
+#include "lib/util/cpu/CpuId.h"
 #include "Address.h"
 
 namespace Util::Memory {
-
-template<typename T>
-Address<T>::Address() : address(0) {}
 
 template<typename T>
 Address<T>::Address(T address) : address(address) {}
@@ -139,18 +137,18 @@ T Address<T>::stringLength() const {
 
 template<typename T>
 void Address<T>::setRange(uint8_t value, T length) const {
-    auto *pointer = reinterpret_cast<uint64_t*>(address);
+    auto *target = reinterpret_cast<uint64_t*>(address);
     auto longValue = static_cast<uint64_t>(value);
     longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
 
-    T i;
-    for (i = 0; i < length / sizeof(uint64_t); i++) {
-        pointer[i] = longValue;
+    while (length - sizeof(uint64_t) < length) {
+        *target++ = longValue;
+        length -= sizeof(uint64_t);
     }
 
-    i *= sizeof(uint64_t);
-    for (; i < length; i++) {
-        reinterpret_cast<uint8_t*>(pointer)[i] = value;
+    auto *rest = reinterpret_cast<uint8_t*>(target);
+    while (length-- > 0) {
+        *rest++ = value;
     }
 }
 
@@ -159,14 +157,15 @@ void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(address);
     auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
 
-    T i;
-    for (i = 0; i < length / sizeof(uint64_t); i++) {
-        target[i] = source[i];
+    while (length - sizeof(uint64_t) < length) {
+        *target++ = *source++;
+        length -= sizeof(uint64_t);
     }
 
-    i *= sizeof(uint64_t);
-    for (; i < length; i++) {
-        reinterpret_cast<uint8_t*>(target)[i] = reinterpret_cast<uint8_t*>(source)[i];
+    auto *targetRest = reinterpret_cast<uint8_t*>(target);
+    auto *sourceRest = reinterpret_cast<uint8_t*>(source);
+    while (length-- > 0) {
+        *targetRest++ = *sourceRest++;
     }
 }
 
@@ -220,7 +219,7 @@ T Address<T>::compareString(Address<T> otherAddress) const {
 
 template<>
 uint32_t Address<uint32_t>::compareString(const char *otherString) const {
-    return compareString(Address<uint32_t>(otherString));
+    return compareString(Address(otherString));
 }
 
 }

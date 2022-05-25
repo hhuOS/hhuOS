@@ -27,7 +27,7 @@ class Address {
 
 public:
 
-    Address();
+    Address() = default;
 
     explicit Address(T address);
 
@@ -35,11 +35,7 @@ public:
 
     explicit Address(const void *pointer);
 
-    ~Address() = default;
-
-    Address(const Address &other) = default;
-
-    Address &operator=(const Address &other) = default;
+    virtual ~Address() = default;
 
     bool operator==(const Address &other) const;
 
@@ -85,17 +81,17 @@ public:
 
     void setLong(uint64_t value, T offset = 0) const;
 
-    void setRange(uint8_t value, T length = 0) const;
+    virtual void setRange(uint8_t value, T length) const;
 
-    void copyRange(Address<T> sourceAddress, T length) const;
+    virtual void copyRange(Address<T> sourceAddress, T length) const;
 
     void copyString(Address<T> sourceAddress) const;
 
     void copyString(Address<T> sourceAddress, T maxBytes) const;
 
-private:
+protected:
 
-    T address;
+    T address{};
 };
 
 template

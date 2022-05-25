@@ -28,6 +28,7 @@ target_sources(lib.util PUBLIC
 
 # Add subdirectories
 add_subdirectory(async)
+add_subdirectory(cpu)
 add_subdirectory(file)
 add_subdirectory(graphic)
 add_subdirectory(memory)

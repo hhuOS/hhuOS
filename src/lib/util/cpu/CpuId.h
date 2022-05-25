@@ -21,7 +21,7 @@
 #include "lib/util/memory/String.h"
 #include "lib/util/data/Array.h"
 
-namespace Device {
+namespace Util::Cpu {
 
 class CpuId {
 
@@ -130,13 +130,13 @@ public:
 
     [[nodiscard]] static Util::Memory::String getVendorString();
 
+    [[nodiscard]] static uint64_t getCpuFeatureBits();
+
     [[nodiscard]] static Util::Data::Array<CpuFeature> getCpuFeatures();
 
     [[nodiscard]] static CpuInfo getCpuInfo();
 
     [[nodiscard]] static const char* getFeatureAsString(CpuFeature);
-
-private:
 
     static const constexpr uint32_t STEPPING_BITMASK = 0x0000000f;
     static const constexpr uint32_t MODEL_BITMASK = 0x000000f0;
@@ -144,7 +144,6 @@ private:
     static const constexpr uint32_t TYPE_BITMASK = 0x00003000;
     static const constexpr uint32_t EXTENDED_MODEL_BITMASK = 0x000f0000;
     static const constexpr uint32_t EXTENDED_FAMILY_BITMASK = 0x0ff00000;
-
 };
 
 }

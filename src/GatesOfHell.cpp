@@ -34,7 +34,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/stream/FileInputStream.h"
-#include "device/cpu/CpuId.h"
+#include "lib/util/cpu/CpuId.h"
 #include "device/port/parallel/ParallelPort.h"
 #include "lib/util/stream/FileOutputStream.h"
 #include "lib/util/async/Process.h"
@@ -61,16 +61,16 @@ void GatesOfHell::enter() {
 
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
-    if (Device::CpuId::isAvailable()) {
-        log.info("CPU vendor: %s", static_cast<const char*>(Device::CpuId::getVendorString()));
+    if (Util::Cpu::CpuId::isAvailable()) {
+        log.info("CPU vendor: %s", static_cast<const char*>(Util::Cpu::CpuId::getVendorString()));
 
-        const auto info = Device::CpuId::getCpuInfo();
-        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], HEADER_TYPE [%u]", info.family, info.model, info.stepping, info.type);
+        const auto info = Util::Cpu::CpuId::getCpuInfo();
+        log.info("CPU info: Family [%u], Model [%u], Stepping [%u], type [%u]", info.family, info.model, info.stepping, info.type);
 
-        const auto features = Device::CpuId::getCpuFeatures();
+        const auto features = Util::Cpu::CpuId::getCpuFeatures();
         Util::Memory::String featureString;
         for (uint32_t i = 0; i < features.length(); i++) {
-            featureString += Device::CpuId::getFeatureAsString(features[i]);
+            featureString += Util::Cpu::CpuId::getFeatureAsString(features[i]);
             if (i < features.length() - 1) {
                 featureString += ",";
             }
@@ -281,4 +281,3 @@ void GatesOfHell::initializeStorage() {
         floppyController->initializeAvailableDrives();
     }
 }
-
