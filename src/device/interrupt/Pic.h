@@ -114,7 +114,7 @@ public:
      *
      * @return true, if a spurious interrupt has occurred
      */
-    bool isSpurious();
+    bool isSpurious(Pic::Interrupt interrupt);
 
 private:
     /**

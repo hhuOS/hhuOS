@@ -42,11 +42,13 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
     }
 
     // Ignore spurious interrupts
-    if (slot == 39 && Device::Pic::getInstance().isSpurious()) {
+    if ((slot == LPT1 || slot == SECONDARY_ATA) && Device::Pic::getInstance().isSpurious(Device::Pic::Interrupt(slot - 32))) {
+        Util::Async::Atomic<uint32_t>(spuriousCounter).inc();
         return;
     }
 
     if (handler.size() == 0) {
+        sendEoi(slot);
         return;
     }
 
@@ -58,6 +60,8 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
 
     auto interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
     interruptDepthWrapper.inc();
+
+    sendEoi(slot);
     asm volatile("sti");
 
     if (list != nullptr) {
@@ -90,5 +94,12 @@ Util::Data::List<InterruptHandler*>* InterruptDispatcher::getHandlerForSlot(uint
 uint32_t InterruptDispatcher::getInterruptDepth() const {
     return interruptDepth;
 }
+
+void InterruptDispatcher::sendEoi(uint32_t slot) {
+    if (slot >= 32 && slot < 48) {
+        Device::Pic::getInstance().sendEOI(Device::Pic::Interrupt(slot - 32));
+    }
+}
+
 
 }

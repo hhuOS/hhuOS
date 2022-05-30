@@ -46,7 +46,7 @@ public:
     /**
      * Destructor.
      */
-    ~CursorRunnable() = default;
+    ~CursorRunnable() override = default;
 
     void run() override;
 

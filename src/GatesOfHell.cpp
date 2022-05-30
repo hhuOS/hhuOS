@@ -175,7 +175,7 @@ void GatesOfHell::enablePortLogging() {
     for (const auto &port : ports) {
         const auto file = Util::File::File("/device/" + port.toLowerCase());
         if (!file.exists()) {
-            log.error("Port [%s] not present", static_cast<const char *>(port));
+            log.error("Port [%s] not present", static_cast<const char*>(port));
             return;
         }
 

@@ -91,6 +91,7 @@ public:
 private:
 
     uint32_t interruptDepth = 0;
+    uint32_t spuriousCounter = 0;
 
     /**
      * Get the interrupt handlers that are registered for a specific interrupt.
@@ -100,7 +101,9 @@ private:
      */
     Util::Data::List<InterruptHandler*> *getHandlerForSlot(uint8_t slot);
 
-    Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *> *> handler;
+    Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *>*> handler;
+
+    static void sendEoi(uint32_t slot);
 
 };
 

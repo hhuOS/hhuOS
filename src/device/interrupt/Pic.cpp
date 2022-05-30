@@ -70,9 +70,19 @@ uint8_t Pic::getMask(Pic::Interrupt interrupt) {
     return (uint8_t) (1 << (uint8_t) interrupt);
 }
 
-bool Pic::isSpurious() {
-    masterCommandPort.writeByte(READ_ISR);
-    return (masterCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0;
+bool Pic::isSpurious(Pic::Interrupt interrupt) {
+    if (interrupt == Interrupt::LPT1) {
+        masterCommandPort.writeByte(READ_ISR);
+        return (masterCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0;
+    } else if (interrupt == Interrupt::SECONDARY_ATA) {
+        slaveCommandPort.writeByte(READ_ISR);
+        if ((slaveCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0) {
+            sendEOI(Interrupt::CASCADE);
+            return true;
+        }
+    }
+
+    return false;
 }
 
 }

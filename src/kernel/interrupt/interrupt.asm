@@ -82,10 +82,10 @@ reprogram_pics:
 	mov	 al,0x02     ; ICW3 Slave: Connected with IRQ2 of master
 	out	 0xa1,al
     call delay
-	mov	 al,0x07     ; ICW4 Master: 8086 Mode and automatic EIO
+	mov	 al,0x01     ; ICW4 Master: 8086 Mode
 	out	 0x21,al
 	call delay
-	mov  al,0x03     ; ICW4 Slave: 8086 Mode and automatic EIO
+	mov  al,0x01     ; ICW4 Slave: 8086 Mode
 	out	 0xa1,al
 	call delay
 
