@@ -5,7 +5,7 @@
     "tasks": [
         {
             "label": "qemu-gdb (BIOS)",
-            "type": "shell",
+            "type": "process",
             "command": "./run.sh",
             "isBackground": true,
             "args": [
@@ -14,7 +14,7 @@
                     "quoting": "escape"
                 },
                 {
-                    "value": "bios",
+                    "value": "true",
                     "quoting": "escape"
                 },
                 {
@@ -50,18 +50,10 @@
         },
         {
             "label": "qemu-gdb (UEFI)",
-            "type": "shell",
+            "type": "process",
             "command": "./run.sh",
             "isBackground": true,
             "args": [
-                {
-                    "value": "--bios",
-                    "quoting": "escape"
-                },
-                {
-                    "value": "uefi",
-                    "quoting": "escape"
-                },
                 {
                     "value": "--file",
                     "quoting": "escape"
@@ -92,6 +84,48 @@
                 "reveal": "always",
                 "focus": false,
             },
+        },
+        {
+            "label": "build (GRUB)",
+            "type": "shell",
+            "command": "${workspaceRoot}/build.sh",
+            "args": ["--target", "grub"]
+        },
+        {
+            "label": "build (towboot)",
+            "type": "shell",
+            "command": "${workspaceRoot}/build.sh",
+            "args": ["--target", "towboot"]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "${workspaceRoot}/build.sh",
+            "args": ["--clean"]
+        },
+        {
+            "label": "qemu (BIOS)",
+            "type": "process",
+            "command": "${workspaceRoot}/run.sh",
+            "args": ["--bios", "true", "--file", "hhuOS.iso", "--machine", "pc"]
+        },
+        {
+            "label": "qemu (UEFI)",
+            "type": "process",
+            "command": "${workspaceRoot}/run.sh",
+            "args": ["--file", "hhuOS.img", "--machine", "pc"]
+        },
+        {
+            "label": "qemu-kvm (BIOS)",
+            "type": "shell",
+            "command": "${workspaceRoot}/run.sh",
+            "args": ["--bios", "true", "--file", "hhuOS.iso", "--machine", "pc-kvm"]
+        },
+        {
+            "label": "qemu-kvm (UEFI)",
+            "type": "shell",
+            "command": "${workspaceRoot}/run.sh",
+            "args": ["--file", "hhuOS.img", "--machine", "pc-kvm"]
         }
     ]
 }
