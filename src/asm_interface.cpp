@@ -97,7 +97,7 @@ void set_process_scheduler_initialized() {
 }
 
 void release_scheduler_lock() {
-    Kernel::System::getService<Kernel::SchedulerService>().releaseSchedulerLock();
+    Kernel::System::getService<Kernel::SchedulerService>().unlockScheduler();
 }
 
 int32_t atexit (void (*func)()) noexcept {

@@ -19,6 +19,7 @@
 #include "ProcessScheduler.h"
 #include "kernel/system/System.h"
 #include "asm_interface.h"
+#include "FpuRegisterHandler.h"
 
 namespace Kernel {
 
@@ -62,7 +63,7 @@ void ThreadScheduler::kill(Thread &thread) {
     threadQueue.remove(&thread);
     lock.release();
 
-    delete &thread;
+    System::getService<SchedulerService>().cleanup(currentThread);;
 }
 
 Thread &ThreadScheduler::getCurrentThread() {
@@ -97,6 +98,7 @@ void ThreadScheduler::yield(Thread &oldThread, Process &nextProcess, bool force)
 
 void ThreadScheduler::dispatch(Thread &current, Thread &next) {
     currentThread = &next;
+    FpuRegisterHandler::armFpuMonitor();
     switch_context(&current.kernelContext, &next.kernelContext);
 }
 

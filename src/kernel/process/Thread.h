@@ -87,6 +87,8 @@ public:
 
     [[nodiscard]] Process* getParent() const;
 
+    [[nodiscard]] uint8_t* getFpuContext() const;
+
     void setParent(Process *parent);
 
     virtual void run();
@@ -105,6 +107,7 @@ private:
 
     InterruptFrame &interruptFrame;
     Context *kernelContext;
+    uint8_t *fpuContext;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
     static const constexpr uint32_t DEFAULT_STACK_SIZE = 4096;

@@ -35,12 +35,16 @@ Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 Thread::Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
         id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
         interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
-        kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))) {}
+        kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))),
+        fpuContext(static_cast<uint8_t *>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {
+    Util::Memory::Address<uint32_t>(fpuContext).setRange(0, 512);
+}
 
 Thread::~Thread() {
     // Do not delete user stack, as it is hard coded
     // TODO: Once a process can have multiple user threads, this needs to be revised
     delete kernelStack;
+    delete fpuContext;
     delete runnable;
 }
 
@@ -113,6 +117,10 @@ Process *Thread::getParent() const {
 
 void Thread::setParent(Process *parent) {
     Thread::parent = parent;
+}
+
+uint8_t *Thread::getFpuContext() const {
+    return fpuContext;
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {

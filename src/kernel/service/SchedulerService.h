@@ -22,6 +22,7 @@
 #include "lib/util/file/File.h"
 #include "kernel/process/SchedulerCleaner.h"
 #include "Service.h"
+#include "kernel/process/FpuRegisterHandler.h"
 
 namespace Kernel {
 
@@ -58,8 +59,6 @@ public:
 
     void yield();
 
-    void forceYield();
-
     void cleanup(Process *process);
 
     void cleanup(Thread *thread);
@@ -70,7 +69,9 @@ public:
 
     void exitCurrentProcess(int32_t exitCode);
 
-    void releaseSchedulerLock();
+    void lockScheduler();
+
+    void unlockScheduler();
 
     void setSchedulerInitialized();
 
@@ -92,6 +93,7 @@ private:
 
     ProcessScheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
+    FpuRegisterHandler *fpuHandler = nullptr;
 };
 
 }

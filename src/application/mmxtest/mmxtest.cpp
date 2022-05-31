@@ -23,24 +23,6 @@
 
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
-uint32_t benchmarkMemset(Util::Memory::Address<uint32_t> &target, uint32_t iterations) {
-    auto start = Util::Time::getSystemTime().toMilliseconds();
-    for (uint32_t i = 0; i < iterations; i++) {
-        target.setRange(i, BUFFER_SIZE);
-    }
-
-    return Util::Time::getSystemTime().toMilliseconds() - start;
-}
-
-uint32_t benchmarkMemcpy(Util::Memory::Address<uint32_t> &source, Util::Memory::Address<uint32_t> &target, uint32_t iterations) {
-    auto start = Util::Time::getSystemTime().toMilliseconds();
-    for (uint32_t i = 0; i < iterations; i++) {
-        target.copyRange(source, BUFFER_SIZE);
-    }
-
-    return Util::Time::getSystemTime().toMilliseconds() - start;
-}
-
 int32_t main(int32_t argc, char *argv[]) {
     if (!Util::Memory::MmxAddress<uint32_t>::isAvailable()) {
         Util::System::out << "MMX is not supported by this CPU!" << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;

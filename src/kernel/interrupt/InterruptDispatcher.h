@@ -39,6 +39,7 @@ class InterruptDispatcher {
 public:
 
     enum {
+        DEVICE_NOT_AVAILABLE = 7,
         PAGEFAULT = 14,
         PIT = 32,
         KEYBOARD = 33,

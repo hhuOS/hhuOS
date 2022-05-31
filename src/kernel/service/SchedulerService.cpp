@@ -17,10 +17,10 @@
 
 #include "SchedulerService.h"
 #include "kernel/system/System.h"
-#include "JobService.h"
 #include "FilesystemService.h"
 #include "kernel/process/AddressSpaceCleaner.h"
 #include "kernel/process/BinaryLoader.h"
+#include "kernel/process/FpuRegisterHandler.h"
 
 namespace Kernel {
 
@@ -33,6 +33,9 @@ void SchedulerService::startScheduler() {
     cleaner = new Kernel::SchedulerCleaner();
     auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler Cleaner", cleaner);
     ready(schedulerCleanerThread);
+
+    fpuHandler = new FpuRegisterHandler();
+    fpuHandler->plugin();
     
     scheduler.start();
 }
@@ -68,7 +71,11 @@ Process &SchedulerService::loadBinary(const Util::File::File &binaryFile, const 
     return process;
 }
 
-void SchedulerService::releaseSchedulerLock() {
+void SchedulerService::lockScheduler() {
+    scheduler.lock.acquire();
+}
+
+void SchedulerService::unlockScheduler() {
     scheduler.lock.release();
 }
 
@@ -156,6 +163,7 @@ void SchedulerService::cleanup(Process *process) {
 }
 
 void SchedulerService::cleanup(Thread *thread) {
+    fpuHandler->checkTerminatedThread(*thread);
     cleaner->cleanup(thread);
 }
 
