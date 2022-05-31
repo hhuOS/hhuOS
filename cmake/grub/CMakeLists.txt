@@ -22,7 +22,7 @@ message(STATUS "Project " ${PROJECT_NAME})
 add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.iso"
         COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/grub/boot/hhuOS.bin"
         COMMAND /bin/cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/grub/boot/hhuOS.initrd"
-        COMMAND grub-mkrescue "/lib/grub/i386-pc" "/lib/grub/i386-efi" -o "${HHUOS_ROOT_DIR}/hhuOS.iso" "${HHUOS_ROOT_DIR}/loader/grub/"
+        COMMAND grub-mkrescue "/usr/lib/grub/i386-pc" "/usr/lib/grub/i386-efi" -o "${HHUOS_ROOT_DIR}/hhuOS.iso" "${HHUOS_ROOT_DIR}/loader/grub/"
         DEPENDS system initrd)
 
 add_custom_target(${PROJECT_NAME} DEPENDS system initrd floppy0 "${HHUOS_ROOT_DIR}/hhuOS.iso")
