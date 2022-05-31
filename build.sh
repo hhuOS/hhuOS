@@ -170,7 +170,7 @@ print_usage() {
         Set the the build target (grub/towboot, default: towboot).
     -d, --directory
         Set the build directory.
-    -g, type
+    -g, --type
         Set the build type (Default/Debug).
     -n, --ncore
         Set the number of cores used by make (default: Output of nproc).
