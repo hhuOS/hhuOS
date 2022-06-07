@@ -20,11 +20,12 @@
 #include "lib/util/memory/Address.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/memory/MmxAddress.h"
+#include "lib/util/cpu/CpuId.h"
 
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (!Util::Memory::MmxAddress<uint32_t>::isAvailable()) {
+    if (!Util::Cpu::CpuId::isAvailable() || !Util::Cpu::CpuId::getCpuFeatures().contains(Util::Cpu::CpuId::MMX)) {
         Util::System::out << "MMX is not supported by this CPU!" << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
     }
 
@@ -58,7 +59,6 @@ int32_t main(int32_t argc, char *argv[]) {
     for (uint32_t i = 0; i < iterations; i++) {
         mmxTarget.setRange(i, BUFFER_SIZE);
     }
-    Util::Memory::MmxAddress<uint32_t>::endMmxOperation();
     auto memsetMmxResult = Util::Time::getSystemTime().toMilliseconds() - start;
 
     Util::System::out << "Running memcpy benchmark with MMX..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
@@ -66,11 +66,15 @@ int32_t main(int32_t argc, char *argv[]) {
     for (uint32_t i = 0; i < iterations; i++) {
         mmxTarget.copyRange(source, BUFFER_SIZE);
     }
-    Util::Memory::MmxAddress<uint32_t>::endMmxOperation();
     auto memcpyMmxResult = Util::Time::getSystemTime().toMilliseconds() - start;
 
     delete[] buffer1;
     delete[] buffer2;
+
+    asm volatile (
+            "emms;"
+            "fninit;"
+            );
 
     double memsetSpeedup = (double) memsetResult / memsetMmxResult;
     double memcpySpeedup = (double) memcpyResult / memcpyMmxResult;

@@ -21,9 +21,6 @@
 namespace Util::Memory {
 
 template<typename T>
-bool MmxAddress<T>::mmxAvailable = Cpu::CpuId::isAvailable() && (Cpu::CpuId::getCpuFeatureBits() & Cpu::CpuId::MMX) != 0;
-
-template<typename T>
 MmxAddress<T>::MmxAddress(T address) : Address<T>(address) {}
 
 template<>
@@ -31,11 +28,6 @@ MmxAddress<uint32_t>::MmxAddress(void *pointer) : Address<uint32_t>(pointer) {}
 
 template<>
 MmxAddress<uint32_t>::MmxAddress(const void *pointer) : Address<uint32_t>(pointer) {}
-
-template<typename T>
-bool MmxAddress<T>::isAvailable() {
-    return mmxAvailable;
-}
 
 template<typename T>
 void MmxAddress<T>::setRange(uint8_t value, T length) const {
@@ -85,11 +77,6 @@ void MmxAddress<T>::copyRange(Address<T> sourceAddress, T length) const {
     while (length-- > 0) {
         *targetRest++ = *sourceRest++;
     }
-}
-
-template<typename T>
-void MmxAddress<T>::endMmxOperation() {
-    asm volatile ("emms");
 }
 
 }

@@ -52,17 +52,9 @@ public:
      */
     ~MmxAddress() override = default;
 
-    static bool isAvailable();
-
     void setRange(uint8_t value, T length) const override;
 
     void copyRange(Address<T> sourceAddress, T length) const override;
-
-    static void endMmxOperation();
-
-private:
-
-    static bool mmxAvailable;
 };
 
 template
