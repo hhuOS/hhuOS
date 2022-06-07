@@ -16,21 +16,23 @@
  */
 
 #include "lib/util/memory/Address.h"
-#include "kernel/service/JobService.h"
-#include "kernel/system/System.h"
 #include "LinearFrameBufferTerminal.h"
+#include "kernel/system/System.h"
+#include "kernel/service/SchedulerService.h"
 
 namespace Device::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
         characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(font) {
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(font),
+        cursorThread(Kernel::Thread::createKernelThread("Cursor", new CursorRunnable(*this, cursor))) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
-    Kernel::System::getService<Kernel::JobService>().registerJob(new CursorRunnable(*this, cursor), Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, 250000000));
+    Kernel::System::getService<Kernel::SchedulerService>().ready(cursorThread);
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
+    Kernel::System::getService<Kernel::SchedulerService>().kill(cursorThread);
     delete &lfb;
     delete[] characterBuffer;
 }

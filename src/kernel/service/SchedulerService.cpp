@@ -183,4 +183,8 @@ void SchedulerService::unblock(Thread &thread) {
     scheduler.unblockThread(thread);
 }
 
+void SchedulerService::kill(Thread &thread) {
+    scheduler.getCurrentProcess().getThreadScheduler().kill(thread);
+}
+
 }

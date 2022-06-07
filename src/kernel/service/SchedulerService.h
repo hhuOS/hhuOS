@@ -79,6 +79,8 @@ public:
 
     void unblock(Thread &thread);
 
+    void kill(Thread &thread);
+
     [[nodiscard]] bool isSchedulerInitialized() const;
 
     [[nodiscard]] bool isProcessActive(uint32_t id);

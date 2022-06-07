@@ -63,7 +63,7 @@ void ThreadScheduler::kill(Thread &thread) {
     threadQueue.remove(&thread);
     lock.release();
 
-    System::getService<SchedulerService>().cleanup(currentThread);;
+    System::getService<SchedulerService>().cleanup(currentThread);
 }
 
 Thread &ThreadScheduler::getCurrentThread() {
