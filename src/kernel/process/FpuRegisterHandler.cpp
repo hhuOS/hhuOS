@@ -27,6 +27,7 @@ void Kernel::FpuRegisterHandler::trigger(Kernel::InterruptFrame &frame) {
     auto &schedulerService = System::getService<SchedulerService>();
     schedulerService.lockScheduler();
 
+    // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
     asm volatile (
             "mov %%cr0, %%eax;"
             "and $0xfffffff7, %%eax;"
@@ -42,18 +43,22 @@ void Kernel::FpuRegisterHandler::trigger(Kernel::InterruptFrame &frame) {
     }
 
     if (lastFpuThread != nullptr) {
-        asm volatile(
+        asm volatile (
                 "fxsave (%0)"
                 : :
                 "r"(lastFpuThread->getFpuContext())
                 );
     }
 
-    asm volatile(
-            "fxrstor (%0)"
-            : :
-            "r"(currentThread.getFpuContext())
-            );
+    if (currentThread.hasInitializedFpu()) {
+        asm volatile(
+                "fxrstor (%0)"
+                : :
+                "r"(currentThread.getFpuContext())
+                );
+    } else {
+        currentThread.initializeFpu();
+    }
 
     lastFpuThread = &currentThread;
     schedulerService.unlockScheduler();

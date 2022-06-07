@@ -34,6 +34,14 @@ void SchedulerService::startScheduler() {
     auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler Cleaner", cleaner);
     ready(schedulerCleanerThread);
 
+    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
+    asm volatile (
+            "fninit;"
+            "fxsave (%0);"
+            : :
+            "r"(defaultFpuContext)
+            );
+
     fpuHandler = new FpuRegisterHandler();
     fpuHandler->plugin();
     
@@ -185,6 +193,10 @@ void SchedulerService::unblock(Thread &thread) {
 
 void SchedulerService::kill(Thread &thread) {
     scheduler.getCurrentProcess().getThreadScheduler().kill(thread);
+}
+
+uint8_t *SchedulerService::getDefaultFpuContext() {
+    return defaultFpuContext;
 }
 
 }

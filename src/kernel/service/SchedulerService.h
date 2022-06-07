@@ -89,6 +89,8 @@ public:
 
     [[nodiscard]] Thread& getCurrentThread();
 
+    [[nodiscard]] uint8_t *getDefaultFpuContext();
+
     static const constexpr uint8_t SERVICE_ID = 3;
 
 private:
@@ -96,6 +98,7 @@ private:
     ProcessScheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
     FpuRegisterHandler *fpuHandler = nullptr;
+    uint8_t *defaultFpuContext = nullptr;
 };
 
 }

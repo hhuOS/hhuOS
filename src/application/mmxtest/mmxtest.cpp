@@ -73,7 +73,6 @@ int32_t main(int32_t argc, char *argv[]) {
 
     asm volatile (
             "emms;"
-            "fninit;"
             );
 
     double memsetSpeedup = (double) memsetResult / memsetMmxResult;
