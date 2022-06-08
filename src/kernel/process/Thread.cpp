@@ -36,7 +36,10 @@ Thread::Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable
         id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
         interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
         kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))),
-        fpuContext(static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {}
+        fpuContext(static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {
+    auto source = Util::Memory::Address<uint32_t>(System::getService<SchedulerService>().getDefaultFpuContext());
+    Util::Memory::Address<uint32_t>(fpuContext).copyRange(source, 512);
+}
 
 Thread::~Thread() {
     // Do not delete user stack, as it is hard coded
@@ -119,20 +122,6 @@ void Thread::setParent(Process *process) {
 
 uint8_t *Thread::getFpuContext() const {
     return fpuContext;
-}
-
-bool Thread::hasInitializedFpu() const {
-    return fpuInitialized;
-}
-
-void Thread::initializeFpu() {
-    asm volatile (
-            "fxrstor (%0);"
-            : :
-            "r"(System::getService<SchedulerService>().getDefaultFpuContext())
-            );
-
-    fpuInitialized = true;
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {

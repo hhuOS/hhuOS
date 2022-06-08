@@ -15,48 +15,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FPUREGISTERHANDLER_H
-#define HHUOS_FPUREGISTERHANDLER_H
+#ifndef HHUOS_FPU_H
+#define HHUOS_FPU_H
 
 #include "kernel/interrupt/InterruptHandler.h"
-#include "Thread.h"
+#include "kernel/process/Thread.h"
 
-namespace Kernel {
+namespace Device {
 
-class FpuRegisterHandler : public InterruptHandler {
+class Fpu : public Kernel::InterruptHandler {
 
 public:
     /**
      * Default Constructor.
      */
-    FpuRegisterHandler() = default;
+    Fpu();
 
     /**
      * Copy Constructor.
      */
-    FpuRegisterHandler(const FpuRegisterHandler &other) = delete;
+    Fpu(const Fpu &other) = delete;
 
     /**
      * Assignment operator.
      */
-    FpuRegisterHandler &operator=(const FpuRegisterHandler &other) = delete;
+    Fpu &operator=(const Fpu &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FpuRegisterHandler() override = default;
+    ~Fpu() override = default;
 
     void plugin() override;
 
-    void trigger(InterruptFrame &frame) override;
+    void trigger(Kernel::InterruptFrame &frame) override;
 
-    void checkTerminatedThread(Thread &thread);
+    void checkTerminatedThread(Kernel::Thread &thread);
+
+    static bool isAvailable();
+
+    static bool isFxsrAvailable();
 
     static void armFpuMonitor();
 
 private:
 
-    Thread *lastFpuThread = nullptr;
+    void switchContext(Kernel::Thread &currentThread);
+
+    void switchContextFpuOnly(Kernel::Thread &currentThread);
+
+    static bool probeFpu();
+
+    bool fxsrAvailable = isFxsrAvailable();
+    Kernel::Thread *lastFpuThread = nullptr;
+
+    static Kernel::Logger log;
 };
 
 }

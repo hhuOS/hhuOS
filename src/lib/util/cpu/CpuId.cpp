@@ -27,6 +27,10 @@ bool CpuId::isAvailable() {
 }
 
 Util::Memory::String CpuId::getVendorString() {
+    if (!isAvailable()) {
+        return "";
+    }
+
     uint32_t vendor[3];
     asm volatile(
     "mov $0,%%eax;"
@@ -43,6 +47,10 @@ Util::Memory::String CpuId::getVendorString() {
 }
 
 uint64_t CpuId::getCpuFeatureBits() {
+    if (!isAvailable()) {
+        return 0;
+    }
+
     auto features = Util::Data::ArrayList<CpuFeature>();
 
     uint32_t ecx, edx;
@@ -60,6 +68,10 @@ uint64_t CpuId::getCpuFeatureBits() {
 }
 
 Util::Data::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
+    if (!isAvailable()) {
+        return Util::Data::Array<CpuId::CpuFeature>(0);
+    }
+
     auto features = Util::Data::ArrayList<CpuFeature>();
     auto featureBits = getCpuFeatureBits();
 
@@ -74,6 +86,10 @@ Util::Data::Array<CpuId::CpuFeature> CpuId::getCpuFeatures() {
 }
 
 CpuId::CpuInfo CpuId::getCpuInfo() {
+    if (!isAvailable()) {
+        return {};
+    }
+
     uint32_t eax;
     asm volatile(
     "mov $1,%%eax;"

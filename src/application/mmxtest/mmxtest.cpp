@@ -25,8 +25,9 @@
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (!Util::Cpu::CpuId::isAvailable() || !Util::Cpu::CpuId::getCpuFeatures().contains(Util::Cpu::CpuId::MMX)) {
-        Util::System::out << "MMX is not supported by this CPU!" << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
+    if (!Util::Cpu::CpuId::getCpuFeatures().contains(Util::Cpu::CpuId::MMX)) {
+        Util::System::out << "MMX is not supported by this CPU!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
     }
 
     auto iterations = static_cast<uint32_t>(argc > 1 ? Util::Memory::String::parseInt(argv[1]) : 100);
@@ -36,32 +37,32 @@ int32_t main(int32_t argc, char *argv[]) {
     auto target = Util::Memory::Address<uint32_t>(buffer2);
     auto mmxTarget = Util::Memory::MmxAddress<uint32_t>(buffer2);
 
-    Util::System::out << "Ensuring buffers are mapped in..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Ensuring buffers are mapped in..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     source.setRange(0, BUFFER_SIZE);
     target.setRange(0, BUFFER_SIZE);
 
-    Util::System::out << "Running memset benchmark without MMX..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Running memset benchmark without MMX..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     auto start = Util::Time::getSystemTime().toMilliseconds();
     for (uint32_t i = 0; i < iterations; i++) {
         target.setRange(i, BUFFER_SIZE);
     }
     auto memsetResult = Util::Time::getSystemTime().toMilliseconds() - start;
 
-    Util::System::out << "Running memcpy benchmark without MMX..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Running memcpy benchmark without MMX..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     start = Util::Time::getSystemTime().toMilliseconds();
     for (uint32_t i = 0; i < iterations; i++) {
         target.copyRange(source, BUFFER_SIZE);
     }
     auto memcpyResult = Util::Time::getSystemTime().toMilliseconds() - start;
 
-    Util::System::out << "Running memset benchmark with MMX..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Running memset benchmark with MMX..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     start = Util::Time::getSystemTime().toMilliseconds();
     for (uint32_t i = 0; i < iterations; i++) {
         mmxTarget.setRange(i, BUFFER_SIZE);
     }
     auto memsetMmxResult = Util::Time::getSystemTime().toMilliseconds() - start;
 
-    Util::System::out << "Running memcpy benchmark with MMX..." << Util::Stream::PrintWriter::flush << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl;
+    Util::System::out << "Running memcpy benchmark with MMX..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     start = Util::Time::getSystemTime().toMilliseconds();
     for (uint32_t i = 0; i < iterations; i++) {
         mmxTarget.copyRange(source, BUFFER_SIZE);

@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/BufferedOutputStream.h"
 #include "device/bios/Bios.h"
 #include "device/graphic/lfb/vesa/VesaBiosExtensions.h"
 #include "kernel/multiboot/MultibootLinearFrameBufferProvider.h"

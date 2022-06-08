@@ -3,25 +3,6 @@
 
 namespace Util::Async {
 
-/*
- * Dummy functions used to return true/false from assembly.
- * These functions should not be called. They are just wrappers for labels, directly jumped at from assembly code.
- */
-
-bool dummyUnset() {
-    asm volatile(
-    "CF_UNSET:"
-    );
-    return false;
-}
-
-bool dummySet() {
-    asm volatile(
-    "CF_SET:"
-    );
-    return true;
-}
-
 template<typename T>
 Atomic<T>::Atomic(T &value) : value(value) {}
 

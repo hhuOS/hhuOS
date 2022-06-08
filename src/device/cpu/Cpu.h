@@ -34,6 +34,21 @@ namespace Device {
 class Cpu {
 
 public:
+
+    enum Configuration0 {
+        PROTECTED_MODE_ENABLE = 0x01,
+        MONITOR_CO_PROCESSOR = 0x02,
+        X87_FPU_EMULATION = 0x04,
+        TASK_SWITCHED = 0x08,
+        EXTENSION_TYPE = 0x10,
+        NUMERIC_ERROR = 0x20,
+        WRITE_PROTECT = 0x10000,
+        ALIGNMENT_MASK = 0x40000,
+        NOT_WRITE_THROUGH = 0x20000000,
+        CACHE_DISABLE = 0x40000000,
+        PAGING = 0x80000000
+    };
+
     /**
      * Default Constructor.
      * Deleted, as this class has only static members.
@@ -64,6 +79,8 @@ public:
      * Disable hardware interrupts on CPU.
      */
     static void disableInterrupts();
+
+    static Util::Data::Array<Configuration0> readCr0();
 
     /**
      * Stop the processor via hlt instruction.

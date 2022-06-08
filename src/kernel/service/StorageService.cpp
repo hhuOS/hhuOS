@@ -39,7 +39,7 @@ Util::Memory::String StorageService::registerDevice(Device::Storage::StorageDevi
     nameMap.put(deviceClass, value + 1);
     lock.release();
 
-    log.info("Registered device '%s'",static_cast<char*>(name));
+    log.info("Registered device %s",static_cast<char*>(name));
     return name;
 }
 

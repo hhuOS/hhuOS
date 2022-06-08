@@ -22,7 +22,7 @@
 #include "lib/util/file/File.h"
 #include "kernel/process/SchedulerCleaner.h"
 #include "Service.h"
-#include "kernel/process/FpuRegisterHandler.h"
+#include "device/cpu/Fpu.h"
 
 namespace Kernel {
 
@@ -97,8 +97,10 @@ private:
 
     ProcessScheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
-    FpuRegisterHandler *fpuHandler = nullptr;
+    Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
+
+    static Logger log;
 };
 
 }

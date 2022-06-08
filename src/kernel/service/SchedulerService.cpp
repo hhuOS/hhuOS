@@ -15,14 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SchedulerService.h"
 #include "kernel/system/System.h"
-#include "FilesystemService.h"
 #include "kernel/process/AddressSpaceCleaner.h"
 #include "kernel/process/BinaryLoader.h"
-#include "kernel/process/FpuRegisterHandler.h"
+#include "device/cpu/Fpu.h"
+#include "FilesystemService.h"
+#include "SchedulerService.h"
 
 namespace Kernel {
+
+Logger SchedulerService::log = Logger::get("Scheduler");
 
 void SchedulerService::kickoffThread() {
     scheduler.getCurrentProcess().getThreadScheduler().getCurrentThread().run();
@@ -35,15 +37,15 @@ void SchedulerService::startScheduler() {
     ready(schedulerCleanerThread);
 
     defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
-    asm volatile (
-            "fninit;"
-            "fxsave (%0);"
-            : :
-            "r"(defaultFpuContext)
-            );
+    Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
-    fpuHandler = new FpuRegisterHandler();
-    fpuHandler->plugin();
+    if (Device::Fpu::isAvailable()) {
+        log.info("FPU detected -> Enabling FPU context switching");
+        fpu = new Device::Fpu();
+        fpu->plugin();
+    } else {
+        log.warn("No FPU present");
+    }
     
     scheduler.start();
 }
@@ -171,7 +173,7 @@ void SchedulerService::cleanup(Process *process) {
 }
 
 void SchedulerService::cleanup(Thread *thread) {
-    fpuHandler->checkTerminatedThread(*thread);
+    fpu->checkTerminatedThread(*thread);
     cleaner->cleanup(thread);
 }
 

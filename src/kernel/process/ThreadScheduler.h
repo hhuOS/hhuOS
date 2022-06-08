@@ -105,6 +105,8 @@ private:
 
     Util::Data::ArrayBlockingQueue<Thread*> threadQueue;
     Thread *currentThread = nullptr;
+
+    static bool fpuAvailable;
 };
 
 }

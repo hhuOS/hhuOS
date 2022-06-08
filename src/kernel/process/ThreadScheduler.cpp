@@ -19,9 +19,11 @@
 #include "ProcessScheduler.h"
 #include "kernel/system/System.h"
 #include "asm_interface.h"
-#include "FpuRegisterHandler.h"
+#include "device/cpu/Fpu.h"
 
 namespace Kernel {
+
+bool ThreadScheduler::fpuAvailable = Device::Fpu::isAvailable();
 
 ThreadScheduler::ThreadScheduler(ProcessScheduler &parent) : parent(parent) {}
 
@@ -98,7 +100,9 @@ void ThreadScheduler::yield(Thread &oldThread, Process &nextProcess, bool force)
 
 void ThreadScheduler::dispatch(Thread &current, Thread &next) {
     currentThread = &next;
-    FpuRegisterHandler::armFpuMonitor();
+    if (fpuAvailable) {
+        Device::Fpu::armFpuMonitor();
+    }
     switch_context(&current.kernelContext, &next.kernelContext);
 }
 

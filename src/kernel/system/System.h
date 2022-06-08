@@ -59,7 +59,7 @@ public:
     /**
      * Assignment operator.
      */
-    System &operator=(const System &other) = delete;
+    System& operator=(const System &other) = delete;
 
     /**
      * Destructor.

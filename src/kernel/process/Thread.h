@@ -89,10 +89,6 @@ public:
 
     [[nodiscard]] uint8_t* getFpuContext() const;
 
-    [[nodiscard]] bool hasInitializedFpu() const;
-
-    void initializeFpu();
-
     void setParent(Process *process);
 
     virtual void run();
