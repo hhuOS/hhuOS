@@ -199,13 +199,13 @@ void GatesOfHell::initializeFilesystem() {
             const auto &driverName = rootOptions[1];
 
             if (storageService.isDeviceRegistered(deviceName)) {
-                log.info("Mounting filesystem on %s as root filesystem using driver %s", static_cast<const char*>(deviceName), static_cast<const char*>(driverName));
+                log.info("Mounting [%s] to root using driver [%s]", static_cast<const char*>(deviceName), static_cast<const char*>(driverName));
                 rootMounted = filesystemService.mount(deviceName, "/", driverName);
                 if (!rootMounted) {
                     log.error("Failed to mount root filesystem");
                 }
             } else {
-                log.error("Device %s is not available", static_cast<const char*>(deviceName));
+                log.error("Device [%s] is not available", static_cast<const char*>(deviceName));
             }
         } else {
             log.error("Invalid options for root filesystem given");

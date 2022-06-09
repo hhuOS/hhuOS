@@ -86,12 +86,12 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
     auto subClass = readByte(bus, device, function, SUBCLASS);
 
     if (baseClass == BRIDGE && subClass == PCI_TO_PCI) {
-        log.info("Found PCI-to-PCI bridge on bus %u", bus);
+        log.info("Found PCI-to-PCI bridge on bus [%u]", bus);
         uint8_t secondaryBus = readByte(bus, device, function, SECONDARY_BUS);
         scanBus(secondaryBus);
     } else {
         auto pciDevice = readDevice(bus, device, function);
-        log.info("Found PCI device %04x:%04x on bus %u", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
+        log.info("Found PCI device [%04x:%04x] on bus [%u]", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
         devices.add(pciDevice);
     }
 }
