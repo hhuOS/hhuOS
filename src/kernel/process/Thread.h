@@ -19,9 +19,10 @@
 #define HHUOS_THREAD_H
 
 #include "lib/util/memory/String.h"
-#include "ThreadState.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/IdGenerator.h"
+#include "lib/util/data/ArrayList.h"
+#include "ThreadState.h"
 
 namespace Kernel {
 
@@ -91,6 +92,10 @@ public:
 
     void setParent(Process *process);
 
+    void join();
+
+    void unblockJoinList();
+
     virtual void run();
 
 private:
@@ -108,9 +113,9 @@ private:
     InterruptFrame &interruptFrame;
     Context *kernelContext;
     uint8_t *fpuContext;
-    bool fpuInitialized = false;
 
-    static uint8_t *startFpuContext;
+    Util::Data::ArrayList<Thread*> joinList;
+
     static Util::Async::IdGenerator<uint32_t> idGenerator;
     static const constexpr uint32_t DEFAULT_STACK_SIZE = 4096;
 };

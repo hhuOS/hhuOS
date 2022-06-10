@@ -50,6 +50,8 @@ public:
 
     void ready(Thread &thread);
 
+    void unblock(Thread &thread);
+
     void start();
 
     void exit();
@@ -57,6 +59,10 @@ public:
     bool setWorkingDirectory(const Util::Memory::String &path);
 
     void setExitCode(int32_t code);
+
+    void setMainThread(Thread &thread);
+
+    void join();
 
     [[nodiscard]] uint32_t getId() const;
 
@@ -86,6 +92,7 @@ private:
     ThreadScheduler threadScheduler;
     FileDescriptorManager fileDescriptorManager;
     Util::File::File workingDirectory;
+    Thread *mainThread = nullptr;
 
     bool finished = false;
     int32_t exitCode = -1;

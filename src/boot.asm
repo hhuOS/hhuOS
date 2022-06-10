@@ -111,7 +111,7 @@ boot:
     push dword (gdt_descriptor - KERNEL_START)
     push dword (gdt_bios - KERNEL_START)
     push dword (gdt - KERNEL_START)
-    call init_gdt
+    call_physical_function init_gdt
 
     ; Load GDT from physical address
     lgdt [gdt_phys_descriptor - KERNEL_START]

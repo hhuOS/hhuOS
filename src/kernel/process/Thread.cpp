@@ -19,10 +19,10 @@
 #include "lib/util/memory/Address.h"
 #include "lib/util/memory/operators.h"
 #include "kernel/system/System.h"
-#include "asm_interface.h"
-#include "Thread.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/paging/Paging.h"
+#include "asm_interface.h"
+#include "Thread.h"
 
 void kickoff() {
     Kernel::System::getService<Kernel::SchedulerService>().kickoffThread();
@@ -104,7 +104,7 @@ Util::Memory::String Thread::getName() const {
     return name;
 }
 
-Context *Thread::getContext() const {
+Context* Thread::getContext() const {
     return kernelContext;
 }
 
@@ -122,6 +122,21 @@ void Thread::setParent(Process *process) {
 
 uint8_t *Thread::getFpuContext() const {
     return fpuContext;
+}
+
+void Thread::join() {
+    auto &schedulerService = System::getService<SchedulerService>();
+    joinList.add(&schedulerService.getCurrentThread());
+
+    schedulerService.unlockScheduler();
+    schedulerService.block();
+}
+
+void Thread::unblockJoinList() {
+    auto &schedulerService = System::getService<SchedulerService>();
+    for (auto *thread : joinList) {
+        schedulerService.unblock(*thread);
+    }
 }
 
 Thread::Stack::Stack(uint8_t *stack, uint32_t size) : stack(stack), size(size) {

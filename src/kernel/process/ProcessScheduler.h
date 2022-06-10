@@ -69,11 +69,11 @@ public:
 
     void blockCurrentThread();
 
-    void unblockThread(Thread &thread);
-
     Process& getCurrentProcess();
 
     uint32_t getProcessCount();
+
+    Process* getProcess(uint32_t id);
 
 private:
 

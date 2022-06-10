@@ -143,6 +143,26 @@ void SchedulerService::setSchedulerInitialized() {
         return Util::System::Result::OK;
     });
 
+    SystemCall::registerSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto processId = va_arg(arguments, uint32_t);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        schedulerService.lockScheduler();
+
+        auto *process = schedulerService.getProcess(processId);
+        if (process == nullptr) {
+            schedulerService.unlockScheduler();
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        process->join();
+        return Util::System::Result::OK;
+    });
+
     scheduler.setInitialized();
 }
 
@@ -190,7 +210,12 @@ void SchedulerService::block() {
 }
 
 void SchedulerService::unblock(Thread &thread) {
-    scheduler.unblockThread(thread);
+    auto &process = *thread.getParent();
+    if (isProcessActive(process.getId())) {
+        process.unblock(thread);
+    } else {
+        cleanup(&thread);
+    }
 }
 
 void SchedulerService::kill(Thread &thread) {
@@ -199,6 +224,10 @@ void SchedulerService::kill(Thread &thread) {
 
 uint8_t *SchedulerService::getDefaultFpuContext() {
     return defaultFpuContext;
+}
+
+Process *SchedulerService::getProcess(uint32_t id) {
+    return scheduler.getProcess(id);
 }
 
 }

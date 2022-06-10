@@ -80,7 +80,7 @@ void Fpu::trigger(Kernel::InterruptFrame &frame) {
 }
 
 void Fpu::checkTerminatedThread(Kernel::Thread &thread) {
-    Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t &>(lastFpuThread));
+    Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
     wrapper.compareAndSet(reinterpret_cast<uint32_t>(&thread), 0);
 }
 

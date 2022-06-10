@@ -50,6 +50,7 @@ void ThreadScheduler::ready(Thread &thread) {
 void ThreadScheduler::exit() {
     lock.acquire();
     threadQueue.remove(currentThread);
+    currentThread->unblockJoinList();
     lock.release();
 
     System::getService<SchedulerService>().cleanup(currentThread);
@@ -63,6 +64,7 @@ void ThreadScheduler::kill(Thread &thread) {
 
     lock.acquire();
     threadQueue.remove(&thread);
+    thread.unblockJoinList();
     lock.release();
 
     System::getService<SchedulerService>().cleanup(currentThread);
@@ -122,15 +124,10 @@ void ThreadScheduler::block() {
     lock.acquire();
     threadQueue.remove(currentThread);
     lock.release();
-
-    //Thread &nextThread = getNextThread();
-    //dispatch(*currentThread, nextThread);
 }
 
 void ThreadScheduler::unblock(Thread &thread) {
-    lock.acquire();
     threadQueue.push(&thread);
-    lock.release();
 }
 
 }

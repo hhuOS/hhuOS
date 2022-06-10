@@ -43,4 +43,8 @@ uint32_t Process::getId() const {
     return id;
 }
 
+void Process::join() const {
+    ::joinProcess(id);
+}
+
 }

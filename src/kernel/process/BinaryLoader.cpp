@@ -60,7 +60,10 @@ void BinaryLoader::run() {
 
     auto heapAddress = Util::Memory::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
-    System::getService<SchedulerService>().ready(userThread);
+
+    auto &schedulerService = System::getService<SchedulerService>();
+    schedulerService.getCurrentProcess().setMainThread(userThread);
+    schedulerService.ready(userThread);
 }
 
 }

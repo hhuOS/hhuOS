@@ -102,4 +102,23 @@ uint32_t Process::getThreadCount() const {
     return threadScheduler.getThreadCount();
 }
 
+void Process::unblock(Thread &thread) {
+    threadScheduler.unblock(thread);
+}
+
+void Process::setMainThread(Thread &thread) {
+    mainThread = &thread;
+}
+
+void Process::join() {
+    auto &schedulerService = System::getService<SchedulerService>();
+    if (mainThread == nullptr) {
+        schedulerService.unlockScheduler();
+    }
+    while (mainThread == nullptr) {}
+
+    schedulerService.lockScheduler();
+    mainThread->join();
+}
+
 }

@@ -129,6 +129,10 @@ bool isProcessActive(uint32_t id) {
     return isActive;
 }
 
+void joinProcess(uint32_t id) {
+    Util::System::call(Util::System::JOIN_PROCESS, 1, id);
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);

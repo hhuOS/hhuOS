@@ -117,6 +117,13 @@ bool isProcessActive(uint32_t id) {
     return Kernel::System::getService<Kernel::SchedulerService>().isProcessActive(id);
 }
 
+void joinProcess(uint32_t id) {
+    auto *process = Kernel::System::getService<Kernel::SchedulerService>().getProcess(id);
+    if (process != nullptr) {
+        process->join();
+    }
+}
+
 Util::Time::Timestamp getSystemTime() {
     return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
 }

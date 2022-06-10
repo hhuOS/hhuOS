@@ -35,6 +35,7 @@ public:
         EXIT_PROCESS,
         EXECUTE_BINARY,
         IS_PROCESS_ACTIVE,
+        JOIN_PROCESS,
         UNMAP,
         MAP_IO,
         CREATE_FILE,

@@ -138,8 +138,14 @@ void ProcessScheduler::blockCurrentThread() {
     forceYield();
 }
 
-void ProcessScheduler::unblockThread(Thread &thread) {
-    thread.getParent()->getThreadScheduler().unblock(thread);
+Process* ProcessScheduler::getProcess(uint32_t id) {
+    for (auto *process : processQueue) {
+        if (process->getId() == id) {
+            return process;
+        }
+    }
+
+    return nullptr;
 }
 
 }
