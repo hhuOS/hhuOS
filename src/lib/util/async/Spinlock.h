@@ -17,8 +17,6 @@
 #ifndef __Spinlock_include__
 #define __Spinlock_include__
 
-
-#include <cstdint>
 #include "lib/util/async/Atomic.h"
 #include "Lock.h"
 
@@ -34,7 +32,7 @@ class Spinlock : public Lock {
 
 public:
 
-    Spinlock() noexcept;
+    Spinlock();
 
     Spinlock(const Spinlock &other) = delete;
 
@@ -50,15 +48,13 @@ public:
 
     bool isLocked() override;
 
-private:
+protected:
 
-    static const constexpr uint8_t SPINLOCK_UNLOCK = 0x00;
-    static const constexpr uint8_t SPINLOCK_LOCK = 0x01;
+    uint32_t lockVar = SPINLOCK_UNLOCK;
+    Atomic<uint32_t> lockVarWrapper;
 
-private:
-
-    uint16_t lockVar = SPINLOCK_UNLOCK;
-    Atomic<uint16_t> lockVarWrapper;
+    static const constexpr uint32_t SPINLOCK_UNLOCK = UINT32_MAX;
+    static const constexpr uint32_t SPINLOCK_LOCK = 0x01;
 };
 
 }

@@ -21,5 +21,6 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/FunctionPointerRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Process.cpp
+        ${HHUOS_SRC_DIR}/lib/util/async/ReentrantSpinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Spinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Thread.cpp)

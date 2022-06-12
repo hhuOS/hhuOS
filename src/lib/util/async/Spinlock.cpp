@@ -2,16 +2,14 @@
 
 namespace Util::Async {
 
-Spinlock::Spinlock() noexcept: lockVarWrapper(lockVar) {
+Spinlock::Spinlock() : lockVarWrapper(lockVar) {}
 
-}
-
-void Async::Spinlock::acquire() {
-    while (!tryAcquire());
+void Spinlock::acquire() {
+    while (!tryAcquire()) {}
 }
 
 bool Spinlock::tryAcquire() {
-    return lockVarWrapper.getAndSet(SPINLOCK_LOCK) == SPINLOCK_UNLOCK;
+    return lockVarWrapper.compareAndSet(SPINLOCK_UNLOCK, SPINLOCK_LOCK);
 }
 
 void Spinlock::release() {
@@ -19,7 +17,7 @@ void Spinlock::release() {
 }
 
 bool Spinlock::isLocked() {
-    return lockVarWrapper.get() == SPINLOCK_LOCK;
+    return lockVarWrapper.get() != SPINLOCK_UNLOCK;
 }
 
 }
