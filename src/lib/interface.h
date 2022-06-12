@@ -26,6 +26,7 @@
 #include "lib/util/time/Date.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/system/Machine.h"
+#include "lib/util/async/Thread.h"
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
@@ -48,6 +49,8 @@ bool changeDirectory(const Util::Memory::String &path);
 Util::File::File getCurrentWorkingDirectory();
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+Util::Async::Process getCurrentProcess();
+Util::Async::Thread getCurrentThread();
 bool isProcessActive(uint32_t id);
 void joinProcess(uint32_t id);
 

@@ -113,6 +113,16 @@ Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Uti
     return Util::Async::Process(process.getId());
 }
 
+Util::Async::Process getCurrentProcess() {
+    auto &process = Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess();
+    return Util::Async::Process(process.getId());
+}
+
+Util::Async::Thread getCurrentThread() {
+    auto &thread = Kernel::System::getService<Kernel::SchedulerService>().getCurrentThread();
+    return Util::Async::Thread(thread.getId());
+}
+
 bool isProcessActive(uint32_t id) {
     return Kernel::System::getService<Kernel::SchedulerService>().isProcessActive(id);
 }

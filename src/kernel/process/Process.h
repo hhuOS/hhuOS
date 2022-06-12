@@ -20,8 +20,8 @@
 
 #include "kernel/paging/VirtualAddressSpace.h"
 #include "lib/util/file/File.h"
-#include "Thread.h"
 #include "ThreadScheduler.h"
+#include "Thread.h"
 
 namespace Kernel {
 

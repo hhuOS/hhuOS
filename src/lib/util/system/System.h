@@ -34,6 +34,8 @@ public:
         SCHEDULER_YIELD,
         EXIT_PROCESS,
         EXECUTE_BINARY,
+        GET_CURRENT_PROCESS,
+        GET_CURRENT_THREAD,
         IS_PROCESS_ACTIVE,
         JOIN_PROCESS,
         UNMAP,

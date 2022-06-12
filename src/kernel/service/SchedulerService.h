@@ -21,8 +21,8 @@
 #include "kernel/process/ProcessScheduler.h"
 #include "lib/util/file/File.h"
 #include "kernel/process/SchedulerCleaner.h"
-#include "Service.h"
 #include "device/cpu/Fpu.h"
+#include "Service.h"
 
 namespace Kernel {
 

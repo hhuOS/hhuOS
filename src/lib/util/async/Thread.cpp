@@ -15,40 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/system/System.h"
 #include "lib/interface.h"
-#include "Process.h"
+#include "Thread.h"
 
 namespace Util::Async {
 
-Process::Process(uint32_t id) : id(id) {}
+Thread::Thread(uint32_t id) : id(id) {}
 
-Process Process::execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    return ::executeBinary(binaryFile, outputFile, command, arguments);
+Thread Util::Async::Thread::getCurrentThread() {
+    return ::getCurrentThread();
 }
 
-Process Process::getCurrentProcess() {
-    return ::getCurrentProcess();
-}
-
-void Process::yield() {
-    System::System::call(System::System::SCHEDULER_YIELD, 0);
-}
-
-void Process::exit(int32_t exitCode) {
-    System::System::call(System::System::EXIT_PROCESS, 1, exitCode);
-}
-
-bool Process::isActive() const {
-    return ::isProcessActive(id);
-}
-
-uint32_t Process::getId() const {
+uint32_t Thread::getId() const {
     return id;
-}
-
-void Process::join() const {
-    ::joinProcess(id);
 }
 
 }

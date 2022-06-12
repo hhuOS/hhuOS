@@ -18,9 +18,9 @@
 #ifndef HHUOS_THREADSCHEDULER_H
 #define HHUOS_THREADSCHEDULER_H
 
-#include "Thread.h"
 #include "lib/util/data/ArrayBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
+#include "Thread.h"
 
 namespace Kernel {
 

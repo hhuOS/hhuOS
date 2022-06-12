@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "ProcessScheduler.h"
-#include "asm_interface.h"
 #include "kernel/system/System.h"
+#include "asm_interface.h"
+#include "ProcessScheduler.h"
 
 namespace Kernel {
 

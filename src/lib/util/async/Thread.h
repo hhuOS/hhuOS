@@ -15,40 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/system/System.h"
-#include "lib/interface.h"
-#include "Process.h"
+#ifndef HHUOS_UTIL_THREAD_H
+#define HHUOS_UTIL_THREAD_H
+
+#include <cstdint>
 
 namespace Util::Async {
 
-Process::Process(uint32_t id) : id(id) {}
+class Thread {
 
-Process Process::execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    return ::executeBinary(binaryFile, outputFile, command, arguments);
+public:
+    /**
+     * Constructor.
+     */
+    explicit Thread(uint32_t id);
+
+    /**
+     * Copy Constructor.
+     */
+    Thread(const Thread &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Thread &operator=(const Thread &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Thread() = default;
+
+    static Thread getCurrentThread();
+
+    [[nodiscard]] uint32_t getId() const;
+
+private:
+
+    uint32_t id;
+};
+
 }
 
-Process Process::getCurrentProcess() {
-    return ::getCurrentProcess();
-}
-
-void Process::yield() {
-    System::System::call(System::System::SCHEDULER_YIELD, 0);
-}
-
-void Process::exit(int32_t exitCode) {
-    System::System::call(System::System::EXIT_PROCESS, 1, exitCode);
-}
-
-bool Process::isActive() const {
-    return ::isProcessActive(id);
-}
-
-uint32_t Process::getId() const {
-    return id;
-}
-
-void Process::join() const {
-    ::joinProcess(id);
-}
-
-}
+#endif

@@ -18,8 +18,8 @@
 #ifndef HHUOS_PROCESSSCHEDULER_H
 #define HHUOS_PROCESSSCHEDULER_H
 
-#include "Process.h"
 #include "lib/util/data/HashMap.h"
+#include "Process.h"
 
 namespace Kernel {
 

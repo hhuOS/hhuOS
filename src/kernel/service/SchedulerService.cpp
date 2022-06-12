@@ -129,6 +129,32 @@ void SchedulerService::setSchedulerInitialized() {
         return Util::System::Result::OK;
     });
 
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *processId = va_arg(arguments, uint32_t*);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        *processId = schedulerService.getCurrentProcess().getId();
+
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *threadId = va_arg(arguments, uint32_t*);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        *threadId = schedulerService.getCurrentThread().getId();
+
+        return Util::System::Result::OK;
+    });
+
     SystemCall::registerSystemCall(Util::System::IS_PROCESS_ACTIVE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 2) {
             return Util::System::INVALID_ARGUMENT;

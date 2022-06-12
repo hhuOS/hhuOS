@@ -123,6 +123,18 @@ Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Uti
     return Util::Async::Process(processId);
 }
 
+Util::Async::Process getCurrentProcess() {
+    uint32_t processId;
+    Util::System::call(Util::System::GET_CURRENT_PROCESS, 1, &processId);
+    return Util::Async::Process(processId);
+}
+
+Util::Async::Thread getCurrentThread() {
+    uint32_t threadId;
+    Util::System::call(Util::System::GET_CURRENT_PROCESS, 1, &threadId);
+    return Util::Async::Thread(threadId);
+}
+
 bool isProcessActive(uint32_t id) {
     bool isActive;
     Util::System::call(Util::System::IS_PROCESS_ACTIVE, 2, id, &isActive);

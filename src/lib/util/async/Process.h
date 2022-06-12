@@ -24,7 +24,7 @@ class Process {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
     explicit Process(uint32_t id);
 
@@ -44,6 +44,8 @@ public:
     ~Process() = default;
 
     static Process execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+
+    static Process getCurrentProcess();
 
     static void yield();
 
