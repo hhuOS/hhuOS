@@ -32,7 +32,7 @@ public:
     /**
      * Default Constructor.
      */
-    SchedulerService() = default;
+    SchedulerService();
 
     /**
      * Copy Constructor.
@@ -63,7 +63,7 @@ public:
 
     void cleanup(Thread *thread);
 
-    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
+    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardOut);
 
     Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
@@ -73,15 +73,11 @@ public:
 
     void unlockScheduler();
 
-    void setSchedulerInitialized();
-
     void block();
 
     void unblock(Thread &thread);
 
     void kill(Thread &thread);
-
-    [[nodiscard]] bool isSchedulerInitialized() const;
 
     [[nodiscard]] bool isProcessActive(uint32_t id);
 

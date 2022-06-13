@@ -19,7 +19,9 @@
 
 ; Export functions
 global bios_call
-global set_scheduler_initialized
+
+; Export variables
+global scheduler_initialized
 
 ; Import variables
 extern initial_kernel_stack
@@ -139,12 +141,6 @@ skip_stack_switch_2:
     popfd
 	; Load old IDT
     lidt	[idt_descriptor]
-    ret
-
-
-; Is called when threadScheduler starts
-set_scheduler_initialized:
-    mov dword [scheduler_initialized], 0x1
     ret
 
 section .data

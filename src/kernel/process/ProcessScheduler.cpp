@@ -19,20 +19,16 @@
 #include "asm_interface.h"
 #include "ProcessScheduler.h"
 
+extern uint32_t scheduler_initialized;
+
 namespace Kernel {
 
 ProcessScheduler::~ProcessScheduler() {
+    lock.acquire();
     while (!processQueue.isEmpty()) {
         delete processQueue.pop();
     }
-}
-
-void ProcessScheduler::setInitialized() {
-    initialized = 0x1797;
-}
-
-uint32_t ProcessScheduler::isInitialized() const {
-    return initialized;
+    lock.release();
 }
 
 void ProcessScheduler::start() {
@@ -48,46 +44,28 @@ void ProcessScheduler::ready(Process &process) {
 
     lock.acquire();
     processQueue.push(&process);
-    processIds.add(process.getId());
     lock.release();
 }
 
 void ProcessScheduler::exit() {
-    if (!initialized) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: 'exit()' called but scheduler is not initialized!");
-    }
-
     lock.acquire();
     processQueue.remove(currentProcess);
-    processIds.remove(currentProcess->getId());
 
     System::getService<SchedulerService>().cleanup(currentProcess);
     dispatch(getNextProcess(), false);
 }
 
 void ProcessScheduler::kill(Process &process) {
-    if (!initialized) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"Scheduler: Trying to kill a process but scheduler is not initialized!");
+    if (process.getId() == currentProcess->getId()) {
+        exit();
+        return;
     }
 
     lock.acquire();
-    if (process.getId() == currentProcess->getId()) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE,"A process is trying to kill itself... Use 'exit()' instead!");
-    }
-
     processQueue.remove(&process);
-    processIds.remove(process.getId());
     lock.release();
 
     delete &process;
-}
-
-bool ProcessScheduler::isProcessWaiting() {
-    return !processQueue.isEmpty();
-}
-
-bool ProcessScheduler::isProcessActive(uint32_t id) {
-    return processIds.contains(id);
 }
 
 Process &ProcessScheduler::getCurrentProcess() {
@@ -99,7 +77,7 @@ uint32_t ProcessScheduler::getProcessCount() {
 }
 
 Process &ProcessScheduler::getNextProcess() {
-    if (!isProcessWaiting()) {
+    if (processQueue.isEmpty()) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Scheduler: No process is running!");
     }
 
@@ -116,10 +94,8 @@ Process &ProcessScheduler::getNextProcess() {
 }
 
 void ProcessScheduler::yield() {
-    if(lock.tryAcquire()) {
+    if (scheduler_initialized && lock.tryAcquire()) {
         dispatch(getNextProcess(), false);
-    } else {
-        return;
     }
 }
 
@@ -129,7 +105,7 @@ void ProcessScheduler::forceYield() {
 }
 
 void ProcessScheduler::dispatch(Process &next, bool force) {
-    Thread &oldThread = currentProcess->getThreadScheduler().getCurrentThread();
+    auto &oldThread = currentProcess->getThreadScheduler().getCurrentThread();
     next.getThreadScheduler().yield(oldThread, next, force);
 }
 
@@ -139,13 +115,14 @@ void ProcessScheduler::blockCurrentThread() {
 }
 
 Process* ProcessScheduler::getProcess(uint32_t id) {
+    lock.acquire();
     for (auto *process : processQueue) {
         if (process->getId() == id) {
-            return process;
+            return lock.releaseAndReturn(process);
         }
     }
 
-    return nullptr;
+    return lock.releaseAndReturn(nullptr);
 }
 
 }

@@ -53,8 +53,6 @@ public:
 
     [[nodiscard]] uint32_t getId() const;
 
-    [[nodiscard]] bool isActive() const;
-
     void join() const;
 
 private:

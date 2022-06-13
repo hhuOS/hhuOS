@@ -51,7 +51,6 @@ Util::File::File getCurrentWorkingDirectory();
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 Util::Async::Process getCurrentProcess();
 Util::Async::Thread getCurrentThread();
-bool isProcessActive(uint32_t id);
 void joinProcess(uint32_t id);
 
 Util::Time::Timestamp getSystemTime();

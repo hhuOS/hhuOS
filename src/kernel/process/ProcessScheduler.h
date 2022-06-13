@@ -19,6 +19,7 @@
 #define HHUOS_PROCESSSCHEDULER_H
 
 #include "lib/util/data/HashMap.h"
+#include "lib/util/async/Spinlock.h"
 #include "Process.h"
 
 namespace Kernel {
@@ -49,10 +50,6 @@ public:
      */
     ~ProcessScheduler();
 
-    void setInitialized();
-
-    [[nodiscard]] uint32_t isInitialized() const;
-
     void start();
 
     void ready(Process &process);
@@ -62,10 +59,6 @@ public:
     void kill(Process &process);
 
     void yield();
-
-    bool isProcessWaiting();
-
-    bool isProcessActive(uint32_t id);
 
     void blockCurrentThread();
 
@@ -83,11 +76,9 @@ private:
 
     void dispatch(Process &next, bool force);
 
-    uint32_t initialized = 0;
     Util::Async::Spinlock lock;
     Process *currentProcess = nullptr;
     Util::Data::ArrayBlockingQueue<Process*> processQueue;
-    Util::Data::ArrayList<uint32_t> processIds;
 };
 
 }

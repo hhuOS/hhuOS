@@ -115,6 +115,7 @@ private:
     uint8_t *fpuContext;
 
     Util::Data::ArrayList<Thread*> joinList;
+    Util::Async::Spinlock joinLock;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;
     static const constexpr uint32_t DEFAULT_STACK_SIZE = 4096;

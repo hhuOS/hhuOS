@@ -135,12 +135,6 @@ Util::Async::Thread getCurrentThread() {
     return Util::Async::Thread(threadId);
 }
 
-bool isProcessActive(uint32_t id) {
-    bool isActive;
-    Util::System::call(Util::System::IS_PROCESS_ACTIVE, 2, id, &isActive);
-    return isActive;
-}
-
 void joinProcess(uint32_t id) {
     Util::System::call(Util::System::JOIN_PROCESS, 1, id);
 }

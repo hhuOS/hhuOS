@@ -16,8 +16,7 @@
 global start_first_thread
 global switch_context
 
-extern set_scheduler_initialized
-extern set_process_scheduler_initialized
+extern scheduler_initialized
 extern release_scheduler_lock
 
 start_first_thread:
@@ -30,9 +29,8 @@ start_first_thread:
     pop ebx
     pop ebp
 
+    mov dword [scheduler_initialized], 0x1
     call flush_tss
-    call set_scheduler_initialized
-    call set_process_scheduler_initialized
     call release_scheduler_lock
 
     ; start thread

@@ -137,19 +137,8 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
     uint32_t seconds = millis / 1000;
     uint32_t fraction = millis % 1000;
 
-    Util::Memory::String threadName = "";
-    if (System::isServiceRegistered(SchedulerService::SERVICE_ID)) {
-        auto &schedulerService = Kernel::System::getService<SchedulerService>();
-        if (schedulerService.isSchedulerInitialized()) {
-            const auto &currentProcess = schedulerService.getCurrentProcess();
-            const auto &currentThread = schedulerService.getCurrentThread();
-            threadName = Util::Memory::String::format("%u:%u:%s", currentProcess.getId(), currentThread.getId(), static_cast<const char *>(currentThread.getName()));
-        }
-    }
-
-    const auto logMessage = Util::Memory::String::format("%s[%u.%03u][%s]%s[%s]%s[%s] %s",
+    const auto logMessage = Util::Memory::String::format("%s[%u.%03u]%s[%s]%s[%s] %s",
         Util::Graphic::Ansi::CYAN, seconds, fraction,
-        static_cast<const char*>(threadName),
         getColor(level), getLevelAsString(level),
         Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
 

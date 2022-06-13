@@ -81,9 +81,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");
     auto *schedulerService = new SchedulerService();
-    auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace, Util::File::File("/"), Util::File::File("/device/terminal"));
-    schedulerService->ready(kernelProcess);
     registerService(SchedulerService::SERVICE_ID, schedulerService);
+    auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace, "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"));
+    schedulerService->ready(kernelProcess);
 
     // The base system is initialized. We can now enable interrupts and initializeAvailableDrives timer devices
     log.info("Enabling interrupts");

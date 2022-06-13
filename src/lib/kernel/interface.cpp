@@ -123,10 +123,6 @@ Util::Async::Thread getCurrentThread() {
     return Util::Async::Thread(thread.getId());
 }
 
-bool isProcessActive(uint32_t id) {
-    return Kernel::System::getService<Kernel::SchedulerService>().isProcessActive(id);
-}
-
 void joinProcess(uint32_t id) {
     auto *process = Kernel::System::getService<Kernel::SchedulerService>().getProcess(id);
     if (process != nullptr) {

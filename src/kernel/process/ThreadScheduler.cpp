@@ -50,8 +50,9 @@ void ThreadScheduler::ready(Thread &thread) {
 void ThreadScheduler::exit() {
     lock.acquire();
     threadQueue.remove(currentThread);
-    currentThread->unblockJoinList();
     lock.release();
+
+    currentThread->unblockJoinList();
 
     System::getService<SchedulerService>().cleanup(currentThread);
     parent.forceYield();
@@ -70,11 +71,11 @@ void ThreadScheduler::kill(Thread &thread) {
     System::getService<SchedulerService>().cleanup(currentThread);
 }
 
-Thread &ThreadScheduler::getCurrentThread() {
+Thread& ThreadScheduler::getCurrentThread() {
     return *currentThread;
 }
 
-Thread & ThreadScheduler::getNextThread() {
+Thread& ThreadScheduler::getNextThread() {
     Thread *thread = threadQueue.pop();
     threadQueue.push(thread);
 
@@ -127,7 +128,9 @@ void ThreadScheduler::block() {
 }
 
 void ThreadScheduler::unblock(Thread &thread) {
+    lock.acquire();
     threadQueue.push(&thread);
+    lock.release();
 }
 
 }

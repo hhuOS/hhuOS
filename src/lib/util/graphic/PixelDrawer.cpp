@@ -36,7 +36,7 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) {
     auto bpp = static_cast<uint8_t>(lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth());
 
     if(color.getAlpha() < 255) {
-        rgbColor = lfb.readPixel(x, y).blend(color).getRGB32();
+        rgbColor = lfb.readPixel(x, y).blend(color).getColorForDepth(lfb.getColorDepth());
     } else {
         rgbColor = color.getColorForDepth(lfb.getColorDepth());
     }

@@ -39,10 +39,6 @@ void Process::exit(int32_t exitCode) {
     System::System::call(System::System::EXIT_PROCESS, 1, exitCode);
 }
 
-bool Process::isActive() const {
-    return ::isProcessActive(id);
-}
-
 uint32_t Process::getId() const {
     return id;
 }

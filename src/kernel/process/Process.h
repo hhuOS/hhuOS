@@ -31,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory = Util::File::File("/"));
+    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory = Util::File::File("/"));
 
     /**
      * Copy Constructor.
@@ -82,11 +82,14 @@ public:
 
     [[nodiscard]] bool isKernelProcess() const;
 
+    [[nodiscard]] const Util::Memory::String getName() const;
+
 private:
 
     [[nodiscard]] Util::File::File getFileFromPath(const Util::Memory::String &path);
 
     uint32_t id;
+    Util::Memory::String name;
     VirtualAddressSpace &addressSpace;
     ProcessScheduler &scheduler;
     ThreadScheduler threadScheduler;

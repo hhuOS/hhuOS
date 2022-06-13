@@ -23,8 +23,8 @@ namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
-Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::File::File &workingDirectory) :
-        id(idGenerator.next()), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler), workingDirectory(workingDirectory) {}
+Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory) :
+        id(idGenerator.next()), name(name), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
     Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
@@ -111,14 +111,12 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    if (mainThread == nullptr) {
-        schedulerService.unlockScheduler();
-    }
     while (mainThread == nullptr) {}
-
-    schedulerService.lockScheduler();
     mainThread->join();
+}
+
+const Util::Memory::String Process::getName() const {
+    return name;
 }
 
 }
