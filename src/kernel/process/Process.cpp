@@ -111,11 +111,19 @@ void Process::setMainThread(Thread &thread) {
 }
 
 void Process::join() {
-    while (mainThread == nullptr) {}
+    auto &schedulerService = System::getService<Kernel::SchedulerService>();
+    while (mainThread == nullptr) {
+        if (finished) {
+            return;
+        }
+
+        schedulerService.yield();
+    }
+
     mainThread->join();
 }
 
-const Util::Memory::String Process::getName() const {
+Util::Memory::String Process::getName() const {
     return name;
 }
 

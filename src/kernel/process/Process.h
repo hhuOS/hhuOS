@@ -82,7 +82,7 @@ public:
 
     [[nodiscard]] bool isKernelProcess() const;
 
-    [[nodiscard]] const Util::Memory::String getName() const;
+    [[nodiscard]] Util::Memory::String getName() const;
 
 private:
 
