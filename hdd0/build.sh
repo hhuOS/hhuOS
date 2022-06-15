@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
 # Institute of Computer Science, Department Operating Systems
 # Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
@@ -14,17 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.7)
-
-project(towboot)
-message(STATUS "Project " ${PROJECT_NAME})
-
-add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hhuOS.img"
-        WORKING_DIRECTORY "${HHUOS_ROOT_DIR}/loader/towboot/"
-        COMMAND /bin/cp "$<TARGET_FILE:system>" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.bin"
-        COMMAND /bin/cp "${CMAKE_BINARY_DIR}/hhuOS.initrd" "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.initrd"
-        COMMAND "${HHUOS_ROOT_DIR}/loader/towboot/build.sh"
-        COMMAND /bin/mv "${HHUOS_ROOT_DIR}/loader/towboot/hhuOS.img" "${HHUOS_ROOT_DIR}"
-        DEPENDS system initrd floppy0 hdd0)
-
-add_custom_target(${PROJECT_NAME} DEPENDS system initrd floppy0 hdd0 "${HHUOS_ROOT_DIR}/hhuOS.img")
+rm -f "../hdd0.img"
+mkfs.fat -F 16 -C "../hdd0.img" 65536
+mcopy -s -o -i "../hdd0.img" img/* ::/

@@ -1,6 +1,7 @@
 build/
 initrd/bin
 floppy0/img/bin
+hdd0/img/bin
 hhuOS.bin
 hhuOS.initrd
 towboot-ia32.efi

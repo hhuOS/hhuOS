@@ -82,6 +82,8 @@ void GatesOfHell::enter() {
         Device::Bios::init();
     }
 
+    Device::Pci::scan();
+
     initializeStorage();
 
     initializeFilesystem();
@@ -97,8 +99,6 @@ void GatesOfHell::enter() {
 
     Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
     enablePortLogging();
-
-    Device::Pci::scan();
 
     printBanner();
 
