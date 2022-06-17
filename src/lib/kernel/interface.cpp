@@ -130,6 +130,10 @@ void joinProcess(uint32_t id) {
     }
 }
 
+void sleep(const Util::Time::Timestamp &time) {
+    Kernel::System::getService<Kernel::SchedulerService>().sleep(time);
+}
+
 Util::Time::Timestamp getSystemTime() {
     return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
 }

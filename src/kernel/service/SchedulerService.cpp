@@ -105,6 +105,17 @@ SchedulerService::SchedulerService() {
         process->join();
         return Util::System::Result::OK;
     });
+
+    SystemCall::registerSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *time = va_arg(arguments, Util::Time::Timestamp*);
+
+        System::getService<SchedulerService>().sleep(*time);
+        return Util::System::Result::OK;
+    });
 }
 
 void SchedulerService::kickoffThread() {
@@ -226,6 +237,10 @@ uint8_t *SchedulerService::getDefaultFpuContext() {
 
 Process *SchedulerService::getProcess(uint32_t id) {
     return scheduler.getProcess(id);
+}
+
+void SchedulerService::sleep(const Util::Time::Timestamp &time) {
+    getCurrentProcess().getThreadScheduler().sleep(time);
 }
 
 }

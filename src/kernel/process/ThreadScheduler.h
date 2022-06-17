@@ -21,6 +21,7 @@
 #include "lib/util/data/ArrayBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "Thread.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 
@@ -75,6 +76,8 @@ public:
 
     void unblock(Thread &thread);
 
+    void sleep(const Util::Time::Timestamp &time);
+
     void killAllThreadsButCurrent();
 
     /**
@@ -98,12 +101,23 @@ private:
 
     void yield(Thread &oldThread, Process &nextProcess, bool force);
 
+    void checkSleepList();
+
 private:
+
+    struct SleepEntry {
+        Thread *thread;
+        uint32_t wakeupTime;
+
+        bool operator!=(const SleepEntry &other) const;
+    };
 
     ProcessScheduler &parent;
     Util::Async::Spinlock lock;
+    Util::Async::Spinlock sleepLock;
 
     Util::Data::ArrayBlockingQueue<Thread*> threadQueue;
+    Util::Data::ArrayList<SleepEntry> sleepList;
     Thread *currentThread = nullptr;
 
     static bool fpuAvailable;

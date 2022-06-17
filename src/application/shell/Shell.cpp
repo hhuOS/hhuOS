@@ -171,7 +171,4 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
 
     auto process = Util::Async::Process::execute(binaryFile, outputFile, command, arguments);
     process.join();
-    /*while (process.isActive()) {
-        Util::Async::Process::yield();
-    }*/
 }

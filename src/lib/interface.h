@@ -52,6 +52,7 @@ Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Uti
 Util::Async::Process getCurrentProcess();
 Util::Async::Thread getCurrentThread();
 void joinProcess(uint32_t id);
+void sleep(const Util::Time::Timestamp &time);
 
 Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();

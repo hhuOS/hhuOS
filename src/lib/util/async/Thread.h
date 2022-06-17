@@ -19,6 +19,7 @@
 #define HHUOS_UTIL_THREAD_H
 
 #include <cstdint>
+#include "lib/util/time/Timestamp.h"
 
 namespace Util::Async {
 
@@ -46,6 +47,8 @@ public:
     ~Thread() = default;
 
     static Thread getCurrentThread();
+
+    static void sleep(const Time::Timestamp &time);
 
     [[nodiscard]] uint32_t getId() const;
 

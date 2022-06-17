@@ -139,6 +139,10 @@ void joinProcess(uint32_t id) {
     Util::System::call(Util::System::JOIN_PROCESS, 1, id);
 }
 
+void sleep(const Util::Time::Timestamp &time) {
+    Util::System::call(Util::System::SLEEP, 1, &time);
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);

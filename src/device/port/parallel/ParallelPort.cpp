@@ -19,13 +19,13 @@
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device {
 
 Kernel::Logger ParallelPort::log = Kernel::Logger::get("LPT");
 
-ParallelPort::ParallelPort(ParallelPort::LptPort port) : sppDataPort(port), sppStatusPort(port + 1),
-        sppControlPort(port + 2), timeService(Kernel::System::getService<Kernel::TimeService>()) {
+ParallelPort::ParallelPort(ParallelPort::LptPort port) : sppDataPort(port), sppStatusPort(port + 1), sppControlPort(port + 2) {
     uint8_t control = sppControlPort.readByte();
 
     // Initialize printer and enable automatic linefeed
@@ -125,7 +125,7 @@ void ParallelPort::write(uint8_t c) {
     // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port
     uint8_t control = sppControlPort.readByte();
     sppControlPort.writeByte(control | CONTROL_REGISTER_STROBE);
-    timeService.wait(Util::Time::Timestamp(0, 10000000));
+    Util::Async::Thread::sleep({0, 10000000});
     sppControlPort.writeByte(control);
 
     // Wait for the printer to finish reading the data

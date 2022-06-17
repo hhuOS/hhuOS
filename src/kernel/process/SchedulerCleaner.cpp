@@ -18,6 +18,7 @@
 #include "SchedulerCleaner.h"
 #include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
+#include "lib/util/async/Thread.h"
 
 namespace Kernel {
 
@@ -56,11 +57,10 @@ void SchedulerCleaner::cleanup(Thread *thread) {
 }
 
 void SchedulerCleaner::run() {
-    auto &timeService = System::getService<TimeService>();
     while (true) {
         cleanupProcesses();
         cleanupThreads();
-        timeService.wait({1, 0});
+        Util::Async::Thread::sleep({1, 0});
     }
 }
 

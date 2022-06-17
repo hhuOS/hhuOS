@@ -77,6 +77,8 @@ public:
 
     void unblock(Thread &thread);
 
+    void sleep(const Util::Time::Timestamp &time);
+
     void kill(Thread &thread);
 
     [[nodiscard]] bool isProcessActive(uint32_t id);

@@ -86,7 +86,7 @@ void TimeService::setCurrentDate(const Util::Time::Date &date) {
     }
 }
 
-void TimeService::wait(const Util::Time::Timestamp &time) const {
+void TimeService::busyWait(const Util::Time::Timestamp &time) const {
     auto end = getSystemTime().toMilliseconds() + time.toMilliseconds();
 
     while (getSystemTime().toMilliseconds() < end) {

@@ -20,7 +20,6 @@
 
 #include "device/port/Port.h"
 #include "kernel/log/Logger.h"
-#include "kernel/service/TimeService.h"
 
 namespace Device {
 
@@ -83,8 +82,6 @@ private:
     IoPort sppDataPort;
     IoPort sppStatusPort;
     IoPort sppControlPort;
-
-    Kernel::TimeService &timeService;
 
     static Kernel::Logger log;
 

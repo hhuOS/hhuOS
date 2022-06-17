@@ -315,8 +315,6 @@ private:
     volatile bool receivedInterrupt = false;
     void *dmaMemory;
 
-    Kernel::TimeService &timeService;
-
     Device::IoPort statusRegisterA;
     Device::IoPort statusRegisterB;
     Device::IoPort digitalOutputRegister;

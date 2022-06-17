@@ -20,6 +20,7 @@
 #include "kernel/system/System.h"
 #include "asm_interface.h"
 #include "device/cpu/Fpu.h"
+#include "kernel/service/TimeService.h"
 
 namespace Kernel {
 
@@ -62,6 +63,10 @@ void ThreadScheduler::kill(Thread &thread) {
     if (thread.getId() == currentThread->getId()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread is trying to kill itself... Use 'exit()' instead!");
     }
+
+    sleepLock.acquire();
+    sleepList.remove({&thread, 0});
+    sleepLock.release();
 
     lock.acquire();
     threadQueue.remove(&thread);
@@ -110,6 +115,10 @@ void ThreadScheduler::dispatch(Thread &current, Thread &next) {
 }
 
 void ThreadScheduler::killAllThreadsButCurrent() {
+    for (const auto &entry : sleepList) {
+        kill(*entry.thread);
+    }
+
     for (const auto thread : threadQueue) {
         if (thread->getId() != currentThread->getId()) {
             kill(*thread);
@@ -125,12 +134,42 @@ void ThreadScheduler::block() {
     lock.acquire();
     threadQueue.remove(currentThread);
     lock.release();
+
+    parent.forceYield();
 }
 
 void ThreadScheduler::unblock(Thread &thread) {
     lock.acquire();
     threadQueue.push(&thread);
     lock.release();
+}
+
+void ThreadScheduler::sleep(const Util::Time::Timestamp &time) {
+    auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
+
+    sleepLock.acquire();
+    sleepList.add({currentThread, systemTime + time.toMilliseconds()});
+    sleepLock.release();
+
+    block();
+}
+
+void ThreadScheduler::checkSleepList() {
+    if (sleepLock.tryAcquire()) {
+        auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
+        for (uint32_t i = 0; i < sleepList.size(); i++) {
+            const auto &entry = sleepList.get(i);
+            if (systemTime >= entry.wakeupTime) {
+                threadQueue.push(entry.thread);
+                sleepList.remove(entry);
+            }
+        }
+        sleepLock.release();
+    }
+}
+
+bool ThreadScheduler::SleepEntry::operator!=(const ThreadScheduler::SleepEntry &other) const {
+    return thread->getId() != other.thread->getId();
 }
 
 }

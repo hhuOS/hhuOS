@@ -37,6 +37,7 @@ public:
         GET_CURRENT_PROCESS,
         GET_CURRENT_THREAD,
         JOIN_PROCESS,
+        SLEEP,
         UNMAP,
         MAP_IO,
         CREATE_FILE,

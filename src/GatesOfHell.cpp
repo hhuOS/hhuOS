@@ -51,6 +51,7 @@
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/service/StorageService.h"
 #include "filesystem/fat/FatDriver.h"
+#include "lib/util/async/Thread.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 

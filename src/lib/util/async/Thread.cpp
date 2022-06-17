@@ -30,4 +30,8 @@ uint32_t Thread::getId() const {
     return id;
 }
 
+void Thread::sleep(const Time::Timestamp &time) {
+    ::sleep(time);
+}
+
 }

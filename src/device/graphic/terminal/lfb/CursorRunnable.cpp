@@ -17,16 +17,14 @@
 
 #include "CursorRunnable.h"
 #include "LinearFrameBufferTerminal.h"
-#include "kernel/service/TimeService.h"
 #include "kernel/system/System.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device::Graphic {
 
 CursorRunnable::CursorRunnable(LinearFrameBufferTerminal &terminal, char cursor) : terminal(terminal), cursor(cursor) {}
 
 void CursorRunnable::run() {
-    auto &timeService = Kernel::System::getService<Kernel::TimeService>();
-
     while (true) {
         terminal.cursorLock.acquire();
         const auto character = terminal.characterBuffer[terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
@@ -40,7 +38,7 @@ void CursorRunnable::run() {
         visible = !visible;
         terminal.cursorLock.release();
 
-        timeService.wait({0, 250000000});
+        Util::Async::Thread::sleep({0, 250000000});
     }
 }
 

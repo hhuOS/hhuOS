@@ -86,6 +86,7 @@ Process &ProcessScheduler::getNextProcess() {
 
     do {
         process = processQueue.pop();
+        process->getThreadScheduler().checkSleepList();
         processQueue.push(process);
         threadCount = process->getThreadCount();
     } while (threadCount == 0);
@@ -111,7 +112,6 @@ void ProcessScheduler::dispatch(Process &next, bool force) {
 
 void ProcessScheduler::blockCurrentThread() {
     currentProcess->getThreadScheduler().block();
-    forceYield();
 }
 
 Process* ProcessScheduler::getProcess(uint32_t id) {

@@ -24,6 +24,7 @@
 #include "device/interrupt/Pic.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/service/StorageService.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device::Storage {
 
@@ -41,7 +42,6 @@ bool FloppyController::isAvailable() {
 
 FloppyController::FloppyController() :
         dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(SECTOR_SIZE * 72)),
-        timeService(Kernel::System::getService<Kernel::TimeService>()),
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), dataRateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {}
@@ -111,7 +111,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
             return;
         }
 
-        timeService.wait({0, 10000000});
+        Util::Async::Thread::sleep({0, 10000000});
         timeout += 10;
     }
 
@@ -125,7 +125,7 @@ uint8_t FloppyController::readFifoByte() {
             return fifoRegister.readByte();
         }
 
-        timeService.wait({0, 10000000});
+        Util::Async::Thread::sleep({0, 10000000});
         timeout += 10;
     }
 
@@ -207,7 +207,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 
     uint32_t timeout = 0;
     while (!receivedInterrupt) {
-        timeService.wait({0, 10000000});
+        Util::Async::Thread::sleep({0, 10000000});
         timeout += 10;
 
         if (timeout > TIMEOUT) {
@@ -268,7 +268,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
 
         uint32_t timeout = 0;
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait({0, 10000000});
+            Util::Async::Thread::sleep({0, 10000000});
             timeout += 10;
         }
 
@@ -303,7 +303,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         uint32_t timeout = 0;
 
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait({0, 10000000});
+            Util::Async::Thread::sleep({0, 10000000});
             timeout += 10;
         }
 
@@ -387,7 +387,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
 
         uint32_t timeout = 0;
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            timeService.wait({0, 10000000});
+            Util::Async::Thread::sleep({0, 10000000});
             timeout += 10;
         }
 

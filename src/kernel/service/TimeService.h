@@ -53,7 +53,7 @@ public:
 
     void setCurrentDate(const Util::Time::Date &date);
 
-    void wait(const Util::Time::Timestamp &time) const;
+    void busyWait(const Util::Time::Timestamp &time) const;
 
     static const constexpr uint8_t SERVICE_ID = 4;
 
