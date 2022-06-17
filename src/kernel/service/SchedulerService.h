@@ -67,7 +67,7 @@ public:
 
     Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
-    void exitCurrentProcess(int32_t exitCode);
+    [[noreturn]] void exitCurrentProcess(int32_t exitCode);
 
     void lockScheduler();
 

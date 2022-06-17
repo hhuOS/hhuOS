@@ -21,6 +21,7 @@
 #include "kernel/paging/Paging.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
+#include "kernel/service/InterruptService.h"
 
 // Import functions
 extern "C" {
@@ -83,7 +84,11 @@ void disable_interrupts() {
 }
 
 void dispatch_interrupt(Kernel::InterruptFrame *frame) {
-    Kernel::InterruptDispatcher::getInstance().dispatch(frame);
+    if (Kernel::System::isInitialized()) {
+        Kernel::System::getService<Kernel::InterruptService>().dispatchInterrupt(*frame);
+    } else {
+        Kernel::System::handleEarlyInterrupt(*frame);
+    }
 }
 
 void set_tss_stack_entry(uint32_t esp0) {

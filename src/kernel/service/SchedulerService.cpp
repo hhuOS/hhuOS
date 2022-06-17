@@ -212,6 +212,8 @@ void SchedulerService::exitCurrentProcess(int32_t exitCode) {
     ready(cleanerThread);
     getCurrentProcess().setExitCode(exitCode);
     getCurrentProcess().getThreadScheduler().exit();
+
+    __builtin_unreachable();
 }
 
 void SchedulerService::block() {

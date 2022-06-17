@@ -28,7 +28,7 @@
 
 namespace Kernel {
 
-class MemoryService : public Service, InterruptHandler {
+class MemoryService : public Service, public InterruptHandler {
 
 public:
 
@@ -214,7 +214,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame) override;
 
     VirtualAddressSpace& getCurrentAddressSpace();
 

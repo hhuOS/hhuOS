@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
 #include "kernel/log/Logger.h"
 #include "filesystem/memory/StreamNode.h"
@@ -122,18 +122,19 @@ const char* SerialPort::portToString(const ComPort port) {
 }
 
 void SerialPort::plugin() {
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     if (port == COM1 || port == COM3) {
-        Kernel::InterruptDispatcher::getInstance().assign(36, *this);
-        Pic::getInstance().allow(Pic::Interrupt::COM1);
+        interruptService.assignInterrupt(Kernel::InterruptDispatcher::COM1, *this);
+        interruptService.allowHardwareInterrupt(Pic::Interrupt::COM1);
     } else {
-        Kernel::InterruptDispatcher::getInstance().assign(35, *this);
-        Pic::getInstance().allow(Pic::Interrupt::COM2);
+        Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptDispatcher::COM2, *this);
+        interruptService.allowHardwareInterrupt(Pic::Interrupt::COM2);
     }
 
     interruptRegister.writeByte(0x01);
 }
 
-void SerialPort::trigger(Kernel::InterruptFrame &frame) {
+void SerialPort::trigger(const Kernel::InterruptFrame &frame) {
     if ((fifoControlRegister.readByte() & 0x01) == 0x01) {
         return;
     }

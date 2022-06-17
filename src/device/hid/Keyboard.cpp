@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
@@ -297,11 +297,12 @@ void Keyboard::plugin() {
     Util::Memory::Address<uint32_t> address(buffer);
     address.setRange(0, BUFFER_SIZE);
 
-    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::KEYBOARD, *this);
-    Pic::getInstance().allow(Pic::Interrupt::KEYBOARD);
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    interruptService.assignInterrupt(Kernel::InterruptDispatcher::KEYBOARD, *this);
+    interruptService.allowHardwareInterrupt(Pic::Interrupt::KEYBOARD);
 }
 
-void Keyboard::trigger(Kernel::InterruptFrame &frame) {
+void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
     uint8_t control = controlPort.readByte();
     if ((control & 0x1) != 0x1) {
         return;

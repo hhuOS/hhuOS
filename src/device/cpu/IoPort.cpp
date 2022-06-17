@@ -21,7 +21,7 @@ namespace Device {
 
 IoPort::IoPort(uint16_t a) noexcept: address(a) {
 
-};
+}
 
 Util::Memory::Address<uint16_t> IoPort::getAddress() const {
     return address;

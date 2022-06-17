@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
 #include "Pit.h"
 #include "kernel/system/System.h"
@@ -43,11 +43,12 @@ void Pit::setInterruptRate(uint16_t divisor) {
 }
 
 void Pit::plugin() {
-    Kernel::InterruptDispatcher::getInstance().assign(32, *this);
-    Pic::getInstance().allow(Pic::Interrupt::PIT);
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    interruptService.assignInterrupt(Kernel::InterruptDispatcher::PIT, *this);
+    interruptService.allowHardwareInterrupt(Pic::Interrupt::PIT);
 }
 
-void Pit::trigger(Kernel::InterruptFrame &frame) {
+void Pit::trigger(const Kernel::InterruptFrame &frame) {
     time.addNanoseconds(timerInterval);
     advanceTime(Util::Time::Timestamp(0, timerInterval));
     executePendingJobs();

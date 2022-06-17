@@ -15,48 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SYSTEMCALL_H
-#define HHUOS_SYSTEMCALL_H
+#ifndef HHUOS_INTERRUPTSERVICE_H
+#define HHUOS_INTERRUPTSERVICE_H
 
-#include <cstdarg>
-#include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/system/System.h"
+#include "device/interrupt/Pic.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "MemoryService.h"
 
 namespace Kernel {
 
-class SystemCall : public Kernel::InterruptHandler {
+class InterruptService : public Service {
 
 public:
     /**
      * Default Constructor.
      */
-    SystemCall() = default;
+    InterruptService() = default;
 
     /**
      * Copy Constructor.
      */
-    SystemCall(const SystemCall &other) = delete;
+    InterruptService(const InterruptService &other) = delete;
 
     /**
      * Assignment operator.
      */
-    SystemCall &operator=(const SystemCall &other) = delete;
+    InterruptService &operator=(const InterruptService &other) = delete;
 
     /**
      * Destructor.
      */
-    ~SystemCall() override = default;
+    ~InterruptService() override = default;
 
-    static void registerSystemCall(Util::System::Code code, Util::System::Result(*func)(uint32_t paramCount, va_list params));
+    void assignInterrupt(InterruptDispatcher::Interrupt slot, InterruptHandler &handler);
 
-    void plugin() override;
+    void dispatchInterrupt(const InterruptFrame &frame);
 
-    void trigger(const Kernel::InterruptFrame &frame) override;
+    void allowHardwareInterrupt(Device::Pic::Interrupt interrupt);
+
+    void forbidHardwareInterrupt(Device::Pic::Interrupt interrupt);
+
+    void sendEndOfInterrupt(InterruptDispatcher::Interrupt interrupt);
+
+    bool checkSpuriousInterrupt(InterruptDispatcher::Interrupt interrupt);
+
+    static const constexpr uint8_t SERVICE_ID = 7;
 
 private:
 
-    static Util::System::Result(*systemCalls[256])(uint32_t paramCount, va_list params);
-
+    Device::Pic pic;
+    InterruptDispatcher dispatcher;
 };
 
 }

@@ -72,6 +72,8 @@ public:
 
     static void freeEarlyMemory(void *pointer);
 
+    static void handleEarlyInterrupt(const InterruptFrame &frame);
+
     /**
      * Returns an already registered service.
      *
@@ -152,6 +154,7 @@ private:
 
     static TaskStateSegment taskStateSegment;
     static Util::Memory::HeapMemoryManager *kernelHeapMemoryManager;
+    static InterruptHandler *pagefaultHandler;
     static SystemCall systemCall;
     static Logger log; // Use only after _init() has finished!
 };

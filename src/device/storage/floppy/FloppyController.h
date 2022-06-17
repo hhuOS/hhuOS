@@ -139,7 +139,7 @@ public:
     /**
      * Overriding function from InterruptDispatcher.
      */
-    void trigger(Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame) override;
 
     static const constexpr uint32_t SECTOR_SIZE = 512;
 

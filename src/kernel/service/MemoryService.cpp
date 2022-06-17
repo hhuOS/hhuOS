@@ -17,7 +17,7 @@
 
 #include "kernel/paging/Paging.h"
 #include "kernel/system/System.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "kernel/paging/PageDirectory.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "asm_interface.h"
@@ -357,10 +357,10 @@ void *MemoryService::getPhysicalAddress(void *virtualAddress) {
 }
 
 void MemoryService::plugin() {
-    InterruptDispatcher::getInstance().assign(InterruptDispatcher::PAGEFAULT, *this);
+    System::getService<Kernel::InterruptService>().assignInterrupt(InterruptDispatcher::PAGEFAULT, *this);
 }
 
-void MemoryService::trigger(InterruptFrame &frame) {
+void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
     // Get page fault address and flags
     uint32_t faultAddress = 0;
     // The faulted linear address is loaded in the cr2 register

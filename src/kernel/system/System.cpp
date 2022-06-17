@@ -33,13 +33,15 @@
 #include "kernel/service/PowerManagementService.h"
 #include "device/bios/Bios.h"
 #include "kernel/service/StorageService.h"
+#include "kernel/service/InterruptService.h"
 
 namespace Kernel {
 
 bool System::initialized = false;
 Util::Async::Spinlock System::serviceLock;
 Service* System::serviceMap[256]{};
-Util::Memory::HeapMemoryManager *System::kernelHeapMemoryManager = nullptr;
+Util::Memory::HeapMemoryManager *System::kernelHeapMemoryManager{};
+InterruptHandler *System::pagefaultHandler{};
 TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
 Logger System::log = Logger::get("System");
@@ -65,16 +67,19 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // It uses only the basePageDirectory with mapping for kernel space.
     auto *kernelAddressSpace = new VirtualAddressSpace(*kernelHeapMemoryManager);
 
-    // Create memory service and register it to handle page faults
+    // Create memory and interrupt services, so that the memory service can handle page faults
     auto *memoryService = new MemoryService(pageFrameAllocator, pagingAreaManager, kernelAddressSpace);
-    memoryService->plugin();
     memoryService->switchAddressSpace(*kernelAddressSpace);
+    pagefaultHandler = memoryService;
 
     // Initialize global objects afterwards, because now missing pages can be mapped
     _init();
 
     // Register services after _init(), since the static objects serviceMap and serviceLock have now been initialized
+    auto *interruptService = new InterruptService();
+    registerService(InterruptService::SERVICE_ID, interruptService);
     registerService(MemoryService::SERVICE_ID, memoryService);
+    memoryService->plugin();
     log.info("Welcome to hhuOS!");
     log.info("Memory management has been initialized");
 
@@ -85,7 +90,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace, "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"));
     schedulerService->ready(kernelProcess);
 
-    // The base system is initialized. We can now enable interrupts and initializeAvailableDrives timer devices
+    initialized = true;
+
+    // The base system is initialized. We can now enable interrupts and initialize timer devices
     log.info("Enabling interrupts");
     Device::Cpu::enableInterrupts();
 
@@ -130,8 +137,6 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
 
     // Protect kernel code
     kernelAddressSpace->getPageDirectory().unsetPageFlags(___WRITE_PROTECTED_START__, ___WRITE_PROTECTED_END__, Paging::READ_WRITE);
-
-    initialized = true;
 }
 
 void *System::allocateEarlyMemory(uint32_t size) {
@@ -174,8 +179,8 @@ void System::panic(const InterruptFrame &frame) {
  * Sets up the GDT for the system and a special GDT for BIOS-calls.
  * Only these two GDTs are needed, because memory protection and abstractions is done via paging.
  * The memory where the parameters point to is reserved in assembler code before paging is enabled.
- * Therefore we assume that the given pointers are physical addresses  - this is very important
- * to guarantee correct GDT descriptors using this initializeAvailableDrives-function.
+ * Therefore we assume that the given pointers are physical addresses - this is very important
+ * to guarantee correct GDT descriptors using this initialize function.
  *
  * @param systemGdt Pointer to the GDT of the system
  * @param biosGdt Pointer to the GDT for BIOS-calls
@@ -296,6 +301,12 @@ Util::Memory::HeapMemoryManager& System::initializeKernelHeap() {
 
 TaskStateSegment &System::getTaskStateSegment() {
     return taskStateSegment;
+}
+
+void System::handleEarlyInterrupt(const InterruptFrame &frame) {
+    if (frame.interrupt == InterruptDispatcher::PAGEFAULT) {
+        pagefaultHandler->trigger(frame);
+    }
 }
 
 }

@@ -16,11 +16,12 @@
  */
 
 #include "device/cpu/Cpu.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
 #include "device/sound/PcSpeaker.h"
 #include "Rtc.h"
 #include "Cmos.h"
+#include "kernel/system/System.h"
 
 namespace Device {
 
@@ -51,14 +52,15 @@ void Rtc::plugin() {
     // As long as this flag is set, the RTC won't trigger any interrupts.
     Cmos::read(STATUS_REGISTER_C);
 
-    Kernel::InterruptDispatcher::getInstance().assign(40, *this);
-    Pic::getInstance().allow(Pic::Interrupt::RTC);
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    interruptService.assignInterrupt(Kernel::InterruptDispatcher::RTC, *this);
+    interruptService.allowHardwareInterrupt(Pic::Interrupt::RTC);
 
     Cmos::enableNmi();
     Cpu::enableInterrupts();
 }
 
-void Rtc::trigger(Kernel::InterruptFrame &frame) {
+void Rtc::trigger(const Kernel::InterruptFrame &frame) {
     uint8_t interruptStatus = Cmos::read(STATUS_REGISTER_C);
 
     if ((interruptStatus & INTERRUPT_UPDATE_ENDED) != 0) {

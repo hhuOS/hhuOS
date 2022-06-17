@@ -50,7 +50,7 @@ public:
     /**
      * Routine to handle an interrupt. Needs to be implemented in deriving class.
      */
-    virtual void trigger(InterruptFrame &frame) = 0;
+    virtual void trigger(const InterruptFrame &frame) = 0;
 };
 
 }

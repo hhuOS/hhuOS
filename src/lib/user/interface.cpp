@@ -172,5 +172,5 @@ bool shutdown(Util::Machine::ShutdownType type) {
 void throwError(Util::Exception::Error error, const char *message) {
     Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
-    while (true) {}
+    __builtin_unreachable();
 }

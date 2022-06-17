@@ -181,7 +181,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame) override;
 
     /**
      * Set the baud-rate.

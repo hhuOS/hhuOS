@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service/InterruptService.h"
 #include "kernel/system/System.h"
 #include "lib/util/cpu/CpuId.h"
 #include "Cpu.h"
@@ -47,10 +47,10 @@ Fpu::Fpu() {
 }
 
 void Fpu::plugin() {
-    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::DEVICE_NOT_AVAILABLE, *this);
+    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptDispatcher::DEVICE_NOT_AVAILABLE, *this);
 }
 
-void Fpu::trigger(Kernel::InterruptFrame &frame) {
+void Fpu::trigger(const Kernel::InterruptFrame &frame) {
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     schedulerService.lockScheduler();
 

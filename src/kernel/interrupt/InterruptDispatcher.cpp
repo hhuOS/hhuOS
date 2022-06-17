@@ -15,60 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/interrupt/Pic.h"
+#include "kernel/service/InterruptService.h"
 #include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
+#include "lib/util/data/ArrayList.h"
 #include "InterruptDispatcher.h"
 
 namespace Kernel {
 
-InterruptDispatcher &InterruptDispatcher::getInstance() noexcept {
-    static InterruptDispatcher instance;
-    return instance;
-}
+InterruptDispatcher::InterruptDispatcher() : handler(new Util::Data::List<InterruptHandler*>*[256]{}) {}
 
-void InterruptDispatcher::dispatch(InterruptFrame *frame) {
-    auto slot = static_cast<uint8_t>(frame->interrupt);
+void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
+    auto &interruptService = System::getService<InterruptService>();
+    auto slot = static_cast<Interrupt>(frame.interrupt);
 
     // Handle exceptions (except page fault and device not available)
-    if (((slot < 32 && slot != static_cast<uint32_t>(Device::Cpu::Error::PAGE_FAULT)) && static_cast<Device::Cpu::Error>(slot) != Device::Cpu::Error::DEVICE_NOT_AVAILABLE) || (slot >= Util::Exception::NULL_POINTER)) {
+    if (isUnrecoverableException(slot)) {
         auto &schedulerService = System::getService<SchedulerService>();
         if (schedulerService.getCurrentProcess().isKernelProcess()) {
-            System::panic(*frame);
+            System::panic(frame);
         }
 
-        Util::System::out << Device::Cpu::getExceptionName(frame->interrupt) << ": " << Util::System::errorMessage << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         schedulerService.exitCurrentProcess(-1);
     }
 
     // Ignore spurious interrupts
-    if ((slot == LPT1 || slot == SECONDARY_ATA) && Device::Pic::getInstance().isSpurious(Device::Pic::Interrupt(slot - 32))) {
-        Util::Async::Atomic<uint32_t>(spuriousCounter).inc();
+    if (interruptService.checkSpuriousInterrupt(slot)) {
+        spuriousCounterWrapper.inc();
         return;
     }
 
-    if (handler.size() == 0) {
-        sendEoi(slot);
-        return;
-    }
-
-    Util::Data::List<InterruptHandler*> *list = getHandlerForSlot(slot);
-
-    if (list == nullptr && slot >= 32) {
+    // Throw exception interrupt, if there is no handler registered
+    auto *handlerList = handler[slot];
+    if (handlerList == nullptr) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "No handler registered!");
     }
 
-    auto interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
     interruptDepthWrapper.inc();
-
-    sendEoi(slot);
+    interruptService.sendEndOfInterrupt(slot);
     asm volatile("sti");
 
-    if (list != nullptr) {
-        uint32_t size = list->size();
-        for (uint32_t i = 0; i < size; i++) {
-            list->get(i)->trigger(*frame);
-        }
+    uint32_t size = handlerList->size();
+    for (uint32_t i = 0; i < size; i++) {
+        handlerList->get(i)->trigger(frame);
     }
 
     asm volatile("cli");
@@ -76,30 +66,30 @@ void InterruptDispatcher::dispatch(InterruptFrame *frame) {
 }
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
-    if (!handler.containsKey(slot)) {
-        handler.put(slot, new Util::Data::ArrayList<InterruptHandler*>);
+    if (handler[slot] == nullptr) {
+        handler[slot] = new Util::Data::ArrayList<InterruptHandler*>;
     }
 
-    handler.get(slot)->add(&isr);
-}
-
-Util::Data::List<InterruptHandler*>* InterruptDispatcher::getHandlerForSlot(uint8_t slot) {
-    if (!handler.containsKey(slot)) {
-        return nullptr;
-    }
-
-    return handler.get(slot);
+    handler[slot]->add(&isr);
 }
 
 uint32_t InterruptDispatcher::getInterruptDepth() const {
     return interruptDepth;
 }
 
-void InterruptDispatcher::sendEoi(uint32_t slot) {
-    if (slot >= 32 && slot < 48) {
-        Device::Pic::getInstance().sendEOI(Device::Pic::Interrupt(slot - 32));
+bool InterruptDispatcher::isUnrecoverableException(InterruptDispatcher::Interrupt slot) {
+    // Hardware interrupts
+    if (slot >= PIT && slot <= SECONDARY_ATA) {
+        return false;
     }
-}
 
+    // Software interrupts
+    if (slot == SYSTEM_CALL) {
+        return false;
+    }
+
+    // Recoverable faults
+    return slot != PAGEFAULT && slot != DEVICE_NOT_AVAILABLE;
+}
 
 }

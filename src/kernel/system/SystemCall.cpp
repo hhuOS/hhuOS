@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "kernel/service/InterruptService.h"
 #include "lib/util/Exception.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "SystemCall.h"
+#include "System.h"
 
 namespace Kernel {
 
@@ -32,10 +33,10 @@ void SystemCall::registerSystemCall(Util::System::Code code, Util::System::Resul
 }
 
 void SystemCall::plugin() {
-    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::SYSTEM_CALL, *this);
+    Kernel::System::getService<Kernel::InterruptService>().assignInterrupt(Kernel::InterruptDispatcher::SYSTEM_CALL, *this);
 }
 
-void SystemCall::trigger(Kernel::InterruptFrame &frame) {
+void SystemCall::trigger(const Kernel::InterruptFrame &frame) {
     uint16_t code = frame.eax & 0x0000ffffu;
     uint16_t paramCount = frame.eax >> 16;
     auto params = reinterpret_cast<va_list>(frame.ebx);

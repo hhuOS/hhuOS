@@ -48,7 +48,7 @@ public:
 
     void plugin() override;
 
-    void trigger(Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame) override;
 
     void checkTerminatedThread(Kernel::Thread &thread);
 

@@ -36,6 +36,11 @@ class Pic {
 
 public:
     /**
+     * Default-Constructor.
+     */
+    Pic() = default;
+
+    /**
      * Copy Constructor.
      */
     Pic(const Pic &copy) = delete;
@@ -73,11 +78,6 @@ public:
     };
 
     /**
-     * Get or initialize the singleton instance.
-     */
-    static Pic &getInstance() noexcept;
-
-    /**
      * Unmask an interrupt number in the corresponding PIC. If this is done,
      * all interrupts with this number will be passed to the CPU.
      *
@@ -107,7 +107,7 @@ public:
      *
      * @param interrupt The number of the interrupt for which to send an EOI
      */
-    void sendEOI(Interrupt interrupt);
+    void sendEndOfInterrupt(Interrupt interrupt);
 
     /**
      * Check if a spurious interrupt has occurred.
@@ -117,10 +117,6 @@ public:
     bool isSpurious(Pic::Interrupt interrupt);
 
 private:
-    /**
-     * Default-Constructor.
-     */
-    Pic() = default;
 
     /**
      * Get the PIC's data port for the specified interrupt.

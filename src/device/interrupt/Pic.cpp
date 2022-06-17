@@ -20,11 +20,6 @@
 
 namespace Device {
 
-Pic &Pic::getInstance() noexcept {
-    static Pic instance;
-    return instance;
-}
-
 void Pic::allow(Pic::Interrupt interrupt) {
     auto &port = getDataPort(interrupt);
     uint8_t mask = getMask(interrupt);
@@ -46,7 +41,7 @@ bool Pic::status(Pic::Interrupt interrupt) {
     return port.readByte() & mask;
 }
 
-void Pic::sendEOI(Pic::Interrupt interrupt) {
+void Pic::sendEndOfInterrupt(Pic::Interrupt interrupt) {
     if (interrupt >= Interrupt::RTC) {
         slaveCommandPort.writeByte(EOI);
     }
@@ -77,7 +72,7 @@ bool Pic::isSpurious(Pic::Interrupt interrupt) {
     } else if (interrupt == Interrupt::SECONDARY_ATA) {
         slaveCommandPort.writeByte(READ_ISR);
         if ((slaveCommandPort.readByte() & SPURIOUS_INTERRUPT) == 0) {
-            sendEOI(Interrupt::CASCADE);
+            sendEndOfInterrupt(Interrupt::CASCADE);
             return true;
         }
     }

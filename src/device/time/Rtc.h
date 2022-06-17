@@ -69,7 +69,7 @@ public:
     /**
      * Overriding function from InterruptHandler.
      */
-    void trigger(Kernel::InterruptFrame &frame) override;
+    void trigger(const Kernel::InterruptFrame &frame) override;
 
     /**
      * Check if CMOS data is valid or if power was lost.

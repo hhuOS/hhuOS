@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/service//InterruptService.h"
 #include "FloppyController.h"
 #include "FloppyDevice.h"
 #include "device/time/Cmos.h"
@@ -328,11 +328,12 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
 }
 
 void FloppyController::plugin() {
-    Kernel::InterruptDispatcher::getInstance().assign(Kernel::InterruptDispatcher::FLOPPY, *this);
-    Pic::getInstance().allow(Pic::Interrupt::FLOPPY);
+    auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
+    interruptService.assignInterrupt(Kernel::InterruptDispatcher::FLOPPY, *this);
+    interruptService.allowHardwareInterrupt(Pic::Interrupt::FLOPPY);
 }
 
-void FloppyController::trigger(Kernel::InterruptFrame &frame) {
+void FloppyController::trigger(const Kernel::InterruptFrame &frame) {
     receivedInterrupt = true;
 }
 

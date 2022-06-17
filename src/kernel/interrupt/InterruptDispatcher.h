@@ -19,11 +19,12 @@
 #define __InterruptDispatcher_include__
 
 #include <cstdint>
-#include "InterruptHandler.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/Service.h"
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/List.h"
 #include "lib/util/data/HashMap.h"
+#include "lib/util/async/Atomic.h"
+#include "InterruptHandler.h"
 
 namespace Kernel {
 
@@ -38,7 +39,7 @@ class InterruptDispatcher {
 
 public:
 
-    enum {
+    enum Interrupt : uint8_t {
         DEVICE_NOT_AVAILABLE = 7,
         PAGEFAULT = 14,
         PIT = 32,
@@ -62,7 +63,7 @@ public:
     /**
      * Default Constructor.
      */
-    InterruptDispatcher() = default;
+    InterruptDispatcher();
 
     InterruptDispatcher(const InterruptDispatcher &other) = delete;
 
@@ -70,41 +71,33 @@ public:
 
     ~InterruptDispatcher() = default;
 
-    static InterruptDispatcher &getInstance() noexcept;
-
     /**
      * Register an interrupt handler to an interrupt number.
      *
      * @param slot Interrupt number for this handler
-     * @param gate Pointer to the handler itself
+     * @param isr Pointer to the handler itself
      */
-    void assign(uint8_t slot, InterruptHandler &gate);
+    void assign(uint8_t slot, InterruptHandler &isr);
 
     /**
      * Dispatched the interrupt to all registered interrupt handlers.
      *
      * @param frame The interrupt frame
      */
-    void dispatch(InterruptFrame *frame);
+    void dispatch(const InterruptFrame &frame);
 
     [[nodiscard]] uint32_t getInterruptDepth() const;
 
 private:
 
+    static bool isUnrecoverableException(Interrupt slot);
+
     uint32_t interruptDepth = 0;
     uint32_t spuriousCounter = 0;
+    Util::Async::Atomic<uint32_t> interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
+    Util::Async::Atomic<uint32_t> spuriousCounterWrapper = Util::Async::Atomic<uint32_t>(spuriousCounter);
 
-    /**
-     * Get the interrupt handlers that are registered for a specific interrupt.
-     *
-     * @param slot Interrupt number
-     * @return Pointer to a list of all registered handlers or nullptr if no handlers are registered
-     */
-    Util::Data::List<InterruptHandler*> *getHandlerForSlot(uint8_t slot);
-
-    Util::Data::HashMap<uint8_t, Util::Data::ArrayList<InterruptHandler *>*> handler;
-
-    static void sendEoi(uint32_t slot);
+    Util::Data::List<InterruptHandler*>** handler;
 
 };
 
