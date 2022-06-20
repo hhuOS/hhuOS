@@ -58,6 +58,8 @@ public:
 
     static void armFpuMonitor();
 
+    static void disarmFpuMonitor();
+
 private:
 
     void switchContext(Kernel::Thread &currentThread);

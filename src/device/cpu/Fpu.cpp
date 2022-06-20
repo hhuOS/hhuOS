@@ -27,6 +27,8 @@ Kernel::Logger Fpu::log = Kernel::Logger::get("FPU");
 
 Fpu::Fpu() {
     auto *defaultFpuContext = Kernel::System::getService<Kernel::SchedulerService>().getDefaultFpuContext();
+    disarmFpuMonitor();
+
     if (Device::Fpu::isFxsrAvailable()) {
         log.info("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
         asm volatile (
@@ -55,13 +57,7 @@ void Fpu::trigger(const Kernel::InterruptFrame &frame) {
     schedulerService.lockScheduler();
 
     // Disable FPU monitoring (will be enabled by scheduler at next thread switch)
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "and $0xfffffff7, %%eax;"
-            "mov %%eax, %%cr0;"
-            : : :
-            "%eax"
-            );
+    disarmFpuMonitor();
 
     auto &currentThread = schedulerService.getCurrentThread();
     if (&currentThread == lastFpuThread) {
@@ -82,16 +78,6 @@ void Fpu::trigger(const Kernel::InterruptFrame &frame) {
 void Fpu::checkTerminatedThread(Kernel::Thread &thread) {
     Util::Async::Atomic<uint32_t> wrapper(reinterpret_cast<uint32_t&>(lastFpuThread));
     wrapper.compareAndSet(reinterpret_cast<uint32_t>(&thread), 0);
-}
-
-void Fpu::armFpuMonitor() {
-    asm volatile (
-            "mov %%cr0, %%eax;"
-            "or $0xa, %%eax;"
-            "mov %%eax, %%cr0;"
-            : : :
-            "%eax"
-            );
 }
 
 bool Fpu::isAvailable() {
@@ -161,6 +147,26 @@ void Fpu::switchContextFpuOnly(Kernel::Thread &currentThread) {
             "frstor (%0)"
             : :
             "r"(currentThread.getFpuContext())
+            );
+}
+
+void Fpu::armFpuMonitor() {
+    asm volatile (
+            "mov %%cr0, %%eax;"
+            "or $0xa, %%eax;"
+            "mov %%eax, %%cr0;"
+            : : :
+            "%eax"
+            );
+}
+
+void Fpu::disarmFpuMonitor() {
+    asm volatile (
+            "mov %%cr0, %%eax;"
+            "and $0xfffffff7, %%eax;"
+            "mov %%eax, %%cr0;"
+            : : :
+            "%eax"
             );
 }
 

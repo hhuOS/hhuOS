@@ -45,9 +45,9 @@ void System::call(Code code, Result &result, uint32_t paramCount, va_list args) 
             "push %%ebx;"
             "push %%ecx;"
 
-            "movl %0, %%eax;"
-            "movl %1, %%ebx;"
-            "movl %2, %%ecx;"
+            "mov %0, %%eax;"
+            "mov %1, %%ebx;"
+            "mov %2, %%ecx;"
             "int $0x86;"
 
             "pop %%ecx;"
