@@ -16,13 +16,17 @@
  */
 
 #include "PagingAreaManagerRefillRunnable.h"
+#include "lib/util/async/Thread.h"
 
 namespace Kernel {
 
 PagingAreaManagerRefillRunnable::PagingAreaManagerRefillRunnable(PagingAreaManager &pagingAreaManager) : pagingAreaManager(pagingAreaManager) {}
 
 void PagingAreaManagerRefillRunnable::run() {
-    pagingAreaManager.refillPool();
+    while (true) {
+        pagingAreaManager.refillPool();
+        Util::Async::Thread::sleep({1, 0});
+    }
 }
 
 }

@@ -91,7 +91,7 @@ public:
 
     [[nodiscard]] Process* getProcess(uint32_t id);
 
-    static const constexpr uint8_t SERVICE_ID = 3;
+    static const constexpr uint8_t SERVICE_ID = 4;
 
 private:
 

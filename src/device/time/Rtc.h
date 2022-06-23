@@ -19,7 +19,6 @@
 #define HHUOS_RTC_H
 
 #include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/job/JobExecutor.h"
 #include "DateProvider.h"
 #include "TimeProvider.h"
 #include "AlarmRunnable.h"
@@ -29,7 +28,7 @@ namespace Device {
 /**
  * Driver for the CMOS Realtime clock.
  */
-class Rtc : public DateProvider, public TimeProvider, public Kernel::JobExecutor, public Kernel::InterruptHandler {
+class Rtc : public DateProvider, public TimeProvider, public Kernel::InterruptHandler {
 
 public:
     /**

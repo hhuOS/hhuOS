@@ -18,6 +18,7 @@
 #ifndef HHUOS_ALARMRUNNABLE_H
 #define HHUOS_ALARMRUNNABLE_H
 
+#include <cstdint>
 #include "lib/util/async/Runnable.h"
 
 namespace Device {
@@ -28,7 +29,7 @@ public:
     /**
      * Default Constructor.
      */
-    AlarmRunnable() = default;
+    AlarmRunnable(uint32_t beepCount = 3);
 
     /**
      * Copy Constructor.
@@ -49,8 +50,10 @@ public:
 
 private:
 
+    uint32_t beepCount;
     bool speakerOn = false;
 
+    static const constexpr uint32_t INTERVAL = 500;
 };
 
 }

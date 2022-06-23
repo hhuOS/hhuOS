@@ -26,7 +26,6 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 # Add subdirectories
 add_subdirectory(file)
 add_subdirectory(interrupt)
-add_subdirectory(job)
 add_subdirectory(log)
 add_subdirectory(memory)
 add_subdirectory(multiboot)

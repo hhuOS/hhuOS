@@ -22,5 +22,5 @@ target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/storage/StorageDevice.cpp
         ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyController.cpp
         ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyDevice.cpp
-        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyMotorControlJob.cpp
+        ${HHUOS_SRC_DIR}/device/storage/floppy/FloppyMotorControlRunnable.cpp
         ${HHUOS_SRC_DIR}/device/storage/virtual/VirtualDiskDrive.cpp)

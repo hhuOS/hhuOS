@@ -22,7 +22,6 @@
 #include "device/time/Pit.h"
 #include "kernel/multiboot/Structure.h"
 #include "kernel/paging/MemoryLayout.h"
-#include "kernel/service/JobService.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/memory/PagingAreaManagerRefillRunnable.h"
 #include "kernel/paging/Paging.h"
@@ -101,25 +100,24 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     auto *pit = new Device::Pit();
     pit->plugin();
 
+    Device::Rtc *rtc = nullptr;
     if (Device::Rtc::isAvailable()) {
         log.info("Initializing RTC");
-        auto *rtc = new Device::Rtc();
+        rtc = new Device::Rtc();
         rtc->plugin();
-
-        registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
-        registerService(JobService::SERVICE_ID, new Kernel::JobService(*rtc, *pit));
 
         if (!Device::Rtc::isValid()) {
             log.warn("CMOS has been cleared -> RTC is probably providing invalid date and time");
         }
     } else {
         log.warn("RTC not available");
-        registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, nullptr));
-        registerService(JobService::SERVICE_ID, new Kernel::JobService(*pit, *pit));
     }
 
-    // Register job to refill block pool of paging area manager
-    getService<JobService>().registerJob(new PagingAreaManagerRefillRunnable(*pagingAreaManager), Job::Priority::HIGH, Util::Time::Timestamp(0, 1000000000));
+    registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
+
+    // Create thread to refill block pool of paging area manager
+    auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", new PagingAreaManagerRefillRunnable(*pagingAreaManager));
+    schedulerService->ready(refillThread);
 
     // Register memory manager
     Util::Reflection::InstanceFactory::registerPrototype(new Util::Memory::FreeListMemoryManager());

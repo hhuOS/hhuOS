@@ -14,28 +14,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "FloppyMotorControlJob.h"
+#include "FloppyMotorControlRunnable.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device::Storage {
 
-FloppyMotorControlJob::FloppyMotorControlJob(FloppyDevice &device) : device(device) {}
+FloppyMotorControlRunnable::FloppyMotorControlRunnable(FloppyDevice &device) : device(device) {}
 
-void FloppyMotorControlJob::run() {
-    if (device.getMotorState() != FloppyController::WAIT) {
-        return;
-    }
-
-    remainingTime -= INTERVAL;
-    if (remainingTime <= 0) {
+void FloppyMotorControlRunnable::run() {
+    while (true) {
         if (device.getMotorState() == FloppyController::WAIT) {
-            device.getController().killMotor(device);
+            if (remainingTime <= 0) {
+                device.killMotor();
+                resetTime();
+            }
+
+            remainingTime -= INTERVAL;
         }
 
-        resetTime();
+        Util::Async::Thread::sleep({0, INTERVAL * 1000000});
     }
 }
 
-void FloppyMotorControlJob::resetTime() {
+void FloppyMotorControlRunnable::resetTime() {
     remainingTime = TIME;
 }
 

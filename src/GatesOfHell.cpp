@@ -103,7 +103,7 @@ void GatesOfHell::enter() {
     printBanner();
 
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler Sign", new SchedulerSign());
+    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", new SchedulerSign());
     schedulerService.ready(schedulerSignThread);
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));

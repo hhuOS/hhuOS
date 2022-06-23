@@ -59,7 +59,7 @@ public:
 
     bool checkSpuriousInterrupt(InterruptDispatcher::Interrupt interrupt);
 
-    static const constexpr uint8_t SERVICE_ID = 7;
+    static const constexpr uint8_t SERVICE_ID = 1;
 
 private:
 

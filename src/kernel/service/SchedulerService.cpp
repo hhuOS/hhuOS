@@ -125,7 +125,7 @@ void SchedulerService::kickoffThread() {
 
 void SchedulerService::startScheduler() {
     cleaner = new Kernel::SchedulerCleaner();
-    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler Cleaner", cleaner);
+    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", cleaner);
     ready(schedulerCleanerThread);
 
     defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
@@ -207,11 +207,14 @@ void SchedulerService::cleanup(Thread *thread) {
 }
 
 void SchedulerService::exitCurrentProcess(int32_t exitCode) {
-    getCurrentProcess().getThreadScheduler().killAllThreadsButCurrent();
-    auto &cleanerThread = Thread::createKernelThread("Cleaner", new AddressSpaceCleaner());
+    auto &process = getCurrentProcess();
+    auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", new AddressSpaceCleaner());
+
+    process.getThreadScheduler().killAllThreadsButCurrent();
     ready(cleanerThread);
-    getCurrentProcess().setExitCode(exitCode);
-    getCurrentProcess().getThreadScheduler().exit();
+
+    process.setExitCode(exitCode);
+    process.getThreadScheduler().exit();
 
     __builtin_unreachable();
 }

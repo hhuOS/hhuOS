@@ -51,7 +51,7 @@ public:
 
     void rebootMachine();
 
-    static const constexpr uint8_t SERVICE_ID = 5;
+    static const constexpr uint8_t SERVICE_ID = 3;
 
 private:
 

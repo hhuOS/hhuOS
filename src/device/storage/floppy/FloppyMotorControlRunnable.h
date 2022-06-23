@@ -14,8 +14,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FLOPPYMOTORCONTROLJOB_H
-#define HHUOS_FLOPPYMOTORCONTROLJOB_H
+#ifndef HHUOS_FLOPPYMOTORCONTROLRUNNABLE_H
+#define HHUOS_FLOPPYMOTORCONTROLRUNNABLE_H
 
 #include "lib/util/async/Runnable.h"
 #include "FloppyDevice.h"
@@ -25,7 +25,7 @@ namespace Device::Storage {
 /**
  * Runs in background and controls the state of a floppy drive's motor.
  */
-class FloppyMotorControlJob : public Util::Async::Runnable {
+class FloppyMotorControlRunnable : public Util::Async::Runnable {
 
 public:
 
@@ -34,22 +34,22 @@ public:
      *
      * @param device The device
      */
-    explicit FloppyMotorControlJob(FloppyDevice &device);
+    explicit FloppyMotorControlRunnable(FloppyDevice &device);
 
     /**
      * Copy Constructor.
      */
-    FloppyMotorControlJob(const FloppyMotorControlJob &copy) = delete;
+    FloppyMotorControlRunnable(const FloppyMotorControlRunnable &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    FloppyMotorControlJob& operator=(const FloppyMotorControlJob &other) = delete;
+    FloppyMotorControlRunnable& operator=(const FloppyMotorControlRunnable &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FloppyMotorControlJob() override = default;
+    ~FloppyMotorControlRunnable() override = default;
 
     /**
      * Overriding function from Thread.
@@ -58,13 +58,13 @@ public:
 
     void resetTime();
 
-    static const constexpr uint32_t TIME = 2000;
-    static const constexpr uint32_t INTERVAL = 500;
-
 private:
 
     FloppyDevice &device;
     uint32_t remainingTime = TIME;
+
+    static const constexpr uint32_t TIME = 2000;
+    static const constexpr uint32_t INTERVAL = 500;
 };
 
 }

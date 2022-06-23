@@ -19,8 +19,8 @@
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
 #include "device/sound/PcSpeaker.h"
-#include "Rtc.h"
 #include "Cmos.h"
+#include "Rtc.h"
 #include "kernel/system/System.h"
 
 namespace Device {
@@ -62,7 +62,6 @@ void Rtc::plugin() {
 
 void Rtc::trigger(const Kernel::InterruptFrame &frame) {
     uint8_t interruptStatus = Cmos::read(STATUS_REGISTER_C);
-
     if ((interruptStatus & INTERRUPT_UPDATE_ENDED) != 0) {
         currentDate = readDate();
     }
@@ -73,8 +72,6 @@ void Rtc::trigger(const Kernel::InterruptFrame &frame) {
 
     if ((interruptStatus & INTERRUPT_PERIODIC) != 0) {
         time.addNanoseconds(timerInterval);
-        advanceTime(Util::Time::Timestamp(0, timerInterval));
-        executePendingJobs();
     }
 }
 
@@ -204,8 +201,8 @@ Util::Time::Date Rtc::readDate() const {
 }
 
 void Rtc::alarm() {
-    auto *alarmRunnable = new AlarmRunnable();
-    registerJob(alarmRunnable, Util::Time::Timestamp(0, 500000000), 6);
+    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", new AlarmRunnable());
+    Kernel::System::getService<Kernel::SchedulerService>().ready(alarmThread);
 }
 
 void Rtc::setInterruptRate(uint8_t divisor) {

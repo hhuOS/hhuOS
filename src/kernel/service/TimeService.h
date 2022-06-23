@@ -55,7 +55,7 @@ public:
 
     void busyWait(const Util::Time::Timestamp &time) const;
 
-    static const constexpr uint8_t SERVICE_ID = 4;
+    static const constexpr uint8_t SERVICE_ID = 6;
 
 private:
 

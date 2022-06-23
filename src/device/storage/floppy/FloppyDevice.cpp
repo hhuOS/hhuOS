@@ -16,14 +16,13 @@
  */
 
 #include "FloppyDevice.h"
-#include "FloppyMotorControlJob.h"
+#include "FloppyMotorControlRunnable.h"
 #include "kernel/system/System.h"
-#include "kernel/service/JobService.h"
 
 namespace Device::Storage {
 
 FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType) :
-        controller(controller), driveNumber(driveNumber), driveType(driveType), motorControlJob(new FloppyMotorControlJob(*this)) {
+        controller(controller), driveNumber(driveNumber), driveType(driveType), motorControlRunnable(new FloppyMotorControlRunnable(*this)) {
     switch (driveType) {
         case FloppyController::DRIVE_360KB_5_25 :
             cylinders = 40;
@@ -52,7 +51,8 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             gapLength = 27;
     }
 
-    Kernel::System::getService<Kernel::JobService>().registerJob(motorControlJob, Kernel::Job::Priority::LOW, Util::Time::Timestamp(0, FloppyMotorControlJob::INTERVAL * 1000000));
+    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("Floppy-%u-Motor-Controller", driveNumber), motorControlRunnable);
+    Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
 }
 
 FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) const {
@@ -145,10 +145,14 @@ FloppyController& FloppyDevice::getController() const {
 
 void FloppyDevice::setMotorState(FloppyController::MotorState state) {
     if (state == FloppyController::ON) {
-        motorControlJob->resetTime();
+        motorControlRunnable->resetTime();
     }
 
     FloppyDevice::motorState = state;
+}
+
+void FloppyDevice::killMotor() {
+    controller.killMotor(*this);
 }
 
 }

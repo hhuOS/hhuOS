@@ -25,7 +25,7 @@
 
 namespace Device::Storage {
 
-class FloppyMotorControlJob;
+class FloppyMotorControlRunnable;
 
 /**
  * Implementation of StorageDevice for a floppy disk drive.
@@ -96,6 +96,8 @@ public:
 
     void setMotorState(FloppyController::MotorState state);
 
+    void killMotor();
+
 private:
 
     struct CylinderHeadSector {
@@ -122,7 +124,7 @@ private:
     uint8_t sectorsPerCylinder;
 
     FloppyController::MotorState motorState = FloppyController::OFF;
-    FloppyMotorControlJob *motorControlJob;
+    FloppyMotorControlRunnable *motorControlRunnable;
 };
 
 }

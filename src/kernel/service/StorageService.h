@@ -55,7 +55,7 @@ public:
 
     bool isDeviceRegistered(const Util::Memory::String &deviceName);
 
-    static const constexpr uint8_t SERVICE_ID = 6;
+    static const constexpr uint8_t SERVICE_ID = 5;
 
 private:
 

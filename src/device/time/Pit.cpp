@@ -50,9 +50,6 @@ void Pit::plugin() {
 
 void Pit::trigger(const Kernel::InterruptFrame &frame) {
     time.addNanoseconds(timerInterval);
-    advanceTime(Util::Time::Timestamp(0, timerInterval));
-    executePendingJobs();
-
     if (time.toMilliseconds() % yieldInterval == 0) {
         Kernel::System::getService<Kernel::SchedulerService>().yield();
     }
