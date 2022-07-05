@@ -61,6 +61,8 @@ public:
 
     [[nodiscard]] static uint32_t convert(uint32_t value, TimeUnit from, TimeUnit to);
 
+    static Timestamp ofMilliseconds(uint32_t milliseconds);
+
     void addNanoseconds(uint32_t value);
 
     void addSeconds(uint32_t value);

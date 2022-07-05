@@ -296,4 +296,8 @@ Color Color::blend(const Color &color) const {
     return {r, g, b, a};
 }
 
+bool Color::operator==(const Color &other) const {
+    return red == other.red && green == other.green && blue == other.blue;
+}
+
 }

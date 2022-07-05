@@ -111,6 +111,12 @@ uint32_t Timestamp::toYears() const {
     return seconds / 31536000;
 }
 
+Timestamp Timestamp::ofMilliseconds(uint32_t milliseconds) {
+    auto seconds = milliseconds / 1000;
+    auto fraction = (milliseconds % 1000) * 1000000;
+    return {seconds, fraction};
+}
+
 Timestamp getSystemTime() {
     return ::getSystemTime();
 }

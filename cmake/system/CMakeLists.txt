@@ -28,7 +28,7 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/GatesOfHell.cpp
         ${HHUOS_SRC_DIR}/SchedulerSign.cpp
         ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm)
+        ${HHUOS_SRC_DIR}/constants.asm ../../src/lib/util/math/Random.cpp ../../src/lib/util/math/Random.h)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

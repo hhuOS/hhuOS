@@ -105,6 +105,8 @@ public:
      */
     ~Color() = default;
 
+    bool operator==(const Color &other) const;
+
     [[nodiscard]] static Color fromRGB(uint32_t rgb, uint8_t depth);
 
     [[nodiscard]] static Color fromRGB32(uint32_t rgb);
