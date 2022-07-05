@@ -153,7 +153,7 @@ void Address<T>::setRange(uint8_t value, T length) const {
 }
 
 template<typename T>
-void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
+void Address<T>::copyRange(const Address<T> sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(address);
     auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
 
@@ -170,7 +170,7 @@ void Address<T>::copyRange(Address<T> sourceAddress, T length) const {
 }
 
 template<typename T>
-void Address<T>::copyString(Address<T> sourceAddress) const {
+void Address<T>::copyString(const Address<T> sourceAddress) const {
     auto *target = reinterpret_cast<uint8_t*>(address);
     auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
 
@@ -182,7 +182,7 @@ void Address<T>::copyString(Address<T> sourceAddress) const {
 }
 
 template<typename T>
-void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) const {
+void Address<T>::copyString(const Address<T> sourceAddress, T maxBytes) const {
     auto *target = reinterpret_cast<uint8_t*>(address);
     auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
 
@@ -198,28 +198,37 @@ void Address<T>::copyString(Address<T> sourceAddress, T maxBytes) const {
 }
 
 template<typename T>
-T Address<T>::compareRange(Address<T> otherAddress, T length) const {
+int32_t Address<T>::compareRange(const Address<T> otherAddress, T length) const {
     auto *pointer = reinterpret_cast<uint8_t*>(address);
     auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 
     T i;
-    for (i = 0; i < length && pointer[i] == other[i]; i++);
+    for (i = 0; i < length && pointer[i] == other[i]; i++){}
     return i == length ? 0 : pointer[i] - other[i];
 }
 
 template<typename T>
-T Address<T>::compareString(Address<T> otherAddress) const {
+int32_t Address<T>::compareString(const Address<T> otherAddress) const {
     auto *pointer = reinterpret_cast<uint8_t*>(address);
     auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 
     T i;
-    for (i = 0; pointer[i] != 0 && other[i] != 0 && pointer[i] == other[i]; i++);
+    for (i = 0; pointer[i] != 0 && other[i] != 0 && pointer[i] == other[i]; i++){}
     return  pointer[i] - other[i];
 }
 
 template<>
-uint32_t Address<uint32_t>::compareString(const char *otherString) const {
+int32_t Address<uint32_t>::compareString(const char *otherString) const {
     return compareString(Address(otherString));
+}
+
+template<typename T>
+Address<T> Address<T>::searchCharacter(uint8_t character) const {
+    auto *pointer = reinterpret_cast<uint8_t*>(address);
+
+    T i;
+    for (i = 0; pointer[i] != 0 && pointer[i] != character; i++) {}
+    return pointer[i] == 0 ? set(0) : add(i);
 }
 
 }

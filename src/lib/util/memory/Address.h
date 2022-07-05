@@ -59,11 +59,11 @@ public:
 
     [[nodiscard]] T stringLength() const;
 
-    [[nodiscard]] T compareRange(Address<T> otherAddress, T length) const;
+    [[nodiscard]] int32_t compareRange(Address<T> otherAddress, T length) const;
 
-    [[nodiscard]] T compareString(Address<T> otherAddress) const;
+    [[nodiscard]] int32_t compareString(Address<T> otherAddress) const;
 
-    [[nodiscard]] uint32_t compareString(const char *otherString) const;
+    [[nodiscard]] int32_t compareString(const char *otherString) const;
 
     [[nodiscard]] uint8_t getByte(T offset = 0) const;
 
@@ -88,6 +88,8 @@ public:
     void copyString(Address<T> sourceAddress) const;
 
     void copyString(Address<T> sourceAddress, T maxBytes) const;
+
+    [[nodiscard]] Address<T> searchCharacter(uint8_t character) const;
 
 protected:
 
