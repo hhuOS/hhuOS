@@ -29,8 +29,34 @@ Fpu::Fpu() {
     auto *defaultFpuContext = Kernel::System::getService<Kernel::SchedulerService>().getDefaultFpuContext();
     disarmFpuMonitor();
 
+    // Make sure FPU emulation is disabled
+    asm volatile (
+            "mov %%cr0, %%eax;"
+            "and $0xfffffffb, %%eax;"
+            "mov %%eax, %%cr0;"
+            : : :
+            "eax"
+            );
+
     if (Device::Fpu::isFxsrAvailable()) {
         log.info("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
+
+        auto features = Util::Cpu::CpuId::getCpuFeatures();
+        if (features.contains(Util::Cpu::CpuId::MMX)) {
+            log.info("MMX support detected");
+        }
+
+        if (features.contains(Util::Cpu::CpuId::SSE)) {
+            log.info("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
+            asm volatile (
+                    "mov %%cr4, %%eax;"
+                    "or $0x00000600, %%eax;"
+                    "mov %%eax, %%cr4;"
+                    : : :
+                    "eax"
+                    );
+        }
+
         asm volatile (
                 "fninit;"
                 "fxsave (%0);"

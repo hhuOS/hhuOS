@@ -16,14 +16,14 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(mmxtest)
+project(membench)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/mmxtest/mmxtest.cpp)
+        ${HHUOS_SRC_DIR}/application/membench/membench.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

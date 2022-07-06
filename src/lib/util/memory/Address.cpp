@@ -154,12 +154,27 @@ void Address<T>::setRange(uint8_t value, T length) const {
 
 template<typename T>
 void Address<T>::copyRange(const Address<T> sourceAddress, T length) const {
-    auto *target = reinterpret_cast<uint64_t*>(address);
-    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
+    auto *target = reinterpret_cast<uint32_t*>(address);
+    auto *source = reinterpret_cast<uint32_t*>(sourceAddress.get());
 
-    while (length - sizeof(uint64_t) < length) {
-        *target++ = *source++;
-        length -= sizeof(uint64_t);
+    while (length - 4 * sizeof(uint32_t) < length) {
+        asm volatile (
+                "mov (%0), %%eax;"
+                "mov 4(%0), %%ebx;"
+                "mov 8(%0), %%ecx;"
+                "mov 12(%0), %%edx;"
+                "mov %%eax, (%1);"
+                "mov %%ebx, 4(%1);"
+                "mov %%ecx, 8(%1);"
+                "mov %%edx, 12(%1);"
+                : :
+                "r"(source),
+                "r"(target)
+                : "eax", "ebx", "ecx", "edx"
+                );
+        source += 4;
+        target += 4;
+        length -= 4 * sizeof(uint32_t);
     }
 
     auto *targetRest = reinterpret_cast<uint8_t*>(target);

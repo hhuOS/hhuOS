@@ -27,6 +27,9 @@ namespace Kernel {
 Logger SchedulerService::log = Logger::get("Scheduler");
 
 SchedulerService::SchedulerService() {
+    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
+    Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
+
     SystemCall::registerSystemCall(Util::System::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::Result {
         System::getService<SchedulerService>().yield();
         return Util::System::Result::OK;
@@ -40,8 +43,6 @@ SchedulerService::SchedulerService() {
 
         auto &schedulerService = System::getService<SchedulerService>();
         schedulerService.exitCurrentProcess(exitCode);
-
-        return Util::System::Result::OK;
     });
 
     SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
@@ -127,9 +128,6 @@ void SchedulerService::startScheduler() {
     cleaner = new Kernel::SchedulerCleaner();
     auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", cleaner);
     ready(schedulerCleanerThread);
-
-    defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
-    Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
     if (Device::Fpu::isAvailable()) {
         log.info("FPU detected -> Enabling FPU context switching");

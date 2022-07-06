@@ -22,4 +22,5 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/memory/FreeListMemoryManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/MmxAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/operators.cpp
+        ${HHUOS_SRC_DIR}/lib/util/memory/SseAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/memory/String.cpp)

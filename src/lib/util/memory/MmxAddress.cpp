@@ -16,7 +16,6 @@
  */
 
 #include "MmxAddress.h"
-#include "lib/util/cpu/CpuId.h"
 
 namespace Util::Memory {
 
@@ -36,18 +35,33 @@ void MmxAddress<T>::setRange(uint8_t value, T length) const {
     longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
 
     asm volatile (
-            "movq (%0),%%mm0;"
+            "movq (%0), %%mm0;"
+            "movq %%mm0, %%mm1;"
+            "movq %%mm0, %%mm2;"
+            "movq %%mm0, %%mm3;"
+            "movq %%mm0, %%mm4;"
+            "movq %%mm0, %%mm5;"
+            "movq %%mm0, %%mm6;"
+            "movq %%mm0, %%mm7;"
             : :
             "r"(&longValue)
             );
 
-    while (length - sizeof(uint64_t) < length) {
+    while (length - 8 * sizeof(uint64_t) < length) {
         asm volatile (
-                "movq %%mm0,(%0);"
+                "movq %%mm0, (%0);"
+                "movq %%mm1, 8(%0);"
+                "movq %%mm2, 16(%0);"
+                "movq %%mm3, 24(%0);"
+                "movq %%mm4, 32(%0);"
+                "movq %%mm5, 40(%0);"
+                "movq %%mm6, 48(%0);"
+                "movq %%mm7, 56(%0);"
                 : :
-                "r"(target++)
+                "r"(target)
                 );
-        length -= sizeof(uint64_t);
+        target += 8;
+        length -= 8 * sizeof(uint64_t);
     }
 
     auto *rest = reinterpret_cast<uint8_t*>(target);
@@ -61,15 +75,31 @@ void MmxAddress<T>::copyRange(Address<T> sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
     auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
 
-    while (length - sizeof(uint64_t) < length) {
+    while (length - 8 * sizeof(uint64_t) < length) {
         asm volatile (
-                "movq (%0),%%mm0;"
-                "movq %%mm0,(%1);"
+                "movq (%0), %%mm0;"
+                "movq 8(%0), %%mm1;"
+                "movq 16(%0), %%mm2;"
+                "movq 24(%0), %%mm3;"
+                "movq 32(%0), %%mm4;"
+                "movq 40(%0), %%mm5;"
+                "movq 48(%0), %%mm6;"
+                "movq 56(%0), %%mm7;"
+                "movq %%mm0, (%1);"
+                "movq %%mm1, 8(%1);"
+                "movq %%mm2, 16(%1);"
+                "movq %%mm3, 24(%1);"
+                "movq %%mm4, 32(%1);"
+                "movq %%mm5, 40(%1);"
+                "movq %%mm6, 48(%1);"
+                "movq %%mm7, 56(%1);"
                 : :
-                "r"(source++),
-                "r"(target++)
+                "r"(source),
+                "r"(target)
                 );
-        length -= sizeof(uint64_t);
+        source += 8;
+        target += 8;
+        length -= 8 * sizeof(uint64_t);
     }
 
     auto *targetRest = reinterpret_cast<uint8_t*>(target);
