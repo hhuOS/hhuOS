@@ -26,6 +26,7 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/cp "$<TARGET_FILE:cat>" "${HHUOS_ROOT_DIR}/initrd/bin/cat"
         COMMAND /bin/cp "$<TARGET_FILE:color>" "${HHUOS_ROOT_DIR}/initrd/bin/color"
         COMMAND /bin/cp "$<TARGET_FILE:cp>" "${HHUOS_ROOT_DIR}/initrd/bin/cp"
+        COMMAND /bin/cp "$<TARGET_FILE:cube>" "${HHUOS_ROOT_DIR}/initrd/bin/cube"
         COMMAND /bin/cp "$<TARGET_FILE:date>" "${HHUOS_ROOT_DIR}/initrd/bin/date"
         COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/initrd/bin/echo"
         COMMAND /bin/cp "$<TARGET_FILE:fault>" "${HHUOS_ROOT_DIR}/initrd/bin/fault"
@@ -42,6 +43,6 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/initrd/bin/uptime"
         COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
         COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        DEPENDS shell ant cat color cp date echo fault hello ls mkdir membench pwd rm rmdir shutdown touch tree uptime)
+        DEPENDS shell ant cat color cp cube date echo fault hello ls mkdir membench pwd rm rmdir shutdown touch tree uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS shell ant cat color cp date echo fault hello ls mkdir membench pwd rm rmdir shutdown touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+add_custom_target(${PROJECT_NAME} DEPENDS shell ant cat color cp cube date echo fault hello ls mkdir membench pwd rm rmdir shutdown touch tree uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")

@@ -22,6 +22,7 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferScroller.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Color.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Font.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/LineDrawer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/PixelDrawer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/StringDrawer.cpp)

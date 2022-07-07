@@ -15,17 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PIXELDRAWER_H
-#define HHUOS_PIXELDRAWER_H
+#ifndef HHUOS_LINEDRAWER_H
+#define HHUOS_LINEDRAWER_H
 
-#include "LinearFrameBuffer.h"
+#include "PixelDrawer.h"
 
 namespace Util::Graphic {
 
 /**
- * Draws pixels on a LinearFrameBuffer.
+ * Draws lines on a linear frame buffer using a pixel drawer
  */
-class PixelDrawer {
+class LineDrawer {
 
 public:
     /**
@@ -33,39 +33,36 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit PixelDrawer(LinearFrameBuffer &lfb);
+    explicit LineDrawer(PixelDrawer &pixelDrawer);
 
     /**
      * Copy Constructor.
      */
-    PixelDrawer(const PixelDrawer &copy) = delete;
+    LineDrawer(const LineDrawer &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    PixelDrawer& operator=(const PixelDrawer & other) = delete;
+    LineDrawer& operator=(const LineDrawer & other) = delete;
 
     /**
      * Destructor.
      */
-    ~PixelDrawer() = default;
+    ~LineDrawer() = default;
 
-    /**
-     * Draw a pixel at a given position.
-     *
-     * @param x The x-coordinate
-     * @param y The y-coordinate
-     * @param color The color
-     */
-    void drawPixel(uint16_t x, uint16_t y, const Color &color);
-
-    void drawPixel(uint32_t linearPosition, const Color &color);
-
-    LinearFrameBuffer& getLfb() const;
+    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color);
 
 private:
 
-    LinearFrameBuffer &lfb;
+    void drawLineMajorAxis(uint32_t pixel, int32_t majorAxisPixelMovement, int32_t minorAxisPixelMovement, int32_t dx, int32_t dy, const Color &color);
+
+    void drawLineSingleAxis(uint32_t pixel, int32_t majorAxisPixelMovement, int32_t dx, const Color &color);
+
+    static void swap(uint16_t *a, uint16_t *b);
+
+    static int32_t abs(int32_t a);
+
+    PixelDrawer &pixelDrawer;
 };
 
 }

@@ -41,13 +41,23 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) {
         rgbColor = color.getColorForDepth(lfb.getColorDepth());
     }
 
-    //Calculate pixel offset
+    // Calculate pixel offset
     auto address = lfb.getBuffer().add((x * (bpp / 8)) + y * lfb.getPitch());
 
-    //Write color to pixel offset
+    // Write color to pixel offset
     for(uint32_t i = 0; i < (bpp / 8); i++) {
         address.setByte((rgbColor >> (i * 8)) & 0xff, i);
     }
+}
+
+void PixelDrawer::drawPixel(uint32_t linearPosition, const Color &color) {
+    uint16_t x = linearPosition % lfb.getResolutionX();
+    uint16_t y = linearPosition / lfb.getResolutionX();
+    drawPixel(x, y, color);
+}
+
+LinearFrameBuffer& PixelDrawer::getLfb() const {
+    return lfb;
 }
 
 }

@@ -16,20 +16,15 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(system)
+project(cube)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/boot.asm
-        ${HHUOS_SRC_DIR}/BuildConfig.cpp
-        ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/SchedulerSign.cpp
-        ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm ../../src/lib/util/math/Random.cpp ../../src/lib/util/math/Random.h ../../src/lib/util/graphic/LineDrawer.cpp ../../src/lib/util/graphic/LineDrawer.h)
+        ${HHUOS_SRC_DIR}/application/cube/cube.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} device filesystem kernel lib.kernel)
+target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user)
