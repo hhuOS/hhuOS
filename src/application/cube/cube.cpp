@@ -19,13 +19,29 @@
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/LineDrawer.h"
+#include "lib/util/math/Math.h"
 
-Util::Graphic::LinearFrameBuffer lfb(Util::File::File("/device/lfb"));
-Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb);
-Util::Graphic::PixelDrawer pixelDrawer(bufferedLfb);
-Util::Graphic::LineDrawer lineDrawer(pixelDrawer);
+// Initialize linear frame buffer
+static Util::Graphic::LinearFrameBuffer lfb(Util::File::File("/device/lfb"));
+static Util::Graphic::BufferedLinearFrameBuffer bufferedLfb(lfb);
+static Util::Graphic::PixelDrawer pixelDrawer(bufferedLfb);
+static Util::Graphic::LineDrawer lineDrawer(pixelDrawer);
+static const Util::Graphic::Color color = Util::Graphic::Color(10,255,0);
 
-void transformedDrawLine(double x1, double y1, double x2, double y2, const Util::Graphic::Color &color) {
+// Cube indices
+static const constexpr uint8_t x = 1, y = 2, z = 3;
+
+// Rotation angles
+static const constexpr double angleX = 0.01;
+static const constexpr double angleY = 0.0075;
+static const constexpr double angleZ = 0.005;
+
+// Precalculated sine and cosine values
+static const double sinAngleX = Util::Math::Math::sine(angleX), cosAngleX = Util::Math::Math::cosine(angleX);
+static const double sinAngleY = Util::Math::Math::sine(angleY), cosAngleY = Util::Math::Math::cosine(angleY);
+static const double sinAngleZ = Util::Math::Math::sine(angleZ), cosAngleZ = Util::Math::Math::cosine(angleZ);
+
+void transformedDrawLine(double x1, double y1, double x2, double y2) {
     int32_t TRANSLATION_X = lfb.getResolutionX() / 2;
     int32_t TRANSLATION_Y = lfb.getResolutionY() / 2;
     lineDrawer.drawLine(static_cast<uint16_t>(x1 + TRANSLATION_X), static_cast<uint16_t>(y1 + TRANSLATION_Y), static_cast<uint16_t>(x2 + TRANSLATION_X), static_cast<uint16_t>(y2 + TRANSLATION_Y), color);
@@ -33,9 +49,6 @@ void transformedDrawLine(double x1, double y1, double x2, double y2, const Util:
 
 int32_t main(int32_t argc, char *argv[]) {
     double cube[8][4];
-    uint32_t x=1, y=2, z=3;
-    auto color = Util::Graphic::Color(10,255,0);
-
     // 8 corner points in the local cube coordinate system
     // Middle of the cube is (0,0)
     cube[0][x] = -100; cube[0][y] = -100; cube[0][z] = -100;
@@ -55,10 +68,6 @@ int32_t main(int32_t argc, char *argv[]) {
     //    | /         | /
     //    0 - - - - - 1
 
-    double sin_angle_x=0.000999, cos_angle_x=0.999999;
-    double sin_angle_y=0.006999, cos_angle_y=0.999975;
-    double sin_angle_z=0.004999, cos_angle_z=0.999987;
-
     // Animation loop
     while (true) {
         double px, py, pz;
@@ -70,38 +79,38 @@ int32_t main(int32_t argc, char *argv[]) {
             pz = corner[z];
 
             // Rotate around x-axis
-            corner[y] = py * cos_angle_x - pz * sin_angle_x;
-            corner[z] = py * sin_angle_x + pz * cos_angle_x;
+            corner[y] = py * cosAngleX - pz * sinAngleX;
+            corner[z] = py * sinAngleX + pz * cosAngleX;
 
             py = corner[y];
             pz = corner[z];
 
             // Rotate around y-axis
-            corner[x] = px * cos_angle_y + pz * sin_angle_y;
-            corner[z] = -px * sin_angle_y + pz * cos_angle_y;
+            corner[x] = px * cosAngleY + pz * sinAngleY;
+            corner[z] = -px * sinAngleY + pz * cosAngleY;
 
             px = corner[x];
 
             // Rotate around z-axis
-            corner[x] = px * cos_angle_z - py * sin_angle_z;
-            corner[y] = py * cos_angle_z + px * sin_angle_z;
+            corner[x] = px * cosAngleZ - py * sinAngleZ;
+            corner[y] = py * cosAngleZ + px * sinAngleZ;
         }
 
         bufferedLfb.clear();
 
         // Draw cube
-        transformedDrawLine( cube[0][x], cube[0][y], cube[1][x], cube[1][y], color);
-        transformedDrawLine( cube[1][x], cube[1][y], cube[2][x], cube[2][y], color);
-        transformedDrawLine( cube[2][x], cube[2][y], cube[3][x], cube[3][y], color);
-        transformedDrawLine( cube[3][x], cube[3][y], cube[0][x], cube[0][y], color);
-        transformedDrawLine( cube[4][x], cube[4][y], cube[5][x], cube[5][y], color);
-        transformedDrawLine( cube[5][x], cube[5][y], cube[6][x], cube[6][y], color);
-        transformedDrawLine( cube[6][x], cube[6][y], cube[7][x], cube[7][y], color);
-        transformedDrawLine( cube[7][x], cube[7][y], cube[4][x], cube[4][y], color);
-        transformedDrawLine( cube[0][x], cube[0][y], cube[4][x], cube[4][y], color);
-        transformedDrawLine( cube[1][x], cube[1][y], cube[5][x], cube[5][y], color);
-        transformedDrawLine( cube[2][x], cube[2][y], cube[6][x], cube[6][y], color);
-        transformedDrawLine( cube[3][x], cube[3][y], cube[7][x], cube[7][y], color);
+        transformedDrawLine( cube[0][x], cube[0][y], cube[1][x], cube[1][y]);
+        transformedDrawLine( cube[1][x], cube[1][y], cube[2][x], cube[2][y]);
+        transformedDrawLine( cube[2][x], cube[2][y], cube[3][x], cube[3][y]);
+        transformedDrawLine( cube[3][x], cube[3][y], cube[0][x], cube[0][y]);
+        transformedDrawLine( cube[4][x], cube[4][y], cube[5][x], cube[5][y]);
+        transformedDrawLine( cube[5][x], cube[5][y], cube[6][x], cube[6][y]);
+        transformedDrawLine( cube[6][x], cube[6][y], cube[7][x], cube[7][y]);
+        transformedDrawLine( cube[7][x], cube[7][y], cube[4][x], cube[4][y]);
+        transformedDrawLine( cube[0][x], cube[0][y], cube[4][x], cube[4][y]);
+        transformedDrawLine( cube[1][x], cube[1][y], cube[5][x], cube[5][y]);
+        transformedDrawLine( cube[2][x], cube[2][y], cube[6][x], cube[6][y]);
+        transformedDrawLine( cube[3][x], cube[3][y], cube[7][x], cube[7][y]);
 
         bufferedLfb.flush();
     }

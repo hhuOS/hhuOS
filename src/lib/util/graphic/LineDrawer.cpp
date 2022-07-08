@@ -16,6 +16,7 @@
  */
 
 #include "LineDrawer.h"
+#include "lib/util/math/Math.h"
 
 namespace Util::Graphic {
 
@@ -27,7 +28,7 @@ void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, co
     auto dy = static_cast<int32_t>(y2 - y1);
 
     // If the x-axis is the major axis
-    if (abs(dx) >= abs(dy)) {
+    if (Math::Math::absolute(dx) >= Math::Math::absolute(dy)) {
         // If x2 < x1, flip the points to have fewer special cases
         if (dx < 0) {
             dx *= -1;
@@ -36,18 +37,15 @@ void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, co
             swap(&y1, &y2);
         }
 
-        // Get the address of the pixel at (x1,y1)
-        uint32_t startPixel = y1 * pixelDrawer.getLfb().getResolutionX() + x1;
-
         // Determine special cases
         if (dy > 0)
-            drawLineMajorAxis(startPixel, 1, pixelDrawer.getLfb().getResolutionX(), dx, dy, color);
+            drawLineMajorAxis(x1, y1, 1, 1, dx, dy, true, color);
         else if (dy < 0)
-            drawLineMajorAxis(startPixel, 1, -pixelDrawer.getLfb().getResolutionX(), dx, -dy, color);
+            drawLineMajorAxis(x1, y1, 1, -1, dx, -dy, true, color);
         else
-            drawLineSingleAxis(startPixel, 1, dx, color);
+            drawLineSingleAxis(x1, y1, 1, dx, true, color);
     }
-        // else the Y axis is the major axis
+        // else the y-axis is the major axis
     else {
         // if y2 < y1, flip the points to have fewer special cases
         if (dy < 0) {
@@ -57,20 +55,17 @@ void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, co
             swap(&y1, &y2);
         }
 
-        // Get the address of the pixel at (x1,y1)
-        uint32_t startPixel = y1 * pixelDrawer.getLfb().getResolutionX() + x1;
-
         // determine special cases
         if (dx > 0)
-            drawLineMajorAxis(startPixel, pixelDrawer.getLfb().getResolutionX(), 1, dy, dx, color);
+            drawLineMajorAxis(x1, y1, 1, 1, dy, dx, false, color);
         else if (dx < 0)
-            drawLineMajorAxis(startPixel, pixelDrawer.getLfb().getResolutionX(), -1, dy, -dx, color);
+            drawLineMajorAxis(x1, y1, -1, 1, dy, -dx, false, color);
         else
-            drawLineSingleAxis(startPixel, pixelDrawer.getLfb().getResolutionX(), dy, color);
+            drawLineSingleAxis(x1, y1, 1, dy, false, color);
     }
 }
 
-void LineDrawer::drawLineMajorAxis(uint32_t pixel, int32_t majorAxisPixelMovement, int32_t minorAxisPixelMovement, int32_t dx, int32_t dy, const Color &color) {
+void LineDrawer::drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) {
     // Calculate some constants
     const int32_t dx2 = dx * 2;
     const int32_t dy2 = dy * 2;
@@ -80,34 +75,44 @@ void LineDrawer::drawLineMajorAxis(uint32_t pixel, int32_t majorAxisPixelMovemen
     auto error = dy2 - dx;
 
     // Draw the first pixel
-    pixelDrawer.drawPixel(pixel, color);
+    pixelDrawer.drawPixel(x, y, color);
 
     // lLop across the major axis
-    while (dx--) {
-        // Move on major axis and minor axis
+    while (dx-- > 0) {
         if (error > 0) {
-            pixel += majorAxisPixelMovement + minorAxisPixelMovement;;
+            // Move on major axis and minor axis
+            x += xMovement;
+            y += yMovement;
             error += diffDy2Dx2;
-        }
-            // move on major axis only
-        else {
-            pixel += majorAxisPixelMovement;
+        } else {
+            // Move on major axis only
+            if (majorAxisX) {
+                x += xMovement;
+            } else {
+                y += yMovement;
+            }
+
             error += dy2;
         }
 
         // draw the next pixel
-        pixelDrawer.drawPixel(pixel, color);
+        pixelDrawer.drawPixel(x, y, color);
     }
 }
 
-void LineDrawer::drawLineSingleAxis(uint32_t pixel, int32_t majorAxisPixelMovement, int32_t dx, const Color &color) {
+void LineDrawer::drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) {
     // Draw the first pixel
-    pixelDrawer.drawPixel(pixel, color);
+    pixelDrawer.drawPixel(x, y, color);
 
     // loop across the major axis and draw the rest of the pixels
-    while (dx--) {
-        pixel += majorAxisPixelMovement;
-        pixelDrawer.drawPixel(pixel, color);
+    while (dx-- > 0) {
+        if (majorAxisX) {
+            x += movement;
+        } else {
+            y += movement;
+        }
+
+        pixelDrawer.drawPixel(x, y, color);
     };
 
 }
@@ -116,14 +121,6 @@ void LineDrawer::swap(uint16_t *a, uint16_t *b) {
     uint32_t h = *a;
     *a = *b;
     *b = h;
-}
-
-int32_t LineDrawer::abs(int32_t a) {
-    if (a < 0) {
-        return -a;
-    }
-
-    return a;
 }
 
 }

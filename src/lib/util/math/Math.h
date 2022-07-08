@@ -15,54 +15,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LINEDRAWER_H
-#define HHUOS_LINEDRAWER_H
+#ifndef HHUOS_MATH_H
+#define HHUOS_MATH_H
 
-#include "PixelDrawer.h"
 
-namespace Util::Graphic {
+#include <cstdint>
 
-/**
- * Draws lines on a linear frame buffer using a pixel drawer
- */
-class LineDrawer {
+namespace Util::Math {
+
+class Math {
 
 public:
     /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer on which to draw pixels.
+     * Default Constructor.
+     * Deleted, as this class has only static members.
      */
-    explicit LineDrawer(PixelDrawer &pixelDrawer);
+    Math() = delete;
 
     /**
      * Copy Constructor.
      */
-    LineDrawer(const LineDrawer &copy) = delete;
+    Math(const Math &other) = delete;
 
     /**
      * Assignment operator.
      */
-    LineDrawer& operator=(const LineDrawer & other) = delete;
+    Math &operator=(const Math &other) = delete;
 
     /**
      * Destructor.
      */
-    ~LineDrawer() = default;
+    ~Math() = delete;
 
-    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color);
+    static uint32_t absolute(int32_t value);
 
-private:
+    static uint64_t absolute(int64_t value);
 
-    void drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color);
+    static float sine(float value);
 
-    void drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color);
+    static double sine(double value);
 
-    static void swap(uint16_t *a, uint16_t *b);
+    static float cosine(float value);
 
-    PixelDrawer &pixelDrawer;
+    static double cosine(double value);
+
 };
 
 }
+
 
 #endif

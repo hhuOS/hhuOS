@@ -50,14 +50,4 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) {
     }
 }
 
-void PixelDrawer::drawPixel(uint32_t linearPosition, const Color &color) {
-    uint16_t x = linearPosition % lfb.getResolutionX();
-    uint16_t y = linearPosition / lfb.getResolutionX();
-    drawPixel(x, y, color);
-}
-
-LinearFrameBuffer& PixelDrawer::getLfb() const {
-    return lfb;
-}
-
 }

@@ -59,10 +59,6 @@ public:
      */
     void drawPixel(uint16_t x, uint16_t y, const Color &color);
 
-    void drawPixel(uint32_t linearPosition, const Color &color);
-
-    LinearFrameBuffer& getLfb() const;
-
 private:
 
     LinearFrameBuffer &lfb;
