@@ -15,45 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#ifndef HHUOS_CUBEDEMO_H
+#define HHUOS_CUBEDEMO_H
 
-#include "LinearFrameBuffer.h"
+#include "lib/util/game/Game.h"
+#include "Cube.h"
 
-namespace Util::Graphic {
-
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
+class CubeDemo : public Util::Game::Game {
 
 public:
     /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
+     * Default Constructor.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
+    explicit CubeDemo(uint32_t speed = 10);
 
     /**
      * Copy Constructor.
      */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
+    CubeDemo(const CubeDemo &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    CubeDemo &operator=(const CubeDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override = default;
+    ~CubeDemo() = default;
 
-    void flush() const;
+    void update(double delta) override;
 
 private:
 
-    const LinearFrameBuffer &lfb;
-};
+    Cube cube;
 
-}
+    const double angleX;
+    const double angleY;
+    const double angleZ;
+
+    // Rotation angles
+    static const constexpr double DEFAULT_ANGLE_X = 0.01;
+    static const constexpr double DEFAULT_ANGLE_Y = 0.0075;
+    static const constexpr double DEFAULT_ANGLE_Z = 0.005;
+};
 
 #endif

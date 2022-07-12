@@ -32,7 +32,7 @@ float Math::sine(float value) {
     asm volatile (
             "flds (%0);"
             "fsin;"
-            "fsts (%1)"
+            "fstps (%1)"
             : :
             "r"(&value), "r"(&ret)
             );
@@ -45,7 +45,7 @@ double Math::sine(double value) {
     asm volatile (
             "fldl (%0);"
             "fsin;"
-            "fstl (%1)"
+            "fstpl (%1);"
             : :
             "r"(&value), "r"(&ret)
             );
@@ -58,7 +58,7 @@ float Math::cosine(float value) {
     asm volatile (
             "flds (%0);"
             "fcos;"
-            "fsts (%1)"
+            "fstps (%1);"
             : :
             "r"(&value), "r"(&ret)
             );
@@ -71,7 +71,7 @@ double Math::cosine(double value) {
     asm volatile (
             "fldl (%0);"
             "fcos;"
-            "fstl (%1)"
+            "fstpl (%1)"
             : :
             "r"(&value), "r"(&ret)
             );

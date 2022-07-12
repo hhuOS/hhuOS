@@ -15,45 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#include "CubeDemo.h"
+#include "lib/util/stream/PrintWriter.h"
 
-#include "LinearFrameBuffer.h"
-
-namespace Util::Graphic {
-
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
-
-public:
-    /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
-     */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BufferedLinearFrameBuffer() override = default;
-
-    void flush() const;
-
-private:
-
-    const LinearFrameBuffer &lfb;
-};
-
+CubeDemo::CubeDemo(uint32_t speed) : angleX(DEFAULT_ANGLE_X * speed), angleY(DEFAULT_ANGLE_Y * speed), angleZ(DEFAULT_ANGLE_Z * speed) {
+    addObject(cube);
 }
 
-#endif
+void CubeDemo::update(double delta) {
+    cube.rotate(angleX * delta, angleY * delta, angleZ * delta);
+}

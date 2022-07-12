@@ -15,43 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#ifndef HHUOS_ENGINE_H
+#define HHUOS_ENGINE_H
 
-#include "LinearFrameBuffer.h"
 
-namespace Util::Graphic {
+#include <cstdint>
+#include "lib/util/async/Runnable.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
+#include "Drawable.h"
+#include "Game.h"
 
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
+namespace Util::Game {
+
+class Engine : public Util::Async::Runnable {
 
 public:
     /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
+     * Default Constructor.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
+    explicit Engine(Game &game, Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60);
 
     /**
      * Copy Constructor.
      */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
+    Engine(const Engine &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Engine &operator=(const Engine &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override = default;
+    ~Engine() override = default;
 
-    void flush() const;
+    void run() override;
 
 private:
 
-    const LinearFrameBuffer &lfb;
+    Game &game;
+    Util::Graphic::BufferedLinearFrameBuffer lfb;
+    const uint8_t targetFrameRate;
 };
 
 }

@@ -33,7 +33,7 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit PixelDrawer(LinearFrameBuffer &lfb);
+    explicit PixelDrawer(const LinearFrameBuffer &lfb);
 
     /**
      * Copy Constructor.
@@ -57,11 +57,11 @@ public:
      * @param y The y-coordinate
      * @param color The color
      */
-    void drawPixel(uint16_t x, uint16_t y, const Color &color);
+    void drawPixel(uint16_t x, uint16_t y, const Color &color) const ;
 
 private:
 
-    LinearFrameBuffer &lfb;
+    const LinearFrameBuffer &lfb;
 };
 
 }

@@ -15,45 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#ifndef HHUOS_CUBE_H
+#define HHUOS_CUBE_H
 
-#include "LinearFrameBuffer.h"
+#include "lib/util/game/Drawable.h"
+#include "lib/util/graphic/LineDrawer.h"
 
-namespace Util::Graphic {
-
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
+class Cube : public Util::Game::Drawable {
 
 public:
     /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
+     * Default Constructor.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
+    Cube();
 
     /**
      * Copy Constructor.
      */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
+    Cube(const Cube &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Cube &operator=(const Cube &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override = default;
+    ~Cube() = default;
 
-    void flush() const;
+    void draw(const Util::Graphic::LinearFrameBuffer &lfb) const override;
+
+    void rotate(double angleX, double angleY, double angleZ);
 
 private:
 
-    const LinearFrameBuffer &lfb;
-};
+    double coordinates[8][4]{};
 
-}
+    // Cube indices
+    static const constexpr uint8_t x = 1, y = 2, z = 3;
+
+    static const Util::Graphic::Color color;
+};
 
 #endif

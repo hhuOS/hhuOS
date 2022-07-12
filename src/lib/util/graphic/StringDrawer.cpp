@@ -19,20 +19,20 @@
 
 namespace Util::Graphic {
 
-StringDrawer::StringDrawer(PixelDrawer &pixelDrawer) : pixelDrawer(pixelDrawer) {}
+StringDrawer::StringDrawer(const PixelDrawer &pixelDrawer) : pixelDrawer(pixelDrawer) {}
 
-void StringDrawer::drawChar(Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor) {
+void StringDrawer::drawChar(Font &font, uint16_t x, uint16_t y, char c, const Color &fgColor, const Color &bgColor) const {
     drawMonoBitmap(x, y, font.getCharWidth(), font.getCharHeight(), fgColor, bgColor, font.getChar(c));
 }
 
-void StringDrawer::drawString(Font &font, uint16_t x, uint16_t y, const char *string, const Color &fgColor, const Color &bgColor) {
+void StringDrawer::drawString(Font &font, uint16_t x, uint16_t y, const char *string, const Color &fgColor, const Color &bgColor) const {
     for (uint32_t i = 0; string[i] != 0; ++i) {
         drawChar(font, x, y, string[i], fgColor, bgColor);
         x += font.getCharWidth();
     }
 }
 
-void StringDrawer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) {
+void StringDrawer::drawMonoBitmap(uint16_t x, uint16_t y, uint16_t width, uint16_t height, const Color &fgColor, const Color &bgColor, uint8_t *bitmap) const {
     auto widthInBytes = static_cast<uint16_t>(width / 8 + ((width % 8 != 0) ? 1 : 0));
 
     for (uint16_t offsetY = 0; offsetY < height; ++offsetY) {

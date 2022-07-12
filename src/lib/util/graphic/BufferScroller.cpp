@@ -20,11 +20,11 @@
 
 namespace Util::Graphic {
 
-BufferScroller::BufferScroller(LinearFrameBuffer &lfb) : lfb(lfb) {
+BufferScroller::BufferScroller(const LinearFrameBuffer &lfb) : lfb(lfb) {
 
 }
 
-void BufferScroller::scrollUp(uint16_t lineCount) {
+void BufferScroller::scrollUp(uint16_t lineCount) const {
     // Move screen buffer upwards by the given amount of lines
     auto source = lfb.getBuffer().add(lfb.getPitch() * lineCount);
     lfb.getBuffer().copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
@@ -34,7 +34,7 @@ void BufferScroller::scrollUp(uint16_t lineCount) {
     clear.setRange(0, lfb.getPitch() * lineCount);
 }
 
-void BufferScroller::scrollDown(uint16_t lineCount) {
+void BufferScroller::scrollDown(uint16_t lineCount) const {
     // Move the screen buffer downwards line by line, starting at the bottom
     for (int32_t i = 1; i < lfb.getResolutionY() - lineCount; i++) {
         auto source = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - lineCount - i));

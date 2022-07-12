@@ -20,9 +20,9 @@
 
 namespace Util::Graphic {
 
-LineDrawer::LineDrawer(PixelDrawer &pixelDrawer) : pixelDrawer(pixelDrawer) {}
+LineDrawer::LineDrawer(const PixelDrawer &pixelDrawer) : pixelDrawer(pixelDrawer) {}
 
-void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) {
+void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const {
     // Calculate our deltas
     auto dx = static_cast<int32_t>(x2 - x1);
     auto dy = static_cast<int32_t>(y2 - y1);
@@ -65,7 +65,7 @@ void LineDrawer::drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, co
     }
 }
 
-void LineDrawer::drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) {
+void LineDrawer::drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const {
     // Calculate some constants
     const int32_t dx2 = dx * 2;
     const int32_t dy2 = dy * 2;
@@ -100,7 +100,7 @@ void LineDrawer::drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int
     }
 }
 
-void LineDrawer::drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) {
+void LineDrawer::drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const {
     // Draw the first pixel
     pixelDrawer.drawPixel(x, y, color);
 

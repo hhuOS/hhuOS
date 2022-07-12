@@ -33,7 +33,7 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit LineDrawer(PixelDrawer &pixelDrawer);
+    explicit LineDrawer(const PixelDrawer &pixelDrawer);
 
     /**
      * Copy Constructor.
@@ -50,17 +50,17 @@ public:
      */
     ~LineDrawer() = default;
 
-    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color);
+    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const;
 
 private:
 
-    void drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color);
+    void drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const;
 
-    void drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color);
+    void drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const;
 
     static void swap(uint16_t *a, uint16_t *b);
 
-    PixelDrawer &pixelDrawer;
+    const PixelDrawer &pixelDrawer;
 };
 
 }

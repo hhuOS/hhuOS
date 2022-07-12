@@ -15,43 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#ifndef HHUOS_DRAWABLE_H
+#define HHUOS_DRAWABLE_H
 
-#include "LinearFrameBuffer.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
-namespace Util::Graphic {
+namespace Util::Game {
 
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
+class Drawable {
 
 public:
     /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
+     * Default Constructor.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
+    Drawable() = default;
 
     /**
      * Copy Constructor.
      */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
+    Drawable(const Drawable &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    Drawable &operator=(const Drawable &other) = delete;
 
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override = default;
+    ~Drawable() = default;
 
-    void flush() const;
-
-private:
-
-    const LinearFrameBuffer &lfb;
+    virtual void draw(const Util::Graphic::LinearFrameBuffer &lfb) const = 0;
 };
 
 }

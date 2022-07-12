@@ -16,25 +16,6 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-project(lib.util)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/Exception.cpp)
-
-# Add subdirectories
-add_subdirectory(async)
-add_subdirectory(cpu)
-add_subdirectory(file)
-add_subdirectory(game)
-add_subdirectory(graphic)
-add_subdirectory(math)
-add_subdirectory(memory)
-add_subdirectory(reflection)
-add_subdirectory(stream)
-add_subdirectory(system)
-add_subdirectory(time)
+        ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp)

@@ -30,7 +30,7 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit BufferScroller(LinearFrameBuffer &lfb);
+    explicit BufferScroller(const LinearFrameBuffer &lfb);
 
     /**
      * Copy Constructor.
@@ -52,18 +52,18 @@ public:
      *
      * @param lineCount The amount of pixel lines to scroll up
      */
-    void scrollUp(uint16_t lineCount);
+    void scrollUp(uint16_t lineCount) const;
 
     /**
      * Scroll the buffer downwards by a given amount of pixel lines.
      *
      * @param lineCount The amount of pixel lines to scroll up
      */
-    void scrollDown(uint16_t lineCount);
+    void scrollDown(uint16_t lineCount) const;
 
 private:
 
-    LinearFrameBuffer &lfb;
+    const LinearFrameBuffer &lfb;
 };
 
 }

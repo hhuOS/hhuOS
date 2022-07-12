@@ -20,7 +20,7 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(LinearFrameBuffer &lfb) :
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb) :
         LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()), lfb(lfb) {
     Memory::Address<uint32_t>(getBuffer()).setRange(0, lfb.getPitch() * lfb.getResolutionY());
 }

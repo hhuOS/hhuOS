@@ -15,45 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
-#define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
+#include "Game.h"
 
-#include "LinearFrameBuffer.h"
+namespace Util::Game {
 
-namespace Util::Graphic {
-
-class BufferedLinearFrameBuffer : public LinearFrameBuffer {
-
-public:
-    /**
-     * Constructor.
-     *
-     * @param lfb The linear frame buffer, that shall be double buffered.
-     */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
-
-    /**
-     * Assignment operator.
-     */
-    BufferedLinearFrameBuffer& operator=(const BufferedLinearFrameBuffer &other) = delete;
-
-    /**
-     * Copy Constructor.
-     */
-    BufferedLinearFrameBuffer(const BufferedLinearFrameBuffer &copy) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~BufferedLinearFrameBuffer() override = default;
-
-    void flush() const;
-
-private:
-
-    const LinearFrameBuffer &lfb;
-};
-
+void Game::addObject(Drawable &drawable) {
+    addList.add(&drawable);
 }
 
-#endif
+void Game::removeObject(Drawable &drawable) {
+    removeList.add(&drawable);
+}
+
+void Game::applyChanges() {
+    for (auto *object : addList) {
+        drawables.add(object);
+    }
+
+    for (auto *object : removeList) {
+        drawables.remove(object);
+    }
+
+    addList.clear();
+    removeList.clear();
+}
+
+void Game::draw(Graphic::LinearFrameBuffer &lfb) {
+    for (const auto *object : drawables) {
+        object->draw(lfb);
+    }
+}
+
+bool Game::isRunning() const {
+    return running;
+}
+
+void Game::stop() {
+    Game::running = false;
+}
+
+uint32_t Game::getObjectCount() const {
+    return drawables.size();
+}
+
+}
