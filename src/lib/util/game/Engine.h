@@ -22,7 +22,6 @@
 #include <cstdint>
 #include "lib/util/async/Runnable.h"
 #include "lib/util/data/ArrayList.h"
-#include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "Drawable.h"
 #include "Game.h"
 
@@ -34,7 +33,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Engine(Game &game, Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60);
+    explicit Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60);
 
     /**
      * Copy Constructor.
@@ -55,8 +54,11 @@ public:
 
 private:
 
+    void drawStatus();
+
     Game &game;
-    Util::Graphic::BufferedLinearFrameBuffer lfb;
+    Graphics2D graphics;
+    uint32_t frameTime;
     const uint8_t targetFrameRate;
 };
 

@@ -19,8 +19,8 @@
 #define HHUOS_GAME_H
 
 #include "lib/util/data/ArrayList.h"
+#include "Graphics2D.h"
 #include "Drawable.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Util::Game {
 
@@ -55,7 +55,7 @@ public:
 
     void applyChanges();
 
-    void draw(Util::Graphic::LinearFrameBuffer &lfb);
+    void draw(Graphics2D &graphics);
 
     virtual void update(double delta) = 0;
 

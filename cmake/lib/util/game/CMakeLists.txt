@@ -18,4 +18,5 @@ cmake_minimum_required(VERSION 3.7)
 
 target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp)

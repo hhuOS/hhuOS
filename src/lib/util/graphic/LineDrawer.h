@@ -50,15 +50,15 @@ public:
      */
     ~LineDrawer() = default;
 
-    void drawLine(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, const Color &color) const;
+    void drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const Color &color) const;
 
 private:
 
-    void drawLineMajorAxis(uint16_t x, uint16_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const;
+    void drawLineMajorAxis(int32_t x, int32_t y, int8_t xMovement, int8_t yMovement, int32_t dx, int32_t dy, bool majorAxisX, const Color &color) const;
 
-    void drawLineSingleAxis(uint16_t x, uint16_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const;
+    void drawLineSingleAxis(int32_t x, int32_t y, int8_t movement, int32_t dx, bool majorAxisX, const Color &color) const;
 
-    static void swap(uint16_t *a, uint16_t *b);
+    static void swap(int32_t *a, int32_t *b);
 
     const PixelDrawer &pixelDrawer;
 };

@@ -137,7 +137,7 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     return Color::fromRGB(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
 }
 
-void LinearFrameBuffer::clear() {
+void LinearFrameBuffer::clear() const {
     buffer.setRange(0, getPitch() * getResolutionY());
 }
 

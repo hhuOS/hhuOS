@@ -18,7 +18,7 @@
 #ifndef HHUOS_DRAWABLE_H
 #define HHUOS_DRAWABLE_H
 
-#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "Graphics2D.h"
 
 namespace Util::Game {
 
@@ -45,7 +45,7 @@ public:
      */
     ~Drawable() = default;
 
-    virtual void draw(const Util::Graphic::LinearFrameBuffer &lfb) const = 0;
+    virtual void draw(Graphics2D &lfb) const = 0;
 };
 
 }

@@ -24,19 +24,18 @@
 
 namespace Util::Game {
 
-Engine::Engine(Game &game, Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) :
-        game(game), lfb(lfb), targetFrameRate(targetFrameRate) {}
+Engine::Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) :
+        game(game), graphics(lfb), targetFrameRate(targetFrameRate) {}
 
 void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
-    const auto stringDrawer = Graphic::StringDrawer(Graphic::PixelDrawer(lfb));
     uint32_t currentTime = Time::getSystemTime().toMilliseconds();
     uint32_t accumulated = 0;
 
     while (game.isRunning()) {
         uint32_t newTime = Time::getSystemTime().toMilliseconds();
-        uint32_t frameTime = newTime - currentTime;
+        frameTime = newTime - currentTime;
         if (frameTime == 0) {
             frameTime = 1;
         } else if (frameTime > 250) {
@@ -52,13 +51,18 @@ void Engine::run() {
             accumulated -= deltaMilliseconds;
         }
 
-        auto status = Memory::String::format("Resolution: %ux%u@%u, Objects: %u, Frame Time: %ums", lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), game.getObjectCount(), frameTime);
-
-        lfb.clear();
-        game.draw(lfb);
-        stringDrawer.drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, 0, 0, static_cast<const char*>(status), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
-        lfb.flush();
+        game.draw(graphics);
+        drawStatus();
+        graphics.show();
     }
+}
+
+void Engine::drawStatus() {
+    auto status = Memory::String::format("Objects: %u, Frame Time: %ums", game.getObjectCount(), frameTime);
+    auto color = graphics.getColor();
+    graphics.setColor(Util::Graphic::Colors::WHITE);
+    graphics.drawStringSmall(-1, 1, status);
+    graphics.setColor(color);
 }
 
 }

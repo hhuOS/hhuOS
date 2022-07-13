@@ -114,7 +114,7 @@ public:
      */
     [[nodiscard]] Color readPixel(uint16_t x, uint16_t y) const;
 
-    void clear();
+    void clear() const;
 
 private:
     Memory::Address<uint32_t> buffer;

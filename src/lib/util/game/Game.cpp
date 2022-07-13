@@ -40,9 +40,9 @@ void Game::applyChanges() {
     removeList.clear();
 }
 
-void Game::draw(Graphic::LinearFrameBuffer &lfb) {
+void Game::draw(Graphics2D &graphics) {
     for (const auto *object : drawables) {
-        object->draw(lfb);
+        object->draw(graphics);
     }
 }
 

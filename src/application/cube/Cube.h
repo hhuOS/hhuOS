@@ -19,7 +19,6 @@
 #define HHUOS_CUBE_H
 
 #include "lib/util/game/Drawable.h"
-#include "lib/util/graphic/LineDrawer.h"
 
 class Cube : public Util::Game::Drawable {
 
@@ -27,7 +26,7 @@ public:
     /**
      * Default Constructor.
      */
-    Cube();
+    Cube(double x, double y, double size);
 
     /**
      * Copy Constructor.
@@ -44,16 +43,17 @@ public:
      */
     ~Cube() = default;
 
-    void draw(const Util::Graphic::LinearFrameBuffer &lfb) const override;
+    void draw(Util::Game::Graphics2D &graphics) const override;
 
     void rotate(double angleX, double angleY, double angleZ);
 
 private:
 
-    double coordinates[8][4]{};
+    double coordinates[8][3]{};
+    double x, y, size;
 
     // Cube indices
-    static const constexpr uint8_t x = 1, y = 2, z = 3;
+    static const constexpr uint8_t indX = 0, indY = 1, indZ = 2;
 
     static const Util::Graphic::Color color;
 };

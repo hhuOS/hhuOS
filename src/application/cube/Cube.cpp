@@ -21,10 +21,7 @@
 
 const Util::Graphic::Color Cube::color = Util::Graphic::Color(10,255,0);
 
-Cube::Cube() {
-    // 8 corner points in the local coordinates coordinate system
-    // Middle of the coordinates is (0,0)
-    //
+Cube::Cube(double x, double y, double size) : x(x), y(y), size(size) {
     //       7 - - - - - 6
     //     / |         / |
     //    4 - - - - - 5  |
@@ -32,33 +29,30 @@ Cube::Cube() {
     //    |  3 - - - -|- 2
     //    | /         | /
     //    0 - - - - - 1
-    coordinates[0][x] = -100; coordinates[0][y] = -100; coordinates[0][z] = -100;
-    coordinates[1][x] = +100; coordinates[1][y] = -100; coordinates[1][z] = -100;
-    coordinates[2][x] = +100; coordinates[2][y] = -100; coordinates[2][z] = +100;
-    coordinates[3][x] = -100; coordinates[3][y] = -100; coordinates[3][z] = +100;
-    coordinates[4][x] = -100; coordinates[4][y] = +100; coordinates[4][z] = -100;
-    coordinates[5][x] = +100; coordinates[5][y] = +100; coordinates[5][z] = -100;
-    coordinates[6][x] = +100; coordinates[6][y] = +100; coordinates[6][z] = +100;
-    coordinates[7][x] = -100; coordinates[7][y] = +100; coordinates[7][z] = +100;
+    coordinates[0][indX] = x - size; coordinates[0][indY] = y - size; coordinates[0][indZ] = -size;
+    coordinates[1][indX] = x + size; coordinates[1][indY] = y - size; coordinates[1][indZ] = -size;
+    coordinates[2][indX] = x + size; coordinates[2][indY] = y - size; coordinates[2][indZ] = +size;
+    coordinates[3][indX] = x - size; coordinates[3][indY] = y - size; coordinates[3][indZ] = +size;
+    coordinates[4][indX] = x - size; coordinates[4][indY] = y + size; coordinates[4][indZ] = -size;
+    coordinates[5][indX] = x + size; coordinates[5][indY] = y + size; coordinates[5][indZ] = -size;
+    coordinates[6][indX] = x + size; coordinates[6][indY] = y + size; coordinates[6][indZ] = +size;
+    coordinates[7][indX] = x - size; coordinates[7][indY] = y + size; coordinates[7][indZ] = +size;
 }
 
-void Cube::draw(const Util::Graphic::LinearFrameBuffer &lfb) const {
-    auto translationX = lfb.getResolutionX() / 2;
-    auto translationY = lfb.getResolutionY() / 2;
-    auto lineDrawer = Util::Graphic::LineDrawer(Util::Graphic::PixelDrawer(lfb));
-    
-    lineDrawer.drawLine(coordinates[0][x] + translationX, coordinates[0][y] + translationY, coordinates[1][x] + translationX, coordinates[1][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[1][x] + translationX, coordinates[1][y] + translationY, coordinates[2][x] + translationX, coordinates[2][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[2][x] + translationX, coordinates[2][y] + translationY, coordinates[3][x] + translationX, coordinates[3][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[3][x] + translationX, coordinates[3][y] + translationY, coordinates[0][x] + translationX, coordinates[0][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[4][x] + translationX, coordinates[4][y] + translationY, coordinates[5][x] + translationX, coordinates[5][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[5][x] + translationX, coordinates[5][y] + translationY, coordinates[6][x] + translationX, coordinates[6][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[6][x] + translationX, coordinates[6][y] + translationY, coordinates[7][x] + translationX, coordinates[7][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[7][x] + translationX, coordinates[7][y] + translationY, coordinates[4][x] + translationX, coordinates[4][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[0][x] + translationX, coordinates[0][y] + translationY, coordinates[4][x] + translationX, coordinates[4][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[1][x] + translationX, coordinates[1][y] + translationY, coordinates[5][x] + translationX, coordinates[5][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[2][x] + translationX, coordinates[2][y] + translationY, coordinates[6][x] + translationX, coordinates[6][y] + translationY, color);
-    lineDrawer.drawLine(coordinates[3][x] + translationX, coordinates[3][y] + translationY, coordinates[7][x] + translationX, coordinates[7][y] + translationY, color);
+void Cube::draw(Util::Game::Graphics2D &graphics) const {
+    graphics.setColor(color);
+    graphics.drawLine(coordinates[0][indX], coordinates[0][indY], coordinates[1][indX], coordinates[1][indY]);
+    graphics.drawLine(coordinates[1][indX], coordinates[1][indY], coordinates[2][indX], coordinates[2][indY]);
+    graphics.drawLine(coordinates[2][indX], coordinates[2][indY], coordinates[3][indX], coordinates[3][indY]);
+    graphics.drawLine(coordinates[3][indX], coordinates[3][indY], coordinates[0][indX], coordinates[0][indY]);
+    graphics.drawLine(coordinates[4][indX], coordinates[4][indY], coordinates[5][indX], coordinates[5][indY]);
+    graphics.drawLine(coordinates[5][indX], coordinates[5][indY], coordinates[6][indX], coordinates[6][indY]);
+    graphics.drawLine(coordinates[6][indX], coordinates[6][indY], coordinates[7][indX], coordinates[7][indY]);
+    graphics.drawLine(coordinates[7][indX], coordinates[7][indY], coordinates[4][indX], coordinates[4][indY]);
+    graphics.drawLine(coordinates[0][indX], coordinates[0][indY], coordinates[4][indX], coordinates[4][indY]);
+    graphics.drawLine(coordinates[1][indX], coordinates[1][indY], coordinates[5][indX], coordinates[5][indY]);
+    graphics.drawLine(coordinates[2][indX], coordinates[2][indY], coordinates[6][indX], coordinates[6][indY]);
+    graphics.drawLine(coordinates[3][indX], coordinates[3][indY], coordinates[7][indX], coordinates[7][indY]);
 }
 
 void Cube::rotate(double angleX, double angleY, double angleZ) {
@@ -66,25 +60,25 @@ void Cube::rotate(double angleX, double angleY, double angleZ) {
 
     // Rotate coordinates and recalculate corner points
     for (auto &corner : coordinates) {
-        px = corner[x];
-        py = corner[y];
-        pz = corner[z];
+        px = corner[indX];
+        py = corner[indY];
+        pz = corner[indZ];
 
         // Rotate around x-axis
-        corner[y] = py * Util::Math::Math::cosine(angleX) - pz * Util::Math::Math::sine(angleX);
-        corner[z] = py * Util::Math::Math::sine(angleX) + pz * Util::Math::Math::cosine(angleX);
+        corner[indY] = py * Util::Math::Math::cosine(angleX) - pz * Util::Math::Math::sine(angleX);
+        corner[indZ] = py * Util::Math::Math::sine(angleX) + pz * Util::Math::Math::cosine(angleX);
 
-        py = corner[y];
-        pz = corner[z];
+        py = corner[indY];
+        pz = corner[indZ];
 
         // Rotate around y-axis
-        corner[x] = px * Util::Math::Math::cosine(angleY) + pz * Util::Math::Math::sine(angleY);
-        corner[z] = -px * Util::Math::Math::sine(angleY) + pz * Util::Math::Math::cosine(angleY);
+        corner[indX] = px * Util::Math::Math::cosine(angleY) + pz * Util::Math::Math::sine(angleY);
+        corner[indZ] = -px * Util::Math::Math::sine(angleY) + pz * Util::Math::Math::cosine(angleY);
 
-        px = corner[x];
+        px = corner[indX];
 
         // Rotate around z-axis
-        corner[x] = px * Util::Math::Math::cosine(angleZ) - py * Util::Math::Math::sine(angleZ);
-        corner[y] = py * Util::Math::Math::cosine(angleZ) + px * Util::Math::Math::sine(angleZ);
+        corner[indX] = px * Util::Math::Math::cosine(angleZ) - py * Util::Math::Math::sine(angleZ);
+        corner[indY] = py * Util::Math::Math::cosine(angleZ) + px * Util::Math::Math::sine(angleZ);
     }
 }
