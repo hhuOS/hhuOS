@@ -70,7 +70,7 @@ public:
     /**
      * Copy the symbols to memory. (Call before paging is enabled.)
      */
-    static void copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint32_t> &destination);
+    static Util::Memory::Address<uint32_t> copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint32_t> destination);
 
 private:
 

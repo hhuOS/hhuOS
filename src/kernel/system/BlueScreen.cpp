@@ -140,8 +140,7 @@ void BlueScreen::show(const InterruptFrame &frame) {
     uint32_t i;
 
     for (i = 0; i < maxStacktraceSize && eip != 0; i++) {
-        // TODO: Uncomment this code, once the issue with copying multiboot symbols is fixed
-        const char *symbol = ""; // Symbols::get(eip);
+        const char *symbol = Symbols::get(eip);
 
         print(stringDrawer, "#");
         printDecNumber(stringDrawer, i);

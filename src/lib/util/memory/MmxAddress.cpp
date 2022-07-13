@@ -71,7 +71,7 @@ void MmxAddress<T>::setRange(uint8_t value, T length) const {
 }
 
 template<typename T>
-void MmxAddress<T>::copyRange(Address<T> sourceAddress, T length) const {
+void MmxAddress<T>::copyRange(const Address<T> &sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
     auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
 

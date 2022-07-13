@@ -72,7 +72,7 @@ void SseAddress<T>::setRange(uint8_t value, T length) const {
 }
 
 template<typename T>
-void SseAddress<T>::copyRange(Address<T> sourceAddress, T length) const {
+void SseAddress<T>::copyRange(const Address<T> &sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
     auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
 

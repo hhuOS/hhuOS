@@ -149,8 +149,8 @@ void Symbols::initialize(const Multiboot::ElfInfo &elfInfo) {
     initialized = true;
 }
 
-void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint32_t> &destination) {
-    Util::File::Elf::Constants::SectionHeader *sectionHeader = nullptr;
+Util::Memory::Address<uint32_t> Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint32_t> destination) {
+    Util::File::Elf::Constants::SectionHeader *sectionHeader;
     for (uint32_t i = 0; i < elfInfo.sectionCount; i++) {
         sectionHeader = (Util::File::Elf::Constants::SectionHeader *) (elfInfo.address + i * elfInfo.sectionSize);
         // only copy the sections that are not part of the loaded program
@@ -167,6 +167,8 @@ void Symbols::copy(const Multiboot::ElfInfo &elfInfo, Util::Memory::Address<uint
             }
         }
     }
+
+    return destination;
 }
 
 bool Symbols::isInitialized() {

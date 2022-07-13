@@ -59,9 +59,9 @@ public:
 
     [[nodiscard]] T stringLength() const;
 
-    [[nodiscard]] int32_t compareRange(Address<T> otherAddress, T length) const;
+    [[nodiscard]] int32_t compareRange(const Address<T> &otherAddress, T length) const;
 
-    [[nodiscard]] int32_t compareString(Address<T> otherAddress) const;
+    [[nodiscard]] int32_t compareString(const Address<T> &otherAddress) const;
 
     [[nodiscard]] int32_t compareString(const char *otherString) const;
 
@@ -83,11 +83,11 @@ public:
 
     virtual void setRange(uint8_t value, T length) const;
 
-    virtual void copyRange(Address<T> sourceAddress, T length) const;
+    virtual void copyRange(const Address<T> &sourceAddress, T length) const;
 
-    void copyString(Address<T> sourceAddress) const;
+    void copyString(const Address<T> &sourceAddress) const;
 
-    void copyString(Address<T> sourceAddress, T maxBytes) const;
+    void copyString(const Address<T> &sourceAddress, T maxBytes) const;
 
     [[nodiscard]] Address<T> searchCharacter(uint8_t character) const;
 

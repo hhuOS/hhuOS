@@ -17,8 +17,8 @@
 %define CONSTANTS_ASM
 
 %define KERNEL_START        0xc0000000
-%define STACK_SIZE          0x00004000
-%define MULTIBOOT_SIZE      128 * 1024
+%define STACK_SIZE          0x00001000
+%define MULTIBOOT_SIZE      0x00080000
 
 %macro  call_physical_function 1
     mov eax, %1

@@ -153,7 +153,7 @@ void Address<T>::setRange(uint8_t value, T length) const {
 }
 
 template<typename T>
-void Address<T>::copyRange(const Address<T> sourceAddress, T length) const {
+void Address<T>::copyRange(const Address<T> &sourceAddress, T length) const {
     auto *target = reinterpret_cast<uint32_t*>(address);
     auto *source = reinterpret_cast<uint32_t*>(sourceAddress.get());
 
@@ -185,7 +185,7 @@ void Address<T>::copyRange(const Address<T> sourceAddress, T length) const {
 }
 
 template<typename T>
-void Address<T>::copyString(const Address<T> sourceAddress) const {
+void Address<T>::copyString(const Address<T> &sourceAddress) const {
     auto *target = reinterpret_cast<uint8_t*>(address);
     auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
 
@@ -197,7 +197,7 @@ void Address<T>::copyString(const Address<T> sourceAddress) const {
 }
 
 template<typename T>
-void Address<T>::copyString(const Address<T> sourceAddress, T maxBytes) const {
+void Address<T>::copyString(const Address<T> &sourceAddress, T maxBytes) const {
     auto *target = reinterpret_cast<uint8_t*>(address);
     auto *source = reinterpret_cast<uint8_t*>(sourceAddress.address);
 
@@ -213,7 +213,7 @@ void Address<T>::copyString(const Address<T> sourceAddress, T maxBytes) const {
 }
 
 template<typename T>
-int32_t Address<T>::compareRange(const Address<T> otherAddress, T length) const {
+int32_t Address<T>::compareRange(const Address<T> &otherAddress, T length) const {
     auto *pointer = reinterpret_cast<uint8_t*>(address);
     auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 
@@ -223,7 +223,7 @@ int32_t Address<T>::compareRange(const Address<T> otherAddress, T length) const 
 }
 
 template<typename T>
-int32_t Address<T>::compareString(const Address<T> otherAddress) const {
+int32_t Address<T>::compareString(const Address<T> &otherAddress) const {
     auto *pointer = reinterpret_cast<uint8_t*>(address);
     auto *other = reinterpret_cast<uint8_t*>(otherAddress.address);
 

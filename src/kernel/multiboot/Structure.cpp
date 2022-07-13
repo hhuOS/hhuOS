@@ -168,7 +168,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     destinationAddress = destinationAddress.add(sizeof(Info));
 
     // Then copy the command line
-    if(multibootInfo->flags & MULTIBOOT_INFO_CMDLINE) {
+    if (multibootInfo->flags & MULTIBOOT_INFO_CMDLINE) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->commandLine);
         destinationAddress.copyString(sourceAddress);
         multibootInfo->commandLine = destinationAddress.get();
@@ -176,7 +176,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     }
 
     // Then copy the module information
-    if(multibootInfo->flags & MULTIBOOT_INFO_MODS) {
+    if (multibootInfo->flags & MULTIBOOT_INFO_MODS) {
         uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress);
         destinationAddress.copyRange(sourceAddress, length);
@@ -194,17 +194,17 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
 
     // TODO: For some reason, the system won't boot, when this code is active
     // Then copy the symbol headers and the symbols
-    /*if(multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
+    if (multibootInfo->flags & MULTIBOOT_INFO_ELF_SHDR) {
         uint32_t length = multibootInfo->symbols.elf.sectionSize * multibootInfo->symbols.elf.sectionCount;
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->symbols.elf.address);
         destinationAddress.copyRange(sourceAddress, length);
         multibootInfo->symbols.elf.address = destinationAddress.get();
         destinationAddress = destinationAddress.add(length);
-        Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
-    }*/
+        destinationAddress = Symbols::copy(multibootInfo->symbols.elf, destinationAddress);
+    }
 
     // Then copy the memory map
-    if(multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
+    if (multibootInfo->flags & MULTIBOOT_INFO_MEM_MAP) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->memoryMapLength);
         multibootInfo->memoryMapAddress = destinationAddress.get();
@@ -212,7 +212,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     }
 
     // Then copy the drives
-    if(multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
+    if (multibootInfo -> flags & MULTIBOOT_INFO_DRIVE_INFO) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->driveLength);
         multibootInfo->driveAddress = destinationAddress.get();
@@ -220,7 +220,7 @@ void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t m
     }
 
     // Then copy the bootloader name
-    if(multibootInfo->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
+    if (multibootInfo->flags & MULTIBOOT_INFO_BOOT_LOADER_NAME) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->bootloaderName);
         destinationAddress.copyString(sourceAddress);
         multibootInfo->bootloaderName = destinationAddress.get();
