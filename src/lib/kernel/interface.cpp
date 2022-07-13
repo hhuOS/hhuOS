@@ -24,6 +24,8 @@
 #include "kernel/service/TimeService.h"
 #include "kernel/service/PowerManagementService.h"
 
+extern uint32_t scheduler_initialized;
+
 void *allocateMemory(uint32_t size, uint32_t alignment) {
     if (Kernel::System::isInitialized()) {
         return Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(size, alignment);
@@ -131,7 +133,11 @@ void joinProcess(uint32_t id) {
 }
 
 void sleep(const Util::Time::Timestamp &time) {
-    Kernel::System::getService<Kernel::SchedulerService>().sleep(time);
+    if (scheduler_initialized) {
+        Kernel::System::getService<Kernel::SchedulerService>().sleep(time);
+    } else {
+        Kernel::System::getService<Kernel::TimeService>().busyWait(time);
+    }
 }
 
 Util::Time::Timestamp getSystemTime() {

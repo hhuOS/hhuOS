@@ -139,10 +139,6 @@ uint8_t FloppyDevice::getCylinders() const {
     return cylinders;
 }
 
-FloppyController& FloppyDevice::getController() const {
-    return controller;
-}
-
 void FloppyDevice::setMotorState(FloppyController::MotorState state) {
     if (state == FloppyController::ON) {
         motorControlRunnable->resetTime();

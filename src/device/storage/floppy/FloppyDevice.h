@@ -92,8 +92,6 @@ public:
 
     [[nodiscard]] uint8_t getSectorsPerCylinder() const;
 
-    [[nodiscard]] FloppyController& getController() const;
-
     void setMotorState(FloppyController::MotorState state);
 
     void killMotor();

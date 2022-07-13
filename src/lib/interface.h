@@ -53,6 +53,7 @@ Util::Async::Process getCurrentProcess();
 Util::Async::Thread getCurrentThread();
 void joinProcess(uint32_t id);
 void sleep(const Util::Time::Timestamp &time);
+void yield();
 
 Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();
