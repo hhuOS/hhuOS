@@ -19,11 +19,15 @@
 
 namespace Util::Math {
 
-Random::Random(uint32_t max, uint32_t seed) : max(max), seed(seed) {}
+Random::Random(uint32_t boundary, uint32_t seed) : boundary(boundary), seed(seed) {}
 
 uint32_t Random::nextRandomNumber() {
     seed = seed * FACTOR + ADDEND;
-    return (seed / 65536) % max;
+    return (seed / 65536) % boundary;
+}
+
+uint32_t Random::getBoundary() const {
+    return boundary;
 }
 
 }

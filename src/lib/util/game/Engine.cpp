@@ -19,8 +19,8 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/system/System.h"
 #include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util::Game {
 
@@ -30,35 +30,45 @@ Engine::Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, const ui
 void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
-    uint32_t currentTime = Time::getSystemTime().toMilliseconds();
-    uint32_t accumulated = 0;
 
     while (game.isRunning()) {
-        uint32_t newTime = Time::getSystemTime().toMilliseconds();
-        frameTime = newTime - currentTime;
-        if (frameTime == 0) {
-            frameTime = 1;
-        } else if (frameTime > 250) {
-            frameTime = 250;
+        statistics.startFrameTime();
+        statistics.startUpdateTime();
+        double frameTime = statistics.getLastFrameTime() / 1000.0;
+        if (frameTime < 0.001) {
+            frameTime = 0.001;
         }
 
-        currentTime = newTime;
-        accumulated += frameTime;
+        game.update(frameTime);
+        game.applyChanges();
+        statistics.stopUpdateTimeTime();
 
-        while (accumulated >= deltaMilliseconds) {
-            game.update(delta);
-            game.applyChanges();
-            accumulated -= deltaMilliseconds;
-        }
-
+        statistics.startDrawTime();
         game.draw(graphics);
         drawStatus();
         graphics.show();
+        statistics.stopDrawTime();
+
+        const auto drawTime = statistics.getLastDrawTime();
+        const auto updateTime = statistics.getLastUpdateTime();
+        if (drawTime + updateTime < deltaMilliseconds) {
+            statistics.startIdleTime();
+            Async::Thread::sleep(Time::Timestamp::ofMilliseconds(deltaMilliseconds - (drawTime + updateTime)));
+            statistics.stopIdleTime();
+        }
+
+        statistics.incFrames();
+        statistics.stopFrameTime();
     }
 }
 
 void Engine::drawStatus() {
-    auto status = Memory::String::format("Objects: %u, Frame Time: %ums", game.getObjectCount(), frameTime);
+    statusUpdateTimer += statistics.getLastFrameTime();
+    if (statusUpdateTimer > 1000) {
+        status = statistics.gather();
+        statusUpdateTimer = 0;
+    }
+
     auto color = graphics.getColor();
     graphics.setColor(Util::Graphic::Colors::WHITE);
     graphics.drawStringSmall(-1, 1, status);

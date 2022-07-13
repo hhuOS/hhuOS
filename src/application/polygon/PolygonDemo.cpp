@@ -15,50 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOM_H
-#define HHUOS_RANDOM_H
+#include "PolygonDemo.h"
+#include "DemoPolygonFactory.h"
 
-#include <cstdint>
-#include "lib/util/time/Timestamp.h"
-
-namespace Util::Math {
-
-class Random {
-
-public:
-    /**
-     * Constructor.
-     */
-    explicit Random(uint32_t boundary = UINT32_MAX, uint32_t seed = Util::Time::getSystemTime().toMilliseconds());
-
-    /**
-     * Copy Constructor.
-     */
-    Random(const Random &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Random &operator=(const Random &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Random() = default;
-
-    uint32_t nextRandomNumber();
-
-    [[nodiscard]] uint32_t getBoundary() const;
-
-private:
-
-    uint32_t boundary;
-    uint32_t seed;
-
-    static const constexpr uint32_t FACTOR = 13121797;
-    static const constexpr uint32_t ADDEND = 17021856;
-};
-
+PolygonDemo::PolygonDemo(uint32_t count) : polygons(count) {
+    auto polygonFactory = DemoPolygonFactory();
+    for (uint32_t i = 0; i < count; i++) {
+        polygons[i] = polygonFactory.createPolygon();
+        addObject(polygons[i]);
+    }
 }
 
-#endif
+void PolygonDemo::update(double delta) {
+    for (auto & polygon : polygons) {
+        polygon.update(delta);
+    }
+}

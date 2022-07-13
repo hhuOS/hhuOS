@@ -24,6 +24,7 @@
 #include "lib/util/data/ArrayList.h"
 #include "Drawable.h"
 #include "Game.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Util::Game {
 
@@ -54,11 +55,119 @@ public:
 
 private:
 
+    struct Statistics {
+        void incFrames() {
+            frames++;
+        }
+
+        void startFrameTime() {
+            frameTimeStart = Time::getSystemTime().toMilliseconds();
+        }
+
+        void stopFrameTime() {
+            const uint32_t frameTime = Time::getSystemTime().toMilliseconds() - frameTimeStart;
+            frameTimes[frameTimesIndex++ % ARRAY_SIZE] = frameTime;
+
+            timeCounter += frameTime;
+            if (timeCounter >= 1000) {
+                fps = frames;
+                frames = 0;
+                timeCounter = 0;
+            }
+        }
+
+        void startDrawTime() {
+            drawTimeStart = Time::getSystemTime().toMilliseconds();
+        }
+
+        void stopDrawTime() {
+            drawTimes[drawTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - drawTimeStart;
+        }
+
+        void startUpdateTime() {
+            updateTimeStart = Time::getSystemTime().toMilliseconds();
+        }
+
+        void stopUpdateTimeTime() {
+            updateTimes[updateTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - updateTimeStart;
+        }
+
+        void startIdleTime() {
+            idleTimeStart = Time::getSystemTime().toMilliseconds();
+        }
+
+        void stopIdleTime() {
+            idleTimes[idleTimesIndex++ % ARRAY_SIZE] = Time::getSystemTime().toMilliseconds() - idleTimeStart;
+        }
+
+        uint32_t getLastFrameTime() {
+            const auto index = frameTimesIndex % ARRAY_SIZE;
+            return frameTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
+        }
+
+        uint32_t getLastDrawTime() {
+            const auto index = drawTimesIndex % ARRAY_SIZE;
+            return drawTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
+        }
+
+        uint32_t getLastUpdateTime() {
+            const auto index = updateTimesIndex % ARRAY_SIZE;
+            return updateTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
+        }
+
+        [[nodiscard]] Memory::String gather() {
+            uint32_t frameTime = 0, drawTime = 0; uint32_t updateTime = 0; uint32_t idleTime = 0;
+            uint32_t count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
+
+            if (count > 0) {
+                for (uint32_t i = 0; i < count; i++) {
+                    frameTime += frameTimes[i];
+                    drawTime += drawTimes[i];
+                    updateTime += updateTimes[i];
+                    idleTime += idleTimes[i];
+                }
+
+                frameTime /= count;
+                drawTime /= count;
+                updateTime /= count;
+                idleTime /= count;
+            }
+
+            return Memory::String::format("FPS: %03u, Frametime: %03ums (Draw: %03ums, Update: %03ums, Idle: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
+        }
+
+    private:
+        static const constexpr uint32_t ARRAY_SIZE = 100;
+
+        uint32_t frames = 0;
+        uint32_t fps = 0;
+        uint32_t timeCounter = 0;
+
+        uint32_t frameTimes[ARRAY_SIZE]{};
+        uint32_t drawTimes[ARRAY_SIZE]{};
+        uint32_t updateTimes[ARRAY_SIZE]{};
+        uint32_t idleTimes[ARRAY_SIZE]{};
+
+        uint32_t frameTimesIndex = 0;
+        uint32_t drawTimesIndex = 0;
+        uint32_t updateTimesIndex = 0;
+        uint32_t idleTimesIndex = 0;
+
+        uint32_t frameTimeStart = 0;
+        uint32_t drawTimeStart = 0;
+        uint32_t updateTimeStart = 0;
+        uint32_t idleTimeStart = 0;
+    };
+
     void drawStatus();
 
     Game &game;
     Graphics2D graphics;
-    uint32_t frameTime;
+    Statistics statistics;
+
+    uint32_t statusUpdateTimer = 0;
+    Memory::String status = statistics.gather();
+
     const uint8_t targetFrameRate;
 };
 

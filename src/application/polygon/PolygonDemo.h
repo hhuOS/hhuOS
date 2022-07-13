@@ -15,50 +15,40 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_CUBEDEMO_H
-#define HHUOS_CUBEDEMO_H
+#ifndef HHUOS_POLYGONDEMO_H
+#define HHUOS_POLYGONDEMO_H
 
 #include "lib/util/game/Game.h"
-#include "Cube.h"
+#include "DemoPolygon.h"
 
-class CubeDemo : public Util::Game::Game {
+class PolygonDemo : public Util::Game::Game {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit CubeDemo(uint32_t speed = 10);
+    explicit PolygonDemo(uint32_t count);
 
     /**
      * Copy Constructor.
      */
-    CubeDemo(const CubeDemo &other) = delete;
+    PolygonDemo(const PolygonDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    CubeDemo &operator=(const CubeDemo &other) = delete;
+    PolygonDemo &operator=(const PolygonDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~CubeDemo() = default;
+    ~PolygonDemo() = default;
 
     void update(double delta) override;
 
 private:
 
-    static const constexpr uint32_t NUM_CUBES = 4;
-    Cube cubes[NUM_CUBES] = {{-0.5, 0.5, 0.25}, {0.5, 0.5, 0.25}, {0.5, -0.5, 0.25}, {-0.5, -0.5, 0.25}};
-
-    const double angleX;
-    const double angleY;
-    const double angleZ;
-
-    // Rotation angles
-    static const constexpr double DEFAULT_ANGLE_X = 0.01;
-    static const constexpr double DEFAULT_ANGLE_Y = 0.0075;
-    static const constexpr double DEFAULT_ANGLE_Z = 0.005;
+    Util::Data::Array<DemoPolygon> polygons;
 };
 
 #endif

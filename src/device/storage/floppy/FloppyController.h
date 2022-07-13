@@ -126,7 +126,7 @@ public:
      * @param cylinder The cylinder
      * @param head The head
      * @param startSector The first sector
-     * @param sectorCount The amount of sector to read (max. sectorsPerCylinder)
+     * @param sectorCount The amount of sector to read (boundary. sectorsPerCylinder)
      * @return
      */
     bool performIO(FloppyDevice &device, IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);

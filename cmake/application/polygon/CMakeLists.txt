@@ -16,8 +16,18 @@
 
 cmake_minimum_required(VERSION 3.7)
 
-target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp)
+project(polygon)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/polygon/DemoPolygon.cpp
+        ${HHUOS_SRC_DIR}/application/polygon/DemoPolygonFactory.cpp
+        ${HHUOS_SRC_DIR}/application/polygon/polygon.cpp
+        ${HHUOS_SRC_DIR}/application/polygon/PolygonDemo.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user)

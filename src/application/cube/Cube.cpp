@@ -56,6 +56,12 @@ void Cube::draw(Util::Game::Graphics2D &graphics) const {
 }
 
 void Cube::rotate(double angleX, double angleY, double angleZ) {
+    const double cosineX = Util::Math::Math::cosine(angleX);
+    const double cosineY = Util::Math::Math::cosine(angleY);
+    const double cosineZ = Util::Math::Math::cosine(angleZ);
+    const double sineX = Util::Math::Math::sine(angleX);
+    const double sineY = Util::Math::Math::sine(angleY);
+    const double sineZ = Util::Math::Math::sine(angleZ);
     double px, py, pz;
 
     // Rotate coordinates and recalculate corner points
@@ -65,20 +71,20 @@ void Cube::rotate(double angleX, double angleY, double angleZ) {
         pz = corner[indZ];
 
         // Rotate around x-axis
-        corner[indY] = py * Util::Math::Math::cosine(angleX) - pz * Util::Math::Math::sine(angleX);
-        corner[indZ] = py * Util::Math::Math::sine(angleX) + pz * Util::Math::Math::cosine(angleX);
+        corner[indY] = py * cosineX - pz * sineX;
+        corner[indZ] = py * sineX + pz * cosineX;
 
         py = corner[indY];
         pz = corner[indZ];
 
         // Rotate around y-axis
-        corner[indX] = px * Util::Math::Math::cosine(angleY) + pz * Util::Math::Math::sine(angleY);
-        corner[indZ] = -px * Util::Math::Math::sine(angleY) + pz * Util::Math::Math::cosine(angleY);
+        corner[indX] = px * cosineY + pz * sineY;
+        corner[indZ] = -px * sineY + pz * cosineY;
 
         px = corner[indX];
 
         // Rotate around z-axis
-        corner[indX] = px * Util::Math::Math::cosine(angleZ) - py * Util::Math::Math::sine(angleZ);
-        corner[indY] = py * Util::Math::Math::cosine(angleZ) + px * Util::Math::Math::sine(angleZ);
+        corner[indX] = px * cosineZ - py * sineZ;
+        corner[indY] = py * cosineZ + px * sineZ;
     }
 }

@@ -15,50 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_CUBEDEMO_H
-#define HHUOS_CUBEDEMO_H
+#ifndef HHUOS_POLYGON_H
+#define HHUOS_POLYGON_H
 
-#include "lib/util/game/Game.h"
-#include "Cube.h"
+#include "lib/util/data/Array.h"
+#include "Drawable.h"
 
-class CubeDemo : public Util::Game::Game {
+namespace Util::Game {
+
+class Polygon : public Drawable {
 
 public:
     /**
      * Constructor.
      */
-    explicit CubeDemo(uint32_t speed = 10);
+    Polygon(const Data::Array<double> &x, const Data::Array<double> &y);
 
     /**
      * Copy Constructor.
      */
-    CubeDemo(const CubeDemo &other) = delete;
+    Polygon(const Polygon &other) = default;
 
     /**
      * Assignment operator.
      */
-    CubeDemo &operator=(const CubeDemo &other) = delete;
+    Polygon &operator=(const Polygon &other) = default;
 
     /**
      * Destructor.
      */
-    ~CubeDemo() = default;
+    ~Polygon() override = default;
 
-    void update(double delta) override;
+    void scale(double factor);
+
+    void rotate(double angle);
+
+    void translate(double xTranslation, double yTranslation);
+
+    void draw(Graphics2D &graphics) const override;
 
 private:
 
-    static const constexpr uint32_t NUM_CUBES = 4;
-    Cube cubes[NUM_CUBES] = {{-0.5, 0.5, 0.25}, {0.5, 0.5, 0.25}, {0.5, -0.5, 0.25}, {-0.5, -0.5, 0.25}};
+    void calculateCenter();
 
-    const double angleX;
-    const double angleY;
-    const double angleZ;
-
-    // Rotation angles
-    static const constexpr double DEFAULT_ANGLE_X = 0.01;
-    static const constexpr double DEFAULT_ANGLE_Y = 0.0075;
-    static const constexpr double DEFAULT_ANGLE_Z = 0.005;
+    Data::Array<double> x;
+    Data::Array<double> y;
+    double xCenter = 0;
+    double yCenter = 0;
 };
+
+}
 
 #endif

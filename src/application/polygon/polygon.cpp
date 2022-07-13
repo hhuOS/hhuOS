@@ -15,50 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOM_H
-#define HHUOS_RANDOM_H
-
 #include <cstdint>
-#include "lib/util/time/Timestamp.h"
+#include "lib/util/system/System.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/game/Engine.h"
+#include "PolygonDemo.h"
 
-namespace Util::Math {
+static const constexpr uint32_t DEFAULT_COUNT = 10;
 
-class Random {
+int32_t main(int32_t argc, char *argv[]) {
+    uint32_t count = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_COUNT;
+    if (count < 0) {
+        Util::System::out << "Polygon count must be greater than 0!";
+        return -1;
+    }
 
-public:
-    /**
-     * Constructor.
-     */
-    explicit Random(uint32_t boundary = UINT32_MAX, uint32_t seed = Util::Time::getSystemTime().toMilliseconds());
+    auto game = PolygonDemo(count);
+    auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
+    auto engine = Util::Game::Engine(game, lfb);
+    engine.run();
 
-    /**
-     * Copy Constructor.
-     */
-    Random(const Random &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Random &operator=(const Random &other) = default;
-
-    /**
-     * Destructor.
-     */
-    ~Random() = default;
-
-    uint32_t nextRandomNumber();
-
-    [[nodiscard]] uint32_t getBoundary() const;
-
-private:
-
-    uint32_t boundary;
-    uint32_t seed;
-
-    static const constexpr uint32_t FACTOR = 13121797;
-    static const constexpr uint32_t ADDEND = 17021856;
-};
-
+    return 0;
 }
-
-#endif

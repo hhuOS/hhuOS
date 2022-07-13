@@ -31,17 +31,17 @@ public:
     /**
      * Copy Constructor.
      */
-    Cube(const Cube &other) = delete;
+    Cube(const Cube &other) = default;
 
     /**
      * Assignment operator.
      */
-    Cube &operator=(const Cube &other) = delete;
+    Cube &operator=(const Cube &other) = default;
 
     /**
      * Destructor.
      */
-    ~Cube() = default;
+    ~Cube() override = default;
 
     void draw(Util::Game::Graphics2D &graphics) const override;
 

@@ -29,7 +29,7 @@ class Graphics2D {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
     explicit Graphics2D(const Util::Graphic::LinearFrameBuffer &lfb);
 
@@ -50,9 +50,7 @@ public:
 
     void drawLine(double x1, double y1, double x2, double y2) const;
 
-    void drawPolygon(double *x, double *y, uint32_t corners) const;
-
-    void drawRectangle(double x1, double y1, double x2, double y2) const;
+    void drawPolygon(const Data::Array<double> &x, const Data::Array<double> &y) const;
 
     void drawString(double x, double y, const char *string) const;
 

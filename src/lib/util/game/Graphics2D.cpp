@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Graphics2D.h"
 #include "lib/util/graphic/Fonts.h"
+#include "Graphics2D.h"
 
 namespace Util::Game {
 
@@ -31,18 +31,12 @@ void Graphics2D::drawLine(double x1, double y1, double x2, double y2) const {
                         static_cast<int32_t>(x2 * transformation + offsetX), static_cast<int32_t>(-y2 * transformation + offsetY), color);
 }
 
-void Graphics2D::drawPolygon(double *x, double *y, uint32_t corners) const {
-    for (uint32_t i = 0; i < corners - 1; i++) {
+void Graphics2D::drawPolygon(const Data::Array<double> &x, const Data::Array<double> &y) const {
+    for (uint32_t i = 0; i < x.length() - 1; i++) {
         drawLine(x[i], y[i], x[i + 1], y[i + 1]);
     }
 
-    drawLine(x[corners - 1], y[corners - 1], x[0], y[0]);
-}
-
-void Graphics2D::drawRectangle(double x1, double y1, double x2, double y2) const {
-    double x[] = {x1, x2, x2, x1};
-    double y[] = {y1, y1, y2, y2};
-    drawPolygon(x, y, 4);
+    drawLine(x[x.length() - 1], y[y.length() - 1], x[0], y[0]);
 }
 
 void Graphics2D::drawString(const Graphic::Font &font, double x, double y, const char *string) const {

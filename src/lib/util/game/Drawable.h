@@ -33,19 +33,19 @@ public:
     /**
      * Copy Constructor.
      */
-    Drawable(const Drawable &other) = delete;
+    Drawable(const Drawable &other) = default;
 
     /**
      * Assignment operator.
      */
-    Drawable &operator=(const Drawable &other) = delete;
+    Drawable &operator=(const Drawable &other) = default;
 
     /**
      * Destructor.
      */
-    ~Drawable() = default;
+    virtual ~Drawable() = default;
 
-    virtual void draw(Graphics2D &lfb) const = 0;
+    virtual void draw(Graphics2D &graphics) const = 0;
 };
 
 }

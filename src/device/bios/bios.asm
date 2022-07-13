@@ -147,7 +147,7 @@ section .data
 
 ; IDT for real mode
 real_mode_idt_descriptor:
-    dw	1024 ; idt contains max. 1024 entries
+    dw	1024 ; idt contains boundary. 1024 entries
     dd	0    ; address 0
 
 ; Indicates whether the threadScheduler has been started

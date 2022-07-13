@@ -172,7 +172,7 @@ void BlueScreen::clear(Util::Graphic::PixelDrawer &pixelDrawer) {
             }
         }
     } else {
-        for (uint32_t i = 0; i < fbResX * fbResY; i++) {
+        for (uint32_t i = 0; i < static_cast<uint32_t>(fbResX * fbResY); i++) {
             Util::Memory::Address<uint32_t> cgaMemory(fbAddress);
             cgaMemory.setShort(0x1700, i * 2);
         }

@@ -18,6 +18,8 @@
 #ifndef HHUOS_TERMINAL_FONT_H
 #define HHUOS_TERMINAL_FONT_H
 
+#include <cstdint>
+
 namespace Util::Graphic::Fonts {
 
 /**

@@ -15,50 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_CUBEDEMO_H
-#define HHUOS_CUBEDEMO_H
+#ifndef HHUOS_DEMOPOLYGON_H
+#define HHUOS_DEMOPOLYGON_H
 
 #include "lib/util/game/Game.h"
-#include "Cube.h"
+#include "lib/util/game/Polygon.h"
 
-class CubeDemo : public Util::Game::Game {
+class DemoPolygon : public Util::Game::Polygon {
 
 public:
     /**
+     * Default Constructor.
+     */
+    DemoPolygon();
+
+    /**
      * Constructor.
      */
-    explicit CubeDemo(uint32_t speed = 10);
+    DemoPolygon(const Util::Data::Array<double> &x, const Util::Data::Array<double> &y, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed);
 
     /**
      * Copy Constructor.
      */
-    CubeDemo(const CubeDemo &other) = delete;
+    DemoPolygon(const DemoPolygon &other) = default;
 
     /**
      * Assignment operator.
      */
-    CubeDemo &operator=(const CubeDemo &other) = delete;
+    DemoPolygon &operator=(const DemoPolygon &other) = default;
 
     /**
      * Destructor.
      */
-    ~CubeDemo() = default;
+    ~DemoPolygon() override = default;
 
-    void update(double delta) override;
+    void update(double delta);
+
+    void draw(Util::Game::Graphics2D &graphics) const override;
 
 private:
 
-    static const constexpr uint32_t NUM_CUBES = 4;
-    Cube cubes[NUM_CUBES] = {{-0.5, 0.5, 0.25}, {0.5, 0.5, 0.25}, {0.5, -0.5, 0.25}, {-0.5, -0.5, 0.25}};
-
-    const double angleX;
-    const double angleY;
-    const double angleZ;
-
-    // Rotation angles
-    static const constexpr double DEFAULT_ANGLE_X = 0.01;
-    static const constexpr double DEFAULT_ANGLE_Y = 0.0075;
-    static const constexpr double DEFAULT_ANGLE_Z = 0.005;
+    Util::Graphic::Color color;
+    double rotationSpeed;
+    double scaleSpeed;
+    double currentScale = 1;
+    bool scaleUp = true;
 };
 
 #endif
