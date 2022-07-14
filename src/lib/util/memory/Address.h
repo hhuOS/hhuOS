@@ -49,13 +49,13 @@ public:
 
     [[nodiscard]] T get() const;
 
-    [[nodiscard]] Address set(T newAddress) const;
+    [[nodiscard]] Address<T> set(T newAddress) const;
 
     [[nodiscard]] Address<T> add(T value) const;
 
     [[nodiscard]] Address<T> subtract(T value) const;
 
-    [[nodiscard]] Address alignUp(T alignment) const;
+    [[nodiscard]] Address<T> alignUp(T alignment) const;
 
     [[nodiscard]] T stringLength() const;
 
@@ -90,6 +90,8 @@ public:
     void copyString(const Address<T> &sourceAddress, T maxBytes) const;
 
     [[nodiscard]] Address<T> searchCharacter(uint8_t character) const;
+
+    static Memory::Address<T>* createAcceleratedAddress(T address, bool &useMmx);
 
 protected:
 

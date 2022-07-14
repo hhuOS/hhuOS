@@ -30,6 +30,14 @@ SchedulerService::SchedulerService() {
     defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
     Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
+    if (Device::Fpu::isAvailable()) {
+        log.info("FPU detected -> Enabling FPU context switching");
+        fpu = new Device::Fpu(defaultFpuContext);
+        fpu->plugin();
+    } else {
+        log.warn("No FPU present");
+    }
+
     SystemCall::registerSystemCall(Util::System::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::Result {
         System::getService<SchedulerService>().yield();
         return Util::System::Result::OK;
@@ -128,14 +136,6 @@ void SchedulerService::startScheduler() {
     cleaner = new Kernel::SchedulerCleaner();
     auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", cleaner);
     ready(schedulerCleanerThread);
-
-    if (Device::Fpu::isAvailable()) {
-        log.info("FPU detected -> Enabling FPU context switching");
-        fpu = new Device::Fpu();
-        fpu->plugin();
-    } else {
-        log.warn("No FPU present");
-    }
     
     scheduler.start();
 }

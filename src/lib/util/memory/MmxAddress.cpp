@@ -29,6 +29,9 @@ template<>
 MmxAddress<uint32_t>::MmxAddress(const void *pointer) : Address<uint32_t>(pointer) {}
 
 template<typename T>
+MmxAddress<T>::MmxAddress(const Address<T> &address) : MmxAddress(address.get()) {}
+
+template<typename T>
 void MmxAddress<T>::setRange(uint8_t value, T length) const {
     auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
     auto longValue = static_cast<uint64_t>(value);

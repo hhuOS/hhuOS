@@ -37,6 +37,8 @@ public:
 
     explicit MmxAddress(const void *pointer);
 
+    explicit MmxAddress(const Address<T> &address);
+
     /**
      * Copy Constructor.
      */

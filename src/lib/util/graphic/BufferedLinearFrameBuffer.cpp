@@ -16,17 +16,26 @@
  */
 
 #include "lib/util/memory/Address.h"
+#include "lib/util/math/Math.h"
 #include "BufferedLinearFrameBuffer.h"
 
 namespace Util::Graphic {
 
 BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb) :
-        LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()), lfb(lfb) {
-    Memory::Address<uint32_t>(getBuffer()).setRange(0, lfb.getPitch() * lfb.getResolutionY());
+        LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()),
+        targetBuffer(*Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)) {
+    clear();
+}
+
+BufferedLinearFrameBuffer::~BufferedLinearFrameBuffer() {
+    delete &targetBuffer;
 }
 
 void BufferedLinearFrameBuffer::flush() const {
-    lfb.getBuffer().copyRange(Memory::Address<uint32_t>(getBuffer()), getPitch() * getResolutionY());
+    targetBuffer.copyRange(getBuffer(), getPitch() * getResolutionY());
+    if (useMmx) {
+        Math::Math::endMmx();
+    }
 }
 
 }

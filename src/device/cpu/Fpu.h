@@ -27,9 +27,9 @@ class Fpu : public Kernel::InterruptHandler {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    Fpu();
+    explicit Fpu(const uint8_t *defaultFpuContext);
 
     /**
      * Copy Constructor.

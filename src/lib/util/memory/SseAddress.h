@@ -37,6 +37,8 @@ public:
 
     explicit SseAddress(const void *pointer);
 
+    explicit SseAddress(const Address<T> &address);
+
     /**
      * Copy Constructor.
      */

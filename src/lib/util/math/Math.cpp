@@ -19,6 +19,10 @@
 
 namespace Util::Math {
 
+void Math::endMmx() {
+    asm volatile ("emms");
+}
+
 uint32_t Math::absolute(int32_t value) {
     return value < 0 ? value * -1 : value;
 }

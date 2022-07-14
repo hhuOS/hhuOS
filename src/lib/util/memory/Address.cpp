@@ -18,6 +18,8 @@
 #include "lib/util/Exception.h"
 #include "lib/util/cpu/CpuId.h"
 #include "Address.h"
+#include "SseAddress.h"
+#include "MmxAddress.h"
 
 namespace Util::Memory {
 
@@ -244,6 +246,19 @@ Address<T> Address<T>::searchCharacter(uint8_t character) const {
     T i;
     for (i = 0; pointer[i] != 0 && pointer[i] != character; i++) {}
     return pointer[i] == 0 ? set(0) : add(i);
+}
+
+template<typename T>
+Address<T> *Address<T>::createAcceleratedAddress(T address, bool &useMmx) {
+    auto features = Cpu::CpuId::getCpuFeatures();
+    if (features.contains(Cpu::CpuId::SSE)) {
+        return new Memory::SseAddress<T>(address);
+    } else if (features.contains(Cpu::CpuId::MMX)) {
+        useMmx = true;
+        return new Memory::MmxAddress<T>(address);
+    }
+
+    return new Memory::Address<T>(address);
 }
 
 }

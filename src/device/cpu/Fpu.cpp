@@ -25,8 +25,7 @@ namespace Device {
 
 Kernel::Logger Fpu::log = Kernel::Logger::get("FPU");
 
-Fpu::Fpu() {
-    auto *defaultFpuContext = Kernel::System::getService<Kernel::SchedulerService>().getDefaultFpuContext();
+Fpu::Fpu(const uint8_t *defaultFpuContext) {
     disarmFpuMonitor();
 
     // Make sure FPU emulation is disabled

@@ -45,7 +45,7 @@ public:
     /**
      * Destructor.
      */
-    ~BufferScroller() = default;
+    ~BufferScroller();
 
     /**
      * Scroll the buffer upwards by a given amount of pixel lines.
@@ -54,16 +54,11 @@ public:
      */
     void scrollUp(uint16_t lineCount) const;
 
-    /**
-     * Scroll the buffer downwards by a given amount of pixel lines.
-     *
-     * @param lineCount The amount of pixel lines to scroll up
-     */
-    void scrollDown(uint16_t lineCount) const;
-
 private:
 
+    bool useMmx = false;
     const LinearFrameBuffer &lfb;
+    const Memory::Address<uint32_t> &targetBuffer;
 };
 
 }

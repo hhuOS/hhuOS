@@ -47,6 +47,8 @@ public:
      */
     ~Math() = delete;
 
+    static void endMmx();
+
     static uint32_t absolute(int32_t value);
 
     static uint64_t absolute(int64_t value);

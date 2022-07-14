@@ -29,10 +29,14 @@ template<>
 SseAddress<uint32_t>::SseAddress(const void *pointer) : Address<uint32_t>(pointer) {}
 
 template<typename T>
+SseAddress<T>::SseAddress(const Address<T> &address) : SseAddress(address.get()) {}
+
+template<typename T>
 void SseAddress<T>::setRange(uint8_t value, T length) const {
-    auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
+    auto *target = reinterpret_cast<uint64_t *>(Address<T>::address);
     auto longValue = static_cast<uint64_t>(value);
-    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
+    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 |
+                longValue << 48 | longValue << 56;
     uint64_t longArray[]{longValue, longValue};
 
     asm volatile (
@@ -65,7 +69,7 @@ void SseAddress<T>::setRange(uint8_t value, T length) const {
         length -= 16 * sizeof(uint64_t);
     }
 
-    auto *rest = reinterpret_cast<uint8_t*>(target);
+    auto *rest = reinterpret_cast<uint8_t *>(target);
     while (length-- > 0) {
         *rest++ = value;
     }
@@ -73,8 +77,8 @@ void SseAddress<T>::setRange(uint8_t value, T length) const {
 
 template<typename T>
 void SseAddress<T>::copyRange(const Address<T> &sourceAddress, T length) const {
-    auto *target = reinterpret_cast<uint64_t*>(Address<T>::address);
-    auto *source = reinterpret_cast<uint64_t*>(sourceAddress.get());
+    auto *target = reinterpret_cast<uint64_t *>(Address<T>::address);
+    auto *source = reinterpret_cast<uint64_t *>(sourceAddress.get());
 
     while (length - 16 * sizeof(uint64_t) < length) {
         asm volatile (
@@ -103,8 +107,8 @@ void SseAddress<T>::copyRange(const Address<T> &sourceAddress, T length) const {
         length -= 16 * sizeof(uint64_t);
     }
 
-    auto *targetRest = reinterpret_cast<uint8_t*>(target);
-    auto *sourceRest = reinterpret_cast<uint8_t*>(source);
+    auto *targetRest = reinterpret_cast<uint8_t *>(target);
+    auto *sourceRest = reinterpret_cast<uint8_t *>(source);
     while (length-- > 0) {
         *targetRest++ = *sourceRest++;
     }

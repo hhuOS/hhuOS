@@ -45,13 +45,14 @@ public:
     /**
      * Destructor.
      */
-    ~BufferedLinearFrameBuffer() override = default;
+    ~BufferedLinearFrameBuffer() override;
 
     void flush() const;
 
 private:
 
-    const LinearFrameBuffer &lfb;
+    bool useMmx = false;
+    const Memory::Address<uint32_t> &targetBuffer;
 };
 
 }

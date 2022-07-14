@@ -20,8 +20,8 @@
 
 #include <cstdint>
 #include "lib/util/memory/Address.h"
-#include "Color.h"
 #include "lib/util/file/File.h"
+#include "Color.h"
 
 namespace Util::Graphic {
 
@@ -117,7 +117,9 @@ public:
     void clear() const;
 
 private:
-    Memory::Address<uint32_t> buffer;
+
+    bool useMmx = false;
+    Memory::Address<uint32_t> *buffer = nullptr;
 
     uint16_t resolutionX = 0;
     uint16_t resolutionY = 0;

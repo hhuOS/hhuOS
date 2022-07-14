@@ -23,6 +23,7 @@
 #include "lib/util/cpu/CpuId.h"
 #include "lib/util/memory/SseAddress.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/math/Math.h"
 
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
@@ -62,9 +63,8 @@ int32_t main(int32_t argc, char *argv[]) {
         uint32_t memsetMmxResult, memcpyMmxResult;
         Util::System::out << "Running memory benchmarks with MMX..." << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         benchmark(iterations, Util::Memory::MmxAddress<uint32_t>(buffer1), Util::Memory::MmxAddress<uint32_t>(buffer2), memsetMmxResult, memcpyMmxResult);
-        asm volatile (
-                "emms;"
-                );
+
+        Util::Math::Math::endMmx();
 
         double memsetSpeedup = (double) memsetResult / memsetMmxResult;
         double memcpySpeedup = (double) memcpyResult / memcpyMmxResult;

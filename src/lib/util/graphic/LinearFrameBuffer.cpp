@@ -16,18 +16,20 @@
  */
 
 #include "lib/util/Exception.h"
-#include "lib/interface.h"
-#include "LinearFrameBuffer.h"
 #include "lib/util/stream/FileInputStream.h"
+#include "lib/util/cpu/CpuId.h"
+#include "lib/interface.h"
+#include "lib/util/math/Math.h"
+#include "LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        buffer(mapIO(physicalAddress, pitch * resolutionY)),
+        buffer(Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(physicalAddress, pitch * resolutionY)), useMmx)),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        buffer(virtualAddress), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+        buffer(Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx)), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(const File::File &file) {
     if (!file.exists()) {
@@ -99,11 +101,12 @@ LinearFrameBuffer::LinearFrameBuffer(const File::File &file) {
     resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
     colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
     pitch = Util::Memory::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = Memory::Address<uint32_t>(mapIO(address, pitch * resolutionY));
+    buffer = Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(address, pitch * resolutionY)), useMmx);
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
-    delete reinterpret_cast<uint8_t*>(buffer.get());
+    delete reinterpret_cast<uint8_t*>(buffer->get());
+    delete buffer;
 }
 
 uint16_t LinearFrameBuffer::getResolutionX() const {
@@ -123,7 +126,7 @@ uint16_t LinearFrameBuffer::getPitch() const {
 }
 
 Memory::Address<uint32_t> LinearFrameBuffer::getBuffer() const {
-    return buffer;
+    return *buffer;
 }
 
 Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
@@ -132,13 +135,16 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
     }
 
     auto bpp = static_cast<uint8_t>(colorDepth == 15 ? 16 : colorDepth);
-    auto address = buffer.add((x * (bpp / 8)) + y * pitch);
+    auto address = buffer->add((x * (bpp / 8)) + y * pitch);
 
     return Color::fromRGB(*(reinterpret_cast<uint32_t*>(address.get())), colorDepth);
 }
 
 void LinearFrameBuffer::clear() const {
-    buffer.setRange(0, getPitch() * getResolutionY());
+    buffer->setRange(0, getPitch() * getResolutionY());
+    if (useMmx) {
+        Math::Math::endMmx();
+    }
 }
 
 }

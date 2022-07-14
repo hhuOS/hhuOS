@@ -16,34 +16,28 @@
  */
 
 #include "lib/util/memory/Address.h"
+#include "lib/util/math/Math.h"
 #include "BufferScroller.h"
 
 namespace Util::Graphic {
 
-BufferScroller::BufferScroller(const LinearFrameBuffer &lfb) : lfb(lfb) {
+BufferScroller::BufferScroller(const LinearFrameBuffer &lfb) : lfb(lfb), targetBuffer(*Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)) {}
 
+BufferScroller::~BufferScroller() {
+    delete &targetBuffer;
 }
 
 void BufferScroller::scrollUp(uint16_t lineCount) const {
     // Move screen buffer upwards by the given amount of lines
     auto source = lfb.getBuffer().add(lfb.getPitch() * lineCount);
-    lfb.getBuffer().copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
+    targetBuffer.copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
+    if (useMmx) {
+        Math::Math::endMmx();
+    }
 
     // Clear lower part of the screen
     auto clear = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - lineCount));
     clear.setRange(0, lfb.getPitch() * lineCount);
-}
-
-void BufferScroller::scrollDown(uint16_t lineCount) const {
-    // Move the screen buffer downwards line by line, starting at the bottom
-    for (int32_t i = 1; i < lfb.getResolutionY() - lineCount; i++) {
-        auto source = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - lineCount - i));
-        auto destination = lfb.getBuffer().add(lfb.getPitch() * (lfb.getResolutionY() - i - 1));
-        destination.copyRange(source, lfb.getPitch());
-    }
-
-    // Clear upper part of the screen
-    lfb.getBuffer().setRange(0, lfb.getPitch() * lineCount);
 }
 
 }
