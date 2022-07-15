@@ -31,9 +31,9 @@ struct Ant {
     int32_t x, y;
     Direction direction = UP;
     Util::Graphic::Color color = Util::Graphic::Colors::WHITE;
-    Util::Math::Random random = Util::Math::Random(255);
+    Util::Math::Random random = Util::Math::Random();
 
-    Ant(int32_t limitX, int32_t limitY) : limitX(limitX), limitY(limitY), x(static_cast<int32_t>(Util::Math::Random(limitX).nextRandomNumber())), y(static_cast<int32_t>(Util::Math::Random(limitY).nextRandomNumber())) {}
+    Ant(int32_t limitX, int32_t limitY) : limitX(limitX), limitY(limitY), x(static_cast<int32_t>(Util::Math::Random().nextRandomNumber() * limitX)), y(static_cast<int32_t>(Util::Math::Random().nextRandomNumber() * limitY)) {}
 
     void move() {
         switch (direction) {
@@ -74,7 +74,7 @@ struct Ant {
         }
 
         if (crossedBorder) {
-            color = {static_cast<uint8_t>(random.nextRandomNumber()), static_cast<uint8_t>(random.nextRandomNumber()), static_cast<uint8_t>(random.nextRandomNumber())};
+            color = {static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256)};
         }
     }
 

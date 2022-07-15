@@ -20,13 +20,13 @@ const Util::Data::Array<const Util::Data::Array<double>*> DemoPolygonFactory::yS
 });
 
 DemoPolygon DemoPolygonFactory::createPolygon() {
-    const auto shape = random.nextRandomNumber() % xShapes.length();
-    const auto scaleFactor = random.nextRandomNumber() / (2.0 * random.getBoundary()) + 0.1;
-    const auto rotationSpeed = random.nextRandomNumber() / (0.5 * random.getBoundary()) - 1.0;
-    const auto scaleSpeed = random.nextRandomNumber() / (1.0 * random.getBoundary());
-    const auto translateX = random.nextRandomNumber() / (0.5 * random.getBoundary()) - 1.0;
-    const auto translateY = random.nextRandomNumber() / (0.5 * random.getBoundary()) - 1.0;
-    const auto color = Util::Graphic::Color(random.nextRandomNumber(), random.nextRandomNumber(), random.nextRandomNumber());
+    const auto shape = static_cast<uint32_t>(random.nextRandomNumber() * xShapes.length());
+    const auto scaleFactor = random.nextRandomNumber() * 0.5 + 0.1;
+    const auto rotationSpeed = random.nextRandomNumber() * 2 - 1.0;
+    const auto scaleSpeed = random.nextRandomNumber();
+    const auto translateX = random.nextRandomNumber() * 2 - 1.0;
+    const auto translateY = random.nextRandomNumber() * 2 - 1.0;
+    const auto color = Util::Graphic::Color(static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256), static_cast<uint8_t>(random.nextRandomNumber() * 256));
     const auto &x = *xShapes[shape];
     const auto &y = *yShapes[shape];
 

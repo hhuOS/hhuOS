@@ -29,7 +29,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Random(uint32_t boundary = UINT32_MAX, uint32_t seed = Util::Time::getSystemTime().toMilliseconds());
+    explicit Random(uint32_t seed = Util::Time::getSystemTime().toMilliseconds());
 
     /**
      * Copy Constructor.
@@ -46,13 +46,10 @@ public:
      */
     ~Random() = default;
 
-    uint32_t nextRandomNumber();
-
-    [[nodiscard]] uint32_t getBoundary() const;
+    double nextRandomNumber();
 
 private:
 
-    uint32_t boundary;
     uint32_t seed;
 
     static const constexpr uint32_t FACTOR = 13121797;
