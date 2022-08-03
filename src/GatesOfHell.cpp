@@ -51,6 +51,8 @@
 #include "kernel/service/StorageService.h"
 #include "filesystem/fat/FatDriver.h"
 #include "device/sound/speaker/PcSpeakerNode.h"
+#include "filesystem/memory/NullNode.h"
+#include "filesystem/memory/ZeroNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -223,6 +225,8 @@ void GatesOfHell::initializeFilesystem() {
     filesystemService.getFilesystem().mountVirtualDriver("/device", deviceDriver);
 
     filesystemService.createFile("/device/log");
+    deviceDriver->addNode("/", new Filesystem::Memory::NullNode());
+    deviceDriver->addNode("/", new Filesystem::Memory::ZeroNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
     deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 

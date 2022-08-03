@@ -15,60 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PCSPEAKERNODE_H
-#define HHUOS_PCSPEAKERNODE_H
+#ifndef HHUOS_ZERONODE_H
+#define HHUOS_ZERONODE_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "MemoryNode.h"
 
-namespace Device::Sound {
+namespace Filesystem::Memory {
 
-class PcSpeakerNode : public Filesystem::Memory::MemoryNode {
+class ZeroNode : public MemoryNode {
 
 public:
     /**
      * Constructor.
      */
-    explicit PcSpeakerNode(const Util::Memory::String &name);
+    ZeroNode();
 
     /**
      * Copy Constructor.
      */
-    PcSpeakerNode(const PcSpeakerNode &other) = delete;
+    ZeroNode(const ZeroNode &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    PcSpeakerNode &operator=(const PcSpeakerNode &other) = delete;
+    ZeroNode &operator=(const ZeroNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PcSpeakerNode() override = default;
+    ~ZeroNode() override = default;
 
     /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     Util::File::Type getFileType() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-
-private:
-
-    uint32_t currentFrequency = 0;
-    Util::Memory::String buffer = "0";
 };
 
 }

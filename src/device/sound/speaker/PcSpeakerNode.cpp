@@ -27,6 +27,10 @@ uint64_t PcSpeakerNode::getLength() {
     return buffer.length();
 }
 
+Util::File::Type PcSpeakerNode::getFileType() {
+    return Util::File::CHARACTER;
+}
+
 uint64_t PcSpeakerNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
     if (pos >= buffer.length()) {
         return 0;
