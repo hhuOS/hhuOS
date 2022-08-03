@@ -39,7 +39,7 @@ uint64_t MemoryStatusNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_
         numBytes = (memoryStatusBuffer.length() - pos);
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char *>(memoryStatusBuffer)).add(pos);
+    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(memoryStatusBuffer)).add(pos);
     auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 

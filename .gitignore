@@ -17,6 +17,7 @@ OVMF.fd
 cmake-build-debug/
 cmake-build-default/
 cmake-build-release/
+venv/
 CMakeLists.txt.user
 CMakeCache.txt
 CMakeFiles

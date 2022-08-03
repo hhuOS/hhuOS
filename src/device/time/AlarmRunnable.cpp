@@ -16,7 +16,7 @@
  */
 
 #include "AlarmRunnable.h"
-#include "device/sound/PcSpeaker.h"
+#include "device/sound/speaker/PcSpeaker.h"
 #include "lib/util/async/Thread.h"
 
 namespace Device {
@@ -25,9 +25,9 @@ AlarmRunnable::AlarmRunnable(uint32_t beepCount) : beepCount(beepCount) {}
 
 void AlarmRunnable::run() {
     for (uint32_t i = 0; i < beepCount; i++) {
-        PcSpeaker::play(PcSpeaker::A1);
+        Sound::PcSpeaker::play(Sound::PcSpeaker::A1);
         Util::Async::Thread::sleep({0, INTERVAL * 1000000});
-        PcSpeaker::off();
+        Sound::PcSpeaker::off();
         Util::Async::Thread::sleep({0, INTERVAL * 1000000});
     }
 }

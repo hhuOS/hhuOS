@@ -15,45 +15,55 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ALARMRUNNABLE_H
-#define HHUOS_ALARMRUNNABLE_H
+#ifndef HHUOS_PCSPEAKERNODE_H
+#define HHUOS_PCSPEAKERNODE_H
 
-#include <cstdint>
-#include "lib/util/async/Runnable.h"
+#include "filesystem/memory/MemoryNode.h"
 
-namespace Device {
+namespace Device::Sound {
 
-class AlarmRunnable : public Util::Async::Runnable {
+class PcSpeakerNode : public Filesystem::Memory::MemoryNode {
 
 public:
     /**
      * Constructor.
      */
-    explicit AlarmRunnable(uint32_t beepCount = 3);
+    explicit PcSpeakerNode(const Util::Memory::String &name);
 
     /**
      * Copy Constructor.
      */
-    AlarmRunnable(const AlarmRunnable &other) = delete;
+    PcSpeakerNode(const PcSpeakerNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    AlarmRunnable &operator=(const AlarmRunnable &other) = delete;
+    PcSpeakerNode &operator=(const PcSpeakerNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~AlarmRunnable() override = default;
+    ~PcSpeakerNode() override = default;
 
-    void run() override;
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 
-    uint32_t beepCount;
-    bool speakerOn = false;
-
-    static const constexpr uint32_t INTERVAL = 500;
+    uint32_t currentFrequency = 0;
+    Util::Memory::String buffer = "0";
 };
 
 }

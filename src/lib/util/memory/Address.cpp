@@ -250,7 +250,9 @@ Address<T> Address<T>::searchCharacter(uint8_t character) const {
 
 template<typename T>
 Address<T> *Address<T>::createAcceleratedAddress(T address, bool &useMmx) {
+    useMmx = false;
     auto features = Cpu::CpuId::getCpuFeatures();
+
     if (features.contains(Cpu::CpuId::SSE)) {
         return new Memory::SseAddress<T>(address);
     } else if (features.contains(Cpu::CpuId::MMX)) {

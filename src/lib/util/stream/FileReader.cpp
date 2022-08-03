@@ -57,6 +57,7 @@ int32_t FileReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
 Memory::String FileReader::read(uint32_t length) {
     char *tmpBuffer = new char[length + 1];
     int32_t count = read(tmpBuffer, length);
+    tmpBuffer[count] = 0;
 
     Memory::String ret = count <= 0 ? Memory::String() : Memory::String(tmpBuffer);
 

@@ -49,7 +49,7 @@ message("hhuOS ${HHUOS_VERSION} - git ${HHUOS_GIT_REV}, build date: ${HHUOS_BUIL
 # Set source directory variables
 set(HHUOS_ROOT_DIR "${CMAKE_CURRENT_LIST_DIR}/..")
 set(HHUOS_SRC_DIR "${HHUOS_ROOT_DIR}/src")
-set(HHUOS_TOOL_DIR "${HHUOS_ROOT_DIR}/tool")
+set(HHUOS_TOOL_DIR "${HHUOS_ROOT_DIR}/tools")
 
 # Set output directory variables
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/static)
@@ -92,6 +92,7 @@ add_subdirectory(grub)
 add_subdirectory(towboot)
 
 add_subdirectory(application)
+add_subdirectory(music)
 
 add_subdirectory(hdd0)
 add_subdirectory(floppy0)

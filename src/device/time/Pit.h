@@ -65,6 +65,8 @@ public:
      */
     [[nodiscard]] Util::Time::Timestamp getTime() override;
 
+    static const constexpr uint32_t BASE_FREQUENCY = 1193182;
+
 private:
 
     /**
@@ -82,8 +84,6 @@ private:
     IoPort dataPort0 = IoPort(0x40);
 
     static Kernel::Logger log;
-
-    static const constexpr uint32_t BASE_FREQUENCY = 1193182;
 
 };
 

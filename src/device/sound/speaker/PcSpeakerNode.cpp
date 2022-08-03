@@ -16,23 +16,18 @@
  */
 
 #include "lib/util/memory/Address.h"
-#include "LinearFrameBufferNode.h"
+#include "PcSpeaker.h"
+#include "PcSpeakerNode.h"
 
-namespace Device::Graphic {
+namespace Device::Sound {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, uint32_t address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
-        Filesystem::Memory::MemoryNode(name),
-        addressBuffer(Util::Memory::String::format("%u", address)),
-        resolutionBuffer(Util::Memory::String::format("%ux%u@%u", resolutionX, resolutionY, colorDepth)),
-        pitchBuffer(Util::Memory::String::format("%u", pitch)) {}
+PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : MemoryNode(name) {}
 
-uint64_t LinearFrameBufferNode::getLength() {
-    return addressBuffer.length() + resolutionBuffer.length() + pitchBuffer.length() + 2;
+uint64_t PcSpeakerNode::getLength() {
+    return buffer.length();
 }
 
-uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    const auto buffer = addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
-
+uint64_t PcSpeakerNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
     if (pos >= buffer.length()) {
         return 0;
     }
@@ -45,6 +40,15 @@ uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, ui
     auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
+    return numBytes;
+}
+
+uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    auto data = Util::Memory::String(sourceBuffer, numBytes);
+    currentFrequency = Util::Memory::String::parseInt(data);
+    buffer = Util::Memory::String::format("%u", currentFrequency);
+
+    PcSpeaker::play(currentFrequency);
     return numBytes;
 }
 

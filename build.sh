@@ -127,6 +127,11 @@ cleanup() {
         rm loader/towboot/towboot-x64.efi
     fi
     
+    if [ -d initrd/beep/ ]; then
+        printf "Removing 'initrd/beep/'\\n"
+        rm -r initrd/beep/
+    fi
+
     if [ -d initrd/bin/ ]; then
         printf "Removing 'initrd/bin/'\\n"
         rm -r initrd/bin/

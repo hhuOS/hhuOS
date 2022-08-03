@@ -20,10 +20,10 @@
 
 #include "device/cpu/IoPort.h"
 
-namespace Device {
+namespace Device::Sound {
 
 /**
- * Driver for the beep producing PC speaker.
+ * Driver for the music producing PC speaker.
  */
 class PcSpeaker {
 
@@ -50,19 +50,11 @@ public:
     ~PcSpeaker() = default;
 
     /**
-     * Beep for a given time.
-     *
-     * @param The frequency
-     * @param The length (in milliseconds)
-     */
-    static void play(float frequency, uint32_t length);
-
-    /**
      * Beep until Speaker::off() is called.
      *
      * @param f The frequency.
      */
-    static void play(float frequency);
+    static void play(uint32_t frequency);
 
     /**
      * Turn the speaker off
@@ -110,13 +102,6 @@ public:
     static const constexpr float C3 = 1046.50;
 
 private:
-
-    /**
-     * Wait for a given amount of time. Used to hold a note.
-     *
-     * @param time The time in milliseconds
-     */
-    static void delay (uint32_t time);
 
     static IoPort controlPort;
     static IoPort dataPort2;

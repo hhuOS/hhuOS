@@ -51,6 +51,7 @@
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/service/StorageService.h"
 #include "filesystem/fat/FatDriver.h"
+#include "device/sound/speaker/PcSpeakerNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -224,6 +225,7 @@ void GatesOfHell::initializeFilesystem() {
 
     filesystemService.createFile("/device/log");
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
+    deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 
     if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");

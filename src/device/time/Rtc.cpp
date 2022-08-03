@@ -18,7 +18,7 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/service/InterruptService.h"
 #include "device/interrupt/Pic.h"
-#include "device/sound/PcSpeaker.h"
+#include "device/sound/speaker/PcSpeaker.h"
 #include "Cmos.h"
 #include "Rtc.h"
 #include "kernel/system/System.h"
