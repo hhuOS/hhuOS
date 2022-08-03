@@ -38,7 +38,6 @@
 #include "lib/util/stream/FileOutputStream.h"
 #include "lib/util/async/Process.h"
 #include "kernel/service/MemoryService.h"
-#include "kernel/process/ProcessScheduler.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/memory/MemoryStatusNode.h"
 #include "BuildConfig.h"
@@ -104,7 +103,7 @@ void GatesOfHell::enter() {
     printBanner();
 
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", new SchedulerSign());
+    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", schedulerService.getKernelProcess(), new SchedulerSign());
     schedulerService.ready(schedulerSignThread);
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));

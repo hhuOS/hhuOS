@@ -20,7 +20,6 @@
 
 #include "kernel/paging/VirtualAddressSpace.h"
 #include "lib/util/file/File.h"
-#include "ThreadScheduler.h"
 #include "Thread.h"
 
 namespace Kernel {
@@ -31,7 +30,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory = Util::File::File("/"));
+    explicit Process(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory = Util::File::File("/"));
 
     /**
      * Copy Constructor.
@@ -48,14 +47,6 @@ public:
      */
     ~Process();
 
-    void ready(Thread &thread);
-
-    void unblock(Thread &thread);
-
-    void start();
-
-    void exit();
-
     bool setWorkingDirectory(const Util::Memory::String &path);
 
     void setExitCode(int32_t code);
@@ -70,8 +61,6 @@ public:
 
     [[nodiscard]] VirtualAddressSpace& getAddressSpace();
 
-    [[nodiscard]] ThreadScheduler& getThreadScheduler();
-
     [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
 
     [[nodiscard]] Util::File::File getWorkingDirectory();
@@ -84,6 +73,12 @@ public:
 
     [[nodiscard]] Util::Memory::String getName() const;
 
+    void addThread(Thread &thread);
+
+    void removeThread(Thread &thread);
+
+    void killAllThreadsButCurrent();
+
 private:
 
     [[nodiscard]] Util::File::File getFileFromPath(const Util::Memory::String &path);
@@ -91,10 +86,9 @@ private:
     uint32_t id;
     Util::Memory::String name;
     VirtualAddressSpace &addressSpace;
-    ProcessScheduler &scheduler;
-    ThreadScheduler threadScheduler;
     FileDescriptorManager fileDescriptorManager;
     Util::File::File workingDirectory;
+    Util::Data::ArrayList<Thread*> threads;
     Thread *mainThread = nullptr;
 
     bool finished = false;

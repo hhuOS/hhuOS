@@ -333,6 +333,10 @@ VirtualAddressSpace& MemoryService::createAddressSpace() {
 }
 
 void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
+    if (currentAddressSpace == &addressSpace) {
+        return;
+    }
+
     // Set current address space
     currentAddressSpace = &addressSpace;
     // load cr3-register with phys. address of Page Directory
@@ -388,8 +392,11 @@ MemoryService::MemoryStatus MemoryService::getMemoryStatus() {
             pagingAreaManager.getTotalMemory(), pagingAreaManager.getFreeMemory()};
 }
 
-// TODO: Remove this method, once it is no longer needed by FilesystemService
-VirtualAddressSpace &MemoryService::getCurrentAddressSpace() {
+VirtualAddressSpace& MemoryService::getKernelAddressSpace() const {
+    return kernelAddressSpace;
+}
+
+VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
     return *currentAddressSpace;
 }
 

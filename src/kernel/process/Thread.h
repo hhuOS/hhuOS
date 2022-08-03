@@ -31,6 +31,7 @@ class Process;
 class Thread {
 
     friend class ThreadScheduler;
+    friend class Scheduler;
 
 public:
 
@@ -76,9 +77,9 @@ public:
      */
     virtual ~Thread();
 
-    static Thread& createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
+    static Thread& createKernelThread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable);
 
-    static Thread &createMainUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
+    static Thread &createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
     [[nodiscard]] uint32_t getId() const;
 
@@ -86,11 +87,9 @@ public:
 
     [[nodiscard]] Context* getContext() const;
 
-    [[nodiscard]] Process* getParent() const;
+    [[nodiscard]] Process& getParent() const;
 
     [[nodiscard]] uint8_t* getFpuContext() const;
-
-    void setParent(Process *process);
 
     void join();
 
@@ -100,12 +99,12 @@ public:
 
 private:
 
-    Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
+    Thread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
 
     uint32_t id;
     Util::Memory::String name;
+    Process &parent;
     Util::Async::Runnable *runnable;
-    Process *parent = nullptr;
 
     Stack *kernelStack;
     Stack *userStack;

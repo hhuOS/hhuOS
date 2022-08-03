@@ -216,7 +216,9 @@ public:
      */
     void trigger(const Kernel::InterruptFrame &frame) override;
 
-    VirtualAddressSpace& getCurrentAddressSpace();
+    [[nodiscard]] VirtualAddressSpace& getKernelAddressSpace() const;
+
+    [[nodiscard]] VirtualAddressSpace& getCurrentAddressSpace() const;
 
     MemoryStatus getMemoryStatus();
 

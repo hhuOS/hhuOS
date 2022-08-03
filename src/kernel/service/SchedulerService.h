@@ -18,9 +18,9 @@
 #ifndef HHUOS_SCHEDULERSERVICE_H
 #define HHUOS_SCHEDULERSERVICE_H
 
-#include "kernel/process/ProcessScheduler.h"
-#include "lib/util/file/File.h"
+#include "kernel/process/Scheduler.h"
 #include "kernel/process/SchedulerCleaner.h"
+#include "lib/util/file/File.h"
 #include "device/cpu/Fpu.h"
 #include "Service.h"
 
@@ -52,8 +52,6 @@ public:
     void kickoffThread();
 
     void startScheduler();
-
-    void ready(Process &process);
 
     void ready(Thread &thread);
 
@@ -91,14 +89,19 @@ public:
 
     [[nodiscard]] Process* getProcess(uint32_t id);
 
+    [[nodiscard]] Process& getKernelProcess() const;
+
     static const constexpr uint8_t SERVICE_ID = 4;
 
 private:
 
-    ProcessScheduler scheduler;
+    Scheduler scheduler;
     SchedulerCleaner *cleaner = nullptr;
     Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
+    Util::Data::ArrayList<Process*> processList;
+    Util::Async::Spinlock processLock;
+    Process &kernelProcess;
 
     static Logger log;
 };

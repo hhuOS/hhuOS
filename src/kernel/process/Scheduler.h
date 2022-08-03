@@ -15,43 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_THREADSCHEDULER_H
-#define HHUOS_THREADSCHEDULER_H
+#ifndef HHUOS_SCHEDULER_H
+#define HHUOS_SCHEDULER_H
 
 #include "lib/util/data/ArrayBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
-#include "Thread.h"
 #include "lib/util/time/Timestamp.h"
+#include "Thread.h"
 
 namespace Kernel {
 
 class Process;
-class ProcessScheduler;
 
-class ThreadScheduler {
-    
-    friend class ProcessScheduler;
+class Scheduler {
+
+    friend class SchedulerService;
 
 public:
     /**
      * Constructor.
      */
-    explicit ThreadScheduler(ProcessScheduler &parent);
+    explicit Scheduler() = default;
 
     /**
      * Copy Constructor.
      */
-    ThreadScheduler(const ThreadScheduler &other) = delete;
+    Scheduler(const Scheduler &other) = delete;
 
     /**
      * Assignment operator.
      */
-    ThreadScheduler &operator=(const ThreadScheduler &other) = delete;
+    Scheduler &operator=(const Scheduler &other) = delete;
 
     /**
      * Destructor.
      */
-    ~ThreadScheduler();
+    ~Scheduler();
+
+    void start();
 
     /**
      * Registers a new Thread.
@@ -65,6 +66,8 @@ public:
      */
     void exit();
 
+    void yield(bool force = false);
+
     /**
      * Kills a specific Thread.
      *
@@ -77,8 +80,6 @@ public:
     void unblock(Thread &thread);
 
     void sleep(const Util::Time::Timestamp &time);
-
-    void killAllThreadsButCurrent();
 
     /**
      * Returns the activeFlag Thread.
@@ -95,11 +96,9 @@ private:
     /**
      * Switches to the given Thread.
      *
-     * @param next A Thread
+     * @param nextThread A Thread
      */
-    void dispatch(Thread &current, Thread &next);
-
-    void yield(Thread &oldThread, Process &nextProcess, bool force);
+    void dispatch(Thread &nextThread);
 
     void checkSleepList();
 
@@ -112,7 +111,6 @@ private:
         bool operator!=(const SleepEntry &other) const;
     };
 
-    ProcessScheduler &parent;
     Util::Async::Spinlock lock;
     Util::Async::Spinlock sleepLock;
 

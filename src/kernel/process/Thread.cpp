@@ -32,8 +32,8 @@ namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Thread::idGenerator;
 
-Thread::Thread(const Util::Memory::String &name, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
-        id(idGenerator.next()), name(name), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
+Thread::Thread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack) :
+        id(idGenerator.next()), name(name), parent(parent), runnable(runnable), kernelStack(kernelStack), userStack(userStack),
         interruptFrame(*reinterpret_cast<InterruptFrame*>(kernelStack->getStart() - sizeof(InterruptFrame))),
         kernelContext(reinterpret_cast<Context*>(kernelStack->getStart() - sizeof(InterruptFrame) - sizeof(Context))),
         fpuContext(static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16))) {
@@ -49,9 +49,9 @@ Thread::~Thread() {
     delete runnable;
 }
 
-Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
+Thread& Thread::createKernelThread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable) {
     auto *stack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
-    auto *thread = new Thread(name, runnable, stack, stack);
+    auto *thread = new Thread(name, parent, runnable, stack, stack);
 
     thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
@@ -70,10 +70,10 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Util::Async
     return *thread;
 }
 
-Thread& Thread::createMainUserThread(const Util::Memory::String &name, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
+Thread& Thread::createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
     auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *userStack = Stack::createMainUserStack();
-    auto *thread = new Thread(name, nullptr, kernelStack, userStack);
+    auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
 
     thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
 
@@ -112,12 +112,8 @@ void Thread::run() {
     runnable->run();
 }
 
-Process* Thread::getParent() const {
+Process& Thread::getParent() const {
     return parent;
-}
-
-void Thread::setParent(Process *process) {
-    parent = process;
 }
 
 uint8_t *Thread::getFpuContext() const {

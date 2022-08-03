@@ -201,7 +201,7 @@ Util::Time::Date Rtc::readDate() const {
 }
 
 void Rtc::alarm() {
-    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", new AlarmRunnable());
+    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::System::getService<Kernel::SchedulerService>().getKernelProcess(), new AlarmRunnable());
     Kernel::System::getService<Kernel::SchedulerService>().ready(alarmThread);
 }
 

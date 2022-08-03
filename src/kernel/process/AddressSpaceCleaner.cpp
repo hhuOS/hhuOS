@@ -28,7 +28,7 @@ void AddressSpaceCleaner::run() {
     }
 
     System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    System::getService<SchedulerService>().getCurrentProcess().exit();
+    schedulerService.cleanup(&schedulerService.getCurrentProcess());
 }
 
 }

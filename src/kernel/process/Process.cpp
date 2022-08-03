@@ -17,30 +17,16 @@
 
 #include "kernel/system/System.h"
 #include "Process.h"
-#include "ProcessScheduler.h"
 
 namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
-Process::Process(ProcessScheduler &scheduler, VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory) :
-        id(idGenerator.next()), name(name), addressSpace(addressSpace), scheduler(scheduler), threadScheduler(scheduler), workingDirectory(workingDirectory) {}
+Process::Process(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory) :
+        id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
     Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
-}
-
-void Process::ready(Thread &thread) {
-    thread.setParent(this);
-    threadScheduler.ready(thread);
-}
-
-void Process::start() {
-    scheduler.ready(*this);
-}
-
-void Process::exit() {
-    scheduler.exit();
 }
 
 uint32_t Process::getId() const {
@@ -49,10 +35,6 @@ uint32_t Process::getId() const {
 
 VirtualAddressSpace &Process::getAddressSpace() {
     return addressSpace;
-}
-
-ThreadScheduler &Process::getThreadScheduler() {
-    return threadScheduler;
 }
 
 FileDescriptorManager &Process::getFileDescriptorManager() {
@@ -99,11 +81,7 @@ bool Process::isKernelProcess() const {
 }
 
 uint32_t Process::getThreadCount() const {
-    return threadScheduler.getThreadCount();
-}
-
-void Process::unblock(Thread &thread) {
-    threadScheduler.unblock(thread);
+    return threads.size();
 }
 
 void Process::setMainThread(Thread &thread) {
@@ -125,6 +103,25 @@ void Process::join() {
 
 Util::Memory::String Process::getName() const {
     return name;
+}
+
+void Process::addThread(Thread &thread) {
+    threads.add(&thread);
+}
+
+void Process::removeThread(Thread &thread) {
+    threads.remove(&thread);
+}
+
+void Process::killAllThreadsButCurrent() {
+    auto &schedulerService = System::getService<SchedulerService>();
+    auto currentThreadId = schedulerService.getCurrentThread().getId();
+
+    for (auto *thread : threads) {
+        if (thread->getId() != currentThreadId) {
+            schedulerService.kill(*thread);
+        }
+    }
 }
 
 }

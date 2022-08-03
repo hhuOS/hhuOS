@@ -86,8 +86,6 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     log.info("Initializing scheduler");
     auto *schedulerService = new SchedulerService();
     registerService(SchedulerService::SERVICE_ID, schedulerService);
-    auto &kernelProcess = schedulerService->createProcess(*kernelAddressSpace, "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"));
-    schedulerService->ready(kernelProcess);
 
     initialized = true;
 
@@ -116,7 +114,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
 
     // Create thread to refill block pool of paging area manager
-    auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", new PagingAreaManagerRefillRunnable(*pagingAreaManager));
+    auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", System::getService<SchedulerService>().getKernelProcess(), new PagingAreaManagerRefillRunnable(*pagingAreaManager));
     schedulerService->ready(refillThread);
 
     // Register memory manager
