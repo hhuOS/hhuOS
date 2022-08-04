@@ -58,7 +58,7 @@ public:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    void initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) override;
+    Util::Graphic::LinearFrameBuffer * initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) override;
 
     /**
      * Overriding virtual function from LinearFrameBufferProvider.

@@ -61,32 +61,11 @@ uint8_t Keyboard::scanNumTab[] = {
         8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
 };
 
-Keyboard::Keyboard(Util::Stream::PipedInputStream &inputStream) {
+Keyboard::Keyboard(Util::Stream::OutputStream &outputStream) : outputStream(outputStream) {
     setLed(CAPS_LOCK, false);
     setLed(SCROLL_LOCK, false);
     setLed(NUM_LOCK, false);
     setRepeatRate(0, 0);
-
-    outputStream.connect(inputStream);
-}
-
-void Keyboard::initialize() {
-    log.info("Initializing keyboard");
-    auto inputStream = new Util::Stream::PipedInputStream();
-    auto streamNode = new Filesystem::Memory::StreamNode("keyboard", inputStream);
-    auto keyboard = new Device::Keyboard(*inputStream);
-
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    bool success = driver.addNode("/", streamNode);
-
-    if (success) {
-        keyboard->plugin();
-    } else {
-        log.error("Failed to initialize virtual node for keyboard");
-        delete streamNode;
-        delete keyboard;
-    }
 }
 
 bool Keyboard::decodeKey(uint8_t code) {

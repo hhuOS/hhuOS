@@ -20,7 +20,9 @@
 
 namespace Device::Graphic {
 
-Terminal::Terminal(uint16_t columns, uint16_t rows) : columns(columns), rows(rows) {}
+Terminal::Terminal(uint16_t columns, uint16_t rows) : columns(columns), rows(rows) {
+    outputStream.connect(inputStream);
+}
 
 void Terminal::write(uint8_t c) {
     if (c == '\b') {
@@ -55,8 +57,8 @@ void Terminal::write(uint8_t c) {
         if (escapeEndCodes.contains(c)) {
             auto escapeSequence = currentEscapeSequence.substring(2, currentEscapeSequence.length());
             switch (c) {
-            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 's': case 'u':
-                    parseSetCursorEscapeSequence(escapeSequence, c);
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'n': case 's': case 'u':
+                    parseCursorEscapeSequence(escapeSequence, c);
                     break;
                 case 'J': case 'K':
                     parseEraseSequence(escapeSequence, c);
@@ -82,6 +84,14 @@ void Terminal::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t leng
     for (uint32_t i = 0; i < length; i++) {
         write(sourceBuffer[offset + i]);
     }
+}
+
+int16_t Terminal::read() {
+    return inputStream.read();
+}
+
+int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+    return inputStream.read(targetBuffer, offset, length);
 }
 
 void Terminal::parseColorEscapeSequence(const Util::Memory::String &escapeSequence) {
@@ -132,7 +142,7 @@ void Terminal::parseColorEscapeSequence(const Util::Memory::String &escapeSequen
     backgroundColor = background;
 }
 
-void Terminal::parseSetCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode) {
+void Terminal::parseCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode) {
     switch (endCode) {
         case 'A': {
             const auto row = getCurrentRow() - Util::Memory::String::parseInt(escapeSequence);
@@ -182,6 +192,10 @@ void Terminal::parseSetCursorEscapeSequence(const Util::Memory::String &escapeSe
 
             setPosition(Util::Memory::String::parseInt(codes[1]), Util::Memory::String::parseInt(codes[0]));
             break;
+        }
+        case 'n': {
+            auto positionString = Util::Memory::String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
+            outputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)), 0, positionString.length());
         }
         case 's': {
             savedColumn = getCurrentColumn();
@@ -252,7 +266,6 @@ void Terminal::parseEraseSequence(const Util::Memory::String &escapeSequence, ch
             break;
     }
 
-
     setPosition(column, row);
 }
 
@@ -262,6 +275,10 @@ uint16_t Terminal::getColumns() const {
 
 uint16_t Terminal::getRows() const {
     return rows;
+}
+
+Util::Stream::PipedOutputStream &Terminal::getPipedOutputStream() {
+    return outputStream;
 }
 
 Util::Graphic::Color Terminal::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index) {

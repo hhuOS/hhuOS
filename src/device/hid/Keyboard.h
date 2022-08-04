@@ -37,6 +37,11 @@ class Keyboard : public Kernel::InterruptHandler {
 
 public:
     /**
+     * Constructor.
+     */
+    explicit Keyboard(Util::Stream::OutputStream &outputStream);
+
+    /**
      * Copy Constructor.
      */
     Keyboard(const Keyboard &copy) = delete;
@@ -50,11 +55,6 @@ public:
      * Destructor.
      */
     ~Keyboard() override = default;
-
-    /**
-     * Create a keyboard instance, which is readable at '/device/keyboard'
-     */
-     static void initialize();
 
     /**
      * Set the controller's repeat rate.
@@ -122,11 +122,6 @@ private:
     };
 
     /**
-     * Constructor.
-     */
-    explicit Keyboard(Util::Stream::PipedInputStream &inputStream);
-
-    /**
      * Decode make- and break-codes from the keyboard.
      *
      * @return true, if the key is complete, or false if there are still make-/break-codes missing.
@@ -168,7 +163,7 @@ private:
     uint32_t keysPressed = 0;
     uint32_t buffer[BUFFER_SIZE]{};
 
-    Util::Stream::PipedOutputStream outputStream;
+    Util::Stream::OutputStream &outputStream;
 };
 
 }

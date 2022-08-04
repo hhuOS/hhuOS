@@ -69,24 +69,15 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return Util::Data::Array<ModeInfo>({ mode });
 }
 
-void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
 
     auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
     auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
-
     Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
-
-    // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *terminalNode = new TerminalNode(filename, terminal);
-
-    if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
-    }
+    return terminal;
 }
 
 }

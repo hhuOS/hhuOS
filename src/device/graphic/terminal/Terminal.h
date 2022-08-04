@@ -19,14 +19,17 @@
 #define HHUOS_TERMINAL_H
 
 #include "lib/util/stream/OutputStream.h"
+#include "lib/util/stream/InputStream.h"
 #include "lib/util/memory/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/Ansi.h"
+#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Device::Graphic {
 
-class Terminal : public Util::Stream::OutputStream {
+class Terminal : public Util::Stream::OutputStream, public Util::Stream::InputStream {
 
 public:
 
@@ -42,6 +45,10 @@ public:
 
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
+    int16_t read() override;
+
+    int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
     virtual void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) = 0;
 
     virtual void clear(const Util::Graphic::Color &backgroundColor) = 0;
@@ -56,11 +63,13 @@ public:
 
     [[nodiscard]] uint16_t getRows() const;
 
+    [[nodiscard]] Util::Stream::PipedOutputStream& getPipedOutputStream();
+
 private:
 
     void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);
 
-    void parseSetCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode);
+    void parseCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode);
 
     void parseEraseSequence(const Util::Memory::String &escapeSequence, char endCode);
 
@@ -73,6 +82,9 @@ private:
     [[nodiscard]] static Util::Graphic::Color parseTrueColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
     void parseGraphicRendition(uint8_t code);
+
+    Util::Stream::PipedInputStream inputStream;
+    Util::Stream::PipedOutputStream outputStream;
 
     Util::Memory::String currentEscapeSequence;
     bool isEscapeActive = false;
@@ -91,10 +103,10 @@ private:
     const uint16_t columns;
     const uint16_t rows;
 
-    uint16_t savedColumn;
-    uint16_t saveRow;
+    uint16_t savedColumn = 0;
+    uint16_t saveRow = 0;
 
-    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmsu");
+    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
 };
 
 }

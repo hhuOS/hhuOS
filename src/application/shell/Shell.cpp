@@ -36,7 +36,7 @@ void Shell::run() {
         return;
     }
 
-    auto inputStream = Util::Stream::FileInputStream("/device/keyboard");
+    auto inputStream = Util::Stream::FileInputStream("/device/terminal");
     reader = new Util::Stream::InputStreamReader(inputStream);
     Util::Memory::String line = "";
 

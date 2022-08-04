@@ -61,7 +61,7 @@ private:
 
     static void initializeFilesystem();
 
-    static void initializeTerminal();
+    static void initializeKeyboardAndTerminal();
 
     static void initializePowerManagement();
 

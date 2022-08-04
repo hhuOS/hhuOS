@@ -54,6 +54,8 @@
 #include "filesystem/memory/NullNode.h"
 #include "filesystem/memory/ZeroNode.h"
 #include "filesystem/memory/RandomNode.h"
+#include "filesystem/memory/StreamNode.h"
+#include "device/graphic/lfb/LinearFrameBufferNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -94,9 +96,7 @@ void GatesOfHell::enter() {
     Device::SerialPort::initializeAvailablePorts();
     Device::ParallelPort::initializeAvailablePorts();
 
-    Device::Keyboard::initialize();
-
-    initializeTerminal();
+    initializeKeyboardAndTerminal();
 
     initializePowerManagement();
 
@@ -117,7 +117,7 @@ void GatesOfHell::enter() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
-void GatesOfHell::initializeTerminal() {
+void GatesOfHell::initializeKeyboardAndTerminal() {
     log.info("Initializing graphical terminal");
 
     if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
@@ -144,7 +144,16 @@ void GatesOfHell::initializeTerminal() {
 
     if (lfbProvider != nullptr) {
         auto mode = lfbProvider->searchMode(800, 600, 32);
-        lfbProvider->initializeLinearFrameBuffer(mode, "lfb");
+        auto *lfb = lfbProvider->initializeLinearFrameBuffer(mode, "lfb");
+
+        // Create filesystem node
+        auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+        auto &driver = filesystem.getVirtualDriver("/device");
+        auto *lfbNode = new Device::Graphic::LinearFrameBufferNode("lfb", lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
+
+        if (!driver.addNode("/", lfbNode)) {
+            Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "MultibootLinearFrameBufferProvider: Unable to add node!");
+        }
     }
 
     if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
@@ -162,7 +171,17 @@ void GatesOfHell::initializeTerminal() {
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
-    terminalProvider->initializeTerminal(resolution, "terminal");
+    auto *terminal = terminalProvider->initializeTerminal(resolution, "terminal");
+
+    // Initialize keyboard
+    auto *keyboard = new Device::Keyboard(terminal->getPipedOutputStream());
+    keyboard->plugin();
+
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new Filesystem::Memory::StreamNode("terminal", terminal, terminal);
+    driver.addNode("/", terminalNode);
 
     // Open first file descriptor for Util::System::out
     Util::File::open("/device/terminal");

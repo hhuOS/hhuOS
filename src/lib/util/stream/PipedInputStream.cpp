@@ -45,7 +45,6 @@ void PipedInputStream::connect(PipedOutputStream &outputStream) {
 int16_t PipedInputStream::read() {
     uint8_t ret;
     uint32_t count = read(&ret, 0, 1);
-
     return count == 0 ? 0 : ret;
 }
 
