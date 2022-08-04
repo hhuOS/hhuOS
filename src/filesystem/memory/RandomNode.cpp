@@ -15,47 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NULLNODE_H
-#define HHUOS_NULLNODE_H
-
-#include "MemoryNode.h"
+#include "lib/util/math/Random.h"
+#include "lib/util/memory/Address.h"
+#include "RandomNode.h"
 
 namespace Filesystem::Memory {
 
-class NullNode : public MemoryNode {
+RandomNode::RandomNode() : MemoryNode("random") {}
 
-public:
-    /**
-     * Constructor.
-     */
-    NullNode();
-
-    /**
-     * Copy Constructor.
-     */
-    NullNode(const NullNode &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    NullNode& operator=(const NullNode &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~NullNode() override = default;
-
-    /**
-     * Overriding function from Node.
-     */
-    Util::File::Type getFileType() override;
-
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-};
-
+Util::File::Type RandomNode::getFileType() {
+    return Util::File::CHARACTER;
 }
 
-#endif
+uint64_t RandomNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    auto target = Util::Memory::Address<uint32_t>(targetBuffer);
+    auto random = Util::Math::Random();
+
+    for (uint32_t i = 0; i < numBytes; i++) {
+        target.setByte(static_cast<uint8_t>(random.nextRandomNumber() * UINT8_MAX), i);
+    }
+
+    return numBytes;
+}
+
+}

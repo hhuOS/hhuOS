@@ -53,6 +53,7 @@
 #include "device/sound/speaker/PcSpeakerNode.h"
 #include "filesystem/memory/NullNode.h"
 #include "filesystem/memory/ZeroNode.h"
+#include "filesystem/memory/RandomNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -227,6 +228,7 @@ void GatesOfHell::initializeFilesystem() {
     filesystemService.createFile("/device/log");
     deviceDriver->addNode("/", new Filesystem::Memory::NullNode());
     deviceDriver->addNode("/", new Filesystem::Memory::ZeroNode());
+    deviceDriver->addNode("/", new Filesystem::Memory::RandomNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
     deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 

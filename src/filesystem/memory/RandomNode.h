@@ -15,35 +15,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NULLNODE_H
-#define HHUOS_NULLNODE_H
+#ifndef HHUOS_RANDOMNODE_H
+#define HHUOS_RANDOMNODE_H
 
 #include "MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-class NullNode : public MemoryNode {
+class RandomNode : public MemoryNode {
 
 public:
     /**
      * Constructor.
      */
-    NullNode();
+    RandomNode();
 
     /**
      * Copy Constructor.
      */
-    NullNode(const NullNode &copy) = delete;
+    RandomNode(const RandomNode &copy) = delete;
 
     /**
      * Assignment operator.
      */
-    NullNode& operator=(const NullNode &other) = delete;
+    RandomNode &operator=(const RandomNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~NullNode() override = default;
+    ~RandomNode() override = default;
 
     /**
      * Overriding function from Node.
@@ -53,7 +53,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 };
 
 }
