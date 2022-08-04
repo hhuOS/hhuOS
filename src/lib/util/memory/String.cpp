@@ -490,4 +490,8 @@ int32_t String::parseInt(const String &string) {
     return parseInt(static_cast<const char*>(string));
 }
 
+bool String::contains(char c) const {
+    return indexOf(c) < UINT32_MAX;
+}
+
 }

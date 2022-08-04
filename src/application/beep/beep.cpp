@@ -51,14 +51,12 @@ int32_t main(int32_t argc, char *argv[]) {
             }
 
             writer << split[0] << Util::Stream::PrintWriter::flush;
+
             auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength()) + " Hz";
             Util::System::out << frequencyString  << Util::Stream::PrintWriter::flush;
-            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(Util::Memory::String::parseInt(split[1])));
 
-            for (uint32_t i = 0; i < frequencyString.length(); i++) {
-                Util::System::out << "\b";
-            }
-            Util::System::out << Util::Stream::PrintWriter::flush;
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(Util::Memory::String::parseInt(split[1])));
+            Util::System::out << "\u001b[1K\u001b[0G" << Util::Stream::PrintWriter::flush;
 
             currentBuffer = "";
         }

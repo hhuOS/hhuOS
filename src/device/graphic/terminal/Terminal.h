@@ -22,6 +22,7 @@
 #include "lib/util/memory/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Ansi.h"
 
 namespace Device::Graphic {
 
@@ -57,6 +58,12 @@ public:
 
 private:
 
+    void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);
+
+    void parseSetCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode);
+
+    void parseEraseSequence(const Util::Memory::String &escapeSequence, char endCode);
+
     [[nodiscard]] static Util::Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
 
     [[nodiscard]] static Util::Graphic::Color parseComplexColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
@@ -67,7 +74,7 @@ private:
 
     void parseGraphicRendition(uint8_t code);
 
-    Util::Memory::String currentEscapeCode;
+    Util::Memory::String currentEscapeSequence;
     bool isEscapeActive = false;
 
     Util::Graphic::Color foregroundBaseColor = Util::Graphic::Colors::WHITE;
@@ -84,6 +91,10 @@ private:
     const uint16_t columns;
     const uint16_t rows;
 
+    uint16_t savedColumn;
+    uint16_t saveRow;
+
+    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmsu");
 };
 
 }

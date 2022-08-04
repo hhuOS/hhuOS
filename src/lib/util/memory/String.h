@@ -69,6 +69,8 @@ public:
 
     [[nodiscard]] bool endsWith(const String &string) const;
 
+    [[nodiscard]] bool contains(char c) const;
+
     [[nodiscard]] static String join(const String &separator, const Util::Data::Array<String> &elements);
 
     [[nodiscard]] static String format(const char *format, ...);

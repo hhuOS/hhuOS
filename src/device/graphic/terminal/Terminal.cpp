@@ -16,7 +16,6 @@
  */
 
 #include "lib/util/Exception.h"
-#include "lib/util/graphic/Ansi.h"
 #include "Terminal.h"
 
 namespace Device::Graphic {
@@ -52,76 +51,209 @@ void Terminal::write(uint8_t c) {
         isEscapeActive = true;
     }
 
-    if (isEscapeActive && c == Util::Graphic::Ansi::ESCAPE_END) {
-        if (currentEscapeCode[1] == '[') {
-            currentEscapeCode = currentEscapeCode.substring(2, currentEscapeCode.length());
-        } else {
-            currentEscapeCode = currentEscapeCode.substring(1, currentEscapeCode.length());
-        }
-
-        const auto codes = currentEscapeCode.split(';');
-
-        for (uint32_t i = 0; i < codes.length(); i++) {
-            int32_t code = Util::Memory::String::parseInt(codes[i]);
-
-            if (code < 30) {
-                parseGraphicRendition(code);
-            } else if (code < 40) {
-                foregroundBaseColor = getColor(code - 30, Util::Graphic::Colors::WHITE, codes, i);
-                brightForeground = false;
-            } else if (code < 50) {
-                backgroundBaseColor = getColor(code - 40, Util::Graphic::Colors::BLACK, codes, i);
-                brightBackground = false;
-            } else if (code < 98) {
-                foregroundBaseColor = getColor(code - 90, Util::Graphic::Colors::WHITE, codes, i);
-                brightForeground = true;
-            } else if (code < 108) {
-                backgroundBaseColor = getColor(code - 100, Util::Graphic::Colors::BLACK, codes, i);
-                brightBackground = true;
+    if (isEscapeActive) {
+        if (escapeEndCodes.contains(c)) {
+            auto escapeSequence = currentEscapeSequence.substring(2, currentEscapeSequence.length());
+            switch (c) {
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 's': case 'u':
+                    parseSetCursorEscapeSequence(escapeSequence, c);
+                    break;
+                case 'J': case 'K':
+                    parseEraseSequence(escapeSequence, c);
+                    break;
+                case 'm':
+                    parseColorEscapeSequence(escapeSequence);
+                    break;
+                default:
+                    break;
             }
+
+            isEscapeActive = false;
+            currentEscapeSequence = "";
+        } else {
+            currentEscapeSequence += c;
         }
-
-        Util::Graphic::Color foreground = foregroundBaseColor;
-        Util::Graphic::Color background = backgroundBaseColor;
-
-        if (invert) {
-            Util::Graphic::Color tmp = foreground;
-            foreground = background;
-            background = tmp;
-        }
-
-        if (bright || brightForeground) {
-            foreground = foreground.bright();
-        }
-
-        if (dim) {
-            foreground = foreground.dim();
-        }
-
-        if (brightBackground) {
-            background = background.bright();
-        }
-
-        foregroundColor = foreground;
-        backgroundColor = background;
-
-        isEscapeActive = false;
-        currentEscapeCode = "";
-    } else if (isEscapeActive) {
-        currentEscapeCode += c;
     } else {
         putChar(c, foregroundColor, backgroundColor);
     }
 }
 
 void Terminal::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (offset < 0 || length < 0) {
-        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "OutputStream: Negative offset or size!");
-    }
-
     for (uint32_t i = 0; i < length; i++) {
         write(sourceBuffer[offset + i]);
     }
+}
+
+void Terminal::parseColorEscapeSequence(const Util::Memory::String &escapeSequence) {
+    const auto codes = escapeSequence.split(';');
+
+    for (uint32_t i = 0; i < codes.length(); i++) {
+        int32_t code = Util::Memory::String::parseInt(codes[i]);
+
+        if (code < 30) {
+            parseGraphicRendition(code);
+        } else if (code < 40) {
+            foregroundBaseColor = getColor(code - 30, Util::Graphic::Colors::WHITE, codes, i);
+            brightForeground = false;
+        } else if (code < 50) {
+            backgroundBaseColor = getColor(code - 40, Util::Graphic::Colors::BLACK, codes, i);
+            brightBackground = false;
+        } else if (code < 98) {
+            foregroundBaseColor = getColor(code - 90, Util::Graphic::Colors::WHITE, codes, i);
+            brightForeground = true;
+        } else if (code < 108) {
+            backgroundBaseColor = getColor(code - 100, Util::Graphic::Colors::BLACK, codes, i);
+            brightBackground = true;
+        }
+    }
+
+    Util::Graphic::Color foreground = foregroundBaseColor;
+    Util::Graphic::Color background = backgroundBaseColor;
+
+    if (invert) {
+        Util::Graphic::Color tmp = foreground;
+        foreground = background;
+        background = tmp;
+    }
+
+    if (bright || brightForeground) {
+        foreground = foreground.bright();
+    }
+
+    if (dim) {
+        foreground = foreground.dim();
+    }
+
+    if (brightBackground) {
+        background = background.bright();
+    }
+
+    foregroundColor = foreground;
+    backgroundColor = background;
+}
+
+void Terminal::parseSetCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode) {
+    switch (endCode) {
+        case 'A': {
+            const auto row = getCurrentRow() - Util::Memory::String::parseInt(escapeSequence);
+            setPosition(getCurrentColumn(), row);
+            break;
+        }
+        case 'B': {
+            const auto row = getCurrentRow() + Util::Memory::String::parseInt(escapeSequence);
+            setPosition(getCurrentColumn(), row);
+            break;
+        }
+        case 'C': {
+            const auto column = getCurrentColumn() + Util::Memory::String::parseInt(escapeSequence);
+            setPosition(column, getCurrentRow());
+            break;
+        }
+        case 'D': {
+            const auto column = getCurrentColumn() - Util::Memory::String::parseInt(escapeSequence);
+            setPosition(column, getCurrentRow());
+            break;
+        }
+        case 'E': {
+            const auto row = getCurrentRow() + Util::Memory::String::parseInt(escapeSequence) + 1;
+            setPosition(0, row);
+            break;
+        }
+        case 'F': {
+            const auto row = getCurrentRow() - Util::Memory::String::parseInt(escapeSequence) - 1;
+            setPosition(0, row);
+            break;
+        }
+        case 'G': {
+            const auto column = Util::Memory::String::parseInt(escapeSequence);
+            setPosition(column, getCurrentRow());
+            break;
+        }
+        case 'H': {
+            if (escapeSequence.isEmpty()) {
+                setPosition(0, 0);
+                return;
+            }
+
+            auto codes = escapeSequence.split(";");
+            if (codes.length() < 2) {
+                return;
+            }
+
+            setPosition(Util::Memory::String::parseInt(codes[1]), Util::Memory::String::parseInt(codes[0]));
+            break;
+        }
+        case 's': {
+            savedColumn = getCurrentColumn();
+            saveRow = getCurrentRow();
+            break;
+        }
+        case 'u': {
+            setPosition(savedColumn, saveRow);
+            break;
+        }
+        default:
+            break;
+    }
+}
+
+void Terminal::parseEraseSequence(const Util::Memory::String &escapeSequence, char endCode) {
+    const auto code = escapeSequence.isEmpty() ? 0 : Util::Memory::String::parseInt(escapeSequence);
+    const auto column = getCurrentColumn();
+    const auto row = getCurrentRow();
+
+    switch (endCode) {
+        case 'J': {
+            switch (code) {
+                case 0:
+                    while (getCurrentColumn() < getColumns() || getCurrentRow() < getRows()) {
+                        putChar(' ', foregroundColor, backgroundColor);
+                    }
+                    break;
+                case 1:
+                    setPosition(0, 0);
+                    while (getCurrentColumn() <= column || getCurrentRow() <= row) {
+                        putChar(' ', foregroundColor, backgroundColor);
+                    }
+                    break;
+                case 2:
+                    clear(backgroundColor);
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        case 'K': {
+            switch (code) {
+                case 0:
+                    while (getCurrentColumn() < getColumns()) {
+                        putChar(' ', foregroundColor, backgroundColor);
+                    }
+                    break;
+                case 1:
+                    setPosition(0, row);
+                    while (getCurrentColumn() <= column) {
+                        putChar(' ', foregroundColor, backgroundColor);
+                    }
+                    break;
+                case 2:
+                    setPosition(0, row);
+                    while (getCurrentColumn() < getColumns()) {
+                        putChar(' ', foregroundColor, backgroundColor);
+                    }
+                    break;
+                default:
+                    break;
+            }
+            break;
+        }
+        default:
+            break;
+    }
+
+
+    setPosition(column, row);
 }
 
 uint16_t Terminal::getColumns() const {

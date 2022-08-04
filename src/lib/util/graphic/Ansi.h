@@ -110,7 +110,12 @@ public:
     static const constexpr char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
     static const constexpr char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
 
-    static const constexpr char ESCAPE_END = 'm';
+    static const constexpr char *ERASE_SCREEN_FROM_CURSOR = "\u001b[0J";
+    static const constexpr char *ERASE_SCREEN_TO_CURSOR = "\u001b[1J";
+    static const constexpr char *ERASE_SCREEN = "\u001b[2J";
+    static const constexpr char *ERASE_LINE_FROM_CURSOR = "\u001b[0K";
+    static const constexpr char *ERASE_LINE_TO_CURSOR = "\u001b[1K";
+    static const constexpr char *ERASE_LINE = "\u001b[2K";
 
 private:
 
