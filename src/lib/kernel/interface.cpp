@@ -140,6 +140,10 @@ void sleep(const Util::Time::Timestamp &time) {
     }
 }
 
+void yield() {
+    Kernel::System::getService<Kernel::SchedulerService>().yield();
+}
+
 Util::Time::Timestamp getSystemTime() {
     return Kernel::System::getService<Kernel::TimeService>().getSystemTime();
 }

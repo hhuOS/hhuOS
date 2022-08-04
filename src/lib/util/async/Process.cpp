@@ -32,7 +32,7 @@ Process Process::getCurrentProcess() {
 }
 
 void Process::yield() {
-    System::System::call(System::System::SCHEDULER_YIELD, 0);
+    System::System::call(System::System::YIELD, 0);
 }
 
 void Process::exit(int32_t exitCode) {

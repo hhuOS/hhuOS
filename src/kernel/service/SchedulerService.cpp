@@ -38,7 +38,7 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
         log.warn("No FPU present");
     }
 
-    SystemCall::registerSystemCall(Util::System::SCHEDULER_YIELD, [](uint32_t, va_list) -> Util::System::Result {
+    SystemCall::registerSystemCall(Util::System::YIELD, [](uint32_t, va_list) -> Util::System::Result {
         System::getService<SchedulerService>().yield();
         return Util::System::Result::OK;
     });

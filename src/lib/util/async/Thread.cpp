@@ -34,4 +34,8 @@ void Thread::sleep(const Time::Timestamp &time) {
     ::sleep(time);
 }
 
+void Thread::yield() {
+    ::yield();
+}
+
 }

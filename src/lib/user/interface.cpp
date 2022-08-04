@@ -143,6 +143,10 @@ void sleep(const Util::Time::Timestamp &time) {
     Util::System::call(Util::System::SLEEP, 1, &time);
 }
 
+void yield() {
+    Util::System::call(Util::System::YIELD, 0);
+}
+
 Util::Time::Timestamp getSystemTime() {
     Util::Time::Timestamp systemTime;
     Util::System::call(Util::System::GET_SYSTEM_TIME, 1, &systemTime);

@@ -31,7 +31,7 @@ class System {
 public:
 
     enum Code : uint16_t {
-        SCHEDULER_YIELD,
+        YIELD,
         EXIT_PROCESS,
         EXECUTE_BINARY,
         GET_CURRENT_PROCESS,

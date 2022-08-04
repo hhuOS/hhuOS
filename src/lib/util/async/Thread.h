@@ -50,6 +50,8 @@ public:
 
     static void sleep(const Time::Timestamp &time);
 
+    static void yield();
+
     [[nodiscard]] uint32_t getId() const;
 
 private:

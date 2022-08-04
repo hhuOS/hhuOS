@@ -57,7 +57,7 @@ public:
 
     [[nodiscard]] String substring(uint32_t begin, uint32_t end) const;
 
-    [[nodiscard]] String strip();
+    [[nodiscard]] String strip() const;
 
     [[nodiscard]] Data::Array<String> split(const String &delimiter, uint32_t limit = 0) const;
 

@@ -19,6 +19,7 @@
 #include "lib/util/Exception.h"
 #include "PipedOutputStream.h"
 #include "PipedInputStream.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util::Stream {
 
@@ -57,7 +58,10 @@ int32_t PipedInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t 
         return 0;
     }
 
-    while (inPosition < 0);  // Block while buffer is empty
+    // Block while buffer is empty
+    while (inPosition < 0) {
+        Async::Thread::yield();
+    }
 
     uint32_t remaining = length;
     uint32_t ret = 0;
@@ -108,7 +112,10 @@ void PipedInputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint3
     uint32_t remaining = length;
 
     while (remaining > 0) {
-        while (inPosition == outPosition); // Block while buffer is full
+        // Block while buffer is full
+        while (inPosition == outPosition) {
+            Async::Thread::yield();
+        }
 
         if (inPosition < 0) { // Buffer is empty
             inPosition = 0;

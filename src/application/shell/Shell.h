@@ -62,7 +62,7 @@ private:
 
     static void cd(const Util::Data::Array<Util::Memory::String> &arguments);
 
-    static void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath);
+    static void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath, bool async);
 
     bool isRunning = true;
     Util::Memory::String startDirectory;

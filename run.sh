@@ -31,7 +31,7 @@ readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=flopp
 readonly CONST_QEMU_ARGS="-boot d -vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
 
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
-readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev alsa,id=alsa -machine pcspk-audiodev=alsa"
+readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev id=pa,driver=pa -machine pcspk-audiodev=pa"
 
 QEMU_BIN="${CONST_QEMU_BIN_I386}"
 QEMU_MACHINE="${CONST_QEMU_MACHINE_PC}"

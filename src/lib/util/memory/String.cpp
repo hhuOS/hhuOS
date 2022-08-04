@@ -363,7 +363,7 @@ bool String::isNumeric(const char c) {
     return (c >= '0' && c <= '9');
 }
 
-String String::strip() {
+String String::strip() const {
     uint32_t startIndex = 0;
     char element;
 

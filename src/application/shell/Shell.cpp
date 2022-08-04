@@ -22,6 +22,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/system/System.h"
 #include "Shell.h"
+#include "lib/util/data/ArrayList.h"
 
 Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
 
@@ -46,7 +47,7 @@ void Shell::run() {
         Util::System::out << input << Util::Stream::PrintWriter::flush;
 
         if (input == '\n') {
-            parseInput(line);
+            parseInput(line.strip());
             line = "";
 
             if (isRunning) {
@@ -69,14 +70,16 @@ void Shell::beginCommandLine() {
 }
 
 void Shell::parseInput(const Util::Memory::String &input) {
-    const auto pipeSplit = input.split(">");
+    const auto async = input.endsWith("&");
+    const auto pipeSplit = input.substring(0, async ? input.length() - 1 : input.length()).split(">");
     if (pipeSplit.length() == 0) {
         return;
     }
 
     const auto command = pipeSplit[0].substring(0, input.indexOf(" "));
     const auto rest = pipeSplit[0].substring(input.indexOf(" "), input.length());
-    const auto arguments = rest.split(" ");
+    auto arguments = rest.split(" ");
+
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
     if (command.isEmpty()) {
@@ -88,9 +91,9 @@ void Shell::parseInput(const Util::Memory::String &input) {
     } else if (!command.isEmpty()) {
         auto binaryPath = checkPath(command);
         if (binaryPath.isEmpty()) {
-            executeBinary(command, command, arguments, targetFile);
+            executeBinary(command, command, arguments, targetFile, async);
         } else {
-            executeBinary(binaryPath, command, arguments, targetFile);
+            executeBinary(binaryPath, command, arguments, targetFile, async);
         }
     }
 }
@@ -130,7 +133,7 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
         return;
     }
 
-    auto path = arguments[0];
+    const auto &path = arguments[0];
     auto file = Util::File::File(path);
 
     if (!file.exists()) {
@@ -150,7 +153,7 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
     }
 }
 
-void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath) {
+void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath, bool async) {
     auto binaryFile = Util::File::File(path);
     auto outputFile = Util::File::File(outputPath);
 
@@ -170,5 +173,7 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
     }
 
     auto process = Util::Async::Process::execute(binaryFile, outputFile, command, arguments);
-    process.join();
+    if (!async) {
+        process.join();
+    }
 }
