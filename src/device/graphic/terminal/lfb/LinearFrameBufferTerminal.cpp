@@ -24,8 +24,8 @@ namespace Device::Graphic {
 
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
-        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb), font(font),
+        characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb, false),
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(font),
         cursorThread(Kernel::Thread::createKernelThread("Cursor", Kernel::System::getService<Kernel::SchedulerService>().getKernelProcess(), new CursorRunnable(*this, cursor))) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
     Kernel::System::getService<Kernel::SchedulerService>().ready(cursorThread);

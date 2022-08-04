@@ -293,7 +293,12 @@ void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
 
     uint8_t data = dataPort.readByte();
     if (decodeKey(data)) {
-        outputStream.write(gather.getAscii());
+        auto c = gather.getAscii();
+        if (gather.getCtrl()) {
+            c &= 0x1f;
+        }
+
+        outputStream.write(c);
     }
 }
 

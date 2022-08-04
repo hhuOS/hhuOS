@@ -40,11 +40,15 @@ void ByteArrayOutputStream::getContent(uint8_t *target, uint32_t length) const {
 }
 
 Memory::String ByteArrayOutputStream::getContent() const {
-    return Memory::String(buffer, position);
+    return {buffer, position};
 }
 
 uint32_t ByteArrayOutputStream::getSize() const {
     return position;
+}
+
+bool ByteArrayOutputStream::isEmpty() const {
+    return position == 0;
 }
 
 void ByteArrayOutputStream::reset() {

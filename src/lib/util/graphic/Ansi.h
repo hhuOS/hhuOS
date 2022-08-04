@@ -28,6 +28,17 @@ class Ansi {
 
 public:
 
+    enum Color : uint8_t {
+        BLACK = 0,
+        RED = 1,
+        GREEN = 2,
+        YELLOW = 3,
+        BLUE = 4,
+        MAGENTA = 5,
+        CYAN = 6,
+        WHITE = 7,
+    };
+
     enum GraphicRendition {
         NORMAL = 0,
         BRIGHT = 1,
@@ -44,6 +55,9 @@ public:
         RESET_INVERT = 27
     };
 
+    struct CursorPosition {
+        uint16_t column, row;
+    };
 
     /**
      * Default Constructor.
@@ -66,33 +80,87 @@ public:
      */
     ~Ansi() = default;
 
-    static Color get8BitColor(uint8_t index);
-
     static Memory::String foreground8BitColor(uint8_t colorIndex);
 
     static Memory::String background8BitColor(uint8_t colorIndex);
 
-    static Memory::String foreground24BitColor(const Color &color);
+    static Memory::String foreground24BitColor(const Graphic::Color &color);
 
-    static Memory::String background24BitColor(const Color &color);
+    static Memory::String background24BitColor(const Graphic::Color &color);
 
+    static void setForegroundColor(Color color, bool bright);
+
+    static void setBackgroundColor(Color color, bool bright);
+
+    static void setForegroundColor(uint8_t colorIndex);
+
+    static void setBackgroundColor(uint8_t colorIndex);
+
+    static void setForegroundColor(const Graphic::Color &color);
+
+    static void setBackgroundColor(const Graphic::Color &color);
+
+    static void resetForegroundColor();
+
+    static void resetBackgroundColor();
+
+    static void resetColorsAndEffects();
+
+    static void setPosition(CursorPosition position);
+
+    static void moveCursorUp(uint16_t lines);
+
+    static void moveCursorDown(uint16_t lines);
+
+    static void moveCursorRight(uint16_t columns);
+
+    static void moveCursorLeft(uint16_t columns);
+
+    static void moveCursorToBeginningOfNextLine(uint16_t offset);
+
+    static void moveCursorToBeginningOfPreviousLine(uint16_t offset);
+
+    static void setColumn(uint16_t column);
+
+    static void saveCursorPosition();
+
+    static void restoreCursorPosition();
+
+    static void clearScreen();
+
+    static void clearScreenFromCursor();
+
+    static void clearScreenToCursor();
+
+    static void clearLine();
+
+    static void clearLineFromCursor();
+
+    static void clearLineToCursor();
+
+    [[nodiscard]] static CursorPosition getCursorPosition();
+
+    [[nodiscard]] static CursorPosition getCursorLimits();
+
+    static const constexpr char ESCAPE_SEQUENCE_START = 0x1b;
     static const constexpr char *RESET = "\u001b[0m";
-    static const constexpr char *BLACK = "\u001b[30m";
-    static const constexpr char *RED = "\u001b[31m";
-    static const constexpr char *GREEN = "\u001b[32m";
-    static const constexpr char *YELLOW = "\u001b[33m";
-    static const constexpr char *BLUE = "\u001b[34m";
-    static const constexpr char *MAGENTA = "\u001b[35m";
-    static const constexpr char *CYAN = "\u001b[36m";
-    static const constexpr char *WHITE = "\u001b[37m";
-    static const constexpr char *BRIGHT_BLACK = "\u001b[90m";
-    static const constexpr char *BRIGHT_RED = "\u001b[91m";
-    static const constexpr char *BRIGHT_GREEN = "\u001b[92m";
-    static const constexpr char *BRIGHT_YELLOW = "\u001b[93m";
-    static const constexpr char *BRIGHT_BLUE = "\u001b[94m";
-    static const constexpr char *BRIGHT_MAGENTA = "\u001b[95m";
-    static const constexpr char *BRIGHT_CYAN = "\u001b[96m";
-    static const constexpr char *BRIGHT_WHITE = "\u001b[97m";
+    static const constexpr char *FOREGROUND_BLACK = "\u001b[30m";
+    static const constexpr char *FOREGROUND_RED = "\u001b[31m";
+    static const constexpr char *FOREGROUND_GREEN = "\u001b[32m";
+    static const constexpr char *FOREGROUND_YELLOW = "\u001b[33m";
+    static const constexpr char *FOREGROUND_BLUE = "\u001b[34m";
+    static const constexpr char *FOREGROUND_MAGENTA = "\u001b[35m";
+    static const constexpr char *FOREGROUND_CYAN = "\u001b[36m";
+    static const constexpr char *FOREGROUND_WHITE = "\u001b[37m";
+    static const constexpr char *FOREGROUND_DEFAULT = "\u001b[39m";
+    static const constexpr char *FOREGROUND_BRIGHT_BLACK = "\u001b[90m";
+    static const constexpr char *FOREGROUND_BRIGHT_RED = "\u001b[91m";
+    static const constexpr char *FOREGROUND_BRIGHT_GREEN = "\u001b[92m";
+    static const constexpr char *FOREGROUND_BRIGHT_YELLOW = "\u001b[93m";
+    static const constexpr char *FOREGROUND_BRIGHT_BLUE = "\u001b[94m";
+    static const constexpr char *FOREGROUND_BRIGHT_MAGENTA = "\u001b[95m";
+    static const constexpr char *FOREGROUND_BRIGHT_CYAN = "\u001b[96m";
+    static const constexpr char *FOREGROUND_BRIGHT_WHITE = "\u001b[97m";
     static const constexpr char *BACKGROUND_BLACK = "\u001b[40m";
     static const constexpr char *BACKGROUND_RED = "\u001b[41m";
     static const constexpr char *BACKGROUND_GREEN = "\u001b[42m";
@@ -101,6 +169,7 @@ public:
     static const constexpr char *BACKGROUND_MAGENTA = "\u001b[45m";
     static const constexpr char *BACKGROUND_CYAN = "\u001b[46m";
     static const constexpr char *BACKGROUND_WHITE = "\u001b[47m";
+    static const constexpr char *BACKGROUND_DEFAULT = "\u001b[49m";
     static const constexpr char *BACKGROUND_BRIGHT_BLACK = "\u001b[100m";
     static const constexpr char *BACKGROUND_BRIGHT_RED = "\u001b[101m";
     static const constexpr char *BACKGROUND_BRIGHT_GREEN = "\u001b[102m";
@@ -110,16 +179,9 @@ public:
     static const constexpr char *BACKGROUND_BRIGHT_CYAN = "\u001b[106m";
     static const constexpr char *BACKGROUND_BRIGHT_WHITE = "\u001b[107m";
 
-    static const constexpr char *ERASE_SCREEN_FROM_CURSOR = "\u001b[0J";
-    static const constexpr char *ERASE_SCREEN_TO_CURSOR = "\u001b[1J";
-    static const constexpr char *ERASE_SCREEN = "\u001b[2J";
-    static const constexpr char *ERASE_LINE_FROM_CURSOR = "\u001b[0K";
-    static const constexpr char *ERASE_LINE_TO_CURSOR = "\u001b[1K";
-    static const constexpr char *ERASE_LINE = "\u001b[2K";
+    static const Graphic::Color colorTable256[256];
 
 private:
-
-    static const Graphic::Color colorTable256[256];
 
 };
 

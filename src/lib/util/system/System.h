@@ -23,6 +23,9 @@
 #include "lib/util/stream/FileOutputStream.h"
 #include "lib/util/stream/BufferedOutputStream.h"
 #include "lib/util/stream/PrintWriter.h"
+#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/stream/BufferedInputStream.h"
+#include "lib/util/stream/InputStreamReader.h"
 
 namespace Util {
 
@@ -89,6 +92,7 @@ public:
     static Result call(Code code, uint32_t paramCount...);
 
     static Util::Stream::PrintWriter out;
+    static Util::Stream::InputStreamReader in;
     static const char *errorMessage;
 
 private:
@@ -97,6 +101,9 @@ private:
 
     static Util::Stream::FileOutputStream outStream;
     static Util::Stream::BufferedOutputStream bufferedOutStream;
+
+    static Util::Stream::FileInputStream inStream;
+    static Util::Stream::BufferedInputStream bufferedInStream;
 
 };
 

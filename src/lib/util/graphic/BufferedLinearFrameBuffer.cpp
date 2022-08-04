@@ -21,9 +21,9 @@
 
 namespace Util::Graphic {
 
-BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb) :
+BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration) :
         LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()),
-        targetBuffer(*Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)) {
+        targetBuffer(enableAcceleration ? *Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Memory::Address<uint32_t>(lfb.getBuffer())) {
     clear();
 }
 

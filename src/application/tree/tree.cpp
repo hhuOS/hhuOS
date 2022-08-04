@@ -31,7 +31,7 @@ void treeDirectory(const Util::Memory::String &path, uint32_t level) {
         string += "-";
     }
 
-    string += Util::File::getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
+    string += Util::File::getFileColor(file) + file.getName() + (file.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
     Util::System::out << string << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
     if (file.isDirectory()) {

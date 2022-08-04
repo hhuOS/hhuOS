@@ -23,16 +23,16 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Fonts.h"
-#include "lib/util/async/Spinlock.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/BufferScroller.h"
-#include "device/graphic/terminal/Terminal.h"
+#include "lib/util/graphic/Terminal.h"
 #include "kernel/process/Thread.h"
 #include "CursorRunnable.h"
 
 namespace Device::Graphic {
 
-class LinearFrameBufferTerminal : public Terminal {
+class LinearFrameBufferTerminal : public Util::Graphic::Terminal {
 
 public:
 
@@ -88,7 +88,7 @@ private:
     uint16_t currentRow = 0;
 
     Kernel::Thread &cursorThread;
-    Util::Async::Spinlock cursorLock;
+    Util::Async::ReentrantSpinlock cursorLock;
 };
 
 }

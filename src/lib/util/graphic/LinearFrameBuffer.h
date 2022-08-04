@@ -40,7 +40,7 @@ public:
      * @param colorDepth The color colorDepth
      * @param pitch The pitch
      */
-    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
 
     /**
      * Constructor.
@@ -51,9 +51,9 @@ public:
      * @param colorDepth The color colorDepth
      * @param pitch The pitch
      */
-    LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
 
-    explicit LinearFrameBuffer(const File::File &file);
+    explicit LinearFrameBuffer(const File::File &file, bool enableAcceleration = true);
 
     /**
      * Assignment operator.

@@ -20,7 +20,7 @@
 
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
-#include "device/graphic/terminal/Terminal.h"
+#include "lib/util/graphic/Terminal.h"
 #include "lib/util/reflection/Prototype.h"
 
 namespace Device::Graphic {
@@ -79,7 +79,7 @@ public:
      * @param modeInfo Information about the desired terminal resolution
      * @param filename The name of the file, representing the created terminal in '/device/'
      */
-    virtual Terminal* initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
+    virtual Util::Graphic::Terminal* initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
 
     /**
      * Get all available graphics modes.

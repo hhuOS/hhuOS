@@ -164,14 +164,14 @@ File getCurrentWorkingDirectory() {
 const char* getFileColor(const File &file) {
     switch (file.getType()) {
         case DIRECTORY:
-            return Util::Graphic::Ansi::BRIGHT_BLUE;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;
         case REGULAR:
-            return Util::Graphic::Ansi::WHITE;
+            return Util::Graphic::Ansi::FOREGROUND_WHITE;
         case CHARACTER:
-            return Util::Graphic::Ansi::BRIGHT_YELLOW;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW;
     }
 
-    return Util::Graphic::Ansi::WHITE;
+    return Util::Graphic::Ansi::FOREGROUND_WHITE;
 }
 
 }

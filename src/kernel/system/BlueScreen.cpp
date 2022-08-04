@@ -15,15 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "BlueScreen.h"
-#include "Symbols.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Fonts.h"
-#include "device/cpu/Cpu.h"
 #include "kernel/paging/MemoryLayout.h"
+#include "device/cpu/Cpu.h"
+#include "lib/util/graphic/Fonts.h"
 #include "lib/util/system/System.h"
+#include "Symbols.h"
+#include "BlueScreen.h"
 
 namespace Kernel {
 
@@ -58,7 +55,7 @@ void BlueScreen::setCgaMode(uint32_t address, uint16_t columns, uint16_t rows) {
 }
 
 void BlueScreen::show(const InterruptFrame &frame) {
-    auto lfb = Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(fbAddress), fbResX, fbResY, fbColorDepth, fbPitch);
+    auto lfb = Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(fbAddress), fbResX, fbResY, fbColorDepth, fbPitch, false);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 

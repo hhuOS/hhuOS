@@ -30,7 +30,7 @@ public:
      *
      * @param lfb The linear frame buffer on which to draw pixels.
      */
-    explicit BufferScroller(const LinearFrameBuffer &lfb);
+    explicit BufferScroller(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
 
     /**
      * Copy Constructor.

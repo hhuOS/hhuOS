@@ -30,7 +30,7 @@ public:
      *
      * @param lfb The linear frame buffer, that shall be double buffered.
      */
-    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb);
+    explicit BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration = true);
 
     /**
      * Assignment operator.

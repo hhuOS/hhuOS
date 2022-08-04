@@ -33,7 +33,7 @@ bool MultibootTerminalProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_EGA_TEXT && (frameBufferInfo.width == 80 || frameBufferInfo.width == 40) && frameBufferInfo.height == 25;
 }
 
-Device::Graphic::Terminal* MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal* MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been initializeAvailableDrives correctly by the bootloader!");
     }

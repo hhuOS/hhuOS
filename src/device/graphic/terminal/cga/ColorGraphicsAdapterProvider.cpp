@@ -2,7 +2,6 @@
 #include "device/bios/Bios.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
-#include "device/graphic/terminal/TerminalNode.h"
 #include "ColorGraphicsAdapterProvider.h"
 #include "ColorGraphicsAdapter.h"
 #include "kernel/system/BlueScreen.h"
@@ -39,7 +38,7 @@ bool ColorGraphicsAdapterProvider::isAvailable() {
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
 
-Terminal* ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal * ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
     }

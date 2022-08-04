@@ -56,6 +56,8 @@ int32_t main(int32_t argc, char *argv[]) {
             Util::System::out << frequencyString  << Util::Stream::PrintWriter::flush;
 
             Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(Util::Memory::String::parseInt(split[1])));
+            Util::Graphic::Ansi::clearLineToCursor();
+            Util::Graphic::Ansi::setColumn(0);
             Util::System::out << "\u001b[1K\u001b[0G" << Util::Stream::PrintWriter::flush;
 
             currentBuffer = "";

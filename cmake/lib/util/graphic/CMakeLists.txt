@@ -25,4 +25,5 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/LineDrawer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/LinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/PixelDrawer.cpp
-        ${HHUOS_SRC_DIR}/lib/util/graphic/StringDrawer.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/graphic/StringDrawer.cpp
+        ${HHUOS_SRC_DIR}/lib/util/graphic/Terminal.cpp)

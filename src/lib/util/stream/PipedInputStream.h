@@ -58,7 +58,7 @@ private:
     int32_t inPosition = -1;
     int32_t outPosition = 0;
 
-    static const constexpr uint32_t BUFFER_SIZE = 16;
+    static const constexpr uint32_t BUFFER_SIZE = 1024;
 
     friend class PipedOutputStream;
 

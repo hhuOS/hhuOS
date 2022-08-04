@@ -46,7 +46,7 @@ public:
     /**
      * Destructor.
      */
-    ~Shell() override;
+    ~Shell() override = default;
 
     void run() override;
 
@@ -66,7 +66,6 @@ private:
 
     bool isRunning = true;
     Util::Memory::String startDirectory;
-    Util::Stream::Reader *reader = nullptr;
 
     static const constexpr char *PATH = "/bin:/initrd/bin";
 };

@@ -16,10 +16,11 @@
  */
 
 #include "Ansi.h"
+#include "lib/util/system/System.h"
 
 namespace Util::Graphic {
 
-const Color Ansi::colorTable256[256] = {
+const Graphic::Color Ansi::colorTable256[256] = {
         // 16 predefined colors, matching the 4-bit ANSI colors
         Colors::BLACK, Colors::RED, Colors::GREEN, Colors::YELLOW,
         Colors::BLUE, Colors::MAGENTA, Colors::CYAN, Colors::WHITE,
@@ -27,128 +28,124 @@ const Color Ansi::colorTable256[256] = {
         Colors::BLUE.bright(), Colors::MAGENTA.bright(), Colors::CYAN.bright(), Colors::WHITE.bright(),
 
         // 216 colors
-        Color(0, 0, 0), Color(0, 0, 95), Color(0, 0, 135),
-        Color(0, 0, 175), Color(0, 0, 215), Color(0, 0, 255),
+        Graphic::Color(0, 0, 0), Graphic::Color(0, 0, 95), Graphic::Color(0, 0, 135),
+        Graphic::Color(0, 0, 175), Graphic::Color(0, 0, 215), Graphic::Color(0, 0, 255),
 
-        Color(0, 95, 0), Color(0, 95, 95), Color(0, 95, 135),
-        Color(0, 95, 175), Color(0, 95, 215), Color(0, 95, 255),
+        Graphic::Color(0, 95, 0), Graphic::Color(0, 95, 95), Graphic::Color(0, 95, 135),
+        Graphic::Color(0, 95, 175), Graphic::Color(0, 95, 215), Graphic::Color(0, 95, 255),
 
-        Color(0, 135, 0), Color(0, 135, 95), Color(0, 135, 135),
-        Color(0, 135, 175), Color(0, 135, 215), Color(0, 135, 255),
+        Graphic::Color(0, 135, 0), Graphic::Color(0, 135, 95), Graphic::Color(0, 135, 135),
+        Graphic::Color(0, 135, 175), Graphic::Color(0, 135, 215), Graphic::Color(0, 135, 255),
 
-        Color(0, 175, 0), Color(0, 175, 95), Color(0, 175, 135),
-        Color(0, 175, 175), Color(0, 175, 215), Color(0, 175, 255),
+        Graphic::Color(0, 175, 0), Graphic::Color(0, 175, 95), Graphic::Color(0, 175, 135),
+        Graphic::Color(0, 175, 175), Graphic::Color(0, 175, 215), Graphic::Color(0, 175, 255),
 
-        Color(0, 215, 0), Color(0, 215, 95), Color(0, 215, 135),
-        Color(0, 215, 175), Color(0, 215, 215), Color(0, 215, 255),
+        Graphic::Color(0, 215, 0), Graphic::Color(0, 215, 95), Graphic::Color(0, 215, 135),
+        Graphic::Color(0, 215, 175), Graphic::Color(0, 215, 215), Graphic::Color(0, 215, 255),
 
-        Color(0, 255, 0), Color(0, 255, 95), Color(0, 255, 135),
-        Color(0, 255, 175), Color(0, 255, 215), Color(0, 255, 255),
+        Graphic::Color(0, 255, 0), Graphic::Color(0, 255, 95), Graphic::Color(0, 255, 135),
+        Graphic::Color(0, 255, 175), Graphic::Color(0, 255, 215), Graphic::Color(0, 255, 255),
 
-        Color(95, 0, 0), Color(95, 0, 95), Color(95, 0, 135),
-        Color(95, 0, 175), Color(95, 0, 215), Color(95, 0, 255),
+        Graphic::Color(95, 0, 0), Graphic::Color(95, 0, 95), Graphic::Color(95, 0, 135),
+        Graphic::Color(95, 0, 175), Graphic::Color(95, 0, 215), Graphic::Color(95, 0, 255),
 
-        Color(95, 95, 0), Color(95, 95, 95), Color(95, 95, 135),
-        Color(95, 95, 175), Color(95, 95, 215), Color(95, 95, 255),
+        Graphic::Color(95, 95, 0), Graphic::Color(95, 95, 95), Graphic::Color(95, 95, 135),
+        Graphic::Color(95, 95, 175), Graphic::Color(95, 95, 215), Graphic::Color(95, 95, 255),
 
-        Color(95, 135, 0), Color(95, 135, 95), Color(95, 135, 135),
-        Color(95, 135, 175), Color(95, 135, 215), Color(95, 135, 255),
+        Graphic::Color(95, 135, 0), Graphic::Color(95, 135, 95), Graphic::Color(95, 135, 135),
+        Graphic::Color(95, 135, 175), Graphic::Color(95, 135, 215), Graphic::Color(95, 135, 255),
 
-        Color(95, 175, 0), Color(95, 175, 95), Color(95, 175, 135),
-        Color(95, 175, 175), Color(95, 175, 215), Color(95, 175, 255),
+        Graphic::Color(95, 175, 0), Graphic::Color(95, 175, 95), Graphic::Color(95, 175, 135),
+        Graphic::Color(95, 175, 175), Graphic::Color(95, 175, 215), Graphic::Color(95, 175, 255),
 
-        Color(95, 215, 0), Color(95, 215, 95), Color(95, 215, 135),
-        Color(95, 215, 175), Color(95, 215, 215), Color(95, 215, 255),
+        Graphic::Color(95, 215, 0), Graphic::Color(95, 215, 95), Graphic::Color(95, 215, 135),
+        Graphic::Color(95, 215, 175), Graphic::Color(95, 215, 215), Graphic::Color(95, 215, 255),
 
-        Color(95, 255, 0), Color(95, 255, 95), Color(95, 255, 135),
-        Color(95, 255, 175), Color(95, 255, 215), Color(95, 255, 255),
+        Graphic::Color(95, 255, 0), Graphic::Color(95, 255, 95), Graphic::Color(95, 255, 135),
+        Graphic::Color(95, 255, 175), Graphic::Color(95, 255, 215), Graphic::Color(95, 255, 255),
 
-        Color(135, 0, 0), Color(135, 0, 95), Color(135, 0, 135),
-        Color(135, 0, 175), Color(135, 0, 215), Color(135, 0, 255),
+        Graphic::Color(135, 0, 0), Graphic::Color(135, 0, 95), Graphic::Color(135, 0, 135),
+        Graphic::Color(135, 0, 175), Graphic::Color(135, 0, 215), Graphic::Color(135, 0, 255),
 
-        Color(135, 95, 0), Color(135, 95, 95), Color(135, 95, 135),
-        Color(135, 95, 175), Color(135, 95, 215), Color(135, 95, 255),
+        Graphic::Color(135, 95, 0), Graphic::Color(135, 95, 95), Graphic::Color(135, 95, 135),
+        Graphic::Color(135, 95, 175), Graphic::Color(135, 95, 215), Graphic::Color(135, 95, 255),
 
-        Color(135, 135, 0), Color(135, 135, 95), Color(135, 135, 135),
-        Color(135, 135, 175), Color(135, 135, 215), Color(135, 135, 255),
+        Graphic::Color(135, 135, 0), Graphic::Color(135, 135, 95), Graphic::Color(135, 135, 135),
+        Graphic::Color(135, 135, 175), Graphic::Color(135, 135, 215), Graphic::Color(135, 135, 255),
 
-        Color(135, 175, 0), Color(135, 175, 95), Color(135, 175, 135),
-        Color(135, 175, 175), Color(135, 175, 215), Color(135, 175, 255),
+        Graphic::Color(135, 175, 0), Graphic::Color(135, 175, 95), Graphic::Color(135, 175, 135),
+        Graphic::Color(135, 175, 175), Graphic::Color(135, 175, 215), Graphic::Color(135, 175, 255),
 
-        Color(135, 215, 0), Color(135, 215, 95), Color(135, 215, 135),
-        Color(135, 215, 175), Color(135, 215, 215), Color(135, 215, 255),
+        Graphic::Color(135, 215, 0), Graphic::Color(135, 215, 95), Graphic::Color(135, 215, 135),
+        Graphic::Color(135, 215, 175), Graphic::Color(135, 215, 215), Graphic::Color(135, 215, 255),
 
-        Color(135, 255, 0), Color(135, 255, 95), Color(135, 255, 135),
-        Color(135, 255, 175), Color(135, 255, 215), Color(135, 255, 255),
+        Graphic::Color(135, 255, 0), Graphic::Color(135, 255, 95), Graphic::Color(135, 255, 135),
+        Graphic::Color(135, 255, 175), Graphic::Color(135, 255, 215), Graphic::Color(135, 255, 255),
 
-        Color(175, 0, 0), Color(175, 0, 95), Color(175, 0, 135),
-        Color(175, 0, 175), Color(175, 0, 215), Color(175, 0, 255),
+        Graphic::Color(175, 0, 0), Graphic::Color(175, 0, 95), Graphic::Color(175, 0, 135),
+        Graphic::Color(175, 0, 175), Graphic::Color(175, 0, 215), Graphic::Color(175, 0, 255),
 
-        Color(175, 95, 0), Color(175, 95, 95), Color(175, 95, 135),
-        Color(175, 95, 175), Color(175, 95, 215), Color(175, 95, 255),
+        Graphic::Color(175, 95, 0), Graphic::Color(175, 95, 95), Graphic::Color(175, 95, 135),
+        Graphic::Color(175, 95, 175), Graphic::Color(175, 95, 215), Graphic::Color(175, 95, 255),
 
-        Color(175, 135, 0), Color(175, 135, 95), Color(175, 135, 135),
-        Color(175, 135, 175), Color(175, 135, 215), Color(175, 135, 255),
+        Graphic::Color(175, 135, 0), Graphic::Color(175, 135, 95), Graphic::Color(175, 135, 135),
+        Graphic::Color(175, 135, 175), Graphic::Color(175, 135, 215), Graphic::Color(175, 135, 255),
 
-        Color(175, 175, 0), Color(175, 175, 95), Color(175, 175, 135),
-        Color(175, 175, 175), Color(175, 175, 215), Color(175, 175, 255),
+        Graphic::Color(175, 175, 0), Graphic::Color(175, 175, 95), Graphic::Color(175, 175, 135),
+        Graphic::Color(175, 175, 175), Graphic::Color(175, 175, 215), Graphic::Color(175, 175, 255),
 
-        Color(175, 215, 0), Color(175, 215, 95), Color(175, 215, 135),
-        Color(175, 215, 175), Color(175, 215, 215), Color(175, 215, 255),
+        Graphic::Color(175, 215, 0), Graphic::Color(175, 215, 95), Graphic::Color(175, 215, 135),
+        Graphic::Color(175, 215, 175), Graphic::Color(175, 215, 215), Graphic::Color(175, 215, 255),
 
-        Color(175, 255, 0), Color(175, 255, 95), Color(175, 255, 135),
-        Color(175, 255, 175), Color(175, 255, 215), Color(175, 255, 255),
+        Graphic::Color(175, 255, 0), Graphic::Color(175, 255, 95), Graphic::Color(175, 255, 135),
+        Graphic::Color(175, 255, 175), Graphic::Color(175, 255, 215), Graphic::Color(175, 255, 255),
 
-        Color(215, 0, 0), Color(215, 0, 95), Color(215, 0, 135),
-        Color(215, 0, 175), Color(215, 0, 215), Color(215, 0, 255),
+        Graphic::Color(215, 0, 0), Graphic::Color(215, 0, 95), Graphic::Color(215, 0, 135),
+        Graphic::Color(215, 0, 175), Graphic::Color(215, 0, 215), Graphic::Color(215, 0, 255),
 
-        Color(215, 95, 0), Color(215, 95, 95), Color(215, 95, 135),
-        Color(215, 95, 175), Color(215, 95, 215), Color(215, 95, 255),
+        Graphic::Color(215, 95, 0), Graphic::Color(215, 95, 95), Graphic::Color(215, 95, 135),
+        Graphic::Color(215, 95, 175), Graphic::Color(215, 95, 215), Graphic::Color(215, 95, 255),
 
-        Color(215, 135, 0), Color(215, 135, 95), Color(215, 135, 135),
-        Color(215, 135, 175), Color(215, 135, 215), Color(215, 135, 255),
+        Graphic::Color(215, 135, 0), Graphic::Color(215, 135, 95), Graphic::Color(215, 135, 135),
+        Graphic::Color(215, 135, 175), Graphic::Color(215, 135, 215), Graphic::Color(215, 135, 255),
 
-        Color(215, 175, 0), Color(215, 175, 95), Color(215, 175, 135),
-        Color(215, 175, 175), Color(215, 175, 215), Color(215, 175, 255),
+        Graphic::Color(215, 175, 0), Graphic::Color(215, 175, 95), Graphic::Color(215, 175, 135),
+        Graphic::Color(215, 175, 175), Graphic::Color(215, 175, 215), Graphic::Color(215, 175, 255),
 
-        Color(215, 215, 0), Color(215, 215, 95), Color(215, 215, 135),
-        Color(215, 215, 175), Color(215, 215, 215), Color(215, 215, 255),
+        Graphic::Color(215, 215, 0), Graphic::Color(215, 215, 95), Graphic::Color(215, 215, 135),
+        Graphic::Color(215, 215, 175), Graphic::Color(215, 215, 215), Graphic::Color(215, 215, 255),
 
-        Color(215, 255, 0), Color(215, 255, 95), Color(215, 255, 135),
-        Color(215, 255, 175), Color(215, 255, 215), Color(215, 255, 255),
+        Graphic::Color(215, 255, 0), Graphic::Color(215, 255, 95), Graphic::Color(215, 255, 135),
+        Graphic::Color(215, 255, 175), Graphic::Color(215, 255, 215), Graphic::Color(215, 255, 255),
 
-        Color(255, 0, 0), Color(255, 0, 95), Color(255, 0, 135),
-        Color(255, 0, 175), Color(255, 0, 215), Color(255, 0, 255),
+        Graphic::Color(255, 0, 0), Graphic::Color(255, 0, 95), Graphic::Color(255, 0, 135),
+        Graphic::Color(255, 0, 175), Graphic::Color(255, 0, 215), Graphic::Color(255, 0, 255),
 
-        Color(255, 95, 0), Color(255, 95, 95), Color(255, 95, 135),
-        Color(255, 95, 175), Color(255, 95, 215), Color(255, 95, 255),
+        Graphic::Color(255, 95, 0), Graphic::Color(255, 95, 95), Graphic::Color(255, 95, 135),
+        Graphic::Color(255, 95, 175), Graphic::Color(255, 95, 215), Graphic::Color(255, 95, 255),
 
-        Color(255, 135, 0), Color(255, 135, 95), Color(255, 135, 135),
-        Color(255, 135, 175), Color(255, 135, 215), Color(255, 135, 255),
+        Graphic::Color(255, 135, 0), Graphic::Color(255, 135, 95), Graphic::Color(255, 135, 135),
+        Graphic::Color(255, 135, 175), Graphic::Color(255, 135, 215), Graphic::Color(255, 135, 255),
 
-        Color(255, 175, 0), Color(255, 175, 95), Color(255, 175, 135),
-        Color(255, 175, 175), Color(255, 175, 215), Color(255, 175, 255),
+        Graphic::Color(255, 175, 0), Graphic::Color(255, 175, 95), Graphic::Color(255, 175, 135),
+        Graphic::Color(255, 175, 175), Graphic::Color(255, 175, 215), Graphic::Color(255, 175, 255),
 
-        Color(255, 215, 0), Color(255, 215, 95), Color(255, 215, 135),
-        Color(255, 215, 175), Color(255, 215, 215), Color(255, 215, 255),
+        Graphic::Color(255, 215, 0), Graphic::Color(255, 215, 95), Graphic::Color(255, 215, 135),
+        Graphic::Color(255, 215, 175), Graphic::Color(255, 215, 215), Graphic::Color(255, 215, 255),
 
-        Color(255, 255, 0), Color(255, 255, 95), Color(255, 255, 135),
-        Color(255, 255, 175), Color(255, 255, 215), Color(255, 255, 255),
+        Graphic::Color(255, 255, 0), Graphic::Color(255, 255, 95), Graphic::Color(255, 255, 135),
+        Graphic::Color(255, 255, 175), Graphic::Color(255, 255, 215), Graphic::Color(255, 255, 255),
 
-        // 24 grayscale colors
-        Color(8, 8, 8), Color(18, 18, 18), Color(28, 28, 28),
-        Color(38, 38, 38), Color(48, 48, 48), Color(58, 58, 58),
-        Color(68, 68, 68), Color(78, 78, 78), Color(88, 88, 88),
-        Color(98, 98, 98), Color(108, 108, 108), Color(118, 118, 118),
-        Color(128, 128, 128), Color(138, 138, 138), Color(148, 148, 148),
-        Color(158, 158, 158), Color(168, 168, 168), Color(178, 178, 178),
-        Color(188, 188, 188), Color(198, 198, 198), Color(208, 208, 208),
-        Color(218, 218, 218), Color(228, 228, 228), Color(238, 238, 238)
+        // 24 grayscale Graphic::Colors
+        Graphic::Color(8, 8, 8), Graphic::Color(18, 18, 18), Graphic::Color(28, 28, 28),
+        Graphic::Color(38, 38, 38), Graphic::Color(48, 48, 48), Graphic::Color(58, 58, 58),
+        Graphic::Color(68, 68, 68), Graphic::Color(78, 78, 78), Graphic::Color(88, 88, 88),
+        Graphic::Color(98, 98, 98), Graphic::Color(108, 108, 108), Graphic::Color(118, 118, 118),
+        Graphic::Color(128, 128, 128), Graphic::Color(138, 138, 138), Graphic::Color(148, 148, 148),
+        Graphic::Color(158, 158, 158), Graphic::Color(168, 168, 168), Graphic::Color(178, 178, 178),
+        Graphic::Color(188, 188, 188), Graphic::Color(198, 198, 198), Graphic::Color(208, 208, 208),
+        Graphic::Color(218, 218, 218), Graphic::Color(228, 228, 228), Graphic::Color(238, 238, 238)
 };
-
-Color Ansi::get8BitColor(uint8_t index) {
-    return colorTable256[index];
-}
 
 Memory::String Ansi::foreground8BitColor(uint8_t colorIndex) {
     return Memory::String::format("\u001b[38;5;%um", colorIndex);
@@ -158,12 +155,136 @@ Memory::String Ansi::background8BitColor(uint8_t colorIndex) {
     return Memory::String::format("\u001b[48;5;%um", colorIndex);
 }
 
-Memory::String Ansi::foreground24BitColor(const Color &color) {
+Memory::String Ansi::foreground24BitColor(const Graphic::Color &color) {
     return Memory::String::format("\u001b[38;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
 }
 
-Memory::String Ansi::background24BitColor(const Color &color) {
+Memory::String Ansi::background24BitColor(const Graphic::Color &color) {
     return Memory::String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
+}
+
+void Ansi::setForegroundColor(Color color, bool bright) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << color + (bright ? 90 : 30) << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setBackgroundColor(Color color, bool bright) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << color + (bright ? 100 : 40) << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setForegroundColor(uint8_t colorIndex) {
+    System::out << "\u001b[38;5;" << Stream::PrintWriter::dec << colorIndex << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setBackgroundColor(uint8_t colorIndex) {
+    System::out << "\u001b[48;5;" << Stream::PrintWriter::dec << colorIndex << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setForegroundColor(const Graphic::Color &color) {
+    System::out << "\u001b[38;2;" << Stream::PrintWriter::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setBackgroundColor(const Graphic::Color &color) {
+    System::out << "\u001b[48;2;" << Stream::PrintWriter::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::resetForegroundColor() {
+    System::out << "\u001b[39m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::resetBackgroundColor() {
+    System::out << "\u001b[49m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::resetColorsAndEffects() {
+    System::out << "\u001b[0m" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setPosition(CursorPosition position) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << position.row << ";" << position.column << "H" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorUp(uint16_t lines) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << lines << "A" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorDown(uint16_t lines) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << lines << "B" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorRight(uint16_t columns) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << columns << "C" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorLeft(uint16_t columns) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << columns << "D" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorToBeginningOfNextLine(uint16_t offset) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << offset << "E" << Stream::PrintWriter::flush;
+}
+
+void Ansi::moveCursorToBeginningOfPreviousLine(uint16_t offset) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << offset << "F" << Stream::PrintWriter::flush;
+}
+
+void Ansi::setColumn(uint16_t column) {
+    System::out << "\u001b[" << Stream::PrintWriter::dec << column << "G" << Stream::PrintWriter::flush;
+}
+
+void Ansi::saveCursorPosition() {
+    System::out << "\u001b[s" << Stream::PrintWriter::flush;
+}
+
+void Ansi::restoreCursorPosition() {
+    System::out << "\u001b[u" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearScreen() {
+    System::out << "\u001b[2J" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearScreenFromCursor() {
+    System::out << "\u001b[0J" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearScreenToCursor() {
+    System::out << "\u001b[1J" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearLine() {
+    System::out << "\u001b[2K" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearLineFromCursor() {
+    System::out << "\u001b[0K" << Stream::PrintWriter::flush;
+}
+
+void Ansi::clearLineToCursor() {
+    System::out << "\u001b[1K" << Stream::PrintWriter::flush;
+}
+
+Ansi::CursorPosition Ansi::getCursorPosition() {
+    System::out << "\u001b[6n" << Stream::PrintWriter::flush;
+
+    Memory::String positionString;
+    char currentChar = System::in.read();
+    while (currentChar != 'R') {
+        positionString += currentChar;
+        currentChar = System::in.read();
+    }
+
+    auto split = positionString.substring(2).split(";");
+    return {static_cast<uint16_t>(Memory::String::parseInt(split[1])), static_cast<uint16_t>(Memory::String::parseInt(split[0]))};
+}
+
+Ansi::CursorPosition Ansi::getCursorLimits() {
+    auto position = getCursorPosition();
+    setPosition({UINT16_MAX, UINT16_MAX});
+
+    auto size = getCursorPosition();
+    setPosition(position);
+
+    return size;
 }
 
 }

@@ -138,9 +138,9 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
     uint32_t fraction = millis % 1000;
 
     const auto logMessage = Util::Memory::String::format("%s[%u.%03u]%s[%s]%s[%s] %s",
-        Util::Graphic::Ansi::CYAN, seconds, fraction,
+        Util::Graphic::Ansi::FOREGROUND_CYAN, seconds, fraction,
         getColor(level), getLevelAsString(level),
-        Util::Graphic::Ansi::RESET, static_cast<const char*>(name), static_cast<const char*>(message));
+        Util::Graphic::Ansi::FOREGROUND_DEFAULT, static_cast<const char*>(name), static_cast<const char*>(message));
 
     buffer.add(logMessage);
 
@@ -172,17 +172,17 @@ const char* Logger::getLevelAsString(const LogLevel &level) {
 const char* Logger::getColor(const Logger::LogLevel &level) {
     switch (level) {
         case TRACE:
-            return Util::Graphic::Ansi::BRIGHT_WHITE;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE;
         case DEBUG:
-            return Util::Graphic::Ansi::BRIGHT_GREEN;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN;
         case INFO:
-            return Util::Graphic::Ansi::BRIGHT_BLUE;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;
         case WARN:
-            return Util::Graphic::Ansi::BRIGHT_YELLOW;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW;
         case ERROR:
-            return Util::Graphic::Ansi::BRIGHT_RED;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_RED;
         default:
-            return Util::Graphic::Ansi::BRIGHT_WHITE;
+            return Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE;
     }
 }
 

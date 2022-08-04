@@ -20,6 +20,7 @@
 
 #include "lib/util/memory/String.h"
 #include "filesystem/core/Node.h"
+#include "lib/util/graphic/Ansi.h"
 
 namespace Util::File {
 

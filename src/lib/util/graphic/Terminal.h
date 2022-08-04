@@ -26,8 +26,9 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/stream/PipedOutputStream.h"
 #include "lib/util/async/Spinlock.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
 class Terminal : public Util::Stream::OutputStream, public Util::Stream::InputStream {
 
@@ -67,6 +68,44 @@ public:
 
 private:
 
+    class TerminalPipedOutputStream : public Util::Stream::PipedOutputStream {
+
+    public:
+        /**
+         * Constructor.
+         */
+        explicit TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize = LINE_BUFFER_SIZE);
+
+        /**
+         * Copy Constructor.
+         */
+        TerminalPipedOutputStream(const TerminalPipedOutputStream &copy) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        TerminalPipedOutputStream& operator=(const TerminalPipedOutputStream & other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~TerminalPipedOutputStream() override;
+
+        void write(uint8_t c) override;
+
+        void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+        void flush() override;
+
+    private:
+
+        Terminal &terminal;
+        Stream::ByteArrayOutputStream lineBufferStream;
+        uint8_t *lineBuffer;
+
+        static const constexpr uint32_t LINE_BUFFER_SIZE = 1024;
+    };
+
     void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);
 
     void parseCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode);
@@ -84,7 +123,7 @@ private:
     void parseGraphicRendition(uint8_t code);
 
     Util::Stream::PipedInputStream inputStream;
-    Util::Stream::PipedOutputStream outputStream;
+    TerminalPipedOutputStream outputStream;
 
     Util::Memory::String currentEscapeSequence;
     bool isEscapeActive = false;
@@ -104,7 +143,7 @@ private:
     const uint16_t rows;
 
     uint16_t savedColumn = 0;
-    uint16_t saveRow = 0;
+    uint16_t savedRow = 0;
 
     const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
 };

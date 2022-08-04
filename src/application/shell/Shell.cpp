@@ -15,20 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/InputStreamReader.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/async//Process.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/system/System.h"
+#include "lib/util/async/Process.h"
 #include "Shell.h"
-#include "lib/util/data/ArrayList.h"
 
 Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
-
-Shell::~Shell() {
-    delete reader;
-}
 
 void Shell::run() {
     if (!Util::File::changeDirectory(startDirectory)) {
@@ -36,16 +28,13 @@ void Shell::run() {
         return;
     }
 
-    auto inputStream = Util::Stream::FileInputStream("/device/terminal");
-    reader = new Util::Stream::InputStreamReader(inputStream);
+    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
     Util::Memory::String line = "";
 
     beginCommandLine();
 
     while (isRunning) {
-        char input = reader->read();
-        Util::System::out << input << Util::Stream::PrintWriter::flush;
-
+        char input = Util::System::in.read();
         if (input == '\n') {
             parseInput(line.strip());
             line = "";
@@ -53,9 +42,31 @@ void Shell::run() {
             if (isRunning) {
                 beginCommandLine();
             }
-        } else if (input == '\b') {
-            line = line.substring(0, line.length() - 1);
-        } else {
+        /*} else if (input == '\b') {
+            if (!line.isEmpty()) {
+                // Get current position
+                auto position = Util::Graphic::Ansi::getCursorPosition();
+
+                // Clear current position
+                Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+                Util::Graphic::Ansi::moveCursorLeft(1);
+
+                if (position.column == 0) {
+                    // Wrap around to previous line
+                    Util::Graphic::Ansi::setPosition({cursorLimits.column, static_cast<uint16_t>(position.row - 1)});
+                } else {
+                    // Move cursor to previous column
+                    Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(position.column - 1), position.row});
+                }
+
+                // Clear new position
+                Util::Graphic::Ansi::saveCursorPosition();
+                Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+                Util::Graphic::Ansi::restoreCursorPosition();
+
+                line = line.substring(0, line.length() - 1);
+            }*/
+        } else if (input >= 0x20) {
             line += input;
         }
     }
@@ -63,10 +74,10 @@ void Shell::run() {
 
 void Shell::beginCommandLine() {
     auto currentDirectory = Util::File::getCurrentWorkingDirectory();
-    Util::System::out << Util::Graphic::Ansi::BRIGHT_GREEN << "["
-                      << Util::Graphic::Ansi::BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
-                      << Util::Graphic::Ansi::BRIGHT_GREEN << "]> "
-                      << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
+                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
+                      << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
+                      << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::parseInput(const Util::Memory::String &input) {

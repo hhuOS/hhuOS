@@ -40,6 +40,8 @@ public:
 
     [[nodiscard]] uint32_t getSize() const;
 
+    [[nodiscard]] bool isEmpty() const;
+
     void getContent(uint8_t *target, uint32_t length) const;
 
     [[nodiscard]] Memory::String getContent() const;

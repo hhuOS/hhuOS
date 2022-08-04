@@ -30,12 +30,12 @@ void lsDirectory(const Util::Memory::String &path) {
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {
             const auto currentFile = Util::File::File(file.getCanonicalPath() + "/" + child);
-            string += Util::File::getFileColor(currentFile) + currentFile.getName() + (currentFile.isDirectory() ? "/" : "") + Util::Graphic::Ansi::RESET + " ";
+            string += Util::File::getFileColor(currentFile) + currentFile.getName() + (currentFile.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
         }
 
         string = string.substring(0, string.length() - 1);
     } else {
-        string += Util::Graphic::Ansi::BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::RESET;
+        string += Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW + file.getName() + Util::Graphic::Ansi::FOREGROUND_DEFAULT;
     }
 
     if (!string.isEmpty()) {

@@ -18,46 +18,24 @@
 #include "lib/util/Exception.h"
 #include "Terminal.h"
 
-namespace Device::Graphic {
+namespace Util::Graphic {
 
-Terminal::Terminal(uint16_t columns, uint16_t rows) : columns(columns), rows(rows) {
+Terminal::Terminal(uint16_t columns, uint16_t rows) : outputStream(*this), columns(columns), rows(rows) {
     outputStream.connect(inputStream);
 }
 
 void Terminal::write(uint8_t c) {
-    if (c == '\b') {
-        auto column = getCurrentColumn();
-        auto row = getCurrentRow();
-        if (column == 0) {
-            column = columns - 1;
-            row--;
-        } else {
-            column--;
-        }
-
-
-        putChar(' ', foregroundColor, backgroundColor);
-        setPosition(column, row);
-        putChar(' ', foregroundColor, backgroundColor);
-        setPosition(column, row);
-
-        return;
-    }
-
-    // Ignore carriage return
-    if (c == '\r') {
-        return;
-    }
-
-    if (c == '\u001b') {
+    if (c == Ansi::ESCAPE_SEQUENCE_START) {
         isEscapeActive = true;
+    } else if (c < 0x20 && c != '\n') {
+        return;
     }
 
     if (isEscapeActive) {
         if (escapeEndCodes.contains(c)) {
             auto escapeSequence = currentEscapeSequence.substring(2, currentEscapeSequence.length());
             switch (c) {
-            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'n': case 's': case 'u':
+            case 'A': case 'B': case 'C': case 'D': case 'E': case 'F': case 'G': case 'H': case 'f': case 'n': case 's': case 'u':
                     parseCursorEscapeSequence(escapeSequence, c);
                     break;
                 case 'J': case 'K':
@@ -146,40 +124,46 @@ void Terminal::parseCursorEscapeSequence(const Util::Memory::String &escapeSeque
     switch (endCode) {
         case 'A': {
             const auto row = getCurrentRow() - Util::Memory::String::parseInt(escapeSequence);
-            setPosition(getCurrentColumn(), row);
+            setPosition(getCurrentColumn(), row > 0 ? row : 0);
             break;
         }
         case 'B': {
             const auto row = getCurrentRow() + Util::Memory::String::parseInt(escapeSequence);
-            setPosition(getCurrentColumn(), row);
+            setPosition(getCurrentColumn(), row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'C': {
             const auto column = getCurrentColumn() + Util::Memory::String::parseInt(escapeSequence);
-            setPosition(column, getCurrentRow());
+            setPosition(column < getColumns() ? column : getColumns() - 1, getCurrentRow());
             break;
         }
         case 'D': {
             const auto column = getCurrentColumn() - Util::Memory::String::parseInt(escapeSequence);
-            setPosition(column, getCurrentRow());
+            setPosition(column > 0 ? column : 0, getCurrentRow());
             break;
         }
         case 'E': {
             const auto row = getCurrentRow() + Util::Memory::String::parseInt(escapeSequence) + 1;
-            setPosition(0, row);
+            setPosition(0, row < getRows() ? row : getRows() - 1);
             break;
         }
         case 'F': {
             const auto row = getCurrentRow() - Util::Memory::String::parseInt(escapeSequence) - 1;
-            setPosition(0, row);
+            setPosition(0, row > 0 ? row : 0);
             break;
         }
         case 'G': {
-            const auto column = Util::Memory::String::parseInt(escapeSequence);
+            auto column = Util::Memory::String::parseInt(escapeSequence);
+            if (column < 0) {
+                column = 0;
+            } else if (column > getColumns()) {
+                column = getColumns() - 1;
+            }
+
             setPosition(column, getCurrentRow());
             break;
         }
-        case 'H': {
+        case 'H': case 'f': {
             if (escapeSequence.isEmpty()) {
                 setPosition(0, 0);
                 return;
@@ -190,20 +174,39 @@ void Terminal::parseCursorEscapeSequence(const Util::Memory::String &escapeSeque
                 return;
             }
 
-            setPosition(Util::Memory::String::parseInt(codes[1]), Util::Memory::String::parseInt(codes[0]));
+            auto column = Util::Memory::String::parseInt(codes[1]);
+            auto row = Util::Memory::String::parseInt(codes[0]);
+
+            if (column < 0) {
+                column = 0;
+            } else if (column > getColumns()) {
+                column = getColumns() - 1;
+            }
+
+            if (row < 0) {
+                row = 0;
+            } else if (row > getRows()) {
+                row = getRows() - 1;
+            }
+
+            setPosition(column, row);
             break;
         }
         case 'n': {
-            auto positionString = Util::Memory::String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
-            outputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)), 0, positionString.length());
+            if (Util::Memory::String::parseInt(escapeSequence) == 6) {
+                auto positionString = Util::Memory::String::format("\u001b[%u;%uR", getCurrentRow(), getCurrentColumn());
+                outputStream.write(reinterpret_cast<const uint8_t*>(static_cast<const char*>(positionString)), 0, positionString.length());
+                outputStream.flush();
+            }
+            break;
         }
         case 's': {
             savedColumn = getCurrentColumn();
-            saveRow = getCurrentRow();
+            savedRow = getCurrentRow();
             break;
         }
         case 'u': {
-            setPosition(savedColumn, saveRow);
+            setPosition(savedColumn, savedRow);
             break;
         }
         default:
@@ -322,7 +325,7 @@ Util::Graphic::Color Terminal::parseComplexColor(const Util::Data::Array<Util::M
 
 Util::Graphic::Color Terminal::parse256Color(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index) {
     int32_t colorIndex = Util::Memory::String::parseInt(codes[index++]);
-    return Util::Graphic::Ansi::get8BitColor(colorIndex);
+    return Util::Graphic::Ansi::colorTable256[colorIndex];
 }
 
 Util::Graphic::Color Terminal::parseTrueColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index) {
@@ -365,6 +368,56 @@ void Terminal::parseGraphicRendition(uint8_t code) {
         default:
             break;
     }
+}
+
+Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize) : terminal(terminal), lineBufferStream(LINE_BUFFER_SIZE), lineBuffer(new uint8_t[lineBufferSize]) {}
+
+Terminal::TerminalPipedOutputStream::~TerminalPipedOutputStream() {
+    delete[] lineBuffer;
+}
+
+void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
+    if (c == '\b') {
+        if (!lineBufferStream.isEmpty()) {
+            auto column = terminal.getCurrentColumn();
+            auto row = terminal.getCurrentRow();
+            if (column == 0) {
+                column = terminal.getColumns() - 1;
+                row--;
+            } else {
+                column--;
+            }
+
+            terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
+            terminal.setPosition(column, row);
+            terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
+            terminal.setPosition(column, row);
+
+            auto lineLength = lineBufferStream.getSize() - 1;
+            lineBufferStream.getContent(lineBuffer, lineLength);
+            lineBufferStream.reset();
+            lineBufferStream.write(lineBuffer, 0, lineLength);
+        }
+    } else if (lineBufferStream.getSize() < LINE_BUFFER_SIZE) {
+        lineBufferStream.write(c);
+        terminal.write(c);
+
+        if (c == '\n') {
+            flush();
+        }
+    }
+}
+
+void Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++) {
+        write(sourceBuffer[offset + i]);
+    }
+}
+
+void Terminal::TerminalPipedOutputStream::flush() {
+    lineBufferStream.getContent(lineBuffer, lineBufferStream.getSize());
+    PipedOutputStream::write(lineBuffer, 0, lineBufferStream.getSize());
+    lineBufferStream.reset();
 }
 
 }

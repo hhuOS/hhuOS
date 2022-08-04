@@ -1,10 +1,8 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
-#include "device/graphic/terminal/TerminalNode.h"
-#include "LinearFrameBufferTerminalProvider.h"
-#include "LinearFrameBufferTerminal.h"
-#include "lib/util/stream/FileInputStream.h"
 #include "kernel/system/BlueScreen.h"
+#include "LinearFrameBufferTerminal.h"
+#include "LinearFrameBufferTerminalProvider.h"
 
 namespace Device::Graphic {
 
@@ -61,7 +59,7 @@ LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(const Util:
     uint16_t resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
     uint8_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
 
-    mode = { static_cast<uint16_t>(resolutionX / font.getCharWidth()), static_cast<uint16_t>(resolutionY / font.getCharHeight()), colorDepth, 0 };
+    mode = {static_cast<uint16_t>(resolutionX / font.getCharWidth()), static_cast<uint16_t>(resolutionY / font.getCharHeight()), colorDepth, 0};
     memorySize = resolutionX * resolutionY * (colorDepth == 15 ? 2 : colorDepth / 2);
 }
 
@@ -69,12 +67,12 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return Util::Data::Array<ModeInfo>({ mode });
 }
 
-Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
 
-    auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile, false);
     auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
     Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
     return terminal;

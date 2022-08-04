@@ -251,11 +251,11 @@ Address<T> Address<T>::searchCharacter(uint8_t character) const {
 template<typename T>
 Address<T> *Address<T>::createAcceleratedAddress(T address, bool &useMmx) {
     useMmx = false;
-    auto features = Cpu::CpuId::getCpuFeatures();
+    auto features = Cpu::CpuId::getCpuFeatureBits();
 
-    if (features.contains(Cpu::CpuId::SSE)) {
+    if ((features & Cpu::CpuId::SSE) != 0) {
         return new Memory::SseAddress<T>(address);
-    } else if (features.contains(Cpu::CpuId::MMX)) {
+    } else if ((features & Cpu::CpuId::MMX) != 0) {
         useMmx = true;
         return new Memory::MmxAddress<T>(address);
     }

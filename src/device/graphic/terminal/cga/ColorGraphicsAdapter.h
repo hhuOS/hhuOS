@@ -18,13 +18,13 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTER_H
 #define HHUOS_COLORGRAPHICSADAPTER_H
 
-#include "device/graphic/terminal/Terminal.h"
+#include "lib/util/graphic/Terminal.h"
 #include "device/cpu/IoPort.h"
 #include "lib/util/graphic/Colors.h"
 
 namespace Device::Graphic {
 
-class ColorGraphicsAdapter : public Device::Graphic::Terminal {
+class ColorGraphicsAdapter : public Util::Graphic::Terminal {
 
 public:
 

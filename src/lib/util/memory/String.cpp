@@ -82,7 +82,7 @@ uint32_t String::hashCode() const {
 }
 
 String String::substring(uint32_t begin) const {
-    return substring(0, length() - 1);
+    return substring(0, length());
 }
 
 String String::substring(uint32_t begin, uint32_t end) const {
@@ -364,7 +364,7 @@ bool String::isNumeric(const char c) {
 }
 
 String String::strip() const {
-    uint32_t startIndex = 0;
+    uint32_t startIndex;
     char element;
 
     for (startIndex = 0; startIndex < len; startIndex++) {
@@ -384,7 +384,7 @@ String String::strip() const {
         }
     }
 
-    if (startIndex == endIndex) {
+    if (startIndex == endIndex && len > 1) {
         return "";
     }
 

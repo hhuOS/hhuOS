@@ -20,28 +20,28 @@
 #include "lib/util/graphic/Ansi.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    Util::System::out << Util::Graphic::Ansi::RESET << "4-bit colors:" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
     for (uint32_t i = 0; i < 16; i++) {
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "8-bit colors:";
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "8-bit colors:";
 
     for (uint32_t i = 0; i < 216; i++) {
         if (i % 36 == 0) {
-            Util::System::out << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
+            Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Stream::PrintWriter::endl;
         }
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i + 16) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "Grayscale colors:" << Util::Stream::PrintWriter::endl;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "Grayscale colors:" << Util::Stream::PrintWriter::endl;
 
     for (uint32_t i = 232; i < 256; i++) {
         Util::System::out << Util::Graphic::Ansi::background8BitColor(i) << " ";
     }
 
-    Util::System::out << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "24-bit colors:" << Util::Stream::PrintWriter::endl;
+    Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << "24-bit colors:" << Util::Stream::PrintWriter::endl;
 
     for (uint32_t i = 0; i < 8; i++) {
         for (uint32_t j = 0; j < 8; j++) {
@@ -49,7 +49,7 @@ int32_t main(int32_t argc, char *argv[]) {
                 Util::System::out << Util::Graphic::Ansi::background24BitColor(Util::Graphic::Color(i * 32, j * 32, k * 32)) << " ";
             }
         }
-        Util::System::out << Util::Graphic::Ansi::RESET << Util::Stream::PrintWriter::endl;
+        Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << Util::Stream::PrintWriter::endl;
     }
 
     Util::System::out << Util::Stream::PrintWriter::flush;
