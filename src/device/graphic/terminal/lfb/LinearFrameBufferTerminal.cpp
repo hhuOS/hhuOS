@@ -72,7 +72,9 @@ void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &fore
 }
 
 void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColor) {
-    cursorLock.acquire();
+    while (!cursorLock.tryAcquire()) {
+        cursorLock.release();
+    }
 
     uint32_t size = getRows() * getColumns();
     for (uint32_t i = 0; i < size; i++) {
@@ -88,10 +90,20 @@ void LinearFrameBufferTerminal::clear(const Util::Graphic::Color &backgroundColo
 }
 
 void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
-    cursorLock.acquire();
+    while (!cursorLock.tryAcquire()) {
+        cursorLock.release();
+    }
+
+    auto character = characterBuffer[currentRow * getColumns() + currentColumn];
+    stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), character.value, character.foregroundColor, character.backgroundColor);
 
     currentColumn = column;
     currentRow = row;
+
+    while (currentRow >= getRows()) {
+        scrollUp();
+        currentRow--;
+    }
 
     cursorLock.release();
 }

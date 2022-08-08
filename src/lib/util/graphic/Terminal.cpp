@@ -27,6 +27,14 @@ Terminal::Terminal(uint16_t columns, uint16_t rows) : outputStream(*this), colum
 void Terminal::write(uint8_t c) {
     if (c == Ansi::ESCAPE_SEQUENCE_START) {
         isEscapeActive = true;
+    } else if (c == '\t') {
+        if (getCurrentColumn() + TABULATOR_SPACES >= getColumns()) {
+            setPosition(0, getCurrentRow() + 1);
+        } else {
+            setPosition(((getCurrentColumn() + TABULATOR_SPACES) / TABULATOR_SPACES) * TABULATOR_SPACES, getCurrentRow());
+        }
+
+        return;
     } else if (c < 0x20 && c != '\n') {
         return;
     }

@@ -21,10 +21,12 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     auto processDirectory = Util::File::File("/process");
+
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::endl;
     for (const auto &child : processDirectory.getChildren()) {
         auto nameFile = Util::File::File(processDirectory.getCanonicalPath() + "/" + child + "/name");
         auto nameStream = Util::Stream::FileReader(nameFile);
-        Util::System::out << child << " " << nameStream.read(nameFile.getLength() - 1) << Util::Stream::PrintWriter::endl;
+        Util::System::out << child << "\t" << nameStream.read(nameFile.getLength() - 1) << Util::Stream::PrintWriter::endl;
     }
 
     Util::System::out << Util::Stream::PrintWriter::flush;

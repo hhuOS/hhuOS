@@ -146,6 +146,8 @@ private:
     uint16_t savedRow = 0;
 
     const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
+
+    static const constexpr uint8_t TABULATOR_SPACES = 8;
 };
 
 }

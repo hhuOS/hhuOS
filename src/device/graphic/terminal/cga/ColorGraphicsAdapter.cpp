@@ -59,6 +59,12 @@ void ColorGraphicsAdapter::clear(const Util::Graphic::Color &backgroundColor) {
 void ColorGraphicsAdapter::setPosition(uint16_t column, uint16_t row) {
     currentColumn = column;
     currentRow = row;
+
+    while (currentRow >= getRows()) {
+        scrollUp();
+        currentRow--;
+    }
+
     updateCursorPosition();
 }
 
