@@ -17,11 +17,10 @@
 
 #include "device/cpu/Cpu.h"
 #include "kernel/service/InterruptService.h"
-#include "device/interrupt/Pic.h"
-#include "device/sound/speaker/PcSpeaker.h"
 #include "Cmos.h"
 #include "Rtc.h"
 #include "kernel/system/System.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Device {
 
@@ -201,7 +200,7 @@ Util::Time::Date Rtc::readDate() const {
 }
 
 void Rtc::alarm() {
-    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::System::getService<Kernel::SchedulerService>().getKernelProcess(), new AlarmRunnable());
+    auto &alarmThread = Kernel::Thread::createKernelThread("Rtc-Alarm", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new AlarmRunnable());
     Kernel::System::getService<Kernel::SchedulerService>().ready(alarmThread);
 }
 

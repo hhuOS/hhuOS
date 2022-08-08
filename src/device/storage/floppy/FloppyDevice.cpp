@@ -15,9 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "kernel/system/System.h"
+#include "kernel/service/ProcessService.h"
 #include "FloppyDevice.h"
 #include "FloppyMotorControlRunnable.h"
-#include "kernel/system/System.h"
 
 namespace Device::Storage {
 
@@ -51,7 +52,7 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             gapLength = 27;
     }
 
-    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::SchedulerService>().getKernelProcess(), motorControlRunnable);
+    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
     Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
 }
 

@@ -52,7 +52,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
             writer << split[0] << Util::Stream::PrintWriter::flush;
 
-            auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength()) + " Hz";
+            auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
             Util::System::out << frequencyString  << Util::Stream::PrintWriter::flush;
 
             Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(Util::Memory::String::parseInt(split[1])));

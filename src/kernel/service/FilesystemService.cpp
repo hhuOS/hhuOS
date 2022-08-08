@@ -16,6 +16,7 @@
  */
 
 #include "kernel/system/System.h"
+#include "ProcessService.h"
 #include "FilesystemService.h"
 
 namespace Kernel {
@@ -156,7 +157,7 @@ FilesystemService::FilesystemService() {
 
         const char *path = va_arg(arguments, const char*);
 
-        auto result = System::getService<SchedulerService>().getCurrentProcess().setWorkingDirectory(path);
+        auto result = System::getService<ProcessService>().getCurrentProcess().setWorkingDirectory(path);
         return result ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
     });
 
@@ -166,7 +167,7 @@ FilesystemService::FilesystemService() {
         }
 
         char **targetPath = va_arg(arguments, char**);
-        auto path = System::getService<SchedulerService>().getCurrentProcess().getWorkingDirectory().getCanonicalPath();
+        auto path = System::getService<ProcessService>().getCurrentProcess().getWorkingDirectory().getCanonicalPath();
 
         auto &memoryService = System::getService<MemoryService>();
         *targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
@@ -199,15 +200,15 @@ bool FilesystemService::deleteFile(const Util::Memory::String &path) {
 }
 
 int32_t FilesystemService::openFile(const Util::Memory::String &path) {
-    return System::getService<SchedulerService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
+    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
 }
 
 void FilesystemService::closeFile(int32_t fileDescriptor) {
-    return System::getService<SchedulerService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
+    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
 }
 
 Filesystem::Node &FilesystemService::getNode(int32_t fileDescriptor) {
-    return System::getService<SchedulerService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
+    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().getNode(fileDescriptor);
 }
 
 Filesystem::Filesystem &FilesystemService::getFilesystem() {

@@ -21,12 +21,13 @@
 #include "device/cpu/Fpu.h"
 #include "FilesystemService.h"
 #include "SchedulerService.h"
+#include "ProcessService.h"
 
 namespace Kernel {
 
 Logger SchedulerService::log = Logger::get("Scheduler");
 
-SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
+SchedulerService::SchedulerService() {
     defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
     Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
@@ -49,8 +50,8 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
             exitCode = va_arg(arguments, int32_t);
         }
 
-        auto &schedulerService = System::getService<SchedulerService>();
-        schedulerService.exitCurrentProcess(exitCode);
+        auto &processService = System::getService<ProcessService>();
+        processService.exitCurrentProcess(exitCode);
     });
 
     SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
@@ -66,8 +67,8 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
         auto *commandArguments = va_arg(arguments, Util::Data::Array<Util::Memory::String>*);
         auto *processId = va_arg(arguments, uint32_t*);
 
-        auto &schedulerService = System::getService<SchedulerService>();
-        auto &process = schedulerService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
+        auto &processService = System::getService<ProcessService>();
+        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
 
         *processId = process.getId();
         return Util::System::Result::OK;
@@ -80,8 +81,8 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
 
         auto *processId = va_arg(arguments, uint32_t*);
 
-        auto &schedulerService = System::getService<SchedulerService>();
-        *processId = schedulerService.getCurrentProcess().getId();
+        auto &processService = System::getService<ProcessService>();
+        *processId = processService.getCurrentProcess().getId();
 
         return Util::System::Result::OK;
     });
@@ -106,8 +107,8 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
 
         auto processId = va_arg(arguments, uint32_t);
 
-        auto &schedulerService = System::getService<SchedulerService>();
-        auto *process = schedulerService.getProcess(processId);
+        auto &processService = System::getService<ProcessService>();
+        auto *process = processService.getProcess(processId);
 
         if (process == nullptr) {
             return Util::System::INVALID_ARGUMENT;
@@ -135,8 +136,9 @@ void SchedulerService::kickoffThread() {
 }
 
 void SchedulerService::startScheduler() {
+    auto &processService = System::getService<ProcessService>();
     cleaner = new Kernel::SchedulerCleaner();
-    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", kernelProcess, cleaner);
+    auto &schedulerCleanerThread = Kernel::Thread::createKernelThread("Scheduler-Cleaner", processService.getKernelProcess(), cleaner);
     ready(schedulerCleanerThread);
     
     scheduler.start();
@@ -144,34 +146,6 @@ void SchedulerService::startScheduler() {
 
 void SchedulerService::ready(Thread &thread) {
     scheduler.ready(thread);
-}
-
-Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError) {
-    auto *process = new Process(addressSpace, name, workingDirectory);
-
-    // Create standard file descriptors
-    if (System::isServiceRegistered(FilesystemService::SERVICE_ID)) {
-        process->getFileDescriptorManager().openFile(standardIn.getCanonicalPath());
-        process->getFileDescriptorManager().openFile(standardOut.getCanonicalPath());
-        process->getFileDescriptorManager().openFile(standardError.getCanonicalPath());
-    }
-
-    processLock.acquire();
-    processList.add(process);
-    processLock.release();
-
-    return *process;
-}
-
-Process &SchedulerService::loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-
-    auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
-    auto &thread = Kernel::Thread::createKernelThread("Loader", process, new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
-
-    ready(thread);
-    return process;
 }
 
 void SchedulerService::lockScheduler() {
@@ -186,16 +160,8 @@ void SchedulerService::yield() {
     scheduler.yield();
 }
 
-Kernel::Process& SchedulerService::getCurrentProcess() {
-    return scheduler.getCurrentThread().getParent();
-}
-
 Thread& SchedulerService::getCurrentThread() {
     return scheduler.getCurrentThread();
-}
-
-void SchedulerService::cleanup(Process *process) {
-    cleaner->cleanup(process);
 }
 
 void SchedulerService::cleanup(Thread *thread) {
@@ -203,32 +169,8 @@ void SchedulerService::cleanup(Thread *thread) {
     cleaner->cleanup(thread);
 }
 
-bool SchedulerService::isProcessActive(uint32_t id) {
-    for (const auto *process : processList) {
-        if (process->getId() == id) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void SchedulerService::exitCurrentProcess(int32_t exitCode) {
-    auto &process = getCurrentProcess();
-    auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
-
-    process.killAllThreadsButCurrent();
-    ready(cleanerThread);
-
-    process.setExitCode(exitCode);
-
-    processLock.acquire();
-    processList.remove(&process);
-    processLock.release();
-
-    scheduler.exit();
-
-    __builtin_unreachable();
+void SchedulerService::cleanup(Process *process) {
+    cleaner->cleanup(process);
 }
 
 void SchedulerService::block() {
@@ -236,8 +178,9 @@ void SchedulerService::block() {
 }
 
 void SchedulerService::unblock(Thread &thread) {
+    auto &processService = System::getService<ProcessService>();
     auto &process = thread.getParent();
-    if (isProcessActive(process.getId())) {
+    if (processService.isProcessActive(process.getId())) {
         scheduler.unblock(thread);
     } else {
         cleanup(&thread);
@@ -248,22 +191,12 @@ void SchedulerService::kill(Thread &thread) {
     scheduler.kill(thread);
 }
 
+void SchedulerService::exitCurrentThread() {
+    scheduler.exit();
+}
+
 uint8_t *SchedulerService::getDefaultFpuContext() {
     return defaultFpuContext;
-}
-
-Process* SchedulerService::getProcess(uint32_t id) {
-    for (auto *process : processList) {
-        if (process->getId() == id) {
-            return process;
-        }
-    }
-
-    return nullptr;
-}
-
-Process& SchedulerService::getKernelProcess() const {
-    return kernelProcess;
 }
 
 void SchedulerService::sleep(const Util::Time::Timestamp &time) {

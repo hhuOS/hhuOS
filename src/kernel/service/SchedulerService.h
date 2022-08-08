@@ -57,15 +57,9 @@ public:
 
     void yield();
 
-    void cleanup(Process *process);
-
     void cleanup(Thread *thread);
 
-    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError);
-
-    Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
-
-    [[noreturn]] void exitCurrentProcess(int32_t exitCode);
+    void cleanup(Process *process);
 
     void lockScheduler();
 
@@ -79,17 +73,11 @@ public:
 
     void kill(Thread &thread);
 
-    [[nodiscard]] bool isProcessActive(uint32_t id);
-
-    [[nodiscard]] Process& getCurrentProcess();
+    void exitCurrentThread();
 
     [[nodiscard]] Thread& getCurrentThread();
 
     [[nodiscard]] uint8_t* getDefaultFpuContext();
-
-    [[nodiscard]] Process* getProcess(uint32_t id);
-
-    [[nodiscard]] Process& getKernelProcess() const;
 
     static const constexpr uint8_t SERVICE_ID = 4;
 
@@ -99,9 +87,6 @@ private:
     SchedulerCleaner *cleaner = nullptr;
     Device::Fpu *fpu = nullptr;
     uint8_t *defaultFpuContext = nullptr;
-    Util::Data::ArrayList<Process*> processList;
-    Util::Async::Spinlock processLock;
-    Process &kernelProcess;
 
     static Logger log;
 };

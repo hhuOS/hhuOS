@@ -21,6 +21,7 @@
 #include "lib/util/file/elf/File.h"
 #include "kernel/system/System.h"
 #include "kernel/paging/Paging.h"
+#include "kernel/service/ProcessService.h"
 
 namespace Kernel {
 
@@ -50,7 +51,7 @@ void BinaryLoader::run() {
     auto currentAddress = reinterpret_cast<uint32_t>(argv) + sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
-        auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char *>(i == 0 ? command : arguments[i - 1]));
+        auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
         auto targetArgument = Util::Memory::Address<uint32_t>(currentAddress);
 
         targetArgument.copyString(sourceArgument);
@@ -58,12 +59,13 @@ void BinaryLoader::run() {
         currentAddress += targetArgument.stringLength() + 1;
     }
 
-    auto &process = System::getService<SchedulerService>().getCurrentProcess();
+    auto &processService = System::getService<ProcessService>();
+    auto &schedulerService = System::getService<SchedulerService>();
+    auto &process = processService.getCurrentProcess();
     auto heapAddress = Util::Memory::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
 
-    auto &schedulerService = System::getService<SchedulerService>();
-    schedulerService.getCurrentProcess().setMainThread(userThread);
+    processService.getCurrentProcess().setMainThread(userThread);
     schedulerService.ready(userThread);
 }
 

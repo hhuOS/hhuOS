@@ -15,23 +15,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "ProcessFileNode.h"
 #include "lib/util/memory/Address.h"
-#include "PcSpeaker.h"
-#include "PcSpeakerNode.h"
 
-namespace Device::Sound {
+namespace Filesystem::Process {
 
-PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : MemoryNode(name) {}
+ProcessFileNode::ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content) : name(name), buffer(content + "\n") {}
 
-uint64_t PcSpeakerNode::getLength() {
+Util::Memory::String ProcessFileNode::getName() {
+    return name;
+}
+
+Util::File::Type ProcessFileNode::getFileType() {
+    return Util::File::REGULAR;
+}
+
+uint64_t ProcessFileNode::getLength() {
     return buffer.length();
 }
 
-Util::File::Type PcSpeakerNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Data::Array<Util::Memory::String> ProcessFileNode::getChildren() {
+    return Util::Data::Array<Util::Memory::String>(0);
 }
 
-uint64_t PcSpeakerNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t ProcessFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
     if (pos >= buffer.length()) {
         return 0;
     }
@@ -47,13 +54,8 @@ uint64_t PcSpeakerNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t n
     return numBytes;
 }
 
-uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto data = Util::Memory::String(sourceBuffer, numBytes);
-    currentFrequency = Util::Memory::String::parseInt(data);
-    buffer = Util::Memory::String::format("%u\n", currentFrequency);
-
-    PcSpeaker::play(currentFrequency);
-    return numBytes;
+uint64_t ProcessFileNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }
 
 }

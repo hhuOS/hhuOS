@@ -54,6 +54,8 @@
 #include "filesystem/memory/NullNode.h"
 #include "filesystem/memory/ZeroNode.h"
 #include "filesystem/memory/RandomNode.h"
+#include "kernel/service/ProcessService.h"
+#include "filesystem/process/ProcessDriver.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -103,8 +105,9 @@ void GatesOfHell::enter() {
 
     printBanner();
 
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", schedulerService.getKernelProcess(), new SchedulerSign());
+    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", processService.getKernelProcess(), new SchedulerSign());
     schedulerService.ready(schedulerSignThread);
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
@@ -228,6 +231,10 @@ void GatesOfHell::initializeFilesystem() {
     auto *deviceDriver = new Filesystem::Memory::MemoryDriver();
     filesystemService.createDirectory("/device");
     filesystemService.getFilesystem().mountVirtualDriver("/device", deviceDriver);
+
+    auto *processDriver = new Filesystem::Process::ProcessDriver();
+    filesystemService.createDirectory("/process");
+    filesystemService.getFilesystem().mountVirtualDriver("/process", processDriver);
 
     filesystemService.createFile("/device/log");
     deviceDriver->addNode("/", new Filesystem::Memory::NullNode());

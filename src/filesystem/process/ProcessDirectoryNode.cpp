@@ -15,22 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "AddressSpaceCleaner.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
-#include "kernel/service/ProcessService.h"
+#include "ProcessDirectoryNode.h"
 
-namespace Kernel {
+namespace Filesystem::Process {
 
-void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto &processService = System::getService<ProcessService>();
-    while (processService.getCurrentProcess().getThreadCount() > 1) {
-        schedulerService.yield();
-    }
+ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::Memory::String::format("%u", processId)) {}
 
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    schedulerService.cleanup(&processService.getCurrentProcess());
+Util::Memory::String ProcessDirectoryNode::getName() {
+    return name;
+}
+
+Util::File::Type ProcessDirectoryNode::getFileType() {
+    return Util::File::DIRECTORY;
+}
+
+uint64_t ProcessDirectoryNode::getLength() {
+    return 0;
+}
+
+Util::Data::Array<Util::Memory::String> ProcessDirectoryNode::getChildren() {
+    return Util::Data::Array<Util::Memory::String>({"name", "cwd", "thread_count"});
+}
+
+uint64_t ProcessDirectoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t ProcessDirectoryNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }
 
 }

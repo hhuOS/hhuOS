@@ -28,11 +28,12 @@
 #include "System.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/reflection/InstanceFactory.h"
-#include "BlueScreen.h"
 #include "kernel/service/PowerManagementService.h"
 #include "device/bios/Bios.h"
 #include "kernel/service/StorageService.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/service/ProcessService.h"
+#include "BlueScreen.h"
 
 namespace Kernel {
 
@@ -85,7 +86,9 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     // Create scheduler service and register kernel process
     log.info("Initializing scheduler");
     auto *schedulerService = new SchedulerService();
+    auto *processService = new ProcessService();
     registerService(SchedulerService::SERVICE_ID, schedulerService);
+    registerService(ProcessService::SERVICE_ID, processService);
 
     initialized = true;
 
@@ -114,7 +117,7 @@ void System::initializeSystem(Multiboot::Info *multibootInfoAddress) {
     registerService(TimeService::SERVICE_ID, new Kernel::TimeService(pit, rtc));
 
     // Create thread to refill block pool of paging area manager
-    auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", System::getService<SchedulerService>().getKernelProcess(), new PagingAreaManagerRefillRunnable(*pagingAreaManager));
+    auto &refillThread = Kernel::Thread::createKernelThread("Paging-Area-Pool-Refiller", processService->getKernelProcess(), new PagingAreaManagerRefillRunnable(*pagingAreaManager));
     schedulerService->ready(refillThread);
 
     // Register memory manager

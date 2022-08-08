@@ -15,22 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "AddressSpaceCleaner.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
+#include "ProcessRootNode.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/system/System.h"
 
-namespace Kernel {
+namespace Filesystem::Process {
 
-void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto &processService = System::getService<ProcessService>();
-    while (processService.getCurrentProcess().getThreadCount() > 1) {
-        schedulerService.yield();
+Util::Memory::String ProcessRootNode::getName() {
+    return "";
+}
+
+Util::File::Type ProcessRootNode::getFileType() {
+    return Util::File::DIRECTORY;
+}
+
+uint64_t ProcessRootNode::getLength() {
+    return 0;
+}
+
+Util::Data::Array<Util::Memory::String> ProcessRootNode::getChildren() {
+    auto ids = Kernel::System::getService<Kernel::ProcessService>().getActiveProcessIds();
+    auto ret = Util::Data::Array<Util::Memory::String>(ids.length());
+
+    for (uint32_t i = 0; i < ids.length(); i++) {
+        ret[i] = Util::Memory::String::format("%u", ids[i]);
     }
 
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    schedulerService.cleanup(&processService.getCurrentProcess());
+    return ret;
+}
+
+uint64_t ProcessRootNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t ProcessRootNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }
 
 }

@@ -15,60 +15,71 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PCSPEAKERNODE_H
-#define HHUOS_PCSPEAKERNODE_H
+#ifndef HHUOS_PROCESSFILENODE_H
+#define HHUOS_PROCESSFILENODE_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "lib/util/memory/String.h"
+#include "filesystem/core/Node.h"
 
-namespace Device::Sound {
+namespace Filesystem::Process {
 
-class PcSpeakerNode : public Filesystem::Memory::MemoryNode {
+class ProcessFileNode : public Node {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PcSpeakerNode(const Util::Memory::String &name);
+    ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content);
 
     /**
      * Copy Constructor.
      */
-    PcSpeakerNode(const PcSpeakerNode &other) = delete;
+    ProcessFileNode(const ProcessFileNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PcSpeakerNode &operator=(const PcSpeakerNode &other) = delete;
+    ProcessFileNode &operator=(const ProcessFileNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PcSpeakerNode() override = default;
+    ~ProcessFileNode() override = default;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
-    uint64_t getLength() override;
+    Util::Memory::String getName() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     Util::File::Type getFileType() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Data::Array<Util::Memory::String> getChildren() override;
+
+    /**
+     * Overriding function from Node.
      */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 
-    uint32_t currentFrequency = 0;
-    Util::Memory::String buffer = "0\n";
+    Util::Memory::String name;
+    Util::Memory::String buffer;
 };
 
 }

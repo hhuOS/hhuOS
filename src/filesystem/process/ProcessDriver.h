@@ -15,60 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PCSPEAKERNODE_H
-#define HHUOS_PCSPEAKERNODE_H
+#ifndef HHUOS_PROCESSDRIVER_H
+#define HHUOS_PROCESSDRIVER_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "filesystem/core/VirtualDriver.h"
 
-namespace Device::Sound {
+namespace Filesystem::Process {
 
-class PcSpeakerNode : public Filesystem::Memory::MemoryNode {
+class ProcessDriver : public VirtualDriver {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PcSpeakerNode(const Util::Memory::String &name);
+    ProcessDriver() = default;
 
     /**
      * Copy Constructor.
      */
-    PcSpeakerNode(const PcSpeakerNode &other) = delete;
+    ProcessDriver(const ProcessDriver &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PcSpeakerNode &operator=(const PcSpeakerNode &other) = delete;
+    ProcessDriver &operator=(const ProcessDriver &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PcSpeakerNode() override = default;
+    ~ProcessDriver() override = default;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding virtual function from VirtualDriver.
      */
-    uint64_t getLength() override;
+    Node* getNode(const Util::Memory::String &path) override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding virtual function from VirtualDriver.
      */
-    Util::File::Type getFileType() override;
+    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding virtual function from VirtualDriver.
      */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-
-private:
-
-    uint32_t currentFrequency = 0;
-    Util::Memory::String buffer = "0\n";
+    bool deleteNode(const Util::Memory::String &path) override;
 };
 
 }

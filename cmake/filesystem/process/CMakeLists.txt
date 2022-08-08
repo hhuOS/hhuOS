@@ -15,13 +15,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.7)
-
-target_sources(kernel PUBLIC
-        ${HHUOS_SRC_DIR}/kernel/service/FilesystemService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/InterruptService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/MemoryService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/PowerManagementService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/ProcessService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/SchedulerService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/StorageService.cpp
-        ${HHUOS_SRC_DIR}/kernel/service/TimeService.cpp)
+ 
+target_sources(filesystem PUBLIC
+        ${HHUOS_SRC_DIR}/filesystem/process/ProcessDirectoryNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/process/ProcessDriver.cpp
+        ${HHUOS_SRC_DIR}/filesystem/process/ProcessFileNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/process/ProcessRootNode.cpp)

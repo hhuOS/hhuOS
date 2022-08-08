@@ -19,6 +19,7 @@
 #include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/data/ArrayList.h"
+#include "kernel/service/ProcessService.h"
 #include "InterruptDispatcher.h"
 
 namespace Kernel {
@@ -31,13 +32,13 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
 
     // Handle exceptions (except page fault and device not available)
     if (isUnrecoverableException(slot)) {
-        auto &schedulerService = System::getService<SchedulerService>();
-        if (schedulerService.getCurrentProcess().isKernelProcess()) {
+        auto &processService = System::getService<ProcessService>();
+        if (processService.getCurrentProcess().isKernelProcess()) {
             System::panic(frame);
         }
 
         Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-        schedulerService.exitCurrentProcess(-1);
+        processService.exitCurrentProcess(-1);
     }
 
     // Ignore spurious interrupts

@@ -15,60 +15,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PCSPEAKERNODE_H
-#define HHUOS_PCSPEAKERNODE_H
+#ifndef HHUOS_PROCESSROOTNODE_H
+#define HHUOS_PROCESSROOTNODE_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "filesystem/core/Node.h"
 
-namespace Device::Sound {
+namespace Filesystem::Process {
 
-class PcSpeakerNode : public Filesystem::Memory::MemoryNode {
+class ProcessRootNode : public Node {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    explicit PcSpeakerNode(const Util::Memory::String &name);
+    ProcessRootNode() = default;
 
     /**
      * Copy Constructor.
      */
-    PcSpeakerNode(const PcSpeakerNode &other) = delete;
+    ProcessRootNode(const ProcessRootNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PcSpeakerNode &operator=(const PcSpeakerNode &other) = delete;
+    ProcessRootNode &operator=(const ProcessRootNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PcSpeakerNode() override = default;
+    ~ProcessRootNode() override = default;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
-    uint64_t getLength() override;
+    Util::Memory::String getName() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     Util::File::Type getFileType() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Data::Array<Util::Memory::String> getChildren() override;
+
+    /**
+     * Overriding function from Node.
      */
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from Node.
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
-
-private:
-
-    uint32_t currentFrequency = 0;
-    Util::Memory::String buffer = "0\n";
 };
 
 }

@@ -23,6 +23,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/service/TimeService.h"
 #include "kernel/service/PowerManagementService.h"
+#include "kernel/service/ProcessService.h"
 
 extern uint32_t scheduler_initialized;
 
@@ -103,20 +104,20 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
 }
 
 bool changeDirectory(const Util::Memory::String &path) {
-    return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().setWorkingDirectory(path);
+    return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().setWorkingDirectory(path);
 }
 
 Util::File::File getCurrentWorkingDirectory() {
-    return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().getWorkingDirectory();
+    return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().getWorkingDirectory();
 }
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto &process = Kernel::System::getService<Kernel::SchedulerService>().loadBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
+    auto &process = Kernel::System::getService<Kernel::ProcessService>().loadBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
     return Util::Async::Process(process.getId());
 }
 
 Util::Async::Process getCurrentProcess() {
-    auto &process = Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess();
+    auto &process = Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess();
     return Util::Async::Process(process.getId());
 }
 
@@ -126,7 +127,7 @@ Util::Async::Thread getCurrentThread() {
 }
 
 void joinProcess(uint32_t id) {
-    auto *process = Kernel::System::getService<Kernel::SchedulerService>().getProcess(id);
+    auto *process = Kernel::System::getService<Kernel::ProcessService>().getProcess(id);
     if (process != nullptr) {
         process->join();
     }
