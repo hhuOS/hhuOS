@@ -23,8 +23,8 @@ namespace Util::Async {
 
 Process::Process(uint32_t id) : id(id) {}
 
-Process Process::execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    return ::executeBinary(binaryFile, outputFile, command, arguments);
+Process Process::execute(const File::File &binaryFile, const File::File &inpuputFile, const File::File &outputFile, const File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    return ::executeBinary(binaryFile, inpuputFile, outputFile, errorFile, command, arguments);
 }
 
 Process Process::getCurrentProcess() {

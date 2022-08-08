@@ -48,7 +48,7 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
 bool changeDirectory(const Util::Memory::String &path);
 Util::File::File getCurrentWorkingDirectory();
 
-Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 Util::Async::Process getCurrentProcess();
 Util::Async::Thread getCurrentThread();
 void joinProcess(uint32_t id);

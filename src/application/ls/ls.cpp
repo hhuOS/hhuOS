@@ -22,7 +22,7 @@
 void lsDirectory(const Util::Memory::String &path) {
     const auto file = Util::File::File(path);
     if (!file.exists()) {
-        Util::System::out << "ls: '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+        Util::System::error << "ls: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 

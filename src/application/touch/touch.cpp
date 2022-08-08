@@ -20,7 +20,7 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "touch: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "touch: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
@@ -33,10 +33,9 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto success = file.create(Util::File::REGULAR);
         if (!success) {
-            Util::System::out << "touch: Failed to execute file '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "touch: Failed to execute file '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 
-    Util::System::out << Util::Stream::PrintWriter::flush;
     return 0;
 }

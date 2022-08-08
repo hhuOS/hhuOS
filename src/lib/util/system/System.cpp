@@ -19,12 +19,15 @@
 
 namespace Util {
 
-Stream::FileOutputStream System::outStream(0);
-Stream::BufferedOutputStream System::bufferedOutStream(outStream);
-Stream::PrintWriter System::out(bufferedOutStream);
 Stream::FileInputStream System::inStream(0);
 Stream::BufferedInputStream System::bufferedInStream(inStream);
 Stream::InputStreamReader System::in(bufferedInStream);
+Stream::FileOutputStream System::outStream(1);
+Stream::BufferedOutputStream System::bufferedOutStream(outStream);
+Stream::PrintWriter System::out(bufferedOutStream);
+Stream::FileOutputStream System::errorStream(2);
+Stream::BufferedOutputStream System::bufferedErrorStream(errorStream);
+Stream::PrintWriter System::error(bufferedErrorStream);
 const char *System::errorMessage = "";
 
 System::Result System::call(System::Code code, uint32_t paramCount...) {

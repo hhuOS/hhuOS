@@ -22,18 +22,18 @@
 int32_t main(int32_t argc, char *argv[]) {
     auto systemTime = Util::Time::getSystemTime();
     if (systemTime.toSeconds() < 60) {
-        Util::System::out << Util::Memory::String::format("%d", systemTime.toSeconds()) << Util::Stream::PrintWriter::endl;
+        Util::System::out << Util::Memory::String::format("%d", systemTime.toSeconds());
     } else if (systemTime.toSeconds() < 3600) {
-        Util::System::out << Util::Memory::String::format("%d:%02d", systemTime.toMinutes(), systemTime.toSeconds() % 60) << Util::Stream::PrintWriter::endl;
+        Util::System::out << Util::Memory::String::format("%d:%02d", systemTime.toMinutes(), systemTime.toSeconds() % 60);
     } else if (systemTime.toSeconds() < 86400 ) {
         auto seconds = systemTime.toSeconds() - (systemTime.toMinutes() * 60);
-        Util::System::out << Util::Memory::String::format("%d:%02d:%02d", systemTime.toHours(), systemTime.toMinutes() % 60, seconds) << Util::Stream::PrintWriter::endl;
+        Util::System::out << Util::Memory::String::format("%d:%02d:%02d", systemTime.toHours(), systemTime.toMinutes() % 60, seconds);
     } else {
         auto minutes = systemTime.toMinutes() - (systemTime.toHours() * 60);
         auto seconds = systemTime.toSeconds() - (systemTime.toMinutes() * 60);
-        Util::System::out << Util::Memory::String::format("%d %s, %d:%02d:%02d", systemTime.toDays() == 1 ? "day" : "days", systemTime.toDays(), systemTime.toHours() % 24, minutes, systemTime.toSeconds() % seconds) << Util::Stream::PrintWriter::endl;
+        Util::System::out << Util::Memory::String::format("%d %s, %d:%02d:%02d", systemTime.toDays() == 1 ? "day" : "days", systemTime.toDays(), systemTime.toHours() % 24, minutes, systemTime.toSeconds() % seconds);
     }
 
-    Util::System::out << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     return 0;
 }

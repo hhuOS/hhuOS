@@ -110,8 +110,8 @@ Util::File::File getCurrentWorkingDirectory() {
     return Kernel::System::getService<Kernel::SchedulerService>().getCurrentProcess().getWorkingDirectory();
 }
 
-Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
-    auto &process = Kernel::System::getService<Kernel::SchedulerService>().loadBinary(binaryFile, outputFile, command, arguments);
+Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+    auto &process = Kernel::System::getService<Kernel::SchedulerService>().loadBinary(binaryFile, inputFile, outputFile, errorFile, command, arguments);
     return Util::Async::Process(process.getId());
 }
 

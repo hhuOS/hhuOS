@@ -43,7 +43,7 @@ public:
      */
     ~Process() = default;
 
-    static Process execute(const File::File &binaryFile, const File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+    static Process execute(const File::File &binaryFile, const File::File &inputFile, const File::File &outputFile, const File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
     static Process getCurrentProcess();
 

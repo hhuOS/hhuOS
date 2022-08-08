@@ -20,7 +20,7 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "rm: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "rm: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
@@ -28,21 +28,20 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::Memory::String path(argv[i]);
         auto file = Util::File::File(path);
         if (!file.exists()) {
-            Util::System::out << "rm: '" << path << "' not found!" << Util::Stream::PrintWriter::endl;
+            Util::System::error << "rm: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         if (!file.isFile()) {
-            Util::System::out << "rm: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl;
+            Util::System::error << "rm: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         auto success = file.remove();
         if (!success) {
-            Util::System::out << "rm: Failed to delete file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "rm: Failed to delete file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 
-    Util::System::out << Util::Stream::PrintWriter::flush;
     return 0;
 }

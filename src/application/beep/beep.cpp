@@ -25,13 +25,13 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "music: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "music: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
     auto file = Util::File::File(argv[1]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::out << "beep: '" << argv[1] << "' could not be opened!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "beep: '" << argv[1] << "' could not be opened!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 

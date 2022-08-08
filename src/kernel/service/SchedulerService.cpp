@@ -26,7 +26,7 @@ namespace Kernel {
 
 Logger SchedulerService::log = Logger::get("Scheduler");
 
-SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"))) {
+SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
     defaultFpuContext = static_cast<uint8_t*>(System::getService<MemoryService>().allocateKernelMemory(512, 16));
     Util::Memory::Address<uint32_t>(defaultFpuContext).setRange(0, 512);
 
@@ -54,18 +54,20 @@ SchedulerService::SchedulerService() : kernelProcess(createProcess(System::getSe
     });
 
     SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
-        if (paramCount < 5) {
+        if (paramCount < 7) {
             return Util::System::INVALID_ARGUMENT;
         }
 
         auto *binaryFile = va_arg(arguments, Util::File::File*);
+        auto *inputFile = va_arg(arguments, Util::File::File*);
         auto *outputFile = va_arg(arguments, Util::File::File*);
+        auto *errorFile = va_arg(arguments, Util::File::File*);
         auto *command = va_arg(arguments, const Util::Memory::String*);
         auto *commandArguments = va_arg(arguments, Util::Data::Array<Util::Memory::String>*);
         auto *processId = va_arg(arguments, uint32_t*);
 
         auto &schedulerService = System::getService<SchedulerService>();
-        auto &process = schedulerService.loadBinary(*binaryFile, *outputFile, *command, *commandArguments);
+        auto &process = schedulerService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
 
         *processId = process.getId();
         return Util::System::Result::OK;
@@ -144,11 +146,14 @@ void SchedulerService::ready(Thread &thread) {
     scheduler.ready(thread);
 }
 
-Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardOut) {
+Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError) {
     auto *process = new Process(addressSpace, name, workingDirectory);
-    // Create standard out file descriptor
+
+    // Create standard file descriptors
     if (System::isServiceRegistered(FilesystemService::SERVICE_ID)) {
+        process->getFileDescriptorManager().openFile(standardIn.getCanonicalPath());
         process->getFileDescriptorManager().openFile(standardOut.getCanonicalPath());
+        process->getFileDescriptorManager().openFile(standardError.getCanonicalPath());
     }
 
     processLock.acquire();
@@ -158,11 +163,11 @@ Process& SchedulerService::createProcess(VirtualAddressSpace &addressSpace, cons
     return *process;
 }
 
-Process &SchedulerService::loadBinary(const Util::File::File &binaryFile, const Util::File::File &outputFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+Process &SchedulerService::loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
 
     auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::File::getCurrentWorkingDirectory(), outputFile);
+    auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
     auto &thread = Kernel::Thread::createKernelThread("Loader", process, new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
 
     ready(thread);

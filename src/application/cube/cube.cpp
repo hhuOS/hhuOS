@@ -19,12 +19,12 @@
 #include "lib/util/system/System.h"
 #include "CubeDemo.h"
 
-static const constexpr uint32_t DEFAULT_SPEED = 10;
+static const constexpr int32_t DEFAULT_SPEED = 10;
 
 int32_t main(int32_t argc, char *argv[]) {
-    uint32_t speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
+    auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
     if (speed < 0) {
-        Util::System::out << "Speed must be greater than 0!";
+        Util::System::error << "Speed must be greater than 0!";
         return -1;
     }
 

@@ -21,7 +21,7 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 3){
-        Util::System::out << "cp: Missing arguments!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: Missing arguments!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
@@ -29,12 +29,12 @@ int32_t main(int32_t argc, char *argv[]) {
     auto targetFile = Util::File::File(argv[2]);
 
     if (!sourceFile.exists()) {
-        Util::System::out << "cp: '" << argv[1] << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: '" << argv[1] << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
     if (!sourceFile.isFile()) {
-        Util::System::out << "cp: '" << argv[1] << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: '" << argv[1] << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
@@ -43,7 +43,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }
 
     if (!targetFile.exists() && !targetFile.create(Util::File::REGULAR)) {
-        Util::System::out << "cp: Failed to execute file '" << argv[2] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: Failed to create file '" << argv[2] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 

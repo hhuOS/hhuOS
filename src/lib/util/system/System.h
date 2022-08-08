@@ -91,20 +91,24 @@ public:
 
     static Result call(Code code, uint32_t paramCount...);
 
-    static Util::Stream::PrintWriter out;
     static Util::Stream::InputStreamReader in;
+    static Util::Stream::PrintWriter out;
+    static Util::Stream::PrintWriter error;
+
     static const char *errorMessage;
 
 private:
 
     static void call(Code code, Result &result, uint32_t paramCount, va_list args);
 
-    static Util::Stream::FileOutputStream outStream;
-    static Util::Stream::BufferedOutputStream bufferedOutStream;
-
     static Util::Stream::FileInputStream inStream;
     static Util::Stream::BufferedInputStream bufferedInStream;
 
+    static Util::Stream::FileOutputStream outStream;
+    static Util::Stream::BufferedOutputStream bufferedOutStream;
+
+    static Util::Stream::FileOutputStream errorStream;
+    static Util::Stream::BufferedOutputStream bufferedErrorStream;
 };
 
 }

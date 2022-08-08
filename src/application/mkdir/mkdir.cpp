@@ -20,7 +20,7 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
-        Util::System::out << "mkdir: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "mkdir: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
@@ -28,16 +28,15 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::Memory::String path(argv[i]);
         auto file = Util::File::File(path);
         if (file.exists()) {
-            Util::System::out << "mkdir: '" << argv[i] << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: '" << argv[i] << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         auto success = file.create(Util::File::DIRECTORY);
         if (!success) {
-            Util::System::out << "mkdir: Failed to execute directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: Failed to execute directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 
-    Util::System::out << Util::Stream::PrintWriter::flush;
     return 0;
 }

@@ -88,7 +88,7 @@ struct Ant {
 };
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto sleepInterval = Util::Memory::String::parseInt(argv[1]);
+    auto sleepInterval = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : 0;
     Util::Graphic::LinearFrameBuffer lfb(Util::File::File("/device/lfb"));
     Util::Graphic::PixelDrawer drawer(lfb);
     Ant ant(lfb.getResolutionX(), lfb.getResolutionY());

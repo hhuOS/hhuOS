@@ -26,14 +26,14 @@ int32_t main(int32_t argc, char *argv[]) {
         if (parameter == "-r" || parameter == "--reboot") {
             type = Util::Machine::REBOOT;
         } else {
-            Util::System::out << "shutdown: Invalid argument '" << parameter << "'!'" << Util::Stream::PrintWriter::endl;
+            Util::System::error << "shutdown: Invalid argument '" << parameter << "'!'" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             return -1;
         }
     }
 
     auto success = Util::Machine::shutdown(type);
     if (success) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown returned successful!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown returned successfully!");
     }
 
     return -1;

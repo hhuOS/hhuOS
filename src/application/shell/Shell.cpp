@@ -24,7 +24,7 @@ Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
 
 void Shell::run() {
     if (!Util::File::changeDirectory(startDirectory)) {
-        Util::System::out << "Unable to start shell in '" << startDirectory << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
     }
 
@@ -146,6 +146,7 @@ void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
 
 void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath, bool async) {
     auto binaryFile = Util::File::File(path);
+    auto inputFile = Util::File::File("/device/terminal");
     auto outputFile = Util::File::File(outputPath);
 
     if (!binaryFile.exists()) {
@@ -163,7 +164,7 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
         return;
     }
 
-    auto process = Util::Async::Process::execute(binaryFile, outputFile, command, arguments);
+    auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
         process.join();
     }

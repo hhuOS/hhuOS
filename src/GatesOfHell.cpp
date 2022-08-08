@@ -107,7 +107,7 @@ void GatesOfHell::enter() {
     auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", schedulerService.getKernelProcess(), new SchedulerSign());
     schedulerService.ready(schedulerSignThread);
 
-    Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
+    Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
     log.info("Starting scheduler!");
     schedulerService.startScheduler();
@@ -166,7 +166,9 @@ void GatesOfHell::initializeKeyboardAndTerminal() {
     auto *keyboard = new Device::Keyboard(terminal.getPipedOutputStream());
     keyboard->plugin();
 
-    // Open first file descriptor for Util::System::out
+    // Open first file descriptors for Util::System::in, Util::System::out and Util::System::error
+    Util::File::open("/device/terminal");
+    Util::File::open("/device/terminal");
     Util::File::open("/device/terminal");
 }
 

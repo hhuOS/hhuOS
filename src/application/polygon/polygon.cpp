@@ -21,12 +21,12 @@
 #include "lib/util/game/Engine.h"
 #include "PolygonDemo.h"
 
-static const constexpr uint32_t DEFAULT_COUNT = 10;
+static const constexpr int32_t DEFAULT_COUNT = 10;
 
 int32_t main(int32_t argc, char *argv[]) {
-    uint32_t count = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_COUNT;
+    auto count = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_COUNT;
     if (count < 0) {
-        Util::System::out << "Polygon count must be greater than 0!";
+        Util::System::error << "Polygon count must be greater than 0!";
         return -1;
     }
 

@@ -38,7 +38,9 @@ LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
 }
 
 void LinearFrameBufferTerminal::putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) {
-    cursorLock.acquire();
+    while (!cursorLock.tryAcquire()) {
+        cursorLock.release();
+    }
 
     if (c == '\n') {
         stringDrawer.drawChar(font, currentColumn * font.getCharWidth(), currentRow * font.getCharHeight(), ' ', Util::Graphic::Colors::INVISIBLE, Util::Graphic::Colors::BLACK);
