@@ -61,8 +61,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
     log.info("Parallel port [%s] detected", portToString(port));
 
     auto *parallelPort = new ParallelPort(port);
-    auto *outputStream = new PortOutputStream(parallelPort);
-    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), outputStream);
+    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Stream::OutputStream*>(parallelPort));
 
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
@@ -130,6 +129,20 @@ void ParallelPort::write(uint8_t c) {
 
     // Wait for the printer to finish reading the data
     while (isBusy()) {}
+}
+
+void ParallelPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++) {
+        write(sourceBuffer[offset + i]);
+    }
+}
+
+int16_t ParallelPort::read() {
+    return 0;
+}
+
+int32_t ParallelPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+    return 0;
 }
 
 }

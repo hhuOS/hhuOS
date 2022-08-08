@@ -21,8 +21,8 @@
 #include "kernel/memory/PageFrameAllocator.h"
 #include "kernel/memory/PagingAreaManager.h"
 #include "kernel/paging/VirtualAddressSpace.h"
-#include "Service.h"
 #include "lib/util/stream/OutputStreamWriter.h"
+#include "Service.h"
 
 #define HHUOS_MEMORYSERVICE_ENABLE_DEBUG 0
 
@@ -241,8 +241,7 @@ private:
 
     bool serialDebuggingEnabled = false;
     Device::SerialPort debugPort = Device::SerialPort(Device::SerialPort::COM1);
-    Device::PortOutputStream debugStream = Device::PortOutputStream(&debugPort);
-    Util::Stream::OutputStreamWriter debugWriter = Util::Stream::OutputStreamWriter(debugStream);
+    Util::Stream::OutputStreamWriter debugWriter = Util::Stream::OutputStreamWriter(debugPort);
 };
 
 }

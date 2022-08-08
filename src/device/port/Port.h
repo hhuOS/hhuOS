@@ -27,7 +27,7 @@ namespace Device {
 /**
  * Driver for the serial COM-ports.
  */
-class Port {
+class Port : public Util::Stream::OutputStream, public Util::Stream::InputStream {
 
 public:
     /**
@@ -48,12 +48,7 @@ public:
     /**
      * Destructor.
      */
-    virtual~Port() = default;
-
-    /**
-     * Write a character to the port.
-     */
-    virtual void write(uint8_t c) = 0;
+    ~Port() override = default;
 };
 
 }

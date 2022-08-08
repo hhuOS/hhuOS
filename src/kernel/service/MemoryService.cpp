@@ -18,7 +18,6 @@
 #include "kernel/paging/Paging.h"
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
-#include "kernel/paging/PageDirectory.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "asm_interface.h"
 #include "MemoryService.h"
@@ -341,10 +340,6 @@ void MemoryService::switchAddressSpace(VirtualAddressSpace &addressSpace) {
     currentAddressSpace = &addressSpace;
     // load cr3-register with phys. address of Page Directory
     load_page_directory(addressSpace.getPageDirectory().getPageDirectoryPhysicalAddress());
-
-    /*if (!addressSpace.isInitialized()) {
-        addressSpace.initialize();
-    }*/
 }
 
 void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
@@ -406,10 +401,10 @@ void MemoryService::setSerialDebugging(bool enabled) {
 
 void MemoryService::printDebugNumber(uint32_t number, uint8_t base) {
     if (base == 8)
-        debugStream.write('0');
+        debugWriter.write('0');
     else if (base == 16) {
-        debugStream.write('0');
-        debugStream.write('x');
+        debugWriter.write('0');
+        debugWriter.write('x');
     }
 
     uint32_t div;
@@ -421,10 +416,10 @@ void MemoryService::printDebugNumber(uint32_t number, uint8_t base) {
         digit = static_cast<char>(number / div);
 
         if (digit < 10) {
-            debugStream.write(static_cast<char>('0' + digit));
+            debugWriter.write(static_cast<char>('0' + digit));
         }
         else {
-            debugStream.write(static_cast<char>('A' + digit - 10));
+            debugWriter.write(static_cast<char>('A' + digit - 10));
         }
 
         number %= div;

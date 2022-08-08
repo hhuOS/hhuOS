@@ -54,7 +54,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    Util::Graphic::Terminal* initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
+    Util::Graphic::Terminal& initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
 
     /**
      * Overriding function from TerminalProvider.

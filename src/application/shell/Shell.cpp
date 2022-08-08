@@ -28,46 +28,12 @@ void Shell::run() {
         return;
     }
 
-    auto cursorLimits = Util::Graphic::Ansi::getCursorLimits();
-    Util::Memory::String line = "";
-
     beginCommandLine();
 
     while (isRunning) {
-        char input = Util::System::in.read();
-        if (input == '\n') {
-            parseInput(line.strip());
-            line = "";
-
-            if (isRunning) {
-                beginCommandLine();
-            }
-        /*} else if (input == '\b') {
-            if (!line.isEmpty()) {
-                // Get current position
-                auto position = Util::Graphic::Ansi::getCursorPosition();
-
-                // Clear current position
-                Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
-                Util::Graphic::Ansi::moveCursorLeft(1);
-
-                if (position.column == 0) {
-                    // Wrap around to previous line
-                    Util::Graphic::Ansi::setPosition({cursorLimits.column, static_cast<uint16_t>(position.row - 1)});
-                } else {
-                    // Move cursor to previous column
-                    Util::Graphic::Ansi::setPosition({static_cast<uint16_t>(position.column - 1), position.row});
-                }
-
-                // Clear new position
-                Util::Graphic::Ansi::saveCursorPosition();
-                Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
-                Util::Graphic::Ansi::restoreCursorPosition();
-
-                line = line.substring(0, line.length() - 1);
-            }*/
-        } else if (input >= 0x20) {
-            line += input;
+        parseInput(readLine());
+        if (isRunning) {
+            beginCommandLine();
         }
     }
 }
@@ -78,6 +44,20 @@ void Shell::beginCommandLine() {
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
                       << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::flush;
+}
+
+Util::Memory::String Shell::readLine() const {
+    Util::Memory::String line;
+    char input = Util::System::in.read();
+
+    while (isRunning && input != '\n') {
+        if (input >= 0x20) {
+            line += input;
+        }
+        input = Util::System::in.read();
+    }
+
+    return line.strip();
 }
 
 void Shell::parseInput(const Util::Memory::String &input) {
@@ -109,7 +89,7 @@ void Shell::parseInput(const Util::Memory::String &input) {
     }
 }
 
-Util::Memory::String Shell::checkPath(const Util::Memory::String &command) {
+Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const {
     for (const auto &path : Util::Memory::String(PATH).split(":")) {
         auto binaryPath = checkDirectory(command, Util::File::File(path));
         if (!binaryPath.isEmpty()) {
@@ -120,7 +100,7 @@ Util::Memory::String Shell::checkPath(const Util::Memory::String &command) {
     return "";
 }
 
-Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) {
+Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) const {
     if (!directory.exists() || !directory.isDirectory()) {
         return "";
     }

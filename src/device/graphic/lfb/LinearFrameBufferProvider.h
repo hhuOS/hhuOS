@@ -81,7 +81,7 @@ public:
      * @param modeInfo Information about the desired frame buffer resolution
      * @param filename The name of the file, representing the created frame buffer in '/device/'
      */
-    virtual Util::Graphic::LinearFrameBuffer* initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
+    virtual void initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
 
     /**
      * Get all available graphics modes.

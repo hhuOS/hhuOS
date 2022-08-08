@@ -1,6 +1,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "kernel/system/BlueScreen.h"
+#include "filesystem/memory/StreamNode.h"
 #include "LinearFrameBufferTerminal.h"
 #include "LinearFrameBufferTerminalProvider.h"
 
@@ -67,7 +68,7 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return Util::Data::Array<ModeInfo>({ mode });
 }
 
-Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
@@ -75,7 +76,17 @@ Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(D
     auto *lfb = new Util::Graphic::LinearFrameBuffer(lfbFile, false);
     auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
     Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
-    return terminal;
+
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
+
+    if (!driver.addNode("/", terminalNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
+    }
+
+    return *terminal;
 }
 
 }

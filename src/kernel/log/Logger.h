@@ -24,7 +24,6 @@
 #include "lib/util/stream/OutputStream.h"
 #include "lib/util/data/HashMap.h"
 #include "device/port/serial/SerialPort.h"
-#include "device/port/PortOutputStream.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "device/time/TimeProvider.h"
 
@@ -80,8 +79,6 @@ private:
      * Copy Constructor.
      */
     Logger(const Logger &other) = default;
-
-    static const char* getThreadName();
 
     static const char* getLevelAsString(const LogLevel &level);
 

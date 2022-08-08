@@ -19,6 +19,7 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "kernel/system/BlueScreen.h"
+#include "filesystem/memory/StreamNode.h"
 #include "Structure.h"
 #include "MultibootTerminalProvider.h"
 
@@ -33,14 +34,24 @@ bool MultibootTerminalProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_EGA_TEXT && (frameBufferInfo.width == 80 || frameBufferInfo.width == 40) && frameBufferInfo.height == 25;
 }
 
-Util::Graphic::Terminal* MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal& MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been initializeAvailableDrives correctly by the bootloader!");
     }
 
     auto *terminal = new Device::Graphic::ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
+
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
+
+    if (!driver.addNode("/", terminalNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
+    }
+
     Kernel::BlueScreen::setCgaMode(terminal->getAddress().get(), terminal->getColumns(), terminal->getRows());
-    return terminal;
+    return *terminal;
 }
 
 Util::Data::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider::getAvailableModes() const {

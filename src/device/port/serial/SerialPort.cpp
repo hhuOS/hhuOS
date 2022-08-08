@@ -40,9 +40,7 @@ SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
     lineControlRegister.writeByte(0x03);    // 8 bits per char, no parity, one stop bit
     fifoControlRegister.writeByte(0x07);    // Enable FIFO-buffers, Clear FIFO-buffers, Trigger interrupt after each byte
     modemControlRegister.writeByte(0x0b);   // Enable data lines
-}
 
-SerialPort::SerialPort(ComPort port, Util::Stream::PipedInputStream &inputStream, BaudRate dataRate) : SerialPort(port, dataRate) {
     outputStream.connect(inputStream);
 }
 
@@ -66,10 +64,8 @@ void SerialPort::initializePort(ComPort port) {
 
     log.info("Serial port [%s] detected", portToString(port));
 
-    auto *inputStream = new Util::Stream::PipedInputStream();
-    auto *serialPort = new SerialPort(port, *inputStream);
-    auto *outputStream = new PortOutputStream(serialPort);
-    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), outputStream, inputStream);
+    auto *serialPort = new SerialPort(port);
+    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), serialPort, serialPort);
 
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
@@ -143,6 +139,7 @@ void SerialPort::trigger(const Kernel::InterruptFrame &frame) {
     while (hasData) {
         uint8_t byte = dataRegister.readByte();
         outputStream.write(byte == 13 ? '\n' : byte);
+        write(byte == 13 ? '\n' : byte);
 
         hasData = (lineStatusRegister.readByte() & 0x01) == 0x01;
     }
@@ -175,6 +172,20 @@ void SerialPort::write(uint8_t c) {
 
     while ((lineStatusRegister.readByte() & 0x20) == 0);
     dataRegister.writeByte(c);
+}
+
+void SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
+    for (uint32_t i = 0; i < length; i++) {
+        write(sourceBuffer[offset + i]);
+    }
+}
+
+int16_t SerialPort::read() {
+    return inputStream.read();
+}
+
+int32_t SerialPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
+    return inputStream.read(targetBuffer, offset, length);
 }
 
 }

@@ -52,11 +52,13 @@ public:
 
 private:
 
+    [[nodiscard]] Util::Memory::String readLine() const;
+
     void parseInput(const Util::Memory::String &input);
 
-    Util::Memory::String checkPath(const Util::Memory::String &command);
+    [[nodiscard]] Util::Memory::String checkPath(const Util::Memory::String &command) const;
 
-    Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory);
+    Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) const;
 
     static void beginCommandLine();
 

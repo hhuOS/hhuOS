@@ -96,7 +96,7 @@ bool VesaBiosExtensions::isAvailable() {
     return signature == VESA_SIGNATURE;
 }
 
-Util::Graphic::LinearFrameBuffer* VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "VBE is not available on this machine!");
     }
@@ -105,7 +105,14 @@ Util::Graphic::LinearFrameBuffer* VesaBiosExtensions::initializeLinearFrameBuffe
     auto vbeModeInfo = getModeInfo(modeInfo.modeNumber);
     setMode(modeInfo.modeNumber);
 
-    return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(vbeModeInfo.physbase), vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch);
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *lfbNode = new LinearFrameBufferNode(filename, vbeModeInfo.physbase, vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch);
+
+    if (!driver.addNode("/", lfbNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "VBE: Unable to add node!");
+    }
 }
 
 Util::Data::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {

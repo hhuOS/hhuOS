@@ -43,6 +43,10 @@ Util::Memory::String CpuId::getVendorString() {
     : "%ebx", "%ecx", "%edx"
     );
 
+    if (reinterpret_cast<uint8_t*>(vendor)[0] == 0) {
+        return "";
+    }
+
     return { reinterpret_cast<uint8_t*>(vendor), 12 };
 }
 

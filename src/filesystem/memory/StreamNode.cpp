@@ -40,7 +40,9 @@ uint64_t StreamNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64
 
 StreamNode::~StreamNode() {
     delete outputStream;
-    delete inputStream;
+    if (reinterpret_cast<void*>(outputStream) != reinterpret_cast<void*>(inputStream)) {
+        delete inputStream;
+    }
 }
 
 }

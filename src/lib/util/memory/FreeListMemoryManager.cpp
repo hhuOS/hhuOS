@@ -88,7 +88,6 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
     // run through list and look for memory block
     while (current != nullptr) {
-
         if (current->size >= size) {
             uint32_t data = ((uint32_t) current) + HEADER_SIZE;
             uint32_t alignedData = Util::Memory::Address(data).alignUp(alignment).get();

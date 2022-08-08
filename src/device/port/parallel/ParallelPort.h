@@ -68,10 +68,13 @@ public:
 
     [[nodiscard]] static const char* portToString(LptPort port);
 
-    /**
-     * Write a character to the port.
-     */
     void write(uint8_t c) override;
+
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+
+    [[nodiscard]] int16_t read() override;
+
+    [[nodiscard]] int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
 private:
 
