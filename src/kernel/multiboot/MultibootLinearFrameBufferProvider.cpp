@@ -32,7 +32,7 @@ void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
     auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
 
     if (!driver.addNode("/", lfbNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "MultibootLinearFrameBufferProvider: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "MultibootLinearFrameBufferProvider: Failed to add node!");
     }
 }
 

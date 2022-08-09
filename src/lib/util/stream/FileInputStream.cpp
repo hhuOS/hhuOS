@@ -20,11 +20,23 @@
 
 namespace Util::Stream {
 
-FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
+FileInputStream::FileInputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+    }
+}
 
-FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {}
+FileInputStream::FileInputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+    }
+}
 
-FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+FileInputStream::FileInputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
+    }
+}
 
 FileInputStream::~FileInputStream() {
     File::close(fileDescriptor);
@@ -38,10 +50,6 @@ int16_t FileInputStream::read() {
 }
 
 int32_t FileInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileInputStream: Unable to open file!");
-    }
-
     auto fileType = getFileType(fileDescriptor);
     auto fileLength = getFileLength(fileDescriptor);
 

@@ -63,7 +63,7 @@ Util::Graphic::Terminal& ColorGraphicsAdapterProvider::initializeTerminal(Termin
     auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
 
     if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CGA: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CGA: Failed to add node!");
     }
 
     return *terminal;

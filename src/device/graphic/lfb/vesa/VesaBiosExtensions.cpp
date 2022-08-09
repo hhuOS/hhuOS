@@ -111,7 +111,7 @@ void VesaBiosExtensions::initializeLinearFrameBuffer(const ModeInfo &modeInfo, c
     auto *lfbNode = new LinearFrameBufferNode(filename, vbeModeInfo.physbase, vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch);
 
     if (!driver.addNode("/", lfbNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "VBE: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "VBE: Failed to add node!");
     }
 }
 

@@ -20,9 +20,17 @@
 
 namespace Util::Stream {
 
-FileReader::FileReader(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
+FileReader::FileReader(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
-FileReader::FileReader(const Memory::String &path) : fileDescriptor(File::open(path)) {}
+FileReader::FileReader(const Memory::String &path) : fileDescriptor(File::open(path)) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
 FileReader::~FileReader() {
     File::close(fileDescriptor);
@@ -40,10 +48,6 @@ int32_t FileReader::read(char *targetBuffer, uint32_t length) {
 }
 
 int32_t FileReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
-    if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
-    }
-
     if (pos >= getFileLength(fileDescriptor)) {
         return -1;
     }

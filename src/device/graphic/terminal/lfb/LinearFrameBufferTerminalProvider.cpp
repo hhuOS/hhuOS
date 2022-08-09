@@ -83,7 +83,7 @@ Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(D
     auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
 
     if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Failed to add node!");
     }
 
     return *terminal;

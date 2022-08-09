@@ -111,7 +111,7 @@ void FloppyController::writeFifoByte(uint8_t command) {
             return;
         }
 
-        Util::Async::Thread::sleep({0, 10000000});
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
         timeout += 10;
     }
 
@@ -125,7 +125,7 @@ uint8_t FloppyController::readFifoByte() {
             return fifoRegister.readByte();
         }
 
-        Util::Async::Thread::sleep({0, 10000000});
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
         timeout += 10;
     }
 
@@ -207,7 +207,7 @@ bool FloppyController::resetDrive(FloppyDevice &device) {
 
     uint32_t timeout = 0;
     while (!receivedInterrupt) {
-        Util::Async::Thread::sleep({0, 10000000});
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
         timeout += 10;
 
         if (timeout > TIMEOUT) {
@@ -268,7 +268,7 @@ bool FloppyController::calibrateDrive(FloppyDevice &device) {
 
         uint32_t timeout = 0;
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            Util::Async::Thread::sleep({0, 10000000});
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
             timeout += 10;
         }
 
@@ -303,7 +303,7 @@ bool FloppyController::seek(FloppyDevice &device, uint8_t cylinder, uint8_t head
         uint32_t timeout = 0;
 
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            Util::Async::Thread::sleep({0, 10000000});
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
             timeout += 10;
         }
 
@@ -388,7 +388,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
 
         uint32_t timeout = 0;
         while (!receivedInterrupt && timeout < TIMEOUT) {
-            Util::Async::Thread::sleep({0, 10000000});
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
             timeout += 10;
         }
 

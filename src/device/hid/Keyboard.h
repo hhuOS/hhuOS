@@ -72,16 +72,6 @@ public:
     void setLed(uint8_t led, bool on);
 
     /**
-     * Get the amount of pressed keys.
-     */
-    [[nodiscard]] uint32_t getKeysPressed() const;
-
-    /**
-     * Check, if a specified key is pressed.
-     */
-    [[nodiscard]] bool isKeyPressed(uint32_t scancode) const;
-
-    /**
      * Enable keyboard-interrupts.
      */
     void plugin() override;
@@ -133,18 +123,6 @@ private:
      */
     void getAsciiCode(uint8_t code);
 
-    /**
-     * Add a key to the software-buffer.
-     */
-    void addToBuffer(uint32_t scancode);
-
-    /**
-     * Remove a key from the software-buffer.
-     */
-    void removeFromBuffer(uint32_t scancode);
-
-    static const constexpr uint32_t BUFFER_SIZE = 16;
-
     static Kernel::Logger log;
 
     static uint8_t normalTab[];
@@ -159,9 +137,6 @@ private:
     Key gather = Key();
     uint8_t prefix = 0;
     uint8_t leds = 0;
-
-    uint32_t keysPressed = 0;
-    uint32_t buffer[BUFFER_SIZE]{};
 
     Util::Stream::OutputStream &outputStream;
 };

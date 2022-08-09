@@ -71,13 +71,10 @@ Keyboard::Keyboard(Util::Stream::OutputStream &outputStream) : outputStream(outp
 bool Keyboard::decodeKey(uint8_t code) {
     bool done = false;
     bool isBreak =(code & BREAK_BIT);
-    uint32_t scancode = code & ~BREAK_BIT;
 
     if (isBreak) {
-        removeFromBuffer(scancode);
         gather.setPressed(false);
     } else {
-        addToBuffer(scancode);
         gather.setPressed(true);
     }
 
@@ -234,48 +231,7 @@ void Keyboard::setLed(uint8_t led, bool on) {
     }
 }
 
-uint32_t Keyboard::getKeysPressed() const {
-    return keysPressed;
-}
-
-bool Keyboard::isKeyPressed(uint32_t scancode) const {
-    for (const uint32_t &i : buffer) {
-        if (i == scancode) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-void Keyboard::addToBuffer(uint32_t scancode) {
-    if(isKeyPressed(scancode)) {
-        return;
-    }
-
-    for (uint32_t &i : buffer) {
-        if (i == 0) {
-            i = scancode;
-            keysPressed++;
-            break;
-        }
-    }
-}
-
-void Keyboard::removeFromBuffer(uint32_t scancode) {
-    for (uint32_t &i : buffer) {
-        if (i == scancode) {
-            i = 0;
-            keysPressed--;
-            break;
-        }
-    }
-}
-
 void Keyboard::plugin() {
-    Util::Memory::Address<uint32_t> address(buffer);
-    address.setRange(0, BUFFER_SIZE);
-
     auto &interruptService = Kernel::System::getService<Kernel::InterruptService>();
     interruptService.assignInterrupt(Kernel::InterruptDispatcher::KEYBOARD, *this);
     interruptService.allowHardwareInterrupt(Pic::Interrupt::KEYBOARD);

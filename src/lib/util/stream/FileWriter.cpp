@@ -20,9 +20,17 @@
 
 namespace Util::Stream {
 
-FileWriter::FileWriter(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
+FileWriter::FileWriter(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
-FileWriter::FileWriter(const Memory::String &path) : fileDescriptor(File::open(path)) {}
+FileWriter::FileWriter(const Memory::String &path) : fileDescriptor(File::open(path)) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
 FileWriter::~FileWriter() {
     File::close(fileDescriptor);
@@ -37,10 +45,6 @@ void FileWriter::write(const char *sourceBuffer, uint32_t length) {
 }
 
 void FileWriter::write(const char *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileWriter: Unable to open file!");
-    }
-
     pos += writeFile(fileDescriptor, reinterpret_cast<const uint8_t*>(sourceBuffer + offset), pos, length);
 }
 

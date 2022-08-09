@@ -56,6 +56,7 @@
 #include "filesystem/memory/RandomNode.h"
 #include "kernel/service/ProcessService.h"
 #include "filesystem/process/ProcessDriver.h"
+#include "device/hid/Mouse.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -95,6 +96,8 @@ void GatesOfHell::enter() {
 
     Device::SerialPort::initializeAvailablePorts();
     Device::ParallelPort::initializeAvailablePorts();
+
+    Device::Mouse::initialize();
 
     initializeKeyboardAndTerminal();
 

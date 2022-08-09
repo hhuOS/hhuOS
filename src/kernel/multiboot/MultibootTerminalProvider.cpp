@@ -47,7 +47,7 @@ Util::Graphic::Terminal& MultibootTerminalProvider::initializeTerminal(Device::G
     auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
 
     if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Unable to add node!");
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Failed to add node!");
     }
 
     Kernel::BlueScreen::setCgaMode(terminal->getAddress().get(), terminal->getColumns(), terminal->getRows());

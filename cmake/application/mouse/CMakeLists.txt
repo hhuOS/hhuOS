@@ -16,7 +16,15 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/hid/Key.cpp
-        ${HHUOS_SRC_DIR}/device/hid/Keyboard.cpp
-        ${HHUOS_SRC_DIR}/device/hid/Mouse.cpp)
+project(mouse)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/mouse/mouse.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user)

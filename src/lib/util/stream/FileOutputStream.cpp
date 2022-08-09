@@ -20,11 +20,23 @@
 
 namespace Util::Stream {
 
-FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {}
+FileOutputStream::FileOutputStream(const File::File &file) : fileDescriptor(File::open(file.getCanonicalPath())) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
-FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {}
+FileOutputStream::FileOutputStream(const Memory::String &path) : fileDescriptor(File::open(path)) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
-FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
+FileOutputStream::FileOutputStream(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileReader: Unable to open file!");
+    }
+}
 
 FileOutputStream::~FileOutputStream() {
     File::close(fileDescriptor);
@@ -35,10 +47,6 @@ void FileOutputStream::write(uint8_t c) {
 }
 
 void FileOutputStream::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    if (fileDescriptor < 0) {
-        Util::Exception::throwException(Exception::ILLEGAL_STATE, "FileOutputStream: Unable to open file!");
-    }
-
     uint32_t count = writeFile(fileDescriptor, sourceBuffer + offset, pos, length);
     pos += count;
 }
