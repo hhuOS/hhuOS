@@ -17,11 +17,52 @@
 
 #include <cstdint>
 #include "lib/util/system/System.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/BufferedInputStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/stream/FileReader.h"
+#include "lib/util/stream/BufferedReader.h"
+
+static const constexpr uint8_t BAR_LENGTH = 25;
+
+Util::Memory::String readLine(Util::Stream::BufferedReader &reader) {
+    Util::Memory::String buffer;
+    auto currentChar = reader.read();
+    while (currentChar != -1 && currentChar != '\n') {
+        buffer += currentChar;
+        currentChar = reader.read();
+    }
+
+    return buffer;
+}
+
+void printStatusLine(const Util::File::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
+    auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
+    auto percentage = static_cast<double>(passedTime) / songLength;
+    auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
+
+    Util::System::out << "[";
+    for (uint32_t i = 0; i < filledBar; i++) {
+        Util::System::out << "#";
+    }
+    for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
+        Util::System::out << "-";
+    }
+    Util::System::out << "]" << Util::Stream::PrintWriter::endl << frequencyString << Util::Stream::PrintWriter::flush;
+}
+
+uint32_t calculateLength(const Util::File::File &beepFile) {
+    auto fileReader = Util::Stream::FileReader(beepFile);
+    auto reader = Util::Stream::BufferedReader(fileReader);
+    uint32_t length = 0;
+
+    auto line = readLine(reader);
+    while (!line.isEmpty()) {
+        length += Util::Memory::String::parseInt(line.split(",")[1]);
+        line = readLine(reader);
+    }
+
+    return length;
+}
 
 int32_t main(int32_t argc, char *argv[]) {
     if (argc < 2) {
@@ -29,44 +70,37 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto file = Util::File::File(argv[1]);
-    if (!file.exists() || file.isDirectory()) {
+    auto beepFile = Util::File::File(argv[1]);
+    if (!beepFile.exists() || beepFile.isDirectory()) {
         Util::System::error << "beep: '" << argv[1] << "' could not be opened!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
     auto speakerFile = Util::File::File("/device/speaker");
-    auto fileInputStream = Util::Stream::FileInputStream(file);
-    auto inputStream = Util::Stream::BufferedInputStream(fileInputStream);
+    auto fileReader = Util::Stream::FileReader(beepFile);
+    auto reader = Util::Stream::BufferedReader(fileReader);
     auto outputStream = Util::Stream::FileOutputStream(speakerFile);
     auto writer = Util::Stream::PrintWriter(outputStream);
 
-    Util::Memory::String currentBuffer;
-    int16_t currentChar = fileInputStream.read();
-    while(currentChar != -1) {
-        if (currentChar == '\n') {
-            auto split = currentBuffer.split(",");
-            if (split.length() < 2) {
-                Util::Exception::throwException(Util::Exception::Error::INVALID_ARGUMENT, "Invalid line in music file!");
-            }
+    uint32_t passedTime = 0;
+    auto songLength = calculateLength(beepFile);
+    auto line = readLine(reader);
 
-            writer << split[0] << Util::Stream::PrintWriter::flush;
+    while (!line.isEmpty()) {
+        auto split = line.split(",");
+        auto length = Util::Memory::String::parseInt(split[1]);
+        passedTime += length;
 
-            auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
-            Util::System::out << frequencyString  << Util::Stream::PrintWriter::flush;
+        writer << split[0] << Util::Stream::PrintWriter::flush;
+        printStatusLine(speakerFile, passedTime, songLength);
 
-            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(Util::Memory::String::parseInt(split[1])));
-            Util::Graphic::Ansi::clearLineToCursor();
-            Util::Graphic::Ansi::setColumn(0);
-            Util::System::out << "\u001b[1K\u001b[0G" << Util::Stream::PrintWriter::flush;
-
-            currentBuffer = "";
-        }
-
-        currentBuffer += static_cast<char>(currentChar);
-        currentChar = fileInputStream.read();
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(length));
+        Util::Graphic::Ansi::clearLineToCursor();
+        Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
+        line = readLine(reader);
     }
 
     writer << 0 << Util::Stream::PrintWriter::flush;
+    Util::Graphic::Ansi::clearLine();
     return 0;
 }

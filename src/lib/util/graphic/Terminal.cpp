@@ -231,13 +231,13 @@ void Terminal::parseEraseSequence(const Util::Memory::String &escapeSequence, ch
         case 'J': {
             switch (code) {
                 case 0:
-                    while (getCurrentColumn() < getColumns() || getCurrentRow() < getRows()) {
+                    while (getCurrentColumn() < getColumns() - 1 || getCurrentRow() < getRows() - 1) {
                         putChar(' ', foregroundColor, backgroundColor);
                     }
                     break;
                 case 1:
                     setPosition(0, 0);
-                    while (getCurrentColumn() <= column || getCurrentRow() <= row) {
+                    while (getCurrentColumn() < column || getCurrentRow() < row) {
                         putChar(' ', foregroundColor, backgroundColor);
                     }
                     break;
@@ -252,7 +252,7 @@ void Terminal::parseEraseSequence(const Util::Memory::String &escapeSequence, ch
         case 'K': {
             switch (code) {
                 case 0:
-                    while (getCurrentColumn() < getColumns()) {
+                    while (getCurrentColumn() < getColumns() - 1) {
                         putChar(' ', foregroundColor, backgroundColor);
                     }
                     break;
@@ -264,7 +264,7 @@ void Terminal::parseEraseSequence(const Util::Memory::String &escapeSequence, ch
                     break;
                 case 2:
                     setPosition(0, row);
-                    while (getCurrentColumn() < getColumns()) {
+                    while (getCurrentColumn() < getColumns() - 1) {
                         putChar(' ', foregroundColor, backgroundColor);
                     }
                     break;
