@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.14)
 
 project(hdd0)
 message(STATUS "Project " ${PROJECT_NAME})
@@ -33,6 +33,7 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:fault>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/fault"
         COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/hello"
         COMMAND /bin/cp "$<TARGET_FILE:ls>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/ls"
+        COMMAND /bin/cp "$<TARGET_FILE:ls>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/lvgl"
         COMMAND /bin/cp "$<TARGET_FILE:membench>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/membench"
         COMMAND /bin/cp "$<TARGET_FILE:mkdir>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/mkdir"
         COMMAND /bin/cp "$<TARGET_FILE:polygon>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/polygon"
@@ -45,6 +46,6 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/tree"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uptime"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS shell ant beep cat color cp cube date echo fault hello ls membench mkdir polygon ps pwd rm rmdir shutdown touch tree uptime)
+        DEPENDS shell ant beep cat color cp cube date echo fault hello ls lvgl_demo membench mkdir polygon ps pwd rm rmdir shutdown touch tree uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello ls membench mkdir polygon ps  pwd rm rmdir shutdown touch tree uptime "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello ls lvgl_demo membench mkdir polygon ps  pwd rm rmdir shutdown touch tree uptime "${HHUOS_ROOT_DIR}/hdd0.img")

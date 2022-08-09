@@ -31,7 +31,7 @@ done
 
 readonly SECTORS=$(((${SIZE} / 512) + 2048))
 
-mformat -i part.img -C -T ${SECTORS} -h 1 -s ${SECTORS}
+mformat -i part.img -C -T ${SECTORS}
 mmd -i part.img efi
 mmd -i part.img efi/boot
 mcopy -i part.img towboot-ia32.efi ::efi/boot/bootia32.efi

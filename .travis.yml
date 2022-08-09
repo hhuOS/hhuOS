@@ -17,7 +17,7 @@
 language: cpp
 compiler: gcc
 os: linux
-dist: bionic
+dist: focal
 
 jobs:
   include:
@@ -25,7 +25,8 @@ jobs:
       addons:
         apt:
           packages:
-            - cmake
+            - gpg
+            - wget
             - make
             - nasm
             - gcc-multilib
@@ -33,9 +34,13 @@ jobs:
             - mtools
             - dosfstools
       before_script:
+        - wget https://github.com/Kitware/CMake/releases/download/v3.23.3/cmake-3.23.3-linux-x86_64.sh
+        - chmod +x cmake-3.23.3-linux-x86_64.sh
+        - yes | ./cmake-3.23.3-linux-x86_64.sh
         - wget -O rocket https://github.com/krakowski/rocket/releases/download/${ROCKET_VERSION}/rocket-${ROCKET_VERSION}-linux-amd64
         - chmod +x rocket
       script:
+        - cmake --version
         - ./build.sh
 
       deploy:

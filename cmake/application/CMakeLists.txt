@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.14)
 
 project(application)
 message(STATUS "Project " ${PROJECT_NAME})
@@ -40,6 +40,7 @@ add_subdirectory(echo)
 add_subdirectory(fault)
 add_subdirectory(hello)
 add_subdirectory(ls)
+add_subdirectory(lvgl)
 add_subdirectory(membench)
 add_subdirectory(mkdir)
 add_subdirectory(polygon)

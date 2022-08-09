@@ -20,12 +20,16 @@
 #include "lib/util/memory/HeapMemoryManager.h"
 #include "lib/util/memory/Constants.h"
 
-void *allocateMemory(uint32_t size, uint32_t alignment) {
+void* allocateMemory(uint32_t size, uint32_t alignment) {
     auto *manager = reinterpret_cast<Util::Memory::HeapMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS);
     return manager->allocateMemory(size, alignment);
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    if (pointer == nullptr) {
+        return allocateMemory(size, alignment);
+    }
+
     auto *manager = reinterpret_cast<Util::Memory::HeapMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS);
     return manager->reallocateMemory(pointer, size, alignment);
 }

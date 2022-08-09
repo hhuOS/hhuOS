@@ -36,6 +36,10 @@ void *allocateMemory(uint32_t size, uint32_t alignment) {
 }
 
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment) {
+    if (pointer == nullptr) {
+        return allocateMemory(size, alignment);
+    }
+
     return Kernel::System::getService<Kernel::MemoryService>().reallocateKernelMemory(pointer, size, alignment);
 }
 

@@ -14,7 +14,7 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.14)
 
 project(initrd)
 message(STATUS "Project " ${PROJECT_NAME})
@@ -33,6 +33,7 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/cp "$<TARGET_FILE:fault>" "${HHUOS_ROOT_DIR}/initrd/bin/fault"
         COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/initrd/bin/hello"
         COMMAND /bin/cp "$<TARGET_FILE:ls>" "${HHUOS_ROOT_DIR}/initrd/bin/ls"
+        COMMAND /bin/cp "$<TARGET_FILE:lvgl_demo>" "${HHUOS_ROOT_DIR}/initrd/bin/lvgl"
         COMMAND /bin/cp "$<TARGET_FILE:membench>" "${HHUOS_ROOT_DIR}/initrd/bin/membench"
         COMMAND /bin/cp "$<TARGET_FILE:mkdir>" "${HHUOS_ROOT_DIR}/initrd/bin/mkdir"
         COMMAND /bin/cp "$<TARGET_FILE:polygon>" "${HHUOS_ROOT_DIR}/initrd/bin/polygon"
@@ -47,6 +48,6 @@ add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/initrd"
         COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
         COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-        DEPENDS shell ant beep cat color cp cube date echo fault hello ls mkdir membench polygon ps pwd rm rmdir shutdown touch tree uptime)
+        DEPENDS shell ant beep cat color cp cube date echo fault hello ls lvgl_demo mkdir membench polygon ps pwd rm rmdir shutdown touch tree uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello ls mkdir membench polygon ps pwd rm rmdir shutdown touch tree uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello ls lvgl_demo mkdir membench polygon ps pwd rm rmdir shutdown touch tree uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
