@@ -21,16 +21,14 @@
 #include "device/cpu/IoPort.h"
 #include "kernel/log/Logger.h"
 #include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/stream/FilterInputStream.h"
+#include "Ps2Device.h"
 
 namespace Device {
 
-class Mouse : public Kernel::InterruptHandler, Util::Stream::InputStream {
+class Mouse : public Ps2Device, public Util::Stream::FilterInputStream, public Kernel::InterruptHandler {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    Mouse();
 
     /**
      * Copy Constructor.
@@ -47,51 +45,51 @@ public:
      */
     ~Mouse() override = default;
 
-    static void initialize();
+    static Mouse *initialize(Ps2Controller &controller);
 
     void plugin() override;
 
     void trigger(const Kernel::InterruptFrame &frame) override;
 
-    [[nodiscard]] int16_t read() override;
-
-    [[nodiscard]] int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
-
 private:
-
     /**
-     * Wait for the controller to have data available.
+     * Default Constructor.
      */
-    void waitData();
+    explicit Mouse(Ps2Controller &controller);
 
-    /**
-     * Wait for the controller to be ready to receive commands
-     */
-    void waitControl();
+    enum Command : uint8_t {
+        SET_SCALING = 0xe6,
+        SET_RESOLUTION = 0xe8,
+        STATUS_REQEUST = 0xe9,
+        SET_STREAM_MODE = 0xea,
+        READ_DATA = 0xeb,
+        RESET_WRAP_MODE = 0xec,
+        SET_WRAP_MODE = 0xee,
+        SET_REMOTE_MODE = 0xf0,
+        IDENTIFY = 0xf2,
+        SET_SAMPLING_RATE = 0xf3,
+        ENABLE_DATA_REPORTING = 0xf4,
+        DISABLE_DATA_REPORTING = 0xf5,
+        SET_DEFAULT_PARAMETERS = 0xf6,
+        RESEND_LAST_BYTE = 0xfe,
+        RESET = 0xff
+    };
 
-    /**
-     * Read a byte from the controller.
-     */
-    uint8_t readByte();
+    enum Reply : uint8_t {
+        SELF_TEST_PASSED = 0xaa,
+        ACK = 0xfa,
+        SELF_TEST_FAILED_1 = 0xfc,
+        SELF_TEST_FAILED_2 = 0xfd,
+    };
 
-    /**
-     * Write a command to the controller.
-     */
-    void writeByte(uint8_t data);
+    bool writeMouseCommand(Command command);
 
-    bool writeCommand(uint8_t command);
-
-    bool writeCommandAndByte(uint8_t command, uint8_t data);
-
-    void cleanup();
+    bool writeMouseCommand(Command command, uint8_t data);
 
     uint32_t cycle = 1;
     uint32_t flags = 0;
     int32_t dx = 0;
     int32_t dy = 0;
-
-    IoPort controlPort = IoPort(0x64);
-    IoPort dataPort = IoPort(0x60);
 
     Util::Stream::PipedOutputStream outputStream;
     Util::Stream::PipedInputStream inputStream;

@@ -19,6 +19,7 @@
 #include "lib/util/system/System.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Graphics2D.h"
+#include "lib/util/graphic/Fonts.h"
 
 void textLoop() {
     auto inputStream = Util::Stream::FileInputStream("/device/mouse");
@@ -38,26 +39,28 @@ void textLoop() {
 
 void graphicsLoop() {
     auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
-    auto graphics = Util::Game::Graphics2D(lfb);
+    auto stringDrawer = Util::Graphic::StringDrawer(Util::Graphic::PixelDrawer(lfb));
     auto inputStream = Util::Stream::FileInputStream("/device/mouse");
-    double x = 0;
-    double y = 0;
+    int32_t x = lfb.getResolutionX() / 2;
+    int32_t y = lfb.getResolutionY() / 2;
 
-    graphics.drawString(x, y, "@");
-    graphics.show();
+    lfb.clear();
+    stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, x, y, "@", Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
     while (true) {
         auto buttons = inputStream.read();
         auto xMovement = static_cast<int8_t>(inputStream.read());
         auto yMovement = static_cast<int8_t>(inputStream.read());
 
-        x += static_cast<double>(xMovement) / INT8_MAX;
-        y += static_cast<double>(yMovement) / INT8_MAX;
+        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, x, y, "   ", Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
 
-        if (x > 1) x = 1;
-        if (y > 1) y = 1;
-        if (x < -1) x = -1;
-        if (y < -1) y = -1;
+        x += xMovement;
+        y += yMovement;
+
+        if (x >= lfb.getResolutionX()) x = lfb.getResolutionX() - 1;
+        if (y >= lfb.getResolutionY()) y = lfb.getResolutionY() - 1;
+        if (x <= 0) x = 0;
+        if (y <= 0) y = 0;
 
         Util::Memory::String cursor;
         if (buttons & 0x01) {
@@ -70,13 +73,12 @@ void graphicsLoop() {
             cursor += 'r';
         }
 
-        graphics.drawString(x, y, cursor.isEmpty() ? "@" : cursor);
-        graphics.show();
+        stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, x, y, static_cast<const char*>(cursor.isEmpty() ? "@" : cursor), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
     }
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto mode = Util::Memory::String(argc > 1 ? argv[1] : "text");
+    auto mode = Util::Memory::String(argc > 1 ? argv[1] : "graphics");
     if (mode == "text") {
         textLoop();
     } else if (mode == "graphics") {

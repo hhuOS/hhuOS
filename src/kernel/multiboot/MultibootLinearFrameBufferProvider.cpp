@@ -24,7 +24,7 @@ void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeI
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been initializeAvailableDrives correctly by the bootloader!");
     }
 
-    log.info("Framebuffer information is valid (Address: [%08x], Resolution: [%ux%u@%u]", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
+    log.info("Framebuffer information is valid (Address: [%08x], Resolution: [%ux%u@%u])", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
 
     // Create filesystem node
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();

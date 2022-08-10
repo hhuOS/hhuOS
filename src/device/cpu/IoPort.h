@@ -108,7 +108,7 @@ public:
 	 *
 	 * @return 8-bit value read from IO-port
 	 */
-    [[nodiscard]] uint8_t readByte() const;
+    uint8_t readByte() const;
 
     /**
 	 * Read a byte from this IO-port with an offset to the address.
@@ -116,14 +116,14 @@ public:
 	 * @param offset Offset to port address
 	 * @return 8-bit value read from IO-port
 	 */
-    [[nodiscard]] uint8_t readByte(uint16_t offset) const;
+    uint8_t readByte(uint16_t offset) const;
 
     /**
      * Read a word from this IO-port.
      *
      * @return 16-bit value read from IO-port
      */
-    [[nodiscard]] uint16_t readWord() const;
+    uint16_t readWord() const;
 
     /**
 	 * Read a word from this IO-port with an offset to the address.
@@ -131,14 +131,14 @@ public:
 	 * @param offset Offset to port address
 	 * @return 8-bit value read from IO-port
 	 */
-    [[nodiscard]] uint16_t readWord(uint16_t offset) const;
+    uint16_t readWord(uint16_t offset) const;
 
     /**
 	 * Read a double word from this IO-port.
 	 *
 	 * @return 32-bit value read from IO-port
 	 */
-    [[nodiscard]] uint32_t readDoubleWord() const;
+    uint32_t readDoubleWord() const;
 
     /**
 	 * Read a double word from this IO-port with an offset to the address.
@@ -146,7 +146,7 @@ public:
 	 * @param offset Offset to port address
 	 * @return 8-bit value from IO-port
 	 */
-    [[nodiscard]] uint32_t readDoubleWord(uint16_t offset) const;
+    uint32_t readDoubleWord(uint16_t offset) const;
 
 private:
 

@@ -39,7 +39,7 @@ bool ColorGraphicsAdapterProvider::isAvailable() {
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
 
-Util::Graphic::Terminal& ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
     }
@@ -65,8 +65,6 @@ Util::Graphic::Terminal& ColorGraphicsAdapterProvider::initializeTerminal(Termin
     if (!driver.addNode("/", terminalNode)) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CGA: Failed to add node!");
     }
-
-    return *terminal;
 }
 
 Util::Data::Array<ColorGraphicsAdapterProvider::ModeInfo> ColorGraphicsAdapterProvider::getAvailableModes() const {

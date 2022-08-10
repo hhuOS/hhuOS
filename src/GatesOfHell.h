@@ -21,6 +21,7 @@
 #include "kernel/log/Logger.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "lib/util/stream/Reader.h"
+#include "lib/util/graphic/Terminal.h"
 
 /**
  * Represents the entry point for the operating system.
@@ -61,7 +62,11 @@ private:
 
     static void initializeFilesystem();
 
-    static void initializeKeyboardAndTerminal();
+    static void initializePs2Devices();
+
+    static void initializePorts();
+
+    static void initializeTerminal();
 
     static void initializePowerManagement();
 

@@ -20,9 +20,10 @@
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/stream/FilterInputStream.h"
+#include "lib/util/stream/FilterOutputStream.h"
 #include "lib/util/memory/String.h"
 #include "device/cpu/IoPort.h"
-#include "device/port/Port.h"
 
 namespace Kernel {
     class Logger;
@@ -33,7 +34,7 @@ namespace Device {
 /**
  * Driver for the serial COM-ports.
  */
-class SerialPort : public Port, public Kernel::InterruptHandler {
+class SerialPort : public Util::Stream::FilterInputStream, public Util::Stream::OutputStream, public Kernel::InterruptHandler {
 
 public:
     /**
@@ -196,10 +197,6 @@ public:
     void write(uint8_t c) override;
 
     void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-    [[nodiscard]] int16_t read() override;
-
-    [[nodiscard]] int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
 
 private:
 

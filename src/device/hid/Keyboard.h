@@ -24,6 +24,7 @@
 #include "lib/util/stream/PipedOutputStream.h"
 #include "kernel/log/Logger.h"
 #include "Key.h"
+#include "Ps2Device.h"
 
 namespace Device {
 
@@ -33,14 +34,9 @@ namespace Device {
  * @author  original by Olaf Spinczyk, TU Dortmund
  * 			modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  */
-class Keyboard : public Kernel::InterruptHandler {
+class Keyboard : public Ps2Device, public Util::Stream::FilterInputStream, public Kernel::InterruptHandler {
 
 public:
-    /**
-     * Constructor.
-     */
-    explicit Keyboard(Util::Stream::OutputStream &outputStream);
-
     /**
      * Copy Constructor.
      */
@@ -56,20 +52,7 @@ public:
      */
     ~Keyboard() override = default;
 
-    /**
-     * Set the controller's repeat rate.
-     *
-     * @param speed The dataRate, at which the controller shall operate
-     * @param delay The delay
-     */
-    void setRepeatRate(uint32_t speed, uint32_t delay);
-
-    /**
-     * Set or unset a specified led.
-     * @param led The led
-     * @param on On/Off
-     */
-    void setLed(uint8_t led, bool on);
+    static Keyboard* initialize(Ps2Controller &controller);
 
     /**
      * Enable keyboard-interrupts.
@@ -82,34 +65,64 @@ public:
     void trigger(const Kernel::InterruptFrame &frame) override;
 
 private:
+    /**
+     * Constructor.
+     */
+    explicit Keyboard(Ps2Controller &controller);
 
-    enum KeyboardStatus {
-        OUTB = 0x01,
-        INPB = 0x02,
-        AUXB = 0x20
-    };
-
-    enum KeyboardCommand {
+    enum Command : uint8_t {
         SET_LED = 0xed,
-        SET_SPEED = 0xf3,
-        CPU_RESET = 0xfe
+        ECHO = 0xee,
+        SCAN_CODE_SET = 0xf0,
+        IDENTIFY = 0xf2,
+        SET_TYPEMATIC_SPEED = 0xf3,
+        ENABLE_SCANNING = 0xf4,
+        DISABLE_SCANNING = 0xf5,
+        SET_DEFAULT_PARAMETERS = 0xf6,
+        SET_ALL_TYPEMATIC_ONLY = 0xf7,
+        SET_ALL_MAKE_BREAK = 0xf8,
+        SET_ALL_MAKE_ONLY = 0xf9,
+        SET_ALL_TYPEMATIC_MAKE_BREAK = 0xfa,
+        SET_KEY_TYPEMATIC = 0xfb,
+        SET_KEY_MAKE_BREAK = 0xfc,
+        SET_KEY_MAKE_ONLY = 0xfd,
+        RESEND_LAST_BYTE = 0xfe,
+        RESET = 0xff
     };
 
-    enum KeyboardLed {
+    enum Reply : uint8_t {
+        ERROR_1 = 0x00,
+        SELF_TEST_PASSED = 0xaa,
+        ECHO_RESPONSE = 0xee,
+        ACK = 0xfa,
+        SELF_TEST_FAILED_1 = 0xfc,
+        SELF_TEST_FAILED_2 = 0xfd,
+        RESEND_LAST_COMMAND = 0xfe,
+        ERROR_2 = 0xff
+    };
+
+    enum Led : uint8_t {
         CAPS_LOCK = 4,
         NUM_LOCK = 2,
         SCROLL_LOCK = 1
     };
 
-    enum KeyboardReply {
-        ACK = 0xfa
-    };
-
-    enum KeyboardCode {
+    enum Code : uint8_t {
         BREAK_BIT = 0x80,
         PREFIX1 = 0xe0,
         PREFIX2 = 0xe1
     };
+
+    bool writeKeyboardCommand(Device::Keyboard::Command command);
+
+    bool writeKeyboardCommand(Device::Keyboard::Command command, uint8_t data);
+
+    /**
+     * Set or unset a specified led.
+     * @param led The led
+     * @param on On/Off
+     */
+    void setLed(Device::Keyboard::Led led, bool on);
 
     /**
      * Decode make- and break-codes from the keyboard.
@@ -123,7 +136,12 @@ private:
      */
     void getAsciiCode(uint8_t code);
 
-    static Kernel::Logger log;
+    Key gather = Key();
+    uint8_t prefix = 0;
+    uint8_t leds = 0;
+
+    Util::Stream::PipedOutputStream outputStream;
+    Util::Stream::PipedInputStream inputStream;
 
     static uint8_t normalTab[];
     static uint8_t shiftTab[];
@@ -131,14 +149,7 @@ private:
     static uint8_t asciiNumTab[];
     static uint8_t scanNumTab[];
 
-    const IoPort controlPort = IoPort(0x64);
-    const IoPort dataPort = IoPort(0x60);
-
-    Key gather = Key();
-    uint8_t prefix = 0;
-    uint8_t leds = 0;
-
-    Util::Stream::OutputStream &outputStream;
+    static Kernel::Logger log;
 };
 
 }

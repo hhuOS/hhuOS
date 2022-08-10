@@ -19,7 +19,7 @@
 
 namespace Filesystem::Memory {
 
-NullNode::NullNode() : MemoryNode("null") {}
+NullNode::NullNode(const Util::Memory::String &name) : MemoryNode(name) {}
 
 Util::File::Type NullNode::getFileType() {
     return Util::File::CHARACTER;

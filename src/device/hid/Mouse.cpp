@@ -26,91 +26,90 @@ namespace Device {
 
 Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
 
-Mouse::Mouse() {
+Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Stream::FilterInputStream(inputStream) {
     outputStream.connect(inputStream);
 }
 
-void Mouse::initialize() {
-    auto *mouse = new Mouse();
-
-    // Check if mouse is available
-    mouse->waitControl();
-    mouse->controlPort.writeByte(0xA9); // Test second PS2 port (works only if two PS2 ports are supported)
-    mouse->waitData();
-    auto data = mouse->dataPort.readByte();
-    if (data == 0xff) {
-        log.error("No secondary PS2 port available");
+Mouse* Mouse::initialize(Ps2Controller &controller) {
+    auto *mouse = new Mouse(controller);
+    if (!controller.isPortAvailable(Ps2Controller::SECOND)) {
+        log.error("Second port of PS/2 controller is not available");
         delete mouse;
-        return;
+        return nullptr;
     }
 
-    log.info("Found secondary PS2 port -> Activating mouse");
+    // Reset mouse
+    uint8_t count = 0;
+    bool resetAcknowledged = mouse->writeMouseCommand(RESET);
+    do {
+        auto reply = mouse->readByte();
+        if (reply == ACK) {
+            resetAcknowledged = true;
+        } else if (reply == SELF_TEST_PASSED) {
+            log.info("Mouse has been reset and self test result is OK");
+            break;
+        } else if (reply == SELF_TEST_FAILED_1 || reply == SELF_TEST_FAILED_2) {
+            log.error("Mouse has been reset but self test result is error code [%02x]", reply);
+            delete mouse;
+            return nullptr;
+        }
 
-    // Deactivate keyboard in ps2 status byte
-    mouse->waitControl();
-    mouse->controlPort.writeByte(0x20); // Read status byte from controller
-    mouse->waitData();
-    auto status = mouse->dataPort.readByte() & 0xfc; // Deactivate mouse and keyboard interrupts in controller
-    status |= 0x10; // Deactivate keyboard too (1 means disabled)
-    mouse->waitControl();
+        count++;
+    } while (count < 10);
 
-    // Write modified byte back to controller
-    mouse->controlPort.writeByte(0x60);
-    mouse->waitControl();
-    mouse->dataPort.writeByte(status);
-
-    // Activate auxiliary device
-    mouse->waitControl();
-    mouse->controlPort.writeByte(0xA8); // A8 - enables second ps2 port
-
-    // Activate mouse and keyboard interrupts
-    mouse->waitControl();
-    mouse->controlPort.writeByte(0x20); // Read status byte from controller
-    mouse->waitData();
-    status = mouse->dataPort.readByte() | 0x03; // Activate mouse and keyboard interrupts (first two bits in status byte)
-    status &= ~0x10; // Activate keyboard
-    mouse->waitControl();
-    mouse->controlPort.writeByte(0x60); // Write modified byte back to controller
-    mouse->waitControl();
-    mouse->dataPort.writeByte(status);
-
-    // Use mouse default settings
-    if (!mouse->writeCommand(0xF6)) {
-        mouse->cleanup();
-        delete mouse;
-        return;
+    if (!resetAcknowledged || count == 10) {
+        log.warn("Failed to reset mouse -> Mouse might not be connected");
     }
-    // Set resolution
-    if (!mouse->writeCommandAndByte(0xE8, 0x02)) {
-        mouse->cleanup();
-        delete mouse;
-        return;
+
+    mouse->readByte(); // The mouse seems to send another byte afterwards, which is 0x00 and can be discarded
+
+    // Identify mouse
+    if (!mouse->writeMouseCommand(DISABLE_DATA_REPORTING) || !mouse->writeMouseCommand(IDENTIFY)) {
+        log.warn("Failed to identify mouse -> Assuming standard 3-button mouse");
+    } else {
+        auto type = mouse->readByte();
+        auto subtype = mouse->readByte();
+        if (type == STANDARD_MOUSE) {
+            log.info("Detected standard 3-button mouse");
+        } else if (type == MOUSE_WITH_SCROLL_WHEEL) {
+            log.info("Detected mouse with scroll wheel");
+        } else if (type == FIVE_BUTTON_MOUSE) {
+            log.info("Detected 5-button mouse");
+        } else {
+            log.error("Device connected to second PS/2 port reports as [%02x:%02x], which is not a valid mouse", type, subtype);
+            delete mouse;
+            return nullptr;
+        }
     }
-    // Set sampling to 80 packets per second
-    if (!mouse->writeCommandAndByte(0xF3, 80)) {
-        mouse->cleanup();
-        delete mouse;
-        return;
+
+    // Setup mouse
+    if (!mouse->writeMouseCommand(SET_DEFAULT_PARAMETERS)) {
+        log.warn("Failed to set default parameters");
     }
-    // Activate mouse packet streaming
-    if (!mouse->writeCommand(0xF4)) {
-        mouse->cleanup();
-        delete mouse;
-        return;
+    if (!mouse->writeMouseCommand(SET_RESOLUTION, 0x02)) {
+        log.warn("Failed to set resolution");
     }
+    if (!mouse->writeMouseCommand(SET_SAMPLING_RATE, 80)) {
+        log.warn("Failed to set sampling rate");
+    }
+    if (!mouse->writeMouseCommand(ENABLE_DATA_REPORTING)) {
+        log.warn("Failed to enable data reporting -> Mouse might not be working");
+    }
+
+    controller.flushOutputBuffer();
 
     auto *streamNode = new Filesystem::Memory::StreamNode("mouse", mouse);
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
     bool success = driver.addNode("/", streamNode);
 
-    if (success) {
-        mouse->plugin();
-    } else {
+    if (!success) {
         log.error("Mouse: Failed to add node");
-        mouse->cleanup();
         delete streamNode;
+        return nullptr;
     }
+
+    return mouse;
 }
 
 void Mouse::plugin() {
@@ -120,12 +119,12 @@ void Mouse::plugin() {
 }
 
 void Mouse::trigger(const Kernel::InterruptFrame &frame) {
-    auto status = controlPort.readByte();
+    auto status = controller.readControlByte();
     if (!(status & 0x20)) {
         return;
     }
     
-    auto data = dataPort.readByte();
+    auto data = controller.readDataByte();
     switch (cycle) {
         case 1:
             flags = data;
@@ -138,38 +137,35 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
 
             break;
         case 2:
-            // Just get the correct bits
-            data &= 0xff;
             // Check if signed
-            if(flags & 0x10) {
-                // Extend unsigned 8 bit data value to unsigned 32-bit in twos complement
-                dy = static_cast<int32_t>(data | 0xffffff00);
+            if (flags & 0x20) {
+                // Extend unsigned 8-bit data value to unsigned 16-bit in twos complement
+                dx = static_cast<int16_t>(data | 0xff00);
             } else {
-                dy = data;
+                dx = data;
             }
 
             cycle++;
             break;
         case 3:
-            // Just get the correct bits
-            data &= 0xff;
             // Check if signed
-            if (flags & 0x20) {
-                // Extend unsigned 8 bit data value to unsigned 32-bit in twos complement
-                dx = static_cast<int32_t>(data | 0xffffff00);
+            if(flags & 0x10) {
+                // Extend unsigned 8-bit data value to unsigned 16-bit in twos complement
+                dy = static_cast<int16_t>(data | 0xff00);
             } else {
-                dx = data;
+                dy = data;
             }
 
             // If there was an x or y overflow, discard this 'event'
-            if (flags & 0x40 || flags & 0x80){
+            if (flags & 0x40 || flags & 0x80) {
+                cycle = 1;
                 return;
             }
 
-            // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement
+            // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement (inverted)
             outputStream.write(flags & 0x07);
             outputStream.write(dx);
-            outputStream.write(dy);
+            outputStream.write(-dy);
 
             // Reset cycle
             cycle = 1;
@@ -177,109 +173,14 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
     }
 }
 
-void Mouse::waitData() {
-    uint32_t timeout = 0;
-    while ((controlPort.readByte() & 0x01) && timeout < TIMEOUT) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
-        timeout += 10;
-    }
+bool Mouse::writeMouseCommand(Mouse::Command command) {
+    auto reply = writeCommand(command);
+    return reply == ACK;
 }
 
-void Mouse::waitControl() {
-    uint32_t timeout = 0;
-    while ((controlPort.readByte() & 0x02) && timeout < TIMEOUT) {
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
-        timeout += 10;
-    }
-}
-
-uint8_t Mouse::readByte() {
-    waitData();
-    return dataPort.readByte();
-}
-
-void Mouse::writeByte(uint8_t data) {
-    waitControl();
-    controlPort.writeByte(0xD4); // Write next data byte to second PS2 input buffer (in this case mouse)
-    waitControl(); // Wait for OK
-    dataPort.writeByte(data);
-}
-
-bool Mouse::writeCommand(uint8_t command) {
-    uint8_t tmp;
-    uint8_t counter = 0;
-    writeByte(command); // Send command
-
-    while((tmp = readByte()) != 0xfa) { // Wait for ACK
-        log.warn("Did not receive ACK");
-        if(tmp == 0xFE) {
-            writeByte(command); // send command byte again
-        }
-
-        counter ++;
-        if(counter == 5) {
-            log.error("Did not receive ACK for after 5 retries");
-            return false;
-        }
-    }
-
-    return true;
-}
-
-bool Mouse::writeCommandAndByte(uint8_t command, uint8_t data) {
-    if (!writeCommand(command)) {
-        return false;
-    }
-
-    uint8_t tmp;
-    writeByte(data); // Write payload for command to data port
-
-    while((tmp = readByte()) != 0xfa){ // wait for ack
-        if(tmp == 0xfe) {
-            writeByte(data);
-        }
-    }
-
-    return true;
-}
-
-void Mouse::cleanup() {
-    uint8_t status;
-
-    waitControl();
-    controlPort.writeByte(0x20); // Read controller status byte
-    waitData();
-    status = dataPort.readByte() & 0xfc; // Deactivate mouse and keyboard interrupts
-    status |= 0x10; // Disable keyboard
-
-    waitControl();
-    controlPort.writeByte(0x60); // Write modified status byte back to controller
-    waitControl();
-    dataPort.writeByte(status);
-
-    // Deactivate auxiliary device
-    waitControl();
-    controlPort.writeByte(0xa7);
-
-    // Activate keyboard interrupts and enable keyboard
-    waitControl();
-    controlPort.writeByte(0x20); // Read controller status byte
-    waitData();
-    status = dataPort.readByte() | 0x01; // Activate keyboard interrupts
-    status &= ~0x10; // Rnable keyboard
-
-    waitControl();
-    controlPort.writeByte(0x60);
-    waitControl();
-    dataPort.writeByte(status);
-}
-
-int16_t Mouse::read() {
-    return inputStream.read();
-}
-
-int32_t Mouse::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    return inputStream.read(targetBuffer, offset, length);
+bool Mouse::writeMouseCommand(Mouse::Command command, uint8_t data) {
+    auto reply = writeCommand(command, data);
+    return reply == ACK;
 }
 
 }

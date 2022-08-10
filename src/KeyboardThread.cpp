@@ -15,47 +15,4 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOMNODE_H
-#define HHUOS_RANDOMNODE_H
-
-#include "MemoryNode.h"
-
-namespace Filesystem::Memory {
-
-class RandomNode : public MemoryNode {
-
-public:
-    /**
-     * Constructor.
-     */
-    RandomNode(const Util::Memory::String &name = "random");
-
-    /**
-     * Copy Constructor.
-     */
-    RandomNode(const RandomNode &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    RandomNode &operator=(const RandomNode &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~RandomNode() override = default;
-
-    /**
-     * Overriding function from Node.
-     */
-    Util::File::Type getFileType() override;
-
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
-};
-
-}
-
-#endif
+#include "KeyboardRunnable.h"

@@ -21,12 +21,21 @@
 
 int32_t main(int32_t argc, char *argv[]) {
     auto processDirectory = Util::File::File("/process");
+    auto processRootPath = processDirectory.getCanonicalPath();
 
-    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::endl;
+    Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_YELLOW << "PID\tThreads\tName" << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::endl;
     for (const auto &child : processDirectory.getChildren()) {
-        auto nameFile = Util::File::File(processDirectory.getCanonicalPath() + "/" + child + "/name");
+        auto processPath = processRootPath + "/" + child + "/";
+
+        auto nameFile = Util::File::File(processPath + "/name");
         auto nameStream = Util::Stream::FileReader(nameFile);
-        Util::System::out << child << "\t" << nameStream.read(nameFile.getLength() - 1) << Util::Stream::PrintWriter::endl;
+
+        auto threadCountFile = Util::File::File(processPath + "/thread_count");
+        auto threadCountStream = Util::Stream::FileReader(threadCountFile);
+
+        Util::System::out << child << "\t"
+                        << threadCountStream.read(threadCountFile.getLength() -1)  << "\t"
+                        << nameStream.read(nameFile.getLength() - 1) << Util::Stream::PrintWriter::endl;
     }
 
     Util::System::out << Util::Stream::PrintWriter::flush;

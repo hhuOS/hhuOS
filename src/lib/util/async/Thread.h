@@ -20,6 +20,8 @@
 
 #include <cstdint>
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/memory/String.h"
+#include "Runnable.h"
 
 namespace Util::Async {
 
@@ -45,6 +47,8 @@ public:
      * Destructor.
      */
     ~Thread() = default;
+
+    static Thread createThread(const Memory::String &name, Runnable *runnable);
 
     static Thread getCurrentThread();
 

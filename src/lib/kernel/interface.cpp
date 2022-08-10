@@ -124,6 +124,11 @@ Util::Async::Process getCurrentProcess() {
     auto &process = Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess();
     return Util::Async::Process(process.getId());
 }
+Util::Async::Thread createThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
+    auto &thread = Kernel::Thread::createKernelThread(name, Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), runnable);
+    Kernel::System::getService<Kernel::SchedulerService>().ready(thread);
+    return Util::Async::Thread(thread.getId());
+}
 
 Util::Async::Thread getCurrentThread() {
     auto &thread = Kernel::System::getService<Kernel::SchedulerService>().getCurrentThread();

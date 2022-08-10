@@ -28,7 +28,7 @@ public:
     /**
      * Constructor.
      */
-    NullNode();
+    NullNode(const Util::Memory::String &name = "null");
 
     /**
      * Copy Constructor.

@@ -287,6 +287,14 @@ String::operator const char *() const {
     return buffer;
 }
 
+String::operator uint8_t *() const {
+    return reinterpret_cast<uint8_t*>(buffer);
+}
+
+String::operator const uint8_t *() const {
+    return reinterpret_cast<const uint8_t*>(buffer);
+}
+
 char String::operator[](uint32_t index) const {
     return buffer[index];
 }

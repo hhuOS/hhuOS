@@ -20,7 +20,7 @@
 
 namespace Filesystem::Memory {
 
-ZeroNode::ZeroNode() : MemoryNode("zero") {}
+ZeroNode::ZeroNode(const Util::Memory::String &name) : MemoryNode(name) {}
 
 Util::File::Type ZeroNode::getFileType() {
     return Util::File::CHARACTER;

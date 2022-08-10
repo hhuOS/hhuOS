@@ -57,6 +57,7 @@
 #include "kernel/service/ProcessService.h"
 #include "filesystem/process/ProcessDriver.h"
 #include "device/hid/Mouse.h"
+#include "device/hid/Ps2Controller.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -94,12 +95,11 @@ void GatesOfHell::enter() {
 
     initializeFilesystem();
 
-    Device::SerialPort::initializeAvailablePorts();
-    Device::ParallelPort::initializeAvailablePorts();
+    initializePs2Devices();
 
-    Device::Mouse::initialize();
+    initializePorts();
 
-    initializeKeyboardAndTerminal();
+    initializeTerminal();
 
     initializePowerManagement();
 
@@ -121,7 +121,7 @@ void GatesOfHell::enter() {
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }
 
-void GatesOfHell::initializeKeyboardAndTerminal() {
+void GatesOfHell::initializeTerminal() {
     log.info("Initializing graphical terminal");
 
     if (Device::Graphic::VesaBiosExtensions::isAvailable()) {
@@ -166,11 +166,7 @@ void GatesOfHell::initializeKeyboardAndTerminal() {
     }
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
-    auto &terminal = terminalProvider->initializeTerminal(resolution, "terminal");
-
-    // Initialize keyboard
-    auto *keyboard = new Device::Keyboard(terminal.getPipedOutputStream());
-    keyboard->plugin();
+    terminalProvider->initializeTerminal(resolution, "terminal");
 
     // Open first file descriptors for Util::System::in, Util::System::out and Util::System::error
     Util::File::open("/device/terminal");
@@ -255,6 +251,31 @@ void GatesOfHell::initializeFilesystem() {
         filesystemService.createDirectory("/initrd");
         filesystemService.getFilesystem().mountVirtualDriver("/initrd", tarDriver);
     }
+}
+
+void GatesOfHell::initializePs2Devices() {
+    auto *ps2Controller = Device::Ps2Controller::initialize();
+    auto *keyboard = Device::Keyboard::initialize(*ps2Controller);
+    auto *mouse = Device::Mouse::initialize(*ps2Controller);
+
+    if (keyboard == nullptr) {
+        // Register a null node as keyboard, so that the system can at least still boot up
+        auto *node = new Filesystem::Memory::NullNode("keyboard");
+        auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+        auto &driver = filesystem.getVirtualDriver("/device");
+        driver.addNode("/", node);
+    } else {
+        keyboard->plugin();
+    }
+
+    if (mouse != nullptr) {
+        mouse->plugin();
+    }
+}
+
+void GatesOfHell::initializePorts() {
+    Device::SerialPort::initializeAvailablePorts();
+    Device::ParallelPort::initializeAvailablePorts();
 }
 
 void GatesOfHell::printBanner() {

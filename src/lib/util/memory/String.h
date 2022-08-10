@@ -115,6 +115,10 @@ public:
 
     explicit operator const char *() const;
 
+    explicit operator uint8_t *() const;
+
+    explicit operator const uint8_t *() const;
+
     explicit operator uint32_t() const;
 
 private:

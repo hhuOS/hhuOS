@@ -15,47 +15,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOMNODE_H
-#define HHUOS_RANDOMNODE_H
+#ifndef HHUOS_KEYBOARDRUNNABLE_H
+#define HHUOS_KEYBOARDRUNNABLE_H
 
-#include "MemoryNode.h"
-
-namespace Filesystem::Memory {
-
-class RandomNode : public MemoryNode {
+// TODO: This should be a user-space threads, started by the terminal.
+class KeyboardRunnable {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    RandomNode(const Util::Memory::String &name = "random");
+    KeyboardRunnable() = default;
 
     /**
      * Copy Constructor.
      */
-    RandomNode(const RandomNode &copy) = delete;
+    KeyboardRunnable(const KeyboardRunnable &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RandomNode &operator=(const RandomNode &other) = delete;
+    KeyboardRunnable &operator=(const KeyboardRunnable &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RandomNode() override = default;
-
-    /**
-     * Overriding function from Node.
-     */
-    Util::File::Type getFileType() override;
-
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+    ~KeyboardRunnable() = default;
 };
-
-}
 
 #endif

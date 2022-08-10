@@ -15,42 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PORT_H
-#define HHUOS_PORT_H
-
-#include "device/cpu/IoPort.h"
-#include "lib/util/stream/PipedOutputStream.h"
-#include "lib/util/memory/String.h"
+#include "Ps2Device.h"
 
 namespace Device {
 
-/**
- * Driver for the serial COM-ports.
- */
-class Port : public Util::Stream::OutputStream, public Util::Stream::InputStream {
+Ps2Device::Ps2Device(Ps2Controller &controller, Ps2Controller::Port port) : controller(controller), port(port) {}
 
-public:
-    /**
-     * Constructor.
-     */
-    Port() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    Port(const Port &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Port &operator=(const Port &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Port() override = default;
-};
-
+uint8_t Ps2Device::writeCommand(uint8_t command) {
+    controller.writeDataToPort(port, command);
+    return readByte();
 }
 
-#endif
+uint8_t Ps2Device::writeCommand(uint8_t command, uint8_t data) {
+    controller.writeDataToPort(port, command);
+    controller.writeDataToPort(port, data);
+    return readByte();
+}
+
+uint8_t Ps2Device::readByte() {
+    return controller.readDataByte();
+}
+
+}

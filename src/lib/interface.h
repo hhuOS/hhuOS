@@ -27,6 +27,7 @@
 #include "lib/util/async/Process.h"
 #include "lib/util/system/Machine.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/async/Runnable.h"
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);
@@ -50,6 +51,7 @@ Util::File::File getCurrentWorkingDirectory();
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 Util::Async::Process getCurrentProcess();
+Util::Async::Thread createThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 Util::Async::Thread getCurrentThread();
 void joinProcess(uint32_t id);
 void sleep(const Util::Time::Timestamp &time);

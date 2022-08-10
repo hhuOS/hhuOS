@@ -27,6 +27,8 @@
 #include "lib/util/stream/PipedOutputStream.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/async/Runnable.h"
+#include "lib/util/stream/FileInputStream.h"
 
 namespace Util::Graphic {
 
@@ -68,7 +70,7 @@ public:
 
 private:
 
-    class TerminalPipedOutputStream : public Util::Stream::PipedOutputStream {
+    class TerminalPipedOutputStream : public Stream::PipedOutputStream {
 
     public:
         /**
@@ -89,7 +91,7 @@ private:
         /**
          * Destructor.
          */
-        ~TerminalPipedOutputStream() override;
+        ~TerminalPipedOutputStream() override = default;
 
         void write(uint8_t c) override;
 
@@ -101,9 +103,39 @@ private:
 
         Terminal &terminal;
         Stream::ByteArrayOutputStream lineBufferStream;
-        uint8_t *lineBuffer;
 
         static const constexpr uint32_t LINE_BUFFER_SIZE = 1024;
+    };
+
+    class KeyboardRunnable : public Async::Runnable {
+
+    public:
+        /**
+         * Constructor.
+         */
+        KeyboardRunnable(Terminal &terminal);
+
+        /**
+         * Copy Constructor.
+         */
+        KeyboardRunnable(const KeyboardRunnable &copy) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        KeyboardRunnable& operator=(const KeyboardRunnable & other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~KeyboardRunnable() override = default;
+
+        void run() override;
+
+    private:
+
+        Terminal &terminal;
+        Stream::FileInputStream keyboardStream = Stream::FileInputStream("/device/keyboard");
     };
 
     void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);

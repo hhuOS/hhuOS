@@ -74,7 +74,7 @@ To run hhuOS with GRUB on a BIOS-based machine, use:
 
 hhuOS can be configured via kernel parameters, that are passed to the system by the bootloader. The following parameters are available:
 
-- `log_level` is used to set the log level. Valid levels are `trace`, `debug`, `info`, `warn` and `error`.
+- `log_level` is used to set the log level. Valid levels are `trc`, `dbg`, `inf`, `wrn` and `err`.
 - `log_ports` is used to enable log output via serial or parallel ports. Valid values are `COM1`, `COM2`, `COM3`, `COM4`, `LPT1`, `LPT2`, `LPT3`. Multiple ports may be specified via a comma-separated list.
 - `root` is used to set device to mount as root filesystem and the filesystem driver to use (e.g `floppy0,Filesystem::Fat::FatDriver`).
 - `bios` can be set to `true` to activate support for BIOS-calls. This enables support for *VESA* and *CGA* graphics modes. CAUTION: Enabling this option will cause hhuOS to not boot on most UEFI-based systems.

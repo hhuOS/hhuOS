@@ -15,45 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_RANDOMNODE_H
-#define HHUOS_RANDOMNODE_H
+#ifndef HHUOS_PS2DEVICE_H
+#define HHUOS_PS2DEVICE_H
 
-#include "MemoryNode.h"
+#include "Ps2Controller.h"
 
-namespace Filesystem::Memory {
+namespace Device {
 
-class RandomNode : public MemoryNode {
+class Ps2Device {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    RandomNode(const Util::Memory::String &name = "random");
+    Ps2Device(Ps2Controller &controller, Ps2Controller::Port port);
 
     /**
      * Copy Constructor.
      */
-    RandomNode(const RandomNode &copy) = delete;
+    Ps2Device(const Ps2Device &other) = delete;
 
     /**
      * Assignment operator.
      */
-    RandomNode &operator=(const RandomNode &other) = delete;
+    Ps2Device &operator=(const Ps2Device &other) = delete;
 
     /**
      * Destructor.
      */
-    ~RandomNode() override = default;
+    ~Ps2Device() = default;
 
-    /**
-     * Overriding function from Node.
-     */
-    Util::File::Type getFileType() override;
+protected:
 
-    /**
-     * Overriding function from Node.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+    enum DeviceType : uint8_t {
+        STANDARD_MOUSE = 0x00,
+        MOUSE_WITH_SCROLL_WHEEL = 0x03,
+        FIVE_BUTTON_MOUSE = 0x04,
+        MF2_KEYBOARD = 0xab,
+        AT_KEYBOARD = 0xff
+    };
+
+    uint8_t writeCommand(uint8_t command);
+
+    uint8_t writeCommand(uint8_t command, uint8_t data);
+
+    uint8_t readByte();
+
+    Ps2Controller &controller;
+
+private:
+
+    Ps2Controller::Port port;
 };
 
 }

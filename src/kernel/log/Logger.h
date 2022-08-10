@@ -93,11 +93,11 @@ private:
     static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
     static Util::Data::ArrayList<Util::Memory::String> buffer;
 
-    static const constexpr char *LEVEL_TRACE = "TRACE";
-    static const constexpr char *LEVEL_DEBUG = "DEBUG";
-    static const constexpr char *LEVEL_INFO = "INFO";
-    static const constexpr char *LEVEL_WARN = "WARN";
-    static const constexpr char *LEVEL_ERROR = "ERROR";
+    static const constexpr char *LEVEL_TRACE = "TRC";
+    static const constexpr char *LEVEL_DEBUG = "DBG";
+    static const constexpr char *LEVEL_INFO = "INF";
+    static const constexpr char *LEVEL_WARN = "WRN";
+    static const constexpr char *LEVEL_ERROR = "ERR";
 };
 
 }

@@ -17,11 +17,13 @@
 
 #include "lib/util/Exception.h"
 #include "Terminal.h"
+#include "lib/util/async/Thread.h"
 
 namespace Util::Graphic {
 
 Terminal::Terminal(uint16_t columns, uint16_t rows) : outputStream(*this), columns(columns), rows(rows) {
     outputStream.connect(inputStream);
+    Async::Thread::createThread("Terminal", new KeyboardRunnable(*this));
 }
 
 void Terminal::write(uint8_t c) {
@@ -378,11 +380,7 @@ void Terminal::parseGraphicRendition(uint8_t code) {
     }
 }
 
-Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize) : terminal(terminal), lineBufferStream(LINE_BUFFER_SIZE), lineBuffer(new uint8_t[lineBufferSize]) {}
-
-Terminal::TerminalPipedOutputStream::~TerminalPipedOutputStream() {
-    delete[] lineBuffer;
-}
+Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize) : terminal(terminal), lineBufferStream(LINE_BUFFER_SIZE) {}
 
 void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
     if (c == '\b') {
@@ -401,10 +399,9 @@ void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
             terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
             terminal.setPosition(column, row);
 
-            auto lineLength = lineBufferStream.getSize() - 1;
-            lineBufferStream.getContent(lineBuffer, lineLength);
+            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getSize() - 1);
             lineBufferStream.reset();
-            lineBufferStream.write(lineBuffer, 0, lineLength);
+            lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
     } else if (lineBufferStream.getSize() < LINE_BUFFER_SIZE) {
         lineBufferStream.write(c);
@@ -423,9 +420,16 @@ void Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uin
 }
 
 void Terminal::TerminalPipedOutputStream::flush() {
-    lineBufferStream.getContent(lineBuffer, lineBufferStream.getSize());
-    PipedOutputStream::write(lineBuffer, 0, lineBufferStream.getSize());
+    PipedOutputStream::write(static_cast<uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getSize());
     lineBufferStream.reset();
+}
+
+Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(terminal) {}
+
+void Terminal::KeyboardRunnable::run() {
+    while (true) {
+        terminal.outputStream.write(keyboardStream.read());
+    }
 }
 
 }

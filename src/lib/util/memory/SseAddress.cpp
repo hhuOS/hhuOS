@@ -35,8 +35,7 @@ template<typename T>
 void SseAddress<T>::setRange(uint8_t value, T length) const {
     auto *target = reinterpret_cast<uint64_t *>(Address<T>::address);
     auto longValue = static_cast<uint64_t>(value);
-    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 |
-                longValue << 48 | longValue << 56;
+    longValue = longValue | longValue << 8 | longValue << 16 | longValue << 24 | longValue << 32 | longValue << 40 | longValue << 48 | longValue << 56;
     uint64_t longArray[]{longValue, longValue};
 
     asm volatile (

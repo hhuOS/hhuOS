@@ -21,7 +21,7 @@
 
 namespace Filesystem::Memory {
 
-RandomNode::RandomNode() : MemoryNode("random") {}
+RandomNode::RandomNode(const Util::Memory::String &name) : MemoryNode(name) {}
 
 Util::File::Type RandomNode::getFileType() {
     return Util::File::CHARACTER;

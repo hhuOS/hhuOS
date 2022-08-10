@@ -137,12 +137,4 @@ void ParallelPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t 
     }
 }
 
-int16_t ParallelPort::read() {
-    return 0;
-}
-
-int32_t ParallelPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    return 0;
-}
-
 }

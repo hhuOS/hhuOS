@@ -27,7 +27,7 @@ namespace Device {
 
 Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
 
-SerialPort::SerialPort(ComPort port, BaudRate dataRate) :
+SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Stream::FilterInputStream(inputStream),
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
         lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
         modemStatusRegister(port + 6), scratchRegister(port + 7) {
@@ -178,14 +178,6 @@ void SerialPort::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t le
     for (uint32_t i = 0; i < length; i++) {
         write(sourceBuffer[offset + i]);
     }
-}
-
-int16_t SerialPort::read() {
-    return inputStream.read();
-}
-
-int32_t SerialPort::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
-    return inputStream.read(targetBuffer, offset, length);
 }
 
 }

@@ -19,9 +19,9 @@
 #include "kernel/system/System.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/paging/Paging.h"
+#include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
-#include "kernel/service/InterruptService.h"
 
 // Import functions
 extern "C" {

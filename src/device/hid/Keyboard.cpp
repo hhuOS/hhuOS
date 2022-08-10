@@ -61,11 +61,120 @@ uint8_t Keyboard::scanNumTab[] = {
         8, 9, 10, 53, 5, 6, 7, 27, 2, 3, 4, 11, 51
 };
 
-Keyboard::Keyboard(Util::Stream::OutputStream &outputStream) : outputStream(outputStream) {
-    setLed(CAPS_LOCK, false);
-    setLed(SCROLL_LOCK, false);
-    setLed(NUM_LOCK, false);
-    setRepeatRate(0, 0);
+Keyboard::Keyboard(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::FIRST), Util::Stream::FilterInputStream(inputStream) {
+    outputStream.connect(inputStream);
+}
+
+Keyboard* Keyboard::initialize(Ps2Controller &controller) {
+    auto *keyboard = new Keyboard(controller);
+    if (!controller.isPortAvailable(Ps2Controller::FIRST)) {
+        log.error("First port of PS/2 controller is not available");
+        delete keyboard;
+        return nullptr;
+    }
+
+    // Reset keyboard
+    uint8_t count = 0;
+    bool resetAcknowledged = keyboard->writeKeyboardCommand(RESET);
+    do {
+        auto reply = keyboard->readByte();
+        if (reply == ACK) {
+            resetAcknowledged = true;
+        } if (reply == SELF_TEST_PASSED) {
+            log.info("Keyboard has been reset and self test result is OK");
+            break;
+        } else if (reply == SELF_TEST_FAILED_1 || reply == SELF_TEST_FAILED_2) {
+            log.error("Keyboard has been reset but self test result is error code [%02x]", reply);
+            delete keyboard;
+            return nullptr;
+        }
+
+        count++;
+    } while (count < 10);
+
+    if (!resetAcknowledged || count == 10) {
+        log.warn("Failed to reset keyboard -> Keyboard might not be connected");
+    }
+
+    // Identify keyboard
+    if (!keyboard->writeKeyboardCommand(DISABLE_SCANNING) || !keyboard->writeKeyboardCommand(IDENTIFY)) {
+        log.warn("Failed to identify keyboard");
+    } else {
+        auto type = keyboard->readByte();
+        auto subtype = keyboard->readByte();
+        if (type == AT_KEYBOARD) {
+            log.info("Detected AT keyboard with need for translation");
+            controller.enableKeyboardTranslation();
+        } else if (type == MF2_KEYBOARD) {
+            if (subtype == 0x83) {
+                log.info("Detected standard MF2 keyboard");
+            } else if (subtype == 0x41 || subtype == 0xc1) {
+                log.info("Detected MF2 keyboard with need for translation");
+                controller.enableKeyboardTranslation();
+            } else {
+                log.warn("Detected MF2 keyboard with unknown subtype [%02x] -> Assuming translation is not needed",
+                         subtype);
+            }
+        } else {
+            log.error("Device connected to first PS/2 port reports as [%02x:%02x], which is not a valid keyboard", type, subtype);
+            delete keyboard;
+            return nullptr;
+        }
+    }
+
+    // Setup keyboard
+    if (!keyboard->writeKeyboardCommand(SET_DEFAULT_PARAMETERS)) {
+        log.warn("Failed set default parameters");
+    }
+    if (!keyboard->writeKeyboardCommand(SCAN_CODE_SET, 1)) {
+        log.warn("Failed to set scancode set");
+    }
+    if (!keyboard->writeKeyboardCommand(SET_TYPEMATIC_SPEED, 0)) {
+        log.warn("Failed to set repeat rate");
+    }
+    if (!keyboard->writeKeyboardCommand(SET_LED, 0)) {
+        log.warn("Failed to disable LEDs");
+    }
+    if (!keyboard->writeKeyboardCommand(ENABLE_SCANNING)) {
+        log.warn("Failed to enable scanning -> Keyboard might not be working");
+    }
+
+    auto *streamNode = new Filesystem::Memory::StreamNode("keyboard", keyboard);
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    bool success = driver.addNode("/", streamNode);
+
+    if (!success) {
+        log.error("Keyboard: Failed to add node");
+        delete streamNode;
+        return nullptr;
+    }
+
+    return keyboard;
+}
+
+bool Keyboard::writeKeyboardCommand(Device::Keyboard::Command command) {
+    uint8_t count = 0;
+    Reply reply;
+
+    do {
+        reply = static_cast<Reply>(writeCommand(command));
+        count++;
+    } while (reply == RESEND_LAST_COMMAND && count < 3);
+
+    return reply == ACK;
+}
+
+bool Keyboard::writeKeyboardCommand(Command command, uint8_t data) {
+    uint8_t count = 0;
+    Reply reply;
+
+    do {
+        reply = static_cast<Reply>(writeCommand(command, data));
+        count++;
+    } while (reply == RESEND_LAST_COMMAND && count < 3);
+
+    return reply == ACK;
 }
 
 bool Keyboard::decodeKey(uint8_t code) {
@@ -158,7 +267,6 @@ bool Keyboard::decodeKey(uint8_t code) {
     }
 
     prefix = 0;
-
     return done;
 }
 
@@ -189,45 +297,10 @@ void Keyboard::getAsciiCode(uint8_t code) {
     }
 }
 
-void Keyboard::setRepeatRate(uint32_t speed, uint32_t delay) {
-    uint32_t status, reply;
-
-    dataPort.writeByte(SET_SPEED);
-    do {
-        status = controlPort.readByte();
-    } while((status & OUTB) == 0);
-
-    reply = dataPort.readByte();
-    if(reply == ACK) {
-        dataPort.writeByte(static_cast<uint8_t>(((delay & 3) << 5) | (speed & 31)));
-
-        do {
-            status = controlPort.readByte();
-        } while((status & OUTB) == 0);
-    }
-}
-
-void Keyboard::setLed(uint8_t led, bool on) {
-    uint32_t status, reply;
-
-    dataPort.writeByte(SET_LED);
-    do {
-        status = controlPort.readByte();
-    } while((status & OUTB) == 0);
-
-    reply = dataPort.readByte();
-
-    if(reply == ACK) {
-        if(on) {
-            leds |= led;
-        } else {
-            leds &= ~led;
-        }
-
-        dataPort.writeByte(leds);
-        do {
-            status = controlPort.readByte();
-        } while((status & OUTB) == 0);
+void Keyboard::setLed(Led led, bool on) {
+    auto tmpLeds = on ? leds | led : leds & ~led;
+    if (writeKeyboardCommand(SET_LED, tmpLeds)) {
+        leds = tmpLeds;
     }
 }
 
@@ -238,16 +311,12 @@ void Keyboard::plugin() {
 }
 
 void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
-    uint8_t control = controlPort.readByte();
-    if ((control & 0x1) != 0x1) {
+    uint8_t control = controller.readControlByte();
+    if (!(control & 0x01) || (control & 0x20)) {
         return;
     }
 
-    if ((control & AUXB)) {
-        return;
-    }
-
-    uint8_t data = dataPort.readByte();
+    uint8_t data = controller.readDataByte();
     if (decodeKey(data)) {
         auto c = gather.getAscii();
         if (gather.getCtrl()) {

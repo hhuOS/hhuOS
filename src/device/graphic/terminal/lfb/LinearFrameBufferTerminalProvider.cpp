@@ -68,7 +68,7 @@ Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBuffer
     return Util::Data::Array<ModeInfo>({ mode });
 }
 
-Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
@@ -85,8 +85,6 @@ Util::Graphic::Terminal& LinearFrameBufferTerminalProvider::initializeTerminal(D
     if (!driver.addNode("/", terminalNode)) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Failed to add node!");
     }
-
-    return *terminal;
 }
 
 }
