@@ -73,6 +73,8 @@ public:
 
     void kill(Thread &thread);
 
+    void killWithoutLock(Thread &thread);
+
     void exitCurrentThread();
 
     [[nodiscard]] Thread& getCurrentThread();

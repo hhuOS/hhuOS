@@ -75,6 +75,8 @@ public:
      */
     void kill(Thread &thread);
 
+    void killWithoutLock(Thread &thread);
+
     void block();
 
     void unblock(Thread &thread);

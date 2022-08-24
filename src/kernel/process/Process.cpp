@@ -29,6 +29,10 @@ Process::~Process() {
     Kernel::System::getService<Kernel::MemoryService>().removeAddressSpace(addressSpace);
 }
 
+bool Process::operator==(const Process &other) const {
+    return id == other.id;
+}
+
 uint32_t Process::getId() const {
     return id;
 }
@@ -103,6 +107,10 @@ void Process::join() {
 
 Util::Memory::String Process::getName() const {
     return name;
+}
+
+Util::Data::Array<Thread*> Process::getThreads() const {
+    return threads.toArray();
 }
 
 void Process::addThread(Thread &thread) {

@@ -55,6 +55,8 @@ public:
 
     void join() const;
 
+    void kill() const;
+
 private:
 
     uint32_t id;

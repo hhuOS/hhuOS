@@ -51,6 +51,8 @@ public:
 
     Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 
+    void killProcess(Process &process);
+
     [[noreturn]] void exitCurrentProcess(int32_t exitCode);
 
     [[nodiscard]] bool isProcessActive(uint32_t id);

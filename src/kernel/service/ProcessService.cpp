@@ -23,7 +23,24 @@
 
 namespace Kernel {
 
-ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {}
+ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
+    SystemCall::registerSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        int32_t processId = va_arg(arguments, int32_t);
+
+        auto &processService = System::getService<ProcessService>();
+        auto *process = processService.getProcess(processId);
+        if (process == nullptr) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        processService.killProcess(*process);
+        return Util::System::OK;
+    });
+}
 
 Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError) {
     auto *process = new Process(addressSpace, name, workingDirectory);
@@ -51,6 +68,27 @@ Process& ProcessService::loadBinary(const Util::File::File &binaryFile, const Ut
 
     System::getService<SchedulerService>().ready(thread);
     return process;
+}
+
+void ProcessService::killProcess(Process &process) {
+    if (process == getCurrentProcess()) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "A process cannot kill itself!");
+    }
+
+    auto &schedulerService = System::getService<SchedulerService>();
+    schedulerService.lockScheduler();
+    for (auto *thread : process.getThreads()) {
+        schedulerService.killWithoutLock(*thread);
+    }
+    schedulerService.unlockScheduler();
+
+    auto &cleanerThread = Thread::createKernelThread("Address-Space-Cleaner", process, new AddressSpaceCleaner());
+    schedulerService.ready(cleanerThread);
+    process.setExitCode(-1);
+
+    lock.acquire();
+    processList.remove(&process);
+    lock.release();
 }
 
 Process& ProcessService::getCurrentProcess() {

@@ -67,7 +67,7 @@ void Scheduler::exit() {
 
 void Scheduler::kill(Thread &thread) {
     if (thread.getId() == currentThread->getId()) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread is trying to kill itself... Use 'exit()' instead!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
     }
 
     sleepLock.acquire();
@@ -80,7 +80,23 @@ void Scheduler::kill(Thread &thread) {
     thread.unblockJoinList();
     lock.release();
 
-    System::getService<SchedulerService>().cleanup(currentThread);
+    System::getService<SchedulerService>().cleanup(&thread);
+}
+
+void Scheduler::killWithoutLock(Thread &thread) {
+    if (thread.getId() == currentThread->getId()) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT,"Scheduler: A thread cannot kill itself!");
+    }
+
+    sleepLock.acquire();
+    sleepList.remove({&thread, 0});
+    sleepLock.release();
+
+    threadQueue.remove(&thread);
+    thread.getParent().removeThread(thread);
+    thread.unblockJoinList();
+
+    System::getService<SchedulerService>().cleanup(&thread);
 }
 
 Thread& Scheduler::getCurrentThread() {

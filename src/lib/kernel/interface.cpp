@@ -142,6 +142,14 @@ void joinProcess(uint32_t id) {
     }
 }
 
+void killProcess(uint32_t id) {
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto *process = processService.getProcess(id);
+    if (process != nullptr) {
+        processService.killProcess(*process);
+    }
+}
+
 void sleep(const Util::Time::Timestamp &time) {
     if (scheduler_initialized) {
         Kernel::System::getService<Kernel::SchedulerService>().sleep(time);

@@ -47,6 +47,8 @@ public:
      */
     ~Process();
 
+    bool operator==(const Process &other) const;
+
     bool setWorkingDirectory(const Util::Memory::String &path);
 
     void setExitCode(int32_t code);
@@ -72,6 +74,8 @@ public:
     [[nodiscard]] bool isKernelProcess() const;
 
     [[nodiscard]] Util::Memory::String getName() const;
+
+    [[nodiscard]] Util::Data::Array<Thread*> getThreads() const;
 
     void addThread(Thread &thread);
 

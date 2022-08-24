@@ -54,6 +54,7 @@ Util::Async::Process getCurrentProcess();
 Util::Async::Thread createThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
 Util::Async::Thread getCurrentThread();
 void joinProcess(uint32_t id);
+void killProcess(uint32_t id);
 void sleep(const Util::Time::Timestamp &time);
 void yield();
 

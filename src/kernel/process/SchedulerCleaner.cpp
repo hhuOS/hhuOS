@@ -17,7 +17,6 @@
 
 #include "SchedulerCleaner.h"
 #include "kernel/system/System.h"
-#include "kernel/service/TimeService.h"
 #include "lib/util/async/Thread.h"
 
 namespace Kernel {

@@ -15,22 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "AddressSpaceCleaner.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/system/System.h"
-#include "kernel/service/ProcessService.h"
+#include <cstdint>
+#include "lib/util/system/System.h"
+#include "lib/util/async/Process.h"
 
-namespace Kernel {
-
-void AddressSpaceCleaner::run() {
-    auto &schedulerService = System::getService<SchedulerService>();
-    auto &currentProcess = System::getService<ProcessService>().getCurrentProcess();
-    while (currentProcess.getThreadCount() > 1) {
-        schedulerService.yield();
+int32_t main(int32_t argc, char *argv[]) {
+    if (argc < 2) {
+        Util::System::error << "kill: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
     }
 
-    System::getService<MemoryService>().unmap(0, 0xbfffffff, 0);
-    schedulerService.cleanup(&currentProcess);
-}
+    auto processId = Util::Memory::String::parseInt(argv[1]);
+    auto process = Util::Async::Process(processId);
+    process.kill();
 
+    return 0;
 }

@@ -47,4 +47,8 @@ void Process::join() const {
     ::joinProcess(id);
 }
 
+void Process::kill() const {
+    ::killProcess(id);
+}
+
 }

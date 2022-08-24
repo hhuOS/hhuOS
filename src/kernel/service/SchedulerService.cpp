@@ -191,6 +191,10 @@ void SchedulerService::kill(Thread &thread) {
     scheduler.kill(thread);
 }
 
+void SchedulerService::killWithoutLock(Thread &thread) {
+    scheduler.killWithoutLock(thread);
+}
+
 void SchedulerService::exitCurrentThread() {
     scheduler.exit();
 }

@@ -146,6 +146,10 @@ void joinProcess(uint32_t id) {
     Util::System::call(Util::System::JOIN_PROCESS, 1, id);
 }
 
+void killProcess(uint32_t id) {
+    Util::System::call(Util::System::KILL_PROCESS, 1, id);
+}
+
 void sleep(const Util::Time::Timestamp &time) {
     Util::System::call(Util::System::SLEEP, 1, &time);
 }
