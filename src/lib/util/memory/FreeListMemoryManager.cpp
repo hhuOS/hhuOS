@@ -275,7 +275,16 @@ FreeListMemoryManager::FreeListHeader *FreeListMemoryManager::merge(FreeListHead
 }
 
 void *FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t alignment) {
-    void *ret = nullptr;
+    lock.acquire();
+    auto oldHeader = reinterpret_cast<FreeListHeader*>((uint32_t) ptr - HEADER_SIZE);
+    auto *allocated = allocAlgorithm(size, alignment, firstChunk);
+    Util::Memory::Address<uint32_t>(allocated).copyRange(Util::Memory::Address<uint32_t>(ptr), (size < oldHeader->size) ? size : oldHeader->size);
+    freeAlgorithm(ptr);
+    lock.release();
+
+    return allocated;
+
+    /*void *ret = nullptr;
 
     if (size == 0) {
         freeMemory(ptr, 0);
@@ -366,7 +375,7 @@ void *FreeListMemoryManager::reallocateMemory(void *ptr, uint32_t size, uint32_t
         freeMemory(ptr, 0);
     }
 
-    return ret;
+    return ret;*/
 }
 
 uint32_t FreeListMemoryManager::getStartAddress() const {

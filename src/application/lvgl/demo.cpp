@@ -21,31 +21,24 @@
 #include "lib/util/time/Timestamp.h"
 #include "LvglDriver.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/system/System.h"
-
-Util::Data::Array<Util::Memory::String> demos({"benchmark", "stress", "widgets", "music"});
 
 int32_t main(int32_t argc, char *argv[]) {
     auto demo = Util::Memory::String(argc > 1 ? argv[1] : "benchmark");
-    if (!demos.contains(demo)) {
-        Util::System::error << "Invalid argument! Please specify the demo to run (benchmark/stress/widgets/music)" << Util::Stream::PrintWriter::endl;
-        return -1;
-    }
 
     lv_init();
     auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
     auto driver = LvglDriver(lfb);
     driver.initialize();
 
-    if (demo == "benchmark") {
-        lv_demo_benchmark_set_max_speed(true);
-        lv_demo_benchmark();
-    } else if (demo == "stress") {
+    if (demo == "stress") {
         lv_demo_stress();
     } else if (demo == "widgets") {
         lv_demo_widgets();
     } else if (demo == "music") {
         lv_demo_music();
+    } else {
+        lv_demo_benchmark_set_max_speed(true);
+        lv_demo_benchmark();
     }
 
     while (true) {
