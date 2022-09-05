@@ -5,7 +5,7 @@
 namespace Device::Graphic {
 
 ColorGraphicsAdapter::ColorGraphicsAdapter(uint16_t columns, uint16_t rows) : Terminal(columns, rows),
-        cgaMemory(Kernel::System::getService<Kernel::MemoryService>().mapIO(CGA_START_ADDRESS, columns * rows * 2)),
+        cgaMemory(Kernel::System::getService<Kernel::MemoryService>().mapIO(CGA_START_ADDRESS, static_cast<uint32_t>(columns * rows * 2))),
         indexPort(INDEX_PORT_ADDRESS), dataPort(DATA_PORT_ADDRESS) {
     ColorGraphicsAdapter::clear(Util::Graphic::Colors::BLACK);
 

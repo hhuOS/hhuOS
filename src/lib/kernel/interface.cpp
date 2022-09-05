@@ -56,7 +56,7 @@ bool isSystemInitialized() {
 }
 
 void* mapIO(uint32_t physicalAddress, uint32_t size) {
-    return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
+    return Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
 }
 
 void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount) {

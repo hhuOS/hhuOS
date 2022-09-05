@@ -59,7 +59,7 @@ MemoryService::MemoryService(PageFrameAllocator *pageFrameAllocator, PagingAreaM
         uint32_t size = va_arg(arguments, uint32_t);
         void **mappedAddress = va_arg(arguments, void**);
 
-        *mappedAddress = Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size);
+        *mappedAddress = Kernel::System::getService<Kernel::MemoryService>().mapIO(physicalAddress, size, false);
         return Util::System::Result::OK;
     });
 }
@@ -259,13 +259,14 @@ uint32_t Kernel::MemoryService::unmap(uint32_t virtualStartAddress, uint32_t vir
     return ret;
 }
 
-void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size) {
+void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap) {
     // Get amount of needed pages
     uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
     pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
 
     // Allocate 4 KiB aligned virtual memory
-    void *virtStartAddress = currentAddressSpace->getMemoryManager().allocateMemory(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
+    auto &manager = mapToKernelHeap ? kernelAddressSpace.getMemoryManager() : currentAddressSpace->getMemoryManager();
+    void *virtStartAddress = manager.allocateMemory(pageCnt * Kernel::Paging::PAGESIZE, Kernel::Paging::PAGESIZE);
 
     // Check for nullpointer
     if (virtStartAddress == nullptr) {
@@ -290,7 +291,7 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size) {
     return virtStartAddress;
 }
 
-void *MemoryService::mapIO(uint32_t size) {
+void *MemoryService::mapIO(uint32_t size, bool mapToKernelHeap) {
     // Get amount of needed pages
     uint32_t pageCnt = size / Kernel::Paging::PAGESIZE;
     pageCnt += (size % Kernel::Paging::PAGESIZE == 0) ? 0 : 1;
@@ -321,7 +322,7 @@ void *MemoryService::mapIO(uint32_t size) {
         }
     } while (!contiguous);
 
-    return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size);
+    return mapIO(reinterpret_cast<uint32_t>(physStartAddress), size, mapToKernelHeap);
 }
 
 VirtualAddressSpace& MemoryService::createAddressSpace() {

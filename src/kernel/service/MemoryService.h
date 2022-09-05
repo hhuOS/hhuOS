@@ -144,7 +144,7 @@ public:
      *
      * @return Pointer to virtual IO memory block
      */
-    void* mapIO(uint32_t physicalAddress, uint32_t size);
+    void *mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap = true);
 
     /**
      * Allocate a contiguous block of physical memory and map it into the current address space's  heap.
@@ -154,7 +154,7 @@ public:
      *
      * @return Pointer to virtual IO memory block
      */
-    void* mapIO(uint32_t size);
+    void *mapIO(uint32_t size, bool mapToKernelHeap = true);
 
     /**
      * Unmap a page at a given virtual address.
