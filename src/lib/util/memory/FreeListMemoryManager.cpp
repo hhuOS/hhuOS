@@ -107,7 +107,6 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
 
             // Check if current block has enough free data space to fit in the aligned block
             if (((uint32_t) aligned) + HEADER_SIZE + size <= ((uint32_t) current) + HEADER_SIZE + current->size) {
-
                 aligned->size = ((uint32_t) current) + current->size - ((uint32_t) aligned);
                 current->size = (uint32_t) aligned - (((uint32_t) current) + HEADER_SIZE);
 
@@ -121,6 +120,7 @@ void *FreeListMemoryManager::allocAlgorithm(uint32_t size, uint32_t alignment, F
                 aligned->prev->next = aligned;
                 current = aligned;
 
+                unusedMemory -= HEADER_SIZE;
                 break;
             }
         }
@@ -223,7 +223,7 @@ void FreeListMemoryManager::freeAlgorithm(void *ptr) {
     FreeListHeader *mergedHeader = merge(header);
 
     // if the free chunk has more than 4KB of memory, a page can possibly be unmapped
-    if (mergedHeader->size >= Util::Memory::PAGESIZE && isSystemInitialized()) {
+    if (unmapFreedMemory && mergedHeader->size >= Util::Memory::PAGESIZE && isSystemInitialized()) {
         auto addr = (uint32_t) mergedHeader;
         auto chunkEndAddr = addr + (HEADER_SIZE + mergedHeader->size);
 
@@ -392,6 +392,10 @@ uint32_t FreeListMemoryManager::getFreeMemory() const {
 
 uint32_t FreeListMemoryManager::getEndAddress() const {
     return endAddress;
+}
+
+void FreeListMemoryManager::disableAutomaticUnmapping() {
+    unmapFreedMemory = false;
 }
 
 }

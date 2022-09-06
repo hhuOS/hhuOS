@@ -35,7 +35,6 @@ namespace Util::Memory {
 class FreeListMemoryManager : public HeapMemoryManager {
 
 public:
-
     /**
      * Constructor.
      */
@@ -100,6 +99,8 @@ public:
      */
     [[nodiscard]] uint32_t getEndAddress() const override;
 
+    void disableAutomaticUnmapping();
+
 private:
     /**
      * Header of an element in the doubly linked list, which is used to manage the free chunks of memory.
@@ -138,6 +139,7 @@ private:
     Util::Async::Spinlock lock;
     FreeListHeader *firstChunk = nullptr;
     uint32_t unusedMemory = 0;
+    bool unmapFreedMemory = true;
 
     /**
      * Find the next chunk of memory with a required size.
