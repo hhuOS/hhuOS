@@ -97,7 +97,7 @@ public:
     /**
      * Destructor.
      */
-    ~FloppyController() override;
+    ~FloppyController() override = default;
 
     /**
      * Check, if the floppy controller and at least one drive is available.
@@ -203,6 +203,21 @@ private:
     };
 
     /**
+     * Prepare a DMA-transfer via the ISA-bus.
+     *
+     * This needs to be done, before issuing a read-/write-command.
+     * NOTE: If one wants to read from the floppy disk, the transfer mode needs to be set to ISA::WRITE.
+     *       This seems to be counter-intuitive, but makes sens, because the controller reads from the disk and
+     *       WRITES to memory. For reading, the same applies vice-versa.
+     *
+     * @param device The device
+     * @param transferMode The transfer mode (ISA::READ/ISA::WRITE)
+     * @param dmaMemory The virtual address of the allocated block of memory, used for the dma transfer
+     * @param sectorCount The amount of sectors to read from or write to
+     */
+    static void prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount);
+
+    /**
      * Check, if the controller is busy.
      */
     bool isBusy();
@@ -289,19 +304,6 @@ private:
     bool seek(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
     /**
-     * Prepare a DMA-transfer via the ISA-bus.
-     *
-     * This needs to be done, before issuing a read-/write-command.
-     * NOTE: If one wants to read from the floppy disk, the transfer mode needs to be set to ISA::WRITE.
-     *       This seems to be counter-intuitive, but makes sens, because the controller reads from the disk and
-     *       WRITES to memory. For reading, the same applies vice-versa.
-     *
-     * @param device The device
-     * @param transferMode The transfer mode (ISA::READ/ISA::WRITE)
-     */
-    void prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, uint8_t sectorCount);
-
-    /**
      * Check if a disk is present and recalibrate the drive, after a read-/write-error has occurred.
      *
      * @param device The device
@@ -313,7 +315,6 @@ private:
     bool handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
     volatile bool receivedInterrupt = false;
-    void *dmaMemory;
 
     Device::IoPort statusRegisterA;
     Device::IoPort statusRegisterB;

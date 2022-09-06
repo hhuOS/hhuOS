@@ -24,6 +24,67 @@
 namespace Kernel {
 
 ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
+    SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        int32_t exitCode = 0;
+        if (paramCount >= 1) {
+            exitCode = va_arg(arguments, int32_t);
+        }
+
+        auto &processService = System::getService<ProcessService>();
+        processService.exitCurrentProcess(exitCode);
+    });
+
+    SystemCall::registerSystemCall(Util::System::EXECUTE_BINARY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 7) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *binaryFile = va_arg(arguments, Util::File::File*);
+        auto *inputFile = va_arg(arguments, Util::File::File*);
+        auto *outputFile = va_arg(arguments, Util::File::File*);
+        auto *errorFile = va_arg(arguments, Util::File::File*);
+        auto *command = va_arg(arguments, const Util::Memory::String*);
+        auto *commandArguments = va_arg(arguments, Util::Data::Array<Util::Memory::String>*);
+        auto *processId = va_arg(arguments, uint32_t*);
+
+        auto &processService = System::getService<ProcessService>();
+        auto &process = processService.loadBinary(*binaryFile, *inputFile, *outputFile, *errorFile, *command, *commandArguments);
+
+        *processId = process.getId();
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::GET_CURRENT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *processId = va_arg(arguments, uint32_t*);
+
+        auto &processService = System::getService<ProcessService>();
+        *processId = processService.getCurrentProcess().getId();
+
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::JOIN_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto processId = va_arg(arguments, uint32_t);
+
+        auto &processService = System::getService<ProcessService>();
+        auto *process = processService.getProcess(processId);
+
+        if (process == nullptr) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        process->join();
+        return Util::System::Result::OK;
+    });
+
     SystemCall::registerSystemCall(Util::System::KILL_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 1) {
             return Util::System::INVALID_ARGUMENT;

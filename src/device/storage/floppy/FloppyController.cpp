@@ -41,14 +41,9 @@ bool FloppyController::isAvailable() {
 }
 
 FloppyController::FloppyController() :
-        dmaMemory(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(SECTOR_SIZE * 72)),
         statusRegisterA(IO_BASE_ADDRESS + 0), statusRegisterB(IO_BASE_ADDRESS + 1), digitalOutputRegister(IO_BASE_ADDRESS + 2),
         tapeDriveRegister(IO_BASE_ADDRESS + 3), mainStatusRegister(IO_BASE_ADDRESS + 4), dataRateSelectRegister(IO_BASE_ADDRESS + 4),
         fifoRegister(IO_BASE_ADDRESS + 5), digitalInputRegister(IO_BASE_ADDRESS + 7), configControlRegister(IO_BASE_ADDRESS + 7) {}
-
-FloppyController::~FloppyController() {
-    Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(dmaMemory);
-}
 
 bool FloppyController::isBusy() {
     return (mainStatusRegister.readByte() & 0x10u) == 0x10;
@@ -337,9 +332,9 @@ void FloppyController::trigger(const Kernel::InterruptFrame &frame) {
     receivedInterrupt = true;
 }
 
-void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, uint8_t sectorCount) {
-    auto physicalAddress = reinterpret_cast<uint32_t>(Kernel::System::getService<Kernel::MemoryService>().getPhysicalAddress(dmaMemory))
-            + (reinterpret_cast<uint32_t>(dmaMemory) % Util::Memory::PAGESIZE);
+void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transferMode, void *dmaMemory, uint8_t sectorCount) {
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto physicalAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(dmaMemory));
 
     Isa::selectChannel(2);
     Isa::setAddress(2, physicalAddress);
@@ -361,20 +356,24 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of track bounds!");
     }
 
+    if (!seek(device, cylinder, head)) {
+        return false;
+    }
+
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Util::Memory::PAGESIZE);
+    bool success = false;
+
     if (operation == WRITE) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(buffer);
         auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
-        targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
-    }
-
-    if (!seek(device, cylinder, head)) {
-        return false;
+        targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
     setMotorState(device, ON);
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-        prepareDma(device, operation == WRITE ? Isa::READ : Isa::WRITE, sectorCount);
+        prepareDma(device, operation == WRITE ? Isa::READ : Isa::WRITE, dmaMemory, sectorCount);
 
         writeFifoByte((operation == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
@@ -395,7 +394,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
         if (!receivedInterrupt) {
             if (!handleReadWriteError(device, cylinder, head)) {
                 log.error("Timeout while reading/writing on drive %u", device.getDriveNumber());
-                return false;
+                break;
             }
             continue;
         }
@@ -404,7 +403,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
         if ((status.statusRegister0 & 0xc0) != 0) {
             if (!handleReadWriteError(device, cylinder, head)) {
                 log.error("Failed to read/write on drive %u", device.getDriveNumber());
-                return false;
+                break;
             }
             continue;
         }
@@ -415,13 +414,17 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
 
-        setMotorState(device, OFF);
-        return true;
+        success = true;
+        break;
+    }
+
+    if (!success) {
+        log.error("Failed to read/write on drive %u", device.getDriveNumber());
     }
 
     setMotorState(device, OFF);
-    log.error("Failed to read/write on drive %u", device.getDriveNumber());
-    return false;
+    memoryService.freeLowerMemory(dmaMemory);
+    return success;
 }
 
 bool FloppyController::handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head) {
