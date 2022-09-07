@@ -43,7 +43,7 @@ public:
     /**
      * Destructor.
      */
-    ~Partition() = default;
+    ~Partition() override = default;
 
     /**
      * Overriding function from StorageDevice.

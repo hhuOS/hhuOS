@@ -56,14 +56,6 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
     Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
 }
 
-FloppyDevice::CylinderHeadSector FloppyDevice::lbaToChs(uint32_t lbaSector) const {
-    return {
-        static_cast<uint8_t>(lbaSector / (2 * sectorsPerCylinder)),
-        static_cast<uint8_t>((lbaSector % (2 * sectorsPerCylinder)) / sectorsPerCylinder),
-        static_cast<uint8_t>((lbaSector % (2 * sectorsPerCylinder)) % sectorsPerCylinder + 1)
-    };
-}
-
 uint32_t FloppyDevice::getSectorSize() {
     return FloppyController::SECTOR_SIZE;
 }
@@ -80,10 +72,11 @@ uint32_t FloppyDevice::write(const uint8_t *buffer, uint32_t startSector, uint32
     return performIO(FloppyController::WRITE, const_cast<uint8_t*>(buffer), startSector, sectorCount);
 }
 
-uint32_t FloppyDevice::performIO(FloppyController::IO operation, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
+uint32_t FloppyDevice::performIO(FloppyController::TransferMode mode, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
     uint32_t sectors = 0;
-    auto startChs = lbaToChs(startSector);
-    auto endChs = lbaToChs(startSector + sectorCount - 1);
+    auto chsConverter = ChsConverter(cylinders, 2, sectorsPerCylinder);
+    auto startChs = chsConverter.lbaToChs(startSector);
+    auto endChs = chsConverter.lbaToChs(startSector + sectorCount - 1);
 
     for (uint32_t cylinder = startChs.cylinder; cylinder <= endChs.cylinder; cylinder++) {
         uint8_t head, firstSector, count;
@@ -105,7 +98,7 @@ uint32_t FloppyDevice::performIO(FloppyController::IO operation, uint8_t *buffer
             count = sectorsPerCylinder * 2;
         }
 
-        auto result = controller.performIO(*this, operation, buffer + sectors * getSectorSize(), cylinder, head, firstSector, count);
+        auto result = controller.performIO(*this, mode, buffer + sectors * getSectorSize(), cylinder, head, firstSector, count);
         if (result) {
             sectors += count;
         } else {

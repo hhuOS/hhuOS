@@ -79,7 +79,7 @@ parse_file() {
   if [[ $path == *.iso ]]; then
     QEMU_BOOT_DEVICE="-boot d -cdrom ${path}"
   elif [[ $path == *.img ]]; then
-    QEMU_BOOT_DEVICE="-drive driver=raw,node-name=disk,file.driver=file,file.filename=${path}"
+    QEMU_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=${path}"
   else
     printf "Invalid file '%s'!\\n" "${path}"
     exit 1

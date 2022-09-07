@@ -274,14 +274,14 @@ void *Kernel::MemoryService::mapIO(uint32_t physicalAddress, uint32_t size, bool
         Util::Exception::throwException(Util::Exception::OUT_OF_MEMORY, "mapIO: Not enough space left on kernel heap!");
     }
 
-    // Map the allocated virtual IO memory to physical addresses
+    // Map the allocated virtual TransferMode memory to physical addresses
     for (uint32_t i = 0; i < pageCnt; i++) {
         // Since the virtual memory is one block, we can update the virtual address this way
         uint32_t virtAddress = (uint32_t) virtStartAddress + i * Kernel::Paging::PAGESIZE;
 
         // If the virtual address is already mapped, we have to unmap it.
         // This can happen because the headers of the free list are mapped to arbitrary physical addresses,
-        // but the IO Memory should be mapped to given physical addresses.
+        // but the TransferMode Memory should be mapped to given physical addresses.
         unmap(virtAddress);
 
         // Map the page to given physical address

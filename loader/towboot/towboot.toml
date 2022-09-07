@@ -6,5 +6,5 @@ log_level = "info"
   [entries.hhuOS]
     name = "hhuOS"
     image = "\\hhuOS.bin"
-    argv = "log_level=inf log_ports=COM1 root=floppy0,Filesystem::Fat::FatDriver"
+    argv = "log_level=inf log_ports=COM1 root=ide1,Filesystem::Fat::FatDriver"
     modules = [ { image = "\\hhuOS.initrd", argv = "initrd" } ]

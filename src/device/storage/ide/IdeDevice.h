@@ -15,49 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __VirtualDiskDrive_include__
-#define __VirtualDiskDrive_include__
-
-#include <cstdint>
+#ifndef HHUOS_IDEDEVICE_H
+#define HHUOS_IDEDEVICE_H
 
 #include "device/storage/StorageDevice.h"
-#include "FloppyController.h"
-#include "device/storage/ChsConverter.h"
+#include "IdeController.h"
 
 namespace Device::Storage {
 
-class FloppyMotorControlRunnable;
-
-/**
- * Implementation of StorageDevice for a floppy disk drive.
- */
-class FloppyDevice : public StorageDevice {
+class IdeDevice : public StorageDevice {
 
 public:
-
     /**
      * Constructor.
-     *
-     * @param sectorSize The virtual size of a sector on the virtual disk
-     * @param sectorCount The amount of sectors, that the virtual disk shall consist of
-     * @param name The name
      */
-    FloppyDevice(FloppyController &controller, uint8_t driveNumber, FloppyController::DriveType driveType);
+    IdeDevice(IdeController &controller, const IdeController::DeviceInfo &deviceInfo);
 
     /**
      * Copy Constructor.
      */
-    FloppyDevice(FloppyDevice &copy) = delete;
+    IdeDevice(const IdeDevice &other) = delete;
 
     /**
      * Assignment operator.
      */
-    FloppyDevice& operator=(const FloppyDevice &other) = delete;
+    IdeDevice &operator=(const IdeDevice &other) = delete;
 
     /**
      * Destructor.
      */
-    ~FloppyDevice() override = default;
+    ~IdeDevice() override = default;
 
     /**
      * Overriding function from StorageDevice.
@@ -79,36 +66,10 @@ public:
      */
     uint32_t write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) override;
 
-    uint32_t performIO(FloppyController::TransferMode mode, uint8_t *buffer, uint32_t startSector, uint32_t sectorCount);
-
-    [[nodiscard]] uint8_t getDriveNumber() const;
-
-    [[nodiscard]] FloppyController::MotorState getMotorState() const;
-
-    [[nodiscard]] FloppyController::DriveType getDriveType() const;
-
-    [[nodiscard]] uint8_t getGapLength() const;
-
-    [[nodiscard]] uint8_t getCylinders() const;
-
-    [[nodiscard]] uint8_t getSectorsPerCylinder() const;
-
-    void setMotorState(FloppyController::MotorState state);
-
-    void killMotor();
-
 private:
 
-    FloppyController &controller;
-    uint8_t driveNumber;
-    FloppyController::DriveType driveType;
-
-    uint8_t gapLength;
-    uint8_t cylinders;
-    uint8_t sectorsPerCylinder;
-
-    FloppyController::MotorState motorState = FloppyController::OFF;
-    FloppyMotorControlRunnable *motorControlRunnable;
+    IdeController &controller;
+    IdeController::DeviceInfo info;
 };
 
 }

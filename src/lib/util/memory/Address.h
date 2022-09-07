@@ -29,6 +29,10 @@ public:
 
     Address() = default;
 
+    Address(const Address &other) = default;
+
+    Address& operator=(const Address &other) = default;
+
     explicit Address(T address);
 
     explicit Address(void *pointer);

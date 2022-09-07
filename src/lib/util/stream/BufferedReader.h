@@ -42,6 +42,8 @@ public:
 
     Memory::String read(uint32_t length) override;
 
+    Memory::String readLine();
+
 private:
 
     bool refill();

@@ -24,7 +24,7 @@
 namespace Device {
 
 /**
- * Represents an IO-port int the 16-bit address space.
+ * Represents an TransferMode-port int the 16-bit address space.
  */
 class IoPort {
 
@@ -32,19 +32,19 @@ public:
     /**
      * Constructor.
      *
-     * @param address The 16-bit address in the IO address space, at which this port is located
+     * @param address The 16-bit address in the TransferMode address space, at which this port is located
      */
     explicit IoPort(uint16_t address) noexcept;
 
     /**
      * Copy Constructor.
      */
-    IoPort(const IoPort &other) = delete;
+    IoPort(const IoPort &other) = default;
 
     /**
      * Assignment operator.
      */
-    IoPort &operator=(const IoPort &other) = delete;
+    IoPort& operator=(const IoPort &other) = default;
 
     /**
      * Destructor.
@@ -52,21 +52,21 @@ public:
     ~IoPort() = default;
 
     /**
-     * Returns the address of this IO-port.
+     * Returns the address of this TransferMode-port.
      *
      * @return The address of this port
      */
     [[nodiscard]] Util::Memory::Address<uint16_t> getAddress() const;
 
     /**
-     * Write a byte to this IO-port.
+     * Write a byte to this TransferMode-port.
      *
      * @param value 8-bit value to write
      */
     void writeByte(uint8_t value) const;
 
     /**
-	 * Write a byte to this IO-port this with an offset to the address.
+	 * Write a byte to this TransferMode-port this with an offset to the address.
 	 *
 	 * @param offset Offset to port address
 	 * @param value 8-bit value to write
@@ -74,14 +74,14 @@ public:
     void writeByte(uint16_t offset, uint8_t value) const;
 
     /**
-     * Write a word to this IO-port.
+     * Write a word to this TransferMode-port.
      *
      * @param value 16-bit value to write
      */
     void writeWord(uint16_t value) const;
 
     /**
-	 * Write a byte to this IO-port this with an offset to the address.
+	 * Write a byte to this TransferMode-port this with an offset to the address.
 	 *
 	 * @param offset Offset to port address
 	 * @param value 8-bit value to write
@@ -89,14 +89,14 @@ public:
     void writeWord(uint16_t offset, uint16_t value) const;
 
     /**
-	 * Write a double word to this IO-port.
+	 * Write a double word to this TransferMode-port.
 	 *
 	 * @param value 32-bit value to write
 	 */
     void writeDoubleWord(uint32_t value) const;
 
     /**
-	 * Write a byte to this IO-port this with an offset to the address.
+	 * Write a byte to this TransferMode-port this with an offset to the address.
 	 *
 	 * @param offset Offset to port address
 	 * @param val 8-bit value to write
@@ -104,53 +104,53 @@ public:
     void writeDoubleWord(uint16_t offset, uint32_t value) const;
 
     /**
-	 * Read a byte from this IO-port.
+	 * Read a byte from this TransferMode-port.
 	 *
-	 * @return 8-bit value read from IO-port
+	 * @return 8-bit value read from TransferMode-port
 	 */
     uint8_t readByte() const;
 
     /**
-	 * Read a byte from this IO-port with an offset to the address.
+	 * Read a byte from this TransferMode-port with an offset to the address.
 	 *
 	 * @param offset Offset to port address
-	 * @return 8-bit value read from IO-port
+	 * @return 8-bit value read from TransferMode-port
 	 */
     uint8_t readByte(uint16_t offset) const;
 
     /**
-     * Read a word from this IO-port.
+     * Read a word from this TransferMode-port.
      *
-     * @return 16-bit value read from IO-port
+     * @return 16-bit value read from TransferMode-port
      */
     uint16_t readWord() const;
 
     /**
-	 * Read a word from this IO-port with an offset to the address.
+	 * Read a word from this TransferMode-port with an offset to the address.
 	 *
 	 * @param offset Offset to port address
-	 * @return 8-bit value read from IO-port
+	 * @return 8-bit value read from TransferMode-port
 	 */
     uint16_t readWord(uint16_t offset) const;
 
     /**
-	 * Read a double word from this IO-port.
+	 * Read a double word from this TransferMode-port.
 	 *
-	 * @return 32-bit value read from IO-port
+	 * @return 32-bit value read from TransferMode-port
 	 */
     uint32_t readDoubleWord() const;
 
     /**
-	 * Read a double word from this IO-port with an offset to the address.
+	 * Read a double word from this TransferMode-port with an offset to the address.
 	 *
 	 * @param offset Offset to port address
-	 * @return 8-bit value from IO-port
+	 * @return 8-bit value from TransferMode-port
 	 */
     uint32_t readDoubleWord(uint16_t offset) const;
 
 private:
 
-    const Util::Memory::Address<uint16_t> address;
+    Util::Memory::Address<uint16_t> address;
 };
 
 }

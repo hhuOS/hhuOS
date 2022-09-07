@@ -90,4 +90,15 @@ bool BufferedReader::refill() {
     return true;
 }
 
+Memory::String BufferedReader::readLine() {
+    Util::Memory::String line;
+    auto currentChar = reader.read();
+    while (currentChar != -1 && currentChar != '\n') {
+        line += currentChar;
+        currentChar = reader.read();
+    }
+
+    return line;
+}
+
 }

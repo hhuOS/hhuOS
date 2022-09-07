@@ -7,7 +7,7 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(const Util::File::File &lfbFile, Util::Graphic::Font &font, char cursor) : lfbFile(lfbFile), font(font), cursor(cursor) {
+LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::File::File &lfbFile, Util::Graphic::Font &font, char cursor) : lfbFile(lfbFile), font(font), cursor(cursor) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }

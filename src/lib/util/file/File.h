@@ -45,17 +45,17 @@ public:
     /**
      * Destructor.
      */
-    ~File() = default;
+    ~File();
 
-    [[nodiscard]] bool exists() const;
+    [[nodiscard]] bool exists();
 
-    [[nodiscard]] Type getType() const;
+    [[nodiscard]] Type getType();
 
-    [[nodiscard]] bool isFile() const;
+    [[nodiscard]] bool isFile();
 
-    [[nodiscard]] bool isDirectory() const;
+    [[nodiscard]] bool isDirectory();
 
-    [[nodiscard]] uint32_t getLength() const;
+    [[nodiscard]] uint32_t getLength();
 
     [[nodiscard]] Memory::String getName() const;
 
@@ -63,13 +63,13 @@ public:
 
     [[nodiscard]] Memory::String getParent() const;
 
-    [[nodiscard]] Data::Array<Memory::String> getChildren() const;
+    [[nodiscard]] Data::Array<Memory::String> getChildren();
 
     [[nodiscard]] File getParentFile() const;
 
-    [[nodiscard]] bool create(Type fileType) const;
+    [[nodiscard]] bool create(Type fileType);
 
-    [[nodiscard]] bool remove() const;
+    [[nodiscard]] bool remove();
 
     [[nodiscard]] static Memory::String getCanonicalPath(const Util::Memory::String &path);
 
@@ -78,6 +78,9 @@ public:
 private:
 
     Memory::String path;
+    int32_t fileDescriptor = -1;
+
+    void ensureFileIsOpened();
 
 };
 
@@ -89,7 +92,7 @@ bool changeDirectory(const Util::Memory::String &path);
 
 [[nodiscard]] File getCurrentWorkingDirectory();
 
-const char* getFileColor(const Util::File::File &path);
+const char* getFileColor(Util::File::File &path);
 
 }
 

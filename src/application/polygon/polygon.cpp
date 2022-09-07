@@ -30,8 +30,9 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
+    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto game = PolygonDemo(count);
-    auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
     auto engine = Util::Game::Engine(game, lfb);
     engine.run();
 

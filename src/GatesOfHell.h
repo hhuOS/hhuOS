@@ -52,7 +52,7 @@ public:
 
     /**
      * Entry point for the operating system.
-     * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableDrives.
+     * This method is invoked by the main() method, after boot strapping process is finished an paging is initializeAvailableControllers.
      */
     [[noreturn]] static void enter();
 
@@ -72,12 +72,13 @@ private:
 
     static void initializeStorage();
 
+    static void mountDevices();
+
     static void printBanner();
 
     static void printDefaultBanner();
 
     static Kernel::Logger log;
-
 };
 
 

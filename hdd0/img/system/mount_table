@@ -1,0 +1,2 @@
+#   <Device>            <Target>            <Driver>
+    floppy0             /media/floppy       Filesystem::Fat::FatDriver

@@ -58,7 +58,7 @@ private:
 
     [[nodiscard]] Util::Memory::String checkPath(const Util::Memory::String &command) const;
 
-    Util::Memory::String checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) const;
+    Util::Memory::String checkDirectory(const Util::Memory::String &command, Util::File::File &directory) const;
 
     static void beginCommandLine();
 
@@ -69,7 +69,7 @@ private:
     bool isRunning = true;
     Util::Memory::String startDirectory;
 
-    static const constexpr char *PATH = "/bin:/initrd/bin";
+    static const constexpr char *PATH = "/initrd/bin:/bin";
 };
 
 

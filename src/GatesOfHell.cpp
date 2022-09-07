@@ -46,8 +46,8 @@
 #include "device/power/apm/ApmMachine.h"
 #include "kernel/service/PowerManagementService.h"
 #include "device/pci/Pci.h"
-#include "device/pci/PciDevice.h"
 #include "device/storage/floppy/FloppyController.h"
+#include "device/storage/ide/IdeController.h"
 #include "kernel/service/StorageService.h"
 #include "filesystem/fat/FatDriver.h"
 #include "device/sound/speaker/PcSpeakerNode.h"
@@ -58,6 +58,7 @@
 #include "filesystem/process/ProcessDriver.h"
 #include "device/hid/Mouse.h"
 #include "device/hid/Ps2Controller.h"
+#include "lib/util/stream/FileReader.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -105,6 +106,8 @@ void GatesOfHell::enter() {
 
     Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
     enablePortLogging();
+
+    mountDevices();
 
     printBanner();
 
@@ -157,7 +160,8 @@ void GatesOfHell::initializeTerminal() {
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
         log.info("Terminal provider is not set -> Using LFB terminal");
-        terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(Util::File::File("/device/lfb"));
+        auto lfbFile = Util::File::File("/device/lfb");
+        terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(lfbFile);
     }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
         log.info("Terminal provider is not set and LFB is not available -> Using multiboot values");
         terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
@@ -167,6 +171,9 @@ void GatesOfHell::initializeTerminal() {
 
     auto resolution = terminalProvider->searchMode(100, 37, 24);
     terminalProvider->initializeTerminal(resolution, "terminal");
+
+    delete terminalProvider;
+    delete lfbProvider;
 
     // Open first file descriptors for Util::System::in, Util::System::out and Util::System::error
     Util::File::open("/device/terminal");
@@ -181,7 +188,7 @@ void GatesOfHell::enablePortLogging() {
 
     const auto ports = Kernel::Multiboot::Structure::getKernelOption("log_ports").split(",");
     for (const auto &port : ports) {
-        const auto file = Util::File::File("/device/" + port.toLowerCase());
+        auto file = Util::File::File("/device/" + port.toLowerCase());
         if (!file.exists()) {
             log.error("Port [%s] not present", static_cast<const char*>(port));
             return;
@@ -317,8 +324,43 @@ void GatesOfHell::initializePowerManagement() {
 }
 
 void GatesOfHell::initializeStorage() {
+    Device::Storage::IdeController::initializeAvailableControllers();
+
     if (Device::Storage::FloppyController::isAvailable()) {
         auto *floppyController = new Device::Storage::FloppyController();
         floppyController->initializeAvailableDrives();
+    }
+}
+
+void GatesOfHell::mountDevices() {
+    auto mountFile = Util::File::File("/system/mount_table");
+    if (!mountFile.exists()) {
+        return;
+    }
+
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto fileReader = Util::Stream::FileReader(mountFile);
+    auto reader = Util::Stream::BufferedReader(fileReader);
+
+    Util::Memory::String line = reader.readLine();
+    while (!line.isEmpty()) {
+        if (line.beginsWith("#")) {
+            line = reader.readLine();
+            continue;
+        }
+
+        auto split = line.split(" ");
+        if (split.length() < 3) {
+            log.error("Invalid line in /system/mount_table");
+            line = reader.readLine();
+            continue;
+        }
+
+        auto success = filesystemService.mount(split[0], split[1], split[2]);
+        if (!success) {
+            log.error("Failed to mount [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));
+        }
+
+        line = reader.readLine();
     }
 }

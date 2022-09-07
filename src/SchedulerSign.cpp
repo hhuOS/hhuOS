@@ -25,7 +25,8 @@
 
 
 void SchedulerSign::run() {
-    auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
+    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 

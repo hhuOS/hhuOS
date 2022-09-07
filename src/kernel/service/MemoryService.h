@@ -132,7 +132,7 @@ public:
 
     /**
      * Map a physical address into the current address space's heap.
-     * This is usually used to map physical IO memory (e.g. for the LFB) into a virtual address space and be able to access it.
+     * This is usually used to map physical TransferMode memory (e.g. for the LFB) into a virtual address space and be able to access it.
      * The allocated memory is 4KB-aligned, therefore the returned virtual memory address is also 4KB-aligned.
      * If the given physical address is not 4KB-aligned, one has to add a offset to the returned virtual
      * memory address in order to obtain the corresponding virtual address.
@@ -142,17 +142,17 @@ public:
      *                 please make sure you allocated that memory before!
      * @param size Amount of memory to be allocated
      *
-     * @return Pointer to virtual IO memory block
+     * @return Pointer to virtual TransferMode memory block
      */
     void *mapIO(uint32_t physicalAddress, uint32_t size, bool mapToKernelHeap = true);
 
     /**
      * Allocate a contiguous block of physical memory and map it into the current address space's  heap.
-     * This is useful for devices, which need memory for IO operations.
+     * This is useful for devices, which need memory for TransferMode operations.
      *
      * @param size Amount of memory to be allocated
      *
-     * @return Pointer to virtual IO memory block
+     * @return Pointer to virtual TransferMode memory block
      */
     void *mapIO(uint32_t size, bool mapToKernelHeap = true);
 

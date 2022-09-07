@@ -66,8 +66,6 @@ public:
 
     [[nodiscard]] uint16_t getRows() const;
 
-    [[nodiscard]] Util::Stream::PipedOutputStream& getPipedOutputStream();
-
 private:
 
     class TerminalPipedOutputStream : public Stream::PipedOutputStream {
@@ -113,7 +111,7 @@ private:
         /**
          * Constructor.
          */
-        KeyboardRunnable(Terminal &terminal);
+        explicit KeyboardRunnable(Terminal &terminal);
 
         /**
          * Copy Constructor.
@@ -135,7 +133,6 @@ private:
     private:
 
         Terminal &terminal;
-        Stream::FileInputStream keyboardStream = Stream::FileInputStream("/device/keyboard");
     };
 
     void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);

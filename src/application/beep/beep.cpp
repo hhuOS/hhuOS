@@ -24,18 +24,7 @@
 
 static const constexpr uint8_t BAR_LENGTH = 25;
 
-Util::Memory::String readLine(Util::Stream::BufferedReader &reader) {
-    Util::Memory::String buffer;
-    auto currentChar = reader.read();
-    while (currentChar != -1 && currentChar != '\n') {
-        buffer += currentChar;
-        currentChar = reader.read();
-    }
-
-    return buffer;
-}
-
-void printStatusLine(const Util::File::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
+void printStatusLine(Util::File::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
     auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
     auto percentage = static_cast<double>(passedTime) / songLength;
     auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
@@ -55,10 +44,10 @@ uint32_t calculateLength(const Util::File::File &beepFile) {
     auto reader = Util::Stream::BufferedReader(fileReader);
     uint32_t length = 0;
 
-    auto line = readLine(reader);
+    auto line = reader.readLine();
     while (!line.isEmpty()) {
         length += Util::Memory::String::parseInt(line.split(",")[1]);
-        line = readLine(reader);
+        line = reader.readLine();
     }
 
     return length;
@@ -84,7 +73,7 @@ int32_t main(int32_t argc, char *argv[]) {
 
     uint32_t passedTime = 0;
     auto songLength = calculateLength(beepFile);
-    auto line = readLine(reader);
+    auto line = reader.readLine();
 
     while (!line.isEmpty()) {
         auto split = line.split(",");
@@ -97,7 +86,7 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(length));
         Util::Graphic::Ansi::clearLineToCursor();
         Util::Graphic::Ansi::moveCursorToBeginningOfPreviousLine(0);
-        line = readLine(reader);
+        line = reader.readLine();
     }
 
     writer << 0 << Util::Stream::PrintWriter::flush;

@@ -26,57 +26,58 @@ File::File(const Memory::String &path) : path(path) {}
 
 File::File(const File &copy) {
     path = copy.path;
+    fileDescriptor = -1;
 }
 
-File &File::operator=(const File &other) {
+File& File::operator=(const File &other) {
     if (&other == this) {
         return *this;
     }
 
     path = other.path;
+    fileDescriptor = -1;
     return *this;
 }
 
-bool File::exists() const {
-    auto fileDescriptor = open(path);
+File::~File() {
+    if (fileDescriptor != -1) {
+        ::closeFile(fileDescriptor);
+    }
+}
+
+bool File::exists() {
+    ensureFileIsOpened();
     if (fileDescriptor >= 0) {
-        close(fileDescriptor);
         return true;
     }
 
     return false;
 }
 
-Type File::getType() const {
-    auto fileDescriptor = open(path);
+Type File::getType() {
+    ensureFileIsOpened();
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
-    auto ret = getFileType(fileDescriptor);
-    close(fileDescriptor);
-
-    return ret;
+    return ::getFileType(fileDescriptor);
 }
 
-bool File::isFile() const {
+bool File::isFile() {
     return getType() != DIRECTORY;
 }
 
-bool File::isDirectory() const {
+bool File::isDirectory() {
     return getType() == DIRECTORY;
 }
 
-uint32_t File::File::getLength() const {
-    auto fileDescriptor = open(path);
+uint32_t File::File::getLength() {
+    ensureFileIsOpened();
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
-    auto ret = getFileLength(fileDescriptor);
-    close(fileDescriptor);
-
-    return ret;
+    return ::getFileLength(fileDescriptor);
 }
 
 Memory::String File::getName() const {
@@ -92,28 +93,31 @@ Memory::String File::getParent() const {
     return getCanonicalPath(path + "/..");
 }
 
-Data::Array<Memory::String> File::getChildren() const {
-    auto fileDescriptor = open(path);
+Data::Array<Memory::String> File::getChildren() {
+    ensureFileIsOpened();
     if (fileDescriptor < 0) {
         Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
     }
 
-    auto ret = getFileChildren(fileDescriptor);
-    close(fileDescriptor);
-
-    return ret;
+    return ::getFileChildren(fileDescriptor);
 }
 
 File File::getParentFile() const {
     return File(getParent());
 }
 
-bool File::create(Type fileType) const {
-    return createFile(path, fileType);
+bool File::create(Type fileType) {
+    auto ret = ::createFile(path, fileType);
+    fileDescriptor = -1;
+
+    return ret;
 }
 
-bool File::remove() const {
-    return deleteFile(path);
+bool File::remove() {
+    auto ret = ::deleteFile(path);
+    fileDescriptor = -1;
+
+    return ret;
 }
 
 Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
@@ -145,12 +149,18 @@ Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
     return parsedPath;
 }
 
+void File::ensureFileIsOpened() {
+    if (fileDescriptor < 0) {
+        fileDescriptor = ::openFile(path);
+    }
+}
+
 int32_t open(const Memory::String &path) {
-    return openFile(path);
+    return ::openFile(path);
 }
 
 void close(int32_t fileDescriptor) {
-    return closeFile(fileDescriptor);
+    return ::closeFile(fileDescriptor);
 }
 
 bool changeDirectory(const Util::Memory::String &path) {
@@ -161,7 +171,7 @@ File getCurrentWorkingDirectory() {
     return ::getCurrentWorkingDirectory();
 }
 
-const char* getFileColor(const File &file) {
+const char* getFileColor(File &file) {
     switch (file.getType()) {
         case DIRECTORY:
             return Util::Graphic::Ansi::FOREGROUND_BRIGHT_BLUE;

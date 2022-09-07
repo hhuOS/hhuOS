@@ -20,7 +20,7 @@
 #include "lib/util/system/System.h"
 
 void treeDirectory(const Util::Memory::String &path, uint32_t level) {
-    const auto file = Util::File::File(path);
+    auto file = Util::File::File(path);
     if (!file.exists()) {
         Util::System::error << "tree: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;

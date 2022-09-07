@@ -91,7 +91,8 @@ void Shell::parseInput(const Util::Memory::String &input) {
 
 Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const {
     for (const auto &path : Util::Memory::String(PATH).split(":")) {
-        auto binaryPath = checkDirectory(command, Util::File::File(path));
+        auto file = Util::File::File(path);
+        auto binaryPath = checkDirectory(command, file);
         if (!binaryPath.isEmpty()) {
             return binaryPath;
         }
@@ -100,7 +101,7 @@ Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const
     return "";
 }
 
-Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, const Util::File::File &directory) const {
+Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, Util::File::File &directory) const {
     if (!directory.exists() || !directory.isDirectory()) {
         return "";
     }

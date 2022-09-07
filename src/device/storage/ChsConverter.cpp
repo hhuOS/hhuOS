@@ -15,24 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/game/Engine.h"
-#include "lib/util/system/System.h"
-#include "CubeDemo.h"
+#include "ChsConverter.h"
 
-static const constexpr int32_t DEFAULT_SPEED = 10;
+ChsConverter::ChsConverter(uint8_t cylinders, uint8_t heads, uint8_t sectorsPerCylinder) : cylinders(cylinders), heads(heads), sectorsPerTrack(sectorsPerCylinder) {}
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
-    if (speed < 0) {
-        Util::System::error << "Speed must be greater than 0!";
-        return -1;
-    }
+ChsConverter::CylinderHeadSector ChsConverter::lbaToChs(uint32_t lbaSector) const {
+    return {
+            static_cast<uint16_t>(lbaSector / (heads * sectorsPerTrack)),
+            static_cast<uint8_t>((lbaSector % (heads * sectorsPerTrack)) / sectorsPerTrack),
+            static_cast<uint8_t>((lbaSector % sectorsPerTrack) + 1)
+    };
 
-    auto game = CubeDemo(speed);
-    auto lfbFile = Util::File::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(game, lfb);
-    engine.run();
-
-    return 0;
 }

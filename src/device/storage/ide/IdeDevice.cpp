@@ -15,24 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/game/Engine.h"
-#include "lib/util/system/System.h"
-#include "CubeDemo.h"
+#include "IdeDevice.h"
 
-static const constexpr int32_t DEFAULT_SPEED = 10;
+namespace Device::Storage {
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
-    if (speed < 0) {
-        Util::System::error << "Speed must be greater than 0!";
-        return -1;
-    }
+IdeDevice::IdeDevice(IdeController &controller, const IdeController::DeviceInfo &deviceInfo) : controller(controller), info(deviceInfo) {}
 
-    auto game = CubeDemo(speed);
-    auto lfbFile = Util::File::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(game, lfb);
-    engine.run();
+uint32_t IdeDevice::getSectorSize() {
+    return info.sectorSize;
+}
 
-    return 0;
+uint64_t IdeDevice::getSectorCount() {
+    return info.maxSectorsLba28;
+}
+
+uint32_t IdeDevice::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
+    return controller.performIO(info, IdeController::READ, buffer, startSector, sectorCount);
+}
+
+uint32_t IdeDevice::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
+    return controller.performIO(info, IdeController::WRITE, const_cast<uint8_t*>(buffer), startSector, sectorCount);
+}
+
 }

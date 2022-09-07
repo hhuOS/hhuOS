@@ -53,7 +53,7 @@ public:
      */
     LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
 
-    explicit LinearFrameBuffer(const File::File &file, bool enableAcceleration = true);
+    explicit LinearFrameBuffer(File::File &file, bool enableAcceleration = true);
 
     /**
      * Assignment operator.

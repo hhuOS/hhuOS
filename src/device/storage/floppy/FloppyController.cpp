@@ -343,7 +343,7 @@ void FloppyController::prepareDma(FloppyDevice &device, Isa::TransferMode transf
     Isa::deselectChannel(2);
 }
 
-bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
+bool FloppyController::performIO(FloppyDevice &device, FloppyController::TransferMode mode, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount) {
     if (cylinder >= device.getCylinders()) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of cylinder bounds!");
     }
@@ -364,7 +364,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
     void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Util::Memory::PAGESIZE);
     bool success = false;
 
-    if (operation == WRITE) {
+    if (mode == WRITE) {
         auto sourceAddress = Util::Memory::Address<uint32_t>(buffer);
         auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
@@ -373,9 +373,9 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
     setMotorState(device, ON);
     for (uint8_t i = 0; i < RETRY_COUNT; i++) {
         receivedInterrupt = false;
-        prepareDma(device, operation == WRITE ? Isa::READ : Isa::WRITE, dmaMemory, sectorCount);
+        prepareDma(device, mode == WRITE ? Isa::READ : Isa::WRITE, dmaMemory, sectorCount);
 
-        writeFifoByte((operation == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
+        writeFifoByte((mode == WRITE ? WRITE_DATA : READ_DATA) | MULTITRACK | MFM);
         writeFifoByte(device.getDriveNumber() | (head << 2u));
         writeFifoByte(cylinder);
         writeFifoByte(head);
@@ -408,7 +408,7 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::IO oper
             continue;
         }
 
-        if (operation == READ) {
+        if (mode == READ) {
             auto sourceAddress = Util::Memory::Address<uint32_t>(dmaMemory);
             auto targetAddress = Util::Memory::Address<uint32_t>(buffer);
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);

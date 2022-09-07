@@ -31,7 +31,7 @@ LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resoluti
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
         buffer(enableAcceleration ? Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx) : new Memory::Address<uint32_t>(virtualAddress)), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
-LinearFrameBuffer::LinearFrameBuffer(const File::File &file, bool enableAcceleration) {
+LinearFrameBuffer::LinearFrameBuffer(File::File &file, bool enableAcceleration) {
     if (!file.exists()) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }

@@ -38,7 +38,8 @@ void textLoop() {
 }
 
 void graphicsLoop() {
-    auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
+    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto stringDrawer = Util::Graphic::StringDrawer(Util::Graphic::PixelDrawer(lfb));
     auto inputStream = Util::Stream::FileInputStream("/device/mouse");
     int32_t x = lfb.getResolutionX() / 2;

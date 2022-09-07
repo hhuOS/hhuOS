@@ -25,9 +25,11 @@
 int32_t main(int32_t argc, char *argv[]) {
     auto demo = Util::Memory::String(argc > 1 ? argv[1] : "benchmark");
 
-    lv_init();
-    auto lfb = Util::Graphic::LinearFrameBuffer(Util::File::File("/device/lfb"));
+    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto driver = LvglDriver(lfb);
+
+    lv_init();
     driver.initialize();
 
     if (demo == "stress") {

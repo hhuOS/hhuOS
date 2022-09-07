@@ -20,7 +20,7 @@
 #include "lib/util/system/System.h"
 
 void lsDirectory(const Util::Memory::String &path) {
-    const auto file = Util::File::File(path);
+    auto file = Util::File::File(path);
     if (!file.exists()) {
         Util::System::error << "ls: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return;
@@ -29,7 +29,7 @@ void lsDirectory(const Util::Memory::String &path) {
     auto string = Util::Memory::String();
     if (file.isDirectory()) {
         for (const auto &child : file.getChildren()) {
-            const auto currentFile = Util::File::File(file.getCanonicalPath() + "/" + child);
+            auto currentFile = Util::File::File(file.getCanonicalPath() + "/" + child);
             string += Util::File::getFileColor(currentFile) + currentFile.getName() + (currentFile.isDirectory() ? "/" : "") + Util::Graphic::Ansi::FOREGROUND_DEFAULT + " ";
         }
 

@@ -73,9 +73,9 @@ public:
     };
 
     /**
-     * IO operations.
+     * TransferMode operations.
      */
-    enum IO : uint8_t {
+    enum TransferMode : uint8_t {
         READ, WRITE
     };
 
@@ -121,7 +121,7 @@ public:
      * Reading across multiple tracks requires multiple calls of this function.
      *
      * @param device The device
-     * @param operation Read or write
+     * @param mode Read or write
      * @param buff The buffer to write the read data to
      * @param cylinder The cylinder
      * @param head The head
@@ -129,7 +129,7 @@ public:
      * @param sectorCount The amount of sector to read (boundary. sectorsPerCylinder)
      * @return
      */
-    bool performIO(FloppyDevice &device, IO operation, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
+    bool performIO(FloppyDevice &device, TransferMode mode, uint8_t *buffer, uint8_t cylinder, uint8_t head, uint8_t startSector, uint8_t sectorCount);
 
     /**
      * Enable interrupts from the floppy controller.

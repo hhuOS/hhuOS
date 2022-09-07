@@ -15,24 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/game/Engine.h"
-#include "lib/util/system/System.h"
-#include "CubeDemo.h"
+#ifndef HHUOS_CHSCONVERTER_H
+#define HHUOS_CHSCONVERTER_H
 
-static const constexpr int32_t DEFAULT_SPEED = 10;
 
-int32_t main(int32_t argc, char *argv[]) {
-    auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
-    if (speed < 0) {
-        Util::System::error << "Speed must be greater than 0!";
-        return -1;
-    }
+#include <cstdint>
 
-    auto game = CubeDemo(speed);
-    auto lfbFile = Util::File::File("/device/lfb");
-    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(game, lfb);
-    engine.run();
+class ChsConverter {
 
-    return 0;
-}
+public:
+
+    struct CylinderHeadSector {
+        uint16_t cylinder;
+        uint8_t head;
+        uint8_t sector;
+    };
+
+    /**
+     * Constructor.
+     */
+    ChsConverter(uint8_t cylinders, uint8_t heads, uint8_t sectorsPerCylinder);
+
+    /**
+     * Copy Constructor.
+     */
+    ChsConverter(const ChsConverter &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    ChsConverter &operator=(const ChsConverter &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~ChsConverter() = default;
+
+    [[nodiscard]] CylinderHeadSector lbaToChs(uint32_t lbaSector) const;
+
+private:
+
+    uint8_t cylinders;
+    uint8_t heads;
+    uint8_t sectorsPerTrack;
+};
+
+
+#endif

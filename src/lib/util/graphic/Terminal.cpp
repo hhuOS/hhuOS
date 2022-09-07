@@ -290,10 +290,6 @@ uint16_t Terminal::getRows() const {
     return rows;
 }
 
-Util::Stream::PipedOutputStream &Terminal::getPipedOutputStream() {
-    return outputStream;
-}
-
 Util::Graphic::Color Terminal::getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index) {
     switch (colorCode) {
         case 0:
@@ -427,6 +423,8 @@ void Terminal::TerminalPipedOutputStream::flush() {
 Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(terminal) {}
 
 void Terminal::KeyboardRunnable::run() {
+    auto keyboardStream = Stream::FileInputStream("/device/keyboard");
+
     while (true) {
         terminal.outputStream.write(keyboardStream.read());
     }
