@@ -62,7 +62,9 @@ public:
 
     void clear() override;
 
-    [[nodiscard]] Array<K> keySet() const override;
+    [[nodiscard]] Array<K> keys() const override;
+
+    [[nodiscard]] Array<V> values() const override;
 
 private:
 
@@ -234,7 +236,7 @@ void HashMap<K, V>::clear() {
 }
 
 template<class K, class V>
-Array<K> HashMap<K, V>::keySet() const {
+Array<K> HashMap<K, V>::keys() const {
     if (!isInitialized) {
         initialize();
     }
@@ -252,6 +254,27 @@ Array<K> HashMap<K, V>::keySet() const {
     }
 
     return keyList.toArray();
+}
+
+template<typename K, typename V>
+Array<V> HashMap<K, V>::values() const {
+    if (!isInitialized) {
+        initialize();
+    }
+
+    ArrayList<V> valueList;
+    HashNode<K, V> *current;
+
+    for (uint32_t i = 0; i < tableSize; i++) {
+        current = table[i];
+
+        while (current != nullptr) {
+            valueList.add(current->getValue());
+            current = current->getNext();
+        }
+    }
+
+    return valueList.toArray();
 }
 
 }

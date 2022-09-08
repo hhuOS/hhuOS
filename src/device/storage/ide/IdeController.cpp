@@ -136,7 +136,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     registers.interruptsDisabled = true;
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(5));
 
-    if (!waitStatus(registers.command.status, BUSY, false, 50)) {
+    if (!waitStatus(registers.command.status, NONE)) {
         log.error("Failed to reset drive [%u] on channel [%u]", drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
@@ -267,7 +267,7 @@ bool IdeController::readAtaIdentity(uint8_t channel, uint16_t *buffer) {
     registers.command.command.writeByte(IDENTIFY_ATA_DRIVE);
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
 
-    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
         return false;
     }
 
@@ -282,7 +282,7 @@ bool IdeController::readAtapiIdentity(uint8_t channel, uint16_t *buffer) {
     registers.command.command.writeByte(IDENTIFY_ATAPI_DRIVE);
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
 
-    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
         return false;
     }
 
@@ -300,7 +300,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
         return true;
     }
 
-    if (!waitStatus(registers.command.status, BUSY, false)) {
+    if (!waitStatus(registers.command.status, NONE)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
@@ -308,7 +308,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     registers.command.driveHead.writeByte(selector);
     Util::Async::Thread::sleep({0, 400});
 
-    if (!waitStatus(registers.command.status, BUSY, false)) {
+    if (!waitStatus(registers.command.status, NONE)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
@@ -376,7 +376,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 
     bool logError = true;
     uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES;
-    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, true, retries, logError)) {
+    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, retries, logError)) {
         for (uint32_t i = 0; i < 128; i++) {
             registers.command.data.readWord();
         }
@@ -406,7 +406,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
     // Clear interrupt flag
     registers.receivedInterrupt = false;
 
-    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY, true)) {
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
@@ -421,7 +421,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
         // TODO: DMA is currently disable for two reasons:
         //      1. There seems to be an error with unmapping the pages used for DMA, causing the system to crash.
         //      2. DMA transfers do not work on BIOS systems (Interrupts gets fired, but the memory is untouched)
-        /* uint16_t sectors;
+        /*uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
             sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
         } else {
@@ -488,14 +488,14 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
 
     registers.command.command.writeByte(command);
 
-    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u] via PIO", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
     uint32_t i;
     for (i = 0; i < sectorCount; i++) {
-        if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY, true)) {
+        if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
             log.error("Drive [%u] on channel [%u] does not respond after %s [%u] sectors via PIO", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
             return i;
         }
@@ -566,7 +566,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
 
     // Send command
     registers.command.command.writeByte(command);
-    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
     }
 
@@ -615,7 +615,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     return sectorCount;
 }
 
-bool IdeController::waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries, bool logError) {
+bool IdeController::waitStatus(const Device::IoPort &port, Status status, uint16_t retries, bool logError) {
     for (uint32_t i = 0; i < retries; i++) {
         auto currentStatus = port.readByte();
         if ((currentStatus & BUSY) == BUSY) {
@@ -623,24 +623,18 @@ bool IdeController::waitStatus(const Device::IoPort &port, Status status, bool s
         }
 
         if ((currentStatus & ERROR) == ERROR) {
-            if (logError) log.error("Error while waiting on status [%02x] to be %s", status, set ? "set" : "not set");
+            if (logError) log.error("Error while waiting on status [%02x]", status);
             return false;
         }
 
-        if (set) {
-            if ((currentStatus & status) == status) {
-                return true;
-            }
-        } else {
-            if ((currentStatus & status) == 0x00) {
-                return true;
-            }
+        if ((currentStatus & status) == status) {
+            return true;
         }
 
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
-    if (logError) log.error("Timeout while waiting on status [%02x] to be %s", status, set ? "set" : "not set");
+    if (logError) log.error("Timeout while waiting on status [%02x]", status);
     return false;
 }
 

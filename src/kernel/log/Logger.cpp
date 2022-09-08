@@ -144,7 +144,7 @@ void Logger::logMessage(const LogLevel &level, const Util::Memory::String &name,
 
     buffer.add(logMessage);
 
-    for (auto *stream : writerMap.keySet()) {
+    for (auto *stream : writerMap.keys()) {
         auto &writer = *writerMap.get(stream);
         writer << logMessage << Util::Stream::PrintWriter::endl;
     }

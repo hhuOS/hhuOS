@@ -15,39 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Map_include__
-#define __Map_include__
+#ifndef HHUOS_MOUNTSNODE_H
+#define HHUOS_MOUNTSNODE_H
 
-namespace Util::Data {
+#include "MemoryNode.h"
 
-/**
- * Base interface for all maps.
- *
- * @author Filip Krakowski
- */
-template<typename K, typename V>
-class Map {
+namespace Filesystem::Memory {
+
+class MountsNode : public MemoryNode {
 
 public:
+    /**
+     * Default Constructor.
+     */
+    explicit MountsNode(const Util::Memory::String &name = "mounts");
 
-    virtual void put(const K &key, const V &value) = 0;
+    /**
+     * Copy Constructor.
+     */
+    MountsNode(const MountsNode &other) = delete;
 
-    [[nodiscard]] virtual V get(const K &key) const = 0;
+    /**
+     * Assignment operator.
+     */
+    MountsNode &operator=(const MountsNode &other) = delete;
 
-    virtual V remove(const K &key) = 0;
+    /**
+     * Destructor.
+     */
+    ~MountsNode() override = default;
 
-    [[nodiscard]] virtual bool containsKey(const K &key) const = 0;
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t getLength() override;
 
-    [[nodiscard]] virtual uint32_t size() const = 0;
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
-    virtual void clear() = 0;
+private:
 
-    [[nodiscard]] virtual Array<K> keys() const = 0;
-
-    [[nodiscard]] virtual Array<V> values() const = 0;
+    static Util::Memory::String buildBuffer();
 };
 
 }
-
 
 #endif

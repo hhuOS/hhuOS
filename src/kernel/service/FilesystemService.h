@@ -65,6 +65,8 @@ public:
 
     [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 
+    [[nodiscard]] Util::Data::Array<Filesystem::MountInformation> getMountInformation();
+
     static const constexpr uint8_t SERVICE_ID = 0;
 
 private:

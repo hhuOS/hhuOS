@@ -59,6 +59,7 @@
 #include "device/hid/Mouse.h"
 #include "device/hid/Ps2Controller.h"
 #include "lib/util/stream/FileReader.h"
+#include "filesystem/memory/MountsNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -246,6 +247,7 @@ void GatesOfHell::initializeFilesystem() {
     deviceDriver->addNode("/", new Filesystem::Memory::NullNode());
     deviceDriver->addNode("/", new Filesystem::Memory::ZeroNode());
     deviceDriver->addNode("/", new Filesystem::Memory::RandomNode());
+    deviceDriver->addNode("/", new Filesystem::Memory::MountsNode());
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
     deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 

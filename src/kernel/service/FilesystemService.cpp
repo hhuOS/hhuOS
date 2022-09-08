@@ -215,4 +215,8 @@ Filesystem::Filesystem &FilesystemService::getFilesystem() {
     return filesystem;
 }
 
+Util::Data::Array<Filesystem::MountInformation> FilesystemService::getMountInformation() {
+    return filesystem.getMountInformation();
+}
+
 }

@@ -114,6 +114,7 @@ private:
     };
 
     enum Status : uint8_t {
+        NONE = 0x00,
         ERROR = 0x01,
         DATA_REQUEST = 0x08,
         DRIVE_READY = 0x40,
@@ -271,7 +272,7 @@ private:
 
     uint16_t performDmaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static bool waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
+    static bool waitStatus(const Device::IoPort &port, Status status, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 

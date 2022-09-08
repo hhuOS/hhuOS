@@ -25,6 +25,14 @@
 
 namespace Filesystem {
 
+struct MountInformation {
+    Util::Memory::String device;
+    Util::Memory::String target;
+    Util::Memory::String driver;
+
+    bool operator!=(const MountInformation &other);
+};
+
 /**
  * The filesystem. It works by maintaining a list of mount points.
  * Every request is handled by picking the right mount point and and passing the request over to the corresponding driver.
@@ -32,6 +40,7 @@ namespace Filesystem {
 class Filesystem {
 
 public:
+
     /**
      * Constructor.
      */
@@ -140,7 +149,14 @@ public:
      *
      * @return The driver
      */
-    Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path);
+    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path) const;
+
+    /**
+     * Get information about all mount points
+     *
+     * @return
+     */
+    [[nodiscard]] Util::Data::Array<MountInformation> getMountInformation() const;
     
 private:
     /**
@@ -154,11 +170,11 @@ private:
      *
      * @return The driver (or nullptr on failure)
      */
-    Driver* getMountedDriver(Util::Memory::String &path);
+    [[nodiscard]] Driver* getMountedDriver(Util::Memory::String &path) const;
 
     Util::Data::HashMap<Util::Memory::String, Driver*> mountPoints;
+    Util::Data::HashMap<Util::Memory::String, MountInformation> mountInformation;
     Util::Async::Spinlock lock;
-    
 };
 
 }

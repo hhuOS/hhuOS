@@ -22,6 +22,7 @@ target_sources(filesystem PUBLIC
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryFileNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/MemoryWrapperNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/memory/MountsNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/NullNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/RandomNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/StreamNode.cpp
