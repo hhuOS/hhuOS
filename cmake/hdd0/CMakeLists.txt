@@ -49,7 +49,8 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:touch>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/touch"
         COMMAND /bin/cp "$<TARGET_FILE:tree>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/tree"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uptime"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mouse polygon ps pwd rm rmdir shutdown touch tree uptime)
+        DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mouse polygon ps pwd rm rmdir shutdown touch tree uptime music)
 
-add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mouse polygon ps  pwd rm rmdir shutdown touch tree uptime "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mouse polygon ps  pwd rm rmdir shutdown touch tree uptime music "${HHUOS_ROOT_DIR}/hdd0.img")

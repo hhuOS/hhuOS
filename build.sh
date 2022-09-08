@@ -232,7 +232,7 @@ build() {
 
     echo "Using ${CORE_COUNT} CPU-Cores for make"
 
-    cmake .. -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
+    HHUOS_FULL_INITRD=true cmake .. -DCMAKE_BUILD_TYPE="${BUILD_TYPE}"
     make -j "${CORE_COUNT}" "${TARGET}"
     exit_code=$?
 

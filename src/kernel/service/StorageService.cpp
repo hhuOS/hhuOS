@@ -16,6 +16,8 @@
  */
 
 #include "StorageService.h"
+#include "device/storage/PartitionHandler.h"
+#include "device/storage/Partition.h"
 
 namespace Kernel {
 
@@ -38,9 +40,19 @@ Util::Memory::String StorageService::registerDevice(Device::Storage::StorageDevi
     auto name = Util::Memory::String::format("%s%u", static_cast<char*>(deviceClass), value);
     deviceMap.put(name, device);
     nameMap.put(deviceClass, value + 1);
-    lock.release();
 
     log.info("Registered device [%s]",static_cast<char*>(name));
+
+    if (lock.getDepth() == 1) {
+        log.info("Scanning device [%s] for partitions", static_cast<char *>(name));
+        auto partitionReader = Device::Storage::PartitionHandler(*device);
+        for (const auto &info: partitionReader.readPartitionTable()) {
+            auto *partition = new Device::Storage::Partition(*device, info.startSector, info.sectorCount);
+            registerDevice(partition, name + "p");
+        }
+    }
+
+    lock.release();
     return name;
 }
 

@@ -16,6 +16,14 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
+
 rm -f "../hdd0.img"
-mkfs.fat -F 16 -C "../hdd0.img" 65536
-mcopy -s -o -i "../hdd0.img" img/* ::/
+
+mkfs.fat -F 16 -C "part.img" 63488
+mcopy -s -o -i "part.img" img/* ::/
+
+fallocate -l 1M "fill.img"
+cat fill.img part.img fill.img > "../hdd0.img"
+
+rm part.img fill.img
+echo -e "o\\nn\\np\\n1\\n2048\\n131071\\nt\\ne\\nw\\n" | fdisk "../hdd0.img"

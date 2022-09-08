@@ -41,4 +41,8 @@ void ReentrantSpinlock::release() {
     }
 }
 
+uint32_t ReentrantSpinlock::getDepth() const {
+    return depth;
+}
+
 }

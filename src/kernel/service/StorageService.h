@@ -23,6 +23,7 @@
 #include "device/storage/StorageDevice.h"
 #include "lib/util/async/Spinlock.h"
 #include "kernel/log/Logger.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 
 namespace Kernel {
 
@@ -59,7 +60,7 @@ public:
 
 private:
 
-    Util::Async::Spinlock lock;
+    Util::Async::ReentrantSpinlock lock;
     Util::Data::HashMap<Util::Memory::String, Device::Storage::StorageDevice*> deviceMap;
 
     static Logger log;

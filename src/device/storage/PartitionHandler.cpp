@@ -36,6 +36,10 @@ void PartitionHandler::createPartitionTable() {
 Util::Data::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTable() {
     // Read MBR
     auto *mbr = readBootRecord(0);
+    if (mbr == nullptr) {
+        return Util::Data::Array<PartitionInfo>(0);
+    }
+
     auto *partitions = reinterpret_cast<PartitionTableEntry*>(&mbr[PARTITION_TABLE_START]);
 
     // Stores information about found partitions
@@ -261,6 +265,9 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
 
     // Read MBR
     auto *mbr = readBootRecord(0);
+    if (mbr == nullptr) {
+        return;
+    }
 
     if (partitionNumber <= 4) {
         log.debug("Deleting primary partition (Number: [%u])", partitionNumber);
@@ -389,17 +396,16 @@ void PartitionHandler::createBootRecord(uint32_t sector) {
 uint8_t* PartitionHandler::readBootRecord(uint32_t sector) {
     // Read boot record
     auto *bootRecord = new uint8_t[device.getSectorSize()];
-    auto readBytes = device.read(bootRecord, sector, 1);
-    if (readBytes < device.getSectorSize()) {
+    if (device.read(bootRecord, sector, 1) < 1) {
         delete[] bootRecord;
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Unable to read boot record from disk!");
+        return nullptr;
     }
 
     // Check boot record signature
     uint16_t signature = *((uint16_t *)(&bootRecord[510]));
     if(signature != BOOT_RECORD_SIGNATURE) {
         delete[] bootRecord;
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "PartitionHandler: Boot record has invalid signature!");
+        return nullptr;
     }
 
     return bootRecord;

@@ -49,6 +49,8 @@ public:
 
     void release() override;
 
+    [[nodiscard]] uint32_t getDepth() const;
+
 private:
 
     uint32_t depth;

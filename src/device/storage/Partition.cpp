@@ -30,11 +30,11 @@ uint64_t Partition::getSectorCount() {
 }
 
 uint32_t Partition::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    return parentDevice.read(buffer, startSector, sectorCount);
+    return parentDevice.read(buffer, this->startSector + startSector, sectorCount);
 }
 
 uint32_t Partition::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    return parentDevice.write(buffer, startSector, sectorCount);
+    return parentDevice.write(buffer, this->startSector + startSector, sectorCount);
 }
 
 }
