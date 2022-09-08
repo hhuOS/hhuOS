@@ -66,7 +66,10 @@ private:
     static const constexpr uint16_t DEFAULT_BASE_ADDRESSES[DEVICES_PER_CHANNEL] = {0x01f0, 0x0170};
     static const constexpr uint16_t DEFAULT_CONTROL_BASE_ADDRESSES[DEVICES_PER_CHANNEL] = {0x03f4, 0x0374};
     static const constexpr uint32_t COMMAND_SET_WORD_COUNT = 6;
+    static const constexpr uint32_t BUS_MASTER_CHANNEL_OFFSET = 0x08;
     static const constexpr uint32_t MAX_WAIT_ON_STATUS_RETRIES = 4095;
+    static const constexpr uint32_t DMA_TIMEOUT = 30000;
+    static const constexpr uint32_t PRD_END_OF_TRANSMISSION = 1 << 31;
 
     enum AddressType : uint8_t {
         CHS = 0x00,
@@ -115,6 +118,20 @@ private:
         DATA_REQUEST = 0x08,
         DRIVE_READY = 0x40,
         BUSY = 0x80
+    };
+
+    enum DmaStatus : uint8_t {
+        BUS_MASTER_ACTIVE = 0x01,
+        DMA_ERROR = 0x02,
+        INTERRUPT = 0x04,
+        DMA_SUPPORTED_DRIVE_0 = 0x20,
+        DMA_SUPPORTED_DRIVE_1 = 0x40,
+        SIMPLEX = 0x80
+    };
+
+    enum DmaCommand : uint8_t {
+        ENABLE = 0x01,
+        DIRECTION = 0x08
     };
 
     enum IdentifyFieldOffset : uint8_t {
@@ -170,6 +187,8 @@ public:
         AddressType addressing;                       // CHS (0), LBA28 (1), LBA48 (2)
         uint16_t sectorSize;                          // Sector size
         AtapiValues atapi;                            // In case of ATAPI, more information about the drive
+
+        [[nodiscard]] bool supportsDma() const;
     };
 
     uint16_t performIO(const DeviceInfo &info, TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount);
@@ -250,11 +269,14 @@ private:
 
     uint16_t performProgrammedIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
+    uint16_t performDmaIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
+
     static bool waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
 
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
     ChannelRegisters channels[CHANNELS_PER_CONTROLLER]{};
+    bool supportsDma = false;
 
     static Kernel::Logger log;
 };

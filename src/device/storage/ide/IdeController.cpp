@@ -37,6 +37,7 @@ IdeController::IdeController(const PciDevice &pciDevice) {
 
     if (pciDevice.getProgrammingInterface() & 0x80) {
         log.info("Controller supports DMA");
+        supportsDma = true;
         dmaBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_4) & 0xfffffffc;
     }
 
@@ -64,7 +65,7 @@ IdeController::IdeController(const PciDevice &pciDevice) {
             controlBaseAddress = pciDevice.readDoubleWord(Pci::Register::BASE_ADDRESS_1) & 0xfffffffc;
         }
 
-        channels[i] = ChannelRegisters(baseAddress, controlBaseAddress, dmaBaseAddress);
+        channels[i] = ChannelRegisters(baseAddress, controlBaseAddress, dmaBaseAddress + (i == 0 ? 0 : BUS_MASTER_CHANNEL_OFFSET));
     }
 }
 
@@ -321,6 +322,7 @@ void IdeController::initializeAvailableControllers() {
     for (const auto &device : devices) {
         auto *controller = new IdeController(device);
         controller->initializeDrives();
+        controller->plugin();
     }
 }
 
@@ -416,7 +418,17 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
         uint32_t start = startSector + processedSectors;
         uint32_t count = sectorsLeft > maxSectorCount ? maxSectorCount : sectorsLeft;
 
+        // TODO: DMA is currently disable for two reasons:
+        //      1. There seems to be an error with unmapping the pages used for DMA, causing the system to crash.
+        //      2. DMA transfers do not work on BIOS systems (Interrupts gets fired, but the memory is untouched)
+        /* uint16_t sectors;
+        if (supportsDma && info.supportsDma()) {
+            sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+        } else {
+            sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+        }*/
         auto sectors = performProgrammedIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
+
         processedSectors += sectors;
         if (sectors == 0) {
             return processedSectors;
@@ -477,14 +489,14 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     registers.command.command.writeByte(command);
 
     if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
-        log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
+        log.error("Failed to %s sectors on drive [%u] on channel [%u] via PIO", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
     uint32_t i;
     for (i = 0; i < sectorCount; i++) {
         if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY, true)) {
-            log.error("Drive [%u] on channel [%u] does not respond after %s [%u] sectors", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
+            log.error("Drive [%u] on channel [%u] does not respond after %s [%u] sectors via PIO", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
             return i;
         }
 
@@ -502,6 +514,105 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     }
 
     return i;
+}
+
+uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount) {
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    auto &registers = channels[info.channel];
+
+    uint8_t command;
+    if (info.addressing == LBA28) {
+        command = mode == WRITE ? WRITE_DMA_LBA28 : READ_DMA_LBA28;
+    } else if (info.addressing == LBA48) {
+        command = mode == WRITE ? WRITE_DMA_LBA48 : READ_DMA_LBA48;
+    } else {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
+    }
+
+    // Calculate the amount of pages needed for the operation
+    auto size = sectorCount * info.sectorSize;
+    auto pages = size / Util::Memory::PAGESIZE + (size % Util::Memory::PAGESIZE == 0 ? 0 : 1);
+
+    // Each page corresponds to an 8-byte entry in the PRD
+    auto prdSize = pages * 8;
+    auto prdVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(prdSize));
+    auto prdPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(prdVirtual));
+
+    // Allocate memory for the DMA transfer
+    auto dmaMemoryVirtual = reinterpret_cast<uint32_t*>(memoryService.mapIO(size));
+    auto dmaMemoryPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(dmaMemoryVirtual));
+
+    if (mode == WRITE) {
+        auto source = Util::Memory::Address<uint32_t>(buffer);
+        auto target = Util::Memory::Address<uint32_t>(dmaMemoryVirtual);
+        target.copyRange(source, size);
+    }
+
+    // Fill PRD
+    uint32_t i;
+    for (i = 0; i < (pages - 1); i++) {
+        prdVirtual[2 * i] = dmaMemoryPhysical + (Util::Memory::PAGESIZE * i);
+        prdVirtual[(2 * i) + 1] = Util::Memory::PAGESIZE;
+    }
+
+    // Set last PRD entry wit EOT bit
+    prdVirtual[2 * i] = dmaMemoryPhysical + (Util::Memory::PAGESIZE * i);
+    prdVirtual[(2 * i) + 1] = (size % Util::Memory::PAGESIZE) | PRD_END_OF_TRANSMISSION;
+
+    // Prepare DMA transfer
+    prepareIO(info, startSector, sectorCount);
+    registers.dma.address.writeDoubleWord(prdPhysical);
+    registers.dma.status.writeByte(~(DmaStatus::DMA_ERROR | DmaStatus::INTERRUPT));
+
+    // Send command
+    registers.command.command.writeByte(command);
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
+        log.error("Failed to %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "read" : "write", info.drive, info.channel);
+    }
+
+    registers.receivedInterrupt = false;
+
+    // Set DMA direction and enable bus master
+    auto dmaCommand = (mode == READ ? 0x00 : DmaCommand::DIRECTION) | DmaCommand::ENABLE;
+    registers.dma.command.writeByte(dmaCommand);
+
+    uint32_t timeout = Util::Time::getSystemTime().toMilliseconds() + DMA_TIMEOUT;
+    do {
+        if (registers.receivedInterrupt) {
+            // Stop DMA and check flags
+            registers.dma.command.writeByte(0x00);
+
+            auto dmaStatus = registers.dma.status.readByte();
+            if ((dmaStatus & DmaStatus::INTERRUPT) == DmaStatus::INTERRUPT) {
+                // An interrupt has been fired -> Check if bus master is still enabled
+                if ((dmaStatus & DmaStatus::BUS_MASTER_ACTIVE) == DmaStatus::BUS_MASTER_ACTIVE) {
+                    // Continue DMA transfer
+                    registers.receivedInterrupt = false;
+                    registers.dma.command.writeByte(dmaCommand);
+                } else {
+                    // DMA transfer is finished
+                    break;
+                }
+            }
+        }
+    } while (Util::Time::getSystemTime().toMilliseconds() < timeout);
+
+    if (Util::Time::getSystemTime().toMilliseconds() >= timeout) {
+        log.error("Timeout while %s sectors on drive [%u] on channel [%u] via DMA", mode == READ ? "reading" : "writing", info.drive, info.channel);
+        delete prdVirtual;
+        delete dmaMemoryVirtual;
+        return 0;
+    }
+
+    if (mode == READ) {
+        auto source = Util::Memory::Address<uint32_t>(dmaMemoryVirtual);
+        auto target = Util::Memory::Address<uint32_t>(buffer);
+        target.copyRange(source, size);
+    }
+
+    delete prdVirtual;
+    delete dmaMemoryVirtual;
+    return sectorCount;
 }
 
 bool IdeController::waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries, bool logError) {
@@ -538,6 +649,10 @@ void IdeController::copyByteSwappedString(const char *source, char *target, uint
         target[i] = source[i + 1];
         target[i + 1] = source[i];
     }
+}
+
+bool IdeController::DeviceInfo::supportsDma() const {
+    return ultraDma != 0 || multiwordDma != 0;
 }
 
 }
