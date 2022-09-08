@@ -110,6 +110,13 @@ private:
         ATA_SEND_PACKET = 0xA0,
     };
 
+    enum Status : uint8_t {
+        ERROR = 0x01,
+        DATA_REQUEST = 0x08,
+        DRIVE_READY = 0x40,
+        BUSY = 0x80
+    };
+
     enum IdentifyFieldOffset : uint8_t {
         DEVICE_TYPE = 0,
         CYLINDERS = 1,
@@ -144,7 +151,7 @@ public:
     struct DeviceInfo {
         uint8_t channel;                              // 0 (Primary Channel) or 1 (Secondary Channel)
         uint8_t drive;                                // 0 (Master Drive) or 1 (Slave Drive)
-        DriveType type;                               // 0: ATA, 1:ATAPI
+        DriveType type;                               // 0 (ATA) or 1 (ATAPI)
         uint16_t cylinders;                           // Number of logical cylinders of the drive
         uint16_t heads;                               // Number of logical heads of the drive
         uint16_t sectorsPerTrack;                     // Number of sectors per track of the drive
@@ -172,19 +179,19 @@ private:
     struct CommandRegisters {
         explicit CommandRegisters(uint16_t baseAddress);
         
-        Device::IoPort data;            //base + 0x00 (read/write)
-        Device::IoPort error;           //base + 0x01 (read)
-        Device::IoPort features;        //base + 0x01 (write)
-        Device::IoPort sectorCount;     //base + 0x02 (read/write)
-        Device::IoPort sectorNumber;    //base + 0x03 (read/write)
-        Device::IoPort lbaLow;          //base + 0x03 (read/write)
-        Device::IoPort cylinderLow;     //base + 0x04 (read/write)
-        Device::IoPort lbaMid;          //base + 0x04 (read/write)
-        Device::IoPort cylinderHigh;    //base + 0x05 (read/write)
-        Device::IoPort lbaHigh;         //base + 0x05 (read/write)
-        Device::IoPort driveHead;       //base + 0x06 (read/write)
-        Device::IoPort status;          //base + 0x07 (read)
-        Device::IoPort command;         //base + 0x07 (write)
+        Device::IoPort data;            // base + 0x00 (read/write)
+        Device::IoPort error;           // base + 0x01 (read)
+        Device::IoPort features;        // base + 0x01 (write)
+        Device::IoPort sectorCount;     // base + 0x02 (read/write)
+        Device::IoPort sectorNumber;    // base + 0x03 (read/write)
+        Device::IoPort lbaLow;          // base + 0x03 (read/write)
+        Device::IoPort cylinderLow;     // base + 0x04 (read/write)
+        Device::IoPort lbaMid;          // base + 0x04 (read/write)
+        Device::IoPort cylinderHigh;    // base + 0x05 (read/write)
+        Device::IoPort lbaHigh;         // base + 0x05 (read/write)
+        Device::IoPort driveHead;       // base + 0x06 (read/write)
+        Device::IoPort status;          // base + 0x07 (read)
+        Device::IoPort command;         // base + 0x07 (write)
 
     private:
         CommandRegisters();
@@ -194,7 +201,7 @@ private:
         ControlRegisters();
         explicit ControlRegisters(uint16_t baseAddress);
         
-        Device::IoPort alternativeStatus;   // base + 0x02 (read)
+        Device::IoPort alternateStatus;   // base + 0x02 (read)
         Device::IoPort deviceControl;       // base + 0x02 (write);
         Device::IoPort deviceAddress;       // base + 0x03 (read)
     };
@@ -216,8 +223,7 @@ private:
 
         bool receivedInterrupt{};             // Currently received interrupt
         uint8_t lastDeviceControl{};          // Saves current state of deviceControlRegister
-        bool firstDriveSelected{};            // Set to true, if primary drive is currently selected for channel
-        bool interruptsDisabled{};                   // nIEN (No Interrupt);
+        bool interruptsDisabled{};            // nIEN (No Interrupt);
         DriveType driveType[2]{};             // Initially found drive types;
         CommandRegisters command;             // Command Register Set IoPorts
         ControlRegisters control;             // Control Register Set IoPorts
@@ -238,22 +244,16 @@ private:
 
     bool selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaAccess = false, uint8_t lbaHead = 0);
 
-    bool waitStatusBusy(uint8_t channel, uint16_t retries);
-
-    bool waitAlternativeStatusBusy(uint8_t channel, uint16_t retries);
-
-    bool waitOnAlternativeStatus(uint8_t channel, uint8_t status, uint16_t retries, bool logError = true);
-
     uint16_t determineSectorSize(const DeviceInfo &info);
 
     void prepareIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
 
     uint16_t performProgrammedIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
 
-    static void byteSwapCopyString(const char *source, char *target, uint32_t length);
+    static bool waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES, bool logError = true);
 
-    uint8_t deviceCount = 0;
-    PciDevice pciDevice;
+    static void copyByteSwappedString(const char *source, char *target, uint32_t length);
+
     ChannelRegisters channels[CHANNELS_PER_CONTROLLER]{};
 
     static Kernel::Logger log;

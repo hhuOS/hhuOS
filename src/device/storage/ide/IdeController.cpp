@@ -28,7 +28,7 @@ namespace Device::Storage {
 
 Kernel::Logger IdeController::log = Kernel::Logger::get("IDE");
 
-IdeController::IdeController(const PciDevice &pciDevice) : pciDevice(pciDevice) {
+IdeController::IdeController(const PciDevice &pciDevice) {
     log.info("Initializing controller [%04x:%04x]", pciDevice.getVendorId(), pciDevice.getDeviceId());
 
     uint32_t baseAddress;
@@ -81,10 +81,10 @@ IdeController::CommandRegisters::CommandRegisters() :
         command(0) {}
 
 IdeController::ControlRegisters::ControlRegisters(uint16_t baseAddress) :
-        alternativeStatus(baseAddress + 0x02), deviceControl(baseAddress + 0x02), deviceAddress(baseAddress + 0x02) {}
+        alternateStatus(baseAddress + 0x02), deviceControl(baseAddress + 0x02), deviceAddress(baseAddress + 0x02) {}
 
 IdeController::ControlRegisters::ControlRegisters() :
-        alternativeStatus(0), deviceControl(0), deviceAddress(0) {}
+        alternateStatus(0), deviceControl(0), deviceAddress(0) {}
 
 IdeController::DmaRegisters::DmaRegisters(uint16_t baseAddress) :
         command(baseAddress + 0x00), reserved0(baseAddress + 0x01), status(baseAddress + 0x02),
@@ -120,7 +120,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     }
 
     // Check drive presence
-    auto status = registers.control.alternativeStatus.readByte();
+    auto status = registers.control.alternateStatus.readByte();
     if (status == 0) {
         registers.driveType[drive] = OTHER;
         return false;
@@ -135,7 +135,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     registers.interruptsDisabled = true;
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(5));
 
-    if (!waitStatusBusy(channel, 50)) {
+    if (!waitStatus(registers.command.status, BUSY, false, 50)) {
         log.error("Failed to reset drive [%u] on channel [%u]", drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
@@ -242,9 +242,9 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
 
     info.sectorSize = determineSectorSize(info);
 
-    byteSwapCopyString(reinterpret_cast<const char*>(buffer + MODEL), info.model, sizeof(info.model));
-    byteSwapCopyString(reinterpret_cast<const char*>(buffer + SERIAL), info.serial, sizeof(info.serial));
-    byteSwapCopyString(reinterpret_cast<const char*>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
+    copyByteSwappedString(reinterpret_cast<const char *>(buffer + MODEL), info.model, sizeof(info.model));
+    copyByteSwappedString(reinterpret_cast<const char *>(buffer + SERIAL), info.serial, sizeof(info.serial));
+    copyByteSwappedString(reinterpret_cast<const char *>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
 
     auto model = Util::Memory::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
     auto serial = Util::Memory::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
@@ -265,7 +265,8 @@ bool IdeController::readAtaIdentity(uint8_t channel, uint16_t *buffer) {
     auto &registers = channels[channel];
     registers.command.command.writeByte(IDENTIFY_ATA_DRIVE);
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    if (!waitOnAlternativeStatus(channel, 0x08, MAX_WAIT_ON_STATUS_RETRIES)) {
+
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
         return false;
     }
 
@@ -279,7 +280,8 @@ bool IdeController::readAtapiIdentity(uint8_t channel, uint16_t *buffer) {
     auto &registers = channels[channel];
     registers.command.command.writeByte(IDENTIFY_ATAPI_DRIVE);
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    if (!waitAlternativeStatusBusy(channel, MAX_WAIT_ON_STATUS_RETRIES)) {
+
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
         return false;
     }
 
@@ -297,7 +299,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
         return true;
     }
 
-    if (!waitStatusBusy(channel, MAX_WAIT_ON_STATUS_RETRIES)) {
+    if (!waitStatus(registers.command.status, BUSY, false)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
@@ -305,79 +307,13 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     registers.command.driveHead.writeByte(selector);
     Util::Async::Thread::sleep({0, 400});
 
-    if (!waitStatusBusy(channel, MAX_WAIT_ON_STATUS_RETRIES)) {
+    if (!waitStatus(registers.command.status, BUSY, false)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
 
     channels[channel].lastDeviceControl = selector;
     return true;
-}
-
-bool IdeController::waitStatusBusy(uint8_t channel, uint16_t retries) {
-    auto registers = channels[channel];
-    for (uint32_t i = 0; i < retries; i++) {
-        auto status = registers.command.status.readByte();
-        if ((status & 0x80) == 0x00) {
-            if ((status & 0x01) == 0x01) {
-                log.error("Error while waiting on busy (Channel [%u])", channel);
-                return false;
-            }
-
-            return true;
-        }
-
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    }
-
-    log.error("Timeout while waiting on busy (Channel [%u])", channel);
-    return false;
-}
-
-bool IdeController::waitAlternativeStatusBusy(uint8_t channel, uint16_t retries) {
-    auto registers = channels[channel];
-    for (uint32_t i = 0; i < retries; i++) {
-        auto status = registers.control.alternativeStatus.readByte();
-        if ((status & 0x80) == 0x00) {
-            if ((status & 0x01) == 0x01) {
-                log.error("Error while waiting on busy (Channel [%u])", channel);
-                return false;
-            }
-
-            return true;
-        }
-
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    }
-
-    log.error("Timeout while waiting on busy (Channel [%u])", channel);
-    return false;
-}
-
-bool IdeController::waitOnAlternativeStatus(uint8_t channel, uint8_t status, uint16_t retries, bool logError) {
-    auto registers = channels[channel];
-    for (uint32_t i = 0; i < retries; i++) {
-        auto currentStatus = registers.control.alternativeStatus.readByte();
-        if ((currentStatus & 0x80) == 0x00) {
-            if ((currentStatus & (0x20 | 0x01)) != 0x00) {
-                if (logError) {
-                    log.error("Error while waiting on alternative currentStatus (Channel [%u])", channel);
-                }
-                return false;
-            }
-
-            if ((currentStatus & status) == status) {
-                return true;
-            }
-        }
-
-        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
-    }
-
-    if (logError) {
-        log.error("Timeout while waiting on busy (Channel [%u])", channel);
-    }
-    return false;
 }
 
 void IdeController::initializeAvailableControllers() {
@@ -399,7 +335,7 @@ void IdeController::plugin() {
 void IdeController::trigger(const Kernel::InterruptFrame &frame) {
     if (frame.interrupt == Kernel::InterruptDispatcher::PRIMARY_ATA) {
         channels[0].receivedInterrupt = true;
-    } else if (frame.interrupt == Kernel::InterruptDispatcher::PRIMARY_ATA) {
+    } else if (frame.interrupt == Kernel::InterruptDispatcher::SECONDARY_ATA) {
         channels[1].receivedInterrupt = true;
     }
 }
@@ -425,13 +361,6 @@ uint8_t IdeController::getAtapiType(uint16_t signature) {
 
 }
 
-void IdeController::byteSwapCopyString(const char *source, char *target, uint32_t length) {
-    for (uint32_t i = 0; i < length; i += 2) {
-        target[i] = source[i + 1];
-        target[i + 1] = source[i];
-    }
-}
-
 uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
     if (info.type == ATAPI) {
         return ATAPI_SECTOR_SIZE;
@@ -445,7 +374,7 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 
     bool logError = true;
     uint16_t retries = MAX_WAIT_ON_STATUS_RETRIES;
-    while (waitOnAlternativeStatus(info.channel, 0x08, retries, logError)) {
+    while (waitStatus(registers.control.alternateStatus, DATA_REQUEST, true, retries, logError)) {
         for (uint32_t i = 0; i < 128; i++) {
             registers.command.data.readWord();
         }
@@ -461,20 +390,21 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     auto &registers = channels[info.channel];
 
-    // Disable interrupts
-    if (!registers.interruptsDisabled) {
-        registers.control.deviceControl.writeByte(0x02);
-        registers.interruptsDisabled = true;
+    if (!selectDrive(info.channel, info.drive)) {
+        log.error("Failed to select drive [%u] on channel [%u] for %s", mode == READ ? "reading" : "writing", info.drive, info.channel);
+        return 0;
+    }
+
+    // Enable interrupts
+    if (registers.interruptsDisabled) {
+        registers.control.deviceControl.writeByte(0x00);
+        registers.interruptsDisabled = false;
     }
 
     // Clear interrupt flag
     registers.receivedInterrupt = false;
 
-    // Enable interrupts
-    registers.control.deviceControl.writeByte(0x00);
-    registers.interruptsDisabled = false;
-
-    if (!waitOnAlternativeStatus(info.channel, 0x40, MAX_WAIT_ON_STATUS_RETRIES)) {
+    if (!waitStatus(registers.control.alternateStatus, DRIVE_READY, true)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
@@ -546,14 +476,14 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
 
     registers.command.command.writeByte(command);
 
-    if (!waitOnAlternativeStatus(info.channel, 0x08, MAX_WAIT_ON_STATUS_RETRIES)) {
+    if (!waitStatus(registers.control.alternateStatus, DATA_REQUEST, true)) {
         log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
 
     uint32_t i;
     for (i = 0; i < sectorCount; i++) {
-        if (i > 0 && !waitOnAlternativeStatus(info.channel, 0x40, MAX_WAIT_ON_STATUS_RETRIES)) {
+        if (i > 0 && !waitStatus(registers.control.alternateStatus, DRIVE_READY, true)) {
             log.error("Drive [%u] on channel [%u] does not respond after %s [%u] sectors", info.drive, info.channel, mode == READ ? "reading" : "writing", i);
             return i;
         }
@@ -572,6 +502,42 @@ uint16_t IdeController::performProgrammedIO(const IdeController::DeviceInfo &inf
     }
 
     return i;
+}
+
+bool IdeController::waitStatus(const Device::IoPort &port, Status status, bool set, uint16_t retries, bool logError) {
+    for (uint32_t i = 0; i < retries; i++) {
+        auto currentStatus = port.readByte();
+        if ((currentStatus & BUSY) == BUSY) {
+            continue;
+        }
+
+        if ((currentStatus & ERROR) == ERROR) {
+            if (logError) log.error("Error while waiting on status [%02x] to be %s", status, set ? "set" : "not set");
+            return false;
+        }
+
+        if (set) {
+            if ((currentStatus & status) == status) {
+                return true;
+            }
+        } else {
+            if ((currentStatus & status) == 0x00) {
+                return true;
+            }
+        }
+
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+    }
+
+    if (logError) log.error("Timeout while waiting on status [%02x] to be %s", status, set ? "set" : "not set");
+    return false;
+}
+
+void IdeController::copyByteSwappedString(const char *source, char *target, uint32_t length) {
+    for (uint32_t i = 0; i < length; i += 2) {
+        target[i] = source[i + 1];
+        target[i + 1] = source[i];
+    }
 }
 
 }
