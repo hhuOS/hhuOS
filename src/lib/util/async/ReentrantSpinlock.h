@@ -53,7 +53,7 @@ public:
 
 private:
 
-    uint32_t depth;
+    uint32_t depth = 0;
 };
 
 }

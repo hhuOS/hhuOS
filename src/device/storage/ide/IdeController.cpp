@@ -136,7 +136,7 @@ bool IdeController::resetDrive(uint8_t channel, uint8_t drive) {
     registers.interruptsDisabled = true;
     Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(5));
 
-    if (!waitStatus(registers.command.status, NONE)) {
+    if (!waitBusy(registers.command.status)) {
         log.error("Failed to reset drive [%u] on channel [%u]", drive, channel);
         registers.driveType[drive] = OTHER;
         return false;
@@ -300,7 +300,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
         return true;
     }
 
-    if (!waitStatus(registers.command.status, NONE)) {
+    if (!waitBusy(registers.command.status)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
@@ -308,7 +308,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     registers.command.driveHead.writeByte(selector);
     Util::Async::Thread::sleep({0, 400});
 
-    if (!waitStatus(registers.command.status, NONE)) {
+    if (!waitBusy(registers.command.status)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);
         return false;
     }
@@ -321,8 +321,8 @@ void IdeController::initializeAvailableControllers() {
     auto devices = Pci::search(Pci::Class::MASS_STORAGE, PCI_SUBCLASS_IDE);
     for (const auto &device : devices) {
         auto *controller = new IdeController(device);
-        controller->initializeDrives();
         controller->plugin();
+        controller->initializeDrives();
     }
 }
 
@@ -615,10 +615,11 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     return sectorCount;
 }
 
-bool IdeController::waitStatus(const Device::IoPort &port, Status status, uint16_t retries, bool logError) {
+bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t retries, bool logError) {
     for (uint32_t i = 0; i < retries; i++) {
         auto currentStatus = port.readByte();
         if ((currentStatus & BUSY) == BUSY) {
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
             continue;
         }
 
@@ -636,6 +637,10 @@ bool IdeController::waitStatus(const Device::IoPort &port, Status status, uint16
 
     if (logError) log.error("Timeout while waiting on status [%02x]", status);
     return false;
+}
+
+bool IdeController::waitBusy(const IoPort &port, uint16_t retries, bool logError) {
+    return waitStatus(port, NONE, retries, logError);
 }
 
 void IdeController::copyByteSwappedString(const char *source, char *target, uint32_t length) {
