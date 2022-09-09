@@ -18,7 +18,7 @@
 #ifndef __Filesystem_include__
 #define __Filesystem_include__
 
-#include "lib/util/async/Spinlock.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/data/HashMap.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "Driver.h"
@@ -30,7 +30,7 @@ struct MountInformation {
     Util::Memory::String target;
     Util::Memory::String driver;
 
-    bool operator!=(const MountInformation &other);
+    bool operator!=(const MountInformation &other) const;
 };
 
 /**
@@ -149,14 +149,14 @@ public:
      *
      * @return The driver
      */
-    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path) const;
+    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path);
 
     /**
      * Get information about all mount points
      *
      * @return
      */
-    [[nodiscard]] Util::Data::Array<MountInformation> getMountInformation() const;
+    [[nodiscard]] Util::Data::Array<MountInformation> getMountInformation();
     
 private:
     /**
@@ -170,11 +170,11 @@ private:
      *
      * @return The driver (or nullptr on failure)
      */
-    [[nodiscard]] Driver* getMountedDriver(Util::Memory::String &path) const;
+    [[nodiscard]] Driver* getMountedDriver(Util::Memory::String &path);
 
     Util::Data::HashMap<Util::Memory::String, Driver*> mountPoints;
     Util::Data::HashMap<Util::Memory::String, MountInformation> mountInformation;
-    Util::Async::Spinlock lock;
+    Util::Async::ReentrantSpinlock lock;
 };
 
 }

@@ -18,9 +18,9 @@
 #include "lib/util/file/File.h"
 #include "kernel/system/System.h"
 #include "kernel/service/StorageService.h"
+#include "lib/util/reflection/InstanceFactory.h"
 #include "PhysicalDriver.h"
 #include "Filesystem.h"
-#include "lib/util/reflection/InstanceFactory.h"
 
 namespace Filesystem {
 
@@ -29,6 +29,8 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
     if (!storageService.isDeviceRegistered(deviceName)) {
         return false;
     }
+
+    lock.acquire();
 
     auto parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
     auto *targetNode = getNode(parsedPath);
@@ -45,7 +47,6 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
         return false;
     }
 
-    lock.acquire();
     if (mountPoints.containsKey(parsedPath)) {
         return lock.releaseAndReturn(false);
     }
@@ -57,6 +58,9 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
 
 bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver) {
     auto parsedPath = Util::File::File::getCanonicalPath(targetPath) + Util::File::File::SEPARATOR;
+
+    lock.acquire();
+
     auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
@@ -65,7 +69,6 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Virt
     }
 
     delete targetNode;
-    lock.acquire();
 
     if (mountPoints.containsKey(parsedPath)) {
         return lock.releaseAndReturn(false);
@@ -76,17 +79,20 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Virt
     return lock.releaseAndReturn(true);
 }
 
-Memory::MemoryDriver &Filesystem::getVirtualDriver(const Util::Memory::String &path) const {
+Memory::MemoryDriver& Filesystem::getVirtualDriver(const Util::Memory::String &path) {
+    lock.acquire();
     auto parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
     auto *driver = mountPoints.get(parsedPath);
 
-    return *reinterpret_cast<Memory::MemoryDriver*>(driver);
+    return lock.releaseAndReturn<Memory::MemoryDriver&>(*reinterpret_cast<Memory::MemoryDriver*>(driver));
 }
 
 bool Filesystem::unmount(const Util::Memory::String &path) {
     auto parsedPath = Util::File::File::getCanonicalPath(path) + Util::File::File::SEPARATOR;
-    auto *targetNode = getNode(parsedPath);
 
+    lock.acquire();
+
+    auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (path != "/") {
             return false;
@@ -94,7 +100,6 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
     }
 
     delete targetNode;
-    lock.acquire();
 
     for(const Util::Memory::String &key : mountPoints.keys()) {
         if(key.beginsWith(parsedPath)) {
@@ -119,12 +124,14 @@ bool Filesystem::createFilesystem(const Util::Memory::String &deviceName, const 
         return false;
     }
 
+    lock.acquire();
+
     auto &device = storageService.getDevice(deviceName);
     auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
     auto result = driver->createFilesystem(device);
 
     delete driver;
-    return result;
+    return lock.releaseAndReturn(result);
 }
 
 Node* Filesystem::getNode(const Util::Memory::String &path) {
@@ -186,13 +193,15 @@ bool Filesystem::deleteFile(const Util::Memory::String &path) {
     return lock.releaseAndReturn<bool>(ret);
 }
 
-Driver* Filesystem::getMountedDriver(Util::Memory::String &path) const {
+Driver* Filesystem::getMountedDriver(Util::Memory::String &path) {
     if (!path.endsWith(Util::File::File::SEPARATOR)) {
         path += Util::File::File::SEPARATOR;
     }
 
-    Util::Memory::String ret;
 
+    lock.acquire();
+
+    Util::Memory::String ret;
     for (const Util::Memory::String &currentString: mountPoints.keys()) {
         if (path.beginsWith(currentString)) {
             if (currentString.length() > ret.length()) {
@@ -202,18 +211,19 @@ Driver* Filesystem::getMountedDriver(Util::Memory::String &path) const {
     }
 
     if (ret.isEmpty()) {
-        return nullptr;
+        return lock.releaseAndReturn(nullptr);
     }
 
     path = path.substring(ret.length(), path.length() - 1);
-    return mountPoints.get(ret);
+    return lock.releaseAndReturn(mountPoints.get(ret));
 }
 
-Util::Data::Array<MountInformation> Filesystem::getMountInformation() const {
-    return mountInformation.values();
+Util::Data::Array<MountInformation> Filesystem::getMountInformation() {
+    lock.acquire();
+    return lock.releaseAndReturn(mountInformation.values());
 }
 
-bool MountInformation::operator!=(const MountInformation &other) {
+bool MountInformation::operator!=(const MountInformation &other) const {
     return target == other.target;
 }
 
