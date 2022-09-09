@@ -44,6 +44,8 @@ public:
         SLEEP,
         UNMAP,
         MAP_IO,
+        MOUNT,
+        UNMOUNT,
         CREATE_FILE,
         DELETE_FILE,
         OPEN_FILE,

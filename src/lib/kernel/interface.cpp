@@ -63,20 +63,27 @@ void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t br
     Kernel::System::getService<Kernel::MemoryService>().unmap(virtualStartAddress, virtualEndAddress, breakCount);
 }
 
+bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+    return Kernel::System::getService<Kernel::FilesystemService>().mount(deviceName, targetPath, driverName);
+}
+
+bool unmount(const Util::Memory::String &path) {
+    return Kernel::System::getService<Kernel::FilesystemService>().unmount(path);
+}
+
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
     if (type == Util::File::REGULAR) {
-        return filesystem.createFile(path);
+        return filesystemService.createFile(path);
     } else if (type == Util::File::DIRECTORY) {
-        return filesystem.createDirectory(path);
+        return filesystemService.createDirectory(path);
     }
 
     return false;
 }
 
 bool deleteFile(const Util::Memory::String &path) {
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    return filesystem.deleteFile(path);
+    return Kernel::System::getService<Kernel::FilesystemService>().deleteFile(path);
 }
 
 int32_t openFile(const Util::Memory::String &path) {

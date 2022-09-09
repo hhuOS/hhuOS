@@ -53,6 +53,14 @@ void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t br
     Util::System::call(Util::System::UNMAP, 3, virtualStartAddress, virtualEndAddress, breakCount);
 }
 
+bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+    return Util::System::call(Util::System::MOUNT, 3, static_cast<const char*>(deviceName), static_cast<const char*>(targetPath), static_cast<const char*>(driverName)) == Util::System::OK;
+}
+
+bool unmount(const Util::Memory::String &path) {
+    return Util::System::call(Util::System::UNMOUNT, 1, static_cast<const char*>(path)) == Util::System::OK;
+}
+
 bool createFile(const Util::Memory::String &path, Util::File::Type type) {
     return Util::System::call(Util::System::CREATE_FILE, 2, static_cast<const char*>(path), type) == Util::System::OK;
 }

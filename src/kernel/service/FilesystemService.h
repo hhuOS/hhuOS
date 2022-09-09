@@ -49,6 +49,8 @@ public:
 
     bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
 
+    bool unmount(const Util::Memory::String &path);
+
     bool createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName);
 
     bool createFile(const Util::Memory::String &path);

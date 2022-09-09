@@ -37,6 +37,8 @@ bool isSystemInitialized();
 void* mapIO(uint32_t physicalAddress, uint32_t size);
 void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
 
+bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+bool unmount(const Util::Memory::String &path);
 bool createFile(const Util::Memory::String &path, Util::File::Type type);
 bool deleteFile(const Util::Memory::String &path);
 int32_t openFile(const Util::Memory::String &path);

@@ -155,6 +155,14 @@ void File::ensureFileIsOpened() {
     }
 }
 
+bool mount(const Util::Memory::String &device, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+    return ::mount(device, targetPath, driverName);
+}
+
+bool unmount(const Util::Memory::String &path) {
+    return ::unmount(path);
+}
+
 int32_t open(const Memory::String &path) {
     return ::openFile(path);
 }

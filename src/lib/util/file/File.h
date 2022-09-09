@@ -81,8 +81,11 @@ private:
     int32_t fileDescriptor = -1;
 
     void ensureFileIsOpened();
-
 };
+
+bool mount(const Util::Memory::String &device, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+
+bool unmount(const Util::Memory::String &path);
 
 int32_t open(const Util::Memory::String &path);
 
@@ -90,7 +93,7 @@ void close(int32_t fileDescriptor);
 
 bool changeDirectory(const Util::Memory::String &path);
 
-[[nodiscard]] File getCurrentWorkingDirectory();
+File getCurrentWorkingDirectory();
 
 const char* getFileColor(Util::File::File &path);
 
