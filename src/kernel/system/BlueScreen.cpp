@@ -55,7 +55,8 @@ void BlueScreen::setCgaMode(uint32_t address, uint16_t columns, uint16_t rows) {
 }
 
 void BlueScreen::show(const InterruptFrame &frame) {
-    auto lfb = Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(fbAddress), fbResX, fbResY, fbColorDepth, fbPitch, false);
+    auto address = Util::Memory::Address<uint32_t>(fbAddress);
+    auto lfb = Util::Graphic::LinearFrameBuffer(&address, fbResX, fbResY, fbColorDepth, fbPitch);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
 

@@ -53,6 +53,8 @@ public:
      */
     LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
 
+    LinearFrameBuffer(Util::Memory::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+
     explicit LinearFrameBuffer(File::File &file, bool enableAcceleration = true);
 
     /**
