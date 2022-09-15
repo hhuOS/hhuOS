@@ -81,61 +81,34 @@ parse_build_type() {
     BUILD_TYPE="${debug}"
 }
 
+remove() {
+    local path=$1
+
+    if [ -f ${path} ]; then
+        printf "Removing '${path}'\\n"
+        rm ${path}
+    elif [ -d ${path} ]; then
+        printf "Removing '${path}'\\n"
+        rm -r ${path}
+    fi
+}
+
 cleanup() {
-    if [ -f hhuOS.iso ]; then
-        printf "Removing 'hhuOS.iso'\\n"
-        rm hhuOS.iso
-    fi
-    
-    if [ -f hhuOS.img ]; then
-        printf "Removing 'hhuOS.img'\\n"
-        rm hhuOS.img
-    fi
-
-    if [ -f floppy0.img ]; then
-        printf "Removing 'hhuOS.img'\\n"
-        rm floppy0.img
-    fi
-    
-    if [ -f loader/grub/boot/hhuOS.bin ]; then
-        printf "Removing 'loader/grub/boot/hhuOS.bin'\\n"
-        rm loader/grub/boot/hhuOS.bin
-    fi
-    
-    if [ -f loader/grub/boot/hhuOS.initrd ]; then
-        printf "Removing 'loader/grub/boot/hhuOS.initrd'\\n"
-        rm loader/grub/boot/hhuOS.initrd
-    fi
-    
-    if [ -f loader/towboot/hhuOS.bin ]; then
-        printf "Removing 'loader/towboot/hhuOS.bin'\\n"
-        rm loader/towboot/hhuOS.bin
-    fi
-    
-    if [ -f loader/towboot/hhuOS.initrd ]; then
-        printf "Removing 'loader/towboot/hhuOS.initrd'\\n"
-        rm loader/towboot/hhuOS.initrd
-    fi
-    
-    if [ -f loader/towboot/towboot-ia32.efi ]; then
-        printf "Removing 'loader/towboot/towboot-ia32.efi'\\n"
-        rm loader/towboot/towboot-ia32.efi
-    fi
-    
-    if [ -f loader/towboot/towboot-x64.efi ]; then
-        printf "Removing 'loader/towboot/towboot-x64.efi'\\n"
-        rm loader/towboot/towboot-x64.efi
-    fi
-    
-    if [ -d initrd/beep/ ]; then
-        printf "Removing 'initrd/beep/'\\n"
-        rm -r initrd/beep/
-    fi
-
-    if [ -d initrd/bin/ ]; then
-        printf "Removing 'initrd/bin/'\\n"
-        rm -r initrd/bin/
-    fi
+    remove "hhuOS.iso"
+    remove "hhuOS.img"
+    remove "floppy0.img"
+    remove "hdd0.img"
+    remove "loader/grub/boot/hhuOS.bin"
+    remove "loader/grub/boot/hhuOS.initrd"
+    remove "loader/towboot/hhuOS.bin"
+    remove "loader/towboot/hhuOS.initrd"
+    remove "loader/towboot/towboot-ia32.efi"
+    remove "loader/towboot/towboot-x64.efi"
+    remove "initrd/beep/"
+    remove "initrd/bin/"
+    remove "hdd0/img/bin"
+    remove "hdd0/img/user/beep"
+    remove "hdd0/img/media"
 
     local builddirs="";
 

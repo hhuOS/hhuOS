@@ -17,10 +17,13 @@
 
 #include <cstdint>
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/math/Random.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/system/System.h"
+
+bool isRunning = true;
 
 enum Direction {
     UP = 0, RIGHT = 90, DOWN = 180, LEFT = 270
@@ -95,7 +98,12 @@ int32_t main(int32_t argc, char *argv[]) {
     Ant ant(lfb.getResolutionX(), lfb.getResolutionY());
     lfb.clear();
 
-    for (int i = 0;; i++) {
+    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    for (int i = 0; isRunning; i++) {
         auto pixel = lfb.readPixel(ant.x, ant.y);
         if (pixel == Util::Graphic::Colors::BLACK) {
             drawer.drawPixel(ant.x, ant.y, ant.color);
@@ -106,8 +114,12 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         ant.move();
+
         if (sleepInterval != 0 && i % sleepInterval == 0) {
-            Util::Async::Thread::sleep({0, 10000000});
+            Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(10));
         }
     }
+
+    lfb.clear();
+    return 0;
 }

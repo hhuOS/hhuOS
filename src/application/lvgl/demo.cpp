@@ -21,6 +21,10 @@
 #include "lib/util/time/Timestamp.h"
 #include "LvglDriver.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/system/System.h"
+
+bool isRunning = true;
 
 int32_t main(int32_t argc, char *argv[]) {
     auto demo = Util::Memory::String(argc > 1 ? argv[1] : "benchmark");
@@ -43,10 +47,17 @@ int32_t main(int32_t argc, char *argv[]) {
         lv_demo_benchmark();
     }
 
-    while (true) {
+    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    while (isRunning) {
         auto time = Util::Time::getSystemTime().toMilliseconds();
         auto sleepTime = lv_timer_handler();
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(sleepTime));
         lv_tick_inc(Util::Time::getSystemTime().toMilliseconds() - time);
     }
+
+    return 0;
 }

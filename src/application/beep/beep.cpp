@@ -21,8 +21,11 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/stream/FileReader.h"
 #include "lib/util/stream/BufferedReader.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
 
 static const constexpr uint8_t BAR_LENGTH = 25;
+
+bool isRunning = true;
 
 void printStatusLine(Util::File::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
     auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
@@ -73,9 +76,14 @@ int32_t main(int32_t argc, char *argv[]) {
 
     uint32_t passedTime = 0;
     auto songLength = calculateLength(beepFile);
-    auto line = reader.readLine();
 
-    while (!line.isEmpty()) {
+    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    auto line = reader.readLine();
+    while (isRunning && !line.isEmpty()) {
         auto split = line.split(",");
         auto length = Util::Memory::String::parseInt(split[1]);
         passedTime += length;

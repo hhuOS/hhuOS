@@ -20,11 +20,20 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/graphic/Fonts.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/async/Thread.h"
+
+bool isRunning = true;
 
 void textLoop() {
     auto inputStream = Util::Stream::FileInputStream("/device/mouse");
 
-    while (true) {
+    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    while (isRunning) {
         auto buttons = inputStream.read();
         auto xMovement = static_cast<int8_t>(inputStream.read());
         auto yMovement = static_cast<int8_t>(inputStream.read());
@@ -48,7 +57,12 @@ void graphicsLoop() {
     lfb.clear();
     stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, x, y, "@", Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
 
-    while (true) {
+    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+        Util::System::in.read();
+        isRunning = false;
+    }));
+
+    while (isRunning) {
         auto buttons = inputStream.read();
         auto xMovement = static_cast<int8_t>(inputStream.read());
         auto yMovement = static_cast<int8_t>(inputStream.read());
@@ -76,6 +90,8 @@ void graphicsLoop() {
 
         stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, x, y, static_cast<const char*>(cursor.isEmpty() ? "@" : cursor), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::INVISIBLE);
     }
+
+    lfb.clear();
 }
 
 int32_t main(int32_t argc, char *argv[]) {

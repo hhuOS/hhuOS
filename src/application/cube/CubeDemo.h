@@ -42,7 +42,7 @@ public:
     /**
      * Destructor.
      */
-    ~CubeDemo() = default;
+    ~CubeDemo() override = default;
 
     void update(double delta) override;
 

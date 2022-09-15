@@ -45,7 +45,7 @@ public:
     /**
      * Destructor.
      */
-    ~Game() = default;
+    virtual ~Game() = default;
 
     [[nodiscard]] bool isRunning() const;
 
