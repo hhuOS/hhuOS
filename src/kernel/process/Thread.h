@@ -79,7 +79,10 @@ public:
 
     static Thread& createKernelThread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable);
 
-    static Thread &createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
+    static Thread &createUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip,
+                                    Util::Async::Runnable *runnable);
+
+    static Thread& createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
     [[nodiscard]] uint32_t getId() const;
 

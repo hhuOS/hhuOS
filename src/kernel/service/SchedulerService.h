@@ -79,6 +79,8 @@ public:
 
     [[nodiscard]] Thread& getCurrentThread();
 
+    [[nodiscard]] Thread* getThread(uint32_t id);
+
     [[nodiscard]] uint8_t* getDefaultFpuContext();
 
     static const constexpr uint8_t SERVICE_ID = 4;

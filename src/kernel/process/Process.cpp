@@ -127,7 +127,7 @@ void Process::killAllThreadsButCurrent() {
 
     for (auto *thread : threads) {
         if (thread->getId() != currentThreadId) {
-            schedulerService.kill(*thread);
+            schedulerService.killWithoutLock(*thread);
         }
     }
 }

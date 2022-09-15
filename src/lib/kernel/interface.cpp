@@ -142,6 +142,13 @@ Util::Async::Thread getCurrentThread() {
     return Util::Async::Thread(thread.getId());
 }
 
+void joinThread(uint32_t id) {
+    auto *thread = Kernel::System::getService<Kernel::SchedulerService>().getThread(id);
+    if (thread != nullptr) {
+        thread->join();
+    }
+}
+
 void joinProcess(uint32_t id) {
     auto *process = Kernel::System::getService<Kernel::ProcessService>().getProcess(id);
     if (process != nullptr) {

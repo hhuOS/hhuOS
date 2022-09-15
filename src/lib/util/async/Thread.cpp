@@ -42,4 +42,8 @@ Thread Thread::createThread(const Util::Memory::String &name, Runnable *runnable
     return ::createThread(name, runnable);
 }
 
+void Thread::join() const {
+    ::joinThread(id);
+}
+
 }

@@ -54,6 +54,26 @@ SchedulerService::SchedulerService() {
         return Util::System::Result::OK;
     });
 
+    SystemCall::registerSystemCall(Util::System::CREATE_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 4) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto *name = va_arg(arguments, const char*);
+        auto *runnable = va_arg(arguments, Util::Async::Runnable*);
+        auto eip = va_arg(arguments, uint32_t);
+        auto *threadId = va_arg(arguments, uint32_t*);
+
+        auto &processService = System::getService<ProcessService>();
+        auto &schedulerService = System::getService<SchedulerService>();
+        auto &thread = Kernel::Thread::createUserThread(name, processService.getCurrentProcess(), eip, runnable);
+
+        *threadId = thread.getId();
+        schedulerService.ready(thread);
+
+        return Util::System::Result::OK;
+    });
+
     SystemCall::registerSystemCall(Util::System::SLEEP, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 1) {
             return Util::System::INVALID_ARGUMENT;
@@ -62,6 +82,27 @@ SchedulerService::SchedulerService() {
         auto *time = va_arg(arguments, Util::Time::Timestamp*);
 
         System::getService<SchedulerService>().sleep(*time);
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::JOIN_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 1) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto threadId = va_arg(arguments, uint32_t);
+
+        auto &schedulerService = System::getService<SchedulerService>();
+        auto *thread = schedulerService.getThread(threadId);
+        if (thread != nullptr) {
+            thread->join();
+        }
+
+        return Util::System::Result::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::EXIT_THREAD, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        System::getService<SchedulerService>().exitCurrentThread();
         return Util::System::Result::OK;
     });
 }
@@ -98,6 +139,10 @@ void SchedulerService::yield() {
 
 Thread& SchedulerService::getCurrentThread() {
     return scheduler.getCurrentThread();
+}
+
+Thread *SchedulerService::getThread(uint32_t id) {
+    return scheduler.getThread(id);
 }
 
 void SchedulerService::cleanup(Thread *thread) {

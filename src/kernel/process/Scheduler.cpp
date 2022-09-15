@@ -183,6 +183,30 @@ void Scheduler::checkSleepList() {
     }
 }
 
+Thread* Scheduler::getThread(uint32_t id) {
+    lock.acquire();
+    sleepLock.acquire();
+    for (auto *thread : threadQueue) {
+        if (thread->getId() == id) {
+            sleepLock.release();
+            lock.release();
+            return thread;
+        }
+    }
+
+    for (auto &sleepEntry : sleepList) {
+        if (sleepEntry.thread->getId() == id) {
+            sleepLock.release();
+            lock.release();
+            return sleepEntry.thread;
+        }
+    }
+
+    sleepLock.release();
+    lock.release();
+    return nullptr;
+}
+
 bool Scheduler::SleepEntry::operator!=(const Scheduler::SleepEntry &other) const {
     return thread->getId() != other.thread->getId();
 }

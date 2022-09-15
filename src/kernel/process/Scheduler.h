@@ -90,7 +90,9 @@ public:
      */
     Thread& getCurrentThread();
 
-    Thread &getNextThread();
+    Thread& getNextThread();
+
+    Thread * getThread(uint32_t id);
 
     [[nodiscard]] uint32_t getThreadCount() const;
 

@@ -58,6 +58,8 @@ public:
 
     [[nodiscard]] uint32_t getId() const;
 
+    void join() const;
+
 private:
 
     uint32_t id;

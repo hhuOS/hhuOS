@@ -374,7 +374,7 @@ void MemoryService::trigger(const Kernel::InterruptFrame &frame) {
 
     // check if page fault was caused by illegal page access
     if ((frame.error & 0x00000001u) > 0) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS);
+        Util::Exception::throwException(Util::Exception::ILLEGAL_PAGE_ACCESS, "Privilege level not sufficient to access page!");
     }
 
     // Map the faulted Page

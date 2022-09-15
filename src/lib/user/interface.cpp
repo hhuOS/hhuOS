@@ -140,14 +140,27 @@ Util::Async::Process getCurrentProcess() {
     Util::System::call(Util::System::GET_CURRENT_PROCESS, 1, &processId);
     return Util::Async::Process(processId);
 }
+
+void kickoffUserThread(Util::Async::Runnable *runnable) {
+    runnable->run();
+    delete runnable;
+    Util::System::call(Util::System::EXIT_THREAD, 0);
+}
+
 Util::Async::Thread createThread(const Util::Memory::String &name, Util::Async::Runnable *runnable) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Creating user space threads is not yet implemented");
+    uint32_t threadId;
+    Util::System::call(Util::System::CREATE_THREAD, 4, static_cast<const char*>(name), runnable, kickoffUserThread, &threadId);
+    return Util::Async::Thread(threadId);
 }
 
 Util::Async::Thread getCurrentThread() {
     uint32_t threadId;
     Util::System::call(Util::System::GET_CURRENT_PROCESS, 1, &threadId);
     return Util::Async::Thread(threadId);
+}
+
+void joinThread(uint32_t id) {
+    Util::System::call(Util::System::JOIN_THREAD, 1, id);
 }
 
 void joinProcess(uint32_t id) {

@@ -70,6 +70,30 @@ Thread& Thread::createKernelThread(const Util::Memory::String &name, Process &pa
     return *thread;
 }
 
+Thread& Thread::createUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, Util::Async::Runnable *runnable) {
+    auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
+    auto *userStack = Stack::createUserStack(DEFAULT_STACK_SIZE);
+    auto *thread = new Thread(name, parent, nullptr, kernelStack, userStack);
+
+    thread->kernelContext->eip = reinterpret_cast<uint32_t>(interrupt_return);
+
+    thread->interruptFrame.cs = 0x1b;
+    thread->interruptFrame.fs = 0x23;
+    thread->interruptFrame.gs = 0x23;
+    thread->interruptFrame.ds = 0x23;
+    thread->interruptFrame.es = 0x23;
+    thread->interruptFrame.ss = 0x23;
+
+    thread->interruptFrame.ebp = reinterpret_cast<uint32_t>(userStack->getStart() - 8);
+    thread->interruptFrame.uesp = reinterpret_cast<uint32_t>(userStack->getStart() - 8);
+    thread->interruptFrame.eflags = 0x200;
+    thread->interruptFrame.eip = reinterpret_cast<uint32_t>(eip);
+
+    *(reinterpret_cast<uint32_t*>(userStack->getStart()) - 1) = reinterpret_cast<uint32_t>(runnable);
+
+    return *thread;
+}
+
 Thread& Thread::createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress) {
     auto *kernelStack = Stack::createKernelStack(DEFAULT_STACK_SIZE);
     auto *userStack = Stack::createMainUserStack();

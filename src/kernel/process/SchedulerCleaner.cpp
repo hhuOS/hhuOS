@@ -57,8 +57,8 @@ void SchedulerCleaner::cleanup(Thread *thread) {
 
 void SchedulerCleaner::run() {
     while (true) {
-        cleanupProcesses();
         cleanupThreads();
+        cleanupProcesses();
         Util::Async::Thread::sleep({1, 0});
     }
 }
