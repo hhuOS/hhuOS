@@ -56,14 +56,15 @@ public:
     [[nodiscard]] static bool isAvailable();
 
     /**
-    * Overriding function from TerminalProvider.
-    */
-    void initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
-
-    /**
      * Overriding function from TerminalProvider.
      */
     [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+
+protected:
+    /**
+    * Overriding function from TerminalProvider.
+    */
+    Util::Graphic::Terminal* initializeTerminal(const ModeInfo &modeInfo) override;
 
 private:
 

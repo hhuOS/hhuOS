@@ -71,6 +71,8 @@ public:
 
     [[nodiscard]] bool remove();
 
+    [[nodiscard]] bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters);
+
     [[nodiscard]] static Memory::String getCanonicalPath(const Util::Memory::String &path);
 
     static constexpr const char *SEPARATOR = "/";
@@ -88,6 +90,8 @@ bool mount(const Util::Memory::String &device, const Util::Memory::String &targe
 bool unmount(const Util::Memory::String &path);
 
 int32_t open(const Util::Memory::String &path);
+
+bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters);
 
 void close(int32_t fileDescriptor);
 

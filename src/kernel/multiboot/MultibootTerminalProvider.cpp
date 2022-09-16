@@ -34,23 +34,15 @@ bool MultibootTerminalProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_EGA_TEXT && (frameBufferInfo.width == 80 || frameBufferInfo.width == 40) && frameBufferInfo.height == 25;
 }
 
-void MultibootTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal* MultibootTerminalProvider::initializeTerminal(const ModeInfo &modeInfo) {
     if (!isAvailable()) {
-        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been initializeAvailableControllers correctly by the bootloader!");
+        Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Text mode mode has not been initialized correctly by the bootloader!");
     }
 
     auto *terminal = new Device::Graphic::ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
-
-    // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
-
-    if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Failed to add node!");
-    }
-
     Kernel::BlueScreen::setCgaMode(terminal->getAddress().get(), terminal->getColumns(), terminal->getRows());
+
+    return terminal;
 }
 
 Util::Data::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider::getAvailableModes() const {

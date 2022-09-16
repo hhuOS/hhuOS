@@ -76,6 +76,11 @@ public:
      */
     uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
+    /**
+     * Overriding function from Node.
+     */
+    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
+
 private:
 
     MemoryNode &node;

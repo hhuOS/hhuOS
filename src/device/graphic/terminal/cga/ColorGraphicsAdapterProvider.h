@@ -62,12 +62,13 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    void initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
+    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
+protected:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    Util::Graphic::Terminal* initializeTerminal(const ModeInfo &modeInfo) override;
 
 private:
 

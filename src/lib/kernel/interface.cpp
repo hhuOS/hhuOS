@@ -114,6 +114,10 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
     return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).writeData(sourceBuffer, pos, length);
 }
 
+bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    return Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor).control(request, parameters);
+}
+
 bool changeDirectory(const Util::Memory::String &path) {
     return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().setWorkingDirectory(path);
 }

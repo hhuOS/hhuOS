@@ -1,7 +1,6 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "kernel/system/BlueScreen.h"
-#include "filesystem/memory/StreamNode.h"
 #include "LinearFrameBufferTerminal.h"
 #include "LinearFrameBufferTerminalProvider.h"
 
@@ -61,14 +60,13 @@ LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::File:
     uint8_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
 
     mode = {static_cast<uint16_t>(resolutionX / font.getCharWidth()), static_cast<uint16_t>(resolutionY / font.getCharHeight()), colorDepth, 0};
-    memorySize = resolutionX * resolutionY * (colorDepth == 15 ? 2 : colorDepth / 2);
 }
 
 Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBufferTerminalProvider::getAvailableModes() const {
     return Util::Data::Array<ModeInfo>({ mode });
 }
 
-void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(const ModeInfo &modeInfo) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
@@ -77,14 +75,7 @@ void LinearFrameBufferTerminalProvider::initializeTerminal(Device::Graphic::Term
     auto *terminal = new LinearFrameBufferTerminal(lfb, font, cursor);
     Kernel::BlueScreen::setLfbMode(lfb->getBuffer().get(), lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth(), lfb->getPitch());
 
-    // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
-
-    if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Terminal: Failed to add node!");
-    }
+    return terminal;
 }
 
 }

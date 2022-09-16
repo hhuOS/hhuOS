@@ -54,12 +54,13 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    void initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) override;
+    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
+protected:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    Util::Graphic::Terminal* initializeTerminal(const ModeInfo &modeInfo) override;
 
 private:
 
@@ -68,10 +69,6 @@ private:
     char cursor;
 
     ModeInfo mode{};
-    uint32_t memorySize;
-
-    static const constexpr char *VENDOR_NAME = "LinearFrameBufferTerminalProvider";
-    static const constexpr char *DEVICE_NAME = "LinearFrameBufferTerminal";
 };
 
 }

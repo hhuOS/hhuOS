@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __FsNode_include__
-#define __FsNode_include__
+#ifndef HHUOS_NODE_H
+#define HHUOS_NODE_H
 
 #include "lib/util/memory/String.h"
 #include "lib/util/file/Type.h"
@@ -24,7 +24,7 @@
 namespace Filesystem {
 
 /**
- * Represents a node in the filesystem-ls.
+ * Represents a node in the filesystem.
  * When a file/folder is requested, the Filesystem-class returns a pointer to an FsNode,
  * that corresponds to the requested file/folder. It can then be used to read/write
  * to the file and get meta-information.
@@ -99,6 +99,19 @@ public:
      * @return The amount of actually written bytes
      */
     virtual uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t length) = 0;
+
+    /**
+     * If this nodes represents a device, this function can be used to manipulate this device.
+     * The parameters are implementation dependent.
+     *
+     * @param request The function to be executed on the device
+     * @param parameters The parameters for the function
+     *
+     * @return true, on success
+     */
+    virtual bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+        return false;
+    }
 };
 
 }

@@ -1,5 +1,8 @@
 #include "lib/util/data/ArrayList.h"
 #include "LinearFrameBufferProvider.h"
+#include "LinearFrameBufferNode.h"
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
 
 namespace Device::Graphic {
 
@@ -65,6 +68,19 @@ LinearFrameBufferProvider::ModeInfo LinearFrameBufferProvider::searchMode(uint16
     }
 
     return bestMode;
+}
+
+void LinearFrameBufferProvider::initializeLinearFrameBuffer(const LinearFrameBufferProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+    auto *lfb = initializeLinearFrameBuffer(modeInfo);
+
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *lfbNode = new LinearFrameBufferNode(filename, lfb);
+
+    if (!driver.addNode("/", lfbNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LinearFrameBufferProvider: Failed to add node!");
+    }
 }
 
 }

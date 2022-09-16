@@ -79,7 +79,7 @@ public:
      * @param modeInfo Information about the desired terminal resolution
      * @param filename The name of the file, representing the created terminal in '/device/'
      */
-    virtual void initializeTerminal(ModeInfo &modeInfo, const Util::Memory::String &filename) = 0;
+    void initializeTerminal(const ModeInfo &modeInfo, const Util::Memory::String &filename);
 
     /**
      * Get all available graphics modes.
@@ -102,6 +102,10 @@ public:
      * Overriding function from Prototype.
      */
     [[nodiscard]] Util::Memory::String getClassName() const override = 0;
+
+protected:
+
+    virtual Util::Graphic::Terminal* initializeTerminal(const ModeInfo &modeInfo) = 0;
 };
 
 }

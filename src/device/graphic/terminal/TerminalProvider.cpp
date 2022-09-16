@@ -1,5 +1,8 @@
 #include "lib/util/data/ArrayList.h"
 #include "TerminalProvider.h"
+#include "kernel/system/System.h"
+#include "kernel/service/FilesystemService.h"
+#include "TerminalNode.h"
 
 namespace Device::Graphic {
 
@@ -66,4 +69,19 @@ TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16
 
     return bestMode;
 }
+
+void
+TerminalProvider::initializeTerminal(const TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+    auto *terminal = initializeTerminal(modeInfo);
+
+    // Create filesystem node
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto &driver = filesystem.getVirtualDriver("/device");
+    auto *terminalNode = new TerminalNode(filename, terminal);
+
+    if (!driver.addNode("/", terminalNode)) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "TerminalProvider: Failed to add node!");
+    }
+}
+
 }

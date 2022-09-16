@@ -20,11 +20,15 @@
 
 namespace Device::Graphic {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, uint32_t address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
         Filesystem::Memory::MemoryNode(name),
-        addressBuffer(Util::Memory::String::format("%u", address)),
-        resolutionBuffer(Util::Memory::String::format("%ux%u@%u", resolutionX, resolutionY, colorDepth)),
-        pitchBuffer(Util::Memory::String::format("%u", pitch)) {}
+        addressBuffer(Util::Memory::String::format("%u", lfb->getBuffer().get())),
+        resolutionBuffer(Util::Memory::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
+        pitchBuffer(Util::Memory::String::format("%u", lfb->getPitch())) {}
+
+LinearFrameBufferNode::~LinearFrameBufferNode() {
+    delete lfb;
+}
 
 uint64_t LinearFrameBufferNode::getLength() {
     return addressBuffer.length() + resolutionBuffer.length() + pitchBuffer.length() + 2;

@@ -18,22 +18,14 @@ bool MultibootLinearFrameBufferProvider::isAvailable() {
     return frameBufferInfo.type == FRAMEBUFFER_TYPE_RGB && frameBufferInfo.bpp >= 15;
 }
 
-void MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::LinearFrameBuffer* MultibootLinearFrameBufferProvider::initializeLinearFrameBuffer(const ModeInfo &modeInfo) {
     log.info("Checking framebuffer information, provided by the bootloader");
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been initializeAvailableControllers correctly by the bootloader!");
     }
 
     log.info("Framebuffer information is valid (Address: [%08x], Resolution: [%ux%u@%u])", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
-
-    // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *lfbNode = new Device::Graphic::LinearFrameBufferNode(filename, frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height,frameBufferInfo.bpp, frameBufferInfo.pitch);
-
-    if (!driver.addNode("/", lfbNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "MultibootLinearFrameBufferProvider: Failed to add node!");
-    }
+    return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(frameBufferInfo.address), frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
 }
 
 Util::Data::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {

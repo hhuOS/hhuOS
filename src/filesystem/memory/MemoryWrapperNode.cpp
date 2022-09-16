@@ -45,4 +45,8 @@ uint64_t MemoryWrapperNode::writeData(const uint8_t *sourceBuffer, uint64_t pos,
     return node.writeData(sourceBuffer, pos, numBytes);
 }
 
+bool MemoryWrapperNode::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    return node.control(request, parameters);
+}
+
 }

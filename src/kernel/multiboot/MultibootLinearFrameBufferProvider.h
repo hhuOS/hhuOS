@@ -58,12 +58,13 @@ public:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    void initializeLinearFrameBuffer(const ModeInfo &modeInfo, const Util::Memory::String &filename) override;
+    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
 
+protected:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    Util::Graphic::LinearFrameBuffer* initializeLinearFrameBuffer(const ModeInfo &modeInfo) override;
 
 private:
 

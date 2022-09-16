@@ -19,6 +19,7 @@
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
 #include "filesystem/memory/MemoryNode.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Device::Graphic {
 
@@ -28,7 +29,7 @@ public:
     /**
      * Constructor.
      */
-    explicit LinearFrameBufferNode(const Util::Memory::String &name, uint32_t address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    explicit LinearFrameBufferNode(const Util::Memory::String &name, Util::Graphic::LinearFrameBuffer *lfb);
 
     /**
      * Copy Constructor.
@@ -43,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~LinearFrameBufferNode() override = default;
+    ~LinearFrameBufferNode() override;
 
     /**
      * Overriding function from MemoryNode.
@@ -56,6 +57,8 @@ public:
     uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
+
+    Util::Graphic::LinearFrameBuffer *lfb;
 
     const Util::Memory::String addressBuffer;
     const Util::Memory::String resolutionBuffer;

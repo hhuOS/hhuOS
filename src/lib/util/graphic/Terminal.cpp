@@ -376,7 +376,15 @@ void Terminal::parseGraphicRendition(uint8_t code) {
     }
 }
 
-Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize) : terminal(terminal), lineBufferStream(LINE_BUFFER_SIZE) {}
+void Terminal::setEcho(bool enabled) {
+    echo = enabled;
+}
+
+void Terminal::setLineAggregation(bool enabled) {
+    lineAggregation = enabled;
+}
+
+Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}
 
 void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
     if (c == '\b') {
@@ -390,21 +398,30 @@ void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
                 column--;
             }
 
-            terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
-            terminal.setPosition(column, row);
-            terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
-            terminal.setPosition(column, row);
+            if (terminal.echo) {
+                terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
+                terminal.setPosition(column, row);
+                terminal.putChar(' ', terminal.foregroundColor, terminal.backgroundColor);
+                terminal.setPosition(column, row);
+            }
 
             auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getSize() - 1);
             lineBufferStream.reset();
             lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
-    } else if (lineBufferStream.getSize() < LINE_BUFFER_SIZE) {
-        lineBufferStream.write(c);
-        terminal.write(c);
+    } else {
+        if (terminal.echo) {
+            terminal.write(c);
+        }
 
-        if (c == '\n') {
-            flush();
+        if (terminal.lineAggregation) {
+            lineBufferStream.write(c);
+
+            if (c == '\n') {
+                flush();
+            }
+        } else {
+            PipedOutputStream::write(c);
         }
     }
 }

@@ -58,6 +58,7 @@ public:
         FILE_CHILDREN,
         WRITE_FILE,
         READ_FILE,
+        CONTROL_FILE,
         CHANGE_DIRECTORY,
         GET_CURRENT_WORKING_DIRECTORY,
         GET_SYSTEM_TIME,

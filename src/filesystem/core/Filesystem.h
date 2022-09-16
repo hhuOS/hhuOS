@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __Filesystem_include__
-#define __Filesystem_include__
+#ifndef HHUOS_FILESYSTEM_H
+#define HHUOS_FILESYSTEM_H
 
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/data/HashMap.h"

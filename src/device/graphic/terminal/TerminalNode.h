@@ -15,56 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PHYSICAL_DRIVER_H
-#define HHUOS_PHYSICAL_DRIVER_H
+#ifndef HHUOS_TERMINALNODE_H
+#define HHUOS_TERMINALNODE_H
 
-#include "device/storage/StorageDevice.h"
-#include "lib/util/reflection/Prototype.h"
-#include "Driver.h"
+#include "filesystem/memory/StreamNode.h"
+#include "lib/util/graphic/Terminal.h"
 
-namespace Filesystem {
+namespace Device::Graphic {
 
-class PhysicalDriver : public Driver, public Util::Reflection::Prototype {
+class TerminalNode : public Filesystem::Memory::StreamNode {
 
 public:
     /**
      * Default Constructor.
      */
-    PhysicalDriver() = default;
+    TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal *terminal);
 
     /**
      * Copy Constructor.
      */
-    PhysicalDriver(const PhysicalDriver &other) = delete;
+    TerminalNode(const TerminalNode &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PhysicalDriver &operator=(const PhysicalDriver &other) = delete;
+    TerminalNode &operator=(const TerminalNode &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PhysicalDriver() override = default;
+    ~TerminalNode() override = default;
 
-    /**
-     * Mount a device.
-     * After this function has succeeded, the driver must be ready to process requests for this device.
-     *
-     * @param device The device
-     *
-     * @return True on success
-     */
-    virtual bool mount(Device::Storage::StorageDevice &device) = 0;
+    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
 
-    /**
-     * Format a device.
-     *
-     * @param device The device
-     *
-     * @return True on success
-     */
-    virtual bool createFilesystem(Device::Storage::StorageDevice &device) = 0;
+private:
+
+    Util::Graphic::Terminal *terminal;
 };
 
 }

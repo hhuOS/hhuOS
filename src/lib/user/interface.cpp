@@ -118,9 +118,12 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
     return written;
 }
 
+bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    return Util::System::call(Util::System::CONTROL_FILE, 3, fileDescriptor, request, &parameters) == Util::System::OK;
+}
+
 bool changeDirectory(const Util::Memory::String &path) {
-    auto result = Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path));
-    return result == Util::System::OK;
+    return Util::System::call(Util::System::CHANGE_DIRECTORY, 1, static_cast<const char*>(path)) == Util::System::OK;
 }
 
 Util::File::File getCurrentWorkingDirectory() {

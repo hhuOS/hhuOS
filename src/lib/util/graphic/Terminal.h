@@ -36,6 +36,11 @@ class Terminal : public Util::Stream::OutputStream, public Util::Stream::InputSt
 
 public:
 
+    enum Command {
+        SET_ECHO = 0,
+        SET_LINE_AGGREGATION = 1
+    };
+
     Terminal(uint16_t columns, uint16_t rows);
 
     Terminal(const Terminal &copy) = delete;
@@ -66,6 +71,10 @@ public:
 
     [[nodiscard]] uint16_t getRows() const;
 
+    void setEcho(bool enabled);
+
+    void setLineAggregation(bool enabled);
+
 private:
 
     class TerminalPipedOutputStream : public Stream::PipedOutputStream {
@@ -74,7 +83,7 @@ private:
         /**
          * Constructor.
          */
-        explicit TerminalPipedOutputStream(Terminal &terminal, uint32_t lineBufferSize = LINE_BUFFER_SIZE);
+        explicit TerminalPipedOutputStream(Terminal &terminal);
 
         /**
          * Copy Constructor.
@@ -101,8 +110,6 @@ private:
 
         Terminal &terminal;
         Stream::ByteArrayOutputStream lineBufferStream;
-
-        static const constexpr uint32_t LINE_BUFFER_SIZE = 1024;
     };
 
     class KeyboardRunnable : public Async::Runnable {
@@ -167,6 +174,9 @@ private:
     bool invert = false;
     bool bright = false;
     bool dim = false;
+
+    bool echo = true;
+    bool lineAggregation = true;
 
     const uint16_t columns;
     const uint16_t rows;

@@ -39,7 +39,7 @@ bool ColorGraphicsAdapterProvider::isAvailable() {
     return cardType > CGA_COLOR && cardType != UNKNOWN;
 }
 
-void ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+Util::Graphic::Terminal* ColorGraphicsAdapterProvider::initializeTerminal(const ModeInfo &modeInfo) {
     if (!isAvailable()) {
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "CGA is not available on this machine!");
     }
@@ -57,14 +57,7 @@ void ColorGraphicsAdapterProvider::initializeTerminal(TerminalProvider::ModeInfo
     auto *terminal = new ColorGraphicsAdapter(modeInfo.columns, modeInfo.rows);
     Kernel::BlueScreen::setCgaMode(terminal->getAddress().get(), terminal->getColumns(), terminal->getRows());
 
-    // Create filesystem node
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto &driver = filesystem.getVirtualDriver("/device");
-    auto *terminalNode = new Filesystem::Memory::StreamNode(filename, terminal, terminal);
-
-    if (!driver.addNode("/", terminalNode)) {
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "CGA: Failed to add node!");
-    }
+    return terminal;
 }
 
 Util::Data::Array<ColorGraphicsAdapterProvider::ModeInfo> ColorGraphicsAdapterProvider::getAvailableModes() const {

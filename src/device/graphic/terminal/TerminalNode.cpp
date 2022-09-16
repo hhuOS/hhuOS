@@ -15,40 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_VIRTUAL_DRIVER_H
-#define HHUOS_VIRTUAL_DRIVER_H
+#include "TerminalNode.h"
 
-#include "Driver.h"
+namespace Device::Graphic {
 
-namespace Filesystem {
+TerminalNode::TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal){}
 
-/**
- * Interface class for virtual (completely in-memory) filesystems.
- */
-class VirtualDriver : public Driver {
-
-public:
-    /**
-     * Constructor.
-     */
-    VirtualDriver() = default;
-
-    /**
-     * Copy Constructor.
-     */
-    VirtualDriver(const VirtualDriver &copy) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    VirtualDriver& operator=(const VirtualDriver &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~VirtualDriver() override = default;
-};
-
+bool TerminalNode::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    switch (request) {
+        case Util::Graphic::Terminal::Command::SET_ECHO:
+            terminal->setEcho(parameters[0]);
+            return true;
+        case Util::Graphic::Terminal::Command::SET_LINE_AGGREGATION:
+            terminal->setLineAggregation(parameters[0]);
+            return true;
+        default:
+            return false;
+    }
 }
 
-#endif
+}

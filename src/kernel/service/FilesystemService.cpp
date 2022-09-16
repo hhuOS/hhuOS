@@ -174,6 +174,19 @@ FilesystemService::FilesystemService() {
         return Util::System::Result::OK;
     });
 
+    SystemCall::registerSystemCall(Util::System::CONTROL_FILE, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 3) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        int32_t fileDescriptor = va_arg(arguments, int32_t);
+        uint32_t request = va_arg(arguments, uint32_t);
+        Util::Data::Array<uint32_t> *parameters = va_arg(arguments, Util::Data::Array<uint32_t>*);
+
+        auto success = System::getService<FilesystemService>().getNode(fileDescriptor).control(request, *parameters);
+        return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
+    });
+
     SystemCall::registerSystemCall(Util::System::CHANGE_DIRECTORY, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 1) {
             return Util::System::INVALID_ARGUMENT;

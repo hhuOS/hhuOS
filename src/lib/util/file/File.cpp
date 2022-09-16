@@ -120,6 +120,15 @@ bool File::remove() {
     return ret;
 }
 
+bool File::control(uint32_t request, const Data::Array<uint32_t> &parameters) {
+    ensureFileIsOpened();
+    if (fileDescriptor < 0) {
+        Util::Exception::throwException(Exception::INVALID_ARGUMENT, "File: Could not open file!");
+    }
+
+    return ::controlFile(fileDescriptor, request, parameters);
+}
+
 Util::Memory::String File::getCanonicalPath(const Util::Memory::String &path) {
     if (path.isEmpty()) {
         return "";
@@ -165,6 +174,10 @@ bool unmount(const Util::Memory::String &path) {
 
 int32_t open(const Memory::String &path) {
     return ::openFile(path);
+}
+
+bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    return ::controlFile(fileDescriptor, request, parameters);
 }
 
 void close(int32_t fileDescriptor) {

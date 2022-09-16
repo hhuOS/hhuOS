@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __FsDriver_include__
-#define __FsDriver_include__
+#ifndef HHUOS_DRIVER_H
+#define HHUOS_DRIVER_H
 
 #include "filesystem/core/Node.h"
 #include "device/storage/StorageDevice.h"
