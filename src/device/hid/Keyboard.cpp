@@ -16,10 +16,9 @@
  */
 
 #include "kernel/service/InterruptService.h"
-#include "device/interrupt/Pic.h"
-#include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
+#include "filesystem/memory/StreamNode.h"
 #include "Keyboard.h"
 
 namespace Device {

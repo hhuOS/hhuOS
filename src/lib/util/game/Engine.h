@@ -18,13 +18,12 @@
 #ifndef HHUOS_ENGINE_H
 #define HHUOS_ENGINE_H
 
-
-#include <cstdint>
 #include "lib/util/async/Runnable.h"
 #include "lib/util/data/ArrayList.h"
+#include "lib/util/time/Timestamp.h"
+#include "lib/util/async/Spinlock.h"
 #include "Drawable.h"
 #include "Game.h"
-#include "lib/util/time/Timestamp.h"
 
 namespace Util::Game {
 
@@ -159,11 +158,74 @@ private:
         uint32_t idleTimeStart = 0;
     };
 
+    class KeyListenerRunnable : public Async::Runnable {
+
+    public:
+        /**
+         * Constructor.
+         */
+        explicit KeyListenerRunnable(Engine &engine);
+
+        /**
+         * Copy Constructor.
+         */
+        KeyListenerRunnable(const KeyListenerRunnable &other) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        KeyListenerRunnable &operator=(const KeyListenerRunnable &other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~KeyListenerRunnable() override = default;
+
+        void run() override;
+
+    private:
+
+        Engine &engine;
+    };
+
+    class MouseListenerRunnable : public Async::Runnable {
+
+    public:
+        /**
+         * Constructor.
+         */
+        explicit MouseListenerRunnable(Engine &engine);
+
+        /**
+         * Copy Constructor.
+         */
+        MouseListenerRunnable(const MouseListenerRunnable &other) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        MouseListenerRunnable &operator=(const MouseListenerRunnable &other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~MouseListenerRunnable() override = default;
+
+        void run() override;
+
+    private:
+
+        void checkKey(MouseListener::Key key, uint8_t lastButtonState, uint8_t currentButtonState);
+
+        Engine &engine;
+    };
+
     void drawStatus();
 
     Game &game;
     Graphics2D graphics;
     Statistics statistics;
+    Async::Spinlock updateLock;
 
     uint32_t statusUpdateTimer = 0;
     Memory::String status = statistics.gather();

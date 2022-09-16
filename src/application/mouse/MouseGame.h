@@ -15,25 +15,42 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PolygonDemo.h"
-#include "DemoPolygonFactory.h"
+#ifndef HHUOS_MOUSEGAME_H
+#define HHUOS_MOUSEGAME_H
 
-PolygonDemo::PolygonDemo(uint32_t count) : polygons(count) {
-    auto polygonFactory = DemoPolygonFactory();
-    for (uint32_t i = 0; i < count; i++) {
-        polygons[i] = polygonFactory.createPolygon();
-        addObject(polygons[i]);
-    }
+#include "lib/util/game/Game.h"
+#include "MouseCursor.h"
 
-    setKeyListener(*this);
-}
+class MouseGame : public Util::Game::Game, public Util::Game::KeyListener {
 
-void PolygonDemo::update(double delta) {
-    for (auto & polygon : polygons) {
-        polygon.update(delta);
-    }
-}
+public:
+    /**
+     * Default Constructor.
+     */
+    MouseGame();
 
-void PolygonDemo::keyPressed(char c) {
-    stop();
-}
+    /**
+     * Copy Constructor.
+     */
+    MouseGame(const MouseGame &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    MouseGame &operator=(const MouseGame &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~MouseGame() override = default;
+
+    void update(double delta) override;
+
+    void keyPressed(char c) override;
+
+private:
+
+    MouseCursor cursor;
+};
+
+#endif

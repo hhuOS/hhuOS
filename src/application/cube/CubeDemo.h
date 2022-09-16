@@ -21,7 +21,7 @@
 #include "lib/util/game/Game.h"
 #include "Cube.h"
 
-class CubeDemo : public Util::Game::Game {
+class CubeDemo : public Util::Game::Game, public Util::Game::KeyListener {
 
 public:
     /**
@@ -46,7 +46,7 @@ public:
 
     void update(double delta) override;
 
-private:
+    void keyPressed(char c) override;
 
     static const constexpr uint32_t NUM_CUBES = 4;
     Cube cubes[NUM_CUBES] = {{-0.5, 0.5, 0.25}, {0.5, 0.5, 0.25}, {0.5, -0.5, 0.25}, {-0.5, -0.5, 0.25}};

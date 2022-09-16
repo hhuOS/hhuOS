@@ -19,7 +19,16 @@ cmake_minimum_required(VERSION 3.14)
 project(initrd)
 message(STATUS "Project " ${PROJECT_NAME})
 
-if ($ENV{HHUOS_FULL_INITRD})
+if ($ENV{HHUOS_MINIMAL_INITRD})
+    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
+            COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
+            COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/initrd/bin/shell"
+            COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
+            COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
+            DEPENDS shell)
+
+    add_custom_target(${PROJECT_NAME} DEPENDS shell "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+else()
     add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
             COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
             COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/initrd/bin/shell"
@@ -56,13 +65,4 @@ if ($ENV{HHUOS_FULL_INITRD})
             DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
 
     add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
-else()
-    add_custom_command(OUTPUT "${CMAKE_BINARY_DIR}/hhuOS.initrd"
-            COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
-            COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/initrd/bin/shell"
-            COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
-            COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS shell)
-
-    add_custom_target(${PROJECT_NAME} DEPENDS shell "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()

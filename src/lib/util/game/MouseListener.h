@@ -15,25 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PolygonDemo.h"
-#include "DemoPolygonFactory.h"
+#ifndef HHUOS_MOUSELISTENER_H
+#define HHUOS_MOUSELISTENER_H
 
-PolygonDemo::PolygonDemo(uint32_t count) : polygons(count) {
-    auto polygonFactory = DemoPolygonFactory();
-    for (uint32_t i = 0; i < count; i++) {
-        polygons[i] = polygonFactory.createPolygon();
-        addObject(polygons[i]);
-    }
+#include <cstdint>
 
-    setKeyListener(*this);
+namespace Util::Game {
+
+class MouseListener {
+
+public:
+
+    enum Key : uint8_t {
+        LEFT = 1,
+        RIGHT = 2,
+        MIDDLE = 4
+    };
+
+    /**
+     * Default Constructor.
+     */
+    MouseListener() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    MouseListener(const MouseListener &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    MouseListener &operator=(const MouseListener &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~MouseListener() = default;
+
+    virtual void keyPressed(Key key) = 0;
+
+    virtual void keyReleased(Key key) = 0;
+
+    virtual void mouseMoved(double relativeX, double relativeY) = 0;
+};
+
 }
 
-void PolygonDemo::update(double delta) {
-    for (auto & polygon : polygons) {
-        polygon.update(delta);
-    }
-}
-
-void PolygonDemo::keyPressed(char c) {
-    stop();
-}
+#endif

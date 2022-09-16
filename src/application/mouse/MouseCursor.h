@@ -15,42 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGONDEMO_H
-#define HHUOS_POLYGONDEMO_H
+#ifndef HHUOS_MOUSECURSOR_H
+#define HHUOS_MOUSECURSOR_H
 
-#include "lib/util/game/Game.h"
-#include "DemoPolygon.h"
+#include "lib/util/game/Drawable.h"
+#include "lib/util/game/MouseListener.h"
 
-class PolygonDemo : public Util::Game::Game, public Util::Game::KeyListener {
+class MouseCursor : public Util::Game::Drawable, public Util::Game::MouseListener {
 
 public:
     /**
      * Default Constructor.
      */
-    explicit PolygonDemo(uint32_t count);
+    MouseCursor() = default;
 
     /**
      * Copy Constructor.
      */
-    PolygonDemo(const PolygonDemo &other) = delete;
+    MouseCursor(const MouseCursor &other) = delete;
 
     /**
      * Assignment operator.
      */
-    PolygonDemo &operator=(const PolygonDemo &other) = delete;
+    MouseCursor &operator=(const MouseCursor &other) = delete;
 
     /**
      * Destructor.
      */
-    ~PolygonDemo() override = default;
+    ~MouseCursor() override = default;
 
-    void update(double delta) override;
+    void draw(Util::Game::Graphics2D &graphics) const override;
 
-    void keyPressed(char c) override;
+    void keyPressed(Key key) override;
+
+    void keyReleased(Key key) override;
+
+    void mouseMoved(double relativeX, double relativeY) override;
 
 private:
 
-    Util::Data::Array<DemoPolygon> polygons;
+    bool leftPressed = false;
+    bool rightPressed = false;
+    bool middlePressed = false;
+
+    double posX = 0.5;
+    double posY = 0.5;
 };
 
 #endif

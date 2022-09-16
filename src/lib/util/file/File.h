@@ -101,6 +101,10 @@ File getCurrentWorkingDirectory();
 
 const char* getFileColor(Util::File::File &path);
 
+static const constexpr int32_t STANDARD_OUTPUT = 0;
+static const constexpr int32_t STANDARD_INPUT = 1;
+static const constexpr int32_t STANDARD_ERROR = 2;
+
 }
 
 #endif

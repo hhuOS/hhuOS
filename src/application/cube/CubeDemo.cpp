@@ -22,10 +22,16 @@ CubeDemo::CubeDemo(uint32_t speed) : angleX(DEFAULT_ANGLE_X * speed), angleY(DEF
     for (auto &cube : cubes) {
         addObject(cube);
     }
+
+    setKeyListener(*this);
 }
 
 void CubeDemo::update(double delta) {
     for (auto &cube : cubes) {
         cube.rotate(angleX * delta, angleY * delta, angleZ * delta);
     }
+}
+
+void CubeDemo::keyPressed(char c) {
+    stop();
 }

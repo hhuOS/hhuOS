@@ -19,11 +19,8 @@
 #include "lib/util/system/System.h"
 #include "CubeDemo.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
-
-Util::Game::Game *game;
 
 int32_t main(int32_t argc, char *argv[]) {
     auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
@@ -32,19 +29,13 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    game = new CubeDemo(speed);
+    auto game = CubeDemo(speed);
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(*game, lfb);
-
-    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        game->stop();
-    }));
+    auto engine = Util::Game::Engine(game, lfb);
 
     engine.run();
 
     lfb.clear();
-    delete game;
     return 0;
 }

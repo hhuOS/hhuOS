@@ -25,8 +25,6 @@
 
 static const constexpr int32_t DEFAULT_COUNT = 10;
 
-Util::Game::Game *game;
-
 int32_t main(int32_t argc, char *argv[]) {
     auto count = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_COUNT;
     if (count < 0) {
@@ -34,19 +32,13 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    game = new PolygonDemo(count);
+    auto game = PolygonDemo(count);
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(*game, lfb);
-
-    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
-        Util::System::in.read();
-        game->stop();
-    }));
+    auto engine = Util::Game::Engine(game, lfb);
 
     engine.run();
 
     lfb.clear();
-    delete game;
     return 0;
 }

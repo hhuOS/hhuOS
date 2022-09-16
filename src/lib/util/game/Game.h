@@ -21,10 +21,14 @@
 #include "lib/util/data/ArrayList.h"
 #include "Graphics2D.h"
 #include "Drawable.h"
+#include "KeyListener.h"
+#include "MouseListener.h"
 
 namespace Util::Game {
 
 class Game {
+
+friend class Engine;
 
 public:
     /**
@@ -65,7 +69,14 @@ protected:
 
     void removeObject(Drawable &drawable);
 
+    void setKeyListener(KeyListener &listener);
+
+    void setMouseListener(MouseListener &listener);
+
 private:
+
+    KeyListener *keyListener = nullptr;
+    MouseListener *mouseListener = nullptr;
 
     Util::Data::ArrayList<Drawable*> drawables;
     Util::Data::ArrayList<Drawable*> addList;

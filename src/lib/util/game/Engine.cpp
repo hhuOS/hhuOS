@@ -15,12 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Engine.h"
-#include "lib/util/time/Timestamp.h"
 #include "lib/util/system/System.h"
-#include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Colors.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/graphic/Terminal.h"
+#include "MouseListener.h"
+#include "Engine.h"
 
 namespace Util::Game {
 
@@ -31,6 +30,12 @@ void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
 
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+
+    Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
+    Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
+
     while (game.isRunning()) {
         statistics.startFrameTime();
         statistics.startUpdateTime();
@@ -39,9 +44,11 @@ void Engine::run() {
             frameTime = 0.001;
         }
 
+        updateLock.acquire();
         game.update(frameTime);
         game.applyChanges();
         statistics.stopUpdateTimeTime();
+        updateLock.release();
 
         statistics.startDrawTime();
         game.draw(graphics);
@@ -60,6 +67,9 @@ void Engine::run() {
         statistics.incFrames();
         statistics.stopFrameTime();
     }
+
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
 }
 
 void Engine::drawStatus() {
@@ -73,6 +83,60 @@ void Engine::drawStatus() {
     graphics.setColor(Util::Graphic::Colors::WHITE);
     graphics.drawStringSmall(-1, 1, status);
     graphics.setColor(color);
+}
+
+Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
+
+void Engine::KeyListenerRunnable::run() {
+    while (engine.game.isRunning()) {
+        char c = System::in.read();
+        if (engine.game.keyListener != nullptr) {
+            engine.updateLock.acquire();
+            engine.game.keyListener->keyPressed(c);
+            engine.updateLock.release();
+        }
+    }
+}
+
+Engine::MouseListenerRunnable::MouseListenerRunnable(Engine &engine) : engine(engine) {}
+
+void Engine::MouseListenerRunnable::run() {
+    auto file = Util::File::File("/device/mouse");
+    if (!file.exists()) {
+        return;
+    }
+
+    uint8_t lastButtons = 0;
+
+    auto stream = Util::Stream::FileInputStream(file);
+    while (engine.game.isRunning()) {
+        auto buttons = stream.read();
+        auto xMovement = static_cast<int8_t>(stream.read());
+        auto yMovement = static_cast<int8_t>(stream.read());
+
+        if (engine.game.mouseListener == nullptr) {
+            continue;
+        }
+
+        engine.updateLock.acquire();
+        checkKey(MouseListener::LEFT, lastButtons, buttons);
+        checkKey(MouseListener::RIGHT, lastButtons, buttons);
+        checkKey(MouseListener::MIDDLE, lastButtons, buttons);
+        lastButtons = buttons;
+
+        if (xMovement != 0 || yMovement != 0) {
+            engine.game.mouseListener->mouseMoved(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX));
+        }
+        engine.updateLock.release();
+    }
+}
+
+void Engine::MouseListenerRunnable::checkKey(MouseListener::Key key, uint8_t lastButtonState, uint8_t currentButtonState) {
+    if (!(lastButtonState & key) && (currentButtonState & key)) {
+        engine.game.mouseListener->keyPressed(key);
+    } else if ((lastButtonState & key) && !(currentButtonState & key)) {
+        engine.game.mouseListener->keyReleased(key);
+    }
 }
 
 }

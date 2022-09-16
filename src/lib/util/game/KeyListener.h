@@ -15,25 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PolygonDemo.h"
-#include "DemoPolygonFactory.h"
+#ifndef HHUOS_KEYLISTENER_H
+#define HHUOS_KEYLISTENER_H
 
-PolygonDemo::PolygonDemo(uint32_t count) : polygons(count) {
-    auto polygonFactory = DemoPolygonFactory();
-    for (uint32_t i = 0; i < count; i++) {
-        polygons[i] = polygonFactory.createPolygon();
-        addObject(polygons[i]);
-    }
+namespace Util::Game {
 
-    setKeyListener(*this);
+class KeyListener {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    KeyListener() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    KeyListener(const KeyListener &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    KeyListener &operator=(const KeyListener &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~KeyListener() = default;
+
+    virtual void keyPressed(char c) = 0;
+};
+
 }
 
-void PolygonDemo::update(double delta) {
-    for (auto & polygon : polygons) {
-        polygon.update(delta);
-    }
-}
-
-void PolygonDemo::keyPressed(char c) {
-    stop();
-}
+#endif

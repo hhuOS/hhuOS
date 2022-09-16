@@ -58,4 +58,12 @@ uint32_t Game::getObjectCount() const {
     return drawables.size();
 }
 
+void Game::setKeyListener(KeyListener &listener) {
+    keyListener = &listener;
+}
+
+void Game::setMouseListener(MouseListener &listener) {
+    mouseListener = &listener;
+}
+
 }
