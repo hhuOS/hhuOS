@@ -15,9 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <src/widgets/lv_img.h>
+#include <src/core/lv_disp.h>
+#include <src/core/lv_indev.h>
 #include "LvglDriver.h"
 #include "lib/util/math/Math.h"
 #include "lib/interface.h"
+#include "lib/util/stream/FileInputStream.h"
+#include "kernel/system/System.h"
 
 extern "C" {
 uint64_t __udivdi3(uint64_t first, uint64_t second) {
@@ -79,17 +84,42 @@ LvglDriver::~LvglDriver() {
 }
 
 void LvglDriver::initialize() {
-    lv_disp_drv_init(&driver);
-    driver.draw_buf = &displayBuffer;
-    driver.hor_res = static_cast<int16_t>(lfb.getResolutionX());
-    driver.ver_res = static_cast<int16_t>(lfb.getResolutionY());
-    driver.full_refresh = true;
-    driver.user_data = this;
-    driver.flush_cb = &flush;
-    lv_disp_drv_register(&driver);
+    lv_disp_drv_init(&displayDriver);
+    displayDriver.draw_buf = &displayBuffer;
+    displayDriver.hor_res = static_cast<int16_t>(lfb.getResolutionX());
+    displayDriver.ver_res = static_cast<int16_t>(lfb.getResolutionY());
+    displayDriver.full_refresh = true;
+    displayDriver.user_data = this;
+    displayDriver.flush_cb = &flushDisplay;
+    display = lv_disp_drv_register(&displayDriver);
+
+    lv_indev_drv_init(&keyboardDriver);
+    keyboardDriver.type = LV_INDEV_TYPE_KEYPAD;
+    keyboardDriver.read_cb = &readKeyboardInput;
+    keyboardDriver.user_data = this;
+    keyboard = lv_indev_drv_register(&keyboardDriver);
+
+    lv_indev_drv_init(&mouseDriver);
+    mouseDriver.type = LV_INDEV_TYPE_POINTER;
+    mouseDriver.read_cb = &readMouseInput;
+    mouseDriver.user_data = this;
+    mouse = lv_indev_drv_register(&mouseDriver);
+
+    LV_IMG_DECLARE(cursor_icon);
+    cursor = lv_img_create(lv_scr_act());
+    lv_img_set_src(cursor, &cursor_icon);
+    lv_indev_set_cursor(mouse, cursor);
+
+    running = true;
+    Util::Async::Thread::createThread("Keyboard-Listener", new KeyboardRunnable(*this));
+    Util::Async::Thread::createThread("Mouse-Listener", new MouseRunnable(*this));
 }
 
-void LvglDriver::flush(struct _lv_disp_drv_t *displayDriver, const lv_area_t *area, lv_color_t *pixels) {
+void LvglDriver::assignKeyboardToGroup(lv_group_t &group) {
+    lv_indev_set_group(keyboard, &group);
+}
+
+void LvglDriver::flushDisplay(_lv_disp_drv_t *displayDriver, const lv_area_t *area, lv_color_t *pixels) {
     auto &driver = *reinterpret_cast<LvglDriver*>(displayDriver->user_data);
     driver.flush();
     lv_disp_flush_ready(displayDriver);
@@ -98,4 +128,86 @@ void LvglDriver::flush(struct _lv_disp_drv_t *displayDriver, const lv_area_t *ar
 void LvglDriver::flush() {
     lfbAddress.copyRange(colorBufferAddress, bufferSize);
     if (useMmx) Util::Math::Math::endMmx();
+}
+
+void LvglDriver::readMouseInput(lv_indev_drv_t *mouseDriver, lv_indev_data_t *data) {
+    auto &driver = *reinterpret_cast<LvglDriver*>(mouseDriver->user_data);
+
+    driver.mouseLock.acquire();
+    data->point.x = driver.mouseState.x;
+    data->point.y = driver.mouseState.y;
+    data->state = driver.mouseState.leftPressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    driver.mouseLock.release();
+}
+
+void LvglDriver::readKeyboardInput(lv_indev_drv_t *keyboardDriver, lv_indev_data_t *data) {
+    auto &driver = *reinterpret_cast<LvglDriver*>(keyboardDriver->user_data);
+
+    driver.keyboardLock.acquire();
+    if (driver.keyboardEventQueue.isEmpty()) {
+        driver.keyboardLock.release();
+        return;
+    }
+
+    auto event = driver.keyboardEventQueue.pop();
+    data->key = event.key;
+    data->state = event.pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
+    data->continue_reading = !driver.keyboardEventQueue.isEmpty();
+    driver.keyboardLock.release();
+}
+
+bool LvglDriver::isRunning() {
+    return running;
+}
+
+LvglDriver::MouseRunnable::MouseRunnable(LvglDriver &driver) : driver(driver) {}
+
+void LvglDriver::MouseRunnable::run() {
+    auto file = Util::File::File("/device/mouse");
+    if (!file.exists()) {
+        return;
+    }
+
+    auto stream = Util::Stream::FileInputStream(file);
+
+    while (true) {
+        auto buttons = stream.read();
+        auto xMovement = static_cast<int8_t>(stream.read());
+        auto yMovement = static_cast<int8_t>(stream.read());
+
+        driver.mouseLock.acquire();
+        driver.mouseState.leftPressed = (buttons & 0x01) == 0x01;
+        driver.mouseState.rightPressed = (buttons & 0x02) == 0x02;
+        driver.mouseState.middlePressed = (buttons & 0x04) == 0x04;
+
+        driver.mouseState.x += xMovement;
+        driver.mouseState.y += yMovement;
+
+        if (driver.mouseState.x < 0) driver.mouseState.x = 0;
+        if (driver.mouseState.y < 0) driver.mouseState.y = 0;
+        if (driver.mouseState.x >= driver.lfb.getResolutionX()) driver.mouseState.x = driver.lfb.getResolutionX() - 1;
+        if (driver.mouseState.y >= driver.lfb.getResolutionY()) driver.mouseState.y = driver.lfb.getResolutionY() - 1;
+        driver.mouseLock.release();
+    }
+}
+
+LvglDriver::KeyboardRunnable::KeyboardRunnable(LvglDriver &driver) : driver(driver) {}
+
+void LvglDriver::KeyboardRunnable::run() {
+    while (true) {
+        auto c = Util::System::in.read();
+
+        if (c == '\n') {
+            driver.running = false;
+        }
+
+        driver.keyboardLock.acquire();
+        driver.keyboardEventQueue.push({c, true});
+        driver.keyboardEventQueue.push({c, false});
+        driver.keyboardLock.release();
+    }
+}
+
+bool LvglDriver::KeyboardEvent::operator!=(const LvglDriver::KeyboardEvent &other) {
+    return this != &other;
 }

@@ -24,6 +24,7 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/lvgl/cursor_icon.c
         ${HHUOS_SRC_DIR}/application/lvgl/demo.cpp
         ${HHUOS_SRC_DIR}/application/lvgl/LvglDriver.cpp)
 

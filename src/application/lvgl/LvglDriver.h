@@ -20,6 +20,9 @@
 
 #include <src/hal/lv_hal_disp.h>
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/async/Runnable.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayBlockingQueue.h"
 
 class LvglDriver {
 
@@ -46,21 +49,118 @@ public:
 
     void initialize();
 
+    void assignKeyboardToGroup(lv_group_t &group);
+
+    bool isRunning();
+
 private:
+
+    struct MouseState {
+        bool leftPressed = false;
+        bool rightPressed = false;
+        bool middlePressed = false;
+        int16_t x = 0;
+        int16_t y = 0;
+    };
+
+    struct KeyboardEvent {
+        char key = 0;
+        bool pressed = false;
+
+        bool operator!=(const KeyboardEvent &other);
+    };
+
+    class MouseRunnable : public Util::Async::Runnable {
+
+    public:
+        /**
+         * Constructor.
+         */
+        MouseRunnable(LvglDriver &driver);
+
+        /**
+         * Copy Constructor.
+         */
+        MouseRunnable(const MouseRunnable &other) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        MouseRunnable &operator=(const MouseRunnable &other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~MouseRunnable() = default;
+
+        void run() override;
+
+    private:
+
+        LvglDriver &driver;
+    };
+
+    class KeyboardRunnable : public Util::Async::Runnable {
+
+    public:
+        /**
+         * Constructor.
+         */
+        KeyboardRunnable(LvglDriver &driver);
+
+        /**
+         * Copy Constructor.
+         */
+        KeyboardRunnable(const KeyboardRunnable &other) = delete;
+
+        /**
+         * Assignment operator.
+         */
+        KeyboardRunnable &operator=(const KeyboardRunnable &other) = delete;
+
+        /**
+         * Destructor.
+         */
+        ~KeyboardRunnable() = default;
+
+        void run() override;
+
+    private:
+
+        LvglDriver &driver;
+    };
 
     void flush();
 
-    static void flush(struct _lv_disp_drv_t * displayDriver, const lv_area_t * area, lv_color_t * pixels);
+    static void flushDisplay(_lv_disp_drv_t *displayDriver, const lv_area_t *area, lv_color_t *pixels);
+
+    static void readMouseInput(lv_indev_drv_t *mouseDriver, lv_indev_data_t *data);
+
+    static void readKeyboardInput(lv_indev_drv_t *keyboardDriver, lv_indev_data_t *data);
 
     uint32_t bufferSize;
-    lv_disp_drv_t driver{};
+    lv_disp_drv_t displayDriver{};
     lv_disp_draw_buf_t displayBuffer{};
-    lv_color_t *colorBuffer{};
+    lv_color_t *colorBuffer;
+    lv_disp_t *display;
+
+    lv_indev_drv_t mouseDriver{};
+    lv_indev_t *mouse;
+    lv_obj_t *cursor;
+    MouseState mouseState;
+    Util::Async::Spinlock mouseLock;
+
+    lv_indev_drv_t keyboardDriver{};
+    lv_indev_t *keyboard;
+    Util::Data::ArrayBlockingQueue<KeyboardEvent> keyboardEventQueue;
+    Util::Async::Spinlock keyboardLock;
 
     Util::Graphic::LinearFrameBuffer &lfb;
     Util::Memory::Address<uint32_t> &lfbAddress;
     Util::Memory::Address<uint32_t> colorBufferAddress;
     bool useMmx = false;
+
+    bool running = false;
 };
 
 #endif
