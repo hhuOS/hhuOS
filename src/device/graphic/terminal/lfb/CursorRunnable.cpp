@@ -25,21 +25,33 @@ namespace Device::Graphic {
 CursorRunnable::CursorRunnable(LinearFrameBufferTerminal &terminal, char cursor) : terminal(terminal), cursor(cursor) {}
 
 void CursorRunnable::run() {
-    while (true) {
+    while (isRunning) {
         terminal.cursorLock.acquire();
-        const auto character = terminal.characterBuffer[terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
-        terminal.stringDrawer.drawChar(terminal.font,
-                                       terminal.currentColumn * terminal.font.getCharWidth(),
-                                       terminal.currentRow * terminal.font.getCharHeight(),
-                                       visible ? cursor : character.value,
-                                       character.foregroundColor,
-                                       character.backgroundColor);
-
+        draw();
         visible = !visible;
         terminal.cursorLock.release();
 
         Util::Async::Thread::sleep({0, 250000000});
     }
+
+    visible = false;
+    draw();
+    finished = true;
+}
+
+void CursorRunnable::stop() {
+    isRunning = false;
+    while (!finished) {}
+}
+
+void CursorRunnable::draw() {
+    const auto character = terminal.characterBuffer[terminal.currentRow * terminal.getColumns() + terminal.currentColumn];
+    terminal.stringDrawer.drawChar(terminal.font,
+                                   terminal.currentColumn * terminal.font.getCharWidth(),
+                                   terminal.currentRow * terminal.font.getCharHeight(),
+                                   visible ? cursor : character.value,
+                                   character.foregroundColor,
+                                   character.backgroundColor);
 }
 
 }

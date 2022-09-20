@@ -29,6 +29,5 @@ int32_t main(int32_t argc, char *argv[]) {
 
     engine.run();
 
-    lfb.clear();
     return 0;
 }

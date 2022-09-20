@@ -93,8 +93,10 @@ struct Ant {
 int32_t main(int32_t argc, char *argv[]) {
     auto sleepInterval = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : 0;
     auto lfbFile = Util::File::File("/device/lfb");
-    Util::Graphic::LinearFrameBuffer lfb(lfbFile);
-    Util::Graphic::PixelDrawer drawer(lfb);
+    auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
+    auto drawer = Util::Graphic::PixelDrawer(lfb);
+    Util::Graphic::Ansi::prepareGraphicalApplication();
+
     Ant ant(lfb.getResolutionX(), lfb.getResolutionY());
     lfb.clear();
 
@@ -120,6 +122,6 @@ int32_t main(int32_t argc, char *argv[]) {
         }
     }
 
-    lfb.clear();
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

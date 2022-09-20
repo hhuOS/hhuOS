@@ -30,8 +30,7 @@ void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
 
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+    Graphic::Ansi::prepareGraphicalApplication();
 
     Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
@@ -68,8 +67,7 @@ void Engine::run() {
         statistics.stopFrameTime();
     }
 
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
+    Graphic::Ansi::cleanupGraphicalApplication();
 }
 
 void Engine::drawStatus() {

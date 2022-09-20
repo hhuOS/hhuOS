@@ -50,12 +50,18 @@ public:
 
     void run() override;
 
+    void stop();
+
+    void draw();
+
 private:
 
     LinearFrameBufferTerminal &terminal;
     char cursor;
 
     bool visible = true;
+    bool isRunning = true;
+    bool finished = false;
 };
 
 }

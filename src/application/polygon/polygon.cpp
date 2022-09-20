@@ -38,7 +38,5 @@ int32_t main(int32_t argc, char *argv[]) {
     auto engine = Util::Game::Engine(game, lfb);
 
     engine.run();
-
-    lfb.clear();
     return 0;
 }

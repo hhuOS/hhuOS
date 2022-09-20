@@ -26,9 +26,8 @@ set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/boot.asm
         ${HHUOS_SRC_DIR}/BuildConfig.cpp
         ${HHUOS_SRC_DIR}/GatesOfHell.cpp
-        ${HHUOS_SRC_DIR}/SchedulerSign.cpp
         ${HHUOS_SRC_DIR}/asm_interface.cpp
-        ${HHUOS_SRC_DIR}/constants.asm ../../src/lib/util/game/MouseListener.h ../../src/application/mouse/MouseGame.cpp ../../src/application/mouse/MouseGame.h ../../src/application/mouse/MouseCursor.cpp ../../src/application/mouse/MouseCursor.h)
+        ${HHUOS_SRC_DIR}/constants.asm)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 

@@ -18,11 +18,11 @@
 #include <src/widgets/lv_img.h>
 #include <src/core/lv_disp.h>
 #include <src/core/lv_indev.h>
-#include "LvglDriver.h"
 #include "lib/util/math/Math.h"
 #include "lib/interface.h"
 #include "lib/util/stream/FileInputStream.h"
-#include "kernel/system/System.h"
+#include "LvglDriver.h"
+#include "lib/util/system/System.h"
 
 extern "C" {
 uint64_t __udivdi3(uint64_t first, uint64_t second) {
@@ -74,9 +74,7 @@ LvglDriver::LvglDriver(Util::Graphic::LinearFrameBuffer &lfb) :
         bufferSize(lfb.getPitch() * lfb.getResolutionY()),
         colorBuffer(new lv_color_t[bufferSize]), lfb(lfb),
         lfbAddress(*Util::Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)),
-        colorBufferAddress(colorBuffer) {
-    lv_disp_draw_buf_init(&displayBuffer, colorBuffer, nullptr, lfb.getResolutionX() * lfb.getResolutionY());
-}
+        colorBufferAddress(colorBuffer) {}
 
 LvglDriver::~LvglDriver() {
     delete[] colorBuffer;
@@ -84,6 +82,7 @@ LvglDriver::~LvglDriver() {
 }
 
 void LvglDriver::initialize() {
+    lv_disp_draw_buf_init(&displayBuffer, colorBuffer, nullptr, lfb.getResolutionX() * lfb.getResolutionY());
     lv_disp_drv_init(&displayDriver);
     displayDriver.draw_buf = &displayBuffer;
     displayDriver.hor_res = static_cast<int16_t>(lfb.getResolutionX());
@@ -104,6 +103,8 @@ void LvglDriver::initialize() {
     mouseDriver.read_cb = &readMouseInput;
     mouseDriver.user_data = this;
     mouse = lv_indev_drv_register(&mouseDriver);
+    mouseState.x = lfb.getResolutionX() / 2;
+    mouseState.y = lfb.getResolutionY() / 2;
 
     LV_IMG_DECLARE(cursor_icon);
     cursor = lv_img_create(lv_scr_act());
@@ -156,7 +157,7 @@ void LvglDriver::readKeyboardInput(lv_indev_drv_t *keyboardDriver, lv_indev_data
     driver.keyboardLock.release();
 }
 
-bool LvglDriver::isRunning() {
+bool LvglDriver::isRunning() const {
     return running;
 }
 

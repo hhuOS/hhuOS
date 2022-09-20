@@ -17,6 +17,7 @@
 
 #include "Ansi.h"
 #include "lib/util/system/System.h"
+#include "Terminal.h"
 
 namespace Util::Graphic {
 
@@ -161,6 +162,18 @@ Memory::String Ansi::foreground24BitColor(const Graphic::Color &color) {
 
 Memory::String Ansi::background24BitColor(const Graphic::Color &color) {
     return Memory::String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
+}
+
+void Ansi::prepareGraphicalApplication() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
+}
+
+void Ansi::cleanupGraphicalApplication() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
 }
 
 void Ansi::setForegroundColor(Color color, bool bright) {

@@ -42,6 +42,8 @@ public:
 
     void setPosition(uint16_t column, uint16_t row) override;
 
+    void setCursor(bool enabled) override;
+
     [[nodiscard]] uint16_t getCurrentColumn() const override;
 
     [[nodiscard]] uint16_t getCurrentRow() const override;
@@ -58,12 +60,10 @@ private:
     uint16_t currentRow = 0;
 
     Util::Memory::Address<uint32_t> cgaMemory;
-    IoPort indexPort;
-    IoPort dataPort;
+    IoPort indexPort = IoPort(0x3d4);
+    IoPort dataPort = IoPort(0x3d5);
 
     static const constexpr uint8_t BYTES_PER_CHARACTER = 2;
-    static const constexpr uint16_t INDEX_PORT_ADDRESS = 0x03d4;
-    static const constexpr uint16_t DATA_PORT_ADDRESS = 0x03d5;
     static const constexpr uint16_t CURSOR_LOW_BYTE = 0x0f;
     static const constexpr uint16_t CURSOR_HIGH_BYTE = 0x0e;
     static const constexpr uint16_t CURSOR_START_INDEX = 0x0a;

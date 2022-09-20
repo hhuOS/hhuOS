@@ -30,9 +30,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto driver = LvglDriver(lfb);
-
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {false});
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {false});
+    Util::Graphic::Ansi::prepareGraphicalApplication();
 
     lv_init();
     driver.initialize();
@@ -55,9 +53,6 @@ int32_t main(int32_t argc, char *argv[]) {
         lv_tick_inc(Util::Time::getSystemTime().toMilliseconds() - time);
     }
 
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
-
-    lfb.clear();
+    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

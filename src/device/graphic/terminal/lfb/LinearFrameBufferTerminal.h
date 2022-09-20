@@ -48,9 +48,11 @@ public:
 
     void putChar(char c, const Util::Graphic::Color &foregroundColor, const Util::Graphic::Color &backgroundColor) override;
 
+    void clear(const Util::Graphic::Color &backgroundColor) override;
+
     void setPosition(uint16_t column, uint16_t row) override;
 
-    void clear(const Util::Graphic::Color &backgroundColor) override;
+    void setCursor(bool enabled) override;
 
     [[nodiscard]] uint16_t getCurrentColumn() const override;
 
@@ -87,7 +89,8 @@ private:
     uint16_t currentColumn = 0;
     uint16_t currentRow = 0;
 
-    Kernel::Thread &cursorThread;
+    char cursor;
+    CursorRunnable *cursorRunnable = nullptr;
     Util::Async::Spinlock cursorLock;
 };
 

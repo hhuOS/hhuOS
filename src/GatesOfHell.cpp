@@ -40,9 +40,6 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/memory/MemoryStatusNode.h"
-#include "BuildConfig.h"
-#include "GatesOfHell.h"
-#include "SchedulerSign.h"
 #include "device/power/apm/ApmMachine.h"
 #include "kernel/service/PowerManagementService.h"
 #include "device/pci/Pci.h"
@@ -60,6 +57,8 @@
 #include "device/hid/Ps2Controller.h"
 #include "lib/util/stream/FileReader.h"
 #include "filesystem/memory/MountsNode.h"
+#include "BuildConfig.h"
+#include "GatesOfHell.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -112,15 +111,10 @@ void GatesOfHell::enter() {
 
     printBanner();
 
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &schedulerSignThread = Kernel::Thread::createKernelThread("Scheduler-Sign", processService.getKernelProcess(), new SchedulerSign());
-    schedulerService.ready(schedulerSignThread);
-
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
     log.info("Starting scheduler!");
-    schedulerService.startScheduler();
+    Kernel::System::getService<Kernel::SchedulerService>().startScheduler();
 
     Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Once you entered the gates of hell, you are not allowed to leave!");
 }

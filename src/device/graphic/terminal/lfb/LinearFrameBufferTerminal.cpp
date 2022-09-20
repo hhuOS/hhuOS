@@ -25,14 +25,13 @@ namespace Device::Graphic {
 LinearFrameBufferTerminal::LinearFrameBufferTerminal(Util::Graphic::LinearFrameBuffer *lfb, Util::Graphic::Font &font, char cursor) :
         Terminal(lfb->getResolutionX() / font.getCharWidth(), lfb->getResolutionY() / font.getCharHeight()),
         characterBuffer(new Character[getColumns() * getRows()]), lfb(*lfb), pixelDrawer(*lfb), stringDrawer(pixelDrawer), shadowLfb(*lfb, false),
-        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(font),
-        cursorThread(Kernel::Thread::createKernelThread("Cursor", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new CursorRunnable(*this, cursor))) {
+        shadowPixelDrawer(shadowLfb), shadowStringDrawer(shadowPixelDrawer), shadowScroller(shadowLfb, false), font(font), cursor(cursor) {
     LinearFrameBufferTerminal::clear(Util::Graphic::Colors::BLACK);
-    Kernel::System::getService<Kernel::SchedulerService>().ready(cursorThread);
+    LinearFrameBufferTerminal::setCursor(true);
 }
 
 LinearFrameBufferTerminal::~LinearFrameBufferTerminal() {
-    Kernel::System::getService<Kernel::SchedulerService>().kill(cursorThread);
+    LinearFrameBufferTerminal::setCursor(false);
     delete &lfb;
     delete[] characterBuffer;
 }
@@ -103,6 +102,31 @@ void LinearFrameBufferTerminal::setPosition(uint16_t column, uint16_t row) {
     while (currentRow >= getRows()) {
         scrollUp();
         currentRow--;
+    }
+
+    cursorLock.release();
+}
+
+void LinearFrameBufferTerminal::setCursor(bool enabled) {
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+
+    cursorLock.acquire();
+
+    if (enabled) {
+        shadowLfb.flush();
+
+        if (cursorRunnable != nullptr) {
+            cursorLock.release();
+            return;
+        }
+
+        cursorRunnable = new CursorRunnable(*this, cursor);
+        auto &cursorThread = Kernel::Thread::createKernelThread("Cursor", processService.getKernelProcess(), cursorRunnable);
+        schedulerService.ready(cursorThread);
+    } else if (cursorRunnable != nullptr) {
+        cursorRunnable->stop();
+        cursorRunnable = nullptr;
     }
 
     cursorLock.release();

@@ -88,6 +88,10 @@ public:
 
     static Memory::String background24BitColor(const Graphic::Color &color);
 
+    static void prepareGraphicalApplication();
+
+    static void cleanupGraphicalApplication();
+
     static void setForegroundColor(Color color, bool bright);
 
     static void setBackgroundColor(Color color, bool bright);

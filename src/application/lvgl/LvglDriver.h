@@ -51,7 +51,7 @@ public:
 
     void assignKeyboardToGroup(lv_group_t &group);
 
-    bool isRunning();
+    [[nodiscard]] bool isRunning() const;
 
 private:
 
@@ -141,17 +141,17 @@ private:
     uint32_t bufferSize;
     lv_disp_drv_t displayDriver{};
     lv_disp_draw_buf_t displayBuffer{};
-    lv_color_t *colorBuffer;
-    lv_disp_t *display;
+    lv_color_t *colorBuffer = nullptr;
+    lv_disp_t *display = nullptr;
 
     lv_indev_drv_t mouseDriver{};
-    lv_indev_t *mouse;
-    lv_obj_t *cursor;
+    lv_indev_t *mouse = nullptr;
+    lv_obj_t *cursor = nullptr;
     MouseState mouseState;
     Util::Async::Spinlock mouseLock;
 
     lv_indev_drv_t keyboardDriver{};
-    lv_indev_t *keyboard;
+    lv_indev_t *keyboard = nullptr;
     Util::Data::ArrayBlockingQueue<KeyboardEvent> keyboardEventQueue;
     Util::Async::Spinlock keyboardLock;
 
