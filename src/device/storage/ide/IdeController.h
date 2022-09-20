@@ -266,6 +266,8 @@ private:
 
     uint16_t determineSectorSize(const DeviceInfo &info);
 
+    bool checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount);
+
     void prepareIO(const DeviceInfo &info, uint64_t startSector, uint16_t sectorCount);
 
     uint16_t performProgrammedIO(const DeviceInfo &info, TransferMode mode, uint16_t *buffer, uint64_t startSector, uint16_t sectorCount);
@@ -279,6 +281,7 @@ private:
     static void copyByteSwappedString(const char *source, char *target, uint32_t length);
 
     ChannelRegisters channels[CHANNELS_PER_CONTROLLER]{};
+    Util::Async::Spinlock ioLock;
     bool supportsDma = false;
 
     static Kernel::Logger log;

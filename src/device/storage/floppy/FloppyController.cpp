@@ -356,7 +356,9 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "FloppyController: Trying to read/write out of track bounds!");
     }
 
+    ioLock.acquire();
     if (!seek(device, cylinder, head)) {
+        ioLock.release();
         return false;
     }
 
@@ -424,6 +426,8 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
 
     setMotorState(device, OFF);
     memoryService.freeLowerMemory(dmaMemory);
+
+    ioLock.release();
     return success;
 }
 

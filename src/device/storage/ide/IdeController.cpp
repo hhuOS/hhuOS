@@ -391,8 +391,13 @@ uint16_t IdeController::determineSectorSize(const DeviceInfo &info) {
 
 uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeController::TransferMode mode, uint8_t *buffer, uint64_t startSector, uint32_t sectorCount) {
     auto &registers = channels[info.channel];
+    if (!checkBounds(info, startSector, sectorCount)) {
+        Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "IDE: Trying to read/write out of track bounds!");
+    }
 
+    ioLock.acquire();
     if (!selectDrive(info.channel, info.drive)) {
+        ioLock.release();
         log.error("Failed to select drive [%u] on channel [%u] for %s", mode == READ ? "reading" : "writing", info.drive, info.channel);
         return 0;
     }
@@ -407,6 +412,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
     registers.receivedInterrupt = false;
 
     if (!waitStatus(registers.control.alternateStatus, DRIVE_READY)) {
+        ioLock.release();
         log.error("Failed to %s sectors on drive [%u] on channel [%u]", mode == READ ? "read" : "write", info.drive, info.channel);
         return 0;
     }
@@ -431,10 +437,12 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
 
         processedSectors += sectors;
         if (sectors == 0) {
+            ioLock.release();
             return processedSectors;
         }
     }
 
+    ioLock.release();
     return processedSectors;
 }
 
@@ -647,6 +655,22 @@ void IdeController::copyByteSwappedString(const char *source, char *target, uint
     for (uint32_t i = 0; i < length; i += 2) {
         target[i] = source[i + 1];
         target[i + 1] = source[i];
+    }
+}
+
+bool IdeController::checkBounds(const DeviceInfo &info, uint64_t startSector, uint32_t sectorCount) {
+    switch (info.addressing) {
+        case CHS: {
+            auto converter = ChsConverter(info.cylinders, info.heads, info.sectorsPerTrack);
+            auto chs = converter.lbaToChs(startSector + sectorCount);
+            return chs.cylinder < info.cylinders;
+        }
+        case LBA28:
+            return startSector + sectorCount < info.maxSectorsLba28;
+        case LBA48:
+            return startSector + sectorCount < info.maxSectorsLba48;
+        default:
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "IDE: Unsupported address type!");
     }
 }
 

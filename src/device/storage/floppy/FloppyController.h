@@ -314,7 +314,7 @@ private:
      */
     bool handleReadWriteError(FloppyDevice &device, uint8_t cylinder, uint8_t head);
 
-    volatile bool receivedInterrupt = false;
+    bool receivedInterrupt = false;
 
     Device::IoPort statusRegisterA;
     Device::IoPort statusRegisterB;
@@ -325,6 +325,8 @@ private:
     Device::IoPort fifoRegister;
     Device::IoPort digitalInputRegister;
     Device::IoPort configControlRegister;
+
+    Util::Async::Spinlock ioLock;
 
     static Kernel::Logger log;
 

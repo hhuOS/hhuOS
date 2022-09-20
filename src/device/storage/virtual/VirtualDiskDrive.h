@@ -17,6 +17,7 @@
 
 #include "device/storage/StorageDevice.h"
 #include "lib/util/memory/Address.h"
+#include "lib/util/async/Spinlock.h"
 
 #ifndef HHUOS_VIRTUALDISKDRIVE_H
 #define HHUOS_VIRTUALDISKDRIVE_H
@@ -75,6 +76,8 @@ public:
     uint32_t write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) override;
 
 private:
+
+    Util::Async::Spinlock ioLock;
 
     Util::Memory::Address<uint32_t> address;
     bool freeAddress;

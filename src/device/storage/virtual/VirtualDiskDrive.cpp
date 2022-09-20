@@ -41,27 +41,33 @@ uint64_t VirtualDiskDrive::getSectorCount() {
 }
 
 uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    if (startSector + sectorCount > this->sectorCount) {
+    if (startSector + sectorCount > VirtualDiskDrive::sectorCount) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to read out of bounds!");
     }
 
     auto byteCount = sectorSize * sectorCount;
     auto source = address.add(sectorSize * startSector);
     auto target = Util::Memory::Address<uint32_t>(buffer);
+
+    ioLock.acquire();
     target.copyRange(source, byteCount);
+    ioLock.release();
 
     return sectorCount;
 }
 
 uint32_t VirtualDiskDrive::write(const uint8_t *buffer, uint32_t startSector, uint32_t sectorCount) {
-    if (startSector + sectorCount > this->sectorCount) {
+    if (startSector + sectorCount > VirtualDiskDrive::sectorCount) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "VirtualDiskDrive: Trying to read out of bounds!");
     }
 
     auto byteCount = sectorSize * sectorCount;
     auto source = Util::Memory::Address<uint32_t>(buffer);
     auto target = address.add(sectorSize * startSector);
+
+    ioLock.acquire();
     target.copyRange(source, byteCount);
+    ioLock.release();
 
     return sectorCount;
 }
