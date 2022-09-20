@@ -44,7 +44,7 @@ public:
      */
     ~DemoPolygonFactory() = default;
 
-    DemoPolygon createPolygon();
+    DemoPolygon* createPolygon();
 
 private:
 

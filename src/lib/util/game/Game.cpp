@@ -19,12 +19,20 @@
 
 namespace Util::Game {
 
-void Game::addObject(Drawable &drawable) {
-    addList.add(&drawable);
+Game::~Game() {
+    for (const auto *drawable : drawables) {
+        delete drawable;
+    }
+
+    drawables.clear();
 }
 
-void Game::removeObject(Drawable &drawable) {
-    removeList.add(&drawable);
+void Game::addObject(Drawable *drawable) {
+    addList.add(drawable);
+}
+
+void Game::removeObject(Drawable *drawable) {
+    removeList.add(drawable);
 }
 
 void Game::applyChanges() {
@@ -34,6 +42,7 @@ void Game::applyChanges() {
 
     for (auto *object : removeList) {
         drawables.remove(object);
+        delete object;
     }
 
     addList.clear();

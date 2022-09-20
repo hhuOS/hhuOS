@@ -132,7 +132,7 @@ private:
                 idleTime /= count;
             }
 
-            return Memory::String::format("FPS: %03u, Frametime: %03ums (Draw: %03ums, Update: %03ums, Idle: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
+            return Memory::String::format("FPS: %03u, Frametime: %03ums (D: %03ums, U: %03ums, I: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
         }
 
     private:

@@ -19,7 +19,9 @@
 #define HHUOS_POLYGONDEMO_H
 
 #include "lib/util/game/Game.h"
+#include "lib/util/data/ArrayBlockingQueue.h"
 #include "DemoPolygon.h"
+#include "DemoPolygonFactory.h"
 
 class PolygonDemo : public Util::Game::Game, public Util::Game::KeyListener {
 
@@ -50,7 +52,8 @@ public:
 
 private:
 
-    Util::Data::Array<DemoPolygon> polygons;
+    DemoPolygonFactory factory;
+    Util::Data::ArrayBlockingQueue<DemoPolygon*> polygons;
 };
 
 #endif

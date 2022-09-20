@@ -58,8 +58,8 @@ private:
     bool rightPressed = false;
     bool middlePressed = false;
 
-    double posX = 0.5;
-    double posY = 0.5;
+    double posX = 0;
+    double posY = 0;
 };
 
 #endif

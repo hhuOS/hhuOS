@@ -50,7 +50,7 @@ public:
 
 private:
 
-    MouseCursor cursor;
+    MouseCursor *cursor = new MouseCursor();
 };
 
 #endif

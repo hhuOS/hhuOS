@@ -49,7 +49,7 @@ public:
     void keyPressed(char c) override;
 
     static const constexpr uint32_t NUM_CUBES = 4;
-    Cube cubes[NUM_CUBES] = {{-0.5, 0.5, 0.25}, {0.5, 0.5, 0.25}, {0.5, -0.5, 0.25}, {-0.5, -0.5, 0.25}};
+    Cube *cubes[NUM_CUBES] = {new Cube(-0.5, 0.5, 0.25), new Cube(0.5, 0.5, 0.25), new Cube(0.5, -0.5, 0.25), new Cube(-0.5, -0.5, 0.25)};
 
     const double angleX;
     const double angleY;

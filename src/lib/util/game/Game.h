@@ -49,7 +49,7 @@ public:
     /**
      * Destructor.
      */
-    virtual ~Game() = default;
+    virtual ~Game();
 
     [[nodiscard]] bool isRunning() const;
 
@@ -65,9 +65,9 @@ public:
 
 protected:
 
-    void addObject(Drawable &drawable);
+    void addObject(Drawable *drawable);
 
-    void removeObject(Drawable &drawable);
+    void removeObject(Drawable *drawable);
 
     void setKeyListener(KeyListener &listener);
 

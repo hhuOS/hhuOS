@@ -19,7 +19,7 @@
 #include "lib/util/stream/PrintWriter.h"
 
 CubeDemo::CubeDemo(uint32_t speed) : angleX(DEFAULT_ANGLE_X * speed), angleY(DEFAULT_ANGLE_Y * speed), angleZ(DEFAULT_ANGLE_Z * speed) {
-    for (auto &cube : cubes) {
+    for (auto *cube : cubes) {
         addObject(cube);
     }
 
@@ -28,7 +28,7 @@ CubeDemo::CubeDemo(uint32_t speed) : angleX(DEFAULT_ANGLE_X * speed), angleY(DEF
 
 void CubeDemo::update(double delta) {
     for (auto &cube : cubes) {
-        cube.rotate(angleX * delta, angleY * delta, angleZ * delta);
+        cube->rotate(angleX * delta, angleY * delta, angleZ * delta);
     }
 }
 

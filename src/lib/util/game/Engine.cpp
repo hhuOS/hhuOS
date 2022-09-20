@@ -79,7 +79,7 @@ void Engine::drawStatus() {
 
     auto color = graphics.getColor();
     graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringSmall(-1, 1, status);
+    graphics.drawStringSmall(-1, 1, status + Memory::String::format(", Objects: %u", game.getObjectCount()));
     graphics.setColor(color);
 }
 

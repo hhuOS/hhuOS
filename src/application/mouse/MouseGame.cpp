@@ -22,7 +22,7 @@ void MouseGame::update(double delta) {}
 MouseGame::MouseGame() {
     addObject(cursor);
     setKeyListener(*this);
-    setMouseListener(cursor);
+    setMouseListener(*cursor);
 }
 
 void MouseGame::keyPressed(char c) {

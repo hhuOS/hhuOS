@@ -19,7 +19,7 @@ const Util::Data::Array<const Util::Data::Array<double>*> DemoPolygonFactory::yS
       &yShape1, &yShape2, &yShape3, &yShape4, &yShape5
 });
 
-DemoPolygon DemoPolygonFactory::createPolygon() {
+DemoPolygon* DemoPolygonFactory::createPolygon() {
     const auto shape = static_cast<uint32_t>(random.nextRandomNumber() * xShapes.length());
     const auto scaleFactor = random.nextRandomNumber() * 0.5 + 0.1;
     const auto rotationSpeed = random.nextRandomNumber() * 2 - 1.0;
@@ -30,8 +30,8 @@ DemoPolygon DemoPolygonFactory::createPolygon() {
     const auto &x = *xShapes[shape];
     const auto &y = *yShapes[shape];
 
-    auto polygon = DemoPolygon(x, y, color, rotationSpeed, scaleSpeed);
-    polygon.scale(scaleFactor);
-    polygon.translate(translateX, translateY);
+    auto *polygon = new DemoPolygon(x, y, color, rotationSpeed, scaleSpeed);
+    polygon->scale(scaleFactor);
+    polygon->translate(translateX, translateY);
     return polygon;
 }
