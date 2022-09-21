@@ -36,7 +36,7 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
     auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
-            return false;
+            return lock.releaseAndReturn(false);
         }
     }
 
@@ -44,7 +44,7 @@ bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memor
     auto *driver = INSTANCE_FACTORY_CREATE_INSTANCE(PhysicalDriver, driverName);
     if (driver == nullptr || !driver->mount(device)) {
         delete driver;
-        return false;
+        return lock.releaseAndReturn(false);
     }
 
     if (mountPoints.containsKey(parsedPath)) {
@@ -64,7 +64,7 @@ bool Filesystem::mountVirtualDriver(const Util::Memory::String &targetPath, Virt
     auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (mountPoints.size() != 0) {
-            return false;
+            return lock.releaseAndReturn(false);
         }
     }
 
@@ -95,7 +95,7 @@ bool Filesystem::unmount(const Util::Memory::String &path) {
     auto *targetNode = getNode(parsedPath);
     if (targetNode == nullptr) {
         if (path != "/") {
-            return false;
+            return lock.releaseAndReturn(false);
         }
     }
 
