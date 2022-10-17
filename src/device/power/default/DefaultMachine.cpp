@@ -20,7 +20,7 @@
 
 namespace Device {
 
-DefaultMachine::DefaultMachine() : qemuShutdownPort(QEMU_DEBUG_EXIT_PORT), keyboardControlPort(KEYBOARD_CONTROL_PORT) {}
+DefaultMachine::DefaultMachine() {}
 
 void DefaultMachine::shutdown() {
     qemuShutdownPort.writeWord(0x1797);

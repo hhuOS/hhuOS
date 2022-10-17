@@ -79,7 +79,7 @@ enum class Architecture : uint8_t {
 };
 
 enum class ByteOrder : uint8_t {
-    LITTLE_ENDIAN        = 0x01
+    LITTLE_END        = 0x01
 };
 
 enum class RelocationType : uint8_t {

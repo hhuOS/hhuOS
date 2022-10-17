@@ -15,48 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Constants.h"
+#include "FirmwareConfigurationDriver.h"
+#include "FirmwareConfigurationNode.h"
 
-namespace Util::File::Elf::Constants {
+namespace Filesystem::Qemu {
 
-bool FileHeader::isValid() {
-    if (magic[0] != 0x7F ||
-        magic[1] != 'E' ||
-        magic[2] != 'L' ||
-        magic[3] != 'F') {
-        return false;
+FirmwareConfigurationDriver::FirmwareConfigurationDriver(Device::FirmwareConfiguration &device) {
+    for (const auto &file : device.getFiles()) {
+        auto tokens = Util::Memory::String(file.name).split("/");
+
+        Util::Memory::String path = "/";
+        for (uint32_t i = 0; i < tokens.length() - 1; i++) {
+            addNode(path, new Memory::MemoryDirectoryNode(tokens[i]));
+            path += tokens[i] + "/";
+        }
+
+        addNode(path, new FirmwareConfigurationNode(tokens[tokens.length() - 1], file, device));
     }
-
-    if (architecture != Architecture::BIT_32) {
-        return false;
-    }
-
-    if (byteOrder != ByteOrder::LITTLE_END) {
-        return false;
-    }
-
-    return machine == MachineType::X86;
-
 }
 
-bool FileHeader::hasProgramEntries() const {
-    return programHeaderEntries != 0;
+bool FirmwareConfigurationDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
+    return false;
 }
 
-uint32_t RelocationEntry::getSymbolIndex() const {
-    return (uint32_t) (info >> 8U);
-}
-
-RelocationType RelocationEntry::getType() const {
-    return RelocationType(info & 0xFFU);
-}
-
-SymbolBinding SymbolEntry::getSymbolBinding() const {
-    return SymbolBinding(info >> 4U);
-}
-
-SymbolType SymbolEntry::getSymbolType() const {
-    return SymbolType(info & 0x0FU);
+bool FirmwareConfigurationDriver::deleteNode(const Util::Memory::String &path) {
+    return false;
 }
 
 }

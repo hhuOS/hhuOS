@@ -15,48 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Constants.h"
+#include "FirmwareConfigurationNode.h"
 
-namespace Util::File::Elf::Constants {
+namespace Filesystem::Qemu {
 
-bool FileHeader::isValid() {
-    if (magic[0] != 0x7F ||
-        magic[1] != 'E' ||
-        magic[2] != 'L' ||
-        magic[3] != 'F') {
-        return false;
-    }
+FirmwareConfigurationNode::FirmwareConfigurationNode(const Util::Memory::String &name, const Device::FirmwareConfiguration::File &file,
+     Device::FirmwareConfiguration &device) : Memory::MemoryNode(name), file(file), device(device) {}
 
-    if (architecture != Architecture::BIT_32) {
-        return false;
-    }
-
-    if (byteOrder != ByteOrder::LITTLE_END) {
-        return false;
-    }
-
-    return machine == MachineType::X86;
-
+uint64_t FirmwareConfigurationNode::getLength() {
+    return file.size;
 }
 
-bool FileHeader::hasProgramEntries() const {
-    return programHeaderEntries != 0;
+uint64_t FirmwareConfigurationNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return device.readFile(file, targetBuffer, pos, numBytes);
 }
 
-uint32_t RelocationEntry::getSymbolIndex() const {
-    return (uint32_t) (info >> 8U);
-}
-
-RelocationType RelocationEntry::getType() const {
-    return RelocationType(info & 0xFFU);
-}
-
-SymbolBinding SymbolEntry::getSymbolBinding() const {
-    return SymbolBinding(info >> 4U);
-}
-
-SymbolType SymbolEntry::getSymbolType() const {
-    return SymbolType(info & 0x0FU);
+uint64_t FirmwareConfigurationNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return device.writeFile(file, sourceBuffer, pos, numBytes);
 }
 
 }

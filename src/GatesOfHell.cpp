@@ -59,6 +59,7 @@
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
 #include "device/debug/FirmwareConfiguration.h"
+#include "filesystem/qemu/FirmwareConfigurationDriver.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -110,8 +111,6 @@ void GatesOfHell::enter() {
     mountDevices();
 
     printBanner();
-
-    Device::FirmwareConfiguration::isAvailable();
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
@@ -255,6 +254,13 @@ void GatesOfHell::initializeFilesystem() {
 
         filesystemService.createDirectory("/initrd");
         filesystemService.getFilesystem().mountVirtualDriver("/initrd", tarDriver);
+    }
+
+    if (Device::FirmwareConfiguration::isAvailable()) {
+        auto *fwCfg = new Device::FirmwareConfiguration();
+        auto *qemuDriver = new Filesystem::Qemu::FirmwareConfigurationDriver(*fwCfg);
+        filesystemService.createDirectory("/qemu");
+        filesystemService.getFilesystem().mountVirtualDriver("/qemu", qemuDriver);
     }
 }
 

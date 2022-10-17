@@ -15,47 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DEFAULTMACHINE_H
-#define HHUOS_DEFAULTMACHINE_H
+#ifndef HHUOS_FIRMWARECONFIGURATIONDRIVER_H
+#define HHUOS_FIRMWARECONFIGURATIONDRIVER_H
 
-#include "device/cpu/IoPort.h"
-#include "device/power/Machine.h"
+#include "filesystem/core/Driver.h"
+#include "device/debug/FirmwareConfiguration.h"
+#include "filesystem/memory/MemoryDriver.h"
 
-namespace Device {
+namespace Filesystem::Qemu {
 
-class DefaultMachine : public Machine {
+class FirmwareConfigurationDriver : public Memory::MemoryDriver {
 
 public:
     /**
      * Default Constructor.
      */
-    DefaultMachine();
+    explicit FirmwareConfigurationDriver(Device::FirmwareConfiguration &device);
 
     /**
      * Copy Constructor.
      */
-    DefaultMachine(const DefaultMachine &other) = delete;
+    FirmwareConfigurationDriver(const FirmwareConfigurationDriver &other) = delete;
 
     /**
      * Assignment operator.
      */
-    DefaultMachine &operator=(const DefaultMachine &other) = delete;
+    FirmwareConfigurationDriver &operator=(const FirmwareConfigurationDriver &other) = delete;
 
     /**
      * Destructor.
      */
-    ~DefaultMachine() override = default;
+    ~FirmwareConfigurationDriver() override = default;
 
-    void shutdown() override;
+    /**
+     * Overriding virtual function from VirtualDriver.
+     */
+    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
 
-    void reboot() override;
-
-private:
-
-    const IoPort qemuShutdownPort = IoPort(0x501);
-    const IoPort keyboardControlPort = IoPort(0x64);
-
-    static const constexpr uint16_t CPU_RESET_CODE = 0xfe;
+    /**
+     * Overriding virtual function from VirtualDriver.
+     */
+    bool deleteNode(const Util::Memory::String &path) override;
 };
 
 }

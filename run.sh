@@ -28,8 +28,8 @@ readonly CONST_QEMU_BIOS_IA32_EFI="bios/ovmf/ia32/OVMF.fd"
 readonly CONST_QEMU_BIOS_X64_EFI="bios/ovmf/x64/OVMF.fd"
 readonly CONST_QEMU_DEFAULT_BOOT_DEVICE="-drive driver=raw,node-name=boot,file.driver=file,file.filename=hhuOS.img"
 readonly CONST_QEMU_STORAGE_ARGS="-drive driver=raw,index=0,if=floppy,file=floppy0.img -drive driver=raw,node-name=hdd0,file.driver=file,file.filename=hdd0.img"
+readonly CONST_QEMU_FIRMWARE_CONFIGURATION_ARGS="-fw_cfg name=opt/books/alice.txt,file=floppy0/img/books/alice.txt -fw_cfg name=opt/bin/hello,file=floppy0/img/bin/hello"
 readonly CONST_QEMU_ARGS="-boot d -vga std -monitor stdio -rtc base=localtime -device isa-debug-exit"
-
 readonly CONST_QEMU_OLD_AUDIO_ARGS="-soundhw pcspk"
 readonly CONST_QEMU_NEW_AUDIO_ARGS="-audiodev id=pa,driver=pa -machine pcspk-audiodev=pa"
 
@@ -42,6 +42,7 @@ QEMU_CPU_OVERWRITE="false"
 QEMU_BOOT_DEVICE="${CONST_QEMU_DEFAULT_BOOT_DEVICE}"
 QEMU_STORAGE_ARGS="${CONST_QEMU_STORAGE_ARGS}"
 QEMU_AUDIO_ARGS="${CONST_QEMU_NEW_AUDIO_ARGS}"
+QEMU_FIRMWARE_CONFIGURATION_ARGS="${CONST_QEMU_FIRMWARE_CONFIGURATION_ARGS}"
 QEMU_ARGS="${CONST_QEMU_ARGS}"
 
 QEMU_GDB_PORT=""
@@ -245,7 +246,7 @@ run_qemu() {
     command="${command} -bios ${QEMU_BIOS}"
   fi
 
-  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS} ${QEMU_BOOT_DEVICE} ${QEMU_STORAGE_ARGS} ${QEMU_AUDIO_ARGS}"
+  command="${command} -m ${QEMU_RAM} -cpu ${QEMU_CPU} ${QEMU_ARGS} ${QEMU_BOOT_DEVICE} ${QEMU_STORAGE_ARGS} ${QEMU_AUDIO_ARGS} ${QEMU_FIRMWARE_CONFIGURATION_ARGS}"
   
   printf "Running: %s\\n" "${command}"
 
