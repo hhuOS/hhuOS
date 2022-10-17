@@ -51,14 +51,12 @@ public:
     static const constexpr uint32_t NUM_CUBES = 4;
     Cube *cubes[NUM_CUBES] = {new Cube(-0.5, 0.5, 0.25), new Cube(0.5, 0.5, 0.25), new Cube(0.5, -0.5, 0.25), new Cube(-0.5, -0.5, 0.25)};
 
-    const double angleX;
-    const double angleY;
-    const double angleZ;
+    int32_t speed;
 
     // Rotation angles
-    static const constexpr double DEFAULT_ANGLE_X = 0.01;
-    static const constexpr double DEFAULT_ANGLE_Y = 0.0075;
-    static const constexpr double DEFAULT_ANGLE_Z = 0.005;
+    static const constexpr double ANGLE_X = 0.01;
+    static const constexpr double ANGLE_Y = 0.0075;
+    static const constexpr double ANGLE_Z = 0.005;
 };
 
 #endif
