@@ -21,12 +21,13 @@
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "lib/util/async/Thread.h"
+#include "device/debug/FirmwareConfiguration.h"
 
 namespace Device {
 
 Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
 
-Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Stream::FilterInputStream(inputStream) {
+Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Stream::FilterInputStream(inputStream), qemuMode(FirmwareConfiguration::isAvailable()) {
     outputStream.connect(inputStream);
 }
 
@@ -164,8 +165,14 @@ void Mouse::trigger(const Kernel::InterruptFrame &frame) {
 
             // Write data: 1. button mask, 2. relative x-movement, 3. relative y-movement (inverted)
             outputStream.write(flags & 0x07);
-            outputStream.write(dx);
-            outputStream.write(-dy);
+
+            if (qemuMode) {
+                outputStream.write(dy);
+                outputStream.write(-dx);
+            } else {
+                outputStream.write(dx);
+                outputStream.write(-dy);
+            }
 
             // Reset cycle
             cycle = 1;

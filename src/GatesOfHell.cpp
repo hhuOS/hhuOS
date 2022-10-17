@@ -51,7 +51,6 @@
 #include "filesystem/memory/NullNode.h"
 #include "filesystem/memory/ZeroNode.h"
 #include "filesystem/memory/RandomNode.h"
-#include "kernel/service/ProcessService.h"
 #include "filesystem/process/ProcessDriver.h"
 #include "device/hid/Mouse.h"
 #include "device/hid/Ps2Controller.h"
@@ -59,6 +58,7 @@
 #include "filesystem/memory/MountsNode.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
+#include "device/debug/FirmwareConfiguration.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -110,6 +110,8 @@ void GatesOfHell::enter() {
     mountDevices();
 
     printBanner();
+
+    Device::FirmwareConfiguration::isAvailable();
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
