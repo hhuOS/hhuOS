@@ -32,6 +32,8 @@ bool TerminalNode::control(uint32_t request, const Util::Data::Array<uint32_t> &
         case Util::Graphic::Terminal::Command::SET_CURSOR:
             terminal->setCursor(parameters[0]);
             return true;
+        case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
+            terminal->setAnsiParsing(parameters[0]);
         default:
             return false;
     }

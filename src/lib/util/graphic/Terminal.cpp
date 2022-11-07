@@ -27,6 +27,11 @@ Terminal::Terminal(uint16_t columns, uint16_t rows) : outputStream(*this), colum
 }
 
 void Terminal::write(uint8_t c) {
+    if (!ansiParsing) {
+        putChar(c, foregroundColor, backgroundColor);
+        return;
+    }
+
     if (c == Ansi::ESCAPE_SEQUENCE_START) {
         isEscapeActive = true;
     } else if (c == '\t') {
@@ -382,6 +387,10 @@ void Terminal::setEcho(bool enabled) {
 
 void Terminal::setLineAggregation(bool enabled) {
     lineAggregation = enabled;
+}
+
+void Terminal::setAnsiParsing(bool enabled) {
+    ansiParsing = enabled;
 }
 
 Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}

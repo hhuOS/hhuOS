@@ -39,7 +39,8 @@ public:
     enum Command {
         SET_ECHO = 0,
         SET_LINE_AGGREGATION = 1,
-        SET_CURSOR = 2
+        SET_ANSI_PARSING = 2,
+        SET_CURSOR = 3,
     };
 
     Terminal(uint16_t columns, uint16_t rows);
@@ -75,6 +76,8 @@ public:
     void setEcho(bool enabled);
 
     void setLineAggregation(bool enabled);
+
+    void setAnsiParsing(bool enabled);
 
     virtual void setCursor(bool enabled) = 0;
 
@@ -180,6 +183,7 @@ private:
 
     bool echo = true;
     bool lineAggregation = true;
+    bool ansiParsing = true;
 
     const uint16_t columns;
     const uint16_t rows;
