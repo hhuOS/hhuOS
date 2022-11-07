@@ -134,7 +134,7 @@ private:
         /**
          * Assignment operator.
          */
-        KeyboardRunnable& operator=(const KeyboardRunnable & other) = delete;
+        KeyboardRunnable& operator=(const KeyboardRunnable &other) = delete;
 
         /**
          * Destructor.

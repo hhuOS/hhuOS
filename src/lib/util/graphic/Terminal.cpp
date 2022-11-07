@@ -396,7 +396,7 @@ void Terminal::setAnsiParsing(bool enabled) {
 Terminal::TerminalPipedOutputStream::TerminalPipedOutputStream(Terminal &terminal) : terminal(terminal) {}
 
 void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
-    if (c == '\b') {
+    if (terminal.ansiParsing && c == '\b') {
         if (!lineBufferStream.isEmpty()) {
             auto column = terminal.getCurrentColumn();
             auto row = terminal.getCurrentRow();

@@ -80,6 +80,26 @@ public:
      */
     ~Ansi() = default;
 
+    static void enableEcho();
+
+    static void disableEcho();
+
+    static void enableLineAggregation();
+
+    static void disableLineAggregation();
+
+    static void enableCursor();
+
+    static void disableCursor();
+
+    static void enableAnsiParsing();
+
+    static void disableAnsiParsing();
+
+    static void prepareGraphicalApplication();
+
+    static void cleanupGraphicalApplication();
+
     static Memory::String foreground8BitColor(uint8_t colorIndex);
 
     static Memory::String background8BitColor(uint8_t colorIndex);
@@ -87,10 +107,6 @@ public:
     static Memory::String foreground24BitColor(const Graphic::Color &color);
 
     static Memory::String background24BitColor(const Graphic::Color &color);
-
-    static void prepareGraphicalApplication();
-
-    static void cleanupGraphicalApplication();
 
     static void setForegroundColor(Color color, bool bright);
 
@@ -110,7 +126,7 @@ public:
 
     static void resetColorsAndEffects();
 
-    static void setPosition(CursorPosition position);
+    static void setPosition(const CursorPosition &position);
 
     static void moveCursorUp(uint16_t lines);
 

@@ -18,6 +18,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/system/System.h"
 #include "lib/util/async/Process.h"
+#include "lib/util/graphic/Terminal.h"
 #include "Shell.h"
 
 Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
@@ -31,7 +32,8 @@ void Shell::run() {
     beginCommandLine();
 
     while (isRunning) {
-        parseInput(readLine());
+        readLine();
+        parseInput();
         if (isRunning) {
             beginCommandLine();
         }
@@ -39,43 +41,107 @@ void Shell::run() {
 }
 
 void Shell::beginCommandLine() {
+    currentLine = "";
     auto currentDirectory = Util::File::getCurrentWorkingDirectory();
+
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
                       << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::flush;
+
+    startPosition = Util::Graphic::Ansi::getCursorPosition();
 }
 
-Util::Memory::String Shell::readLine() const {
-    Util::Memory::String line;
+void Shell::readLine() {
+    Util::Graphic::Ansi::disableAnsiParsing();
+    Util::Graphic::Ansi::disableLineAggregation();
+    Util::Graphic::Ansi::disableEcho();
+
     char input = Util::System::in.read();
 
     while (isRunning && input != '\n') {
-        if (input >= 0x20) {
-            line += input;
+        if (input == Util::Graphic::Ansi::ESCAPE_SEQUENCE_START) {
+            isEscapeActive = true;
         }
+
+        if (isEscapeActive) {
+            currentEscapeSequence += input;
+
+            if (escapeEndCodes.contains(input)) {
+                switch (input) {
+                    case 'A':
+                        handleUpKey();
+                        break;
+                    case 'B':
+                        handleDownKey();
+                        break;
+                    case 'C':
+                        handleRightKey();
+                        break;
+                    case 'D':
+                        handleLeftKey();
+                        break;
+                    default:
+                        Util::Graphic::Ansi::enableAnsiParsing();
+                        Util::System::out << currentEscapeSequence << Util::Stream::PrintWriter::flush;
+                        Util::Graphic::Ansi::disableAnsiParsing();
+                }
+
+                isEscapeActive = false;
+                currentEscapeSequence = "";
+            }
+        } else if (input == '\b') {
+            if (currentLine.length() > 0) {
+                currentLine = currentLine.substring(0, currentLine.length() - 1);
+                Util::Graphic::Ansi::enableAnsiParsing();
+
+                auto position = Util::Graphic::Ansi::getCursorPosition();
+                auto limits = Util::Graphic::Ansi::getCursorLimits();
+
+                if (position.column == 0) {
+                    position.row = position.row == 0 ? 0 : position.row - 1;
+                    position.column = limits.column;
+                    Util::Graphic::Ansi::setPosition(position);
+                    Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+                    Util::Graphic::Ansi::setPosition(position);
+                } else {
+                    Util::Graphic::Ansi::moveCursorLeft(1);
+                    Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+                    Util::Graphic::Ansi::moveCursorLeft(1);
+                }
+
+                Util::Graphic::Ansi::disableAnsiParsing();
+            }
+        } else if (input >= 0x20) {
+            currentLine += input;
+            Util::System::out << input << Util::Stream::PrintWriter::flush;
+        }
+
         input = Util::System::in.read();
     }
 
-    return line.strip();
+    Util::Graphic::Ansi::enableAnsiParsing();
+    Util::Graphic::Ansi::enableLineAggregation();
+    Util::Graphic::Ansi::enableEcho();
+
+    currentLine = currentLine.strip();
+    Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
-void Shell::parseInput(const Util::Memory::String &input) {
-    const auto async = input.endsWith("&");
-    const auto pipeSplit = input.substring(0, async ? input.length() - 1 : input.length()).split(">");
+void Shell::parseInput() {
+    const auto async = currentLine.endsWith("&");
+    const auto pipeSplit = currentLine.substring(0, async ? currentLine.length() - 1 : currentLine.length()).split(">");
     if (pipeSplit.length() == 0) {
         return;
     }
 
-    const auto command = pipeSplit[0].substring(0, input.indexOf(" "));
-    const auto rest = pipeSplit[0].substring(input.indexOf(" "), input.length());
+    const auto command = pipeSplit[0].substring(0, currentLine.indexOf(" "));
+    const auto rest = pipeSplit[0].substring(currentLine.indexOf(" "), currentLine.length());
     auto arguments = rest.split(" ");
 
     const auto targetFile = pipeSplit.length() == 1 ? "/device/terminal" : pipeSplit[1].split(" ")[0];
 
-    if (command.isEmpty()) {
-        return;
-    } else if (command == "cd") {
+    if (command == "cd") {
         cd(arguments);
     } else if (command == "exit") {
         isRunning = false;
@@ -87,6 +153,12 @@ void Shell::parseInput(const Util::Memory::String &input) {
             executeBinary(binaryPath, command, arguments, targetFile, async);
         }
     }
+
+    if (!currentLine.isEmpty() && (history.isEmpty() || currentLine != history.get(history.size() - 1))) {
+        history.add(currentLine);
+    }
+
+    historyIndex = history.size();
 }
 
 Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const {
@@ -165,8 +237,68 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
         return;
     }
 
+    Util::Graphic::Ansi::enableAnsiParsing();
+    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
+
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
         process.join();
     }
+}
+
+void Shell::handleUpKey() {
+    if (history.isEmpty()) {
+        return;
+    }
+
+    Util::Graphic::Ansi::enableAnsiParsing();
+    while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
+        Util::Graphic::Ansi::clearLine();
+        Util::Graphic::Ansi::moveCursorUp(1);
+    }
+
+    Util::Graphic::Ansi::setPosition(startPosition);
+    Util::Graphic::Ansi::clearLineFromCursor();
+    Util::Graphic::Ansi::disableAnsiParsing();
+
+    historyIndex = historyIndex == 0 ? 0 : historyIndex - 1;
+    auto historyLine = history.get(historyIndex);
+    Util::System::out << historyLine << Util::Stream::PrintWriter::flush;
+    currentLine = historyLine;
+}
+
+void Shell::handleDownKey() {
+    if (history.isEmpty()) {
+        return;
+    }
+
+    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING,{true});
+    while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
+        Util::Graphic::Ansi::clearLine();
+        Util::Graphic::Ansi::moveCursorUp(1);
+    }
+
+    Util::Graphic::Ansi::setPosition(startPosition);
+    Util::Graphic::Ansi::clearLineFromCursor();
+    Util::Graphic::Ansi::disableAnsiParsing();
+
+    if (historyIndex >= history.size() - 1 || history.size() == 1) {
+        historyIndex = history.size();
+        currentLine = "";
+        return;
+    }
+
+    historyIndex = historyIndex == history.size() - 1 ? history.size() - 1 : historyIndex + 1;
+    auto historyLine = history.get(historyIndex);
+    Util::System::out << historyLine << Util::Stream::PrintWriter::flush;
+    currentLine = historyLine;
+}
+
+void Shell::handleLeftKey() {
+
+}
+
+void Shell::handleRightKey() {
+
 }

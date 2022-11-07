@@ -148,6 +148,50 @@ const Graphic::Color Ansi::colorTable256[256] = {
         Graphic::Color(218, 218, 218), Graphic::Color(228, 228, 228), Graphic::Color(238, 238, 238)
 };
 
+void Ansi::enableEcho() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
+}
+
+void Ansi::disableEcho() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
+}
+
+void Ansi::enableLineAggregation() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+}
+
+void Ansi::disableLineAggregation() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
+}
+
+void Ansi::enableCursor() {
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
+}
+
+void Ansi::disableCursor() {
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
+}
+
+void Ansi::enableAnsiParsing() {
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
+}
+
+void Ansi::disableAnsiParsing() {
+    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {false});
+}
+
+void Ansi::prepareGraphicalApplication() {
+    disableEcho();
+    disableCursor();
+    disableLineAggregation();
+}
+
+void Ansi::cleanupGraphicalApplication() {
+    enableEcho();
+    enableCursor();
+    enableLineAggregation();
+}
+
 Memory::String Ansi::foreground8BitColor(uint8_t colorIndex) {
     return Memory::String::format("\u001b[38;5;%um", colorIndex);
 }
@@ -162,18 +206,6 @@ Memory::String Ansi::foreground24BitColor(const Graphic::Color &color) {
 
 Memory::String Ansi::background24BitColor(const Graphic::Color &color) {
     return Memory::String::format("\u001b[48;2;%u;%u;%um", color.getRed(), color.getGreen(), color.getBlue());
-}
-
-void Ansi::prepareGraphicalApplication() {
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {false});
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {false});
-    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {false});
-}
-
-void Ansi::cleanupGraphicalApplication() {
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_LINE_AGGREGATION, {true});
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::SET_ECHO, {true});
-    File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_CURSOR, {true});
 }
 
 void Ansi::setForegroundColor(Color color, bool bright) {
@@ -212,7 +244,7 @@ void Ansi::resetColorsAndEffects() {
     System::out << "\u001b[0m" << Stream::PrintWriter::flush;
 }
 
-void Ansi::setPosition(CursorPosition position) {
+void Ansi::setPosition(const CursorPosition &position) {
     System::out << "\u001b[" << Stream::PrintWriter::dec << position.row << ";" << position.column << "H" << Stream::PrintWriter::flush;
 }
 

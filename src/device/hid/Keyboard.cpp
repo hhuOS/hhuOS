@@ -318,11 +318,28 @@ void Keyboard::trigger(const Kernel::InterruptFrame &frame) {
     uint8_t data = controller.readDataByte();
     if (decodeKey(data)) {
         auto c = gather.getAscii();
-        if (gather.getCtrl()) {
-            c &= 0x1f;
-        }
+        if (c == 0) {
+            switch (gather.getScancode()) {
+                case 0x48:
+                    outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1A"), 0, 4);
+                    break;
+                case 0x50:
+                    outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
+                    break;
+                case 0x4D:
+                    outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
+                    break;
+                case 0x4B:
+                    outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
+                    break;
+            }
+        } else {
+            if (gather.getCtrl()) {
+                c &= 0x1f;
+            }
 
-        outputStream.write(c);
+            outputStream.write(c);
+        }
     }
 }
 

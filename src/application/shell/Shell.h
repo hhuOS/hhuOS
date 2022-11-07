@@ -24,6 +24,7 @@
 #include "lib/util/stream/OutputStream.h"
 #include "lib/util/stream/Reader.h"
 #include "lib/util/file/File.h"
+#include "lib/util/data/ArrayList.h"
 
 class Shell : public Util::Async::Runnable {
 
@@ -52,15 +53,23 @@ public:
 
 private:
 
-    [[nodiscard]] Util::Memory::String readLine() const;
+    void beginCommandLine();
 
-    void parseInput(const Util::Memory::String &input);
+    void readLine();
+
+    void handleUpKey();
+
+    void handleDownKey();
+
+    void handleLeftKey();
+
+    void handleRightKey();
+
+    void parseInput();
 
     [[nodiscard]] Util::Memory::String checkPath(const Util::Memory::String &command) const;
 
     Util::Memory::String checkDirectory(const Util::Memory::String &command, Util::File::File &directory) const;
-
-    static void beginCommandLine();
 
     static void cd(const Util::Data::Array<Util::Memory::String> &arguments);
 
@@ -68,6 +77,15 @@ private:
 
     bool isRunning = true;
     Util::Memory::String startDirectory;
+    Util::Graphic::Ansi::CursorPosition startPosition;
+    Util::Memory::String currentLine;
+
+    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
+    Util::Memory::String currentEscapeSequence;
+    bool isEscapeActive = false;
+
+    Util::Data::ArrayList<Util::Memory::String> history;
+    uint32_t historyIndex = 0;
 
     static const constexpr char *PATH = "/initrd/bin:/bin";
 };
