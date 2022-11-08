@@ -53,79 +53,42 @@ void Shell::beginCommandLine() {
 }
 
 void Shell::readLine() {
-    Util::Graphic::Ansi::disableAnsiParsing();
-    Util::Graphic::Ansi::disableLineAggregation();
-    Util::Graphic::Ansi::disableEcho();
+    int16_t input = Util::Graphic::Ansi::readChar();
 
-    char input = Util::System::in.read();
-
-    while (isRunning && input != '\n') {
-        if (input == Util::Graphic::Ansi::ESCAPE_SEQUENCE_START) {
-            isEscapeActive = true;
+    while (isRunning) {
+        switch (input) {
+            case Util::Graphic::Ansi::KEY_UP:
+                handleUpKey();
+                break;
+            case Util::Graphic::Ansi::KEY_DOWN:
+                handleDownKey();
+                break;
+            case Util::Graphic::Ansi::KEY_RIGHT:
+                handleRightKey();
+                break;
+            case Util::Graphic::Ansi::KEY_LEFT:
+                handleLeftKey();
+                break;
+            case 0x08:
+                handleBackspace();
+                break;
+            case 0x09:
+                handleTab();
+                break;
+            case 0x0a:
+                currentLine = currentLine.strip();
+                Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                return;
+            case 0x00 ... 0x06:
+            case 0x0b ... 0x19:
+                break;
+            default:
+                currentLine += static_cast<char>(input);
+                Util::System::out << static_cast<char>(input) << Util::Stream::PrintWriter::flush;
         }
 
-        if (isEscapeActive) {
-            currentEscapeSequence += input;
-
-            if (escapeEndCodes.contains(input)) {
-                switch (input) {
-                    case 'A':
-                        handleUpKey();
-                        break;
-                    case 'B':
-                        handleDownKey();
-                        break;
-                    case 'C':
-                        handleRightKey();
-                        break;
-                    case 'D':
-                        handleLeftKey();
-                        break;
-                    default:
-                        Util::Graphic::Ansi::enableAnsiParsing();
-                        Util::System::out << currentEscapeSequence << Util::Stream::PrintWriter::flush;
-                        Util::Graphic::Ansi::disableAnsiParsing();
-                }
-
-                isEscapeActive = false;
-                currentEscapeSequence = "";
-            }
-        } else if (input == '\b') {
-            if (currentLine.length() > 0) {
-                currentLine = currentLine.substring(0, currentLine.length() - 1);
-                Util::Graphic::Ansi::enableAnsiParsing();
-
-                auto position = Util::Graphic::Ansi::getCursorPosition();
-                auto limits = Util::Graphic::Ansi::getCursorLimits();
-
-                if (position.column == 0) {
-                    position.row = position.row == 0 ? 0 : position.row - 1;
-                    position.column = limits.column;
-                    Util::Graphic::Ansi::setPosition(position);
-                    Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
-                    Util::Graphic::Ansi::setPosition(position);
-                } else {
-                    Util::Graphic::Ansi::moveCursorLeft(1);
-                    Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
-                    Util::Graphic::Ansi::moveCursorLeft(1);
-                }
-
-                Util::Graphic::Ansi::disableAnsiParsing();
-            }
-        } else if (input >= 0x20) {
-            currentLine += input;
-            Util::System::out << input << Util::Stream::PrintWriter::flush;
-        }
-
-        input = Util::System::in.read();
+        input = Util::Graphic::Ansi::readChar();
     }
-
-    Util::Graphic::Ansi::enableAnsiParsing();
-    Util::Graphic::Ansi::enableLineAggregation();
-    Util::Graphic::Ansi::enableEcho();
-
-    currentLine = currentLine.strip();
-    Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 }
 
 void Shell::parseInput() {
@@ -237,7 +200,6 @@ void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::
         return;
     }
 
-    Util::Graphic::Ansi::enableAnsiParsing();
     Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
     Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
 
@@ -252,7 +214,6 @@ void Shell::handleUpKey() {
         return;
     }
 
-    Util::Graphic::Ansi::enableAnsiParsing();
     while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
         Util::Graphic::Ansi::clearLine();
         Util::Graphic::Ansi::moveCursorUp(1);
@@ -260,7 +221,6 @@ void Shell::handleUpKey() {
 
     Util::Graphic::Ansi::setPosition(startPosition);
     Util::Graphic::Ansi::clearLineFromCursor();
-    Util::Graphic::Ansi::disableAnsiParsing();
 
     historyIndex = historyIndex == 0 ? 0 : historyIndex - 1;
     auto historyLine = history.get(historyIndex);
@@ -281,7 +241,6 @@ void Shell::handleDownKey() {
 
     Util::Graphic::Ansi::setPosition(startPosition);
     Util::Graphic::Ansi::clearLineFromCursor();
-    Util::Graphic::Ansi::disableAnsiParsing();
 
     if (historyIndex >= history.size() - 1 || history.size() == 1) {
         historyIndex = history.size();
@@ -300,5 +259,30 @@ void Shell::handleLeftKey() {
 }
 
 void Shell::handleRightKey() {
+
+}
+
+void Shell::handleBackspace() {
+    if (currentLine.length() > 0) {
+        currentLine = currentLine.substring(0, currentLine.length() - 1);
+
+        auto position = Util::Graphic::Ansi::getCursorPosition();
+        auto limits = Util::Graphic::Ansi::getCursorLimits();
+
+        if (position.column == 0) {
+            position.row = position.row == 0 ? 0 : position.row - 1;
+            position.column = limits.column;
+            Util::Graphic::Ansi::setPosition(position);
+            Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+            Util::Graphic::Ansi::setPosition(position);
+        } else {
+            Util::Graphic::Ansi::moveCursorLeft(1);
+            Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+            Util::Graphic::Ansi::moveCursorLeft(1);
+        }
+    }
+}
+
+void Shell::handleTab() {
 
 }

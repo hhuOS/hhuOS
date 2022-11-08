@@ -21,6 +21,8 @@
 
 namespace Util::Graphic {
 
+const Memory::String Ansi::escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
+
 const Graphic::Color Ansi::colorTable256[256] = {
         // 16 predefined colors, matching the 4-bit ANSI colors
         Colors::BLACK, Colors::RED, Colors::GREEN, Colors::YELLOW,
@@ -192,6 +194,18 @@ void Ansi::cleanupGraphicalApplication() {
     enableLineAggregation();
 }
 
+void Ansi::enableRawMode() {
+    disableEcho();
+    disableAnsiParsing();
+    disableLineAggregation();
+}
+
+void Ansi::disableRawMode() {
+    enableEcho();
+    enableAnsiParsing();
+    enableLineAggregation();
+}
+
 Memory::String Ansi::foreground8BitColor(uint8_t colorIndex) {
     return Memory::String::format("\u001b[38;5;%um", colorIndex);
 }
@@ -330,6 +344,41 @@ Ansi::CursorPosition Ansi::getCursorLimits() {
     setPosition(position);
 
     return size;
+}
+
+int16_t Ansi::readChar() {
+    enableRawMode();
+
+    char input = System::in.read();
+    if (input == ESCAPE_SEQUENCE_START) {
+        Memory::String escapeSequence = input;
+
+        do {
+            input = System::in.read();
+            escapeSequence += input;
+        } while (!escapeEndCodes.contains(input));
+
+        disableRawMode();
+
+        switch (input) {
+            case 'A':
+                return KEY_UP;
+            case 'B':
+                return KEY_DOWN;
+            case 'C':
+                return KEY_RIGHT;
+            case 'D':
+                return KEY_LEFT;
+            default:
+                enableAnsiParsing();
+                System::out << escapeSequence << Stream::PrintWriter::flush;
+                disableAnsiParsing();
+                return readChar();
+        }
+    }
+
+    disableRawMode();
+    return input;
 }
 
 }

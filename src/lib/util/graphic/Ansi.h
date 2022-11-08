@@ -39,7 +39,7 @@ public:
         WHITE = 7,
     };
 
-    enum GraphicRendition {
+    enum GraphicRendition : uint8_t {
         NORMAL = 0,
         BRIGHT = 1,
         DIM = 2,
@@ -53,6 +53,13 @@ public:
         RESET_UNDERLINE = 24,
         RESET_BLINK = 25,
         RESET_INVERT = 27
+    };
+
+    enum Key : int16_t {
+        KEY_UP = 0x0100,
+        KEY_DOWN = 0x101,
+        KEY_RIGHT = 0x102,
+        KEY_LEFT = 0x103
     };
 
     struct CursorPosition {
@@ -100,13 +107,17 @@ public:
 
     static void cleanupGraphicalApplication();
 
-    static Memory::String foreground8BitColor(uint8_t colorIndex);
+    static void enableRawMode();
 
-    static Memory::String background8BitColor(uint8_t colorIndex);
+    static void disableRawMode();
 
-    static Memory::String foreground24BitColor(const Graphic::Color &color);
+    [[nodiscard]] static Memory::String foreground8BitColor(uint8_t colorIndex);
 
-    static Memory::String background24BitColor(const Graphic::Color &color);
+    [[nodiscard]] static Memory::String background8BitColor(uint8_t colorIndex);
+
+    [[nodiscard]] static Memory::String foreground24BitColor(const Graphic::Color &color);
+
+    [[nodiscard]] static Memory::String background24BitColor(const Graphic::Color &color);
 
     static void setForegroundColor(Color color, bool bright);
 
@@ -162,6 +173,8 @@ public:
 
     [[nodiscard]] static CursorPosition getCursorLimits();
 
+    [[nodiscard]] static int16_t readChar();
+
     static const constexpr char ESCAPE_SEQUENCE_START = 0x1b;
     static const constexpr char *RESET = "\u001b[0m";
     static const constexpr char *FOREGROUND_BLACK = "\u001b[30m";
@@ -202,6 +215,8 @@ public:
     static const Graphic::Color colorTable256[256];
 
 private:
+
+    static const Util::Memory::String escapeEndCodes;
 
 };
 

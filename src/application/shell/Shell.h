@@ -65,6 +65,10 @@ private:
 
     void handleRightKey();
 
+    void handleBackspace();
+
+    void handleTab();
+
     void parseInput();
 
     [[nodiscard]] Util::Memory::String checkPath(const Util::Memory::String &command) const;
@@ -77,12 +81,8 @@ private:
 
     bool isRunning = true;
     Util::Memory::String startDirectory;
-    Util::Graphic::Ansi::CursorPosition startPosition;
     Util::Memory::String currentLine;
-
-    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
-    Util::Memory::String currentEscapeSequence;
-    bool isEscapeActive = false;
+    Util::Graphic::Ansi::CursorPosition startPosition{};
 
     Util::Data::ArrayList<Util::Memory::String> history;
     uint32_t historyIndex = 0;
