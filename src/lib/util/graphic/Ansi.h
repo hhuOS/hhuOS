@@ -109,7 +109,7 @@ public:
 
     static void enableRawMode();
 
-    static void disableRawMode();
+    static void enableCanonicalMode();
 
     [[nodiscard]] static Memory::String foreground8BitColor(uint8_t colorIndex);
 

@@ -16,8 +16,10 @@
  */
 
 #include "lib/util/Exception.h"
-#include "Terminal.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/stream/FileWriter.h"
+#include "Terminal.h"
 
 namespace Util::Graphic {
 
@@ -32,18 +34,23 @@ void Terminal::write(uint8_t c) {
         return;
     }
 
-    if (c == Ansi::ESCAPE_SEQUENCE_START) {
-        isEscapeActive = true;
-    } else if (c == '\t') {
-        if (getCurrentColumn() + TABULATOR_SPACES >= getColumns()) {
-            setPosition(0, getCurrentRow() + 1);
-        } else {
-            setPosition(((getCurrentColumn() + TABULATOR_SPACES) / TABULATOR_SPACES) * TABULATOR_SPACES, getCurrentRow());
-        }
-
-        return;
-    } else if (c < 0x20 && c != '\n') {
-        return;
+    switch (c) {
+        case Ansi::ESCAPE_SEQUENCE_START:
+            isEscapeActive = true;
+            break;
+        case 0x07:
+            handleBell();
+            return;
+        case 0x09:
+            handleTab();
+            return;
+        case 0x00 ... 0x06:
+        case 0x08:
+        case 0x0b ... 0x1a:
+        case 0x1c ... 0x1f:
+            return;
+        default:
+            break;
     }
 
     if (isEscapeActive) {
@@ -85,6 +92,23 @@ int16_t Terminal::read() {
 
 int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) {
     return inputStream.read(targetBuffer, offset, length);
+}
+
+void Terminal::handleBell() {
+    Async::Thread::createThread("Terminal-Bell", new Async::FunctionPointerRunnable([](){
+        auto writer = Stream::FileWriter("/device/speaker");
+        writer.write("440");
+        Async::Thread::sleep(Time::Timestamp::ofMilliseconds(250));
+        writer.write("0");
+    }));
+}
+
+void Terminal::handleTab() {
+    if (getCurrentColumn() + TABULATOR_SPACES >= getColumns()) {
+        setPosition(0, getCurrentRow() + 1);
+    } else {
+        setPosition(((getCurrentColumn() + TABULATOR_SPACES) / TABULATOR_SPACES) * TABULATOR_SPACES, getCurrentRow());
+    }
 }
 
 void Terminal::parseColorEscapeSequence(const Util::Memory::String &escapeSequence) {

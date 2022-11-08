@@ -41,6 +41,8 @@ public:
         SET_LINE_AGGREGATION = 1,
         SET_ANSI_PARSING = 2,
         SET_CURSOR = 3,
+        ENABLE_RAW_MODE = 4,
+        ENABLE_CANONICAL_MODE = 5
     };
 
     Terminal(uint16_t columns, uint16_t rows);
@@ -147,6 +149,10 @@ private:
 
         Terminal &terminal;
     };
+
+    static void handleBell();
+
+    void handleTab();
 
     void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);
 

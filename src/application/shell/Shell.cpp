@@ -53,34 +53,48 @@ void Shell::beginCommandLine() {
 }
 
 void Shell::readLine() {
+    Util::Graphic::Ansi::enableRawMode();
     int16_t input = Util::Graphic::Ansi::readChar();
 
     while (isRunning) {
         switch (input) {
             case Util::Graphic::Ansi::KEY_UP:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleUpKey();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case Util::Graphic::Ansi::KEY_DOWN:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleDownKey();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case Util::Graphic::Ansi::KEY_RIGHT:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleRightKey();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case Util::Graphic::Ansi::KEY_LEFT:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleLeftKey();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case 0x08:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleBackspace();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case 0x09:
+                Util::Graphic::Ansi::enableCanonicalMode();
                 handleTab();
+                Util::Graphic::Ansi::enableRawMode();
                 break;
             case 0x0a:
                 currentLine = currentLine.strip();
                 Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                Util::Graphic::Ansi::enableCanonicalMode();
                 return;
             case 0x00 ... 0x06:
-            case 0x0b ... 0x19:
+            case 0x0b ... 0x1f:
                 break;
             default:
                 currentLine += static_cast<char>(input);
@@ -89,6 +103,8 @@ void Shell::readLine() {
 
         input = Util::Graphic::Ansi::readChar();
     }
+
+    Util::Graphic::Ansi::enableCanonicalMode();
 }
 
 void Shell::parseInput() {

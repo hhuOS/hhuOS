@@ -183,27 +183,21 @@ void Ansi::disableAnsiParsing() {
 }
 
 void Ansi::prepareGraphicalApplication() {
-    disableEcho();
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
     disableCursor();
-    disableLineAggregation();
 }
 
 void Ansi::cleanupGraphicalApplication() {
-    enableEcho();
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
     enableCursor();
-    enableLineAggregation();
 }
 
 void Ansi::enableRawMode() {
-    disableEcho();
-    disableAnsiParsing();
-    disableLineAggregation();
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
 }
 
-void Ansi::disableRawMode() {
-    enableEcho();
-    enableAnsiParsing();
-    enableLineAggregation();
+void Ansi::enableCanonicalMode() {
+    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_CANONICAL_MODE, {});
 }
 
 Memory::String Ansi::foreground8BitColor(uint8_t colorIndex) {
@@ -347,8 +341,6 @@ Ansi::CursorPosition Ansi::getCursorLimits() {
 }
 
 int16_t Ansi::readChar() {
-    enableRawMode();
-
     char input = System::in.read();
     if (input == ESCAPE_SEQUENCE_START) {
         Memory::String escapeSequence = input;
@@ -358,7 +350,7 @@ int16_t Ansi::readChar() {
             escapeSequence += input;
         } while (!escapeEndCodes.contains(input));
 
-        disableRawMode();
+        enableCanonicalMode();
 
         switch (input) {
             case 'A':
@@ -377,7 +369,6 @@ int16_t Ansi::readChar() {
         }
     }
 
-    disableRawMode();
     return input;
 }
 

@@ -34,6 +34,17 @@ bool TerminalNode::control(uint32_t request, const Util::Data::Array<uint32_t> &
             return true;
         case Util::Graphic::Terminal::Command::SET_ANSI_PARSING:
             terminal->setAnsiParsing(parameters[0]);
+            return true;
+        case Util::Graphic::Terminal::Command::ENABLE_RAW_MODE:
+            terminal->setEcho(false);
+            terminal->setAnsiParsing(false);
+            terminal->setLineAggregation(false);
+            return true;
+        case Util::Graphic::Terminal::Command::ENABLE_CANONICAL_MODE:
+            terminal->setEcho(true);
+            terminal->setAnsiParsing(true);
+            terminal->setLineAggregation(true);
+            return true;
         default:
             return false;
     }
