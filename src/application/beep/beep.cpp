@@ -77,7 +77,6 @@ int32_t main(int32_t argc, char *argv[]) {
     uint32_t passedTime = 0;
     auto songLength = calculateLength(beepFile);
 
-    Util::Graphic::Ansi::prepareGraphicalApplication();
     Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
         Util::System::in.read();
         isRunning = false;
@@ -100,6 +99,5 @@ int32_t main(int32_t argc, char *argv[]) {
 
     writer << 0 << Util::Stream::PrintWriter::flush;
     Util::Graphic::Ansi::clearLine();
-    Util::Graphic::Ansi::cleanupGraphicalApplication();
     return 0;
 }

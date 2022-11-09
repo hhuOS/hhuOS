@@ -82,6 +82,7 @@ private:
     bool isRunning = true;
     Util::Memory::String startDirectory;
     Util::Memory::String currentLine;
+    Util::Memory::String historyCurrentLine;
     Util::Graphic::Ansi::CursorPosition startPosition{};
 
     Util::Data::ArrayList<Util::Memory::String> history;

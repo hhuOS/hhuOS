@@ -230,6 +230,10 @@ void Shell::handleUpKey() {
         return;
     }
 
+    if (historyIndex == history.size()) {
+        historyCurrentLine = currentLine;
+    }
+
     while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
         Util::Graphic::Ansi::clearLine();
         Util::Graphic::Ansi::moveCursorUp(1);
@@ -258,14 +262,15 @@ void Shell::handleDownKey() {
     Util::Graphic::Ansi::setPosition(startPosition);
     Util::Graphic::Ansi::clearLineFromCursor();
 
+    Util::Memory::String historyLine;
     if (historyIndex >= history.size() - 1 || history.size() == 1) {
         historyIndex = history.size();
-        currentLine = "";
-        return;
+        historyLine = historyCurrentLine;
+    } else {
+        historyIndex = historyIndex == history.size() - 1 ? history.size() - 1 : historyIndex + 1;
+        historyLine = history.get(historyIndex);
     }
 
-    historyIndex = historyIndex == history.size() - 1 ? history.size() - 1 : historyIndex + 1;
-    auto historyLine = history.get(historyIndex);
     Util::System::out << historyLine << Util::Stream::PrintWriter::flush;
     currentLine = historyLine;
 }
