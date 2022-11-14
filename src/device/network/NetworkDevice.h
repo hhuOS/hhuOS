@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner, Hannes Feil
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -21,6 +21,7 @@
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/FilterInputStream.h"
 #include "lib/util/stream/OutputStream.h"
+#include "network/MacAddress.h"
 
 namespace Device::Network {
 
@@ -30,10 +31,6 @@ namespace Device::Network {
 class NetworkDevice : public Util::Stream::FilterInputStream, public Util::Stream::OutputStream {
 
 public:
-    struct MacAddress {
-        uint8_t address[6];
-    };
-
     /**
      * Constructor.
      */

@@ -15,24 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#include "NumberUtil.h"
 
-namespace Device::Network {
+namespace Network {
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+int16_t NumberUtil::read16BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<int16_t>((stream.read() << 8) | stream.read());
 }
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
+uint16_t NumberUtil::readUnsigned16BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<uint16_t>(read16BitValue(stream));
 }
 
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
+int32_t NumberUtil::read32BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<int32_t>((stream.read() << 24) | (stream.read() << 16) | (stream.read() << 8) | stream.read());
 }
 
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
+uint32_t NumberUtil::readUnsigned32BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<uint32_t>(read32BitValue(stream));
 }
 
 }
