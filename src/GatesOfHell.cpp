@@ -56,10 +56,12 @@
 #include "device/hid/Ps2Controller.h"
 #include "lib/util/stream/FileReader.h"
 #include "filesystem/memory/MountsNode.h"
-#include "BuildConfig.h"
-#include "GatesOfHell.h"
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
+#include "device/network/loopback/Loopback.h"
+#include "BuildConfig.h"
+#include "GatesOfHell.h"
+#include "filesystem/memory/StreamNode.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -97,11 +99,13 @@ void GatesOfHell::enter() {
 
     initializeFilesystem();
 
-    initializePs2Devices();
-
     initializePorts();
 
     initializeTerminal();
+
+    initializePs2Devices();
+
+    initializeNetwork();
 
     initializePowerManagement();
 
@@ -334,6 +338,15 @@ void GatesOfHell::initializeStorage() {
         auto *floppyController = new Device::Storage::FloppyController();
         floppyController->initializeAvailableDrives();
     }
+}
+
+void GatesOfHell::initializeNetwork() {
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto *loopback = new Device::Network::Loopback();
+    auto *loopbackNode = new Filesystem::Memory::StreamNode("loopback", loopback, loopback);
+
+    auto &deviceDriver = filesystemService.getFilesystem().getVirtualDriver("/device");
+    deviceDriver.addNode("/", loopbackNode);
 }
 
 void GatesOfHell::mountDevices() {

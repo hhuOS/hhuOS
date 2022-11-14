@@ -72,6 +72,8 @@ private:
 
     static void initializeStorage();
 
+    static void initializeNetwork();
+
     static void mountDevices();
 
     static void printBanner();

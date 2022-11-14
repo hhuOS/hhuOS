@@ -57,9 +57,9 @@ public:
 
     enum Key : int16_t {
         KEY_UP = 0x0100,
-        KEY_DOWN = 0x101,
-        KEY_RIGHT = 0x102,
-        KEY_LEFT = 0x103
+        KEY_DOWN = 0x0101,
+        KEY_RIGHT = 0x0102,
+        KEY_LEFT = 0x0103
     };
 
     struct CursorPosition {

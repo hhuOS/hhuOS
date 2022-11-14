@@ -21,7 +21,6 @@
 #include "InputStream.h"
 #include "PipedOutputStream.h"
 
-
 namespace Util::Stream {
 
 class PipedOutputStream;
