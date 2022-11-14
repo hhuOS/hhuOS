@@ -62,6 +62,8 @@
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
 #include "filesystem/memory/StreamNode.h"
+#include "network/PacketReader.h"
+#include "kernel/service/ProcessService.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -342,11 +344,18 @@ void GatesOfHell::initializeStorage() {
 
 void GatesOfHell::initializeNetwork() {
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
-    auto *loopback = new Device::Network::Loopback();
-    auto *loopbackNode = new Filesystem::Memory::StreamNode("loopback", loopback, loopback);
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
 
-    auto &deviceDriver = filesystemService.getFilesystem().getVirtualDriver("/device");
-    deviceDriver.addNode("/", loopbackNode);
+    auto *loopback = new Device::Network::Loopback();
+    auto *packetReader = new Network::PacketReader(loopback);
+    auto &thread = Kernel::Thread::createKernelThread("loopback", processService.getKernelProcess(), packetReader);
+    schedulerService.ready(thread);
+
+    auto arpPacket = "\x00\x50\x56\xb4\x63\x93\x90\x1b\x0e\x9a\xc7\x07\x08\x06\x00\x01" \
+                                "\x08\x00\x06\x04\x00\x01\x90\x1b\x0e\x9a\xc7\x07\xc0\xa8\x05\x29" \
+                                "\x00\x00\x00\x00\x00\x00\xc0\xa8\x05\x09\x00\x00\x00\x00";
+    loopback->write(reinterpret_cast<const uint8_t*>(arpPacket), 0, 42);
 }
 
 void GatesOfHell::mountDevices() {

@@ -15,24 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#ifndef HHUOS_PACKETREADER_H
+#define HHUOS_PACKETREADER_H
 
-namespace Device::Network {
+#include "lib/util/async/Runnable.h"
+#include "device/network/NetworkDevice.h"
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+namespace Network {
+
+class PacketReader : public Util::Async::Runnable {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    explicit PacketReader(Device::Network::NetworkDevice *networkDevice);
+
+    /**
+     * Copy Constructor.
+     */
+    PacketReader(const PacketReader &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    PacketReader &operator=(const PacketReader &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~PacketReader() override;
+
+    void run() override;
+
+private:
+
+    Device::Network::NetworkDevice *networkDevice;
+};
+
 }
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
-}
-
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
-}
-
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
-}
-
-}
+#endif

@@ -15,24 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#include "PacketReader.h"
+#include "network/ethernet/EthernetFrame.h"
 
-namespace Device::Network {
+namespace Network {
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+PacketReader::PacketReader(Device::Network::NetworkDevice *networkDevice) : networkDevice(networkDevice) {}
+
+void PacketReader::run() {
+    while (true) {
+        auto packet = Ethernet::EthernetFrame();
+        packet.read(*networkDevice);
+    }
 }
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
-}
-
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
-}
-
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
+PacketReader::~PacketReader() {
+    delete networkDevice;
 }
 
 }

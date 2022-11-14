@@ -15,24 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#ifndef HHUOS_UTIL_H
+#define HHUOS_UTIL_H
 
-namespace Device::Network {
+#include "lib/util/stream/InputStream.h"
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+namespace Network {
+
+class NumberUtil {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    NumberUtil() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    NumberUtil(const NumberUtil &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    NumberUtil &operator=(const NumberUtil &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~NumberUtil() = default;
+
+    static int16_t read16BitValue(Util::Stream::InputStream &stream);
+
+    static uint16_t readUnsigned16BitValue(Util::Stream::InputStream &stream);
+
+    static int32_t read32BitValue(Util::Stream::InputStream &stream);
+
+    static uint32_t readUnsigned32BitValue(Util::Stream::InputStream &stream);
+};
+
 }
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
-}
-
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
-}
-
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
-}
-
-}
+#endif

@@ -15,56 +15,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LOOPBACK_H
-#define HHUOS_LOOPBACK_H
+#ifndef HHUOS_ETHERNETFRAME_H
+#define HHUOS_ETHERNETFRAME_H
 
-#include "device/network/NetworkDevice.h"
-#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/stream/InputStream.h"
+#include "network/MacAddress.h"
+#include "kernel/log/Logger.h"
 
-namespace Device::Network {
+namespace Network::Ethernet {
 
-class Loopback : public NetworkDevice {
+class EthernetFrame {
 
 public:
+    //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
+    enum EtherType : uint16_t {
+        IP4 = 0x0800,
+        ARP = 0x0806,
+        IP6 = 0x86dd
+    };
+
     /**
      * Default Constructor.
      */
-    Loopback();
+    EthernetFrame() = default;
 
     /**
      * Copy Constructor.
      */
-    Loopback(const Loopback &other) = delete;
+    EthernetFrame(const EthernetFrame &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Loopback &operator=(const Loopback &other) = delete;
+    EthernetFrame &operator=(const EthernetFrame &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Loopback() override = default;
+    ~EthernetFrame() = default;
 
-    /**
-     * Overriding function from NetworkDevice.
-     */
-    MacAddress getMacAddress() override;
+    void read(Util::Stream::InputStream &stream);
 
-    /**
-     * Overriding function from OutputStream.
-     */
-    void write(uint8_t c) override;
+    [[nodiscard]] MacAddress getDestinationAddress() const;
 
-    /**
-     * Overriding function from OutputStream.
-     */
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+    [[nodiscard]] MacAddress getSourceAddress() const;
+
+    [[nodiscard]] EtherType getEtherType() const;
+
+    [[nodiscard]] uint32_t getCheckSequence() const;
 
 private:
 
-    Util::Stream::PipedOutputStream outputStream;
-    Util::Stream::PipedInputStream inputStream;
+    MacAddress destinationAddress{};
+    MacAddress sourceAddress{};
+    EtherType etherType{};
+    uint32_t checkSequence = 0;
+
+    static Kernel::Logger log;
 };
 
 }

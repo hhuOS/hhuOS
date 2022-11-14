@@ -15,24 +15,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#ifndef HHUOS_MACADDRESS_H
+#define HHUOS_MACADDRESS_H
 
-namespace Device::Network {
+#include <cstdint>
+#include "lib/util/stream/InputStream.h"
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
-}
+class MacAddress {
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
-}
+public:
+    struct Address {
+        uint8_t buffer[6]{};
+    };
 
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
-}
+    /**
+     * Default Constructor.
+     */
+    explicit MacAddress() = default;
 
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
-}
+    /**
+     * Constructor.
+     */
+    explicit MacAddress(uint8_t *buffer);
 
-}
+    /**
+     * Constructor.
+     */
+    explicit MacAddress(const char *buffer);
+
+    /**
+     * Copy Constructor.
+     */
+    MacAddress(const MacAddress &other) = default;
+
+    /**
+     * Assignment operator.
+     */
+    MacAddress &operator=(const MacAddress &other) = default;
+
+    /**
+     * Destructor.
+     */
+    ~MacAddress() = default;
+
+    Address getAddress();
+
+    void setAddress(uint8_t *buffer);
+
+    void readAddress(Util::Stream::InputStream &stream);
+
+private:
+
+    Address address;
+};
+
+#endif

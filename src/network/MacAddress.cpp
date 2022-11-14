@@ -15,24 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#include "MacAddress.h"
+#include "lib/util/memory/Address.h"
 
-namespace Device::Network {
-
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+MacAddress::MacAddress(uint8_t *buffer) {
+    setAddress(buffer);
 }
 
-MacAddress Loopback::getMacAddress() {
-    return MacAddress("hhuOS\0");
+MacAddress::MacAddress(const char *buffer) : MacAddress((uint8_t*) buffer) {}
+
+MacAddress::Address MacAddress::getAddress() {
+    return address;
 }
 
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
+void MacAddress::setAddress(uint8_t *buffer) {
+    auto source = Util::Memory::Address<uint32_t>(buffer);
+    auto destination = Util::Memory::Address<uint32_t>(address.buffer);
+    destination.copyRange(source, 6);
 }
 
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
-}
-
+void MacAddress::readAddress(Util::Stream::InputStream &stream) {
+    stream.read(address.buffer, 0, 6);
 }
