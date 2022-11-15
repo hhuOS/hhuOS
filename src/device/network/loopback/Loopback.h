@@ -49,7 +49,7 @@ public:
     /**
      * Overriding function from NetworkDevice.
      */
-    MacAddress getMacAddress() override;
+    ::Network::MacAddress getMacAddress() override;
 
     /**
      * Overriding function from OutputStream.

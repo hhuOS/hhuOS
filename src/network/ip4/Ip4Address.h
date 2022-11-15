@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,19 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_IP4ADDRESS_H
+#define HHUOS_IP4ADDRESS_H
 
-#include <cstdint>
 #include "lib/util/stream/InputStream.h"
 
-namespace Network {
+namespace Network::Ip4 {
 
-class MacAddress {
+class Ip4Address {
 
 public:
 
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
+    static const constexpr uint8_t ADDRESS_LENGTH = 4;
 
     struct Address {
         uint8_t buffer[ADDRESS_LENGTH]{};
@@ -36,27 +35,27 @@ public:
     /**
      * Default Constructor.
      */
-    MacAddress() = default;
+    Ip4Address() = default;
 
     /**
      * Constructor.
      */
-    explicit MacAddress(uint8_t *buffer);
+    explicit Ip4Address(uint8_t *buffer);
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other) = default;
+    Ip4Address(const Ip4Address &other) = default;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other) = default;
+    Ip4Address &operator=(const Ip4Address &other) = default;
 
     /**
      * Destructor.
      */
-    ~MacAddress() = default;
+    ~Ip4Address() = default;
 
     Address getAddress();
 

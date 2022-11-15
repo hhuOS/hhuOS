@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,24 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#include "Ip4Address.h"
+#include "lib/util/memory/Address.h"
 
-namespace Device::Network {
+namespace Network::Ip4 {
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
+Ip4Address::Ip4Address(uint8_t *buffer) {
+    setAddress(buffer);
 }
 
-::Network::MacAddress Loopback::getMacAddress() {
-    return ::Network::MacAddress((uint8_t*) "hhuOS\0");
+Ip4Address::Address Ip4Address::getAddress() {
+    return address;
 }
 
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
+void Ip4Address::setAddress(uint8_t *buffer) {
+    auto source = Util::Memory::Address<uint32_t>(buffer);
+    auto destination = Util::Memory::Address<uint32_t>(address.buffer);
+    destination.copyRange(source, ADDRESS_LENGTH);
 }
 
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
+void Ip4Address::readAddress(Util::Stream::InputStream &stream) {
+    stream.read(address.buffer, 0, ADDRESS_LENGTH);
 }
 
 }
