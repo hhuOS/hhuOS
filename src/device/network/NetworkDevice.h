@@ -56,7 +56,7 @@ public:
      *
      * @param buf The buffer to read the MAC-address into.
      */
-    virtual MacAddress getMacAddress() = 0;
+    virtual ::Network::MacAddress getMacAddress() = 0;
 
 };
 

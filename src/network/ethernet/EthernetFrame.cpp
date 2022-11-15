@@ -17,6 +17,7 @@
 
 #include "EthernetFrame.h"
 #include "network/NumberUtil.h"
+#include "network/arp/ArpFrame.h"
 
 namespace Network::Ethernet {
 
@@ -30,12 +31,17 @@ void EthernetFrame::read(Util::Stream::InputStream &stream) {
     switch (etherType) {
         case IP4:
             break;
-        case ARP:
+        case ARP: {
+            auto arpFrame = Arp::ArpFrame();
+            arpFrame.read(stream);
             break;
+        }
         case IP6:
             break;
         default:
             log.warn("Received ethernet frame with unsupported ether type %04x", etherType);
+            // TODO: Discard packet
+            return;
     }
 
     checkSequence = NumberUtil::readUnsigned32BitValue(stream);

@@ -343,7 +343,6 @@ void GatesOfHell::initializeStorage() {
 }
 
 void GatesOfHell::initializeNetwork() {
-    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
 

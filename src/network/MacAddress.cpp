@@ -18,11 +18,11 @@
 #include "MacAddress.h"
 #include "lib/util/memory/Address.h"
 
+namespace Network {
+
 MacAddress::MacAddress(uint8_t *buffer) {
     setAddress(buffer);
 }
-
-MacAddress::MacAddress(const char *buffer) : MacAddress((uint8_t*) buffer) {}
 
 MacAddress::Address MacAddress::getAddress() {
     return address;
@@ -31,9 +31,11 @@ MacAddress::Address MacAddress::getAddress() {
 void MacAddress::setAddress(uint8_t *buffer) {
     auto source = Util::Memory::Address<uint32_t>(buffer);
     auto destination = Util::Memory::Address<uint32_t>(address.buffer);
-    destination.copyRange(source, 6);
+    destination.copyRange(source, ADDRESS_LENGTH);
 }
 
 void MacAddress::readAddress(Util::Stream::InputStream &stream) {
-    stream.read(address.buffer, 0, 6);
+    stream.read(address.buffer, 0, ADDRESS_LENGTH);
+}
+
 }
