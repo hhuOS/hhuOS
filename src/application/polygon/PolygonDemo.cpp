@@ -21,7 +21,7 @@
 PolygonDemo::PolygonDemo(uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
         auto *polygon = factory.createPolygon();
-        polygons.push(polygon);
+        polygons.offer(polygon);
         addObject(polygon);
     }
 
@@ -38,13 +38,13 @@ void PolygonDemo::keyPressed(char c) {
     switch (c) {
         case '+': {
             auto *polygon = factory.createPolygon();
-            polygons.push(polygon);
+            polygons.offer(polygon);
             addObject(polygon);
             break;
         }
         case '-': {
             if (polygons.size() > 0) {
-                removeObject(polygons.pop());
+                removeObject(polygons.poll());
             }
             break;
         }

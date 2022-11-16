@@ -21,38 +21,22 @@
 
 namespace Kernel {
 
-SchedulerCleaner::SchedulerCleaner() : processBitmap(ARRAY_SIZE), threadBitmap(ARRAY_SIZE) {
-    processList = new Process *[ARRAY_SIZE];
-    threadList = new Thread *[ARRAY_SIZE];
-
-    for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
-        processList[i] = nullptr;
-        threadList[i] = nullptr;
-    }
-}
+SchedulerCleaner::SchedulerCleaner() : processQueue(16), threadQueue(16) {}
 
 SchedulerCleaner::~SchedulerCleaner() {
     SchedulerCleaner::run();
-    delete processList;
-    delete threadList;
 }
 
 void SchedulerCleaner::cleanup(Process *process) {
-    auto index = processBitmap.findAndSet();
-    if (index == Util::Memory::AtomicBitmap::INVALID_INDEX) {
+    if (!processQueue.offer(process)) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many processes to cleanup!");
     }
-
-    processList[index] = process;
 }
 
 void SchedulerCleaner::cleanup(Thread *thread) {
-    auto index = threadBitmap.findAndSet();
-    if (index == Util::Memory::AtomicBitmap::INVALID_INDEX) {
+    if (!threadQueue.offer(thread)) {
         Util::Exception::throwException(Util::Exception::OUT_OF_BOUNDS, "Too many threads to cleanup!");
     }
-
-    threadList[index] = thread;
 }
 
 void SchedulerCleaner::run() {
@@ -64,22 +48,14 @@ void SchedulerCleaner::run() {
 }
 
 void SchedulerCleaner::cleanupProcesses() {
-    for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
-        if (processBitmap.check(i, true) && processList[i] != nullptr) {
-            delete processList[i];
-            processList[i] = nullptr;
-            processBitmap.unset(i);
-        }
+    while (processQueue.size() > 0) {
+        delete processQueue.poll();
     }
 }
 
 void SchedulerCleaner::cleanupThreads() {
-    for (uint32_t i = 0; i < ARRAY_SIZE; i++) {
-        if (threadBitmap.check(i, true) && threadList[i] != nullptr) {
-            delete threadList[i];
-            threadList[i] = nullptr;
-            threadBitmap.unset(i);
-        }
+    while (threadQueue.size() > 0) {
+        delete threadQueue.poll();
     }
 }
 

@@ -28,7 +28,7 @@ bool Scheduler::fpuAvailable = Device::Fpu::isAvailable();
 
 Scheduler::~Scheduler() {
     while (!threadQueue.isEmpty()) {
-        delete threadQueue.pop();
+        delete threadQueue.poll();
     }
 }
 
@@ -48,7 +48,7 @@ void Scheduler::ready(Thread &thread) {
     }
 
     lock.acquire();
-    threadQueue.push(&thread);
+    threadQueue.offer(&thread);
     thread.getParent().addThread(thread);
     lock.release();
 }
@@ -104,8 +104,8 @@ Thread& Scheduler::getCurrentThread() {
 }
 
 Thread& Scheduler::getNextThread() {
-    Thread *thread = threadQueue.pop();
-    threadQueue.push(thread);
+    Thread *thread = threadQueue.poll();
+    threadQueue.offer(thread);
 
     return *thread;
 }
@@ -155,7 +155,7 @@ void Scheduler::block() {
 
 void Scheduler::unblock(Thread &thread) {
     lock.acquire();
-    threadQueue.push(&thread);
+    threadQueue.offer(&thread);
     lock.release();
 }
 
@@ -175,7 +175,7 @@ void Scheduler::checkSleepList() {
         for (uint32_t i = 0; i < sleepList.size(); i++) {
             const auto &entry = sleepList.get(i);
             if (systemTime >= entry.wakeupTime) {
-                threadQueue.push(entry.thread);
+                threadQueue.offer(entry.thread);
                 sleepList.remove(entry);
             }
         }

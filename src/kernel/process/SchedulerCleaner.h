@@ -19,7 +19,7 @@
 #define HHUOS_SCHEDULERCLEANER_H
 
 #include "Process.h"
-#include "lib/util/memory/AtomicBitmap.h"
+#include "lib/util/data/ArrayBlockingQueue.h"
 
 namespace Kernel {
 
@@ -58,13 +58,8 @@ private:
 
     void cleanupThreads();
 
-    Process** processList;
-    Thread** threadList;
-
-    Util::Memory::AtomicBitmap processBitmap;
-    Util::Memory::AtomicBitmap threadBitmap;
-
-    static const constexpr uint32_t ARRAY_SIZE = 1024;
+    Util::Data::ArrayBlockingQueue<Process*> processQueue;
+    Util::Data::ArrayBlockingQueue<Thread*> threadQueue;
 };
 
 }

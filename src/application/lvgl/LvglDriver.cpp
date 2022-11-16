@@ -150,7 +150,7 @@ void LvglDriver::readKeyboardInput(lv_indev_drv_t *keyboardDriver, lv_indev_data
         return;
     }
 
-    auto event = driver.keyboardEventQueue.pop();
+    auto event = driver.keyboardEventQueue.poll();
     data->key = event.key;
     data->state = event.pressed ? LV_INDEV_STATE_PRESSED : LV_INDEV_STATE_RELEASED;
     data->continue_reading = !driver.keyboardEventQueue.isEmpty();
@@ -203,8 +203,8 @@ void LvglDriver::KeyboardRunnable::run() {
         }
 
         driver.keyboardLock.acquire();
-        driver.keyboardEventQueue.push({c, true});
-        driver.keyboardEventQueue.push({c, false});
+        driver.keyboardEventQueue.offer({c, true});
+        driver.keyboardEventQueue.offer({c, false});
         driver.keyboardLock.release();
     }
 }

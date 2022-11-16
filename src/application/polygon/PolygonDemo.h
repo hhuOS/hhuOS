@@ -19,7 +19,7 @@
 #define HHUOS_POLYGONDEMO_H
 
 #include "lib/util/game/Game.h"
-#include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/data/ArrayListBlockingQueue.h"
 #include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
 
@@ -53,7 +53,7 @@ public:
 private:
 
     DemoPolygonFactory factory;
-    Util::Data::ArrayBlockingQueue<DemoPolygon*> polygons;
+    Util::Data::ArrayListBlockingQueue<DemoPolygon*> polygons;
 };
 
 #endif

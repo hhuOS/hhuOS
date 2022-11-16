@@ -18,7 +18,7 @@
 #ifndef HHUOS_SCHEDULER_H
 #define HHUOS_SCHEDULER_H
 
-#include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/data/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/time/Timestamp.h"
 #include "Thread.h"
@@ -118,7 +118,7 @@ private:
     Util::Async::Spinlock lock;
     Util::Async::Spinlock sleepLock;
 
-    Util::Data::ArrayBlockingQueue<Thread*> threadQueue;
+    Util::Data::ArrayListBlockingQueue<Thread*> threadQueue;
     Util::Data::ArrayList<SleepEntry> sleepList;
     Thread *currentThread = nullptr;
 
