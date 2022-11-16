@@ -32,9 +32,9 @@ class Queue : Collection<T> {
 
 public:
 
-    virtual void push(const T &element) = 0;
+    virtual bool offer(const T &element) = 0;
 
-    virtual T pop() = 0;
+    virtual T poll() = 0;
 
     virtual bool add(const T &element) = 0;
 

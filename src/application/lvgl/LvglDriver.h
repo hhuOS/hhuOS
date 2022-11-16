@@ -22,7 +22,7 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/data/ArrayListBlockingQueue.h"
 
 class LvglDriver {
 
@@ -152,7 +152,7 @@ private:
 
     lv_indev_drv_t keyboardDriver{};
     lv_indev_t *keyboard = nullptr;
-    Util::Data::ArrayBlockingQueue<KeyboardEvent> keyboardEventQueue;
+    Util::Data::ArrayListBlockingQueue<KeyboardEvent> keyboardEventQueue;
     Util::Async::Spinlock keyboardLock;
 
     Util::Graphic::LinearFrameBuffer &lfb;

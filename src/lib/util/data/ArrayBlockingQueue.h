@@ -1,6 +1,7 @@
 /*
- * Copyright (C) 2018 Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
- * Heinrich-Heine University
+ * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Institute of Computer Science, Department Operating Systems
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -14,19 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef __BlockingQueue_include__
-#define __BlockingQueue_include__
+#ifndef HHUOS_ARRAYQUEUE_H
+#define HHUOS_ARRAYQUEUE_H
 
 #include "Queue.h"
-#include "ArrayList.h"
 
 namespace Util::Data {
 
-/**
- * An implementation of the Queue interface.
- *
- * @author Filip Krakowski
- */
 template <typename T>
 class ArrayBlockingQueue : public Queue<T> {
 
@@ -42,9 +37,9 @@ public:
 
     ArrayBlockingQueue<T> &operator=(const ArrayBlockingQueue<T> &other) = delete;
 
-    void push(const T &element) override;
+    bool offer(const T &element) override;
 
-    T pop() override;
+    T poll() override;
 
     bool add(const T &element) override;
 
@@ -72,96 +67,133 @@ public:
 
 private:
 
-    List<T> &elements;
+    T *elements;
+    uint32_t capacity;
 
-    bool deleteList;
+    uint32_t head = 0;
+    uint32_t tail = -1;
+    uint32_t length = 0;
 
     static const uint32_t DEFAULT_CAPACITY = 16;
-
 };
 
 template<class T>
-ArrayBlockingQueue<T>::ArrayBlockingQueue() : elements(*new ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {}
+ArrayBlockingQueue<T>::ArrayBlockingQueue() : elements(new T[DEFAULT_CAPACITY]), capacity(DEFAULT_CAPACITY) {}
 
 template<class T>
-ArrayBlockingQueue<T>::ArrayBlockingQueue(uint32_t capacity) : elements(*new ArrayList<T>(DEFAULT_CAPACITY)), deleteList(true) {}
+ArrayBlockingQueue<T>::ArrayBlockingQueue(uint32_t capacity) : elements(new T[capacity]), capacity(capacity) {}
 
 template<typename T>
 ArrayBlockingQueue<T>::~ArrayBlockingQueue() {
-    if(deleteList) {
-        delete &elements;
+    delete[] elements;
+}
+
+template<class T>
+bool ArrayBlockingQueue<T>::offer(const T &element) {
+    if (length == capacity - 1) {
+        return false;
     }
+
+    tail = (tail + 1) % capacity;
+    elements[tail] = element;
+    length++;
+
+    return true;
 }
 
 template<class T>
-void ArrayBlockingQueue<T>::push(const T &element) {
-    elements.add(element);
-}
+T ArrayBlockingQueue<T>::poll() {
+    while (length == 0) {}
 
-template<class T>
-T ArrayBlockingQueue<T>::pop() {
-    while (isEmpty()) {}
-    return elements.removeIndex(0);
+    auto &element = elements[head];
+    head = (head + 1) % capacity;
+    length--;
+
+    return element;
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::add(const T &element) {
-    return elements.add(element);
+    while (!offer(element)) {}
+    return true;
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::addAll(const Collection<T> &other) {
-    return elements.addAll(other);
+    for (const auto &element : other) {
+        add(element);
+    }
+
+    return true;
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::remove(const T &element) {
-    return elements.remove(element);
+    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a specific element is not supported!");
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::removeAll(const Collection<T> &other) {
-    return elements.removeAll(other);
+    Exception::throwException(Exception::UNSUPPORTED_OPERATION, "ArrayBlockingQueue: Remove a collection of specific elements is not supported!");
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::contains(const T &element) const {
-    return elements.contains(element);
+    for (uint32_t i = head; i < tail; i++) {
+        if (elements[i] == element) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::containsAll(const Collection<T> &other) const {
-    return elements.containsAll(other);
+    for (const T &element : other) {
+        if (!contains(element)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 template<class T>
 bool ArrayBlockingQueue<T>::isEmpty() const {
-    return elements.isEmpty();
+    return length == 0;
 }
 
 template<class T>
 void ArrayBlockingQueue<T>::clear() {
-    elements.clear();
+    head = 0;
+    tail = -1;
+    length = 0;
 }
 
 template<class T>
 Iterator<T> ArrayBlockingQueue<T>::begin() const {
-    return elements.begin();
+    return Iterator<T>(toArray(), 0);
 }
 
 template<class T>
 Iterator<T> ArrayBlockingQueue<T>::end() const {
-    return elements.end();
+    return Iterator<T>(toArray(), length);
 }
 
 template<class T>
 uint32_t ArrayBlockingQueue<T>::size() const {
-    return elements.size();
+    return length;
 }
 
 template<class T>
 Array<T> ArrayBlockingQueue<T>::toArray() const {
-    return elements.toArray();
+    Array<T> array(length);
+    for (uint32_t i = head; i < tail; i++) {
+        array[i] = elements[i];
+    }
+
+    return array;
 }
 
 }
