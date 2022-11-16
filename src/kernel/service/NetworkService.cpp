@@ -15,25 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PacketReader.h"
-#include "network/ethernet/EthernetHeader.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
+#include "NetworkService.h"
 
-namespace Network {
-
-PacketReader::PacketReader(Device::Network::NetworkDevice *networkDevice) : networkDevice(networkDevice) {}
-
-void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
-
-    while (true) {
-        ethernetModule.readPacket(*networkDevice);
-    }
-}
-
-PacketReader::~PacketReader() {
-    delete networkDevice;
-}
-
+Network::Ethernet::EthernetModule& Kernel::NetworkService::getEthernetModule() {
+    return ethernetModule;
 }

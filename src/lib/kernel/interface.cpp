@@ -205,6 +205,6 @@ bool shutdown(Util::Machine::ShutdownType type) {
     return false;
 }
 
-void throwError(Util::Exception::Error error, const char *message){
+void throwError(Util::Exception::Error error, const char *message) {
     Device::Cpu::throwException(error, message);
 }

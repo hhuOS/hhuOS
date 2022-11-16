@@ -16,9 +16,25 @@
  */
 
 #include "NetworkDevice.h"
+#include "kernel/system/System.h"
+#include "kernel/service/NetworkService.h"
 
 namespace Device::Network {
 
-NetworkDevice::NetworkDevice(Util::Stream::InputStream &inputStream) : Util::Stream::FilterInputStream(inputStream) {}
+NetworkDevice::NetworkDevice() : Util::Stream::FilterInputStream(inputStream) {
+    outputStream.connect(inputStream);
+}
+
+void NetworkDevice::write(uint8_t c) {
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Network packets must be written wholly at once!");
+}
+
+void NetworkDevice::handlePacket(const uint8_t *packet, uint32_t length) {
+    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
+    if (ethernetModule.checkPacket(packet, length)) {
+        // Do not write checksum, since it has already been handled by checkPacket()
+        outputStream.write(packet, 0, length - 4);
+    }
+}
 
 }

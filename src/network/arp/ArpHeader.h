@@ -15,63 +15,74 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ETHERNETFRAME_H
-#define HHUOS_ETHERNETFRAME_H
+#ifndef HHUOS_ARPHEADER_H
+#define HHUOS_ARPHEADER_H
 
 #include "lib/util/stream/InputStream.h"
 #include "network/MacAddress.h"
+#include "network/ip4/Ip4Address.h"
 #include "kernel/log/Logger.h"
 
-namespace Network::Ethernet {
+namespace Network::Arp {
 
-class EthernetFrame {
+class ArpHeader {
 
 public:
-    //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
-    enum EtherType : uint16_t {
-        IP4 = 0x0800,
-        ARP = 0x0806,
-        IP6 = 0x86dd
+
+    enum HardwareAddressType : uint16_t {
+        ETHERNET = 0x0001
+    };
+
+    enum ProtocolAddressType : uint16_t {
+        IP4 = 0x0800
+    };
+
+    enum Operation : uint16_t {
+        REQUEST = 0x0001,
+        REPLY = 0x0002
     };
 
     /**
      * Default Constructor.
      */
-    EthernetFrame() = default;
+    ArpHeader() = default;
 
     /**
      * Copy Constructor.
      */
-    EthernetFrame(const EthernetFrame &other) = delete;
+    ArpHeader(const ArpHeader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    EthernetFrame &operator=(const EthernetFrame &other) = delete;
+    ArpHeader &operator=(const ArpHeader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~EthernetFrame() = default;
+    ~ArpHeader() = default;
 
     void read(Util::Stream::InputStream &stream);
 
-    [[nodiscard]] MacAddress getDestinationAddress() const;
+    HardwareAddressType getHardwareAddressType() const;
 
-    [[nodiscard]] MacAddress getSourceAddress() const;
+    uint32_t getHardwareAddressSize() const;
 
-    [[nodiscard]] EtherType getEtherType() const;
+    ProtocolAddressType getProtocolAddressType() const;
 
-    [[nodiscard]] uint32_t getCheckSequence() const;
+    uint32_t getProtocolAddressSize() const;
+
+    Operation getOperation() const;
 
 private:
 
-    MacAddress destinationAddress{};
-    MacAddress sourceAddress{};
-    EtherType etherType{};
-    uint32_t checkSequence = 0;
+    HardwareAddressType hardwareAddressType;
+    uint32_t hardwareAddressSize;
 
-    static Kernel::Logger log;
+    ProtocolAddressType protocolAddressType;
+    uint32_t protocolAddressSize;
+
+    Operation operation;
 };
 
 }
