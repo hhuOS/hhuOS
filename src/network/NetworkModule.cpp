@@ -15,25 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PacketReader.h"
-#include "network/ethernet/EthernetHeader.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
+#include "NetworkModule.h"
 
 namespace Network {
 
-PacketReader::PacketReader(Device::Network::NetworkDevice *networkDevice) : networkDevice(networkDevice) {}
-
-void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
-
-    while (true) {
-        ethernetModule.readPacket(*networkDevice);
-    }
+void NetworkModule::registerNextLayerModule(uint32_t protocolId, NetworkModule *module) {
+    nextLayerModules.put(protocolId, module);
 }
 
-PacketReader::~PacketReader() {
-    delete networkDevice;
+bool NetworkModule::isNextLayerTypeSupported(uint32_t protocolId) {
+    return nextLayerModules.containsKey(protocolId);
+}
+
+void NetworkModule::invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream) {
+    auto *module = nextLayerModules.get(protocolId);
+    module->readPacket(stream);
 }
 
 }

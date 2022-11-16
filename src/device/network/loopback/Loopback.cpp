@@ -19,20 +19,12 @@
 
 namespace Device::Network {
 
-Loopback::Loopback() : NetworkDevice(inputStream) {
-    inputStream.connect(outputStream);
-}
-
 ::Network::MacAddress Loopback::getMacAddress() {
     return ::Network::MacAddress((uint8_t*) "hhuOS\0");
 }
 
-void Loopback::write(uint8_t c) {
-    outputStream.write(c);
-}
-
 void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    outputStream.write(sourceBuffer, offset, length);
+    handlePacket(sourceBuffer, length);
 }
 
 }

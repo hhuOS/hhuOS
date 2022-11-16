@@ -15,52 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "EthernetFrame.h"
+#include "EthernetHeader.h"
 #include "network/NumberUtil.h"
-#include "network/arp/ArpFrame.h"
+#include "network/arp/ArpHeader.h"
 
 namespace Network::Ethernet {
 
-Kernel::Logger EthernetFrame::log = Kernel::Logger::get("Ethernet");
-
-void EthernetFrame::read(Util::Stream::InputStream &stream) {
+void EthernetHeader::read(Util::Stream::InputStream &stream) {
     destinationAddress.readAddress(stream);
     sourceAddress.readAddress(stream);
     etherType = static_cast<EtherType>(NumberUtil::readUnsigned16BitValue(stream));
-
-    switch (etherType) {
-        case IP4:
-            break;
-        case ARP: {
-            auto arpFrame = Arp::ArpFrame();
-            arpFrame.read(stream);
-            break;
-        }
-        case IP6:
-            break;
-        default:
-            log.warn("Received ethernet frame with unsupported ether type %04x", etherType);
-            // TODO: Discard packet
-            return;
-    }
-
-    checkSequence = NumberUtil::readUnsigned32BitValue(stream);
 }
 
-MacAddress EthernetFrame::getDestinationAddress() const {
+MacAddress EthernetHeader::getDestinationAddress() const {
     return destinationAddress;
 }
 
-MacAddress EthernetFrame::getSourceAddress() const {
+MacAddress EthernetHeader::getSourceAddress() const {
     return sourceAddress;
 }
 
-EthernetFrame::EtherType EthernetFrame::getEtherType() const {
+EthernetHeader::EtherType EthernetHeader::getEtherType() const {
     return etherType;
-}
-
-uint32_t EthernetFrame::getCheckSequence() const {
-    return checkSequence;
 }
 
 }

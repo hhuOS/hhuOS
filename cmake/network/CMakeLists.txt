@@ -24,10 +24,12 @@ include_directories(${HHUOS_SRC_DIR})
 # Set source files
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/network/MacAddress.cpp
-        ${HHUOS_SRC_DIR}/network/PacketReader.cpp
-        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp ../../src/network/arp/ArpFrame.cpp ../../src/network/arp/ArpFrame.h ../../src/network/ip4/Ip4Address.cpp ../../src/network/ip4/Ip4Address.h)
-
+        ${HHUOS_SRC_DIR}/network/NetworkModule.cpp
+        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp
+        ${HHUOS_SRC_DIR}/network/PacketReader.cpp)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories
+add_subdirectory(arp)
 add_subdirectory(ethernet)
+add_subdirectory(ip4)

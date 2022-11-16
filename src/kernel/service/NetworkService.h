@@ -15,25 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "PacketReader.h"
-#include "network/ethernet/EthernetHeader.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
+#ifndef HHUOS_NETWORKSERVICE_H
+#define HHUOS_NETWORKSERVICE_H
 
-namespace Network {
+#include "network/ethernet/EthernetModule.h"
+#include "Service.h"
 
-PacketReader::PacketReader(Device::Network::NetworkDevice *networkDevice) : networkDevice(networkDevice) {}
+namespace Kernel {
 
-void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
+class NetworkService : public Service {
 
-    while (true) {
-        ethernetModule.readPacket(*networkDevice);
-    }
+public:
+    /**
+     * Default Constructor.
+     */
+    NetworkService() = default;
+
+    /**
+     * Copy Constructor.
+     */
+    NetworkService(const NetworkService &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    NetworkService &operator=(const NetworkService &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~NetworkService() override = default;
+
+    Network::Ethernet::EthernetModule& getEthernetModule();
+
+    static const constexpr uint8_t SERVICE_ID = 8;
+
+private:
+
+    Network::Ethernet::EthernetModule ethernetModule;
+};
+
 }
 
-PacketReader::~PacketReader() {
-    delete networkDevice;
-}
 
-}
+#endif

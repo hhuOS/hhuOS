@@ -17,4 +17,5 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(network PUBLIC
-        ${HHUOS_SRC_DIR}/network/arp/ArpFrame.cpp)
+        ${HHUOS_SRC_DIR}/network/arp/ArpHeader.cpp
+        ${HHUOS_SRC_DIR}/network/arp/ArpModule.cpp)

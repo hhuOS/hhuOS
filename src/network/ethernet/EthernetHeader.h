@@ -15,63 +15,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NETWORKDEVICE_H
-#define HHUOS_NETWORKDEVICE_H
+#ifndef HHUOS_ETHERNETHEADER_H
+#define HHUOS_ETHERNETHEADER_H
 
-#include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/stream/FilterInputStream.h"
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/stream/InputStream.h"
 #include "network/MacAddress.h"
+#include "kernel/log/Logger.h"
 
-namespace Device::Network {
+namespace Network::Ethernet {
 
-/**
- * Interface for network cards
- */
-class NetworkDevice : public Util::Stream::FilterInputStream, public Util::Stream::OutputStream {
+class EthernetHeader {
 
 public:
+    //Relevant EtherTypes -> list available in RFC7042 Appendix B (pages 25,26)
+    enum EtherType : uint16_t {
+        IP4 = 0x0800,
+        ARP = 0x0806,
+        IP6 = 0x86dd
+    };
+
     /**
      * Default Constructor.
      */
-    NetworkDevice();
+    EthernetHeader() = default;
 
     /**
-     * Copy-constructor.
+     * Copy Constructor.
      */
-    NetworkDevice(const NetworkDevice &copy) = delete;
+    EthernetHeader(const EthernetHeader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    NetworkDevice &operator=(const NetworkDevice &other) = delete;
+    EthernetHeader &operator=(const EthernetHeader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~NetworkDevice() override = default;
+    ~EthernetHeader() = default;
 
-    /**
-     * Overriding function from OutputStream.
-     */
-    void write(uint8_t c) override;
+    void read(Util::Stream::InputStream &stream);
 
-    /**
-     * Read the MAC-address into a given buffer.
-     *
-     * @param buf The buffer to read the MAC-address into.
-     */
-    virtual ::Network::MacAddress getMacAddress() = 0;
+    [[nodiscard]] MacAddress getDestinationAddress() const;
 
-protected:
+    [[nodiscard]] MacAddress getSourceAddress() const;
 
-    void handlePacket(const uint8_t *packet, uint32_t length);
+    [[nodiscard]] EtherType getEtherType() const;
 
 private:
 
-    Util::Stream::PipedOutputStream outputStream;
-    Util::Stream::PipedInputStream inputStream;
+    MacAddress destinationAddress{};
+    MacAddress sourceAddress{};
+    EtherType etherType{};
 };
 
 }

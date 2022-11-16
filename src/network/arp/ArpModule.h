@@ -15,72 +15,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ARPFRAME_H
-#define HHUOS_ARPFRAME_H
+#ifndef HHUOS_ARPMODULE_H
+#define HHUOS_ARPMODULE_H
 
 #include "lib/util/stream/InputStream.h"
-#include "network/MacAddress.h"
-#include "network/ip4/Ip4Address.h"
+#include "network/NetworkModule.h"
 #include "kernel/log/Logger.h"
+#include "ArpHeader.h"
 
 namespace Network::Arp {
 
-class ArpFrame {
+class ArpModule : public NetworkModule {
 
 public:
-
-    enum HardwareAddressType : uint16_t {
-        ETHERNET = 0x0001
-    };
-
-    enum ProtocolAddressType : uint16_t {
-        IP4 = 0x0800
-    };
-
-    enum Operation : uint16_t {
-        ARP_REQUEST = 0x0001,
-        ARP_ANSWER = 0x0002
-    };
-
     /**
      * Default Constructor.
      */
-    ArpFrame() = default;
+    ArpModule() = default;
 
     /**
      * Copy Constructor.
      */
-    ArpFrame(const ArpFrame &other) = delete;
+    ArpModule(const ArpModule &other) = delete;
 
     /**
      * Assignment operator.
      */
-    ArpFrame &operator=(const ArpFrame &other) = delete;
+    ArpModule &operator=(const ArpModule &other) = delete;
 
     /**
      * Destructor.
      */
-    ~ArpFrame() = default;
+    ~ArpModule() = default;
 
-    void read(Util::Stream::InputStream &stream);
-
-    [[nodiscard]] MacAddress getSourceMacAddress() const;
-
-    [[nodiscard]] MacAddress getTargetMacAddress() const;
-
-    [[nodiscard]] Ip4::Ip4Address getSourceIpAddress() const;
-
-    [[nodiscard]] Ip4::Ip4Address getTargetIpAddress() const;
+    void readPacket(Util::Stream::InputStream &stream) override;
 
 private:
 
-    static void discardPacket(Util::Stream::InputStream &stream, uint8_t hardwareAddressSize, uint8_t protocolAddressSize);
-
-    Operation operation;
-    MacAddress sourceMacAddress;
-    MacAddress targetMacAddress;
-    Ip4::Ip4Address sourceIpAddress;
-    Ip4::Ip4Address targetIpAddress;
+    static void discardPacket(Util::Stream::InputStream &stream, const ArpHeader &arpHeader);
 
     static Kernel::Logger log;
 };

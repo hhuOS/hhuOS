@@ -15,46 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_LOOPBACK_H
-#define HHUOS_LOOPBACK_H
+#ifndef HHUOS_NETWORKMODULE_H
+#define HHUOS_NETWORKMODULE_H
 
-#include "device/network/NetworkDevice.h"
-#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/data/HashMap.h"
 
-namespace Device::Network {
+namespace Network {
 
-class Loopback : public NetworkDevice {
+class NetworkModule {
 
 public:
     /**
      * Default Constructor.
      */
-    Loopback() = default;
+    NetworkModule() = default;
 
     /**
      * Copy Constructor.
      */
-    Loopback(const Loopback &other) = delete;
+    NetworkModule(const NetworkModule &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Loopback &operator=(const Loopback &other) = delete;
+    NetworkModule &operator=(const NetworkModule &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Loopback() override = default;
+    ~NetworkModule() = default;
 
-    /**
-     * Overriding function from NetworkDevice.
-     */
-    ::Network::MacAddress getMacAddress() override;
+    virtual void readPacket(Util::Stream::InputStream &stream) = 0;
 
-    /**
-     * Overriding function from OutputStream.
-     */
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+    void registerNextLayerModule(uint32_t protocolId, NetworkModule *module);
+
+    bool isNextLayerTypeSupported(uint32_t protocolId);
+
+protected:
+
+    void invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream);
+
+private:
+
+    Util::Data::HashMap<uint32_t, NetworkModule*> nextLayerModules;
 };
 
 }
