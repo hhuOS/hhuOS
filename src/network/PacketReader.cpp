@@ -28,7 +28,9 @@ void PacketReader::run() {
     auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
 
     while (true) {
-        ethernetModule.readPacket(*networkDevice);
+        auto *packet = networkDevice->getNextPacket();
+        ethernetModule.readPacket(*packet);
+        delete packet;
     }
 }
 

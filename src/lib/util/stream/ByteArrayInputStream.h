@@ -32,9 +32,13 @@ public:
 
     ByteArrayInputStream &operator=(const ByteArrayInputStream &copy) = delete;
 
+    ~ByteArrayInputStream() override = default;
+
     int16_t read() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
+
+    uint8_t *getBuffer();
 
 private:
 
