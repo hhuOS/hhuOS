@@ -20,9 +20,7 @@
 
 namespace Util::Stream {
 
-ByteArrayInputStream::ByteArrayInputStream(uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {
-
-}
+ByteArrayInputStream::ByteArrayInputStream(uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
 
 int16_t ByteArrayInputStream::read() {
     if (position >= size) {
@@ -44,6 +42,10 @@ int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint3
 
     position += count;
     return count;
+}
+
+uint8_t *ByteArrayInputStream::getBuffer() {
+    return buffer;
 }
 
 }

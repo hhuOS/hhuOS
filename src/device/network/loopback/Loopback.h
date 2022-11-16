@@ -52,9 +52,9 @@ public:
     ::Network::MacAddress getMacAddress() override;
 
     /**
-     * Overriding function from OutputStream.
+     * Overriding function from NetworkDevice.
      */
-    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
+    void sendPacket(const uint8_t *packet, uint32_t length) override;
 };
 
 }

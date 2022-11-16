@@ -19,17 +19,21 @@
 #define HHUOS_NETWORKDEVICE_H
 
 #include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/stream/FilterInputStream.h"
 #include "lib/util/stream/OutputStream.h"
 #include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/data/ArrayBlockingQueue.h"
 #include "network/MacAddress.h"
+#include "kernel/log/Logger.h"
 
 namespace Device::Network {
 
 /**
  * Interface for network cards
  */
-class NetworkDevice : public Util::Stream::FilterInputStream, public Util::Stream::OutputStream {
+class NetworkDevice {
 
 public:
     /**
@@ -50,12 +54,7 @@ public:
     /**
      * Destructor.
      */
-    ~NetworkDevice() override = default;
-
-    /**
-     * Overriding function from OutputStream.
-     */
-    void write(uint8_t c) override;
+    virtual ~NetworkDevice();
 
     /**
      * Read the MAC-address into a given buffer.
@@ -64,14 +63,24 @@ public:
      */
     virtual ::Network::MacAddress getMacAddress() = 0;
 
+    virtual void sendPacket(const uint8_t *packet, uint32_t length) = 0;
+
+    Util::Stream::InputStream* getNextPacket();
+
 protected:
 
     void handlePacket(const uint8_t *packet, uint32_t length);
 
 private:
 
-    Util::Stream::PipedOutputStream outputStream;
-    Util::Stream::PipedInputStream inputStream;
+    uint8_t *packetMemory;
+    Kernel::BitmapMemoryManager packetMemoryManager;
+    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> packetQueue;
+
+    static Kernel::Logger log;
+
+    static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
+    static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;
 };
 
 }

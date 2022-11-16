@@ -23,8 +23,8 @@ namespace Device::Network {
     return ::Network::MacAddress((uint8_t*) "hhuOS\0");
 }
 
-void Loopback::write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) {
-    handlePacket(sourceBuffer, length);
+void Loopback::sendPacket(const uint8_t *packet, uint32_t length) {
+    handlePacket(packet, length);
 }
 
 }

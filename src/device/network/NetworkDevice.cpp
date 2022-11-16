@@ -21,20 +21,41 @@
 
 namespace Device::Network {
 
-NetworkDevice::NetworkDevice() : Util::Stream::FilterInputStream(inputStream) {
-    outputStream.connect(inputStream);
-}
+Kernel::Logger NetworkDevice::log = Kernel::Logger::get("Network");
 
-void NetworkDevice::write(uint8_t c) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "Network packets must be written wholly at once!");
-}
+NetworkDevice::NetworkDevice() :
+        packetMemory(static_cast<uint8_t *>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
+        packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
+        packetQueue(PACKET_BUFFER_SIZE) {}
 
 void NetworkDevice::handlePacket(const uint8_t *packet, uint32_t length) {
     auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
     if (ethernetModule.checkPacket(packet, length)) {
         // Do not write checksum, since it has already been handled by checkPacket()
-        outputStream.write(packet, 0, length - 4);
+        auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
+        auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length);
+
+        auto source = Util::Memory::Address<uint32_t>(packet);
+        auto target = Util::Memory::Address<uint32_t>(buffer);
+        target.copyRange(source, length);
+
+        if (!packetQueue.offer(stream)) {
+            log.warn("Dropping packet, because of too many unhandled packets");
+            delete stream;
+            delete buffer;
+        }
     }
+}
+
+NetworkDevice::~NetworkDevice() {
+    delete[] packetMemory;
+    for (const auto *stream : packetQueue) {
+        delete stream;
+    }
+}
+
+Util::Stream::InputStream* NetworkDevice::getNextPacket() {
+    return packetQueue.poll();
 }
 
 }
