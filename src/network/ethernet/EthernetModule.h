@@ -20,6 +20,7 @@
 
 #include "network/NetworkModule.h"
 #include "kernel/log/Logger.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
 
 namespace Network::Ethernet {
 
@@ -46,13 +47,19 @@ public:
      */
     ~EthernetModule() = default;
 
-    bool checkPacket(const uint8_t *packet, uint32_t length);
+    static bool checkPacket(const uint8_t *packet, uint32_t length);
 
-    void readPacket(Util::Stream::InputStream &stream) override;
+    void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+
+    static void finalizePacket(Util::Stream::ByteArrayOutputStream &packet);
 
 private:
 
+    static uint32_t calculateCheckSequence(const uint8_t *packet, uint32_t length);
+
     static Kernel::Logger log;
+
+    static const constexpr uint32_t MINIMUM_PACKET_SIZE = 64;
 };
 
 }

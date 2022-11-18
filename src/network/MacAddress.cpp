@@ -24,6 +24,11 @@ MacAddress::MacAddress(uint8_t *buffer) {
     setAddress(buffer);
 }
 
+MacAddress MacAddress::createBroadcastAddress() {
+    uint8_t buffer[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    return MacAddress(buffer);
+}
+
 MacAddress::Address MacAddress::getAddress() {
     return address;
 }
@@ -34,8 +39,32 @@ void MacAddress::setAddress(uint8_t *buffer) {
     destination.copyRange(source, ADDRESS_LENGTH);
 }
 
-void MacAddress::readAddress(Util::Stream::InputStream &stream) {
+void MacAddress::read(Util::Stream::InputStream &stream) {
     stream.read(address.buffer, 0, ADDRESS_LENGTH);
+}
+
+void MacAddress::write(Util::Stream::OutputStream &stream) const {
+    stream.write(address.buffer, 0, ADDRESS_LENGTH);
+}
+
+bool MacAddress::isBroadcastAddress() const {
+    for (const auto c : address.buffer) {
+        if (c != 0xff) return false;
+    }
+
+    return true;
+}
+
+bool MacAddress::operator!=(const MacAddress &other) const {
+    auto first = Util::Memory::Address<uint32_t>(address.buffer);
+    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
+    return first.compareRange(second, ADDRESS_LENGTH) != 0;
+}
+
+bool MacAddress::operator==(const MacAddress &other) const {
+    auto first = Util::Memory::Address<uint32_t>(address.buffer);
+    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
+    return first.compareRange(second, ADDRESS_LENGTH) == 0;
 }
 
 }

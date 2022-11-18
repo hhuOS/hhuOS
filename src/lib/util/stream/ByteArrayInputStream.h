@@ -19,6 +19,7 @@
 #define HHUOS_BYTEARRAYINPUTSTREAM_H
 
 #include "InputStream.h"
+#include "lib/util/memory/String.h"
 
 namespace Util::Stream {
 
@@ -26,26 +27,34 @@ class ByteArrayInputStream : public InputStream {
 
 public:
 
-    ByteArrayInputStream(uint8_t *buffer, uint32_t size);
+    ByteArrayInputStream(uint8_t *buffer, uint32_t size, bool deleteBuffer = true);
 
     ByteArrayInputStream(const ByteArrayInputStream &copy) = delete;
 
     ByteArrayInputStream &operator=(const ByteArrayInputStream &copy) = delete;
 
-    ~ByteArrayInputStream() override = default;
+    ~ByteArrayInputStream() override;
+
+    [[nodiscard]] uint32_t getSize() const;
+
+    [[nodiscard]] bool isEmpty() const;
+
+    [[nodiscard]] const uint8_t* getBuffer();
+
+    void getContent(uint8_t *target, uint32_t length) const;
+
+    [[nodiscard]] Memory::String getContent() const;
 
     int16_t read() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;
-
-    uint8_t *getBuffer();
 
 private:
 
     uint8_t *buffer;
     uint32_t size;
     uint32_t position = 0;
-
+    bool deleteBuffer;
 };
 
 }

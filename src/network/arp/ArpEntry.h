@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,51 +15,58 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NETWORKMODULE_H
-#define HHUOS_NETWORKMODULE_H
+#ifndef HHUOS_ARPENTRY_H
+#define HHUOS_ARPENTRY_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/data/HashMap.h"
-#include "device/network/NetworkDevice.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/MacAddress.h"
 
-namespace Network {
+namespace Network::Arp {
 
-class NetworkModule {
+class ArpEntry {
 
 public:
     /**
      * Default Constructor.
      */
-    NetworkModule() = default;
+    ArpEntry() = default;
+
+    /**
+     * Constructor.
+     */
+    ArpEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);
 
     /**
      * Copy Constructor.
      */
-    NetworkModule(const NetworkModule &other) = delete;
+    ArpEntry(const ArpEntry &other) = default;
 
     /**
      * Assignment operator.
      */
-    NetworkModule &operator=(const NetworkModule &other) = delete;
+    ArpEntry &operator=(const ArpEntry &other) = default;
 
     /**
      * Destructor.
      */
-    ~NetworkModule() = default;
+    ~ArpEntry() = default;
 
-    virtual void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) = 0;
+    Ip4::Ip4Address getProtocolAddress() const;
 
-    void registerNextLayerModule(uint32_t protocolId, NetworkModule &module);
+    MacAddress getHardwareAddress() const;
 
-    bool isNextLayerTypeSupported(uint32_t protocolId);
+    void setProtocolAddress(const Ip4::Ip4Address &protocolAddress);
 
-protected:
+    void setHardwareAddress(const MacAddress &hardwareAddress);
 
-    void invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device);
+    bool operator!=(const ArpEntry &other) const;
+
+    bool operator==(const ArpEntry &other) const;
 
 private:
 
-    Util::Data::HashMap<uint32_t, NetworkModule*> nextLayerModules;
+    Ip4::Ip4Address protocolAddress{};
+    MacAddress hardwareAddress{};
 };
 
 }

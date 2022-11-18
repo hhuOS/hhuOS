@@ -16,7 +16,16 @@
  */
 
 #include "NetworkService.h"
+#include "network/ethernet/EthernetHeader.h"
+
+Kernel::NetworkService::NetworkService() {
+    ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::ARP, arpModule);
+}
 
 Network::Ethernet::EthernetModule& Kernel::NetworkService::getEthernetModule() {
     return ethernetModule;
+}
+
+Network::Arp::ArpModule &Kernel::NetworkService::getArpModule() {
+    return arpModule;
 }

@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,44 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PACKETREADER_H
-#define HHUOS_PACKETREADER_H
-
-#include "lib/util/async/Runnable.h"
 #include "device/network/NetworkDevice.h"
+#include "PacketWriter.h"
 
-namespace Network {
+namespace Device::Network {
 
-class PacketReader : public Util::Async::Runnable {
+PacketWriter::PacketWriter(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
 
-public:
-    /**
-     * Default Constructor.
-     */
-    explicit PacketReader(Device::Network::NetworkDevice *networkDevice);
-
-    /**
-     * Copy Constructor.
-     */
-    PacketReader(const PacketReader &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    PacketReader &operator=(const PacketReader &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~PacketReader() override;
-
-    void run() override;
-
-private:
-
-    Device::Network::NetworkDevice *networkDevice;
-};
-
+void PacketWriter::run() {
+    while (true) {
+        auto *packet = networkDevice.getNextOutgoingPacket();
+        networkDevice.handleOutgoingPacket(packet->getBuffer(), packet->getSize());
+        networkDevice.freePacketBuffer((void*) packet->getBuffer());
+        delete packet;
+    }
 }
 
-#endif
+}

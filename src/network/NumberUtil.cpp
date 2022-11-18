@@ -19,6 +19,14 @@
 
 namespace Network {
 
+int8_t NumberUtil::read8BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<int8_t>(stream.read());
+}
+
+uint8_t NumberUtil::readUnsigned8BitValue(Util::Stream::InputStream &stream) {
+    return static_cast<uint8_t>(stream.read());
+}
+
 int16_t NumberUtil::read16BitValue(Util::Stream::InputStream &stream) {
     return static_cast<int16_t>((stream.read() << 8) | stream.read());
 }
@@ -33,6 +41,34 @@ int32_t NumberUtil::read32BitValue(Util::Stream::InputStream &stream) {
 
 uint32_t NumberUtil::readUnsigned32BitValue(Util::Stream::InputStream &stream) {
     return static_cast<uint32_t>(read32BitValue(stream));
+}
+
+void NumberUtil::write8BitValue(int8_t value, Util::Stream::OutputStream &stream) {
+    stream.write(static_cast<uint8_t>(value));
+}
+
+void NumberUtil::writeUnsigned8BitValue(uint8_t value, Util::Stream::OutputStream &stream) {
+    stream.write(value);
+}
+
+void NumberUtil::write16BitValue(int16_t value, Util::Stream::OutputStream &stream) {
+    stream.write(static_cast<uint8_t>(value >> 8));
+    stream.write(static_cast<uint8_t>(value));
+}
+
+void NumberUtil::writeUnsigned16BitValue(uint16_t value, Util::Stream::OutputStream &stream) {
+    write16BitValue(static_cast<int16_t>(value), stream);
+}
+
+void NumberUtil::write32BitValue(int32_t value, Util::Stream::OutputStream &stream) {
+    stream.write(static_cast<uint8_t>(value >> 24));
+    stream.write(static_cast<uint8_t>(value >> 16));
+    stream.write(static_cast<uint8_t>(value >> 8));
+    stream.write(static_cast<uint8_t>(value));
+}
+
+void NumberUtil::writeUnsigned32BitValue(uint32_t value, Util::Stream::OutputStream &stream) {
+    write32BitValue(static_cast<int32_t>(value), stream);
 }
 
 }

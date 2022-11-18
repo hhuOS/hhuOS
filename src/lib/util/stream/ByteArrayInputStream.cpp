@@ -20,7 +20,13 @@
 
 namespace Util::Stream {
 
-ByteArrayInputStream::ByteArrayInputStream(uint8_t *buffer, uint32_t size) : buffer(buffer), size(size) {}
+ByteArrayInputStream::ByteArrayInputStream(uint8_t *buffer, uint32_t size, bool deleteBuffer) : buffer(buffer), size(size), deleteBuffer(deleteBuffer) {}
+
+ByteArrayInputStream::~ByteArrayInputStream() {
+    if (deleteBuffer) {
+        delete[] buffer;
+    }
+}
 
 int16_t ByteArrayInputStream::read() {
     if (position >= size) {
@@ -44,8 +50,27 @@ int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint3
     return count;
 }
 
-uint8_t *ByteArrayInputStream::getBuffer() {
+const uint8_t* ByteArrayInputStream::getBuffer() {
     return buffer;
+}
+
+uint32_t ByteArrayInputStream::getSize() const {
+    return size;
+}
+
+bool ByteArrayInputStream::isEmpty() const {
+    return size == 0;
+}
+
+void ByteArrayInputStream::getContent(uint8_t *target, uint32_t length) const {
+    auto sourceAddress = Memory::Address<uint32_t>(buffer);
+    auto targetAddress = Memory::Address<uint32_t>(target);
+
+    targetAddress.copyRange(sourceAddress, size > length ? length : size);
+}
+
+Memory::String ByteArrayInputStream::getContent() const {
+    return {buffer, position};
 }
 
 }

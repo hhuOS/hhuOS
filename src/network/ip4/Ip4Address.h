@@ -19,6 +19,7 @@
 #define HHUOS_IP4ADDRESS_H
 
 #include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
 
 namespace Network::Ip4 {
 
@@ -43,6 +44,11 @@ public:
     explicit Ip4Address(uint8_t *buffer);
 
     /**
+     * Constructor.
+     */
+    explicit Ip4Address(const char *string);
+
+    /**
      * Copy Constructor.
      */
     Ip4Address(const Ip4Address &other) = default;
@@ -61,7 +67,13 @@ public:
 
     void setAddress(uint8_t *buffer);
 
-    void readAddress(Util::Stream::InputStream &stream);
+    void read(Util::Stream::InputStream &stream);
+
+    void write(Util::Stream::OutputStream &stream) const;
+
+    bool operator!=(const Ip4Address &other) const;
+
+    bool operator==(const Ip4Address &other) const;
 
 private:
 

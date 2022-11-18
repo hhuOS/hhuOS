@@ -19,9 +19,12 @@
 #define HHUOS_ARPMODULE_H
 
 #include "lib/util/stream/InputStream.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 #include "network/NetworkModule.h"
 #include "kernel/log/Logger.h"
 #include "ArpHeader.h"
+#include "ArpEntry.h"
+#include "device/network/NetworkDevice.h"
 
 namespace Network::Arp {
 
@@ -31,7 +34,10 @@ public:
     /**
      * Default Constructor.
      */
-    ArpModule() = default;
+    ArpModule() {
+        uint8_t buffer[6] = {0xac, 0x9e, 0x17, 0x4e, 0x02, 0x55};
+        setEntry(Ip4::Ip4Address("192.168.42.219"), MacAddress(buffer));
+    }
 
     /**
      * Copy Constructor.
@@ -48,13 +54,29 @@ public:
      */
     ~ArpModule() = default;
 
-    void readPacket(Util::Stream::InputStream &stream) override;
+    void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+
+    bool resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
 private:
 
-    static void discardPacket(Util::Stream::InputStream &stream, const ArpHeader &arpHeader);
+    void setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);
+
+    MacAddress getHardwareAddress(const Ip4::Ip4Address &protocolAddress);
+
+    bool hasHardwareAddress(const Ip4::Ip4Address &protocolAddress);
+
+    void handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress, const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device);
+
+    void handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress, const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress);
+
+    Util::Async::ReentrantSpinlock lock;
+    Util::Data::ArrayList<ArpEntry> arpCache;
 
     static Kernel::Logger log;
+
+    static const constexpr uint32_t REQUEST_WAIT_TIME = 100;
+    static const constexpr uint32_t MAX_REQUEST_RETRIES = 10;
 };
 
 }

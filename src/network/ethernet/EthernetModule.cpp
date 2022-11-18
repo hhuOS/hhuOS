@@ -17,29 +17,51 @@
 
 #include "EthernetModule.h"
 #include "EthernetHeader.h"
+#include "network/NumberUtil.h"
 
 namespace Network::Ethernet {
 
 Kernel::Logger EthernetModule::log = Kernel::Logger::get("Ethernet");
 
 bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
-    // TODO: Check frame check sequence
-    //       uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
-    auto etherType = (packet[12] << 8) | packet[13];
-    return isNextLayerTypeSupported(etherType);
+    uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
+    uint32_t calculatedCheckSequence = calculateCheckSequence(packet, length - 4);
+    return frameCheckSequence == calculatedCheckSequence;
 }
 
-void EthernetModule::readPacket(Util::Stream::InputStream &stream) {
+void EthernetModule::readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
     auto ethernetHeader = EthernetHeader();
     ethernetHeader.read(stream);
-    auto etherType = ethernetHeader.getEtherType();
 
-    if (!isNextLayerTypeSupported(etherType)) {
-        // Should never happen, since unsupported packets are discarded by checkPacket()
-        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Trying to parse ethernet frame with unsupported ether type!");
+    if (ethernetHeader.getDestinationAddress() != device.getMacAddress()) {
+        log.warn("Dropping packet because of wrong destination address!");
+        return;
     }
 
-    invokeNextLayerModule(etherType, stream);
+    if (!isNextLayerTypeSupported(ethernetHeader.getEtherType())) {
+        log.warn("Dropping packet because of unsupported ether type!");
+        return;
+    }
+
+    invokeNextLayerModule(ethernetHeader.getEtherType(), stream, device);
+}
+
+uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t length) {
+    // TODO: Calculate check sequence
+    return 0;
+}
+
+void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
+    for (uint32_t i = packet.getSize(); i <= MINIMUM_PACKET_SIZE - 2 * sizeof(uint32_t); i += 4) {
+        NumberUtil::writeUnsigned32BitValue(0, packet);
+    }
+
+    for (uint32_t i = packet.getSize(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
+        NumberUtil::writeUnsigned8BitValue(0, packet);
+    }
+
+    auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getSize());
+    NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
 }
 
 }

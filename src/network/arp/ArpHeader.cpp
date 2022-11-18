@@ -23,16 +23,24 @@ namespace Network::Arp {
 void ArpHeader::read(Util::Stream::InputStream &stream) {
     hardwareAddressType = static_cast<HardwareAddressType>(NumberUtil::readUnsigned16BitValue(stream));
     protocolAddressType = static_cast<ProtocolAddressType>(NumberUtil::readUnsigned16BitValue(stream));
-    hardwareAddressSize = static_cast<uint8_t>(stream.read());
-    protocolAddressSize = static_cast<uint8_t>(stream.read());
+    hardwareAddressSize = NumberUtil::readUnsigned8BitValue(stream);
+    protocolAddressSize = NumberUtil::readUnsigned8BitValue(stream);
     operation = static_cast<Operation>(NumberUtil::readUnsigned16BitValue(stream));
+}
+
+void ArpHeader::write(Util::Stream::OutputStream &stream) {
+    NumberUtil::writeUnsigned16BitValue(hardwareAddressType, stream);
+    NumberUtil::writeUnsigned16BitValue(protocolAddressType, stream);
+    NumberUtil::writeUnsigned8BitValue(hardwareAddressSize, stream);
+    NumberUtil::writeUnsigned8BitValue(protocolAddressSize, stream);
+    NumberUtil::writeUnsigned16BitValue(operation, stream);
 }
 
 ArpHeader::HardwareAddressType ArpHeader::getHardwareAddressType() const {
     return hardwareAddressType;
 }
 
-uint32_t ArpHeader::getHardwareAddressSize() const {
+uint8_t ArpHeader::getHardwareAddressSize() const {
     return hardwareAddressSize;
 }
 
@@ -40,12 +48,16 @@ ArpHeader::ProtocolAddressType ArpHeader::getProtocolAddressType() const {
     return protocolAddressType;
 }
 
-uint32_t ArpHeader::getProtocolAddressSize() const {
+uint8_t ArpHeader::getProtocolAddressSize() const {
     return protocolAddressSize;
 }
 
 ArpHeader::Operation ArpHeader::getOperation() const {
     return operation;
+}
+
+void ArpHeader::setOperation(ArpHeader::Operation operation) {
+    ArpHeader::operation = operation;
 }
 
 }

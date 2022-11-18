@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,18 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#ifndef HHUOS_PACKETWRITER_H
+#define HHUOS_PACKETWRITER_H
+
+#include "lib/util/async/Runnable.h"
 
 namespace Device::Network {
 
-Loopback::Loopback(const Util::Memory::String &identifier) : NetworkDevice(identifier) {}
+class NetworkDevice;
 
-::Network::MacAddress Loopback::getMacAddress() {
-    return ::Network::MacAddress((uint8_t*) "hhuOS\0");
+class PacketWriter : public Util::Async::Runnable {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    PacketWriter(NetworkDevice &networkDevice);
+
+    /**
+     * Copy Constructor.
+     */
+    PacketWriter(const PacketWriter &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    PacketWriter &operator=(const PacketWriter &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~PacketWriter() override = default;
+
+    void run() override;
+
+private:
+
+    Device::Network::NetworkDevice &networkDevice;
+};
+
 }
 
-void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
-    handleIncomingPacket(packet, length);
-}
-
-}
+#endif

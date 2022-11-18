@@ -22,9 +22,15 @@
 namespace Network::Ethernet {
 
 void EthernetHeader::read(Util::Stream::InputStream &stream) {
-    destinationAddress.readAddress(stream);
-    sourceAddress.readAddress(stream);
+    destinationAddress.read(stream);
+    sourceAddress.read(stream);
     etherType = static_cast<EtherType>(NumberUtil::readUnsigned16BitValue(stream));
+}
+
+void EthernetHeader::write(Util::Stream::OutputStream &stream) {
+    stream.write(destinationAddress.getAddress().buffer, 0, MacAddress::ADDRESS_LENGTH);
+    stream.write(sourceAddress.getAddress().buffer, 0, MacAddress::ADDRESS_LENGTH);
+    NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 
 MacAddress EthernetHeader::getDestinationAddress() const {
@@ -37,6 +43,18 @@ MacAddress EthernetHeader::getSourceAddress() const {
 
 EthernetHeader::EtherType EthernetHeader::getEtherType() const {
     return etherType;
+}
+
+void EthernetHeader::setDestinationAddress(const MacAddress &address) {
+    EthernetHeader::destinationAddress = address;
+}
+
+void EthernetHeader::setSourceAddress(const MacAddress &address) {
+    EthernetHeader::sourceAddress = address;
+}
+
+void EthernetHeader::setEtherType(EthernetHeader::EtherType type) {
+    EthernetHeader::etherType = type;
 }
 
 }

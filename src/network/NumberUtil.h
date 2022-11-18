@@ -19,6 +19,7 @@
 #define HHUOS_UTIL_H
 
 #include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
 
 namespace Network {
 
@@ -45,6 +46,10 @@ public:
      */
     ~NumberUtil() = default;
 
+    static int8_t read8BitValue(Util::Stream::InputStream &stream);
+
+    static uint8_t readUnsigned8BitValue(Util::Stream::InputStream &stream);
+
     static int16_t read16BitValue(Util::Stream::InputStream &stream);
 
     static uint16_t readUnsigned16BitValue(Util::Stream::InputStream &stream);
@@ -52,6 +57,18 @@ public:
     static int32_t read32BitValue(Util::Stream::InputStream &stream);
 
     static uint32_t readUnsigned32BitValue(Util::Stream::InputStream &stream);
+
+    static void write8BitValue(int8_t value, Util::Stream::OutputStream &stream);
+
+    static void writeUnsigned8BitValue(uint8_t value, Util::Stream::OutputStream &stream);
+
+    static void write16BitValue(int16_t value, Util::Stream::OutputStream &stream);
+
+    static void writeUnsigned16BitValue(uint16_t value, Util::Stream::OutputStream &stream);
+
+    static void write32BitValue(int32_t value, Util::Stream::OutputStream &stream);
+
+    static void writeUnsigned32BitValue(uint32_t value, Util::Stream::OutputStream &stream);
 };
 
 }

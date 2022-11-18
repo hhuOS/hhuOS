@@ -19,17 +19,17 @@
 
 namespace Network {
 
-void NetworkModule::registerNextLayerModule(uint32_t protocolId, NetworkModule *module) {
-    nextLayerModules.put(protocolId, module);
+void NetworkModule::registerNextLayerModule(uint32_t protocolId, NetworkModule &module) {
+    nextLayerModules.put(protocolId, &module);
 }
 
 bool NetworkModule::isNextLayerTypeSupported(uint32_t protocolId) {
     return nextLayerModules.containsKey(protocolId);
 }
 
-void NetworkModule::invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream) {
+void NetworkModule::invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
     auto *module = nextLayerModules.get(protocolId);
-    module->readPacket(stream);
+    module->readPacket(stream, device);
 }
 
 }
