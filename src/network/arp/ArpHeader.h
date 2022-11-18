@@ -64,23 +64,27 @@ public:
 
     void read(Util::Stream::InputStream &stream);
 
+    void write(Util::Stream::OutputStream &stream);
+
     HardwareAddressType getHardwareAddressType() const;
 
-    uint32_t getHardwareAddressSize() const;
+    uint8_t getHardwareAddressSize() const;
 
     ProtocolAddressType getProtocolAddressType() const;
 
-    uint32_t getProtocolAddressSize() const;
+    uint8_t getProtocolAddressSize() const;
 
     Operation getOperation() const;
 
+    void setOperation(Operation operation);
+
 private:
 
-    HardwareAddressType hardwareAddressType;
-    uint32_t hardwareAddressSize;
+    HardwareAddressType hardwareAddressType = ETHERNET;
+    uint8_t hardwareAddressSize = MacAddress::ADDRESS_LENGTH;
 
-    ProtocolAddressType protocolAddressType;
-    uint32_t protocolAddressSize;
+    ProtocolAddressType protocolAddressType = IP4;
+    uint8_t protocolAddressSize = Ip4::Ip4Address::ADDRESS_LENGTH;
 
     Operation operation;
 };

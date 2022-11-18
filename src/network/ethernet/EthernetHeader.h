@@ -56,11 +56,19 @@ public:
 
     void read(Util::Stream::InputStream &stream);
 
+    void write(Util::Stream::OutputStream &stream);
+
     [[nodiscard]] MacAddress getDestinationAddress() const;
 
     [[nodiscard]] MacAddress getSourceAddress() const;
 
     [[nodiscard]] EtherType getEtherType() const;
+
+    void setDestinationAddress(const MacAddress &address);
+
+    void setSourceAddress(const MacAddress &address);
+
+    void setEtherType(EtherType type);
 
 private:
 

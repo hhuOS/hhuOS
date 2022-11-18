@@ -15,69 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_PACKETREADER_H
+#define HHUOS_PACKETREADER_H
 
-#include <cstdint>
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include "lib/util/async/Runnable.h"
 
-namespace Network {
+namespace Device::Network {
 
-class MacAddress {
+class NetworkDevice;
+
+class PacketReader : public Util::Async::Runnable {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
-
-    struct Address {
-        uint8_t buffer[ADDRESS_LENGTH]{};
-    };
-
     /**
      * Default Constructor.
      */
-    MacAddress() = default;
-
-    /**
-     * Constructor.
-     */
-    explicit MacAddress(uint8_t *buffer);
+    explicit PacketReader(NetworkDevice &networkDevice);
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other) = default;
+    PacketReader(const PacketReader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other) = default;
+    PacketReader &operator=(const PacketReader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MacAddress() = default;
+    ~PacketReader() override = default;
 
-    static MacAddress createBroadcastAddress();
-
-    Address getAddress();
-
-    void setAddress(uint8_t *buffer);
-
-    void read(Util::Stream::InputStream &stream);
-
-    void write(Util::Stream::OutputStream &stream) const;
-
-    [[nodiscard]] bool isBroadcastAddress() const;
-
-    bool operator!=(const MacAddress &other) const;
-
-    bool operator==(const MacAddress &other) const;
+    void run() override;
 
 private:
 
-    Address address;
+    Device::Network::NetworkDevice &networkDevice;
 };
 
 }

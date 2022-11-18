@@ -25,8 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/network/MacAddress.cpp
         ${HHUOS_SRC_DIR}/network/NetworkModule.cpp
-        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp
-        ${HHUOS_SRC_DIR}/network/PacketReader.cpp)
+        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories

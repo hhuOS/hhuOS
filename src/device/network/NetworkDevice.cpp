@@ -18,44 +18,83 @@
 #include "NetworkDevice.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
+#include "kernel/service/ProcessService.h"
+#include "lib/util/async/Thread.h"
 
 namespace Device::Network {
 
-Kernel::Logger NetworkDevice::log = Kernel::Logger::get("Network");
-
-NetworkDevice::NetworkDevice() :
+NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
+        identifier(identifier), log(Kernel::Logger::get(identifier)),
         packetMemory(static_cast<uint8_t *>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
         packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
-        packetQueue(PACKET_BUFFER_SIZE) {}
+        incomingPacketQueue(MAX_BUFFERED_PACKETS),
+        outgoingPacketQueue(MAX_BUFFERED_PACKETS),
+        reader(new PacketReader(*this)), writer(new PacketWriter(*this)) {
+    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
+    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
+    auto &readerThread = Kernel::Thread::createKernelThread("Loopback-Reader", processService.getKernelProcess(), reader);
+    auto &writerThread = Kernel::Thread::createKernelThread("Loopback-Writer", processService.getKernelProcess(), writer);
 
-void NetworkDevice::handlePacket(const uint8_t *packet, uint32_t length) {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
-    if (ethernetModule.checkPacket(packet, length)) {
-        // Do not write checksum, since it has already been handled by checkPacket()
-        auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
-        auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length);
+    schedulerService.ready(readerThread);
+    schedulerService.ready(writerThread);
+}
 
-        auto source = Util::Memory::Address<uint32_t>(packet);
-        auto target = Util::Memory::Address<uint32_t>(buffer);
-        target.copyRange(source, length);
+void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
+    auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
+    auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length, false);
 
-        if (!packetQueue.offer(stream)) {
-            log.warn("Dropping packet, because of too many unhandled packets");
-            delete stream;
-            delete buffer;
-        }
+    auto source = Util::Memory::Address<uint32_t>(packet);
+    auto target = Util::Memory::Address<uint32_t>(buffer);
+    target.copyRange(source, length);
+
+    outgoingPacketQueue.add(stream);
+}
+
+void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
+    if (!::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
+        log.warn("Dropping packet because of not matching frame check sequence");
+        return;
+    }
+
+    auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
+    auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length, false);
+
+    auto source = Util::Memory::Address<uint32_t>(packet);
+    auto target = Util::Memory::Address<uint32_t>(buffer);
+    target.copyRange(source, length);
+
+    if (!incomingPacketQueue.offer(stream)) {
+        log.warn("Dropping packet, because of too many unhandled packets");
+        delete stream;
+        packetMemoryManager.freeBlock(buffer);
     }
 }
 
 NetworkDevice::~NetworkDevice() {
     delete[] packetMemory;
-    for (const auto *stream : packetQueue) {
+    for (const auto *stream : incomingPacketQueue) {
         delete stream;
     }
 }
 
-Util::Stream::InputStream* NetworkDevice::getNextPacket() {
-    return packetQueue.poll();
+Util::Stream::ByteArrayInputStream* NetworkDevice::getNextIncomingPacket() {
+    while (incomingPacketQueue.isEmpty()) {
+        Util::Async::Thread::yield();
+    }
+
+    return incomingPacketQueue.poll();
+}
+
+Util::Stream::ByteArrayInputStream* NetworkDevice::getNextOutgoingPacket() {
+    while (outgoingPacketQueue.isEmpty()) {
+        Util::Async::Thread::yield();
+    }
+
+    return outgoingPacketQueue.poll();
+}
+
+void NetworkDevice::freePacketBuffer(void *buffer) {
+    packetMemoryManager.freeBlock(buffer);
 }
 
 }

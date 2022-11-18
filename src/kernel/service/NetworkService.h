@@ -20,6 +20,7 @@
 
 #include "network/ethernet/EthernetModule.h"
 #include "Service.h"
+#include "network/arp/ArpModule.h"
 
 namespace Kernel {
 
@@ -29,7 +30,7 @@ public:
     /**
      * Default Constructor.
      */
-    NetworkService() = default;
+    NetworkService();
 
     /**
      * Copy Constructor.
@@ -48,11 +49,14 @@ public:
 
     Network::Ethernet::EthernetModule& getEthernetModule();
 
+    Network::Arp::ArpModule& getArpModule();
+
     static const constexpr uint8_t SERVICE_ID = 8;
 
 private:
 
     Network::Ethernet::EthernetModule ethernetModule;
+    Network::Arp::ArpModule arpModule;
 };
 
 }

@@ -18,4 +18,6 @@ cmake_minimum_required(VERSION 3.14)
  
 target_sources(device PUBLIC
         ${HHUOS_SRC_DIR}/device/network/NetworkDevice.cpp
+        ${HHUOS_SRC_DIR}/device/network/PacketReader.cpp
+        ${HHUOS_SRC_DIR}/device/network/PacketWriter.cpp
         ${HHUOS_SRC_DIR}/device/network/loopback/Loopback.cpp)

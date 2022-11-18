@@ -27,6 +27,8 @@
 #include "lib/util/data/ArrayBlockingQueue.h"
 #include "network/MacAddress.h"
 #include "kernel/log/Logger.h"
+#include "PacketReader.h"
+#include "PacketWriter.h"
 
 namespace Device::Network {
 
@@ -35,11 +37,14 @@ namespace Device::Network {
  */
 class NetworkDevice {
 
+friend class PacketReader;
+friend class PacketWriter;
+
 public:
     /**
      * Default Constructor.
      */
-    NetworkDevice();
+    explicit NetworkDevice(const Util::Memory::String &identifier);
 
     /**
      * Copy-constructor.
@@ -63,21 +68,32 @@ public:
      */
     virtual ::Network::MacAddress getMacAddress() = 0;
 
-    virtual void sendPacket(const uint8_t *packet, uint32_t length) = 0;
+    void sendPacket(const uint8_t *packet, uint32_t length);
 
-    Util::Stream::InputStream* getNextPacket();
+    Util::Stream::ByteArrayInputStream* getNextIncomingPacket();
+
+    Util::Stream::ByteArrayInputStream* getNextOutgoingPacket();
 
 protected:
 
-    void handlePacket(const uint8_t *packet, uint32_t length);
+    virtual void handleOutgoingPacket(const uint8_t *packet, uint32_t length) = 0;
+
+    void handleIncomingPacket(const uint8_t *packet, uint32_t length);
 
 private:
 
+    void freePacketBuffer(void *buffer);
+
+    Util::Memory::String identifier;
+    Kernel::Logger log;
+
     uint8_t *packetMemory;
     Kernel::BitmapMemoryManager packetMemoryManager;
-    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> packetQueue;
+    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> incomingPacketQueue;
+    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> outgoingPacketQueue;
 
-    static Kernel::Logger log;
+    PacketReader *reader;
+    PacketWriter *writer;
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;

@@ -29,7 +29,7 @@ public:
     /**
      * Default Constructor.
      */
-    Loopback() = default;
+    Loopback(const Util::Memory::String &identifier);
 
     /**
      * Copy Constructor.
@@ -51,10 +51,12 @@ public:
      */
     ::Network::MacAddress getMacAddress() override;
 
+protected:
+
     /**
      * Overriding function from NetworkDevice.
      */
-    void sendPacket(const uint8_t *packet, uint32_t length) override;
+    void handleOutgoingPacket(const uint8_t *packet, uint32_t length) override;
 };
 
 }

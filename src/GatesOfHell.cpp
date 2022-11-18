@@ -59,14 +59,12 @@
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
 #include "device/network/loopback/Loopback.h"
-#include "BuildConfig.h"
-#include "GatesOfHell.h"
-#include "filesystem/memory/StreamNode.h"
-#include "network/PacketReader.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/service/NetworkService.h"
 #include "network/ethernet/EthernetHeader.h"
 #include "network/arp/ArpModule.h"
+#include "BuildConfig.h"
+#include "GatesOfHell.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -347,31 +345,20 @@ void GatesOfHell::initializeStorage() {
 
 void GatesOfHell::initializeNetwork() {
     Kernel::System::registerService(Kernel::NetworkService::SERVICE_ID, new Kernel::NetworkService());
-    auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
-    auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
-    auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-
-    auto &ethernetModule = networkService.getEthernetModule();
-    ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::ARP, new Network::Arp::ArpModule());
-
-    auto *loopback = new Device::Network::Loopback();
-    auto *packetReader = new Network::PacketReader(loopback);
-    auto &thread = Kernel::Thread::createKernelThread("Loopback-Reader", processService.getKernelProcess(), packetReader);
-    schedulerService.ready(thread);
+    auto *loopback = new Device::Network::Loopback("loopback");
 
     auto arpRequest = "\xac\x9e\x17\x4e\x02\x55\x98\x9b\xcb\x78\x0d\xd0\x08\x06\x00\x01" \
                       "\x08\x00\x06\x04\x00\x01\x98\x9b\xcb\x78\x0d\xd0\xc0\xa8\x2a\x01" \
                       "\x00\x00\x00\x00\x00\x00\xc0\xa8\x2a\xdb\x00\x00\x00\x00\x00\x00" \
                       "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
 
-
     auto arpReply = "\x98\x9b\xcb\x78\x0d\xd0\xac\x9e\x17\x4e\x02\x55\x08\x06\x00\x01" \
                     "\x08\x00\x06\x04\x00\x02\xac\x9e\x17\x4e\x02\x55\xc0\xa8\x2a\xdb" \
                     "\x98\x9b\xcb\x78\x0d\xd0\xc0\xa8\x2a\x01\x00\x00\x00\x00";
 
 
-    loopback->sendPacket(reinterpret_cast<const uint8_t*>(arpRequest), 64);
-    loopback->sendPacket(reinterpret_cast<const uint8_t*>(arpReply), 64);
+    loopback->sendPacket(reinterpret_cast<const uint8_t *>(arpRequest), 64);
+    loopback->sendPacket(reinterpret_cast<const uint8_t *>(arpReply), 64);
 }
 
 void GatesOfHell::mountDevices() {
