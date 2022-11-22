@@ -41,6 +41,14 @@ friend class PacketReader;
 friend class PacketWriter;
 
 public:
+
+    struct Packet {
+        uint8_t *buffer;
+        uint32_t length;
+
+        bool operator==(const Packet &other) const;
+    };
+
     /**
      * Default Constructor.
      */
@@ -61,15 +69,15 @@ public:
      */
     virtual ~NetworkDevice();
 
-    Util::Memory::String getIdentifier() const;
+    [[nodiscard]] Util::Memory::String getIdentifier() const;
 
     [[nodiscard]] virtual ::Network::MacAddress getMacAddress() const = 0;
 
     void sendPacket(const uint8_t *packet, uint32_t length);
 
-    Util::Stream::ByteArrayInputStream* getNextIncomingPacket();
+    Packet getNextIncomingPacket();
 
-    Util::Stream::ByteArrayInputStream* getNextOutgoingPacket();
+    Packet getNextOutgoingPacket();
 
 protected:
 
@@ -86,8 +94,8 @@ private:
 
     uint8_t *packetMemory;
     Kernel::BitmapMemoryManager packetMemoryManager;
-    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> incomingPacketQueue;
-    Util::Data::ArrayBlockingQueue<Util::Stream::ByteArrayInputStream*> outgoingPacketQueue;
+    Util::Data::ArrayBlockingQueue<Packet> incomingPacketQueue;
+    Util::Data::ArrayBlockingQueue<Packet> outgoingPacketQueue;
 
     PacketReader *reader;
     PacketWriter *writer;

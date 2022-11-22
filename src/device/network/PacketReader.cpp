@@ -29,10 +29,10 @@ void PacketReader::run() {
     auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getEthernetModule();
 
     while (true) {
-        auto *packet = networkDevice.getNextIncomingPacket();
-        ethernetModule.readPacket(*packet, networkDevice);
-        networkDevice.freePacketBuffer((void*) packet->getBuffer());
-        delete packet;
+        const auto &packet = networkDevice.getNextIncomingPacket();
+        auto stream = Util::Stream::ByteArrayInputStream(packet.buffer, packet.length, false);
+        ethernetModule.readPacket(stream, networkDevice);
+        networkDevice.freePacketBuffer(packet.buffer);
     }
 }
 

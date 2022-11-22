@@ -45,13 +45,11 @@ Util::Memory::String NetworkDevice::getIdentifier() const {
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
-    auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length, false);
-
     auto source = Util::Memory::Address<uint32_t>(packet);
     auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
-    outgoingPacketQueue.add(stream);
+    outgoingPacketQueue.add({buffer, length});
 }
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
@@ -61,27 +59,21 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     }
 
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
-    auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length, false);
-
     auto source = Util::Memory::Address<uint32_t>(packet);
     auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
-    if (!incomingPacketQueue.offer(stream)) {
+    if (!incomingPacketQueue.offer({buffer, length})) {
         log.warn("Dropping packet, because of too many unhandled packets");
-        delete stream;
         packetMemoryManager.freeBlock(buffer);
     }
 }
 
 NetworkDevice::~NetworkDevice() {
     delete[] packetMemory;
-    for (const auto *stream : incomingPacketQueue) {
-        delete stream;
-    }
 }
 
-Util::Stream::ByteArrayInputStream* NetworkDevice::getNextIncomingPacket() {
+NetworkDevice::Packet NetworkDevice::getNextIncomingPacket() {
     while (incomingPacketQueue.isEmpty()) {
         Util::Async::Thread::yield();
     }
@@ -89,7 +81,7 @@ Util::Stream::ByteArrayInputStream* NetworkDevice::getNextIncomingPacket() {
     return incomingPacketQueue.poll();
 }
 
-Util::Stream::ByteArrayInputStream* NetworkDevice::getNextOutgoingPacket() {
+NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
     while (outgoingPacketQueue.isEmpty()) {
         Util::Async::Thread::yield();
     }
@@ -99,6 +91,10 @@ Util::Stream::ByteArrayInputStream* NetworkDevice::getNextOutgoingPacket() {
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
     packetMemoryManager.freeBlock(buffer);
+}
+
+bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {
+    return buffer == other.buffer;
 }
 
 }
