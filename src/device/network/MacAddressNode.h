@@ -15,29 +15,47 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
-#include "PcSpeaker.h"
-#include "PcSpeakerNode.h"
+#ifndef HHUOS_MACADDRESSNODE_H
+#define HHUOS_MACADDRESSNODE_H
 
-namespace Device::Sound {
+#include "filesystem/memory/StringNode.h"
+#include "NetworkDevice.h"
 
-PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : StringNode(name) {}
+namespace Device::Network {
 
-Util::Memory::String PcSpeakerNode::getString() {
-    return buffer;
+class MacAddressNode : public Filesystem::Memory::StringNode {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    explicit MacAddressNode(const NetworkDevice &device);
+
+    /**
+     * Copy Constructor.
+     */
+    MacAddressNode(const MacAddressNode &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    MacAddressNode &operator=(const MacAddressNode &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~MacAddressNode() override = default;
+
+    /**
+     * Overriding function from StringNode.
+     */
+    Util::Memory::String getString() override;
+
+private:
+
+    const NetworkDevice &device;
+};
+
 }
 
-Util::File::Type PcSpeakerNode::getFileType() {
-    return Util::File::CHARACTER;
-}
-
-uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto data = Util::Memory::String(sourceBuffer, numBytes);
-    currentFrequency = Util::Memory::String::parseInt(data);
-    buffer = Util::Memory::String::format("%u\n", currentFrequency);
-
-    PcSpeaker::play(currentFrequency);
-    return numBytes;
-}
-
-}
+#endif

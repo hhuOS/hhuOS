@@ -50,7 +50,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
             log.info("Mouse has been reset and self test result is OK");
             break;
         } else if (reply == SELF_TEST_FAILED_1 || reply == SELF_TEST_FAILED_2) {
-            log.error("Mouse has been reset but self test result is error code [%02x]", reply);
+            log.error("Mouse has been reset but self test result is error code [0x%02x]", reply);
             delete mouse;
             return nullptr;
         }
@@ -77,7 +77,7 @@ Mouse* Mouse::initialize(Ps2Controller &controller) {
         } else if (type == FIVE_BUTTON_MOUSE) {
             log.info("Detected 5-button mouse");
         } else {
-            log.error("Device connected to second PS/2 port reports as [%02x:%02x], which is not a valid mouse", type, subtype);
+            log.error("Device connected to second PS/2 port reports as [0x%02x:0x%02x], which is not a valid mouse", type, subtype);
             delete mouse;
             return nullptr;
         }

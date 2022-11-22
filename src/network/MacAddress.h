@@ -61,7 +61,7 @@ public:
 
     static MacAddress createBroadcastAddress();
 
-    Address getAddress();
+    [[nodiscard]] Address getAddress() const;
 
     void setAddress(uint8_t *buffer);
 

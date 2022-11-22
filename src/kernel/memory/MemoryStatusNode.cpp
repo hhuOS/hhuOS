@@ -21,38 +21,7 @@
 
 namespace Kernel {
 
-MemoryStatusNode::MemoryStatusNode(const Util::Memory::String &name) : Filesystem::Memory::MemoryNode(name) {}
-
-uint64_t MemoryStatusNode::getLength() {
-    refreshBuffer();
-    return memoryStatusBuffer.length();
-}
-
-uint64_t MemoryStatusNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    refreshBuffer();
-
-    if (pos >= memoryStatusBuffer.length()) {
-        return 0;
-    }
-
-    if (pos + numBytes > memoryStatusBuffer.length()) {
-        numBytes = (memoryStatusBuffer.length() - pos);
-    }
-
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(memoryStatusBuffer)).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
-    targetAddress.copyRange(sourceAddress, numBytes);
-
-    return numBytes;
-}
-
-void MemoryStatusNode::refreshBuffer() {
-    auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
-    memoryStatusBuffer = "Physical:      " + formatMemory(memoryStatus.freePhysicalMemory) + " / " + formatMemory(memoryStatus.totalPhysicalMemory) + "\n"
-            + "Lower:         " + formatMemory(memoryStatus.freeLowerMemory) + " / " + formatMemory(memoryStatus.totalLowerMemory) + "\n"
-            + "Kernel:        " + formatMemory(memoryStatus.freeKernelHeapMemory) + " / " + formatMemory(memoryStatus.totalKernelHeapMemory) + "\n"
-            + "Paging Area:   " + formatMemory(memoryStatus.freePagingAreaMemory) + " / " + formatMemory(memoryStatus.totalPagingAreaMemory) + "\n";
-}
+MemoryStatusNode::MemoryStatusNode(const Util::Memory::String &name) : StringNode(name) {}
 
 Util::Memory::String MemoryStatusNode::formatMemory(uint32_t value) {
     uint32_t result = value / 1024 / 1024;
@@ -60,6 +29,14 @@ Util::Memory::String MemoryStatusNode::formatMemory(uint32_t value) {
     uint32_t comma = (rest * 1000) / 1024 / 1024;
 
     return Util::Memory::String::format("%u.%u MiB", result, comma);
+}
+
+Util::Memory::String MemoryStatusNode::getString() {
+    auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
+    return "Physical:      " + formatMemory(memoryStatus.freePhysicalMemory) + " / " + formatMemory(memoryStatus.totalPhysicalMemory) + "\n"
+            + "Lower:         " + formatMemory(memoryStatus.freeLowerMemory) + " / " + formatMemory(memoryStatus.totalLowerMemory) + "\n"
+            + "Kernel:        " + formatMemory(memoryStatus.freeKernelHeapMemory) + " / " + formatMemory(memoryStatus.totalKernelHeapMemory) + "\n"
+            + "Paging Area:   " + formatMemory(memoryStatus.freePagingAreaMemory) + " / " + formatMemory(memoryStatus.totalPagingAreaMemory) + "\n";
 }
 
 }

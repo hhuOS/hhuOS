@@ -30,12 +30,12 @@ void ArpModule::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     arpHeader.read(stream);
 
     if (arpHeader.getHardwareAddressType() != ArpHeader::ETHERNET) {
-        log.warn("Discarding packet because of unsupported hardware address type %04x", arpHeader.getHardwareAddressType());
+        log.warn("Discarding packet because of unsupported hardware address type 0x%04x", arpHeader.getHardwareAddressType());
         return;
     }
 
     if (arpHeader.getProtocolAddressType() != ArpHeader::IP4) {
-        log.warn("Discarding packet because of unsupported protocol address type %04x", arpHeader.getProtocolAddressType());
+        log.warn("Discarding packet because of unsupported protocol address type 0x%04x", arpHeader.getProtocolAddressType());
         return;
     }
 
@@ -57,7 +57,7 @@ void ArpModule::readPacket(Util::Stream::InputStream &stream, Device::Network::N
             handleReply(sourceMacAddress, sourceIpAddress, targetMacAddress, targetIpAddress);
             break;
         default:
-            log.warn("Discarding packet because of unsupported operation type %04x", arpHeader.getOperation());
+            log.warn("Discarding packet because of unsupported operation type 0x%04x", arpHeader.getOperation());
     }
 }
 

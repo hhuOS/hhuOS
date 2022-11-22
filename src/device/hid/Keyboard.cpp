@@ -83,7 +83,7 @@ Keyboard* Keyboard::initialize(Ps2Controller &controller) {
             log.info("Keyboard has been reset and self test result is OK");
             break;
         } else if (reply == SELF_TEST_FAILED_1 || reply == SELF_TEST_FAILED_2) {
-            log.error("Keyboard has been reset but self test result is error code [%02x]", reply);
+            log.error("Keyboard has been reset but self test result is error code [0x%02x]", reply);
             delete keyboard;
             return nullptr;
         }
@@ -111,11 +111,11 @@ Keyboard* Keyboard::initialize(Ps2Controller &controller) {
                 log.info("Detected MF2 keyboard with need for translation");
                 controller.enableKeyboardTranslation();
             } else {
-                log.warn("Detected MF2 keyboard with unknown subtype [%02x] -> Assuming translation is not needed",
+                log.warn("Detected MF2 keyboard with unknown subtype [0x%02x] -> Assuming translation is not needed",
                          subtype);
             }
         } else {
-            log.error("Device connected to first PS/2 port reports as [%02x:%02x], which is not a valid keyboard", type, subtype);
+            log.error("Device connected to first PS/2 port reports as [0x%02x:0x%02x], which is not a valid keyboard", type, subtype);
             delete keyboard;
             return nullptr;
         }

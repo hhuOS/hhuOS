@@ -21,7 +21,7 @@
 namespace Device::Graphic {
 
 LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
-        Filesystem::Memory::MemoryNode(name),
+        Filesystem::Memory::StringNode(name),
         addressBuffer(Util::Memory::String::format("%u", lfb->getBuffer().get())),
         resolutionBuffer(Util::Memory::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
         pitchBuffer(Util::Memory::String::format("%u", lfb->getPitch())) {}
@@ -30,26 +30,8 @@ LinearFrameBufferNode::~LinearFrameBufferNode() {
     delete lfb;
 }
 
-uint64_t LinearFrameBufferNode::getLength() {
-    return addressBuffer.length() + resolutionBuffer.length() + pitchBuffer.length() + 2;
-}
-
-uint64_t LinearFrameBufferNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    const auto buffer = addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
-
-    if (pos >= buffer.length()) {
-        return 0;
-    }
-
-    if (pos + numBytes > buffer.length()) {
-        numBytes = (buffer.length() - pos);
-    }
-
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
-    targetAddress.copyRange(sourceAddress, numBytes);
-
-    return numBytes;
+Util::Memory::String LinearFrameBufferNode::getString() {
+    return addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
 }
 
 }

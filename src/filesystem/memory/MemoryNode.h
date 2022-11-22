@@ -36,6 +36,8 @@ public:
      */
     MemoryNode(const MemoryNode &copy) = delete;
 
+    MemoryNode();
+
     /**
      * Assignment operator.
      */

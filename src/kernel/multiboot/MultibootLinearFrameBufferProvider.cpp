@@ -24,7 +24,7 @@ Util::Graphic::LinearFrameBuffer* MultibootLinearFrameBufferProvider::initialize
         Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "LFB mode has not been initializeAvailableControllers correctly by the bootloader!");
     }
 
-    log.info("Framebuffer information is valid (Address: [%08x], Resolution: [%ux%u@%u])", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
+    log.info("Framebuffer information is valid (Address: [0x%08x], Resolution: [%ux%u@%u])", frameBufferInfo.address, frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp);
     return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(frameBufferInfo.address), frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
 }
 

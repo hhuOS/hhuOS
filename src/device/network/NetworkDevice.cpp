@@ -39,6 +39,10 @@ NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
     schedulerService.ready(writerThread);
 }
 
+Util::Memory::String NetworkDevice::getIdentifier() const {
+    return identifier;
+}
+
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
     auto *stream = new Util::Stream::ByteArrayInputStream(buffer, length, false);

@@ -29,7 +29,7 @@ namespace Device::Storage {
 Kernel::Logger IdeController::log = Kernel::Logger::get("IDE");
 
 IdeController::IdeController(const PciDevice &pciDevice) {
-    log.info("Initializing controller [%04x:%04x]", pciDevice.getVendorId(), pciDevice.getDeviceId());
+    log.info("Initializing controller [0x%04x:0x%04x]", pciDevice.getVendorId(), pciDevice.getDeviceId());
 
     uint32_t baseAddress;
     uint32_t controlBaseAddress;
@@ -632,7 +632,7 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t retri
         }
 
         if ((currentStatus & ERROR) == ERROR) {
-            if (logError) log.error("Error while waiting on status [%02x]", status);
+            if (logError) log.error("Error while waiting on status [0x%02x]", status);
             return false;
         }
 
@@ -643,7 +643,7 @@ bool IdeController::waitStatus(const IoPort &port, Status status, uint16_t retri
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
     }
 
-    if (logError) log.error("Timeout while waiting on status [%02x]", status);
+    if (logError) log.error("Timeout while waiting on status [0x%02x]", status);
     return false;
 }
 

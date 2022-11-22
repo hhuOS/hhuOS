@@ -28,7 +28,7 @@ public:
     /**
      * Constructor.
      */
-    RandomNode(const Util::Memory::String &name = "random");
+    explicit RandomNode(const Util::Memory::String &name = "random");
 
     /**
      * Copy Constructor.

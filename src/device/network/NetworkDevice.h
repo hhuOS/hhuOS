@@ -61,12 +61,9 @@ public:
      */
     virtual ~NetworkDevice();
 
-    /**
-     * Read the MAC-address into a given buffer.
-     *
-     * @param buf The buffer to read the MAC-address into.
-     */
-    virtual ::Network::MacAddress getMacAddress() = 0;
+    Util::Memory::String getIdentifier() const;
+
+    [[nodiscard]] virtual ::Network::MacAddress getMacAddress() const = 0;
 
     void sendPacket(const uint8_t *packet, uint32_t length);
 

@@ -25,7 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/network/MacAddress.cpp
         ${HHUOS_SRC_DIR}/network/NetworkModule.cpp
-        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp)
+        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp ../../src/device/network/NetworkFilesystemDriver.cpp ../../src/device/network/NetworkFilesystemDriver.h ../../src/device/network/MacAddressNode.cpp ../../src/device/network/MacAddressNode.h ../../src/filesystem/memory/StringNode.cpp ../../src/filesystem/memory/StringNode.h)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 # Add subdirectories

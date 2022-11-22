@@ -65,6 +65,7 @@
 #include "network/arp/ArpModule.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
+#include "device/network/NetworkFilesystemDriver.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -346,6 +347,7 @@ void GatesOfHell::initializeStorage() {
 void GatesOfHell::initializeNetwork() {
     Kernel::System::registerService(Kernel::NetworkService::SERVICE_ID, new Kernel::NetworkService());
     auto *loopback = new Device::Network::Loopback("loopback");
+    Device::Network::NetworkFilesystemDriver::mount(*loopback);
 
     auto arpRequest = "\xac\x9e\x17\x4e\x02\x55\x98\x9b\xcb\x78\x0d\xd0\x08\x06\x00\x01" \
                       "\x08\x00\x06\x04\x00\x01\x98\x9b\xcb\x78\x0d\xd0\xc0\xa8\x2a\x01" \
