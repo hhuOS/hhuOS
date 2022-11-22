@@ -49,7 +49,7 @@ public:
     /**
      * Overriding function from NetworkDevice.
      */
-    ::Network::MacAddress getMacAddress() override;
+    ::Network::MacAddress getMacAddress() const override;
 
 protected:
 

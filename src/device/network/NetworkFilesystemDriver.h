@@ -15,29 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
-#include "PcSpeaker.h"
-#include "PcSpeakerNode.h"
+#ifndef HHUOS_NETWORKFILESYSTEMDRIVER_H
+#define HHUOS_NETWORKFILESYSTEMDRIVER_H
 
-namespace Device::Sound {
+#include "NetworkDevice.h"
+#include "filesystem/memory/MemoryDriver.h"
 
-PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : StringNode(name) {}
+namespace Device::Network {
 
-Util::Memory::String PcSpeakerNode::getString() {
-    return buffer;
+class NetworkFilesystemDriver : public Filesystem::Memory::MemoryDriver {
+
+public:
+    /**
+     * Copy Constructor.
+     */
+    NetworkFilesystemDriver(const NetworkFilesystemDriver &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    NetworkFilesystemDriver &operator=(const NetworkFilesystemDriver &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~NetworkFilesystemDriver() override = default;
+
+    static bool mount(NetworkDevice &device);
+
+private:
+    /**
+     * Default Constructor.
+     */
+    explicit NetworkFilesystemDriver(NetworkDevice &device);
+
+    NetworkDevice &device;
+};
+
 }
 
-Util::File::Type PcSpeakerNode::getFileType() {
-    return Util::File::CHARACTER;
-}
-
-uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto data = Util::Memory::String(sourceBuffer, numBytes);
-    currentFrequency = Util::Memory::String::parseInt(data);
-    buffer = Util::Memory::String::format("%u\n", currentFrequency);
-
-    PcSpeaker::play(currentFrequency);
-    return numBytes;
-}
-
-}
+#endif

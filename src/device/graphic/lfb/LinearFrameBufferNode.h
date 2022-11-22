@@ -18,12 +18,12 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERNODE_H
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "filesystem/memory/StringNode.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Device::Graphic {
 
-class LinearFrameBufferNode : public Filesystem::Memory::MemoryNode {
+class LinearFrameBufferNode : public Filesystem::Memory::StringNode {
 
 public:
     /**
@@ -47,14 +47,9 @@ public:
     ~LinearFrameBufferNode() override;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from StringNode.
      */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+    Util::Memory::String getString();
 
 private:
 

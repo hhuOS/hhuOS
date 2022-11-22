@@ -15,29 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
-#include "PcSpeaker.h"
-#include "PcSpeakerNode.h"
+#ifndef HHUOS_STRINGNODE_H
+#define HHUOS_STRINGNODE_H
 
-namespace Device::Sound {
+#include "MemoryNode.h"
 
-PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : StringNode(name) {}
+namespace Filesystem::Memory {
 
-Util::Memory::String PcSpeakerNode::getString() {
-    return buffer;
+class StringNode : public MemoryNode {
+
+public:
+    /**
+     * Default Constructor.
+     */
+    explicit StringNode(const Util::Memory::String &name);
+
+    /**
+     * Copy Constructor.
+     */
+    StringNode(const StringNode &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    StringNode &operator=(const StringNode &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~StringNode() override = default;
+
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from MemoryNode.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+protected:
+
+    virtual Util::Memory::String getString() = 0;
+};
+
 }
 
-Util::File::Type PcSpeakerNode::getFileType() {
-    return Util::File::CHARACTER;
-}
-
-uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto data = Util::Memory::String(sourceBuffer, numBytes);
-    currentFrequency = Util::Memory::String::parseInt(data);
-    buffer = Util::Memory::String::format("%u\n", currentFrequency);
-
-    PcSpeaker::play(currentFrequency);
-    return numBytes;
-}
-
-}
+#endif

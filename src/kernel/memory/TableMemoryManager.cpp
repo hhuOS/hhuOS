@@ -255,7 +255,7 @@ void TableMemoryManager::debugLog() {
     for (uint32_t i = 0; i < referenceTableSizeInBlocks; i++) {
         for (uint32_t j = 0; j < bitmapMemoryManager.getBlockSize() / sizeof(ReferenceTableEntry); j++) {
             auto entry = referenceTableArray[i][j];
-            log.debug("Index: [%04u], Allocation Table Address: [%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
+            log.debug("Index: [%04u], Allocation Table Address: [0x%08x], Installed: [%B], Locked: [%B]", i * j + j, entry.getAddress(), entry.isInstalled(), entry.isLocked());
             if (entry.getAddress() > 0) {
                 printAllocationTable(i, j);
             }
@@ -269,7 +269,7 @@ void TableMemoryManager::printAllocationTable(uint32_t referenceTableArrayIndex,
     for (uint32_t i = 0; i < allocationTableEntriesPerBlock; i++) {
         auto entry = allocationTable[i];
         uint32_t address = referenceTableArrayIndex * referenceTableEntriesPerBlock * managedMemoryPerAllocationTable + referenceTableIndex * managedMemoryPerAllocationTable + i * blockSize;
-        log.debug("Index: [%04u], Address: [%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
+        log.debug("Index: [%04u], Address: [0x%08x], Used: [%04u], Reserved: [%B]", i, address, entry.getUseCount(), entry.isReserved());
     }
 }
 

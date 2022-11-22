@@ -20,42 +20,10 @@
 
 namespace Filesystem::Process {
 
-ProcessFileNode::ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content) : name(name), buffer(content + "\n") {}
+ProcessFileNode::ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content) : StringNode(name), buffer(content + "\n") {}
 
-Util::Memory::String ProcessFileNode::getName() {
-    return name;
-}
-
-Util::File::Type ProcessFileNode::getFileType() {
-    return Util::File::REGULAR;
-}
-
-uint64_t ProcessFileNode::getLength() {
-    return buffer.length();
-}
-
-Util::Data::Array<Util::Memory::String> ProcessFileNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
-}
-
-uint64_t ProcessFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    if (pos >= buffer.length()) {
-        return 0;
-    }
-
-    if (pos + numBytes > buffer.length()) {
-        numBytes = (buffer.length() - pos);
-    }
-
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
-    targetAddress.copyRange(sourceAddress, numBytes);
-
-    return numBytes;
-}
-
-uint64_t ProcessFileNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    return 0;
+Util::Memory::String ProcessFileNode::getString() {
+    return buffer;
 }
 
 }

@@ -91,7 +91,7 @@ void Pci::checkFunction(uint8_t bus, uint8_t device, uint8_t function) {
         scanBus(secondaryBus);
     } else {
         auto pciDevice = readDevice(bus, device, function);
-        log.info("Found PCI device [%04x:%04x] on bus [%u]", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
+        log.info("Found PCI device [0x%04x:0x%04x] on bus [%u]", pciDevice.getVendorId(), pciDevice.getDeviceId(), bus);
         devices.add(pciDevice);
     }
 }

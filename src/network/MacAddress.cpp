@@ -29,7 +29,7 @@ MacAddress MacAddress::createBroadcastAddress() {
     return MacAddress(buffer);
 }
 
-MacAddress::Address MacAddress::getAddress() {
+MacAddress::Address MacAddress::getAddress() const {
     return address;
 }
 

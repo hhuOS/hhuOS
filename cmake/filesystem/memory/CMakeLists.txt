@@ -26,4 +26,5 @@ target_sources(filesystem PUBLIC
         ${HHUOS_SRC_DIR}/filesystem/memory/NullNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/RandomNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/StreamNode.cpp
+        ${HHUOS_SRC_DIR}/filesystem/memory/StringNode.cpp
         ${HHUOS_SRC_DIR}/filesystem/memory/ZeroNode.cpp)

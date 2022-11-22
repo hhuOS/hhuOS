@@ -66,7 +66,7 @@ Ps2Controller* Ps2Controller::initialize() {
         log.info("First port test result is OK");
         controller->firstPortAvailable = true;
     } else {
-        log.error("First port test returned [%02x] -> Deactivating port", result);
+        log.error("First port test returned [0x%02x] -> Deactivating port", result);
     }
 
     result = controller->writeCommand(TEST_SECOND_PORT);
@@ -74,7 +74,7 @@ Ps2Controller* Ps2Controller::initialize() {
         log.info("Second port test result is OK");
         controller->secondPortAvailable = true;
     } else {
-        log.error("Second port test returned [%02x] -> Deactivating port", result);
+        log.error("Second port test returned [0x%02x] -> Deactivating port", result);
     }
 
     // Enable working ports

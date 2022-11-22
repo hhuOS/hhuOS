@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,18 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Loopback.h"
+#include "MacAddressNode.h"
+#include "NetworkFilesystemDriver.h"
+#include "kernel/service/FilesystemService.h"
+#include "kernel/system/System.h"
 
 namespace Device::Network {
 
-Loopback::Loopback(const Util::Memory::String &identifier) : NetworkDevice(identifier) {}
-
-::Network::MacAddress Loopback::getMacAddress() const {
-    return ::Network::MacAddress((uint8_t*) "hhuOS\0");
+NetworkFilesystemDriver::NetworkFilesystemDriver(NetworkDevice &device) : device(device) {
+    addNode("/", new MacAddressNode(device));
 }
 
-void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
-    handleIncomingPacket(packet, length);
+bool NetworkFilesystemDriver::mount(NetworkDevice &device) {
+    auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
+    auto path = "/device/" + device.getIdentifier();
+    auto *driver = new NetworkFilesystemDriver(device);
+
+    filesystemService.createDirectory(path);
+    return filesystemService.getFilesystem().mountVirtualDriver(path, driver);
 }
 
 }

@@ -91,13 +91,6 @@ void PrintWriter::print(uint32_t number) {
     char digit;
     uint8_t currentBase = base;
 
-    if (currentBase == 8)
-        write('0');
-    else if (currentBase == 16) {
-        write('0');
-        write('x');
-    }
-
     auto numberStream = Stream::ByteArrayOutputStream();
     auto numberWriter = Stream::PrintWriter(numberStream);
 

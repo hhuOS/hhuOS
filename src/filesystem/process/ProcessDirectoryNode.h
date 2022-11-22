@@ -28,7 +28,7 @@ public:
     /**
      * Default Constructor.
      */
-    ProcessDirectoryNode(uint32_t processId);
+    explicit ProcessDirectoryNode(uint32_t processId);
 
     /**
      * Copy Constructor.

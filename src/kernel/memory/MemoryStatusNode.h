@@ -18,11 +18,11 @@
 #ifndef HHUOS_MEMORYSTATUSNODE_H
 #define HHUOS_MEMORYSTATUSNODE_H
 
-#include "filesystem/memory/MemoryNode.h"
+#include "filesystem/memory/StringNode.h"
 
 namespace Kernel {
 
-class MemoryStatusNode : public Filesystem::Memory::MemoryNode {
+class MemoryStatusNode : public Filesystem::Memory::StringNode {
 
 public:
     /**
@@ -46,18 +46,11 @@ public:
     ~MemoryStatusNode() override = default;
 
     /**
-     * Overriding function from MemoryNode.
+     * Overriding function from StringNode.
      */
-    uint64_t getLength() override;
-
-    /**
-     * Overriding function from MemoryNode.
-     */
-    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+     Util::Memory::String getString() override;
 
 private:
-
-    void refreshBuffer();
 
     static Util::Memory::String formatMemory(uint32_t value);
 
