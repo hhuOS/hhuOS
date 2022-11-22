@@ -24,10 +24,9 @@ PacketWriter::PacketWriter(Device::Network::NetworkDevice &networkDevice) : netw
 
 void PacketWriter::run() {
     while (true) {
-        auto *packet = networkDevice.getNextOutgoingPacket();
-        networkDevice.handleOutgoingPacket(packet->getBuffer(), packet->getSize());
-        networkDevice.freePacketBuffer((void*) packet->getBuffer());
-        delete packet;
+        const auto &packet = networkDevice.getNextOutgoingPacket();
+        networkDevice.handleOutgoingPacket(packet.buffer, packet.length);
+        networkDevice.freePacketBuffer(packet.buffer);
     }
 }
 
