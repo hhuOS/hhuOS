@@ -25,11 +25,7 @@ Ip4Address::Ip4Address(uint8_t *buffer) {
     setAddress(buffer);
 }
 
-Ip4Address::Address Ip4Address::getAddress() {
-    return address;
-}
-
-Ip4Address::Ip4Address(const char *string) {
+Ip4Address::Ip4Address(const Util::Memory::String &string) {
     auto split = Util::Memory::String(string).split(".");
     uint8_t buffer[4] = {
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[0])),
@@ -40,30 +36,60 @@ Ip4Address::Ip4Address(const char *string) {
     setAddress(buffer);
 }
 
-void Ip4Address::setAddress(uint8_t *buffer) {
-    auto source = Util::Memory::Address<uint32_t>(buffer);
-    auto destination = Util::Memory::Address<uint32_t>(address.buffer);
-    destination.copyRange(source, ADDRESS_LENGTH);
+Ip4Address::Ip4Address(const Ip4Address &other) {
+    setAddress(other.buffer);
+}
+
+Ip4Address &Ip4Address::operator=(const Ip4Address &other) {
+    if (&other == this) {
+        return *this;
+    }
+
+    setAddress(other.buffer);
+    return *this;
 }
 
 void Ip4Address::read(Util::Stream::InputStream &stream) {
-    stream.read(address.buffer, 0, ADDRESS_LENGTH);
+    stream.read(buffer, 0, ADDRESS_LENGTH);
 }
 
 void Ip4Address::write(Util::Stream::OutputStream &stream) const {
-    stream.write(address.buffer, 0, ADDRESS_LENGTH);
+    stream.write(buffer, 0, ADDRESS_LENGTH);
 }
 
-bool Ip4Address::operator!=(const Ip4Address &other) const {
-    auto first = Util::Memory::Address<uint32_t>(address.buffer);
-    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
-    return first.compareRange(second, ADDRESS_LENGTH) != 0;
+void Ip4Address::setAddress(const Util::Memory::String &string) {
+    auto split = string.split(".");
+    if (split.length() != 4) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Address: Invalid address string given!");
+    }
+
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        buffer[i] = Util::Memory::String::parseInt(split[i]);
+    }
 }
 
-bool Ip4Address::operator==(const Ip4Address &other) const {
-    auto first = Util::Memory::Address<uint32_t>(address.buffer);
-    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
-    return first.compareRange(second, ADDRESS_LENGTH) == 0;
+void Ip4Address::setAddress(const uint8_t *buffer) {
+    auto source = Util::Memory::Address<uint32_t>(buffer);
+    auto destination = Util::Memory::Address<uint32_t>(buffer);
+    destination.copyRange(source, ADDRESS_LENGTH);
+}
+
+void Ip4Address::getAddress(uint8_t *buffer) const {
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        buffer[i] = buffer[i];
+    }
+}
+
+uint8_t Ip4Address::getLength() const {
+    return ADDRESS_LENGTH;
+}
+
+Util::Memory::String Ip4Address::toString() const {
+    return Util::Memory::String::format("%03u.%03u.%03u.%03u", buffer[0], buffer[1], buffer[2], buffer[3]);
+}
+
+NetworkAddress *Ip4Address::createCopy() const {
+    return new Ip4Address(*this);
 }
 
 }

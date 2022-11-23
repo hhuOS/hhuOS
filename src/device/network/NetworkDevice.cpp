@@ -24,12 +24,14 @@
 namespace Device::Network {
 
 NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
-        identifier(identifier), log(Kernel::Logger::get(identifier)),
+        identifier(identifier),
         packetMemory(static_cast<uint8_t *>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
         packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
-        reader(new PacketReader(*this)), writer(new PacketWriter(*this)) {
+        reader(new PacketReader(*this)),
+        writer(new PacketWriter(*this)),
+        log(Kernel::Logger::get(identifier)) {
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
     auto &readerThread = Kernel::Thread::createKernelThread("Loopback-Reader", processService.getKernelProcess(), reader);
@@ -44,17 +46,19 @@ Util::Memory::String NetworkDevice::getIdentifier() const {
 }
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
+    outgoingPacketLock.acquire();
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
     auto source = Util::Memory::Address<uint32_t>(packet);
     auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
     outgoingPacketQueue.add({buffer, length});
+    outgoingPacketLock.release();
 }
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        log.warn("Dropping packet because of not matching frame check sequence");
+        log.warn("Discarding packet because of not matching frame check sequence");
         return;
     }
 
@@ -64,13 +68,17 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer({buffer, length})) {
-        log.warn("Dropping packet, because of too many unhandled packets");
+        log.warn("Discarding packet, because of too many unhandled packets");
         packetMemoryManager.freeBlock(buffer);
     }
 }
 
 NetworkDevice::~NetworkDevice() {
     delete[] packetMemory;
+
+    for (const auto *address : addressList) {
+        delete address;
+    }
 }
 
 NetworkDevice::Packet NetworkDevice::getNextIncomingPacket() {
@@ -91,6 +99,39 @@ NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
     packetMemoryManager.freeBlock(buffer);
+}
+
+void NetworkDevice::addAddress(const ::Network::NetworkAddress &address) {
+    addressLock.acquire();
+    if (!hasAddress(address)) {
+        addressList.add(address.createCopy());
+    }
+    addressLock.release();
+}
+
+void NetworkDevice::removeAddress(const ::Network::NetworkAddress &address) {
+    addressLock.acquire();
+    for (uint32_t i = 0; i < addressList.size(); i++) {
+        if (*addressList.get(i) == address) {
+            delete addressList.removeIndex(i);
+            addressLock.release();
+            return;
+        }
+    }
+    addressLock.release();
+}
+
+bool NetworkDevice::hasAddress(const ::Network::NetworkAddress &address) {
+    addressLock.acquire();
+    for (const auto *currentAddress : addressList) {
+        if (*currentAddress == address) {
+            addressLock.release();
+            return true;
+        }
+    }
+
+    addressLock.release();
+    return false;
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

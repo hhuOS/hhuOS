@@ -15,68 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_IP4MODULE_H
+#define HHUOS_IP4MODULE_H
 
-#include "NetworkAddress.h"
+#include "network/NetworkModule.h"
 
-namespace Network {
+namespace Network::Ip4 {
 
-class MacAddress : public NetworkAddress {
+class Ip4Module : public NetworkModule {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
-
     /**
      * Default Constructor.
      */
-    MacAddress() = default;
-
-    /**
-     * Constructor.
-     */
-    explicit MacAddress(uint8_t *buffer);
+    Ip4Module() = default;
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other);
+    Ip4Module(const Ip4Module &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other);
+    Ip4Module &operator=(const Ip4Module &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MacAddress() override = default;
+    ~Ip4Module() = default;
 
-    static MacAddress createBroadcastAddress();
+    void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
-
-    void read(Util::Stream::InputStream &stream) override;
-
-    void write(Util::Stream::OutputStream &stream) const override;
-
-    void setAddress(const Util::Memory::String &string) override;
-
-    void setAddress(const uint8_t *buffer) override;
-
-    void getAddress(uint8_t *buffer) const override;
-
-    [[nodiscard]] uint8_t getLength() const override;
-
-    [[nodiscard]] Util::Memory::String toString() const override;
-
-    [[nodiscard]] bool isBroadcastAddress() const;
-    
 private:
 
-    uint8_t *buffer = new uint8_t[ADDRESS_LENGTH];
-
+    static Kernel::Logger log;
 };
 
 }

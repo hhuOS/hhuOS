@@ -34,10 +34,7 @@ public:
     /**
      * Default Constructor.
      */
-    ArpModule() {
-        uint8_t buffer[6] = {0xac, 0x9e, 0x17, 0x4e, 0x02, 0x55};
-        setEntry(Ip4::Ip4Address("192.168.42.219"), MacAddress(buffer));
-    }
+    ArpModule() = default;
 
     /**
      * Copy Constructor.

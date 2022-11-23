@@ -21,6 +21,7 @@
 #include "network/ethernet/EthernetModule.h"
 #include "Service.h"
 #include "network/arp/ArpModule.h"
+#include "network/ip4/Ip4Module.h"
 
 namespace Kernel {
 
@@ -57,6 +58,7 @@ private:
 
     Network::Ethernet::EthernetModule ethernetModule;
     Network::Arp::ArpModule arpModule;
+    Network::Ip4::Ip4Module ip4Module;
 };
 
 }

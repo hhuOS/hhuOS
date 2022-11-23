@@ -34,12 +34,12 @@ void EthernetModule::readPacket(Util::Stream::InputStream &stream, Device::Netwo
     ethernetHeader.read(stream);
 
     if (ethernetHeader.getDestinationAddress() != device.getMacAddress()) {
-        log.warn("Dropping packet because of wrong destination address!");
+        log.warn("Discarding packet because of wrong destination address!");
         return;
     }
 
     if (!isNextLayerTypeSupported(ethernetHeader.getEtherType())) {
-        log.warn("Dropping packet because of unsupported ether type!");
+        log.warn("Discarding packet because of unsupported ether type!");
         return;
     }
 
@@ -52,10 +52,6 @@ uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t 
 }
 
 void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
-    for (uint32_t i = packet.getSize(); i <= MINIMUM_PACKET_SIZE - 2 * sizeof(uint32_t); i += 4) {
-        NumberUtil::writeUnsigned32BitValue(0, packet);
-    }
-
     for (uint32_t i = packet.getSize(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
         NumberUtil::writeUnsigned8BitValue(0, packet);
     }

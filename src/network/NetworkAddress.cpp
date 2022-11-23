@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,15 +15,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/ByteArrayOutputStream.h"
-#include "MacAddressNode.h"
+#include "lib/util/memory/Address.h"
+#include "NetworkAddress.h"
 
-namespace Device::Network {
+namespace Network {
 
-MacAddressNode::MacAddressNode(const NetworkDevice &device) : StringNode("mac_address"), device(device) {}
+bool NetworkAddress::operator==(const NetworkAddress &other) const {
+    if (getLength() != other.getLength()) {
+        return false;
+    }
 
-Util::Memory::String MacAddressNode::getString() {
-    return device.getMacAddress().toString();
+    auto first = Util::Memory::Address<uint32_t>(new uint8_t[getLength()]);
+    auto second = Util::Memory::Address<uint32_t>(new uint8_t[getLength()]);
+    auto result = first.compareRange(second, getLength());
+
+    delete[] reinterpret_cast<uint8_t*>(first.get());
+    delete[] reinterpret_cast<uint8_t*>(second.get());
+    return result == 0;
+}
+
+bool NetworkAddress::operator!=(const NetworkAddress &other) const {
+    return !(*this == other);
 }
 
 }

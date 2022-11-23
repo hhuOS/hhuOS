@@ -58,6 +58,10 @@ uint32_t ByteArrayInputStream::getSize() const {
     return size;
 }
 
+uint32_t ByteArrayInputStream::getPosition() const {
+    return position;
+}
+
 bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
 }
