@@ -24,47 +24,66 @@ MacAddress::MacAddress(uint8_t *buffer) {
     setAddress(buffer);
 }
 
+MacAddress::MacAddress(const MacAddress &other) {
+    setAddress(other.buffer);
+}
+
+MacAddress &MacAddress::operator=(const MacAddress &other) {
+    if (&other == this) {
+        return *this;
+    }
+
+    setAddress(other.buffer);
+    return *this;
+}
+
 MacAddress MacAddress::createBroadcastAddress() {
     uint8_t buffer[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     return MacAddress(buffer);
 }
 
-MacAddress::Address MacAddress::getAddress() const {
-    return address;
-}
-
-void MacAddress::setAddress(uint8_t *buffer) {
+void MacAddress::setAddress(const uint8_t *buffer) {
     auto source = Util::Memory::Address<uint32_t>(buffer);
-    auto destination = Util::Memory::Address<uint32_t>(address.buffer);
+    auto destination = Util::Memory::Address<uint32_t>(MacAddress::buffer);
     destination.copyRange(source, ADDRESS_LENGTH);
 }
 
 void MacAddress::read(Util::Stream::InputStream &stream) {
-    stream.read(address.buffer, 0, ADDRESS_LENGTH);
+    stream.read(buffer, 0, ADDRESS_LENGTH);
 }
 
 void MacAddress::write(Util::Stream::OutputStream &stream) const {
-    stream.write(address.buffer, 0, ADDRESS_LENGTH);
+    stream.write(buffer, 0, ADDRESS_LENGTH);
 }
 
 bool MacAddress::isBroadcastAddress() const {
-    for (const auto c : address.buffer) {
-        if (c != 0xff) return false;
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        if (buffer[i] != 0xff) return false;
     }
 
     return true;
 }
 
-bool MacAddress::operator!=(const MacAddress &other) const {
-    auto first = Util::Memory::Address<uint32_t>(address.buffer);
-    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
-    return first.compareRange(second, ADDRESS_LENGTH) != 0;
+Util::Memory::String MacAddress::toString() const {
+    return Util::Memory::String::format("%02x:%02x:%02x:%02x:%02x:%02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 }
 
-bool MacAddress::operator==(const MacAddress &other) const {
-    auto first = Util::Memory::Address<uint32_t>(address.buffer);
-    auto second = Util::Memory::Address<uint32_t>(other.address.buffer);
-    return first.compareRange(second, ADDRESS_LENGTH) == 0;
+void MacAddress::setAddress(const Util::Memory::String &string) {
+    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MacAddress: Cannot be parsed from string!");
+}
+
+void MacAddress::getAddress(uint8_t *buffer) const {
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        buffer[i] = MacAddress::buffer[i];
+    }
+}
+
+uint8_t MacAddress::getLength() const {
+    return ADDRESS_LENGTH;
+}
+
+NetworkAddress *MacAddress::createCopy() const {
+    return new MacAddress(*this);
 }
 
 }

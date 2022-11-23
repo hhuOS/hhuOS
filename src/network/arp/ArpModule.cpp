@@ -83,7 +83,7 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
         arpHeader.write(packet);
 
         device.getMacAddress().write(packet);
-        Ip4::Ip4Address("10.0.0.2").write(packet); // TODO: Replace with real source IP address
+        Ip4::Ip4Address("127.0.0.1").write(packet); // TODO: Replace with real source IP address
         MacAddress().write(packet);
         protocolAddress.write(packet);
 

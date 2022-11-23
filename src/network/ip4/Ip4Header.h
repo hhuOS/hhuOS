@@ -15,68 +15,70 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_IP4HEADER_H
+#define HHUOS_IP4HEADER_H
 
-#include "NetworkAddress.h"
+#include "lib/util/stream/InputStream.h"
+#include "Ip4Address.h"
 
-namespace Network {
+namespace Network::Ip4 {
 
-class MacAddress : public NetworkAddress {
+class Ip4Header {
 
 public:
 
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
+    enum Protocol : uint8_t {
+        ICMP = 0x01,
+        TCP = 0x06,
+        UDP = 0x11
+    };
 
     /**
      * Default Constructor.
      */
-    MacAddress() = default;
-
-    /**
-     * Constructor.
-     */
-    explicit MacAddress(uint8_t *buffer);
+    Ip4Header() = default;
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other);
+    Ip4Header(const Ip4Header &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other);
+    Ip4Header &operator=(const Ip4Header &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MacAddress() override = default;
+    ~Ip4Header() = default;
 
-    static MacAddress createBroadcastAddress();
+    static uint16_t calculateChecksum(const uint8_t *buffer);
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    void read(Util::Stream::InputStream &stream);
 
-    void read(Util::Stream::InputStream &stream) override;
+    [[nodiscard]] uint8_t getVersion() const;
 
-    void write(Util::Stream::OutputStream &stream) const override;
+    [[nodiscard]] uint16_t getPayloadLength() const;
 
-    void setAddress(const Util::Memory::String &string) override;
+    [[nodiscard]] uint8_t getTimeToLive() const;
 
-    void setAddress(const uint8_t *buffer) override;
+    [[nodiscard]] Protocol getProtocol() const;
 
-    void getAddress(uint8_t *buffer) const override;
+    [[nodiscard]] Ip4Address getSourceAddress() const;
 
-    [[nodiscard]] uint8_t getLength() const override;
+    [[nodiscard]] Ip4Address getDestinationAddress() const;
 
-    [[nodiscard]] Util::Memory::String toString() const override;
-
-    [[nodiscard]] bool isBroadcastAddress() const;
-    
 private:
 
-    uint8_t *buffer = new uint8_t[ADDRESS_LENGTH];
+    uint8_t version;
+    uint16_t payloadLength;
+    uint8_t timeToLive;
+    Protocol protocol;
+    Ip4Address sourceAddress;
+    Ip4Address destinationAddress;
 
+    static const constexpr uint32_t MIN_HEADER_LENGTH = 20;
 };
 
 }

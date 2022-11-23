@@ -37,6 +37,8 @@ public:
 
     [[nodiscard]] uint32_t getSize() const;
 
+    [[nodiscard]] uint32_t getPosition() const;
+
     [[nodiscard]] bool isEmpty() const;
 
     [[nodiscard]] const uint8_t* getBuffer();

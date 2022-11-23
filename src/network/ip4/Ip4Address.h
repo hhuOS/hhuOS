@@ -18,20 +18,15 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include "network/NetworkAddress.h"
 
 namespace Network::Ip4 {
 
-class Ip4Address {
+class Ip4Address : public NetworkAddress {
 
 public:
 
     static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
-    struct Address {
-        uint8_t buffer[ADDRESS_LENGTH]{};
-    };
 
     /**
      * Default Constructor.
@@ -46,38 +41,42 @@ public:
     /**
      * Constructor.
      */
-    explicit Ip4Address(const char *string);
+    explicit Ip4Address(const Util::Memory::String &string);
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    Ip4Address(const Ip4Address &other);
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    Ip4Address &operator=(const Ip4Address &other);
 
     /**
      * Destructor.
      */
-    ~Ip4Address() = default;
+    ~Ip4Address() override = default;
 
-    Address getAddress();
+    [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    void setAddress(uint8_t *buffer);
+    void read(Util::Stream::InputStream &stream) override;
 
-    void read(Util::Stream::InputStream &stream);
+    void write(Util::Stream::OutputStream &stream) const override;
 
-    void write(Util::Stream::OutputStream &stream) const;
+    void setAddress(const Util::Memory::String &string) override;
 
-    bool operator!=(const Ip4Address &other) const;
+    void setAddress(const uint8_t *buffer) override;
 
-    bool operator==(const Ip4Address &other) const;
+    void getAddress(uint8_t *buffer) const override;
+
+    [[nodiscard]] uint8_t getLength() const override;
+
+    [[nodiscard]] Util::Memory::String toString() const override;
 
 private:
 
-    Address address;
+    uint8_t *buffer = new uint8_t[ADDRESS_LENGTH];
 };
 
 }

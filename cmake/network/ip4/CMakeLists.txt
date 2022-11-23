@@ -17,4 +17,6 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(network PUBLIC
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Address.cpp)
+        ${HHUOS_SRC_DIR}/network/ip4/Ip4Address.cpp
+        ${HHUOS_SRC_DIR}/network/ip4/Ip4Header.cpp
+        ${HHUOS_SRC_DIR}/network/ip4/Ip4Module.cpp)

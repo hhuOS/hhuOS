@@ -15,68 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_NETWORKADDRESS_H
+#define HHUOS_NETWORKADDRESS_H
 
-#include "NetworkAddress.h"
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
+#include "lib/util/memory/String.h"
 
 namespace Network {
 
-class MacAddress : public NetworkAddress {
+class NetworkAddress {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
-
     /**
      * Default Constructor.
      */
-    MacAddress() = default;
-
-    /**
-     * Constructor.
-     */
-    explicit MacAddress(uint8_t *buffer);
+    NetworkAddress() = default;
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other);
+    NetworkAddress(const NetworkAddress &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other);
+    NetworkAddress &operator=(const NetworkAddress &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MacAddress() override = default;
+    virtual ~NetworkAddress() = default;
 
-    static MacAddress createBroadcastAddress();
+    bool operator==(const NetworkAddress &other) const;
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    bool operator!=(const NetworkAddress &other) const;
 
-    void read(Util::Stream::InputStream &stream) override;
+    [[nodiscard]] virtual NetworkAddress* createCopy() const = 0;
 
-    void write(Util::Stream::OutputStream &stream) const override;
+    virtual void read(Util::Stream::InputStream &stream) = 0;
 
-    void setAddress(const Util::Memory::String &string) override;
+    virtual void write(Util::Stream::OutputStream &stream) const = 0;
 
-    void setAddress(const uint8_t *buffer) override;
+    virtual void setAddress(const Util::Memory::String &string) = 0;
 
-    void getAddress(uint8_t *buffer) const override;
+    virtual void setAddress(const uint8_t *buffer) = 0;
 
-    [[nodiscard]] uint8_t getLength() const override;
+    virtual void getAddress(uint8_t *buffer) const = 0;
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    [[nodiscard]] virtual uint8_t getLength() const = 0;
 
-    [[nodiscard]] bool isBroadcastAddress() const;
-    
-private:
-
-    uint8_t *buffer = new uint8_t[ADDRESS_LENGTH];
-
+    [[nodiscard]] virtual Util::Memory::String toString() const = 0;
 };
 
 }

@@ -28,8 +28,8 @@ void EthernetHeader::read(Util::Stream::InputStream &stream) {
 }
 
 void EthernetHeader::write(Util::Stream::OutputStream &stream) {
-    stream.write(destinationAddress.getAddress().buffer, 0, MacAddress::ADDRESS_LENGTH);
-    stream.write(sourceAddress.getAddress().buffer, 0, MacAddress::ADDRESS_LENGTH);
+    destinationAddress.write(stream);
+    sourceAddress.write(stream);
     NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 

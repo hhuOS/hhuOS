@@ -20,6 +20,7 @@
 
 Kernel::NetworkService::NetworkService() {
     ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::ARP, arpModule);
+    ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::IP4, ip4Module);
 }
 
 Network::Ethernet::EthernetModule& Kernel::NetworkService::getEthernetModule() {

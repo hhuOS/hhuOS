@@ -25,6 +25,7 @@
 #include "lib/util/stream/PipedOutputStream.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 #include "network/MacAddress.h"
 #include "kernel/log/Logger.h"
 #include "PacketReader.h"
@@ -73,6 +74,12 @@ public:
 
     [[nodiscard]] virtual ::Network::MacAddress getMacAddress() const = 0;
 
+    void addAddress(const ::Network::NetworkAddress &address);
+
+    void removeAddress(const ::Network::NetworkAddress &address);
+
+    [[nodiscard]] bool hasAddress(const ::Network::NetworkAddress &address);
+
     void sendPacket(const uint8_t *packet, uint32_t length);
 
     Packet getNextIncomingPacket();
@@ -90,15 +97,20 @@ private:
     void freePacketBuffer(void *buffer);
 
     Util::Memory::String identifier;
-    Kernel::Logger log;
 
     uint8_t *packetMemory;
     Kernel::BitmapMemoryManager packetMemoryManager;
     Util::Data::ArrayBlockingQueue<Packet> incomingPacketQueue;
     Util::Data::ArrayBlockingQueue<Packet> outgoingPacketQueue;
+    Util::Async::Spinlock outgoingPacketLock;
+
+    Util::Data::ArrayList<::Network::NetworkAddress*> addressList;
+    Util::Async::ReentrantSpinlock addressLock;
 
     PacketReader *reader;
     PacketWriter *writer;
+
+    Kernel::Logger log;
 
     static const constexpr uint32_t PACKET_BUFFER_SIZE = 2048;
     static const constexpr uint32_t MAX_BUFFERED_PACKETS = 16;

@@ -66,15 +66,15 @@ public:
 
     void write(Util::Stream::OutputStream &stream);
 
-    HardwareAddressType getHardwareAddressType() const;
+    [[nodiscard]] HardwareAddressType getHardwareAddressType() const;
 
-    uint8_t getHardwareAddressSize() const;
+    [[nodiscard]] uint8_t getHardwareAddressSize() const;
 
-    ProtocolAddressType getProtocolAddressType() const;
+    [[nodiscard]] ProtocolAddressType getProtocolAddressType() const;
 
-    uint8_t getProtocolAddressSize() const;
+    [[nodiscard]] uint8_t getProtocolAddressSize() const;
 
-    Operation getOperation() const;
+    [[nodiscard]] Operation getOperation() const;
 
     void setOperation(Operation operation);
 
