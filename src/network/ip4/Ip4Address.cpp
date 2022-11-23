@@ -92,4 +92,8 @@ NetworkAddress *Ip4Address::createCopy() const {
     return new Ip4Address(*this);
 }
 
+NetworkAddress::Type Ip4Address::getType() const {
+    return NetworkAddress::IP4;
+}
+
 }

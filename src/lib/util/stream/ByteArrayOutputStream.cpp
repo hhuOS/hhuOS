@@ -89,8 +89,12 @@ void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
     size = newSize;
 }
 
-const uint8_t* ByteArrayOutputStream::getBuffer() const {
+uint8_t * ByteArrayOutputStream::getBuffer() const {
     return buffer;
+}
+
+uint32_t ByteArrayOutputStream::getPosition() const {
+    return position;
 }
 
 }

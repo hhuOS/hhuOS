@@ -58,7 +58,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        log.warn("Discarding packet because of not matching frame check sequence");
+        log.warn("Discarding packet, because of not matching frame check sequence");
         return;
     }
 
@@ -132,6 +132,32 @@ bool NetworkDevice::hasAddress(const ::Network::NetworkAddress &address) {
 
     addressLock.release();
     return false;
+}
+
+bool NetworkDevice::hasAddress(::Network::NetworkAddress::Type type) {
+    addressLock.acquire();
+    for (const auto *currentAddress : addressList) {
+        if (currentAddress->getType() == type) {
+            addressLock.release();
+            return true;
+        }
+    }
+
+    addressLock.release();
+    return false;
+}
+
+::Network::Ip4::Ip4Address NetworkDevice::getIp4Address() {
+    addressLock.acquire();
+    for (const auto *currentAddress : addressList) {
+        if (currentAddress->getType() == ::Network::NetworkAddress::IP4) {
+            addressLock.release();
+            return *reinterpret_cast<const ::Network::Ip4::Ip4Address*>(currentAddress);
+        }
+    }
+
+    addressLock.release();
+    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "NetworkDevice: No IPv4 address assigned!");
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

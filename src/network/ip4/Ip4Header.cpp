@@ -53,6 +53,27 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
     }
 }
 
+void Ip4Header::write(Util::Stream::OutputStream &stream) const {
+    NumberUtil::writeUnsigned8BitValue((version << 4) | MIN_HEADER_LENGTH, stream);
+
+    // Write empty DSCP and ECN
+    NumberUtil::writeUnsigned8BitValue(0, stream);
+
+    NumberUtil::writeUnsigned16BitValue((MIN_HEADER_LENGTH / sizeof(uint32_t)) + payloadLength, stream);
+
+    // Write empty Identification, Flags and Offset
+    NumberUtil::writeUnsigned32BitValue(0, stream);
+
+    NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
+    NumberUtil::writeUnsigned8BitValue(protocol, stream);
+
+    // Write empty checksum
+    NumberUtil::writeUnsigned8BitValue(0, stream);
+
+    sourceAddress.write(stream);
+    destinationAddress.write(stream);
+}
+
 uint16_t Ip4Header::calculateChecksum(const uint8_t *buffer) {
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
     uint32_t checksum = 0;
@@ -98,6 +119,26 @@ Ip4Address Ip4Header::getSourceAddress() const {
 
 Ip4Address Ip4Header::getDestinationAddress() const {
     return destinationAddress;
+}
+
+void Ip4Header::setPayloadLength(uint16_t payloadLength) {
+    Ip4Header::payloadLength = payloadLength;
+}
+
+void Ip4Header::setTimeToLive(uint8_t timeToLive) {
+    Ip4Header::timeToLive = timeToLive;
+}
+
+void Ip4Header::setProtocol(Ip4Header::Protocol aProtocol) {
+    protocol = aProtocol;
+}
+
+void Ip4Header::setSourceAddress(const Ip4Address &sourceAddress) {
+    Ip4Header::sourceAddress = sourceAddress;
+}
+
+void Ip4Header::setDestinationAddress(const Ip4Address &destinationAddress) {
+    Ip4Header::destinationAddress = destinationAddress;
 }
 
 }

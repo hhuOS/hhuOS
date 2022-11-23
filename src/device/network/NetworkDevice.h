@@ -30,6 +30,7 @@
 #include "kernel/log/Logger.h"
 #include "PacketReader.h"
 #include "PacketWriter.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Device::Network {
 
@@ -79,6 +80,10 @@ public:
     void removeAddress(const ::Network::NetworkAddress &address);
 
     [[nodiscard]] bool hasAddress(const ::Network::NetworkAddress &address);
+
+    [[nodiscard]] bool hasAddress(::Network::NetworkAddress::Type type);
+
+    [[nodiscard]] ::Network::Ip4::Ip4Address getIp4Address();
 
     void sendPacket(const uint8_t *packet, uint32_t length);
 
