@@ -71,6 +71,8 @@ public:
 
     [[nodiscard]] Util::Memory::String toString() const override;
 
+    [[nodiscard]] Type getType() const override;
+
     [[nodiscard]] bool isBroadcastAddress() const;
     
 private:

@@ -21,6 +21,7 @@
 #include "network/NetworkModule.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "EthernetHeader.h"
 
 namespace Network::Ethernet {
 
@@ -50,6 +51,8 @@ public:
     static bool checkPacket(const uint8_t *packet, uint32_t length);
 
     void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+
+    static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress, EthernetHeader::EtherType etherType);
 
     static void finalizePacket(Util::Stream::ByteArrayOutputStream &packet);
 

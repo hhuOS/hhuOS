@@ -57,6 +57,8 @@ public:
 
     void read(Util::Stream::InputStream &stream);
 
+    void write(Util::Stream::OutputStream &stream) const;
+
     [[nodiscard]] uint8_t getVersion() const;
 
     [[nodiscard]] uint16_t getPayloadLength() const;
@@ -69,14 +71,24 @@ public:
 
     [[nodiscard]] Ip4Address getDestinationAddress() const;
 
+    void setPayloadLength(uint16_t payloadLength);
+
+    void setTimeToLive(uint8_t timeToLive);
+
+    void setProtocol(Protocol aProtocol);
+
+    void setSourceAddress(const Ip4Address &sourceAddress);
+
+    void setDestinationAddress(const Ip4Address &destinationAddress);
+
 private:
 
-    uint8_t version;
-    uint16_t payloadLength;
-    uint8_t timeToLive;
-    Protocol protocol;
-    Ip4Address sourceAddress;
-    Ip4Address destinationAddress;
+    uint8_t version = 4;
+    uint16_t payloadLength = 0;
+    uint8_t timeToLive = 64;
+    Protocol protocol{};
+    Ip4Address sourceAddress{};
+    Ip4Address destinationAddress{};
 
     static const constexpr uint32_t MIN_HEADER_LENGTH = 20;
 };

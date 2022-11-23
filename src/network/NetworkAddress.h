@@ -27,6 +27,11 @@ namespace Network {
 class NetworkAddress {
 
 public:
+
+    enum Type {
+        MAC, IP4, IP6
+    };
+
     /**
      * Default Constructor.
      */
@@ -64,6 +69,8 @@ public:
     virtual void getAddress(uint8_t *buffer) const = 0;
 
     [[nodiscard]] virtual uint8_t getLength() const = 0;
+
+    [[nodiscard]] virtual Type getType() const = 0;
 
     [[nodiscard]] virtual Util::Memory::String toString() const = 0;
 };

@@ -30,12 +30,12 @@ void ArpModule::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     arpHeader.read(stream);
 
     if (arpHeader.getHardwareAddressType() != ArpHeader::ETHERNET) {
-        log.warn("Discarding packet because of unsupported hardware address type 0x%04x", arpHeader.getHardwareAddressType());
+        log.warn("Discarding packet, because of unsupported hardware address type 0x%04x", arpHeader.getHardwareAddressType());
         return;
     }
 
     if (arpHeader.getProtocolAddressType() != ArpHeader::IP4) {
-        log.warn("Discarding packet because of unsupported protocol address type 0x%04x", arpHeader.getProtocolAddressType());
+        log.warn("Discarding packet, because of unsupported protocol address type 0x%04x", arpHeader.getProtocolAddressType());
         return;
     }
 
@@ -57,7 +57,7 @@ void ArpModule::readPacket(Util::Stream::InputStream &stream, Device::Network::N
             handleReply(sourceMacAddress, sourceIpAddress, targetMacAddress, targetIpAddress);
             break;
         default:
-            log.warn("Discarding packet because of unsupported operation type 0x%04x", arpHeader.getOperation());
+            log.warn("Discarding packet, because of unsupported operation type 0x%04x", arpHeader.getOperation());
     }
 }
 
@@ -70,20 +70,11 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
         }
         lock.release();
 
-        auto ethernetHeader = Ethernet::EthernetHeader();
-        ethernetHeader.setDestinationAddress(MacAddress::createBroadcastAddress());
-        ethernetHeader.setSourceAddress(device.getMacAddress());
-        ethernetHeader.setEtherType(Ethernet::EthernetHeader::ARP);
-
-        auto arpHeader = ArpHeader();
-        arpHeader.setOperation(ArpHeader::REQUEST);
-
         auto packet = Util::Stream::ByteArrayOutputStream();
-        ethernetHeader.write(packet);
-        arpHeader.write(packet);
+        writeHeader(packet, ArpHeader::REQUEST, device, MacAddress::createBroadcastAddress());
 
         device.getMacAddress().write(packet);
-        Ip4::Ip4Address("127.0.0.1").write(packet); // TODO: Replace with real source IP address
+        device.getIp4Address().write(packet);
         MacAddress().write(packet);
         protocolAddress.write(packet);
 
@@ -145,17 +136,8 @@ void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4
         auto targetHardwareAddress = getHardwareAddress(targetProtocolAddress);
         lock.release();
 
-        auto ethernetHeader = Ethernet::EthernetHeader();
-        ethernetHeader.setDestinationAddress(targetHardwareAddress);
-        ethernetHeader.setSourceAddress(device.getMacAddress());
-        ethernetHeader.setEtherType(Ethernet::EthernetHeader::ARP);
-
-        auto arpHeader = ArpHeader();
-        arpHeader.setOperation(ArpHeader::REPLY);
-
         auto packet = Util::Stream::ByteArrayOutputStream();
-        ethernetHeader.write(packet);
-        arpHeader.write(packet);
+        writeHeader(packet, ArpHeader::REPLY, device, targetHardwareAddress);
 
         device.getMacAddress().write(packet);
         targetProtocolAddress.write(packet);
@@ -177,6 +159,14 @@ void ArpModule::handleReply(const MacAddress &sourceHardwareAddress, const Ip4::
     if (!targetHardwareAddress.isBroadcastAddress()) {
         setEntry(targetProtocolAddress, targetHardwareAddress);
     }
+}
+
+void ArpModule::writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress) {
+    Ethernet::EthernetModule::writeHeader(stream, device, destinationAddress, Ethernet::EthernetHeader::ARP);
+
+    auto header = ArpHeader();
+    header.setOperation(operation);
+    header.write(stream);
 }
 
 }

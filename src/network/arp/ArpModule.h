@@ -55,6 +55,9 @@ public:
 
     bool resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
+    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation,
+                            Device::Network::NetworkDevice &device, const MacAddress &destinationAddress);
+
 private:
 
     void setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);

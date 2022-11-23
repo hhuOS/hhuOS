@@ -17,6 +17,8 @@
 
 #include "Ip4Module.h"
 #include "Ip4Header.h"
+#include "kernel/system/System.h"
+#include "kernel/service/NetworkService.h"
 
 namespace Network::Ip4 {
 
@@ -29,7 +31,7 @@ void Ip4Module::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     auto receivedChecksum = (buffer[10] << 8) | buffer[11];
 
     if (receivedChecksum != calculatedChecksum) {
-        log.warn("Discarding packet because of not matching header checksum");
+        log.warn("Discarding packet, because of not matching header checksum");
         return;
     }
 
@@ -37,14 +39,37 @@ void Ip4Module::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     header.read(stream);
 
     if (header.getVersion() != 4) {
-        log.warn("Discarding packet because of wrong IP version");
+        log.warn("Discarding packet, because of wrong IP version");
         return;
     }
 
     if (!device.hasAddress(header.getDestinationAddress())) {
-        log.warn("Discarding packet because of wrong destination address!");
+        log.warn("Discarding packet, because of wrong destination address!");
         return;
     }
+}
+
+void Ip4Module::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol) {
+    auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getArpModule();
+    auto destinationMacAddress = MacAddress();
+    if (!arpModule.resolveAddress(destinationAddress, destinationMacAddress, device)) {
+        log.warn("Discarding packet, because the destination IPv4 address could not resolved");
+        return;
+    }
+
+    Ethernet::EthernetModule::writeHeader(stream, device, destinationMacAddress, Ethernet::EthernetHeader::IP4);
+
+    auto header = Ip4Header();
+    header.setSourceAddress(device.getIp4Address());
+    header.setDestinationAddress(destinationAddress);
+    header.setProtocol(protocol);
+    header.write(stream);
+
+    auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayOutputStream&>(stream);
+    auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
+    auto checksum = Ip4Header::calculateChecksum(buffer);
+    buffer[10] = checksum >> 8;
+    buffer[11] = checksum;
 }
 
 }

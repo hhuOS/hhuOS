@@ -86,4 +86,8 @@ NetworkAddress *MacAddress::createCopy() const {
     return new MacAddress(*this);
 }
 
+NetworkAddress::Type MacAddress::getType() const {
+    return NetworkAddress::MAC;
+}
+
 }

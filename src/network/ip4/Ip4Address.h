@@ -72,6 +72,8 @@ public:
 
     [[nodiscard]] uint8_t getLength() const override;
 
+    [[nodiscard]] Type getType() const override;
+
     [[nodiscard]] Util::Memory::String toString() const override;
 
 private:

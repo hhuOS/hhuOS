@@ -19,6 +19,7 @@
 #define HHUOS_IP4MODULE_H
 
 #include "network/NetworkModule.h"
+#include "Ip4Header.h"
 
 namespace Network::Ip4 {
 
@@ -46,6 +47,8 @@ public:
     ~Ip4Module() = default;
 
     void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+
+    void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol);
 
 private:
 

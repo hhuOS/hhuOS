@@ -42,7 +42,9 @@ public:
 
     [[nodiscard]] bool isEmpty() const;
 
-    [[nodiscard]] const uint8_t* getBuffer() const;
+    [[nodiscard]] uint32_t getPosition() const;
+
+    [[nodiscard]] uint8_t * getBuffer() const;
 
     void getContent(uint8_t *target, uint32_t length) const;
 
