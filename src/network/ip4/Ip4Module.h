@@ -20,6 +20,8 @@
 
 #include "network/NetworkModule.h"
 #include "Ip4Header.h"
+#include "Ip4RoutingModule.h"
+#include "kernel/log/Logger.h"
 
 namespace Network::Ip4 {
 
@@ -46,11 +48,18 @@ public:
      */
     ~Ip4Module() = default;
 
+    Ip4Interface& getInterface(const Util::Memory::String &deviceIdentifier);
+
+    void registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+
     void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
 
-    void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol);
+    static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol);
 
 private:
+
+    Ip4RoutingModule routingModule;
+    Util::Data::ArrayList<Ip4Interface*> interfaces;
 
     static Kernel::Logger log;
 };

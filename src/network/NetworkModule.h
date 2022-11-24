@@ -20,7 +20,10 @@
 
 #include "lib/util/stream/InputStream.h"
 #include "lib/util/data/HashMap.h"
-#include "device/network/NetworkDevice.h"
+
+namespace Device::Network {
+class NetworkDevice;
+}
 
 namespace Network {
 

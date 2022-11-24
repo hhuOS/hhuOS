@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,58 +15,56 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_IP4INTERFACE_H
+#define HHUOS_IP4INTERFACE_H
 
-#include "network/NetworkAddress.h"
+#include "Ip4Address.h"
+#include "Ip4NetworkMask.h"
+
+namespace Device::Network {
+class NetworkDevice;
+}
 
 namespace Network::Ip4 {
 
-class Ip4Address : public NetworkAddress {
+class Ip4Interface {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
-    /**
-     * Default Constructor.
-     */
-    Ip4Address();
-
     /**
      * Constructor.
      */
-    explicit Ip4Address(uint8_t *buffer);
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::Memory::String &string);
+    Ip4Interface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    Ip4Interface(const Ip4Interface &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    Ip4Interface &operator=(const Ip4Interface &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4Address() override = default;
+    ~Ip4Interface() = default;
 
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
+    [[nodiscard]] Util::Memory::String getDeviceIdentifier() const;
 
-    [[nodiscard]] bool isBroadcastAddress() const;
+    void sendPacket(uint8_t *packet, uint32_t length);
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    Ip4Address getAddress();
 
-    void setAddress(const Util::Memory::String &string) override;
+    bool isTargetOf(const Ip4Address &targetAddress);
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+private:
+
+    Ip4Address address;
+    Ip4Address networkAddress;
+    Ip4NetworkMask networkMask;
+
+    Device::Network::NetworkDevice &device;
 };
 
 }

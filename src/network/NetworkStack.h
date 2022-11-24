@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,58 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_NETWORKSTACK_H
+#define HHUOS_NETWORKSTACK_H
 
-#include "network/NetworkAddress.h"
+#include "network/ip4/Ip4Module.h"
+#include "network/arp/ArpModule.h"
+#include "network/ethernet/EthernetModule.h"
 
-namespace Network::Ip4 {
+namespace Network {
 
-class Ip4Address : public NetworkAddress {
+class NetworkStack {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
     /**
      * Default Constructor.
      */
-    Ip4Address();
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(uint8_t *buffer);
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::Memory::String &string);
+    NetworkStack();
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    NetworkStack(const NetworkStack &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    NetworkStack &operator=(const NetworkStack &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4Address() override = default;
+    ~NetworkStack() = default;
 
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
+    Network::Ethernet::EthernetModule& getEthernetModule();
 
-    [[nodiscard]] bool isBroadcastAddress() const;
+    Network::Arp::ArpModule& getArpModule();
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    Network::Ip4::Ip4Module& getIp4Module();
 
-    void setAddress(const Util::Memory::String &string) override;
+private:
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    Network::Ethernet::EthernetModule ethernetModule;
+    Network::Arp::ArpModule arpModule;
+    Network::Ip4::Ip4Module ip4Module;
 };
 
 }

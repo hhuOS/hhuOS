@@ -24,7 +24,6 @@
 #include "kernel/log/Logger.h"
 #include "ArpHeader.h"
 #include "ArpEntry.h"
-#include "device/network/NetworkDevice.h"
 
 namespace Network::Arp {
 
@@ -55,8 +54,7 @@ public:
 
     bool resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
-    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation,
-                            Device::Network::NetworkDevice &device, const MacAddress &destinationAddress);
+    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress);
 
 private:
 

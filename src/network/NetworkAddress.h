@@ -33,46 +33,62 @@ public:
     };
 
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    NetworkAddress() = default;
+    NetworkAddress(uint8_t length, Type type);
+
+    /**
+     * Constructor.
+     */
+    NetworkAddress(uint8_t *buffer, uint8_t length, Type type);
 
     /**
      * Copy Constructor.
      */
-    NetworkAddress(const NetworkAddress &other) = delete;
+    NetworkAddress(const NetworkAddress &other);
 
     /**
      * Assignment operator.
      */
-    NetworkAddress &operator=(const NetworkAddress &other) = delete;
+    NetworkAddress &operator=(const NetworkAddress &other);
 
     /**
      * Destructor.
      */
-    virtual ~NetworkAddress() = default;
+    virtual ~NetworkAddress();
 
     bool operator==(const NetworkAddress &other) const;
 
     bool operator!=(const NetworkAddress &other) const;
 
+    void read(Util::Stream::InputStream &stream);
+
+    void write(Util::Stream::OutputStream &stream) const;
+
+    void setAddress(const uint8_t *buffer);
+
+    void getAddress(uint8_t *buffer) const;
+
+    [[nodiscard]] uint8_t getLength() const;
+
+    [[nodiscard]] Type getType() const;
+
+    [[nodiscard]] uint8_t compareTo(const NetworkAddress &other) const;
+
     [[nodiscard]] virtual NetworkAddress* createCopy() const = 0;
-
-    virtual void read(Util::Stream::InputStream &stream) = 0;
-
-    virtual void write(Util::Stream::OutputStream &stream) const = 0;
 
     virtual void setAddress(const Util::Memory::String &string) = 0;
 
-    virtual void setAddress(const uint8_t *buffer) = 0;
-
-    virtual void getAddress(uint8_t *buffer) const = 0;
-
-    [[nodiscard]] virtual uint8_t getLength() const = 0;
-
-    [[nodiscard]] virtual Type getType() const = 0;
-
     [[nodiscard]] virtual Util::Memory::String toString() const = 0;
+
+protected:
+
+    uint8_t *buffer{};
+    uint8_t length;
+
+private:
+
+    Type type;
 };
 
 }

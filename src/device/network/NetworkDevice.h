@@ -31,6 +31,7 @@
 #include "PacketReader.h"
 #include "PacketWriter.h"
 #include "network/ip4/Ip4Address.h"
+#include "network/NetworkStack.h"
 
 namespace Device::Network {
 
@@ -75,16 +76,6 @@ public:
 
     [[nodiscard]] virtual ::Network::MacAddress getMacAddress() const = 0;
 
-    void addAddress(const ::Network::NetworkAddress &address);
-
-    void removeAddress(const ::Network::NetworkAddress &address);
-
-    [[nodiscard]] bool hasAddress(const ::Network::NetworkAddress &address);
-
-    [[nodiscard]] bool hasAddress(::Network::NetworkAddress::Type type);
-
-    [[nodiscard]] ::Network::Ip4::Ip4Address getIp4Address();
-
     void sendPacket(const uint8_t *packet, uint32_t length);
 
     Packet getNextIncomingPacket();
@@ -108,9 +99,6 @@ private:
     Util::Data::ArrayBlockingQueue<Packet> incomingPacketQueue;
     Util::Data::ArrayBlockingQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
-
-    Util::Data::ArrayList<::Network::NetworkAddress*> addressList;
-    Util::Async::ReentrantSpinlock addressLock;
 
     PacketReader *reader;
     PacketWriter *writer;

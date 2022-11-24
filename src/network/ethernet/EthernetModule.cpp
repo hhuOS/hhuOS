@@ -18,6 +18,7 @@
 #include "EthernetModule.h"
 #include "EthernetHeader.h"
 #include "network/NumberUtil.h"
+#include "device/network/NetworkDevice.h"
 
 namespace Network::Ethernet {
 
