@@ -58,9 +58,9 @@ public:
 
     void write(Util::Stream::OutputStream &stream);
 
-    [[nodiscard]] MacAddress getDestinationAddress() const;
+    [[nodiscard]] const MacAddress& getDestinationAddress() const;
 
-    [[nodiscard]] MacAddress getSourceAddress() const;
+    [[nodiscard]] const MacAddress& getSourceAddress() const;
 
     [[nodiscard]] EtherType getEtherType() const;
 
@@ -69,6 +69,8 @@ public:
     void setSourceAddress(const MacAddress &address);
 
     void setEtherType(EtherType type);
+
+    static const constexpr uint32_t HEADER_LENGTH = 14;
 
 private:
 

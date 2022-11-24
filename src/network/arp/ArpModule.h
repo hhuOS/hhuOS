@@ -50,23 +50,23 @@ public:
      */
     ~ArpModule() = default;
 
-    void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     bool resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
     static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress);
 
-private:
-
     void setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);
+
+private:
 
     MacAddress getHardwareAddress(const Ip4::Ip4Address &protocolAddress);
 
     bool hasHardwareAddress(const Ip4::Ip4Address &protocolAddress);
 
-    void handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress, const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device);
+    void handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device);
 
-    void handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress, const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress);
+    void handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress, const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress);
 
     Util::Async::ReentrantSpinlock lock;
     Util::Data::ArrayList<ArpEntry> arpCache;

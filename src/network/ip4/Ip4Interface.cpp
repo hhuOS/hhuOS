@@ -16,7 +16,6 @@
  */
 
 #include "Ip4Interface.h"
-#include "device/network/NetworkDevice.h"
 
 namespace Network::Ip4 {
 
@@ -32,7 +31,7 @@ void Ip4Interface::sendPacket(uint8_t *packet, uint32_t length) {
     device.sendPacket(packet, length);
 }
 
-Ip4Address Ip4Interface::getAddress() {
+const Ip4Address &Ip4Interface::getAddress() const {
     return address;
 }
 

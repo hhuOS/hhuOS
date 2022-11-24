@@ -27,9 +27,9 @@ bool NetworkModule::isNextLayerTypeSupported(uint32_t protocolId) {
     return nextLayerModules.containsKey(protocolId);
 }
 
-void NetworkModule::invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
+void NetworkModule::invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device) {
     auto *module = nextLayerModules.get(protocolId);
-    module->readPacket(stream, device);
+    module->readPacket(stream, information, device);
 }
 
 }

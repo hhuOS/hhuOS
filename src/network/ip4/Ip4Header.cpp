@@ -23,7 +23,7 @@ namespace Network::Ip4 {
 void Ip4Header::read(Util::Stream::InputStream &stream) {
     auto versionAndLength = NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
-    uint8_t headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
+    headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
 
     // Discard DSCP and ECN
     stream.read();
@@ -54,7 +54,7 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
 }
 
 void Ip4Header::write(Util::Stream::OutputStream &stream) const {
-    NumberUtil::writeUnsigned8BitValue((version << 4) | MIN_HEADER_LENGTH, stream);
+    NumberUtil::writeUnsigned8BitValue((MIN_HEADER_LENGTH << 4) | version, stream);
 
     // Write empty DSCP and ECN
     NumberUtil::writeUnsigned8BitValue(0, stream);
@@ -68,33 +68,10 @@ void Ip4Header::write(Util::Stream::OutputStream &stream) const {
     NumberUtil::writeUnsigned8BitValue(protocol, stream);
 
     // Write empty checksum
-    NumberUtil::writeUnsigned8BitValue(0, stream);
+    NumberUtil::writeUnsigned16BitValue(0, stream);
 
     sourceAddress.write(stream);
     destinationAddress.write(stream);
-}
-
-uint16_t Ip4Header::calculateChecksum(const uint8_t *buffer) {
-    uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
-    uint32_t checksum = 0;
-
-    for (uint8_t i = 0; i < headerLength; i += 2) {
-        // Ignore checksum field
-        if (i == 10) {
-            continue;
-        }
-
-        checksum += (buffer[i] << 8) | buffer[i + 1];
-    }
-
-    // Add overflow bits
-    checksum += reinterpret_cast<uint16_t*>(&checksum)[1];
-
-    // Cut off high bytes
-    checksum = static_cast<uint16_t>(checksum);
-
-    // Complement result
-    return ~checksum;
 }
 
 uint8_t Ip4Header::getVersion() const {
@@ -113,11 +90,11 @@ Ip4Header::Protocol Ip4Header::getProtocol() const {
     return protocol;
 }
 
-Ip4Address Ip4Header::getSourceAddress() const {
+const Ip4Address& Ip4Header::getSourceAddress() const {
     return sourceAddress;
 }
 
-Ip4Address Ip4Header::getDestinationAddress() const {
+const Ip4Address& Ip4Header::getDestinationAddress() const {
     return destinationAddress;
 }
 
@@ -139,6 +116,10 @@ void Ip4Header::setSourceAddress(const Ip4Address &sourceAddress) {
 
 void Ip4Header::setDestinationAddress(const Ip4Address &destinationAddress) {
     Ip4Header::destinationAddress = destinationAddress;
+}
+
+uint8_t Ip4Header::getHeaderLength() const {
+    return headerLength;
 }
 
 }

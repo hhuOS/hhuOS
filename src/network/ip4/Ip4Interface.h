@@ -20,10 +20,7 @@
 
 #include "Ip4Address.h"
 #include "Ip4NetworkMask.h"
-
-namespace Device::Network {
-class NetworkDevice;
-}
+#include "device/network/NetworkDevice.h"
 
 namespace Network::Ip4 {
 
@@ -54,7 +51,7 @@ public:
 
     void sendPacket(uint8_t *packet, uint32_t length);
 
-    Ip4Address getAddress();
+    [[nodiscard]] const Ip4Address& getAddress() const;
 
     bool isTargetOf(const Ip4Address &targetAddress);
 

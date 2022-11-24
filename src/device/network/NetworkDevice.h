@@ -30,8 +30,6 @@
 #include "kernel/log/Logger.h"
 #include "PacketReader.h"
 #include "PacketWriter.h"
-#include "network/ip4/Ip4Address.h"
-#include "network/NetworkStack.h"
 
 namespace Device::Network {
 

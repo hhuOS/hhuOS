@@ -16,11 +16,7 @@
  */
 
 #include "ArpModule.h"
-#include "network/ethernet/EthernetHeader.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/ethernet/EthernetModule.h"
 #include "lib/util/async/Thread.h"
-#include "device/network/NetworkDevice.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 
@@ -28,7 +24,7 @@ namespace Network::Arp {
 
 Kernel::Logger ArpModule::log = Kernel::Logger::get("Arp");
 
-void ArpModule::readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
+void ArpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto arpHeader = ArpHeader();
     arpHeader.read(stream);
 
@@ -131,9 +127,9 @@ bool ArpModule::hasHardwareAddress(const Ip4::Ip4Address &protocolAddress) {
     return lock.releaseAndReturn(false);
 }
 
-void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress,
+void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress,
                               const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device) {
-    setEntry(sourceProtocolAddress, sourceHardwareAddress);
+    setEntry(sourceAddress, sourceHardwareAddress);
 
     lock.acquire();
     if (hasHardwareAddress(targetProtocolAddress)) {
@@ -146,7 +142,7 @@ void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4
         device.getMacAddress().write(packet);
         targetProtocolAddress.write(packet);
         sourceHardwareAddress.write(packet);
-        sourceProtocolAddress.write(packet);
+        sourceAddress.write(packet);
 
         Ethernet::EthernetModule::finalizePacket(packet);
         device.sendPacket(packet.getBuffer(), packet.getSize());
@@ -155,9 +151,9 @@ void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4
     }
 }
 
-void ArpModule::handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceProtocolAddress,
+void ArpModule::handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress,
                             const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress) {
-    setEntry(sourceProtocolAddress, sourceHardwareAddress);
+    setEntry(sourceAddress, sourceHardwareAddress);
 
     //Learn own addresses if not broadcast
     if (!targetHardwareAddress.isBroadcastAddress()) {

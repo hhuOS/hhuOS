@@ -20,8 +20,9 @@
 namespace Network {
 
 NetworkStack::NetworkStack() {
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::ARP, *new Arp::ArpModule());
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::IP4, *new Ip4::Ip4Module());
+    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::ARP, arpModule);
+    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::IP4, ip4Module);
+    ip4Module.registerNextLayerModule(Ip4::Ip4Header::ICMP, icmpModule);
 }
 
 Network::Ethernet::EthernetModule &NetworkStack::getEthernetModule() {

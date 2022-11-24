@@ -20,7 +20,9 @@
 
 namespace Network {
 
-NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {}
+NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {
+    Util::Memory::Address<uint32_t>(buffer).setRange(0, length);
+}
 
 NetworkAddress::NetworkAddress(uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
     setAddress(buffer);
@@ -51,12 +53,10 @@ bool NetworkAddress::operator==(const NetworkAddress &other) const {
         return false;
     }
 
-    auto first = Util::Memory::Address<uint32_t>(new uint8_t[getLength()]);
-    auto second = Util::Memory::Address<uint32_t>(new uint8_t[getLength()]);
+    auto first = Util::Memory::Address<uint32_t>(buffer);
+    auto second = Util::Memory::Address<uint32_t>(other.buffer);
     auto result = first.compareRange(second, getLength());
 
-    delete[] reinterpret_cast<uint8_t*>(first.get());
-    delete[] reinterpret_cast<uint8_t*>(second.get());
     return result == 0;
 }
 

@@ -22,11 +22,11 @@ namespace Network::Arp {
 ArpEntry::ArpEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress) :
         protocolAddress(protocolAddress), hardwareAddress(hardwareAddress) {}
 
-MacAddress ArpEntry::getHardwareAddress() const {
+const MacAddress& ArpEntry::getHardwareAddress() const {
     return hardwareAddress;
 }
 
-Ip4::Ip4Address ArpEntry::getProtocolAddress() const {
+const Ip4::Ip4Address& ArpEntry::getProtocolAddress() const {
     return protocolAddress;
 }
 

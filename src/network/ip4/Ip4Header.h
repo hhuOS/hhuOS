@@ -53,13 +53,13 @@ public:
      */
     ~Ip4Header() = default;
 
-    static uint16_t calculateChecksum(const uint8_t *buffer);
-
     void read(Util::Stream::InputStream &stream);
 
     void write(Util::Stream::OutputStream &stream) const;
 
     [[nodiscard]] uint8_t getVersion() const;
+
+    [[nodiscard]] uint8_t getHeaderLength() const;
 
     [[nodiscard]] uint16_t getPayloadLength() const;
 
@@ -67,9 +67,9 @@ public:
 
     [[nodiscard]] Protocol getProtocol() const;
 
-    [[nodiscard]] Ip4Address getSourceAddress() const;
+    [[nodiscard]] const Ip4Address& getSourceAddress() const;
 
-    [[nodiscard]] Ip4Address getDestinationAddress() const;
+    [[nodiscard]] const Ip4Address& getDestinationAddress() const;
 
     void setPayloadLength(uint16_t payloadLength);
 
@@ -81,16 +81,19 @@ public:
 
     void setDestinationAddress(const Ip4Address &destinationAddress);
 
+    static const constexpr uint32_t CHECKSUM_OFFSET = 10;
+
 private:
 
+    static const constexpr uint32_t MIN_HEADER_LENGTH = 20;
+
     uint8_t version = 4;
+    uint8_t headerLength = MIN_HEADER_LENGTH;
     uint16_t payloadLength = 0;
     uint8_t timeToLive = 64;
     Protocol protocol{};
     Ip4Address sourceAddress{};
     Ip4Address destinationAddress{};
-
-    static const constexpr uint32_t MIN_HEADER_LENGTH = 20;
 };
 
 }

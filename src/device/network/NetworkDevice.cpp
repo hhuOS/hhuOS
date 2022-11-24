@@ -58,7 +58,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        log.warn("Discarding packet, because of not matching frame check sequence");
+        log.warn("Discarding packet, because of wrong frame check sequence");
         return;
     }
 

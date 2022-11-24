@@ -21,6 +21,7 @@
 #include "network/ip4/Ip4Module.h"
 #include "network/arp/ArpModule.h"
 #include "network/ethernet/EthernetModule.h"
+#include "network/icmp/IcmpModule.h"
 
 namespace Network {
 
@@ -58,6 +59,7 @@ private:
     Network::Ethernet::EthernetModule ethernetModule;
     Network::Arp::ArpModule arpModule;
     Network::Ip4::Ip4Module ip4Module;
+    Network::Icmp::IcmpModule icmpModule;
 };
 
 }

@@ -16,15 +16,7 @@
  */
 
 #include "NetworkService.h"
-#include "device/network/NetworkDevice.h"
-#include "device/network/loopback/Loopback.h"
 #include "device/network/NetworkFilesystemDriver.h"
-
-Kernel::NetworkService::NetworkService() {
-    auto *loopback = new Device::Network::Loopback("loopback");
-    registerNetworkDevice(loopback);
-    getNetworkStack().getIp4Module().registerInterface(Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4Address("127.0.0.0"), Network::Ip4::Ip4NetworkMask(8), *loopback);
-}
 
 void Kernel::NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
     devices.add(device);

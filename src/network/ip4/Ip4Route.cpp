@@ -36,15 +36,15 @@ bool Ip4Route::operator!=(const Ip4Route &other) const {
     return address != other.address || networkMask != other.networkMask;
 }
 
-Ip4Address Ip4Route::getAddress() const {
+const Ip4Address& Ip4Route::getAddress() const {
     return address;
 }
 
-Ip4NetworkMask Ip4Route::getNetworkMask() const {
+const Ip4NetworkMask& Ip4Route::getNetworkMask() const {
     return networkMask;
 }
 
-void Ip4Route::sendPacket(uint8_t *packet, uint32_t length) {
+void Ip4Route::sendPacket(uint8_t *packet, uint32_t length) const {
     interface->sendPacket(packet, length);
 }
 
