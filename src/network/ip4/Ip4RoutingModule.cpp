@@ -33,7 +33,7 @@ void Ip4RoutingModule::removeRoute(const Ip4Route &route) {
     routes.remove(route);
 }
 
-Ip4Route Ip4RoutingModule::findRouteTo(const Ip4Address &address) {
+const Ip4Route& Ip4RoutingModule::findRouteTo(const Ip4Address &address) const {
     uint8_t longestPrefix = 0;
     const Ip4Route *ret = nullptr;
 
@@ -47,7 +47,7 @@ Ip4Route Ip4RoutingModule::findRouteTo(const Ip4Address &address) {
     return ret == nullptr ? defaultRoute : *ret;
 }
 
-void Ip4RoutingModule::sendPacketTo(const Ip4Address &receiverAddress, uint8_t *packet, uint32_t length) {
+void Ip4RoutingModule::sendPacketTo(const Ip4Address &receiverAddress, uint8_t *packet, uint32_t length) const {
     findRouteTo(receiverAddress).sendPacket(packet, length);
 }
 

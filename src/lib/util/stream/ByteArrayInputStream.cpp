@@ -62,6 +62,10 @@ uint32_t ByteArrayInputStream::getPosition() const {
     return position;
 }
 
+uint32_t ByteArrayInputStream::getRemaining() const {
+    return size - position;
+}
+
 bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
 }

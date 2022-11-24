@@ -19,20 +19,20 @@
 #include "Ip4Header.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "device/network/NetworkDevice.h"
 
 namespace Network::Ip4 {
 
 Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
-void Ip4Module::readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
+void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayInputStream &>(stream);
     auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
-    auto calculatedChecksum = Ip4Header::calculateChecksum(buffer);
-    auto receivedChecksum = (buffer[10] << 8) | buffer[11];
+    uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
+    auto calculatedChecksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
+    auto receivedChecksum = (buffer[Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Ip4Header::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {
-        log.warn("Discarding packet, because of not matching header checksum");
+        log.warn("Discarding packet, because of wrong header checksum");
         return;
     }
 
@@ -51,7 +51,7 @@ void Ip4Module::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     auto &interface = getInterface(device.getIdentifier());
     if (interface.isTargetOf(header.getDestinationAddress())) {
         if (isNextLayerTypeSupported(header.getProtocol())) {
-            invokeNextLayerModule(header.getProtocol(), stream, device);
+            invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
         } else {
             log.warn("Discarding packet, because of unsupported protocol!");
             return;
@@ -62,7 +62,7 @@ void Ip4Module::readPacket(Util::Stream::InputStream &stream, Device::Network::N
     }
 }
 
-void Ip4Module::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol) {
+void Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
@@ -82,11 +82,11 @@ void Ip4Module::writeHeader(Util::Stream::OutputStream &stream, Device::Network:
     header.setProtocol(protocol);
     header.write(stream);
 
-    auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayOutputStream&>(stream);
-    auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
-    auto checksum = Ip4Header::calculateChecksum(buffer);
-    buffer[10] = checksum >> 8;
-    buffer[11] = checksum;
+    auto *buffer = stream.getBuffer() + stream.getPosition() - header.getHeaderLength();
+    uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
+    auto checksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
+    buffer[Ip4Header::CHECKSUM_OFFSET] = checksum >> 8;
+    buffer[Ip4Header::CHECKSUM_OFFSET + 1] = checksum;
 }
 
 Ip4Interface& Ip4Module::getInterface(const Util::Memory::String &deviceIdentifier) {
@@ -101,6 +101,30 @@ Ip4Interface& Ip4Module::getInterface(const Util::Memory::String &deviceIdentifi
 
 void Ip4Module::registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
     interfaces.add(new Ip4Interface(address, networkAddress, networkMask, device));
+
+    auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+    arpModule.setEntry(address, device.getMacAddress());
+}
+
+uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length) {
+    uint32_t checksum = 0;
+    for (uint8_t i = 0; i < length; i += 2) {
+        // Ignore checksum field
+        if (i == offset) {
+            continue;
+        }
+
+        checksum += (buffer[i] << 8) | buffer[i + 1];
+    }
+
+    // Add overflow bits
+    checksum += reinterpret_cast<uint16_t*>(&checksum)[1];
+
+    // Cut off high bytes
+    checksum = static_cast<uint16_t>(checksum);
+
+    // Complement result
+    return ~checksum;
 }
 
 }

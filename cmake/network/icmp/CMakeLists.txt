@@ -15,24 +15,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.14)
-
-project(network)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-# Set source files
-set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/network/MacAddress.cpp
-        ${HHUOS_SRC_DIR}/network/NetworkAddress.cpp
-        ${HHUOS_SRC_DIR}/network/NetworkMask.cpp
-        ${HHUOS_SRC_DIR}/network/NetworkModule.cpp
-        ${HHUOS_SRC_DIR}/network/NetworkStack.cpp
-        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp)
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
-# Add subdirectories
-add_subdirectory(arp)
-add_subdirectory(ethernet)
-add_subdirectory(icmp)
-add_subdirectory(ip4)
+ 
+target_sources(network PUBLIC
+        ${HHUOS_SRC_DIR}/network/icmp/EchoMessage.cpp
+        ${HHUOS_SRC_DIR}/network/icmp/IcmpHeader.cpp
+        ${HHUOS_SRC_DIR}/network/icmp/IcmpModule.cpp)

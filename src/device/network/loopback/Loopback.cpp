@@ -22,7 +22,7 @@ namespace Device::Network {
 Loopback::Loopback(const Util::Memory::String &identifier) : NetworkDevice(identifier) {}
 
 ::Network::MacAddress Loopback::getMacAddress() const {
-    return ::Network::MacAddress((uint8_t*) "hhuOS\0");
+    return {};
 }
 
 void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {

@@ -32,7 +32,7 @@ public:
     /**
      * Default Constructor.
      */
-    NetworkService();
+    NetworkService() = default;
 
     /**
      * Copy Constructor.

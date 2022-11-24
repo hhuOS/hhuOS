@@ -20,16 +20,21 @@
 
 #include "lib/util/stream/InputStream.h"
 #include "lib/util/data/HashMap.h"
-
-namespace Device::Network {
-class NetworkDevice;
-}
+#include "NetworkAddress.h"
+#include "device/network/NetworkDevice.h"
 
 namespace Network {
 
 class NetworkModule {
 
 public:
+
+    struct LayerInformation {
+        const NetworkAddress &sourceAddress;
+        const NetworkAddress &targetAddress;
+        const uint32_t payloadLength;
+    };
+
     /**
      * Default Constructor.
      */
@@ -50,7 +55,7 @@ public:
      */
     ~NetworkModule() = default;
 
-    virtual void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) = 0;
+    virtual void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) = 0;
 
     void registerNextLayerModule(uint32_t protocolId, NetworkModule &module);
 
@@ -58,7 +63,7 @@ public:
 
 protected:
 
-    void invokeNextLayerModule(uint32_t protocolId, Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device);
+    void invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device);
 
 private:
 

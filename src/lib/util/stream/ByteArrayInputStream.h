@@ -39,6 +39,8 @@ public:
 
     [[nodiscard]] uint32_t getPosition() const;
 
+    [[nodiscard]] uint32_t getRemaining() const;
+
     [[nodiscard]] bool isEmpty() const;
 
     [[nodiscard]] const uint8_t* getBuffer();

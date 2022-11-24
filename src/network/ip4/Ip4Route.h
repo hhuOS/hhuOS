@@ -22,10 +22,6 @@
 #include "Ip4NetworkMask.h"
 #include "Ip4Interface.h"
 
-namespace Device::Network {
-class NetworkDevice;
-}
-
 namespace Network::Ip4 {
 
 class Ip4Route {
@@ -65,18 +61,18 @@ public:
 
     bool operator!=(const Ip4Route &other) const;
 
-    [[nodiscard]] Ip4Address getAddress() const;
+    [[nodiscard]] const Ip4Address& getAddress() const;
 
-    [[nodiscard]] Ip4NetworkMask getNetworkMask() const;
+    [[nodiscard]] const Ip4NetworkMask& getNetworkMask() const;
 
-    void sendPacket(uint8_t *packet, uint32_t length);
+    void sendPacket(uint8_t *packet, uint32_t length) const;
 
 private:
 
     Ip4Address address{};
     Ip4NetworkMask networkMask{};
     Ip4Address nextHop{};
-    Ip4Interface *interface;
+    Ip4Interface *interface{};
 
     bool hasNextHop{};
 };

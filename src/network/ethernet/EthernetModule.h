@@ -50,7 +50,7 @@ public:
 
     static bool checkPacket(const uint8_t *packet, uint32_t length);
 
-    void readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress, EthernetHeader::EtherType etherType);
 

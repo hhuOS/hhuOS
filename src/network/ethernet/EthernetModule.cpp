@@ -18,7 +18,6 @@
 #include "EthernetModule.h"
 #include "EthernetHeader.h"
 #include "network/NumberUtil.h"
-#include "device/network/NetworkDevice.h"
 
 namespace Network::Ethernet {
 
@@ -30,7 +29,7 @@ bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
     return frameCheckSequence == calculatedCheckSequence;
 }
 
-void EthernetModule::readPacket(Util::Stream::InputStream &stream, Device::Network::NetworkDevice &device) {
+void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto ethernetHeader = EthernetHeader();
     ethernetHeader.read(stream);
 
@@ -44,7 +43,7 @@ void EthernetModule::readPacket(Util::Stream::InputStream &stream, Device::Netwo
         return;
     }
 
-    invokeNextLayerModule(ethernetHeader.getEtherType(), stream, device);
+    invokeNextLayerModule(ethernetHeader.getEtherType(), {ethernetHeader.getSourceAddress(), ethernetHeader.getDestinationAddress(), information.payloadLength - EthernetHeader::HEADER_LENGTH}, stream, device);
 }
 
 uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t length) {
@@ -57,6 +56,7 @@ void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Net
     header.setSourceAddress(device.getMacAddress());
     header.setDestinationAddress(destinationAddress);
     header.setEtherType(etherType);
+    header.write(stream);
 }
 
 void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
