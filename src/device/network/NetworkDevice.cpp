@@ -75,10 +75,6 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
 
 NetworkDevice::~NetworkDevice() {
     delete[] packetMemory;
-
-    for (const auto *address : addressList) {
-        delete address;
-    }
 }
 
 NetworkDevice::Packet NetworkDevice::getNextIncomingPacket() {
@@ -99,65 +95,6 @@ NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
     packetMemoryManager.freeBlock(buffer);
-}
-
-void NetworkDevice::addAddress(const ::Network::NetworkAddress &address) {
-    addressLock.acquire();
-    if (!hasAddress(address)) {
-        addressList.add(address.createCopy());
-    }
-    addressLock.release();
-}
-
-void NetworkDevice::removeAddress(const ::Network::NetworkAddress &address) {
-    addressLock.acquire();
-    for (uint32_t i = 0; i < addressList.size(); i++) {
-        if (*addressList.get(i) == address) {
-            delete addressList.removeIndex(i);
-            addressLock.release();
-            return;
-        }
-    }
-    addressLock.release();
-}
-
-bool NetworkDevice::hasAddress(const ::Network::NetworkAddress &address) {
-    addressLock.acquire();
-    for (const auto *currentAddress : addressList) {
-        if (*currentAddress == address) {
-            addressLock.release();
-            return true;
-        }
-    }
-
-    addressLock.release();
-    return false;
-}
-
-bool NetworkDevice::hasAddress(::Network::NetworkAddress::Type type) {
-    addressLock.acquire();
-    for (const auto *currentAddress : addressList) {
-        if (currentAddress->getType() == type) {
-            addressLock.release();
-            return true;
-        }
-    }
-
-    addressLock.release();
-    return false;
-}
-
-::Network::Ip4::Ip4Address NetworkDevice::getIp4Address() {
-    addressLock.acquire();
-    for (const auto *currentAddress : addressList) {
-        if (currentAddress->getType() == ::Network::NetworkAddress::IP4) {
-            addressLock.release();
-            return *reinterpret_cast<const ::Network::Ip4::Ip4Address*>(currentAddress);
-        }
-    }
-
-    addressLock.release();
-    Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "NetworkDevice: No IPv4 address assigned!");
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

@@ -22,6 +22,7 @@
 #include "Service.h"
 #include "network/arp/ArpModule.h"
 #include "network/ip4/Ip4Module.h"
+#include "network/NetworkStack.h"
 
 namespace Kernel {
 
@@ -48,17 +49,18 @@ public:
      */
     ~NetworkService() override = default;
 
-    Network::Ethernet::EthernetModule& getEthernetModule();
+    void registerNetworkDevice(Device::Network::NetworkDevice *device);
 
-    Network::Arp::ArpModule& getArpModule();
+    Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
+
+    ::Network::NetworkStack& getNetworkStack();
 
     static const constexpr uint8_t SERVICE_ID = 8;
 
 private:
 
-    Network::Ethernet::EthernetModule ethernetModule;
-    Network::Arp::ArpModule arpModule;
-    Network::Ip4::Ip4Module ip4Module;
+    Util::Data::ArrayList<Device::Network::NetworkDevice*> devices;
+    ::Network::NetworkStack networkStack;
 };
 
 }

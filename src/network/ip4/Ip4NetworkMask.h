@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,58 +15,49 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_IP4NETWORKMASK_H
+#define HHUOS_IP4NETWORKMASK_H
 
-#include "network/NetworkAddress.h"
+#include "network/NetworkMask.h"
+#include "Ip4Address.h"
 
 namespace Network::Ip4 {
 
-class Ip4Address : public NetworkAddress {
+class Ip4NetworkMask : public NetworkMask {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
     /**
      * Default Constructor.
      */
-    Ip4Address();
+    explicit Ip4NetworkMask();
 
     /**
      * Constructor.
      */
-    explicit Ip4Address(uint8_t *buffer);
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::Memory::String &string);
+    explicit Ip4NetworkMask(uint8_t bitCount);
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    Ip4NetworkMask(const Ip4NetworkMask &other) = default;
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    Ip4NetworkMask &operator=(const Ip4NetworkMask &other) = default;
 
     /**
      * Destructor.
      */
-    ~Ip4Address() override = default;
+    ~Ip4NetworkMask() = default;
 
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
+    bool operator==(const Ip4NetworkMask &other) const;
 
-    [[nodiscard]] bool isBroadcastAddress() const;
+    bool operator!=(const Ip4NetworkMask &other) const;
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    [[nodiscard]] Ip4Address extractSubnet(const Ip4Address &address) const;
 
-    void setAddress(const Util::Memory::String &string) override;
-
-    [[nodiscard]] Util::Memory::String toString() const override;
+    [[nodiscard]] Ip4Address createBroadcastAddress(const Ip4Address &networkAddress) const;
 };
 
 }

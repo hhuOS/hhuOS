@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,58 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_IP4ROUTINGMODULE_H
+#define HHUOS_IP4ROUTINGMODULE_H
 
-#include "network/NetworkAddress.h"
+#include "lib/util/data/ArrayList.h"
+#include "Ip4Route.h"
 
 namespace Network::Ip4 {
 
-class Ip4Address : public NetworkAddress {
+class Ip4RoutingModule {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
     /**
      * Default Constructor.
      */
-    Ip4Address();
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(uint8_t *buffer);
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::Memory::String &string);
+    Ip4RoutingModule() = default;
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    Ip4RoutingModule(const Ip4RoutingModule &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    Ip4RoutingModule &operator=(const Ip4RoutingModule &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4Address() override = default;
+    ~Ip4RoutingModule() = default;
 
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
+    void setDefaultRoute(const Ip4Route &route);
 
-    [[nodiscard]] bool isBroadcastAddress() const;
+    void addRoute(const Ip4Route &route);
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    void removeRoute(const Ip4Route &route);
 
-    void setAddress(const Util::Memory::String &string) override;
+    Ip4Route findRouteTo(const Ip4Address &address);
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    void sendPacketTo(const Ip4Address &receiverAddress, uint8_t *packet, uint32_t length);
+
+private:
+
+    Ip4Route defaultRoute;
+    Util::Data::ArrayList<Ip4Route> routes;
 };
 
 }

@@ -15,53 +15,70 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MACADDRESS_H
-#define HHUOS_MACADDRESS_H
+#ifndef HHUOS_IP4ROUTE_H
+#define HHUOS_IP4ROUTE_H
 
-#include "NetworkAddress.h"
+#include "Ip4Address.h"
+#include "Ip4NetworkMask.h"
+#include "Ip4Interface.h"
 
-namespace Network {
+namespace Device::Network {
+class NetworkDevice;
+}
 
-class MacAddress : public NetworkAddress {
+namespace Network::Ip4 {
+
+class Ip4Route {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 6;
-
     /**
      * Default Constructor.
      */
-    MacAddress();
+    Ip4Route() = default;
 
     /**
      * Constructor.
      */
-    explicit MacAddress(uint8_t *buffer);
+    Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Ip4Address &nextHop, const Util::Memory::String &device);
+
+    /**
+     * Constructor.
+     */
+    Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Util::Memory::String &device);
 
     /**
      * Copy Constructor.
      */
-    MacAddress(const MacAddress &other) = default;
+    Ip4Route(const Ip4Route &other) = default;
 
     /**
      * Assignment operator.
      */
-    MacAddress &operator=(const MacAddress &other) = default;
+    Ip4Route &operator=(const Ip4Route &other) = default;
 
     /**
      * Destructor.
      */
-    ~MacAddress() override = default;
+    ~Ip4Route() = default;
 
-    static MacAddress createBroadcastAddress();
+    bool operator==(const Ip4Route &other) const;
 
-    [[nodiscard]] bool isBroadcastAddress() const;
+    bool operator!=(const Ip4Route &other) const;
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
+    [[nodiscard]] Ip4Address getAddress() const;
 
-    void setAddress(const Util::Memory::String &string) override;
+    [[nodiscard]] Ip4NetworkMask getNetworkMask() const;
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    void sendPacket(uint8_t *packet, uint32_t length);
+
+private:
+
+    Ip4Address address{};
+    Ip4NetworkMask networkMask{};
+    Ip4Address nextHop{};
+    Ip4Interface *interface;
+
+    bool hasNextHop{};
 };
 
 }

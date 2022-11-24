@@ -20,6 +20,32 @@
 
 namespace Network {
 
+NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {}
+
+NetworkAddress::NetworkAddress(uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
+    setAddress(buffer);
+}
+
+NetworkAddress::NetworkAddress(const NetworkAddress &other) : NetworkAddress(other.length, other.type) {
+    setAddress(other.buffer);
+}
+
+NetworkAddress &NetworkAddress::operator=(const NetworkAddress &other) {
+    if (&other == this) {
+        return *this;
+    }
+
+    length = other.length;
+    type = other.type;
+    setAddress(other.buffer);
+
+    return *this;
+}
+
+NetworkAddress::~NetworkAddress() {
+    delete[] buffer;
+}
+
 bool NetworkAddress::operator==(const NetworkAddress &other) const {
     if (getLength() != other.getLength()) {
         return false;
@@ -36,6 +62,50 @@ bool NetworkAddress::operator==(const NetworkAddress &other) const {
 
 bool NetworkAddress::operator!=(const NetworkAddress &other) const {
     return !(*this == other);
+}
+
+void NetworkAddress::read(Util::Stream::InputStream &stream) {
+    stream.read(buffer, 0, length);
+}
+
+void NetworkAddress::write(Util::Stream::OutputStream &stream) const {
+    stream.write(buffer, 0, length);
+}
+
+void NetworkAddress::setAddress(const uint8_t *buffer) {
+    auto source = Util::Memory::Address<uint32_t>(buffer);
+    auto destination = Util::Memory::Address<uint32_t>(NetworkAddress::buffer);
+    destination.copyRange(source, length);
+}
+
+void NetworkAddress::getAddress(uint8_t *buffer) const {
+    auto source = Util::Memory::Address<uint32_t>(NetworkAddress::buffer);
+    auto destination = Util::Memory::Address<uint32_t>(buffer);
+    destination.copyRange(source, length);
+}
+
+uint8_t NetworkAddress::getLength() const {
+    return length;
+}
+
+NetworkAddress::Type NetworkAddress::getType() const {
+    return type;
+}
+
+uint8_t NetworkAddress::compareTo(const NetworkAddress &other) const {
+    uint8_t i, j;
+
+    for (i = 0; i < getLength() || i < other.getLength(); i++) {
+        for (j = 0; j < 8; j++) {
+            auto first = (buffer[i] >> j) & 0x01;
+            auto second = (other.buffer[i] >> j) & 0x01;
+            if (first != second) {
+                return i * 8 + j;
+            }
+        }
+    }
+
+    return i * 8 + j;
 }
 
 }

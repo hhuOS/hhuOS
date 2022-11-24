@@ -17,15 +17,14 @@
 
 #include "Ip4Address.h"
 #include "lib/util/memory/Address.h"
-#include "lib/util/memory/String.h"
 
 namespace Network::Ip4 {
 
-Ip4Address::Ip4Address(uint8_t *buffer) {
-    setAddress(buffer);
-}
+Ip4Address::Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 
-Ip4Address::Ip4Address(const Util::Memory::String &string) {
+Ip4Address::Ip4Address(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
+
+Ip4Address::Ip4Address(const Util::Memory::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
     auto split = Util::Memory::String(string).split(".");
     uint8_t buffer[4] = {
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[0])),
@@ -33,28 +32,11 @@ Ip4Address::Ip4Address(const Util::Memory::String &string) {
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[2])),
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[3])),
     };
-    setAddress(buffer);
+    NetworkAddress::setAddress(buffer);
 }
 
-Ip4Address::Ip4Address(const Ip4Address &other) {
-    setAddress(other.buffer);
-}
-
-Ip4Address &Ip4Address::operator=(const Ip4Address &other) {
-    if (&other == this) {
-        return *this;
-    }
-
-    setAddress(other.buffer);
-    return *this;
-}
-
-void Ip4Address::read(Util::Stream::InputStream &stream) {
-    stream.read(buffer, 0, ADDRESS_LENGTH);
-}
-
-void Ip4Address::write(Util::Stream::OutputStream &stream) const {
-    stream.write(buffer, 0, ADDRESS_LENGTH);
+NetworkAddress *Ip4Address::createCopy() const {
+    return new Ip4Address(*this);
 }
 
 void Ip4Address::setAddress(const Util::Memory::String &string) {
@@ -68,32 +50,21 @@ void Ip4Address::setAddress(const Util::Memory::String &string) {
     }
 }
 
-void Ip4Address::setAddress(const uint8_t *buffer) {
-    auto source = Util::Memory::Address<uint32_t>(buffer);
-    auto destination = Util::Memory::Address<uint32_t>(buffer);
-    destination.copyRange(source, ADDRESS_LENGTH);
-}
-
-void Ip4Address::getAddress(uint8_t *buffer) const {
-    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
-        buffer[i] = buffer[i];
-    }
-}
-
-uint8_t Ip4Address::getLength() const {
-    return ADDRESS_LENGTH;
-}
-
 Util::Memory::String Ip4Address::toString() const {
     return Util::Memory::String::format("%03u.%03u.%03u.%03u", buffer[0], buffer[1], buffer[2], buffer[3]);
 }
 
-NetworkAddress *Ip4Address::createCopy() const {
-    return new Ip4Address(*this);
+Ip4Address Ip4Address::createBroadcastAddress() {
+    uint8_t buffer[4] = {0xff, 0xff, 0xff, 0xff};
+    return Ip4Address(buffer);
 }
 
-NetworkAddress::Type Ip4Address::getType() const {
-    return NetworkAddress::IP4;
+bool Ip4Address::isBroadcastAddress() const {
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        if (buffer[i] != 0xff) return false;
+    }
+
+    return true;
 }
 
 }

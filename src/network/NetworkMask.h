@@ -15,25 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "network/ethernet/EthernetHeader.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
-#include "NetworkDevice.h"
-#include "PacketReader.h"
+#ifndef HHUOS_NETWORKMASK_H
+#define HHUOS_NETWORKMASK_H
 
-namespace Device::Network {
+#include <cstdint>
 
-PacketReader::PacketReader(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
+namespace Network {
 
-void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
+class NetworkMask {
 
-    while (true) {
-        const auto &packet = networkDevice.getNextIncomingPacket();
-        auto stream = Util::Stream::ByteArrayInputStream(packet.buffer, packet.length, false);
-        ethernetModule.readPacket(stream, networkDevice);
-        networkDevice.freePacketBuffer(packet.buffer);
-    }
+public:
+    /**
+     * Constructor.
+     */
+    explicit NetworkMask(uint8_t bitCount);
+
+    /**
+     * Copy Constructor.
+     */
+    NetworkMask(const NetworkMask &other) = default;
+
+    /**
+     * Assignment operator.
+     */
+    NetworkMask &operator=(const NetworkMask &other) = default;
+
+    /**
+     * Destructor.
+     */
+    ~NetworkMask() = default;
+
+    [[nodiscard]] uint8_t getBitCount() const;
+
+protected:
+
+    uint8_t bitCount;
+};
+
 }
 
-}
+#endif

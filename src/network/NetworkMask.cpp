@@ -15,25 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "network/ethernet/EthernetHeader.h"
-#include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
-#include "NetworkDevice.h"
-#include "PacketReader.h"
+#include "NetworkMask.h"
 
-namespace Device::Network {
+namespace Network {
 
-PacketReader::PacketReader(Device::Network::NetworkDevice &networkDevice) : networkDevice(networkDevice) {}
+NetworkMask::NetworkMask(uint8_t bitCount) : bitCount(bitCount) {}
 
-void PacketReader::run() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
-
-    while (true) {
-        const auto &packet = networkDevice.getNextIncomingPacket();
-        auto stream = Util::Stream::ByteArrayInputStream(packet.buffer, packet.length, false);
-        ethernetModule.readPacket(stream, networkDevice);
-        networkDevice.freePacketBuffer(packet.buffer);
-    }
+uint8_t NetworkMask::getBitCount() const {
+    return bitCount;
 }
 
 }

@@ -16,17 +16,31 @@
  */
 
 #include "NetworkService.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "device/network/NetworkDevice.h"
+#include "device/network/loopback/Loopback.h"
+#include "device/network/NetworkFilesystemDriver.h"
 
 Kernel::NetworkService::NetworkService() {
-    ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::ARP, arpModule);
-    ethernetModule.registerNextLayerModule(Network::Ethernet::EthernetHeader::IP4, ip4Module);
+    auto *loopback = new Device::Network::Loopback("loopback");
+    registerNetworkDevice(loopback);
+    getNetworkStack().getIp4Module().registerInterface(Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4Address("127.0.0.0"), Network::Ip4::Ip4NetworkMask(8), *loopback);
 }
 
-Network::Ethernet::EthernetModule& Kernel::NetworkService::getEthernetModule() {
-    return ethernetModule;
+void Kernel::NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
+    devices.add(device);
+    Device::Network::NetworkFilesystemDriver::mount(*device);
 }
 
-Network::Arp::ArpModule &Kernel::NetworkService::getArpModule() {
-    return arpModule;
+Device::Network::NetworkDevice& Kernel::NetworkService::getNetworkDevice(const Util::Memory::String &identifier) {
+    for (auto *device : devices) {
+        if (device->getIdentifier() == identifier) {
+            return *device;
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
+}
+
+::Network::NetworkStack &Kernel::NetworkService::getNetworkStack() {
+    return networkStack;
 }

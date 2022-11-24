@@ -20,6 +20,9 @@
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "network/ethernet/EthernetModule.h"
 #include "lib/util/async/Thread.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/system/System.h"
+#include "kernel/service/NetworkService.h"
 
 namespace Network::Arp {
 
@@ -70,11 +73,12 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
         }
         lock.release();
 
+        auto &ip4Module = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
         auto packet = Util::Stream::ByteArrayOutputStream();
         writeHeader(packet, ArpHeader::REQUEST, device, MacAddress::createBroadcastAddress());
 
         device.getMacAddress().write(packet);
-        device.getIp4Address().write(packet);
+        ip4Module.getInterface(device.getIdentifier()).getAddress().write(packet);
         MacAddress().write(packet);
         protocolAddress.write(packet);
 
