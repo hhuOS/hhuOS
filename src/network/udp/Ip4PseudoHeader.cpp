@@ -15,31 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "NetworkStack.h"
+#include "Ip4PseudoHeader.h"
+#include "network/NumberUtil.h"
+#include "network/ip4/Ip4Header.h"
 
-namespace Network {
+namespace Network::Udp {
 
-NetworkStack::NetworkStack() {
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::ARP, arpModule);
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::IP4, ip4Module);
-    ip4Module.registerNextLayerModule(Ip4::Ip4Header::ICMP, icmpModule);
-    ip4Module.registerNextLayerModule(Ip4::Ip4Header::UDP, udpModule);
-}
+Ip4PseudoHeader::Ip4PseudoHeader(const NetworkModule::LayerInformation &information) :
+        sourceAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress)),
+        destinationAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.destinationAddress)),
+        datagramLength(information.payloadLength) {}
 
-Network::Ethernet::EthernetModule &NetworkStack::getEthernetModule() {
-    return ethernetModule;
-}
-
-Network::Arp::ArpModule &NetworkStack::getArpModule() {
-    return arpModule;
-}
-
-Network::Ip4::Ip4Module &NetworkStack::getIp4Module() {
-    return ip4Module;
-}
-
-Udp::UdpModule &NetworkStack::getUdpModule() {
-    return udpModule;
+void Ip4PseudoHeader::write(Util::Stream::OutputStream &stream) const {
+    sourceAddress.write(stream);
+    destinationAddress.write(stream);
+    NumberUtil::writeUnsigned16BitValue(Ip4::Ip4Header::UDP, stream);
+    NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
 }
 
 }

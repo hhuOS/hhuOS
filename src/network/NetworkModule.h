@@ -31,7 +31,7 @@ public:
 
     struct LayerInformation {
         const NetworkAddress &sourceAddress;
-        const NetworkAddress &targetAddress;
+        const NetworkAddress &destinationAddress;
         const uint32_t payloadLength;
     };
 

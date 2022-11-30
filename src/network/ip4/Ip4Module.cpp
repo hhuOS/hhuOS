@@ -49,15 +49,15 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
 
     auto &interface = getInterface(device.getIdentifier());
-    if (interface.isTargetOf(header.getDestinationAddress())) {
-        if (isNextLayerTypeSupported(header.getProtocol())) {
-            invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
-        } else {
-            log.warn("Discarding packet, because of unsupported protocol!");
-            return;
-        }
-    } else {
+    /*if (!interface.isTargetOf(header.getDestinationAddress())) {
         log.warn("Discarding packet, because of wrong destination address!");
+        return;
+    }*/
+
+    if (isNextLayerTypeSupported(header.getProtocol())) {
+        invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
+    } else {
+        log.warn("Discarding packet, because of unsupported protocol!");
         return;
     }
 }

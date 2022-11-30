@@ -33,10 +33,10 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
     auto ethernetHeader = EthernetHeader();
     ethernetHeader.read(stream);
 
-    if (ethernetHeader.getDestinationAddress() != device.getMacAddress()) {
+    /*if (ethernetHeader.getDestinationAddress() != device.getMacAddress()) {
         log.warn("Discarding packet, because of wrong destination address!");
         return;
-    }
+    }*/
 
     if (!isNextLayerTypeSupported(ethernetHeader.getEtherType())) {
         log.warn("Discarding packet, because of unsupported ether type!");

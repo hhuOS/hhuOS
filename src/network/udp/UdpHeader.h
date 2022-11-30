@@ -15,55 +15,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NETWORKSTACK_H
-#define HHUOS_NETWORKSTACK_H
+#ifndef HHUOS_UDPHEADER_H
+#define HHUOS_UDPHEADER_H
 
-#include "network/ip4/Ip4Module.h"
-#include "network/arp/ArpModule.h"
-#include "network/ethernet/EthernetModule.h"
-#include "network/icmp/IcmpModule.h"
-#include "network/udp/UdpModule.h"
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
 
-namespace Network {
+namespace Network::Udp {
 
-class NetworkStack {
+class UdpHeader {
 
 public:
     /**
      * Default Constructor.
      */
-    NetworkStack();
+    UdpHeader() = default;
 
     /**
      * Copy Constructor.
      */
-    NetworkStack(const NetworkStack &other) = delete;
+    UdpHeader(const UdpHeader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    NetworkStack &operator=(const NetworkStack &other) = delete;
+    UdpHeader &operator=(const UdpHeader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~NetworkStack() = default;
+    ~UdpHeader() = default;
 
-    Ethernet::EthernetModule& getEthernetModule();
+    void read(Util::Stream::InputStream &stream);
 
-    Arp::ArpModule& getArpModule();
+    void write(Util::Stream::OutputStream &stream) const;
 
-    Ip4::Ip4Module& getIp4Module();
+    [[nodiscard]] uint16_t getSourcePort() const;
 
-    Udp::UdpModule& getUdpModule();
+    void setSourcePort(uint16_t sourcePort);
+
+    [[nodiscard]] uint16_t getDestinationPort() const;
+
+    void setDestinationPort(uint16_t targetPort);
+
+    [[nodiscard]] uint16_t getLength() const;
+
+    void setLength(uint16_t length);
+
+    [[nodiscard]] uint16_t getChecksum() const;
+
+    void setChecksum(uint16_t checksum);
+
+    static const constexpr uint32_t HEADER_SIZE = 8;
 
 private:
 
-    Ethernet::EthernetModule ethernetModule;
-    Arp::ArpModule arpModule;
-    Ip4::Ip4Module ip4Module;
-    Icmp::IcmpModule icmpModule;
-    Udp::UdpModule udpModule;
+    uint16_t sourcePort;
+    uint16_t destinationPort;
+    uint16_t length;
+    uint16_t checksum;
 };
 
 }

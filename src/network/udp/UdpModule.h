@@ -15,55 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NETWORKSTACK_H
-#define HHUOS_NETWORKSTACK_H
+#ifndef HHUOS_UDPMODULE_H
+#define HHUOS_UDPMODULE_H
 
-#include "network/ip4/Ip4Module.h"
-#include "network/arp/ArpModule.h"
-#include "network/ethernet/EthernetModule.h"
-#include "network/icmp/IcmpModule.h"
-#include "network/udp/UdpModule.h"
+#include "network/NetworkModule.h"
 
-namespace Network {
+namespace Network::Udp {
 
-class NetworkStack {
+class UdpModule : public NetworkModule {
 
 public:
     /**
      * Default Constructor.
      */
-    NetworkStack();
+    UdpModule() = default;
 
     /**
      * Copy Constructor.
      */
-    NetworkStack(const NetworkStack &other) = delete;
+    UdpModule(const UdpModule &other) = delete;
 
     /**
      * Assignment operator.
      */
-    NetworkStack &operator=(const NetworkStack &other) = delete;
+    UdpModule &operator=(const UdpModule &other) = delete;
 
     /**
      * Destructor.
      */
-    ~NetworkStack() = default;
+    ~UdpModule() = default;
 
-    Ethernet::EthernetModule& getEthernetModule();
+    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    Arp::ArpModule& getArpModule();
-
-    Ip4::Ip4Module& getIp4Module();
-
-    Udp::UdpModule& getUdpModule();
+    uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
 
 private:
 
-    Ethernet::EthernetModule ethernetModule;
-    Arp::ArpModule arpModule;
-    Ip4::Ip4Module ip4Module;
-    Icmp::IcmpModule icmpModule;
-    Udp::UdpModule udpModule;
+    static Kernel::Logger log;
 };
 
 }
