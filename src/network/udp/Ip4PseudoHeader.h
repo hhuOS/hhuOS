@@ -15,55 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_NETWORKSTACK_H
-#define HHUOS_NETWORKSTACK_H
+#ifndef HHUOS_IP4PSEUDOHEADER_H
+#define HHUOS_IP4PSEUDOHEADER_H
 
-#include "network/ip4/Ip4Module.h"
-#include "network/arp/ArpModule.h"
-#include "network/ethernet/EthernetModule.h"
-#include "network/icmp/IcmpModule.h"
-#include "network/udp/UdpModule.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/NetworkModule.h"
 
-namespace Network {
+namespace Network::Udp {
 
-class NetworkStack {
+class Ip4PseudoHeader {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    NetworkStack();
+    Ip4PseudoHeader(const NetworkModule::LayerInformation &information);
 
     /**
      * Copy Constructor.
      */
-    NetworkStack(const NetworkStack &other) = delete;
+    Ip4PseudoHeader(const Ip4PseudoHeader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    NetworkStack &operator=(const NetworkStack &other) = delete;
+    Ip4PseudoHeader &operator=(const Ip4PseudoHeader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~NetworkStack() = default;
+    ~Ip4PseudoHeader() = default;
 
-    Ethernet::EthernetModule& getEthernetModule();
+    void write(Util::Stream::OutputStream &stream) const;
 
-    Arp::ArpModule& getArpModule();
-
-    Ip4::Ip4Module& getIp4Module();
-
-    Udp::UdpModule& getUdpModule();
+    static const constexpr uint32_t HEADER_SIZE = 12;
 
 private:
 
-    Ethernet::EthernetModule ethernetModule;
-    Arp::ArpModule arpModule;
-    Ip4::Ip4Module ip4Module;
-    Icmp::IcmpModule icmpModule;
-    Udp::UdpModule udpModule;
+    const Ip4::Ip4Address sourceAddress;
+    const Ip4::Ip4Address destinationAddress;
+    const uint16_t datagramLength;
 };
 
 }
