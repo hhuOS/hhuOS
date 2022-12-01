@@ -86,8 +86,9 @@ void Engine::drawStatus() {
 Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::KeyListenerRunnable::run() {
-    while (engine.game.isRunning()) {
-        char c = System::in.read();
+    int16_t c = 0;
+    while (engine.game.isRunning() && c != -1) {
+        c = Util::Graphic::Ansi::readChar();
         if (engine.game.keyListener != nullptr) {
             engine.updateLock.acquire();
             engine.game.keyListener->keyPressed(c);

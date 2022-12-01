@@ -48,7 +48,7 @@ public:
 
     void update(double delta) override;
 
-    void keyPressed(char c) override;
+    void keyPressed(int16_t key) override;
 
 private:
 
