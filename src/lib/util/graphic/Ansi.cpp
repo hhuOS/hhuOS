@@ -350,8 +350,6 @@ int16_t Ansi::readChar() {
             escapeSequence += input;
         } while (!escapeEndCodes.contains(input));
 
-        enableCanonicalMode();
-
         switch (input) {
             case 'A':
                 return KEY_UP;

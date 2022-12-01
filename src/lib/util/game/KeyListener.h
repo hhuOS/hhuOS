@@ -43,7 +43,7 @@ public:
      */
     ~KeyListener() = default;
 
-    virtual void keyPressed(char c) = 0;
+    virtual void keyPressed(int16_t key) = 0;
 };
 
 }

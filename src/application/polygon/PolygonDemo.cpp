@@ -34,8 +34,8 @@ void PolygonDemo::update(double delta) {
     }
 }
 
-void PolygonDemo::keyPressed(char c) {
-    switch (c) {
+void PolygonDemo::keyPressed(int16_t key) {
+    switch (key) {
         case '+': {
             auto *polygon = factory.createPolygon();
             polygons.offer(polygon);

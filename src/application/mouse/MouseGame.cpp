@@ -25,6 +25,6 @@ MouseGame::MouseGame() {
     setMouseListener(*cursor);
 }
 
-void MouseGame::keyPressed(char c) {
+void MouseGame::keyPressed(int16_t key) {
     stop();
 }

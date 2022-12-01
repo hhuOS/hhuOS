@@ -32,7 +32,7 @@ void CubeDemo::update(double delta) {
     }
 }
 
-void CubeDemo::keyPressed(char c) {switch (c) {
+void CubeDemo::keyPressed(int16_t key) {switch (key) {
         case '+': {
             speed++;
             break;
