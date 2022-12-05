@@ -20,6 +20,7 @@
 
 #include "network/NetworkModule.h"
 #include "network/ip4/Ip4Address.h"
+#include "UdpSocket.h"
 
 namespace Network::Udp {
 
@@ -46,6 +47,10 @@ public:
      */
     ~UdpModule() = default;
 
+    bool registerSocket(UdpSocket &socket);
+
+    void deregisterSocket(UdpSocket &socket);
+
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
@@ -53,6 +58,9 @@ public:
     static uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
 
 private:
+
+    Util::Async::Spinlock socketLock;
+    Util::Data::HashMap<uint16_t, UdpSocket*> socketMap;
 
     static Kernel::Logger log;
 };

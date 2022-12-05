@@ -18,5 +18,7 @@ cmake_minimum_required(VERSION 3.14)
  
 target_sources(network PUBLIC
         ${HHUOS_SRC_DIR}/network/udp/Ip4PseudoHeader.cpp
+        ${HHUOS_SRC_DIR}/network/udp/UdpDatagram.cpp
         ${HHUOS_SRC_DIR}/network/udp/UdpHeader.cpp
-        ${HHUOS_SRC_DIR}/network/udp/UdpModule.cpp)
+        ${HHUOS_SRC_DIR}/network/udp/UdpModule.cpp
+        ${HHUOS_SRC_DIR}/network/udp/UdpSocket.cpp)
