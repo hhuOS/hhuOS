@@ -51,6 +51,10 @@ public:
 
     void registerNetworkDevice(Device::Network::NetworkDevice *device);
 
+    void registerIp4Route(const Network::Ip4::Ip4Route &route);
+
+    void setDefaultRoute(const Network::Ip4::Ip4Route &route);
+
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
 
     ::Network::NetworkStack& getNetworkStack();

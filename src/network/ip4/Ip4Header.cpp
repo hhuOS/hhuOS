@@ -21,6 +21,7 @@
 namespace Network::Ip4 {
 
 void Ip4Header::read(Util::Stream::InputStream &stream) {
+    // Read IP version and header length
     auto versionAndLength = NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
     headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
@@ -54,12 +55,13 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
 }
 
 void Ip4Header::write(Util::Stream::OutputStream &stream) const {
-    NumberUtil::writeUnsigned8BitValue((MIN_HEADER_LENGTH << 4) | version, stream);
+    // Write IP version and header length
+    NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
 
     // Write empty DSCP and ECN
     NumberUtil::writeUnsigned8BitValue(0, stream);
 
-    NumberUtil::writeUnsigned16BitValue((MIN_HEADER_LENGTH / sizeof(uint32_t)) + payloadLength, stream);
+    NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
 
     // Write empty Identification, Flags and Offset
     NumberUtil::writeUnsigned32BitValue(0, stream);

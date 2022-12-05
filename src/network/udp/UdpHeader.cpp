@@ -62,8 +62,4 @@ uint16_t UdpHeader::getChecksum() const {
     return checksum;
 }
 
-void UdpHeader::setChecksum(uint16_t checksum) {
-    UdpHeader::checksum = checksum;
-}
-
 }

@@ -64,16 +64,14 @@ public:
 
     [[nodiscard]] uint16_t getChecksum() const;
 
-    void setChecksum(uint16_t checksum);
-
     static const constexpr uint32_t HEADER_SIZE = 8;
 
 private:
 
-    uint16_t sourcePort;
-    uint16_t destinationPort;
-    uint16_t length;
-    uint16_t checksum;
+    uint16_t sourcePort{};
+    uint16_t destinationPort{};
+    uint16_t length{};
+    uint16_t checksum{};
 };
 
 }

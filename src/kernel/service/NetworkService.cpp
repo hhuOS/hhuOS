@@ -36,3 +36,11 @@ Device::Network::NetworkDevice& Kernel::NetworkService::getNetworkDevice(const U
 ::Network::NetworkStack &Kernel::NetworkService::getNetworkStack() {
     return networkStack;
 }
+
+void Kernel::NetworkService::registerIp4Route(const Network::Ip4::Ip4Route &route) {
+    networkStack.getIp4Module().getRoutingModule().addRoute(route);
+}
+
+void Kernel::NetworkService::setDefaultRoute(const Network::Ip4::Ip4Route &route) {
+    networkStack.getIp4Module().getRoutingModule().setDefaultRoute(route);
+}

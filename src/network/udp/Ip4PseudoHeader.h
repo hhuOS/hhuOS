@@ -29,7 +29,12 @@ public:
     /**
      * Constructor.
      */
-    Ip4PseudoHeader(const NetworkModule::LayerInformation &information);
+    Ip4PseudoHeader(const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &destinationAddress, uint16_t datagramLength);
+
+    /**
+     * Constructor.
+     */
+    explicit Ip4PseudoHeader(const NetworkModule::LayerInformation &information);
 
     /**
      * Copy Constructor.

@@ -21,6 +21,11 @@
 
 namespace Network::Udp {
 
+Ip4PseudoHeader::Ip4PseudoHeader(const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &destinationAddress, uint16_t datagramLength) :
+        sourceAddress(sourceAddress),
+        destinationAddress(destinationAddress),
+        datagramLength(datagramLength) {}
+
 Ip4PseudoHeader::Ip4PseudoHeader(const NetworkModule::LayerInformation &information) :
         sourceAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress)),
         destinationAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.destinationAddress)),
