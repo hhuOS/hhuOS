@@ -51,11 +51,15 @@ public:
 
     Ip4Interface& getInterface(const Util::Memory::String &deviceIdentifier);
 
+    Ip4RoutingModule& getRoutingModule();
+
     void registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writeHeader(Util::Stream::ByteArrayOutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol);
+    static const Ip4Interface &
+    writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol,
+                uint16_t payloadLength);
 
     static uint16_t calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length);
 

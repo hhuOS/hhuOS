@@ -19,6 +19,8 @@
 #include "UdpHeader.h"
 #include "Ip4PseudoHeader.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/ip4/Ip4Module.h"
+#include "network/ethernet/EthernetModule.h"
 
 namespace Network::Udp {
 
@@ -37,6 +39,39 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
         log.warn("Discarding packet, because of wrong checksum");
         return;
     }
+}
+
+void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
+    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto datagramLength = length +  UdpHeader::HEADER_SIZE;
+
+    // Write IPv4 and Ethernet headers
+    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, destinationAddress, Ip4::Ip4Header::UDP, datagramLength);
+
+    // Write UDP header
+    auto udpHeader = UdpHeader();
+    udpHeader.setSourcePort(sourcePort);
+    udpHeader.setDestinationPort(destinationPort);
+    udpHeader.setLength(datagramLength);
+    udpHeader.write(packet);
+    auto positionAfterHeaders = packet.getPosition();
+
+    // Write packet
+    packet.write(buffer, 0, datagramLength);
+
+    // Calculate and write checksum
+    auto pseudoHeader = Ip4PseudoHeader(sourceInterface.getAddress(), destinationAddress, datagramLength);
+    auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
+    pseudoHeader.write(pseudoHeaderStream);
+
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), packet.getBuffer() + (positionAfterHeaders - UdpHeader::HEADER_SIZE), datagramLength);
+    auto *checksumPointer = packet.getBuffer() + (positionAfterHeaders - sizeof(uint16_t));
+    checksumPointer[0] = checksum >> 8;
+    checksumPointer[1] = checksum;
+
+    // Finalize and send packet
+    Ethernet::EthernetModule::finalizePacket(packet);
+    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getSize());
 }
 
 uint16_t UdpModule::calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength) {

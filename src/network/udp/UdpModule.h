@@ -19,6 +19,7 @@
 #define HHUOS_UDPMODULE_H
 
 #include "network/NetworkModule.h"
+#include "network/ip4/Ip4Address.h"
 
 namespace Network::Udp {
 
@@ -47,7 +48,9 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
+    static void writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
+
+    static uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
 
 private:
 

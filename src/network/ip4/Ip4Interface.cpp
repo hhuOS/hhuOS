@@ -31,7 +31,7 @@ void Ip4Interface::sendPacket(uint8_t *packet, uint32_t length) {
     device.sendPacket(packet, length);
 }
 
-const Ip4Address &Ip4Interface::getAddress() const {
+const Ip4Address& Ip4Interface::getAddress() const {
     return address;
 }
 
@@ -41,6 +41,10 @@ bool Ip4Interface::isTargetOf(const Ip4Address &targetAddress) {
     }
 
     return false;
+}
+
+Device::Network::NetworkDevice &Ip4Interface::getDevice() const {
+    return device;
 }
 
 }

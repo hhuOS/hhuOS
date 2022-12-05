@@ -48,4 +48,8 @@ void Ip4Route::sendPacket(uint8_t *packet, uint32_t length) const {
     interface->sendPacket(packet, length);
 }
 
+const Ip4Interface& Ip4Route::getInterface() const {
+    return *interface;
+}
+
 }

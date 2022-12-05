@@ -49,10 +49,10 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
 
     auto &interface = getInterface(device.getIdentifier());
-    /*if (!interface.isTargetOf(header.getDestinationAddress())) {
+    if (!interface.isTargetOf(header.getDestinationAddress())) {
         log.warn("Discarding packet, because of wrong destination address!");
         return;
-    }*/
+    }
 
     if (isNextLayerTypeSupported(header.getProtocol())) {
         invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
@@ -62,24 +62,25 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
 }
 
-void Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, Device::Network::NetworkDevice &device, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol) {
+const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
+    auto route = ip4Module.routingModule.findRouteTo(destinationAddress);
 
     auto destinationMacAddress = MacAddress();
-    if (!arpModule.resolveAddress(destinationAddress, destinationMacAddress, device)) {
-        log.warn("Discarding packet, because the destination IPv4 address could not resolved");
-        return;
+    if (!arpModule.resolveAddress(destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not resolved");
     }
 
-    auto &interface = ip4Module.getInterface(device.getIdentifier());
-    Ethernet::EthernetModule::writeHeader(stream, device, destinationMacAddress, Ethernet::EthernetHeader::IP4);
+    Ethernet::EthernetModule::writeHeader(stream, route.getInterface().getDevice(), destinationMacAddress, Ethernet::EthernetHeader::IP4);
 
     auto header = Ip4Header();
-    header.setSourceAddress(interface.getAddress());
+    header.setSourceAddress(route.getInterface().getAddress());
     header.setDestinationAddress(destinationAddress);
     header.setProtocol(protocol);
+    header.setPayloadLength(payloadLength);
+    header.setTimeToLive(64);
     header.write(stream);
 
     auto *buffer = stream.getBuffer() + stream.getPosition() - header.getHeaderLength();
@@ -87,6 +88,8 @@ void Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, Device:
     auto checksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
     buffer[Ip4Header::CHECKSUM_OFFSET] = checksum >> 8;
     buffer[Ip4Header::CHECKSUM_OFFSET + 1] = checksum;
+
+    return route.getInterface();
 }
 
 Ip4Interface& Ip4Module::getInterface(const Util::Memory::String &deviceIdentifier) {
@@ -125,6 +128,10 @@ uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, ui
 
     // Complement result
     return ~checksum;
+}
+
+Ip4RoutingModule& Ip4Module::getRoutingModule() {
+    return routingModule;
 }
 
 }

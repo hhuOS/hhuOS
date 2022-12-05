@@ -55,6 +55,8 @@ public:
 
     bool isTargetOf(const Ip4Address &targetAddress);
 
+    [[nodiscard]] Device::Network::NetworkDevice& getDevice() const;
+
 private:
 
     Ip4Address address;

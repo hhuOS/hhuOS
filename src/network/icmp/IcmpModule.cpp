@@ -63,7 +63,8 @@ void IcmpModule::sendEchoReply(const Ip4::Ip4Address &destinationAddress, const 
     reply.setData(request.getData(), request.getDataLength());
 
     auto packet = Util::Stream::ByteArrayOutputStream();
-    Network::Ip4::Ip4Module::writeHeader(packet, device, reinterpret_cast<const Ip4::Ip4Address&>(destinationAddress), Ip4::Ip4Header::ICMP);
+    Network::Ip4::Ip4Module::writeHeader(packet, reinterpret_cast<const Ip4::Ip4Address &>(destinationAddress),
+                                         Ip4::Ip4Header::ICMP, 0);
     header.write(packet);
     reply.write(packet);
 

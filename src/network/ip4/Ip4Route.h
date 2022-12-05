@@ -65,6 +65,8 @@ public:
 
     [[nodiscard]] const Ip4NetworkMask& getNetworkMask() const;
 
+    [[nodiscard]] const Ip4Interface& getInterface() const;
+
     void sendPacket(uint8_t *packet, uint32_t length) const;
 
 private:
