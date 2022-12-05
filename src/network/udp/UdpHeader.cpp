@@ -23,14 +23,14 @@ namespace Network::Udp {
 void UdpHeader::read(Util::Stream::InputStream &stream) {
     sourcePort = NumberUtil::readUnsigned16BitValue(stream);
     destinationPort = NumberUtil::readUnsigned16BitValue(stream);
-    length = NumberUtil::readUnsigned16BitValue(stream);
+    datagramLength = NumberUtil::readUnsigned16BitValue(stream);
     checksum = NumberUtil::readUnsigned16BitValue(stream);
 }
 
 void UdpHeader::write(Util::Stream::OutputStream &stream) const {
     NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
     NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
-    NumberUtil::writeUnsigned16BitValue(length, stream);
+    NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
     NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
@@ -50,12 +50,12 @@ void UdpHeader::setDestinationPort(uint16_t targetPort) {
     UdpHeader::destinationPort = targetPort;
 }
 
-uint16_t UdpHeader::getLength() const {
-    return length;
+uint16_t UdpHeader::getDatagramLength() const {
+    return datagramLength;
 }
 
-void UdpHeader::setLength(uint16_t length) {
-    UdpHeader::length = length;
+void UdpHeader::setDatagramLength(uint16_t length) {
+    UdpHeader::datagramLength = length;
 }
 
 uint16_t UdpHeader::getChecksum() const {

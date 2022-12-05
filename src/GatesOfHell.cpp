@@ -59,13 +59,13 @@
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
 #include "device/network/loopback/Loopback.h"
-#include "kernel/service/ProcessService.h"
 #include "kernel/service/NetworkService.h"
-#include "network/ethernet/EthernetHeader.h"
 #include "network/arp/ArpModule.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
-#include "device/network/NetworkFilesystemDriver.h"
+#include "kernel/service/ProcessService.h"
+#include "lib/util/async/FunctionPointerRunnable.h"
+#include "lib/util/async/Thread.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -119,6 +119,21 @@ void GatesOfHell::enter() {
     mountDevices();
 
     printBanner();
+
+    /*auto &thread = Kernel::Thread::createKernelThread("Udp-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+        auto sender = Network::Udp::UdpSocket(1797);
+        auto receiver = Network::Udp::UdpSocket(8821);
+        auto datagram = Network::Udp::UdpDatagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, Network::Ip4::Ip4Address("127.0.0.1"), 8821);
+        auto logger = Kernel::Logger::get("Test");
+
+        while (true) {
+            sender.send(datagram);
+            auto receivedDatagram = receiver.receive();
+            log.info("Received Datagram: '%s'", datagram.getBuffer());
+            Util::Async::Thread::sleep({1, 0});
+        }
+    }));
+    Kernel::System::getService<Kernel::SchedulerService>().ready(thread);*/
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
@@ -375,8 +390,8 @@ void GatesOfHell::initializeNetwork() {
 
     // loopback->sendPacket(reinterpret_cast<const uint8_t*>(udpTest), 48);
 
-    auto *content = "Hello, World!";
-    Network::Udp::UdpModule::writePacket(1797, 8821, Network::Ip4::Ip4Address("127.0.0.1"), reinterpret_cast<const uint8_t*>(content), 14);
+    /* auto *content = "Hello, World!";
+    Network::Udp::UdpModule::writePacket(1797, 8821, Network::Ip4::Ip4Address("127.0.0.1"), reinterpret_cast<const uint8_t*>(content), 14);*/
 }
 
 void GatesOfHell::mountDevices() {

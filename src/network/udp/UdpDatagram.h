@@ -15,63 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPHEADER_H
-#define HHUOS_UDPHEADER_H
+#ifndef HHUOS_UDPDATAGRAM_H
+#define HHUOS_UDPDATAGRAM_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include <cstdint>
+#include "network/NetworkAddress.h"
 
 namespace Network::Udp {
 
-class UdpHeader {
+class UdpDatagram {
 
 public:
     /**
      * Default Constructor.
      */
-    UdpHeader() = default;
+    UdpDatagram() = default;
+
+    /**
+     * Constructor.
+     */
+    UdpDatagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress, uint16_t remotePort);
 
     /**
      * Copy Constructor.
      */
-    UdpHeader(const UdpHeader &other) = delete;
+    UdpDatagram(const UdpDatagram &other) = default;
 
     /**
      * Assignment operator.
      */
-    UdpHeader &operator=(const UdpHeader &other) = delete;
+    UdpDatagram &operator=(const UdpDatagram &other) = default;
 
     /**
      * Destructor.
      */
-    ~UdpHeader() = default;
+    ~UdpDatagram();
 
-    void read(Util::Stream::InputStream &stream);
+    bool operator!=(const UdpDatagram &other);
 
-    void write(Util::Stream::OutputStream &stream) const;
+    [[nodiscard]] uint16_t getLength() const;
 
-    [[nodiscard]] uint16_t getSourcePort() const;
+    [[nodiscard]] const uint8_t* getBuffer() const;
 
-    void setSourcePort(uint16_t sourcePort);
+    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
 
-    [[nodiscard]] uint16_t getDestinationPort() const;
-
-    void setDestinationPort(uint16_t targetPort);
-
-    [[nodiscard]] uint16_t getDatagramLength() const;
-
-    void setDatagramLength(uint16_t length);
-
-    [[nodiscard]] uint16_t getChecksum() const;
-
-    static const constexpr uint32_t HEADER_SIZE = 8;
+    [[nodiscard]] uint16_t getRemotePort() const;
 
 private:
 
-    uint16_t sourcePort{};
-    uint16_t destinationPort{};
-    uint16_t datagramLength{};
-    uint16_t checksum{};
+    const uint8_t *buffer{};
+    uint16_t length{};
+
+    const Network::NetworkAddress *remoteAddress;
+    uint16_t remotePort;
 };
 
 }

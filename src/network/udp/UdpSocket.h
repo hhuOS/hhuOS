@@ -15,63 +15,53 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPHEADER_H
-#define HHUOS_UDPHEADER_H
+#ifndef HHUOS_UDPSOCKET_H
+#define HHUOS_UDPSOCKET_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include "UdpDatagram.h"
+#include "lib/util/data/ArrayListBlockingQueue.h"
+#include "lib/util/async/Spinlock.h"
 
 namespace Network::Udp {
 
-class UdpHeader {
+class UdpSocket {
+
+friend class UdpModule;
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    UdpHeader() = default;
+    explicit UdpSocket(uint16_t port);
 
     /**
      * Copy Constructor.
      */
-    UdpHeader(const UdpHeader &other) = delete;
+    UdpSocket(const UdpSocket &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpHeader &operator=(const UdpHeader &other) = delete;
+    UdpSocket &operator=(const UdpSocket &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpHeader() = default;
+    ~UdpSocket() = default;
 
-    void read(Util::Stream::InputStream &stream);
+    void send(const UdpDatagram &datagram) const;
 
-    void write(Util::Stream::OutputStream &stream) const;
+    UdpDatagram receive();
 
-    [[nodiscard]] uint16_t getSourcePort() const;
-
-    void setSourcePort(uint16_t sourcePort);
-
-    [[nodiscard]] uint16_t getDestinationPort() const;
-
-    void setDestinationPort(uint16_t targetPort);
-
-    [[nodiscard]] uint16_t getDatagramLength() const;
-
-    void setDatagramLength(uint16_t length);
-
-    [[nodiscard]] uint16_t getChecksum() const;
-
-    static const constexpr uint32_t HEADER_SIZE = 8;
+    [[nodiscard]] uint16_t getPort() const;
 
 private:
 
-    uint16_t sourcePort{};
-    uint16_t destinationPort{};
-    uint16_t datagramLength{};
-    uint16_t checksum{};
+    void handleIncomingDatagram(const UdpDatagram &datagram);
+
+    uint16_t port;
+    Util::Async::Spinlock lock;
+    Util::Data::ArrayListBlockingQueue<UdpDatagram> incomingDatagramQueue;
 };
 
 }
