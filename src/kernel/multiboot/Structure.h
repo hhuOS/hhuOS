@@ -69,7 +69,7 @@ public:
 
     // Used during the bootstrap process
 
-    static void copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes);
+    static void copyMultibootInfo(Info *source, uint8_t *destination);
 
     static void readMemoryMap(Info *address);
 

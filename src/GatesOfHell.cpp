@@ -66,6 +66,7 @@
 #include "kernel/service/ProcessService.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/async/Thread.h"
+#include "device/power/acpi/Acpi.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -90,6 +91,24 @@ void GatesOfHell::enter() {
             }
         }
         log.info("CPU features: %s", static_cast<const char*>(featureString));
+    }
+
+    if (Device::Acpi::isAvailable()) {
+        log.info("ACPI support detected");
+
+        const auto &rsdp = Device::Acpi::getRsdp();
+        const auto vendor = Util::Memory::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
+        log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">= 2.0");
+
+        const auto tables = Device::Acpi::getAvailableTables();
+        Util::Memory::String featureString;
+        for (uint32_t i = 0; i < tables.length(); i++) {
+            featureString += tables[i];
+            if (i < tables.length() - 1) {
+                featureString += ",";
+            }
+        }
+        log.info("ACPI tables: %s", static_cast<const char*>(featureString));
     }
 
     if (Device::Bios::isAvailable()) {
