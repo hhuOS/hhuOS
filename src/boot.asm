@@ -55,6 +55,7 @@ global __cxa_pure_virtual
 extern main
 extern init_gdt
 extern copy_multiboot_info
+extern copy_acpi_tables
 extern read_memory_map
 extern initialize_system
 extern finish_system
@@ -141,10 +142,13 @@ clear_bss_done:
     mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
     ; Copy the multiboot info struct into bss
-    push dword MULTIBOOT_SIZE
     push dword (multiboot_data - KERNEL_START)
     push dword [multiboot_physical_addr - KERNEL_START]
     call_physical_function copy_multiboot_info
+
+    ; Copy the ACPI structures into bss
+    push dword (acpi_data - KERNEL_START)
+    call_physical_function copy_acpi_tables
 
     ; Read memory map from multiboot info struct
     push dword (multiboot_data - KERNEL_START)
@@ -166,6 +170,7 @@ on_paging_enabled:
 	call reprogram_pics
 
     ; Initialize system
+    push acpi_data
     push multiboot_data
     call initialize_system
 
@@ -246,3 +251,7 @@ initial_kernel_stack:
 ; Reserve space for a copy of the multiboot information
 multiboot_data:
     resb MULTIBOOT_SIZE
+
+; Reserve space for a copy of the ACPI structures
+acpi_data:
+    resb ACPI_SIZE

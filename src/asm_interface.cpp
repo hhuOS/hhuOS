@@ -22,6 +22,7 @@
 #include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
+#include "device/power/acpi/Acpi.h"
 
 // Import functions
 extern "C" {
@@ -32,9 +33,10 @@ void _fini();
 extern "C" {
 void main();
 void init_gdt(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*);
-void copy_multiboot_info(Kernel::Multiboot::Info*, uint8_t*, uint32_t);
+void copy_multiboot_info(Kernel::Multiboot::Info*, uint8_t*);
+void copy_acpi_tables(uint8_t*);
 void read_memory_map(Kernel::Multiboot::Info*);
-void initialize_system(Kernel::Multiboot::Info*);
+void initialize_system(Kernel::Multiboot::Info*, uint8_t*);
 void finish_system();
 void bootstrap_paging(uint32_t*, uint32_t*);
 void enable_interrupts();
@@ -55,16 +57,20 @@ void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_descriptor, uint1
     Kernel::System::initializeGlobalDescriptorTables(gdt, gdt_bios, gdt_descriptor, gdt_bios_descriptor, gdt_phys_descriptor);
 }
 
-void copy_multiboot_info(Kernel::Multiboot::Info *source, uint8_t *destination, uint32_t max_bytes) {
-    Kernel::Multiboot::Structure::copyMultibootInfo(source, destination, max_bytes);
+void copy_multiboot_info(Kernel::Multiboot::Info *source, uint8_t *destination) {
+    Kernel::Multiboot::Structure::copyMultibootInfo(source, destination);
+}
+
+void copy_acpi_tables(uint8_t *destination) {
+    Device::Acpi::copyAcpiTables(destination);
 }
 
 void read_memory_map(Kernel::Multiboot::Info *address) {
     Kernel::Multiboot::Structure::readMemoryMap(address);
 }
 
-void initialize_system(Kernel::Multiboot::Info *address) {
-    Kernel::System::initializeSystem(address);
+void initialize_system(Kernel::Multiboot::Info *multibootAddress, uint8_t *acpiAddress) {
+    Kernel::System::initializeSystem(multibootAddress, acpiAddress);
 }
 
 void finish_system() {

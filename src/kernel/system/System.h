@@ -28,6 +28,7 @@
 #include "Symbols.h"
 #include "SystemCall.h"
 #include "kernel/service/SchedulerService.h"
+#include "device/power/acpi/Acpi.h"
 
 namespace Kernel {
 
@@ -66,7 +67,7 @@ public:
      */
     ~System() = default;
 
-    static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress);
+    static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress, const uint8_t *acpiAddress);
 
     static void* allocateEarlyMemory(uint32_t size);
 

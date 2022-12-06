@@ -159,7 +159,7 @@ void Structure::parseFrameBufferInfo() {
     }
 }
 
-void Structure::copyMultibootInfo(Info *source, uint8_t *destination, uint32_t maxBytes) {
+void Structure::copyMultibootInfo(Info *source, uint8_t *destination) {
     auto destinationAddress = Util::Memory::Address<uint32_t>(destination);
 
     // First, copy the struct itself
