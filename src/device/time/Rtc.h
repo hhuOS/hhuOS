@@ -114,7 +114,6 @@ private:
         DAY_OF_MONTH_REGISTER = 0x07,
         MONTH_REGISTER = 0x08,
         YEAR_REGISTER = 0x09,
-        CENTURY_REGISTER = 0x32,
         STATUS_REGISTER_A = 0x0A,
         STATUS_REGISTER_B = 0x0B,
         STATUS_REGISTER_C = 0x0C,
@@ -165,6 +164,9 @@ private:
     Util::Time::Timestamp time{};
     Util::Time::Date currentDate{};
     uint32_t timerInterval = 0;
+
+    uint8_t centuryRegister = 0;
+
     bool useBcd;
     bool useTwelveHours;
 
