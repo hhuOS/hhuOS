@@ -27,11 +27,16 @@ namespace Device {
 Kernel::Logger Rtc::log = Kernel::Logger::get("Rtc");
 
 Rtc::Rtc(uint8_t interruptRateDivisor) {
+    if (Acpi::isAvailable() && Acpi::hasTable("FADT")) {
+        const auto &fadt = reinterpret_cast<const Acpi::Fadt&>(Acpi::getTable("FADT"));
+        centuryRegister = fadt.century;
+    }
+
     useBcd = (Cmos::read(STATUS_REGISTER_B) & 0x04) == 0;
     useTwelveHours = (Cmos::read(STATUS_REGISTER_B) & 0x02) == 0;
     currentDate = readDate();
-    log.info("Retrieved RTC state (Data format: [%s], Hour format: [%s], Current date: [%u-%02u-%02u %02u:%02u:%02u]",
-             useBcd ? "BCD" : "Binary", useTwelveHours ? "12h" : "24h",
+    log.info("Retrieved RTC state (Data format: [%s], Hour format: [%s], Century register: [0x%02x], Current date: [%u-%02u-%02u %02u:%02u:%02u]",
+             useBcd ? "BCD" : "Binary", useTwelveHours ? "12h" : "24h", centuryRegister,
              currentDate.getYear(), currentDate.getMonth(), currentDate.getDayOfMonth(),
              currentDate.getHours(), currentDate.getMinutes(), currentDate.getSeconds());
 
@@ -122,7 +127,10 @@ void Rtc::setCurrentDate(const Util::Time::Date &date) {
     Cmos::write(DAY_OF_MONTH_REGISTER, outDate.getDayOfMonth());
     Cmos::write(MONTH_REGISTER, outDate.getMonth());
     Cmos::write(YEAR_REGISTER, outDate.getYear());
-    Cmos::write(CENTURY_REGISTER, century);
+
+    if (centuryRegister != 0) {
+        Cmos::write(centuryRegister, century);
+    }
 
     currentDate = date;
 
@@ -176,10 +184,7 @@ Util::Time::Date Rtc::readDate() const {
     date.setMonth(Cmos::read(MONTH_REGISTER));
     date.setYear(Cmos::read(YEAR_REGISTER));
 
-    uint8_t century = Cmos::read(CENTURY_REGISTER);
-    if (century == 0) {
-        century = CURRENT_CENTURY;
-    }
+    uint8_t century = centuryRegister != 0 ? Cmos::read(centuryRegister) : CURRENT_CENTURY;
 
     if (useBcd) {
         century = bcdToBinary(century);

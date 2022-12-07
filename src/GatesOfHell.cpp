@@ -98,7 +98,7 @@ void GatesOfHell::enter() {
 
         const auto &rsdp = Device::Acpi::getRsdp();
         const auto vendor = Util::Memory::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
-        log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">= 2.0");
+        log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
 
         const auto tables = Device::Acpi::getAvailableTables();
         Util::Memory::String featureString;
