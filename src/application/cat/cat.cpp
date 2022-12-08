@@ -41,25 +41,13 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         auto fileType = file.getType();
-        auto fileInputStream = Util::Stream::FileInputStream(file);
-        auto fileReader = Util::Stream::InputStreamReader(fileInputStream);
-        auto bufferedFileReader = Util::Stream::BufferedReader(fileReader);
-        char logChar = bufferedFileReader.read();
+        auto stream = Util::Stream::FileInputStream(file);
+        auto bufferedStream = Util::Stream::BufferedInputStream(stream);
+        int16_t logChar = bufferedStream.read();
 
-        if (fileType == Util::File::REGULAR) {
-            while (logChar != -1) {
-                Util::System::out << logChar;
-                logChar = bufferedFileReader.read();
-            }
-        } else {
-            while (logChar != -1) {
-                Util::System::out << logChar;
-                if (logChar == '\n') {
-                    Util::System::out << Util::Stream::PrintWriter::flush;
-                }
-
-                logChar = bufferedFileReader.read();
-            }
+        while (logChar != -1) {
+            Util::System::out << static_cast<char>(logChar) << Util::Stream::PrintWriter::flush;
+            logChar = bufferedStream.read();
         }
     }
 
