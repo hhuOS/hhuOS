@@ -16,19 +16,60 @@
  */
 
 #include "lib/util/memory/Address.h"
+#include "lib/util/Exception.h"
 #include "File.h"
 
 namespace Util::File::Elf {
 
-File::File(uint8_t *buffer) : buffer(buffer), fileHeader(*reinterpret_cast<Constants::FileHeader*>(buffer)) {
+bool FileHeader::isValid() {
+    if (magic[0] != 0x7F ||
+        magic[1] != 'E' ||
+        magic[2] != 'L' ||
+        magic[3] != 'F') {
+        return false;
+    }
+
+    if (architecture != Architecture::BIT_32) {
+        return false;
+    }
+
+    if (byteOrder != ByteOrder::LITTLE_END) {
+        return false;
+    }
+
+    return machine == MachineType::X86;
+
+}
+
+bool FileHeader::hasProgramEntries() const {
+    return programHeaderEntries != 0;
+}
+
+uint32_t RelocationEntry::getSymbolIndex() const {
+    return (uint32_t) (info >> 8U);
+}
+
+RelocationType RelocationEntry::getType() const {
+    return RelocationType(info & 0xFFU);
+}
+
+SymbolBinding SymbolEntry::getSymbolBinding() const {
+    return SymbolBinding(info >> 4U);
+}
+
+SymbolType SymbolEntry::getSymbolType() const {
+    return SymbolType(info & 0x0FU);
+}
+
+File::File(uint8_t *buffer) : buffer(buffer), fileHeader(*reinterpret_cast<FileHeader*>(buffer)) {
     if (!fileHeader.isValid()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Elf: Invalid file!");
     }
 
-    const auto &sectionHeaderStringHeader = *reinterpret_cast<Constants::SectionHeader*>(buffer + fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize);
+    const auto &sectionHeaderStringHeader = *reinterpret_cast<SectionHeader*>(buffer + fileHeader.sectionHeader + fileHeader.sectionHeaderStringIndex * fileHeader.sectionHeaderEntrySize);
     sectionNames = reinterpret_cast<char*>(buffer + sectionHeaderStringHeader.offset);
-    programHeaders = reinterpret_cast<Constants::ProgramHeader*>(buffer + fileHeader.programHeader);
-    sectionHeaders = reinterpret_cast<Constants::SectionHeader*>(buffer + fileHeader.sectionHeader);
+    programHeaders = reinterpret_cast<ProgramHeader*>(buffer + fileHeader.programHeader);
+    sectionHeaders = reinterpret_cast<SectionHeader*>(buffer + fileHeader.sectionHeader);
 }
 
 File::~File() {
@@ -41,7 +82,7 @@ uint32_t File::getEndAddress() {
     for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
-        if(header.type == Constants::ProgramHeaderType::LOAD) {
+        if(header.type == ProgramHeaderType::LOAD) {
             const auto size = header.virtualAddress + header.memorySize;
 
             if(size > ret) {
@@ -57,7 +98,7 @@ void File::loadProgram() {
     for(int i = 0; i < fileHeader.programHeaderEntries; i++) {
         auto header = programHeaders[i];
 
-        if(header.type == Constants::ProgramHeaderType::LOAD) {
+        if(header.type == ProgramHeaderType::LOAD) {
             auto sourceAddress = Util::Memory::Address<uint32_t>(buffer + header.offset);
             auto targetAddress = Util::Memory::Address<uint32_t>(header.virtualAddress);
 

@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/Multiboot.h"
 #include "kernel/paging/Paging.h"
 #include "PageFrameAllocator.h"
 
@@ -23,7 +23,7 @@ namespace Kernel {
 
 PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uint32_t startAddress, uint32_t endAddress) :
         TableMemoryManager(pagingAreaManager, startAddress, endAddress, Kernel::Paging::PAGESIZE) {
-    auto *blockMap = Multiboot::Structure::getBlockMap();
+    auto *blockMap = Multiboot::getBlockMap();
 
     // Reserve blocks already used by system image and initrd
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
@@ -32,7 +32,7 @@ PageFrameAllocator::PageFrameAllocator(PagingAreaManager &pagingAreaManager, uin
         uint32_t start = block.startAddress;
         uint32_t end = start + block.blockCount * blockSize - 1;
 
-        setMemory(start, end, 1, block.type == Multiboot::Structure::MULTIBOOT_RESERVED);
+        setMemory(start, end, 1, block.type == Multiboot::MULTIBOOT_RESERVED);
     }
 }
 

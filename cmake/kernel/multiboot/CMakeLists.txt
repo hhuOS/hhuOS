@@ -17,6 +17,6 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(kernel PUBLIC
+        ${HHUOS_SRC_DIR}/kernel/multiboot/Multiboot.cpp
         ${HHUOS_SRC_DIR}/kernel/multiboot/MultibootLinearFrameBufferProvider.cpp
-        ${HHUOS_SRC_DIR}/kernel/multiboot/MultibootTerminalProvider.cpp
-        ${HHUOS_SRC_DIR}/kernel/multiboot/Structure.cpp)
+        ${HHUOS_SRC_DIR}/kernel/multiboot/MultibootTerminalProvider.cpp)

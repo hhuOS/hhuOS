@@ -67,6 +67,7 @@ public:
 
     /**
      * Destructor.
+     * Deleted, as this class has only static members.
      */
     ~Cpu() = delete;
 

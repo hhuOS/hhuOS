@@ -40,7 +40,6 @@ int32_t main(int32_t argc, char *argv[]) {
             continue;
         }
 
-        auto fileType = file.getType();
         auto stream = Util::Stream::FileInputStream(file);
         auto bufferedStream = Util::Stream::BufferedInputStream(stream);
         int16_t logChar = bufferedStream.read();

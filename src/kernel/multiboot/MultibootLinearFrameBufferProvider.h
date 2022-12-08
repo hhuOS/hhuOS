@@ -19,9 +19,9 @@
 #define HHUOS_MULTIBOOTLINEARFRAMEBUFFERPROVIDER_H
 
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
-#include "Constants.h"
+#include "Multiboot.h"
 
-namespace Kernel::Multiboot {
+namespace Kernel {
 
 class MultibootLinearFrameBufferProvider : public Device::Graphic::LinearFrameBufferProvider {
 
@@ -68,7 +68,7 @@ protected:
 
 private:
 
-    FrameBufferInfo frameBufferInfo;
+    Multiboot::FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
 
     static Kernel::Logger log;

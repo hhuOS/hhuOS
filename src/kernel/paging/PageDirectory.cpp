@@ -18,7 +18,7 @@
 #include "asm_interface.h"
 #include "lib/util/memory/Address.h"
 #include "kernel/system/System.h"
-#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/Multiboot.h"
 #include "kernel/paging/PageDirectory.h"
 #include "kernel/paging/Paging.h"
 #include "MemoryLayout.h"
@@ -26,13 +26,13 @@
 namespace Kernel {
 
 PageDirectory::PageDirectory() {
-    auto *blockMap = Multiboot::Structure::getBlockMap();
+    auto *blockMap = Multiboot::getBlockMap();
     uint32_t physPagingAreaStart = 0;
 
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
         const auto &block = blockMap[i];
 
-        if (block.type == Multiboot::Structure::PAGING_RESERVED) {
+        if (block.type == Multiboot::PAGING_RESERVED) {
             physPagingAreaStart = block.startAddress;
             break;
         }

@@ -19,9 +19,9 @@
 #define HHUOS_MULTIBOOTTERMINALPROVIDER_H
 
 #include "device/graphic/terminal/TerminalProvider.h"
-#include "Constants.h"
+#include "Multiboot.h"
 
-namespace Kernel::Multiboot {
+namespace Kernel {
 
 class MultibootTerminalProvider : public Device::Graphic::TerminalProvider {
 
@@ -68,7 +68,7 @@ protected:
 
 private:
 
-    FrameBufferInfo frameBufferInfo;
+    Multiboot::FrameBufferInfo frameBufferInfo;
     Util::Data::Array<ModeInfo> supportedModes;
 };
 
