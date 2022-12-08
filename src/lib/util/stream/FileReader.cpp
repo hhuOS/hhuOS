@@ -48,14 +48,13 @@ int32_t FileReader::read(char *targetBuffer, uint32_t length) {
 }
 
 int32_t FileReader::read(char *targetBuffer, uint32_t offset, uint32_t length) {
-    if (pos >= getFileLength(fileDescriptor)) {
-        return -1;
+    uint32_t count = readFile(fileDescriptor, reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
+    if (count > 0) {
+        pos += count;
+        return count;
     }
 
-    uint32_t count = readFile(fileDescriptor, reinterpret_cast<uint8_t *>(targetBuffer + offset), pos, length);
-    pos += count;
-
-    return count > 0 ? count : -1;
+    return -1;
 }
 
 Memory::String FileReader::read(uint32_t length) {
