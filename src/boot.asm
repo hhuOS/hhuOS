@@ -151,7 +151,7 @@ clear_bss_done:
     call_physical_function copy_acpi_tables
 
     ; Read memory map from multiboot info struct
-    push dword (multiboot_data - KERNEL_START)
+    push dword [multiboot_physical_addr - KERNEL_START]
     call_physical_function read_memory_map
 
 	; Jump into paging.asm to enable 4MB paging

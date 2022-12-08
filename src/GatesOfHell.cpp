@@ -22,7 +22,7 @@
 #include "device/graphic/terminal/cga/ColorGraphicsAdapterProvider.h"
 #include "lib/util/reflection/InstanceFactory.h"
 #include "kernel/system/System.h"
-#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/Multiboot.h"
 #include "kernel/multiboot/MultibootTerminalProvider.h"
 #include "device/hid/Keyboard.h"
 #include "lib/util/stream/InputStreamReader.h"
@@ -71,9 +71,10 @@
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
 void GatesOfHell::enter() {
-    const auto logLevel = Kernel::Multiboot::Structure::hasKernelOption("log_level") ? Kernel::Multiboot::Structure::getKernelOption("log_level") : "info";
+    const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
 
+    log.info("Bootloader: [%s]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()));
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
     if (Util::Cpu::CpuId::isAvailable()) {
@@ -178,13 +179,13 @@ void GatesOfHell::initializeTerminal() {
     Device::Graphic::LinearFrameBufferProvider *lfbProvider = nullptr;
     Device::Graphic::TerminalProvider *terminalProvider;
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("lfb_provider")) {
-        auto providerName = Kernel::Multiboot::Structure::getKernelOption("lfb_provider");
+    if (Kernel::Multiboot::hasKernelOption("lfb_provider")) {
+        auto providerName = Kernel::Multiboot::getKernelOption("lfb_provider");
         log.info("LFB provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         lfbProvider = reinterpret_cast<Device::Graphic::LinearFrameBufferProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
-    } else if (Kernel::Multiboot::MultibootLinearFrameBufferProvider::isAvailable()) {
+    } else if (Kernel::MultibootLinearFrameBufferProvider::isAvailable()) {
         log.info("LFB provider is not set -> Using with multiboot values");
-        lfbProvider = new Kernel::Multiboot::MultibootLinearFrameBufferProvider();
+        lfbProvider = new Kernel::MultibootLinearFrameBufferProvider();
     }
 
     if (lfbProvider != nullptr) {
@@ -192,17 +193,17 @@ void GatesOfHell::initializeTerminal() {
         lfbProvider->initializeLinearFrameBuffer(mode, "lfb");
     }
 
-    if (Kernel::Multiboot::Structure::hasKernelOption("terminal_provider")) {
-        auto providerName = Kernel::Multiboot::Structure::getKernelOption("terminal_provider");
+    if (Kernel::Multiboot::hasKernelOption("terminal_provider")) {
+        auto providerName = Kernel::Multiboot::getKernelOption("terminal_provider");
         log.info("Terminal provider set to [%s] -> Starting initialization", static_cast<const char*>(providerName));
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
         log.info("Terminal provider is not set -> Using LFB terminal");
         auto lfbFile = Util::File::File("/device/lfb");
         terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(lfbFile);
-    }  else if (Kernel::Multiboot::MultibootTerminalProvider::isAvailable()) {
+    }  else if (Kernel::MultibootTerminalProvider::isAvailable()) {
         log.info("Terminal provider is not set and LFB is not available -> Using multiboot values");
-        terminalProvider = new Kernel::Multiboot::MultibootTerminalProvider();
+        terminalProvider = new Kernel::MultibootTerminalProvider();
     } else {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Unable to find a suitable graphics driver for this machine!");
     }
@@ -220,11 +221,11 @@ void GatesOfHell::initializeTerminal() {
 }
 
 void GatesOfHell::enablePortLogging() {
-    if (!Kernel::Multiboot::Structure::hasKernelOption("log_ports")) {
+    if (!Kernel::Multiboot::hasKernelOption("log_ports")) {
         return;
     }
 
-    const auto ports = Kernel::Multiboot::Structure::getKernelOption("log_ports").split(",");
+    const auto ports = Kernel::Multiboot::getKernelOption("log_ports").split(",");
     for (const auto &port : ports) {
         auto file = Util::File::File("/device/" + port.toLowerCase());
         if (!file.exists()) {
@@ -246,8 +247,8 @@ void GatesOfHell::initializeFilesystem() {
     Util::Reflection::InstanceFactory::registerPrototype(new Filesystem::Fat::FatDriver());
 
     bool rootMounted = false;
-    if (Kernel::Multiboot::Structure::hasKernelOption("root")) {
-        auto rootOptions = Kernel::Multiboot::Structure::getKernelOption("root").split(",");
+    if (Kernel::Multiboot::hasKernelOption("root")) {
+        auto rootOptions = Kernel::Multiboot::getKernelOption("root").split(",");
         if (rootOptions.length() >= 2) {
             const auto &deviceName = rootOptions[0];
             const auto &driverName = rootOptions[1];
@@ -288,9 +289,9 @@ void GatesOfHell::initializeFilesystem() {
     deviceDriver->addNode("/", new Kernel::MemoryStatusNode("memory"));
     deviceDriver->addNode("/", new Device::Sound::PcSpeakerNode("speaker"));
 
-    if (Kernel::Multiboot::Structure::isModuleLoaded("initrd")) {
+    if (Kernel::Multiboot::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
-        auto module = Kernel::Multiboot::Structure::getModule("initrd");
+        auto module = Kernel::Multiboot::getModule("initrd");
         auto *tarArchive = new Util::File::Tar::Archive(module.start);
         auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
 

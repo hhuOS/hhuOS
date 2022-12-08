@@ -184,7 +184,12 @@ Util::Time::Date Rtc::readDate() const {
     date.setMonth(Cmos::read(MONTH_REGISTER));
     date.setYear(Cmos::read(YEAR_REGISTER));
 
-    uint8_t century = centuryRegister != 0 ? Cmos::read(centuryRegister) : CURRENT_CENTURY;
+    uint8_t  century;
+    if (centuryRegister != 0) {
+        century = Cmos::read(centuryRegister);
+    } else {
+        century = useBcd ? binaryToBcd(CURRENT_CENTURY) : CURRENT_CENTURY;
+    }
 
     if (useBcd) {
         century = bcdToBinary(century);

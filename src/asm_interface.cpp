@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/Multiboot.h"
 #include "kernel/system/System.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/paging/Paging.h"
@@ -58,7 +58,7 @@ void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_descriptor, uint1
 }
 
 void copy_multiboot_info(Kernel::Multiboot::Info *source, uint8_t *destination) {
-    Kernel::Multiboot::Structure::copyMultibootInfo(source, destination);
+    Kernel::Multiboot::copyMultibootInfo(source, destination);
 }
 
 void copy_acpi_tables(uint8_t *destination) {
@@ -66,7 +66,7 @@ void copy_acpi_tables(uint8_t *destination) {
 }
 
 void read_memory_map(Kernel::Multiboot::Info *address) {
-    Kernel::Multiboot::Structure::readMemoryMap(address);
+    Kernel::Multiboot::readMemoryMap(address);
 }
 
 void initialize_system(Kernel::Multiboot::Info *multibootAddress, uint8_t *acpiAddress) {

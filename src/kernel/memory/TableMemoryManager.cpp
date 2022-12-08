@@ -124,6 +124,13 @@ void *TableMemoryManager::allocateBlockAtAddress(void *address) {
 
     auto *referenceTable = reinterpret_cast<ReferenceTableEntry*>(referenceTableArray[index.referenceTableArrayIndex]);
     auto &referenceTableEntry = referenceTable[index.referenceTableIndex];
+
+    uint32_t allocationTableAddress = referenceTableEntry.getAddress();
+    if (allocationTableAddress == 0) {
+        void *block = bitmapMemoryManager.allocateBlock();
+        referenceTableEntry.setAddress(reinterpret_cast<uint32_t>(block));
+    }
+
     auto *allocationTable = reinterpret_cast<AllocationTableEntry*>(referenceTableEntry.getAddress());
     auto &allocationTableEntry = allocationTable[index.allocationTableIndex];
 
@@ -162,8 +169,8 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
                 continue;
             }
 
-            uint32_t address = referenceTableEntry.getAddress();
-            if (address == 0) {
+            uint32_t allocationTableAddress = referenceTableEntry.getAddress();
+            if (allocationTableAddress == 0) {
                 void *block = bitmapMemoryManager.allocateBlock();
                 referenceTableEntry.setAddress(reinterpret_cast<uint32_t>(block));
             }
@@ -181,8 +188,7 @@ void *TableMemoryManager::allocateBlockAfterAddress(void *address) {
                 allocationTableEntry.incrementUseCount();
                 referenceTableEntry.releaseLock();
                 const TableIndex index = {i, j, k};
-                auto *address = reinterpret_cast<void*>(calculateAddress(index));
-                return address;
+                return reinterpret_cast<void*>(calculateAddress(index));
             }
 
             referenceTableEntry.releaseLock();

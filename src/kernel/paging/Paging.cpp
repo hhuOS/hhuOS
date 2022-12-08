@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/multiboot/Structure.h"
+#include "kernel/multiboot/Multiboot.h"
 #include "Paging.h"
 #include "MemoryLayout.h"
 
@@ -27,7 +27,7 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
     // Size of a 4 MiB page
     uint32_t bigPageSize = PAGESIZE * 1024U;
 
-    auto *blockMap = reinterpret_cast<Multiboot::Structure::MemoryBlock*>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(Multiboot::Structure::getBlockMap())));
+    auto *blockMap = reinterpret_cast<Multiboot::MemoryBlock*>(MemoryLayout::VIRTUAL_TO_PHYSICAL(reinterpret_cast<uint32_t>(Multiboot::getBlockMap())));
 
     uint32_t pageCount = 0;
     uint32_t blockMapIndex;
@@ -75,11 +75,11 @@ void Paging::bootstrapPaging(uint32_t *directory, uint32_t *biosDirectory) {
 
             if (blocksFound == 0) {
                 heapPhysicalAddress = freeStartAddress;
-                blockMap[i + 1] = {freeStartAddress, (kernelPage + pageCount) * bigPageSize, 1, true, Multiboot::Structure::HEAP_RESERVED};
+                blockMap[i + 1] = {freeStartAddress, (kernelPage + pageCount) * bigPageSize, 1, true, Multiboot::HEAP_RESERVED};
                 i = -1;
             } else {
                 pagingAreaPhysicalAddress = freeStartAddress;
-                blockMap[i + 1] = {freeStartAddress, MemoryLayout::PAGING_AREA.startAddress, 1, true, Multiboot::Structure::PAGING_RESERVED};
+                blockMap[i + 1] = {freeStartAddress, MemoryLayout::PAGING_AREA.startAddress, 1, true, Multiboot::PAGING_RESERVED};
             }
 
             blocksFound++;

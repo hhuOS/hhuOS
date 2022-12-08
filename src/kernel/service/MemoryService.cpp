@@ -176,7 +176,7 @@ void MemoryService::createPageTable(PageDirectory *directory, uint32_t index) {
 
 void Kernel::MemoryService::mapPhysicalAddress(uint32_t virtualAddress, uint32_t physicalAddress, uint16_t flags) {
     // Mark the physical page frame as used
-    physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlockAtAddress(reinterpret_cast<void *>(physicalAddress)));
+    physicalAddress = reinterpret_cast<uint32_t>(pageFrameAllocator.allocateBlockAtAddress(reinterpret_cast<void*>(physicalAddress)));
     // Map the page into the directory
     currentAddressSpace->getPageDirectory().map(physicalAddress, virtualAddress, flags);
 }

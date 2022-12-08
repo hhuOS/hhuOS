@@ -22,7 +22,7 @@ namespace Util::File::Tar {
 Archive::Archive(uint32_t address) {
     auto archiveAddress = Util::Memory::Address<uint32_t>(address);
 
-    for (uint32_t i = 0; ; i++) {
+    while (true) {
         auto *header = reinterpret_cast<Header*>(archiveAddress.get());
         if (header->filename[0] == '\0') {
             break;
