@@ -15,11 +15,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/stream/FileReader.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Print running processes.\n"
+                               "Usage: ps\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
     auto processDirectory = Util::File::File("/process");
     auto processRootPath = processDirectory.getCanonicalPath();
 

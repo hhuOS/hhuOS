@@ -15,17 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/async/Process.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc < 2) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Forcefully exit a process.\n"
+                               "Usage: kill [PID]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         Util::System::error << "kill: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
-    auto processId = Util::Memory::String::parseInt(argv[1]);
+    auto processId = Util::Memory::String::parseInt(arguments[0]);
     auto process = Util::Async::Process(processId);
     process.kill();
 

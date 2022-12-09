@@ -15,11 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
-#include "lib/util/graphic/Ansi.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("ANSI color test application.\n"
+                               "Usage: color\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
     Util::System::out << Util::Graphic::Ansi::BACKGROUND_DEFAULT << "4-bit colors:" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
     for (uint32_t i = 0; i < 16; i++) {

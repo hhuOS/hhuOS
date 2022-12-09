@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 void treeDirectory(const Util::Memory::String &path, uint32_t level) {
     auto file = Util::File::File(path);
@@ -43,13 +43,25 @@ void treeDirectory(const Util::Memory::String &path, uint32_t level) {
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc <= 1) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Print a directory tree.\n"
+                               "Usage: tree [DIRECTORY]...\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         treeDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath(), 0);
     } else {
-        for (int32_t i = 1; i < argc; i++) {
-            treeDirectory(argv[i], 0);
-            if (i < argc - 1) {
-                Util::System::out << Util::Stream::PrintWriter::endl;
+        for (uint32_t i = 0; i < arguments.length(); i++) {
+            treeDirectory(arguments[i], 0);
+            if (i < static_cast<uint32_t>(arguments.length() - 1)) {
+                Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             }
         }
     }

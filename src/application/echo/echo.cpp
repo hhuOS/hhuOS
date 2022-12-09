@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 
 int32_t main(int32_t argc, char *argv[]) {

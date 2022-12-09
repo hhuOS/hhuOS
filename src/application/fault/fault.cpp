@@ -15,14 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc <= 1) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Purposefully produce a software exception.\n"
+                               "Usage: fault [NUMBER]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         *reinterpret_cast<uint32_t*>(0) = 1797;
     }
 
-    uint32_t exception = Util::Memory::String::parseInt(argv[1]);
-    Util::Exception::throwException(static_cast<Util::Exception::Error>(exception), "Test exception!");
+    uint32_t exception = Util::Memory::String::parseInt(arguments[0]);
+    Util::Exception::throwException(static_cast<Util::Exception::Error>(exception + Util::Exception::NULL_POINTER), "Test exception!");
 }

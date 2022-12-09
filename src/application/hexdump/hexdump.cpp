@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/memory/Address.h"
+#include "lib/util/ArgumentParser.h"
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';
@@ -41,12 +41,24 @@ char sanitize(char value) {
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc < 2) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Print file contents in hexadecimal numbers.\n"
+                               "Usage: hexdump [FILE]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         Util::System::error << "hexdump: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
-    auto path = Util::Memory::String(argv[1]);
+    auto path = Util::Memory::String(arguments[0]);
     auto file = Util::File::File(path);
     if (!file.exists()) {
         Util::System::error << "hexdump: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;

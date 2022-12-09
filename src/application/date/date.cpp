@@ -15,14 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/time/Date.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Print the current date.\n"
+                               "Usage: date\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
     auto date = Util::Time::getCurrentDate();
     Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
-                                                      date.getYear(), date.getMonth(), date.getDayOfMonth(),
-                                                      date.getHours(), date.getMinutes(), date.getSeconds()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+          date.getYear(), date.getMonth(), date.getDayOfMonth(), date.getHours(), date.getMinutes(), date.getSeconds())
+          << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+
     return 0;
 }

@@ -15,17 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include <demos/benchmark/lv_demo_benchmark.h>
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/time/Timestamp.h"
-#include "LvglDriver.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/system/System.h"
-#include "lib/util/graphic/Terminal.h"
+#include "lib/util/ArgumentParser.h"
+#include "LvglDriver.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto demo = Util::Memory::String(argc > 1 ? argv[1] : "benchmark");
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Demo application for the 'Light and Versatile Graphics Library'.\n"
+                               "Included demos are: 'benchmark', 'stress', 'widgets' and 'music' (Default: benchmark)\n"
+                               "Usage: lvgl [DEMO]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    auto demo = Util::Memory::String(arguments.length() > 0 ? arguments[0] : "benchmark");
 
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);

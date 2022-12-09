@@ -24,6 +24,7 @@ include_directories(${HHUOS_SRC_DIR})
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
 target_sources(lib.util PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/ArgumentParser.cpp
         ${HHUOS_SRC_DIR}/lib/util/Exception.cpp)
 
 # Add subdirectories

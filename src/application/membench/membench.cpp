@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/time/Timestamp.h"
@@ -24,6 +23,7 @@
 #include "lib/util/memory/SseAddress.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/math/Math.h"
+#include "lib/util/ArgumentParser.h"
 
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
@@ -42,7 +42,20 @@ void benchmark(uint32_t iterations, const Util::Memory::Address<uint32_t> &sourc
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto iterations = static_cast<uint32_t>(argc > 1 ? Util::Memory::String::parseInt(argv[1]) : 100);
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Memory bandwidth benchmark comparing different acceleration techniques.\n"
+                               "Each iteration operates on 1 MiB of memory (Default: 100 iterations).\n"
+                               "Usage: membench [ITERATIONS]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    auto iterations = static_cast<uint32_t>(arguments.length() == 0 ? 100 : Util::Memory::String::parseInt(arguments[0]));
     auto *buffer1 = new uint8_t[BUFFER_SIZE];
     auto *buffer2 = new uint8_t[BUFFER_SIZE];
     Util::Stream::ByteArrayOutputStream resultStream;
