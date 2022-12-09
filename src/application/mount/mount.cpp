@@ -32,7 +32,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto type = argumentParser.getNamedArgument("type");
+    auto type = argumentParser.getArgument("type");
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() < 2) {
         Util::System::error << "mount: Too few arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;

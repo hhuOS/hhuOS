@@ -59,7 +59,9 @@ public:
 
     Data::Array<Memory::String> getUnnamedArguments();
 
-    Memory::String getNamedArgument(const Memory::String &name);
+    bool hasArgument(const Memory::String &name);
+
+    Memory::String getArgument(const Memory::String &name);
 
     bool checkSwitch(const Memory::String &name);
 
@@ -74,7 +76,7 @@ private:
     Data::HashMap<Memory::String, Memory::String> abbreviationMap;
 
     Data::HashMap<Memory::String, Memory::String> namedArguments;
-    Data::HashMap<Memory::String, bool> switchMap;
+    Data::ArrayList<Memory::String> parsedSwitches;
     Data::ArrayList<Memory::String> unnamedArguments;
 };
 
