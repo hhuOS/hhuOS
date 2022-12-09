@@ -15,8 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#ifndef HHUOS_ASM_INTERFACE
+#define HHUOS_ASM_INTERFACE
+
 #include <cstdint>
 #include "kernel/process/ThreadState.h"
+
+struct CopyInformation {
+    uint32_t sourceAddress;
+    uint32_t targetAreaSize;
+    uint32_t copiedBytes;
+    bool success;
+};
 
 // Import asm variables
 extern const uint32_t ___WRITE_PROTECTED_START__;
@@ -24,6 +34,8 @@ extern const uint32_t ___WRITE_PROTECTED_END__;
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
 extern const uint32_t MULTIBOOT_SIZE;
+extern const uint8_t multiboot_data;
+extern const uint8_t acpi_data;
 
 // Import asm functions
 extern "C" {
@@ -38,3 +50,5 @@ void switch_context(Kernel::Context **current, Kernel::Context **next);
 void _init();
 void _fini();
 }
+
+#endif

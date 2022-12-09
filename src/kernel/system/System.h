@@ -67,7 +67,7 @@ public:
      */
     ~System() = default;
 
-    static void initializeSystem(Kernel::Multiboot::Info *multibootInfoAddress, const uint8_t *acpiAddress);
+    static void initializeSystem();
 
     static void* allocateEarlyMemory(uint32_t size);
 

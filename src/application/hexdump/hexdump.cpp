@@ -21,7 +21,7 @@
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';
-static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI ASCII   ";
+static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI ASCII    ";
 
 void printSeparationLine() {
     auto length = Util::Memory::Address<uint32_t>(HEXDUMP_HEADER).stringLength();

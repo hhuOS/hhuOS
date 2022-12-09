@@ -20,25 +20,33 @@
 
 namespace Device {
 
+const CopyInformation *Acpi::copyInformation{};
 const Acpi::Rsdp *Acpi::rsdp{};
 const Acpi::SdtHeader **Acpi::tables{};
 uint32_t Acpi::numTables{};
 
-void Acpi::copyAcpiTables(uint8_t *destination) {
-    auto destinationAddress = Util::Memory::Address<uint32_t>(destination);
+void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
+    auto *copyInfo = reinterpret_cast<CopyInformation*>(destination);
+    copyInfo->sourceAddress = 0;
+    copyInfo->targetAreaSize = maxBytes;
+    copyInfo->copiedBytes = sizeof(CopyInformation);
+    copyInfo->success = false;
+
+    auto destinationAddress = Util::Memory::Address<uint32_t>(destination + sizeof(CopyInformation));
 
     // Find RSDP and copy its address to determine whether the RSDP has been found
     auto *rsdp = findRsdp();
-    destinationAddress.setByte(rsdp == nullptr ? 0 : 1);
-    destinationAddress = destinationAddress.add(1);
+    copyInfo->sourceAddress = reinterpret_cast<uint32_t>(rsdp);
     if (rsdp == nullptr) {
         return;
     }
 
     // Copy RSDP
+    if (copyInfo->copiedBytes + sizeof(Rsdp) > maxBytes) return;
     destinationAddress.copyRange(Util::Memory::Address<uint32_t>(rsdp), sizeof(Rsdp));
     rsdp = reinterpret_cast<Rsdp*>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Rsdp));
+    copyInfo->copiedBytes += sizeof(Rsdp);
 
     // Check and copy RSDT
     auto *rsdt = reinterpret_cast<SdtHeader*>(rsdp->rsdtAddress);
@@ -50,9 +58,11 @@ void Acpi::copyAcpiTables(uint8_t *destination) {
     auto originalRsdtAddress = rsdp->rsdtAddress;
     auto copiedRsdtAddress = destinationAddress.get();
 
+    if (copyInfo->copiedBytes + rsdt->length > maxBytes) return;
     rsdp->rsdtAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(copiedRsdtAddress);
     destinationAddress.copyRange(Util::Memory::Address<uint32_t>(rsdt), rsdt->length);
     destinationAddress = destinationAddress.add(rsdt->length);
+    copyInfo->copiedBytes += rsdt->length;
 
     // Copy all tables, pointed to by the RSDT
     auto **originalEntries = reinterpret_cast<SdtHeader**>(originalRsdtAddress + sizeof(SdtHeader));
@@ -62,11 +72,15 @@ void Acpi::copyAcpiTables(uint8_t *destination) {
     for (uint32_t i = 0; i < numEntries; i++) {
         auto *sdt = originalEntries[i];
         if (checkSdt(sdt)) {
+            if (copyInfo->copiedBytes + sdt->length > maxBytes) return;
             destinationAddress.copyRange(Util::Memory::Address<uint32_t>(sdt), sdt->length);
             copiedEntries[i] = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
             destinationAddress = destinationAddress.add(sdt->length);
+            copyInfo->copiedBytes += sdt->length;
         }
     }
+
+    copyInfo->success = true;
 }
 
 Acpi::Rsdp* Acpi::findRsdp() {
@@ -114,10 +128,10 @@ bool Acpi::checkSdt(Acpi::SdtHeader *sdtHeader) {
     return static_cast<uint8_t>(sum) == 0;
 }
 
-void Acpi::initialize(const uint8_t *acpiAddress) {
-    auto rsdpFound = (acpiAddress[0] == 1);
-    if (rsdpFound) {
-        rsdp = reinterpret_cast<const Device::Acpi::Rsdp*>(acpiAddress + 1);
+void Acpi::initialize() {
+    copyInformation = reinterpret_cast<const CopyInformation*>(&acpi_data);
+    if (copyInformation->success) {
+        rsdp = reinterpret_cast<const Device::Acpi::Rsdp*>(&acpi_data + sizeof(CopyInformation));
         tables = reinterpret_cast<const SdtHeader**>(rsdp->rsdtAddress + sizeof(SdtHeader));
         numTables = (reinterpret_cast<SdtHeader*>(rsdp->rsdtAddress)->length - sizeof(SdtHeader)) / sizeof(uint32_t);
     } else {
@@ -128,7 +142,11 @@ void Acpi::initialize(const uint8_t *acpiAddress) {
 }
 
 bool Acpi::isAvailable() {
-    return rsdp != nullptr;
+    return copyInformation->success;
+}
+
+const CopyInformation &Acpi::getCopyInformation() {
+    return *copyInformation;
 }
 
 const Acpi::Rsdp &Acpi::getRsdp() {

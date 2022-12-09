@@ -33,10 +33,10 @@ void _fini();
 extern "C" {
 void main();
 void init_gdt(uint16_t*, uint16_t*, uint16_t*, uint16_t*, uint16_t*);
-void copy_multiboot_info(Kernel::Multiboot::Info*, uint8_t*);
-void copy_acpi_tables(uint8_t*);
-void read_memory_map(Kernel::Multiboot::Info*);
-void initialize_system(Kernel::Multiboot::Info*, uint8_t*);
+void copy_multiboot_info(const Kernel::Multiboot::Info*, uint8_t*, uint32_t);
+void copy_acpi_tables(uint8_t*, uint32_t);
+void read_memory_map(const Kernel::Multiboot::Info*);
+void initialize_system();
 void finish_system();
 void bootstrap_paging(uint32_t*, uint32_t*);
 void enable_interrupts();
@@ -57,20 +57,20 @@ void init_gdt(uint16_t *gdt, uint16_t *gdt_bios, uint16_t *gdt_descriptor, uint1
     Kernel::System::initializeGlobalDescriptorTables(gdt, gdt_bios, gdt_descriptor, gdt_bios_descriptor, gdt_phys_descriptor);
 }
 
-void copy_multiboot_info(Kernel::Multiboot::Info *source, uint8_t *destination) {
-    Kernel::Multiboot::copyMultibootInfo(source, destination);
+void copy_multiboot_info(const Kernel::Multiboot::Info *source, uint8_t *destination, uint32_t maxBytes) {
+    Kernel::Multiboot::copyMultibootInfo(source, destination, maxBytes);
 }
 
-void copy_acpi_tables(uint8_t *destination) {
-    Device::Acpi::copyAcpiTables(destination);
+void copy_acpi_tables(uint8_t *destination, uint32_t maxBytes) {
+    Device::Acpi::copyAcpiTables(destination, maxBytes);
 }
 
-void read_memory_map(Kernel::Multiboot::Info *address) {
-    Kernel::Multiboot::readMemoryMap(address);
+void read_memory_map(const Kernel::Multiboot::Info *multibootInfo) {
+    Kernel::Multiboot::readMemoryMap(multibootInfo);
 }
 
-void initialize_system(Kernel::Multiboot::Info *multibootAddress, uint8_t *acpiAddress) {
-    Kernel::System::initializeSystem(multibootAddress, acpiAddress);
+void initialize_system() {
+    Kernel::System::initializeSystem();
 }
 
 void finish_system() {
