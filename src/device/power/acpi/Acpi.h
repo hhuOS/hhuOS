@@ -22,6 +22,7 @@
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
 #include "kernel/log/Logger.h"
+#include "asm_interface.h"
 
 namespace Device {
 
@@ -155,11 +156,13 @@ public:
      */
     ~Acpi() = delete;
 
-    static void copyAcpiTables(uint8_t *destination);
+    static void copyAcpiTables(uint8_t *destination, uint32_t maxBytes);
 
-    static void initialize(const uint8_t *acpiAddress);
+    static void initialize();
 
     static bool isAvailable();
+
+    static const CopyInformation& getCopyInformation();
 
     static const Rsdp& getRsdp();
 
@@ -179,6 +182,7 @@ private:
 
     static bool checkSdt(SdtHeader *sdtHeader);
 
+    static const CopyInformation *copyInformation;
     static const Rsdp *rsdp;
     static const SdtHeader **tables;
     static uint32_t numTables;

@@ -74,7 +74,11 @@ void GatesOfHell::enter() {
     const auto logLevel = Kernel::Multiboot::hasKernelOption("log_level") ? Kernel::Multiboot::getKernelOption("log_level") : "info";
     Kernel::Logger::setLevel(logLevel);
 
-    log.info("Bootloader: [%s]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()));
+    auto &bootloaderCopyInformation = Kernel::Multiboot::getCopyInformation();
+    if (!bootloaderCopyInformation.success) {
+        log.error("Bootloader information has not been copied successfully -> Undefined behaviour may occur...");
+    }
+    log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), bootloaderCopyInformation.copiedBytes, bootloaderCopyInformation.targetAreaSize);
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
     if (Util::Cpu::CpuId::isAvailable()) {
@@ -95,7 +99,8 @@ void GatesOfHell::enter() {
     }
 
     if (Device::Acpi::isAvailable()) {
-        log.info("ACPI support detected");
+        const auto &acpiCopyInformation = Device::Acpi::getCopyInformation();
+        log.info("ACPI support detected (Table size: [%u/%u Byte])", acpiCopyInformation.copiedBytes, acpiCopyInformation.targetAreaSize);
 
         const auto &rsdp = Device::Acpi::getRsdp();
         const auto vendor = Util::Memory::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));

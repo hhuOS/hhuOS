@@ -46,9 +46,9 @@ Logger System::log = Logger::get("System");
  * Is called from assembly code before calling the main function, because it sets up
  * everything to get the system run.
  */
-void System::initializeSystem(Multiboot::Info *multibootInfoAddress, const uint8_t *acpiAddress) {
-    Multiboot::initialize(multibootInfoAddress);
-    Device::Acpi::initialize(acpiAddress);
+void System::initializeSystem() {
+    Multiboot::initialize();
+    Device::Acpi::initialize();
 
     kernelHeapMemoryManager = &initializeKernelHeap();
 

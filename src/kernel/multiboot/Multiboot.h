@@ -19,6 +19,7 @@
 #define HHUOS_MULTIBOOT_H
 
 #include "lib/util/memory/String.h"
+#include "asm_interface.h"
 
 namespace Kernel {
 
@@ -208,7 +209,9 @@ public:
      */
     ~Multiboot() = delete;
 
-    static void initialize(Info *address);
+    static void initialize();
+
+    static const CopyInformation& getCopyInformation();
 
     static Util::Memory::String getBootloaderName();
 
@@ -216,7 +219,7 @@ public:
 
     static Util::Data::Array<MemoryMapEntry> getMemoryMap();
 
-    static MemoryBlock* getBlockMap();
+    static const MemoryBlock * getBlockMap();
 
     static bool hasKernelOption(const Util::Memory::String &key);
 
@@ -228,14 +231,16 @@ public:
 
     // Used during the bootstrap process
 
-    static void copyMultibootInfo(const Info *source, uint8_t *destination);
+    static void copyMultibootInfo(const Info *source, uint8_t *destination, uint32_t maxBytes);
 
-    static void readMemoryMap(const Info *info);
+    static void readMemoryMap(const Info *multibootInfo);
 
 private:
 
-    static MemoryBlock blockMap[256];
-    static Info *info;
+    static const CopyInformation *copyInformation;
+    static const Info *info;
+
+    static const MemoryBlock blockMap[256];
 };
 
 }
