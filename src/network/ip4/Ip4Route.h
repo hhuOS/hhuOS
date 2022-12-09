@@ -67,7 +67,9 @@ public:
 
     [[nodiscard]] const Ip4Interface& getInterface() const;
 
-    void sendPacket(uint8_t *packet, uint32_t length) const;
+    [[nodiscard]] bool hasNextHop() const;
+
+    [[nodiscard]] const Ip4Address& getNextHop() const;
 
 private:
 
@@ -76,7 +78,7 @@ private:
     Ip4Address nextHop{};
     Ip4Interface *interface{};
 
-    bool hasNextHop{};
+    bool nextHopValid{};
 };
 
 }

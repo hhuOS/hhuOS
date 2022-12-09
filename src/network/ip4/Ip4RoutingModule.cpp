@@ -47,8 +47,4 @@ const Ip4Route& Ip4RoutingModule::findRouteTo(const Ip4Address &address) const {
     return ret == nullptr ? defaultRoute : *ret;
 }
 
-void Ip4RoutingModule::sendPacketTo(const Ip4Address &receiverAddress, uint8_t *packet, uint32_t length) const {
-    findRouteTo(receiverAddress).sendPacket(packet, length);
-}
-
 }
