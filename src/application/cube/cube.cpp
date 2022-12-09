@@ -17,17 +17,27 @@
 
 #include "lib/util/game/Engine.h"
 #include "lib/util/system/System.h"
-#include "CubeDemo.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/ArgumentParser.h"
+#include "CubeDemo.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto speed = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_SPEED;
-    if (speed < 0) {
-        Util::System::error << "Speed must be greater than 0!";
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Demo application, displaying a rotating 3D cube.\n"
+                               "The rotation speed can be adjusted via the '+' and '-' keys.\n"
+                               "Usage: cube [SPEED]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    auto speed = arguments.length() == 0 ? DEFAULT_SPEED : Util::Memory::String::parseInt(arguments[0]);
 
     auto game = CubeDemo(speed);
     auto lfbFile = Util::File::File("/device/lfb");
@@ -35,6 +45,5 @@ int32_t main(int32_t argc, char *argv[]) {
     auto engine = Util::Game::Engine(game, lfb);
 
     engine.run();
-
     return 0;
 }

@@ -15,16 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc < 4) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.addArgument("type", true, "t");
+    argumentParser.setHelpText("Mount a device to a path.\n"
+                               "Usage: mount [DEVICE] [PATH] [OPTIONS]...\n"
+                               "Options:\n"
+                               "  -t, --type: Filesystem type (REQUIRED).\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto type = argumentParser.getNamedArgument("type");
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() < 2) {
         Util::System::error << "mount: Too few arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
-    auto success = Util::File::mount(argv[1], argv[2], argv[3]);
+    auto success = Util::File::mount(arguments[0], arguments[1], type);
     if (!success) {
         Util::System::error << "mount: Failed to mount '" << argv[1] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     }

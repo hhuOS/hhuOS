@@ -15,26 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc < 2) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Create directories.\n"
+                               "Usage: cat [DIRECTORY]...\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         Util::System::error << "mkdir: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
 
-    for (int32_t i = 1; i < argc; i++) {
-        Util::Memory::String path(argv[i]);
+    for (const auto &path : arguments) {
         auto file = Util::File::File(path);
         if (file.exists()) {
-            Util::System::error << "mkdir: '" << argv[i] << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             continue;
         }
 
         auto success = file.create(Util::File::DIRECTORY);
         if (!success) {
-            Util::System::error << "mkdir: Failed to execute directory '" << argv[i] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: Failed to execute directory '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         }
     }
 

@@ -48,7 +48,7 @@ public:
 
 private:
 
-    Util::Math::Random random = Util::Math::Random(256);
+    Util::Math::Random random = Util::Math::Random();
 
     static const Util::Data::Array<double> xShape1;
     static const Util::Data::Array<double> yShape1;

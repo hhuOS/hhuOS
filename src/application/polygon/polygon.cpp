@@ -15,22 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/system/System.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/Engine.h"
+#include "lib/util/ArgumentParser.h"
 #include "PolygonDemo.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/async/Thread.h"
 
 static const constexpr int32_t DEFAULT_COUNT = 10;
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto count = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : DEFAULT_COUNT;
-    if (count < 0) {
-        Util::System::error << "Polygon count must be greater than 0!";
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Demo application, displaying multiple rotating polygons.\n"
+                               "The amount of polygons can be adjusted via the '+' and '-' keys.\n"
+                               "Usage: polygon [COUNT]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
         return -1;
     }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    auto count = arguments.length() == 0 ? DEFAULT_COUNT : Util::Memory::String::parseInt(arguments[0]);
 
     auto game = PolygonDemo(count);
     auto lfbFile = Util::File::File("/device/lfb");

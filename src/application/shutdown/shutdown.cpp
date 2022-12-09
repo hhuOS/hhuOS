@@ -18,19 +18,22 @@
 #include "lib/util/system/Machine.h"
 #include "lib/util/memory/String.h"
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto type = Util::Machine::SHUTDOWN;
-    if (argc > 1) {
-        auto parameter = Util::Memory::String(argv[1]);
-        if (parameter == "-r" || parameter == "--reboot") {
-            type = Util::Machine::REBOOT;
-        } else {
-            Util::System::error << "shutdown: Invalid argument '" << parameter << "'!'" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
-            return -1;
-        }
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.addSwitch("reboot", "r");
+    argumentParser.setHelpText("Shut down the system.\n"
+                               "Usage: shutdown [OPTIONS]...\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
     }
 
+    Util::Machine::ShutdownType type = argumentParser.checkSwitch("reboot") ? Util::Machine::REBOOT : Util::Machine::SHUTDOWN;
     auto success = Util::Machine::shutdown(type);
     if (success) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown returned successfully!");

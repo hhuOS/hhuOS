@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 void lsDirectory(const Util::Memory::String &path) {
     auto file = Util::File::File(path);
@@ -41,19 +41,32 @@ void lsDirectory(const Util::Memory::String &path) {
     if (!string.isEmpty()) {
         Util::System::out << string << Util::Stream::PrintWriter::endl;
     }
+    Util::System::out << Util::Stream::PrintWriter::flush;
 }
 
 int32_t main(int32_t argc, char *argv[]) {
-    if (argc <= 1) {
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("List files.\n"
+                               "Usage: ls [PATH]...\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    if (arguments.length() == 0) {
         lsDirectory(Util::File::getCurrentWorkingDirectory().getCanonicalPath());
     } else {
-        if (argc == 2) {
-            lsDirectory(argv[1]);
+        if (arguments.length() == 1) {
+            lsDirectory(arguments[0]);
         } else {
-            for (int32_t i = 1; i < argc; i++) {
-                Util::System::out << argv[i] << ":" << Util::Stream::PrintWriter::endl;
-                lsDirectory(argv[i]);
-                if (i < argc - 1) {
+            for (uint32_t i = 0; i < arguments.length(); i++) {
+                Util::System::out << arguments[i] << ":" << Util::Stream::PrintWriter::endl;
+                lsDirectory(arguments[i]);
+                if (i < static_cast<uint32_t>(arguments.length() - 1)) {
                     Util::System::out << Util::Stream::PrintWriter::endl;
                 }
             }

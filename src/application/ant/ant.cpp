@@ -15,13 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstdint>
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/system/System.h"
+#include "lib/util/ArgumentParser.h"
 
 bool isRunning = true;
 
@@ -91,7 +91,20 @@ struct Ant {
 };
 
 int32_t main(int32_t argc, char *argv[]) {
-    auto sleepInterval = argc > 1 ? Util::Memory::String::parseInt(argv[1]) : 0;
+    auto argumentParser = Util::ArgumentParser();
+    argumentParser.setHelpText("Colorful implementation of Langton's ant.\n"
+                               "Usage: ant [SPEED]\n"
+                               "Options:\n"
+                               "  -h, --help: Show this help message");
+
+    if (!argumentParser.parse(argc, argv)) {
+        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        return -1;
+    }
+
+    auto arguments = argumentParser.getUnnamedArguments();
+    auto sleepInterval = arguments.length() == 0 ? 0 : Util::Memory::String::parseInt(arguments[0]);
+
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto drawer = Util::Graphic::PixelDrawer(lfb);
