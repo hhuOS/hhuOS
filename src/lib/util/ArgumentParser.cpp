@@ -42,7 +42,7 @@ const Memory::String& ArgumentParser::getErrorString() {
 
 bool ArgumentParser::parse(uint32_t argc, char *argv[]) {
     namedArguments.clear();
-    switchMap.clear();
+    parsedSwitches.clear();
     unnamedArguments.clear();
 
     for (uint32_t i = 1; i < argc; i++){
@@ -77,7 +77,7 @@ bool ArgumentParser::parse(uint32_t argc, char *argv[]) {
                     return false;
                 }
             } else if (switches.contains(currentArg)) {
-                switchMap.put(currentArg, true);
+                parsedSwitches.add(currentArg);
             } else {
                 errorString = "Unknown parameter '" + currentArg + "'!";
 
@@ -103,7 +103,11 @@ Data::Array<Memory::String> ArgumentParser::getUnnamedArguments() {
     return unnamedArguments.toArray();
 }
 
-Memory::String ArgumentParser::getNamedArgument(const Memory::String &name) {
+bool ArgumentParser::hasArgument(const Memory::String &name) {
+    return namedArguments.containsKey(name);
+}
+
+Memory::String ArgumentParser::getArgument(const Memory::String &name) {
     if (namedArguments.containsKey(name)) {
         return namedArguments.get(name);
     }
@@ -112,11 +116,7 @@ Memory::String ArgumentParser::getNamedArgument(const Memory::String &name) {
 }
 
 bool ArgumentParser::checkSwitch(const Memory::String &name) {
-    if (switchMap.containsKey(name)) {
-        return switchMap.get(name);
-    }
-
-    return false;
+    return parsedSwitches.contains(name);
 }
 
 }

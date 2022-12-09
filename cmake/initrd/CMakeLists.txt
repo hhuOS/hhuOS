@@ -41,6 +41,7 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:date>" "${HHUOS_ROOT_DIR}/initrd/bin/date"
             COMMAND /bin/cp "$<TARGET_FILE:echo>" "${HHUOS_ROOT_DIR}/initrd/bin/echo"
             COMMAND /bin/cp "$<TARGET_FILE:fault>" "${HHUOS_ROOT_DIR}/initrd/bin/fault"
+            COMMAND /bin/cp "$<TARGET_FILE:head>" "${HHUOS_ROOT_DIR}/initrd/bin/head"
             COMMAND /bin/cp "$<TARGET_FILE:hello>" "${HHUOS_ROOT_DIR}/initrd/bin/hello"
             COMMAND /bin/cp "$<TARGET_FILE:hexdump>" "${HHUOS_ROOT_DIR}/initrd/bin/hexdump"
             COMMAND /bin/cp "$<TARGET_FILE:kill>" "${HHUOS_ROOT_DIR}/initrd/bin/kill"
@@ -63,7 +64,7 @@ else()
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
             COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS shell ant beep cat color cp cube date echo fault hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
+            DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
 
-    add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+    add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()
