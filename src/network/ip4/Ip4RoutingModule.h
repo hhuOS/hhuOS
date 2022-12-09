@@ -54,8 +54,6 @@ public:
 
     [[nodiscard]] const Ip4Route& findRouteTo(const Ip4Address &address) const;
 
-    void sendPacketTo(const Ip4Address &receiverAddress, uint8_t *packet, uint32_t length) const;
-
 private:
 
     Ip4Route defaultRoute;

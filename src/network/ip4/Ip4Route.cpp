@@ -23,10 +23,10 @@
 namespace Network::Ip4 {
 
 Ip4Route::Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Ip4Address &nextHop, const Util::Memory::String &device) :
-        address(localAddress), networkMask(networkMask), nextHop(nextHop), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), hasNextHop(false) {}
+        address(localAddress), networkMask(networkMask), nextHop(nextHop), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), nextHopValid(false) {}
 
 Ip4Route::Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Util::Memory::String &device) :
-        address(localAddress), networkMask(networkMask), nextHop(), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), hasNextHop(false) {}
+        address(localAddress), networkMask(networkMask), nextHop(), interface(&Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module().getInterface(device)), nextHopValid(false) {}
 
 bool Ip4Route::operator==(const Ip4Route &other) const {
     return address == other.address && networkMask == other.networkMask;
@@ -44,12 +44,16 @@ const Ip4NetworkMask& Ip4Route::getNetworkMask() const {
     return networkMask;
 }
 
-void Ip4Route::sendPacket(uint8_t *packet, uint32_t length) const {
-    interface->sendPacket(packet, length);
-}
-
 const Ip4Interface& Ip4Route::getInterface() const {
     return *interface;
+}
+
+bool Ip4Route::hasNextHop() const {
+    return nextHopValid;
+}
+
+const Ip4Address &Ip4Route::getNextHop() const {
+    return nextHop;
 }
 
 }

@@ -69,7 +69,7 @@ const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &
     auto route = ip4Module.routingModule.findRouteTo(destinationAddress);
 
     auto destinationMacAddress = MacAddress();
-    if (!arpModule.resolveAddress(destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
+    if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not resolved");
     }
 
