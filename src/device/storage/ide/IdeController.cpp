@@ -426,7 +426,7 @@ uint16_t IdeController::performIO(const IdeController::DeviceInfo &info, IdeCont
 
         // TODO: DMA is currently disable for two reasons:
         //      1. There seems to be an error with unmapping the pages used for DMA, causing the system to crash.
-        //      2. DMA transfers do not work on BIOS systems (Interrupts gets fired, but the memory is untouched)
+        //      2. DMA transfers do not work on BIOS systems (Interrupts get fired, but the memory is untouched)
         /*uint16_t sectors;
         if (supportsDma && info.supportsDma()) {
             sectors = performDmaIO(info, mode, reinterpret_cast<uint16_t*>(buffer + (processedSectors * info.sectorSize)), start, count);
