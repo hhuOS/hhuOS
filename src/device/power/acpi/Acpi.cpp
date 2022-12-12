@@ -94,13 +94,13 @@ Acpi::Rsdp* Acpi::findRsdp() {
 }
 
 Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {
-    char signature[8] = {'R', 'S', 'D', ' ', 'P', 'T', 'R', ' '};
+    char signature[sizeof(Rsdp::signature)] = {'R', 'S', 'D', ' ', 'P', 'T', 'R', ' '};
     auto signatureAddress = Util::Memory::Address<uint32_t>(signature);
     startAddress = Util::Memory::Address<uint32_t>(startAddress).alignUp(16).get();
 
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
         auto address = Util::Memory::Address<uint32_t>(i);
-        if (address.compareRange(signatureAddress, sizeof(signature)) == 0) {
+        if (address.compareRange(signatureAddress, sizeof(Rsdp::signature)) == 0) {
             if (checkRsdp(reinterpret_cast<Rsdp*>(i))) {
                 return reinterpret_cast<Rsdp*>(i);
             }
@@ -155,7 +155,7 @@ const Acpi::Rsdp &Acpi::getRsdp() {
 
 bool Acpi::hasTable(const char *signature) {
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareString(signature)) {
+        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareRange(Util::Memory::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
             return true;
         }
     }
@@ -163,9 +163,9 @@ bool Acpi::hasTable(const char *signature) {
     return false;
 }
 
-const Acpi::SdtHeader &Acpi::getTable(const char *signature) {
+const Acpi::SdtHeader& Acpi::getTable(const char *signature) {
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareString(signature)) {
+        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareRange(Util::Memory::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
             return *tables[i];
         }
     }
