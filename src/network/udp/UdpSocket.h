@@ -21,18 +21,18 @@
 #include "UdpDatagram.h"
 #include "lib/util/data/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
+#include "network/DatagramSocket.h"
+#include "network/ip4/Ip4PortAddress.h"
 
 namespace Network::Udp {
 
-class UdpSocket {
-
-friend class UdpModule;
+class UdpSocket : public DatagramSocket {
 
 public:
     /**
      * Constructor.
      */
-    explicit UdpSocket(uint16_t port);
+    UdpSocket() = default;
 
     /**
      * Copy Constructor.
@@ -49,19 +49,13 @@ public:
      */
     ~UdpSocket() = default;
 
-    void send(const UdpDatagram &datagram) const;
-
-    UdpDatagram receive();
+    void send(const Datagram &datagram) override;
 
     [[nodiscard]] uint16_t getPort() const;
 
-private:
+protected:
 
-    void handleIncomingDatagram(const UdpDatagram &datagram);
-
-    uint16_t port;
-    Util::Async::Spinlock lock;
-    Util::Data::ArrayListBlockingQueue<UdpDatagram> incomingDatagramQueue;
+    void performBind() override;
 };
 
 }

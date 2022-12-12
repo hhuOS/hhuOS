@@ -29,7 +29,7 @@ class NetworkAddress {
 public:
 
     enum Type {
-        MAC, IP4, IP6
+        MAC, IP4, IP6, IP4_PORT, IP6_PORT
     };
 
     /**

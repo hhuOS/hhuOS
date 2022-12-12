@@ -182,9 +182,9 @@ print_usage() {
     -b, --bios
         Set to true, to use the classic BIOS instead of UEFI
     -r, --ram
-        Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 64M)
+        Set the amount of ram, which qemu should use (e.g. 256, 1G, ...) (Default: 128M)
     -c, --cpu
-        Set the CPU model, which qemu should emulate (e.g. 486, pentium, pentium2, ...) (Default: qemu32)
+        Set the CPU model, which qemu should emulate (e.g. 486, pentium, pentium2, ...) (Default: base)
     -d, --debug
         Set the port, on which qemu should listen for GDB clients (default: disabled)
     -h, --help

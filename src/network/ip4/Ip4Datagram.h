@@ -15,40 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_IP4DATAGRAM_H
+#define HHUOS_IP4DATAGRAM_H
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
+#include "Ip4Address.h"
 #include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "Ip4Header.h"
 
-namespace Network::Udp {
+namespace Network::Ip4 {
 
-class UdpDatagram : public Datagram {
+class Ip4Datagram : public Datagram {
 
 public:
     /**
      * Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    Ip4Datagram(const Ip4Datagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~Ip4Datagram() = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
+
+private:
+
+    Ip4Header::Protocol protocol;
 };
 
 }

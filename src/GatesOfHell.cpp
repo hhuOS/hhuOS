@@ -67,6 +67,7 @@
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/async/Thread.h"
 #include "device/power/acpi/Acpi.h"
+#include "network/ip4/Ip4Datagram.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -145,20 +146,45 @@ void GatesOfHell::enter() {
 
     printBanner();
 
-    /*auto &thread = Kernel::Thread::createKernelThread("Udp-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
-        auto sender = Network::Udp::UdpSocket(1797);
-        auto receiver = Network::Udp::UdpSocket(8821);
-        auto datagram = Network::Udp::UdpDatagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, Network::Ip4::Ip4Address("127.0.0.1"), 8821);
-        auto logger = Kernel::Logger::get("Test");
+    /*auto &ip4Thread = Kernel::Thread::createKernelThread("Ip4-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+        auto senderAddress = Network::Ip4::Ip4Address("127.0.0.1");
+        auto receiverAddress = Network::Ip4::Ip4Address("127.0.0.1");
+        auto datagram = Network::Ip4::Ip4Datagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, receiverAddress, static_cast<Network::Ip4::Ip4Header::Protocol>(0));
 
+        auto sender = Network::Ip4::Ip4Socket();
+        sender.bind(senderAddress);
+        auto receiver = Network::Ip4::Ip4Socket();
+        receiver.bind(receiverAddress);
+
+        auto logger = Kernel::Logger::get("Test");
         while (true) {
             sender.send(datagram);
-            auto receivedDatagram = receiver.receive();
-            log.info("Received Datagram: '%s'", datagram.getBuffer());
+            const auto &receivedDatagram = receiver.receive();
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram.getRemoteAddress().toString()), receivedDatagram.getBuffer());
             Util::Async::Thread::sleep({1, 0});
         }
     }));
-    Kernel::System::getService<Kernel::SchedulerService>().ready(thread);*/
+    Kernel::System::getService<Kernel::SchedulerService>().ready(ip4Thread);*/
+
+    /*auto &udpThread = Kernel::Thread::createKernelThread("Udp-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+        auto senderAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 1797);
+        auto receiverAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 8821);
+        auto datagram = Network::Udp::UdpDatagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, receiverAddress);
+
+        auto sender = Network::Udp::UdpSocket();
+        sender.bind(senderAddress);
+        auto receiver = Network::Udp::UdpSocket();
+        receiver.bind(receiverAddress);
+
+        auto logger = Kernel::Logger::get("Test");
+        while (true) {
+            sender.send(datagram);
+            const auto &receivedDatagram = receiver.receive();
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram.getRemoteAddress().toString()), receivedDatagram.getBuffer());
+            Util::Async::Thread::sleep({1, 0});
+        }
+    }));
+    Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);*/
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 

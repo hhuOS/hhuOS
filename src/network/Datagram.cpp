@@ -15,42 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#include "Datagram.h"
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+Network::Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress) :
+        buffer(buffer), length(length), remoteAddress(remoteAddress.createCopy()) {}
 
-namespace Network::Udp {
-
-class UdpDatagram : public Datagram {
-
-public:
-    /**
-     * Constructor.
-     */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
-
-    /**
-     * Copy Constructor.
-     */
-    UdpDatagram(const UdpDatagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~UdpDatagram() = default;
-
-    [[nodiscard]] uint16_t getRemotePort() const;
-};
-
+uint16_t Network::Datagram::getLength() const {
+    return length;
 }
 
-#endif
+const uint8_t* Network::Datagram::getBuffer() const {
+    return buffer;
+}
+
+const Network::NetworkAddress& Network::Datagram::getRemoteAddress() const {
+    return *remoteAddress;
+}

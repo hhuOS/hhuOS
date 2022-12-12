@@ -15,42 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#include "Socket.h"
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+namespace Network {
 
-namespace Network::Udp {
+void Socket::bind(const Network::NetworkAddress &address) {
+    if (bindAddress != nullptr) {
+        Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Already bound!");
+    }
 
-class UdpDatagram : public Datagram {
-
-public:
-    /**
-     * Constructor.
-     */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
-
-    /**
-     * Copy Constructor.
-     */
-    UdpDatagram(const UdpDatagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~UdpDatagram() = default;
-
-    [[nodiscard]] uint16_t getRemotePort() const;
-};
-
+    bindAddress = address.createCopy();
+    performBind();
 }
 
-#endif
+const NetworkAddress &Socket::getAddress() {
+    return *bindAddress;
+}
+
+}

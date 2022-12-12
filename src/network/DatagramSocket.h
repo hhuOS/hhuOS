@@ -15,40 +15,65 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_DATAGRAMSOCKET_H
+#define HHUOS_DATAGRAMSOCKET_H
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "Socket.h"
+#include "Datagram.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayListBlockingQueue.h"
 
-namespace Network::Udp {
+namespace Network {
 
-class UdpDatagram : public Datagram {
+namespace Udp {
+class UdpModule;
+}
+
+namespace Ip4 {
+class Ip4Module;
+}
+
+namespace Ethernet {
+class EthernetModule;
+}
+
+class DatagramSocket : public Socket {
+
+friend class Udp::UdpModule;
+friend class Ip4::Ip4Module;
+friend class Ethernet::EthernetModule;
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    DatagramSocket() = default;
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    DatagramSocket(const DatagramSocket &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    DatagramSocket &operator=(const DatagramSocket &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~DatagramSocket() = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    virtual void send(const Datagram &datagram) = 0;
+
+    const Datagram& receive();
+
+private:
+
+    void handleIncomingDatagram(Datagram *datagram);
+
+    Util::Async::Spinlock lock;
+    Util::Data::ArrayListBlockingQueue<Datagram*> incomingDatagramQueue;
 };
 
 }

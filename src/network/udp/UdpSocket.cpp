@@ -23,34 +23,25 @@
 
 namespace Network::Udp {
 
-UdpSocket::UdpSocket(uint16_t port) : port(port) {
+void UdpSocket::send(const Datagram &datagram) {
+    auto sourcePort = reinterpret_cast<const Ip4::Ip4PortAddress*>(bindAddress)->getPort();
+    const auto remoteAddress = reinterpret_cast<const Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
+    Network::Udp::UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getBuffer(), datagram.getLength());
+}
+
+uint16_t UdpSocket::getPort() const {
+    return reinterpret_cast<const Ip4::Ip4PortAddress*>(bindAddress)->getPort();
+}
+
+void UdpSocket::performBind() {
+    if (bindAddress->getType() != NetworkAddress::IP4_PORT) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "UdpSocket: Invalid bind address!");
+    }
+
     auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
     if (!udpModule.registerSocket(*this)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Port is already in use!");
     }
-}
-
-void UdpSocket::send(const UdpDatagram &datagram) const {
-    Network::Udp::UdpModule::writePacket(port, datagram.getRemotePort(), reinterpret_cast<const Ip4::Ip4Address&>(datagram.getRemoteAddress()), datagram.getBuffer(), datagram.getLength());
-}
-
-UdpDatagram UdpSocket::receive() {
-    while (incomingDatagramQueue.isEmpty()) {
-        Util::Async::Thread::yield();
-    }
-
-    lock.acquire();
-    return lock.releaseAndReturn(incomingDatagramQueue.poll());
-}
-
-uint16_t UdpSocket::getPort() const {
-    return port;
-}
-
-void UdpSocket::handleIncomingDatagram(const UdpDatagram &datagram) {
-    lock.acquire();
-    incomingDatagramQueue.offer(datagram);
-    lock.release();
 }
 
 }

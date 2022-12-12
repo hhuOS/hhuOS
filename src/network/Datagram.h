@@ -15,40 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_DATAGRAM_H
+#define HHUOS_DATAGRAM_H
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "NetworkAddress.h"
 
-namespace Network::Udp {
+namespace Network {
 
-class UdpDatagram : public Datagram {
+class Datagram {
 
 public:
     /**
      * Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    Datagram(const Datagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    Datagram &operator=(const Datagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~Datagram() = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    [[nodiscard]] uint16_t getLength() const;
+
+    [[nodiscard]] const uint8_t* getBuffer() const;
+
+    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
+
+protected:
+
+    const uint8_t *buffer{};
+    uint16_t length{};
+
+    const Network::NetworkAddress *remoteAddress{};
 };
 
 }
