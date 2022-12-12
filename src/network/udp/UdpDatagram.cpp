@@ -19,31 +19,10 @@
 
 namespace Network::Udp {
 
-UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress, uint16_t remotePort) :
-        buffer(buffer), length(length), remoteAddress(remoteAddress.createCopy()), remotePort(remotePort) {}
-
-UdpDatagram::~UdpDatagram() {
-    // delete remoteAddress;
-}
-
-uint16_t UdpDatagram::getLength() const {
-    return length;
-}
-
-const uint8_t *UdpDatagram::getBuffer() const {
-    return buffer;
-}
-
-bool UdpDatagram::operator!=(const UdpDatagram &other) {
-    return buffer != other.buffer || length != other.length;
-}
-
-const Network::NetworkAddress &UdpDatagram::getRemoteAddress() const {
-    return *remoteAddress;
-}
+UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}
 
 uint16_t UdpDatagram::getRemotePort() const {
-    return remotePort;
+    return reinterpret_cast<const Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
 }
 
 }

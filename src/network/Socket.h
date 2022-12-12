@@ -15,40 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_SOCKET_H
+#define HHUOS_SOCKET_H
 
-#include <cstdint>
-#include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "NetworkAddress.h"
 
-namespace Network::Udp {
+namespace Network {
 
-class UdpDatagram : public Datagram {
+class Socket {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    Socket() = default;
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    Socket(const Socket &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    Socket &operator=(const Socket &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~Socket() = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    void bind(const NetworkAddress &address);
+
+    const NetworkAddress& getAddress();
+
+protected:
+
+    virtual void performBind() = 0;
+
+    const NetworkAddress *bindAddress{};
+
 };
 
 }

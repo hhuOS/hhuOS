@@ -53,7 +53,7 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
     auto *socket = socketMap.get(header.getDestinationPort());
     socketLock.release();
 
-    auto datagram = UdpDatagram(buffer, dataLength, information.sourceAddress, header.getSourcePort());
+    auto *datagram = new UdpDatagram(buffer, dataLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
     socket->handleIncomingDatagram(datagram);
 }
 

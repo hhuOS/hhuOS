@@ -15,40 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_IP4PORTADDRESS_H
+#define HHUOS_IP4PORTADDRESS_H
 
-#include <cstdint>
 #include "network/NetworkAddress.h"
-#include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "lib/util/memory/Address.h"
+#include "Ip4Address.h"
 
-namespace Network::Udp {
+namespace Network::Ip4 {
 
-class UdpDatagram : public Datagram {
+class Ip4PortAddress : public NetworkAddress {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    Ip4PortAddress(const Ip4Address &address, uint16_t port);
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    Ip4PortAddress(const Ip4PortAddress &other) = default;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    Ip4PortAddress &operator=(const Ip4PortAddress &other) = default;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~Ip4PortAddress() override = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    [[nodiscard]] Ip4Address getIp4Address() const;
+
+    [[nodiscard]] uint16_t getPort() const;
+
+    [[nodiscard]] NetworkAddress* createCopy() const override;
+
+    void setAddress(const Util::Memory::String &string) override;
+
+    [[nodiscard]] Util::Memory::String toString() const override;
+
+private:
+
+    Util::Memory::Address<uint32_t> bufferAddress;
 };
 
 }

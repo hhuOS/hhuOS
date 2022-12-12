@@ -19,6 +19,7 @@
 #include "Ip4Header.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
+#include "Ip4Datagram.h"
 
 namespace Network::Ip4 {
 
@@ -53,6 +54,16 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
         log.warn("Discarding packet, because of wrong destination address!");
         return;
     }
+
+    socketLock.acquire();
+    for (auto *socket : sockets) {
+        auto *datagramBuffer = new uint8_t[header.getPayloadLength()];
+        Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), header.getPayloadLength());
+
+        auto *datagram = new Ip4Datagram(datagramBuffer, header.getPayloadLength(), header.getSourceAddress(), header.getProtocol());
+        socket->handleIncomingDatagram(datagram);
+    }
+    socketLock.release();
 
     if (isNextLayerTypeSupported(header.getProtocol())) {
         invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
@@ -132,6 +143,14 @@ uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, ui
 
 Ip4RoutingModule& Ip4Module::getRoutingModule() {
     return routingModule;
+}
+
+bool Ip4Module::registerSocket(Ip4Socket &socket) {
+    return sockets.add(&socket);
+}
+
+void Ip4Module::deregisterSocket(Ip4Socket &socket) {
+    sockets.remove(&socket);
 }
 
 }

@@ -33,7 +33,6 @@ extern const uint32_t ___WRITE_PROTECTED_START__;
 extern const uint32_t ___WRITE_PROTECTED_END__;
 extern const uint32_t ___KERNEL_DATA_START__;
 extern const uint32_t ___KERNEL_DATA_END__;
-extern const uint32_t MULTIBOOT_SIZE;
 extern const uint8_t multiboot_data;
 extern const uint8_t acpi_data;
 

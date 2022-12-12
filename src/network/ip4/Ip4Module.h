@@ -23,6 +23,7 @@
 #include "Ip4RoutingModule.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "Ip4Socket.h"
 
 namespace Network::Ip4 {
 
@@ -53,13 +54,15 @@ public:
 
     Ip4RoutingModule& getRoutingModule();
 
+    bool registerSocket(Ip4Socket &socket);
+
+    void deregisterSocket(Ip4Socket &socket);
+
     void registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static const Ip4Interface &
-    writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol,
-                uint16_t payloadLength);
+    static const Ip4Interface& writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength);
 
     static uint16_t calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length);
 
@@ -67,6 +70,9 @@ private:
 
     Ip4RoutingModule routingModule;
     Util::Data::ArrayList<Ip4Interface*> interfaces;
+
+    Util::Async::Spinlock socketLock;
+    Util::Data::ArrayList<Ip4Socket*> sockets;
 
     static Kernel::Logger log;
 };

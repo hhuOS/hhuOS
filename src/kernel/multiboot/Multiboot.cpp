@@ -63,7 +63,7 @@ Util::Data::Array<Multiboot::MemoryMapEntry> Multiboot::getMemoryMap() {
     return memoryMap;
 }
 
-const Multiboot::MemoryBlock * Multiboot::getBlockMap() {
+const Multiboot::MemoryBlock* Multiboot::getBlockMap() {
     return blockMap;
 }
 
