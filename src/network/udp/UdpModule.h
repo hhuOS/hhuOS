@@ -60,7 +60,7 @@ public:
 private:
 
     Util::Async::Spinlock socketLock;
-    Util::Data::HashMap<uint16_t, UdpSocket*> socketMap;
+    Util::Data::ArrayList<UdpSocket*> socketList;
 
     static Kernel::Logger log;
 };

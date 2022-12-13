@@ -59,7 +59,7 @@ void Ip4PortAddress::setAddress(const Util::Memory::String &string) {
 }
 
 Util::Memory::String Ip4PortAddress::toString() const {
-    return Util::Memory::String::format("%03u.%03u.%03u.%03u:%04d", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
+    return Util::Memory::String::format("%u.%u.%u.%u:%d", buffer[0], buffer[1], buffer[2], buffer[3], getPort());
 }
 
 }

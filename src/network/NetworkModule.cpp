@@ -28,8 +28,10 @@ bool NetworkModule::isNextLayerTypeSupported(uint32_t protocolId) {
 }
 
 void NetworkModule::invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device) {
-    auto *module = nextLayerModules.get(protocolId);
-    module->readPacket(stream, information, device);
+    if (isNextLayerTypeSupported(protocolId)) {
+        auto *module = nextLayerModules.get(protocolId);
+        module->readPacket(stream, information, device);
+    }
 }
 
 }

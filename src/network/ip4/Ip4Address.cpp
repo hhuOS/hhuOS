@@ -51,7 +51,7 @@ void Ip4Address::setAddress(const Util::Memory::String &string) {
 }
 
 Util::Memory::String Ip4Address::toString() const {
-    return Util::Memory::String::format("%03u.%03u.%03u.%03u", buffer[0], buffer[1], buffer[2], buffer[3]);
+    return Util::Memory::String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
 }
 
 Ip4Address Ip4Address::createBroadcastAddress() {

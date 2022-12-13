@@ -57,6 +57,10 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
 
     socketLock.acquire();
     for (auto *socket : sockets) {
+        if (socket->getAddress() != header.getDestinationAddress()) {
+            continue;
+        }
+
         auto *datagramBuffer = new uint8_t[header.getPayloadLength()];
         Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), header.getPayloadLength());
 
@@ -64,11 +68,6 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
         socket->handleIncomingDatagram(datagram);
     }
     socketLock.release();
-
-    if (!isNextLayerTypeSupported(header.getProtocol())) {
-        log.warn("Discarding packet, because of unsupported protocol!");
-        return;
-    }
 
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }

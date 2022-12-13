@@ -28,7 +28,7 @@ void Socket::bind(const Network::NetworkAddress &address) {
     performBind();
 }
 
-const NetworkAddress &Socket::getAddress() {
+const NetworkAddress &Socket::getAddress() const {
     return *bindAddress;
 }
 
