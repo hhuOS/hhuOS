@@ -57,6 +57,8 @@ public:
 
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
 
+    Device::Network::NetworkDevice& getNetworkDevice(const ::Network::MacAddress &address);
+
     ::Network::NetworkStack& getNetworkStack();
 
     static const constexpr uint8_t SERVICE_ID = 8;

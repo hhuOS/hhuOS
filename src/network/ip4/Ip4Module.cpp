@@ -65,12 +65,12 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
     socketLock.release();
 
-    if (isNextLayerTypeSupported(header.getProtocol())) {
-        invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
-    } else {
+    if (!isNextLayerTypeSupported(header.getProtocol())) {
         log.warn("Discarding packet, because of unsupported protocol!");
         return;
     }
+
+    invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
 const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength) {
@@ -146,11 +146,14 @@ Ip4RoutingModule& Ip4Module::getRoutingModule() {
 }
 
 bool Ip4Module::registerSocket(Ip4Socket &socket) {
-    return sockets.add(&socket);
+    socketLock.acquire();
+    return socketLock.releaseAndReturn(sockets.add(&socket));
 }
 
 void Ip4Module::deregisterSocket(Ip4Socket &socket) {
+    socketLock.acquire();
     sockets.remove(&socket);
+    socketLock.release();
 }
 
 }

@@ -18,6 +18,7 @@
 #include "EthernetModule.h"
 #include "EthernetHeader.h"
 #include "network/NumberUtil.h"
+#include "EthernetDatagram.h"
 
 namespace Network::Ethernet {
 
@@ -30,20 +31,32 @@ bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
 }
 
 void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto ethernetHeader = EthernetHeader();
-    ethernetHeader.read(stream);
+    auto header = EthernetHeader();
+    header.read(stream);
 
-    /*if (ethernetHeader.getDestinationAddress() != device.getMacAddress()) {
+    if (header.getDestinationAddress() != device.getMacAddress()) {
         log.warn("Discarding packet, because of wrong destination address!");
         return;
-    }*/
+    }
 
-    if (!isNextLayerTypeSupported(ethernetHeader.getEtherType())) {
+    auto payloadLength = information.payloadLength - EthernetHeader::HEADER_LENGTH;
+
+    socketLock.acquire();
+    for (auto *socket : sockets) {
+        auto *datagramBuffer = new uint8_t[payloadLength];
+        Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), payloadLength);
+
+        auto *datagram = new EthernetDatagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getEtherType());
+        socket->handleIncomingDatagram(datagram);
+    }
+    socketLock.release();
+
+    if (!isNextLayerTypeSupported(header.getEtherType())) {
         log.warn("Discarding packet, because of unsupported ether type!");
         return;
     }
 
-    invokeNextLayerModule(ethernetHeader.getEtherType(), {ethernetHeader.getSourceAddress(), ethernetHeader.getDestinationAddress(), information.payloadLength - EthernetHeader::HEADER_LENGTH}, stream, device);
+    invokeNextLayerModule(header.getEtherType(), {header.getSourceAddress(), header.getDestinationAddress(), payloadLength}, stream, device);
 }
 
 uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t length) {
@@ -66,6 +79,14 @@ void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet)
 
     auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getSize());
     NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
+}
+
+bool EthernetModule::registerSocket(EthernetSocket &socket) {
+    return sockets.add(&socket);
+}
+
+void EthernetModule::deregisterSocket(EthernetSocket &socket) {
+    sockets.remove(&socket);
 }
 
 }
