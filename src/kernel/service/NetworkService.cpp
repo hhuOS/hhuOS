@@ -33,6 +33,16 @@ Device::Network::NetworkDevice& Kernel::NetworkService::getNetworkDevice(const U
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
 }
 
+Device::Network::NetworkDevice &Kernel::NetworkService::getNetworkDevice(const Network::MacAddress &address) {
+    for (auto *device : devices) {
+        if (device->getMacAddress() == address) {
+            return *device;
+        }
+    }
+
+    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
+}
+
 ::Network::NetworkStack &Kernel::NetworkService::getNetworkStack() {
     return networkStack;
 }

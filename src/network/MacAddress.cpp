@@ -42,7 +42,7 @@ NetworkAddress *MacAddress::createCopy() const {
 }
 
 Util::Memory::String MacAddress::toString() const {
-    return Util::Memory::String::format("%02x:%02x:%02x:%02x:%02x:%02x\n", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+    return Util::Memory::String::format("%02x:%02x:%02x:%02x:%02x:%02x", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 }
 
 void MacAddress::setAddress(const Util::Memory::String &string) {
