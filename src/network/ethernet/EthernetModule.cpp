@@ -43,6 +43,10 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
 
     socketLock.acquire();
     for (auto *socket : sockets) {
+        if (socket->getAddress() != header.getDestinationAddress()) {
+            continue;
+        }
+
         auto *datagramBuffer = new uint8_t[payloadLength];
         Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), payloadLength);
 
@@ -50,11 +54,6 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
         socket->handleIncomingDatagram(datagram);
     }
     socketLock.release();
-
-    if (!isNextLayerTypeSupported(header.getEtherType())) {
-        log.warn("Discarding packet, because of unsupported ether type!");
-        return;
-    }
 
     invokeNextLayerModule(header.getEtherType(), {header.getSourceAddress(), header.getDestinationAddress(), payloadLength}, stream, device);
 }

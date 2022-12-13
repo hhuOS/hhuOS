@@ -47,7 +47,7 @@ public:
 
     void bind(const NetworkAddress &address);
 
-    const NetworkAddress& getAddress();
+    const NetworkAddress& getAddress() const;
 
 protected:
 

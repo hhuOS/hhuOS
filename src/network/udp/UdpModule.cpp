@@ -40,21 +40,20 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
         return;
     }
 
-    auto dataLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
-    auto *buffer = new uint8_t[dataLength];
-    Util::Memory::Address<uint32_t>(buffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), dataLength);
+    auto destinationAddress = Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
 
     socketLock.acquire();
-    if (!socketMap.containsKey(header.getDestinationPort())) {
-        log.warn("Discarding packet, because of wrong destination port");
-        return;
+    for (auto *socket : socketList) {
+        if (socket->getAddress() == destinationAddress) {
+            auto dataLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
+            auto *buffer = new uint8_t[dataLength];
+            Util::Memory::Address<uint32_t>(buffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), dataLength);
+
+            auto *datagram = new UdpDatagram(buffer, dataLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
+            socket->handleIncomingDatagram(datagram);
+        }
     }
-
-    auto *socket = socketMap.get(header.getDestinationPort());
     socketLock.release();
-
-    auto *datagram = new UdpDatagram(buffer, dataLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
-    socket->handleIncomingDatagram(datagram);
 }
 
 void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
@@ -120,21 +119,19 @@ uint16_t UdpModule::calculateChecksum(const uint8_t *pseudoHeader, const uint8_t
 
 bool UdpModule::registerSocket(UdpSocket &socket) {
     socketLock.acquire();
-    if (socketMap.containsKey(socket.getPort())) {
-        return socketLock.releaseAndReturn(false);
+    for (const auto *currentSocket : socketList) {
+        if (currentSocket->getAddress() == socket.getAddress()) {
+            return socketLock.releaseAndReturn(false);
+        }
     }
 
-    socketMap.put(socket.getPort(), &socket);
+    socketList.add(&socket);
     return socketLock.releaseAndReturn(true);
 }
 
 void UdpModule::deregisterSocket(UdpSocket &socket) {
     socketLock.acquire();
-    if (socketMap.containsKey(socket.getPort())) {
-        socketMap.remove(socket.getPort());
-    }
-
-    socketMap.remove(socket.getPort());
+    socketList.remove(&socket);
     socketLock.release();
 }
 

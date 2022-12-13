@@ -38,4 +38,16 @@ void Ip4PseudoHeader::write(Util::Stream::OutputStream &stream) const {
     NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
 }
 
+const Ip4::Ip4Address& Ip4PseudoHeader::getSourceAddress() const {
+    return sourceAddress;
+}
+
+const Ip4::Ip4Address& Ip4PseudoHeader::getDestinationAddress() const {
+    return destinationAddress;
+}
+
+uint16_t Ip4PseudoHeader::getDatagramLength() const {
+    return datagramLength;
+}
+
 }

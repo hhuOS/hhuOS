@@ -53,6 +53,12 @@ public:
 
     void write(Util::Stream::OutputStream &stream) const;
 
+    [[nodiscard]] const Ip4::Ip4Address& getSourceAddress() const;
+
+    [[nodiscard]] const Ip4::Ip4Address& getDestinationAddress() const;
+
+    [[nodiscard]] uint16_t getDatagramLength() const;
+
     static const constexpr uint32_t HEADER_SIZE = 12;
 
 private:

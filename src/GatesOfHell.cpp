@@ -188,7 +188,7 @@ void GatesOfHell::enter() {
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(ip4Thread);*/
 
-    /*auto &udpThread = Kernel::Thread::createKernelThread("UDP-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+    auto &udpThread = Kernel::Thread::createKernelThread("UDP-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
         auto senderAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 1797);
         auto receiverAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 8821);
         auto datagram = Network::Udp::UdpDatagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, receiverAddress);
@@ -206,7 +206,7 @@ void GatesOfHell::enter() {
             Util::Async::Thread::sleep({1, 0});
         }
     }));
-    Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);*/
+    Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 
