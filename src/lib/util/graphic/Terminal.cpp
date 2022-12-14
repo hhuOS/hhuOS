@@ -438,7 +438,7 @@ void Terminal::TerminalPipedOutputStream::write(uint8_t c) {
                 terminal.setPosition(column, row);
             }
 
-            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getSize() - 1);
+            auto line = lineBufferStream.getContent().substring(0, lineBufferStream.getLength() - 1);
             lineBufferStream.reset();
             lineBufferStream.write(static_cast<const uint8_t*>(line), 0, line.length());
         }
@@ -466,7 +466,7 @@ void Terminal::TerminalPipedOutputStream::write(const uint8_t *sourceBuffer, uin
 }
 
 void Terminal::TerminalPipedOutputStream::flush() {
-    PipedOutputStream::write(static_cast<uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getSize());
+    PipedOutputStream::write(static_cast<uint8_t*>(lineBufferStream.getContent()), 0, lineBufferStream.getLength());
     lineBufferStream.reset();
 }
 

@@ -23,10 +23,16 @@
 
 namespace Network::Udp {
 
+UdpSocket::~UdpSocket() {
+    auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
+    udpModule.deregisterSocket(*this);
+}
+
 void UdpSocket::send(const Datagram &datagram) {
     auto sourcePort = reinterpret_cast<const Ip4::Ip4PortAddress*>(bindAddress)->getPort();
     const auto remoteAddress = reinterpret_cast<const Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
-    Network::Udp::UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getBuffer(), datagram.getLength());
+    UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getData(),
+                           datagram.getDataLength());
 }
 
 uint16_t UdpSocket::getPort() const {
@@ -40,7 +46,7 @@ void UdpSocket::performBind() {
 
     auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
     if (!udpModule.registerSocket(*this)) {
-        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Port is already in use!");
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Failed to register UDP socket!");
     }
 }
 

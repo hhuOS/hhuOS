@@ -38,6 +38,10 @@ Network::Ip4::Ip4Module &NetworkStack::getIp4Module() {
     return ip4Module;
 }
 
+Icmp::IcmpModule &NetworkStack::getIcmpModule() {
+    return icmpModule;
+}
+
 Udp::UdpModule &NetworkStack::getUdpModule() {
     return udpModule;
 }

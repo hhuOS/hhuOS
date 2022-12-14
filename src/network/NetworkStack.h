@@ -55,6 +55,8 @@ public:
 
     Ip4::Ip4Module& getIp4Module();
 
+    Icmp::IcmpModule& getIcmpModule();
+
     Udp::UdpModule& getUdpModule();
 
 private:

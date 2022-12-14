@@ -22,6 +22,7 @@
 #include "lib/util/data/HashMap.h"
 #include "NetworkAddress.h"
 #include "device/network/NetworkDevice.h"
+#include "Socket.h"
 
 namespace Network {
 
@@ -55,15 +56,22 @@ public:
      */
     ~NetworkModule() = default;
 
-    virtual void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) = 0;
+    bool isNextLayerTypeSupported(uint32_t protocolId);
 
     void registerNextLayerModule(uint32_t protocolId, NetworkModule &module);
 
-    bool isNextLayerTypeSupported(uint32_t protocolId);
+    virtual bool registerSocket(Socket &socket);
+
+    virtual void deregisterSocket(Socket &socket);
+
+    virtual void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) = 0;
 
 protected:
 
     void invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device);
+
+    Util::Async::Spinlock socketLock;
+    Util::Data::ArrayList<Socket*> socketList;
 
 private:
 

@@ -18,7 +18,7 @@
 #include "DatagramSocket.h"
 #include "lib/util/async/Thread.h"
 
-const Network::Datagram &Network::DatagramSocket::receive() {
+Network::Datagram* Network::DatagramSocket::receive() {
     while (incomingDatagramQueue.isEmpty()) {
         Util::Async::Thread::yield();
     }
@@ -27,7 +27,7 @@ const Network::Datagram &Network::DatagramSocket::receive() {
     auto *datagram = incomingDatagramQueue.poll();
     lock.release();
 
-    return *datagram;
+    return datagram;
 }
 
 void Network::DatagramSocket::handleIncomingDatagram(Network::Datagram *datagram) {

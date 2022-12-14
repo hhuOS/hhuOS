@@ -15,18 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "kernel/service/NetworkService.h"
 #include "IcmpModule.h"
 #include "IcmpHeader.h"
-#include "EchoMessage.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
-#include "kernel/service/NetworkService.h"
+#include "EchoHeader.h"
+#include "IcmpDatagram.h"
+#include "IcmpSocket.h"
 
 namespace Network::Icmp {
 
 Kernel::Logger IcmpModule::log = Kernel::Logger::get("ICMP");
 
 void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto *buffer = stream.getBuffer() + stream.getPosition();
+    auto *buffer = stream.getData() + stream.getPosition();
     auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, IcmpHeader::CHECKSUM_OFFSET, stream.getRemaining());
     auto receivedChecksum = (buffer[IcmpHeader::CHECKSUM_OFFSET] << 8) | buffer[IcmpHeader::CHECKSUM_OFFSET + 1];
 
@@ -40,41 +41,69 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
 
     switch (header.getType()) {
         case IcmpHeader::ECHO_REQUEST: {
-            auto request = EchoMessage();
-            request.read(stream, information.payloadLength);
-            sendEchoReply(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), request, device);
+            auto requestHeader = EchoHeader();
+            requestHeader.read(stream);
+            sendEchoReply(reinterpret_cast<const Ip4::Ip4Address &>(information.sourceAddress), requestHeader, stream.getData() + stream.getPosition(), stream.getRemaining(), device);
             break;
         }
-        case IcmpHeader::ECHO_REPLY:
-            log.info("Received echo reply from [%s]", static_cast<const char*>(information.sourceAddress.toString()));
-            break;
-        default:
-            log.warn("Discarding ICMP packet, because of unsupported type");
+        default: {
+            auto payloadLength = information.payloadLength - IcmpHeader::HEADER_LENGTH;
+            auto *datagramBuffer = stream.getData() + stream.getPosition();
+
+            socketLock.acquire();
+            for (auto *socket: socketList) {
+                if (socket->getAddress() != information.destinationAddress) {
+                    continue;
+                }
+
+                auto *datagram = new IcmpDatagram(datagramBuffer, payloadLength, reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getType(), header.getCode());
+                reinterpret_cast<IcmpSocket*>(socket)->handleIncomingDatagram(datagram);
+            }
+            socketLock.release();
+        }
     }
 }
 
-void IcmpModule::sendEchoReply(const Ip4::Ip4Address &destinationAddress, const EchoMessage &request, Device::Network::NetworkDevice &device) {
-    auto header = IcmpHeader();
-    header.setType(IcmpHeader::ECHO_REPLY);
-
-    auto reply = EchoMessage();
-    reply.setIdentifier(request.getIdentifier());
-    reply.setSequenceNumber(request.getSequenceNumber() + 1);
-    reply.setData(request.getData(), request.getDataLength());
-
+void IcmpModule::writePacket(IcmpHeader::Type type, uint8_t code, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    Network::Ip4::Ip4Module::writeHeader(packet, reinterpret_cast<const Ip4::Ip4Address &>(destinationAddress),
-                                         Ip4::Ip4Header::ICMP, 0);
+    auto datagramLength = length + IcmpHeader::HEADER_LENGTH;
+
+    // Write IPv4 and Ethernet headers
+    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, destinationAddress, Ip4::Ip4Header::ICMP, datagramLength);
+
+    // Write ICMP header
+    auto header = IcmpHeader();
+    header.setType(type);
+    header.setCode(code);
     header.write(packet);
-    reply.write(packet);
+    auto positionAfterHeaders = packet.getPosition();
 
-    auto *buffer = packet.getBuffer() + packet.getPosition() - IcmpHeader::HEADER_LENGTH - reply.getDataLength();
-    auto checksum = Ip4::Ip4Module::calculateChecksum(buffer, IcmpHeader::CHECKSUM_OFFSET, IcmpHeader::HEADER_LENGTH + reply.getDataLength());
-    buffer[IcmpHeader::CHECKSUM_OFFSET] = checksum >> 8;
-    buffer[IcmpHeader::CHECKSUM_OFFSET + 1] = checksum;
+    // Write packet
+    packet.write(buffer, 0, length);
 
+    // Calculate and write checksum
+    auto *datagramBuffer = packet.getBuffer() + packet.getPosition() - datagramLength;
+    auto checksum = Ip4::Ip4Module::calculateChecksum(datagramBuffer, IcmpHeader::CHECKSUM_OFFSET, datagramLength);
+
+    auto *checksumPointer = packet.getBuffer() + (positionAfterHeaders - sizeof(uint16_t));
+    checksumPointer[0] = checksum >> 8;
+    checksumPointer[1] = checksum;
+
+    // Finalize and send packet
     Ethernet::EthernetModule::finalizePacket(packet);
-    device.sendPacket(packet.getBuffer(), packet.getSize());
+    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
+}
+
+void IcmpModule::sendEchoReply(const Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device) {
+    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto replyHeader = EchoHeader();
+    replyHeader.setIdentifier(requestHeader.getIdentifier());
+    replyHeader.setSequenceNumber(requestHeader.getSequenceNumber());
+
+    replyHeader.write(packet);
+    packet.write(buffer, 0, length);
+
+    writePacket(IcmpHeader::ECHO_REPLY, 0, destinationAddress, packet.getBuffer(), packet.getLength());
 }
 
 }

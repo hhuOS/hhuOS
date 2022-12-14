@@ -26,6 +26,18 @@ namespace Network::Udp {
 
 Kernel::Logger UdpModule::log = Kernel::Logger::get("UDP");
 
+bool UdpModule::registerSocket(Socket &socket) {
+    socketLock.acquire();
+    for (const auto *currentSocket : socketList) {
+        if (currentSocket->getAddress() == socket.getAddress()) {
+            return socketLock.releaseAndReturn(false);
+        }
+    }
+
+    socketList.add(&socket);
+    return socketLock.releaseAndReturn(true);
+}
+
 void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, Device::Network::NetworkDevice &device) {
     auto pseudoHeader = Ip4PseudoHeader(information);
     auto header = UdpHeader();
@@ -34,31 +46,31 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
     auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
-    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getBuffer() + stream.getPosition() - UdpHeader::HEADER_SIZE, information.payloadLength);
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getData() + stream.getPosition() - UdpHeader::HEADER_SIZE, information.payloadLength);
     if (header.getChecksum() != checksum) {
         log.warn("Discarding packet, because of wrong checksum");
         return;
     }
 
     auto destinationAddress = Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
+    auto payloadLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
+    auto *datagramBuffer = stream.getData() + stream.getPosition();
 
     socketLock.acquire();
     for (auto *socket : socketList) {
-        if (socket->getAddress() == destinationAddress) {
-            auto dataLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
-            auto *buffer = new uint8_t[dataLength];
-            Util::Memory::Address<uint32_t>(buffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), dataLength);
-
-            auto *datagram = new UdpDatagram(buffer, dataLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
-            socket->handleIncomingDatagram(datagram);
+        if (socket->getAddress() != destinationAddress) {
+            continue;
         }
+
+        auto *datagram = new UdpDatagram(datagramBuffer, payloadLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
+        reinterpret_cast<UdpSocket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
 }
 
 void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    auto datagramLength = length +  UdpHeader::HEADER_SIZE;
+    auto datagramLength = length + UdpHeader::HEADER_SIZE;
 
     // Write IPv4 and Ethernet headers
     auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, destinationAddress, Ip4::Ip4Header::UDP, datagramLength);
@@ -72,7 +84,7 @@ void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const
     auto positionAfterHeaders = packet.getPosition();
 
     // Write packet
-    packet.write(buffer, 0, datagramLength);
+    packet.write(buffer, 0, length);
 
     // Calculate and write checksum
     auto pseudoHeader = Ip4PseudoHeader(sourceInterface.getAddress(), destinationAddress, datagramLength);
@@ -86,7 +98,7 @@ void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const
 
     // Finalize and send packet
     Ethernet::EthernetModule::finalizePacket(packet);
-    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getSize());
+    sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
 }
 
 uint16_t UdpModule::calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength) {
@@ -116,24 +128,5 @@ uint16_t UdpModule::calculateChecksum(const uint8_t *pseudoHeader, const uint8_t
     // Complement result
     return ~checksum;
 }
-
-bool UdpModule::registerSocket(UdpSocket &socket) {
-    socketLock.acquire();
-    for (const auto *currentSocket : socketList) {
-        if (currentSocket->getAddress() == socket.getAddress()) {
-            return socketLock.releaseAndReturn(false);
-        }
-    }
-
-    socketList.add(&socket);
-    return socketLock.releaseAndReturn(true);
-}
-
-void UdpModule::deregisterSocket(UdpSocket &socket) {
-    socketLock.acquire();
-    socketList.remove(&socket);
-    socketLock.release();
-}
-
 
 }

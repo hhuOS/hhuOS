@@ -50,11 +50,11 @@ int32_t ByteArrayInputStream::read(uint8_t *targetBuffer, uint32_t offset, uint3
     return count;
 }
 
-const uint8_t* ByteArrayInputStream::getBuffer() {
+const uint8_t* ByteArrayInputStream::getData() const {
     return buffer;
 }
 
-uint32_t ByteArrayInputStream::getSize() const {
+uint32_t ByteArrayInputStream::getDataLength() const {
     return size;
 }
 
@@ -68,17 +68,6 @@ uint32_t ByteArrayInputStream::getRemaining() const {
 
 bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
-}
-
-void ByteArrayInputStream::getContent(uint8_t *target, uint32_t length) const {
-    auto sourceAddress = Memory::Address<uint32_t>(buffer);
-    auto targetAddress = Memory::Address<uint32_t>(target);
-
-    targetAddress.copyRange(sourceAddress, size > length ? length : size);
-}
-
-Memory::String ByteArrayInputStream::getContent() const {
-    return {buffer, position};
 }
 
 }

@@ -27,7 +27,7 @@ Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
 void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayInputStream &>(stream);
-    auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
+    auto *buffer = tmpStream.getData() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
     auto calculatedChecksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
     auto receivedChecksum = (buffer[Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Ip4Header::CHECKSUM_OFFSET + 1];
@@ -55,17 +55,17 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
         return;
     }
 
+    auto payloadLength = header.getPayloadLength();
+    auto *datagramBuffer = stream.getData() + stream.getPosition();
+
     socketLock.acquire();
-    for (auto *socket : sockets) {
+    for (auto *socket : socketList) {
         if (socket->getAddress() != header.getDestinationAddress()) {
             continue;
         }
 
-        auto *datagramBuffer = new uint8_t[header.getPayloadLength()];
-        Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), header.getPayloadLength());
-
-        auto *datagram = new Ip4Datagram(datagramBuffer, header.getPayloadLength(), header.getSourceAddress(), header.getProtocol());
-        socket->handleIncomingDatagram(datagram);
+        auto *datagram = new Ip4Datagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getProtocol());
+        reinterpret_cast<Ip4Socket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
 
@@ -142,17 +142,6 @@ uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, ui
 
 Ip4RoutingModule& Ip4Module::getRoutingModule() {
     return routingModule;
-}
-
-bool Ip4Module::registerSocket(Ip4Socket &socket) {
-    socketLock.acquire();
-    return socketLock.releaseAndReturn(sockets.add(&socket));
-}
-
-void Ip4Module::deregisterSocket(Ip4Socket &socket) {
-    socketLock.acquire();
-    sockets.remove(&socket);
-    socketLock.release();
 }
 
 }

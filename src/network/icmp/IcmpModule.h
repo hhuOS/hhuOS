@@ -19,7 +19,7 @@
 #define HHUOS_ICMPMODULE_H
 
 #include "network/NetworkModule.h"
-#include "EchoMessage.h"
+#include "EchoHeader.h"
 #include "network/ip4/Ip4Address.h"
 
 namespace Network::Icmp {
@@ -49,7 +49,10 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void sendEchoReply(const Network::Ip4::Ip4Address &destinationAddress, const EchoMessage &request, Device::Network::NetworkDevice &device);
+    static void writePacket(IcmpHeader::Type type, uint8_t code, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
+
+    static void
+    sendEchoReply(const Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device);
 
 private:
 

@@ -15,37 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_ECHOMESSAGE_H
-#define HHUOS_ECHOMESSAGE_H
+#ifndef HHUOS_ECHOHEADER_H
+#define HHUOS_ECHOHEADER_H
 
 #include "IcmpHeader.h"
 
 namespace Network::Icmp {
 
-class EchoMessage {
+class EchoHeader {
 
 public:
     /**
      * Default Constructor.
      */
-    EchoMessage() = default;
+    EchoHeader() = default;
 
     /**
      * Copy Constructor.
      */
-    EchoMessage(const EchoMessage &other) = delete;
+    EchoHeader(const EchoHeader &other) = delete;
 
     /**
      * Assignment operator.
      */
-    EchoMessage &operator=(const EchoMessage &other) = delete;
+    EchoHeader &operator=(const EchoHeader &other) = delete;
 
     /**
      * Destructor.
      */
-    ~EchoMessage();
+    ~EchoHeader() = default;
 
-    void read(Util::Stream::InputStream &stream, uint32_t length);
+    void read(Util::Stream::InputStream &stream);
 
     void write(Util::Stream::OutputStream &stream) const;
 
@@ -57,19 +57,12 @@ public:
 
     void setSequenceNumber(uint16_t sequenceNumber);
 
-    [[nodiscard]] uint8_t *getData() const;
-
-    void setData(uint8_t *data, uint32_t length);
-
-    [[nodiscard]] uint32_t getDataLength() const;
+    static const constexpr uint32_t HEADER_LENGTH = 4;
 
 private:
 
     uint16_t identifier{};
     uint16_t sequenceNumber{};
-
-    uint8_t *data{};
-    uint32_t dataLength;
 };
 
 }

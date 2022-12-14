@@ -51,10 +51,6 @@ public:
 
     static bool checkPacket(const uint8_t *packet, uint32_t length);
 
-    bool registerSocket(EthernetSocket &socket);
-
-    void deregisterSocket(EthernetSocket &socket);
-
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress, EthernetHeader::EtherType etherType);
@@ -64,9 +60,6 @@ public:
 private:
 
     static uint32_t calculateCheckSequence(const uint8_t *packet, uint32_t length);
-
-    Util::Async::Spinlock socketLock;
-    Util::Data::ArrayList<EthernetSocket*> sockets;
 
     static Kernel::Logger log;
 

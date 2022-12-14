@@ -43,11 +43,11 @@ public:
     /**
      * Destructor.
      */
-    ~Socket() = default;
+    virtual ~Socket();
 
     void bind(const NetworkAddress &address);
 
-    const NetworkAddress& getAddress() const;
+    [[nodiscard]] const NetworkAddress& getAddress() const;
 
 protected:
 

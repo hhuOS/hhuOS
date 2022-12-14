@@ -54,10 +54,6 @@ public:
 
     Ip4RoutingModule& getRoutingModule();
 
-    bool registerSocket(Ip4Socket &socket);
-
-    void deregisterSocket(Ip4Socket &socket);
-
     void registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
@@ -70,9 +66,6 @@ private:
 
     Ip4RoutingModule routingModule;
     Util::Data::ArrayList<Ip4Interface*> interfaces;
-
-    Util::Async::Spinlock socketLock;
-    Util::Data::ArrayList<Ip4Socket*> sockets;
 
     static Kernel::Logger log;
 };

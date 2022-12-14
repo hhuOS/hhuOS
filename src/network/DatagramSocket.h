@@ -33,6 +33,10 @@ namespace Ip4 {
 class Ip4Module;
 }
 
+namespace Icmp {
+class IcmpModule;
+}
+
 namespace Ethernet {
 class EthernetModule;
 }
@@ -41,6 +45,7 @@ class DatagramSocket : public Socket {
 
 friend class Udp::UdpModule;
 friend class Ip4::Ip4Module;
+friend class Icmp::IcmpModule;
 friend class Ethernet::EthernetModule;
 
 public:
@@ -62,11 +67,11 @@ public:
     /**
      * Destructor.
      */
-    ~DatagramSocket() = default;
+    ~DatagramSocket() override = default;
 
     virtual void send(const Datagram &datagram) = 0;
 
-    const Datagram& receive();
+    Datagram* receive();
 
 private:
 

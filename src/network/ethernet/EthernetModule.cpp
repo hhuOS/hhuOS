@@ -40,18 +40,16 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
     }
 
     auto payloadLength = information.payloadLength - EthernetHeader::HEADER_LENGTH;
+    auto *datagramBuffer = stream.getData() + stream.getPosition();
 
     socketLock.acquire();
-    for (auto *socket : sockets) {
+    for (auto *socket : socketList) {
         if (socket->getAddress() != header.getDestinationAddress()) {
             continue;
         }
 
-        auto *datagramBuffer = new uint8_t[payloadLength];
-        Util::Memory::Address<uint32_t>(datagramBuffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer() + stream.getPosition()), payloadLength);
-
         auto *datagram = new EthernetDatagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getEtherType());
-        socket->handleIncomingDatagram(datagram);
+        reinterpret_cast<EthernetSocket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
 
@@ -72,20 +70,12 @@ void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Net
 }
 
 void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
-    for (uint32_t i = packet.getSize(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
+    for (uint32_t i = packet.getLength(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
         NumberUtil::writeUnsigned8BitValue(0, packet);
     }
 
-    auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getSize());
+    auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getLength());
     NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
-}
-
-bool EthernetModule::registerSocket(EthernetSocket &socket) {
-    return sockets.add(&socket);
-}
-
-void EthernetModule::deregisterSocket(EthernetSocket &socket) {
-    sockets.remove(&socket);
 }
 
 }

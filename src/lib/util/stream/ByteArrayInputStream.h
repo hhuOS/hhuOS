@@ -35,7 +35,7 @@ public:
 
     ~ByteArrayInputStream() override;
 
-    [[nodiscard]] uint32_t getSize() const;
+    [[nodiscard]] uint32_t getDataLength() const;
 
     [[nodiscard]] uint32_t getPosition() const;
 
@@ -43,11 +43,7 @@ public:
 
     [[nodiscard]] bool isEmpty() const;
 
-    [[nodiscard]] const uint8_t* getBuffer();
-
-    void getContent(uint8_t *target, uint32_t length) const;
-
-    [[nodiscard]] Memory::String getContent() const;
+    [[nodiscard]] const uint8_t* getData() const;
 
     int16_t read() override;
 

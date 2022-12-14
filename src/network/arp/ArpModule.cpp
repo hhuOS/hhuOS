@@ -79,7 +79,7 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
         protocolAddress.write(packet);
 
         Ethernet::EthernetModule::finalizePacket(packet);
-        device.sendPacket(packet.getBuffer(), packet.getSize());
+        device.sendPacket(packet.getBuffer(), packet.getLength());
 
         Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
     }
@@ -145,7 +145,7 @@ void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4
         sourceAddress.write(packet);
 
         Ethernet::EthernetModule::finalizePacket(packet);
-        device.sendPacket(packet.getBuffer(), packet.getSize());
+        device.sendPacket(packet.getBuffer(), packet.getLength());
     } else {
         lock.release();
     }

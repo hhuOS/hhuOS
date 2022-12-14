@@ -109,7 +109,7 @@ void PrintWriter::print(uint32_t number) {
         number %= div;
     }
 
-    for (uint32_t i = numberStream.getSize(); i < numberPadding; i++) {
+    for (uint32_t i = numberStream.getLength(); i < numberPadding; i++) {
         write('0');
     }
 
