@@ -15,42 +15,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DATAGRAM_H
-#define HHUOS_DATAGRAM_H
+#ifndef HHUOS_ICMPSOCKET_H
+#define HHUOS_ICMPSOCKET_H
 
-#include "NetworkAddress.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "network/DatagramSocket.h"
 
-namespace Network {
+namespace Network::Icmp {
 
-class Datagram : public Util::Stream::ByteArrayInputStream {
+class IcmpSocket : public DatagramSocket {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress);
+    IcmpSocket() = default;
 
     /**
      * Copy Constructor.
      */
-    Datagram(const Datagram &other) = delete;
+    IcmpSocket(const IcmpSocket &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Datagram &operator=(const Datagram &other) = delete;
+    IcmpSocket &operator=(const IcmpSocket &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Datagram() override;
+    ~IcmpSocket() override;
 
-    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
+    void send(const Datagram &datagram) override;
 
 protected:
 
-    const Network::NetworkAddress *remoteAddress{};
+    void performBind() override;
 };
 
 }

@@ -69,6 +69,9 @@
 #include "device/power/acpi/Acpi.h"
 #include "network/ip4/Ip4Datagram.h"
 #include "network/ethernet/EthernetDatagram.h"
+#include "network/NumberUtil.h"
+#include "network/icmp/IcmpSocket.h"
+#include "network/icmp/IcmpDatagram.h"
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -159,10 +162,11 @@ void GatesOfHell::enter() {
         receiver.bind(receiverAddress);
 
         auto logger = Kernel::Logger::get("Ethernet-Test");
-        while (true) {
+        for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
-            const auto &receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram.getRemoteAddress().toString()), receivedDatagram.getBuffer());
+            auto *receivedDatagram = receiver.receive();
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            delete receivedDatagram;
             Util::Async::Thread::sleep({1, 0});
         }
     }));
@@ -179,16 +183,17 @@ void GatesOfHell::enter() {
         receiver.bind(receiverAddress);
 
         auto logger = Kernel::Logger::get("IP4-Test");
-        while (true) {
+        for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
-            const auto &receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram.getRemoteAddress().toString()), receivedDatagram.getBuffer());
+            auto *receivedDatagram = receiver.receive();
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            delete receivedDatagram;
             Util::Async::Thread::sleep({1, 0});
         }
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(ip4Thread);*/
 
-    auto &udpThread = Kernel::Thread::createKernelThread("UDP-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+    /*auto &udpThread = Kernel::Thread::createKernelThread("UDP-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
         auto senderAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 1797);
         auto receiverAddress = Network::Ip4::Ip4PortAddress(Network::Ip4::Ip4Address("127.0.0.1"), 8821);
         auto datagram = Network::Udp::UdpDatagram(reinterpret_cast<const uint8_t*>("Hello, World!"), 14, receiverAddress);
@@ -199,14 +204,59 @@ void GatesOfHell::enter() {
         receiver.bind(receiverAddress);
 
         auto logger = Kernel::Logger::get("UDP-Test");
-        while (true) {
+        for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
-            const auto &receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram.getRemoteAddress().toString()), receivedDatagram.getBuffer());
+            auto *receivedDatagram = receiver.receive();
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            delete receivedDatagram;
             Util::Async::Thread::sleep({1, 0});
         }
     }));
-    Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);
+    Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);*/
+
+    /*auto &pingThread = Kernel::Thread::createKernelThread("Ping-Test", Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), new Util::Async::FunctionPointerRunnable([](){
+        auto senderAddress = Network::Ip4::Ip4Address("127.0.0.1");
+        auto receiverAddress = Network::Ip4::Ip4Address("127.0.0.1");
+
+        auto echoHeader = Network::Icmp::EchoHeader();
+
+        auto sender = Network::Icmp::IcmpSocket();
+        sender.bind(senderAddress);
+        auto receiver = Network::Icmp::IcmpSocket();
+        receiver.bind(receiverAddress);
+
+        auto logger = Kernel::Logger::get("Ping-Test");
+        for (uint32_t i = 0; i < 10; i++) {
+            bool validReply = false;
+            auto packet = Util::Stream::ByteArrayOutputStream();
+            echoHeader.setIdentifier(0);
+            echoHeader.setSequenceNumber(i);
+            echoHeader.write(packet);
+            Network::NumberUtil::writeUnsigned32BitValue(Util::Time::getSystemTime().toMilliseconds(), packet);
+
+            auto datagram = Network::Icmp::IcmpDatagram(packet.getBuffer(), packet.getPosition(), receiverAddress, Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
+            sender.send(datagram);
+
+            do {
+                auto *receivedDatagram = reinterpret_cast<Network::Icmp::IcmpDatagram*>(receiver.receive());
+                if (receivedDatagram->getType() == Network::Icmp::IcmpHeader::ECHO_REPLY) {
+                    echoHeader.read(*receivedDatagram);
+                    if (echoHeader.getSequenceNumber() == i) {
+                        validReply = true;
+                        auto sourceTimestamp = Network::NumberUtil::readUnsigned32BitValue(*receivedDatagram);
+                        auto currentTimestamp = Util::Time::getSystemTime().toMilliseconds();
+                        log.info("[%u bytes] from [%s] (Sequence number: [%u], Time: [%u ms])", receivedDatagram->getDataLength(),
+                                 static_cast<const char *>(receivedDatagram->getRemoteAddress().toString()),
+                                 echoHeader.getSequenceNumber(), currentTimestamp - sourceTimestamp);
+                    }
+                }
+                delete receivedDatagram;
+            } while (!validReply);
+
+            Util::Async::Thread::sleep({1, 0});
+        }
+    }));
+    Kernel::System::getService<Kernel::SchedulerService>().ready(pingThread);*/
 
     Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
 

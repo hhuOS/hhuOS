@@ -43,7 +43,7 @@ Memory::String ByteArrayOutputStream::getContent() const {
     return {buffer, position};
 }
 
-uint32_t ByteArrayOutputStream::getSize() const {
+uint32_t ByteArrayOutputStream::getLength() const {
     return position;
 }
 

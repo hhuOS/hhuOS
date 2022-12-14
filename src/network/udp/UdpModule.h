@@ -47,9 +47,7 @@ public:
      */
     ~UdpModule() = default;
 
-    bool registerSocket(UdpSocket &socket);
-
-    void deregisterSocket(UdpSocket &socket);
+    virtual bool registerSocket(Socket &socket) override;
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
@@ -58,9 +56,6 @@ public:
     static uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
 
 private:
-
-    Util::Async::Spinlock socketLock;
-    Util::Data::ArrayList<UdpSocket*> socketList;
 
     static Kernel::Logger log;
 };

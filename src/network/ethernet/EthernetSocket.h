@@ -44,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~EthernetSocket() = default;
+    ~EthernetSocket() override;
 
     void send(const Datagram &datagram) override;
 

@@ -19,6 +19,18 @@
 
 namespace Network {
 
+bool NetworkModule::registerSocket(Socket &socket) {
+    socketLock.acquire();
+    socketList.add(&socket);
+    return socketLock.releaseAndReturn(true);
+}
+
+void NetworkModule::deregisterSocket(Socket &socket) {
+    socketLock.acquire();
+    socketList.remove(&socket);
+    socketLock.release();
+}
+
 void NetworkModule::registerNextLayerModule(uint32_t protocolId, NetworkModule &module) {
     nextLayerModules.put(protocolId, &module);
 }

@@ -44,7 +44,7 @@ public:
     /**
      * Destructor.
      */
-    ~Ip4Socket() = default;
+    ~Ip4Socket() override;
 
     void send(const Datagram &datagram) override;
 

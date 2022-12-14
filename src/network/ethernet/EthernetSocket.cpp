@@ -22,10 +22,15 @@
 
 namespace Network::Ethernet {
 
+EthernetSocket::~EthernetSocket() {
+    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
+    ethernetModule.deregisterSocket(*this);
+}
+
 void EthernetSocket::send(const Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
     EthernetModule::writeHeader(packet, *device, reinterpret_cast<const MacAddress&>(datagram.getRemoteAddress()), reinterpret_cast<const EthernetDatagram&>(datagram).getEtherType());
-    packet.write(datagram.getBuffer(), 0, datagram.getLength());
+    packet.write(datagram.getData(), 0, datagram.getDataLength());
     EthernetModule::finalizePacket(packet);
     device->sendPacket(packet.getBuffer(), packet.getPosition());
 }
@@ -39,7 +44,9 @@ void EthernetSocket::performBind() {
     device = &networkService.getNetworkDevice(reinterpret_cast<const MacAddress&>(*bindAddress));
 
     auto &ethernetModule = networkService.getNetworkStack().getEthernetModule();
-    ethernetModule.registerSocket(*this);
+    if (!ethernetModule.registerSocket(*this)) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Failed to register Ethernet socket!");
+    }
 }
 
 }

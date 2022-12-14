@@ -15,44 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DATAGRAM_H
-#define HHUOS_DATAGRAM_H
+#include "IcmpDatagram.h"
 
-#include "NetworkAddress.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+namespace Network::Icmp {
 
-namespace Network {
+IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
+        Datagram(buffer, length, remoteAddress), type(type), code(code) {}
 
-class Datagram : public Util::Stream::ByteArrayInputStream {
-
-public:
-    /**
-     * Constructor.
-     */
-    Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress);
-
-    /**
-     * Copy Constructor.
-     */
-    Datagram(const Datagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Datagram &operator=(const Datagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Datagram() override;
-
-    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
-
-protected:
-
-    const Network::NetworkAddress *remoteAddress{};
-};
-
+IcmpHeader::Type IcmpDatagram::getType() const {
+    return type;
 }
 
-#endif
+uint8_t IcmpDatagram::getCode() const {
+    return code;
+}
+
+}

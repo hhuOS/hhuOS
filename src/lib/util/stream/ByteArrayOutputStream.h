@@ -38,7 +38,7 @@ public:
 
     ~ByteArrayOutputStream() override;
 
-    [[nodiscard]] uint32_t getSize() const;
+    [[nodiscard]] uint32_t getLength() const;
 
     [[nodiscard]] bool isEmpty() const;
 

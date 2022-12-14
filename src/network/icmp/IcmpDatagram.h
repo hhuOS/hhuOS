@@ -15,42 +15,46 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DATAGRAM_H
-#define HHUOS_DATAGRAM_H
+#ifndef HHUOS_ICMPDATAGRAM_H
+#define HHUOS_ICMPDATAGRAM_H
 
-#include "NetworkAddress.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "network/Datagram.h"
+#include "network/ip4/Ip4Address.h"
+#include "IcmpHeader.h"
 
-namespace Network {
+namespace Network::Icmp {
 
-class Datagram : public Util::Stream::ByteArrayInputStream {
+class IcmpDatagram : public Datagram {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress);
+    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
 
     /**
      * Copy Constructor.
      */
-    Datagram(const Datagram &other) = delete;
+    IcmpDatagram(const IcmpDatagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Datagram &operator=(const Datagram &other) = delete;
+    IcmpDatagram &operator=(const IcmpDatagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Datagram() override;
+    ~IcmpDatagram() override = default;
 
-    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
+    [[nodiscard]] IcmpHeader::Type getType() const;
 
-protected:
+    [[nodiscard]] uint8_t getCode() const;
 
-    const Network::NetworkAddress *remoteAddress{};
+private:
+
+    IcmpHeader::Type type;
+    uint8_t code;
 };
 
 }

@@ -47,7 +47,7 @@ public:
     /**
      * Destructor.
      */
-    ~UdpSocket() = default;
+    ~UdpSocket() override;
 
     void send(const Datagram &datagram) override;
 

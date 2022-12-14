@@ -15,67 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "EchoMessage.h"
+#include "EchoHeader.h"
 #include "network/NumberUtil.h"
 #include "lib/util/memory/Address.h"
 
 namespace Network::Icmp {
 
-EchoMessage::~EchoMessage() {
-    delete data;
-}
-
-uint16_t EchoMessage::getIdentifier() const {
+uint16_t EchoHeader::getIdentifier() const {
     return identifier;
 }
 
-void EchoMessage::setIdentifier(uint16_t identifier) {
-    EchoMessage::identifier = identifier;
+void EchoHeader::setIdentifier(uint16_t identifier) {
+    EchoHeader::identifier = identifier;
 }
 
-uint16_t EchoMessage::getSequenceNumber() const {
+uint16_t EchoHeader::getSequenceNumber() const {
     return sequenceNumber;
 }
 
-void EchoMessage::setSequenceNumber(uint16_t sequenceNumber) {
-    EchoMessage::sequenceNumber = sequenceNumber;
+void EchoHeader::setSequenceNumber(uint16_t sequenceNumber) {
+    EchoHeader::sequenceNumber = sequenceNumber;
 }
 
-void EchoMessage::read(Util::Stream::InputStream &stream, uint32_t length) {
+void EchoHeader::read(Util::Stream::InputStream &stream) {
     identifier = NumberUtil::readUnsigned16BitValue(stream);
     sequenceNumber = NumberUtil::readUnsigned16BitValue(stream);
-
-    dataLength = length - 2 * sizeof (uint16_t);
-    if (length == dataLength) {
-        return;
-    }
-
-    data = new uint8_t[dataLength];
-    stream.read(data, 0, dataLength);
 }
 
-void EchoMessage::write(Util::Stream::OutputStream &stream) const {
+void EchoHeader::write(Util::Stream::OutputStream &stream) const {
     NumberUtil::writeUnsigned16BitValue(identifier, stream);
     NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
-    stream.write(data, 0, dataLength);
-}
-
-uint8_t* EchoMessage::getData() const {
-    return data;
-}
-
-void EchoMessage::setData(uint8_t *data, uint32_t length) {
-    delete EchoMessage::data;
-    EchoMessage::data = new uint8_t[length];
-    dataLength = length;
-
-    auto source = Util::Memory::Address<uint32_t>(data);
-    auto target = Util::Memory::Address<uint32_t>(EchoMessage::data);
-    target.copyRange(source, length);
-}
-
-uint32_t EchoMessage::getDataLength() const {
-    return dataLength;
 }
 
 }

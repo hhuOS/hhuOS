@@ -28,6 +28,10 @@ void Socket::bind(const Network::NetworkAddress &address) {
     performBind();
 }
 
+Socket::~Socket() {
+    delete bindAddress;
+}
+
 const NetworkAddress &Socket::getAddress() const {
     return *bindAddress;
 }

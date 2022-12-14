@@ -85,7 +85,7 @@ public:
     [[nodiscard]] uint16_t getChecksum() const;
 
     static const constexpr uint32_t CHECKSUM_OFFSET = 2;
-    static const constexpr uint32_t HEADER_LENGTH = 8;
+    static const constexpr uint32_t HEADER_LENGTH = 4;
 
 private:
 
