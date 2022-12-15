@@ -21,7 +21,7 @@
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';
-static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI ASCII    ";
+static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI  ASCII   ";
 
 void printSeparationLine() {
     auto length = Util::Memory::Address<uint32_t>(HEXDUMP_HEADER).stringLength();
@@ -33,7 +33,7 @@ void printSeparationLine() {
 }
 
 char sanitize(char value) {
-    if (value < 0x30 || value > 0x7E) {
+    if (value < 0x20 || value > 0x7E) {
         return '.';
     }
 
@@ -42,9 +42,13 @@ char sanitize(char value) {
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
+    argumentParser.addArgument("length", false, "n");
+    argumentParser.addArgument("skip", false, "s");
     argumentParser.setHelpText("Print file contents in hexadecimal numbers.\n"
                                "Usage: hexdump [FILE]\n"
                                "Options:\n"
+                               "  -n, --length [LENGTH]: The maximum amount of bytes to read\n"
+                               "  -s, --skip [POSITION]: Skip bytes from the beginning of the file to POSITION\n"
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -76,27 +80,35 @@ int32_t main(int32_t argc, char *argv[]) {
     Util::System::out << Util::Stream::PrintWriter::hex << HEXDUMP_HEADER << Util::Stream::PrintWriter::endl;
     printSeparationLine();
 
+    int32_t length = argumentParser.hasArgument("length") ? Util::Memory::String::parseInt(argumentParser.getArgument("length")) : -1;
+    int32_t readBytes = 0;
     uint32_t address = 0;
 
-    while (true) {
+    if (argumentParser.hasArgument("skip")) {
+        address = Util::Memory::String::parseInt(argumentParser.getArgument("skip"));
+        bufferedStream.skip(address);
+    }
+
+    while (length == -1 || readBytes < length) {
         Util::System::out.setNumberPadding(8);
         Util::System::out << " " << address << " | ";
         Util::System::out.setNumberPadding(2);
 
         char line[LINE_LENGTH];
         uint8_t i;
-        for (i = 0; i < LINE_LENGTH; i++) {
+        for (i = 0; i < LINE_LENGTH && (length == -1 || readBytes < length); i++) {
             int16_t c = bufferedStream.read();
             if (c == -1) {
                 break;
             }
 
             line[i] = c;
+            readBytes++;
             Util::System::out << static_cast<uint8_t>(line[i]) << (i == 7 ? "  " : " ");
         }
 
         for (uint8_t j = i; j < LINE_LENGTH; j++) {
-            Util::System::out << (j == LINE_LENGTH - 1 ? "    " : "   ");
+            Util::System::out << (j == 7 ? "    " : "   ");
         }
         Util::System::out << "| ";
 
@@ -108,7 +120,9 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
         if (i < LINE_LENGTH) {
-            return 0;
+            break;
         }
     }
+
+    return 0;
 }
