@@ -64,7 +64,7 @@ public:
      * @param y The y-coordinate
      * @param color The color
      */
-    void drawPixel(int32_t x, int32_t y, const Color &color) const ;
+    void drawPixel(uint16_t x, uint16_t y, const Color &color) const ;
 
 private:
 

@@ -108,6 +108,7 @@ add_subdirectory(grub)
 add_subdirectory(towboot)
 
 add_subdirectory(application)
+add_subdirectory(asciimation)
 add_subdirectory(music)
 
 add_subdirectory(hdd0)
