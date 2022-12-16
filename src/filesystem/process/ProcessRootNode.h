@@ -18,7 +18,12 @@
 #ifndef HHUOS_PROCESSROOTNODE_H
 #define HHUOS_PROCESSROOTNODE_H
 
+#include <cstdint>
+
 #include "filesystem/core/Node.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Process {
 

@@ -18,10 +18,30 @@
 #ifndef HHUOS_FATDRIVER_H
 #define HHUOS_FATDRIVER_H
 
+#include <cstdint>
+
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/core/PhysicalDriver.h"
-#include "lib/util/memory/AtomicBitmap.h"
-#include "lib/util/data/HashMap.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
+namespace Util {
+namespace Data {
+template <typename T> class Array;
+}  // namespace Data
+namespace Memory {
+class AtomicBitmap;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Filesystem::Fat {
 

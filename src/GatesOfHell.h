@@ -18,10 +18,9 @@
 #ifndef __KernelEntry_include__
 #define __KernelEntry_include__
 
-#include "kernel/log/Logger.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/stream/Reader.h"
-#include "lib/util/graphic/Terminal.h"
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 /**
  * Represents the entry point for the operating system.

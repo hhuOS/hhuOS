@@ -18,9 +18,8 @@
 #ifndef HHUOS_SOCKET_H
 #define HHUOS_SOCKET_H
 
-#include "NetworkAddress.h"
-
 namespace Network {
+class NetworkAddress;
 
 class Socket {
 

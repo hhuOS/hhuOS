@@ -22,6 +22,8 @@
 #include "kernel/paging/PageDirectory.h"
 #include "kernel/paging/Paging.h"
 #include "MemoryLayout.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/Exception.h"
 
 namespace Kernel {
 

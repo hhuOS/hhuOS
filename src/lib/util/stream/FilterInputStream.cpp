@@ -17,6 +17,8 @@
 
 #include "FilterInputStream.h"
 
+#include "lib/util/stream/InputStream.h"
+
 namespace Util::Stream {
 
 FilterInputStream::FilterInputStream(InputStream &stream) : stream(stream) {}

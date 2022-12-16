@@ -18,6 +18,8 @@
 #ifndef HHUOS_READER_H
 #define HHUOS_READER_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
 
 namespace Util::Stream {

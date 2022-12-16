@@ -20,6 +20,15 @@
 
 #include "lib/util/data/ArrayList.h"
 #include "Ip4Route.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

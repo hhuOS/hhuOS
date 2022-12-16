@@ -18,15 +18,19 @@
 #ifndef HHUOS_SERIALPORT_H
 #define HHUOS_SERIALPORT_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/PipedOutputStream.h"
 #include "lib/util/stream/FilterInputStream.h"
-#include "lib/util/stream/FilterOutputStream.h"
 #include "lib/util/memory/String.h"
 #include "device/cpu/IoPort.h"
+#include "lib/util/stream/OutputStream.h"
+#include "lib/util/stream/PipedInputStream.h"
 
 namespace Kernel {
     class Logger;
+struct InterruptFrame;
 }
 
 namespace Device {

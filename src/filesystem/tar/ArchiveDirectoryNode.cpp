@@ -1,5 +1,8 @@
 #include "ArchiveDirectoryNode.h"
 
+#include "lib/util/Exception.h"
+#include "lib/util/file/tar/Archive.h"
+
 namespace Filesystem::Tar {
 
 ArchiveDirectoryNode::ArchiveDirectoryNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path) {

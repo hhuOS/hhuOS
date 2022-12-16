@@ -16,9 +16,21 @@
  */
 
 #include "EthernetSocket.h"
+
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "EthernetDatagram.h"
+#include "device/network/NetworkDevice.h"
+#include "lib/util/Exception.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/Datagram.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ethernet/EthernetModule.h"
+
+namespace Network {
+class MacAddress;
+}  // namespace Network
 
 namespace Network::Ethernet {
 

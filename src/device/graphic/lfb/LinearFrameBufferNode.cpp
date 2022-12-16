@@ -17,6 +17,7 @@
 
 #include "lib/util/memory/Address.h"
 #include "LinearFrameBufferNode.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Device::Graphic {
 

@@ -16,8 +16,9 @@
  */
 
 #include "MemoryStatusNode.h"
-#include "lib/util/memory/Address.h"
+
 #include "kernel/system/System.h"
+#include "kernel/service/MemoryService.h"
 
 namespace Kernel {
 

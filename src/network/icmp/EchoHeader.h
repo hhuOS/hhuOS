@@ -18,7 +18,14 @@
 #ifndef HHUOS_ECHOHEADER_H
 #define HHUOS_ECHOHEADER_H
 
-#include "IcmpHeader.h"
+#include <cstdint>
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Icmp {
 

@@ -17,6 +17,9 @@
 
 #include "MemoryDirectoryNode.h"
 
+#include "filesystem/memory/MemoryNode.h"
+#include "lib/util/Exception.h"
+
 namespace Filesystem::Memory {
 
 MemoryDirectoryNode::MemoryDirectoryNode(const Util::Memory::String &name) : MemoryNode(name) {}

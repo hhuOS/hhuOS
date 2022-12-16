@@ -18,6 +18,7 @@
 #include "lib/util/math/Random.h"
 #include "lib/util/memory/Address.h"
 #include "RandomNode.h"
+#include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 

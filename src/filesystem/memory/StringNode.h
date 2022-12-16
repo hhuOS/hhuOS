@@ -18,7 +18,10 @@
 #ifndef HHUOS_STRINGNODE_H
 #define HHUOS_STRINGNODE_H
 
+#include <cstdint>
+
 #include "MemoryNode.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Memory {
 

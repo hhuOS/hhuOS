@@ -18,9 +18,11 @@
 #ifndef HHUOS_FILE_H
 #define HHUOS_FILE_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
-#include "filesystem/core/Node.h"
-#include "lib/util/graphic/Ansi.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
 
 namespace Util::File {
 

@@ -19,9 +19,15 @@
 #define __LinearFrameBuffer_include__
 
 #include <cstdint>
+
 #include "lib/util/memory/Address.h"
-#include "lib/util/file/File.h"
 #include "Color.h"
+
+namespace Util {
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 namespace Util::Graphic {
 

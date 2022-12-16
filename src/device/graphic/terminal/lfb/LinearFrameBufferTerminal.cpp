@@ -19,6 +19,11 @@
 #include "LinearFrameBufferTerminal.h"
 #include "kernel/system/System.h"
 #include "kernel/service/ProcessService.h"
+#include "device/graphic/terminal/lfb/CursorRunnable.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Device::Graphic {
 

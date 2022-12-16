@@ -16,7 +16,15 @@
  */
 
 #include "UdpHeader.h"
+
 #include "network/NumberUtil.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Udp {
 

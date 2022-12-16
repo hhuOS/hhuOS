@@ -18,12 +18,23 @@
 #ifndef HHUOS_ENGINE_H
 #define HHUOS_ENGINE_H
 
+#include <cstdint>
+
 #include "lib/util/async/Runnable.h"
-#include "lib/util/data/ArrayList.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Spinlock.h"
-#include "Drawable.h"
-#include "Game.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/MouseListener.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Game {
+class Game;
+}  // namespace Game
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Game {
 

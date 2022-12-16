@@ -17,6 +17,9 @@
 
 #include "NumberUtil.h"
 
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
+
 namespace Network {
 
 int8_t NumberUtil::read8BitValue(Util::Stream::InputStream &stream) {

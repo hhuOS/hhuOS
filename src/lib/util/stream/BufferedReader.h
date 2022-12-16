@@ -1,7 +1,10 @@
 #ifndef HHUOS_BUFFEREDREADER_H
 #define HHUOS_BUFFEREDREADER_H
 
+#include <cstdint>
+
 #include "Reader.h"
+#include "lib/util/memory/String.h"
 
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,

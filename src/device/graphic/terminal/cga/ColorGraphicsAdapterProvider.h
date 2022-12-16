@@ -18,9 +18,17 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
 #define HHUOS_COLORGRAPHICSADAPTERPROVIDER_H
 
-#include "lib/util/memory/Address.h"
-#include "device/cpu/IoPort.h"
+#include <cstdint>
+
 #include "device/graphic/terminal/TerminalProvider.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
+#include "lib/util/graphic/Terminal.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device::Graphic {
 

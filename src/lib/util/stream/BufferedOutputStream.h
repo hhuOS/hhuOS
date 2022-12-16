@@ -18,7 +18,15 @@
 #ifndef HHUOS_BUFFEREDOUTPUTSTREAM_H
 #define HHUOS_BUFFEREDOUTPUTSTREAM_H
 
+#include <cstdint>
+
 #include "FilterOutputStream.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

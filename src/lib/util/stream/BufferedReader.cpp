@@ -17,6 +17,7 @@
 
 #include "lib/util/memory/Address.h"
 #include "BufferedReader.h"
+#include "lib/util/stream/Reader.h"
 
 namespace Util::Stream {
 

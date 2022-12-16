@@ -18,9 +18,17 @@
 #ifndef HHUOS_COLORGRAPHICSADAPTER_H
 #define HHUOS_COLORGRAPHICSADAPTER_H
 
+#include <cstdint>
+
 #include "lib/util/graphic/Terminal.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/graphic/Colors.h"
+#include "lib/util/memory/Address.h"
+
+namespace Util {
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

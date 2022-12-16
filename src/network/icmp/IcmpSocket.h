@@ -20,6 +20,10 @@
 
 #include "network/DatagramSocket.h"
 
+namespace Network {
+class Datagram;
+}  // namespace Network
+
 namespace Network::Icmp {
 
 class IcmpSocket : public DatagramSocket {

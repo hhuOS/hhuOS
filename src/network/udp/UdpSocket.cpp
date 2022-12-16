@@ -16,10 +16,15 @@
  */
 
 #include "UdpSocket.h"
+
 #include "UdpModule.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "lib/util/async/Thread.h"
+#include "lib/util/Exception.h"
+#include "network/Datagram.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ip4/Ip4PortAddress.h"
 
 namespace Network::Udp {
 

@@ -17,6 +17,8 @@
 
 #include "MmxAddress.h"
 
+#include "lib/util/memory/Address.h"
+
 namespace Util::Memory {
 
 template<typename T>

@@ -18,6 +18,13 @@
 #include "lib/util/memory/Address.h"
 #include "lib/util/Exception.h"
 #include "BufferedOutputStream.h"
+#include "lib/util/stream/FilterOutputStream.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

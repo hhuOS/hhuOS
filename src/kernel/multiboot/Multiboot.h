@@ -18,8 +18,12 @@
 #ifndef HHUOS_MULTIBOOT_H
 #define HHUOS_MULTIBOOT_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
-#include "asm_interface.h"
+#include "lib/util/data/Array.h"
+
+struct CopyInformation;
 
 namespace Kernel {
 

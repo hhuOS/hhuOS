@@ -19,7 +19,13 @@
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

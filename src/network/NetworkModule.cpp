@@ -17,7 +17,19 @@
 
 #include "NetworkModule.h"
 
+namespace Device {
 namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+}  // namespace Stream
+}  // namespace Util
+
+namespace Network {
+class Socket;
 
 bool NetworkModule::registerSocket(Socket &socket) {
     socketLock.acquire();

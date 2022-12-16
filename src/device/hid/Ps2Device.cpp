@@ -17,6 +17,8 @@
 
 #include "Ps2Device.h"
 
+#include "device/hid/Ps2Controller.h"
+
 namespace Device {
 
 Ps2Device::Ps2Device(Ps2Controller &controller, Ps2Controller::Port port) : controller(controller), port(port) {}

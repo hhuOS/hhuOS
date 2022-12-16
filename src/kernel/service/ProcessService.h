@@ -19,10 +19,24 @@
 #define HHUOS_PROCESSSERVICE_H
 
 #include <cstdint>
-#include "kernel/process/Process.h"
+
 #include "Service.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 namespace Kernel {
+class Process;
+class VirtualAddressSpace;
 
 class ProcessService : public Service {
 

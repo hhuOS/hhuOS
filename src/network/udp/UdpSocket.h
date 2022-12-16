@@ -18,11 +18,13 @@
 #ifndef HHUOS_UDPSOCKET_H
 #define HHUOS_UDPSOCKET_H
 
-#include "UdpDatagram.h"
-#include "lib/util/data/ArrayListBlockingQueue.h"
-#include "lib/util/async/Spinlock.h"
+#include <cstdint>
+
 #include "network/DatagramSocket.h"
-#include "network/ip4/Ip4PortAddress.h"
+
+namespace Network {
+class Datagram;
+}  // namespace Network
 
 namespace Network::Udp {
 

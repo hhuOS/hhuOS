@@ -17,8 +17,15 @@
 #ifndef HHUOS_FLOPPYMOTORCONTROLRUNNABLE_H
 #define HHUOS_FLOPPYMOTORCONTROLRUNNABLE_H
 
+#include <cstdint>
+
 #include "lib/util/async/Runnable.h"
-#include "FloppyDevice.h"
+
+namespace Device {
+namespace Storage {
+class FloppyDevice;
+}  // namespace Storage
+}  // namespace Device
 
 namespace Device::Storage {
 

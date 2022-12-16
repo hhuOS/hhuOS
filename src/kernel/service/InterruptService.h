@@ -18,11 +18,15 @@
 #ifndef HHUOS_INTERRUPTSERVICE_H
 #define HHUOS_INTERRUPTSERVICE_H
 
+#include <cstdint>
+
 #include "device/interrupt/Pic.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "MemoryService.h"
+#include "kernel/service/Service.h"
 
 namespace Kernel {
+class InterruptHandler;
+struct InterruptFrame;
 
 class InterruptService : public Service {
 

@@ -18,7 +18,11 @@
 #ifndef HHUOS_NULLNODE_H
 #define HHUOS_NULLNODE_H
 
+#include <cstdint>
+
 #include "MemoryNode.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Memory {
 

@@ -17,6 +17,9 @@
 
 #include "lib/interface.h"
 #include "FileInputStream.h"
+#include "lib/util/Exception.h"
+#include "lib/util/file/File.h"
+#include "lib/util/file/Type.h"
 
 namespace Util::Stream {
 

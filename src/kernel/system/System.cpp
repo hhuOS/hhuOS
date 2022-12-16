@@ -30,8 +30,28 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/service/ProcessService.h"
 #include "BlueScreen.h"
+#include "device/power/acpi/Acpi.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/log/Logger.h"
+#include "kernel/memory/PageFrameAllocator.h"
+#include "kernel/memory/PagingAreaManager.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "kernel/paging/PageDirectory.h"
+#include "kernel/paging/VirtualAddressSpace.h"
+#include "kernel/process/Thread.h"
+#include "kernel/process/ThreadState.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/SchedulerService.h"
+#include "kernel/system/SystemCall.h"
+#include "kernel/system/TaskStateSegment.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/FreeListMemoryManager.h"
+#include "lib/util/memory/HeapMemoryManager.h"
 
 namespace Kernel {
+class Service;
 
 bool System::initialized = false;
 Util::Async::Spinlock System::serviceLock;

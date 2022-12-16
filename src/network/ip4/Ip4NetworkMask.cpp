@@ -17,6 +17,8 @@
 
 #include "Ip4NetworkMask.h"
 
+#include "network/ip4/Ip4Address.h"
+
 namespace Network::Ip4 {
 
 Ip4NetworkMask::Ip4NetworkMask() : NetworkMask(32) {}

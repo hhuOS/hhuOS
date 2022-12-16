@@ -18,8 +18,11 @@
 #ifndef HHUOS_CUBEDEMO_H
 #define HHUOS_CUBEDEMO_H
 
+#include <cstdint>
+
 #include "lib/util/game/Game.h"
 #include "Cube.h"
+#include "lib/util/game/KeyListener.h"
 
 class CubeDemo : public Util::Game::Game, public Util::Game::KeyListener {
 

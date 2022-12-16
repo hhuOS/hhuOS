@@ -16,7 +16,8 @@
  */
 
 #include "CubeDemo.h"
-#include "lib/util/stream/PrintWriter.h"
+
+#include "application/cube/Cube.h"
 
 CubeDemo::CubeDemo(uint32_t speed) : speed(speed) {
     for (auto *cube : cubes) {

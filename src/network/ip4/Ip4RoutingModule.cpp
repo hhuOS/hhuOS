@@ -17,6 +17,12 @@
 
 #include "Ip4RoutingModule.h"
 
+#include <cstdint>
+
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4NetworkMask.h"
+#include "network/ip4/Ip4Route.h"
+
 namespace Network::Ip4 {
 
 void Ip4RoutingModule::setDefaultRoute(const Ip4Route &route) {

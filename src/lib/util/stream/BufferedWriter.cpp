@@ -17,6 +17,8 @@
 
 #include "lib/util/memory/Address.h"
 #include "BufferedWriter.h"
+#include "lib/util/Exception.h"
+#include "lib/util/stream/Writer.h"
 
 namespace Util::Stream {
 

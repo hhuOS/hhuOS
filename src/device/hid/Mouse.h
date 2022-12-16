@@ -18,13 +18,21 @@
 #ifndef HHUOS_MOUSE_H
 #define HHUOS_MOUSE_H
 
-#include "device/cpu/IoPort.h"
-#include "kernel/log/Logger.h"
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/FilterInputStream.h"
 #include "Ps2Device.h"
+#include "lib/util/stream/PipedInputStream.h"
+#include "lib/util/stream/PipedOutputStream.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
+class Ps2Controller;
 
 class Mouse : public Ps2Device, public Util::Stream::FilterInputStream, public Kernel::InterruptHandler {
 

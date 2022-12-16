@@ -17,6 +17,8 @@
 
 #include "lib/util/memory/Address.h"
 #include "NetworkAddress.h"
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
 
 namespace Network {
 

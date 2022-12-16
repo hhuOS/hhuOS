@@ -18,6 +18,8 @@
 #ifndef HHUOS_FIRMWARECONFIGURATION_H
 #define HHUOS_FIRMWARECONFIGURATION_H
 
+#include <cstdint>
+
 #include "device/cpu/IoPort.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/async/Spinlock.h"

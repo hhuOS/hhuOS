@@ -19,10 +19,15 @@
 #define HHUOS_ACPI_H
 
 #include <cstdint>
+
 #include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
-#include "kernel/log/Logger.h"
-#include "asm_interface.h"
+
+namespace Util {
+namespace Memory {
+class String;
+}  // namespace Memory
+}  // namespace Util
+struct CopyInformation;
 
 namespace Device {
 

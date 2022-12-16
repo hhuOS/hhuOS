@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/system/System.h"
-#include "device/graphic/lfb/LinearFrameBufferNode.h"
+#include <cstdint>
+
 #include "MultibootLinearFrameBufferProvider.h"
+#include "kernel/log/Logger.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "lib/util/Exception.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Kernel {
 

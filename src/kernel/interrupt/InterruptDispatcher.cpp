@@ -20,7 +20,17 @@
 #include "device/cpu/Cpu.h"
 #include "lib/util/data/ArrayList.h"
 #include "kernel/service/ProcessService.h"
-#include "InterruptDispatcher.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/interrupt/InterruptHandler.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/ThreadState.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/data/List.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 

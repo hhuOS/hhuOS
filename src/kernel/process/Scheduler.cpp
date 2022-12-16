@@ -16,9 +16,17 @@
  */
 
 #include "Scheduler.h"
+
 #include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
 #include "asm_interface.h"
+#include "device/cpu/Fpu.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/time/Timestamp.h"
 
 extern uint32_t scheduler_initialized;
 
@@ -71,7 +79,7 @@ void Scheduler::kill(Thread &thread) {
     }
 
     sleepLock.acquire();
-    sleepList.remove({&thread, 0});
+    sleepList.remove(SleepEntry{&thread, 0});
     sleepLock.release();
 
     lock.acquire();
@@ -89,7 +97,7 @@ void Scheduler::killWithoutLock(Thread &thread) {
     }
 
     sleepLock.acquire();
-    sleepList.remove({&thread, 0});
+    sleepList.remove(SleepEntry{&thread, 0});
     sleepLock.release();
 
     threadQueue.remove(&thread);
@@ -163,7 +171,7 @@ void Scheduler::sleep(const Util::Time::Timestamp &time) {
     auto systemTime = System::getService<TimeService>().getSystemTime().toMilliseconds();
 
     sleepLock.acquire();
-    sleepList.add({currentThread, systemTime + time.toMilliseconds()});
+    sleepList.add(SleepEntry{currentThread, systemTime + time.toMilliseconds()});
     sleepLock.release();
 
     block();

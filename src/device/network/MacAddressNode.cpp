@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/ByteArrayOutputStream.h"
 #include "MacAddressNode.h"
+#include "device/network/NetworkDevice.h"
+#include "network/MacAddress.h"
 
 namespace Device::Network {
 

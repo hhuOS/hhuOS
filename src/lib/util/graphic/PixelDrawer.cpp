@@ -17,6 +17,10 @@
 
 #include "PixelDrawer.h"
 
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/memory/Address.h"
+
 namespace Util::Graphic {
 
 PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb) {}

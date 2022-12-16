@@ -18,9 +18,16 @@
 #ifndef HHUOS_IP4DATAGRAM_H
 #define HHUOS_IP4DATAGRAM_H
 
-#include "Ip4Address.h"
+#include <cstdint>
+
 #include "network/Datagram.h"
 #include "Ip4Header.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

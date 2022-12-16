@@ -18,7 +18,16 @@
 #ifndef HHUOS_BUFFERSCROLLER_H
 #define HHUOS_BUFFERSCROLLER_H
 
-#include "LinearFrameBuffer.h"
+#include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+namespace Memory {
+template <typename T> class Address;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Util::Graphic {
 

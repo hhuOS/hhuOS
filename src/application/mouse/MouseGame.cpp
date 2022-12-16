@@ -17,6 +17,8 @@
 
 #include "MouseGame.h"
 
+#include "application/mouse/MouseCursor.h"
+
 void MouseGame::update(double delta) {}
 
 MouseGame::MouseGame() {

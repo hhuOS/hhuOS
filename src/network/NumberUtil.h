@@ -18,8 +18,14 @@
 #ifndef HHUOS_UTIL_H
 #define HHUOS_UTIL_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include <cstdint>
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network {
 

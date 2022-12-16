@@ -15,11 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "network/ethernet/EthernetHeader.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "NetworkDevice.h"
 #include "PacketReader.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "network/MacAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ethernet/EthernetModule.h"
 
 namespace Device::Network {
 

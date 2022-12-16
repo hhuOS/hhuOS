@@ -16,7 +16,20 @@
  */
 
 #include "NetworkService.h"
+
 #include "device/network/NetworkFilesystemDriver.h"
+#include "device/network/NetworkDevice.h"
+#include "lib/util/Exception.h"
+#include "network/MacAddress.h"
+#include "network/NetworkAddress.h"
+#include "network/ip4/Ip4Module.h"
+#include "network/ip4/Ip4RoutingModule.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Route;
+}  // namespace Ip4
+}  // namespace Network
 
 void Kernel::NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
     devices.add(device);

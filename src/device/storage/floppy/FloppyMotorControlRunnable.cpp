@@ -15,7 +15,11 @@
  */
 
 #include "FloppyMotorControlRunnable.h"
+
 #include "lib/util/async/Thread.h"
+#include "device/storage/floppy/FloppyController.h"
+#include "device/storage/floppy/FloppyDevice.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device::Storage {
 
@@ -32,7 +36,7 @@ void FloppyMotorControlRunnable::run() {
             remainingTime -= INTERVAL;
         }
 
-        Util::Async::Thread::sleep({0, INTERVAL * 1000000});
+        Util::Async::Thread::sleep(Util::Time::Timestamp(0, INTERVAL * 1000000));
     }
 }
 

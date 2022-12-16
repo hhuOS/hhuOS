@@ -23,6 +23,10 @@
 #include "asm_interface.h"
 #include "Bios.h"
 #include "kernel/system/System.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/memory/String.h"
 
 namespace Device {
 

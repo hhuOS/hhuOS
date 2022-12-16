@@ -17,6 +17,7 @@
 
 #include "lib/util/Exception.h"
 #include "PipedOutputStream.h"
+#include "lib/util/stream/PipedInputStream.h"
 
 namespace Util::Stream {
 

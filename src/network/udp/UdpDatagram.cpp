@@ -17,6 +17,8 @@
 
 #include "UdpDatagram.h"
 
+#include "network/ip4/Ip4PortAddress.h"
+
 namespace Network::Udp {
 
 UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}

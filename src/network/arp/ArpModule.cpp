@@ -16,9 +16,31 @@
  */
 
 #include "ArpModule.h"
+
 #include "lib/util/async/Thread.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/time/Timestamp.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/arp/ArpEntry.h"
+#include "network/arp/ArpHeader.h"
+#include "network/ethernet/EthernetHeader.h"
+#include "network/ethernet/EthernetModule.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Interface.h"
+#include "network/ip4/Ip4Module.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Arp {
 
@@ -98,7 +120,7 @@ void ArpModule::setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddres
         }
     }
 
-    arpCache.add({protocolAddress, hardwareAddress});
+    arpCache.add(ArpEntry{protocolAddress, hardwareAddress});
     lock.release();
 }
 

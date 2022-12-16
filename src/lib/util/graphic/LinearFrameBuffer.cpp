@@ -17,10 +17,12 @@
 
 #include "lib/util/Exception.h"
 #include "lib/util/stream/FileInputStream.h"
-#include "lib/util/cpu/CpuId.h"
 #include "lib/interface.h"
 #include "lib/util/math/Math.h"
 #include "LinearFrameBuffer.h"
+#include "lib/util/file/File.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/memory/String.h"
 
 namespace Util::Graphic {
 

@@ -16,7 +16,9 @@
  */
 
 #include "Ip4Address.h"
-#include "lib/util/memory/Address.h"
+
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
 
 namespace Network::Ip4 {
 

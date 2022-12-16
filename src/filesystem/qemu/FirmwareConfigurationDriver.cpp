@@ -16,7 +16,13 @@
  */
 
 #include "FirmwareConfigurationDriver.h"
+
+#include <cstdint>
+
 #include "FirmwareConfigurationNode.h"
+#include "device/debug/FirmwareConfiguration.h"
+#include "filesystem/memory/MemoryDirectoryNode.h"
+#include "lib/util/data/Array.h"
 
 namespace Filesystem::Qemu {
 

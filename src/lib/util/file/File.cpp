@@ -18,7 +18,10 @@
 #include "lib/interface.h"
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/graphic/Ansi.h"
-#include "File.h"
+#include "lib/util/file/File.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Util::File {
 

@@ -18,11 +18,14 @@
 #ifndef HHUOS_SYSTEMCALL_H
 #define HHUOS_SYSTEMCALL_H
 
+#include <cstdint>
 #include <cstdarg>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/system/System.h"
 
 namespace Kernel {
+struct InterruptFrame;
 
 class SystemCall : public Kernel::InterruptHandler {
 

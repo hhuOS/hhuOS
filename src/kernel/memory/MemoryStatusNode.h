@@ -18,7 +18,10 @@
 #ifndef HHUOS_MEMORYSTATUSNODE_H
 #define HHUOS_MEMORYSTATUSNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StringNode.h"
+#include "lib/util/memory/String.h"
 
 namespace Kernel {
 

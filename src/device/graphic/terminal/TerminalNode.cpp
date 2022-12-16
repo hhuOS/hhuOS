@@ -17,6 +17,8 @@
 
 #include "TerminalNode.h"
 
+#include "lib/util/graphic/Terminal.h"
+
 namespace Device::Graphic {
 
 TerminalNode::TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal){}

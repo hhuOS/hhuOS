@@ -18,13 +18,25 @@
 #ifndef HHUOS_SCHEDULERSERVICE_H
 #define HHUOS_SCHEDULERSERVICE_H
 
+#include <cstdint>
+
 #include "kernel/process/Scheduler.h"
-#include "kernel/process/SchedulerCleaner.h"
-#include "lib/util/file/File.h"
-#include "device/cpu/Fpu.h"
 #include "Service.h"
 
+namespace Device {
+class Fpu;
+}  // namespace Device
+namespace Util {
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
+
 namespace Kernel {
+class Logger;
+class Process;
+class SchedulerCleaner;
+class Thread;
 
 class SchedulerService : public Service {
 

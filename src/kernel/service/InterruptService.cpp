@@ -18,6 +18,8 @@
 #include "InterruptService.h"
 
 namespace Kernel {
+class InterruptHandler;
+struct InterruptFrame;
 
 void InterruptService::assignInterrupt(InterruptDispatcher::Interrupt slot, InterruptHandler &handler) {
     dispatcher.assign(slot, handler);

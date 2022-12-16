@@ -18,9 +18,18 @@
 #ifndef HHUOS_STREAMNODE_H
 #define HHUOS_STREAMNODE_H
 
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "MemoryNode.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Filesystem::Memory {
 

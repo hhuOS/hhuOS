@@ -19,8 +19,11 @@
 #define __FREELISTMEMORYMANAGER_H__
 
 #include <cstdint>
+
 #include "lib/util/async/Spinlock.h"
 #include "HeapMemoryManager.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
 
 namespace Util::Memory {
 

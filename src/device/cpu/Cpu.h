@@ -18,9 +18,9 @@
 #define __CPU_include__
 
 #include <cstdint>
-#include "lib/util/async/Atomic.h"
+
 #include "lib/util/Exception.h"
-#include "kernel/log/Logger.h"
+#include "lib/util/data/Array.h"
 
 namespace Device {
 

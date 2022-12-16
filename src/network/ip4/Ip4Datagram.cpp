@@ -17,6 +17,9 @@
 
 #include "Ip4Datagram.h"
 
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Header.h"
+
 namespace Network::Ip4 {
 
 Ip4Datagram::Ip4Datagram(const uint8_t *buffer, uint16_t length, const Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol) :

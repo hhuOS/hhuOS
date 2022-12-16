@@ -19,7 +19,13 @@
 #define HHUOS_MACADDRESSNODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "NetworkDevice.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
 
 namespace Device::Network {
 

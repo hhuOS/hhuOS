@@ -18,7 +18,15 @@
 #ifndef HHUOS_BUFFEREDINPUTSTREAM_H
 #define HHUOS_BUFFEREDINPUTSTREAM_H
 
+#include <cstdint>
+
 #include "FilterInputStream.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

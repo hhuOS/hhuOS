@@ -15,11 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "lib/util/file/File.h"
 #include "MemoryDriver.h"
 #include "MemoryDirectoryNode.h"
 #include "MemoryFileNode.h"
 #include "MemoryWrapperNode.h"
+#include "filesystem/memory/MemoryNode.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Memory {
 

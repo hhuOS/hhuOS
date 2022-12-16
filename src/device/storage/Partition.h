@@ -18,6 +18,8 @@
 #ifndef HHUOS_PARTITION_H
 #define HHUOS_PARTITION_H
 
+#include <cstdint>
+
 #include "StorageDevice.h"
 
 namespace Device::Storage {

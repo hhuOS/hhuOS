@@ -18,8 +18,16 @@
 #ifndef HHUOS_FILEREADER_H
 #define HHUOS_FILEREADER_H
 
-#include "lib/util/file/File.h"
+#include <cstdint>
+
 #include "Reader.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 namespace Util::Stream {
 

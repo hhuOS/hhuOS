@@ -18,11 +18,25 @@
 #ifndef HHUOS_MEMORYSERVICE_H
 #define HHUOS_MEMORYSERVICE_H
 
-#include "kernel/memory/PageFrameAllocator.h"
-#include "kernel/memory/PagingAreaManager.h"
-#include "kernel/paging/VirtualAddressSpace.h"
+#include <cstdint>
+
 #include "lib/util/stream/OutputStreamWriter.h"
 #include "Service.h"
+#include "device/port/serial/SerialPort.h"
+#include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/FreeListMemoryManager.h"
+
+namespace Kernel {
+class PageDirectory;
+class PageFrameAllocator;
+class PagingAreaManager;
+class VirtualAddressSpace;
+struct InterruptFrame;
+}  // namespace Kernel
 
 #define HHUOS_MEMORYSERVICE_ENABLE_DEBUG 0
 

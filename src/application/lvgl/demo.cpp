@@ -15,13 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
 #include <demos/benchmark/lv_demo_benchmark.h>
+#include <music/lv_demo_music.h>
+#include <src/core/lv_obj.h>
+#include <src/hal/lv_hal_tick.h>
+#include <src/misc/lv_timer.h>
+#include <stress/lv_demo_stress.h>
+#include <widgets/lv_demo_widgets.h>
+
+#include "lib/util/file/File.h" // IWYU pragma: keep
+#include "lib/util/stream/PrintWriter.h" // IWYU pragma: keep
+#include "lib/util/graphic/Ansi.h" // IWYU pragma: keep
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/system/System.h"
 #include "lib/util/ArgumentParser.h"
 #include "LvglDriver.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

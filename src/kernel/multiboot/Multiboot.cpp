@@ -19,6 +19,11 @@
 #include "kernel/system/System.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "Multiboot.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "asm_interface.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/memory/Address.h"
 
 namespace Kernel {
 

@@ -18,10 +18,17 @@
 #ifndef HHUOS_ARPHEADER_H
 #define HHUOS_ARPHEADER_H
 
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "network/MacAddress.h"
 #include "network/ip4/Ip4Address.h"
-#include "kernel/log/Logger.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Arp {
 

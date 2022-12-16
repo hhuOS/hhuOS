@@ -16,12 +16,20 @@
  */
 
 #include "BinaryLoader.h"
+
+#include <cstdint>
+
 #include "lib/util/file/File.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "lib/util/file/elf/File.h"
 #include "kernel/system/System.h"
 #include "kernel/paging/Paging.h"
 #include "kernel/service/ProcessService.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/memory/Address.h"
 
 namespace Kernel {
 

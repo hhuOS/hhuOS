@@ -1,5 +1,7 @@
+#include <lv_conf.h>
+#include <src/draw/lv_img_buf.h>
+#include <stdint.h>
 #if defined(LV_LVGL_H_INCLUDE_SIMPLE)
-#include "lvgl.h"
 #else
 #include "lvgl/lvgl.h"
 #endif

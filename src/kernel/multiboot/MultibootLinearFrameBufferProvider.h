@@ -20,8 +20,13 @@
 
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
 #include "Multiboot.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Kernel {
+class Logger;
 
 class MultibootLinearFrameBufferProvider : public Device::Graphic::LinearFrameBufferProvider {
 

@@ -18,14 +18,24 @@
 #ifndef HHUOS_STORAGESERVICE_H
 #define HHUOS_STORAGESERVICE_H
 
+#include <cstdint>
+
 #include "Service.h"
 #include "lib/util/data/HashMap.h"
-#include "device/storage/StorageDevice.h"
-#include "lib/util/async/Spinlock.h"
-#include "kernel/log/Logger.h"
 #include "lib/util/async/ReentrantSpinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
 
 namespace Kernel {
+class Logger;
 
 class StorageService : public Service {
 

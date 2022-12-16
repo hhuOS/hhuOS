@@ -18,6 +18,8 @@
 #ifndef HHUOS_WRITER_H
 #define HHUOS_WRITER_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
 
 namespace Util::Stream {

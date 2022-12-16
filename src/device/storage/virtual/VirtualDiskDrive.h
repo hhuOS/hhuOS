@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "device/storage/StorageDevice.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/async/Spinlock.h"

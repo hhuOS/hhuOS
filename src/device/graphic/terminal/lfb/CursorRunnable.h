@@ -19,7 +19,6 @@
 #define HHUOS_CURSORRUNNABLE_H
 
 #include "lib/util/async/Runnable.h"
-#include "lib/util/graphic/StringDrawer.h"
 
 namespace Device::Graphic {
 

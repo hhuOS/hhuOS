@@ -19,11 +19,14 @@
 #define HHUOS_DATAGRAMSOCKET_H
 
 #include "Socket.h"
-#include "Datagram.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/data/ArrayListBlockingQueue.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Network {
+class Datagram;
 
 namespace Udp {
 class UdpModule;

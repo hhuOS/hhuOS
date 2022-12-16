@@ -18,10 +18,11 @@
 #ifndef HHUOS_FIRMWARECONFIGURATIONNODE_H
 #define HHUOS_FIRMWARECONFIGURATIONNODE_H
 
-#include "lib/util/data/Array.h"
-#include "filesystem/core/Node.h"
+#include <cstdint>
+
 #include "filesystem/memory/MemoryNode.h"
 #include "device/debug/FirmwareConfiguration.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Qemu {
 

@@ -18,10 +18,20 @@
 #ifndef HHUOS_VESABIOSEXTENSIONS_H
 #define HHUOS_VESABIOSEXTENSIONS_H
 
-#include "lib/util/memory/Address.h"
+#include <cstdint>
+
 #include "lib/util/data/ArrayList.h"
-#include "kernel/log/Logger.h"
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device::Graphic {
 

@@ -18,7 +18,15 @@
 #ifndef HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
 #define HHUOS_BUFFEREDLINEARFRAMEBUFFER_H
 
+#include <cstdint>
+
 #include "LinearFrameBuffer.h"
+
+namespace Util {
+namespace Memory {
+template <typename T> class Address;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Util::Graphic {
 

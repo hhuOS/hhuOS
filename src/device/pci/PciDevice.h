@@ -18,7 +18,11 @@
 #ifndef HHUOS_PCIDEVICE_H
 #define HHUOS_PCIDEVICE_H
 
+#include <cstdint>
+
 #include "Pci.h"
+#include "device/interrupt/Pic.h"
+#include "lib/util/data/Array.h"
 
 namespace Device {
 

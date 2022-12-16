@@ -18,8 +18,11 @@
 #ifndef HHUOS_LOOPBACK_H
 #define HHUOS_LOOPBACK_H
 
+#include <cstdint>
+
 #include "device/network/NetworkDevice.h"
-#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/memory/String.h"
+#include "network/MacAddress.h"
 
 namespace Device::Network {
 

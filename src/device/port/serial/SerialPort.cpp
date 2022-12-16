@@ -22,6 +22,15 @@
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "SerialPort.h"
+#include "device/port/serial/SerialPort.h"
+#include "filesystem/core/Filesystem.h"
+#include "filesystem/memory/MemoryDriver.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "lib/util/Exception.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

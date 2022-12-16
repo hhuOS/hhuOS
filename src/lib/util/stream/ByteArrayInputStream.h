@@ -18,8 +18,9 @@
 #ifndef HHUOS_BYTEARRAYINPUTSTREAM_H
 #define HHUOS_BYTEARRAYINPUTSTREAM_H
 
+#include <cstdint>
+
 #include "InputStream.h"
-#include "lib/util/memory/String.h"
 
 namespace Util::Stream {
 

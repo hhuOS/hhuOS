@@ -18,18 +18,24 @@
 #ifndef HHUOS_NETWORKDEVICE_H
 #define HHUOS_NETWORKDEVICE_H
 
-#include "kernel/interrupt/InterruptHandler.h"
+#include <cstdint>
+
 #include "kernel/memory/BitmapMemoryManager.h"
-#include "lib/util/stream/FilterInputStream.h"
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/PipedOutputStream.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/data/ArrayBlockingQueue.h"
-#include "lib/util/async/ReentrantSpinlock.h"
 #include "network/MacAddress.h"
 #include "kernel/log/Logger.h"
-#include "PacketReader.h"
-#include "PacketWriter.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Network {
+class PacketReader;
+class PacketWriter;
+}  // namespace Network
+}  // namespace Device
 
 namespace Device::Network {
 

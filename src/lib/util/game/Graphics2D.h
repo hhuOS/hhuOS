@@ -18,10 +18,23 @@
 #ifndef HHUOS_GRAPHICS2D_H
 #define HHUOS_GRAPHICS2D_H
 
+#include <cstdint>
+
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Graphic {
+class Font;
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Game {
 

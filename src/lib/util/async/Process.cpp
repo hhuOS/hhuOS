@@ -17,7 +17,16 @@
 
 #include "lib/util/system/System.h"
 #include "lib/interface.h"
-#include "Process.h"
+#include "lib/util/async/Process.h"
+
+namespace Util {
+namespace Data {
+template <typename T> class Array;
+}  // namespace Data
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 namespace Util::Async {
 

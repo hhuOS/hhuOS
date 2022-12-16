@@ -16,7 +16,16 @@
  */
 
 #include "lib/interface.h"
-#include "Thread.h"
+#include "lib/util/async/Thread.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Util::Async {
 

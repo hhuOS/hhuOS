@@ -16,6 +16,7 @@
  */
 
 #include "IdeController.h"
+
 #include "lib/util/async/Thread.h"
 #include "device/storage/ChsConverter.h"
 #include "IdeDevice.h"
@@ -23,6 +24,18 @@
 #include "kernel/service/StorageService.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/service/InterruptService.h"
+#include "device/interrupt/Pic.h"
+#include "device/pci/Pci.h"
+#include "device/pci/PciDevice.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/ThreadState.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/Constants.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device::Storage {
 
@@ -306,7 +319,7 @@ bool IdeController::selectDrive(uint8_t channel, uint8_t drive, bool prepareLbaA
     }
 
     registers.command.driveHead.writeByte(selector);
-    Util::Async::Thread::sleep({0, 400});
+    Util::Async::Thread::sleep(Util::Time::Timestamp(0, 400));
 
     if (!waitBusy(registers.command.status)) {
         log.error("Failed to select drive [%u] on channel [%u]", drive, channel);

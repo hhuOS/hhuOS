@@ -19,9 +19,9 @@
 #define HHUOS_PAGINGAREAMANAGERREFILLRUNNABLE_H
 
 #include "lib/util/async/Runnable.h"
-#include "PagingAreaManager.h"
 
 namespace Kernel {
+class PagingAreaManager;
 
 class PagingAreaManagerRefillRunnable : public Util::Async::Runnable {
 

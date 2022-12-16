@@ -17,6 +17,9 @@
 
 #include "NetworkStack.h"
 
+#include "network/ethernet/EthernetHeader.h"
+#include "network/ip4/Ip4Header.h"
+
 namespace Network {
 
 NetworkStack::NetworkStack() {

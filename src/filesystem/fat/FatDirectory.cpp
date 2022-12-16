@@ -16,7 +16,13 @@
  */
 
 #include "FatDirectory.h"
+
 #include "lib/util/data/ArrayList.h"
+#include "filesystem/fat/FatNode.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Fat {
 

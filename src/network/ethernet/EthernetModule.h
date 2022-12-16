@@ -18,11 +18,29 @@
 #ifndef HHUOS_ETHERNETMODULE_H
 #define HHUOS_ETHERNETMODULE_H
 
+#include <cstdint>
+
 #include "network/NetworkModule.h"
-#include "kernel/log/Logger.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
 #include "EthernetHeader.h"
-#include "EthernetSocket.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Network {
+class MacAddress;
+}  // namespace Network
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+class ByteArrayOutputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ethernet {
 

@@ -18,12 +18,14 @@
 #ifndef __VIRTUALADDRESSSPACE__
 #define __VIRTUALADDRESSSPACE__
 
-#include "kernel/file/FileDescriptorManager.h"
-#include "lib/util/memory/FreeListMemoryManager.h"
-#include "kernel/paging/PageDirectory.h"
-#include "lib/util/memory/Constants.h"
+namespace Util {
+namespace Memory {
+class HeapMemoryManager;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Kernel {
+class PageDirectory;
 
 /**
  * VirtualAddressSpace - represents a virtual address space with corresponding page directory

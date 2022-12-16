@@ -15,9 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "kernel/log/Logger.h"
 #include "filesystem/fat/FatDriver.h"
 #include "filesystem/fat/ff/source/diskio.h"
+#include "device/storage/StorageDevice.h"
+#include "filesystem/fat/ff/source/ff.h"
+#include "filesystem/fat/ff/source/ffconf.h"
+#include "lib/util/memory/Address.h"
 
 extern "C" {
 void* memset(void *str, int32_t c, uint32_t n);

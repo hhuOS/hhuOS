@@ -18,7 +18,18 @@
 #ifndef HHUOS_CUBE_H
 #define HHUOS_CUBE_H
 
+#include <cstdint>
+
 #include "lib/util/game/Drawable.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 class Cube : public Util::Game::Drawable {
 

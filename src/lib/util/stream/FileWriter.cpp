@@ -17,6 +17,8 @@
 
 #include "lib/interface.h"
 #include "FileWriter.h"
+#include "lib/util/Exception.h"
+#include "lib/util/file/File.h"
 
 namespace Util::Stream {
 

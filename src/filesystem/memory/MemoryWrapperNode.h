@@ -18,8 +18,18 @@
 #ifndef HHUOS_MEMORYWRAPPERNODE_H
 #define HHUOS_MEMORYWRAPPERNODE_H
 
+#include <cstdint>
+
 #include "filesystem/core/Node.h"
-#include "MemoryNode.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Filesystem {
+namespace Memory {
+class MemoryNode;
+}  // namespace Memory
+}  // namespace Filesystem
 
 namespace Filesystem::Memory {
 

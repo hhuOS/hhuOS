@@ -16,9 +16,12 @@
  */
 
 #include "asm_interface.h"
-#include "kernel/system/BlueScreen.h"
 #include "lib/util/system/System.h"
 #include "Cpu.h"
+#include "lib/util/async/Atomic.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Device {
 

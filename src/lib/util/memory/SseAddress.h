@@ -18,6 +18,8 @@
 #ifndef HHUOS_SSEADDRESS_H
 #define HHUOS_SSEADDRESS_H
 
+#include <cstdint>
+
 #include "Address.h"
 
 namespace Util::Memory {

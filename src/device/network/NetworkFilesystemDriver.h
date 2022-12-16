@@ -18,8 +18,13 @@
 #ifndef HHUOS_NETWORKFILESYSTEMDRIVER_H
 #define HHUOS_NETWORKFILESYSTEMDRIVER_H
 
-#include "NetworkDevice.h"
 #include "filesystem/memory/MemoryDriver.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
 
 namespace Device::Network {
 

@@ -17,6 +17,11 @@
 
 #include "PciDevice.h"
 #include "Pci.h"
+#include "device/cpu/IoPort.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Device {
 

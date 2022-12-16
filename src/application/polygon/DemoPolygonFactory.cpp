@@ -1,5 +1,11 @@
 #include "DemoPolygonFactory.h"
 
+#include <cstdint>
+
+#include "application/polygon/DemoPolygon.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/graphic/Color.h"
+
 const Util::Data::Array<double> DemoPolygonFactory::xShape1 = Util::Data::Array<double>({0, 0.5, 1});
 const Util::Data::Array<double> DemoPolygonFactory::yShape1 = Util::Data::Array<double>({0, 1, 0});
 const Util::Data::Array<double> DemoPolygonFactory::xShape2 = Util::Data::Array<double>({0, 1, 0, -1});

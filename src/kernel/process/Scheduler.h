@@ -18,14 +18,23 @@
 #ifndef HHUOS_SCHEDULER_H
 #define HHUOS_SCHEDULER_H
 
+#include <cstdint>
+
 #include "lib/util/data/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/time/Timestamp.h"
-#include "Thread.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
+namespace Util {
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Kernel {
-
-class Process;
+class Thread;
 
 class Scheduler {
 

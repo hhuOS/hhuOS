@@ -17,8 +17,18 @@
 
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "device/network/NetworkDevice.h"
 #include "Ip4Route.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Module.h"
+#include "network/ip4/Ip4NetworkMask.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Interface;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

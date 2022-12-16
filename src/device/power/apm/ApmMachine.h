@@ -18,10 +18,14 @@
 #ifndef HHUOS_APMMACHINE_H
 #define HHUOS_APMMACHINE_H
 
-#include "device/cpu/IoPort.h"
+#include <cstdint>
+
 #include "device/power/default/DefaultMachine.h"
-#include "kernel/log/Logger.h"
 #include "device/bios/Bios.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device {
 

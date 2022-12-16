@@ -18,9 +18,15 @@
 #ifndef HHUOS_STRINGDRAWER_H
 #define HHUOS_STRINGDRAWER_H
 
-#include "lib/util/memory/String.h"
-#include "PixelDrawer.h"
-#include "Font.h"
+#include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class Color;
+class Font;
+class PixelDrawer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

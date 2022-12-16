@@ -16,10 +16,18 @@
  */
 
 #include "NetworkDevice.h"
+
 #include "kernel/system/System.h"
-#include "kernel/service/NetworkService.h"
 #include "kernel/service/ProcessService.h"
 #include "lib/util/async/Thread.h"
+#include "device/network/PacketReader.h"
+#include "device/network/PacketWriter.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/Constants.h"
+#include "network/ethernet/EthernetModule.h"
 
 namespace Device::Network {
 
@@ -52,7 +60,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
-    outgoingPacketQueue.add({buffer, length});
+    outgoingPacketQueue.add(Packet{buffer, length});
     outgoingPacketLock.release();
 }
 
@@ -67,7 +75,7 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     auto target = Util::Memory::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
-    if (!incomingPacketQueue.offer({buffer, length})) {
+    if (!incomingPacketQueue.offer(Packet{buffer, length})) {
         log.warn("Discarding packet, because of too many unhandled packets");
         packetMemoryManager.freeBlock(buffer);
     }

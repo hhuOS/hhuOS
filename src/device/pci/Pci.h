@@ -18,13 +18,23 @@
 #ifndef HHUOS_PCI_H
 #define HHUOS_PCI_H
 
-#include "device/cpu/IoPort.h"
-#include "device/interrupt/Pic.h"
-#include "kernel/log/Logger.h"
+#include <cstdint>
+
+#include "lib/util/data/Array.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Util {
+namespace Data {
+template <typename T> class ArrayList;
+}  // namespace Data
+}  // namespace Util
 
 namespace Device {
 
 class PciDevice;
+class IoPort;
 
 class Pci {
 

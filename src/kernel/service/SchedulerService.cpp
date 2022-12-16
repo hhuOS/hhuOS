@@ -15,10 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdarg.h>
+
 #include "kernel/system/System.h"
-#include "kernel/process/AddressSpaceCleaner.h"
 #include "SchedulerService.h"
 #include "ProcessService.h"
+#include "kernel/service/SchedulerService.h"
+#include "device/cpu/Fpu.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/SchedulerCleaner.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/system/SystemCall.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/system/System.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Kernel {
 

@@ -15,11 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/stream/OutputStreamWriter.h"
+#include <stdarg.h>
+#include <cstdint>
+
 #include "lib/util/graphic/Ansi.h"
 #include "kernel/system/System.h"
 #include "kernel/service/TimeService.h"
 #include "Logger.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/HashMap.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Kernel {
 

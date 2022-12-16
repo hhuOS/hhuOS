@@ -18,12 +18,37 @@
 #ifndef HHUOS_ARPMODULE_H
 #define HHUOS_ARPMODULE_H
 
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "network/NetworkModule.h"
-#include "kernel/log/Logger.h"
 #include "ArpHeader.h"
 #include "ArpEntry.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "network/MacAddress.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Arp {
 

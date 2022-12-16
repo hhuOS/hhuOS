@@ -18,9 +18,29 @@
 #ifndef HHUOS_UDPMODULE_H
 #define HHUOS_UDPMODULE_H
 
+#include <cstdint>
+
 #include "network/NetworkModule.h"
-#include "network/ip4/Ip4Address.h"
-#include "UdpSocket.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Network {
+class Socket;
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Udp {
 

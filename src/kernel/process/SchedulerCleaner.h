@@ -18,10 +18,15 @@
 #ifndef HHUOS_SCHEDULERCLEANER_H
 #define HHUOS_SCHEDULERCLEANER_H
 
-#include "Process.h"
 #include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/async/Runnable.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Kernel {
+class Process;
+class Thread;
 
 class SchedulerCleaner : public Util::Async::Runnable {
 

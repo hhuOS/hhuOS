@@ -18,9 +18,14 @@
 #ifndef HHUOS_ARGUMENTPARSER_H
 #define HHUOS_ARGUMENTPARSER_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/HashMap.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Util {
 

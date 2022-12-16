@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/Exception.h"
 #include "lib/util/cpu/CpuId.h"
 #include "Address.h"
 #include "SseAddress.h"

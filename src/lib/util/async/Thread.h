@@ -19,9 +19,17 @@
 #define HHUOS_UTIL_THREAD_H
 
 #include <cstdint>
-#include "lib/util/time/Timestamp.h"
+
 #include "lib/util/memory/String.h"
-#include "Runnable.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+namespace Time {
+class Timestamp;
+}  // namespace Time
+}  // namespace Util
 
 namespace Util::Async {
 

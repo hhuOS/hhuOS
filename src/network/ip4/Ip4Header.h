@@ -18,8 +18,16 @@
 #ifndef HHUOS_IP4HEADER_H
 #define HHUOS_IP4HEADER_H
 
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "Ip4Address.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ip4 {
 

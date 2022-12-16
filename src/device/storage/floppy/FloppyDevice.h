@@ -22,7 +22,6 @@
 
 #include "device/storage/StorageDevice.h"
 #include "FloppyController.h"
-#include "device/storage/ChsConverter.h"
 
 namespace Device::Storage {
 

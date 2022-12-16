@@ -15,7 +15,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/async/Atomic.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/memory/operators.h"
 #include "kernel/system/System.h"
@@ -23,6 +22,12 @@
 #include "kernel/paging/Paging.h"
 #include "asm_interface.h"
 #include "Thread.h"
+#include "kernel/process/ThreadState.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/async/IdGenerator.h"
+#include "lib/util/async/Runnable.h"
+#include "lib/util/memory/Constants.h"
 
 void kickoff() {
     Kernel::System::getService<Kernel::SchedulerService>().kickoffThread();

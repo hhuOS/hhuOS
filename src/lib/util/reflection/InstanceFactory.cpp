@@ -1,5 +1,11 @@
 #include "InstanceFactory.h"
 
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/HashMap.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/reflection/Prototype.h"
+
 namespace Util::Reflection {
 
 Util::Data::HashMap<Memory::String, Prototype*> InstanceFactory::prototypeTable;

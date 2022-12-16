@@ -17,6 +17,8 @@
 
 #include "IdeDevice.h"
 
+#include "device/storage/ide/IdeController.h"
+
 namespace Device::Storage {
 
 IdeDevice::IdeDevice(IdeController &controller, const IdeController::DeviceInfo &deviceInfo) : controller(controller), info(deviceInfo) {}

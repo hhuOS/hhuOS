@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "lib/interface.h"
 
 void* operator new(uint32_t size) {

@@ -1,11 +1,11 @@
-#include "kernel/paging/MemoryLayout.h"
 #include "device/bios/Bios.h"
-#include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
 #include "ColorGraphicsAdapterProvider.h"
 #include "kernel/system/BlueScreen.h"
-#include "filesystem/memory/StreamNode.h"
 #include "ColorGraphicsAdapter.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/graphic/Terminal.h"
+#include "lib/util/memory/Address.h"
 
 namespace Device::Graphic {
 

@@ -18,8 +18,16 @@
 #ifndef HHUOS_INPUTSTREAMREADER_H
 #define HHUOS_INPUTSTREAMREADER_H
 
+#include <cstdint>
+
 #include "Reader.h"
-#include "InputStream.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

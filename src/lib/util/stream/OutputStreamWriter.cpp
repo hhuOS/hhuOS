@@ -17,6 +17,8 @@
 
 #include "OutputStreamWriter.h"
 
+#include "lib/util/stream/OutputStream.h"
+
 namespace Util::Stream {
 
 OutputStreamWriter::OutputStreamWriter(OutputStream &outputStream) : outputStream(outputStream) {}

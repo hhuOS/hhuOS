@@ -14,7 +14,6 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 #include "Isa.h"
-#include "kernel/paging/MemoryLayout.h"
 
 namespace Device {
 

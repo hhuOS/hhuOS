@@ -19,8 +19,12 @@
 #define HHUOS_POWERMANAGEMENTSERVICE_H
 
 #include <cstdint>
-#include "device/power/Machine.h"
+
 #include "Service.h"
+
+namespace Device {
+class Machine;
+}  // namespace Device
 
 namespace Kernel {
 

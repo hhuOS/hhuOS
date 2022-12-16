@@ -18,9 +18,16 @@
 #ifndef HHUOS_NETWORKADDRESS_H
 #define HHUOS_NETWORKADDRESS_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network {
 

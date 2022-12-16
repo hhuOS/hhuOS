@@ -21,8 +21,15 @@
 #include "lib/util/reflection/InstanceFactory.h"
 #include "PhysicalDriver.h"
 #include "Filesystem.h"
+#include "filesystem/core/Driver.h"
+#include "filesystem/core/Node.h"
+#include "filesystem/core/VirtualDriver.h"
+#include "lib/util/file/Type.h"
 
 namespace Filesystem {
+namespace Memory {
+class MemoryDriver;
+}  // namespace Memory
 
 bool Filesystem::mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
     auto &storageService = Kernel::System::getService<Kernel::StorageService>();

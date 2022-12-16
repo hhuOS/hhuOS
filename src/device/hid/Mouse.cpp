@@ -16,12 +16,23 @@
  */
 
 #include "Mouse.h"
+
 #include "kernel/system/System.h"
 #include "kernel/service/InterruptService.h"
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
-#include "lib/util/async/Thread.h"
 #include "device/debug/FirmwareConfiguration.h"
+#include "device/hid/Ps2Controller.h"
+#include "device/hid/Ps2Device.h"
+#include "device/interrupt/Pic.h"
+#include "filesystem/core/Filesystem.h"
+#include "filesystem/memory/MemoryDriver.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/log/Logger.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

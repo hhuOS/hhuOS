@@ -18,17 +18,28 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINAL_H
 
-#include "lib/util/graphic/LinearFrameBuffer.h"
+#include <cstdint>
+
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/graphic/Fonts.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/BufferScroller.h"
 #include "lib/util/graphic/Terminal.h"
-#include "kernel/process/Thread.h"
-#include "CursorRunnable.h"
+#include "lib/util/graphic/Color.h"
+
+namespace Device {
+namespace Graphic {
+class CursorRunnable;
+}  // namespace Graphic
+}  // namespace Device
+namespace Util {
+namespace Graphic {
+class Font;
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

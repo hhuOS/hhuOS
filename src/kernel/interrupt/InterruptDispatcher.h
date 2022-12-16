@@ -19,14 +19,18 @@
 #define __InterruptDispatcher_include__
 
 #include <cstdint>
-#include "kernel/process/ThreadState.h"
-#include "kernel/service/Service.h"
-#include "lib/util/data/List.h"
-#include "lib/util/data/HashMap.h"
+
 #include "lib/util/async/Atomic.h"
-#include "InterruptHandler.h"
+
+namespace Util {
+namespace Data {
+template <typename T> class List;
+}  // namespace Data
+}  // namespace Util
 
 namespace Kernel {
+class InterruptHandler;
+struct InterruptFrame;
 
 /**
  * InterruptDispatcher - responsible for registering and dispatching interrupts to the
