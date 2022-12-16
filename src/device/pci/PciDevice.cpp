@@ -17,6 +17,11 @@
 
 #include "PciDevice.h"
 
+#include "device/pci/Pci.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
 namespace Device {
 
 PciDevice::PciDevice(uint8_t bus, uint8_t device, uint8_t function) : bus(bus), device(device), function(function),

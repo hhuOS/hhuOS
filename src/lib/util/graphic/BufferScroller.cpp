@@ -18,6 +18,7 @@
 #include "lib/util/memory/Address.h"
 #include "lib/util/math/Math.h"
 #include "BufferScroller.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Util::Graphic {
 

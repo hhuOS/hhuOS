@@ -18,10 +18,17 @@
 #ifndef HHUOS_FLOPPY_H
 #define HHUOS_FLOPPY_H
 
-#include "kernel/service/TimeService.h"
-#include "kernel/log/Logger.h"
+#include <cstdint>
+
 #include "device/cpu/IoPort.h"
 #include "device/isa/Isa.h"
+#include "kernel/interrupt/InterruptHandler.h"
+#include "lib/util/async/Spinlock.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Storage {
 

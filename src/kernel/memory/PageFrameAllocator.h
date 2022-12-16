@@ -18,11 +18,12 @@
 #ifndef __PAGEFRAMEALLOCATOR_H__
 #define __PAGEFRAMEALLOCATOR_H__
 
-#include "kernel/memory/BitmapMemoryManager.h"
+#include <cstdint>
+
 #include "TableMemoryManager.h"
-#include "PagingAreaManager.h"
 
 namespace Kernel {
+class PagingAreaManager;
 
 /**
  * Memory manager, that ist based on the BitmapMemoryManager and is used to manage the page frames in physical memory.

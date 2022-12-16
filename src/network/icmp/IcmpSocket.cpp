@@ -19,6 +19,17 @@
 #include "kernel/service/NetworkService.h"
 #include "IcmpDatagram.h"
 #include "IcmpSocket.h"
+#include "lib/util/Exception.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/icmp/IcmpModule.h"
+
+namespace Network {
+class Datagram;
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Icmp {
 

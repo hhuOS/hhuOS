@@ -18,7 +18,11 @@
 #ifndef HHUOS_PCSPEAKERNODE_H
 #define HHUOS_PCSPEAKERNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StringNode.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
 
 namespace Device::Sound {
 

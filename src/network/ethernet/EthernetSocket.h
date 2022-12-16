@@ -19,7 +19,15 @@
 #define HHUOS_ETHERNETSOCKET_H
 
 #include "network/DatagramSocket.h"
-#include "device/network/NetworkDevice.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Network {
+class Datagram;
+}  // namespace Network
 
 namespace Network::Ethernet {
 

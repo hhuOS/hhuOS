@@ -16,7 +16,9 @@
  */
 
 #include "Datagram.h"
+
 #include "lib/util/memory/Address.h"
+#include "network/NetworkAddress.h"
 
 Network::Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress) :
         Util::Stream::ByteArrayInputStream(new uint8_t[length], length, true), remoteAddress(remoteAddress.createCopy()) {

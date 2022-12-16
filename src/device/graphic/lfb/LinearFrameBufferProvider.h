@@ -18,10 +18,17 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERPROVIDER_H
 #define HHUOS_LINEARFRAMEBUFFERPROVIDER_H
 
+#include <cstdint>
+
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
-#include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/reflection/Prototype.h"
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

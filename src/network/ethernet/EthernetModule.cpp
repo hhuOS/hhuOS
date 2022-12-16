@@ -16,9 +16,27 @@
  */
 
 #include "EthernetModule.h"
+
 #include "EthernetHeader.h"
 #include "network/NumberUtil.h"
 #include "EthernetDatagram.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/MacAddress.h"
+#include "network/NetworkAddress.h"
+#include "network/Socket.h"
+#include "network/ethernet/EthernetSocket.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ethernet {
 

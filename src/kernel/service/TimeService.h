@@ -18,9 +18,16 @@
 #ifndef HHUOS_TIMESERVICE_H
 #define HHUOS_TIMESERVICE_H
 
-#include "device/time/TimeProvider.h"
-#include "device/time/DateProvider.h"
+#include <cstdint>
+
 #include "Service.h"
+#include "lib/util/time/Date.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Device {
+class DateProvider;
+class TimeProvider;
+}  // namespace Device
 
 namespace Kernel {
 

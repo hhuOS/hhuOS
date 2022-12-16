@@ -16,7 +16,16 @@
  */
 
 #include "Ip4Header.h"
+
 #include "network/NumberUtil.h"
+#include "lib/util/stream/InputStream.h"
+#include "network/ip4/Ip4Address.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ip4 {
 

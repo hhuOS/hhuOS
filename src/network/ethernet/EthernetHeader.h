@@ -18,9 +18,16 @@
 #ifndef HHUOS_ETHERNETHEADER_H
 #define HHUOS_ETHERNETHEADER_H
 
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "network/MacAddress.h"
-#include "kernel/log/Logger.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ethernet {
 

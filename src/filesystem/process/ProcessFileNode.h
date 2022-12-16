@@ -19,6 +19,7 @@
 #define HHUOS_PROCESSFILENODE_H
 
 #include "filesystem/memory/StringNode.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Process {
 

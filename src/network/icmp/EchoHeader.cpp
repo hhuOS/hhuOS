@@ -16,8 +16,15 @@
  */
 
 #include "EchoHeader.h"
+
 #include "network/NumberUtil.h"
-#include "lib/util/memory/Address.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Icmp {
 

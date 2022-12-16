@@ -19,7 +19,10 @@
 #define HHUOS_ASM_INTERFACE
 
 #include <cstdint>
-#include "kernel/process/ThreadState.h"
+
+namespace Kernel {
+struct Context;
+}  // namespace Kernel
 
 struct CopyInformation {
     uint32_t sourceAddress;

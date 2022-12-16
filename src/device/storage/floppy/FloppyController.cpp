@@ -25,6 +25,16 @@
 #include "device/cpu/Cpu.h"
 #include "kernel/service/StorageService.h"
 #include "lib/util/async/Thread.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/Constants.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Storage {
 

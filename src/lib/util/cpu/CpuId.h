@@ -18,6 +18,8 @@
 #ifndef HHUOS_CPUID_H
 #define HHUOS_CPUID_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
 #include "lib/util/data/Array.h"
 

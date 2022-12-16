@@ -18,6 +18,8 @@
 #ifndef HHUOS_ELFFILE_H
 #define HHUOS_ELFFILE_H
 
+#include <cstdint>
+
 namespace Util::File::Elf {
 
 enum class ElfType : uint16_t {

@@ -18,7 +18,14 @@
 #ifndef HHUOS_PIXELDRAWER_H
 #define HHUOS_PIXELDRAWER_H
 
-#include "LinearFrameBuffer.h"
+#include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class Color;
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

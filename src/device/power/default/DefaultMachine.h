@@ -18,6 +18,8 @@
 #ifndef HHUOS_DEFAULTMACHINE_H
 #define HHUOS_DEFAULTMACHINE_H
 
+#include <cstdint>
+
 #include "device/cpu/IoPort.h"
 #include "device/power/Machine.h"
 

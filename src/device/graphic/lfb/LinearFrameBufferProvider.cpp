@@ -3,6 +3,11 @@
 #include "LinearFrameBufferNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
+#include "filesystem/core/Filesystem.h"
+#include "filesystem/memory/MemoryDriver.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Device::Graphic {
 

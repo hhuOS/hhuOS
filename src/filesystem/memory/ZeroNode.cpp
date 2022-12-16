@@ -16,7 +16,9 @@
  */
 
 #include "ZeroNode.h"
+
 #include "lib/util/memory/Address.h"
+#include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 

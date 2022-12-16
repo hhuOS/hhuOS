@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "lib/util/system/System.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
@@ -22,6 +24,13 @@
 #include "lib/util/stream/BufferedReader.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/ArgumentParser.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/File.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/stream/FileOutputStream.h"
+#include "lib/util/stream/InputStreamReader.h"
+#include "lib/util/stream/PrintWriter.h"
 
 static const constexpr uint8_t BAR_LENGTH = 25;
 

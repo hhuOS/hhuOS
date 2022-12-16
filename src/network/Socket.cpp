@@ -17,6 +17,9 @@
 
 #include "Socket.h"
 
+#include "lib/util/Exception.h"
+#include "network/NetworkAddress.h"
+
 namespace Network {
 
 void Socket::bind(const Network::NetworkAddress &address) {

@@ -18,6 +18,8 @@
 #ifndef HHUOS_PS2DEVICE_H
 #define HHUOS_PS2DEVICE_H
 
+#include <cstdint>
+
 #include "Ps2Controller.h"
 
 namespace Device {

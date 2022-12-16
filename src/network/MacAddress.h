@@ -18,7 +18,10 @@
 #ifndef HHUOS_MACADDRESS_H
 #define HHUOS_MACADDRESS_H
 
+#include <cstdint>
+
 #include "NetworkAddress.h"
+#include "lib/util/memory/String.h"
 
 namespace Network {
 

@@ -17,6 +17,10 @@
 
 #include "StreamNode.h"
 
+#include "filesystem/memory/MemoryNode.h"
+#include "lib/util/stream/InputStream.h"
+#include "lib/util/stream/OutputStream.h"
+
 namespace Filesystem::Memory {
 
 StreamNode::StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream) : MemoryNode(name), outputStream(outputStream), inputStream(inputStream) {}

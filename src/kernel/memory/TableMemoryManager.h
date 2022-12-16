@@ -18,12 +18,15 @@
 #ifndef HHUOS_TABLEMEMORYMANAGER_H
 #define HHUOS_TABLEMEMORYMANAGER_H
 
-#include "BitmapMemoryManager.h"
-#include "lib/util/stream/PrintWriter.h"
+#include <cstdint>
+
 #include "lib/util/async/Atomic.h"
-#include "kernel/log/Logger.h"
+#include "kernel/memory/BlockMemoryManager.h"
+#include "lib/util/Exception.h"
 
 namespace Kernel {
+class BitmapMemoryManager;
+class Logger;
 
 class TableMemoryManager : public BlockMemoryManager {
 

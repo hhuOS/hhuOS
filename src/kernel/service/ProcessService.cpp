@@ -15,13 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdarg.h>
+
 #include "kernel/process/AddressSpaceCleaner.h"
 #include "kernel/system/System.h"
 #include "kernel/process/BinaryLoader.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
+#include "kernel/file/FileDescriptorManager.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/service/SchedulerService.h"
+#include "kernel/system/SystemCall.h"
+#include "lib/util/Exception.h"
+#include "lib/util/file/File.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
+class VirtualAddressSpace;
 
 ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
     SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {

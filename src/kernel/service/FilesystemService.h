@@ -18,9 +18,16 @@
 #ifndef HHUOS_FILESYSTEMSERVICE_H
 #define HHUOS_FILESYSTEMSERVICE_H
 
+#include <cstdint>
+
 #include "filesystem/core/Filesystem.h"
-#include "kernel/file/FileDescriptorManager.h"
 #include "Service.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Kernel {
 

@@ -18,7 +18,15 @@
 #ifndef HHUOS_PARALLELPORT_H
 #define HHUOS_PARALLELPORT_H
 
-#include "kernel/log/Logger.h"
+#include <cstdint>
+
+#include "device/cpu/IoPort.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/stream/OutputStream.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device {
 

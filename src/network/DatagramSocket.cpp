@@ -16,7 +16,12 @@
  */
 
 #include "DatagramSocket.h"
+
 #include "lib/util/async/Thread.h"
+
+namespace Network {
+class Datagram;
+}  // namespace Network
 
 Network::Datagram* Network::DatagramSocket::receive() {
     while (incomingDatagramQueue.isEmpty()) {

@@ -18,7 +18,10 @@
 #ifndef HHUOS_BUFFEREDWRITER_H
 #define HHUOS_BUFFEREDWRITER_H
 
+#include <cstdint>
+
 #include "Writer.h"
+#include "lib/util/memory/String.h"
 
 namespace Util::Stream {
 

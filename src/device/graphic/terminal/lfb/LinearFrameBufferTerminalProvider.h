@@ -20,9 +20,17 @@
 
 #include "lib/util/data/Array.h"
 #include "device/graphic/terminal/TerminalProvider.h"
-#include "device/graphic/lfb/LinearFrameBufferProvider.h"
-#include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/Fonts.h"
+#include "lib/util/file/File.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/reflection/Prototype.h"
+#include "lib/util/graphic/Terminal.h"
+
+namespace Util {
+namespace Graphic {
+class Font;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

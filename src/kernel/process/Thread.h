@@ -18,15 +18,27 @@
 #ifndef HHUOS_THREAD_H
 #define HHUOS_THREAD_H
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
-#include "lib/util/async/Runnable.h"
-#include "lib/util/async/IdGenerator.h"
 #include "lib/util/data/ArrayList.h"
-#include "ThreadState.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+template <typename T> class IdGenerator;
+}  // namespace Async
+}  // namespace Util
 
 namespace Kernel {
 
 class Process;
+struct Context;
+struct InterruptFrame;
 
 class Thread {
 

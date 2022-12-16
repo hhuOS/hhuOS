@@ -18,8 +18,15 @@
 #ifndef HHUOS_PIPEDOUTPUTSTREAM_H
 #define HHUOS_PIPEDOUTPUTSTREAM_H
 
+#include <cstdint>
+
 #include "OutputStream.h"
-#include "PipedInputStream.h"
+
+namespace Util {
+namespace Stream {
+class PipedInputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

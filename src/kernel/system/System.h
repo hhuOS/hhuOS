@@ -18,19 +18,26 @@
 #ifndef __SYSTEMMANAGEMENT_H__
 #define __SYSTEMMANAGEMENT_H__
 
-#include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/paging/PageDirectory.h"
-#include "kernel/memory/PageFrameAllocator.h"
-#include "kernel/memory/PagingAreaManager.h"
-#include "kernel/paging/VirtualAddressSpace.h"
-#include "kernel/service/MemoryService.h"
-#include "kernel/multiboot/Multiboot.h"
-#include "TaskStateSegment.h"
-#include "SystemCall.h"
-#include "kernel/service/SchedulerService.h"
-#include "device/power/acpi/Acpi.h"
+#include <cstdint>
+
+#include "lib/util/Exception.h"
+
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+namespace Memory {
+class HeapMemoryManager;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Kernel {
+class InterruptHandler;
+class Logger;
+class Service;
+class SystemCall;
+struct InterruptFrame;
+struct TaskStateSegment;
 
 /**
  * SystemManagement

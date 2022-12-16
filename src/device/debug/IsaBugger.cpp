@@ -17,6 +17,8 @@
 
 #include "IsaBugger.h"
 
+#include "device/cpu/IoPort.h"
+
 namespace Device {
 
 IoPort IsaBugger::indexPort = IoPort(0x7a);

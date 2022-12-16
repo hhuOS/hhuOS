@@ -18,10 +18,17 @@
 #ifndef HHUOS_BLUESCREEN_H
 #define HHUOS_BLUESCREEN_H
 
-#include "kernel/process/ThreadState.h"
-#include "lib/util/graphic/StringDrawer.h"
+#include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class PixelDrawer;
+class StringDrawer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Kernel {
+struct InterruptFrame;
 
 class BlueScreen {
 

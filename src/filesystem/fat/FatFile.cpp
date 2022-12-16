@@ -17,6 +17,9 @@
 
 #include "FatFile.h"
 
+#include "filesystem/fat/FatNode.h"
+#include "lib/util/memory/String.h"
+
 namespace Filesystem::Fat {
 
 FatFile::FatFile(FIL *file, FILINFO *info) : FatNode(info), file(file) {}

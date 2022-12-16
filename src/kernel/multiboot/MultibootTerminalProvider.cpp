@@ -15,10 +15,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/graphic/terminal/cga/ColorGraphicsAdapter.h"
-#include "kernel/system/System.h"
-#include "kernel/system/BlueScreen.h"
+#include <cstdint>
+
 #include "MultibootTerminalProvider.h"
+#include "device/graphic/terminal/cga/ColorGraphicsAdapter.h"
+#include "kernel/multiboot/Multiboot.h"
+#include "kernel/system/BlueScreen.h"
+#include "lib/util/Exception.h"
+#include "lib/util/memory/Address.h"
 
 namespace Kernel {
 

@@ -16,11 +16,31 @@
  */
 
 #include "UdpModule.h"
+
 #include "UdpHeader.h"
 #include "Ip4PseudoHeader.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "network/ip4/Ip4Module.h"
 #include "network/ethernet/EthernetModule.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "network/NetworkAddress.h"
+#include "network/Socket.h"
+#include "network/ip4/Ip4Header.h"
+#include "network/ip4/Ip4Interface.h"
+#include "network/ip4/Ip4PortAddress.h"
+#include "network/udp/UdpDatagram.h"
+#include "network/udp/UdpSocket.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Udp {
 

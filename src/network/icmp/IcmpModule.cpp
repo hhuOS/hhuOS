@@ -15,12 +15,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "kernel/service/NetworkService.h"
 #include "IcmpModule.h"
 #include "IcmpHeader.h"
 #include "EchoHeader.h"
 #include "IcmpDatagram.h"
 #include "IcmpSocket.h"
+#include "network/icmp/IcmpModule.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/NetworkAddress.h"
+#include "network/Socket.h"
+#include "network/ethernet/EthernetModule.h"
+#include "network/ip4/Ip4Header.h"
+#include "network/ip4/Ip4Interface.h"
+#include "network/ip4/Ip4Module.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Icmp {
 

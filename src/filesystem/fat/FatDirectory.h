@@ -18,7 +18,18 @@
 #ifndef HHUOS_FATDIRECTORY_H
 #define HHUOS_FATDIRECTORY_H
 
+#include <cstdint>
+
 #include "FatNode.h"
+#include "filesystem/fat/ff/source/ff.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+
+namespace Util {
+namespace Memory {
+class String;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Filesystem::Fat {
 

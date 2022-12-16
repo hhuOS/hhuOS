@@ -16,8 +16,16 @@
  */
 
 #include "PrintWriter.h"
+
 #include "OutputStreamWriter.h"
 #include "ByteArrayOutputStream.h"
+#include "lib/util/stream/Writer.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

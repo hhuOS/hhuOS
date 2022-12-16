@@ -19,6 +19,7 @@
 #include "lib/interface.h"
 #include "lib/util/memory/Constants.h"
 #include "FreeListMemoryManager.h"
+#include "lib/util/Exception.h"
 
 namespace Util::Memory {
 

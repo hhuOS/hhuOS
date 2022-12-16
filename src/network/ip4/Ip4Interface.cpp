@@ -17,6 +17,11 @@
 
 #include "Ip4Interface.h"
 
+#include "device/network/NetworkDevice.h"
+#include "network/NetworkAddress.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4NetworkMask.h"
+
 namespace Network::Ip4 {
 
 Ip4Interface::Ip4Interface(const Network::Ip4::Ip4Address &address, const Network::Ip4::Ip4Address &networkAddress,

@@ -18,12 +18,38 @@
 #ifndef HHUOS_IP4MODULE_H
 #define HHUOS_IP4MODULE_H
 
+#include <cstdint>
+
 #include "network/NetworkModule.h"
 #include "Ip4Header.h"
 #include "Ip4RoutingModule.h"
-#include "kernel/log/Logger.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
-#include "Ip4Socket.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+class Ip4Interface;
+class Ip4NetworkMask;
+}  // namespace Ip4
+}  // namespace Network
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+class ByteArrayOutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ip4 {
 

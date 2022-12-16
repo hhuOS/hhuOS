@@ -19,7 +19,16 @@
 #define HHUOS_MEMORYDRIVER_H
 
 #include "filesystem/core/VirtualDriver.h"
-#include "MemoryDirectoryNode.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Filesystem {
+class Node;
+namespace Memory {
+class MemoryDirectoryNode;
+class MemoryNode;
+}  // namespace Memory
+}  // namespace Filesystem
 
 namespace Filesystem::Memory {
 

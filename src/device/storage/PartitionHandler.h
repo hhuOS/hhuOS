@@ -18,9 +18,18 @@
 #ifndef HHUOS_PARTITIONHANDLER_H
 #define HHUOS_PARTITIONHANDLER_H
 
-#include "StorageDevice.h"
+#include <cstdint>
+
 #include "lib/util/data/Array.h"
-#include "kernel/log/Logger.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device::Storage {
 

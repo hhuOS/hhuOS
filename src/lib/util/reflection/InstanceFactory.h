@@ -18,10 +18,18 @@
 #ifndef HHUOS_INSTANCEFACTORY_H
 #define HHUOS_INSTANCEFACTORY_H
 
-#define INSTANCE_FACTORY_CREATE_INSTANCE(BASE_TYPE, TYPE) (BASE_TYPE*) Util::Reflection::InstanceFactory::createInstance(TYPE)
+#include "lib/util/memory/String.h"
 
-#include "lib/util/data/HashMap.h"
-#include "Prototype.h"
+namespace Util {
+namespace Data {
+template <typename K, typename V> class HashMap;
+}  // namespace Data
+namespace Reflection {
+class Prototype;
+}  // namespace Reflection
+}  // namespace Util
+
+#define INSTANCE_FACTORY_CREATE_INSTANCE(BASE_TYPE, TYPE) (BASE_TYPE*) Util::Reflection::InstanceFactory::createInstance(TYPE)
 
 namespace Util::Reflection {
 

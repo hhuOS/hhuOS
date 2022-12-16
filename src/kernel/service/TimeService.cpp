@@ -15,10 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdarg.h>
+
 #include "lib/util/Exception.h"
 #include "TimeService.h"
 #include "kernel/system/SystemCall.h"
 #include "kernel/system/System.h"
+#include "device/time/DateProvider.h"
+#include "device/time/TimeProvider.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 

@@ -16,7 +16,15 @@
  */
 
 #include "LineDrawer.h"
+
 #include "lib/util/math/Math.h"
+#include "lib/util/graphic/PixelDrawer.h"
+
+namespace Util {
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

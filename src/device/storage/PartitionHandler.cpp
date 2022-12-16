@@ -16,8 +16,14 @@
  */
 
 #include "PartitionHandler.h"
+
 #include "lib/util/memory/Address.h"
 #include "lib/util/data/ArrayList.h"
+#include "device/storage/StorageDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Device::Storage {
 

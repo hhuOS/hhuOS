@@ -17,6 +17,13 @@
 
 #include "lib/util/memory/Address.h"
 #include "BufferedInputStream.h"
+#include "lib/util/stream/FilterInputStream.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

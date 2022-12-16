@@ -17,6 +17,8 @@
 
 #include "MemoryWrapperNode.h"
 
+#include "filesystem/memory/MemoryNode.h"
+
 namespace Filesystem::Memory {
 
 MemoryWrapperNode::MemoryWrapperNode(MemoryNode &node) : node(node) {}

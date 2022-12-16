@@ -1,9 +1,12 @@
 #include "device/bios/Bios.h"
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/system/System.h"
-#include "device/graphic/lfb/LinearFrameBufferNode.h"
-#include "kernel/service/FilesystemService.h"
 #include "VesaBiosExtensions.h"
+#include "kernel/log/Logger.h"
+#include "kernel/service/MemoryService.h"
+#include "lib/util/Exception.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/memory/Address.h"
 
 namespace Device::Graphic {
 
@@ -59,7 +62,7 @@ VesaBiosExtensions::VesaBiosExtensions(bool prototypeInstance) {
         }
 
         log.debug("VBE compatible mode found [%ux%u@%u]", vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp);
-        supportedModes.add({vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch, vbeModes[i]});
+        supportedModes.add(ModeInfo{vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch, vbeModes[i]});
     }
 
     delete[] vbeModes;

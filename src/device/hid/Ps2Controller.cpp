@@ -16,7 +16,11 @@
  */
 
 #include "Ps2Controller.h"
+
 #include "lib/util/async/Thread.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device {
 

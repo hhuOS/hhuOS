@@ -21,6 +21,12 @@
 #include "lib/util/data/Array.h"
 #include "Drawable.h"
 
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game {
 
 class Polygon : public Drawable {

@@ -18,15 +18,22 @@
 #ifndef HHUOS_KEYBOARD_H
 #define HHUOS_KEYBOARD_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
-#include "device/cpu/IoPort.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/stream/PipedOutputStream.h"
-#include "kernel/log/Logger.h"
 #include "Key.h"
 #include "Ps2Device.h"
+#include "lib/util/stream/FilterInputStream.h"
+#include "lib/util/stream/PipedInputStream.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
+class Ps2Controller;
 
 /**
  * Driver for the Keyboard-Controller.

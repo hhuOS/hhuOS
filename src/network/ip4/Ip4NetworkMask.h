@@ -18,6 +18,8 @@
 #ifndef HHUOS_IP4NETWORKMASK_H
 #define HHUOS_IP4NETWORKMASK_H
 
+#include <cstdint>
+
 #include "network/NetworkMask.h"
 #include "Ip4Address.h"
 

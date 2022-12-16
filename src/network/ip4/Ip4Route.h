@@ -20,7 +20,13 @@
 
 #include "Ip4Address.h"
 #include "Ip4NetworkMask.h"
-#include "Ip4Interface.h"
+#include "lib/util/memory/String.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Interface;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

@@ -18,9 +18,17 @@
 #ifndef HHUOS_IP4INTERFACE_H
 #define HHUOS_IP4INTERFACE_H
 
+#include <cstdint>
+
 #include "Ip4Address.h"
 #include "Ip4NetworkMask.h"
-#include "device/network/NetworkDevice.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
 
 namespace Network::Ip4 {
 

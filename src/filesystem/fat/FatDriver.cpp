@@ -18,6 +18,19 @@
 #include "filesystem/fat/ff/source/ff.h"
 #include "FatNode.h"
 #include "FatDriver.h"
+#include "filesystem/fat/ff/source/ffconf.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/AtomicBitmap.h"
+
+namespace Device {
+namespace Storage {
+class StorageDevice;
+}  // namespace Storage
+}  // namespace Device
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Fat {
 

@@ -18,6 +18,8 @@
 #ifndef HHUOS_IDEDEVICE_H
 #define HHUOS_IDEDEVICE_H
 
+#include <cstdint>
+
 #include "device/storage/StorageDevice.h"
 #include "IdeController.h"
 

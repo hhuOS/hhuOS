@@ -18,11 +18,27 @@
 #ifndef HHUOS_LVGLDRIVER_H
 #define HHUOS_LVGLDRIVER_H
 
+#include <cstdint>
 #include <src/hal/lv_hal_disp.h>
-#include "lib/util/graphic/LinearFrameBuffer.h"
+#include <src/core/lv_group.h>
+#include <src/core/lv_obj.h>
+#include <src/hal/lv_hal_indev.h>
+#include <src/misc/lv_area.h>
+#include <src/misc/lv_color.h>
+
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/data/ArrayListBlockingQueue.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/Address.h"
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 class LvglDriver {
 

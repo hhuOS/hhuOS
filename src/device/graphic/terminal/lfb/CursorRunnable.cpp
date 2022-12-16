@@ -16,9 +16,13 @@
  */
 
 #include "CursorRunnable.h"
+
 #include "LinearFrameBufferTerminal.h"
-#include "kernel/system/System.h"
 #include "lib/util/async/Thread.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device::Graphic {
 
@@ -31,7 +35,7 @@ void CursorRunnable::run() {
         visible = !visible;
         terminal.cursorLock.release();
 
-        Util::Async::Thread::sleep({0, 250000000});
+        Util::Async::Thread::sleep(Util::Time::Timestamp(0, 250000000));
     }
 
     visible = false;

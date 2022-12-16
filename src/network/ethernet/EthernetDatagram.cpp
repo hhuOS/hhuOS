@@ -17,6 +17,9 @@
 
 #include "EthernetDatagram.h"
 
+#include "network/MacAddress.h"
+#include "network/ethernet/EthernetHeader.h"
+
 namespace Network::Ethernet {
 
 EthernetDatagram::EthernetDatagram(const uint8_t *buffer, uint16_t length, const Network::MacAddress &remoteAddress, Network::Ethernet::EthernetHeader::EtherType type) :

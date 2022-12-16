@@ -16,8 +16,15 @@
  */
 
 #include "Ansi.h"
+
 #include "lib/util/system/System.h"
 #include "Terminal.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/File.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/stream/InputStreamReader.h"
+#include "lib/util/stream/PrintWriter.h"
 
 namespace Util::Graphic {
 
@@ -332,7 +339,7 @@ Ansi::CursorPosition Ansi::getCursorPosition() {
 
 Ansi::CursorPosition Ansi::getCursorLimits() {
     auto position = getCursorPosition();
-    setPosition({UINT16_MAX, UINT16_MAX});
+    setPosition(CursorPosition{UINT16_MAX, UINT16_MAX});
 
     auto size = getCursorPosition();
     setPosition(position);

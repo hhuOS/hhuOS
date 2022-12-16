@@ -16,7 +16,9 @@
  */
 
 #include "MacAddress.h"
-#include "lib/util/memory/Address.h"
+
+#include "lib/util/Exception.h"
+#include "network/NetworkAddress.h"
 
 namespace Network {
 

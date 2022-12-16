@@ -18,8 +18,11 @@
 #ifndef HHUOS_FATNODE_H
 #define HHUOS_FATNODE_H
 
+#include <cstdint>
+
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/core/Node.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Fat {
 

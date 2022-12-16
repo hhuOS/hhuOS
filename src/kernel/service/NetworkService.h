@@ -18,11 +18,27 @@
 #ifndef HHUOS_NETWORKSERVICE_H
 #define HHUOS_NETWORKSERVICE_H
 
-#include "network/ethernet/EthernetModule.h"
+#include <cstdint>
+
 #include "Service.h"
-#include "network/arp/ArpModule.h"
-#include "network/ip4/Ip4Module.h"
 #include "network/NetworkStack.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Network {
+class MacAddress;
+namespace Ip4 {
+class Ip4Route;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Kernel {
 

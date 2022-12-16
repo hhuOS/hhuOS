@@ -18,6 +18,19 @@
 #ifndef HHUOS_UTIL_PROCESS_H
 #define HHUOS_UTIL_PROCESS_H
 
+#include <cstdint>
+
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Data {
+template <typename T> class Array;
+}  // namespace Data
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
+
 namespace Util::Async {
 
 class Process {

@@ -15,14 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/system/System.h"
-#include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/paging/Paging.h"
 #include "kernel/service/InterruptService.h"
 #include "device/cpu/Cpu.h"
 #include "GatesOfHell.h"
 #include "device/power/acpi/Acpi.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/ThreadState.h"
+#include "kernel/service/SchedulerService.h"
+#include "kernel/system/TaskStateSegment.h"
 
 // Import functions
 extern "C" {

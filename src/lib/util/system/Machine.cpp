@@ -16,7 +16,7 @@
  */
 
 #include "lib/interface.h"
-#include "Machine.h"
+#include "lib/util/system/Machine.h"
 
 namespace Util {
 

@@ -15,11 +15,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/system/System.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/graphic/Terminal.h"
 #include "MouseListener.h"
 #include "Engine.h"
+#include "lib/util/file/File.h"
+#include "lib/util/game/Game.h"
+#include "lib/util/game/KeyListener.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/stream/FileInputStream.h"
+
+namespace Util {
+namespace Graphic {
+class LinearFrameBuffer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Game {
 

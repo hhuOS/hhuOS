@@ -19,6 +19,12 @@
 #define HHUOS_PROCESSDRIVER_H
 
 #include "filesystem/core/VirtualDriver.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Process {
 

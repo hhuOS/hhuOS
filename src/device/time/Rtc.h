@@ -18,10 +18,18 @@
 #ifndef HHUOS_RTC_H
 #define HHUOS_RTC_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "DateProvider.h"
 #include "TimeProvider.h"
-#include "AlarmRunnable.h"
+#include "lib/util/time/Date.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

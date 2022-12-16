@@ -16,8 +16,15 @@
  */
 
 #include "EthernetHeader.h"
+
 #include "network/NumberUtil.h"
-#include "network/arp/ArpHeader.h"
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Ethernet {
 

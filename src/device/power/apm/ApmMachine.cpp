@@ -16,7 +16,10 @@
  */
 
 #include "ApmMachine.h"
+
 #include "device/bios/Bios.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
 
 namespace Device {
 

@@ -18,7 +18,14 @@
 #ifndef HHUOS_LINEDRAWER_H
 #define HHUOS_LINEDRAWER_H
 
-#include "PixelDrawer.h"
+#include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class Color;
+class PixelDrawer;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

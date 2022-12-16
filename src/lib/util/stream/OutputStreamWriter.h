@@ -18,8 +18,16 @@
 #ifndef HHUOS_OUTPUTSTREAMWRITER_H
 #define HHUOS_OUTPUTSTREAMWRITER_H
 
+#include <cstdint>
+
 #include "Writer.h"
-#include "OutputStream.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Stream {
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Util::Stream {
 

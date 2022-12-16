@@ -19,13 +19,20 @@
 #define HHUOS_LOGGER_H
 
 #include "lib/util/memory/String.h"
-#include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/data/HashMap.h"
-#include "device/port/serial/SerialPort.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "device/time/TimeProvider.h"
+
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+namespace Data {
+template <typename K, typename V> class HashMap;
+template <typename T> class ArrayList;
+}  // namespace Data
+namespace Stream {
+class OutputStream;
+class PrintWriter;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Kernel {
 

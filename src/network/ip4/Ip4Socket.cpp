@@ -16,9 +16,25 @@
  */
 
 #include "Ip4Socket.h"
+
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "Ip4Datagram.h"
+#include "device/network/NetworkDevice.h"
+#include "lib/util/Exception.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/Datagram.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ethernet/EthernetModule.h"
+#include "network/ip4/Ip4Interface.h"
+#include "network/ip4/Ip4Module.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

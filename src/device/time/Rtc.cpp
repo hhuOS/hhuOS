@@ -21,6 +21,18 @@
 #include "Rtc.h"
 #include "kernel/system/System.h"
 #include "kernel/service/ProcessService.h"
+#include "device/interrupt/Pic.h"
+#include "device/power/acpi/Acpi.h"
+#include "device/time/AlarmRunnable.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/Exception.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

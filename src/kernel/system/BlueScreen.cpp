@@ -20,6 +20,14 @@
 #include "lib/util/graphic/Fonts.h"
 #include "lib/util/system/System.h"
 #include "BlueScreen.h"
+#include "device/cpu/IoPort.h"
+#include "kernel/process/ThreadState.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/graphic/PixelDrawer.h"
+#include "lib/util/graphic/StringDrawer.h"
+#include "lib/util/memory/Address.h"
 
 namespace Kernel {
 

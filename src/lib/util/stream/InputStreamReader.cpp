@@ -17,6 +17,8 @@
 
 #include "InputStreamReader.h"
 
+#include "lib/util/stream/InputStream.h"
+
 namespace Util::Stream {
 
 InputStreamReader::InputStreamReader(InputStream &stream) : stream(stream) {

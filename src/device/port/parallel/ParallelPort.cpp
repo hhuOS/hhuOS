@@ -16,10 +16,16 @@
  */
 
 #include "ParallelPort.h"
+
 #include "filesystem/memory/StreamNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "lib/util/async/Thread.h"
+#include "filesystem/core/Filesystem.h"
+#include "filesystem/memory/MemoryDriver.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Device {
 
@@ -124,7 +130,7 @@ void ParallelPort::write(uint8_t c) {
     // Pulse the strobe bit, so that the printer knows, that there is data to be fetched on the data port
     uint8_t control = sppControlPort.readByte();
     sppControlPort.writeByte(control | CONTROL_REGISTER_STROBE);
-    Util::Async::Thread::sleep({0, 10000000});
+    Util::Async::Thread::sleep(Util::Time::Timestamp(0, 10000000));
     sppControlPort.writeByte(control);
 
     // Wait for the printer to finish reading the data

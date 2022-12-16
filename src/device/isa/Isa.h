@@ -17,8 +17,9 @@
 #ifndef HHUOS_ISA_H
 #define HHUOS_ISA_H
 
+#include <cstdint>
+
 #include "device/cpu/IoPort.h"
-#include "lib/util/async/Spinlock.h"
 
 namespace Device {
 

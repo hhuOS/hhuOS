@@ -20,10 +20,18 @@
 
 #include "lib/util/async/ReentrantSpinlock.h"
 #include "lib/util/data/HashMap.h"
-#include "filesystem/memory/MemoryDriver.h"
-#include "Driver.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem {
+class Driver;
+class Node;
+class VirtualDriver;
+namespace Memory {
+class MemoryDriver;
+}  // namespace Memory
 
 struct MountInformation {
     Util::Memory::String device;

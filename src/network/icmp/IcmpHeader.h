@@ -18,8 +18,14 @@
 #ifndef HHUOS_ICMPHEADER_H
 #define HHUOS_ICMPHEADER_H
 
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include <cstdint>
+
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Icmp {
 

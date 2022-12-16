@@ -16,9 +16,15 @@
  */
 
 #include "MountsNode.h"
+
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
+#include "filesystem/core/Filesystem.h"
+#include "filesystem/memory/MemoryNode.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/stream/PrintWriter.h"
 
 namespace Filesystem::Memory {
 

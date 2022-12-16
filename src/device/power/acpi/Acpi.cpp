@@ -16,7 +16,12 @@
  */
 
 #include "Acpi.h"
+
 #include "kernel/paging/MemoryLayout.h"
+#include "asm_interface.h"
+#include "lib/util/Exception.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/String.h"
 
 namespace Device {
 

@@ -15,11 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "lib/util/game/Engine.h"
 #include "lib/util/system/System.h"
-#include "lib/util/async/Thread.h"
 #include "lib/util/ArgumentParser.h"
 #include "CubeDemo.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/File.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/stream/PrintWriter.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 

@@ -20,6 +20,9 @@
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/stream/FileWriter.h"
 #include "Terminal.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Util::Graphic {
 

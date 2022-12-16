@@ -25,7 +25,6 @@
 #define __PAGING_H__
 
 #include <cstdint>
-#include <cstdarg>
 
 namespace Kernel {
 

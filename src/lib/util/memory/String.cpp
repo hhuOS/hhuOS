@@ -19,8 +19,11 @@
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "lib/util/data/ArrayList.h"
-#include "String.h"
 #include "lib/util/memory/Address.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Util::Memory {
 

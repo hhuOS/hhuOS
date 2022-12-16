@@ -18,9 +18,10 @@
 #ifndef __Ansi_include__
 #define __Ansi_include__
 
+#include <cstdint>
+
 #include "lib/util/memory/String.h"
 #include "Color.h"
-#include "Colors.h"
 
 namespace Util::Graphic {
 

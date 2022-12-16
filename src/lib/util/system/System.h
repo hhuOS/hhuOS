@@ -20,14 +20,17 @@
 
 #include <cstdint>
 #include <cstdarg>
-#include "lib/util/stream/FileOutputStream.h"
-#include "lib/util/stream/BufferedOutputStream.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/BufferedInputStream.h"
-#include "lib/util/stream/InputStreamReader.h"
+
+#include "lib/util/stream/InputStreamReader.h" // IWYU pragma: keep
 
 namespace Util {
+namespace Stream {
+class BufferedInputStream;
+class BufferedOutputStream;
+class FileInputStream;
+class FileOutputStream;
+class PrintWriter;
+}  // namespace Stream
 
 class System {
 

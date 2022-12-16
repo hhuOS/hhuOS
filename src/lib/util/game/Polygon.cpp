@@ -16,7 +16,12 @@
  */
 
 #include "Polygon.h"
+
+#include <cstdint>
+
 #include "lib/util/math/Math.h"
+#include "lib/util/Exception.h"
+#include "lib/util/game/Graphics2D.h"
 
 namespace Util::Game {
 

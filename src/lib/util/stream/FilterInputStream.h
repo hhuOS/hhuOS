@@ -18,6 +18,8 @@
 #ifndef HHUOS_FILTERINPUTSTREAM_H
 #define HHUOS_FILTERINPUTSTREAM_H
 
+#include <cstdint>
+
 #include "InputStream.h"
 
 namespace Util::Stream {

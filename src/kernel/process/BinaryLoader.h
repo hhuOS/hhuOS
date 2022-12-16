@@ -20,6 +20,7 @@
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/memory/String.h"
+#include "lib/util/data/Array.h"
 
 namespace Kernel {
 

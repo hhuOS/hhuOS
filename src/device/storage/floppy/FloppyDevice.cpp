@@ -19,6 +19,11 @@
 #include "kernel/service/ProcessService.h"
 #include "FloppyDevice.h"
 #include "FloppyMotorControlRunnable.h"
+#include "device/storage/ChsConverter.h"
+#include "device/storage/floppy/FloppyController.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/SchedulerService.h"
+#include "lib/util/memory/String.h"
 
 namespace Device::Storage {
 

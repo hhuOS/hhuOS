@@ -1,7 +1,14 @@
 #ifndef HHUOS_ARCHIVEFILENODE_H
 #define HHUOS_ARCHIVEFILENODE_H
 
+#include <cstdint>
+
 #include "ArchiveNode.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/file/tar/Archive.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Tar {
 

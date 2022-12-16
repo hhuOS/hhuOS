@@ -18,8 +18,15 @@
 #ifndef HHUOS_DEMOPOLYGON_H
 #define HHUOS_DEMOPOLYGON_H
 
-#include "lib/util/game/Game.h"
 #include "lib/util/game/Polygon.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/graphic/Color.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
 
 class DemoPolygon : public Util::Game::Polygon {
 

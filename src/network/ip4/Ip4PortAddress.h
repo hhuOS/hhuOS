@@ -18,9 +18,12 @@
 #ifndef HHUOS_IP4PORTADDRESS_H
 #define HHUOS_IP4PORTADDRESS_H
 
+#include <cstdint>
+
 #include "network/NetworkAddress.h"
 #include "lib/util/memory/Address.h"
 #include "Ip4Address.h"
+#include "lib/util/memory/String.h"
 
 namespace Network::Ip4 {
 

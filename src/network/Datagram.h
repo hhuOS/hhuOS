@@ -18,10 +18,12 @@
 #ifndef HHUOS_DATAGRAM_H
 #define HHUOS_DATAGRAM_H
 
-#include "NetworkAddress.h"
+#include <cstdint>
+
 #include "lib/util/stream/ByteArrayInputStream.h"
 
 namespace Network {
+class NetworkAddress;
 
 class Datagram : public Util::Stream::ByteArrayInputStream {
 

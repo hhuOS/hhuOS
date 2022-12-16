@@ -18,13 +18,29 @@
 #ifndef HHUOS_NETWORKMODULE_H
 #define HHUOS_NETWORKMODULE_H
 
-#include "lib/util/stream/InputStream.h"
+#include <cstdint>
+
 #include "lib/util/data/HashMap.h"
-#include "NetworkAddress.h"
-#include "device/network/NetworkDevice.h"
-#include "Socket.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network {
+class NetworkAddress;
+class Socket;
 
 class NetworkModule {
 

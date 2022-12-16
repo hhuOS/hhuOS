@@ -18,8 +18,14 @@
 #ifndef HHUOS_ETHERNETDATAGRAM_H
 #define HHUOS_ETHERNETDATAGRAM_H
 
+#include <cstdint>
+
 #include "EthernetHeader.h"
 #include "network/Datagram.h"
+
+namespace Network {
+class MacAddress;
+}  // namespace Network
 
 namespace Network::Ethernet {
 

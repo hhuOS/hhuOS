@@ -20,6 +20,9 @@
 #include "lib/util/async/Process.h"
 #include "lib/util/graphic/Terminal.h"
 #include "Shell.h"
+#include "lib/util/file/File.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/stream/PrintWriter.h"
 
 Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
 

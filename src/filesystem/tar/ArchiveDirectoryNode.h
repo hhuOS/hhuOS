@@ -1,7 +1,23 @@
 #ifndef HHUOS_ARCHIVEDIRECTORYNODE_H
 #define HHUOS_ARCHIVEDIRECTORYNODE_H
 
+#include <cstdint>
+
 #include "ArchiveNode.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace File {
+namespace Tar {
+class Archive;
+}  // namespace Tar
+}  // namespace File
+}  // namespace Util
 
 namespace Filesystem::Tar {
 

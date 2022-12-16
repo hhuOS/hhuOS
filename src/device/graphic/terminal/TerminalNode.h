@@ -18,8 +18,17 @@
 #ifndef HHUOS_TERMINALNODE_H
 #define HHUOS_TERMINALNODE_H
 
+#include <cstdint>
+
 #include "filesystem/memory/StreamNode.h"
-#include "lib/util/graphic/Terminal.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Graphic {
+class Terminal;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

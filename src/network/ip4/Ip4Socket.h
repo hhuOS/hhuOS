@@ -19,7 +19,10 @@
 #define HHUOS_IP4SOCKET_H
 
 #include "network/DatagramSocket.h"
-#include "network/Datagram.h"
+
+namespace Network {
+class Datagram;
+}  // namespace Network
 
 namespace Network::Ip4 {
 

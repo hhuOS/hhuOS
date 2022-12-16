@@ -18,8 +18,13 @@
 #ifndef HHUOS_DEVICE_BIOS_H
 #define HHUOS_DEVICE_BIOS_H
 
-#include "lib/util/async/Spinlock.h"
 #include <cstdint>
+
+namespace Util {
+namespace Async {
+class Spinlock;
+}  // namespace Async
+}  // namespace Util
 
 namespace Device {
 

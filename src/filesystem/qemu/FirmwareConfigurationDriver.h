@@ -18,9 +18,13 @@
 #ifndef HHUOS_FIRMWARECONFIGURATIONDRIVER_H
 #define HHUOS_FIRMWARECONFIGURATIONDRIVER_H
 
-#include "filesystem/core/Driver.h"
-#include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/memory/MemoryDriver.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Device {
+class FirmwareConfiguration;
+}  // namespace Device
 
 namespace Filesystem::Qemu {
 

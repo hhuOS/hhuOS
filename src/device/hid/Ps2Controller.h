@@ -18,8 +18,13 @@
 #ifndef HHUOS_PS2CONTROLLER_H
 #define HHUOS_PS2CONTROLLER_H
 
+#include <cstdint>
+
 #include "device/cpu/IoPort.h"
-#include "kernel/log/Logger.h"
+
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
 
 namespace Device {
 

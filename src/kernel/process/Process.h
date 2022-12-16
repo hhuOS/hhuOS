@@ -18,11 +18,25 @@
 #ifndef HHUOS_PROCESS_H
 #define HHUOS_PROCESS_H
 
-#include "kernel/paging/VirtualAddressSpace.h"
+#include <cstdint>
+
 #include "lib/util/file/File.h"
-#include "Thread.h"
+#include "kernel/file/FileDescriptorManager.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Async {
+template <typename T> class IdGenerator;
+}  // namespace Async
+}  // namespace Util
 
 namespace Kernel {
+class Thread;
+class VirtualAddressSpace;
 
 class Process {
 

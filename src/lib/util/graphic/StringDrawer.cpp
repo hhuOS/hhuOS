@@ -17,6 +17,15 @@
 
 #include "StringDrawer.h"
 
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/PixelDrawer.h"
+
+namespace Util {
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
+
 namespace Util::Graphic {
 
 StringDrawer::StringDrawer(const PixelDrawer &pixelDrawer) : pixelDrawer(pixelDrawer) {}

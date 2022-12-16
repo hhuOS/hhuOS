@@ -19,9 +19,14 @@
 #define HHUOS_UDPDATAGRAM_H
 
 #include <cstdint>
-#include "network/NetworkAddress.h"
+
 #include "network/Datagram.h"
-#include "network/ip4/Ip4PortAddress.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4PortAddress;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Udp {
 

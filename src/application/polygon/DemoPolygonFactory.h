@@ -18,8 +18,14 @@
 #ifndef HHUOS_DEMOPOLYGONFACTORY_H
 #define HHUOS_DEMOPOLYGONFACTORY_H
 
-#include "DemoPolygon.h"
 #include "lib/util/math/Random.h"
+
+class DemoPolygon;
+namespace Util {
+namespace Data {
+template <typename T> class Array;
+}  // namespace Data
+}  // namespace Util
 
 class DemoPolygonFactory {
 

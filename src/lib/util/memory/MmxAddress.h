@@ -18,6 +18,8 @@
 #ifndef HHUOS_MMXADDRESS_H
 #define HHUOS_MMXADDRESS_H
 
+#include <cstdint>
+
 #include "Address.h"
 
 namespace Util::Memory {

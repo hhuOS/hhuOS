@@ -18,10 +18,17 @@
 #ifndef HHUOS_TERMINALPROVIDER_H
 #define HHUOS_TERMINALPROVIDER_H
 
+#include <cstdint>
+
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
-#include "lib/util/graphic/Terminal.h"
 #include "lib/util/reflection/Prototype.h"
+
+namespace Util {
+namespace Graphic {
+class Terminal;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Device::Graphic {
 

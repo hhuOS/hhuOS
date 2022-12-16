@@ -15,9 +15,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "lib/util/system/System.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/ArgumentParser.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

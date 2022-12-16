@@ -16,10 +16,35 @@
  */
 
 #include "Ip4Module.h"
+
 #include "Ip4Header.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "Ip4Datagram.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "network/MacAddress.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/Socket.h"
+#include "network/arp/ArpModule.h"
+#include "network/ethernet/EthernetHeader.h"
+#include "network/ethernet/EthernetModule.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Interface.h"
+#include "network/ip4/Ip4Route.h"
+#include "network/ip4/Ip4RoutingModule.h"
+#include "network/ip4/Ip4Socket.h"
+
+namespace Network {
+namespace Ip4 {
+class Ip4NetworkMask;
+}  // namespace Ip4
+}  // namespace Network
 
 namespace Network::Ip4 {
 

@@ -18,6 +18,13 @@
 #include "network/NumberUtil.h"
 #include "ArpHeader.h"
 
+namespace Util {
+namespace Stream {
+class InputStream;
+class OutputStream;
+}  // namespace Stream
+}  // namespace Util
+
 namespace Network::Arp {
 
 void ArpHeader::read(Util::Stream::InputStream &stream) {

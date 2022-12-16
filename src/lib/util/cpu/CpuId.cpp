@@ -15,10 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "cpuid.h"
 #include "asm_interface.h"
 #include "lib/util/data/ArrayList.h"
 #include "CpuId.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Util::Cpu {
 

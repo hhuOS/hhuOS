@@ -19,12 +19,21 @@
 #define HHUOS_SHELL_H
 
 
+#include <cstdint>
+
 #include "lib/util/async/Runnable.h"
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/Reader.h"
-#include "lib/util/file/File.h"
 #include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/graphic/Ansi.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 class Shell : public Util::Async::Runnable {
 

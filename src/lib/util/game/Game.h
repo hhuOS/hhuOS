@@ -18,11 +18,21 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
+#include <cstdint>
+
 #include "lib/util/data/ArrayList.h"
-#include "Graphics2D.h"
-#include "Drawable.h"
-#include "KeyListener.h"
-#include "MouseListener.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+
+namespace Util {
+namespace Game {
+class Drawable;
+class Graphics2D;
+class KeyListener;
+class MouseListener;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

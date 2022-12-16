@@ -16,8 +16,13 @@
  */
 
 #include "ArchiveDriver.h"
+
 #include "ArchiveFileNode.h"
 #include "ArchiveDirectoryNode.h"
+
+namespace Filesystem {
+class Node;
+}  // namespace Filesystem
 
 namespace Filesystem::Tar {
 

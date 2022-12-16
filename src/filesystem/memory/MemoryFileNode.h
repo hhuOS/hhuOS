@@ -18,7 +18,12 @@
 #ifndef HHUOS_MEMORYFILENODE_H
 #define HHUOS_MEMORYFILENODE_H
 
+#include <cstdint>
+
 #include "MemoryNode.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
 
 namespace Filesystem::Memory {
 

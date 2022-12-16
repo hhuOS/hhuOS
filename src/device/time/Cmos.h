@@ -17,9 +17,10 @@
 #ifndef HHUOS_CMOS_H
 #define HHUOS_CMOS_H
 
-#include "device/cpu/IoPort.h"
+#include <cstdint>
 
 namespace Device {
+class IoPort;
 
 /**
  * A simple class to make working with the CMOS more easy.

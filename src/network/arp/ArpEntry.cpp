@@ -17,6 +17,8 @@
 
 #include "ArpEntry.h"
 
+#include "network/NetworkAddress.h"
+
 namespace Network::Arp {
 
 ArpEntry::ArpEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress) :

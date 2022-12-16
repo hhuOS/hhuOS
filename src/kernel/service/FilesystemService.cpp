@@ -15,9 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <stdarg.h>
+
 #include "kernel/system/System.h"
 #include "ProcessService.h"
 #include "FilesystemService.h"
+#include "filesystem/core/Node.h"
+#include "kernel/file/FileDescriptorManager.h"
+#include "kernel/process/Process.h"
+#include "kernel/service/MemoryService.h"
+#include "kernel/system/SystemCall.h"
+#include "lib/util/file/File.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 

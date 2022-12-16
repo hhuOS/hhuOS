@@ -17,6 +17,13 @@
 
 #include "lib/util/graphic/Fonts.h"
 #include "Graphics2D.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+
+namespace Util {
+namespace Graphic {
+class Font;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Game {
 

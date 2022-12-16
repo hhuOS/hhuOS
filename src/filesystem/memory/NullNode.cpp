@@ -17,6 +17,8 @@
 
 #include "NullNode.h"
 
+#include "filesystem/memory/MemoryNode.h"
+
 namespace Filesystem::Memory {
 
 NullNode::NullNode(const Util::Memory::String &name) : MemoryNode(name) {}

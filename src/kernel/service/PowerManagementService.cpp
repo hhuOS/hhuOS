@@ -16,9 +16,14 @@
  */
 
 #include "PowerManagementService.h"
+
+#include <stdarg.h>
+
 #include "kernel/system/SystemCall.h"
 #include "lib/util/system/Machine.h"
 #include "kernel/system/System.h"
+#include "device/power/Machine.h"
+#include "lib/util/system/System.h"
 
 namespace Kernel {
 

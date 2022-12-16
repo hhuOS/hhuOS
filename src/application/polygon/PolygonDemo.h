@@ -18,10 +18,17 @@
 #ifndef HHUOS_POLYGONDEMO_H
 #define HHUOS_POLYGONDEMO_H
 
+#include <cstdint>
+
 #include "lib/util/game/Game.h"
 #include "lib/util/data/ArrayListBlockingQueue.h"
-#include "DemoPolygon.h"
 #include "DemoPolygonFactory.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
+#include "lib/util/game/KeyListener.h"
+
+class DemoPolygon;
 
 class PolygonDemo : public Util::Game::Game, public Util::Game::KeyListener {
 

@@ -16,7 +16,10 @@
  */
 
 #include "PagingAreaManagerRefillRunnable.h"
+
 #include "lib/util/async/Thread.h"
+#include "kernel/memory/PagingAreaManager.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 
@@ -25,7 +28,7 @@ PagingAreaManagerRefillRunnable::PagingAreaManagerRefillRunnable(PagingAreaManag
 void PagingAreaManagerRefillRunnable::run() {
     while (true) {
         pagingAreaManager.refillPool();
-        Util::Async::Thread::sleep({1, 0});
+        Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
     }
 }
 

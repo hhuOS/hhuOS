@@ -17,6 +17,7 @@
 
 #include "lib/util/memory/Address.h"
 #include "BitmapMemoryManager.h"
+#include "lib/util/Exception.h"
 
 namespace Kernel {
 

@@ -15,12 +15,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/operators.h"
-#include "lib/util/reflection/InstanceFactory.h"
-#include "MemoryLayout.h"
-#include "Paging.h"
 #include "VirtualAddressSpace.h"
 #include "lib/util/memory/Constants.h"
+#include "kernel/paging/PageDirectory.h"
+#include "lib/util/memory/FreeListMemoryManager.h"
+
+namespace Util {
+namespace Memory {
+class HeapMemoryManager;
+}  // namespace Memory
+}  // namespace Util
 
 namespace Kernel {
 

@@ -18,9 +18,10 @@
 #ifndef HHUOS_ISABUGGER_H
 #define HHUOS_ISABUGGER_H
 
-#include "device/cpu/IoPort.h"
+#include <cstdint>
 
 namespace Device {
+class IoPort;
 
 class IsaBugger {
 

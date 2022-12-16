@@ -18,10 +18,17 @@
 #ifndef HHUOS_PIT_H
 #define HHUOS_PIT_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
 #include "TimeProvider.h"
-#include "kernel/log/Logger.h"
+#include "lib/util/time/Timestamp.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

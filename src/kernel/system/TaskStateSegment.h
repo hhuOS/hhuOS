@@ -15,6 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#ifndef HHUOS_TASKSTATESEGMENT_H
+#define HHUOS_TASKSTATESEGMENT_H
+
 namespace Kernel {
 
 struct TaskStateSegment {
@@ -48,3 +51,5 @@ struct TaskStateSegment {
 } __attribute__((packed));
 
 }
+
+#endif

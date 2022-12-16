@@ -16,8 +16,12 @@
  */
 
 #include "StorageService.h"
+
 #include "device/storage/PartitionHandler.h"
 #include "device/storage/Partition.h"
+#include "device/storage/StorageDevice.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/Exception.h"
 
 namespace Kernel {
 

@@ -19,6 +19,8 @@
 #include "lib/util/Exception.h"
 #include "SystemCall.h"
 #include "System.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/process/ThreadState.h"
 
 namespace Kernel {
 

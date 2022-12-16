@@ -18,17 +18,18 @@
 #ifndef HHUOS_TERMINAL_H
 #define HHUOS_TERMINAL_H
 
+#include <cstdint>
+
 #include "lib/util/stream/OutputStream.h"
 #include "lib/util/stream/InputStream.h"
 #include "lib/util/memory/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/graphic/Ansi.h"
 #include "lib/util/stream/PipedOutputStream.h"
-#include "lib/util/async/Spinlock.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/async/Runnable.h"
-#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/stream/PipedInputStream.h"
 
 namespace Util::Graphic {
 

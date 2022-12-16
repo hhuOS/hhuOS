@@ -17,6 +17,8 @@
 
 #include "Partition.h"
 
+#include "device/storage/StorageDevice.h"
+
 namespace Device::Storage {
 
 Partition::Partition(StorageDevice &parentDevice, uint32_t startSector, uint32_t sectorCount) : parentDevice(parentDevice), startSector(startSector), sectorCount(sectorCount) {}

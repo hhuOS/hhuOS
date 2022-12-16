@@ -18,7 +18,6 @@
 #ifndef HHUOS_ADDRESSSPACECLEANER_H
 #define HHUOS_ADDRESSSPACECLEANER_H
 
-#include <cstdint>
 #include "lib/util/async/Runnable.h"
 
 namespace Kernel {

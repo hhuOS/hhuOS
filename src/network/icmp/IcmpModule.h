@@ -18,9 +18,32 @@
 #ifndef HHUOS_ICMPMODULE_H
 #define HHUOS_ICMPMODULE_H
 
+#include <cstdint>
+
 #include "network/NetworkModule.h"
-#include "EchoHeader.h"
-#include "network/ip4/Ip4Address.h"
+#include "network/icmp/IcmpHeader.h"
+
+namespace Device {
+namespace Network {
+class NetworkDevice;
+}  // namespace Network
+}  // namespace Device
+namespace Kernel {
+class Logger;
+}  // namespace Kernel
+namespace Network {
+namespace Icmp {
+class EchoHeader;
+}  // namespace Icmp
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
+namespace Util {
+namespace Stream {
+class ByteArrayInputStream;
+}  // namespace Stream
+}  // namespace Util
 
 namespace Network::Icmp {
 

@@ -1,8 +1,13 @@
-#include "kernel/service/FilesystemService.h"
-#include "kernel/system/System.h"
+#include <cstdint>
+
 #include "kernel/system/BlueScreen.h"
 #include "LinearFrameBufferTerminal.h"
 #include "LinearFrameBufferTerminalProvider.h"
+#include "lib/util/Exception.h"
+#include "lib/util/graphic/Font.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/stream/FileInputStream.h"
 
 namespace Device::Graphic {
 

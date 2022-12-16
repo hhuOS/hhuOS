@@ -17,9 +17,13 @@
 #ifndef __Tar_Archive_include__
 #define __Tar_Archive_include__
 
+#include <cstdint>
+
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
 #include "lib/util/data/ArrayList.h"
+#include "lib/util/data/Collection.h"
+#include "lib/util/data/Iterator.h"
 
 namespace Util::File::Tar {
 

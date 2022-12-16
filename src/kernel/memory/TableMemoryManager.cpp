@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/data/Pool.h"
 #include "TableMemoryManager.h"
+#include "kernel/log/Logger.h"
+#include "kernel/memory/BitmapMemoryManager.h"
 
 namespace Kernel {
 

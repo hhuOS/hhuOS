@@ -16,6 +16,7 @@
  */
 
 #include "lib/interface.h"
+
 #include "device/cpu/Cpu.h"
 #include "kernel/process/Process.h"
 #include "kernel/system/System.h"
@@ -24,6 +25,15 @@
 #include "kernel/service/TimeService.h"
 #include "kernel/service/PowerManagementService.h"
 #include "kernel/service/ProcessService.h"
+#include "filesystem/core/Node.h"
+#include "kernel/process/Thread.h"
+#include "kernel/service/SchedulerService.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+}  // namespace Util
 
 extern uint32_t scheduler_initialized;
 

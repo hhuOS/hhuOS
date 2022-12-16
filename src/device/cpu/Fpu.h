@@ -18,8 +18,15 @@
 #ifndef HHUOS_FPU_H
 #define HHUOS_FPU_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/process/Thread.h"
+
+namespace Kernel {
+class Logger;
+class Thread;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device {
 

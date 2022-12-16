@@ -21,6 +21,12 @@
 #include "lib/util/game/Drawable.h"
 #include "lib/util/game/MouseListener.h"
 
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
+
 class MouseCursor : public Util::Game::Drawable, public Util::Game::MouseListener {
 
 public:

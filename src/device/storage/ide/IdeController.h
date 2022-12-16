@@ -18,9 +18,19 @@
 #ifndef HHUOS_IDECONTROLLER_H
 #define HHUOS_IDECONTROLLER_H
 
+#include <cstdint>
+
 #include "kernel/interrupt/InterruptHandler.h"
-#include "kernel/log/Logger.h"
-#include "device/pci/PciDevice.h"
+#include "device/cpu/IoPort.h"
+#include "lib/util/async/Spinlock.h"
+
+namespace Device {
+class PciDevice;
+}  // namespace Device
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Storage {
 

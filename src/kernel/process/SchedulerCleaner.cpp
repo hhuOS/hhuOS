@@ -16,8 +16,12 @@
  */
 
 #include "SchedulerCleaner.h"
-#include "kernel/system/System.h"
+
 #include "lib/util/async/Thread.h"
+#include "kernel/process/Process.h"
+#include "kernel/process/Thread.h"
+#include "lib/util/Exception.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
 
@@ -43,7 +47,7 @@ void SchedulerCleaner::run() {
     while (true) {
         cleanupThreads();
         cleanupProcesses();
-        Util::Async::Thread::sleep({1, 0});
+        Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
     }
 }
 

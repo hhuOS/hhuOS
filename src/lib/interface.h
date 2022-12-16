@@ -19,15 +19,23 @@
 #define HHUOS_INTERFACE_H
 
 #include <cstdint>
+
 #include "lib/util/Exception.h"
-#include "filesystem/core/Node.h"
 #include "lib/util/file/File.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/system/Machine.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/async/Runnable.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace Async {
+class Runnable;
+}  // namespace Async
+}  // namespace Util
 
 void* allocateMemory(uint32_t size, uint32_t alignment = 0);
 void* reallocateMemory(void *pointer, uint32_t size, uint32_t alignment = 0);

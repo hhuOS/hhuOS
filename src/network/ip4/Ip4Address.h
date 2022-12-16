@@ -18,7 +18,10 @@
 #ifndef HHUOS_IP4ADDRESS_H
 #define HHUOS_IP4ADDRESS_H
 
+#include <cstdint>
+
 #include "network/NetworkAddress.h"
+#include "lib/util/memory/String.h"
 
 namespace Network::Ip4 {
 

@@ -15,6 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include <cstdint>
+
 #include "device/bios/Bios.h"
 #include "device/graphic/lfb/vesa/VesaBiosExtensions.h"
 #include "kernel/multiboot/MultibootLinearFrameBufferProvider.h"
@@ -60,7 +62,6 @@
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
 #include "device/network/loopback/Loopback.h"
 #include "kernel/service/NetworkService.h"
-#include "network/arp/ArpModule.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
 #include "kernel/service/ProcessService.h"
@@ -72,6 +73,42 @@
 #include "network/NumberUtil.h"
 #include "network/icmp/IcmpSocket.h"
 #include "network/icmp/IcmpDatagram.h"
+#include "asm_interface.h"
+#include "device/graphic/lfb/LinearFrameBufferProvider.h"
+#include "device/graphic/terminal/TerminalProvider.h"
+#include "device/port/serial/SerialPort.h"
+#include "device/power/default/DefaultMachine.h"
+#include "filesystem/core/Filesystem.h"
+#include "kernel/log/Logger.h"
+#include "kernel/process/Thread.h"
+#include "lib/util/Exception.h"
+#include "lib/util/data/Array.h"
+#include "lib/util/memory/String.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/system/System.h"
+#include "lib/util/time/Timestamp.h"
+#include "network/Datagram.h"
+#include "network/MacAddress.h"
+#include "network/NetworkAddress.h"
+#include "network/NetworkStack.h"
+#include "network/ethernet/EthernetHeader.h"
+#include "network/ethernet/EthernetSocket.h"
+#include "network/icmp/EchoHeader.h"
+#include "network/icmp/IcmpHeader.h"
+#include "network/ip4/Ip4Address.h"
+#include "network/ip4/Ip4Header.h"
+#include "network/ip4/Ip4Module.h"
+#include "network/ip4/Ip4NetworkMask.h"
+#include "network/ip4/Ip4PortAddress.h"
+#include "network/ip4/Ip4Route.h"
+#include "network/ip4/Ip4Socket.h"
+#include "network/udp/UdpDatagram.h"
+#include "network/udp/UdpSocket.h"
+
+namespace Device {
+class Machine;
+}  // namespace Device
 
 Kernel::Logger GatesOfHell::log = Kernel::Logger::get("GatesOfHell");
 
@@ -165,9 +202,9 @@ void GatesOfHell::enter() {
         for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
             auto *receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getData());
             delete receivedDatagram;
-            Util::Async::Thread::sleep({1, 0});
+            Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
         }
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(ethernetThread);*/
@@ -186,9 +223,9 @@ void GatesOfHell::enter() {
         for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
             auto *receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getData());
             delete receivedDatagram;
-            Util::Async::Thread::sleep({1, 0});
+            Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
         }
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(ip4Thread);*/
@@ -207,9 +244,9 @@ void GatesOfHell::enter() {
         for (uint32_t i = 0; i < 10; i++) {
             sender.send(datagram);
             auto *receivedDatagram = receiver.receive();
-            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getBuffer());
+            log.info("Received datagram from [%s]: '%s'", static_cast<const char*>(receivedDatagram->getRemoteAddress().toString()), receivedDatagram->getData());
             delete receivedDatagram;
-            Util::Async::Thread::sleep({1, 0});
+            Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
         }
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(udpThread);*/
@@ -253,7 +290,7 @@ void GatesOfHell::enter() {
                 delete receivedDatagram;
             } while (!validReply);
 
-            Util::Async::Thread::sleep({1, 0});
+            Util::Async::Thread::sleep(Util::Time::Timestamp(1, 0));
         }
     }));
     Kernel::System::getService<Kernel::SchedulerService>().ready(pingThread);*/

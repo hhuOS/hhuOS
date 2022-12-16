@@ -15,8 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "device/cpu/Cpu.h"
 #include "Cmos.h"
+#include "device/cpu/IoPort.h"
+#include "lib/util/Exception.h"
+#include "lib/util/async/Atomic.h"
 
 namespace Device {
 

@@ -18,8 +18,16 @@
 #ifndef HHUOS_FILEWRITER_H
 #define HHUOS_FILEWRITER_H
 
-#include "lib/util/file/File.h"
+#include <cstdint>
+
 #include "Writer.h"
+#include "lib/util/memory/String.h"
+
+namespace Util {
+namespace File {
+class File;
+}  // namespace File
+}  // namespace Util
 
 namespace Util::Stream {
 

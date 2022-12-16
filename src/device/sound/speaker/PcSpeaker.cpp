@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/time/Timestamp.h"
 #include "device/time/Pit.h"
 #include "PcSpeaker.h"
+#include "device/cpu/IoPort.h"
 
 namespace Device::Sound {
 
