@@ -124,7 +124,7 @@ int32_t main(int32_t argc, char *argv[]) {
     Ant ant(lfb.getResolutionX(), lfb.getResolutionY());
     lfb.clear();
 
-    Util::Async::Thread::createThread("Exit-Listener", new Util::Async::FunctionPointerRunnable([]{
+    Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
         Util::System::in.read();
         isRunning = false;
     }));

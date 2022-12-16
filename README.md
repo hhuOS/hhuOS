@@ -22,7 +22,7 @@ GCC 7 and CMake 3.14 or newer versions of GCC and CMake are required to compile 
 Before the kernel can be compiled, some packages must be installed. To install them, you can run the following command (on Ubuntu 20.04):
 
 ```sh
-sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin dosfstools mtools xorriso zstd
+sudo apt install cmake make nasm gcc-multilib g++-multilib grub-pc-bin grub-efi-ia32-bin dosfstools mtools xorriso zstd unzip wget
 ```
 
 ## Usage

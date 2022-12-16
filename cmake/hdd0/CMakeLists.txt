@@ -54,7 +54,8 @@ add_custom_command(OUTPUT "${HHUOS_ROOT_DIR}/hdd0.img"
         COMMAND /bin/cp "$<TARGET_FILE:unmount>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/unmount"
         COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/hdd0/img/bin/uptime"
         COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/hdd0/img/user"
+        COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/hdd0/img/user"
         WORKING_DIRECTORY ${HHUOS_ROOT_DIR}/hdd0 COMMAND ${HHUOS_ROOT_DIR}/hdd0/build.sh
-        DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime music)
+        DEPENDS asciimation music shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
 
-add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps  pwd rm rmdir shutdown touch tree unmount uptime music "${HHUOS_ROOT_DIR}/hdd0.img")
+add_custom_target(${PROJECT_NAME} DEPENDS asciimation music shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps  pwd rm rmdir shutdown touch tree unmount uptime "${HHUOS_ROOT_DIR}/hdd0.img")

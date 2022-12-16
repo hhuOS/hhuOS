@@ -33,6 +33,7 @@ else()
             COMMAND /bin/mkdir -p "${HHUOS_ROOT_DIR}/initrd/bin"
             COMMAND /bin/cp "$<TARGET_FILE:shell>" "${HHUOS_ROOT_DIR}/initrd/bin/shell"
             COMMAND /bin/cp "$<TARGET_FILE:ant>" "${HHUOS_ROOT_DIR}/initrd/bin/ant"
+            COMMAND /bin/cp "$<TARGET_FILE:asciimate>" "${HHUOS_ROOT_DIR}/initrd/bin/asciimate"
             COMMAND /bin/cp "$<TARGET_FILE:beep>" "${HHUOS_ROOT_DIR}/initrd/bin/beep"
             COMMAND /bin/cp "$<TARGET_FILE:cat>" "${HHUOS_ROOT_DIR}/initrd/bin/cat"
             COMMAND /bin/cp "$<TARGET_FILE:color>" "${HHUOS_ROOT_DIR}/initrd/bin/color"
@@ -62,9 +63,10 @@ else()
             COMMAND /bin/cp "$<TARGET_FILE:unmount>" "${HHUOS_ROOT_DIR}/initrd/bin/unmount"
             COMMAND /bin/cp "$<TARGET_FILE:uptime>" "${HHUOS_ROOT_DIR}/initrd/bin/uptime"
             COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/beep" "${HHUOS_ROOT_DIR}/initrd"
+            COMMAND /bin/cp -r "${CMAKE_BINARY_DIR}/asciimation" "${HHUOS_ROOT_DIR}/initrd"
             COMMAND /bin/tar -C "${HHUOS_ROOT_DIR}/initrd/" --xform s:'./':: -cf "${CMAKE_BINARY_DIR}/hhuOS.initrd" ./
             COMMAND /bin/rm -f "${HHUOS_ROOT_DIR}/hhuOS.img" "${HHUOS_ROOT_DIR}/hhuOS.iso"
-            DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
+            DEPENDS asciimation music shell ant asciimate beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime)
 
-    add_custom_target(${PROJECT_NAME} DEPENDS shell ant beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime music "${CMAKE_BINARY_DIR}/hhuOS.initrd")
+    add_custom_target(${PROJECT_NAME} DEPENDS music asciimation shell ant asciimate beep cat color cp cube date echo fault head hello hexdump kill ls lvgl_demo membench mkdir mount mouse polygon ps pwd rm rmdir shutdown touch tree unmount uptime "${CMAKE_BINARY_DIR}/hhuOS.initrd")
 endif()

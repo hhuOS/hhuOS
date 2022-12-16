@@ -25,9 +25,9 @@ namespace Util::Graphic {
 
 PixelDrawer::PixelDrawer(const LinearFrameBuffer &lfb): lfb(lfb) {}
 
-void PixelDrawer::drawPixel(int32_t x, int32_t y, const Color &color) const {
+void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) const {
     // Pixels outside the visible area won't be drawn
-    if(x < 0 || y < 0 || x > lfb.getResolutionX() - 1 || y > lfb.getResolutionY() - 1) {
+    if(x > lfb.getResolutionX() - 1 || y > lfb.getResolutionY() - 1) {
         return;
     }
 
