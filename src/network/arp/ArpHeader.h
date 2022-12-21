@@ -20,8 +20,8 @@
 
 #include <cstdint>
 
-#include "network/MacAddress.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/MacAddress.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Stream {
@@ -88,10 +88,10 @@ public:
 private:
 
     HardwareAddressType hardwareAddressType = ETHERNET;
-    uint8_t hardwareAddressSize = MacAddress::ADDRESS_LENGTH;
+    uint8_t hardwareAddressSize = Util::Network::MacAddress::ADDRESS_LENGTH;
 
     ProtocolAddressType protocolAddressType = IP4;
-    uint8_t protocolAddressSize = Ip4::Ip4Address::ADDRESS_LENGTH;
+    uint8_t protocolAddressSize = Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH;
 
     Operation operation;
 };

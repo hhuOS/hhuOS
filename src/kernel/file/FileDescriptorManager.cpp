@@ -22,13 +22,7 @@ FileDescriptorManager::~FileDescriptorManager() {
     delete[] descriptorTable;
 }
 
-int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
-    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
-    auto *node = filesystem.getNode(path);
-    if (node == nullptr) {
-        return -1;
-    }
-
+int32_t FileDescriptorManager::registerFile(Filesystem::Node *node) {
     for (int32_t fileDescriptor = 0; fileDescriptor < size; fileDescriptor++) {
         if (descriptorTable[fileDescriptor] == nullptr) {
             descriptorTable[fileDescriptor] = node;
@@ -37,6 +31,16 @@ int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
     }
 
     return -1;
+}
+
+int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
+    auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
+    auto *node = filesystem.getNode(path);
+    if (node == nullptr) {
+        return -1;
+    }
+
+    return registerFile(node);
 }
 
 void FileDescriptorManager::closeFile(int32_t fileDescriptor) {

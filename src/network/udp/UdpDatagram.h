@@ -22,11 +22,13 @@
 
 #include "network/Datagram.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4PortAddress;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Udp {
 
@@ -36,7 +38,7 @@ public:
     /**
      * Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress);
+    UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);
 
     /**
      * Copy Constructor.
@@ -51,7 +53,7 @@ public:
     /**
      * Destructor.
      */
-    ~UdpDatagram() = default;
+    ~UdpDatagram() override = default;
 
     [[nodiscard]] uint16_t getRemotePort() const;
 };

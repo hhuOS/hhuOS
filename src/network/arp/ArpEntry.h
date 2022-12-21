@@ -18,8 +18,8 @@
 #ifndef HHUOS_ARPENTRY_H
 #define HHUOS_ARPENTRY_H
 
-#include "network/ip4/Ip4Address.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Network::Arp {
 
@@ -34,7 +34,7 @@ public:
     /**
      * Constructor.
      */
-    ArpEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);
+    ArpEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress);
 
     /**
      * Copy Constructor.
@@ -51,13 +51,13 @@ public:
      */
     ~ArpEntry() = default;
 
-    [[nodiscard]] const Ip4::Ip4Address& getProtocolAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getProtocolAddress() const;
 
-    [[nodiscard]] const MacAddress& getHardwareAddress() const;
+    [[nodiscard]] const Util::Network::MacAddress& getHardwareAddress() const;
 
-    void setProtocolAddress(const Ip4::Ip4Address &protocolAddress);
+    void setProtocolAddress(const Util::Network::Ip4::Ip4Address &protocolAddress);
 
-    void setHardwareAddress(const MacAddress &hardwareAddress);
+    void setHardwareAddress(const Util::Network::MacAddress &hardwareAddress);
 
     bool operator!=(const ArpEntry &other) const;
 
@@ -65,8 +65,8 @@ public:
 
 private:
 
-    Ip4::Ip4Address protocolAddress{};
-    MacAddress hardwareAddress{};
+    Util::Network::Ip4::Ip4Address protocolAddress{};
+    Util::Network::MacAddress hardwareAddress{};
 };
 
 }

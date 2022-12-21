@@ -15,12 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 #include "lib/util/Exception.h"
 #include "lib/util/data/Array.h"
 
-namespace Network::Ip4 {
+namespace Util::Network::Ip4 {
 
 Ip4Address::Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 

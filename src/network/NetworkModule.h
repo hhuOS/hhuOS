@@ -33,13 +33,16 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 namespace Util {
+namespace Network {
+class NetworkAddress;
+}  // namespace Network
+
 namespace Stream {
 class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
 
 namespace Network {
-class NetworkAddress;
 class Socket;
 
 class NetworkModule {
@@ -47,8 +50,8 @@ class NetworkModule {
 public:
 
     struct LayerInformation {
-        const NetworkAddress &sourceAddress;
-        const NetworkAddress &destinationAddress;
+        const Util::Network::NetworkAddress &sourceAddress;
+        const Util::Network::NetworkAddress &destinationAddress;
         const uint32_t payloadLength;
     };
 

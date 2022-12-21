@@ -27,8 +27,8 @@
 #include "lib/util/data/Iterator.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/MacAddress.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/MacAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/Socket.h"
 #include "network/ethernet/EthernetSocket.h"
 
@@ -79,7 +79,7 @@ uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t 
     return 0;
 }
 
-void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress, EthernetHeader::EtherType etherType) {
+void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, EthernetHeader::EtherType etherType) {
     auto header = EthernetHeader();
     header.setSourceAddress(device.getMacAddress());
     header.setDestinationAddress(destinationAddress);

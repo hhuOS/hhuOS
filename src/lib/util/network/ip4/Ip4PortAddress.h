@@ -15,52 +15,54 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4DATAGRAM_H
-#define HHUOS_IP4DATAGRAM_H
+#ifndef HHUOS_IP4PORTADDRESS_H
+#define HHUOS_IP4PORTADDRESS_H
 
 #include <cstdint>
 
-#include "network/Datagram.h"
-#include "Ip4Header.h"
+#include "lib/util/network/NetworkAddress.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/memory/String.h"
 
-namespace Util {
-namespace Network {
-namespace Ip4 {
-class Ip4Address;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
+namespace Util::Network::Ip4 {
 
-namespace Network::Ip4 {
-
-class Ip4Datagram : public Datagram {
+class Ip4PortAddress : public NetworkAddress {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
+    Ip4PortAddress(const Ip4Address &address, uint16_t port);
 
     /**
      * Copy Constructor.
      */
-    Ip4Datagram(const Ip4Datagram &other) = delete;
+    Ip4PortAddress(const Ip4PortAddress &other) = default;
 
     /**
      * Assignment operator.
      */
-    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
+    Ip4PortAddress &operator=(const Ip4PortAddress &other) = default;
 
     /**
      * Destructor.
      */
-    ~Ip4Datagram() = default;
+    ~Ip4PortAddress() override = default;
 
-    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
+    [[nodiscard]] Ip4Address getIp4Address() const;
+
+    [[nodiscard]] uint16_t getPort() const;
+
+    [[nodiscard]] NetworkAddress* createCopy() const override;
+
+    void setAddress(const Util::Memory::String &string) override;
+
+    [[nodiscard]] Util::Memory::String toString() const override;
 
 private:
 
-    Ip4Header::Protocol protocol;
+    Util::Memory::Address<uint32_t> bufferAddress;
 };
 
 }

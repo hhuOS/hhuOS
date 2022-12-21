@@ -31,10 +31,11 @@ class NetworkDevice;
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
+namespace Util {
 namespace Network {
 class MacAddress;
 }  // namespace Network
-namespace Util {
+
 namespace Stream {
 class ByteArrayInputStream;
 class ByteArrayOutputStream;
@@ -71,7 +72,7 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress, EthernetHeader::EtherType etherType);
+    static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, EthernetHeader::EtherType etherType);
 
     static void finalizePacket(Util::Stream::ByteArrayOutputStream &packet);
 

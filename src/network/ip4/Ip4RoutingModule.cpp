@@ -19,7 +19,7 @@
 
 #include <cstdint>
 
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4NetworkMask.h"
 #include "network/ip4/Ip4Route.h"
 
@@ -39,7 +39,7 @@ void Ip4RoutingModule::removeRoute(const Ip4Route &route) {
     routes.remove(route);
 }
 
-const Ip4Route& Ip4RoutingModule::findRouteTo(const Ip4Address &address) const {
+const Ip4Route& Ip4RoutingModule::findRouteTo(const Util::Network::Ip4::Ip4Address &address) const {
     uint8_t longestPrefix = 0;
     const Ip4Route *ret = nullptr;
 

@@ -28,6 +28,7 @@
 #include "filesystem/core/Node.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
+#include "kernel/service/NetworkService.h"
 
 namespace Util {
 namespace Async {
@@ -134,6 +135,10 @@ bool changeDirectory(const Util::Memory::String &path) {
 
 Util::File::File getCurrentWorkingDirectory() {
     return Kernel::System::getService<Kernel::ProcessService>().getCurrentProcess().getWorkingDirectory();
+}
+
+int32_t createSocket(Util::Network::Socket::Type socketType) {
+    return Kernel::System::getService<Kernel::NetworkService>().createSocket(socketType);
 }
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {

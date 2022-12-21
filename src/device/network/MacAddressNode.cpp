@@ -17,7 +17,7 @@
 
 #include "MacAddressNode.h"
 #include "device/network/NetworkDevice.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Device::Network {
 

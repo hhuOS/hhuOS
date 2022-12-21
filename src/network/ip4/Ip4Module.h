@@ -39,12 +39,17 @@ class Logger;
 }  // namespace Kernel
 namespace Network {
 namespace Ip4 {
-class Ip4Address;
 class Ip4Interface;
 class Ip4NetworkMask;
 }  // namespace Ip4
 }  // namespace Network
 namespace Util {
+namespace Network {
+namespace Ip4 {
+class Ip4Address;
+}  // namespace Ip4
+}  // namespace Network
+
 namespace Stream {
 class ByteArrayInputStream;
 class ByteArrayOutputStream;
@@ -80,11 +85,11 @@ public:
 
     Ip4RoutingModule& getRoutingModule();
 
-    void registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+    void registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static const Ip4Interface& writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength);
+    static const Ip4Interface& writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength);
 
     static uint16_t calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length);
 

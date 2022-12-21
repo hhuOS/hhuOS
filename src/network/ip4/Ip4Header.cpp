@@ -19,7 +19,7 @@
 
 #include "network/NumberUtil.h"
 #include "lib/util/stream/InputStream.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Stream {
@@ -101,11 +101,11 @@ Ip4Header::Protocol Ip4Header::getProtocol() const {
     return protocol;
 }
 
-const Ip4Address& Ip4Header::getSourceAddress() const {
+const Util::Network::Ip4::Ip4Address& Ip4Header::getSourceAddress() const {
     return sourceAddress;
 }
 
-const Ip4Address& Ip4Header::getDestinationAddress() const {
+const Util::Network::Ip4::Ip4Address& Ip4Header::getDestinationAddress() const {
     return destinationAddress;
 }
 
@@ -121,11 +121,11 @@ void Ip4Header::setProtocol(Ip4Header::Protocol aProtocol) {
     protocol = aProtocol;
 }
 
-void Ip4Header::setSourceAddress(const Ip4Address &sourceAddress) {
+void Ip4Header::setSourceAddress(const Util::Network::Ip4::Ip4Address &sourceAddress) {
     Ip4Header::sourceAddress = sourceAddress;
 }
 
-void Ip4Header::setDestinationAddress(const Ip4Address &destinationAddress) {
+void Ip4Header::setDestinationAddress(const Util::Network::Ip4::Ip4Address &destinationAddress) {
     Ip4Header::destinationAddress = destinationAddress;
 }
 

@@ -18,7 +18,7 @@
 #ifndef HHUOS_IP4ROUTE_H
 #define HHUOS_IP4ROUTE_H
 
-#include "Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "Ip4NetworkMask.h"
 #include "lib/util/memory/String.h"
 
@@ -41,12 +41,12 @@ public:
     /**
      * Constructor.
      */
-    Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Ip4Address &nextHop, const Util::Memory::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::Memory::String &device);
 
     /**
      * Constructor.
      */
-    Ip4Route(const Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Util::Memory::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Ip4NetworkMask &networkMask, const Util::Memory::String &device);
 
     /**
      * Copy Constructor.
@@ -67,7 +67,7 @@ public:
 
     bool operator!=(const Ip4Route &other) const;
 
-    [[nodiscard]] const Ip4Address& getAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getAddress() const;
 
     [[nodiscard]] const Ip4NetworkMask& getNetworkMask() const;
 
@@ -75,13 +75,13 @@ public:
 
     [[nodiscard]] bool hasNextHop() const;
 
-    [[nodiscard]] const Ip4Address& getNextHop() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getNextHop() const;
 
 private:
 
-    Ip4Address address{};
+    Util::Network::Ip4::Ip4Address address{};
     Ip4NetworkMask networkMask{};
-    Ip4Address nextHop{};
+    Util::Network::Ip4::Ip4Address nextHop{};
     Ip4Interface *interface{};
 
     bool nextHopValid{};

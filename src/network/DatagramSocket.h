@@ -18,12 +18,16 @@
 #ifndef HHUOS_DATAGRAMSOCKET_H
 #define HHUOS_DATAGRAMSOCKET_H
 
+#include <cstdint>
+
 #include "Socket.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/data/ArrayListBlockingQueue.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/data/Collection.h"
 #include "lib/util/data/Iterator.h"
+#include "lib/util/file/Type.h"
+#include "lib/util/memory/String.h"
 
 namespace Network {
 class Datagram;
@@ -75,6 +79,36 @@ public:
     virtual void send(const Datagram &datagram) = 0;
 
     Datagram* receive();
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Memory::String getName() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::File::Type getFileType() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t getLength() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    Util::Data::Array<Util::Memory::String> getChildren() override;
+
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) override;
+
+    /**
+     * Overriding function from Node.
+     */
+    uint64_t writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) override;
 
 private:
 

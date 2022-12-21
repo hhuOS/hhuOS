@@ -40,11 +40,11 @@ void EthernetHeader::write(Util::Stream::OutputStream &stream) {
     NumberUtil::writeUnsigned16BitValue(etherType, stream);
 }
 
-const MacAddress& EthernetHeader::getDestinationAddress() const {
+const Util::Network::MacAddress& EthernetHeader::getDestinationAddress() const {
     return destinationAddress;
 }
 
-const MacAddress& EthernetHeader::getSourceAddress() const {
+const Util::Network::MacAddress& EthernetHeader::getSourceAddress() const {
     return sourceAddress;
 }
 
@@ -52,11 +52,11 @@ EthernetHeader::EtherType EthernetHeader::getEtherType() const {
     return etherType;
 }
 
-void EthernetHeader::setDestinationAddress(const MacAddress &address) {
+void EthernetHeader::setDestinationAddress(const Util::Network::MacAddress &address) {
     EthernetHeader::destinationAddress = address;
 }
 
-void EthernetHeader::setSourceAddress(const MacAddress &address) {
+void EthernetHeader::setSourceAddress(const Util::Network::MacAddress &address) {
     EthernetHeader::sourceAddress = address;
 }
 

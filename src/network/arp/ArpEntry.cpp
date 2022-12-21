@@ -17,18 +17,18 @@
 
 #include "ArpEntry.h"
 
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 
 namespace Network::Arp {
 
-ArpEntry::ArpEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress) :
+ArpEntry::ArpEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress) :
         protocolAddress(protocolAddress), hardwareAddress(hardwareAddress) {}
 
-const MacAddress& ArpEntry::getHardwareAddress() const {
+const Util::Network::MacAddress& ArpEntry::getHardwareAddress() const {
     return hardwareAddress;
 }
 
-const Ip4::Ip4Address& ArpEntry::getProtocolAddress() const {
+const Util::Network::Ip4::Ip4Address& ArpEntry::getProtocolAddress() const {
     return protocolAddress;
 }
 
@@ -40,11 +40,11 @@ bool ArpEntry::operator==(const ArpEntry &other) const {
     return hardwareAddress == other.hardwareAddress && protocolAddress == other.protocolAddress;
 }
 
-void ArpEntry::setHardwareAddress(const MacAddress &hardwareAddress) {
+void ArpEntry::setHardwareAddress(const Util::Network::MacAddress &hardwareAddress) {
     ArpEntry::hardwareAddress = hardwareAddress;
 }
 
-void ArpEntry::setProtocolAddress(const Ip4::Ip4Address &protocolAddress) {
+void ArpEntry::setProtocolAddress(const Util::Network::Ip4::Ip4Address &protocolAddress) {
     ArpEntry::protocolAddress = protocolAddress;
 }
 

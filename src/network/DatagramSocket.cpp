@@ -18,6 +18,7 @@
 #include "DatagramSocket.h"
 
 #include "lib/util/async/Thread.h"
+#include "lib/util/network/NetworkAddress.h"
 
 namespace Network {
 class Datagram;
@@ -39,4 +40,28 @@ void Network::DatagramSocket::handleIncomingDatagram(Network::Datagram *datagram
     lock.acquire();
     incomingDatagramQueue.offer(datagram);
     lock.release();
+}
+
+Util::Memory::String Network::DatagramSocket::getName() {
+    return bindAddress->toString();
+}
+
+Util::File::Type Network::DatagramSocket::getFileType() {
+    return Util::File::CHARACTER;
+}
+
+uint64_t Network::DatagramSocket::getLength() {
+    return 0;
+}
+
+Util::Data::Array<Util::Memory::String> Network::DatagramSocket::getChildren() {
+    return Util::Data::Array<Util::Memory::String>(0);
+}
+
+uint64_t Network::DatagramSocket::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
+}
+
+uint64_t Network::DatagramSocket::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+    return 0;
 }

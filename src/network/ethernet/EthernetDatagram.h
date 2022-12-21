@@ -23,9 +23,11 @@
 #include "EthernetHeader.h"
 #include "network/Datagram.h"
 
+namespace Util {
 namespace Network {
 class MacAddress;
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Ethernet {
 
@@ -35,7 +37,7 @@ public:
     /**
      * Default Constructor.
      */
-    EthernetDatagram(const uint8_t *buffer, uint16_t length, const MacAddress &remoteAddress, EthernetHeader::EtherType type);
+    EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, EthernetHeader::EtherType type);
 
     /**
      * Copy Constructor.

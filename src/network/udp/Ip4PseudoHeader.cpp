@@ -28,14 +28,14 @@ class OutputStream;
 
 namespace Network::Udp {
 
-Ip4PseudoHeader::Ip4PseudoHeader(const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &destinationAddress, uint16_t datagramLength) :
+Ip4PseudoHeader::Ip4PseudoHeader(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, uint16_t datagramLength) :
         sourceAddress(sourceAddress),
         destinationAddress(destinationAddress),
         datagramLength(datagramLength) {}
 
 Ip4PseudoHeader::Ip4PseudoHeader(const NetworkModule::LayerInformation &information) :
-        sourceAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress)),
-        destinationAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.destinationAddress)),
+        sourceAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress)),
+        destinationAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.destinationAddress)),
         datagramLength(information.payloadLength) {}
 
 void Ip4PseudoHeader::write(Util::Stream::OutputStream &stream) const {
@@ -45,11 +45,11 @@ void Ip4PseudoHeader::write(Util::Stream::OutputStream &stream) const {
     NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
 }
 
-const Ip4::Ip4Address& Ip4PseudoHeader::getSourceAddress() const {
+const Util::Network::Ip4::Ip4Address& Ip4PseudoHeader::getSourceAddress() const {
     return sourceAddress;
 }
 
-const Ip4::Ip4Address& Ip4PseudoHeader::getDestinationAddress() const {
+const Util::Network::Ip4::Ip4Address& Ip4PseudoHeader::getDestinationAddress() const {
     return destinationAddress;
 }
 

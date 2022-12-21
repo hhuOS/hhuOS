@@ -18,13 +18,13 @@
 #include "MacAddress.h"
 
 #include "lib/util/Exception.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 
-namespace Network {
+namespace Util::Network {
 
 MacAddress::MacAddress() : NetworkAddress(ADDRESS_LENGTH, MAC) {}
 
-MacAddress::MacAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, MAC) {}
+MacAddress::MacAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, MAC) {}
 
 MacAddress MacAddress::createBroadcastAddress() {
     uint8_t buffer[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};

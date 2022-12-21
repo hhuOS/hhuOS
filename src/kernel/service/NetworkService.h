@@ -27,6 +27,13 @@
 #include "lib/util/data/Collection.h"
 #include "lib/util/data/Iterator.h"
 #include "lib/util/memory/String.h"
+#include "lib/util/network/Socket.h"
+
+namespace Util {
+namespace Network {
+class MacAddress;
+}  // namespace Network
+}  // namespace Util
 
 namespace Device {
 namespace Network {
@@ -34,7 +41,6 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 namespace Network {
-class MacAddress;
 namespace Ip4 {
 class Ip4Route;
 }  // namespace Ip4
@@ -48,7 +54,7 @@ public:
     /**
      * Default Constructor.
      */
-    NetworkService() = default;
+    NetworkService();
 
     /**
      * Copy Constructor.
@@ -73,9 +79,11 @@ public:
 
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
 
-    Device::Network::NetworkDevice& getNetworkDevice(const ::Network::MacAddress &address);
+    Device::Network::NetworkDevice& getNetworkDevice(const Util::Network::MacAddress &address);
 
     ::Network::NetworkStack& getNetworkStack();
+
+    int32_t createSocket(Util::Network::Socket::Type socketType);
 
     static const constexpr uint8_t SERVICE_ID = 8;
 

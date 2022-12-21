@@ -22,7 +22,7 @@
 
 #include "kernel/memory/BitmapMemoryManager.h"
 #include "lib/util/data/ArrayBlockingQueue.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/data/Array.h"
@@ -78,7 +78,7 @@ public:
 
     [[nodiscard]] Util::Memory::String getIdentifier() const;
 
-    [[nodiscard]] virtual ::Network::MacAddress getMacAddress() const = 0;
+    [[nodiscard]] virtual Util::Network::MacAddress getMacAddress() const = 0;
 
     void sendPacket(const uint8_t *packet, uint32_t length);
 

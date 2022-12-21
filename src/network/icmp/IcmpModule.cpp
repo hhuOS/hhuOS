@@ -16,6 +16,7 @@
  */
 
 #include "IcmpModule.h"
+
 #include "IcmpHeader.h"
 #include "EchoHeader.h"
 #include "IcmpDatagram.h"
@@ -28,18 +29,20 @@
 #include "lib/util/data/Iterator.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/Socket.h"
 #include "network/ethernet/EthernetModule.h"
 #include "network/ip4/Ip4Header.h"
 #include "network/ip4/Ip4Interface.h"
 #include "network/ip4/Ip4Module.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Icmp {
 
@@ -62,7 +65,7 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
         case IcmpHeader::ECHO_REQUEST: {
             auto requestHeader = EchoHeader();
             requestHeader.read(stream);
-            sendEchoReply(reinterpret_cast<const Ip4::Ip4Address &>(information.sourceAddress), requestHeader, stream.getData() + stream.getPosition(), stream.getRemaining(), device);
+            sendEchoReply(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), requestHeader, stream.getData() + stream.getPosition(), stream.getRemaining(), device);
             break;
         }
         default: {
@@ -75,7 +78,7 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
                     continue;
                 }
 
-                auto *datagram = new IcmpDatagram(datagramBuffer, payloadLength, reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getType(), header.getCode());
+                auto *datagram = new IcmpDatagram(datagramBuffer, payloadLength, reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), header.getType(), header.getCode());
                 reinterpret_cast<IcmpSocket*>(socket)->handleIncomingDatagram(datagram);
             }
             socketLock.release();
@@ -83,7 +86,7 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
     }
 }
 
-void IcmpModule::writePacket(IcmpHeader::Type type, uint8_t code, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
+void IcmpModule::writePacket(IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Stream::ByteArrayOutputStream();
     auto datagramLength = length + IcmpHeader::HEADER_LENGTH;
 
@@ -113,7 +116,7 @@ void IcmpModule::writePacket(IcmpHeader::Type type, uint8_t code, const Ip4::Ip4
     sourceInterface.getDevice().sendPacket(packet.getBuffer(), packet.getLength());
 }
 
-void IcmpModule::sendEchoReply(const Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device) {
+void IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device) {
     auto packet = Util::Stream::ByteArrayOutputStream();
     auto replyHeader = EchoHeader();
     replyHeader.setIdentifier(requestHeader.getIdentifier());

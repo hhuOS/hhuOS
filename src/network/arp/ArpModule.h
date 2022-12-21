@@ -28,7 +28,7 @@
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/Collection.h"
 #include "lib/util/data/Iterator.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Device {
 namespace Network {
@@ -38,12 +38,13 @@ class NetworkDevice;
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
-namespace Util {
+
 namespace Stream {
 class ByteArrayInputStream;
 class OutputStream;
@@ -77,21 +78,21 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    bool resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
+    bool resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
-    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress);
+    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress);
 
-    void setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress);
+    void setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress);
 
 private:
 
-    MacAddress getHardwareAddress(const Ip4::Ip4Address &protocolAddress);
+    Util::Network::MacAddress getHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress);
 
-    bool hasHardwareAddress(const Ip4::Ip4Address &protocolAddress);
+    bool hasHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress);
 
-    void handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device);
+    void handleRequest(const Util::Network::MacAddress &sourceHardwareAddress, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device);
 
-    void handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress, const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress);
+    void handleReply(const Util::Network::MacAddress &sourceHardwareAddress, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::MacAddress &targetHardwareAddress, const Util::Network::Ip4::Ip4Address &targetProtocolAddress);
 
     Util::Async::ReentrantSpinlock lock;
     Util::Data::ArrayList<ArpEntry> arpCache;

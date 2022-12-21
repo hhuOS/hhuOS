@@ -28,19 +28,21 @@
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/Iterator.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/Socket.h"
 #include "network/ip4/Ip4Header.h"
 #include "network/ip4/Ip4Interface.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "network/udp/UdpDatagram.h"
 #include "network/udp/UdpSocket.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Udp {
 
@@ -72,7 +74,7 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
         return;
     }
 
-    auto destinationAddress = Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
+    auto destinationAddress = Util::Network::Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
     auto payloadLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
     auto *datagramBuffer = stream.getData() + stream.getPosition();
 
@@ -82,13 +84,13 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
             continue;
         }
 
-        auto *datagram = new UdpDatagram(datagramBuffer, payloadLength, Ip4::Ip4PortAddress(reinterpret_cast<const Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
+        auto *datagram = new UdpDatagram(datagramBuffer, payloadLength, Util::Network::Ip4::Ip4PortAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
         reinterpret_cast<UdpSocket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
 }
 
-void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
+void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Stream::ByteArrayOutputStream();
     auto datagramLength = length + UdpHeader::HEADER_SIZE;
 

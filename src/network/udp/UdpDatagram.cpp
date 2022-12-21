@@ -17,14 +17,14 @@
 
 #include "UdpDatagram.h"
 
-#include "network/ip4/Ip4PortAddress.h"
+#include "lib/util/network/ip4/Ip4PortAddress.h"
 
 namespace Network::Udp {
 
-UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}
+UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}
 
 uint16_t UdpDatagram::getRemotePort() const {
-    return reinterpret_cast<const Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
+    return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
 }
 
 }
