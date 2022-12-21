@@ -23,11 +23,13 @@
 #include "network/Datagram.h"
 #include "IcmpHeader.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Icmp {
 
@@ -37,7 +39,7 @@ public:
     /**
      * Default Constructor.
      */
-    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
+    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
 
     /**
      * Copy Constructor.

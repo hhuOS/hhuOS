@@ -24,11 +24,13 @@
 #include "lib/util/data/Collection.h"
 #include "lib/util/data/Iterator.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Ip4 {
 
@@ -61,7 +63,7 @@ public:
 
     void removeRoute(const Ip4Route &route);
 
-    [[nodiscard]] const Ip4Route& findRouteTo(const Ip4Address &address) const;
+    [[nodiscard]] const Ip4Route& findRouteTo(const Util::Network::Ip4::Ip4Address &address) const;
 
 private:
 

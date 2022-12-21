@@ -32,11 +32,14 @@ class Logger;
 }  // namespace Kernel
 namespace Network {
 class Socket;
+}  // namespace Network
+namespace Util {
+namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
-namespace Util {
+
 namespace Stream {
 class ByteArrayInputStream;
 }  // namespace Stream
@@ -71,7 +74,7 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writePacket(uint16_t sourcePort, uint16_t destinationPort, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
+    static void writePacket(uint16_t sourcePort, uint16_t destinationPort, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
 
     static uint16_t calculateChecksum(const uint8_t *pseudoHeader, const uint8_t *datagram, uint16_t datagramLength);
 

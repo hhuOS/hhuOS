@@ -30,6 +30,7 @@
 #include "lib/util/data/Array.h"
 #include "lib/util/file/Type.h"
 #include "lib/util/memory/String.h"
+#include "lib/util/network/Socket.h"
 
 namespace Util {
 namespace Async {
@@ -59,6 +60,8 @@ uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t
 bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters);
 bool changeDirectory(const Util::Memory::String &path);
 Util::File::File getCurrentWorkingDirectory();
+
+int32_t createSocket(Util::Network::Socket::Type socketType);
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 Util::Async::Process getCurrentProcess();

@@ -22,8 +22,13 @@
 
 #include "lib/util/stream/ByteArrayInputStream.h"
 
+namespace Util {
 namespace Network {
 class NetworkAddress;
+}  // namespace Network
+}  // namespace Util
+
+namespace Network {
 
 class Datagram : public Util::Stream::ByteArrayInputStream {
 
@@ -31,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress);
+    Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.
@@ -48,11 +53,11 @@ public:
      */
     ~Datagram() override;
 
-    [[nodiscard]] const Network::NetworkAddress& getRemoteAddress() const;
+    [[nodiscard]] const Util::Network::NetworkAddress& getRemoteAddress() const;
 
 protected:
 
-    const Network::NetworkAddress *remoteAddress{};
+    const Util::Network::NetworkAddress *remoteAddress{};
 };
 
 }

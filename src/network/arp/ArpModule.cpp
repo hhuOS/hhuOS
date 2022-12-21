@@ -26,13 +26,13 @@
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/time/Timestamp.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/arp/ArpEntry.h"
 #include "network/arp/ArpHeader.h"
 #include "network/ethernet/EthernetHeader.h"
 #include "network/ethernet/EthernetModule.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4Interface.h"
 #include "network/ip4/Ip4Module.h"
 
@@ -60,10 +60,10 @@ void ArpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
         return;
     }
 
-    auto sourceMacAddress = MacAddress();
-    auto targetMacAddress = MacAddress();
-    auto sourceIpAddress = Ip4::Ip4Address();
-    auto targetIpAddress = Ip4::Ip4Address();
+    auto sourceMacAddress = Util::Network::MacAddress();
+    auto targetMacAddress = Util::Network::MacAddress();
+    auto sourceIpAddress = Util::Network::Ip4::Ip4Address();
+    auto targetIpAddress = Util::Network::Ip4::Ip4Address();
 
     sourceMacAddress.read(stream);
     sourceIpAddress.read(stream);
@@ -82,7 +82,7 @@ void ArpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
 }
 
-bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddress &hardwareAddress, Device::Network::NetworkDevice &device) {
+bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, Device::Network::NetworkDevice &device) {
     for (uint32_t i = 0; i < MAX_REQUEST_RETRIES; i++) {
         lock.acquire();
         if (hasHardwareAddress(protocolAddress)) {
@@ -93,11 +93,11 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
 
         auto &ip4Module = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
         auto packet = Util::Stream::ByteArrayOutputStream();
-        writeHeader(packet, ArpHeader::REQUEST, device, MacAddress::createBroadcastAddress());
+        writeHeader(packet, ArpHeader::REQUEST, device, Util::Network::MacAddress::createBroadcastAddress());
 
         device.getMacAddress().write(packet);
         ip4Module.getInterface(device.getIdentifier()).getAddress().write(packet);
-        MacAddress().write(packet);
+        Util::Network::MacAddress().write(packet);
         protocolAddress.write(packet);
 
         Ethernet::EthernetModule::finalizePacket(packet);
@@ -109,7 +109,7 @@ bool ArpModule::resolveAddress(const Ip4::Ip4Address &protocolAddress, MacAddres
     return false;
 }
 
-void ArpModule::setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddress &hardwareAddress) {
+void ArpModule::setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress) {
     lock.acquire();
 
     for (auto &entry : arpCache) {
@@ -124,7 +124,7 @@ void ArpModule::setEntry(const Ip4::Ip4Address &protocolAddress, const MacAddres
     lock.release();
 }
 
-MacAddress ArpModule::getHardwareAddress(const Ip4::Ip4Address &protocolAddress) {
+Util::Network::MacAddress ArpModule::getHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress) {
     lock.acquire();
 
     for (const auto &entry : arpCache) {
@@ -137,7 +137,7 @@ MacAddress ArpModule::getHardwareAddress(const Ip4::Ip4Address &protocolAddress)
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "ARP: Protocol address not found!");
 }
 
-bool ArpModule::hasHardwareAddress(const Ip4::Ip4Address &protocolAddress) {
+bool ArpModule::hasHardwareAddress(const Util::Network::Ip4::Ip4Address &protocolAddress) {
     lock.acquire();
 
     for (const auto &entry : arpCache) {
@@ -149,8 +149,8 @@ bool ArpModule::hasHardwareAddress(const Ip4::Ip4Address &protocolAddress) {
     return lock.releaseAndReturn(false);
 }
 
-void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress,
-                              const Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device) {
+void ArpModule::handleRequest(const Util::Network::MacAddress &sourceHardwareAddress, const Util::Network::Ip4::Ip4Address &sourceAddress,
+                              const Util::Network::Ip4::Ip4Address &targetProtocolAddress, Device::Network::NetworkDevice &device) {
     setEntry(sourceAddress, sourceHardwareAddress);
 
     lock.acquire();
@@ -173,8 +173,8 @@ void ArpModule::handleRequest(const MacAddress &sourceHardwareAddress, const Ip4
     }
 }
 
-void ArpModule::handleReply(const MacAddress &sourceHardwareAddress, const Ip4::Ip4Address &sourceAddress,
-                            const MacAddress &targetHardwareAddress, const Ip4::Ip4Address &targetProtocolAddress) {
+void ArpModule::handleReply(const Util::Network::MacAddress &sourceHardwareAddress, const Util::Network::Ip4::Ip4Address &sourceAddress,
+                            const Util::Network::MacAddress &targetHardwareAddress, const Util::Network::Ip4::Ip4Address &targetProtocolAddress) {
     setEntry(sourceAddress, sourceHardwareAddress);
 
     //Learn own addresses if not broadcast
@@ -183,7 +183,7 @@ void ArpModule::handleReply(const MacAddress &sourceHardwareAddress, const Ip4::
     }
 }
 
-void ArpModule::writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const MacAddress &destinationAddress) {
+void ArpModule::writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress) {
     Ethernet::EthernetModule::writeHeader(stream, device, destinationAddress, Ethernet::EthernetHeader::ARP);
 
     auto header = ArpHeader();

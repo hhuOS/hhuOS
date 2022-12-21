@@ -15,13 +15,21 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.14)
- 
-target_sources(network PUBLIC
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Datagram.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Header.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Interface.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Module.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4NetworkMask.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Route.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4RoutingModule.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Socket.cpp)
+
+project(lib.network)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+# Add subdirectories
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/NetworkAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/Socket.cpp)
+
+target_link_libraries(${PROJECT_NAME} lib.util)
+
+# Add subdirectories
+add_subdirectory(ip4)

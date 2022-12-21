@@ -135,6 +135,12 @@ Util::File::File getCurrentWorkingDirectory() {
     return Util::File::File(path);
 }
 
+int32_t createSocket(Util::Network::Socket::Type socketType) {
+    int32_t fileDescriptor;
+    auto result = Util::System::call(Util::System::CREATE_SOCKET, 2, socketType, &fileDescriptor);
+    return result == Util::System::OK ? fileDescriptor : -1;
+}
+
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
     uint32_t processId;
     Util::System::call(Util::System::EXECUTE_BINARY, 7, &binaryFile, &inputFile, &outputFile, &errorFile, &command, &arguments, &processId);

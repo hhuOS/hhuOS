@@ -15,12 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SOCKET_H
-#define HHUOS_SOCKET_H
+#include "Socket.h"
 
-#include <cstdint>
-
-#include "filesystem/core/Node.h"
+#include "lib/interface.h"
+#include "lib/util/Exception.h"
 #include "lib/util/data/Array.h"
 
 namespace Util {
@@ -29,45 +27,27 @@ class NetworkAddress;
 }  // namespace Network
 }  // namespace Util
 
-namespace Network {
+namespace Util::Network {
 
-class Socket : public Filesystem::Node {
+Socket::Socket(int32_t fileDescriptor, Type socketType) : fileDescriptor(fileDescriptor), socketType(socketType) {}
 
-public:
-    /**
-     * Default Constructor.
-     */
-    Socket() = default;
+Socket Socket::createSocket(Socket::Type socketType) {
+    auto fileDescriptor = ::createSocket(socketType);
+    if (fileDescriptor == -1) {
+        Util::Exception::throwException(Exception::ILLEGAL_STATE, "Failed to open socket!");
+    }
 
-    /**
-     * Copy Constructor.
-     */
-    Socket(const Socket &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Socket &operator=(const Socket &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Socket() override;
-
-    void bind(const Util::Network::NetworkAddress &address);
-
-    [[nodiscard]] const Util::Network::NetworkAddress& getAddress() const;
-
-    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
-
-protected:
-
-    virtual void performBind() = 0;
-
-    const Util::Network::NetworkAddress *bindAddress{};
-
-};
-
+    return Socket(fileDescriptor, socketType);
 }
 
-#endif
+bool Socket::bind(const NetworkAddress &address) const {
+    return ::controlFile(fileDescriptor, BIND, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+}
+
+NetworkAddress* Socket::getLocalAddress() const {
+    NetworkAddress *address;
+    ::controlFile(fileDescriptor, GET_LOCAL_ADDRESS, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+    return address;
+}
+
+}

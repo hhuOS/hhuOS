@@ -15,54 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4DATAGRAM_H
-#define HHUOS_IP4DATAGRAM_H
-
 #include <cstdint>
 
-#include "network/Datagram.h"
-#include "Ip4Header.h"
+#include "lib/util/system/System.h"
+#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/network/Socket.h"
+#include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/NetworkAddress.h"
 
-namespace Util {
-namespace Network {
-namespace Ip4 {
-class Ip4Address;
-}  // namespace Ip4
-}  // namespace Network
-}  // namespace Util
+int32_t main(int32_t argc, char *argv[]) {
+    auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
+    if (!socket.bind(Util::Network::Ip4::Ip4Address("127.0.0.1"))) {
+        Util::System::error << "ping: Failed to bind socket!";
+    }
 
-namespace Network::Ip4 {
+    auto *bindAddress = socket.getLocalAddress();
+    Util::System::out << bindAddress->toString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    delete bindAddress;
 
-class Ip4Datagram : public Datagram {
-
-public:
-    /**
-     * Constructor.
-     */
-    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
-
-    /**
-     * Copy Constructor.
-     */
-    Ip4Datagram(const Ip4Datagram &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Ip4Datagram() = default;
-
-    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
-
-private:
-
-    Ip4Header::Protocol protocol;
-};
-
+    return 0;
 }
-
-#endif

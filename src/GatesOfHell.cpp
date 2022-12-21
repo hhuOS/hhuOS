@@ -64,15 +64,7 @@
 #include "kernel/service/NetworkService.h"
 #include "BuildConfig.h"
 #include "GatesOfHell.h"
-#include "kernel/service/ProcessService.h"
-#include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/async/Thread.h"
 #include "device/power/acpi/Acpi.h"
-#include "network/ip4/Ip4Datagram.h"
-#include "network/ethernet/EthernetDatagram.h"
-#include "network/NumberUtil.h"
-#include "network/icmp/IcmpSocket.h"
-#include "network/icmp/IcmpDatagram.h"
 #include "asm_interface.h"
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
 #include "device/graphic/terminal/TerminalProvider.h"
@@ -80,31 +72,16 @@
 #include "device/power/default/DefaultMachine.h"
 #include "filesystem/core/Filesystem.h"
 #include "kernel/log/Logger.h"
-#include "kernel/process/Thread.h"
 #include "lib/util/Exception.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "lib/util/system/System.h"
-#include "lib/util/time/Timestamp.h"
-#include "network/Datagram.h"
-#include "network/MacAddress.h"
-#include "network/NetworkAddress.h"
 #include "network/NetworkStack.h"
-#include "network/ethernet/EthernetHeader.h"
-#include "network/ethernet/EthernetSocket.h"
-#include "network/icmp/EchoHeader.h"
-#include "network/icmp/IcmpHeader.h"
-#include "network/ip4/Ip4Address.h"
-#include "network/ip4/Ip4Header.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4Module.h"
 #include "network/ip4/Ip4NetworkMask.h"
-#include "network/ip4/Ip4PortAddress.h"
 #include "network/ip4/Ip4Route.h"
-#include "network/ip4/Ip4Socket.h"
-#include "network/udp/UdpDatagram.h"
-#include "network/udp/UdpSocket.h"
 
 namespace Device {
 class Machine;
@@ -524,8 +501,8 @@ void GatesOfHell::initializeNetwork() {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto *loopback = new Device::Network::Loopback("loopback");
     networkService.registerNetworkDevice(loopback);
-    networkService.getNetworkStack().getIp4Module().registerInterface(Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4Address("127.0.0.0"), Network::Ip4::Ip4NetworkMask(8), *loopback);
-    networkService.setDefaultRoute(Network::Ip4::Ip4Route(Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
+    networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Network::Ip4::Ip4NetworkMask(8), *loopback);
+    networkService.setDefaultRoute(Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
 
     /*auto *echoRequest = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x45\x00" \
                         "\x00\x54\x5c\x09\x40\x00\x40\x01\xe0\x9d\x7f\x00\x00\x01\x7f\x00" \

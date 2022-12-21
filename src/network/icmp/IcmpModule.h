@@ -35,11 +35,14 @@ namespace Network {
 namespace Icmp {
 class EchoHeader;
 }  // namespace Icmp
+}  // namespace Network
+namespace Util {
+namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
-namespace Util {
+
 namespace Stream {
 class ByteArrayInputStream;
 }  // namespace Stream
@@ -72,10 +75,10 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writePacket(IcmpHeader::Type type, uint8_t code, const Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
+    static void writePacket(IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
 
     static void
-    sendEchoReply(const Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device);
+    sendEchoReply(const Util::Network::Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device);
 
 private:
 

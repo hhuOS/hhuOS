@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Util {
 namespace Stream {
@@ -65,15 +65,15 @@ public:
 
     void write(Util::Stream::OutputStream &stream);
 
-    [[nodiscard]] const MacAddress& getDestinationAddress() const;
+    [[nodiscard]] const Util::Network::MacAddress& getDestinationAddress() const;
 
-    [[nodiscard]] const MacAddress& getSourceAddress() const;
+    [[nodiscard]] const Util::Network::MacAddress& getSourceAddress() const;
 
     [[nodiscard]] EtherType getEtherType() const;
 
-    void setDestinationAddress(const MacAddress &address);
+    void setDestinationAddress(const Util::Network::MacAddress &address);
 
-    void setSourceAddress(const MacAddress &address);
+    void setSourceAddress(const Util::Network::MacAddress &address);
 
     void setEtherType(EtherType type);
 
@@ -81,8 +81,8 @@ public:
 
 private:
 
-    MacAddress destinationAddress{};
-    MacAddress sourceAddress{};
+    Util::Network::MacAddress destinationAddress{};
+    Util::Network::MacAddress sourceAddress{};
     EtherType etherType{};
 };
 

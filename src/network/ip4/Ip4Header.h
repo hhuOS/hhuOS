@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Stream {
@@ -75,9 +75,9 @@ public:
 
     [[nodiscard]] Protocol getProtocol() const;
 
-    [[nodiscard]] const Ip4Address& getSourceAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
 
-    [[nodiscard]] const Ip4Address& getDestinationAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getDestinationAddress() const;
 
     void setPayloadLength(uint16_t payloadLength);
 
@@ -85,9 +85,9 @@ public:
 
     void setProtocol(Protocol aProtocol);
 
-    void setSourceAddress(const Ip4Address &sourceAddress);
+    void setSourceAddress(const Util::Network::Ip4::Ip4Address &sourceAddress);
 
-    void setDestinationAddress(const Ip4Address &destinationAddress);
+    void setDestinationAddress(const Util::Network::Ip4::Ip4Address &destinationAddress);
 
     static const constexpr uint32_t CHECKSUM_OFFSET = 10;
 
@@ -100,8 +100,8 @@ private:
     uint16_t payloadLength = 0;
     uint8_t timeToLive = 64;
     Protocol protocol{};
-    Ip4Address sourceAddress{};
-    Ip4Address destinationAddress{};
+    Util::Network::Ip4::Ip4Address sourceAddress{};
+    Util::Network::Ip4::Ip4Address destinationAddress{};
 };
 
 }

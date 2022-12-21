@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -15,53 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4ADDRESS_H
-#define HHUOS_IP4ADDRESS_H
+#ifndef HHUOS_MACADDRESS_H
+#define HHUOS_MACADDRESS_H
 
 #include <cstdint>
 
-#include "network/NetworkAddress.h"
+#include "NetworkAddress.h"
 #include "lib/util/memory/String.h"
 
-namespace Network::Ip4 {
+namespace Util::Network {
 
-class Ip4Address : public NetworkAddress {
+class MacAddress : public NetworkAddress {
 
 public:
 
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
+    static const constexpr uint8_t ADDRESS_LENGTH = 6;
 
     /**
      * Default Constructor.
      */
-    Ip4Address();
+    MacAddress();
 
     /**
      * Constructor.
      */
-    explicit Ip4Address(uint8_t *buffer);
-
-    /**
-     * Constructor.
-     */
-    explicit Ip4Address(const Util::Memory::String &string);
+    explicit MacAddress(const uint8_t *buffer);
 
     /**
      * Copy Constructor.
      */
-    Ip4Address(const Ip4Address &other) = default;
+    MacAddress(const MacAddress &other) = default;
 
     /**
      * Assignment operator.
      */
-    Ip4Address &operator=(const Ip4Address &other) = default;
+    MacAddress &operator=(const MacAddress &other) = default;
 
     /**
      * Destructor.
      */
-    ~Ip4Address() override = default;
+    ~MacAddress() override = default;
 
-    [[nodiscard]] static Ip4Address createBroadcastAddress();
+    static MacAddress createBroadcastAddress();
 
     [[nodiscard]] bool isBroadcastAddress() const;
 

@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "network/NetworkMask.h"
-#include "Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Network::Ip4 {
 
@@ -57,9 +57,9 @@ public:
 
     bool operator!=(const Ip4NetworkMask &other) const;
 
-    [[nodiscard]] Ip4Address extractSubnet(const Ip4Address &address) const;
+    [[nodiscard]] Util::Network::Ip4::Ip4Address extractSubnet(const Util::Network::Ip4::Ip4Address &address) const;
 
-    [[nodiscard]] Ip4Address createBroadcastAddress(const Ip4Address &networkAddress) const;
+    [[nodiscard]] Util::Network::Ip4::Ip4Address createBroadcastAddress(const Util::Network::Ip4::Ip4Address &networkAddress) const;
 };
 
 }

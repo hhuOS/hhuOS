@@ -19,9 +19,9 @@
 
 #include "lib/util/Exception.h"
 #include "lib/util/data/Array.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
-namespace Network::Ip4 {
+namespace Util::Network::Ip4 {
 
 Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT), bufferAddress(buffer) {
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];

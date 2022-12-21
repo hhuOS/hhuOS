@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "Ip4NetworkMask.h"
 #include "lib/util/memory/String.h"
 
@@ -38,7 +38,7 @@ public:
     /**
      * Constructor.
      */
-    Ip4Interface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+    Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
     /**
      * Copy Constructor.
@@ -59,16 +59,16 @@ public:
 
     void sendPacket(uint8_t *packet, uint32_t length);
 
-    [[nodiscard]] const Ip4Address& getAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getAddress() const;
 
-    bool isTargetOf(const Ip4Address &targetAddress);
+    bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress);
 
     [[nodiscard]] Device::Network::NetworkDevice& getDevice() const;
 
 private:
 
-    Ip4Address address;
-    Ip4Address networkAddress;
+    Util::Network::Ip4::Ip4Address address;
+    Util::Network::Ip4::Ip4Address networkAddress;
     Ip4NetworkMask networkMask;
 
     Device::Network::NetworkDevice &device;

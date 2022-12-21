@@ -18,13 +18,13 @@
 #include "Ip4Interface.h"
 
 #include "device/network/NetworkDevice.h"
-#include "network/NetworkAddress.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/NetworkAddress.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4NetworkMask.h"
 
 namespace Network::Ip4 {
 
-Ip4Interface::Ip4Interface(const Network::Ip4::Ip4Address &address, const Network::Ip4::Ip4Address &networkAddress,
+Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress,
                            const Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
         address(address), networkAddress(networkAddress), networkMask(networkMask), device(device) {}
 
@@ -36,11 +36,11 @@ void Ip4Interface::sendPacket(uint8_t *packet, uint32_t length) {
     device.sendPacket(packet, length);
 }
 
-const Ip4Address& Ip4Interface::getAddress() const {
+const Util::Network::Ip4::Ip4Address& Ip4Interface::getAddress() const {
     return address;
 }
 
-bool Ip4Interface::isTargetOf(const Ip4Address &targetAddress) {
+bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) {
     if (targetAddress == address || networkMask.createBroadcastAddress(networkAddress) == targetAddress || targetAddress.isBroadcastAddress()) {
         return true;
     }

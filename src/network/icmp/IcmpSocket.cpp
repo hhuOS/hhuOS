@@ -20,15 +20,20 @@
 #include "IcmpDatagram.h"
 #include "IcmpSocket.h"
 #include "lib/util/Exception.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/icmp/IcmpModule.h"
 
+namespace Util {
 namespace Network {
-class Datagram;
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
+}  // namespace Network
+}  // namespace Util
+
+namespace Network {
+class Datagram;
 }  // namespace Network
 
 namespace Network::Icmp {
@@ -40,11 +45,11 @@ IcmpSocket::~IcmpSocket() {
 
 void IcmpSocket::send(const Datagram &datagram) {
     const auto &icmpDatagram = reinterpret_cast<const IcmpDatagram&>(datagram);
-    IcmpModule::writePacket(icmpDatagram.getType(), icmpDatagram.getCode(), reinterpret_cast<const Ip4::Ip4Address&>(icmpDatagram.getRemoteAddress()), icmpDatagram.getData(), icmpDatagram.getDataLength());
+    IcmpModule::writePacket(icmpDatagram.getType(), icmpDatagram.getCode(), reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(icmpDatagram.getRemoteAddress()), icmpDatagram.getData(), icmpDatagram.getDataLength());
 }
 
 void IcmpSocket::performBind() {
-    if (bindAddress->getType() != NetworkAddress::IP4) {
+    if (bindAddress->getType() != Util::Network::NetworkAddress::IP4) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Socket: Invalid bind address!");
     }
 

@@ -18,11 +18,11 @@
 #include "IcmpDatagram.h"
 
 #include "network/icmp/IcmpHeader.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Network::Icmp {
 
-IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
+IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
         Datagram(buffer, length, remoteAddress), type(type), code(code) {}
 
 IcmpHeader::Type IcmpDatagram::getType() const {

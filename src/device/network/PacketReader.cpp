@@ -20,9 +20,10 @@
 #include "NetworkDevice.h"
 #include "PacketReader.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 #include "network/NetworkStack.h"
 #include "network/ethernet/EthernetModule.h"
+#include "network/NetworkModule.h"
 
 namespace Device::Network {
 
@@ -34,7 +35,7 @@ void PacketReader::run() {
     while (true) {
         const auto &packet = networkDevice.getNextIncomingPacket();
         auto stream = Util::Stream::ByteArrayInputStream(packet.buffer, packet.length, false);
-        ethernetModule.readPacket(stream, {::Network::MacAddress(), ::Network::MacAddress(), packet.length}, networkDevice);
+        ethernetModule.readPacket(stream, ::Network::NetworkModule::LayerInformation{Util::Network::MacAddress(), Util::Network::MacAddress(), packet.length}, networkDevice);
         networkDevice.freePacketBuffer(packet.buffer);
     }
 }

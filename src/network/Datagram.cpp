@@ -18,14 +18,14 @@
 #include "Datagram.h"
 
 #include "lib/util/memory/Address.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 
-Network::Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Network::NetworkAddress &remoteAddress) :
+Network::Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress) :
         Util::Stream::ByteArrayInputStream(new uint8_t[length], length, true), remoteAddress(remoteAddress.createCopy()) {
     Util::Memory::Address<uint32_t>(getData()).copyRange(Util::Memory::Address<uint32_t>(buffer), length);
 }
 
-const Network::NetworkAddress& Network::Datagram::getRemoteAddress() const {
+const Util::Network::NetworkAddress& Network::Datagram::getRemoteAddress() const {
     return *remoteAddress;
 }
 

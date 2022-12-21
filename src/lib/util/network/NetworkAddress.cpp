@@ -20,13 +20,13 @@
 #include "lib/util/stream/InputStream.h"
 #include "lib/util/stream/OutputStream.h"
 
-namespace Network {
+namespace Util::Network {
 
 NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {
     Util::Memory::Address<uint32_t>(buffer).setRange(0, length);
 }
 
-NetworkAddress::NetworkAddress(uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
+NetworkAddress::NetworkAddress(const uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
     setAddress(buffer);
 }
 
@@ -78,6 +78,12 @@ void NetworkAddress::setAddress(const uint8_t *buffer) {
     auto source = Util::Memory::Address<uint32_t>(buffer);
     auto destination = Util::Memory::Address<uint32_t>(NetworkAddress::buffer);
     destination.copyRange(source, length);
+}
+
+void NetworkAddress::setAddress(const NetworkAddress &other) {
+    auto source = Util::Memory::Address<uint32_t>(other.buffer);
+    auto destination = Util::Memory::Address<uint32_t>(buffer);
+    destination.copyRange(source, length < other.length ? length : other.length);
 }
 
 void NetworkAddress::getAddress(uint8_t *buffer) const {

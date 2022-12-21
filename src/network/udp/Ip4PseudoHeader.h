@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/NetworkModule.h"
 
 namespace Util {
@@ -37,7 +37,7 @@ public:
     /**
      * Constructor.
      */
-    Ip4PseudoHeader(const Ip4::Ip4Address &sourceAddress, const Ip4::Ip4Address &destinationAddress, uint16_t datagramLength);
+    Ip4PseudoHeader(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, uint16_t datagramLength);
 
     /**
      * Constructor.
@@ -61,9 +61,9 @@ public:
 
     void write(Util::Stream::OutputStream &stream) const;
 
-    [[nodiscard]] const Ip4::Ip4Address& getSourceAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
 
-    [[nodiscard]] const Ip4::Ip4Address& getDestinationAddress() const;
+    [[nodiscard]] const Util::Network::Ip4::Ip4Address& getDestinationAddress() const;
 
     [[nodiscard]] uint16_t getDatagramLength() const;
 
@@ -71,8 +71,8 @@ public:
 
 private:
 
-    const Ip4::Ip4Address sourceAddress;
-    const Ip4::Ip4Address destinationAddress;
+    const Util::Network::Ip4::Ip4Address sourceAddress;
+    const Util::Network::Ip4::Ip4Address destinationAddress;
     const uint16_t datagramLength;
 };
 

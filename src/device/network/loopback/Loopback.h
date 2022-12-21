@@ -22,7 +22,7 @@
 
 #include "device/network/NetworkDevice.h"
 #include "lib/util/memory/String.h"
-#include "network/MacAddress.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Device::Network {
 
@@ -32,7 +32,7 @@ public:
     /**
      * Default Constructor.
      */
-    Loopback(const Util::Memory::String &identifier);
+    explicit Loopback(const Util::Memory::String &identifier);
 
     /**
      * Copy Constructor.
@@ -52,7 +52,7 @@ public:
     /**
      * Overriding function from NetworkDevice.
      */
-    ::Network::MacAddress getMacAddress() const override;
+    [[nodiscard]] Util::Network::MacAddress getMacAddress() const override;
 
 protected:
 

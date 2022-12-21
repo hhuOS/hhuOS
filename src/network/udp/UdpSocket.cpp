@@ -22,9 +22,9 @@
 #include "kernel/service/NetworkService.h"
 #include "lib/util/Exception.h"
 #include "network/Datagram.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
-#include "network/ip4/Ip4PortAddress.h"
+#include "lib/util/network/ip4/Ip4PortAddress.h"
 
 namespace Network::Udp {
 
@@ -34,18 +34,18 @@ UdpSocket::~UdpSocket() {
 }
 
 void UdpSocket::send(const Datagram &datagram) {
-    auto sourcePort = reinterpret_cast<const Ip4::Ip4PortAddress*>(bindAddress)->getPort();
-    const auto remoteAddress = reinterpret_cast<const Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
+    auto sourcePort = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(bindAddress)->getPort();
+    const auto remoteAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
     UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getData(),
                            datagram.getDataLength());
 }
 
 uint16_t UdpSocket::getPort() const {
-    return reinterpret_cast<const Ip4::Ip4PortAddress*>(bindAddress)->getPort();
+    return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(bindAddress)->getPort();
 }
 
 void UdpSocket::performBind() {
-    if (bindAddress->getType() != NetworkAddress::IP4_PORT) {
+    if (bindAddress->getType() != Util::Network::NetworkAddress::IP4_PORT) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "UdpSocket: Invalid bind address!");
     }
 

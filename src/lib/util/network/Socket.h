@@ -15,54 +15,60 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_IP4PORTADDRESS_H
-#define HHUOS_IP4PORTADDRESS_H
+#ifndef HHUOS_LIB_SOCKET_H
+#define HHUOS_LIB_SOCKET_H
 
 #include <cstdint>
 
-#include "network/NetworkAddress.h"
-#include "lib/util/memory/Address.h"
-#include "Ip4Address.h"
-#include "lib/util/memory/String.h"
+namespace Util {
+namespace Network {
+class NetworkAddress;
+}  // namespace Network
+}  // namespace Util
 
-namespace Network::Ip4 {
+namespace Util::Network {
 
-class Ip4PortAddress : public NetworkAddress {
+class Socket {
 
 public:
-    /**
-     * Default Constructor.
-     */
-    Ip4PortAddress(const Ip4Address &address, uint16_t port);
+
+    enum Type {
+        ETHERNET, IP4, IP6, ICMP, UDP, TCP
+    };
+
+    enum Request {
+        BIND, GET_LOCAL_ADDRESS
+    };
 
     /**
      * Copy Constructor.
      */
-    Ip4PortAddress(const Ip4PortAddress &other) = default;
+    Socket(const Socket &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4PortAddress &operator=(const Ip4PortAddress &other) = default;
+    Socket &operator=(const Socket &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4PortAddress() override = default;
+    ~Socket() = default;
 
-    [[nodiscard]] Ip4Address getIp4Address() const;
+    static Socket createSocket(Type socketType);
 
-    [[nodiscard]] uint16_t getPort() const;
+    [[nodiscard]] bool bind(const NetworkAddress &address) const;
 
-    [[nodiscard]] NetworkAddress* createCopy() const override;
-
-    void setAddress(const Util::Memory::String &string) override;
-
-    [[nodiscard]] Util::Memory::String toString() const override;
+    [[nodiscard]] NetworkAddress * getLocalAddress() const;
 
 private:
+    /**
+     * Default Constructor.
+     */
+    explicit Socket(int32_t fileDescriptor, Type socketType);
 
-    Util::Memory::Address<uint32_t> bufferAddress;
+    int32_t fileDescriptor;
+    Type socketType;
 };
 
 }

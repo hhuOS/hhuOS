@@ -27,14 +27,14 @@
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/MacAddress.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/MacAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/Socket.h"
 #include "network/arp/ArpModule.h"
 #include "network/ethernet/EthernetHeader.h"
 #include "network/ethernet/EthernetModule.h"
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4Interface.h"
 #include "network/ip4/Ip4Route.h"
 #include "network/ip4/Ip4RoutingModule.h"
@@ -97,13 +97,13 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
-const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength) {
+const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
     auto route = ip4Module.routingModule.findRouteTo(destinationAddress);
 
-    auto destinationMacAddress = MacAddress();
+    auto destinationMacAddress = Util::Network::MacAddress();
     if (!arpModule.resolveAddress(route.hasNextHop() ? route.getNextHop() : destinationAddress, destinationMacAddress, route.getInterface().getDevice())) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not resolved");
     }
@@ -137,7 +137,7 @@ Ip4Interface& Ip4Module::getInterface(const Util::Memory::String &deviceIdentifi
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Module: Device not found!");
 }
 
-void Ip4Module::registerInterface(const Ip4Address &address, const Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
+void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
     interfaces.add(new Ip4Interface(address, networkAddress, networkMask, device));
 
     auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();

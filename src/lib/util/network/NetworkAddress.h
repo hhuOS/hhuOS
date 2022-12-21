@@ -29,7 +29,7 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Network {
+namespace Util::Network {
 
 class NetworkAddress {
 
@@ -47,7 +47,7 @@ public:
     /**
      * Constructor.
      */
-    NetworkAddress(uint8_t *buffer, uint8_t length, Type type);
+    NetworkAddress(const uint8_t *buffer, uint8_t length, Type type);
 
     /**
      * Copy Constructor.
@@ -73,6 +73,8 @@ public:
     void write(Util::Stream::OutputStream &stream) const;
 
     void setAddress(const uint8_t *buffer);
+
+    void setAddress(const NetworkAddress &other);
 
     void getAddress(uint8_t *buffer) const;
 

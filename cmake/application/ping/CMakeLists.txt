@@ -15,13 +15,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.14)
- 
-target_sources(network PUBLIC
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Datagram.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Header.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Interface.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Module.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4NetworkMask.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Route.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4RoutingModule.cpp
-        ${HHUOS_SRC_DIR}/network/ip4/Ip4Socket.cpp)
+
+project(ping)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+# Set source files
+set(SOURCE_FILES
+        ${HHUOS_SRC_DIR}/application/ping/ping.cpp)
+
+add_executable(${PROJECT_NAME} ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user lib.network)

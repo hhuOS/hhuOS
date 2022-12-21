@@ -24,17 +24,19 @@
 #include "lib/util/Exception.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "network/Datagram.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/ethernet/EthernetModule.h"
 #include "network/ip4/Ip4Interface.h"
 #include "network/ip4/Ip4Module.h"
 
+namespace Util {
 namespace Network {
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Ip4 {
 
@@ -45,7 +47,7 @@ Ip4Socket::~Ip4Socket() {
 
 void Ip4Socket::send(const Network::Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    auto &interface = Ip4Module::writeHeader(packet, reinterpret_cast<const Ip4Address&>(datagram.getRemoteAddress()), reinterpret_cast<const Ip4Datagram&>(datagram).getProtocol(),
+    auto &interface = Ip4Module::writeHeader(packet, reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(datagram.getRemoteAddress()), reinterpret_cast<const Ip4Datagram&>(datagram).getProtocol(),
                                              datagram.getDataLength());
     packet.write(datagram.getData(), 0, datagram.getDataLength());
     Ethernet::EthernetModule::finalizePacket(packet);
@@ -53,7 +55,7 @@ void Ip4Socket::send(const Network::Datagram &datagram) {
 }
 
 void Ip4Socket::performBind() {
-    if (bindAddress->getType() != NetworkAddress::IP4) {
+    if (bindAddress->getType() != Util::Network::NetworkAddress::IP4) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Socket: Invalid bind address!");
     }
 

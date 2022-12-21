@@ -18,11 +18,12 @@
 #include "Socket.h"
 
 #include "lib/util/Exception.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
+#include "lib/util/network/Socket.h"
 
 namespace Network {
 
-void Socket::bind(const Network::NetworkAddress &address) {
+void Socket::bind(const Util::Network::NetworkAddress &address) {
     if (bindAddress != nullptr) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Already bound!");
     }
@@ -35,8 +36,24 @@ Socket::~Socket() {
     delete bindAddress;
 }
 
-const NetworkAddress &Socket::getAddress() const {
+const Util::Network::NetworkAddress& Socket::getAddress() const {
     return *bindAddress;
+}
+
+bool Socket::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    switch (request) {
+        case Util::Network::Socket::Request::BIND: {
+            bind(*reinterpret_cast<Util::Network::NetworkAddress *>(parameters[0]));
+            return true;
+        }
+        case Util::Network::Socket::Request::GET_LOCAL_ADDRESS: {
+            auto **address = reinterpret_cast<Util::Network::NetworkAddress**>(parameters[0]);
+            *address = bindAddress->createCopy();
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 }

@@ -24,13 +24,15 @@
 #include "lib/util/Exception.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "network/Datagram.h"
-#include "network/NetworkAddress.h"
+#include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/ethernet/EthernetModule.h"
 
+namespace Util {
 namespace Network {
 class MacAddress;
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Ethernet {
 
@@ -41,19 +43,19 @@ EthernetSocket::~EthernetSocket() {
 
 void EthernetSocket::send(const Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    EthernetModule::writeHeader(packet, *device, reinterpret_cast<const MacAddress&>(datagram.getRemoteAddress()), reinterpret_cast<const EthernetDatagram&>(datagram).getEtherType());
+    EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress&>(datagram.getRemoteAddress()), reinterpret_cast<const EthernetDatagram&>(datagram).getEtherType());
     packet.write(datagram.getData(), 0, datagram.getDataLength());
     EthernetModule::finalizePacket(packet);
     device->sendPacket(packet.getBuffer(), packet.getPosition());
 }
 
 void EthernetSocket::performBind() {
-    if (bindAddress->getType() != NetworkAddress::MAC) {
+    if (bindAddress->getType() != Util::Network::NetworkAddress::MAC) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "EthernetSocket: Invalid bind address!");
     }
 
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
-    device = &networkService.getNetworkDevice(reinterpret_cast<const MacAddress&>(*bindAddress));
+    device = &networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress&>(*bindAddress));
 
     auto &ethernetModule = networkService.getNetworkStack().getEthernetModule();
     if (!ethernetModule.registerSocket(*this)) {

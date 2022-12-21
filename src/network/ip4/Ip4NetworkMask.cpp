@@ -17,7 +17,7 @@
 
 #include "Ip4NetworkMask.h"
 
-#include "network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Network::Ip4 {
 
@@ -33,7 +33,7 @@ bool Ip4NetworkMask::operator!=(const Ip4NetworkMask &other) const {
     return bitCount != other.bitCount;
 }
 
-Ip4Address Ip4NetworkMask::extractSubnet(const Ip4Address &address) const {
+Util::Network::Ip4::Ip4Address Ip4NetworkMask::extractSubnet(const Util::Network::Ip4::Ip4Address &address) const {
     // Create bitmask
     uint32_t base = 0xffffffff << (32 - bitCount);
     auto *mask = reinterpret_cast<uint8_t*>(&base);
@@ -42,14 +42,14 @@ Ip4Address Ip4NetworkMask::extractSubnet(const Ip4Address &address) const {
     uint8_t addressBuffer[4];
     address.getAddress(addressBuffer);
 
-    for (uint8_t i = 0; i < Ip4Address::ADDRESS_LENGTH; i++) {
+    for (uint8_t i = 0; i < Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH; i++) {
         addressBuffer[i] &= mask[i];
     }
 
-    return Ip4Address(addressBuffer);
+    return Util::Network::Ip4::Ip4Address(addressBuffer);
 }
 
-Ip4Address Ip4NetworkMask::createBroadcastAddress(const Ip4Address &networkAddress) const {
+Util::Network::Ip4::Ip4Address Ip4NetworkMask::createBroadcastAddress(const Util::Network::Ip4::Ip4Address &networkAddress) const {
     // Create bitmask
     uint32_t base = 0xffffffff >> (32 - bitCount);
     auto *mask = reinterpret_cast<uint8_t*>(&base);
@@ -58,11 +58,11 @@ Ip4Address Ip4NetworkMask::createBroadcastAddress(const Ip4Address &networkAddre
     uint8_t addressBuffer[4];
     networkAddress.getAddress(addressBuffer);
 
-    for (uint8_t i = 0; i < Ip4Address::ADDRESS_LENGTH; i++) {
+    for (uint8_t i = 0; i < Util::Network::Ip4::Ip4Address::ADDRESS_LENGTH; i++) {
         addressBuffer[i] |= mask[i];
     }
 
-    return Ip4Address(addressBuffer);
+    return Util::Network::Ip4::Ip4Address(addressBuffer);
 }
 
 }
