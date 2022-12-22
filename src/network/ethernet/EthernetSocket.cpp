@@ -13,17 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "EthernetSocket.h"
 
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "EthernetDatagram.h"
+#include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
 #include "lib/util/Exception.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/Datagram.h"
+#include "lib/util/network/Datagram.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/ethernet/EthernetModule.h"
@@ -41,12 +44,14 @@ EthernetSocket::~EthernetSocket() {
     ethernetModule.deregisterSocket(*this);
 }
 
-void EthernetSocket::send(const Datagram &datagram) {
+bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress&>(datagram.getRemoteAddress()), reinterpret_cast<const EthernetDatagram&>(datagram).getEtherType());
+    EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress &>(datagram.getRemoteAddress()),
+                                reinterpret_cast<const Util::Network::Ethernet::EthernetDatagram &>(datagram).getEtherType());
     packet.write(datagram.getData(), 0, datagram.getDataLength());
     EthernetModule::finalizePacket(packet);
     device->sendPacket(packet.getBuffer(), packet.getPosition());
+    return true;
 }
 
 void EthernetSocket::performBind() {
@@ -55,7 +60,7 @@ void EthernetSocket::performBind() {
     }
 
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
-    device = &networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress&>(*bindAddress));
+    device = &networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress &>(*bindAddress));
 
     auto &ethernetModule = networkService.getNetworkStack().getEthernetModule();
     if (!ethernetModule.registerSocket(*this)) {

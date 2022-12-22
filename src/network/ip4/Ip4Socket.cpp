@@ -13,17 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "Ip4Socket.h"
 
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "Ip4Datagram.h"
+#include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
 #include "lib/util/Exception.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
-#include "network/Datagram.h"
+#include "lib/util/network/Datagram.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "network/ethernet/EthernetModule.h"
@@ -45,13 +48,14 @@ Ip4Socket::~Ip4Socket() {
     ip4Module.deregisterSocket(*this);
 }
 
-void Ip4Socket::send(const Network::Datagram &datagram) {
+bool Ip4Socket::send(const Util::Network::Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    auto &interface = Ip4Module::writeHeader(packet, reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(datagram.getRemoteAddress()), reinterpret_cast<const Ip4Datagram&>(datagram).getProtocol(),
-                                             datagram.getDataLength());
+    auto &interface = Ip4Module::writeHeader(packet, reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(datagram.getRemoteAddress()),
+                                             reinterpret_cast<const Util::Network::Ip4::Ip4Datagram&>(datagram).getProtocol(), datagram.getDataLength());
     packet.write(datagram.getData(), 0, datagram.getDataLength());
     Ethernet::EthernetModule::finalizePacket(packet);
     interface.getDevice().sendPacket(packet.getBuffer(), packet.getPosition());
+    return true;
 }
 
 void Ip4Socket::performBind() {

@@ -13,24 +13,28 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "IcmpDatagram.h"
+#include "lib/util/network/ip4/Ip4Datagram.h"
 
-#include "network/icmp/IcmpHeader.h"
 #include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 
-namespace Network::Icmp {
+namespace Util::Network::Ip4 {
 
-IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
-        Datagram(buffer, length, remoteAddress), type(type), code(code) {}
+Ip4Datagram::Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol) :
+        Datagram(buffer, length, remoteAddress), protocol(protocol) {}
 
-IcmpHeader::Type IcmpDatagram::getType() const {
-    return type;
+Ip4Header::Protocol Ip4Datagram::getProtocol() const {
+    return protocol;
 }
 
-uint8_t IcmpDatagram::getCode() const {
-    return code;
+void Ip4Datagram::setAttributes(const Datagram &datagram) {
+    auto &ip4Datagram = reinterpret_cast<const Ip4Datagram&>(datagram);
+    protocol = ip4Datagram.getProtocol();
 }
 
 }

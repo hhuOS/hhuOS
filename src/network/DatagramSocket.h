@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_DATAGRAMSOCKET_H
@@ -28,9 +31,9 @@
 #include "lib/util/data/Iterator.h"
 #include "lib/util/file/Type.h"
 #include "lib/util/memory/String.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Network {
-class Datagram;
 
 namespace Udp {
 class UdpModule;
@@ -76,9 +79,7 @@ public:
      */
     ~DatagramSocket() override = default;
 
-    virtual void send(const Datagram &datagram) = 0;
-
-    Datagram* receive();
+    Util::Network::Datagram* receive() override;
 
     /**
      * Overriding function from Node.
@@ -112,10 +113,10 @@ public:
 
 private:
 
-    void handleIncomingDatagram(Datagram *datagram);
+    void handleIncomingDatagram(Util::Network::Datagram *datagram);
 
     Util::Async::Spinlock lock;
-    Util::Data::ArrayListBlockingQueue<Datagram*> incomingDatagramQueue;
+    Util::Data::ArrayListBlockingQueue<Util::Network::Datagram*> incomingDatagramQueue;
 };
 
 }

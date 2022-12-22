@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "IcmpDatagram.h"
+#include "lib/util/network/icmp/IcmpDatagram.h"
 #include "IcmpSocket.h"
 #include "lib/util/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
@@ -26,15 +29,13 @@
 
 namespace Util {
 namespace Network {
+class Datagram;
+
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
 }  // namespace Util
-
-namespace Network {
-class Datagram;
-}  // namespace Network
 
 namespace Network::Icmp {
 
@@ -43,9 +44,10 @@ IcmpSocket::~IcmpSocket() {
     icmpModule.deregisterSocket(*this);
 }
 
-void IcmpSocket::send(const Datagram &datagram) {
-    const auto &icmpDatagram = reinterpret_cast<const IcmpDatagram&>(datagram);
+bool IcmpSocket::send(const Util::Network::Datagram &datagram) {
+    const auto &icmpDatagram = reinterpret_cast<const Util::Network::Icmp::IcmpDatagram&>(datagram);
     IcmpModule::writePacket(icmpDatagram.getType(), icmpDatagram.getCode(), reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(icmpDatagram.getRemoteAddress()), icmpDatagram.getData(), icmpDatagram.getDataLength());
+    return true;
 }
 
 void IcmpSocket::performBind() {

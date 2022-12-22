@@ -13,49 +13,57 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_UDPDATAGRAM_H
-#define HHUOS_UDPDATAGRAM_H
+#ifndef HHUOS_ETHERNETDATAGRAM_H
+#define HHUOS_ETHERNETDATAGRAM_H
 
 #include <cstdint>
 
-#include "network/Datagram.h"
+#include "lib/util/network/ethernet/EthernetHeader.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Util {
 namespace Network {
-namespace Ip4 {
-class Ip4PortAddress;
-}  // namespace Ip4
+class MacAddress;
 }  // namespace Network
 }  // namespace Util
 
-namespace Network::Udp {
+namespace Util::Network::Ethernet {
 
-class UdpDatagram : public Datagram {
+class EthernetDatagram : public Datagram {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);
+    EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, EthernetHeader::EtherType type);
 
     /**
      * Copy Constructor.
      */
-    UdpDatagram(const UdpDatagram &other) = delete;
+    EthernetDatagram(const EthernetDatagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    UdpDatagram &operator=(const UdpDatagram &other) = delete;
+    EthernetDatagram &operator=(const EthernetDatagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~UdpDatagram() override = default;
+    ~EthernetDatagram() override = default;
 
-    [[nodiscard]] uint16_t getRemotePort() const;
+    [[nodiscard]] EthernetHeader::EtherType getEtherType() const;
+
+    void setAttributes(const Datagram &datagram) override;
+
+private:
+
+    EthernetHeader::EtherType type;
 };
 
 }

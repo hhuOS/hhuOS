@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "UdpSocket.h"
@@ -21,7 +24,7 @@
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
 #include "lib/util/Exception.h"
-#include "network/Datagram.h"
+#include "lib/util/network/Datagram.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "network/NetworkStack.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
@@ -33,11 +36,11 @@ UdpSocket::~UdpSocket() {
     udpModule.deregisterSocket(*this);
 }
 
-void UdpSocket::send(const Datagram &datagram) {
+bool UdpSocket::send(const Util::Network::Datagram &datagram) {
     auto sourcePort = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(bindAddress)->getPort();
     const auto remoteAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
-    UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getData(),
-                           datagram.getDataLength());
+    UdpModule::writePacket(sourcePort, remoteAddress.getPort(), remoteAddress.getIp4Address(), datagram.getData(), datagram.getDataLength());
+    return true;
 }
 
 uint16_t UdpSocket::getPort() const {

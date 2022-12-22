@@ -13,15 +13,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_IP4DATAGRAM_H
-#define HHUOS_IP4DATAGRAM_H
+#ifndef HHUOS_ICMPDATAGRAM_H
+#define HHUOS_ICMPDATAGRAM_H
 
 #include <cstdint>
 
-#include "network/Datagram.h"
-#include "Ip4Header.h"
+#include "lib/util/network/Datagram.h"
+#include "lib/util/network/icmp/IcmpHeader.h"
 
 namespace Util {
 namespace Network {
@@ -31,36 +34,46 @@ class Ip4Address;
 }  // namespace Network
 }  // namespace Util
 
-namespace Network::Ip4 {
+namespace Util::Network::Icmp {
 
-class Ip4Datagram : public Datagram {
+class IcmpDatagram : public Datagram {
 
 public:
     /**
+     * Default Constructor.
+     */
+    IcmpDatagram();
+
+    /**
      * Constructor.
      */
-    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
+    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
 
     /**
      * Copy Constructor.
      */
-    Ip4Datagram(const Ip4Datagram &other) = delete;
+    IcmpDatagram(const IcmpDatagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
+    IcmpDatagram &operator=(const IcmpDatagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Ip4Datagram() = default;
+    ~IcmpDatagram() override = default;
 
-    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
+    [[nodiscard]] IcmpHeader::Type getType() const;
+
+    [[nodiscard]] uint8_t getCode() const;
+
+    void setAttributes(const Datagram &datagram) override;
 
 private:
 
-    Ip4Header::Protocol protocol;
+    IcmpHeader::Type type{};
+    uint8_t code{};
 };
 
 }

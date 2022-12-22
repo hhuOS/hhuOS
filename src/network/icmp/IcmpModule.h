@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_ICMPMODULE_H
@@ -21,7 +24,7 @@
 #include <cstdint>
 
 #include "network/NetworkModule.h"
-#include "network/icmp/IcmpHeader.h"
+#include "lib/util/network/icmp/IcmpHeader.h"
 
 namespace Device {
 namespace Network {
@@ -31,13 +34,12 @@ class NetworkDevice;
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
+namespace Util {
 namespace Network {
 namespace Icmp {
 class EchoHeader;
 }  // namespace Icmp
-}  // namespace Network
-namespace Util {
-namespace Network {
+
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
@@ -75,10 +77,10 @@ public:
 
     void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writePacket(IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
+    static void writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);
 
     static void
-    sendEchoReply(const Util::Network::Ip4::Ip4Address &destinationAddress, const EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device);
+    sendEchoReply(const Util::Network::Ip4::Ip4Address &destinationAddress, const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device);
 
 private:
 

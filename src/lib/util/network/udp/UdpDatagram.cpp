@@ -13,20 +13,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EthernetDatagram.h"
+#include "UdpDatagram.h"
 
-#include "lib/util/network/MacAddress.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "lib/util/network/ip4/Ip4PortAddress.h"
 
-namespace Network::Ethernet {
+namespace Util::Network::Udp {
 
-EthernetDatagram::EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, Network::Ethernet::EthernetHeader::EtherType type) :
-        Datagram(buffer, length, remoteAddress), type(type) {}
+UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}
 
-EthernetHeader::EtherType Network::Ethernet::EthernetDatagram::getEtherType() const {
-    return type;
+uint16_t UdpDatagram::getRemotePort() const {
+    return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(remoteAddress)->getPort();
 }
+
+void UdpDatagram::setAttributes(const Datagram &datagram) {}
 
 }

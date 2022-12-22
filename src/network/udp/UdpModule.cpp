@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "UdpModule.h"
 
-#include "UdpHeader.h"
+#include "lib/util/network/udp/UdpHeader.h"
 #include "Ip4PseudoHeader.h"
 #include "lib/util/stream/ByteArrayOutputStream.h"
 #include "network/ip4/Ip4Module.h"
@@ -30,10 +33,10 @@
 #include "lib/util/stream/ByteArrayInputStream.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "network/Socket.h"
-#include "network/ip4/Ip4Header.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 #include "network/ip4/Ip4Interface.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
-#include "network/udp/UdpDatagram.h"
+#include "lib/util/network/udp/UdpDatagram.h"
 #include "network/udp/UdpSocket.h"
 
 namespace Util {
@@ -62,20 +65,20 @@ bool UdpModule::registerSocket(Socket &socket) {
 
 void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, Device::Network::NetworkDevice &device) {
     auto pseudoHeader = Ip4PseudoHeader(information);
-    auto header = UdpHeader();
+    auto header = Util::Network::Udp::UdpHeader();
     header.read(stream);
 
     auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
-    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getData() + stream.getPosition() - UdpHeader::HEADER_SIZE, information.payloadLength);
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getData() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
     if (header.getChecksum() != checksum) {
         log.warn("Discarding packet, because of wrong checksum");
         return;
     }
 
     auto destinationAddress = Util::Network::Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
-    auto payloadLength = header.getDatagramLength() - UdpHeader::HEADER_SIZE;
+    auto payloadLength = header.getDatagramLength() - Util::Network::Udp::UdpHeader::HEADER_SIZE;
     auto *datagramBuffer = stream.getData() + stream.getPosition();
 
     socketLock.acquire();
@@ -84,7 +87,7 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
             continue;
         }
 
-        auto *datagram = new UdpDatagram(datagramBuffer, payloadLength, Util::Network::Ip4::Ip4PortAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
+        auto *datagram = new Util::Network::Udp::UdpDatagram(datagramBuffer, payloadLength, Util::Network::Ip4::Ip4PortAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort()));
         reinterpret_cast<UdpSocket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
@@ -92,13 +95,13 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
 
 void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
     auto packet = Util::Stream::ByteArrayOutputStream();
-    auto datagramLength = length + UdpHeader::HEADER_SIZE;
+    auto datagramLength = length + Util::Network::Udp::UdpHeader::HEADER_SIZE;
 
     // Write IPv4 and Ethernet headers
-    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, destinationAddress, Ip4::Ip4Header::UDP, datagramLength);
+    auto &sourceInterface = Ip4::Ip4Module::writeHeader(packet, destinationAddress, Util::Network::Ip4::Ip4Header::UDP, datagramLength);
 
     // Write UDP header
-    auto udpHeader = UdpHeader();
+    auto udpHeader = Util::Network::Udp::UdpHeader();
     udpHeader.setSourcePort(sourcePort);
     udpHeader.setDestinationPort(destinationPort);
     udpHeader.setDatagramLength(datagramLength);
@@ -113,7 +116,7 @@ void UdpModule::writePacket(uint16_t sourcePort, uint16_t destinationPort, const
     auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
-    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), packet.getBuffer() + (positionAfterHeaders - UdpHeader::HEADER_SIZE), datagramLength);
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), packet.getBuffer() + (positionAfterHeaders - Util::Network::Udp::UdpHeader::HEADER_SIZE), datagramLength);
     auto *checksumPointer = packet.getBuffer() + (positionAfterHeaders - sizeof(uint16_t));
     checksumPointer[0] = checksum >> 8;
     checksumPointer[1] = checksum;

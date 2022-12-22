@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "Ip4PortAddress.h"
@@ -22,6 +25,10 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util::Network::Ip4 {
+
+Ip4PortAddress::Ip4PortAddress() : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {}
+
+Ip4PortAddress::Ip4PortAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
 
 Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT), bufferAddress(buffer) {
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];

@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_LIB_SOCKET_H
@@ -23,6 +26,7 @@
 namespace Util {
 namespace Network {
 class NetworkAddress;
+class Datagram;
 }  // namespace Network
 }  // namespace Util
 
@@ -59,7 +63,11 @@ public:
 
     [[nodiscard]] bool bind(const NetworkAddress &address) const;
 
-    [[nodiscard]] NetworkAddress * getLocalAddress() const;
+    [[nodiscard]] NetworkAddress* getLocalAddress() const;
+
+    bool send(const Util::Network::Datagram &datagram) const;
+
+    bool receive(Util::Network::Datagram &datagram) const;
 
 private:
     /**

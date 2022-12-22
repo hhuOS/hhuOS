@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,13 +13,16 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "EthernetModule.h"
 
-#include "EthernetHeader.h"
-#include "network/NumberUtil.h"
-#include "EthernetDatagram.h"
+#include "lib/util/network/ethernet/EthernetHeader.h"
+#include "lib/util/network/NumberUtil.h"
+#include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
@@ -49,7 +52,7 @@ bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
 }
 
 void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto header = EthernetHeader();
+    auto header = Util::Network::Ethernet::EthernetHeader();
     header.read(stream);
 
     if (header.getDestinationAddress() != device.getMacAddress()) {
@@ -57,7 +60,7 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
         return;
     }
 
-    auto payloadLength = information.payloadLength - EthernetHeader::HEADER_LENGTH;
+    auto payloadLength = information.payloadLength - Util::Network::Ethernet::EthernetHeader::HEADER_LENGTH;
     auto *datagramBuffer = stream.getData() + stream.getPosition();
 
     socketLock.acquire();
@@ -66,7 +69,7 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
             continue;
         }
 
-        auto *datagram = new EthernetDatagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getEtherType());
+        auto *datagram = new Util::Network::Ethernet::EthernetDatagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getEtherType());
         reinterpret_cast<EthernetSocket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
@@ -79,8 +82,8 @@ uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t 
     return 0;
 }
 
-void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, EthernetHeader::EtherType etherType) {
-    auto header = EthernetHeader();
+void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType) {
+    auto header = Util::Network::Ethernet::EthernetHeader();
     header.setSourceAddress(device.getMacAddress());
     header.setDestinationAddress(destinationAddress);
     header.setEtherType(etherType);
@@ -89,11 +92,11 @@ void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Net
 
 void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
     for (uint32_t i = packet.getLength(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
-        NumberUtil::writeUnsigned8BitValue(0, packet);
+        Util::Network::NumberUtil::writeUnsigned8BitValue(0, packet);
     }
 
     auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getLength());
-    NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
+    Util::Network::NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
 }
 
 }

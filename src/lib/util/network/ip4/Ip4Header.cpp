@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "Ip4Header.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 
-#include "network/NumberUtil.h"
+#include "lib/util/network/NumberUtil.h"
 #include "lib/util/stream/InputStream.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 
@@ -27,18 +30,18 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Network::Ip4 {
+namespace Util::Network::Ip4 {
 
 void Ip4Header::read(Util::Stream::InputStream &stream) {
     // Read IP version and header length
-    auto versionAndLength = NumberUtil::readUnsigned8BitValue(stream);
+    auto versionAndLength = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
     headerLength = (versionAndLength & 0x0f) * sizeof(uint32_t);
 
     // Discard DSCP and ECN
     stream.read();
 
-    auto totalLength = NumberUtil::readUnsigned16BitValue(stream);
+    auto totalLength = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
     payloadLength = totalLength - headerLength;
 
     // Discard Identification, Flags and Offset
@@ -47,8 +50,8 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
     stream.read();
     stream.read();
 
-    timeToLive = NumberUtil::readUnsigned8BitValue(stream);
-    protocol = static_cast<Protocol>(NumberUtil::readUnsigned8BitValue(stream));
+    timeToLive = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
+    protocol = static_cast<Protocol>(Util::Network::NumberUtil::readUnsigned8BitValue(stream));
 
     // Discard checksum
     stream.read();
@@ -65,21 +68,21 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
 
 void Ip4Header::write(Util::Stream::OutputStream &stream) const {
     // Write IP version and header length
-    NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
 
     // Write empty DSCP and ECN
-    NumberUtil::writeUnsigned8BitValue(0, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(0, stream);
 
-    NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(headerLength + payloadLength, stream);
 
     // Write empty Identification, Flags and Offset
-    NumberUtil::writeUnsigned32BitValue(0, stream);
+    Util::Network::NumberUtil::writeUnsigned32BitValue(0, stream);
 
-    NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
-    NumberUtil::writeUnsigned8BitValue(protocol, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(timeToLive, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(protocol, stream);
 
     // Write empty checksum
-    NumberUtil::writeUnsigned16BitValue(0, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(0, stream);
 
     sourceAddress.write(stream);
     destinationAddress.write(stream);

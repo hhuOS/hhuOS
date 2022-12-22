@@ -46,6 +46,8 @@ public:
 
     [[nodiscard]] const uint8_t* getData() const;
 
+    void setData(uint8_t *buffer, uint32_t size, bool deleteBuffer = true);
+
     int16_t read() override;
 
     int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) override;

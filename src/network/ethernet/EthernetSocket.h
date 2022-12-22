@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_ETHERNETSOCKET_H
@@ -20,14 +23,17 @@
 
 #include "network/DatagramSocket.h"
 
+namespace Util {
+namespace Network {
+class Datagram;
+}  // namespace Network
+}  // namespace Util
+
 namespace Device {
 namespace Network {
 class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
-namespace Network {
-class Datagram;
-}  // namespace Network
 
 namespace Network::Ethernet {
 
@@ -54,7 +60,7 @@ public:
      */
     ~EthernetSocket() override;
 
-    void send(const Datagram &datagram) override;
+    bool send(const Util::Network::Datagram &datagram) override;
 
 protected:
 

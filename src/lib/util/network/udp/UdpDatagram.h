@@ -13,51 +13,54 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_DATAGRAM_H
-#define HHUOS_DATAGRAM_H
+#ifndef HHUOS_UDPDATAGRAM_H
+#define HHUOS_UDPDATAGRAM_H
 
 #include <cstdint>
 
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Util {
 namespace Network {
-class NetworkAddress;
+namespace Ip4 {
+class Ip4PortAddress;
+}  // namespace Ip4
 }  // namespace Network
 }  // namespace Util
 
-namespace Network {
+namespace Util::Network::Udp {
 
-class Datagram : public Util::Stream::ByteArrayInputStream {
+class UdpDatagram : public Datagram {
 
 public:
     /**
      * Constructor.
      */
-    Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+    UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);
 
     /**
      * Copy Constructor.
      */
-    Datagram(const Datagram &other) = delete;
+    UdpDatagram(const UdpDatagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Datagram &operator=(const Datagram &other) = delete;
+    UdpDatagram &operator=(const UdpDatagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Datagram() override;
+    ~UdpDatagram() override = default;
 
-    [[nodiscard]] const Util::Network::NetworkAddress& getRemoteAddress() const;
+    [[nodiscard]] uint16_t getRemotePort() const;
 
-protected:
-
-    const Util::Network::NetworkAddress *remoteAddress{};
+    void setAttributes(const Datagram &datagram) override;
 };
 
 }

@@ -29,6 +29,9 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/service/NetworkService.h"
+#include "network/Socket.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Util {
 namespace Async {
@@ -139,6 +142,28 @@ Util::File::File getCurrentWorkingDirectory() {
 
 int32_t createSocket(Util::Network::Socket::Type socketType) {
     return Kernel::System::getService<Kernel::NetworkService>().createSocket(socketType);
+}
+
+bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
+    auto &socket = reinterpret_cast<Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    return socket.send(datagram);
+}
+
+bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
+    auto &socket = reinterpret_cast<Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto *kernelDatagram = socket.receive();
+    auto *datagramBuffer = new uint8_t[kernelDatagram->getDataLength()];
+
+    auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
+    auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
+    target.copyRange(source, kernelDatagram->getDataLength());
+
+    datagram.setData(datagramBuffer, kernelDatagram->getDataLength());
+    datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
+    datagram.setAttributes(*kernelDatagram);
+
+    delete kernelDatagram;
+    return true;
 }
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {

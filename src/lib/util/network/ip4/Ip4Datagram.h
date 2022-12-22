@@ -13,15 +13,18 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ICMPDATAGRAM_H
-#define HHUOS_ICMPDATAGRAM_H
+#ifndef HHUOS_IP4DATAGRAM_H
+#define HHUOS_IP4DATAGRAM_H
 
 #include <cstdint>
 
-#include "network/Datagram.h"
-#include "IcmpHeader.h"
+#include "lib/util/network/Datagram.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 
 namespace Util {
 namespace Network {
@@ -31,39 +34,38 @@ class Ip4Address;
 }  // namespace Network
 }  // namespace Util
 
-namespace Network::Icmp {
+namespace Util::Network::Ip4 {
 
-class IcmpDatagram : public Datagram {
+class Ip4Datagram : public Datagram {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
+    Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
 
     /**
      * Copy Constructor.
      */
-    IcmpDatagram(const IcmpDatagram &other) = delete;
+    Ip4Datagram(const Ip4Datagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    IcmpDatagram &operator=(const IcmpDatagram &other) = delete;
+    Ip4Datagram &operator=(const Ip4Datagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~IcmpDatagram() override = default;
+    ~Ip4Datagram() override = default;
 
-    [[nodiscard]] IcmpHeader::Type getType() const;
+    [[nodiscard]] Ip4Header::Protocol getProtocol() const;
 
-    [[nodiscard]] uint8_t getCode() const;
+    void setAttributes(const Datagram &datagram) override;
 
 private:
 
-    IcmpHeader::Type type;
-    uint8_t code;
+    Ip4Header::Protocol protocol;
 };
 
 }
