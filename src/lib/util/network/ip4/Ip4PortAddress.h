@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_IP4PORTADDRESS_H
@@ -32,6 +35,16 @@ class Ip4PortAddress : public NetworkAddress {
 public:
     /**
      * Default Constructor.
+     */
+    Ip4PortAddress();
+
+    /**
+     * Constructor.
+     */
+    explicit Ip4PortAddress(uint8_t *buffer);
+
+    /**
+     * Constructor.
      */
     Ip4PortAddress(const Ip4Address &address, uint16_t port);
 
@@ -59,6 +72,8 @@ public:
     void setAddress(const Util::Memory::String &string) override;
 
     [[nodiscard]] Util::Memory::String toString() const override;
+
+    static const uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
 
 private:
 

@@ -13,63 +13,58 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#ifndef HHUOS_ECHOHEADER_H
-#define HHUOS_ECHOHEADER_H
+#ifndef HHUOS_DATAGRAM_H
+#define HHUOS_DATAGRAM_H
 
 #include <cstdint>
 
-namespace Util {
-namespace Stream {
-class InputStream;
-class OutputStream;
-}  // namespace Stream
-}  // namespace Util
+#include "lib/util/stream/ByteArrayInputStream.h"
+#include "NetworkAddress.h"
 
-namespace Network::Icmp {
+namespace Util::Network {
 
-class EchoHeader {
+class Datagram : public Util::Stream::ByteArrayInputStream {
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    EchoHeader() = default;
+    explicit Datagram(NetworkAddress::Type type);
+
+    /**
+     * Constructor.
+     */
+    Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.
      */
-    EchoHeader(const EchoHeader &other) = delete;
+    Datagram(const Datagram &other) = delete;
 
     /**
      * Assignment operator.
      */
-    EchoHeader &operator=(const EchoHeader &other) = delete;
+    Datagram &operator=(const Datagram &other) = delete;
 
     /**
      * Destructor.
      */
-    ~EchoHeader() = default;
+    ~Datagram() override;
 
-    void read(Util::Stream::InputStream &stream);
+    [[nodiscard]] const Util::Network::NetworkAddress& getRemoteAddress() const;
 
-    void write(Util::Stream::OutputStream &stream) const;
+    void setRemoteAddress(const Util::Network::NetworkAddress& address);
 
-    [[nodiscard]] uint16_t getIdentifier() const;
+    virtual void setAttributes(const Datagram &datagram) = 0;
 
-    void setIdentifier(uint16_t identifier);
+protected:
 
-    [[nodiscard]] uint16_t getSequenceNumber() const;
-
-    void setSequenceNumber(uint16_t sequenceNumber);
-
-    static const constexpr uint32_t HEADER_LENGTH = 4;
-
-private:
-
-    uint16_t identifier{};
-    uint16_t sequenceNumber{};
+    Util::Network::NetworkAddress *remoteAddress{};
 };
 
 }

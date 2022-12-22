@@ -70,4 +70,16 @@ bool ByteArrayInputStream::isEmpty() const {
     return size == 0;
 }
 
+void ByteArrayInputStream::setData(uint8_t *buffer, uint32_t size, bool deleteBuffer) {
+    if (ByteArrayInputStream::deleteBuffer) {
+        delete[] ByteArrayInputStream::buffer;
+    }
+
+    ByteArrayInputStream::buffer = buffer;
+    ByteArrayInputStream::size = size;
+    ByteArrayInputStream::deleteBuffer = deleteBuffer;
+
+    position = 0;
+}
+
 }

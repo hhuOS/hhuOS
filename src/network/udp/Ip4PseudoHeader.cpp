@@ -13,12 +13,15 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "Ip4PseudoHeader.h"
 
-#include "network/NumberUtil.h"
-#include "network/ip4/Ip4Header.h"
+#include "lib/util/network/NumberUtil.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 
 namespace Util {
 namespace Stream {
@@ -41,8 +44,8 @@ Ip4PseudoHeader::Ip4PseudoHeader(const NetworkModule::LayerInformation &informat
 void Ip4PseudoHeader::write(Util::Stream::OutputStream &stream) const {
     sourceAddress.write(stream);
     destinationAddress.write(stream);
-    NumberUtil::writeUnsigned16BitValue(Ip4::Ip4Header::UDP, stream);
-    NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(Util::Network::Ip4::Ip4Header::UDP, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
 }
 
 const Util::Network::Ip4::Ip4Address& Ip4PseudoHeader::getSourceAddress() const {

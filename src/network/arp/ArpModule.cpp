@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "ArpModule.h"
@@ -30,7 +33,7 @@
 #include "network/NetworkStack.h"
 #include "network/arp/ArpEntry.h"
 #include "network/arp/ArpHeader.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "lib/util/network/ethernet/EthernetHeader.h"
 #include "network/ethernet/EthernetModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4Interface.h"
@@ -184,7 +187,7 @@ void ArpModule::handleReply(const Util::Network::MacAddress &sourceHardwareAddre
 }
 
 void ArpModule::writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress) {
-    Ethernet::EthernetModule::writeHeader(stream, device, destinationAddress, Ethernet::EthernetHeader::ARP);
+    Ethernet::EthernetModule::writeHeader(stream, device, destinationAddress, Util::Network::Ethernet::EthernetHeader::ARP);
 
     auto header = ArpHeader();
     header.setOperation(operation);

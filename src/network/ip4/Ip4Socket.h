@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_IP4SOCKET_H
@@ -20,9 +23,11 @@
 
 #include "network/DatagramSocket.h"
 
+namespace Util {
 namespace Network {
 class Datagram;
 }  // namespace Network
+}  // namespace Util
 
 namespace Network::Ip4 {
 
@@ -49,7 +54,7 @@ public:
      */
     ~Ip4Socket() override;
 
-    void send(const Datagram &datagram) override;
+    bool send(const Util::Network::Datagram &datagram) override;
 
 protected:
 

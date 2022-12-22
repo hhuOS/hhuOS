@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "UdpHeader.h"
+#include "lib/util/network/udp/UdpHeader.h"
 
-#include "network/NumberUtil.h"
+#include "lib/util/network/NumberUtil.h"
 
 namespace Util {
 namespace Stream {
@@ -26,20 +29,20 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Network::Udp {
+namespace Util::Network::Udp {
 
 void UdpHeader::read(Util::Stream::InputStream &stream) {
-    sourcePort = NumberUtil::readUnsigned16BitValue(stream);
-    destinationPort = NumberUtil::readUnsigned16BitValue(stream);
-    datagramLength = NumberUtil::readUnsigned16BitValue(stream);
-    checksum = NumberUtil::readUnsigned16BitValue(stream);
+    sourcePort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+    destinationPort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+    datagramLength = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+    checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
 void UdpHeader::write(Util::Stream::OutputStream &stream) const {
-    NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
-    NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
-    NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
-    NumberUtil::writeUnsigned16BitValue(checksum, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
 uint16_t UdpHeader::getSourcePort() const {

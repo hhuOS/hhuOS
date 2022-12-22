@@ -66,6 +66,8 @@ public:
 
     bool deleteFile(const Util::Memory::String &path);
 
+    int32_t registerFile(Filesystem::Node *node);
+
     int32_t openFile(const Util::Memory::String &path);
 
     void closeFile(int32_t fileDescriptor);

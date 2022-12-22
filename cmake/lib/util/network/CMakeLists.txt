@@ -16,20 +16,16 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.network)
-message(STATUS "Project " ${PROJECT_NAME})
-
-include_directories(${HHUOS_SRC_DIR})
-
-add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
-
 # Add subdirectories
-target_sources(${PROJECT_NAME} PUBLIC
+target_sources(lib.util PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/NetworkAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/NumberUtil.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/Socket.cpp)
 
-target_link_libraries(${PROJECT_NAME} lib.util)
-
 # Add subdirectories
+add_subdirectory(ethernet)
+add_subdirectory(icmp)
 add_subdirectory(ip4)
+add_subdirectory(udp)

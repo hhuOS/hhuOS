@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,14 +13,17 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "Ip4Module.h"
 
-#include "Ip4Header.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 #include "kernel/system/System.h"
 #include "kernel/service/NetworkService.h"
-#include "Ip4Datagram.h"
+#include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/Exception.h"
@@ -32,7 +35,7 @@
 #include "network/NetworkStack.h"
 #include "network/Socket.h"
 #include "network/arp/ArpModule.h"
-#include "network/ethernet/EthernetHeader.h"
+#include "lib/util/network/ethernet/EthernetHeader.h"
 #include "network/ethernet/EthernetModule.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "network/ip4/Ip4Interface.h"
@@ -54,15 +57,15 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayInputStream &>(stream);
     auto *buffer = tmpStream.getData() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
-    auto calculatedChecksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
-    auto receivedChecksum = (buffer[Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Ip4Header::CHECKSUM_OFFSET + 1];
+    auto calculatedChecksum = calculateChecksum(buffer, Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET, headerLength);
+    auto receivedChecksum = (buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1];
 
     if (receivedChecksum != calculatedChecksum) {
         log.warn("Discarding packet, because of wrong header checksum");
         return;
     }
 
-    auto header = Ip4Header();
+    auto header = Util::Network::Ip4::Ip4Header();
     header.read(stream);
 
     if (header.getVersion() != 4) {
@@ -89,7 +92,7 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
             continue;
         }
 
-        auto *datagram = new Ip4Datagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getProtocol());
+        auto *datagram = new Util::Network::Ip4::Ip4Datagram(datagramBuffer, payloadLength, header.getSourceAddress(), header.getProtocol());
         reinterpret_cast<Ip4Socket*>(socket)->handleIncomingDatagram(datagram);
     }
     socketLock.release();
@@ -97,7 +100,7 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
-const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &destinationAddress, Ip4Header::Protocol protocol, uint16_t payloadLength) {
+const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
     auto &ip4Module = networkService.getNetworkStack().getIp4Module();
@@ -108,9 +111,9 @@ const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Discarding packet, because the destination IPv4 address could not resolved");
     }
 
-    Ethernet::EthernetModule::writeHeader(stream, route.getInterface().getDevice(), destinationMacAddress, Ethernet::EthernetHeader::IP4);
+    Ethernet::EthernetModule::writeHeader(stream, route.getInterface().getDevice(), destinationMacAddress, Util::Network::Ethernet::EthernetHeader::IP4);
 
-    auto header = Ip4Header();
+    auto header = Util::Network::Ip4::Ip4Header();
     header.setSourceAddress(route.getInterface().getAddress());
     header.setDestinationAddress(destinationAddress);
     header.setProtocol(protocol);
@@ -120,9 +123,9 @@ const Ip4Interface& Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &
 
     auto *buffer = stream.getBuffer() + stream.getPosition() - header.getHeaderLength();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
-    auto checksum = calculateChecksum(buffer, Ip4Header::CHECKSUM_OFFSET, headerLength);
-    buffer[Ip4Header::CHECKSUM_OFFSET] = checksum >> 8;
-    buffer[Ip4Header::CHECKSUM_OFFSET + 1] = checksum;
+    auto checksum = calculateChecksum(buffer, Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET, headerLength);
+    buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] = checksum >> 8;
+    buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1] = checksum;
 
     return route.getInterface();
 }

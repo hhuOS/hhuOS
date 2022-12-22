@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #ifndef HHUOS_SOCKET_H
@@ -22,10 +25,12 @@
 
 #include "filesystem/core/Node.h"
 #include "lib/util/data/Array.h"
+#include "lib/util/network/Socket.h"
 
 namespace Util {
 namespace Network {
 class NetworkAddress;
+class Datagram;
 }  // namespace Network
 }  // namespace Util
 
@@ -56,16 +61,22 @@ public:
 
     void bind(const Util::Network::NetworkAddress &address);
 
+    [[nodiscard]] Util::Network::Socket::Type getType() const;
+
     [[nodiscard]] const Util::Network::NetworkAddress& getAddress() const;
 
     bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
+
+    virtual bool send(const Util::Network::Datagram &datagram) = 0;
+
+    virtual Util::Network::Datagram* receive() = 0;
 
 protected:
 
     virtual void performBind() = 0;
 
-    const Util::Network::NetworkAddress *bindAddress{};
-
+    Util::Network::Socket::Type type;
+    Util::Network::NetworkAddress *bindAddress{};
 };
 
 }

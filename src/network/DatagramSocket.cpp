@@ -13,18 +13,20 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "DatagramSocket.h"
 
 #include "lib/util/async/Thread.h"
 #include "lib/util/network/NetworkAddress.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Network {
-class Datagram;
-}  // namespace Network
 
-Network::Datagram* Network::DatagramSocket::receive() {
+Util::Network::Datagram *DatagramSocket::receive() {
     while (incomingDatagramQueue.isEmpty()) {
         Util::Async::Thread::yield();
     }
@@ -36,32 +38,34 @@ Network::Datagram* Network::DatagramSocket::receive() {
     return datagram;
 }
 
-void Network::DatagramSocket::handleIncomingDatagram(Network::Datagram *datagram) {
+void DatagramSocket::handleIncomingDatagram(Util::Network::Datagram *datagram) {
     lock.acquire();
     incomingDatagramQueue.offer(datagram);
     lock.release();
 }
 
-Util::Memory::String Network::DatagramSocket::getName() {
+Util::Memory::String DatagramSocket::getName() {
     return bindAddress->toString();
 }
 
-Util::File::Type Network::DatagramSocket::getFileType() {
+Util::File::Type DatagramSocket::getFileType() {
     return Util::File::CHARACTER;
 }
 
-uint64_t Network::DatagramSocket::getLength() {
+uint64_t DatagramSocket::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> Network::DatagramSocket::getChildren() {
+Util::Data::Array<Util::Memory::String> DatagramSocket::getChildren() {
     return Util::Data::Array<Util::Memory::String>(0);
 }
 
-uint64_t Network::DatagramSocket::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t DatagramSocket::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
     return 0;
 }
 
-uint64_t Network::DatagramSocket::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
+uint64_t DatagramSocket::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
     return 0;
+}
+
 }

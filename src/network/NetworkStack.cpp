@@ -13,20 +13,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "NetworkStack.h"
 
-#include "network/ethernet/EthernetHeader.h"
-#include "network/ip4/Ip4Header.h"
+#include "lib/util/network/ethernet/EthernetHeader.h"
+#include "lib/util/network/ip4/Ip4Header.h"
 
 namespace Network {
 
 NetworkStack::NetworkStack() {
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::ARP, arpModule);
-    ethernetModule.registerNextLayerModule(Ethernet::EthernetHeader::IP4, ip4Module);
-    ip4Module.registerNextLayerModule(Ip4::Ip4Header::ICMP, icmpModule);
-    ip4Module.registerNextLayerModule(Ip4::Ip4Header::UDP, udpModule);
+    ethernetModule.registerNextLayerModule(Util::Network::Ethernet::EthernetHeader::ARP, arpModule);
+    ethernetModule.registerNextLayerModule(Util::Network::Ethernet::EthernetHeader::IP4, ip4Module);
+    ip4Module.registerNextLayerModule(Util::Network::Ip4::Ip4Header::ICMP, icmpModule);
+    ip4Module.registerNextLayerModule(Util::Network::Ip4::Ip4Header::UDP, udpModule);
 }
 
 Network::Ethernet::EthernetModule &NetworkStack::getEthernetModule() {

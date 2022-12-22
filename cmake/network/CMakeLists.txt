@@ -23,16 +23,14 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/network/DatagramSocket.cpp
         ${HHUOS_SRC_DIR}/network/NetworkMask.cpp
         ${HHUOS_SRC_DIR}/network/NetworkModule.cpp
         ${HHUOS_SRC_DIR}/network/NetworkStack.cpp
-        ${HHUOS_SRC_DIR}/network/NumberUtil.cpp
         ${HHUOS_SRC_DIR}/network/Socket.cpp)
 add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.network)
+target_link_libraries(${PROJECT_NAME})
 
 # Add subdirectories
 add_subdirectory(arp)

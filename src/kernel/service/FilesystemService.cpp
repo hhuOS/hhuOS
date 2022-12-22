@@ -255,6 +255,10 @@ int32_t FilesystemService::openFile(const Util::Memory::String &path) {
     return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
 }
 
+int32_t FilesystemService::registerFile(Filesystem::Node *node) {
+    return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().registerFile(node);
+}
+
 void FilesystemService::closeFile(int32_t fileDescriptor) {
     return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().closeFile(fileDescriptor);
 }

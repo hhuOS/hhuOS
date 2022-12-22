@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil,  Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,9 +13,12 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "network/NumberUtil.h"
+#include "lib/util/network/NumberUtil.h"
 #include "ArpHeader.h"
 
 namespace Util {
@@ -28,19 +31,19 @@ class OutputStream;
 namespace Network::Arp {
 
 void ArpHeader::read(Util::Stream::InputStream &stream) {
-    hardwareAddressType = static_cast<HardwareAddressType>(NumberUtil::readUnsigned16BitValue(stream));
-    protocolAddressType = static_cast<ProtocolAddressType>(NumberUtil::readUnsigned16BitValue(stream));
-    hardwareAddressSize = NumberUtil::readUnsigned8BitValue(stream);
-    protocolAddressSize = NumberUtil::readUnsigned8BitValue(stream);
-    operation = static_cast<Operation>(NumberUtil::readUnsigned16BitValue(stream));
+    hardwareAddressType = static_cast<HardwareAddressType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
+    protocolAddressType = static_cast<ProtocolAddressType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
+    hardwareAddressSize = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
+    protocolAddressSize = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
+    operation = static_cast<Operation>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
 }
 
 void ArpHeader::write(Util::Stream::OutputStream &stream) {
-    NumberUtil::writeUnsigned16BitValue(hardwareAddressType, stream);
-    NumberUtil::writeUnsigned16BitValue(protocolAddressType, stream);
-    NumberUtil::writeUnsigned8BitValue(hardwareAddressSize, stream);
-    NumberUtil::writeUnsigned8BitValue(protocolAddressSize, stream);
-    NumberUtil::writeUnsigned16BitValue(operation, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(hardwareAddressType, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(protocolAddressType, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(hardwareAddressSize, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(protocolAddressSize, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(operation, stream);
 }
 
 ArpHeader::HardwareAddressType ArpHeader::getHardwareAddressType() const {

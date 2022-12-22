@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
- * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Hannes Feil, Michael Schoettner
+ * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public
  * License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any
@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
 #include "NetworkService.h"
 
-#include <stdarg.h>
+#include <cstdarg>
 
 #include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/NetworkDevice.h"
@@ -28,15 +31,17 @@
 #include "network/ip4/Ip4Module.h"
 #include "network/ip4/Ip4RoutingModule.h"
 #include "kernel/system/SystemCall.h"
-#include "ProcessService.h"
 #include "kernel/system/System.h"
-#include "kernel/process/Process.h"
 #include "network/ethernet/EthernetSocket.h"
 #include "network/ip4/Ip4Socket.h"
 #include "network/icmp/IcmpSocket.h"
 #include "network/udp/UdpSocket.h"
-#include "kernel/file/FileDescriptorManager.h"
 #include "lib/util/system/System.h"
+#include "FilesystemService.h"
+#include "MemoryService.h"
+#include "lib/util/memory/Address.h"
+#include "lib/util/network/Datagram.h"
+#include "network/Socket.h"
 
 namespace Filesystem {
 class Node;
@@ -60,6 +65,47 @@ Kernel::NetworkService::NetworkService() {
         auto &networkService = System::getService<NetworkService>();
         *fileDescriptor = networkService.createSocket(socketType);
 
+        return Util::System::OK;
+    });
+
+    SystemCall::registerSystemCall(Util::System::SEND_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 2) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto *datagram = va_arg(arguments, Util::Network::Datagram*);
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+
+        return socket.send(*datagram) ? Util::System::OK : Util::System::ILLEGAL_STATE;
+    });
+
+    SystemCall::registerSystemCall(Util::System::RECEIVE_DATAGRAM, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
+        if (paramCount < 2) {
+            return Util::System::INVALID_ARGUMENT;
+        }
+
+        auto fileDescriptor = va_arg(arguments, int32_t);
+        auto *datagram = va_arg(arguments, Util::Network::Datagram*);
+
+        auto &filesystemService = System::getService<FilesystemService>();
+        auto &memoryService = System::getService<MemoryService>();
+        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+
+        auto *kernelDatagram = socket.receive();
+        auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getDataLength()));
+
+        auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
+        auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
+        target.copyRange(source, kernelDatagram->getDataLength());
+
+        datagram->setData(datagramBuffer, kernelDatagram->getDataLength());
+        datagram->setRemoteAddress(kernelDatagram->getRemoteAddress());
+        datagram->setAttributes(*kernelDatagram);
+
+        delete kernelDatagram;
         return Util::System::OK;
     });
 }
@@ -120,6 +166,6 @@ int32_t Kernel::NetworkService::createSocket(Util::Network::Socket::Type socketT
             return Util::System::INVALID_ARGUMENT;
     }
 
-    auto &processService = System::getService<ProcessService>();
-    return processService.getCurrentProcess().getFileDescriptorManager().registerFile(socket);
+    auto &filesystemService = System::getService<FilesystemService>();
+    return filesystemService.registerFile(socket);
 }

@@ -33,6 +33,10 @@
 #include "lib/util/network/Socket.h"
 
 namespace Util {
+namespace Network {
+class Datagram;
+}  // namespace Network
+
 namespace Async {
 class Runnable;
 }  // namespace Async
@@ -62,6 +66,8 @@ bool changeDirectory(const Util::Memory::String &path);
 Util::File::File getCurrentWorkingDirectory();
 
 int32_t createSocket(Util::Network::Socket::Type socketType);
+bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram);
+bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram);
 
 Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
 Util::Async::Process getCurrentProcess();

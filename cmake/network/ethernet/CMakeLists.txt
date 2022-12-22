@@ -17,7 +17,5 @@
 cmake_minimum_required(VERSION 3.14)
  
 target_sources(network PUBLIC
-        ${HHUOS_SRC_DIR}/network/ethernet/EthernetDatagram.cpp
-        ${HHUOS_SRC_DIR}/network/ethernet/EthernetHeader.cpp
         ${HHUOS_SRC_DIR}/network/ethernet/EthernetModule.cpp
         ${HHUOS_SRC_DIR}/network/ethernet/EthernetSocket.cpp)

@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "IcmpHeader.h"
+#include "lib/util/network/icmp/IcmpHeader.h"
 
-#include "network/NumberUtil.h"
+#include "lib/util/network/NumberUtil.h"
 
 namespace Util {
 namespace Stream {
@@ -26,18 +29,18 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Network::Icmp {
+namespace Util::Network::Icmp {
 
 void IcmpHeader::read(Util::Stream::InputStream &stream) {
-    type = static_cast<Type>(NumberUtil::readUnsigned8BitValue(stream));
-    code = NumberUtil::readUnsigned8BitValue(stream);
-    checksum = NumberUtil::readUnsigned16BitValue(stream);
+    type = static_cast<Type>(Util::Network::NumberUtil::readUnsigned8BitValue(stream));
+    code = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
+    checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
 void IcmpHeader::write(Util::Stream::OutputStream &stream) {
-    NumberUtil::writeUnsigned8BitValue(type, stream);
-    NumberUtil::writeUnsigned8BitValue(code, stream);
-    NumberUtil::writeUnsigned16BitValue(checksum, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(type, stream);
+    Util::Network::NumberUtil::writeUnsigned8BitValue(code, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(checksum, stream);
 }
 
 IcmpHeader::Type IcmpHeader::getType() const {

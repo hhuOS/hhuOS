@@ -13,11 +13,14 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ * The network stack is based on a bachelor's thesis, written by Hannes Feil.
+ * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "EchoHeader.h"
+#include "lib/util/network/icmp/EchoHeader.h"
 
-#include "network/NumberUtil.h"
+#include "lib/util/network/NumberUtil.h"
 
 namespace Util {
 namespace Stream {
@@ -26,7 +29,7 @@ class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
-namespace Network::Icmp {
+namespace Util::Network::Icmp {
 
 uint16_t EchoHeader::getIdentifier() const {
     return identifier;
@@ -45,13 +48,13 @@ void EchoHeader::setSequenceNumber(uint16_t sequenceNumber) {
 }
 
 void EchoHeader::read(Util::Stream::InputStream &stream) {
-    identifier = NumberUtil::readUnsigned16BitValue(stream);
-    sequenceNumber = NumberUtil::readUnsigned16BitValue(stream);
+    identifier = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
+    sequenceNumber = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
 void EchoHeader::write(Util::Stream::OutputStream &stream) const {
-    NumberUtil::writeUnsigned16BitValue(identifier, stream);
-    NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(identifier, stream);
+    Util::Network::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
 }
 
 }

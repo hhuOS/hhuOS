@@ -63,6 +63,8 @@ public:
         READ_FILE,
         CONTROL_FILE,
         CREATE_SOCKET,
+        SEND_DATAGRAM,
+        RECEIVE_DATAGRAM,
         CHANGE_DIRECTORY,
         GET_CURRENT_WORKING_DIRECTORY,
         GET_SYSTEM_TIME,
