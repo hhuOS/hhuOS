@@ -32,7 +32,7 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/system/System.h"
 #include "lib/util/ArgumentParser.h"
-#include "LvglDriver.h"
+#include "lib/lvgl/LvglDriver.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
 
