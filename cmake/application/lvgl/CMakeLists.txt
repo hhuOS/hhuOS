@@ -15,7 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>
 
 cmake_minimum_required(VERSION 3.14)
-include(FetchContent)
 
 project(lvgl_demo)
 message(STATUS "Project " ${PROJECT_NAME})
@@ -24,18 +23,9 @@ include_directories(${HHUOS_SRC_DIR})
 
 # Set source files
 set(SOURCE_FILES
-        ${HHUOS_SRC_DIR}/application/lvgl/cursor_icon.c
-        ${HHUOS_SRC_DIR}/application/lvgl/demo.cpp
-        ${HHUOS_SRC_DIR}/application/lvgl/LvglDriver.cpp)
+        ${HHUOS_SRC_DIR}/application/lvgl/demo.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "lvgl")
 
-set(LV_CONF_PATH
-        ${HHUOS_SRC_DIR}/application/lvgl/lv_conf.h
-        CACHE STRING "" FORCE)
-
-FetchContent_Declare(lvgl GIT_REPOSITORY https://github.com/lvgl/lvgl.git GIT_TAG v8.3.4)
-FetchContent_MakeAvailable(lvgl)
-
-target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user lvgl::lvgl lvgl::demos)
+target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user lib.lvgl lvgl::lvgl lvgl::demos)
