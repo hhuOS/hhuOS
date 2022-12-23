@@ -23,6 +23,7 @@
 #include "lib/util/Exception.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/memory/Address.h"
 
 namespace Util::Network::Ip4 {
 
@@ -30,19 +31,48 @@ Ip4PortAddress::Ip4PortAddress() : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {}
 
 Ip4PortAddress::Ip4PortAddress(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4_PORT) {}
 
-Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT), bufferAddress(buffer) {
+Ip4PortAddress::Ip4PortAddress(const Memory::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4_PORT) {
+    auto bufferAddress = Util::Memory::Address<uint32_t>(buffer);
+    auto ip4Address = Ip4Address("0.0.0.0");
+    uint16_t port = 0;
+
+    if (string.beginsWith(":")) {
+        port = Util::Memory::String::parseInt(string.substring(1));
+    } else {
+        auto split = string.split(":");
+        ip4Address = Ip4Address(split[0]);
+        if (split.length() > 1) {
+            port = Util::Memory::String::parseInt(split[1]);
+        }
+    }
+
+    ip4Address.getAddress(buffer);
+    bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
+}
+
+Ip4PortAddress::Ip4PortAddress(const Ip4Address &address, uint16_t port) : NetworkAddress(Ip4Address::ADDRESS_LENGTH + 2, IP4_PORT) {
     uint8_t addressBuffer[Ip4Address::ADDRESS_LENGTH];
     address.getAddress(addressBuffer);
+
+    auto bufferAddress = Util::Memory::Address<uint32_t>(buffer);
     bufferAddress.copyRange(Util::Memory::Address<uint32_t>(addressBuffer), Ip4Address::ADDRESS_LENGTH);
     bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
+
+Ip4PortAddress::Ip4PortAddress(const Ip4Address &address) : Ip4PortAddress(address, 0) {}
+
+Ip4PortAddress::Ip4PortAddress(uint16_t port) : Ip4PortAddress(Ip4Address("0.0.0.0"), port) {}
 
 Ip4Address Ip4PortAddress::getIp4Address() const {
     return Ip4Address(buffer);
 }
 
 uint16_t Ip4PortAddress::getPort() const {
-    return bufferAddress.getShort(Ip4Address::ADDRESS_LENGTH);
+    return Util::Memory::Address<uint32_t>(buffer).getShort(Ip4Address::ADDRESS_LENGTH);
+}
+
+void Ip4PortAddress::setPort(uint16_t port) {
+    Util::Memory::Address<uint32_t>(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 NetworkAddress* Ip4PortAddress::createCopy() const {
@@ -66,7 +96,7 @@ void Ip4PortAddress::setAddress(const Util::Memory::String &string) {
         buffer[i] = Util::Memory::String::parseInt(split[i]);
     }
 
-    bufferAddress.setShort(port, Ip4Address::ADDRESS_LENGTH);
+    Util::Memory::Address<uint32_t>(buffer).setShort(port, Ip4Address::ADDRESS_LENGTH);
 }
 
 Util::Memory::String Ip4PortAddress::toString() const {

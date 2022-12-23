@@ -24,7 +24,6 @@
 #include <cstdint>
 
 #include "lib/util/network/NetworkAddress.h"
-#include "lib/util/memory/Address.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/memory/String.h"
 
@@ -46,7 +45,22 @@ public:
     /**
      * Constructor.
      */
+    explicit Ip4PortAddress(const Util::Memory::String &string);
+
+    /**
+     * Constructor.
+     */
     Ip4PortAddress(const Ip4Address &address, uint16_t port);
+
+    /**
+     * Constructor.
+     */
+    explicit Ip4PortAddress(const Ip4Address &address);
+
+    /**
+     * Constructor.
+     */
+    explicit Ip4PortAddress(uint16_t port);
 
     /**
      * Copy Constructor.
@@ -67,6 +81,8 @@ public:
 
     [[nodiscard]] uint16_t getPort() const;
 
+    void setPort(uint16_t port);
+
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
     void setAddress(const Util::Memory::String &string) override;
@@ -74,10 +90,6 @@ public:
     [[nodiscard]] Util::Memory::String toString() const override;
 
     static const uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
-
-private:
-
-    Util::Memory::Address<uint32_t> bufferAddress;
 };
 
 }

@@ -29,7 +29,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/service/NetworkService.h"
-#include "network/Socket.h"
+#include "kernel/network/Socket.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/network/Datagram.h"
 
@@ -145,12 +145,12 @@ int32_t createSocket(Util::Network::Socket::Type socketType) {
 }
 
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
     return socket.send(datagram);
 }
 
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
-    auto &socket = reinterpret_cast<Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
+    auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
     auto *kernelDatagram = socket.receive();
     auto *datagramBuffer = new uint8_t[kernelDatagram->getDataLength()];
 

@@ -27,7 +27,7 @@
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/memory/Constants.h"
-#include "network/ethernet/EthernetModule.h"
+#include "kernel/network/ethernet/EthernetModule.h"
 
 namespace Device::Network {
 
@@ -65,7 +65,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 }
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
-    if (!::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
+    if (!Kernel::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
         log.warn("Discarding packet, because of wrong frame check sequence");
         return;
     }

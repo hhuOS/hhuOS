@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "Service.h"
-#include "network/NetworkStack.h"
+#include "kernel/network/NetworkStack.h"
 #include "lib/util/data/Array.h"
 #include "lib/util/data/ArrayList.h"
 #include "lib/util/data/Collection.h"
@@ -43,13 +43,13 @@ namespace Network {
 class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
+
+namespace Kernel {
 namespace Network {
 namespace Ip4 {
 class Ip4Route;
 }  // namespace Ip4
 }  // namespace Network
-
-namespace Kernel {
 
 class NetworkService : public Service {
 
@@ -84,7 +84,7 @@ public:
 
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Network::MacAddress &address);
 
-    ::Network::NetworkStack& getNetworkStack();
+    Network::NetworkStack& getNetworkStack();
 
     int32_t createSocket(Util::Network::Socket::Type socketType);
 
@@ -93,7 +93,7 @@ public:
 private:
 
     Util::Data::ArrayList<Device::Network::NetworkDevice*> devices;
-    ::Network::NetworkStack networkStack;
+    Network::NetworkStack networkStack;
 };
 
 }

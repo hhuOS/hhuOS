@@ -28,32 +28,33 @@
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
-#include "network/ip4/Ip4Module.h"
-#include "network/ip4/Ip4RoutingModule.h"
+#include "kernel/network/ip4/Ip4Module.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
 #include "kernel/system/SystemCall.h"
 #include "kernel/system/System.h"
-#include "network/ethernet/EthernetSocket.h"
-#include "network/ip4/Ip4Socket.h"
-#include "network/icmp/IcmpSocket.h"
-#include "network/udp/UdpSocket.h"
+#include "kernel/network/ethernet/EthernetSocket.h"
+#include "kernel/network/ip4/Ip4Socket.h"
+#include "kernel/network/icmp/IcmpSocket.h"
+#include "kernel/network/udp/UdpSocket.h"
 #include "lib/util/system/System.h"
 #include "FilesystemService.h"
 #include "MemoryService.h"
 #include "lib/util/memory/Address.h"
 #include "lib/util/network/Datagram.h"
-#include "network/Socket.h"
+#include "kernel/network/Socket.h"
 
 namespace Filesystem {
 class Node;
 }  // namespace Filesystem
 
+namespace Kernel {
 namespace Network {
 namespace Ip4 {
 class Ip4Route;
 }  // namespace Ip4
 }  // namespace Network
 
-Kernel::NetworkService::NetworkService() {
+NetworkService::NetworkService() {
     SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 2) {
             return Util::System::INVALID_ARGUMENT;
@@ -77,7 +78,7 @@ Kernel::NetworkService::NetworkService() {
         auto *datagram = va_arg(arguments, Util::Network::Datagram*);
 
         auto &filesystemService = System::getService<FilesystemService>();
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
 
         return socket.send(*datagram) ? Util::System::OK : Util::System::ILLEGAL_STATE;
     });
@@ -92,10 +93,10 @@ Kernel::NetworkService::NetworkService() {
 
         auto &filesystemService = System::getService<FilesystemService>();
         auto &memoryService = System::getService<MemoryService>();
-        auto &socket = reinterpret_cast<Network::Socket&>(filesystemService.getNode(fileDescriptor));
+        auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
 
         auto *kernelDatagram = socket.receive();
-        auto *datagramBuffer = reinterpret_cast<uint8_t*>(memoryService.allocateUserMemory(kernelDatagram->getDataLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getDataLength()));
 
         auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
@@ -110,13 +111,13 @@ Kernel::NetworkService::NetworkService() {
     });
 }
 
-void Kernel::NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
+void NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
     devices.add(device);
     Device::Network::NetworkFilesystemDriver::mount(*device);
 }
 
-Device::Network::NetworkDevice& Kernel::NetworkService::getNetworkDevice(const Util::Memory::String &identifier) {
-    for (auto *device : devices) {
+Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Memory::String &identifier) {
+    for (auto *device: devices) {
         if (device->getIdentifier() == identifier) {
             return *device;
         }
@@ -125,8 +126,8 @@ Device::Network::NetworkDevice& Kernel::NetworkService::getNetworkDevice(const U
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
 }
 
-Device::Network::NetworkDevice &Kernel::NetworkService::getNetworkDevice(const Util::Network::MacAddress &address) {
-    for (auto *device : devices) {
+Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Network::MacAddress &address) {
+    for (auto *device: devices) {
         if (device->getMacAddress() == address) {
             return *device;
         }
@@ -135,32 +136,32 @@ Device::Network::NetworkDevice &Kernel::NetworkService::getNetworkDevice(const U
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
 }
 
-::Network::NetworkStack &Kernel::NetworkService::getNetworkStack() {
+Network::NetworkStack &NetworkService::getNetworkStack() {
     return networkStack;
 }
 
-void Kernel::NetworkService::registerIp4Route(const Network::Ip4::Ip4Route &route) {
+void NetworkService::registerIp4Route(const Network::Ip4::Ip4Route &route) {
     networkStack.getIp4Module().getRoutingModule().addRoute(route);
 }
 
-void Kernel::NetworkService::setDefaultRoute(const Network::Ip4::Ip4Route &route) {
+void NetworkService::setDefaultRoute(const Network::Ip4::Ip4Route &route) {
     networkStack.getIp4Module().getRoutingModule().setDefaultRoute(route);
 }
 
-int32_t Kernel::NetworkService::createSocket(Util::Network::Socket::Type socketType) {
+int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
     Filesystem::Node *socket;
     switch (socketType) {
         case Util::Network::Socket::ETHERNET:
-            socket = reinterpret_cast<Filesystem::Node*>(new Network::Ethernet::EthernetSocket());
+            socket = reinterpret_cast<Filesystem::Node *>(new Network::Ethernet::EthernetSocket());
             break;
         case Util::Network::Socket::IP4:
-            socket = reinterpret_cast<Filesystem::Node*>(new Network::Ip4::Ip4Socket());
+            socket = reinterpret_cast<Filesystem::Node *>(new Network::Ip4::Ip4Socket());
             break;
         case Util::Network::Socket::ICMP:
-            socket = reinterpret_cast<Filesystem::Node*>(new Network::Icmp::IcmpSocket());
+            socket = reinterpret_cast<Filesystem::Node *>(new Network::Icmp::IcmpSocket());
             break;
         case Util::Network::Socket::UDP:
-            socket = reinterpret_cast<Filesystem::Node*>(new Network::Udp::UdpSocket());
+            socket = reinterpret_cast<Filesystem::Node *>(new Network::Udp::UdpSocket());
             break;
         default:
             return Util::System::INVALID_ARGUMENT;
@@ -168,4 +169,6 @@ int32_t Kernel::NetworkService::createSocket(Util::Network::Socket::Type socketT
 
     auto &filesystemService = System::getService<FilesystemService>();
     return filesystemService.registerFile(socket);
+}
+
 }

@@ -77,11 +77,11 @@
 #include "lib/util/memory/String.h"
 #include "lib/util/stream/PrintWriter.h"
 #include "lib/util/system/System.h"
-#include "network/NetworkStack.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "network/ip4/Ip4Module.h"
-#include "network/ip4/Ip4NetworkMask.h"
-#include "network/ip4/Ip4Route.h"
+#include "lib/util/network/ip4/Ip4NetworkMask.h"
+#include "kernel/network/ip4/Ip4Module.h"
+#include "kernel/network/NetworkStack.h"
+#include "kernel/network/ip4/Ip4Route.h"
 
 namespace Device {
 class Machine;
@@ -393,34 +393,8 @@ void GatesOfHell::initializeNetwork() {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto *loopback = new Device::Network::Loopback("loopback");
     networkService.registerNetworkDevice(loopback);
-    networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Network::Ip4::Ip4NetworkMask(8), *loopback);
-    networkService.setDefaultRoute(Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
-
-    /*auto *echoRequest = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x45\x00" \
-                        "\x00\x54\x5c\x09\x40\x00\x40\x01\xe0\x9d\x7f\x00\x00\x01\x7f\x00" \
-                        "\x00\x01\x08\x00\xea\x85\x00\x02\x00\x01\xba\xa6\x7f\x63\x00\x00" \
-                        "\x00\x00\x0d\x9a\x07\x00\x00\x00\x00\x00\x10\x11\x12\x13\x14\x15" \
-                        "\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f\x20\x21\x22\x23\x24\x25" \
-                        "\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f\x30\x31\x32\x33\x34\x35" \
-                        "\x36\x37\x00\x00\x00\x00";*/
-
-    /*auto *dnsRequest = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x08\x00\x45\x00" \
-                    "\x00\x4f\x37\x5e\x00\x00\x40\x11\x45\x3e\x7f\x00\x00\x01\x7f\x00" \
-                    "\x00\x01\xee\x17\x00\x35\x00\x3b\x4b\x5f\xfb\x45\x01\x20\x00\x01" \
-                    "\x00\x00\x00\x00\x00\x01\x06\x67\x6f\x6f\x67\x6c\x65\x03\x63\x6f" \
-                    "\x6d\x00\x00\x01\x00\x01\x00\x00\x29\x04\xd0\x00\x00\x00\x00\x00" \
-                    "\x0c\x00\x0a\x00\x08\xa5\xa8\xee\x49\x1c\x30\xf4\x7e\x00\x00\x00" \
-                    "\x00";*/
-
-
-    /*auto *udpTest = "\xa0\x36\x9f\x6b\xc0\x99\x90\x1b\x0e\x9a\xc7\x07\x08\x00\x45\x00" \
-                    "\x00\x1e\x00\x01\x00\x00\x40\x11\xf9\x40\xc0\xa8\x00\x1f\xc0\xa8" \
-                    "\x00\x1e\x00\x14\x00\x0a\x00\x0a\x35\xc5\x48\x69\x00\x00\x00\x00";*/
-
-    // loopback->sendPacket(reinterpret_cast<const uint8_t*>(udpTest), 48);
-
-    /* auto *content = "Hello, World!";
-    Network::Udp::UdpModule::writePacket(1797, 8821, Network::Ip4::Ip4Address("127.0.0.1"), reinterpret_cast<const uint8_t*>(content), 14);*/
+    networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
+    networkService.setDefaultRoute(Kernel::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
 }
 
 void GatesOfHell::mountDevices() {

@@ -39,6 +39,11 @@ class UdpDatagram : public Datagram {
 
 public:
     /**
+     * Default Constructor.
+     */
+    UdpDatagram();
+
+    /**
      * Constructor.
      */
     UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);

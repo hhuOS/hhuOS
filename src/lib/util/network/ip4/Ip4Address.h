@@ -31,11 +31,8 @@ namespace Util::Network::Ip4 {
 class Ip4Address : public NetworkAddress {
 
 public:
-
-    static const constexpr uint8_t ADDRESS_LENGTH = 4;
-
     /**
-     * Default Constructor.
+     * Constructor.
      */
     Ip4Address();
 
@@ -73,6 +70,10 @@ public:
     void setAddress(const Util::Memory::String &string) override;
 
     [[nodiscard]] Util::Memory::String toString() const override;
+
+    static const Ip4Address ANY;
+
+    static const constexpr uint8_t ADDRESS_LENGTH = 4;
 };
 
 }

@@ -57,17 +57,17 @@ public:
     /**
      * Destructor.
      */
-    ~Socket() = default;
+    ~Socket();
 
     static Socket createSocket(Type socketType);
 
     [[nodiscard]] bool bind(const NetworkAddress &address) const;
 
-    [[nodiscard]] NetworkAddress* getLocalAddress() const;
+    [[nodiscard]] bool getLocalAddress(NetworkAddress &address) const;
 
-    bool send(const Util::Network::Datagram &datagram) const;
+    [[nodiscard]] bool send(const Util::Network::Datagram &datagram) const;
 
-    bool receive(Util::Network::Datagram &datagram) const;
+    [[nodiscard]] bool receive(Util::Network::Datagram &datagram) const;
 
 private:
     /**

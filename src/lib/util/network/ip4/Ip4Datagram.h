@@ -40,6 +40,11 @@ class Ip4Datagram : public Datagram {
 
 public:
     /**
+     * Default Constructor.
+     */
+     Ip4Datagram();
+
+    /**
      * Constructor.
      */
     Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
@@ -65,7 +70,7 @@ public:
 
 private:
 
-    Ip4Header::Protocol protocol;
+    Ip4Header::Protocol protocol{};
 };
 
 }

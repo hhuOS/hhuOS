@@ -22,8 +22,11 @@
 
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4Header.h"
+#include "lib/util/network/NetworkAddress.h"
 
 namespace Util::Network::Ip4 {
+
+Ip4Datagram::Ip4Datagram() : Datagram(NetworkAddress::IP4) {}
 
 Ip4Datagram::Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol) :
         Datagram(buffer, length, remoteAddress), protocol(protocol) {}
