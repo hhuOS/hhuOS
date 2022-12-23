@@ -40,6 +40,11 @@ public:
     /**
      * Default Constructor.
      */
+    EthernetDatagram();
+
+    /**
+     * Constructor.
+     */
     EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, EthernetHeader::EtherType type);
 
     /**
@@ -63,7 +68,7 @@ public:
 
 private:
 
-    EthernetHeader::EtherType type;
+    EthernetHeader::EtherType type{};
 };
 
 }

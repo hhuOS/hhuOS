@@ -100,7 +100,6 @@ add_subdirectory(device)
 add_subdirectory(filesystem)
 add_subdirectory(kernel)
 add_subdirectory(lib)
-add_subdirectory(network)
 add_subdirectory(system)
 
 add_subdirectory(initrd)

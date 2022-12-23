@@ -25,12 +25,14 @@
 
 namespace Util::Network::Ip4 {
 
+const Ip4Address Ip4Address::ANY = Ip4Address("0.0.0.0");
+
 Ip4Address::Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 
 Ip4Address::Ip4Address(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
 
 Ip4Address::Ip4Address(const Util::Memory::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
-    auto split = Util::Memory::String(string).split(".");
+    auto split = string.split(".");
     uint8_t buffer[4] = {
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[0])),
             static_cast<uint8_t>(Util::Memory::String::parseInt(split[1])),

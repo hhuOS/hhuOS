@@ -53,11 +53,11 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto count = argumentParser.hasArgument("count") ? Util::Memory::String::parseInt(argumentParser.getArgument("count")) : 10;
+    uint32_t count = argumentParser.hasArgument("count") ? Util::Memory::String::parseInt(argumentParser.getArgument("count")) : 10;
     auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
-    if (!socket.bind(destinationAddress)) {
+    if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
         Util::System::error << "ping: Failed to bind socket!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
     }
 

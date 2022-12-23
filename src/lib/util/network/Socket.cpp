@@ -47,10 +47,8 @@ bool Socket::bind(const NetworkAddress &address) const {
     return ::controlFile(fileDescriptor, BIND, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
-NetworkAddress* Socket::getLocalAddress() const {
-    NetworkAddress *address;
-    ::controlFile(fileDescriptor, GET_LOCAL_ADDRESS, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
-    return address;
+bool Socket::getLocalAddress(NetworkAddress &address) const {
+    return ::controlFile(fileDescriptor, GET_LOCAL_ADDRESS, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
 bool Socket::send(const Datagram &datagram) const {
@@ -59,6 +57,10 @@ bool Socket::send(const Datagram &datagram) const {
 
 bool Socket::receive(Util::Network::Datagram &datagram) const {
     return ::receiveDatagram(fileDescriptor, datagram);
+}
+
+Socket::~Socket() {
+    ::closeFile(fileDescriptor);
 }
 
 }

@@ -21,6 +21,7 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/NetworkAddress.cpp
+        ${HHUOS_SRC_DIR}/lib/util/network/NetworkMask.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/NumberUtil.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/Socket.cpp)
 
