@@ -57,7 +57,7 @@ Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
 void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayInputStream &>(stream);
-    auto *buffer = tmpStream.getData() + tmpStream.getPosition();
+    auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
     auto calculatedChecksum = calculateChecksum(buffer, Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET, headerLength);
     auto receivedChecksum = (buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET + 1];
@@ -86,7 +86,7 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     }
 
     auto payloadLength = header.getPayloadLength();
-    auto *datagramBuffer = stream.getData() + stream.getPosition();
+    auto *datagramBuffer = stream.getBuffer() + stream.getPosition();
 
     socketLock.acquire();
     for (auto *socket : socketList) {

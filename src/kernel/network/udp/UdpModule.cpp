@@ -75,7 +75,8 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
     auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
-    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getData() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(),
+                                      stream.getBuffer() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
     if (header.getChecksum() != checksum) {
         log.warn("Discarding packet, because of wrong checksum");
         return;
@@ -84,7 +85,7 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
     auto sourceAddress = Util::Network::Ip4::Ip4PortAddress(reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(information.sourceAddress), header.getSourcePort());
     auto destinationAddress = Util::Network::Ip4::Ip4PortAddress(pseudoHeader.getDestinationAddress(), header.getDestinationPort());
     auto payloadLength = header.getDatagramLength() - Util::Network::Udp::UdpHeader::HEADER_SIZE;
-    auto *datagramBuffer = stream.getData() + stream.getPosition();
+    auto *datagramBuffer = stream.getBuffer() + stream.getPosition();
 
     socketLock.acquire();
     for (auto *socket : socketList) {

@@ -96,13 +96,13 @@ NetworkService::NetworkService() {
         auto &socket = reinterpret_cast<Network::Socket &>(filesystemService.getNode(fileDescriptor));
 
         auto *kernelDatagram = socket.receive();
-        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getDataLength()));
+        auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
 
         auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
         auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
-        target.copyRange(source, kernelDatagram->getDataLength());
+        target.copyRange(source, kernelDatagram->getLength());
 
-        datagram->setData(datagramBuffer, kernelDatagram->getDataLength());
+        datagram->setData(datagramBuffer, kernelDatagram->getLength());
         datagram->setRemoteAddress(kernelDatagram->getRemoteAddress());
         datagram->setAttributes(*kernelDatagram);
 

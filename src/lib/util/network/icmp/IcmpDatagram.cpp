@@ -31,6 +31,12 @@ IcmpDatagram::IcmpDatagram() : Datagram(NetworkAddress::IP4) {}
 IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code) :
         Datagram(buffer, length, remoteAddress), type(type), code(code) {}
 
+IcmpDatagram::IcmpDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
+        Datagram(buffer, length, remoteAddress), type(type), code(code) {}
+
+IcmpDatagram::IcmpDatagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
+        Datagram(stream, remoteAddress), type(type), code(code) {}
+
 IcmpHeader::Type IcmpDatagram::getType() const {
     return type;
 }

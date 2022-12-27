@@ -21,6 +21,7 @@
 #include <cstdint>
 
 #include "InputStream.h"
+#include "lib/util/network/Datagram.h"
 
 namespace Util::Stream {
 
@@ -30,13 +31,15 @@ public:
 
     ByteArrayInputStream(uint8_t *buffer, uint32_t size, bool deleteBuffer = true);
 
+    explicit ByteArrayInputStream(Network::Datagram &datagram);
+
     ByteArrayInputStream(const ByteArrayInputStream &copy) = delete;
 
     ByteArrayInputStream &operator=(const ByteArrayInputStream &copy) = delete;
 
     ~ByteArrayInputStream() override;
 
-    [[nodiscard]] uint32_t getDataLength() const;
+    [[nodiscard]] uint32_t getLength() const;
 
     [[nodiscard]] uint32_t getPosition() const;
 
@@ -44,9 +47,7 @@ public:
 
     [[nodiscard]] bool isEmpty() const;
 
-    [[nodiscard]] const uint8_t* getData() const;
-
-    void setData(uint8_t *buffer, uint32_t size, bool deleteBuffer = true);
+    [[nodiscard]] const uint8_t* getBuffer() const;
 
     int16_t read() override;
 

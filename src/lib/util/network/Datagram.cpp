@@ -30,7 +30,7 @@
 
 namespace Util::Network {
 
-Datagram::Datagram(NetworkAddress::Type type) : Util::Stream::ByteArrayInputStream(nullptr, 0, false) {
+Datagram::Datagram(NetworkAddress::Type type) {
     switch (type) {
         case Util::Network::NetworkAddress::MAC:
             remoteAddress = new Util::Network::MacAddress();
@@ -42,17 +42,26 @@ Datagram::Datagram(NetworkAddress::Type type) : Util::Stream::ByteArrayInputStre
             remoteAddress = new Util::Network::Ip4::Ip4PortAddress();
             break;
         default:
-            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Illegal address type for bind()!");
+            Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Illegal address type for bind!");
     }
 }
 
 Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress) :
-        Util::Stream::ByteArrayInputStream(new uint8_t[length], length, true), remoteAddress(remoteAddress.createCopy()) {
-    Util::Memory::Address<uint32_t>(getData()).copyRange(Util::Memory::Address<uint32_t>(buffer), length);
+        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length) {
+    Util::Memory::Address<uint32_t>(Datagram::buffer).copyRange(Util::Memory::Address<uint32_t>(buffer), length);
+}
+
+Datagram::Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress) :
+        remoteAddress(remoteAddress.createCopy()), buffer(buffer), length(length) {}
+
+Datagram::Datagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
+        remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getLength()]), length(stream.getLength()) {
+    Util::Memory::Address<uint32_t>(Datagram::buffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer()), stream.getLength());
 }
 
 Datagram::~Datagram() {
     delete remoteAddress;
+    delete[] buffer;
 }
 
 const NetworkAddress &Network::Datagram::getRemoteAddress() const {
@@ -63,6 +72,20 @@ void Datagram::setRemoteAddress(const NetworkAddress &address) {
     auto addressStream = Util::Stream::ByteArrayOutputStream();
     address.write(addressStream);
     remoteAddress->setAddress(addressStream.getBuffer());
+}
+
+uint8_t *Datagram::getData() const {
+    return buffer;
+}
+
+uint32_t Datagram::getLength() const {
+    return length;
+}
+
+void Datagram::setData(uint8_t *buffer, uint32_t length) {
+    delete[] Datagram::buffer;
+    Datagram::buffer = buffer;
+    Datagram::length = length;
 }
 
 }

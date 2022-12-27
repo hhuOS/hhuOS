@@ -23,12 +23,12 @@
 
 #include <cstdint>
 
-#include "lib/util/stream/ByteArrayInputStream.h"
 #include "NetworkAddress.h"
+#include "lib/util/stream/ByteArrayOutputStream.h"
 
 namespace Util::Network {
 
-class Datagram : public Util::Stream::ByteArrayInputStream {
+class Datagram {
 
 public:
     /**
@@ -40,6 +40,16 @@ public:
      * Constructor.
      */
     Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+
+    /**
+     * Constructor.
+     */
+    Datagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+
+    /**
+     * Constructor.
+     */
+    Datagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.
@@ -54,17 +64,26 @@ public:
     /**
      * Destructor.
      */
-    ~Datagram() override;
+    virtual ~Datagram();
 
     [[nodiscard]] const Util::Network::NetworkAddress& getRemoteAddress() const;
 
     void setRemoteAddress(const Util::Network::NetworkAddress& address);
+
+    [[nodiscard]] uint8_t* getData() const;
+
+    [[nodiscard]] uint32_t getLength() const;
+
+    void setData(uint8_t *buffer, uint32_t length);
 
     virtual void setAttributes(const Datagram &datagram) = 0;
 
 protected:
 
     Util::Network::NetworkAddress *remoteAddress{};
+
+    uint8_t *buffer{};
+    uint32_t length{};
 };
 
 }

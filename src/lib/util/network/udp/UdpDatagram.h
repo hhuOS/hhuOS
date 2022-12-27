@@ -49,6 +49,16 @@ public:
     UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress);
 
     /**
+     * Constructor.
+     */
+    UdpDatagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress);
+
+    /**
+     * Constructor.
+     */
+    UdpDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
+
+    /**
      * Copy Constructor.
      */
     UdpDatagram(const UdpDatagram &other) = delete;

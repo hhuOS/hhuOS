@@ -32,6 +32,7 @@
 #include "lib/util/data/Array.h"
 #include "lib/util/memory/String.h"
 #include "lib/util/network/icmp/IcmpHeader.h"
+#include "lib/util/stream/ByteArrayInputStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -71,7 +72,7 @@ int32_t main(int32_t argc, char *argv[]) {
         echoHeader.write(packet);
         Util::Network::NumberUtil::writeUnsigned32BitValue(Util::Time::getSystemTime().toMilliseconds(), packet);
 
-        auto datagram = Util::Network::Icmp::IcmpDatagram(packet.getBuffer(), packet.getPosition(), destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
+        auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
             Util::System::error << "ping: Failed to send echo request!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             return -1;
@@ -85,12 +86,13 @@ int32_t main(int32_t argc, char *argv[]) {
             }
 
             if (receivedDatagram.getType() == Util::Network::Icmp::IcmpHeader::ECHO_REPLY) {
-                echoHeader.read(receivedDatagram);
+                auto receivedPacket = Util::Stream::ByteArrayInputStream(receivedDatagram);
+                echoHeader.read(receivedPacket);
                 if (echoHeader.getSequenceNumber() == i) {
                     validReply = true;
-                    auto sourceTimestamp = Util::Network::NumberUtil::readUnsigned32BitValue(receivedDatagram);
+                    auto sourceTimestamp = Util::Network::NumberUtil::readUnsigned32BitValue(receivedPacket);
                     auto currentTimestamp = Util::Time::getSystemTime().toMilliseconds();
-                    Util::System::out << receivedDatagram.getDataLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
+                    Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
                                     << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
                                     << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
                 }

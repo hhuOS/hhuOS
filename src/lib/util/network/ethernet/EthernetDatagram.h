@@ -48,6 +48,16 @@ public:
     EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, EthernetHeader::EtherType type);
 
     /**
+     * Constructor.
+     */
+    EthernetDatagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
+
+    /**
+     * Constructor.
+     */
+    EthernetDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
+
+    /**
      * Copy Constructor.
      */
     EthernetDatagram(const EthernetDatagram &other) = delete;

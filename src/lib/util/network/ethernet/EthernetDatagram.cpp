@@ -31,6 +31,12 @@ EthernetDatagram::EthernetDatagram() : Datagram(NetworkAddress::MAC) {}
 EthernetDatagram::EthernetDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::MacAddress &remoteAddress, Network::Ethernet::EthernetHeader::EtherType type) :
         Datagram(buffer, length, remoteAddress), type(type) {}
 
+EthernetDatagram::EthernetDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
+        Datagram(buffer, length, remoteAddress), type(type) {}
+
+EthernetDatagram::EthernetDatagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
+        Datagram(stream, remoteAddress), type(type) {}
+
 EthernetHeader::EtherType Network::Ethernet::EthernetDatagram::getEtherType() const {
     return type;
 }
