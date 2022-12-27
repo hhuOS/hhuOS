@@ -61,7 +61,7 @@ void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, Laye
     }
 
     auto payloadLength = information.payloadLength - Util::Network::Ethernet::EthernetHeader::HEADER_LENGTH;
-    auto *datagramBuffer = stream.getData() + stream.getPosition();
+    auto *datagramBuffer = stream.getBuffer() + stream.getPosition();
 
     socketLock.acquire();
     for (auto *socket : socketList) {

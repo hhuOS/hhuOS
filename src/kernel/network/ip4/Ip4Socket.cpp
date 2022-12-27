@@ -53,8 +53,8 @@ bool Ip4Socket::send(const Util::Network::Datagram &datagram) {
     const auto &ip4Datagram = reinterpret_cast<const Util::Network::Ip4::Ip4Datagram&>(datagram);
     const auto &sourceAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(*bindAddress);
     const auto &destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(ip4Datagram.getRemoteAddress());
-    auto &interface = Ip4Module::writeHeader(packet, sourceAddress, destinationAddress, ip4Datagram.getProtocol(), datagram.getDataLength());
-    packet.write(datagram.getData(), 0, datagram.getDataLength());
+    auto &interface = Ip4Module::writeHeader(packet, sourceAddress, destinationAddress, ip4Datagram.getProtocol(), datagram.getLength());
+    packet.write(datagram.getData(), 0, datagram.getLength());
     Ethernet::EthernetModule::finalizePacket(packet);
     interface.getDevice().sendPacket(packet.getBuffer(), packet.getPosition());
     return true;

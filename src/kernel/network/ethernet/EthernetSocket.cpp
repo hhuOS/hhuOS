@@ -48,7 +48,7 @@ bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
     auto packet = Util::Stream::ByteArrayOutputStream();
     EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress &>(datagram.getRemoteAddress()),
                                 reinterpret_cast<const Util::Network::Ethernet::EthernetDatagram &>(datagram).getEtherType());
-    packet.write(datagram.getData(), 0, datagram.getDataLength());
+    packet.write(datagram.getData(), 0, datagram.getLength());
     EthernetModule::finalizePacket(packet);
     device->sendPacket(packet.getBuffer(), packet.getPosition());
     return true;

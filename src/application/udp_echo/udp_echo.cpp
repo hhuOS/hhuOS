@@ -44,14 +44,12 @@ int32_t server(Util::Network::Socket &socket) {
             return -1;
         }
 
-        const auto &destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress &>(receivedDatagram.getRemoteAddress());
-        auto sendDatagram = Util::Network::Udp::UdpDatagram(receivedDatagram.getData(), receivedDatagram.getDataLength(), destinationAddress);
-        if (!socket.send(sendDatagram)) {
+        if (!socket.send(receivedDatagram)) {
             Util::System::error << "udp_echo: Failed to send echo reply!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
             return -1;
         }
 
-        if (Util::Memory::String(receivedDatagram.getData(), receivedDatagram.getDataLength()) == "exit") {
+        if (Util::Memory::String(receivedDatagram.getData(), receivedDatagram.getLength()) == "exit") {
             break;
         }
     }
@@ -93,7 +91,7 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
             return -1;
         }
 
-        auto message = Util::Memory::String(receivedDatagram.getData(), receivedDatagram.getDataLength());
+        auto message = Util::Memory::String(receivedDatagram.getData(), receivedDatagram.getLength());
         Util::System::out << "Received: " << message << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
 
         if (message == "exit") {

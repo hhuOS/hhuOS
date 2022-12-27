@@ -48,7 +48,7 @@ bool IcmpSocket::send(const Util::Network::Datagram &datagram) {
     const auto &icmpDatagram = reinterpret_cast<const Util::Network::Icmp::IcmpDatagram&>(datagram);
     const auto &sourceAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(*bindAddress);
     const auto &destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(icmpDatagram.getRemoteAddress());
-    IcmpModule::writePacket(icmpDatagram.getType(), icmpDatagram.getCode(), sourceAddress, destinationAddress, icmpDatagram.getData(), icmpDatagram.getDataLength());
+    IcmpModule::writePacket(icmpDatagram.getType(), icmpDatagram.getCode(), sourceAddress, destinationAddress, icmpDatagram.getData(), icmpDatagram.getLength());
     return true;
 }
 

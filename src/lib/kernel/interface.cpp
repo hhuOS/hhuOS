@@ -152,13 +152,13 @@ bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagra
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram) {
     auto &socket = reinterpret_cast<Kernel::Network::Socket&>(Kernel::System::getService<Kernel::FilesystemService>().getNode(fileDescriptor));
     auto *kernelDatagram = socket.receive();
-    auto *datagramBuffer = new uint8_t[kernelDatagram->getDataLength()];
+    auto *datagramBuffer = new uint8_t[kernelDatagram->getLength()];
 
     auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
     auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
-    target.copyRange(source, kernelDatagram->getDataLength());
+    target.copyRange(source, kernelDatagram->getLength());
 
-    datagram.setData(datagramBuffer, kernelDatagram->getDataLength());
+    datagram.setData(datagramBuffer, kernelDatagram->getLength());
     datagram.setRemoteAddress(kernelDatagram->getRemoteAddress());
     datagram.setAttributes(*kernelDatagram);
 

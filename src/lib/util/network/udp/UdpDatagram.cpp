@@ -27,7 +27,14 @@ namespace Util::Network::Udp {
 
 UdpDatagram::UdpDatagram() : Datagram(NetworkAddress::IP4_PORT) {}
 
-UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress) : Datagram(buffer, length, remoteAddress) {}
+UdpDatagram::UdpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4PortAddress &remoteAddress)
+        : Datagram(buffer, length, remoteAddress) {}
+
+UdpDatagram::UdpDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress)
+        : Datagram(buffer, length, remoteAddress) {}
+
+UdpDatagram::UdpDatagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress)
+        : Datagram(stream, remoteAddress) {}
 
 uint16_t UdpDatagram::getRemotePort() const {
     return reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress*>(remoteAddress)->getPort();

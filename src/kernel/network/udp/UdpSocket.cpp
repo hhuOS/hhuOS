@@ -39,7 +39,7 @@ UdpSocket::~UdpSocket() {
 bool UdpSocket::send(const Util::Network::Datagram &datagram) {
     const auto &sourceAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(*bindAddress);
     const auto &destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4PortAddress&>(datagram.getRemoteAddress());
-    UdpModule::writePacket(sourceAddress, destinationAddress, datagram.getData(), datagram.getDataLength());
+    UdpModule::writePacket(sourceAddress, destinationAddress, datagram.getData(), datagram.getLength());
     return true;
 }
 

@@ -20,13 +20,9 @@
 
 namespace Util::Stream {
 
-ByteArrayOutputStream::ByteArrayOutputStream() : ByteArrayOutputStream(DEFAULT_BUFFER_SIZE) {
+ByteArrayOutputStream::ByteArrayOutputStream() : ByteArrayOutputStream(DEFAULT_BUFFER_SIZE) {}
 
-}
-
-ByteArrayOutputStream::ByteArrayOutputStream(uint32_t size) : buffer(new uint8_t[size]), size(size) {
-
-}
+ByteArrayOutputStream::ByteArrayOutputStream(uint32_t size) : buffer(new uint8_t[size]), size(size) {}
 
 ByteArrayOutputStream::~ByteArrayOutputStream() {
     delete[] buffer;
@@ -89,7 +85,7 @@ void ByteArrayOutputStream::ensureRemainingCapacity(uint32_t count) {
     size = newSize;
 }
 
-uint8_t * ByteArrayOutputStream::getBuffer() const {
+uint8_t* ByteArrayOutputStream::getBuffer() const {
     return buffer;
 }
 

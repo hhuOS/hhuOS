@@ -50,6 +50,16 @@ public:
     Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, Ip4Header::Protocol protocol);
 
     /**
+     * Constructor.
+     */
+    Ip4Datagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
+
+    /**
+     * Constructor.
+     */
+    Ip4Datagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
+
+    /**
      * Copy Constructor.
      */
     Ip4Datagram(const Ip4Datagram &other) = delete;

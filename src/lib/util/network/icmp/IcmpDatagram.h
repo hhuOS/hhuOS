@@ -50,6 +50,16 @@ public:
     IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::Network::Ip4::Ip4Address &remoteAddress, IcmpHeader::Type type, uint8_t code);
 
     /**
+     * Constructor.
+     */
+    IcmpDatagram(uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code);
+
+    /**
+     * Constructor.
+     */
+    IcmpDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code);
+
+    /**
      * Copy Constructor.
      */
     IcmpDatagram(const IcmpDatagram &other) = delete;

@@ -45,7 +45,7 @@ namespace Kernel::Network::Icmp {
 Kernel::Logger IcmpModule::log = Kernel::Logger::get("ICMP");
 
 void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto *buffer = stream.getData() + stream.getPosition();
+    auto *buffer = stream.getBuffer() + stream.getPosition();
     auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET, stream.getRemaining());
     auto receivedChecksum = (buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET + 1];
 
@@ -64,12 +64,12 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
         case Util::Network::Icmp::IcmpHeader::ECHO_REQUEST: {
             auto requestHeader = Util::Network::Icmp::EchoHeader();
             requestHeader.read(stream);
-            sendEchoReply(destinationAddress, sourceAddress, requestHeader, stream.getData() + stream.getPosition(), stream.getRemaining(), device);
+            sendEchoReply(destinationAddress, sourceAddress, requestHeader, stream.getBuffer() + stream.getPosition(), stream.getRemaining(), device);
             break;
         }
         default: {
             auto payloadLength = information.payloadLength - Util::Network::Icmp::IcmpHeader::HEADER_LENGTH;
-            auto *datagramBuffer = stream.getData() + stream.getPosition();
+            auto *datagramBuffer = stream.getBuffer() + stream.getPosition();
 
             socketLock.acquire();
             for (auto *socket: socketList) {
