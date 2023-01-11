@@ -17,7 +17,6 @@
 cmake_minimum_required(VERSION 3.14)
 
 target_sources(device PUBLIC
-        ${HHUOS_SRC_DIR}/device/hid/Key.cpp
         ${HHUOS_SRC_DIR}/device/hid/Keyboard.cpp
         ${HHUOS_SRC_DIR}/device/hid/Mouse.cpp
         ${HHUOS_SRC_DIR}/device/hid/Ps2Controller.cpp

@@ -23,6 +23,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/stream/FileInputStream.h"
 #include "lib/util/time/Timestamp.h"
+#include "lib/util/io/KeyDecoder.h"
 
 namespace Util::Graphic {
 
@@ -477,9 +478,36 @@ Terminal::KeyboardRunnable::KeyboardRunnable(Terminal &terminal) : terminal(term
 
 void Terminal::KeyboardRunnable::run() {
     auto keyboardStream = Stream::FileInputStream("/device/keyboard");
+    auto keyDecoder = Io::KeyDecoder();
 
     while (true) {
-        terminal.outputStream.write(keyboardStream.read());
+        auto scancode = keyboardStream.read();
+        if (keyDecoder.parseScancode(scancode)) {
+            auto key = keyDecoder.getCurrentKey();
+            auto c = key.getAscii();
+            if (c == 0) {
+                switch (key.getScancode()) {
+                    case 0x48:
+                        terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1A"), 0, 4);
+                        break;
+                    case 0x50:
+                        terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1B"), 0, 4);
+                        break;
+                    case 0x4D:
+                        terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1C"), 0, 4);
+                        break;
+                    case 0x4B:
+                        terminal.outputStream.write(reinterpret_cast<const uint8_t*>("\u001b[1D"), 0, 4);
+                        break;
+                }
+            } else {
+                if (key.getCtrl()) {
+                    c &= 0x1f;
+                }
+
+                terminal.outputStream.write(c);
+            }
+        }
     }
 }
 
