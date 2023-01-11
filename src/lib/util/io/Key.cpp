@@ -17,7 +17,7 @@
 
 #include "Key.h"
 
-namespace Device {
+namespace Util::Io {
 
 bool Key::isValid() const {
     return scancode != 0;
@@ -49,12 +49,12 @@ void Key::setScancode(uint8_t s)  {
 }
 
 
-unsigned char Key::getAscii() const {
+uint8_t Key::getAscii() const {
     return ascii;
 }
 
 
-unsigned char Key::getScancode() const {
+uint8_t Key::getScancode() const {
     return scancode;
 }
 
@@ -141,20 +141,20 @@ bool Key::getScrollLock() const {
 
 
 bool Key::getAlt() const {
-    return getAltLeft() | getAltRight();
+    return getAltLeft() || getAltRight();
 }
 
 
 bool Key::getCtrl() const {
-    return getCtrlLeft() | getCtrlRight();
+    return getCtrlLeft() || getCtrlRight();
 }
 
 Key::operator char() const {
     return(char) ascii;
 }
 
-Key::operator unsigned char() const {
-    return(unsigned char) ascii;
+Key::operator uint8_t() const {
+    return(uint8_t) ascii;
 }
 
 }

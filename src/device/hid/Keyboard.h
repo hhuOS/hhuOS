@@ -22,7 +22,7 @@
 
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/stream/PipedOutputStream.h"
-#include "Key.h"
+#include "lib/util/io/Key.h"
 #include "Ps2Device.h"
 #include "lib/util/stream/FilterInputStream.h"
 #include "lib/util/stream/PipedInputStream.h"
@@ -131,30 +131,10 @@ private:
      */
     void setLed(Device::Keyboard::Led led, bool on);
 
-    /**
-     * Decode make- and break-codes from the keyboard.
-     *
-     * @return true, if the key is complete, or false if there are still make-/break-codes missing.
-     */
-    bool decodeKey(uint8_t code);
-
-    /**
-     * Get the ascii-code of the decoded key.
-     */
-    void getAsciiCode(uint8_t code);
-
-    Key gather = Key();
-    uint8_t prefix = 0;
-    uint8_t leds = 0;
+    uint8_t leds{};
 
     Util::Stream::PipedOutputStream outputStream;
     Util::Stream::PipedInputStream inputStream;
-
-    static uint8_t normalTab[];
-    static uint8_t shiftTab[];
-    static uint8_t altTab[];
-    static uint8_t asciiNumTab[];
-    static uint8_t scanNumTab[];
 
     static Kernel::Logger log;
 };
