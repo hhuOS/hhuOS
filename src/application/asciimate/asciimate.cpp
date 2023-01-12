@@ -93,7 +93,7 @@ int32_t main(int32_t argc, char *argv[]) {
     uint16_t frameEndX = frameStartX + (columns * charWidth);
     uint16_t frameEndY = frameStartY + (rows * charHeight);
 
-    Util::Graphic::Ansi::prepareGraphicalApplication();
+    Util::Graphic::Ansi::prepareGraphicalApplication(false);
 
     Util::Async::Thread::createThread("Key-Listener", new Util::Async::FunctionPointerRunnable([]{
         Util::System::in.read();

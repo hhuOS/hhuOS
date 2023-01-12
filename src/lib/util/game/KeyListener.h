@@ -18,6 +18,8 @@
 #ifndef HHUOS_KEYLISTENER_H
 #define HHUOS_KEYLISTENER_H
 
+#include "lib/util/io/Key.h"
+
 namespace Util::Game {
 
 class KeyListener {
@@ -43,7 +45,9 @@ public:
      */
     ~KeyListener() = default;
 
-    virtual void keyPressed(int16_t key) = 0;
+    virtual void keyPressed(Io::Key key) = 0;
+
+    virtual void keyReleased(Io::Key key) = 0;
 };
 
 }

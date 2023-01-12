@@ -104,7 +104,7 @@ public:
 
     static void disableAnsiParsing();
 
-    static void prepareGraphicalApplication();
+    static void prepareGraphicalApplication(bool enableScancodes);
 
     static void cleanupGraphicalApplication();
 

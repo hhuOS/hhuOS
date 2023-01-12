@@ -26,6 +26,8 @@
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/MouseListener.h"
 #include "lib/util/memory/String.h"
+#include "lib/util/data/ArrayList.h"
+#include "lib/util/io/Key.h"
 
 namespace Util {
 namespace Game {
@@ -240,6 +242,8 @@ private:
 
     uint32_t statusUpdateTimer = 0;
     Memory::String status = statistics.gather();
+
+    Util::Data::ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;
 };

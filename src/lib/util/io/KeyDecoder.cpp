@@ -76,28 +76,27 @@ bool Util::Io::KeyDecoder::parseScancode(uint8_t code) {
             case 42:
             case 54:
                 currentKey.setShift(false);
-                break;
+                currentPrefix = 0;
+                return false;
             case 56:
                 if (currentPrefix == PREFIX1) {
                     currentKey.setAltRight(false);
                 } else {
                     currentKey.setAltLeft(false);
                 }
-                break;
+                currentPrefix = 0;
+                return false;
             case 29:
                 if (currentPrefix == PREFIX1) {
                     currentKey.setCtrlRight(false);
                 } else {
                     currentKey.setCtrlLeft(false);
                 }
-                break;
-            default:
+                currentPrefix = 0;
                 return false;
+            default:
+                break;
         }
-
-        currentPrefix = 0;
-
-        return false;
     }
 
     switch (code) {

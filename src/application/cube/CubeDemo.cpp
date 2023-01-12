@@ -33,7 +33,8 @@ void CubeDemo::update(double delta) {
     }
 }
 
-void CubeDemo::keyPressed(int16_t key) {switch (key) {
+void CubeDemo::keyPressed(Util::Io::Key key) {
+    switch (key.getAscii()) {
         case '+': {
             speed++;
             break;
@@ -45,4 +46,7 @@ void CubeDemo::keyPressed(int16_t key) {switch (key) {
         default:
             stop();
     }
+}
+
+void CubeDemo::keyReleased(Util::Io::Key key) {
 }

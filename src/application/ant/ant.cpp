@@ -119,7 +119,7 @@ int32_t main(int32_t argc, char *argv[]) {
     auto lfbFile = Util::File::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto drawer = Util::Graphic::PixelDrawer(lfb);
-    Util::Graphic::Ansi::prepareGraphicalApplication();
+    Util::Graphic::Ansi::prepareGraphicalApplication(false);
 
     Ant ant(lfb.getResolutionX(), lfb.getResolutionY());
     lfb.clear();

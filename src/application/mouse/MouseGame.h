@@ -49,7 +49,9 @@ public:
 
     void update(double delta) override;
 
-    void keyPressed(int16_t key) override;
+    void keyPressed(Util::Io::Key key) override;
+
+    void keyReleased(Util::Io::Key key) override;
 
 private:
 
