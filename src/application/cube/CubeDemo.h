@@ -49,7 +49,9 @@ public:
 
     void update(double delta) override;
 
-    void keyPressed(int16_t key) override;
+    void keyPressed(Util::Io::Key key) override;
+
+    void keyReleased(Util::Io::Key key) override;
 
     static const constexpr uint32_t NUM_CUBES = 4;
     Cube *cubes[NUM_CUBES] = {new Cube(-0.5, 0.5, 0.25), new Cube(0.5, 0.5, 0.25), new Cube(0.5, -0.5, 0.25), new Cube(-0.5, -0.5, 0.25)};

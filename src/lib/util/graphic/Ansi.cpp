@@ -189,8 +189,12 @@ void Ansi::disableAnsiParsing() {
     File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {false});
 }
 
-void Ansi::prepareGraphicalApplication() {
-    File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+void Ansi::prepareGraphicalApplication(bool enableScancodes) {
+    if (enableScancodes) {
+        File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_KEYBOARD_SCANCODES, {});
+    } else {
+        File::controlFile(File::STANDARD_INPUT, Graphic::Terminal::ENABLE_RAW_MODE, {});
+    }
     disableCursor();
 }
 

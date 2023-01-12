@@ -36,8 +36,8 @@ void PolygonDemo::update(double delta) {
     }
 }
 
-void PolygonDemo::keyPressed(int16_t key) {
-    switch (key) {
+void PolygonDemo::keyPressed(Util::Io::Key key) {
+    switch (key.getAscii()) {
         case '+': {
             auto *polygon = factory.createPolygon();
             polygons.offer(polygon);
@@ -53,4 +53,8 @@ void PolygonDemo::keyPressed(int16_t key) {
         default:
             stop();
     }
+}
+
+void PolygonDemo::keyReleased(Util::Io::Key key) {
+
 }

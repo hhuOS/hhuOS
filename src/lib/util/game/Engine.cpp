@@ -24,6 +24,8 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/stream/FileInputStream.h"
+#include "lib/util/graphic/Terminal.h"
+#include "lib/util/io/KeyDecoder.h"
 
 namespace Util {
 namespace Graphic {
@@ -40,7 +42,7 @@ void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
 
-    Graphic::Ansi::prepareGraphicalApplication();
+    Graphic::Ansi::prepareGraphicalApplication(true);
 
     Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
@@ -96,14 +98,21 @@ void Engine::drawStatus() {
 Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::KeyListenerRunnable::run() {
-    int16_t c = 0;
-    while (engine.game.isRunning() && c != -1) {
-        c = Util::Graphic::Ansi::readChar();
-        if (engine.game.keyListener != nullptr) {
-            engine.updateLock.acquire();
-            engine.game.keyListener->keyPressed(c);
-            engine.updateLock.release();
+    auto keyboardStream = Stream::FileInputStream("/device/keyboard");
+    auto keyDecoder = Io::KeyDecoder();
+    int16_t scancode = keyboardStream.read();
+
+    while (engine.game.isRunning() && scancode != -1) {
+        if (keyDecoder.parseScancode(scancode)) {
+            auto key = keyDecoder.getCurrentKey();
+            if (engine.game.keyListener != nullptr) {
+                engine.updateLock.acquire();
+                key.isPressed() ? engine.game.keyListener->keyPressed(key) : engine.game.keyListener->keyReleased(key);
+                engine.updateLock.release();
+            }
         }
+
+        scancode = keyboardStream.read();
     }
 }
 

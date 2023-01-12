@@ -157,4 +157,8 @@ Key::operator uint8_t() const {
     return(uint8_t) ascii;
 }
 
+bool Key::operator!=(const Key &other) const {
+    return scancode != other.scancode || modifier != other.modifier || pressed != other.pressed;
+}
+
 }

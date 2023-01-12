@@ -148,6 +148,8 @@ public:
      */
     explicit operator uint8_t() const;
 
+    bool operator!=(const Key &other) const;
+
 private:
     /**
      * Bit-masks for key-modifiers.
