@@ -82,6 +82,7 @@
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Route.h"
+#include "device/network/rtl8139/Rtl8139.h"
 
 namespace Device {
 class Machine;
@@ -395,6 +396,8 @@ void GatesOfHell::initializeNetwork() {
     networkService.registerNetworkDevice(loopback);
     networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
     networkService.setDefaultRoute(Kernel::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
+
+    Device::Network::Rtl8139::initializeAvailableCards();
 }
 
 void GatesOfHell::mountDevices() {
