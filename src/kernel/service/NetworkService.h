@@ -80,6 +80,8 @@ public:
 
     void setDefaultRoute(const Network::Ip4::Ip4Route &route);
 
+    bool isNetworkDeviceRegistered(const Util::Memory::String &identifier);
+
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
 
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Network::MacAddress &address);

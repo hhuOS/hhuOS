@@ -63,9 +63,12 @@ private:
     
     enum Register : uint8_t {
         ID = 0x00,
+        TRANSMIT_STATUS = 0x10,
+        TRANSMIT_ADDRESS = 0x20,
         COMMAND = 0x37,
         RECEIVE_BUFFER_START = 0x30,
         INTERRUPT_MASK = 0x3c,
+        INTERRUPT_STATUS = 0x3e,
         RECEIVE_CONFIGURATION = 0x44,
         CONFIG_1 = 0x52,
     };
@@ -104,7 +107,23 @@ private:
         LENGTH_64K = 0x1800
     };
 
+    enum TransmitStatus : uint32_t {
+        OWN = 0x2000,
+        FIFO_UNDERRUN = 0x4000,
+        TRANSMIT_STATUS_OK = 0x8000,
+        EARLY_TX_THRESHOLD = 0x10000,
+        TRANSMIT_STATUS_ABORT = 0x40000000,
+        CARRIER_SENSE_LOST = 0x80000000
+    };
+
+    bool isTransmitDescriptorAvailable();
+
+    void setTransmitAddress(void *buffer);
+
+    void setPacketSize(uint32_t size);
+
     PciDevice pciDevice;
+    uint8_t transmitDescriptor = 0;
     uint8_t *receiveBuffer{};
     IoPort baseRegister = IoPort(0x00);
 
@@ -113,6 +132,7 @@ private:
     static const constexpr uint16_t VENDOR_ID = 0x10ec;
     static const constexpr uint16_t DEVICE_ID = 0x8139;
     static const constexpr uint32_t BUFFER_SIZE = 8 * 1024 + 16 + 1500;
+    static const constexpr uint8_t TRANSMIT_DESCRIPTOR_COUNT = 4;
 };
 
 }

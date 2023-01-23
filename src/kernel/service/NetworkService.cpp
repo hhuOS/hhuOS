@@ -171,4 +171,14 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
     return filesystemService.registerFile(socket);
 }
 
+bool NetworkService::isNetworkDeviceRegistered(const Util::Memory::String &identifier) {
+    for (auto *device: devices) {
+        if (device->getIdentifier() == identifier) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 }

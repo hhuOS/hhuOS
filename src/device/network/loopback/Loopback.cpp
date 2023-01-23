@@ -30,6 +30,7 @@ Util::Network::MacAddress Loopback::getMacAddress() const {
 
 void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
     handleIncomingPacket(packet, length);
+    freeLastSendBuffer();
 }
 
 }
