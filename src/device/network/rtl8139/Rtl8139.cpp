@@ -70,6 +70,7 @@ void Rtl8139::initializeAvailableCards() {
     auto devices = Pci::search(VENDOR_ID, DEVICE_ID);
     for (const auto &device : devices) {
         auto *rtl8139 = new Rtl8139("eth0", device);
+        rtl8139->plugin();
         networkService.registerNetworkDevice(rtl8139);
     }
 }
@@ -88,7 +89,15 @@ Util::Network::MacAddress Rtl8139::getMacAddress() const {
 }
 
 void Rtl8139::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
+    while (!isTransmitDescriptorAvailable()) {
+        Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(1));
+    }
 
+    auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
+    setTransmitAddress(memoryService.getPhysicalAddress(const_cast<uint8_t*>(packet)));
+    setPacketSize(length);
+
+    transmitDescriptor = (transmitDescriptor + 1) % TRANSMIT_DESCRIPTOR_COUNT;
 }
 
 void Rtl8139::plugin() {
@@ -98,7 +107,24 @@ void Rtl8139::plugin() {
 }
 
 void Rtl8139::trigger(const Kernel::InterruptFrame &frame) {
+    auto interrupt = baseRegister.readWord(INTERRUPT_STATUS);
+    if (interrupt & (TRANSMIT_OK | TRANSMIT_ERROR)) {
+        freeLastSendBuffer();
+        baseRegister.writeWord(INTERRUPT_STATUS, TRANSMIT_OK | TRANSMIT_ERROR);
+    }
+}
 
+bool Rtl8139::isTransmitDescriptorAvailable() {
+    auto status = baseRegister.readDoubleWord(TRANSMIT_STATUS + transmitDescriptor * 4);
+    return (status & OWN);
+}
+
+void Rtl8139::setTransmitAddress(void *buffer) {
+    baseRegister.writeDoubleWord(TRANSMIT_ADDRESS + transmitDescriptor * 4, reinterpret_cast<uint32_t>(buffer));
+}
+
+void Rtl8139::setPacketSize(uint32_t size) {
+    baseRegister.writeDoubleWord(TRANSMIT_STATUS + transmitDescriptor * 4, size);
 }
 
 }

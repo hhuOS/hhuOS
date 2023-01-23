@@ -25,9 +25,15 @@ PacketWriter::PacketWriter(Device::Network::NetworkDevice &networkDevice) : netw
 void PacketWriter::run() {
     while (true) {
         const auto &packet = networkDevice.getNextOutgoingPacket();
-        networkDevice.handleOutgoingPacket(packet.buffer, packet.length);
-        networkDevice.freePacketBuffer(packet.buffer);
+        if (packetQueue.offer(packet)) {
+            networkDevice.handleOutgoingPacket(packet.buffer, packet.length);
+            networkDevice.freePacketBuffer(packet.buffer);
+        }
     }
+}
+
+void PacketWriter::freeLastSendBuffer() {
+    networkDevice.freePacketBuffer(packetQueue.poll().buffer);
 }
 
 }

@@ -205,7 +205,7 @@ void *PageDirectory::getPhysicalAddress(void *virtualAddress) {
 
     // Calculate corresponding physical Address and set entry to 0
     auto *vTableAddress = reinterpret_cast<uint32_t *>(virtualTableAddresses[pageDirectoryIndex]);
-    auto physAddress = vTableAddress[pageTableIndex] & 0xFFFFF000;
+    auto physAddress = (vTableAddress[pageTableIndex] & 0xFFFFF000) | (reinterpret_cast<uint32_t>(virtualAddress) & 0x00000FFF);
 
     return reinterpret_cast<void*>(physAddress);
 }

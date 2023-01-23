@@ -33,7 +33,7 @@ namespace Device::Network {
 
 NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
         identifier(identifier),
-        packetMemory(static_cast<uint8_t *>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
+        packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
         packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
@@ -42,8 +42,8 @@ NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
         log(Kernel::Logger::get(identifier)) {
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &readerThread = Kernel::Thread::createKernelThread("Loopback-Reader", processService.getKernelProcess(), reader);
-    auto &writerThread = Kernel::Thread::createKernelThread("Loopback-Writer", processService.getKernelProcess(), writer);
+    auto &readerThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("%s-Reader", static_cast<const char*>(identifier)), processService.getKernelProcess(), reader);
+    auto &writerThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("%s-Writer", static_cast<const char*>(identifier)), processService.getKernelProcess(), writer);
 
     schedulerService.ready(readerThread);
     schedulerService.ready(writerThread);
@@ -103,6 +103,10 @@ NetworkDevice::Packet NetworkDevice::getNextOutgoingPacket() {
 
 void NetworkDevice::freePacketBuffer(void *buffer) {
     packetMemoryManager.freeBlock(buffer);
+}
+
+void NetworkDevice::freeLastSendBuffer() {
+    writer->freeLastSendBuffer();
 }
 
 bool NetworkDevice::Packet::operator==(const NetworkDevice::Packet &other) const {

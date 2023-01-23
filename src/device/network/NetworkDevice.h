@@ -92,6 +92,8 @@ protected:
 
     void handleIncomingPacket(const uint8_t *packet, uint32_t length);
 
+    void freeLastSendBuffer();
+
 private:
 
     void freePacketBuffer(void *buffer);

@@ -366,7 +366,7 @@ void MemoryService::removeAddressSpace(VirtualAddressSpace &addressSpace) {
     delete &addressSpace;
 }
 
-void *MemoryService::getPhysicalAddress(void *virtualAddress) {
+void* MemoryService::getPhysicalAddress(void *virtualAddress) {
     return currentAddressSpace->getPageDirectory().getPhysicalAddress(virtualAddress);
 }
 

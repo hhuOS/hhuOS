@@ -49,9 +49,12 @@ public:
 
     void run() override;
 
+    void freeLastSendBuffer();
+
 private:
 
     Device::Network::NetworkDevice &networkDevice;
+    Util::Data::ArrayBlockingQueue<NetworkDevice::Packet> packetQueue = Util::Data::ArrayBlockingQueue<NetworkDevice::Packet>(16);
 };
 
 }
