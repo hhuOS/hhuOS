@@ -396,8 +396,8 @@ void GatesOfHell::initializeStorage() {
 void GatesOfHell::initializeNetwork() {
     Kernel::System::registerService(Kernel::NetworkService::SERVICE_ID, new Kernel::NetworkService());
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
-    auto *loopback = new Device::Network::Loopback("loopback");
-    networkService.registerNetworkDevice(loopback);
+    auto *loopback = new Device::Network::Loopback();
+    networkService.registerNetworkDevice(loopback, "loopback");
     networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
     networkService.setDefaultRoute(Kernel::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
 

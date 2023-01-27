@@ -54,6 +54,9 @@ class Ip4Route;
 }  // namespace Ip4
 }  // namespace Network
 
+Logger NetworkService::log = Logger::get("Network");
+Util::HashMap<Util::String, uint32_t> NetworkService::nameMap;
+
 NetworkService::NetworkService() {
     SystemCall::registerSystemCall(Util::System::CREATE_SOCKET, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         if (paramCount < 2) {
@@ -111,23 +114,37 @@ NetworkService::NetworkService() {
     });
 }
 
-void NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device) {
-    devices.add(device);
-    Device::Network::NetworkFilesystemDriver::mount(*device);
+Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass) {
+    lock.acquire();
+    if (!nameMap.containsKey(deviceClass)) {
+        nameMap.put(deviceClass, 0);
+    }
+
+    auto value = nameMap.get(deviceClass);
+    device->identifier = Util::String::format("%s%u", static_cast<char*>(deviceClass), value);
+    deviceMap.put(device->identifier, device);
+    nameMap.put(deviceClass, value + 1);
+
+    log.info("Registered device [%s]",static_cast<char*>(device->identifier));
+    lock.release();
+    return device->identifier;
 }
 
 Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::String &identifier) {
-    for (auto *device: devices) {
-        if (device->getIdentifier() == identifier) {
-            return *device;
-        }
+    lock.acquire();
+    if (!deviceMap.containsKey(identifier)) {
+        lock.release();
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
     }
 
-    Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "NetworkService: Device not found!");
+    auto &result = *deviceMap.get(identifier);
+    lock.release();
+
+    return result;
 }
 
 Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Network::MacAddress &address) {
-    for (auto *device: devices) {
+    for (auto *device: deviceMap.values()) {
         if (device->getMacAddress() == address) {
             return *device;
         }
@@ -172,13 +189,7 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
 }
 
 bool NetworkService::isNetworkDeviceRegistered(const Util::String &identifier) {
-    for (auto *device: devices) {
-        if (device->getIdentifier() == identifier) {
-            return true;
-        }
-    }
-
-    return false;
+    return deviceMap.containsKey(identifier);
 }
 
 }

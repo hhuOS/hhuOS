@@ -35,7 +35,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Loopback(const Util::String &identifier);
+    Loopback() = default;
 
     /**
      * Copy Constructor.

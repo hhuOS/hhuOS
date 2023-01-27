@@ -40,7 +40,7 @@ namespace Device::Network {
 
 Kernel::Logger Rtl8139::log = Kernel::Logger::get("RTL8139");
 
-Rtl8139::Rtl8139(const Util::String &identifier, const PciDevice &pciDevice) : NetworkDevice(identifier), pciDevice(pciDevice) {
+Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
     log.info("Configuring PCI registers");
     uint16_t command = pciDevice.readWord(Pci::COMMAND);
     command |= Pci::BUS_MASTER | Pci::IO_SPACE;
@@ -77,9 +77,9 @@ void Rtl8139::initializeAvailableCards() {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto devices = Pci::search(VENDOR_ID, DEVICE_ID);
     for (const auto &device : devices) {
-        auto *rtl8139 = new Rtl8139("eth0", device);
+        auto *rtl8139 = new Rtl8139(device);
         rtl8139->plugin();
-        networkService.registerNetworkDevice(rtl8139);
+        networkService.registerNetworkDevice(rtl8139, "eth");
     }
 }
 

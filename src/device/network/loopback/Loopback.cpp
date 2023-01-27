@@ -22,8 +22,6 @@
 
 namespace Device::Network {
 
-Loopback::Loopback(const Util::String &identifier) : NetworkDevice(identifier) {}
-
 Util::Network::MacAddress Loopback::getMacAddress() const {
     return {};
 }
