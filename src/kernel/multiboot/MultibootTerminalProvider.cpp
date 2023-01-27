@@ -21,8 +21,8 @@
 #include "device/graphic/terminal/cga/ColorGraphicsAdapter.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/system/BlueScreen.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
@@ -46,7 +46,7 @@ Util::Graphic::Terminal* MultibootTerminalProvider::initializeTerminal(const Mod
     return terminal;
 }
 
-Util::Data::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider::getAvailableModes() const {
+Util::Array<MultibootTerminalProvider::ModeInfo> MultibootTerminalProvider::getAvailableModes() const {
     return supportedModes;
 }
 

@@ -19,7 +19,6 @@
 
 #include "Thread.h"
 #include "lib/util/async/Atomic.h"
-#include "lib/util/async/Spinlock.h"
 
 namespace Util::Async {
 

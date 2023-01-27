@@ -19,22 +19,22 @@
 
 namespace Filesystem::Process {
 
-ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::Memory::String::format("%u", processId)) {}
+ProcessDirectoryNode::ProcessDirectoryNode(uint32_t processId) : name(Util::String::format("%u", processId)) {}
 
-Util::Memory::String ProcessDirectoryNode::getName() {
+Util::String ProcessDirectoryNode::getName() {
     return name;
 }
 
-Util::File::Type ProcessDirectoryNode::getFileType() {
-    return Util::File::DIRECTORY;
+Util::Io::File::Type ProcessDirectoryNode::getType() {
+    return Util::Io::File::DIRECTORY;
 }
 
 uint64_t ProcessDirectoryNode::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> ProcessDirectoryNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>({"name", "cwd", "thread_count"});
+Util::Array<Util::String> ProcessDirectoryNode::getChildren() {
+    return Util::Array<Util::String>({"name", "cwd", "thread_count"});
 }
 
 uint64_t ProcessDirectoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {

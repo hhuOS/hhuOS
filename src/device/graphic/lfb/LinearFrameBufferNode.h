@@ -19,7 +19,7 @@
 #define HHUOS_LINEARFRAMEBUFFERNODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Graphic {
@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    explicit LinearFrameBufferNode(const Util::Memory::String &name, Util::Graphic::LinearFrameBuffer *lfb);
+    explicit LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb);
 
     /**
      * Copy Constructor.
@@ -55,15 +55,15 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::Memory::String getString();
+    Util::String getString();
 
 private:
 
     Util::Graphic::LinearFrameBuffer *lfb;
 
-    const Util::Memory::String addressBuffer;
-    const Util::Memory::String resolutionBuffer;
-    const Util::Memory::String pitchBuffer;
+    const Util::String addressBuffer;
+    const Util::String resolutionBuffer;
+    const Util::String pitchBuffer;
 
 };
 

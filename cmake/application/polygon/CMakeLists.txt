@@ -30,4 +30,4 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user)
+target_link_libraries(${PROJECT_NAME} lib.user.crt0 lib.user.base lib.user.game)

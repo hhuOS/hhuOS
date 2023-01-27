@@ -18,6 +18,7 @@
 #include "CubeDemo.h"
 
 #include "application/cube/Cube.h"
+#include "lib/util/io/key/Key.h"
 
 CubeDemo::CubeDemo(uint32_t speed) : speed(speed) {
     for (auto *cube : cubes) {

@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "device/graphic/terminal/TerminalProvider.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/graphic/Terminal.h"
 
@@ -70,7 +70,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Array<ModeInfo> getAvailableModes() const override;
 
 protected:
     /**
@@ -102,9 +102,9 @@ private:
 
     static VideoCardType getVideoCardType();
 
-    static Util::Memory::String getVideoCardTypeAsString(VideoCardType cardType);
+    static Util::String getVideoCardTypeAsString(VideoCardType cardType);
 
-    Util::Data::Array<ModeInfo> supportedModes{{40, 25, 4, 0x01},
+    Util::Array<ModeInfo> supportedModes{{40, 25, 4, 0x01},
                                                {80, 25, 4, 0x03}};
 
     static Kernel::Logger log;

@@ -20,12 +20,12 @@
 
 #include <cstdint>
 
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 
@@ -73,7 +73,7 @@ public:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Array<ModeInfo> getAvailableModes() const override;
 
 protected:
     /**
@@ -171,7 +171,7 @@ private:
 	 */
     static void setMode(uint16_t mode);
 
-    Util::Data::ArrayList<ModeInfo> supportedModes;
+    Util::ArrayList<ModeInfo> supportedModes;
 
     static Kernel::Logger log;
 

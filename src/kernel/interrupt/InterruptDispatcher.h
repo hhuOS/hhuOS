@@ -23,9 +23,9 @@
 #include "lib/util/async/Atomic.h"
 
 namespace Util {
-namespace Data {
+
 template <typename T> class List;
-}  // namespace Data
+
 }  // namespace Util
 
 namespace Kernel {
@@ -101,7 +101,7 @@ private:
     Util::Async::Atomic<uint32_t> interruptDepthWrapper = Util::Async::Atomic<uint32_t>(interruptDepth);
     Util::Async::Atomic<uint32_t> spuriousCounterWrapper = Util::Async::Atomic<uint32_t>(spuriousCounter);
 
-    Util::Data::List<InterruptHandler*>** handler;
+    Util::List<InterruptHandler*>** handler;
 
 };
 

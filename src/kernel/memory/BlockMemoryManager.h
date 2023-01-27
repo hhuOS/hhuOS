@@ -18,11 +18,11 @@
 #ifndef HHUOS_BLOCKMEMORYMANAGER_H
 #define HHUOS_BLOCKMEMORYMANAGER_H
 
-#include "lib/util/memory/MemoryManager.h"
+#include "lib/util/base/MemoryManager.h"
 
 namespace Kernel {
 
-class BlockMemoryManager : public Util::Memory::MemoryManager {
+class BlockMemoryManager : public Util::MemoryManager {
 
 public:
     /**

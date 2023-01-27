@@ -24,6 +24,12 @@
 #include "lib/util/network/ethernet/EthernetHeader.h"
 #include "lib/util/network/NetworkAddress.h"
 
+namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+}  // namespace Util
+
 namespace Util::Network::Ethernet {
 
 EthernetDatagram::EthernetDatagram() : Datagram(NetworkAddress::MAC) {}
@@ -34,7 +40,7 @@ EthernetDatagram::EthernetDatagram(const uint8_t *buffer, uint16_t length, const
 EthernetDatagram::EthernetDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
         Datagram(buffer, length, remoteAddress), type(type) {}
 
-EthernetDatagram::EthernetDatagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
+EthernetDatagram::EthernetDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, EthernetHeader::EtherType type) :
         Datagram(stream, remoteAddress), type(type) {}
 
 EthernetHeader::EtherType Network::Ethernet::EthernetDatagram::getEtherType() const {

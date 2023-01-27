@@ -91,7 +91,7 @@ if (PYTHONINTERP_FOUND AND iwyu_tool_path AND iwyu_fix_includes_path)
     ProcessorCount(ncpus)
     add_custom_target(optimize_includes
             COMMAND "${PYTHON_EXECUTABLE}" "${iwyu_tool_path}" -j "${ncpus}" -p "${CMAKE_BINARY_DIR}" |
-                    "${PYTHON_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
+                    "${PYTHON_EXECUTABLE}" "${iwyu_fix_includes_path}" --nocomments --noupdate_comments --blank_lines --nosafe_headers --ignore_re "(.*/ff/source.*)|(.*/_deps/lvgl.*)" -p "${HHUOS_SRC_DIR}"
             VERBATIM)
 endif()
 

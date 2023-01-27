@@ -27,7 +27,7 @@ namespace Kernel {
 
 Util::Async::IdGenerator<uint32_t> Process::idGenerator;
 
-Process::Process(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory) :
+Process::Process(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory) :
         id(idGenerator.next()), name(name), addressSpace(addressSpace), workingDirectory(workingDirectory) {}
 
 Process::~Process() {
@@ -58,7 +58,7 @@ int32_t Process::getExitCode() const {
     return exitCode;
 }
 
-bool Process::setWorkingDirectory(const Util::Memory::String &path) {
+bool Process::setWorkingDirectory(const Util::String &path) {
     auto file = getFileFromPath(path);
     if (!file.exists() || file.isFile()) {
         return false;
@@ -68,16 +68,16 @@ bool Process::setWorkingDirectory(const Util::Memory::String &path) {
     return true;
 }
 
-Util::File::File Process::getWorkingDirectory() {
+Util::Io::File Process::getWorkingDirectory() {
     return workingDirectory;
 }
 
-Util::File::File Process::getFileFromPath(const Util::Memory::String &path) {
+Util::Io::File Process::getFileFromPath(const Util::String &path) {
     if (path[0] == '/') {
-        return Util::File::File(path);
+        return Util::Io::File(path);
     }
 
-    return Util::File::File(workingDirectory.getCanonicalPath() + "/" + path);
+    return Util::Io::File(workingDirectory.getCanonicalPath() + "/" + path);
 }
 
 void Process::setExitCode(int32_t code) {
@@ -110,11 +110,11 @@ void Process::join() {
     mainThread->join();
 }
 
-Util::Memory::String Process::getName() const {
+Util::String Process::getName() const {
     return name;
 }
 
-Util::Data::Array<Thread*> Process::getThreads() const {
+Util::Array<Thread*> Process::getThreads() const {
     return threads.toArray();
 }
 

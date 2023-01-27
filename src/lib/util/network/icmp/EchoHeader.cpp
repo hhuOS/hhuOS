@@ -23,7 +23,7 @@
 #include "lib/util/network/NumberUtil.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -47,12 +47,12 @@ void EchoHeader::setSequenceNumber(uint16_t sequenceNumber) {
     EchoHeader::sequenceNumber = sequenceNumber;
 }
 
-void EchoHeader::read(Util::Stream::InputStream &stream) {
+void EchoHeader::read(Util::Io::InputStream &stream) {
     identifier = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
     sequenceNumber = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void EchoHeader::write(Util::Stream::OutputStream &stream) const {
+void EchoHeader::write(Util::Io::OutputStream &stream) const {
     Util::Network::NumberUtil::writeUnsigned16BitValue(identifier, stream);
     Util::Network::NumberUtil::writeUnsigned16BitValue(sequenceNumber, stream);
 }

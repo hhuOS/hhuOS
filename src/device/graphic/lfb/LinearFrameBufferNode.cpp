@@ -15,23 +15,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "LinearFrameBufferNode.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Device::Graphic {
 
-LinearFrameBufferNode::LinearFrameBufferNode(const Util::Memory::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
+LinearFrameBufferNode::LinearFrameBufferNode(const Util::String &name, Util::Graphic::LinearFrameBuffer *lfb) :
         Filesystem::Memory::StringNode(name),
-        addressBuffer(Util::Memory::String::format("%u", lfb->getBuffer().get())),
-        resolutionBuffer(Util::Memory::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
-        pitchBuffer(Util::Memory::String::format("%u", lfb->getPitch())) {}
+        addressBuffer(Util::String::format("%u", lfb->getBuffer().get())),
+        resolutionBuffer(Util::String::format("%ux%u@%u", lfb->getResolutionX(), lfb->getResolutionY(), lfb->getColorDepth())),
+        pitchBuffer(Util::String::format("%u", lfb->getPitch())) {}
 
 LinearFrameBufferNode::~LinearFrameBufferNode() {
     delete lfb;
 }
 
-Util::Memory::String LinearFrameBufferNode::getString() {
+Util::String LinearFrameBufferNode::getString() {
     return addressBuffer + "\n" + resolutionBuffer + "\n" + pitchBuffer + "\n";
 }
 

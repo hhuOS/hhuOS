@@ -28,10 +28,10 @@
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/Socket.h"
 #include "kernel/network/ethernet/EthernetModule.h"
@@ -44,7 +44,7 @@ namespace Kernel::Network::Icmp {
 
 Kernel::Logger IcmpModule::log = Kernel::Logger::get("ICMP");
 
-void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+void IcmpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto *buffer = stream.getBuffer() + stream.getPosition();
     auto calculatedChecksum = Ip4::Ip4Module::calculateChecksum(buffer, Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET, stream.getRemaining());
     auto receivedChecksum = (buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET] << 8) | buffer[Util::Network::Icmp::IcmpHeader::CHECKSUM_OFFSET + 1];
@@ -85,7 +85,7 @@ void IcmpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInf
 
 void IcmpModule::writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &sourceAddress,
                              const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length) {
-    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto packet = Util::Io::ByteArrayOutputStream();
     auto datagramLength = length + Util::Network::Icmp::IcmpHeader::HEADER_LENGTH;
 
     // Write IPv4 and Ethernet headers
@@ -117,7 +117,7 @@ void IcmpModule::writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t
 void
 IcmpModule::sendEchoReply(const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress,
                           const Util::Network::Icmp::EchoHeader &requestHeader, const uint8_t *buffer, uint16_t length, Device::Network::NetworkDevice &device) {
-    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto packet = Util::Io::ByteArrayOutputStream();
     auto replyHeader = Util::Network::Icmp::EchoHeader();
     replyHeader.setIdentifier(requestHeader.getIdentifier());
     replyHeader.setSequenceNumber(requestHeader.getSequenceNumber());

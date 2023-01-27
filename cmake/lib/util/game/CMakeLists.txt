@@ -16,8 +16,33 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
+project(lib.game)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.graphic)
+
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp)
+
+# User space version
+project(lib.kernel.game)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.game)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.game)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.game)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

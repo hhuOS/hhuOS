@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 #include "Color.h"
 
 namespace Util::Graphic {
@@ -112,13 +112,13 @@ public:
 
     static void enableCanonicalMode();
 
-    [[nodiscard]] static Memory::String foreground8BitColor(uint8_t colorIndex);
+    [[nodiscard]] static String foreground8BitColor(uint8_t colorIndex);
 
-    [[nodiscard]] static Memory::String background8BitColor(uint8_t colorIndex);
+    [[nodiscard]] static String background8BitColor(uint8_t colorIndex);
 
-    [[nodiscard]] static Memory::String foreground24BitColor(const Graphic::Color &color);
+    [[nodiscard]] static String foreground24BitColor(const Graphic::Color &color);
 
-    [[nodiscard]] static Memory::String background24BitColor(const Graphic::Color &color);
+    [[nodiscard]] static String background24BitColor(const Graphic::Color &color);
 
     static void setForegroundColor(Color color, bool bright);
 
@@ -217,7 +217,7 @@ public:
 
 private:
 
-    static const Util::Memory::String escapeEndCodes;
+    static const Util::String escapeEndCodes;
 
 };
 

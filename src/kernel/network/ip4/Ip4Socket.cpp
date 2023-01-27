@@ -24,7 +24,7 @@
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
@@ -49,7 +49,7 @@ Ip4Socket::~Ip4Socket() {
 }
 
 bool Ip4Socket::send(const Util::Network::Datagram &datagram) {
-    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto packet = Util::Io::ByteArrayOutputStream();
     const auto &ip4Datagram = reinterpret_cast<const Util::Network::Ip4::Ip4Datagram&>(datagram);
     const auto &sourceAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(*bindAddress);
     const auto &destinationAddress = reinterpret_cast<const Util::Network::Ip4::Ip4Address&>(ip4Datagram.getRemoteAddress());

@@ -19,8 +19,8 @@
 #define HHUOS_PROCESSDRIVER_H
 
 #include "filesystem/core/VirtualDriver.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 class Node;
@@ -54,17 +54,17 @@ public:
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    Node* getNode(const Util::Memory::String &path) override;
+    Node* getNode(const Util::String &path) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    bool deleteNode(const Util::String &path) override;
 };
 
 }

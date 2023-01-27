@@ -21,7 +21,7 @@
 #include "kernel/service/NetworkService.h"
 #include "NetworkDevice.h"
 #include "PacketReader.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/network/MacAddress.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
@@ -36,7 +36,7 @@ void PacketReader::run() {
 
     while (true) {
         const auto &packet = networkDevice.getNextIncomingPacket();
-        auto stream = Util::Stream::ByteArrayInputStream(packet.buffer, packet.length, false);
+        auto stream = Util::Io::ByteArrayInputStream(packet.buffer, packet.length);
         ethernetModule.readPacket(stream, Kernel::Network::NetworkModule::LayerInformation{Util::Network::MacAddress(), Util::Network::MacAddress(), packet.length}, networkDevice);
         networkDevice.freePacketBuffer(packet.buffer);
     }

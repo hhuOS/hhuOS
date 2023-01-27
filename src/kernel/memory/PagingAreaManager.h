@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/data/Pool.h"
+#include "lib/util/collection/Pool.h"
 #include "kernel/memory/BitmapMemoryManager.h"
 
 namespace Kernel {
@@ -65,7 +65,7 @@ public:
 
 private:
 
-    Util::Data::Pool<void> blockPool;
+    Util::Pool<void> blockPool;
 
     static const constexpr uint32_t BLOCK_POOL_SIZE = 128;
 

@@ -1,5 +1,5 @@
 #include "Atomic.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util::Async {
 

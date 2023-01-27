@@ -21,18 +21,18 @@
 #include "lib/util/network/ip4/Ip4Header.h"
 
 #include "lib/util/network/NumberUtil.h"
-#include "lib/util/stream/InputStream.h"
+#include "lib/util/io/stream/InputStream.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class OutputStream;
 }  // namespace Stream
 }  // namespace Util
 
 namespace Util::Network::Ip4 {
 
-void Ip4Header::read(Util::Stream::InputStream &stream) {
+void Ip4Header::read(Util::Io::InputStream &stream) {
     // Read IP version and header length
     auto versionAndLength = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
     version = versionAndLength >> 4;
@@ -66,7 +66,7 @@ void Ip4Header::read(Util::Stream::InputStream &stream) {
     }
 }
 
-void Ip4Header::write(Util::Stream::OutputStream &stream) const {
+void Ip4Header::write(Util::Io::OutputStream &stream) const {
     // Write IP version and header length
     Util::Network::NumberUtil::writeUnsigned8BitValue(version << 4 | (MIN_HEADER_LENGTH / sizeof(uint32_t)), stream);
 

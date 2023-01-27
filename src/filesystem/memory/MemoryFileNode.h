@@ -21,9 +21,9 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem::Memory {
 
@@ -33,7 +33,7 @@ public:
     /**
      * Constructor.
      */
-    explicit MemoryFileNode(const Util::Memory::String &name);
+    explicit MemoryFileNode(const Util::String &name);
 
     /**
      * Copy Constructor.
@@ -53,7 +53,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -63,7 +63,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.

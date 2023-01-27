@@ -21,10 +21,10 @@
 
 namespace Filesystem::Memory {
 
-NullNode::NullNode(const Util::Memory::String &name) : MemoryNode(name) {}
+NullNode::NullNode(const Util::String &name) : MemoryNode(name) {}
 
-Util::File::Type NullNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type NullNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t NullNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {

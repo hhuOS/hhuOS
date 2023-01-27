@@ -20,12 +20,13 @@
 
 #include <cstdint>
 
-#include "lib/util/data/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "kernel/process/Thread.h"
 
 namespace Util {
 namespace Time {
@@ -34,7 +35,6 @@ class Timestamp;
 }  // namespace Util
 
 namespace Kernel {
-class Thread;
 
 class Scheduler {
 
@@ -127,8 +127,8 @@ private:
     Util::Async::Spinlock lock;
     Util::Async::Spinlock sleepLock;
 
-    Util::Data::ArrayListBlockingQueue<Thread*> threadQueue;
-    Util::Data::ArrayList<SleepEntry> sleepList;
+    Util::ArrayListBlockingQueue<Thread*> threadQueue;
+    Util::ArrayList<SleepEntry> sleepList;
     Thread *currentThread = nullptr;
 
     static bool fpuAvailable;

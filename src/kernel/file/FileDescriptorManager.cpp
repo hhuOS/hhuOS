@@ -4,7 +4,7 @@
 #include "kernel/file/FileDescriptorManager.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/core/Node.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 
@@ -33,7 +33,7 @@ int32_t FileDescriptorManager::registerFile(Filesystem::Node *node) {
     return -1;
 }
 
-int32_t FileDescriptorManager::openFile(const Util::Memory::String &path) {
+int32_t FileDescriptorManager::openFile(const Util::String &path) {
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto *node = filesystem.getNode(path);
     if (node == nullptr) {

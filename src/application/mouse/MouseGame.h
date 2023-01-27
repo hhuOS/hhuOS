@@ -18,11 +18,15 @@
 #ifndef HHUOS_MOUSEGAME_H
 #define HHUOS_MOUSEGAME_H
 
-#include <cstdint>
-
 #include "lib/util/game/Game.h"
 #include "MouseCursor.h"
 #include "lib/util/game/KeyListener.h"
+
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class MouseGame : public Util::Game::Game, public Util::Game::KeyListener {
 

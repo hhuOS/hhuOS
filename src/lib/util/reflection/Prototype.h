@@ -19,9 +19,9 @@
 #define HHUOS_PROTOTYPE_H
 
 #define PROTOTYPE_IMPLEMENT_CLONE(TYPE) Prototype *clone() const override { return new TYPE(); }
-#define PROTOTYPE_IMPLEMENT_GET_CLASS_NAME(CLASS_NAME) Util::Memory::String getClassName() const override { return CLASS_NAME; }
+#define PROTOTYPE_IMPLEMENT_GET_CLASS_NAME(CLASS_NAME) Util::String getClassName() const override { return CLASS_NAME; }
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util::Reflection {
 
@@ -45,7 +45,7 @@ public:
     /**
      * Get the name, under which the prototype will be registered and usable for the user.
      */
-    [[nodiscard]] virtual Memory::String getClassName() const = 0;
+    [[nodiscard]] virtual String getClassName() const = 0;
 
 private:
     /**

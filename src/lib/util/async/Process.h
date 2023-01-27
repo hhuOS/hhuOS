@@ -20,13 +20,13 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
-namespace Data {
+
 template <typename T> class Array;
-}  // namespace Data
-namespace File {
+
+namespace Io {
 class File;
 }  // namespace File
 }  // namespace Util
@@ -56,7 +56,7 @@ public:
      */
     ~Process() = default;
 
-    static Process execute(const File::File &binaryFile, const File::File &inputFile, const File::File &outputFile, const File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+    static Process execute(const Io::File &binaryFile, const Io::File &inputFile, const Io::File &outputFile, const Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments);
 
     static Process getCurrentProcess();
 

@@ -20,12 +20,12 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/ArrayList.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util {
 namespace Async {
@@ -89,16 +89,16 @@ public:
      */
     virtual ~Thread();
 
-    static Thread& createKernelThread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable);
+    static Thread& createKernelThread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable);
 
-    static Thread &createUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip,
+    static Thread &createUserThread(const Util::String &name, Process &parent, uint32_t eip,
                                     Util::Async::Runnable *runnable);
 
-    static Thread& createMainUserThread(const Util::Memory::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
+    static Thread& createMainUserThread(const Util::String &name, Process &parent, uint32_t eip, uint32_t argc, char **argv, void *envp, uint32_t heapStartAddress);
 
     [[nodiscard]] uint32_t getId() const;
 
-    [[nodiscard]] Util::Memory::String getName() const;
+    [[nodiscard]] Util::String getName() const;
 
     [[nodiscard]] Context* getContext() const;
 
@@ -114,10 +114,10 @@ public:
 
 private:
 
-    Thread(const Util::Memory::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
+    Thread(const Util::String &name, Process &parent, Util::Async::Runnable *runnable, Thread::Stack *kernelStack, Thread::Stack *userStack);
 
     uint32_t id;
-    Util::Memory::String name;
+    Util::String name;
     Process &parent;
     Util::Async::Runnable *runnable;
 
@@ -128,7 +128,7 @@ private:
     Context *kernelContext;
     uint8_t *fpuContext;
 
-    Util::Data::ArrayList<Thread*> joinList;
+    Util::ArrayList<Thread*> joinList;
     Util::Async::Spinlock joinLock;
 
     static Util::Async::IdGenerator<uint32_t> idGenerator;

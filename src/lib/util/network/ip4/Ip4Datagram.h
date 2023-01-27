@@ -27,7 +27,13 @@
 #include "lib/util/network/ip4/Ip4Header.h"
 
 namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+
 namespace Network {
+class NetworkAddress;
+
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
@@ -57,7 +63,7 @@ public:
     /**
      * Constructor.
      */
-    Ip4Datagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
+    Ip4Datagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, Ip4Header::Protocol protocol);
 
     /**
      * Copy Constructor.

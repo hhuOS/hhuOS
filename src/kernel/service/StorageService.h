@@ -21,18 +21,13 @@
 #include <cstdint>
 
 #include "Service.h"
-#include "lib/util/data/HashMap.h"
+#include "lib/util/collection/HashMap.h"
 #include "lib/util/async/ReentrantSpinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
-
-namespace Device {
-namespace Storage {
-class StorageDevice;
-}  // namespace Storage
-}  // namespace Device
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "device/storage/StorageDevice.h"
 
 namespace Kernel {
 class Logger;
@@ -60,21 +55,21 @@ public:
      */
     ~StorageService() override;
 
-    Util::Memory::String registerDevice(Device::Storage::StorageDevice *device, const Util::Memory::String &deviceClass);
+    Util::String registerDevice(Device::Storage::StorageDevice *device, const Util::String &deviceClass);
 
-    Device::Storage::StorageDevice& getDevice(const Util::Memory::String &deviceName);
+    Device::Storage::StorageDevice& getDevice(const Util::String &deviceName);
 
-    bool isDeviceRegistered(const Util::Memory::String &deviceName);
+    bool isDeviceRegistered(const Util::String &deviceName);
 
     static const constexpr uint8_t SERVICE_ID = 5;
 
 private:
 
     Util::Async::ReentrantSpinlock lock;
-    Util::Data::HashMap<Util::Memory::String, Device::Storage::StorageDevice*> deviceMap;
+    Util::HashMap<Util::String, Device::Storage::StorageDevice*> deviceMap;
 
     static Logger log;
-    static Util::Data::HashMap<Util::Memory::String, uint32_t> nameMap;
+    static Util::HashMap<Util::String, uint32_t> nameMap;
 
 };
 

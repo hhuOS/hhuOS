@@ -26,10 +26,10 @@
 #include "lib/util/network/ip4/Ip4Datagram.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/NetworkStack.h"
@@ -55,8 +55,8 @@ namespace Kernel::Network::Ip4 {
 
 Kernel::Logger Ip4Module::log = Kernel::Logger::get("IPv4");
 
-void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
-    auto &tmpStream = reinterpret_cast<Util::Stream::ByteArrayInputStream &>(stream);
+void Ip4Module::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+    auto &tmpStream = reinterpret_cast<Util::Io::ByteArrayInputStream &>(stream);
     auto *buffer = tmpStream.getBuffer() + tmpStream.getPosition();
     uint8_t headerLength = (buffer[0] & 0x0f) * sizeof(uint32_t);
     auto calculatedChecksum = calculateChecksum(buffer, Util::Network::Ip4::Ip4Header::CHECKSUM_OFFSET, headerLength);
@@ -100,7 +100,7 @@ void Ip4Module::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInfo
     invokeNextLayerModule(header.getProtocol(), {header.getSourceAddress(), header.getDestinationAddress(), header.getPayloadLength()}, stream, device);
 }
 
-const Ip4Interface & Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
+const Ip4Interface & Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
                                             const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength) {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto &arpModule = networkService.getNetworkStack().getArpModule();
@@ -131,7 +131,7 @@ const Ip4Interface & Ip4Module::writeHeader(Util::Stream::ByteArrayOutputStream 
     return route.getInterface();
 }
 
-Ip4Interface& Ip4Module::getInterface(const Util::Memory::String &deviceIdentifier) {
+Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
     for (auto *interface : interfaces) {
         if (interface->getDeviceIdentifier() == deviceIdentifier) {
             return *interface;

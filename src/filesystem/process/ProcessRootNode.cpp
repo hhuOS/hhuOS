@@ -21,24 +21,24 @@
 
 namespace Filesystem::Process {
 
-Util::Memory::String ProcessRootNode::getName() {
+Util::String ProcessRootNode::getName() {
     return "";
 }
 
-Util::File::Type ProcessRootNode::getFileType() {
-    return Util::File::DIRECTORY;
+Util::Io::File::Type ProcessRootNode::getType() {
+    return Util::Io::File::DIRECTORY;
 }
 
 uint64_t ProcessRootNode::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> ProcessRootNode::getChildren() {
+Util::Array<Util::String> ProcessRootNode::getChildren() {
     auto ids = Kernel::System::getService<Kernel::ProcessService>().getActiveProcessIds();
-    auto ret = Util::Data::Array<Util::Memory::String>(ids.length());
+    auto ret = Util::Array<Util::String>(ids.length());
 
     for (uint32_t i = 0; i < ids.length(); i++) {
-        ret[i] = Util::Memory::String::format("%u", ids[i]);
+        ret[i] = Util::String::format("%u", ids[i]);
     }
 
     return ret;

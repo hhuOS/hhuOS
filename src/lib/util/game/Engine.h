@@ -25,9 +25,12 @@
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/MouseListener.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/io/Key.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/io/key/Key.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util {
 namespace Game {
@@ -127,7 +130,7 @@ private:
             return updateTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
         }
 
-        [[nodiscard]] Memory::String gather() {
+        [[nodiscard]] String gather() {
             uint32_t frameTime = 0, drawTime = 0; uint32_t updateTime = 0; uint32_t idleTime = 0;
             uint32_t count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
 
@@ -145,7 +148,7 @@ private:
                 idleTime /= count;
             }
 
-            return Memory::String::format("FPS: %03u, Frametime: %03ums (D: %03ums, U: %03ums, I: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
+            return String::format("FPS: %03u, Frametime: %03ums (D: %03ums, U: %03ums, I: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
         }
 
     private:
@@ -241,9 +244,9 @@ private:
     Async::Spinlock updateLock;
 
     uint32_t statusUpdateTimer = 0;
-    Memory::String status = statistics.gather();
+    String status = statistics.gather();
 
-    Util::Data::ArrayList<Io::Key> pressedKeys;
+    Util::ArrayList<Io::Key> pressedKeys;
 
     const uint8_t targetFrameRate;
 };

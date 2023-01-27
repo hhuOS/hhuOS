@@ -23,9 +23,9 @@
 #include "LinearFrameBuffer.h"
 
 namespace Util {
-namespace Memory {
+
 template <typename T> class Address;
-}  // namespace Memory
+
 }  // namespace Util
 
 namespace Util::Graphic {
@@ -60,7 +60,7 @@ public:
 private:
 
     bool useMmx = false;
-    const Memory::Address<uint32_t> &targetBuffer;
+    const Address<uint32_t> &targetBuffer;
 };
 
 }

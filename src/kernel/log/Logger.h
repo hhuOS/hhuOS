@@ -18,17 +18,17 @@
 #ifndef HHUOS_LOGGER_H
 #define HHUOS_LOGGER_H
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Async {
 class Spinlock;
 }  // namespace Async
-namespace Data {
+
 template <typename K, typename V> class HashMap;
 template <typename T> class ArrayList;
-}  // namespace Data
-namespace Stream {
+
+namespace Io {
 class OutputStream;
 class PrintWriter;
 }  // namespace Stream
@@ -58,29 +58,29 @@ public:
      */
     Logger &operator=(const Logger &other) = delete;
 
-    static Logger get(const Util::Memory::String &name);
+    static Logger get(const Util::String &name);
 
     static void setLevel(LogLevel level);
 
-    static void setLevel(Util::Memory::String level);
+    static void setLevel(Util::String level);
 
-    static void addOutputStream(Util::Stream::OutputStream &stream);
+    static void addOutputStream(Util::Io::OutputStream &stream);
 
-    static void removeOutputStream(Util::Stream::OutputStream &stream);
+    static void removeOutputStream(Util::Io::OutputStream &stream);
 
-    void trace(const Util::Memory::String &message, ...);
+    void trace(const Util::String &message, ...);
 
-    void debug(const Util::Memory::String &message, ...);
+    void debug(const Util::String &message, ...);
 
-    void info(const Util::Memory::String &message, ...);
+    void info(const Util::String &message, ...);
 
-    void warn(const Util::Memory::String &message, ...);
+    void warn(const Util::String &message, ...);
 
-    void error(const Util::Memory::String &message, ...);
+    void error(const Util::String &message, ...);
 
 private:
 
-    explicit Logger(const Util::Memory::String &name);
+    explicit Logger(const Util::String &name);
 
     /**
      * Copy Constructor.
@@ -91,14 +91,14 @@ private:
 
     static const char *getColor(const LogLevel &level);
 
-    static void logMessage(const LogLevel &level, const Util::Memory::String &name, const Util::Memory::String &message);
+    static void logMessage(const LogLevel &level, const Util::String &name, const Util::String &message);
 
-    const Util::Memory::String name;
+    const Util::String name;
 
     static LogLevel currentLevel;
     static Util::Async::Spinlock lock;
-    static Util::Data::HashMap<Util::Stream::OutputStream*, Util::Stream::PrintWriter*> writerMap;
-    static Util::Data::ArrayList<Util::Memory::String> buffer;
+    static Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintWriter*> writerMap;
+    static Util::ArrayList<Util::String> buffer;
 
     static const constexpr char *LEVEL_TRACE = "TRC";
     static const constexpr char *LEVEL_DEBUG = "DBG";

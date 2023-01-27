@@ -25,7 +25,7 @@
 
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util::Network::Ip4 {
 
@@ -45,7 +45,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Ip4PortAddress(const Util::Memory::String &string);
+    explicit Ip4PortAddress(const Util::String &string);
 
     /**
      * Constructor.
@@ -85,9 +85,9 @@ public:
 
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    void setAddress(const Util::Memory::String &string) override;
+    void setAddress(const Util::String &string) override;
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    [[nodiscard]] Util::String toString() const override;
 
     static const uint32_t ADDRESS_LENGTH = Ip4Address::ADDRESS_LENGTH + sizeof(uint16_t);
 };

@@ -16,6 +16,30 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
+project(lib.time)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+# Add subdirectories
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/time/Date.cpp
         ${HHUOS_SRC_DIR}/lib/util/time/Timestamp.cpp)
+
+# Kernel space version
+project(lib.kernel.time)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.time)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.time)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.time)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

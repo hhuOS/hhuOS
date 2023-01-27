@@ -19,25 +19,25 @@
 
 #include <cstdint>
 
-#include "lib/util/file/File.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/file/elf/File.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/file/elf/File.h"
 #include "kernel/system/System.h"
 #include "kernel/paging/Paging.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
-BinaryLoader::BinaryLoader(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) :
+BinaryLoader::BinaryLoader(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments) :
         path(path), command(command), arguments(arguments) {}
 
 void BinaryLoader::run() {
-    auto file = Util::File::File(path);
+    auto file = Util::Io::File(path);
     if (!file.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "BinaryLoader: File not found!");
     }
@@ -47,11 +47,11 @@ void BinaryLoader::run() {
     }
 
     auto *buffer = new uint8_t[file.getLength()];
-    auto binaryStream = Util::Stream::FileInputStream(file);
+    auto binaryStream = Util::Io::FileInputStream(file);
     binaryStream.read(buffer, 0, file.getLength());
 
     // buffer is automatically deleted by file destructor
-    auto executable = Util::File::Elf::File(buffer);
+    auto executable = Util::Io::Elf::File(buffer);
     executable.loadProgram();
 
     uint32_t argc = arguments.length() + 1;
@@ -59,8 +59,8 @@ void BinaryLoader::run() {
     auto currentAddress = reinterpret_cast<uint32_t>(argv) + sizeof(char**) * argc;
 
     for (uint32_t i = 0; i < argc; i++) {
-        auto sourceArgument = Util::Memory::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
-        auto targetArgument = Util::Memory::Address<uint32_t>(currentAddress);
+        auto sourceArgument = Util::Address<uint32_t>(static_cast<char*>(i == 0 ? command : arguments[i - 1]));
+        auto targetArgument = Util::Address<uint32_t>(currentAddress);
 
         targetArgument.copyString(sourceArgument);
         argv[i] = reinterpret_cast<char*>(currentAddress);
@@ -70,7 +70,7 @@ void BinaryLoader::run() {
     auto &processService = System::getService<ProcessService>();
     auto &schedulerService = System::getService<SchedulerService>();
     auto &process = processService.getCurrentProcess();
-    auto heapAddress = Util::Memory::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
+    auto heapAddress = Util::Address(currentAddress + 1).alignUp(Kernel::Paging::PAGESIZE).get();
     auto &userThread = Thread::createMainUserThread(file.getName(), process, (uint32_t) executable.getEntryPoint(), argc, argv, nullptr, heapAddress);
 
     processService.getCurrentProcess().setMainThread(userThread);

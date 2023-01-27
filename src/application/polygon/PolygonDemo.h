@@ -21,14 +21,19 @@
 #include <cstdint>
 
 #include "lib/util/game/Game.h"
-#include "lib/util/data/ArrayListBlockingQueue.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "DemoPolygonFactory.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 #include "lib/util/game/KeyListener.h"
+#include "application/polygon/DemoPolygon.h"
 
-class DemoPolygon;
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class PolygonDemo : public Util::Game::Game, public Util::Game::KeyListener {
 
@@ -62,7 +67,7 @@ public:
 private:
 
     DemoPolygonFactory factory;
-    Util::Data::ArrayListBlockingQueue<DemoPolygon*> polygons;
+    Util::ArrayListBlockingQueue<DemoPolygon*> polygons;
 };
 
 #endif

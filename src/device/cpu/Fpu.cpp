@@ -17,7 +17,7 @@
 
 #include "kernel/service/InterruptService.h"
 #include "kernel/system/System.h"
-#include "lib/util/cpu/CpuId.h"
+#include "lib/util/hardware/CpuId.h"
 #include "Cpu.h"
 #include "Fpu.h"
 #include "device/cpu/Fpu.h"
@@ -26,7 +26,7 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
 #include "lib/util/async/Atomic.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -51,12 +51,12 @@ Fpu::Fpu(const uint8_t *defaultFpuContext) {
     if (Device::Fpu::isFxsrAvailable()) {
         log.info("FXSR support detected -> Using FXSAVE/FXRSTR for FPU context switching");
 
-        auto features = Util::Cpu::CpuId::getCpuFeatures();
-        if (features.contains(Util::Cpu::CpuId::MMX)) {
+        auto features = Util::Hardware::CpuId::getCpuFeatures();
+        if (features.contains(Util::Hardware::CpuId::MMX)) {
             log.info("MMX support detected");
         }
 
-        if (features.contains(Util::Cpu::CpuId::SSE)) {
+        if (features.contains(Util::Hardware::CpuId::SSE)) {
             log.info("SSE support detected -> Activating OSFXSR and OSXMMEXCPT");
             asm volatile (
                     "mov %%cr4, %%eax;"
@@ -117,7 +117,7 @@ void Fpu::checkTerminatedThread(Kernel::Thread &thread) {
 }
 
 bool Fpu::isAvailable() {
-    if (Util::Cpu::CpuId::getCpuFeatures().contains(Util::Cpu::CpuId::FPU)) {
+    if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FPU)) {
         return true;
     }
 
@@ -134,7 +134,7 @@ bool Fpu::isAvailable() {
 }
 
 bool Fpu::isFxsrAvailable() {
-    return Util::Cpu::CpuId::getCpuFeatures().contains(Util::Cpu::CpuId::FXSR);
+    return Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::FXSR);
 }
 
 bool Fpu::probeFpu() {

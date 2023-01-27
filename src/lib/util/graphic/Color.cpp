@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "Color.h"
 #include "Colors.h"
 

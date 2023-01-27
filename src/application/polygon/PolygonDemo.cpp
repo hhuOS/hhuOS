@@ -19,6 +19,7 @@
 
 #include "DemoPolygonFactory.h"
 #include "application/polygon/DemoPolygon.h"
+#include "lib/util/io/key/Key.h"
 
 PolygonDemo::PolygonDemo(uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {

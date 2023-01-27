@@ -117,7 +117,7 @@ uint16_t ColorGraphicsAdapter::getCurrentRow() const {
     return currentRow;
 }
 
-Util::Memory::Address<uint32_t> ColorGraphicsAdapter::getAddress() {
+Util::Address<uint32_t> ColorGraphicsAdapter::getAddress() {
     return cgaMemory;
 }
 

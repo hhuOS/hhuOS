@@ -16,11 +16,35 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
+project(lib.async)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/async/Atomic.cpp
+        ${HHUOS_SRC_DIR}/lib/util/async/AtomicBitmap.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/FunctionPointerRunnable.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/IdGenerator.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Process.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/ReentrantSpinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Spinlock.cpp
         ${HHUOS_SRC_DIR}/lib/util/async/Thread.cpp)
+
+# Kernel space version
+project(lib.kernel.async)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.async)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.async)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.async)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

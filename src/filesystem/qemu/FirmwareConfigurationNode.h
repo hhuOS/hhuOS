@@ -22,7 +22,7 @@
 
 #include "filesystem/memory/MemoryNode.h"
 #include "device/debug/FirmwareConfiguration.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Qemu {
 
@@ -32,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    explicit FirmwareConfigurationNode(const Util::Memory::String &name, const Device::FirmwareConfiguration::File &file, Device::FirmwareConfiguration &device);
+    explicit FirmwareConfigurationNode(const Util::String &name, const Device::FirmwareConfiguration::File &file, Device::FirmwareConfiguration &device);
 
     /**
      * Copy Constructor.

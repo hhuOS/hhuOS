@@ -19,16 +19,16 @@
 
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 namespace Filesystem::Memory {
 
-MountsNode::MountsNode(const Util::Memory::String &name) : MemoryNode(name) {}
+MountsNode::MountsNode(const Util::String &name) : MemoryNode(name) {}
 
 uint64_t MountsNode::getLength() {
     return buildBuffer().length();
@@ -45,20 +45,20 @@ uint64_t MountsNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numB
         numBytes = (buffer.length() - pos);
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
+    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;
 }
 
-Util::Memory::String MountsNode::buildBuffer() {
-    auto stream = Util::Stream::ByteArrayOutputStream();
-    auto writer = Util::Stream::PrintWriter(stream);
+Util::String MountsNode::buildBuffer() {
+    auto stream = Util::Io::ByteArrayOutputStream();
+    auto writer = Util::Io::PrintWriter(stream);
 
     auto mountInformation = Kernel::System::getService<Kernel::FilesystemService>().getMountInformation();
     for (const auto &info : mountInformation) {
-        writer << info.device << " on " << info.target << " type " << info.driver << Util::Stream::PrintWriter::endl;
+        writer << info.device << " on " << info.target << " type " << info.driver << Util::Io::PrintWriter::endl;
     }
 
     writer.flush();

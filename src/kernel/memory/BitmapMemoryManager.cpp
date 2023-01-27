@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "BitmapMemoryManager.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 
@@ -38,7 +38,7 @@ void *BitmapMemoryManager::allocateBlock() {
     void *address = reinterpret_cast<void *>(startAddress + block * blockSize);
 
     if (zeroMemory) {
-        Util::Memory::Address<uint32_t>(address).setRange(0, blockSize);
+        Util::Address<uint32_t>(address).setRange(0, blockSize);
     }
 
     return address;

@@ -38,7 +38,7 @@ void Graphics2D::drawLine(double x1, double y1, double x2, double y2) const {
                         static_cast<int32_t>(x2 * transformation + offsetX), static_cast<int32_t>(-y2 * transformation + offsetY), color);
 }
 
-void Graphics2D::drawPolygon(const Data::Array<double> &x, const Data::Array<double> &y) const {
+void Graphics2D::drawPolygon(const Array<double> &x, const Array<double> &y) const {
     for (uint32_t i = 0; i < x.length() - 1; i++) {
         drawLine(x[i], y[i], x[i + 1], y[i + 1]);
     }
@@ -54,7 +54,7 @@ void Graphics2D::drawString(double x, double y, const char *string) const {
     drawString(Graphic::Fonts::TERMINAL_FONT, x, y, string);
 }
 
-void Graphics2D::drawString(double x, double y, const Util::Memory::String &string) const {
+void Graphics2D::drawString(double x, double y, const Util::String &string) const {
     drawString(x, y, static_cast<const char *>(string));
 }
 
@@ -62,7 +62,7 @@ void Graphics2D::drawStringSmall(double x, double y, const char *string) const {
     drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, x, y, string);
 }
 
-void Graphics2D::drawStringSmall(double x, double y, const Util::Memory::String &string) const {
+void Graphics2D::drawStringSmall(double x, double y, const Util::String &string) const {
     drawStringSmall(x, y, static_cast<const char *>(string));
 }
 

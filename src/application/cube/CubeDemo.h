@@ -24,6 +24,12 @@
 #include "Cube.h"
 #include "lib/util/game/KeyListener.h"
 
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
+
 class CubeDemo : public Util::Game::Game, public Util::Game::KeyListener {
 
 public:

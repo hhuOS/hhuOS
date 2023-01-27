@@ -23,8 +23,8 @@
 #include "ProcessRootNode.h"
 #include "ProcessFileNode.h"
 #include "kernel/process/Process.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 class Node;
@@ -32,15 +32,15 @@ class Node;
 
 namespace Filesystem::Process {
 
-Node* ProcessDriver::getNode(const Util::Memory::String &path) {
+Node* ProcessDriver::getNode(const Util::String &path) {
     if (path.isEmpty() || path == "/") {
         return new ProcessRootNode();
     }
 
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
     auto ids = processService.getActiveProcessIds();
-    auto splitPath = path.split(Util::File::File::SEPARATOR);
-    auto id = Util::Memory::String::parseInt(splitPath[0]);
+    auto splitPath = path.split(Util::Io::File::SEPARATOR);
+    auto id = Util::String::parseInt(splitPath[0]);
 
     auto *process = processService.getProcess(id);
     if (process == nullptr) {
@@ -56,18 +56,18 @@ Node* ProcessDriver::getNode(const Util::Memory::String &path) {
         } else if (name == "cwd") {
             return new ProcessFileNode(name, process->getWorkingDirectory().getCanonicalPath());
         } else if (name == "thread_count") {
-            return new ProcessFileNode(name, Util::Memory::String::format("%u", process->getThreadCount()));
+            return new ProcessFileNode(name, Util::String::format("%u", process->getThreadCount()));
         }
     }
 
     return nullptr;
 }
 
-bool ProcessDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
+bool ProcessDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
     return false;
 }
 
-bool ProcessDriver::deleteNode(const Util::Memory::String &path) {
+bool ProcessDriver::deleteNode(const Util::String &path) {
     return false;
 }
 

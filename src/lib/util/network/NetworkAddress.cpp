@@ -18,15 +18,15 @@
  * The original source code can be found here: https://github.com/hhuOS/hhuOS/tree/legacy/network
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "NetworkAddress.h"
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "lib/util/io/stream/OutputStream.h"
 
 namespace Util::Network {
 
 NetworkAddress::NetworkAddress(uint8_t length, NetworkAddress::Type type) : buffer(new uint8_t[length]), length(length), type(type) {
-    Util::Memory::Address<uint32_t>(buffer).setRange(0, length);
+    Util::Address<uint32_t>(buffer).setRange(0, length);
 }
 
 NetworkAddress::NetworkAddress(const uint8_t *buffer, uint8_t length, NetworkAddress::Type type) : NetworkAddress(length, type) {
@@ -58,8 +58,8 @@ bool NetworkAddress::operator==(const NetworkAddress &other) const {
         return false;
     }
 
-    auto first = Util::Memory::Address<uint32_t>(buffer);
-    auto second = Util::Memory::Address<uint32_t>(other.buffer);
+    auto first = Util::Address<uint32_t>(buffer);
+    auto second = Util::Address<uint32_t>(other.buffer);
     auto result = first.compareRange(second, getLength());
 
     return result == 0;
@@ -69,29 +69,29 @@ bool NetworkAddress::operator!=(const NetworkAddress &other) const {
     return !(*this == other);
 }
 
-void NetworkAddress::read(Util::Stream::InputStream &stream) {
+void NetworkAddress::read(Util::Io::InputStream &stream) {
     stream.read(buffer, 0, length);
 }
 
-void NetworkAddress::write(Util::Stream::OutputStream &stream) const {
+void NetworkAddress::write(Util::Io::OutputStream &stream) const {
     stream.write(buffer, 0, length);
 }
 
 void NetworkAddress::setAddress(const uint8_t *buffer) {
-    auto source = Util::Memory::Address<uint32_t>(buffer);
-    auto destination = Util::Memory::Address<uint32_t>(NetworkAddress::buffer);
+    auto source = Util::Address<uint32_t>(buffer);
+    auto destination = Util::Address<uint32_t>(NetworkAddress::buffer);
     destination.copyRange(source, length);
 }
 
 void NetworkAddress::setAddress(const NetworkAddress &other) {
-    auto source = Util::Memory::Address<uint32_t>(other.buffer);
-    auto destination = Util::Memory::Address<uint32_t>(buffer);
+    auto source = Util::Address<uint32_t>(other.buffer);
+    auto destination = Util::Address<uint32_t>(buffer);
     destination.copyRange(source, length < other.length ? length : other.length);
 }
 
 void NetworkAddress::getAddress(uint8_t *buffer) const {
-    auto source = Util::Memory::Address<uint32_t>(NetworkAddress::buffer);
-    auto destination = Util::Memory::Address<uint32_t>(buffer);
+    auto source = Util::Address<uint32_t>(NetworkAddress::buffer);
+    auto destination = Util::Address<uint32_t>(buffer);
     destination.copyRange(source, length);
 }
 

@@ -20,7 +20,7 @@
 #include "FirmwareConfiguration.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 Device::FirmwareConfiguration::FirmwareConfiguration() {
     selectorPort.writeWord(ID);
@@ -41,10 +41,10 @@ bool Device::FirmwareConfiguration::isDmaSupported() const {
     return (features & DMA) == DMA;
 }
 
-Util::Data::Array<Device::FirmwareConfiguration::File> Device::FirmwareConfiguration::getFiles() const {
+Util::Array<Device::FirmwareConfiguration::File> Device::FirmwareConfiguration::getFiles() const {
     selectorPort.writeWord(ROOT_DIRECTORY);
     uint32_t fileCount = dataPort.readByte() << 24 | dataPort.readByte() << 16 | dataPort.readByte() << 8 | dataPort.readByte();
-    auto files = Util::Data::Array<File>(fileCount);
+    auto files = Util::Array<File>(fileCount);
 
     for (uint32_t i = 0; i < fileCount; i++) {
         File *file = &files[i];
@@ -160,8 +160,8 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     uint64_t max = pos + numBytes > file.size ? file.size : pos + numBytes;
 
     if (command == WRITE) {
-        auto source = Util::Memory::Address<uint32_t>(targetBuffer);
-        auto target = Util::Memory::Address<uint32_t>(virtualAddress);
+        auto source = Util::Address<uint32_t>(targetBuffer);
+        auto target = Util::Address<uint32_t>(virtualAddress);
         target.copyRange(source, max);
     }
 
@@ -177,8 +177,8 @@ uint64_t Device::FirmwareConfiguration::performDmaAccess(Device::FirmwareConfigu
     }
 
     if (command == READ) {
-        auto source = Util::Memory::Address<uint32_t>(virtualAddress);
-        auto target = Util::Memory::Address<uint32_t>(targetBuffer);
+        auto source = Util::Address<uint32_t>(virtualAddress);
+        auto target = Util::Address<uint32_t>(targetBuffer);
         target.copyRange(source, max);
     }
 

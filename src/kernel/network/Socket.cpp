@@ -20,11 +20,11 @@
 
 #include "Socket.h"
 
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Address.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
@@ -44,7 +44,7 @@ void Socket::bind(const Util::Network::NetworkAddress &address) {
      * This will result in a call the user space variant of this function, which will allocate memory on the user space heap.
      */
 
-    auto addressStream = Util::Stream::ByteArrayOutputStream();
+    auto addressStream = Util::Io::ByteArrayOutputStream();
     address.write(addressStream);
 
     switch (address.getType()) {
@@ -75,7 +75,7 @@ const Util::Network::NetworkAddress& Socket::getAddress() const {
     return *bindAddress;
 }
 
-bool Socket::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {
         case Util::Network::Socket::Request::BIND: {
             bind(*reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]));

@@ -19,10 +19,13 @@
 #define HHUOS_PACKETWRITER_H
 
 #include "lib/util/async/Runnable.h"
+#include "device/network/NetworkDevice.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device::Network {
-
-class NetworkDevice;
 
 class PacketWriter : public Util::Async::Runnable {
 
@@ -54,7 +57,7 @@ public:
 private:
 
     Device::Network::NetworkDevice &networkDevice;
-    Util::Data::ArrayBlockingQueue<NetworkDevice::Packet> packetQueue = Util::Data::ArrayBlockingQueue<NetworkDevice::Packet>(16);
+    Util::ArrayBlockingQueue<NetworkDevice::Packet> packetQueue = Util::ArrayBlockingQueue<NetworkDevice::Packet>(16);
 };
 
 }

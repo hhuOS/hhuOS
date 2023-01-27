@@ -25,7 +25,7 @@
 
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 namespace Network {
@@ -58,7 +58,7 @@ public:
      */
     ~Ip4Interface() = default;
 
-    [[nodiscard]] Util::Memory::String getDeviceIdentifier() const;
+    [[nodiscard]] Util::String getDeviceIdentifier() const;
 
     void sendPacket(uint8_t *packet, uint32_t length);
 

@@ -20,8 +20,8 @@
 
 #include "lib/util/network/ip4/Ip4Address.h"
 
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util::Network::Ip4 {
 
@@ -31,13 +31,13 @@ Ip4Address::Ip4Address() : NetworkAddress(ADDRESS_LENGTH, IP4) {}
 
 Ip4Address::Ip4Address(uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, IP4) {}
 
-Ip4Address::Ip4Address(const Util::Memory::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
+Ip4Address::Ip4Address(const Util::String &string) : NetworkAddress(ADDRESS_LENGTH, IP4) {
     auto split = string.split(".");
     uint8_t buffer[4] = {
-            static_cast<uint8_t>(Util::Memory::String::parseInt(split[0])),
-            static_cast<uint8_t>(Util::Memory::String::parseInt(split[1])),
-            static_cast<uint8_t>(Util::Memory::String::parseInt(split[2])),
-            static_cast<uint8_t>(Util::Memory::String::parseInt(split[3])),
+            static_cast<uint8_t>(Util::String::parseInt(split[0])),
+            static_cast<uint8_t>(Util::String::parseInt(split[1])),
+            static_cast<uint8_t>(Util::String::parseInt(split[2])),
+            static_cast<uint8_t>(Util::String::parseInt(split[3])),
     };
     NetworkAddress::setAddress(buffer);
 }
@@ -46,19 +46,19 @@ NetworkAddress* Ip4Address::createCopy() const {
     return new Ip4Address(*this);
 }
 
-void Ip4Address::setAddress(const Util::Memory::String &string) {
+void Ip4Address::setAddress(const Util::String &string) {
     auto split = string.split(".");
     if (split.length() != 4) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Address: Invalid address string given!");
     }
 
     for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
-        buffer[i] = Util::Memory::String::parseInt(split[i]);
+        buffer[i] = Util::String::parseInt(split[i]);
     }
 }
 
-Util::Memory::String Ip4Address::toString() const {
-    return Util::Memory::String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
+Util::String Ip4Address::toString() const {
+    return Util::String::format("%u.%u.%u.%u", buffer[0], buffer[1], buffer[2], buffer[3]);
 }
 
 Ip4Address Ip4Address::createBroadcastAddress() {

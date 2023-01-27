@@ -18,9 +18,19 @@
 #ifndef HHUOS_RTL8139_H
 #define HHUOS_RTL8139_H
 
+#include <cstdint>
+
 #include "device/network/NetworkDevice.h"
 #include "device/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"
+#include "device/cpu/IoPort.h"
+#include "lib/util/base/String.h"
+#include "lib/util/network/MacAddress.h"
+
+namespace Kernel {
+class Logger;
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Network {
 
@@ -30,7 +40,7 @@ public:
     /**
      * Default Constructor.
      */
-    Rtl8139(const Util::Memory::String &identifier, const PciDevice &pciDevice);
+    Rtl8139(const Util::String &identifier, const PciDevice &pciDevice);
 
     /**
      * Copy Constructor.

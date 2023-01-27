@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Device::Sound {
 
@@ -32,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    explicit PcSpeakerNode(const Util::Memory::String &name);
+    explicit PcSpeakerNode(const Util::String &name);
 
     /**
      * Copy Constructor.
@@ -52,12 +52,12 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::Memory::String getString() override;
+    Util::String getString() override;
 
     /**
      * Overriding function from MemoryNode.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from MemoryNode.
@@ -67,7 +67,7 @@ public:
 private:
 
     uint32_t currentFrequency = 0;
-    Util::Memory::String buffer = "0\n";
+    Util::String buffer = "0\n";
 };
 
 }

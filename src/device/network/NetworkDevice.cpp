@@ -25,15 +25,15 @@
 #include "kernel/process/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/memory/Constants.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 
 namespace Device::Network {
 
-NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
+NetworkDevice::NetworkDevice(const Util::String &identifier) :
         identifier(identifier),
-        packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::Memory::PAGESIZE))),
+        packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::PAGESIZE))),
         packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
@@ -42,22 +42,22 @@ NetworkDevice::NetworkDevice(const Util::Memory::String &identifier) :
         log(Kernel::Logger::get(identifier)) {
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &readerThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("%s-Reader", static_cast<const char*>(identifier)), processService.getKernelProcess(), reader);
-    auto &writerThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("%s-Writer", static_cast<const char*>(identifier)), processService.getKernelProcess(), writer);
+    auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("%s-Reader", static_cast<const char*>(identifier)), processService.getKernelProcess(), reader);
+    auto &writerThread = Kernel::Thread::createKernelThread(Util::String::format("%s-Writer", static_cast<const char*>(identifier)), processService.getKernelProcess(), writer);
 
     schedulerService.ready(readerThread);
     schedulerService.ready(writerThread);
 }
 
-Util::Memory::String NetworkDevice::getIdentifier() const {
+Util::String NetworkDevice::getIdentifier() const {
     return identifier;
 }
 
 void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
     outgoingPacketLock.acquire();
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
-    auto source = Util::Memory::Address<uint32_t>(packet);
-    auto target = Util::Memory::Address<uint32_t>(buffer);
+    auto source = Util::Address<uint32_t>(packet);
+    auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
     outgoingPacketQueue.add(Packet{buffer, length});
@@ -71,8 +71,8 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     }
 
     auto *buffer = reinterpret_cast<uint8_t*>(packetMemoryManager.allocateBlock());
-    auto source = Util::Memory::Address<uint32_t>(packet);
-    auto target = Util::Memory::Address<uint32_t>(buffer);
+    auto source = Util::Address<uint32_t>(packet);
+    auto target = Util::Address<uint32_t>(buffer);
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer(Packet{buffer, length})) {

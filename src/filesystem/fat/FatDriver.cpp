@@ -19,9 +19,9 @@
 #include "FatNode.h"
 #include "FatDriver.h"
 #include "filesystem/fat/ff/source/ffconf.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/AtomicBitmap.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/async/AtomicBitmap.h"
 
 namespace Device {
 namespace Storage {
@@ -34,11 +34,11 @@ class Node;
 
 namespace Filesystem::Fat {
 
-Util::Memory::AtomicBitmap FatDriver::volumeIdAllocator(FF_VOLUMES);
-Util::Data::Array<Device::Storage::StorageDevice*> FatDriver::deviceMap(FF_VOLUMES);
+Util::Async::AtomicBitmap FatDriver::volumeIdAllocator(FF_VOLUMES);
+Util::Array<Device::Storage::StorageDevice*> FatDriver::deviceMap(FF_VOLUMES);
 
 FatDriver::~FatDriver() {
-    f_mount(nullptr, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
+    f_mount(nullptr, static_cast<const char*>(Util::String::format("%u:", volumeId)), 1);
     volumeIdAllocator.unset(volumeId);
 }
 
@@ -48,19 +48,19 @@ Device::Storage::StorageDevice& FatDriver::getStorageDevice(uint8_t volumeId) {
 
 bool FatDriver::mount(Device::Storage::StorageDevice &device) {
     volumeId = volumeIdAllocator.findAndSet();
-    if (volumeId == Util::Memory::AtomicBitmap::INVALID_INDEX) {
+    if (volumeId == Util::Async::AtomicBitmap::INVALID_INDEX) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
     deviceMap[volumeId] = &device;
 
-    auto result = f_mount(&fatVolume, static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), 1);
+    auto result = f_mount(&fatVolume, static_cast<const char*>(Util::String::format("%u:", volumeId)), 1);
     return result == FR_OK;
 }
 
 bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
     volumeId = volumeIdAllocator.findAndSet();
-    if (volumeId == Util::Memory::AtomicBitmap::INVALID_INDEX) {
+    if (volumeId == Util::Async::AtomicBitmap::INVALID_INDEX) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Maximum amount of fat volumes reached!");
     }
 
@@ -74,22 +74,22 @@ bool FatDriver::createFilesystem(Device::Storage::StorageDevice &device) {
         0
     };
 
-    auto result = f_mkfs(static_cast<const char*>(Util::Memory::String::format("%u:", volumeId)), &parameters, work, FF_MAX_SS);
+    auto result = f_mkfs(static_cast<const char*>(Util::String::format("%u:", volumeId)), &parameters, work, FF_MAX_SS);
     return result == FR_OK;
 }
 
-Node* FatDriver::getNode(const Util::Memory::String &path) {
-    auto fatPath = Util::Memory::String::format("%u:%s", volumeId, static_cast<const char*>(path));
+Node* FatDriver::getNode(const Util::String &path) {
+    auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
     return FatNode::open(fatPath);
 }
 
-bool FatDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
-    auto fatPath = Util::Memory::String::format("%u:%s", volumeId, static_cast<const char*>(path));
+bool FatDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+    auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
     FRESULT result = FR_DISK_ERR;
 
-    if (type == Util::File::DIRECTORY) {
+    if (type == Util::Io::File::DIRECTORY) {
         result = f_mkdir(static_cast<const char*>(fatPath));
-    } else if (type == Util::File::REGULAR) {
+    } else if (type == Util::Io::File::REGULAR) {
         FIL *file = new FIL;
         result = f_open(file, static_cast<const char*>(fatPath), FA_CREATE_NEW);
         if (result == FR_OK) {
@@ -102,8 +102,8 @@ bool FatDriver::createNode(const Util::Memory::String &path, Util::File::Type ty
     return result == FR_OK;
 }
 
-bool FatDriver::deleteNode(const Util::Memory::String &path) {
-    auto fatPath = Util::Memory::String::format("%u:%s", volumeId, static_cast<const char*>(path));
+bool FatDriver::deleteNode(const Util::String &path) {
+    auto fatPath = Util::String::format("%u:%s", volumeId, static_cast<const char*>(path));
     auto result = f_unlink(static_cast<const char*>(fatPath));
 
     return result == FR_OK;

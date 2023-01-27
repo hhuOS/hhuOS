@@ -19,9 +19,9 @@
 
 #include "lib/util/game/Graphics2D.h"
 
-DemoPolygon::DemoPolygon() : Util::Game::Polygon(Util::Data::Array<double>(0), Util::Data::Array<double>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
+DemoPolygon::DemoPolygon() : Util::Game::Polygon(Util::Array<double>(0), Util::Array<double>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 
-DemoPolygon::DemoPolygon(const Util::Data::Array<double> &x, const Util::Data::Array<double> &y, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed) :
+DemoPolygon::DemoPolygon(const Util::Array<double> &x, const Util::Array<double> &y, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed) :
         Util::Game::Polygon(x, y), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {}
 
 void DemoPolygon::update(double delta) {

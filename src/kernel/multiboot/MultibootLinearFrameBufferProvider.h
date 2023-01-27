@@ -20,8 +20,8 @@
 
 #include "device/graphic/lfb/LinearFrameBufferProvider.h"
 #include "Multiboot.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 
@@ -63,7 +63,7 @@ public:
     /**
      * Overriding virtual function from LinearFrameBufferProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Array<ModeInfo> getAvailableModes() const override;
 
 protected:
     /**
@@ -74,7 +74,7 @@ protected:
 private:
 
     Multiboot::FrameBufferInfo frameBufferInfo;
-    Util::Data::Array<ModeInfo> supportedModes;
+    Util::Array<ModeInfo> supportedModes;
 
     static Kernel::Logger log;
 };

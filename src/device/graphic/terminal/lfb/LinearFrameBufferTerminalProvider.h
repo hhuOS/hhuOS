@@ -18,11 +18,11 @@
 #ifndef HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 #define HHUOS_LINEARFRAMEBUFFERTERMINALPROVIDER_H
 
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "device/graphic/terminal/TerminalProvider.h"
 #include "lib/util/graphic/Fonts.h"
-#include "lib/util/file/File.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 #include "lib/util/graphic/Terminal.h"
 
@@ -40,7 +40,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit LinearFrameBufferTerminalProvider(Util::File::File &lfbFile, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
+    explicit LinearFrameBufferTerminalProvider(Util::Io::File &lfbFile, Util::Graphic::Font &font = Util::Graphic::Fonts::TERMINAL_FONT, char cursor = static_cast<char>(219));
 
     /**
      * Copy Constructor.
@@ -62,7 +62,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Array<ModeInfo> getAvailableModes() const override;
 
 protected:
     /**
@@ -72,7 +72,7 @@ protected:
 
 private:
 
-    Util::File::File lfbFile;
+    Util::Io::File lfbFile;
     Util::Graphic::Font &font;
     char cursor;
 

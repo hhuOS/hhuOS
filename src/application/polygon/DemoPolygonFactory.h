@@ -22,9 +22,9 @@
 
 class DemoPolygon;
 namespace Util {
-namespace Data {
+
 template <typename T> class Array;
-}  // namespace Data
+
 }  // namespace Util
 
 class DemoPolygonFactory {
@@ -56,19 +56,19 @@ private:
 
     Util::Math::Random random = Util::Math::Random();
 
-    static const Util::Data::Array<double> xShape1;
-    static const Util::Data::Array<double> yShape1;
-    static const Util::Data::Array<double> xShape2;
-    static const Util::Data::Array<double> yShape2;
-    static const Util::Data::Array<double> xShape3;
-    static const Util::Data::Array<double> yShape3;
-    static const Util::Data::Array<double> xShape4;
-    static const Util::Data::Array<double> yShape4;
-    static const Util::Data::Array<double> xShape5;
-    static const Util::Data::Array<double> yShape5;
+    static const Util::Array<double> xShape1;
+    static const Util::Array<double> yShape1;
+    static const Util::Array<double> xShape2;
+    static const Util::Array<double> yShape2;
+    static const Util::Array<double> xShape3;
+    static const Util::Array<double> yShape3;
+    static const Util::Array<double> xShape4;
+    static const Util::Array<double> yShape4;
+    static const Util::Array<double> xShape5;
+    static const Util::Array<double> yShape5;
 
-    static const Util::Data::Array<const Util::Data::Array<double>*> xShapes;
-    static const Util::Data::Array<const Util::Data::Array<double>*> yShapes;
+    static const Util::Array<const Util::Array<double>*> xShapes;
+    static const Util::Array<const Util::Array<double>*> yShapes;
 };
 
 #endif

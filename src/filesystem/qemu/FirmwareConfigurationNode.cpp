@@ -19,7 +19,7 @@
 
 namespace Filesystem::Qemu {
 
-FirmwareConfigurationNode::FirmwareConfigurationNode(const Util::Memory::String &name, const Device::FirmwareConfiguration::File &file,
+FirmwareConfigurationNode::FirmwareConfigurationNode(const Util::String &name, const Device::FirmwareConfiguration::File &file,
      Device::FirmwareConfiguration &device) : Memory::MemoryNode(name), file(file), device(device) {}
 
 uint64_t FirmwareConfigurationNode::getLength() {

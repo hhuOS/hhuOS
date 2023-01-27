@@ -19,22 +19,22 @@
 
 namespace Filesystem::Memory {
 
-MemoryNode::MemoryNode(const Util::Memory::String &name) : name(name) {}
+MemoryNode::MemoryNode(const Util::String &name) : name(name) {}
 
-Util::Memory::String MemoryNode::getName() {
+Util::String MemoryNode::getName() {
     return name;
 }
 
-Util::File::Type MemoryNode::getFileType() {
-    return Util::File::REGULAR;
+Util::Io::File::Type MemoryNode::getType() {
+    return Util::Io::File::REGULAR;
 }
 
 uint64_t MemoryNode::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> MemoryNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
+Util::Array<Util::String> MemoryNode::getChildren() {
+    return Util::Array<Util::String>(0);
 }
 
 uint64_t MemoryNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {

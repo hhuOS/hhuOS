@@ -20,13 +20,14 @@
 
 #include <cstdint>
 
-#include "lib/util/file/File.h"
+#include "lib/util/io/file/File.h"
 #include "kernel/file/FileDescriptorManager.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "kernel/process/Thread.h"
 
 namespace Util {
 namespace Async {
@@ -35,7 +36,6 @@ template <typename T> class IdGenerator;
 }  // namespace Util
 
 namespace Kernel {
-class Thread;
 class VirtualAddressSpace;
 
 class Process {
@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Process(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory = Util::File::File("/"));
+    explicit Process(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory = Util::Io::File("/"));
 
     /**
      * Copy Constructor.
@@ -63,7 +63,7 @@ public:
 
     bool operator==(const Process &other) const;
 
-    bool setWorkingDirectory(const Util::Memory::String &path);
+    bool setWorkingDirectory(const Util::String &path);
 
     void setExitCode(int32_t code);
 
@@ -79,7 +79,7 @@ public:
 
     [[nodiscard]] FileDescriptorManager& getFileDescriptorManager();
 
-    [[nodiscard]] Util::File::File getWorkingDirectory();
+    [[nodiscard]] Util::Io::File getWorkingDirectory();
 
     [[nodiscard]] bool isFinished() const;
 
@@ -87,9 +87,9 @@ public:
 
     [[nodiscard]] bool isKernelProcess() const;
 
-    [[nodiscard]] Util::Memory::String getName() const;
+    [[nodiscard]] Util::String getName() const;
 
-    [[nodiscard]] Util::Data::Array<Thread*> getThreads() const;
+    [[nodiscard]] Util::Array<Thread*> getThreads() const;
 
     void addThread(Thread &thread);
 
@@ -99,14 +99,14 @@ public:
 
 private:
 
-    [[nodiscard]] Util::File::File getFileFromPath(const Util::Memory::String &path);
+    [[nodiscard]] Util::Io::File getFileFromPath(const Util::String &path);
 
     uint32_t id;
-    Util::Memory::String name;
+    Util::String name;
     VirtualAddressSpace &addressSpace;
     FileDescriptorManager fileDescriptorManager;
-    Util::File::File workingDirectory;
-    Util::Data::ArrayList<Thread*> threads;
+    Util::Io::File workingDirectory;
+    Util::ArrayList<Thread*> threads;
     Thread *mainThread = nullptr;
 
     bool finished = false;

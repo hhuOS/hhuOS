@@ -26,7 +26,13 @@
 #include "lib/util/network/Datagram.h"
 
 namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+
 namespace Network {
+class NetworkAddress;
+
 namespace Ip4 {
 class Ip4PortAddress;
 }  // namespace Ip4
@@ -56,7 +62,7 @@ public:
     /**
      * Constructor.
      */
-    UdpDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
+    UdpDatagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.

@@ -16,7 +16,7 @@
  */
 
 #include "kernel/service/InterruptService.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "SystemCall.h"
 #include "System.h"
 #include "kernel/interrupt/InterruptDispatcher.h"

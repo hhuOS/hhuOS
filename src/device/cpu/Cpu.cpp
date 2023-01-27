@@ -16,12 +16,12 @@
  */
 
 #include "asm_interface.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "Cpu.h"
 #include "lib/util/async/Atomic.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 
@@ -91,8 +91,8 @@ const char* Cpu::getExceptionName(uint32_t exception) {
     return hardwareExceptions[exception];
 }
 
-Util::Data::Array<Cpu::Configuration0> Cpu::readCr0() {
-    auto cr0 = Util::Data::ArrayList<Configuration0>();
+Util::Array<Cpu::Configuration0> Cpu::readCr0() {
+    auto cr0 = Util::ArrayList<Configuration0>();
     uint32_t cr0Bits = 0;
     asm volatile (
             "mov %%cr0, %%eax;"

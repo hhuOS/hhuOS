@@ -27,7 +27,7 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -72,9 +72,9 @@ public:
      */
     ~ArpHeader() = default;
 
-    void read(Util::Stream::InputStream &stream);
+    void read(Util::Io::InputStream &stream);
 
-    void write(Util::Stream::OutputStream &stream);
+    void write(Util::Io::OutputStream &stream);
 
     [[nodiscard]] HardwareAddressType getHardwareAddressType() const;
 

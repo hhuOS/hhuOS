@@ -19,9 +19,9 @@
 
 #include "kernel/paging/MemoryLayout.h"
 #include "asm_interface.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 
@@ -37,7 +37,7 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
     copyInfo->copiedBytes = sizeof(CopyInformation);
     copyInfo->success = false;
 
-    auto destinationAddress = Util::Memory::Address<uint32_t>(destination + sizeof(CopyInformation));
+    auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
 
     // Find RSDP and copy its address to determine whether the RSDP has been found
     auto *rsdp = findRsdp();
@@ -48,7 +48,7 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
 
     // Copy RSDP
     if (copyInfo->copiedBytes + sizeof(Rsdp) > maxBytes) return;
-    destinationAddress.copyRange(Util::Memory::Address<uint32_t>(rsdp), sizeof(Rsdp));
+    destinationAddress.copyRange(Util::Address<uint32_t>(rsdp), sizeof(Rsdp));
     rsdp = reinterpret_cast<Rsdp*>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Rsdp));
     copyInfo->copiedBytes += sizeof(Rsdp);
@@ -65,7 +65,7 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
 
     if (copyInfo->copiedBytes + rsdt->length > maxBytes) return;
     rsdp->rsdtAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(copiedRsdtAddress);
-    destinationAddress.copyRange(Util::Memory::Address<uint32_t>(rsdt), rsdt->length);
+    destinationAddress.copyRange(Util::Address<uint32_t>(rsdt), rsdt->length);
     destinationAddress = destinationAddress.add(rsdt->length);
     copyInfo->copiedBytes += rsdt->length;
 
@@ -78,7 +78,7 @@ void Acpi::copyAcpiTables(uint8_t *destination, uint32_t maxBytes) {
         auto *sdt = originalEntries[i];
         if (checkSdt(sdt)) {
             if (copyInfo->copiedBytes + sdt->length > maxBytes) return;
-            destinationAddress.copyRange(Util::Memory::Address<uint32_t>(sdt), sdt->length);
+            destinationAddress.copyRange(Util::Address<uint32_t>(sdt), sdt->length);
             copiedEntries[i] = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
             destinationAddress = destinationAddress.add(sdt->length);
             copyInfo->copiedBytes += sdt->length;
@@ -100,11 +100,11 @@ Acpi::Rsdp* Acpi::findRsdp() {
 
 Acpi::Rsdp* Acpi::searchRsdp(uint32_t startAddress, uint32_t endAddress) {
     char signature[sizeof(Rsdp::signature)] = {'R', 'S', 'D', ' ', 'P', 'T', 'R', ' '};
-    auto signatureAddress = Util::Memory::Address<uint32_t>(signature);
-    startAddress = Util::Memory::Address<uint32_t>(startAddress).alignUp(16).get();
+    auto signatureAddress = Util::Address<uint32_t>(signature);
+    startAddress = Util::Address<uint32_t>(startAddress).alignUp(16).get();
 
     for (uint32_t i = startAddress; i <= endAddress - sizeof(signature); i += 16) {
-        auto address = Util::Memory::Address<uint32_t>(i);
+        auto address = Util::Address<uint32_t>(i);
         if (address.compareRange(signatureAddress, sizeof(Rsdp::signature)) == 0) {
             if (checkRsdp(reinterpret_cast<Rsdp*>(i))) {
                 return reinterpret_cast<Rsdp*>(i);
@@ -160,7 +160,7 @@ const Acpi::Rsdp &Acpi::getRsdp() {
 
 bool Acpi::hasTable(const char *signature) {
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareRange(Util::Memory::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
+        if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
             return true;
         }
     }
@@ -170,7 +170,7 @@ bool Acpi::hasTable(const char *signature) {
 
 const Acpi::SdtHeader& Acpi::getTable(const char *signature) {
     for (uint32_t i = 0; i < numTables; i++) {
-        if (Util::Memory::Address<uint32_t>(tables[i]->signature).compareRange(Util::Memory::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
+        if (Util::Address<uint32_t>(tables[i]->signature).compareRange(Util::Address<uint32_t>(signature), sizeof(SdtHeader::signature)) == 0) {
             return *tables[i];
         }
     }
@@ -178,10 +178,10 @@ const Acpi::SdtHeader& Acpi::getTable(const char *signature) {
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Acpi: Table not found!");
 }
 
-Util::Data::Array<Util::Memory::String> Acpi::getAvailableTables() {
-    Util::Data::Array<Util::Memory::String> signatures(numTables);
+Util::Array<Util::String> Acpi::getAvailableTables() {
+    Util::Array<Util::String> signatures(numTables);
     for (uint32_t i = 0; i < numTables; i++) {
-        signatures[i] = Util::Memory::String(reinterpret_cast<const uint8_t*>(tables[i]->signature), sizeof(SdtHeader::signature));
+        signatures[i] = Util::String(reinterpret_cast<const uint8_t*>(tables[i]->signature), sizeof(SdtHeader::signature));
     }
 
     return signatures;

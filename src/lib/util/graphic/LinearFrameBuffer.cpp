@@ -15,28 +15,28 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/Exception.h"
-#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/stream/FileInputStream.h"
 #include "lib/interface.h"
 #include "lib/util/math/Math.h"
 #include "LinearFrameBuffer.h"
-#include "lib/util/file/File.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util::Graphic {
 
 LinearFrameBuffer::LinearFrameBuffer(uint32_t physicalAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(physicalAddress, pitch * resolutionY)), useMmx) : new Memory::Address<uint32_t>(mapIO(physicalAddress, pitch * resolutionY))),
+        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(physicalAddress, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(physicalAddress, pitch * resolutionY))),
         resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
 LinearFrameBuffer::LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration) :
-        buffer(enableAcceleration ? Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx) : new Memory::Address<uint32_t>(virtualAddress)), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
+        buffer(enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(virtualAddress), useMmx) : new Address<uint32_t>(virtualAddress)), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
-LinearFrameBuffer::LinearFrameBuffer(Util::Memory::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
+LinearFrameBuffer::LinearFrameBuffer(Util::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch) :
         buffer(address), resolutionX(resolutionX), resolutionY(resolutionY), colorDepth(colorDepth), pitch(pitch) {}
 
-LinearFrameBuffer::LinearFrameBuffer(File::File &file, bool enableAcceleration) {
+LinearFrameBuffer::LinearFrameBuffer(Io::File &file, bool enableAcceleration) {
     if (!file.exists()) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "LinearFrameBuffer: File does not exist!");
     }
@@ -47,13 +47,13 @@ LinearFrameBuffer::LinearFrameBuffer(File::File &file, bool enableAcceleration) 
     uint8_t bppBuffer[16];
     uint8_t pitchBuffer[16];
 
-    Util::Memory::Address<uint32_t>(addressBuffer).setRange(0, sizeof(addressBuffer));
-    Util::Memory::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
-    Util::Memory::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
-    Util::Memory::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
-    Util::Memory::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
+    Util::Address<uint32_t>(addressBuffer).setRange(0, sizeof(addressBuffer));
+    Util::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
+    Util::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
+    Util::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
+    Util::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
 
-    auto stream = Stream::FileInputStream(file);
+    auto stream = Io::FileInputStream(file);
     int16_t currentChar;
 
     for (unsigned char &i : addressBuffer) {
@@ -101,12 +101,12 @@ LinearFrameBuffer::LinearFrameBuffer(File::File &file, bool enableAcceleration) 
         i = currentChar;
     }
 
-    uint32_t address = Util::Memory::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
-    resolutionX = Util::Memory::String::parseInt(reinterpret_cast<const char*>(xBuffer));
-    resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
-    colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
-    pitch = Util::Memory::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
-    buffer = enableAcceleration ? Memory::Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(address, pitch * resolutionY)), useMmx) : new Memory::Address<uint32_t>(mapIO(address, pitch * resolutionY));
+    uint32_t address = Util::String::parseInt(reinterpret_cast<const char*>(addressBuffer));
+    resolutionX = Util::String::parseInt(reinterpret_cast<const char*>(xBuffer));
+    resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
+    colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
+    pitch = Util::String::parseInt(reinterpret_cast<const char*>(pitchBuffer));
+    buffer = enableAcceleration ? Address<uint32_t>::createAcceleratedAddress(reinterpret_cast<uint32_t>(mapIO(address, pitch * resolutionY)), useMmx) : new Address<uint32_t>(mapIO(address, pitch * resolutionY));
 }
 
 LinearFrameBuffer::~LinearFrameBuffer() {
@@ -130,7 +130,7 @@ uint16_t LinearFrameBuffer::getPitch() const {
     return pitch;
 }
 
-Memory::Address<uint32_t> LinearFrameBuffer::getBuffer() const {
+Address<uint32_t> LinearFrameBuffer::getBuffer() const {
     return *buffer;
 }
 

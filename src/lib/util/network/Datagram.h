@@ -24,7 +24,12 @@
 #include <cstdint>
 
 #include "NetworkAddress.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+
+namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+}  // namespace Util
 
 namespace Util::Network {
 
@@ -49,7 +54,7 @@ public:
     /**
      * Constructor.
      */
-    Datagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
+    Datagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress);
 
     /**
      * Copy Constructor.

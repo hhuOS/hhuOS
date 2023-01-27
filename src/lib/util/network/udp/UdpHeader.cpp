@@ -23,7 +23,7 @@
 #include "lib/util/network/NumberUtil.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -31,14 +31,14 @@ class OutputStream;
 
 namespace Util::Network::Udp {
 
-void UdpHeader::read(Util::Stream::InputStream &stream) {
+void UdpHeader::read(Util::Io::InputStream &stream) {
     sourcePort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
     destinationPort = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
     datagramLength = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
     checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void UdpHeader::write(Util::Stream::OutputStream &stream) const {
+void UdpHeader::write(Util::Io::OutputStream &stream) const {
     Util::Network::NumberUtil::writeUnsigned16BitValue(sourcePort, stream);
     Util::Network::NumberUtil::writeUnsigned16BitValue(destinationPort, stream);
     Util::Network::NumberUtil::writeUnsigned16BitValue(datagramLength, stream);

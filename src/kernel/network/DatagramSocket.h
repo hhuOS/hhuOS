@@ -25,13 +25,13 @@
 
 #include "Socket.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayListBlockingQueue.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
 #include "lib/util/network/Datagram.h"
+#include "lib/util/io/file/File.h"
 
 namespace Kernel {
 namespace Network {
@@ -90,12 +90,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::String getName() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -105,7 +105,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -122,7 +122,7 @@ private:
     void handleIncomingDatagram(Util::Network::Datagram *datagram);
 
     Util::Async::Spinlock lock;
-    Util::Data::ArrayListBlockingQueue<Util::Network::Datagram*> incomingDatagramQueue;
+    Util::ArrayListBlockingQueue<Util::Network::Datagram*> incomingDatagramQueue;
 };
 
 }

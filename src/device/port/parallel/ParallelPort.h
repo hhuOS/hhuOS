@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "device/cpu/IoPort.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/OutputStream.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/OutputStream.h"
 
 namespace Kernel {
 class Logger;
@@ -30,7 +30,7 @@ class Logger;
 
 namespace Device {
 
-class ParallelPort : public Util::Stream::OutputStream {
+class ParallelPort : public Util::Io::OutputStream {
 
 public:
     /**
@@ -71,7 +71,7 @@ public:
 
     static void initializeAvailablePorts();
 
-    [[nodiscard]] static LptPort portFromString(const Util::Memory::String &portName);
+    [[nodiscard]] static LptPort portFromString(const Util::String &portName);
 
     [[nodiscard]] static const char* portToString(LptPort port);
 

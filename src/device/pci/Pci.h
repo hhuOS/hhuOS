@@ -20,15 +20,15 @@
 
 #include <cstdint>
 
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
 namespace Util {
-namespace Data {
+
 template <typename T> class ArrayList;
-}  // namespace Data
+
 }  // namespace Util
 
 namespace Device {
@@ -159,17 +159,17 @@ public:
 
     static void scan();
 
-    static Util::Data::Array<PciDevice> search(uint16_t vendorId);
+    static Util::Array<PciDevice> search(uint16_t vendorId);
 
-    static Util::Data::Array<PciDevice> search(uint16_t vendorId, uint16_t deviceId);
+    static Util::Array<PciDevice> search(uint16_t vendorId, uint16_t deviceId);
 
-    static Util::Data::Array<PciDevice> search(uint16_t vendorId, uint16_t deviceId, uint8_t programmingInterface);
+    static Util::Array<PciDevice> search(uint16_t vendorId, uint16_t deviceId, uint8_t programmingInterface);
 
-    static Util::Data::Array<PciDevice> search(Class baseClass);
+    static Util::Array<PciDevice> search(Class baseClass);
 
-    static Util::Data::Array<PciDevice> search(Class baseClass, uint8_t subclass);
+    static Util::Array<PciDevice> search(Class baseClass, uint8_t subclass);
 
-    static Util::Data::Array<PciDevice> search(Class baseClass, uint8_t subclass, uint8_t programmingInterface);
+    static Util::Array<PciDevice> search(Class baseClass, uint8_t subclass, uint8_t programmingInterface);
 
 private:
 
@@ -199,7 +199,7 @@ private:
     static const IoPort configDataPort;
     
     static Kernel::Logger log;
-    static Util::Data::ArrayList<PciDevice> devices;
+    static Util::ArrayList<PciDevice> devices;
 
     static const constexpr uint16_t CONFIG_ADDRESS = 0xcf8;
     static const constexpr uint16_t CONFIG_DATA = 0xcfc;

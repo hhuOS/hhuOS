@@ -16,24 +16,24 @@
  */
 
 #include "VirtualAddressSpace.h"
-#include "lib/util/memory/Constants.h"
+#include "lib/util/base/Constants.h"
 #include "kernel/paging/PageDirectory.h"
-#include "lib/util/memory/FreeListMemoryManager.h"
+#include "lib/util/base/FreeListMemoryManager.h"
 
 namespace Util {
-namespace Memory {
+
 class HeapMemoryManager;
-}  // namespace Memory
+
 }  // namespace Util
 
 namespace Kernel {
 
-VirtualAddressSpace::VirtualAddressSpace(Util::Memory::HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
+VirtualAddressSpace::VirtualAddressSpace(Util::HeapMemoryManager &kernelHeapMemoryManager) : memoryManager(&kernelHeapMemoryManager), kernelAddressSpace(true) {
     this->pageDirectory = new PageDirectory();
 }
 
 VirtualAddressSpace::VirtualAddressSpace(PageDirectory &basePageDirectory) :
-        memoryManager(reinterpret_cast<Util::Memory::FreeListMemoryManager*>(Util::Memory::USER_SPACE_MEMORY_MANAGER_ADDRESS)), kernelAddressSpace(false) {
+        memoryManager(reinterpret_cast<Util::FreeListMemoryManager*>(Util::USER_SPACE_MEMORY_MANAGER_ADDRESS)), kernelAddressSpace(false) {
     // Initialize a new memory abstraction through paging
     this->pageDirectory = new PageDirectory(basePageDirectory);
 }
@@ -46,7 +46,7 @@ PageDirectory &VirtualAddressSpace::getPageDirectory() const {
     return *pageDirectory;
 }
 
-Util::Memory::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
+Util::HeapMemoryManager &VirtualAddressSpace::getMemoryManager() const {
     return *memoryManager;
 }
 

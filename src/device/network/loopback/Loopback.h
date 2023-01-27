@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "device/network/NetworkDevice.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Device::Network {
@@ -35,7 +35,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Loopback(const Util::Memory::String &identifier);
+    explicit Loopback(const Util::String &identifier);
 
     /**
      * Copy Constructor.

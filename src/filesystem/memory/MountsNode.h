@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Memory {
 
@@ -31,7 +31,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit MountsNode(const Util::Memory::String &name = "mounts");
+    explicit MountsNode(const Util::String &name = "mounts");
 
     /**
      * Copy Constructor.
@@ -60,7 +60,7 @@ public:
 
 private:
 
-    static Util::Memory::String buildBuffer();
+    static Util::String buildBuffer();
 };
 
 }

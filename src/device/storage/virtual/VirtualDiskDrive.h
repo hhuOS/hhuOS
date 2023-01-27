@@ -18,7 +18,7 @@
 #include <cstdint>
 
 #include "device/storage/StorageDevice.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/async/Spinlock.h"
 
 #ifndef HHUOS_VIRTUALDISKDRIVE_H
@@ -81,7 +81,7 @@ private:
 
     Util::Async::Spinlock ioLock;
 
-    Util::Memory::Address<uint32_t> address;
+    Util::Address<uint32_t> address;
     bool freeAddress;
 
     uint32_t sectorSize;

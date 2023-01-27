@@ -19,24 +19,25 @@
 #define HHUOS_FILESYSTEM_H
 
 #include "lib/util/async/ReentrantSpinlock.h"
-#include "lib/util/data/HashMap.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "filesystem/core/Driver.h"
 
 namespace Filesystem {
-class Driver;
 class Node;
 class VirtualDriver;
 namespace Memory {
 class MemoryDriver;
 }  // namespace Memory
 
+
 struct MountInformation {
-    Util::Memory::String device;
-    Util::Memory::String target;
-    Util::Memory::String driver;
+    Util::String device;
+    Util::String target;
+    Util::String driver;
 
     bool operator!=(const MountInformation &other) const;
 };
@@ -78,7 +79,7 @@ public:
      *
      * @return true on success
      */
-    bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+    bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName);
 
     /**
      * Mount a virtual filesystem at a specified location.
@@ -88,7 +89,7 @@ public:
      *
      * @return true on success
      */
-    bool mountVirtualDriver(const Util::Memory::String &targetPath, VirtualDriver *driver);
+    bool mountVirtualDriver(const Util::String &targetPath, VirtualDriver *driver);
 
     /**
      * Unmount a device from a specified location.
@@ -97,7 +98,7 @@ public:
      *
      * @return true on success
      */
-    bool unmount(const Util::Memory::String &path);
+    bool unmount(const Util::String &path);
 
     /**
      * Format a device with a specified filesystem type.
@@ -107,7 +108,7 @@ public:
      *
      * @return Return code
      */
-    bool createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName);
+    bool createFilesystem(const Util::String &deviceName, const Util::String &driverName);
 
     /**
      * Get a node at a specified path.
@@ -118,7 +119,7 @@ public:
      *
      * @return The node (or nullptr on failure)
      */
-    Node* getNode(const Util::Memory::String &path);
+    Node* getNode(const Util::String &path);
 
     /**
      * Create a file at a specified path.
@@ -128,7 +129,7 @@ public:
      *
      * @return true on success
      */
-    bool createFile(const Util::Memory::String &path);
+    bool createFile(const Util::String &path);
 
     /**
      * Create a directory at a specified path.
@@ -138,7 +139,7 @@ public:
      *
      * @return true on success
      */
-    bool createDirectory(const Util::Memory::String &path);
+    bool createDirectory(const Util::String &path);
 
     /**
      * Delete an existing file or directory at a given path.
@@ -148,7 +149,7 @@ public:
      *
      * @return true on success
      */
-    bool deleteFile(const Util::Memory::String &path);
+    bool deleteFile(const Util::String &path);
 
     /**
      * Get the virtual driver, that is mounted at a specified path.
@@ -157,14 +158,14 @@ public:
      *
      * @return The driver
      */
-    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::Memory::String &path);
+    [[nodiscard]] Memory::MemoryDriver& getVirtualDriver(const Util::String &path);
 
     /**
      * Get information about all mount points
      *
      * @return
      */
-    [[nodiscard]] Util::Data::Array<MountInformation> getMountInformation();
+    [[nodiscard]] Util::Array<MountInformation> getMountInformation();
     
 private:
     /**
@@ -178,10 +179,10 @@ private:
      *
      * @return The driver (or nullptr on failure)
      */
-    [[nodiscard]] Driver* getMountedDriver(Util::Memory::String &path);
+    [[nodiscard]] Driver* getMountedDriver(Util::String &path);
 
-    Util::Data::HashMap<Util::Memory::String, Driver*> mountPoints;
-    Util::Data::HashMap<Util::Memory::String, MountInformation> mountInformation;
+    Util::HashMap<Util::String, Driver*> mountPoints;
+    Util::HashMap<Util::String, MountInformation> mountInformation;
     Util::Async::ReentrantSpinlock lock;
 };
 

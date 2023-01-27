@@ -18,6 +18,7 @@
 #include "MouseGame.h"
 
 #include "application/mouse/MouseCursor.h"
+#include "lib/util/io/key/Key.h"
 
 void MouseGame::update(double delta) {}
 

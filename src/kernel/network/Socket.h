@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "filesystem/core/Node.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 namespace Network {
@@ -68,7 +68,7 @@ public:
 
     [[nodiscard]] const Util::Network::NetworkAddress& getAddress() const;
 
-    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
     virtual bool send(const Util::Network::Datagram &datagram) = 0;
 

@@ -3,9 +3,9 @@
 #include "kernel/system/BlueScreen.h"
 #include "ColorGraphicsAdapter.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/graphic/Terminal.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 namespace Device::Graphic {
 
@@ -60,7 +60,7 @@ Util::Graphic::Terminal* ColorGraphicsAdapterProvider::initializeTerminal(const 
     return terminal;
 }
 
-Util::Data::Array<ColorGraphicsAdapterProvider::ModeInfo> ColorGraphicsAdapterProvider::getAvailableModes() const {
+Util::Array<ColorGraphicsAdapterProvider::ModeInfo> ColorGraphicsAdapterProvider::getAvailableModes() const {
     return supportedModes;
 }
 
@@ -72,7 +72,7 @@ ColorGraphicsAdapterProvider::VideoCardType ColorGraphicsAdapterProvider::getVid
     return static_cast<VideoCardType>(biosReturn.bx);
 }
 
-Util::Memory::String ColorGraphicsAdapterProvider::getVideoCardTypeAsString(VideoCardType cardType) {
+Util::String ColorGraphicsAdapterProvider::getVideoCardTypeAsString(VideoCardType cardType) {
     switch (cardType) {
         case MONOCHROME:
             return "Monochrome Display Adapter";

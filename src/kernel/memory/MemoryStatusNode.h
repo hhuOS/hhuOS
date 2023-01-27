@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Kernel {
 
@@ -31,7 +31,7 @@ public:
     /**
      * Constructor.
      */
-    explicit MemoryStatusNode(const Util::Memory::String &name);
+    explicit MemoryStatusNode(const Util::String &name);
 
     /**
      * Copy Constructor.
@@ -51,13 +51,13 @@ public:
     /**
      * Overriding function from StringNode.
      */
-     Util::Memory::String getString() override;
+     Util::String getString() override;
 
 private:
 
-    static Util::Memory::String formatMemory(uint32_t value);
+    static Util::String formatMemory(uint32_t value);
 
-    Util::Memory::String memoryStatusBuffer;
+    Util::String memoryStatusBuffer;
 
 };
 

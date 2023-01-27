@@ -22,16 +22,16 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/math/Random.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/InputStreamReader.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/stream/PrintWriter.h"
 #include "lib/util/time/Timestamp.h"
 
 bool isRunning = true;
@@ -109,14 +109,14 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
-    auto sleepInterval = arguments.length() == 0 ? 0 : Util::Memory::String::parseInt(arguments[0]);
+    auto sleepInterval = arguments.length() == 0 ? 0 : Util::String::parseInt(arguments[0]);
 
-    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto drawer = Util::Graphic::PixelDrawer(lfb);
     Util::Graphic::Ansi::prepareGraphicalApplication(false);

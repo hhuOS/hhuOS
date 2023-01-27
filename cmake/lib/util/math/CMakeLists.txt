@@ -16,6 +16,29 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
+project(lib.math)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/math/Math.cpp
         ${HHUOS_SRC_DIR}/lib/util/math/Random.cpp)
+
+# Kernel space version
+project(lib.kernel.math)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.math)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.math)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.math)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

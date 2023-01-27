@@ -16,7 +16,16 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
+project(lib.graphic)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+target_link_libraries(${PROJECT_NAME} lib.math lib.time)
+
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/Ansi.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferedLinearFrameBuffer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/BufferScroller.cpp
@@ -27,3 +36,19 @@ target_sources(lib.util PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/graphic/PixelDrawer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/StringDrawer.cpp
         ${HHUOS_SRC_DIR}/lib/util/graphic/Terminal.cpp)
+
+# Kernel space version
+project(lib.kernel.graphic)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.graphic)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.graphic)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.graphic)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

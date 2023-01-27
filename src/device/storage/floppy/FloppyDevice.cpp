@@ -23,7 +23,7 @@
 #include "device/storage/floppy/FloppyController.h"
 #include "kernel/process/Thread.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Device::Storage {
 
@@ -57,7 +57,7 @@ FloppyDevice::FloppyDevice(FloppyController &controller, uint8_t driveNumber, Fl
             gapLength = 27;
     }
 
-    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::Memory::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
+    auto &motorControlThread = Kernel::Thread::createKernelThread(Util::String::format("Floppy-%u-Motor-Controller", driveNumber), Kernel::System::getService<Kernel::ProcessService>().getKernelProcess(), motorControlRunnable);
     Kernel::System::getService<Kernel::SchedulerService>().ready(motorControlThread);
 }
 

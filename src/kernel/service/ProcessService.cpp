@@ -28,14 +28,14 @@
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
 #include "kernel/system/SystemCall.h"
-#include "lib/util/Exception.h"
-#include "lib/util/file/File.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 class VirtualAddressSpace;
 
-ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::File::File("/"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"))) {
+ProcessService::ProcessService() : kernelProcess(createProcess(System::getService<MemoryService>().getKernelAddressSpace(), "Kernel", Util::Io::File("/"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"))) {
     SystemCall::registerSystemCall(Util::System::EXIT_PROCESS, [](uint32_t paramCount, va_list arguments) -> Util::System::Result {
         int32_t exitCode = 0;
         if (paramCount >= 1) {
@@ -51,12 +51,12 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
             return Util::System::INVALID_ARGUMENT;
         }
 
-        auto *binaryFile = va_arg(arguments, Util::File::File*);
-        auto *inputFile = va_arg(arguments, Util::File::File*);
-        auto *outputFile = va_arg(arguments, Util::File::File*);
-        auto *errorFile = va_arg(arguments, Util::File::File*);
-        auto *command = va_arg(arguments, const Util::Memory::String*);
-        auto *commandArguments = va_arg(arguments, Util::Data::Array<Util::Memory::String>*);
+        auto *binaryFile = va_arg(arguments, Util::Io::File*);
+        auto *inputFile = va_arg(arguments, Util::Io::File*);
+        auto *outputFile = va_arg(arguments, Util::Io::File*);
+        auto *errorFile = va_arg(arguments, Util::Io::File*);
+        auto *command = va_arg(arguments, const Util::String*);
+        auto *commandArguments = va_arg(arguments, Util::Array<Util::String>*);
         auto *processId = va_arg(arguments, uint32_t*);
 
         auto &processService = System::getService<ProcessService>();
@@ -115,7 +115,7 @@ ProcessService::ProcessService() : kernelProcess(createProcess(System::getServic
     });
 }
 
-Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError) {
+Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError) {
     auto *process = new Process(addressSpace, name, workingDirectory);
 
     // Create standard file descriptors
@@ -132,11 +132,11 @@ Process& ProcessService::createProcess(VirtualAddressSpace &addressSpace, const 
     return *process;
 }
 
-Process& ProcessService::loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+Process& ProcessService::loadBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
 
     auto &virtualAddressSpace = memoryService.createAddressSpace();
-    auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
+    auto &process = createProcess(virtualAddressSpace, binaryFile.getCanonicalPath(), Util::Io::File::getCurrentWorkingDirectory(), inputFile, outputFile, errorFile);
     auto &thread = Kernel::Thread::createKernelThread("Loader", process, new Kernel::BinaryLoader(binaryFile.getCanonicalPath(), command, arguments));
 
     System::getService<SchedulerService>().ready(thread);
@@ -211,8 +211,8 @@ Process& ProcessService::getKernelProcess() const {
     return kernelProcess;
 }
 
-Util::Data::Array<uint32_t> ProcessService::getActiveProcessIds() const {
-    auto ids = Util::Data::Array<uint32_t>(processList.size());
+Util::Array<uint32_t> ProcessService::getActiveProcessIds() const {
+    auto ids = Util::Array<uint32_t>(processList.size());
     for (uint32_t i = 0; i < processList.size(); i++) {
         ids[i] = processList.get(i)->getId();
     }

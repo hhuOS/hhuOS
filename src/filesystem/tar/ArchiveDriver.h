@@ -19,10 +19,10 @@
 #define HHUOS_ARCHIVEDRIVER_H
 
 #include "filesystem/core/VirtualDriver.h"
-#include "lib/util/file/tar/Archive.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 class Node;
@@ -38,7 +38,7 @@ public:
      *
      * @param archive The tar archive to use.
      */
-    explicit ArchiveDriver(Util::File::Tar::Archive &archive);
+    explicit ArchiveDriver(Util::Io::Tar::Archive &archive);
 
     /**
      * Copy Constructor.
@@ -58,22 +58,22 @@ public:
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    Node* getNode(const Util::Memory::String &path) override;
+    Node* getNode(const Util::String &path) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    bool deleteNode(const Util::String &path) override;
 
 private:
 
-    Util::File::Tar::Archive &archive;
-    Util::Data::Array<Util::File::Tar::Archive::Header> fileHeaders{};
+    Util::Io::Tar::Archive &archive;
+    Util::Array<Util::Io::Tar::Archive::Header> fileHeaders{};
 
 };
 

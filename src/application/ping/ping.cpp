@@ -17,22 +17,22 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/PrintWriter.h"
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/icmp/EchoHeader.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/NumberUtil.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/network/icmp/IcmpDatagram.h"
-#include "lib/util/ArgumentParser.h"
+#include "lib/util/base/ArgumentParser.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 #include "lib/util/network/icmp/IcmpHeader.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -44,29 +44,29 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "ping: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "ping: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    uint32_t count = argumentParser.hasArgument("count") ? Util::Memory::String::parseInt(argumentParser.getArgument("count")) : 10;
+    uint32_t count = argumentParser.hasArgument("count") ? Util::String::parseInt(argumentParser.getArgument("count")) : 10;
     auto destinationAddress = Util::Network::Ip4::Ip4Address(arguments[0]);
 
     auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ICMP);
     if (!socket.bind(Util::Network::Ip4::Ip4Address::ANY)) {
-        Util::System::error << "ping: Failed to bind socket!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "ping: Failed to bind socket!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
     }
 
     auto echoHeader = Util::Network::Icmp::EchoHeader();
 
     for (uint32_t i = 0; i < count; i++) {
         bool validReply = false;
-        auto packet = Util::Stream::ByteArrayOutputStream();
+        auto packet = Util::Io::ByteArrayOutputStream();
         echoHeader.setIdentifier(0);
         echoHeader.setSequenceNumber(i);
         echoHeader.write(packet);
@@ -74,19 +74,19 @@ int32_t main(int32_t argc, char *argv[]) {
 
         auto datagram = Util::Network::Icmp::IcmpDatagram(packet, destinationAddress, Util::Network::Icmp::IcmpHeader::ECHO_REQUEST, 0);
         if (!socket.send(datagram)) {
-            Util::System::error << "ping: Failed to send echo request!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "ping: Failed to send echo request!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
             return -1;
         }
 
         do {
             auto receivedDatagram = Util::Network::Icmp::IcmpDatagram();
             if (!socket.receive(receivedDatagram)) {
-                Util::System::error << "ping: Failed to receive echo reply!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                Util::System::error << "ping: Failed to receive echo reply!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
                 return -1;
             }
 
             if (receivedDatagram.getType() == Util::Network::Icmp::IcmpHeader::ECHO_REPLY) {
-                auto receivedPacket = Util::Stream::ByteArrayInputStream(receivedDatagram);
+                auto receivedPacket = Util::Io::ByteArrayInputStream(receivedDatagram.getData(), receivedDatagram.getLength());
                 echoHeader.read(receivedPacket);
                 if (echoHeader.getSequenceNumber() == i) {
                     validReply = true;
@@ -94,7 +94,7 @@ int32_t main(int32_t argc, char *argv[]) {
                     auto currentTimestamp = Util::Time::getSystemTime().toMilliseconds();
                     Util::System::out << receivedDatagram.getLength() << " bytes from " << static_cast<const char*>(receivedDatagram.getRemoteAddress().toString())
                                     << " (Sequence number: " << echoHeader.getSequenceNumber() << ", Time: " << currentTimestamp - sourceTimestamp << " ms)"
-                                    << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                                    << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
                 }
             }
         } while (!validReply);

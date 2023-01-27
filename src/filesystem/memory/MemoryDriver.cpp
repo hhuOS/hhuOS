@@ -17,15 +17,15 @@
 
 #include <cstdint>
 
-#include "lib/util/file/File.h"
+#include "lib/util/io/file/File.h"
 #include "MemoryDriver.h"
 #include "MemoryDirectoryNode.h"
 #include "MemoryFileNode.h"
 #include "MemoryWrapperNode.h"
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Filesystem {
 class Node;
@@ -39,12 +39,12 @@ MemoryDriver::~MemoryDriver() {
     delete rootNode;
 }
 
-Node *MemoryDriver::getNode(const Util::Memory::String &path) {
+Node *MemoryDriver::getNode(const Util::String &path) {
     if(path.length() == 0){
         return new MemoryWrapperNode(*rootNode);
     }
 
-    Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
     if(tokens.length() == 0) {
         return new MemoryWrapperNode(*rootNode);
     }
@@ -52,7 +52,7 @@ Node *MemoryDriver::getNode(const Util::Memory::String &path) {
     MemoryNode *currentDir = rootNode;
     for(uint32_t i = 0; i < tokens.length() - 1; i++) {
         currentDir = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(tokens[i]);
-        if(currentDir == nullptr || currentDir->getFileType() != Util::File::DIRECTORY) {
+        if(currentDir == nullptr || currentDir->getType() != Util::Io::File::DIRECTORY) {
             return nullptr;
         }
     }
@@ -65,12 +65,12 @@ Node *MemoryDriver::getNode(const Util::Memory::String &path) {
     return new MemoryWrapperNode(*ret);
 }
 
-bool MemoryDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
-    if (type != Util::File::DIRECTORY && type != Util::File::REGULAR) {
+bool MemoryDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
+    if (type != Util::Io::File::DIRECTORY && type != Util::Io::File::REGULAR) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MemoryDriver: Invalid file type!");
     }
 
-    Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
+    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
     if(path.length() > 0 && tokens.length() == 0) {
         return false;
     }
@@ -78,7 +78,7 @@ bool MemoryDriver::createNode(const Util::Memory::String &path, Util::File::Type
     MemoryNode *currentDir = rootNode;
     for(uint32_t i = 0; i < tokens.length() - 1; i++) {
         currentDir = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(tokens[i]);
-        if(currentDir == nullptr || currentDir->getFileType() != Util::File::DIRECTORY) {
+        if(currentDir == nullptr || currentDir->getType() != Util::Io::File::DIRECTORY) {
             return false;
         }
     }
@@ -88,14 +88,14 @@ bool MemoryDriver::createNode(const Util::Memory::String &path, Util::File::Type
     }
 
     const auto &name = tokens[tokens.length() - 1];
-    auto *newNode = type == Util::File::DIRECTORY ? reinterpret_cast<MemoryNode*>(new MemoryDirectoryNode(name)) : reinterpret_cast<MemoryNode*>(new MemoryFileNode(name));
+    auto *newNode = type == Util::Io::File::DIRECTORY ? reinterpret_cast<MemoryNode*>(new MemoryDirectoryNode(name)) : reinterpret_cast<MemoryNode*>(new MemoryFileNode(name));
     reinterpret_cast<MemoryDirectoryNode*>(currentDir)->children.add(newNode);
 
     return true;
 }
 
-bool MemoryDriver::deleteNode(const Util::Memory::String &path) {
-    Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
+bool MemoryDriver::deleteNode(const Util::String &path) {
+    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
     if(path.length() > 0 && tokens.length() == 0) {
         return false;
     }
@@ -103,7 +103,7 @@ bool MemoryDriver::deleteNode(const Util::Memory::String &path) {
     MemoryNode *currentDir = rootNode;
     for(uint32_t i = 0; i < tokens.length() - 1; i++) {
         currentDir = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(tokens[i]);
-        if(currentDir == nullptr || currentDir->getFileType() != Util::File::DIRECTORY) {
+        if(currentDir == nullptr || currentDir->getType() != Util::Io::File::DIRECTORY) {
             return false;
         }
     }
@@ -123,13 +123,13 @@ bool MemoryDriver::deleteNode(const Util::Memory::String &path) {
     return true;
 }
 
-bool MemoryDriver::addNode(const Util::Memory::String &path, MemoryNode *node) {
-    Util::Data::Array<Util::Memory::String> tokens = path.split(Util::File::File::SEPARATOR);
+bool MemoryDriver::addNode(const Util::String &path, MemoryNode *node) {
+    Util::Array<Util::String> tokens = path.split(Util::Io::File::SEPARATOR);
 
     MemoryNode *currentDir = rootNode;
     for (const auto &token : tokens) {
         currentDir = reinterpret_cast<MemoryDirectoryNode*>(currentDir)->getChildByName(token);
-        if (currentDir == nullptr || currentDir->getFileType() != Util::File::DIRECTORY) {
+        if (currentDir == nullptr || currentDir->getType() != Util::Io::File::DIRECTORY) {
             return false;
         }
     }

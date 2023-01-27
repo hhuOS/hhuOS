@@ -28,4 +28,4 @@ set(SOURCE_FILES
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME "lvgl")
 
-target_link_libraries(${PROJECT_NAME} lib.crt0 lib.user lib.lvgl lvgl::lvgl lvgl::demos)
+target_link_libraries(${PROJECT_NAME} lib.user.crt0 lib.user.base lib.user.lvgl lvgl::lvgl lvgl::demos)

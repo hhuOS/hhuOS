@@ -17,11 +17,11 @@
 
 #include <cstdint>
 
-#include "lib/util/system/Machine.h"
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/Exception.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/hardware/Machine.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -32,12 +32,12 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    Util::Machine::ShutdownType type = argumentParser.checkSwitch("reboot") ? Util::Machine::REBOOT : Util::Machine::SHUTDOWN;
-    auto success = Util::Machine::shutdown(type);
+    Util::Hardware::Machine::ShutdownType type = argumentParser.checkSwitch("reboot") ? Util::Hardware::Machine::REBOOT : Util::Hardware::Machine::SHUTDOWN;
+    auto success = Util::Hardware::Machine::shutdown(type);
     if (success) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Shutdown returned successfully!");
     }

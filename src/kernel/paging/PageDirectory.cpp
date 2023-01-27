@@ -16,14 +16,14 @@
  */
 
 #include "asm_interface.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "kernel/system/System.h"
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/paging/PageDirectory.h"
 #include "kernel/paging/Paging.h"
 #include "MemoryLayout.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 
@@ -43,7 +43,7 @@ PageDirectory::PageDirectory() {
     // Table with virtual PT-addresses placed after the PD itself
     virtualTableAddresses = reinterpret_cast<uint32_t*>(MemoryLayout::PAGING_AREA.startAddress + 257 * Paging::PAGESIZE);
     // Zero memory for PageTables and PageDirectories
-    Util::Memory::Address<uint32_t>(MemoryLayout::PAGING_AREA.startAddress).setRange(0, Paging::PAGESIZE * 258);
+    Util::Address<uint32_t>(MemoryLayout::PAGING_AREA.startAddress).setRange(0, Paging::PAGESIZE * 258);
     // Base page directory is located at VIRT_PAGE_MEM_START + 1MB, because the first 1MB is used for all Kernel page tables (mapping the kernel)
     pageDirectory = reinterpret_cast<uint32_t*>(MemoryLayout::PAGING_AREA.startAddress + 256 * Paging::PAGESIZE);
 

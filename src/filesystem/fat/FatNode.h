@@ -22,7 +22,7 @@
 
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/core/Node.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {
 
@@ -44,12 +44,12 @@ public:
      */
     ~FatNode() override;
 
-    static FatNode* open(const Util::Memory::String &path);
+    static FatNode* open(const Util::String &path);
 
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::String getName() override;
 
     /**
      * Overriding function from Node.

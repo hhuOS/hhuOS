@@ -23,10 +23,10 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -71,9 +71,9 @@ public:
 
     bool operator!=(const NetworkAddress &other) const;
 
-    void read(Util::Stream::InputStream &stream);
+    void read(Util::Io::InputStream &stream);
 
-    void write(Util::Stream::OutputStream &stream) const;
+    void write(Util::Io::OutputStream &stream) const;
 
     void setAddress(const uint8_t *buffer);
 
@@ -89,9 +89,9 @@ public:
 
     [[nodiscard]] virtual NetworkAddress* createCopy() const = 0;
 
-    virtual void setAddress(const Util::Memory::String &string) = 0;
+    virtual void setAddress(const Util::String &string) = 0;
 
-    [[nodiscard]] virtual Util::Memory::String toString() const = 0;
+    [[nodiscard]] virtual Util::String toString() const = 0;
 
 protected:
 

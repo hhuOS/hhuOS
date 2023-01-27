@@ -22,20 +22,20 @@
 
 #include "Service.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "kernel/process/Process.h"
 
 namespace Util {
-namespace File {
+namespace Io {
 class File;
 }  // namespace File
 }  // namespace Util
 
 namespace Kernel {
-class Process;
 class VirtualAddressSpace;
 
 class ProcessService : public Service {
@@ -61,9 +61,9 @@ public:
      */
     ~ProcessService() override = default;
 
-    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::Memory::String &name, const Util::File::File &workingDirectory, const Util::File::File &standardIn, const Util::File::File &standardOut, const Util::File::File &standardError);
+    Process& createProcess(VirtualAddressSpace &addressSpace, const Util::String &name, const Util::Io::File &workingDirectory, const Util::Io::File &standardIn, const Util::Io::File &standardOut, const Util::Io::File &standardError);
 
-    Process& loadBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+    Process& loadBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments);
 
     void killProcess(Process &process);
 
@@ -77,13 +77,13 @@ public:
 
     [[nodiscard]] Process& getKernelProcess() const;
 
-    [[nodiscard]] Util::Data::Array<uint32_t> getActiveProcessIds() const;
+    [[nodiscard]] Util::Array<uint32_t> getActiveProcessIds() const;
 
     static const constexpr uint8_t SERVICE_ID = 7;
 
 private:
 
-    Util::Data::ArrayList<Process*> processList;
+    Util::ArrayList<Process*> processList;
     Util::Async::Spinlock lock;
     Process &kernelProcess;
 };

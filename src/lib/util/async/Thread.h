@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Async {
@@ -56,7 +56,7 @@ public:
      */
     ~Thread() = default;
 
-    static Thread createThread(const Memory::String &name, Runnable *runnable);
+    static Thread createThread(const String &name, Runnable *runnable);
 
     static Thread getCurrentThread();
 

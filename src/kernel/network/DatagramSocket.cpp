@@ -53,20 +53,20 @@ void DatagramSocket::handleIncomingDatagram(Util::Network::Datagram *datagram) {
     lock.release();
 }
 
-Util::Memory::String DatagramSocket::getName() {
+Util::String DatagramSocket::getName() {
     return bindAddress->toString();
 }
 
-Util::File::Type DatagramSocket::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type DatagramSocket::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t DatagramSocket::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> DatagramSocket::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
+Util::Array<Util::String> DatagramSocket::getChildren() {
+    return Util::Array<Util::String>(0);
 }
 
 uint64_t DatagramSocket::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {

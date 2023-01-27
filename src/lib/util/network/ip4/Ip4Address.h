@@ -24,7 +24,7 @@
 #include <cstdint>
 
 #include "lib/util/network/NetworkAddress.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util::Network::Ip4 {
 
@@ -44,7 +44,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Ip4Address(const Util::Memory::String &string);
+    explicit Ip4Address(const Util::String &string);
 
     /**
      * Copy Constructor.
@@ -67,9 +67,9 @@ public:
 
     [[nodiscard]] NetworkAddress* createCopy() const override;
 
-    void setAddress(const Util::Memory::String &string) override;
+    void setAddress(const Util::String &string) override;
 
-    [[nodiscard]] Util::Memory::String toString() const override;
+    [[nodiscard]] Util::String toString() const override;
 
     static const Ip4Address ANY;
 

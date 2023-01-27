@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem::Memory {
 
@@ -32,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    explicit ZeroNode(const Util::Memory::String &name = "zero");
+    explicit ZeroNode(const Util::String &name = "zero");
 
     /**
      * Copy Constructor.
@@ -52,7 +52,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.

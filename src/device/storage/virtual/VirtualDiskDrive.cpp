@@ -16,7 +16,7 @@
  */
 
 #include "VirtualDiskDrive.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Device::Storage {
 
@@ -47,7 +47,7 @@ uint32_t VirtualDiskDrive::read(uint8_t *buffer, uint32_t startSector, uint32_t 
 
     auto byteCount = sectorSize * sectorCount;
     auto source = address.add(sectorSize * startSector);
-    auto target = Util::Memory::Address<uint32_t>(buffer);
+    auto target = Util::Address<uint32_t>(buffer);
 
     ioLock.acquire();
     target.copyRange(source, byteCount);
@@ -62,7 +62,7 @@ uint32_t VirtualDiskDrive::write(const uint8_t *buffer, uint32_t startSector, ui
     }
 
     auto byteCount = sectorSize * sectorCount;
-    auto source = Util::Memory::Address<uint32_t>(buffer);
+    auto source = Util::Address<uint32_t>(buffer);
     auto target = address.add(sectorSize * startSector);
 
     ioLock.acquire();

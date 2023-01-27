@@ -26,11 +26,12 @@
 #include "kernel/network/NetworkModule.h"
 #include "lib/util/network/ip4/Ip4Header.h"
 #include "Ip4RoutingModule.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "kernel/network/ip4/Ip4Interface.h"
 
 namespace Device {
 namespace Network {
@@ -40,11 +41,6 @@ class NetworkDevice;
 namespace Kernel {
 class Logger;
 }  // namespace Kernel
-namespace Kernel::Network {
-namespace Ip4 {
-class Ip4Interface;
-}  // namespace Ip4
-}  // namespace Network
 namespace Util {
 namespace Network {
 namespace Ip4 {
@@ -53,7 +49,7 @@ class Ip4NetworkMask;
 }  // namespace Ip4
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 class ByteArrayOutputStream;
 }  // namespace Stream
@@ -84,16 +80,16 @@ public:
      */
     ~Ip4Module() = default;
 
-    Ip4Interface& getInterface(const Util::Memory::String &deviceIdentifier);
+    Ip4Interface& getInterface(const Util::String &deviceIdentifier);
 
     Ip4RoutingModule& getRoutingModule();
 
     void registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
 
-    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static const Ip4Interface &
-    writeHeader(Util::Stream::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
+    writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
                 const Util::Network::Ip4::Ip4Address &destinationAddress,
                 Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
 
@@ -102,7 +98,7 @@ public:
 private:
 
     Ip4RoutingModule routingModule;
-    Util::Data::ArrayList<Ip4Interface*> interfaces;
+    Util::ArrayList<Ip4Interface*> interfaces;
 
     static Kernel::Logger log;
 };

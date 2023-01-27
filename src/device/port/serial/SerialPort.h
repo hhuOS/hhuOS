@@ -21,12 +21,12 @@
 #include <cstdint>
 
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/stream/PipedOutputStream.h"
-#include "lib/util/stream/FilterInputStream.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
+#include "lib/util/io/stream/FilterInputStream.h"
+#include "lib/util/base/String.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/PipedInputStream.h"
+#include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/io/stream/PipedInputStream.h"
 
 namespace Kernel {
     class Logger;
@@ -38,7 +38,7 @@ namespace Device {
 /**
  * Driver for the serial COM-ports.
  */
-class SerialPort : public Util::Stream::FilterInputStream, public Util::Stream::OutputStream, public Kernel::InterruptHandler {
+class SerialPort : public Util::Io::FilterInputStream, public Util::Io::OutputStream, public Kernel::InterruptHandler {
 
 public:
     /**
@@ -157,7 +157,7 @@ public:
 
     static void initializeAvailablePorts();
 
-    [[nodiscard]] static ComPort portFromString(const Util::Memory::String &portName);
+    [[nodiscard]] static ComPort portFromString(const Util::String &portName);
 
     [[nodiscard]] static const char* portToString(ComPort port);
 
@@ -206,8 +206,8 @@ private:
 
     static void initializePort(ComPort port);
 
-    Util::Stream::PipedOutputStream outputStream;
-    Util::Stream::PipedInputStream inputStream;
+    Util::Io::PipedOutputStream outputStream;
+    Util::Io::PipedInputStream inputStream;
     ComPort port;
     BaudRate dataRate;
 

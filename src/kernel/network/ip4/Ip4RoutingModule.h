@@ -21,11 +21,11 @@
 #ifndef HHUOS_IP4ROUTINGMODULE_H
 #define HHUOS_IP4ROUTINGMODULE_H
 
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "Ip4Route.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Util {
 namespace Network {
@@ -72,7 +72,7 @@ public:
 private:
 
     Ip4Route defaultRoute;
-    Util::Data::ArrayList<Ip4Route> routes;
+    Util::ArrayList<Ip4Route> routes;
 };
 
 }

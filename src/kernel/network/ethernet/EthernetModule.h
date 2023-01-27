@@ -39,7 +39,7 @@ namespace Network {
 class MacAddress;
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 class ByteArrayOutputStream;
 class OutputStream;
@@ -73,11 +73,11 @@ public:
 
     static bool checkPacket(const uint8_t *packet, uint32_t length);
 
-    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static void writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType);
+    static void writeHeader(Util::Io::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType);
 
-    static void finalizePacket(Util::Stream::ByteArrayOutputStream &packet);
+    static void finalizePacket(Util::Io::ByteArrayOutputStream &packet);
 
 private:
 

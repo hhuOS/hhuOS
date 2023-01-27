@@ -17,10 +17,10 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    Util::System::out << "Hello, world!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    Util::System::out << "Hello, world!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
     return 0;
 }

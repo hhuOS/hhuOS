@@ -27,7 +27,7 @@
 #include "kernel/network/NetworkModule.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class OutputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -62,7 +62,7 @@ public:
      */
     ~Ip4PseudoHeader() = default;
 
-    void write(Util::Stream::OutputStream &stream) const;
+    void write(Util::Io::OutputStream &stream) const;
 
     [[nodiscard]] const Util::Network::Ip4::Ip4Address& getSourceAddress() const;
 

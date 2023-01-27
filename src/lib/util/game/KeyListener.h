@@ -18,7 +18,7 @@
 #ifndef HHUOS_KEYLISTENER_H
 #define HHUOS_KEYLISTENER_H
 
-#include "lib/util/io/Key.h"
+#include "lib/util/io/key/Key.h"
 
 namespace Util::Game {
 

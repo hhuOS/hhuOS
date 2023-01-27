@@ -16,19 +16,18 @@
  */
 
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/graphic/Terminal.h"
 #include "Shell.h"
-#include "lib/util/file/File.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
-Shell::Shell(const Util::Memory::String &path) : startDirectory(path) {}
+Shell::Shell(const Util::String &path) : startDirectory(path) {}
 
 void Shell::run() {
-    if (!Util::File::changeDirectory(startDirectory)) {
-        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    if (!Util::Io::File::changeDirectory(startDirectory)) {
+        Util::System::error << "Unable to start shell in '" << startDirectory << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
@@ -45,12 +44,12 @@ void Shell::run() {
 
 void Shell::beginCommandLine() {
     currentLine = "";
-    auto currentDirectory = Util::File::getCurrentWorkingDirectory();
+    auto currentDirectory = Util::Io::File::getCurrentWorkingDirectory();
 
     Util::System::out << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "["
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_WHITE << (currentDirectory.getCanonicalPath().isEmpty() ? "/" : currentDirectory.getName())
                       << Util::Graphic::Ansi::FOREGROUND_BRIGHT_GREEN << "]> "
-                      << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Stream::PrintWriter::flush;
+                      << Util::Graphic::Ansi::FOREGROUND_DEFAULT << Util::Io::PrintWriter::flush;
 
     startPosition = Util::Graphic::Ansi::getCursorPosition();
 }
@@ -93,7 +92,7 @@ void Shell::readLine() {
                 break;
             case 0x0a:
                 currentLine = currentLine.strip();
-                Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                Util::System::out << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
                 Util::Graphic::Ansi::enableCanonicalMode();
                 return;
             case 0x00 ... 0x06:
@@ -101,7 +100,7 @@ void Shell::readLine() {
                 break;
             default:
                 currentLine += static_cast<char>(input);
-                Util::System::out << static_cast<char>(input) << Util::Stream::PrintWriter::flush;
+                Util::System::out << static_cast<char>(input) << Util::Io::PrintWriter::flush;
         }
 
         input = Util::Graphic::Ansi::readChar();
@@ -143,9 +142,9 @@ void Shell::parseInput() {
     historyIndex = history.size();
 }
 
-Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const {
-    for (const auto &path : Util::Memory::String(PATH).split(":")) {
-        auto file = Util::File::File(path);
+Util::String Shell::checkPath(const Util::String &command) const {
+    for (const auto &path : Util::String(PATH).split(":")) {
+        auto file = Util::Io::File(path);
         auto binaryPath = checkDirectory(command, file);
         if (!binaryPath.isEmpty()) {
             return binaryPath;
@@ -155,13 +154,13 @@ Util::Memory::String Shell::checkPath(const Util::Memory::String &command) const
     return "";
 }
 
-Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, Util::File::File &directory) const {
+Util::String Shell::checkDirectory(const Util::String &command, Util::Io::File &directory) const {
     if (!directory.exists() || !directory.isDirectory()) {
         return "";
     }
 
     for (const auto &child : directory.getChildren()) {
-        auto file = Util::File::File(directory.getCanonicalPath() + "/" + child);
+        auto file = Util::Io::File(directory.getCanonicalPath() + "/" + child);
         if (file.isFile() && file.getName() == command) {
             return file.getCanonicalPath();
         }
@@ -174,53 +173,53 @@ Util::Memory::String Shell::checkDirectory(const Util::Memory::String &command, 
     return "";
 }
 
-void Shell::cd(const Util::Data::Array<Util::Memory::String> &arguments) {
+void Shell::cd(const Util::Array<Util::String> &arguments) {
     if (arguments.length() == 0) {
         return;
     }
 
     const auto &path = arguments[0];
-    auto file = Util::File::File(path);
+    auto file = Util::Io::File(path);
 
     if (!file.exists()) {
-        Util::System::out << "cd: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
     if (file.isFile()) {
-        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: '" << path << "' is not a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
-    auto result = Util::File::changeDirectory(path);
+    auto result = Util::Io::File::changeDirectory(path);
     if (!result) {
-        Util::System::out << "cd: Failed to change directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "cd: Failed to change directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 }
 
-void Shell::executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath, bool async) {
-    auto binaryFile = Util::File::File(path);
-    auto inputFile = Util::File::File("/device/terminal");
-    auto outputFile = Util::File::File(outputPath);
+void Shell::executeBinary(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments, const Util::String &outputPath, bool async) {
+    auto binaryFile = Util::Io::File(path);
+    auto inputFile = Util::Io::File("/device/terminal");
+    auto outputFile = Util::Io::File(outputPath);
 
     if (!binaryFile.exists()) {
-        Util::System::out << "'" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "'" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
     if (binaryFile.isDirectory()) {
-        Util::System::out << "'" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << "'" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
-    if (!outputFile.exists() && !outputFile.create(Util::File::REGULAR)) {
-        Util::System::out << "Failed to execute file '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    if (!outputFile.exists() && !outputFile.create(Util::Io::File::REGULAR)) {
+        Util::System::out << "Failed to execute file '" << path << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return;
     }
 
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
+    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
+    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
 
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
@@ -247,7 +246,7 @@ void Shell::handleUpKey() {
 
     historyIndex = historyIndex == 0 ? 0 : historyIndex - 1;
     auto historyLine = history.get(historyIndex);
-    Util::System::out << historyLine << Util::Stream::PrintWriter::flush;
+    Util::System::out << historyLine << Util::Io::PrintWriter::flush;
     currentLine = historyLine;
 }
 
@@ -256,7 +255,7 @@ void Shell::handleDownKey() {
         return;
     }
 
-    Util::File::controlFile(Util::File::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING,{true});
+    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ANSI_PARSING, {true});
     while (Util::Graphic::Ansi::getCursorPosition().row > startPosition.row) {
         Util::Graphic::Ansi::clearLine();
         Util::Graphic::Ansi::moveCursorUp(1);
@@ -265,7 +264,7 @@ void Shell::handleDownKey() {
     Util::Graphic::Ansi::setPosition(startPosition);
     Util::Graphic::Ansi::clearLineFromCursor();
 
-    Util::Memory::String historyLine;
+    Util::String historyLine;
     if (historyIndex >= history.size() - 1 || history.size() == 1) {
         historyIndex = history.size();
         historyLine = historyCurrentLine;
@@ -274,7 +273,7 @@ void Shell::handleDownKey() {
         historyLine = history.get(historyIndex);
     }
 
-    Util::System::out << historyLine << Util::Stream::PrintWriter::flush;
+    Util::System::out << historyLine << Util::Io::PrintWriter::flush;
     currentLine = historyLine;
 }
 
@@ -297,11 +296,11 @@ void Shell::handleBackspace() {
             position.row = position.row == 0 ? 0 : position.row - 1;
             position.column = limits.column;
             Util::Graphic::Ansi::setPosition(position);
-            Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+            Util::System::out << ' ' << Util::Io::PrintWriter::flush;
             Util::Graphic::Ansi::setPosition(position);
         } else {
             Util::Graphic::Ansi::moveCursorLeft(1);
-            Util::System::out << ' ' << Util::Stream::PrintWriter::flush;
+            Util::System::out << ' ' << Util::Io::PrintWriter::flush;
             Util::Graphic::Ansi::moveCursorLeft(1);
         }
     }

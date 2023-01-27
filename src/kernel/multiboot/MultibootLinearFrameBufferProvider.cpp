@@ -20,7 +20,7 @@
 #include "MultibootLinearFrameBufferProvider.h"
 #include "kernel/log/Logger.h"
 #include "kernel/multiboot/Multiboot.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 
 namespace Kernel {
@@ -46,7 +46,7 @@ Util::Graphic::LinearFrameBuffer* MultibootLinearFrameBufferProvider::initialize
     return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(frameBufferInfo.address), frameBufferInfo.width, frameBufferInfo.height, frameBufferInfo.bpp, frameBufferInfo.pitch);
 }
 
-Util::Data::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {
+Util::Array<MultibootLinearFrameBufferProvider::ModeInfo> MultibootLinearFrameBufferProvider::getAvailableModes() const {
     return supportedModes;
 }
 

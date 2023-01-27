@@ -18,8 +18,8 @@
 #ifndef HHUOS_ARCHIVENODE_H
 #define HHUOS_ARCHIVENODE_H
 
-#include "lib/util/file/tar/Archive.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/base/Address.h"
 #include "filesystem/core/Node.h"
 
 namespace Filesystem::Tar {
@@ -50,12 +50,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override = 0;
+    Util::String getName() override = 0;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override = 0;
+    Util::Io::File::Type getType() override = 0;
 
     /**
      * Overriding function from Node.
@@ -65,7 +65,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override = 0;
+    Util::Array<Util::String> getChildren() override = 0;
 
     /**
      * Overriding function from Node.

@@ -19,8 +19,8 @@
 #define HHUOS_FIRMWARECONFIGURATIONDRIVER_H
 
 #include "filesystem/memory/MemoryDriver.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Device {
 class FirmwareConfiguration;
@@ -54,12 +54,12 @@ public:
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    bool deleteNode(const Util::String &path) override;
 };
 
 }

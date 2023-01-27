@@ -17,7 +17,7 @@
 cmake_minimum_required(VERSION 3.14)
 include(FetchContent)
 
-project(lib.lvgl)
+project(lib.user.lvgl)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})
@@ -36,4 +36,4 @@ set(LV_CONF_PATH
 FetchContent_Declare(lvgl GIT_REPOSITORY https://github.com/lvgl/lvgl.git GIT_TAG v8.3.4)
 FetchContent_MakeAvailable(lvgl)
 
-target_link_libraries(${PROJECT_NAME} lib.util lvgl::lvgl)
+target_link_libraries(${PROJECT_NAME} lib.user.graphic lib.user.io lvgl::lvgl)

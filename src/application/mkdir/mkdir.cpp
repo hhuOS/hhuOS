@@ -17,12 +17,11 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -32,26 +31,26 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "mkdir: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "mkdir: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
-        auto file = Util::File::File(path);
+        auto file = Util::Io::File(path);
         if (file.exists()) {
-            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: '" << path << "' already exists!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
             continue;
         }
 
-        auto success = file.create(Util::File::DIRECTORY);
+        auto success = file.create(Util::Io::File::DIRECTORY);
         if (!success) {
-            Util::System::error << "mkdir: Failed to execute directory '" << path << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "mkdir: Failed to execute directory '" << path << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         }
     }
 

@@ -26,11 +26,11 @@ class Node;
 
 namespace Filesystem::Tar {
 
-ArchiveDriver::ArchiveDriver(Util::File::Tar::Archive &archive) : archive(archive), fileHeaders(archive.getFileHeaders()) {}
+ArchiveDriver::ArchiveDriver(Util::Io::Tar::Archive &archive) : archive(archive), fileHeaders(archive.getFileHeaders()) {}
 
-Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
+Node *ArchiveDriver::getNode(const Util::String &path) {
     for(const auto &header : fileHeaders) {
-        Util::Memory::String currentPath = header.filename;
+        Util::String currentPath = header.filename;
 
         if(path == currentPath) {
             return new ArchiveFileNode(archive, header);
@@ -44,11 +44,11 @@ Node *ArchiveDriver::getNode(const Util::Memory::String &path) {
     return nullptr;
 }
 
-bool ArchiveDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
+bool ArchiveDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
     return false;
 }
 
-bool ArchiveDriver::deleteNode(const Util::Memory::String &path) {
+bool ArchiveDriver::deleteNode(const Util::String &path) {
     return false;
 }
 }

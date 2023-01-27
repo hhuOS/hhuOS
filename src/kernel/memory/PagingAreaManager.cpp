@@ -18,7 +18,7 @@
 #include "kernel/paging/MemoryLayout.h"
 #include "PagingAreaManager.h"
 #include "kernel/paging/Paging.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 

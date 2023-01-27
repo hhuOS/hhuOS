@@ -24,7 +24,7 @@
 #include <cstdint>
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -55,29 +55,29 @@ public:
      */
     ~NumberUtil() = default;
 
-    static int8_t read8BitValue(Util::Stream::InputStream &stream);
+    static int8_t read8BitValue(Util::Io::InputStream &stream);
 
-    static uint8_t readUnsigned8BitValue(Util::Stream::InputStream &stream);
+    static uint8_t readUnsigned8BitValue(Util::Io::InputStream &stream);
 
-    static int16_t read16BitValue(Util::Stream::InputStream &stream);
+    static int16_t read16BitValue(Util::Io::InputStream &stream);
 
-    static uint16_t readUnsigned16BitValue(Util::Stream::InputStream &stream);
+    static uint16_t readUnsigned16BitValue(Util::Io::InputStream &stream);
 
-    static int32_t read32BitValue(Util::Stream::InputStream &stream);
+    static int32_t read32BitValue(Util::Io::InputStream &stream);
 
-    static uint32_t readUnsigned32BitValue(Util::Stream::InputStream &stream);
+    static uint32_t readUnsigned32BitValue(Util::Io::InputStream &stream);
 
-    static void write8BitValue(int8_t value, Util::Stream::OutputStream &stream);
+    static void write8BitValue(int8_t value, Util::Io::OutputStream &stream);
 
-    static void writeUnsigned8BitValue(uint8_t value, Util::Stream::OutputStream &stream);
+    static void writeUnsigned8BitValue(uint8_t value, Util::Io::OutputStream &stream);
 
-    static void write16BitValue(int16_t value, Util::Stream::OutputStream &stream);
+    static void write16BitValue(int16_t value, Util::Io::OutputStream &stream);
 
-    static void writeUnsigned16BitValue(uint16_t value, Util::Stream::OutputStream &stream);
+    static void writeUnsigned16BitValue(uint16_t value, Util::Io::OutputStream &stream);
 
-    static void write32BitValue(int32_t value, Util::Stream::OutputStream &stream);
+    static void write32BitValue(int32_t value, Util::Io::OutputStream &stream);
 
-    static void writeUnsigned32BitValue(uint32_t value, Util::Stream::OutputStream &stream);
+    static void writeUnsigned32BitValue(uint32_t value, Util::Io::OutputStream &stream);
 };
 
 }

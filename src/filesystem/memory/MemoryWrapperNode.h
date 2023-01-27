@@ -21,14 +21,14 @@
 #include <cstdint>
 
 #include "filesystem/core/Node.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 namespace Memory {
 class MemoryNode;
-}  // namespace Memory
+}
 }  // namespace Filesystem
 
 namespace Filesystem::Memory {
@@ -59,12 +59,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::String getName() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -74,7 +74,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -89,7 +89,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
 private:
 

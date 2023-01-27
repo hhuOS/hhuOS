@@ -20,8 +20,8 @@
 
 #include <cstdint>
 
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 
 namespace Util {
@@ -86,14 +86,14 @@ public:
      * @param modeInfo Information about the desired terminal resolution
      * @param filename The name of the file, representing the created terminal in '/device/'
      */
-    void initializeTerminal(const ModeInfo &modeInfo, const Util::Memory::String &filename);
+    void initializeTerminal(const ModeInfo &modeInfo, const Util::String &filename);
 
     /**
      * Get all available graphics modes.
      *
      * @return An array, containing all available graphics modes
      */
-    [[nodiscard]] virtual Util::Data::Array<ModeInfo> getAvailableModes() const = 0;
+    [[nodiscard]] virtual Util::Array<ModeInfo> getAvailableModes() const = 0;
 
     /**
      * Search for a graphics mode, that suits the given parameters best.
@@ -108,7 +108,7 @@ public:
     /**
      * Overriding function from Prototype.
      */
-    [[nodiscard]] Util::Memory::String getClassName() const override = 0;
+    [[nodiscard]] Util::String getClassName() const override = 0;
 
 protected:
 

@@ -21,7 +21,7 @@
 #include <cstdint>
 
 #include "device/cpu/IoPort.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "lib/util/async/Spinlock.h"
 
 namespace Device {
@@ -61,7 +61,7 @@ public:
 
     bool isDmaSupported() const;
 
-    [[nodiscard]] Util::Data::Array<File> getFiles() const;
+    [[nodiscard]] Util::Array<File> getFiles() const;
 
     uint64_t readFile(File &file, uint8_t *targetBuffer, uint32_t pos, uint32_t numBytes);
 

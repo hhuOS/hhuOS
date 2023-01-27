@@ -19,7 +19,7 @@
 
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 namespace Util::Graphic {
 

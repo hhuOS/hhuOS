@@ -21,12 +21,12 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem::Memory {
 
@@ -36,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    explicit MemoryDirectoryNode(const Util::Memory::String &name);
+    explicit MemoryDirectoryNode(const Util::String &name);
 
     /**
      * Copy Constructor.
@@ -56,7 +56,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -66,7 +66,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -95,9 +95,9 @@ private:
      * @param childName The child's name
      * @return The child (or nullptr on failure)
      */
-    MemoryNode* getChildByName(const Util::Memory::String &childName);
+    MemoryNode* getChildByName(const Util::String &childName);
 
-    Util::Data::ArrayList<MemoryNode*> children;
+    Util::ArrayList<MemoryNode*> children;
 
     friend class MemoryDriver;
 

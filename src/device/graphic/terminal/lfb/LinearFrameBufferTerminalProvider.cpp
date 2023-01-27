@@ -3,15 +3,15 @@
 #include "kernel/system/BlueScreen.h"
 #include "LinearFrameBufferTerminal.h"
 #include "LinearFrameBufferTerminalProvider.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/graphic/Font.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/io/stream/FileInputStream.h"
 
 namespace Device::Graphic {
 
-LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::File::File &lfbFile, Util::Graphic::Font &font, char cursor) : lfbFile(lfbFile), font(font), cursor(cursor) {
+LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::Io::File &lfbFile, Util::Graphic::Font &font, char cursor) : lfbFile(lfbFile), font(font), cursor(cursor) {
     if (!lfbFile.exists()) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "LinearFrameBufferTerminalProvider: File does not exist!");
     }
@@ -21,12 +21,12 @@ LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::File:
     uint8_t bppBuffer[16];
     uint8_t pitchBuffer[16];
 
-    Util::Memory::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
-    Util::Memory::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
-    Util::Memory::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
-    Util::Memory::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
+    Util::Address<uint32_t>(xBuffer).setRange(0, sizeof(xBuffer));
+    Util::Address<uint32_t>(yBuffer).setRange(0, sizeof(yBuffer));
+    Util::Address<uint32_t>(bppBuffer).setRange(0, sizeof(bppBuffer));
+    Util::Address<uint32_t>(pitchBuffer).setRange(0, sizeof(pitchBuffer));
 
-    auto stream = Util::Stream::FileInputStream(lfbFile);
+    auto stream = Util::Io::FileInputStream(lfbFile);
     int16_t currentChar = 0;
 
     while (currentChar != '\n') {
@@ -60,15 +60,15 @@ LinearFrameBufferTerminalProvider::LinearFrameBufferTerminalProvider(Util::File:
         i = currentChar;
     }
 
-    uint16_t resolutionX = Util::Memory::String::parseInt(reinterpret_cast<const char*>(xBuffer));
-    uint16_t resolutionY = Util::Memory::String::parseInt(reinterpret_cast<const char*>(yBuffer));
-    uint8_t colorDepth = Util::Memory::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
+    uint16_t resolutionX = Util::String::parseInt(reinterpret_cast<const char*>(xBuffer));
+    uint16_t resolutionY = Util::String::parseInt(reinterpret_cast<const char*>(yBuffer));
+    uint8_t colorDepth = Util::String::parseInt(reinterpret_cast<const char*>(bppBuffer));
 
     mode = {static_cast<uint16_t>(resolutionX / font.getCharWidth()), static_cast<uint16_t>(resolutionY / font.getCharHeight()), colorDepth, 0};
 }
 
-Util::Data::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBufferTerminalProvider::getAvailableModes() const {
-    return Util::Data::Array<ModeInfo>({ mode });
+Util::Array<LinearFrameBufferTerminalProvider::ModeInfo> LinearFrameBufferTerminalProvider::getAvailableModes() const {
+    return Util::Array<ModeInfo>({ mode });
 }
 
 Util::Graphic::Terminal* LinearFrameBufferTerminalProvider::initializeTerminal(const ModeInfo &modeInfo) {

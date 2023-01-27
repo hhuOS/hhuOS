@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "asm_interface.h"
 #include "device/cpu/Cpu.h"
 #include "device/time/Rtc.h"
@@ -46,9 +46,9 @@
 #include "kernel/system/SystemCall.h"
 #include "kernel/system/TaskStateSegment.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/FreeListMemoryManager.h"
-#include "lib/util/memory/HeapMemoryManager.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/FreeListMemoryManager.h"
+#include "lib/util/base/HeapMemoryManager.h"
 
 namespace Kernel {
 class Service;
@@ -56,7 +56,7 @@ class Service;
 bool System::initialized = false;
 Util::Async::Spinlock System::serviceLock;
 Service* System::serviceMap[256]{};
-Util::Memory::HeapMemoryManager *System::kernelHeapMemoryManager{};
+Util::HeapMemoryManager *System::kernelHeapMemoryManager{};
 InterruptHandler *System::pagefaultHandler{};
 TaskStateSegment System::taskStateSegment{};
 SystemCall System::systemCall{};
@@ -138,7 +138,7 @@ void System::initializeSystem() {
     schedulerService->ready(refillThread);
 
     // Register memory manager
-    Util::Reflection::InstanceFactory::registerPrototype(new Util::Memory::FreeListMemoryManager());
+    Util::Reflection::InstanceFactory::registerPrototype(new Util::FreeListMemoryManager());
 
     // Register storage service
     registerService(StorageService::SERVICE_ID, new StorageService());
@@ -202,10 +202,10 @@ void System::panic(const InterruptFrame &frame) {
  */
 void System::initializeGlobalDescriptorTables(uint16_t *systemGdt, uint16_t *biosGdt, uint16_t *systemGdtDescriptor, uint16_t *biosGdtDescriptor, uint16_t *physicalGdtDescriptor) {
     // Set first 6 GDT entries to 0
-    Util::Memory::Address<uint32_t>(systemGdt).setRange(0, 48);
+    Util::Address<uint32_t>(systemGdt).setRange(0, 48);
 
     // Set first 4 bios GDT entries to 0
-    Util::Memory::Address<uint32_t>(biosGdt).setRange(0, 32);
+    Util::Address<uint32_t>(biosGdt).setRange(0, 32);
 
     // first set up general GDT for the system
     // first entry has to be null
@@ -276,7 +276,7 @@ bool System::isInitialized() {
 }
 
 uint32_t System::calculatePhysicalMemorySize() {
-    Util::Data::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::getMemoryMap();
+    Util::Array<Multiboot::MemoryMapEntry> memoryMap = Multiboot::getMemoryMap();
     Multiboot::MemoryMapEntry &maxEntry = memoryMap[0];
     for (const auto &entry : memoryMap) {
         if (entry.type != Multiboot::AVAILABLE) {
@@ -295,14 +295,14 @@ uint32_t System::calculatePhysicalMemorySize() {
     return static_cast<uint32_t>(maxEntry.address + maxEntry.length);
 }
 
-Util::Memory::HeapMemoryManager& System::initializeKernelHeap() {
+Util::HeapMemoryManager& System::initializeKernelHeap() {
     auto *blockMap = Multiboot::getBlockMap();
 
     for (uint32_t i = 0; blockMap[i].blockCount != 0; i++) {
         const auto &block = blockMap[i];
 
         if (block.type == Multiboot::HEAP_RESERVED) {
-            static Util::Memory::FreeListMemoryManager heapMemoryManager;
+            static Util::FreeListMemoryManager heapMemoryManager;
             heapMemoryManager.initialize(block.virtualStartAddress, Kernel::MemoryLayout::KERNEL_HEAP_END_ADDRESS);
             return heapMemoryManager;
         }

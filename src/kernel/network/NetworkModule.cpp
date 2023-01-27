@@ -26,7 +26,7 @@ class NetworkDevice;
 }  // namespace Network
 }  // namespace Device
 namespace Util {
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -54,7 +54,7 @@ bool NetworkModule::isNextLayerTypeSupported(uint32_t protocolId) {
     return nextLayerModules.containsKey(protocolId);
 }
 
-void NetworkModule::invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device) {
+void NetworkModule::invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Io::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device) {
     if (isNextLayerTypeSupported(protocolId)) {
         auto *module = nextLayerModules.get(protocolId);
         module->readPacket(stream, information, device);

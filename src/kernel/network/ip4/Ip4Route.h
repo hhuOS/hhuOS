@@ -23,7 +23,7 @@
 
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Kernel::Network {
 namespace Ip4 {
@@ -44,12 +44,12 @@ public:
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::Memory::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Network::Ip4::Ip4Address &nextHop, const Util::String &device);
 
     /**
      * Constructor.
      */
-    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::Memory::String &device);
+    Ip4Route(const Util::Network::Ip4::Ip4Address &localAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, const Util::String &device);
 
     /**
      * Copy Constructor.

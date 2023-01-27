@@ -19,6 +19,7 @@
  */
 
 #include "Rtl8139.h"
+
 #include "device/pci/Pci.h"
 #include "device/pci/PciDevice.h"
 #include "kernel/system/System.h"
@@ -27,12 +28,19 @@
 #include "lib/util/async/Thread.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/InterruptService.h"
+#include "kernel/interrupt/InterruptDispatcher.h"
+#include "kernel/log/Logger.h"
+#include "lib/util/collection/Array.h"
+
+namespace Kernel {
+struct InterruptFrame;
+}  // namespace Kernel
 
 namespace Device::Network {
 
 Kernel::Logger Rtl8139::log = Kernel::Logger::get("RTL8139");
 
-Rtl8139::Rtl8139(const Util::Memory::String &identifier, const PciDevice &pciDevice) : NetworkDevice(identifier), pciDevice(pciDevice) {
+Rtl8139::Rtl8139(const Util::String &identifier, const PciDevice &pciDevice) : NetworkDevice(identifier), pciDevice(pciDevice) {
     log.info("Configuring PCI registers");
     uint16_t command = pciDevice.readWord(Pci::COMMAND);
     command |= Pci::BUS_MASTER | Pci::IO_SPACE;
