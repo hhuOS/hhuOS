@@ -40,7 +40,7 @@ public:
     /**
      * Default Constructor.
      */
-    Rtl8139(const Util::String &identifier, const PciDevice &pciDevice);
+    explicit Rtl8139(const PciDevice &pciDevice);
 
     /**
      * Copy Constructor.

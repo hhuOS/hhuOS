@@ -37,6 +37,10 @@ class PacketWriter;
 }  // namespace Network
 }  // namespace Device
 
+namespace Kernel {
+class NetworkService;
+}  // namespace Kernel
+
 namespace Device::Network {
 
 /**
@@ -46,6 +50,7 @@ class NetworkDevice {
 
 friend class PacketReader;
 friend class PacketWriter;
+friend class Kernel::NetworkService;
 
 public:
 
@@ -59,7 +64,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit NetworkDevice(const Util::String &identifier);
+    explicit NetworkDevice();
 
     /**
      * Copy-constructor.
@@ -95,6 +100,8 @@ protected:
     void freeLastSendBuffer();
 
 private:
+
+    void setIdentifier(const Util::String &identifier);
 
     void freePacketBuffer(void *buffer);
 

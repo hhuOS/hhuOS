@@ -85,7 +85,7 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
             return -1;
         }
 
-        /*auto receivedDatagram = Util::Network::Udp::UdpDatagram();
+        auto receivedDatagram = Util::Network::Udp::UdpDatagram();
         if (!socket.receive(receivedDatagram)) {
             Util::System::error << "uecho: Failed to receive echo reply!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
             return -1;
@@ -96,7 +96,7 @@ int32_t client(Util::Network::Socket &socket, const Util::Network::Ip4::Ip4PortA
 
         if (message == "exit") {
             break;
-        }*/
+        }
     }
 
     return 0;

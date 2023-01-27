@@ -75,8 +75,7 @@ void UdpModule::readPacket(Util::Io::ByteArrayInputStream &stream, NetworkModule
     auto pseudoHeaderStream = Util::Io::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
-    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(),
-                                      stream.getBuffer() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
+    auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), stream.getBuffer() + stream.getPosition() - Util::Network::Udp::UdpHeader::HEADER_SIZE, information.payloadLength);
     if (header.getChecksum() != checksum) {
         log.warn("Discarding packet, because of wrong checksum");
         return;

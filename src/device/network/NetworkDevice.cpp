@@ -31,19 +31,18 @@
 
 namespace Device::Network {
 
-NetworkDevice::NetworkDevice(const Util::String &identifier) :
-        identifier(identifier),
+NetworkDevice::NetworkDevice() :
         packetMemory(static_cast<uint8_t*>(Kernel::System::getService<Kernel::MemoryService>().allocateKernelMemory(MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE, Util::PAGESIZE))),
         packetMemoryManager(reinterpret_cast<uint32_t>(packetMemory), reinterpret_cast<uint32_t>(packetMemory + MAX_BUFFERED_PACKETS * PACKET_BUFFER_SIZE - 1), PACKET_BUFFER_SIZE),
         incomingPacketQueue(MAX_BUFFERED_PACKETS),
         outgoingPacketQueue(MAX_BUFFERED_PACKETS),
         reader(new PacketReader(*this)),
         writer(new PacketWriter(*this)),
-        log(Kernel::Logger::get(identifier)) {
+        log(Kernel::Logger::get("Network")) {
     auto &schedulerService = Kernel::System::getService<Kernel::SchedulerService>();
     auto &processService = Kernel::System::getService<Kernel::ProcessService>();
-    auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("%s-Reader", static_cast<const char*>(identifier)), processService.getKernelProcess(), reader);
-    auto &writerThread = Kernel::Thread::createKernelThread(Util::String::format("%s-Writer", static_cast<const char*>(identifier)), processService.getKernelProcess(), writer);
+    auto &readerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Reader"), processService.getKernelProcess(), reader);
+    auto &writerThread = Kernel::Thread::createKernelThread(Util::String::format("Packet-Writer"), processService.getKernelProcess(), writer);
 
     schedulerService.ready(readerThread);
     schedulerService.ready(writerThread);
@@ -66,7 +65,7 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!Kernel::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        log.warn("Discarding packet, because of wrong frame check sequence");
+        log.warn("Discarding packet on %s, because of wrong frame check sequence", static_cast<const char*>(identifier));
         return;
     }
 
@@ -76,7 +75,7 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer(Packet{buffer, length})) {
-        log.warn("Discarding packet, because of too many unhandled packets");
+        log.warn("Discarding packet on %s, because of too many unhandled packets", static_cast<const char*>(identifier));
         packetMemoryManager.freeBlock(buffer);
     }
 }

@@ -69,7 +69,7 @@ public:
      */
     ~NetworkService() override = default;
 
-    void registerNetworkDevice(Device::Network::NetworkDevice *device);
+    Util::String registerNetworkDevice(Device::Network::NetworkDevice *device, const Util::String &deviceClass);
 
     void registerIp4Route(const Network::Ip4::Ip4Route &route);
 
@@ -89,8 +89,12 @@ public:
 
 private:
 
-    Util::ArrayList<Device::Network::NetworkDevice*> devices;
+    Util::Async::Spinlock lock;
+    Util::HashMap<Util::String, Device::Network::NetworkDevice*> deviceMap;
     Network::NetworkStack networkStack;
+
+    static Logger log;
+    static Util::HashMap<Util::String, uint32_t> nameMap;
 };
 
 }
