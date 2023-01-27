@@ -38,7 +38,7 @@ namespace Device {
 
 Kernel::Logger Mouse::log = Kernel::Logger::get("Mouse");
 
-Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Stream::FilterInputStream(inputStream), qemuMode(FirmwareConfiguration::isAvailable()) {
+Mouse::Mouse(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::SECOND), Util::Io::FilterInputStream(inputStream), qemuMode(FirmwareConfiguration::isAvailable()) {
     outputStream.connect(inputStream);
 }
 

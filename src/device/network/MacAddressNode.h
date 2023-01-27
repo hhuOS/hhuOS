@@ -19,7 +19,7 @@
 #define HHUOS_MACADDRESSNODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 namespace Network {
@@ -55,7 +55,7 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::Memory::String getString() override;
+    Util::String getString() override;
 
 private:
 

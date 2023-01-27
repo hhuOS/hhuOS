@@ -17,13 +17,13 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
-#include "lib/util/stream/BufferedInputStream.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -33,38 +33,38 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "cat: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cat: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
-        auto file = Util::File::File(path);
+        auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::error << "cat: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "cat: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            Util::System::error << "cat: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+            Util::System::error << "cat: '" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
             continue;
         }
 
-        auto stream = Util::Stream::FileInputStream(file);
-        auto bufferedStream = Util::Stream::BufferedInputStream(stream);
+        auto stream = Util::Io::FileInputStream(file);
+        auto bufferedStream = Util::Io::BufferedInputStream(stream);
         int16_t logChar = bufferedStream.read();
 
         while (logChar != -1) {
-            Util::System::out << static_cast<char>(logChar) << Util::Stream::PrintWriter::flush;
+            Util::System::out << static_cast<char>(logChar) << Util::Io::PrintWriter::flush;
             logChar = bufferedStream.read();
         }
     }
 
-    Util::System::out << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintWriter::flush;
     return 0;
 }

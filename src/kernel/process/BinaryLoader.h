@@ -19,8 +19,8 @@
 #define HHUOS_BINARYLOADER_H
 
 #include "lib/util/async/Runnable.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 namespace Kernel {
 
@@ -30,7 +30,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit BinaryLoader(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+    explicit BinaryLoader(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments);
 
     /**
      * Copy Constructor.
@@ -51,9 +51,9 @@ public:
 
 private:
 
-    const Util::Memory::String path;
-    const Util::Memory::String command;
-    const Util::Data::Array<Util::Memory::String> arguments;
+    const Util::String path;
+    const Util::String command;
+    const Util::Array<Util::String> arguments;
 };
 
 }

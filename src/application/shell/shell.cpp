@@ -17,10 +17,10 @@
 
 #include <cstdint>
 
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/PrintWriter.h"
 #include "Shell.h"
-#include "lib/util/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -30,7 +30,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 

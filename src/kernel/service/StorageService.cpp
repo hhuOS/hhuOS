@@ -21,12 +21,12 @@
 #include "device/storage/Partition.h"
 #include "device/storage/StorageDevice.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 
 Logger StorageService::log = Logger::get("Storage");
-Util::Data::HashMap<Util::Memory::String, uint32_t> StorageService::nameMap;
+Util::HashMap<Util::String, uint32_t> StorageService::nameMap;
 
 StorageService::~StorageService() {
     for (const auto &key : deviceMap.keys()) {
@@ -34,14 +34,14 @@ StorageService::~StorageService() {
     }
 }
 
-Util::Memory::String StorageService::registerDevice(Device::Storage::StorageDevice *device, const Util::Memory::String &deviceClass) {
+Util::String StorageService::registerDevice(Device::Storage::StorageDevice *device, const Util::String &deviceClass) {
     lock.acquire();
     if (!nameMap.containsKey(deviceClass)) {
         nameMap.put(deviceClass, 0);
     }
 
     auto value = nameMap.get(deviceClass);
-    auto name = Util::Memory::String::format("%s%u", static_cast<char*>(deviceClass), value);
+    auto name = Util::String::format("%s%u", static_cast<char*>(deviceClass), value);
     deviceMap.put(name, device);
     nameMap.put(deviceClass, value + 1);
 
@@ -60,7 +60,7 @@ Util::Memory::String StorageService::registerDevice(Device::Storage::StorageDevi
     return name;
 }
 
-Device::Storage::StorageDevice &StorageService::getDevice(const Util::Memory::String &deviceName) {
+Device::Storage::StorageDevice &StorageService::getDevice(const Util::String &deviceName) {
     lock.acquire();
     if (!deviceMap.containsKey(deviceName)) {
         lock.release();
@@ -73,7 +73,7 @@ Device::Storage::StorageDevice &StorageService::getDevice(const Util::Memory::St
     return result;
 }
 
-bool StorageService::isDeviceRegistered(const Util::Memory::String &deviceName) {
+bool StorageService::isDeviceRegistered(const Util::String &deviceName) {
     lock.acquire();
     auto result = deviceMap.containsKey(deviceName);
     lock.release();

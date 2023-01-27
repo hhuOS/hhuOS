@@ -1,19 +1,19 @@
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "LinearFrameBufferProvider.h"
 #include "LinearFrameBufferNode.h"
 #include "kernel/service/FilesystemService.h"
 #include "kernel/system/System.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device::Graphic {
 
 LinearFrameBufferProvider::ModeInfo LinearFrameBufferProvider::searchMode(uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth) const {
     auto modes = getAvailableModes();
-    auto candidates = Util::Data::ArrayList<ModeInfo>();
+    auto candidates = Util::ArrayList<ModeInfo>();
 
     if (modes.length() == 0) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LinearFrameBufferProvider: No graphics mode available!");
@@ -52,7 +52,7 @@ LinearFrameBufferProvider::ModeInfo LinearFrameBufferProvider::searchMode(uint16
     }
 
     // Remove all candidates, that don't have the closest horizontal resolution
-    auto removeList = Util::Data::ArrayList<ModeInfo>();
+    auto removeList = Util::ArrayList<ModeInfo>();
     for (const ModeInfo &mode : candidates) {
         if (mode.resolutionX != bestMode.resolutionX) {
             removeList.remove(mode);
@@ -75,7 +75,7 @@ LinearFrameBufferProvider::ModeInfo LinearFrameBufferProvider::searchMode(uint16
     return bestMode;
 }
 
-void LinearFrameBufferProvider::initializeLinearFrameBuffer(const LinearFrameBufferProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+void LinearFrameBufferProvider::initializeLinearFrameBuffer(const LinearFrameBufferProvider::ModeInfo &modeInfo, const Util::String &filename) {
     auto *lfb = initializeLinearFrameBuffer(modeInfo);
 
     // Create filesystem node

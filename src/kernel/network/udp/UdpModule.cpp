@@ -22,15 +22,15 @@
 
 #include "lib/util/network/udp/UdpHeader.h"
 #include "Ip4PseudoHeader.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/ethernet/EthernetModule.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Header.h"
@@ -38,7 +38,7 @@
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "lib/util/network/udp/UdpDatagram.h"
 #include "kernel/network/udp/UdpSocket.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Kernel::Network::Udp {
@@ -67,12 +67,12 @@ bool UdpModule::registerSocket(Socket &socket) {
     return socketLock.releaseAndReturn(true);
 }
 
-void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, Device::Network::NetworkDevice &device) {
+void UdpModule::readPacket(Util::Io::ByteArrayInputStream &stream, NetworkModule::LayerInformation information, Device::Network::NetworkDevice &device) {
     auto pseudoHeader = Ip4PseudoHeader(information);
     auto header = Util::Network::Udp::UdpHeader();
     header.read(stream);
 
-    auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
+    auto pseudoHeaderStream = Util::Io::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
     auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(),
@@ -99,7 +99,7 @@ void UdpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, NetworkMo
 }
 
 void UdpModule::writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddress, const Util::Network::Ip4::Ip4PortAddress &destinationAddress, const uint8_t *buffer, uint16_t length) {
-    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto packet = Util::Io::ByteArrayOutputStream();
     auto datagramLength = length + Util::Network::Udp::UdpHeader::HEADER_SIZE;
 
     // Write IPv4 and Ethernet headers
@@ -118,7 +118,7 @@ void UdpModule::writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddr
 
     // Calculate and write checksum
     auto pseudoHeader = Ip4PseudoHeader(sourceInterface.getAddress(), destinationAddress.getIp4Address(), datagramLength);
-    auto pseudoHeaderStream = Util::Stream::ByteArrayOutputStream();
+    auto pseudoHeaderStream = Util::Io::ByteArrayOutputStream();
     pseudoHeader.write(pseudoHeaderStream);
 
     auto checksum = calculateChecksum(pseudoHeaderStream.getBuffer(), packet.getBuffer() + (positionAfterHeaders - Util::Network::Udp::UdpHeader::HEADER_SIZE), datagramLength);

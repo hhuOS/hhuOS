@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Device {
 namespace Storage {
@@ -324,7 +324,7 @@ public:
      *
      * @return An array, containing information about all partitions.
      */
-    Util::Data::Array<PartitionInfo> readPartitionTable();
+    Util::Array<PartitionInfo> readPartitionTable();
 
     /**
      * Write a partition to the partition table.

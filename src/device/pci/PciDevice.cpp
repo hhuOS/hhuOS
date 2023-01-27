@@ -18,9 +18,9 @@
 #include "PciDevice.h"
 
 #include "device/pci/Pci.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 
@@ -58,7 +58,7 @@ void PciDevice::writeDoubleWord(uint8_t reg, uint32_t value) const {
     Pci::writeDoubleWord(bus, device, function, reg, value);
 }
 
-void PciDevice::writeCommand(const Util::Data::Array<Pci::Command>& commands) const {
+void PciDevice::writeCommand(const Util::Array<Pci::Command>& commands) const {
     uint16_t value = readWord(Pci::COMMAND);
     for (const auto &command : commands) {
         value |= command;
@@ -67,7 +67,7 @@ void PciDevice::writeCommand(const Util::Data::Array<Pci::Command>& commands) co
     writeWord(Pci::COMMAND, value);
 }
 
-void PciDevice::overwriteCommand(const Util::Data::Array<Pci::Command>& commands) const {
+void PciDevice::overwriteCommand(const Util::Array<Pci::Command>& commands) const {
     uint16_t value = 0;
     for (const auto &command : commands) {
         value |= command;
@@ -76,8 +76,8 @@ void PciDevice::overwriteCommand(const Util::Data::Array<Pci::Command>& commands
     writeWord(Pci::COMMAND, value);
 }
 
-Util::Data::Array<Pci::Command> PciDevice::readCommand() const {
-    auto command = Util::Data::ArrayList<Pci::Command>();
+Util::Array<Pci::Command> PciDevice::readCommand() const {
+    auto command = Util::ArrayList<Pci::Command>();
     uint16_t value = readWord(Pci::COMMAND);
 
     for (uint16_t i = 1; i > 0; i *= 2) {
@@ -89,8 +89,8 @@ Util::Data::Array<Pci::Command> PciDevice::readCommand() const {
     return command.toArray();
 }
 
-Util::Data::Array<Pci::Status> PciDevice::readStatus() const {
-    auto status = Util::Data::ArrayList<Pci::Status>();
+Util::Array<Pci::Status> PciDevice::readStatus() const {
+    auto status = Util::ArrayList<Pci::Status>();
     uint16_t value = readWord(Pci::STATUS);
 
     for (uint16_t i = 1; i > 0; i *= 2) {
@@ -102,12 +102,12 @@ Util::Data::Array<Pci::Status> PciDevice::readStatus() const {
     return status.toArray();
 }
 
-Util::Data::Array<uint8_t> PciDevice::readCapabilities() const {
+Util::Array<uint8_t> PciDevice::readCapabilities() const {
     if (!readStatus().contains(Pci::CAPABILITIES_LIST)) {
         return {};
     }
 
-    auto capabilities = Util::Data::ArrayList<uint8_t>();
+    auto capabilities = Util::ArrayList<uint8_t>();
     auto currentRegister = capabilitiesPointer;
 
     while (currentRegister != 0x00) {

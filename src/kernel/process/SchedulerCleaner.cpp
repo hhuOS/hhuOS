@@ -20,7 +20,7 @@
 #include "lib/util/async/Thread.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/Thread.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Kernel {

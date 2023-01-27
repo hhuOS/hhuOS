@@ -20,11 +20,11 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "Color.h"
 
 namespace Util {
-namespace File {
+namespace Io {
 class File;
 }  // namespace File
 }  // namespace Util
@@ -59,9 +59,9 @@ public:
      */
     LinearFrameBuffer(void *virtualAddress, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch, bool enableAcceleration = true);
 
-    LinearFrameBuffer(Util::Memory::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
+    LinearFrameBuffer(Util::Address<uint32_t> *address, uint16_t resolutionX, uint16_t resolutionY, uint8_t colorDepth, uint16_t pitch);
 
-    explicit LinearFrameBuffer(File::File &file, bool enableAcceleration = true);
+    explicit LinearFrameBuffer(Io::File &file, bool enableAcceleration = true);
 
     /**
      * Assignment operator.
@@ -111,7 +111,7 @@ public:
      *
      * @return The buffer address
      */
-    [[nodiscard]] Memory::Address<uint32_t> getBuffer() const;
+    [[nodiscard]] Address<uint32_t> getBuffer() const;
 
     /**
      * Read the color of a pixel at a given position.
@@ -127,7 +127,7 @@ public:
 private:
 
     bool useMmx = false;
-    Memory::Address<uint32_t> *buffer = nullptr;
+    Address<uint32_t> *buffer = nullptr;
 
     uint16_t resolutionX = 0;
     uint16_t resolutionY = 0;

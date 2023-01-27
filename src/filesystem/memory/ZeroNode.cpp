@@ -17,19 +17,19 @@
 
 #include "ZeroNode.h"
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-ZeroNode::ZeroNode(const Util::Memory::String &name) : MemoryNode(name) {}
+ZeroNode::ZeroNode(const Util::String &name) : MemoryNode(name) {}
 
-Util::File::Type ZeroNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type ZeroNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t ZeroNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    Util::Memory::Address<uint32_t>(targetBuffer).setRange(0, numBytes);
+    Util::Address<uint32_t>(targetBuffer).setRange(0, numBytes);
     return numBytes;
 }
 

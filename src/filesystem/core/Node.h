@@ -18,8 +18,8 @@
 #ifndef HHUOS_NODE_H
 #define HHUOS_NODE_H
 
-#include "lib/util/memory/String.h"
-#include "lib/util/file/Type.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 
@@ -56,12 +56,12 @@ public:
     /**
      * Get the name.
      */
-    virtual Util::Memory::String getName() = 0;
+    virtual Util::String getName() = 0;
 
     /**
      * Get the file type.
      */
-    virtual Util::File::Type getFileType() = 0;
+    virtual Util::Io::File::Type getType() = 0;
 
     /**
      * Get the length (in bytes) of the node's data.
@@ -72,7 +72,7 @@ public:
     /**
      * Get the node's children.
      */
-    virtual Util::Data::Array<Util::Memory::String> getChildren() = 0;
+    virtual Util::Array<Util::String> getChildren() = 0;
 
     /**
      * Read bytes from the node's data.
@@ -109,7 +109,7 @@ public:
      *
      * @return true, on success
      */
-    virtual bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+    virtual bool control(uint32_t request, const Util::Array<uint32_t> &parameters) {
         return false;
     }
 };

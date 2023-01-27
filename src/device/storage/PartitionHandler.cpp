@@ -17,13 +17,13 @@
 
 #include "PartitionHandler.h"
 
-#include "lib/util/memory/Address.h"
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/collection/ArrayList.h"
 #include "device/storage/StorageDevice.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device::Storage {
 
@@ -39,17 +39,17 @@ void PartitionHandler::createPartitionTable() {
     createBootRecord(0);
 }
 
-Util::Data::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTable() {
+Util::Array<PartitionHandler::PartitionInfo> PartitionHandler::readPartitionTable() {
     // Read MBR
     auto *mbr = readBootRecord(0);
     if (mbr == nullptr) {
-        return Util::Data::Array<PartitionInfo>(0);
+        return Util::Array<PartitionInfo>(0);
     }
 
     auto *partitions = reinterpret_cast<PartitionTableEntry*>(&mbr[PARTITION_TABLE_START]);
 
     // Stores information about found partitions
-    auto partitionList = Util::Data::ArrayList<PartitionInfo>();
+    auto partitionList = Util::ArrayList<PartitionInfo>();
 
     // Cycle through all four primary partitions
     for (uint32_t i = 0; i < 4; i++) {
@@ -223,7 +223,7 @@ void PartitionHandler::writePartition(uint8_t partitionNumber, bool active, Syst
 
             // Let next entry of current boot record point to the boot record of the new partition
             auto *newEbr = new uint8_t[device.getSectorSize()];
-            auto newEbrAddress = Util::Memory::Address<uint32_t>(newEbr);
+            auto newEbrAddress = Util::Address<uint32_t>(newEbr);
 
             // Create new boot record for the new partition
             newEbrAddress.setRange(0, device.getSectorSize());
@@ -382,7 +382,7 @@ void PartitionHandler::deletePartition(uint8_t partitionNumber) {
 
 void PartitionHandler::createBootRecord(uint32_t sector) {
     auto *mbr = new uint8_t[device.getSectorSize()];
-    auto mbrAddress = Util::Memory::Address<uint32_t>(mbr);
+    auto mbrAddress = Util::Address<uint32_t>(mbr);
 
     // Create new empty boot record
     mbrAddress.setRange(0, device.getSectorSize());

@@ -28,11 +28,11 @@
 
 #include "lib/util/async/Runnable.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayListBlockingQueue.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/collection/ArrayListBlockingQueue.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/Address.h"
 
 namespace Util {
 namespace Graphic {
@@ -168,12 +168,12 @@ private:
 
     lv_indev_drv_t keyboardDriver{};
     lv_indev_t *keyboard = nullptr;
-    Util::Data::ArrayListBlockingQueue<KeyboardEvent> keyboardEventQueue;
+    Util::ArrayListBlockingQueue<KeyboardEvent> keyboardEventQueue;
     Util::Async::Spinlock keyboardLock;
 
     Util::Graphic::LinearFrameBuffer &lfb;
-    Util::Memory::Address<uint32_t> &lfbAddress;
-    Util::Memory::Address<uint32_t> colorBufferAddress;
+    Util::Address<uint32_t> &lfbAddress;
+    Util::Address<uint32_t> colorBufferAddress;
     bool useMmx = false;
 
     bool running = false;

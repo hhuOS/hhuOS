@@ -17,7 +17,7 @@
 
 #include "Cmos.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/async/Atomic.h"
 
 namespace Device {

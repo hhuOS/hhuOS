@@ -22,8 +22,8 @@
 
 #include "filesystem/core/Filesystem.h"
 #include "Service.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem {
 class Node;
@@ -54,21 +54,21 @@ public:
      */
     ~FilesystemService() override = default;
 
-    bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
+    bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName);
 
-    bool unmount(const Util::Memory::String &path);
+    bool unmount(const Util::String &path);
 
-    bool createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName);
+    bool createFilesystem(const Util::String &deviceName, const Util::String &driverName);
 
-    bool createFile(const Util::Memory::String &path);
+    bool createFile(const Util::String &path);
 
-    bool createDirectory(const Util::Memory::String &path);
+    bool createDirectory(const Util::String &path);
 
-    bool deleteFile(const Util::Memory::String &path);
+    bool deleteFile(const Util::String &path);
 
     int32_t registerFile(Filesystem::Node *node);
 
-    int32_t openFile(const Util::Memory::String &path);
+    int32_t openFile(const Util::String &path);
 
     void closeFile(int32_t fileDescriptor);
 
@@ -76,7 +76,7 @@ public:
 
     [[nodiscard]] Filesystem::Filesystem& getFilesystem();
 
-    [[nodiscard]] Util::Data::Array<Filesystem::MountInformation> getMountInformation();
+    [[nodiscard]] Util::Array<Filesystem::MountInformation> getMountInformation();
 
     static const constexpr uint8_t SERVICE_ID = 0;
 

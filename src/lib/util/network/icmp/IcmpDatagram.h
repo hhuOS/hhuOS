@@ -27,7 +27,13 @@
 #include "lib/util/network/icmp/IcmpHeader.h"
 
 namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+
 namespace Network {
+class NetworkAddress;
+
 namespace Ip4 {
 class Ip4Address;
 }  // namespace Ip4
@@ -57,7 +63,7 @@ public:
     /**
      * Constructor.
      */
-    IcmpDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code);
+    IcmpDatagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code);
 
     /**
      * Copy Constructor.

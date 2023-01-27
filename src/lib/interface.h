@@ -20,16 +20,15 @@
 
 #include <cstdint>
 
-#include "lib/util/Exception.h"
-#include "lib/util/file/File.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/time/Date.h"
 #include "lib/util/async/Process.h"
-#include "lib/util/system/Machine.h"
+#include "lib/util/hardware/Machine.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 #include "lib/util/network/Socket.h"
 
 namespace Util {
@@ -50,28 +49,28 @@ bool isSystemInitialized();
 void* mapIO(uint32_t physicalAddress, uint32_t size);
 void unmap(uint32_t virtualStartAddress, uint32_t virtualEndAddress, uint32_t breakCount = 0);
 
-bool mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName);
-bool unmount(const Util::Memory::String &path);
-bool createFile(const Util::Memory::String &path, Util::File::Type type);
-bool deleteFile(const Util::Memory::String &path);
-int32_t openFile(const Util::Memory::String &path);
+bool mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName);
+bool unmount(const Util::String &path);
+bool createFile(const Util::String &path, Util::Io::File::Type type);
+bool deleteFile(const Util::String &path);
+int32_t openFile(const Util::String &path);
 void closeFile(int32_t fileDescriptor);
-Util::File::Type getFileType(int32_t fileDescriptor);
+Util::Io::File::Type getFileType(int32_t fileDescriptor);
 uint32_t getFileLength(int32_t fileDescriptor);
-Util::Data::Array<Util::Memory::String> getFileChildren(int32_t fileDescriptor);
+Util::Array<Util::String> getFileChildren(int32_t fileDescriptor);
 uint64_t readFile(int32_t fileDescriptor, uint8_t *targetBuffer, uint64_t pos, uint64_t length);
 uint64_t writeFile(int32_t fileDescriptor, const uint8_t *sourceBuffer, uint64_t pos, uint64_t length);
-bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Data::Array<uint32_t> &parameters);
-bool changeDirectory(const Util::Memory::String &path);
-Util::File::File getCurrentWorkingDirectory();
+bool controlFile(int32_t fileDescriptor, uint32_t request, const Util::Array<uint32_t> &parameters);
+bool changeDirectory(const Util::String &path);
+Util::Io::File getCurrentWorkingDirectory();
 
 int32_t createSocket(Util::Network::Socket::Type socketType);
 bool sendDatagram(int32_t fileDescriptor, const Util::Network::Datagram &datagram);
 bool receiveDatagram(int32_t fileDescriptor, Util::Network::Datagram &datagram);
 
-Util::Async::Process executeBinary(const Util::File::File &binaryFile, const Util::File::File &inputFile, const Util::File::File &outputFile, const Util::File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments);
+Util::Async::Process executeBinary(const Util::Io::File &binaryFile, const Util::Io::File &inputFile, const Util::Io::File &outputFile, const Util::Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments);
 Util::Async::Process getCurrentProcess();
-Util::Async::Thread createThread(const Util::Memory::String &name, Util::Async::Runnable *runnable);
+Util::Async::Thread createThread(const Util::String &name, Util::Async::Runnable *runnable);
 Util::Async::Thread getCurrentThread();
 void joinThread(uint32_t id);
 void joinProcess(uint32_t id);
@@ -83,7 +82,7 @@ Util::Time::Timestamp getSystemTime();
 Util::Time::Date getCurrentDate();
 void setDate(const Util::Time::Date &date);
 
-bool shutdown(Util::Machine::ShutdownType type);
+bool shutdown(Util::Hardware::Machine::ShutdownType type);
 [[noreturn]] void throwError(Util::Exception::Error error, const char *message);
 
 #endif

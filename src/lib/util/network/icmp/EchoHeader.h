@@ -24,7 +24,7 @@
 #include <cstdint>
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -55,9 +55,9 @@ public:
      */
     ~EchoHeader() = default;
 
-    void read(Util::Stream::InputStream &stream);
+    void read(Util::Io::InputStream &stream);
 
-    void write(Util::Stream::OutputStream &stream) const;
+    void write(Util::Io::OutputStream &stream) const;
 
     [[nodiscard]] uint16_t getIdentifier() const;
 

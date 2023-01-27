@@ -20,7 +20,6 @@
 #include "kernel/system/System.h"
 #include "filesystem/memory/StreamNode.h"
 #include "Keyboard.h"
-#include "lib/util/io/Key.h"
 #include "device/hid/Ps2Controller.h"
 #include "device/hid/Ps2Device.h"
 #include "device/interrupt/Pic.h"
@@ -37,7 +36,7 @@ namespace Device {
 
 Kernel::Logger Keyboard::log = Kernel::Logger::get("Keyboard");
 
-Keyboard::Keyboard(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::FIRST), Util::Stream::FilterInputStream(inputStream) {
+Keyboard::Keyboard(Ps2Controller &controller) : Ps2Device(controller, Ps2Controller::FIRST), Util::Io::FilterInputStream(inputStream) {
     outputStream.connect(inputStream);
 }
 

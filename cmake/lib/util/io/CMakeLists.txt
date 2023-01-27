@@ -16,6 +16,53 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-target_sources(lib.util PUBLIC
-        ${HHUOS_SRC_DIR}/lib/util/io/Key.cpp
-        ${HHUOS_SRC_DIR}/lib/util/io/KeyDecoder.cpp)
+project(lib.io)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
+target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/io/file/File.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/file/elf/File.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/file/tar/Archive.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/key/Key.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/key/KeyDecoder.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedReader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/BufferedWriter.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/ByteArrayOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/ByteArrayInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FileInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FileOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FileReader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FileWriter.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FilterInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/FilterOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/InputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/InputStreamReader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/OutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/OutputStreamWriter.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedInputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/PipedOutputStream.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/PrintWriter.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/Reader.cpp
+        ${HHUOS_SRC_DIR}/lib/util/io/stream/Writer.cpp)
+
+# Kernel space version
+project(lib.kernel.io)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.io)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.io)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.io)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

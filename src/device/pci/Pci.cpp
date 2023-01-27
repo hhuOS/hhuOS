@@ -19,16 +19,16 @@
 #include "Pci.h"
 #include "device/cpu/IoPort.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 
 const IoPort Pci::configAddressPort = IoPort(CONFIG_ADDRESS);
 const IoPort Pci::configDataPort = IoPort(CONFIG_DATA);
 Kernel::Logger Pci::log = Kernel::Logger::get("PCI");
-Util::Data::ArrayList<PciDevice> Pci::devices = Util::Data::ArrayList<PciDevice>();
+Util::ArrayList<PciDevice> Pci::devices = Util::ArrayList<PciDevice>();
 
 void Pci::prepareRegister(uint8_t bus, uint8_t device, uint8_t function, uint8_t offset) {
     uint32_t address = 0x80000000 | (bus << 16) | (device << 11) | (function << 8) | (offset & 0xfc);
@@ -126,8 +126,8 @@ void Pci::scanBus(uint8_t bus) {
     }
 }
 
-Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(uint16_t vendorId) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getVendorId() == vendorId) {
             found.add(device);
@@ -137,8 +137,8 @@ Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId) {
     return found.toArray();
 }
 
-Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getVendorId() == vendorId && device.getDeviceId() == deviceId) {
             found.add(device);
@@ -148,8 +148,8 @@ Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId) {
     return found.toArray();
 }
 
-Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId, uint8_t programmingInterface) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId, uint8_t programmingInterface) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getVendorId() == vendorId && device.getDeviceId() == deviceId && device.getProgrammingInterface() == programmingInterface) {
             found.add(device);
@@ -159,8 +159,8 @@ Util::Data::Array<PciDevice> Pci::search(uint16_t vendorId, uint16_t deviceId, u
     return found.toArray();
 }
 
-Util::Data::Array<PciDevice> Pci::search(Pci::Class baseClass) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(Pci::Class baseClass) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getBaseClass() == baseClass) {
             found.add(device);
@@ -170,8 +170,8 @@ Util::Data::Array<PciDevice> Pci::search(Pci::Class baseClass) {
     return found.toArray();
 }
 
-Util::Data::Array<PciDevice> Pci::search(Pci::Class baseClass, uint8_t subclass) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(Pci::Class baseClass, uint8_t subclass) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getBaseClass() == baseClass && device.getSubclass() == subclass) {
             found.add(device);
@@ -181,8 +181,8 @@ Util::Data::Array<PciDevice> Pci::search(Pci::Class baseClass, uint8_t subclass)
     return found.toArray();
 }
 
-Util::Data::Array<PciDevice> Pci::search(Pci::Class baseClass, uint8_t subclass, uint8_t programmingInterface) {
-    Util::Data::ArrayList<PciDevice> found = Util::Data::ArrayList<PciDevice>();
+Util::Array<PciDevice> Pci::search(Pci::Class baseClass, uint8_t subclass, uint8_t programmingInterface) {
+    Util::ArrayList<PciDevice> found = Util::ArrayList<PciDevice>();
     for (const auto &device : devices) {
         if (device.getBaseClass() == baseClass && device.getSubclass() == subclass && device.getProgrammingInterface() == programmingInterface) {
             found.add(device);

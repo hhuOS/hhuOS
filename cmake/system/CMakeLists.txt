@@ -31,4 +31,4 @@ set(SOURCE_FILES
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
-target_link_libraries(${PROJECT_NAME} device filesystem kernel network lib.kernel)
+target_link_libraries(${PROJECT_NAME} device filesystem kernel network lib.kernel.base lib.kernel.graphic lib.kernel.network)

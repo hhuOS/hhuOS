@@ -26,7 +26,7 @@
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 struct InterruptFrame;
@@ -36,7 +36,7 @@ namespace Device {
 
 Kernel::Logger SerialPort::log = Kernel::Logger::get("COM");
 
-SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Stream::FilterInputStream(inputStream),
+SerialPort::SerialPort(ComPort port, BaudRate dataRate) : Util::Io::FilterInputStream(inputStream),
         port(port), dataRate(dataRate), dataRegister(port), interruptRegister(port + 1), fifoControlRegister(port + 2),
         lineControlRegister(port + 3), modemControlRegister(port + 4), lineStatusRegister(port + 5),
         modemStatusRegister(port + 6), scratchRegister(port + 7) {
@@ -74,7 +74,7 @@ void SerialPort::initializePort(ComPort port) {
     log.info("Serial port [%s] detected", portToString(port));
 
     auto *serialPort = new SerialPort(port);
-    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), serialPort, serialPort);
+    auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), serialPort, serialPort);
 
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
@@ -95,7 +95,7 @@ void SerialPort::initializeAvailablePorts() {
     initializePort(COM4);
 }
 
-SerialPort::ComPort SerialPort::portFromString(const Util::Memory::String &portName) {
+SerialPort::ComPort SerialPort::portFromString(const Util::String &portName) {
     const auto port = portName.toLowerCase();
 
     if (port == "com1") {

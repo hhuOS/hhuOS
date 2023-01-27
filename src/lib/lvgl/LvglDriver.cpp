@@ -22,13 +22,13 @@
 
 #include "lib/util/math/Math.h"
 #include "lib/interface.h"
-#include "lib/util/stream/FileInputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
 #include "LvglDriver.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/file/File.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/stream/InputStreamReader.h"
+#include "lib/util/io/stream/InputStreamReader.h"
 
 extern "C" {
 uint64_t __udivdi3(uint64_t first, uint64_t second) {
@@ -53,33 +53,33 @@ void* realloc(void *pointer, uint32_t size) {
 }
 
 uint32_t strlen(const char *str) noexcept {
-    return Util::Memory::Address<uint32_t>(str).stringLength();
+    return Util::Address<uint32_t>(str).stringLength();
 }
 
 char* strcpy(char *dest, const char *src) noexcept {
-    Util::Memory::Address<uint32_t>(dest).copyString(Util::Memory::Address<uint32_t>(src));
+    Util::Address<uint32_t>(dest).copyString(Util::Address<uint32_t>(src));
     return dest;
 }
 
 int32_t strcmp(const char *str1, const char *str2) noexcept {
-    return Util::Memory::Address<uint32_t>(str1).compareString(Util::Memory::Address<uint32_t>(str2));
+    return Util::Address<uint32_t>(str1).compareString(Util::Address<uint32_t>(str2));
 }
 
 int32_t memcmp(const void *str1, const void *str2, uint32_t n) {
-    return Util::Memory::Address<uint32_t>(str1).compareRange(Util::Memory::Address<uint32_t>(str2), n);
+    return Util::Address<uint32_t>(str1).compareRange(Util::Address<uint32_t>(str2), n);
 }
 
 char* strcat(char *dest, const char *src) {
-    auto targetAddress = Util::Memory::Address<uint32_t>(dest);
+    auto targetAddress = Util::Address<uint32_t>(dest);
     targetAddress = targetAddress.add(targetAddress.stringLength());
-    targetAddress.copyString(Util::Memory::Address<uint32_t>(src));
+    targetAddress.copyString(Util::Address<uint32_t>(src));
     return dest;
 }
 
 LvglDriver::LvglDriver(Util::Graphic::LinearFrameBuffer &lfb) :
         bufferSize(lfb.getPitch() * lfb.getResolutionY()),
         colorBuffer(new lv_color_t[bufferSize]), lfb(lfb),
-        lfbAddress(*Util::Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)),
+        lfbAddress(*Util::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx)),
         colorBufferAddress(colorBuffer) {}
 
 LvglDriver::~LvglDriver() {
@@ -170,12 +170,12 @@ bool LvglDriver::isRunning() const {
 LvglDriver::MouseRunnable::MouseRunnable(LvglDriver &driver) : driver(driver) {}
 
 void LvglDriver::MouseRunnable::run() {
-    auto file = Util::File::File("/device/mouse");
+    auto file = Util::Io::File("/device/mouse");
     if (!file.exists()) {
         return;
     }
 
-    auto stream = Util::Stream::FileInputStream(file);
+    auto stream = Util::Io::FileInputStream(file);
 
     while (true) {
         auto buttons = stream.read();

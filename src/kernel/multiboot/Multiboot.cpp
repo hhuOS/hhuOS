@@ -22,8 +22,8 @@
 #include "kernel/multiboot/Multiboot.h"
 #include "asm_interface.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
@@ -40,7 +40,7 @@ const CopyInformation& Multiboot::getCopyInformation() {
     return *copyInformation;
 }
 
-Util::Memory::String Multiboot::getBootloaderName() {
+Util::String Multiboot::getBootloaderName() {
     return reinterpret_cast<const char*>(info->bootloaderName);
 }
 
@@ -52,14 +52,14 @@ Multiboot::FrameBufferInfo Multiboot::getFrameBufferInfo() {
     return {};
 }
 
-Util::Data::Array<Multiboot::MemoryMapEntry> Multiboot::getMemoryMap() {
+Util::Array<Multiboot::MemoryMapEntry> Multiboot::getMemoryMap() {
     if ((info->flags & MEMORY_MAP) == 0x0) {
-        return Util::Data::Array<MemoryMapEntry>(0);
+        return Util::Array<MemoryMapEntry>(0);
     }
 
     auto *entry = reinterpret_cast<MemoryMapEntry*>(info->memoryMapAddress);
     uint32_t size = info->memoryMapLength / sizeof(MemoryMapEntry);
-    auto memoryMap = Util::Data::Array<MemoryMapEntry>(size);
+    auto memoryMap = Util::Array<MemoryMapEntry>(size);
 
     for (uint32_t i = 0; i < size; i++) {
         memoryMap[i] = entry[i];
@@ -72,13 +72,13 @@ const Multiboot::MemoryBlock* Multiboot::getBlockMap() {
     return blockMap;
 }
 
-bool Multiboot::hasKernelOption(const Util::Memory::String &key) {
+bool Multiboot::hasKernelOption(const Util::String &key) {
     if (!(info->flags & COMMAND_LINE)) {
         return false;
     }
 
-    Util::Data::Array<Util::Memory::String> options = Util::Memory::String(reinterpret_cast<const char*>(info->commandLine)).split(" ");
-    for (const Util::Memory::String &option : options) {
+    Util::Array<Util::String> options = Util::String(reinterpret_cast<const char*>(info->commandLine)).split(" ");
+    for (const Util::String &option : options) {
         if (option.split("=")[0] == key) {
             return true;
         }
@@ -87,13 +87,13 @@ bool Multiboot::hasKernelOption(const Util::Memory::String &key) {
     return false;
 }
 
-Util::Memory::String Multiboot::getKernelOption(const Util::Memory::String &key) {
+Util::String Multiboot::getKernelOption(const Util::String &key) {
     if (!(info->flags & COMMAND_LINE)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
     }
 
-    Util::Data::Array<Util::Memory::String> options = Util::Memory::String(reinterpret_cast<const char*>(info->commandLine)).split(" ");
-    for (const Util::Memory::String &option : options) {
+    Util::Array<Util::String> options = Util::String(reinterpret_cast<const char*>(info->commandLine)).split(" ");
+    for (const Util::String &option : options) {
         auto split = option.split("=");
         if (split[0] == key) {
             return split[1];
@@ -103,14 +103,14 @@ Util::Memory::String Multiboot::getKernelOption(const Util::Memory::String &key)
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested kernel option is not available!");
 }
 
-bool Multiboot::isModuleLoaded(const Util::Memory::String &module) {
+bool Multiboot::isModuleLoaded(const Util::String &module) {
     if (!(info->flags & MODULES)) {
         return false;
     }
 
     auto *modInfo = reinterpret_cast<ModuleInfo *>(info->moduleAddress);
     for (uint32_t i = 0; i < info->moduleCount; i++) {
-        if (Util::Memory::String(modInfo[i].string) == module) {
+        if (Util::String(modInfo[i].string) == module) {
             return true;
         }
     }
@@ -118,14 +118,14 @@ bool Multiboot::isModuleLoaded(const Util::Memory::String &module) {
     return false;
 }
 
-Multiboot::ModuleInfo Multiboot::getModule(const Util::Memory::String &module) {
+Multiboot::ModuleInfo Multiboot::getModule(const Util::String &module) {
     if (!(info->flags & MODULES)) {
         Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Multiboot: Requested module is not loaded!");
     }
 
     auto *modInfo = reinterpret_cast<ModuleInfo*>(info->moduleAddress);
     for (uint32_t i = 0; i < info->moduleCount; i++) {
-        if (Util::Memory::String(modInfo[i].string) == module) {
+        if (Util::String(modInfo[i].string) == module) {
             uint32_t size = modInfo[i].end - modInfo[i].start;
             uint32_t offset = modInfo[i].start % Kernel::Paging::PAGESIZE;
 
@@ -146,18 +146,18 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
     copyInfo->copiedBytes = sizeof(CopyInformation);
     copyInfo->success = false;
 
-    auto destinationAddress = Util::Memory::Address<uint32_t>(destination + sizeof(CopyInformation));
+    auto destinationAddress = Util::Address<uint32_t>(destination + sizeof(CopyInformation));
 
     // First, copy the struct itself
     if (copyInfo->copiedBytes + sizeof(Info) > maxBytes) return;
-    destinationAddress.copyRange(Util::Memory::Address<uint32_t>(source), sizeof(Info));
+    destinationAddress.copyRange(Util::Address<uint32_t>(source), sizeof(Info));
     auto multibootInfo = reinterpret_cast<Info*>(destinationAddress.get());
     destinationAddress = destinationAddress.add(sizeof(Info));
     copyInfo->copiedBytes += sizeof(Info);
 
     // Then copy the command line
     if (multibootInfo->flags & COMMAND_LINE) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->commandLine);
+        auto sourceAddress = Util::Address<uint32_t>(multibootInfo->commandLine);
         auto length = sourceAddress.stringLength() + 1;
         if (copyInfo->copiedBytes + length > maxBytes) return;
 
@@ -169,7 +169,7 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
 
     // Then copy the module information
     if (multibootInfo->flags & MODULES) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->moduleAddress);
+        auto sourceAddress = Util::Address<uint32_t>(multibootInfo->moduleAddress);
         uint32_t length = multibootInfo->moduleCount * sizeof(ModuleInfo);
         if (copyInfo->copiedBytes + length > maxBytes) return;
 
@@ -180,7 +180,7 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
         copyInfo->copiedBytes += length;
 
         for(uint32_t i = 0; i < multibootInfo->moduleCount; i++) {
-            sourceAddress = Util::Memory::Address<uint32_t>(modules[i].string);
+            sourceAddress = Util::Address<uint32_t>(modules[i].string);
             length = sourceAddress.stringLength() + 1;
             if (copyInfo->copiedBytes + length > maxBytes) return;
 
@@ -194,7 +194,7 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
     // Then copy the memory map
     if (multibootInfo->flags & MEMORY_MAP) {
         if (copyInfo->copiedBytes + multibootInfo->memoryMapLength > maxBytes) return;
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->memoryMapAddress);
+        auto sourceAddress = Util::Address<uint32_t>(multibootInfo->memoryMapAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->memoryMapLength);
         multibootInfo->memoryMapAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
         destinationAddress = destinationAddress.add(multibootInfo->memoryMapLength);
@@ -204,7 +204,7 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
     // Then copy the drives
     if (multibootInfo -> flags & DRIVE_INFO) {
         if (copyInfo->copiedBytes + multibootInfo->driveLength > maxBytes) return;
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->driveAddress);
+        auto sourceAddress = Util::Address<uint32_t>(multibootInfo->driveAddress);
         destinationAddress.copyRange(sourceAddress, multibootInfo->driveLength);
         multibootInfo->driveAddress = Kernel::MemoryLayout::PHYSICAL_TO_VIRTUAL(destinationAddress.get());
         destinationAddress = destinationAddress.add(multibootInfo->driveLength);
@@ -213,7 +213,7 @@ void Multiboot::copyMultibootInfo(const Info *source, uint8_t *destination, uint
 
     // Then copy the bootloader name
     if (multibootInfo->flags & BOOT_LOADER_NAME) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(multibootInfo->bootloaderName);
+        auto sourceAddress = Util::Address<uint32_t>(multibootInfo->bootloaderName);
         auto length = sourceAddress.stringLength() + 1;
         if (copyInfo->copiedBytes + length > maxBytes) return;
         destinationAddress.copyString(sourceAddress);

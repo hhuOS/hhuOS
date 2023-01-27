@@ -19,9 +19,9 @@
 #define __VIRTUALADDRESSSPACE__
 
 namespace Util {
-namespace Memory {
+
 class HeapMemoryManager;
-}  // namespace Memory
+
 }  // namespace Util
 
 namespace Kernel {
@@ -40,7 +40,7 @@ public:
     /**
      * Constructor for the kernel address space.
      */
-    explicit VirtualAddressSpace(Util::Memory::HeapMemoryManager &kernelHeapMemoryManager);
+    explicit VirtualAddressSpace(Util::HeapMemoryManager &kernelHeapMemoryManager);
 
     /**
      * Constructor for user address space.
@@ -60,14 +60,14 @@ public:
 
     [[nodiscard]] PageDirectory& getPageDirectory() const;
 
-    [[nodiscard]] Util::Memory::HeapMemoryManager& getMemoryManager() const;
+    [[nodiscard]] Util::HeapMemoryManager& getMemoryManager() const;
 
     [[nodiscard]] bool isKernelAddressSpace() const;
 
 private:
 
     PageDirectory *pageDirectory;
-    Util::Memory::HeapMemoryManager *memoryManager;
+    Util::HeapMemoryManager *memoryManager;
 
     bool kernelAddressSpace;
 };

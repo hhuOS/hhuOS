@@ -22,13 +22,13 @@
 
 #include "FatNode.h"
 #include "filesystem/fat/ff/source/ff.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
 
 namespace Util {
-namespace Memory {
+
 class String;
-}  // namespace Memory
+
 }  // namespace Util
 
 namespace Filesystem::Fat {
@@ -59,12 +59,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array <Util::Memory::String> getChildren() override;
+    Util::Array <Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.

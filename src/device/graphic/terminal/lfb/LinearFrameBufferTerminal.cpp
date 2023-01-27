@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "LinearFrameBufferTerminal.h"
 #include "kernel/system/System.h"
 #include "kernel/service/ProcessService.h"
@@ -138,7 +138,7 @@ void LinearFrameBufferTerminal::setCursor(bool enabled) {
 }
 
 void LinearFrameBufferTerminal::scrollUp() {
-    auto characterAddress = Util::Memory::Address<uint32_t>(characterBuffer);
+    auto characterAddress = Util::Address<uint32_t>(characterBuffer);
     characterAddress.copyRange(characterAddress.add(getColumns() * sizeof(Character)), getColumns() * (getRows() - 1) * sizeof(Character));
 
     for (uint32_t i = 0; i < getColumns(); i++) {

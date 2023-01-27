@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/AtomicBitmap.h"
+#include "lib/util/async/AtomicBitmap.h"
 #include "BlockMemoryManager.h"
 
 namespace Kernel {
@@ -83,7 +83,7 @@ private:
     uint32_t blockSize;
     bool zeroMemory = false;
 
-    Util::Memory::AtomicBitmap bitmap;
+    Util::Async::AtomicBitmap bitmap;
 
 };
 

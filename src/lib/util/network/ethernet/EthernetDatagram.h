@@ -27,8 +27,13 @@
 #include "lib/util/network/Datagram.h"
 
 namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+
 namespace Network {
 class MacAddress;
+class NetworkAddress;
 }  // namespace Network
 }  // namespace Util
 
@@ -55,7 +60,7 @@ public:
     /**
      * Constructor.
      */
-    EthernetDatagram(const Stream::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
+    EthernetDatagram(const Io::ByteArrayOutputStream &stream, const Util::Network::NetworkAddress &remoteAddress, EthernetHeader::EtherType type);
 
     /**
      * Copy Constructor.

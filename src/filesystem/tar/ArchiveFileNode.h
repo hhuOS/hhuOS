@@ -4,11 +4,11 @@
 #include <cstdint>
 
 #include "ArchiveNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/file/tar/Archive.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/tar/Archive.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem::Tar {
 
@@ -18,7 +18,7 @@ public:
     /**
      * File Constructor.
      */
-    ArchiveFileNode(Util::File::Tar::Archive &archive, Util::File::Tar::Archive::Header fileHeader);
+    ArchiveFileNode(Util::Io::Tar::Archive &archive, Util::Io::Tar::Archive::Header fileHeader);
 
     /**
      * Copy Constructor.
@@ -38,12 +38,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::String getName() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -53,7 +53,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -68,8 +68,8 @@ public:
 private:
 
     uint32_t length = 0;
-    Util::Memory::Address<uint32_t> dataAddress;
-    Util::Memory::String name;
+    Util::Address<uint32_t> dataAddress;
+    Util::String name;
 };
 
 }

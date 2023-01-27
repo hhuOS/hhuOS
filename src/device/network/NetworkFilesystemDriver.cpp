@@ -21,7 +21,7 @@
 #include "kernel/system/System.h"
 #include "device/network/NetworkDevice.h"
 #include "filesystem/core/Filesystem.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Device::Network {
 

@@ -19,9 +19,9 @@
 
 namespace Filesystem::Process {
 
-ProcessFileNode::ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content) : StringNode(name), buffer(content + "\n") {}
+ProcessFileNode::ProcessFileNode(const Util::String &name, const Util::String &content) : StringNode(name), buffer(content + "\n") {}
 
-Util::Memory::String ProcessFileNode::getString() {
+Util::String ProcessFileNode::getString() {
     return buffer;
 }
 

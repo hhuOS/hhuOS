@@ -25,9 +25,9 @@
 #include "kernel/service/NetworkService.h"
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/NetworkStack.h"
@@ -40,7 +40,7 @@
 #include "kernel/network/ip4/Ip4Module.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class OutputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -49,7 +49,7 @@ namespace Kernel::Network::Arp {
 
 Kernel::Logger ArpModule::log = Kernel::Logger::get("Arp");
 
-void ArpModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+void ArpModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto arpHeader = ArpHeader();
     arpHeader.read(stream);
 
@@ -95,7 +95,7 @@ bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAdd
         lock.release();
 
         auto &ip4Module = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIp4Module();
-        auto packet = Util::Stream::ByteArrayOutputStream();
+        auto packet = Util::Io::ByteArrayOutputStream();
         writeHeader(packet, ArpHeader::REQUEST, device, Util::Network::MacAddress::createBroadcastAddress());
 
         device.getMacAddress().write(packet);
@@ -161,7 +161,7 @@ void ArpModule::handleRequest(const Util::Network::MacAddress &sourceHardwareAdd
         auto targetHardwareAddress = getHardwareAddress(targetProtocolAddress);
         lock.release();
 
-        auto packet = Util::Stream::ByteArrayOutputStream();
+        auto packet = Util::Io::ByteArrayOutputStream();
         writeHeader(packet, ArpHeader::REPLY, device, targetHardwareAddress);
 
         device.getMacAddress().write(packet);
@@ -186,7 +186,7 @@ void ArpModule::handleReply(const Util::Network::MacAddress &sourceHardwareAddre
     }
 }
 
-void ArpModule::writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress) {
+void ArpModule::writeHeader(Util::Io::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress) {
     Ethernet::EthernetModule::writeHeader(stream, device, destinationAddress, Util::Network::Ethernet::EthernetHeader::ARP);
 
     auto header = ArpHeader();

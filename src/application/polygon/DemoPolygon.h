@@ -19,7 +19,7 @@
 #define HHUOS_DEMOPOLYGON_H
 
 #include "lib/util/game/Polygon.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 
 namespace Util {
@@ -39,7 +39,7 @@ public:
     /**
      * Constructor.
      */
-    DemoPolygon(const Util::Data::Array<double> &x, const Util::Data::Array<double> &y, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed);
+    DemoPolygon(const Util::Array<double> &x, const Util::Array<double> &y, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed);
 
     /**
      * Copy Constructor.

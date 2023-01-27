@@ -23,12 +23,12 @@
 
 #include <cstdint>
 
-#include "lib/util/data/HashMap.h"
+#include "lib/util/collection/HashMap.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device {
 namespace Network {
@@ -40,7 +40,7 @@ namespace Network {
 class NetworkAddress;
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -86,18 +86,18 @@ public:
 
     virtual void deregisterSocket(Socket &socket);
 
-    virtual void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) = 0;
+    virtual void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) = 0;
 
 protected:
 
-    void invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Stream::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device);
+    void invokeNextLayerModule(uint32_t protocolId, LayerInformation information, Util::Io::ByteArrayInputStream &stream, Device::Network::NetworkDevice &device);
 
     Util::Async::Spinlock socketLock;
-    Util::Data::ArrayList<Socket*> socketList;
+    Util::ArrayList<Socket*> socketList;
 
 private:
 
-    Util::Data::HashMap<uint32_t, NetworkModule*> nextLayerModules;
+    Util::HashMap<uint32_t, NetworkModule*> nextLayerModules;
 };
 
 }

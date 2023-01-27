@@ -18,7 +18,7 @@
 #include "kernel/paging/MemoryLayout.h"
 #include "device/cpu/Cpu.h"
 #include "lib/util/graphic/Fonts.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "BlueScreen.h"
 #include "device/cpu/IoPort.h"
 #include "kernel/process/ThreadState.h"
@@ -27,7 +27,7 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
@@ -62,7 +62,7 @@ void BlueScreen::setCgaMode(uint32_t address, uint16_t columns, uint16_t rows) {
 }
 
 void BlueScreen::show(const InterruptFrame &frame) {
-    auto address = Util::Memory::Address<uint32_t>(fbAddress);
+    auto address = Util::Address<uint32_t>(fbAddress);
     auto lfb = Util::Graphic::LinearFrameBuffer(&address, fbResX, fbResY, fbColorDepth, fbPitch);
     auto pixelDrawer = Util::Graphic::PixelDrawer(lfb);
     auto stringDrawer = Util::Graphic::StringDrawer(pixelDrawer);
@@ -74,7 +74,7 @@ void BlueScreen::show(const InterruptFrame &frame) {
     print(stringDrawer, "] ");
     printLine(stringDrawer, Device::Cpu::getExceptionName(frame.interrupt));
 
-    if (Util::Memory::Address<uint32_t>(Util::System::errorMessage).stringLength() > 0) {
+    if (Util::Address<uint32_t>(Util::System::errorMessage).stringLength() > 0) {
         printLine(stringDrawer, "");
         printLine(stringDrawer, Util::System::errorMessage);
     }
@@ -174,7 +174,7 @@ void BlueScreen::clear(Util::Graphic::PixelDrawer &pixelDrawer) {
         }
     } else {
         for (uint32_t i = 0; i < static_cast<uint32_t>(fbResX * fbResY); i++) {
-            Util::Memory::Address<uint32_t> cgaMemory(fbAddress);
+            Util::Address<uint32_t> cgaMemory(fbAddress);
             cgaMemory.setShort(0x1700, i * 2);
         }
 
@@ -191,7 +191,7 @@ void BlueScreen::print(Util::Graphic::StringDrawer &stringDrawer, const char *st
         stringDrawer.drawString(Util::Graphic::Fonts::TERMINAL_FONT, posX * Util::Graphic::Fonts::TERMINAL_FONT.getCharWidth(),
                                 posY * Util::Graphic::Fonts::TERMINAL_FONT.getCharHeight(), string, Util::Graphic::Colors::WHITE,
                                 Util::Graphic::Colors::INVISIBLE);
-        posX += Util::Memory::Address<uint32_t>(string).stringLength();
+        posX += Util::Address<uint32_t>(string).stringLength();
     } else {
         for (uint32_t i = 0; string[i] != 0; i++) {
             putCharCga(string[i]);
@@ -240,7 +240,7 @@ void BlueScreen::putCharCga(char c) {
 
     uint16_t position = (posY * fbResX + posX) * 2;
     uint8_t colorAttribute = 0x17;
-    Util::Memory::Address<uint32_t> cgaMemory(fbAddress);
+    Util::Address<uint32_t> cgaMemory(fbAddress);
 
     cgaMemory.setByte(c, position);
     cgaMemory.setByte(colorAttribute, position + 1);

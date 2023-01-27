@@ -22,9 +22,9 @@
 
 #include "filesystem/fat/ff/source/ff.h"
 #include "filesystem/core/PhysicalDriver.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
+#include "lib/util/io/file/File.h"
 
 namespace Device {
 namespace Storage {
@@ -35,12 +35,12 @@ namespace Filesystem {
 class Node;
 }  // namespace Filesystem
 namespace Util {
-namespace Data {
+
 template <typename T> class Array;
-}  // namespace Data
-namespace Memory {
+namespace Async {
 class AtomicBitmap;
-}  // namespace Memory
+}  // namespace Async
+
 }  // namespace Util
 
 namespace Filesystem::Fat {
@@ -85,17 +85,17 @@ public:
     /**
      * Overriding function from Driver.
      */
-    Node* getNode(const Util::Memory::String &path) override;
+    Node* getNode(const Util::String &path) override;
 
     /**
      * Overriding function from Driver.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
 
     /**
      * Overriding function from Driver.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    bool deleteNode(const Util::String &path) override;
 
     static Device::Storage::StorageDevice& getStorageDevice(uint8_t volumeId);
 
@@ -104,8 +104,8 @@ private:
     uint32_t volumeId{};
     FATFS fatVolume{};
 
-    static Util::Memory::AtomicBitmap volumeIdAllocator;
-    static Util::Data::Array<Device::Storage::StorageDevice*> deviceMap;
+    static Util::Async::AtomicBitmap volumeIdAllocator;
+    static Util::Array<Device::Storage::StorageDevice*> deviceMap;
 };
 
 }

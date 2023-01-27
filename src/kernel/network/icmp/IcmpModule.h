@@ -45,7 +45,7 @@ class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -75,7 +75,7 @@ public:
      */
     ~IcmpModule() = default;
 
-    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writePacket(Util::Network::Icmp::IcmpHeader::Type type, uint8_t code, const Util::Network::Ip4::Ip4Address &sourceAddress,
                             const Util::Network::Ip4::Ip4Address &destinationAddress, const uint8_t *buffer, uint16_t length);

@@ -20,15 +20,14 @@
 
 #include <cstdint>
 
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util {
+class HeapMemoryManager;
+
 namespace Async {
 class Spinlock;
 }  // namespace Async
-namespace Memory {
-class HeapMemoryManager;
-}  // namespace Memory
 }  // namespace Util
 
 namespace Kernel {
@@ -153,7 +152,7 @@ private:
      */
     static uint32_t calculatePhysicalMemorySize();
 
-    static Util::Memory::HeapMemoryManager& initializeKernelHeap();
+    static Util::HeapMemoryManager& initializeKernelHeap();
 
     static bool initialized;
 
@@ -161,7 +160,7 @@ private:
     static Util::Async::Spinlock serviceLock;
 
     static TaskStateSegment taskStateSegment;
-    static Util::Memory::HeapMemoryManager *kernelHeapMemoryManager;
+    static Util::HeapMemoryManager *kernelHeapMemoryManager;
     static InterruptHandler *pagefaultHandler;
     static SystemCall systemCall;
     static Logger log; // Use only after _init() has finished!

@@ -18,10 +18,10 @@
 #include "MouseCursor.h"
 
 #include "lib/util/game/Graphics2D.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
-    auto string = Util::Memory::String();
+    auto string = Util::String();
     if (leftPressed) string += "l";
     if (middlePressed) string += "m";
     if (rightPressed) string += "r";

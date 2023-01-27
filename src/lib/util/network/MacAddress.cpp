@@ -20,7 +20,7 @@
 
 #include "MacAddress.h"
 
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/network/NetworkAddress.h"
 
 namespace Util::Network {
@@ -46,11 +46,11 @@ NetworkAddress *MacAddress::createCopy() const {
     return new MacAddress(*this);
 }
 
-Util::Memory::String MacAddress::toString() const {
-    return Util::Memory::String::format("%02x:%02x:%02x:%02x:%02x:%02x", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
+Util::String MacAddress::toString() const {
+    return Util::String::format("%02x:%02x:%02x:%02x:%02x:%02x", buffer[0], buffer[1], buffer[2], buffer[3], buffer[4], buffer[5]);
 }
 
-void MacAddress::setAddress(const Util::Memory::String &string) {
+void MacAddress::setAddress(const Util::String &string) {
     Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MacAddress: Cannot be parsed from string!");
 }
 

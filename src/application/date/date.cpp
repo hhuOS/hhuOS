@@ -17,11 +17,11 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "lib/util/time/Date.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -31,14 +31,14 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto date = Util::Time::getCurrentDate();
-    Util::System::out << Util::Memory::String::format("%u-%02u-%02u %02u:%02u:%02u",
+    Util::System::out << Util::String::format("%u-%02u-%02u %02u:%02u:%02u",
           date.getYear(), date.getMonth(), date.getDayOfMonth(), date.getHours(), date.getMinutes(), date.getSeconds())
-          << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+          << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
 
     return 0;
 }

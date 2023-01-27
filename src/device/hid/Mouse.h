@@ -21,10 +21,10 @@
 #include <cstdint>
 
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/stream/FilterInputStream.h"
+#include "lib/util/io/stream/FilterInputStream.h"
 #include "Ps2Device.h"
-#include "lib/util/stream/PipedInputStream.h"
-#include "lib/util/stream/PipedOutputStream.h"
+#include "lib/util/io/stream/PipedInputStream.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
 
 namespace Kernel {
 class Logger;
@@ -34,7 +34,7 @@ struct InterruptFrame;
 namespace Device {
 class Ps2Controller;
 
-class Mouse : public Ps2Device, public Util::Stream::FilterInputStream, public Kernel::InterruptHandler {
+class Mouse : public Ps2Device, public Util::Io::FilterInputStream, public Kernel::InterruptHandler {
 
 public:
 
@@ -100,8 +100,8 @@ private:
     int32_t dx = 0;
     int32_t dy = 0;
 
-    Util::Stream::PipedOutputStream outputStream;
-    Util::Stream::PipedInputStream inputStream;
+    Util::Io::PipedOutputStream outputStream;
+    Util::Io::PipedInputStream inputStream;
 
     static Kernel::Logger log;
 

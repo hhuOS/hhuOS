@@ -26,7 +26,7 @@
 #include "lib/util/network/MacAddress.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -64,9 +64,9 @@ public:
      */
     ~EthernetHeader() = default;
 
-    void read(Util::Stream::InputStream &stream);
+    void read(Util::Io::InputStream &stream);
 
-    void write(Util::Stream::OutputStream &stream);
+    void write(Util::Io::OutputStream &stream);
 
     [[nodiscard]] const Util::Network::MacAddress& getDestinationAddress() const;
 

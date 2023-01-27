@@ -25,24 +25,19 @@
 
 #include "Service.h"
 #include "kernel/network/NetworkStack.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
 #include "lib/util/network/Socket.h"
+#include "device/network/NetworkDevice.h"
 
 namespace Util {
 namespace Network {
 class MacAddress;
 }  // namespace Network
 }  // namespace Util
-
-namespace Device {
-namespace Network {
-class NetworkDevice;
-}  // namespace Network
-}  // namespace Device
 
 namespace Kernel {
 namespace Network {
@@ -80,9 +75,9 @@ public:
 
     void setDefaultRoute(const Network::Ip4::Ip4Route &route);
 
-    bool isNetworkDeviceRegistered(const Util::Memory::String &identifier);
+    bool isNetworkDeviceRegistered(const Util::String &identifier);
 
-    Device::Network::NetworkDevice& getNetworkDevice(const Util::Memory::String &identifier);
+    Device::Network::NetworkDevice& getNetworkDevice(const Util::String &identifier);
 
     Device::Network::NetworkDevice& getNetworkDevice(const Util::Network::MacAddress &address);
 
@@ -94,7 +89,7 @@ public:
 
 private:
 
-    Util::Data::ArrayList<Device::Network::NetworkDevice*> devices;
+    Util::ArrayList<Device::Network::NetworkDevice*> devices;
     Network::NetworkStack networkStack;
 };
 

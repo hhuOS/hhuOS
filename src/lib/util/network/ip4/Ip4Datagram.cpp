@@ -24,6 +24,12 @@
 #include "lib/util/network/ip4/Ip4Header.h"
 #include "lib/util/network/NetworkAddress.h"
 
+namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+}  // namespace Util
+
 namespace Util::Network::Ip4 {
 
 Ip4Datagram::Ip4Datagram() : Datagram(NetworkAddress::IP4) {}
@@ -34,7 +40,7 @@ Ip4Datagram::Ip4Datagram(const uint8_t *buffer, uint16_t length, const Util::Net
 Ip4Datagram::Ip4Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol) :
         Datagram(buffer, length, remoteAddress), protocol(protocol) {}
 
-Ip4Datagram::Ip4Datagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol) :
+Ip4Datagram::Ip4Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, Ip4Header::Protocol protocol) :
         Datagram(stream, remoteAddress), protocol(protocol) {}
 
 Ip4Header::Protocol Ip4Datagram::getProtocol() const {

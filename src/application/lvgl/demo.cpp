@@ -24,17 +24,17 @@
 #include <stress/lv_demo_stress.h>
 #include <widgets/lv_demo_widgets.h>
 
-#include "lib/util/file/File.h" // IWYU pragma: keep
-#include "lib/util/stream/PrintWriter.h" // IWYU pragma: keep
+#include "lib/util/io/file/File.h" // IWYU pragma: keep
+#include "lib/util/io/stream/PrintWriter.h" // IWYU pragma: keep
 #include "lib/util/graphic/Ansi.h" // IWYU pragma: keep
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
 #include "lib/lvgl/LvglDriver.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -45,14 +45,14 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
-    auto demo = Util::Memory::String(arguments.length() > 0 ? arguments[0] : "benchmark");
+    auto demo = Util::String(arguments.length() > 0 ? arguments[0] : "benchmark");
 
-    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto driver = LvglDriver(lfb);
     Util::Graphic::Ansi::prepareGraphicalApplication(false);

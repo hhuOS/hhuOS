@@ -24,7 +24,7 @@
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device {
@@ -67,7 +67,7 @@ void ParallelPort::initializePort(ParallelPort::LptPort port) {
     log.info("Parallel port [%s] detected", portToString(port));
 
     auto *parallelPort = new ParallelPort(port);
-    auto *streamNode = new Filesystem::Memory::StreamNode(Util::Memory::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Stream::OutputStream*>(parallelPort));
+    auto *streamNode = new Filesystem::Memory::StreamNode(Util::String(portToString(port)).toLowerCase(), reinterpret_cast<Util::Io::OutputStream*>(parallelPort));
 
     auto &filesystem = Kernel::System::getService<Kernel::FilesystemService>().getFilesystem();
     auto &driver = filesystem.getVirtualDriver("/device");
@@ -85,7 +85,7 @@ void ParallelPort::initializeAvailablePorts() {
     initializePort(LPT3);
 }
 
-ParallelPort::LptPort ParallelPort::portFromString(const Util::Memory::String &portName) {
+ParallelPort::LptPort ParallelPort::portFromString(const Util::String &portName) {
     const auto port = portName.toLowerCase();
 
     if (port == "lpt1") {

@@ -4,9 +4,9 @@
 #include "VesaBiosExtensions.h"
 #include "kernel/log/Logger.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 namespace Device::Graphic {
 
@@ -84,7 +84,7 @@ bool VesaBiosExtensions::isAvailable() {
 
     // Initialize return data memory
     VbeInfo info{};
-    Util::Memory::Address<uint32_t>(vbeInfo).copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
+    Util::Address<uint32_t>(vbeInfo).copyRange(Util::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosParameters);
@@ -93,7 +93,7 @@ bool VesaBiosExtensions::isAvailable() {
     }
 
     // Free allocated space in lower memory and check if return data contains correct signature ('VESA')
-    Util::Memory::String signature = vbeInfo->signature;
+    Util::String signature = vbeInfo->signature;
     Kernel::System::getService<Kernel::MemoryService>().freeLowerMemory(vbeInfo, 16);
 
     return signature == VESA_SIGNATURE;
@@ -111,7 +111,7 @@ Util::Graphic::LinearFrameBuffer* VesaBiosExtensions::initializeLinearFrameBuffe
     return new Util::Graphic::LinearFrameBuffer(reinterpret_cast<void*>(vbeModeInfo.physbase), vbeModeInfo.Xres, vbeModeInfo.Yres, vbeModeInfo.bpp, vbeModeInfo.pitch);
 }
 
-Util::Data::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {
+Util::Array<LinearFrameBufferProvider::ModeInfo> VesaBiosExtensions::getAvailableModes() const {
     return supportedModes.toArray();
 }
 
@@ -140,7 +140,7 @@ VesaBiosExtensions::VbeInfo VesaBiosExtensions::getVbeInfo() {
 
     // Initialize return data memory
     VbeInfo info{};
-    Util::Memory::Address<uint32_t>(vbeInfo).copyRange(Util::Memory::Address<uint32_t>(&info), sizeof(VbeInfo));
+    Util::Address<uint32_t>(vbeInfo).copyRange(Util::Address<uint32_t>(&info), sizeof(VbeInfo));
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosParameters);
@@ -167,7 +167,7 @@ VesaBiosExtensions::VbeModeInfo VesaBiosExtensions::getModeInfo(uint16_t mode) {
     biosParameters.es = static_cast<uint16_t>(modeInfoPhysicalAddress >> 4);
 
     // Initialize return data memory
-    Util::Memory::Address<uint32_t>(modeInfo).setRange(0, VBE_MODE_INFO_SIZE);
+    Util::Address<uint32_t>(modeInfo).setRange(0, VBE_MODE_INFO_SIZE);
 
     // Perform the bios call and check if it was successful
     auto biosReturn = Bios::interrupt(0x10, biosParameters);

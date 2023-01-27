@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem::Memory {
 
@@ -32,7 +32,7 @@ public:
     /**
      * Constructor.
      */
-    explicit RandomNode(const Util::Memory::String &name = "random");
+    explicit RandomNode(const Util::String &name = "random");
 
     /**
      * Copy Constructor.
@@ -52,7 +52,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.

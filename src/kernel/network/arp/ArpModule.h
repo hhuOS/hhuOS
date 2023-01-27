@@ -27,10 +27,10 @@
 #include "kernel/network/NetworkModule.h"
 #include "ArpHeader.h"
 #include "ArpEntry.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Device {
@@ -48,7 +48,7 @@ class Ip4Address;
 }  // namespace Ip4
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 class OutputStream;
 }  // namespace Stream
@@ -79,11 +79,11 @@ public:
      */
     ~ArpModule() = default;
 
-    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     bool resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAddress, Util::Network::MacAddress &hardwareAddress, Device::Network::NetworkDevice &device);
 
-    static void writeHeader(Util::Stream::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress);
+    static void writeHeader(Util::Io::OutputStream &stream, ArpHeader::Operation operation, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress);
 
     void setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress);
 
@@ -98,7 +98,7 @@ private:
     void handleReply(const Util::Network::MacAddress &sourceHardwareAddress, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::MacAddress &targetHardwareAddress, const Util::Network::Ip4::Ip4Address &targetProtocolAddress);
 
     Util::Async::ReentrantSpinlock lock;
-    Util::Data::ArrayList<ArpEntry> arpCache;
+    Util::ArrayList<ArpEntry> arpCache;
 
     static Kernel::Logger log;
 

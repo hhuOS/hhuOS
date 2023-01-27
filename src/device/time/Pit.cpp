@@ -22,7 +22,7 @@
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 struct InterruptFrame;

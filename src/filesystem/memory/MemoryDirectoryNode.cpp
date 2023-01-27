@@ -18,22 +18,22 @@
 #include "MemoryDirectoryNode.h"
 
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Filesystem::Memory {
 
-MemoryDirectoryNode::MemoryDirectoryNode(const Util::Memory::String &name) : MemoryNode(name) {}
+MemoryDirectoryNode::MemoryDirectoryNode(const Util::String &name) : MemoryNode(name) {}
 
-Util::File::Type MemoryDirectoryNode::getFileType() {
-    return Util::File::Type::DIRECTORY;
+Util::Io::File::Type MemoryDirectoryNode::getType() {
+    return Util::Io::File::DIRECTORY;
 }
 
 uint64_t MemoryDirectoryNode::getLength() {
     return 0;
 }
 
-Util::Data::Array<Util::Memory::String> MemoryDirectoryNode::getChildren() {
-    Util::Data::Array<Util::Memory::String> ret(children.size());
+Util::Array<Util::String> MemoryDirectoryNode::getChildren() {
+    Util::Array<Util::String> ret(children.size());
     for(uint32_t i = 0; i < children.size(); i++) {
         ret[i] = children.get(i)->getName();
     }
@@ -49,7 +49,7 @@ uint64_t MemoryDirectoryNode::writeData(const uint8_t *sourceBuffer, uint64_t po
     Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MemoryDriver: Trying to write to a directory!");
 }
 
-MemoryNode *MemoryDirectoryNode::getChildByName(const Util::Memory::String &childName) {
+MemoryNode *MemoryDirectoryNode::getChildByName(const Util::String &childName) {
     for(uint32_t i = 0; i < children.size(); i++) {
         if(children.get(i)->getName() == childName) {
             return children.get(i);

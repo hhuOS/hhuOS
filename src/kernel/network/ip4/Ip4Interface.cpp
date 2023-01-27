@@ -31,7 +31,7 @@ Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address, const 
                            const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
         address(address), networkAddress(networkAddress), networkMask(networkMask), device(device) {}
 
-Util::Memory::String Ip4Interface::getDeviceIdentifier() const {
+Util::String Ip4Interface::getDeviceIdentifier() const {
     return device.getIdentifier();
 }
 

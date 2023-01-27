@@ -16,6 +16,6 @@
 
 cmake_minimum_required(VERSION 3.14)
  
-target_sources(lib.util PUBLIC
+target_sources(lib.network PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/udp/UdpDatagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/udp/UdpHeader.cpp)

@@ -21,9 +21,9 @@
 
 namespace Device::Graphic {
 
-TerminalNode::TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal){}
+TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal){}
 
-bool TerminalNode::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {
         case Util::Graphic::Terminal::Command::SET_ECHO:
             terminal->setEcho(parameters[0]);

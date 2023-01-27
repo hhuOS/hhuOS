@@ -4,15 +4,15 @@
 #include <cstdint>
 
 #include "ArchiveNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Util {
-namespace File {
+namespace Io {
 namespace Tar {
 class Archive;
 }  // namespace Tar
@@ -27,7 +27,7 @@ public:
     /**
      * Constructor.
      */
-    ArchiveDirectoryNode(Util::File::Tar::Archive &archive, const Util::Memory::String &path);
+    ArchiveDirectoryNode(Util::Io::Tar::Archive &archive, const Util::String &path);
 
     /**
      * Copy Constructor.
@@ -47,12 +47,12 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Memory::String getName() override;
+    Util::String getName() override;
 
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -62,7 +62,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::Data::Array<Util::Memory::String> getChildren() override;
+    Util::Array<Util::String> getChildren() override;
 
     /**
      * Overriding function from Node.
@@ -76,8 +76,8 @@ public:
 
 private:
 
-    Util::Memory::String name;
-    Util::Data::ArrayList<Util::Memory::String> children;
+    Util::String name;
+    Util::ArrayList<Util::String> children;
 
 };
 

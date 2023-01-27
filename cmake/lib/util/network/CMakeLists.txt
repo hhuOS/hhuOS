@@ -16,8 +16,15 @@
 
 cmake_minimum_required(VERSION 3.14)
 
+project(lib.network)
+message(STATUS "Project " ${PROJECT_NAME})
+
+include_directories(${HHUOS_SRC_DIR})
+
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+
 # Add subdirectories
-target_sources(lib.util PUBLIC
+target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/Datagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/MacAddress.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/NetworkAddress.cpp
@@ -30,3 +37,19 @@ add_subdirectory(ethernet)
 add_subdirectory(icmp)
 add_subdirectory(ip4)
 add_subdirectory(udp)
+
+# Kernel space version
+project(lib.kernel.network)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.network)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/kernel.cpp)
+
+# User space version
+project(lib.user.network)
+message(STATUS "Project " ${PROJECT_NAME})
+include_directories(${HHUOS_SRC_DIR})
+add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
+target_link_libraries(${PROJECT_NAME} lib.network)
+target_sources(${PROJECT_NAME} PUBLIC ${HHUOS_SRC_DIR}/lib/user.cpp)

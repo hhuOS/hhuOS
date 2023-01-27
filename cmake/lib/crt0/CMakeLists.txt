@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.14)
 
-project(lib.crt0)
+project(lib.user.crt0)
 message(STATUS "Project " ${PROJECT_NAME})
 
 include_directories(${HHUOS_SRC_DIR})

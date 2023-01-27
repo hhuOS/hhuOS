@@ -19,15 +19,16 @@
 #define HHUOS_MEMORYDRIVER_H
 
 #include "filesystem/core/VirtualDriver.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Filesystem {
 class Node;
+
 namespace Memory {
 class MemoryDirectoryNode;
 class MemoryNode;
-}  // namespace Memory
+}
 }  // namespace Filesystem
 
 namespace Filesystem::Memory {
@@ -58,17 +59,17 @@ public:
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    Node* getNode(const Util::Memory::String &path) override;
+    Node* getNode(const Util::String &path) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool createNode(const Util::Memory::String &path, Util::File::Type type) override;
+    bool createNode(const Util::String &path, Util::Io::File::Type type) override;
 
     /**
      * Overriding virtual function from VirtualDriver.
      */
-    bool deleteNode(const Util::Memory::String &path) override;
+    bool deleteNode(const Util::String &path) override;
 
     /**
      * Add an existing virtual node at a specified path.
@@ -78,7 +79,7 @@ public:
      *
      * @return true on success
      */
-    bool addNode(const Util::Memory::String &path, MemoryNode *node);
+    bool addNode(const Util::String &path, MemoryNode *node);
 
 private:
 

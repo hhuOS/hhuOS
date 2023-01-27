@@ -56,7 +56,7 @@ public:
      *
      * @return The FsNode (or nulltpr on failure)
      */
-    virtual Node* getNode(const Util::Memory::String &path) = 0;
+    virtual Node* getNode(const Util::String &path) = 0;
 
     /**
      * Create a new empty file or directory at a given path.
@@ -66,7 +66,7 @@ public:
      *
      * @return true on success
      */
-    virtual bool createNode(const Util::Memory::String &path, Util::File::Type type) = 0;
+    virtual bool createNode(const Util::String &path, Util::Io::File::Type type) = 0;
 
     /**
      * Delete an existing file or directory at a given path.
@@ -76,7 +76,7 @@ public:
      *
      * @return true on success
      */
-    virtual bool deleteNode(const Util::Memory::String &path) = 0;
+    virtual bool deleteNode(const Util::String &path) = 0;
 };
 
 }

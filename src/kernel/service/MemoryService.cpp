@@ -31,9 +31,9 @@
 #include "kernel/paging/VirtualAddressSpace.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/system/SystemCall.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/HeapMemoryManager.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/HeapMemoryManager.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 

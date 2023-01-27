@@ -21,8 +21,8 @@
 #include "Socket.h"
 
 #include "lib/interface.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util {
 namespace Network {
@@ -44,11 +44,11 @@ Socket Socket::createSocket(Socket::Type socketType) {
 }
 
 bool Socket::bind(const NetworkAddress &address) const {
-    return ::controlFile(fileDescriptor, BIND, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+    return ::controlFile(fileDescriptor, BIND, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
 bool Socket::getLocalAddress(NetworkAddress &address) const {
-    return ::controlFile(fileDescriptor, GET_LOCAL_ADDRESS, Util::Data::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+    return ::controlFile(fileDescriptor, GET_LOCAL_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
 bool Socket::send(const Datagram &datagram) const {

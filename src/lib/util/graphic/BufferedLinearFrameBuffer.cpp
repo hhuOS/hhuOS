@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/math/Math.h"
 #include "BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -24,7 +24,7 @@ namespace Util::Graphic {
 
 BufferedLinearFrameBuffer::BufferedLinearFrameBuffer(const LinearFrameBuffer &lfb, bool enableAcceleration) :
         LinearFrameBuffer(new uint8_t[lfb.getPitch() * lfb.getResolutionY()], lfb.getResolutionX(), lfb.getResolutionY(), lfb.getColorDepth(), lfb.getPitch()),
-        targetBuffer(enableAcceleration ? *Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Memory::Address<uint32_t>(lfb.getBuffer())) {
+        targetBuffer(enableAcceleration ? *Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Address<uint32_t>(lfb.getBuffer())) {
     clear();
 }
 

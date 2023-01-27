@@ -23,7 +23,7 @@
 #include "lib/util/network/NumberUtil.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -31,13 +31,13 @@ class OutputStream;
 
 namespace Util::Network::Icmp {
 
-void IcmpHeader::read(Util::Stream::InputStream &stream) {
+void IcmpHeader::read(Util::Io::InputStream &stream) {
     type = static_cast<Type>(Util::Network::NumberUtil::readUnsigned8BitValue(stream));
     code = Util::Network::NumberUtil::readUnsigned8BitValue(stream);
     checksum = Util::Network::NumberUtil::readUnsigned16BitValue(stream);
 }
 
-void IcmpHeader::write(Util::Stream::OutputStream &stream) {
+void IcmpHeader::write(Util::Io::OutputStream &stream) {
     Util::Network::NumberUtil::writeUnsigned8BitValue(type, stream);
     Util::Network::NumberUtil::writeUnsigned8BitValue(code, stream);
     Util::Network::NumberUtil::writeUnsigned16BitValue(checksum, stream);

@@ -15,24 +15,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "MemoryFileNode.h"
 #include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-MemoryFileNode::MemoryFileNode(const Util::Memory::String &name) : MemoryNode(name) {}
+MemoryFileNode::MemoryFileNode(const Util::String &name) : MemoryNode(name) {}
 
-Util::File::Type MemoryFileNode::getFileType() {
-    return Util::File::Type::REGULAR;
+Util::Io::File::Type MemoryFileNode::getType() {
+    return Util::Io::File::REGULAR;
 }
 
 uint64_t MemoryFileNode::getLength() {
     return length;
 }
 
-Util::Data::Array<Util::Memory::String> MemoryFileNode::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
+Util::Array<Util::String> MemoryFileNode::getChildren() {
+    return Util::Array<Util::String>(0);
 }
 
 uint64_t MemoryFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
@@ -44,21 +44,21 @@ uint64_t MemoryFileNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t 
         numBytes = (length - pos);
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(data).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address<uint32_t>(data).add(pos);
+    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;
 }
 
 uint64_t MemoryFileNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto sourceAddress = Util::Memory::Address<uint32_t>(sourceBuffer);
+    auto sourceAddress = Util::Address<uint32_t>(sourceBuffer);
 
     if(pos + numBytes >= length) {
         auto newLength = pos + numBytes;
         auto *newData = new uint8_t[newLength];
-        auto oldAddress = Util::Memory::Address<uint32_t>(data);
-        auto newAddress = Util::Memory::Address<uint32_t>(newData);
+        auto oldAddress = Util::Address<uint32_t>(data);
+        auto newAddress = Util::Address<uint32_t>(newData);
 
         newAddress.setRange(0, newLength);
         newAddress.copyRange(oldAddress, length);
@@ -68,7 +68,7 @@ uint64_t MemoryFileNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, ui
         length = newLength;
     }
 
-    auto targetAddress = Util::Memory::Address<uint32_t>(data).add(pos);
+    auto targetAddress = Util::Address<uint32_t>(data).add(pos);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;

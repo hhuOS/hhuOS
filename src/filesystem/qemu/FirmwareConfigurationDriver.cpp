@@ -22,15 +22,15 @@
 #include "FirmwareConfigurationNode.h"
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/memory/MemoryDirectoryNode.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Filesystem::Qemu {
 
 FirmwareConfigurationDriver::FirmwareConfigurationDriver(Device::FirmwareConfiguration &device) {
     for (const auto &file : device.getFiles()) {
-        auto tokens = Util::Memory::String(file.name).split("/");
+        auto tokens = Util::String(file.name).split("/");
 
-        Util::Memory::String path = "/";
+        Util::String path = "/";
         for (uint32_t i = 0; i < tokens.length() - 1; i++) {
             addNode(path, new Memory::MemoryDirectoryNode(tokens[i]));
             path += tokens[i] + "/";
@@ -40,11 +40,11 @@ FirmwareConfigurationDriver::FirmwareConfigurationDriver(Device::FirmwareConfigu
     }
 }
 
-bool FirmwareConfigurationDriver::createNode(const Util::Memory::String &path, Util::File::Type type) {
+bool FirmwareConfigurationDriver::createNode(const Util::String &path, Util::Io::File::Type type) {
     return false;
 }
 
-bool FirmwareConfigurationDriver::deleteNode(const Util::Memory::String &path) {
+bool FirmwareConfigurationDriver::deleteNode(const Util::String &path) {
     return false;
 }
 

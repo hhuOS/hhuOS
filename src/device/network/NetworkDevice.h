@@ -21,14 +21,14 @@
 #include <cstdint>
 
 #include "kernel/memory/BitmapMemoryManager.h"
-#include "lib/util/data/ArrayBlockingQueue.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
 #include "lib/util/network/MacAddress.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 namespace Network {
@@ -59,7 +59,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit NetworkDevice(const Util::Memory::String &identifier);
+    explicit NetworkDevice(const Util::String &identifier);
 
     /**
      * Copy-constructor.
@@ -76,7 +76,7 @@ public:
      */
     virtual ~NetworkDevice();
 
-    [[nodiscard]] Util::Memory::String getIdentifier() const;
+    [[nodiscard]] Util::String getIdentifier() const;
 
     [[nodiscard]] virtual Util::Network::MacAddress getMacAddress() const = 0;
 
@@ -98,12 +98,12 @@ private:
 
     void freePacketBuffer(void *buffer);
 
-    Util::Memory::String identifier;
+    Util::String identifier;
 
     uint8_t *packetMemory;
     Kernel::BitmapMemoryManager packetMemoryManager;
-    Util::Data::ArrayBlockingQueue<Packet> incomingPacketQueue;
-    Util::Data::ArrayBlockingQueue<Packet> outgoingPacketQueue;
+    Util::ArrayBlockingQueue<Packet> incomingPacketQueue;
+    Util::ArrayBlockingQueue<Packet> outgoingPacketQueue;
     Util::Async::Spinlock outgoingPacketLock;
 
     PacketReader *reader;

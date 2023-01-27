@@ -17,14 +17,14 @@
 
 #include <stdarg.h>
 
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "TimeService.h"
 #include "kernel/system/SystemCall.h"
 #include "kernel/system/System.h"
 #include "device/time/DateProvider.h"
 #include "device/time/TimeProvider.h"
 #include "kernel/service/SchedulerService.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 

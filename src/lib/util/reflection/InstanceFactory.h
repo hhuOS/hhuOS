@@ -18,12 +18,12 @@
 #ifndef HHUOS_INSTANCEFACTORY_H
 #define HHUOS_INSTANCEFACTORY_H
 
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
-namespace Data {
+
 template <typename K, typename V> class HashMap;
-}  // namespace Data
+
 namespace Reflection {
 class Prototype;
 }  // namespace Reflection
@@ -48,14 +48,14 @@ public:
      *
      * @return A pointer to newly created instance
      */
-    static Prototype* createInstance(const Memory::String &type);
+    static Prototype* createInstance(const String &type);
 
     /**
      * Remove a prototype.
      *
      * @param type The type
      */
-    static void deregisterPrototype(const Memory::String &type);
+    static void deregisterPrototype(const String &type);
 
     /**
      * Add a prototype.
@@ -71,7 +71,7 @@ private:
     /**
      * Contains prototypes for all available implementations.
      */
-    static Data::HashMap<Memory::String, Prototype*> prototypeTable;
+    static HashMap<String, Prototype*> prototypeTable;
 };
 
 }

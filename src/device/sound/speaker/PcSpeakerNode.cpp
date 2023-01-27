@@ -20,20 +20,20 @@
 
 namespace Device::Sound {
 
-PcSpeakerNode::PcSpeakerNode(const Util::Memory::String &name) : StringNode(name) {}
+PcSpeakerNode::PcSpeakerNode(const Util::String &name) : StringNode(name) {}
 
-Util::Memory::String PcSpeakerNode::getString() {
+Util::String PcSpeakerNode::getString() {
     return buffer;
 }
 
-Util::File::Type PcSpeakerNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type PcSpeakerNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t PcSpeakerNode::writeData(const uint8_t *sourceBuffer, uint64_t pos, uint64_t numBytes) {
-    auto data = Util::Memory::String(sourceBuffer, numBytes);
-    currentFrequency = Util::Memory::String::parseInt(data);
-    buffer = Util::Memory::String::format("%u\n", currentFrequency);
+    auto data = Util::String(sourceBuffer, numBytes);
+    currentFrequency = Util::String::parseInt(data);
+    buffer = Util::String::format("%u\n", currentFrequency);
 
     PcSpeaker::play(currentFrequency);
     return numBytes;

@@ -22,15 +22,15 @@
 #include <cstdint>
 
 #include "lib/util/async/Runnable.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
-namespace File {
+namespace Io {
 class File;
 }  // namespace File
 }  // namespace Util
@@ -41,7 +41,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Shell(const Util::Memory::String &path = "/");
+    explicit Shell(const Util::String &path = "/");
 
     /**
      * Copy Constructor.
@@ -80,21 +80,21 @@ private:
 
     void parseInput();
 
-    [[nodiscard]] Util::Memory::String checkPath(const Util::Memory::String &command) const;
+    [[nodiscard]] Util::String checkPath(const Util::String &command) const;
 
-    Util::Memory::String checkDirectory(const Util::Memory::String &command, Util::File::File &directory) const;
+    Util::String checkDirectory(const Util::String &command, Util::Io::File &directory) const;
 
-    static void cd(const Util::Data::Array<Util::Memory::String> &arguments);
+    static void cd(const Util::Array<Util::String> &arguments);
 
-    static void executeBinary(const Util::Memory::String &path, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments, const Util::Memory::String &outputPath, bool async);
+    static void executeBinary(const Util::String &path, const Util::String &command, const Util::Array<Util::String> &arguments, const Util::String &outputPath, bool async);
 
     bool isRunning = true;
-    Util::Memory::String startDirectory;
-    Util::Memory::String currentLine;
-    Util::Memory::String historyCurrentLine;
+    Util::String startDirectory;
+    Util::String currentLine;
+    Util::String historyCurrentLine;
     Util::Graphic::Ansi::CursorPosition startPosition{};
 
-    Util::Data::ArrayList<Util::Memory::String> history;
+    Util::ArrayList<Util::String> history;
     uint32_t historyIndex = 0;
 
     static const constexpr char *PATH = "/initrd/bin:/bin";

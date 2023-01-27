@@ -18,7 +18,7 @@
 #ifndef HHUOS_POLYGON_H
 #define HHUOS_POLYGON_H
 
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "Drawable.h"
 
 namespace Util {
@@ -35,7 +35,7 @@ public:
     /**
      * Constructor.
      */
-    Polygon(const Data::Array<double> &x, const Data::Array<double> &y);
+    Polygon(const Array<double> &x, const Array<double> &y);
 
     /**
      * Copy Constructor.
@@ -64,8 +64,8 @@ private:
 
     void calculateCenter();
 
-    Data::Array<double> x;
-    Data::Array<double> y;
+    Array<double> x;
+    Array<double> y;
     double xCenter = 0;
     double yCenter = 0;
 };

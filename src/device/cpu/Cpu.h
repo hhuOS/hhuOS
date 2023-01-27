@@ -19,8 +19,8 @@
 
 #include <cstdint>
 
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
 
 namespace Device {
 
@@ -81,7 +81,7 @@ public:
      */
     static void disableInterrupts();
 
-    static Util::Data::Array<Configuration0> readCr0();
+    static Util::Array<Configuration0> readCr0();
 
     /**
      * Stop the processor via hlt instruction.

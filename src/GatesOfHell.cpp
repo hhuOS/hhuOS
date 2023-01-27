@@ -27,17 +27,17 @@
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/multiboot/MultibootTerminalProvider.h"
 #include "device/hid/Keyboard.h"
-#include "lib/util/stream/InputStreamReader.h"
-#include "lib/util/file/tar/Archive.h"
+#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/file/tar/Archive.h"
 #include "filesystem/tar/ArchiveDriver.h"
-#include "lib/util/file/File.h"
-#include "lib/util/stream/BufferedReader.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/io/stream/BufferedReader.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/cpu/CpuId.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/hardware/CpuId.h"
 #include "device/port/parallel/ParallelPort.h"
-#include "lib/util/stream/FileOutputStream.h"
+#include "lib/util/io/stream/FileOutputStream.h"
 #include "lib/util/async/Process.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/service/SchedulerService.h"
@@ -56,7 +56,7 @@
 #include "filesystem/process/ProcessDriver.h"
 #include "device/hid/Mouse.h"
 #include "device/hid/Ps2Controller.h"
-#include "lib/util/stream/FileReader.h"
+#include "lib/util/io/stream/FileReader.h"
 #include "filesystem/memory/MountsNode.h"
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
@@ -72,17 +72,21 @@
 #include "device/power/default/DefaultMachine.h"
 #include "filesystem/core/Filesystem.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
 #include "kernel/network/ip4/Ip4Module.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ip4/Ip4Route.h"
 #include "device/network/rtl8139/Rtl8139.h"
+#include "device/network/NetworkDevice.h"
+#include "kernel/network/arp/ArpModule.h"
+#include "kernel/network/ip4/Ip4RoutingModule.h"
+#include "lib/util/network/MacAddress.h"
 
 namespace Device {
 class Machine;
@@ -101,16 +105,16 @@ void GatesOfHell::enter() {
     log.info("Bootloader: [%s], Multiboot info size: [%u/%u Byte]", static_cast<const char*>(Kernel::Multiboot::getBootloaderName()), bootloaderCopyInformation.copiedBytes, bootloaderCopyInformation.targetAreaSize);
     log.info("%u MiB of physical memory detected", Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus().totalPhysicalMemory / 1024 / 1024);
 
-    if (Util::Cpu::CpuId::isAvailable()) {
-        log.info("CPU vendor: %s", static_cast<const char*>(Util::Cpu::CpuId::getVendorString()));
+    if (Util::Hardware::CpuId::isAvailable()) {
+        log.info("CPU vendor: %s", static_cast<const char*>(Util::Hardware::CpuId::getVendorString()));
 
-        const auto info = Util::Cpu::CpuId::getCpuInfo();
+        const auto info = Util::Hardware::CpuId::getCpuInfo();
         log.info("CPU info: Family [%u], Model [%u], Stepping [%u], type [%u]", info.family, info.model, info.stepping, info.type);
 
-        const auto features = Util::Cpu::CpuId::getCpuFeatures();
-        Util::Memory::String featureString;
+        const auto features = Util::Hardware::CpuId::getCpuFeatures();
+        Util::String featureString;
         for (uint32_t i = 0; i < features.length(); i++) {
-            featureString += Util::Cpu::CpuId::getFeatureAsString(features[i]);
+            featureString += Util::Hardware::CpuId::getFeatureAsString(features[i]);
             if (i < features.length() - 1) {
                 featureString += ",";
             }
@@ -123,11 +127,11 @@ void GatesOfHell::enter() {
         log.info("ACPI support detected (Table size: [%u/%u Byte])", acpiCopyInformation.copiedBytes, acpiCopyInformation.targetAreaSize);
 
         const auto &rsdp = Device::Acpi::getRsdp();
-        const auto vendor = Util::Memory::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
+        const auto vendor = Util::String(reinterpret_cast<const uint8_t*>(rsdp.oemId), sizeof(Device::Acpi::Rsdp::oemId));
         log.info("ACPI vendor: [%s], ACPI version: [%s]", static_cast<const char*>(vendor), rsdp.revision == 0 ? "1.0" : ">=2.0");
 
         const auto tables = Device::Acpi::getAvailableTables();
-        Util::Memory::String featureString;
+        Util::String featureString;
         for (uint32_t i = 0; i < tables.length(); i++) {
             featureString += tables[i];
             if (i < tables.length() - 1) {
@@ -158,14 +162,14 @@ void GatesOfHell::enter() {
 
     initializePowerManagement();
 
-    Kernel::Logger::addOutputStream(*new Util::Stream::FileOutputStream("/device/log"));
+    Kernel::Logger::addOutputStream(*new Util::Io::FileOutputStream("/device/log"));
     enablePortLogging();
 
     mountDevices();
 
     printBanner();
 
-    Util::Async::Process::execute(Util::File::File("/initrd/bin/shell"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), Util::File::File("/device/terminal"), "shell", Util::Data::Array<Util::Memory::String>(0));
+    Util::Async::Process::execute(Util::Io::File("/initrd/bin/shell"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), Util::Io::File("/device/terminal"), "shell", Util::Array<Util::String>(0));
 
     log.info("Starting scheduler!");
     Kernel::System::getService<Kernel::SchedulerService>().startScheduler();
@@ -209,7 +213,7 @@ void GatesOfHell::initializeTerminal() {
         terminalProvider = reinterpret_cast<Device::Graphic::TerminalProvider*>(Util::Reflection::InstanceFactory::createInstance(providerName));
     } else if (lfbProvider != nullptr) {
         log.info("Terminal provider is not set -> Using LFB terminal");
-        auto lfbFile = Util::File::File("/device/lfb");
+        auto lfbFile = Util::Io::File("/device/lfb");
         terminalProvider = new Device::Graphic::LinearFrameBufferTerminalProvider(lfbFile);
     }  else if (Kernel::MultibootTerminalProvider::isAvailable()) {
         log.info("Terminal provider is not set and LFB is not available -> Using multiboot values");
@@ -225,9 +229,9 @@ void GatesOfHell::initializeTerminal() {
     delete lfbProvider;
 
     // Open first file descriptors for Util::System::in, Util::System::out and Util::System::error
-    Util::File::open("/device/terminal");
-    Util::File::open("/device/terminal");
-    Util::File::open("/device/terminal");
+    Util::Io::File::open("/device/terminal");
+    Util::Io::File::open("/device/terminal");
+    Util::Io::File::open("/device/terminal");
 }
 
 void GatesOfHell::enablePortLogging() {
@@ -237,13 +241,13 @@ void GatesOfHell::enablePortLogging() {
 
     const auto ports = Kernel::Multiboot::getKernelOption("log_ports").split(",");
     for (const auto &port : ports) {
-        auto file = Util::File::File("/device/" + port.toLowerCase());
+        auto file = Util::Io::File("/device/" + port.toLowerCase());
         if (!file.exists()) {
             log.error("Port [%s] not present", static_cast<const char*>(port));
             return;
         }
 
-        auto *stream = new Util::Stream::FileOutputStream(file);
+        auto *stream = new Util::Io::FileOutputStream(file);
         Kernel::Logger::addOutputStream(*stream);
     }
 }
@@ -302,7 +306,7 @@ void GatesOfHell::initializeFilesystem() {
     if (Kernel::Multiboot::isModuleLoaded("initrd")) {
         log.info("Initial ramdisk detected -> Mounting [%s]", "/initrd");
         auto module = Kernel::Multiboot::getModule("initrd");
-        auto *tarArchive = new Util::File::Tar::Archive(module.start);
+        auto *tarArchive = new Util::Io::Tar::Archive(module.start);
         auto *tarDriver = new Filesystem::Tar::ArchiveDriver(*tarArchive);
 
         filesystemService.createDirectory("/initrd");
@@ -343,28 +347,28 @@ void GatesOfHell::initializePorts() {
 }
 
 void GatesOfHell::printBanner() {
-    auto bannerFile = Util::File::File("/initrd/banner.txt");
+    auto bannerFile = Util::Io::File("/initrd/banner.txt");
     if (bannerFile.exists()) {
-        auto bannerStream = Util::Stream::FileInputStream(bannerFile);
-        auto bannerReader = Util::Stream::InputStreamReader(bannerStream);
-        auto bufferedReader = Util::Stream::BufferedReader(bannerReader);
+        auto bannerStream = Util::Io::FileInputStream(bannerFile);
+        auto bannerReader = Util::Io::InputStreamReader(bannerStream);
+        auto bufferedReader = Util::Io::BufferedReader(bannerReader);
 
         auto banner = bufferedReader.read(bannerFile.getLength());
-        Util::System::out << Util::Memory::String::format(static_cast<const char*>(banner),
+        Util::System::out << Util::String::format(static_cast<const char*>(banner),
                                                BuildConfig::getVersion(),
                                                BuildConfig::getBuildDate(),
                                                BuildConfig::getGitBranch(),
-                                               BuildConfig::getGitRevision()) << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+                                               BuildConfig::getGitRevision()) << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
     } else {
         printDefaultBanner();
     }
 }
 
 void GatesOfHell::printDefaultBanner() {
-    Util::System::out << "Welcome to hhuOS!" << Util::Stream::PrintWriter::endl
-           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Stream::PrintWriter::endl
-           << "Git revision: " << BuildConfig::getGitRevision() << Util::Stream::PrintWriter::endl
-           << "Build date: " << BuildConfig::getBuildDate() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintWriter::endl
+           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Io::PrintWriter::endl
+           << "Git revision: " << BuildConfig::getGitRevision() << Util::Io::PrintWriter::endl
+           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
 }
 
 void GatesOfHell::initializePowerManagement() {
@@ -407,16 +411,16 @@ void GatesOfHell::initializeNetwork() {
 }
 
 void GatesOfHell::mountDevices() {
-    auto mountFile = Util::File::File("/system/mount_table");
+    auto mountFile = Util::Io::File("/system/mount_table");
     if (!mountFile.exists()) {
         return;
     }
 
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
-    auto fileReader = Util::Stream::FileReader(mountFile);
-    auto reader = Util::Stream::BufferedReader(fileReader);
+    auto fileReader = Util::Io::FileReader(mountFile);
+    auto reader = Util::Io::BufferedReader(fileReader);
 
-    Util::Memory::String line = reader.readLine();
+    Util::String line = reader.readLine();
     while (!line.isEmpty()) {
         if (line.beginsWith("#")) {
             line = reader.readLine();

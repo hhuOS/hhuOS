@@ -23,7 +23,7 @@ namespace Device::Network {
 
 MacAddressNode::MacAddressNode(const NetworkDevice &device) : StringNode("mac_address"), device(device) {}
 
-Util::Memory::String MacAddressNode::getString() {
+Util::String MacAddressNode::getString() {
     return device.getMacAddress().toString();
 }
 

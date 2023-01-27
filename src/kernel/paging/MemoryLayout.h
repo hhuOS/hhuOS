@@ -25,7 +25,7 @@
 #ifndef __MEMLAYOUT_include__
 #define __MEMLAYOUT_include__
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 
@@ -47,8 +47,8 @@ public:
             return endAddress - startAddress + 1;
         }
 
-        [[nodiscard]] Util::Memory::Address<uint32_t> toAddress() const {
-            return Util::Memory::Address<uint32_t>(startAddress);
+        [[nodiscard]] Util::Address<uint32_t> toAddress() const {
+            return Util::Address<uint32_t>(startAddress);
         }
 
         [[nodiscard]] MemoryArea toPhysical() const {

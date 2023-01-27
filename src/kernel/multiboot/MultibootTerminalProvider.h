@@ -20,9 +20,9 @@
 
 #include "Multiboot.h"
 #include "device/graphic/terminal/TerminalProvider.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Terminal.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 #include "lib/util/reflection/Prototype.h"
 
 namespace Kernel {
@@ -62,7 +62,7 @@ public:
     /**
      * Overriding function from TerminalProvider.
      */
-    [[nodiscard]] Util::Data::Array<ModeInfo> getAvailableModes() const override;
+    [[nodiscard]] Util::Array<ModeInfo> getAvailableModes() const override;
 
 protected:
     /**
@@ -73,7 +73,7 @@ protected:
 private:
 
     Multiboot::FrameBufferInfo frameBufferInfo;
-    Util::Data::Array<ModeInfo> supportedModes;
+    Util::Array<ModeInfo> supportedModes;
 };
 
 }

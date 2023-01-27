@@ -19,7 +19,7 @@
 #define HHUOS_PROCESSFILENODE_H
 
 #include "filesystem/memory/StringNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Process {
 
@@ -29,7 +29,7 @@ public:
     /**
      * Default Constructor.
      */
-    ProcessFileNode(const Util::Memory::String &name, const Util::Memory::String &content);
+    ProcessFileNode(const Util::String &name, const Util::String &content);
 
     /**
      * Copy Constructor.
@@ -49,11 +49,11 @@ public:
     /**
      * Overriding function from StringNode.
      */
-    Util::Memory::String getString();
+    Util::String getString();
 
 private:
 
-    Util::Memory::String buffer;
+    Util::String buffer;
 };
 
 }

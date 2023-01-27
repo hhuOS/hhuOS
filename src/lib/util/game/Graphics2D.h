@@ -24,10 +24,10 @@
 #include "lib/util/graphic/LineDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Graphic {
@@ -63,15 +63,15 @@ public:
 
     void drawLine(double x1, double y1, double x2, double y2) const;
 
-    void drawPolygon(const Data::Array<double> &x, const Data::Array<double> &y) const;
+    void drawPolygon(const Array<double> &x, const Array<double> &y) const;
 
     void drawString(double x, double y, const char *string) const;
 
-    void drawString(double x, double y, const Util::Memory::String &string) const;
+    void drawString(double x, double y, const Util::String &string) const;
 
     void drawStringSmall(double x, double y, const char *string) const;
 
-    void drawStringSmall(double x, double y, const Util::Memory::String &string) const;
+    void drawStringSmall(double x, double y, const Util::String &string) const;
 
     void show() const;
 

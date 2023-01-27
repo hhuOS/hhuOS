@@ -20,10 +20,10 @@
 #include <stdarg.h>
 
 #include "kernel/system/SystemCall.h"
-#include "lib/util/system/Machine.h"
+#include "lib/util/hardware/Machine.h"
 #include "kernel/system/System.h"
 #include "device/power/Machine.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 
@@ -33,12 +33,12 @@ PowerManagementService::PowerManagementService(Device::Machine *machine) : machi
             return Util::System::INVALID_ARGUMENT;
         }
 
-        auto type = static_cast<Util::Machine::ShutdownType>(va_arg(arguments, uint32_t));
+        auto type = static_cast<Util::Hardware::Machine::ShutdownType>(va_arg(arguments, uint32_t));
         auto &powerManagementService = System::getService<PowerManagementService>();
 
-        if (type == Util::Machine::SHUTDOWN) {
+        if (type == Util::Hardware::Machine::SHUTDOWN) {
             powerManagementService.shutdownMachine();
-        } else if (type == Util::Machine::REBOOT) {
+        } else if (type == Util::Hardware::Machine::REBOOT) {
             powerManagementService.rebootMachine();
         } else {
             return Util::System::INVALID_ARGUMENT;

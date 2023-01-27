@@ -17,15 +17,14 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/FileOutputStream.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -35,40 +34,40 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() < 2) {
-        Util::System::error << "cp: Missing arguments!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: Missing arguments!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto sourceFile = Util::File::File(arguments[0]);
-    auto targetFile = Util::File::File(arguments[1]);
+    auto sourceFile = Util::Io::File(arguments[0]);
+    auto targetFile = Util::Io::File(arguments[1]);
 
     if (!sourceFile.exists()) {
-        Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: '" << arguments[0] << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     if (!sourceFile.isFile()) {
-        Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "cp: '" << arguments[0] << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     if (targetFile.exists() && targetFile.isDirectory()) {
-        targetFile = Util::File::File(targetFile.getCanonicalPath() + "/" + sourceFile.getName());
+        targetFile = Util::Io::File(targetFile.getCanonicalPath() + "/" + sourceFile.getName());
     }
 
-    if (!targetFile.exists() && !targetFile.create(Util::File::REGULAR)) {
-        Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    if (!targetFile.exists() && !targetFile.create(Util::Io::File::REGULAR)) {
+        Util::System::error << "cp: Failed to create file '" << arguments[1] << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto source = Util::Stream::FileInputStream(sourceFile);
-    auto target = Util::Stream::FileOutputStream(targetFile);
+    auto source = Util::Io::FileInputStream(sourceFile);
+    auto target = Util::Io::FileOutputStream(targetFile);
 
     auto *buffer = new uint8_t[4096];
     int32_t read;

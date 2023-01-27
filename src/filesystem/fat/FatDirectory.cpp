@@ -17,12 +17,12 @@
 
 #include "FatDirectory.h"
 
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "filesystem/fat/FatNode.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {
 
@@ -32,16 +32,16 @@ FatDirectory::~FatDirectory() {
     delete directory;
 }
 
-Util::File::Type FatDirectory::getFileType() {
-    return Util::File::DIRECTORY;
+Util::Io::File::Type FatDirectory::getType() {
+    return Util::Io::File::DIRECTORY;
 }
 
-Util::Data::Array<Util::Memory::String> FatDirectory::getChildren() {
-    if (getFileType() != Util::File::DIRECTORY) {
-        return Util::Data::Array<Util::Memory::String>(0);
+Util::Array<Util::String> FatDirectory::getChildren() {
+    if (getType() != Util::Io::File::DIRECTORY) {
+        return Util::Array<Util::String>(0);
     }
 
-    auto children = Util::Data::ArrayList<Util::Memory::String>();
+    auto children = Util::ArrayList<Util::String>();
     auto *childInfo = new FILINFO{};
 
     while (true) {

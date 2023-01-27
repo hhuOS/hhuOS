@@ -17,14 +17,14 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/file/File.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/stream/FileReader.h"
-#include "lib/util/stream/BufferedReader.h"
+#include "lib/util/io/stream/FileReader.h"
+#include "lib/util/io/stream/BufferedReader.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
@@ -34,10 +34,10 @@
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
 #include "lib/util/graphic/LineDrawer.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 #include "lib/util/graphic/Font.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/InputStreamReader.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/InputStreamReader.h"
 
 static const constexpr uint16_t DEFAULT_FPS = 15;
 
@@ -54,27 +54,27 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "asciimate: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto file = Util::File::File(arguments[0]);
+    auto file = Util::Io::File(arguments[0]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto reader = Util::Stream::FileReader(file);
-    auto bufferedReader = Util::Stream::BufferedReader(reader);
+    auto reader = Util::Io::FileReader(file);
+    auto bufferedReader = Util::Io::BufferedReader(reader);
     auto frameInfo = bufferedReader.readLine().split(",");
 
-    auto lfbFile = Util::File::File("/device/lfb");
+    auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto bufferedLfb = Util::Graphic::BufferedLinearFrameBuffer(lfb);
     auto pixelDrawer = Util::Graphic::PixelDrawer(bufferedLfb);
@@ -85,9 +85,9 @@ int32_t main(int32_t argc, char *argv[]) {
     auto charWidth = font.getCharWidth();
     auto charHeight = font.getCharHeight();
 
-    double fps = argumentParser.hasArgument("fps") ? Util::Memory::String::parseInt(argumentParser.getArgument("fps")) : DEFAULT_FPS;
-    uint16_t rows = Util::Memory::String::parseInt(frameInfo[0]);
-    uint16_t columns = Util::Memory::String::parseInt(frameInfo[1]);
+    double fps = argumentParser.hasArgument("fps") ? Util::String::parseInt(argumentParser.getArgument("fps")) : DEFAULT_FPS;
+    uint16_t rows = Util::String::parseInt(frameInfo[0]);
+    uint16_t columns = Util::String::parseInt(frameInfo[1]);
     uint16_t frameStartX = (((lfb.getResolutionX() / charWidth) - columns) / 2) * charWidth;
     uint16_t frameStartY = (((lfb.getResolutionY() / charHeight) - rows) / 2) * charHeight;
     uint16_t frameEndX = frameStartX + (columns * charWidth);
@@ -106,7 +106,7 @@ int32_t main(int32_t argc, char *argv[]) {
             break;
         }
 
-        uint32_t delay = Util::Memory::String::parseInt(delayLine);
+        uint32_t delay = Util::String::parseInt(delayLine);
         bufferedLfb.clear();
 
         lineDrawer.drawLine(frameStartX - charWidth, frameStartY - charHeight, frameEndX + charWidth, frameStartY - charHeight, Util::Graphic::Colors::WHITE);

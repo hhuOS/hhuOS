@@ -26,17 +26,17 @@
 #include "device/network/NetworkDevice.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/stream/ByteArrayInputStream.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/io/stream/ByteArrayInputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "kernel/network/Socket.h"
 #include "kernel/network/ethernet/EthernetSocket.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class OutputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -51,7 +51,7 @@ bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
     return frameCheckSequence == calculatedCheckSequence;
 }
 
-void EthernetModule::readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
+void EthernetModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto header = Util::Network::Ethernet::EthernetHeader();
     header.read(stream);
 
@@ -82,7 +82,7 @@ uint32_t EthernetModule::calculateCheckSequence(const uint8_t *packet, uint32_t 
     return 0;
 }
 
-void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType) {
+void EthernetModule::writeHeader(Util::Io::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType) {
     auto header = Util::Network::Ethernet::EthernetHeader();
     header.setSourceAddress(device.getMacAddress());
     header.setDestinationAddress(destinationAddress);
@@ -90,7 +90,7 @@ void EthernetModule::writeHeader(Util::Stream::OutputStream &stream, Device::Net
     header.write(stream);
 }
 
-void EthernetModule::finalizePacket(Util::Stream::ByteArrayOutputStream &packet) {
+void EthernetModule::finalizePacket(Util::Io::ByteArrayOutputStream &packet) {
     for (uint32_t i = packet.getLength(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
         Util::Network::NumberUtil::writeUnsigned8BitValue(0, packet);
     }

@@ -16,20 +16,20 @@
  */
 
 #include "lib/util/math/Random.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "RandomNode.h"
 #include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-RandomNode::RandomNode(const Util::Memory::String &name) : MemoryNode(name) {}
+RandomNode::RandomNode(const Util::String &name) : MemoryNode(name) {}
 
-Util::File::Type RandomNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type RandomNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t RandomNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {
-    auto target = Util::Memory::Address<uint32_t>(targetBuffer);
+    auto target = Util::Address<uint32_t>(targetBuffer);
     auto random = Util::Math::Random();
 
     for (uint32_t i = 0; i < numBytes; i++) {

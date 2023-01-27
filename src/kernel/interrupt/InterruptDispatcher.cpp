@@ -18,23 +18,23 @@
 #include "kernel/service/InterruptService.h"
 #include "kernel/system/System.h"
 #include "device/cpu/Cpu.h"
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "kernel/service/ProcessService.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "kernel/process/Process.h"
 #include "kernel/process/ThreadState.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/data/List.h"
-#include "lib/util/stream/PrintWriter.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/collection/List.h"
+#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 
-InterruptDispatcher::InterruptDispatcher() : handler(new Util::Data::List<InterruptHandler*>*[256]{}) {}
+InterruptDispatcher::InterruptDispatcher() : handler(new Util::List<InterruptHandler*>*[256]{}) {}
 
 void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
     auto &interruptService = System::getService<InterruptService>();
@@ -47,7 +47,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
             System::panic(frame);
         }
 
-        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         processService.exitCurrentProcess(-1);
     }
 
@@ -78,7 +78,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
 
 void InterruptDispatcher::assign(uint8_t slot, InterruptHandler &isr) {
     if (handler[slot] == nullptr) {
-        handler[slot] = new Util::Data::ArrayList<InterruptHandler*>;
+        handler[slot] = new Util::ArrayList<InterruptHandler*>;
     }
 
     handler[slot]->add(&isr);

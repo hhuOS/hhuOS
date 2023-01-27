@@ -20,13 +20,13 @@
 
 #include "lib/util/network/Datagram.h"
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "MacAddress.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
-#include "lib/util/Exception.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
+#include "lib/util/base/Exception.h"
 
 namespace Util::Network {
 
@@ -48,15 +48,15 @@ Datagram::Datagram(NetworkAddress::Type type) {
 
 Datagram::Datagram(const uint8_t *buffer, uint16_t length, const Util::Network::NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[length]), length(length) {
-    Util::Memory::Address<uint32_t>(Datagram::buffer).copyRange(Util::Memory::Address<uint32_t>(buffer), length);
+    Util::Address<uint32_t>(Datagram::buffer).copyRange(Util::Address<uint32_t>(buffer), length);
 }
 
 Datagram::Datagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(buffer), length(length) {}
 
-Datagram::Datagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
+Datagram::Datagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress) :
         remoteAddress(remoteAddress.createCopy()), buffer(new uint8_t[stream.getLength()]), length(stream.getLength()) {
-    Util::Memory::Address<uint32_t>(Datagram::buffer).copyRange(Util::Memory::Address<uint32_t>(stream.getBuffer()), stream.getLength());
+    Util::Address<uint32_t>(Datagram::buffer).copyRange(Util::Address<uint32_t>(stream.getBuffer()), stream.getLength());
 }
 
 Datagram::~Datagram() {
@@ -69,7 +69,7 @@ const NetworkAddress &Network::Datagram::getRemoteAddress() const {
 }
 
 void Datagram::setRemoteAddress(const NetworkAddress &address) {
-    auto addressStream = Util::Stream::ByteArrayOutputStream();
+    auto addressStream = Util::Io::ByteArrayOutputStream();
     address.write(addressStream);
     remoteAddress->setAddress(addressStream.getBuffer());
 }

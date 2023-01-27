@@ -20,14 +20,14 @@
 
 #include <cstdint>
 
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/Drawable.h"
 
 namespace Util {
 namespace Game {
-class Drawable;
 class Graphics2D;
 class KeyListener;
 class MouseListener;
@@ -88,9 +88,9 @@ private:
     KeyListener *keyListener = nullptr;
     MouseListener *mouseListener = nullptr;
 
-    Util::Data::ArrayList<Drawable*> drawables;
-    Util::Data::ArrayList<Drawable*> addList;
-    Util::Data::ArrayList<Drawable*> removeList;
+    Util::ArrayList<Drawable*> drawables;
+    Util::ArrayList<Drawable*> addList;
+    Util::ArrayList<Drawable*> removeList;
     bool running = true;
 };
 

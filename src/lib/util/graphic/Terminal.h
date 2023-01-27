@@ -20,20 +20,20 @@
 
 #include <cstdint>
 
-#include "lib/util/stream/OutputStream.h"
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/io/stream/OutputStream.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "lib/util/base/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/stream/PipedOutputStream.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/PipedOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/async/Runnable.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/stream/PipedInputStream.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/stream/PipedInputStream.h"
 
 namespace Util::Graphic {
 
-class Terminal : public Util::Stream::OutputStream, public Util::Stream::InputStream {
+class Terminal : public Util::Io::OutputStream, public Util::Io::InputStream {
 
 public:
 
@@ -89,7 +89,7 @@ public:
 
 private:
 
-    class TerminalPipedOutputStream : public Stream::PipedOutputStream {
+    class TerminalPipedOutputStream : public Io::PipedOutputStream {
 
     public:
         /**
@@ -121,7 +121,7 @@ private:
     private:
 
         Terminal &terminal;
-        Stream::ByteArrayOutputStream lineBufferStream;
+        Io::ByteArrayOutputStream lineBufferStream;
     };
 
     class KeyboardRunnable : public Async::Runnable {
@@ -158,26 +158,26 @@ private:
 
     void handleTab();
 
-    void parseColorEscapeSequence(const Util::Memory::String &escapeSequence);
+    void parseColorEscapeSequence(const Util::String &escapeSequence);
 
-    void parseCursorEscapeSequence(const Util::Memory::String &escapeSequence, char endCode);
+    void parseCursorEscapeSequence(const Util::String &escapeSequence, char endCode);
 
-    void parseEraseSequence(const Util::Memory::String &escapeSequence, char endCode);
+    void parseEraseSequence(const Util::String &escapeSequence, char endCode);
 
-    [[nodiscard]] static Util::Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color getColor(uint8_t colorCode, const Util::Graphic::Color &defaultColor, const Util::Array<Util::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parseComplexColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parseComplexColor(const Util::Array<Util::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parse256Color(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parse256Color(const Util::Array<Util::String> &codes, uint32_t &index);
 
-    [[nodiscard]] static Util::Graphic::Color parseTrueColor(const Util::Data::Array<Util::Memory::String> &codes, uint32_t &index);
+    [[nodiscard]] static Util::Graphic::Color parseTrueColor(const Util::Array<Util::String> &codes, uint32_t &index);
 
     void parseGraphicRendition(uint8_t code);
 
-    Util::Stream::PipedInputStream inputStream;
+    Util::Io::PipedInputStream inputStream;
     TerminalPipedOutputStream outputStream;
 
-    Util::Memory::String currentEscapeSequence;
+    Util::String currentEscapeSequence;
     bool isEscapeActive = false;
 
     Util::Graphic::Color foregroundBaseColor = Util::Graphic::Colors::WHITE;
@@ -202,7 +202,7 @@ private:
     uint16_t savedColumn = 0;
     uint16_t savedRow = 0;
 
-    const Util::Memory::String escapeEndCodes = Util::Memory::String::format("ABCDEFGHJKmnsu");
+    const Util::String escapeEndCodes = Util::String::format("ABCDEFGHJKmnsu");
 
     static const constexpr uint8_t TABULATOR_SPACES = 8;
 };

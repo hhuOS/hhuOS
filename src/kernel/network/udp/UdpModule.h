@@ -44,7 +44,7 @@ class Ip4PortAddress;
 }  // namespace Ip4
 }  // namespace Network
 
-namespace Stream {
+namespace Io {
 class ByteArrayInputStream;
 }  // namespace Stream
 }  // namespace Util
@@ -76,7 +76,7 @@ public:
 
     virtual bool registerSocket(Socket &socket) override;
 
-    void readPacket(Util::Stream::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
+    void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writePacket(const Util::Network::Ip4::Ip4PortAddress &sourceAddress, const Util::Network::Ip4::Ip4PortAddress &destinationAddress, const uint8_t *buffer, uint16_t length);
 

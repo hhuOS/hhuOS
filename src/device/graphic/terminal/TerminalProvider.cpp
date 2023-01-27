@@ -1,19 +1,19 @@
-#include "lib/util/data/ArrayList.h"
+#include "lib/util/collection/ArrayList.h"
 #include "TerminalProvider.h"
 #include "kernel/system/System.h"
 #include "kernel/service/FilesystemService.h"
 #include "TerminalNode.h"
 #include "filesystem/core/Filesystem.h"
 #include "filesystem/memory/MemoryDriver.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
 
 namespace Device::Graphic {
 
 TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16_t rows, uint8_t colorDepth) const {
     auto modes = getAvailableModes();
-    auto candidates = Util::Data::ArrayList<ModeInfo>();
+    auto candidates = Util::ArrayList<ModeInfo>();
 
     if (modes.length() == 0) {
         Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "LinearFrameBufferProvider: No graphics mode available!");
@@ -52,7 +52,7 @@ TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16
     }
 
     // Remove all candidates, that don't have the closest horizontal resolution
-    auto removeList = Util::Data::ArrayList<ModeInfo>();
+    auto removeList = Util::ArrayList<ModeInfo>();
     for (const ModeInfo &mode : candidates) {
         if (mode.columns != bestMode.columns) {
             removeList.add(mode);
@@ -76,7 +76,7 @@ TerminalProvider::ModeInfo TerminalProvider::searchMode(uint16_t columns, uint16
 }
 
 void
-TerminalProvider::initializeTerminal(const TerminalProvider::ModeInfo &modeInfo, const Util::Memory::String &filename) {
+TerminalProvider::initializeTerminal(const TerminalProvider::ModeInfo &modeInfo, const Util::String &filename) {
     auto *terminal = initializeTerminal(modeInfo);
 
     // Create filesystem node

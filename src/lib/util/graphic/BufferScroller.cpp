@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/math/Math.h"
 #include "BufferScroller.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
@@ -23,7 +23,7 @@
 namespace Util::Graphic {
 
 BufferScroller::BufferScroller(const LinearFrameBuffer &lfb, bool enableAcceleration) :
-        lfb(lfb), targetBuffer(enableAcceleration ? *Memory::Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Memory::Address<uint32_t>(lfb.getBuffer())) {}
+        lfb(lfb), targetBuffer(enableAcceleration ? *Address<uint32_t>::createAcceleratedAddress(lfb.getBuffer().get(), useMmx) : *new Address<uint32_t>(lfb.getBuffer())) {}
 
 BufferScroller::~BufferScroller() {
     delete &targetBuffer;

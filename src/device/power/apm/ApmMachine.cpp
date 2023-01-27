@@ -19,7 +19,7 @@
 
 #include "device/bios/Bios.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Device {
 

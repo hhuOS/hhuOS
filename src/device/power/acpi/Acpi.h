@@ -20,12 +20,12 @@
 
 #include <cstdint>
 
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Util {
-namespace Memory {
+
 class String;
-}  // namespace Memory
+
 }  // namespace Util
 struct CopyInformation;
 
@@ -175,7 +175,7 @@ public:
 
     static const SdtHeader& getTable(const char *signature);
 
-    static Util::Data::Array<Util::Memory::String> getAvailableTables();
+    static Util::Array<Util::String> getAvailableTables();
 
 private:
 

@@ -33,11 +33,11 @@
 #include "kernel/log/Logger.h"
 #include "kernel/process/ThreadState.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/Exception.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/memory/Constants.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
+#include "lib/util/base/String.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Device::Storage {
@@ -263,9 +263,9 @@ bool IdeController::identifyDrive(uint8_t channel, uint8_t drive) {
     copyByteSwappedString(reinterpret_cast<const char *>(buffer + SERIAL), info.serial, sizeof(info.serial));
     copyByteSwappedString(reinterpret_cast<const char *>(buffer + FIRMWARE), info.firmware, sizeof(info.firmware));
 
-    auto model = Util::Memory::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
-    auto serial = Util::Memory::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
-    auto firmware = Util::Memory::String(reinterpret_cast<const uint8_t*>(info.firmware), sizeof(info.firmware)).strip();
+    auto model = Util::String(reinterpret_cast<const uint8_t*>(info.model), sizeof(info.model)).strip();
+    auto serial = Util::String(reinterpret_cast<const uint8_t*>(info.serial), sizeof(info.serial)).strip();
+    auto firmware = Util::String(reinterpret_cast<const uint8_t*>(info.firmware), sizeof(info.firmware)).strip();
     log.info("Found %s drive on channel [%u]: %s %s (Firmware: [%s])", info.type == ATA ? "ATA" : "ATAPI", info.channel,
              static_cast<const char*>(model), static_cast<const char*>(serial), static_cast<const char*>(firmware));
 
@@ -555,7 +555,7 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
 
     // Calculate the amount of pages needed for the operation
     auto size = sectorCount * info.sectorSize;
-    auto pages = size / Util::Memory::PAGESIZE + (size % Util::Memory::PAGESIZE == 0 ? 0 : 1);
+    auto pages = size / Util::PAGESIZE + (size % Util::PAGESIZE == 0 ? 0 : 1);
 
     // Each page corresponds to an 8-byte entry in the PRD
     auto prdSize = pages * 8;
@@ -567,21 +567,21 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     auto dmaMemoryPhysical = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(dmaMemoryVirtual));
 
     if (mode == WRITE) {
-        auto source = Util::Memory::Address<uint32_t>(buffer);
-        auto target = Util::Memory::Address<uint32_t>(dmaMemoryVirtual);
+        auto source = Util::Address<uint32_t>(buffer);
+        auto target = Util::Address<uint32_t>(dmaMemoryVirtual);
         target.copyRange(source, size);
     }
 
     // Fill PRD
     uint32_t i;
     for (i = 0; i < (pages - 1); i++) {
-        prdVirtual[2 * i] = dmaMemoryPhysical + (Util::Memory::PAGESIZE * i);
-        prdVirtual[(2 * i) + 1] = Util::Memory::PAGESIZE;
+        prdVirtual[2 * i] = dmaMemoryPhysical + (Util::PAGESIZE * i);
+        prdVirtual[(2 * i) + 1] = Util::PAGESIZE;
     }
 
     // Set last PRD entry wit EOT bit
-    prdVirtual[2 * i] = dmaMemoryPhysical + (Util::Memory::PAGESIZE * i);
-    prdVirtual[(2 * i) + 1] = (size % Util::Memory::PAGESIZE) | PRD_END_OF_TRANSMISSION;
+    prdVirtual[2 * i] = dmaMemoryPhysical + (Util::PAGESIZE * i);
+    prdVirtual[(2 * i) + 1] = (size % Util::PAGESIZE) | PRD_END_OF_TRANSMISSION;
 
     // Prepare DMA transfer
     prepareIO(info, startSector, sectorCount);
@@ -629,8 +629,8 @@ uint16_t IdeController::performDmaIO(const IdeController::DeviceInfo &info, IdeC
     }
 
     if (mode == READ) {
-        auto source = Util::Memory::Address<uint32_t>(dmaMemoryVirtual);
-        auto target = Util::Memory::Address<uint32_t>(buffer);
+        auto source = Util::Address<uint32_t>(dmaMemoryVirtual);
+        auto target = Util::Address<uint32_t>(buffer);
         target.copyRange(source, size);
     }
 

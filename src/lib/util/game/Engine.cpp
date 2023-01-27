@@ -18,14 +18,13 @@
 #include "lib/util/async/Thread.h"
 #include "MouseListener.h"
 #include "Engine.h"
-#include "lib/util/file/File.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/graphic/Terminal.h"
-#include "lib/util/io/KeyDecoder.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/key/KeyDecoder.h"
 
 namespace Util {
 namespace Graphic {
@@ -91,14 +90,14 @@ void Engine::drawStatus() {
 
     auto color = graphics.getColor();
     graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringSmall(-1, 1, status + Memory::String::format(", Objects: %u", game.getObjectCount()));
+    graphics.drawStringSmall(-1, 1, status + String::format(", Objects: %u", game.getObjectCount()));
     graphics.setColor(color);
 }
 
 Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::KeyListenerRunnable::run() {
-    auto keyboardStream = Stream::FileInputStream("/device/keyboard");
+    auto keyboardStream = Io::FileInputStream("/device/keyboard");
     auto keyDecoder = Io::KeyDecoder();
     int16_t scancode = keyboardStream.read();
 
@@ -119,14 +118,14 @@ void Engine::KeyListenerRunnable::run() {
 Engine::MouseListenerRunnable::MouseListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::MouseListenerRunnable::run() {
-    auto file = Util::File::File("/device/mouse");
+    auto file = Util::Io::File("/device/mouse");
     if (!file.exists()) {
         return;
     }
 
     uint8_t lastButtons = 0;
 
-    auto stream = Util::Stream::FileInputStream(file);
+    auto stream = Util::Io::FileInputStream(file);
     while (engine.game.isRunning()) {
         auto buttons = stream.read();
         auto xMovement = static_cast<int8_t>(stream.read());

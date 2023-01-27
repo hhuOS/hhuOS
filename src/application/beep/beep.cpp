@@ -17,27 +17,27 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/async/Thread.h"
-#include "lib/util/stream/FileReader.h"
-#include "lib/util/stream/BufferedReader.h"
+#include "lib/util/io/stream/FileReader.h"
+#include "lib/util/io/stream/BufferedReader.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/FileOutputStream.h"
-#include "lib/util/stream/InputStreamReader.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 static const constexpr uint8_t BAR_LENGTH = 25;
 
 bool isRunning = true;
 
-void printStatusLine(Util::File::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
-    auto frequencyString = Util::Stream::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
+void printStatusLine(Util::Io::File &speakerFile, uint32_t passedTime, uint32_t songLength) {
+    auto frequencyString = Util::Io::FileReader(speakerFile).read(speakerFile.getLength() - 1) + " Hz";
     auto percentage = static_cast<double>(passedTime) / songLength;
     auto filledBar = static_cast<uint32_t>((BAR_LENGTH - 2) * percentage);
 
@@ -48,17 +48,17 @@ void printStatusLine(Util::File::File &speakerFile, uint32_t passedTime, uint32_
     for (uint32_t i = 0; i < (BAR_LENGTH - 2) - filledBar; i++) {
         Util::System::out << "-";
     }
-    Util::System::out << "]" << Util::Stream::PrintWriter::endl << frequencyString << Util::Stream::PrintWriter::flush;
+    Util::System::out << "]" << Util::Io::PrintWriter::endl << frequencyString << Util::Io::PrintWriter::flush;
 }
 
-uint32_t calculateLength(const Util::File::File &beepFile) {
-    auto fileReader = Util::Stream::FileReader(beepFile);
-    auto reader = Util::Stream::BufferedReader(fileReader);
+uint32_t calculateLength(const Util::Io::File &beepFile) {
+    auto fileReader = Util::Io::FileReader(beepFile);
+    auto reader = Util::Io::BufferedReader(fileReader);
     uint32_t length = 0;
 
     auto line = reader.readLine();
     while (!line.isEmpty()) {
-        length += Util::Memory::String::parseInt(line.split(",")[1]);
+        length += Util::String::parseInt(line.split(",")[1]);
         line = reader.readLine();
     }
 
@@ -73,27 +73,27 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "beep: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "beep: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto beepFile = Util::File::File(arguments[0]);
+    auto beepFile = Util::Io::File(arguments[0]);
     if (!beepFile.exists() || beepFile.isDirectory()) {
-        Util::System::error << "beep: '" << arguments[0] << "' could not be opened!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "beep: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto speakerFile = Util::File::File("/device/speaker");
-    auto fileReader = Util::Stream::FileReader(beepFile);
-    auto reader = Util::Stream::BufferedReader(fileReader);
-    auto outputStream = Util::Stream::FileOutputStream(speakerFile);
-    auto writer = Util::Stream::PrintWriter(outputStream);
+    auto speakerFile = Util::Io::File("/device/speaker");
+    auto fileReader = Util::Io::FileReader(beepFile);
+    auto reader = Util::Io::BufferedReader(fileReader);
+    auto outputStream = Util::Io::FileOutputStream(speakerFile);
+    auto writer = Util::Io::PrintWriter(outputStream);
 
     uint32_t passedTime = 0;
     auto songLength = calculateLength(beepFile);
@@ -106,10 +106,10 @@ int32_t main(int32_t argc, char *argv[]) {
     auto line = reader.readLine();
     while (isRunning && !line.isEmpty()) {
         auto split = line.split(",");
-        auto length = Util::Memory::String::parseInt(split[1]);
+        auto length = Util::String::parseInt(split[1]);
         passedTime += length;
 
-        writer << split[0] << Util::Stream::PrintWriter::flush;
+        writer << split[0] << Util::Io::PrintWriter::flush;
         printStatusLine(speakerFile, passedTime, songLength);
 
         Util::Async::Thread::sleep(Util::Time::Timestamp::ofMilliseconds(length));
@@ -118,7 +118,7 @@ int32_t main(int32_t argc, char *argv[]) {
         line = reader.readLine();
     }
 
-    writer << 0 << Util::Stream::PrintWriter::flush;
+    writer << 0 << Util::Io::PrintWriter::flush;
     Util::Graphic::Ansi::clearLine();
     return 0;
 }

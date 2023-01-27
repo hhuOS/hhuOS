@@ -24,6 +24,12 @@
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/NetworkAddress.h"
 
+namespace Util {
+namespace Io {
+class ByteArrayOutputStream;
+}  // namespace Io
+}  // namespace Util
+
 namespace Util::Network::Icmp {
 
 IcmpDatagram::IcmpDatagram() : Datagram(NetworkAddress::IP4) {}
@@ -34,7 +40,7 @@ IcmpDatagram::IcmpDatagram(const uint8_t *buffer, uint16_t length, const Util::N
 IcmpDatagram::IcmpDatagram(uint8_t *buffer, uint16_t length, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
         Datagram(buffer, length, remoteAddress), type(type), code(code) {}
 
-IcmpDatagram::IcmpDatagram(const Stream::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
+IcmpDatagram::IcmpDatagram(const Io::ByteArrayOutputStream &stream, const NetworkAddress &remoteAddress, IcmpHeader::Type type, uint8_t code) :
         Datagram(stream, remoteAddress), type(type), code(code) {}
 
 IcmpHeader::Type IcmpDatagram::getType() const {

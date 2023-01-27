@@ -18,7 +18,7 @@
 #include "FatFile.h"
 
 #include "filesystem/fat/FatNode.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Filesystem::Fat {
 
@@ -28,12 +28,12 @@ FatFile::~FatFile() {
     delete file;
 }
 
-Util::File::Type FatFile::getFileType() {
-    return Util::File::REGULAR;
+Util::Io::File::Type FatFile::getType() {
+    return Util::Io::File::REGULAR;
 }
 
-Util::Data::Array<Util::Memory::String> FatFile::getChildren() {
-    return Util::Data::Array<Util::Memory::String>(0);
+Util::Array<Util::String> FatFile::getChildren() {
+    return Util::Array<Util::String>(0);
 }
 
 uint64_t FatFile::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {

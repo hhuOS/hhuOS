@@ -20,8 +20,8 @@
 
 #include <cstdint>
 
-#include "lib/util/memory/String.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
 
 struct CopyInformation;
 
@@ -217,21 +217,21 @@ public:
 
     static const CopyInformation& getCopyInformation();
 
-    static Util::Memory::String getBootloaderName();
+    static Util::String getBootloaderName();
 
     static FrameBufferInfo getFrameBufferInfo();
 
-    static Util::Data::Array<MemoryMapEntry> getMemoryMap();
+    static Util::Array<MemoryMapEntry> getMemoryMap();
 
     static const MemoryBlock * getBlockMap();
 
-    static bool hasKernelOption(const Util::Memory::String &key);
+    static bool hasKernelOption(const Util::String &key);
 
-    static Util::Memory::String getKernelOption(const Util::Memory::String &key);
+    static Util::String getKernelOption(const Util::String &key);
 
-    static bool isModuleLoaded(const Util::Memory::String &module);
+    static bool isModuleLoaded(const Util::String &module);
 
-    static ModuleInfo getModule(const Util::Memory::String &module);
+    static ModuleInfo getModule(const Util::String &module);
 
     // Used during the bootstrap process
 

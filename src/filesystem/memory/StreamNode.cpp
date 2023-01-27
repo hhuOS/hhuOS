@@ -18,19 +18,19 @@
 #include "StreamNode.h"
 
 #include "filesystem/memory/MemoryNode.h"
-#include "lib/util/stream/InputStream.h"
-#include "lib/util/stream/OutputStream.h"
+#include "lib/util/io/stream/InputStream.h"
+#include "lib/util/io/stream/OutputStream.h"
 
 namespace Filesystem::Memory {
 
-StreamNode::StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream) : MemoryNode(name), outputStream(outputStream), inputStream(inputStream) {}
+StreamNode::StreamNode(const Util::String &name, Util::Io::OutputStream *outputStream, Util::Io::InputStream *inputStream) : MemoryNode(name), outputStream(outputStream), inputStream(inputStream) {}
 
-StreamNode::StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream) : MemoryNode(name), outputStream(outputStream), inputStream(nullptr) {}
+StreamNode::StreamNode(const Util::String &name, Util::Io::OutputStream *outputStream) : MemoryNode(name), outputStream(outputStream), inputStream(nullptr) {}
 
-StreamNode::StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream) : MemoryNode(name), outputStream(nullptr), inputStream(inputStream) {}
+StreamNode::StreamNode(const Util::String &name, Util::Io::InputStream *inputStream) : MemoryNode(name), outputStream(nullptr), inputStream(inputStream) {}
 
-Util::File::Type StreamNode::getFileType() {
-    return Util::File::CHARACTER;
+Util::Io::File::Type StreamNode::getType() {
+    return Util::Io::File::CHARACTER;
 }
 
 uint64_t StreamNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numBytes) {

@@ -17,12 +17,12 @@
 
 #include "StringNode.h"
 
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "filesystem/memory/MemoryNode.h"
 
 namespace Filesystem::Memory {
 
-StringNode::StringNode(const Util::Memory::String &name) : MemoryNode(name) {}
+StringNode::StringNode(const Util::String &name) : MemoryNode(name) {}
 
 uint64_t StringNode::getLength() {
     return getString().length();
@@ -39,8 +39,8 @@ uint64_t StringNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numB
         numBytes = (buffer.length() - pos);
     }
 
-    auto sourceAddress = Util::Memory::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
-    auto targetAddress = Util::Memory::Address<uint32_t>(targetBuffer);
+    auto sourceAddress = Util::Address<uint32_t>(static_cast<const char*>(buffer)).add(pos);
+    auto targetAddress = Util::Address<uint32_t>(targetBuffer);
     targetAddress.copyRange(sourceAddress, numBytes);
 
     return numBytes;

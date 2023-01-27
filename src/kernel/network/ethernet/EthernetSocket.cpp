@@ -24,7 +24,7 @@
 #include "kernel/service/NetworkService.h"
 #include "lib/util/network/ethernet/EthernetDatagram.h"
 #include "device/network/NetworkDevice.h"
-#include "lib/util/stream/ByteArrayOutputStream.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/NetworkStack.h"
 #include "kernel/network/ethernet/EthernetModule.h"
@@ -45,7 +45,7 @@ EthernetSocket::~EthernetSocket() {
 }
 
 bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
-    auto packet = Util::Stream::ByteArrayOutputStream();
+    auto packet = Util::Io::ByteArrayOutputStream();
     EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress &>(datagram.getRemoteAddress()),
                                 reinterpret_cast<const Util::Network::Ethernet::EthernetDatagram &>(datagram).getEtherType());
     packet.write(datagram.getData(), 0, datagram.getLength());

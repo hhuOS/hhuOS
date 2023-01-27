@@ -23,19 +23,19 @@ namespace Filesystem::Memory {
 
 MemoryWrapperNode::MemoryWrapperNode(MemoryNode &node) : node(node) {}
 
-Util::Memory::String MemoryWrapperNode::getName() {
+Util::String MemoryWrapperNode::getName() {
     return node.getName();
 }
 
-Util::File::Type MemoryWrapperNode::getFileType() {
-    return node.getFileType();
+Util::Io::File::Type MemoryWrapperNode::getType() {
+    return node.getType();
 }
 
 uint64_t MemoryWrapperNode::getLength() {
     return node.getLength();
 }
 
-Util::Data::Array<Util::Memory::String> MemoryWrapperNode::getChildren() {
+Util::Array<Util::String> MemoryWrapperNode::getChildren() {
     return node.getChildren();
 }
 
@@ -47,7 +47,7 @@ uint64_t MemoryWrapperNode::writeData(const uint8_t *sourceBuffer, uint64_t pos,
     return node.writeData(sourceBuffer, pos, numBytes);
 }
 
-bool MemoryWrapperNode::control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) {
+bool MemoryWrapperNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     return node.control(request, parameters);
 }
 

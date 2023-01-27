@@ -23,7 +23,7 @@
 #include "lib/util/network/NumberUtil.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -31,13 +31,13 @@ class OutputStream;
 
 namespace Util::Network::Ethernet {
 
-void EthernetHeader::read(Util::Stream::InputStream &stream) {
+void EthernetHeader::read(Util::Io::InputStream &stream) {
     destinationAddress.read(stream);
     sourceAddress.read(stream);
     etherType = static_cast<EtherType>(Util::Network::NumberUtil::readUnsigned16BitValue(stream));
 }
 
-void EthernetHeader::write(Util::Stream::OutputStream &stream) {
+void EthernetHeader::write(Util::Io::OutputStream &stream) {
     destinationAddress.write(stream);
     sourceAddress.write(stream);
     Util::Network::NumberUtil::writeUnsigned16BitValue(etherType, stream);

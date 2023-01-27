@@ -22,7 +22,7 @@
 #include <cstdarg>
 
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 struct InterruptFrame;

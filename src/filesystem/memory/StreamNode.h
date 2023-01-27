@@ -21,11 +21,11 @@
 #include <cstdint>
 
 #include "MemoryNode.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/file/File.h"
 
 namespace Util {
-namespace Stream {
+namespace Io {
 class InputStream;
 class OutputStream;
 }  // namespace Stream
@@ -39,17 +39,17 @@ public:
     /**
      * Constructor.
      */
-     StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream, Util::Stream::InputStream *inputStream);
+     StreamNode(const Util::String &name, Util::Io::OutputStream *outputStream, Util::Io::InputStream *inputStream);
 
     /**
      * Constructor.
      */
-    StreamNode(const Util::Memory::String &name, Util::Stream::OutputStream *outputStream);
+    StreamNode(const Util::String &name, Util::Io::OutputStream *outputStream);
 
     /**
      * Constructor.
      */
-    StreamNode(const Util::Memory::String &name, Util::Stream::InputStream *inputStream);
+    StreamNode(const Util::String &name, Util::Io::InputStream *inputStream);
 
     /**
      * Copy Constructor.
@@ -69,7 +69,7 @@ public:
     /**
      * Overriding function from Node.
      */
-    Util::File::Type getFileType() override;
+    Util::Io::File::Type getType() override;
 
     /**
      * Overriding function from Node.
@@ -83,8 +83,8 @@ public:
 
 private:
 
-    Util::Stream::OutputStream *outputStream;
-    Util::Stream::InputStream *inputStream;
+    Util::Io::OutputStream *outputStream;
+    Util::Io::InputStream *inputStream;
 
 };
 

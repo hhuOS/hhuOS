@@ -17,27 +17,27 @@
 
 #include <cstdint>
 
-#include "lib/util/system/System.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/ArgumentParser.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/file/File.h"
-#include "lib/util/memory/String.h"
-#include "lib/util/stream/BufferedInputStream.h"
-#include "lib/util/stream/FileInputStream.h"
-#include "lib/util/stream/PrintWriter.h"
+#include "lib/util/base/System.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/ArgumentParser.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/base/String.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/stream/PrintWriter.h"
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';
 static const constexpr char *HEXDUMP_HEADER = "  OFFSET  | 00 01 02 03 04 05 06 07  08 09 0A 0B 0C 0D 0E 0F |   ANSI  ASCII   ";
 
 void printSeparationLine() {
-    auto length = Util::Memory::Address<uint32_t>(HEXDUMP_HEADER).stringLength();
+    auto length = Util::Address<uint32_t>(HEXDUMP_HEADER).stringLength();
     for (uint32_t i = 0; i < length; i++) {
         Util::System::out << LINE_SEPARATOR;
     }
 
-    Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
 }
 
 char sanitize(char value) {
@@ -60,40 +60,40 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "hexdump: No arguments provided!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "hexdump: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto path = Util::Memory::String(arguments[0]);
-    auto file = Util::File::File(path);
+    auto path = Util::String(arguments[0]);
+    auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
     if (file.isDirectory()) {
-        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
         return -1;
     }
 
-    auto stream = Util::Stream::FileInputStream(file);
-    auto bufferedStream = Util::Stream::BufferedInputStream(stream);
+    auto stream = Util::Io::FileInputStream(file);
+    auto bufferedStream = Util::Io::BufferedInputStream(stream);
 
-    Util::System::out << Util::Stream::PrintWriter::hex << HEXDUMP_HEADER << Util::Stream::PrintWriter::endl;
+    Util::System::out << Util::Io::PrintWriter::hex << HEXDUMP_HEADER << Util::Io::PrintWriter::endl;
     printSeparationLine();
 
-    int32_t length = argumentParser.hasArgument("length") ? Util::Memory::String::parseInt(argumentParser.getArgument("length")) : -1;
+    int32_t length = argumentParser.hasArgument("length") ? Util::String::parseInt(argumentParser.getArgument("length")) : -1;
     int32_t readBytes = 0;
     uint32_t address = 0;
 
     if (argumentParser.hasArgument("skip")) {
-        address = Util::Memory::String::parseInt(argumentParser.getArgument("skip"));
+        address = Util::String::parseInt(argumentParser.getArgument("skip"));
         bufferedStream.skip(address);
     }
 
@@ -125,7 +125,7 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         address += LINE_LENGTH;
-        Util::System::out << Util::Stream::PrintWriter::endl << Util::Stream::PrintWriter::flush;
+        Util::System::out << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
 
         if (i < LINE_LENGTH) {
             break;

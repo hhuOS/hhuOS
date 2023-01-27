@@ -20,21 +20,21 @@
 
 #include <cstdint>
 
-#include "lib/util/stream/OutputStreamWriter.h"
+#include "lib/util/io/stream/OutputStreamWriter.h"
 #include "Service.h"
 #include "device/port/serial/SerialPort.h"
 #include "kernel/interrupt/InterruptHandler.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/data/ArrayList.h"
-#include "lib/util/data/Collection.h"
-#include "lib/util/data/Iterator.h"
-#include "lib/util/memory/FreeListMemoryManager.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/base/FreeListMemoryManager.h"
+#include "kernel/paging/VirtualAddressSpace.h"
 
 namespace Kernel {
 class PageDirectory;
 class PageFrameAllocator;
 class PagingAreaManager;
-class VirtualAddressSpace;
 struct InterruptFrame;
 }  // namespace Kernel
 
@@ -244,18 +244,18 @@ public:
 
 private:
 
-    Util::Memory::FreeListMemoryManager lowerMemoryManager;
+    Util::FreeListMemoryManager lowerMemoryManager;
 
     PageFrameAllocator &pageFrameAllocator;
     PagingAreaManager &pagingAreaManager;
 
-    Util::Data::ArrayList<VirtualAddressSpace*> addressSpaces;
+    Util::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;
     VirtualAddressSpace &kernelAddressSpace;
 
     bool serialDebuggingEnabled = false;
     Device::SerialPort debugPort = Device::SerialPort(Device::SerialPort::COM1);
-    Util::Stream::OutputStreamWriter debugWriter = Util::Stream::OutputStreamWriter(debugPort);
+    Util::Io::OutputStreamWriter debugWriter = Util::Io::OutputStreamWriter(debugPort);
 };
 
 }

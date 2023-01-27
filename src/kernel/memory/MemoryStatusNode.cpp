@@ -22,17 +22,17 @@
 
 namespace Kernel {
 
-MemoryStatusNode::MemoryStatusNode(const Util::Memory::String &name) : StringNode(name) {}
+MemoryStatusNode::MemoryStatusNode(const Util::String &name) : StringNode(name) {}
 
-Util::Memory::String MemoryStatusNode::formatMemory(uint32_t value) {
+Util::String MemoryStatusNode::formatMemory(uint32_t value) {
     uint32_t result = value / 1024 / 1024;
     uint32_t rest = value - (result * 1024 * 1024);
     uint32_t comma = (rest * 1000) / 1024 / 1024;
 
-    return Util::Memory::String::format("%u.%u MiB", result, comma);
+    return Util::String::format("%u.%u MiB", result, comma);
 }
 
-Util::Memory::String MemoryStatusNode::getString() {
+Util::String MemoryStatusNode::getString() {
     auto memoryStatus = Kernel::System::getService<Kernel::MemoryService>().getMemoryStatus();
     return "Physical:      " + formatMemory(memoryStatus.freePhysicalMemory) + " / " + formatMemory(memoryStatus.totalPhysicalMemory) + "\n"
             + "Lower:         " + formatMemory(memoryStatus.freeLowerMemory) + " / " + formatMemory(memoryStatus.totalLowerMemory) + "\n"

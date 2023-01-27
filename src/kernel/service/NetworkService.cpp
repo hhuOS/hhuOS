@@ -24,7 +24,7 @@
 
 #include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/NetworkDevice.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/NetworkAddress.h"
 #include "lib/util/network/Socket.h"
@@ -36,10 +36,10 @@
 #include "kernel/network/ip4/Ip4Socket.h"
 #include "kernel/network/icmp/IcmpSocket.h"
 #include "kernel/network/udp/UdpSocket.h"
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "FilesystemService.h"
 #include "MemoryService.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
 
@@ -98,8 +98,8 @@ NetworkService::NetworkService() {
         auto *kernelDatagram = socket.receive();
         auto *datagramBuffer = reinterpret_cast<uint8_t *>(memoryService.allocateUserMemory(kernelDatagram->getLength()));
 
-        auto source = Util::Memory::Address<uint32_t>(kernelDatagram->getData());
-        auto target = Util::Memory::Address<uint32_t>(datagramBuffer);
+        auto source = Util::Address<uint32_t>(kernelDatagram->getData());
+        auto target = Util::Address<uint32_t>(datagramBuffer);
         target.copyRange(source, kernelDatagram->getLength());
 
         datagram->setData(datagramBuffer, kernelDatagram->getLength());
@@ -116,7 +116,7 @@ void NetworkService::registerNetworkDevice(Device::Network::NetworkDevice *devic
     Device::Network::NetworkFilesystemDriver::mount(*device);
 }
 
-Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::Memory::String &identifier) {
+Device::Network::NetworkDevice &NetworkService::getNetworkDevice(const Util::String &identifier) {
     for (auto *device: devices) {
         if (device->getIdentifier() == identifier) {
             return *device;
@@ -171,7 +171,7 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
     return filesystemService.registerFile(socket);
 }
 
-bool NetworkService::isNetworkDeviceRegistered(const Util::Memory::String &identifier) {
+bool NetworkService::isNetworkDeviceRegistered(const Util::String &identifier) {
     for (auto *device: devices) {
         if (device->getIdentifier() == identifier) {
             return true;

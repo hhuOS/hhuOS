@@ -20,12 +20,12 @@
 #include <cstdint>
 
 #include "lib/util/math/Math.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/game/Graphics2D.h"
 
 namespace Util::Game {
 
-Polygon::Polygon(const Data::Array<double> &x, const Data::Array<double> &y) : x(x), y(y) {
+Polygon::Polygon(const Array<double> &x, const Array<double> &y) : x(x), y(y) {
     if (x.length() != y.length()) {
         Exception::throwException(Exception::INVALID_ARGUMENT, "Polygon: x and y arrays must have the same size!");
     }

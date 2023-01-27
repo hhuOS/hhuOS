@@ -25,10 +25,9 @@
 #include "kernel/process/Process.h"
 #include "kernel/service/MemoryService.h"
 #include "kernel/system/SystemCall.h"
-#include "lib/util/file/File.h"
-#include "lib/util/file/Type.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/system/System.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/System.h"
 
 namespace Kernel {
 
@@ -86,14 +85,14 @@ FilesystemService::FilesystemService() {
         }
 
         const char *path = va_arg(arguments, const char*);
-        auto type = static_cast<Util::File::Type>(va_arg(arguments, uint32_t));
+        auto type = static_cast<Util::Io::File::Type>(va_arg(arguments, uint32_t));
 
-        if (type != Util::File::REGULAR && type != Util::File::DIRECTORY) {
+        if (type != Util::Io::File::REGULAR && type != Util::Io::File::DIRECTORY) {
             return Util::System::INVALID_ARGUMENT;
         }
 
         auto &filesystemService = System::getService<FilesystemService>();
-        auto success = type == Util::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
+        auto success = type == Util::Io::File::REGULAR ? filesystemService.createFile(path) : filesystemService.createDirectory(path);
         return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
     });
 
@@ -113,9 +112,9 @@ FilesystemService::FilesystemService() {
         }
 
         int32_t fileDescriptor = va_arg(arguments, int32_t);
-        Util::File::Type *type = va_arg(arguments, Util::File::Type*);
+        Util::Io::File::Type *type = va_arg(arguments, Util::Io::File::Type*);
 
-        *type = System::getService<FilesystemService>().getNode(fileDescriptor).getFileType();
+        *type = System::getService<FilesystemService>().getNode(fileDescriptor).getType();
         return Util::System::Result::OK;
     });
 
@@ -147,8 +146,8 @@ FilesystemService::FilesystemService() {
 
         for (uint32_t i = 0; i < children.length(); i++) {
             (*targetChildren)[i] = static_cast<char*>(memoryService.allocateUserMemory((children[i].length() + 1) * sizeof(char)));
-            auto source = Util::Memory::Address<uint32_t>(static_cast<char *>(children[i]));
-            auto target = Util::Memory::Address<uint32_t>((*targetChildren)[i]);
+            auto source = Util::Address<uint32_t>(static_cast<char *>(children[i]));
+            auto target = Util::Address<uint32_t>((*targetChildren)[i]);
             target.copyString(source);
         }
 
@@ -192,7 +191,7 @@ FilesystemService::FilesystemService() {
 
         int32_t fileDescriptor = va_arg(arguments, int32_t);
         uint32_t request = va_arg(arguments, uint32_t);
-        Util::Data::Array<uint32_t> *parameters = va_arg(arguments, Util::Data::Array<uint32_t>*);
+        Util::Array<uint32_t> *parameters = va_arg(arguments, Util::Array<uint32_t>*);
 
         auto success = System::getService<FilesystemService>().getNode(fileDescriptor).control(request, *parameters);
         return success ? Util::System::Result::OK : Util::System::Result::INVALID_ARGUMENT;
@@ -219,39 +218,39 @@ FilesystemService::FilesystemService() {
 
         auto &memoryService = System::getService<MemoryService>();
         *targetPath = static_cast<char*>(memoryService.allocateUserMemory((path.length() + 1) * sizeof(char)));
-        auto source = Util::Memory::Address<uint32_t>(static_cast<char*>(path));
-        auto target = Util::Memory::Address<uint32_t>(*targetPath);
+        auto source = Util::Address<uint32_t>(static_cast<char*>(path));
+        auto target = Util::Address<uint32_t>(*targetPath);
         target.copyString(source);
 
         return Util::System::Result::OK;
     });
 }
 
-bool FilesystemService::mount(const Util::Memory::String &deviceName, const Util::Memory::String &targetPath, const Util::Memory::String &driverName) {
+bool FilesystemService::mount(const Util::String &deviceName, const Util::String &targetPath, const Util::String &driverName) {
     return filesystem.mount(deviceName, targetPath, driverName);
 }
 
-bool FilesystemService::unmount(const Util::Memory::String &path) {
+bool FilesystemService::unmount(const Util::String &path) {
     return filesystem.unmount(path);
 }
 
-bool FilesystemService::createFilesystem(const Util::Memory::String &deviceName, const Util::Memory::String &driverName) {
+bool FilesystemService::createFilesystem(const Util::String &deviceName, const Util::String &driverName) {
     return filesystem.createFilesystem(deviceName, driverName);
 }
 
-bool FilesystemService::createFile(const Util::Memory::String &path) {
+bool FilesystemService::createFile(const Util::String &path) {
     return filesystem.createFile(path);
 }
 
-bool FilesystemService::createDirectory(const Util::Memory::String &path) {
+bool FilesystemService::createDirectory(const Util::String &path) {
     return filesystem.createDirectory(path);
 }
 
-bool FilesystemService::deleteFile(const Util::Memory::String &path) {
+bool FilesystemService::deleteFile(const Util::String &path) {
     return filesystem.deleteFile(path);
 }
 
-int32_t FilesystemService::openFile(const Util::Memory::String &path) {
+int32_t FilesystemService::openFile(const Util::String &path) {
     return System::getService<ProcessService>().getCurrentProcess().getFileDescriptorManager().openFile(path);
 }
 
@@ -271,7 +270,7 @@ Filesystem::Filesystem& FilesystemService::getFilesystem() {
     return filesystem;
 }
 
-Util::Data::Array<Filesystem::MountInformation> FilesystemService::getMountInformation() {
+Util::Array<Filesystem::MountInformation> FilesystemService::getMountInformation() {
     return filesystem.getMountInformation();
 }
 

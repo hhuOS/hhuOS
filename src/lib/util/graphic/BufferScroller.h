@@ -24,9 +24,9 @@ namespace Util {
 namespace Graphic {
 class LinearFrameBuffer;
 }  // namespace Graphic
-namespace Memory {
+
 template <typename T> class Address;
-}  // namespace Memory
+
 }  // namespace Util
 
 namespace Util::Graphic {
@@ -67,7 +67,7 @@ private:
 
     bool useMmx = false;
     const LinearFrameBuffer &lfb;
-    const Memory::Address<uint32_t> &targetBuffer;
+    const Address<uint32_t> &targetBuffer;
 };
 
 }

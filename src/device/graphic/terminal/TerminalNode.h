@@ -21,8 +21,8 @@
 #include <cstdint>
 
 #include "filesystem/memory/StreamNode.h"
-#include "lib/util/data/Array.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/base/String.h"
 
 namespace Util {
 namespace Graphic {
@@ -38,7 +38,7 @@ public:
     /**
      * Default Constructor.
      */
-    TerminalNode(const Util::Memory::String &name, Util::Graphic::Terminal *terminal);
+    TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal);
 
     /**
      * Copy Constructor.
@@ -55,7 +55,7 @@ public:
      */
     ~TerminalNode() override = default;
 
-    bool control(uint32_t request, const Util::Data::Array<uint32_t> &parameters) override;
+    bool control(uint32_t request, const Util::Array<uint32_t> &parameters) override;
 
 private:
 

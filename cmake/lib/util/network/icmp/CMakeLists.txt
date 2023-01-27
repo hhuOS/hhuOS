@@ -16,7 +16,7 @@
 
 cmake_minimum_required(VERSION 3.14)
  
-target_sources(lib.util PUBLIC
+target_sources(lib.network PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/network/icmp/IcmpDatagram.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/icmp/IcmpHeader.cpp
         ${HHUOS_SRC_DIR}/lib/util/network/icmp/EchoHeader.cpp)

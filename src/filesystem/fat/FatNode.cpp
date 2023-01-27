@@ -28,7 +28,7 @@ FatNode::~FatNode() {
     delete &info;
 }
 
-FatNode *FatNode::open(const Util::Memory::String &path) {
+FatNode *FatNode::open(const Util::String &path) {
     // Try to stat the file. If this fails, the file is either non-existent,
     // or it may be the root-directory (f_stat will fail, when executed on the root-directory).
     auto *info = new FILINFO();
@@ -62,7 +62,7 @@ FatNode *FatNode::open(const Util::Memory::String &path) {
     return nullptr;
 }
 
-Util::Memory::String FatNode::getName() {
+Util::String FatNode::getName() {
     return info.fname;
 }
 

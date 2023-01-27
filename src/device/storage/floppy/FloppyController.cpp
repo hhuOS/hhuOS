@@ -27,9 +27,9 @@
 #include "lib/util/async/Thread.h"
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
-#include "lib/util/Exception.h"
-#include "lib/util/memory/Address.h"
-#include "lib/util/memory/Constants.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/base/Constants.h"
 #include "lib/util/time/Timestamp.h"
 
 namespace Kernel {
@@ -373,12 +373,12 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
     }
 
     auto &memoryService = Kernel::System::getService<Kernel::MemoryService>();
-    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Util::Memory::PAGESIZE);
+    void *dmaMemory = memoryService.allocateLowerMemory(sectorCount * device.getSectorSize(), Util::PAGESIZE);
     bool success = false;
 
     if (mode == WRITE) {
-        auto sourceAddress = Util::Memory::Address<uint32_t>(buffer);
-        auto targetAddress = Util::Memory::Address<uint32_t>(dmaMemory);
+        auto sourceAddress = Util::Address<uint32_t>(buffer);
+        auto targetAddress = Util::Address<uint32_t>(dmaMemory);
         targetAddress.copyRange(sourceAddress, sectorCount * device.getSectorSize());
     }
 
@@ -421,8 +421,8 @@ bool FloppyController::performIO(FloppyDevice &device, FloppyController::Transfe
         }
 
         if (mode == READ) {
-            auto sourceAddress = Util::Memory::Address<uint32_t>(dmaMemory);
-            auto targetAddress = Util::Memory::Address<uint32_t>(buffer);
+            auto sourceAddress = Util::Address<uint32_t>(dmaMemory);
+            auto targetAddress = Util::Address<uint32_t>(buffer);
             targetAddress.copyRange(sourceAddress, device.getSectorSize() * sectorCount);
         }
 

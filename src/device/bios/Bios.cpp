@@ -18,15 +18,15 @@
 
 #include "kernel/paging/MemoryLayout.h"
 #include "kernel/multiboot/Multiboot.h"
-#include "lib/util/memory/Address.h"
+#include "lib/util/base/Address.h"
 #include "device/cpu/Cpu.h"
 #include "asm_interface.h"
 #include "Bios.h"
 #include "kernel/system/System.h"
 #include "kernel/service/MemoryService.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 #include "lib/util/async/Spinlock.h"
-#include "lib/util/memory/String.h"
+#include "lib/util/base/String.h"
 
 namespace Device {
 
@@ -276,8 +276,8 @@ Bios::RealModeContext Bios::interrupt(int interruptNumber, const RealModeContext
     auto *biosContext = static_cast<RealModeContext*>(Kernel::System::getService<Kernel::MemoryService>().allocateLowerMemory(sizeof(RealModeContext), 16));
 
     // Copy given context into the allocated space
-    Util::Memory::Address<uint32_t> source(&context);
-    Util::Memory::Address<uint32_t> target(biosContext);
+    Util::Address<uint32_t> source(&context);
+    Util::Address<uint32_t> target(biosContext);
     target.copyRange(source, sizeof(RealModeContext));
 
     // Get pointer to bios call segment

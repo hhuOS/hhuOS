@@ -22,7 +22,7 @@
 
 #include "lib/util/async/Atomic.h"
 #include "kernel/memory/BlockMemoryManager.h"
-#include "lib/util/Exception.h"
+#include "lib/util/base/Exception.h"
 
 namespace Kernel {
 class BitmapMemoryManager;

@@ -47,7 +47,7 @@ void Thread::yield() {
     ::yield();
 }
 
-Thread Thread::createThread(const Util::Memory::String &name, Runnable *runnable) {
+Thread Thread::createThread(const Util::String &name, Runnable *runnable) {
     return ::createThread(name, runnable);
 }
 

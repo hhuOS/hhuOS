@@ -22,7 +22,7 @@
 
 #include "Pci.h"
 #include "device/interrupt/Pic.h"
-#include "lib/util/data/Array.h"
+#include "lib/util/collection/Array.h"
 
 namespace Device {
 
@@ -68,15 +68,15 @@ public:
 
     void writeDoubleWord(uint8_t reg, uint32_t value) const;
 
-    [[nodiscard]] Util::Data::Array<Pci::Command> readCommand() const;
+    [[nodiscard]] Util::Array<Pci::Command> readCommand() const;
 
-    [[nodiscard]] Util::Data::Array<Pci::Status> readStatus() const;
+    [[nodiscard]] Util::Array<Pci::Status> readStatus() const;
 
-    [[nodiscard]] Util::Data::Array<uint8_t> readCapabilities() const;
+    [[nodiscard]] Util::Array<uint8_t> readCapabilities() const;
 
-    void writeCommand(const Util::Data::Array<Pci::Command> &commands) const;
+    void writeCommand(const Util::Array<Pci::Command> &commands) const;
 
-    void overwriteCommand(const Util::Data::Array<Pci::Command> &commands) const;
+    void overwriteCommand(const Util::Array<Pci::Command> &commands) const;
 
     [[nodiscard]] uint16_t getVendorId() const;
 

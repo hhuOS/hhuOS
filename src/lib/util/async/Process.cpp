@@ -15,15 +15,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/system/System.h"
+#include "lib/util/base/System.h"
 #include "lib/interface.h"
 #include "lib/util/async/Process.h"
 
 namespace Util {
-namespace Data {
+
 template <typename T> class Array;
-}  // namespace Data
-namespace File {
+
+namespace Io {
 class File;
 }  // namespace File
 }  // namespace Util
@@ -32,7 +32,7 @@ namespace Util::Async {
 
 Process::Process(uint32_t id) : id(id) {}
 
-Process Process::execute(const File::File &binaryFile, const File::File &inpuputFile, const File::File &outputFile, const File::File &errorFile, const Util::Memory::String &command, const Util::Data::Array<Util::Memory::String> &arguments) {
+Process Process::execute(const Io::File &binaryFile, const Io::File &inpuputFile, const Io::File &outputFile, const Io::File &errorFile, const Util::String &command, const Util::Array<Util::String> &arguments) {
     return ::executeBinary(binaryFile, inpuputFile, outputFile, errorFile, command, arguments);
 }
 
