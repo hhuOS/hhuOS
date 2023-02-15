@@ -28,6 +28,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
+#include "lib/util/graphic/Image.h"
 
 namespace Util {
 namespace Graphic {
@@ -67,11 +68,13 @@ public:
 
     void drawString(double x, double y, const char *string) const;
 
-    void drawString(double x, double y, const Util::String &string) const;
+    void drawString(double x, double y, const String &string) const;
 
     void drawStringSmall(double x, double y, const char *string) const;
 
-    void drawStringSmall(double x, double y, const Util::String &string) const;
+    void drawStringSmall(double x, double y, const String &string) const;
+
+    void drawImage(double x, double y, const Graphic::Image &image, bool flipX = false) const;
 
     void show() const;
 

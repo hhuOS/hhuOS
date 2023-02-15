@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_FILE_H
-#define HHUOS_FILE_H
+#ifndef HHUOS_BMP_FILE_H
+#define HHUOS_BMP_FILE_H
 
 #include <cstdint>
 
@@ -28,7 +28,6 @@ namespace Util::Io {
 class File {
 
 public:
-
     /**
      * Enumeration of different file types.
      */
