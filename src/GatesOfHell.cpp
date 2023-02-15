@@ -27,11 +27,10 @@
 #include "kernel/multiboot/Multiboot.h"
 #include "kernel/multiboot/MultibootTerminalProvider.h"
 #include "device/hid/Keyboard.h"
-#include "lib/util/io/stream/InputStreamReader.h"
 #include "lib/util/io/file/tar/Archive.h"
 #include "filesystem/tar/ArchiveDriver.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/BufferedReader.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
 #include "kernel/service/FilesystemService.h"
 #include "filesystem/memory/MemoryDriver.h"
 #include "lib/util/io/stream/FileInputStream.h"
@@ -56,7 +55,6 @@
 #include "filesystem/process/ProcessDriver.h"
 #include "device/hid/Mouse.h"
 #include "device/hid/Ps2Controller.h"
-#include "lib/util/io/stream/FileReader.h"
 #include "filesystem/memory/MountsNode.h"
 #include "device/debug/FirmwareConfiguration.h"
 #include "filesystem/qemu/FirmwareConfigurationDriver.h"
@@ -75,7 +73,7 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/network/ip4/Ip4NetworkMask.h"
@@ -350,25 +348,24 @@ void GatesOfHell::printBanner() {
     auto bannerFile = Util::Io::File("/initrd/banner.txt");
     if (bannerFile.exists()) {
         auto bannerStream = Util::Io::FileInputStream(bannerFile);
-        auto bannerReader = Util::Io::InputStreamReader(bannerStream);
-        auto bufferedReader = Util::Io::BufferedReader(bannerReader);
+        auto bufferedStream = Util::Io::BufferedInputStream(bannerStream);
 
-        auto banner = bufferedReader.read(bannerFile.getLength());
+        auto banner = bufferedStream.readString(bannerFile.getLength());
         Util::System::out << Util::String::format(static_cast<const char*>(banner),
                                                BuildConfig::getVersion(),
                                                BuildConfig::getBuildDate(),
                                                BuildConfig::getGitBranch(),
-                                               BuildConfig::getGitRevision()) << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+                                               BuildConfig::getGitRevision()) << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     } else {
         printDefaultBanner();
     }
 }
 
 void GatesOfHell::printDefaultBanner() {
-    Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintWriter::endl
-           << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Io::PrintWriter::endl
-           << "Git revision: " << BuildConfig::getGitRevision() << Util::Io::PrintWriter::endl
-           << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << "Welcome to hhuOS!" << Util::Io::PrintStream::endl
+                      << "Version: " << BuildConfig::getVersion() << " (" << BuildConfig::getGitBranch() << ")" << Util::Io::PrintStream::endl
+                      << "Git revision: " << BuildConfig::getGitRevision() << Util::Io::PrintStream::endl
+                      << "Build date: " << BuildConfig::getBuildDate() << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 }
 
 void GatesOfHell::initializePowerManagement() {
@@ -417,20 +414,20 @@ void GatesOfHell::mountDevices() {
     }
 
     auto &filesystemService = Kernel::System::getService<Kernel::FilesystemService>();
-    auto fileReader = Util::Io::FileReader(mountFile);
-    auto reader = Util::Io::BufferedReader(fileReader);
+    auto inputStream = Util::Io::FileInputStream(mountFile);
+    auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
 
-    Util::String line = reader.readLine();
+    Util::String line = bufferedStream.readLine();
     while (!line.isEmpty()) {
         if (line.beginsWith("#")) {
-            line = reader.readLine();
+            line = bufferedStream.readLine();
             continue;
         }
 
         auto split = line.split(" ");
         if (split.length() < 3) {
             log.error("Invalid line in /system/mount_table");
-            line = reader.readLine();
+            line = bufferedStream.readLine();
             continue;
         }
 
@@ -439,6 +436,6 @@ void GatesOfHell::mountDevices() {
             log.error("Failed to mount [%s] to [%s]", static_cast<const char*>(split[0]), static_cast<const char*>(split[1]));
         }
 
-        line = reader.readLine();
+        line = bufferedStream.readLine();
     }
 }

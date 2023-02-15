@@ -38,7 +38,7 @@ class Ps2Controller;
  * Driver for the Keyboard-Controller.
  *
  * @author  original by Olaf Spinczyk, TU Dortmund
- * 			modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
+ *          modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  */
 class Keyboard : public Ps2Device, public Util::Io::FilterInputStream, public Kernel::InterruptHandler {
 

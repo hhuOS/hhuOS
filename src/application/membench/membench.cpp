@@ -28,7 +28,7 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 static const constexpr uint32_t BUFFER_SIZE = 1024 * 1024;
 
@@ -55,7 +55,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -64,22 +64,22 @@ int32_t main(int32_t argc, char *argv[]) {
     auto *buffer1 = new uint8_t[BUFFER_SIZE];
     auto *buffer2 = new uint8_t[BUFFER_SIZE];
     Util::Io::ByteArrayOutputStream resultStream;
-    Util::Io::PrintWriter resultWriter(resultStream);
+    Util::Io::PrintStream resultWriter(resultStream);
     
-    Util::System::out << "Ensuring buffers are mapped in..." << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << "Ensuring buffers are mapped in..." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     Util::Address<uint32_t>(buffer1).setRange(0, BUFFER_SIZE);
     Util::Address<uint32_t>(buffer2).setRange(0, BUFFER_SIZE);
 
     uint32_t memsetResult, memcpyResult;
-    Util::System::out << "Running memory benchmarks without extensions..." << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << "Running memory benchmarks without extensions..." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     benchmark(iterations, Util::Address<uint32_t>(buffer1), Util::Address<uint32_t>(buffer2), memsetResult, memcpyResult);
-    resultWriter << "Without extensions:" << Util::Io::PrintWriter::endl
-                 << "memset: " << memsetResult << "ms" << Util::Io::PrintWriter::endl
-                 << "memcpy: " << memcpyResult << "ms" << Util::Io::PrintWriter::endl;
+    resultWriter << "Without extensions:" << Util::Io::PrintStream::endl
+                 << "memset: " << memsetResult << "ms" << Util::Io::PrintStream::endl
+                 << "memcpy: " << memcpyResult << "ms" << Util::Io::PrintStream::endl;
 
     if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::MMX)) {
         uint32_t memsetMmxResult, memcpyMmxResult;
-        Util::System::out << "Running memory benchmarks with MMX..." << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::out << "Running memory benchmarks with MMX..." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         benchmark(iterations, Util::MmxAddress<uint32_t>(buffer1), Util::MmxAddress<uint32_t>(buffer2), memsetMmxResult, memcpyMmxResult);
 
         Util::Math::Math::endMmx();
@@ -89,14 +89,14 @@ int32_t main(int32_t argc, char *argv[]) {
         auto memsetString = Util::String::format("%u.%02ux", static_cast<uint32_t>(memsetSpeedup), static_cast<uint32_t>((memsetSpeedup - static_cast<uint32_t>(memsetSpeedup)) * 100));
         auto memcpyString = Util::String::format("%u.%02ux", static_cast<uint32_t>(memcpySpeedup), static_cast<uint32_t>((memcpySpeedup - static_cast<uint32_t>(memcpySpeedup)) * 100));
         
-        resultWriter << Util::Io::PrintWriter::endl << "MMX enabled:" << Util::Io::PrintWriter::endl
-                     << "memset: " << memsetMmxResult << "ms (" << memsetString << ")" << Util::Io::PrintWriter::endl
-                     << "memcpy: " << memcpyMmxResult << "ms (" << memcpyString << ")" << Util::Io::PrintWriter::endl;
+        resultWriter << Util::Io::PrintStream::endl << "MMX enabled:" << Util::Io::PrintStream::endl
+                     << "memset: " << memsetMmxResult << "ms (" << memsetString << ")" << Util::Io::PrintStream::endl
+                     << "memcpy: " << memcpyMmxResult << "ms (" << memcpyString << ")" << Util::Io::PrintStream::endl;
     }
 
     if (Util::Hardware::CpuId::getCpuFeatures().contains(Util::Hardware::CpuId::SSE)) {
         uint32_t memsetSseResult, memcpySseResult;
-        Util::System::out << "Running memory benchmarks with SSE..." << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::out << "Running memory benchmarks with SSE..." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         benchmark(iterations, Util::SseAddress<uint32_t>(buffer1), Util::SseAddress<uint32_t>(buffer2), memsetSseResult, memcpySseResult);
 
         double memsetSpeedup = (double) memsetResult / memsetSseResult;
@@ -104,14 +104,14 @@ int32_t main(int32_t argc, char *argv[]) {
         auto memsetString = Util::String::format("%u.%02ux", static_cast<uint32_t>(memsetSpeedup), static_cast<uint32_t>((memsetSpeedup - static_cast<uint32_t>(memsetSpeedup)) * 100));
         auto memcpyString = Util::String::format("%u.%02ux", static_cast<uint32_t>(memcpySpeedup), static_cast<uint32_t>((memcpySpeedup - static_cast<uint32_t>(memcpySpeedup)) * 100));
 
-        resultWriter << Util::Io::PrintWriter::endl << "SSE enabled:" << Util::Io::PrintWriter::endl
-                     << "memset: " << memsetSseResult << "ms (" << memsetString << ")" << Util::Io::PrintWriter::endl
-                     << "memcpy: " << memcpySseResult << "ms (" << memcpyString << ")" << Util::Io::PrintWriter::endl;
+        resultWriter << Util::Io::PrintStream::endl << "SSE enabled:" << Util::Io::PrintStream::endl
+                     << "memset: " << memsetSseResult << "ms (" << memsetString << ")" << Util::Io::PrintStream::endl
+                     << "memcpy: " << memcpySseResult << "ms (" << memcpyString << ")" << Util::Io::PrintStream::endl;
     }
     
     delete[] buffer1;
     delete[] buffer2;
 
-    Util::System::out << Util::Io::PrintWriter::endl << resultStream.getContent() << Util::Io::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintStream::endl << resultStream.getContent() << Util::Io::PrintStream::flush;
     return 0;
 }

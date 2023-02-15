@@ -29,7 +29,7 @@
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/collection/List.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/System.h"
 
 namespace Kernel {
@@ -47,7 +47,7 @@ void InterruptDispatcher::dispatch(const InterruptFrame &frame) {
             System::panic(frame);
         }
 
-        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::out << Device::Cpu::getExceptionName(slot) << ": " << Util::System::errorMessage << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         processService.exitCurrentProcess(-1);
     }
 

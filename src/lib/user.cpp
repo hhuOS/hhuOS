@@ -22,7 +22,7 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/async/Runnable.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/async/Process.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/base/Exception.h"
@@ -245,7 +245,7 @@ bool shutdown(Util::Hardware::Machine::ShutdownType type) {
 }
 
 void throwError(Util::Exception::Error error, const char *message) {
-    Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << Util::Exception::getExceptionName(error) << ": " << message << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     Util::System::call(Util::System::EXIT_PROCESS, 1, -1);
     __builtin_unreachable();
 }

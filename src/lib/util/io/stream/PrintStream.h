@@ -15,47 +15,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_PRINTWRITER_H
-#define HHUOS_PRINTWRITER_H
+#ifndef HHUOS_PRINTSTREAM_H
+#define HHUOS_PRINTSTREAM_H
 
 #include <cstdint>
 
-#include "Writer.h"
+#include "OutputStream.h"
 #include "lib/util/base/String.h"
-
-namespace Util {
-namespace Io {
-class OutputStream;
-}  // namespace Io
-}  // namespace Util
 
 namespace Util::Io {
 
-class PrintWriter : public Writer {
+class PrintStream : public OutputStream {
 
 public:
 
-    explicit PrintWriter(Writer &writer, bool autoFlush = false);
+    explicit PrintStream(OutputStream &stream, bool autoFlush = false);
 
-    explicit PrintWriter(OutputStream &outputStream, bool autoFlush = false);
+    PrintStream(const PrintStream &copy) = delete;
 
-    PrintWriter(const PrintWriter &copy) = delete;
+    PrintStream &operator=(const PrintStream &copy) = delete;
 
-    PrintWriter &operator=(const PrintWriter &copy) = delete;
+    ~PrintStream() override = default;
 
-    ~PrintWriter() override;
+    void write(uint8_t c) override;
+
+    void write(const uint8_t *sourceBuffer, uint32_t offset, uint32_t length) override;
 
     void flush() override;
-
-    void write(const char *sourceBuffer, uint32_t offset, uint32_t length) override;
-
-    void write(const char *sourceBuffer, uint32_t length) override;
-
-    void write(char c) override;
-
-    void write(const Util::String &string) override;
-
-    void write(const Util::String &string, uint32_t offset, uint32_t length) override;
 
     void setBase(uint8_t newBase);
 
@@ -103,43 +89,42 @@ public:
 
     void println(void *pointer);
 
-    PrintWriter& operator<<(char c);
+    PrintStream& operator<<(char c);
 
-    PrintWriter& operator<<(const char *string);
+    PrintStream& operator<<(const char *string);
 
-    PrintWriter& operator<<(const String &string);
+    PrintStream& operator<<(const String &string);
 
-    PrintWriter& operator<<(bool boolean);
+    PrintStream& operator<<(bool boolean);
 
-    PrintWriter& operator<<(int16_t value);
+    PrintStream& operator<<(int16_t value);
 
-    PrintWriter& operator<<(uint16_t value);
+    PrintStream& operator<<(uint16_t value);
 
-    PrintWriter& operator<<(int32_t value);
+    PrintStream& operator<<(int32_t value);
 
-    PrintWriter& operator<<(uint32_t value);
+    PrintStream& operator<<(uint32_t value);
 
-    PrintWriter& operator<<(void *ptr);
+    PrintStream& operator<<(void *ptr);
 
-    PrintWriter& operator<<(PrintWriter& (*f)(PrintWriter&));
+    PrintStream& operator<<(PrintStream& (*f)(PrintStream&));
 
-    static PrintWriter& flush(PrintWriter& writer);
+    static PrintStream& flush(PrintStream& stream);
 
-    static PrintWriter& endl(PrintWriter& writer);
+    static PrintStream& endl(PrintStream& stream);
 
-    static PrintWriter& bin(PrintWriter& writer);
+    static PrintStream& bin(PrintStream& stream);
 
-    static PrintWriter& oct(PrintWriter& writer);
+    static PrintStream& oct(PrintStream& stream);
 
-    static PrintWriter& dec(PrintWriter& writer);
+    static PrintStream& dec(PrintStream& stream);
 
-    static PrintWriter& hex(PrintWriter& writer);
+    static PrintStream& hex(PrintStream& stream);
 
 private:
 
-    Writer &writer;
+    OutputStream &stream;
     bool autoFlush;
-    bool deleteWriter;
     uint8_t base = 10;
     uint8_t numberPadding = 0;
 

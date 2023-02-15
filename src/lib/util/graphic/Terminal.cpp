@@ -18,13 +18,14 @@
 #include "lib/util/base/Exception.h"
 #include "lib/util/async/Thread.h"
 #include "lib/util/async/FunctionPointerRunnable.h"
-#include "lib/util/io/stream/FileWriter.h"
 #include "Terminal.h"
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/io/stream/FileOutputStream.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 namespace Util::Graphic {
 
@@ -101,10 +102,12 @@ int32_t Terminal::read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) 
 
 void Terminal::handleBell() {
     Async::Thread::createThread("Terminal-Bell", new Async::FunctionPointerRunnable([](){
-        auto writer = Io::FileWriter("/device/speaker");
-        writer.write("440");
+        auto stream = Io::FileOutputStream("/device/speaker");
+        auto printStream = Io::PrintStream(stream);
+
+        printStream << "440" << Util::Io::PrintStream::flush;
         Async::Thread::sleep(Time::Timestamp::ofMilliseconds(250));
-        writer.write("0");
+        printStream << "0" << Util::Io::PrintStream::flush;
     }));
 }
 

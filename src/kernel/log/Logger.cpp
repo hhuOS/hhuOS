@@ -30,7 +30,7 @@
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/HashMap.h"
 #include "lib/util/collection/Iterator.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/time/Timestamp.h"
 #include "lib/util/io/stream/OutputStream.h"
 
@@ -38,7 +38,7 @@ namespace Kernel {
 
 Logger::LogLevel Logger::currentLevel = LogLevel::TRACE;
 Util::Async::Spinlock Logger::lock;
-Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintWriter*> Logger::writerMap;
+Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintStream*> Logger::streamMap;
 Util::ArrayList<Util::String> Logger::buffer;
 
 Logger::Logger(const Util::String &name) : name(name) {}
@@ -73,13 +73,12 @@ void Logger::setLevel(Util::String level) {
 void Logger::addOutputStream(Util::Io::OutputStream &stream) {
     lock.acquire();
 
-    auto *writer = new Util::Io::PrintWriter(stream);
+    auto *printStream = new Util::Io::PrintStream(stream);
     for (const auto &message : buffer) {
-        writer->write(message);
-        writer->println();
+        *printStream << message << Util::Io::PrintStream::endl;
     }
 
-    writerMap.put(&stream, writer);
+    streamMap.put(&stream, printStream);
 
     lock.release();
 }
@@ -87,9 +86,9 @@ void Logger::addOutputStream(Util::Io::OutputStream &stream) {
 void Logger::removeOutputStream(Util::Io::OutputStream &stream) {
     lock.acquire();
 
-    const auto *writer = writerMap.get(&stream);
-    writerMap.remove(&stream);
-    delete writer;
+    const auto *printStream = streamMap.get(&stream);
+    streamMap.remove(&stream);
+    delete printStream;
 
     lock.release();
 }
@@ -157,9 +156,9 @@ void Logger::logMessage(const LogLevel &level, const Util::String &name, const U
 
     buffer.add(logMessage);
 
-    for (auto *stream : writerMap.keys()) {
-        auto &writer = *writerMap.get(stream);
-        writer << logMessage << Util::Io::PrintWriter::endl;
+    for (auto *stream : streamMap.keys()) {
+        auto &printStream= *streamMap.get(stream);
+        printStream << logMessage << Util::Io::PrintStream::endl;
     }
 
     lock.release();

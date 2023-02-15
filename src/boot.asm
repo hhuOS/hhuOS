@@ -20,18 +20,18 @@
 %include "constants.asm"
 
 ; Multiboot Constants
-MULTIBOOT_PAGE_ALIGN	equ	1<<0
-MULTIBOOT_MEMORY_INFO	equ	1<<1
+MULTIBOOT_PAGE_ALIGN equ 1<<0
+MULTIBOOT_MEMORY_INFO equ 1<<1
 MULTIBOOT_GRAPHICS_INFO equ 1<<2
-MULTIBOOT_ADDRESS_INFO  equ 1<<16
+MULTIBOOT_ADDRESS_INFO equ 1<<16
 
 ; Multiboot Magic
-MULTIBOOT_HEADER_MAGIC	equ	0x1badb002
+MULTIBOOT_HEADER_MAGIC    equ    0x1badb002
 MUTLIBOOT_EAX_MAGIC     equ 0x2badb002
 
 ; Multiboot Flags
-MULTIBOOT_HEADER_FLAGS	equ	MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_GRAPHICS_INFO
-MULTIBOOT_HEADER_CHKSUM	equ	-(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
+MULTIBOOT_HEADER_FLAGS    equ    MULTIBOOT_PAGE_ALIGN | MULTIBOOT_MEMORY_INFO | MULTIBOOT_GRAPHICS_INFO
+MULTIBOOT_HEADER_CHKSUM    equ    -(MULTIBOOT_HEADER_MAGIC + MULTIBOOT_HEADER_FLAGS)
 
 ; Multiboot options
 GRAPHICS_MODE   equ 0
@@ -87,28 +87,28 @@ ___PHYS_BSS_END__   equ (___BSS_END__ - KERNEL_START)
 section .text
 
 multiboot_header:
-	align 4
-	dd MULTIBOOT_HEADER_MAGIC
-	dd MULTIBOOT_HEADER_FLAGS
-	dd MULTIBOOT_HEADER_CHKSUM
-	dd (multiboot_header - KERNEL_START)
-	dd (___KERNEL_DATA_START__ - KERNEL_START)
-	dd (___KERNEL_DATA_END__ - KERNEL_START)
-	dd (___BSS_END__ - KERNEL_START)
-	dd (boot - KERNEL_START)
-	dd GRAPHICS_MODE
-	dd GRAPHICS_WIDTH
-	dd GRAPHICS_HEIGHT
-	dd GRAPHICS_BPP
+    align 4
+    dd MULTIBOOT_HEADER_MAGIC
+    dd MULTIBOOT_HEADER_FLAGS
+    dd MULTIBOOT_HEADER_CHKSUM
+    dd (multiboot_header - KERNEL_START)
+    dd (___KERNEL_DATA_START__ - KERNEL_START)
+    dd (___KERNEL_DATA_END__ - KERNEL_START)
+    dd (___BSS_END__ - KERNEL_START)
+    dd (boot - KERNEL_START)
+    dd GRAPHICS_MODE
+    dd GRAPHICS_WIDTH
+    dd GRAPHICS_HEIGHT
+    dd GRAPHICS_BPP
 
 boot:
     ; Save multiboot structure address
     mov [multiboot_physical_addr - KERNEL_START], ebx
 
-	; Set esp to initial kernel stack
+    ; Set esp to initial kernel stack
     mov esp, (initial_kernel_stack - KERNEL_START + STACK_SIZE)
 
-	; Setup global descriptor tables
+    ; Setup global descriptor tables
     push dword (gdt_phys_descriptor - KERNEL_START)
     push dword (gdt_bios_descriptor - KERNEL_START)
     push dword (gdt_descriptor - KERNEL_START)
@@ -119,25 +119,25 @@ boot:
     ; Load GDT from physical address
     lgdt [gdt_phys_descriptor - KERNEL_START]
 
-	; Set segment-registers
-    mov	ax,0x10
-    mov	ds,ax
-    mov	es,ax
-    mov	fs,ax
-    mov	gs,ax
-    mov	ss,ax
+    ; Set segment-registers
+    mov    ax,0x10
+    mov    ds,ax
+    mov    es,ax
+    mov    fs,ax
+    mov    gs,ax
+    mov    ss,ax
     ; Invoke a jump to set the CS-register to the right value (the code segment is placed at offset 0x8)
     ; If something at the GDT is changed, this instruction may need to be changed as well
     jmp 0x8:_clear_bss
 
 ; Zero out bss
 clear_bss:
-    mov	edi,___PHYS_BSS_START__
+    mov    edi,___PHYS_BSS_START__
 clear_bss_loop:
-    cmp	edi,___PHYS_BSS_END__
+    cmp    edi,___PHYS_BSS_END__
     jge clear_bss_done
-    mov	byte [edi],0
-    inc	edi
+    mov    byte [edi],0
+    inc    edi
     jmp clear_bss_loop
 clear_bss_done:
     ; Set stack again to cut off possible old values
@@ -158,51 +158,51 @@ clear_bss_done:
     push dword [multiboot_physical_addr - KERNEL_START]
     call_physical_function read_memory_map
 
-	; Jump into paging.asm to enable 4MB paging
-	call_physical_function enable_bootstrap_paging
+    ; Jump into paging.asm to enable 4MB paging
+    call_physical_function enable_bootstrap_paging
 
 ; We return here from paging.asm after 4MB paging is enabled
 on_paging_enabled:
     ; Load GDT from virtual address
-	lgdt [gdt_descriptor]
+    lgdt [gdt_descriptor]
 
     ; Set esp to initial kernel stack
-	mov esp, (initial_kernel_stack + STACK_SIZE)
+    mov esp, (initial_kernel_stack + STACK_SIZE)
 
     ; Setup interrupts (see interrupts.asm)
-	call setup_idt
-	call reprogram_pics
+    call setup_idt
+    call reprogram_pics
 
     ; Initialize system
     call initialize_system
 
     ; Call the kernel's main() function
-	call main
+    call main
 
     ; Finalize system
-	call finish_system
-	hlt
+    call finish_system
+    hlt
 
 ; Call constructors of global objects
 _init:
-	mov edi,___INIT_ARRAY_START__
+    mov edi,___INIT_ARRAY_START__
 _init_loop:
-	cmp edi,___INIT_ARRAY_END__
-	jge _init_done
-	call [edi]
-	add	edi,4
-	jmp _init_loop
+    cmp edi,___INIT_ARRAY_END__
+    jge _init_done
+    call [edi]
+    add    edi,4
+    jmp _init_loop
 _init_done:
-	ret
+    ret
 
 ; Call destructors of global objects
 _fini:
-    mov	 edi,___FINI_ARRAY_START__
+    mov     edi,___FINI_ARRAY_START__
 _fini_loop:
-    cmp	 edi,___FINI_ARRAY_END__
+    cmp     edi,___FINI_ARRAY_END__
     jge _fini_done
     call [edi]
-    add	 edi,4
+    add     edi,4
     jmp _fini_loop
 _fini_done:
     ret
@@ -210,7 +210,7 @@ _fini_done:
 ; This function is used when global constructors are called
 ; The label must be defined but can be void
 __cxa_pure_virtual:
-	ret
+    ret
 
 section .data
 
@@ -219,26 +219,26 @@ section .data
 
 ; Global descriptor table
 gdt:
-	times (24) dw 0
+    times (24) dw 0
 
 ; Global descriptor table for bios calls
 gdt_bios:
-	times (16) dw 0
+    times (16) dw 0
 
 ; Descriptor for gdt
 gdt_descriptor:
-	dw	0		                   ; GDT limit
-	dd	0                          ; virtual address of GDT
+    dw    0                           ; GDT limit
+    dd    0                          ; virtual address of GDT
 
 ; Physical descriptor for gdt (needed if paging disabled)
 gdt_phys_descriptor:
-	dw	0		                   ; GDT limit
-	dd	0                          ; Physical GDT address
+    dw    0                           ; GDT limit
+    dd    0                          ; Physical GDT address
 
 ; Descriptor for bios call gdt
 gdt_bios_descriptor:
-	dw	0						   ; GDT limit
-	dd	0         				   ; physical BIOS-GDT address
+    dw    0                           ; GDT limit
+    dd    0                            ; physical BIOS-GDT address
 
 multiboot_physical_addr:
     dd  0

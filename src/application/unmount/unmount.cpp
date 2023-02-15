@@ -21,7 +21,7 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/String.h"
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -32,19 +32,19 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "unmount: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "unmount: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto success = Util::Io::File::unmount(arguments[0]);
     if (!success) {
-        Util::System::error << "unmount: Failed to unmount '" << arguments[0] << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "unmount: Failed to unmount '" << arguments[0] << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     }
 
     return success ? 0 : -1;

@@ -30,7 +30,7 @@ template <typename T> class ArrayList;
 
 namespace Io {
 class OutputStream;
-class PrintWriter;
+class PrintStream;
 }  // namespace Stream
 }  // namespace Util
 
@@ -97,7 +97,7 @@ private:
 
     static LogLevel currentLevel;
     static Util::Async::Spinlock lock;
-    static Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintWriter*> writerMap;
+    static Util::HashMap<Util::Io::OutputStream*, Util::Io::PrintStream*> streamMap;
     static Util::ArrayList<Util::String> buffer;
 
     static const constexpr char *LEVEL_TRACE = "TRC";

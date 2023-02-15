@@ -65,8 +65,8 @@ enable_system_paging:
 
 ; Load physical address of page directory into cr3
 load_page_directory:
-	; The address is passed as a parameter
-    mov	ecx,[4+esp]
+    ; The address is passed as a parameter
+    mov    ecx,[4+esp]
     mov cr3, ecx
     ret
 

@@ -54,36 +54,36 @@ _start:
 
 ; Zero out bss
 clear_bss:
-    mov	edi,___BSS_START__
+    mov    edi,___BSS_START__
 clear_bss_loop:
-    cmp	edi,___BSS_END__
+    cmp    edi,___BSS_END__
     jge clear_bss_done
-    mov	byte [edi],0
-    inc	edi
+    mov    byte [edi],0
+    inc    edi
     jmp clear_bss_loop
 clear_bss_done:
     ret
 
 ; Call constructors of global objects
 _init:
-	mov edi,___INIT_ARRAY_START__
+    mov edi,___INIT_ARRAY_START__
 _init_loop:
-	cmp edi,___INIT_ARRAY_END__
-	jge _init_done
-	call [edi]
-	add	edi,4
-	jmp _init_loop
+    cmp edi,___INIT_ARRAY_END__
+    jge _init_done
+    call [edi]
+    add    edi,4
+    jmp _init_loop
 _init_done:
-	ret
+    ret
 
 ; Call destructors of global objects
 _fini:
-    mov	 edi,___FINI_ARRAY_START__
+    mov     edi,___FINI_ARRAY_START__
 _fini_loop:
-    cmp	 edi,___FINI_ARRAY_END__
+    cmp     edi,___FINI_ARRAY_END__
     jge _fini_done
     call [edi]
-    add	 edi,4
+    add     edi,4
     jmp _fini_loop
 _fini_done:
     ret

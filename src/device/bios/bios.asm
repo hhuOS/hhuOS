@@ -35,59 +35,59 @@ section .text
 ; Perform a bios call in real mode
 ; The procedure is split into different parts, because paging need to be disabled
 bios_call:
-	; Load bios call IDT
+    ; Load bios call IDT
     lidt    [real_mode_idt_descriptor]
-	; Safe registers
+    ; Safe registers
     pushfd
     pushad
 
-	; Check if threadScheduler is started (we have to switch the stack then,
-	; because bios calls expect the stack to be placed at 4MB)
+    ; Check if threadScheduler is started (we have to switch the stack then,
+    ; because bios calls expect the stack to be placed at 4MB)
     mov ebx, [scheduler_initialized]
     cmp ebx, 0
     je  skip_stack_switch
 
-	; Switch stack to boot stack used in boot.asm and save current stack pointer
-	; This is necessary because this stack is used for the bios call without paging
-	; and therefore we must know its physical address (which is current stack address - 0xC0000000)
+    ; Switch stack to boot stack used in boot.asm and save current stack pointer
+    ; This is necessary because this stack is used for the bios call without paging
+    ; and therefore we must know its physical address (which is current stack address - 0xC0000000)
     mov ebx, initial_kernel_stack
     add ebx, (STACK_SIZE - 4)
     mov [ebx], esp
     mov esp, ebx
 
 skip_stack_switch:
-	; Save address of current Page Directory
+    ; Save address of current Page Directory
     mov  ecx, cr3
     push ecx
 
-	; Enable 4MB paging
+    ; Enable 4MB paging
     mov ecx, cr4
     or  ecx, 0x00000010
     mov cr4, ecx
 
-	; Load special 4MB page directory for bios calls
-	; Only important parts are mapped here
-	mov ecx, (bios_page_directory - KERNEL_START)
+    ; Load special 4MB page directory for bios calls
+    ; Only important parts are mapped here
+    mov ecx, (bios_page_directory - KERNEL_START)
     mov cr3, ecx
 
-	; Jump to low address because paging will be disabled
-	; The kernel should be mapped at 0 and 3GB with bios page directory
-	; This is a necessary step, otherwise the eip points to the wrong address
+    ; Jump to low address because paging will be disabled
+    ; The kernel should be mapped at 0 and 3GB with bios page directory
+    ; This is a necessary step, otherwise the eip points to the wrong address
     lea ecx, [bios_call_2 - KERNEL_START]
     jmp ecx
 
 bios_call_2:
-	; Disable paging because we have to switch into real mode
+    ; Disable paging because we have to switch into real mode
     mov ecx, cr0
     and ecx, 0x7FFFFFFF
     mov cr0, ecx
-	; Flush TLB
+    ; Flush TLB
     mov ecx, cr3
     mov cr3, ecx
-	; Load gdt for bios calls (with low/physical addresses)
+    ; Load gdt for bios calls (with low/physical addresses)
     lgdt [gdt_bios_descriptor - KERNEL_START]
 
-	; Shift values of esp and ebp to low addresses, because paging is disabled
+    ; Shift values of esp and ebp to low addresses, because paging is disabled
     mov ecx, esp
     sub ecx, KERNEL_START
     mov esp, ecx
@@ -96,22 +96,22 @@ bios_call_2:
     sub ecx, KERNEL_START
     mov ebp, ecx
 
-	; Jump into bios segment
+    ; Jump into bios segment
     call  0x18:0
 
     ; We return here from 16-bit bios code
-	; Enable 4MB-Paging
+    ; Enable 4MB-Paging
     mov ecx, cr0
     or  ecx, 0x80000000
     mov cr0, ecx
-	; Load global descriptor table
+    ; Load global descriptor table
     lgdt [gdt_descriptor]
-	; Perform a far jump to a high address in kernel code (paging enabled)
+    ; Perform a far jump to a high address in kernel code (paging enabled)
     lea ecx, [bios_call_3]
     jmp ecx
 
 bios_call_3:
-	; Shift values of esp and ebp to high addresses, because paging is enabled
+    ; Shift values of esp and ebp to high addresses, because paging is enabled
     mov ecx, esp
     add ecx, KERNEL_START
     mov esp, ecx
@@ -120,35 +120,35 @@ bios_call_3:
     add ecx, KERNEL_START
     mov ebp, ecx
 
-	; Load page table of process and enable 4KB paging
+    ; Load page table of process and enable 4KB paging
     pop ecx
     mov cr3, ecx
 
-	; Check if threadScheduler is activeFlag -> old stack has to be restored then
+    ; Check if threadScheduler is activeFlag -> old stack has to be restored then
     mov ebx, [scheduler_initialized]
     cmp ebx, 0
     je  skip_stack_switch_2
-	; Restore old stack if necessary
+    ; Restore old stack if necessary
     pop esp
 
 skip_stack_switch_2:
-	; Switch off 4MB Paging and enable 4KB paging
+    ; Switch off 4MB Paging and enable 4KB paging
     mov ecx, cr4
     and ecx, 0xFFFFFFEF
     mov cr4, ecx
-	; Restore old register values
+    ; Restore old register values
     popad
     popfd
-	; Load old IDT
-    lidt	[idt_descriptor]
+    ; Load old IDT
+    lidt    [idt_descriptor]
     ret
 
 section .data
 
 ; IDT for real mode
 real_mode_idt_descriptor:
-    dw	1024 ; idt contains boundary. 1024 entries
-    dd	0    ; address 0
+    dw    1024 ; idt contains boundary. 1024 entries
+    dd    0    ; address 0
 
 ; Indicates whether the threadScheduler has been started
 scheduler_initialized:

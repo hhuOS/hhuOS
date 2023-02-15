@@ -18,13 +18,13 @@
 #include <cstdint>
 
 #include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/graphic/Ansi.h"
-#include "lib/util/io/stream/FileReader.h"
-#include "lib/util/io/stream/BufferedReader.h"
+#include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/graphic/BufferedLinearFrameBuffer.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/graphic/StringDrawer.h"
@@ -54,25 +54,25 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "asciimate: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto file = Util::Io::File(arguments[0]);
     if (!file.exists() || file.isDirectory()) {
-        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "asciimate: '" << arguments[0] << "' could not be opened!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
-    auto reader = Util::Io::FileReader(file);
-    auto bufferedReader = Util::Io::BufferedReader(reader);
-    auto frameInfo = bufferedReader.readLine().split(",");
+    auto inputStream = Util::Io::FileInputStream(file);
+    auto bufferedStream = Util::Io::BufferedInputStream(inputStream);
+    auto frameInfo = bufferedStream.readLine().split(",");
 
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
@@ -101,7 +101,7 @@ int32_t main(int32_t argc, char *argv[]) {
     }));
 
     while (isRunning) {
-        auto delayLine = bufferedReader.readLine();
+        auto delayLine = bufferedStream.readLine();
         if (delayLine.length() == 0) {
             break;
         }
@@ -115,7 +115,7 @@ int32_t main(int32_t argc, char *argv[]) {
         lineDrawer.drawLine(frameEndX + charWidth, frameStartY - charHeight, frameEndX + charWidth, frameEndY + charHeight, Util::Graphic::Colors::WHITE);
 
         for (int16_t i = 0; i < rows - 1; i++) {
-            stringDrawer.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedReader.readLine()), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
+            stringDrawer.drawString(font, frameStartX, frameStartY + charHeight * i, static_cast<const char*>(bufferedStream.readLine()), Util::Graphic::Colors::WHITE, Util::Graphic::Colors::BLACK);
         }
 
         bufferedLfb.flush();

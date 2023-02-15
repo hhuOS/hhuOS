@@ -23,7 +23,7 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/stream/InputStream.h"
 
 namespace Util::Graphic {
@@ -228,107 +228,107 @@ String Ansi::background24BitColor(const Graphic::Color &color) {
 }
 
 void Ansi::setForegroundColor(Color color, bool bright) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << color + (bright ? 90 : 30) << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 90 : 30) << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::setBackgroundColor(Color color, bool bright) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << color + (bright ? 100 : 40) << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << color + (bright ? 100 : 40) << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::setForegroundColor(uint8_t colorIndex) {
-    System::out << "\u001b[38;5;" << Io::PrintWriter::dec << colorIndex << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[38;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::setBackgroundColor(uint8_t colorIndex) {
-    System::out << "\u001b[48;5;" << Io::PrintWriter::dec << colorIndex << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[48;5;" << Io::PrintStream::dec << colorIndex << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::setForegroundColor(const Graphic::Color &color) {
-    System::out << "\u001b[38;2;" << Io::PrintWriter::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[38;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::setBackgroundColor(const Graphic::Color &color) {
-    System::out << "\u001b[48;2;" << Io::PrintWriter::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintWriter::flush;
+    System::out << "\u001b[48;2;" << Io::PrintStream::dec << color.getRed() << ";" << color.getGreen() << ";" << color.getBlue() << "m" << Io::PrintStream::flush;
 }
 
 void Ansi::resetForegroundColor() {
-    System::out << "\u001b[39m" << Io::PrintWriter::flush;
+    System::out << "\u001b[39m" << Io::PrintStream::flush;
 }
 
 void Ansi::resetBackgroundColor() {
-    System::out << "\u001b[49m" << Io::PrintWriter::flush;
+    System::out << "\u001b[49m" << Io::PrintStream::flush;
 }
 
 void Ansi::resetColorsAndEffects() {
-    System::out << "\u001b[0m" << Io::PrintWriter::flush;
+    System::out << "\u001b[0m" << Io::PrintStream::flush;
 }
 
 void Ansi::setPosition(const CursorPosition &position) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << position.row << ";" << position.column << "H" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << position.row << ";" << position.column << "H" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorUp(uint16_t lines) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << lines << "A" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << lines << "A" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorDown(uint16_t lines) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << lines << "B" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << lines << "B" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorRight(uint16_t columns) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << columns << "C" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << columns << "C" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorLeft(uint16_t columns) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << columns << "D" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << columns << "D" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorToBeginningOfNextLine(uint16_t offset) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << offset << "E" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << offset << "E" << Io::PrintStream::flush;
 }
 
 void Ansi::moveCursorToBeginningOfPreviousLine(uint16_t offset) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << offset << "F" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << offset << "F" << Io::PrintStream::flush;
 }
 
 void Ansi::setColumn(uint16_t column) {
-    System::out << "\u001b[" << Io::PrintWriter::dec << column << "G" << Io::PrintWriter::flush;
+    System::out << "\u001b[" << Io::PrintStream::dec << column << "G" << Io::PrintStream::flush;
 }
 
 void Ansi::saveCursorPosition() {
-    System::out << "\u001b[s" << Io::PrintWriter::flush;
+    System::out << "\u001b[s" << Io::PrintStream::flush;
 }
 
 void Ansi::restoreCursorPosition() {
-    System::out << "\u001b[u" << Io::PrintWriter::flush;
+    System::out << "\u001b[u" << Io::PrintStream::flush;
 }
 
 void Ansi::clearScreen() {
-    System::out << "\u001b[2J" << Io::PrintWriter::flush;
+    System::out << "\u001b[2J" << Io::PrintStream::flush;
 }
 
 void Ansi::clearScreenFromCursor() {
-    System::out << "\u001b[0J" << Io::PrintWriter::flush;
+    System::out << "\u001b[0J" << Io::PrintStream::flush;
 }
 
 void Ansi::clearScreenToCursor() {
-    System::out << "\u001b[1J" << Io::PrintWriter::flush;
+    System::out << "\u001b[1J" << Io::PrintStream::flush;
 }
 
 void Ansi::clearLine() {
-    System::out << "\u001b[2K" << Io::PrintWriter::flush;
+    System::out << "\u001b[2K" << Io::PrintStream::flush;
 }
 
 void Ansi::clearLineFromCursor() {
-    System::out << "\u001b[0K" << Io::PrintWriter::flush;
+    System::out << "\u001b[0K" << Io::PrintStream::flush;
 }
 
 void Ansi::clearLineToCursor() {
-    System::out << "\u001b[1K" << Io::PrintWriter::flush;
+    System::out << "\u001b[1K" << Io::PrintStream::flush;
 }
 
 Ansi::CursorPosition Ansi::getCursorPosition() {
-    System::out << "\u001b[6n" << Io::PrintWriter::flush;
+    System::out << "\u001b[6n" << Io::PrintStream::flush;
 
     String positionString;
     char currentChar = System::in.read();
@@ -372,7 +372,7 @@ int16_t Ansi::readChar() {
                 return KEY_LEFT;
             default:
                 enableAnsiParsing();
-                System::out << escapeSequence << Io::PrintWriter::flush;
+                System::out << escapeSequence << Io::PrintStream::flush;
                 disableAnsiParsing();
                 return readChar();
         }

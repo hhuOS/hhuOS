@@ -18,9 +18,9 @@
 #include <cstdint>
 
 #include "lib/util/base/System.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
-    Util::System::out << "Hello, world!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << "Hello, world!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
     return 0;
 }

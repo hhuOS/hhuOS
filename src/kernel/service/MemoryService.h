@@ -20,9 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/io/stream/OutputStreamWriter.h"
 #include "Service.h"
-#include "device/port/serial/SerialPort.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/ArrayList.h"
@@ -37,8 +35,6 @@ class PageFrameAllocator;
 class PagingAreaManager;
 struct InterruptFrame;
 }  // namespace Kernel
-
-#define HHUOS_MEMORYSERVICE_ENABLE_DEBUG 0
 
 namespace Kernel {
 
@@ -236,10 +232,6 @@ public:
 
     MemoryStatus getMemoryStatus();
 
-    void setSerialDebugging(bool enabled);
-
-    void printDebugNumber(uint32_t number, uint8_t base);
-
     static const constexpr uint8_t SERVICE_ID = 2;
 
 private:
@@ -252,10 +244,6 @@ private:
     Util::ArrayList<VirtualAddressSpace*> addressSpaces;
     VirtualAddressSpace *currentAddressSpace;
     VirtualAddressSpace &kernelAddressSpace;
-
-    bool serialDebuggingEnabled = false;
-    Device::SerialPort debugPort = Device::SerialPort(Device::SerialPort::COM1);
-    Util::Io::OutputStreamWriter debugWriter = Util::Io::OutputStreamWriter(debugPort);
 };
 
 }

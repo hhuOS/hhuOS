@@ -21,7 +21,7 @@
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 namespace Util {
 
@@ -30,10 +30,10 @@ Io::BufferedInputStream System::bufferedInStream(inStream);
 Io::InputStream &System::in = System::bufferedInStream;
 Io::FileOutputStream System::outStream(1);
 Io::BufferedOutputStream System::bufferedOutStream(outStream);
-Io::PrintWriter System::out(bufferedOutStream);
+Io::PrintStream System::out(bufferedOutStream);
 Io::FileOutputStream System::errorStream(2);
 Io::BufferedOutputStream System::bufferedErrorStream(errorStream);
-Io::PrintWriter System::error(bufferedErrorStream);
+Io::PrintStream System::error(bufferedErrorStream);
 const char *System::errorMessage = "";
 
 System::Result System::call(System::Code code, uint32_t paramCount...) {

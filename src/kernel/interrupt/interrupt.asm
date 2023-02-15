@@ -50,65 +50,65 @@ on_exception:
 
 ; Relocation of IDT-entries; set IDTR
 setup_idt:
-	mov	eax,wrapper_0 ; ax: lower 16 Bit
-	mov	ebx,eax
-	shr	ebx,16        ; bx: upper 16 Bit
-	mov	ecx,255       ; counter
+    mov    eax,wrapper_0 ; ax: lower 16 Bit
+    mov    ebx,eax
+    shr    ebx,16        ; bx: upper 16 Bit
+    mov    ecx,255       ; counter
 .loop:
-    add	[idt + 8 * ecx + 0],ax
-	adc	[idt + 8 * ecx + 6],bx
-	dec	ecx
-	jge	.loop
+    add    [idt + 8 * ecx + 0],ax
+    adc    [idt + 8 * ecx + 6],bx
+    dec    ecx
+    jge    .loop
 
-	lidt [idt_descriptor]
-	ret
+    lidt [idt_descriptor]
+    ret
 
 ; Reprogram PICs: All 15 hardware interrupts are one after each other in the IDT
 reprogram_pics:
-	mov	 al,0x11     ; ICW1: 8086 Mode with ICW4
-	out	 0x20,al
-	call delay
-	out	 0xa0,al
-	call delay
-	mov	 al,0x20     ; ICW2 Master: IRQ # Offset (32)
-	out	 0x21,al
-	call delay
-	mov	 al,0x28     ; ICW2 Slave: IRQ # Offset (40)
-	out	 0xa1,al
-	call delay
-	mov	 al,0x04     ; ICW3 Master: Slaves at IRQs
-	out	 0x21,al
-	call delay
-	mov	 al,0x02     ; ICW3 Slave: Connected with IRQ2 of master
-	out	 0xa1,al
+    mov     al,0x11     ; ICW1: 8086 Mode with ICW4
+    out     0x20,al
     call delay
-	mov	 al,0x01     ; ICW4 Master: 8086 Mode
-	out	 0x21,al
-	call delay
-	mov  al,0x01     ; ICW4 Slave: 8086 Mode
-	out	 0xa1,al
-	call delay
-
-	mov	 al,0xff     ; Mask HW-Interrupts from PICs
-	out	 0xa1,al     ; Use only interrupt 2 to cascade the PICs
+    out     0xa0,al
     call delay
-	mov	 al,0xfb
-	out	 0x21,al
+    mov     al,0x20     ; ICW2 Master: IRQ # Offset (32)
+    out     0x21,al
+    call delay
+    mov     al,0x28     ; ICW2 Slave: IRQ # Offset (40)
+    out     0xa1,al
+    call delay
+    mov     al,0x04     ; ICW3 Master: Slaves at IRQs
+    out     0x21,al
+    call delay
+    mov     al,0x02     ; ICW3 Slave: Connected with IRQ2 of master
+    out     0xa1,al
+    call delay
+    mov     al,0x01     ; ICW4 Master: 8086 Mode
+    out     0x21,al
+    call delay
+    mov  al,0x01     ; ICW4 Slave: 8086 Mode
+    out     0xa1,al
+    call delay
 
-	ret
+    mov     al,0xff     ; Mask HW-Interrupts from PICs
+    out     0xa1,al     ; Use only interrupt 2 to cascade the PICs
+    call delay
+    mov     al,0xfb
+    out     0x21,al
+
+    ret
 
 ; Delay function
 delay:
-	jmp	.L2
+    jmp    .L2
 .L2:
-	ret
+    ret
 
 ; Wrapper for interrupt handling
 %macro wrapper 1
 wrapper_%1:
     push 0x00
     push %1
-    jmp	 wrapper_body
+    jmp     wrapper_body
 %endmacro
 
 ; Create first 13 wrappers
@@ -121,12 +121,12 @@ wrapper i
 ; General protection fault wrapper is different, because error code is pushed automatically
 wrapper_13:
     push 0x0D
-    jmp	wrapper_body
+    jmp    wrapper_body
 
 ; Page fault wrapper is different, because error code is pushed automatically
 wrapper_14:
     push 0x0E
-    jmp	wrapper_body
+    jmp    wrapper_body
 
 ; Create all remaining wrappers
 %assign i 15
@@ -183,16 +183,16 @@ interrupt_return:
 section .data
 
 idt_descriptor:
-	dw	256 * 8 - 1 ; idt contains 256 entries
-	dd	idt
+    dw    256 * 8 - 1 ; idt contains 256 entries
+    dd    idt
 
 ; Create IDT with 256 entries
 idt:
 %macro idt_entry 1
-	dw	(wrapper_%1 - wrapper_0) & 0xffff
-	dw	0x0008
-	dw	0xee00
-	dw	((wrapper_%1 - wrapper_0) & 0xffff0000) >> 16
+    dw    (wrapper_%1 - wrapper_0) & 0xffff
+    dw    0x0008
+    dw    0xee00
+    dw    ((wrapper_%1 - wrapper_0) & 0xffff0000) >> 16
 %endmacro
 
 ; Create first 134 entries
@@ -204,8 +204,8 @@ idt_entry i
 
 ; Create system call entry
 dw (wrapper_134 - wrapper_0) & 0xffff
-dw	0x0008
-dw	0xee00
+dw    0x0008
+dw    0xee00
 dw ((wrapper_134 - wrapper_0) & 0xffff) >> 16
 
 ; Create remaining entries

@@ -88,50 +88,14 @@ MemoryService::~MemoryService() {
 }
 
 void *MemoryService::allocateKernelMemory(uint32_t size, uint32_t alignment) {
-#if HHUOS_MEMORYSERVICE_ENABLE_DEBUG == 1
-    auto address = kernelAddressSpace.getMemoryManager().allocateMemory(size, alignment);
-    if (serialDebuggingEnabled) {
-        debugWriter.write("a:\t", 3);
-        printDebugNumber(size, 10);
-        debugWriter.write('\t');
-        printDebugNumber(reinterpret_cast<uint32_t>(address), 16);
-        debugWriter.write('\n');
-    }
-
-    return address;
-#else
     return kernelAddressSpace.getMemoryManager().allocateMemory(size, alignment);
-#endif
 }
 
 void *MemoryService::reallocateKernelMemory(void *pointer, uint32_t size, uint32_t alignment) {
-#if HHUOS_MEMORYSERVICE_ENABLE_DEBUG == 1
-    auto address = kernelAddressSpace.getMemoryManager().reallocateMemory(pointer, size, alignment);
-    if (serialDebuggingEnabled) {
-        debugWriter.write("r:\t", 3);
-        printDebugNumber(size, 10);
-        debugWriter.write('\t');
-        printDebugNumber(reinterpret_cast<uint32_t>(address), 16);
-        debugWriter.write('\t');
-        printDebugNumber(reinterpret_cast<uint32_t>(pointer), 16);
-        debugWriter.write('\n');
-    }
-
-    return address;
-#else
     return kernelAddressSpace.getMemoryManager().reallocateMemory(pointer, size, alignment);
-#endif
 }
 
 void MemoryService::freeKernelMemory(void *pointer, uint32_t alignment) {
-#if HHUOS_MEMORYSERVICE_ENABLE_DEBUG == 1
-    if (serialDebuggingEnabled) {
-        debugWriter.write("f:\t\t", 4);
-        printDebugNumber(reinterpret_cast<uint32_t>(pointer), 16);
-        debugWriter.write('\n');
-    }
-#endif
-
     kernelAddressSpace.getMemoryManager().freeMemory(pointer, alignment);
 }
 
@@ -408,37 +372,6 @@ VirtualAddressSpace& MemoryService::getKernelAddressSpace() const {
 
 VirtualAddressSpace &MemoryService::getCurrentAddressSpace() const {
     return *currentAddressSpace;
-}
-
-void MemoryService::setSerialDebugging(bool enabled) {
-    serialDebuggingEnabled = enabled;
-}
-
-void MemoryService::printDebugNumber(uint32_t number, uint8_t base) {
-    if (base == 8)
-        debugWriter.write('0');
-    else if (base == 16) {
-        debugWriter.write('0');
-        debugWriter.write('x');
-    }
-
-    uint32_t div;
-    char digit;
-
-    for (div = 1; number / div >= base; div *= base);
-
-    for (; div > 0; div /= base) {
-        digit = static_cast<char>(number / div);
-
-        if (digit < 10) {
-            debugWriter.write(static_cast<char>('0' + digit));
-        }
-        else {
-            debugWriter.write(static_cast<char>('A' + digit - 10));
-        }
-
-        number %= div;
-    }
 }
 
 }

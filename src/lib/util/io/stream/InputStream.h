@@ -19,6 +19,7 @@
 #define HHUOS_INPUTSTREAM_H
 
 #include <cstdint>
+#include "lib/util/base/String.h"
 
 namespace Util::Io {
 
@@ -37,6 +38,10 @@ public:
     virtual int16_t read() = 0;
 
     virtual int32_t read(uint8_t *targetBuffer, uint32_t offset, uint32_t length) = 0;
+
+    String readString(uint32_t length);
+
+    String readLine();
 
     uint32_t skip(uint32_t amount);
 
