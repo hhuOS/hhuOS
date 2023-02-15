@@ -29,7 +29,7 @@
 #include "lib/util/graphic/Ansi.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/stream/InputStream.h"
 #include "lib/util/io/stream/PrintWriter.h"
 
 static const constexpr uint8_t BAR_LENGTH = 25;

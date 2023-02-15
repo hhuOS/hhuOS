@@ -24,7 +24,6 @@
 #include "device/pci/PciDevice.h"
 #include "kernel/interrupt/InterruptHandler.h"
 #include "device/cpu/IoPort.h"
-#include "lib/util/base/String.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Kernel {

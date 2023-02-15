@@ -21,14 +21,13 @@
 #include "lib/util/io/stream/BufferedOutputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/stream/FileOutputStream.h"
-#include "lib/util/io/stream/InputStreamReader.h"
 #include "lib/util/io/stream/PrintWriter.h"
 
 namespace Util {
 
 Io::FileInputStream System::inStream(0);
 Io::BufferedInputStream System::bufferedInStream(inStream);
-Io::InputStreamReader System::in(bufferedInStream);
+Io::InputStream &System::in = System::bufferedInStream;
 Io::FileOutputStream System::outStream(1);
 Io::BufferedOutputStream System::bufferedOutStream(outStream);
 Io::PrintWriter System::out(bufferedOutStream);

@@ -24,7 +24,6 @@
 #include <cstdint>
 
 #include "device/network/NetworkDevice.h"
-#include "lib/util/base/String.h"
 #include "lib/util/network/MacAddress.h"
 
 namespace Device::Network {

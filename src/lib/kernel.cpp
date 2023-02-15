@@ -15,8 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/interface.h"
+#include <stdint.h>
 
+#include "lib/interface.h"
 #include "device/cpu/Cpu.h"
 #include "kernel/process/Process.h"
 #include "kernel/system/System.h"
@@ -32,6 +33,16 @@
 #include "kernel/network/Socket.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/network/Datagram.h"
+#include "lib/util/async/Process.h"
+#include "lib/util/async/Thread.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/base/String.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/hardware/Machine.h"
+#include "lib/util/io/file/File.h"
+#include "lib/util/network/Socket.h"
+#include "lib/util/time/Date.h"
+#include "lib/util/time/Timestamp.h"
 
 namespace Util {
 namespace Async {

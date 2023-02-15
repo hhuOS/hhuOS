@@ -25,6 +25,8 @@
 #include "lib/util/graphic/Colors.h"
 #include "lib/util/io/stream/FileInputStream.h"
 #include "lib/util/io/key/KeyDecoder.h"
+#include "lib/util/base/System.h"
+#include "lib/util/io/stream/InputStream.h"
 
 namespace Util {
 namespace Graphic {
@@ -97,9 +99,8 @@ void Engine::drawStatus() {
 Engine::KeyListenerRunnable::KeyListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::KeyListenerRunnable::run() {
-    auto keyboardStream = Io::FileInputStream("/device/keyboard");
     auto keyDecoder = Io::KeyDecoder();
-    int16_t scancode = keyboardStream.read();
+    int16_t scancode = Util::System::in.read();
 
     while (engine.game.isRunning() && scancode != -1) {
         if (keyDecoder.parseScancode(scancode)) {
@@ -111,7 +112,7 @@ void Engine::KeyListenerRunnable::run() {
             }
         }
 
-        scancode = keyboardStream.read();
+        scancode = Util::System::in.read();
     }
 }
 

@@ -26,12 +26,13 @@
 #include "Service.h"
 #include "kernel/network/NetworkStack.h"
 #include "lib/util/collection/Array.h"
-#include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 #include "lib/util/network/Socket.h"
 #include "device/network/NetworkDevice.h"
+#include "lib/util/async/Spinlock.h"
+#include "lib/util/collection/HashMap.h"
 
 namespace Util {
 namespace Network {
@@ -40,6 +41,8 @@ class MacAddress;
 }  // namespace Util
 
 namespace Kernel {
+class Logger;
+
 namespace Network {
 namespace Ip4 {
 class Ip4Route;
