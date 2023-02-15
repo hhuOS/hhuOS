@@ -28,8 +28,11 @@ target_link_libraries(${PROJECT_NAME} lib.graphic)
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp
-        ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp)
+        ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/Sprite.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp)
 
 # User space version
 project(lib.kernel.game)

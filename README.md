@@ -80,3 +80,7 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 - `bios` can be set to `true` to activate support for BIOS-calls. This enables support for *VESA* and *CGA* graphics modes. CAUTION: Enabling this option will cause hhuOS to not boot on most UEFI-based systems.
 - `lfb_provider` is used to set the framebuffer-implementation, that should be used to draw on the screen. The default implementation is named `Kernel::Multiboot::MultibootLinearFrameBufferProvider` and should always work (as long as the bootloader finds a video mode). However, the resolution stays fixed with this configuration. If BIOS-calls are activated, `Device::Graphic::VesaBiosExtensions` may be used to enable support for multiple resolutions and resolution switching.
 - `text_provider` is used to set the implementation for drawing text on the screen. The default implementation is named `Device::Graphic::LinearFrameBufferTerminalProvider` and uses rasterized fonts to draw on an underlying linear framebuffer. It works with `lfb_provider` being set to `Kernel::Multiboot::MultibootLinearFrameBufferProvider` or `Device::Graphic::VesaBiosExtensions`. As an alternative, it may be set to `Device::Graphic::ColorGraphicsAdapterProvider` (with activated BIOS-calls), to make use of *CGA* text modes, providing a higher drawing speed, but lower resolutions and only 16 colors.
+
+## Notes
+
+Character sprites for the dino game have been created by *ScissorMarks* and *DemChing* on [itch.io](https://demching.itch.io/dino-family).

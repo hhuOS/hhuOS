@@ -66,6 +66,20 @@ void Graphics2D::drawStringSmall(double x, double y, const Util::String &string)
     drawStringSmall(x, y, static_cast<const char *>(string));
 }
 
+void Graphics2D::drawImage(double x, double y, const Graphic::Image &image, bool flipX) const {
+    auto pixelBuffer = image.getPixelBuffer();
+    auto imageWidth = image.getWidth();
+    auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
+    auto xPixelOffset = static_cast<int32_t>(x * transformation + offsetX);
+    auto yPixelOffset = static_cast<int32_t>(y * transformation + offsetY);
+
+    for (int32_t i = 0; i < image.getHeight(); i++) {
+        for (int32_t j = 0; j < image.getWidth(); j++) {
+            pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i, pixelBuffer[i * imageWidth + j]);
+        }
+    }
+}
+
 void Graphics2D::show() const {
     lfb.flush();
     lfb.clear();

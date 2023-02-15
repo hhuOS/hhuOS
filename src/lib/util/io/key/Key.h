@@ -37,13 +37,15 @@ public:
      * Some pre-defined scancodes.
      */
     enum Scancode {
+        ESC = 0x01,
+        DIV = 0x08,
         F1 = 0x3b,
         DEL = 0x53,
-        UP = 72,
-        DOWN = 80,
-        LEFT = 75,
-        RIGHT = 77,
-        DIV = 8
+        SPACE = 0x39,
+        UP = 0x48,
+        DOWN = 0x50,
+        LEFT = 0x4b,
+        RIGHT = 0x4d
     };
 
     /**

@@ -27,6 +27,7 @@
 #include "lib/util/io/key/KeyDecoder.h"
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/InputStream.h"
+#include "GameManager.h"
 
 namespace Util {
 namespace Graphic {
@@ -37,7 +38,9 @@ class LinearFrameBuffer;
 namespace Util::Game {
 
 Engine::Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) :
-        game(game), graphics(lfb), targetFrameRate(targetFrameRate) {}
+        game(game), graphics(lfb), targetFrameRate(targetFrameRate) {
+    GameManager::setTransformation((lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2);
+}
 
 void Engine::run() {
     const auto delta = 1.0 / targetFrameRate;
