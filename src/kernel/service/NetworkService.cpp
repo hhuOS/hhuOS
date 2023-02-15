@@ -22,7 +22,6 @@
 
 #include <cstdarg>
 
-#include "device/network/NetworkFilesystemDriver.h"
 #include "device/network/NetworkDevice.h"
 #include "lib/util/base/Exception.h"
 #include "lib/util/network/MacAddress.h"
@@ -42,6 +41,7 @@
 #include "lib/util/base/Address.h"
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
+#include "kernel/log/Logger.h"
 
 namespace Filesystem {
 class Node;

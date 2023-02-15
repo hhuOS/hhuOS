@@ -22,12 +22,6 @@
 
 #include "InputStream.h"
 
-namespace Util {
-namespace Network {
-class Datagram;
-}  // namespace Network
-}  // namespace Util
-
 namespace Util::Io {
 
 class ByteArrayInputStream : public InputStream {

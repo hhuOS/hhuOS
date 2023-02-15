@@ -21,10 +21,9 @@
 #include <cstdint>
 #include <cstdarg>
 
-#include "lib/util/io/stream/InputStreamReader.h" // IWYU pragma: keep
-
 namespace Util {
 namespace Io {
+class InputStream;
 class BufferedInputStream;
 class BufferedOutputStream;
 class FileInputStream;
@@ -104,9 +103,9 @@ public:
 
     static Result call(Code code, uint32_t paramCount...);
 
-    static Util::Io::InputStreamReader in;
-    static Util::Io::PrintWriter out;
-    static Util::Io::PrintWriter error;
+    static Io::InputStream &in;
+    static Io::PrintWriter out;
+    static Io::PrintWriter error;
 
     static const char *errorMessage;
 
@@ -114,14 +113,14 @@ private:
 
     static void call(Code code, Result &result, uint32_t paramCount, va_list args);
 
-    static Util::Io::FileInputStream inStream;
-    static Util::Io::BufferedInputStream bufferedInStream;
+    static Io::FileInputStream inStream;
+    static Io::BufferedInputStream bufferedInStream;
 
-    static Util::Io::FileOutputStream outStream;
-    static Util::Io::BufferedOutputStream bufferedOutStream;
+    static Io::FileOutputStream outStream;
+    static Io::BufferedOutputStream bufferedOutStream;
 
-    static Util::Io::FileOutputStream errorStream;
-    static Util::Io::BufferedOutputStream bufferedErrorStream;
+    static Io::FileOutputStream errorStream;
+    static Io::BufferedOutputStream bufferedErrorStream;
 };
 
 }

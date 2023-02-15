@@ -24,7 +24,7 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/udp/UdpDatagram.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/stream/InputStream.h"
 
 static const constexpr uint32_t DEFAULT_PORT = 1797;
 

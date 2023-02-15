@@ -489,10 +489,7 @@ void Terminal::KeyboardRunnable::run() {
     while (scancode != -1) {
         if (terminal.keyboardScancodes) {
             terminal.outputStream.write(scancode);
-            continue;
-        }
-
-        if (keyDecoder.parseScancode(scancode)) {
+        } else if (keyDecoder.parseScancode(scancode)) {
             auto key = keyDecoder.getCurrentKey();
             if (key.isPressed()) {
                 auto c = key.getAscii();

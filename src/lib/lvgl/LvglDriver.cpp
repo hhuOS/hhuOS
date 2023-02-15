@@ -15,10 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include <cstring>
 #include <src/widgets/lv_img.h>
 #include <src/core/lv_disp.h>
 #include <src/core/lv_indev.h>
+#include <cstring>
 
 #include "lib/util/math/Math.h"
 #include "lib/interface.h"
@@ -28,7 +28,7 @@
 #include "lib/util/async/Thread.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "lib/util/io/stream/InputStreamReader.h"
+#include "lib/util/io/stream/InputStream.h"
 
 extern "C" {
 uint64_t __udivdi3(uint64_t first, uint64_t second) {
@@ -202,7 +202,7 @@ LvglDriver::KeyboardRunnable::KeyboardRunnable(LvglDriver &driver) : driver(driv
 
 void LvglDriver::KeyboardRunnable::run() {
     while (true) {
-        auto c = Util::System::in.read();
+        char c = static_cast<char>(Util::System::in.read());
 
         if (c == '\n') {
             driver.running = false;

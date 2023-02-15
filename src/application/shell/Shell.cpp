@@ -218,9 +218,6 @@ void Shell::executeBinary(const Util::String &path, const Util::String &command,
         return;
     }
 
-    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_LINE_AGGREGATION, {true});
-    Util::Io::File::control(Util::Io::STANDARD_INPUT, Util::Graphic::Terminal::SET_ECHO, {true});
-
     auto process = Util::Async::Process::execute(binaryFile, inputFile, outputFile, outputFile, command, arguments);
     if (!async) {
         process.join();

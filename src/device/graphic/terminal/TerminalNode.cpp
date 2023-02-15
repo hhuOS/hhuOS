@@ -21,7 +21,7 @@
 
 namespace Device::Graphic {
 
-TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal){}
+TerminalNode::TerminalNode(const Util::String &name, Util::Graphic::Terminal *terminal) : Filesystem::Memory::StreamNode(name, terminal, terminal), terminal(terminal) {}
 
 bool TerminalNode::control(uint32_t request, const Util::Array<uint32_t> &parameters) {
     switch (request) {

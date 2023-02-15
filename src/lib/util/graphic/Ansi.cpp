@@ -23,8 +23,8 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/Colors.h"
-#include "lib/util/io/stream/InputStreamReader.h"
 #include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/InputStream.h"
 
 namespace Util::Graphic {
 
