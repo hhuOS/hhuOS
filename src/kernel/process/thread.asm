@@ -21,7 +21,7 @@ extern release_scheduler_lock
 
 start_first_thread:
     ; get the thread's context
-    mov	esp, [esp + 0x04]
+    mov    esp, [esp + 0x04]
 
     ; load registers
     pop edi

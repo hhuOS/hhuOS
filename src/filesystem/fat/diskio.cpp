@@ -69,7 +69,7 @@ DSTATUS disk_initialize(BYTE driveNumber) {
 
 DRESULT disk_read(BYTE driveNumber, BYTE *buffer, LBA_t startSector, UINT sectorCount) {
     auto &device = Filesystem::Fat::FatDriver::getStorageDevice(driveNumber);
-	auto result = device.read(buffer, startSector, sectorCount);
+    auto result = device.read(buffer, startSector, sectorCount);
 
     return result == sectorCount ? RES_OK : RES_ERROR;
 }

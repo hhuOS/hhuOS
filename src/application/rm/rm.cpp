@@ -21,7 +21,7 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -31,31 +31,31 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "rm: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "rm: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::error << "rm: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::error << "rm: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (!file.isFile()) {
-            Util::System::error << "rm: '" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::error << "rm: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             continue;
         }
 
         auto success = file.remove();
         if (!success) {
-            Util::System::error << "rm: Failed to delete file '" << path << "'!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::error << "rm: Failed to delete file '" << path << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
     }
 

@@ -25,7 +25,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 static const constexpr uint8_t LINE_LENGTH = 16;
 static const constexpr char LINE_SEPARATOR = '-';
@@ -37,7 +37,7 @@ void printSeparationLine() {
         Util::System::out << LINE_SEPARATOR;
     }
 
-    Util::System::out << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 }
 
 char sanitize(char value) {
@@ -60,32 +60,32 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "hexdump: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "hexdump: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto path = Util::String(arguments[0]);
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "hexdump: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     if (file.isDirectory()) {
-        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "hexdump: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto stream = Util::Io::FileInputStream(file);
     auto bufferedStream = Util::Io::BufferedInputStream(stream);
 
-    Util::System::out << Util::Io::PrintWriter::hex << HEXDUMP_HEADER << Util::Io::PrintWriter::endl;
+    Util::System::out << Util::Io::PrintStream::hex << HEXDUMP_HEADER << Util::Io::PrintStream::endl;
     printSeparationLine();
 
     int32_t length = argumentParser.hasArgument("length") ? Util::String::parseInt(argumentParser.getArgument("length")) : -1;
@@ -125,7 +125,7 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         address += LINE_LENGTH;
-        Util::System::out << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::out << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
 
         if (i < LINE_LENGTH) {
             break;

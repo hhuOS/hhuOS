@@ -20,7 +20,7 @@
 
 #include "lib/interface.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/base/Address.h"
 #include "lib/util/base/Exception.h"
@@ -418,13 +418,13 @@ String String::format(const char *format, ...) {
 
 String String::vformat(const char *format, va_list args) {
     auto stream = Io::ByteArrayOutputStream();
-    auto writer = Io::PrintWriter(stream);
+    auto printStream = Io::PrintStream(stream);
 
     for (uint32_t i = 0; format[i] != '\0'; i++) {
         uint32_t j;
         for (j = 0; format[i + j] != '%' && format[i + j] != '\0'; j++);
 
-        writer.write(format, i, j);
+        printStream.write(reinterpret_cast<const uint8_t*>(format), i, j);
 
         if (format[i + j] == '%') {
             if (format[i + j + 1] == '0') {
@@ -433,35 +433,35 @@ String String::vformat(const char *format, va_list args) {
                     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "String: Format padding must be between 01 and 09");
                 }
 
-                writer.setNumberPadding(padding);
+                printStream.setNumberPadding(padding);
                 j += 2;
             }
 
             char specifier = format[i + ++j];
             switch (specifier) {
                 case 'c' :
-                    writer << static_cast<char>(va_arg(args, int32_t));
+                    printStream << static_cast<char>(va_arg(args, int32_t));
                     break;
                 case 'd' :
-                    writer << Io::PrintWriter::dec << va_arg(args, int32_t);
+                    printStream << Io::PrintStream::dec << va_arg(args, int32_t);
                     break;
                 case 'u' :
-                    writer << Io::PrintWriter::dec << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::dec << va_arg(args, uint32_t);
                     break;
                 case 'o':
-                    writer << Io::PrintWriter::oct << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::oct << va_arg(args, uint32_t);
                     break;
                 case 's':
-                    writer << va_arg(args, char*);
+                    printStream << va_arg(args, char*);
                     break;
                 case 'x':
-                    writer << Io::PrintWriter::hex << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::hex << va_arg(args, uint32_t);
                     break;
                 case 'b':
-                    writer << Io::PrintWriter::bin << va_arg(args, uint32_t);
+                    printStream << Io::PrintStream::bin << va_arg(args, uint32_t);
                     break;
                 case 'B':
-                    writer << static_cast<bool>(va_arg(args, uint32_t));
+                    printStream << static_cast<bool>(va_arg(args, uint32_t));
                     break;
                 default:
                     Exception::throwException(Exception::INVALID_ARGUMENT, "String: Invalid format specifier!");
@@ -470,7 +470,7 @@ String String::vformat(const char *format, va_list args) {
             break;
         }
 
-        writer.setNumberPadding(0);
+        printStream.setNumberPadding(0);
         i += j;
     }
 

@@ -24,7 +24,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/BufferedInputStream.h"
 #include "lib/util/io/stream/FileInputStream.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
@@ -38,13 +38,13 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
     auto arguments = argumentParser.getUnnamedArguments();
     if (arguments.length() == 0) {
-        Util::System::error << "head: No arguments provided!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "head: No arguments provided!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -60,17 +60,17 @@ int32_t main(int32_t argc, char *argv[]) {
     for (const auto &path : arguments) {
         auto file = Util::Io::File(path);
         if (!file.exists()) {
-            Util::System::error << "head: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::error << "head: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (file.isDirectory()) {
-            Util::System::error << "head: '" << path << "' is a directory!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::error << "head: '" << path << "' is a directory!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
             continue;
         }
 
         if (arguments.length() > 1) {
-            Util::System::out << "==> " << file.getName() << " <==" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+            Util::System::out << "==> " << file.getName() << " <==" << Util::Io::PrintStream::endl << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
 
         auto stream = Util::Io::FileInputStream(file);
@@ -79,14 +79,14 @@ int32_t main(int32_t argc, char *argv[]) {
         if (byteMode) {
             auto c = bufferedStream.read();
             for (uint32_t i = 0; i < count && c != -1; i++) {
-                Util::System::out << static_cast<char>(c) << Util::Io::PrintWriter::flush;
+                Util::System::out << static_cast<char>(c) << Util::Io::PrintStream::flush;
                 c = bufferedStream.read();
             }
         } else {
             uint32_t lineCount = 0;
             auto c = bufferedStream.read();
             while (lineCount < count && c != -1) {
-                Util::System::out << static_cast<char>(c) << Util::Io::PrintWriter::flush;
+                Util::System::out << static_cast<char>(c) << Util::Io::PrintStream::flush;
                 if (c == '\n') {
                     lineCount++;
                 }
@@ -94,7 +94,7 @@ int32_t main(int32_t argc, char *argv[]) {
             }
         }
 
-        Util::System::out << Util::Io::PrintWriter::flush;
+        Util::System::out << Util::Io::PrintStream::flush;
     }
 
     return 0;

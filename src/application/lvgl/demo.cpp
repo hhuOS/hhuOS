@@ -25,7 +25,7 @@
 #include <widgets/lv_demo_widgets.h>
 
 #include "lib/util/io/file/File.h" // IWYU pragma: keep
-#include "lib/util/io/stream/PrintWriter.h" // IWYU pragma: keep
+#include "lib/util/io/stream/PrintStream.h" // IWYU pragma: keep
 #include "lib/util/graphic/Ansi.h" // IWYU pragma: keep
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/time/Timestamp.h"
@@ -45,7 +45,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 

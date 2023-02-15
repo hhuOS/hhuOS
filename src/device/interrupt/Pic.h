@@ -29,7 +29,7 @@ namespace Device {
  * which hardware interrupts shall be passed to the CPU.
  *
  * @author  original by Olaf Spinczyk, TU Dortmund
- * 			modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
+ *          modified by Michael Schoettner, Filip Krakowski, Fabian Ruhland, Burak Akguel, Christian Gesse
  * @date HHU, 2018
  */
 class Pic {

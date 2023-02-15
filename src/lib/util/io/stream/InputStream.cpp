@@ -19,6 +19,27 @@
 
 namespace Util::Io {
 
+String InputStream::readString(uint32_t length) {
+    auto *tmpBuffer = new uint8_t[length];
+    int32_t count = read(tmpBuffer, 0, length);
+
+    String ret = count <= 0 ? String() : String(tmpBuffer, length);
+
+    delete[] tmpBuffer;
+    return ret;
+}
+
+String InputStream::readLine() {
+    Util::String line;
+    auto currentChar = read();
+    while (currentChar != -1 && currentChar != '\n') {
+        line += static_cast<char>(currentChar);
+        currentChar = read();
+    }
+
+    return line;
+}
+
 uint32_t InputStream::skip(uint32_t amount) {
     if (amount <= 0) {
         return 0;

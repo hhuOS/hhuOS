@@ -24,7 +24,7 @@
 #include "filesystem/memory/MemoryNode.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/base/Address.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 namespace Filesystem::Memory {
 
@@ -54,14 +54,14 @@ uint64_t MountsNode::readData(uint8_t *targetBuffer, uint64_t pos, uint64_t numB
 
 Util::String MountsNode::buildBuffer() {
     auto stream = Util::Io::ByteArrayOutputStream();
-    auto writer = Util::Io::PrintWriter(stream);
+    auto printStream = Util::Io::PrintStream(stream);
 
     auto mountInformation = Kernel::System::getService<Kernel::FilesystemService>().getMountInformation();
     for (const auto &info : mountInformation) {
-        writer << info.device << " on " << info.target << " type " << info.driver << Util::Io::PrintWriter::endl;
+        printStream << info.device << " on " << info.target << " type " << info.driver << Util::Io::PrintStream::endl;
     }
 
-    writer.flush();
+    printStream.flush();
     return stream.getContent();
 }
 

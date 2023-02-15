@@ -23,12 +23,12 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/base/String.h"
-#include "lib/util/io/stream/PrintWriter.h"
+#include "lib/util/io/stream/PrintStream.h"
 
 void lsDirectory(const Util::String &path) {
     auto file = Util::Io::File(path);
     if (!file.exists()) {
-        Util::System::error << "ls: '" << path << "' not found!" << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << "ls: '" << path << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return;
     }
 
@@ -45,9 +45,9 @@ void lsDirectory(const Util::String &path) {
     }
 
     if (!string.isEmpty()) {
-        Util::System::out << string << Util::Io::PrintWriter::endl;
+        Util::System::out << string << Util::Io::PrintStream::endl;
     }
-    Util::System::out << Util::Io::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintStream::flush;
 }
 
 int32_t main(int32_t argc, char *argv[]) {
@@ -58,7 +58,7 @@ int32_t main(int32_t argc, char *argv[]) {
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
-        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintWriter::endl << Util::Io::PrintWriter::flush;
+        Util::System::error << argumentParser.getErrorString() << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         return -1;
     }
 
@@ -70,15 +70,15 @@ int32_t main(int32_t argc, char *argv[]) {
             lsDirectory(arguments[0]);
         } else {
             for (uint32_t i = 0; i < arguments.length(); i++) {
-                Util::System::out << arguments[i] << ":" << Util::Io::PrintWriter::endl;
+                Util::System::out << arguments[i] << ":" << Util::Io::PrintStream::endl;
                 lsDirectory(arguments[i]);
                 if (i < static_cast<uint32_t>(arguments.length() - 1)) {
-                    Util::System::out << Util::Io::PrintWriter::endl;
+                    Util::System::out << Util::Io::PrintStream::endl;
                 }
             }
         }
     }
 
-    Util::System::out << Util::Io::PrintWriter::flush;
+    Util::System::out << Util::Io::PrintStream::flush;
     return 0;
 }

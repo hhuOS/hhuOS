@@ -28,7 +28,7 @@ class BufferedInputStream;
 class BufferedOutputStream;
 class FileInputStream;
 class FileOutputStream;
-class PrintWriter;
+class PrintStream;
 }  // namespace Stream
 
 class System {
@@ -104,8 +104,8 @@ public:
     static Result call(Code code, uint32_t paramCount...);
 
     static Io::InputStream &in;
-    static Io::PrintWriter out;
-    static Io::PrintWriter error;
+    static Io::PrintStream out;
+    static Io::PrintStream error;
 
     static const char *errorMessage;
 

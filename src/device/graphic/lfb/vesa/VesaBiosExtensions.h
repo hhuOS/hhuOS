@@ -83,9 +83,9 @@ protected:
 
 private:
     /**
-	 * Information about a VBE device.
-	 * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
-	 */
+     * Information about a VBE device.
+     * See http://wiki.osdev.org/VESA_Video_Modes for further reference.
+     */
     struct VbeInfo {
         char signature[4] = {'V', 'B', 'E', '2'};
         uint16_t version{};         // VBE version; high byte is major version, low byte is minor version
@@ -164,11 +164,11 @@ private:
     static VesaBiosExtensions::VbeModeInfo getModeInfo(uint16_t mode);
 
     /**
-	 * Set the VBE device to a given mode.
-	 *
-	 * @param mode The mode
-	 * @return Whether the mode has been set successfully
-	 */
+     * Set the VBE device to a given mode.
+     *
+     * @param mode The mode
+     * @return Whether the mode has been set successfully
+     */
     static void setMode(uint16_t mode);
 
     Util::ArrayList<ModeInfo> supportedModes;
