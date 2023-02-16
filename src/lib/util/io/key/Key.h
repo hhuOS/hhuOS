@@ -39,6 +39,7 @@ public:
     enum Scancode {
         ESC = 0x01,
         DIV = 0x08,
+        ENTER = 0x1c,
         F1 = 0x3b,
         DEL = 0x53,
         SPACE = 0x39,

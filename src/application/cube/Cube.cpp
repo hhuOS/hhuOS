@@ -43,27 +43,27 @@ Cube::Cube(double x, double y, double size) : x(x), y(y), size(size) {
 
 void Cube::draw(Util::Game::Graphics2D &graphics) const {
     graphics.setColor(color);
-    graphics.drawLine(coordinates[0][indX], coordinates[0][indY], coordinates[1][indX], coordinates[1][indY]);
-    graphics.drawLine(coordinates[1][indX], coordinates[1][indY], coordinates[2][indX], coordinates[2][indY]);
-    graphics.drawLine(coordinates[2][indX], coordinates[2][indY], coordinates[3][indX], coordinates[3][indY]);
-    graphics.drawLine(coordinates[3][indX], coordinates[3][indY], coordinates[0][indX], coordinates[0][indY]);
-    graphics.drawLine(coordinates[4][indX], coordinates[4][indY], coordinates[5][indX], coordinates[5][indY]);
-    graphics.drawLine(coordinates[5][indX], coordinates[5][indY], coordinates[6][indX], coordinates[6][indY]);
-    graphics.drawLine(coordinates[6][indX], coordinates[6][indY], coordinates[7][indX], coordinates[7][indY]);
-    graphics.drawLine(coordinates[7][indX], coordinates[7][indY], coordinates[4][indX], coordinates[4][indY]);
-    graphics.drawLine(coordinates[0][indX], coordinates[0][indY], coordinates[4][indX], coordinates[4][indY]);
-    graphics.drawLine(coordinates[1][indX], coordinates[1][indY], coordinates[5][indX], coordinates[5][indY]);
-    graphics.drawLine(coordinates[2][indX], coordinates[2][indY], coordinates[6][indX], coordinates[6][indY]);
-    graphics.drawLine(coordinates[3][indX], coordinates[3][indY], coordinates[7][indX], coordinates[7][indY]);
+    graphics.drawLine(Util::Math::Vector2D(coordinates[0][indX], coordinates[0][indY]), Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]), Util::Math::Vector2D(coordinates[2][indX], coordinates[2][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[2][indX], coordinates[2][indY]), Util::Math::Vector2D(coordinates[3][indX], coordinates[3][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[3][indX], coordinates[3][indY]), Util::Math::Vector2D(coordinates[0][indX], coordinates[0][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[4][indX], coordinates[4][indY]), Util::Math::Vector2D(coordinates[5][indX], coordinates[5][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[5][indX], coordinates[5][indY]), Util::Math::Vector2D(coordinates[6][indX], coordinates[6][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[6][indX], coordinates[6][indY]), Util::Math::Vector2D(coordinates[7][indX], coordinates[7][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[7][indX], coordinates[7][indY]), Util::Math::Vector2D(coordinates[4][indX], coordinates[4][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[0][indX], coordinates[0][indY]), Util::Math::Vector2D(coordinates[4][indX], coordinates[4][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]), Util::Math::Vector2D(coordinates[5][indX], coordinates[5][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[2][indX], coordinates[2][indY]), Util::Math::Vector2D(coordinates[6][indX], coordinates[6][indY]));
+    graphics.drawLine(Util::Math::Vector2D(coordinates[3][indX], coordinates[3][indY]), Util::Math::Vector2D(coordinates[7][indX], coordinates[7][indY]));
 }
 
 void Cube::rotate(double angleX, double angleY, double angleZ) {
-    const double cosineX = Util::Math::Math::cosine(angleX);
-    const double cosineY = Util::Math::Math::cosine(angleY);
-    const double cosineZ = Util::Math::Math::cosine(angleZ);
-    const double sineX = Util::Math::Math::sine(angleX);
-    const double sineY = Util::Math::Math::sine(angleY);
-    const double sineZ = Util::Math::Math::sine(angleZ);
+    const double cosineX = Util::Math::cosine(angleX);
+    const double cosineY = Util::Math::cosine(angleY);
+    const double cosineZ = Util::Math::cosine(angleZ);
+    const double sineX = Util::Math::sine(angleX);
+    const double sineY = Util::Math::sine(angleY);
+    const double sineZ = Util::Math::sine(angleZ);
     double px, py, pz;
 
     // Rotate coordinates and recalculate corner points

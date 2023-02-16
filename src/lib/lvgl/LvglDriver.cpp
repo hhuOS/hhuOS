@@ -134,7 +134,7 @@ void LvglDriver::flushDisplay(_lv_disp_drv_t *displayDriver, const lv_area_t *ar
 
 void LvglDriver::flush() {
     lfbAddress.copyRange(colorBufferAddress, bufferSize);
-    if (useMmx) Util::Math::Math::endMmx();
+    if (useMmx) Util::Math::endMmx();
 }
 
 void LvglDriver::readMouseInput(lv_indev_drv_t *mouseDriver, lv_indev_data_t *data) {

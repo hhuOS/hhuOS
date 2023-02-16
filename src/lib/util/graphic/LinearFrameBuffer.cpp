@@ -148,7 +148,7 @@ Color LinearFrameBuffer::readPixel(uint16_t x, uint16_t y) const {
 void LinearFrameBuffer::clear() const {
     buffer->setRange(0, getPitch() * getResolutionY());
     if (useMmx) {
-        Math::Math::endMmx();
+        Math::endMmx();
     }
 }
 

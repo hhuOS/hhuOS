@@ -82,7 +82,7 @@ int32_t main(int32_t argc, char *argv[]) {
         Util::System::out << "Running memory benchmarks with MMX..." << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         benchmark(iterations, Util::MmxAddress<uint32_t>(buffer1), Util::MmxAddress<uint32_t>(buffer2), memsetMmxResult, memcpyMmxResult);
 
-        Util::Math::Math::endMmx();
+        Util::Math::endMmx();
 
         double memsetSpeedup = (double) memsetResult / memsetMmxResult;
         double memcpySpeedup = (double) memcpyResult / memcpyMmxResult;

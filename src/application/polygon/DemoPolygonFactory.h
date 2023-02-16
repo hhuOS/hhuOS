@@ -19,6 +19,7 @@
 #define HHUOS_DEMOPOLYGONFACTORY_H
 
 #include "lib/util/math/Random.h"
+#include "lib/util/math/Vector2D.h"
 
 class DemoPolygon;
 namespace Util {
@@ -56,19 +57,13 @@ private:
 
     Util::Math::Random random = Util::Math::Random();
 
-    static const Util::Array<double> xShape1;
-    static const Util::Array<double> yShape1;
-    static const Util::Array<double> xShape2;
-    static const Util::Array<double> yShape2;
-    static const Util::Array<double> xShape3;
-    static const Util::Array<double> yShape3;
-    static const Util::Array<double> xShape4;
-    static const Util::Array<double> yShape4;
-    static const Util::Array<double> xShape5;
-    static const Util::Array<double> yShape5;
+    static const Util::Array<Util::Math::Vector2D> shape1;
+    static const Util::Array<Util::Math::Vector2D> shape2;
+    static const Util::Array<Util::Math::Vector2D> shape3;
+    static const Util::Array<Util::Math::Vector2D> shape4;
+    static const Util::Array<Util::Math::Vector2D> shape5;
 
-    static const Util::Array<const Util::Array<double>*> xShapes;
-    static const Util::Array<const Util::Array<double>*> yShapes;
+    static const Util::Array<const Util::Array<Util::Math::Vector2D>*> shapes;
 };
 
 #endif

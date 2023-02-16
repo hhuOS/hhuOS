@@ -32,7 +32,7 @@ void DinoGame::keyPressed(Util::Io::Key key) {
         case Util::Io::Key::ESC :
             stop();
             break;
-        case Util::Io::Key::F1 :
+        case Util::Io::Key::ENTER :
             dino->die();
             break;
         case Util::Io::Key::SPACE :

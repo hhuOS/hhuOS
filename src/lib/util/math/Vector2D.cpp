@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,37 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MATH_H
-#define HHUOS_MATH_H
-
-
-#include <cstdint>
+#include "Vector2D.h"
+#include "Math.h"
 
 namespace Util::Math {
 
-    void endMmx();
+Vector2D::Vector2D(double x, double y) : x(x), y(y) {}
 
-    uint32_t absolute(int32_t value);
-
-    uint64_t absolute(int64_t value);
-
-    float absolute(float value);
-
-    double absolute(double value);
-
-    float sine(float value);
-
-    double sine(double value);
-
-    float cosine(float value);
-
-    double cosine(double value);
-
-    double sqrt(double value);
-
-    double pow(double value, int exponent);
-
+Vector2D Vector2D::operator*(double value) const {
+    return {x * value, y * value};
 }
 
+Vector2D Vector2D::operator/(double value) const {
+    return {x / value, y / value};
+}
 
-#endif
+Vector2D Vector2D::operator+(const Vector2D &other) const {
+    return {x + other.x, y + other.y};
+}
+
+Vector2D Vector2D::operator-(const Vector2D &other) const {
+    return {x - other.x, y - other.y};
+}
+
+Vector2D Vector2D::normalize() const {
+    return *this * (1 / length());
+}
+
+double Vector2D::length() const {
+    return sqrt(x * x + y * y);
+}
+
+double Vector2D::getX() const {
+    return x;
+}
+
+double Vector2D::getY() const {
+    return y;
+}
+
+}

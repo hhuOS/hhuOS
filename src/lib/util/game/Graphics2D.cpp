@@ -18,6 +18,7 @@
 #include "lib/util/graphic/Fonts.h"
 #include "Graphics2D.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Graphic {
@@ -33,45 +34,47 @@ Graphics2D::Graphics2D(const Graphic::LinearFrameBuffer &lfb) :
     offsetX(transformation + (lfb.getResolutionX() > lfb.getResolutionY() ? (lfb.getResolutionX() - lfb.getResolutionY()) / 2 : 0)),
     offsetY(transformation + (lfb.getResolutionY() > lfb.getResolutionX() ? (lfb.getResolutionY() - lfb.getResolutionX()) / 2 : 0)) {}
 
-void Graphics2D::drawLine(double x1, double y1, double x2, double y2) const {
-    lineDrawer.drawLine(static_cast<int32_t>(x1 * transformation + offsetX), static_cast<int32_t>(-y1 * transformation + offsetY),
-                        static_cast<int32_t>(x2 * transformation + offsetX), static_cast<int32_t>(-y2 * transformation + offsetY), color);
+void Graphics2D::drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const {
+    lineDrawer.drawLine(static_cast<int32_t>(from.getX() * transformation + offsetX),
+                        static_cast<int32_t>(-from.getY() * transformation + offsetY),
+                        static_cast<int32_t>(to.getX() * transformation + offsetX),
+                        static_cast<int32_t>(-to.getY() * transformation + offsetY), color);
 }
 
-void Graphics2D::drawPolygon(const Array<double> &x, const Array<double> &y) const {
-    for (uint32_t i = 0; i < x.length() - 1; i++) {
-        drawLine(x[i], y[i], x[i + 1], y[i + 1]);
+void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
+    for (uint32_t i = 0; i < vertices.length() - 1; i++) {
+        drawLine(vertices[i], vertices[i + 1]);
     }
 
-    drawLine(x[x.length() - 1], y[y.length() - 1], x[0], y[0]);
+    drawLine(vertices[vertices.length() - 1], vertices[0]);
 }
 
-void Graphics2D::drawString(const Graphic::Font &font, double x, double y, const char *string) const {
-    stringDrawer.drawString(font, static_cast<int32_t>(x * transformation + offsetX), static_cast<int32_t>(-y * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
+void Graphics2D::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
+    stringDrawer.drawString(font, static_cast<int32_t>(position.getX() * transformation + offsetX), static_cast<int32_t>(-position.getY() * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
-void Graphics2D::drawString(double x, double y, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT, x, y, string);
+void Graphics2D::drawString(const Math::Vector2D &position, const char *string) const {
+    drawString(Graphic::Fonts::TERMINAL_FONT, position, string);
 }
 
-void Graphics2D::drawString(double x, double y, const Util::String &string) const {
-    drawString(x, y, static_cast<const char *>(string));
+void Graphics2D::drawString(const Math::Vector2D &position, const String &string) const {
+    drawString(position, static_cast<const char *>(string));
 }
 
-void Graphics2D::drawStringSmall(double x, double y, const char *string) const {
-    drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, x, y, string);
+void Graphics2D::drawStringSmall(const Math::Vector2D &position, const char *string) const {
+    drawString(Graphic::Fonts::TERMINAL_FONT_SMALL, position, string);
 }
 
-void Graphics2D::drawStringSmall(double x, double y, const Util::String &string) const {
-    drawStringSmall(x, y, static_cast<const char *>(string));
+void Graphics2D::drawStringSmall(const Math::Vector2D &position, const String &string) const {
+    drawStringSmall(position, static_cast<const char *>(string));
 }
 
-void Graphics2D::drawImage(double x, double y, const Graphic::Image &image, bool flipX) const {
+void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
     auto pixelBuffer = image.getPixelBuffer();
     auto imageWidth = image.getWidth();
     auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
-    auto xPixelOffset = static_cast<int32_t>(x * transformation + offsetX);
-    auto yPixelOffset = static_cast<int32_t>(y * transformation + offsetY);
+    auto xPixelOffset = static_cast<int32_t>(position.getX() * transformation + offsetX);
+    auto yPixelOffset = static_cast<int32_t>(position.getY() * transformation + offsetY);
 
     for (int32_t i = 0; i < image.getHeight(); i++) {
         for (int32_t j = 0; j < image.getWidth(); j++) {
