@@ -17,6 +17,8 @@
 
 #include "Image.h"
 
+#include "lib/util/graphic/Color.h"
+
 namespace Util::Graphic {
 
 Image::Image(uint16_t width, uint16_t height, Color *pixelBuffer) : width(width), height(height), pixelBuffer(pixelBuffer) {

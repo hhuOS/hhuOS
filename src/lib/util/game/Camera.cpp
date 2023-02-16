@@ -15,38 +15,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "SpriteAnimation.h"
-
-namespace Util {
-namespace Game {
-class Sprite;
-}  // namespace Game
-}  // namespace Util
+#include "Camera.h"
 
 namespace Util::Game {
 
-SpriteAnimation::SpriteAnimation(const Util::Array<Util::Game::Sprite*> &sprites, double time) : animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
-
-void SpriteAnimation::reset() {
-    currentSprite = 0;
-    timeSinceLastChange = 0;
+const Math::Vector2D &Camera::getPosition() const {
+    return position;
 }
 
-void SpriteAnimation::update(double delta) {
-    timeSinceLastChange += delta;
-    auto advancedFrames = static_cast<uint32_t>(timeSinceLastChange / timePerSprite);
-    if (advancedFrames > 0) {
-        currentSprite = (currentSprite + advancedFrames) % sprites.length();
-        timeSinceLastChange -= advancedFrames * timePerSprite;
-    }
+void Camera::setPosition(const Math::Vector2D &position) {
+    Camera::position = position;
 }
 
-const Sprite& SpriteAnimation::getCurrentSprite() const {
-    return *sprites[currentSprite];
-}
-
-double SpriteAnimation::getAnimationTime() const {
-    return animationTime;
+void Camera::translate(const Math::Vector2D &translation) {
+    position = position + translation;
 }
 
 }

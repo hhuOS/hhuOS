@@ -25,6 +25,7 @@
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/Drawable.h"
+#include "Camera.h"
 
 namespace Util {
 namespace Game {
@@ -65,6 +66,8 @@ public:
 
     [[nodiscard]] uint32_t getObjectCount() const;
 
+    [[nodiscard]] Camera& getCamera();
+
     void stop();
 
     void applyChanges();
@@ -88,6 +91,7 @@ private:
     KeyListener *keyListener = nullptr;
     MouseListener *mouseListener = nullptr;
 
+    Camera camera;
     Util::ArrayList<Drawable*> drawables;
     Util::ArrayList<Drawable*> addList;
     Util::ArrayList<Drawable*> removeList;

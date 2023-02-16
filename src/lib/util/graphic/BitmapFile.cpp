@@ -16,8 +16,11 @@
  */
 
 #include "BitmapFile.h"
+
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/graphic/Color.h"
 
 namespace Util::Graphic {
 

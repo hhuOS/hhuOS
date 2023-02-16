@@ -20,6 +20,7 @@
 #include "lib/util/math/Math.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector2D.h"
 
 const Util::Graphic::Color Cube::color = Util::Graphic::Color(10,255,0);
 

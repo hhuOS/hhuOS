@@ -19,8 +19,14 @@
 #define HHUOS_DINOGAME_H
 
 #include "lib/util/game/Game.h"
-#include "lib/util/game/Sprite.h"
-#include "Dino.h"
+#include "lib/util/game/KeyListener.h"
+
+class Dino;
+namespace Util {
+namespace Io {
+class Key;
+}  // namespace Io
+}  // namespace Util
 
 class DinoGame : public Util::Game::Game, public Util::Game::KeyListener {
 
@@ -53,6 +59,7 @@ public:
 
 private:
 
+    Util::Math::Vector2D cameraMovement{};
     Dino *dino = nullptr;
 
     bool leftPressed = false;

@@ -17,6 +17,9 @@
 
 #include "DinoGame.h"
 
+#include "application/dino/Dino.h"
+#include "lib/util/io/key/Key.h"
+
 void DinoGame::update(double delta) {
     if (getObjectCount() == 0) {
         dino = new Dino();
@@ -25,6 +28,8 @@ void DinoGame::update(double delta) {
     } else {
         dino->update(delta);
     }
+
+    getCamera().translate(cameraMovement);
 }
 
 void DinoGame::keyPressed(Util::Io::Key key) {
@@ -47,6 +52,19 @@ void DinoGame::keyPressed(Util::Io::Key key) {
             dino->moveRight();
             dino->dash(key.getShift());
             rightPressed = true;
+            break;
+        case Util::Io::Key::W :
+            cameraMovement = {cameraMovement.getX(), -0.01};
+            break;
+        case Util::Io::Key::A :
+            cameraMovement = {0.01, cameraMovement.getY()};
+            break;
+        case Util::Io::Key::S :
+            cameraMovement = {cameraMovement.getX(), 0.01};
+            break;
+        case Util::Io::Key::D :
+            cameraMovement = {-0.01, cameraMovement.getY()};
+            break;
     }
 }
 
@@ -57,6 +75,18 @@ void DinoGame::keyReleased(Util::Io::Key key) {
             break;
         case Util::Io::Key::RIGHT:
             rightPressed = false;
+            break;
+        case Util::Io::Key::W :
+            cameraMovement = {cameraMovement.getX(), 0};
+            break;
+        case Util::Io::Key::A :
+            cameraMovement = {0, cameraMovement.getY()};
+            break;
+        case Util::Io::Key::S :
+            cameraMovement = {cameraMovement.getX(), 0};
+            break;
+        case Util::Io::Key::D :
+            cameraMovement = {0, cameraMovement.getY()};
             break;
     }
 

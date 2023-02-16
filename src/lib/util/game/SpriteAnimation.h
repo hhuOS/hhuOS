@@ -19,7 +19,14 @@
 #define HHUOS_SPRITEANIMATION_H
 
 #include <cstdint>
-#include "Sprite.h"
+
+#include "lib/util/collection/Array.h"
+
+namespace Util {
+namespace Game {
+class Sprite;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

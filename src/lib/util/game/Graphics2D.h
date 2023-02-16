@@ -28,14 +28,21 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
-#include "lib/util/graphic/Image.h"
-#include "lib/util/math/Vector2D.h"
 
 namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+
 namespace Graphic {
 class Font;
 class LinearFrameBuffer;
+class Image;
 }  // namespace Graphic
+
+namespace Game {
+class Game;
+}  // namespace Game
 }  // namespace Util
 
 namespace Util::Game {
@@ -46,7 +53,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Graphics2D(const Util::Graphic::LinearFrameBuffer &lfb);
+    explicit Graphics2D(const Util::Graphic::LinearFrameBuffer &lfb, Game &game);
 
     /**
      * Copy Constructor.
@@ -86,6 +93,8 @@ public:
 private:
 
     void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
+
+    Game &game;
 
     const Graphic::BufferedLinearFrameBuffer lfb;
     const Graphic::PixelDrawer pixelDrawer;

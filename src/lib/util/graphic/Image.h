@@ -18,8 +18,13 @@
 #ifndef HHUOS_IMAGE_H
 #define HHUOS_IMAGE_H
 
-#include "Color.h"
 #include <cstdint>
+
+namespace Util {
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

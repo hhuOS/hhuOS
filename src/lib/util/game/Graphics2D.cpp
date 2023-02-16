@@ -19,6 +19,9 @@
 #include "Graphics2D.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
+#include "Game.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/graphic/Image.h"
 
 namespace Util {
 namespace Graphic {
@@ -28,17 +31,18 @@ class Font;
 
 namespace Util::Game {
 
-Graphics2D::Graphics2D(const Graphic::LinearFrameBuffer &lfb) :
-    lfb(lfb), pixelDrawer(Graphics2D::lfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
+Graphics2D::Graphics2D(const Graphic::LinearFrameBuffer &lfb, Game &game) :
+    game(game), lfb(lfb), pixelDrawer(Graphics2D::lfb), lineDrawer(pixelDrawer), stringDrawer(pixelDrawer),
     transformation((lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2),
     offsetX(transformation + (lfb.getResolutionX() > lfb.getResolutionY() ? (lfb.getResolutionX() - lfb.getResolutionY()) / 2 : 0)),
     offsetY(transformation + (lfb.getResolutionY() > lfb.getResolutionX() ? (lfb.getResolutionY() - lfb.getResolutionX()) / 2 : 0)) {}
 
 void Graphics2D::drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    lineDrawer.drawLine(static_cast<int32_t>(from.getX() * transformation + offsetX),
-                        static_cast<int32_t>(-from.getY() * transformation + offsetY),
-                        static_cast<int32_t>(to.getX() * transformation + offsetX),
-                        static_cast<int32_t>(-to.getY() * transformation + offsetY), color);
+    auto &camera = game.getCamera();
+    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
+                        static_cast<int32_t>((-from.getY() + camera.getPosition().getY()) * transformation + offsetY),
+                        static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
+                        static_cast<int32_t>((-to.getY() + camera.getPosition().getY()) * transformation + offsetY), color);
 }
 
 void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
@@ -58,7 +62,7 @@ void Graphics2D::drawString(const Math::Vector2D &position, const char *string) 
 }
 
 void Graphics2D::drawString(const Math::Vector2D &position, const String &string) const {
-    drawString(position, static_cast<const char *>(string));
+    drawString(position, static_cast<const char*>(string));
 }
 
 void Graphics2D::drawStringSmall(const Math::Vector2D &position, const char *string) const {
@@ -70,11 +74,12 @@ void Graphics2D::drawStringSmall(const Math::Vector2D &position, const String &s
 }
 
 void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
+    auto &camera = game.getCamera();
     auto pixelBuffer = image.getPixelBuffer();
     auto imageWidth = image.getWidth();
     auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
-    auto xPixelOffset = static_cast<int32_t>(position.getX() * transformation + offsetX);
-    auto yPixelOffset = static_cast<int32_t>(position.getY() * transformation + offsetY);
+    auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
+    auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getPosition().getY()) * transformation + offsetY);
 
     for (int32_t i = 0; i < image.getHeight(); i++) {
         for (int32_t j = 0; j < image.getWidth(); j++) {

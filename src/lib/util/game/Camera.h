@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,58 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGON_H
-#define HHUOS_POLYGON_H
+#ifndef HHUOS_CAMERA_H
+#define HHUOS_CAMERA_H
 
-#include "lib/util/collection/Array.h"
-#include "Drawable.h"
 #include "lib/util/math/Vector2D.h"
-
-namespace Util {
-namespace Game {
-class Graphics2D;
-}  // namespace Game
-}  // namespace Util
 
 namespace Util::Game {
 
-class Polygon : public Drawable {
+class Camera {
 
 public:
     /**
-     * Constructor.
+     * Default Constructor.
      */
-    Polygon(const Array<Math::Vector2D> &vertices);
+    Camera() = default;
 
     /**
      * Copy Constructor.
      */
-    Polygon(const Polygon &other) = default;
+    Camera(const Camera &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Polygon &operator=(const Polygon &other) = default;
+    Camera &operator=(const Camera &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Polygon() override = default;
+    ~Camera() = default;
 
-    void scale(double factor);
+    [[nodiscard]] const Math::Vector2D& getPosition() const;
 
-    void rotate(double angle);
+    void setPosition(const Math::Vector2D &position);
 
-    void translate(Math::Vector2D translation);
-
-    void draw(Graphics2D &graphics) const override;
+    void translate(const Math::Vector2D &translation);
 
 private:
 
-    void calculateCenter();
-
-    Array<Math::Vector2D> vertices;
-    Math::Vector2D center;
+    Math::Vector2D position{};
 };
 
 }

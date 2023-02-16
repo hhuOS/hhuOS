@@ -26,6 +26,7 @@ add_library(${PROJECT_NAME} STATIC ${SOURCE_FILES})
 target_link_libraries(${PROJECT_NAME} lib.graphic)
 
 target_sources(${PROJECT_NAME} PUBLIC
+        ${HHUOS_SRC_DIR}/lib/util/game/Camera.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Engine.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Game.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp

@@ -19,6 +19,7 @@
 
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/base/String.h"
+#include "lib/util/math/Vector2D.h"
 
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
     auto string = Util::String();

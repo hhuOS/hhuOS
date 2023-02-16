@@ -23,6 +23,7 @@
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/io/file/File.h"
 #include "DinoGame.h"
+#include "lib/util/graphic/LinearFrameBuffer.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 
