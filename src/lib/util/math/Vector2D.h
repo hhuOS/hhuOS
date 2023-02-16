@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,57 +15,59 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_POLYGON_H
-#define HHUOS_POLYGON_H
+#ifndef HHUOS_VECTOR2D_H
+#define HHUOS_VECTOR2D_H
 
-#include "lib/util/collection/Array.h"
-#include "Drawable.h"
+namespace Util::Math {
 
-namespace Util {
-namespace Game {
-class Graphics2D;
-}  // namespace Game
-}  // namespace Util
-
-namespace Util::Game {
-
-class Polygon : public Drawable {
+class Vector2D {
 
 public:
     /**
+     * Default Constructor.
+     */
+    Vector2D() = default;
+
+    /**
      * Constructor.
      */
-    Polygon(const Array<Math::Vector2D> &vertices);
+    Vector2D(double x, double y);
 
     /**
      * Copy Constructor.
      */
-    Polygon(const Polygon &other) = default;
+    Vector2D(const Vector2D &other) = default;
 
     /**
      * Assignment operator.
      */
-    Polygon &operator=(const Polygon &other) = default;
+    Vector2D &operator=(const Vector2D &other) = default;
 
     /**
      * Destructor.
      */
-    ~Polygon() override = default;
+    ~Vector2D() = default;
 
-    void scale(double factor);
+    Vector2D operator*(double value) const;
 
-    void rotate(double angle);
+    Vector2D operator/(double value) const;
 
-    void translate(Math::Vector2D translation);
+    Vector2D operator+(const Vector2D &other) const;
 
-    void draw(Graphics2D &graphics) const override;
+    Vector2D operator-(const Vector2D &other) const;
+
+    [[nodiscard]] Vector2D normalize() const;
+
+    [[nodiscard]] double length() const;
+
+    [[nodiscard]] double getX() const;
+
+    [[nodiscard]] double getY() const;
 
 private:
 
-    void calculateCenter();
-
-    Array<Math::Vector2D> vertices;
-    Math::Vector2D center;
+    double x = 0;
+    double y = 0;
 };
 
 }

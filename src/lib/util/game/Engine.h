@@ -243,6 +243,7 @@ private:
     Statistics statistics;
     Async::Spinlock updateLock;
 
+    bool showStatus = true;
     uint32_t statusUpdateTimer = 0;
     String status = statistics.gather();
 

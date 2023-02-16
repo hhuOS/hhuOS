@@ -34,7 +34,7 @@ void BufferScroller::scrollUp(uint16_t lineCount) const {
     auto source = lfb.getBuffer().add(lfb.getPitch() * lineCount);
     targetBuffer.copyRange(source, lfb.getPitch() * (lfb.getResolutionY() - lineCount));
     if (useMmx) {
-        Math::Math::endMmx();
+        Math::endMmx();
     }
 
     // Clear lower part of the screen

@@ -26,7 +26,7 @@ void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
     if (middlePressed) string += "m";
     if (rightPressed) string += "r";
 
-    graphics.drawString(posX, posY, string.isEmpty() ? "@" : string);
+    graphics.drawString(Util::Math::Vector2D(), string.isEmpty() ? "@" : string);
 }
 
 void MouseCursor::keyPressed(Key key) {

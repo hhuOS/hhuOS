@@ -29,6 +29,7 @@
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Image.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Graphic {
@@ -62,19 +63,19 @@ public:
      */
     ~Graphics2D() = default;
 
-    void drawLine(double x1, double y1, double x2, double y2) const;
+    void drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const;
 
-    void drawPolygon(const Array<double> &x, const Array<double> &y) const;
+    void drawPolygon(const Array <Math::Vector2D> &vertices) const;
 
-    void drawString(double x, double y, const char *string) const;
+    void drawString(const Math::Vector2D &position, const char *string) const;
 
-    void drawString(double x, double y, const String &string) const;
+    void drawString(const Math::Vector2D &position, const String &string) const;
 
-    void drawStringSmall(double x, double y, const char *string) const;
+    void drawStringSmall(const Math::Vector2D &position, const char *string) const;
 
-    void drawStringSmall(double x, double y, const String &string) const;
+    void drawStringSmall(const Math::Vector2D &position, const String &string) const;
 
-    void drawImage(double x, double y, const Graphic::Image &image, bool flipX = false) const;
+    void drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
 
     void show() const;
 
@@ -84,7 +85,7 @@ public:
 
 private:
 
-    void drawString(const Graphic::Font &font, double x, double y, const char *string) const;
+    void drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const;
 
     const Graphic::BufferedLinearFrameBuffer lfb;
     const Graphic::PixelDrawer pixelDrawer;

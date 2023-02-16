@@ -19,19 +19,27 @@
 
 namespace Util::Math {
 
-void Math::endMmx() {
+void endMmx() {
     asm volatile ("emms");
 }
 
-uint32_t Math::absolute(int32_t value) {
+uint32_t absolute(int32_t value) {
     return value < 0 ? value * -1 : value;
 }
 
-uint64_t Math::absolute(int64_t value) {
+uint64_t absolute(int64_t value) {
     return value < 0 ? value * -1 : value;
 }
 
-float Math::sine(float value) {
+float absolute(float value) {
+    return value < 0 ? value * -1 : value;
+}
+
+double absolute(double value) {
+    return value < 0 ? value * -1 : value;
+}
+
+float sine(float value) {
     float ret = 0;
     asm volatile (
             "flds (%0);"
@@ -44,7 +52,7 @@ float Math::sine(float value) {
     return ret;
 }
 
-double Math::sine(double value) {
+double sine(double value) {
     double ret = 0;
     asm volatile (
             "fldl (%0);"
@@ -57,7 +65,7 @@ double Math::sine(double value) {
     return ret;
 }
 
-float Math::cosine(float value) {
+float cosine(float value) {
     float ret = 0;
     asm volatile (
             "flds (%0);"
@@ -70,7 +78,7 @@ float Math::cosine(float value) {
     return ret;
 }
 
-double Math::cosine(double value) {
+double cosine(double value) {
     double ret = 0;
     asm volatile (
             "fldl (%0);"
@@ -79,6 +87,27 @@ double Math::cosine(double value) {
             : :
             "r"(&value), "r"(&ret)
             );
+
+    return ret;
+}
+
+double sqrt(double value) {
+    double ret = 0;
+    asm volatile(
+            "fldl (%0);"
+            "fsqrt;"
+            "fstpl (%1)"
+            : :
+            "r"(&value), "r"(&ret)
+            );
+    return ret;
+}
+
+double pow(double value, int exponent) {
+    double ret = 1;
+    for(int i = 1; i <= exponent; i++){
+        ret *= value;
+    }
 
     return ret;
 }

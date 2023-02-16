@@ -35,7 +35,7 @@ BufferedLinearFrameBuffer::~BufferedLinearFrameBuffer() {
 void BufferedLinearFrameBuffer::flush() const {
     targetBuffer.copyRange(getBuffer(), getPitch() * getResolutionY());
     if (useMmx) {
-        Math::Math::endMmx();
+        Math::endMmx();
     }
 }
 

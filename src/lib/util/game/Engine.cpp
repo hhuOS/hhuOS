@@ -67,7 +67,7 @@ void Engine::run() {
 
         statistics.startDrawTime();
         game.draw(graphics);
-        drawStatus();
+        if (showStatus) drawStatus();
         graphics.show();
         statistics.stopDrawTime();
 
@@ -94,8 +94,8 @@ void Engine::drawStatus() {
     }
 
     auto color = graphics.getColor();
-    graphics.setColor(Util::Graphic::Colors::WHITE);
-    graphics.drawStringSmall(-1, 1, status + String::format(", Objects: %u", game.getObjectCount()));
+    graphics.setColor(Graphic::Colors::WHITE);
+    graphics.drawStringSmall(Math::Vector2D(-1, 1), status + String::format(", Objects: %u", game.getObjectCount()));
     graphics.setColor(color);
 }
 
@@ -110,26 +110,34 @@ void Engine::KeyListenerRunnable::run() {
             auto key = keyDecoder.getCurrentKey();
             if (engine.game.keyListener != nullptr) {
                 engine.updateLock.acquire();
-                key.isPressed() ? engine.game.keyListener->keyPressed(key) : engine.game.keyListener->keyReleased(key);
+
+                switch (key.getScancode()) {
+                    case Io::Key::F1 :
+                        if (key.isPressed()) engine.showStatus = !engine.showStatus;
+                        break;
+                    default:
+                        key.isPressed() ? engine.game.keyListener->keyPressed(key) : engine.game.keyListener->keyReleased(key);
+                }
+
                 engine.updateLock.release();
             }
         }
 
-        scancode = Util::System::in.read();
+        scancode = System::in.read();
     }
 }
 
 Engine::MouseListenerRunnable::MouseListenerRunnable(Engine &engine) : engine(engine) {}
 
 void Engine::MouseListenerRunnable::run() {
-    auto file = Util::Io::File("/device/mouse");
+    auto file = Io::File("/device/mouse");
     if (!file.exists()) {
         return;
     }
 
     uint8_t lastButtons = 0;
 
-    auto stream = Util::Io::FileInputStream(file);
+    auto stream = Io::FileInputStream(file);
     while (engine.game.isRunning()) {
         auto buttons = stream.read();
         auto xMovement = static_cast<int8_t>(stream.read());

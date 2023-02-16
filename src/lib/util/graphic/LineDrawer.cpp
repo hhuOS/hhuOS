@@ -36,7 +36,7 @@ void LineDrawer::drawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const 
     auto dy = static_cast<int32_t>(y2 - y1);
 
     // If the x-axis is the major axis
-    if (Math::Math::absolute(dx) >= Math::Math::absolute(dy)) {
+    if (Math::absolute(dx) >= Math::absolute(dy)) {
         // If x2 < x1, flip the points to have fewer special cases
         if (dx < 0) {
             dx *= -1;

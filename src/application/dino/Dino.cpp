@@ -116,7 +116,7 @@ void Dino::update(double delta) {
 }
 
 void Dino::draw(Util::Game::Graphics2D &graphics) const {
-    graphics.drawImage(-0.1, -0.1133, currentAnimation->getCurrentSprite().getImage(), invert);
+    graphics.drawImage(Util::Math::Vector2D(-0.1, -0.1), currentAnimation->getCurrentSprite().getImage(), invert);
 }
 
 void Dino::die() {
