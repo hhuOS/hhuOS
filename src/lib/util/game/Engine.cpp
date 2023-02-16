@@ -28,17 +28,13 @@
 #include "lib/util/base/System.h"
 #include "lib/util/io/stream/InputStream.h"
 #include "GameManager.h"
-
-namespace Util {
-namespace Graphic {
-class LinearFrameBuffer;
-}  // namespace Graphic
-}  // namespace Util
+#include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
 
 Engine::Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) :
-        game(game), graphics(lfb), targetFrameRate(targetFrameRate) {
+        game(game), graphics(lfb, game), targetFrameRate(targetFrameRate) {
     GameManager::setTransformation((lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2);
 }
 

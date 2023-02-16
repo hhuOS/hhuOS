@@ -17,6 +17,11 @@
 
 #include "Dino.h"
 
+#include "lib/util/collection/Array.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/math/Vector2D.h"
+
 Dino::Dino() : currentAnimation(&eggAnimation),
     idleAnimation(Util::Array<Util::Game::Sprite*>({
     new Util::Game::Sprite("/initrd/dino/idle1.bmp", 0.2, 0.2267),

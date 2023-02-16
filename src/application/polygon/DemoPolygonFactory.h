@@ -19,12 +19,15 @@
 #define HHUOS_DEMOPOLYGONFACTORY_H
 
 #include "lib/util/math/Random.h"
-#include "lib/util/math/Vector2D.h"
 
 class DemoPolygon;
+
 namespace Util {
 
 template <typename T> class Array;
+namespace Math {
+class Vector2D;
+}  // namespace Math
 
 }  // namespace Util
 

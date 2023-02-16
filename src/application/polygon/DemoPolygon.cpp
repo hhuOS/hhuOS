@@ -18,6 +18,7 @@
 #include "DemoPolygon.h"
 
 #include "lib/util/game/Graphics2D.h"
+#include "lib/util/math/Vector2D.h"
 
 DemoPolygon::DemoPolygon() : Util::Game::Polygon(Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 

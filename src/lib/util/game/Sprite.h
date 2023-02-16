@@ -19,8 +19,12 @@
 #define HHUOS_SPRITE_H
 
 #include "lib/util/base/String.h"
-#include "lib/util/graphic/Image.h"
-#include "Drawable.h"
+
+namespace Util {
+namespace Graphic {
+class Image;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Game {
 

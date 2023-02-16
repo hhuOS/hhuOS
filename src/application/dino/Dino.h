@@ -20,7 +20,12 @@
 
 #include "lib/util/game/Drawable.h"
 #include "lib/util/game/SpriteAnimation.h"
-#include "lib/util/game/KeyListener.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
 
 class Dino : public Util::Game::Drawable {
 

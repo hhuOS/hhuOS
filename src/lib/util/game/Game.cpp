@@ -24,6 +24,7 @@ namespace Game {
 class Graphics2D;
 class KeyListener;
 class MouseListener;
+class Camera;
 }  // namespace Game
 }  // namespace Util
 
@@ -83,6 +84,10 @@ void Game::setKeyListener(KeyListener &listener) {
 
 void Game::setMouseListener(MouseListener &listener) {
     mouseListener = &listener;
+}
+
+Camera& Game::getCamera() {
+    return camera;
 }
 
 }

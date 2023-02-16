@@ -19,9 +19,15 @@
 #define HHUOS_BITMAPFILE_H
 
 #include <cstdint>
-#include "lib/util/graphic/Color.h"
+
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Image.h"
+
+namespace Util {
+namespace Graphic {
+class Color;
+}  // namespace Graphic
+}  // namespace Util
 
 namespace Util::Graphic {
 

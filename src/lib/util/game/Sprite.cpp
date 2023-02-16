@@ -16,8 +16,12 @@
  */
 
 #include "Sprite.h"
+
+#include <stdint.h>
+
 #include "GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"
+#include "lib/util/graphic/Image.h"
 
 namespace Util::Game {
 

@@ -23,6 +23,10 @@
 #include "lib/util/graphic/Color.h"
 
 namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+
 namespace Game {
 class Graphics2D;
 }  // namespace Game
