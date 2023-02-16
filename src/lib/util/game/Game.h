@@ -24,8 +24,8 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
-#include "lib/util/game/Drawable.h"
 #include "Camera.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util {
 namespace Game {
@@ -72,15 +72,17 @@ public:
 
     void applyChanges();
 
+    void updateEntities(double delta);
+
     void draw(Graphics2D &graphics);
 
     virtual void update(double delta) = 0;
 
 protected:
 
-    void addObject(Drawable *drawable);
+    void addObject(Entity *object);
 
-    void removeObject(Drawable *drawable);
+    void removeObject(Entity *object);
 
     void setKeyListener(KeyListener &listener);
 
@@ -92,9 +94,9 @@ private:
     MouseListener *mouseListener = nullptr;
 
     Camera camera;
-    Util::ArrayList<Drawable*> drawables;
-    Util::ArrayList<Drawable*> addList;
-    Util::ArrayList<Drawable*> removeList;
+    Util::ArrayList<Entity*> entities;
+    Util::ArrayList<Entity*> addList;
+    Util::ArrayList<Entity*> removeList;
     bool running = true;
 };
 

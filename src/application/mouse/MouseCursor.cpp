@@ -21,13 +21,15 @@
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
 
+void MouseCursor::onUpdate(double delta) {}
+
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
     auto string = Util::String();
     if (leftPressed) string += "l";
     if (middlePressed) string += "m";
     if (rightPressed) string += "r";
 
-    graphics.drawString(Util::Math::Vector2D(), string.isEmpty() ? "@" : string);
+    graphics.drawString(getPosition(), string.isEmpty() ? "@" : string);
 }
 
 void MouseCursor::keyPressed(Key key) {
@@ -62,12 +64,12 @@ void MouseCursor::keyReleased(Key key) {
     }
 }
 
-void MouseCursor::mouseMoved(double relativeX, double relativeY) {
-    MouseCursor::posX += relativeX;
-    MouseCursor::posY += relativeY;
+void MouseCursor::mouseMoved(const Util::Math::Vector2D &relativeMovement) {
+    translate(relativeMovement);
 
-    if (posX < -1) posX = -1;
-    if (posX > 1) posX = 1;
-    if (posY < -1) posY = -1;
-    if (posY > 1) posY = 1;
+    const auto &position = getPosition();
+    if (position.getX() < -1) setPosition({-1, position.getY()});
+    if (position.getX() > 1) setPosition({1, position.getY()});
+    if (position.getY() < -1) setPosition({position.getX(), -1});
+    if (position.getY() > 1) setPosition({position.getX(), 1});
 }

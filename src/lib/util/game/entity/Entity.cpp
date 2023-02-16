@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,23 +15,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "MouseGame.h"
+#include "Entity.h"
 
-#include "application/mouse/MouseCursor.h"
-#include "lib/util/io/key/Key.h"
+namespace Util::Game {
 
-void MouseGame::update(double delta) {}
+Entity::Entity(const Math::Vector2D &position) : position(position) {}
 
-MouseGame::MouseGame() {
-    addObject(cursor);
-    setKeyListener(*this);
-    setMouseListener(*cursor);
+void Entity::translate(const Math::Vector2D &translation) {
+    position = position + translation;
 }
 
-void MouseGame::keyPressed(Util::Io::Key key) {
-    stop();
+void Entity::translateX(double x) {
+    position = {position.getX() + x, position.getY()};
 }
 
-void MouseGame::keyReleased(Util::Io::Key key) {
+void Entity::translateY(double y) {
+    position = {position.getX(), position.getY() + y};
+}
+
+void Entity::setPosition(const Math::Vector2D &position) {
+    Entity::position = position;
+}
+
+const Util::Math::Vector2D& Entity::getPosition() const {
+    return position;
+}
+
+void Entity::update(double delta) {
+    onUpdate(delta);
+}
 
 }

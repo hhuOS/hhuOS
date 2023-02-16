@@ -19,6 +19,7 @@
 #define HHUOS_MOUSELISTENER_H
 
 #include <cstdint>
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
 
@@ -56,7 +57,7 @@ public:
 
     virtual void keyReleased(Key key) = 0;
 
-    virtual void mouseMoved(double relativeX, double relativeY) = 0;
+    virtual void mouseMoved(const Math::Vector2D &relativeMovement) = 0;
 };
 
 }

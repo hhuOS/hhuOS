@@ -19,14 +19,13 @@
 
 #include "application/dino/Dino.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/game/Camera.h"
 
 void DinoGame::update(double delta) {
     if (getObjectCount() == 0) {
         dino = new Dino();
         setKeyListener(*this);
         addObject(dino);
-    } else {
-        dino->update(delta);
     }
 
     getCamera().translate(cameraMovement);

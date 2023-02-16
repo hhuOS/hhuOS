@@ -22,7 +22,7 @@
 #include "lib/util/game/Sprite.h"
 #include "lib/util/math/Vector2D.h"
 
-Dino::Dino() : currentAnimation(&eggAnimation),
+Dino::Dino() : Util::Game::Entity(Util::Math::Vector2D(-0.1, -0.1)), currentAnimation(&eggAnimation),
     idleAnimation(Util::Array<Util::Game::Sprite*>({
     new Util::Game::Sprite("/initrd/dino/idle1.bmp", 0.2, 0.2267),
     new Util::Game::Sprite("/initrd/dino/idle2.bmp", 0.2, 0.2267),
@@ -98,7 +98,7 @@ void Dino::hatch() {
     }
 }
 
-void Dino::update(double delta) {
+void Dino::onUpdate(double delta) {
     if (isHatching) {
         time += delta;
         if (time >= crackAnimation.getAnimationTime() && time < crackAnimation.getAnimationTime() + hatchAnimation.getAnimationTime()) {
@@ -121,11 +121,11 @@ void Dino::update(double delta) {
 }
 
 void Dino::draw(Util::Game::Graphics2D &graphics) const {
-    graphics.drawImage(Util::Math::Vector2D(-0.1, -0.1), currentAnimation->getCurrentSprite().getImage(), invert);
+    graphics.drawImage(getPosition(), currentAnimation->getCurrentSprite().getImage(), invert);
 }
 
 void Dino::die() {
-    if (hatched) {
+    if (hatched && !isDying) {
         time = 0;
         isDying = true;
         currentAnimation = &deathAnimation;

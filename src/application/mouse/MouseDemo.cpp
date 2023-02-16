@@ -15,41 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "CubeDemo.h"
+#include "MouseDemo.h"
 
-#include "application/cube/Cube.h"
+#include "application/mouse/MouseCursor.h"
 #include "lib/util/io/key/Key.h"
 
-CubeDemo::CubeDemo(uint32_t speed) : speed(speed) {
-    for (auto *cube : cubes) {
-        addObject(cube);
-    }
+void MouseDemo::update(double delta) {}
 
+MouseDemo::MouseDemo() {
+    addObject(cursor);
     setKeyListener(*this);
+    setMouseListener(*cursor);
 }
 
-void CubeDemo::update(double delta) {
-    for (auto &cube : cubes) {
-        cube->rotate(ANGLE_X * speed * delta, ANGLE_Y * speed * delta, ANGLE_Z * speed * delta);
-    }
-}
-
-void CubeDemo::keyPressed(Util::Io::Key key) {
+void MouseDemo::keyPressed(Util::Io::Key key) {
     if (key.getScancode() == Util::Io::Key::ESC) {
         stop();
     }
-
-    switch (key.getAscii()) {
-        case '+': {
-            speed++;
-            break;
-        }
-        case '-': {
-            speed--;
-            break;
-        }
-    }
 }
 
-void CubeDemo::keyReleased(Util::Io::Key key) {
+void MouseDemo::keyReleased(Util::Io::Key key) {
+
 }

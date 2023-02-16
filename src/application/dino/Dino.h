@@ -18,8 +18,8 @@
 #ifndef HHUOS_DINO_H
 #define HHUOS_DINO_H
 
-#include "lib/util/game/Drawable.h"
 #include "lib/util/game/SpriteAnimation.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util {
 namespace Game {
@@ -27,7 +27,7 @@ class Graphics2D;
 }  // namespace Game
 }  // namespace Util
 
-class Dino : public Util::Game::Drawable {
+class Dino : public Util::Game::Entity {
 
 public:
     /**
@@ -64,7 +64,7 @@ public:
 
     void reset();
 
-    void update(double delta);
+    void onUpdate(double delta) override;
 
     void draw(Util::Game::Graphics2D &graphics) const override;
 

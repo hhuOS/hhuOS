@@ -25,7 +25,7 @@ include_directories(${HHUOS_SRC_DIR})
 set(SOURCE_FILES
         ${HHUOS_SRC_DIR}/application/mouse/mouse.cpp
         ${HHUOS_SRC_DIR}/application/mouse/MouseCursor.cpp
-        ${HHUOS_SRC_DIR}/application/mouse/MouseGame.cpp)
+        ${HHUOS_SRC_DIR}/application/mouse/MouseDemo.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCE_FILES})
 
