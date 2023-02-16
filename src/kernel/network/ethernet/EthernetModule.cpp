@@ -46,16 +46,18 @@ namespace Kernel::Network::Ethernet {
 Kernel::Logger EthernetModule::log = Kernel::Logger::get("Ethernet");
 
 bool EthernetModule::checkPacket(const uint8_t *packet, uint32_t length) {
-    uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
-    uint32_t calculatedCheckSequence = calculateCheckSequence(packet, length - 4);
-    return frameCheckSequence == calculatedCheckSequence;
+    // TODO: Uncomment once checksum calculation is implemented;
+    // uint32_t frameCheckSequence = (packet[length - 4] << 24) | (packet[length - 3] << 16) | (packet[length - 2] << 8) | packet[length - 1];
+    // uint32_t calculatedCheckSequence = calculateCheckSequence(packet, length - 4);
+    // return frameCheckSequence == calculatedCheckSequence;
+    return true;
 }
 
 void EthernetModule::readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) {
     auto header = Util::Network::Ethernet::EthernetHeader();
     header.read(stream);
 
-    if (header.getDestinationAddress() != device.getMacAddress()) {
+    if (header.getDestinationAddress() != device.getMacAddress() && !(header.getDestinationAddress().isBroadcastAddress())) {
         log.warn("Discarding packet, because of wrong destination address!");
         return;
     }

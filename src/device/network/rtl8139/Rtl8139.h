@@ -76,6 +76,7 @@ private:
         TRANSMIT_ADDRESS = 0x20,
         COMMAND = 0x37,
         RECEIVE_BUFFER_START = 0x30,
+        CURRENT_READ_ADDRESS = 0x38,
         INTERRUPT_MASK = 0x3c,
         INTERRUPT_STATUS = 0x3e,
         RECEIVE_CONFIGURATION = 0x44,
@@ -83,7 +84,7 @@ private:
     };
 
     enum Command : uint8_t {
-        BUFFER_EMPTY = 0x00,
+        BUFFER_EMPTY = 0x01,
         ENABLE_TRANSMITTER = 0x04,
         ENABLE_RECEIVER = 0x08,
         RESET = 0x10
@@ -125,14 +126,34 @@ private:
         CARRIER_SENSE_LOST = 0x80000000
     };
 
+    enum ReceiveStatus : uint16_t {
+        OK = 0x0001,
+        FRAME_ALIGNMENT_ERROR = 0x0002,
+        CHECKSUM_ERROR = 0x0004,
+        LONG_PACKET = 0x0008,
+        RUNT_PACKET = 0x0010,
+        INVALID_SYMBOL = 0x0020,
+        BROADCAST = 0x2000,
+        PHYSICAL_ADDRESS = 0x4000,
+        MULTICAST = 0x8000
+    };
+
+    struct PacketHeader {
+        uint16_t status;
+        uint16_t length;
+    };
+
     bool isTransmitDescriptorAvailable();
 
     void setTransmitAddress(void *buffer);
 
     void setPacketSize(uint32_t size);
 
+    void processIncomingPacket();
+
     PciDevice pciDevice;
     uint8_t transmitDescriptor = 0;
+    uint16_t receiveIndex = 0;
     uint8_t *receiveBuffer{};
     IoPort baseRegister = IoPort(0x00);
 

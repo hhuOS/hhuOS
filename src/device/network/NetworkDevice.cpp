@@ -65,7 +65,6 @@ void NetworkDevice::sendPacket(const uint8_t *packet, uint32_t length) {
 
 void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length) {
     if (!Kernel::Network::Ethernet::EthernetModule::checkPacket(packet, length)) {
-        log.warn("Discarding packet on %s, because of wrong frame check sequence", static_cast<const char*>(identifier));
         return;
     }
 
@@ -75,7 +74,6 @@ void NetworkDevice::handleIncomingPacket(const uint8_t *packet, uint32_t length)
     target.copyRange(source, length);
 
     if (!incomingPacketQueue.offer(Packet{buffer, length})) {
-        log.warn("Discarding packet on %s, because of too many unhandled packets", static_cast<const char*>(identifier));
         packetMemoryManager.freeBlock(buffer);
     }
 }

@@ -70,7 +70,7 @@ Rtl8139::Rtl8139(const PciDevice &pciDevice) : pciDevice(pciDevice) {
 
     auto physicalReceiveBufferAddress = reinterpret_cast<uint32_t>(memoryService.getPhysicalAddress(receiveBuffer));
     baseRegister.writeDoubleWord(RECEIVE_BUFFER_START, physicalReceiveBufferAddress);
-    baseRegister.writeDoubleWord(RECEIVE_CONFIGURATION, WRAP | ACCEPT_PHYSICAL_MATCH | LENGTH_8K);
+    baseRegister.writeDoubleWord(RECEIVE_CONFIGURATION, WRAP | ACCEPT_PHYSICAL_MATCH | ACCEPT_BROADCAST | LENGTH_8K);
 }
 
 void Rtl8139::initializeAvailableCards() {
@@ -116,9 +116,18 @@ void Rtl8139::plugin() {
 
 void Rtl8139::trigger(const Kernel::InterruptFrame &frame) {
     auto interrupt = baseRegister.readWord(INTERRUPT_STATUS);
-    if (interrupt & (TRANSMIT_OK | TRANSMIT_ERROR)) {
+    if (interrupt & RECEIVE_OK) {
+        while (!(baseRegister.readByte(COMMAND) & BUFFER_EMPTY)) {
+            processIncomingPacket();
+        }
+        baseRegister.writeWord(INTERRUPT_STATUS, RECEIVE_OK);
+    } else if (interrupt & TRANSMIT_OK) {
         freeLastSendBuffer();
-        baseRegister.writeWord(INTERRUPT_STATUS, TRANSMIT_OK | TRANSMIT_ERROR);
+        baseRegister.writeWord(INTERRUPT_STATUS, TRANSMIT_OK);
+    } else if (interrupt & TRANSMIT_ERROR) {
+        baseRegister.writeWord(INTERRUPT_STATUS, TRANSMIT_ERROR);
+    } else if (interrupt & RECEIVE_ERROR) {
+        baseRegister.writeWord(INTERRUPT_STATUS, RECEIVE_ERROR);
     }
 }
 
@@ -133,6 +142,17 @@ void Rtl8139::setTransmitAddress(void *buffer) {
 
 void Rtl8139::setPacketSize(uint32_t size) {
     baseRegister.writeDoubleWord(TRANSMIT_STATUS + transmitDescriptor * 4, size);
+}
+
+void Rtl8139::processIncomingPacket() {
+    auto &header = *reinterpret_cast<PacketHeader*>(receiveBuffer + receiveIndex);
+    if (header.status & RECEIVE_OK) {
+        handleIncomingPacket(receiveBuffer + receiveIndex + sizeof(PacketHeader), header.length);
+        receiveIndex += header.length + sizeof (PacketHeader); // Add packet length
+        receiveIndex = Util::Address<uint32_t>(receiveIndex).alignUp(4).get(); // Align to next double word
+        if (receiveIndex >= 8192) receiveIndex %= 8192; // Wrap around
+        baseRegister.writeWord(CURRENT_READ_ADDRESS, receiveIndex - 16);
+    }
 }
 
 }
