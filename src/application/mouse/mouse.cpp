@@ -19,7 +19,7 @@
 
 #include "lib/util/base/System.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
-#include "MouseGame.h"
+#include "MouseDemo.h"
 #include "lib/util/game/Engine.h"
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
@@ -37,7 +37,7 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto game = MouseGame();
+    auto game = MouseDemo();
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
     auto engine = Util::Game::Engine(game, lfb);

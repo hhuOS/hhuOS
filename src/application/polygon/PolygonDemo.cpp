@@ -38,6 +38,10 @@ void PolygonDemo::update(double delta) {
 }
 
 void PolygonDemo::keyPressed(Util::Io::Key key) {
+    if (key.getScancode() == Util::Io::Key::ESC) {
+        stop();
+    }
+
     switch (key.getAscii()) {
         case '+': {
             auto *polygon = factory.createPolygon();
@@ -51,11 +55,7 @@ void PolygonDemo::keyPressed(Util::Io::Key key) {
             }
             break;
         }
-        default:
-            stop();
     }
 }
 
-void PolygonDemo::keyReleased(Util::Io::Key key) {
-
-}
+void PolygonDemo::keyReleased(Util::Io::Key key) {}

@@ -17,8 +17,6 @@
 
 #include "Game.h"
 
-#include "lib/util/game/Drawable.h"
-
 namespace Util {
 namespace Game {
 class Graphics2D;
@@ -31,28 +29,28 @@ class Camera;
 namespace Util::Game {
 
 Game::~Game() {
-    for (const auto *drawable : drawables) {
+    for (const auto *drawable : entities) {
         delete drawable;
     }
 
-    drawables.clear();
+    entities.clear();
 }
 
-void Game::addObject(Drawable *drawable) {
-    addList.add(drawable);
+void Game::addObject(Entity *object) {
+    addList.add(object);
 }
 
-void Game::removeObject(Drawable *drawable) {
-    removeList.add(drawable);
+void Game::removeObject(Entity *object) {
+    removeList.add(object);
 }
 
 void Game::applyChanges() {
     for (auto *object : addList) {
-        drawables.add(object);
+        entities.add(object);
     }
 
     for (auto *object : removeList) {
-        drawables.remove(object);
+        entities.remove(object);
         delete object;
     }
 
@@ -60,8 +58,14 @@ void Game::applyChanges() {
     removeList.clear();
 }
 
+void Game::updateEntities(double delta) {
+    for (auto *object : entities) {
+        object->update(delta);
+    }
+}
+
 void Game::draw(Graphics2D &graphics) {
-    for (const auto *object : drawables) {
+    for (const auto *object : entities) {
         object->draw(graphics);
     }
 }
@@ -75,7 +79,7 @@ void Game::stop() {
 }
 
 uint32_t Game::getObjectCount() const {
-    return drawables.size();
+    return entities.size();
 }
 
 void Game::setKeyListener(KeyListener &listener) {

@@ -15,57 +15,63 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_DINOGAME_H
-#define HHUOS_DINOGAME_H
+#ifndef HHUOS_ENTITY_H
+#define HHUOS_ENTITY_H
 
-#include "lib/util/game/Game.h"
-#include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/game/Drawable.h"
 
-class Dino;
+namespace Util::Game {
 
-namespace Util {
-namespace Io {
-class Key;
-}  // namespace Io
-}  // namespace Util
+class Entity : public Drawable {
 
-class DinoGame : public Util::Game::Game, public Util::Game::KeyListener {
+friend class Game;
 
 public:
     /**
      * Default Constructor.
      */
-    DinoGame() = default;
+    Entity() = default;
+
+    /**
+     * Constructor.
+     */
+    explicit Entity(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    DinoGame(const DinoGame &other) = delete;
+    Entity(const Entity &other) = default;
 
     /**
      * Assignment operator.
      */
-    DinoGame &operator=(const DinoGame &other) = delete;
+    Entity &operator=(const Entity &other) = default;
 
     /**
      * Destructor.
      */
-    ~DinoGame() override = default;
+    ~Entity() override = default;
 
-    void update(double delta) override;
+    virtual void onUpdate(double delta) = 0;
 
-    void keyPressed(Util::Io::Key key) override;
+    void translate(const Util::Math::Vector2D &translation);
 
-    void keyReleased(Util::Io::Key key) override;
+    void translateX(double x);
+
+    void translateY(double y);
+
+    void setPosition(const Util::Math::Vector2D &position);
+
+    [[nodiscard]] const Util::Math::Vector2D& getPosition() const;
 
 private:
 
-    Util::Math::Vector2D cameraMovement{};
-    Dino *dino = nullptr;
+    void update(double delta);
 
-    bool leftPressed = false;
-    bool rightPressed = false;
+    Math::Vector2D position{};
 };
+
+}
 
 #endif

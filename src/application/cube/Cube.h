@@ -20,7 +20,7 @@
 
 #include <cstdint>
 
-#include "lib/util/game/Drawable.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util {
 namespace Game {
@@ -31,7 +31,7 @@ class Color;
 }  // namespace Graphic
 }  // namespace Util
 
-class Cube : public Util::Game::Drawable {
+class Cube : public Util::Game::Entity {
 
 public:
     /**
@@ -53,6 +53,8 @@ public:
      * Destructor.
      */
     ~Cube() override = default;
+
+    void onUpdate(double delta) override;
 
     void draw(Util::Game::Graphics2D &graphics) const override;
 

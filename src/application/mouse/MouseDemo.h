@@ -15,8 +15,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_MOUSEGAME_H
-#define HHUOS_MOUSEGAME_H
+#ifndef HHUOS_MOUSEDEMO_H
+#define HHUOS_MOUSEDEMO_H
 
 #include "lib/util/game/Game.h"
 #include "MouseCursor.h"
@@ -28,28 +28,28 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class MouseGame : public Util::Game::Game, public Util::Game::KeyListener {
+class MouseDemo : public Util::Game::Game, public Util::Game::KeyListener {
 
 public:
     /**
      * Default Constructor.
      */
-    MouseGame();
+    MouseDemo();
 
     /**
      * Copy Constructor.
      */
-    MouseGame(const MouseGame &other) = delete;
+    MouseDemo(const MouseDemo &other) = delete;
 
     /**
      * Assignment operator.
      */
-    MouseGame &operator=(const MouseGame &other) = delete;
+    MouseDemo &operator=(const MouseDemo &other) = delete;
 
     /**
      * Destructor.
      */
-    ~MouseGame() override = default;
+    ~MouseDemo() override = default;
 
     void update(double delta) override;
 

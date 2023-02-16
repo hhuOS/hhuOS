@@ -26,25 +26,29 @@ Polygon::Polygon(const Array<Math::Vector2D> &vertices) : vertices(vertices) {
     calculateCenter();
 }
 
+void Polygon::onUpdate(double delta) {}
+
 void Polygon::draw(Graphics2D &graphics) const {
     graphics.drawPolygon(vertices);
 }
 
 void Polygon::scale(double factor) {
+    const auto &position = getPosition();
     for (auto &vertex : vertices) {
-        vertex = Math::Vector2D(center.getX() + factor * (vertex.getX() - center.getX()),
-                                center.getY() + factor * (vertex.getY() - center.getY()));
+        vertex = Math::Vector2D(position.getX() + factor * (vertex.getX() - position.getX()),
+                                position.getY() + factor * (vertex.getY() - position.getY()));
     }
 }
 
 void Polygon::rotate(double angle) {
+    const auto &position = getPosition();
     double sine = Math::sine(angle);
     double cosine = Math::cosine(angle);
 
     for (auto &vertex : vertices) {
-        auto d = vertex - center;
-        vertex = Math::Vector2D(d.getX() * cosine - d.getY() * sine + center.getX(),
-                                d.getX() * sine + d.getY() * cosine + center.getY());
+        auto d = vertex - position;
+        vertex = Math::Vector2D(d.getX() * cosine - d.getY() * sine + position.getX(),
+                                d.getX() * sine + d.getY() * cosine + position.getY());
     }
 }
 
@@ -52,7 +56,8 @@ void Polygon::translate(Math::Vector2D translation) {
     for (auto &vertex: vertices) {
         vertex = vertex + translation;
     }
-    center = center + translation;
+
+    setPosition(getPosition() + translation);
 }
 
 void Polygon::calculateCenter() {
@@ -61,7 +66,7 @@ void Polygon::calculateCenter() {
         sum = sum + vertex;
     }
 
-    center = sum / vertices.length();
+    setPosition(sum / vertices.length());
 }
 
 }

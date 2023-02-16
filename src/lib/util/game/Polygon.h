@@ -19,7 +19,7 @@
 #define HHUOS_POLYGON_H
 
 #include "lib/util/collection/Array.h"
-#include "Drawable.h"
+#include "lib/util/game/entity/Entity.h"
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
@@ -30,13 +30,13 @@ class Graphics2D;
 
 namespace Util::Game {
 
-class Polygon : public Drawable {
+class Polygon : public Entity {
 
 public:
     /**
      * Constructor.
      */
-    Polygon(const Array<Math::Vector2D> &vertices);
+    explicit Polygon(const Array<Math::Vector2D> &vertices);
 
     /**
      * Copy Constructor.
@@ -59,6 +59,8 @@ public:
 
     void translate(Math::Vector2D translation);
 
+    void onUpdate(double delta) override;
+
     void draw(Graphics2D &graphics) const override;
 
 private:
@@ -66,7 +68,6 @@ private:
     void calculateCenter();
 
     Array<Math::Vector2D> vertices;
-    Math::Vector2D center;
 };
 
 }

@@ -42,6 +42,8 @@ Cube::Cube(double x, double y, double size) : x(x), y(y), size(size) {
     coordinates[7][indX] = x - size; coordinates[7][indY] = y + size; coordinates[7][indZ] = +size;
 }
 
+void Cube::onUpdate(double delta) {}
+
 void Cube::draw(Util::Game::Graphics2D &graphics) const {
     graphics.setColor(color);
     graphics.drawLine(Util::Math::Vector2D(coordinates[0][indX], coordinates[0][indY]), Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]));

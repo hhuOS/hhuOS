@@ -18,16 +18,20 @@
 #ifndef HHUOS_MOUSECURSOR_H
 #define HHUOS_MOUSECURSOR_H
 
-#include "lib/util/game/Drawable.h"
 #include "lib/util/game/MouseListener.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+
 namespace Game {
 class Graphics2D;
 }  // namespace Game
 }  // namespace Util
 
-class MouseCursor : public Util::Game::Drawable, public Util::Game::MouseListener {
+class MouseCursor : public Util::Game::Entity, public Util::Game::MouseListener {
 
 public:
     /**
@@ -50,22 +54,21 @@ public:
      */
     ~MouseCursor() override = default;
 
+    void onUpdate(double delta) override;
+
     void draw(Util::Game::Graphics2D &graphics) const override;
 
     void keyPressed(Key key) override;
 
     void keyReleased(Key key) override;
 
-    void mouseMoved(double relativeX, double relativeY) override;
+    void mouseMoved(const Util::Math::Vector2D &relativeMovement) override;
 
 private:
 
     bool leftPressed = false;
     bool rightPressed = false;
     bool middlePressed = false;
-
-    double posX = 0;
-    double posY = 0;
 };
 
 #endif

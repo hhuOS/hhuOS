@@ -57,6 +57,7 @@ void Engine::run() {
 
         updateLock.acquire();
         game.update(frameTime);
+        game.updateEntities(frameTime);
         game.applyChanges();
         statistics.stopUpdateTimeTime();
         updateLock.release();
@@ -150,7 +151,7 @@ void Engine::MouseListenerRunnable::run() {
         lastButtons = buttons;
 
         if (xMovement != 0 || yMovement != 0) {
-            engine.game.mouseListener->mouseMoved(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX));
+            engine.game.mouseListener->mouseMoved(Util::Math::Vector2D(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX)));
         }
         engine.updateLock.release();
     }
