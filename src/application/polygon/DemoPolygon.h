@@ -48,12 +48,12 @@ public:
     /**
      * Copy Constructor.
      */
-    DemoPolygon(const DemoPolygon &other) = default;
+    DemoPolygon(const DemoPolygon &other) = delete;
 
     /**
      * Assignment operator.
      */
-    DemoPolygon &operator=(const DemoPolygon &other) = default;
+    DemoPolygon &operator=(const DemoPolygon &other) = delete;
 
     /**
      * Destructor.
@@ -61,6 +61,8 @@ public:
     ~DemoPolygon() override = default;
 
     void update(double delta);
+
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
     void draw(Util::Game::Graphics2D &graphics) const override;
 

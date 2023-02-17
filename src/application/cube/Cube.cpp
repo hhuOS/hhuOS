@@ -93,3 +93,7 @@ void Cube::rotate(double angleX, double angleY, double angleZ) {
         corner[indY] = py * cosineZ + px * sineZ;
     }
 }
+
+void Cube::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    event.cancel();
+}

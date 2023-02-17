@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2018-2022 Heinrich-Heine-Universitaet Duesseldorf,
+ * Copyright (C) 2018-2023 Heinrich-Heine-Universitaet Duesseldorf,
  * Institute of Computer Science, Department Operating Systems
  * Burak Akguel, Christian Gesse, Fabian Ruhland, Filip Krakowski, Michael Schoettner
  *
@@ -15,62 +15,50 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_CUBE_H
-#define HHUOS_CUBE_H
+#ifndef HHUOS_COMPONENT_H
+#define HHUOS_COMPONENT_H
 
-#include <cstdint>
-
+#include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/Entity.h"
 
-namespace Util {
-namespace Game {
-class Graphics2D;
-}  // namespace Game
-namespace Graphic {
-class Color;
-}  // namespace Graphic
-}  // namespace Util
+namespace Util::Game {
 
-class Cube : public Util::Game::Entity {
+class Component {
+
+friend class Entity;
 
 public:
     /**
-     * Default Constructor.
-     */
-    Cube(double x, double y, double size);
+    * Constructor.
+    */
+    explicit Component(Entity &entity);
 
     /**
      * Copy Constructor.
      */
-    Cube(const Cube &other) = default;
+    Component(const Component &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Cube &operator=(const Cube &other) = default;
+    Component &operator=(const Component &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Cube() override = default;
+    ~Component() = default;
 
-    void onUpdate(double delta) override;
+protected:
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    virtual void update(double delta) = 0;
 
-    void draw(Util::Game::Graphics2D &graphics) const override;
-
-    void rotate(double angleX, double angleY, double angleZ);
+    [[nodiscard]] Entity& getEntity();
 
 private:
 
-    double coordinates[8][3]{};
-    double x, y, size;
-
-    // Cube indices
-    static const constexpr uint8_t indX = 0, indY = 1, indZ = 2;
-
-    static const Util::Graphic::Color color;
+    Entity &entity;
 };
+
+}
 
 #endif

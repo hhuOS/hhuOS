@@ -20,15 +20,17 @@
 #include "application/dino/Dino.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
+#include "lib/util/game/entity/component/LinearMovementComponent.h"
 
 void DinoGame::update(double delta) {
     if (getObjectCount() == 0) {
         dino = new Dino();
+        dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
         setKeyListener(*this);
         addObject(dino);
     }
 
-    getCamera().translate(cameraMovement);
+    getCamera().translate(cameraMovement * delta);
 }
 
 void DinoGame::keyPressed(Util::Io::Key key) {
@@ -45,24 +47,26 @@ void DinoGame::keyPressed(Util::Io::Key key) {
         case Util::Io::Key::LEFT :
             dino->moveLeft();
             dino->dash(key.getShift());
+            dino->setVelocity({key.getShift() ? -0.15 : -0.1, 0});
             leftPressed = true;
             break;
         case Util::Io::Key::RIGHT :
             dino->moveRight();
             dino->dash(key.getShift());
+            dino->setVelocity({key.getShift() ? 0.15 : 0.1, 0});
             rightPressed = true;
             break;
         case Util::Io::Key::W :
-            cameraMovement = {cameraMovement.getX(), -0.01};
+            cameraMovement = {cameraMovement.getX(), -0.1};
             break;
         case Util::Io::Key::A :
-            cameraMovement = {0.01, cameraMovement.getY()};
+            cameraMovement = {0.1, cameraMovement.getY()};
             break;
         case Util::Io::Key::S :
-            cameraMovement = {cameraMovement.getX(), 0.01};
+            cameraMovement = {cameraMovement.getX(), 0.1};
             break;
         case Util::Io::Key::D :
-            cameraMovement = {-0.01, cameraMovement.getY()};
+            cameraMovement = {-0.1, cameraMovement.getY()};
             break;
     }
 }

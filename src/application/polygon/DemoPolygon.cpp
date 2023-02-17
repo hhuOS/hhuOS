@@ -43,3 +43,7 @@ void DemoPolygon::draw(Util::Game::Graphics2D &graphics) const {
     graphics.setColor(color);
     Polygon::draw(graphics);
 }
+
+void DemoPolygon::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    event.cancel();
+}
