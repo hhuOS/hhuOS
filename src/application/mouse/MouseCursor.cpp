@@ -23,6 +23,10 @@
 
 void MouseCursor::onUpdate(double delta) {}
 
+void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    event.cancel();
+}
+
 void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
     auto string = Util::String();
     if (leftPressed) string += "l";

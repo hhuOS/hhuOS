@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "lib/util/game/entity/component/Component.h"
 #include "Entity.h"
 
 namespace Util::Game {
@@ -22,26 +23,42 @@ namespace Util::Game {
 Entity::Entity(const Math::Vector2D &position) : position(position) {}
 
 void Entity::translate(const Math::Vector2D &translation) {
-    position = position + translation;
+    velocity = velocity + translation;
 }
 
 void Entity::translateX(double x) {
-    position = {position.getX() + x, position.getY()};
+    velocity = {x, velocity.getY()};
 }
 
 void Entity::translateY(double y) {
-    position = {position.getX(), position.getY() + y};
+    position = {velocity.getX(), y};
 }
 
 void Entity::setPosition(const Math::Vector2D &position) {
     Entity::position = position;
 }
 
+void Entity::setVelocity(const Math::Vector2D &velocity) {
+    Entity::velocity = velocity;
+}
+
+void Entity::addComponent(Component *component) {
+    components.add(component);
+}
+
 const Util::Math::Vector2D& Entity::getPosition() const {
     return position;
 }
 
+const Math::Vector2D &Entity::getVelocity() const {
+    return velocity;
+}
+
 void Entity::update(double delta) {
+    for (auto *component : components) {
+        component->update(delta);
+    }
+    
     onUpdate(delta);
 }
 

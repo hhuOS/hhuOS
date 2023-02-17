@@ -66,6 +66,8 @@ public:
 
     void onUpdate(double delta) override;
 
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+
     void draw(Util::Game::Graphics2D &graphics) const override;
 
 private:

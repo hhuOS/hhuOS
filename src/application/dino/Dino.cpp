@@ -65,6 +65,7 @@ Dino::Dino() : Util::Game::Entity(Util::Math::Vector2D(-0.1, -0.1)), currentAnim
 
 void Dino::moveLeft() {
     if (hatched && !isDying) {
+        setVelocity({-0.1, 0});
         currentAnimation = dashing ? &dashAnimation : &runAnimation;
         invert = true;
     }
@@ -72,19 +73,22 @@ void Dino::moveLeft() {
 
 void Dino::moveRight() {
     if (hatched && !isDying) {
+        setVelocity({0.1, 0});
         currentAnimation = dashing ? &dashAnimation : &runAnimation;
         invert = false;
     }
 }
 
 void Dino::dash(bool dash) {
-    if (hatched && !isDying) {
+    if (hatched && !isDying && dashing != dash) {
+        setVelocity(getVelocity() * (dash ? 2 : 0.5));
         dashing = dash;
     }
 }
 
 void Dino::stop() {
     if (hatched && !isDying) {
+        setVelocity({0, 0});
         currentAnimation = &idleAnimation;
         runAnimation.reset();
         dashAnimation.reset();
@@ -118,6 +122,12 @@ void Dino::onUpdate(double delta) {
     }
 
     currentAnimation->update(delta);
+}
+
+void Dino::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    if (!hatched || isDying) {
+        event.cancel();
+    }
 }
 
 void Dino::draw(Util::Game::Graphics2D &graphics) const {

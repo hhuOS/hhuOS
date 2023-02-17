@@ -20,8 +20,12 @@
 
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/Drawable.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/collection/ArrayList.h"
 
 namespace Util::Game {
+
+class Component;
 
 class Entity : public Drawable {
 
@@ -36,17 +40,17 @@ public:
     /**
      * Constructor.
      */
-    explicit Entity(const Util::Math::Vector2D &position);
+    explicit Entity(const Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    Entity(const Entity &other) = default;
+    Entity(const Entity &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Entity &operator=(const Entity &other) = default;
+    Entity &operator=(const Entity &other) = delete;
 
     /**
      * Destructor.
@@ -55,21 +59,32 @@ public:
 
     virtual void onUpdate(double delta) = 0;
 
-    void translate(const Util::Math::Vector2D &translation);
+    virtual void onTranslationEvent(TranslationEvent &event) = 0;
+
+    void translate(const Math::Vector2D &translation);
 
     void translateX(double x);
 
     void translateY(double y);
 
-    void setPosition(const Util::Math::Vector2D &position);
+    void setPosition(const Math::Vector2D &position);
 
-    [[nodiscard]] const Util::Math::Vector2D& getPosition() const;
+    void setVelocity(const Math::Vector2D &velocity);
+
+    void addComponent(Component *component);
+
+    [[nodiscard]] const Math::Vector2D& getPosition() const;
+
+    [[nodiscard]] const Math::Vector2D& getVelocity() const;
 
 private:
 
     void update(double delta);
 
     Math::Vector2D position{};
+    Math::Vector2D velocity{};
+
+    ArrayList<Component*> components;
 };
 
 }
