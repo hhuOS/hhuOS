@@ -69,7 +69,15 @@ public:
 
     void setPosition(const Math::Vector2D &position);
 
+    void setPositionX(double x);
+
+    void setPositionY(double y);
+
     void setVelocity(const Math::Vector2D &velocity);
+
+    void setVelocityX(double x);
+
+    void setVelocityY(double y);
 
     void addComponent(Component *component);
 

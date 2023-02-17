@@ -21,11 +21,11 @@
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
+#include "lib/util/game/entity/component/GravityComponent.h"
 
 void DinoGame::update(double delta) {
     if (getObjectCount() == 0) {
         dino = new Dino();
-        dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
         setKeyListener(*this);
         addObject(dino);
     }
@@ -43,17 +43,16 @@ void DinoGame::keyPressed(Util::Io::Key key) {
             break;
         case Util::Io::Key::SPACE :
             dino->hatch();
+            dino->jump();
             break;
         case Util::Io::Key::LEFT :
             dino->moveLeft();
             dino->dash(key.getShift());
-            dino->setVelocity({key.getShift() ? -0.15 : -0.1, 0});
             leftPressed = true;
             break;
         case Util::Io::Key::RIGHT :
             dino->moveRight();
             dino->dash(key.getShift());
-            dino->setVelocity({key.getShift() ? 0.15 : 0.1, 0});
             rightPressed = true;
             break;
         case Util::Io::Key::W :

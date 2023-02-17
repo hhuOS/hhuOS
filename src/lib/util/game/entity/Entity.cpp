@@ -27,19 +27,35 @@ void Entity::translate(const Math::Vector2D &translation) {
 }
 
 void Entity::translateX(double x) {
-    velocity = {x, velocity.getY()};
+    velocity = Math::Vector2D(x, velocity.getY());
 }
 
 void Entity::translateY(double y) {
-    position = {velocity.getX(), y};
+    position = Math::Vector2D(velocity.getX(), y);
 }
 
 void Entity::setPosition(const Math::Vector2D &position) {
     Entity::position = position;
 }
 
+void Entity::setPositionX(double x) {
+    position = Math::Vector2D(x, position.getY());
+}
+
+void Entity::setPositionY(double y) {
+    position = Math::Vector2D(position.getX(), y);
+}
+
 void Entity::setVelocity(const Math::Vector2D &velocity) {
     Entity::velocity = velocity;
+}
+
+void Entity::setVelocityX(double x) {
+    velocity = Math::Vector2D(x, velocity.getY());
+}
+
+void Entity::setVelocityY(double y) {
+    velocity = Math::Vector2D(velocity.getX(), y);
 }
 
 void Entity::addComponent(Component *component) {
