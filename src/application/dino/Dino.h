@@ -56,6 +56,8 @@ public:
 
     void dash(bool dash);
 
+    void jump();
+
     void hatch();
 
     void stop();
@@ -72,14 +74,21 @@ public:
 
 private:
 
+    enum Direction {
+        LEFT, RIGHT
+    };
+
+    bool inAir();
+
     bool isHatching = false;
     bool isDying = false;
     bool hatched = false;
     bool invert = false;
     bool dashing = false;
+    bool isMoving = false;
+    Direction direction;
 
     double time = 0;
-
     Util::Game::SpriteAnimation *currentAnimation;
     Util::Game::SpriteAnimation idleAnimation;
     Util::Game::SpriteAnimation runAnimation;
@@ -88,6 +97,13 @@ private:
     Util::Game::SpriteAnimation crackAnimation;
     Util::Game::SpriteAnimation hatchAnimation;
     Util::Game::SpriteAnimation deathAnimation;
+
+    static const constexpr double MAX_MOVE_VELOCITY = 0.5;
+    static const constexpr double MAX_DASH_VELOCITY = 0.75;
+    static const constexpr double JUMP_VELOCITY = 0.75;
+    static const constexpr double MOVEMENT_FACTOR = 1.5;
+    static const constexpr double STOP_FACTOR = 0.25;
+    static const constexpr double GROUND = -0.8;
 };
 
 #endif

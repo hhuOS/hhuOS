@@ -27,6 +27,7 @@ target_link_libraries(${PROJECT_NAME} lib.graphic)
 
 target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/entity/component/Component.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/entity/component/GravityComponent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/component/LinearMovementComponent.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/event/Event.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/entity/event/CancelableEvent.cpp

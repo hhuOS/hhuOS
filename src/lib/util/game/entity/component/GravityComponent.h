@@ -15,20 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "LinearMovementComponent.h"
+#ifndef HHUOS_GRAVITYCOMPONENT_H
+#define HHUOS_GRAVITYCOMPONENT_H
+
+#include "Component.h"
 
 namespace Util::Game {
 
-LinearMovementComponent::LinearMovementComponent(Entity &entity) : Component(entity) {}
+class GravityComponent : public Component {
 
-void LinearMovementComponent::update(double delta) {
-    auto newPosition = getEntity().getPosition() + getEntity().getVelocity() * delta;
-    auto event = TranslationEvent(newPosition);
-    getEntity().onTranslationEvent(event);
+public:
+    /**
+    * Constructor.
+    */
+    GravityComponent(Entity &entity, double groundY, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
 
-    if (!event.isCanceled()) {
-        getEntity().setPosition(newPosition);
-    }
+    /**
+     * Copy Constructor.
+     */
+    GravityComponent(const GravityComponent &other) = delete;
+
+    /**
+     * Assignment operator.
+     */
+    GravityComponent &operator=(const GravityComponent &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~GravityComponent() = default;
+
+protected:
+
+    void update(double delta) override;
+
+private:
+
+    double groundY;
+    double mass;
+    double stopFactorX;
+    double gravityValue;
+};
+
 }
 
-}
+#endif
