@@ -90,6 +90,8 @@ protected:
 
 private:
 
+    void checkCollisions();
+
     KeyListener *keyListener = nullptr;
     MouseListener *mouseListener = nullptr;
 

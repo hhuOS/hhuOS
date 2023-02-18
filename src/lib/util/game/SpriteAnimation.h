@@ -59,7 +59,11 @@ public:
 
     [[nodiscard]] const Sprite& getCurrentSprite() const;
 
-    double getAnimationTime() const;
+    [[nodiscard]] double getAnimationTime() const;
+
+    [[nodiscard]] double getWidth() const;
+
+    [[nodiscard]] double getHeight() const;
 
 private:
 

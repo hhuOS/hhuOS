@@ -22,13 +22,13 @@
 
 namespace Util::Game {
 
-Polygon::Polygon(const Array<Math::Vector2D> &vertices) : vertices(vertices) {
+Polygon::Polygon(uint32_t tag, const Array<Math::Vector2D> &vertices) : Entity(tag, Util::Math::Vector2D(0, 0)), vertices(vertices) {
     calculateCenter();
 }
 
 void Polygon::onUpdate(double delta) {}
 
-void Polygon::draw(Graphics2D &graphics) const {
+void Polygon::draw(Graphics2D &graphics) {
     graphics.drawPolygon(vertices);
 }
 

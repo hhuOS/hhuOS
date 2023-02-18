@@ -24,7 +24,7 @@
 
 const Util::Graphic::Color Cube::color = Util::Graphic::Color(10,255,0);
 
-Cube::Cube(double x, double y, double size) : x(x), y(y), size(size) {
+Cube::Cube(double x, double y, double size) : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)), x(x), y(y), size(size) {
     //       7 - - - - - 6
     //     / |         / |
     //    4 - - - - - 5  |
@@ -44,7 +44,7 @@ Cube::Cube(double x, double y, double size) : x(x), y(y), size(size) {
 
 void Cube::onUpdate(double delta) {}
 
-void Cube::draw(Util::Game::Graphics2D &graphics) const {
+void Cube::draw(Util::Game::Graphics2D &graphics) {
     graphics.setColor(color);
     graphics.drawLine(Util::Math::Vector2D(coordinates[0][indX], coordinates[0][indY]), Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]));
     graphics.drawLine(Util::Math::Vector2D(coordinates[1][indX], coordinates[1][indY]), Util::Math::Vector2D(coordinates[2][indX], coordinates[2][indY]));
@@ -97,3 +97,5 @@ void Cube::rotate(double angleX, double angleY, double angleZ) {
 void Cube::onTranslationEvent(Util::Game::TranslationEvent &event) {
     event.cancel();
 }
+
+void Cube::onCollisionEvent(Util::Game::CollisionEvent &event) {}

@@ -15,53 +15,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#include "Ground.h"
 
-#include "lib/util/base/String.h"
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 5.0, 0.001)) {}
 
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+void Ground::onUpdate(double delta) {}
 
-namespace Util::Game {
-
-class Sprite {
-
-public:
-    /**
-     * Constructor.
-     */
-    Sprite(const String &path, double width, double height);
-
-    /**
-     * Copy Constructor.
-     */
-    Sprite(const Sprite &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Sprite &operator=(const Sprite &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Sprite();
-
-    [[nodiscard]] const Graphic::Image& getImage() const;
-
-    [[nodiscard]] double getWidth() const;
-
-    [[nodiscard]] double getHeight() const;
-
-private:
-
-    Graphic::Image *image;
-};
-
+void Ground::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    event.cancel();
 }
 
-#endif
+void Ground::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+
+void Ground::draw(Util::Game::Graphics2D &graphics) {
+    graphics.setColor(Util::Graphic::Colors::GREEN);
+    graphics.drawLine(getPosition(), Util::Math::Vector2D(getPosition().getX() + getCollider().getWidth(), getPosition().getY()));
+}

@@ -15,6 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "Sprite.h"
 #include "SpriteAnimation.h"
 
 namespace Util {
@@ -47,6 +48,14 @@ const Sprite& SpriteAnimation::getCurrentSprite() const {
 
 double SpriteAnimation::getAnimationTime() const {
     return animationTime;
+}
+
+double SpriteAnimation::getWidth() const {
+    return sprites[currentSprite]->getWidth();
+}
+
+double SpriteAnimation::getHeight() const {
+    return sprites[currentSprite]->getHeight();
 }
 
 }

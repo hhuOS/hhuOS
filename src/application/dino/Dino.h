@@ -66,11 +66,23 @@ public:
 
     void reset();
 
+    [[nodiscard]] bool hasHatched() const;
+
+    [[nodiscard]] bool isDead() const;
+
+    [[nodiscard]] double getTargetVelocity() const;
+
+    void setTargetVelocity(double targetVelocity);
+
     void onUpdate(double delta) override;
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) const override;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
+
+    static const constexpr uint32_t TAG = 0;
 
 private:
 
@@ -78,15 +90,15 @@ private:
         LEFT, RIGHT
     };
 
-    bool inAir();
-
     bool isHatching = false;
     bool isDying = false;
     bool hatched = false;
+    bool dead = false;
     bool invert = false;
     bool dashing = false;
     bool isMoving = false;
-    Direction direction;
+    bool onGround = false;
+    Direction direction = RIGHT;
 
     double time = 0;
     Util::Game::SpriteAnimation *currentAnimation;
@@ -98,12 +110,12 @@ private:
     Util::Game::SpriteAnimation hatchAnimation;
     Util::Game::SpriteAnimation deathAnimation;
 
-    static const constexpr double MAX_MOVE_VELOCITY = 0.5;
-    static const constexpr double MAX_DASH_VELOCITY = 0.75;
+    double targetVelocity = DEFAULT_MOVE_VELOCITY;
+
+    static const constexpr double DEFAULT_MOVE_VELOCITY = 0.25;
     static const constexpr double JUMP_VELOCITY = 0.75;
     static const constexpr double MOVEMENT_FACTOR = 1.5;
     static const constexpr double STOP_FACTOR = 0.25;
-    static const constexpr double GROUND = -0.8;
 };
 
 #endif

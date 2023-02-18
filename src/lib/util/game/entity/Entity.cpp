@@ -16,11 +16,14 @@
  */
 
 #include "lib/util/game/entity/component/Component.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
 #include "Entity.h"
 
 namespace Util::Game {
 
-Entity::Entity(const Math::Vector2D &position) : position(position) {}
+Entity::Entity(uint32_t tag, const Math::Vector2D &position) : tag(tag), position(position), colliderPresent(false), collider(Util::Math::Vector2D(0, 0), Collider::STATIC, 0, 0) {}
+
+Entity::Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider) : tag(tag), position(position), colliderPresent(true), collider(collider) {}
 
 void Entity::translate(const Math::Vector2D &translation) {
     velocity = velocity + translation;
@@ -36,6 +39,11 @@ void Entity::translateY(double y) {
 
 void Entity::setPosition(const Math::Vector2D &position) {
     Entity::position = position;
+    if (colliderPresent) {
+        collider.setPosition(position);
+    }
+
+    positionChanged = true;
 }
 
 void Entity::setPositionX(double x) {
@@ -70,12 +78,66 @@ const Math::Vector2D &Entity::getVelocity() const {
     return velocity;
 }
 
+RectangleCollider& Entity::getCollider() {
+    if (!colliderPresent) {
+        Exception::throwException(Exception::NULL_POINTER, "Entity: Has no collider!");
+    }
+
+    return collider;
+}
+
+bool Entity::hasCollider() const {
+    return colliderPresent;
+}
+
+uint32_t Entity::getTag() const {
+    return tag;
+}
+
 void Entity::update(double delta) {
+    collider.lastPosition = position;
+    positionChanged = false;
+
     for (auto *component : components) {
         component->update(delta);
     }
     
     onUpdate(delta);
+}
+
+void Entity::onCollision(CollisionEvent &event) {
+    if (collider.getType() == Collider::DYNAMIC) {
+        switch (event.getSide()) {
+            case RectangleCollider::BOTTOM:
+                setPosition(Math::Vector2D(position.getX(), event.getCollidedWidth().getPosition().getY() + event.getCollidedWidth().getCollider().getHeight()));
+                if (velocity.getY() < 0) {
+                    setVelocityY(0);
+                }
+                break;
+            case RectangleCollider::TOP:
+                setPosition(Math::Vector2D(position.getX(), event.getCollidedWidth().getPosition().getY() - collider.getHeight()));
+                if (velocity.getY() > 0) {
+                    setVelocityY(0);
+                }
+                break;
+            case RectangleCollider::LEFT:
+                setPosition(Math::Vector2D(event.getCollidedWidth().getPosition().getX() + event.getCollidedWidth().collider.getWidth(), position.getY()));
+                if (velocity.getX() < 0) {
+                    setVelocityX(0);
+                }
+                break;
+            case RectangleCollider::RIGHT:
+                setPosition(Math::Vector2D(event.getCollidedWidth().getPosition().getX() - collider.getWidth(), position.getY()));
+                if (velocity.getX() > 0) {
+                    setVelocityX(0);
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    onCollisionEvent(event);
 }
 
 }

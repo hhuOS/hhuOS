@@ -15,53 +15,43 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_TREE_H
+#define HHUOS_TREE_H
 
-#include "lib/util/base/String.h"
+#include "lib/util/game/entity/Entity.h"
 
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
-
-namespace Util::Game {
-
-class Sprite {
+class Tree : public Util::Game::Entity {
 
 public:
     /**
      * Constructor.
      */
-    Sprite(const String &path, double width, double height);
+    explicit Tree(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = delete;
+    Tree(const Tree &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = delete;
+    Tree &operator=(const Tree &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Sprite();
+    ~Tree() override = default;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] double getWidth() const;
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
-    [[nodiscard]] double getHeight() const;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
 
-private:
+    void draw(Util::Game::Graphics2D &graphics) override;
 
-    Graphic::Image *image;
+    static const constexpr uint32_t TAG = 2;
 };
-
-}
 
 #endif

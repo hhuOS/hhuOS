@@ -15,51 +15,45 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_COLLISIONEVENT_H
+#define HHUOS_COLLISIONEVENT_H
 
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "Event.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util::Game {
 
-class Sprite {
+class CollisionEvent : public Event {
 
 public:
     /**
      * Constructor.
      */
-    Sprite(const String &path, double width, double height);
+    CollisionEvent(Entity &other, RectangleCollider::Side side);
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = delete;
+    CollisionEvent(const CollisionEvent &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = delete;
+    CollisionEvent &operator=(const CollisionEvent &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Sprite();
+    ~CollisionEvent() = default;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    [[nodiscard]] Entity& getCollidedWidth();
 
-    [[nodiscard]] double getWidth() const;
-
-    [[nodiscard]] double getHeight() const;
+    [[nodiscard]] RectangleCollider::Side getSide() const;
 
 private:
 
-    Graphic::Image *image;
+    Entity &other;
+    const RectangleCollider::Side side;
 };
 
 }

@@ -41,4 +41,12 @@ const Graphic::Image &Sprite::getImage() const {
     return *image;
 }
 
+double Sprite::getWidth() const {
+    return image->getWidth();
+}
+
+double Sprite::getHeight() const {
+    return image->getHeight();
+}
+
 }
