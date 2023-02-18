@@ -15,7 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
+#include "lib/util/collection/Pair.h"
 #include "Game.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
 
 namespace Util {
 namespace Game {
@@ -65,7 +67,7 @@ void Game::updateEntities(double delta) {
 }
 
 void Game::draw(Graphics2D &graphics) {
-    for (const auto *object : entities) {
+    for (auto *object : entities) {
         object->draw(graphics);
     }
 }
@@ -92,6 +94,33 @@ void Game::setMouseListener(MouseListener &listener) {
 
 Camera& Game::getCamera() {
     return camera;
+}
+
+void Game::checkCollisions() {
+    auto detectedCollisions = ArrayList<Pair<Entity*, Entity*>>();
+    for (auto *entity : entities) {
+        if (entity->hasCollider() && entity->positionChanged) {
+            const auto &collider = entity->getCollider();
+
+            for (auto *otherEntity : entities) {
+                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity))) {
+                    continue;
+                }
+
+                const auto &otherCollider = otherEntity->getCollider();
+                auto side = collider.isColliding(otherCollider);
+
+                if (side != RectangleCollider::NONE) {
+                    auto event = CollisionEvent(*otherEntity, side);
+                    auto otherEvent = CollisionEvent(*entity, RectangleCollider::getOpposite(side));
+
+                    entity->onCollision(event);
+                    otherEntity->onCollision(otherEvent);
+                    detectedCollisions.add(Pair(entity, otherEntity));
+                }
+            }
+        }
+    }
 }
 
 }

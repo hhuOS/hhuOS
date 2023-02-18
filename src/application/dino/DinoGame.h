@@ -21,6 +21,10 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Vector2D.h"
+#include "Ground.h"
+#include "lib/util/math/Random.h"
+#include "Tree.h"
+#include "lib/util/game/Text.h"
 
 class Dino;
 
@@ -61,11 +65,13 @@ public:
 
 private:
 
-    Util::Math::Vector2D cameraMovement{};
     Dino *dino = nullptr;
+    Ground *ground = nullptr;
+    Util::Game::Text *pointText = nullptr;
 
-    bool leftPressed = false;
-    bool rightPressed = false;
+    Util::ArrayList<Tree*> trees;
+    Util::Math::Random treeRandom;
+    double treeCooldown = 0;
 };
 
 #endif

@@ -15,51 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_RECTANGLECOLLIDER_H
+#define HHUOS_RECTANGLECOLLIDER_H
 
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "Collider.h"
 
 namespace Util::Game {
 
-class Sprite {
+class RectangleCollider : public Collider {
 
 public:
+
+    enum Side {
+        LEFT, RIGHT, TOP, BOTTOM, NONE
+    };
+
     /**
      * Constructor.
      */
-    Sprite(const String &path, double width, double height);
+    RectangleCollider(const Math::Vector2D &position, Collider::Type type, double width, double height);
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = delete;
+    RectangleCollider(const RectangleCollider &other) = default;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = delete;
+    RectangleCollider &operator=(const RectangleCollider &other) = default;
 
     /**
      * Destructor.
      */
-    ~Sprite();
+    ~RectangleCollider() = default;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    static Side getOpposite(Side side);
 
     [[nodiscard]] double getWidth() const;
 
     [[nodiscard]] double getHeight() const;
 
+    void setWidth(double width);
+
+    void setHeight(double height);
+
+    [[nodiscard]] Side isColliding(const RectangleCollider &other) const;
+
 private:
 
-    Graphic::Image *image;
+    double width;
+    double height;
 };
 
 }

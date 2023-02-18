@@ -36,17 +36,17 @@ public:
     /**
      * Constructor.
      */
-    explicit Polygon(const Array<Math::Vector2D> &vertices);
+    Polygon(uint32_t tag, const Array<Math::Vector2D> &vertices);
 
     /**
      * Copy Constructor.
      */
-    Polygon(const Polygon &other) = default;
+    Polygon(const Polygon &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Polygon &operator=(const Polygon &other) = default;
+    Polygon &operator=(const Polygon &other) = delete;
 
     /**
      * Destructor.
@@ -61,7 +61,7 @@ public:
 
     void onUpdate(double delta) override;
 
-    void draw(Graphics2D &graphics) const override;
+    void draw(Graphics2D &graphics) override;
 
 private:
 

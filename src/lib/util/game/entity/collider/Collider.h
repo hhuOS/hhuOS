@@ -15,51 +15,57 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_COLLIDER_H
+#define HHUOS_COLLIDER_H
 
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
 
-class Sprite {
+class Collider {
+
+friend class Entity;
 
 public:
+
+    enum Type {
+        STATIC, DYNAMIC
+    };
+
     /**
      * Constructor.
      */
-    Sprite(const String &path, double width, double height);
+    Collider(const Math::Vector2D &position, Type type);
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = delete;
+    Collider(const Collider &other) = default;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = delete;
+    Collider &operator=(const Collider &other) = default;
 
     /**
      * Destructor.
      */
-    ~Sprite();
+    ~Collider() = default;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    [[nodiscard]] const Math::Vector2D& getPosition() const;
 
-    [[nodiscard]] double getWidth() const;
+    [[nodiscard]] Type getType() const;
 
-    [[nodiscard]] double getHeight() const;
+protected:
+
+    Math::Vector2D lastPosition;
+
+    void setPosition(const Math::Vector2D &position);
 
 private:
 
-    Graphic::Image *image;
+    Math::Vector2D position;
+    Type type;
 };
 
 }

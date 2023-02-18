@@ -28,7 +28,7 @@ public:
     /**
     * Constructor.
     */
-    GravityComponent(Entity &entity, double groundY, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
+    GravityComponent(Entity &entity, double mass = 2, double stopFactorX = 0.15, double gravityValue = -1.25);
 
     /**
      * Copy Constructor.
@@ -51,7 +51,6 @@ protected:
 
 private:
 
-    double groundY;
     double mass;
     double stopFactorX;
     double gravityValue;

@@ -15,51 +15,60 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_TEXT_H
+#define HHUOS_TEXT_H
 
+#include "lib/util/game/Drawable.h"
+#include "lib/util/math/Vector2D.h"
 #include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "lib/util/graphic/Color.h"
+#include "lib/util/game/entity/Entity.h"
 
 namespace Util::Game {
 
-class Sprite {
+class Text : public Entity {
 
 public:
     /**
      * Constructor.
      */
-    Sprite(const String &path, double width, double height);
+    Text(const Math::Vector2D &position, const String &text, const Graphic::Color &color = Graphic::Colors::WHITE);
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = delete;
+    Text(const Text &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = delete;
+    Text &operator=(const Text &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Sprite();
+    ~Text() override = default;
+    
+    void draw(Graphics2D &graphics) override;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    void onUpdate(double delta) override;
 
-    [[nodiscard]] double getWidth() const;
+    void onTranslationEvent(Util::Game::TranslationEvent &event) final;
 
-    [[nodiscard]] double getHeight() const;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) final;
+
+    [[nodiscard]] const Graphic::Color &getColor() const;
+
+    void setColor(const Graphic::Color &color);
+
+    [[nodiscard]] const String &getText() const;
+
+    void setText(const String &text);
 
 private:
 
-    Graphic::Image *image;
+    String text;
+    Graphic::Color color;
 };
 
 }

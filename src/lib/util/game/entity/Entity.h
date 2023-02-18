@@ -22,10 +22,12 @@
 #include "lib/util/game/Drawable.h"
 #include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/collection/ArrayList.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
 
 namespace Util::Game {
 
 class Component;
+class CollisionEvent;
 
 class Entity : public Drawable {
 
@@ -33,14 +35,14 @@ friend class Game;
 
 public:
     /**
-     * Default Constructor.
+     * Constructor.
      */
-    Entity() = default;
+    explicit Entity(uint32_t tag, const Math::Vector2D &position);
 
     /**
      * Constructor.
      */
-    explicit Entity(const Math::Vector2D &position);
+    Entity(uint32_t tag, const Math::Vector2D &position, const RectangleCollider &collider);
 
     /**
      * Copy Constructor.
@@ -60,6 +62,8 @@ public:
     virtual void onUpdate(double delta) = 0;
 
     virtual void onTranslationEvent(TranslationEvent &event) = 0;
+
+    virtual void onCollisionEvent(CollisionEvent &event) = 0;
 
     void translate(const Math::Vector2D &translation);
 
@@ -85,12 +89,25 @@ public:
 
     [[nodiscard]] const Math::Vector2D& getVelocity() const;
 
+    [[nodiscard]] RectangleCollider& getCollider();
+
+    [[nodiscard]] bool hasCollider() const;
+
+    [[nodiscard]] uint32_t getTag() const;
+
 private:
 
     void update(double delta);
 
+    void onCollision(CollisionEvent &event);
+
+    uint32_t tag;
+    bool positionChanged = false;
     Math::Vector2D position{};
     Math::Vector2D velocity{};
+
+    bool colliderPresent;
+    RectangleCollider collider;
 
     ArrayList<Component*> components;
 };

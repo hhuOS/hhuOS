@@ -45,7 +45,7 @@ public:
      */
     virtual ~Drawable() = default;
 
-    virtual void draw(Graphics2D &graphics) const = 0;
+    virtual void draw(Graphics2D &graphics) = 0;
 };
 
 }

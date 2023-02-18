@@ -23,8 +23,11 @@
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/component/GravityComponent.h"
+#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "Ground.h"
 
-Dino::Dino() : Util::Game::Entity(Util::Math::Vector2D(-0.1, -0.1)), currentAnimation(&eggAnimation),
+Dino::Dino() : Util::Game::Entity(TAG, Util::Math::Vector2D(-0.8, 0), Util::Game::RectangleCollider(Util::Math::Vector2D(-0.8, 0), Util::Game::Collider::DYNAMIC, 0.2, 0.2667)),
+        currentAnimation(&eggAnimation),
         idleAnimation(Util::Array<Util::Game::Sprite*>({
         new Util::Game::Sprite("/initrd/dino/idle1.bmp", 0.2, 0.2267),
         new Util::Game::Sprite("/initrd/dino/idle2.bmp", 0.2, 0.2267),
@@ -63,13 +66,10 @@ Dino::Dino() : Util::Game::Entity(Util::Math::Vector2D(-0.1, -0.1)), currentAnim
         new Util::Game::Sprite("/initrd/dino/death2.bmp", 0.2, 0.2267),
         new Util::Game::Sprite("/initrd/dino/death3.bmp", 0.2, 0.2267),
         new Util::Game::Sprite("/initrd/dino/death4.bmp", 0.2, 0.2267),
-        new Util::Game::Sprite("/initrd/dino/death5.bmp", 0.2, 0.2267)}), 0.5) {
-    addComponent(new Util::Game::LinearMovementComponent(*this));
-    addComponent(new Util::Game::GravityComponent(*this, -0.8, 2, 0.025));
-}
+        new Util::Game::Sprite("/initrd/dino/death5.bmp", 0.2, 0.2267)}), 0.5) {}
 
 void Dino::moveLeft() {
-    if (hatched && !isDying) {
+    if (hatched && !isDying && !dead) {
         if (direction == RIGHT) {
             setVelocityX(getVelocity().getX() * STOP_FACTOR);
         }
@@ -81,7 +81,7 @@ void Dino::moveLeft() {
 }
 
 void Dino::moveRight() {
-    if (hatched && !isDying) {
+    if (hatched && !isDying && !dead) {
         if (direction == LEFT) {
             setVelocityX(getVelocity().getX() * STOP_FACTOR);
         }
@@ -93,20 +93,21 @@ void Dino::moveRight() {
 }
 
 void Dino::dash(bool dash) {
-    if (hatched && !isDying) {
+    if (hatched && !isDying && !dead) {
         dashing = dash;
     }
 }
 
 void Dino::jump() {
-    if (hatched && !isDying && !inAir()) {
+    if (onGround && hatched && !isDying && !dead) {
         setVelocityY(JUMP_VELOCITY);
+        onGround = false;
     }
 }
 
 void Dino::stop() {
-    if (hatched && !isDying) {
-        if (!inAir()) {
+    if (hatched && !isDying && !dead) {
+        if (onGround) {
             setVelocityX(getVelocity().getX() * STOP_FACTOR);
         }
 
@@ -118,13 +119,17 @@ void Dino::stop() {
 }
 
 void Dino::hatch() {
-    if (!isHatching && !hatched && !isDying) {
+    if (!isHatching && !hatched && !isDying && !dead) {
         currentAnimation = &crackAnimation;
         isHatching = true;
     }
 }
 
 void Dino::onUpdate(double delta) {
+    if (dead) {
+        return;
+    }
+
     if (isHatching) {
         time += delta;
         if (time >= crackAnimation.getAnimationTime() && time < crackAnimation.getAnimationTime() + hatchAnimation.getAnimationTime()) {
@@ -139,19 +144,21 @@ void Dino::onUpdate(double delta) {
         if (time >= deathAnimation.getAnimationTime() && time < deathAnimation.getAnimationTime() + 0.5) {
             return;
         } else if (time >= deathAnimation.getAnimationTime() + 0.5) {
-            reset();
+            isDying = false;
+            dead = true;
+            return;
         }
     } else if (isMoving) {
         if (direction == LEFT) {
-            auto maxVelocity = (dashing ? -MAX_DASH_VELOCITY : -MAX_MOVE_VELOCITY);
+            auto maxVelocity = -targetVelocity;
             auto xVelocity = getVelocity().getX() - MOVEMENT_FACTOR * delta;
             setVelocityX(xVelocity < maxVelocity ? maxVelocity : xVelocity);
         } else if (direction == RIGHT) {
-            auto maxVelocity = (dashing ? MAX_DASH_VELOCITY : MAX_MOVE_VELOCITY);
+            auto maxVelocity = targetVelocity;
             auto xVelocity = getVelocity().getX() + MOVEMENT_FACTOR * delta;
             setVelocityX(xVelocity > maxVelocity ? maxVelocity : xVelocity);
         }
-    } else if (!inAir()) {
+    } else if (onGround) {
         if (direction == LEFT && getVelocity().getX() < 0) {
             auto xVelocity = getVelocity().getX() + MOVEMENT_FACTOR * delta;
             setVelocityX(xVelocity > 0 ? 0 : xVelocity);
@@ -161,23 +168,17 @@ void Dino::onUpdate(double delta) {
         }
     }
 
-    if (!inAir() || isDying) {
+    if (onGround || isDying) {
         currentAnimation->update(delta);
     }
 }
 
-void Dino::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    if (isDying) {
-        event.cancel();
-    }
-}
-
-void Dino::draw(Util::Game::Graphics2D &graphics) const {
+void Dino::draw(Util::Game::Graphics2D &graphics) {
     graphics.drawImage(getPosition(), currentAnimation->getCurrentSprite().getImage(), direction == LEFT);
 }
 
 void Dino::die() {
-    if (hatched && !isDying) {
+    if (hatched && !isDying && !dead) {
         time = 0;
         isDying = true;
         isMoving = false;
@@ -189,10 +190,12 @@ void Dino::die() {
 void Dino::reset() {
     if (!isHatching) {
         time = 0;
-        hatched = false;
         isHatching = false;
         isDying = false;
         isMoving = false;
+        dashing = false;
+        hatched = false;
+        dead = false;
         idleAnimation.reset();
         runAnimation.reset();
         dashAnimation.reset();
@@ -200,12 +203,40 @@ void Dino::reset() {
         crackAnimation.reset();
         hatchAnimation.reset();
         deathAnimation.reset();
-        setPosition(Util::Math::Vector2D(-0.1, -0.1));
+        currentAnimation = &eggAnimation;
+        targetVelocity = DEFAULT_MOVE_VELOCITY;
+        setPosition(Util::Math::Vector2D(-0.8, 0));
         setVelocity(Util::Math::Vector2D(0, 0));
         currentAnimation = &eggAnimation;
     }
 }
 
-bool Dino::inAir() {
-    return getPosition().getY() > (GROUND + 0.01);
+void Dino::onTranslationEvent(Util::Game::TranslationEvent &event) {
+    if (isDying || dead) {
+        event.cancel();
+    }
+}
+
+void Dino::onCollisionEvent(Util::Game::CollisionEvent &event) {
+    if (event.getSide() == Util::Game::RectangleCollider::BOTTOM && event.getCollidedWidth().getTag() == Ground::TAG) {
+        onGround = true;
+    } else {
+        die();
+    }
+}
+
+bool Dino::hasHatched() const {
+    return hatched;
+}
+
+bool Dino::isDead() const {
+    return dead;
+}
+
+double Dino::getTargetVelocity() const {
+    return targetVelocity;
+}
+
+void Dino::setTargetVelocity(double targetVelocity) {
+    Dino::targetVelocity = targetVelocity;
 }

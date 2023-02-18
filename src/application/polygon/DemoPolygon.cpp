@@ -20,10 +20,10 @@
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/math/Vector2D.h"
 
-DemoPolygon::DemoPolygon() : Util::Game::Polygon(Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
+DemoPolygon::DemoPolygon() : Util::Game::Polygon(0, Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 
 DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed) :
-        Util::Game::Polygon(vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {}
+        Util::Game::Polygon(0, vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {}
 
 void DemoPolygon::update(double delta) {
     const double rotationAngle = delta * rotationSpeed;
@@ -39,7 +39,7 @@ void DemoPolygon::update(double delta) {
     scale(scaleFactor);
 }
 
-void DemoPolygon::draw(Util::Game::Graphics2D &graphics) const {
+void DemoPolygon::draw(Util::Game::Graphics2D &graphics) {
     graphics.setColor(color);
     Polygon::draw(graphics);
 }
@@ -47,3 +47,5 @@ void DemoPolygon::draw(Util::Game::Graphics2D &graphics) const {
 void DemoPolygon::onTranslationEvent(Util::Game::TranslationEvent &event) {
     event.cancel();
 }
+
+void DemoPolygon::onCollisionEvent(Util::Game::CollisionEvent &event) {}

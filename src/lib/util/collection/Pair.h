@@ -18,6 +18,8 @@
 #ifndef __Pair_include__
 #define __Pair_include__
 
+#include <cstdint>
+
 namespace Util {
 
 /**

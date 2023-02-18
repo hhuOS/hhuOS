@@ -20,30 +20,24 @@
 
 namespace Util::Game {
 
-GravityComponent::GravityComponent(Entity &entity, double groundY, double mass, double stopFactorX, double gravityValue) :
-        Component(entity), groundY(groundY), mass(mass), stopFactorX(stopFactorX), gravityValue(gravityValue) {}
+GravityComponent::GravityComponent(Entity &entity, double mass, double stopFactorX, double gravityValue) :
+        Component(entity), mass(mass), stopFactorX(stopFactorX), gravityValue(gravityValue) {}
 
 void GravityComponent::update(double delta) {
     auto &entity = getEntity();
     const auto &position = entity.getPosition();
     auto velocity = entity.getVelocity();
 
-    if (position.getY() > groundY) {
-        auto force = Math::Vector2D(0, mass * gravityValue);
-        auto acceleration = Math::Vector2D(force.getX() / mass, force.getY() / mass);
-        velocity = velocity + Math::Vector2D(acceleration.getX() * delta, acceleration.getY() * delta);
-    } else {
-        entity.setPosition(Math::Vector2D(entity.getPosition().getX(), groundY));
-        entity.setVelocity(Math::Vector2D(entity.getVelocity().getX(), 0));
-        return;
-    }
+    auto force = Math::Vector2D(0, mass * gravityValue);
+    auto acceleration = Math::Vector2D(0, force.getY() / mass);
+    velocity = velocity + Math::Vector2D(acceleration.getX() * delta, -Math::absolute(acceleration.getY() * delta));
 
     auto newPosition = position + Math::Vector2D(velocity.getX() * delta, velocity.getY() * delta);
     auto event = TranslationEvent(newPosition);
     entity.onTranslationEvent(event);
     
     if (!event.isCanceled()) {
-        velocity = Math::Vector2D(velocity.getX() * (1 - stopFactorX), velocity .getY());
+        velocity = Math::Vector2D(velocity.getX() * (1 - stopFactorX), velocity.getY());
         entity.setPosition(newPosition);
         entity.setVelocity(velocity);
     }

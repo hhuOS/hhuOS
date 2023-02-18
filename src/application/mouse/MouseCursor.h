@@ -37,7 +37,7 @@ public:
     /**
      * Default Constructor.
      */
-    MouseCursor() = default;
+    MouseCursor();
 
     /**
      * Copy Constructor.
@@ -58,7 +58,9 @@ public:
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
-    void draw(Util::Game::Graphics2D &graphics) const override;
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
 
     void keyPressed(Key key) override;
 

@@ -15,53 +15,37 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
-
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "Text.h"
 
 namespace Util::Game {
 
-class Sprite {
+Text::Text(const Math::Vector2D &position, const String &text, const Graphic::Color &color) : Entity(0, position), text(text), color(color) {}
 
-public:
-    /**
-     * Constructor.
-     */
-    Sprite(const String &path, double width, double height);
-
-    /**
-     * Copy Constructor.
-     */
-    Sprite(const Sprite &other) = delete;
-
-    /**
-     * Assignment operator.
-     */
-    Sprite &operator=(const Sprite &other) = delete;
-
-    /**
-     * Destructor.
-     */
-    ~Sprite();
-
-    [[nodiscard]] const Graphic::Image& getImage() const;
-
-    [[nodiscard]] double getWidth() const;
-
-    [[nodiscard]] double getHeight() const;
-
-private:
-
-    Graphic::Image *image;
-};
-
+void Text::draw(Graphics2D &graphics) {
+    graphics.setColor(color);
+    graphics.drawString(getPosition(), text);
 }
 
-#endif
+void Text::onUpdate(double delta) {}
+
+void Text::onTranslationEvent(TranslationEvent &event) {}
+
+void Text::onCollisionEvent(CollisionEvent &event) {}
+
+const Graphic::Color &Text::getColor() const {
+    return color;
+}
+
+void Text::setColor(const Graphic::Color &color) {
+    Text::color = color;
+}
+
+const String &Text::getText() const {
+    return text;
+}
+
+void Text::setText(const String &text) {
+    Text::text = text;
+}
+
+}

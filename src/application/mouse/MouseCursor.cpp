@@ -21,13 +21,17 @@
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
 
+MouseCursor::MouseCursor() : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)) {}
+
 void MouseCursor::onUpdate(double delta) {}
 
 void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {
     event.cancel();
 }
 
-void MouseCursor::draw(Util::Game::Graphics2D &graphics) const {
+void MouseCursor::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+
+void MouseCursor::draw(Util::Game::Graphics2D &graphics) {
     auto string = Util::String();
     if (leftPressed) string += "l";
     if (middlePressed) string += "m";

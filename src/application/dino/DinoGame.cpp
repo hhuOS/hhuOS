@@ -22,15 +22,59 @@
 #include "lib/util/game/Camera.h"
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/component/GravityComponent.h"
+#include "Tree.h"
 
 void DinoGame::update(double delta) {
     if (getObjectCount() == 0) {
         dino = new Dino();
-        setKeyListener(*this);
+        ground = new Ground(Util::Math::Vector2D(dino->getPosition().getX() - 1, -0.8));
+        pointText = new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0");
+
+        dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
+        dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
+
         addObject(dino);
+        addObject(ground);
+        addObject(pointText);
+
+        setKeyListener(*this);
     }
 
-    getCamera().translate(cameraMovement * delta);
+    if (dino->hasHatched()) {
+        dino->moveRight();
+        dino->setTargetVelocity(dino->getTargetVelocity() + delta / 100);
+        if (dino->getVelocity().getX() > 1) {
+            dino->dash(true);
+        }
+
+        if (treeCooldown <= 0) {
+            auto rand = treeRandom.nextRandomNumber();
+            if (rand * delta >= 0.0158) {
+                auto *tree = new Tree(Util::Math::Vector2D(getCamera().getPosition().getX() + 2, ground->getPosition().getY()));
+                trees.add(tree);
+                addObject(tree);
+                treeCooldown = 1.5;
+            }
+        } else {
+            treeCooldown -= delta;
+        }
+    } else {
+        for (auto *tree : trees) {
+            trees.remove(tree);
+            removeObject(tree);
+        }
+    }
+
+    for (auto *tree : trees) {
+        if (tree->getPosition().getX() < getCamera().getPosition().getX() - 2) {
+            trees.remove(tree);
+            removeObject(tree);
+        }
+    }
+
+    getCamera().setPosition(Util::Math::Vector2D(dino->getPosition().getX() + 0.8, 0));
+    ground->setPosition(Util::Math::Vector2D(dino->getPosition().getX() - 1, ground->getPosition().getY()));
+    pointText->setText(Util::String::format("Points: %u", static_cast<uint32_t>(getCamera().getPosition().getX())));
 }
 
 void DinoGame::keyPressed(Util::Io::Key key) {
@@ -38,61 +82,16 @@ void DinoGame::keyPressed(Util::Io::Key key) {
         case Util::Io::Key::ESC :
             stop();
             break;
-        case Util::Io::Key::ENTER :
-            dino->die();
-            break;
         case Util::Io::Key::SPACE :
-            dino->hatch();
-            dino->jump();
-            break;
-        case Util::Io::Key::LEFT :
-            dino->moveLeft();
-            dino->dash(key.getShift());
-            leftPressed = true;
-            break;
-        case Util::Io::Key::RIGHT :
-            dino->moveRight();
-            dino->dash(key.getShift());
-            rightPressed = true;
-            break;
-        case Util::Io::Key::W :
-            cameraMovement = {cameraMovement.getX(), -0.1};
-            break;
-        case Util::Io::Key::A :
-            cameraMovement = {0.1, cameraMovement.getY()};
-            break;
-        case Util::Io::Key::S :
-            cameraMovement = {cameraMovement.getX(), 0.1};
-            break;
-        case Util::Io::Key::D :
-            cameraMovement = {-0.1, cameraMovement.getY()};
+            if (dino->isDead()) {
+                dino->reset();
+            } else if (dino->hasHatched()) {
+                dino->jump();
+            } else {
+                dino->hatch();
+            }
             break;
     }
 }
 
-void DinoGame::keyReleased(Util::Io::Key key) {
-    switch (key.getScancode()) {
-        case Util::Io::Key::LEFT:
-            leftPressed = false;
-            break;
-        case Util::Io::Key::RIGHT:
-            rightPressed = false;
-            break;
-        case Util::Io::Key::W :
-            cameraMovement = {cameraMovement.getX(), 0};
-            break;
-        case Util::Io::Key::A :
-            cameraMovement = {0, cameraMovement.getY()};
-            break;
-        case Util::Io::Key::S :
-            cameraMovement = {cameraMovement.getX(), 0};
-            break;
-        case Util::Io::Key::D :
-            cameraMovement = {0, cameraMovement.getY()};
-            break;
-    }
-
-    if (!leftPressed && !rightPressed) {
-        dino->stop();
-    }
-}
+void DinoGame::keyReleased(Util::Io::Key key) {}
