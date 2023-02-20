@@ -15,19 +15,48 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "Tree.h"
+#ifndef HHUOS_SAW_H
+#define HHUOS_SAW_H
 
-Tree::Tree(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 0.001, 0.3)) {}
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/SpriteAnimation.h"
 
-void Tree::onUpdate(double delta) {}
+class Saw : public Util::Game::Entity {
 
-void Tree::onTranslationEvent(Util::Game::TranslationEvent &event) {
-    event.cancel();
-}
+public:
+    /**
+     * Constructor.
+     */
+    explicit Saw(const Util::Math::Vector2D &position);
 
-void Tree::onCollisionEvent(Util::Game::CollisionEvent &event) {}
+    /**
+     * Copy Constructor.
+     */
+    Saw(const Saw &other) = delete;
 
-void Tree::draw(Util::Game::Graphics2D &graphics) {
-    graphics.setColor(Util::Graphic::Colors::GREEN);
-    graphics.drawLine(Util::Math::Vector2D(getPosition().getX(), getPosition().getY()), Util::Math::Vector2D(getPosition().getX(), getPosition().getY() + getCollider().getHeight()));
-}
+    /**
+     * Assignment operator.
+     */
+    Saw &operator=(const Saw &other) = delete;
+
+    /**
+     * Destructor.
+     */
+    ~Saw() override = default;
+
+    void onUpdate(double delta) override;
+
+    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+
+    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
+
+    void draw(Util::Game::Graphics2D &graphics) override;
+
+    static const constexpr uint32_t TAG = 2;
+
+private:
+
+    Util::Game::SpriteAnimation animation;
+};
+
+#endif

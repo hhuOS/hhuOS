@@ -36,7 +36,7 @@ public:
     /**
      * Constructor.
      */
-    SpriteAnimation(const Array<Sprite*> &sprites, double time);
+    SpriteAnimation(const Array<Sprite> &sprites, double time);
 
     /**
      * Copy Constructor.
@@ -71,7 +71,7 @@ private:
     double timePerSprite;
     double timeSinceLastChange = 0;
     uint32_t currentSprite = 0;
-    Array<Sprite*> sprites;
+    Array<Sprite> sprites;
 };
 
 }

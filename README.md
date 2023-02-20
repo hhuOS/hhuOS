@@ -83,4 +83,7 @@ hhuOS can be configured via kernel parameters, that are passed to the system by 
 
 ## Notes
 
-Character sprites for the dino game have been created by *ScissorMarks* and *DemChing* on [itch.io](https://demching.itch.io/dino-family).
+Assets for the dino game have been taken from [itch.io](https://itch.io):
+ - [Dino Characters](https://arks.itch.io/dino-characters) by *Scissor Marks*
+ - [Dino Family](https://demching.itch.io/dino-family) by *DemChing*
+ - [Pixel Adventure](https://pixelfrog-assets.itch.io/pixel-adventure-1) by *Pixel Frog*

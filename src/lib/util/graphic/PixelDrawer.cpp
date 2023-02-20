@@ -54,4 +54,12 @@ void PixelDrawer::drawPixel(uint16_t x, uint16_t y, const Color &color) const {
     }
 }
 
+uint16_t PixelDrawer::getWidth() const {
+    return lfb.getResolutionX();
+}
+
+uint16_t PixelDrawer::getHeight() const {
+    return lfb.getResolutionY();
+}
+
 }

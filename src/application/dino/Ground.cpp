@@ -17,7 +17,8 @@
 
 #include "Ground.h"
 
-Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::DYNAMIC, 5.0, 0.001)) {}
+Ground::Ground(const Util::Math::Vector2D &position) :
+    Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)), sprite("/initrd/dino/ground.bmp", 0.2, 0.2) {}
 
 void Ground::onUpdate(double delta) {}
 
@@ -29,5 +30,7 @@ void Ground::onCollisionEvent(Util::Game::CollisionEvent &event) {}
 
 void Ground::draw(Util::Game::Graphics2D &graphics) {
     graphics.setColor(Util::Graphic::Colors::GREEN);
-    graphics.drawLine(getPosition(), Util::Math::Vector2D(getPosition().getX() + getCollider().getWidth(), getPosition().getY()));
+    for (uint32_t i = 0; i < getCollider().getWidth() / sprite.getWidth(); i ++) {
+        graphics.drawImage(Util::Math::Vector2D(getPosition().getX() + i * sprite.getWidth(), getPosition().getY() - sprite.getHeight()), sprite.getImage());
+    }
 }

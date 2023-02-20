@@ -46,6 +46,8 @@ public:
 
     T poll() override;
 
+    T peek() override;
+
     bool add(const T &element) override;
 
     bool addAll(const Collection<T> &other) override;
@@ -93,6 +95,12 @@ template<class T>
 T ArrayListBlockingQueue<T>::poll() {
     while (isEmpty()) {}
     return elements.removeIndex(0);
+}
+
+template<typename T>
+T ArrayListBlockingQueue<T>::peek() {
+    while (isEmpty()) {}
+    return elements.get(0);
 }
 
 template<class T>

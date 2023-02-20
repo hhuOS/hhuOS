@@ -22,19 +22,33 @@
 #include "GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"
 #include "lib/util/graphic/Image.h"
+#include "lib/util/graphic/Color.h"
+#include "ResourceManager.h"
 
 namespace Util::Game {
 
-Sprite::Sprite(const Util::String &path, double width, double height) {
-    auto *file = Graphic::BitmapFile::open(path);
-    auto transformation = GameManager::getTransformation();
-
-    image = file->scale(static_cast<uint16_t>(width * transformation), static_cast<uint16_t>(height * transformation));
-    delete file;
+Sprite::Sprite() : width(0), height(0) {
+    if (ResourceManager::hasImage("empty")) {
+        image = ResourceManager::getImage("empty");
+    } else {
+        image = new Graphic::Image(0, 0, new Graphic::Color[0]);
+        ResourceManager::addImage("empty", image);
+    }
 }
 
-Sprite::~Sprite() {
-    delete image;
+Sprite::Sprite(const Util::String &path, double width, double height) : width(width), height(height) {
+    auto key = String::format("%s_%x_%x", static_cast<const char*>(path), width, height);
+    if (ResourceManager::hasImage(key)) {
+        image = ResourceManager::getImage(key);
+    } else {
+        auto *file = Graphic::BitmapFile::open(path);
+        auto transformation = GameManager::getTransformation();
+
+        image = file->scale(static_cast<uint16_t>(width * transformation), static_cast<uint16_t>(height * transformation));
+        delete file;
+
+        ResourceManager::addImage(key, image);
+    }
 }
 
 const Graphic::Image &Sprite::getImage() const {
@@ -42,11 +56,11 @@ const Graphic::Image &Sprite::getImage() const {
 }
 
 double Sprite::getWidth() const {
-    return image->getWidth();
+    return width;
 }
 
 double Sprite::getHeight() const {
-    return image->getHeight();
+    return height;
 }
 
 }

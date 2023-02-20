@@ -21,9 +21,10 @@
 #include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/collection/ArrayBlockingQueue.h"
 #include "Ground.h"
 #include "lib/util/math/Random.h"
-#include "Tree.h"
+#include "Saw.h"
 #include "lib/util/game/Text.h"
 
 class Dino;
@@ -40,7 +41,7 @@ public:
     /**
      * Default Constructor.
      */
-    DinoGame() = default;
+    DinoGame();
 
     /**
      * Copy Constructor.
@@ -66,12 +67,20 @@ public:
 private:
 
     Dino *dino = nullptr;
-    Ground *ground = nullptr;
     Util::Game::Text *pointText = nullptr;
 
-    Util::ArrayList<Tree*> trees;
-    Util::Math::Random treeRandom;
-    double treeCooldown = 0;
+    Util::ArrayBlockingQueue<Ground*> ground;
+
+    Util::ArrayList<Saw*> obstacles;
+    Util::Math::Random random;
+    double obstacleCooldown = 0;
+
+    double currentVelocity = START_VELOCITY;
+
+    static const constexpr double OBSTACLE_COOLDOWN = 1.25;
+    static const constexpr double START_VELOCITY = 0.25;
+    static const constexpr double DASH_VELOCITY = 1;
+    static const constexpr double MAX_VELOCITY = 1.5;
 };
 
 #endif
