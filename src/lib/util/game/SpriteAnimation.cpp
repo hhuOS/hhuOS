@@ -26,7 +26,7 @@ class Sprite;
 
 namespace Util::Game {
 
-SpriteAnimation::SpriteAnimation(const Util::Array<Util::Game::Sprite*> &sprites, double time) : animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
+SpriteAnimation::SpriteAnimation(const Util::Array<Sprite> &sprites, double time) : animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
 
 void SpriteAnimation::reset() {
     currentSprite = 0;
@@ -43,7 +43,7 @@ void SpriteAnimation::update(double delta) {
 }
 
 const Sprite& SpriteAnimation::getCurrentSprite() const {
-    return *sprites[currentSprite];
+    return sprites[currentSprite];
 }
 
 double SpriteAnimation::getAnimationTime() const {
@@ -51,11 +51,11 @@ double SpriteAnimation::getAnimationTime() const {
 }
 
 double SpriteAnimation::getWidth() const {
-    return sprites[currentSprite]->getWidth();
+    return sprites[currentSprite].getWidth();
 }
 
 double SpriteAnimation::getHeight() const {
-    return sprites[currentSprite]->getHeight();
+    return sprites[currentSprite].getHeight();
 }
 
 }

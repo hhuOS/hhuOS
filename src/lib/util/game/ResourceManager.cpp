@@ -15,43 +15,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_TREE_H
-#define HHUOS_TREE_H
+#include "ResourceManager.h"
 
-#include "lib/util/game/entity/Entity.h"
+namespace Util::Game {
 
-class Tree : public Util::Game::Entity {
+HashMap<String, Graphic::Image*> ResourceManager::images;
 
-public:
-    /**
-     * Constructor.
-     */
-    explicit Tree(const Util::Math::Vector2D &position);
+void ResourceManager::addImage(const String &key, Graphic::Image *image) {
+    images.put(key, image);
+}
 
-    /**
-     * Copy Constructor.
-     */
-    Tree(const Tree &other) = delete;
+bool ResourceManager::hasImage(const String &key) {
+    return images.containsKey(key);
+}
 
-    /**
-     * Assignment operator.
-     */
-    Tree &operator=(const Tree &other) = delete;
+Util::Graphic::Image *Util::Game::ResourceManager::getImage(const Util::String &key) {
+    return images.get(key);
+}
 
-    /**
-     * Destructor.
-     */
-    ~Tree() override = default;
+void Util::Game::ResourceManager::deleteImage(const Util::String &key) {
+    if (images.containsKey(key)) {
+        delete images.remove(key);
+    }
+}
 
-    void onUpdate(double delta) override;
+void ResourceManager::clear() {
+    for (auto *image : images.values()) {
+        delete image;
+    }
 
-    void onTranslationEvent(Util::Game::TranslationEvent &event) override;
+    images.clear();
+}
 
-    void onCollisionEvent(Util::Game::CollisionEvent &event) override;
-
-    void draw(Util::Game::Graphics2D &graphics) override;
-
-    static const constexpr uint32_t TAG = 2;
-};
-
-#endif
+}

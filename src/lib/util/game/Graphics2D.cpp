@@ -76,14 +76,18 @@ void Graphics2D::drawStringSmall(const Math::Vector2D &position, const String &s
 void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
     auto &camera = game.getCamera();
     auto pixelBuffer = image.getPixelBuffer();
-    auto imageWidth = image.getWidth();
     auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
     auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getPosition().getY()) * transformation + offsetY);
 
+    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > pixelDrawer.getWidth() ||
+        yPixelOffset - image.getHeight() > pixelDrawer.getHeight() || yPixelOffset < 0) {
+        return;
+    }
+
     for (int32_t i = 0; i < image.getHeight(); i++) {
         for (int32_t j = 0; j < image.getWidth(); j++) {
-            pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i, pixelBuffer[i * imageWidth + j]);
+            pixelDrawer.drawPixel(xPixelOffset + xFlipOffset + (flipX ? -1 : 1) * j, yPixelOffset - i, pixelBuffer[i * image.getWidth() + j]);
         }
     }
 }

@@ -15,58 +15,51 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_SPRITE_H
-#define HHUOS_SPRITE_H
+#ifndef HHUOS_RESOURCEMANAGER_H
+#define HHUOS_RESOURCEMANAGER_H
 
-#include "lib/util/base/String.h"
-
-namespace Util {
-namespace Graphic {
-class Image;
-}  // namespace Graphic
-}  // namespace Util
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/graphic/Image.h"
 
 namespace Util::Game {
 
-class Sprite {
+class ResourceManager {
 
 public:
     /**
      * Default Constructor.
+     * Deleted, as this class has only static members.
      */
-    Sprite();
-
-    /**
-     * Constructor.
-     */
-    Sprite(const String &path, double width, double height);
+    ResourceManager() = delete;
 
     /**
      * Copy Constructor.
      */
-    Sprite(const Sprite &other) = default;
+    ResourceManager(const ResourceManager &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Sprite &operator=(const Sprite &other) = default;
+    ResourceManager &operator=(const ResourceManager &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Sprite() = default;
+    ~ResourceManager() = default;
 
-    [[nodiscard]] const Graphic::Image& getImage() const;
+    static void addImage(const String &key, Graphic::Image *image);
 
-    [[nodiscard]] double getWidth() const;
+    static bool hasImage(const String &key);
 
-    [[nodiscard]] double getHeight() const;
+    static Graphic::Image* getImage(const String &key);
+
+    static void deleteImage(const String &key);
+
+    static void clear();
 
 private:
 
-    Graphic::Image *image;
-    double width;
-    double height;
+    static HashMap<String, Graphic::Image*> images;
 };
 
 }

@@ -42,6 +42,7 @@ target_sources(${PROJECT_NAME} PUBLIC
         ${HHUOS_SRC_DIR}/lib/util/game/GameManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Graphics2D.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Polygon.cpp
+        ${HHUOS_SRC_DIR}/lib/util/game/ResourceManager.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Sprite.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/SpriteAnimation.cpp
         ${HHUOS_SRC_DIR}/lib/util/game/Text.cpp)

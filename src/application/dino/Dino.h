@@ -33,7 +33,7 @@ public:
     /**
      * Default Constructor.
      */
-    Dino();
+    Dino(const Util::Math::Vector2D &position);
 
     /**
      * Copy Constructor.
@@ -50,17 +50,11 @@ public:
      */
     ~Dino() override = default;
 
-    void moveLeft();
-
-    void moveRight();
-
-    void dash(bool dash);
+    void dash();
 
     void jump();
 
     void hatch();
-
-    void stop();
 
     void die();
 
@@ -68,11 +62,9 @@ public:
 
     [[nodiscard]] bool hasHatched() const;
 
+    [[nodiscard]] bool isDying() const;
+
     [[nodiscard]] bool isDead() const;
-
-    [[nodiscard]] double getTargetVelocity() const;
-
-    void setTargetVelocity(double targetVelocity);
 
     void onUpdate(double delta) override;
 
@@ -86,23 +78,14 @@ public:
 
 private:
 
-    enum Direction {
-        LEFT, RIGHT
-    };
-
-    bool isHatching = false;
-    bool isDying = false;
+    bool hatching = false;
+    bool dying = false;
     bool hatched = false;
     bool dead = false;
-    bool invert = false;
-    bool dashing = false;
-    bool isMoving = false;
     bool onGround = false;
-    Direction direction = RIGHT;
 
     double time = 0;
     Util::Game::SpriteAnimation *currentAnimation;
-    Util::Game::SpriteAnimation idleAnimation;
     Util::Game::SpriteAnimation runAnimation;
     Util::Game::SpriteAnimation dashAnimation;
     Util::Game::SpriteAnimation eggAnimation;
@@ -110,12 +93,7 @@ private:
     Util::Game::SpriteAnimation hatchAnimation;
     Util::Game::SpriteAnimation deathAnimation;
 
-    double targetVelocity = DEFAULT_MOVE_VELOCITY;
-
-    static const constexpr double DEFAULT_MOVE_VELOCITY = 0.25;
     static const constexpr double JUMP_VELOCITY = 0.75;
-    static const constexpr double MOVEMENT_FACTOR = 1.5;
-    static const constexpr double STOP_FACTOR = 0.25;
 };
 
 #endif

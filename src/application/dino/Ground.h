@@ -19,6 +19,7 @@
 #define HHUOS_GROUND_H
 
 #include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/Sprite.h"
 
 class Ground : public Util::Game::Entity {
 
@@ -52,6 +53,10 @@ public:
     void draw(Util::Game::Graphics2D &graphics) override;
 
     static const constexpr uint32_t TAG = 1;
+
+private:
+
+    Util::Game::Sprite sprite;
 };
 
 

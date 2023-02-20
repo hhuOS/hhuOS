@@ -41,6 +41,8 @@ public:
 
     T poll() override;
 
+    T peek() override;
+
     bool add(const T &element) override;
 
     bool addAll(const Collection<T> &other) override;
@@ -90,7 +92,7 @@ ArrayBlockingQueue<T>::~ArrayBlockingQueue() {
 
 template<class T>
 bool ArrayBlockingQueue<T>::offer(const T &element) {
-    if (length == capacity - 1) {
+    if (length == capacity) {
         return false;
     }
 
@@ -110,6 +112,12 @@ T ArrayBlockingQueue<T>::poll() {
     length--;
 
     return element;
+}
+
+template<class T>
+T ArrayBlockingQueue<T>::peek() {
+    while (length == 0) {}
+    return elements[head];
 }
 
 template<class T>

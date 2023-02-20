@@ -36,6 +36,8 @@ public:
 
     virtual T poll() = 0;
 
+    virtual T peek() = 0;
+
     virtual bool add(const T &element) = 0;
 
     virtual bool addAll(const Collection<T> &other) = 0;
