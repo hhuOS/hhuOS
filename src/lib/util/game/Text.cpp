@@ -21,6 +21,8 @@ namespace Util::Game {
 
 Text::Text(const Math::Vector2D &position, const String &text, const Graphic::Color &color) : Entity(0, position), text(text), color(color) {}
 
+void Text::initialize() {}
+
 void Text::draw(Graphics2D &graphics) {
     graphics.setColor(color);
     graphics.drawString(getPosition(), text);

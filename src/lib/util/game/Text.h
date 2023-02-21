@@ -48,6 +48,8 @@ public:
      * Destructor.
      */
     ~Text() override = default;
+
+    void initialize() override;
     
     void draw(Graphics2D &graphics) override;
 

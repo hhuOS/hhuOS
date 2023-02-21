@@ -80,8 +80,8 @@ void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image 
     auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
     auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getPosition().getY()) * transformation + offsetY);
 
-    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > pixelDrawer.getWidth() ||
-        yPixelOffset - image.getHeight() > pixelDrawer.getHeight() || yPixelOffset < 0) {
+    if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() ||
+        yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
         return;
     }
 
@@ -94,7 +94,27 @@ void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image 
 
 void Graphics2D::show() const {
     lfb.flush();
-    lfb.clear();
+
+    if (backgroundBuffer == nullptr) {
+        lfb.clear();
+    } else {
+        auto pitch = lfb.getPitch();
+        auto colorDepthDivisor = (lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8;
+        auto xOffset = static_cast<uint32_t>(game.getCamera().getPosition().getX() * pitch / 4) % pitch;
+        xOffset -= xOffset % colorDepthDivisor;
+
+        for (uint32_t i = 0; i < lfb.getResolutionY(); i++) {
+            auto yOffset = pitch * i;
+
+            auto source = Address<uint32_t>(backgroundBuffer + yOffset + xOffset);
+            auto target = lfb.getBuffer().add(yOffset);
+            target.copyRange(source, pitch - xOffset);
+
+            source = Address<uint32_t>(backgroundBuffer + yOffset);
+            target = lfb.getBuffer().add(yOffset + (pitch - xOffset));
+            target.copyRange(source, pitch - (pitch - xOffset));
+        }
+    }
 }
 
 void Graphics2D::setColor(const Graphic::Color &color) {
@@ -103,6 +123,26 @@ void Graphics2D::setColor(const Graphic::Color &color) {
 
 Graphic::Color Graphics2D::getColor() const {
     return color;
+}
+
+void Graphics2D::saveCurrentStateAsBackground() {
+    if (backgroundBuffer == nullptr) {
+        backgroundBuffer = new uint8_t[lfb.getPitch() * lfb.getResolutionY()];
+    }
+
+    Address<uint32_t>(backgroundBuffer).copyRange(lfb.getBuffer(), lfb.getPitch() * lfb.getResolutionY());
+}
+
+void Graphics2D::clear(const Graphic::Color &color) {
+    if (color == Util::Graphic::Colors::BLACK) {
+        lfb.clear();
+    } else {
+        for (uint32_t i = 0; i < lfb.getResolutionX(); i++) {
+            for (uint32_t j = 0; j < lfb.getResolutionY(); j++) {
+                pixelDrawer.drawPixel(i, j, color);
+            }
+        }
+    }
 }
 
 }

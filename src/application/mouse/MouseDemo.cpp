@@ -34,6 +34,6 @@ void MouseDemo::keyPressed(Util::Io::Key key) {
     }
 }
 
-void MouseDemo::keyReleased(Util::Io::Key key) {
+void MouseDemo::keyReleased(Util::Io::Key key) {}
 
-}
+void MouseDemo::initializeBackground(Util::Game::Graphics2D &graphics) {}

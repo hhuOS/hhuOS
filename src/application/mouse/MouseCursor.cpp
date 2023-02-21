@@ -23,6 +23,8 @@
 
 MouseCursor::MouseCursor() : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)) {}
 
+void MouseCursor::initialize() {}
+
 void MouseCursor::onUpdate(double delta) {}
 
 void MouseCursor::onTranslationEvent(Util::Game::TranslationEvent &event) {

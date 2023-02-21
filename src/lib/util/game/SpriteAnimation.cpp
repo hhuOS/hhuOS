@@ -26,6 +26,8 @@ class Sprite;
 
 namespace Util::Game {
 
+SpriteAnimation::SpriteAnimation() : sprites(0) {}
+
 SpriteAnimation::SpriteAnimation(const Util::Array<Sprite> &sprites, double time) : animationTime(time), timePerSprite(time / sprites.length()), sprites(sprites) {}
 
 void SpriteAnimation::reset() {

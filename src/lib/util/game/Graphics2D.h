@@ -84,11 +84,15 @@ public:
 
     void drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX = false) const;
 
+    void clear(const Graphic::Color &color);
+
     void show() const;
 
     void setColor(const Graphic::Color &color);
 
     [[nodiscard]] Graphic::Color getColor() const;
+
+    void saveCurrentStateAsBackground();
 
 private:
 
@@ -104,6 +108,8 @@ private:
     const uint16_t transformation;
     const uint16_t offsetX;
     const uint16_t offsetY;
+
+    uint8_t *backgroundBuffer = nullptr;
 
     Graphic::Color color = Graphic::Colors::WHITE;
 };

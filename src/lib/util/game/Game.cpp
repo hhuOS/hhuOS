@@ -47,8 +47,9 @@ void Game::removeObject(Entity *object) {
 }
 
 void Game::applyChanges() {
-    for (auto *object : addList) {
-        entities.add(object);
+    for (auto *entity : addList) {
+        entity->initialize();
+        entities.add(entity);
     }
 
     for (auto *object : removeList) {
@@ -61,8 +62,8 @@ void Game::applyChanges() {
 }
 
 void Game::updateEntities(double delta) {
-    for (auto *object : entities) {
-        object->update(delta);
+    for (auto *entity : entities) {
+        entity->update(delta);
     }
 }
 
@@ -121,6 +122,11 @@ void Game::checkCollisions() {
             }
         }
     }
+}
+
+void Game::initialize(Graphics2D &graphics) {
+    initializeBackground(graphics);
+    graphics.saveCurrentStateAsBackground();
 }
 
 }

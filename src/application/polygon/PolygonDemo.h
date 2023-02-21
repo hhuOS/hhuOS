@@ -60,6 +60,8 @@ public:
 
     void update(double delta) override;
 
+    void initializeBackground(Util::Game::Graphics2D &graphics) override;
+
     void keyPressed(Util::Io::Key key) override;
 
     void keyReleased(Util::Io::Key key) override;

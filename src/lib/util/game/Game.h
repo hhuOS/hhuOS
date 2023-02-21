@@ -62,6 +62,8 @@ public:
      */
     virtual ~Game();
 
+    void initialize(Graphics2D &graphics);
+
     [[nodiscard]] bool isRunning() const;
 
     [[nodiscard]] uint32_t getObjectCount() const;
@@ -77,6 +79,8 @@ public:
     void draw(Graphics2D &graphics);
 
     virtual void update(double delta) = 0;
+
+    virtual void initializeBackground(Graphics2D &graphics) = 0;
 
 protected:
 

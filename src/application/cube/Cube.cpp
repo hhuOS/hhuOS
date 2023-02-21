@@ -42,6 +42,8 @@ Cube::Cube(double x, double y, double size) : Util::Game::Entity(0, Util::Math::
     coordinates[7][indX] = x - size; coordinates[7][indY] = y + size; coordinates[7][indZ] = +size;
 }
 
+void Cube::initialize() {}
+
 void Cube::onUpdate(double delta) {}
 
 void Cube::draw(Util::Game::Graphics2D &graphics) {

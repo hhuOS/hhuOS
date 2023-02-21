@@ -25,6 +25,8 @@ DemoPolygon::DemoPolygon() : Util::Game::Polygon(0, Util::Array<Util::Math::Vect
 DemoPolygon::DemoPolygon(const Util::Array<Util::Math::Vector2D> &vertices, const Util::Graphic::Color &color, double rotationSpeed, double scaleSpeed) :
         Util::Game::Polygon(0, vertices), color(color), rotationSpeed(rotationSpeed), scaleSpeed(scaleSpeed) {}
 
+void DemoPolygon::initialize() {}
+
 void DemoPolygon::update(double delta) {
     const double rotationAngle = delta * rotationSpeed;
     const double scaleFactor = scaleUp ? 1 + (delta * scaleSpeed) : 1 - (delta * scaleSpeed);

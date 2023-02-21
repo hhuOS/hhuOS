@@ -44,7 +44,7 @@ Sprite::Sprite(const Util::String &path, double width, double height) : width(wi
         auto *file = Graphic::BitmapFile::open(path);
         auto transformation = GameManager::getTransformation();
 
-        image = file->scale(static_cast<uint16_t>(width * transformation), static_cast<uint16_t>(height * transformation));
+        image = file->scale(static_cast<uint16_t>(width * transformation) + 1, static_cast<uint16_t>(height * transformation) + 1);
         delete file;
 
         ResourceManager::addImage(key, image);
