@@ -66,10 +66,6 @@ public:
      */
     void drawPixel(uint16_t x, uint16_t y, const Color &color) const;
 
-    [[nodiscard]] uint16_t getWidth() const;
-
-    [[nodiscard]] uint16_t getHeight() const;
-
 private:
 
     const LinearFrameBuffer &lfb;

@@ -17,8 +17,11 @@
 
 #include "Ground.h"
 
-Ground::Ground(const Util::Math::Vector2D &position) :
-    Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)), sprite("/initrd/dino/ground.bmp", 0.2, 0.2) {}
+Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)) {}
+
+void Ground::initialize() {
+    sprite = Util::Game::Sprite("/initrd/dino/ground.bmp", 0.2, 0.2);
+}
 
 void Ground::onUpdate(double delta) {}
 

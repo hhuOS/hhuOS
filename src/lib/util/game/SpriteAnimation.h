@@ -34,6 +34,11 @@ class SpriteAnimation {
 
 public:
     /**
+     * Default Constructor.
+     */
+    SpriteAnimation();
+
+    /**
      * Constructor.
      */
     SpriteAnimation(const Array<Sprite> &sprites, double time);
@@ -41,12 +46,12 @@ public:
     /**
      * Copy Constructor.
      */
-    SpriteAnimation(const SpriteAnimation &other) = delete;
+    SpriteAnimation(const SpriteAnimation &other) = default;
 
     /**
      * Assignment operator.
      */
-    SpriteAnimation &operator=(const SpriteAnimation &other) = delete;
+    SpriteAnimation &operator=(const SpriteAnimation &other) = default;
 
     /**
      * Destructor.
@@ -67,8 +72,8 @@ public:
 
 private:
 
-    double animationTime;
-    double timePerSprite;
+    double animationTime = 0;
+    double timePerSprite = 0;
     double timeSinceLastChange = 0;
     uint32_t currentSprite = 0;
     Array<Sprite> sprites;

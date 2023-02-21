@@ -19,9 +19,10 @@
 #include "lib/util/collection/Array.h"
 #include "Saw.h"
 
-Saw::Saw(const Util::Math::Vector2D &position) :
-        Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 0.2, 0.2)),
-        animation(Util::Array<Util::Game::Sprite>({
+Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 0.2, 0.2)) {}
+
+void Saw::initialize() {
+    animation = Util::Game::SpriteAnimation(Util::Array<Util::Game::Sprite>({
         Util::Game::Sprite("/initrd/dino/saw1.bmp", getCollider().getWidth(), getCollider().getHeight()),
         Util::Game::Sprite("/initrd/dino/saw2.bmp", getCollider().getWidth(), getCollider().getHeight()),
         Util::Game::Sprite("/initrd/dino/saw3.bmp", getCollider().getWidth(), getCollider().getHeight()),
@@ -29,7 +30,8 @@ Saw::Saw(const Util::Math::Vector2D &position) :
         Util::Game::Sprite("/initrd/dino/saw5.bmp", getCollider().getWidth(), getCollider().getHeight()),
         Util::Game::Sprite("/initrd/dino/saw6.bmp", getCollider().getWidth(), getCollider().getHeight()),
         Util::Game::Sprite("/initrd/dino/saw7.bmp", getCollider().getWidth(), getCollider().getHeight()),
-        Util::Game::Sprite("/initrd/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4) {}
+        Util::Game::Sprite("/initrd/dino/saw8.bmp", getCollider().getWidth(), getCollider().getHeight())}), 0.4);
+}
 
 void Saw::onUpdate(double delta) {
     animation.update(delta);

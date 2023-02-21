@@ -43,9 +43,15 @@ void Engine::run() {
     const auto deltaMilliseconds = static_cast<uint32_t>(delta * 1000);
 
     Graphic::Ansi::prepareGraphicalApplication(true);
+    graphics.setColor(Graphic::Colors::WHITE);
+    graphics.drawString(Math::Vector2D(-0.05, 0), "Loading...");
+    graphics.show();
 
     Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
+
+    game.initialize(graphics);
+    game.applyChanges();
 
     while (game.isRunning()) {
         statistics.startFrameTime();

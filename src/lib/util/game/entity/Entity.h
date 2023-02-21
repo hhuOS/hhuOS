@@ -59,6 +59,8 @@ public:
      */
     ~Entity() override = default;
 
+    virtual void initialize() = 0;
+
     virtual void onUpdate(double delta) = 0;
 
     virtual void onTranslationEvent(TranslationEvent &event) = 0;

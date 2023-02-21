@@ -50,6 +50,10 @@ public:
      */
     ~Dino() override = default;
 
+    void initialize() override;
+
+    void onUpdate(double delta) override;
+
     void dash();
 
     void jump();
@@ -65,8 +69,6 @@ public:
     [[nodiscard]] bool isDying() const;
 
     [[nodiscard]] bool isDead() const;
-
-    void onUpdate(double delta) override;
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;
 
@@ -85,7 +87,7 @@ private:
     bool onGround = false;
 
     double time = 0;
-    Util::Game::SpriteAnimation *currentAnimation;
+    Util::Game::SpriteAnimation *currentAnimation = &eggAnimation;
     Util::Game::SpriteAnimation runAnimation;
     Util::Game::SpriteAnimation dashAnimation;
     Util::Game::SpriteAnimation eggAnimation;

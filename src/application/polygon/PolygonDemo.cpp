@@ -59,3 +59,5 @@ void PolygonDemo::keyPressed(Util::Io::Key key) {
 }
 
 void PolygonDemo::keyReleased(Util::Io::Key key) {}
+
+void PolygonDemo::initializeBackground(Util::Game::Graphics2D &graphics) {}

@@ -44,6 +44,8 @@ public:
      */
     ~Ground() override = default;
 
+    void initialize() override;
+
     void onUpdate(double delta) override;
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;

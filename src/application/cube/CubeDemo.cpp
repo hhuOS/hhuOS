@@ -53,3 +53,5 @@ void CubeDemo::keyPressed(Util::Io::Key key) {
 
 void CubeDemo::keyReleased(Util::Io::Key key) {
 }
+
+void CubeDemo::initializeBackground(Util::Game::Graphics2D &graphics) {}

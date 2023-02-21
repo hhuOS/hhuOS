@@ -60,6 +60,8 @@ public:
      */
     ~DemoPolygon() override = default;
 
+    void initialize();
+
     void update(double delta);
 
     void onTranslationEvent(Util::Game::TranslationEvent &event) override;

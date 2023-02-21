@@ -24,28 +24,34 @@
 #include "lib/util/game/entity/component/GravityComponent.h"
 #include "Saw.h"
 
-DinoGame::DinoGame() : ground(4) {}
+DinoGame::DinoGame() : dino(new Dino(Util::Math::Vector2D(-0.8, 0))), pointText(new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0")), ground(4) {
+    dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
+    dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
 
-void DinoGame::update(double delta) {
-    if (getObjectCount() == 0) {
-        dino = new Dino(Util::Math::Vector2D(-0.8, 0));
-        pointText = new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0");
+    addObject(dino);
+    addObject(pointText);
 
-        dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
-        dino->addComponent(new Util::Game::GravityComponent(*dino, 2, 0.0025));
-
-        addObject(dino);
-        addObject(pointText);
-
-        for (uint32_t i = 0; i < 4; i++) {
-            auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -0.8));
-            ground.offer(newGround);
-            addObject(newGround);
-        }
-
-        setKeyListener(*this);
+    for (uint32_t i = 0; i < 4; i++) {
+        auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -0.8));
+        ground.offer(newGround);
+        addObject(newGround);
     }
 
+    setKeyListener(*this);
+}
+
+void DinoGame::initializeBackground(Util::Game::Graphics2D &graphics) {
+    auto cloud1 = Util::Game::Sprite("/initrd/dino/cloud1.bmp", 0.45, 0.15);
+    auto cloud3 = Util::Game::Sprite("/initrd/dino/cloud3.bmp", 0.6, 0.15);
+    auto cloud4 = Util::Game::Sprite("/initrd/dino/cloud4.bmp", 0.45, 0.15);
+
+    graphics.clear(Util::Graphic::Color(57, 97, 255));
+    graphics.drawImage(Util::Math::Vector2D(-1, 0.65), cloud1.getImage());
+    graphics.drawImage(Util::Math::Vector2D(0.2, 0.3), cloud3.getImage());
+    graphics.drawImage(Util::Math::Vector2D(0.65, 0.7), cloud4.getImage());
+}
+
+void DinoGame::update(double delta) {
     if (dino->hasHatched() && (dino->isDying() == dino->isDead())) {
         if (currentVelocity < MAX_VELOCITY) {
             currentVelocity += (delta / 100);
