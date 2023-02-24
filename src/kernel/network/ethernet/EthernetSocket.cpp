@@ -37,7 +37,7 @@ class MacAddress;
 
 namespace Kernel::Network::Ethernet {
 
-EthernetSocket::EthernetSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getEthernetModule()) {}
+EthernetSocket::EthernetSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getEthernetModule(), Util::Network::Socket::ETHERNET) {}
 
 EthernetSocket::~EthernetSocket() {
     auto &ethernetModule = System::getService<NetworkService>().getNetworkStack().getEthernetModule();

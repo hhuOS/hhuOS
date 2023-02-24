@@ -22,6 +22,7 @@
 #define HHUOS_LIB_SOCKET_H
 
 #include <cstdint>
+#include "lib/util/network/ip4/Ip4Address.h"
 
 namespace Util {
 namespace Network {
@@ -41,7 +42,7 @@ public:
     };
 
     enum Request {
-        BIND, GET_LOCAL_ADDRESS
+        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESS
     };
 
     /**
@@ -69,14 +70,15 @@ public:
 
     [[nodiscard]] bool receive(Util::Network::Datagram &datagram) const;
 
+    [[nodiscard]] bool getIp4Address(Ip4::Ip4Address &address) const;
+
 private:
     /**
      * Default Constructor.
      */
-    explicit Socket(int32_t fileDescriptor, Type socketType);
+    explicit Socket(int32_t fileDescriptor);
 
     int32_t fileDescriptor;
-    Type socketType;
 };
 
 }

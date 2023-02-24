@@ -29,7 +29,7 @@
 
 namespace Kernel::Network::Udp {
 
-UdpSocket::UdpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getUdpModule()) {}
+UdpSocket::UdpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getUdpModule(), Util::Network::Socket::UDP) {}
 
 UdpSocket::~UdpSocket() {
     auto &udpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getUdpModule();
