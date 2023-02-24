@@ -37,7 +37,7 @@ class Ip4Address;
 
 namespace Kernel::Network::Icmp {
 
-IcmpSocket::IcmpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getIcmpModule()) {}
+IcmpSocket::IcmpSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getIcmpModule(), Util::Network::Socket::ICMP) {}
 
 IcmpSocket::~IcmpSocket() {
     auto &icmpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getIcmpModule();

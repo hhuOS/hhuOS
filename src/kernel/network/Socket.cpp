@@ -25,13 +25,17 @@
 #include "lib/util/network/Socket.h"
 #include "lib/util/network/ip4/Ip4Address.h"
 #include "lib/util/io/stream/ByteArrayOutputStream.h"
+#include "lib/util/network/Socket.h"
 #include "lib/util/network/MacAddress.h"
 #include "lib/util/network/ip4/Ip4PortAddress.h"
 #include "kernel/network/NetworkModule.h"
+#include "kernel/network/ethernet/EthernetSocket.h"
+#include "kernel/system/System.h"
+#include "kernel/service/NetworkService.h"
 
 namespace Kernel::Network {
 
-Socket::Socket(NetworkModule &networkModule) : networkModule(networkModule) {}
+Socket::Socket(NetworkModule &networkModule, Util::Network::Socket::Type type) : networkModule(networkModule), type(type) {}
 
 void Socket::bind(const Util::Network::NetworkAddress &address) {
     if (bindAddress != nullptr) {
@@ -86,8 +90,21 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
 
-            auto *address = reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
-            address->setAddress(*bindAddress);
+            auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
+            address.setAddress(*bindAddress);
+            return true;
+        }
+        case Util::Network::Socket::Request::GET_IP4_ADDRESS: {
+            if (type != Util::Network::Socket::ETHERNET) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+            }
+
+            auto &networkService = System::getService<NetworkService>();
+            auto &device = System::getService<NetworkService>().getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
+            auto &ip4Interface = networkService.getNetworkStack().getIp4Module().getInterface(device.getIdentifier());
+
+            auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
+            address.setAddress(ip4Interface.getAddress());
             return true;
         }
         default:

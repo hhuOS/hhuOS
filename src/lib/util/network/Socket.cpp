@@ -32,7 +32,7 @@ class Datagram;
 
 namespace Util::Network {
 
-Socket::Socket(int32_t fileDescriptor, Type socketType) : fileDescriptor(fileDescriptor), socketType(socketType) {}
+Socket::Socket(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
 Socket Socket::createSocket(Socket::Type socketType) {
     auto fileDescriptor = ::createSocket(socketType);
@@ -40,7 +40,7 @@ Socket Socket::createSocket(Socket::Type socketType) {
         Util::Exception::throwException(Exception::ILLEGAL_STATE, "Failed to open socket!");
     }
 
-    return Socket(fileDescriptor, socketType);
+    return Socket(fileDescriptor);
 }
 
 bool Socket::bind(const NetworkAddress &address) const {
@@ -57,6 +57,10 @@ bool Socket::send(const Datagram &datagram) const {
 
 bool Socket::receive(Util::Network::Datagram &datagram) const {
     return ::receiveDatagram(fileDescriptor, datagram);
+}
+
+bool Socket::getIp4Address(Ip4::Ip4Address &address) const {
+    return ::controlFile(fileDescriptor, GET_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
 Socket::~Socket() {

@@ -25,6 +25,7 @@
 
 #include "filesystem/core/Node.h"
 #include "lib/util/collection/Array.h"
+#include "lib/util/network/Socket.h"
 
 namespace Kernel {
 namespace Network {
@@ -47,7 +48,7 @@ public:
     /**
      * Constructor.
      */
-    explicit Socket(NetworkModule &networkModule);
+    explicit Socket(NetworkModule &networkModule, Util::Network::Socket::Type type);
 
     /**
      * Copy Constructor.
@@ -79,6 +80,7 @@ public:
 private:
 
     NetworkModule &networkModule;
+    Util::Network::Socket::Type type;
 };
 
 }

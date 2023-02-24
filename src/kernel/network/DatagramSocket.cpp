@@ -33,7 +33,7 @@ class NetworkModule;
 
 namespace Kernel::Network {
 
-DatagramSocket::DatagramSocket(NetworkModule &networkModule) : Socket(networkModule) {}
+DatagramSocket::DatagramSocket(NetworkModule &networkModule, Util::Network::Socket::Type type) : Socket(networkModule, type) {}
 
 Util::Network::Datagram *DatagramSocket::receive() {
     while (incomingDatagramQueue.isEmpty()) {

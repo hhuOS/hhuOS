@@ -32,6 +32,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/network/Datagram.h"
 #include "lib/util/io/file/File.h"
+#include "lib/util/network/Socket.h"
 
 namespace Kernel {
 namespace Network {
@@ -68,7 +69,7 @@ public:
     /**
      * Constructor.
      */
-    explicit DatagramSocket(NetworkModule &networkModule);
+    explicit DatagramSocket(NetworkModule &networkModule, Util::Network::Socket::Type type);
 
     /**
      * Copy Constructor.

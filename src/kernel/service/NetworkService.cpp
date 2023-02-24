@@ -42,6 +42,7 @@
 #include "lib/util/network/Datagram.h"
 #include "kernel/network/Socket.h"
 #include "kernel/log/Logger.h"
+#include "device/network/NetworkFilesystemDriver.h"
 
 namespace Filesystem {
 class Node;
@@ -127,6 +128,8 @@ Util::String NetworkService::registerNetworkDevice(Device::Network::NetworkDevic
 
     log.info("Registered device [%s]",static_cast<char*>(device->identifier));
     lock.release();
+
+    Device::Network::NetworkFilesystemDriver::mount(*device);
     return device->identifier;
 }
 
@@ -169,16 +172,16 @@ int32_t NetworkService::createSocket(Util::Network::Socket::Type socketType) {
     Filesystem::Node *socket;
     switch (socketType) {
         case Util::Network::Socket::ETHERNET:
-            socket = reinterpret_cast<Filesystem::Node *>(new Network::Ethernet::EthernetSocket());
+            socket = reinterpret_cast<Filesystem::Node*>(new Network::Ethernet::EthernetSocket());
             break;
         case Util::Network::Socket::IP4:
-            socket = reinterpret_cast<Filesystem::Node *>(new Network::Ip4::Ip4Socket());
+            socket = reinterpret_cast<Filesystem::Node*>(new Network::Ip4::Ip4Socket());
             break;
         case Util::Network::Socket::ICMP:
-            socket = reinterpret_cast<Filesystem::Node *>(new Network::Icmp::IcmpSocket());
+            socket = reinterpret_cast<Filesystem::Node*>(new Network::Icmp::IcmpSocket());
             break;
         case Util::Network::Socket::UDP:
-            socket = reinterpret_cast<Filesystem::Node *>(new Network::Udp::UdpSocket());
+            socket = reinterpret_cast<Filesystem::Node*>(new Network::Udp::UdpSocket());
             break;
         default:
             return Util::System::INVALID_ARGUMENT;
