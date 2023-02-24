@@ -19,6 +19,7 @@
 
 #include "application/cube/Cube.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/game/GameManager.h"
 
 CubeDemo::CubeDemo(uint32_t speed) : speed(speed) {
     for (auto *cube : cubes) {
@@ -36,7 +37,7 @@ void CubeDemo::update(double delta) {
 
 void CubeDemo::keyPressed(Util::Io::Key key) {
     if (key.getScancode() == Util::Io::Key::ESC) {
-        stop();
+        Util::Game::GameManager::getGame().stop();
     }
 
     switch (key.getAscii()) {

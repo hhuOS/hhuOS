@@ -19,6 +19,7 @@
 #define HHUOS_GAMEMANAGER_H
 
 #include <cstdint>
+#include "Game.h"
 
 namespace Util::Game {
 
@@ -50,10 +51,11 @@ public:
 
     [[nodiscard]] static uint16_t getTransformation();
 
+    [[nodiscard]] static Game& getGame();
+
 private:
 
-    static void setTransformation(uint16_t transformation);
-
+    static Game *game;
     static uint16_t transformation;
 };
 

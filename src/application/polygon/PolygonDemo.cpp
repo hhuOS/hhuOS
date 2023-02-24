@@ -20,6 +20,7 @@
 #include "DemoPolygonFactory.h"
 #include "application/polygon/DemoPolygon.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/game/GameManager.h"
 
 PolygonDemo::PolygonDemo(uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
@@ -39,7 +40,7 @@ void PolygonDemo::update(double delta) {
 
 void PolygonDemo::keyPressed(Util::Io::Key key) {
     if (key.getScancode() == Util::Io::Key::ESC) {
-        stop();
+        Util::Game::GameManager::getGame().stop();
     }
 
     switch (key.getAscii()) {

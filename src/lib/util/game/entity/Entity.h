@@ -31,7 +31,7 @@ class CollisionEvent;
 
 class Entity : public Drawable {
 
-friend class Game;
+friend class Scene;
 
 public:
     /**

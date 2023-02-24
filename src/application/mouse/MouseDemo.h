@@ -28,7 +28,7 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class MouseDemo : public Util::Game::Game, public Util::Game::KeyListener {
+class MouseDemo : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**

@@ -31,6 +31,7 @@
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
+#include "Game.h"
 
 namespace Util {
 namespace Game {
@@ -49,7 +50,7 @@ public:
     /**
      * Default Constructor.
      */
-    explicit Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, uint8_t targetFrameRate = 60);
+    Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate);
 
     /**
      * Copy Constructor.
@@ -71,6 +72,15 @@ public:
 private:
 
     struct Statistics {
+
+        struct Gather {
+            uint32_t fps;
+            uint32_t frameTime;
+            uint32_t drawTime;
+            uint32_t updateTime;
+            uint32_t idleTime;
+        };
+
         void incFrames() {
             frames++;
         }
@@ -130,25 +140,26 @@ private:
             return updateTimes[index == 0 ? ARRAY_SIZE - 1 : index - 1];
         }
 
-        [[nodiscard]] String gather() {
-            uint32_t frameTime = 0, drawTime = 0; uint32_t updateTime = 0; uint32_t idleTime = 0;
+        [[nodiscard]] Gather gather() {
+            Gather gather{};
             uint32_t count = frameTimesIndex < ARRAY_SIZE ? frameTimesIndex : ARRAY_SIZE;
 
             if (count > 0) {
                 for (uint32_t i = 0; i < count; i++) {
-                    frameTime += frameTimes[i];
-                    drawTime += drawTimes[i];
-                    updateTime += updateTimes[i];
-                    idleTime += idleTimes[i];
+                    gather.frameTime += frameTimes[i];
+                    gather.drawTime += drawTimes[i];
+                    gather.updateTime += updateTimes[i];
+                    gather.idleTime += idleTimes[i];
                 }
 
-                frameTime /= count;
-                drawTime /= count;
-                updateTime /= count;
-                idleTime /= count;
+                gather.fps = fps;
+                gather.frameTime /= count;
+                gather.drawTime /= count;
+                gather.updateTime /= count;
+                gather.idleTime /= count;
             }
 
-            return String::format("FPS: %03u, Frametime: %03ums (D: %03ums, U: %03ums, I: %03ums)", fps, frameTime, drawTime, updateTime, idleTime);
+            return gather;
         }
 
     private:
@@ -236,16 +247,18 @@ private:
         Engine &engine;
     };
 
+    void updateStatus();
+
     void drawStatus();
 
-    Game &game;
+    Game game;
     Graphics2D graphics;
     Statistics statistics;
     Async::Spinlock updateLock;
 
-    bool showStatus = true;
+    bool showStatus = false;
     uint32_t statusUpdateTimer = 0;
-    String status = statistics.gather();
+    Statistics::Gather status = statistics.gather();
 
     Util::ArrayList<Io::Key> pressedKeys;
 

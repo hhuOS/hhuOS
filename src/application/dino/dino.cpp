@@ -24,6 +24,7 @@
 #include "lib/util/io/file/File.h"
 #include "DinoGame.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
+#include "lib/util/game/GameManager.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 
@@ -39,11 +40,12 @@ int32_t main(int32_t argc, char *argv[]) {
         return -1;
     }
 
-    auto game = DinoGame();
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(game, lfb, 60);
+    auto engine = Util::Game::Engine(lfb, 60);
 
+    Util::Game::GameManager::getGame().pushScene(new DinoGame());
     engine.run();
+
     return 0;
 }
