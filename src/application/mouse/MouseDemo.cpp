@@ -20,6 +20,13 @@
 #include "application/mouse/MouseCursor.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
 
 void MouseDemo::update(double delta) {}
 

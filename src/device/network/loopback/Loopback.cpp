@@ -19,6 +19,9 @@
  */
 
 #include "Loopback.h"
+#include "kernel/network/ethernet/EthernetModule.h"
+#include "lib/util/io/stream/ByteArrayOutputStream.h"
+#include "lib/util/network/NumberUtil.h"
 
 namespace Device::Network {
 
@@ -27,7 +30,13 @@ Util::Network::MacAddress Loopback::getMacAddress() const {
 }
 
 void Loopback::handleOutgoingPacket(const uint8_t *packet, uint32_t length) {
-    handleIncomingPacket(packet, length);
+    Util::Io::ByteArrayOutputStream stream;
+    stream.write(packet, 0, length);
+
+    auto checkSequence = Kernel::Network::Ethernet::EthernetModule::calculateCheckSequence(packet, length);
+    Util::Network::NumberUtil::writeUnsigned32BitValue(checkSequence, stream);
+
+    handleIncomingPacket(stream.getBuffer(), stream.getLength());
     freeLastSendBuffer();
 }
 

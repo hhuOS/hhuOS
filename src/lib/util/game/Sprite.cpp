@@ -17,7 +17,7 @@
 
 #include "Sprite.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 #include "GameManager.h"
 #include "lib/util/graphic/BitmapFile.h"

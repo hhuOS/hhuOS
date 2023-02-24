@@ -18,15 +18,25 @@
 #ifndef HHUOS_ENTITY_H
 #define HHUOS_ENTITY_H
 
+#include <cstdint>
+
 #include "lib/util/math/Vector2D.h"
 #include "lib/util/game/Drawable.h"
-#include "lib/util/game/entity/event/TranslationEvent.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/entity/component/Component.h"
+
+namespace Util {
+namespace Game {
+class TranslationEvent;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 
-class Component;
 class CollisionEvent;
 
 class Entity : public Drawable {

@@ -21,6 +21,13 @@
 #include "application/polygon/DemoPolygon.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+}  // namespace Util
 
 PolygonDemo::PolygonDemo(uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {

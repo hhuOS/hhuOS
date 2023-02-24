@@ -21,10 +21,11 @@
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/Sprite.h"
 #include "lib/util/math/Vector2D.h"
-#include "lib/util/game/entity/component/LinearMovementComponent.h"
-#include "lib/util/game/entity/component/GravityComponent.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "Ground.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
 
 Dino::Dino(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(Util::Math::Vector2D(-0.8, 0), Util::Game::Collider::DYNAMIC, 0.2, 0.2)) {}
 

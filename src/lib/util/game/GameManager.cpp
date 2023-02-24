@@ -17,6 +17,12 @@
 
 #include "GameManager.h"
 
+namespace Util {
+namespace Game {
+class Game;
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game {
 
 Game* GameManager::game = nullptr;

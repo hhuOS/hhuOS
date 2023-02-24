@@ -25,7 +25,6 @@
 #include "lib/util/async/Spinlock.h"
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/game/MouseListener.h"
-#include "lib/util/base/String.h"
 #include "lib/util/collection/ArrayList.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/collection/Array.h"
@@ -34,9 +33,6 @@
 #include "Game.h"
 
 namespace Util {
-namespace Game {
-class Game;
-}  // namespace Game
 namespace Graphic {
 class LinearFrameBuffer;
 }  // namespace Graphic

@@ -16,8 +16,19 @@
  */
 
 #include "Scene.h"
+
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "lib/util/collection/Pair.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+
+namespace Util {
+namespace Game {
+class Camera;
+class KeyListener;
+class MouseListener;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

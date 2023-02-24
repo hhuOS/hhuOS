@@ -31,6 +31,7 @@
 #include "kernel/interrupt/InterruptDispatcher.h"
 #include "kernel/log/Logger.h"
 #include "lib/util/collection/Array.h"
+#include "lib/util/base/Address.h"
 
 namespace Kernel {
 struct InterruptFrame;

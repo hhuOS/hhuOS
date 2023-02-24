@@ -22,6 +22,8 @@
 #include "Game.h"
 #include "lib/util/game/Camera.h"
 #include "lib/util/graphic/Image.h"
+#include "lib/util/base/Address.h"
+#include "lib/util/game/Scene.h"
 
 namespace Util {
 namespace Graphic {

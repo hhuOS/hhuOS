@@ -25,6 +25,7 @@
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
 
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();

@@ -18,11 +18,15 @@
 #ifndef HHUOS_MOUSEDEMO_H
 #define HHUOS_MOUSEDEMO_H
 
-#include "lib/util/game/Game.h"
 #include "MouseCursor.h"
 #include "lib/util/game/KeyListener.h"
+#include "lib/util/game/Scene.h"
 
 namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+
 namespace Io {
 class Key;
 }  // namespace Io

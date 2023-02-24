@@ -19,6 +19,13 @@
 
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+}  // namespace Game
+}  // namespace Util
 
 DemoPolygon::DemoPolygon() : Util::Game::Polygon(0, Util::Array<Util::Math::Vector2D>(0)), color(0, 0, 0), rotationSpeed(0), scaleSpeed(0) {}
 

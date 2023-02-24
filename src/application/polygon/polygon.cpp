@@ -27,6 +27,7 @@
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
 
 static const constexpr int32_t DEFAULT_COUNT = 10;
 

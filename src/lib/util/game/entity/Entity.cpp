@@ -18,6 +18,9 @@
 #include "lib/util/game/entity/component/Component.h"
 #include "lib/util/game/entity/event/CollisionEvent.h"
 #include "Entity.h"
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/base/Exception.h"
+#include "lib/util/game/entity/collider/Collider.h"
 
 namespace Util::Game {
 

@@ -18,6 +18,17 @@
 #include "lib/util/game/Sprite.h"
 #include "lib/util/collection/Array.h"
 #include "Saw.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+}  // namespace Game
+}  // namespace Util
 
 Saw::Saw(const Util::Math::Vector2D &position) : Entity(TAG, Util::Math::Vector2D(position.getX(), position.getY()), Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 0.2, 0.2)) {}
 

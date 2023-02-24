@@ -18,8 +18,21 @@
 #ifndef HHUOS_SAW_H
 #define HHUOS_SAW_H
 
+#include <cstdint>
+
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/SpriteAnimation.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Saw : public Util::Game::Entity {
 

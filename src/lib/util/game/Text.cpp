@@ -17,6 +17,18 @@
 
 #include "Text.h"
 
+#include "lib/util/game/Graphics2D.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
+
 namespace Util::Game {
 
 Text::Text(const Math::Vector2D &position, const String &text, const Graphic::Color &color) : Entity(0, position), text(text), color(color) {}

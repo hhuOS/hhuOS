@@ -82,9 +82,7 @@
 #include "kernel/network/ip4/Ip4Route.h"
 #include "device/network/rtl8139/Rtl8139.h"
 #include "device/network/NetworkDevice.h"
-#include "kernel/network/arp/ArpModule.h"
 #include "kernel/network/ip4/Ip4RoutingModule.h"
-#include "lib/util/network/MacAddress.h"
 
 namespace Device {
 class Machine;

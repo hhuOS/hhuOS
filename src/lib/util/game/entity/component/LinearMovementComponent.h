@@ -19,6 +19,12 @@
 
 #include "Component.h"
 
+namespace Util {
+namespace Game {
+class Entity;
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game {
 
 class LinearMovementComponent : public Component {

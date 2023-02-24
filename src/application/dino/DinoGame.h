@@ -18,18 +18,25 @@
 #ifndef HHUOS_DINOGAME_H
 #define HHUOS_DINOGAME_H
 
-#include "lib/util/game/Game.h"
 #include "lib/util/game/KeyListener.h"
-#include "lib/util/math/Vector2D.h"
 #include "lib/util/collection/ArrayBlockingQueue.h"
 #include "Ground.h"
 #include "lib/util/math/Random.h"
 #include "Saw.h"
-#include "lib/util/game/Text.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/game/Scene.h"
 
 class Dino;
 
 namespace Util {
+namespace Game {
+class Graphics2D;
+class Text;
+}  // namespace Game
+
 namespace Io {
 class Key;
 }  // namespace Io

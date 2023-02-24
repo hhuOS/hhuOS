@@ -18,8 +18,14 @@
 #ifndef HHUOS_RESOURCEMANAGER_H
 #define HHUOS_RESOURCEMANAGER_H
 
-#include "lib/util/collection/HashMap.h"
-#include "lib/util/graphic/Image.h"
+#include "lib/util/base/String.h"
+
+namespace Util {
+namespace Graphic {
+class Image;
+}  // namespace Graphic
+template <typename K, typename V> class HashMap;
+}  // namespace Util
 
 namespace Util::Game {
 

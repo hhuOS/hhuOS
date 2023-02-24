@@ -16,7 +16,10 @@
  */
 
 #include "RectangleCollider.h"
+
 #include "lib/util/math/Math.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
 
