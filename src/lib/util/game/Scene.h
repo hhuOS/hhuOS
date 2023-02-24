@@ -18,11 +18,22 @@
 #ifndef HHUOS_SCENE_H
 #define HHUOS_SCENE_H
 
-#include "Graphics2D.h"
+#include <cstdint>
+
 #include "Camera.h"
 #include "lib/util/game/entity/Entity.h"
-#include "KeyListener.h"
-#include "MouseListener.h"
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/ArrayList.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/Iterator.h"
+
+namespace Util {
+namespace Game {
+class Graphics2D;
+class KeyListener;
+class MouseListener;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

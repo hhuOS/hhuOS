@@ -21,12 +21,7 @@
 #include <cstdint>
 
 #include "lib/util/collection/Array.h"
-
-namespace Util {
-namespace Game {
-class Sprite;
-}  // namespace Game
-}  // namespace Util
+#include "lib/util/game/Sprite.h"
 
 namespace Util::Game {
 

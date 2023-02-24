@@ -17,6 +17,12 @@
 
 #include "CollisionEvent.h"
 
+namespace Util {
+namespace Game {
+class Entity;
+}  // namespace Game
+}  // namespace Util
+
 namespace Util::Game {
 
 CollisionEvent::CollisionEvent(Entity &other, Util::Game::RectangleCollider::Side side) : other(other), side(side) {}

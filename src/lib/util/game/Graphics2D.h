@@ -31,9 +31,6 @@
 #include "lib/util/math/Vector2D.h"
 
 namespace Util {
-namespace Math {
-class Vector2D;
-}  // namespace Math
 
 namespace Graphic {
 class Font;

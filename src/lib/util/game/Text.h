@@ -18,11 +18,21 @@
 #ifndef HHUOS_TEXT_H
 #define HHUOS_TEXT_H
 
-#include "lib/util/game/Drawable.h"
-#include "lib/util/math/Vector2D.h"
 #include "lib/util/base/String.h"
 #include "lib/util/graphic/Color.h"
 #include "lib/util/game/entity/Entity.h"
+#include "lib/util/graphic/Colors.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 namespace Util::Game {
 

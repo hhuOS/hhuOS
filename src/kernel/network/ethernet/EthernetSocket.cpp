@@ -40,17 +40,20 @@ namespace Kernel::Network::Ethernet {
 EthernetSocket::EthernetSocket() : DatagramSocket(System::getService<NetworkService>().getNetworkStack().getEthernetModule()) {}
 
 EthernetSocket::~EthernetSocket() {
-    auto &ethernetModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getEthernetModule();
+    auto &ethernetModule = System::getService<NetworkService>().getNetworkStack().getEthernetModule();
     ethernetModule.deregisterSocket(*this);
 }
 
 bool EthernetSocket::send(const Util::Network::Datagram &datagram) {
+    auto &networkService = System::getService<NetworkService>();
+    auto &device = networkService.getNetworkDevice(reinterpret_cast<const Util::Network::MacAddress&>(getAddress()));
     auto packet = Util::Io::ByteArrayOutputStream();
-    EthernetModule::writeHeader(packet, *device, reinterpret_cast<const Util::Network::MacAddress &>(datagram.getRemoteAddress()),
-                                reinterpret_cast<const Util::Network::Ethernet::EthernetDatagram &>(datagram).getEtherType());
+
+    EthernetModule::writeHeader(packet, device, reinterpret_cast<const Util::Network::MacAddress &>(datagram.getRemoteAddress()), reinterpret_cast<const Util::Network::Ethernet::EthernetDatagram&>(datagram).getEtherType());
     packet.write(datagram.getData(), 0, datagram.getLength());
     EthernetModule::finalizePacket(packet);
-    device->sendPacket(packet.getBuffer(), packet.getPosition());
+
+    device.sendPacket(packet.getBuffer(), packet.getPosition());
     return true;
 }
 

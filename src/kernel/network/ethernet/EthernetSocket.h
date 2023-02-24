@@ -29,12 +29,6 @@ class Datagram;
 }  // namespace Network
 }  // namespace Util
 
-namespace Device {
-namespace Network {
-class NetworkDevice;
-}  // namespace Network
-}  // namespace Device
-
 namespace Kernel::Network::Ethernet {
 
 class EthernetSocket : public DatagramSocket {
@@ -61,10 +55,6 @@ public:
     ~EthernetSocket() override;
 
     bool send(const Util::Network::Datagram &datagram) override;
-
-private:
-
-    Device::Network::NetworkDevice *device{};
 };
 
 }

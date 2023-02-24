@@ -18,22 +18,15 @@
 #ifndef HHUOS_GAME_H
 #define HHUOS_GAME_H
 
-#include <cstdint>
-
-#include "lib/util/collection/ArrayList.h"
 #include "lib/util/collection/Array.h"
 #include "lib/util/collection/Collection.h"
 #include "lib/util/collection/Iterator.h"
-#include "Camera.h"
-#include "lib/util/game/entity/Entity.h"
 #include "Scene.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 
 namespace Util {
 namespace Game {
 class Graphics2D;
-class KeyListener;
-class MouseListener;
 }  // namespace Game
 }  // namespace Util
 

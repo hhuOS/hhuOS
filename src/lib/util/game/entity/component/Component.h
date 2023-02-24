@@ -18,8 +18,11 @@
 #ifndef HHUOS_COMPONENT_H
 #define HHUOS_COMPONENT_H
 
-#include "lib/util/math/Vector2D.h"
-#include "lib/util/game/entity/Entity.h"
+namespace Util {
+namespace Game {
+class Entity;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

@@ -18,6 +18,8 @@
 #ifndef HHUOS_POLYGON_H
 #define HHUOS_POLYGON_H
 
+#include <cstdint>
+
 #include "lib/util/collection/Array.h"
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/math/Vector2D.h"

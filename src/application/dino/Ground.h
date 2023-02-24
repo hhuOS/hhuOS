@@ -18,8 +18,21 @@
 #ifndef HHUOS_GROUND_H
 #define HHUOS_GROUND_H
 
+#include <cstdint>
+
 #include "lib/util/game/entity/Entity.h"
 #include "lib/util/game/Sprite.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+class Graphics2D;
+class TranslationEvent;
+}  // namespace Game
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
 
 class Ground : public Util::Game::Entity {
 

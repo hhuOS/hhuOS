@@ -73,6 +73,8 @@ public:
 
     static bool checkPacket(const uint8_t *packet, uint32_t length);
 
+    static uint32_t calculateCheckSequence(const uint8_t *packet, uint32_t length);
+
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static void writeHeader(Util::Io::OutputStream &stream, Device::Network::NetworkDevice &device, const Util::Network::MacAddress &destinationAddress, Util::Network::Ethernet::EthernetHeader::EtherType etherType);
@@ -80,8 +82,6 @@ public:
     static void finalizePacket(Util::Io::ByteArrayOutputStream &packet);
 
 private:
-
-    static uint32_t calculateCheckSequence(const uint8_t *packet, uint32_t length);
 
     static Kernel::Logger log;
 

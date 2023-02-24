@@ -17,6 +17,12 @@
 
 #include "ResourceManager.h"
 
+#include "lib/util/collection/Array.h"
+#include "lib/util/collection/Collection.h"
+#include "lib/util/collection/HashMap.h"
+#include "lib/util/collection/Iterator.h"
+#include "lib/util/graphic/Image.h"
+
 namespace Util::Game {
 
 HashMap<String, Graphic::Image*> ResourceManager::images;

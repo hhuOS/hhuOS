@@ -17,6 +17,8 @@
 
 #include "DinoGame.h"
 
+#include <cstdint>
+
 #include "application/dino/Dino.h"
 #include "lib/util/io/key/Key.h"
 #include "lib/util/game/Camera.h"
@@ -24,6 +26,14 @@
 #include "lib/util/game/entity/component/GravityComponent.h"
 #include "Saw.h"
 #include "lib/util/game/GameManager.h"
+#include "application/dino/Ground.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/Game.h"
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/Sprite.h"
+#include "lib/util/game/Text.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/math/Vector2D.h"
 
 DinoGame::DinoGame() : dino(new Dino(Util::Math::Vector2D(-0.8, 0))), pointText(new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0")), ground(4) {
     dino->addComponent(new Util::Game::LinearMovementComponent(*dino));

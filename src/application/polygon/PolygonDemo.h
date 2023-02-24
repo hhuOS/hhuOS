@@ -20,7 +20,6 @@
 
 #include <cstdint>
 
-#include "lib/util/game/Game.h"
 #include "lib/util/collection/ArrayListBlockingQueue.h"
 #include "DemoPolygonFactory.h"
 #include "lib/util/collection/Array.h"
@@ -28,8 +27,13 @@
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/game/KeyListener.h"
 #include "application/polygon/DemoPolygon.h"
+#include "lib/util/game/Scene.h"
 
 namespace Util {
+namespace Game {
+class Graphics2D;
+}  // namespace Game
+
 namespace Io {
 class Key;
 }  // namespace Io

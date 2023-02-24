@@ -16,7 +16,12 @@
  */
 
 #include "GravityComponent.h"
+
 #include "lib/util/math/Math.h"
+#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/entity/component/Component.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util::Game {
 

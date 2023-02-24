@@ -15,16 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#include "lib/util/collection/Pair.h"
 #include "Game.h"
-#include "lib/util/game/entity/event/CollisionEvent.h"
+#include "lib/util/game/Scene.h"
 
 namespace Util {
 namespace Game {
 class Graphics2D;
-class KeyListener;
-class MouseListener;
-class Camera;
 }  // namespace Game
 }  // namespace Util
 

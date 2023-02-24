@@ -25,6 +25,8 @@
 namespace Util {
 namespace Game {
 class Graphics2D;
+class CollisionEvent;
+class TranslationEvent;
 }  // namespace Game
 namespace Graphic {
 class Color;

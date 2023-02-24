@@ -17,6 +17,19 @@
 
 #include "Ground.h"
 
+#include "lib/util/game/Graphics2D.h"
+#include "lib/util/game/entity/collider/Collider.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+#include "lib/util/graphic/Colors.h"
+#include "lib/util/math/Vector2D.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+}  // namespace Game
+}  // namespace Util
+
 Ground::Ground(const Util::Math::Vector2D &position) : Util::Game::Entity(TAG, position, Util::Game::RectangleCollider(position, Util::Game::Collider::STATIC, 1, 0.001)) {}
 
 void Ground::initialize() {

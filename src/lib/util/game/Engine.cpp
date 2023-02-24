@@ -33,6 +33,11 @@
 #include "lib/util/base/HeapMemoryManager.h"
 #include "lib/util/base/Constants.h"
 #include "lib/util/graphic/Fonts.h"
+#include "lib/util/base/String.h"
+#include "lib/util/game/Camera.h"
+#include "lib/util/game/Scene.h"
+#include "lib/util/graphic/Color.h"
+#include "lib/util/graphic/Font.h"
 
 namespace Util::Game {
 

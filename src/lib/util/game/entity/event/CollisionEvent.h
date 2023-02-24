@@ -19,7 +19,13 @@
 #define HHUOS_COLLISIONEVENT_H
 
 #include "Event.h"
-#include "lib/util/game/entity/Entity.h"
+#include "lib/util/game/entity/collider/RectangleCollider.h"
+
+namespace Util {
+namespace Game {
+class Entity;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

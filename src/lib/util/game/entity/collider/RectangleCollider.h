@@ -20,6 +20,12 @@
 
 #include "Collider.h"
 
+namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+}  // namespace Util
+
 namespace Util::Game {
 
 class RectangleCollider : public Collider {

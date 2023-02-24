@@ -19,7 +19,12 @@
 #define HHUOS_GAMEMANAGER_H
 
 #include <cstdint>
-#include "Game.h"
+
+namespace Util {
+namespace Game {
+class Game;
+}  // namespace Game
+}  // namespace Util
 
 namespace Util::Game {
 

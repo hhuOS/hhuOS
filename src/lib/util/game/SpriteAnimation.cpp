@@ -18,12 +18,6 @@
 #include "Sprite.h"
 #include "SpriteAnimation.h"
 
-namespace Util {
-namespace Game {
-class Sprite;
-}  // namespace Game
-}  // namespace Util
-
 namespace Util::Game {
 
 SpriteAnimation::SpriteAnimation() : sprites(0) {}

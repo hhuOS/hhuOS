@@ -18,12 +18,20 @@
 #ifndef HHUOS_DINO_H
 #define HHUOS_DINO_H
 
+#include <cstdint>
+
 #include "lib/util/game/SpriteAnimation.h"
 #include "lib/util/game/entity/Entity.h"
 
 namespace Util {
+namespace Math {
+class Vector2D;
+}  // namespace Math
+
 namespace Game {
 class Graphics2D;
+class CollisionEvent;
+class TranslationEvent;
 }  // namespace Game
 }  // namespace Util
 

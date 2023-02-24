@@ -20,6 +20,13 @@
 #include "lib/util/game/Graphics2D.h"
 #include "lib/util/base/String.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/game/entity/event/TranslationEvent.h"
+
+namespace Util {
+namespace Game {
+class CollisionEvent;
+}  // namespace Game
+}  // namespace Util
 
 MouseCursor::MouseCursor() : Util::Game::Entity(0, Util::Math::Vector2D(0, 0)) {}
 

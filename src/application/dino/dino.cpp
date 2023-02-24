@@ -25,6 +25,7 @@
 #include "DinoGame.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/game/GameManager.h"
+#include "lib/util/game/Game.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 

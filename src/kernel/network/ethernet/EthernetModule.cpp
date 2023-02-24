@@ -96,9 +96,6 @@ void EthernetModule::finalizePacket(Util::Io::ByteArrayOutputStream &packet) {
     for (uint32_t i = packet.getLength(); i < MINIMUM_PACKET_SIZE - sizeof(uint32_t); i++) {
         Util::Network::NumberUtil::writeUnsigned8BitValue(0, packet);
     }
-
-    auto checkSequence = calculateCheckSequence(packet.getBuffer(), packet.getLength());
-    Util::Network::NumberUtil::writeUnsigned32BitValue(checkSequence, packet);
 }
 
 }
