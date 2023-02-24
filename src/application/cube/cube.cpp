@@ -26,6 +26,7 @@
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/base/String.h"
 #include "lib/util/io/stream/PrintStream.h"
+#include "lib/util/game/GameManager.h"
 
 static const constexpr int32_t DEFAULT_SPEED = 10;
 
@@ -45,11 +46,12 @@ int32_t main(int32_t argc, char *argv[]) {
     auto arguments = argumentParser.getUnnamedArguments();
     auto speed = arguments.length() == 0 ? DEFAULT_SPEED : Util::String::parseInt(arguments[0]);
 
-    auto game = CubeDemo(speed);
     auto lfbFile = Util::Io::File("/device/lfb");
     auto lfb = Util::Graphic::LinearFrameBuffer(lfbFile);
-    auto engine = Util::Game::Engine(game, lfb);
+    auto engine = Util::Game::Engine(lfb, 60);
 
+    Util::Game::GameManager::getGame().pushScene(new CubeDemo(speed));
     engine.run();
+
     return 0;
 }

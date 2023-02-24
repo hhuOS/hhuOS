@@ -19,6 +19,7 @@
 
 #include "application/mouse/MouseCursor.h"
 #include "lib/util/io/key/Key.h"
+#include "lib/util/game/GameManager.h"
 
 void MouseDemo::update(double delta) {}
 
@@ -30,7 +31,7 @@ MouseDemo::MouseDemo() {
 
 void MouseDemo::keyPressed(Util::Io::Key key) {
     if (key.getScancode() == Util::Io::Key::ESC) {
-        stop();
+        Util::Game::GameManager::getGame().stop();
     }
 }
 

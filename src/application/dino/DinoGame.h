@@ -35,7 +35,7 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class DinoGame : public Util::Game::Game, public Util::Game::KeyListener {
+class DinoGame : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**

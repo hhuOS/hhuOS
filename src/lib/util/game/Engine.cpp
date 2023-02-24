@@ -30,12 +30,15 @@
 #include "GameManager.h"
 #include "lib/util/graphic/LinearFrameBuffer.h"
 #include "lib/util/math/Vector2D.h"
+#include "lib/util/base/HeapMemoryManager.h"
+#include "lib/util/base/Constants.h"
+#include "lib/util/graphic/Fonts.h"
 
 namespace Util::Game {
 
-Engine::Engine(Game &game, const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) :
-        game(game), graphics(lfb, game), targetFrameRate(targetFrameRate) {
-    GameManager::setTransformation((lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2);
+Engine::Engine(const Util::Graphic::LinearFrameBuffer &lfb, const uint8_t targetFrameRate) : graphics(lfb, game), targetFrameRate(targetFrameRate) {
+    GameManager::transformation = (lfb.getResolutionX() > lfb.getResolutionY() ? lfb.getResolutionY() : lfb.getResolutionX()) / 2;
+    GameManager::game = &game;
 }
 
 void Engine::run() {
@@ -44,14 +47,14 @@ void Engine::run() {
 
     Graphic::Ansi::prepareGraphicalApplication(true);
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawString(Math::Vector2D(-0.05, 0), "Loading...");
+    graphics.drawString(Math::Vector2D(-0.075, 0), "Loading...");
     graphics.show();
 
     Async::Thread::createThread("Key-Listener", new KeyListenerRunnable(*this));
     Async::Thread::createThread("Mouse-Listener", new MouseListenerRunnable(*this));
 
-    game.initialize(graphics);
-    game.applyChanges();
+    game.initializeNextScene(graphics);
+    game.getCurrentScene().applyChanges();
 
     while (game.isRunning()) {
         statistics.startFrameTime();
@@ -62,15 +65,21 @@ void Engine::run() {
         }
 
         updateLock.acquire();
-        game.update(frameTime);
-        game.updateEntities(frameTime);
-        game.checkCollisions();
-        game.applyChanges();
+        if (game.sceneSwitched) {
+            game.initializeNextScene(graphics);
+        }
+
+        auto &scene = game.getCurrentScene();
+        scene.update(frameTime);
+        scene.updateEntities(frameTime);
+        scene.checkCollisions();
+        scene.applyChanges();
+        updateStatus();
         statistics.stopUpdateTimeTime();
         updateLock.release();
 
         statistics.startDrawTime();
-        game.draw(graphics);
+        scene.draw(graphics);
         if (showStatus) drawStatus();
         graphics.show();
         statistics.stopDrawTime();
@@ -90,16 +99,36 @@ void Engine::run() {
     Graphic::Ansi::cleanupGraphicalApplication();
 }
 
-void Engine::drawStatus() {
+void Engine::updateStatus() {
     statusUpdateTimer += statistics.getLastFrameTime();
     if (statusUpdateTimer > 1000) {
         status = statistics.gather();
         statusUpdateTimer = 0;
     }
+}
 
+void Engine::drawStatus() {
+    auto cameraPosition = game.getCurrentScene().getCamera().getPosition();
+    auto charHeight = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharHeight() + 2) / graphics.getAbsoluteResolution().getY()) * 2;
+    auto charWidth = ((Graphic::Fonts::TERMINAL_FONT_SMALL.getCharWidth()) / graphics.getAbsoluteResolution().getX()) * 2;
     auto color = graphics.getColor();
+
+    const auto &memoryManager = *reinterpret_cast<HeapMemoryManager*>(USER_SPACE_MEMORY_MANAGER_ADDRESS);
+    auto heapUsed = (memoryManager.getTotalMemory() - memoryManager.getFreeMemory());
+    auto heapUsedM = heapUsed / 1000 / 1000;
+    auto heapUsedK = (heapUsed - heapUsedM * 1000 * 1000) / 1000;
+
+    graphics.setColor(Graphic::Color(50, 50, 50, 100));
+    graphics.fillRectangle(Math::Vector2D(cameraPosition.getX() - 1, cameraPosition.getY() + 1 - charHeight / 2), charWidth * 41.5, charHeight * 4.5);
+
+    auto x = cameraPosition.getX() - 1 + charWidth;
+    auto y = 1 - charHeight;
+
     graphics.setColor(Graphic::Colors::WHITE);
-    graphics.drawStringSmall(Math::Vector2D(-1, 1), status + String::format(", Objects: %u", game.getObjectCount()));
+    graphics.drawStringSmall(Math::Vector2D(x, y), String::format("FPS: %u", status.fps));
+    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight), String::format("D: %ums | U: %ums | I: %ums", status.drawTime, status.updateTime, status.idleTime));
+    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight * 2), String::format("Objects: %u", game.getCurrentScene().getObjectCount()));
+    graphics.drawStringSmall(Math::Vector2D(x, y - charHeight * 3), String::format("Heap used: %u.%03u MB", heapUsedM, heapUsedK));
     graphics.setColor(color);
 }
 
@@ -112,7 +141,9 @@ void Engine::KeyListenerRunnable::run() {
     while (engine.game.isRunning() && scancode != -1) {
         if (keyDecoder.parseScancode(scancode)) {
             auto key = keyDecoder.getCurrentKey();
-            if (engine.game.keyListener != nullptr) {
+            auto &scene = engine.game.getCurrentScene();
+
+            if (scene.keyListener != nullptr) {
                 engine.updateLock.acquire();
 
                 switch (key.getScancode()) {
@@ -120,7 +151,7 @@ void Engine::KeyListenerRunnable::run() {
                         if (key.isPressed()) engine.showStatus = !engine.showStatus;
                         break;
                     default:
-                        key.isPressed() ? engine.game.keyListener->keyPressed(key) : engine.game.keyListener->keyReleased(key);
+                        key.isPressed() ? scene.keyListener->keyPressed(key) : scene.keyListener->keyReleased(key);
                 }
 
                 engine.updateLock.release();
@@ -146,8 +177,9 @@ void Engine::MouseListenerRunnable::run() {
         auto buttons = stream.read();
         auto xMovement = static_cast<int8_t>(stream.read());
         auto yMovement = static_cast<int8_t>(stream.read());
+        auto &scene = engine.game.getCurrentScene();
 
-        if (engine.game.mouseListener == nullptr) {
+        if (scene.mouseListener == nullptr) {
             continue;
         }
 
@@ -158,17 +190,18 @@ void Engine::MouseListenerRunnable::run() {
         lastButtons = buttons;
 
         if (xMovement != 0 || yMovement != 0) {
-            engine.game.mouseListener->mouseMoved(Util::Math::Vector2D(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX)));
+            scene.mouseListener->mouseMoved(Util::Math::Vector2D(xMovement / static_cast<double>(INT8_MAX), -yMovement / static_cast<double>(INT8_MAX)));
         }
         engine.updateLock.release();
     }
 }
 
 void Engine::MouseListenerRunnable::checkKey(MouseListener::Key key, uint8_t lastButtonState, uint8_t currentButtonState) {
+    auto &scene = engine.game.getCurrentScene();
     if (!(lastButtonState & key) && (currentButtonState & key)) {
-        engine.game.mouseListener->keyPressed(key);
+        scene.mouseListener->keyPressed(key);
     } else if ((lastButtonState & key) && !(currentButtonState & key)) {
-        engine.game.mouseListener->keyReleased(key);
+        scene.mouseListener->keyReleased(key);
     }
 }
 

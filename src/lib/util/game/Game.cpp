@@ -31,46 +31,11 @@ class Camera;
 namespace Util::Game {
 
 Game::~Game() {
-    for (const auto *drawable : entities) {
-        delete drawable;
+    for (const auto *scene : scenes) {
+        delete scene;
     }
 
-    entities.clear();
-}
-
-void Game::addObject(Entity *object) {
-    addList.add(object);
-}
-
-void Game::removeObject(Entity *object) {
-    removeList.add(object);
-}
-
-void Game::applyChanges() {
-    for (auto *entity : addList) {
-        entity->initialize();
-        entities.add(entity);
-    }
-
-    for (auto *object : removeList) {
-        entities.remove(object);
-        delete object;
-    }
-
-    addList.clear();
-    removeList.clear();
-}
-
-void Game::updateEntities(double delta) {
-    for (auto *entity : entities) {
-        entity->update(delta);
-    }
-}
-
-void Game::draw(Graphics2D &graphics) {
-    for (auto *object : entities) {
-        object->draw(graphics);
-    }
+    scenes.clear();
 }
 
 bool Game::isRunning() const {
@@ -78,55 +43,31 @@ bool Game::isRunning() const {
 }
 
 void Game::stop() {
-    Game::running = false;
+    running = false;
 }
 
-uint32_t Game::getObjectCount() const {
-    return entities.size();
+Scene &Game::getCurrentScene() {
+    return *scenes.peek();
 }
 
-void Game::setKeyListener(KeyListener &listener) {
-    keyListener = &listener;
+void Game::pushScene(Scene *scene) {
+    scenes.add(scene);
 }
 
-void Game::setMouseListener(MouseListener &listener) {
-    mouseListener = &listener;
+void Game::switchToNextScene() {
+    sceneSwitched = true;
 }
 
-Camera& Game::getCamera() {
-    return camera;
-}
-
-void Game::checkCollisions() {
-    auto detectedCollisions = ArrayList<Pair<Entity*, Entity*>>();
-    for (auto *entity : entities) {
-        if (entity->hasCollider() && entity->positionChanged) {
-            const auto &collider = entity->getCollider();
-
-            for (auto *otherEntity : entities) {
-                if (entity == otherEntity || !otherEntity->hasCollider() || detectedCollisions.contains(Pair(entity, otherEntity))) {
-                    continue;
-                }
-
-                const auto &otherCollider = otherEntity->getCollider();
-                auto side = collider.isColliding(otherCollider);
-
-                if (side != RectangleCollider::NONE) {
-                    auto event = CollisionEvent(*otherEntity, side);
-                    auto otherEvent = CollisionEvent(*entity, RectangleCollider::getOpposite(side));
-
-                    entity->onCollision(event);
-                    otherEntity->onCollision(otherEvent);
-                    detectedCollisions.add(Pair(entity, otherEntity));
-                }
-            }
-        }
+void Game::initializeNextScene(Graphics2D &graphics) {
+    if (!firstScene) {
+        delete scenes.poll();
     }
-}
 
-void Game::initialize(Graphics2D &graphics) {
-    initializeBackground(graphics);
-    graphics.saveCurrentStateAsBackground();
+    auto &scene = *scenes.peek();
+    scene.initialize(graphics);
+
+    firstScene = false;
+    sceneSwitched = false;
 }
 
 }

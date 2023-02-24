@@ -15,31 +15,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
 
-#ifndef HHUOS_GAME_H
-#define HHUOS_GAME_H
+#ifndef HHUOS_SCENE_H
+#define HHUOS_SCENE_H
 
-#include <cstdint>
-
-#include "lib/util/collection/ArrayList.h"
-#include "lib/util/collection/Array.h"
-#include "lib/util/collection/Collection.h"
-#include "lib/util/collection/Iterator.h"
+#include "Graphics2D.h"
 #include "Camera.h"
 #include "lib/util/game/entity/Entity.h"
-#include "Scene.h"
-#include "lib/util/collection/ArrayListBlockingQueue.h"
-
-namespace Util {
-namespace Game {
-class Graphics2D;
-class KeyListener;
-class MouseListener;
-}  // namespace Game
-}  // namespace Util
+#include "KeyListener.h"
+#include "MouseListener.h"
 
 namespace Util::Game {
 
-class Game {
+class Scene {
 
 friend class Engine;
 
@@ -47,42 +34,60 @@ public:
     /**
      * Default Constructor.
      */
-    Game() = default;
+    Scene() = default;
 
     /**
      * Copy Constructor.
      */
-    Game(const Game &other) = delete;
+    Scene(const Scene &other) = delete;
 
     /**
      * Assignment operator.
      */
-    Game &operator=(const Game &other) = delete;
+    Scene &operator=(const Scene &other) = delete;
 
     /**
      * Destructor.
      */
-    ~Game();
+    virtual ~Scene();
 
-    void stop();
+    void initialize(Graphics2D &graphics);
 
-    [[nodiscard]] bool isRunning() const;
+    [[nodiscard]] uint32_t getObjectCount() const;
 
-    [[nodiscard]] Scene& getCurrentScene();
+    [[nodiscard]] Camera& getCamera();
 
-    void pushScene(Scene *scene);
+    void applyChanges();
 
-    void switchToNextScene();
+    void updateEntities(double delta);
+
+    void draw(Graphics2D &graphics);
+
+    virtual void update(double delta) = 0;
+
+    virtual void initializeBackground(Graphics2D &graphics) = 0;
+
+protected:
+
+    void addObject(Entity *object);
+
+    void removeObject(Entity *object);
+
+    void setKeyListener(KeyListener &listener);
+
+    void setMouseListener(MouseListener &listener);
 
 private:
 
-    void initializeNextScene(Graphics2D &graphics);
+    void checkCollisions();
 
-    ArrayListBlockingQueue<Scene*> scenes;
-    bool firstScene = true;
-    bool sceneSwitched = true;
+    KeyListener *keyListener = nullptr;
+    MouseListener *mouseListener = nullptr;
 
-    bool running = true;
+    Camera camera;
+    ArrayList<Entity*> entities;
+    ArrayList<Entity*> addList;
+    ArrayList<Entity*> removeList;
 };
 
 }

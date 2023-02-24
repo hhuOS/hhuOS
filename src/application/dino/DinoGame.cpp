@@ -23,6 +23,7 @@
 #include "lib/util/game/entity/component/LinearMovementComponent.h"
 #include "lib/util/game/entity/component/GravityComponent.h"
 #include "Saw.h"
+#include "lib/util/game/GameManager.h"
 
 DinoGame::DinoGame() : dino(new Dino(Util::Math::Vector2D(-0.8, 0))), pointText(new Util::Game::Text(Util::Math::Vector2D(-1, 0.9), "Points: 0")), ground(4) {
     dino->addComponent(new Util::Game::LinearMovementComponent(*dino));
@@ -64,7 +65,7 @@ void DinoGame::update(double delta) {
 
         if (obstacleCooldown <= 0) {
             if (random.nextRandomNumber() < delta) {
-                auto positionY = ground.peek()->getPosition().getY() + (random.nextRandomNumber() < 0.5 ? 0 : + 0.3);
+                auto positionY = ground.peek()->getPosition().getY() + (random.nextRandomNumber() < 0.75 ? 0 : + 0.3);
                 auto *saw = new Saw(Util::Math::Vector2D(getCamera().getPosition().getX() + 2, positionY));
                 obstacles.add(saw);
                 addObject(saw);
@@ -90,6 +91,7 @@ void DinoGame::update(double delta) {
         }
 
         getCamera().setPosition(Util::Math::Vector2D(dino->getPosition().getX() + 0.8, 0));
+        pointText->setPositionX(getCamera().getPosition().getX() - 1);
         pointText->setText(Util::String::format("Points: %u", static_cast<uint32_t>(getCamera().getPosition().getX())));
     }
 }
@@ -97,30 +99,13 @@ void DinoGame::update(double delta) {
 void DinoGame::keyPressed(Util::Io::Key key) {
     switch (key.getScancode()) {
         case Util::Io::Key::ESC :
-            stop();
+            Util::Game::GameManager::getGame().stop();
             break;
         case Util::Io::Key::SPACE :
             if (dino->isDead()) {
-                dino->reset();
-                dino->setPosition(Util::Math::Vector2D(-0.8, 0));
-                getCamera().setPosition(Util::Math::Vector2D(dino->getPosition().getX() + 0.8, 0));
-                currentVelocity = START_VELOCITY;
-                pointText->setText("Points: 0");
-
-                while (!ground.isEmpty()) {
-                    removeObject(ground.poll());
-                }
-
-                for (auto *tree : obstacles) {
-                    obstacles.remove(tree);
-                    removeObject(tree);
-                }
-
-                for (uint32_t i = 0; i < 4; i++) {
-                    auto *newGround = new Ground(Util::Math::Vector2D(getCamera().getPosition().getX() - 1.5 + i, -0.8));
-                    ground.offer(newGround);
-                    addObject(newGround);
-                }
+                auto &game = Util::Game::GameManager::getGame();
+                game.pushScene(new DinoGame());
+                game.switchToNextScene();
             } else if (dino->hasHatched()) {
                 dino->jump();
             } else {

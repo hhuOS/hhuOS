@@ -19,14 +19,15 @@
 
 namespace Util::Game {
 
+Game* GameManager::game = nullptr;
 uint16_t GameManager::transformation = 0;
 
 uint16_t GameManager::getTransformation() {
     return transformation;
 }
 
-void GameManager::setTransformation(uint16_t transformation) {
-    GameManager::transformation = transformation;
+Game &GameManager::getGame() {
+    return *game;
 }
 
 }

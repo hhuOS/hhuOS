@@ -38,11 +38,11 @@ Graphics2D::Graphics2D(const Graphic::LinearFrameBuffer &lfb, Game &game) :
     offsetY(transformation + (lfb.getResolutionY() > lfb.getResolutionX() ? (lfb.getResolutionY() - lfb.getResolutionX()) / 2 : 0)) {}
 
 void Graphics2D::drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const {
-    auto &camera = game.getCamera();
-    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - camera.getPosition().getX()) * transformation + offsetX),
-                        static_cast<int32_t>((-from.getY() + camera.getPosition().getY()) * transformation + offsetY),
-                        static_cast<int32_t>((to.getX() - camera.getPosition().getX()) * transformation + offsetX),
-                        static_cast<int32_t>((-to.getY() + camera.getPosition().getY()) * transformation + offsetY), color);
+    auto &camera = game.getCurrentScene().getCamera().getPosition();
+    lineDrawer.drawLine(static_cast<int32_t>((from.getX() - camera.getX()) * transformation + offsetX),
+                        static_cast<int32_t>((-from.getY() + camera.getY()) * transformation + offsetY),
+                        static_cast<int32_t>((to.getX() - camera.getX()) * transformation + offsetX),
+                        static_cast<int32_t>((-to.getY() + camera.getY()) * transformation + offsetY), color);
 }
 
 void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
@@ -54,7 +54,8 @@ void Graphics2D::drawPolygon(const Array<Math::Vector2D> &vertices) const {
 }
 
 void Graphics2D::drawString(const Graphic::Font &font, const Math::Vector2D &position, const char *string) const {
-    stringDrawer.drawString(font, static_cast<int32_t>(position.getX() * transformation + offsetX), static_cast<int32_t>(-position.getY() * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
+    auto &camera = game.getCurrentScene().getCamera().getPosition();
+    stringDrawer.drawString(font, static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX), static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY), string, color, Util::Graphic::Colors::INVISIBLE);
 }
 
 void Graphics2D::drawString(const Math::Vector2D &position, const char *string) const {
@@ -70,15 +71,15 @@ void Graphics2D::drawStringSmall(const Math::Vector2D &position, const char *str
 }
 
 void Graphics2D::drawStringSmall(const Math::Vector2D &position, const String &string) const {
-    drawStringSmall(position, static_cast<const char *>(string));
+    drawStringSmall(position, static_cast<const char*>(string));
 }
 
 void Graphics2D::drawImage(const Math::Vector2D &position, const Graphic::Image &image, bool flipX) const {
-    auto &camera = game.getCamera();
+    auto &camera = game.getCurrentScene().getCamera().getPosition();
     auto pixelBuffer = image.getPixelBuffer();
     auto xFlipOffset = flipX ? image.getWidth() - 1 : 0;
-    auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getPosition().getX()) * transformation + offsetX);
-    auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getPosition().getY()) * transformation + offsetY);
+    auto xPixelOffset = static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX);
+    auto yPixelOffset = static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY);
 
     if (xPixelOffset + image.getWidth() < 0 || xPixelOffset > lfb.getResolutionX() ||
         yPixelOffset - image.getHeight() > lfb.getResolutionY() || yPixelOffset < 0) {
@@ -100,7 +101,7 @@ void Graphics2D::show() const {
     } else {
         auto pitch = lfb.getPitch();
         auto colorDepthDivisor = (lfb.getColorDepth() == 15 ? 16 : lfb.getColorDepth()) / 8;
-        auto xOffset = static_cast<uint32_t>(game.getCamera().getPosition().getX() * pitch / 4) % pitch;
+        auto xOffset = static_cast<uint32_t>(game.getCurrentScene().getCamera().getPosition().getX() * pitch / 4) % pitch;
         xOffset -= xOffset % colorDepthDivisor;
 
         for (uint32_t i = 0; i < lfb.getResolutionY(); i++) {
@@ -142,6 +143,40 @@ void Graphics2D::clear(const Graphic::Color &color) {
                 pixelDrawer.drawPixel(i, j, color);
             }
         }
+    }
+}
+
+Math::Vector2D Graphics2D::getAbsoluteResolution() const {
+    return Math::Vector2D(lfb.getResolutionX(), lfb.getResolutionY());
+}
+
+void Graphics2D::drawSquare(const Math::Vector2D &position, double size) const {
+    drawRectangle(position, size, size);
+}
+
+void Graphics2D::drawRectangle(const Math::Vector2D &position, double width, double height) const {
+    auto x = position.getX();
+    auto y = position.getY();
+
+    drawLine(position, Math::Vector2D(x + width, y));
+    drawLine(Math::Vector2D(x, y - height), Math::Vector2D(x + width, y - height));
+    drawLine(position, Math::Vector2D(x, y - height));
+    drawLine(Math::Vector2D(x + width, y), Math::Vector2D(x + width, y - height));
+}
+
+void Graphics2D::fillSquare(const Math::Vector2D &position, double size) const {
+    fillRectangle(position, size, size);
+}
+
+void Graphics2D::fillRectangle(const Math::Vector2D &position, double width, double height) const {
+    auto &camera = game.getCurrentScene().getCamera().getPosition();
+    auto startX = static_cast<int32_t>((position.getX() - camera.getX()) * transformation + offsetX);
+    auto endX = static_cast<int32_t>((position.getX() + width - camera.getX()) * transformation + offsetX);
+    auto startY = static_cast<int32_t>((-position.getY() + camera.getY()) * transformation + offsetY);
+    auto endY = static_cast<int32_t>((-position.getY() + height + camera.getY()) * transformation + offsetY);
+
+    for (int32_t i = startY; i < endY; i++) {
+        lineDrawer.drawLine(startX, i, endX, i, color);
     }
 }
 

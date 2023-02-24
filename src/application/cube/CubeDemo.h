@@ -30,7 +30,7 @@ class Key;
 }  // namespace Io
 }  // namespace Util
 
-class CubeDemo : public Util::Game::Game, public Util::Game::KeyListener {
+class CubeDemo : public Util::Game::Scene, public Util::Game::KeyListener {
 
 public:
     /**

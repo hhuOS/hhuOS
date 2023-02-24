@@ -28,6 +28,7 @@
 #include "lib/util/graphic/Color.h"
 #include "lib/util/graphic/PixelDrawer.h"
 #include "lib/util/base/String.h"
+#include "lib/util/math/Vector2D.h"
 
 namespace Util {
 namespace Math {
@@ -72,7 +73,15 @@ public:
 
     void drawLine(const Math::Vector2D &from, const Math::Vector2D &to) const;
 
-    void drawPolygon(const Array <Math::Vector2D> &vertices) const;
+    void drawPolygon(const Array<Math::Vector2D> &vertices) const;
+
+    void drawSquare(const Math::Vector2D &position, double size) const;
+
+    void drawRectangle(const Math::Vector2D &position, double width, double height) const;
+
+    void fillSquare(const Math::Vector2D &position, double size) const;
+
+    void fillRectangle(const Math::Vector2D &position, double width, double height) const;
 
     void drawString(const Math::Vector2D &position, const char *string) const;
 
@@ -93,6 +102,8 @@ public:
     [[nodiscard]] Graphic::Color getColor() const;
 
     void saveCurrentStateAsBackground();
+
+    [[nodiscard]] Math::Vector2D getAbsoluteResolution() const;
 
 private:
 
