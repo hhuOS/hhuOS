@@ -36,7 +36,7 @@ void ArgumentParser::addSwitch(const String &name, const String &abbreviation) {
     abbreviationMap.put(abbreviation, name);
 }
 
-const String& ArgumentParser::getErrorString() {
+const String& ArgumentParser::getErrorString() const {
     return errorString;
 }
 
@@ -99,15 +99,15 @@ bool ArgumentParser::parse(uint32_t argc, char *argv[]) {
     return true;
 }
 
-Array<String> ArgumentParser::getUnnamedArguments() {
+Array<String> ArgumentParser::getUnnamedArguments() const {
     return unnamedArguments.toArray();
 }
 
-bool ArgumentParser::hasArgument(const String &name) {
+bool ArgumentParser::hasArgument(const String &name) const {
     return namedArguments.containsKey(name);
 }
 
-String ArgumentParser::getArgument(const String &name) {
+String ArgumentParser::getArgument(const String &name) const {
     if (namedArguments.containsKey(name)) {
         return namedArguments.get(name);
     }
@@ -115,7 +115,7 @@ String ArgumentParser::getArgument(const String &name) {
     return "";
 }
 
-bool ArgumentParser::checkSwitch(const String &name) {
+bool ArgumentParser::checkSwitch(const String &name) const {
     return parsedSwitches.contains(name);
 }
 

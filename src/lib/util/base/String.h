@@ -85,6 +85,10 @@ public:
 
     [[nodiscard]] static int32_t parseInt(const String &string);
 
+    [[nodiscard]] static int32_t parseHexInt(const char *string);
+
+    [[nodiscard]] static int32_t parseHexInt(const String &string);
+
     [[nodiscard]] String toUpperCase() const;
 
     [[nodiscard]] String toLowerCase() const;

@@ -378,6 +378,10 @@ bool String::isNumeric(const char c) {
     return (c >= '0' && c <= '9');
 }
 
+bool String::contains(char c) const {
+    return indexOf(c) < UINT32_MAX;
+}
+
 String String::strip() const {
     uint32_t startIndex;
     char element;
@@ -505,8 +509,30 @@ int32_t String::parseInt(const String &string) {
     return parseInt(static_cast<const char*>(string));
 }
 
-bool String::contains(char c) const {
-    return indexOf(c) < UINT32_MAX;
+int32_t String::parseHexInt(const char *string) {
+    return 0;
+}
+
+int32_t String::parseHexInt(const String &string) {
+    int32_t length;
+    for (length = 0; string[length] != '\0'; length ++) {}
+
+    int32_t result = 0;
+    int32_t j = 1;
+    for(int32_t i = length - 1; i >= 0; i--) {
+        if (isNumeric(string[i])) {
+            result += (string[i] - '0') * j;
+            j *= 16;
+        } else if (string[i] >= 'A' && string[i] <= 'F') {
+            result += (10 + string[i] - 'A') * j;
+            j *= 16;
+        } else if (string[i] >= 'a' && string[i] <= 'f') {
+            result += (10 + string[i] - 'a') * j;
+            j *= 16;
+        }
+    }
+
+    return result;
 }
 
 }

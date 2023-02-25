@@ -100,9 +100,13 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             }
 
             auto &networkService = System::getService<NetworkService>();
-            auto &device = System::getService<NetworkService>().getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
-            auto &ip4Interface = networkService.getNetworkStack().getIp4Module().getInterface(device.getIdentifier());
+            auto &ip4Module = networkService.getNetworkStack().getIp4Module();
+            auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
+            if (!ip4Module.hasInterface(device.getIdentifier())) {
+                return false;
+            }
 
+            auto &ip4Interface = ip4Module.getInterface(device.getIdentifier());
             auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
             address.setAddress(ip4Interface.getAddress());
             return true;
