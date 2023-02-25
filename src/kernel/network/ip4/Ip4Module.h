@@ -80,6 +80,8 @@ public:
      */
     ~Ip4Module() = default;
 
+    bool hasInterface(const Util::String &deviceIdentifier);
+
     Ip4Interface& getInterface(const Util::String &deviceIdentifier);
 
     Ip4RoutingModule& getRoutingModule();
@@ -88,10 +90,7 @@ public:
 
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
-    static const Ip4Interface &
-    writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress,
-                const Util::Network::Ip4::Ip4Address &destinationAddress,
-                Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
+    static const Ip4Interface & writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
 
     static uint16_t calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length);
 

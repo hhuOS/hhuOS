@@ -58,17 +58,17 @@ public:
 
     void addSwitch(const String &name, const String &abbreviation = "");
 
-    const String& getErrorString();
+    [[nodiscard]] const String& getErrorString() const;
 
-    bool parse(uint32_t argc, char *argv[]);
+    [[nodiscard]] bool parse(uint32_t argc, char *argv[]);
 
-    Array<String> getUnnamedArguments();
+    [[nodiscard]] Array<String> getUnnamedArguments() const;
 
-    bool hasArgument(const String &name);
+    [[nodiscard]] bool hasArgument(const String &name) const;
 
-    String getArgument(const String &name);
+    [[nodiscard]] String getArgument(const String &name) const;
 
-    bool checkSwitch(const String &name);
+    [[nodiscard]] bool checkSwitch(const String &name) const;
 
 private:
 

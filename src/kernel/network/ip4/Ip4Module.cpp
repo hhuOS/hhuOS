@@ -131,6 +131,16 @@ const Ip4Interface & Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &str
     return route.getInterface();
 }
 
+bool Ip4Module::hasInterface(const Util::String &deviceIdentifier) {
+    for (auto *interface : interfaces) {
+        if (interface->getDeviceIdentifier() == deviceIdentifier) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
     for (auto *interface : interfaces) {
         if (interface->getDeviceIdentifier() == deviceIdentifier) {
