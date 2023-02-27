@@ -50,6 +50,8 @@ public:
 
     [[nodiscard]] uint8_t getBitCount() const;
 
+    void setBitCount(uint8_t bitCount);
+
 protected:
 
     uint8_t bitCount;

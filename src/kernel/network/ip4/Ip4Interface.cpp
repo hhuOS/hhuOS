@@ -30,12 +30,20 @@ namespace Kernel::Network::Ip4 {
 Ip4Interface::Ip4Interface(const Util::Network::Ip4::Ip4Address &address,  const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) :
         address(address), networkMask(networkMask), device(device) {}
 
-Util::String Ip4Interface::getDeviceIdentifier() const {
-    return device.getIdentifier();
-}
-
 const Util::Network::Ip4::Ip4Address& Ip4Interface::getAddress() const {
     return address;
+}
+
+const Util::Network::Ip4::Ip4NetworkMask& Ip4Interface::getNetworkMask() const {
+    return networkMask;
+}
+
+Device::Network::NetworkDevice &Ip4Interface::getDevice() const {
+    return device;
+}
+
+const Util::String& Ip4Interface::getDeviceIdentifier() const {
+    return device.getIdentifier();
 }
 
 bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress) {
@@ -44,10 +52,6 @@ bool Ip4Interface::isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddres
     }
 
     return false;
-}
-
-Device::Network::NetworkDevice &Ip4Interface::getDevice() const {
-    return device;
 }
 
 }

@@ -23,6 +23,7 @@
 
 #include <cstdint>
 #include "lib/util/network/ip4/Ip4Address.h"
+#include "lib/util/network/ip4/Ip4NetworkMask.h"
 
 namespace Util {
 namespace Network {
@@ -70,9 +71,9 @@ public:
 
     [[nodiscard]] bool receive(Util::Network::Datagram &datagram) const;
 
-    [[nodiscard]] bool getIp4Address(Ip4::Ip4Address &address) const;
+    [[nodiscard]] bool getIp4Address(Ip4::Ip4Address &address, Ip4::Ip4NetworkMask &mask) const;
 
-    [[nodiscard]] bool removeIp4Address(const Ip4::Ip4Address &address) const;
+    [[nodiscard]] bool removeIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const;
 
 private:
     /**

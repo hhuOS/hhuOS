@@ -58,13 +58,15 @@ public:
      */
     ~Ip4Interface() = default;
 
-    [[nodiscard]] Util::String getDeviceIdentifier() const;
+    [[nodiscard]] const Util::String& getDeviceIdentifier() const;
 
     [[nodiscard]] const Util::Network::Ip4::Ip4Address& getAddress() const;
 
-    bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress);
+    [[nodiscard]] const Util::Network::Ip4::Ip4NetworkMask& getNetworkMask() const;
 
     [[nodiscard]] Device::Network::NetworkDevice& getDevice() const;
+
+    bool isTargetOf(const Util::Network::Ip4::Ip4Address &targetAddress);
 
 private:
 

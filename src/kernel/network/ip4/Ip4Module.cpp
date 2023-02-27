@@ -158,17 +158,19 @@ void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address,
     arpModule.setEntry(address, device.getMacAddress());
 }
 
-void Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::String &deviceIdentifier) {
+bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &mask, const Util::String &deviceIdentifier) {
     for (auto *interface : interfaces) {
-        if (interface->getAddress() == address && interface->getDeviceIdentifier() == deviceIdentifier) {
+        if (interface->getAddress() == address && interface->getNetworkMask() == mask && interface->getDeviceIdentifier() == deviceIdentifier) {
             auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
             arpModule.removeEntry(interface->getAddress());
 
             interfaces.remove(interface);
             delete interface;
-            return;
+            return true;
         }
     }
+
+    return false;
 }
 
 uint16_t Ip4Module::calculateChecksum(const uint8_t *buffer, uint32_t offset, uint32_t length) {

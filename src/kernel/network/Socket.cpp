@@ -90,7 +90,7 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not yet bound!");
             }
             if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: No parameter given!");
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
@@ -101,8 +101,8 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             if (type != Util::Network::Socket::ETHERNET) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
-            if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: No parameter given!");
+            if (parameters.length() < 2) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &networkService = System::getService<NetworkService>();
@@ -114,7 +114,9 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
 
             auto &ip4Interface = ip4Module.getInterface(device.getIdentifier());
             auto &address = *reinterpret_cast<Util::Network::NetworkAddress*>(parameters[0]);
+            auto &mask = *reinterpret_cast<Util::Network::NetworkMask*>(parameters[1]);
             address.setAddress(ip4Interface.getAddress());
+            mask.setBitCount(ip4Interface.getNetworkMask().getBitCount());
             return true;
         }
         case Util::Network::Socket::Request::REMOVE_IP4_ADDRESS: {
@@ -129,13 +131,9 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             auto &ip4Module = networkService.getNetworkStack().getIp4Module();
             auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
             auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4Address*>(parameters[0]);
+            auto &mask = *reinterpret_cast<Util::Network::Ip4::Ip4NetworkMask*>(parameters[1]);
 
-            if (ip4Module.hasInterface(device.getIdentifier())) {
-                ip4Module.removeInterface(address, device.getIdentifier());
-                return true;
-            }
-
-            return false;
+            return ip4Module.removeInterface(address, mask, device.getIdentifier());
         }
     }
 
