@@ -132,33 +132,43 @@ const Ip4Interface & Ip4Module::writeHeader(Util::Io::ByteArrayOutputStream &str
 }
 
 bool Ip4Module::hasInterface(const Util::String &deviceIdentifier) {
+    lock.acquire();
     for (auto *interface : interfaces) {
         if (interface->getDeviceIdentifier() == deviceIdentifier) {
+            lock.release();
             return true;
         }
     }
 
+    lock.release();
     return false;
 }
 
 Ip4Interface& Ip4Module::getInterface(const Util::String &deviceIdentifier) {
+    lock.acquire();
     for (auto *interface : interfaces) {
         if (interface->getDeviceIdentifier() == deviceIdentifier) {
+            lock.release();
             return *interface;
         }
     }
 
+    lock.release();
     Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Ip4Module: Device not found!");
 }
 
 void Ip4Module::registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device) {
+    lock.acquire();
+    removeInterface(device.getIdentifier());
     interfaces.add(new Ip4Interface(address, networkMask, device));
+    lock.release();
 
     auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
     arpModule.setEntry(address, device.getMacAddress());
 }
 
 bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &mask, const Util::String &deviceIdentifier) {
+    lock.acquire();
     for (auto *interface : interfaces) {
         if (interface->getAddress() == address && interface->getNetworkMask() == mask && interface->getDeviceIdentifier() == deviceIdentifier) {
             auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
@@ -166,10 +176,32 @@ bool Ip4Module::removeInterface(const Util::Network::Ip4::Ip4Address &address, c
 
             interfaces.remove(interface);
             delete interface;
+
+            lock.release();
             return true;
         }
     }
 
+    lock.release();
+    return false;
+}
+
+bool Ip4Module::removeInterface(const Util::String &deviceIdentifier) {
+    lock.acquire();
+    for (auto *interface : interfaces) {
+        if (interface->getDeviceIdentifier() == deviceIdentifier) {
+            auto &arpModule = Kernel::System::getService<Kernel::NetworkService>().getNetworkStack().getArpModule();
+            arpModule.removeEntry(interface->getAddress());
+
+            interfaces.remove(interface);
+            delete interface;
+
+            lock.release();
+            return true;
+        }
+    }
+
+    lock.release();
     return false;
 }
 

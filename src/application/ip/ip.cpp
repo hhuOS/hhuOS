@@ -55,10 +55,12 @@ void printDeviceInfo(const Util::String &deviceName) {
 int32_t main(int32_t argc, char *argv[]) {
     auto argumentParser = Util::ArgumentParser();
     argumentParser.addArgument("remove", false, "r");
+    argumentParser.addArgument("set", false, "s");
     argumentParser.setHelpText("Print IP addresses of network devices.\n"
                                "Usage: hexdump [OPTIONS...] [DEVICE...]\n"
                                "Options:\n"
                                "  -r, --remove: Remove the IPv4 address of a given device"
+                               "  -s, --set: Set the IPv4 address of a given device"
                                "  -h, --help: Show this help message");
 
     if (!argumentParser.parse(argc, argv)) {
@@ -96,6 +98,39 @@ int32_t main(int32_t argc, char *argv[]) {
 
         if (!socket.removeIp4Address(ipAddress, mask)) {
             Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "/" << mask.getBitCount() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        }
+
+        return 0;
+    }
+
+    if (argumentParser.hasArgument("set")) {
+        if (arguments.size() == 0) {
+            Util::System::error << "ip: No device given!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        auto deviceName = arguments.get(0);
+        auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
+        if (!macFile.exists()) {
+            Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        auto macStream = Util::Io::FileInputStream(macFile);
+        auto macAddress = Util::Network::MacAddress(macStream.readLine());
+
+        auto socket = Util::Network::Socket::createSocket(Util::Network::Socket::ETHERNET);
+        if (!socket.bind(macAddress)) {
+            Util::System::error << "ip: Unable to bind ethernet socket to device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+            return -1;
+        }
+
+        auto ipSplit = argumentParser.getArgument("set").split("/");
+        auto ipAddress = Util::Network::Ip4::Ip4Address(ipSplit[0]);
+        auto mask = Util::Network::Ip4::Ip4NetworkMask(ipSplit.length() > 1 ? Util::String::parseInt(ipSplit[1]) : 32);
+
+        if (!socket.setIp4Address(ipAddress, mask)) {
+            Util::System::error << "ip: Failed to set IPv4 address '" << ipAddress.toString() << "/" << mask.getBitCount() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
 
         return 0;

@@ -43,7 +43,7 @@ public:
     };
 
     enum Request {
-        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESS, REMOVE_IP4_ADDRESS
+        BIND, GET_LOCAL_ADDRESS, GET_IP4_ADDRESS, REMOVE_IP4_ADDRESS, SET_IP4_ADDRESS
     };
 
     /**
@@ -74,6 +74,8 @@ public:
     [[nodiscard]] bool getIp4Address(Ip4::Ip4Address &address, Ip4::Ip4NetworkMask &mask) const;
 
     [[nodiscard]] bool removeIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const;
+
+    [[nodiscard]] bool setIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const;
 
 private:
     /**

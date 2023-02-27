@@ -71,4 +71,8 @@ bool Socket::removeIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4Netw
     return ::controlFile(fileDescriptor, REMOVE_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address), reinterpret_cast<uint32_t>(&mask)}));
 }
 
+bool Socket::setIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const {
+    return ::controlFile(fileDescriptor, SET_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address), reinterpret_cast<uint32_t>(&mask)}));
+}
+
 }

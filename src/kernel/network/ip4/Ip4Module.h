@@ -32,6 +32,7 @@
 #include "lib/util/collection/Iterator.h"
 #include "lib/util/base/String.h"
 #include "kernel/network/ip4/Ip4Interface.h"
+#include "lib/util/async/ReentrantSpinlock.h"
 
 namespace Device {
 namespace Network {
@@ -90,6 +91,8 @@ public:
 
     bool removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &mask, const Util::String &deviceIdentifier);
 
+    bool removeInterface(const Util::String &deviceIdentifier);
+
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 
     static const Ip4Interface & writeHeader(Util::Io::ByteArrayOutputStream &stream, const Util::Network::Ip4::Ip4Address &sourceAddress, const Util::Network::Ip4::Ip4Address &destinationAddress, Util::Network::Ip4::Ip4Header::Protocol protocol, uint16_t payloadLength);
@@ -100,6 +103,7 @@ private:
 
     Ip4RoutingModule routingModule;
     Util::ArrayList<Ip4Interface*> interfaces;
+    Util::Async::ReentrantSpinlock lock;
 
     static Kernel::Logger log;
 };
