@@ -48,7 +48,7 @@ NetworkDevice::NetworkDevice() :
     schedulerService.ready(writerThread);
 }
 
-Util::String NetworkDevice::getIdentifier() const {
+const Util::String& NetworkDevice::getIdentifier() const {
     return identifier;
 }
 

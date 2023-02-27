@@ -81,7 +81,7 @@ public:
      */
     virtual ~NetworkDevice();
 
-    [[nodiscard]] Util::String getIdentifier() const;
+    [[nodiscard]] const Util::String& getIdentifier() const;
 
     [[nodiscard]] virtual Util::Network::MacAddress getMacAddress() const = 0;
 
@@ -100,8 +100,6 @@ protected:
     void freeLastSendBuffer();
 
 private:
-
-    void setIdentifier(const Util::String &identifier);
 
     void freePacketBuffer(void *buffer);
 

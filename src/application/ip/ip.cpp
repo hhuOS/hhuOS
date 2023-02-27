@@ -24,6 +24,7 @@
 #include "lib/util/base/ArgumentParser.h"
 #include "lib/util/io/file/File.h"
 #include "lib/util/io/stream/FileInputStream.h"
+#include "lib/util/network/ip4/Ip4NetworkMask.h"
 
 void printDeviceInfo(const Util::String &deviceName) {
     auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
@@ -42,11 +43,12 @@ void printDeviceInfo(const Util::String &deviceName) {
     }
 
     auto ipAddress = Util::Network::Ip4::Ip4Address();
-    bool ip4 = socket.getIp4Address(ipAddress);
+    auto mask = Util::Network::Ip4::Ip4NetworkMask();
+    bool ip4 = socket.getIp4Address(ipAddress, mask);
 
     Util::System::out << deviceName << ":" << Util::Io::PrintStream::endl
                       << "    MAC: " << macAddress.toString() << Util::Io::PrintStream::endl;
-    if (ip4) Util::System::out << "    IPv4: " << ipAddress.toString() << Util::Io::PrintStream::endl;
+    if (ip4) Util::System::out << "    IPv4: " << ipAddress.toString() << "/" << mask.getBitCount() << Util::Io::PrintStream::endl;
     Util::System::out << Util::Io::PrintStream::flush;
 }
 
@@ -73,7 +75,6 @@ int32_t main(int32_t argc, char *argv[]) {
         }
 
         auto deviceName = arguments.get(0);
-        auto ip4Address = Util::Network::Ip4::Ip4Address(argumentParser.getArgument("remove"));
         auto macFile = Util::Io::File("/device/" + deviceName + "/mac");
         if (!macFile.exists()) {
             Util::System::error << "ip: Device '" << deviceName << "' not found!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
@@ -89,8 +90,12 @@ int32_t main(int32_t argc, char *argv[]) {
             return -1;
         }
 
-        if (!socket.removeIp4Address(ip4Address)) {
-            Util::System::error << "ip: Failed to remove IPv4 address '" << ip4Address.toString() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
+        auto ipSplit = argumentParser.getArgument("remove").split("/");
+        auto ipAddress = Util::Network::Ip4::Ip4Address(ipSplit[0]);
+        auto mask = Util::Network::Ip4::Ip4NetworkMask(ipSplit.length() > 1 ? Util::String::parseInt(ipSplit[1]) : 32);
+
+        if (!socket.removeIp4Address(ipAddress, mask)) {
+            Util::System::error << "ip: Failed to remove IPv4 address '" << ipAddress.toString() << "/" << mask.getBitCount() << "' from device '" << deviceName << "'!" << Util::Io::PrintStream::endl << Util::Io::PrintStream::flush;
         }
 
         return 0;

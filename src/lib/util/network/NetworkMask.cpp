@@ -28,4 +28,8 @@ uint8_t NetworkMask::getBitCount() const {
     return bitCount;
 }
 
+void NetworkMask::setBitCount(uint8_t bitCount) {
+    NetworkMask::bitCount = bitCount;
+}
+
 }

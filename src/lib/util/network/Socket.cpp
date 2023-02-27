@@ -63,12 +63,12 @@ bool Socket::receive(Util::Network::Datagram &datagram) const {
     return ::receiveDatagram(fileDescriptor, datagram);
 }
 
-bool Socket::getIp4Address(Ip4::Ip4Address &address) const {
-    return ::controlFile(fileDescriptor, GET_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+bool Socket::getIp4Address(Ip4::Ip4Address &address, Ip4::Ip4NetworkMask &mask) const {
+    return ::controlFile(fileDescriptor, GET_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address), reinterpret_cast<uint32_t>(&mask)}));
 }
 
-bool Socket::removeIp4Address(const Ip4::Ip4Address &address) const {
-    return ::controlFile(fileDescriptor, REMOVE_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
+bool Socket::removeIp4Address(const Ip4::Ip4Address &address, const Ip4::Ip4NetworkMask &mask) const {
+    return ::controlFile(fileDescriptor, REMOVE_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address), reinterpret_cast<uint32_t>(&mask)}));
 }
 
 }
