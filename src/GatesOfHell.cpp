@@ -393,13 +393,13 @@ void GatesOfHell::initializeNetwork() {
     auto &networkService = Kernel::System::getService<Kernel::NetworkService>();
     auto *loopback = new Device::Network::Loopback();
     networkService.registerNetworkDevice(loopback, "loopback");
-    networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4Address("127.0.0.0"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
+    networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), *loopback);
     networkService.setDefaultRoute(Kernel::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("127.0.0.1"), Util::Network::Ip4::Ip4NetworkMask(8), loopback->getIdentifier()));
 
     Device::Network::Rtl8139::initializeAvailableCards();
     if (networkService.isNetworkDeviceRegistered("eth0")) {
         auto &eth0 = networkService.getNetworkDevice("eth0");
-        networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("10.0.2.15"), Util::Network::Ip4::Ip4Address("10.0.2.0"), Util::Network::Ip4::Ip4NetworkMask(8), eth0);
+        networkService.getNetworkStack().getIp4Module().registerInterface(Util::Network::Ip4::Ip4Address("10.0.2.15"), Util::Network::Ip4::Ip4NetworkMask(8), eth0);
         networkService.getNetworkStack().getIp4Module().getRoutingModule().addRoute( Kernel::Network::Ip4::Ip4Route(Util::Network::Ip4::Ip4Address("10.0.2.15"), Util::Network::Ip4::Ip4NetworkMask(8), eth0.getIdentifier()));
     }
 }

@@ -114,7 +114,6 @@ bool ArpModule::resolveAddress(const Util::Network::Ip4::Ip4Address &protocolAdd
 
 void ArpModule::setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, const Util::Network::MacAddress &hardwareAddress) {
     lock.acquire();
-
     for (auto &entry : arpCache) {
         if (entry.getProtocolAddress() == protocolAddress) {
             entry.setHardwareAddress(hardwareAddress);
@@ -124,6 +123,17 @@ void ArpModule::setEntry(const Util::Network::Ip4::Ip4Address &protocolAddress, 
     }
 
     arpCache.add(ArpEntry{protocolAddress, hardwareAddress});
+    lock.release();
+}
+
+void ArpModule::removeEntry(const Util::Network::Ip4::Ip4Address &protocolAddress) {
+    for (auto &entry : arpCache) {
+        if (entry.getProtocolAddress() == protocolAddress) {
+            arpCache.remove(entry);
+            break;
+        }
+    }
+
     lock.release();
 }
 

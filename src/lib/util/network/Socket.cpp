@@ -34,6 +34,10 @@ namespace Util::Network {
 
 Socket::Socket(int32_t fileDescriptor) : fileDescriptor(fileDescriptor) {}
 
+Socket::~Socket() {
+    ::closeFile(fileDescriptor);
+}
+
 Socket Socket::createSocket(Socket::Type socketType) {
     auto fileDescriptor = ::createSocket(socketType);
     if (fileDescriptor == -1) {
@@ -63,8 +67,8 @@ bool Socket::getIp4Address(Ip4::Ip4Address &address) const {
     return ::controlFile(fileDescriptor, GET_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
-Socket::~Socket() {
-    ::closeFile(fileDescriptor);
+bool Socket::removeIp4Address(const Ip4::Ip4Address &address) const {
+    return ::controlFile(fileDescriptor, REMOVE_IP4_ADDRESS, Util::Array<uint32_t>({reinterpret_cast<uint32_t>(&address)}));
 }
 
 }

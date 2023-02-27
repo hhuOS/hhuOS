@@ -86,7 +86,9 @@ public:
 
     Ip4RoutingModule& getRoutingModule();
 
-    void registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4Address &networkAddress, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+    void registerInterface(const Util::Network::Ip4::Ip4Address &address, const Util::Network::Ip4::Ip4NetworkMask &networkMask, Device::Network::NetworkDevice &device);
+
+    void removeInterface(const Util::Network::Ip4::Ip4Address &address, const Util::String &deviceIdentifier);
 
     void readPacket(Util::Io::ByteArrayInputStream &stream, LayerInformation information, Device::Network::NetworkDevice &device) override;
 

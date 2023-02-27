@@ -29,6 +29,17 @@ MacAddress::MacAddress() : NetworkAddress(ADDRESS_LENGTH, MAC) {}
 
 MacAddress::MacAddress(const uint8_t *buffer) : NetworkAddress(buffer, ADDRESS_LENGTH, MAC) {}
 
+MacAddress::MacAddress(const Util::String &string) : NetworkAddress(ADDRESS_LENGTH, MAC) {
+    auto split = string.split(":");
+    uint8_t buffer[6] = {static_cast<uint8_t>(Util::String::parseHexInt(split[0])),
+                         static_cast<uint8_t>(Util::String::parseHexInt(split[1])),
+                         static_cast<uint8_t>(Util::String::parseHexInt(split[2])),
+                         static_cast<uint8_t>(Util::String::parseHexInt(split[3])),
+                         static_cast<uint8_t>(Util::String::parseHexInt(split[4])),
+                         static_cast<uint8_t>(Util::String::parseHexInt(split[5]))};
+    NetworkAddress::setAddress(buffer);
+}
+
 MacAddress MacAddress::createBroadcastAddress() {
     uint8_t buffer[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     return MacAddress(buffer);
@@ -51,7 +62,14 @@ Util::String MacAddress::toString() const {
 }
 
 void MacAddress::setAddress(const Util::String &string) {
-    Util::Exception::throwException(Util::Exception::UNSUPPORTED_OPERATION, "MacAddress: Cannot be parsed from string!");
+    auto split = string.split(":");
+    if (split.length() != 6) {
+        Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "MacAddress: Invalid address string given!");
+    }
+
+    for (uint8_t i = 0; i < ADDRESS_LENGTH; i++) {
+        buffer[i] = Util::String::parseInt(split[i]);
+    }
 }
 
 }
