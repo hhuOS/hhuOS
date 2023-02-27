@@ -123,8 +123,8 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
             if (type != Util::Network::Socket::ETHERNET) {
                 Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
             }
-            if (parameters.length() < 1) {
-                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: No parameter given!");
+            if (parameters.length() < 2) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
             }
 
             auto &networkService = System::getService<NetworkService>();
@@ -135,9 +135,27 @@ bool Socket::control(uint32_t request, const Util::Array<uint32_t> &parameters) 
 
             return ip4Module.removeInterface(address, mask, device.getIdentifier());
         }
-    }
+        case Util::Network::Socket::Request::SET_IP4_ADDRESS: {
+            if (type != Util::Network::Socket::ETHERNET) {
+                Util::Exception::throwException(Util::Exception::ILLEGAL_STATE, "Socket: Not an ethernet socket!");
+            }
+            if (parameters.length() < 2) {
+                Util::Exception::throwException(Util::Exception::INVALID_ARGUMENT, "Socket: Missing parameters!");
+            }
 
-    return false;
+            auto &networkService = System::getService<NetworkService>();
+            auto &ip4Module = networkService.getNetworkStack().getIp4Module();
+            auto &device = networkService.getNetworkDevice(reinterpret_cast<Util::Network::MacAddress&>(*bindAddress));
+            auto &address = *reinterpret_cast<Util::Network::Ip4::Ip4Address*>(parameters[0]);
+            auto &mask = *reinterpret_cast<Util::Network::Ip4::Ip4NetworkMask*>(parameters[1]);
+
+            ip4Module.removeInterface(device.getIdentifier());
+            ip4Module.registerInterface(address, mask, device);
+            return true;
+        }
+        default:
+            return false;
+    }
 }
 
 }
